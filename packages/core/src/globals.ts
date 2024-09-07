@@ -9,6 +9,7 @@ import {
 } from "./frontmatter"
 import { JSONLStringify, JSONLTryParse } from "./jsonl"
 import { HTMLTablesToJSON, HTMLToMarkdown, HTMLToText } from "./html"
+import { CancelError } from "./error"
 
 export function resolveGlobal(): any {
     if (typeof window !== "undefined")
@@ -62,4 +63,7 @@ export function installGlobals() {
         convertToMarkdown: HTMLToMarkdown,
         convertToText: HTMLToText,
     })
+    glb.cancel = (reason?: string) => {
+        throw new CancelError(reason || "user cancelled")
+    }
 }

@@ -2276,7 +2276,6 @@ interface PromptContext extends ChatGenerationContext {
         text?: string
         file?: WorkspaceFile
     }>
-    cancel(reason?: string): void
     env: ExpansionVariables
     path: Path
     parsers: Parsers

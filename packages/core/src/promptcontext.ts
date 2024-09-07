@@ -13,7 +13,6 @@ import {
 } from "./util"
 import { runtimeHost } from "./host"
 import { MarkdownTrace } from "./trace"
-import { YAMLParse, YAMLStringify } from "./yaml"
 import { createParsers } from "./parsers"
 import { readText } from "./fs"
 import {
@@ -30,22 +29,13 @@ import {
     RunPromptContextNode,
     createChatGenerationContext,
 } from "./runpromptcontext"
-import { CSVParse, CSVToMarkdown } from "./csv"
-import { INIParse, INIStringify } from "./ini"
-import {
-    CancelError,
-    isCancelError,
-    NotSupportedError,
-    serializeError,
-} from "./error"
+import { isCancelError, NotSupportedError, serializeError } from "./error"
 import { createFetch } from "./fetch"
-import { XMLParse } from "./xml"
 import { GenerationOptions } from "./generation"
 import { fuzzSearch } from "./fuzzsearch"
 import { parseModelIdentifier } from "./models"
 import { renderAICI } from "./aici"
 import { MODEL_PROVIDER_AICI, SYSTEM_FENCE } from "./constants"
-import { JSONLStringify, JSONLTryParse } from "./jsonl"
 import { grepSearch } from "./grep"
 import { resolveFileContents, toWorkspaceFile } from "./file"
 import { vectorSearch } from "./vectorsearch"
@@ -57,12 +47,6 @@ import { resolveModelConnectionInfo } from "./models"
 import { resolveLanguageModel } from "./lm"
 import { callExpander } from "./expander"
 import { Project } from "./ast"
-import {
-    frontmatterTryParse,
-    splitMarkdown,
-    updateFrontmatter,
-} from "./frontmatter"
-import { url } from "node:inspector"
 
 export async function createPromptContext(
     prj: Project,
@@ -236,9 +220,6 @@ export async function createPromptContext(
         defOutputProcessor,
         defFileMerge: (fn) => {
             appendPromptChild(createFileMerge(fn))
-        },
-        cancel: (reason?: string) => {
-            throw new CancelError(reason || "user cancelled")
         },
         runPrompt: async (generator, runOptions): Promise<RunPromptResult> => {
             try {
