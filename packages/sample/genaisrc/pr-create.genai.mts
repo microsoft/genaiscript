@@ -7,7 +7,7 @@ script({
 })
 
 const defaultBranch = (env.vars.defaultBranch || "main") + ""
-const { text, finishReason, error } = await runPrompt(async (_) => {
+const { text, error } = await runPrompt(async (_) => {
     const { stdout: changes } = await host.exec("git", [
         "diff",
         defaultBranch,

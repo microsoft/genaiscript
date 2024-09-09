@@ -1558,6 +1558,10 @@ interface ChatGenerationContext extends ChatTurnGenerationContext {
         description?: string,
         options?: FileOutputOptions
     ): void
+    runPrompt(
+        generator: string | PromptGenerator,
+        options?: PromptGeneratorOptions
+    ): Promise<RunPromptResult>
 }
 
 interface GenerationOutput {
@@ -2263,10 +2267,6 @@ interface PromptContext extends ChatGenerationContext {
     system(options: PromptSystemArgs): void
     defFileMerge(fn: FileMergeHandler): void
     defOutputProcessor(fn: PromptOutputProcessorHandler): void
-    runPrompt(
-        generator: string | PromptGenerator,
-        options?: PromptGeneratorOptions
-    ): Promise<RunPromptResult>
     env: ExpansionVariables
     path: Path
     parsers: Parsers
