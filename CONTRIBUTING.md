@@ -14,7 +14,9 @@ contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additio
 
 ## Developer setup
 
-You can open this repo in GitHub Codespace/Docker to get the build environment needed.
+You can open this repo in GitHub CodeSpace/Docker to get the build environment needed.
+
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://github.com/codespaces/new?hide_repo_select=true&ref=main&repo=679784368)
 
 -   Go to https://github.com/microsoft/genaiscript
 -   Click on **Code**
@@ -63,12 +65,11 @@ Learn more about Slidev on [documentations](https://sli.dev/). For diagrams, lev
 
 ## GenAI Script
 
-- Commit with aut-generated message
+-   Commit with aut-generated message
 
 ```sh
 yarn gcm
 ```
-
 
 ## Packaging
 
@@ -97,23 +98,23 @@ Start local server
 yarn docs
 ```
 
-## Local AI 
+## Local AI
 
 If you are lacking a OpenAI API token, you can use [LocalAI](https://localai.io/basics/getting_started/) to simulate OpenAI access.
 
-- Create a new Codespace and make sure to create a larger image,
-- launch `localai` to download and start the localai docker image.
+-   Create a new Codespace and make sure to create a larger image,
+-   launch `localai` to download and start the localai docker image.
 
 ```
 yarn run localai
 ```
 
-- Launch the localai web ui at [http://localhost:8080](http://localhost:8080)
-- create `.env` file with
+-   Launch the localai web ui at [http://localhost:8080](http://localhost:8080)
+-   create `.env` file with
 
 ```dot
 # OPENAI_API_KEY=... not needed
 OPENAI_API_BASE=http://localhost:8080/v1
 ```
 
-- start the debugger and voila!
+-   start the debugger and voila!
