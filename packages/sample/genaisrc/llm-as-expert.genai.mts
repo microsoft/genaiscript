@@ -44,7 +44,7 @@ defTool(
         },
     },
     async ({ prompt }) => {
-        const res = await runPrompt(prompt, {
+        const res = await env.generator.runPrompt(prompt, {
             model: "openai:gpt-3.5-turbo",
             label: "llm-gpt35",
         })
@@ -62,7 +62,7 @@ defTool(
         },
     },
     async ({ prompt }) => {
-        const res = await runPrompt(prompt, {
+        const res = await env.generator.runPrompt(prompt, {
             model: "openai:gpt-4o",
             label: "llm-4o",
         })

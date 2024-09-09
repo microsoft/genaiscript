@@ -23,8 +23,6 @@ export async function importPrompt(
         "parsers",
         "env",
         "retrieval",
-        "fetchText",
-        "cancel",
         "runPrompt",
     ]
 
