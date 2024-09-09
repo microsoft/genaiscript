@@ -26,6 +26,7 @@ jobs:
                   node-version: "20"
                   cache: yarn
             - run: yarn install --frozen-lockfile
+            - run: yarn compile
             - run: yarn gen:licenses
             - uses: stefanzweifel/git-auto-commit-action@v5
               with:
