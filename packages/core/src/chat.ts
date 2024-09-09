@@ -218,6 +218,12 @@ async function runToolCalls(
                     toolContent = `FILENAME: ${filename}
 ${fenceMD(content, " ")}
 `
+                } else if (
+                    typeof output === "object" &&
+                    (output as RunPromptResult).text
+                ) {
+                    const { text } = output as RunPromptResult
+                    toolContent = text
                 } else {
                     toolContent = YAMLStringify(output)
                 }

@@ -496,6 +496,8 @@ type ToolCallOutput =
     | ToolCallContent
     | ShellOutput
     | WorkspaceFile
+    | RunPromptResult
+    | undefined
 
 interface WorkspaceFileCache<K, V> {
     /**
