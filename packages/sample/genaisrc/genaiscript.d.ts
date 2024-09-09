@@ -218,6 +218,11 @@ interface ModelOptions extends ModelConnectionOptions {
      * @deprecated Use `cache` instead with a string
      */
     cacheName?: string
+
+    /**
+     * Budget of tokens to apply the prompt flex renderer.
+     */
+    flexTokens?: number
 }
 
 interface EmbeddingsModelConnectionOptions {
@@ -236,43 +241,19 @@ interface EmbeddingsModelConnectionOptions {
 
 interface EmbeddingsModelOptions extends EmbeddingsModelConnectionOptions {}
 
-interface ScriptRuntimeOptions {
+interface PromptSystemOptions {
     /**
      * List of system script ids used by the prompt.
      */
-    /**
-     * System prompt identifiers ([reference](https://microsoft.github.io/genaiscript/reference/scripts/system/))
-     * - `system`: Base system prompt
-     * - `system.annotations`: Emits annotations compatible with GitHub Actions
-     * - `system.changelog`: Generate changelog formatter edits
-     * - `system.diagrams`: Generate diagrams
-     * - `system.diff`: Generates concise file diffs.
-     * - `system.explanations`: Explain your answers
-     * - `system.files`: File generation
-     * - `system.files_schema`: Apply JSON schemas to generated data.
-     * - `system.fs_find_files`: File find files
-     * - `system.fs_read_file`: File Read File
-     * - `system.math`: Math expression evaluator
-     * - `system.md_frontmatter`: Frontmatter reader
-     * - `system.python`: Expert at generating and understanding Python code.
-     * - `system.python_code_interpreter`: Python Dockerized code execution for data analysis
-     * - `system.retrieval_fuzz_search`: Full Text Fuzzy Search
-     * - `system.retrieval_vector_search`: Embeddings Vector Search
-     * - `system.retrieval_web_search`: Web Search
-     * - `system.schema`: JSON Schema support
-     * - `system.tasks`: Generates tasks
-     * - `system.technical`: Technical Writer
-     * - `system.tools`: Tools support
-     * - `system.typescript`: Export TypeScript Developer
-     * - `system.zero_shot_cot`: Zero-shot Chain Of Though
-     **/
-    system?: SystemPromptId[]
+    system?: SystemPromptId | SystemPromptId[]
 
     /**
      * List of tools used by the prompt.
      */
     tools?: SystemToolId | SystemToolId[]
+}
 
+interface ScriptRuntimeOptions {
     /**
      * Secrets required by the prompt
      */
@@ -282,11 +263,6 @@ interface ScriptRuntimeOptions {
      * Default value for emitting line numbers in fenced code blocks.
      */
     lineNumbers?: boolean
-
-    /**
-     * Budget of tokens to apply the prompt flex renderer.
-     */
-    flexTokens?: number
 }
 
 type PromptParameterType =
@@ -398,6 +374,7 @@ interface PromptTest {
 interface PromptScript
     extends PromptLike,
         ModelOptions,
+        PromptSystemOptions,
         EmbeddingsModelOptions,
         ScriptRuntimeOptions {
     /**
@@ -1504,16 +1481,11 @@ interface WriteTextOptions extends ContextExpansionOptions {
 
 type PromptGenerator = (ctx: ChatGenerationContext) => Awaitable<unknown>
 
-interface PromptGeneratorOptions extends ModelOptions {
+interface PromptGeneratorOptions extends ModelOptions, PromptSystemOptions {
     /**
      * Label for trace
      */
     label?: string
-
-    /**
-     * List of system prompts if any
-     */
-    system?: SystemPromptId[]
 }
 
 interface FileOutputOptions {
