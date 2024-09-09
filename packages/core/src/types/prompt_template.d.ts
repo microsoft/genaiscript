@@ -208,7 +208,7 @@ interface EmbeddingsModelConnectionOptions {
 
 interface EmbeddingsModelOptions extends EmbeddingsModelConnectionOptions {}
 
-interface ScriptRuntimeOptions {
+interface PromptSystemOptions {
     /**
      * List of system script ids used by the prompt.
      */
@@ -218,7 +218,9 @@ interface ScriptRuntimeOptions {
      * List of tools used by the prompt.
      */
     tools?: SystemToolId | SystemToolId[]
+}
 
+interface ScriptRuntimeOptions {
     /**
      * Secrets required by the prompt
      */
@@ -339,6 +341,7 @@ interface PromptTest {
 interface PromptScript
     extends PromptLike,
         ModelOptions,
+        PromptSystemOptions,
         EmbeddingsModelOptions,
         ScriptRuntimeOptions {
     /**
@@ -1445,21 +1448,11 @@ interface WriteTextOptions extends ContextExpansionOptions {
 
 type PromptGenerator = (ctx: ChatGenerationContext) => Awaitable<unknown>
 
-interface PromptGeneratorOptions extends ModelOptions {
+interface PromptGeneratorOptions extends ModelOptions, PromptSystemOptions {
     /**
      * Label for trace
      */
     label?: string
-
-    /**
-     * List of system prompts if any
-     */
-    system?: SystemPromptId | SystemPromptId[]
-
-    /**
-     * List of tools used by the prompt.
-     */
-    tools?: SystemToolId | SystemToolId[]
 }
 
 interface FileOutputOptions {

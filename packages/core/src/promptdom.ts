@@ -252,7 +252,13 @@ export function createFunctionNode(
     assert(!!description)
     assert(parameters !== undefined)
     assert(impl !== undefined)
-    return { type: "function", name, description, parameters, impl }
+    return {
+        type: "function",
+        name,
+        description: dedent(description),
+        parameters,
+        impl,
+    }
 }
 
 export function createFileMerge(fn: FileMergeHandler): PromptFileMergeNode {

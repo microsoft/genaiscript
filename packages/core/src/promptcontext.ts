@@ -39,6 +39,7 @@ import { resolveModelConnectionInfo } from "./models"
 import { resolveLanguageModel } from "./lm"
 import { callExpander } from "./expander"
 import { Project } from "./ast"
+import { resolveSystems } from "./systems"
 
 export async function createPromptContext(
     prj: Project,
@@ -215,7 +216,7 @@ export async function createPromptContext(
         },
         runPrompt: async (generator, runOptions): Promise<RunPromptResult> => {
             try {
-                const { label, system = [] } = runOptions || {}
+                const { label } = runOptions || {}
                 trace.startDetails(`🎁 run prompt ${label || ""}`)
                 infoCb?.({ text: `run prompt ${label || ""}` })
 
@@ -265,7 +266,7 @@ export async function createPromptContext(
                     role: "system",
                     content: "",
                 }
-                for (const systemId of system) {
+                for (const systemId of resolveSystems(prj, runOptions)) {
                     checkCancelled(cancellationToken)
 
                     const system = prj.getTemplate(systemId)
