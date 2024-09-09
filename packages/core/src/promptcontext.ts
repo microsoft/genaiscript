@@ -4,17 +4,10 @@ import {
     tracePromptResult,
 } from "./chat"
 import { host } from "./host"
-import {
-    HTMLEscape,
-    arrayify,
-    dotGenaiscriptPath,
-    logVerbose,
-    sha256string,
-} from "./util"
+import { HTMLEscape, arrayify, dotGenaiscriptPath, sha256string } from "./util"
 import { runtimeHost } from "./host"
 import { MarkdownTrace } from "./trace"
 import { createParsers } from "./parsers"
-import { readText } from "./fs"
 import {
     PromptNode,
     appendChild,
@@ -30,7 +23,6 @@ import {
     createChatGenerationContext,
 } from "./runpromptcontext"
 import { isCancelError, NotSupportedError, serializeError } from "./error"
-import { createFetch } from "./fetch"
 import { GenerationOptions } from "./generation"
 import { fuzzSearch } from "./fuzzsearch"
 import { parseModelIdentifier } from "./models"
@@ -358,44 +350,6 @@ export async function createPromptContext(
                 }
             } finally {
                 trace.endDetails()
-            }
-        },
-        fetchText: async (urlOrFile, fetchOptions) => {
-            if (typeof urlOrFile === "string") {
-                urlOrFile = {
-                    filename: urlOrFile,
-                    content: "",
-                }
-            }
-            const url = urlOrFile.filename
-            let ok = false
-            let status = 404
-            let text: string
-            if (/^https?:\/\//i.test(url)) {
-                const fetch = await createFetch({ cancellationToken })
-                const resp = await fetch(url, fetchOptions)
-                ok = resp.ok
-                status = resp.status
-                if (ok) text = await resp.text()
-            } else {
-                try {
-                    text = await readText("workspace://" + url)
-                    ok = true
-                } catch (e) {
-                    logVerbose(e)
-                    ok = false
-                    status = 404
-                }
-            }
-            const file: WorkspaceFile = {
-                filename: urlOrFile.filename,
-                content: text,
-            }
-            return {
-                ok,
-                status,
-                text,
-                file,
             }
         },
     }
