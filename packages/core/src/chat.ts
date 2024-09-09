@@ -520,7 +520,7 @@ export function mergeGenerationOptions(
         embeddingsModel:
             runOptions?.embeddingsModel ??
             options?.embeddingsModel ??
-            host.defaultEmbeddingsModelOptions.embeddingsModel,        
+            host.defaultEmbeddingsModelOptions.embeddingsModel,
     }
 }
 
