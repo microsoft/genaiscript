@@ -2267,15 +2267,6 @@ interface PromptContext extends ChatGenerationContext {
         generator: string | PromptGenerator,
         options?: PromptGeneratorOptions
     ): Promise<RunPromptResult>
-    fetchText(
-        urlOrFile: string | WorkspaceFile,
-        options?: FetchTextOptions
-    ): Promise<{
-        ok: boolean
-        status: number
-        text?: string
-        file?: WorkspaceFile
-    }>
     env: ExpansionVariables
     path: Path
     parsers: Parsers

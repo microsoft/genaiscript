@@ -10,6 +10,9 @@ import {
 import { JSONLStringify, JSONLTryParse } from "./jsonl"
 import { HTMLTablesToJSON, HTMLToMarkdown, HTMLToText } from "./html"
 import { CancelError } from "./error"
+import { createFetch } from "./fetch"
+import { readText } from "./fs"
+import { logVerbose } from "./util"
 
 export function resolveGlobal(): any {
     if (typeof window !== "undefined")
@@ -65,5 +68,46 @@ export function installGlobals() {
     })
     glb.cancel = (reason?: string) => {
         throw new CancelError(reason || "user cancelled")
+    }
+    glb.fetchText = async (
+        urlOrFile: string | WorkspaceFile,
+        fetchOptions?: FetchTextOptions
+    ) => {
+        if (typeof urlOrFile === "string") {
+            urlOrFile = {
+                filename: urlOrFile,
+                content: "",
+            }
+        }
+        const url = urlOrFile.filename
+        let ok = false
+        let status = 404
+        let text: string
+        if (/^https?:\/\//i.test(url)) {
+            const fetch = await createFetch()
+            const resp = await fetch(url, fetchOptions)
+            ok = resp.ok
+            status = resp.status
+            if (ok) text = await resp.text()
+        } else {
+            try {
+                text = await readText("workspace://" + url)
+                ok = true
+            } catch (e) {
+                logVerbose(e)
+                ok = false
+                status = 404
+            }
+        }
+        const file: WorkspaceFile = {
+            filename: urlOrFile.filename,
+            content: text,
+        }
+        return {
+            ok,
+            status,
+            text,
+            file,
+        }
     }
 }
