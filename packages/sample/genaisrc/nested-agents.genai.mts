@@ -13,8 +13,8 @@ defTool(
             description: "the prompt to be executed by the LLM",
         },
     },
-    async ({ prompt }) => {
-        const res = await env.generator.runPrompt(
+    async ({ prompt }) =>
+        await env.generator.runPrompt(
             (_) => {
                 _.$`You are an AI assistant that can help with file system tasks.
 
@@ -31,8 +31,6 @@ defTool(
                 tools: "fs",
             }
         )
-        return res.text
-    }
 )
 
 /**
@@ -47,14 +45,12 @@ defTool(
             description: "the python to be executed by the LLM",
         },
     },
-    async ({ code }) => {
-        const res = await env.generator.runPrompt(code, {
+    async ({ code }) =>
+        await env.generator.runPrompt(code, {
             model: "openai:gpt-4o",
             label: "llm-4o agent_fs",
             tools: "python",
         })
-        return res.text
-    }
 )
 
 // now as a question about the file system
