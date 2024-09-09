@@ -3,7 +3,7 @@ import { arrayify, unique } from "./util"
 
 export function resolveSystems(prj: Project, template: PromptScript) {
     const { jsSource } = template
-    const systems = Array.from(template.system ?? []).slice(0)
+    const systems = arrayify(template.system).slice(0)
 
     if (template.system === undefined) {
         const useSchema = /\Wdefschema\W/i.test(jsSource)

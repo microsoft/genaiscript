@@ -207,7 +207,7 @@ interface ScriptRuntimeOptions {
     /**
      * List of system script ids used by the prompt.
      */
-    system?: SystemPromptId[]
+    system?: SystemPromptId | SystemPromptId[]
 
     /**
      * List of tools used by the prompt.
@@ -1454,7 +1454,12 @@ interface PromptGeneratorOptions extends ModelOptions {
     /**
      * List of system prompts if any
      */
-    system?: SystemPromptId[]
+    system?: SystemPromptId | SystemPromptId[]
+
+    /**
+     * List of tools used by the prompt.
+     */
+    tools?: SystemToolId | SystemToolId[]
 }
 
 interface FileOutputOptions {
