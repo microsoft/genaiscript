@@ -185,6 +185,12 @@ interface ModelOptions extends ModelConnectionOptions {
      * @deprecated Use `cache` instead with a string
      */
     cacheName?: string
+
+
+    /**
+     * Budget of tokens to apply the prompt flex renderer.
+     */
+    flexTokens?: number
 }
 
 interface EmbeddingsModelConnectionOptions {
@@ -223,11 +229,6 @@ interface ScriptRuntimeOptions {
      * Default value for emitting line numbers in fenced code blocks.
      */
     lineNumbers?: boolean
-
-    /**
-     * Budget of tokens to apply the prompt flex renderer.
-     */
-    flexTokens?: number
 }
 
 type PromptParameterType =
