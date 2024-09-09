@@ -68,7 +68,6 @@
         "genai:tweetify": "node packages/cli/built/genaiscript.cjs run tweetify",
         "genai:docify": "node packages/cli/built/genaiscript.cjs run docify",
         "gcm": "node packages/cli/built/genaiscript.cjs run gcm",
-        "prepare": "husky",
         "upgrade:deps": "zx scripts/upgrade-deps.mjs"
     },
     "release-it": {
@@ -82,7 +81,6 @@
     "devDependencies": {
         "@inquirer/prompts": "^5.5.0",
         "glob": "^11.0.0",
-        "husky": "^9.1.5",
         "npm-check-updates": "^17.1.1",
         "prettier": "^3.3.3",
         "zx": "^8.1.5"
