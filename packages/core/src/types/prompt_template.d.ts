@@ -186,7 +186,6 @@ interface ModelOptions extends ModelConnectionOptions {
      */
     cacheName?: string
 
-
     /**
      * Budget of tokens to apply the prompt flex renderer.
      */
