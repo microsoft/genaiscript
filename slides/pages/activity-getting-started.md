@@ -2,7 +2,7 @@
 layout: two-cols
 ---
 
-# Hands on Lab
+# Getting Started
 
 ### GitHub Codespace + GitHub Models
 
