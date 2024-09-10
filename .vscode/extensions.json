@@ -11,6 +11,7 @@
         "bierner.emojisense",
         "github.vscode-pull-request-github",
         "ms-toolsai.prompty",
-        "unifiedjs.vscode-mdx"
+        "unifiedjs.vscode-mdx",
+        "johnpapa.vscode-peacock"
     ]
 }

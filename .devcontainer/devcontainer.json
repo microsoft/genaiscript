@@ -13,7 +13,8 @@
                 "unifiedjs.vscode-mdx",
                 "streetsidesoftware.code-spell-checker",
                 "file-icons.file-icons",
-                "GitHub.vscode-pull-request-github"
+                "GitHub.vscode-pull-request-github",
+                "johnpapa.vscode-peacock"
             ]
         }
     },
