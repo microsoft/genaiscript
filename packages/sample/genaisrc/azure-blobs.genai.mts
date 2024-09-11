@@ -30,9 +30,15 @@ for await (const blob of containerClient.listBlobsFlat()) {
     const blockBlobClient = containerClient.getBlockBlobClient(blob.name)
     const downloadBlockBlobResponse = await blockBlobClient.download(0)
     const body = await downloadBlockBlobResponse.readableStreamBody
-    const buf = await buffer(body)
-    console.log(`buffer: ${(buf.length / 1e3) | 0}kb`)
-    defImages(buf, { detail: "low" })
+    const image = await buffer(body)
+
+    const res = await runPrompt(_ => {
+        _.defImages(image, { detail: "low" })
+        _.$`Describe the images.`
+    })
+
+    def("IMAGES_SUMMARY", { filename: blob.name, content: res.text })
 }
 
-$`Describe the images.`
+$`Summarize IMAGES_SUMMARY.`
+
