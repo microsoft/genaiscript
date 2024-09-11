@@ -61,14 +61,20 @@ export function parseTraceTree(text: string): TraceTree {
     const stack: DetailsNode[] = [
         { type: "details", label: "root", content: [] },
     ]
+    let hash = 0
     const lines = (text || "").split("\n")
     for (let i = 0; i < lines.length; ++i) {
-        const startDetails = /^\s*<details[^>]*>\s*$/m.exec(lines[i])
+        const line = lines[i]
+        for (let j = 0; j < line.length; j++) {
+            hash = (hash << 5) - hash + line.charCodeAt(j)
+            hash |= 0
+        }
+        const startDetails = /^\s*<details[^>]*>\s*$/m.exec(line)
         if (startDetails) {
             const parent = stack.at(-1)
             const current: DetailsNode = {
                 type: "details",
-                id: randomHex(6),
+                id: `${i}-${hash}`,
                 label: "",
                 content: [],
             }

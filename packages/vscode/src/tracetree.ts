@@ -11,6 +11,9 @@ function unmarkdown(text: string) {
 }
 
 class TraceTreeDataProvider implements vscode.TreeDataProvider<TraceNode> {
+    private previewTreeItems: Record<string, vscode.TreeItem> = {}
+    private treeItems: Record<string, vscode.TreeItem> = {}
+
     constructor(readonly state: ExtensionState) {
         this.state.addEventListener(CHANGE, () => this.refresh())
     }
@@ -28,11 +31,13 @@ class TraceTreeDataProvider implements vscode.TreeDataProvider<TraceNode> {
             const item = new vscode.TreeItem(unmarkdown(element.label))
             item.id = element.id
             if (element.type === "details") {
+                const previousTreeItem = this.previewTreeItems[element.id]
                 item.collapsibleState =
-                    element.content.filter((s) => typeof s !== "string")
+                    previousTreeItem?.collapsibleState ??
+                    (element.content.filter((s) => typeof s !== "string")
                         .length > 0
                         ? vscode.TreeItemCollapsibleState.Collapsed
-                        : vscode.TreeItemCollapsibleState.None
+                        : vscode.TreeItemCollapsibleState.None)
                 item.command = {
                     command: "markdown.showPreview",
                     arguments: [infoUri(TRACE_NODE_PREFIX + item.id + ".md")],
@@ -49,6 +54,7 @@ class TraceTreeDataProvider implements vscode.TreeDataProvider<TraceNode> {
                     tooltip.isTrusted = false // LLM, user generated
                     item.tooltip = tooltip
                 }
+                this.treeItems[element.id] = item
             } else if (element.type === "item") {
                 item.description = unmarkdown(element.value)
                 const tooltip = new vscode.MarkdownString(element.value, true)
@@ -78,6 +84,8 @@ class TraceTreeDataProvider implements vscode.TreeDataProvider<TraceNode> {
         this._onDidChangeTreeData.event
 
     refresh(treeItem?: TraceNode | TraceNode[]): void {
+        this.previewTreeItems = this.treeItems
+        this.treeItems = {}
         this._onDidChangeTreeData.fire(treeItem)
     }
 }
