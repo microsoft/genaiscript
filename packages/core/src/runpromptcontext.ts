@@ -245,15 +245,20 @@ export function createChatGenerationContext(
         const { detail } = defOptions || {}
         if (Array.isArray(files))
             files.forEach((file) => defImages(file, defOptions))
-        else if (typeof files === "string")
-            appendChild(node, createImageNode({ url: files, detail }))
-        else if (files instanceof Buffer || files instanceof Blob) {
-            const buffer: Buffer | Blob = files
+        else if (
+            typeof files === "string" ||
+            files instanceof Blob ||
+            files instanceof Buffer
+        ) {
+            const img = files
             appendChild(
                 node,
                 createImageNode(
                     (async () => {
-                        const url = await imageEncodeForLLM(buffer, defOptions)
+                        const url = await imageEncodeForLLM(img, {
+                            ...defOptions,
+                            trace,
+                        })
                         return {
                             url,
                             detail,
@@ -267,7 +272,10 @@ export function createChatGenerationContext(
                 node,
                 createImageNode(
                     (async () => {
-                        const url = await resolveFileDataUri(file, { trace })
+                        const url = await imageEncodeForLLM(file.filename, {
+                            ...defOptions,
+                            trace,
+                        })
                         return {
                             url,
                             filename: file.filename,

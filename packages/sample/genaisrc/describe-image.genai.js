@@ -12,4 +12,4 @@ script({
 })
 
 $`Return the list of objects in the images.`
-defImages(env.files, { detail: "low", maxWidth: 800, autoCrop: true })
+defImages(env.files, { detail: "low", maxWidth: 400, autoCrop: true })
