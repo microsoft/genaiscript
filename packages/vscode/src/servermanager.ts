@@ -69,12 +69,9 @@ export class TerminalServerManager implements ServerManager {
         })
         this.client.addEventListener(RECONNECT, () => {
             // server process died somehow
-            if (
-                this.client.connectedOnce &&
-                this.client.reconnectAttempts > CLIENT_RECONNECT_MAX_ATTEMPTS
-            ) {
+            if (this.client.connectedOnce) {
                 this.closeTerminal()
-                this.start()
+                if (this.client.pending) this.start()
             }
         })
     }
