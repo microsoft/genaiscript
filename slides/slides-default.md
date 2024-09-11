@@ -33,16 +33,13 @@ layout: center
 
 https://microsoft.github.io/genaiscript/
 
----
-src: pages/aisw-intro.md
----
 
 ---
 src: pages/vision.md
 ---
 
 ---
-src: pages/script-intro.md
+src: pages/prompts-are-programs.md
 ---
 
 ---
@@ -54,16 +51,22 @@ src: pages/script-prompt.md
 ---
 
 ---
-src: pages/system-scripts.md
----
-
----
-src: pages/llm-invocation.md
----
-
----
 src: pages/response-processing.md
 ---
+
+
+---
+src: pages/image-alt-text.md
+---
+
+---
+src: pages/makecode-translations.md
+---
+
+---
+src: pages/tla-plus.md
+---
+
 
 ---
 src: pages/script-pipeline.md
@@ -78,15 +81,7 @@ src: pages/js-runtime.md
 ---
 
 ---
-src: pages/image-alt-text.md
----
-
----
-src: pages/makecode-translations.md
----
-
----
-src: pages/tla-plus.md
+src: pages/system-scripts.md
 ---
 
 ---
