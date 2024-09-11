@@ -35,11 +35,14 @@ export async function createFetch(
         retries,
         retryDelay: (attempt, error, response) => {
             const code: string = (error as any)?.code as string
-            if (code === "ECONNRESET" || code === "ENOTFOUND")
+            if (
+                code === "ECONNRESET" ||
+                code === "ENOTFOUND" ||
+                cancellationToken?.isCancellationRequested
+            )
                 // fatal
                 return undefined
 
-            checkCancelled(cancellationToken)
             const message = errorMessage(error)
             const status = statusToMessage(response)
             const delay = Math.min(maxDelay, Math.pow(2, attempt) * retryDelay)
