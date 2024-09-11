@@ -33,11 +33,37 @@ Local files are loaded and encoded as a data uri.
 The `defImages` function also supports [Buffer](https://nodejs.org/api/buffer.html)
 and [Blob](https://developer.mozilla.org/en-US/docs/Web/API/Blob).
 
-
 This example takes a screenshot of bing.com and adds it to the images.
 
 ```js
 const page = await host.browse("https://bing.com")
 const screenshot = await page.screenshot() // returns a node.js Buffer
 defImages(screenshot)
+```
+
+## Detail
+
+OpenAI supports a "low" / "high" field.
+
+```js 'detail: "low"'
+defImages(img, { detail: "low" })
+```
+
+## Scaling
+
+You can specify a maximum width, maximum height. GenAIScript will resize
+the image to fit into the constraints.
+
+```js "maxWidth: 800" "maxHeight: 800"
+defImages(img, { maxWidth: 800 })
+// and / or
+defImages(img, { maxHeight: 800 })
+```
+
+## Auto cropping
+
+You can automatically remove uniform color on the edges of the image.
+
+```js "autoCrop"
+defImages(img, { autoCrop: true })
 ```

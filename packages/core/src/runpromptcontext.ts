@@ -21,9 +21,9 @@ import { resolveFileDataUri } from "./file"
 import { isGlobMatch } from "./glob"
 import { logVerbose } from "./util"
 import { renderShellOutput } from "./chatrender"
-import { fileTypeFromBuffer } from "file-type"
 import { jinjaRender } from "./jinja"
 import { mustacheRender } from "./mustache"
+import { imageEncodeForLLM } from "./image"
 
 export function createChatTurnGenerationContext(
     options: GenerationOptions,
@@ -245,34 +245,20 @@ export function createChatGenerationContext(
         const { detail } = defOptions || {}
         if (Array.isArray(files))
             files.forEach((file) => defImages(file, defOptions))
-        else if (typeof files === "string")
-            appendChild(node, createImageNode({ url: files, detail }))
-        else if (files instanceof Buffer) {
-            const buffer: Buffer = files
+        else if (
+            typeof files === "string" ||
+            files instanceof Blob ||
+            files instanceof Buffer
+        ) {
+            const img = files
             appendChild(
                 node,
                 createImageNode(
                     (async () => {
-                        const mime = await fileTypeFromBuffer(buffer)
-                        const b64 = await buffer.toString("base64")
-                        const url = `data:${mime.mime};base64,${b64}`
-                        return {
-                            url,
-                            detail,
-                        }
-                    })()
-                )
-            )
-        } else if (files instanceof Blob) {
-            const blob: Blob = files
-            appendChild(
-                node,
-                createImageNode(
-                    (async () => {
-                        const buffer = Buffer.from(await blob.arrayBuffer())
-                        const mime = await fileTypeFromBuffer(buffer)
-                        const b64 = await buffer.toString("base64")
-                        const url = `data:${mime.mime};base64,${b64}`
+                        const url = await imageEncodeForLLM(img, {
+                            ...defOptions,
+                            trace,
+                        })
                         return {
                             url,
                             detail,
@@ -286,7 +272,10 @@ export function createChatGenerationContext(
                 node,
                 createImageNode(
                     (async () => {
-                        const url = await resolveFileDataUri(file, { trace })
+                        const url = await imageEncodeForLLM(file.filename, {
+                            ...defOptions,
+                            trace,
+                        })
                         return {
                             url,
                             filename: file.filename,
