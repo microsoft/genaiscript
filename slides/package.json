@@ -1,19 +1,19 @@
 {
-    "name": "genaiscript-slides",
-    "version": "1.54.3",
-    "type": "module",
-    "private": true,
-    "npm": {
-        "publish": false
-    },
-    "scripts": {
-        "install:force": "rm yarn.lock && yarn install",
-        "build": "node build.mjs",
-        "dev": "slidev --open"
-    },
-    "devDependencies": {
-        "@slidev/cli": "^0.49.29",
-        "@slidev/theme-default": "^0.25.0",
-        "zx": "^8.1.5"
-    }
+  "name": "genaiscript-slides",
+  "version": "1.54.4",
+  "type": "module",
+  "private": true,
+  "npm": {
+    "publish": false
+  },
+  "scripts": {
+    "install:force": "rm yarn.lock && yarn install",
+    "build": "node build.mjs",
+    "dev": "slidev --open"
+  },
+  "devDependencies": {
+    "@slidev/cli": "^0.49.29",
+    "@slidev/theme-default": "^0.25.0",
+    "zx": "^8.1.5"
+  }
 }
