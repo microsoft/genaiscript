@@ -10,6 +10,9 @@ tags:
   - Project Management
   - Automation
   - GenAIScript
+description: Employ GenAIScript to automate GitHub issue triage with AI,
+  improving project management and issue resolution efficiency.
+keywords: GitHub issues, AI, project management, automation, issue triage
 
 ---
 

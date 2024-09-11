@@ -1,7 +1,9 @@
 ---
 title: Images in Azure Blob Storage
 sidebar:
-    order: 55
+  order: 55
+description: Leverage Azure SDK to handle image files in Blob Storage within prompts
+keywords: Azure Blob Storage, Azure SDK, image handling, Node.js Buffer, inline prompts
 
 ---
 
@@ -14,10 +16,10 @@ and use them in the prompt. The `defImages` function support the node.js [Buffer
 
 ## Configuration
 
-Install the `@azure/storage-blob` and `@azure/identity` packages.
+Install the [@azure/storage-blob](https://www.npmjs.com/package/@azure/storage-blob) and [@azure/identity](https://www.npmjs.com/package/@azure/identity) packages.
 
 ```sh
-npm install @azure/storage-blob @azure/identity
+npm install -D @azure/storage-blob @azure/identity
 ```
 
 Make sure to login with the Azure CLI and set the subscription.

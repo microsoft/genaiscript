@@ -9,6 +9,9 @@ tags:
   - Automation
   - Testing
   - Deployment
+description: Streamline your DevOps pipeline with GenAIScript by automating
+  testing and deployment through a tutorial script.
+keywords: DevOps, automation, testing, deployment, scripting
 
 ---
 

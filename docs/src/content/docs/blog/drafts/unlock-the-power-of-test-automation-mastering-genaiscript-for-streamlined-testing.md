@@ -9,6 +9,10 @@ tags:
   - Test Automation
   - Software Development
   - Best Practices
+description: Explore test automation using GenAIScript to enhance and streamline
+  your testing processes with structured script breakdown.
+keywords: test automation, scripting, software testing, streamlined process,
+  developer tools
 
 ---
 

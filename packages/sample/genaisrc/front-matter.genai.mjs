@@ -21,7 +21,7 @@ defFileMerge(function frontmatter(fn, label, before, generated) {
     return updated
 })
 
-def("FILE", env.files, { glob: "*.md*" })
+def("FILE", env.files, { glob: "**.{md,mdx}" })
 
 $`
 You are a search engine optimization expert at creating front matter for markdown document.

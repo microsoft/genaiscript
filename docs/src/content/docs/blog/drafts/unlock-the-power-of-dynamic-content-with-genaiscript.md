@@ -8,6 +8,9 @@ tags:
   - Dynamic Content Generation
   - AI
   - Automation
+description: Discover how GenAIScript can automate dynamic content generation
+  using AI, with an easy-to-understand script example.
+keywords: dynamic content, automation, AI, content generation, scripting
 
 ---
 
