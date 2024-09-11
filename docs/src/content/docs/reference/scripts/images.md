@@ -30,7 +30,7 @@ Local files are loaded and encoded as a data uri.
 
 ## Buffer, Blob
 
-The `defImage` function also supports [Buffer](https://nodejs.org/api/buffer.html)
+The `defImages` function also supports [Buffer](https://nodejs.org/api/buffer.html)
 and [Blob](https://developer.mozilla.org/en-US/docs/Web/API/Blob).
 
 
