@@ -1,5 +1,7 @@
 type OptionsOrString<TOptions extends string> = (string & {}) | TOptions
 
+type ElementOrArray<T> = T | T[]
+
 interface PromptGenerationConsole {
     log(...data: any[]): void
     warn(...data: any[]): void
@@ -1570,7 +1572,7 @@ interface ChatGenerationContext extends ChatTurnGenerationContext {
         options?: DefSchemaOptions
     ): string
     defImages(
-        files: StringLike | Buffer | Blob,
+        files: ElementOrArray<string | WorkspaceFile | Buffer | Blob>,
         options?: DefImagesOptions
     ): void
     defTool(
@@ -2515,7 +2517,7 @@ declare function defSchema(
  * @param options
  */
 declare function defImages(
-    files: StringLike | Buffer | Blob,
+    files: ElementOrArray<string | WorkspaceFile | Buffer | Blob>,    
     options?: DefImagesOptions
 ): void
 
