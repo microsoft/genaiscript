@@ -755,7 +755,7 @@ interface DefImagesOptions {
     /**
      * Auto cropping same color on the edges of the image
      */
-    autocrop?: boolean
+    autoCrop?: boolean
 }
 
 interface ChatTaskOptions {
