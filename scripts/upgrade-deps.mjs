@@ -11,8 +11,10 @@ const autos = [
     "openai",
     "playwright",
     "tsx",
+    "typescript",
     "@vscode/vsce",
     "yaml",
+    "zod-to-json-schema",
     "zx",
 ]
 const branch = `deps/${new Date().toISOString().replace(/[^0-9]/g, "-")}`
