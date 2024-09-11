@@ -14,7 +14,7 @@
     "preview": "astro preview",
     "astro": "astro",
     "genai:test": "node ../packages/cli/built/genaiscript.cjs test src/**/*.md",
-    "genai:frontmatter": "node ../packages/cli/built/genaiscript.cjs run frontmatter \"src/**/*.md\" --apply-edits",
+    "genai:frontmatter": "node ../packages/cli/built/genaiscript.cjs run frontmatter \"src/**/*.{md,mdx}\" --apply-edits",
     "genai:technical": "for file in \"src/**/*.md\"; do\nnode ../packages/cli/built/genaiscript.cjs run technical \"$file\" --apply-edits\ndone",
     "genai:alt-text": "node scripts/image-alt-text.mjs"
   },

@@ -238,7 +238,10 @@ export function createChatGenerationContext(
         return name
     }
 
-    const defImages = (files: StringLike, defOptions?: DefImagesOptions) => {
+    const defImages = (
+        files: ElementOrArray<string | WorkspaceFile | Buffer | Blob>,
+        defOptions?: DefImagesOptions
+    ) => {
         const { detail } = defOptions || {}
         if (Array.isArray(files))
             files.forEach((file) => defImages(file, defOptions))
@@ -250,6 +253,23 @@ export function createChatGenerationContext(
                 node,
                 createImageNode(
                     (async () => {
+                        const mime = await fileTypeFromBuffer(buffer)
+                        const b64 = await buffer.toString("base64")
+                        const url = `data:${mime.mime};base64,${b64}`
+                        return {
+                            url,
+                            detail,
+                        }
+                    })()
+                )
+            )
+        } else if (files instanceof Blob) {
+            const blob: Blob = files
+            appendChild(
+                node,
+                createImageNode(
+                    (async () => {
+                        const buffer = Buffer.from(await blob.arrayBuffer())
                         const mime = await fileTypeFromBuffer(buffer)
                         const b64 = await buffer.toString("base64")
                         const url = `data:${mime.mime};base64,${b64}`

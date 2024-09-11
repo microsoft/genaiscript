@@ -203,7 +203,7 @@ declare function defSchema(
  * @param options
  */
 declare function defImages(
-    files: StringLike | Buffer | Blob,
+    files: ElementOrArray<string | WorkspaceFile | Buffer | Blob>,    
     options?: DefImagesOptions
 ): void
 

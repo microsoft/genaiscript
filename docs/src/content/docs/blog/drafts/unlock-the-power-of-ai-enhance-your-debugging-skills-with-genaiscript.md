@@ -8,6 +8,9 @@ tags:
   - Programming
   - Efficiency
 draft: true
+description: Leverage AI with GenAIScript to improve your debugging skills,
+  featuring a practical example for an efficient workflow.
+keywords: AI, debugging, programming efficiency, developer tools, GenAIScript
 
 ---
 
