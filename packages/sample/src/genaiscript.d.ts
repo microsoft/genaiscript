@@ -777,6 +777,18 @@ interface DefOptions extends FenceOptions, ContextExpansionOptions, DataFilter {
 
 interface DefImagesOptions {
     detail?: "high" | "low"
+    /**
+     * Maximum width of the image
+     */
+    maxWidth?: number
+    /**
+     * Maximum height of the image
+     */
+    maxHeight?: number
+    /**
+     * Auto cropping same color on the edges of the image
+     */
+    autocrop?: boolean
 }
 
 interface ChatTaskOptions {

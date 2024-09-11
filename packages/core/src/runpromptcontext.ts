@@ -24,6 +24,7 @@ import { renderShellOutput } from "./chatrender"
 import { fileTypeFromBuffer } from "file-type"
 import { jinjaRender } from "./jinja"
 import { mustacheRender } from "./mustache"
+import { imageEncodeForLLM } from "./image"
 
 export function createChatTurnGenerationContext(
     options: GenerationOptions,
@@ -247,32 +248,13 @@ export function createChatGenerationContext(
             files.forEach((file) => defImages(file, defOptions))
         else if (typeof files === "string")
             appendChild(node, createImageNode({ url: files, detail }))
-        else if (files instanceof Buffer) {
-            const buffer: Buffer = files
+        else if (files instanceof Buffer || files instanceof Blob) {
+            const buffer: Buffer | Blob = files
             appendChild(
                 node,
                 createImageNode(
                     (async () => {
-                        const mime = await fileTypeFromBuffer(buffer)
-                        const b64 = await buffer.toString("base64")
-                        const url = `data:${mime.mime};base64,${b64}`
-                        return {
-                            url,
-                            detail,
-                        }
-                    })()
-                )
-            )
-        } else if (files instanceof Blob) {
-            const blob: Blob = files
-            appendChild(
-                node,
-                createImageNode(
-                    (async () => {
-                        const buffer = Buffer.from(await blob.arrayBuffer())
-                        const mime = await fileTypeFromBuffer(buffer)
-                        const b64 = await buffer.toString("base64")
-                        const url = `data:${mime.mime};base64,${b64}`
+                        const url = await imageEncodeForLLM(buffer, defOptions)
                         return {
                             url,
                             detail,
