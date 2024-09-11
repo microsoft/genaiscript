@@ -13,7 +13,7 @@ const { stdout: tag } = await host.exec("git", [
 ])
 const { stdout: commits } = await host.exec("git", [
     "log",
-    "--grep='skip ci'",
+    "--grep='(skip ci|THIRD_PARTY_NOTICES)'",
     "--invert-grep",
     "--no-merges",
     `HEAD...${tag}`,
