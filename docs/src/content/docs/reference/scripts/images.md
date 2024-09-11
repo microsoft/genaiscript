@@ -15,3 +15,29 @@ defImages(env.files)
 ```
 
 Read more about [OpenAI Vision](https://platform.openai.com/docs/guides/vision/limitations).
+
+## URLs
+
+Public URLs (that do not require authentication) will be passed directly to OpenAI.
+
+```js
+defImages(
+    "https://github.com/microsoft/genaiscript/blob/main/docs/public/images/logo.png?raw=true"
+)
+```
+
+Local files are loaded and encoded as a data uri.
+
+## Buffer, Blob
+
+The `defImage` function also supports [Buffer](https://nodejs.org/api/buffer.html)
+and [Blob](https://developer.mozilla.org/en-US/docs/Web/API/Blob).
+
+
+This example takes a screenshot of bing.com and adds it to the images.
+
+```js
+const page = await host.browse("https://bing.com")
+const screenshot = await page.screenshot() // returns a node.js Buffer
+defImages(screenshot)
+```
