@@ -17,6 +17,9 @@ import lmAlt from "../../../assets/vscode-language-models.png.txt?raw"
 import lmSelectSrc from "../../../assets/vscode-language-models-select.png"
 import lmSelectAlt from "../../../assets/vscode-language-models-select.png.txt?raw"
 
+import oaiModelsSrc from "../../../assets/openai-model-names.png"
+import oaiModelsAlt from "../../../assets/openai-model-names.png.txt?raw"
+
 You will need to configure the LLM connection and authorizion secrets.
 
 :::tip
@@ -111,6 +114,16 @@ Update the `.env` file with the secret key.
 ```txt title=".env"
 OPENAI_API_KEY=sk_...
 ```
+
+</li>
+
+<li>
+
+Find the model you want to use 
+from the [OpenAI API Reference](https://platform.openai.com/docs/models/gpt-4o)
+or the [OpenAI Chat Playground](https://platform.openai.com/playground/chat).
+
+<Image src={oaiModelsSrc} alt={oaiModelsAlt} loading="lazy" />
 
 </li>
 
