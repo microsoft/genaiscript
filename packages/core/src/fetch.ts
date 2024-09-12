@@ -4,11 +4,12 @@ import { MarkdownTrace, TraceOptions } from "./trace"
 import {
     FETCH_RETRY_DEFAULT,
     FETCH_RETRY_DEFAULT_DEFAULT,
+    FETCH_RETRY_GROWTH_FACTOR,
     FETCH_RETRY_MAX_DELAY_DEFAULT,
 } from "./constants"
 import { errorMessage } from "./error"
 import { logVerbose, toStringList } from "./util"
-import { CancellationToken, checkCancelled } from "./cancellation"
+import { CancellationToken } from "./cancellation"
 
 export async function createFetch(
     options?: {
@@ -45,7 +46,10 @@ export async function createFetch(
 
             const message = errorMessage(error)
             const status = statusToMessage(response)
-            const delay = Math.min(maxDelay, Math.pow(2, attempt) * retryDelay)
+            const delay = Math.min(
+                maxDelay,
+                Math.pow(FETCH_RETRY_GROWTH_FACTOR, attempt) * retryDelay
+            )
             const msg = toStringList(
                 `retry #${attempt + 1} in ${Math.floor(delay) / 1000}s`,
                 message,
