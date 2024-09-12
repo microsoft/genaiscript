@@ -404,7 +404,7 @@ function structurifyChatSession(
     } else {
         json = isJSONObjectOrArray(text)
             ? JSONLLMTryParse(text)
-            : (undefined ?? findFirstDataFence(fences))
+            : findFirstDataFence(fences)
     }
     const frames: DataFrame[] = []
 

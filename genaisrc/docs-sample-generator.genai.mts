@@ -1,7 +1,7 @@
 script({
     model: "openai:gpt-4",
     title: "generating tests from samples",
-    system: ["system"],
+    system: ["system", "system.files"],
     parameters: {
         api: {
             type: "string",
@@ -15,8 +15,9 @@ const api = env.vars.api + ""
 console.log(`generating sample for ${api}`)
 
 const scripts = (
-    await workspace.findFiles("packages/*/src/**/*genai.{js,mjs}")
+    await workspace.findFiles("packages/**/*genai.{js,mjs}", { readText: true })
 ).filter((f) => f.content?.includes(api))
+if (!scripts.length) cancel("No samples found")
 const samples = await retrieval.vectorSearch(api, scripts)
 console.debug(samples)
 
@@ -27,7 +28,7 @@ const docsSamples = await retrieval.vectorSearch(api, docs, { topK: 3 })
 console.debug(docsSamples)
 
 const sn = def("SAMPLES", samples, { maxTokens: 10000 })
-const dc = def("DOCS", docsSamples, { maxTokens: 10000 })
+const dc = def("DOCS", docsSamples, { maxTokens: 10000, ignoreEmpty: true })
 
 $`
 You are an expert at writing GenAIScript programs.
@@ -46,4 +47,7 @@ using the information found in ${sn} and ${dc}.
 - Do not use any external services
 - The example should have less than 5 lines of code
 - Use pseudo code if necessary
+- use descriptive file names
+- The script runs in node.js
 `
+defFileOutput("packages/auto/*.genai.mts", "Generated genaiscript programs")

@@ -2108,6 +2108,8 @@ interface BrowseResponse {
     url(): string
 }
 
+interface BrowserJSHandle {}
+
 /**
  * A playwright Page instance
  * @link https://playwright.dev/docs/api/class-page
@@ -2160,6 +2162,25 @@ interface BrowserPage extends BrowserLocatorSelector {
      * Closes the browser page, context and other resources
      */
     close(): Promise<void>
+
+    /**
+     * Returns the value of the pageFunction evaluation.
+     * @param fn
+     * @param args serializable object
+     * @link https://playwright.dev/docs/api/class-page#page-evaluate
+     */
+    evaluate<T = any>(pageFunction: Function | string, arg?: any): Promise<T>
+
+    /**
+     * Returns the value of the pageFunction evaluation as a JSHandle.
+     * @param fn
+     * @param args serializable object
+     * @link https://playwright.dev/docs/api/class-page#page-evaluate-handle
+     */
+    evaluateHandle<T = any>(
+        selector: string,
+        arg?: any
+    ): Promise<BrowserJSHandle>
 }
 
 interface ShellSelectOptions {}
