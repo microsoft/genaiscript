@@ -1099,7 +1099,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.54.4
+ - genaiscript-vscode@1.54.5
 
 This package contains the following license and notice below:
 
@@ -1844,7 +1844,7 @@ Apache License
 
 The following npm package may be included in this product:
 
- - typescript@5.5.4
+ - typescript@5.6.2
 
 This package contains the following license and notice below:
 
@@ -4188,9 +4188,9 @@ The following npm packages may be included in this product:
  - @tokenizer/token@0.3.0
  - agent-base@6.0.2
  - canvas@2.11.2
- - genaiscript-core-internal@1.54.4
- - genaiscript-sample@1.54.4
- - genaiscript@1.54.4
+ - genaiscript-core-internal@1.54.5
+ - genaiscript-sample@1.54.5
+ - genaiscript@1.54.5
  - https-proxy-agent@5.0.1
  - isarray@1.0.0
  - javascript-natural-sort@0.7.1
@@ -4962,7 +4962,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - tsx@4.19.0
+ - tsx@4.19.1
 
 This package contains the following license and notice below:
 
@@ -4992,7 +4992,7 @@ SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - get-tsconfig@4.8.0
+ - get-tsconfig@4.8.1
  - resolve-pkg-maps@1.0.0
 
 These packages each contain the following license and notice below:
@@ -6412,7 +6412,7 @@ SOFTWARE.
 The following npm packages may be included in this product:
 
  - end-of-stream@1.4.4
- - pump@3.0.0
+ - pump@3.0.2
  - tar-fs@2.0.1
  - tar-stream@2.2.0
 
@@ -7314,7 +7314,7 @@ For more information, please refer to <http://unlicense.org>
 
 The following npm package may be included in this product:
 
- - tree-sitter-wasms@0.1.11
+ - tree-sitter-wasms@0.1.12
 
 This package contains the following license and notice below:
 
