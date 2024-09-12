@@ -31,14 +31,23 @@ import sarifAlt from "../../assets/tla-ai-linter.png.txt?raw"
 import testExplorerSrc from "../../assets/vscode-test-explorer.png"
 import testExplorerAlt from "../../assets/vscode-test-explorer.png.txt?raw"
 
+## Prompting is Coding
+
+Programmatically assemble prompts for LLMs using JavaScript.
+
 ```js wrap title="extract-data.genai.mjs"
 // define the context
 def("FILE", env.files, { endsWith: ".pdf" })
 // structure the data
 const schema = defSchema("DATA", { type: "array", items: { type: "string" } })
 // assign the task
-$`Analyze FILE and extract data to JSON
-using the ${schema} schema.`
+$`Analyze FILE and extract data to JSON.`
+// save results to file
+defFileOutput("*.pdf.txt", "Extracted data", { schema })
+// tools
+defTool("weather", "live weahter", { city: "Paris" }, /* schema */
+    async ({ city }) => { ... "sunny" }) /* callback */
+...
 ```
 
 ## Next steps
