@@ -90,6 +90,7 @@ let snippet: string | Fenced
         - Generate a GenAISCript source code that implements the idea described in TOPIC.
         - Validate syntax and checking with genaiscript_typecheck.
         - Respond ONLY with the JavaScript source code. Do NOT fence code in markdown. Do not add text around code.
+        - do not import "genaiscript" module, it is ambient.
         
         # Information
         
@@ -141,7 +142,8 @@ Respond with the markdown content of the blog post.
 - generate the blog post content, nothing else
 - use a clear and engaging tone
 - explain each line of code separately, link to the documentation if possible
-- title should be click-bait, use quotes (") around title. add title in frontmatter.
+- title should be clear, descriptive and short, use quotes (") around title. add title in frontmatter.
+- do NOT use 'unlock' or 'potential' in title
 - do NOT generate cover_image
 - the script will be execute by GenAIScript CLI
 - the TypeScript API is defined in the file genaisrc/genaiscript.d.ts. Assume that all globals are ambient. Do not import or require genaiscript module.
