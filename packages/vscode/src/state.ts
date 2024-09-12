@@ -338,6 +338,7 @@ tests/
         )
         r.runId = runId
         r.request = request
+        vscode.commands.executeCommand("workbench.view.extension.genaiscript")
         if (!options.notebook && !hasOutputOrTraceOpened())
             vscode.commands.executeCommand("genaiscript.request.open.output")
         r.request

@@ -35,6 +35,6 @@ Save the alt text in a file called "${file.filename + ".txt"}".
 <v-click>
 
 ## Deployed in GenAIScript Repo - Nightly Builds
-![](/alt-text-deploy.png)
+![The image displays a user interface of a software workflow system, showing a list of workflow runs for a project named "genai alt text generator." The list includes various entries with details such as the event type, status, branch, and actor. The most recent entry at the top indicates that the workflow has a 'workflow_dispatch' event trigger, while the entries below show completed runs marked with a green checkmark, their respective durations, and the branch name 'main.' There is also a button labeled "Run workflow" in the top right of the list. The interface appears to be part of a development or automation tool, possibly a continuous integration or continuous deployment service.](/alt-text-deploy.png)
 
 </v-click>

@@ -7,6 +7,7 @@ export async function imageEncodeForLLM(
 ) {
     const { Jimp, HorizontalAlign, VerticalAlign } = await import("jimp")
     const { autoCrop, maxHeight, maxWidth } = options
+    if (typeof url === "string") url = await resolveFileDataUri(url)
     // If the image is already a string and we don't need to do any processing, return it
     if (
         typeof url === "string" &&
@@ -15,8 +16,6 @@ export async function imageEncodeForLLM(
         maxWidth === undefined
     )
         return url
-
-    if (typeof url === "string") url = await resolveFileDataUri(url)
 
     if (url instanceof Blob) url = Buffer.from(await url.arrayBuffer())
     const img = await Jimp.read(url)
