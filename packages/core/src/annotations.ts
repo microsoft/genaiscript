@@ -27,7 +27,7 @@ export function parseAnnotations(text: string): Diagnostic[] {
     const addAnnotation = (m: RegExpMatchArray) => {
         const { file, line, endLine, severity, code, message } = m.groups
         const annotation: Diagnostic = {
-            severity: sevMap[severity],
+            severity: sevMap[severity] ?? "info",
             filename: file,
             range: [
                 [parseInt(line) - 1, 0],
