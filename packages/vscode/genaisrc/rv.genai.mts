@@ -1,18 +1,52 @@
+/**
+ * GenAIScript Reviewer
+ *
+ * This script is used to review the current files
+ * or the changes in the git repository.
+ *
+ * Don't hesitate to customize this script to fit your needs!
+ */
+
 script({
     title: "Review master",
     description: "Review the current files",
     model: "openai:gpt-4o",
-    system: ["system", "system.explanations", "system.annotations"],
+    system: ["system.annotations"],
     tools: ["fs_find_files", "fs_read_text"],
     cache: "rv",
+    parameters: {
+        errors: {
+            type: "boolean",
+            description: "Report errors only",
+            default: false,
+        },
+    },
 })
 
-if (!env.files.length) cancel("No files to review")
+/** ------------------------------------------------
+ *  Configuration
+ */
+const { errors } = env.vars
 
-def("FILE", env.files.slice(0, 5), {
-    maxTokens: 5000,
-    glob: "**/*.{py,ts,cs,rs,c,cpp,h,hpp,js,mjs,mts}", // TODO:
-})
+/** ------------------------------------------------
+ *  Context
+ */
+let content = ""
+/**
+ * env.files contains the file selected by the user in VSCode or through the cli arguments.
+ */
+if (env.files.length) {
+    content = def("FILE", env.files, {
+        maxTokens: 5000,
+        glob: "**/*.{py,ts,cs,rs,c,cpp,h,hpp,js,mjs,mts}", // TODO:
+    })
+} else {
+    // No files selected, review the current changes
+    console.log("No files found. Using git diff.")
+    const { stdout: diff } = await host.exec("git", ["diff", "-U6"]) // customize git diff to filter some files
+    if (!diff) cancel("No changes found, did you forget to stage your changes?")
+    content = def("GIT_DIFF", diff, { language: "diff" })
+}
 
 $`
 ## Role
@@ -22,11 +56,14 @@ You are very helpful at reviewing code and providing constructive feedback.
 
 ## Task
 
-Review the content of each FILE and report errors and warnings as annotations.
+Report ${errors ? `errors` : `errors and warnings`} in ${content} using the annotation format.
 
 ## Guidance
 
-- Follow best practices based on the programming language of each file.
+- Use best practices of the programming language of each file.
 - If available, provide a URL to the official documentation for the best practice. do NOT invent URLs.
 - Analyze ALL the code. Do not be lazy. This is IMPORTANT.
-` // TODO: better prompt!
+- Use tools to read the entire file content to get more context
+${errors ? `- Do not report warnings, only errors.` : ``}
+`
+// TODO: customize with more rules

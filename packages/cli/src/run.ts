@@ -163,6 +163,8 @@ export async function runScript(
         return { exitCode, result }
     }
 
+    logVerbose(`script: ${scriptId}`)
+
     if (out) {
         if (removeOut) await emptyDir(out)
         await ensureDir(out)
