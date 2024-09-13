@@ -24,8 +24,7 @@ export function parseAnnotations(text: string): Diagnostic[] {
         ["warning"]: "warning",
         ["error"]: "error",
     }
-    const annotations = new Set<Diagnostic>()
-    for (const m of text.matchAll(TYPESCRIPT_ANNOTATIONS_RX)) {
+    const addAnnotation = (m: RegExpMatchArray) => {
         const { file, line, endLine, severity, code, message } = m.groups
         const annotation: Diagnostic = {
             severity: sevMap[severity],
@@ -39,40 +38,11 @@ export function parseAnnotations(text: string): Diagnostic[] {
         }
         annotations.add(annotation)
     }
-    text.replace(
-        GITHUB_ANNOTATIONS_RX,
-        (_, severity, file, line, endLine, __, code, message) => {
-            const annotation: Diagnostic = {
-                severity: sevMap[severity] || severity,
-                filename: file,
-                range: [
-                    [parseInt(line) - 1, 0],
-                    [parseInt(endLine) - 1, Number.MAX_VALUE],
-                ],
-                message,
-                code,
-            }
-            annotations.add(annotation)
-            return ""
-        }
-    )
-    text.replace(
-        AZURE_DEVOPS_ANNOTATIONS_RX,
-        (_, severity, file, line, __, code, message) => {
-            const annotation: Diagnostic = {
-                severity: sevMap[severity] || severity,
-                filename: file,
-                range: [
-                    [parseInt(line) - 1, 0],
-                    [parseInt(line) - 1, Number.MAX_VALUE],
-                ],
-                message,
-                code,
-            }
-            annotations.add(annotation)
-            return ""
-        }
-    )
+
+    const annotations = new Set<Diagnostic>()
+    for (const m of text.matchAll(TYPESCRIPT_ANNOTATIONS_RX)) addAnnotation(m)
+    for (const m of text.matchAll(GITHUB_ANNOTATIONS_RX)) addAnnotation(m)
+    for (const m of text.matchAll(AZURE_DEVOPS_ANNOTATIONS_RX)) addAnnotation(m)
     return Array.from(annotations.values())
 }
 
