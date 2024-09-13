@@ -24,7 +24,9 @@ export async function activeTaskProvider(state: ExtensionState) {
                     vscode.TaskScope.Workspace,
                     script.id,
                     TOOL_ID,
-                    new vscode.ShellExecution(`${exec} run "${scriptp}"`)
+                    new vscode.ShellExecution(
+                        `${exec} run "${scriptp}" $\{relativeFile\}`
+                    )
                 )
                 task.detail = `${script.title ?? script.description} - ${scriptp}`
                 task.problemMatchers = ["$tsc"]
