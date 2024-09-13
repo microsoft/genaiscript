@@ -23,6 +23,7 @@ import { activateConnectionInfoTree } from "./connectioninfotree"
 import { updateConnectionConfiguration } from "../../core/src/connection"
 import { APIType } from "../../core/src/host"
 import { openUrlInTab } from "./browser"
+import { activeTaskProvider } from "./taskprovider"
 
 export async function activate(context: ExtensionContext) {
     const state = new ExtensionState(context)
@@ -36,6 +37,7 @@ export async function activate(context: ExtensionContext) {
     activateTraceTreeDataProvider(state)
     activateStatusBar(state)
     activateDocsNotebook(state)
+    activeTaskProvider(state)
 
     context.subscriptions.push(
         registerCommand(
