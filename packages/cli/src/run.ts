@@ -501,6 +501,6 @@ export async function runScript(
     if (failOnErrors && result.annotations?.some((a) => a.severity === "error"))
         return fail("error annotations found", ANNOTATION_ERROR_CODE)
 
-    process.stderr.write("genaiscript: done\n")
+    logVerbose("genaiscript: done\n")
     return { exitCode: 0, result }
 }
