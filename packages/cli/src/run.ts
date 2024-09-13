@@ -163,7 +163,7 @@ export async function runScript(
         return { exitCode, result }
     }
 
-    logVerbose(`script: ${scriptId}`)
+    logVerbose(`genaiscript: ${scriptId}`)
 
     if (out) {
         if (removeOut) await emptyDir(out)
@@ -501,6 +501,6 @@ export async function runScript(
     if (failOnErrors && result.annotations?.some((a) => a.severity === "error"))
         return fail("error annotations found", ANNOTATION_ERROR_CODE)
 
-    process.stderr.write("\n")
+    process.stderr.write("genaiscript: done\n")
     return { exitCode: 0, result }
 }
