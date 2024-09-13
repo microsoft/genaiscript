@@ -6,10 +6,7 @@ import {
     OPEN,
     TOOL_NAME,
     ICON_LOGO_NAME,
-    CLIENT_RECONNECT_MAX_ATTEMPTS,
     TOOL_ID,
-    VSCODE_CONFIG_CLI_VERSION,
-    VSCODE_CONFIG_CLI_PATH,
 } from "../../core/src/constants"
 import { ServerManager, host } from "../../core/src/host"
 import { logError, logVerbose } from "../../core/src/util"
@@ -17,6 +14,7 @@ import { WebSocketClient } from "../../core/src/server/client"
 import { CORE_VERSION } from "../../core/src/version"
 import { createChatModelRunner } from "./lmaccess"
 import { semverParse, semverSatisfies } from "../../core/src/semver"
+import { resolveCli } from "./config"
 
 export class TerminalServerManager implements ServerManager {
     private _terminal: vscode.Terminal
@@ -86,15 +84,9 @@ export class TerminalServerManager implements ServerManager {
             isTransient: true,
             iconPath: new vscode.ThemeIcon(ICON_LOGO_NAME),
         })
-        const config = vscode.workspace.getConfiguration(TOOL_ID)
-        const cliPath = config.get(VSCODE_CONFIG_CLI_PATH) as string
+        const { cliPath, cliVersion } = await resolveCli()
         if (cliPath) this._terminal.sendText(`node "${cliPath}" serve`)
-        else {
-            const cliVersion =
-                (config.get(VSCODE_CONFIG_CLI_VERSION) as string) ||
-                CORE_VERSION
-            this._terminal.sendText(`npx --yes ${TOOL_ID}@${cliVersion} serve`)
-        }
+        else this._terminal.sendText(`npx --yes ${TOOL_ID}@${cliVersion} serve`)
         this._terminal.show()
     }
 

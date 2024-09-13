@@ -53,6 +53,20 @@
     },
     "contributes": {
         "markdown.markdownItPlugins": true,
+        "taskDefinitions": [
+            {
+                "type": "genaiscript",
+                "required": [
+                    "script"
+                ],
+                "properties": {
+                    "script": {
+                        "type": "string",
+                        "description": "GenAIScript script to run"
+                    }
+                }
+            }
+        ],
         "walkthroughs": [
             {
                 "id": "genaiscript.tutorial",

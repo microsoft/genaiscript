@@ -1,3 +1,4 @@
+// https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/workflow-commands-for-github-actions#setting-an-error-message
 const GITHUB_ANNOTATIONS_RX =
     /^\s*::(?<severity>notice|warning|error)\s*file=(?<file>[^,]+),\s*line=(?<line>\d+),\s*endLine=(?<endLine>\d+)\s*(,\s*code=(?<code>[^,:]+)?\s*)?::(?<message>.*)$/gim
 // ##vso[task.logissue type=warning;sourcepath=consoleap
@@ -6,55 +7,43 @@ const GITHUB_ANNOTATIONS_RX =
 const AZURE_DEVOPS_ANNOTATIONS_RX =
     /^\s*##vso\[task.logissue\s+type=(?<severity>error|warning);sourcepath=(?<file>);linenumber=(?<line>\d+)(;code=(?<code>\d+);)?[^\]]*\](?<message>.*)$/gim
 
+// https://code.visualstudio.com/docs/editor/tasks#_background-watching-tasks
+const TYPESCRIPT_ANNOTATIONS_RX =
+    /^(?<file>[^:\s].*?):(?<line>\d+)(?::(?<endLine>\d+))?(?::\d+)?\s+-\s+(?<severity>error|warning)\s+(?<code>[^:]+)\s*:\s*(?<message>.*)$/gim
+
 /**
- * Matches ::(notice|warning|error) file=<filename>,line=<start line>::<message>
+ * Matches TypeScript, GitHub Actions and Azure DevOps annotations
  * @param line
+ * @link https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/workflow-commands-for-github-actions#setting-an-error-message
  */
 export function parseAnnotations(text: string): Diagnostic[] {
     if (!text) return []
     const sevMap: Record<string, DiagnosticSeverity> = {
+        ["info"]: "info",
         ["notice"]: "info",
         ["warning"]: "warning",
         ["error"]: "error",
     }
-    const annotations: Record<string, Diagnostic> = {}
-    text.replace(
-        GITHUB_ANNOTATIONS_RX,
-        (_, severity, file, line, endLine, __, code, message) => {
-            const annotation: Diagnostic = {
-                severity: sevMap[severity] || severity,
-                filename: file,
-                range: [
-                    [parseInt(line) - 1, 0],
-                    [parseInt(endLine) - 1, Number.MAX_VALUE],
-                ],
-                message,
-                code,
-            }
-            const key = JSON.stringify(annotation)
-            annotations[key] = annotation
-            return ""
+    const addAnnotation = (m: RegExpMatchArray) => {
+        const { file, line, endLine, severity, code, message } = m.groups
+        const annotation: Diagnostic = {
+            severity: sevMap[severity] ?? "info",
+            filename: file,
+            range: [
+                [parseInt(line) - 1, 0],
+                [parseInt(endLine) - 1, Number.MAX_VALUE],
+            ],
+            message,
+            code,
         }
-    )
-    text?.replace(
-        AZURE_DEVOPS_ANNOTATIONS_RX,
-        (_, severity, file, line, __, code, message) => {
-            const annotation: Diagnostic = {
-                severity: sevMap[severity] || severity,
-                filename: file,
-                range: [
-                    [parseInt(line) - 1, 0],
-                    [parseInt(line) - 1, Number.MAX_VALUE],
-                ],
-                message,
-                code,
-            }
-            const key = JSON.stringify(annotation)
-            annotations[key] = annotation
-            return ""
-        }
-    )
-    return Object.values(annotations)
+        annotations.add(annotation)
+    }
+
+    const annotations = new Set<Diagnostic>()
+    for (const m of text.matchAll(TYPESCRIPT_ANNOTATIONS_RX)) addAnnotation(m)
+    for (const m of text.matchAll(GITHUB_ANNOTATIONS_RX)) addAnnotation(m)
+    for (const m of text.matchAll(AZURE_DEVOPS_ANNOTATIONS_RX)) addAnnotation(m)
+    return Array.from(annotations.values())
 }
 
 export function convertDiagnosticToGitHubActionCommand(d: Diagnostic) {

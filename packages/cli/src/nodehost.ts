@@ -39,7 +39,7 @@ import {
     ResponseStatus,
 } from "../../core/src/host"
 import { AbortSignalOptions, TraceOptions } from "../../core/src/trace"
-import { logVerbose, unique } from "../../core/src/util"
+import { logVerbose, quoteify, unique } from "../../core/src/util"
 import { parseModelIdentifier } from "../../core/src/models"
 import {
     AuthenticationToken,
@@ -300,7 +300,6 @@ export class NodeHost implements RuntimeHost {
             if (command === "python" && process.platform !== "win32")
                 command = "python3"
 
-            const quoteify = (a: string) => (/\s/.test(a) ? `"${a}"` : a)
             logVerbose(
                 `${cwd ? `${cwd}> ` : ""}${quoteify(command)} ${args.map(quoteify).join(" ")}`
             )
