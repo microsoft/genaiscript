@@ -1,10 +1,22 @@
+/**
+ * git commit flow with auto-generated commit message
+ */
+script({
+    title: "git commit message",
+    description: "Generate a commit message for all staged changes",
+})
+
 // Check for staged changes and stage all changes if none are staged
 let diff = await host.exec("git", ["diff", "--cached"])
 if (!diff.stdout) {
+    /**
+     * Ask user to stage all changes if none are staged
+     */
     const stage = await host.confirm("No staged changes. Stage all changes?", {
         default: true,
     })
     if (stage) {
+        // Stage all changes and recompute diff
         await host.exec("git", ["add", "."])
         diff = await host.exec("git", [
             "diff",
@@ -17,6 +29,7 @@ if (!diff.stdout) {
     if (!diff.stdout) cancel("no staged changes")
 }
 
+// show diff in the console
 console.log(diff.stdout)
 
 let choice
@@ -31,16 +44,16 @@ do {
 git diff --cached
 \`\`\`
 Please generate a concise, one-line commit message for these changes.
-- do NOT add quotes`
+- do NOT add quotes
+` // TODO: add a better prompt
         },
         { cache: false, temperature: 0.8 }
     )
-
     if (res.error) throw res.error
 
     message = res.text
     if (!message) {
-        console.log("No message generated, did you.")
+        console.log("No message generated, did you configure the LLM model?")
         break
     }
 

@@ -68,6 +68,7 @@
         "genai:tweetify": "node packages/cli/built/genaiscript.cjs run tweetify",
         "genai:docify": "node packages/cli/built/genaiscript.cjs run docify",
         "gcm": "node packages/cli/built/genaiscript.cjs run gcm",
+        "genai": "node packages/cli/built/genaiscript.cjs run",
         "upgrade:deps": "zx scripts/upgrade-deps.mjs"
     },
     "release-it": {
