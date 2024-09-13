@@ -3,7 +3,7 @@ import { parseAnnotations } from "./annotations"
 import assert from "assert/strict"
 
 describe("annotations", () => {
-    test("error", () => {
+    test("github", () => {
         const output = `
 ::error file=packages/core/src/github.ts,line=71,endLine=71,code=concatenation_override::The change on line 71 may lead to the original \`text\` content being overridden instead of appending the footer. Consider using \`text = appendGeneratedComment(script, info, text)\` to ensure the original text is preserved and the footer is appended. 😇
 
@@ -24,5 +24,22 @@ describe("annotations", () => {
             diags[0].message,
             "The change on line 71 may lead to the original `text` content being overridden instead of appending the footer. Consider using `text = appendGeneratedComment(script, info, text)` to ensure the original text is preserved and the footer is appended. 😇"
         )
+    })
+
+    test("tsc", () => {
+        const output = `
+
+src/annotations.ts:11:28 - error TS1005: ',' expected.
+        `
+
+        const diags = parseAnnotations(output)
+        // console.log(diags)
+        assert.strictEqual(diags.length, 1)
+        assert.strictEqual(diags[0].severity, "error")
+        assert.strictEqual(diags[0].filename, "src/annotations.ts")
+        assert.strictEqual(diags[0].range[0][0], 10)
+        assert.strictEqual(diags[0].range[1][0], 27)
+        assert.strictEqual(diags[0].code, "TS1005")
+        assert.strictEqual(diags[0].message, "',' expected.")
     })
 })
