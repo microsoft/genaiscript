@@ -1,7 +1,7 @@
 import { createFetch } from "./fetch"
 import { generatedByFooter, mergeDescription } from "./github"
 import { prettifyMarkdown } from "./markdown"
-import { logError, logVerbose, trimTrailingSlash } from "./util"
+import { logError, logVerbose } from "./util"
 
 // https://learn.microsoft.com/en-us/rest/api/azure/devops/git/pull-requests/update?view=azure-devops-rest-7.1
 export interface AzureDevOpsEnv {

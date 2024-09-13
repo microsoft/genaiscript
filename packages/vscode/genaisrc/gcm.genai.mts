@@ -4,6 +4,7 @@
 script({
     title: "git commit message",
     description: "Generate a commit message for all staged changes",
+    model: "openai:gpt-4o",
 })
 
 // Check for staged changes and stage all changes if none are staged
