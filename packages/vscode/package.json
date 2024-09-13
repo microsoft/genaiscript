@@ -63,14 +63,6 @@
                     "script": {
                         "type": "string",
                         "description": "GenAIScript script to run"
-                    },
-                    "files": {
-                        "type": "array",
-                        "description": "Files to include in the script",
-                        "items": {
-                            "type": "string",
-                            "description": "File or glob to include in the script"
-                        }
                     }
                 }
             }

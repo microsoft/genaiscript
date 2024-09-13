@@ -2,6 +2,7 @@ import * as vscode from "vscode"
 import { ExtensionState } from "./state"
 import { resolveCli } from "./config"
 import { TOOL_ID } from "../../core/src/constants"
+import { quoteify } from "../../core/src/util"
 
 export async function activeTaskProvider(state: ExtensionState) {
     const { context, host } = state
@@ -11,7 +12,7 @@ export async function activeTaskProvider(state: ExtensionState) {
         provideTasks: async () => {
             const { cliPath, cliVersion } = await resolveCli()
             const exec = cliPath
-                ? cliPath
+                ? quoteify(cliPath)
                 : `npx --yes genaiscript@${cliVersion}`
             const scripts = state.project.templates.filter((t) => !t.isSystem)
             const tasks = scripts.map((script) => {
@@ -20,13 +21,15 @@ export async function activeTaskProvider(state: ExtensionState) {
                     script.filename
                 )
                 const task = new vscode.Task(
-                    { type: TOOL_ID, script: script.id },
+                    { type: TOOL_ID, script: script.filename },
                     vscode.TaskScope.Workspace,
                     script.id,
                     TOOL_ID,
-                    new vscode.ShellExecution(
-                        `${exec} run "${scriptp}" $\{relativeFile\}`
-                    )
+                    new vscode.ShellExecution(exec, [
+                        "run",
+                        scriptp,
+                        "${relativeFile}",
+                    ])
                 )
                 task.detail = `${script.title ?? script.description} - ${scriptp}`
                 task.problemMatchers = ["$tsc"]
