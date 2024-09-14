@@ -29,7 +29,7 @@ export async function activate(context: ExtensionContext) {
     const state = new ExtensionState(context)
     activatePromptCommands(state)
     activateFragmentCommands(state)
-    activateSamplesCommands(state)
+//    activateSamplesCommands(state)
     activateMarkdownTextDocumentContentProvider(state)
     activatePromptTreeDataProvider(state)
     activateConnectionInfoTree(state)
