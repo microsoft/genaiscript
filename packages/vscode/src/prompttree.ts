@@ -92,7 +92,7 @@ ${description}
     }
 }
 
-export function activatePrompTreeDataProvider(state: ExtensionState) {
+export function activatePromptTreeDataProvider(state: ExtensionState) {
     const { context } = state
     const { subscriptions } = context
     const treeDataProvider = new PromptTreeDataProvider(state)
