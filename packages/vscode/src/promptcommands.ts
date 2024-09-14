@@ -62,13 +62,6 @@ export function activatePromptCommands(state: ExtensionState) {
             }
         ),
         registerCommand(
-            "genaiscript.prompt.unbuiltin",
-            async (template: PromptScript) => {
-                if (!template) return
-                await showPrompt(await copyPrompt(template, { fork: false }))
-            }
-        ),
-        registerCommand(
             "genaiscript.prompt.navigate",
             async (prompt: PromptScript) => {
                 const uri = prompt.filename

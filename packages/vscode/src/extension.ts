@@ -4,7 +4,7 @@ import { ExtensionState } from "./state"
 import { activateStatusBar } from "./statusbar"
 import { activateFragmentCommands } from "./fragmentcommands"
 import { activateMarkdownTextDocumentContentProvider } from "./markdowndocumentprovider"
-import { activatePrompTreeDataProvider } from "./prompttree"
+import { activatePromptTreeDataProvider } from "./prompttree"
 import { activatePromptCommands, commandButtons } from "./promptcommands"
 import { activateLLMRequestTreeDataProvider } from "./llmrequesttree"
 import { activateAIRequestTreeDataProvider } from "./airequesttree"
@@ -22,15 +22,16 @@ import MarkdownItGitHubAlerts from "markdown-it-github-alerts"
 import { activateConnectionInfoTree } from "./connectioninfotree"
 import { updateConnectionConfiguration } from "../../core/src/connection"
 import { APIType } from "../../core/src/host"
-import { openUrlInTab } from "./browser"
 import { activeTaskProvider } from "./taskprovider"
+import { activateSamplesCommands } from "./samplescommands"
 
 export async function activate(context: ExtensionContext) {
     const state = new ExtensionState(context)
     activatePromptCommands(state)
     activateFragmentCommands(state)
+//    activateSamplesCommands(state)
     activateMarkdownTextDocumentContentProvider(state)
-    activatePrompTreeDataProvider(state)
+    activatePromptTreeDataProvider(state)
     activateConnectionInfoTree(state)
     activateAIRequestTreeDataProvider(state)
     activateLLMRequestTreeDataProvider(state)
