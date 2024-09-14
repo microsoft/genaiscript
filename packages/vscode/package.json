@@ -198,10 +198,6 @@
                     "when": "false"
                 },
                 {
-                    "command": "genaiscript.prompt.unbuiltin",
-                    "when": "false"
-                },
-                {
                     "command": "genaiscript.prompt.navigate",
                     "when": "false"
                 },
@@ -235,10 +231,6 @@
                 {
                     "command": "genaiscript.prompt.fork",
                     "when": "view == genaiscript.prompts && viewItem  =~ /^prompt/"
-                },
-                {
-                    "command": "genaiscript.prompt.unbuiltin",
-                    "when": "view == genaiscript.prompts && viewItem  =~ /^prompt.builtin/"
                 }
             ],
             "explorer/context": [
@@ -329,11 +321,6 @@
                 "title": "Fork GenAiScript...",
                 "category": "GenAIScript",
                 "icon": "$(repo-forked)"
-            },
-            {
-                "command": "genaiscript.prompt.unbuiltin",
-                "title": "Move builtin to project",
-                "category": "GenAIScript"
             },
             {
                 "command": "genaiscript.request.open",
