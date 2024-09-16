@@ -171,33 +171,29 @@ function messagesToChatMessages(messages: ChatCompletionMessageParam[]) {
     const res: vscode.LanguageModelChatMessage[] = messages.map((m) => {
         switch (m.role) {
             case "system":
-                return <vscode.LanguageModelChatMessage>{
-                    role: vscode.LanguageModelChatMessageRole.User,
-                    content: m.content,
-                }
             case "user":
                 if (
                     Array.isArray(m.content) &&
                     m.content.some((c) => c.type === "image_url")
                 )
                     throw new Error("Vision model not supported")
-                return <vscode.LanguageModelChatMessage>{
-                    role: vscode.LanguageModelChatMessageRole.User,
-                    content:
-                        typeof m.content === "string"
-                            ? m.content
-                            : m.content.map((c) => c).join("\n"),
-                }
+                return vscode.LanguageModelChatMessage.User(
+                    typeof m.content === "string"
+                        ? m.content
+                        : m.content.map((c) => c).join("\n"),
+                    "genaiscript"
+                )
             case "assistant":
-                return <vscode.LanguageModelChatMessage>{
-                    role: vscode.LanguageModelChatMessageRole.Assistant,
-                    content: m.content,
-                }
+                return vscode.LanguageModelChatMessage.Assistant(
+                    typeof m.content === "string"
+                        ? m.content
+                        : m.content.map((c) => c).join("\n")
+                )
             case "function":
             case "tool":
                 throw new Error("tools not supported with copilot models")
             default:
-                throw new Error("uknown role")
+                throw new Error("unknown role " + m.role)
         }
     })
     return res
