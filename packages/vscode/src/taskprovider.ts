@@ -36,6 +36,9 @@ export async function activeTaskProvider(state: ExtensionState) {
                     "$genaiscript",
                     "$eslint-compact",
                     "$tsc",
+                    "$msCompile",
+                    "$lessCompile",
+                    "$jshint",
                 ]
                 task.presentationOptions = {
                     echo: true,
