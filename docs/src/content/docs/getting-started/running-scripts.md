@@ -75,7 +75,7 @@ The task launches the [cli](/genaiscript/reference/cli) and runs the selected sc
 
 :::note
 
-When running a script as a task, the result will not be visible in the GenAIScript.
+When running a script as a task, the result will not be visible in the GenAIScript trace window.
 
 :::
 
