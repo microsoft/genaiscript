@@ -11,25 +11,23 @@ export async function activeTaskProvider(state: ExtensionState) {
     const taskProvider: vscode.TaskProvider = {
         provideTasks: async () => {
             const { cliPath, cliVersion } = await resolveCli()
-            const exec = cliPath
-                ? quoteify(cliPath)
-                : `npx --yes genaiscript@${cliVersion}`
+            const exec = cliPath ? quoteify(cliPath) : `npx`
+            const exeArgs = cliPath
+                ? []
+                : ["--yes", `genaiscript@${cliVersion}`]
             const scripts = state.project.templates.filter((t) => !t.isSystem)
             const tasks = scripts.map((script) => {
                 const scriptName = host.path.relative(
                     host.projectFolder(),
                     script.filename
                 )
+                const args = [...exeArgs, "run", scriptName, "${relativeFile}"]
                 const task = new vscode.Task(
                     { type: TOOL_ID, script: script.filename },
                     vscode.TaskScope.Workspace,
                     script.id,
                     TOOL_ID,
-                    new vscode.ShellExecution(exec, [
-                        "run",
-                        scriptName,
-                        "${relativeFile}",
-                    ])
+                    new vscode.ShellExecution(exec, args)
                 )
                 task.detail = `${script.title ?? script.description} - ${scriptName}`
                 task.problemMatchers = [
