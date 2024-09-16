@@ -32,7 +32,11 @@ export async function activeTaskProvider(state: ExtensionState) {
                     ])
                 )
                 task.detail = `${script.title ?? script.description} - ${scriptName}`
-                task.problemMatchers = ["$genaiscript"]
+                task.problemMatchers = [
+                    "$genaiscript",
+                    "$eslint-compact",
+                    "$tsc",
+                ]
                 task.presentationOptions = {
                     echo: true,
                     focus: true,
