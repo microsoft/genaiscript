@@ -16,7 +16,7 @@ export async function activeTaskProvider(state: ExtensionState) {
                 : `npx --yes genaiscript@${cliVersion}`
             const scripts = state.project.templates.filter((t) => !t.isSystem)
             const tasks = scripts.map((script) => {
-                const scriptp = host.path.relative(
+                const scriptName = host.path.relative(
                     host.projectFolder(),
                     script.filename
                 )
@@ -27,12 +27,12 @@ export async function activeTaskProvider(state: ExtensionState) {
                     TOOL_ID,
                     new vscode.ShellExecution(exec, [
                         "run",
-                        scriptp,
+                        scriptName,
                         "${relativeFile}",
                     ])
                 )
-                task.detail = `${script.title ?? script.description} - ${scriptp}`
-                task.problemMatchers = ["$tsc"]
+                task.detail = `${script.title ?? script.description} - ${scriptName}`
+                task.problemMatchers = ["$genaiscript"]
                 task.presentationOptions = {
                     echo: true,
                     focus: true,
