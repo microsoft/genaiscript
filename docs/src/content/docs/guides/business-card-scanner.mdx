@@ -12,13 +12,13 @@ This guide shows how to use vision and image variables to scan business card inf
 
 ## Vision model
 
-You will need access to a deployment of the OpenAI vision model. In this example, it is identifier by `gpt-4-turbo-v`.
+You will need access to a deployment of the OpenAI vision model. In this example, it is identifier by `gpt-4o`.
 Also set the `maxTokens` to 4000 to ensure the model can process the entire business card.
 
-```js "gpt-4-turbo-v"
+```js "gpt-4o"
 script({
     ...
-    model: "openai:gpt-4-turbo-v",
+    model: "openai:gpt-4o",
     maxTokens: 4000,
 })
 ```
