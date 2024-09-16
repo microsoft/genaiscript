@@ -1,4 +1,4 @@
-scr ipt({
+script({
     system: ["system", "system.annotations"],
 })
 

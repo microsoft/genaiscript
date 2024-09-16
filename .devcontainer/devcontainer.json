@@ -14,7 +14,8 @@
                 "streetsidesoftware.code-spell-checker",
                 "file-icons.file-icons",
                 "GitHub.vscode-pull-request-github",
-                "johnpapa.vscode-peacock"
+                "johnpapa.vscode-peacock",
+                "usernamehw.errorlens"
             ]
         }
     },
