@@ -42,4 +42,21 @@ src/annotations.ts:11:28 - error TS1005: ',' expected.
         assert.strictEqual(diags[0].code, "TS1005")
         assert.strictEqual(diags[0].message, "',' expected.")
     })
+
+    test("eslint-compact", () => {
+        const output = `
+
+src/annotations.ts: line 11, col 1, Error - ',' expected. (no-unused-vars)
+        `
+
+        const diags = parseAnnotations(output)
+        // console.log(diags)
+        assert.strictEqual(diags.length, 1)
+        assert.strictEqual(diags[0].severity, "error")
+        assert.strictEqual(diags[0].filename, "src/annotations.ts")
+        assert.strictEqual(diags[0].range[0][0], 10)
+        assert.strictEqual(diags[0].range[1][0], 10)
+        assert.strictEqual(diags[0].code, "no-unused-vars")
+        assert.strictEqual(diags[0].message, "',' expected.")
+    })
 })

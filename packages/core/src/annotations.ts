@@ -9,7 +9,11 @@ const AZURE_DEVOPS_ANNOTATIONS_RX =
 
 // https://code.visualstudio.com/docs/editor/tasks#_background-watching-tasks
 const TYPESCRIPT_ANNOTATIONS_RX =
-    /^(?<file>[^:\s].*?):(?<line>\d+)(?::(?<endLine>\d+))?(?::\d+)?\s+-\s+(?<severity>error|warning)\s+(?<code>[^:]+)\s*:\s*(?<message>.*)$/gim
+    /^(?<file>[^:\s].*?):(?<line>\d+)(?::(?<endLine>\d+))?(?::\d+)?\s+-\s+(?<severity>error|warning)\s+(?<code>TS[^:]+)\s*:\s*(?<message>.*)$/gim
+
+// https://github.com/actions/toolkit/blob/main/docs/problem-matchers.md
+const ESLINT_COMPACT_RX =
+    /^(?<file>.+?):\s*line\s+(?<line>\d+)\s*,\s*col\s(?<col>\d+),\s*(?<severity>error|warning|info)\s+-\s+(?<message>.+?)\s+\((?<code>.+)\)$/gim
 
 /**
  * Matches TypeScript, GitHub Actions and Azure DevOps annotations
@@ -26,12 +30,18 @@ export function parseAnnotations(text: string): Diagnostic[] {
     }
     const addAnnotation = (m: RegExpMatchArray) => {
         const { file, line, endLine, severity, code, message } = m.groups
+
+        const lineValue = parseInt(line) - 1
+        const endLineValue = parseInt(endLine) - 1
         const annotation: Diagnostic = {
-            severity: sevMap[severity] ?? "info",
+            severity: sevMap[severity.toLowerCase()] ?? "info",
             filename: file,
             range: [
-                [parseInt(line) - 1, 0],
-                [parseInt(endLine) - 1, Number.MAX_VALUE],
+                [lineValue, 0],
+                [
+                    isNaN(endLineValue) ? lineValue : endLineValue,
+                    Number.MAX_VALUE,
+                ],
             ],
             message,
             code,
@@ -40,6 +50,7 @@ export function parseAnnotations(text: string): Diagnostic[] {
     }
 
     const annotations = new Set<Diagnostic>()
+    for (const m of text.matchAll(ESLINT_COMPACT_RX)) addAnnotation(m)
     for (const m of text.matchAll(TYPESCRIPT_ANNOTATIONS_RX)) addAnnotation(m)
     for (const m of text.matchAll(GITHUB_ANNOTATIONS_RX)) addAnnotation(m)
     for (const m of text.matchAll(AZURE_DEVOPS_ANNOTATIONS_RX)) addAnnotation(m)

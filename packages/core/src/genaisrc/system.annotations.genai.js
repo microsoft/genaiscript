@@ -4,7 +4,7 @@ system({
     lineNumbers: true,
 })
 
-$`Use the following format to create **file annotations** (same as TypeScript compilation errors).
+$`Use the following format to create **file annotations** (same as $eslint-compact syntax).
 
 <file>:<line>:<endLine> - <severity> <code>: <message>
 

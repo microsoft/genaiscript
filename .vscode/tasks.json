@@ -8,7 +8,7 @@
             "type": "shell",
             "command": "node packages/cli/built/genaiscript.cjs run gcm",
             "detail": "git commit flow with automatic message",
-            "problemMatcher": "$tsc",
+            "problemMatcher": ["$eslint-compact"],
             "presentation": {
                 "echo": true,
                 "reveal": "always",
@@ -23,7 +23,7 @@
             "type": "shell",
             "command": "node packages/cli/built/genaiscript.cjs run iat",
             "detail": "generate image alt text in markdown files",
-            "problemMatcher": "$tsc",
+            "problemMatcher": "$eslint-compact",
             "presentation": {
                 "echo": true,
                 "reveal": "always",
@@ -38,7 +38,7 @@
             "type": "shell",
             "command": "node packages/cli/built/genaiscript.cjs run rv",
             "detail": "genai reviewer",
-            "problemMatcher": "$tsc",
+            "problemMatcher": "$eslint-compact",
             "presentation": {
                 "echo": true,
                 "reveal": "always",
