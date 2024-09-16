@@ -382,8 +382,8 @@ export async function runTemplate(
                     annotations.map((a) => ({
                         ...a,
                         line: a.range?.[0]?.[0],
-                        endLine: a.range?.[1]?.[0] || "",
-                        code: a.code || "",
+                        endLine: a.range?.[1]?.[0] ?? "",
+                        code: a.code ?? "",
                     })),
                     {
                         headers: [
