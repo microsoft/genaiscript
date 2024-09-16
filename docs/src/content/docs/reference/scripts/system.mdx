@@ -98,32 +98,36 @@ $`- You are concise.
 
 ### `system.annotations`
 
-Emits annotations compatible with GitHub Actions
+Emits annotations compatible $tsc matcher in Visual Studio Code.
 
-GitHub Actions workflows support annotations ([Read more...](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-an-error-message)).
+TypeScript compilation errors, warning, message format.
 
 
 
 `````js wrap title="system.annotations"
 system({
-    title: "Emits annotations compatible with GitHub Actions",
-    description:
-        "GitHub Actions workflows support annotations ([Read more...](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-an-error-message)).",
+    title: "Emits annotations compatible $tsc matcher in Visual Studio Code.",
+    description: "TypeScript compilation errors, warning, message format.",
     lineNumbers: true,
 })
 
-$`Use the following format to create **file annotations** (same as GitHub Actions workflow).
+$`Use the following format to create **file annotations** (same as TypeScript compilation errors).
 
-::(notice|warning|error) file=<filename>,line=<start line>,endLine=<end line>,code=<error_id>::<message>
+<file>:<line>:<endLine> - <severity> <code>: <message>
+
+- <file> is the path to the file.
+- <severity> is either 'error', 'warning' or 'info'
+- <code> is a unique identifier for the error or warning matching /^[a-z0-9]{1,32}$/
+- <message> is a single line human-readable description of the error or warning
 
 For example, an warning in main.py on line 3 with message "There seems to be a typo here." would be:
 
-::warning file=main.py,line=3,endLine=3,code=typo::There seems to be a typo here.
+${fence(`main.py:3:3 - warning : typo: There seems to be a typo here.`)}
 
 For example, an error in app.js between line 1 and 4 with message "Missing semicolon" and a warning in index.ts on line 10, would be:
 
-::error file=app.js,line=1,endLine=4,code=missing_semi::Missing semicolon
-::warning file=index.ts,line=10,endLine=10,code=identation::erroneous identation
+${fence(`src/app.js:1:4 - error : missing_semi: Missing semicolon
+ts/index.ts:10:10 - warning : indentation: erroneous indentation`)}
 
 - Do NOT indent or place annotation in a code fence.
 - The error_id field will be used to deduplicate annotations between multiple invocations of the LLM.
