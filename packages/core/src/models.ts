@@ -104,7 +104,7 @@ export async function resolveModelConnectionInfo(
 
     const resolveModel = async (
         model: string,
-        withToken: boolean
+        resolveOptions: { withToken: boolean; reportError: boolean }
     ): Promise<{
         info: ModelConnectionInfo
         configuration?: LanguageModelConfiguration
@@ -113,7 +113,7 @@ export async function resolveModelConnectionInfo(
             const configuration = await host.getLanguageModelConfiguration(
                 model,
                 {
-                    token: withToken,
+                    token: resolveOptions.withToken,
                     signal,
                     trace,
                 }
@@ -127,13 +127,17 @@ export async function resolveModelConnectionInfo(
                         ...conn,
                         ...rest,
                         model,
-                        token: theToken ? (withToken ? theToken : "***") : "",
+                        token: theToken
+                            ? resolveOptions.withToken
+                                ? theToken
+                                : "***"
+                            : "",
                     },
                     configuration,
                 }
             }
         } catch (e) {
-            trace?.error(undefined, e)
+            if (resolveOptions.reportError) trace?.error(undefined, e)
             return {
                 info: {
                     ...conn,
@@ -146,10 +150,13 @@ export async function resolveModelConnectionInfo(
 
     const m = options?.model ?? conn.model
     if (m) {
-        return await resolveModel(m, true)
+        return await resolveModel(m, { withToken: askToken, reportError: true })
     } else {
         for (const candidate of new Set(candidates || [])) {
-            const res = await resolveModel(candidate, true)
+            const res = await resolveModel(candidate, {
+                withToken: askToken,
+                reportError: false,
+            })
             if (!res.info.error && res.info.token) return res
         }
         return {
