@@ -3,6 +3,7 @@ import {
     ChatCompletionMessageParam,
     ChatCompletionSystemMessageParam,
     ChatCompletionToolMessageParam,
+    ChatCompletionUserMessageParam,
 } from "./chattypes"
 import { JSON5TryParse } from "./json5"
 import { details, fenceMD } from "./markdown"
@@ -23,13 +24,20 @@ export function renderMessageContent(
     msg:
         | ChatCompletionAssistantMessageParam
         | ChatCompletionSystemMessageParam
+        | ChatCompletionUserMessageParam
         | ChatCompletionToolMessageParam
 ): string {
     const content = msg.content
     if (typeof content === "string") return content
     else if (Array.isArray(content))
         return content
-            .map((c) => (c.type === "text" ? c.text : c.refusal))
+            .map((c) =>
+                c.type === "text"
+                    ? c.text
+                    : c.type === "refusal"
+                      ? `refused: ${c.refusal}`
+                      : `![](${c.image_url})`
+            )
             .join(` `)
     return undefined
 }

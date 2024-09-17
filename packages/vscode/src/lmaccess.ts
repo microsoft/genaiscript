@@ -19,6 +19,7 @@ import { LanguageModelChatRequest } from "../../core/src/server/client"
 import { ChatStart } from "../../core/src/server/messages"
 import { serializeError } from "../../core/src/error"
 import { logVerbose } from "../../core/src/util"
+import { renderMessageContent } from "../../core/src/chatrender"
 
 async function generateLanguageModelConfiguration(
     state: ExtensionState,
@@ -172,22 +173,15 @@ function messagesToChatMessages(messages: ChatCompletionMessageParam[]) {
         switch (m.role) {
             case "system":
             case "user":
+            case "assistant":
                 if (
                     Array.isArray(m.content) &&
                     m.content.some((c) => c.type === "image_url")
                 )
                     throw new Error("Vision model not supported")
                 return vscode.LanguageModelChatMessage.User(
-                    typeof m.content === "string"
-                        ? m.content
-                        : m.content.map((c) => c).join("\n"),
+                    renderMessageContent(m),
                     "genaiscript"
-                )
-            case "assistant":
-                return vscode.LanguageModelChatMessage.Assistant(
-                    typeof m.content === "string"
-                        ? m.content
-                        : m.content.map((c) => c).join("\n")
                 )
             case "function":
             case "tool":
