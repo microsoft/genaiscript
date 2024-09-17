@@ -338,8 +338,14 @@ export class DockerManager {
                 disconnect,
             }
             this.containers.push(c)
-            await container.start()
+            const res = await container.start()
+            console.log(res)
 
+            const st = await container.inspect()
+            if (st.State?.Status !== "running") {
+                logVerbose(`container: start failed`)
+                trace?.error(`container: start failed`)
+            }
             return c
         } finally {
             trace?.endDetails()

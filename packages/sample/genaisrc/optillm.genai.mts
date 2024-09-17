@@ -1,21 +1,17 @@
+const repo = "codelion/optillm"
+await host.exec("docker", [
+    "build",
+    "-t",
+    repo,
+    `https://github.com/${repo}.git`,
+])
 const container = await host.container({
-    name: "optillm",
-    image: "python:3.8",
+    image: repo,
     ports: { containerPort: "8000/tcp", hostPort: 8000 },
-    env: {},
-    networkEnabled: true
+    env: {
+        "OPENAI_API_KEY": "123456",
+    },
+    networkEnabled: true,
 })
-
-await container.writeText(
-    `setup.sh`,
-    `#!/bin/bash
-git clone https://github.com/codelion/optillm.git
-cd optillm
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-python3 optillm.py
-`
-)
-container.exec(`sh`, [`setup.sh`])
-
+const res = await container.exec("python", ["--version"])
+console.log(res.stderr)

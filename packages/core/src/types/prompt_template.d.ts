@@ -2223,7 +2223,9 @@ interface ContainerOptions {
      * @example python:alpine python:slim python
      * @see https://hub.docker.com/_/python/
      */
-    image?: string
+    image?: OptionsOrString<
+        "python:alpine" | "python:slim" | "python" | "node" | "gcc"
+    >
 
     /**
      * Enable networking in container (disabled by default)
@@ -2252,6 +2254,10 @@ interface ContainerOptions {
 }
 
 interface PromptHost extends ShellHost {
+    /**
+     * Starts a container
+     * @param options container creation options
+     */
     container(options?: ContainerOptions): Promise<ContainerHost>
 }
 
