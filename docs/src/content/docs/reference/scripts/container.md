@@ -68,8 +68,8 @@ const container = await host.container({
     networkEnabled: true,
     ports: {
         containerPort: "80/tcp",
-        hostPort: "8088",
-    },
+        hostPort: 8088,
+    }, // array also supported
 })
 ```
 
