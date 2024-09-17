@@ -9,7 +9,7 @@ const hostPort = 8089
 const webContainer = await host.container({
     disablePurge,
     networkEnabled: true,
-    ports: { containerPort: "80/tcp", hostPort },
+    ports: { containerPort: "80/tcp", hostPort: 8088 },
 })
 await webContainer.writeText(
     "main.py",
@@ -52,4 +52,3 @@ if (text !== msg) throw new Error(`expected ${msg}, got ${text} instead`)
 function sleep(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms))
 }
-

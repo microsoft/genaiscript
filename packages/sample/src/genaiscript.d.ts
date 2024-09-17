@@ -2246,7 +2246,7 @@ interface ShellHost {
 }
 
 interface ContainerPortBinding {
-    containerPort: string
+    containerPort: OptionsOrString<"80/tcp">
     hostPort: string | number
 }
 
