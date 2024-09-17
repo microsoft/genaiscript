@@ -37,6 +37,7 @@
         "nomic",
         "ollama",
         "openai",
+        "optillm",
         "pelikhan",
         "promptdom",
         "promptfoo",
@@ -51,6 +52,7 @@
         "unfence",
         "urllib",
         "urlparse",
+        "venv",
         "vsix",
         "xpai"
     ],
