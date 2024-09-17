@@ -11,9 +11,15 @@ import { randomHex } from "../../core/src/crypto"
 import { errorMessage } from "../../core/src/error"
 import { host } from "../../core/src/host"
 import { TraceOptions } from "../../core/src/trace"
-import { logError, dotGenaiscriptPath, logVerbose } from "../../core/src/util"
+import {
+    logError,
+    dotGenaiscriptPath,
+    logVerbose,
+    arrayify,
+} from "../../core/src/util"
 import { CORE_VERSION } from "../../core/src/version"
 import { isQuiet } from "./log"
+import Dockerode from "dockerode"
 
 type DockerodeType = import("dockerode")
 
@@ -127,6 +133,7 @@ export class DockerManager {
             networkEnabled,
             name,
         } = options
+        const ports = arrayify(options.ports)
         try {
             trace?.startDetails(`📦 container start ${image}`)
             await this.pullImage(image, { trace })
@@ -139,9 +146,10 @@ export class DockerManager {
                 )
             )
             await ensureDir(hostPath)
-            const containerPath = DOCKER_CONTAINER_VOLUME
 
-            const container = await this._docker.createContainer({
+            const containerPath = DOCKER_CONTAINER_VOLUME
+            logVerbose(`container: create ${image} ${name ?? ""}`)
+            const containerOptions: Dockerode.ContainerCreateOptions = {
                 name,
                 Image: image,
                 AttachStdin: false,
@@ -162,10 +170,28 @@ export class DockerManager {
                         ? key
                         : `${key}=${value}`
                 ),
+                ExposedPorts: ports.reduce(
+                    (acc, { containerPort }) => {
+                        acc[containerPort] = {}
+                        return acc
+                    },
+                    <Record<string, any>>{}
+                ),
                 HostConfig: {
                     Binds: [`${hostPath}:${containerPath}`],
+                    PortBindings: ports?.reduce(
+                        (acc, { containerPort, hostPort }) => {
+                            acc[containerPort] = [
+                                { HostPort: String(hostPort) },
+                            ]
+                            return acc
+                        },
+                        <Record<string, { HostPort: string }[]>>{}
+                    ),
                 },
-            })
+            }
+            const container =
+                await this._docker.createContainer(containerOptions)
             trace?.itemValue(`id`, container.id)
             trace?.itemValue(`host path`, hostPath)
             trace?.itemValue(`container path`, containerPath)

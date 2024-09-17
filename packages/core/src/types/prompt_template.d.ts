@@ -2212,6 +2212,11 @@ interface ShellHost {
     confirm(message: string, options?: ShellConfirmOptions): Promise<boolean>
 }
 
+interface ContainerPortBinding {
+    containerPort: OptionsOrString<"80/tcp">
+    hostPort: string | number
+}
+
 interface ContainerOptions {
     /**
      * Container image names.
@@ -2239,6 +2244,11 @@ interface ContainerOptions {
      * Disable automatic purge of container and volume directory
      */
     disablePurge?: boolean
+
+    /**
+     * List of exposed TCP ports
+     */
+    ports?: ElementOrArray<ContainerPortBinding>
 }
 
 interface PromptHost extends ShellHost {

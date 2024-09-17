@@ -56,6 +56,25 @@ You can enable network access using `networkEnabled`.
 const container = await host.container({ networkEnabled: true })
 ```
 
+### Port bindings
+
+You can bind container ports to host ports and access web servers running in the container.
+
+For example, this configuration will map the host `8088` port to `80` on the container
+and you will be able to access a local web server using `http://localhost:8088/`.
+
+```js "ports"
+const container = await host.container({
+    networkEnabled: true,
+    ports: {
+        containerPort: "80/tcp",
+        hostPort: 8088,
+    }, // array also supported
+})
+```
+
+Then
+
 ## Run a command
 
 You can run a command in the container using the `exec` method. It returns the exit code, standard output and error streams.
