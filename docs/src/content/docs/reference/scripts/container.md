@@ -63,7 +63,7 @@ You can bind container ports to host ports and access web servers running in the
 For example, this configuration will map the host `8088` port to `80` on the container
 and you will be able to access a local web server using `http://localhost:8088/`.
 
-```js
+```js "ports"
 const container = await host.container({
     networkEnabled: true,
     ports: {
