@@ -12,7 +12,7 @@ export async function activeTaskProvider(state: ExtensionState) {
         provideTasks: async () => {
             try {
                 const { cliPath, cliVersion } = await resolveCli()
-                const exec = shellQuote([cliPath ?? `npx`])
+                const exec = shellQuote([cliPath || `npx`])
                 const exeArgs = cliPath
                     ? []
                     : ["--yes", `genaiscript@${cliVersion}`]
@@ -24,12 +24,9 @@ export async function activeTaskProvider(state: ExtensionState) {
                         host.projectFolder(),
                         script.filename
                     )
-                    const args = [
-                        ...exeArgs,
-                        "run",
-                        scriptName,
-                        "${relativeFile}",
-                    ]
+                    const args = [...exeArgs, "run", scriptName]
+                    if (vscode.window.activeTextEditor)
+                        args.push("${relativeFile}")
                     const task = new vscode.Task(
                         { type: TOOL_ID, script: script.filename },
                         vscode.TaskScope.Workspace,
