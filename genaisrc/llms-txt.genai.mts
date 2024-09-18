@@ -1,4 +1,5 @@
 script({
+    title: "llms.txt generator",
     tools: "fs",
 })
 const spec = def("LLMS_TXT_SPEC", { filename: "https://llmstxt.org/index.md" })
