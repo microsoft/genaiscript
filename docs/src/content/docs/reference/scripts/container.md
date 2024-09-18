@@ -47,12 +47,9 @@ You can build a custom image from a GitHub repository with a single command in y
 const repo = "codelion/optillm" // GitHub repository = image name
 const branch = "main"
 const dir = "."
-await host.exec("docker", [
-    "build",
-    "-t",
-    repo,
-    `https://github.com/${repo}.git#${branch}:${dir}`,
-])
+await host.exec(
+    `docker build -t ${repo} https://github.com/${repo}.git#${branch}:${dir}`
+)
 ```
 
 then use repo as your image name

@@ -178,7 +178,7 @@ export async function createPromptContext(
             args?: string[] | ShellOptions,
             options?: ShellOptions
         ) => {
-            if (typeof args === "object") {
+            if (!Array.isArray(args) && typeof args === "object") {
                 // exec("cmd arg arg", {...})
                 if (options !== undefined)
                     throw new Error("Options must be the second argument")

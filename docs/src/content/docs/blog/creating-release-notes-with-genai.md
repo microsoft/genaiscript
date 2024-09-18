@@ -2,16 +2,15 @@
 title: Creating Release Notes with GenAI
 date: 2024-08-26
 tags:
-  - release notes
-  - automation
-  - scripting
-  - software development
-  - AI
+    - release notes
+    - automation
+    - scripting
+    - software development
+    - AI
 authors: genaiscript
 canonical_url: https://microsoft.github.io/genaiscript/blog/creating-release-notes-with-genai
 description: Learn how to automate the creation of engaging software release
-  notes using GenAI and GenAIScript.
-
+    notes using GenAI and GenAIScript.
 ---
 
 ## Automating Your Release Notes with GenAI
@@ -51,12 +50,7 @@ Here, we're using an environment variable to set the product name, defaulting to
 ```javascript
 const pkg = await workspace.readJSON("package.json")
 const { version } = pkg
-const { stdout: tag } = await host.exec("git", [
-    "describe",
-    "--tags",
-    "--abbrev=0",
-    "HEAD^",
-])
+const { stdout: tag } = await host.exec("git describe --tags --abbrev=0 HEAD^")
 ```
 
 We are reading the current version from `package.json` and using Git to find the previous release tag in the repository.
