@@ -4,12 +4,8 @@ script({
 
 const repo = "codelion/optillm" // GitHub repository
 // create docker image from GitHub repository (cached)
-await host.exec("docker", [
-    "build",
-    "-t",
-    repo,
-    `https://github.com/${repo}.git`,
-])
+await host.exec(`docker build -t ${repo} https://github.com/${repo}.git`)
+
 // launch container from the image
 const container = await host.container({
     image: repo,

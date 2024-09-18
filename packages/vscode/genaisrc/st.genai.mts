@@ -1,3 +1,23 @@
+script({
+    title: "Search and transform",
+    description:
+        "Search for a pattern in files and apply a LLM transformation the match",
+    parameters: {
+        glob: {
+            type: "string",
+            description: "The glob pattern to filter files",
+            default: "*",
+        },
+        pattern: {
+            type: "string",
+            description: "The text pattern (regular expression) to search for",
+        },
+        transform: {
+            type: "string",
+            description: "The LLM transformation to apply to the match",
+        },
+    },
+})
 const { pattern, glob = "*", transform } = env.vars
 console.log(YAML.stringify({ pattern, transform, glob }))
 if (!pattern) cancel("pattern is missing")
@@ -28,7 +48,7 @@ for (const file of files) {
                 _.def("MATCHED", match[0])
                 _.def("TRANSFORM", transform)
             },
-            { label: match[0], system: [] }
+            { label: match[0], system: [], cache: "search-and-transform" }
         )
 
         const transformed = res.fences?.[0].content ?? res.text
@@ -42,5 +62,4 @@ for (const file of files) {
     )
     if (content !== newContent)
         await workspace.writeText(file.filename, newContent)
-    break
 }

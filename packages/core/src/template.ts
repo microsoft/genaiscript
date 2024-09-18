@@ -146,6 +146,14 @@ class Checker<T extends PromptLike> {
         }
     }
 
+    checkStringOrBool(k: KeysOfType<T, string | boolean>) {
+        if (this.skip(k)) return
+        if (typeof this.val != "string" && typeof this.val != "boolean") {
+            this.verror(`expecting string or boolean here`)
+            return
+        }
+    }
+
     checkNat(k: KeysOfType<T, number>) {
         if (this.skip(k)) return
         if (
@@ -279,7 +287,7 @@ export async function parsePromptScript(
             c.checkObjectOrObjectArray("tests")
             c.checkStringArray("tools")
 
-            c.checkBool("cache")
+            c.checkStringOrBool("cache")
             c.checkString("cacheName")
         })
 
