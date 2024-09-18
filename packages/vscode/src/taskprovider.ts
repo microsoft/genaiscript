@@ -10,43 +10,55 @@ export async function activeTaskProvider(state: ExtensionState) {
 
     const taskProvider: vscode.TaskProvider = {
         provideTasks: async () => {
-            const { cliPath, cliVersion } = await resolveCli()
-            const exec = shellQuote([cliPath ?? `npx`])
-            const exeArgs = cliPath
-                ? []
-                : ["--yes", `genaiscript@${cliVersion}`]
-            const scripts = state.project.templates.filter((t) => !t.isSystem)
-            const tasks = scripts.map((script) => {
-                const scriptName = host.path.relative(
-                    host.projectFolder(),
-                    script.filename
+            try {
+                const { cliPath, cliVersion } = await resolveCli()
+                const exec = shellQuote([cliPath ?? `npx`])
+                const exeArgs = cliPath
+                    ? []
+                    : ["--yes", `genaiscript@${cliVersion}`]
+                const scripts = state.project.templates.filter(
+                    (t) => !t.isSystem
                 )
-                const args = [...exeArgs, "run", scriptName, "${relativeFile}"]
-                const task = new vscode.Task(
-                    { type: TOOL_ID, script: script.filename },
-                    vscode.TaskScope.Workspace,
-                    script.id,
-                    TOOL_ID,
-                    new vscode.ShellExecution(exec, args)
-                )
-                task.detail = `${script.title ?? script.description} - ${scriptName}`
-                task.problemMatchers = [
-                    "$genaiscript",
-                    "$eslint-compact",
-                    "$tsc",
-                    "$msCompile",
-                    "$lessCompile",
-                    "$jshint",
-                ]
-                task.presentationOptions = {
-                    echo: true,
-                    focus: true,
-                    showReuseMessage: false,
-                    clear: true,
-                }
-                return task
-            })
-            return tasks
+                const tasks = scripts.map((script) => {
+                    const scriptName = host.path.relative(
+                        host.projectFolder(),
+                        script.filename
+                    )
+                    const args = [
+                        ...exeArgs,
+                        "run",
+                        scriptName,
+                        "${relativeFile}",
+                    ]
+                    const task = new vscode.Task(
+                        { type: TOOL_ID, script: script.filename },
+                        vscode.TaskScope.Workspace,
+                        script.id,
+                        TOOL_ID,
+                        new vscode.ShellExecution(exec, args)
+                    )
+                    task.detail = `${script.title ?? script.description} - ${scriptName}`
+                    task.problemMatchers = [
+                        "$genaiscript",
+                        "$eslint-compact",
+                        "$tsc",
+                        "$msCompile",
+                        "$lessCompile",
+                        "$jshint",
+                    ]
+                    task.presentationOptions = {
+                        echo: true,
+                        focus: true,
+                        showReuseMessage: false,
+                        clear: true,
+                    }
+                    return task
+                })
+                return tasks
+            } catch (e) {
+                vscode.window.showErrorMessage(`${TOOL_ID} - ${e.message}`)
+                return []
+            }
         },
         async resolveTask(task): Promise<vscode.Task> {
             return task
