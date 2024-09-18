@@ -34,7 +34,31 @@ const container = await host.container()
 By default, the container uses the [python:alpine](https://hub.docker.com/_/python/) image, which provides a minimal python environment. You can change the image using the `image` option.
 
 ```js 'image: "python:3"'
-const container = await host.container({ image: "python:3" })
+const container = await host.container({ image: "node:20" })
+```
+
+### Building images
+
+Use [docker build](https://docs.docker.com/build/) to create reusable images.
+
+You can build a custom image from a GitHub repository with a single command in your scripts.
+
+```js
+const repo = "codelion/optillm" // GitHub repository = image name
+const branch = "main"
+const dir = "."
+await host.exec("docker", [
+    "build",
+    "-t",
+    repo,
+    `https://github.com/${repo}.git#${branch}:${dir}`,
+])
+```
+
+then use repo as your image name
+
+```js
+const container = await host.container({ image: repo, ... })
 ```
 
 ### Disable auto-purge
