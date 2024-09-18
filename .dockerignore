@@ -1,0 +1,10 @@
+node_modules/
+.env
+slides/
+graphics/
+temp/
+.genaiscript/
+.github/
+.vscode/
+demo/
+packages/samples/
