@@ -2206,6 +2206,7 @@ interface ShellHost {
      * @param args
      * @param options
      */
+    exec(commandWithArgs: string, options?: ShellOptions): Promise<ShellOutput>
     exec(
         command: string,
         args: string[],

@@ -39,7 +39,7 @@ import {
     ResponseStatus,
 } from "../../core/src/host"
 import { AbortSignalOptions, TraceOptions } from "../../core/src/trace"
-import { logVerbose, quoteify, unique } from "../../core/src/util"
+import { logVerbose, unique } from "../../core/src/util"
 import { parseModelIdentifier } from "../../core/src/models"
 import {
     AuthenticationToken,
@@ -50,6 +50,7 @@ import { LanguageModel } from "../../core/src/chat"
 import { errorMessage } from "../../core/src/error"
 import { BrowserManager } from "./playwright"
 import { shellConfirm, shellInput, shellSelect } from "./input"
+import { shellQuote } from "../../core/src/shell"
 
 class NodeServerManager implements ServerManager {
     async start(): Promise<void> {
@@ -300,11 +301,10 @@ export class NodeHost implements RuntimeHost {
             if (command === "python" && process.platform !== "win32")
                 command = "python3"
 
-            logVerbose(
-                `${cwd ? `${cwd}> ` : ""}${quoteify(command)} ${args.map(quoteify).join(" ")}`
-            )
+            const cmd = shellQuote([command, ...args])
+            logVerbose(`${cwd ? `${cwd}> ` : ""}${cmd}`)
             trace?.itemValue(`cwd`, cwd)
-            trace?.item(`${command} ${args.map(quoteify).join(" ")}`)
+            trace?.item(cmd)
 
             const { stdout, stderr, exitCode, failed } = await execa(
                 command,

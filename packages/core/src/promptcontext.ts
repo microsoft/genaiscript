@@ -40,6 +40,7 @@ import { resolveLanguageModel } from "./lm"
 import { callExpander } from "./expander"
 import { Project } from "./ast"
 import { resolveSystems } from "./systems"
+import { shellParse } from "./shell"
 
 export async function createPromptContext(
     prj: Project,
@@ -172,7 +173,25 @@ export async function createPromptContext(
     }
 
     const promptHost: PromptHost = Object.freeze<PromptHost>({
-        exec: async (command, args, options) => {
+        exec: async (
+            command: string,
+            args?: string[] | ShellOptions,
+            options?: ShellOptions
+        ) => {
+            if (typeof args === "object") {
+                // exec("cmd arg arg", {...})
+                if (options !== undefined)
+                    throw new Error("Options must be the second argument")
+                options = args as ShellOptions
+                const parsed = shellParse(command)
+                command = parsed[0]
+                args = parsed.slice(1)
+            } else if (args === undefined) {
+                // exec("cmd arg arg")
+                const parsed = shellParse(command)
+                command = parsed[0]
+                args = parsed.slice(1)
+            }
             const res = await runtimeHost.exec(undefined, command, args, {
                 cwd: options?.cwd,
                 trace,

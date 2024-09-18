@@ -196,9 +196,6 @@ export function logError(msg: string | Error | SerializedError) {
         if (!/^\s*\{\s*\}\s*$/.test(se)) host.log(LogLevel.Verbose, se)
     }
 }
-export function quoteify(a: string) {
-    return /\s/.test(a) ? `"${a}"` : a
-}
 
 export function concatArrays<T>(...arrays: T[][]): T[] {
     if (arrays.length == 0) return []

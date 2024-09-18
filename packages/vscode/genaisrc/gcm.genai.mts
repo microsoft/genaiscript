@@ -8,7 +8,7 @@ script({
 })
 
 // Check for staged changes and stage all changes if none are staged
-let diff = await host.exec("git", ["diff", "--cached"])
+let diff = await host.exec("git diff --cached")
 if (!diff.stdout) {
     /**
      * Ask user to stage all changes if none are staged
@@ -18,14 +18,8 @@ if (!diff.stdout) {
     })
     if (stage) {
         // Stage all changes and recompute diff
-        await host.exec("git", ["add", "."])
-        diff = await host.exec("git", [
-            "diff",
-            "--cached",
-            "--",
-            ".",
-            ":!**/genaiscript.d.ts",
-        ])
+        await host.exec("git add .")
+        diff = await host.exec("git diff --cached -- . :!**/genaiscript.d.ts")
     }
     if (!diff.stdout) cancel("no staged changes")
 }
@@ -87,7 +81,7 @@ Please generate a concise, one-line commit message for these changes.
             (await host.exec("git", ["commit", "-m", message, "-n"])).stdout
         )
         if (await host.confirm("Push changes?", { default: true }))
-            console.log((await host.exec("git", ["push"])).stdout)
+            console.log((await host.exec("git push")).stdout)
         break
     }
 } while (choice !== "commit")
