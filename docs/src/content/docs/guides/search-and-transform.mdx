@@ -8,7 +8,7 @@ sidebar:
 import { Code } from "@astrojs/starlight/components"
 import source from "../../../../../packages/vscode/genaisrc/st.genai.mjs?raw"
 
-This script is an evoluation of the "search and replace" feature from text editor,
+This script is an evolution of the "search and replace" feature from text editor,
 where the "replace" step has been replaced by a LLM transformation.
 
 It can be useful to batch apply text transformations that are not easily done with
@@ -21,19 +21,19 @@ the `exec` command, we needed to convert all script using `
 host.exec("cmd", ["arg0", "arg1", "arg2"])
 ```
 
-to 
+to
 
 ```js
 host.exec(`cmd arg0 arg1 arg2`)`
 ```
 
-While it's possible to match this function call with a regular expression 
+While it's possible to match this function call with a regular expression
 
 ```regex
 host\.exec\s*\([^,]+,\s*\[[^\]]+\]\s*\)
 ```
 
-it's not easy to formulate the replacement string... unless you can describe it in natural language: 
+it's not easy to formulate the replacement string... unless you can describe it in natural language:
 
 ```txt
 Convert the call to a single string command shell in TypeScript
