@@ -6,7 +6,8 @@ const msgContent = msg.content
 if (msgContent) cancel("commit message already exists")
 
 // Check for staged changes and stage all changes if none are staged
-let diff = await host.exec("git", ["diff", "--cached"])
+let diff = await host.exec("git diff --cached")
+
 if (!diff.stdout) cancel("no staged changes")
 // Generate commit message
 const res = await runPrompt(
