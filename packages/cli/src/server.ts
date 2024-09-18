@@ -157,12 +157,6 @@ export async function startServer(options: { port: string; apiKey?: string }) {
         if (apiKey) {
             const search = new URLSearchParams(req.url.replace(/^[^\?]*\?/, ""))
             const hash = search.get("api-key")
-            console.log({
-                apiKey,
-                hash,
-                search,
-                s: Array.from(search.entries()),
-            })
             if (req.headers.authorization !== apiKey && hash !== apiKey) {
                 logError("clients: connection unauthorized")
                 ws.close(401, "Unauthorized")
