@@ -35,6 +35,7 @@ import {
 import { CORE_VERSION } from "../../core/src/version"
 import { Fragment, GenerationResult } from "../../core/src/generation"
 import { parametersToVars } from "../../core/src/parameters"
+import { randomHex } from "../../core/src/crypto"
 
 export const FRAGMENTS_CHANGE = "fragmentsChange"
 export const AI_REQUEST_CHANGE = "aiRequestChange"
@@ -109,6 +110,7 @@ export class ExtensionState extends EventTarget {
         AIRequestSnapshot
     > = undefined
     readonly output: vscode.LogOutputChannel
+    readonly sessionApiKey = randomHex(128)
 
     constructor(public readonly context: ExtensionContext) {
         super()

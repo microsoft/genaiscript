@@ -21,7 +21,7 @@ export class TerminalServerManager implements ServerManager {
     readonly client: WebSocketClient
 
     constructor(readonly state: ExtensionState) {
-        const { context } = state
+        const { context, sessionApiKey } = state
         const { subscriptions } = context
         subscriptions.push(this)
         subscriptions.push(
@@ -42,7 +42,9 @@ export class TerminalServerManager implements ServerManager {
             })
         )
 
-        this.client = new WebSocketClient(`http://localhost:${SERVER_PORT}`)
+        this.client = new WebSocketClient(
+            `http://localhost:${SERVER_PORT}?api-key=${sessionApiKey}`
+        )
         this.client.chatRequest = createChatModelRunner(this.state)
         this.client.addEventListener(OPEN, async () => {
             // client connected to a rogue server
@@ -83,6 +85,9 @@ export class TerminalServerManager implements ServerManager {
             cwd: host.projectFolder(),
             isTransient: true,
             iconPath: new vscode.ThemeIcon(ICON_LOGO_NAME),
+            env: {
+                GENAISCRIPT_API_KEY: this.state.sessionApiKey,
+            },
         })
         const { cliPath, cliVersion } = await resolveCli()
         if (cliPath) this._terminal.sendText(`node "${cliPath}" serve`)

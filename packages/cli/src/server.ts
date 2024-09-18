@@ -154,10 +154,20 @@ export async function startServer(options: { port: string; apiKey?: string }) {
     })
     wss.on("connection", function connection(ws, req) {
         const apiKey = options.apiKey ?? process.env.GENAISCRIPT_API_KEY
-        if (apiKey && req.headers.authorization !== apiKey) {
-            ws.close(401, "Unauthorized")
-            logVerbose("clients: connection unauthorized")
-            return
+        if (apiKey) {
+            const search = new URLSearchParams(req.url.replace(/^[^\?]*\?/, ""))
+            const hash = search.get("api-key")
+            console.log({
+                apiKey,
+                hash,
+                search,
+                s: Array.from(search.entries()),
+            })
+            if (req.headers.authorization !== apiKey && hash !== apiKey) {
+                logError("clients: connection unauthorized")
+                ws.close(401, "Unauthorized")
+                return
+            }
         }
         logVerbose(`clients: connected (${wss.clients.size} clients)`)
 
