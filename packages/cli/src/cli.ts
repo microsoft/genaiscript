@@ -259,6 +259,7 @@ export async function cli() {
             "-p, --port <number>",
             `Specify the port number, default: ${SERVER_PORT}`
         )
+        .option("-k, --api-key <string>", "API key to authenticate requests")
         .action(startServer)
 
     const parser = program

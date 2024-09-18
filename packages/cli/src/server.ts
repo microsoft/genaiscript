@@ -153,9 +153,10 @@ export async function startServer(options: { port: string; apiKey?: string }) {
         cancelAll()
     })
     wss.on("connection", function connection(ws, req) {
-        const apiKey = process.env.GENAISCRIPT_API_KEY
+        const apiKey = options.apiKey ?? process.env.GENAISCRIPT_API_KEY
         if (apiKey && req.headers.authorization !== apiKey) {
             ws.close(401, "Unauthorized")
+            logVerbose("clients: connection unauthorized")
             return
         }
         logVerbose(`clients: connected (${wss.clients.size} clients)`)
