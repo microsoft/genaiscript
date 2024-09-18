@@ -58,13 +58,8 @@ We are reading the current version from `package.json` and using Git to find the
 #### Step 4: Gathering Commits
 
 ```javascript
-const { stdout: commits } = await host.exec("git", [
-    "log",
-    "--grep='skip ci'",
-    "--invert-grep",
-    "--no-merges",
-    `HEAD...${tag}`,
-])
+const { stdout: commits } = await host.exec(`git log --grep='skip ci' --invert-grep --no-merges HEAD...${tag}`)
+
 ```
 
 This block runs a Git command to retrieve the list of commits that will be included in the release notes, excluding any with 'skip ci' in the message.
@@ -72,20 +67,8 @@ This block runs a Git command to retrieve the list of commits that will be inclu
 #### Step 5: Obtaining the Diff
 
 ```javascript
-const { stdout: diff } = await host.exec("git", [
-    "diff",
-    `${tag}..HEAD`,
-    "--no-merges",
-    "--",
-    ":!**/package.json",
-    ":!**/genaiscript.d.ts",
-    ":!**/jsconfig.json",
-    ":!docs/**",
-    ":!.github/*",
-    ":!.vscode/*",
-    ":!*yarn.lock",
-    ":!*THIRD_PARTY_NOTICES.md",
-])
+const { stdout: diff } = await host.exec(`git diff ${tag}..HEAD --no-merges -- ':!**/package.json' ':!**/genaiscript.d.ts' ':!**/jsconfig.json' ':!docs/**' ':!.github/*' ':!.vscode/*' ':!*yarn.lock' ':!*THIRD_PARTY_NOTICES.md'`)
+
 ```
 
 Next, we get the diff of changes since the last release, excluding certain files and directories that aren't relevant to the user-facing release notes.
