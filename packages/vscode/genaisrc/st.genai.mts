@@ -26,10 +26,16 @@ const patternRx = new RegExp(pattern, "g")
 if (!transform) cancel("transform is missing")
 
 const { files } = await workspace.grep(patternRx, glob)
+// cached computed transformations
+const patches = {}
 for (const file of files) {
     console.log(file.filename)
     const { content } = await workspace.readText(file.filename)
-    const patches = {}
+
+    // skip binary files
+    if (!content) continue
+
+    // compute transforms
     for (const match of content.matchAll(patternRx)) {
         console.log(`  ${match[0]}`)
         if (patches[match[0]]) continue
@@ -56,10 +62,13 @@ for (const file of files) {
         console.log(`  ${match[0]} -> ${transformed ?? "?"}`)
     }
 
+    // apply transforms
     const newContent = content.replace(
         patternRx,
         (match) => patches[match] ?? match
     )
+
+    // save results if file content is modified
     if (content !== newContent)
         await workspace.writeText(file.filename, newContent)
 }
