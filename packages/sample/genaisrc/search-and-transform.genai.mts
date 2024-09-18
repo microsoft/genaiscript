@@ -1,6 +1,3 @@
-script({
-    system: ["system.diff"],
-})
 const { pattern, glob = "*", transform } = env.vars
 console.log(YAML.stringify({ pattern, transform, glob }))
 if (!pattern) cancel("pattern is missing")
@@ -24,17 +21,19 @@ for (const file of files) {
             
             Your task is to transform the MATCH with the following TRANSFORM.
             Return the transformed text.
+            - do NOT add enclosing quotes.
             
             ## Context
             `
                 _.def("MATCHED", match[0])
                 _.def("TRANSFORM", transform)
             },
-            { label: match[0] }
+            { label: match[0], system: [] }
         )
 
-        if (res.text) patches[match[0]] = res.text
-        console.log(`  ${match[0]} -> ${res.text ?? "?"}`)
+        const transformed = res.fences?.[0].content ?? res.text
+        if (transformed) patches[match[0]] = transformed
+        console.log(`  ${match[0]} -> ${transformed ?? "?"}`)
     }
 
     const newContent = content.replace(
@@ -43,4 +42,5 @@ for (const file of files) {
     )
     if (content !== newContent)
         await workspace.writeText(file.filename, newContent)
+    break
 }
