@@ -131,7 +131,7 @@ Run code in Docker [containers](https://microsoft.github.io/genaiscript/referenc
 
 ```js
 const c = await host.container({ image: "python:alpine" })
-const res = await c.exec("python", ["--version"])
+const res = await c.exec("python --version")
 ```
 
 ### 🧩 LLM Composition
@@ -144,7 +144,7 @@ for (const file of env.files) {
         _.def("FILE", file)
         _.$`Summarize the FILE.`
     })
-    _.def("SUMMARY", text)
+    def("SUMMARY", text)
 }
 $`Summarize all the summaries.`
 ```
