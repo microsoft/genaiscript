@@ -22,8 +22,10 @@ export function unquote(s: string) {
 }
 
 export function parseKeyValuePair(text: string): Record<string, string> {
-    const m = text.split(/[=:]/)
-    return m.length === 2 ? { [m[0]]: unquote(m[1]) } : {}
+    const m = /[=:]/.exec(text)
+    return m
+        ? { [text.slice(0, m.index)]: unquote(text.slice(m.index + 1)) }
+        : {}
 }
 
 export function parseKeyValuePairs(text: string | string[]) {
