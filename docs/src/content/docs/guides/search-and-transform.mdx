@@ -19,7 +19,7 @@ the `exec` command, we needed to convert all script using `host.exec("cmd", ["ar
 to `host.exec(``cmd arg0 arg1 arg2``)`.
 
 ```sh wrap
-genaiscript st --vars pattern='host\.exec\s*\([^,]+,\s*\[[^\]]+\]\s*\)' transform='Convert the call to a single string command shell in TypeScript'
+genaiscript st --vars 'pattern=host\.exec\s*\([^,]+,\s*\[[^\]]+\]\s*\)' 'transform=Convert the call to a single string command shell in TypeScript'
 ```
 
 Here are some example of the transformations where the LLM correctly handled variables.
