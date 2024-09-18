@@ -44,7 +44,7 @@ import {
 } from "../../core/src/chattypes"
 import { randomHex } from "../../core/src/crypto"
 
-export async function startServer(options: { port: string }) {
+export async function startServer(options: { port: string; apiKey?: string }) {
     const port = parseInt(options.port) || SERVER_PORT
     const wss = new WebSocketServer({ port })
 
@@ -149,11 +149,15 @@ export async function startServer(options: { port: string }) {
         },
     })
 
-    // cleanup runs
     wss.on("close", () => {
         cancelAll()
     })
-    wss.on("connection", function connection(ws) {
+    wss.on("connection", function connection(ws, req) {
+        const apiKey = process.env.GENAISCRIPT_API_KEY
+        if (apiKey && req.headers.authorization !== apiKey) {
+            ws.close(401, "Unauthorized")
+            return
+        }
         logVerbose(`clients: connected (${wss.clients.size} clients)`)
 
         ws.on("error", console.error)
