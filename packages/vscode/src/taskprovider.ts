@@ -2,7 +2,7 @@ import * as vscode from "vscode"
 import { ExtensionState } from "./state"
 import { resolveCli } from "./config"
 import { TOOL_ID } from "../../core/src/constants"
-import { quoteify } from "../../core/src/util"
+import { shellQuote } from "../../core/src/shell"
 
 export async function activeTaskProvider(state: ExtensionState) {
     const { context, host } = state
@@ -11,7 +11,7 @@ export async function activeTaskProvider(state: ExtensionState) {
     const taskProvider: vscode.TaskProvider = {
         provideTasks: async () => {
             const { cliPath, cliVersion } = await resolveCli()
-            const exec = cliPath ? quoteify(cliPath) : `npx`
+            const exec = shellQuote([cliPath ?? `npx`])
             const exeArgs = cliPath
                 ? []
                 : ["--yes", `genaiscript@${cliVersion}`]

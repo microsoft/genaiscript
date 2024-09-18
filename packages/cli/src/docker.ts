@@ -20,6 +20,7 @@ import {
 import { CORE_VERSION } from "../../core/src/version"
 import { isQuiet } from "./log"
 import Dockerode from "dockerode"
+import { shellParse, shellQuote } from "../../core/src/shell"
 
 type DockerodeType = import("dockerode")
 
@@ -202,10 +203,10 @@ export class DockerManager {
                 await this.stopContainer(container.id)
             }
 
-            const exec: ShellHost["exec"] = async (
-                command,
-                args,
-                options
+            const exec = async (
+                command: string,
+                args?: string[],
+                options?: ShellOptions
             ): Promise<ShellOutput> => {
                 const { cwd: userCwd, label } = options || {}
                 const cwd = userCwd
@@ -220,7 +221,7 @@ export class DockerManager {
                     trace?.fence(`${command} ${args.join(" ")}`, "sh")
                     if (!isQuiet)
                         logVerbose(
-                            `container exec: ${command} ${args.join(" ")}`
+                            `container exec: ${shellQuote([command, ...args])}`
                         )
 
                     let inspection = await container.inspect()

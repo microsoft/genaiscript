@@ -283,8 +283,9 @@ Usage: genaiscript serve [options]
 Start a GenAIScript local server
 
 Options:
-  -p, --port <number>  Specify the port number, default: 8003
-  -h, --help           display help for command
+  -p, --port <number>     Specify the port number, default: 8003
+  -k, --api-key <string>  API key to authenticate requests
+  -h, --help              display help for command
 ```
 
 ## `parse`

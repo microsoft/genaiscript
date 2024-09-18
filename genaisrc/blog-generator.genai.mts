@@ -73,12 +73,8 @@ let snippet: string | Fenced
                         "temp/blog-post/script.genai.mjs",
                         source
                     )
-                    return await host.exec("node", [
-                        "packages/cli/built/genaiscript.cjs",
-                        "scripts",
-                        "compile",
-                        "temp/blog-post",
-                    ])
+                    return await host.exec("node packages/cli/built/genaiscript.cjs scripts compile temp/blog-post")
+
                 }
             )
 

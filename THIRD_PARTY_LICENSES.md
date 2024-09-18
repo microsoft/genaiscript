@@ -1037,7 +1037,7 @@ The following npm packages may be included in this product:
  - @types/http-cache-semantics@4.0.4
  - @types/mute-stream@0.0.4
  - @types/node@16.9.1
- - @types/node@22.5.4
+ - @types/node@22.5.5
  - @types/turndown@5.0.5
  - @types/yauzl@2.10.3
 
@@ -1099,7 +1099,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.54.5
+ - genaiscript-vscode@1.54.8
 
 This package contains the following license and notice below:
 
@@ -2814,20 +2814,20 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - @inquirer/checkbox@2.5.0
- - @inquirer/confirm@3.2.0
- - @inquirer/core@9.1.0
- - @inquirer/editor@2.2.0
- - @inquirer/expand@2.3.0
- - @inquirer/figures@1.0.5
- - @inquirer/input@2.3.0
- - @inquirer/number@1.1.0
- - @inquirer/password@2.2.0
- - @inquirer/prompts@5.5.0
- - @inquirer/rawlist@2.3.0
- - @inquirer/search@1.1.0
- - @inquirer/select@2.5.0
- - @inquirer/type@1.5.3
+ - @inquirer/checkbox@3.0.1
+ - @inquirer/confirm@4.0.1
+ - @inquirer/core@9.2.1
+ - @inquirer/editor@3.0.1
+ - @inquirer/expand@3.0.1
+ - @inquirer/figures@1.0.6
+ - @inquirer/input@3.0.1
+ - @inquirer/number@2.0.1
+ - @inquirer/password@3.0.1
+ - @inquirer/prompts@6.0.1
+ - @inquirer/rawlist@3.0.1
+ - @inquirer/search@2.0.1
+ - @inquirer/select@3.0.1
+ - @inquirer/type@2.0.0
 
 These packages each contain the following license and notice below:
 
@@ -3347,7 +3347,7 @@ http://github.com/mscdex/buildcheck/raw/master/LICENSE
 
 The following npm package may be included in this product:
 
- - ssh2@1.15.0
+ - ssh2@1.16.0
 
 This package contains the following license and notice below:
 
@@ -4188,9 +4188,9 @@ The following npm packages may be included in this product:
  - @tokenizer/token@0.3.0
  - agent-base@6.0.2
  - canvas@2.11.2
- - genaiscript-core-internal@1.54.5
- - genaiscript-sample@1.54.5
- - genaiscript@1.54.5
+ - genaiscript-core-internal@1.54.8
+ - genaiscript-sample@1.54.8
+ - genaiscript@1.54.8
  - https-proxy-agent@5.0.1
  - isarray@1.0.0
  - javascript-natural-sort@0.7.1
@@ -4781,7 +4781,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - simple-xml-to-json@1.2.2
+ - simple-xml-to-json@1.2.3
 
 This package contains the following license and notice below:
 
@@ -4871,7 +4871,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - gpt-tokenizer@2.2.1
+ - gpt-tokenizer@2.2.3
 
 This package contains the following license and notice below:
 
@@ -5124,10 +5124,9 @@ The following npm packages may be included in this product:
  - @sindresorhus/is@7.0.1
  - @sindresorhus/merge-streams@4.0.0
  - ansi-escapes@4.3.2
- - cli-spinners@2.9.2
  - crypto-random-string@4.0.0
  - decompress-response@6.0.0
- - execa@9.3.1
+ - execa@9.4.0
  - figures@6.1.0
  - file-type@16.5.4
  - get-stream@5.2.0
@@ -5143,7 +5142,7 @@ The following npm packages may be included in this product:
  - mimic-response@3.1.0
  - mimic-response@4.0.0
  - normalize-url@8.0.1
- - npm-run-path@5.3.0
+ - npm-run-path@6.0.0
  - open@8.4.2
  - p-cancelable@4.0.1
  - parse-ms@4.0.0
@@ -5154,6 +5153,7 @@ The following npm packages may be included in this product:
  - temp-dir@3.0.0
  - tempy@3.1.0
  - type-fest@1.4.0
+ - unicorn-magic@0.3.0
  - unique-string@3.0.0
  - wrap-ansi@7.0.0
  - xdg-basedir@5.1.0
@@ -5479,8 +5479,8 @@ IN THE SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - playwright-core@1.47.0
- - playwright@1.47.0
+ - playwright-core@1.47.1
+ - playwright@1.47.1
 
 These packages each contain the following license and notice below:
 
@@ -6854,11 +6854,11 @@ The following npm packages may be included in this product:
 
  - @azure/abort-controller@1.1.0
  - @azure/abort-controller@2.1.2
- - @azure/core-auth@1.7.2
+ - @azure/core-auth@1.8.0
  - @azure/core-client@1.9.2
- - @azure/core-rest-pipeline@1.16.3
+ - @azure/core-rest-pipeline@1.17.0
  - @azure/core-tracing@1.1.2
- - @azure/core-util@1.9.2
+ - @azure/core-util@1.10.0
  - @azure/identity@4.4.1
  - @azure/logger@1.1.4
 

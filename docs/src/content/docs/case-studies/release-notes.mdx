@@ -36,9 +36,12 @@ the list of commits, the diff since the tag.
 (This magic was mostly found using a GitHub Copilot Chat session).
 
 ```js title="git-release-notes.genai.mjs" wrap
-const { stdout: tag } = await host.exec("git", ["describe", "--tags", "--abbrev=0", "HEAD^",])
-const { stdout: commits } = await host.exec("git", ["log", `HEAD...${tag}`,])
-const { stdout: diff } = await host.exec("git", ["diff", `${tag}..HEAD`,])
+const { stdout: tag } = await host.exec(`git describe --tags --abbrev=0 HEAD^`)
+
+const { stdout: commits } = await host.exec(`git log HEAD...${tag}`)
+
+const { stdout: diff } = await host.exec(`git diff ${tag}..HEAD`)
+
 ```
 
 We use the `def` function with `maxTokens` to inline this information without exceeding the content window
