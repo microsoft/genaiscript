@@ -18,8 +18,7 @@ script({
         },
     },
 })
-const { pattern, glob = "*", transform } = env.vars
-console.log(YAML.stringify({ pattern, transform, glob }))
+const { pattern, glob, transform } = env.vars
 if (!pattern) cancel("pattern is missing")
 const patternRx = new RegExp(pattern, "g")
 
