@@ -1,14 +1,21 @@
 ---
-title: Git Commit Message
-description: Generate a commit message for all staged changes
+title: "Automate Git Commit Messages with GenAI"
+date: 2024-09-19
+draft: true
+tags: ["genai", "git", "automation", "typescript"]
+authors: genaiscript
+canonical_url: https://microsoft.github.io/genaiscript/blog/automate-git-commit-messages-with-genai
 ---
 
-import { Code } from "@astrojs/starlight/components"
-import source from "../../../../../../../packages/vscode/genaisrc/gcm.genai.mts?raw"
+## Simplifying Your Git Workflow with GenAI
 
-The `gcm` script provides a guided flow to create commit with generated messages.
+Coding can be a lot of fun, but let's be honest, sometimes the administrative parts of the process, like crafting the perfect commit message, can be a bit of a drag. 😓 But what if I told you that you could automate that with GenAI? That's right, with a little bit of setup, GenAI can generate commit messages for you, based on your staged changes. 🎉
 
-## Configuration
+The script we're discussing can be found [right here on GitHub](https://github.com/microsoft/genaiscript/blob/main/packages/vscode/genaisrc/gcm.genai.mts), and it's called `git commit message`. Its purpose is to help you swiftly create commit messages without the mental overhead of crafting them manually every single time.
+
+Let's break down this script, shall we?
+
+### The Script Explained
 
 First off, we define the `script` function, which sets up our GenAI script by providing a title and a description, and specifying the model we'll be using:
 
@@ -19,8 +26,6 @@ script({
     model: "openai:gpt-4o",
 })
 ```
-
-## Look for changes
 
 Next up, we check for any staged changes in your Git repository using `git diff --cached`. If there's nothing staged, GenAI kindly offers to stage all changes for you:
 
@@ -43,8 +48,6 @@ We then log the diff to the console so you can review what changes are about to 
 ```ts
 console.log(diff.stdout)
 ```
-
-## Generate and refine commit message
 
 Here comes the interesting part. We enter a loop where GenAI will generate a commit message for you based on the diff. If you're not satisfied with the message, you can choose to edit it, accept it, or regenerate it:
 
@@ -69,8 +72,6 @@ Please generate a concise, one-line commit message for these changes.
 } while (choice !== "commit")
 ```
 
-## Commit and push
-
 If you choose to commit, GenAI runs the `git commit` command with your message, and if you're feeling super confident, it can even push the changes to your repository right after:
 
 ```ts
@@ -83,7 +84,7 @@ if (choice === "commit" && message) {
 }
 ```
 
-## Running the Script with GenAIScript CLI
+### Running the Script with GenAIScript CLI
 
 Getting this script up and running is a cinch. If you've already installed the [GenAIScript CLI](https://microsoft.github.io/genaiscript/getting-started/installation), you can simply run it with:
 
@@ -93,6 +94,4 @@ genaiscript run gcm
 
 Remember, you'll need to have your changes staged in Git for the script to work its magic. 🧙
 
-## Full source ([GitHub](https://github.com/microsoft/genaiscript/blob/main/packages/vscode/genaisrc/gcm.genai.mts))
-
-<Code code={source} wrap={true} lang="ts" title="gcm.genai.mts" />
+So there you have it, a complete breakdown of a script that might just become your new best friend in the Git world. Give it a try and say goodbye to commit message woes! 👋
