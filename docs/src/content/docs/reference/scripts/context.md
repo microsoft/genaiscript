@@ -38,11 +38,21 @@ script({
 
 -   [CLI](/genaiscript/reference/cli) files arguments.
 
+The files are stored in `env.files` which can be injected in the prompt.
+
+-   directly in a `$` call
+
+```js
+$`Summarize ${env.files}.
+```
+
+-   using `def`
+
 ```js
 def("FILE", env.files)
 ```
 
-Or filtered,
+-   filtered,
 
 ```js
 def("DOCS", env.files, { endsWith: ".md" })
