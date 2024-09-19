@@ -30,6 +30,7 @@ import {
     RUNS_DIR_NAME,
     CONSOLE_COLOR_DEBUG,
     DOCS_CONFIGURATION_URL,
+    TRACE_DETAILS,
 } from "../../core/src/constants"
 import { isCancelError, errorMessage } from "../../core/src/error"
 import { Fragment, GenerationResult } from "../../core/src/generation"
@@ -65,6 +66,7 @@ import {
 } from "../../core/src/azuredevops"
 import { resolveTokenEncoder } from "../../core/src/encoders"
 import { writeFile } from "fs/promises"
+import { writeFileSync } from "node:fs"
 
 async function setupTraceWriting(trace: MarkdownTrace, filename: string) {
     logVerbose(`trace: ${filename}`)
@@ -78,6 +80,10 @@ async function setupTraceWriting(trace: MarkdownTrace, filename: string) {
         },
         false
     )
+    trace.addEventListener(TRACE_DETAILS, (ev) => {
+        const content = trace.content
+        writeFileSync(filename, content, { encoding: "utf-8" })
+    })
 }
 
 export async function runScriptWithExitCode(

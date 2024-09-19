@@ -37,7 +37,3 @@ jobs:
               run: yarn test:core
             - name: unit tests
               run: yarn test:samples
-            - name: slides
-              run: yarn build:slides
-            - name: docs
-              run: yarn build:docs

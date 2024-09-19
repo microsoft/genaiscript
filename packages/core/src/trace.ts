@@ -5,6 +5,7 @@ import {
     EMOJI_UNDEFINED,
     TOOL_ID,
     TRACE_CHUNK,
+    TRACE_DETAILS,
 } from "./constants"
 import { fenceMD, parseTraceTree, TraceTree } from "./markdown"
 import { stringify as yamlStringify } from "yaml"
@@ -22,9 +23,9 @@ export class TraceChunkEvent extends Event {
 }
 
 export class MarkdownTrace extends EventTarget implements ToolCallTrace {
-    readonly errors: { message: string; error: SerializedError }[] = []
+    readonly _errors: { message: string; error: SerializedError }[] = []
     private detailsDepth = 0
-    private _content: string = ""
+    private _content: (string | MarkdownTrace)[] = []
     private _tree: TraceTree
 
     constructor(
@@ -42,17 +43,34 @@ export class MarkdownTrace extends EventTarget implements ToolCallTrace {
     }
 
     get tree() {
-        if (!this._tree) this._tree = parseTraceTree(this._content)
+        if (!this._tree) this._tree = parseTraceTree(this.content)
         return this._tree
     }
 
-    get content() {
+    get content(): string {
         return this._content
+            .map((c) => (typeof c === "string" ? c : c.content))
+            .join("")
+    }
+
+    startTraceDetails(title: string) {
+        const trace = new MarkdownTrace({ ...this.options })
+        trace.addEventListener(TRACE_CHUNK, (ev) =>
+            this.dispatchEvent(
+                new TraceChunkEvent((ev as TraceChunkEvent).chunk)
+            )
+        )
+        trace.addEventListener(TRACE_DETAILS, () =>
+            this.dispatchEvent(new Event(TRACE_DETAILS))
+        )
+        trace.startDetails(title)
+        this._content.push(trace)
+        return trace
     }
 
     appendContent(value: string) {
         if (value !== undefined && value !== null && value !== "") {
-            this._content = this._content + value
+            this._content.push(value)
             this._tree = undefined
             this.dispatchChange()
             this.dispatchEvent(new TraceChunkEvent(value))
@@ -83,6 +101,7 @@ ${this.toResultIcon(success, "")}${title}
         if (this.detailsDepth > 0) {
             this.detailsDepth--
             this.appendContent(`\n</details>\n\n`)
+            this.dispatchEvent(new Event(TRACE_DETAILS))
         }
     }
 
@@ -161,10 +180,6 @@ ${this.toResultIcon(success, "")}${title}
         this.appendContent(fenceMD(res, contentType))
     }
 
-    append(trace: MarkdownTrace) {
-        this.appendContent("\n" + trace.content)
-    }
-
     tip(message: string) {
         this.appendContent(`> ${message}\n`)
     }
@@ -195,9 +210,16 @@ ${this.toResultIcon(success, "")}${title}
                 message,
                 error: serializeError(error),
             }
-            this.errors.push(err)
+            this._errors.push(err)
             this.renderError(err, { details: true })
         })
+    }
+
+    get errors(): { message: string; error: SerializedError }[] {
+        const traces = this._content.filter(
+            (c) => typeof c !== "string"
+        ) as MarkdownTrace[]
+        return this._errors.concat(...traces.map((t) => t.errors))
     }
 
     renderErrors(): void {
