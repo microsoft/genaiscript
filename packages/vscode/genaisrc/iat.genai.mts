@@ -2,7 +2,7 @@
  * Markdown image alt text updater
  */
 script({
-    title: "Image Alt Text Generator",
+    title: "Image Alt Textify",
     description: "Generate alt text for images in markdown files",
     model: "openai:gpt-4o",
     // these parameters can be overridden using `--vars doc=...`

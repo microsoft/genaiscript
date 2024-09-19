@@ -8,7 +8,7 @@
  */
 
 script({
-    title: "Review master",
+    title: "Reviewer",
     description: "Review the current files",
     model: "openai:gpt-4o",
     system: ["system.annotations"],
