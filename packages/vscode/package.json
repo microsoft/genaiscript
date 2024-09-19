@@ -413,6 +413,6 @@
         "vscode-uri": "^3.0.8",
         "webfont": "^11.2.26",
         "websocket-polyfill": "0.0.3",
-        "zx": "^8.1.7"
+        "zx": "^8.1.8"
     }
 }

@@ -75,7 +75,7 @@
     "pretty-bytes": "^6.1.1",
     "replace-ext": "^2.0.0",
     "ws": "^8.18.0",
-    "zx": "^8.1.7"
+    "zx": "^8.1.8"
   },
   "scripts": {
     "compile": "esbuild src/main.ts --metafile=./esbuild.meta.json --bundle --platform=node --target=node20 --outfile=built/genaiscript.cjs --external:tsx --external:esbuild --external:get-tsconfig --external:resolve-pkg-maps --external:dockerode --external:pdfjs-dist --external:web-tree-sitter --external:tree-sitter-wasms --external:promptfoo --external:typescript --external:@lvce-editor/ripgrep --external:gpt-3-encoder --external:mammoth --external:xlsx --external:mathjs --external:@azure/identity --external:gpt-tokenizer --external:playwright --external:@inquirer/prompts --external:jimp && node ../../scripts/patch-cli.mjs",
