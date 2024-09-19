@@ -1,0 +1,13 @@
+---
+interface Props {
+    src: string
+}
+const { src } = Astro.props
+---
+
+<div>
+    <audio controls loop="false" preload="metadata">
+        <source src={src} type="audio/mpeg" />
+        Your browser does not support the audio element.
+    </audio>
+</div>

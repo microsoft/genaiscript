@@ -19,6 +19,7 @@ hero:
 import { Image } from "astro:assets"
 import { Card, CardGrid } from "@astrojs/starlight/components"
 import { FileTree } from "@astrojs/starlight/components"
+import AudioPlayer from "../../components/AudioPlayer.astro"
 
 import vscodeSrc from "../../../public/images/visual-studio-code.png"
 
@@ -53,6 +54,9 @@ defTool("weather", "live weahter", { city: "Paris" }, /* schema */
 ## Next steps
 
 <CardGrid stagger>
+    <Card title="Listen to the podcast" icon="seti:audio">
+        <AudioPlayer src={"/genaiscript/podcasts/overview.wav"} />
+    </Card>
     <Card title="Install the extension" icon="puzzle">
         Install the [Visual Studio Code
         Extension](/genaiscript/getting-started/installation/) to get started.
