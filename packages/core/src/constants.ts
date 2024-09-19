@@ -1,5 +1,6 @@
 export const CHANGE = "change"
 export const TRACE_CHUNK = "traceChunk"
+export const TRACE_DETAILS = "traceDetails"
 export const RECONNECT = "reconnect"
 export const OPEN = "open"
 export const MAX_TOOL_CALLS = 10000

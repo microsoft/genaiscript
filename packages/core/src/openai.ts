@@ -144,13 +144,14 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
         throw e
     }
 
-    trace.itemValue(`response`, `${r.status} ${r.statusText}`)
+    trace.itemValue(`status`, `${r.status} ${r.statusText}`)
     if (r.status !== 200) {
-        let body: string
+        let responseBody: string
         try {
-            body = await r.text()
+            responseBody = await r.text()
         } catch (e) {}
-        const { error, message } = JSON5TryParse(body, {}) as {
+        trace.detailsFenced(`response`, responseBody, "json")
+        const { error, message } = JSON5TryParse(responseBody, {}) as {
             error: any
             message: string
         }
@@ -165,12 +166,10 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
             r.status,
             message ?? error?.message ?? r.statusText,
             error,
-            body,
+            responseBody,
             normalizeInt(r.headers.get("retry-after"))
         )
     }
-
-    trace.appendContent("\n\n")
 
     let done = false
     let finishReason: ChatCompletionResponse["finishReason"] = undefined

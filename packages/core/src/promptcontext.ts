@@ -70,8 +70,7 @@ export async function createPromptContext(
             return res
         },
         grep: async (query, globs, options) => {
-            const grepTrace = trace.appendTrace()
-            grepTrace.startDetails(
+            const grepTrace = trace.startTraceDetails(
                 `🌐 grep <code>${HTMLEscape(typeof query === "string" ? query : query.source)}</code>`
             )
             try {
@@ -110,8 +109,7 @@ export async function createPromptContext(
         fuzzSearch: async (q, files_, searchOptions) => {
             const files = arrayify(files_)
             searchOptions = searchOptions || {}
-            const fuzzTrace = trace.appendTrace()
-            fuzzTrace.startDetails(
+            const fuzzTrace = trace.startTraceDetails(
                 `🧐 fuzz search <code>${HTMLEscape(q)}</code>`
             )
             try {
@@ -137,8 +135,7 @@ export async function createPromptContext(
         vectorSearch: async (q, files_, searchOptions) => {
             const files = arrayify(files_).map(toWorkspaceFile)
             searchOptions = { ...(searchOptions || {}) }
-            const vecTrace = trace.appendTrace()
-            vecTrace.startDetails(
+            const vecTrace = trace.startTraceDetails(
                 `🔍 vector search <code>${HTMLEscape(q)}</code>`
             )
             try {
@@ -241,8 +238,9 @@ export async function createPromptContext(
         },
         runPrompt: async (generator, runOptions): Promise<RunPromptResult> => {
             const { label } = runOptions || {}
-            const runTrace = trace.appendTrace()
-            runTrace.startDetails(`🎁 run prompt ${label || ""}`)
+            const runTrace = trace.startTraceDetails(
+                `🎁 run prompt ${label || ""}`
+            )
             try {
                 infoCb?.({ text: `run prompt ${label || ""}` })
 

@@ -5,6 +5,7 @@ import {
     EMOJI_UNDEFINED,
     TOOL_ID,
     TRACE_CHUNK,
+    TRACE_DETAILS,
 } from "./constants"
 import { fenceMD, parseTraceTree, TraceTree } from "./markdown"
 import { stringify as yamlStringify } from "yaml"
@@ -52,8 +53,17 @@ export class MarkdownTrace extends EventTarget implements ToolCallTrace {
             .join("")
     }
 
-    appendTrace() {
-        const trace = new MarkdownTrace(this.options)
+    startTraceDetails(title: string) {
+        const trace = new MarkdownTrace({ ...this.options })
+        trace.addEventListener(TRACE_CHUNK, (ev) =>
+            this.dispatchEvent(
+                new TraceChunkEvent((ev as TraceChunkEvent).chunk)
+            )
+        )
+        trace.addEventListener(TRACE_DETAILS, () =>
+            this.dispatchEvent(new Event(TRACE_DETAILS))
+        )
+        trace.startDetails(title)
         this._content.push(trace)
         return trace
     }
@@ -91,6 +101,7 @@ ${this.toResultIcon(success, "")}${title}
         if (this.detailsDepth > 0) {
             this.detailsDepth--
             this.appendContent(`\n</details>\n\n`)
+            this.dispatchEvent(new Event(TRACE_DETAILS))
         }
     }
 
@@ -167,11 +178,6 @@ ${this.toResultIcon(success, "")}${title}
             }
         } else res = message
         this.appendContent(fenceMD(res, contentType))
-    }
-
-    append(trace: MarkdownTrace) {
-        this._content.push("\n")
-        this._content.push(trace)
     }
 
     tip(message: string) {
