@@ -7,6 +7,7 @@ import { MarkdownTrace, TraceOptions } from "./trace"
 import { arrayify, assert, toStringList, trimNewlines } from "./util"
 import { YAMLStringify } from "./yaml"
 import {
+    DEDENT_INSPECT_MAX_DEPTH,
     MARKDOWN_PROMPT_FENCE,
     MAX_TOKENS_ELLIPSE,
     PROMPT_FENCE,
@@ -16,7 +17,7 @@ import { toChatCompletionUserMessage } from "./chat"
 import { errorMessage } from "./error"
 import { tidyData } from "./tidy"
 import { inspect } from "./logging"
-import { dedent, dedentAsync } from "./indent"
+import { dedent } from "./indent"
 import {
     ChatCompletionAssistantMessageParam,
     ChatCompletionMessageParam,
@@ -140,7 +141,7 @@ export function createTextNode(
     return { type: "text", value, ...(options || {}) }
 }
 
-export function createDefNode(
+export function createDef(
     name: string,
     file: WorkspaceFile,
     options: DefOptions & TraceOptions
@@ -483,7 +484,53 @@ async function resolvePromptNode(
         stringTemplate: async (n) => {
             const { strings, args } = n
             try {
-                let value = await dedentAsync(strings, ...args)
+                const resolvedStrings = await strings
+                const resolvedArgs = []
+                for (const arg of args) {
+                    try {
+                        let ra: any = await arg
+                        if (typeof ra === "function") ra = ra()
+                        ra = await ra
+
+                        // render files
+                        if (typeof ra === "object") {
+                            if (ra.filename) {
+                                n.children = [
+                                    ...(n.children ?? []),
+                                    createDef(ra.filename, ra, {
+                                        ignoreEmpty: true,
+                                    }),
+                                ]
+                                ra = ra.filename
+                            } else if (
+                                Array.isArray(ra) &&
+                                ra.every(
+                                    (r) => typeof r === "object" && r.filename
+                                )
+                            ) {
+                                // env.files
+                                n.children = n.children ?? []
+                                for (const r of ra) {
+                                    n.children.push(
+                                        createDef("FILES", r, {
+                                            ignoreEmpty: true,
+                                        })
+                                    )
+                                }
+                                ra = "FILES"
+                            }
+                        } else {
+                            ra = inspect(ra, {
+                                maxDepth: DEDENT_INSPECT_MAX_DEPTH,
+                            })
+                        }
+                        resolvedArgs.push(ra ?? "")
+                    } catch (e) {
+                        n.error = e
+                        resolvedArgs.push(errorMessage(e))
+                    }
+                }
+                let value = dedent(resolvedStrings, ...resolvedArgs)
                 if (n.transforms?.length)
                     for (const transform of n.transforms)
                         value = await transform(value)

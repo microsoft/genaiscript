@@ -4,7 +4,7 @@ import {
     createAssistantNode,
     createChatParticipant,
     createDefData,
-    createDefNode,
+    createDef,
     createFileOutput,
     createFunctionNode,
     createImageNode,
@@ -105,7 +105,7 @@ export function createChatTurnGenerationContext(
                     throw new Error(`def ${name} is empty`)
                 appendChild(
                     node,
-                    createDefNode(
+                    createDef(
                         name,
                         { filename: "", content: body },
                         doptions
@@ -122,14 +122,14 @@ export function createChatTurnGenerationContext(
                     if (!isGlobMatch(filename, glob)) return undefined
                 }
                 if (endsWith && !filename.endsWith(endsWith)) return undefined
-                appendChild(node, createDefNode(name, file, doptions))
+                appendChild(node, createDef(name, file, doptions))
             } else if (
                 typeof body === "object" &&
                 (body as ShellOutput).exitCode !== undefined
             ) {
                 appendChild(
                     node,
-                    createDefNode(
+                    createDef(
                         name,
                         {
                             filename: "",
@@ -142,7 +142,7 @@ export function createChatTurnGenerationContext(
                 const fenced = body as Fenced
                 appendChild(
                     node,
-                    createDefNode(
+                    createDef(
                         name,
                         { filename: "", content: (body as Fenced).content },
                         { language: fenced.language, ...(doptions || {}) }
