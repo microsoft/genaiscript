@@ -27,6 +27,9 @@ import {
     TOOL_ID,
     TOOL_NAME,
     SERVER_PORT,
+    OPENAI_MAX_RETRY_DELAY,
+    OPENAI_RETRY_DEFAULT_DEFAULT,
+    OPENAI_MAX_RETRY_COUNT,
 } from "../../core/src/constants"
 import {
     errorMessage,
@@ -115,16 +118,20 @@ export async function cli() {
             "dry run, don't execute LLM and return expanded prompt"
         )
         .option(`-fe, --fail-on-errors`, `fails on detected annotation error`)
-        .option("-r, --retry <number>", "number of retries", "8")
+        .option(
+            "-r, --retry <number>",
+            "number of retries",
+            String(OPENAI_MAX_RETRY_COUNT)
+        )
         .option(
             "-rd, --retry-delay <number>",
             "minimum delay between retries",
-            "15000"
+            String(OPENAI_RETRY_DEFAULT_DEFAULT)
         )
         .option(
             "-md, --max-delay <number>",
             "maximum delay between retries",
-            "180000"
+            String(OPENAI_MAX_RETRY_DELAY)
         )
         .option("-l, --label <string>", "label for the run")
         .option("-t, --temperature <number>", "temperature for the run")

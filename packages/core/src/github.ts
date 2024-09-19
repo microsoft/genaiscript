@@ -1,7 +1,7 @@
 import { assert } from "node:console"
 import {
     GITHUB_API_VERSION,
-    GITHUB_PULLREQUEST_REVIEW_COMMENT_LINE_DISTANCE,
+    GITHUB_PULL_REQUEST_REVIEW_COMMENT_LINE_DISTANCE,
     GITHUB_TOKEN,
 } from "./constants"
 import { createFetch } from "./fetch"
@@ -260,7 +260,7 @@ async function githubCreatePullRequestReview(
             (c) =>
                 c.path === body.path &&
                 Math.abs(c.line - body.line) <
-                    GITHUB_PULLREQUEST_REVIEW_COMMENT_LINE_DISTANCE &&
+                    GITHUB_PULL_REQUEST_REVIEW_COMMENT_LINE_DISTANCE &&
                 (annotation.code
                     ? c.body?.includes(annotation.code)
                     : c.body?.includes(prettyMessage))

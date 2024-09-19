@@ -216,7 +216,7 @@ export const GITHUB_TOKEN = "GITHUB_TOKEN"
 export const AI_REQUESTS_CACHE = "airequests"
 export const CHAT_CACHE = "chat"
 export const GITHUB_PULL_REQUEST_REVIEWS_CACHE = "prr"
-export const GITHUB_PULLREQUEST_REVIEW_COMMENT_LINE_DISTANCE = 5
+export const GITHUB_PULL_REQUEST_REVIEW_COMMENT_LINE_DISTANCE = 5
 
 export const PLACEHOLDER_API_BASE = "<custom api base>"
 export const PLACEHOLDER_API_KEY = "<your token>"
@@ -234,3 +234,7 @@ export const MAX_TOKENS_ELLIPSE = "..."
 export const ESTIMATE_TOKEN_OVERHEAD = 2
 
 export const DEDENT_INSPECT_MAX_DEPTH = 3
+
+export const OPENAI_MAX_RETRY_DELAY = 10000
+export const OPENAI_MAX_RETRY_COUNT = 10
+export const OPENAI_RETRY_DEFAULT_DEFAULT = 1000
