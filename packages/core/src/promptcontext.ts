@@ -41,7 +41,7 @@ import { callExpander } from "./expander"
 import { Project } from "./ast"
 import { resolveSystems } from "./systems"
 import { shellParse } from "./shell"
-import { dedent, dedentAsync } from "./indent"
+import { sleep } from "openai/core.mjs"
 
 export async function createPromptContext(
     prj: Project,
@@ -239,9 +239,11 @@ export async function createPromptContext(
             const p: RunPromptResultPromiseWithOptions =
                 new Promise<RunPromptResult>(async (resolve, reject) => {
                     try {
-                        const text = await dedentAsync(template, ...args)
+                        await sleep(0)
                         // data race for options
-                        const res = await runPrompt(text, options)
+                        const res = await runPrompt(async (_) => {
+                            _.$(template, ...args)
+                        }, options)
                         resolve(res)
                     } catch (e) {
                         reject(e)
