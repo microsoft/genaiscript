@@ -1577,6 +1577,10 @@ interface FileUpdate {
     validation?: JSONSchemaValidation
 }
 
+interface RunPromptResultPromiseWithOptions extends Promise<RunPromptResult> {
+    options(values?: PromptGeneratorOptions): RunPromptResultPromiseWithOptions
+}
+
 interface ChatGenerationContext extends ChatTurnGenerationContext {
     defSchema(
         name: string,
@@ -1609,6 +1613,10 @@ interface ChatGenerationContext extends ChatTurnGenerationContext {
         generator: string | PromptGenerator,
         options?: PromptGeneratorOptions
     ): Promise<RunPromptResult>
+    prompt(
+        strings: TemplateStringsArray,
+        ...args: any[]
+    ): RunPromptResultPromiseWithOptions
 }
 
 interface GenerationOutput {
@@ -2567,7 +2575,7 @@ declare function defSchema(
  * @param options
  */
 declare function defImages(
-    files: ElementOrArray<string | WorkspaceFile | Buffer | Blob>,    
+    files: ElementOrArray<string | WorkspaceFile | Buffer | Blob>,
     options?: DefImagesOptions
 ): void
 
@@ -2598,6 +2606,14 @@ declare function runPrompt(
     generator: string | PromptGenerator,
     options?: PromptGeneratorOptions
 ): Promise<RunPromptResult>
+
+/**
+ * Expands and executes the prompt
+ */
+declare function prompt(
+    strings: TemplateStringsArray,
+    ...args: any[]
+): RunPromptResultPromiseWithOptions
 
 /**
  * Registers a callback to process the LLM output

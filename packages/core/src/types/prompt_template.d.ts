@@ -1544,6 +1544,10 @@ interface FileUpdate {
     validation?: JSONSchemaValidation
 }
 
+interface RunPromptResultPromiseWithOptions extends Promise<RunPromptResult> {
+    options(values?: PromptGeneratorOptions): RunPromptResultPromiseWithOptions
+}
+
 interface ChatGenerationContext extends ChatTurnGenerationContext {
     defSchema(
         name: string,
@@ -1576,6 +1580,10 @@ interface ChatGenerationContext extends ChatTurnGenerationContext {
         generator: string | PromptGenerator,
         options?: PromptGeneratorOptions
     ): Promise<RunPromptResult>
+    prompt(
+        strings: TemplateStringsArray,
+        ...args: any[]
+    ): RunPromptResultPromiseWithOptions
 }
 
 interface GenerationOutput {

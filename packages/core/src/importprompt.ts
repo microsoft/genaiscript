@@ -24,6 +24,7 @@ export async function importPrompt(
         "env",
         "retrieval",
         "runPrompt",
+        "prompt",
     ]
 
     const oldGlb: any = {}
