@@ -22,9 +22,9 @@ export class TraceChunkEvent extends Event {
 }
 
 export class MarkdownTrace extends EventTarget implements ToolCallTrace {
-    readonly errors: { message: string; error: SerializedError }[] = []
+    readonly _errors: { message: string; error: SerializedError }[] = []
     private detailsDepth = 0
-    private _content: string = ""
+    private _content: (string | MarkdownTrace)[] = []
     private _tree: TraceTree
 
     constructor(
@@ -42,17 +42,25 @@ export class MarkdownTrace extends EventTarget implements ToolCallTrace {
     }
 
     get tree() {
-        if (!this._tree) this._tree = parseTraceTree(this._content)
+        if (!this._tree) this._tree = parseTraceTree(this.content)
         return this._tree
     }
 
-    get content() {
+    get content(): string {
         return this._content
+            .map((c) => (typeof c === "string" ? c : c.content))
+            .join("")
+    }
+
+    appendTrace() {
+        const trace = new MarkdownTrace(this.options)
+        this._content.push(trace)
+        return trace
     }
 
     appendContent(value: string) {
         if (value !== undefined && value !== null && value !== "") {
-            this._content = this._content + value
+            this._content.push(value)
             this._tree = undefined
             this.dispatchChange()
             this.dispatchEvent(new TraceChunkEvent(value))
@@ -162,7 +170,8 @@ ${this.toResultIcon(success, "")}${title}
     }
 
     append(trace: MarkdownTrace) {
-        this.appendContent("\n" + trace.content)
+        this._content.push("\n")
+        this._content.push(trace)
     }
 
     tip(message: string) {
@@ -195,9 +204,16 @@ ${this.toResultIcon(success, "")}${title}
                 message,
                 error: serializeError(error),
             }
-            this.errors.push(err)
+            this._errors.push(err)
             this.renderError(err, { details: true })
         })
+    }
+
+    get errors(): { message: string; error: SerializedError }[] {
+        const traces = this._content.filter(
+            (c) => typeof c !== "string"
+        ) as MarkdownTrace[]
+        return this._errors.concat(...traces.map((t) => t.errors))
     }
 
     renderErrors(): void {
