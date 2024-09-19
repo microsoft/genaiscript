@@ -31,9 +31,9 @@ Options:
   -y, --yaml                                 emit full YAML response to output
   -p, --prompt                               dry run, don't execute LLM and return expanded prompt
   -fe, --fail-on-errors                      fails on detected annotation error
-  -r, --retry <number>                       number of retries (default: "8")
-  -rd, --retry-delay <number>                minimum delay between retries (default: "15000")
-  -md, --max-delay <number>                  maximum delay between retries (default: "180000")
+  -r, --retry <number>                       number of retries (default: "10")
+  -rd, --retry-delay <number>                minimum delay between retries (default: "1000")
+  -md, --max-delay <number>                  maximum delay between retries (default: "10000")
   -l, --label <string>                       label for the run
   -t, --temperature <number>                 temperature for the run
   -tp, --top-p <number>                      top-p for the run
