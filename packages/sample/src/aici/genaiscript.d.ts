@@ -2613,8 +2613,3 @@ declare function defChatParticipant(
     participant: ChatParticipantHandler,
     options?: ChatParticipantOptions
 ): void
-
-/**
- * @deprecated Use `defOutputProcessor` instead.
- */
-declare function defOutput(fn: PromptOutputProcessorHandler): void
