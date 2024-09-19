@@ -16,7 +16,7 @@ import { toChatCompletionUserMessage } from "./chat"
 import { errorMessage } from "./error"
 import { tidyData } from "./tidy"
 import { inspect } from "./logging"
-import { dedent } from "./indent"
+import { dedent, dedentAsync } from "./indent"
 import {
     ChatCompletionAssistantMessageParam,
     ChatCompletionMessageParam,
@@ -483,24 +483,7 @@ async function resolvePromptNode(
         stringTemplate: async (n) => {
             const { strings, args } = n
             try {
-                const resolvedArgs: any[] = []
-                for (const arg of args) {
-                    let resolvedArg = await arg
-                    if (typeof resolvedArg === "function")
-                        resolvedArg = resolvedArg()
-                    // render objects
-                    if (
-                        typeof resolvedArg === "object" ||
-                        Array.isArray(resolvedArg)
-                    )
-                        resolvedArg = inspect(resolvedArg, {
-                            maxDepth: 3,
-                        })
-                    resolvedArgs.push(resolvedArg ?? "")
-                }
-                let value = dedent(strings, ...resolvedArgs)
-
-                // apply transforms
+                let value = await dedentAsync(strings, ...args)
                 if (n.transforms?.length)
                     for (const transform of n.transforms)
                         value = await transform(value)

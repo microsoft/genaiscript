@@ -41,6 +41,7 @@ import { callExpander } from "./expander"
 import { Project } from "./ast"
 import { resolveSystems } from "./systems"
 import { shellParse } from "./shell"
+import { dedent, dedentAsync } from "./indent"
 
 export async function createPromptContext(
     prj: Project,
@@ -232,6 +233,25 @@ export async function createPromptContext(
         defOutputProcessor,
         defFileMerge: (fn) => {
             appendPromptChild(createFileMerge(fn))
+        },
+        prompt: (template, ...args): RunPromptResultPromiseWithOptions => {
+            const options: PromptGeneratorOptions = {}
+            const p: RunPromptResultPromiseWithOptions =
+                new Promise<RunPromptResult>(async (resolve, reject) => {
+                    try {
+                        const text = await dedentAsync(template, ...args)
+                        // data race for options
+                        const res = await runPrompt(text, options)
+                        resolve(res)
+                    } catch (e) {
+                        reject(e)
+                    }
+                }) as any
+            p.options = (v) => {
+                if (v !== undefined) Object.assign(options, v)
+                return p
+            }
+            return p
         },
         runPrompt: async (generator, runOptions): Promise<RunPromptResult> => {
             try {

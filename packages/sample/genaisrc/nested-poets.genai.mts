@@ -1,5 +1,5 @@
 defTool("poet", "Writes 4 line poems", {}, async () => {
-    const result = await runPrompt(`Write a 4 line poem`, {
+    const result = await prompt`Write a ${4} line poem`.options({
         model: "openai:gpt-4o",
         label: "Poem writer",
     })
