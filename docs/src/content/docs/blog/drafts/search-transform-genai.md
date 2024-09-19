@@ -1,18 +1,23 @@
 ---
-title: Search and transform
-description: Search for a pattern in files and apply a LLM transformation the match
+title: "Search and Transform with GenAI"
+date: 2024-09-19
+authors: genaiscript
+draft: true
+tags: ["genai", "scripting", "automation"]
+canonical_url: https://microsoft.github.io/genaiscript/blog/search-transform-genai
 ---
 
-import { Code } from "@astrojs/starlight/components"
-import source from "../../../../../../../packages/vscode/genaisrc/st.genai.mts?raw"
+## Introduction
 
-Search And Replace is a powerful tool in the developer toolbelt that can save you time and effort...
-if you can forumlate the right regular expression.
+Have you ever found yourself in a situation where you need to search through multiple files in your project, find a specific pattern, and then apply a transformation to it? It can be a tedious task, but fear not! In this blog post, I'll walk you through a GenAIScript that does just that, automating the process and saving you time. 🕒💡
 
-**Search and Transform** is a twist on the same concept
-but we use a LLM to perform the transformation instead of a simple string replacement.
+The script we'll be examining is a powerful tool that can search for text patterns in files using regular expressions and apply a transformation to each match using language models. We will look at the script step-by-step to understand how it works. Let's get started!
 
-### 👩‍💻 Understanding the Script Code
+## The Script Explained
+
+First things first, you can find the script on GitHub at [st.genai.mts](https://github.com/microsoft/genaiscript/blob/main/packages/vscode/genaisrc/st.genai.mts). Now, let's break down the script.
+
+### Setting Up the Script
 
 ```ts
 script({
@@ -80,9 +85,9 @@ We initialize an object called `patches` to store the transformations. Then, we 
 ### Generating Prompts for Transformations
 
 ```ts
-const res = await runPrompt(
-    (_) => {
-        _.$`
+        const res = await runPrompt(
+            (_) => {
+                _.$`
             ## Task
             
             Your task is to transform the MATCH with the following TRANSFORM.
@@ -91,11 +96,11 @@ const res = await runPrompt(
             
             ## Context
             `
-        _.def("MATCHED", match[0])
-        _.def("TRANSFORM", transform)
-    },
-    { label: match[0], system: [], cache: "search-and-transform" }
-)
+                _.def("MATCHED", match[0])
+                _.def("TRANSFORM", transform)
+            },
+            { label: match[0], system: [], cache: "search-and-transform" }
+        )
 ```
 
 For each unique match, we generate a prompt using the `runPrompt` function. In the prompt, we define the task and context for the transformation, specifying that the transformed text should be returned without enclosing quotes. We also define the matched text and the transformation to apply.
@@ -134,6 +139,10 @@ To run this script, you'll need the GenAIScript CLI. Check out the [installation
 genaiscript run st
 ```
 
-## Full source ([GitHub](https://github.com/microsoft/genaiscript/blob/main/packages/vscode/genaisrc/st.genai.mts))
+Be sure to replace `st` with the actual name of your script if you've named it differently.
 
-<Code code={source} wrap={true} lang="ts" title="st.genai.mts" />
+## Conclusion
+
+This script is a fantastic example of how GenAIScript can simplify complex tasks like searching and transforming text across multiple files. By following the steps outlined, you can create your own scripts to automate your workflows and boost your productivity. Happy scripting! 🚀
+
+Remember to check out the script on GitHub and tweak it to suit your needs. If you have any questions or want to share your own scripting experiences, feel free to leave a comment below!
