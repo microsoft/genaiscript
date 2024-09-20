@@ -1,6 +1,7 @@
 /* eslint-disable curly */
 import { parse, stringify } from "json5"
 import { jsonrepair } from "jsonrepair"
+import { unfence } from "./fence"
 
 export function isJSONObjectOrArray(text: string) {
     return /^\s*[\{\[]/.test(text)
@@ -20,6 +21,7 @@ export function JSON5parse<T = unknown>(
     }
 ): T | undefined | null {
     try {
+        text = unfence(text, "json")
         if (options?.repair) {
             try {
                 const res = parse(text)
@@ -57,9 +59,8 @@ const startRx = /^\s*\`\`\`json\s/
 const endRx = /\`\`\`\s*$/
 export function JSONLLMTryParse(s: string): any {
     if (s === undefined || s === null) return s
-    if (startRx.test(s) && endRx.test(s))
-        s = s.replace(startRx, "").replace(endRx, "")
-    return JSON5TryParse(s)
+    const cleaned = unfence(s, "json")
+    return JSON5TryParse(cleaned)
 }
 
 export const JSON5Stringify = stringify

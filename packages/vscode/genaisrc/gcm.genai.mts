@@ -4,7 +4,6 @@
 script({
     title: "git commit message",
     description: "Generate a commit message for all staged changes",
-    model: "openai:gpt-4o",
 })
 
 // TODO: update this diff command to match your workspace

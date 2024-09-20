@@ -1,8 +1,10 @@
 import { parse, stringify } from "ini"
 import { logError } from "./util"
+import { unfence } from "./fence"
 
 export function INIParse(text: string) {
-    return parse(text)
+    const cleaned = unfence(text, "ini")
+    return parse(cleaned)
 }
 
 export function INITryParse(text: string, defaultValue?: any) {
