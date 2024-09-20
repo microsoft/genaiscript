@@ -244,7 +244,7 @@ export async function createPromptContext(
                     try {
                         await sleep(0)
                         // data race for options
-                        const res = await runPrompt(async (_) => {
+                        const res = await ctx.runPrompt(async (_) => {
                             _.$(template, ...args)
                         }, options)
                         resolve(res)
