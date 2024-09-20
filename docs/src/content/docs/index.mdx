@@ -100,8 +100,7 @@ Minimal syntax to build prompts using [JavaScript](/genaiscript/reference/script
 or [TypeScript](/genaiscript/reference/scripts/typescript).
 
 ```js wrap
-def("FILE", env.files, { endsWith: ".pdf" })
-$`Summarize FILE. Today is ${new Date()}.`
+$`Summarize ${env.files}. Today is ${new Date()}.`
 ```
 
 </Card>
