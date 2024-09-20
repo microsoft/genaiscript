@@ -583,7 +583,7 @@ interface WorkspaceFileSystem {
 
     /**
      * Opens a key-value cache for the given cache name.
-     * The cache is persisted accross runs of the script. Entries are dropped when the cache grows too large.
+     * The cache is persisted across runs of the script. Entries are dropped when the cache grows too large.
      * @param cacheName
      */
     cache<K = any, V = any>(
@@ -710,7 +710,7 @@ interface FenceOptions {
 
 interface ContextExpansionOptions {
     /**
-     * Specifies an maximum of estimated tokesn for this entry; after which it will be truncated.
+     * Specifies an maximum of estimated tokens for this entry; after which it will be truncated.
      */
     maxTokens?: number
     /*
@@ -970,7 +970,7 @@ interface Parsers {
     JSONL(content: string | WorkspaceFile): any[] | undefined
 
     /**
-     * Parses text as a YAML paylaod
+     * Parses text as a YAML payload
      */
     YAML(
         content: string | WorkspaceFile,
@@ -1439,7 +1439,7 @@ interface DefDataOptions
     extends Omit<ContextExpansionOptions, "maxTokens">,
         DataFilter {
     /**
-     * Output format in the prompt. Defaults to markdownified CSV
+     * Output format in the prompt. Defaults to Markdown table rendering.
      */
     format?: "json" | "yaml" | "csv"
 }
