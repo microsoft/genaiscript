@@ -156,7 +156,7 @@ export function mergeDescription(
     text: string
 ) {
     body = body ?? ""
-    const tag = `<!-- genaiscript begin ${commentTag} --><hr/>`
+    const tag = `<!-- genaiscript begin ${commentTag} -->`
     const endTag = `<!-- genaiscript end ${commentTag} -->`
     const sep = "\n\n"
 
@@ -190,7 +190,7 @@ export function appendGeneratedComment(
 ) {
     const { message, code, severity } = annotation
     return prettifyMarkdown(
-        `<!-- genaiscript ${severity} ${code || ""} -->
+        `<!-- genaiscript ${severity} ${code || ""} --><hr/>
 ${message}
 ${generatedByFooter(script, info, code)}`
     )
