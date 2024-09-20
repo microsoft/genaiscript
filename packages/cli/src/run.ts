@@ -13,6 +13,7 @@ import {
     githubCreatePullRequestReviews,
     githubUpdatePullRequestDescription,
     githubParseEnv,
+    githubQueryEnvUsingCli,
 } from "../../core/src/github"
 import {
     HTTPS_REGEX,
@@ -490,10 +491,21 @@ export async function runScript(
                 )
             } else {
                 // try github gh cli
-
-                logError(
-                    "pull request description: no pull request information found"
-                )
+                const ghcliinfo = await githubQueryEnvUsingCli(process.env)
+                if (ghcliinfo?.repository && ghcliinfo?.issue) {
+                    await githubUpdatePullRequestDescription(
+                        script,
+                        ghcliinfo,
+                        result.text,
+                        typeof pullRequestDescription === "string"
+                            ? pullRequestDescription
+                            : script.id
+                    )
+                } else {
+                    logError(
+                        "pull request description: no pull request information found"
+                    )
+                }
             }
         }
     }

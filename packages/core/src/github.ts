@@ -1,4 +1,3 @@
-import { assert } from "node:console"
 import {
     GITHUB_API_VERSION,
     GITHUB_PULL_REQUEST_REVIEW_COMMENT_LINE_DISTANCE,
@@ -7,7 +6,7 @@ import {
 import { createFetch } from "./fetch"
 import { runtimeHost } from "./host"
 import { link, prettifyMarkdown } from "./markdown"
-import { logError, logVerbose, normalizeInt } from "./util"
+import { assert, logError, logVerbose, normalizeInt } from "./util"
 
 export interface GithubConnectionInfo {
     token: string
@@ -59,15 +58,60 @@ export function githubParseEnv(
     }
 }
 
+export async function githubQueryEnvUsingCli(
+    env: Record<string, string>
+): Promise<
+    Pick<GithubConnectionInfo, "repo" | "owner" | "repository" | "issue">
+> {
+    try {
+        const res = githubParseEnv(env)
+        if (!res.owner || !res.repo || !res.repository) {
+            const { name: repo, owner } = JSON.parse(
+                (
+                    await runtimeHost.exec(
+                        undefined,
+                        "gh",
+                        ["repo", "view", "--json", "url,name,owner"],
+                        {}
+                    )
+                ).stdout
+            )
+            res.repo = repo
+            res.owner = owner.login
+            res.repository = res.owner + "/" + res.repo
+        }
+        if (!res.issue) {
+            const { number: issue } = JSON.parse(
+                (
+                    await runtimeHost.exec(
+                        undefined,
+                        "gh",
+                        ["pr", "view", "--json", "number"],
+                        {}
+                    )
+                ).stdout
+            )
+            if (!isNaN(issue)) res.issue = issue
+        }
+        return res
+    } catch (e) {
+        logVerbose("github query failed")
+        return undefined
+    }
+}
+
 // https://docs.github.com/en/rest/pulls/pulls?apiVersion=2022-11-28#update-a-pull-request
 export async function githubUpdatePullRequestDescription(
     script: PromptScript,
-    info: GithubConnectionInfo,
+    info: Pick<
+        GithubConnectionInfo,
+        "apiUrl" | "repository" | "issue" | "runUrl"
+    >,
     text: string,
     commentTag: string
 ) {
     const { apiUrl, repository, issue } = info
-    assert(commentTag)
+    assert(!!commentTag)
 
     if (!issue) return { updated: false, statusText: "missing issue number" }
     const token = await runtimeHost.readSecret(GITHUB_TOKEN)
@@ -243,7 +287,7 @@ async function githubCreatePullRequestReview(
     annotation: Diagnostic,
     existingComments: { id: string; path: string; line: number; body: string }[]
 ) {
-    assert(token)
+    assert(!!token)
     const { apiUrl, repository, issue, commitSha } = info
 
     const prettyMessage = prettifyMarkdown(annotation.message)
