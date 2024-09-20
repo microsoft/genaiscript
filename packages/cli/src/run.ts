@@ -13,7 +13,6 @@ import {
     githubCreatePullRequestReviews,
     githubUpdatePullRequestDescription,
     githubParseEnv,
-    githubQueryEnvUsingCli,
 } from "../../core/src/github"
 import {
     HTTPS_REGEX,

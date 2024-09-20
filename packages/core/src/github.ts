@@ -162,15 +162,17 @@ export function mergeDescription(
 
     const start = body.indexOf(tag)
     const end = body.indexOf(endTag)
+    const header = "<hr/>"
     if (start > -1 && end > -1 && start < end) {
         body =
             body.slice(0, start + tag.length) +
+            header +
             sep +
             text +
             sep +
             body.slice(end)
     } else {
-        body = body + sep + tag + sep + text + sep + endTag + sep
+        body = body + sep + tag + header + sep + text + sep + endTag + sep
     }
     return body
 }
@@ -190,7 +192,7 @@ export function appendGeneratedComment(
 ) {
     const { message, code, severity } = annotation
     return prettifyMarkdown(
-        `<!-- genaiscript ${severity} ${code || ""} --><hr/>
+        `<!-- genaiscript ${severity} ${code || ""} -->
 ${message}
 ${generatedByFooter(script, info, code)}`
     )
