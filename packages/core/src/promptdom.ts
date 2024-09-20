@@ -11,6 +11,8 @@ import {
     MARKDOWN_PROMPT_FENCE,
     MAX_TOKENS_ELLIPSE,
     PROMPT_FENCE,
+    TEMPLATE_ARG_DATA_SLICE_SAMPLE,
+    TEMPLATE_ARG_FILE_MAX_TOKENS,
 } from "./constants"
 import { parseModelIdentifier } from "./models"
 import { toChatCompletionUserMessage } from "./chat"
@@ -448,6 +450,17 @@ async function resolvePromptNode(
 ): Promise<{ errors: number }> {
     const encoder = await resolveTokenEncoder(model)
     let err = 0
+    const names = new Set<string>()
+    const uniqueName = (n_: string) => {
+        let i = 1
+        let n = n_
+        while (names.has(n)) {
+            n = `${n_}${i++}`
+        }
+        names.add(n)
+        return n
+    }
+
     await visitNode(root, {
         error: () => {
             err++
@@ -463,6 +476,7 @@ async function resolvePromptNode(
         },
         def: async (n) => {
             try {
+                names.add(n.name)
                 const value = await n.value
                 n.resolved = value
                 const rendered = renderDefNode(n)
@@ -486,6 +500,7 @@ async function resolvePromptNode(
             try {
                 const resolvedStrings = await strings
                 const resolvedArgs = []
+
                 for (const arg of args) {
                     try {
                         let ra: any = await arg
@@ -499,30 +514,41 @@ async function resolvePromptNode(
                                     ...(n.children ?? []),
                                     createDef(ra.filename, ra, {
                                         ignoreEmpty: true,
+                                        maxTokens: TEMPLATE_ARG_FILE_MAX_TOKENS,
                                     }),
                                 ]
                                 ra = ra.filename
                             } else if (
+                                // env.files
                                 Array.isArray(ra) &&
                                 ra.every(
                                     (r) => typeof r === "object" && r.filename
                                 )
                             ) {
                                 // env.files
+                                const fname = uniqueName("FILES")
                                 n.children = n.children ?? []
                                 for (const r of ra) {
                                     n.children.push(
-                                        createDef("FILES", r, {
+                                        createDef(fname, r, {
                                             ignoreEmpty: true,
+                                            maxTokens:
+                                                TEMPLATE_ARG_FILE_MAX_TOKENS,
                                         })
                                     )
                                 }
-                                ra = "FILES"
+                                ra = fname
+                            } else {
+                                const dname = uniqueName("DATA")
+                                n.children = [
+                                    ...(n.children ?? []),
+                                    createDefData(dname, ra, {
+                                        sliceSample:
+                                            TEMPLATE_ARG_DATA_SLICE_SAMPLE,
+                                    }),
+                                ]
+                                ra = dname
                             }
-                        } else {
-                            ra = inspect(ra, {
-                                maxDepth: DEDENT_INSPECT_MAX_DEPTH,
-                            })
                         }
                         resolvedArgs.push(ra ?? "")
                     } catch (e) {
