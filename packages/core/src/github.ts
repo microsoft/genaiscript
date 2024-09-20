@@ -22,9 +22,7 @@ export interface GithubConnectionInfo {
     commitSha?: string
 }
 
-export function githubParseEnv(
-    env: Record<string, string>
-): GithubConnectionInfo {
+function githubFromEnv(env: Record<string, string>): GithubConnectionInfo {
     const token = env.GITHUB_TOKEN
     const apiUrl = env.GITHUB_API_URL || "https://api.github.com"
     const repository = env.GITHUB_REPOSITORY
@@ -58,13 +56,11 @@ export function githubParseEnv(
     }
 }
 
-export async function githubQueryEnvUsingCli(
+export async function githubParseEnv(
     env: Record<string, string>
-): Promise<
-    Pick<GithubConnectionInfo, "repo" | "owner" | "repository" | "issue">
-> {
+): Promise<GithubConnectionInfo> {
+    const res = githubFromEnv(env)
     try {
-        const res = githubParseEnv(env)
         if (!res.owner || !res.repo || !res.repository) {
             const { name: repo, owner } = JSON.parse(
                 (
@@ -93,11 +89,8 @@ export async function githubQueryEnvUsingCli(
             )
             if (!isNaN(issue)) res.issue = issue
         }
-        return res
-    } catch (e) {
-        logVerbose("github query failed")
-        return undefined
-    }
+    } catch (e) {}
+    return res
 }
 
 // https://docs.github.com/en/rest/pulls/pulls?apiVersion=2022-11-28#update-a-pull-request
@@ -163,7 +156,7 @@ export function mergeDescription(
     text: string
 ) {
     body = body ?? ""
-    const tag = `<!-- genaiscript begin ${commentTag} -->`
+    const tag = `<!-- genaiscript begin ${commentTag} --><hr/>`
     const endTag = `<!-- genaiscript end ${commentTag} -->`
     const sep = "\n\n"
 
