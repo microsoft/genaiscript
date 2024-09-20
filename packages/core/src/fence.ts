@@ -216,8 +216,10 @@ ${validation.error.split("\n").join("\n> ")}`
 }
 
 export function unfence(text: string, language: string) {
-    const startRx = new RegExp(`^\`\`\`${language}\n`)
-    const endRx = /\n```[\n\s]*$/
+    if (!text) return text
+
+    const startRx = new RegExp(`^[\r\n\s]*\`\`\`${language}\s*\r?\n`)
+    const endRx = /\r?\n```[\r\n\s]*$/
     if (startRx.test(text) && endRx.test(text)) {
         return text.replace(startRx, "").replace(endRx, "")
     }

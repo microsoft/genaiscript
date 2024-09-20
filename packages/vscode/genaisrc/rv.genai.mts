@@ -1,16 +1,6 @@
-/**
- * GenAIScript Reviewer
- *
- * This script is used to review the current files
- * or the changes in the git repository.
- *
- * Don't hesitate to customize this script to fit your needs!
- */
-
 script({
     title: "Reviewer",
     description: "Review the current files",
-    model: "openai:gpt-4o",
     system: ["system.annotations"],
     tools: ["fs_find_files", "fs_read_text"],
     cache: "rv",
@@ -44,7 +34,7 @@ if (env.files.length) {
     // No files selected, review the current changes
     console.log("No files found. Using git diff.")
     const { stdout: diff } = await host.exec("git diff -U6")
- // customize git diff to filter some files
+    // customize git diff to filter some files
     if (!diff) cancel("No changes found, did you forget to stage your changes?")
     content = def("GIT_DIFF", diff, { language: "diff" })
 }

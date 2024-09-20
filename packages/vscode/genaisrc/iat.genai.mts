@@ -4,8 +4,6 @@
 script({
     title: "Image Alt Textify",
     description: "Generate alt text for images in markdown files",
-    model: "openai:gpt-4o",
-    // these parameters can be overridden using `--vars doc=...`
     parameters: {
         docs: {
             type: "string",

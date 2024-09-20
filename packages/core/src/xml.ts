@@ -1,5 +1,6 @@
 import { XMLParser } from "fast-xml-parser"
 import { logError } from "./util"
+import { unfence } from "./fence"
 
 export function XMLTryParse(
     text: string,
@@ -15,6 +16,7 @@ export function XMLTryParse(
 }
 
 export function XMLParse(text: string, options?: XMLParseOptions) {
+    const cleaned = unfence(text, "xml")
     const parser = new XMLParser({
         ignoreAttributes: false,
         attributeNamePrefix: "@_",
@@ -23,5 +25,5 @@ export function XMLParse(text: string, options?: XMLParseOptions) {
         parseAttributeValue: true,
         ...(options || {}),
     })
-    return parser.parse(text)
+    return parser.parse(cleaned)
 }
