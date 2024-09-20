@@ -451,11 +451,11 @@ async function resolvePromptNode(
     const encoder = await resolveTokenEncoder(model)
     let err = 0
     const names = new Set<string>()
-    const uniqueName = (name: string) => {
+    const uniqueName = (n_: string) => {
         let i = 1
-        let n = name
+        let n = n_
         while (names.has(n)) {
-            n = `${name}${i++}`
+            n = `${n_}${i++}`
         }
         names.add(n)
         return n
@@ -526,28 +526,29 @@ async function resolvePromptNode(
                                 )
                             ) {
                                 // env.files
-                                const name = uniqueName("FILES")
+                                const fname = uniqueName("FILES")
                                 n.children = n.children ?? []
                                 for (const r of ra) {
                                     n.children.push(
-                                        createDef(name, r, {
+                                        createDef(fname, r, {
                                             ignoreEmpty: true,
                                             maxTokens:
                                                 TEMPLATE_ARG_FILE_MAX_TOKENS,
                                         })
                                     )
                                 }
-                                ra = name
+                                ra = fname
+                            } else {
+                                const dname = uniqueName("DATA")
+                                n.children = [
+                                    ...(n.children ?? []),
+                                    createDefData(dname, ra, {
+                                        sliceSample:
+                                            TEMPLATE_ARG_DATA_SLICE_SAMPLE,
+                                    }),
+                                ]
+                                ra = dname
                             }
-                        } else {
-                            const name = uniqueName("DATA")
-                            n.children = [
-                                ...(n.children ?? []),
-                                createDefData(name, ra, {
-                                    sliceSample: TEMPLATE_ARG_DATA_SLICE_SAMPLE,
-                                }),
-                            ]
-                            ra = name
                         }
                         resolvedArgs.push(ra ?? "")
                     } catch (e) {
