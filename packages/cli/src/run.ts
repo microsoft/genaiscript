@@ -425,8 +425,9 @@ export async function runScript(
     }
 
     if (pullRequestReviews && result.annotations?.length) {
-        const info = githubParseEnv(process.env)
-        if (info.repository && info.issue) {
+        // github action or repo
+        const info = await githubParseEnv(process.env)
+        if (info.repository && info.issue && info.commitSha) {
             await githubCreatePullRequestReviews(
                 script,
                 info,
@@ -436,7 +437,8 @@ export async function runScript(
     }
 
     if (pullRequestComment && result.text) {
-        const info = githubParseEnv(process.env)
+        // github action or repo
+        const info = await githubParseEnv(process.env)
         if (info.repository && info.issue) {
             await githubCreateIssueComment(
                 script,
@@ -447,8 +449,8 @@ export async function runScript(
                     : script.id
             )
         } else {
-            const adoinfo = azureDevOpsParseEnv(process.env)
-            if (adoinfo?.collectionUri) {
+            const adoinfo = await azureDevOpsParseEnv(process.env)
+            if (adoinfo.collectionUri) {
                 await azureDevOpsCreateIssueComment(
                     script,
                     adoinfo,
@@ -465,9 +467,9 @@ export async function runScript(
     }
 
     if (pullRequestDescription && result.text) {
-        // github
-        const ghinfo = githubParseEnv(process.env)
-        if (ghinfo?.repository && ghinfo?.issue) {
+        // github action or repo
+        const ghinfo = await githubParseEnv(process.env)
+        if (ghinfo.repository && ghinfo.issue) {
             await githubUpdatePullRequestDescription(
                 script,
                 ghinfo,
@@ -477,9 +479,9 @@ export async function runScript(
                     : script.id
             )
         } else {
-            // azure devops
-            const adoinfo = azureDevOpsParseEnv(process.env)
-            if (adoinfo?.collectionUri) {
+            // azure devops pipeline
+            const adoinfo = await azureDevOpsParseEnv(process.env)
+            if (adoinfo.collectionUri) {
                 await azureDevOpsUpdatePullRequestDescription(
                     script,
                     adoinfo,
@@ -490,7 +492,7 @@ export async function runScript(
                 )
             } else {
                 logError(
-                    "pull request review: no pull request information found"
+                    "pull request description: no pull request information found"
                 )
             }
         }

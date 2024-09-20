@@ -35,7 +35,7 @@
     "@inquirer/prompts": "^6.0.1",
     "@lvce-editor/ripgrep": "^1.2.0",
     "dockerode": "^4.0.2",
-    "gpt-tokenizer": "^2.2.3",
+    "gpt-tokenizer": "^2.3.0",
     "jimp": "^1.6.0",
     "mammoth": "^1.8.0",
     "mathjs": "^13.1.1",
@@ -52,7 +52,7 @@
     "node": ">=20.0.0"
   },
   "peerDependencies": {
-    "promptfoo": "0.82.0"
+    "promptfoo": "0.89.3"
   },
   "devDependencies": {
     "@types/dockerode": "^3.3.31",

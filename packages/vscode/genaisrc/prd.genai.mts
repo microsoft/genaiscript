@@ -1,9 +1,8 @@
 script({
-    model: "openai:gpt-4-32k",
-    files: [],
-    temperature: 1,
-    title: "pr-describe",
-    system: ["system", "system.fs_find_files", "system.fs_read_file"],
+    title: "Pull Request Descriptor",
+    description: "Generate a pull request description from the git diff",
+    tools: ["fs"],
+    temperature: 0.5,
     parameters: {
         defaultBranch: {
             type: "string",
@@ -13,17 +12,17 @@ script({
     },
 })
 
+// configuration
 const defaultBranch = env.vars.defaultBranch
+
+// context
+// compute diff with the default branch
 const { stdout: changes } = await host.exec("git", [
     "diff",
     defaultBranch,
     "--cached",
     "--",
     ".",
-    ":!**/genaiscript.d.ts",
-    ":!**/*sconfig.json",
-    ":!genaisrc/*",
-    ":!.github/*",
     ":!.vscode/*",
     ":!*yarn.lock",
     ":!*THIRD_PARTY_LICENSES.md",
@@ -34,6 +33,7 @@ def("GIT_DIFF", changes, {
     maxTokens: 20000,
 })
 
+// task
 $`You are an expert software developer and architect.
 
 ## Task
@@ -48,7 +48,6 @@ $`You are an expert software developer and architect.
 - use emojis to make the description more engaging
 - focus on the most important changes
 - ignore comments about imports (like added, remove, changed, etc.)
-- the public API is defined in "packages/core/src/prompt_template.d.ts" and "packages/core/src/prompt_type.ts".
-  Changes in those files are "user facing".
-
 `
+
+// running: make sure to add the -prd flag

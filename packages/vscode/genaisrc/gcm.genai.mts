@@ -7,8 +7,11 @@ script({
     model: "openai:gpt-4o",
 })
 
+// TODO: update this diff command to match your workspace
+const diffCmd = "git diff --cached -- . :!**/genaiscript.d.ts"
+
 // Check for staged changes and stage all changes if none are staged
-let diff = await host.exec("git diff --cached")
+let diff = await host.exec(diffCmd)
 if (!diff.stdout) {
     /**
      * Ask user to stage all changes if none are staged
@@ -19,7 +22,7 @@ if (!diff.stdout) {
     if (stage) {
         // Stage all changes and recompute diff
         await host.exec("git add .")
-        diff = await host.exec("git diff --cached -- . :!**/genaiscript.d.ts")
+        diff = await host.exec(diffCmd)
     }
     if (!diff.stdout) cancel("no staged changes")
 }
@@ -77,9 +80,7 @@ Please generate a concise, one-line commit message for these changes.
     }
     // Regenerate message
     if (choice === "commit" && message) {
-        console.log(
-            (await host.exec("git", ["commit", "-m", message])).stdout
-        )
+        console.log((await host.exec("git", ["commit", "-m", message])).stdout)
         if (await host.confirm("Push changes?", { default: true }))
             console.log((await host.exec("git push")).stdout)
         break

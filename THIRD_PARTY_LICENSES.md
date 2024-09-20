@@ -1099,7 +1099,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.55.2
+ - genaiscript-vscode@1.55.3
 
 This package contains the following license and notice below:
 
@@ -4188,9 +4188,9 @@ The following npm packages may be included in this product:
  - @tokenizer/token@0.3.0
  - agent-base@6.0.2
  - canvas@2.11.2
- - genaiscript-core-internal@1.55.2
- - genaiscript-sample@1.55.2
- - genaiscript@1.55.2
+ - genaiscript-core-internal@1.55.3
+ - genaiscript-sample@1.55.3
+ - genaiscript@1.55.3
  - https-proxy-agent@5.0.1
  - isarray@1.0.0
  - javascript-natural-sort@0.7.1
@@ -4751,7 +4751,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - @azure/msal-node@2.13.1
+ - @azure/msal-node@2.14.0
 
 This package contains the following license and notice below:
 
@@ -4871,7 +4871,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - gpt-tokenizer@2.2.3
+ - gpt-tokenizer@2.3.0
 
 This package contains the following license and notice below:
 
@@ -5090,8 +5090,8 @@ SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - @azure/msal-browser@3.23.0
- - @azure/msal-common@14.14.2
+ - @azure/msal-browser@3.24.0
+ - @azure/msal-common@14.15.0
 
 These packages each contain the following license and notice below:
 
@@ -7099,24 +7099,6 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
-
------------
-
-The following npm package may be included in this product:
-
- - rfc4648@1.5.3
-
-This package contains the following license and notice below:
-
-The MIT License (MIT)
-
-Copyright © 2022 William R Swanson
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the “Software”), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 -----------
 
