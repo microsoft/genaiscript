@@ -417,7 +417,7 @@ interface PromptScript
 }
 
 /**
- * Represent a file linked from a `.gpsec.md` document.
+ * Represent a workspace file and optional content.
  */
 interface WorkspaceFile {
     /**
