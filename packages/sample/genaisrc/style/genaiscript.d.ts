@@ -148,16 +148,16 @@ interface ModelConnectionOptions {
      * @default gpt-4
      * @example gpt-4
      */
-    model?:
-        | "openai:gpt-4"
-        | "openai:gpt-4-turbo"
+    model?: OptionsOrString<
         | "openai:gpt-4o"
         | "openai:gpt-4o-mini"
+        | "openai:gpt-4"
+        | "openai:gpt-4-turbo"
         | "openai:gpt-3.5-turbo"
         | "ollama:phi3"
         | "ollama:llama3"
         | "ollama:mixtral"
-        | string
+    >
 }
 
 interface ModelOptions extends ModelConnectionOptions {
