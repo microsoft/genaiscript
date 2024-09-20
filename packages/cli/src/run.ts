@@ -427,7 +427,7 @@ export async function runScript(
     if (pullRequestReviews && result.annotations?.length) {
         // github action or repo
         const info = await githubParseEnv(process.env)
-        if (info.repository && info.issue) {
+        if (info.repository && info.issue && info.commitSha) {
             await githubCreatePullRequestReviews(
                 script,
                 info,

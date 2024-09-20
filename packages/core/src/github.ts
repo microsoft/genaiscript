@@ -201,7 +201,10 @@ ${generatedByFooter(script, info, code)}`
 // https://docs.github.com/en/rest/issues/comments?apiVersion=2022-11-28#create-an-issue-comment
 export async function githubCreateIssueComment(
     script: PromptScript,
-    info: GithubConnectionInfo,
+    info: Pick<
+        GithubConnectionInfo,
+        "apiUrl" | "repository" | "issue" | "runUrl"
+    >,
     body: string,
     commentTag: string
 ): Promise<{ created: boolean; statusText: string; html_url?: string }> {
@@ -277,7 +280,10 @@ export async function githubCreateIssueComment(
 
 async function githubCreatePullRequestReview(
     script: PromptScript,
-    info: GithubConnectionInfo,
+    info: Pick<
+        GithubConnectionInfo,
+        "apiUrl" | "repository" | "issue" | "runUrl" | "commitSha"
+    >,
     token: string,
     annotation: Diagnostic,
     existingComments: { id: string; path: string; line: number; body: string }[]
@@ -338,17 +344,20 @@ async function githubCreatePullRequestReview(
 
 export async function githubCreatePullRequestReviews(
     script: PromptScript,
-    info: GithubConnectionInfo,
+    info: Pick<
+        GithubConnectionInfo,
+        "apiUrl" | "repository" | "issue" | "runUrl" | "commitSha"
+    >,
     annotations: Diagnostic[]
 ): Promise<boolean> {
-    const { repository, issue, sha, apiUrl } = info
+    const { repository, issue, commitSha, apiUrl } = info
 
     if (!annotations?.length) return true
     if (!issue) {
         logError("missing pull request number")
         return false
     }
-    if (!sha) {
+    if (!commitSha) {
         logError("missing commit sha")
         return false
     }
