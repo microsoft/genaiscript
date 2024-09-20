@@ -465,7 +465,7 @@ export async function runScript(
     }
 
     if (pullRequestDescription && result.text) {
-        // github
+        // github action
         const ghinfo = githubParseEnv(process.env)
         if (ghinfo?.repository && ghinfo?.issue) {
             await githubUpdatePullRequestDescription(
@@ -477,7 +477,7 @@ export async function runScript(
                     : script.id
             )
         } else {
-            // azure devops
+            // azure devops pipeline
             const adoinfo = azureDevOpsParseEnv(process.env)
             if (adoinfo?.collectionUri) {
                 await azureDevOpsUpdatePullRequestDescription(
@@ -489,8 +489,10 @@ export async function runScript(
                         : script.id
                 )
             } else {
+                // try github gh cli
+
                 logError(
-                    "pull request review: no pull request information found"
+                    "pull request description: no pull request information found"
                 )
             }
         }

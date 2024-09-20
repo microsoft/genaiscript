@@ -1,8 +1,8 @@
 import { parse, quote } from "shell-quote"
 
 export function shellParse(cmd: string): string[] {
-    const res = parse(cmd)
-    return res
+    const args = parse(cmd)
+    const res = args
         .filter((e) => !(e as any).comment)
         .map((e) =>
             typeof e === "string"
@@ -11,6 +11,7 @@ export function shellParse(cmd: string): string[] {
                   ? (e as any).pattern
                   : (e as any).op
         )
+    return res
 }
 
 export function shellQuote(args: string[]): string {

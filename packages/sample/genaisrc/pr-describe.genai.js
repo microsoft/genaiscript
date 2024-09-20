@@ -9,14 +9,15 @@ script({
             type: "string",
             description: "The default branch of the repository",
             default: "main",
-        }
-    }
+        },
+    },
 })
 
 const defaultBranch = env.vars.defaultBranch
 const { stdout: changes } = await host.exec("git", [
     "diff",
     defaultBranch,
+    "--cached",
     "--",
     ".",
     ":!**/genaiscript.d.ts",

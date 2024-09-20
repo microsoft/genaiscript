@@ -1,6 +1,7 @@
 {
     "devicescript.devtools.autoStart": false,
     "cSpell.words": [
+        "adoinfo",
         "Agentic",
         "AICI",
         "arrayify",
@@ -22,6 +23,7 @@
         "genai",
         "Genaiscript",
         "genaisrc",
+        "ghinfo",
         "gpspec",
         "gpspecs",
         "gptool",
