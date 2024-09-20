@@ -313,7 +313,7 @@ export async function createPromptContext(
                     role: "system",
                     content: "",
                 }
-                for (const systemId of resolveSystems(prj, runOptions)) {
+                for (const systemId of resolveSystems(prj, runOptions ?? {})) {
                     checkCancelled(cancellationToken)
 
                     const system = prj.getTemplate(systemId)
