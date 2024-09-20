@@ -164,23 +164,23 @@
     tslib "^2.6.2"
 
 "@azure/msal-browser@^3.14.0":
-  version "3.23.0"
-  resolved "https://registry.yarnpkg.com/@azure/msal-browser/-/msal-browser-3.23.0.tgz#446aaf268247e5943f464f007d3aa3a04abfe95b"
-  integrity sha512-+QgdMvaeEpdtgRTD7AHHq9aw8uga7mXVHV1KshO1RQ2uI5B55xJ4aEpGlg/ga3H+0arEVcRfT4ZVmX7QLXiCVw==
+  version "3.24.0"
+  resolved "https://registry.yarnpkg.com/@azure/msal-browser/-/msal-browser-3.24.0.tgz#3208047672d0b0c943b0bef5f995d510d6582ae4"
+  integrity sha512-JGNV9hTYAa7lsum9IMIibn2kKczAojNihGo1hi7pG0kNrcKej530Fl6jxwM05A44/6I079CSn6WxYxbVhKUmWg==
   dependencies:
-    "@azure/msal-common" "14.14.2"
+    "@azure/msal-common" "14.15.0"
 
-"@azure/msal-common@14.14.2":
-  version "14.14.2"
-  resolved "https://registry.yarnpkg.com/@azure/msal-common/-/msal-common-14.14.2.tgz#583b4ac9c089953718d7a5e2f3b8df2d4dbb17f4"
-  integrity sha512-XV0P5kSNwDwCA/SjIxTe9mEAsKB0NqGNSuaVrkCCE2lAyBr/D6YtD80Vkdp4tjWnPFwjzkwldjr1xU/facOJog==
+"@azure/msal-common@14.15.0":
+  version "14.15.0"
+  resolved "https://registry.yarnpkg.com/@azure/msal-common/-/msal-common-14.15.0.tgz#0e27ac0bb88fe100f4f8d1605b64d5c268636a55"
+  integrity sha512-ImAQHxmpMneJ/4S8BRFhjt1MZ3bppmpRPYYNyzeQPeFN288YKbb8TmmISQEbtfkQ1BPASvYZU5doIZOPBAqENQ==
 
 "@azure/msal-node@^2.9.2":
-  version "2.13.1"
-  resolved "https://registry.yarnpkg.com/@azure/msal-node/-/msal-node-2.13.1.tgz#f144371275b7c3cbe564762b84772a9732457a47"
-  integrity sha512-sijfzPNorKt6+9g1/miHwhj6Iapff4mPQx1azmmZExgzUROqWTM1o3ACyxDja0g47VpowFy/sxTM/WsuCyXTiw==
+  version "2.14.0"
+  resolved "https://registry.yarnpkg.com/@azure/msal-node/-/msal-node-2.14.0.tgz#7881895d41b03d8b9b38a29550ba3bbb15f73b3c"
+  integrity sha512-rrfzIpG3Q1rHjVYZmHAEDidWAZZ2cgkxlIcMQ8dHebRISaZ2KCV33Q8Vs+uaV6lxweROabNxKFlR2lIKagZqYg==
   dependencies:
-    "@azure/msal-common" "14.14.2"
+    "@azure/msal-common" "14.15.0"
     jsonwebtoken "^9.0.0"
     uuid "^8.3.0"
 
@@ -2924,12 +2924,10 @@ gpt-3-encoder@1.1.4:
   resolved "https://registry.yarnpkg.com/gpt-3-encoder/-/gpt-3-encoder-1.1.4.tgz#d6cdaacf5824857e133b6065247c757fc7e4fa72"
   integrity sha512-fSQRePV+HUAhCn7+7HL7lNIXNm6eaFWFbNLOOGtmSJ0qJycyQvj60OvRlH7mee8xAMjBDNRdMXlMwjAbMTDjkg==
 
-gpt-tokenizer@^2.2.3:
-  version "2.2.3"
-  resolved "https://registry.yarnpkg.com/gpt-tokenizer/-/gpt-tokenizer-2.2.3.tgz#97ce5505f151eb2eff2f6c2a37b0fe6d9f09df36"
-  integrity sha512-EOHvuE+J/sDw36QSWYX3d9fypAPMDvevi/W2XW0Bh+n76Iq3yHuNMHXXe5VmSQfcxIC9CVqyZgPOSxgjgAyQtQ==
-  dependencies:
-    rfc4648 "^1.5.3"
+gpt-tokenizer@^2.3.0:
+  version "2.3.0"
+  resolved "https://registry.yarnpkg.com/gpt-tokenizer/-/gpt-tokenizer-2.3.0.tgz#a500f90a69be35a6d290b7a8094b9293e0b0d43b"
+  integrity sha512-hmY2ECvld67c0j9MCjSN98lQmRdLQV8S3OkpLwOLlqgTqm0ALCzcUjgdMYrthDPS5eGP7qwVpcH+EQ4R9PsCFQ==
 
 graceful-fs@^4.1.6, graceful-fs@^4.2.0:
   version "4.2.11"
@@ -4817,11 +4815,6 @@ reusify@^1.0.4:
   version "1.0.4"
   resolved "https://registry.yarnpkg.com/reusify/-/reusify-1.0.4.tgz#90da382b1e126efc02146e90845a88db12925d76"
   integrity sha512-U9nH88a3fc/ekCF1l0/UP1IosiuIjyTh7hBvXVMHYgVcfGvt897Xguj2UOLDeI5BG2m7/uwyaLVT6fbtCwTyzw==
-
-rfc4648@^1.5.3:
-  version "1.5.3"
-  resolved "https://registry.yarnpkg.com/rfc4648/-/rfc4648-1.5.3.tgz#e62b81736c10361ca614efe618a566e93d0b41c0"
-  integrity sha512-MjOWxM065+WswwnmNONOT+bD1nXzY9Km6u3kzvnx8F8/HXGZdz3T6e6vZJ8Q/RIMUSp/nxqjH3GwvJDy8ijeQQ==
 
 rimraf@^3.0.2:
   version "3.0.2"
