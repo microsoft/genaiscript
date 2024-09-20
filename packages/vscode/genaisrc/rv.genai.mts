@@ -2,7 +2,7 @@ script({
     title: "Reviewer",
     description: "Review the current files",
     system: ["system.annotations"],
-    tools: ["fs_find_files", "fs_read_text"],
+    tools: ["fs"],
     cache: "rv",
     parameters: {
         errors: {
