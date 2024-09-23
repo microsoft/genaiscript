@@ -18,7 +18,7 @@ jobs:
                   cache: yarn
             - run: yarn install
             - run: yarn compile
-            - run: npm publish --userconfig ../../.npmrc
+            - run: yarn publish
               working-directory: packages/cli
               env:
                   NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
