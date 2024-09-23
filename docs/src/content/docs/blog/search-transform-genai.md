@@ -1,8 +1,7 @@
 ---
-title: "Search and Transform with GenAI"
-date: 2024-09-19
+title: "Search and Transform"
+date: 2024-09-24
 authors: genaiscript
-draft: true
 tags: ["genai", "scripting", "automation"]
 canonical_url: https://microsoft.github.io/genaiscript/blog/search-transform-genai
 ---
