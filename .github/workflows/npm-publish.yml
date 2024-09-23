@@ -18,6 +18,14 @@ jobs:
                   cache: yarn
             - run: yarn install
             - run: yarn compile
+            - run: npm login --registry=https://npm.pkg.github.com
+              working-directory: packages/cli
+              env:
+                  NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            - run: npm whoami
+              working-directory: packages/cli
+              env:
+                  NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             - run: npm publish
               working-directory: packages/cli
               env:
