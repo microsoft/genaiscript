@@ -1523,6 +1523,10 @@ interface ChatTurnGenerationContext {
         options?: ImportTemplateOptions
     ): void
     writeText(body: Awaitable<string>, options?: WriteTextOptions): void
+    assistant(
+        text: Awaitable<string>,
+        options?: Omit<WriteTextOptions, "assistant">
+    ): void
     $(strings: TemplateStringsArray, ...args: any[]): PromptTemplateString
     fence(body: StringLike, options?: FenceOptions): void
     def(

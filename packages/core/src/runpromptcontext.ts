@@ -58,6 +58,8 @@ export function createChatTurnGenerationContext(
                 )
             }
         },
+        assistant: (body, options) =>
+            ctx.writeText(body, { ...options, assistant: true }),
         $(strings, ...args) {
             const current = createStringTemplateNode(strings, args)
             appendChild(node, current)
@@ -105,11 +107,7 @@ export function createChatTurnGenerationContext(
                     throw new Error(`def ${name} is empty`)
                 appendChild(
                     node,
-                    createDef(
-                        name,
-                        { filename: "", content: body },
-                        doptions
-                    )
+                    createDef(name, { filename: "", content: body }, doptions)
                 )
             } else if (
                 typeof body === "object" &&

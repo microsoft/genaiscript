@@ -15,7 +15,8 @@
                 "file-icons.file-icons",
                 "GitHub.vscode-pull-request-github",
                 "johnpapa.vscode-peacock",
-                "usernamehw.errorlens"
+                "usernamehw.errorlens",
+                "goessner.mdmath"
             ]
         }
     },

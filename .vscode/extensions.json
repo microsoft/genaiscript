@@ -12,6 +12,7 @@
         "ms-toolsai.prompty",
         "unifiedjs.vscode-mdx",
         "johnpapa.vscode-peacock",
-        "usernamehw.errorlens"
+        "usernamehw.errorlens",
+        "goessner.mdmath"
     ]
 }
