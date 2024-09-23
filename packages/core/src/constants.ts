@@ -1,5 +1,6 @@
 export const CHANGE = "change"
 export const TRACE_CHUNK = "traceChunk"
+export const TRACE_DETAILS = "traceDetails"
 export const RECONNECT = "reconnect"
 export const OPEN = "open"
 export const MAX_TOOL_CALLS = 10000
@@ -20,8 +21,9 @@ export const CLI_JS = TOOL_ID + ".cjs"
 export const GENAI_SRC = "genaisrc"
 export const GENAI_JS_EXT = ".genai.js"
 export const GENAI_MJS_EXT = ".genai.mjs"
-export const GENAI_ANYJS_GLOB = "**/*.genai.{js,mjs,ts,mts}"
-export const GENAI_ANY_REGEX = /\.genai\.(ts|mts|mjs|js)$/i
+export const GENAI_ANYJS_GLOB =
+    "**/*{.genai.js,.genai.mjs,.genai.ts,.genai.mts,.prompty}"
+export const GENAI_ANY_REGEX = /\.(genai\.(ts|mts|mjs|js)|prompty)$/i
 export const GENAI_ANYJS_REGEX = /\.genai\.js$/i
 export const GENAI_ANYTS_REGEX = /\.genai\.(ts|mts|mjs)$/i
 export const HTTPS_REGEX = /^https:\/\//i
@@ -32,14 +34,16 @@ export const PDF_REGEX = /\.pdf$/i
 export const MDX_REGEX = /\.mdx$/i
 export const MJS_REGEX = /\.mjs$/i
 export const JS_REGEX = /\.js$/i
+export const PROMPTY_REGEX = /\.prompty$/i
 export const TOOL_NAME = "GenAIScript"
 export const SERVER_PORT = 8003
 export const CLIENT_RECONNECT_DELAY = 3000
 export const CLIENT_RECONNECT_MAX_ATTEMPTS = 20
 export const RETRIEVAL_PERSIST_DIR = "retrieval"
 export const HIGHLIGHT_LENGTH = 4000
-export const DEFAULT_MODEL = "openai:gpt-4-turbo"
+export const DEFAULT_MODEL = "openai:gpt-4o"
 export const DEFAULT_MODEL_CANDIDATES = [
+    "azure:gpt-4o",
     "azure:gpt-4-turbo",
     DEFAULT_MODEL,
     "github:gpt-4o",
@@ -71,6 +75,7 @@ export const SARIFF_BUILDER_TOOL_DRIVER_NAME = TOOL_ID
 export const FETCH_RETRY_DEFAULT = 5
 export const FETCH_RETRY_DEFAULT_DEFAULT = 2000
 export const FETCH_RETRY_MAX_DELAY_DEFAULT = 120000
+export const FETCH_RETRY_GROWTH_FACTOR = 1.5
 export const EXEC_MAX_BUFFER = 64
 export const DOT_ENV_FILENAME = ".env"
 
@@ -213,6 +218,7 @@ export const CHAT_CACHE = "chat"
 export const GITHUB_PULL_REQUEST_REVIEWS_CACHE = "prr"
 export const GITHUB_PULLREQUEST_REVIEW_COMMENT_LINE_DISTANCE = 5
 export const COMMENTS_CACHE = "comments"
+export const GITHUB_PULL_REQUEST_REVIEW_COMMENT_LINE_DISTANCE = 5
 
 export const PLACEHOLDER_API_BASE = "<custom api base>"
 export const PLACEHOLDER_API_KEY = "<your token>"
@@ -226,3 +232,14 @@ export const CONSOLE_COLOR_WARNING = 95
 export const CONSOLE_COLOR_ERROR = 91
 
 export const PLAYWRIGHT_DEFAULT_BROWSER = "chromium"
+export const MAX_TOKENS_ELLIPSE = "..."
+export const ESTIMATE_TOKEN_OVERHEAD = 2
+
+export const DEDENT_INSPECT_MAX_DEPTH = 3
+
+export const OPENAI_MAX_RETRY_DELAY = 10000
+export const OPENAI_MAX_RETRY_COUNT = 10
+export const OPENAI_RETRY_DEFAULT_DEFAULT = 1000
+
+export const TEMPLATE_ARG_FILE_MAX_TOKENS = 4000
+export const TEMPLATE_ARG_DATA_SLICE_SAMPLE = 2000

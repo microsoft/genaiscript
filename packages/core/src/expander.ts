@@ -6,6 +6,7 @@ import {
     JS_REGEX,
     MAX_TOOL_CALLS,
     MODEL_PROVIDER_AICI,
+    PROMPTY_REGEX,
     SYSTEM_FENCE,
 } from "./constants"
 import { PromptImage, renderPromptNode } from "./promptdom"
@@ -57,7 +58,11 @@ export async function callExpander(
     }
 
     try {
-        if (r.filename && !JS_REGEX.test(r.filename))
+        if (
+            r.filename &&
+            !JS_REGEX.test(r.filename) &&
+            !PROMPTY_REGEX.test(r.filename)
+        )
             await importPrompt(ctx, r, { logCb, trace })
         else {
             await evalPrompt(ctx, r, {
@@ -68,7 +73,7 @@ export async function callExpander(
         const node = ctx.node
         if (provider !== MODEL_PROVIDER_AICI) {
             const {
-                prompt,
+                userPrompt,
                 assistantPrompt,
                 images: imgs,
                 errors,
@@ -78,8 +83,11 @@ export async function callExpander(
                 outputProcessors: ops,
                 chatParticipants: cps,
                 fileOutputs: fos,
-            } = await renderPromptNode(model, node, { trace })
-            text = prompt
+            } = await renderPromptNode(model, node, {
+                flexTokens: options.flexTokens,
+                trace,
+            })
+            text = userPrompt
             assistantText = assistantPrompt
             images = imgs
             schemas = schs
@@ -170,7 +178,7 @@ export async function expandTemplate(
     const systems = resolveSystems(prj, template)
     const systemTemplates = systems.map((s) => prj.getTemplate(s))
     // update options
-    options.lineNumbers =
+    const lineNumbers =
         options.lineNumbers ??
         template.lineNumbers ??
         systemTemplates.some((s) => s?.lineNumbers)
@@ -181,7 +189,7 @@ export async function expandTemplate(
         host.defaultModelOptions.temperature
     const topP =
         options.topP ?? normalizeFloat(env.vars["top_p"]) ?? template.topP
-    const max_tokens =
+    const maxTokens =
         options.maxTokens ??
         normalizeInt(env.vars["maxTokens"]) ??
         normalizeInt(env.vars["max_tokens"]) ??
@@ -192,6 +200,11 @@ export async function expandTemplate(
         normalizeInt(env.vars["max_tool_calls"]) ??
         template.maxToolCalls ??
         MAX_TOOL_CALLS
+    const flexTokens =
+        options.flexTokens ??
+        normalizeInt(env.vars["flexTokens"]) ??
+        normalizeInt(env.vars["flex_tokens"]) ??
+        template.flexTokens
     let seed = options.seed ?? normalizeInt(env.vars["seed"]) ?? template.seed
     if (seed !== undefined) seed = seed >> 0
 
@@ -202,7 +215,16 @@ export async function expandTemplate(
     trace.startDetails("🧬 prompt")
     trace.detailsFenced("📓 script source", template.jsSource, "js")
 
-    const prompt = await callExpander(prj, template, env, trace, options)
+    const prompt = await callExpander(prj, template, env, trace, {
+        ...options,
+        maxTokens,
+        maxToolCalls,
+        flexTokens,
+        seed,
+        topP,
+        temperature,
+        lineNumbers,
+    })
 
     const images = prompt.images
     const schemas = prompt.schemas
@@ -334,7 +356,7 @@ ${schemaTs}
         model,
         temperature,
         topP,
-        max_tokens,
+        maxTokens,
         maxToolCalls,
         seed,
         responseType,

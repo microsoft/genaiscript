@@ -19,6 +19,19 @@ declare function script(options: PromptArgs): void
 declare function system(options: PromptSystemArgs): void
 
 /**
+ * Imports template prompt file and expands arguments in it.
+ * @param files
+ * @param arguments
+ */
+declare function importTemplate(
+    files: string | string[],
+    arguments?: Record<
+        string | number | boolean | (() => string | number | boolean)
+    >,
+    options?: ImportTemplateOptions
+): void
+
+/**
  * Append given string to the prompt. It automatically appends "\n".
  * Typically best to use `` $`...` ``-templates instead.
  */
@@ -31,7 +44,10 @@ declare function writeText(
  * Append given string to the prompt. It automatically appends "\n".
  * `` $`foo` `` is the same as `text("foo")`.
  */
-declare function $(strings: TemplateStringsArray, ...args: any[]): string
+declare function $(
+    strings: TemplateStringsArray,
+    ...args: any[]
+): PromptTemplateString
 
 /**
  * Appends given (often multi-line) string to the prompt, surrounded in fences.
@@ -51,7 +67,7 @@ declare function fence(body: StringLike, options?: FenceOptions): void
  */
 declare function def(
     name: string,
-    body: string | WorkspaceFile | WorkspaceFile[] | ShellOutput,
+    body: string | WorkspaceFile | WorkspaceFile[] | ShellOutput | Fenced,
     options?: DefOptions
 ): string
 
@@ -187,7 +203,7 @@ declare function defSchema(
  * @param options
  */
 declare function defImages(
-    files: StringLike | Buffer | Blob,
+    files: ElementOrArray<string | WorkspaceFile | Buffer | Blob>,
     options?: DefImagesOptions
 ): void
 
@@ -220,6 +236,14 @@ declare function runPrompt(
 ): Promise<RunPromptResult>
 
 /**
+ * Expands and executes the prompt
+ */
+declare function prompt(
+    strings: TemplateStringsArray,
+    ...args: any[]
+): RunPromptResultPromiseWithOptions
+
+/**
  * Registers a callback to process the LLM output
  * @param fn
  */
@@ -233,8 +257,3 @@ declare function defChatParticipant(
     participant: ChatParticipantHandler,
     options?: ChatParticipantOptions
 ): void
-
-/**
- * @deprecated Use `defOutputProcessor` instead.
- */
-declare function defOutput(fn: PromptOutputProcessorHandler): void

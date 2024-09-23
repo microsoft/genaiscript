@@ -19,6 +19,7 @@ hero:
 import { Image } from "astro:assets"
 import { Card, CardGrid } from "@astrojs/starlight/components"
 import { FileTree } from "@astrojs/starlight/components"
+import AudioPlayer from "../../components/AudioPlayer.astro"
 
 import vscodeSrc from "../../../public/images/visual-studio-code.png"
 
@@ -31,19 +32,37 @@ import sarifAlt from "../../assets/tla-ai-linter.png.txt?raw"
 import testExplorerSrc from "../../assets/vscode-test-explorer.png"
 import testExplorerAlt from "../../assets/vscode-test-explorer.png.txt?raw"
 
+## Prompting is Coding
+
+Programmatically assemble prompts for LLMs using JavaScript.
+
+```js
+$`Analyze ${env.files} and report errors. Use emojis.`
+```
+
+Of course, things can get more complex...
+
 ```js wrap title="extract-data.genai.mjs"
 // define the context
 def("FILE", env.files, { endsWith: ".pdf" })
 // structure the data
 const schema = defSchema("DATA", { type: "array", items: { type: "string" } })
 // assign the task
-$`Analyze FILE and extract data to JSON
-using the ${schema} schema.`
+$`Analyze FILE and extract data to JSON.`
+// save results to file
+defFileOutput("*.pdf.txt", "Extracted data", { schema })
+// tools
+defTool("weather", "live weahter", { city: "Paris" }, /* schema */
+    async ({ city }) => { ... "sunny" }) /* callback */
+...
 ```
 
 ## Next steps
 
 <CardGrid stagger>
+    <Card title="Listen to the podcast" icon="seti:audio">
+        <AudioPlayer src="/genaiscript/podcasts/overview.wav" />
+    </Card>
     <Card title="Install the extension" icon="puzzle">
         Install the [Visual Studio Code
         Extension](/genaiscript/getting-started/installation/) to get started.
@@ -77,12 +96,11 @@ GenAIScript brings essential LLM prompt tooling into a cohesive scripting enviro
 
 <Card title="Stylized JavaScript" icon="seti:javascript">
 
-Build prompts programmatically using [JavaScript](/genaiscript/reference/scripts/)
+Minimal syntax to build prompts using [JavaScript](/genaiscript/reference/scripts/)
 or [TypeScript](/genaiscript/reference/scripts/typescript).
 
 ```js wrap
-def("FILE", env.files, { endsWith: ".pdf" })
-$`Summarize FILE. Today is ${new Date()}.`
+$`Summarize ${env.files}. Today is ${new Date()}.`
 ```
 
 </Card>
@@ -279,7 +297,7 @@ Run code in Docker [containers](/genaiscript/reference/scripts/containers).
 const c = await host.container({
     image: "python:alpine",
 })
-const res = await c.exec("python", ["--version"])
+const res = await c.exec("python --version")
 ```
 
 </Card>
@@ -296,10 +314,24 @@ for (const file of env.files) {
         _.$`Summarize the FILE.`
     })
     // use result in main prompt
-    _.def("SUMMARY", text)
+    def("SUMMARY", text)
 }
 // use summary
 $`Summarize all the summaries.`
+```
+
+</Card>
+
+<Card title="Prompty" link="markdown">
+
+Run or convert [Prompty](https://prompty.ai/) files using GenAIScript.
+
+```markdown title="poem.prompty"
+---
+name: poem
+---
+
+Write a short poem.
 ```
 
 </Card>

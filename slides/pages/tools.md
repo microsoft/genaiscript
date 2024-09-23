@@ -9,7 +9,7 @@ layout: two-cols-header
 
 ::left::
 
-```mermaid
+```mermaid {scale: 0.8}
 stateDiagram
     prompt : prompt (system + user messages + tools)
     tools: tools (web browser, code interpreter)

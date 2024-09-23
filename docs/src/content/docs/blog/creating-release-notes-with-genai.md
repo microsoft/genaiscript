@@ -1,9 +1,16 @@
 ---
-title: "Creating Release Notes with GenAI"
+title: Creating Release Notes with GenAI
 date: 2024-08-26
-tags: ["genaiscript", "automation", "release notes"]
+tags:
+    - release notes
+    - automation
+    - scripting
+    - software development
+    - AI
 authors: genaiscript
 canonical_url: https://microsoft.github.io/genaiscript/blog/creating-release-notes-with-genai
+description: Learn how to automate the creation of engaging software release
+    notes using GenAI and GenAIScript.
 ---
 
 ## Automating Your Release Notes with GenAI
@@ -43,12 +50,7 @@ Here, we're using an environment variable to set the product name, defaulting to
 ```javascript
 const pkg = await workspace.readJSON("package.json")
 const { version } = pkg
-const { stdout: tag } = await host.exec("git", [
-    "describe",
-    "--tags",
-    "--abbrev=0",
-    "HEAD^",
-])
+const { stdout: tag } = await host.exec("git describe --tags --abbrev=0 HEAD^")
 ```
 
 We are reading the current version from `package.json` and using Git to find the previous release tag in the repository.
@@ -56,13 +58,8 @@ We are reading the current version from `package.json` and using Git to find the
 #### Step 4: Gathering Commits
 
 ```javascript
-const { stdout: commits } = await host.exec("git", [
-    "log",
-    "--grep='skip ci'",
-    "--invert-grep",
-    "--no-merges",
-    `HEAD...${tag}`,
-])
+const { stdout: commits } = await host.exec(`git log --grep='skip ci' --invert-grep --no-merges HEAD...${tag}`)
+
 ```
 
 This block runs a Git command to retrieve the list of commits that will be included in the release notes, excluding any with 'skip ci' in the message.
@@ -70,20 +67,8 @@ This block runs a Git command to retrieve the list of commits that will be inclu
 #### Step 5: Obtaining the Diff
 
 ```javascript
-const { stdout: diff } = await host.exec("git", [
-    "diff",
-    `${tag}..HEAD`,
-    "--no-merges",
-    "--",
-    ":!**/package.json",
-    ":!**/genaiscript.d.ts",
-    ":!**/jsconfig.json",
-    ":!docs/**",
-    ":!.github/*",
-    ":!.vscode/*",
-    ":!*yarn.lock",
-    ":!*THIRD_PARTY_NOTICES.md",
-])
+const { stdout: diff } = await host.exec(`git diff ${tag}..HEAD --no-merges -- ':!**/package.json' ':!**/genaiscript.d.ts' ':!**/jsconfig.json' ':!docs/**' ':!.github/*' ':!.vscode/*' ':!*yarn.lock' ':!*THIRD_PARTY_NOTICES.md'`)
+
 ```
 
 Next, we get the diff of changes since the last release, excluding certain files and directories that aren't relevant to the user-facing release notes.

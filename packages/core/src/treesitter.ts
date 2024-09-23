@@ -1,9 +1,9 @@
 import { MarkdownTrace, TraceOptions } from "./trace"
 import { host } from "./host"
-import { resolveFileContent } from "./file"
 import { treeSitterWasms } from "./default_prompts"
 import { NotSupportedError } from "./error"
 import type Parser from "web-tree-sitter"
+import { YAMLStringify } from "./yaml"
 
 async function resolveLanguage(filename: string, trace?: MarkdownTrace) {
     const ext = host.path.extname(filename).slice(1).toLowerCase()
@@ -17,6 +17,7 @@ async function resolveLanguage(filename: string, trace?: MarkdownTrace) {
         rs: "rust",
         rb: "ruby",
         ts: "typescript",
+        mts: "typescript",
         tsx: "tsx",
         tla: "tlaplus",
         yml: "yaml",
@@ -32,6 +33,26 @@ async function resolveLanguage(filename: string, trace?: MarkdownTrace) {
 
 let _initPromise: Promise<void>
 const _parsers: Record<string, Promise<any>> = {}
+
+export function serializeSyntaxNode(filename: string, node: SyntaxNode): any {
+    return {
+        type: node.type,
+        text: node.text,
+        filename,
+        start: node.startPosition.row,
+        end: node.endPosition.row,
+        children: node.children.map((child) =>
+            serializeSyntaxNode(filename, child)
+        ),
+    }
+}
+
+export function serializeQueryCapture(filename: string, capture: QueryCapture) {
+    return {
+        name: capture.name,
+        node: serializeSyntaxNode(filename, capture.node),
+    }
+}
 
 export async function treeSitterQuery(
     file: WorkspaceFile,
@@ -62,10 +83,10 @@ export async function treeSitterQuery(
         trace?.fence(query, "txt")
         const q = lang.query(query)
         const res: QueryCapture[] = q.captures(tree.rootNode)
-        const captures = res
-            .map(({ name, node }) => `;;; ${name}\n${node.toString()}`)
-            .join("\n")
-        trace?.detailsFenced(`captures`, captures, "lisp")
+        const captures = res.map((capture) =>
+            serializeQueryCapture(filename, capture)
+        )
+        trace?.detailsFenced(`captures`, YAMLStringify(captures), "yaml")
         return res
     } finally {
         trace?.endDetails()

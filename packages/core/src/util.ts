@@ -49,6 +49,11 @@ export function parseBoolean(s: string) {
           : undefined
 }
 
+export function deleteUndefinedValues<T extends Record<string, any>>(o: T): T {
+    for (const k in o) if (o[k] === undefined) delete o[k]
+    return o
+}
+
 export function assert(
     cond: boolean,
     msg = "Assertion failed",
@@ -179,7 +184,7 @@ export function logWarn(msg: string) {
 
 export function logError(msg: string | Error | SerializedError) {
     const err = serializeError(msg)
-    const { message, name, stack, ...e } = err
+    const { message, name, stack, ...e } = err || {}
     if (isCancelError(err)) {
         host.log(LogLevel.Info, message || "cancelled")
         return
@@ -188,9 +193,10 @@ export function logError(msg: string | Error | SerializedError) {
     if (stack) host.log(LogLevel.Verbose, stack)
     if (Object.keys(e).length) {
         const se = YAMLStringify(e)
-        if (!/^\s*\{\s*\}\s*$/) host.log(LogLevel.Verbose, se)
+        if (!/^\s*\{\s*\}\s*$/.test(se)) host.log(LogLevel.Verbose, se)
     }
 }
+
 export function concatArrays<T>(...arrays: T[][]): T[] {
     if (arrays.length == 0) return []
     return arrays[0].concat(...arrays.slice(1))

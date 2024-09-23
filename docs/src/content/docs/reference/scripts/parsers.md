@@ -106,7 +106,7 @@ The `parsers.XML` function parses for the [XML format](https://en.wikipedia.org/
 const res = parsers.XML('<xml attr="1"><child /></xml>')
 ```
 
-Attribute names are prepended with "@_".
+Attribute names are prepended with "@\_".
 
 ```json
 {
@@ -289,4 +289,20 @@ The `parsers.validateJSON` function validates a JSON string against a schema.
 
 ```js
 const validation = parsers.validateJSON(schema, json)
+```
+
+## mustache
+
+Runs the [mustache](https://mustache.github.io/) template engine in the string and arguments.
+
+```js
+const rendered = parsers.mustache("Today is {{date}}.", { date: new Date() })
+```
+
+## jinja
+
+Runs the [jinja](https://jinja.palletsprojects.com/en/3.1.x/) template (using [@huggingface/jinja](https://www.npmjs.com/package/@huggingface/jinja)).
+
+```js
+const rendered = parsers.jinja("Today is {{date}}.", { date: new Date() })
 ```

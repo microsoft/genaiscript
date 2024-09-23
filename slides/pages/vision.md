@@ -4,7 +4,7 @@ image: /script-pl.png
 backgroundSize: 75%
 
 ---
-# Empower Users with AI-Enhanced Scripts
+# Prompts are programs
 ##
 
 ### Scripting languages have had enormous impact
@@ -13,7 +13,11 @@ backgroundSize: 75%
 <v-click>
 
 ### GenAIScript, a LLM-first script
-- JavaScript, genai tools (PDF decoders, ...), prompt generation, output parsing
+- JavaScript
+- genai runtime (PDF decoders, ...)
+- context size handling
+- structured output parsing
+- tools...
 
 </v-click>
 

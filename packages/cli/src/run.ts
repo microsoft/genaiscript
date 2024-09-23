@@ -29,6 +29,8 @@ import {
     SUCCESS_ERROR_CODE,
     RUNS_DIR_NAME,
     CONSOLE_COLOR_DEBUG,
+    DOCS_CONFIGURATION_URL,
+    TRACE_DETAILS,
 } from "../../core/src/constants"
 import { isCancelError, errorMessage } from "../../core/src/error"
 import { Fragment, GenerationResult } from "../../core/src/generation"
@@ -64,6 +66,7 @@ import {
 } from "../../core/src/azuredevops"
 import { resolveTokenEncoder } from "../../core/src/encoders"
 import { writeFile } from "fs/promises"
+import { writeFileSync } from "node:fs"
 
 async function setupTraceWriting(trace: MarkdownTrace, filename: string) {
     logVerbose(`trace: ${filename}`)
@@ -77,6 +80,10 @@ async function setupTraceWriting(trace: MarkdownTrace, filename: string) {
         },
         false
     )
+    trace.addEventListener(TRACE_DETAILS, (ev) => {
+        const content = trace.content
+        writeFileSync(filename, content, { encoding: "utf-8" })
+    })
 }
 
 export async function runScriptWithExitCode(
@@ -157,10 +164,12 @@ export async function runScript(
     const cancellationToken = options.cancellationToken
     const jsSource = options.jsSource
 
-    const fail = (msg: string, exitCode: number) => {
-        logError(msg)
+    const fail = (msg: string, exitCode: number, url?: string) => {
+        logError(url ? `${msg} (see ${url})` : msg)
         return { exitCode, result }
     }
+
+    logVerbose(`genaiscript: ${scriptId}`)
 
     if (out) {
         if (removeOut) await emptyDir(out)
@@ -238,8 +247,11 @@ export async function runScript(
         })
         if (info.error) {
             trace.error(undefined, info.error)
-            logError(info.error)
-            return fail("invalid model configuration", CONFIGURATION_ERROR_CODE)
+            return fail(
+                info.error ?? "invalid model configuration",
+                CONFIGURATION_ERROR_CODE,
+                DOCS_CONFIGURATION_URL
+            )
         }
         trace.options.encoder = await resolveTokenEncoder(info.model)
         await runtimeHost.models.pullModel(info.model)
@@ -413,8 +425,9 @@ export async function runScript(
     }
 
     if (pullRequestReviews && result.annotations?.length) {
-        const info = githubParseEnv(process.env)
-        if (info.repository && info.issue) {
+        // github action or repo
+        const info = await githubParseEnv(process.env)
+        if (info.repository && info.issue && info.commitSha) {
             await githubCreatePullRequestReviews(
                 script,
                 info,
@@ -424,7 +437,8 @@ export async function runScript(
     }
 
     if (pullRequestComment && result.text) {
-        const info = githubParseEnv(process.env)
+        // github action or repo
+        const info = await githubParseEnv(process.env)
         if (info.repository && info.issue) {
             await githubCreateIssueComment(
                 script,
@@ -435,8 +449,8 @@ export async function runScript(
                     : script.id
             )
         } else {
-            const adoinfo = azureDevOpsParseEnv(process.env)
-            if (adoinfo?.collectionUri) {
+            const adoinfo = await azureDevOpsParseEnv(process.env)
+            if (adoinfo.collectionUri) {
                 await azureDevOpsCreateIssueComment(
                     script,
                     adoinfo,
@@ -453,9 +467,9 @@ export async function runScript(
     }
 
     if (pullRequestDescription && result.text) {
-        // github
-        const ghinfo = githubParseEnv(process.env)
-        if (ghinfo?.repository && ghinfo?.issue) {
+        // github action or repo
+        const ghinfo = await githubParseEnv(process.env)
+        if (ghinfo.repository && ghinfo.issue) {
             await githubUpdatePullRequestDescription(
                 script,
                 ghinfo,
@@ -465,9 +479,9 @@ export async function runScript(
                     : script.id
             )
         } else {
-            // azure devops
-            const adoinfo = azureDevOpsParseEnv(process.env)
-            if (adoinfo?.collectionUri) {
+            // azure devops pipeline
+            const adoinfo = await azureDevOpsParseEnv(process.env)
+            if (adoinfo.collectionUri) {
                 await azureDevOpsUpdatePullRequestDescription(
                     script,
                     adoinfo,
@@ -478,20 +492,23 @@ export async function runScript(
                 )
             } else {
                 logError(
-                    "pull request review: no pull request information found"
+                    "pull request description: no pull request information found"
                 )
             }
         }
     }
     // final fail
     if (result.status !== "success" && result.status !== "cancelled") {
-        const msg = errorMessage(result.error) ?? result.statusText
+        const msg =
+            errorMessage(result.error) ??
+            result.statusText ??
+            result.finishReason
         return fail(msg, RUNTIME_ERROR_CODE)
     }
 
     if (failOnErrors && result.annotations?.some((a) => a.severity === "error"))
         return fail("error annotations found", ANNOTATION_ERROR_CODE)
 
-    process.stderr.write("\n")
+    logVerbose("genaiscript: done\n")
     return { exitCode: 0, result }
 }

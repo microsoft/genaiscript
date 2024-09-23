@@ -17,6 +17,9 @@ import lmAlt from "../../../assets/vscode-language-models.png.txt?raw"
 import lmSelectSrc from "../../../assets/vscode-language-models-select.png"
 import lmSelectAlt from "../../../assets/vscode-language-models-select.png.txt?raw"
 
+import oaiModelsSrc from "../../../assets/openai-model-names.png"
+import oaiModelsAlt from "../../../assets/openai-model-names.png.txt?raw"
+
 You will need to configure the LLM connection and authorizion secrets.
 
 :::tip
@@ -111,6 +114,16 @@ Update the `.env` file with the secret key.
 ```txt title=".env"
 OPENAI_API_KEY=sk_...
 ```
+
+</li>
+
+<li>
+
+Find the model you want to use
+from the [OpenAI API Reference](https://platform.openai.com/docs/models/gpt-4o)
+or the [OpenAI Chat Playground](https://platform.openai.com/playground/chat).
+
+<Image src={oaiModelsSrc} alt={oaiModelsAlt} loading="lazy" />
 
 </li>
 
@@ -214,8 +227,15 @@ for GitHub Models, you can use the `GITHUB_MODELS_TOKEN` variable instead.
 ## Azure OpenAI <a id="azure" href=""></a>
 
 The [Azure OpenAI](https://learn.microsoft.com/en-us/azure/ai-services/openai/reference#chat-completions) provider, `azure` uses the `AZURE_OPENAI_...` environment variables.
-You can use a managed identity (recommended) or a API key to authenticate with the Azure OpenAI service. 
+You can use a managed identity (recommended) or a API key to authenticate with the Azure OpenAI service.
 You can also use a service principal as documented in [automation](/genaiscript/getting-started/automating-scripts).
+
+:::tip
+
+If your are a Visual Studio Subscriber, you can [get free Azure credits](https://azure.microsoft.com/en-us/pricing/member-offers/credit-for-visual-studio-subscribers/)
+to try the Azure OpenAI service.
+
+:::
 
 ### Managed Identity (Entra ID)
 
@@ -262,6 +282,16 @@ Navigate to **deployments** and make sure that you have your LLM deployed and co
 
 <li>
 
+Open a terminal and **login** with [Azure CLI](https://learn.microsoft.com/en-us/javascript/api/overview/azure/identity-readme?view=azure-node-latest#authenticate-via-the-azure-cli).
+
+```sh
+az login
+```
+
+</li>
+
+<li>
+
 Update the `model` field in the `script` function to match the model deployment name in your Azure resource.
 
 ```js 'model: "azure:deployment-id"'
@@ -273,29 +303,9 @@ script({
 
 </li>
 
-<li>
-
-Open a terminal and login to Azure. See Visual Studio or CLI instructions below.
-
-</li>
-
 </ol>
 
 </Steps>
-
-#### Visual Studio Code
-
-Visual Studio Code will ask you to allow using the **Microsoft** account
-and then will open a browser where you can choose the user or service principal.
-
-#### CLI
-
-Login with [Azure CLI](https://learn.microsoft.com/en-us/javascript/api/overview/azure/identity-readme?view=azure-node-latest#authenticate-via-the-azure-cli)
-then use the [cli](/genaiscript/reference/cli) as usual.
-
-```sh
-az login
-```
 
 ### API Key
 
@@ -339,6 +349,7 @@ This mode is useful to run your scripts without having a separate LLM provider o
 and have additional limitations and rate limiting defined by the GitHub Copilot platform.
 
 There is no configuration needed as long as you have GitHub Copilot installed and configured in Visual Studio Code.
+You can force using this model by using `client:*` as a model name.
 
 <Steps>
 
@@ -351,18 +362,17 @@ Install [GitHub Copilot Chat](https://marketplace.visualstudio.com/items?itemNam
 </li>
 
 <li>run your script</li>
-<li> 
-select the **Visual Studio Code Language Chat Models** option when configuring the model
+<li>
 
-<Image src={lmSrc} alt={lmAlt} loading="lazy" />
-
-(This step is skipped if you already have mappings in your settings)
+Confirm that you are allowing GenAIScript to use the GitHub Copilot Chat models.
 
 </li>
 <li>
 select the best chat model that matches the one you have in your script
 
 <Image src={lmSelectSrc} alt={lmSelectAlt} loading="lazy" />
+
+(This step is skipped if you already have mappings in your settings)
 
 </li>
 

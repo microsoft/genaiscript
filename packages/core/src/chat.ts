@@ -218,6 +218,12 @@ async function runToolCalls(
                     toolContent = `FILENAME: ${filename}
 ${fenceMD(content, " ")}
 `
+                } else if (
+                    typeof output === "object" &&
+                    (output as RunPromptResult).text
+                ) {
+                    const { text } = output as RunPromptResult
+                    toolContent = text
                 } else {
                     toolContent = YAMLStringify(output)
                 }
@@ -398,7 +404,7 @@ function structurifyChatSession(
     } else {
         json = isJSONObjectOrArray(text)
             ? JSONLLMTryParse(text)
-            : (undefined ?? findFirstDataFence(fences))
+            : findFirstDataFence(fences)
     }
     const frames: DataFrame[] = []
 
@@ -470,16 +476,17 @@ async function processChatMessage(
                 const node = ctx.node
                 checkCancelled(cancellationToken)
                 // expand template
-                const { errors, prompt } = await renderPromptNode(
+                const { errors, userPrompt } = await renderPromptNode(
                     options.model,
                     node,
                     {
+                        flexTokens: options.flexTokens,
                         trace,
                     }
                 )
-                if (prompt?.trim().length) {
-                    trace.detailsFenced(`💬 message`, prompt, "markdown")
-                    messages.push({ role: "user", content: prompt })
+                if (userPrompt?.trim().length) {
+                    trace.detailsFenced(`💬 message`, userPrompt, "markdown")
+                    messages.push({ role: "user", content: userPrompt })
                     needsNewTurn = true
                 } else trace.item("no message")
                 if (errors?.length) {
@@ -560,8 +567,9 @@ export async function executeChatSession(
         let genVars: Record<string, string>
         while (true) {
             stats.turns++
+            const tokens = estimateChatTokens(model, messages)
             infoCb?.({
-                text: `prompting ${model} (~${estimateChatTokens(model, messages)} tokens)`,
+                text: `prompting ${model} (~${tokens ?? "?"} tokens)`,
             })
             if (messages)
                 trace.details(

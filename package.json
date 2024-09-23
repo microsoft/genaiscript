@@ -1,6 +1,6 @@
 {
     "name": "genaiscript-workspace",
-    "version": "1.52.0",
+    "version": "1.55.5",
     "license": "MIT",
     "private": true,
     "workspaces": {
@@ -22,6 +22,7 @@
         "token": "cd packages/sample && yarn token",
         "typecheck": "yarn --cwd packages/core run typecheck && yarn --cwd packages/vscode run typecheck && yarn --cwd packages/cli run typecheck",
         "lint": "yarn --cwd packages/cli run lint",
+        "pretty": "prettier **.ts --write",
         "package": "cd packages/vscode && yarn package",
         "release:draft": "npx --yes release-it",
         "release:vsix": "npx --yes release-it --no-increment --no-git --github.release --github.update --github.assets=packages/vscode/genaiscript.vsix --no-github.draft",
@@ -33,9 +34,9 @@
         "test:core": "cd packages/core && yarn test",
         "test:samples": "cd packages/sample && yarn test",
         "test:cli": "node packages/cli/built/genaiscript.cjs run code-annotator packages/sample/src/counting.py -l Test -o .genaiscript/tmp/tests/cli -ot .genaiscript/tmp/tests/cli/outtrace.md -oa .genaiscript/tmp/tests/cli/diags.sarif",
-        "test:live": "node packages/cli/built/genaiscript.cjs run code-annotator packages/sample/src/counting.py -l Test -o .genaiscript/tmp/tests/cli --retry 1 --temperature 0.5 --no-cache",
-        "test:front-matter": "node packages/cli/built/genaiscript.cjs run front-matter SUPPORT.md --no-cache",
-        "test:summarize": "node packages/cli/built/genaiscript.cjs run summarize packages/sample/src/rag/markdown.md --no-cache",
+        "test:live": "node packages/cli/built/genaiscript.cjs run code-annotator packages/sample/src/counting.py -l Test -o .genaiscript/tmp/tests/cli --retry 1 --temperature 0.5 ",
+        "test:front-matter": "node packages/cli/built/genaiscript.cjs run front-matter SUPPORT.md ",
+        "test:summarize": "node packages/cli/built/genaiscript.cjs run summarize packages/sample/src/rag/markdown.md ",
         "test:pdf": "node packages/cli/built/genaiscript.cjs parse pdf packages/sample/src/rag/loremipsum.pdf",
         "test:docx": "node packages/cli/built/genaiscript.cjs parse docx packages/sample/src/rag/Document.docx",
         "retrieval:index": "node packages/cli/built/genaiscript.cjs retrieval index \"packages/sample/src/rag/*\"",
@@ -52,7 +53,7 @@
         "test:scripts": "cd packages/sample/ && yarn test:scripts",
         "test:scripts:view": "cd packages/sample/ && yarn test:scripts:view",
         "serve": "node packages/cli/built/genaiscript.cjs serve",
-        "docs": "cd docs && ./node_modules/.bin/astro dev --host",
+        "docs": "cd docs && ./node_modules/.bin/astro telemetry disable && ./node_modules/.bin/astro dev --host",
         "slides": "cd slides && yarn run dev",
         "build:slides": "yarn --cwd slides install --frozen-lockfile --prefer-offline && yarn --cwd slides build",
         "build:docs": "yarn --cwd docs install --frozen-lockfile --prefer-offline && yarn --cwd docs build && yarn --cwd docs build:asw",
@@ -63,21 +64,26 @@
         "genai:test": "node packages/cli/built/genaiscript.cjs run test-gen",
         "genai:blog-post": "node packages/cli/built/genaiscript.cjs run blog-generator",
         "genai:readme": "node packages/cli/built/genaiscript.cjs run readme-updater",
-        "genai:blogify": "node packages/cli/built/genaiscript.cjs run blogify-sample --no-cache",
-        "genai:tweetify": "node packages/cli/built/genaiscript.cjs run tweetify --no-cache",
-        "gcm": "node packages/cli/built/genaiscript.cjs run gcm"
+        "genai:blogify": "node packages/cli/built/genaiscript.cjs run blogify-sample",
+        "genai:tweetify": "node packages/cli/built/genaiscript.cjs run tweetify",
+        "genai:docify": "node packages/cli/built/genaiscript.cjs run docify",
+        "gcm": "node packages/cli/built/genaiscript.cjs run gcm",
+        "genai": "node packages/cli/built/genaiscript.cjs run",
+        "upgrade:deps": "zx scripts/upgrade-deps.mjs"
     },
     "release-it": {
         "github": {
             "release": true,
             "releaseName": "v${version}",
             "draft": true,
-            "releaseNotes": "node packages/cli/built/genaiscript.cjs run git-release-notes"
+            "releaseNotes": "node packages/cli/built/genaiscript.cjs run git-release-notes --cache --cache-name releases"
         }
     },
-    "dependencies": {
-        "@inquirer/prompts": "^5.3.8",
+    "devDependencies": {
+        "@inquirer/prompts": "^6.0.1",
         "glob": "^11.0.0",
-        "zx": "^8.1.4"
+        "npm-check-updates": "^17.1.3",
+        "prettier": "^3.3.3",
+        "zx": "^8.1.8"
     }
 }

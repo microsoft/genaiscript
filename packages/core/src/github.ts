@@ -1,13 +1,12 @@
-import { assert } from "node:console"
 import {
     GITHUB_API_VERSION,
-    GITHUB_PULLREQUEST_REVIEW_COMMENT_LINE_DISTANCE,
+    GITHUB_PULL_REQUEST_REVIEW_COMMENT_LINE_DISTANCE,
     GITHUB_TOKEN,
 } from "./constants"
 import { createFetch } from "./fetch"
 import { runtimeHost } from "./host"
 import { link, prettifyMarkdown } from "./markdown"
-import { logError, logVerbose, normalizeInt } from "./util"
+import { assert, logError, logVerbose, normalizeInt } from "./util"
 
 export interface GithubConnectionInfo {
     token: string
@@ -23,9 +22,7 @@ export interface GithubConnectionInfo {
     commitSha?: string
 }
 
-export function githubParseEnv(
-    env: Record<string, string>
-): GithubConnectionInfo {
+function githubFromEnv(env: Record<string, string>): GithubConnectionInfo {
     const token = env.GITHUB_TOKEN
     const apiUrl = env.GITHUB_API_URL || "https://api.github.com"
     const repository = env.GITHUB_REPOSITORY
@@ -59,15 +56,55 @@ export function githubParseEnv(
     }
 }
 
+export async function githubParseEnv(
+    env: Record<string, string>
+): Promise<GithubConnectionInfo> {
+    const res = githubFromEnv(env)
+    try {
+        if (!res.owner || !res.repo || !res.repository) {
+            const { name: repo, owner } = JSON.parse(
+                (
+                    await runtimeHost.exec(
+                        undefined,
+                        "gh",
+                        ["repo", "view", "--json", "url,name,owner"],
+                        {}
+                    )
+                ).stdout
+            )
+            res.repo = repo
+            res.owner = owner.login
+            res.repository = res.owner + "/" + res.repo
+        }
+        if (!res.issue) {
+            const { number: issue } = JSON.parse(
+                (
+                    await runtimeHost.exec(
+                        undefined,
+                        "gh",
+                        ["pr", "view", "--json", "number"],
+                        {}
+                    )
+                ).stdout
+            )
+            if (!isNaN(issue)) res.issue = issue
+        }
+    } catch (e) {}
+    return res
+}
+
 // https://docs.github.com/en/rest/pulls/pulls?apiVersion=2022-11-28#update-a-pull-request
 export async function githubUpdatePullRequestDescription(
     script: PromptScript,
-    info: GithubConnectionInfo,
+    info: Pick<
+        GithubConnectionInfo,
+        "apiUrl" | "repository" | "issue" | "runUrl"
+    >,
     text: string,
     commentTag: string
 ) {
     const { apiUrl, repository, issue } = info
-    assert(commentTag)
+    assert(!!commentTag)
 
     if (!issue) return { updated: false, statusText: "missing issue number" }
     const token = await runtimeHost.readSecret(GITHUB_TOKEN)
@@ -125,15 +162,17 @@ export function mergeDescription(
 
     const start = body.indexOf(tag)
     const end = body.indexOf(endTag)
+    const header = "<hr/>"
     if (start > -1 && end > -1 && start < end) {
         body =
             body.slice(0, start + tag.length) +
+            header +
             sep +
             text +
             sep +
             body.slice(end)
     } else {
-        body = body + sep + tag + sep + text + sep + endTag + sep
+        body = body + sep + tag + header + sep + text + sep + endTag + sep
     }
     return body
 }
@@ -162,7 +201,10 @@ ${generatedByFooter(script, info, code)}`
 // https://docs.github.com/en/rest/issues/comments?apiVersion=2022-11-28#create-an-issue-comment
 export async function githubCreateIssueComment(
     script: PromptScript,
-    info: GithubConnectionInfo,
+    info: Pick<
+        GithubConnectionInfo,
+        "apiUrl" | "repository" | "issue" | "runUrl"
+    >,
     body: string,
     commentTag: string
 ): Promise<{ created: boolean; statusText: string; html_url?: string }> {
@@ -238,12 +280,15 @@ export async function githubCreateIssueComment(
 
 async function githubCreatePullRequestReview(
     script: PromptScript,
-    info: GithubConnectionInfo,
+    info: Pick<
+        GithubConnectionInfo,
+        "apiUrl" | "repository" | "issue" | "runUrl" | "commitSha"
+    >,
     token: string,
     annotation: Diagnostic,
     existingComments: { id: string; path: string; line: number; body: string }[]
 ) {
-    assert(token)
+    assert(!!token)
     const { apiUrl, repository, issue, commitSha } = info
 
     const prettyMessage = prettifyMarkdown(annotation.message)
@@ -260,7 +305,7 @@ async function githubCreatePullRequestReview(
             (c) =>
                 c.path === body.path &&
                 Math.abs(c.line - body.line) <
-                    GITHUB_PULLREQUEST_REVIEW_COMMENT_LINE_DISTANCE &&
+                    GITHUB_PULL_REQUEST_REVIEW_COMMENT_LINE_DISTANCE &&
                 (annotation.code
                     ? c.body?.includes(annotation.code)
                     : c.body?.includes(prettyMessage))
@@ -299,17 +344,20 @@ async function githubCreatePullRequestReview(
 
 export async function githubCreatePullRequestReviews(
     script: PromptScript,
-    info: GithubConnectionInfo,
+    info: Pick<
+        GithubConnectionInfo,
+        "apiUrl" | "repository" | "issue" | "runUrl" | "commitSha"
+    >,
     annotations: Diagnostic[]
 ): Promise<boolean> {
-    const { repository, issue, sha, apiUrl } = info
+    const { repository, issue, commitSha, apiUrl } = info
 
     if (!annotations?.length) return true
     if (!issue) {
         logError("missing pull request number")
         return false
     }
-    if (!sha) {
+    if (!commitSha) {
         logError("missing commit sha")
         return false
     }

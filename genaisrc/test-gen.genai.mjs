@@ -1,26 +1,23 @@
 script({
+    model: "openai:gpt-4",
     title: "unit test generator",
     system: ["system", "system.typescript", "system.files"],
-    tools: ["fs_find_files", "fs_read_file"],
+    tools: ["fs"],
 })
 
 const code = def("CODE", env.files)
-const testFiles = env.files.map(({ filename }) => ({ filename: filename.replace(/\.ts$/, ".test.ts") }))
-const test = def("TEST", testFiles, { ignoreEmpty: true })
-
 
 $`## Step 1
 
 For each file in ${code}, 
 generate a plan to test the source code in each file
 
-- use input test files from packages/sample/src/rag/*
+- generate self-contained tests as much as possible by inlining all necessary values
+- if needed, use input test files from packages/sample/src/rag/*
 - only generate tests for files in ${code}
-`
+- update the existing test files (<code filename>.test.ts). keep old tests if possible.
 
-if (testFiles.length) $` - update the existing test files in ${test}. keep old tests if possible.`
-
-$`## Step 2
+## Step 2
 
 For each generated test, implement the TypeScript source code in a test file with suffix ".test.ts"
 in the same folder as the source file.
@@ -39,12 +36,13 @@ ${fence('import test, { beforeEach, describe } from "node:test"', { language: "j
 - use Partial<T> to declare a partial type of a type T
 - do NOT generate negative test cases
 - do NOT generate trace instance
+- do NOT use tools in generated code
 
 ## Step 3 
 
 Validate and fix test sources.
 
-Use 'run_test' tool to execute the generated test code and fix the test code to make tests pass.
+Call the 'run_test' tool to execute the generated test code and fix the test code to make tests pass.
 
 - this is important.
 `
@@ -58,8 +56,7 @@ defTool(
     },
     async (args) => {
         const { filename, source } = args
-        if (source)
-            await workspace.writeText(filename, source)
+        if (source) await workspace.writeText(filename, source)
         console.debug(`running test code ${filename}`)
         return host.exec(`node`, ["--import", "tsx", "--test", filename])
     }

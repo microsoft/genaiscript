@@ -4,22 +4,14 @@ import {
     tracePromptResult,
 } from "./chat"
 import { host } from "./host"
-import {
-    HTMLEscape,
-    arrayify,
-    dotGenaiscriptPath,
-    logVerbose,
-    sha256string,
-} from "./util"
+import { HTMLEscape, arrayify, dotGenaiscriptPath, sha256string } from "./util"
 import { runtimeHost } from "./host"
 import { MarkdownTrace } from "./trace"
-import { YAMLParse, YAMLStringify } from "./yaml"
 import { createParsers } from "./parsers"
-import { readText } from "./fs"
 import {
     PromptNode,
     appendChild,
-    createFileMergeNode,
+    createFileMerge,
     createOutputProcessor,
     createTextNode,
     renderPromptNode,
@@ -30,22 +22,12 @@ import {
     RunPromptContextNode,
     createChatGenerationContext,
 } from "./runpromptcontext"
-import { CSVParse, CSVToMarkdown } from "./csv"
-import { INIParse, INIStringify } from "./ini"
-import {
-    CancelError,
-    isCancelError,
-    NotSupportedError,
-    serializeError,
-} from "./error"
-import { createFetch } from "./fetch"
-import { XMLParse } from "./xml"
+import { isCancelError, NotSupportedError, serializeError } from "./error"
 import { GenerationOptions } from "./generation"
 import { fuzzSearch } from "./fuzzsearch"
 import { parseModelIdentifier } from "./models"
 import { renderAICI } from "./aici"
 import { MODEL_PROVIDER_AICI, SYSTEM_FENCE } from "./constants"
-import { JSONLStringify, JSONLTryParse } from "./jsonl"
 import { grepSearch } from "./grep"
 import { resolveFileContents, toWorkspaceFile } from "./file"
 import { vectorSearch } from "./vectorsearch"
@@ -57,12 +39,9 @@ import { resolveModelConnectionInfo } from "./models"
 import { resolveLanguageModel } from "./lm"
 import { callExpander } from "./expander"
 import { Project } from "./ast"
-import {
-    frontmatterTryParse,
-    splitMarkdown,
-    updateFrontmatter,
-} from "./frontmatter"
-import { url } from "node:inspector"
+import { resolveSystems } from "./systems"
+import { shellParse } from "./shell"
+import { sleep } from "openai/core.mjs"
 
 export async function createPromptContext(
     prj: Project,
@@ -92,18 +71,18 @@ export async function createPromptContext(
             return res
         },
         grep: async (query, globs, options) => {
-            trace.startDetails(
+            const grepTrace = trace.startTraceDetails(
                 `🌐 grep <code>${HTMLEscape(typeof query === "string" ? query : query.source)}</code>`
             )
             try {
                 const { files } = await grepSearch(query, arrayify(globs), {
-                    trace,
+                    trace: grepTrace,
                     ...options,
                 })
-                trace.files(files, { model, secrets: env.secrets })
+                grepTrace.files(files, { model, secrets: env.secrets })
                 return { files }
             } finally {
-                trace.endDetails()
+                grepTrace.endDetails()
             }
         },
     }
@@ -131,16 +110,19 @@ export async function createPromptContext(
         fuzzSearch: async (q, files_, searchOptions) => {
             const files = arrayify(files_)
             searchOptions = searchOptions || {}
+            const fuzzTrace = trace.startTraceDetails(
+                `🧐 fuzz search <code>${HTMLEscape(q)}</code>`
+            )
             try {
-                trace.startDetails(
-                    `🧐 fuzz search <code>${HTMLEscape(q)}</code>`
-                )
                 if (!files?.length) {
-                    trace.error("no files provided")
+                    fuzzTrace.error("no files provided")
                     return []
                 } else {
-                    const res = await fuzzSearch(q, files, searchOptions)
-                    trace.files(res, {
+                    const res = await fuzzSearch(q, files, {
+                        ...searchOptions,
+                        trace: fuzzTrace,
+                    })
+                    fuzzTrace.files(res, {
                         model,
                         secrets: env.secrets,
                         skipIfEmpty: true,
@@ -148,18 +130,18 @@ export async function createPromptContext(
                     return res
                 }
             } finally {
-                trace.endDetails()
+                fuzzTrace.endDetails()
             }
         },
         vectorSearch: async (q, files_, searchOptions) => {
             const files = arrayify(files_).map(toWorkspaceFile)
             searchOptions = { ...(searchOptions || {}) }
+            const vecTrace = trace.startTraceDetails(
+                `🔍 vector search <code>${HTMLEscape(q)}</code>`
+            )
             try {
-                trace.startDetails(
-                    `🔍 vector search <code>${HTMLEscape(q)}</code>`
-                )
                 if (!files?.length) {
-                    trace.error("no files provided")
+                    vecTrace.error("no files provided")
                     return []
                 }
 
@@ -175,17 +157,17 @@ export async function createPromptContext(
                 const res = await vectorSearch(q, files, {
                     ...searchOptions,
                     folderPath,
-                    trace,
+                    trace: vecTrace,
                 })
                 // search
-                trace.files(res, {
+                vecTrace.files(res, {
                     model,
                     secrets: env.secrets,
                     skipIfEmpty: true,
                 })
                 return res
             } finally {
-                trace.endDetails()
+                vecTrace.endDetails()
             }
         },
     }
@@ -195,7 +177,25 @@ export async function createPromptContext(
     }
 
     const promptHost: PromptHost = Object.freeze<PromptHost>({
-        exec: async (command, args, options) => {
+        exec: async (
+            command: string,
+            args?: string[] | ShellOptions,
+            options?: ShellOptions
+        ) => {
+            if (!Array.isArray(args) && typeof args === "object") {
+                // exec("cmd arg arg", {...})
+                if (options !== undefined)
+                    throw new Error("Options must be the second argument")
+                options = args as ShellOptions
+                const parsed = shellParse(command)
+                command = parsed[0]
+                args = parsed.slice(1)
+            } else if (args === undefined) {
+                // exec("cmd arg arg")
+                const parsed = shellParse(command)
+                command = parsed[0]
+                args = parsed.slice(1)
+            }
             const res = await runtimeHost.exec(undefined, command, args, {
                 cwd: options?.cwd,
                 trace,
@@ -216,6 +216,10 @@ export async function createPromptContext(
             })
             return res
         },
+        select: async (message, options) =>
+            await runtimeHost.select(message, options),
+        input: async (message) => await runtimeHost.input(message),
+        confirm: async (message) => await runtimeHost.confirm(message),
     })
 
     const ctx: PromptContext & RunPromptContextNode = {
@@ -231,20 +235,41 @@ export async function createPromptContext(
         host: promptHost,
         defOutputProcessor,
         defFileMerge: (fn) => {
-            appendPromptChild(createFileMergeNode(fn))
+            appendPromptChild(createFileMerge(fn))
         },
-        cancel: (reason?: string) => {
-            throw new CancelError(reason || "user cancelled")
+        prompt: (template, ...args): RunPromptResultPromiseWithOptions => {
+            const options: PromptGeneratorOptions = {}
+            const p: RunPromptResultPromiseWithOptions =
+                new Promise<RunPromptResult>(async (resolve, reject) => {
+                    try {
+                        await sleep(0)
+                        // data race for options
+                        const res = await ctx.runPrompt(async (_) => {
+                            _.$(template, ...args)
+                        }, options)
+                        resolve(res)
+                    } catch (e) {
+                        reject(e)
+                    }
+                }) as any
+            p.options = (v) => {
+                if (v !== undefined) Object.assign(options, v)
+                return p
+            }
+            return p
         },
         runPrompt: async (generator, runOptions): Promise<RunPromptResult> => {
+            const { label } = runOptions || {}
+            const runTrace = trace.startTraceDetails(
+                `🎁 run prompt ${label || ""}`
+            )
             try {
-                const { label, system = [] } = runOptions || {}
-                trace.startDetails(`🎁 run prompt ${label || ""}`)
                 infoCb?.({ text: `run prompt ${label || ""}` })
 
                 const genOptions = mergeGenerationOptions(options, runOptions)
                 genOptions.inner = true
-                const ctx = createChatGenerationContext(genOptions, trace)
+                genOptions.trace = runTrace
+                const ctx = createChatGenerationContext(genOptions, runTrace)
                 if (typeof generator === "string")
                     ctx.node.children.push(createTextNode(generator))
                 else await generator(ctx)
@@ -271,7 +296,8 @@ export async function createPromptContext(
                         messages: msgs,
                         chatParticipants: cps,
                     } = await renderPromptNode(genOptions.model, node, {
-                        trace,
+                        flexTokens: genOptions.flexTokens,
+                        trace: runTrace,
                     })
 
                     schemas = scs
@@ -287,18 +313,18 @@ export async function createPromptContext(
                     role: "system",
                     content: "",
                 }
-                for (const systemId of system) {
+                for (const systemId of resolveSystems(prj, runOptions ?? {})) {
                     checkCancelled(cancellationToken)
 
                     const system = prj.getTemplate(systemId)
                     if (!system)
                         throw new Error(`system template ${systemId} not found`)
-                    trace.startDetails(`👾 ${system.id}`)
+                    runTrace.startDetails(`👾 ${system.id}`)
                     const sysr = await callExpander(
                         prj,
                         system,
                         env,
-                        trace,
+                        runTrace,
                         genOptions
                     )
                     if (sysr.images?.length)
@@ -314,18 +340,18 @@ export async function createPromptContext(
                     if (sysr.fileOutputs?.length)
                         throw new NotSupportedError("fileOutputs")
                     if (sysr.logs?.length)
-                        trace.details("📝 console.log", sysr.logs)
+                        runTrace.details("📝 console.log", sysr.logs)
                     if (sysr.text) {
                         systemMessage.content +=
                             SYSTEM_FENCE + "\n" + sysr.text + "\n"
-                        trace.fence(sysr.text, "markdown")
+                        runTrace.fence(sysr.text, "markdown")
                     }
                     if (sysr.aici) {
-                        trace.fence(sysr.aici, "yaml")
+                        runTrace.fence(sysr.aici, "yaml")
                         messages.push(sysr.aici)
                     }
-                    trace.detailsFenced("js", system.jsSource, "js")
-                    trace.endDetails()
+                    runTrace.detailsFenced("js", system.jsSource, "js")
+                    runTrace.endDetails()
                     if (sysr.status !== "success")
                         throw new Error(
                             `system ${system.id} failed ${sysr.status} ${sysr.statusText}`
@@ -335,7 +361,7 @@ export async function createPromptContext(
 
                 const connection = await resolveModelConnectionInfo(
                     genOptions,
-                    { trace, token: true }
+                    { trace: runTrace, token: true }
                 )
                 checkCancelled(cancellationToken)
                 if (!connection.configuration)
@@ -361,55 +387,17 @@ export async function createPromptContext(
                     chatParticipants,
                     genOptions
                 )
-                tracePromptResult(trace, resp)
+                tracePromptResult(runTrace, resp)
                 return resp
             } catch (e) {
-                trace.error(e)
+                runTrace.error(e)
                 return {
                     text: "",
                     finishReason: isCancelError(e) ? "cancel" : "fail",
                     error: serializeError(e),
                 }
             } finally {
-                trace.endDetails()
-            }
-        },
-        fetchText: async (urlOrFile, fetchOptions) => {
-            if (typeof urlOrFile === "string") {
-                urlOrFile = {
-                    filename: urlOrFile,
-                    content: "",
-                }
-            }
-            const url = urlOrFile.filename
-            let ok = false
-            let status = 404
-            let text: string
-            if (/^https?:\/\//i.test(url)) {
-                const fetch = await createFetch({ cancellationToken })
-                const resp = await fetch(url, fetchOptions)
-                ok = resp.ok
-                status = resp.status
-                if (ok) text = await resp.text()
-            } else {
-                try {
-                    text = await readText("workspace://" + url)
-                    ok = true
-                } catch (e) {
-                    logVerbose(e)
-                    ok = false
-                    status = 404
-                }
-            }
-            const file: WorkspaceFile = {
-                filename: urlOrFile.filename,
-                content: text,
-            }
-            return {
-                ok,
-                status,
-                text,
-                file,
+                runTrace.endDetails()
             }
         },
     }

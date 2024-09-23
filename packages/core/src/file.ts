@@ -77,7 +77,7 @@ export function toWorkspaceFile(fileOrFilename: string | WorkspaceFile) {
 }
 
 export async function resolveFileContents(files: WorkspaceFile[]) {
-    for(const file of files) {
+    for (const file of files) {
         await resolveFileContent(file)
     }
 }
@@ -110,17 +110,17 @@ ${CSVToMarkdown(tidyData(rows, options))}
 }
 
 export async function resolveFileDataUri(
-    file: WorkspaceFile,
+    filename: string,
     options?: TraceOptions
 ) {
     let bytes: Uint8Array
-    if (/^https?:\/\//i.test(file.filename)) {
+    if (/^https?:\/\//i.test(filename)) {
         const fetch = await createFetch(options)
-        const resp = await fetch(file.filename)
+        const resp = await fetch(filename)
         const buffer = await resp.arrayBuffer()
         bytes = new Uint8Array(buffer)
     } else {
-        bytes = new Uint8Array(await host.readFile(file.filename))
+        bytes = new Uint8Array(await host.readFile(filename))
     }
     const mime = (await fileTypeFromBuffer(bytes))?.mime
     if (!mime) return undefined

@@ -35,6 +35,6 @@ Save the alt text in a file called "${file.filename + ".txt"}".
 <v-click>
 
 ## Deployed in GenAIScript Repo - Nightly Builds
-![](/alt-text-deploy.png)
+![Screenshot of a GitHub Actions interface showing a list of workflow runs for a project named "genai alt text generator," with the most recent run highlighted and indicating a 'workflow_dispatch' event trigger.](/alt-text-deploy.png)
 
 </v-click>

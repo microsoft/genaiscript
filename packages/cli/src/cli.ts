@@ -13,6 +13,7 @@ import {
     parseHTMLToText,
     parsePDF,
     parseTokens,
+    prompty2genaiscript,
 } from "./parse"
 import { compileScript, createScript, fixScripts, listScripts } from "./scripts"
 import { codeQuery } from "./codequery"
@@ -26,6 +27,9 @@ import {
     TOOL_ID,
     TOOL_NAME,
     SERVER_PORT,
+    OPENAI_MAX_RETRY_DELAY,
+    OPENAI_RETRY_DEFAULT_DEFAULT,
+    OPENAI_MAX_RETRY_COUNT,
 } from "../../core/src/constants"
 import {
     errorMessage,
@@ -114,16 +118,20 @@ export async function cli() {
             "dry run, don't execute LLM and return expanded prompt"
         )
         .option(`-fe, --fail-on-errors`, `fails on detected annotation error`)
-        .option("-r, --retry <number>", "number of retries", "8")
+        .option(
+            "-r, --retry <number>",
+            "number of retries",
+            String(OPENAI_MAX_RETRY_COUNT)
+        )
         .option(
             "-rd, --retry-delay <number>",
             "minimum delay between retries",
-            "15000"
+            String(OPENAI_RETRY_DEFAULT_DEFAULT)
         )
         .option(
             "-md, --max-delay <number>",
             "maximum delay between retries",
-            "180000"
+            String(OPENAI_MAX_RETRY_DELAY)
         )
         .option("-l, --label <string>", "label for the run")
         .option("-t, --temperature <number>", "temperature for the run")
@@ -140,7 +148,7 @@ export async function cli() {
             "-em, --embeddings-model <string>",
             "embeddings model for the run"
         )
-        .option("--no-cache", "disable LLM result cache")
+        .option("--cache", "enable LLM result cache")
         .option("-cn, --cache-name <name>", "custom cache file name")
         .option("-cs, --csv-separator <string>", "csv separator", "\t")
         .option("-ae, --apply-edits", "apply file edits")
@@ -171,7 +179,7 @@ export async function cli() {
         .option("--cli <string>", "override path to the cli")
         .option("-tp, --test-provider <string>", "test provider")
         .option("-td, --test-delay <string>", "delay between tests in seconds")
-        .option("--no-cache", "disable LLM result cache")
+        .option("--cache", "enable LLM result cache")
         .option("-v, --verbose", "verbose output")
         .option(
             "-pv, --promptfoo-version [version]",
@@ -250,7 +258,6 @@ export async function cli() {
         .option("-ef, --excluded-files <string...>", "excluded files")
         .option("-tk, --top-k <number>", "maximum number of results")
         .action(retrievalFuzz)
-    retrieval.command("code")
 
     program
         .command("serve")
@@ -259,6 +266,7 @@ export async function cli() {
             "-p, --port <number>",
             `Specify the port number, default: ${SERVER_PORT}`
         )
+        .option("-k, --api-key <string>", "API key to authenticate requests")
         .action(startServer)
 
     const parser = program
@@ -300,6 +308,12 @@ export async function cli() {
         .command("jsonl2json", "Converts JSONL files to a JSON file")
         .argument("<file...>", "input JSONL files")
         .action(jsonl2json)
+    parser
+        .command("prompty")
+        .description("Converts .prompty files to genaiscript")
+        .argument("<file...>", "input JSONL files")
+        .option("-o, --out <string>", "output folder")
+        .action(prompty2genaiscript)
 
     const workspace = program
         .command("workspace")

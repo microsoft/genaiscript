@@ -1,5 +1,7 @@
 type OptionsOrString<TOptions extends string> = (string & {}) | TOptions
 
+type ElementOrArray<T> = T | T[]
+
 interface PromptGenerationConsole {
     log(...data: any[]): void
     warn(...data: any[]): void
@@ -113,16 +115,16 @@ interface ModelConnectionOptions {
      * @default gpt-4
      * @example gpt-4
      */
-    model?:
-        | "openai:gpt-4"
-        | "openai:gpt-4-turbo"
+    model?: OptionsOrString<
         | "openai:gpt-4o"
         | "openai:gpt-4o-mini"
+        | "openai:gpt-4"
+        | "openai:gpt-4-turbo"
         | "openai:gpt-3.5-turbo"
         | "ollama:phi3"
         | "ollama:llama3"
         | "ollama:mixtral"
-        | string
+    >
 }
 
 interface ModelOptions extends ModelConnectionOptions {
@@ -185,6 +187,11 @@ interface ModelOptions extends ModelConnectionOptions {
      * @deprecated Use `cache` instead with a string
      */
     cacheName?: string
+
+    /**
+     * Budget of tokens to apply the prompt flex renderer.
+     */
+    flexTokens?: number
 }
 
 interface EmbeddingsModelConnectionOptions {
@@ -203,17 +210,19 @@ interface EmbeddingsModelConnectionOptions {
 
 interface EmbeddingsModelOptions extends EmbeddingsModelConnectionOptions {}
 
-interface ScriptRuntimeOptions {
+interface PromptSystemOptions {
     /**
      * List of system script ids used by the prompt.
      */
-    system?: SystemPromptId[]
+    system?: SystemPromptId | SystemPromptId[]
 
     /**
      * List of tools used by the prompt.
      */
     tools?: SystemToolId | SystemToolId[]
+}
 
+interface ScriptRuntimeOptions {
     /**
      * Secrets required by the prompt
      */
@@ -334,6 +343,7 @@ interface PromptTest {
 interface PromptScript
     extends PromptLike,
         ModelOptions,
+        PromptSystemOptions,
         EmbeddingsModelOptions,
         ScriptRuntimeOptions {
     /**
@@ -374,7 +384,7 @@ interface PromptScript
 }
 
 /**
- * Represent a file linked from a `.gpsec.md` document.
+ * Represent a workspace file and optional content.
  */
 interface WorkspaceFile {
     /**
@@ -488,6 +498,8 @@ type ToolCallOutput =
     | ToolCallContent
     | ShellOutput
     | WorkspaceFile
+    | RunPromptResult
+    | undefined
 
 interface WorkspaceFileCache<K, V> {
     /**
@@ -571,7 +583,7 @@ interface WorkspaceFileSystem {
 
     /**
      * Opens a key-value cache for the given cache name.
-     * The cache is persisted accross runs of the script. Entries are dropped when the cache grows too large.
+     * The cache is persisted across runs of the script. Entries are dropped when the cache grows too large.
      * @param cacheName
      */
     cache<K = any, V = any>(
@@ -763,11 +775,20 @@ interface FenceOptions {
 }
 
 interface ContextExpansionOptions {
-    priority?: number
     /**
-     * Specifies an maximum of estimated tokesn for this entry; after which it will be truncated.
+     * Specifies an maximum of estimated tokens for this entry; after which it will be truncated.
      */
     maxTokens?: number
+    /*
+     * Value that is conceptually similar to a zIndex (higher number == higher priority).
+     * If a rendered prompt has more message tokens than can fit into the available context window, the prompt renderer prunes messages with the lowest priority from the ChatMessages result, preserving the order in which they were declared. This means your extension code can safely declare TSX components for potentially large pieces of context like conversation history and codebase context.
+     */
+    priority?: number
+    /**
+     * Controls the proportion of tokens allocated from the container's budget to this element.
+     * It defaults to 1 on all elements.
+     */
+    flex?: number
 }
 
 interface DefOptions extends FenceOptions, ContextExpansionOptions, DataFilter {
@@ -789,6 +810,18 @@ interface DefOptions extends FenceOptions, ContextExpansionOptions, DataFilter {
 
 interface DefImagesOptions {
     detail?: "high" | "low"
+    /**
+     * Maximum width of the image
+     */
+    maxWidth?: number
+    /**
+     * Maximum height of the image
+     */
+    maxHeight?: number
+    /**
+     * Auto cropping same color on the edges of the image
+     */
+    autoCrop?: boolean
 }
 
 interface ChatTaskOptions {
@@ -1003,7 +1036,7 @@ interface Parsers {
     JSONL(content: string | WorkspaceFile): any[] | undefined
 
     /**
-     * Parses text as a YAML paylaod
+     * Parses text as a YAML payload
      */
     YAML(
         content: string | WorkspaceFile,
@@ -1151,6 +1184,17 @@ interface Parsers {
      * @param content object to validate
      */
     validateJSON(schema: JSONSchema, content: any): JSONSchemaValidation
+
+    /**
+     * Renders a mustache template
+     * @param text template text
+     * @param data data to render
+     */
+    mustache(text: string | WorkspaceFile, data: Record<string, any>): str
+    /**
+     * Renders a jinja template
+     */
+    jinja(text: string | WorkspaceFile, data: Record<string, any>): string
 }
 
 interface AICIGenOptions {
@@ -1461,7 +1505,7 @@ interface DefDataOptions
     extends Omit<ContextExpansionOptions, "maxTokens">,
         DataFilter {
     /**
-     * Output format in the prompt. Defaults to markdownified CSV
+     * Output format in the prompt. Defaults to Markdown table rendering.
      */
     format?: "json" | "yaml" | "csv"
 }
@@ -1486,16 +1530,11 @@ interface WriteTextOptions extends ContextExpansionOptions {
 
 type PromptGenerator = (ctx: ChatGenerationContext) => Awaitable<unknown>
 
-interface PromptGeneratorOptions extends ModelOptions {
+interface PromptGeneratorOptions extends ModelOptions, PromptSystemOptions {
     /**
      * Label for trace
      */
     label?: string
-
-    /**
-     * List of system prompts if any
-     */
-    system?: SystemPromptId[]
 }
 
 interface FileOutputOptions {
@@ -1511,13 +1550,50 @@ interface FileOutput {
     options?: FileOutputOptions
 }
 
+interface ImportTemplateOptions {}
+
+interface PromptTemplateString {
+    /**
+     * Set a priority similar to CSS z-index
+     * to control the trimming of the prompt when the context is full
+     * @param priority
+     */
+    priority(value: number): PromptTemplateString
+    /**
+     * Sets the context layout flex weight
+     */
+    flex(value: number): PromptTemplateString
+    /**
+     * Applies jinja template to the string lazily
+     * @param data jinja data
+     */
+    jinja(data: Record<string, any>): PromptTemplateString
+    /**
+     * Applies mustache template to the string lazily
+     * @param data mustache data
+     */
+    mustache(data: Record<string, any>): PromptTemplateString
+    /**
+     * Sets the max tokens for this string
+     * @param tokens
+     */
+    maxTokens(tokens: number): PromptTemplateString
+}
+
 interface ChatTurnGenerationContext {
+    importTemplate(
+        files: string | string[],
+        arguments?: Record<
+            string | number | boolean | (() => string | number | boolean)
+        >,
+        options?: ImportTemplateOptions
+    ): void
     writeText(body: Awaitable<string>, options?: WriteTextOptions): void
-    $(strings: TemplateStringsArray, ...args: any[]): void
+    $(strings: TemplateStringsArray, ...args: any[]): PromptTemplateString
     fence(body: StringLike, options?: FenceOptions): void
     def(
         name: string,
-        body: string | WorkspaceFile | WorkspaceFile[] | ShellOutput,
+        body: string | WorkspaceFile | WorkspaceFile[] | ShellOutput | Fenced,
         options?: DefOptions
     ): string
     defData(
@@ -1534,6 +1610,10 @@ interface FileUpdate {
     validation?: JSONSchemaValidation
 }
 
+interface RunPromptResultPromiseWithOptions extends Promise<RunPromptResult> {
+    options(values?: PromptGeneratorOptions): RunPromptResultPromiseWithOptions
+}
+
 interface ChatGenerationContext extends ChatTurnGenerationContext {
     defSchema(
         name: string,
@@ -1541,7 +1621,7 @@ interface ChatGenerationContext extends ChatTurnGenerationContext {
         options?: DefSchemaOptions
     ): string
     defImages(
-        files: StringLike | Buffer | Blob,
+        files: ElementOrArray<string | WorkspaceFile | Buffer | Blob>,
         options?: DefImagesOptions
     ): void
     defTool(
@@ -1562,6 +1642,14 @@ interface ChatGenerationContext extends ChatTurnGenerationContext {
         description?: string,
         options?: FileOutputOptions
     ): void
+    runPrompt(
+        generator: string | PromptGenerator,
+        options?: PromptGeneratorOptions
+    ): Promise<RunPromptResult>
+    prompt(
+        strings: TemplateStringsArray,
+        ...args: any[]
+    ): RunPromptResultPromiseWithOptions
 }
 
 interface GenerationOutput {
@@ -1741,6 +1829,21 @@ interface BrowserOptions {
      *
      */
     browser?: "chromium" | "firefox" | "webkit"
+
+    /**
+     * If specified, accepted downloads are downloaded into this directory. Otherwise, temporary directory is created and is deleted when browser is closed. In either case, the downloads are deleted when the browser context they were created in is closed.
+     */
+    downloadsPath?: string
+
+    /**
+     * Whether to run browser in headless mode. More details for Chromium and Firefox. Defaults to true unless the devtools option is true.
+     */
+    headless?: boolean
+
+    /**
+     * Specify environment variables that will be visible to the browser. Defaults to process.env.
+     */
+    env?: Record<string, string>
 }
 
 interface BrowseSessionOptions extends BrowserOptions, TimeoutOptions {
@@ -1781,11 +1884,153 @@ interface TimeoutOptions {
     timeout?: number
 }
 
+interface ScreenshotOptions extends TimeoutOptions {
+    quality?: number
+    scale?: "css" | "device"
+    type?: "png" | "jpeg"
+    style?: string
+}
+
+interface PageScreenshotOptions extends ScreenshotOptions {
+    fullPage?: boolean
+    omitBackground?: boolean
+    clip?: {
+        x: number
+        y: number
+        width: number
+        height: number
+    }
+}
+
+interface BrowserLocatorSelector {
+    /**
+     * Allows locating elements by their ARIA role, ARIA attributes and accessible name.
+     * @param role
+     * @param options
+     */
+    getByRole(
+        role:
+            | "alert"
+            | "alertdialog"
+            | "application"
+            | "article"
+            | "banner"
+            | "blockquote"
+            | "button"
+            | "caption"
+            | "cell"
+            | "checkbox"
+            | "code"
+            | "columnheader"
+            | "combobox"
+            | "complementary"
+            | "contentinfo"
+            | "definition"
+            | "deletion"
+            | "dialog"
+            | "directory"
+            | "document"
+            | "emphasis"
+            | "feed"
+            | "figure"
+            | "form"
+            | "generic"
+            | "grid"
+            | "gridcell"
+            | "group"
+            | "heading"
+            | "img"
+            | "insertion"
+            | "link"
+            | "list"
+            | "listbox"
+            | "listitem"
+            | "log"
+            | "main"
+            | "marquee"
+            | "math"
+            | "meter"
+            | "menu"
+            | "menubar"
+            | "menuitem"
+            | "menuitemcheckbox"
+            | "menuitemradio"
+            | "navigation"
+            | "none"
+            | "note"
+            | "option"
+            | "paragraph"
+            | "presentation"
+            | "progressbar"
+            | "radio"
+            | "radiogroup"
+            | "region"
+            | "row"
+            | "rowgroup"
+            | "rowheader"
+            | "scrollbar"
+            | "search"
+            | "searchbox"
+            | "separator"
+            | "slider"
+            | "spinbutton"
+            | "status"
+            | "strong"
+            | "subscript"
+            | "superscript"
+            | "switch"
+            | "tab"
+            | "table"
+            | "tablist"
+            | "tabpanel"
+            | "term"
+            | "textbox"
+            | "time"
+            | "timer"
+            | "toolbar"
+            | "tooltip"
+            | "tree"
+            | "treegrid"
+            | "treeitem",
+        options?: {
+            checked?: boolean
+            disabled?: boolean
+            exact?: boolean
+            expanded?: boolean
+            name?: string
+            selected?: boolean
+        } & TimeoutOptions
+    ): Locator
+
+    /**
+     * Allows locating input elements by the text of the associated <label> or aria-labelledby element, or by the aria-label attribute.
+     * @param name
+     * @param options
+     */
+    getByLabel(
+        name: string,
+        options?: { exact?: boolean } & TimeoutOptions
+    ): Locator
+
+    /**
+     * Allows locating elements that contain given text.
+     * @param text
+     * @param options
+     */
+    getByText(
+        text: string,
+        options?: { exact?: boolean } & TimeoutOptions
+    ): Locator
+
+    /** Locate element by the test id. */
+    getByTestId(testId: string, options?: TimeoutOptions): Locator
+}
+
 /**
  * A Locator instance
  * @link https://playwright.dev/docs/api/class-locator
  */
-interface BrowserLocator {
+interface BrowserLocator extends BrowserLocatorSelector {
     /**
      * Click an element
      * @link https://playwright.dev/docs/api/class-locator#locator-click
@@ -1854,13 +2099,26 @@ interface BrowserLocator {
      * Take a screenshot of the element matching the locator.
      * @link https://playwright.dev/docs/api/class-locator#locator-screenshot
      */
-    screenshot(options?: TimeoutOptions): Promise<Buffer>
+    screenshot(options?: ScreenshotOptions): Promise<Buffer>
 
     /**
      * This method waits for actionability checks, then tries to scroll element into view, unless it is completely visible as defined by IntersectionObserver's ratio.
      * @link https://playwright.dev/docs/api/class-locator#locator-scroll-into-view-if-needed
      */
     scrollIntoViewIfNeeded(options?: TimeoutOptions): Promise<void>
+
+    /**
+     * This method narrows existing locator according to the options, for example filters by text. It can be chained to filter multiple times.
+     * @param options
+     */
+    filter(
+        options: {
+            has?: BrowserLocator
+            hasNot?: BrowserLocator
+            hasNotText?: string | RegExp
+            hasText?: string | RegExp
+        } & TimeoutOptions
+    ): Locator
 }
 
 /**
@@ -1891,11 +2149,13 @@ interface BrowseResponse {
     url(): string
 }
 
+interface BrowserJSHandle {}
+
 /**
  * A playwright Page instance
  * @link https://playwright.dev/docs/api/class-page
  */
-interface BrowserPage {
+interface BrowserPage extends BrowserLocatorSelector {
     /**
      * Returns the page's title.
      * @link https://playwright.dev/docs/api/class-page#page-title
@@ -1924,7 +2184,7 @@ interface BrowserPage {
      * Returns the buffer of the captured screenshot
      * @link https://playwright.dev/docs/api/class-page#page-screenshot
      */
-    screenshot(options?: TimeoutOptions): Promise<Buffer>
+    screenshot(options?: PageScreenshotOptions): Promise<Buffer>
 
     /**
      * Gets the full HTML contents of the page, including the doctype.
@@ -1943,6 +2203,41 @@ interface BrowserPage {
      * Closes the browser page, context and other resources
      */
     close(): Promise<void>
+
+    /**
+     * Returns the value of the pageFunction evaluation.
+     * @param fn
+     * @param args serializable object
+     * @link https://playwright.dev/docs/api/class-page#page-evaluate
+     */
+    evaluate<T = any>(pageFunction: Function | string, arg?: any): Promise<T>
+
+    /**
+     * Returns the value of the pageFunction evaluation as a JSHandle.
+     * @param fn
+     * @param args serializable object
+     * @link https://playwright.dev/docs/api/class-page#page-evaluate-handle
+     */
+    evaluateHandle<T = any>(
+        selector: string,
+        arg?: any
+    ): Promise<BrowserJSHandle>
+}
+
+interface ShellSelectOptions {}
+
+interface ShellSelectChoice {
+    name?: string
+    value: string
+    description?: string
+}
+
+interface ShellInputOptions {
+    required?: boolean
+}
+
+interface ShellConfirmOptions {
+    default?: boolean
 }
 
 interface ShellHost {
@@ -1952,19 +2247,49 @@ interface ShellHost {
      * @param args
      * @param options
      */
+    exec(commandWithArgs: string, options?: ShellOptions): Promise<ShellOutput>
     exec(
         command: string,
         args: string[],
         options?: ShellOptions
     ): Promise<ShellOutput>
+
     /**
      * Starts a headless browser and navigates to the page.
-     * Requires to [install playwright and dependencies](https://microsoft.github.io/genaiscript/reference/scripts/browse).
-     * @link https://microsoft.github.io/genaiscript/reference/scripts/browse
+     * Requires to [install playwright and dependencies](https://microsoft.github.io/genaiscript/reference/scripts/browser).
+     * @link https://microsoft.github.io/genaiscript/reference/scripts/browser
      * @param url
      * @param options
      */
     browse(url: string, options?: BrowseSessionOptions): Promise<BrowserPage>
+
+    /**
+     * Asks the user to select between options
+     * @param message question to ask
+     * @param options options to select from
+     */
+    select(
+        message: string,
+        options: (string | ShellSelectChoice)[],
+        options?: ShellSelectOptions
+    ): Promise<string>
+
+    /**
+     * Asks the user to input a text
+     * @param message message to ask
+     */
+    input(message: string, options?: ShellInputOptions): Promise<string>
+
+    /**
+     * Asks the user to confirm a message
+     * @param message message to ask
+     */
+    confirm(message: string, options?: ShellConfirmOptions): Promise<boolean>
+}
+
+interface ContainerPortBinding {
+    containerPort: OptionsOrString<"80/tcp">
+    hostPort: string | number
 }
 
 interface ContainerOptions {
@@ -1973,7 +2298,9 @@ interface ContainerOptions {
      * @example python:alpine python:slim python
      * @see https://hub.docker.com/_/python/
      */
-    image?: string
+    image?: OptionsOrString<
+        "python:alpine" | "python:slim" | "python" | "node" | "gcc"
+    >
 
     /**
      * Enable networking in container (disabled by default)
@@ -1994,9 +2321,18 @@ interface ContainerOptions {
      * Disable automatic purge of container and volume directory
      */
     disablePurge?: boolean
+
+    /**
+     * List of exposed TCP ports
+     */
+    ports?: ElementOrArray<ContainerPortBinding>
 }
 
 interface PromptHost extends ShellHost {
+    /**
+     * Starts a container
+     * @param options container creation options
+     */
     container(options?: ContainerOptions): Promise<ContainerHost>
 }
 
@@ -2057,20 +2393,6 @@ interface PromptContext extends ChatGenerationContext {
     system(options: PromptSystemArgs): void
     defFileMerge(fn: FileMergeHandler): void
     defOutputProcessor(fn: PromptOutputProcessorHandler): void
-    runPrompt(
-        generator: string | PromptGenerator,
-        options?: PromptGeneratorOptions
-    ): Promise<RunPromptResult>
-    fetchText(
-        urlOrFile: string | WorkspaceFile,
-        options?: FetchTextOptions
-    ): Promise<{
-        ok: boolean
-        status: number
-        text?: string
-        file?: WorkspaceFile
-    }>
-    cancel(reason?: string): void
     env: ExpansionVariables
     path: Path
     parsers: Parsers

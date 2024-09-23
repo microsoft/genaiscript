@@ -42,6 +42,7 @@ $`Create a blog post that explains the GenAIScript source code in FILE.
 - save generate text to blog post drafts folder
 - ignore existing blog posts
 - avoid using "delve"
+- do not repeat or explain the script file top comment
 - include canonical_url to genaiscript blog at https://microsoft.github.io/genaiscript/blog/<topic>
 - use language "ts" for mts snippets and "js" for mjs snippets
 - use markdown headers starting from level 2

@@ -21,9 +21,9 @@ defTool(
         try {
             console.log(`cat ${filename} | frontmatter`)
             const res = await workspace.readText(filename)
-            return parsers.frontmatter(res.content)
+            return parsers.frontmatter(res.content) ?? ""
         } catch (e) {
-            return undefined
+            return ""
         }
     }
 )

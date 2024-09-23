@@ -1,13 +1,16 @@
 import { Project } from "./ast"
 import { arrayify, unique } from "./util"
 
-export function resolveSystems(prj: Project, template: PromptScript) {
-    const { jsSource } = template
-    const systems = Array.from(template.system ?? []).slice(0)
+export function resolveSystems(
+    prj: Project,
+    script: PromptSystemOptions & ModelOptions & { jsSource?: string }
+) {
+    const { jsSource } = script
+    const systems = arrayify(script.system).slice(0)
 
-    if (template.system === undefined) {
+    if (script.system === undefined) {
         const useSchema = /\Wdefschema\W/i.test(jsSource)
-        if (!template.responseType) {
+        if (!script.responseType) {
             systems.push("system")
             systems.push("system.explanations")
         }
@@ -26,9 +29,9 @@ export function resolveSystems(prj: Project, template: PromptScript) {
             systems.push("system.diagrams")
     }
 
-    if (template.tools) {
+    if (script.tools) {
         systems.push("system.tools")
-        arrayify(template.tools).forEach((tool) =>
+        arrayify(script.tools).forEach((tool) =>
             systems.push(...resolveTools(prj, tool))
         )
     }

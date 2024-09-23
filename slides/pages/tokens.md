@@ -1,6 +1,6 @@
 ### Prelude: Where do I get LLM API access?
 
-```mermaid {scale: 0.9}
+```mermaid {scale: 0.8}
 flowchart TD
     A[Do you have a large GPU?] -->|Yes| B[Local LLM]
     A -->|No| C[Is it for personal use?]

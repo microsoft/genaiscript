@@ -4,10 +4,11 @@ import {
     createAssistantNode,
     createChatParticipant,
     createDefData,
-    createDefNode,
+    createDef,
     createFileOutput,
     createFunctionNode,
     createImageNode,
+    createImportTemplate,
     createSchemaNode,
     createStringTemplateNode,
     createTextNode,
@@ -18,8 +19,11 @@ import { promptParametersSchemaToJSONSchema } from "./parameters"
 import { consoleLogFormat } from "./logging"
 import { resolveFileDataUri } from "./file"
 import { isGlobMatch } from "./glob"
-import { arrayify, logVerbose } from "./util"
+import { logVerbose } from "./util"
 import { renderShellOutput } from "./chatrender"
+import { jinjaRender } from "./jinja"
+import { mustacheRender } from "./mustache"
+import { imageEncodeForLLM } from "./image"
 
 export function createChatTurnGenerationContext(
     options: GenerationOptions,
@@ -55,7 +59,33 @@ export function createChatTurnGenerationContext(
             }
         },
         $(strings, ...args) {
-            appendChild(node, createStringTemplateNode(strings, args))
+            const current = createStringTemplateNode(strings, args)
+            appendChild(node, current)
+            const res: PromptTemplateString = Object.freeze(<
+                PromptTemplateString
+            >{
+                priority: (priority) => {
+                    current.priority = priority
+                    return res
+                },
+                flex: (value) => {
+                    current.flex = value
+                    return res
+                },
+                jinja: (data) => {
+                    current.transforms.push((t) => jinjaRender(t, data))
+                    return res
+                },
+                mustache: (data) => {
+                    current.transforms.push((t) => mustacheRender(t, data))
+                    return res
+                },
+                maxTokens: (tokens) => {
+                    current.maxTokens = tokens
+                    return res
+                },
+            })
+            return res
         },
         def(name, body, defOptions) {
             name = name ?? ""
@@ -75,7 +105,7 @@ export function createChatTurnGenerationContext(
                     throw new Error(`def ${name} is empty`)
                 appendChild(
                     node,
-                    createDefNode(
+                    createDef(
                         name,
                         { filename: "", content: body },
                         doptions
@@ -92,20 +122,30 @@ export function createChatTurnGenerationContext(
                     if (!isGlobMatch(filename, glob)) return undefined
                 }
                 if (endsWith && !filename.endsWith(endsWith)) return undefined
-                appendChild(node, createDefNode(name, file, doptions))
+                appendChild(node, createDef(name, file, doptions))
             } else if (
                 typeof body === "object" &&
                 (body as ShellOutput).exitCode !== undefined
             ) {
                 appendChild(
                     node,
-                    createDefNode(
+                    createDef(
                         name,
                         {
                             filename: "",
                             content: renderShellOutput(body as ShellOutput),
                         },
                         { ...doptions, lineNumbers: false }
+                    )
+                )
+            } else if (typeof body === "object" && (body as Fenced).content) {
+                const fenced = body as Fenced
+                appendChild(
+                    node,
+                    createDef(
+                        name,
+                        { filename: "", content: (body as Fenced).content },
+                        { language: fenced.language, ...(doptions || {}) }
                     )
                 )
             }
@@ -119,6 +159,10 @@ export function createChatTurnGenerationContext(
         },
         fence(body, options?: DefOptions) {
             ctx.def("", body, options)
+            return undefined
+        },
+        importTemplate: (template, data, options) => {
+            appendChild(node, createImportTemplate(template, data, options))
             return undefined
         },
         console,
@@ -194,19 +238,27 @@ export function createChatGenerationContext(
         return name
     }
 
-    const defImages = (files: StringLike, defOptions?: DefImagesOptions) => {
+    const defImages = (
+        files: ElementOrArray<string | WorkspaceFile | Buffer | Blob>,
+        defOptions?: DefImagesOptions
+    ) => {
         const { detail } = defOptions || {}
         if (Array.isArray(files))
             files.forEach((file) => defImages(file, defOptions))
-        else if (typeof files === "string")
-            appendChild(node, createImageNode({ url: files, detail }))
-        else if (files instanceof Buffer) {
-            const buffer: Buffer = files
+        else if (
+            typeof files === "string" ||
+            files instanceof Blob ||
+            files instanceof Buffer
+        ) {
+            const img = files
             appendChild(
                 node,
                 createImageNode(
                     (async () => {
-                        const url = await buffer.toString("base64url")
+                        const url = await imageEncodeForLLM(img, {
+                            ...defOptions,
+                            trace,
+                        })
                         return {
                             url,
                             detail,
@@ -220,7 +272,10 @@ export function createChatGenerationContext(
                 node,
                 createImageNode(
                     (async () => {
-                        const url = await resolveFileDataUri(file, { trace })
+                        const url = await imageEncodeForLLM(file.filename, {
+                            ...defOptions,
+                            trace,
+                        })
                         return {
                             url,
                             filename: file.filename,

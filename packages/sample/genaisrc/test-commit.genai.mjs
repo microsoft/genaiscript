@@ -10,13 +10,21 @@ script({
         "system.typescript",
         "system.annotations",
     ],
+    parameters: {
+        commit: {
+            type: "string",
+            default: "HEAD",
+            description: "The commit sha to review.",
+        },
+    },
 })
 
+const commit = env.vars.commit
 // diff latest commit
 const { stdout: changes } = await host.exec("git", [
     "diff",
-    "HEAD^",
-    "HEAD",
+    `${commit}^`,
+    commit,
     "--",
     "**.ts",
     ":!**/genaiscript.d.ts",
@@ -70,8 +78,6 @@ For each test in TESTS, assign a validation score between
     - medium: The test may be impacted by the changes in GIT_DIFF.
     - high: The test is most likely impacted by the changes in GIT_DIFF.
 
-Use the fs_read_file to read the test code.
-
 Report each test, the score and the reason for the score.
 
 # Task 3
@@ -84,7 +90,7 @@ Select the most impacted 8 tests.
 
 Report the selected tests as a line-separated list of filenames 
 in file "packages/sample/temp/commit-tests.txt".
-Remove the .genai.js extension.
+Remove the .genai.js extension, do not include folder names.
 
     File packages/sample/temp/commit-tests.txt:
     \`\`\`text

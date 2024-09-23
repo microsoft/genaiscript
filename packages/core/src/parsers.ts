@@ -23,6 +23,8 @@ import { unzip } from "./zip"
 import { JSONLTryParse } from "./jsonl"
 import { resolveFileContent } from "./file"
 import { resolveTokenEncoder } from "./encoders"
+import { mustacheRender } from "./mustache"
+import { jinjaRender } from "./jinja"
 
 export async function createParsers(options: {
     trace: MarkdownTrace
@@ -105,5 +107,13 @@ export async function createParsers(options: {
             await MathTryEvaluate(expression, { trace }),
         validateJSON: (schema, content) =>
             validateJSONWithSchema(content, schema, { trace }),
+        mustache: (file, args) => {
+            const f = filenameOrFileToContent(file)
+            return mustacheRender(f, args)
+        },
+        jinja: (file, data) => {
+            const f = filenameOrFileToContent(file)
+            return jinjaRender(f, data)
+        },
     })
 }

@@ -1,0 +1,1 @@
+A screenshot of Visual Studio Code with various panels open showing a trace of an API call. The left panel displays a tree structure with items like 'automation', 'script', and 'configuration'. The right panel shows a code snippet with a curl command to an API and some JSON data. The bottom panel indicates a running Python code interpreter in a container.

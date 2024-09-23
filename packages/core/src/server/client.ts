@@ -212,6 +212,10 @@ export class WebSocketClient extends EventTarget {
         })
     }
 
+    get pending() {
+        return this._pendingMessages?.length > 0
+    }
+
     stop() {
         this.reconnectAttempts = 0
         if (this._reconnectTimeout) {

@@ -451,7 +451,7 @@ File Read File
 
 Function to read file content as text.
 
--  tool `fs_read_file`: Reads a file as text from the file system.
+-  tool `fs_read_file`: Reads a file as text from the file system. Returns undefined if the file does not exist.
 
 `````js wrap title="system.fs_read_file"
 system({
@@ -461,7 +461,7 @@ system({
 
 defTool(
     "fs_read_file",
-    "Reads a file as text from the file system.",
+    "Reads a file as text from the file system. Returns undefined if the file does not exist.",
     {
         type: "object",
         properties: {
@@ -577,9 +577,9 @@ defTool(
         try {
             console.log(`cat ${filename} | frontmatter`)
             const res = await workspace.readText(filename)
-            return parsers.frontmatter(res.content)
+            return parsers.frontmatter(res.content) ?? ""
         } catch (e) {
-            return undefined
+            return ""
         }
     }
 )

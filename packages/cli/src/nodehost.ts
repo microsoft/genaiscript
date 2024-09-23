@@ -49,6 +49,8 @@ import {
 import { LanguageModel } from "../../core/src/chat"
 import { errorMessage } from "../../core/src/error"
 import { BrowserManager } from "./playwright"
+import { shellConfirm, shellInput, shellSelect } from "./input"
+import { shellQuote } from "../../core/src/shell"
 
 class NodeServerManager implements ServerManager {
     async start(): Promise<void> {
@@ -174,6 +176,11 @@ export class NodeHost implements RuntimeHost {
             if (!this._azureToken) throw new Error("Azure token not available")
             tok.token = "Bearer " + this._azureToken.token
         }
+        if (!tok) {
+            const { provider } = parseModelIdentifier(modelId)
+            if (provider === MODEL_PROVIDER_AZURE)
+                throw new Error("Azure end point not configured")
+        }
         if (!tok && this.clientLanguageModel) {
             return <LanguageModelConfiguration>{
                 model: modelId,
@@ -294,12 +301,10 @@ export class NodeHost implements RuntimeHost {
             if (command === "python" && process.platform !== "win32")
                 command = "python3"
 
-            const quoteify = (a: string) => (/\s/.test(a) ? `"${a}"` : a)
-            logVerbose(
-                `${cwd ? `${cwd}> ` : ""}${quoteify(command)} ${args.map(quoteify).join(" ")}`
-            )
+            const cmd = shellQuote([command, ...args])
+            logVerbose(`${cwd ? `${cwd}> ` : ""}${cmd}`)
             trace?.itemValue(`cwd`, cwd)
-            trace?.item(`${command} ${args.map(quoteify).join(" ")}`)
+            trace?.item(cmd)
 
             const { stdout, stderr, exitCode, failed } = await execa(
                 command,
@@ -349,5 +354,30 @@ export class NodeHost implements RuntimeHost {
 
     async removeBrowsers(): Promise<void> {
         await this.browsers.stopAndRemove()
+    }
+
+    /**
+     * Asks the user to select between options
+     * @param message question to ask
+     * @param options options to select from
+     */
+    select(message: string, options: string[]): Promise<string> {
+        return shellSelect(message, options)
+    }
+
+    /**
+     * Asks the user to input a text
+     * @param message message to ask
+     */
+    input(message: string): Promise<string> {
+        return shellInput(message)
+    }
+
+    /**
+     * Asks the user to confirm a message
+     * @param message message to ask
+     */
+    confirm(message: string): Promise<boolean> {
+        return shellConfirm(message)
     }
 }

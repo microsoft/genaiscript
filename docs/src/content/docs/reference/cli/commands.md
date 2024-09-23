@@ -31,9 +31,9 @@ Options:
   -y, --yaml                                 emit full YAML response to output
   -p, --prompt                               dry run, don't execute LLM and return expanded prompt
   -fe, --fail-on-errors                      fails on detected annotation error
-  -r, --retry <number>                       number of retries (default: "8")
-  -rd, --retry-delay <number>                minimum delay between retries (default: "15000")
-  -md, --max-delay <number>                  maximum delay between retries (default: "180000")
+  -r, --retry <number>                       number of retries (default: "10")
+  -rd, --retry-delay <number>                minimum delay between retries (default: "1000")
+  -md, --max-delay <number>                  maximum delay between retries (default: "10000")
   -l, --label <string>                       label for the run
   -t, --temperature <number>                 temperature for the run
   -tp, --top-p <number>                      top-p for the run
@@ -43,7 +43,7 @@ Options:
   -mtc, --max-tool-calls <number>            maximum tool calls for the run
   -se, --seed <number>                       seed for the run
   -em, --embeddings-model <string>           embeddings model for the run
-  --no-cache                                 disable LLM result cache
+  --cache                                    enable LLM result cache
   -cn, --cache-name <name>                   custom cache file name
   -cs, --csv-separator <string>              csv separator (default: "\t")
   -ae, --apply-edits                         apply file edits
@@ -87,9 +87,9 @@ Options:
   --cli <string>                      override path to the cli
   -tp, --test-provider <string>       test provider
   -td, --test-delay <string>          delay between tests in seconds
-  --no-cache                          disable LLM result cache
+  --cache                             enable LLM result cache
   -v, --verbose                       verbose output
-  -pv, --promptfoo-version [version]  promptfoo version, default is 0.78.0
+  -pv, --promptfoo-version [version]  promptfoo version, default is 0.89.3
   -os, --out-summary <file>           append output summary in file
   --groups <groups...>                groups to include or exclude. Use :!
                                       prefix to exclude
@@ -246,7 +246,6 @@ Commands:
   search [options] <query> [files...]  Search using vector embeddings
                                        similarity
   fuzz [options] <query> [files...]    Search using string distance
-  code
   help [command]                       display help for command
 ```
 
@@ -276,15 +275,6 @@ Options:
   -h, --help                         display help for command
 ```
 
-### `retrieval code`
-
-```
-Usage: genaiscript retrieval code [options]
-
-Options:
-  -h, --help  display help for command
-```
-
 ## `serve`
 
 ```
@@ -293,8 +283,9 @@ Usage: genaiscript serve [options]
 Start a GenAIScript local server
 
 Options:
-  -p, --port <number>  Specify the port number, default: 8003
-  -h, --help           display help for command
+  -p, --port <number>     Specify the port number, default: 8003
+  -k, --api-key <string>  API key to authenticate requests
+  -h, --help              display help for command
 ```
 
 ## `parse`
@@ -319,6 +310,7 @@ Commands:
                                query
   tokens [options] <files...>  Count tokens in a set of files
   jsonl2json                   Converts JSONL files to a JSON file
+  prompty [options] <file...>  Converts .prompty files to genaiscript
 ```
 
 ### `parse fence`
@@ -397,6 +389,21 @@ Converts JSONL files to a JSON file
 
 Options:
   -h, --help  display help for command
+```
+
+### `parse prompty`
+
+```
+Usage: genaiscript parse prompty [options] <file...>
+
+Converts .prompty files to genaiscript
+
+Arguments:
+  file                input JSONL files
+
+Options:
+  -o, --out <string>  output folder
+  -h, --help          display help for command
 ```
 
 ## `workspace`

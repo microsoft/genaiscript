@@ -19,3 +19,4 @@ updatefonts.mjs
 genaiscript.cjs
 esbuild.*
 genaiscript.manifest
+genaisrc/.gitattributes

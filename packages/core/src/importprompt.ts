@@ -23,8 +23,8 @@ export async function importPrompt(
         "parsers",
         "env",
         "retrieval",
-        "fetchText",
-        "cancel",
+        "runPrompt",
+        "prompt",
     ]
 
     const oldGlb: any = {}

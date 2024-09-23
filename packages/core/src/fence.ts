@@ -22,8 +22,10 @@ export function unquote(s: string) {
 }
 
 export function parseKeyValuePair(text: string): Record<string, string> {
-    const m = text.split(/[=:]/)
-    return m.length === 2 ? { [m[0]]: unquote(m[1]) } : {}
+    const m = /[=:]/.exec(text)
+    return m
+        ? { [text.slice(0, m.index)]: unquote(text.slice(m.index + 1)) }
+        : {}
 }
 
 export function parseKeyValuePairs(text: string | string[]) {
@@ -214,8 +216,10 @@ ${validation.error.split("\n").join("\n> ")}`
 }
 
 export function unfence(text: string, language: string) {
-    const startRx = new RegExp(`^\`\`\`${language}\n`)
-    const endRx = /\n```[\n\s]*$/
+    if (!text) return text
+
+    const startRx = new RegExp(`^[\r\n\s]*\`\`\`${language}\s*\r?\n`)
+    const endRx = /\r?\n```[\r\n\s]*$/
     if (startRx.test(text) && endRx.test(text)) {
         return text.replace(startRx, "").replace(endRx, "")
     }

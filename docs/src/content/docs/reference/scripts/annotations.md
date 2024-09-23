@@ -103,10 +103,10 @@ jobs:
 
 ## Filtering
 
-You can use the [defOutput](/genaiscript/reference/scripts/custom-output/) function
+You can use the [defOutputProcessor](/genaiscript/reference/scripts/custom-output/) function
 to filter the annotations.
 
-```js "defOutput"
+```js "defOutputProcessor"
 defOutputProcessor((annotations) => {
     // only allow errors
     const errors = annotations.filter(({ level }) => level === "error")

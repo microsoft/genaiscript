@@ -34,7 +34,28 @@ const container = await host.container()
 By default, the container uses the [python:alpine](https://hub.docker.com/_/python/) image, which provides a minimal python environment. You can change the image using the `image` option.
 
 ```js 'image: "python:3"'
-const container = await host.container({ image: "python:3" })
+const container = await host.container({ image: "node:20" })
+```
+
+### Building images
+
+Use [docker build](https://docs.docker.com/build/) to create reusable images.
+
+You can build a custom image from a GitHub repository with a single command in your scripts.
+
+```js
+const repo = "codelion/optillm" // GitHub repository = image name
+const branch = "main"
+const dir = "."
+await host.exec(
+    `docker build -t ${repo} https://github.com/${repo}.git#${branch}:${dir}`
+)
+```
+
+then use repo as your image name
+
+```js
+const container = await host.container({ image: repo, ... })
 ```
 
 ### Disable auto-purge
@@ -55,6 +76,25 @@ You can enable network access using `networkEnabled`.
 ```js
 const container = await host.container({ networkEnabled: true })
 ```
+
+### Port bindings
+
+You can bind container ports to host ports and access web servers running in the container.
+
+For example, this configuration will map the host `8088` port to `80` on the container
+and you will be able to access a local web server using `http://localhost:8088/`.
+
+```js "ports"
+const container = await host.container({
+    networkEnabled: true,
+    ports: {
+        containerPort: "80/tcp",
+        hostPort: 8088,
+    }, // array also supported
+})
+```
+
+Then
 
 ## Run a command
 

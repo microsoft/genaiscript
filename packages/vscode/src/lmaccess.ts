@@ -10,6 +10,7 @@ import {
     MODEL_PROVIDER_OPENAI,
     MODEL_PROVIDER_CLIENT,
     MODEL_PROVIDER_GITHUB,
+    TOOL_NAME,
 } from "../../core/src/constants"
 import { APIType } from "../../core/src/host"
 import { parseModelIdentifier } from "../../core/src/models"
@@ -18,6 +19,7 @@ import { LanguageModelChatRequest } from "../../core/src/server/client"
 import { ChatStart } from "../../core/src/server/messages"
 import { serializeError } from "../../core/src/error"
 import { logVerbose } from "../../core/src/util"
+import { renderMessageContent } from "../../core/src/chatrender"
 
 async function generateLanguageModelConfiguration(
     state: ExtensionState,
@@ -143,11 +145,18 @@ export async function pickLanguageModel(
 
     if (res.model) return res.model
     else {
-        await vscode.commands.executeCommand(
-            "genaiscript.connection.configure",
-            res.provider,
-            res.apiType
-        )
+        const configure = "Configure..."
+        vscode.window
+            .showWarningMessage(
+                `${TOOL_NAME} - model connection not configured.`,
+                configure
+            )
+            .then((res) => {
+                if (res === configure)
+                    vscode.commands.executeCommand(
+                        "genaiscript.connection.configure"
+                    )
+            })
         return undefined
     }
 }
@@ -163,33 +172,22 @@ function messagesToChatMessages(messages: ChatCompletionMessageParam[]) {
     const res: vscode.LanguageModelChatMessage[] = messages.map((m) => {
         switch (m.role) {
             case "system":
-                return <vscode.LanguageModelChatMessage>{
-                    role: vscode.LanguageModelChatMessageRole.User,
-                    content: m.content,
-                }
             case "user":
+            case "assistant":
                 if (
                     Array.isArray(m.content) &&
                     m.content.some((c) => c.type === "image_url")
                 )
                     throw new Error("Vision model not supported")
-                return <vscode.LanguageModelChatMessage>{
-                    role: vscode.LanguageModelChatMessageRole.User,
-                    content:
-                        typeof m.content === "string"
-                            ? m.content
-                            : m.content.map((c) => c).join("\n"),
-                }
-            case "assistant":
-                return <vscode.LanguageModelChatMessage>{
-                    role: vscode.LanguageModelChatMessageRole.Assistant,
-                    content: m.content,
-                }
+                return vscode.LanguageModelChatMessage.User(
+                    renderMessageContent(m),
+                    "genaiscript"
+                )
             case "function":
             case "tool":
                 throw new Error("tools not supported with copilot models")
             default:
-                throw new Error("uknown role")
+                throw new Error("unknown role " + m.role)
         }
     })
     return res

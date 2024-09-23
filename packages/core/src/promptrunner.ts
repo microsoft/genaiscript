@@ -110,7 +110,7 @@ export async function runTemplate(
             statusText,
             temperature,
             topP,
-            max_tokens,
+            maxTokens,
             seed,
             responseType,
             responseSchema,
@@ -167,10 +167,10 @@ export async function runTemplate(
             responseType,
             responseSchema,
             model,
-            temperature: temperature,
-            maxTokens: max_tokens,
-            topP: topP,
-            seed: seed,
+            temperature,
+            maxTokens,
+            topP,
+            seed,
         }
         const fileEdits: Record<string, FileUpdate> = {}
         const changelogs: string[] = []
@@ -385,8 +385,8 @@ export async function runTemplate(
                     annotations.map((a) => ({
                         ...a,
                         line: a.range?.[0]?.[0],
-                        endLine: a.range?.[1]?.[0] || "",
-                        code: a.code || "",
+                        endLine: a.range?.[1]?.[0] ?? "",
+                        code: a.code ?? "",
                     })),
                     {
                         headers: [
@@ -409,6 +409,7 @@ export async function runTemplate(
                     : finishReason === "stop"
                       ? "success"
                       : "error",
+            finishReason,
             error,
             messages,
             vars,
@@ -423,6 +424,9 @@ export async function runTemplate(
             genVars,
             schemas,
             json,
+        }
+        if (res.status === "error" && !res.statusText && res.finishReason) {
+            res.statusText = `LLM finish reason: ${res.finishReason}`
         }
         return res
     } finally {

@@ -24,6 +24,7 @@ export class BrowserManager {
             undefined,
             "npx",
             [
+                "--yes,",
                 `playwright@${PLAYWRIGHT_VERSION}`,
                 "install",
                 "--with-deps",

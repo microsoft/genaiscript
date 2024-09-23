@@ -122,6 +122,5 @@ bla
         assert.equal(fenced.length, 1)
         assert.equal(fenced[0].args.schema, "CITY_SCHEMA")
         assert.equal(fenced[0].language, "yaml")
-
     })
 })

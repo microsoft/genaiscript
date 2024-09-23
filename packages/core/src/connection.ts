@@ -361,22 +361,4 @@ export async function updateConnectionConfiguration(
         if (!content.includes(DOT_ENV_FILENAME))
             await writeText(".gitignore", content + `\n${DOT_ENV_FILENAME}\n`)
     }
-
-    // update .env
-    const { config, model } = dotEnvTemplate(provider, apiType)
-    let src = config
-    const current = await tryReadText(DOT_ENV_FILENAME)
-    if (current) {
-        if (!current.includes("GENAISCRIPT_DEFAULT_MODEL"))
-            src =
-                dedent`
-
-                    ## GenAIScript defaults
-                    GENAISCRIPT_DEFAULT_MODEL="${model}"
-                    # GENAISCRIPT_DEFAULT_TEMPERATURE=${DEFAULT_TEMPERATURE}
-                    
-                    ` + src
-        src = current + "\n" + src
-    }
-    await writeText(DOT_ENV_FILENAME, src)
 }

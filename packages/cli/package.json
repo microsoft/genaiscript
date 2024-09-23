@@ -1,6 +1,6 @@
 {
   "name": "genaiscript",
-  "version": "1.52.0",
+  "version": "1.55.5",
   "main": "built/genaiscript.cjs",
   "type": "commonjs",
   "bin": {
@@ -32,17 +32,18 @@
   "license": "MIT",
   "dependencies": {
     "@azure/identity": "^4.4.1",
-    "@inquirer/prompts": "^5.3.8",
+    "@inquirer/prompts": "^6.0.1",
     "@lvce-editor/ripgrep": "^1.2.0",
     "dockerode": "^4.0.2",
-    "gpt-tokenizer": "^2.2.1",
+    "gpt-tokenizer": "^2.4.0",
+    "jimp": "^1.6.0",
     "mammoth": "^1.8.0",
     "mathjs": "^13.1.1",
-    "pdfjs-dist": "4.5.136",
-    "playwright": "^1.46.1",
+    "pdfjs-dist": "4.6.82",
+    "playwright": "^1.47.2",
     "tree-sitter-wasms": "^0.1.11",
-    "tsx": "^4.19.0",
-    "typescript": "5.5.4",
+    "tsx": "^4.19.1",
+    "typescript": "5.6.2",
     "vectra": "^0.9.0",
     "web-tree-sitter": "^0.22.2",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz"
@@ -51,7 +52,7 @@
     "node": ">=20.0.0"
   },
   "peerDependencies": {
-    "promptfoo": "0.78.0"
+    "promptfoo": "0.89.3"
   },
   "devDependencies": {
     "@types/dockerode": "^3.3.31",
@@ -64,21 +65,21 @@
     "@types/ws": "^8.5.12",
     "commander": "^12.1.0",
     "dotenv": "^16.4.5",
-    "esbuild": "^0.23.1",
-    "execa": "^9.3.1",
+    "esbuild": "^0.24.0",
+    "execa": "^9.4.0",
     "fs-extra": "^11.2.0",
     "glob": "^11.0.0",
     "memorystream": "^0.3.1",
     "node-sarif-builder": "^3.2.0",
-    "openai": "^4.56.1",
+    "openai": "^4.63.0",
     "pretty-bytes": "^6.1.1",
     "replace-ext": "^2.0.0",
     "ws": "^8.18.0",
-    "zx": "^8.1.4"
+    "zx": "^8.1.8"
   },
   "scripts": {
-    "compile": "esbuild src/main.ts --metafile=./esbuild.meta.json --bundle --platform=node --target=node20 --outfile=built/genaiscript.cjs --external:tsx --external:esbuild --external:get-tsconfig --external:resolve-pkg-maps --external:dockerode --external:pdfjs-dist --external:web-tree-sitter --external:tree-sitter-wasms --external:promptfoo --external:typescript --external:@lvce-editor/ripgrep --external:gpt-3-encoder --external:mammoth --external:xlsx --external:mathjs --external:@azure/identity --external:gpt-tokenizer --external:playwright --external:@inquirer/prompts && node ../../scripts/patch-cli.mjs",
-    "compile-debug": "esbuild src/main.ts --sourcemap --metafile=./esbuild.meta.json --bundle --platform=node --target=node20 --outfile=built/genaiscript.cjs --external:tsx --external:esbuild --external:get-tsconfig --external:resolve-pkg-maps --external:dockerode --external:pdfjs-dist --external:web-tree-sitter --external:tree-sitter-wasms --external:promptfoo --external:typescript --external:@lvce-editor/ripgrep --external:gpt-3-encoder --external:mammoth --external:xlsx --external:mathjs --external:@azure/identity --external:gpt-tokenizer --external:playwright --external:@inquirer/prompts",
+    "compile": "esbuild src/main.ts --metafile=./esbuild.meta.json --bundle --platform=node --target=node20 --outfile=built/genaiscript.cjs --external:tsx --external:esbuild --external:get-tsconfig --external:resolve-pkg-maps --external:dockerode --external:pdfjs-dist --external:web-tree-sitter --external:tree-sitter-wasms --external:promptfoo --external:typescript --external:@lvce-editor/ripgrep --external:gpt-3-encoder --external:mammoth --external:xlsx --external:mathjs --external:@azure/identity --external:gpt-tokenizer --external:playwright --external:@inquirer/prompts --external:jimp && node ../../scripts/patch-cli.mjs",
+    "compile-debug": "esbuild src/main.ts --sourcemap --metafile=./esbuild.meta.json --bundle --platform=node --target=node20 --outfile=built/genaiscript.cjs --external:tsx --external:esbuild --external:get-tsconfig --external:resolve-pkg-maps --external:dockerode --external:pdfjs-dist --external:web-tree-sitter --external:tree-sitter-wasms --external:promptfoo --external:typescript --external:@lvce-editor/ripgrep --external:gpt-3-encoder --external:mammoth --external:xlsx --external:mathjs --external:@azure/identity --external:gpt-tokenizer --external:playwright --external:@inquirer/prompts --external:jimp",
     "postcompile": "node built/genaiscript.cjs info help > ../../docs/src/content/docs/reference/cli/commands.md",
     "vis:treemap": "npx --yes esbuild-visualizer --metadata esbuild.meta.json --filename esbuild.treemap.html",
     "vis:network": "npx --yes esbuild-visualizer --metadata esbuild.meta.json --filename esbuild.network.html --template network",

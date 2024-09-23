@@ -63,9 +63,27 @@ Use the [run](/genaiscript/reference/cli/run) command to execute a script from t
 npx genaiscript run proofreader path/to/files*.md
 ```
 
+## Tasks
+
+The GenAIScript extension exposes each script as a [Task](https://code.visualstudio.com/docs/editor/tasks) automatically.
+
+The task launches the [cli](/genaiscript/reference/cli) and runs the selected script and pass the path to the current opened editor.
+
+-   Open the command palette `Ctrl+Shift+P` and search "Tasks: Run Task"
+-   Select the `genaiscript` task provider
+-   Select the script you want to run
+
+:::note
+
+When running a script as a task, the result will not be visible in the GenAIScript trace window.
+
+:::
+
 ## Analyze results
 
 By default, GenAIScript opens the output preview which shows a rendered view of the LLM output (assuming the LLM produces markdown).
+
+The GenAIScript view provides an overview of the trace of the latest run.
 
 You can also use the **Trace** to review the each transformation step of the script execution.
 

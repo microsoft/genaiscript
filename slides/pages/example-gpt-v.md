@@ -5,7 +5,7 @@ layout: two-cols-header
 
 ::left::
 
-![](/plug-in.png)
+![Flowchart depicting a process involving an LLM (Language Learning Model) interacting with plugins and external sources to generate a final answer.](/plug-in.png)
 
 ::right::
 

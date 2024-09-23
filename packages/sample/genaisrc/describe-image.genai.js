@@ -4,12 +4,21 @@ script({
     group: "vision",
     maxTokens: 4000,
     system: [],
-    files: "src/robots.jpg",
-    tests: {
-        files: "src/robots.jpg",
-        facts: "there are 3 robots on the picture",
-    },
+    files: [
+        "src/robots.jpg",
+        "https://github.com/microsoft/genaiscript/blob/main/docs/public/images/logo.png?raw=true",
+    ],
+    tests: [
+        {
+            files: "src/robots.jpg",
+            keywords: "robot",
+        },
+        {
+            files: "https://github.com/microsoft/genaiscript/blob/main/docs/public/images/logo.png?raw=true",
+            keywords: "yellow",
+        },
+    ],
 })
 
 $`Return the list of objects in the images.`
-defImages(env.files, { detail: "low" })
+defImages(env.files, { detail: "low", maxWidth: 400, autoCrop: true })
