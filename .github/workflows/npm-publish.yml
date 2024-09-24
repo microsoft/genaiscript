@@ -15,11 +15,10 @@ jobs:
               with:
                   node-version: "20.x"
                   registry-url: "https://npm.pkg.github.com"
-                  scope: "genaiscript"
                   cache: yarn
             - run: yarn install
             - run: yarn compile
-            - run: npm publish
+            - run: yarn publish
               working-directory: packages/cli
               env:
                   NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

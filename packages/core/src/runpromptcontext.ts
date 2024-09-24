@@ -17,9 +17,8 @@ import { MarkdownTrace } from "./trace"
 import { GenerationOptions } from "./generation"
 import { promptParametersSchemaToJSONSchema } from "./parameters"
 import { consoleLogFormat } from "./logging"
-import { resolveFileDataUri } from "./file"
 import { isGlobMatch } from "./glob"
-import { logVerbose } from "./util"
+import { arrayify, logVerbose } from "./util"
 import { renderShellOutput } from "./chatrender"
 import { jinjaRender } from "./jinja"
 import { mustacheRender } from "./mustache"
@@ -58,6 +57,8 @@ export function createChatTurnGenerationContext(
                 )
             }
         },
+        assistant: (body, options) =>
+            ctx.writeText(body, { ...options, assistant: true }),
         $(strings, ...args) {
             const current = createStringTemplateNode(strings, args)
             appendChild(node, current)
@@ -105,11 +106,7 @@ export function createChatTurnGenerationContext(
                     throw new Error(`def ${name} is empty`)
                 appendChild(
                     node,
-                    createDef(
-                        name,
-                        { filename: "", content: body },
-                        doptions
-                    )
+                    createDef(name, { filename: "", content: body }, doptions)
                 )
             } else if (
                 typeof body === "object" &&
@@ -303,7 +300,11 @@ export function createChatGenerationContext(
         if (pattern)
             appendChild(
                 node,
-                createFileOutput({ pattern, description, options })
+                createFileOutput({
+                    pattern: arrayify(pattern),
+                    description,
+                    options,
+                })
             )
     }
 

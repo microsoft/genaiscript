@@ -3,17 +3,14 @@ script({
     description: "Generate a pull request description from the git diff",
     tools: ["fs"],
     temperature: 0.5,
-    parameters: {
-        defaultBranch: {
-            type: "string",
-            description: "The default branch of the repository",
-            default: "main",
-        },
-    },
 })
 
-// configuration
-const defaultBranch = env.vars.defaultBranch
+// resolve default branch
+const defaultBranch = (
+    await host.exec("git symbolic-ref refs/remotes/origin/HEAD")
+).stdout
+    .replace("refs/remotes/origin/", "")
+    .trim()
 
 // context
 // compute diff with the default branch

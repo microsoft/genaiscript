@@ -55,6 +55,10 @@ export default defineConfig({
                     autogenerate: { directory: "case-studies" },
                 },
                 {
+                    label: "Samples",
+                    autogenerate: { directory: "samples" },
+                },
+                {
                     label: "Guides",
                     autogenerate: { directory: "guides" },
                 },

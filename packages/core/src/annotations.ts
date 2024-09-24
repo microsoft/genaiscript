@@ -1,54 +1,78 @@
-// https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/workflow-commands-for-github-actions#setting-an-error-message
+/**
+ * This module provides functions to parse and convert annotations from
+ * TypeScript, GitHub Actions, and Azure DevOps. It supports the transformation
+ * of annotations into different formats for integration with CI/CD tools.
+ */
+
+// Regular expression for matching GitHub Actions annotations
+// Example: ::error file=foo.js,line=10,endLine=11::Something went wrong.
 const GITHUB_ANNOTATIONS_RX =
     /^\s*::(?<severity>notice|warning|error)\s*file=(?<file>[^,]+),\s*line=(?<line>\d+),\s*endLine=(?<endLine>\d+)\s*(,\s*code=(?<code>[^,:]+)?\s*)?::(?<message>.*)$/gim
-// ##vso[task.logissue type=warning;sourcepath=consoleap
-// https://learn.microsoft.com/en-us/azure/devops/pipelines/scripts/logging-commands?view=azure-devops&tabs=bash#example-log-a-warning-about-a-specific-place-in-a-file
-// ##vso[task.logissue type=warning;sourcepath=consoleapp/main.cs;linenumber=1;columnnumber=1;code=100;]Found something that could be a problem.
+
+// Regular expression for matching Azure DevOps annotations
+// Example: ##vso[task.logissue type=warning;sourcepath=foo.cs;linenumber=1;]Found something.
 const AZURE_DEVOPS_ANNOTATIONS_RX =
     /^\s*##vso\[task.logissue\s+type=(?<severity>error|warning);sourcepath=(?<file>);linenumber=(?<line>\d+)(;code=(?<code>\d+);)?[^\]]*\](?<message>.*)$/gim
 
-// https://code.visualstudio.com/docs/editor/tasks#_background-watching-tasks
+// Regular expression for matching TypeScript build annotations
+// Example: foo.ts:10:error TS1005: ';' expected.
 const TYPESCRIPT_ANNOTATIONS_RX =
     /^(?<file>[^:\s].*?):(?<line>\d+)(?::(?<endLine>\d+))?(?::\d+)?\s+-\s+(?<severity>error|warning)\s+(?<code>[^:]+)\s*:\s*(?<message>.*)$/gim
 
 /**
- * Matches TypeScript, GitHub Actions and Azure DevOps annotations
- * @param line
- * @link https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/workflow-commands-for-github-actions#setting-an-error-message
+ * Parses annotations from TypeScript, GitHub Actions, and Azure DevOps.
+ *
+ * @param text - The input text containing annotations.
+ * @returns Array of parsed `Diagnostic` objects.
  */
 export function parseAnnotations(text: string): Diagnostic[] {
     if (!text) return []
+
+    // Maps severity strings to `DiagnosticSeverity`.
     const sevMap: Record<string, DiagnosticSeverity> = {
         ["info"]: "info",
-        ["notice"]: "info",
+        ["notice"]: "info", // Maps 'notice' to 'info' severity
         ["warning"]: "warning",
         ["error"]: "error",
     }
+
+    // Helper function to add an annotation to the set.
+    // Extracts groups from the regex match and constructs a `Diagnostic` object.
     const addAnnotation = (m: RegExpMatchArray) => {
         const { file, line, endLine, severity, code, message } = m.groups
         const annotation: Diagnostic = {
-            severity: sevMap[severity?.toLowerCase()] ?? "info",
+            severity: sevMap[severity?.toLowerCase()] ?? "info", // Default to "info" if severity is missing
             filename: file,
             range: [
-                [parseInt(line) - 1, 0],
-                [parseInt(endLine) - 1, Number.MAX_VALUE],
+                [parseInt(line) - 1, 0], // Start of range, 0-based index
+                [parseInt(endLine) - 1, Number.MAX_VALUE], // End of range, max value for columns
             ],
             message,
             code,
         }
-        annotations.add(annotation)
+        annotations.add(annotation) // Add the constructed annotation to the set
     }
 
+    // Set to store unique annotations.
     const annotations = new Set<Diagnostic>()
+
+    // Match against TypeScript, GitHub, and Azure DevOps regex patterns.
     for (const m of text.matchAll(TYPESCRIPT_ANNOTATIONS_RX)) addAnnotation(m)
     for (const m of text.matchAll(GITHUB_ANNOTATIONS_RX)) addAnnotation(m)
     for (const m of text.matchAll(AZURE_DEVOPS_ANNOTATIONS_RX)) addAnnotation(m)
-    return Array.from(annotations.values())
+
+    return Array.from(annotations.values()) // Convert the set to an array
 }
 
+/**
+ * Converts a `Diagnostic` to a GitHub Action command string.
+ *
+ * @param d - The `Diagnostic` to convert.
+ * @returns A formatted GitHub Action command string.
+ */
 export function convertDiagnosticToGitHubActionCommand(d: Diagnostic) {
     const sevMap: Record<DiagnosticSeverity, string> = {
-        ["info"]: "notice",
+        ["info"]: "notice", // Maps 'info' to 'notice'
         ["warning"]: "warning",
         ["error"]: "error",
     }
@@ -56,12 +80,24 @@ export function convertDiagnosticToGitHubActionCommand(d: Diagnostic) {
     return `::${sevMap[d.severity] || d.severity} file=${d.filename}, line=${d.range[0][0]}, endLine=${d.range[1][0]}::${d.message}`
 }
 
+/**
+ * Converts a `Diagnostic` to an Azure DevOps command string.
+ *
+ * @param d - The `Diagnostic` to convert.
+ * @returns A formatted Azure DevOps command string.
+ */
 export function convertDiagnosticToAzureDevOpsCommand(d: Diagnostic) {
     if (d.severity === "info") return `##[debug]${d.message} at ${d.filename}`
     else
         return `##vso[task.logissue type=${d.severity};sourcepath=${d.filename};linenumber=${d.range[0][0]}]${d.message}`
 }
 
+/**
+ * Converts annotations in text to a Markdown format.
+ *
+ * @param text - The input text containing annotations.
+ * @returns A string of formatted Markdown annotations.
+ */
 export function convertAnnotationsToMarkdown(text: string): string {
     const severities: Record<string, string> = {
         error: "CAUTION",

@@ -11,6 +11,7 @@
   ],
   "publisher": "Microsoft",
   "repository": {
+    "type": "git",
     "url": "git+https://github.com/microsoft/genaiscript.git"
   },
   "homepage": "https://microsoft.github.io/genaiscript",

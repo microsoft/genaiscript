@@ -1545,7 +1545,7 @@ interface FileOutputOptions {
 }
 
 interface FileOutput {
-    pattern: string
+    pattern: string[]
     description?: string
     options?: FileOutputOptions
 }
@@ -1589,6 +1589,10 @@ interface ChatTurnGenerationContext {
         options?: ImportTemplateOptions
     ): void
     writeText(body: Awaitable<string>, options?: WriteTextOptions): void
+    assistant(
+        text: Awaitable<string>,
+        options?: Omit<WriteTextOptions, "assistant">
+    ): void
     $(strings: TemplateStringsArray, ...args: any[]): PromptTemplateString
     fence(body: StringLike, options?: FenceOptions): void
     def(
@@ -1638,7 +1642,7 @@ interface ChatGenerationContext extends ChatTurnGenerationContext {
         options?: ChatParticipantOptions
     ): void
     defFileOutput(
-        pattern: string,
+        pattern: string | string[],
         description?: string,
         options?: FileOutputOptions
     ): void

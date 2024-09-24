@@ -15,6 +15,7 @@
         "demux",
         "devcontainers",
         "dockerode",
+        "docstrings",
         "doptions",
         "Entra",
         "Evals",
@@ -53,6 +54,7 @@
         "quoteify",
         "socketserver",
         "stringifying",
+        "structurify",
         "sysr",
         "tabletojson",
         "Textify",
@@ -91,5 +93,6 @@
         "titleBar.inactiveBackground": "#110f0099",
         "titleBar.inactiveForeground": "#e7e7e799"
     },
-    "peacock.remoteColor": "#110f00"
+    "peacock.remoteColor": "#110f00",
+    "mdmath.delimiters": "brackets"
 }

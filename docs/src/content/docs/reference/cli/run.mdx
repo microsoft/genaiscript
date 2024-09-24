@@ -34,7 +34,7 @@ See [configuration](/genaiscript/getting-started/configuration).
 
 ## Files
 
-`run` takes one or more [glob](https://en.wikipedia.org/wiki/Glob_(programming)) patterns to match files in the workspace.
+`run` takes one or more [glob](<https://en.wikipedia.org/wiki/Glob_(programming)>) patterns to match files in the workspace.
 
 ```bash sh
 npx genaiscript run <script> "**/*.md" "**/*.ts"
@@ -150,7 +150,7 @@ permissions:
     pull-requests: write
 ```
 
--  set the `GITHUB_TOKEN` secret in the `env` when running the cli
+-   set the `GITHUB_TOKEN` secret in the `env` when running the cli
 
 ```yaml
     - run: npx --yes genaiscript run ... -prc --out-trace $GITHUB_STEP_SUMMARY
