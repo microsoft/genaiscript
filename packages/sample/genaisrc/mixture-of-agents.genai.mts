@@ -1,4 +1,4 @@
-// https://github.com/codelion/optillm/blob/main/optillm/moa.py
+// Ported from https://github.com/codelion/optillm/blob/main/optillm/moa.py
 
 export async function mixtureOfAgents(
     query: string,
@@ -6,9 +6,9 @@ export async function mixtureOfAgents(
 ) {
     const {
         agents = [
-            { model: "gpt-4o" },
-            { model: "gpt-4" },
-            { model: "gpt-35-turbo" },
+            { model: "openai:gpt-4o" },
+            { model: "openai:gpt-4" },
+            { model: "openai:gpt-35-turbo" },
         ],
     } = options ?? {}
 
@@ -16,6 +16,7 @@ export async function mixtureOfAgents(
     const agentResponses = await Promise.all(
         agents.map((agent) =>
             runPrompt(
+                // concurrency is limited by genaiscript
                 (ctx) => {
                     ctx.writeText(query)
                     ctx.assistant(`What do you think?`)
