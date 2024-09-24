@@ -1,16 +1,23 @@
 ---
 title: Commenter
 description: Adds comments to your code
+sidebar:
+    order: 20
 ---
 
 import { Code } from "@astrojs/starlight/components"
-import source from "../../../../../../../packages/vscode/genaisrc/cmt.genai.mts?raw"
+import source from "../../../../../packages/vscode/genaisrc/cmt.genai.mts?raw"
 
-As developers, we understand the importance of well-commented code.
-It aids in comprehension, maintenance, and collaboration. It also helps LLMs!
+Inspired by [a tweet](https://x.com/mckaywrigley/status/1838321570969981308), this script automates adding comments to source code.
 
-Inspired by [a tweet](https://x.com/mckaywrigley/status/1838321570969981308), this script automates adding comments using
-the power of generative AI.
+```ts title="cmt.genai.mts"
+script({
+    title: "Source Code Comment Generator",
+    description: `Add comments to source code to make it more understandable for AI systems or human developers.
+    Modified from https://x.com/mckaywrigley/status/1838321570969981308.
+    `,
+})
+```
 
 ### Getting Files to Process
 
