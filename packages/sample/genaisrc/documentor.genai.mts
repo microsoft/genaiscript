@@ -2,7 +2,7 @@
 import prettier from "prettier"
 
 script({
-    system: ["system.changelog"],
+    system: ["system", "system.files"],
 })
 
 const files = env.files.filter(({ filename }) =>
@@ -36,7 +36,6 @@ When adding comments, follow these guidelines:
 - Minimize changes to existing comments.
 
 Your output should be the original code with your added comments. Make sure to preserve the original code's formatting and structure. 
-Use the CHANGELOG format.
 
 Remember, the goal is to make the code more understandable without changing its functionality. 
 Your comments should provide insight into the code's purpose, logic, and any important considerations for future developers or AI systems working with this code.
