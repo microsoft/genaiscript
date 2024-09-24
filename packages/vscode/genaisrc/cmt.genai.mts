@@ -18,8 +18,10 @@ script({
     },
 })
 
-const { format, build } = env.vars.build
+const { format, build } = env.vars
 const saveLimit = pLimit(1)
+
+console.log({ format, build })
 
 // Get files from environment or modified files from Git if none provided
 let files = env.files
