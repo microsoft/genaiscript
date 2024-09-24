@@ -34,7 +34,7 @@ function renderAICINode(node: AICINode) {
             if (regex) args.push(`regex: ${regex.toString()}`)
             return `await gen({${args.join(`,\n`)}})`
         default:
-            return "undefined" // Fallback case for unknown node types
+            return "undefined" // Fallback for unknown node types
     }
 }
 
@@ -64,6 +64,7 @@ export async function renderAICI(functionName: string, root: PromptNode) {
     let indent: string = "" // Current indentation level
     const push = (text: string) => program.push(indent + text) // Add text with current indentation
     const pushString = (text: string) => {
+        // Pushes a string to the program if it's not empty
         if (text !== undefined && text !== null && text !== "")
             push("await $`" + escapeJavascriptString(text) + "`")
     }

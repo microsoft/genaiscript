@@ -1,3 +1,8 @@
+/**
+ * This module provides functionality for creating embeddings using OpenAI's API
+ * and performing vector search on documents.
+ */
+
 import { encode, decode } from "gpt-tokenizer"
 import { resolveModelConnectionInfo } from "./models"
 import { runtimeHost, host } from "./host"
@@ -15,19 +20,39 @@ import { getConfigHeaders } from "./openai"
 import { logVerbose, trimTrailingSlash } from "./util"
 import { TraceOptions } from "./trace"
 
+/**
+ * Represents the cache key for embeddings.
+ * This is used to store and retrieve cached embeddings.
+ */
 export interface EmbeddingsCacheKey {
     base: string
     provider: string
     model: string
     inputs: string | string[]
 }
+
+/**
+ * Type alias for the embeddings cache.
+ * Maps cache keys to embedding responses.
+ */
 export type EmbeddingsCache = JSONLineCache<
     EmbeddingsCacheKey,
     EmbeddingsResponse
 >
 
+/**
+ * Class for creating embeddings using the OpenAI API.
+ * Implements the EmbeddingsModel interface.
+ */
 class OpenAIEmbeddings implements EmbeddingsModel {
     readonly cache: JSONLineCache<EmbeddingsCacheKey, EmbeddingsResponse>
+
+    /**
+     * Constructs an instance of OpenAIEmbeddings.
+     * @param info Connection options for the model.
+     * @param configuration Configuration for the language model.
+     * @param options Options for tracing.
+     */
     public constructor(
         readonly info: ModelConnectionOptions,
         readonly configuration: LanguageModelConfiguration,
@@ -39,11 +64,11 @@ class OpenAIEmbeddings implements EmbeddingsModel {
         >("embeddings")
     }
 
+    // Maximum number of tokens for embeddings
     maxTokens = 512
 
     /**
      * Creates embeddings for the given inputs using the OpenAI API.
-     * @param model Name of the model to use (or deployment for Azure).
      * @param inputs Text inputs to create embeddings for.
      * @returns A `EmbeddingsResponse` with a status and the generated embeddings or a message when an error occurs.
      */
@@ -52,15 +77,25 @@ class OpenAIEmbeddings implements EmbeddingsModel {
     ): Promise<EmbeddingsResponse> {
         const { provider, base, model } = this.configuration
 
+        // Define the cache key for the current request
         const cacheKey: EmbeddingsCacheKey = { inputs, model, provider, base }
+
+        // Check if the result is already cached
         const cached = await this.cache.get(cacheKey)
         if (cached) return cached
 
+        // Create embeddings if not cached
         const res = await this.uncachedCreateEmbeddings(inputs)
         if (res.status === "success") this.cache.set(cacheKey, res)
 
         return res
     }
+
+    /**
+     * Creates embeddings without using the cache.
+     * @param input The input text or texts.
+     * @returns The response containing the embeddings or error information.
+     */
     private async uncachedCreateEmbeddings(
         input: string | string[]
     ): Promise<EmbeddingsResponse> {
@@ -72,6 +107,8 @@ class OpenAIEmbeddings implements EmbeddingsModel {
             this.configuration
         )
         headers["Content-Type"] = "application/json"
+
+        // Determine the URL based on provider type
         if (provider === MODEL_PROVIDER_AZURE || type === "azure") {
             url = `${trimTrailingSlash(base)}/${model.replace(/\./g, "")}/embeddings?api-version=${AZURE_OPENAI_API_VERSION}`
             delete body.model
@@ -81,6 +118,8 @@ class OpenAIEmbeddings implements EmbeddingsModel {
         const fetch = await createFetch({ retryOn: [429] })
         if (trace) traceFetchPost(trace, url, headers, body)
         logVerbose(`embedding ${model}`)
+
+        // Send POST request to create embeddings
         const resp = await fetch(url, {
             method: "POST",
             headers,
@@ -88,7 +127,7 @@ class OpenAIEmbeddings implements EmbeddingsModel {
         })
         trace?.itemValue(`response`, `${resp.status} ${resp.statusText}`)
 
-        // Process response
+        // Process the response
         if (resp.status < 300) {
             const data = (await resp.json()) as EmbeddingCreateResponse
             return {
@@ -111,6 +150,13 @@ class OpenAIEmbeddings implements EmbeddingsModel {
     }
 }
 
+/**
+ * Performs a vector search on documents based on a query.
+ * @param query The search query.
+ * @param files The files to search within.
+ * @param options Options for vector search, including folder path and tracing.
+ * @returns The files with scores based on relevance to the query.
+ */
 export async function vectorSearch(
     query: string,
     files: WorkspaceFile[],
@@ -128,10 +174,14 @@ export async function vectorSearch(
     trace?.startDetails(`🔍 embeddings`)
     try {
         trace?.itemValue(`model`, embeddingsModel)
+
+        // Import the local document index
         const { LocalDocumentIndex } = await import(
             "vectra/lib/LocalDocumentIndex"
         )
         const tokenizer = { encode, decode }
+
+        // Resolve connection info for the embeddings model
         const { info, configuration } = await resolveModelConnectionInfo(
             {
                 model: embeddingsModel,
@@ -147,8 +197,12 @@ export async function vectorSearch(
         if (info.error) throw new Error(info.error)
         if (!configuration)
             throw new Error("No configuration found for vector search")
+
+        // Pull the model
         await runtimeHost.models.pullModel(info.model)
         const embeddings = new OpenAIEmbeddings(info, configuration, { trace })
+
+        // Create a local document index
         const index = new LocalDocumentIndex({
             tokenizer,
             folderPath,
@@ -160,12 +214,18 @@ export async function vectorSearch(
             },
         })
         await index.createIndex({ version: 1, deleteIfExists: true })
+
+        // Insert documents into the index
         for (const file of files) {
             const { filename, content } = file
             await index.upsertDocument(filename, content)
         }
+
+        // Query documents based on the search query
         const res = await index.queryDocuments(query, { maxDocuments: topK })
         const r: WorkspaceFileWithScore[] = []
+
+        // Filter and return results that meet the minScore
         for (const re of res.filter((re) => re.score >= minScore)) {
             r.push(<WorkspaceFileWithScore>{
                 filename: re.uri,

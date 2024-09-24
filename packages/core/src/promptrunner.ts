@@ -1,3 +1,4 @@
+// Import necessary modules and functions for handling chat sessions, templates, file management, etc.
 import { executeChatSession, tracePromptResult } from "./chat"
 import { Project, PromptScript } from "./ast"
 import { stringToPos } from "./parser"
@@ -23,6 +24,16 @@ import { YAMLParse } from "./yaml"
 import { expandTemplate } from "./expander"
 import { resolveLanguageModel } from "./lm"
 
+// Asynchronously resolve expansion variables needed for a template
+/**
+ * Resolves variables required for the expansion of a template.
+ * @param project The project context.
+ * @param trace The markdown trace for logging.
+ * @param template The prompt script template.
+ * @param frag The fragment containing files and metadata.
+ * @param vars The user-provided variables.
+ * @returns An object containing resolved variables.
+ */
 async function resolveExpansionVars(
     project: Project,
     trace: MarkdownTrace,
@@ -42,14 +53,18 @@ async function resolveExpansionVars(
     for (let filename of filenames) {
         filename = relativePath(root, filename)
 
+        // Skip if file already in the list
         if (files.find((lk) => lk.filename === filename)) continue
         const file: WorkspaceFile = { filename }
         await resolveFileContent(file)
         files.push(file)
     }
 
+    // Parse and obtain attributes from prompt parameters
     const attrs = parsePromptParameters(project, template, vars)
     const secrets: Record<string, string> = {}
+
+    // Read secrets defined in the template
     for (const secret of template.secrets || []) {
         const value = await runtimeHost.readSecret(secret)
         if (value) {
@@ -57,6 +72,8 @@ async function resolveExpansionVars(
             secrets[secret] = value
         } else trace.error(`secret \`${secret}\` not found`)
     }
+
+    // Create and return an object containing resolved variables
     const res: Partial<ExpansionVariables> = {
         dir: ".",
         files,
@@ -71,6 +88,15 @@ async function resolveExpansionVars(
     return res
 }
 
+// Main function to run a template with given options
+/**
+ * Executes a prompt template with specified options.
+ * @param prj The project context.
+ * @param template The prompt script template.
+ * @param fragment The fragment containing additional context.
+ * @param options Options for generation, including model and trace.
+ * @returns A generation result with details of the execution.
+ */
 export async function runTemplate(
     prj: Project,
     template: PromptScript,
@@ -88,6 +114,7 @@ export async function runTemplate(
         trace.heading(3, `🧠 running ${template.id} with model ${model ?? ""}`)
         if (cliInfo) traceCliArgs(trace, template, options)
 
+        // Resolve expansion variables for the template
         const vars = await resolveExpansionVars(
             prj,
             trace,
@@ -119,8 +146,7 @@ export async function runTemplate(
             trace
         )
 
-        // if the expansion failed, show the user the trace
-        // or no message generated
+        // Handle failed expansion scenario
         if (status !== "success" || !messages.length) {
             trace.renderErrors()
             return <GenerationResult>{
@@ -140,7 +166,7 @@ export async function runTemplate(
             }
         }
 
-        // don't run LLM
+        // If LLM is skipped, return early
         if (skipLLM) {
             trace.renderErrors()
             return <GenerationResult>{
@@ -173,6 +199,8 @@ export async function runTemplate(
         const changelogs: string[] = []
         const edits: Edits[] = []
         const projFolder = runtimeHost.projectFolder()
+
+        // Helper function to get or create file edit object
         const getFileEdit = async (fn: string) => {
             fn = relativePath(projFolder, fn)
             let fileEdit = fileEdits[fn]
@@ -186,6 +214,7 @@ export async function runTemplate(
             return fileEdit
         }
 
+        // Resolve model connection information
         const connection = await resolveModelConnectionInfo(
             { model },
             { trace, token: true }
@@ -201,6 +230,8 @@ export async function runTemplate(
         const { completer } = await resolveLanguageModel(
             connection.configuration.provider
         )
+
+        // Execute chat session with the resolved configuration
         const output = await executeChatSession(
             connection.configuration,
             cancellationToken,
@@ -213,6 +244,7 @@ export async function runTemplate(
             genOptions
         )
         tracePromptResult(trace, output)
+
         const {
             json,
             fences,
@@ -222,6 +254,8 @@ export async function runTemplate(
             finishReason,
         } = output
         let { text, annotations } = output
+
+        // Handle fenced code regions within the output
         if (json === undefined) {
             for (const fence of fences.filter(
                 ({ validation }) => validation?.valid !== false
@@ -296,7 +330,7 @@ export async function runTemplate(
             }
         }
 
-        // apply user output processors
+        // Apply user-defined output processors
         if (outputProcessors?.length) {
             try {
                 trace.startDetails("🖨️ output processors")
@@ -340,10 +374,10 @@ export async function runTemplate(
             }
         }
 
-        // apply file outputs
+        // Validate and apply file outputs
         validateFileOutputs(fileOutputs, trace, fileEdits, schemas)
 
-        // convert file edits into edits
+        // Convert file edits into structured edits
         Object.entries(fileEdits)
             .filter(([, { before, after }]) => before !== after) // ignore unchanged files
             .forEach(([fn, { before, after, validation }]) => {
@@ -368,7 +402,7 @@ export async function runTemplate(
                 }
             })
 
-        // reporting
+        // Reporting and tracing output
         if (fences?.length)
             trace.details("📩 code regions", renderFencedVariables(fences))
         if (edits.length)
@@ -425,16 +459,27 @@ export async function runTemplate(
             schemas,
             json,
         }
+
+        // If there's an error, provide status text
         if (res.status === "error" && !res.statusText && res.finishReason) {
             res.statusText = `LLM finish reason: ${res.finishReason}`
         }
         return res
     } finally {
+        // Cleanup any resources like running containers or browsers
         await runtimeHost.removeContainers()
         await runtimeHost.removeBrowsers()
     }
 }
 
+// Validate file outputs against specified schemas and patterns
+/**
+ * Validates file outputs based on provided patterns and schemas.
+ * @param fileOutputs List of file outputs to validate.
+ * @param trace The markdown trace for logging.
+ * @param fileEdits Record of file updates.
+ * @param schemas The JSON schemas for validation.
+ */
 function validateFileOutputs(
     fileOutputs: FileOutput[],
     trace: MarkdownTrace,
