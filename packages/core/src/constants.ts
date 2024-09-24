@@ -216,6 +216,8 @@ export const GITHUB_TOKEN = "GITHUB_TOKEN"
 export const AI_REQUESTS_CACHE = "airequests"
 export const CHAT_CACHE = "chat"
 export const GITHUB_PULL_REQUEST_REVIEWS_CACHE = "prr"
+export const GITHUB_PULLREQUEST_REVIEW_COMMENT_LINE_DISTANCE = 5
+export const COMMENTS_CACHE = "comments"
 export const GITHUB_PULL_REQUEST_REVIEW_COMMENT_LINE_DISTANCE = 5
 
 export const PLACEHOLDER_API_BASE = "<custom api base>"

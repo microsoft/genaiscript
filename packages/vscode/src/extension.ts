@@ -19,6 +19,7 @@ import {
 } from "../../core/src/constants"
 import type MarkdownIt from "markdown-it"
 import MarkdownItGitHubAlerts from "markdown-it-github-alerts"
+import { activateComments } from "./comments"
 import { activateConnectionInfoTree } from "./connectioninfotree"
 import { updateConnectionConfiguration } from "../../core/src/connection"
 import { APIType } from "../../core/src/host"
@@ -38,6 +39,7 @@ export async function activate(context: ExtensionContext) {
     activateTraceTreeDataProvider(state)
     activateStatusBar(state)
     activateDocsNotebook(state)
+    activateComments(state)
     activeTaskProvider(state)
 
     context.subscriptions.push(

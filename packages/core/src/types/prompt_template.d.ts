@@ -627,6 +627,67 @@ interface ChatParticipant {
 }
 
 /**
+ * A comment thread
+ */
+interface CommentThread {
+    filename: string
+    source: string
+    line: number
+    comments: Comment[]
+    label?: string
+    resolved?: boolean
+}
+
+/**
+ * A comment
+ */
+interface Comment {
+    /**
+     * The human-readable comment body
+     */
+    body: string
+
+    /**
+     * The author of the comment
+     */
+    author: { name: string }
+
+    /**
+     * Optional reactions of the comment
+     */
+    reactions?: CommentReaction[]
+
+    /**
+     * Optional label describing the comment
+     * Label will be rendered next to authorName if exists.
+     */
+    label?: string
+
+    /**
+     * Optional timestamp that will be displayed in comments.
+     * The date will be formatted according to the user's locale and settings.
+     */
+    timestamp?: string
+}
+
+interface CommentReaction {
+    /**
+     * The human-readable label for the reaction
+     */
+    label: string
+
+    /**
+     * The number of users who have reacted to this reaction
+     */
+    count: number
+
+    /**
+     * Whether the author of the comment has reacted to this reaction
+     */
+    authorHasReacted: boolean
+}
+
+/**
  * A set of text extracted from the context of the prompt execution
  */
 interface ExpansionVariables {
@@ -659,6 +720,11 @@ interface ExpansionVariables {
      * Root prompt generation context
      */
     generator: ChatGenerationContext
+
+    /**
+     * Comment threads generated in the context of this prompt
+     */
+    comments: CommentThread[]
 }
 
 type MakeOptional<T, P extends keyof T> = Partial<Pick<T, P>> & Omit<T, P>

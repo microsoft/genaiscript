@@ -27,18 +27,16 @@ export class JSONLineCache<K, V> extends EventTarget {
         super() // Initialize EventTarget
     }
 
-    /**
-     * Factory method to create or retrieve an existing cache by name.
-     * Sanitizes the name to ensure it is a valid identifier.
-     * @param name - The name of the cache
-     * @returns An instance of JSONLineCache
-     */
-    static byName<K, V>(name: string): JSONLineCache<K, V> {
-        name = name.replace(/[^a-z0-9_]/gi, "_") // Sanitize name
+    static byName<K, V>(
+        name: string,
+        options?: { snapshot?: boolean }
+    ): JSONLineCache<K, V> {
+        const { snapshot } = options || {}
+        name = name.replace(/[^a-z0-9_]/gi, "_")
         const key = "cacheKV." + name
-        if (host.userState[key]) return host.userState[key] // Return if exists
+        if (!snapshot && host.userState[key]) return host.userState[key]
         const r = new JSONLineCache<K, V>(name)
-        host.userState[key] = r
+        if (!snapshot) host.userState[key] = r
         return r
     }
 
