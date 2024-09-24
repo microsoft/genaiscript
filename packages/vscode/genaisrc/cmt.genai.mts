@@ -1,6 +1,3 @@
-import pAll from "p-all"
-import pLimit from "p-limit"
-
 script({
     title: "Source Code Comment Generator",
     description: `Add comments to source code to make it more understandable for AI systems or human developers.
@@ -19,7 +16,6 @@ script({
 })
 
 const { format, build } = env.vars
-const saveLimit = pLimit(1)
 
 // Get files from environment or modified files from Git if none provided
 let files = env.files
@@ -47,10 +43,7 @@ files = files.filter(
 files = files.sort(() => Math.random() - 0.5)
 
 // Process each file separately to avoid context explosion
-await pAll(
-    files.map((file) => () => processFile(file)),
-    { concurrency: 5 }
-)
+await Promise.all(files.map((file) => processFile(file)))
 
 async function processFile(file: WorkspaceFile) {
     console.log(`processing ${file.filename}`)
@@ -58,37 +51,31 @@ async function processFile(file: WorkspaceFile) {
         const newContent = await addComments(file)
         // Save modified content if different
         if (newContent && file.content !== newContent) {
-            await saveLimit(async () => {
-                console.log(`updating ${file.filename}`)
-                await workspace.writeText(file.filename, newContent)
-                let revert = false
-                // try formatting
-                if (format) {
-                    const formatRes = await host.exec(
-                        `${format} ${file.filename}`
-                    )
-                    if (formatRes.exitCode !== 0) {
-                        revert = true
-                    }
+            console.log(`updating ${file.filename}`)
+            await workspace.writeText(file.filename, newContent)
+            let revert = false
+            // try formatting
+            if (format) {
+                const formatRes = await host.exec(`${format} ${file.filename}`)
+                if (formatRes.exitCode !== 0) {
+                    revert = true
                 }
-                // try building
-                if (!revert && build) {
-                    const buildRes = await host.exec(
-                        `${build} ${file.filename}`
-                    )
-                    if (buildRes.exitCode !== 0) {
-                        revert = true
-                    }
+            }
+            // try building
+            if (!revert && build) {
+                const buildRes = await host.exec(`${build} ${file.filename}`)
+                if (buildRes.exitCode !== 0) {
+                    revert = true
                 }
-                // last LLM as judge check
-                if (!revert) revert = await checkModifications(file.filename)
+            }
+            // last LLM as judge check
+            if (!revert) revert = await checkModifications(file.filename)
 
-                // revert
-                if (revert) {
-                    console.error(`reverting ${file.filename}...`)
-                    await workspace.writeText(file.filename, file.content)
-                }
-            })
+            // revert
+            if (revert) {
+                console.error(`reverting ${file.filename}...`)
+                await workspace.writeText(file.filename, file.content)
+            }
         }
     } catch (e) {
         console.error(`error: ${e}`)
@@ -153,7 +140,7 @@ Remember, the goal is to make the code more understandable without changing its 
 Your comments should provide insight into the code's purpose, logic, and any important considerations for future developers or AI systems working with this code.
 `
             },
-            { system: ["system", "system.files"], cache: "cmt-gen" }
+            { system: ["system", "system.files"], cache: "cmt-gen", label: `comment ${filename}` }
         )
         const { text, fences } = res
         const newContent = fences?.[0]?.content ?? text
@@ -178,6 +165,7 @@ async function checkModifications(filename: string): Promise<boolean> {
         },
         {
             cache: "cmt-check",
+            label: `check comments in ${filename}`,
         }
     )
 

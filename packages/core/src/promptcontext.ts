@@ -27,7 +27,11 @@ import { GenerationOptions } from "./generation"
 import { fuzzSearch } from "./fuzzsearch"
 import { parseModelIdentifier } from "./models"
 import { renderAICI } from "./aici"
-import { MODEL_PROVIDER_AICI, SYSTEM_FENCE } from "./constants"
+import {
+    MODEL_PROVIDER_AICI,
+    CHAT_REQUEST_PER_MODEL_CONCURRENT_LIMIT,
+    SYSTEM_FENCE,
+} from "./constants"
 import { grepSearch } from "./grep"
 import { resolveFileContents, toWorkspaceFile } from "./file"
 import { vectorSearch } from "./vectorsearch"
@@ -42,6 +46,7 @@ import { Project } from "./ast"
 import { resolveSystems } from "./systems"
 import { shellParse } from "./shell"
 import { sleep } from "openai/core.mjs"
+import { concurrentLimit } from "./concurrency"
 
 export async function createPromptContext(
     prj: Project,
@@ -376,16 +381,26 @@ export async function createPromptContext(
                     throw new Error(
                         "model driver not found for " + connection.info
                     )
-                const resp = await executeChatSession(
-                    connection.configuration,
-                    cancellationToken,
-                    messages,
-                    vars,
-                    tools,
-                    schemas,
-                    completer,
-                    chatParticipants,
-                    genOptions
+
+                const modelConcurrency =
+                    options.modelConcurrency?.[genOptions.model] ??
+                    CHAT_REQUEST_PER_MODEL_CONCURRENT_LIMIT
+                const modelLimit = concurrentLimit(
+                    "model:" + genOptions.model,
+                    modelConcurrency
+                )
+                const resp = await modelLimit(() =>
+                    executeChatSession(
+                        connection.configuration,
+                        cancellationToken,
+                        messages,
+                        vars,
+                        tools,
+                        schemas,
+                        completer,
+                        chatParticipants,
+                        genOptions
+                    )
                 )
                 tracePromptResult(runTrace, resp)
                 return resp

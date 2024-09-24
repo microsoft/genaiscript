@@ -192,6 +192,11 @@ interface ModelOptions extends ModelConnectionOptions {
      * Budget of tokens to apply the prompt flex renderer.
      */
     flexTokens?: number
+
+    /**
+     * A list of model ids and their maximum number of concurrent requests.
+     */
+    modelConcurrency?: Record<string, number>
 }
 
 interface EmbeddingsModelConnectionOptions {
@@ -678,6 +683,7 @@ type PromptSystemArgs = Omit<
     | "responseType"
     | "responseSchema"
     | "files"
+    | "modelConcurrency"
 >
 
 type StringLike = string | WorkspaceFile | WorkspaceFile[]

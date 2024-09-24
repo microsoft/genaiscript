@@ -16,7 +16,7 @@ import { promptyParse, promptyToGenAIScript } from "./prompty"
 /**
  * Extracts a template ID from the given filename by removing specific extensions
  * and directories.
- * 
+ *
  * @param filename - The filename to extract the template ID from.
  * @returns The extracted template ID.
  */
@@ -36,7 +36,7 @@ type KeysOfType<T, S> = {
 
 /**
  * Class to perform validation checks on a prompt script.
- * 
+ *
  * @template T - Type of the prompt-like object to validate.
  */
 class Checker<T extends PromptLike> {
@@ -46,7 +46,7 @@ class Checker<T extends PromptLike> {
 
     /**
      * Converts a character index to a line and column position.
-     * 
+     *
      * @param n - Character index in the script.
      * @returns A tuple [line, column] representing the position.
      */
@@ -59,7 +59,7 @@ class Checker<T extends PromptLike> {
 
     /**
      * Reports an error for the current key.
-     * 
+     *
      * @param message - Error message to report.
      */
     verror(message: string) {
@@ -68,7 +68,7 @@ class Checker<T extends PromptLike> {
 
     /**
      * Reports an error with a specific key.
-     * 
+     *
      * @param key - The key associated with the error.
      * @param message - Error message to report.
      */
@@ -85,7 +85,7 @@ class Checker<T extends PromptLike> {
 
     /**
      * Constructs a new Checker instance.
-     * 
+     *
      * @param template - The prompt-like object to validate.
      * @param filename - The filename of the script.
      * @param diagnostics - The diagnostics array to report errors to.
@@ -102,7 +102,7 @@ class Checker<T extends PromptLike> {
 
     /**
      * Validates key-value pairs within the JSON object using a callback function.
-     * 
+     *
      * @param cb - Callback function to perform specific checks.
      * @returns A new object containing valid key-value pairs.
      */
@@ -132,7 +132,7 @@ class Checker<T extends PromptLike> {
 
     /**
      * Skips validation for the current key if it doesn't match k.
-     * 
+     *
      * @param k - The key to check against.
      * @returns Whether the current key is skipped.
      */
@@ -144,7 +144,7 @@ class Checker<T extends PromptLike> {
 
     /**
      * Checks if the current value is a string and optionally within a set of allowed keys.
-     * 
+     *
      * @param k - Key of the string to check.
      * @param keys - Optional array of allowed string values.
      */
@@ -166,7 +166,7 @@ class Checker<T extends PromptLike> {
 
     /**
      * Checks if the current value is an object or an array of objects.
-     * 
+     *
      * @param k - Key of the object or object array to check.
      */
     checkObjectOrObjectArray(k: any) {
@@ -183,7 +183,7 @@ class Checker<T extends PromptLike> {
 
     /**
      * Checks if the given key is a valid JSON schema.
-     * 
+     *
      * @param k - Key of the schema to validate.
      */
     checkJSONSchema(k: any) {
@@ -195,7 +195,7 @@ class Checker<T extends PromptLike> {
 
     /**
      * Checks if the current value is an array of objects.
-     * 
+     *
      * @param k - Key of the object array to check.
      */
     checkObjectArray(k: any) {
@@ -211,7 +211,7 @@ class Checker<T extends PromptLike> {
 
     /**
      * Checks if the current value is an object (record).
-     * 
+     *
      * @param k - Key of the record to check.
      */
     checkRecord(k: any) {
@@ -224,7 +224,7 @@ class Checker<T extends PromptLike> {
 
     /**
      * Checks if the current value is a boolean.
-     * 
+     *
      * @param k - Key of the boolean to check.
      */
     checkBool(k: KeysOfType<T, boolean>) {
@@ -237,7 +237,7 @@ class Checker<T extends PromptLike> {
 
     /**
      * Checks if the current value is a string or a boolean.
-     * 
+     *
      * @param k - Key of the string or boolean to check.
      */
     checkStringOrBool(k: KeysOfType<T, string | boolean>) {
@@ -250,7 +250,7 @@ class Checker<T extends PromptLike> {
 
     /**
      * Checks if the current value is a natural number.
-     * 
+     *
      * @param k - Key of the number to check.
      */
     checkNat(k: KeysOfType<T, number>) {
@@ -267,7 +267,7 @@ class Checker<T extends PromptLike> {
 
     /**
      * Checks if the current value is a number.
-     * 
+     *
      * @param k - Key of the number to check.
      */
     checkNumber(k: KeysOfType<T, number>) {
@@ -280,7 +280,7 @@ class Checker<T extends PromptLike> {
 
     /**
      * Checks any value with a custom callback transformation.
-     * 
+     *
      * @param k - Key of the value to check.
      * @param cb - Callback function to transform the value.
      */
@@ -291,7 +291,7 @@ class Checker<T extends PromptLike> {
 
     /**
      * Checks if the current value is a string or an array of strings.
-     * 
+     *
      * @param k - Key of the string or string array to check.
      */
     checkStringArray(k: KeysOfType<T, string | string[]>) {
@@ -308,7 +308,7 @@ class Checker<T extends PromptLike> {
 
 /**
  * Parses script metadata from the given JavaScript source.
- * 
+ *
  * @param jsSource - The JavaScript source code of the script.
  * @returns A PromptArgs object containing the parsed metadata.
  */
@@ -327,7 +327,7 @@ export function parsePromptScriptMeta(jsSource: string) {
 
 /**
  * Core function to parse a prompt template and validate its contents.
- * 
+ *
  * @param filename - The filename of the template.
  * @param content - The content of the template.
  * @param prj - The Project object containing diagnostics and other data.
@@ -377,7 +377,7 @@ async function parsePromptTemplateCore(
 
 /**
  * Parses a prompt script file, validating its structure and content.
- * 
+ *
  * @param filename - The filename of the script.
  * @param content - The content of the script.
  * @param prj - The Project instance containing diagnostics.
@@ -427,6 +427,8 @@ export async function parsePromptScript(
 
             c.checkStringOrBool("cache")
             c.checkString("cacheName")
+
+            c.checkRecord("modelConcurrency")
         })
 
         const r = c.template
