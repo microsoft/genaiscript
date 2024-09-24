@@ -1,3 +1,8 @@
+/**
+ * @title Source Code Comment Generator
+ *
+ * Modified from https://x.com/mckaywrigley/status/1838321570969981308
+ */
 import prettier from "prettier"
 
 script({
