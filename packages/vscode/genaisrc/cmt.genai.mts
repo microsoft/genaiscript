@@ -1,12 +1,8 @@
-/**
- * @title Source Code Comment Generator
- *
- * Modified from https://x.com/mckaywrigley/status/1838321570969981308
- */
-import prettier from "prettier"
-
 script({
     title: "Source Code Comment Generator",
+    description: `Add comments to source code to make it more understandable for AI systems or human developers.
+    Modified from https://x.com/mckaywrigley/status/1838321570969981308.
+    `,
 })
 
 // Get files from environment or modified files from Git if none provided
@@ -28,15 +24,9 @@ if (files.length === 0) {
 for (const file of files) {
     console.log(`processing ${file.filename}`)
     try {
-        // Normalize input content using prettier
-        file.content = await prettify(file.filename, file.content)
-        if (!file.content) continue
-        // Add comments to the code using a generative AI
-        let newContent = await addComments(file)
-        // Apply prettier again to ensure format normalization
-        newContent = await prettify(file.filename, newContent)
+        const newContent = await addComments(file)
         // Save modified content if different
-        if (file.content !== newContent) {
+        if (newContent && file.content !== newContent) {
             console.log(`updating ${file.filename}`)
             await workspace.writeText(file.filename, newContent)
         }
@@ -107,18 +97,4 @@ Your comments should provide insight into the code's purpose, logic, and any imp
         content = nextContent
     }
     return content
-}
-
-// Function to prettify code using prettier
-async function prettify(filename: string, content: string) {
-    const options = (await prettier.resolveConfig(filename)) ?? {}
-    try {
-        return await prettier.format(content, {
-            ...options,
-            filepath: filename,
-        })
-    } catch (e) {
-        console.log(`prettier error: ${e}`)
-        return undefined
-    }
 }
