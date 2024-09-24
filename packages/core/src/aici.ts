@@ -1,3 +1,7 @@
+// AICI Language Model Implementation
+// Provides functionalities for rendering AICI scripts and handling chat completions within the application.
+// It includes various utilities, constants, and error handling specific to the AICI model.
+
 import { ChatCompletionHandler, LanguageModel, LanguageModelInfo } from "./chat"
 import { PromptNode, visitNode } from "./promptdom"
 import { fromHex, logError, normalizeInt, utf8Decode } from "./util"
@@ -12,10 +16,17 @@ import {
     ChatCompletionResponse,
 } from "./chattypes"
 
+/**
+ * Renders an AICI node into a string representation.
+ * Handles different node types and constructs appropriate string output.
+ * @param node - The AICI node to render.
+ * @returns The string representation of the node.
+ */
 function renderAICINode(node: AICINode) {
     const { name } = node
     switch (name) {
         case "gen":
+            // Extract options and build arguments for 'gen'
             const { regex, ...rest } = (node as AICIGenNode).options
             const args = Object.entries(rest).map(
                 ([k, v]) => `${k}: ${JSON.stringify(v)}`
@@ -23,31 +34,45 @@ function renderAICINode(node: AICINode) {
             if (regex) args.push(`regex: ${regex.toString()}`)
             return `await gen({${args.join(`,\n`)}})`
         default:
-            return "undefined"
+            return "undefined" // Fallback case for unknown node types
     }
 }
 
+/**
+ * Escapes backticks in a JavaScript string for template literals.
+ * Used to handle strings in template literals.
+ * @param s - The string to escape.
+ * @returns The escaped string.
+ */
 function escapeJavascriptString(s: string) {
     return s.replace(/`/g, "\\`")
 }
 
+/**
+ * Renders the AICI code based on function name and root node.
+ * Processes nodes and compiles the AICI script.
+ * @param functionName - The name of the function to render.
+ * @param root - The root node of the prompt structure.
+ * @returns An object containing the AICI request and output processors.
+ */
 export async function renderAICI(functionName: string, root: PromptNode) {
     const notSupported = (reason: string) => () => {
         throw new NotSupportedError(reason)
     }
 
-    let program: string[] = []
-    let indent: string = ""
-    const push = (text: string) => program.push(indent + text)
+    let program: string[] = [] // Holds the generated program lines
+    let indent: string = "" // Current indentation level
+    const push = (text: string) => program.push(indent + text) // Add text with current indentation
     const pushString = (text: string) => {
         if (text !== undefined && text !== null && text !== "")
             push("await $`" + escapeJavascriptString(text) + "`")
     }
 
-    const outputProcessors: PromptOutputProcessorHandler[] = []
+    const outputProcessors: PromptOutputProcessorHandler[] = [] // Handlers for output processing
 
     push(`async function ${functionName}() {`)
     indent = "  "
+    // Visit the root node and process its children
     await visitNode(root, {
         text: async (n) => {
             const value = await n.value
@@ -72,16 +97,15 @@ export async function renderAICI(functionName: string, root: PromptNode) {
                 }
             }
         },
+        // Unsupported node types
         image: notSupported("image"),
         function: notSupported("function"),
-        // TODO?
         assistant: notSupported("assistant"),
         schema: notSupported("schema"),
+        // Capture output processors
         outputProcessor: (n) => {
             outputProcessors.push(n.fn)
         },
-        // ignore
-        // fileMerge,
     })
 
     indent = ""
@@ -92,6 +116,10 @@ export async function renderAICI(functionName: string, root: PromptNode) {
     return { aici, outputProcessors }
 }
 
+/**
+ * Interface for the initial run of a model.
+ * Defines the structure of the initial run message.
+ */
 interface ModelInitialRun {
     id: string
     object: "initial-run"
@@ -99,6 +127,10 @@ interface ModelInitialRun {
     model: string
 }
 
+/**
+ * Command for interacting with storage.
+ * Defines storage operations like setting or appending variables.
+ */
 type StorageCmd = {
     WriteVar: {
         name: string
@@ -108,6 +140,10 @@ type StorageCmd = {
     }
 }
 
+/**
+ * Reasons for finishing a model run.
+ * Enumerates possible reasons for completion or termination.
+ */
 type FinishReason =
     | "eos"
     | "length"
@@ -117,6 +153,10 @@ type FinishReason =
     | "deadlock"
     | "aici-out-of-fuel"
 
+/**
+ * Interface for a model run.
+ * Defines the structure of the run message, including forks and usage.
+ */
 interface ModelRun {
     object: "run"
     forks: {
@@ -134,8 +174,20 @@ interface ModelRun {
     }
 }
 
+/**
+ * Union type representing a message from the model.
+ * Can be either an initial run or a regular run.
+ */
 type ModelMessage = ModelInitialRun | ModelRun
 
+/**
+ * Handles the completion of chat requests.
+ * Processes incoming chat messages and constructs AICI script.
+ * @param req - The chat request object.
+ * @param connection - The connection details.
+ * @param options - Options for processing the request.
+ * @param trace - Tracing information for debugging.
+ */
 const AICIChatCompletion: ChatCompletionHandler = async (
     req,
     connection,
@@ -146,19 +198,22 @@ const AICIChatCompletion: ChatCompletionHandler = async (
     const { requestOptions, partialCb, cancellationToken, inner } = options
     const { headers, ...rest } = requestOptions || {}
 
+    // Check for unsupported features
     if (tools?.length) throw new NotSupportedError("AICI: tools not supported")
     if (response_format)
         throw new NotSupportedError("AICI: response_format not supported")
 
-    let source: string[] = []
-    let main: string[] = ["async function main() {"]
-    const variables: Record<string, string> = {}
+    let source: string[] = [] // Source code lines for the AICI script
+    let main: string[] = ["async function main() {"] // Main function block
+    const variables: Record<string, string> = {} // Variables used in the script
 
+    // Process each message in the request
     messages.forEach((message, msgi) => {
         const { role, content } = message
         switch (role) {
             case "system":
             case "user": {
+                // Process system or user message
                 const functionName = `${role}${msgi}`
                 const functionSource = `async function ${functionName}() {
     $\`${escapeJavascriptString(
@@ -176,6 +231,7 @@ const AICIChatCompletion: ChatCompletionHandler = async (
                 break
             }
             case "aici": {
+                // Process aici message
                 const { functionName, content } = message
                 main.push(`  await ${functionName}()`)
                 source.push(content)
@@ -212,6 +268,7 @@ const AICIChatCompletion: ChatCompletionHandler = async (
     const body = JSON.stringify(postReq, null, 2)
     trace.detailsFenced(`body`, body, "json")
 
+    // Send the request to the model server
     const r = await fetchRetry(url, {
         headers: {
             "api-key": connection.token,
@@ -244,14 +301,14 @@ const AICIChatCompletion: ChatCompletionHandler = async (
         )
     }
 
-    let numTokens = 0
+    let numTokens = 0 // Token counter for the response
     let finishReason: ChatCompletionResponse["finishReason"] = undefined
-    let seenDone = false
-    let chatResp = ""
+    let seenDone = false // Flag to track completion
+    let chatResp = "" // Accumulated chat response
 
-    let pref = ""
+    let pref = "" // Prefix for data chunking
 
-    const decoder = host.createUTF8Decoder()
+    const decoder = host.createUTF8Decoder() // UTF-8 decoder for processing data
 
     try {
         trace.startFence("txt")
@@ -272,11 +329,13 @@ const AICIChatCompletion: ChatCompletionHandler = async (
         trace.endFence()
     }
 
+    // Decode and log variables
     for (const k of Object.keys(variables)) {
         variables[k] = utf8Decode(fromHex(variables[k]))
         trace.itemValue(`var ${k}`, variables[k])
     }
 
+    // If response has been completed successfully
     if (seenDone) {
         return { text: chatResp, finishReason, variables }
     } else {
@@ -285,8 +344,12 @@ const AICIChatCompletion: ChatCompletionHandler = async (
         throw new Error(`invalid response: ${pref}`)
     }
 
+    /**
+     * Processes a chunk of data from the response.
+     * @param value - The chunk of data to process.
+     */
     function doChunk(value: Uint8Array) {
-        // Massage and parse the chunk of data
+        // Decode and process the chunk of data
         let chunk = decoder.decode(value, { stream: true })
 
         chunk = pref + chunk
@@ -318,7 +381,7 @@ const AICIChatCompletion: ChatCompletionHandler = async (
                                 variables[op.WriteVar.name] += op.WriteVar.value
                             }
                         }
-                        // TODO handle other finish reasons
+                        // Handle finish reasons
                         if (fork.finish_reason === "aici-stop") {
                             finishReason = "stop"
                             seenDone = true
@@ -337,7 +400,6 @@ const AICIChatCompletion: ChatCompletionHandler = async (
         })
         const progress = chatResp.slice(ch0.length)
         if (progress != "") {
-            // logVerbose(`... ${progress.length} chars`);
             partialCb?.({
                 responseSoFar: chatResp,
                 tokensSoFar: numTokens,
@@ -349,6 +411,12 @@ const AICIChatCompletion: ChatCompletionHandler = async (
     }
 }
 
+/**
+ * Lists available models based on configuration.
+ * Fetches model information from the server.
+ * @param cfg - The configuration for the language model.
+ * @returns A list of language model information.
+ */
 async function listModels(cfg: LanguageModelConfiguration) {
     const { token, base, version } = cfg
     const url = `${base}/proxy/info`
@@ -373,6 +441,10 @@ async function listModels(cfg: LanguageModelConfiguration) {
     )
 }
 
+/**
+ * Represents the AICI language model.
+ * Provides model information and completion functionality.
+ */
 export const AICIModel = Object.freeze<LanguageModel>({
     completer: AICIChatCompletion,
     id: "aici",

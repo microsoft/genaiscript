@@ -1,3 +1,4 @@
+// Import necessary types and functions from local modules
 import {
     ChatCompletionContentPart,
     ChatCompletionContentPartText,
@@ -21,11 +22,11 @@ export function estimateChatTokens(
     messages: ChatCompletionMessageParam[],
     tools?: ChatCompletionTool[]
 ): number {
-    // Return 0 if there are no messages provided
+    // Return 0 if no messages are provided
     if (!messages?.length) return 0
     try {
-        // Check if any message content includes image URLs
-        // Return undefined as images are not supported for token encoding
+        // Check if any message content includes image URLs.
+        // If found, return undefined as images are not supported for token encoding.
         if (
             messages.find(
                 (msg) =>

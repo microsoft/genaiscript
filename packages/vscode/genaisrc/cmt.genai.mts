@@ -20,6 +20,13 @@ if (files.length === 0) {
     )
 }
 
+// custom filter to only process code files
+files = files.filter(
+    ({ filename }) =>
+        /\.(ts|cs|py|js|java)$/.test(filename) && // known languages only
+        !/\.test/.test(filename) // ignore test files
+)
+
 // Process each file separately to avoid context explosion
 for (const file of files) {
     console.log(`processing ${file.filename}`)
@@ -38,6 +45,7 @@ for (const file of files) {
 // Function to add comments to code
 async function addComments(file: WorkspaceFile) {
     let { filename, content } = file
+    if (parsers.tokens(file) > 20000) return undefined // too big
 
     // run twice as genai tend to be lazy
     for (let i = 0; i < 2; i++) {
@@ -68,6 +76,7 @@ To add or update comments to this code, follow these steps:
 - The meaning of important variables or data structures
 - Any potential edge cases or error handling
 - All function arguments and return value
+- Top level file comment that summarize the file content
 
 When adding or updating comments, follow these guidelines:
 
@@ -79,8 +88,9 @@ When adding or updating comments, follow these guidelines:
 - Always place comments above the code they refer to. 
 - If comments already exist, review and update them as needed.
 - Minimize changes to existing comments.
-- For TypeScript functions and classes, use JSDoc comments.
+- For TypeScript functions, classes and fields, use JSDoc comments.
 - For Python functions and classes, use docstrings.
+- do not modify comments with TODOs.
 
 Your output should be the original code with your added comments. Make sure to preserve the original code's formatting and structure. 
 
@@ -91,10 +101,10 @@ Your comments should provide insight into the code's purpose, logic, and any imp
             { system: ["system", "system.files"] }
         )
         const { text, fences } = res
-        const nextContent = fences?.[0]?.content ?? text
-        if (!content) throw new Error("No content generated")
-        if (nextContent === content) break
-        content = nextContent
+        const newContent = fences?.[0]?.content ?? text
+        if (!newContent) return undefined
+        if (newContent === content) break
+        content = newContent
     }
     return content
 }
