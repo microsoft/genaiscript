@@ -1,28 +1,53 @@
-// https://x.com/mckaywrigley/status/1838321570969981308
 import prettier from "prettier"
 
-const files = env.files
+script({
+    title: "Source Code Comment Generator",
+})
+
+// Get files from environment or modified files from Git if none provided
+let files = env.files
+if (files.length === 0) {
+    // If no files are provided, read all modified files
+    files = await Promise.all(
+        (await host.exec("git status --porcelain")).stdout
+            .split("\n")
+            .filter((filename) => /^ [M|U]/.test(filename))
+            .map(
+                async (filename) =>
+                    await workspace.readText(filename.replace(/^ [M|U] /, ""))
+            )
+    )
+}
+
+// Process each file separately to avoid context explosion
 for (const file of files) {
     console.log(`processing ${file.filename}`)
-
-    // normalize input content
-    file.content = await prettify(file.filename, file.content)
-    // adding comments using genai
-    let newContent = await addComments(file)
-    // apply prettier to normalize format
-    newContent = await prettify(file.filename, newContent)
-    // saving
-    if (file.content !== newContent) {
-        console.log(`updating ${file.filename}`)
-        await workspace.writeText(file.filename, newContent)
+    try {
+        // Normalize input content using prettier
+        file.content = await prettify(file.filename, file.content)
+        if (!file.content) continue
+        // Add comments to the code using a generative AI
+        let newContent = await addComments(file)
+        // Apply prettier again to ensure format normalization
+        newContent = await prettify(file.filename, newContent)
+        // Save modified content if different
+        if (file.content !== newContent) {
+            console.log(`updating ${file.filename}`)
+            await workspace.writeText(file.filename, newContent)
+        }
+    } catch (e) {
+        console.error(`error: ${e}`)
     }
 }
 
+// Function to add comments to code
 async function addComments(file: WorkspaceFile) {
     const res = await runPrompt(
         (ctx) => {
+            // Define code snippet for AI context with line numbers
             const code = ctx.def("CODE", file, { lineNumbers: true })
 
+            // AI prompt to add comments for better understanding
             ctx.$`You are tasked with adding comments to code in ${code} to make it more understandable for AI systems or human developers.
 You should analyze it, and add/update appropriate comments as needed.
 
@@ -59,9 +84,11 @@ Your comments should provide insight into the code's purpose, logic, and any imp
     )
     const { text, fences } = res
     const newContent = fences?.[0]?.content ?? text
+    if (!newContent) throw new Error("No content generated")
     return newContent
 }
 
+// Function to prettify code using prettier
 async function prettify(filename: string, content: string) {
     const options = (await prettier.resolveConfig(filename)) ?? {}
     try {
@@ -70,7 +97,7 @@ async function prettify(filename: string, content: string) {
             filepath: filename,
         })
     } catch (e) {
-        console.error(`prettier: ${e.message}`)
+        console.log(`prettier error: ${e}`)
         return undefined
     }
 }
