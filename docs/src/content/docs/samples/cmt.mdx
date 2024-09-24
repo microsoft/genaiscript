@@ -1,0 +1,79 @@
+---
+title: Commenter
+description: Adds comments to your code
+sidebar:
+    order: 20
+---
+
+import { Code } from "@astrojs/starlight/components"
+import source from "../../../../../packages/vscode/genaisrc/cmt.genai.mts?raw"
+
+Inspired by [a tweet](https://x.com/mckaywrigley/status/1838321570969981308), this script automates adding comments to source code.
+
+```ts title="cmt.genai.mts"
+script({
+    title: "Source Code Comment Generator",
+    description: `Add comments to source code to make it more understandable for AI systems or human developers.
+    Modified from https://x.com/mckaywrigley/status/1838321570969981308.
+    `,
+})
+```
+
+### Getting Files to Process
+
+The user can select which files to comment or, if nothing is selected, we'll use Git to find all modified files.
+
+```ts
+let files = env.files
+if (files.length === 0) {
+    files = await Promise.all(
+        (await host.exec("git status --porcelain")).stdout
+            .split("\n")
+            .filter((filename) => /^ [M|U]/.test(filename))
+            .map(
+                async (filename) =>
+                    await workspace.readText(filename.replace(/^ [M|U] /, ""))
+            )
+    )
+}
+```
+
+### Processing Each File
+
+We process each file separately, to avoid exploding the token context and keep the AI focused.
+We can use [inline prompts](/genaiscript/reference/scripts/inline-prompts) to make inner queries.
+
+```ts
+for (const file of files) {
+    console.log(`processing ${file.filename}`)
+    ... add comments
+    ... save changes
+}
+```
+
+### The Prompt for Adding Comments
+
+Within the `addComments` function, we prompt GenAI to add comments. We do this twice to increase the likelihood of generating useful comments.
+
+```ts
+const res = await runPrompt(
+    (ctx) => {
+        ctx.$`You can add comments to this code...`
+    },
+    { system: ["system", "system.files"] }
+)
+```
+
+We provide a detailed set of instructions to the AI for how to analyze and comment on the code.
+
+## How to Run the Script
+
+To run this script, you'll first need to install the GenAIScript CLI. [Follow the installation guide here](https://microsoft.github.io/genaiscript/getting-started/installation).
+
+```shell
+genaiscript run cmt
+```
+
+## Full source ([GitHub](https://github.com/microsoft/genaiscript/blob/main/packages/vscode/genaisrc/cmt.genai.mts))
+
+<Code code={source} wrap={true} lang="ts" title="cmt.genai.mts" />

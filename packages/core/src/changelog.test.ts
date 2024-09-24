@@ -126,4 +126,119 @@ ChangedCode@85-88:
         assert.equal(res.length, 1)
         assert.equal(res[0].changes.length, 6)
     })
+
+    test("documentor", () => {
+        const source = `ChangeLog:1@packages/core/src/cancellation.ts
+Description: Added comments to explain the purpose and functionality of the code.
+
+OriginalCode@3-10:
+[3] /**
+[4]  * A cancellation token is passed to an asynchronous or long running
+[5]  * operation to request cancellation, like cancelling a request
+[6]  * for completion items because the user continued to type.
+[7]  *
+[8]  * To get an instance of a \`CancellationToken\` use a
+[9]  * {@link CancellationTokenSource}.
+[10]  */
+ChangedCode@3-10:
+[3] /**
+[4]  * A cancellation token is passed to an asynchronous or long running
+[5]  * operation to request cancellation, like cancelling a request
+[6]  * for completion items because the user continued to type.
+[7]  *
+[8]  * To get an instance of a \`CancellationToken\` use a
+[9]  * {@link CancellationTokenSource}.
+[10]  * It helps manage and respond to user-initiated or programmatic cancellations.
+[11]  */
+OriginalCode@11-16:
+[11] export interface CancellationToken {
+[12]     /**
+[13]      * Is \`true\` when the token has been cancelled, \`false\` otherwise.
+[14]      */
+[15]     isCancellationRequested: boolean
+[16] }
+ChangedCode@11-16:
+[11] export interface CancellationToken {
+[12]     /**
+[13]      * Represents whether a cancellation has been requested.
+[14]      * Is \`true\` when the token has been cancelled, \`false\` otherwise.
+[15]      */
+[16]     isCancellationRequested: boolean
+[17] }
+OriginalCode@18-23:
+[18] export class AbortSignalCancellationToken implements CancellationToken {
+[19]     constructor(private readonly signal: AbortSignal) {}
+[20]     get isCancellationRequested() {
+[21]         return this.signal.aborted
+[22]     }
+[23] }
+ChangedCode@18-23:
+[18] export class AbortSignalCancellationToken implements CancellationToken {
+[19]     // Uses an AbortSignal to implement the CancellationToken interface
+[20]     constructor(private readonly signal: AbortSignal) {}
+[21]     // Getter that checks if the AbortSignal has been aborted
+[22]     get isCancellationRequested() {
+[23]         return this.signal.aborted
+[24]     }
+[25] }
+OriginalCode@25-27:
+[25] export function toSignal(token: CancellationToken) {
+[26]     return (token as any)?.signal
+[27] }
+ChangedCode@25-27:
+[25] export function toSignal(token: CancellationToken) {
+[26]     // Attempts to cast the token to any type and access a signal property
+[27]     return (token as any)?.signal
+[28] }
+OriginalCode@29-40:
+[29] export class AbortSignalCancellationController {
+[30]     readonly controller: AbortController
+[31]     readonly token: AbortSignalCancellationToken
+[32]     constructor() {
+[33]         this.controller = new AbortController()
+[34]         this.token = new AbortSignalCancellationToken(this.controller.signal)
+[35]     }
+[36] 
+[37]     abort(reason?: any) {
+[38]         this.controller.abort(reason)
+[39]     }
+[40] }
+ChangedCode@29-40:
+[29] export class AbortSignalCancellationController {
+[30]     // Holds an AbortController and its associated token
+[31]     readonly controller: AbortController
+[32]     readonly token: AbortSignalCancellationToken
+[33]     constructor() {
+[34]         // Initializes a new AbortController and token
+[35]         this.controller = new AbortController()
+[36]         this.token = new AbortSignalCancellationToken(this.controller.signal)
+[37]     }
+[38] 
+[39]     // Aborts the associated controller with an optional reason
+[40]     abort(reason?: any) {
+[41]         this.controller.abort(reason)
+[42]     }
+[43] }
+OriginalCode@42-44:
+[42] export function checkCancelled(token: CancellationToken) {
+[43]     if (token?.isCancellationRequested) throw new CancelError("user cancelled")
+[44] }
+ChangedCode@42-44:
+[42] export function checkCancelled(token: CancellationToken) {
+[43]     // Throws a CancelError if the cancellation has been requested
+[44]     if (token?.isCancellationRequested) throw new CancelError("user cancelled")
+[45] }
+OriginalCode@46-48:
+[46] export interface CancellationOptions {
+[47]     cancellationToken?: CancellationToken
+[48] }
+ChangedCode@46-48:
+[46] export interface CancellationOptions {
+[47]     // Optional CancellationToken for managing cancellation state
+[48]     cancellationToken?: CancellationToken
+[49] }`
+        const res = parseChangeLogs(source)
+        console.log(res)
+        assert.equal(res[0].filename, "packages/core/src/cancellation.ts")
+    })
 })

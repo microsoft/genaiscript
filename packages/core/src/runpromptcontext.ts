@@ -17,9 +17,8 @@ import { MarkdownTrace } from "./trace"
 import { GenerationOptions } from "./generation"
 import { promptParametersSchemaToJSONSchema } from "./parameters"
 import { consoleLogFormat } from "./logging"
-import { resolveFileDataUri } from "./file"
 import { isGlobMatch } from "./glob"
-import { logVerbose } from "./util"
+import { arrayify, logVerbose } from "./util"
 import { renderShellOutput } from "./chatrender"
 import { jinjaRender } from "./jinja"
 import { mustacheRender } from "./mustache"
@@ -301,7 +300,11 @@ export function createChatGenerationContext(
         if (pattern)
             appendChild(
                 node,
-                createFileOutput({ pattern, description, options })
+                createFileOutput({
+                    pattern: arrayify(pattern),
+                    description,
+                    options,
+                })
             )
     }
 

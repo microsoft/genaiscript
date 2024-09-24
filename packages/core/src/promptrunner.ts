@@ -226,7 +226,7 @@ export async function runTemplate(
             for (const fence of fences.filter(
                 ({ validation }) => validation?.valid !== false
             )) {
-                const { label: name, content: val } = fence
+                const { label: name, content: val, language } = fence
                 const pm = /^((file|diff):?)\s+/i.exec(name)
                 if (pm) {
                     const kw = pm[1].toLowerCase()
@@ -275,7 +275,10 @@ export async function runTemplate(
                             }
                         }
                     }
-                } else if (/^changelog$/i.test(name)) {
+                } else if (
+                    /^changelog$/i.test(name) ||
+                    /^changelog/i.test(language)
+                ) {
                     changelogs.push(val)
                     const cls = parseChangeLogs(val)
                     for (const changelog of cls) {
