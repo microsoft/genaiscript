@@ -42,13 +42,23 @@ for (const file of files) {
 
 // Function to add comments to code
 async function addComments(file: WorkspaceFile) {
-    const res = await runPrompt(
-        (ctx) => {
-            // Define code snippet for AI context with line numbers
-            const code = ctx.def("CODE", file, { lineNumbers: true })
+    let { filename, content } = file
 
-            // AI prompt to add comments for better understanding
-            ctx.$`You are tasked with adding comments to code in ${code} to make it more understandable for AI systems or human developers.
+    // run twice as genai tend to be lazy
+    for (let i = 0; i < 2; i++) {
+        const res = await runPrompt(
+            (ctx) => {
+                // Define code snippet for AI context with line numbers
+                const code = ctx.def(
+                    "CODE",
+                    { filename, content },
+                    { lineNumbers: true }
+                )
+
+                // AI prompt to add comments for better understanding
+                ctx.$`You are an expert developer at all programming languages.
+
+You are tasked with adding comments to code in ${code} to make it more understandable for AI systems or human developers.
 You should analyze it, and add/update appropriate comments as needed.
 
 To add or update comments to this code, follow these steps:
@@ -57,11 +67,12 @@ To add or update comments to this code, follow these steps:
 - If you are not familiar with the programming language, ignore the file.
 2. Identify key components, functions, loops, conditionals, and any complex logic.
 3. Add comments that explain:
-- The purpose of functions or code blocks
+- The purpose of functions or code blocks using the best comment format for that programming language.
 - How complex algorithms or logic work
 - Any assumptions or limitations in the code
 - The meaning of important variables or data structures
 - Any potential edge cases or error handling
+- All function arguments and return value
 
 When adding or updating comments, follow these guidelines:
 
@@ -70,22 +81,27 @@ When adding or updating comments, follow these guidelines:
 - Focus on the "why" and "how" rather than just the "what"
 - Use single-line comments for brief explanations
 - Use multi-line comments for longer explanations or function/class descriptions
-- Always place comments above the code they refer to. do NOT place comments on the same line as code.
+- Always place comments above the code they refer to. 
 - If comments already exist, review and update them as needed.
 - Minimize changes to existing comments.
+- For TypeScript functions and classes, use JSDoc comments.
+- For Python functions and classes, use docstrings.
 
 Your output should be the original code with your added comments. Make sure to preserve the original code's formatting and structure. 
 
-Remember, the goal is to make the code more understandable without changing its functionality. 
+Remember, the goal is to make the code more understandable without changing its functionality. DO NOT MODIFY THE CODE ITSELF.
 Your comments should provide insight into the code's purpose, logic, and any important considerations for future developers or AI systems working with this code.
 `
-        },
-        { system: ["system", "system.files"] }
-    )
-    const { text, fences } = res
-    const newContent = fences?.[0]?.content ?? text
-    if (!newContent) throw new Error("No content generated")
-    return newContent
+            },
+            { system: ["system", "system.files"] }
+        )
+        const { text, fences } = res
+        const nextContent = fences?.[0]?.content ?? text
+        if (!content) throw new Error("No content generated")
+        if (nextContent === content) break
+        content = nextContent
+    }
+    return content
 }
 
 // Function to prettify code using prettier
