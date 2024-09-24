@@ -63,7 +63,7 @@ export class JSONLineCache<K, V> extends EventTarget {
         this._entries = {}
         await host.createDirectory(this.folder()) // Ensure directory exists
         const content = await tryReadText(this.path())
-        const objs: CacheEntry<K, V>[] = (await JSON5TryParse(content)) ?? []
+        const objs: CacheEntry<K, V>[] = (await JSONLTryParse(content)) ?? []
         let numdup = 0 // Counter for duplicates
         for (const obj of objs) {
             if (this._entries[obj.sha]) numdup++ // Count duplicates

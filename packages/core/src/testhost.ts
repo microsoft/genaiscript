@@ -4,6 +4,7 @@
 
 // Import necessary modules and functions from various files
 import { readFile, writeFile } from "fs/promises"
+import { ensureDir } from "fs-extra"
 import {
     LogLevel,
     ModelService,
@@ -52,7 +53,7 @@ export class TestHost implements RuntimeHost {
     // Path to the dotenv file (if used)
     dotEnvPath: string = undefined
     // State object to store user-specific data
-    userState: any
+    userState: any = {}
     // Service to manage language models
     models: ModelService
     // Server management service
@@ -99,7 +100,7 @@ export class TestHost implements RuntimeHost {
 
     // Placeholder for path resolution method
     resolvePath(...segments: string[]): string {
-        throw new Error("Method not implemented.")
+        return this.path.resolve(...segments)
     }
 
     // Placeholder for reading a secret value
@@ -148,8 +149,8 @@ export class TestHost implements RuntimeHost {
     }
 
     // Placeholder for creating a directory
-    createDirectory(name: string): Promise<void> {
-        throw new Error("Method not implemented.")
+    async createDirectory(name: string): Promise<void> {
+        await ensureDir(name)
     }
 
     // Placeholder for deleting a directory
