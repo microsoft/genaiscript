@@ -1,21 +1,35 @@
 // https://x.com/mckaywrigley/status/1838321570969981308
 import prettier from "prettier"
 
-script({
-    system: ["system", "system.files"],
-})
+const files = env.files
+for (const file of files) {
+    console.log(`processing ${file.filename}`)
 
-const files = env.files.filter(({ filename }) =>
-    /\.(ts|js|py|cs|java)/i.test(filename)
-)
-const code = def("CODE", files, { lineNumbers: true })
+    // normalize input content
+    file.content = await prettify(file.filename, file.content)
+    // adding comments using genai
+    let newContent = await addComments(file)
+    // apply prettier to normalize format
+    newContent = await prettify(file.filename, newContent)
+    // saving
+    if (file.content !== newContent) {
+        console.log(`updating ${file.filename}`)
+        await workspace.writeText(file.filename, newContent)
+    }
+}
 
-$`You are tasked with adding comments to code in ${code} to make it more understandable for AI systems or human developers.
+async function addComments(file: WorkspaceFile) {
+    const res = await runPrompt(
+        (ctx) => {
+            const code = ctx.def("CODE", file, { lineNumbers: true })
+
+            ctx.$`You are tasked with adding comments to code in ${code} to make it more understandable for AI systems or human developers.
 You should analyze it, and add/update appropriate comments as needed.
 
 To add or update comments to this code, follow these steps:
 
 1. Analyze the code to understand its structure and functionality.
+- If you are not familiar with the programming language, ignore the file.
 2. Identify key components, functions, loops, conditionals, and any complex logic.
 3. Add comments that explain:
 - The purpose of functions or code blocks
@@ -40,36 +54,23 @@ Your output should be the original code with your added comments. Make sure to p
 Remember, the goal is to make the code more understandable without changing its functionality. 
 Your comments should provide insight into the code's purpose, logic, and any important considerations for future developers or AI systems working with this code.
 `
+        },
+        { system: ["system", "system.files"] }
+    )
+    const { text, fences } = res
+    const newContent = fences?.[0]?.content ?? text
+    return newContent
+}
 
-defFileOutput(
-    env.files.map(({ filename }) => filename),
-    "Updated code with comments."
-)
-defOutputProcessor(async ({ fileEdits }) => {
-    for (const [filepath, edit] of Object.entries(fileEdits)) {
-        console.log(`validate ${filepath}`)
-        const stripComments = (code: string) =>
-            code
-                .split(/\r?\n/g)
-                .filter((l) => !l.trim().startsWith("//"))
-                .join("\n")
-        if (stripComments(edit.before) !== stripComments(edit.after)) {
-            console.error(`comments: error in ${filepath}: non-comment changes`)
-            delete fileEdits[filepath]
-        }
-
-        console.log(`formatting ${filepath}`)
-        const options = (await prettier.resolveConfig(filepath)) ?? {}
-        try {
-            edit.after = await prettier.format(edit.after, {
-                ...options,
-                filepath,
-            })
-        } catch (e) {
-            console.error(
-                `prettier: error formatting ${filepath}: ${e.message}`
-            )
-            delete fileEdits[filepath]
-        }
+async function prettify(filename: string, content: string) {
+    const options = (await prettier.resolveConfig(filename)) ?? {}
+    try {
+        return await prettier.format(content, {
+            ...options,
+            filepath: filename,
+        })
+    } catch (e) {
+        console.error(`prettier: ${e.message}`)
+        return undefined
     }
-})
+}
