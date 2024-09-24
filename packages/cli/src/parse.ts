@@ -2,9 +2,14 @@ import replaceExt from "replace-ext"
 import { readFile } from "node:fs/promises"
 import { DOCXTryParse } from "../../core/src/docx"
 import { extractFenced } from "../../core/src/fence"
-import { expandFiles, writeText, readText } from "../../core/src/fs"
+import {
+    expandFiles,
+    writeText,
+    readText,
+    tryReadText,
+} from "../../core/src/fs"
 import { HTMLToText } from "../../core/src/html"
-import { isJSONLFilename, readJSONL } from "../../core/src/jsonl"
+import { isJSONLFilename, JSONLTryParse } from "../../core/src/jsonl"
 import { parsePdf } from "../../core/src/pdf"
 import { estimateTokens } from "../../core/src/tokens"
 import { YAMLStringify } from "../../core/src/yaml"
@@ -12,6 +17,7 @@ import { resolveTokenEncoder } from "../../core/src/encoders"
 import { DEFAULT_MODEL } from "../../core/src/constants"
 import { promptyParse, promptyToGenAIScript } from "../../core/src/prompty"
 import { basename, join } from "node:path"
+import { JSONLLMTryParse } from "../../core/src/json5"
 
 export async function parseFence(language: string, file: string) {
     const res = await parsePdf(file)
@@ -44,7 +50,8 @@ export async function jsonl2json(files: string[]) {
             console.log(`skipping ${file}`)
             continue
         }
-        const objs = await readJSONL(file)
+        const content = await tryReadText(file)
+        const objs = await JSONLTryParse(content, { repair: true })
         const out = replaceExt(file, ".json")
         await writeText(out, JSON.stringify(objs, null, 2))
         console.log(`${file} -> ${out}`)

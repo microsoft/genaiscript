@@ -21,8 +21,6 @@ script({
 const { format, build } = env.vars
 const saveLimit = pLimit(1)
 
-console.log({ format, build })
-
 // Get files from environment or modified files from Git if none provided
 let files = env.files
 if (files.length === 0) {
@@ -122,7 +120,8 @@ You should analyze it, and add/update appropriate comments as needed.
 To add or update comments to this code, follow these steps:
 
 1. Analyze the code to understand its structure and functionality.
-- If you are not familiar with the programming language, ignore the file.
+- If you are not familiar with the programming language, emit an empty file.
+- If there is no code, emit an empty file.
 2. Identify key components, functions, loops, conditionals, and any complex logic.
 3. Add comments that explain:
 - The purpose of functions or code blocks using the best comment format for that programming language.
@@ -158,7 +157,7 @@ Your comments should provide insight into the code's purpose, logic, and any imp
         )
         const { text, fences } = res
         const newContent = fences?.[0]?.content ?? text
-        if (!newContent) return undefined
+        if (!newContent?.trim()) return undefined
         if (newContent === content) break
         content = newContent
     }

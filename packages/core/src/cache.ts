@@ -1,10 +1,12 @@
 // Import necessary modules and types
-import { appendJSONL, readJSONL, writeJSONL } from "./jsonl"
-import { host, runtimeHost } from "./host"
+import { appendJSONL, JSONLTryParse, writeJSONL } from "./jsonl"
+import { host } from "./host"
 import { dotGenaiscriptPath, sha256string } from "./util"
 import { CHANGE } from "./constants"
 import { TraceOptions } from "./trace"
 import { CORE_VERSION } from "./version"
+import { tryReadText } from "./fs"
+import { JSON5TryParse } from "./json5"
 
 /**
  * Represents a cache entry with a hashed identifier (`sha`), `key`, and `val`.
@@ -60,7 +62,8 @@ export class JSONLineCache<K, V> extends EventTarget {
         if (this._entries) return
         this._entries = {}
         await host.createDirectory(this.folder()) // Ensure directory exists
-        const objs: CacheEntry<K, V>[] = await readJSONL(this.path())
+        const content = await tryReadText(this.path())
+        const objs: CacheEntry<K, V>[] = (await JSON5TryParse(content)) ?? []
         let numdup = 0 // Counter for duplicates
         for (const obj of objs) {
             if (this._entries[obj.sha]) numdup++ // Count duplicates
