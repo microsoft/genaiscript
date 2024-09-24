@@ -217,9 +217,12 @@ export function applyLLMPatch(source: string, chunks: Chunk[]): string {
                 const line =
                     chunk.state === "deleted" ? undefined : chunk.lines[li]
                 const linei = chunk.lineNumbers[li] - 1
-                if (isNaN(linei)) throw new DiffError("missing line number")
+                if (isNaN(linei))
+                    throw new DiffError(`diff: missing or nan line number`)
                 if (linei < 0 || linei >= lines.length)
-                    throw new DiffError("invalid line number")
+                    throw new DiffError(
+                        `diff: invalid line number ${linei} in ${lines.length}`
+                    )
                 lines[linei] = line
             }
         })

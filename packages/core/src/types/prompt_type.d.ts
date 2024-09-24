@@ -77,7 +77,7 @@ declare function def(
  * @param options expectations about the generated file content
  */
 declare function defFileOutput(
-    pattern: string,
+    pattern: string | string[],
     description?: string,
     options?: FileOutputOptions
 ): void
