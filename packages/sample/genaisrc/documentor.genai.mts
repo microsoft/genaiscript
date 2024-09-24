@@ -11,9 +11,9 @@ const files = env.files.filter(({ filename }) =>
 const code = def("CODE", files, { lineNumbers: true })
 
 $`You are tasked with adding comments to code in ${code} to make it more understandable for AI systems or human developers.
-You should analyze it and add appropriate comments as needed.
+You should analyze it, and add/update appropriate comments as needed.
 
-To add comments to this code, follow these steps:
+To add or update comments to this code, follow these steps:
 
 1. Analyze the code to understand its structure and functionality.
 2. Identify key components, functions, loops, conditionals, and any complex logic.
@@ -24,7 +24,7 @@ To add comments to this code, follow these steps:
 - The meaning of important variables or data structures
 - Any potential edge cases or error handling
 
-When adding comments, follow these guidelines:
+When adding or updating comments, follow these guidelines:
 
 - Use clear and concise language
 - Avoid stating the obvious (e.g., don't just restate what the code does)
@@ -47,6 +47,17 @@ defFileOutput(
 )
 defOutputProcessor(async ({ fileEdits }) => {
     for (const [filepath, edit] of Object.entries(fileEdits)) {
+        console.log(`validate ${filepath}`)
+        const stripComments = (code: string) =>
+            code
+                .split(/\r?\n/g)
+                .filter((l) => !l.trim().startsWith("//"))
+                .join("\n")
+        if (stripComments(edit.before) !== stripComments(edit.after)) {
+            console.error(`comments: error in ${filepath}: non-comment changes`)
+            delete fileEdits[filepath]
+        }
+
         console.log(`formatting ${filepath}`)
         const options = (await prettier.resolveConfig(filepath)) ?? {}
         try {

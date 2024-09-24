@@ -20,6 +20,7 @@ export type ChatCompletationRequestCacheValue = {
 }
 
 // Define a JSON line cache type that maps cache keys to cache values.
+// This cache stores chat completion requests and their associated responses.
 export type ChatCompletationRequestCache = JSONLineCache<
     ChatCompletionRequestCacheKey,
     ChatCompletationRequestCacheValue
@@ -27,6 +28,7 @@ export type ChatCompletationRequestCache = JSONLineCache<
 
 // Function to retrieve a chat completion cache.
 // It uses a default cache name if none is provided.
+// This function ensures consistent access to cached chat completions.
 export function getChatCompletionCache(
     name?: string
 ): ChatCompletationRequestCache {
