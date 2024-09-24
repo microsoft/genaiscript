@@ -117,7 +117,7 @@ To add or update comments to this code, follow these steps:
 - The meaning of important variables or data structures
 - Any potential edge cases or error handling
 - All function arguments and return value
-- Top level file comment that description, tags
+- A Top level file comment that describes the code in the file
 
 When adding or updating comments, follow these guidelines:
 
@@ -131,8 +131,9 @@ When adding or updating comments, follow these guidelines:
 - Minimize changes to existing comments.
 - For TypeScript functions, classes and fields, use JSDoc comments. do NOT add type annotations in comments.
 - For Python functions and classes, use docstrings.
-- do not modify comments with TODOs.
-- do not modify comments with URLs or links as they are reference to external resources.
+- do NOT modify comments with TODOs.
+- do NOT modify comments with URLs or links as they are reference to external resources.
+- do NOT add comments to imports
 
 Your output should be the original code with your added comments. Make sure to preserve the original code's formatting and structure. 
 
@@ -140,7 +141,11 @@ Remember, the goal is to make the code more understandable without changing its 
 Your comments should provide insight into the code's purpose, logic, and any important considerations for future developers or AI systems working with this code.
 `
             },
-            { system: ["system", "system.files"], cache: "cmt-gen", label: `comment ${filename}` }
+            {
+                system: ["system", "system.files"],
+                cache: "cmt-gen",
+                label: `comment ${filename}`,
+            }
         )
         const { text, fences } = res
         const newContent = fences?.[0]?.content ?? text
@@ -160,7 +165,8 @@ async function checkModifications(filename: string): Promise<boolean> {
             ctx.$`You are an expert developer at all programming languages.
         
         Your task is to analyze the changes in DIFF and make sure that only comments are modified. 
-        Report all changes that are not comments and print "MODIFIED".
+        Report all changes that are not comments or spacing and print "MODIFIED";
+        otherwise, print "NO MODIFICATION".
         `
         },
         {
@@ -169,7 +175,6 @@ async function checkModifications(filename: string): Promise<boolean> {
         }
     )
 
-    const modified = res.text?.includes("MODIFIED")
-    console.log(`code modified, reverting...`)
+    const modified = !res.text?.includes("NO MODIFICATION")
     return modified
 }

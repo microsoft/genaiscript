@@ -1,4 +1,6 @@
-// Import necessary modules from the 'commander' library
+// This file provides a function to generate structured help documentation 
+// for all CLI commands, formatted as Markdown content.
+
 import { Command, program } from "commander"
 
 /**
@@ -32,11 +34,11 @@ export async function helpAll() {
         commands: readonly Command[]
     ) => {
         commands.forEach((c) => {
-            // Construct and print the command's header
+            // Construct and print the command's header in Markdown
             console.log(
                 `\n${header} \`${[parent?.name(), c.name()].filter((c) => c).join(" ")}\`\n`
             )
-            // Print the command's help output
+            // Print the command's help output in a code block
             console.log("```")
             c.outputHelp()
             console.log("```")
