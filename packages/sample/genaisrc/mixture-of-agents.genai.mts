@@ -21,7 +21,7 @@ export async function mixtureOfAgents(
                     ctx.writeText(query)
                     ctx.assistant(`What do you think?`)
                 },
-                { ...agent, label: agent.label || agent.model }
+                { ...agent, cache: "moa", label: agent.label || agent.model }
             )
         )
     )
@@ -39,7 +39,7 @@ export async function mixtureOfAgents(
             }
             _.$`Please provide your critique for each candidate:`
         },
-        { ...(options ?? {}), label: "critique" }
+        { ...(options ?? {}), cache: "moa", label: "critique" }
     )
 
     // final prompt
@@ -55,7 +55,7 @@ export async function mixtureOfAgents(
             _.def(`Critique`, critique)
             _.$`Please provide a final, optimized response to the original query:`
         },
-        { ...(options ?? {}), label: "final" }
+        { ...(options ?? {}), cache: "moa", label: "final" }
     )
     return result
 }
