@@ -133,7 +133,7 @@ Commands:
   list                      List all available scripts in workspace
   create <name>             Create a new script
   fix                       fix all definition files
-  compile [folders...]      Compile all script in workspace
+  compile [folders...]      Compile all scripts in workspace
   model [options] [script]  List model connection information for scripts
   help [command]            display help for command
 ```
@@ -179,7 +179,7 @@ Options:
 ```
 Usage: genaiscript scripts compile [options] [folders...]
 
-Compile all script in workspace
+Compile all scripts in workspace
 
 Arguments:
   folders     Pattern to match files

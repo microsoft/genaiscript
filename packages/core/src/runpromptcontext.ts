@@ -59,7 +59,7 @@ export function createChatTurnGenerationContext(
         },
         assistant: (body, options) =>
             ctx.writeText(body, { ...options, assistant: true }),
-        $(strings, ...args) {
+        $: (strings, ...args) => {
             const current = createStringTemplateNode(strings, args)
             appendChild(node, current)
             const res: PromptTemplateString = Object.freeze(<
@@ -88,7 +88,7 @@ export function createChatTurnGenerationContext(
             })
             return res
         },
-        def(name, body, defOptions) {
+        def: (name, body, defOptions) => {
             name = name ?? ""
             const doptions = { ...(defOptions || {}), trace }
             doptions.lineNumbers = doptions.lineNumbers ?? options.lineNumbers
@@ -141,8 +141,23 @@ export function createChatTurnGenerationContext(
                     node,
                     createDef(
                         name,
-                        { filename: "", content: (body as Fenced).content },
+                        { filename: "", content: fenced.content },
                         { language: fenced.language, ...(doptions || {}) }
+                    )
+                )
+            } else if (
+                typeof body === "object" &&
+                (body as RunPromptResult).text
+            ) {
+                const res = body as RunPromptResult
+                const fence =
+                    res.fences?.length === 1 ? res.fences[0] : undefined
+                appendChild(
+                    node,
+                    createDef(
+                        name,
+                        { filename: "", content: fence?.content ?? res.text },
+                        { language: fence?.language, ...(doptions || {}) }
                     )
                 )
             }

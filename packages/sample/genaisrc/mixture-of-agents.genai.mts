@@ -12,18 +12,18 @@ export async function mixtureOfAgents(
         ],
     } = options ?? {}
 
-    // compute agent responses
-    const agentResponses = []
-    for (const agent of agents) {
-        const res = await runPrompt(
-            (ctx) => {
-                ctx.writeText(query)
-                ctx.assistant(`What do you think?`)
-            },
-            { ...agent, label: agent.label || agent.model }
+    // compute agent responses concurrently
+    const agentResponses = await Promise.all(
+        agents.map((agent) =>
+            runPrompt(
+                (ctx) => {
+                    ctx.writeText(query)
+                    ctx.assistant(`What do you think?`)
+                },
+                { ...agent, label: agent.label || agent.model }
+            )
         )
-        agentResponses.push(res.text)
-    }
+    )
 
     // critique
     const { text: critique } = await runPrompt(
