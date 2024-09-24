@@ -4,17 +4,17 @@
  * of annotations into different formats for integration with CI/CD tools.
  */
 
-// Regular expression for matching GitHub Actions annotations
+// Regular expression for matching GitHub Actions annotations.
 // Example: ::error file=foo.js,line=10,endLine=11::Something went wrong.
 const GITHUB_ANNOTATIONS_RX =
     /^\s*::(?<severity>notice|warning|error)\s*file=(?<file>[^,]+),\s*line=(?<line>\d+),\s*endLine=(?<endLine>\d+)\s*(,\s*code=(?<code>[^,:]+)?\s*)?::(?<message>.*)$/gim
 
-// Regular expression for matching Azure DevOps annotations
+// Regular expression for matching Azure DevOps annotations.
 // Example: ##vso[task.logissue type=warning;sourcepath=foo.cs;linenumber=1;]Found something.
 const AZURE_DEVOPS_ANNOTATIONS_RX =
     /^\s*##vso\[task.logissue\s+type=(?<severity>error|warning);sourcepath=(?<file>);linenumber=(?<line>\d+)(;code=(?<code>\d+);)?[^\]]*\](?<message>.*)$/gim
 
-// Regular expression for matching TypeScript build annotations
+// Regular expression for matching TypeScript build annotations.
 // Example: foo.ts:10:error TS1005: ';' expected.
 const TYPESCRIPT_ANNOTATIONS_RX =
     /^(?<file>[^:\s].*?):(?<line>\d+)(?::(?<endLine>\d+))?(?::\d+)?\s+-\s+(?<severity>error|warning)\s+(?<code>[^:]+)\s*:\s*(?<message>.*)$/gim
@@ -71,12 +71,14 @@ export function parseAnnotations(text: string): Diagnostic[] {
  * @returns A formatted GitHub Action command string.
  */
 export function convertDiagnosticToGitHubActionCommand(d: Diagnostic) {
+    // Maps DiagnosticSeverity to GitHub Action severity strings.
     const sevMap: Record<DiagnosticSeverity, string> = {
         ["info"]: "notice", // Maps 'info' to 'notice'
         ["warning"]: "warning",
         ["error"]: "error",
     }
 
+    // Construct GitHub Action command string with necessary details.
     return `::${sevMap[d.severity] || d.severity} file=${d.filename}, line=${d.range[0][0]}, endLine=${d.range[1][0]}::${d.message}`
 }
 
@@ -87,8 +89,10 @@ export function convertDiagnosticToGitHubActionCommand(d: Diagnostic) {
  * @returns A formatted Azure DevOps command string.
  */
 export function convertDiagnosticToAzureDevOpsCommand(d: Diagnostic) {
+    // Handle 'info' severity separately with a debug message.
     if (d.severity === "info") return `##[debug]${d.message} at ${d.filename}`
     else
+        // Construct Azure DevOps command string with necessary details.
         return `##vso[task.logissue type=${d.severity};sourcepath=${d.filename};linenumber=${d.range[0][0]}]${d.message}`
 }
 
@@ -99,11 +103,13 @@ export function convertDiagnosticToAzureDevOpsCommand(d: Diagnostic) {
  * @returns A string of formatted Markdown annotations.
  */
 export function convertAnnotationsToMarkdown(text: string): string {
+    // Maps severity levels to Markdown admonition types.
     const severities: Record<string, string> = {
         error: "CAUTION",
         warning: "WARNING",
         notice: "NOTE",
     }
+    // Replace GitHub and Azure DevOps annotations with Markdown format.
     return text
         ?.replace(
             GITHUB_ANNOTATIONS_RX,

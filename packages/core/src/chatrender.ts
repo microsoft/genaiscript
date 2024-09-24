@@ -1,3 +1,4 @@
+// Import statements for various message parameters used in chat rendering.
 import {
     ChatCompletionAssistantMessageParam,
     ChatCompletionMessageParam,
@@ -5,6 +6,8 @@ import {
     ChatCompletionToolMessageParam,
     ChatCompletionUserMessageParam,
 } from "./chattypes"
+
+// Import utility functions for JSON5 parsing, markdown formatting, and YAML stringification.
 import { JSON5TryParse } from "./json5"
 import { details, fenceMD } from "./markdown"
 import { YAMLStringify } from "./yaml"
@@ -83,9 +86,9 @@ export function renderMessagesToMarkdown(
 ) {
     // Set default options for filtering message roles.
     const {
-        system = undefined,
-        user = undefined,
-        assistant = true,
+        system = undefined, // Include system messages unless explicitly set to false.
+        user = undefined, // Include user messages unless explicitly set to false.
+        assistant = true, // Include assistant messages by default.
     } = options || {}
 
     const res: string[] = []

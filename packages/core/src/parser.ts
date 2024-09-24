@@ -1,27 +1,41 @@
-import { strcmp } from "./util"
-import { Project, PromptScript } from "./ast"
-import { defaultPrompts } from "./default_prompts"
-import { parsePromptScript } from "./template"
-import { readText } from "./fs"
+// Importing utility functions and constants from other files
+import { strcmp } from "./util" // String comparison function
+import { Project, PromptScript } from "./ast" // Class imports
+import { defaultPrompts } from "./default_prompts" // Default prompt data
+import { parsePromptScript } from "./template" // Function to parse scripts
+import { readText } from "./fs" // Function to read text from a file
 import {
     BUILTIN_PREFIX,
     DOCX_MIME_TYPE,
     PDF_MIME_TYPE,
     XLSX_MIME_TYPE,
-} from "./constants"
+} from "./constants" // Constants for MIME types and prefixes
 
+/**
+ * Converts a string to a character position represented as [row, column].
+ * Utilizes newline characters to determine row and column.
+ * @param str - The input string to convert.
+ * @returns CharPosition - The position as a tuple of row and column.
+ */
 export function stringToPos(str: string): CharPosition {
-    if (!str) return [0, 0]
+    if (!str) return [0, 0] // Return default position if string is empty
     return [str.replace(/[^\n]/g, "").length, str.replace(/[^]*\n/, "").length]
 }
 
+/**
+ * Determines if a given MIME type is binary.
+ * Checks against common and additional specified binary types.
+ * @param mimeType - The MIME type to check.
+ * @returns boolean - True if the MIME type is binary, otherwise false.
+ */
 export function isBinaryMimeType(mimeType: string) {
     return (
-        /^(image|audio|video)\//.test(mimeType) ||
-        BINARY_MIME_TYPES.includes(mimeType)
+        /^(image|audio|video)\//.test(mimeType) || // Common binary types
+        BINARY_MIME_TYPES.includes(mimeType) // Additional specified binary types
     )
 }
 
+// List of known binary MIME types
 const BINARY_MIME_TYPES = [
     // Documents
     PDF_MIME_TYPE,
@@ -54,35 +68,56 @@ const BINARY_MIME_TYPES = [
     "application/vnd.apple.installer+xml", // Apple Installer Package (though XML, often handled as binary)
 ]
 
+/**
+ * Parses a project based on provided script files.
+ * Initializes a project, reads scripts, and updates with parsed templates.
+ * @param options - An object containing an array of script files.
+ * @returns Project - The parsed project with templates.
+ */
 export async function parseProject(options: { scriptFiles: string[] }) {
     const { scriptFiles } = options
-    const prj = new Project()
+    const prj = new Project() // Initialize a new project instance
+
+    // Helper function to run finalizers stored in the project
     const runFinalizers = () => {
-        const fins = prj._finalizers.slice()
-        prj._finalizers = []
-        for (const fin of fins) fin()
+        const fins = prj._finalizers.slice() // Copy finalizers
+        prj._finalizers = [] // Clear the finalizers
+        for (const fin of fins) fin() // Execute each finalizer
     }
 
-    runFinalizers()
+    runFinalizers() // Run any initial finalizers
 
+    // Clone the default prompts
     const deflPr: Record<string, string> = Object.assign({}, defaultPrompts)
+
+    // Process each script file, parsing its content and updating the project
     for (const f of scriptFiles) {
         const tmpl = await parsePromptScript(f, await readText(f), prj)
-        if (!tmpl) continue
-        delete deflPr[tmpl.id]
-        prj.templates.push(tmpl)
+        if (!tmpl) continue // Skip if no template is parsed
+        delete deflPr[tmpl.id] // Remove the parsed template from defaults
+        prj.templates.push(tmpl) // Add to project templates
     }
+
+    // Add remaining default prompts to the project
     for (const [id, v] of Object.entries(deflPr)) {
         prj.templates.push(await parsePromptScript(BUILTIN_PREFIX + id, v, prj))
     }
-    runFinalizers()
 
+    runFinalizers() // Run finalizers after processing all scripts
+
+    /**
+     * Generates a sorting key for a PromptScript
+     * Determines priority based on whether a script is unlisted or has a filename.
+     * @param t - The PromptScript to generate the key for.
+     * @returns string - The sorting key.
+     */
     function templKey(t: PromptScript) {
-        const pref = t.unlisted ? "Z" : t.filename ? "A" : "B"
-        return pref + t.title + t.id
+        const pref = t.unlisted ? "Z" : t.filename ? "A" : "B" // Determine prefix for sorting
+        return pref + t.title + t.id // Concatenate for final sorting key
     }
 
+    // Sort templates by the generated key
     prj.templates.sort((a, b) => strcmp(templKey(a), templKey(b)))
 
-    return prj
+    return prj // Return the fully parsed project
 }

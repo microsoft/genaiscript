@@ -47,6 +47,12 @@ Call the 'run_test' tool to execute the generated test code and fix the test cod
 - this is important.
 `
 
+defFileOutput(
+    env.files.map(
+        ({ filename }) => filename.replace(/\.ts$/, ".test.ts"),
+        "generated test files"
+    )
+)
 defTool(
     "run_test",
     "run test code with node:test",

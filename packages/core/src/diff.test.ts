@@ -189,7 +189,7 @@ describe("diff", () => {
 [103] }
 `
         const chunks = parseLLMDiffs(source)
-        console.log(chunks)
+        assert(chunks.length > 0)
     })
 
     test("insert after incorrect line description", () => {
@@ -284,6 +284,6 @@ describe("diff", () => {
 [89]     return await sha256string(key)
 [90] }`
         const chunks = parseLLMDiffs(source)
-        console.log(chunks)
+        assert.notEqual(chunks.length, 0)
     })
 })

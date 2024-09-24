@@ -13,31 +13,6 @@ export function isJSONLFilename(fn: string) {
     return /\.(jsonl|mdjson|ldjson)$/i.test(fn)
 }
 
-export async function readJSONL(fn: string) {
-    const buf = await tryReadFile(fn)
-    const res: any[] = []
-    if (buf == null) return res
-    let line = 1
-    let numerr = 0
-    const decoder = host.createUTF8Decoder()
-    for (let pos = 0; pos < buf.length; ) {
-        let ep = buf.indexOf(10, pos)
-        if (ep < 0) ep = buf.length
-        const str = decoder.decode(buf.slice(pos, ep))
-        if (!/^\s*$/.test(str)) {
-            try {
-                res.push(JSON.parse(str))
-            } catch (e) {
-                if (!numerr) logWarn(`${fn}(${line}): JSON error`)
-                numerr++
-            }
-        }
-        pos = ep + 1
-        line++
-    }
-    return res
-}
-
 export function JSONLTryParse(
     text: string,
     options?: {
@@ -49,7 +24,7 @@ export function JSONLTryParse(
     for (const line of text.split("\n")) {
         if (!line) continue
         const obj = JSON5TryParse(line, options)
-        res.push(obj)
+        if (obj !== undefined && obj !== null) res.push(obj)
     }
     return res
 }
@@ -57,7 +32,7 @@ export function JSONLTryParse(
 export function JSONLStringify(objs: any[]) {
     const acc: string[] = []
     if (objs?.length)
-        for (const o of objs) {
+        for (const o of objs.filter((o) => o !== undefined && o !== null)) {
             const s = JSON.stringify(o)
             acc.push(s)
         }

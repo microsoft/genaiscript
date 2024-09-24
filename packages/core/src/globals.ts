@@ -1,3 +1,4 @@
+// Import various parsing and stringifying utilities
 import { YAMLParse, YAMLStringify } from "./yaml"
 import { CSVParse, CSVToMarkdown } from "./csv"
 import { INIParse, INIStringify } from "./ini"
@@ -14,32 +15,51 @@ import { createFetch } from "./fetch"
 import { readText } from "./fs"
 import { logVerbose } from "./util"
 
+/**
+ * Resolves the global context depending on the environment.
+ * @returns {any} The global object depending on the current environment.
+ * @throws Will throw an error if the global context cannot be determined.
+ */
 export function resolveGlobal(): any {
     if (typeof window !== "undefined")
         return window // Browser environment
-    else if (typeof self !== "undefined") return self
+    else if (typeof self !== "undefined") return self // Web worker environment
     else if (typeof global !== "undefined") return global // Node.js environment
     throw new Error("Could not find global")
 }
 
+/**
+ * Installs global utilities for various data formats and operations.
+ * This function sets up global objects with frozen utilities for parsing
+ * and stringifying different data formats, as well as other functionalities.
+ */
 export function installGlobals() {
     const glb = resolveGlobal()
 
+    // Freeze YAML utilities to prevent modification
     glb.YAML = Object.freeze<YAML>({
         stringify: YAMLStringify,
         parse: YAMLParse,
     })
+
+    // Freeze CSV utilities
     glb.CSV = Object.freeze<CSV>({
         parse: CSVParse,
         markdownify: CSVToMarkdown,
     })
+
+    // Freeze INI utilities
     glb.INI = Object.freeze<INI>({
         parse: INIParse,
         stringify: INIStringify,
     })
+
+    // Freeze XML utilities
     glb.XML = Object.freeze<XML>({
         parse: XMLParse,
     })
+
+    // Freeze Markdown utilities with frontmatter operations
     glb.MD = Object.freeze<MD>({
         frontmatter: (text, format) =>
             frontmatterTryParse(text, { format })?.value ?? {},
@@ -47,13 +67,17 @@ export function installGlobals() {
         updateFrontmatter: (text, frontmatter, format): string =>
             updateFrontmatter(text, frontmatter, { format }),
     })
+
+    // Freeze JSONL utilities
     glb.JSONL = Object.freeze<JSONL>({
         parse: JSONLTryParse,
         stringify: JSONLStringify,
     })
+
+    // Freeze AICI utilities with a generation function
     glb.AICI = Object.freeze<AICI>({
         gen: (options: AICIGenOptions) => {
-            // validate options
+            // Validate options
             return {
                 type: "aici",
                 name: "gen",
@@ -61,14 +85,30 @@ export function installGlobals() {
             }
         },
     })
+
+    // Freeze HTML utilities
     glb.HTML = Object.freeze<HTML>({
         convertTablesToJSON: HTMLTablesToJSON,
         convertToMarkdown: HTMLToMarkdown,
         convertToText: HTMLToText,
     })
+
+    /**
+     * Function to trigger cancellation with an error.
+     * Throws a CancelError with a specified reason or a default message.
+     * @param {string} [reason] - Optional reason for cancellation.
+     */
     glb.cancel = (reason?: string) => {
         throw new CancelError(reason || "user cancelled")
     }
+
+    /**
+     * Asynchronous function to fetch text from a URL or file.
+     * Handles both HTTP(S) URLs and local workspace files.
+     * @param {string | WorkspaceFile} urlOrFile - URL or file descriptor.
+     * @param {FetchTextOptions} [fetchOptions] - Options for fetching.
+     * @returns {Promise<{ ok: boolean, status: number, text: string, file: WorkspaceFile }>} Fetch result.
+     */
     glb.fetchText = async (
         urlOrFile: string | WorkspaceFile,
         fetchOptions?: FetchTextOptions

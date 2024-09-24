@@ -47,6 +47,9 @@ We can use [inline prompts](/genaiscript/reference/scripts/inline-prompts) to ma
 for (const file of files) {
     console.log(`processing ${file.filename}`)
     ... add comments
+    ... format generated code (optional) -- keep things consistent
+    ... build generated -- let's make sure it's still valid code
+    ... check that only comments were changed -- LLM as judge
     ... save changes
 }
 ```
@@ -66,12 +69,67 @@ const res = await runPrompt(
 
 We provide a detailed set of instructions to the AI for how to analyze and comment on the code.
 
+## Judge results with LLM
+
+We issue one more prompt to judge the modified code and make sure the code is not modified.
+
+```ts
+async function checkModifications(filename: string): Promise<boolean> {
+    const diff = await host.exec(`git diff ${filename}`)
+    if (!diff.stdout) return false
+    const res = await runPrompt(
+        (ctx) => {
+            ctx.def("DIFF", diff.stdout)
+            ctx.$`You are an expert developer at all programming languages.
+        
+        Your task is to analyze the changes in DIFF and make sure that only comments are modified. 
+        Report all changes that are not comments and print "MODIFIED".
+        `
+        },
+        {
+            cache: "cmt-check",
+        }
+    )
+
+    const modified = res.text?.includes("MODIFIED")
+    console.log(`code modified, reverting...`)
+    return modified
+}
+```
+
 ## How to Run the Script
 
 To run this script, you'll first need to install the GenAIScript CLI. [Follow the installation guide here](https://microsoft.github.io/genaiscript/getting-started/installation).
 
-```shell
+```sh
 genaiscript run cmt
+```
+
+## Format and build
+
+One important aspect is to normalize and valid the AI generated code. The user can provide a `format` command to run a formatter
+and a `build` command to check if the code is still valid.
+
+```ts
+
+script({...,
+    parameters: {
+        format: {
+            type: "string",
+            description: "Format source code command",
+        },
+        build: {
+            type: "string",
+            description: "Build command",
+        },
+    },
+})
+
+const { format, build } = env.vars.build
+```
+
+```sh
+genaiscript run cmt --vars "build=npm run build" "format=npm run format"
 ```
 
 ## Full source ([GitHub](https://github.com/microsoft/genaiscript/blob/main/packages/vscode/genaisrc/cmt.genai.mts))

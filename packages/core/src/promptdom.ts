@@ -1,3 +1,4 @@
+// Importing various utility functions and constants from different modules.
 import { CSVToMarkdown, CSVTryParse } from "./csv"
 import { renderFileContent, resolveFileContent } from "./file"
 import { addLineNumbers } from "./liner"
@@ -28,7 +29,9 @@ import { resolveTokenEncoder } from "./encoders"
 import { expandFiles } from "./fs"
 import { interpolateVariables } from "./mustache"
 
+// Definition of the PromptNode interface which is an essential part of the code structure.
 export interface PromptNode extends ContextExpansionOptions {
+    // Describes the type of the node.
     type?:
         | "text"
         | "image"
@@ -43,106 +46,122 @@ export interface PromptNode extends ContextExpansionOptions {
         | "fileOutput"
         | "importTemplate"
         | undefined
-    children?: PromptNode[]
-    error?: unknown
-    tokens?: number
+    children?: PromptNode[] // Child nodes for hierarchical structure
+    error?: unknown // Error information if present
+    tokens?: number // Token count for the node
+
     /**
      * Rendered markdown preview of the node
      */
     preview?: string
 }
 
+// Interface for a text node in the prompt tree.
 export interface PromptTextNode extends PromptNode {
     type: "text"
-    value: Awaitable<string>
-    resolved?: string
+    value: Awaitable<string> // The text content, potentially awaiting resolution
+    resolved?: string // Resolved text content
 }
 
+// Interface for a definition node, which includes options.
 export interface PromptDefNode extends PromptNode, DefOptions {
     type: "def"
-    name: string
-    value: Awaitable<WorkspaceFile>
-    resolved?: WorkspaceFile
+    name: string // Name of the definition
+    value: Awaitable<WorkspaceFile> // File associated with the definition
+    resolved?: WorkspaceFile // Resolved file content
 }
 
+// Interface for an assistant node.
 export interface PromptAssistantNode extends PromptNode {
     type: "assistant"
-    value: Awaitable<string>
-    resolved?: string
+    value: Awaitable<string> // Assistant-related content
+    resolved?: string // Resolved assistant content
 }
 
+// Interface for a string template node.
 export interface PromptStringTemplateNode extends PromptNode {
     type: "stringTemplate"
-    strings: TemplateStringsArray
-    args: any[]
-    transforms: ((s: string) => Awaitable<string>)[]
-    resolved?: string
+    strings: TemplateStringsArray // Template strings
+    args: any[] // Arguments for the template
+    transforms: ((s: string) => Awaitable<string>)[] // Transform functions to apply to the template
+    resolved?: string // Resolved templated content
 }
 
+// Interface for an import template node.
 export interface PromptImportTemplate extends PromptNode {
     type: "importTemplate"
-    files: string | string[]
-    args?: Record<string, string | number | boolean>
-    options?: ImportTemplateOptions
-    resolved?: Record<string, string>
+    files: string | string[] // Files to import
+    args?: Record<string, string | number | boolean> // Arguments for the template
+    options?: ImportTemplateOptions // Additional options
+    resolved?: Record<string, string> // Resolved content from files
 }
 
+// Interface representing a prompt image.
 export interface PromptImage {
-    url: string
-    filename?: string
-    detail?: "low" | "high"
+    url: string // URL of the image
+    filename?: string // Optional filename
+    detail?: "low" | "high" // Image detail level
 }
 
+// Interface for an image node.
 export interface PromptImageNode extends PromptNode {
     type: "image"
-    value: Awaitable<PromptImage>
-    resolved?: PromptImage
+    value: Awaitable<PromptImage> // Image information
+    resolved?: PromptImage // Resolved image information
 }
 
+// Interface for a schema node.
 export interface PromptSchemaNode extends PromptNode {
     type: "schema"
-    name: string
-    value: JSONSchema
-    options?: DefSchemaOptions
+    name: string // Name of the schema
+    value: JSONSchema // Schema definition
+    options?: DefSchemaOptions // Additional options
 }
 
+// Interface for a function node.
 export interface PromptFunctionNode extends PromptNode {
     type: "function"
-    name: string
-    description: string
-    parameters: JSONSchema
-    impl: ChatFunctionHandler
+    name: string // Function name
+    description: string // Description of the function
+    parameters: JSONSchema // Parameters for the function
+    impl: ChatFunctionHandler // Implementation of the function
 }
 
+// Interface for a file merge node.
 export interface PromptFileMergeNode extends PromptNode {
     type: "fileMerge"
-    fn: FileMergeHandler
+    fn: FileMergeHandler // Handler for the file merge
 }
 
+// Interface for an output processor node.
 export interface PromptOutputProcessorNode extends PromptNode {
     type: "outputProcessor"
-    fn: PromptOutputProcessorHandler
+    fn: PromptOutputProcessorHandler // Handler for the output processing
 }
 
+// Interface for a chat participant node.
 export interface PromptChatParticipantNode extends PromptNode {
     type: "chatParticipant"
-    participant: ChatParticipant
-    options?: ChatParticipantOptions
+    participant: ChatParticipant // Chat participant information
+    options?: ChatParticipantOptions // Additional options
 }
 
+// Interface for a file output node.
 export interface FileOutputNode extends PromptNode {
     type: "fileOutput"
-    output: FileOutput
+    output: FileOutput // File output information
 }
 
+// Function to create a text node.
 export function createTextNode(
     value: Awaitable<string>,
     options?: ContextExpansionOptions
 ): PromptTextNode {
-    assert(value !== undefined)
+    assert(value !== undefined) // Ensure value is defined
     return { type: "text", value, ...(options || {}) }
 }
 
+// Function to create a definition node.
 export function createDef(
     name: string,
     file: WorkspaceFile,
@@ -158,6 +177,7 @@ export function createDef(
     return { type: "def", name, value, ...(options || {}) }
 }
 
+// Function to render a definition node to a string.
 function renderDefNode(def: PromptDefNode): string {
     const { name, resolved } = def
     const file = resolved
@@ -204,6 +224,7 @@ function renderDefNode(def: PromptDefNode): string {
     return res
 }
 
+// Function to create an assistant node.
 export function createAssistantNode(
     value: Awaitable<string>,
     options?: ContextExpansionOptions
@@ -212,6 +233,7 @@ export function createAssistantNode(
     return { type: "assistant", value, ...(options || {}) }
 }
 
+// Function to create a string template node.
 export function createStringTemplateNode(
     strings: TemplateStringsArray,
     args: any[],
@@ -227,6 +249,7 @@ export function createStringTemplateNode(
     }
 }
 
+// Function to create an image node.
 export function createImageNode(
     value: Awaitable<PromptImage>,
     options?: ContextExpansionOptions
@@ -235,6 +258,7 @@ export function createImageNode(
     return { type: "image", value, ...(options || {}) }
 }
 
+// Function to create a schema node.
 export function createSchemaNode(
     name: string,
     value: JSONSchema,
@@ -245,6 +269,7 @@ export function createSchemaNode(
     return { type: "schema", name, value, options }
 }
 
+// Function to create a function node.
 export function createFunctionNode(
     name: string,
     description: string,
@@ -264,11 +289,13 @@ export function createFunctionNode(
     }
 }
 
+// Function to create a file merge node.
 export function createFileMerge(fn: FileMergeHandler): PromptFileMergeNode {
     assert(fn !== undefined)
     return { type: "fileMerge", fn }
 }
 
+// Function to create an output processor node.
 export function createOutputProcessor(
     fn: PromptOutputProcessorHandler
 ): PromptOutputProcessorNode {
@@ -276,16 +303,19 @@ export function createOutputProcessor(
     return { type: "outputProcessor", fn }
 }
 
+// Function to create a chat participant node.
 export function createChatParticipant(
     participant: ChatParticipant
 ): PromptChatParticipantNode {
     return { type: "chatParticipant", participant }
 }
 
+// Function to create a file output node.
 export function createFileOutput(output: FileOutput): FileOutputNode {
     return { type: "fileOutput", output }
 }
 
+// Function to create an import template node.
 export function createImportTemplate(
     files: string | string[],
     args?: Record<string, string | number | boolean>,
@@ -295,6 +325,7 @@ export function createImportTemplate(
     return { type: "importTemplate", files, args, options }
 }
 
+// Function to check if data objects have the same keys and simple values.
 function haveSameKeysAndSimpleValues(data: object[]): boolean {
     if (data.length === 0) return true
     const headers = Object.entries(data[0])
@@ -313,6 +344,7 @@ function haveSameKeysAndSimpleValues(data: object[]): boolean {
     })
 }
 
+// Function to create a text node with data.
 export function createDefData(
     name: string,
     data: object | object[],
@@ -356,6 +388,7 @@ ${trimNewlines(text)}
     return createTextNode(value, { priority })
 }
 
+// Function to append a child node to a parent node.
 export function appendChild(parent: PromptNode, child: PromptNode): void {
     if (!parent.children) {
         parent.children = []
@@ -363,24 +396,26 @@ export function appendChild(parent: PromptNode, child: PromptNode): void {
     parent.children.push(child)
 }
 
+// Interface for visiting different types of prompt nodes.
 export interface PromptNodeVisitor {
-    node?: (node: PromptNode) => Awaitable<void>
-    error?: (node: PromptNode) => Awaitable<void>
-    afterNode?: (node: PromptNode) => Awaitable<void>
-    text?: (node: PromptTextNode) => Awaitable<void>
-    def?: (node: PromptDefNode) => Awaitable<void>
-    image?: (node: PromptImageNode) => Awaitable<void>
-    schema?: (node: PromptSchemaNode) => Awaitable<void>
-    function?: (node: PromptFunctionNode) => Awaitable<void>
-    fileMerge?: (node: PromptFileMergeNode) => Awaitable<void>
-    stringTemplate?: (node: PromptStringTemplateNode) => Awaitable<void>
-    outputProcessor?: (node: PromptOutputProcessorNode) => Awaitable<void>
-    assistant?: (node: PromptAssistantNode) => Awaitable<void>
-    chatParticipant?: (node: PromptChatParticipantNode) => Awaitable<void>
-    fileOutput?: (node: FileOutputNode) => Awaitable<void>
-    importTemplate?: (node: PromptImportTemplate) => Awaitable<void>
+    node?: (node: PromptNode) => Awaitable<void> // General node visitor
+    error?: (node: PromptNode) => Awaitable<void> // Error handling visitor
+    afterNode?: (node: PromptNode) => Awaitable<void> // Post node visitor
+    text?: (node: PromptTextNode) => Awaitable<void> // Text node visitor
+    def?: (node: PromptDefNode) => Awaitable<void> // Definition node visitor
+    image?: (node: PromptImageNode) => Awaitable<void> // Image node visitor
+    schema?: (node: PromptSchemaNode) => Awaitable<void> // Schema node visitor
+    function?: (node: PromptFunctionNode) => Awaitable<void> // Function node visitor
+    fileMerge?: (node: PromptFileMergeNode) => Awaitable<void> // File merge node visitor
+    stringTemplate?: (node: PromptStringTemplateNode) => Awaitable<void> // String template node visitor
+    outputProcessor?: (node: PromptOutputProcessorNode) => Awaitable<void> // Output processor node visitor
+    assistant?: (node: PromptAssistantNode) => Awaitable<void> // Assistant node visitor
+    chatParticipant?: (node: PromptChatParticipantNode) => Awaitable<void> // Chat participant node visitor
+    fileOutput?: (node: FileOutputNode) => Awaitable<void> // File output node visitor
+    importTemplate?: (node: PromptImportTemplate) => Awaitable<void> // Import template node visitor
 }
 
+// Function to visit nodes in the prompt tree.
 export async function visitNode(node: PromptNode, visitor: PromptNodeVisitor) {
     await visitor.node?.(node)
     switch (node.type) {
@@ -430,20 +465,22 @@ export async function visitNode(node: PromptNode, visitor: PromptNodeVisitor) {
     await visitor.afterNode?.(node)
 }
 
+// Interface for representing a rendered prompt node.
 export interface PromptNodeRender {
-    userPrompt: string
-    assistantPrompt: string
-    images: PromptImage[]
-    errors: unknown[]
-    schemas: Record<string, JSONSchema>
-    functions: ToolCallback[]
-    fileMerges: FileMergeHandler[]
-    outputProcessors: PromptOutputProcessorHandler[]
-    chatParticipants: ChatParticipant[]
-    messages: ChatCompletionMessageParam[]
-    fileOutputs: FileOutput[]
+    userPrompt: string // User prompt content
+    assistantPrompt: string // Assistant prompt content
+    images: PromptImage[] // Images included in the prompt
+    errors: unknown[] // Errors encountered during rendering
+    schemas: Record<string, JSONSchema> // Schemas included in the prompt
+    functions: ToolCallback[] // Functions included in the prompt
+    fileMerges: FileMergeHandler[] // File merge handlers
+    outputProcessors: PromptOutputProcessorHandler[] // Output processor handlers
+    chatParticipants: ChatParticipant[] // Chat participants
+    messages: ChatCompletionMessageParam[] // Messages for chat completion
+    fileOutputs: FileOutput[] // File outputs
 }
 
+// Function to resolve a prompt node.
 async function resolvePromptNode(
     model: string,
     root: PromptNode
@@ -507,7 +544,7 @@ async function resolvePromptNode(
                         if (typeof ra === "function") ra = ra()
                         ra = await ra
 
-                        // render files
+                        // Render files
                         if (typeof ra === "object") {
                             if (ra.filename) {
                                 n.children = [
@@ -602,6 +639,7 @@ async function resolvePromptNode(
     return { errors: err }
 }
 
+// Function to truncate text based on token limits.
 function truncateText(
     content: string,
     maxTokens: number,
@@ -615,6 +653,7 @@ function truncateText(
     return content.slice(0, end) + MAX_TOKENS_ELLIPSE
 }
 
+// Function to handle truncation of prompt nodes based on token limits.
 async function truncatePromptNode(
     model: string,
     node: PromptNode,
@@ -676,6 +715,7 @@ async function truncatePromptNode(
     return truncated
 }
 
+// Function to adjust token limits for nodes with flexibility.
 async function flexPromptNode(
     root: PromptNode,
     options?: { flexTokens: number } & TraceOptions
@@ -684,7 +724,7 @@ async function flexPromptNode(
 
     const { trace, flexTokens } = options || {}
 
-    // collect all notes
+    // Collect all nodes
     const nodes: PromptNode[] = []
     await visitNode(root, {
         node: (n) => {
@@ -697,12 +737,12 @@ async function flexPromptNode(
     )
 
     if (totalTokens < flexTokens) {
-        // no need to flex
+        // No need to flex
         return
     }
 
-    // inspired from priompt, prompt-tsx, gpt-4
-    // sort by priority
+    // Inspired from priompt, prompt-tsx, gpt-4
+    // Sort by priority
     nodes.sort(
         (a, b) =>
             (a.priority ?? PRIORITY_DEFAULT) - (b.priority ?? PRIORITY_DEFAULT)
@@ -723,6 +763,7 @@ async function flexPromptNode(
     }
 }
 
+// Function to trace the prompt node structure for debugging.
 async function tracePromptNode(
     trace: MarkdownTrace,
     root: PromptNode,
@@ -755,6 +796,7 @@ async function tracePromptNode(
     })
 }
 
+// Main function to render a prompt node.
 export async function renderPromptNode(
     modelId: string,
     node: PromptNode,

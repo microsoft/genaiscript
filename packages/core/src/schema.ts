@@ -1,3 +1,4 @@
+// Import necessary modules and functions
 import { JSON5parse } from "./json5"
 import { MarkdownTrace } from "./trace"
 import Ajv from "ajv"
@@ -5,27 +6,39 @@ import { YAMLParse } from "./yaml"
 import { errorMessage } from "./error"
 import { promptParametersSchemaToJSONSchema } from "./parameters"
 
+/**
+ * Check if an object is a JSON Schema
+ * @param obj - The object to check
+ * @returns true if the object is a JSON Schema
+ */
 export function isJSONSchema(obj: any) {
     if (typeof obj === "object" && obj.type === "object") return true
     if (typeof obj === "object" && obj.type === "array") return true
     return false
 }
 
+/**
+ * Converts a JSON Schema to a TypeScript type definition as a string
+ * @param schema - The JSON Schema
+ * @param options - Optional settings for type name and export
+ * @returns TypeScript type definition string
+ */
 export function JSONSchemaStringifyToTypeScript(
     schema: JSONSchema,
     options?: { typeName?: string; export?: boolean }
 ) {
     const { typeName = "Response" } = options || {}
-    let lines: string[] = []
-    let indent = 0
+    let lines: string[] = [] // Array to accumulate lines of TypeScript code
+    let indent = 0 // Manage indentation level
 
-    appendJsDoc(schema.description)
+    appendJsDoc(schema.description) // Add JSDoc for schema description
     append(
         `${options?.export ? "export " : ""}type ${typeName.replace(/\s+/g, "_")} =`
     )
-    stringifyNode(schema)
-    return lines.join("\n")
+    stringifyNode(schema) // Convert schema to TypeScript
+    return lines.join("\n") // Join lines into a single TypeScript definition
 
+    // Append a line to the TypeScript definition
     function append(line: string) {
         if (/=$/.test(lines[lines.length - 1]))
             lines[lines.length - 1] = lines[lines.length - 1] + " " + line
@@ -34,6 +47,7 @@ export function JSONSchemaStringifyToTypeScript(
         else lines.push("  ".repeat(indent) + line)
     }
 
+    // Append JSDoc comments
     function appendJsDoc(text: string) {
         if (!text) return
         if (text.indexOf("\n") > -1)
@@ -43,6 +57,7 @@ export function JSONSchemaStringifyToTypeScript(
         else append(`// ${text}`)
     }
 
+    // Convert a JSON Schema node to TypeScript
     function stringifyNode(node: JSONSchemaType): string {
         if (node === undefined) return "any"
         else if (node.type === "array") {
@@ -58,6 +73,7 @@ export function JSONSchemaStringifyToTypeScript(
         else return "unknown"
     }
 
+    // Extract documentation for a node
     function stringifyNodeDoc(node: JSONSchemaType): string {
         const doc = [node.description]
         switch (node.type) {
@@ -76,6 +92,7 @@ export function JSONSchemaStringifyToTypeScript(
         return doc.filter((d) => d).join("\n")
     }
 
+    // Convert a JSON Schema object to TypeScript
     function stringifyObject(object: JSONSchemaObject): void {
         const { required, additionalProperties } = object
         append(`{`)
@@ -95,6 +112,7 @@ export function JSONSchemaStringifyToTypeScript(
         append(`}`)
     }
 
+    // Convert a JSON Schema array to TypeScript
     function stringifyArray(array: JSONSchemaArray): void {
         append(`Array<`)
         indent++
@@ -105,11 +123,23 @@ export function JSONSchemaStringifyToTypeScript(
     }
 }
 
+/**
+ * Validate a JSON schema using Ajv
+ * @param schema - The JSON Schema to validate
+ * @returns Promise with validation result
+ */
 export async function validateSchema(schema: JSONSchema) {
     const ajv = new Ajv()
     return await ajv.validateSchema(schema, false)
 }
 
+/**
+ * Validate a JSON object against a given JSON schema
+ * @param object - The JSON object to validate
+ * @param schema - The JSON Schema
+ * @param options - Optional trace for debugging
+ * @returns Validation result with success status and error message if any
+ */
 export function validateJSONWithSchema(
     object: any,
     schema: JSONSchema,
@@ -143,13 +173,20 @@ export function validateJSONWithSchema(
     }
 }
 
+/**
+ * Validate multiple JSON or YAML fences against given schemas
+ * @param fences - Array of fenced code blocks
+ * @param schemas - Map of schema names to JSON Schemas
+ * @param options - Optional trace for debugging
+ * @returns Array of data frames with validation results
+ */
 export function validateFencesWithSchema(
     fences: Fenced[],
     schemas: Record<string, JSONSchema>,
     options?: { trace: MarkdownTrace }
 ): DataFrame[] {
     const frames: DataFrame[] = []
-    // validate schemas in fences
+    // Validate schemas in fences
     for (const fence of fences?.filter(
         ({ language, args }) =>
             args?.schema && (language === "json" || language === "yaml")
@@ -157,7 +194,7 @@ export function validateFencesWithSchema(
         const { language, content: val, args } = fence
         const schema = args?.schema
 
-        // validate well formed json/yaml
+        // Validate well-formed JSON/YAML
         let data: any
         try {
             if (language === "json") data = JSON5parse(val, { repair: true })
@@ -169,7 +206,7 @@ export function validateFencesWithSchema(
             }
         }
         if (!fence.validation) {
-            // check if schema specified
+            // Check if schema specified
             const schemaObj = schemas[schema]
             if (!schemaObj) {
                 fence.validation = {
@@ -184,7 +221,7 @@ export function validateFencesWithSchema(
                 )
         }
 
-        // add to frames
+        // Add to frames
         frames.push({
             schema,
             data,
@@ -194,6 +231,11 @@ export function validateFencesWithSchema(
     return frames
 }
 
+/**
+ * Converts a JSON Schema to a JSON string
+ * @param schema - The JSON Schema
+ * @returns JSON string representation of the schema
+ */
 export function JSONSchemaStringify(schema: JSONSchema) {
     return JSON.stringify(
         {
@@ -206,7 +248,11 @@ export function JSONSchemaStringify(schema: JSONSchema) {
     )
 }
 
-// https://platform.openai.com/docs/guides/structured-outputs/supported-schemas
+/**
+ * Converts a schema to a strict JSON Schema
+ * @param schema - The schema to convert
+ * @returns A strict JSON Schema
+ */
 export function toStrictJSONSchema(
     schema: PromptParametersSchema | JSONSchema
 ): any {
@@ -218,6 +264,7 @@ export function toStrictJSONSchema(
     if (clone.type !== "object")
         throw new Error("top level schema must be object")
 
+    // Recursive function to make the schema strict
     function visit(node: JSONSchemaType): void {
         const { type } = node
         switch (type) {

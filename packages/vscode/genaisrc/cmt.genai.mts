@@ -7,6 +7,10 @@ script({
     Modified from https://x.com/mckaywrigley/status/1838321570969981308.
     `,
     parameters: {
+        format: {
+            type: "string",
+            description: "Format source code command",
+        },
         build: {
             type: "string",
             description: "Build command",
@@ -14,7 +18,7 @@ script({
     },
 })
 
-const build = env.vars.build
+const { format, build } = env.vars
 const saveLimit = pLimit(1)
 
 // Get files from environment or modified files from Git if none provided
@@ -58,15 +62,26 @@ async function processFile(file: WorkspaceFile) {
                 console.log(`updating ${file.filename}`)
                 await workspace.writeText(file.filename, newContent)
                 let revert = false
+                // try formatting
+                if (format) {
+                    const formatRes = await host.exec(
+                        `${format} ${file.filename}`
+                    )
+                    if (formatRes.exitCode !== 0) {
+                        revert = true
+                    }
+                }
                 // try building
-                if (build) {
-                    const buildRes = await host.exec(build)
+                if (!revert && build) {
+                    const buildRes = await host.exec(
+                        `${build} ${file.filename}`
+                    )
                     if (buildRes.exitCode !== 0) {
                         revert = true
                     }
                 }
                 // last LLM as judge check
-                revert = revert || (await checkModifications(file.filename))
+                if (!revert) revert = await checkModifications(file.filename)
 
                 // revert
                 if (revert) {
@@ -81,7 +96,7 @@ async function processFile(file: WorkspaceFile) {
 }
 
 // Function to add comments to code
-async function addComments(file: WorkspaceFile) {
+async function addComments(file: WorkspaceFile): Promise<string | undefined> {
     let { filename, content } = file
     if (parsers.tokens(file) > 20000) return undefined // too big
 
@@ -105,7 +120,8 @@ You should analyze it, and add/update appropriate comments as needed.
 To add or update comments to this code, follow these steps:
 
 1. Analyze the code to understand its structure and functionality.
-- If you are not familiar with the programming language, ignore the file.
+- If you are not familiar with the programming language, emit an empty file.
+- If there is no code, emit an empty file.
 2. Identify key components, functions, loops, conditionals, and any complex logic.
 3. Add comments that explain:
 - The purpose of functions or code blocks using the best comment format for that programming language.
@@ -129,6 +145,7 @@ When adding or updating comments, follow these guidelines:
 - For TypeScript functions, classes and fields, use JSDoc comments. do NOT add type annotations in comments.
 - For Python functions and classes, use docstrings.
 - do not modify comments with TODOs.
+- do not modify comments with URLs or links as they are reference to external resources.
 
 Your output should be the original code with your added comments. Make sure to preserve the original code's formatting and structure. 
 
@@ -140,14 +157,14 @@ Your comments should provide insight into the code's purpose, logic, and any imp
         )
         const { text, fences } = res
         const newContent = fences?.[0]?.content ?? text
-        if (!newContent) return undefined
+        if (!newContent?.trim()) return undefined
         if (newContent === content) break
         content = newContent
     }
     return content
 }
 
-async function checkModifications(filename: string) {
+async function checkModifications(filename: string): Promise<boolean> {
     const diff = await host.exec(`git diff ${filename}`)
     if (!diff.stdout) return false
     const res = await runPrompt(
@@ -166,4 +183,5 @@ async function checkModifications(filename: string) {
 
     const modified = res.text?.includes("MODIFIED")
     console.log(`code modified, reverting...`)
+    return modified
 }
