@@ -55,6 +55,7 @@ export async function parsePDF(file: string) {
  * @param file - The DOCX file to parse.
  */
 export async function parseDOCX(file: string) {
+    // Uses DOCXTryParse to extract text from the DOCX file
     const text = await DOCXTryParse(file)
     console.log(text)
 }
@@ -65,6 +66,7 @@ export async function parseDOCX(file: string) {
  */
 export async function parseHTMLToText(file: string) {
     const html = await readFile(file, { encoding: "utf-8" })
+    // Converts HTML to plain text
     const text = HTMLToText(html)
     console.log(text)
 }
@@ -76,6 +78,7 @@ export async function parseHTMLToText(file: string) {
 export async function jsonl2json(files: string[]) {
     for (const file of await expandFiles(files)) {
         if (!isJSONLFilename(file)) {
+            // Skips files that are not JSONL
             console.log(`skipping ${file}`)
             continue
         }

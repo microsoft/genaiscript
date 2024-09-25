@@ -2238,7 +2238,7 @@ interface ShellHost {
 }
 
 interface ContainerPortBinding {
-    containerPort: OptionsOrString<"80/tcp">
+    containerPort: OptionsOrString<"8000/tcp">
     hostPort: string | number
 }
 
@@ -2278,12 +2278,45 @@ interface ContainerOptions {
     ports?: ElementOrArray<ContainerPortBinding>
 }
 
+interface PromiseQueue {
+    /**
+     * Adds a new promise to the queue
+     * @param fn
+     */
+    add<Arguments extends unknown[], ReturnType>(
+        function_: (...arguments_: Arguments) => Awaitable<ReturnType>,
+        ...arguments_: Arguments
+    ): Promise<ReturnType>
+
+    /**
+     * Runs all the functions in the queue with limited concurrency
+     * @param fns
+     */
+    all<T = any>(fns: (() => Awaitable<T>)[]): Promise<T[]>
+
+    /**
+     * Applies a function to all the values in the queue with limited concurrency
+     * @param values 
+     * @param fn 
+     */
+    async mapAll<T extends unknown, Arguments extends unknown[], ReturnType>(
+        values: T[],
+        fn: (value: T, ...arguments_: Arguments) => Awaitable<ReturnType>,
+        ...arguments_: Arguments
+    ): Promise<ReturnType[]>
+}
+
 interface PromptHost extends ShellHost {
     /**
      * Starts a container
      * @param options container creation options
      */
     container(options?: ContainerOptions): Promise<ContainerHost>
+
+    /**
+     * Create a new promise queue to run async functions with limited concurrency
+     */
+    promiseQueue(concurrency: number): PromiseQueue
 }
 
 interface ContainerHost extends ShellHost {

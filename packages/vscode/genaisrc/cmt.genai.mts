@@ -21,13 +21,15 @@ const { format, build } = env.vars
 let files = env.files
 if (files.length === 0) {
     // If no files are provided, read all modified files
+    const gitStatus = await host.exec("git status --porcelain")
+    const rx = /^\s+[M|U]\s+/ // modified or untracked
     files = await Promise.all(
-        (await host.exec("git status --porcelain")).stdout
-            .split("\n")
-            .filter((filename) => /^ [M|U]/.test(filename))
+        gitStatus.stdout
+            .split(/\r?\n/g)
+            .filter((filename) => rx.test(filename))
             .map(
                 async (filename) =>
-                    await workspace.readText(filename.replace(/^ [M|U] /, ""))
+                    await workspace.readText(filename.replace(rx, ""))
             )
     )
 }
@@ -35,15 +37,18 @@ if (files.length === 0) {
 // custom filter to only process code files
 files = files.filter(
     ({ filename }) =>
-        /\.(ts|cs|py|js|java)$/.test(filename) && // known languages only
+        /\.(py|m?ts|m?js|cs|java|c|cpp|h|hpp)$/.test(filename) && // known languages only
         !/\.test/.test(filename) // ignore test files
 )
 
 // Shuffle files
 files = files.sort(() => Math.random() - 0.5)
 
+console.log(YAML.stringify(files.map((f) => f.filename)))
+
 // Process each file separately to avoid context explosion
-await Promise.all(files.map((file) => processFile(file)))
+const jobs = host.promiseQueue(5)
+await jobs.mapAll(files, processFile)
 
 async function processFile(file: WorkspaceFile) {
     console.log(`processing ${file.filename}`)

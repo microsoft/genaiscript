@@ -46,7 +46,7 @@ import { Project } from "./ast"
 import { resolveSystems } from "./systems"
 import { shellParse } from "./shell"
 import { sleep } from "openai/core.mjs"
-import { concurrentLimit } from "./concurrency"
+import { concurrentLimit, PLimitPromiseQueue } from "./concurrency"
 
 export async function createPromptContext(
     prj: Project,
@@ -225,6 +225,7 @@ export async function createPromptContext(
             await runtimeHost.select(message, options),
         input: async (message) => await runtimeHost.input(message),
         confirm: async (message) => await runtimeHost.confirm(message),
+        promiseQueue: (concurrency) => new PLimitPromiseQueue(concurrency),
     })
 
     const ctx: PromptContext & RunPromptContextNode = {

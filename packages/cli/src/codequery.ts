@@ -19,7 +19,7 @@ import { logVerbose } from "../../core/src/util"
 export async function codeQuery(files: string, query: string) {
     // Find files matching the given pattern, respecting .gitignore rules.
     const ffs = await host.findFiles(files, {
-        applyGitIgnore: true,
+        applyGitIgnore: true, // Ensure .gitignore rules are applied when finding files
     })
     const captures: any[] = [] // Array to store query result captures
 
@@ -27,7 +27,7 @@ export async function codeQuery(files: string, query: string) {
     for (const filename of ffs) {
         logVerbose(`scanning ${filename}`) // Log the current file being scanned
 
-        // Initialize a WorkspaceFile object with filename
+        // Initialize a WorkspaceFile object with filename and undefined content
         const f: WorkspaceFile = { filename, content: undefined }
 
         // Resolve and load the file content
