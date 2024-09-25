@@ -72,7 +72,7 @@ defTool(
 await Promise.all(env.files => prompt`Summarize the ${file}`)
 ```
 
-Internally, GenAIScript applies a concurrent limit of 5 per model by default. You can change this limit using the `modelConcurrency` option.
+Internally, GenAIScript applies a concurrent limit of 8 per model by default. You can change this limit using the `modelConcurrency` option.
 
 ```js "modelConcurrency"
 script({
