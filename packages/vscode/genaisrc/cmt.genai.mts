@@ -43,7 +43,8 @@ files = files.filter(
 files = files.sort(() => Math.random() - 0.5)
 
 // Process each file separately to avoid context explosion
-await Promise.all(files.map((file) => processFile(file)))
+const jobs = host.pQueue({ concurrency: 5 })
+await Promise.all(files.map((file) => jobs.add(processFile, file)))
 
 async function processFile(file: WorkspaceFile) {
     console.log(`processing ${file.filename}`)

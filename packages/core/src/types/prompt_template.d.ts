@@ -2238,7 +2238,7 @@ interface ShellHost {
 }
 
 interface ContainerPortBinding {
-    containerPort: OptionsOrString<"80/tcp">
+    containerPort: OptionsOrString<"8000/tcp">
     hostPort: string | number
 }
 
@@ -2278,12 +2278,34 @@ interface ContainerOptions {
     ports?: ElementOrArray<ContainerPortBinding>
 }
 
+interface PromiseQueue {
+    /**
+     * Adds a new promise to the queue
+     * @param fn
+     */
+    add<Arguments extends unknown[], ReturnType>(
+        function_: (
+            ...arguments_: Arguments
+        ) => PromiseLike<ReturnType> | ReturnType,
+        ...arguments_: Arguments
+    ): Promise<ReturnType>
+}
+
+interface PromiseQueueOptions {
+    concurrency?: number
+}
+
 interface PromptHost extends ShellHost {
     /**
      * Starts a container
      * @param options container creation options
      */
     container(options?: ContainerOptions): Promise<ContainerHost>
+
+    /**
+     * Create a new job promise queue
+     */
+    pQueue(options?: PromiseQueueOptions): PromiseQueue
 }
 
 interface ContainerHost extends ShellHost {
