@@ -1,12 +1,13 @@
 ---
 title: Automatic Web Page Content Analysis
 date: 2024-09-12
-authors: [genaiscript, pelikhan]
-tags:
-    - GenAIScript
-    - Web Content Analysis
-    - Automation
-    - AI
+authors:
+  - genaiscript
+  - pelikhan
+tags: content analysis, playwright, automation, GenAIScript, web
+description: Learn how GenAIScript leverages the Playwright browser automation
+  library for efficient, automated analysis of web page content.
+
 ---
 
 In this blog post, we'll dive into a practical example showcasing how to leverage GenAIScript for automatic web page content analysis. GenAIScript uses the [playwright](https://playwright.dev/) browser automation library which allows to load, interact and inspect web pages.
