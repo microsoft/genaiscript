@@ -1,7 +1,7 @@
 /**
  * This module defines TypeScript types and interfaces for chat completions using the OpenAI API.
  * These types represent structured data for various chat-related functionalities.
- * 
+ *
  * Tags: TypeScript, OpenAI, Chat, Types, Interfaces
  */
 
@@ -98,12 +98,7 @@ export interface ChatCompletionResponse {
     variables?: Record<string, string> // Optional variables associated with the response
     toolCalls?: ChatCompletionToolCall[] // List of tool calls made during the response
     finishReason?: // Reason why the chat completion finished
-        | "stop"
-        | "length"
-        | "tool_calls"
-        | "content_filter"
-        | "cancel"
-        | "fail"
+    "stop" | "length" | "tool_calls" | "content_filter" | "cancel" | "fail"
 }
 
 // Alias for OpenAI's API error type

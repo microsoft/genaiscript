@@ -5,7 +5,7 @@ import { logVerbose } from "./util"
 /**
  * Function to estimate the number of tokens for a given text.
  * Utilizes a provided encoder function to achieve this.
- * 
+ *
  * @param text - The input text whose tokens are to be estimated.
  * @param encoder - A function that encodes the text into tokens.
  * @returns The estimated number of tokens including an overhead.

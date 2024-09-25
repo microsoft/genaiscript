@@ -5,7 +5,7 @@ import { host } from "./host"
 
 /**
  * Function to remove properties with undefined values from an object.
- * 
+ *
  * @param obj - An object with string keys and any type of values.
  * @returns A new object with undefined values removed, or undefined if the input is undefined.
  */
@@ -26,7 +26,7 @@ function cleanUndefined(obj: Record<string, any>) {
 
 /**
  * Generates a configuration object for PromptFoo using a given script and options.
- * 
+ *
  * @param script - A PromptScript containing the prompt details.
  * @param options - Optional configuration settings such as provider, testProvider, outputs, etc.
  * @returns A configuration object for PromptFoo.

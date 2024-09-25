@@ -23,7 +23,8 @@ import { logVerbose } from "./util"
 export function resolveGlobal(): any {
     if (typeof window !== "undefined")
         return window // Browser environment
-    else if (typeof self !== "undefined") return self // Web worker environment
+    else if (typeof self !== "undefined")
+        return self // Web worker environment
     else if (typeof global !== "undefined") return global // Node.js environment
     throw new Error("Could not find global")
 }

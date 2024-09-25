@@ -11,10 +11,10 @@ import {
 // JSDoc comment for the tidyData function
 /**
  * Processes and filters data rows based on the provided options.
- * 
+ *
  * This function applies various operations such as selecting distinct values,
  * selecting specific headers, and slicing samples, head, or tail of the data.
- * 
+ *
  * @param {object[]} rows - The data rows to be processed.
  * @param {DataFilter} [options={}] - The options to filter and manipulate the data.
  * @returns {object[]} - The processed and filtered data rows.
@@ -26,7 +26,7 @@ export function tidyData(rows: object[], options: DataFilter = {}) {
 
     // Check if specific headers need to be selected and apply the selection
     if (options.headers?.length) rows = tidy(rows, select(options.headers))
-    
+
     // Check if a random sample of rows is to be sliced and apply sampling
     if (options.sliceSample > 0)
         rows = tidy(rows, sliceSample(options.sliceSample))

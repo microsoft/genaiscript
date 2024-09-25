@@ -91,8 +91,8 @@ export function convertDiagnosticToGitHubActionCommand(d: Diagnostic) {
 export function convertDiagnosticToAzureDevOpsCommand(d: Diagnostic) {
     // Handle 'info' severity separately with a debug message.
     if (d.severity === "info") return `##[debug]${d.message} at ${d.filename}`
+    // Construct Azure DevOps command string with necessary details.
     else
-        // Construct Azure DevOps command string with necessary details.
         return `##vso[task.logissue type=${d.severity};sourcepath=${d.filename};linenumber=${d.range[0][0]}]${d.message}`
 }
 

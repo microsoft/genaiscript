@@ -7,7 +7,7 @@ import { logVerbose } from "./util" // Import function for verbose logging
 
 /**
  * Asynchronously writes file edits to disk.
- * 
+ *
  * @param res - The result of a generation process containing file edits.
  * @param applyEdits - A flag indicating whether edits should be applied even if validation fails.
  */

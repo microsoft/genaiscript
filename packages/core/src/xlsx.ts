@@ -3,7 +3,7 @@ import { logInfo } from "./util"
 
 /**
  * Parses XLSX data into an array of workbook sheets.
- * 
+ *
  * @param data - The XLSX data as a Uint8Array.
  * @param options - Optional parsing options including a specific sheet name.
  * @returns A promise that resolves to an array of WorkbookSheet objects.
@@ -32,7 +32,7 @@ export async function XLSXParse(
 
 /**
  * Attempts to parse XLSX data, returning an empty array on failure.
- * 
+ *
  * @param data - The XLSX data as a Uint8Array.
  * @param options - Optional parsing options including a specific sheet name.
  * @returns A promise that resolves to an array of WorkbookSheet objects or an empty array if parsing fails.

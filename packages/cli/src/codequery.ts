@@ -9,10 +9,10 @@ import { logVerbose } from "../../core/src/util"
 
 /**
  * Executes a code query using Tree-sitter on specified files and outputs the results in YAML format.
- * 
+ *
  * This function utilizes Tree-sitter to perform queries on code files that match a given glob pattern.
  * It respects .gitignore rules when searching for files and outputs the results in a structured YAML format.
- * 
+ *
  * @param files - A glob pattern to match files for querying.
  * @param query - The Tree-sitter query to be executed on each file.
  */

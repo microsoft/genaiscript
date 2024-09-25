@@ -1,4 +1,4 @@
-// This file provides a function to generate structured help documentation 
+// This file provides a function to generate structured help documentation
 // for all CLI commands, formatted as Markdown content.
 
 import { Command, program } from "commander"

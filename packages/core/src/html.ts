@@ -11,7 +11,7 @@ import { tabletojson } from "tabletojson" // Import tabletojson for converting H
 
 /**
  * Converts HTML tables to JSON objects.
- * 
+ *
  * @param html - The HTML content containing tables.
  * @param options - Optional parameters for conversion.
  * @returns A 2D array of objects representing the table data.
@@ -23,7 +23,7 @@ export function HTMLTablesToJSON(html: string, options?: {}): object[][] {
 
 /**
  * Converts HTML content to plain text.
- * 
+ *
  * @param html - The HTML content to convert.
  * @param options - Optional parameters including tracing options.
  * @returns The plain text representation of the HTML.
@@ -47,7 +47,7 @@ export function HTMLToText(
 
 /**
  * Converts HTML content to Markdown format.
- * 
+ *
  * @param html - The HTML content to convert.
  * @param options - Optional tracing parameters.
  * @returns The Markdown representation of the HTML.

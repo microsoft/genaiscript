@@ -1,6 +1,6 @@
-// This module provides utilities for handling markdown, including prettifying, cleaning, 
-// generating markdown structures, and parsing trace trees. It supports operations like 
-// converting annotations to markdown, wrapping text in fences, creating links and details blocks, 
+// This module provides utilities for handling markdown, including prettifying, cleaning,
+// generating markdown structures, and parsing trace trees. It supports operations like
+// converting annotations to markdown, wrapping text in fences, creating links and details blocks,
 // and working with trace trees.
 
 import { convertAnnotationsToMarkdown } from "./annotations"

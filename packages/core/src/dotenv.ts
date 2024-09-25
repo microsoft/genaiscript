@@ -11,7 +11,7 @@ import { logError } from "./util"
 /**
  * Safely parses a dotenv-style string into a key-value object.
  * If parsing fails, logs the error and returns an empty object.
- * 
+ *
  * @param text - The dotenv file content as a string
  * @returns A record with key-value pairs from the dotenv file
  */
@@ -33,25 +33,27 @@ export const dotEnvParse = parse
 /**
  * Converts a key-value record into a dotenv-style string.
  * If values contain newlines or quotes, they are enclosed in double quotes and escaped.
- * 
+ *
  * @param record - An object representing key-value pairs
  * @returns A dotenv-formatted string
  */
 export function dotEnvStringify(record: Record<string, string>): string {
-    return Object.entries(record || {})
-        .map(([key, value]) => {
-            // Ensure null or undefined values are treated as empty strings
-            if (value === undefined || value === null) value = ""
+    return (
+        Object.entries(record || {})
+            .map(([key, value]) => {
+                // Ensure null or undefined values are treated as empty strings
+                if (value === undefined || value === null) value = ""
 
-            // Enclose in quotes if the value contains newlines or quotes, and escape quotes
-            if (value.includes("\n") || value.includes('"')) {
-                value = value.replace(/"/g, '\\"') // Escape existing quotes
-                return `${key}="${value}"`
-            }
-            
-            // Default key-value format without quotes
-            return `${key}=${value}`
-        })
-        // Join all key-value pairs with newline characters for dotenv format
-        .join("\n")
+                // Enclose in quotes if the value contains newlines or quotes, and escape quotes
+                if (value.includes("\n") || value.includes('"')) {
+                    value = value.replace(/"/g, '\\"') // Escape existing quotes
+                    return `${key}="${value}"`
+                }
+
+                // Default key-value format without quotes
+                return `${key}=${value}`
+            })
+            // Join all key-value pairs with newline characters for dotenv format
+            .join("\n")
+    )
 }

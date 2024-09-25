@@ -11,7 +11,7 @@ import { LanguageModelConfiguration, host } from "./host"
  * Handles chat completion requests using the Ollama model.
  * Tries to complete the request using the OpenAIChatCompletion function.
  * If the model is not found locally, it attempts to pull the model from a remote source.
- * 
+ *
  * @param req - The request object containing model information.
  * @param cfg - The configuration for the language model.
  * @param options - Additional options for the request.
@@ -38,7 +38,7 @@ export const OllamaCompletion: ChatCompletionHandler = async (
                 e.body?.message?.includes(`model '${model}' not found`)
             ) {
                 trace.log(`model ${model} not found, trying to pull it`)
-                
+
                 // Model not installed locally, initiate fetch to pull model
                 const fetch = await createFetch({ trace })
                 const res = await fetch(cfg.base.replace("/v1", "/api/pull"), {
@@ -64,7 +64,7 @@ export const OllamaCompletion: ChatCompletionHandler = async (
 /**
  * Lists available models for the Ollama language model configuration.
  * Fetches model data from a remote endpoint and formats it into a LanguageModelInfo array.
- * 
+ *
  * @param cfg - The configuration for the language model.
  * @returns A promise that resolves to an array of LanguageModelInfo objects.
  */

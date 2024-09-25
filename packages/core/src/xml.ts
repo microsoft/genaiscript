@@ -9,7 +9,7 @@ import { unfence } from "./fence"
 
 /**
  * Attempts to parse an XML string, returning a default value on failure.
- * 
+ *
  * @param text - The XML string to parse
  * @param defaultValue - The value to return if parsing fails
  * @param options - Optional configuration for the XML parser
@@ -33,7 +33,7 @@ export function XMLTryParse(
 
 /**
  * Parses an XML string into an object.
- * 
+ *
  * @param text - The XML string to parse
  * @param options - Optional configuration for the XML parser
  * @returns The parsed XML object
@@ -41,15 +41,15 @@ export function XMLTryParse(
 export function XMLParse(text: string, options?: XMLParseOptions) {
     // Remove specific markers from the XML string for cleaner processing
     const cleaned = unfence(text, "xml")
-    
+
     // Create a new XMLParser instance with the specified options
     const parser = new XMLParser({
-        ignoreAttributes: false,             // Do not ignore XML attributes
-        attributeNamePrefix: "@_",           // Prefix for attribute names
-        allowBooleanAttributes: true,        // Allow boolean attributes
-        ignoreDeclaration: true,             // Ignore the XML declaration
-        parseAttributeValue: true,           // Parse attribute values
-        ...(options || {}),                  // Merge user-provided options with defaults
+        ignoreAttributes: false, // Do not ignore XML attributes
+        attributeNamePrefix: "@_", // Prefix for attribute names
+        allowBooleanAttributes: true, // Allow boolean attributes
+        ignoreDeclaration: true, // Ignore the XML declaration
+        parseAttributeValue: true, // Parse attribute values
+        ...(options || {}), // Merge user-provided options with defaults
     })
 
     // Parse the cleaned XML string and return the result

@@ -1537,7 +1537,13 @@ interface ChatTurnGenerationContext {
     fence(body: StringLike, options?: FenceOptions): void
     def(
         name: string,
-        body: string | WorkspaceFile | WorkspaceFile[] | ShellOutput | Fenced | RunPromptResult,
+        body:
+            | string
+            | WorkspaceFile
+            | WorkspaceFile[]
+            | ShellOutput
+            | Fenced
+            | RunPromptResult,
         options?: DefOptions
     ): string
     defData(

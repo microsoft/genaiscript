@@ -21,11 +21,11 @@ async function tryImportPdfjs(options?: TraceOptions) {
     installPromiseWithResolversShim() // Ensure Promise.withResolvers is available
     const pdfjs = await import("pdfjs-dist")
     let workerSrc = require.resolve("pdfjs-dist/build/pdf.worker.min.mjs")
-    
+
     // Adjust worker source path for Windows platform
     if (os.platform() === "win32")
         workerSrc = "file://" + workerSrc.replace(/\\/g, "/")
-        
+
     pdfjs.GlobalWorkerOptions.workerSrc = workerSrc
     return pdfjs
 }
@@ -75,7 +75,7 @@ async function PDFTryParse(
         const doc = await loader.promise
         const numPages = doc.numPages
         const pages: string[] = []
-        
+
         // Iterate through each page and extract text content
         for (let i = 0; i < numPages; i++) {
             const page = await doc.getPage(1 + i) // 1-indexed
@@ -84,11 +84,11 @@ async function PDFTryParse(
                 (item): item is TextItem => "str" in item
             )
             let { lines } = parsePageItems(items)
-            
+
             // Optionally clean up trailing spaces
             if (!disableCleanup)
                 lines = lines.map((line) => line.replace(/[\t ]+$/g, ""))
-                
+
             // Collapse trailing spaces
             pages.push(lines.join("\n"))
         }
@@ -120,7 +120,7 @@ export async function parsePdf(
 ): Promise<{ pages: string[]; content: string }> {
     const { trace, filter } = options || {}
     let { pages } = await PDFTryParse(filename, undefined, options)
-    
+
     // Apply filter if provided
     if (filter) pages = pages.filter((page, index) => filter(index, page))
     const content = PDFPagesToString(pages)
@@ -190,7 +190,7 @@ function parsePageItems(pdfItems: TextItem[]) {
         ).filter((item) => !!item.str)
         const firstLineItem = lineItems[0]!
         let line = lineItems.length ? firstLineItem.str : ""
-        
+
         // Concatenate text items into a single line
         for (let j = 1; j < lineItems.length; j++) {
             const item = lineItems[j]!

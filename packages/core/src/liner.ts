@@ -6,7 +6,7 @@ import { llmifyDiff } from "./diff"
 /**
  * Adds 1-based line numbers to each line of a given text.
  * If the language is "diff", it processes the text using llmifyDiff.
- * 
+ *
  * @param text - The text to which line numbers will be added.
  * @param language - Optional parameter to specify the text format. Special handling for "diff".
  * @returns The text with line numbers added, or processed diff text if applicable.
@@ -26,7 +26,7 @@ export function addLineNumbers(text: string, language?: string) {
 /**
  * Removes line numbers from each line of a given text.
  * Assumes line numbers are in the format "[number] ".
- * 
+ *
  * @param text - The text from which line numbers will be removed.
  * @returns The text without line numbers, or the original text if no line numbers are found.
  */

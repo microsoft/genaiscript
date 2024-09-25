@@ -73,22 +73,22 @@ export async function resolveFileContent(
                 adapter?.contentType === "application/json"
                     ? adapter.adapter(await resp.json())
                     : await resp.text()
-    } 
+    }
     // Handle PDF files
     else if (PDF_REGEX.test(filename)) {
         const { content } = await parsePdf(filename, options)
         file.content = content
-    } 
+    }
     // Handle DOCX files
     else if (DOCX_REGEX.test(filename)) {
         file.content = await DOCXTryParse(filename, options)
-    } 
+    }
     // Handle XLSX files
     else if (XLSX_REGEX.test(filename)) {
         const bytes = await host.readFile(filename)
         const sheets = await XLSXParse(bytes)
         file.content = JSON.stringify(sheets, null, 2)
-    } 
+    }
     // Handle other file types
     else {
         const mime = lookupMime(filename)
@@ -139,18 +139,18 @@ export async function renderFileContent(
             csv = tidyData(csv, options)
             return { filename, content: CSVToMarkdown(csv, options) }
         }
-    } 
+    }
     // Render XLSX content
     else if (content && XLSX_REGEX.test(filename)) {
         const sheets = JSON.parse(content) as WorkbookSheet[]
         const trimmed = sheets.length
             ? sheets
-                .map(
-                    ({ name, rows }) => `## ${name}
+                  .map(
+                      ({ name, rows }) => `## ${name}
 ${CSVToMarkdown(tidyData(rows, options))}
 `
-                )
-                .join("\n")
+                  )
+                  .join("\n")
             : CSVToMarkdown(tidyData(sheets[0].rows, options))
         return { filename, content: trimmed }
     }
@@ -175,7 +175,7 @@ export async function resolveFileDataUri(
         const resp = await fetch(filename)
         const buffer = await resp.arrayBuffer()
         bytes = new Uint8Array(buffer)
-    } 
+    }
     // Read file from local storage
     else {
         bytes = new Uint8Array(await host.readFile(filename))

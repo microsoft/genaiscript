@@ -4,11 +4,11 @@ import { TraceOptions } from "./trace"
 
 /**
  * Performs a fuzzy search on a set of workspace files using a query.
- * 
+ *
  * @param query - The search query string.
  * @param files - An array of WorkspaceFile objects to search through.
  * @param options - Optional FuzzSearch and Trace options, including a limit on top results.
- * @returns A promise that resolves to an array of WorkspaceFileWithScore, containing 
+ * @returns A promise that resolves to an array of WorkspaceFileWithScore, containing
  *          the filename, content, and search score.
  */
 export async function fuzzSearch(
@@ -18,7 +18,7 @@ export async function fuzzSearch(
 ): Promise<WorkspaceFileWithScore[]> {
     // Destructure options to extract trace and topK, with defaulting to an empty object
     const { trace, topK, ...otherOptions } = options || {}
-    
+
     // Load the content for all provided files asynchronously
     for (const file of files) await resolveFileContent(file)
 
@@ -35,10 +35,10 @@ export async function fuzzSearch(
 
     // Perform search using the provided query
     let results = miniSearch.search(query)
-    
+
     // Limit results to top K if specified
     if (topK > 0) results = results.slice(0, topK)
-    
+
     // Map search results to WorkspaceFileWithScore structure
     return results.map(
         (r) =>

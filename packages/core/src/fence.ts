@@ -5,7 +5,8 @@ import { arrayify } from "./util"
 import { YAMLTryParse } from "./yaml"
 
 // Regular expression for detecting the start of a code fence
-const promptFenceStartRx = /^(?<fence>`{3,})(?<language>[^=:]+)?(\s+(?<args>.*))?$/m
+const promptFenceStartRx =
+    /^(?<fence>`{3,})(?<language>[^=:]+)?(\s+(?<args>.*))?$/m
 
 /**
  * Start parsing a fence from a given text line.

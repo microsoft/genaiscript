@@ -6,7 +6,7 @@ import { MarkdownTrace } from "./trace"
 
 // Represents a code fragment with associated files
 export interface Fragment {
-    files: string[]  // Array of file paths or names
+    files: string[] // Array of file paths or names
 }
 
 // Interface for the result of a generation process
@@ -69,9 +69,9 @@ export interface GenerationResult extends GenerationOutput {
 
 // Interface to hold statistics related to the generation process
 export interface GenerationStats {
-    toolCalls: number  // Number of tool invocations
-    repairs: number    // Number of repairs made
-    turns: number      // Number of turns in the interaction
+    toolCalls: number // Number of tool invocations
+    repairs: number // Number of repairs made
+    turns: number // Number of turns in the interaction
 }
 
 // Type representing possible statuses of generation
@@ -83,18 +83,17 @@ export interface GenerationOptions
         ModelOptions,
         EmbeddingsModelOptions,
         ScriptRuntimeOptions {
-
-    inner: boolean  // Indicates if the process is an inner operation
-    cancellationToken?: CancellationToken  // Token to cancel the operation
-    infoCb?: (partialResponse: { text: string }) => void  // Callback for providing partial responses
-    trace: MarkdownTrace  // Trace information for debugging or logging
-    maxCachedTemperature?: number  // Maximum temperature for caching purposes
-    maxCachedTopP?: number  // Maximum top-p value for caching
-    skipLLM?: boolean  // Flag to skip LLM processing
-    label?: string  // Optional label for the operation
+    inner: boolean // Indicates if the process is an inner operation
+    cancellationToken?: CancellationToken // Token to cancel the operation
+    infoCb?: (partialResponse: { text: string }) => void // Callback for providing partial responses
+    trace: MarkdownTrace // Trace information for debugging or logging
+    maxCachedTemperature?: number // Maximum temperature for caching purposes
+    maxCachedTopP?: number // Maximum top-p value for caching
+    skipLLM?: boolean // Flag to skip LLM processing
+    label?: string // Optional label for the operation
     cliInfo?: {
-        files: string[]  // Information about files in the CLI context
+        files: string[] // Information about files in the CLI context
     }
-    vars?: PromptParameters  // Variables for prompt customization
-    stats: GenerationStats  // Statistics of the generation
+    vars?: PromptParameters // Variables for prompt customization
+    stats: GenerationStats // Statistics of the generation
 }
