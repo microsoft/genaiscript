@@ -1302,26 +1302,51 @@ interface INI {
     stringify(value: any): string
 }
 
+interface CSVStringifyOptions {
+    delimiter?: string
+    header?: boolean
+}
+
+/**
+ * Interface representing CSV operations.
+ */
 interface CSV {
     /**
-     * Parses a CSV string to an array of objects
-     * @param text
-     * @param options
+     * Parses a CSV string to an array of objects.
+     * 
+     * @param text - The CSV string to parse.
+     * @param options - Optional settings for parsing.
+     * @param options.delimiter - The delimiter used in the CSV string. Defaults to ','.
+     * @param options.headers - An array of headers to use. If not provided, headers will be inferred from the first row.
+     * @returns An array of objects representing the parsed CSV data.
      */
     parse(
         text: string,
         options?: {
-            delimiter?: string
-            headers?: string[]
+            delimiter?: string;
+            headers?: string[];
         }
-    ): object[]
+    ): object[];
 
     /**
-     * Converts an array of object that represents a data table to a markdown table
-     * @param csv
-     * @param options
+     * Converts an array of objects to a CSV string.
+     * 
+     * @param csv - The array of objects to convert.
+     * @param options - Optional settings for stringifying.
+     * @param options.headers - An array of headers to use. If not provided, headers will be inferred from the object keys.
+     * @returns A CSV string representing the data.
      */
-    markdownify(csv: object[], options?: { headers?: string[] }): string
+    stringify(csv: object[], options?: CSVStringifyOptions): string;
+
+    /**
+     * Converts an array of objects that represents a data table to a markdown table.
+     * 
+     * @param csv - The array of objects to convert.
+     * @param options - Optional settings for markdown conversion.
+     * @param options.headers - An array of headers to use. If not provided, headers will be inferred from the object keys.
+     * @returns A markdown string representing the data table.
+     */
+    markdownify(csv: object[], options?: { headers?: string[] }): string;
 }
 
 interface HighlightOptions {

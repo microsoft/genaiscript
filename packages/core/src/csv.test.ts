@@ -1,6 +1,6 @@
 import { describe, test, beforeEach } from "node:test"
 import assert from "node:assert/strict"
-import { CSVParse, CSVTryParse, CSVToMarkdown } from "./csv"
+import { CSVParse, CSVTryParse, CSVToMarkdown, CSVStringify } from "./csv"
 
 describe("CSVParse", () => {
     test("Parse simple CSV data with default options", () => {
@@ -80,5 +80,35 @@ describe("CSVToMarkdown", () => {
     test("Handle empty CSV data input", () => {
         const result = CSVToMarkdown([])
         assert.equal(result, "")
+    })
+})
+describe("CSVStringify", () => {
+    test("Stringify simple CSV data with default options", () => {
+        const csv = [
+            { name: "John", age: "30" },
+            { name: "Jane", age: "25" },
+        ]
+        const result = CSVStringify(csv)
+        const expected = "John,30\nJane,25\n"
+        assert.equal(result, expected)
+    })
+    test("Stringify simple CSV data with headers", () => {
+        const csv = [
+            { name: "John", age: "30" },
+            { name: "Jane", age: "25" },
+        ]
+        const result = CSVStringify(csv, { header: true })
+        const expected = "name,age\nJohn,30\nJane,25\n"
+        assert.equal(result, expected)
+    })
+
+    test("Stringify CSV data with custom delimiter", () => {
+        const csv = [
+            { name: "John", age: "30" },
+            { name: "Jane", age: "25" },
+        ]
+        const result = CSVStringify(csv, { header: true, delimiter: "|" })
+        const expected = "name|age\nJohn|30\nJane|25\n"
+        assert.equal(result, expected)
     })
 })

@@ -1,7 +1,9 @@
-// Import the CSV parsing function from the csv-parse library
+// This module provides functions for parsing and converting CSV data,
+// including error handling and conversion to Markdown table format.
+
 import { parse } from "csv-parse/sync"
-// Import the TraceOptions interface for logging trace information
 import { TraceOptions } from "./trace"
+import { stringify } from "csv-stringify/sync"
 
 /**
  * Parses a CSV string into an array of objects.
@@ -62,6 +64,18 @@ export function CSVTryParse(
 }
 
 /**
+ * Converts an array of objects into a CSV string.
+ *
+ * @param csv - An array of objects to be converted into CSV format.
+ * @param options - Optional configuration for CSV stringification.
+ * @returns A string representing the CSV formatted data.
+ */
+export function CSVStringify(csv: object[], options?: CSVStringifyOptions) {
+    // Convert objects to CSV string using the provided options
+    return stringify(csv, options)
+}
+
+/**
  * Converts an array of objects into a Markdown table format.
  *
  * @param csv - The array of objects representing CSV data.
@@ -70,7 +84,7 @@ export function CSVTryParse(
  * @returns A string representing the CSV data in Markdown table format.
  */
 export function CSVToMarkdown(csv: object[], options?: { headers?: string[] }) {
-    if (!csv?.length) return ""
+    if (!csv?.length) return "" // Return empty string if CSV is empty
 
     const { headers = Object.keys(csv[0]) } = options || {}
     const res: string[] = [
@@ -84,11 +98,11 @@ export function CSVToMarkdown(csv: object[], options?: { headers?: string[] }) {
                         const s = v === undefined || v === null ? "" : String(v)
                         // Escape special Markdown characters and format cell content
                         return s
-                            .replace(/\s+$/, "")
-                            .replace(/[\\`*_{}[\]()#+\-.!]/g, (m) => "\\" + m)
-                            .replace(/</g, "lt;")
-                            .replace(/>/g, "gt;")
-                            .replace(/\r?\n/g, "<br>")
+                            .replace(/\s+$/, "") // Trim trailing whitespace
+                            .replace(/[\\`*_{}[\]()#+\-.!]/g, (m) => "\\" + m) // Escape special characters
+                            .replace(/</g, "lt;") // Replace '<' with its HTML entity
+                            .replace(/>/g, "gt;") // Replace '>' with its HTML entity
+                            .replace(/\r?\n/g, "<br>") // Replace newlines with <br>
                     })
                     .join("|")}|` // Join columns with '|'
         ),
