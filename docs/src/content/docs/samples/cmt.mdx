@@ -8,16 +8,29 @@ sidebar:
 import { Code } from "@astrojs/starlight/components"
 import source from "../../../../../packages/vscode/genaisrc/cmt.genai.mts?raw"
 
-Inspired by [a tweet](https://x.com/mckaywrigley/status/1838321570969981308), this script automates adding comments to source code.
+This sample automates adding comments to source code using an LLM
+and validate the changes haven't introduce any code modifications.
 
-```ts title="cmt.genai.mts"
-script({
-    title: "Source Code Comment Generator",
-    description: `Add comments to source code to make it more understandable for AI systems or human developers.
-    Modified from https://x.com/mckaywrigley/status/1838321570969981308.
-    `,
-})
+To do so, we could use a combination of tools to validate the transformer: source formatters,
+compilers, linters or LLM-as-judge.
+
+The algorithm could be summarized as follows:
+
+```txt
+for each file of files
+    // generate
+    add comments using GenAI
+
+    // validate validate validate!
+    format generated code (optional) -- keep things consistent
+    build generated -- let's make sure it's still valid code
+    check that only comments were changed -- LLM as judge
+
+// and more validate
+final human code review
 ```
+
+Let's get started with analyzing the script.
 
 ### Getting Files to Process
 
@@ -25,17 +38,9 @@ The user can select which files to comment or, if nothing is selected, we'll use
 
 ```ts
 let files = env.files
-if (files.length === 0) {
-    files = await Promise.all(
-        (await host.exec("git status --porcelain")).stdout
-            .split("\n")
-            .filter((filename) => /^ [M|U]/.test(filename))
-            .map(
-                async (filename) =>
-                    await workspace.readText(filename.replace(/^ [M|U] /, ""))
-            )
-    )
-}
+if (files.length === 0)
+    // no files selected, use git to find modified files
+    files = await ..."git status --porcelain"... // details in sources
 ```
 
 ### Processing Each File
@@ -45,7 +50,6 @@ We can use [inline prompts](/genaiscript/reference/scripts/inline-prompts) to ma
 
 ```ts
 for (const file of files) {
-    console.log(`processing ${file.filename}`)
     ... add comments
     ... format generated code (optional) -- keep things consistent
     ... build generated -- let's make sure it's still valid code
@@ -56,12 +60,14 @@ for (const file of files) {
 
 ### The Prompt for Adding Comments
 
-Within the `addComments` function, we prompt GenAI to add comments. We do this twice to increase the likelihood of generating useful comments.
+Within the `addComments` function, we prompt GenAI to add comments. 
+We do this twice to increase the likelihood of generating useful comments,
+or the LLM might have been lazy on the first pass.
 
 ```ts
 const res = await runPrompt(
     (ctx) => {
-        ctx.$`You can add comments to this code...`
+        ctx.$`You can add comments to this code...` // prompt details in sources
     },
     { system: ["system", "system.files"] }
 )
@@ -69,9 +75,14 @@ const res = await runPrompt(
 
 We provide a detailed set of instructions to the AI for how to analyze and comment on the code.
 
-## Judge results with LLM
+### Format, build, lint
 
-We issue one more prompt to judge the modified code and make sure the code is not modified.
+At this point, we have a modified source code by an LLM. We should try to use all the available tools to validate the changes.
+It is best to start with like formatters and compilers as they are deterministic and typically fast.
+
+### Judge results with LLM
+
+We issue one more prompt to judge the modified code (`git diff`) and make sure the code is not modified.
 
 ```ts
 async function checkModifications(filename: string): Promise<boolean> {
@@ -83,17 +94,14 @@ async function checkModifications(filename: string): Promise<boolean> {
             ctx.$`You are an expert developer at all programming languages.
         
         Your task is to analyze the changes in DIFF and make sure that only comments are modified. 
-        Report all changes that are not comments and print "MODIFIED".
+        Report all changes that are not comments and print "<MODIFIED>".
         `
         },
         {
             cache: "cmt-check",
         }
     )
-
-    const modified = res.text?.includes("MODIFIED")
-    console.log(`code modified, reverting...`)
-    return modified
+    return res.text?.includes("<MODIFIED>")
 }
 ```
 
