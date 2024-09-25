@@ -20,6 +20,7 @@ import { Image } from "astro:assets"
 import { Card, CardGrid } from "@astrojs/starlight/components"
 import { FileTree } from "@astrojs/starlight/components"
 import AudioPlayer from "../../components/AudioPlayer.astro"
+import DirectoryLinks from "../../components/DirectoryLinks.astro"
 
 import vscodeSrc from "../../../public/images/visual-studio-code.png"
 
@@ -376,3 +377,18 @@ script({ ..., tests: {
 </Card>
 
 </CardGrid>
+
+## Case Studies
+Tales from the real world using GenAIScript.
+
+<DirectoryLinks directory="case-studies" />
+
+## Samples
+Fully fledged scripts ready to use.
+
+<DirectoryLinks directory="samples" />
+
+## Guides
+A cookbook full of recipes to make you a genius scripter.
+
+<DirectoryLinks directory="guides" />
