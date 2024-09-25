@@ -3,6 +3,10 @@ import { dotGenaiscriptPath } from "../../core/src/util"
 import { emptyDir } from "fs-extra"
 
 /**
+ * This module provides a function to clear a specified cache directory.
+ */
+
+/**
  * Asynchronously clears the specified cache directory.
  *
  * This function removes all contents within the cache directory. If the 'name'

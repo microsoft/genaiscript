@@ -26,12 +26,19 @@ export async function codeQuery(files: string, query: string) {
     // Iterate through each matched file
     for (const filename of ffs) {
         logVerbose(`scanning ${filename}`) // Log the current file being scanned
-        const f: WorkspaceFile = { filename, content: undefined } // Initialize a WorkspaceFile object
-        await resolveFileContent(f) // Resolve and load the file content
-        if (!f.content) continue // Skip if the file content couldn't be loaded
+
+        // Initialize a WorkspaceFile object with filename
+        const f: WorkspaceFile = { filename, content: undefined }
+
+        // Resolve and load the file content
+        await resolveFileContent(f)
+
+        // Skip if the file content couldn't be loaded
+        if (!f.content) continue
 
         // Execute the Tree-sitter query on the file content
         const res = await treeSitterQuery(f, query)
+
         // Serialize and collect the query capture results
         captures.push(...res.map((r) => serializeQueryCapture(f.filename, r)))
     }

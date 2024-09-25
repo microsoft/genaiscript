@@ -5,6 +5,11 @@ import {
 import { logVerbose } from "../../core/src/util"
 
 /**
+ * This module provides functions to handle Azure authentication tokens,
+ * including checking expiration and creating new tokens using Azure Identity SDK.
+ */
+
+/**
  * Represents an authentication token with its expiration timestamp.
  */
 export interface AuthenticationToken {
@@ -22,7 +27,8 @@ export interface AuthenticationToken {
  * its actual expiration time.
  */
 export function isAzureTokenExpired(token: AuthenticationToken) {
-    return !token || token.expiresOnTimestamp < Date.now() - 5_000 // avoid data races
+    // Consider the token expired 5 seconds before the actual expiration to avoid timing issues
+    return !token || token.expiresOnTimestamp < Date.now() - 5_000
 }
 
 /**
@@ -49,6 +55,7 @@ export async function createAzureToken(
     // Prepare the result token object with the token and expiration timestamp
     const res = {
         token: azureToken.token,
+        // Use provided expiration timestamp or default to a constant expiration time
         expiresOnTimestamp: azureToken.expiresOnTimestamp
             ? azureToken.expiresOnTimestamp
             : Date.now() + AZURE_OPENAI_TOKEN_EXPIRATION,

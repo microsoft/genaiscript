@@ -44,10 +44,16 @@ import {
 } from "../../core/src/chattypes"
 import { randomHex } from "../../core/src/crypto"
 
+/**
+ * Starts a WebSocket server for handling chat and script execution.
+ * @param options - Configuration options including port and optional API key.
+ */
 export async function startServer(options: { port: string; apiKey?: string }) {
+    // Parse and set the server port, using a default if not specified.
     const port = parseInt(options.port) || SERVER_PORT
     const wss = new WebSocketServer({ port })
 
+    // Stores active script runs with their cancellation controllers and traces.
     const runs: Record<
         string,
         {
@@ -56,8 +62,11 @@ export async function startServer(options: { port: string; apiKey?: string }) {
             runner: Promise<void>
         }
     > = {}
+
+    // Stores active chat handlers.
     const chats: Record<string, (chunk: ChatChunk) => Promise<void>> = {}
 
+    // Cancels all active runs and chats.
     const cancelAll = () => {
         for (const [runId, run] of Object.entries(runs)) {
             logVerbose(`abort run ${runId}`)
@@ -80,6 +89,7 @@ export async function startServer(options: { port: string; apiKey?: string }) {
         }
     }
 
+    // Handles incoming chat chunks and calls the appropriate handler.
     const handleChunk = async (chunk: ChatChunk) => {
         const handler = chats[chunk.chatId]
         if (handler) {
@@ -88,6 +98,7 @@ export async function startServer(options: { port: string; apiKey?: string }) {
         }
     }
 
+    // Configures the client language model with a completer function.
     host.clientLanguageModel = Object.freeze<LanguageModel>({
         id: MODEL_PROVIDER_CLIENT,
         completer: async (
@@ -105,11 +116,11 @@ export async function startServer(options: { port: string; apiKey?: string }) {
                 let tokensSoFar: number = 0
                 let finishReason: ChatCompletionResponse["finishReason"]
 
-                // add handler
+                // Add a handler for chat responses.
                 const chatId = randomHex(6)
                 chats[chatId] = async (chunk) => {
                     if (!responseSoFar && chunk.model) {
-                        logVerbose(`visual studio: chat model ${chunk.model}`)
+                        logVerbose(`chat model ${chunk.model}`)
                         trace.itemValue("chat model", chunk.model)
                         trace.appendContent("\n\n")
                     }
@@ -134,7 +145,7 @@ export async function startServer(options: { port: string; apiKey?: string }) {
                     }
                 }
 
-                // ask for LLM
+                // Send request to LLM clients.
                 const msg = JSON.stringify(<ChatStart>{
                     type: "chat.start",
                     chatId,
@@ -149,9 +160,12 @@ export async function startServer(options: { port: string; apiKey?: string }) {
         },
     })
 
+    // Handle server shutdown by cancelling all activities.
     wss.on("close", () => {
         cancelAll()
     })
+
+    // Manage new WebSocket connections.
     wss.on("connection", function connection(ws, req) {
         const apiKey = options.apiKey ?? process.env.GENAISCRIPT_API_KEY
         if (apiKey) {
@@ -169,12 +183,15 @@ export async function startServer(options: { port: string; apiKey?: string }) {
         ws.on("close", () =>
             logVerbose(`clients: closed (${wss.clients.size} clients)`)
         )
+
+        // Handle incoming messages based on their type.
         ws.on("message", async (msg) => {
             const data = JSON.parse(msg.toString()) as RequestMessages
             const { id, type } = data
             let response: ResponseStatus
             try {
                 switch (type) {
+                    // Handle version request
                     case "server.version": {
                         logVerbose(`server: version ${CORE_VERSION}`)
                         response = <ServerResponse>{
@@ -187,6 +204,7 @@ export async function startServer(options: { port: string; apiKey?: string }) {
                         }
                         break
                     }
+                    // Handle environment request
                     case "server.env": {
                         logVerbose(`server: env`)
                         envInfo(undefined)
@@ -195,11 +213,13 @@ export async function startServer(options: { port: string; apiKey?: string }) {
                         }
                         break
                     }
+                    // Handle server kill request
                     case "server.kill": {
                         logVerbose(`server: kill`)
                         process.exit(0)
                         break
                     }
+                    // Handle model configuration request
                     case "model.configuration": {
                         const { model, token } = data
                         logVerbose(`model: lookup configuration ${model}`)
@@ -220,6 +240,7 @@ export async function startServer(options: { port: string; apiKey?: string }) {
                         }
                         break
                     }
+                    // Handle test run request
                     case "tests.run": {
                         logVerbose(
                             `tests: run ${data.scripts?.join(", ") || "*"}`
@@ -232,7 +253,9 @@ export async function startServer(options: { port: string; apiKey?: string }) {
                         })
                         break
                     }
+                    // Handle script start request
                     case "script.start": {
+                        // Cancel any active scripts
                         cancelAll()
 
                         const { script, files = [], options = {}, runId } = data
@@ -324,6 +347,7 @@ export async function startServer(options: { port: string; apiKey?: string }) {
                         }
                         break
                     }
+                    // Handle script abort request
                     case "script.abort": {
                         const { runId, reason } = data
                         logVerbose(`run ${runId}: abort`)
@@ -339,6 +363,7 @@ export async function startServer(options: { port: string; apiKey?: string }) {
                         }
                         break
                     }
+                    // Handle shell execution request
                     case "shell.exec": {
                         const {
                             command,
@@ -365,6 +390,7 @@ export async function startServer(options: { port: string; apiKey?: string }) {
                         }
                         break
                     }
+                    // Handle chat chunk requests
                     case "chat.chunk": {
                         await handleChunk(data)
                         response = <ResponseStatus>{ ok: true }

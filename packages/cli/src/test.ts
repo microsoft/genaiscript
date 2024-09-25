@@ -1,5 +1,8 @@
-import { buildProject } from "./build"
+// This module provides functionality to test prompt scripts, including running,
+// listing, and viewing results. It handles configuration setup, execution logic,
+// and result processing.
 
+import { buildProject } from "./build"
 import { readFile, writeFile, appendFile } from "node:fs/promises"
 import { execa } from "execa"
 import { dirname, join, resolve } from "node:path"
@@ -38,6 +41,11 @@ import {
 } from "../../core/src/server/messages"
 import { generatePromptFooConfiguration } from "../../core/src/test"
 
+/**
+ * Parses model specifications from a string and returns a ModelOptions object.
+ * @param m - The string representation of the model specification.
+ * @returns A ModelOptions object with model, temperature, and topP fields if applicable.
+ */
 function parseModelSpec(m: string): ModelOptions {
     const values = parseKeyValuePairs(m)
     if (Object.keys(values).length > 1)
@@ -49,13 +57,21 @@ function parseModelSpec(m: string): ModelOptions {
     else return { model: m }
 }
 
-// build trigger..
+/**
+ * Resolves the test provider for a given script by determining the language model configuration.
+ * @param script - The PromptScript object for which to determine the provider.
+ * @returns The resolved provider or undefined if not found.
+ */
 async function resolveTestProvider(script: PromptScript) {
     const token = await host.getLanguageModelConfiguration(script.model)
     if (token && token.type === "azure") return token.base
     return undefined
 }
 
+/**
+ * Creates an environment object for execution with defaults and optional overrides.
+ * @returns An environment object with necessary configurations.
+ */
 function createEnv() {
     const env = process.env
     return {
@@ -67,6 +83,12 @@ function createEnv() {
     }
 }
 
+/**
+ * Runs prompt script tests based on provided IDs and options, returns the test results.
+ * @param ids - Array of script IDs to run tests on.
+ * @param options - Options to configure the test run.
+ * @returns A Promise resolving to the test run response.
+ */
 export async function runPromptScriptTests(
     ids: string[],
     options: PromptScriptTestRunOptions & {
@@ -103,6 +125,7 @@ export async function runPromptScriptTests(
     await ensureDir(out)
     await writeFile(provider, promptFooDriver)
 
+    // Prepare test configurations for each script
     const configurations: { script: PromptScript; configuration: string }[] = []
     for (const script of scripts) {
         const fn = out
@@ -136,6 +159,7 @@ export async function runPromptScriptTests(
     }
 
     const results: PromptScriptTestResult[] = []
+    // Execute each configuration and gather results
     for (const config of configurations) {
         const { script, configuration } = config
         const outJson = configuration.replace(/\.yaml$/, ".res.json")
@@ -204,6 +228,11 @@ export async function runPromptScriptTests(
     }
 }
 
+/*
+ * Lists test scripts based on given options, filtering by IDs and groups.
+ * @param options - Options to filter the test scripts by IDs or groups.
+ * @returns A Promise resolving to an array of filtered scripts.
+ */
 async function listTests(options: { ids?: string[]; groups?: string[] }) {
     const { ids, groups } = options || {}
     const prj = await buildProject()
@@ -214,6 +243,11 @@ async function listTests(options: { ids?: string[]; groups?: string[] }) {
     return scripts
 }
 
+/**
+ * Executes prompt script tests and outputs the results, then exits the process with a status code.
+ * @param ids - Array of script IDs to run tests on.
+ * @param options - Options to configure the test run.
+ */
 export async function scriptsTest(
     ids: string[],
     options: PromptScriptTestRunOptions & {
@@ -239,11 +273,19 @@ export async function scriptsTest(
     process.exit(status)
 }
 
+/**
+ * Lists available test scripts, printing their IDs and filenames.
+ * @param options - Options to filter the scripts by groups.
+ */
 export async function scriptTestList(options: { groups?: string[] }) {
     const scripts = await listTests(options)
     console.log(scripts.map((s) => toStringList(s.id, s.filename)).join("\n"))
 }
 
+/**
+ * Launches a server to view promptfoo test results.
+ * @param options - Options to specify the promptfoo version.
+ */
 export async function scriptTestsView(options: { promptfooVersion?: string }) {
     await ensureDir(PROMPTFOO_CACHE_PATH)
     await ensureDir(PROMPTFOO_CONFIG_DIR)
