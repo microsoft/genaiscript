@@ -4,7 +4,7 @@ script({
     files: "src/rag/*",
 })
 
-const queue = host.promiseQueue({ concurrency: 2 })
+const queue = host.promiseQueue(2)
 const summaries = await queue.mapAll(env.files, (file) =>
     runPrompt(
         (_) => {

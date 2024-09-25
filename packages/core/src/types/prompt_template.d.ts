@@ -2306,10 +2306,6 @@ interface PromiseQueue {
     ): Promise<ReturnType[]>
 }
 
-interface PromiseQueueOptions {
-    concurrency?: number
-}
-
 interface PromptHost extends ShellHost {
     /**
      * Starts a container
@@ -2320,7 +2316,7 @@ interface PromptHost extends ShellHost {
     /**
      * Create a new promise queue to run async functions with limited concurrency
      */
-    promiseQueue(options?: PromiseQueueOptions): PromiseQueue
+    promiseQueue(concurrency: number): PromiseQueue
 }
 
 interface ContainerHost extends ShellHost {

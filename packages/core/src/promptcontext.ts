@@ -225,7 +225,7 @@ export async function createPromptContext(
             await runtimeHost.select(message, options),
         input: async (message) => await runtimeHost.input(message),
         confirm: async (message) => await runtimeHost.confirm(message),
-        promiseQueue: (options) => new PLimitPromiseQueue(options),
+        promiseQueue: (concurrency) => new PLimitPromiseQueue(concurrency),
     })
 
     const ctx: PromptContext & RunPromptContextNode = {
