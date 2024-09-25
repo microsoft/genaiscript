@@ -69,7 +69,7 @@ defTool(
 `prompt` and `runPrompt` are async functions that can be used in a loop to run multiple prompts concurrently.
 
 ```js
-await Promise.all(env.files => prompt`Summarize the ${file}`)
+await Promise.all(env.files, file => prompt`Summarize the ${file}`)
 ```
 
 Internally, GenAIScript applies a concurrent limit of 8 per model by default. You can change this limit using the `modelConcurrency` option.
