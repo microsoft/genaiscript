@@ -17,6 +17,8 @@ export function estimateTokens(text: string, encoder: TokenEncoder) {
         // Return the length of the encoded text plus a constant overhead
         return encoder(text).length + ESTIMATE_TOKEN_OVERHEAD
     } catch (e) {
+        // If encoding fails, log the error in verbose mode
+        logVerbose(e)
         // Fallback: Estimate token count as one-fourth of text length plus overhead
         // This provides a rough estimate in case of encoding errors
         return (text.length >> 2) + ESTIMATE_TOKEN_OVERHEAD
