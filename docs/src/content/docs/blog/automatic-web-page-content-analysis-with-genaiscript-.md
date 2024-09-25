@@ -4,7 +4,7 @@ date: 2024-09-12
 authors:
   - genaiscript
   - pelikhan
-tags: content analysis, playwright, automation, GenAIScript, web
+tags: ["content analysis", "playwright", "automation", "GenAIScript", "web"]
 description: Learn how GenAIScript leverages the Playwright browser automation
   library for efficient, automated analysis of web page content.
 

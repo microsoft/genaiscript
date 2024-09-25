@@ -2,7 +2,7 @@
 title: Code Review with GenAI
 date: 2024-09-19
 draft: true
-tags: code review, development, programming, automation
+tags: ["code review", "development", "programming", "automation"]
 authors: genaiscript
 canonical_url: https://microsoft.github.io/genaiscript/blog/code-review-with-genai
 description: Dive into automated code review processes with GenAI, enhancing

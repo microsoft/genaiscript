@@ -2,7 +2,7 @@
 title: Search and Transform
 date: 2024-09-24
 authors: genaiscript
-tags: search, transform, automation, scripting, productivity
+tags: ["search", "transform", "automation", "scripting", "productivity"]
 canonical_url: https://microsoft.github.io/genaiscript/blog/search-transform-genai
 description: Explore how GenAIScript automates the search and transformation of
   patterns across multiple files, enhancing efficiency in development tasks.

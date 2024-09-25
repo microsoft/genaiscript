@@ -2,7 +2,7 @@
 title: Automate Git Commit Messages with GenAI
 date: 2024-09-19
 draft: true
-tags: git, typescript, productivity, automation
+tags: ["git", "typescript", "productivity", "automation"]
 authors: genaiscript
 canonical_url: https://microsoft.github.io/genaiscript/blog/automate-git-commit-messages-with-genai
 description: Discover how GenAI simplifies your Git workflow by automating
