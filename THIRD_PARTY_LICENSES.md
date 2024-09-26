@@ -1034,6 +1034,7 @@ Apache License
 
 The following npm packages may be included in this product:
 
+ - @types/diff@5.2.2
  - @types/http-cache-semantics@4.0.4
  - @types/mute-stream@0.0.4
  - @types/node@16.9.1
@@ -1099,7 +1100,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.56.1
+ - genaiscript-vscode@1.56.3
 
 This package contains the following license and notice below:
 
@@ -4188,9 +4189,9 @@ The following npm packages may be included in this product:
  - @tokenizer/token@0.3.0
  - agent-base@6.0.2
  - canvas@2.11.2
- - genaiscript-core-internal@1.56.1
- - genaiscript-sample@1.56.1
- - genaiscript@1.56.1
+ - genaiscript-core-internal@1.56.3
+ - genaiscript-sample@1.56.3
+ - genaiscript@1.56.3
  - https-proxy-agent@5.0.1
  - isarray@1.0.0
  - javascript-natural-sort@0.7.1
