@@ -1,9 +1,10 @@
 /* spellchecker: disable */
 import { Octokit } from "octokit"
-import { createPatch, createTwoFilesPatch, diffArrays, formatPatch } from "diff"
+import { createPatch } from "diff"
 
 const workflow = env.vars.workflow || "build.yml"
-const lsid: undefined = env.vars.success_run_id
+const ffid = env.vars.failure_run_id
+const lsid = env.vars.success_run_id
 const branch =
     env.vars.branch ||
     (await host.exec("git branch --show-current")).stdout.trim()
@@ -28,10 +29,12 @@ const ls = runs[lsi]
 console.log(
     `> last success: ${ls.id}, ${ls.created_at}, ${ls.head_sha}, ${ls.html_url}`
 )
-const ff = runs[lsi - 1]
+const ff = ffid ? runs.find(({ id }) => id === ffid) : runs[lsi - 1]
+if (!ff) cancel("failure run not found")
 console.log(
     `> first failure: ${ff.id}, ${ff.created_at}, ${ff.head_sha}, ${ff.html_url}`
 )
+if (ff.conclusion !== "failure") cancel("failure run not found")
 
 const gitDiff = await host.exec(
     `git diff ${ls.head_sha} ${ff.head_sha} -- . :!**/genaiscript.d.ts`
@@ -39,7 +42,7 @@ const gitDiff = await host.exec(
 console.log(`> source diff: ${(gitDiff.stdout.length / 1000) | 0}kb`)
 
 // download logs
-const lsjobs = await downloadRunLog(ls.id)
+const lsjobs = await downloadRu nLog(ls.id)
 const lsjob = lsjobs[0]
 const lslog = lsjob.text
 console.log(
