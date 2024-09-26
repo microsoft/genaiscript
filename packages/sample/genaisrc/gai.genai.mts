@@ -3,7 +3,7 @@ import { Octokit } from "octokit"
 import { createPatch, createTwoFilesPatch, diffArrays, formatPatch } from "diff"
 
 script({
-    system: ["system", "system.files"],
+    system: ["system", "system.files", "system.annotations"],
     cache: "gh-investigator",
 })
 
@@ -55,14 +55,18 @@ console.log(
 
 const logDiff = diffJobLogs(lslog, fflog)
 console.log(`> log diff: ${(logDiff.length / 1000) | 0}kb`)
-console.log(logDiff)
 
 // include difss
 def("GIT_DIFF", gitDiff, {
     language: "diff",
     maxTokens: 10000,
+    lineNumbers: false,
 })
-def("LOG_DIFF", logDiff, { language: "diff", maxTokens: 20000 })
+def("LOG_DIFF", logDiff, {
+    language: "diff",
+    maxTokens: 20000,
+    lineNumbers: false,
+})
 $`Your are an expert software engineer and you are able to analyze the logs and find the root cause of the failure.
 
 - GIT_DIFF contains a diff of 2 run commits
@@ -79,6 +83,10 @@ If you cannot find the root cause, stop.
 
 Generate updates for the source files that can fix the issue.
 - use a unified diff format compatible with diff
+
+## Task 3
+
+Generate annotations in the source code to help identify the root cause of the failure.
 
 `
 
