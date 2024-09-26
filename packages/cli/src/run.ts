@@ -13,6 +13,7 @@ import {
     githubCreatePullRequestReviews,
     githubUpdatePullRequestDescription,
     githubParseEnv,
+    GithubConnectionInfo,
 } from "../../core/src/github"
 import {
     HTTPS_REGEX,
@@ -61,12 +62,14 @@ import { PromptScriptRunOptions } from "../../core/src/server/messages"
 import { writeFileEdits } from "../../core/src/edits"
 import {
     azureDevOpsCreateIssueComment,
+    AzureDevOpsEnv,
     azureDevOpsParseEnv,
     azureDevOpsUpdatePullRequestDescription,
 } from "../../core/src/azuredevops"
 import { resolveTokenEncoder } from "../../core/src/encoders"
 import { writeFile } from "fs/promises"
 import { writeFileSync } from "node:fs"
+import { prettifyMarkdown } from "../../core/src/markdown"
 
 async function setupTraceWriting(trace: MarkdownTrace, filename: string) {
     logVerbose(`trace: ${filename}`)
@@ -424,13 +427,15 @@ export async function runScript(
         }
     }
 
+    let ghInfo: GithubConnectionInfo = undefined
+    let adoInfo: AzureDevOpsEnv = undefined
     if (pullRequestReviews && result.annotations?.length) {
         // github action or repo
-        const info = await githubParseEnv(process.env)
-        if (info.repository && info.issue && info.commitSha) {
+        ghInfo = ghInfo ?? (await githubParseEnv(process.env))
+        if (ghInfo.repository && ghInfo.issue && ghInfo.commitSha) {
             await githubCreatePullRequestReviews(
                 script,
-                info,
+                ghInfo,
                 result.annotations
             )
         }
@@ -438,23 +443,23 @@ export async function runScript(
 
     if (pullRequestComment && result.text) {
         // github action or repo
-        const info = await githubParseEnv(process.env)
-        if (info.repository && info.issue) {
+        ghInfo = ghInfo ?? (await githubParseEnv(process.env))
+        if (ghInfo.repository && ghInfo.issue) {
             await githubCreateIssueComment(
                 script,
-                info,
-                result.text,
+                ghInfo,
+                prettifyMarkdown(result.text),
                 typeof pullRequestComment === "string"
                     ? pullRequestComment
                     : script.id
             )
         } else {
-            const adoinfo = await azureDevOpsParseEnv(process.env)
-            if (adoinfo.collectionUri) {
+            adoInfo = adoInfo ?? (await azureDevOpsParseEnv(process.env))
+            if (adoInfo.collectionUri) {
                 await azureDevOpsCreateIssueComment(
                     script,
-                    adoinfo,
-                    result.text,
+                    adoInfo,
+                    prettifyMarkdown(result.text),
                     typeof pullRequestComment === "string"
                         ? pullRequestComment
                         : script.id
@@ -468,24 +473,24 @@ export async function runScript(
 
     if (pullRequestDescription && result.text) {
         // github action or repo
-        const ghinfo = await githubParseEnv(process.env)
-        if (ghinfo.repository && ghinfo.issue) {
+        ghInfo = ghInfo ?? (await githubParseEnv(process.env))
+        if (ghInfo.repository && ghInfo.issue) {
             await githubUpdatePullRequestDescription(
                 script,
-                ghinfo,
-                result.text,
+                ghInfo,
+                prettifyMarkdown(result.text),
                 typeof pullRequestDescription === "string"
                     ? pullRequestDescription
                     : script.id
             )
         } else {
             // azure devops pipeline
-            const adoinfo = await azureDevOpsParseEnv(process.env)
-            if (adoinfo.collectionUri) {
+            adoInfo = adoInfo ?? (await azureDevOpsParseEnv(process.env))
+            if (adoInfo.collectionUri) {
                 await azureDevOpsUpdatePullRequestDescription(
                     script,
-                    adoinfo,
-                    result.text,
+                    adoInfo,
+                    prettifyMarkdown(result.text),
                     typeof pullRequestDescription === "string"
                         ? pullRequestDescription
                         : script.id
