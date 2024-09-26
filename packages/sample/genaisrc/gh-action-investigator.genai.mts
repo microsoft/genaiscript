@@ -41,10 +41,14 @@ console.log(`> source diff: ${(gitDiff.stdout.length / 1000) | 0}kb`)
 // download logs
 const lsjobs = await downloadRunLog(ls.id)
 const lslog = lsjobs[0].text
-console.log(`> last success log: ${(lslog.length / 1000) | 0}kb`)
+console.log(
+    `> last success log: ${(lslog.length / 1000) | 0}kb ${lslog.logUrl}`
+)
 const ffjobs = await downloadRunLog(ff.id)
 const fflog = ffjobs[0].text
-console.log(`> first failure log: ${(fflog.length / 1000) | 0}kb`)
+console.log(
+    `> first failure log: ${(fflog.length / 1000) | 0}kb  ${fflog.logUrl}`
+)
 
 const logDiff = createTwoFilesPatch(
     "last-success.txt",
@@ -143,7 +147,7 @@ async function downloadRunLog(run_id: number) {
             /^﻿?\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{2,}Z /gm,
             ""
         )
-        res.push({ ...job, text: cleaned })
+        res.push({ ...job, logUrl, text: cleaned })
     }
     return res
 }
