@@ -25,3 +25,8 @@ jobs:
               run: yarn compile
             - name: genai investigator
               run: yarn genai gai -prc --vars "failure_run_id=${{ github.event.workflow_run.id }}" --out-trace $GITHUB_STEP_SUMMARY
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+                  OPENAI_API_TYPE: ${{ secrets.OPENAI_API_TYPE }}
+                  OPENAI_API_BASE: ${{ secrets.OPENAI_API_BASE }}
