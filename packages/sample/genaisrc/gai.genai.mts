@@ -132,7 +132,7 @@ async function listRuns(workflow_id: string) {
     return runs
 }
 
-async function downloadRunLog(run_id: number) {
+async function downloadR unLog(run_id: number) {
     const res = []
     // Get the jobs for the specified workflow run
     const {
