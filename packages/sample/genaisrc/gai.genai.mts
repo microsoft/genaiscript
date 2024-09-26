@@ -50,7 +50,7 @@ console.log(
     `> first failure log: ${(fflog.length / 1000) | 0}kb  ${ffjob.logUrl}`
 )
 
-const lsjobs = await downloadRunLog(ls.id)
+const lsjobs = await downlo adRunLog(ls.id)
 const lsjob = lsjobs.find(({ name }) => ffjob.name === name)
 const lslog = lsjob.text
 console.log(
