@@ -100,7 +100,7 @@ Generate a diff with suggested fixes. Use a diff format.
 
 writeText(
     `## Investigator report
-- [run first failure](${ff.html_url})
+- [run failure](${ff.html_url})
 - [run last success](${ls.html_url})
 - [commit diff](https://github.com/${owner}/${repo}/compare/${ls.head_sha}...${ff.head_sha})
 

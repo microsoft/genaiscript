@@ -57,7 +57,8 @@ function githubFromEnv(env: Record<string, string>): GithubConnectionInfo {
 }
 
 export async function githubParseEnv(
-    env: Record<string, string>
+    env: Record<string, string>,
+    options?: { issue?: number }
 ): Promise<GithubConnectionInfo> {
     const res = githubFromEnv(env)
     try {
@@ -76,6 +77,7 @@ export async function githubParseEnv(
             res.owner = owner.login
             res.repository = res.owner + "/" + res.repo
         }
+        if (!isNaN(options?.issue)) res.issue = options.issue
         if (!res.issue) {
             const { number: issue } = JSON.parse(
                 (
