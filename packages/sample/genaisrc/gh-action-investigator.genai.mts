@@ -1,7 +1,13 @@
 import { Octokit } from "octokit"
 import { createTwoFilesPatch } from "diff"
 
-const workflow = env.vars.workflow || "genai-commander.yml"
+script({
+    system: ["system", "system.files"],
+    cache: "gh-investigator",
+})
+
+const workflow = env.vars.workflow || "build.yml"
+const lsid = 11025993709
 
 const octokit = new Octokit({
     auth: process.env.GITHUB_TOKEN,
@@ -13,40 +19,64 @@ const runs = await listRuns(workflow)
 console.log(
     `runs: ${runs.length}, ${runs.filter(({ conclusion }) => conclusion === "success").length} success, ${runs.filter(({ conclusion }) => conclusion === "failure").length} failure`
 )
-runs.forEach(({ id, conclusion }) => console.log(`> run: ${id} ${conclusion}`))
 
 // first first failure, last success
-const lsi = runs.indexOf(
-    runs.find(({ conclusion }) => conclusion === "success")
+const lsi = lsid
+    ? runs.findIndex(({ id }) => id === lsid)
+    : runs.findIndex(({ conclusion }) => conclusion === "success")
+const ls = runs[lsi]
+console.log(
+    `> last success: ${ls.id}, ${ls.created_at}, ${ls.head_sha}, ${ls.html_url}`
 )
-const ls = runs[lsi - 1]
-console.log(`> last success: ${ls.id}, ${ls.created_at}, ${ls.html_url}`)
 const ff = runs[lsi - 1]
-console.log(`> first failure: ${ff.id}, ${ff.created_at}, ${ff.html_url}`)
+console.log(
+    `> first failure: ${ff.id}, ${ff.created_at}, ${ff.head_sha}, ${ff.html_url}`
+)
+
+const gitDiff = await host.exec(
+    `git diff ${ls.head_sha} ${ff.head_sha} -- . :!**/genaiscript.d.ts`
+)
+console.log(`> source diff: ${(gitDiff.stdout.length / 1000) | 0}kb`)
 
 // download logs
-const { text: lslog } = await downloadRunLog(ls.id)
-const { text: fflog } = await downloadRunLog(ff.id)
+const lsjobs = await downloadRunLog(ls.id)
+const lslog = lsjobs[0].text
+console.log(`> last success log: ${(lslog.length / 1000) | 0}kb`)
+const ffjobs = await downloadRunLog(ff.id)
+const fflog = ffjobs[0].text
+console.log(`> first failure log: ${(fflog.length / 1000) | 0}kb`)
+
+const logDiff = createTwoFilesPatch(
+    "last-success.txt",
+    lslog,
+    "first-failure.txt",
+    fflog,
+    undefined,
+    undefined,
+    { ignoreCase: true, ignoreWhitespace: true, newlineIsToken: false }
+)
+console.log(`> failure diff: ${(logDiff.length / 1000) | 0}kb`)
 
 // include difss
-def(
-    "LOG_DIFF",
-    createTwoFilesPatch(
-        "last-success.txt",
-        lslog,
-        "first-failure.txt",
-        fflog,
-        undefined,
-        undefined,
-        { ignoreCase: true, ignoreWhitespace: true, newlineIsToken: false }
-    )
-)
+def("GIT_DIFF", gitDiff, { language: "diff", maxTokens: 10000 })
+def("LOG_DIFF", logDiff, { language: "diff", maxTokens: 20000 })
 $`Your are an expert software engineer and you are able to analyze the logs and find the root cause of the failure.
+
+- GIT_DIFF contains a diff of 2 run commits
+- LOG_DIFF contains a diff of 2 runs in GitHub Actions for the ${owner}/${repo} repository
+- The first run is the last successful run and the second run is the first failed run
+
+## Task 1
 
 Analyze the diff in LOG_DIFF and provide a summary of the root cause of the failure. 
 
-- LOG_DIFF contains a diff of 2 runs in GitHub Actions for the ${owner}/${repo} repository. 
-- The first run is the last successful run and the second run is the first failed run.
+If you cannot find the root cause, stop.
+
+## Task 2
+
+Generate updates for the source files that can fix the issue.
+- use a unified diff format compatible with diff
+
 `
 
 /*-----------------------------------------
@@ -82,7 +112,7 @@ async function listRuns(workflow_id: string) {
 }
 
 async function downloadRunLog(run_id: number) {
-    const res = { jobs: [], text: "" }
+    const res = []
     // Get the jobs for the specified workflow run
     const {
         data: { jobs },
@@ -100,8 +130,12 @@ async function downloadRunLog(run_id: number) {
             }
         )
         const { text } = await fetchText(logUrl.url)
-        res.jobs.push({ ...job, text })
-        res.text += text + "\n"
+        // remove times
+        const cleaned = text.replace(
+            /^﻿?\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{2,}Z /gm,
+            ""
+        )
+        res.push({ ...job, text: cleaned })
     }
     return res
 }
