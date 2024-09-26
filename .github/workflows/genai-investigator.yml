@@ -9,6 +9,11 @@ permissions:
     actions: read
     pull-requests: write
 jobs:
+    logging:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Print workflow_run event
+              run: echo "${{ toJson(github.event.workflow_run) }}"
     check_failure:
         # Only run this job if the workflow run concluded with a failure
         # and was triggered by a pull request event
