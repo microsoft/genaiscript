@@ -1,5 +1,6 @@
+/* spellchecker: disable */
 import { Octokit } from "octokit"
-import { createTwoFilesPatch } from "diff"
+import { createPatch, createTwoFilesPatch, diffArrays, formatPatch } from "diff"
 
 script({
     system: ["system", "system.files"],
@@ -40,26 +41,21 @@ console.log(`> source diff: ${(gitDiff.stdout.length / 1000) | 0}kb`)
 
 // download logs
 const lsjobs = await downloadRunLog(ls.id)
-const lslog = lsjobs[0].text
+const lsjob = lsjobs[0]
+const lslog = lsjob.text
 console.log(
-    `> last success log: ${(lslog.length / 1000) | 0}kb ${lslog.logUrl}`
+    `> last success log: ${(lslog.length / 1000) | 0}kb ${lsjob.logUrl}`
 )
 const ffjobs = await downloadRunLog(ff.id)
-const fflog = ffjobs[0].text
+const ffjob = ffjobs[0]
+const fflog = ffjob.text
 console.log(
-    `> first failure log: ${(fflog.length / 1000) | 0}kb  ${fflog.logUrl}`
+    `> first failure log: ${(fflog.length / 1000) | 0}kb  ${ffjob.logUrl}`
 )
 
-const logDiff = createTwoFilesPatch(
-    "last-success.txt",
-    lslog,
-    "first-failure.txt",
-    fflog,
-    undefined,
-    undefined,
-    { ignoreCase: true, ignoreWhitespace: true, newlineIsToken: false }
-)
-console.log(`> failure diff: ${(logDiff.length / 1000) | 0}kb`)
+const logDiff = diffJobLogs(lslog, fflog)
+console.log(`> log diff: ${(logDiff.length / 1000) | 0}kb`)
+console.log(logDiff)
 
 // include difss
 def("GIT_DIFF", gitDiff, {
@@ -134,20 +130,82 @@ async function downloadRunLog(run_id: number) {
         run_id,
     })
     for (const job of jobs) {
-        const logUrl = await octokit.rest.actions.downloadJobLogsForWorkflowRun(
-            {
+        const { url: logUrl } =
+            await octokit.rest.actions.downloadJobLogsForWorkflowRun({
                 owner,
                 repo,
                 job_id: job.id,
-            }
+            })
+        const { text } = await fetchText(logUrl)
+        res.push({ ...job, logUrl, text })
+    }
+    return res
+}
+
+function diffJobLogs(firstLog: string, otherLog: string) {
+    let firsts = parseJobLog(firstLog)
+    let others = parseJobLog(otherLog)
+
+    // assumption: the list of steps has not changed
+    const n = Math.min(firsts.length, others.length)
+    firsts = firsts.slice(0, n)
+    others = others.slice(0, n)
+
+    // now do a regular diff
+    const f = firsts
+        .map((f) =>
+            f.title ? `##[group]${f.title}\n${f.text}\n##[endgroup]` : f.text
         )
-        const { text } = await fetchText(logUrl.url)
-        // remove times
-        const cleaned = text.replace(
+        .join("\n")
+    const l = others
+        .map((f) =>
+            f.title ? `##[group]${f.title}\n${f.text}\n##[endgroup]` : f.text
+        )
+        .join("\n")
+    const d = createPatch("log.txt", f, l, undefined, undefined, {
+        ignoreCase: true,
+        ignoreWhitespace: true,
+    })
+    return d
+}
+
+function parseJobLog(text: string) {
+    const lines = cleanLog(text).split(/\r?\n/g)
+    const groups: { title: string; text: string }[] = []
+    let current = groups[0]
+    for (const line of lines) {
+        if (line.startsWith("##[group]")) {
+            current = { title: line.slice("##[group]".length), text: "" }
+        } else if (line.startsWith("##[endgroup]")) {
+            if (current) groups.push(current)
+            current = undefined
+        } else {
+            if (!current) current = { title: "", text: "" }
+            current.text += line + "\n"
+        }
+    }
+    if (current) groups.push(current)
+
+    const ignoreSteps = [
+        "Runner Image",
+        "Fetching the repository",
+        "Checking out the ref",
+        "Setting up auth",
+        "Setting up auth for fetching submodules",
+        "Getting Git version info",
+        "Initializing the repository",
+        "Determining the checkout info",
+        "Persisting credentials for submodules",
+    ]
+    return groups.filter(({ title }) => !ignoreSteps.includes(title))
+}
+
+function cleanLog(text: string) {
+    return text
+        .replace(
+            // timestamps
             /^﻿?\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{2,}Z /gm,
             ""
         )
-        res.push({ ...job, logUrl, text: cleaned })
-    }
-    return res
+        .replace(/\x1b\[[0-9;]*m/g, "") // ascii colors
 }
