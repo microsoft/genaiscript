@@ -1,4 +1,4 @@
-script({
+scr ipt({
     model: "openai:gpt-3.5-turbo",
     tools: ["fs"],
     tests: {}
