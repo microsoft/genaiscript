@@ -2,6 +2,15 @@
 import { Octokit } from "octokit"
 import { createPatch } from "diff"
 
+script({
+    parameters: {
+        workflow: { type: "string" },
+        failure_run_id: { type: "number" },
+        success_run_id: { type: "number" },
+        branch: { type: "string" },
+    },
+})
+
 const workflow = env.vars.workflow || "build.yml"
 const ffid = env.vars.failure_run_id
 const lsid = env.vars.success_run_id
@@ -26,6 +35,7 @@ const lsi = lsid
     ? runs.findIndex(({ id }) => id === lsid)
     : runs.findIndex(({ conclusion }) => conclusion === "success")
 const ls = runs[lsi]
+if (!ls) cancel("last success run not found")
 console.log(
     `> last success: ${ls.id}, ${ls.created_at}, ${ls.head_sha}, ${ls.html_url}`
 )
@@ -42,17 +52,18 @@ const gitDiff = await host.exec(
 console.log(`> source diff: ${(gitDiff.stdout.length / 1000) | 0}kb`)
 
 // download logs
-const lsjobs = await downloadRunLog(ls.id)
-const lsjob = lsjobs[0]
-const lslog = lsjob.text
-console.log(
-    `> last success log: ${(lslog.length / 1000) | 0}kb ${lsjob.logUrl}`
-)
 const ffjobs = await downloadRunLog(ff.id)
-const ffjob = ffjobs[0]
+const ffjob = ffjobs.find(({ conclusion }) => conclusion === "failure")
 const fflog = ffjob.text
 console.log(
     `> first failure log: ${(fflog.length / 1000) | 0}kb  ${ffjob.logUrl}`
+)
+
+const lsjobs = await downloadRunLog(ls.id)
+const lsjob = lsjobs.find(({ name }) => ffjob.name === name)
+const lslog = lsjob.text
+console.log(
+    `> last success log: ${(lslog.length / 1000) | 0}kb ${lsjob.logUrl}`
 )
 
 const logDiff = diffJobLogs(lslog, fflog)
