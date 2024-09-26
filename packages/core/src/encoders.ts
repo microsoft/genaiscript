@@ -13,13 +13,14 @@ export async function resolveTokenEncoder(
     const { model } = parseModelIdentifier(modelId)
     const module = model // Assign model to module for dynamic import path
 
+    const options = { disallowedSpecial: new Set<string>() }
     try {
         // Attempt to dynamically import the encoder module for the specified model
         const mod = await import(`gpt-tokenizer/model/${module}`)
-        return mod.encode // Return the encoder function
+        return (line) => mod.encode(line, options) // Return the encoder function
     } catch (e) {
-        // If the specific model encoder is not found, default to gpt-4 encoder
+        // If the specific model encoder is not found, default to gpt-4o encoder
         const { encode } = await import("gpt-tokenizer")
-        return encode // Return the default encoder function
+        return (line) => encode(line, options) // Return the default encoder function
     }
 }
