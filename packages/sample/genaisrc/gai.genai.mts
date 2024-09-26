@@ -3,6 +3,8 @@ import { Octokit } from "octokit"
 import { createPatch } from "diff"
 
 script({
+    title: "GitHub Action Investigator",
+    description: "Analyze GitHub Action runs to find the root cause of a failure",
     parameters: {
         workflow: { type: "string" },
         failure_run_id: { type: "number" },
