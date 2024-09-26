@@ -20,6 +20,7 @@ import { YAMLStringify } from "./yaml"
 export function renderShellOutput(output: ShellOutput) {
     // Destructure the output object to retrieve exitCode, stdout, and stderr.
     const { exitCode, stdout, stderr } = output
+    if (exitCode === 0) return stdout
     return (
         [
             // Include exit code in the output only if it's non-zero.

@@ -58,7 +58,10 @@ const logDiff = createTwoFilesPatch(
 console.log(`> failure diff: ${(logDiff.length / 1000) | 0}kb`)
 
 // include difss
-def("GIT_DIFF", gitDiff, { language: "diff", maxTokens: 10000 })
+def("GIT_DIFF", gitDiff, {
+    language: "diff",
+    maxTokens: 10000,
+})
 def("LOG_DIFF", logDiff, { language: "diff", maxTokens: 20000 })
 $`Your are an expert software engineer and you are able to analyze the logs and find the root cause of the failure.
 
@@ -86,6 +89,11 @@ GitHub infra
 -----------------------------------------*/
 
 async function getRepoInfo() {
+    const repository = process.env.GITHUB_REPOSITORY
+    if (repository) {
+        const [owner, repo] = repository.split("/")
+        return { owner, repo }
+    }
     const remoteUrl = (await host.exec("git config --get remote.origin.url"))
         .stdout
     const match = remoteUrl.match(/github\.com\/(?<owner>.+)\/(?<repo>.+)$/)
