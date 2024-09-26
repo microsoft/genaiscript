@@ -148,6 +148,7 @@ export async function runScript(
     const outAnnotations = options.outAnnotations
     const failOnErrors = options.failOnErrors
     const outChangelogs = options.outChangelogs
+    const pullRequest = normalizeInt(options.pullRequest)
     const pullRequestComment = options.pullRequestComment
     const pullRequestDescription = options.pullRequestDescription
     const pullRequestReviews = options.pullRequestReviews
@@ -427,11 +428,19 @@ export async function runScript(
         }
     }
 
-    let ghInfo: GithubConnectionInfo = undefined
+    let _ghInfo: GithubConnectionInfo = undefined
+    const resolveGitHubInfo = async () => {
+        if (!_ghInfo) {
+            _ghInfo = await githubParseEnv(process.env)
+            if (pullRequest) _ghInfo.issue = pullRequest
+        }
+        return _ghInfo
+    }
     let adoInfo: AzureDevOpsEnv = undefined
+
     if (pullRequestReviews && result.annotations?.length) {
         // github action or repo
-        ghInfo = ghInfo ?? (await githubParseEnv(process.env))
+        const ghInfo = await resolveGitHubInfo()
         if (ghInfo.repository && ghInfo.issue && ghInfo.commitSha) {
             await githubCreatePullRequestReviews(
                 script,
@@ -443,7 +452,7 @@ export async function runScript(
 
     if (pullRequestComment && result.text) {
         // github action or repo
-        ghInfo = ghInfo ?? (await githubParseEnv(process.env))
+        const ghInfo = await resolveGitHubInfo()
         if (ghInfo.repository && ghInfo.issue) {
             await githubCreateIssueComment(
                 script,
@@ -473,7 +482,7 @@ export async function runScript(
 
     if (pullRequestDescription && result.text) {
         // github action or repo
-        ghInfo = ghInfo ?? (await githubParseEnv(process.env))
+        const ghInfo = await resolveGitHubInfo()
         if (ghInfo.repository && ghInfo.issue) {
             await githubUpdatePullRequestDescription(
                 script,
