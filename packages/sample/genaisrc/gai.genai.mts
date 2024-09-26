@@ -2,27 +2,29 @@
 import { Octokit } from "octokit"
 import { createPatch, createTwoFilesPatch, diffArrays, formatPatch } from "diff"
 
+const workflow = env.vars.workflow || "build.yml"
+const lsid: undefined = env.vars.success_run_id
+const branch =
+    env.vars.branch ||
+    (await host.exec("git branch --show-current")).stdout.trim()
+
 const octokit = new Octokit({
     auth: process.env.GITHUB_TOKEN,
 })
 const { owner, repo } = await getRepoInfo()
 
 script({
-    system: ["system", "system.files", "system.annotations"],
+    system: ["system", "system.files"],
     cache: "gh-investigator",
 })
 
-const workflow = env.vars.workflow || "build.yml"
-const lsid = 11025993709
+const runs = await listRuns(workflow, branch)
 
-const runs = await listRuns(workflow)
-
-// first first failure, last success
+// first last success
 const lsi = lsid
     ? runs.findIndex(({ id }) => id === lsid)
     : runs.findIndex(({ conclusion }) => conclusion === "success")
 const ls = runs[lsi]
-
 console.log(
     `> last success: ${ls.id}, ${ls.created_at}, ${ls.head_sha}, ${ls.html_url}`
 )
@@ -50,47 +52,42 @@ console.log(
     `> first failure log: ${(fflog.length / 1000) | 0}kb  ${ffjob.logUrl}`
 )
 
-const pr = await getPullRequestForRun(ff.id)
-if (pr) console.log(`> PR: ${pr.number}, ${pr.title}, ${pr.html_url}`)
-
 const logDiff = diffJobLogs(lslog, fflog)
 console.log(`> log diff: ${(logDiff.length / 1000) | 0}kb`)
 
-const res = await runPrompt(
-    (_) => {
-        // include difss
-        _.def("GIT_DIFF", gitDiff, {
-            language: "diff",
-            maxTokens: 10000,
-            lineNumbers: false,
-        })
-        _.def("LOG_DIFF", logDiff, {
-            language: "diff",
-            maxTokens: 20000,
-            lineNumbers: false,
-        })
-        _.$`Your are an expert software engineer and you are able to analyze the logs and find the root cause of the failure.
+// include difss
+def("GIT_DIFF", gitDiff, {
+    language: "diff",
+    maxTokens: 10000,
+    lineNumbers: true,
+})
+def("LOG_DIFF", logDiff, {
+    language: "diff",
+    maxTokens: 20000,
+    lineNumbers: false,
+})
+$`Your are an expert software engineer and you are able to analyze the logs and find the root cause of the failure.
 
 - GIT_DIFF contains a diff of 2 run commits
 - LOG_DIFF contains a diff of 2 runs in GitHub Action
 - The first run is the last successful run and the second run is the first failed run
 
-## Task 1
+Add links to run logs.
 
-Analyze the diff in LOG_DIFF and provide a summary of the root cause of the failure. 
+Analyze the diff in LOG_DIFF and provide a summary of the root cause of the failure.
 
 If you cannot find the root cause, stop.
 
-## Task 2
+Generate a diff with suggested fixes. Use a diff format.`
 
-Generate updates for the source files that can fix the issue.
-- use a unified diff format compatible with diff
+writeText(
+    `## Investigator report
+- [run first failure](${ff.html_url})
+- [run last success](${ls.html_url})
+- [commit diff](https://github.com/${owner}/${repo}/compare/${ls.head_sha}...${ff.head_sha})
 
-## Task 3
-
-Generate annotations in the source code to help identify the root cause of the failure.`
-    },
-    { cache: "gai" }
+`,
+    { assistant: true }
 )
 
 /*-----------------------------------------
@@ -116,7 +113,7 @@ async function getRepoInfo() {
     return { owner, repo }
 }
 
-async function listRuns(workflow_id: string) {
+async function listRuns(workflow_id: string, branch: string) {
     // Get the workflow runs for the specified workflow file, filtering for failures
     const {
         data: { workflow_runs },
@@ -124,6 +121,7 @@ async function listRuns(workflow_id: string) {
         owner,
         repo,
         workflow_id,
+        branch,
         per_page: 100,
     })
     const runs = workflow_runs.filter(
@@ -132,7 +130,7 @@ async function listRuns(workflow_id: string) {
     return runs
 }
 
-async function downloadR unLog(run_id: number) {
+async function downloadRunLog(run_id: number) {
     const res = []
     // Get the jobs for the specified workflow run
     const {
@@ -153,25 +151,6 @@ async function downloadR unLog(run_id: number) {
         res.push({ ...job, logUrl, text })
     }
     return res
-}
-
-async function getPullRequestForRun(run_id: number) {
-    const { data: workflowRun } = await octokit.rest.actions.getWorkflowRun({
-        owner,
-        repo,
-        run_id,
-    })
-    if (workflowRun.event === "pull_request") {
-        const url = workflowRun.pull_requests?.[0]?.url
-        if (url) {
-            // Fetch the pull request details
-            const { data: pullRequest } = await octokit.request(
-                workflowRun.pull_requests[0].url
-            )
-            return pullRequest
-        }
-    }
-    return null
 }
 
 function diffJobLogs(firstLog: string, otherLog: string) {
