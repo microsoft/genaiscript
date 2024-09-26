@@ -42,7 +42,7 @@ const gitDiff = await host.exec(
 console.log(`> source diff: ${(gitDiff.stdout.length / 1000) | 0}kb`)
 
 // download logs
-const lsjobs = await downloadRu nLog(ls.id)
+const lsjobs = await downloadRunLog(ls.id)
 const lsjob = lsjobs[0]
 const lslog = lsjob.text
 console.log(
