@@ -26,6 +26,7 @@ const lsi = lsid
     ? runs.findIndex(({ id }) => id === lsid)
     : runs.findIndex(({ conclusion }) => conclusion === "success")
 const ls = runs[lsi]
+if (!ls) cancel("last success run not found")
 console.log(
     `> last success: ${ls.id}, ${ls.created_at}, ${ls.head_sha}, ${ls.html_url}`
 )
@@ -42,17 +43,18 @@ const gitDiff = await host.exec(
 console.log(`> source diff: ${(gitDiff.stdout.length / 1000) | 0}kb`)
 
 // download logs
-const lsjobs = await downlo adRunLog(ls.id)
-const lsjob = lsjobs[0]
-const lslog = lsjob.text
-console.log(
-    `> last success log: ${(lslog.length / 1000) | 0}kb ${lsjob.logUrl}`
-)
 const ffjobs = await downloadRunLog(ff.id)
-const ffjob = ffjobs[0]
+const ffjob = ffjobs.find(({ conclusion }) => conclusion === "failure")
 const fflog = ffjob.text
 console.log(
     `> first failure log: ${(fflog.length / 1000) | 0}kb  ${ffjob.logUrl}`
+)
+
+const lsjobs = await downloadRunLog(ls.id)
+const lsjob = lsjobs.find(({ name }) => ffjob.name === name)
+const lslog = lsjob.text
+console.log(
+    `> last success log: ${(lslog.length / 1000) | 0}kb ${lsjob.logUrl}`
 )
 
 const logDiff = diffJobLogs(lslog, fflog)
