@@ -114,6 +114,7 @@ export async function cli() {
             "output file for annotations (.csv will be rendered as csv, .jsonl/ndjson will be aggregated)"
         )
         .option("-ocl, --out-changelog <string>", "output file for changelogs")
+        .option("-pr, --pull-request <number>", "pull request identifier")
         .option(
             "-prc, --pull-request-comment [string]",
             "create comment on a pull request with a unique id (defaults to script id)"

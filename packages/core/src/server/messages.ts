@@ -56,6 +56,7 @@ export interface PromptScriptRunOptions {
     outTrace: string
     outAnnotations: string
     outChangelogs: string
+    pullRequest: string
     pullRequestComment: string | boolean
     pullRequestDescription: string | boolean
     pullRequestReviews: boolean

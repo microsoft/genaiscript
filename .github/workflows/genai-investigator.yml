@@ -32,7 +32,7 @@ jobs:
             - name: compile
               run: yarn compile
             - name: genaiscript gai
-              run: node packages/cli/built/genaiscript.cjs run gai -prc --vars "failure_run_id=${{ github.event.workflow_run.id }}" --vars "branch=${{ github.event.workflow_run.head_branch }}" --out-trace $GITHUB_STEP_SUMMARY
+              run: node packages/cli/built/genaiscript.cjs run gai -pr ${{ github.event.workflow_run.pull_requests[0].number }} -prc --vars "failure_run_id=${{ github.event.workflow_run.id }}" --vars "branch=${{ github.event.workflow_run.head_branch }}" --out-trace $GITHUB_STEP_SUMMARY
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
