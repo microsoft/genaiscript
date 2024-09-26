@@ -1,4 +1,4 @@
-name: Trigger on Action Failure
+name: genai investigator
 on:
     workflow_run:
         workflows: ["build"]
