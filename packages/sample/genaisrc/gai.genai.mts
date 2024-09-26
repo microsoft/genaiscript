@@ -2,6 +2,15 @@
 import { Octokit } from "octokit"
 import { createPatch } from "diff"
 
+script({
+    parameters: {
+        workflow: { type: "string" },
+        failure_run_id: { type: "number" },
+        success_run_id: { type: "number" },
+        branch: { type: "string" },
+    },
+})
+
 const workflow = env.vars.workflow || "build.yml"
 const ffid = env.vars.failure_run_id
 const lsid = env.vars.success_run_id
@@ -50,7 +59,7 @@ console.log(
     `> first failure log: ${(fflog.length / 1000) | 0}kb  ${ffjob.logUrl}`
 )
 
-const lsjobs = await downlo adRunLog(ls.id)
+const lsjobs = await downloadRunLog(ls.id)
 const lsjob = lsjobs.find(({ name }) => ffjob.name === name)
 const lslog = lsjob.text
 console.log(
