@@ -4,6 +4,8 @@ on:
         workflows: ["build"]
         types:
             - completed
+        branches-ignore:
+            - main
 permissions:
     contents: read
     actions: read
