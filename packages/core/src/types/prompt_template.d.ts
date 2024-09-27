@@ -1336,6 +1336,16 @@ interface GitHubCodeSearchResult {
     repository: string
 }
 
+interface GitHubWorkflow {
+    id: number
+    name: string
+}
+
+interface GitHubPaginationOptions {
+    page?: number
+    per_page?: number
+}
+
 interface GitHub {
     /**
      * Gets connection information for octokit
@@ -1352,30 +1362,31 @@ interface GitHub {
         options?: {
             branch?: string
             event?: string
-            per_page?: number
-            page?: number
             status?: GitHubWorkflowRunStatus
-        }
+        } & GitHubPaginationOptions
     ): Promise<GitHubWorkflowRun[]>
 
     /**
      * Downloads a GitHub Action workflow run log
      * @param runId
      */
-    listWorkflowJobs(runId: number): Promise<GitHubWorkflowJob[]>
+    listWorkflowJobs(
+        runId: number,
+        options?: GitHubPaginationOptions
+    ): Promise<GitHubWorkflowJob[]>
 
     /**
      * Lists issues for a given repository
      * @param options
      */
-    listIssues(options?: {
-        state?: "open" | "closed" | "all"
-        labels?: string
-        sort?: "created" | "updated" | "comments"
-        direction?: "asc" | "desc"
-        per_page?: number
-        page?: number
-    }): Promise<GitHubIssue[]>
+    listIssues(
+        options?: {
+            state?: "open" | "closed" | "all"
+            labels?: string
+            sort?: "created" | "updated" | "comments"
+            direction?: "asc" | "desc"
+        } & GitHubPaginationOptions
+    ): Promise<GitHubIssue[]>
 
     /**
      * Lists comments for a given issue
@@ -1384,20 +1395,20 @@ interface GitHub {
      */
     listIssueComments(
         issue_number: number,
-        options?: { per_page?: number; page?: number }
+        options?: GitHubPaginationOptions
     ): Promise<GitHubComment[]>
 
     /**
      * Lists pull requests for a given repository
      * @param options
      */
-    listPullRequests(options?: {
-        state?: "open" | "closed" | "all"
-        sort?: "created" | "updated" | "popularity" | "long-running"
-        direction?: "asc" | "desc"
-        per_page?: number
-        page?: number
-    }): Promise<GitHubPullRequest[]>
+    listPullRequests(
+        options?: {
+            state?: "open" | "closed" | "all"
+            sort?: "created" | "updated" | "popularity" | "long-running"
+            direction?: "asc" | "desc"
+        } & GitHubPaginationOptions
+    ): Promise<GitHubPullRequest[]>
 
     /**
      * Lists comments for a given pull request
@@ -1406,7 +1417,7 @@ interface GitHub {
      */
     listPullRequestReviewComments(
         pull_number: number,
-        options?: { per_page?: number; page?: number }
+        options?: GitHubPaginationOptions
     ): Promise<GitHubComment[]>
 
     /**
@@ -1427,8 +1438,13 @@ interface GitHub {
      */
     searchCode(
         query: string,
-        options?: { per_page?: number; page?: number }
+        options?: GitHubPaginationOptions
     ): Promise<GitHubCodeSearchResult[]>
+
+    /**
+     * Lists workflows in a GitHub repository
+     */
+    listWorkflows(options?: GitHubPaginationOptions): Promise<GitHubWorkflow[]>
 }
 
 interface MD {

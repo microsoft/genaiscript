@@ -448,64 +448,64 @@ export class GitHubClient implements GitHub {
         })
     }
 
-    async listIssues(options?: {
-        state?: "open" | "closed" | "all"
-        labels?: string
-        sort?: "created" | "updated" | "comments"
-        direction?: "asc" | "desc"
-        per_page?: number
-        page?: number
-    }): Promise<GitHubIssue[]> {
+    async listIssues(
+        options?: {
+            state?: "open" | "closed" | "all"
+            labels?: string
+            sort?: "created" | "updated" | "comments"
+            direction?: "asc" | "desc"
+        } & GitHubPaginationOptions
+    ): Promise<GitHubIssue[]> {
         const { client, owner, repo } = await this.client()
         const { data: issues } = await client.rest.issues.listForRepo({
             owner,
             repo,
-            ...(options || {}),
+            ...(options ?? {}),
         })
         const i = issues[0]
         return issues
     }
 
-    async listPullRequests(options?: {
-        state?: "open" | "closed" | "all"
-        sort?: "created" | "updated" | "popularity" | "long-running"
-        direction?: "asc" | "desc"
-        per_page?: number
-        page?: number
-    }): Promise<GitHubPullRequest[]> {
+    async listPullRequests(
+        options?: {
+            state?: "open" | "closed" | "all"
+            sort?: "created" | "updated" | "popularity" | "long-running"
+            direction?: "asc" | "desc"
+        } & GitHubPaginationOptions
+    ): Promise<GitHubPullRequest[]> {
         const { client, owner, repo } = await this.client()
         const { data: prs } = await client.rest.pulls.list({
             owner,
             repo,
-            ...(options || {}),
+            ...(options ?? {}),
         })
         return prs
     }
 
     async listPullRequestReviewComments(
         pull_number: number,
-        options?: { per_page?: number; page?: number }
+        options?: GitHubPaginationOptions
     ): Promise<GitHubComment[]> {
         const { client, owner, repo } = await this.client()
         const { data: comments } = await client.rest.pulls.listReviewComments({
             owner,
             repo,
             pull_number,
-            ...(options || {}),
+            ...(options ?? {}),
         })
         return comments
     }
 
     async listIssueComments(
         issue_number: number,
-        options?: { per_page?: number; page?: number }
+        options?: GitHubPaginationOptions
     ): Promise<GitHubComment[]> {
         const { client, owner, repo } = await this.client()
         const { data: comments } = await client.rest.issues.listComments({
             owner,
             repo,
             issue_number,
-            ...(options || {}),
+            ...(options ?? {}),
         })
         return comments
     }
@@ -514,9 +514,8 @@ export class GitHubClient implements GitHub {
         workflow_id: string | number,
         options?: {
             branch?: string
-            per_page?: number
             status?: GitHubWorkflowRunStatus
-        }
+        } & GitHubPaginationOptions
     ): Promise<GitHubWorkflowRun[]> {
         const { client, owner, repo } = await this.client()
         const {
@@ -526,7 +525,7 @@ export class GitHubClient implements GitHub {
             repo,
             workflow_id,
             per_page: 100,
-            ...(options || {}),
+            ...(options ?? {}),
         })
         const runs = workflow_runs.filter(
             ({ conclusion }) => conclusion !== "skipped"
@@ -637,7 +636,7 @@ export class GitHubClient implements GitHub {
 
     async searchCode(
         query: string,
-        options?: { per_page?: number; page?: number }
+        options?: GitHubPaginationOptions
     ): Promise<GitHubCodeSearchResult[]> {
         const { client, owner, repo } = await this.client()
         const q = query + `+repo:${owner}/${repo}`
@@ -645,15 +644,31 @@ export class GitHubClient implements GitHub {
             data: { items },
         } = await client.rest.search.code({
             q,
-            ...(options || {}),
+            ...(options ?? {}),
         })
-        return items.map(({ name, path, sha, html_url, score, repository }) => ({
-            name,
-            path,
-            sha,
-            html_url,
-            score,
-            repository: repository.full_name,
-        }))
+        return items.map(
+            ({ name, path, sha, html_url, score, repository }) => ({
+                name,
+                path,
+                sha,
+                html_url,
+                score,
+                repository: repository.full_name,
+            })
+        )
+    }
+
+    async listWorkflows(
+        options?: GitHubPaginationOptions
+    ): Promise<GitHubWorkflow[]> {
+        const { client, owner, repo } = await this.client()
+        const { data: workflows } = await client.rest.actions.listRepoWorkflows(
+            {
+                owner,
+                repo,
+                ...(options ?? {}),
+            }
+        )
+        return workflows.workflows.map(({ id, name }) => ({ id, name }))
     }
 }
