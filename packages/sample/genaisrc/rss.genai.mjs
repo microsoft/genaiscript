@@ -8,10 +8,15 @@ const { rss } = XML.parse(await (await fetch("https://dev.to/feed")).text())
 
 defData(
     "ARTICLES",
-    rss.channel.item.map(({ title, description }) => ({
-        title,
-        description: parsers.HTMLToText(description, {}).slice(0, 2000),
-    }))
+    await Promise.all(
+        rss.channel.item.map(async ({ title, description }) => ({
+            title,
+            description: (await parsers.HTMLToText(description, {})).slice(
+                0,
+                2000
+            ),
+        }))
+    )
 )
 $`
 - Summarize ARTICLES
