@@ -442,6 +442,38 @@ export class GitHubClient implements GitHub {
         })
     }
 
+    async listIssues(options?: {
+        state?: "open" | "closed" | "all"
+        labels?: string
+        sort?: "created" | "updated" | "comments"
+        direction?: "asc" | "desc"
+        per_page?: number
+        page?: number
+    }): Promise<GitHubIssue[]> {
+        const { client, owner, repo } = await this.client()
+        const { data: issues } = await client.rest.issues.listForRepo({
+            owner,
+            repo,
+            ...(options || {}),
+        })
+        const i = issues[0]
+        return issues
+    }
+
+    async listComments(
+        issue_number: number,
+        options?: { per_page?: number; page?: number }
+    ): Promise<GitHubComment[]> {
+        const { client, owner, repo } = await this.client()
+        const { data: comments } = await client.rest.issues.listComments({
+            owner,
+            repo,
+            issue_number,
+            ...(options || {}),
+        })
+        return comments
+    }
+
     async listWorkflowRuns(
         workflow_id: string | number,
         options?: {
