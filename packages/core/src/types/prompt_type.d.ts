@@ -227,6 +227,19 @@ declare function defData(
 ): string
 
 /**
+ * Renders a diff of the two given values
+ * @param left
+ * @param right
+ * @param options
+ */
+declare function defDiff<T extends string | WorkspaceFile>(
+    name: string,
+    left: T,
+    right: T,
+    options?: DefDiffOptions
+): string
+
+/**
  * Cancels the current prompt generation/execution with the given reason.
  * @param reason
  */

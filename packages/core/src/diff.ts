@@ -1,5 +1,6 @@
 import { assert } from "./util"
 import parseDiff from "parse-diff"
+import { createTwoFilesPatch } from "diff"
 
 export interface Chunk {
     state: "existing" | "deleted" | "added"
@@ -282,4 +283,25 @@ export function llmifyDiff(diff: string) {
     }
 
     return result
+}
+
+export function createDiff(
+    left: WorkspaceFile,
+    right: WorkspaceFile,
+    options?: { context?: number }
+) {
+    const res = createTwoFilesPatch(
+        left.filename,
+        right.filename,
+        left.content,
+        right.content,
+        undefined,
+        undefined,
+        {
+            ignoreCase: true,
+            ignoreWhitespace: true,
+            ...(options ?? {}),
+        }
+    )
+    return res
 }

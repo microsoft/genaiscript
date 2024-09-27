@@ -748,6 +748,13 @@ interface DefOptions extends FenceOptions, ContextExpansionOptions, DataFilter {
     ignoreEmpty?: boolean
 }
 
+/**
+ * Options for the `defDiff` command.
+ */
+interface DefDiffOptions extends ContextExpansionOptions {
+
+}
+
 interface DefImagesOptions {
     detail?: "high" | "low"
     /**
@@ -1576,6 +1583,7 @@ interface ChatTurnGenerationContext {
         data: object[] | object,
         options?: DefDataOptions
     ): string
+    defDiff<T extends string | WorkspaceFile>(name: string, left: T, right: T, options?: DefDiffOptions): string
     console: PromptGenerationConsole
 }
 
