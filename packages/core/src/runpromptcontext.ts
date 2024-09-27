@@ -4,6 +4,7 @@ import {
     createAssistantNode,
     createChatParticipant,
     createDefData,
+    createDefDiff,
     createDef,
     createFileOutput,
     createFunctionNode,
@@ -167,6 +168,10 @@ export function createChatTurnGenerationContext(
         },
         defData: (name, data, defOptions) => {
             appendChild(node, createDefData(name, data, defOptions))
+            return name
+        },
+        defDiff: (name, left, right, defDiffOptions) => {
+            appendChild(node, createDefDiff(name, left, right, defDiffOptions))
             return name
         },
         fence(body, options?: DefOptions) {

@@ -78,8 +78,7 @@ def("GIT_DIFF", gitDiff, {
     maxTokens: 10000,
     lineNumbers: true,
 })
-def("LOG_DIFF", logDiff, {
-    language: "diff",
+defDiff("LOG_DIFF", parseJobLog(lslog), parseJobLog(fflog), {
     maxTokens: 20000,
     lineNumbers: false,
 })
@@ -171,32 +170,6 @@ async function downloadRunLog(run_id: number) {
     return res
 }
 
-function diffJobLogs(firstLog: string, otherLog: string) {
-    let firsts = parseJobLog(firstLog)
-    let others = parseJobLog(otherLog)
-
-    // assumption: the list of steps has not changed
-    const n = Math.min(firsts.length, others.length)
-    firsts = firsts.slice(0, n)
-    others = others.slice(0, n)
-
-    // now do a regular diff
-    const f = firsts
-        .map((f) =>
-            f.title ? `##[group]${f.title}\n${f.text}\n##[endgroup]` : f.text
-        )
-        .join("\n")
-    const l = others
-        .map((f) =>
-            f.title ? `##[group]${f.title}\n${f.text}\n##[endgroup]` : f.text
-        )
-        .join("\n")
-    const d = createPatch("log.txt", f, l, undefined, undefined, {
-        ignoreCase: true,
-        ignoreWhitespace: true,
-    })
-    return d
-}
 
 function parseJobLog(text: string) {
     const lines = cleanLog(text).split(/\r?\n/g)
@@ -226,7 +199,12 @@ function parseJobLog(text: string) {
         "Determining the checkout info",
         "Persisting credentials for submodules",
     ]
-    return groups.filter(({ title }) => !ignoreSteps.includes(title))
+    return groups
+        .filter(({ title }) => !ignoreSteps.includes(title))
+        .map((f) =>
+            f.title ? `##[group]${f.title}\n${f.text}\n##[endgroup]` : f.text
+        )
+        .join("\n")
 }
 
 function cleanLog(text: string) {

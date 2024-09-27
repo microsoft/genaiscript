@@ -303,5 +303,5 @@ export function createDiff(
             ...(options ?? {}),
         }
     )
-    return res
+    return res.replace(/^[^=]*={10,}\n/, "")
 }

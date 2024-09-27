@@ -721,7 +721,14 @@ type PromptSystemArgs = Omit<
 
 type StringLike = string | WorkspaceFile | WorkspaceFile[]
 
-interface FenceOptions {
+interface LineNumberingOptions {
+    /**
+     * Prepend each line with a line numbers. Helps with generating diffs.
+     */
+    lineNumbers?: boolean
+}
+
+interface FenceOptions extends LineNumberingOptions{
     /**
      * Language of the fenced code block. Defaults to "markdown".
      */
@@ -735,11 +742,6 @@ interface FenceOptions {
         | "shell"
         | "toml"
         | string
-
-    /**
-     * Prepend each line with a line numbers. Helps with generating diffs.
-     */
-    lineNumbers?: boolean
 
     /**
      * JSON schema identifier
@@ -784,7 +786,7 @@ interface DefOptions extends FenceOptions, ContextExpansionOptions, DataFilter {
 /**
  * Options for the `defDiff` command.
  */
-interface DefDiffOptions extends ContextExpansionOptions {
+interface DefDiffOptions extends ContextExpansionOptions, LineNumberingOptions {
 
 }
 
