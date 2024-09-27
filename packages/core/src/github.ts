@@ -9,6 +9,7 @@ import { createFetch } from "./fetch"
 import { runtimeHost } from "./host"
 import { link, prettifyMarkdown } from "./markdown"
 import { assert, logError, logVerbose, normalizeInt } from "./util"
+import { shellRemoveAsciiColors } from "./shell"
 
 export interface GithubConnectionInfo {
     token: string
@@ -605,13 +606,13 @@ export class GitHubClient implements GitHub {
         }
 
         function cleanLog(text: string) {
-            return text
-                .replace(
+            return shellRemoveAsciiColors(
+                text.replace(
                     // timestamps
                     /^﻿?\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{2,}Z /gm,
                     ""
                 )
-                .replace(/\x1b\[[0-9;]*m/g, "") // ascii colors
+            )
         }
     }
 }

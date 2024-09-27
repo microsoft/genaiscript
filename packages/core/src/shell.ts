@@ -17,3 +17,7 @@ export function shellParse(cmd: string): string[] {
 export function shellQuote(args: string[]): string {
     return quote(args)
 }
+
+export function shellRemoveAsciiColors(text: string) {
+    return text?.replace(/\x1b\[[0-9;]*m/g, "") // ascii colors
+}

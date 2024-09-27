@@ -5,8 +5,6 @@ import { convert as convertToText } from "html-to-text" // Import the convert fu
 
 import { TraceOptions } from "./trace" // Import TraceOptions for optional logging features
 
-import Turndown from "turndown" // Import Turndown library for HTML to Markdown conversion
-
 import { tabletojson } from "tabletojson" // Import tabletojson for converting HTML tables to JSON
 
 /**
@@ -52,11 +50,15 @@ export function HTMLToText(
  * @param options - Optional tracing parameters.
  * @returns The Markdown representation of the HTML.
  */
-export function HTMLToMarkdown(html: string, options?: TraceOptions): string {
+export async function HTMLToMarkdown(
+    html: string,
+    options?: TraceOptions
+): Promise<string> {
     if (!html) return html // Return original content if no HTML is provided
     const { trace } = options || {} // Extract trace for logging if available
 
     try {
+        const Turndown = (await import("turndown")).default // Import Turndown library for HTML to Markdown conversion
         const res = new Turndown().turndown(html) // Use Turndown library to convert HTML to Markdown
         return res
     } catch (e) {
