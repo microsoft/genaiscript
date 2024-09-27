@@ -1292,6 +1292,80 @@ interface HTML {
     convertToMarkdown(html: string): string
 }
 
+interface GitHubOptions {
+    owner: string
+    repo: string
+    baseUrl?: string
+    auth?: string
+}
+
+type GitHubWorkflowRunStatus = "completed"
+            | "action_required"
+            | "cancelled"
+            | "failure"
+            | "neutral"
+            | "skipped"
+            | "stale"
+            | "success"
+            | "timed_out"
+            | "in_progress"
+            | "queued"
+            | "requested"
+            | "waiting"
+            | "pending"
+
+interface GitHubWorkflowRun {
+    id: number
+    name?: string
+    status: GitHubWorkflowRunStatus
+    conclusion: string
+    html_url: string
+    created_at: string
+    head_branch: string
+    head_sha: string    
+}
+
+interface GitHubWorkflowJob {
+    id: number
+    run_id: number
+    status: string
+    conclusion: string
+    name: string
+    html_url: string
+    logs_url: string
+    logs: string
+    started_at: string
+    completed_at: string
+    content: string
+}
+
+interface GitHub {
+    /**
+     * Gets connection information for octokit
+     */
+    info(): Promise<GitHubOptions | undefined>
+
+    /**
+     * Lists workflow runs for a given workflow
+     * @param workflowId 
+     * @param options 
+     */
+    listWorkflowRuns(
+        workflow_id: string | number,
+        options?: {
+            branch?: string
+            event?: string
+            status?:GitHubWorkflowRunStatus
+        }
+    ) : Promise<GitHubWorkflowRun[]>
+
+    /**
+     * Downloads a GitHub Action workflow run log
+     * @param runId 
+     */
+    listWorkflowJobs(runId: number): Promise<GitHubWorkflowJob[]>
+}
+
 interface MD {
     /**
      * Parses front matter from markdown
@@ -2637,6 +2711,11 @@ declare var AICI: AICI
  * Access to current LLM chat session information
  */
 declare var host: PromptHost
+
+/**
+ * Access to GitHub queries for the current repository
+ */
+declare var github: GitHub
 
 /**
  * Fetches a given URL and returns the response.

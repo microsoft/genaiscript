@@ -183,6 +183,11 @@ declare var AICI: AICI
 declare var host: PromptHost
 
 /**
+ * Access to GitHub queries for the current repository
+ */
+declare var github: GitHub
+
+/**
  * Fetches a given URL and returns the response.
  * @param url
  */

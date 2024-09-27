@@ -1034,11 +1034,10 @@ Apache License
 
 The following npm packages may be included in this product:
 
- - @types/diff@5.2.2
  - @types/http-cache-semantics@4.0.4
  - @types/mute-stream@0.0.4
  - @types/node@16.9.1
- - @types/node@22.7.0
+ - @types/node@22.7.3
  - @types/turndown@5.0.5
  - @types/yauzl@2.10.3
 
