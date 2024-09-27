@@ -18,7 +18,7 @@ const lsid = env.vars.success_run_id
 const branch =
     env.vars.branch ||
     (await host.exec("git branch --show-current")).stdout.trim()
-
+const { owner, repo } = await github.info()
 const runs = await github.listWorkflowRuns(workflow, { branch })
 
 // find failure or first failure
