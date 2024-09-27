@@ -460,7 +460,7 @@ export class GitHubClient implements GitHub {
         return issues
     }
 
-    async listComments(
+    async listIssueComments(
         issue_number: number,
         options?: { per_page?: number; page?: number }
     ): Promise<GitHubComment[]> {

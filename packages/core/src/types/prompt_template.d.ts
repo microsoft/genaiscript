@@ -1372,7 +1372,7 @@ interface GitHub {
      * @param issue_number
      * @param options
      */
-    listComments(
+    listIssueComments(
         issue_number: number,
         options?: { per_page?: number; page?: number }
     ): Promise<GitHubComment[]>
