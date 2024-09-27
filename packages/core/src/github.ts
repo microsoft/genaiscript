@@ -18,6 +18,7 @@ export interface GithubConnectionInfo {
     owner: string
     repo: string
     ref?: string
+    refName?: string
     sha?: string
     issue?: number
     runId?: string
@@ -31,6 +32,7 @@ function githubFromEnv(env: Record<string, string>): GithubConnectionInfo {
     const repository = env.GITHUB_REPOSITORY
     const [owner, repo] = repository?.split("/", 2) || [undefined, undefined]
     const ref = env.GITHUB_REF
+    const refName = env.GITHUB_REF_NAME
     const sha = env.GITHUB_SHA
     const commitSha = env.GITHUB_COMMIT_SHA
     const runId = env.GITHUB_RUN_ID
@@ -51,6 +53,7 @@ function githubFromEnv(env: Record<string, string>): GithubConnectionInfo {
         owner,
         repo,
         ref,
+        refName,
         sha,
         issue,
         runId,
@@ -439,12 +442,16 @@ export class GitHubClient implements GitHub {
             token: auth,
             repo,
             owner,
+            ref,
+            refName,
         } = await this.connection()
         return Object.freeze({
             baseUrl,
             repo,
             owner,
             auth,
+            ref,
+            refName,
         })
     }
 

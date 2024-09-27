@@ -25,11 +25,9 @@ if (!workflow) {
 
 const ffid = env.vars.failure_run_id
 const lsid = env.vars.success_run_id
-const { owner, repo } = await github.info()
+const { owner, repo, refName } = await github.info()
 
-let branch =
-    env.vars.branch ||
-    (await host.exec("git branch --show-current")).stdout.trim()
+let branch = env.vars.branch || refName
 if (!branch) {
     const branches = await github.listBranches()
     branch = await host.select("Select a branch", branches)

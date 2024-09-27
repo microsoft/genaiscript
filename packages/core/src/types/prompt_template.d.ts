@@ -1264,6 +1264,8 @@ interface GitHubOptions {
     repo: string
     baseUrl?: string
     auth?: string
+    ref?: string
+    refName?: string
 }
 
 type GitHubWorkflowRunStatus =
