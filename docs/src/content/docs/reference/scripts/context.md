@@ -94,6 +94,15 @@ The `def` function can also be used with an array of files, such as `env.files`.
 def("FILE", env.files)
 ```
 
+### Language
+
+You can specify the language of the text contained in `def`. This can help GenAIScript optimize the rendering of the text.
+
+```js 'language: "diff"'
+// hint that the output is a diff
+def("DIFF", gitdiff, { language: "diff" })
+```
+
 ### Referencing
 
 The `def` function returns a variable name that can be used in the prompt.
@@ -201,10 +210,9 @@ defData("DATA", data, {
 })
 ```
 
-
 ## Diff Definition (`defDiff`)
 
-It is very common to compare two piece of data and ask the LLM to analyze the differences. Using diffs is a great way 
+It is very common to compare two piece of data and ask the LLM to analyze the differences. Using diffs is a great way
 to naturally compress the information since we only reason about differences!
 
 The `defDiff` takes care of formatting the diff in a way that helps LLM reason. It behaves similarly to `def` and assigns
@@ -220,4 +228,3 @@ defDiff("DIFF", "cat", "dog")
 // diff objects
 defDiff("DIFF", { name: "cat" }, { name: "dog" })
 ```
-
