@@ -58,7 +58,7 @@
     "minisearch": "^7.1.0",
     "mustache": "^4.2.0",
     "octokit": "^4.0.2",
-    "openai": "^4.63.0",
+    "openai": "^4.65.0",
     "p-limit": "^6.1.0",
     "parse-diff": "^0.11.1",
     "prettier": "^3.3.3",
