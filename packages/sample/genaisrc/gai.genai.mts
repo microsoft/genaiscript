@@ -97,8 +97,9 @@ Generate a diff with suggested fixes. Use a diff format.
 writeText(
     `## Investigator report
 - [run failure](${ff.html_url})
-- [run last success](${ls.html_url})
-- [commit diff](https://github.com/${owner}/${repo}/compare/${ls.head_sha}...${ff.head_sha})
+, [run last success](${ls.html_url})
+, [${ff.head_sha.slice(0, 7)}](${ff.html_url})
+, [diff ${ls.head_sha.slice(0, 7)}...${ff.head_sha.slice(0, 7)}](https://github.com/${owner}/${repo}/compare/${ls.head_sha}...${ff.head_sha})
 
 `,
     { assistant: true }
