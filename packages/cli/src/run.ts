@@ -430,10 +430,8 @@ export async function runScript(
 
     let _ghInfo: GithubConnectionInfo = undefined
     const resolveGitHubInfo = async () => {
-        if (!_ghInfo) {
-            _ghInfo = await githubParseEnv(process.env)
-            if (pullRequest) _ghInfo.issue = pullRequest
-        }
+        if (!_ghInfo)
+            _ghInfo = await githubParseEnv(process.env, { issue: pullRequest })
         return _ghInfo
     }
     let adoInfo: AzureDevOpsEnv = undefined

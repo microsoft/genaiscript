@@ -3,6 +3,9 @@ import { Octokit } from "octokit"
 import { createPatch } from "diff"
 
 script({
+    title: "GitHub Action Investigator",
+    description:
+        "Analyze GitHub Action runs to find the root cause of a failure",
     parameters: {
         workflow: { type: "string" },
         failure_run_id: { type: "number" },
@@ -92,11 +95,12 @@ Analyze the diff in LOG_DIFF and provide a summary of the root cause of the fail
 
 If you cannot find the root cause, stop.
 
-Generate a diff with suggested fixes. Use a diff format.`
+Generate a diff with suggested fixes. Use a diff format.
+- If you cannot locate the error, do not generate a diff.`
 
 writeText(
     `## Investigator report
-- [run first failure](${ff.html_url})
+- [run failure](${ff.html_url})
 - [run last success](${ls.html_url})
 - [commit diff](https://github.com/${owner}/${repo}/compare/${ls.head_sha}...${ff.head_sha})
 
