@@ -4,6 +4,10 @@ on:
         workflows: ["build"]
         types:
             - completed
+concurrency:
+    group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event.workflow_run.event }}-${{ github.event.workflow_run.conclusion }}
+    cancel-in-progress: true
+
 permissions:
     contents: read
     actions: read

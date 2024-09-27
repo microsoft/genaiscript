@@ -405,7 +405,7 @@ export async function githubCreatePullRequestReviews(
 export class GitHubClient implements GitHub {
     private _connection: Promise<GithubConnectionInfo>
     private _client: Promise<
-        { client: Octokit; owner: string; repo: string } | undefined
+        ({ client: Octokit } & GithubConnectionInfo) | undefined
     >
 
     constructor() {}
@@ -420,15 +420,14 @@ export class GitHubClient implements GitHub {
     private async client() {
         if (!this._client) {
             this._client = new Promise(async (resolve) => {
-                const { owner, repo, token, apiUrl } = await this.connection()
+                const conn = await this.connection()
+                const { token, apiUrl } = conn
                 const res = new Octokit({
                     userAgent: TOOL_ID,
-                    owner,
-                    repo,
                     auth: token,
                     baseUrl: apiUrl,
                 })
-                resolve({ client: res, owner: owner, repo: repo })
+                resolve({ client: res, ...conn })
             })
         }
         return this._client
@@ -614,5 +613,47 @@ export class GitHubClient implements GitHub {
                 )
             )
         }
+    }
+
+    async getFile(filename: string, ref: string): Promise<WorkspaceFile> {
+        const { client, owner, repo } = await this.client()
+        const { data: content } = await client.rest.repos.getContent({
+            owner,
+            repo,
+            path: filename,
+            ref,
+        })
+        if ("content" in content) {
+            return {
+                filename,
+                content: Buffer.from(content.content, "base64").toString(
+                    "utf-8"
+                ),
+            }
+        } else {
+            return undefined
+        }
+    }
+
+    async searchCode(
+        query: string,
+        options?: { per_page?: number; page?: number }
+    ): Promise<GitHubCodeSearchResult[]> {
+        const { client, owner, repo } = await this.client()
+        const q = query + `+repo:${owner}/${repo}`
+        const {
+            data: { items },
+        } = await client.rest.search.code({
+            q,
+            ...(options || {}),
+        })
+        return items.map(({ name, path, sha, html_url, score, repository }) => ({
+            name,
+            path,
+            sha,
+            html_url,
+            score,
+            repository: repository.full_name,
+        }))
     }
 }

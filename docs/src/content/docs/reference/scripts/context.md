@@ -70,16 +70,6 @@ const locale = env.vars.locale || "en-US"
 
 Read more about [variables](/genaiscript/reference/scripts/variables).
 
-### `env.secrets`
-
-The `secrets` property contains the secrets that have been defined in the script execution context.
-
-```javascript
-const token = env.secrets.SECRET_TOKEN
-```
-
-Read more about [secrets](/genaiscript/reference/scripts/secrets).
-
 ## Definition (`def`)
 
 The `def("FILE", file)` function is a shorthand for generating a fenced variable output.
@@ -102,6 +92,15 @@ The `def` function can also be used with an array of files, such as `env.files`.
 
 ```js "env.files"
 def("FILE", env.files)
+```
+
+### Language
+
+You can specify the language of the text contained in `def`. This can help GenAIScript optimize the rendering of the text.
+
+```js 'language: "diff"'
+// hint that the output is a diff
+def("DIFF", gitdiff, { language: "diff" })
 ```
 
 ### Referencing
@@ -209,4 +208,23 @@ defData("DATA", data, {
     sliceTail: 5,
     sliceSample: 100,
 })
+```
+
+## Diff Definition (`defDiff`)
+
+It is very common to compare two piece of data and ask the LLM to analyze the differences. Using diffs is a great way
+to naturally compress the information since we only reason about differences!
+
+The `defDiff` takes care of formatting the diff in a way that helps LLM reason. It behaves similarly to `def` and assigns
+a name to the diff.
+
+```js
+// diff files
+defDiff("DIFF", env.files[0], env.files[1])
+
+// diff strings
+defDiff("DIFF", "cat", "dog")
+
+// diff objects
+defDiff("DIFF", { name: "cat" }, { name: "dog" })
 ```

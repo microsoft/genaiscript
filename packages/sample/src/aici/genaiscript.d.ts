@@ -1111,7 +1111,7 @@ interface Parsers {
     HTMLToText(
         content: string | WorkspaceFile,
         options?: HTMLToTextOptions
-    ): string
+    ): Promise<string>
 
     /**
      * Convert HTML to markdown
@@ -1360,6 +1360,15 @@ interface GitHubComment {
 
 interface GitHubPullRequest extends GitHubIssue {}
 
+interface GitHubCodeSearchResult {
+    name: string
+    path: string
+    sha: string
+    html_url: string
+    score: number
+    repository: string
+}
+
 interface GitHub {
     /**
      * Gets connection information for octokit
@@ -1432,6 +1441,27 @@ interface GitHub {
         pull_number: number,
         options?: { per_page?: number; page?: number }
     ): Promise<GitHubComment[]>
+
+    /**
+     * Gets the content of a file from a GitHub repository
+     * @param filepath
+     * @param options
+     */
+    getFile(
+        filepath: string,
+        /**
+         * commit sha, branch name or tag name
+         */
+        ref: string
+    ): Promise<WorkspaceFile>
+
+    /**
+     * Searches code in a GitHub repository
+     */
+    searchCode(
+        query: string,
+        options?: { per_page?: number; page?: number }
+    ): Promise<GitHubCodeSearchResult[]>
 }
 
 interface MD {
