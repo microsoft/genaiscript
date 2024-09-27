@@ -1398,8 +1398,7 @@ interface GitHub {
     listPullRequestReviewComments(
         pull_number: number,
         options?: { per_page?: number; page?: number }
-    ): Promise<GitHubComment[]> {
-
+    ): Promise<GitHubComment[]>
 }
 
 interface MD {
