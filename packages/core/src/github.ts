@@ -421,11 +421,9 @@ export class GitHubClient implements GitHub {
         if (!this._client) {
             this._client = new Promise(async (resolve) => {
                 const conn = await this.connection()
-                const { owner, repo, token, apiUrl } = conn
+                const { token, apiUrl } = conn
                 const res = new Octokit({
                     userAgent: TOOL_ID,
-                    owner,
-                    repo,
                     auth: token,
                     baseUrl: apiUrl,
                 })
@@ -635,5 +633,27 @@ export class GitHubClient implements GitHub {
         } else {
             return undefined
         }
+    }
+
+    async searchCode(
+        query: string,
+        options?: { per_page?: number; page?: number }
+    ): Promise<GitHubCodeSearchResult[]> {
+        const { client, owner, repo } = await this.client()
+        const q = query + `+repo:${owner}/${repo}`
+        const {
+            data: { items },
+        } = await client.rest.search.code({
+            q,
+            ...(options || {}),
+        })
+        return items.map(({ name, path, sha, html_url, score, repository }) => ({
+            name,
+            path,
+            sha,
+            html_url,
+            score,
+            repository: repository.full_name,
+        }))
     }
 }

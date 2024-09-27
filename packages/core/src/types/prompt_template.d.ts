@@ -1327,6 +1327,15 @@ interface GitHubComment {
 
 interface GitHubPullRequest extends GitHubIssue {}
 
+interface GitHubCodeSearchResult {
+    name: string
+    path: string
+    sha: string
+    html_url: string
+    score: number
+    repository: string
+}
+
 interface GitHub {
     /**
      * Gets connection information for octokit
@@ -1412,6 +1421,14 @@ interface GitHub {
          */
         ref: string
     ): Promise<WorkspaceFile>
+
+    /**
+     * Searches code in a GitHub repository
+     */
+    searchCode(
+        query: string,
+        options?: { per_page?: number; page?: number }
+    ): Promise<GitHubCodeSearchResult[]>
 }
 
 interface MD {
