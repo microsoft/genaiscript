@@ -47,3 +47,5 @@ jobs:
             - name: run llm tests
               working-directory: packages/sample
               run: xargs -r -a temp/commit-tests.txt node ../cli/built/genaiscript.cjs test --out-summary $GITHUB_STEP_SUMMARY --test-delay 10
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
