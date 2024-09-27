@@ -13,6 +13,7 @@ script({
     },
     system: ["system", "system.files"],
     flexTokens: 30000,
+    cache: "gai",
 })
 
 // Assign the 'workflow' parameter from environment variables
