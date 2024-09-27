@@ -1432,6 +1432,21 @@ interface GitHub {
         pull_number: number,
         options?: { per_page?: number; page?: number }
     ): Promise<GitHubComment[]>
+
+    /**
+     * Gets the content of a file from a GitHub repository
+     * @param filepath
+     * @param options
+     */
+    getFileRevision(
+        filepath: string,
+        options?: {
+            /**
+             * commit sha, branch name or tag name
+             */
+            ref?: string
+        }
+    ): Promise<WorkspaceFile>
 }
 
 interface MD {

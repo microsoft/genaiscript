@@ -405,7 +405,7 @@ export async function githubCreatePullRequestReviews(
 export class GitHubClient implements GitHub {
     private _connection: Promise<GithubConnectionInfo>
     private _client: Promise<
-        { client: Octokit; owner: string; repo: string } | undefined
+        ({ client: Octokit } & GithubConnectionInfo) | undefined
     >
 
     constructor() {}
@@ -420,7 +420,8 @@ export class GitHubClient implements GitHub {
     private async client() {
         if (!this._client) {
             this._client = new Promise(async (resolve) => {
-                const { owner, repo, token, apiUrl } = await this.connection()
+                const conn = await this.connection()
+                const { owner, repo, token, apiUrl } = conn
                 const res = new Octokit({
                     userAgent: TOOL_ID,
                     owner,
@@ -428,7 +429,7 @@ export class GitHubClient implements GitHub {
                     auth: token,
                     baseUrl: apiUrl,
                 })
-                resolve({ client: res, owner: owner, repo: repo })
+                resolve({ client: res, ...conn })
             })
         }
         return this._client
@@ -613,6 +614,31 @@ export class GitHubClient implements GitHub {
                     ""
                 )
             )
+        }
+    }
+
+    async getFileRevision(
+        filename: string,
+        options?: { ref?: string }
+    ): Promise<WorkspaceFile> {
+        const { client, owner, repo, ref, commitSha } = await this.client()
+        const resolvedRef = options?.ref || commitSha || ref
+        if (!resolvedRef) throw new Error("ref or commitSha is required")
+        const { data: content } = await client.rest.repos.getContent({
+            owner,
+            repo,
+            path: filename,
+            ref: resolvedRef,
+        })
+        if ("content" in content) {
+            return {
+                filename,
+                content: Buffer.from(content.content, "base64").toString(
+                    "utf-8"
+                ),
+            }
+        } else {
+            return undefined
         }
     }
 }
