@@ -1320,6 +1320,7 @@ type GitHubWorkflowRunStatus =
 interface GitHubWorkflowRun {
     id: number
     name?: string
+    display_title: string
     status: string
     conclusion: string
     html_url: string

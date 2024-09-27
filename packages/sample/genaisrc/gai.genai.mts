@@ -3,7 +3,8 @@
 // Script for analyzing GitHub Action runs to determine the cause of a failure.
 script({
     title: "GitHub Action Investigator",
-    description: "Analyze GitHub Action runs to find the root cause of a failure",
+    description:
+        "Analyze GitHub Action runs to find the root cause of a failure",
     parameters: {
         workflow: { type: "string" }, // Workflow name
         failure_run_id: { type: "number" }, // ID of the failed run
@@ -57,31 +58,27 @@ if (ffi < 0) ffi = 0
 const ff = runs[ffi]
 
 // Log details of the failed run
-console.log(
-    `  run: ${ff.id}, ${ff.conclusion}, ${ff.created_at}, ${ff.head_sha}, ${ff.html_url}`
-)
+console.log(`  run: ${ff.display_title}, ${ff.html_url}`)
 
 // Find the index of the last successful run before the failure
+const runsAfterFailure = runs.slice(ffi)
 const lsi = lsid
     ? runs.findIndex(({ id }) => id === lsid)
-    : runs.slice(ffi).findIndex(({ conclusion }) => conclusion === "success")
+    : runsAfterFailure.findIndex(({ conclusion }) => conclusion === "success")
 
-const ls = runs[lsi]
+const ls = runsAfterFailure[lsi]
 if (ls) {
     // Log details of the last successful run
-    console.log(
-        `  last success: ${ls.id}, ${ls.conclusion}, ${ls.created_at}, ${ls.head_sha}, ${ls.html_url}`
-    )
+    console.log(`  last success: ${ls.display_title}, ${ls.html_url}`)
 
     // Execute git diff between the last success and failed run commits
     const gitDiff = await host.exec(
         `git diff ${ls.head_sha} ${ff.head_sha} -- . :!**/genaiscript.d.ts`
     )
-    console.log(`> git diff: ${(gitDiff.stdout.length / 1000) | 0}kb`)
     def("GIT_DIFF", gitDiff, {
         language: "diff",
-        maxTokens: 10000,
         lineNumbers: true,
+        maxTokens: 10000,
     })
 }
 
@@ -91,7 +88,6 @@ const ffjob =
     ffjobs.find(({ conclusion }) => conclusion === "failure") ?? ffjobs[0]
 const fflog = ffjob.content
 if (!fflog) cancel("No logs found")
-console.log(`> run log: ${(fflog.length / 1000) | 0}kb  ${ffjob.logs_url}`)
 
 if (!ls) {
     // Define log content if no last successful run is available
@@ -103,14 +99,10 @@ if (!ls) {
         console.log(`could not find job ${ffjob.name} in last success run`)
     else {
         const lslog = lsjob.content
-        console.log(
-            `> last success log: ${(lslog.length / 1000) | 0}kb ${lsjob.logs_url}`
-        )
-
         // Generate a diff of logs between the last success and failed runs
         defDiff("LOG_DIFF", lslog, fflog, {
-            maxTokens: 20000,
             lineNumbers: false,
+            maxTokens: 20000,
         })
     }
 }
