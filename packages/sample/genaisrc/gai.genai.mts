@@ -69,9 +69,6 @@ console.log(
     `> last success log: ${(lslog.length / 1000) | 0}kb ${lsjob.logUrl}`
 )
 
-const logDiff = diffJobLogs(lslog, fflog)
-console.log(`> log diff: ${(logDiff.length / 1000) | 0}kb`)
-
 // include difss
 def("GIT_DIFF", gitDiff, {
     language: "diff",
@@ -169,7 +166,6 @@ async function downloadRunLog(run_id: number) {
     }
     return res
 }
-
 
 function parseJobLog(text: string) {
     const lines = cleanLog(text).split(/\r?\n/g)
