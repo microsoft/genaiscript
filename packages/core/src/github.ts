@@ -419,9 +419,15 @@ export class GitHubClient implements GitHub {
     private async client() {
         if (!this._client) {
             this._client = new Promise(async (resolve) => {
-                const conn = await this.connection()
-                const res = new Octokit({ userAgent: TOOL_ID, ...conn })
-                resolve({ client: res, owner: conn.owner, repo: conn.repo })
+                const { owner, repo, token, apiUrl } = await this.connection()
+                const res = new Octokit({
+                    userAgent: TOOL_ID,
+                    owner,
+                    repo,
+                    auth: token,
+                    baseUrl: apiUrl,
+                })
+                resolve({ client: res, owner: owner, repo: repo })
             })
         }
         return this._client
