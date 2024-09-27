@@ -1,6 +1,6 @@
 import { describe, test } from "node:test"
 import assert from "node:assert/strict"
-import { parseLLMDiffs } from "./diff"
+import { createDiff, parseLLMDiffs } from "./diff"
 
 describe("diff", () => {
     test("is_valid_email", () => {
@@ -286,4 +286,34 @@ describe("diff", () => {
         const chunks = parseLLMDiffs(source)
         assert.notEqual(chunks.length, 0)
     })
+})
+test("createDiff with context", () => {
+    const left = {
+        filename: "file1.txt",
+        content: "line1\nline2\nline3\nline4\nline5\n",
+    }
+    const right = {
+        filename: "file1.txt",
+        content: "line1\nline2\nline3\nline4 modified\nline5\n",
+    }
+    const diff = createDiff(left, right, { context: 2 })
+    assert(diff.includes("@@ -2,4 +2,4 @@"))
+    assert(diff.includes("-line4"))
+    assert(diff.includes("+line4 modified"))
+})
+
+test("createDiff without context", () => {
+    const left = {
+        filename: "file1.txt",
+        content: "line1\nline2\nline3\nline4\nline5\n",
+    }
+    const right = {
+        filename: "file1.txt",
+        content: "line1\nline2\nline3\nline4 modified\nline5\n",
+    }
+    const diff = createDiff(left, right)
+    console.log(diff)
+    assert(diff.includes("@@ -1,5 +1,5 @@"))
+    assert(diff.includes("-line4"))
+    assert(diff.includes("+line4 modified"))
 })

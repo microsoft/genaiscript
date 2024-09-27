@@ -69,17 +69,13 @@ console.log(
     `> last success log: ${(lslog.length / 1000) | 0}kb ${lsjob.logUrl}`
 )
 
-const logDiff = diffJobLogs(lslog, fflog)
-console.log(`> log diff: ${(logDiff.length / 1000) | 0}kb`)
-
 // include difss
 def("GIT_DIFF", gitDiff, {
     language: "diff",
     maxTokens: 10000,
     lineNumbers: true,
 })
-def("LOG_DIFF", logDiff, {
-    language: "diff",
+defDiff("LOG_DIFF", parseJobLog(lslog), parseJobLog(fflog), {
     maxTokens: 20000,
     lineNumbers: false,
 })
@@ -101,8 +97,9 @@ Generate a diff with suggested fixes. Use a diff format.
 writeText(
     `## Investigator report
 - [run failure](${ff.html_url})
-- [run last success](${ls.html_url})
-- [commit diff](https://github.com/${owner}/${repo}/compare/${ls.head_sha}...${ff.head_sha})
+, [run last success](${ls.html_url})
+, [${ff.head_sha.slice(0, 7)}](${ff.html_url})
+, [diff ${ls.head_sha.slice(0, 7)}...${ff.head_sha.slice(0, 7)}](https://github.com/${owner}/${repo}/compare/${ls.head_sha}...${ff.head_sha})
 
 `,
     { assistant: true }
@@ -171,33 +168,6 @@ async function downloadRunLog(run_id: number) {
     return res
 }
 
-function diffJobLogs(firstLog: string, otherLog: string) {
-    let firsts = parseJobLog(firstLog)
-    let others = parseJobLog(otherLog)
-
-    // assumption: the list of steps has not changed
-    const n = Math.min(firsts.length, others.length)
-    firsts = firsts.slice(0, n)
-    others = others.slice(0, n)
-
-    // now do a regular diff
-    const f = firsts
-        .map((f) =>
-            f.title ? `##[group]${f.title}\n${f.text}\n##[endgroup]` : f.text
-        )
-        .join("\n")
-    const l = others
-        .map((f) =>
-            f.title ? `##[group]${f.title}\n${f.text}\n##[endgroup]` : f.text
-        )
-        .join("\n")
-    const d = createPatch("log.txt", f, l, undefined, undefined, {
-        ignoreCase: true,
-        ignoreWhitespace: true,
-    })
-    return d
-}
-
 function parseJobLog(text: string) {
     const lines = cleanLog(text).split(/\r?\n/g)
     const groups: { title: string; text: string }[] = []
@@ -226,7 +196,12 @@ function parseJobLog(text: string) {
         "Determining the checkout info",
         "Persisting credentials for submodules",
     ]
-    return groups.filter(({ title }) => !ignoreSteps.includes(title))
+    return groups
+        .filter(({ title }) => !ignoreSteps.includes(title))
+        .map((f) =>
+            f.title ? `##[group]${f.title}\n${f.text}\n##[endgroup]` : f.text
+        )
+        .join("\n")
 }
 
 function cleanLog(text: string) {

@@ -28,6 +28,7 @@ import {
 import { resolveTokenEncoder } from "./encoders"
 import { expandFiles } from "./fs"
 import { interpolateVariables } from "./mustache"
+import { createDiff } from "./diff"
 
 // Definition of the PromptNode interface which is an essential part of the code structure.
 export interface PromptNode extends ContextExpansionOptions {
@@ -172,6 +173,32 @@ export function createDef(
         await resolveFileContent(file, options)
         const res = await renderFileContent(file, options)
         return res
+    }
+    const value = render()
+    return { type: "def", name, value, ...(options || {}) }
+}
+
+export function createDefDiff(
+    name: string,
+    left: string | WorkspaceFile,
+    right: string | WorkspaceFile,
+    options?: DefDiffOptions & TraceOptions
+): PromptDefNode {
+    name = name ?? ""
+
+    if (typeof left === "string") left = { filename: "", content: left }
+    if (typeof right === "string") right = { filename: "", content: right }
+    if (left?.content === undefined)
+        left = { filename: "", content: YAMLStringify(left) }
+    if (right?.content === undefined)
+        right = { filename: "", content: YAMLStringify(right) }
+
+    const render = async () => {
+        await resolveFileContent(left, options)
+        const l = await renderFileContent(left, options)
+        await resolveFileContent(right, options)
+        const r = await renderFileContent(right, options)
+        return { filename: "", content: createDiff(l, r) }
     }
     const value = render()
     return { type: "def", name, value, ...(options || {}) }
