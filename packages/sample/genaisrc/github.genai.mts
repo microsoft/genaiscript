@@ -2,6 +2,22 @@ script({
     model: "openai:gpt-3.5-turbo",
     tests: {},
 })
+
+const languages = await github.listRepositoryLanguages()
+console.log(languages)
+
+const files = await github.getRepositoryContent("", {
+    type: "file",
+    downloadContent: true,
+    maxDownloadSize: 2_000,
+})
+console.log(
+    files.map(({ filename, content }) => ({
+        filename,
+        content: content?.slice(0, 50),
+    }))
+)
+
 const issues = await github.listIssues({ per_page: 5 })
 console.log(issues.map((i) => i.title))
 const issueComments = await github.listIssueComments(issues[0].number)

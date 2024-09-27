@@ -2,14 +2,16 @@ import { Octokit } from "octokit"
 import {
     GITHUB_API_VERSION,
     GITHUB_PULL_REQUEST_REVIEW_COMMENT_LINE_DISTANCE,
+    GITHUB_REST_API_CONCURRENCY_LIMIT,
     GITHUB_TOKEN,
     TOOL_ID,
 } from "./constants"
 import { createFetch } from "./fetch"
 import { runtimeHost } from "./host"
 import { link, prettifyMarkdown } from "./markdown"
-import { assert, logError, logVerbose, normalizeInt } from "./util"
+import { arrayify, assert, logError, logVerbose, normalizeInt } from "./util"
 import { shellRemoveAsciiColors } from "./shell"
+import { isGlobMatch } from "./glob"
 
 export interface GithubConnectionInfo {
     token: string
@@ -691,5 +693,76 @@ export class GitHubClient implements GitHub {
             ...(options ?? {}),
         })
         return branches.map(({ name }) => name)
+    }
+
+    async listRepositoryLanguages(): Promise<Record<string, number>> {
+        const { client, owner, repo } = await this.client()
+        const { data: languages } = await client.rest.repos.listLanguages({
+            owner,
+            repo,
+        })
+        return languages
+    }
+
+    async getRepositoryContent(
+        path: string,
+        options?: {
+            ref?: string
+            glob?: string
+            downloadContent?: boolean
+            maxDownloadSize?: number
+            type?: string
+        }
+    ): Promise<GitHubFile[]> {
+        const { client, owner, repo } = await this.client()
+        const { ref, type, glob, downloadContent, maxDownloadSize } =
+            options ?? {}
+        const { data: contents } = await client.rest.repos.getContent({
+            owner,
+            repo,
+            path,
+            ref,
+        })
+        const res = arrayify(contents)
+            .filter((c) => !type || c.type === type)
+            .filter((c) => !glob || isGlobMatch(c.path, glob))
+            .map((content) => ({
+                filename: content.path,
+                type: content.type,
+                size: content.size,
+                content:
+                    content.type === "file" && content.content
+                        ? Buffer.from(content.content, "base64").toString(
+                              "utf-8"
+                          )
+                        : undefined,
+            }))
+        if (downloadContent) {
+            const q = host.promiseQueue(GITHUB_REST_API_CONCURRENCY_LIMIT)
+            await q.all(
+                res
+                    .filter((f) => f.type === "file" && !f.content)
+                    .filter(
+                        (f) => !maxDownloadSize || f.size <= maxDownloadSize
+                    )
+                    .map((f) => {
+                        const filename = f.filename
+                        return async () => {
+                            const { data: fileContent } =
+                                await client.rest.repos.getContent({
+                                    owner,
+                                    repo,
+                                    path: filename,
+                                    ref,
+                                })
+                            f.content = Buffer.from(
+                                arrayify(fileContent)[0].content,
+                                "base64"
+                            ).toString("utf8")
+                        }
+                    })
+            )
+        }
+        return res
     }
 }

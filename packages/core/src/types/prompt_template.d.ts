@@ -1349,6 +1349,11 @@ interface GitHubPaginationOptions {
     per_page?: number
 }
 
+interface GitHubFile extends WorkspaceFile {
+    type: "file" | "dir" | "submodule" | "symlink"
+    size: number
+}
+
 interface GitHub {
     /**
      * Gets connection information for octokit
@@ -1453,6 +1458,25 @@ interface GitHub {
      * Lists branches in a GitHub repository
      */
     listBranches(options?: GitHubPaginationOptions): Promise<string[]>
+
+    /**
+     * Lists tags in a GitHub repository
+     */
+    listRepositoryLanguages(): Promise<Record<string, number>>
+
+    /**
+     * Lists tags in a GitHub repository
+     */
+    getRepositoryContent(
+        path?: string,
+        options?: {
+            ref?: string
+            glob?: string
+            downloadContent?: boolean
+            maxDownloadSize?: number
+            type?: (typeof GitHubFile)["type"]
+        }
+    ): Promise<GitHubFile[]>
 }
 
 interface MD {
