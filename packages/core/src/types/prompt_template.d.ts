@@ -1078,7 +1078,7 @@ interface Parsers {
     HTMLToText(
         content: string | WorkspaceFile,
         options?: HTMLToTextOptions
-    ): string
+    ): Promise<string>
 
     /**
      * Convert HTML to markdown
@@ -1405,14 +1405,12 @@ interface GitHub {
      * @param filepath
      * @param options
      */
-    getFileRevision(
+    getFile(
         filepath: string,
-        options?: {
-            /**
-             * commit sha, branch name or tag name
-             */
-            ref?: string
-        }
+        /**
+         * commit sha, branch name or tag name
+         */
+        ref: string
     ): Promise<WorkspaceFile>
 }
 

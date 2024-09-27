@@ -617,18 +617,13 @@ export class GitHubClient implements GitHub {
         }
     }
 
-    async getFileRevision(
-        filename: string,
-        options?: { ref?: string }
-    ): Promise<WorkspaceFile> {
-        const { client, owner, repo, ref, commitSha } = await this.client()
-        const resolvedRef = options?.ref || commitSha || ref
-        if (!resolvedRef) throw new Error("ref or commitSha is required")
+    async getFile(filename: string, ref: string): Promise<WorkspaceFile> {
+        const { client, owner, repo } = await this.client()
         const { data: content } = await client.rest.repos.getContent({
             owner,
             repo,
             path: filename,
-            ref: resolvedRef,
+            ref,
         })
         if ("content" in content) {
             return {
