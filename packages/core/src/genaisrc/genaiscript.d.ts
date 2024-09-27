@@ -1372,6 +1372,7 @@ interface GitHubCodeSearchResult {
 interface GitHubWorkflow {
     id: number
     name: string
+    path: string
 }
 
 interface GitHubPaginationOptions {
@@ -1384,6 +1385,11 @@ interface GitHub {
      * Gets connection information for octokit
      */
     info(): Promise<GitHubOptions | undefined>
+
+    /**
+     * Lists workflows in a GitHub repository
+     */
+    listWorkflows(options?: GitHubPaginationOptions): Promise<GitHubWorkflow[]>
 
     /**
      * Lists workflow runs for a given workflow
@@ -1475,9 +1481,9 @@ interface GitHub {
     ): Promise<GitHubCodeSearchResult[]>
 
     /**
-     * Lists workflows in a GitHub repository
+     * Lists branches in a GitHub repository
      */
-    listWorkflows(options?: GitHubPaginationOptions): Promise<GitHubWorkflow[]>
+    listBranches(options?: GitHubPaginationOptions): Promise<string[]>
 }
 
 interface MD {

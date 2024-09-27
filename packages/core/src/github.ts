@@ -669,6 +669,20 @@ export class GitHubClient implements GitHub {
                 ...(options ?? {}),
             }
         )
-        return workflows.workflows.map(({ id, name }) => ({ id, name }))
+        return workflows.workflows.map(({ id, name, path }) => ({
+            id,
+            name,
+            path,
+        }))
+    }
+
+    async listBranches(options?: GitHubPaginationOptions): Promise<string[]> {
+        const { client, owner, repo } = await this.client()
+        const { data: branches } = await client.rest.repos.listBranches({
+            owner,
+            repo,
+            ...(options ?? {}),
+        })
+        return branches.map(({ name }) => name)
     }
 }

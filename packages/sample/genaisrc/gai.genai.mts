@@ -10,15 +10,32 @@ script({
         success_run_id: { type: "number" },
         branch: { type: "string" },
     },
+    system: ["system", "system.files"],
 })
 
-const workflow = env.vars.workflow || "build.yml"
+let workflow = env.vars.workflow
+if (!workflow) {
+    const workflows = await github.listWorkflows()
+    workflow = await host.select(
+        "Select a workflow",
+        workflows.map(({ path, name }) => ({ value: path, name }))
+    )
+    if (!workflow) cancel("No workflow selected")
+}
+
 const ffid = env.vars.failure_run_id
 const lsid = env.vars.success_run_id
-const branch =
+const { owner, repo } = await github.info()
+
+let branch =
     env.vars.branch ||
     (await host.exec("git branch --show-current")).stdout.trim()
-const { owner, repo } = await github.info()
+if (!branch) {
+    const branches = await github.listBranches()
+    branch = await host.select("Select a branch", branches)
+    if (!branch) cancel("No branch selected")
+}
+
 const runs = await github.listWorkflowRuns(workflow, { branch })
 if (!runs.length) cancel("No runs found")
 
@@ -32,10 +49,10 @@ console.log(
     `  run: ${ff.id}, ${ff.conclusion}, ${ff.created_at}, ${ff.head_sha}, ${ff.html_url}`
 )
 
-// first last success
 const lsi = lsid
-    ? runs.slice(ffi).findIndex(({ id }) => id === lsid)
-    : runs.slice(ffi).findIndex(({ conclusion }) => conclusion === "success")
+    ? runs.findIndex(({ id }) => id === lsid)
+    : // last success preceding the build
+      runs.slice(ffi).findIndex(({ conclusion }) => conclusion === "success")
 const ls = runs[lsi]
 if (ls) {
     console.log(
@@ -44,7 +61,7 @@ if (ls) {
     const gitDiff = await host.exec(
         `git diff ${ls.head_sha} ${ff.head_sha} -- . :!**/genaiscript.d.ts`
     )
-    console.log(`> source diff: ${(gitDiff.stdout.length / 1000) | 0}kb`)
+    console.log(`> git diff: ${(gitDiff.stdout.length / 1000) | 0}kb`)
     def("GIT_DIFF", gitDiff, {
         language: "diff",
         maxTokens: 10000,
