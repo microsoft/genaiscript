@@ -12,6 +12,7 @@ script({
         branch: { type: "string" }, // Branch name
     },
     system: ["system", "system.files"],
+    flexTokens: 30000,
 })
 
 // Assign the 'workflow' parameter from environment variables
@@ -78,7 +79,7 @@ if (ls) {
     def("GIT_DIFF", gitDiff, {
         language: "diff",
         lineNumbers: true,
-        maxTokens: 10000,
+        flex: 1,
     })
 }
 
@@ -102,7 +103,7 @@ if (!ls) {
         // Generate a diff of logs between the last success and failed runs
         defDiff("LOG_DIFF", lslog, fflog, {
             lineNumbers: false,
-            maxTokens: 20000,
+            flex: 4,
         })
     }
 }

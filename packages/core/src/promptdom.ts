@@ -14,6 +14,7 @@ import {
     PROMPT_FENCE,
     TEMPLATE_ARG_DATA_SLICE_SAMPLE,
     TEMPLATE_ARG_FILE_MAX_TOKENS,
+    TOKEN_TRUNCATION_THRESHOLD,
 } from "./constants"
 import { parseModelIdentifier } from "./models"
 import { toChatCompletionUserMessage } from "./chat"
@@ -55,6 +56,7 @@ export interface PromptNode extends ContextExpansionOptions {
      * Rendered markdown preview of the node
      */
     preview?: string
+    name?: string
 }
 
 // Interface for a text node in the prompt tree.
@@ -670,14 +672,32 @@ async function resolvePromptNode(
 function truncateText(
     content: string,
     maxTokens: number,
-    encoder: TokenEncoder
+    encoder: TokenEncoder,
+    options?: {
+        threshold?: number
+    }
 ): string {
     const tokens = estimateTokens(content, encoder)
-    const end = Math.max(
-        3,
-        Math.floor((maxTokens * content.length) / tokens) - 1
-    )
-    return content.slice(0, end) + MAX_TOKENS_ELLIPSE
+    if (tokens <= maxTokens) return content
+    const { threshold = TOKEN_TRUNCATION_THRESHOLD } = options || {}
+
+    let left = 0
+    let right = content.length
+    let result = content
+
+    while (Math.abs(left - right) > threshold) {
+        const mid = Math.floor((left + right) / 2)
+        const truncated = content.slice(0, mid) + MAX_TOKENS_ELLIPSE
+        const truncatedTokens = estimateTokens(truncated, encoder)
+
+        if (truncatedTokens > maxTokens) {
+            right = mid
+        } else {
+            result = truncated
+            left = mid + 1
+        }
+    }
+    return result
 }
 
 // Function to handle truncation of prompt nodes based on token limits.
@@ -710,7 +730,9 @@ async function truncatePromptNode(
             )
             n.tokens = estimateTokens(n.resolved, encoder)
             truncated = true
-            trace.log(`truncated text to ${n.tokens} tokens`)
+            trace.log(
+                `truncated text to ${n.tokens} tokens (max ${n.maxTokens})`
+            )
         }
     }
 
@@ -728,7 +750,9 @@ async function truncatePromptNode(
             )
             n.tokens = estimateTokens(n.resolved.content, encoder)
             truncated = true
-            trace.log(`truncated def ${n.name} to ${n.tokens} tokens`)
+            trace.log(
+                `truncated def ${n.name} to ${n.tokens} tokens (max ${n.maxTokens})`
+            )
         }
     }
 
@@ -786,7 +810,9 @@ async function flexPromptNode(
             Math.floor(totalRemaining * proportion)
         )
         node.maxTokens = tokenBudget
-        trace.log(`flexed ${node.type} to ${tokenBudget} tokens`)
+        trace.log(
+            `flexed ${node.type} ${node.name || ""} to ${tokenBudget} tokens`
+        )
     }
 }
 
