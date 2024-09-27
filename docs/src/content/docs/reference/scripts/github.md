@@ -103,7 +103,7 @@ console.log(pkg.content.slice(0, 50) + "...")
 You can use [octokit](https://www.npmjs.com/package/octokit) to access the full GitHub APIs.
 
 ```js
-import { Octokit } from "octokit"
+import { Octokit } from "@octokit/core"
 
 const info = await github.info()
 const client = new Octokit(info)

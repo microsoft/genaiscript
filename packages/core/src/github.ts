@@ -1,4 +1,4 @@
-import { Octokit } from "octokit"
+import type { Octokit } from "@octokit/rest"
 import {
     GITHUB_API_VERSION,
     GITHUB_PULL_REQUEST_REVIEW_COMMENT_LINE_DISTANCE,
@@ -427,10 +427,44 @@ export class GitHubClient implements GitHub {
             this._client = new Promise(async (resolve) => {
                 const conn = await this.connection()
                 const { token, apiUrl } = conn
-                const res = new Octokit({
+                const { Octokit } = await import("@octokit/rest")
+                const { throttling } = await import(
+                    "@octokit/plugin-throttling"
+                )
+                const OctokitWithPlugins = Octokit.plugin(throttling)
+                const res: Octokit = new OctokitWithPlugins({
                     userAgent: TOOL_ID,
                     auth: token,
                     baseUrl: apiUrl,
+                    throttle: {
+                        onRateLimit: (
+                            retryAfter,
+                            options,
+                            octokit,
+                            retryCount
+                        ) => {
+                            octokit.log.warn(
+                                `Request quota exhausted for request ${options.method} ${options.url}`
+                            )
+                            if (retryCount < 1) {
+                                // only retries once
+                                octokit.log.info(
+                                    `Retrying after ${retryAfter} seconds!`
+                                )
+                                return true
+                            }
+                            return false
+                        },
+                        onSecondaryRateLimit: (
+                            retryAfter,
+                            options,
+                            octokit
+                        ) => {
+                            octokit.log.warn(
+                                `SecondaryRateLimit detected for request ${options.method} ${options.url}`
+                            )
+                        },
+                    },
                 })
                 resolve({ client: res, ...conn })
             })
