@@ -20,17 +20,17 @@ const branch =
     (await host.exec("git branch --show-current")).stdout.trim()
 const { owner, repo } = await github.info()
 const runs = await github.listWorkflowRuns(workflow, { branch })
+if (!runs.length) cancel("No runs found")
 
-// find failure or first failure
-const ffi = ffid
+// find build
+let ffi = ffid
     ? runs.findIndex(({ id }) => id === ffid)
     : runs.findIndex(({ conclusion }) => conclusion === "failure")
-if (ffi < 0) cancel("failure run not found")
+if (ffi < 0) ffi = 0
 const ff = runs[ffi]
 console.log(
-    `> first failure: ${ff.id}, ${ff.created_at}, ${ff.head_sha}, ${ff.html_url}`
+    `  run: ${ff.id}, ${ff.conclusion}, ${ff.created_at}, ${ff.head_sha}, ${ff.html_url}`
 )
-if (ff.conclusion !== "failure") cancel("failure run not found")
 
 // first last success
 const lsi = lsid
@@ -39,7 +39,7 @@ const lsi = lsid
 const ls = runs[lsi]
 if (ls) {
     console.log(
-        `> last success: ${ls.id}, ${ls.created_at}, ${ls.head_sha}, ${ls.html_url}`
+        `  last success: ${ls.id}, ${ls.conclusion}, ${ls.created_at}, ${ls.head_sha}, ${ls.html_url}`
     )
     const gitDiff = await host.exec(
         `git diff ${ls.head_sha} ${ff.head_sha} -- . :!**/genaiscript.d.ts`
@@ -54,26 +54,30 @@ if (ls) {
 
 // download logs
 const ffjobs = await github.listWorkflowJobs(ff.id)
-const ffjob = ffjobs.find(({ conclusion }) => conclusion === "failure")
+const ffjob =
+    ffjobs.find(({ conclusion }) => conclusion === "failure") ?? ffjobs[0]
 const fflog = ffjob.content
-console.log(
-    `> first failure log: ${(fflog.length / 1000) | 0}kb  ${ffjob.logs_url}`
-)
+if (!fflog) cancel("No logs found")
+console.log(`> run log: ${(fflog.length / 1000) | 0}kb  ${ffjob.logs_url}`)
 if (!ls) {
     def("LOG", fflog, { maxTokens: 20000, lineNumbers: false })
 } else {
     const lsjobs = await github.listWorkflowJobs(ls.id)
     const lsjob = lsjobs.find(({ name }) => ffjob.name === name)
-    const lslog = lsjob.content
-    console.log(
-        `> last success log: ${(lslog.length / 1000) | 0}kb ${lsjob.logs_url}`
-    )
+    if (!lsjob)
+        console.log(`could not find job ${ffjob.name} in last success run`)
+    else {
+        const lslog = lsjob.content
+        console.log(
+            `> last success log: ${(lslog.length / 1000) | 0}kb ${lsjob.logs_url}`
+        )
 
-    // include difss
-    defDiff("LOG_DIFF", lslog, fflog, {
-        maxTokens: 20000,
-        lineNumbers: false,
-    })
+        // include difss
+        defDiff("LOG_DIFF", lslog, fflog, {
+            maxTokens: 20000,
+            lineNumbers: false,
+        })
+    }
 }
 $`Your are an expert software engineer and you are able to analyze the logs and find the root cause of the failure.
 
