@@ -86,9 +86,9 @@ const value = page.getByRole("input").value()
 You can use the parsers in [HTML](/genaiscript/reference/scripts/html) to convert the HTML to Markdown.
 
 ```js
-const md = HTML.convertToMarkdown(html)
-const text = HTML.convertToText(html)
-const tables = HTML.convertTablesToJSON(html)
+const md = await HTML.convertToMarkdown(html)
+const text = await HTML.convertToText(html)
+const tables = await HTML.convertTablesToJSON(html)
 ```
 
 ## Screenshot

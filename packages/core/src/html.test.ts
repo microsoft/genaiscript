@@ -3,7 +3,7 @@ import { HTMLTablesToJSON, HTMLToMarkdown, HTMLToText } from "./html"
 import assert from "node:assert/strict"
 
 describe("html", () => {
-    test("convert HTML table to JSON", () => {
+    test("convert HTML table to JSON", async () => {
         const html = `
             <table>
                 <tr>
@@ -17,22 +17,22 @@ describe("html", () => {
             </table>
         `
         const expected = [{ "Header 1": "Value 1", "Header 2": "Value 2" }]
-        const result = HTMLTablesToJSON(html)[0]
+        const result = (await HTMLTablesToJSON(html))[0]
         console.log(JSON.stringify(result, null, 2))
         assert.deepStrictEqual(result, expected)
     })
-    test("converts HTML to text", () => {
+    test("converts HTML to text", async () => {
         const html = "<p>Hello, world!</p>"
         const expected = "Hello, world!"
-        const result = HTMLToText(html)
+        const result = await HTMLToText(html)
         assert(result === expected)
     })
 
-    describe("HTMLToMarkdown", () => {
+    describe("HTMLToMarkdown", async () => {
         test("converts simple HTML to Markdown", async () => {
             const html = "<h1>Title</h1>"
             const expected = "Title\n====="
-            const result = HTMLToMarkdown(html)
+            const result = await HTMLToMarkdown(html)
             assert.strictEqual(result, expected)
         })
     })

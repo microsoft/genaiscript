@@ -1085,7 +1085,7 @@ interface Parsers {
      * @param content html string or file
      * @param options
      */
-    HTMLToMarkdown(content: string | WorkspaceFile): string
+    HTMLToMarkdown(content: string | WorkspaceFile): Promise<string>
 
     /**
      * Extracts the contents of a zip archive file
@@ -1246,17 +1246,17 @@ interface HTML {
     convertTablesToJSON(
         html: string,
         options?: HTMLTableToJSONOptions
-    ): object[][]
+    ): Promise<object[][]>
     /**
      * Converts HTML markup to plain text
      * @param html
      */
-    convertToText(html: string): string
+    convertToText(html: string): Promise<string>
     /**
      * Converts HTML markup to markdown
      * @param html
      */
-    convertToMarkdown(html: string): string
+    convertToMarkdown(html: string): Promise<string>
 }
 
 interface GitHubOptions {

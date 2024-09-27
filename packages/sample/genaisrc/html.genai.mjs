@@ -7,13 +7,13 @@ script({
 const { text: html } = await fetchText(
     "https://microsoft.github.io/genaiscript/getting-started/"
 )
-const text = HTML.convertToText(html)
+const text = await HTML.convertToText(html)
 def("TEXT", text)
 
-const md = HTML.convertToMarkdown(html)
+const md = await HTML.convertToMarkdown(html)
 const v = def("MARKDOWN", md)
 
-const tables = HTML.convertTablesToJSON(html)
+const tables = await HTML.convertTablesToJSON(html)
 defData("TABLES", tables)
 
 $`Compare TEXT and MARKDOWN.

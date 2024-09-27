@@ -221,7 +221,7 @@ Browse and scrape the web with [Playwright](/genaiscript/reference/scripts/brows
 ```js
 const page = await host.browse("https://...")
 const table = await page.locator("table[...]").innerHTML()
-def("TABLE", HTML.convertToMarkdown(table))
+def("TABLE", await HTML.convertToMarkdown(table))
 ```
 
 </Card>

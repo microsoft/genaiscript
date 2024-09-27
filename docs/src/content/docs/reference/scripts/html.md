@@ -37,7 +37,7 @@ const markdown = HTML.HTMLToMarkdown(htmlContent)
 This function specializes in extracting tables from HTML content and converting them into JSON format. It is useful for data extraction tasks from web pages.
 
 ```js
-const tables = HTML.convertTablesToJSON(htmlContent)
+const tables = await HTML.convertTablesToJSON(htmlContent)
 const table = tables[0]
 
 defData("DATA", table)

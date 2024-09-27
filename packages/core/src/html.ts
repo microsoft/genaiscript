@@ -1,11 +1,7 @@
 // This module provides functions to convert HTML content into different formats such as JSON, plain text, and Markdown.
 // It imports necessary libraries for HTML conversion and logging purposes.
 
-import { convert as convertToText } from "html-to-text" // Import the convert function from html-to-text library
-
 import { TraceOptions } from "./trace" // Import TraceOptions for optional logging features
-
-import { tabletojson } from "tabletojson" // Import tabletojson for converting HTML tables to JSON
 
 /**
  * Converts HTML tables to JSON objects.
@@ -14,7 +10,11 @@ import { tabletojson } from "tabletojson" // Import tabletojson for converting H
  * @param options - Optional parameters for conversion.
  * @returns A 2D array of objects representing the table data.
  */
-export function HTMLTablesToJSON(html: string, options?: {}): object[][] {
+export async function HTMLTablesToJSON(
+    html: string,
+    options?: {}
+): Promise<object[][]> {
+    const { tabletojson } = await import("tabletojson") // Import tabletojson for converting HTML tables to JSON
     const res = tabletojson.convert(html, options) // Convert HTML tables to JSON using tabletojson library
     return res
 }
@@ -26,15 +26,16 @@ export function HTMLTablesToJSON(html: string, options?: {}): object[][] {
  * @param options - Optional parameters including tracing options.
  * @returns The plain text representation of the HTML.
  */
-export function HTMLToText(
+export async function HTMLToText(
     html: string,
     options?: HTMLToTextOptions & TraceOptions
-): string {
+): Promise<string> {
     if (!html) return "" // Return empty string if no HTML content is provided
 
     const { trace } = options || {} // Extract trace for logging if available
 
     try {
+        const { convert: convertToText } = await import("html-to-text") // Import the convert function from html-to-text library
         const text = convertToText(html, options) // Perform conversion to plain text
         return text
     } catch (e) {
