@@ -1311,7 +1311,6 @@ interface GitHubIssue {
     id: number
     body?: string
     title: string
-    comments: number
     number: number
     state: string
     state_reason?: "completed" | "reopened" | "not_planned" | null
@@ -1325,6 +1324,8 @@ interface GitHubComment {
     updated_at: string
     html_url: string
 }
+
+interface GitHubPullRequest extends GitHubIssue {}
 
 interface GitHub {
     /**
@@ -1376,6 +1377,29 @@ interface GitHub {
         issue_number: number,
         options?: { per_page?: number; page?: number }
     ): Promise<GitHubComment[]>
+
+    /**
+     * Lists pull requests for a given repository
+     * @param options
+     */
+    listPullRequests(options?: {
+        state?: "open" | "closed" | "all"
+        sort?: "created" | "updated" | "popularity" | "long-running"
+        direction?: "asc" | "desc"
+        per_page?: number
+        page?: number
+    }): Promise<GitHubPullRequest[]>
+
+    /**
+     * Lists comments for a given pull request
+     * @param pull_number
+     * @param options
+     */
+    listPullRequestReviewComments(
+        pull_number: number,
+        options?: { per_page?: number; page?: number }
+    ): Promise<GitHubComment[]> {
+
 }
 
 interface MD {

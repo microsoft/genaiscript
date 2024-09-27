@@ -460,6 +460,36 @@ export class GitHubClient implements GitHub {
         return issues
     }
 
+    async listPullRequests(options?: {
+        state?: "open" | "closed" | "all"
+        sort?: "created" | "updated" | "popularity" | "long-running"
+        direction?: "asc" | "desc"
+        per_page?: number
+        page?: number
+    }): Promise<GitHubPullRequest[]> {
+        const { client, owner, repo } = await this.client()
+        const { data: prs } = await client.rest.pulls.list({
+            owner,
+            repo,
+            ...(options || {}),
+        })
+        return prs
+    }
+
+    async listPullRequestReviewComments(
+        pull_number: number,
+        options?: { per_page?: number; page?: number }
+    ): Promise<GitHubComment[]> {
+        const { client, owner, repo } = await this.client()
+        const { data: comments } = await client.rest.pulls.listReviewComments({
+            owner,
+            repo,
+            pull_number,
+            ...(options || {}),
+        })
+        return comments
+    }
+
     async listIssueComments(
         issue_number: number,
         options?: { per_page?: number; page?: number }
