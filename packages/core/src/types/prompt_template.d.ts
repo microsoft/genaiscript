@@ -695,7 +695,7 @@ interface LineNumberingOptions {
     lineNumbers?: boolean
 }
 
-interface FenceOptions extends LineNumberingOptions{
+interface FenceOptions extends LineNumberingOptions {
     /**
      * Language of the fenced code block. Defaults to "markdown".
      */
@@ -753,9 +753,9 @@ interface DefOptions extends FenceOptions, ContextExpansionOptions, DataFilter {
 /**
  * Options for the `defDiff` command.
  */
-interface DefDiffOptions extends ContextExpansionOptions, LineNumberingOptions {
-
-}
+interface DefDiffOptions
+    extends ContextExpansionOptions,
+        LineNumberingOptions {}
 
 interface DefImagesOptions {
     detail?: "high" | "low"
@@ -1259,6 +1259,148 @@ interface HTML {
     convertToMarkdown(html: string): string
 }
 
+interface GitHubOptions {
+    owner: string
+    repo: string
+    baseUrl?: string
+    auth?: string
+}
+
+type GitHubWorkflowRunStatus =
+    | "completed"
+    | "action_required"
+    | "cancelled"
+    | "failure"
+    | "neutral"
+    | "skipped"
+    | "stale"
+    | "success"
+    | "timed_out"
+    | "in_progress"
+    | "queued"
+    | "requested"
+    | "waiting"
+    | "pending"
+
+interface GitHubWorkflowRun {
+    id: number
+    name?: string
+    status: string
+    conclusion: string
+    html_url: string
+    created_at: string
+    head_branch: string
+    head_sha: string
+}
+
+interface GitHubWorkflowJob {
+    id: number
+    run_id: number
+    status: string
+    conclusion: string
+    name: string
+    html_url: string
+    logs_url: string
+    logs: string
+    started_at: string
+    completed_at: string
+    content: string
+}
+
+interface GitHubIssue {
+    id: number
+    body?: string
+    title: string
+    number: number
+    state: string
+    state_reason?: "completed" | "reopened" | "not_planned" | null
+    html_url: string
+}
+
+interface GitHubComment {
+    id: number
+    body?: string
+    created_at: string
+    updated_at: string
+    html_url: string
+}
+
+interface GitHubPullRequest extends GitHubIssue {}
+
+interface GitHub {
+    /**
+     * Gets connection information for octokit
+     */
+    info(): Promise<GitHubOptions | undefined>
+
+    /**
+     * Lists workflow runs for a given workflow
+     * @param workflowId
+     * @param options
+     */
+    listWorkflowRuns(
+        workflow_id: string | number,
+        options?: {
+            branch?: string
+            event?: string
+            per_page?: number
+            page?: number
+            status?: GitHubWorkflowRunStatus
+        }
+    ): Promise<GitHubWorkflowRun[]>
+
+    /**
+     * Downloads a GitHub Action workflow run log
+     * @param runId
+     */
+    listWorkflowJobs(runId: number): Promise<GitHubWorkflowJob[]>
+
+    /**
+     * Lists issues for a given repository
+     * @param options
+     */
+    listIssues(options?: {
+        state?: "open" | "closed" | "all"
+        labels?: string
+        sort?: "created" | "updated" | "comments"
+        direction?: "asc" | "desc"
+        per_page?: number
+        page?: number
+    }): Promise<GitHubIssue[]>
+
+    /**
+     * Lists comments for a given issue
+     * @param issue_number
+     * @param options
+     */
+    listIssueComments(
+        issue_number: number,
+        options?: { per_page?: number; page?: number }
+    ): Promise<GitHubComment[]>
+
+    /**
+     * Lists pull requests for a given repository
+     * @param options
+     */
+    listPullRequests(options?: {
+        state?: "open" | "closed" | "all"
+        sort?: "created" | "updated" | "popularity" | "long-running"
+        direction?: "asc" | "desc"
+        per_page?: number
+        page?: number
+    }): Promise<GitHubPullRequest[]>
+
+    /**
+     * Lists comments for a given pull request
+     * @param pull_number
+     * @param options
+     */
+    listPullRequestReviewComments(
+        pull_number: number,
+        options?: { per_page?: number; page?: number }
+    ): Promise<GitHubComment[]>
+}
+
 interface MD {
     /**
      * Parses front matter from markdown
@@ -1322,7 +1464,7 @@ interface CSVStringifyOptions {
 interface CSV {
     /**
      * Parses a CSV string to an array of objects.
-     * 
+     *
      * @param text - The CSV string to parse.
      * @param options - Optional settings for parsing.
      * @param options.delimiter - The delimiter used in the CSV string. Defaults to ','.
@@ -1332,30 +1474,30 @@ interface CSV {
     parse(
         text: string,
         options?: {
-            delimiter?: string;
-            headers?: string[];
+            delimiter?: string
+            headers?: string[]
         }
-    ): object[];
+    ): object[]
 
     /**
      * Converts an array of objects to a CSV string.
-     * 
+     *
      * @param csv - The array of objects to convert.
      * @param options - Optional settings for stringifying.
      * @param options.headers - An array of headers to use. If not provided, headers will be inferred from the object keys.
      * @returns A CSV string representing the data.
      */
-    stringify(csv: object[], options?: CSVStringifyOptions): string;
+    stringify(csv: object[], options?: CSVStringifyOptions): string
 
     /**
      * Converts an array of objects that represents a data table to a markdown table.
-     * 
+     *
      * @param csv - The array of objects to convert.
      * @param options - Optional settings for markdown conversion.
      * @param options.headers - An array of headers to use. If not provided, headers will be inferred from the object keys.
      * @returns A markdown string representing the data table.
      */
-    markdownify(csv: object[], options?: { headers?: string[] }): string;
+    markdownify(csv: object[], options?: { headers?: string[] }): string
 }
 
 interface HighlightOptions {
@@ -1585,7 +1727,12 @@ interface ChatTurnGenerationContext {
         data: object[] | object,
         options?: DefDataOptions
     ): string
-    defDiff<T extends string | WorkspaceFile>(name: string, left: T, right: T, options?: DefDiffOptions): string
+    defDiff<T extends string | WorkspaceFile>(
+        name: string,
+        left: T,
+        right: T,
+        options?: DefDiffOptions
+    ): string
     console: PromptGenerationConsole
 }
 
@@ -2331,10 +2478,10 @@ interface PromiseQueue {
 
     /**
      * Applies a function to all the values in the queue with limited concurrency
-     * @param values 
-     * @param fn 
+     * @param values
+     * @param fn
      */
-    async mapAll<T extends unknown, Arguments extends unknown[], ReturnType>(
+    mapAll<T extends unknown, Arguments extends unknown[], ReturnType>(
         values: T[],
         fn: (value: T, ...arguments_: Arguments) => Awaitable<ReturnType>,
         ...arguments_: Arguments

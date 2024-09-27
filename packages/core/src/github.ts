@@ -1,7 +1,9 @@
+import { Octokit } from "octokit"
 import {
     GITHUB_API_VERSION,
     GITHUB_PULL_REQUEST_REVIEW_COMMENT_LINE_DISTANCE,
     GITHUB_TOKEN,
+    TOOL_ID,
 } from "./constants"
 import { createFetch } from "./fetch"
 import { runtimeHost } from "./host"
@@ -92,7 +94,7 @@ export async function githubParseEnv(
             if (!isNaN(issue)) res.issue = issue
         }
     } catch (e) {}
-    return res
+    return Object.freeze(res)
 }
 
 // https://docs.github.com/en/rest/pulls/pulls?apiVersion=2022-11-28#update-a-pull-request
@@ -397,4 +399,219 @@ export async function githubCreatePullRequestReviews(
         )
     }
     return true
+}
+
+export class GitHubClient implements GitHub {
+    private _connection: Promise<GithubConnectionInfo>
+    private _client: Promise<
+        { client: Octokit; owner: string; repo: string } | undefined
+    >
+
+    constructor() {}
+
+    private connection(): Promise<Omit<GithubConnectionInfo, "issue">> {
+        if (!this._connection) {
+            this._connection = githubParseEnv(process.env)
+        }
+        return this._connection
+    }
+
+    private async client() {
+        if (!this._client) {
+            this._client = new Promise(async (resolve) => {
+                const { owner, repo, token, apiUrl } = await this.connection()
+                const res = new Octokit({
+                    userAgent: TOOL_ID,
+                    owner,
+                    repo,
+                    auth: token,
+                    baseUrl: apiUrl,
+                })
+                resolve({ client: res, owner: owner, repo: repo })
+            })
+        }
+        return this._client
+    }
+
+    async info(): Promise<GitHubOptions> {
+        const {
+            apiUrl: baseUrl,
+            token: auth,
+            repo,
+            owner,
+        } = await this.connection()
+        return Object.freeze({
+            baseUrl,
+            repo,
+            owner,
+            auth,
+        })
+    }
+
+    async listIssues(options?: {
+        state?: "open" | "closed" | "all"
+        labels?: string
+        sort?: "created" | "updated" | "comments"
+        direction?: "asc" | "desc"
+        per_page?: number
+        page?: number
+    }): Promise<GitHubIssue[]> {
+        const { client, owner, repo } = await this.client()
+        const { data: issues } = await client.rest.issues.listForRepo({
+            owner,
+            repo,
+            ...(options || {}),
+        })
+        const i = issues[0]
+        return issues
+    }
+
+    async listPullRequests(options?: {
+        state?: "open" | "closed" | "all"
+        sort?: "created" | "updated" | "popularity" | "long-running"
+        direction?: "asc" | "desc"
+        per_page?: number
+        page?: number
+    }): Promise<GitHubPullRequest[]> {
+        const { client, owner, repo } = await this.client()
+        const { data: prs } = await client.rest.pulls.list({
+            owner,
+            repo,
+            ...(options || {}),
+        })
+        return prs
+    }
+
+    async listPullRequestReviewComments(
+        pull_number: number,
+        options?: { per_page?: number; page?: number }
+    ): Promise<GitHubComment[]> {
+        const { client, owner, repo } = await this.client()
+        const { data: comments } = await client.rest.pulls.listReviewComments({
+            owner,
+            repo,
+            pull_number,
+            ...(options || {}),
+        })
+        return comments
+    }
+
+    async listIssueComments(
+        issue_number: number,
+        options?: { per_page?: number; page?: number }
+    ): Promise<GitHubComment[]> {
+        const { client, owner, repo } = await this.client()
+        const { data: comments } = await client.rest.issues.listComments({
+            owner,
+            repo,
+            issue_number,
+            ...(options || {}),
+        })
+        return comments
+    }
+
+    async listWorkflowRuns(
+        workflow_id: string | number,
+        options?: {
+            branch?: string
+            per_page?: number
+            status?: GitHubWorkflowRunStatus
+        }
+    ): Promise<GitHubWorkflowRun[]> {
+        const { client, owner, repo } = await this.client()
+        const {
+            data: { workflow_runs },
+        } = await client.rest.actions.listWorkflowRuns({
+            owner,
+            repo,
+            workflow_id,
+            per_page: 100,
+            ...(options || {}),
+        })
+        const runs = workflow_runs.filter(
+            ({ conclusion }) => conclusion !== "skipped"
+        )
+        return runs
+    }
+
+    async listWorkflowJobs(run_id: number): Promise<GitHubWorkflowJob[]> {
+        // Get the jobs for the specified workflow run
+        const { client, owner, repo } = await this.client()
+        const {
+            data: { jobs },
+        } = await client.rest.actions.listJobsForWorkflowRun({
+            owner,
+            repo,
+            run_id,
+        })
+
+        const res: GitHubWorkflowJob[] = []
+        for (const job of jobs) {
+            const { url: logs_url } =
+                await client.rest.actions.downloadJobLogsForWorkflowRun({
+                    owner,
+                    repo,
+                    job_id: job.id,
+                })
+            const { text } = await fetchText(logs_url)
+            res.push({
+                ...job,
+                logs_url,
+                logs: text,
+                content: parseJobLog(text),
+            })
+        }
+        return res
+
+        function parseJobLog(text: string) {
+            const lines = cleanLog(text).split(/\r?\n/g)
+            const groups: { title: string; text: string }[] = []
+            let current = groups[0]
+            for (const line of lines) {
+                if (line.startsWith("##[group]")) {
+                    current = {
+                        title: line.slice("##[group]".length),
+                        text: "",
+                    }
+                } else if (line.startsWith("##[endgroup]")) {
+                    if (current) groups.push(current)
+                    current = undefined
+                } else {
+                    if (!current) current = { title: "", text: "" }
+                    current.text += line + "\n"
+                }
+            }
+            if (current) groups.push(current)
+
+            const ignoreSteps = [
+                "Runner Image",
+                "Fetching the repository",
+                "Checking out the ref",
+                "Setting up auth",
+                "Setting up auth for fetching submodules",
+                "Getting Git version info",
+                "Initializing the repository",
+                "Determining the checkout info",
+                "Persisting credentials for submodules",
+            ]
+            return groups
+                .filter(({ title }) => !ignoreSteps.includes(title))
+                .map((f) =>
+                    f.title
+                        ? `##[group]${f.title}\n${f.text}\n##[endgroup]`
+                        : f.text
+                )
+                .join("\n")
+        }
+
+        function cleanLog(text: string) {
+            return text
+                .replace(
+                    // timestamps
+                    /^﻿?\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{2,}Z /gm,
+                    ""
+                )
+                .replace(/\x1b\[[0-9;]*m/g, "") // ascii colors
+        }
+    }
 }

@@ -14,6 +14,7 @@ import { CancelError } from "./error"
 import { createFetch } from "./fetch"
 import { readText } from "./fs"
 import { logVerbose } from "./util"
+import { GitHubClient } from "./github"
 
 /**
  * Resolves the global context depending on the environment.
@@ -103,6 +104,8 @@ export function installGlobals() {
     glb.cancel = (reason?: string) => {
         throw new CancelError(reason || "user cancelled")
     }
+
+    glb.github = new GitHubClient()
 
     /**
      * Asynchronous function to fetch text from a URL or file.
