@@ -1,100 +1,100 @@
 {
-    "name": "genaiscript",
-    "version": "1.57.0",
-    "main": "built/genaiscript.cjs",
-    "type": "commonjs",
-    "bin": {
-        "genaiscript": "built/genaiscript.cjs"
-    },
-    "files": [
-        "built/genaiscript.cjs"
-    ],
-    "publisher": "Microsoft",
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/microsoft/genaiscript.git"
-    },
-    "homepage": "https://microsoft.github.io/genaiscript",
-    "keywords": [
-        "genai",
-        "ai",
-        "agentic",
-        "cli",
-        "prompt",
-        "llm",
-        "generative ai",
-        "gpt4",
-        "chatgpt",
-        "ollama",
-        "llamacpp",
-        "chatgpt"
-    ],
-    "description": "A CLI for GenAIScript, a generative AI scripting framework.",
-    "license": "MIT",
-    "dependencies": {
-        "@azure/identity": "^4.4.1",
-        "@inquirer/prompts": "^6.0.1",
-        "@lvce-editor/ripgrep": "^1.2.0",
-        "@octokit/plugin-throttling": "^9.3.1",
-        "@octokit/rest": "^21.0.2",
-        "dockerode": "^4.0.2",
-        "gpt-tokenizer": "^2.4.0",
-        "html-to-text": "^9.0.5",
-        "jimp": "^1.6.0",
-        "mammoth": "^1.8.0",
-        "mathjs": "^13.1.1",
-        "pdfjs-dist": "4.6.82",
-        "playwright": "^1.47.2",
-        "tabletojson": "^4.1.4",
-        "tree-sitter-wasms": "^0.1.11",
-        "tsx": "^4.19.1",
-        "turndown": "^7.2.0",
-        "typescript": "5.6.2",
-        "vectra": "^0.9.0",
-        "web-tree-sitter": "^0.22.2",
-        "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz"
-    },
-    "engines": {
-        "node": ">=20.0.0"
-    },
-    "peerDependencies": {
-        "promptfoo": "0.89.3"
-    },
-    "devDependencies": {
-        "@types/diff": "^5.2.2",
-        "@types/dockerode": "^3.3.31",
-        "@types/fs-extra": "^11.0.4",
-        "@types/memorystream": "^0.3.4",
-        "@types/node": "^20.14.12",
-        "@types/papaparse": "^5.3.14",
-        "@types/prompts": "^2.4.9",
-        "@types/replace-ext": "^2.0.2",
-        "@types/ws": "^8.5.12",
-        "commander": "^12.1.0",
-        "diff": "^7.0.0",
-        "dotenv": "^16.4.5",
-        "esbuild": "^0.24.0",
-        "execa": "^9.4.0",
-        "fs-extra": "^11.2.0",
-        "glob": "^11.0.0",
-        "memorystream": "^0.3.1",
-        "node-sarif-builder": "^3.2.0",
-        "octokit": "^4.0.2",
-        "openai": "^4.65.0",
-        "pretty-bytes": "^6.1.1",
-        "replace-ext": "^2.0.0",
-        "ws": "^8.18.0",
-        "zx": "^8.1.8"
-    },
-    "scripts": {
-        "compile": "esbuild src/main.ts --metafile=./esbuild.meta.json --bundle --platform=node --target=node20 --outfile=built/genaiscript.cjs --external:tsx --external:esbuild --external:get-tsconfig --external:resolve-pkg-maps --external:dockerode --external:pdfjs-dist --external:web-tree-sitter --external:tree-sitter-wasms --external:promptfoo --external:typescript --external:@lvce-editor/ripgrep --external:gpt-3-encoder --external:mammoth --external:xlsx --external:mathjs --external:@azure/identity --external:gpt-tokenizer --external:playwright --external:@inquirer/prompts --external:jimp --external:turndown --external:vectra --external:tabletojson --external:html-to-text --external:@octokit/rest --external:@octokit/plugin-throttling && node ../../scripts/patch-cli.mjs",
-        "compile-debug": "esbuild src/main.ts --sourcemap --metafile=./esbuild.meta.json --bundle --platform=node --target=node20 --outfile=built/genaiscript.cjs --external:tsx --external:esbuild --external:get-tsconfig --external:resolve-pkg-maps --external:dockerode --external:pdfjs-dist --external:web-tree-sitter --external:tree-sitter-wasms --external:promptfoo --external:typescript --external:@lvce-editor/ripgrep --external:gpt-3-encoder --external:mammoth --external:xlsx --external:mathjs --external:@azure/identity --external:gpt-tokenizer --external:playwright --external:@inquirer/prompts --external:jimp --external:turndown --external:vectra --external:tabletojson --external:html-to-text --external:@octokit/rest --external:@octokit/plugin-throttling",
-        "postcompile": "node built/genaiscript.cjs info help > ../../docs/src/content/docs/reference/cli/commands.md",
-        "vis:treemap": "npx --yes esbuild-visualizer --metadata esbuild.meta.json --filename esbuild.treemap.html",
-        "vis:network": "npx --yes esbuild-visualizer --metadata esbuild.meta.json --filename esbuild.network.html --template network",
-        "go": "yarn compile && node built/genaiscript.cjs",
-        "test": "node --import tsx --test src/**.test.ts",
-        "typecheck": "tsc -p src",
-        "lint": "npx --yes publint"
-    }
+  "name": "genaiscript",
+  "version": "1.58.0",
+  "main": "built/genaiscript.cjs",
+  "type": "commonjs",
+  "bin": {
+    "genaiscript": "built/genaiscript.cjs"
+  },
+  "files": [
+    "built/genaiscript.cjs"
+  ],
+  "publisher": "Microsoft",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/microsoft/genaiscript.git"
+  },
+  "homepage": "https://microsoft.github.io/genaiscript",
+  "keywords": [
+    "genai",
+    "ai",
+    "agentic",
+    "cli",
+    "prompt",
+    "llm",
+    "generative ai",
+    "gpt4",
+    "chatgpt",
+    "ollama",
+    "llamacpp",
+    "chatgpt"
+  ],
+  "description": "A CLI for GenAIScript, a generative AI scripting framework.",
+  "license": "MIT",
+  "dependencies": {
+    "@azure/identity": "^4.4.1",
+    "@inquirer/prompts": "^6.0.1",
+    "@lvce-editor/ripgrep": "^1.2.0",
+    "@octokit/plugin-throttling": "^9.3.1",
+    "@octokit/rest": "^21.0.2",
+    "dockerode": "^4.0.2",
+    "gpt-tokenizer": "^2.4.0",
+    "html-to-text": "^9.0.5",
+    "jimp": "^1.6.0",
+    "mammoth": "^1.8.0",
+    "mathjs": "^13.1.1",
+    "pdfjs-dist": "4.6.82",
+    "playwright": "^1.47.2",
+    "tabletojson": "^4.1.4",
+    "tree-sitter-wasms": "^0.1.11",
+    "tsx": "^4.19.1",
+    "turndown": "^7.2.0",
+    "typescript": "5.6.2",
+    "vectra": "^0.9.0",
+    "web-tree-sitter": "^0.22.2",
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "peerDependencies": {
+    "promptfoo": "0.89.3"
+  },
+  "devDependencies": {
+    "@types/diff": "^5.2.2",
+    "@types/dockerode": "^3.3.31",
+    "@types/fs-extra": "^11.0.4",
+    "@types/memorystream": "^0.3.4",
+    "@types/node": "^20.14.12",
+    "@types/papaparse": "^5.3.14",
+    "@types/prompts": "^2.4.9",
+    "@types/replace-ext": "^2.0.2",
+    "@types/ws": "^8.5.12",
+    "commander": "^12.1.0",
+    "diff": "^7.0.0",
+    "dotenv": "^16.4.5",
+    "esbuild": "^0.24.0",
+    "execa": "^9.4.0",
+    "fs-extra": "^11.2.0",
+    "glob": "^11.0.0",
+    "memorystream": "^0.3.1",
+    "node-sarif-builder": "^3.2.0",
+    "octokit": "^4.0.2",
+    "openai": "^4.65.0",
+    "pretty-bytes": "^6.1.1",
+    "replace-ext": "^2.0.0",
+    "ws": "^8.18.0",
+    "zx": "^8.1.8"
+  },
+  "scripts": {
+    "compile": "esbuild src/main.ts --metafile=./esbuild.meta.json --bundle --platform=node --target=node20 --outfile=built/genaiscript.cjs --external:tsx --external:esbuild --external:get-tsconfig --external:resolve-pkg-maps --external:dockerode --external:pdfjs-dist --external:web-tree-sitter --external:tree-sitter-wasms --external:promptfoo --external:typescript --external:@lvce-editor/ripgrep --external:gpt-3-encoder --external:mammoth --external:xlsx --external:mathjs --external:@azure/identity --external:gpt-tokenizer --external:playwright --external:@inquirer/prompts --external:jimp --external:turndown --external:vectra --external:tabletojson --external:html-to-text --external:@octokit/rest --external:@octokit/plugin-throttling && node ../../scripts/patch-cli.mjs",
+    "compile-debug": "esbuild src/main.ts --sourcemap --metafile=./esbuild.meta.json --bundle --platform=node --target=node20 --outfile=built/genaiscript.cjs --external:tsx --external:esbuild --external:get-tsconfig --external:resolve-pkg-maps --external:dockerode --external:pdfjs-dist --external:web-tree-sitter --external:tree-sitter-wasms --external:promptfoo --external:typescript --external:@lvce-editor/ripgrep --external:gpt-3-encoder --external:mammoth --external:xlsx --external:mathjs --external:@azure/identity --external:gpt-tokenizer --external:playwright --external:@inquirer/prompts --external:jimp --external:turndown --external:vectra --external:tabletojson --external:html-to-text --external:@octokit/rest --external:@octokit/plugin-throttling",
+    "postcompile": "node built/genaiscript.cjs info help > ../../docs/src/content/docs/reference/cli/commands.md",
+    "vis:treemap": "npx --yes esbuild-visualizer --metadata esbuild.meta.json --filename esbuild.treemap.html",
+    "vis:network": "npx --yes esbuild-visualizer --metadata esbuild.meta.json --filename esbuild.network.html --template network",
+    "go": "yarn compile && node built/genaiscript.cjs",
+    "test": "node --import tsx --test src/**.test.ts",
+    "typecheck": "tsc -p src",
+    "lint": "npx --yes publint"
+  }
 }
