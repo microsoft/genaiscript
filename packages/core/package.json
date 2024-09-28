@@ -20,6 +20,7 @@
     "@azure/identity": "^4.4.1",
     "@huggingface/jinja": "^0.3.1",
     "@octokit/plugin-paginate-rest": "^11.3.4",
+    "@octokit/plugin-retry": "^7.1.2",
     "@octokit/plugin-throttling": "^9.3.1",
     "@octokit/rest": "^21.0.2",
     "@tidyjs/tidy": "^2.5.2",

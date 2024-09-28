@@ -1,8 +1,10 @@
 import type { Octokit } from "@octokit/rest"
+import type { PaginateInterface } from "@octokit/plugin-paginate-rest"
 import {
     GITHUB_API_VERSION,
     GITHUB_PULL_REQUEST_REVIEW_COMMENT_LINE_DISTANCE,
     GITHUB_REST_API_CONCURRENCY_LIMIT,
+    GITHUB_REST_PAGE_DEFAULT,
     GITHUB_TOKEN,
     TOOL_ID,
 } from "./constants"
@@ -407,10 +409,31 @@ export async function githubCreatePullRequestReviews(
     return true
 }
 
+async function paginatorToArray<T, R>(
+    iterator: AsyncIterableIterator<T>,
+    count: number,
+    iteratorItem: (item: T) => R[],
+    elementFilter?: (item: R) => boolean
+): Promise<R[]> {
+    const result: R[] = []
+    for await (const item of await iterator) {
+        let r = iteratorItem(item)
+        if (elementFilter) r = r.filter(elementFilter)
+        result.push(...r)
+        if (result.length >= count) break
+    }
+    return result.slice(0, count)
+}
+
 export class GitHubClient implements GitHub {
     private _connection: Promise<GithubConnectionInfo>
     private _client: Promise<
-        ({ client: Octokit } & GithubConnectionInfo) | undefined
+        | ({
+              client: Octokit & {
+                  paginate: PaginateInterface
+              }
+          } & GithubConnectionInfo)
+        | undefined
     >
 
     constructor() {}
@@ -431,11 +454,18 @@ export class GitHubClient implements GitHub {
                 const { throttling } = await import(
                     "@octokit/plugin-throttling"
                 )
-                const OctokitWithPlugins = Octokit.plugin(throttling)
-                const res: Octokit = new OctokitWithPlugins({
+                const { paginateRest } = await import(
+                    "@octokit/plugin-paginate-rest"
+                )
+                const { retry } = await import("@octokit/plugin-retry")
+                const OctokitWithPlugins =
+                    Octokit.plugin(paginateRest).plugin(throttling)
+                //                    .plugin(retry)
+                const res = new OctokitWithPlugins({
                     userAgent: TOOL_ID,
                     auth: token,
                     baseUrl: apiUrl,
+                    request: { retries: 3 },
                     throttle: {
                         onRateLimit: (
                             retryAfter,
@@ -466,7 +496,10 @@ export class GitHubClient implements GitHub {
                         },
                     },
                 })
-                resolve({ client: res, ...conn })
+                resolve({
+                    client: res,
+                    ...conn,
+                })
             })
         }
         return this._client
@@ -500,13 +533,14 @@ export class GitHubClient implements GitHub {
         } & GitHubPaginationOptions
     ): Promise<GitHubIssue[]> {
         const { client, owner, repo } = await this.client()
-        const { data: issues } = await client.rest.issues.listForRepo({
+        const { count = GITHUB_REST_PAGE_DEFAULT, ...rest } = options ?? {}
+        const ite = client.paginate.iterator(client.rest.issues.listForRepo, {
             owner,
             repo,
-            ...(options ?? {}),
+            ...rest,
         })
-        const i = issues[0]
-        return issues
+        const res = await paginatorToArray(ite, count, (i) => i.data)
+        return res
     }
 
     async listPullRequests(
@@ -517,12 +551,14 @@ export class GitHubClient implements GitHub {
         } & GitHubPaginationOptions
     ): Promise<GitHubPullRequest[]> {
         const { client, owner, repo } = await this.client()
-        const { data: prs } = await client.rest.pulls.list({
+        const { count = GITHUB_REST_PAGE_DEFAULT, ...rest } = options ?? {}
+        const ite = client.paginate.iterator(client.rest.pulls.list, {
             owner,
             repo,
-            ...(options ?? {}),
+            ...rest,
         })
-        return prs
+        const res = await paginatorToArray(ite, count, (i) => i.data)
+        return res
     }
 
     async listPullRequestReviewComments(
@@ -530,13 +566,18 @@ export class GitHubClient implements GitHub {
         options?: GitHubPaginationOptions
     ): Promise<GitHubComment[]> {
         const { client, owner, repo } = await this.client()
-        const { data: comments } = await client.rest.pulls.listReviewComments({
-            owner,
-            repo,
-            pull_number,
-            ...(options ?? {}),
-        })
-        return comments
+        const { count = GITHUB_REST_PAGE_DEFAULT, ...rest } = options ?? {}
+        const ite = client.paginate.iterator(
+            client.rest.pulls.listReviewComments,
+            {
+                owner,
+                repo,
+                pull_number,
+                ...rest,
+            }
+        )
+        const res = await paginatorToArray(ite, count, (i) => i.data)
+        return res
     }
 
     async listIssueComments(
@@ -544,13 +585,15 @@ export class GitHubClient implements GitHub {
         options?: GitHubPaginationOptions
     ): Promise<GitHubComment[]> {
         const { client, owner, repo } = await this.client()
-        const { data: comments } = await client.rest.issues.listComments({
+        const { count = GITHUB_REST_PAGE_DEFAULT, ...rest } = options ?? {}
+        const ite = client.paginate.iterator(client.rest.issues.listComments, {
             owner,
             repo,
             issue_number,
-            ...(options ?? {}),
+            ...rest,
         })
-        return comments
+        const res = await paginatorToArray(ite, count, (i) => i.data)
+        return res
     }
 
     async listWorkflowRuns(
@@ -561,31 +604,42 @@ export class GitHubClient implements GitHub {
         } & GitHubPaginationOptions
     ): Promise<GitHubWorkflowRun[]> {
         const { client, owner, repo } = await this.client()
-        const {
-            data: { workflow_runs },
-        } = await client.rest.actions.listWorkflowRuns({
-            owner,
-            repo,
-            workflow_id,
-            per_page: 100,
-            ...(options ?? {}),
-        })
-        const runs = workflow_runs.filter(
+        const { count = GITHUB_REST_PAGE_DEFAULT, ...rest } = options ?? {}
+        const ite = client.paginate.iterator(
+            client.rest.actions.listWorkflowRuns,
+            {
+                owner,
+                repo,
+                workflow_id,
+                per_page: 100,
+                ...rest,
+            }
+        )
+        const res = await paginatorToArray(
+            ite,
+            count,
+            (i) => i.data,
             ({ conclusion }) => conclusion !== "skipped"
         )
-        return runs
+        return res
     }
 
-    async listWorkflowJobs(run_id: number): Promise<GitHubWorkflowJob[]> {
+    async listWorkflowJobs(
+        run_id: number,
+        options?: GitHubPaginationOptions
+    ): Promise<GitHubWorkflowJob[]> {
         // Get the jobs for the specified workflow run
         const { client, owner, repo } = await this.client()
-        const {
-            data: { jobs },
-        } = await client.rest.actions.listJobsForWorkflowRun({
-            owner,
-            repo,
-            run_id,
-        })
+        const { count = GITHUB_REST_PAGE_DEFAULT, ...rest } = options ?? {}
+        const ite = client.paginate.iterator(
+            client.rest.actions.listJobsForWorkflowRun,
+            {
+                owner,
+                repo,
+                run_id,
+            }
+        )
+        const jobs = await paginatorToArray(ite, count, (i) => i.data)
 
         const res: GitHubWorkflowJob[] = []
         for (const job of jobs) {
@@ -683,12 +737,12 @@ export class GitHubClient implements GitHub {
     ): Promise<GitHubCodeSearchResult[]> {
         const { client, owner, repo } = await this.client()
         const q = query + `+repo:${owner}/${repo}`
-        const {
-            data: { items },
-        } = await client.rest.search.code({
+        const { count = GITHUB_REST_PAGE_DEFAULT, ...rest } = options ?? {}
+        const ite = client.paginate.iterator(client.rest.search.code, {
             q,
             ...(options ?? {}),
         })
+        const items = await paginatorToArray(ite, count, (i) => i.data)
         return items.map(
             ({ name, path, sha, html_url, score, repository }) => ({
                 name,
@@ -705,14 +759,17 @@ export class GitHubClient implements GitHub {
         options?: GitHubPaginationOptions
     ): Promise<GitHubWorkflow[]> {
         const { client, owner, repo } = await this.client()
-        const { data: workflows } = await client.rest.actions.listRepoWorkflows(
+        const { count = GITHUB_REST_PAGE_DEFAULT, ...rest } = options ?? {}
+        const ite = client.paginate.iterator(
+            client.rest.actions.listRepoWorkflows,
             {
                 owner,
                 repo,
                 ...(options ?? {}),
             }
         )
-        return workflows.workflows.map(({ id, name, path }) => ({
+        const workflows = await paginatorToArray(ite, count, (i) => i.data)
+        return workflows.map(({ id, name, path }) => ({
             id,
             name,
             path,
@@ -721,11 +778,13 @@ export class GitHubClient implements GitHub {
 
     async listBranches(options?: GitHubPaginationOptions): Promise<string[]> {
         const { client, owner, repo } = await this.client()
-        const { data: branches } = await client.rest.repos.listBranches({
+        const { count = GITHUB_REST_PAGE_DEFAULT, ...rest } = options ?? {}
+        const ite = client.paginate.iterator(client.rest.repos.listBranches, {
             owner,
             repo,
             ...(options ?? {}),
         })
+        const branches = await paginatorToArray(ite, count, (i) => i.data)
         return branches.map(({ name }) => name)
     }
 

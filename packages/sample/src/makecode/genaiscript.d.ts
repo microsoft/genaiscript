@@ -1379,8 +1379,10 @@ interface GitHubWorkflow {
 }
 
 interface GitHubPaginationOptions {
-    page?: number
-    per_page?: number
+    /**
+     * Default number of items to fetch, default is 50.
+     */
+    count?: number
 }
 
 interface GitHubFile extends WorkspaceFile {

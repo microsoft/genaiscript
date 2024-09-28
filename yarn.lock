@@ -1209,7 +1209,7 @@
   dependencies:
     "@octokit/types" "^13.6.0"
 
-"@octokit/plugin-retry@^7.0.0":
+"@octokit/plugin-retry@^7.0.0", "@octokit/plugin-retry@^7.1.2":
   version "7.1.2"
   resolved "https://registry.yarnpkg.com/@octokit/plugin-retry/-/plugin-retry-7.1.2.tgz#242e2d19a72a50b5113bb25d7d2c622ce0373fa0"
   integrity sha512-XOWnPpH2kJ5VTwozsxGurw+svB2e61aWlmk5EVIYZPwFK5F9h4cyPyj9CIKRyMXMHSwpIsI3mPOdpMmrRhe7UQ==
