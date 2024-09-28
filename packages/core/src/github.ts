@@ -445,7 +445,7 @@ export class GitHubClient implements GitHub {
         return this._connection
     }
 
-    private async client() {
+    async client() {
         if (!this._client) {
             this._client = new Promise(async (resolve) => {
                 const conn = await this.connection()

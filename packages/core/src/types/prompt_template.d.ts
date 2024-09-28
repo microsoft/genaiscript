@@ -1480,6 +1480,11 @@ interface GitHub {
             type?: (typeof GitHubFile)["type"]
         }
     ): Promise<GitHubFile[]>
+
+    /**
+     * Gets the underlying Octokit client
+     */
+    client(): Promise<any>
 }
 
 interface MD {
