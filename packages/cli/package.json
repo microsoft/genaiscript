@@ -35,6 +35,7 @@
     "@azure/identity": "^4.4.1",
     "@inquirer/prompts": "^6.0.1",
     "@lvce-editor/ripgrep": "^1.2.0",
+    "@octokit/plugin-paginate-rest": "^11.3.4",
     "@octokit/plugin-throttling": "^9.3.1",
     "@octokit/rest": "^21.0.2",
     "dockerode": "^4.0.2",

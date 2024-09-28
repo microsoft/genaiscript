@@ -1190,7 +1190,7 @@
   resolved "https://registry.yarnpkg.com/@octokit/plugin-paginate-graphql/-/plugin-paginate-graphql-5.2.3.tgz#19882ff4694066b0937aea85b7e8eac512df4e9a"
   integrity sha512-EzFueuXVU3VHv5FwEXbdznn9EmyF0vA5LGDX6a8fJ9YJAlDgdYHRKJMO4Ghl2PPPJBxIPMDUJMnlUHqcvP7AnQ==
 
-"@octokit/plugin-paginate-rest@^11.0.0":
+"@octokit/plugin-paginate-rest@^11.0.0", "@octokit/plugin-paginate-rest@^11.3.4":
   version "11.3.4"
   resolved "https://registry.yarnpkg.com/@octokit/plugin-paginate-rest/-/plugin-paginate-rest-11.3.4.tgz#68c834beb721a4b5919cb98987b40e69099b5f30"
   integrity sha512-lqBHWiuI468XJ/o06Eg6hgACGXwikyHUzoYs/Y3gA1uVzPldxSeuEiCLAZRy4ovaAJozjds18ni2wgdT1oWtDQ==

@@ -4646,27 +4646,27 @@ tsx@^4.19.0:
   optionalDependencies:
     fsevents "~2.3.3"
 
-twoslash-protocol@0.2.11:
-  version "0.2.11"
-  resolved "https://registry.yarnpkg.com/twoslash-protocol/-/twoslash-protocol-0.2.11.tgz#a5ca5c40bd78e930c921ce2697025579831597d6"
-  integrity sha512-rp+nkOWbKfJnBTDZtnIaBGjnU+4CaMhqu6db2UU7byU96rH8X4hao4BOxYw6jdZc85Lhv5pOfcjgfHeQyLzndQ==
+twoslash-protocol@0.2.12:
+  version "0.2.12"
+  resolved "https://registry.yarnpkg.com/twoslash-protocol/-/twoslash-protocol-0.2.12.tgz#4c22fc287bc0fc32eec8e7faa6092b0dc5cc4ecb"
+  integrity sha512-5qZLXVYfZ9ABdjqbvPc4RWMr7PrpPaaDSeaYY55vl/w1j6H6kzsWK/urAEIXlzYlyrFmyz1UbwIt+AA0ck+wbg==
 
 twoslash-vue@^0.2.11:
-  version "0.2.11"
-  resolved "https://registry.yarnpkg.com/twoslash-vue/-/twoslash-vue-0.2.11.tgz#0e945519e21ce91d6e6cec3021faf4eb919271af"
-  integrity sha512-wBwIwG0PRuv5V+1DD4Zno1j6MnaCbaY/ELops7oKSoMBTIQL720iRXppyldVVoYvti2caUA97T36XhZXHpjQyA==
+  version "0.2.12"
+  resolved "https://registry.yarnpkg.com/twoslash-vue/-/twoslash-vue-0.2.12.tgz#8a86a0fde76f0b625deb3569204f2b0f135f520a"
+  integrity sha512-kxH60DLn2QBcN2wjqxgMDkyRgmPXsytv7fJIlsyFMDPSkm1/lMrI/UMrNAshNaRHcI+hv8x3h/WBgcvlb2RNAQ==
   dependencies:
     "@vue/language-core" "~2.1.6"
-    twoslash "0.2.11"
-    twoslash-protocol "0.2.11"
+    twoslash "0.2.12"
+    twoslash-protocol "0.2.12"
 
-twoslash@0.2.11, twoslash@^0.2.11:
-  version "0.2.11"
-  resolved "https://registry.yarnpkg.com/twoslash/-/twoslash-0.2.11.tgz#78d5166e4840802aeca959940fbb61b57c9dc238"
-  integrity sha512-392Qkcu5sD2hROLZ+XPywChreDGJ8Yu5nnK/Moxfti/R39q0Q39MaV7iHjz92B5qucyjsQFnKMdYIzafX5T8dg==
+twoslash@0.2.12, twoslash@^0.2.11:
+  version "0.2.12"
+  resolved "https://registry.yarnpkg.com/twoslash/-/twoslash-0.2.12.tgz#46b11fb23ff3d950264ca32877576e2c2b4e997e"
+  integrity sha512-tEHPASMqi7kqwfJbkk7hc/4EhlrKCSLcur+TcvYki3vhIfaRMXnXjaYFgXpoZRbT6GdprD4tGuVBEmTpUgLBsw==
   dependencies:
     "@typescript/vfs" "^1.6.0"
-    twoslash-protocol "0.2.11"
+    twoslash-protocol "0.2.12"
 
 typescript@^5.5.4:
   version "5.6.2"
@@ -4733,9 +4733,9 @@ unicorn-magic@^0.1.0:
   integrity sha512-lRfVq8fE8gz6QMBuDM6a+LO3IAzTi05H6gCVaUpir2E1Rwpo4ZUog45KpNXKC/Mn3Yb9UDuHumeFTo9iV/D9FQ==
 
 unimport@^3.12.0:
-  version "3.13.0"
-  resolved "https://registry.yarnpkg.com/unimport/-/unimport-3.13.0.tgz#0ef719ede5661db04fa62ea77db952a22e1e34bf"
-  integrity sha512-0WkKsLy8jkcnB38VQdAGvF0N2trJyDbUuHsfXcyrspwgwWTIThiMpvnDNZMVsuNc11SwT2GYzcQ2RnI1TY/xcw==
+  version "3.13.1"
+  resolved "https://registry.yarnpkg.com/unimport/-/unimport-3.13.1.tgz#4362340e2df7edad212c693d33808189e058dded"
+  integrity sha512-nNrVzcs93yrZQOW77qnyOVHtb68LegvhYFwxFMfuuWScmwQmyVCG/NBuN8tYsaGzgQUVYv34E/af+Cc9u4og4A==
   dependencies:
     "@rollup/pluginutils" "^5.1.2"
     acorn "^8.12.1"
