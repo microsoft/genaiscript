@@ -577,15 +577,20 @@ export class GitHubClient implements GitHub {
             }
         )
         const res = await paginatorToArray(ite, count, (i) => i.data)
+        res[0].reactions
         return res
     }
 
     async listIssueComments(
         issue_number: number,
-        options?: GitHubPaginationOptions
+        options?: { reactions?: boolean } & GitHubPaginationOptions
     ): Promise<GitHubComment[]> {
         const { client, owner, repo } = await this.client()
-        const { count = GITHUB_REST_PAGE_DEFAULT, ...rest } = options ?? {}
+        const {
+            reactions,
+            count = GITHUB_REST_PAGE_DEFAULT,
+            ...rest
+        } = options ?? {}
         const ite = client.paginate.iterator(client.rest.issues.listComments, {
             owner,
             repo,

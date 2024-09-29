@@ -1351,6 +1351,20 @@ interface GitHubIssue {
     state: string
     state_reason?: "completed" | "reopened" | "not_planned" | null
     html_url: string
+    reactions?: GitHubReactions
+}
+
+interface GitHubReactions {
+    url: string
+    total_count: number
+    "+1": number
+    "-1": number
+    laugh: number
+    confused: number
+    heart: number
+    hooray: number
+    eyes: number
+    rocket: number
 }
 
 interface GitHubComment {
@@ -1359,6 +1373,7 @@ interface GitHubComment {
     created_at: string
     updated_at: string
     html_url: string
+    reactions?: GitHubReactions
 }
 
 interface GitHubPullRequest extends GitHubIssue {}
@@ -1388,6 +1403,10 @@ interface GitHubPaginationOptions {
 interface GitHubFile extends WorkspaceFile {
     type: "file" | "dir" | "submodule" | "symlink"
     size: number
+}
+
+interface GitHubUser {
+    login: string
 }
 
 interface GitHub {
