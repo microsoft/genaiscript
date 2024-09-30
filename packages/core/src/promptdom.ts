@@ -30,6 +30,7 @@ import { resolveTokenEncoder } from "./encoders"
 import { expandFiles } from "./fs"
 import { interpolateVariables } from "./mustache"
 import { createDiff } from "./diff"
+import { total } from "@tidyjs/tidy"
 
 // Definition of the PromptNode interface which is an essential part of the code structure.
 export interface PromptNode extends ContextExpansionOptions {
@@ -787,7 +788,7 @@ async function flexPromptNode(
         0
     )
 
-    if (totalTokens < flexTokens) {
+    if (totalTokens <= flexTokens) {
         // No need to flex
         return
     }
@@ -799,8 +800,17 @@ async function flexPromptNode(
             (a.priority ?? PRIORITY_DEFAULT) - (b.priority ?? PRIORITY_DEFAULT)
     )
     const flexNodes = nodes.filter((n) => n.flex !== undefined)
-    const totalFlex = flexNodes.reduce((total, node) => total + node.flex, 0)
+    const totalFlexTokens = flexNodes.reduce(
+        (total, node) => total + (node.tokens ?? 0),
+        0
+    )
 
+    // checking flexNodes sizes
+    if (totalFlexTokens <= flexTokens) {
+        return
+    }
+
+    const totalFlex = flexNodes.reduce((total, node) => total + node.flex, 0)
     const totalReserve = 0
     const totalRemaining = Math.max(0, flexTokens - totalReserve)
     for (const node of flexNodes) {

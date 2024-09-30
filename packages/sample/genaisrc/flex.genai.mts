@@ -21,9 +21,9 @@ script({
 def("FILE", env.files, { flex: 1 })
 
 // will be trimmed
-$`What is Markdown?
- Markdown is a lightweight markup language that you can use to add formatting elements to plaintext text documents. Created by John Gruber in 2004, Markdown is now one of the world’s most popular markup languages. 
+$`(ignore What is Markdown?
+ Markdown is a lightweight markup language that you can use to add formatting elements to plaintext text documents. Created by John Gruber in 2004, Markdown is now one of the world’s most popular markup languages.)
 PRINT ABRACADABRA!`.flex(2)
 
-$`This one is flexed.
+$`(ignore This one is flexed.)
 PRINT MONKEY!`.flex(1)
