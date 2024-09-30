@@ -37,7 +37,7 @@ export class GitClient implements Git {
     }
 
     async findModifiedFiles(
-        scope: "branch" | "staged" | "modified",
+        scope: "base" | "staged" | "modified",
         options?: {
             base?: string
             paths?: ElementOrArray<string>
@@ -49,18 +49,13 @@ export class GitClient implements Git {
             (f) => !!f
         )
         let filenames: string[]
-        if (scope === "branch" || scope === "staged") {
+        if (scope === "base" || scope === "staged") {
             const args = ["diff", "--name-only", "--diff-filter=AM"]
-            if (scope === "branch") {
+            if (scope === "base") {
                 const base = options?.base || (await this.defaultBranch())
                 args.push(base)
             } else args.push("--cached")
-            if (paths.length > 0 || excludedPaths.length > 0) {
-                if (!paths.length) paths.push(".")
-                args.push("--")
-                args.push(...paths)
-                args.push(...excludedPaths.map((p) => ":!" + p))
-            }
+            GitClient.addFileFilters(paths, excludedPaths, args)
             const res = await this.exec(args, {
                 label: `git list modified files in ${scope}`,
             })
@@ -87,5 +82,56 @@ export class GitClient implements Git {
         const files = filenames.map((filename) => ({ filename }))
         await resolveFileContents(files)
         return files
+    }
+
+    private static addFileFilters(
+        paths: string[],
+        excludedPaths: string[],
+        args: string[]
+    ) {
+        if (paths.length > 0 || excludedPaths.length > 0) {
+            if (!paths.length) paths.push(".")
+            args.push("--")
+            args.push(...paths)
+            args.push(...excludedPaths.map((p) => ":!" + p))
+        }
+    }
+
+    async diff(options?: {
+        staged?: boolean
+        askStageOnEmpty?: boolean
+        base?: string
+        head?: string
+        paths?: ElementOrArray<string>
+        excludedPaths?: ElementOrArray<string>
+        unified?: number
+    }): Promise<string> {
+        const paths = arrayify(options?.paths).filter((f) => !!f)
+        const excludedPaths = arrayify(options?.excludedPaths).filter(
+            (f) => !!f
+        )
+        let { staged, base, head, unified, askStageOnEmpty } = options || {}
+        const args = ["diff"]
+        if (staged) args.push("--staged")
+        args.push("--ignore-all-space")
+        if (unified > 0) args.push(`--unified=${unified}`)
+        if (base && !head) head = "head"
+        if (head && !base) base = head + "^"
+        if (base && head) args.push(`${base}..${head}`)
+        GitClient.addFileFilters(paths, excludedPaths, args)
+        let res = await this.exec(args)
+        if (!res && staged && askStageOnEmpty) {
+            const stage = await host.confirm(
+                "No staged changes. Stage all changes?",
+                {
+                    default: true,
+                }
+            )
+            if (stage) {
+                await this.exec(["add", "."])
+                res = await this.diff(options)
+            }
+        }
+        return res
     }
 }

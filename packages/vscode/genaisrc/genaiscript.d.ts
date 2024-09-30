@@ -1324,13 +1324,30 @@ interface Git {
      * @param options
      */
     findModifiedFiles(
-        scope: "branch" | "staged" | "modified",
+        scope: "base" | "staged" | "modified",
         options?: {
             base?: string
             paths?: ElementOrArray<string>
             excludedPaths?: ElementOrArray<string>
         }
     ): Promise<WorkspaceFile[]>
+
+    /**
+     *
+     * @param options
+     */
+    diff(options?: {
+        staged?: boolean
+        /**
+         * Ask the user to stage the changes if the diff is empty.
+         */
+        askStageOnEmpty?: boolean
+        base?: string
+        head?: string
+        paths?: ElementOrArray<string>
+        excludedPaths?: ElementOrArray<string>
+        unified?: number
+    }): Promise<string>
 }
 
 interface GitHubOptions {
