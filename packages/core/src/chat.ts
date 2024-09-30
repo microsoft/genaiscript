@@ -647,6 +647,6 @@ export async function executeChatSession(
 
 export function tracePromptResult(trace: MarkdownTrace, resp: RunPromptResult) {
     const { json, text } = resp
-    trace.details(`🔠 output`, text)
+    trace.details(`🔠 output`, text, { expanded: true })
     if (resp.json) trace.detailsFenced("📩 JSON (parsed)", json, "json")
 }

@@ -839,7 +839,9 @@ async function tracePromptNode(
             )
             if (value.length > 0) title += `: ${value}`
             if (n.children?.length || n.preview) {
-                trace.startDetails(title, n.error ? false : undefined)
+                trace.startDetails(title, {
+                    success: n.error ? false : undefined,
+                })
                 if (n.preview) trace.fence(n.preview, "markdown")
             } else trace.resultItem(!n.error, title)
         },
@@ -871,7 +873,6 @@ export async function renderPromptNode(
     const truncated = await truncatePromptNode(model, node, options)
     if (truncated) await tracePromptNode(trace, node, { label: "truncated" })
 
-    let systemPrompt = ""
     let userPrompt = ""
     let assistantPrompt = ""
     const images: PromptImage[] = []

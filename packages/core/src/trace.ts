@@ -86,10 +86,15 @@ export class MarkdownTrace extends EventTarget implements ToolCallTrace {
         )
     }
 
-    startDetails(title: string, success?: boolean) {
+    startDetails(
+        title: string,
+        options?: { success?: boolean; expanded?: boolean }
+    ) {
+        const { success, expanded } = options || {}
         this.detailsDepth++
         title = title?.trim() || ""
-        this.appendContent(`\n\n<details class="${TOOL_ID}">
+        this
+            .appendContent(`\n\n<details class="${TOOL_ID}"${expanded ? ` open="true"` : ""}>
 <summary>
 ${this.toResultIcon(success, "")}${title}
 </summary>
@@ -115,9 +120,13 @@ ${this.toResultIcon(success, "")}${title}
         }
     }
 
-    details(title: string, body: string | object) {
+    details(
+        title: string,
+        body: string | object,
+        options?: { success?: boolean; expanded?: boolean }
+    ) {
         this.disableChange(() => {
-            this.startDetails(title)
+            this.startDetails(title, options)
             if (body) {
                 if (typeof body === "string") this.appendContent(body)
                 else this.appendContent(yamlStringify(body))

@@ -319,50 +319,60 @@ export async function createPromptContext(
                     role: "system",
                     content: "",
                 }
-                for (const systemId of resolveSystems(prj, runOptions ?? {})) {
-                    checkCancelled(cancellationToken)
+                const systemScripts = resolveSystems(prj, runOptions ?? {})
+                if (systemScripts.length)
+                    try {
+                        trace.startDetails("👾 systems")
+                        for (const systemId of systemScripts) {
+                            checkCancelled(cancellationToken)
 
-                    const system = prj.getTemplate(systemId)
-                    if (!system)
-                        throw new Error(`system template ${systemId} not found`)
-                    runTrace.startDetails(`👾 ${system.id}`)
-                    const sysr = await callExpander(
-                        prj,
-                        system,
-                        env,
-                        runTrace,
-                        genOptions
-                    )
-                    if (sysr.images?.length)
-                        throw new NotSupportedError("images")
-                    if (sysr.schemas) Object.assign(schemas, sysr.schemas)
-                    if (sysr.functions) tools.push(...sysr.functions)
-                    if (sysr.fileMerges?.length)
-                        throw new NotSupportedError("fileMerges")
-                    if (sysr.outputProcessors?.length)
-                        throw new NotSupportedError("outputProcessors")
-                    if (sysr.chatParticipants)
-                        chatParticipants.push(...sysr.chatParticipants)
-                    if (sysr.fileOutputs?.length)
-                        throw new NotSupportedError("fileOutputs")
-                    if (sysr.logs?.length)
-                        runTrace.details("📝 console.log", sysr.logs)
-                    if (sysr.text) {
-                        systemMessage.content +=
-                            SYSTEM_FENCE + "\n" + sysr.text + "\n"
-                        runTrace.fence(sysr.text, "markdown")
+                            const system = prj.getTemplate(systemId)
+                            if (!system)
+                                throw new Error(
+                                    `system template ${systemId} not found`
+                                )
+                            runTrace.startDetails(`👾 ${system.id}`)
+                            const sysr = await callExpander(
+                                prj,
+                                system,
+                                env,
+                                runTrace,
+                                genOptions
+                            )
+                            if (sysr.images?.length)
+                                throw new NotSupportedError("images")
+                            if (sysr.schemas)
+                                Object.assign(schemas, sysr.schemas)
+                            if (sysr.functions) tools.push(...sysr.functions)
+                            if (sysr.fileMerges?.length)
+                                throw new NotSupportedError("fileMerges")
+                            if (sysr.outputProcessors?.length)
+                                throw new NotSupportedError("outputProcessors")
+                            if (sysr.chatParticipants)
+                                chatParticipants.push(...sysr.chatParticipants)
+                            if (sysr.fileOutputs?.length)
+                                throw new NotSupportedError("fileOutputs")
+                            if (sysr.logs?.length)
+                                runTrace.details("📝 console.log", sysr.logs)
+                            if (sysr.text) {
+                                systemMessage.content +=
+                                    SYSTEM_FENCE + "\n" + sysr.text + "\n"
+                                runTrace.fence(sysr.text, "markdown")
+                            }
+                            if (sysr.aici) {
+                                runTrace.fence(sysr.aici, "yaml")
+                                messages.push(sysr.aici)
+                            }
+                            runTrace.detailsFenced("js", system.jsSource, "js")
+                            runTrace.endDetails()
+                            if (sysr.status !== "success")
+                                throw new Error(
+                                    `system ${system.id} failed ${sysr.status} ${sysr.statusText}`
+                                )
+                        }
+                    } finally {
+                        trace.endDetails()
                     }
-                    if (sysr.aici) {
-                        runTrace.fence(sysr.aici, "yaml")
-                        messages.push(sysr.aici)
-                    }
-                    runTrace.detailsFenced("js", system.jsSource, "js")
-                    runTrace.endDetails()
-                    if (sysr.status !== "success")
-                        throw new Error(
-                            `system ${system.id} failed ${sysr.status} ${sysr.statusText}`
-                        )
-                }
                 if (systemMessage.content) messages.unshift(systemMessage)
 
                 const connection = await resolveModelConnectionInfo(

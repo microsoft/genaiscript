@@ -118,7 +118,7 @@ ${ls ? "- LOG_DIFF contains a diff of 2 runs in GitHub Action" : "- LOG contains
 
 Add links to run logs.
 
-Analyze the diff in LOG_DIFF and provide a summary of the root cause of the failure.
+Analyze the diff in LOG_DIFF and provide a summary of the root cause of the failure. Show the code that is responsible for the failure.
 
 If you cannot find the root cause, stop.
 

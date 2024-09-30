@@ -258,48 +258,63 @@ export async function expandTemplate(
         messages.push(toChatCompletionUserMessage(prompt.text, prompt.images))
     if (prompt.aici) messages.push(prompt.aici)
 
-    for (let i = 0; i < systems.length; ++i) {
-        if (cancellationToken?.isCancellationRequested)
-            return {
-                status: "cancelled",
-                statusText: "user cancelled",
-                messages,
+    if (systems.length)
+        try {
+            trace.startDetails("👾 systems")
+            for (let i = 0; i < systems.length; ++i) {
+                if (cancellationToken?.isCancellationRequested)
+                    return {
+                        status: "cancelled",
+                        statusText: "user cancelled",
+                        messages,
+                    }
+
+                const system = prj.getTemplate(systems[i])
+                if (!system)
+                    throw new Error(`system template ${systems[i]} not found`)
+
+                trace.startDetails(`👾 ${system.id}`)
+                const sysr = await callExpander(
+                    prj,
+                    system,
+                    env,
+                    trace,
+                    options
+                )
+
+                if (sysr.images) images.push(...sysr.images)
+                if (sysr.schemas) Object.assign(schemas, sysr.schemas)
+                if (sysr.functions) functions.push(...sysr.functions)
+                if (sysr.fileMerges) fileMerges.push(...sysr.fileMerges)
+                if (sysr.outputProcessors)
+                    outputProcessors.push(...sysr.outputProcessors)
+                if (sysr.chatParticipants)
+                    chatParticipants.push(...sysr.chatParticipants)
+                if (sysr.fileOutputs) fileOutputs.push(...sysr.fileOutputs)
+                if (sysr.logs?.length)
+                    trace.details("📝 console.log", sysr.logs)
+                if (sysr.text) {
+                    systemMessage.content +=
+                        SYSTEM_FENCE + "\n" + sysr.text + "\n"
+                    trace.fence(sysr.text, "markdown")
+                }
+                if (sysr.aici) {
+                    trace.fence(sysr.aici, "yaml")
+                    messages.push(sysr.aici)
+                }
+                trace.detailsFenced("js", system.jsSource, "js")
+                trace.endDetails()
+
+                if (sysr.status !== "success")
+                    return {
+                        status: sysr.status,
+                        statusText: sysr.statusText,
+                        messages,
+                    }
             }
-
-        const system = prj.getTemplate(systems[i])
-        if (!system) throw new Error(`system template ${systems[i]} not found`)
-
-        trace.startDetails(`👾 ${system.id}`)
-        const sysr = await callExpander(prj, system, env, trace, options)
-
-        if (sysr.images) images.push(...sysr.images)
-        if (sysr.schemas) Object.assign(schemas, sysr.schemas)
-        if (sysr.functions) functions.push(...sysr.functions)
-        if (sysr.fileMerges) fileMerges.push(...sysr.fileMerges)
-        if (sysr.outputProcessors)
-            outputProcessors.push(...sysr.outputProcessors)
-        if (sysr.chatParticipants)
-            chatParticipants.push(...sysr.chatParticipants)
-        if (sysr.fileOutputs) fileOutputs.push(...sysr.fileOutputs)
-        if (sysr.logs?.length) trace.details("📝 console.log", sysr.logs)
-        if (sysr.text) {
-            systemMessage.content += SYSTEM_FENCE + "\n" + sysr.text + "\n"
-            trace.fence(sysr.text, "markdown")
+        } finally {
+            trace.endDetails()
         }
-        if (sysr.aici) {
-            trace.fence(sysr.aici, "yaml")
-            messages.push(sysr.aici)
-        }
-        trace.detailsFenced("js", system.jsSource, "js")
-        trace.endDetails()
-
-        if (sysr.status !== "success")
-            return {
-                status: sysr.status,
-                statusText: sysr.statusText,
-                messages,
-            }
-    }
 
     const responseSchema = promptParametersSchemaToJSONSchema(
         template.responseSchema

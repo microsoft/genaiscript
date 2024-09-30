@@ -577,7 +577,6 @@ export class GitHubClient implements GitHub {
             }
         )
         const res = await paginatorToArray(ite, count, (i) => i.data)
-        res[0].reactions
         return res
     }
 
