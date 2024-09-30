@@ -98,6 +98,37 @@ const pkg = await github.getFile("package.json", "main")
 console.log(pkg.content.slice(0, 50) + "...")
 ```
 
+### Get repository content
+
+List files or directories at a path in a remote repository. By default, file contents from a directory is not loaded, use `downloadContent: true`.
+
+```js
+// get top-level markdown files
+const files = getRepositoryContent(const files = await github.getRepositoryContent("", {
+    type: "file",
+    glob: "*.md",
+    downloadContent: true,
+    maxDownloadSize: 2_000,
+})
+```
+
+### Languages
+
+Query the list of programming languages that GitHub computed for the repository. Returns a map `name -> score`.
+
+```js
+const languages = await github.listRepositoryLanguages()
+```
+
+### Branches
+
+List the branches on the repository
+
+```js
+const branches = await github.listBranches()
+console.log(branches)
+```
+
 ## Advanced use
 
 You can use [octokit](https://www.npmjs.com/package/octokit) to access the full GitHub APIs.
@@ -105,8 +136,7 @@ You can use [octokit](https://www.npmjs.com/package/octokit) to access the full 
 ```js
 import { Octokit } from "@octokit/core"
 
-const info = await github.info()
-const client = new Octokit(info)
+const client: Octokit = await github.client()
 ...
 ```
 

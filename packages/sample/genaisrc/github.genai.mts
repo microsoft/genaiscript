@@ -48,3 +48,6 @@ console.log(
         content: content?.slice(0, 50),
     }))
 )
+
+const branches = await github.listBranches()
+console.log(branches)
