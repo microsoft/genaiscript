@@ -6,7 +6,7 @@ script({
     tools: ["fs"],
 })
 
-const defaultBranch = (env.vars.defaultBranch || "main") + ""
+const defaultBranch = env.vars.defaultBranch || "main"
 const { stdout: diff } = await host.exec("git", [
     "diff",
     defaultBranch,

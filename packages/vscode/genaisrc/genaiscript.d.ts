@@ -1308,15 +1308,21 @@ interface HTML {
 
 interface Git {
     /**
+     * Resolves the default branch for this repository
+     */
+    defaultBranch(): Promise<string>
+
+    /**
      * Finds specific files in the git repository.
      * By default, work
      * @param options
      */
-    selectModifiedFiles(
+    findModifiedFiles(
         scope: "branch" | "staged" | "modified",
         options?: {
-            endsWith?: ElementOrArray<string>
-            glob?: ElementOrArray<string>
+            base?: string
+            paths?: ElementOrArray<string>
+            excludedPaths?: ElementOrArray<string>
         }
     ): Promise<WorkspaceFile[]>
 }

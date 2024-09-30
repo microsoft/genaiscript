@@ -7,14 +7,13 @@ script({
 // Get files from environment or modified files from Git if none provided
 let files = env.files
 if (files.length === 0) {
-    // If no files are provided, read all modified files
-    const gitStatus = await host.exec("git diff --name-only --cached")
-    files = await Promise.all(
-        gitStatus.stdout
-            .split(/\r?\n/g)
-            .filter((filename) => /\.(md|mdx)$/.test(filename))
-            .map(async (filename) => await workspace.readText(filename))
-    )
+    files = await git.findModifiedFiles("staged", {
+        paths: ["*.md", "*.mdx"],
+    })
+    if (!files.length)
+        files = await git.findModifiedFiles("branch", {
+            paths: ["*.md", "*.mdx"],
+        })
 }
 def("FILES", files, { endsWith: [".md", ".mdx"] })
 
