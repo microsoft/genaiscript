@@ -14,16 +14,15 @@ const defaultBranch = (
 
 // context
 // compute diff with the default branch
-const { stdout: changes } = await host.exec("git", [
-    "diff",
-    defaultBranch,
-    "--cached",
-    "--",
-    ".",
-    ":!.vscode/*",
-    ":!*yarn.lock",
-    ":!*THIRD_PARTY_LICENSES.md",
-])
+const changes = await git.diff({
+    base: defaultBranch,
+    staged: true,
+    excludedPaths: [
+        ":!.vscode/*",
+        ":!*yarn.lock",
+        ":!*THIRD_PARTY_LICENSES.md",
+    ],
+})
 
 def("GIT_DIFF", changes, {
     language: "diff",
