@@ -613,6 +613,12 @@ interface WorkspaceFileSystem {
     readXML(path: string | Awaitable<WorkspaceFile>): Promise<any>
 
     /**
+     * Reads the content of a CSV file.
+     * @param path 
+     */
+    readCSV<T extends object>(path: string | Awaitable<WorkspaceFile>): Promise<T[]>
+
+    /**
      * Writes a file as text to the file system
      * @param path
      * @param content
