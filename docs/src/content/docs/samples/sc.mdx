@@ -8,7 +8,7 @@ sidebar:
 import { Code } from "@astrojs/starlight/components"
 import source from "../../../../../packages/sample/genaisrc/sc.genai.mts?raw"
 
-Automating and improving the efficiency of proofreading documents is a common need among developers and writers. This script addresses this need by checking and correcting spelling and grammar in markdown files.
+Automating and improving the efficiency of proofreading documents is a common need among developers and writers. This script addresses this need by checking and correcting spelling and grammar in Markdown files.
 
 ## Code Explanation
 
@@ -24,28 +24,26 @@ script({
 
 This block sets the title of the script to "Spell checker" and specifies that it uses several system prompts, such as file operations and diff generation. The `temperature` is set to `0.1`, indicating that the script will generate output with low creativity, favoring precision.
 
-Next, we have a block that is responsible for getting the files that need to be spell-checked:
+### Fetching Files for Checking
+
+Next, we check for files to process, first from the environment and then from Git if none are provided.
 
 ```ts
 let files = env.files
 if (files.length === 0) {
-    // If no files are provided, read all modified files
-    const gitStatus = await host.exec("git status --porcelain")
-    const rx = /^\s+[M|U]\s+/ // modified or untracked
+    const gitStatus = await host.exec("git diff --name-only --cached")
     files = await Promise.all(
         gitStatus.stdout
             .split(/\r?\n/g)
-            .filter((filename) => rx.test(filename))
             .filter((filename) => /\.(md|mdx)$/.test(filename))
-            .map(
-                async (filename) =>
-                    await workspace.readText(filename.replace(rx, ""))
-            )
+            .map(async (filename) => await workspace.readText(filename))
     )
 }
 ```
 
-If no files are provided via `env.files`, the script uses the `host.exec` function to run `git status --porcelain`, which lists modified files in the repository. It then filters this list to include only markdown and MDX files that are modified or untracked, reading the contents of these files asynchronously using `workspace.readText`.
+In this block, we're assigning files from the `env` variable, which would contain any files passed to the script. If no files are provided, we execute a Git command to get a list of all cached (staged) modified files and filter them to include only `.md` and `.mdx` files. We then read the content of these files for processing.
+
+### Defining the File Types to Work on
 
 Following this, there's a `def` call:
 
@@ -90,7 +88,6 @@ genaiscript run sc
 Remember, you do not need to specify the `.genai.mts` extension when using the `run` command.
 
 And there you have it—a detailed walkthrough of a GenAI spell checker script for markdown files. Happy coding and perfecting your documents!
-
 
 ## Full source ([GitHub](https://github.com/microsoft/genaiscript/blob/main/packages/sample/genaisrc/sc.genai.mts))
 
