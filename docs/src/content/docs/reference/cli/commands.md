@@ -235,9 +235,9 @@ Options:
 
 ## `retrieval`
 
+```
 Usage: genaiscript retrieval|retreival [options] [command]
 
-RAG support
 RAG support
 
 Options:

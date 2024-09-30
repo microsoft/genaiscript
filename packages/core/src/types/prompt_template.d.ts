@@ -580,6 +580,15 @@ interface WorkspaceFileSystem {
     readXML(path: string | Awaitable<WorkspaceFile>): Promise<any>
 
     /**
+     * Reads the content of a CSV file.
+     * @param path
+     */
+    readCSV<T extends object>(
+        path: string | Awaitable<WorkspaceFile>,
+        options?: CSVParseOptions
+    ): Promise<T[]>
+
+    /**
      * Writes a file as text to the file system
      * @param path
      * @param content
@@ -969,6 +978,11 @@ interface ParseZipOptions {
 
 type TokenEncoder = (text: string) => number[]
 
+interface CSVParseOptions {
+    delimiter?: string
+    headers?: string[]
+}
+
 interface Parsers {
     /**
      * Parses text as a JSON5 payload
@@ -1034,7 +1048,7 @@ interface Parsers {
      */
     CSV(
         content: string | WorkspaceFile,
-        options?: { delimiter?: string; headers?: string[] }
+        options?: CSVParseOptions
     ): object[] | undefined
 
     /**

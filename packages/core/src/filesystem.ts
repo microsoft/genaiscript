@@ -1,5 +1,6 @@
 import { JSONLineCache } from "./cache"
 import { DOT_ENV_REGEX } from "./constants"
+import { CSVParse } from "./csv"
 import { NotSupportedError, errorMessage } from "./error"
 import { resolveFileContent } from "./file"
 import { readText, writeText } from "./fs"
@@ -66,6 +67,14 @@ export function createFileSystem(): Omit<WorkspaceFileSystem, "grep"> {
         readXML: async (f: string | Awaitable<WorkspaceFile>) => {
             const file = await fs.readText(f)
             const res = XMLParse(file.content)
+            return res
+        },
+        readCSV: async <T extends object>(
+            f: string | Awaitable<WorkspaceFile>,
+            options?: CSVParseOptions
+        ): Promise<T[]> => {
+            const file = await fs.readText(f)
+            const res = CSVParse(file.content, options) as T[]
             return res
         },
         cache: async (name: string) => {
