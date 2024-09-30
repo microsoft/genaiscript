@@ -9,10 +9,10 @@ import { Code } from "@astrojs/starlight/components"
 import source from "../../../../../packages/vscode/genaisrc/cmt.genai.mts?raw"
 
 This sample automates adding comments to source code using an LLM
-and validate the changes haven't introduce any code modifications.
+and validates the changes haven't introduced any code modifications.
 
 To do so, we could use a combination of tools to validate the transformer: source formatters,
-compilers, linters or LLM-as-judge.
+compilers, linters, or LLM-as-judge.
 
 The algorithm could be summarized as follows:
 
@@ -45,8 +45,7 @@ if (files.length === 0)
 
 ### Processing Each File
 
-We process each file separately, to avoid exploding the token context and keep the AI focused.
-We can use [inline prompts](/genaiscript/reference/scripts/inline-prompts) to make inner queries.
+We process each file separately to avoid exploding the token context and keep the AI focused. We can use [inline prompts](/genaiscript/reference/scripts/inline-prompts) to make inner queries.
 
 ```ts
 for (const file of files) {
@@ -73,12 +72,11 @@ const res = await runPrompt(
 )
 ```
 
-We provide a detailed set of instructions to the AI for how to analyze and comment on the code.
+We provide a detailed set of instructions to the AI on how to analyze and comment on the code.
 
 ### Format, build, lint
 
-At this point, we have a modified source code by an LLM. We should try to use all the available tools to validate the changes.
-It is best to start with like formatters and compilers as they are deterministic and typically fast.
+At this point, we have a modified source code by an LLM. We should try to use all the available tools to validate the changes. It is best to start with formatters and compilers as they are deterministic and typically fast.
 
 ### Judge results with LLM
 
@@ -115,7 +113,7 @@ genaiscript run cmt
 
 ## Format and build
 
-One important aspect is to normalize and valid the AI generated code. The user can provide a `format` command to run a formatter
+One important aspect is to normalize and validate the AI-generated code. The user can provide a `format` command to run a formatter
 and a `build` command to check if the code is still valid.
 
 ```ts
