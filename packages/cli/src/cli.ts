@@ -99,6 +99,7 @@ export async function cli() {
             "-egi, --exclude-git-ignore",
             "exclude files that are ignored through the .gitignore file in the workspace root"
         )
+        .option("-fcs, --file-chunk-size <number>", "file chunk size")
         .option(
             "-o, --out <string>",
             "output folder. Extra markdown fields for output and trace will also be generated"

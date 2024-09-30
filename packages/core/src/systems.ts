@@ -1,5 +1,6 @@
+import { uniq } from "es-toolkit"
 import { Project } from "./ast"
-import { arrayify, unique } from "./util"
+import { arrayify } from "./util"
 
 // Function to resolve and return a list of systems based on the provided script and project
 // Analyzes script options and JavaScript source code to determine applicable systems.
@@ -53,7 +54,7 @@ export function resolveSystems(
 
     // Return a unique list of non-empty systems
     // Filters out duplicates and empty entries using unique utility
-    return unique(systems.filter((s) => !!s))
+    return uniq(systems.filter((s) => !!s))
 }
 
 // Helper function to resolve tools in the project and return their system IDs

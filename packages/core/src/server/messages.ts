@@ -43,6 +43,7 @@ export interface PromptScriptTestRunResponse extends ResponseStatus {
 }
 
 export interface PromptScriptRunOptions {
+    filesChunkSize: number
     excludedFiles: string[]
     excludeGitIgnore: boolean
     runRetry: string

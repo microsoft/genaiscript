@@ -21,8 +21,9 @@ import {
     Host,
 } from "../../core/src/host"
 import { TraceOptions, AbortSignalOptions } from "../../core/src/trace"
-import { arrayify, unique } from "../../core/src/util"
+import { arrayify } from "../../core/src/util"
 import { LanguageModel } from "../../core/src/chat"
+import { uniq } from "es-toolkit"
 
 export class VSCodeHost extends EventTarget implements Host {
     dotEnvPath: string = DOT_ENV_FILENAME
@@ -167,7 +168,7 @@ export class VSCodeHost extends EventTarget implements Host {
             const gitignore = await readFileText(this.projectUri, ".gitignore")
             files = await filterGitIgnore(gitignore, files)
         }
-        return unique(files)
+        return uniq(files)
     }
     async createDirectory(name: string): Promise<void> {
         const uri = this.toProjectFileUri(name)

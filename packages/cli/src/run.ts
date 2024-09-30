@@ -70,6 +70,7 @@ import { resolveTokenEncoder } from "../../core/src/encoders"
 import { writeFile } from "fs/promises"
 import { writeFileSync } from "node:fs"
 import { prettifyMarkdown } from "../../core/src/markdown"
+import { chunk } from "es-toolkit"
 
 async function setupTraceWriting(trace: MarkdownTrace, filename: string) {
     logVerbose(`trace: ${filename}`)
@@ -124,6 +125,37 @@ export async function runScriptWithExitCode(
     process.exit(exitCode)
 }
 
+async function resolveFiles(
+    files: string[],
+    options?: Partial<PromptScriptRunOptions>
+) {
+    const { excludedFiles, excludeGitIgnore } = options || {}
+    const resolvedFiles = new Set<string>()
+
+    for (const arg of files) {
+        if (HTTPS_REGEX.test(arg)) resolvedFiles.add(arg)
+        else {
+            const ffs = await host.findFiles(arg, {
+                applyGitIgnore: excludeGitIgnore,
+            })
+            for (const file of ffs) {
+                resolvedFiles.add(filePathOrUrlToWorkspaceFile(file))
+            }
+        }
+    }
+
+    if (excludedFiles?.length) {
+        for (const arg of excludedFiles) {
+            const ffs = await host.findFiles(arg)
+            for (const f of ffs)
+                resolvedFiles.delete(filePathOrUrlToWorkspaceFile(f))
+        }
+    }
+
+    const res = Array.from(resolvedFiles)
+    return res
+}
+
 export async function runScript(
     scriptId: string,
     files: string[],
@@ -136,8 +168,7 @@ export async function runScript(
 ): Promise<{ exitCode: number; result?: GenerationResult }> {
     const { trace = new MarkdownTrace(), infoCb, partialCb } = options || {}
     let result: GenerationResult
-    const excludedFiles = options.excludedFiles
-    const excludeGitIgnore = !!options.excludeGitIgnore
+    const filesChunkSize = normalizeInt(options.filesChunkSize) || -1
     const out = options.out
     const stream = !options.json && !options.yaml && !out
     const skipLLM = !!options.prompt
@@ -189,35 +220,11 @@ export async function runScript(
     }
 
     const toolFiles: string[] = []
-    const resolvedFiles = new Set<string>()
+    const resolvedFiles = await resolveFiles(files, options)
+    if (files.length && !resolvedFiles.length)
+        fail("no files found", FILES_NOT_FOUND_ERROR_CODE)
 
     if (GENAI_ANY_REGEX.test(scriptId)) toolFiles.push(scriptId)
-
-    for (const arg of files) {
-        if (HTTPS_REGEX.test(arg)) resolvedFiles.add(arg)
-        else {
-            const ffs = await host.findFiles(arg, {
-                applyGitIgnore: excludeGitIgnore,
-            })
-            if (!ffs?.length) {
-                return fail(
-                    `no files matching ${arg}`,
-                    FILES_NOT_FOUND_ERROR_CODE
-                )
-            }
-            for (const file of ffs) {
-                resolvedFiles.add(filePathOrUrlToWorkspaceFile(file))
-            }
-        }
-    }
-
-    if (excludedFiles?.length) {
-        for (const arg of excludedFiles) {
-            const ffs = await host.findFiles(arg)
-            for (const f of ffs)
-                resolvedFiles.delete(filePathOrUrlToWorkspaceFile(f))
-        }
-    }
 
     const prj = await buildProject({
         toolFiles,
@@ -236,7 +243,7 @@ export async function runScript(
     )
     if (!script) throw new Error(`script ${scriptId} not found`)
     const fragment: Fragment = {
-        files: Array.from(resolvedFiles),
+        files: resolvedFiles,
     }
     const vars = options.vars?.reduce(
         (acc, v) => ({ ...acc, ...parseKeyValuePair(v) }),
