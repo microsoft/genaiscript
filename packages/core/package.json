@@ -40,6 +40,7 @@
     "csv-stringify": "^6.5.1",
     "diff": "^7.0.0",
     "dotenv": "^16.4.5",
+    "es-toolkit": "^1.22.0",
     "esbuild": "^0.24.0",
     "fast-xml-parser": "^4.5.0",
     "fetch-retry": "^6.0.0",

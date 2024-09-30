@@ -39,7 +39,7 @@ import {
     ResponseStatus,
 } from "../../core/src/host"
 import { AbortSignalOptions, TraceOptions } from "../../core/src/trace"
-import { logVerbose, unique } from "../../core/src/util"
+import { logVerbose } from "../../core/src/util"
 import { parseModelIdentifier } from "../../core/src/models"
 import {
     AuthenticationToken,
@@ -51,6 +51,7 @@ import { errorMessage } from "../../core/src/error"
 import { BrowserManager } from "./playwright"
 import { shellConfirm, shellInput, shellSelect } from "./input"
 import { shellQuote } from "../../core/src/shell"
+import { uniq } from "es-toolkit"
 
 class NodeServerManager implements ServerManager {
     async start(): Promise<void> {
@@ -251,7 +252,7 @@ export class NodeHost implements RuntimeHost {
             const gitignore = await tryReadText(".gitignore")
             files = await filterGitIgnore(gitignore, files)
         }
-        return unique(files)
+        return uniq(files)
     }
     async writeFile(name: string, content: Uint8Array): Promise<void> {
         await ensureDir(dirname(name))

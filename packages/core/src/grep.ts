@@ -1,8 +1,8 @@
 import { TraceOptions } from "./trace"
 import { runtimeHost } from "./host"
 import { JSONLTryParse } from "./jsonl"
-import { unique } from "./util"
 import { resolveFileContent } from "./file"
+import { uniq } from "es-toolkit"
 
 export async function grepSearch(
     query: string | RegExp,
@@ -32,7 +32,7 @@ export async function grepSearch(
             line_number: number
         }
     }[]
-    const files = unique(
+    const files = uniq(
         resl
             .filter(({ type }) => type === "match")
             .map(({ data }) => data.path.text)

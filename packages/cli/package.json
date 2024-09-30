@@ -75,6 +75,7 @@
     "commander": "^12.1.0",
     "diff": "^7.0.0",
     "dotenv": "^16.4.5",
+    "es-toolkit": "^1.22.0",
     "esbuild": "^0.24.0",
     "execa": "^9.4.0",
     "fs-extra": "^11.2.0",

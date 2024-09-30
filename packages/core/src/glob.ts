@@ -11,7 +11,10 @@ import { arrayify } from "./util"
  * @param patterns - A single glob pattern or an array of glob patterns to match against.
  * @returns A boolean indicating if the filename matches any of the patterns.
  */
-export function isGlobMatch(filename: string, patterns: string | string[]) {
+export function isGlobMatch(
+    filename: string,
+    patterns: ElementOrArray<string>
+) {
     // Convert patterns to an array and check if any pattern matches the filename
     return arrayify(patterns).some((pattern) => {
         // Perform the match using minimatch with specific options

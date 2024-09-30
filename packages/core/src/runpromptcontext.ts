@@ -114,12 +114,17 @@ export function createChatTurnGenerationContext(
                 (body as WorkspaceFile).filename
             ) {
                 const file = body as WorkspaceFile
-                const { glob, endsWith } = defOptions || {}
+                const { glob } = defOptions || {}
+                const endsWith = arrayify(defOptions?.endsWith)
                 const { filename } = file
                 if (glob && filename) {
                     if (!isGlobMatch(filename, glob)) return undefined
                 }
-                if (endsWith && !filename.endsWith(endsWith)) return undefined
+                if (
+                    endsWith.length &&
+                    !endsWith.some((ext) => filename.endsWith(ext))
+                )
+                    return undefined
                 appendChild(node, createDef(name, file, doptions))
             } else if (
                 typeof body === "object" &&
@@ -313,7 +318,7 @@ export function createChatGenerationContext(
     }
 
     const defFileOutput = (
-        pattern: string,
+        pattern: ElementOrArray<string | WorkspaceFile>,
         description: string,
         options?: FileOutputOptions
     ): void => {
@@ -321,7 +326,9 @@ export function createChatGenerationContext(
             appendChild(
                 node,
                 createFileOutput({
-                    pattern: arrayify(pattern),
+                    pattern: arrayify(pattern).map((p) =>
+                        typeof p === "string" ? p : p.filename
+                    ),
                     description,
                     options,
                 })

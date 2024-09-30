@@ -1,5 +1,5 @@
 import { Project, PromptScript } from "./ast"
-import { assert, normalizeFloat, normalizeInt, unique } from "./util"
+import { assert, normalizeFloat, normalizeInt } from "./util"
 import { MarkdownTrace } from "./trace"
 import { errorMessage, isCancelError } from "./error"
 import {
