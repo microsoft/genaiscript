@@ -54,8 +54,9 @@ export class GitClient implements Git {
             })
             filenames = res.stdout.split("\n").filter((f) => f)
         } else {
+            // ignore deleted files
             const rx = /^\s*(A|M|\?{1,2})\s+/gm
-            const args = ["status", "-s"]
+            const args = ["status", "--porcelain"]
             const res = await runtimeHost.exec(undefined, this.git, args, {
                 label: `git list modified files`,
             })
