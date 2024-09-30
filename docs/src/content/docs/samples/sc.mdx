@@ -1,5 +1,5 @@
 ---
-title: Spell Check
+title: Spell Checker
 description: Spell check a document
 sidebar:
     order: 101
@@ -7,6 +7,90 @@ sidebar:
 
 import { Code } from "@astrojs/starlight/components"
 import source from "../../../../../packages/sample/genaisrc/sc.genai.mts?raw"
+
+Automating and improving the efficiency of proofreading documents is a common need among developers and writers. This script addresses this need by checking and correcting spelling and grammar in markdown files.
+
+## Code Explanation
+
+Starting at the top of the script, we see that it's a GenAI script, which is evident from the `.mts` extension and the `script` function call.
+
+```ts
+script({
+    title: "Spell checker",
+    system: ["system", "system.files", "system.diff"],
+    temperature: 0.1,
+})
+```
+
+This block sets the title of the script to "Spell checker" and specifies that it uses several system prompts, such as file operations and diff generation. The `temperature` is set to `0.1`, indicating that the script will generate output with low creativity, favoring precision.
+
+Next, we have a block that is responsible for getting the files that need to be spell-checked:
+
+```ts
+let files = env.files
+if (files.length === 0) {
+    // If no files are provided, read all modified files
+    const gitStatus = await host.exec("git status --porcelain")
+    const rx = /^\s+[M|U]\s+/ // modified or untracked
+    files = await Promise.all(
+        gitStatus.stdout
+            .split(/\r?\n/g)
+            .filter((filename) => rx.test(filename))
+            .filter((filename) => /\.(md|mdx)$/.test(filename))
+            .map(
+                async (filename) =>
+                    await workspace.readText(filename.replace(rx, ""))
+            )
+    )
+}
+```
+
+If no files are provided via `env.files`, the script uses the `host.exec` function to run `git status --porcelain`, which lists modified files in the repository. It then filters this list to include only markdown and MDX files that are modified or untracked, reading the contents of these files asynchronously using `workspace.readText`.
+
+Following this, there's a `def` call:
+
+```ts
+def("FILES", files, { endsWith: [".md", ".mdx"] })
+```
+
+This line defines `FILES` to be the array of files we gathered. The options object `{ endsWith: [".md", ".mdx"] }` tells GenAI that we're only interested in files ending with `.md` or `.mdx`.
+
+The `$`-prefixed backtick notation is used to write the prompt template:
+
+```ts
+$`Fix the spelling and grammar of the content of FILES. Use diff format for small changes.
+
+- do NOT fix the frontmatter
+- do NOT fix code regions
+- do NOT fix \`code\` and \`\`\`code\`\`\`
+- in .mdx files, do NOT fix inline typescript code
+`
+```
+
+This prompt instructs GenAI to fix spelling and grammar in the content of the defined `FILES`, outputting small changes in diff format. It also specifies constraints, such as not fixing the frontmatter, code regions, inline code in markdown, and inline TypeScript code in MDX files.
+
+Finally, there is a `defFileOutput` call:
+
+```ts
+defFileOutput(files, "fixed markdown or mdx files")
+```
+
+This call declares the intent that the script will generate "fixed markdown or mdx files" based on the input files.
+
+## How to Run the Script with GenAIScript CLI
+
+Running this spell checker script is straightforward with the GenAIScript CLI. First, ensure you have the CLI installed by following the instructions in the [GenAIScript documentation](https://microsoft.github.io/genaiscript/getting-started/installation).
+
+Once you have the CLI installed, navigate to your local copy of the script in your terminal or command line interface. Run the following command to execute the spell checker:
+
+```shell
+genaiscript run sc
+```
+
+Remember, you do not need to specify the `.genai.mts` extension when using the `run` command.
+
+And there you have it—a detailed walkthrough of a GenAI spell checker script for markdown files. Happy coding and perfecting your documents!
+
 
 ## Full source ([GitHub](https://github.com/microsoft/genaiscript/blob/main/packages/sample/genaisrc/sc.genai.mts))
 
