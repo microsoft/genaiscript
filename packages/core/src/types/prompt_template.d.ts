@@ -737,12 +737,12 @@ interface DefOptions extends FenceOptions, ContextExpansionOptions, DataFilter {
     /**
      * Filename filter based on file suffix. Case insensitive.
      */
-    endsWith?: string
+    endsWith?: ElementOrArray<string>
 
     /**
      * Filename filter using glob syntax.
      */
-    glob?: string
+    glob?: ElementOrArray<string>
 
     /**
      * By default, throws an error if the value in def is empty.
