@@ -69,9 +69,12 @@ export function createFileSystem(): Omit<WorkspaceFileSystem, "grep"> {
             const res = XMLParse(file.content)
             return res
         },
-        readCSV: async (f: string | Awaitable<WorkspaceFile>, options) => {
+        readCSV: async <T extends object>(
+            f: string | Awaitable<WorkspaceFile>,
+            options?: CSVParseOptions
+        ): Promise<T[]> => {
             const file = await fs.readText(f)
-            const res = CSVParse(file.content, options)
+            const res = CSVParse(file.content, options) as T[]
             return res
         },
         cache: async (name: string) => {
