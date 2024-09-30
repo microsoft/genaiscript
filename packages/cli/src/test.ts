@@ -29,7 +29,6 @@ import {
     normalizeInt,
     logInfo,
     logVerbose,
-    delay,
     tagFilter,
     toStringList,
 } from "../../core/src/util"
@@ -40,6 +39,7 @@ import {
     PromptScriptTestResult,
 } from "../../core/src/server/messages"
 import { generatePromptFooConfiguration } from "../../core/src/test"
+import { delay } from "es-toolkit"
 
 /**
  * Parses model specifications from a string and returns a ModelOptions object.

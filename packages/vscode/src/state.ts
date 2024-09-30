@@ -28,7 +28,6 @@ import { MarkdownTrace } from "../../core/src/trace"
 import {
     dotGenaiscriptPath,
     sha256string,
-    delay,
     logInfo,
     groupBy,
 } from "../../core/src/util"
@@ -36,6 +35,7 @@ import { CORE_VERSION } from "../../core/src/version"
 import { Fragment, GenerationResult } from "../../core/src/generation"
 import { parametersToVars } from "../../core/src/parameters"
 import { randomHex } from "../../core/src/crypto"
+import { delay } from "es-toolkit"
 
 export const FRAGMENTS_CHANGE = "fragmentsChange"
 export const AI_REQUEST_CHANGE = "aiRequestChange"
