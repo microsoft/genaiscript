@@ -800,13 +800,13 @@ async function flexPromptNode(
             (a.priority ?? PRIORITY_DEFAULT) - (b.priority ?? PRIORITY_DEFAULT)
     )
     const flexNodes = nodes.filter((n) => n.flex !== undefined)
-    const totalFlexTokeens = flexNodes.reduce(
+    const totalFlexTokens = flexNodes.reduce(
         (total, node) => total + (node.tokens ?? 0),
         0
     )
 
     // checking flexNodes sizes
-    if (totalFlexTokeens <= flexTokens) {
+    if (totalFlexTokens <= flexTokens) {
         return
     }
 
