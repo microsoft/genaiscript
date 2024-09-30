@@ -54,7 +54,6 @@ import {
     normalizeInt,
     logVerbose,
     logError,
-    delay,
     dotGenaiscriptPath,
 } from "../../core/src/util"
 import { YAMLStringify } from "../../core/src/yaml"
@@ -70,6 +69,7 @@ import { resolveTokenEncoder } from "../../core/src/encoders"
 import { writeFile } from "fs/promises"
 import { writeFileSync } from "node:fs"
 import { prettifyMarkdown } from "../../core/src/markdown"
+import { delay } from "es-toolkit"
 
 async function setupTraceWriting(trace: MarkdownTrace, filename: string) {
     logVerbose(`trace: ${filename}`)

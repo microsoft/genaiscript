@@ -8,10 +8,6 @@ export function trimNewlines(s: string) {
     return s?.replace(/^\n*/, "").replace(/\n*$/, "")
 }
 
-export function delay<T>(millis: number, value?: T): Promise<T | undefined> {
-    return new Promise((resolve) => setTimeout(() => resolve(value), millis))
-}
-
 export function strcmp(a: string, b: string) {
     if (a == b) return 0
     if (a < b) return -1
@@ -195,14 +191,6 @@ export function logError(msg: string | Error | SerializedError) {
 export function concatArrays<T>(...arrays: T[][]): T[] {
     if (arrays.length == 0) return []
     return arrays[0].concat(...arrays.slice(1))
-}
-
-export function randomRange(min: number, max: number) {
-    return Math.round(Math.random() * (max - min) + min)
-}
-
-export function last<T>(a: ArrayLike<T>) {
-    return a[a.length - 1]
 }
 
 export function groupBy<T>(
