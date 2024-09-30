@@ -1313,6 +1313,12 @@ interface Git {
     defaultBranch(): Promise<string>
 
     /**
+     * Executes a git command in the repository and returns the stdout
+     * @param cmd
+     */
+    exec(args: string[] | string, options?: { label?: string }): Promise<string>
+
+    /**
      * Finds specific files in the git repository.
      * By default, work
      * @param options

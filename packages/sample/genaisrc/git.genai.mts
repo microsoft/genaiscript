@@ -1,3 +1,6 @@
+const defaultBranch = await git.defaultBranch()
+console.log({ defaultBranch })
+
 const mods = await git.findModifiedFiles("modified", {
     paths: ["**/*.ts"],
     excludedPaths: ["**/genaiscript.d.ts"],

@@ -1,6 +1,7 @@
 import { resolveFileContents } from "./file"
 import { isGlobMatch } from "./glob"
 import { runtimeHost } from "./host"
+import { shellParse } from "./shell"
 import { arrayify } from "./util"
 
 export class GitClient implements Git {
@@ -10,18 +11,29 @@ export class GitClient implements Git {
     async defaultBranch(): Promise<string> {
         if (!this._defaultBranch) {
             const res = (
-                await runtimeHost.exec(
-                    undefined,
-                    this.git,
+                await this.exec(
                     ["symbolic-ref", "refs/remotes/origin/HEAD"],
                     {}
                 )
-            ).stdout
+            )
                 .replace("refs/remotes/origin/", "")
                 .trim()
             this._defaultBranch = res
         }
         return this._defaultBranch
+    }
+
+    async exec(
+        args: string | string[],
+        options?: { label?: string }
+    ): Promise<string> {
+        const res = await runtimeHost.exec(
+            undefined,
+            this.git,
+            Array.isArray(args) ? args : shellParse(args),
+            options
+        )
+        return res.stdout
     }
 
     async findModifiedFiles(
@@ -49,18 +61,18 @@ export class GitClient implements Git {
                 args.push(...paths)
                 args.push(...excludedPaths.map((p) => ":!" + p))
             }
-            const res = await runtimeHost.exec(undefined, this.git, args, {
+            const res = await this.exec(args, {
                 label: `git list modified files in ${scope}`,
             })
-            filenames = res.stdout.split("\n").filter((f) => f)
+            filenames = res.split("\n").filter((f) => f)
         } else {
             // ignore deleted files
             const rx = /^\s*(A|M|\?{1,2})\s+/gm
             const args = ["status", "--porcelain"]
-            const res = await runtimeHost.exec(undefined, this.git, args, {
+            const res = await this.exec(args, {
                 label: `git list modified files`,
             })
-            filenames = res.stdout
+            filenames = res
                 .split("\n")
                 .filter((f) => rx.test(f))
                 .map((f) => f.replace(rx, "").trim())
