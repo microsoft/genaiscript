@@ -188,6 +188,11 @@ declare var host: PromptHost
 declare var github: GitHub
 
 /**
+ * Access to Git operations for the current repository
+ */
+declare var git: Git
+
+/**
  * Fetches a given URL and returns the response.
  * @param url
  */

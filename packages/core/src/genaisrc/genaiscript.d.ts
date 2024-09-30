@@ -1306,6 +1306,21 @@ interface HTML {
     convertToMarkdown(html: string): Promise<string>
 }
 
+interface Git {
+    /**
+     * Finds specific files in the git repository.
+     * By default, work
+     * @param options
+     */
+    selectModifiedFiles(
+        scope: "branch" | "staged" | "modified",
+        options?: {
+            endsWith?: ElementOrArray<string>
+            glob?: ElementOrArray<string>
+        }
+    ): Promise<WorkspaceFile[]>
+}
+
 interface GitHubOptions {
     owner: string
     repo: string
@@ -2908,6 +2923,11 @@ declare var host: PromptHost
  * Access to GitHub queries for the current repository
  */
 declare var github: GitHub
+
+/**
+ * Access to Git operations for the current repository
+ */
+declare var git: Git
 
 /**
  * Fetches a given URL and returns the response.
