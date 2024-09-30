@@ -83,7 +83,7 @@ declare function def(
  * @param options expectations about the generated file content
  */
 declare function defFileOutput(
-    pattern: string | string[],
+    pattern: ElementOrArray<string | WorkspaceFile>,
     description?: string,
     options?: FileOutputOptions
 ): void

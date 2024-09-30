@@ -318,7 +318,7 @@ export function createChatGenerationContext(
     }
 
     const defFileOutput = (
-        pattern: string,
+        pattern: ElementOrArray<string | WorkspaceFile>,
         description: string,
         options?: FileOutputOptions
     ): void => {
@@ -326,7 +326,9 @@ export function createChatGenerationContext(
             appendChild(
                 node,
                 createFileOutput({
-                    pattern: arrayify(pattern),
+                    pattern: arrayify(pattern).map((p) =>
+                        typeof p === "string" ? p : p.filename
+                    ),
                     description,
                     options,
                 })

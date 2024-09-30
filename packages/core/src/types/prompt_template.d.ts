@@ -1875,7 +1875,7 @@ interface ChatGenerationContext extends ChatTurnGenerationContext {
         options?: ChatParticipantOptions
     ): void
     defFileOutput(
-        pattern: string | string[],
+        pattern: ElementOrArray<string | WorkspaceFile>,
         description?: string,
         options?: FileOutputOptions
     ): void

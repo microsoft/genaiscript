@@ -18,7 +18,6 @@ Runs a GenAIScript against files.
 Options:
   -ef, --excluded-files <string...>          excluded files
   -egi, --exclude-git-ignore                 exclude files that are ignored through the .gitignore file in the workspace root
-  -fcs, --file-chunk-size <number>           file chunk size
   -o, --out <string>                         output folder. Extra markdown fields for output and trace will also be generated
   -rmo, --remove-out                         remove output folder if it exists
   -ot, --out-trace <string>                  output file for trace
@@ -236,9 +235,9 @@ Options:
 
 ## `retrieval`
 
-```
 Usage: genaiscript retrieval|retreival [options] [command]
 
+RAG support
 RAG support
 
 Options:
