@@ -151,11 +151,11 @@ Your comments should provide insight into the code's purpose, logic, and any imp
 }
 
 async function checkModifications(filename: string): Promise<boolean> {
-    const diff = await host.exec(`git diff ${filename}`)
-    if (!diff.stdout) return false
+    const diff = await git.diff({ paths: filename })
+    if (!diff) return false
     const res = await runPrompt(
         (ctx) => {
-            ctx.def("DIFF", diff.stdout)
+            ctx.def("DIFF", diff, { language: "diff" })
             ctx.$`You are an expert developer at all programming languages.
         
         Your task is to analyze the changes in DIFF and make sure that only comments are modified. 
