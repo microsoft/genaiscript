@@ -3,8 +3,12 @@ system({
     description: "Various tools to explore git.",
 })
 
-defTool("git_branch", "List all branches.", {}, async () => {
-    return git.exec("branch")
+defTool("git_current_branch", "Gets the current branch.", {}, async () => {
+    return await git.branch()
+})
+
+defTool("git_list_branches", "List all branches.", {}, async () => {
+    return await git.exec("branch")
 })
 
 defTool(

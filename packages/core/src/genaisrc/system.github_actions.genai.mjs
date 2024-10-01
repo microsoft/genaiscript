@@ -17,7 +17,7 @@ defTool(
 )
 
 defTool(
-    "git_actions_list_runs",
+    "github_actions_list_runs",
     "List all runs for a workflow. Use 'git_actions_list_workflows' to list workflows.",
     {
         workflow_id: {
@@ -28,11 +28,18 @@ defTool(
             type: "string",
             description: "Branch to list runs for.",
         },
+        status: {
+            type: "string",
+            description: "Filter runs by status: success, failured.",
+        },
         required: ["workflow_id"],
     },
     async (args) => {
-        const { workflow_id, branch } = args
-        const res = await github.listWorkflowRuns(workflow_id, { branch })
+        const { workflow_id, branch, status } = args
+        const res = await github.listWorkflowRuns(workflow_id, {
+            branch,
+            status,
+        })
         return CSV.stringify(
             res.map(({ id, name, conclusion, head_sha }) => ({
                 id,
@@ -46,7 +53,7 @@ defTool(
 )
 
 defTool(
-    "git_action list_jobs",
+    "github_action_list_jobs",
     "List all jobs for a run.",
     {
         run_id: {
