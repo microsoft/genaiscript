@@ -21,7 +21,7 @@ const { format, build } = env.vars
 let files = env.files
 if (!files.length)
     files = await git.listFiles("staged", { askStageOnEmpty: true })
-if (!files.length) files = await git.listFiles("base")
+if (!files.length) files = await git.listFiles("modified-base")
 
 // custom filter to only process code files
 files = files.filter(
