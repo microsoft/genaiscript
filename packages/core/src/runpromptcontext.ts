@@ -35,6 +35,7 @@ import { checkCancelled } from "./cancellation"
 import {
     ChatCompletionMessageParam,
     ChatCompletionSystemMessageParam,
+    ChatCompletionUsages,
 } from "./chattypes"
 import { parseModelIdentifier, resolveModelConnectionInfo } from "./models"
 import {
@@ -227,12 +228,11 @@ export function createChatGenerationContext(
     trace: MarkdownTrace,
     projectOptions: {
         prj: Project
-        vars: ExpansionVariables
         env: ExpansionVariables
     }
 ): RunPromptContextNode {
-    const { cancellationToken, infoCb } = options || {}
-    const { prj, vars, env } = projectOptions
+    const { cancellationToken, infoCb, usages } = options || {}
+    const { prj, env } = projectOptions
     const turnCtx = createChatTurnGenerationContext(options, trace)
     const node = turnCtx.node
 
@@ -535,7 +535,6 @@ export function createChatGenerationContext(
                     connection.configuration,
                     cancellationToken,
                     messages,
-                    vars,
                     tools,
                     schemas,
                     completer,

@@ -106,7 +106,7 @@ def("DIFF", gitdiff, { language: "diff" })
 ### Referencing
 
 The `def` function returns a variable name that can be used in the prompt.
-The name might be formatted diferently to accommodate the model's preference.
+The name might be formatted differently to accommodate the model's preference.
 
 ```js "const f = "
 const f = def("FILE", file)
@@ -180,6 +180,15 @@ def("FILE", env.files, { sliceTail: 100 })
 
 ```js "sliceSample: 100"
 def("FILE", env.files, { sliceSample: 100 })
+```
+
+### Prompt Caching
+
+You can specify `ephemeral: true` to turn on some prompt caching optimization. In paricular, a `def` with `ephemeral` will be rendered at the back of the prompt
+to persist the [cache prefix](https://openai.com/index/api-prompt-caching/).
+
+```js
+def("FILE", env.files, { ephemeral: true })
 ```
 
 ## Data definition (`defData`)

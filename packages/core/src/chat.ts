@@ -28,6 +28,8 @@ import {
     ChatCompletionResponse,
     ChatCompletionsOptions,
     ChatCompletionTool,
+    ChatCompletionUsage,
+    ChatCompletionUsages,
     ChatCompletionUserMessageParam,
     CreateChatCompletionRequest,
 } from "./chattypes"
@@ -369,7 +371,7 @@ function structurifyChatSession(
         err?: any
     }
 ): RunPromptResult {
-    const { trace, responseType, responseSchema } = options
+    const { trace, responseType, responseSchema, usages } = options
     const { resp, err } = others || {}
     const text = assistantText(messages, responseType)
     const annotations = parseAnnotations(text)
@@ -426,10 +428,12 @@ function structurifyChatSession(
         error,
         genVars,
         schemas,
+        usages,
     }
 }
 
 async function processChatMessage(
+    req: CreateChatCompletionRequest,
     resp: ChatCompletionResponse,
     messages: ChatCompletionMessageParam[],
     tools: ToolCallback[],
@@ -443,7 +447,10 @@ async function processChatMessage(
         maxToolCalls = MAX_TOOL_CALLS,
         trace,
         cancellationToken,
+        usages,
     } = options
+
+    accumulateChatUsage(usages, req.model, resp.usage)
 
     if (resp.text)
         messages.push({
@@ -534,11 +541,29 @@ export function mergeGenerationOptions(
     }
 }
 
+function accumulateChatUsage(
+    usages: ChatCompletionUsages,
+    model: string,
+    usage: ChatCompletionUsage
+) {
+    if (!usage) return
+
+    const u =
+        usages[model] ??
+        (usages[model] = <ChatCompletionUsage>{
+            completion_tokens: 0,
+            prompt_tokens: 0,
+            total_tokens: 0,
+        })
+    u.completion_tokens += usage.completion_tokens ?? 0
+    u.prompt_tokens += usage.prompt_tokens ?? 0
+    u.total_tokens += usage.total_tokens ?? 0
+}
+
 export async function executeChatSession(
     connectionToken: LanguageModelConfiguration,
     cancellationToken: CancellationToken,
     messages: ChatCompletionMessageParam[],
-    vars: Partial<ExpansionVariables>,
     toolDefinitions: ToolCallback[],
     schemas: Record<string, JSONSchema>,
     completer: ChatCompletionHandler,
@@ -585,34 +610,35 @@ export async function executeChatSession(
             let resp: ChatCompletionResponse
             try {
                 checkCancelled(cancellationToken)
+                const req: CreateChatCompletionRequest = {
+                    model,
+                    temperature: temperature,
+                    top_p: topP,
+                    max_tokens: maxTokens,
+                    seed,
+                    stream: true,
+                    messages,
+                    tools,
+                    response_format:
+                        responseType === "json_object"
+                            ? { type: responseType }
+                            : responseType === "json_schema"
+                              ? {
+                                    type: "json_schema",
+                                    json_schema: {
+                                        name: "result",
+                                        schema: toStrictJSONSchema(
+                                            responseSchema
+                                        ),
+                                        strict: true,
+                                    },
+                                }
+                              : undefined,
+                }
                 try {
                     trace.startDetails(`📤 llm request`)
                     resp = await completer(
-                        {
-                            model,
-                            temperature: temperature,
-                            top_p: topP,
-                            max_tokens: maxTokens,
-                            seed,
-                            stream: true,
-                            messages,
-                            tools,
-                            response_format:
-                                responseType === "json_object"
-                                    ? { type: responseType }
-                                    : responseType === "json_schema"
-                                      ? {
-                                            type: "json_schema",
-                                            json_schema: {
-                                                name: "result",
-                                                schema: toStrictJSONSchema(
-                                                    responseSchema
-                                                ),
-                                                strict: true,
-                                            },
-                                        }
-                                      : undefined,
-                        },
+                        req,
                         connectionToken,
                         genOptions,
                         trace
@@ -625,6 +651,7 @@ export async function executeChatSession(
                 }
 
                 const output = await processChatMessage(
+                    req,
                     resp,
                     messages,
                     toolDefinitions,

@@ -43,7 +43,6 @@ export async function createPromptContext(
     options: GenerationOptions,
     model: string
 ) {
-    const { infoCb } = options || {}
     const { generator, ...varsNoGenerator } = vars
     // Clone variables to prevent modification of the original object
     const env = { generator, ...structuredClone(varsNoGenerator) }
@@ -234,7 +233,7 @@ export async function createPromptContext(
     })
 
     // Freeze project options to prevent modification
-    const projectOptions = Object.freeze({ prj, vars, env })
+    const projectOptions = Object.freeze({ prj, env })
     const ctx: PromptContext & RunPromptContextNode = {
         ...createChatGenerationContext(options, trace, projectOptions),
         script: () => {},

@@ -6,7 +6,10 @@ import { convertDiagnosticsToSARIF } from "./sarif"
 import { buildProject } from "./build"
 import { diagnosticsToCSV } from "../../core/src/ast"
 import { CancellationOptions } from "../../core/src/cancellation"
-import { ChatCompletionsProgressReport } from "../../core/src/chattypes"
+import {
+    ChatCompletionsProgressReport,
+    ChatCompletionUsages,
+} from "../../core/src/chattypes"
 import { runTemplate } from "../../core/src/promptrunner"
 import {
     githubCreateIssueComment,
@@ -244,7 +247,7 @@ export async function runScript(
         (acc, v) => ({ ...acc, ...parseKeyValuePair(v) }),
         {}
     )
-    let tokens = 0
+    const usages: ChatCompletionUsages = {}
     try {
         if (options.label) trace.heading(2, options.label)
         const { info } = await resolveModelConnectionInfo(script, {
@@ -262,6 +265,7 @@ export async function runScript(
         trace.options.encoder = await resolveTokenEncoder(info.model)
         await runtimeHost.models.pullModel(info.model)
         result = await runTemplate(prj, script, fragment, {
+            usages,
             inner: false,
             infoCb: (args) => {
                 const { text } = args
@@ -272,7 +276,6 @@ export async function runScript(
             },
             partialCb: (args) => {
                 const { responseChunk, tokensSoFar, inner } = args
-                tokens = tokensSoFar
                 if (responseChunk !== undefined) {
                     if (stream) {
                         if (!inner) process.stdout.write(responseChunk)
@@ -523,7 +526,13 @@ export async function runScript(
     if (failOnErrors && result.annotations?.some((a) => a.severity === "error"))
         return fail("error annotations found", ANNOTATION_ERROR_CODE)
 
-    logVerbose("genaiscript: done\n")
-    if (outTraceFilename) logVerbose(`trace: ${outTraceFilename}`)
+    logVerbose("genaiscript: done")
+    for (const [key, value] of Object.entries(usages)) {
+        if (value.total_tokens > 0)
+            logVerbose(
+                `tokens:  ${key}, ${value.total_tokens} (${value.prompt_tokens} => ${value.completion_tokens})`
+            )
+    }
+    if (outTraceFilename) logVerbose(`  trace: ${outTraceFilename}`)
     return { exitCode: 0, result }
 }
