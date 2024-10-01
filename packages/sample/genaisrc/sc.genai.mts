@@ -11,7 +11,7 @@ if (files.length === 0) {
         paths: ["*.md", "*.mdx"],
     })
     if (!files.length)
-        files = await git.findModifiedFiles("branch", {
+        files = await git.findModifiedFiles("base", {
             paths: ["*.md", "*.mdx"],
         })
 }
