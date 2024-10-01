@@ -96,6 +96,74 @@ $`- You are concise.
 `````
 
 
+### `system.agent_github`
+
+Agent that can query GitHub and Git to accomplish tasks
+
+
+
+-  tool `agent_github`: Agent that can query GitHub and Git to accomplish tasks
+
+`````js wrap title="system.agent_github"
+system({
+    title: "Agent that can query GitHub and Git to accomplish tasks",
+    parameters: {
+        agentGithubModel: {
+            type: "string",
+            description: "Model to use for the agent",
+        },
+    },
+})
+
+const model = env.vars.agentGithubModel
+
+defTool(
+    "agent_github",
+    "Agent that can query GitHub and Git to accomplish tasks",
+    {
+        query: {
+            type: "string",
+            description: "Query to answer",
+        },
+    },
+    async (args) => {
+        const { context, query } = args
+        context.log(`agent github: ${query}`)
+        const res = await runPrompt(
+            (_) => {
+                _.def("QUERY", query)
+
+                _.$`Your are a helpfull LLM agent that can query GitHub, Git and read files to accomplish tasks. 
+                
+                Analyze and answer QUERY.
+                
+                - Assume that your answer will be analyzed by an LLM, not a human.
+                - If you cannot answer the query, return an empty string.
+                `
+            },
+            {
+                model,
+                system: [
+                    "system",
+                    "system.tools",
+                    "system.explanations",
+                    "system.fs_find_files",
+                    "system.fs_read_file",
+                    "system.git",
+                    "system.github_actions",
+                    "system.github_files",
+                    "system.github_issues",
+                    "system.github_pulls",
+                ],
+            }
+        )
+        return res
+    }
+)
+
+`````
+
+
 ### `system.annotations`
 
 Emits annotations compatible with GitHub Actions
@@ -401,8 +469,8 @@ defTool(
         required: ["glob"],
     },
     async (args) => {
-        const { glob, pattern, frontmatter } = args
-        console.log(
+        const { glob, pattern, frontmatter, context } = args
+        context.log(
             `ls ${glob} ${pattern ? `| grep ${pattern}` : ""} ${frontmatter ? "--frontmatter" : ""}`
         )
         const res = pattern
@@ -432,11 +500,11 @@ defTool(
                         .join(", ")
                 )
                 .join("\n")
-            console.log(preview)
+            context.log(preview)
             return YAML.stringify(files)
         } else {
             const filenames = res.map((f) => f.filename).join("\n")
-            console.log(filenames)
+            context.log(filenames)
             return filenames
         }
     }
@@ -481,18 +549,18 @@ defTool(
             line_numbers: {
                 type: "boolean",
                 description: "Whether to include line numbers in the output.",
-            }
+            },
         },
         required: ["filename"],
     },
     async (args) => {
-        let { filename, line_start, line_end, line_numbers } = args
+        let { filename, line_start, line_end, line_numbers, context } = args
         if (!filename) return ""
         line_start = parseInt(line_start) - 1
         line_end = parseInt(line_end)
         let content
         try {
-            console.log(`cat ${filename}`)
+            context.log(`cat ${filename}`)
             const res = await workspace.readText(filename)
             content = res.content ?? ""
         } catch (e) {
@@ -500,9 +568,7 @@ defTool(
         }
         if (line_numbers) {
             const lines = content.split("\n")
-            content = lines
-                .map((line, i) => `[${i + 1}] ${line}`)
-                .join("\n")
+            content = lines.map((line, i) => `[${i + 1}] ${line}`).join("\n")
         }
         if (!isNaN(line_start) && !isNaN(line_end)) {
             const lines = content.split("\n")

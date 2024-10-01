@@ -1,6 +1,6 @@
 script({
-    tools: ["fs", "git", "github"],
-    tests: {}
+    tools: ["agent_github"],
+    tests: {},
 })
 
 $`Investigate the run status of build.yml in the current branch.

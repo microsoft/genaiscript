@@ -28,8 +28,8 @@ defTool(
         required: ["glob"],
     },
     async (args) => {
-        const { glob, pattern, frontmatter } = args
-        console.log(
+        const { glob, pattern, frontmatter, context } = args
+        context.log(
             `ls ${glob} ${pattern ? `| grep ${pattern}` : ""} ${frontmatter ? "--frontmatter" : ""}`
         )
         const res = pattern
@@ -59,11 +59,11 @@ defTool(
                         .join(", ")
                 )
                 .join("\n")
-            console.log(preview)
+            context.log(preview)
             return YAML.stringify(files)
         } else {
             const filenames = res.map((f) => f.filename).join("\n")
-            console.log(filenames)
+            context.log(filenames)
             return filenames
         }
     }

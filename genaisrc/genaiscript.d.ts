@@ -71,6 +71,7 @@ interface PromptLike extends PromptDefinition {
 
 type SystemPromptId = OptionsOrString<
     | "system"
+    | "system.agent_github"
     | "system.annotations"
     | "system.changelog"
     | "system.diagrams"
@@ -101,6 +102,7 @@ type SystemPromptId = OptionsOrString<
 >
 
 type SystemToolId = OptionsOrString<
+    | "agent_github"
     | "fs_find_files"
     | "fs_read_file"
     | "git_branch_current"

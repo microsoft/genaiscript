@@ -25,18 +25,18 @@ defTool(
             line_numbers: {
                 type: "boolean",
                 description: "Whether to include line numbers in the output.",
-            }
+            },
         },
         required: ["filename"],
     },
     async (args) => {
-        let { filename, line_start, line_end, line_numbers } = args
+        let { filename, line_start, line_end, line_numbers, context } = args
         if (!filename) return ""
         line_start = parseInt(line_start) - 1
         line_end = parseInt(line_end)
         let content
         try {
-            console.log(`cat ${filename}`)
+            context.log(`cat ${filename}`)
             const res = await workspace.readText(filename)
             content = res.content ?? ""
         } catch (e) {
@@ -44,9 +44,7 @@ defTool(
         }
         if (line_numbers) {
             const lines = content.split("\n")
-            content = lines
-                .map((line, i) => `[${i + 1}] ${line}`)
-                .join("\n")
+            content = lines.map((line, i) => `[${i + 1}] ${line}`).join("\n")
         }
         if (!isNaN(line_start) && !isNaN(line_end)) {
             const lines = content.split("\n")
