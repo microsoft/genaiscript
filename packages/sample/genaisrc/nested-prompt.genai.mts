@@ -1,4 +1,5 @@
-const res = runPrompt(
+script({ tests: {}, model: "openai:gpt-4o-mini" })
+const res = await runPrompt(
     async (ctx) => {
         const poem = ctx.runPrompt(
             async (ctx2) => {
@@ -15,5 +16,5 @@ const res = runPrompt(
     },
     { label: "summarize", model: "openai:gpt-4o-mini" }
 )
-
+if (!res.text) throw new Error("No text generated")
 $`Generate a poem from ${res}`
