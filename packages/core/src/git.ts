@@ -148,6 +148,8 @@ export class GitClient implements Git {
         excludedPaths: string[],
         args: string[]
     ) {
+        paths = paths || []
+        excludedPaths = excludedPaths || []
         if (paths.length > 0 || excludedPaths.length > 0) {
             if (!paths.length) paths.push(".")
             args.push("--")
@@ -156,6 +158,50 @@ export class GitClient implements Git {
                 ...excludedPaths.map((p) => (p.startsWith(":!") ? p : ":!" + p))
             )
         }
+    }
+
+    async lastTag(): Promise<string> {
+        const res = await this.exec([
+            "describe",
+            "--tags",
+            "--abbrev=0",
+            "HEAD^",
+        ])
+        return res.split("\n")[0]
+    }
+
+    async log(options?: {
+        base?: string
+        head?: string
+        merges?: boolean
+        excludedGrep?: string | RegExp
+        paths: string[]
+        excludedPaths: string[]
+    }): Promise<GitCommit[]> {
+        const { base, head, merges, excludedGrep, paths, excludedPaths } =
+            options || {}
+        const args = ["log", "--pretty=oneline"]
+        if (!merges) args.push("--no-merges")
+        if (excludedGrep) {
+            const pattern =
+                typeof excludedGrep === "string"
+                    ? excludedGrep
+                    : excludedGrep.source
+            args.push(`--grep='${pattern}'`, "--invert-grep")
+        }
+        if (base && head) args.push(`${base}..${head}`)
+        GitClient.addFileFilters(paths, excludedPaths, args)
+        const res = await this.exec(args)
+        const commits = res
+            .split("\n")
+            .map(
+                (line) =>
+                    /^(?<sha>[a-z0-9]{40,40})\s+(?<message>.*)$/.exec(line)
+                        ?.groups
+            )
+            .filter((g) => !!g)
+            .map((g) => <GitCommit>{ sha: g?.sha, message: g?.message })
+        return commits
     }
 
     /**

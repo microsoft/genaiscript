@@ -10,7 +10,7 @@ const changes = await git.diff({
     base: defaultBranch,
     excludedPaths: [
         ".vscode/*",
-        "*yarn.lock",
+        "**/yarn.lock",
         "**/genaiscript.d.ts",
         "*THIRD_PARTY_LICENSES.md",
     ],

@@ -1274,11 +1274,21 @@ interface HTML {
     convertToMarkdown(html: string): Promise<string>
 }
 
+interface GitCommit {
+    sha: string
+    message: string
+}
+
 interface Git {
     /**
      * Resolves the default branch for this repository
      */
     defaultBranch(): Promise<string>
+
+    /**
+     * Gets the last tag in the repository
+     */
+    lastTag(): Promise<string>
 
     /**
      * Gets the current branch of the repository
@@ -1334,6 +1344,18 @@ interface Git {
          */
         llmify?: boolean
     }): Promise<string>
+
+    /**
+     * Lists the commits in the git repository
+     */
+    log(options?: {
+        base?: string
+        head?: string
+        merges?: boolean
+        excludedGrep?: string | RegExp
+        paths: string[]
+        excludedPaths: string[]
+    }): Promise<GitCommit[]>
 }
 
 interface GitHubOptions {

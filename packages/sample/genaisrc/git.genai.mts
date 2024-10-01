@@ -1,7 +1,8 @@
 const defaultBranch = await git.defaultBranch()
 const branch = await git.branch()
+const tag = await git.lastTag()
 const branches = await git.listBranches()
-console.log({ defaultBranch, branch, branches })
+console.log({ defaultBranch, branch, branches, tag })
 
 const mods = await git.listFiles("modified", {
     paths: ["**/*.ts"],
@@ -20,3 +21,6 @@ const files = await git.listFiles("modified-base", {
     excludedPaths: ["**/genaiscript.d.ts"],
 })
 console.log({ files })
+
+const log = await git.log()
+console.log({ log })

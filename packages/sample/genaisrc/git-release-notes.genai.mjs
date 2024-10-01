@@ -1,4 +1,4 @@
-script({ system: ["system"], temperature: 0.5, model: "openai:gpt-4-turbo" })
+script({ system: ["system"], temperature: 0.5, model: "openai:gpt-4o" })
 
 const product = env.vars.product || "GenAIScript"
 
@@ -7,7 +7,7 @@ const { version } = await workspace.readJSON("package.json")
 const tag = await git.exec(["describe", "--tags", "--abbrev=0", "HEAD^"])
 const commits = await git.exec([
     "log",
-    "--grep='(skip ci|THIRD_PARTY_NOTICES)'",
+    "--grep='(skip ci|THIRD_PARTY_NOTICES|genai)'",
     "--invert-grep",
     "--no-merges",
     `HEAD...${tag}`,
@@ -22,8 +22,8 @@ const diff = await git.diff({
         "docs/**",
         ".github/*",
         ".vscode/*",
-        "*yarn.lock",
-        "*THIRD_PARTY_NOTICES.md",
+        "**/yarn.lock",
+        "THIRD_PARTY_NOTICES.md",
     ],
 })
 

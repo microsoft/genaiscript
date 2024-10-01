@@ -23,7 +23,7 @@ const changes = await git.diff({
         "genaisrc/*",
         ".github/*",
         ".vscode/*",
-        "*yarn.lock",
+        "**/yarn.lock",
         "*THIRD_PARTY_LICENSES.md",
     ],
 })

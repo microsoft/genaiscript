@@ -16,7 +16,7 @@ const { text, error } = await runPrompt(async (_) => {
             "genaisrc/*",
             ".github/*",
             ".vscode/*",
-            "*yarn.lock",
+            "**/yarn.lock",
             "*THIRD_PARTY_LICENSES.md",
         ],
     })
