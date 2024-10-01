@@ -4,10 +4,12 @@ system({
 })
 
 defTool(
-    "github_actions_list_workflows",
+    "github_action_list_workflows",
     "List all workflows as a list of 'id: name' pair.",
     {},
     async (args) => {
+        const { context } = args
+        context.log("github action list workflows")
         const res = await github.listWorkflows()
         return CSV.stringify(
             res.map(({ id, name }) => ({ id, name })),
@@ -17,7 +19,7 @@ defTool(
 )
 
 defTool(
-    "github_actions_list_runs",
+    "github_action_list_runs",
     "List all runs for a workflow. Use 'git_actions_list_workflows' to list workflows.",
     {
         workflow_id: {
@@ -30,12 +32,15 @@ defTool(
         },
         status: {
             type: "string",
-            description: "Filter runs by status: success, failured.",
+            description: "Filter runs by completion status: success, failured.",
         },
         required: ["workflow_id"],
     },
     async (args) => {
-        const { workflow_id, branch, status } = args
+        const { workflow_id, branch, status, context } = args
+        context.log(
+            `github action list runs for worfklow ${workflow_id} and branch ${branch || "all"}`
+        )
         const res = await github.listWorkflowRuns(workflow_id, {
             branch,
             status,
@@ -64,7 +69,8 @@ defTool(
         required: ["run_id"],
     },
     async (args) => {
-        const { run_id } = args
+        const { run_id, context } = args
+        context.log(`github action list jobs for run ${run_id}`)
         const res = await github.listWorkflowJobs(run_id)
         return CSV.stringify(
             res.map(({ id, name, status }) => ({ id, name, status })),
@@ -84,7 +90,8 @@ defTool(
         required: ["job_id"],
     },
     async (args) => {
-        const { job_id } = args
+        const { job_id, context } = args
+        context.log(`github action download job log ${job_id}`)
         const log = await github.downloadWorkflowJobLog(job_id, {
             llmify: true,
         })

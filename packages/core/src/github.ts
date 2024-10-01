@@ -545,6 +545,16 @@ export class GitHubClient implements GitHub {
         return res
     }
 
+    async getIssue(issue_number: number): Promise<GitHubIssue> {
+        const { client, owner, repo } = await this.client()
+        const { data } = await client.rest.issues.get({
+            owner,
+            repo,
+            issue_number,
+        })
+        return data
+    }
+
     async listPullRequests(
         options?: {
             state?: "open" | "closed" | "all"

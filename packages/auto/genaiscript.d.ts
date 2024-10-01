@@ -82,6 +82,7 @@ type SystemPromptId = OptionsOrString<
     | "system.fs_read_file"
     | "system.git"
     | "system.github_actions"
+    | "system.github_issues"
     | "system.math"
     | "system.md_frontmatter"
     | "system.python"
@@ -105,8 +106,11 @@ type SystemToolId = OptionsOrString<
     | "git_list_branches"
     | "github_action_download_job_log"
     | "github_action_list_jobs"
-    | "github_actions_list_runs"
-    | "github_actions_list_workflows"
+    | "github_action_list_runs"
+    | "github_action_list_workflows"
+    | "github_issue_comments_list"
+    | "github_issue_get"
+    | "github_issue_list"
     | "math_eval"
     | "md_read_frontmatter"
     | "python_code_interpreter"
@@ -648,6 +652,7 @@ interface WorkspaceFileSystem {
 }
 
 interface ToolCallContext {
+    log(message: string): void
     trace: ToolCallTrace
 }
 
@@ -1435,7 +1440,8 @@ interface GitHubIssue {
     number: number
     state: string
     state_reason?: "completed" | "reopened" | "not_planned" | null
-    html_url: string
+    html_url: string 
+    draft?: boolean
     reactions?: GitHubReactions
 }
 
@@ -1461,7 +1467,8 @@ interface GitHubComment {
     reactions?: GitHubReactions
 }
 
-interface GitHubPullRequest extends GitHubIssue {}
+interface GitHubPullRequest extends GitHubIssue {
+}
 
 interface GitHubCodeSearchResult {
     name: string
@@ -1550,6 +1557,13 @@ interface GitHub {
         } & GitHubPaginationOptions
     ): Promise<GitHubIssue[]>
 
+
+    /**
+     * Gets the details of a GitHub issue
+     * @param number issue number (not the issue id!)
+     */
+    async getIssue(number: number): Promise<GitHubIssue>
+    
     /**
      * Lists comments for a given issue
      * @param issue_number

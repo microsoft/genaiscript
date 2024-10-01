@@ -606,6 +606,7 @@ interface WorkspaceFileSystem {
 }
 
 interface ToolCallContext {
+    log(message: string): void
     trace: ToolCallTrace
 }
 
@@ -1393,7 +1394,8 @@ interface GitHubIssue {
     number: number
     state: string
     state_reason?: "completed" | "reopened" | "not_planned" | null
-    html_url: string
+    html_url: string 
+    draft?: boolean
     reactions?: GitHubReactions
 }
 
@@ -1419,7 +1421,8 @@ interface GitHubComment {
     reactions?: GitHubReactions
 }
 
-interface GitHubPullRequest extends GitHubIssue {}
+interface GitHubPullRequest extends GitHubIssue {
+}
 
 interface GitHubCodeSearchResult {
     name: string
@@ -1508,6 +1511,13 @@ interface GitHub {
         } & GitHubPaginationOptions
     ): Promise<GitHubIssue[]>
 
+
+    /**
+     * Gets the details of a GitHub issue
+     * @param number issue number (not the issue id!)
+     */
+    async getIssue(number: number): Promise<GitHubIssue>
+    
     /**
      * Lists comments for a given issue
      * @param issue_number
