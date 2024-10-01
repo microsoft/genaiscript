@@ -19,21 +19,8 @@ const { format, build } = env.vars
 
 // Get files from environment or modified files from Git if none provided
 let files = env.files
-if (files.length === 0) {
-    files = await git.findModifiedFiles("staged", { })
-    // If no files are provided, read all modified files
-    const gitStatus = await host.exec("git status --porcelain")
-    const rx = /^\s+[M|U]\s+/ // modified or untracked
-    files = await Promise.all(
-        gitStatus.stdout
-            .split(/\r?\n/g)
-            .filter((filename) => rx.test(filename))
-            .map(
-                async (filename) =>
-                    await workspace.readText(filename.replace(rx, ""))
-            )
-    )
-}
+if (files.length === 0)
+    files = await git.findModifiedFiles("staged", { askStageOnEmpty: true })
 
 // custom filter to only process code files
 files = files.filter(
@@ -53,6 +40,7 @@ await jobs.mapAll(files, processFile)
 
 async function processFile(file: WorkspaceFile) {
     console.log(`processing ${file.filename}`)
+    if (!file.content) console.log(`empty file, continue`)
     try {
         const newContent = await addComments(file)
         // Save modified content if different
