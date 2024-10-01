@@ -517,7 +517,7 @@ async function processChatMessage(
         if (needsNewTurn) return undefined
     }
 
-    return structurifyChatSession(messages, schemas, genVars, options, {
+    return structurifyChatSession(messages, schemas, genVars, options, usages, {
         resp,
     })
 }
@@ -556,9 +556,9 @@ function accumulateChatUsage(
             prompt_tokens: 0,
             total_tokens: 0,
         })
-    u.completion_tokens += u.completion_tokens
-    u.prompt_tokens += u.prompt_tokens
-    u.total_tokens += u.total_tokens
+    u.completion_tokens += usage.completion_tokens ?? 0
+    u.prompt_tokens += usage.prompt_tokens ?? 0
+    u.total_tokens += usage.total_tokens ?? 0
 }
 
 export async function executeChatSession(

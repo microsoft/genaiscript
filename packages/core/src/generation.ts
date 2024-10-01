@@ -1,7 +1,11 @@
 // Import necessary modules and interfaces
 import { CancellationToken } from "./cancellation"
 import { LanguageModel } from "./chat"
-import { ChatCompletionMessageParam, ChatCompletionsOptions } from "./chattypes"
+import {
+    ChatCompletionMessageParam,
+    ChatCompletionsOptions,
+    ChatCompletionUsages,
+} from "./chattypes"
 import { MarkdownTrace } from "./trace"
 
 // Represents a code fragment with associated files
@@ -55,6 +59,11 @@ export interface GenerationResult extends GenerationOutput {
      * Completion status from the language model
      */
     finishReason?: string
+
+    /**
+     * Token usage statistics if reported by LLM
+     */
+    usages?: ChatCompletionUsages
 
     /**
      * Optional label for the run

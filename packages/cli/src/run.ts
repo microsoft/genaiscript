@@ -244,7 +244,6 @@ export async function runScript(
         (acc, v) => ({ ...acc, ...parseKeyValuePair(v) }),
         {}
     )
-    let tokens = 0
     try {
         if (options.label) trace.heading(2, options.label)
         const { info } = await resolveModelConnectionInfo(script, {
@@ -272,7 +271,6 @@ export async function runScript(
             },
             partialCb: (args) => {
                 const { responseChunk, tokensSoFar, inner } = args
-                tokens = tokensSoFar
                 if (responseChunk !== undefined) {
                     if (stream) {
                         if (!inner) process.stdout.write(responseChunk)
@@ -523,7 +521,15 @@ export async function runScript(
     if (failOnErrors && result.annotations?.some((a) => a.severity === "error"))
         return fail("error annotations found", ANNOTATION_ERROR_CODE)
 
-    logVerbose("genaiscript: done\n")
-    if (outTraceFilename) logVerbose(`trace: ${outTraceFilename}`)
+    logVerbose("genaiscript: done")
+    if (result.usages) {
+        for (const [key, value] of Object.entries(result.usages)) {
+            if (value.total_tokens > 0)
+                logVerbose(
+                    `  ${key}: ${value.total_tokens} (${value.prompt_tokens} => ${value.completion_tokens})`
+                )
+        }
+    }
+    if (outTraceFilename) logVerbose(`  trace: ${outTraceFilename}`)
     return { exitCode: 0, result }
 }
