@@ -55,7 +55,7 @@ export async function createPromptContext(
     options: GenerationOptions,
     model: string
 ) {
-    const { cancellationToken, infoCb } = options || {}
+    const { infoCb } = options || {}
     const { generator, ...varsNoGenerator } = vars
     const env = { generator, ...structuredClone(varsNoGenerator) }
     const parsers = await createParsers({ trace, model })
@@ -229,8 +229,9 @@ export async function createPromptContext(
         promiseQueue: (concurrency) => new PLimitPromiseQueue(concurrency),
     })
 
+    const projectOptions = Object.freeze({ prj, vars, env })
     const ctx: PromptContext & RunPromptContextNode = {
-        ...createChatGenerationContext(options, trace),
+        ...createChatGenerationContext(options, trace, projectOptions),
         script: () => {},
         system: () => {},
         env: undefined, // set later
@@ -243,189 +244,6 @@ export async function createPromptContext(
         defOutputProcessor,
         defFileMerge: (fn) => {
             appendPromptChild(createFileMerge(fn))
-        },
-        prompt: (template, ...args): RunPromptResultPromiseWithOptions => {
-            const options: PromptGeneratorOptions = {}
-            const p: RunPromptResultPromiseWithOptions =
-                new Promise<RunPromptResult>(async (resolve, reject) => {
-                    try {
-                        await sleep(0)
-                        // data race for options
-                        const res = await ctx.runPrompt(async (_) => {
-                            _.$(template, ...args)
-                        }, options)
-                        resolve(res)
-                    } catch (e) {
-                        reject(e)
-                    }
-                }) as any
-            p.options = (v) => {
-                if (v !== undefined) Object.assign(options, v)
-                return p
-            }
-            return p
-        },
-        runPrompt: async (generator, runOptions): Promise<RunPromptResult> => {
-            const { label } = runOptions || {}
-            const runTrace = trace.startTraceDetails(
-                `🎁 run prompt ${label || ""}`
-            )
-            try {
-                infoCb?.({ text: `run prompt ${label || ""}` })
-
-                const genOptions = mergeGenerationOptions(options, runOptions)
-                genOptions.inner = true
-                genOptions.trace = runTrace
-                const ctx = createChatGenerationContext(genOptions, runTrace)
-                if (typeof generator === "string")
-                    ctx.node.children.push(createTextNode(generator))
-                else await generator(ctx)
-                const node = ctx.node
-
-                checkCancelled(cancellationToken)
-
-                let messages: ChatCompletionMessageParam[] = []
-                let tools: ToolCallback[] = undefined
-                let schemas: Record<string, JSONSchema> = undefined
-                let chatParticipants: ChatParticipant[] = undefined
-
-                // expand template
-                const { provider } = parseModelIdentifier(genOptions.model)
-                if (provider === MODEL_PROVIDER_AICI) {
-                    const { aici } = await renderAICI("prompt", node)
-                    // todo: output processor?
-                    messages.push(aici)
-                } else {
-                    const {
-                        errors,
-                        schemas: scs,
-                        functions: fns,
-                        messages: msgs,
-                        chatParticipants: cps,
-                    } = await renderPromptNode(genOptions.model, node, {
-                        flexTokens: genOptions.flexTokens,
-                        trace: runTrace,
-                    })
-
-                    schemas = scs
-                    tools = fns
-                    chatParticipants = cps
-                    messages.push(...msgs)
-
-                    if (errors?.length)
-                        throw new Error("errors while running prompt")
-                }
-
-                const systemMessage: ChatCompletionSystemMessageParam = {
-                    role: "system",
-                    content: "",
-                }
-                const systemScripts = resolveSystems(prj, runOptions ?? {})
-                if (systemScripts.length)
-                    try {
-                        trace.startDetails("👾 systems")
-                        for (const systemId of systemScripts) {
-                            checkCancelled(cancellationToken)
-
-                            const system = prj.getTemplate(systemId)
-                            if (!system)
-                                throw new Error(
-                                    `system template ${systemId} not found`
-                                )
-                            runTrace.startDetails(`👾 ${system.id}`)
-                            const sysr = await callExpander(
-                                prj,
-                                system,
-                                env,
-                                runTrace,
-                                genOptions
-                            )
-                            if (sysr.images?.length)
-                                throw new NotSupportedError("images")
-                            if (sysr.schemas)
-                                Object.assign(schemas, sysr.schemas)
-                            if (sysr.functions) tools.push(...sysr.functions)
-                            if (sysr.fileMerges?.length)
-                                throw new NotSupportedError("fileMerges")
-                            if (sysr.outputProcessors?.length)
-                                throw new NotSupportedError("outputProcessors")
-                            if (sysr.chatParticipants)
-                                chatParticipants.push(...sysr.chatParticipants)
-                            if (sysr.fileOutputs?.length)
-                                throw new NotSupportedError("fileOutputs")
-                            if (sysr.logs?.length)
-                                runTrace.details("📝 console.log", sysr.logs)
-                            if (sysr.text) {
-                                systemMessage.content +=
-                                    SYSTEM_FENCE + "\n" + sysr.text + "\n"
-                                runTrace.fence(sysr.text, "markdown")
-                            }
-                            if (sysr.aici) {
-                                runTrace.fence(sysr.aici, "yaml")
-                                messages.push(sysr.aici)
-                            }
-                            runTrace.detailsFenced("js", system.jsSource, "js")
-                            runTrace.endDetails()
-                            if (sysr.status !== "success")
-                                throw new Error(
-                                    `system ${system.id} failed ${sysr.status} ${sysr.statusText}`
-                                )
-                        }
-                    } finally {
-                        trace.endDetails()
-                    }
-                if (systemMessage.content) messages.unshift(systemMessage)
-
-                const connection = await resolveModelConnectionInfo(
-                    genOptions,
-                    { trace: runTrace, token: true }
-                )
-                checkCancelled(cancellationToken)
-                if (!connection.configuration)
-                    throw new Error(
-                        "model connection error " + connection.info?.model
-                    )
-                const { completer } = await resolveLanguageModel(
-                    connection.configuration.provider
-                )
-                checkCancelled(cancellationToken)
-                if (!completer)
-                    throw new Error(
-                        "model driver not found for " + connection.info
-                    )
-
-                const modelConcurrency =
-                    options.modelConcurrency?.[genOptions.model] ??
-                    CHAT_REQUEST_PER_MODEL_CONCURRENT_LIMIT
-                const modelLimit = concurrentLimit(
-                    "model:" + genOptions.model,
-                    modelConcurrency
-                )
-                const resp = await modelLimit(() =>
-                    executeChatSession(
-                        connection.configuration,
-                        cancellationToken,
-                        messages,
-                        vars,
-                        tools,
-                        schemas,
-                        completer,
-                        chatParticipants,
-                        genOptions
-                    )
-                )
-                tracePromptResult(runTrace, resp)
-                return resp
-            } catch (e) {
-                runTrace.error(e)
-                return {
-                    text: "",
-                    finishReason: isCancelError(e) ? "cancel" : "fail",
-                    error: serializeError(e),
-                }
-            } finally {
-                runTrace.endDetails()
-            }
         },
     }
     env.generator = ctx

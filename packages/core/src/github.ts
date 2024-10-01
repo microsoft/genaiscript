@@ -14,6 +14,8 @@ import { link, prettifyMarkdown } from "./markdown"
 import { arrayify, assert, logError, logVerbose, normalizeInt } from "./util"
 import { shellRemoveAsciiColors } from "./shell"
 import { isGlobMatch } from "./glob"
+import { fetchText } from "./fetch"
+import { concurrentLimit } from "./concurrency"
 
 export interface GithubConnectionInfo {
     token: string
@@ -835,8 +837,11 @@ export class GitHubClient implements GitHub {
                         : undefined,
             }))
         if (downloadContent) {
-            const q = host.promiseQueue(GITHUB_REST_API_CONCURRENCY_LIMIT)
-            await q.all(
+            const limit = concurrentLimit(
+                "github",
+                GITHUB_REST_API_CONCURRENCY_LIMIT
+            )
+            await Promise.all(
                 res
                     .filter((f) => f.type === "file" && !f.content)
                     .filter(
@@ -858,6 +863,7 @@ export class GitHubClient implements GitHub {
                             ).toString("utf8")
                         }
                     })
+                    .map((p) => limit(p))
             )
         }
         return res

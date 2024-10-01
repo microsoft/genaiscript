@@ -10,6 +10,7 @@ import {
 import { errorMessage } from "./error"
 import { logVerbose, roundWithPrecision, toStringList } from "./util"
 import { CancellationToken } from "./cancellation"
+import { readText } from "./fs"
 
 export async function createFetch(
     options?: {
@@ -63,6 +64,48 @@ export async function createFetch(
         },
     })
     return fetchRetry
+}
+
+export async function fetchText(
+    urlOrFile: string | WorkspaceFile,
+    fetchOptions?: FetchTextOptions
+) {
+    if (typeof urlOrFile === "string") {
+        urlOrFile = {
+            filename: urlOrFile,
+            content: "",
+        }
+    }
+    const url = urlOrFile.filename
+    let ok = false
+    let status = 404
+    let text: string
+    if (/^https?:\/\//i.test(url)) {
+        const fetch = await createFetch()
+        const resp = await fetch(url, fetchOptions)
+        ok = resp.ok
+        status = resp.status
+        if (ok) text = await resp.text()
+    } else {
+        try {
+            text = await readText("workspace://" + url)
+            ok = true
+        } catch (e) {
+            logVerbose(e)
+            ok = false
+            status = 404
+        }
+    }
+    const file: WorkspaceFile = {
+        filename: urlOrFile.filename,
+        content: text,
+    }
+    return {
+        ok,
+        status,
+        text,
+        file,
+    }
 }
 
 export function traceFetchPost(

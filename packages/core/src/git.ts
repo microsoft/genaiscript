@@ -2,7 +2,7 @@ import { resolveFileContents } from "./file"
 import { isGlobMatch } from "./glob"
 import { runtimeHost } from "./host"
 import { shellParse } from "./shell"
-import { arrayify, logVerbose } from "./util"
+import { arrayify } from "./util"
 
 export class GitClient implements Git {
     readonly git = "git"
@@ -66,7 +66,7 @@ export class GitClient implements Git {
             })
             filenames = res.split("\n").filter((f) => f)
             if (!filenames.length && scope == "staged" && askStageOnEmpty) {
-                const stage = await host.confirm(
+                const stage = await runtimeHost.confirm(
                     "No staged changes. Stage all changes?",
                     {
                         default: true,
@@ -142,7 +142,7 @@ export class GitClient implements Git {
         GitClient.addFileFilters(paths, excludedPaths, args)
         let res = await this.exec(args)
         if (!res && staged && askStageOnEmpty) {
-            const stage = await host.confirm(
+            const stage = await runtimeHost.confirm(
                 "No staged changes. Stage all changes?",
                 {
                     default: true,
