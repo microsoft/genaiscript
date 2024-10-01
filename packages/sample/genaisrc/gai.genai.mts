@@ -70,7 +70,9 @@ const lsi = lsid
 
 const ls = runsAfterFailure[lsi]
 if (ls) {
-    // Log details of the last successful run
+    if (ls.head_sha === ff.head_sha) cancel("No previous successful run found")
+
+    // Log details of the last successful run    
     console.log(`  last success: ${ls.display_title}, ${ls.html_url}`)
 
     // Execute git diff between the last success and failed run commits
