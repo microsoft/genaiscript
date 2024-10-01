@@ -777,10 +777,19 @@ defTool(
             type: "string",
             description: "Head branch to compare",
         },
+        paths: {
+            type: "string[]",
+            description: "Paths to compare",
+        },
+        excludedPaths: {
+            type: "string[]",
+            description: "Paths to exclude",
+        },
     },
     async (args) => {
-        const { base, head } = args
-        return await git.log({ base, head })
+        const { base, head, paths, excludedPaths } = args
+        const commits = await git.log({ base, head, paths, excludedPaths })
+        return commits.map(({ sha, message }) => `${sha} ${message}`).join("\n")
     }
 )
 
