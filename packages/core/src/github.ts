@@ -14,6 +14,8 @@ import { link, prettifyMarkdown } from "./markdown"
 import { arrayify, assert, logError, logVerbose, normalizeInt } from "./util"
 import { shellRemoveAsciiColors } from "./shell"
 import { isGlobMatch } from "./glob"
+import { fetchText } from "./fetch"
+import { concurrentLimit } from "./concurrency"
 
 export interface GithubConnectionInfo {
     token: string
@@ -543,6 +545,16 @@ export class GitHubClient implements GitHub {
         return res
     }
 
+    async getIssue(issue_number: number): Promise<GitHubIssue> {
+        const { client, owner, repo } = await this.client()
+        const { data } = await client.rest.issues.get({
+            owner,
+            repo,
+            issue_number,
+        })
+        return data
+    }
+
     async listPullRequests(
         options?: {
             state?: "open" | "closed" | "all"
@@ -662,57 +674,26 @@ export class GitHubClient implements GitHub {
             })
         }
         return res
+    }
 
-        function parseJobLog(text: string) {
-            const lines = cleanLog(text).split(/\r?\n/g)
-            const groups: { title: string; text: string }[] = []
-            let current = groups[0]
-            for (const line of lines) {
-                if (line.startsWith("##[group]")) {
-                    current = {
-                        title: line.slice("##[group]".length),
-                        text: "",
-                    }
-                } else if (line.startsWith("##[endgroup]")) {
-                    if (current) groups.push(current)
-                    current = undefined
-                } else {
-                    if (!current) current = { title: "", text: "" }
-                    current.text += line + "\n"
-                }
-            }
-            if (current) groups.push(current)
-
-            const ignoreSteps = [
-                "Runner Image",
-                "Fetching the repository",
-                "Checking out the ref",
-                "Setting up auth",
-                "Setting up auth for fetching submodules",
-                "Getting Git version info",
-                "Initializing the repository",
-                "Determining the checkout info",
-                "Persisting credentials for submodules",
-            ]
-            return groups
-                .filter(({ title }) => !ignoreSteps.includes(title))
-                .map((f) =>
-                    f.title
-                        ? `##[group]${f.title}\n${f.text}\n##[endgroup]`
-                        : f.text
-                )
-                .join("\n")
-        }
-
-        function cleanLog(text: string) {
-            return shellRemoveAsciiColors(
-                text.replace(
-                    // timestamps
-                    /^﻿?\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{2,}Z /gm,
-                    ""
-                )
-            )
-        }
+    /**
+     * Downloads a GitHub Action workflow run log
+     * @param jobId
+     */
+    async downloadWorkflowJobLog(
+        job_id: number,
+        options?: { llmify?: boolean }
+    ): Promise<string> {
+        const { client, owner, repo } = await this.client()
+        const { url: logs_url } =
+            await client.rest.actions.downloadJobLogsForWorkflowRun({
+                owner,
+                repo,
+                job_id,
+            })
+        let { text } = await fetchText(logs_url)
+        if (options?.llmify) text = parseJobLog(text)
+        return text
     }
 
     async getFile(filename: string, ref: string): Promise<WorkspaceFile> {
@@ -835,8 +816,11 @@ export class GitHubClient implements GitHub {
                         : undefined,
             }))
         if (downloadContent) {
-            const q = host.promiseQueue(GITHUB_REST_API_CONCURRENCY_LIMIT)
-            await q.all(
+            const limit = concurrentLimit(
+                "github",
+                GITHUB_REST_API_CONCURRENCY_LIMIT
+            )
+            await Promise.all(
                 res
                     .filter((f) => f.type === "file" && !f.content)
                     .filter(
@@ -858,8 +842,58 @@ export class GitHubClient implements GitHub {
                             ).toString("utf8")
                         }
                     })
+                    .map((p) => limit(p))
             )
         }
         return res
     }
+}
+
+function parseJobLog(text: string) {
+    const lines = cleanLog(text).split(/\r?\n/g)
+    const groups: { title: string; text: string }[] = []
+    let current = groups[0]
+    for (const line of lines) {
+        if (line.startsWith("##[group]")) {
+            current = {
+                title: line.slice("##[group]".length),
+                text: "",
+            }
+        } else if (line.startsWith("##[endgroup]")) {
+            if (current) groups.push(current)
+            current = undefined
+        } else {
+            if (!current) current = { title: "", text: "" }
+            current.text += line + "\n"
+        }
+    }
+    if (current) groups.push(current)
+
+    const ignoreSteps = [
+        "Runner Image",
+        "Fetching the repository",
+        "Checking out the ref",
+        "Setting up auth",
+        "Setting up auth for fetching submodules",
+        "Getting Git version info",
+        "Initializing the repository",
+        "Determining the checkout info",
+        "Persisting credentials for submodules",
+    ]
+    return groups
+        .filter(({ title }) => !ignoreSteps.includes(title))
+        .map((f) =>
+            f.title ? `##[group]${f.title}\n${f.text}\n##[endgroup]` : f.text
+        )
+        .join("\n")
+}
+
+function cleanLog(text: string) {
+    return shellRemoveAsciiColors(
+        text.replace(
+            // timestamps
+            /^﻿?\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{2,}Z /gm,
+            ""
+        )
+    )
 }

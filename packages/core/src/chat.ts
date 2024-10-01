@@ -189,6 +189,10 @@ async function runToolCalls(
             for (const todo of todos) {
                 const { tool, args } = todo
                 const context: ToolCallContext = {
+                    log: (txt: string) => {
+                        logVerbose(txt)
+                        trace.log(txt)
+                    },
                     trace,
                 }
                 const output = await tool.impl({ context, ...args })

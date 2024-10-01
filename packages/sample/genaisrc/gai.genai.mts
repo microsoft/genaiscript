@@ -70,6 +70,8 @@ const lsi = lsid
 
 const ls = runsAfterFailure[lsi]
 if (ls) {
+    if (ls.head_sha === ff.head_sha) cancel("No previous successful run found")
+
     // Log details of the last successful run
     console.log(`  last success: ${ls.display_title}, ${ls.html_url}`)
 
@@ -79,11 +81,12 @@ if (ls) {
         head: ff.head_sha,
         excludedPaths: "**/genaiscript.d.ts",
     })
-    def("GIT_DIFF", gitDiff, {
-        language: "diff",
-        lineNumbers: true,
-        flex: 1,
-    })
+    if (gitDiff)
+        def("GIT_DIFF", gitDiff, {
+            language: "diff",
+            lineNumbers: true,
+            flex: 1,
+        })
 }
 
 // Download logs of the failed job

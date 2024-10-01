@@ -1,13 +1,25 @@
+// This file contains the GitClient class, which provides methods to interact with Git repositories.
+// It includes functionality to find modified files, execute Git commands, and manage branches.
+
+import { llmifyDiff } from "./diff"
 import { resolveFileContents } from "./file"
 import { isGlobMatch } from "./glob"
 import { runtimeHost } from "./host"
 import { shellParse } from "./shell"
-import { arrayify, logVerbose } from "./util"
+import { arrayify } from "./util"
 
+/**
+ * GitClient class provides an interface to interact with Git.
+ */
 export class GitClient implements Git {
-    readonly git = "git"
-    private _defaultBranch: string
+    readonly git = "git" // Git command identifier
+    private _defaultBranch: string // Stores the default branch name
 
+    /**
+     * Retrieves the default branch name.
+     * If not already set, it fetches from the Git remote.
+     * @returns {Promise<string>} The default branch name.
+     */
     async defaultBranch(): Promise<string> {
         if (!this._defaultBranch) {
             const res = await this.exec(["remote", "show", "origin"], {})
@@ -19,13 +31,28 @@ export class GitClient implements Git {
     }
 
     /**
-     * Sets the default branch
-     * @param name
+     * Gets the current branch
+     * @returns
      */
-    setDefaultBranch(name: string) {
-        this._defaultBranch = name
+    async branch(): Promise<string> {
+        const res = await this.exec(["branch", "--show-current"])
+        return res.trim()
     }
 
+    async listBranches(): Promise<string[]> {
+        const res = await this.exec(["branch", "--list"])
+        return res
+            .split("\n")
+            .map((b) => b.trim())
+            .filter((f) => !!f)
+    }
+
+    /**
+     * Executes a Git command with given arguments.
+     * @param args Git command arguments.
+     * @param options Optional command options with a label.
+     * @returns {Promise<string>} The standard output from the command.
+     */
     async exec(
         args: string | string[],
         options?: { label?: string }
@@ -39,8 +66,14 @@ export class GitClient implements Git {
         return res.stdout
     }
 
-    async findModifiedFiles(
-        scope: "base" | "staged" | "modified",
+    /**
+     * Finds modified files in the Git repository based on the specified scope.
+     * @param scope The scope of modifications to find: "modified-base", "staged", or "modified".
+     * @param options Optional settings such as base branch, paths, and exclusions.
+     * @returns {Promise<WorkspaceFile[]>} List of modified files.
+     */
+    async listFiles(
+        scope: "modified-base" | "staged" | "modified",
         options?: {
             base?: string
             paths?: ElementOrArray<string>
@@ -54,9 +87,9 @@ export class GitClient implements Git {
             (f) => !!f
         )
         let filenames: string[]
-        if (scope === "base" || scope === "staged") {
+        if (scope === "modified-base" || scope === "staged") {
             const args = ["diff", "--name-only", "--diff-filter=AM"]
-            if (scope === "base") {
+            if (scope === "modified-base") {
                 const base = options?.base || (await this.defaultBranch())
                 args.push(base)
             } else args.push("--cached")
@@ -66,7 +99,8 @@ export class GitClient implements Git {
             })
             filenames = res.split("\n").filter((f) => f)
             if (!filenames.length && scope == "staged" && askStageOnEmpty) {
-                const stage = await host.confirm(
+                // If no staged changes, optionally ask to stage all changes
+                const stage = await runtimeHost.confirm(
                     "No staged changes. Stage all changes?",
                     {
                         default: true,
@@ -80,7 +114,7 @@ export class GitClient implements Git {
                 }
             }
         } else {
-            // ignore deleted files
+            // For "modified" scope, ignore deleted files
             const rx = /^\s*(A|M|\?{1,2})\s+/gm
             const args = ["status", "--porcelain"]
             const res = await this.exec(args, {
@@ -103,6 +137,12 @@ export class GitClient implements Git {
         return files
     }
 
+    /**
+     * Adds file path filters to Git command arguments.
+     * @param paths Paths to include.
+     * @param excludedPaths Paths to exclude.
+     * @param args Git command arguments.
+     */
     private static addFileFilters(
         paths: string[],
         excludedPaths: string[],
@@ -118,6 +158,11 @@ export class GitClient implements Git {
         }
     }
 
+    /**
+     * Generates a diff of changes based on provided options.
+     * @param options Options such as staged flag, base, head, paths, and exclusions.
+     * @returns {Promise<string>} The diff output.
+     */
     async diff(options?: {
         staged?: boolean
         askStageOnEmpty?: boolean
@@ -126,6 +171,7 @@ export class GitClient implements Git {
         paths?: ElementOrArray<string>
         excludedPaths?: ElementOrArray<string>
         unified?: number
+        llmify?: boolean
     }): Promise<string> {
         const paths = arrayify(options?.paths).filter((f) => !!f)
         const excludedPaths = arrayify(options?.excludedPaths).filter(
@@ -142,7 +188,8 @@ export class GitClient implements Git {
         GitClient.addFileFilters(paths, excludedPaths, args)
         let res = await this.exec(args)
         if (!res && staged && askStageOnEmpty) {
-            const stage = await host.confirm(
+            // If no staged changes, optionally ask to stage all changes
+            const stage = await runtimeHost.confirm(
                 "No staged changes. Stage all changes?",
                 {
                     default: true,
@@ -153,6 +200,7 @@ export class GitClient implements Git {
                 res = await this.exec(args)
             }
         }
+        if (options?.llmify) res = llmifyDiff(res)
         return res
     }
 }

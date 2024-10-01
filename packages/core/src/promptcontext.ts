@@ -1,8 +1,7 @@
-import {
-    executeChatSession,
-    mergeGenerationOptions,
-    tracePromptResult,
-} from "./chat"
+// This file defines the creation of a prompt context, which includes various services
+// like file operations, web search, fuzzy search, vector search, and more.
+// The context is essential for executing prompts within a project environment.
+
 import { host } from "./host"
 import { HTMLEscape, arrayify, dotGenaiscriptPath, sha256string } from "./util"
 import { runtimeHost } from "./host"
@@ -13,41 +12,30 @@ import {
     appendChild,
     createFileMerge,
     createOutputProcessor,
-    createTextNode,
-    renderPromptNode,
 } from "./promptdom"
 import { bingSearch } from "./websearch"
-import { checkCancelled } from "./cancellation"
 import {
     RunPromptContextNode,
     createChatGenerationContext,
 } from "./runpromptcontext"
-import { isCancelError, NotSupportedError, serializeError } from "./error"
 import { GenerationOptions } from "./generation"
 import { fuzzSearch } from "./fuzzsearch"
-import { parseModelIdentifier } from "./models"
-import { renderAICI } from "./aici"
-import {
-    MODEL_PROVIDER_AICI,
-    CHAT_REQUEST_PER_MODEL_CONCURRENT_LIMIT,
-    SYSTEM_FENCE,
-} from "./constants"
 import { grepSearch } from "./grep"
 import { resolveFileContents, toWorkspaceFile } from "./file"
 import { vectorSearch } from "./vectorsearch"
-import {
-    ChatCompletionMessageParam,
-    ChatCompletionSystemMessageParam,
-} from "./chattypes"
-import { resolveModelConnectionInfo } from "./models"
-import { resolveLanguageModel } from "./lm"
-import { callExpander } from "./expander"
 import { Project } from "./ast"
-import { resolveSystems } from "./systems"
 import { shellParse } from "./shell"
-import { sleep } from "openai/core.mjs"
-import { concurrentLimit, PLimitPromiseQueue } from "./concurrency"
+import { PLimitPromiseQueue } from "./concurrency"
 
+/**
+ * Creates a prompt context for the given project, variables, trace, options, and model.
+ * @param prj The project for which the context is created.
+ * @param vars Expansion variables used in the context.
+ * @param trace Markdown trace for logging purposes.
+ * @param options Generation options for the prompt.
+ * @param model The model identifier for context creation.
+ * @returns A context object that includes methods and properties for prompt execution.
+ */
 export async function createPromptContext(
     prj: Project,
     vars: ExpansionVariables,
@@ -55,11 +43,15 @@ export async function createPromptContext(
     options: GenerationOptions,
     model: string
 ) {
-    const { cancellationToken, infoCb } = options || {}
+    const { infoCb } = options || {}
     const { generator, ...varsNoGenerator } = vars
+    // Clone variables to prevent modification of the original object
     const env = { generator, ...structuredClone(varsNoGenerator) }
+    // Create parsers for the given trace and model
     const parsers = await createParsers({ trace, model })
     const path = runtimeHost.path
+
+    // Define the workspace file system operations
     const workspace: WorkspaceFileSystem = {
         readText: (f) => runtimeHost.workspace.readText(f),
         readJSON: (f) => runtimeHost.workspace.readJSON(f),
@@ -68,6 +60,7 @@ export async function createPromptContext(
         writeText: (f, c) => runtimeHost.workspace.writeText(f, c),
         cache: (n) => runtimeHost.workspace.cache(n),
         findFiles: async (pattern, options) => {
+            // Log and find files matching the given pattern
             const res = await runtimeHost.workspace.findFiles(pattern, options)
             trace.files(res, {
                 title: `🗃 find files <code>${HTMLEscape(pattern)}</code>`,
@@ -77,6 +70,7 @@ export async function createPromptContext(
             return res
         },
         grep: async (query, globs, options) => {
+            // Perform a grep search on specified files
             const grepTrace = trace.startTraceDetails(
                 `🌐 grep <code>${HTMLEscape(typeof query === "string" ? query : query.source)}</code>`
             )
@@ -93,8 +87,10 @@ export async function createPromptContext(
         },
     }
 
+    // Define retrieval operations
     const retrieval: Retrieval = {
         webSearch: async (q) => {
+            // Conduct a web search and return the results
             try {
                 trace.startDetails(
                     `🌐 web search <code>${HTMLEscape(q)}</code>`
@@ -114,6 +110,7 @@ export async function createPromptContext(
             }
         },
         fuzzSearch: async (q, files_, searchOptions) => {
+            // Perform a fuzzy search on the provided files
             const files = arrayify(files_)
             searchOptions = searchOptions || {}
             const fuzzTrace = trace.startTraceDetails(
@@ -140,6 +137,7 @@ export async function createPromptContext(
             }
         },
         vectorSearch: async (q, files_, searchOptions) => {
+            // Perform a vector-based search on the provided files
             const files = arrayify(files_).map(toWorkspaceFile)
             searchOptions = { ...(searchOptions || {}) }
             const vecTrace = trace.startTraceDetails(
@@ -165,7 +163,7 @@ export async function createPromptContext(
                     folderPath,
                     trace: vecTrace,
                 })
-                // search
+                // Log search results
                 vecTrace.files(res, {
                     model,
                     secrets: env.secrets,
@@ -178,16 +176,19 @@ export async function createPromptContext(
         },
     }
 
+    // Default output processor for the prompt
     const defOutputProcessor = (fn: PromptOutputProcessorHandler) => {
         if (fn) appendPromptChild(createOutputProcessor(fn))
     }
 
+    // Define the host for executing commands, browsing, and other operations
     const promptHost: PromptHost = Object.freeze<PromptHost>({
         exec: async (
             command: string,
             args?: string[] | ShellOptions,
             options?: ShellOptions
         ) => {
+            // Parse the command and arguments if necessary
             if (!Array.isArray(args) && typeof args === "object") {
                 // exec("cmd arg arg", {...})
                 if (options !== undefined)
@@ -202,6 +203,7 @@ export async function createPromptContext(
                 command = parsed[0]
                 args = parsed.slice(1)
             }
+            // Execute the command using the runtime host
             const res = await runtimeHost.exec(undefined, command, args, {
                 cwd: options?.cwd,
                 trace,
@@ -209,6 +211,7 @@ export async function createPromptContext(
             return res
         },
         browse: async (url, options) => {
+            // Browse a URL and return the result
             const res = await runtimeHost.browse(url, {
                 trace,
                 ...(options || {}),
@@ -216,6 +219,7 @@ export async function createPromptContext(
             return res
         },
         container: async (options) => {
+            // Execute operations within a container and return the result
             const res = await runtimeHost.container({
                 ...(options || {}),
                 trace,
@@ -229,8 +233,10 @@ export async function createPromptContext(
         promiseQueue: (concurrency) => new PLimitPromiseQueue(concurrency),
     })
 
+    // Freeze project options to prevent modification
+    const projectOptions = Object.freeze({ prj, vars, env })
     const ctx: PromptContext & RunPromptContextNode = {
-        ...createChatGenerationContext(options, trace),
+        ...createChatGenerationContext(options, trace, projectOptions),
         script: () => {},
         system: () => {},
         env: undefined, // set later
@@ -244,192 +250,11 @@ export async function createPromptContext(
         defFileMerge: (fn) => {
             appendPromptChild(createFileMerge(fn))
         },
-        prompt: (template, ...args): RunPromptResultPromiseWithOptions => {
-            const options: PromptGeneratorOptions = {}
-            const p: RunPromptResultPromiseWithOptions =
-                new Promise<RunPromptResult>(async (resolve, reject) => {
-                    try {
-                        await sleep(0)
-                        // data race for options
-                        const res = await ctx.runPrompt(async (_) => {
-                            _.$(template, ...args)
-                        }, options)
-                        resolve(res)
-                    } catch (e) {
-                        reject(e)
-                    }
-                }) as any
-            p.options = (v) => {
-                if (v !== undefined) Object.assign(options, v)
-                return p
-            }
-            return p
-        },
-        runPrompt: async (generator, runOptions): Promise<RunPromptResult> => {
-            const { label } = runOptions || {}
-            const runTrace = trace.startTraceDetails(
-                `🎁 run prompt ${label || ""}`
-            )
-            try {
-                infoCb?.({ text: `run prompt ${label || ""}` })
-
-                const genOptions = mergeGenerationOptions(options, runOptions)
-                genOptions.inner = true
-                genOptions.trace = runTrace
-                const ctx = createChatGenerationContext(genOptions, runTrace)
-                if (typeof generator === "string")
-                    ctx.node.children.push(createTextNode(generator))
-                else await generator(ctx)
-                const node = ctx.node
-
-                checkCancelled(cancellationToken)
-
-                let messages: ChatCompletionMessageParam[] = []
-                let tools: ToolCallback[] = undefined
-                let schemas: Record<string, JSONSchema> = undefined
-                let chatParticipants: ChatParticipant[] = undefined
-
-                // expand template
-                const { provider } = parseModelIdentifier(genOptions.model)
-                if (provider === MODEL_PROVIDER_AICI) {
-                    const { aici } = await renderAICI("prompt", node)
-                    // todo: output processor?
-                    messages.push(aici)
-                } else {
-                    const {
-                        errors,
-                        schemas: scs,
-                        functions: fns,
-                        messages: msgs,
-                        chatParticipants: cps,
-                    } = await renderPromptNode(genOptions.model, node, {
-                        flexTokens: genOptions.flexTokens,
-                        trace: runTrace,
-                    })
-
-                    schemas = scs
-                    tools = fns
-                    chatParticipants = cps
-                    messages.push(...msgs)
-
-                    if (errors?.length)
-                        throw new Error("errors while running prompt")
-                }
-
-                const systemMessage: ChatCompletionSystemMessageParam = {
-                    role: "system",
-                    content: "",
-                }
-                const systemScripts = resolveSystems(prj, runOptions ?? {})
-                if (systemScripts.length)
-                    try {
-                        trace.startDetails("👾 systems")
-                        for (const systemId of systemScripts) {
-                            checkCancelled(cancellationToken)
-
-                            const system = prj.getTemplate(systemId)
-                            if (!system)
-                                throw new Error(
-                                    `system template ${systemId} not found`
-                                )
-                            runTrace.startDetails(`👾 ${system.id}`)
-                            const sysr = await callExpander(
-                                prj,
-                                system,
-                                env,
-                                runTrace,
-                                genOptions
-                            )
-                            if (sysr.images?.length)
-                                throw new NotSupportedError("images")
-                            if (sysr.schemas)
-                                Object.assign(schemas, sysr.schemas)
-                            if (sysr.functions) tools.push(...sysr.functions)
-                            if (sysr.fileMerges?.length)
-                                throw new NotSupportedError("fileMerges")
-                            if (sysr.outputProcessors?.length)
-                                throw new NotSupportedError("outputProcessors")
-                            if (sysr.chatParticipants)
-                                chatParticipants.push(...sysr.chatParticipants)
-                            if (sysr.fileOutputs?.length)
-                                throw new NotSupportedError("fileOutputs")
-                            if (sysr.logs?.length)
-                                runTrace.details("📝 console.log", sysr.logs)
-                            if (sysr.text) {
-                                systemMessage.content +=
-                                    SYSTEM_FENCE + "\n" + sysr.text + "\n"
-                                runTrace.fence(sysr.text, "markdown")
-                            }
-                            if (sysr.aici) {
-                                runTrace.fence(sysr.aici, "yaml")
-                                messages.push(sysr.aici)
-                            }
-                            runTrace.detailsFenced("js", system.jsSource, "js")
-                            runTrace.endDetails()
-                            if (sysr.status !== "success")
-                                throw new Error(
-                                    `system ${system.id} failed ${sysr.status} ${sysr.statusText}`
-                                )
-                        }
-                    } finally {
-                        trace.endDetails()
-                    }
-                if (systemMessage.content) messages.unshift(systemMessage)
-
-                const connection = await resolveModelConnectionInfo(
-                    genOptions,
-                    { trace: runTrace, token: true }
-                )
-                checkCancelled(cancellationToken)
-                if (!connection.configuration)
-                    throw new Error(
-                        "model connection error " + connection.info?.model
-                    )
-                const { completer } = await resolveLanguageModel(
-                    connection.configuration.provider
-                )
-                checkCancelled(cancellationToken)
-                if (!completer)
-                    throw new Error(
-                        "model driver not found for " + connection.info
-                    )
-
-                const modelConcurrency =
-                    options.modelConcurrency?.[genOptions.model] ??
-                    CHAT_REQUEST_PER_MODEL_CONCURRENT_LIMIT
-                const modelLimit = concurrentLimit(
-                    "model:" + genOptions.model,
-                    modelConcurrency
-                )
-                const resp = await modelLimit(() =>
-                    executeChatSession(
-                        connection.configuration,
-                        cancellationToken,
-                        messages,
-                        vars,
-                        tools,
-                        schemas,
-                        completer,
-                        chatParticipants,
-                        genOptions
-                    )
-                )
-                tracePromptResult(runTrace, resp)
-                return resp
-            } catch (e) {
-                runTrace.error(e)
-                return {
-                    text: "",
-                    finishReason: isCancelError(e) ? "cancel" : "fail",
-                    error: serializeError(e),
-                }
-            } finally {
-                runTrace.endDetails()
-            }
-        },
     }
     env.generator = ctx
     ctx.env = Object.freeze(env)
+
+    // Append a prompt child node
     const appendPromptChild = (node: PromptNode) => {
         if (!ctx.node) throw new Error("Prompt closed")
         appendChild(ctx.node, node)

@@ -606,6 +606,7 @@ interface WorkspaceFileSystem {
 }
 
 interface ToolCallContext {
+    log(message: string): void
     trace: ToolCallTrace
 }
 
@@ -1280,18 +1281,28 @@ interface Git {
     defaultBranch(): Promise<string>
 
     /**
+     * Gets the current branch of the repository
+     */
+    branch(): Promise<string>
+
+    /**
      * Executes a git command in the repository and returns the stdout
      * @param cmd
      */
     exec(args: string[] | string, options?: { label?: string }): Promise<string>
 
     /**
+     * Lists the branches in the git repository
+     */
+    listBranches(): Promise<string[]>
+
+    /**
      * Finds specific files in the git repository.
      * By default, work
      * @param options
      */
-    findModifiedFiles(
-        scope: "base" | "staged" | "modified",
+    listFiles(
+        scope: "modified-base" | "staged" | "modified",
         options?: {
             base?: string
             /**
@@ -1318,6 +1329,10 @@ interface Git {
         paths?: ElementOrArray<string>
         excludedPaths?: ElementOrArray<string>
         unified?: number
+        /**
+         * Modifies the diff to be in a more LLM friendly format
+         */
+        llmify?: boolean
     }): Promise<string>
 }
 
@@ -1379,7 +1394,8 @@ interface GitHubIssue {
     number: number
     state: string
     state_reason?: "completed" | "reopened" | "not_planned" | null
-    html_url: string
+    html_url: string 
+    draft?: boolean
     reactions?: GitHubReactions
 }
 
@@ -1405,7 +1421,8 @@ interface GitHubComment {
     reactions?: GitHubReactions
 }
 
-interface GitHubPullRequest extends GitHubIssue {}
+interface GitHubPullRequest extends GitHubIssue {
+}
 
 interface GitHubCodeSearchResult {
     name: string
@@ -1473,6 +1490,15 @@ interface GitHub {
     ): Promise<GitHubWorkflowJob[]>
 
     /**
+     * Downloads a GitHub Action workflow run log
+     * @param jobId
+     */
+    downloadWorkflowJobLog(
+        jobId: number,
+        options?: { llmify?: boolean }
+    ): Promise<string>
+
+    /**
      * Lists issues for a given repository
      * @param options
      */
@@ -1485,6 +1511,13 @@ interface GitHub {
         } & GitHubPaginationOptions
     ): Promise<GitHubIssue[]>
 
+
+    /**
+     * Gets the details of a GitHub issue
+     * @param number issue number (not the issue id!)
+     */
+    async getIssue(number: number): Promise<GitHubIssue>
+    
     /**
      * Lists comments for a given issue
      * @param issue_number

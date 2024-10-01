@@ -25,7 +25,7 @@ export function createScript(
 function scanTools(v: string) {
     const tools: { name: string; description: string }[] = []
     v.replace(
-        /defTool\s*\(\s*"([^"]+)"\s*,\s*"([^"]+)"/gm,
+        /defTool\s*\(\s*"([^"]+?)"\s*,\s*"([^"]+?)"/g,
         (m, name, description) => {
             tools.push({ name, description })
             return ""
