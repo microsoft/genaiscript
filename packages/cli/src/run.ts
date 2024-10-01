@@ -527,7 +527,7 @@ export async function runScript(
         return fail("error annotations found", ANNOTATION_ERROR_CODE)
 
     logVerbose("genaiscript: done")
-    for (const [key, value] of Object.entries(result.usages)) {
+    for (const [key, value] of Object.entries(usages)) {
         if (value.total_tokens > 0)
             logVerbose(
                 `  ${key}: ${value.total_tokens} (${value.prompt_tokens} => ${value.completion_tokens})`
