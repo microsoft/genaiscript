@@ -412,7 +412,7 @@ export async function githubCreatePullRequestReviews(
 }
 
 async function paginatorToArray<T, R>(
-    iterator: AsyncIterableIterator<T>,
+    iterator: AsyncIterable<T>,
     count: number,
     iteratorItem: (item: T) => R[],
     elementFilter?: (item: R) => boolean
