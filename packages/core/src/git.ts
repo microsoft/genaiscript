@@ -10,18 +10,20 @@ export class GitClient implements Git {
 
     async defaultBranch(): Promise<string> {
         if (!this._defaultBranch) {
-            const res = (
-                await this.exec(
-                    ["symbolic-ref", "refs/remotes/origin/HEAD"],
-                    {}
-                )
-            )
-                .replace("refs/remotes/origin/", "")
-                .trim()
-            this._defaultBranch = res
-            logVerbose(`git: default branch is ${this._defaultBranch}`)
+            const res = await this.exec(["remote", "show", "origin"], {})
+            this._defaultBranch = /^\s*HEAD branch:\s+(?<name>.+)\s*$/m.exec(
+                res
+            )?.groups?.name
         }
         return this._defaultBranch
+    }
+
+    /**
+     * Sets the default branch
+     * @param name
+     */
+    setDefaultBranch(name: string) {
+        this._defaultBranch = name
     }
 
     async exec(
