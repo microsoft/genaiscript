@@ -80,6 +80,8 @@ type SystemPromptId = OptionsOrString<
     | "system.files_schema"
     | "system.fs_find_files"
     | "system.fs_read_file"
+    | "system.git"
+    | "system.github_actions"
     | "system.math"
     | "system.md_frontmatter"
     | "system.python"
@@ -98,6 +100,11 @@ type SystemPromptId = OptionsOrString<
 type SystemToolId = OptionsOrString<
     | "fs_find_files"
     | "fs_read_file"
+    | "git_action list_jobs"
+    | "git_actions_list_runs"
+    | "git_branch"
+    | "git_diff"
+    | "github_actions_list_workflows"
     | "math_eval"
     | "md_read_frontmatter"
     | "python_code_interpreter"
@@ -1313,18 +1320,28 @@ interface Git {
     defaultBranch(): Promise<string>
 
     /**
+     * Gets the current branch of the repository
+     */
+    branch(): Promise<string>
+
+    /**
      * Executes a git command in the repository and returns the stdout
      * @param cmd
      */
     exec(args: string[] | string, options?: { label?: string }): Promise<string>
 
     /**
+     * Lists the branches in the git repository
+     */
+    listBranches(): Promise<string[]>
+
+    /**
      * Finds specific files in the git repository.
      * By default, work
      * @param options
      */
-    findModifiedFiles(
-        scope: "base" | "staged" | "modified",
+    listFiles(
+        scope: "modified-base" | "staged" | "modified",
         options?: {
             base?: string
             /**
@@ -1351,6 +1368,10 @@ interface Git {
         paths?: ElementOrArray<string>
         excludedPaths?: ElementOrArray<string>
         unified?: number
+        /**
+         * Modifies the diff to be in a more LLM friendly format
+         */
+        llmify?: boolean
     }): Promise<string>
 }
 

@@ -1280,18 +1280,28 @@ interface Git {
     defaultBranch(): Promise<string>
 
     /**
+     * Gets the current branch of the repository
+     */
+    branch(): Promise<string>
+
+    /**
      * Executes a git command in the repository and returns the stdout
      * @param cmd
      */
     exec(args: string[] | string, options?: { label?: string }): Promise<string>
 
     /**
+     * Lists the branches in the git repository
+     */
+    listBranches(): Promise<string[]>
+
+    /**
      * Finds specific files in the git repository.
      * By default, work
      * @param options
      */
-    findModifiedFiles(
-        scope: "base" | "staged" | "modified",
+    listFiles(
+        scope: "modified-base" | "staged" | "modified",
         options?: {
             base?: string
             /**
@@ -1318,6 +1328,10 @@ interface Git {
         paths?: ElementOrArray<string>
         excludedPaths?: ElementOrArray<string>
         unified?: number
+        /**
+         * Modifies the diff to be in a more LLM friendly format
+         */
+        llmify?: boolean
     }): Promise<string>
 }
 

@@ -1,6 +1,7 @@
 // This file contains the GitClient class, which provides methods to interact with Git repositories.
 // It includes functionality to find modified files, execute Git commands, and manage branches.
 
+import { llmifyDiff } from "./diff"
 import { resolveFileContents } from "./file"
 import { isGlobMatch } from "./glob"
 import { runtimeHost } from "./host"
@@ -30,11 +31,20 @@ export class GitClient implements Git {
     }
 
     /**
-     * Sets the default branch name.
-     * @param name The branch name to set as default.
+     * Gets the current branch
+     * @returns
      */
-    setDefaultBranch(name: string) {
-        this._defaultBranch = name
+    async branch(): Promise<string> {
+        const res = await this.exec(["branch", "--show-current"])
+        return res.trim()
+    }
+
+    async listBranches(): Promise<string[]> {
+        const res = await this.exec(["branch", "--list"])
+        return res
+            .split("\n")
+            .map((b) => b.trim())
+            .filter((f) => !!f)
     }
 
     /**
@@ -58,12 +68,12 @@ export class GitClient implements Git {
 
     /**
      * Finds modified files in the Git repository based on the specified scope.
-     * @param scope The scope of modifications to find: "base", "staged", or "modified".
+     * @param scope The scope of modifications to find: "modified-base", "staged", or "modified".
      * @param options Optional settings such as base branch, paths, and exclusions.
      * @returns {Promise<WorkspaceFile[]>} List of modified files.
      */
-    async findModifiedFiles(
-        scope: "base" | "staged" | "modified",
+    async listFiles(
+        scope: "modified-base" | "staged" | "modified",
         options?: {
             base?: string
             paths?: ElementOrArray<string>
@@ -77,9 +87,9 @@ export class GitClient implements Git {
             (f) => !!f
         )
         let filenames: string[]
-        if (scope === "base" || scope === "staged") {
+        if (scope === "modified-base" || scope === "staged") {
             const args = ["diff", "--name-only", "--diff-filter=AM"]
-            if (scope === "base") {
+            if (scope === "modified-base") {
                 const base = options?.base || (await this.defaultBranch())
                 args.push(base)
             } else args.push("--cached")
@@ -161,6 +171,7 @@ export class GitClient implements Git {
         paths?: ElementOrArray<string>
         excludedPaths?: ElementOrArray<string>
         unified?: number
+        llmify?: boolean
     }): Promise<string> {
         const paths = arrayify(options?.paths).filter((f) => !!f)
         const excludedPaths = arrayify(options?.excludedPaths).filter(
@@ -189,6 +200,7 @@ export class GitClient implements Git {
                 res = await this.exec(args)
             }
         }
+        if (options?.llmify) res = llmifyDiff(res)
         return res
     }
 }

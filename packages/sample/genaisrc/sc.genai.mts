@@ -7,11 +7,11 @@ script({
 // Get files from environment or modified files from Git if none provided
 let files = env.files
 if (files.length === 0) {
-    files = await git.findModifiedFiles("staged", {
+    files = await git.listFiles("staged", {
         paths: ["*.md", "*.mdx"],
     })
     if (!files.length)
-        files = await git.findModifiedFiles("base", {
+        files = await git.listFiles("base", {
             paths: ["*.md", "*.mdx"],
         })
 }
