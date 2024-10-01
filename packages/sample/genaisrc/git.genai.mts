@@ -13,7 +13,7 @@ const staged = await git.findModifiedFiles("staged", {
 })
 console.log({ staged })
 
-const branch = await git.findModifiedFiles("branch", {
+const branch = await git.findModifiedFiles("base", {
     paths: ["*/*.ts"],
     excludedPaths: ["**/genaiscript.d.ts"],
 })
