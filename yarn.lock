@@ -1190,10 +1190,10 @@
   resolved "https://registry.yarnpkg.com/@octokit/plugin-paginate-graphql/-/plugin-paginate-graphql-5.2.3.tgz#19882ff4694066b0937aea85b7e8eac512df4e9a"
   integrity sha512-EzFueuXVU3VHv5FwEXbdznn9EmyF0vA5LGDX6a8fJ9YJAlDgdYHRKJMO4Ghl2PPPJBxIPMDUJMnlUHqcvP7AnQ==
 
-"@octokit/plugin-paginate-rest@^11.0.0", "@octokit/plugin-paginate-rest@^11.3.4":
-  version "11.3.4"
-  resolved "https://registry.yarnpkg.com/@octokit/plugin-paginate-rest/-/plugin-paginate-rest-11.3.4.tgz#68c834beb721a4b5919cb98987b40e69099b5f30"
-  integrity sha512-lqBHWiuI468XJ/o06Eg6hgACGXwikyHUzoYs/Y3gA1uVzPldxSeuEiCLAZRy4ovaAJozjds18ni2wgdT1oWtDQ==
+"@octokit/plugin-paginate-rest@^11.0.0", "@octokit/plugin-paginate-rest@^11.3.5":
+  version "11.3.5"
+  resolved "https://registry.yarnpkg.com/@octokit/plugin-paginate-rest/-/plugin-paginate-rest-11.3.5.tgz#a1929b3ba3dc7b63bc73bb6d3c7a3faf2a9c7649"
+  integrity sha512-cgwIRtKrpwhLoBi0CUNuY83DPGRMaWVjqVI/bGKsLJ4PzyWZNaEmhHroI2xlrVXkk6nFv0IsZpOp+ZWSWUS2AQ==
   dependencies:
     "@octokit/types" "^13.6.0"
 
@@ -1670,9 +1670,9 @@
     "@vscode/vsce-sign-win32-x64" "2.0.2"
 
 "@vscode/vsce@^3.1.0":
-  version "3.1.0"
-  resolved "https://registry.yarnpkg.com/@vscode/vsce/-/vsce-3.1.0.tgz#e21d49575469c735a94eb99bc4105b7be7349c9b"
-  integrity sha512-fwdfp1Ol+bZtlSGkpcd/nztfo6+SVsTOMWjZ/+a88lVtUn7gXNbSu7dbniecl5mz4vINl+oaVDVtVdGbJDApmw==
+  version "3.1.1"
+  resolved "https://registry.yarnpkg.com/@vscode/vsce/-/vsce-3.1.1.tgz#b18b44796d9e5b7a48a3a1e89f93def9c3b338b9"
+  integrity sha512-N62Ca9ElRPLUUzf7l9CeEBlLrYzFPRQq7huKk4pVW+LjIOSXfFIPudixn5QvZcz+yXDOh15IopI3K2o3y9666Q==
   dependencies:
     "@azure/identity" "^4.1.0"
     "@vscode/vsce-sign" "^2.0.0"
@@ -2670,10 +2670,10 @@ es-errors@^1.3.0:
   resolved "https://registry.yarnpkg.com/es-errors/-/es-errors-1.3.0.tgz#05f75a25dab98e4fb1dcd5e1472c0546d5057c8f"
   integrity sha512-Zf5H2Kxt2xjTvbJvP2ZWLEICxA6j+hAmMzIlypy4xcBg1vKVnx89Wy0GbS+kf5cwCVFFzdCFh2XSCFNULS6csw==
 
-es-toolkit@^1.22.0:
-  version "1.22.0"
-  resolved "https://registry.yarnpkg.com/es-toolkit/-/es-toolkit-1.22.0.tgz#7799c087cc231d1a0059dc407c25bcd1bc58d31b"
-  integrity sha512-0mvZ7as1Irwi+i5BNTM4Lrt5NnZGz4TcMIG8FTUuqI6GswziFGPHrmVlK+kkafSqhofKKVs6gn0GSGZiWVxAHw==
+es-toolkit@^1.23.0:
+  version "1.23.0"
+  resolved "https://registry.yarnpkg.com/es-toolkit/-/es-toolkit-1.23.0.tgz#78909817f86c3a7b18069ebad1c097fb2163728f"
+  integrity sha512-1Caq9T90fX973dnm8BIEBN9l9pffbxxbZYZYwIy/B4g8oFwNTMcbbqzvIWV4XVZlHY6A8RLZvI/3agxF0CmOPA==
 
 es5-ext@^0.10.35, es5-ext@^0.10.62, es5-ext@^0.10.63, es5-ext@^0.10.64, es5-ext@~0.10.14:
   version "0.10.64"
@@ -4654,10 +4654,10 @@ openai@^3.2.1:
     axios "^0.26.0"
     form-data "^4.0.0"
 
-openai@^4.65.0:
-  version "4.65.0"
-  resolved "https://registry.yarnpkg.com/openai/-/openai-4.65.0.tgz#97878efc00013b13b946b1be15a586bb4b125c62"
-  integrity sha512-LfA4KUBpH/8rA3vjCQ74LZtdK/8wx9W6Qxq8MHqEdImPsN1XPQ2ompIuJWkKS6kXt5Cs5i8Eb65IIo4M7U+yeQ==
+openai@^4.67.0:
+  version "4.67.0"
+  resolved "https://registry.yarnpkg.com/openai/-/openai-4.67.0.tgz#94f46fc2e98445fab8b70d62fc684a6b6680402e"
+  integrity sha512-jdsPSEdZbUNVtvEFE/eeL4FjKavyVMJJEdGMZk9vExglqUrblEcFxi3LK2WhskhrYKAU1MgJAI+dK9pDcA5z5w==
   dependencies:
     "@types/node" "^18.11.18"
     "@types/node-fetch" "^2.6.4"

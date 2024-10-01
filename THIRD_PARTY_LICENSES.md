@@ -1309,7 +1309,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.58.1
+ - genaiscript-vscode@1.59.0
 
 This package contains the following license and notice below:
 
@@ -4431,9 +4431,9 @@ The following npm packages may be included in this product:
  - @tokenizer/token@0.3.0
  - agent-base@6.0.2
  - canvas@2.11.2
- - genaiscript-core-internal@1.58.1
- - genaiscript-sample@1.58.1
- - genaiscript@1.58.1
+ - genaiscript-core-internal@1.59.0
+ - genaiscript-sample@1.59.0
+ - genaiscript@1.59.0
  - https-proxy-agent@5.0.1
  - isarray@1.0.0
  - javascript-natural-sort@0.7.1
@@ -5706,7 +5706,7 @@ SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - @octokit/plugin-paginate-rest@11.3.4
+ - @octokit/plugin-paginate-rest@11.3.5
  - @octokit/plugin-rest-endpoint-methods@13.2.5
  - @octokit/types@13.6.0
 
