@@ -103,6 +103,7 @@ type SystemToolId = OptionsOrString<
     | "git_current_branch"
     | "git_diff"
     | "git_list_branches"
+    | "github_action_download_job_log"
     | "github_action_list_jobs"
     | "github_actions_list_runs"
     | "github_actions_list_workflows"
@@ -1526,6 +1527,15 @@ interface GitHub {
         runId: number,
         options?: GitHubPaginationOptions
     ): Promise<GitHubWorkflowJob[]>
+
+    /**
+     * Downloads a GitHub Action workflow run log
+     * @param jobId
+     */
+    downloadWorkflowJobLog(
+        jobId: number,
+        options?: { llmify?: boolean }
+    ): Promise<string>
 
     /**
      * Lists issues for a given repository

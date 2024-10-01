@@ -1487,6 +1487,15 @@ interface GitHub {
     ): Promise<GitHubWorkflowJob[]>
 
     /**
+     * Downloads a GitHub Action workflow run log
+     * @param jobId
+     */
+    downloadWorkflowJobLog(
+        jobId: number,
+        options?: { llmify?: boolean }
+    ): Promise<string>
+
+    /**
      * Lists issues for a given repository
      * @param options
      */

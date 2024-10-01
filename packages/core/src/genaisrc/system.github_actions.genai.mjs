@@ -72,3 +72,22 @@ defTool(
         )
     }
 )
+
+defTool(
+    "github_action_download_job_log",
+    "Download job log.",
+    {
+        job_id: {
+            type: "string",
+            description: "ID of the job to download log for.",
+        },
+        required: ["job_id"],
+    },
+    async (args) => {
+        const { job_id } = args
+        const log = await github.downloadWorkflowJobLog(job_id, {
+            llmify: true,
+        })
+        return log
+    }
+)
