@@ -52,6 +52,10 @@ export interface PromptNode extends ContextExpansionOptions {
     children?: PromptNode[] // Child nodes for hierarchical structure
     error?: unknown // Error information if present
     tokens?: number // Token count for the node
+    /**
+     * This text is likely to change within 5 to 10 minutes.
+     */
+    ephemeral?: boolean
 
     /**
      * Rendered markdown preview of the node
@@ -518,16 +522,12 @@ export interface PromptNodeRender {
  */
 async function layoutPromptNode(mode: string, root: PromptNode) {
     let changed = false
-    const variables: PromptNode["type"][] = ["def", "image"]
-
     await visitNode(root, {
         node: (n) => {
             // sort children
             const before = n.children?.map((c) => c.preview)?.join("\n")
             n.children?.sort(
-                (a, b) =>
-                    (variables.includes(a.type) ? 1 : -1) -
-                    (variables.includes(b.type) ? 1 : -1)
+                (a, b) => (a.ephemeral ? 1 : -1) - (b.ephemeral ? 1 : -1)
             )
             const after = n.children?.map((c) => c.preview)?.join("\n")
             changed = changed || before !== after

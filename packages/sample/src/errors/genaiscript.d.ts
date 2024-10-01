@@ -803,6 +803,10 @@ interface ContextExpansionOptions {
      * It defaults to 1 on all elements.
      */
     flex?: number
+    /**
+     * This text is likely to change and will probably break the prefix cache.
+     */
+    ephemeral?: boolean
 }
 
 interface DefOptions extends FenceOptions, ContextExpansionOptions, DataFilter {
