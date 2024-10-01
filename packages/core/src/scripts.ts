@@ -1,3 +1,4 @@
+import { uniqBy } from "es-toolkit"
 import { Project } from "./ast"
 import { NEW_SCRIPT_TEMPLATE } from "./constants"
 import { promptDefinitions } from "./default_prompts"
@@ -22,18 +23,6 @@ export function createScript(
     return t
 }
 
-function scanTools(v: string) {
-    const tools: { name: string; description: string }[] = []
-    v.replace(
-        /defTool\s*\(\s*"([^"]+?)"\s*,\s*"([^"]+?)"/g,
-        (m, name, description) => {
-            tools.push({ name, description })
-            return ""
-        }
-    )
-    return tools
-}
-
 export async function fixPromptDefinitions(project: Project) {
     const folders = project.folders()
     for (const folder of folders) {
@@ -43,7 +32,7 @@ export async function fixPromptDefinitions(project: Project) {
             if (defName === "genaiscript.d.ts") {
                 const systems = project.templates.filter((t) => t.isSystem)
                 const tools = systems
-                    .map(({ jsSource }) => scanTools(jsSource))
+                    .map(({ defTools }) => defTools || [])
                     .flat()
 
                 // update the system prompt identifiers
@@ -69,15 +58,15 @@ ${systems.map((s) => `     * - \`${s.id}\`: ${s.title || s.description}`).join("
                     .replace(
                         "type SystemToolId = OptionsOrString<string>",
                         `type SystemToolId = OptionsOrString<\n    | ${tools
-                            .sort((a, b) => a.name.localeCompare(b.name))
-                            .map((s) => JSON.stringify(s.name))
+                            .sort((a, b) => a.id.localeCompare(b.id))
+                            .map((s) => JSON.stringify(s.id))
                             .join("\n    | ")}\n>`
                     )
                     .replace(
                         "    tools?: SystemToolId[]",
                         `/**
 * System tool identifiers ([reference](https://microsoft.github.io/genaiscript/reference/scripts/tools/))
-${tools.map((s) => `* - \`${s.name}\`: ${s.description}`).join("\n")}
+${tools.map((s) => `* - \`${s.id}\`: ${s.description}`).join("\n")}
 **/
     tools?: SystemToolId[]`
                     )

@@ -312,17 +312,35 @@ class Checker<T extends PromptLike> {
  * @param jsSource - The JavaScript source code of the script.
  * @returns A PromptArgs object containing the parsed metadata.
  */
-export function parsePromptScriptMeta(jsSource: string) {
+export function parsePromptScriptMeta(
+    jsSource: string
+): PromptArgs & Pick<PromptScript, "defTools"> {
     const m = /\b(?<kind>system|script)\(\s*(?<meta>\{.*?\})\s*\)/s.exec(
         jsSource
     )
-    const meta: PromptArgs = JSON5TryParse(m?.groups?.meta) ?? {}
+    const meta: PromptArgs & Pick<PromptScript, "defTools"> =
+        JSON5TryParse(m?.groups?.meta) ?? {}
     if (m?.groups?.kind === "system") {
         meta.unlisted = true
         meta.isSystem = true
         meta.group = meta.group || "system"
     }
+    meta.defTools = parsePromptScriptTools(jsSource)
     return meta
+}
+
+function parsePromptScriptTools(
+    jsSource: string
+): { id: string; description: string }[] {
+    const tools: { id: string; description: string }[] = []
+    jsSource.replace(
+        /defTool\s*\(\s*"([^"]+?)"\s*,\s*"([^"]+?)"/g,
+        (m, id, description) => {
+            tools.push({ id, description })
+            return ""
+        }
+    )
+    return tools
 }
 
 /**
@@ -429,6 +447,7 @@ export async function parsePromptScript(
             c.checkString("cacheName")
 
             c.checkRecord("modelConcurrency")
+            c.checkObjectArray("defTools")
         })
 
         const r = c.template

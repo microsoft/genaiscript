@@ -386,6 +386,11 @@ interface PromptScript
      * Set if this is a system prompt.
      */
     isSystem?: boolean
+
+    /**
+     * List of tools defined in the script
+     */
+    defTools?: { id: string, description: string }[]
 }
 
 /**
@@ -678,7 +683,7 @@ interface ExpansionVariables {
 
 type MakeOptional<T, P extends keyof T> = Partial<Pick<T, P>> & Omit<T, P>
 
-type PromptArgs = Omit<PromptScript, "text" | "id" | "jsSource" | "activation">
+type PromptArgs = Omit<PromptScript, "text" | "id" | "jsSource" | "activation" | "defTools">
 
 type PromptSystemArgs = Omit<
     PromptArgs,
