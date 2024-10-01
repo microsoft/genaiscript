@@ -1414,8 +1414,8 @@ interface Git {
         head?: string
         merges?: boolean
         excludedGrep?: string | RegExp
-        paths: string[]
-        excludedPaths: string[]
+        paths?: ElementOrArray<string>
+        excludedPaths?: ElementOrArray<string>
     }): Promise<GitCommit[]>
 }
 

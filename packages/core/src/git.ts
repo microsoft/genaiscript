@@ -148,8 +148,6 @@ export class GitClient implements Git {
         excludedPaths: string[],
         args: string[]
     ) {
-        paths = paths || []
-        excludedPaths = excludedPaths || []
         if (paths.length > 0 || excludedPaths.length > 0) {
             if (!paths.length) paths.push(".")
             args.push("--")
@@ -175,11 +173,15 @@ export class GitClient implements Git {
         head?: string
         merges?: boolean
         excludedGrep?: string | RegExp
-        paths: string[]
-        excludedPaths: string[]
+        paths?: ElementOrArray<string>
+        excludedPaths?: ElementOrArray<string>
     }): Promise<GitCommit[]> {
-        const { base, head, merges, excludedGrep, paths, excludedPaths } =
-            options || {}
+        const { base, head, merges, excludedGrep } = options || {}
+        const paths = arrayify(options?.paths).filter((f) => !!f)
+        const excludedPaths = arrayify(options?.excludedPaths).filter(
+            (f) => !!f
+        )
+
         const args = ["log", "--pretty=oneline"]
         if (!merges) args.push("--no-merges")
         if (excludedGrep) {
@@ -190,7 +192,7 @@ export class GitClient implements Git {
             args.push(`--grep='${pattern}'`, "--invert-grep")
         }
         if (base && head) args.push(`${base}..${head}`)
-        GitClient.addFileFilters(paths, excludedPaths, args)
+        GitClient.addFileFilters(arrayify(paths), arrayify(excludedPaths), args)
         const res = await this.exec(args)
         const commits = res
             .split("\n")

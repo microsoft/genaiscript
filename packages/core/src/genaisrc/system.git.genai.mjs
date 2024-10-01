@@ -45,9 +45,24 @@ defTool(
     }
 )
 
-defTool("git_log", "Generates a log of commits.", {}, async () => {
-    return await git.exec(["log", "--online"])
-})
+defTool(
+    "git_log",
+    "Generates a log of commits.",
+    {
+        base: {
+            type: "string",
+            description: "Base branch to compare against.",
+        },
+        head: {
+            type: "string",
+            description: "Head branch to compare",
+        },
+    },
+    async (args) => {
+        const { base, head } = args
+        return await git.log({ base, head })
+    }
+)
 
 defTool("git_status", "Generates a status of the repository.", {}, async () => {
     return await git.exec(["status", "--porcelain"])
