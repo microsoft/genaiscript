@@ -1327,6 +1327,10 @@ interface Git {
         scope: "base" | "staged" | "modified",
         options?: {
             base?: string
+            /**
+             * Ask the user to stage the changes if the diff is empty.
+             */
+            askStageOnEmpty?: boolean
             paths?: ElementOrArray<string>
             excludedPaths?: ElementOrArray<string>
         }

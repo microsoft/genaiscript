@@ -44,9 +44,11 @@ export class GitClient implements Git {
         options?: {
             base?: string
             paths?: ElementOrArray<string>
+            askStageOnEmpty?: boolean
             excludedPaths?: ElementOrArray<string>
         }
     ): Promise<WorkspaceFile[]> {
+        const { askStageOnEmpty } = options || {}
         const paths = arrayify(options?.paths).filter((f) => !!f)
         const excludedPaths = arrayify(options?.excludedPaths).filter(
             (f) => !!f
@@ -63,6 +65,20 @@ export class GitClient implements Git {
                 label: `git list modified files in ${scope}`,
             })
             filenames = res.split("\n").filter((f) => f)
+            if (!filenames.length && scope == "staged" && askStageOnEmpty) {
+                const stage = await host.confirm(
+                    "No staged changes. Stage all changes?",
+                    {
+                        default: true,
+                    }
+                )
+                if (stage) {
+                    await this.exec(["add", "."])
+                    filenames = (await this.exec(args))
+                        .split("\n")
+                        .filter((f) => f)
+                }
+            }
         } else {
             // ignore deleted files
             const rx = /^\s*(A|M|\?{1,2})\s+/gm
@@ -134,7 +150,7 @@ export class GitClient implements Git {
             )
             if (stage) {
                 await this.exec(["add", "."])
-                res = await this.diff(options)
+                res = await this.exec(args)
             }
         }
         return res

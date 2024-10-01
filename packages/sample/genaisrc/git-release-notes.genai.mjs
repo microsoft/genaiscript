@@ -3,35 +3,29 @@ script({ system: ["system"], temperature: 0.5, model: "openai:gpt-4-turbo" })
 const product = env.vars.product || "GenAIScript"
 
 // find previous tag
-const pkg = await workspace.readJSON("package.json")
-const { version } = pkg
-const { stdout: tag } = await host.exec("git", [
-    "describe",
-    "--tags",
-    "--abbrev=0",
-    "HEAD^",
-])
-const { stdout: commits } = await host.exec("git", [
+const { version } = await workspace.readJSON("package.json")
+const tag = await git.exec(["describe", "--tags", "--abbrev=0", "HEAD^"])
+const commits = await git.exec([
     "log",
     "--grep='(skip ci|THIRD_PARTY_NOTICES)'",
     "--invert-grep",
     "--no-merges",
     `HEAD...${tag}`,
 ])
-const { stdout: diff } = await host.exec("git", [
-    "diff",
-    `${tag}..HEAD`,
-    "--no-merges",
-    "--",
-    ":!**/package.json",
-    ":!**/genaiscript.d.ts",
-    ":!**/jsconfig.json",
-    ":!docs/**",
-    ":!.github/*",
-    ":!.vscode/*",
-    ":!*yarn.lock",
-    ":!*THIRD_PARTY_NOTICES.md",
-])
+const diff = await git.diff({
+    base: tag,
+    head: "HEAD",
+    excludedPaths: [
+        "**/package.json",
+        "**/genaiscript.d.ts",
+        "**/jsconfig.json",
+        "docs/**",
+        ".github/*",
+        ".vscode/*",
+        "*yarn.lock",
+        "*THIRD_PARTY_NOTICES.md",
+    ],
+})
 
 const commitsName = def("COMMITS", commits, { maxTokens: 4000 })
 const diffName = def("DIFF", diff, { maxTokens: 20000 })
