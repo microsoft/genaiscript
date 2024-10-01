@@ -2,7 +2,7 @@ import { resolveFileContents } from "./file"
 import { isGlobMatch } from "./glob"
 import { runtimeHost } from "./host"
 import { shellParse } from "./shell"
-import { arrayify } from "./util"
+import { arrayify, logVerbose } from "./util"
 
 export class GitClient implements Git {
     readonly git = "git"
@@ -19,6 +19,7 @@ export class GitClient implements Git {
                 .replace("refs/remotes/origin/", "")
                 .trim()
             this._defaultBranch = res
+            logVerbose(`git: default branch is ${this._defaultBranch}`)
         }
         return this._defaultBranch
     }

@@ -8,6 +8,7 @@ script({
 })
 
 const defaultBranch = env.vars.defaultBranch || (await git.defaultBranch())
+console.log(`default branch: ${defaultBranch}`)
 const diff = await git.diff({
     base: defaultBranch,
     paths: ["docs/**.md", "docs/**.mdx"],
