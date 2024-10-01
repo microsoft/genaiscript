@@ -523,7 +523,7 @@ export async function runScript(
     if (failOnErrors && result.annotations?.some((a) => a.severity === "error"))
         return fail("error annotations found", ANNOTATION_ERROR_CODE)
 
-    if (outTraceFilename) logVerbose(`trace: ${outTraceFilename}`)
     logVerbose("genaiscript: done\n")
+    if (outTraceFilename) logVerbose(`trace: ${outTraceFilename}`)
     return { exitCode: 0, result }
 }
