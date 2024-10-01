@@ -515,6 +515,435 @@ defTool(
 `````
 
 
+### `system.git`
+
+git read operations
+
+Various tools to explore git.
+
+-  tool `git_branch_current`: Gets the current branch.
+-  tool `git_branch_list`: List all branches.
+-  tool `git_diff`: Generates concise file diffs.
+-  tool `git_log`: Generates a log of commits.
+-  tool `git_status`: Generates a status of the repository.
+
+`````js wrap title="system.git"
+system({
+    title: "git read operations",
+    description: "Various tools to explore git.",
+})
+
+defTool("git_branch_current", "Gets the current branch.", {}, async () => {
+    return await git.branch()
+})
+
+defTool("git_branch_list", "List all branches.", {}, async () => {
+    return await git.exec("branch")
+})
+
+defTool(
+    "git_diff",
+    "Generates concise file diffs.",
+    {
+        base: {
+            type: "string",
+            description:
+                "Base branch to compare against. Use 'BASE' to compare against the repository default branch.",
+        },
+        head: {
+            type: "string",
+            description: "Head branch to compare",
+        },
+        staged: {
+            type: "boolean",
+            description: "Compare staged changes",
+        },
+        paths: {
+            type: "string[]",
+            description: "Paths to compare",
+        },
+        excludedPaths: {
+            type: "string[]",
+            description: "Paths to exclude",
+        },
+    },
+    async (args) => {
+        let { base, context, ...rest } = args
+        if (base === "DEFAULT") base = await git.defaultBranch()
+        const res = await git.diff({ llmify: true, ...rest })
+        return res
+    }
+)
+
+defTool("git_log", "Generates a log of commits.", {}, async () => {
+    return await git.exec(["log", "--online"])
+})
+
+defTool("git_status", "Generates a status of the repository.", {}, async () => {
+    return await git.exec(["status", "--porcelain"])
+})
+
+`````
+
+
+### `system.github_actions`
+
+github workflows
+
+Queries results from workflows in GitHub actions.
+
+-  tool `github_actions_workflows_list`: List all workflows as a list of 'id: name' pair.
+-  tool `github_actions_runs_list`: List all runs for a workflow. Use 'git_actions_list_workflows' to list workflows.
+-  tool `github_actions_jobs_list`: List all jobs for a run.
+-  tool `github_actions_job_log`: Download job log.
+
+`````js wrap title="system.github_actions"
+system({
+    title: "github workflows",
+    description: "Queries results from workflows in GitHub actions.",
+})
+
+defTool(
+    "github_actions_workflows_list",
+    "List all workflows as a list of 'id: name' pair.",
+    {},
+    async (args) => {
+        const { context } = args
+        context.log("github action list workflows")
+        const res = await github.listWorkflows()
+        return CSV.stringify(
+            res.map(({ id, name }) => ({ id, name })),
+            { header: true }
+        )
+    }
+)
+
+defTool(
+    "github_actions_runs_list",
+    "List all runs for a workflow. Use 'git_actions_list_workflows' to list workflows.",
+    {
+        workflow_id: {
+            type: "string",
+            description: "ID of the workflow to list runs for.",
+        },
+        branch: {
+            type: "string",
+            description: "Branch to list runs for.",
+        },
+        status: {
+            type: "string",
+            description: "Filter runs by completion status: success, failured.",
+        },
+        required: ["workflow_id"],
+    },
+    async (args) => {
+        const { workflow_id, branch, status, context } = args
+        context.log(
+            `github action list runs for worfklow ${workflow_id} and branch ${branch || "all"}`
+        )
+        const res = await github.listWorkflowRuns(workflow_id, {
+            branch,
+            status,
+        })
+        return CSV.stringify(
+            res.map(({ id, name, conclusion, head_sha }) => ({
+                id,
+                name,
+                conclusion,
+                head_sha,
+            })),
+            { header: true }
+        )
+    }
+)
+
+defTool(
+    "github_actions_jobs_list",
+    "List all jobs for a run.",
+    {
+        run_id: {
+            type: "string",
+            description:
+                "ID of the run to list jobs for. Use 'git_actions_list_runs' to list runs for a workflow.",
+        },
+        required: ["run_id"],
+    },
+    async (args) => {
+        const { run_id, context } = args
+        context.log(`github action list jobs for run ${run_id}`)
+        const res = await github.listWorkflowJobs(run_id)
+        return CSV.stringify(
+            res.map(({ id, name, status }) => ({ id, name, status })),
+            { header: true }
+        )
+    }
+)
+
+defTool(
+    "github_actions_job_log",
+    "Download job log.",
+    {
+        job_id: {
+            type: "string",
+            description: "ID of the job to download log for.",
+        },
+        required: ["job_id"],
+    },
+    async (args) => {
+        const { job_id, context } = args
+        context.log(`github action download job log ${job_id}`)
+        const log = await github.downloadWorkflowJobLog(job_id, {
+            llmify: true,
+        })
+        return log
+    }
+)
+
+`````
+
+
+### `system.github_files`
+
+Tools to query GitHub files.
+
+
+
+-  tool `github_files_get`: Get a file from a repository.
+-  tool `github_files_list`: List all files in a repository.
+
+`````js wrap title="system.github_files"
+system({
+    title: "Tools to query GitHub files.",
+})
+
+defTool(
+    "github_files_get",
+    "Get a file from a repository.",
+    {
+        filepath: {
+            type: "string",
+            description: "Path to the file",
+        },
+        ref: {
+            type: "string",
+            description: "Branch, tag, or commit to get the file from",
+        },
+        required: ["filepath", "ref"],
+    },
+    async (args) => {
+        const { filepath, ref, context } = args
+        context.log(`github file get ${path}#${ref}`)
+        const res = await github.getFile(filepath, ref)
+        return res
+    }
+)
+
+defTool(
+    "github_files_list",
+    "List all files in a repository.",
+    {
+        path: {
+            type: "string",
+            description: "Path to the directory",
+        },
+        ref: {
+            type: "string",
+            description:
+                "Branch, tag, or commit to get the file from. Uses default branch if not provided.",
+        },
+        required: ["path"],
+    },
+    async (args) => {
+        const { path, ref = await git.defaultBranch(), context } = args
+        context.log(`github file list at ${path}#${ref}`)
+        const res = await github.getRepositoryContent(path, { ref })
+        return CSV.stringify(res, { header: true })
+    }
+)
+
+`````
+
+
+### `system.github_issues`
+
+Tools to query GitHub issues.
+
+
+
+-  tool `github_issues_list`: List all issues in a repository.
+-  tool `github_issues_get`: Get a single issue by number.
+-  tool `github_issues_comments_list`: Get comments for an issue.
+
+`````js wrap title="system.github_issues"
+system({
+    title: "Tools to query GitHub issues.",
+})
+
+defTool(
+    "github_issues_list",
+    "List all issues in a repository.",
+    {
+        state: {
+            type: "string",
+            description:
+                "state of the issue from  'open, 'closed', 'all'. Default is 'open'.",
+        },
+        labels: {
+            type: "string",
+            description: "Comma-separated list of labels to filter by.",
+        },
+        sort: {
+            type: "string",
+            description: "What to sort by: 'created', 'updated', 'comments'",
+        },
+        direction: {
+            type: "string",
+            description: "Direction to sort: 'asc', 'desc'",
+        },
+    },
+    async (args) => {
+        const { state = "open", labels, sort, direction, context } = args
+        context.log(`github issue list ${state ?? "all"}`)
+        const res = await github.listIssues({ state, labels, sort, direction })
+        return CSV.stringify(
+            res.map(({ number, title, state }) => ({ number, title, state })),
+            { header: true }
+        )
+    }
+)
+
+defTool(
+    "github_issues_get",
+    "Get a single issue by number.",
+    { number: "number" },
+    async (args) => {
+        const { number: issue_number, context } = args
+        context.log(`github issue get ${issue_number}`)
+        const { number, title, body, state, html_url, reactions } =
+            await github.getIssue(issue_number)
+        return YAML.stringify({
+            number,
+            title,
+            body,
+            state,
+            html_url,
+            reactions,
+        })
+    }
+)
+
+defTool(
+    "github_issues_comments_list",
+    "Get comments for an issue.",
+    { number: "number" },
+    async (args) => {
+        const { number: issue_number, context } = args
+        context.log(`github issue list comments ${issue_number}`)
+        const res = await github.listIssueComments(issue_number)
+        return CSV.stringify(
+            res.map(({ id, body, updated_at }) => ({
+                id,
+                body,
+                updated_at,
+            })),
+            { header: true }
+        )
+    }
+)
+
+`````
+
+
+### `system.github_pulls`
+
+Tools to query GitHub pull requests.
+
+
+
+-  tool `github_pulls_list`: List all pull requests in a repository.
+-  tool `github_pulls_get`: Get a single pull request by number.
+-  tool `github_pulls_review_comments_list`: Get review comments for a pull request.
+
+`````js wrap title="system.github_pulls"
+system({
+    title: "Tools to query GitHub pull requests.",
+})
+
+defTool(
+    "github_pulls_list",
+    "List all pull requests in a repository.",
+    {
+        state: {
+            type: "string",
+            description:
+                "state of the pull request from  'open, 'closed', 'all'. Default is 'open'.",
+        },
+        labels: {
+            type: "string",
+            description: "Comma-separated list of labels to filter by.",
+        },
+        sort: {
+            type: "string",
+            description: "What to sort by: 'created', 'updated', 'comments'",
+        },
+        direction: {
+            type: "string",
+            description: "Direction to sort: 'asc', 'desc'",
+        },
+    },
+    async (args) => {
+        const { context, state, sort, direction } = args
+        context.log(`github pull list`)
+        const res = await github.listPullRequests({ state, sort, direction })
+        return CSV.stringify(
+            res.map(({ number, title, state, body }) => ({
+                number,
+                title,
+                state,
+            })),
+            { header: true }
+        )
+    }
+)
+
+defTool(
+    "github_pulls_get",
+    "Get a single pull request by number.",
+    { number: "number" },
+    async (args) => {
+        const { number: pull_number, context } = args
+        context.log(`github pull get ${pull_number}`)
+        const { number, title, body, state, html_url, reactions } =
+            await github.getPullRequest(pull_number)
+        return YAML.stringify({
+            number,
+            title,
+            body,
+            state,
+            html_url,
+            reactions,
+        })
+    }
+)
+
+defTool(
+    "github_pulls_review_comments_list",
+    "Get review comments for a pull request.",
+    { number: "number" },
+    async (args) => {
+        const { number: pull_number, context } = args
+        context.log(`github pull comments list ${pull_number}`)
+        const res = await github.listPullRequestReviewComments(pull_number)
+        return CSV.stringify(
+            res.map(({ id, body }) => ({ id, body })),
+            { header: true }
+        )
+    }
+)
+
+`````
+
+
 ### `system.math`
 
 Math expression evaluator

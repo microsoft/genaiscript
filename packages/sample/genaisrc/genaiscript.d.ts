@@ -82,7 +82,9 @@ type SystemPromptId = OptionsOrString<
     | "system.fs_read_file"
     | "system.git"
     | "system.github_actions"
+    | "system.github_files"
     | "system.github_issues"
+    | "system.github_pulls"
     | "system.math"
     | "system.md_frontmatter"
     | "system.python"
@@ -101,16 +103,23 @@ type SystemPromptId = OptionsOrString<
 type SystemToolId = OptionsOrString<
     | "fs_find_files"
     | "fs_read_file"
-    | "git_current_branch"
+    | "git_branch_current"
+    | "git_branch_list"
     | "git_diff"
-    | "git_list_branches"
-    | "github_action_download_job_log"
-    | "github_action_list_jobs"
-    | "github_action_list_runs"
-    | "github_action_list_workflows"
-    | "github_issue_comments_list"
-    | "github_issue_get"
-    | "github_issue_list"
+    | "git_log"
+    | "git_status"
+    | "github_actions_job_log"
+    | "github_actions_jobs_list"
+    | "github_actions_runs_list"
+    | "github_actions_workflows_list"
+    | "github_files_get"
+    | "github_files_list"
+    | "github_issues_comments_list"
+    | "github_issues_get"
+    | "github_issues_list"
+    | "github_pulls_get"
+    | "github_pulls_list"
+    | "github_pulls_review_comments_list"
     | "math_eval"
     | "md_read_frontmatter"
     | "python_code_interpreter"
@@ -1585,6 +1594,12 @@ interface GitHub {
             direction?: "asc" | "desc"
         } & GitHubPaginationOptions
     ): Promise<GitHubPullRequest[]>
+
+    /**
+     * Gets the details of a GitHub pull request
+     * @param pull_number pull request number (not the pull request id!)
+     */
+    getPullRequest(pull_number: number): Promise<GitHubPullRequest>
 
     /**
      * Lists comments for a given pull request

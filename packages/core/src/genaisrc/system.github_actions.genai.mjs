@@ -4,7 +4,7 @@ system({
 })
 
 defTool(
-    "github_action_list_workflows",
+    "github_actions_workflows_list",
     "List all workflows as a list of 'id: name' pair.",
     {},
     async (args) => {
@@ -19,7 +19,7 @@ defTool(
 )
 
 defTool(
-    "github_action_list_runs",
+    "github_actions_runs_list",
     "List all runs for a workflow. Use 'git_actions_list_workflows' to list workflows.",
     {
         workflow_id: {
@@ -58,7 +58,7 @@ defTool(
 )
 
 defTool(
-    "github_action_list_jobs",
+    "github_actions_jobs_list",
     "List all jobs for a run.",
     {
         run_id: {
@@ -80,7 +80,7 @@ defTool(
 )
 
 defTool(
-    "github_action_download_job_log",
+    "github_actions_job_log",
     "Download job log.",
     {
         job_id: {

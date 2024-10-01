@@ -573,6 +573,16 @@ export class GitHubClient implements GitHub {
         return res
     }
 
+    async getPullRequest(pull_number: number): Promise<GitHubPullRequest> {
+        const { client, owner, repo } = await this.client()
+        const { data } = await client.rest.pulls.get({
+            owner,
+            repo,
+            pull_number,
+        })
+        return data
+    }
+
     async listPullRequestReviewComments(
         pull_number: number,
         options?: GitHubPaginationOptions

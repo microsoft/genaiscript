@@ -3,11 +3,11 @@ system({
     description: "Various tools to explore git.",
 })
 
-defTool("git_current_branch", "Gets the current branch.", {}, async () => {
+defTool("git_branch_current", "Gets the current branch.", {}, async () => {
     return await git.branch()
 })
 
-defTool("git_list_branches", "List all branches.", {}, async () => {
+defTool("git_branch_list", "List all branches.", {}, async () => {
     return await git.exec("branch")
 })
 
@@ -44,3 +44,11 @@ defTool(
         return res
     }
 )
+
+defTool("git_log", "Generates a log of commits.", {}, async () => {
+    return await git.exec(["log", "--online"])
+})
+
+defTool("git_status", "Generates a status of the repository.", {}, async () => {
+    return await git.exec(["status", "--porcelain"])
+})

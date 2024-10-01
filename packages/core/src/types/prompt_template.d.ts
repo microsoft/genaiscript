@@ -1541,6 +1541,12 @@ interface GitHub {
     ): Promise<GitHubPullRequest[]>
 
     /**
+     * Gets the details of a GitHub pull request
+     * @param pull_number pull request number (not the pull request id!)
+     */
+    getPullRequest(pull_number: number): Promise<GitHubPullRequest>
+
+    /**
      * Lists comments for a given pull request
      * @param pull_number
      * @param options

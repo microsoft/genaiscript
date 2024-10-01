@@ -3,7 +3,7 @@ system({
 })
 
 defTool(
-    "github_issue_list",
+    "github_issues_list",
     "List all issues in a repository.",
     {
         state: {
@@ -36,7 +36,7 @@ defTool(
 )
 
 defTool(
-    "github_issue_get",
+    "github_issues_get",
     "Get a single issue by number.",
     { number: "number" },
     async (args) => {
@@ -56,7 +56,7 @@ defTool(
 )
 
 defTool(
-    "github_issue_comments_list",
+    "github_issues_comments_list",
     "Get comments for an issue.",
     { number: "number" },
     async (args) => {
