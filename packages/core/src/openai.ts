@@ -1,4 +1,4 @@
-import { normalizeInt, trimTrailingSlash } from "./util"
+import { logVerbose, normalizeInt, trimTrailingSlash } from "./util"
 import { LanguageModelConfiguration, host } from "./host"
 import {
     AZURE_OPENAI_API_VERSION,
@@ -19,6 +19,7 @@ import {
     ChatCompletionToolCall,
     ChatCompletionResponse,
     ChatCompletionChunk,
+    ChatCompletionUsage,
 } from "./chattypes"
 import { resolveTokenEncoder } from "./encoders"
 import { toSignal } from "./cancellation"
@@ -93,17 +94,20 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
         return { text: cached, finishReason: cachedFinishReason, cached: true }
     }
 
-    const r2 = { ...req, model }
+    const r2 = {
+        ...req,
+        stream: true,
+        stream_options: { include_usage: true },
+        model,
+    }
     let postReq: any = r2
 
     let url = ""
     const toolCalls: ChatCompletionToolCall[] = []
 
     if (cfg.type === "openai" || cfg.type === "localai") {
-        r2.stream = true
         url = trimTrailingSlash(cfg.base) + "/chat/completions"
     } else if (cfg.type === "azure") {
-        r2.stream = true
         delete r2.model
         url =
             trimTrailingSlash(cfg.base) +
@@ -175,6 +179,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
     let finishReason: ChatCompletionResponse["finishReason"] = undefined
     let chatResp = ""
     let pref = ""
+    let usage: ChatCompletionUsage
 
     const decoder = host.createUTF8Decoder()
     if (r.body.getReader) {
@@ -193,7 +198,14 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
     if (cancellationToken?.isCancellationRequested) finishReason = "cancel"
 
     trace.appendContent("\n\n")
-    trace.itemValue(`finish reason`, finishReason)
+    trace.itemValue(`🏁 finish reason`, finishReason)
+    if (usage) {
+        trace.itemValue(
+            `🪙 tokens`,
+            `${usage.total_tokens} total, ${usage.prompt_tokens} prompt, ${usage.completion_tokens} completion`
+        )
+    }
+
     if (done && finishReason === "stop")
         await cacheStore.set(
             cachedKey,
@@ -201,7 +213,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
             { trace }
         )
 
-    return { text: chatResp, toolCalls, finishReason }
+    return { text: chatResp, toolCalls, finishReason, usage }
 
     function doChunk(value: Uint8Array) {
         // Massage and parse the chunk of data
@@ -216,6 +228,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
             }
             try {
                 const obj: ChatCompletionChunk = JSON.parse(json)
+                if (obj.usage) usage = obj.usage
                 if (!obj.choices?.length) return ""
                 else if (obj.choices?.length != 1)
                     throw new Error("too many choices in response")

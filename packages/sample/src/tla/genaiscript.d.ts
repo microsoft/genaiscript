@@ -943,6 +943,7 @@ interface RunPromptResult {
         | "content_filter"
         | "cancel"
         | "fail"
+    usages?: ChatCompletionUsages
 }
 
 /**

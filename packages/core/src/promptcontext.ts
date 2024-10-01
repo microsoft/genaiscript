@@ -234,7 +234,7 @@ export async function createPromptContext(
     })
 
     // Freeze project options to prevent modification
-    const projectOptions = Object.freeze({ prj, vars, env })
+    const projectOptions = Object.freeze({ prj, env })
     const ctx: PromptContext & RunPromptContextNode = {
         ...createChatGenerationContext(options, trace, projectOptions),
         script: () => {},

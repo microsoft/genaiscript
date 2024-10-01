@@ -28,6 +28,8 @@ import {
     ChatCompletionResponse,
     ChatCompletionsOptions,
     ChatCompletionTool,
+    ChatCompletionUsage,
+    ChatCompletionUsages,
     ChatCompletionUserMessageParam,
     CreateChatCompletionRequest,
 } from "./chattypes"
@@ -364,6 +366,7 @@ function structurifyChatSession(
     schemas: Record<string, JSONSchema>,
     genVars: Record<string, string>,
     options: GenerationOptions,
+    usages: ChatCompletionUsages,
     others?: {
         resp?: ChatCompletionResponse
         err?: any
@@ -426,17 +429,20 @@ function structurifyChatSession(
         error,
         genVars,
         schemas,
+        usages,
     }
 }
 
 async function processChatMessage(
+    req: CreateChatCompletionRequest,
     resp: ChatCompletionResponse,
     messages: ChatCompletionMessageParam[],
     tools: ToolCallback[],
     chatParticipants: ChatParticipant[],
     schemas: Record<string, JSONSchema>,
     genVars: Record<string, string>,
-    options: GenerationOptions
+    options: GenerationOptions,
+    usages: ChatCompletionUsages
 ): Promise<RunPromptResult> {
     const {
         stats,
@@ -444,6 +450,8 @@ async function processChatMessage(
         trace,
         cancellationToken,
     } = options
+
+    accumulateChatUsage(usages, req.model, resp.usage)
 
     if (resp.text)
         messages.push({
@@ -534,11 +542,29 @@ export function mergeGenerationOptions(
     }
 }
 
+function accumulateChatUsage(
+    usages: ChatCompletionUsages,
+    model: string,
+    usage: ChatCompletionUsage
+) {
+    if (!usage) return
+
+    const u =
+        usages[model] ??
+        (usages[model] = <ChatCompletionUsage>{
+            completion_tokens: 0,
+            prompt_tokens: 0,
+            total_tokens: 0,
+        })
+    u.completion_tokens += u.completion_tokens
+    u.prompt_tokens += u.prompt_tokens
+    u.total_tokens += u.total_tokens
+}
+
 export async function executeChatSession(
     connectionToken: LanguageModelConfiguration,
     cancellationToken: CancellationToken,
     messages: ChatCompletionMessageParam[],
-    vars: Partial<ExpansionVariables>,
     toolDefinitions: ToolCallback[],
     schemas: Record<string, JSONSchema>,
     completer: ChatCompletionHandler,
@@ -567,6 +593,7 @@ export async function executeChatSession(
         : undefined
     trace.startDetails(`🧠 llm chat`)
     if (tools?.length) trace.detailsFenced(`🛠️ tools`, tools, "yaml")
+    const usages: ChatCompletionUsages = {}
     try {
         let genVars: Record<string, string>
         while (true) {
@@ -585,34 +612,35 @@ export async function executeChatSession(
             let resp: ChatCompletionResponse
             try {
                 checkCancelled(cancellationToken)
+                const req: CreateChatCompletionRequest = {
+                    model,
+                    temperature: temperature,
+                    top_p: topP,
+                    max_tokens: maxTokens,
+                    seed,
+                    stream: true,
+                    messages,
+                    tools,
+                    response_format:
+                        responseType === "json_object"
+                            ? { type: responseType }
+                            : responseType === "json_schema"
+                              ? {
+                                    type: "json_schema",
+                                    json_schema: {
+                                        name: "result",
+                                        schema: toStrictJSONSchema(
+                                            responseSchema
+                                        ),
+                                        strict: true,
+                                    },
+                                }
+                              : undefined,
+                }
                 try {
                     trace.startDetails(`📤 llm request`)
                     resp = await completer(
-                        {
-                            model,
-                            temperature: temperature,
-                            top_p: topP,
-                            max_tokens: maxTokens,
-                            seed,
-                            stream: true,
-                            messages,
-                            tools,
-                            response_format:
-                                responseType === "json_object"
-                                    ? { type: responseType }
-                                    : responseType === "json_schema"
-                                      ? {
-                                            type: "json_schema",
-                                            json_schema: {
-                                                name: "result",
-                                                schema: toStrictJSONSchema(
-                                                    responseSchema
-                                                ),
-                                                strict: true,
-                                            },
-                                        }
-                                      : undefined,
-                        },
+                        req,
                         connectionToken,
                         genOptions,
                         trace
@@ -625,13 +653,15 @@ export async function executeChatSession(
                 }
 
                 const output = await processChatMessage(
+                    req,
                     resp,
                     messages,
                     toolDefinitions,
                     chatParticipants,
                     schemas,
                     genVars,
-                    genOptions
+                    genOptions,
+                    usages
                 )
                 if (output) return output
             } catch (err) {
@@ -640,6 +670,7 @@ export async function executeChatSession(
                     schemas,
                     genVars,
                     genOptions,
+                    usages,
                     { resp, err }
                 )
             }

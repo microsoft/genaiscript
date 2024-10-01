@@ -236,7 +236,6 @@ export async function runTemplate(
             connection.configuration,
             cancellationToken,
             messages,
-            vars,
             functions,
             schemas,
             completer,
@@ -252,6 +251,7 @@ export async function runTemplate(
             genVars = {},
             error,
             finishReason,
+            usages,
         } = output
         let { text, annotations } = output
 
@@ -458,6 +458,7 @@ export async function runTemplate(
             genVars,
             schemas,
             json,
+            usages,
         }
 
         // If there's an error, provide status text

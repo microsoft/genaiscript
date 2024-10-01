@@ -18,6 +18,15 @@ export interface AICIRequest {
 }
 
 // Aliases for OpenAI chat completion types
+export type ChatCompletionUsage = Omit<
+    OpenAI.Completions.CompletionUsage,
+    "completion_tokens_details"
+>
+
+/**
+ * Per model storage of chat completion usages.
+ */
+export type ChatCompletionUsages = Record<string, ChatCompletionUsage>
 
 // Text content part of a chat completion
 export type ChatCompletionContentPartText =
@@ -99,6 +108,7 @@ export interface ChatCompletionResponse {
     toolCalls?: ChatCompletionToolCall[] // List of tool calls made during the response
     finishReason?: // Reason why the chat completion finished
     "stop" | "length" | "tool_calls" | "content_filter" | "cancel" | "fail"
+    usage?: ChatCompletionUsage // Usage information for the completion
 }
 
 // Alias for OpenAI's API error type

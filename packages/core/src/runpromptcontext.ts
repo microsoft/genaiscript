@@ -227,12 +227,11 @@ export function createChatGenerationContext(
     trace: MarkdownTrace,
     projectOptions: {
         prj: Project
-        vars: ExpansionVariables
         env: ExpansionVariables
     }
 ): RunPromptContextNode {
     const { cancellationToken, infoCb } = options || {}
-    const { prj, vars, env } = projectOptions
+    const { prj, env } = projectOptions
     const turnCtx = createChatTurnGenerationContext(options, trace)
     const node = turnCtx.node
 
@@ -535,7 +534,6 @@ export function createChatGenerationContext(
                     connection.configuration,
                     cancellationToken,
                     messages,
-                    vars,
                     tools,
                     schemas,
                     completer,
