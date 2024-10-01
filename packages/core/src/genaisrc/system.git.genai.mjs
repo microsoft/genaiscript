@@ -76,3 +76,7 @@ defTool(
 defTool("git_status", "Generates a status of the repository.", {}, async () => {
     return await git.exec(["status", "--porcelain"])
 })
+
+defTool("git_last_tag", "Gets the last tag.", {}, async () => {
+    return await git.lastTag()
+})

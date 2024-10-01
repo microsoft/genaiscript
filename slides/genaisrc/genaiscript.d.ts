@@ -112,6 +112,7 @@ type SystemToolId = OptionsOrString<
     | "git_branch_current"
     | "git_branch_list"
     | "git_diff"
+    | "git_last_tag"
     | "git_log"
     | "git_status"
     | "github_actions_job_log"
