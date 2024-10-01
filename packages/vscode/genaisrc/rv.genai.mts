@@ -33,7 +33,7 @@ if (env.files.length) {
 } else {
     // No files selected, review the current changes
     console.log("No files found. Using git diff.")
-    const { stdout: diff } = await host.exec("git diff -U6")
+    const diff = await git.diff({ unified: 6 })
     // customize git diff to filter some files
     if (!diff) cancel("No changes found, did you forget to stage your changes?")
     content = def("GIT_DIFF", diff, { language: "diff" })
