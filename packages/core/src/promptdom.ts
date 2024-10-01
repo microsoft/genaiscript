@@ -510,6 +510,29 @@ export interface PromptNodeRender {
     fileOutputs: FileOutput[] // File outputs
 }
 
+/**
+ * To optimize chat caching with openai, move defs to the back of the prompt
+ * @see https://platform.openai.com/docs/guides/prompt-caching
+ * @param mode
+ * @param root
+ */
+async function layoutPromptNode(mode: string, root: PromptNode) {
+    let changed = false
+    await visitNode(root, {
+        node: (n) => {
+            // sort children
+            const before = n.children?.map((c) => c.preview)?.join("\n")
+            n.children?.sort(
+                (a, b) =>
+                    (a.type === "def" ? 1 : -1) - (b.type === "def" ? 1 : -1)
+            )
+            const after = n.children?.map((c) => c.preview)?.join("\n")
+            changed = changed || before !== after
+        },
+    })
+    return changed
+}
+
 // Function to resolve a prompt node.
 async function resolvePromptNode(
     model: string,
@@ -873,6 +896,9 @@ export async function renderPromptNode(
 
     await resolvePromptNode(model, node)
     await tracePromptNode(trace, node)
+
+    if (await layoutPromptNode(model, node))
+        await tracePromptNode(trace, node, { label: "layout" })
 
     if (flexTokens)
         await flexPromptNode(node, {
