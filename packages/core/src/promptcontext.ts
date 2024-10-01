@@ -43,7 +43,6 @@ export async function createPromptContext(
     options: GenerationOptions,
     model: string
 ) {
-    const { infoCb } = options || {}
     const { generator, ...varsNoGenerator } = vars
     // Clone variables to prevent modification of the original object
     const env = { generator, ...structuredClone(varsNoGenerator) }

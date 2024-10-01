@@ -366,13 +366,12 @@ function structurifyChatSession(
     schemas: Record<string, JSONSchema>,
     genVars: Record<string, string>,
     options: GenerationOptions,
-    usages: ChatCompletionUsages,
     others?: {
         resp?: ChatCompletionResponse
         err?: any
     }
 ): RunPromptResult {
-    const { trace, responseType, responseSchema } = options
+    const { trace, responseType, responseSchema, usages } = options
     const { resp, err } = others || {}
     const text = assistantText(messages, responseType)
     const annotations = parseAnnotations(text)
@@ -441,14 +440,14 @@ async function processChatMessage(
     chatParticipants: ChatParticipant[],
     schemas: Record<string, JSONSchema>,
     genVars: Record<string, string>,
-    options: GenerationOptions,
-    usages: ChatCompletionUsages
+    options: GenerationOptions
 ): Promise<RunPromptResult> {
     const {
         stats,
         maxToolCalls = MAX_TOOL_CALLS,
         trace,
         cancellationToken,
+        usages,
     } = options
 
     accumulateChatUsage(usages, req.model, resp.usage)
@@ -517,7 +516,7 @@ async function processChatMessage(
         if (needsNewTurn) return undefined
     }
 
-    return structurifyChatSession(messages, schemas, genVars, options, usages, {
+    return structurifyChatSession(messages, schemas, genVars, options, {
         resp,
     })
 }
@@ -593,7 +592,6 @@ export async function executeChatSession(
         : undefined
     trace.startDetails(`🧠 llm chat`)
     if (tools?.length) trace.detailsFenced(`🛠️ tools`, tools, "yaml")
-    const usages: ChatCompletionUsages = {}
     try {
         let genVars: Record<string, string>
         while (true) {
@@ -660,8 +658,7 @@ export async function executeChatSession(
                     chatParticipants,
                     schemas,
                     genVars,
-                    genOptions,
-                    usages
+                    genOptions
                 )
                 if (output) return output
             } catch (err) {
@@ -670,7 +667,6 @@ export async function executeChatSession(
                     schemas,
                     genVars,
                     genOptions,
-                    usages,
                     { resp, err }
                 )
             }
