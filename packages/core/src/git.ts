@@ -112,14 +112,14 @@ export class GitClient implements Git {
         const excludedPaths = arrayify(options?.excludedPaths).filter(
             (f) => !!f
         )
-        let { staged, base, head, unified, askStageOnEmpty } = options || {}
+        const { staged, base, head, unified, askStageOnEmpty } = options || {}
         const args = ["diff"]
         if (staged) args.push("--staged")
         args.push("--ignore-all-space")
         if (unified > 0) args.push(`--unified=${unified}`)
-        if (base && !head) head = "HEAD"
-        if (head && !base) base = head + "^"
-        if (base && head) args.push(`${base}..${head}`)
+        if (base && !head) args.push(base)
+        else if (head && !base) args.push(`${head}^..${head}`)
+        else if (base && head) args.push(`${base}..${head}`)
         GitClient.addFileFilters(paths, excludedPaths, args)
         let res = await this.exec(args)
         if (!res && staged && askStageOnEmpty) {
