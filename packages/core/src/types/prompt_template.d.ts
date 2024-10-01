@@ -1273,6 +1273,54 @@ interface HTML {
     convertToMarkdown(html: string): Promise<string>
 }
 
+interface Git {
+    /**
+     * Resolves the default branch for this repository
+     */
+    defaultBranch(): Promise<string>
+
+    /**
+     * Executes a git command in the repository and returns the stdout
+     * @param cmd
+     */
+    exec(args: string[] | string, options?: { label?: string }): Promise<string>
+
+    /**
+     * Finds specific files in the git repository.
+     * By default, work
+     * @param options
+     */
+    findModifiedFiles(
+        scope: "base" | "staged" | "modified",
+        options?: {
+            base?: string
+            /**
+             * Ask the user to stage the changes if the diff is empty.
+             */
+            askStageOnEmpty?: boolean
+            paths?: ElementOrArray<string>
+            excludedPaths?: ElementOrArray<string>
+        }
+    ): Promise<WorkspaceFile[]>
+
+    /**
+     *
+     * @param options
+     */
+    diff(options?: {
+        staged?: boolean
+        /**
+         * Ask the user to stage the changes if the diff is empty.
+         */
+        askStageOnEmpty?: boolean
+        base?: string
+        head?: string
+        paths?: ElementOrArray<string>
+        excludedPaths?: ElementOrArray<string>
+        unified?: number
+    }): Promise<string>
+}
+
 interface GitHubOptions {
     owner: string
     repo: string

@@ -15,6 +15,7 @@ import { createFetch } from "./fetch"
 import { readText } from "./fs"
 import { logVerbose } from "./util"
 import { GitHubClient } from "./github"
+import { GitClient } from "./git"
 
 /**
  * Resolves the global context depending on the environment.
@@ -106,6 +107,8 @@ export function installGlobals() {
     }
 
     glb.github = new GitHubClient()
+
+    glb.git = new GitClient()
 
     /**
      * Asynchronous function to fetch text from a URL or file.

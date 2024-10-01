@@ -13,21 +13,20 @@ script({
     },
 })
 
-const defaultBranch = env.vars.defaultBranch
-const { stdout: changes } = await host.exec("git", [
-    "diff",
-    defaultBranch,
-    "--cached",
-    "--",
-    ".",
-    ":!**/genaiscript.d.ts",
-    ":!**/*sconfig.json",
-    ":!genaisrc/*",
-    ":!.github/*",
-    ":!.vscode/*",
-    ":!*yarn.lock",
-    ":!*THIRD_PARTY_LICENSES.md",
-])
+const defaultBranch = env.vars.defaultBranch || (await git.defaultBranch())
+const changes = await git.diff({
+    base: defaultBranch,
+    staged: true,
+    excludedPaths: [
+        "**/genaiscript.d.ts",
+        "**/*sconfig.json",
+        "genaisrc/*",
+        ".github/*",
+        ".vscode/*",
+        "*yarn.lock",
+        "*THIRD_PARTY_LICENSES.md",
+    ],
+})
 
 def("GIT_DIFF", changes, {
     language: "diff",

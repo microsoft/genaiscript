@@ -6,21 +6,20 @@ script({
     system: ["system", "system.fs_find_files", "system.fs_read_file"],
 })
 
-const defaultBranch = (env.vars.defaultBranch || "main") + ""
+const defaultBranch = env.vars.defaultBranch || (await git.defaultBranch())
 const { text, error } = await runPrompt(async (_) => {
-    const { stdout: changes } = await host.exec("git", [
-        "diff",
-        defaultBranch,
-        "--",
-        ".",
-        ":!**/genaiscript.d.ts",
-        ":!**/*sconfig.json",
-        ":!genaisrc/*",
-        ":!.github/*",
-        ":!.vscode/*",
-        ":!*yarn.lock",
-        ":!*THIRD_PARTY_LICENSES.md",
-    ])
+    const changes = await git.diff({
+        base: defaultBranch,
+        excludedPaths: [
+            "**/genaiscript.d.ts",
+            "**/*sconfig.json",
+            "genaisrc/*",
+            ".github/*",
+            ".vscode/*",
+            "*yarn.lock",
+            "*THIRD_PARTY_LICENSES.md",
+        ],
+    })
 
     _.def("GIT_DIFF", changes, {
         language: "diff",

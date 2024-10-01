@@ -37,7 +37,7 @@ import {
     renderShellOutput,
 } from "./chatrender"
 import { promptParametersSchemaToJSONSchema } from "./parameters"
-import { fenceMD } from "./markdown"
+import { fenceMD, prettifyMarkdown } from "./markdown"
 import { YAMLStringify } from "./yaml"
 
 export function toChatCompletionUserMessage(
@@ -647,6 +647,6 @@ export async function executeChatSession(
 
 export function tracePromptResult(trace: MarkdownTrace, resp: RunPromptResult) {
     const { json, text } = resp
-    trace.details(`🔠 output`, text, { expanded: true })
+    trace.details(`🔠 output`, prettifyMarkdown(text), { expanded: true })
     if (resp.json) trace.detailsFenced("📩 JSON (parsed)", json, "json")
 }

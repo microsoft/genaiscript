@@ -15,14 +15,10 @@ script({
 const commit = env.vars.commit || "HEAD"
 
 // diff latest commit
-const { stdout: changes } = await host.exec("git", [
-    "diff",
-    `${commit}^`,
-    commit,
-    "--",
-    "**.ts",
-])
-
+const changes = await git.diff({
+    head: commit,
+    paths: ["**.ts"],
+})
 def("GIT_DIFF", changes, { language: "diff", maxTokens: 20000 })
 
 $`You are an expert TypeScript software developer and architect. You are

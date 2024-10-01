@@ -74,9 +74,11 @@ if (ls) {
     console.log(`  last success: ${ls.display_title}, ${ls.html_url}`)
 
     // Execute git diff between the last success and failed run commits
-    const gitDiff = await host.exec(
-        `git diff ${ls.head_sha} ${ff.head_sha} -- . :!**/genaiscript.d.ts`
-    )
+    const gitDiff = await git.diff({
+        base: ls.head_sha,
+        head: ff.head_sha,
+        excludedPaths: "**/genaiscript.d.ts",
+    })
     def("GIT_DIFF", gitDiff, {
         language: "diff",
         lineNumbers: true,

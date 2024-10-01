@@ -87,6 +87,7 @@ async function setupTraceWriting(trace: MarkdownTrace, filename: string) {
         const content = trace.content
         writeFileSync(filename, content, { encoding: "utf-8" })
     })
+    return filename
 }
 
 export async function runScriptWithExitCode(
@@ -179,12 +180,13 @@ export async function runScript(
         if (removeOut) await emptyDir(out)
         await ensureDir(out)
     }
+    let outTraceFilename
     if (outTrace && !/^false$/i.test(outTrace) && trace)
-        await setupTraceWriting(trace, outTrace)
+        outTraceFilename = await setupTraceWriting(trace, outTrace)
     if (out && trace) {
         const ofn = join(out, "res.trace.md")
         if (ofn !== outTrace) {
-            await setupTraceWriting(trace, ofn)
+            outTraceFilename = await setupTraceWriting(trace, ofn)
         }
     }
 
@@ -521,6 +523,7 @@ export async function runScript(
     if (failOnErrors && result.annotations?.some((a) => a.severity === "error"))
         return fail("error annotations found", ANNOTATION_ERROR_CODE)
 
+    if (outTraceFilename) logVerbose(`trace: ${outTraceFilename}`)
     logVerbose("genaiscript: done\n")
     return { exitCode: 0, result }
 }

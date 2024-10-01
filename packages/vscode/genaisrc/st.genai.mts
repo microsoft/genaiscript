@@ -6,7 +6,6 @@ script({
         glob: {
             type: "string",
             description: "The glob pattern to filter files",
-            default: "*",
         },
         pattern: {
             type: "string",
@@ -19,10 +18,23 @@ script({
     },
 })
 
-const { pattern, glob, transform } = env.vars
+let { pattern, glob, transform } = env.vars
+if (!glob)
+    glob =
+        (await host.input(
+            "Enter the glob pattern to filter files (default: *)"
+        )) || "*"
+if (!pattern)
+    pattern = await host.input(
+        "Enter the pattern to search for (regular expression)"
+    )
 if (!pattern) cancel("pattern is missing")
 const patternRx = new RegExp(pattern, "g")
 
+if (!transform)
+    transform = await host.input(
+        "Enter the LLM transformation to apply to the match"
+    )
 if (!transform) cancel("transform is missing")
 
 const { files } = await workspace.grep(patternRx, glob)

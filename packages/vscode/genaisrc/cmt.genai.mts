@@ -19,20 +19,8 @@ const { format, build } = env.vars
 
 // Get files from environment or modified files from Git if none provided
 let files = env.files
-if (files.length === 0) {
-    // If no files are provided, read all modified files
-    const gitStatus = await host.exec("git status --porcelain")
-    const rx = /^\s+[M|U]\s+/ // modified or untracked
-    files = await Promise.all(
-        gitStatus.stdout
-            .split(/\r?\n/g)
-            .filter((filename) => rx.test(filename))
-            .map(
-                async (filename) =>
-                    await workspace.readText(filename.replace(rx, ""))
-            )
-    )
-}
+if (files.length === 0)
+    files = await git.findModifiedFiles("staged", { askStageOnEmpty: true })
 
 // custom filter to only process code files
 files = files.filter(
@@ -52,6 +40,7 @@ await jobs.mapAll(files, processFile)
 
 async function processFile(file: WorkspaceFile) {
     console.log(`processing ${file.filename}`)
+    if (!file.content) console.log(`empty file, continue`)
     try {
         const newContent = await addComments(file)
         // Save modified content if different
@@ -162,11 +151,11 @@ Your comments should provide insight into the code's purpose, logic, and any imp
 }
 
 async function checkModifications(filename: string): Promise<boolean> {
-    const diff = await host.exec(`git diff ${filename}`)
-    if (!diff.stdout) return false
+    const diff = await git.diff({ paths: filename })
+    if (!diff) return false
     const res = await runPrompt(
         (ctx) => {
-            ctx.def("DIFF", diff.stdout)
+            ctx.def("DIFF", diff, { language: "diff" })
             ctx.$`You are an expert developer at all programming languages.
         
         Your task is to analyze the changes in DIFF and make sure that only comments are modified. 

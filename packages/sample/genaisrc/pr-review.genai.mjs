@@ -6,20 +6,20 @@ script({
     tools: ["fs"],
 })
 
-const defaultBranch = (env.vars.defaultBranch || "main") + ""
-const { stdout: diff } = await host.exec("git", [
-    "diff",
-    defaultBranch,
-    "--",
-    "**.ts",
-    ":!**/genaiscript.d.ts",
-    ":!**/jsconfig.json",
-    ":!genaisrc/*",
-    ":!.github/*",
-    ":!.vscode/*",
-    ":!*yarn.lock",
-    ":!*THIRD_PARTY_LICENSES.md",
-])
+const defaultBranch = env.vars.defaultBranch || (await git.defaultBranch())
+const diff = await git.diff({
+    base: defaultBranch,
+    paths: ["**.ts"],
+    excludedPaths: [
+        "**/genaiscript.d.ts",
+        "**/jsconfig.json",
+        "genaisrc/*",
+        ".github/*",
+        ".vscode/*",
+        "*yarn.lock",
+        "*THIRD_PARTY_LICENSES.md",
+    ],
+})
 
 def("GIT_DIFF", diff, {
     language: "diff",

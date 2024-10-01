@@ -7,14 +7,12 @@ script({
     tools: ["fs_find_files", "fs_read_file"],
 })
 
-const defaultBranch = (env.vars.defaultBranch || "main") + ""
-const { stdout: diff } = await host.exec("git", [
-    "diff",
-    defaultBranch,
-    "--",
-    "docs/**.md",
-    "docs/**.mdx",
-])
+const defaultBranch = env.vars.defaultBranch || (await git.defaultBranch())
+console.log(`default branch: ${defaultBranch}`)
+const diff = await git.diff({
+    base: defaultBranch,
+    paths: ["docs/**.md", "docs/**.mdx"],
+})
 const settings = await workspace.readJSON(".vscode/settings.json")
 
 def("GIT_DIFF", diff, {
