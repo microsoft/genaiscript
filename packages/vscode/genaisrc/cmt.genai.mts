@@ -19,8 +19,9 @@ const { format, build } = env.vars
 
 // Get files from environment or modified files from Git if none provided
 let files = env.files
-if (files.length === 0)
+if (!files.length)
     files = await git.findModifiedFiles("staged", { askStageOnEmpty: true })
+if (!files.length) files = await git.findModifiedFiles("base")
 
 // custom filter to only process code files
 files = files.filter(
