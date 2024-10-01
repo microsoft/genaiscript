@@ -12,13 +12,23 @@ import { logVerbose, roundWithPrecision, toStringList } from "./util"
 import { CancellationToken } from "./cancellation"
 import { readText } from "./fs"
 
+/**
+ * Creates a fetch function with retry logic.
+ * 
+ * This function wraps the `crossFetch` with retry capabilities based
+ * on provided options. It allows configuring the number of retries,
+ * delay between retries, and specific HTTP status codes to retry on.
+ *
+ * @param options - Options for retry configuration and tracing.
+ * @returns A fetch function with retry capabilities.
+ */
 export async function createFetch(
     options?: {
-        retryOn?: number[]
-        retries?: number
-        retryDelay?: number
-        maxDelay?: number
-        cancellationToken?: CancellationToken
+        retryOn?: number[] // HTTP status codes to retry on
+        retries?: number // Number of retry attempts
+        retryDelay?: number // Initial delay between retries
+        maxDelay?: number // Maximum delay between retries
+        cancellationToken?: CancellationToken // Token to cancel the fetch
     } & TraceOptions
 ) {
     const {
@@ -30,8 +40,10 @@ export async function createFetch(
         cancellationToken,
     } = options || {}
 
+    // Return the default fetch if no retry status codes are specified
     if (!retryOn?.length) return crossFetch
 
+    // Create a fetch function with retry logic
     const fetchRetry = await wrapFetch(crossFetch, {
         retryOn,
         retries,
@@ -42,7 +54,7 @@ export async function createFetch(
                 code === "ENOTFOUND" ||
                 cancellationToken?.isCancellationRequested
             )
-                // fatal
+                // Return undefined for fatal errors or cancellations to stop retries
                 return undefined
 
             const message = errorMessage(error)
@@ -52,7 +64,7 @@ export async function createFetch(
                     maxDelay,
                     Math.pow(FETCH_RETRY_GROWTH_FACTOR, attempt) * retryDelay
                 ) *
-                (1 + Math.random() / 20) // 5% jitter
+                (1 + Math.random() / 20) // 5% jitter for delay randomization
             const msg = toStringList(
                 `retry #${attempt + 1} in ${roundWithPrecision(Math.floor(delay) / 1000, 1)}s`,
                 message,
@@ -66,6 +78,16 @@ export async function createFetch(
     return fetchRetry
 }
 
+/**
+ * Fetches text content from a URL or file.
+ *
+ * This function attempts to fetch content from either a URL or a local file.
+ * It supports HTTP(S) URLs and reads directly from the file system for local files.
+ *
+ * @param urlOrFile - The URL or file to fetch from.
+ * @param fetchOptions - Optional fetch configuration.
+ * @returns An object containing fetch status and content.
+ */
 export async function fetchText(
     urlOrFile: string | WorkspaceFile,
     fetchOptions?: FetchTextOptions
@@ -108,6 +130,18 @@ export async function fetchText(
     }
 }
 
+/**
+ * Logs a POST request for tracing.
+ *
+ * Constructs a curl command representing the POST request with appropriate headers
+ * and body, optionally masking sensitive information like authorization headers.
+ *
+ * @param trace - Markdown trace object for logging.
+ * @param url - The URL of the request.
+ * @param headers - The request headers.
+ * @param body - The request body.
+ * @param options - Options for displaying authorization header.
+ */
 export function traceFetchPost(
     trace: MarkdownTrace,
     url: string,
@@ -123,8 +157,8 @@ export function traceFetchPost(
             .forEach(
                 ([k]) =>
                     (headers[k] = /Bearer /i.test(headers[k])
-                        ? "Bearer ***"
-                        : "***")
+                        ? "Bearer ***" // Mask Bearer tokens
+                        : "***") // Mask other authorization headers
             )
     const cmd = `curl ${url} \\
 -H  "Content-Type: application/json" \\
@@ -137,6 +171,15 @@ ${Object.entries(headers)
     else logVerbose(cmd)
 }
 
+/**
+ * Converts a response status to a message.
+ *
+ * Converts the HTTP response status and status text into a string list
+ * to facilitate logging and debugging.
+ *
+ * @param res - The response object.
+ * @returns A list of status and status text.
+ */
 export function statusToMessage(res?: {
     status?: number
     statusText?: string

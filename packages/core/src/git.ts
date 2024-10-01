@@ -1,13 +1,24 @@
+// This file contains the GitClient class, which provides methods to interact with Git repositories.
+// It includes functionality to find modified files, execute Git commands, and manage branches.
+
 import { resolveFileContents } from "./file"
 import { isGlobMatch } from "./glob"
 import { runtimeHost } from "./host"
 import { shellParse } from "./shell"
 import { arrayify } from "./util"
 
+/**
+ * GitClient class provides an interface to interact with Git.
+ */
 export class GitClient implements Git {
-    readonly git = "git"
-    private _defaultBranch: string
+    readonly git = "git" // Git command identifier
+    private _defaultBranch: string // Stores the default branch name
 
+    /**
+     * Retrieves the default branch name.
+     * If not already set, it fetches from the Git remote.
+     * @returns {Promise<string>} The default branch name.
+     */
     async defaultBranch(): Promise<string> {
         if (!this._defaultBranch) {
             const res = await this.exec(["remote", "show", "origin"], {})
@@ -19,13 +30,19 @@ export class GitClient implements Git {
     }
 
     /**
-     * Sets the default branch
-     * @param name
+     * Sets the default branch name.
+     * @param name The branch name to set as default.
      */
     setDefaultBranch(name: string) {
         this._defaultBranch = name
     }
 
+    /**
+     * Executes a Git command with given arguments.
+     * @param args Git command arguments.
+     * @param options Optional command options with a label.
+     * @returns {Promise<string>} The standard output from the command.
+     */
     async exec(
         args: string | string[],
         options?: { label?: string }
@@ -39,6 +56,12 @@ export class GitClient implements Git {
         return res.stdout
     }
 
+    /**
+     * Finds modified files in the Git repository based on the specified scope.
+     * @param scope The scope of modifications to find: "base", "staged", or "modified".
+     * @param options Optional settings such as base branch, paths, and exclusions.
+     * @returns {Promise<WorkspaceFile[]>} List of modified files.
+     */
     async findModifiedFiles(
         scope: "base" | "staged" | "modified",
         options?: {
@@ -66,6 +89,7 @@ export class GitClient implements Git {
             })
             filenames = res.split("\n").filter((f) => f)
             if (!filenames.length && scope == "staged" && askStageOnEmpty) {
+                // If no staged changes, optionally ask to stage all changes
                 const stage = await runtimeHost.confirm(
                     "No staged changes. Stage all changes?",
                     {
@@ -80,7 +104,7 @@ export class GitClient implements Git {
                 }
             }
         } else {
-            // ignore deleted files
+            // For "modified" scope, ignore deleted files
             const rx = /^\s*(A|M|\?{1,2})\s+/gm
             const args = ["status", "--porcelain"]
             const res = await this.exec(args, {
@@ -103,6 +127,12 @@ export class GitClient implements Git {
         return files
     }
 
+    /**
+     * Adds file path filters to Git command arguments.
+     * @param paths Paths to include.
+     * @param excludedPaths Paths to exclude.
+     * @param args Git command arguments.
+     */
     private static addFileFilters(
         paths: string[],
         excludedPaths: string[],
@@ -118,6 +148,11 @@ export class GitClient implements Git {
         }
     }
 
+    /**
+     * Generates a diff of changes based on provided options.
+     * @param options Options such as staged flag, base, head, paths, and exclusions.
+     * @returns {Promise<string>} The diff output.
+     */
     async diff(options?: {
         staged?: boolean
         askStageOnEmpty?: boolean
@@ -142,6 +177,7 @@ export class GitClient implements Git {
         GitClient.addFileFilters(paths, excludedPaths, args)
         let res = await this.exec(args)
         if (!res && staged && askStageOnEmpty) {
+            // If no staged changes, optionally ask to stage all changes
             const stage = await runtimeHost.confirm(
                 "No staged changes. Stage all changes?",
                 {
