@@ -128,7 +128,7 @@ defTool(
     },
     async (args) => {
         const { context, query } = args
-        context.log(`agent github: ${query}`)
+        context.log(`agent fs: ${query}`)
         const res = await runPrompt(
             (_) => {
                 _.def("QUERY", query)
@@ -150,6 +150,7 @@ defTool(
                     "system.fs_find_files",
                     "system.fs_read_file",
                     "system.retrieval_fuzz_search",
+                    "system.md_frontmatter",
                 ],
             }
         )
@@ -160,30 +161,30 @@ defTool(
 `````
 
 
-### `system.agent_github`
+### `system.agent_git`
 
-Agent that can query GitHub and Git to accomplish tasks.
+Agent that can query Git to accomplish tasks.
 
 
 
--  tool `agent_github`: Agent that can query GitHub and Git to accomplish tasks
+-  tool `agent_git`: Agent that can query Git to accomplish tasks
 
-`````js wrap title="system.agent_github"
+`````js wrap title="system.agent_git"
 system({
-    title: "Agent that can query GitHub and Git to accomplish tasks.",
+    title: "Agent that can query Git to accomplish tasks.",
     parameters: {
-        agentGithubModel: {
+        agentGitModel: {
             type: "string",
             description: "Model to use for the agent",
         },
     },
 })
 
-const model = env.vars.agentGithubModel
+const model = env.vars.agentGitModel
 
 defTool(
-    "agent_github",
-    "Agent that can query GitHub and Git to accomplish tasks",
+    "agent_git",
+    "Agent that can query Git to accomplish tasks",
     {
         query: {
             type: "string",
@@ -192,12 +193,12 @@ defTool(
     },
     async (args) => {
         const { context, query } = args
-        context.log(`agent github: ${query}`)
+        context.log(`agent git: ${query}`)
         const res = await runPrompt(
             (_) => {
                 _.def("QUERY", query)
 
-                _.$`Your are a helpfull LLM agent that can query GitHub, Git and read files to accomplish tasks. 
+                _.$`Your are a helpfull LLM agent that can query Git to accomplish tasks. 
                 
                 Analyze and answer QUERY.
                 
@@ -212,6 +213,67 @@ defTool(
                     "system.tools",
                     "system.explanations",
                     "system.git",
+                ],
+            }
+        )
+        return res
+    }
+)
+
+`````
+
+
+### `system.agent_github`
+
+Agent that can query GitHub to accomplish tasks.
+
+
+
+-  tool `agent_github`: Agent that can query GitHub  to accomplish tasks
+
+`````js wrap title="system.agent_github"
+system({
+    title: "Agent that can query GitHub to accomplish tasks.",
+    parameters: {
+        agentGithubModel: {
+            type: "string",
+            description: "Model to use for the agent",
+        },
+    },
+})
+
+const model = env.vars.agentGithubModel
+
+defTool(
+    "agent_github",
+    "Agent that can query GitHub  to accomplish tasks",
+    {
+        query: {
+            type: "string",
+            description: "Query to answer",
+        },
+    },
+    async (args) => {
+        const { context, query } = args
+        context.log(`agent github: ${query}`)
+        const res = await runPrompt(
+            (_) => {
+                _.def("QUERY", query)
+
+                _.$`Your are a helpfull LLM agent that can query GitHub to accomplish tasks. 
+                
+                Analyze and answer QUERY.
+                
+                - Assume that your answer will be analyzed by an LLM, not a human.
+                - If you cannot answer the query, return an empty string.
+                `
+            },
+            {
+                model,
+                system: [
+                    "system",
+                    "system.tools",
+                    "system.explanations",
                     "system.github_actions",
                     "system.github_files",
                     "system.github_issues",
@@ -1104,16 +1166,17 @@ defTool("math_eval", "Evaluates a math expression", {
 
 ### `system.md_frontmatter`
 
-Frontmatter reader
+Markdown frontmatter reader
 
-Register tool that reads the frontmatter of a markdown file.
+Register tool that reads the frontmatter of a markdown or MDX file.
 
 -  tool `md_read_frontmatter`: Reads the frontmatter of a markdown or MDX file.
 
 `````js wrap title="system.md_frontmatter"
 system({
-    title: "Frontmatter reader",
-    description: "Register tool that reads the frontmatter of a markdown file.",
+    title: "Markdown frontmatter reader",
+    description:
+        "Register tool that reads the frontmatter of a markdown or MDX file.",
 })
 
 defTool(
@@ -1180,6 +1243,7 @@ system({
 const image = env.vars.pythonImage ?? "python:3.12"
 const packages = ["numpy", "pandas", "scipy"]
 
+const queue = host.promiseQueue(1)
 let container = null
 
 defTool(
@@ -1195,26 +1259,31 @@ defTool(
         },
         required: ["main"],
     },
-    async (args) => {
-        const { main = "" } = args
-        console.log(`python code interpreter: ` + main)
-        if (!container) {
-            console.log(`python: preparing container...`)
-            container = await host.container({ image, networkEnabled: true })
-            const res = await container.exec("pip", [
-                "install",
-                "--root-user-action",
-                "ignore",
-                ...packages,
-            ])
-            if (res.failed) throw new Error(`Failed to install requirements`)
-            await container.disconnect()
-        }
-
-        await container.writeText("main.py", main)
-        const res = await container.exec("python", ["main.py"])
-        return res
-    }
+    async (args) =>
+        // serialize work
+        await queue.add(async () => {
+            const { main = "" } = args
+            console.log(`python code interpreter: ` + main)
+            if (!container) {
+                console.log(`python: preparing container...`)
+                container = await host.container({
+                    image,
+                    networkEnabled: true,
+                })
+                const res = await container.exec("pip", [
+                    "install",
+                    "--root-user-action",
+                    "ignore",
+                    ...packages,
+                ])
+                if (res.failed)
+                    throw new Error(`Failed to install requirements`)
+                await container.disconnect()
+            }
+            await container.writeText("main.py", main)
+            const res = await container.exec("python", ["main.py"])
+            return res
+        })
 )
 
 `````
@@ -1454,7 +1523,10 @@ system({
     title: "Tools support",
 })
 
-$`Use tools if possible. **Do NOT invent function names**. **Do NOT use function names starting with 'functions.'.`
+$`Use tools if possible. 
+- **Do NOT invent function names**. 
+- **Do NOT use function names starting with 'functions.'.
+- **Do NOT respond with multi_tool_use**.`
 
 `````
 

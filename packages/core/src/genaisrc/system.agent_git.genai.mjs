@@ -1,18 +1,18 @@
 system({
-    title: "Agent that can query GitHub to accomplish tasks.",
+    title: "Agent that can query Git to accomplish tasks.",
     parameters: {
-        agentGithubModel: {
+        agentGitModel: {
             type: "string",
             description: "Model to use for the agent",
         },
     },
 })
 
-const model = env.vars.agentGithubModel
+const model = env.vars.agentGitModel
 
 defTool(
-    "agent_github",
-    "Agent that can query GitHub  to accomplish tasks",
+    "agent_git",
+    "Agent that can query Git to accomplish tasks",
     {
         query: {
             type: "string",
@@ -21,12 +21,12 @@ defTool(
     },
     async (args) => {
         const { context, query } = args
-        context.log(`agent github: ${query}`)
+        context.log(`agent git: ${query}`)
         const res = await runPrompt(
             (_) => {
                 _.def("QUERY", query)
 
-                _.$`Your are a helpfull LLM agent that can query GitHub to accomplish tasks. 
+                _.$`Your are a helpfull LLM agent that can query Git to accomplish tasks. 
                 
                 Analyze and answer QUERY.
                 
@@ -40,10 +40,7 @@ defTool(
                     "system",
                     "system.tools",
                     "system.explanations",
-                    "system.github_actions",
-                    "system.github_files",
-                    "system.github_issues",
-                    "system.github_pulls",
+                    "system.git",
                 ],
             }
         )

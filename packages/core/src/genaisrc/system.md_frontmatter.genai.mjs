@@ -1,6 +1,7 @@
 system({
-    title: "Frontmatter reader",
-    description: "Register tool that reads the frontmatter of a markdown file.",
+    title: "Markdown frontmatter reader",
+    description:
+        "Register tool that reads the frontmatter of a markdown or MDX file.",
 })
 
 defTool(

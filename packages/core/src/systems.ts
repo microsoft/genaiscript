@@ -10,7 +10,7 @@ export function resolveSystems(
 ) {
     const { jsSource } = script
     // Initialize systems array from script.system, converting to array if necessary using arrayify utility
-    const systems = arrayify(script.system).slice(0)
+    const systems = arrayify(script.system)
 
     // If no system is defined in the script, determine systems based on jsSource
     if (script.system === undefined) {

@@ -21,7 +21,7 @@ defTool(
     },
     async (args) => {
         const { context, query } = args
-        context.log(`agent github: ${query}`)
+        context.log(`agent fs: ${query}`)
         const res = await runPrompt(
             (_) => {
                 _.def("QUERY", query)
@@ -43,6 +43,7 @@ defTool(
                     "system.fs_find_files",
                     "system.fs_read_file",
                     "system.retrieval_fuzz_search",
+                    "system.md_frontmatter",
                 ],
             }
         )

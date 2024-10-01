@@ -1,5 +1,5 @@
 script({
-    tools: ["agent_fs", "agent_github"],
+    tools: ["agent_fs", "agent_git", "agent_github"],
     tests: {},
 })
 

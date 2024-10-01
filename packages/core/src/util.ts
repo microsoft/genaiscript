@@ -16,7 +16,7 @@ export function strcmp(a: string, b: string) {
 
 export function arrayify<T>(a: T | T[]): T[] {
     if (a === undefined) return []
-    if (Array.isArray(a)) return a
+    if (Array.isArray(a)) return a.slice(0)
     return [a]
 }
 
