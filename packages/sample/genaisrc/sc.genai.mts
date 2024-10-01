@@ -11,7 +11,7 @@ if (files.length === 0) {
         paths: ["*.md", "*.mdx"],
     })
     if (!files.length)
-        files = await git.listFiles("base", {
+        files = await git.listFiles("modified-base", {
             paths: ["*.md", "*.mdx"],
         })
 }
