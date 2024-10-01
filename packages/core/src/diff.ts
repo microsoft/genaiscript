@@ -245,15 +245,21 @@ export function applyLLMPatch(source: string, chunks: Chunk[]): string {
     return lines.filter((l) => l !== undefined).join("\n")
 }
 
-export function llmifyDiff(diff: string) {
-    if (!diff) return diff
-
+export function tryParseDiff(diff: string) {
     let parsed: parseDiff.File[]
     try {
         parsed = parseDiff(diff)
     } catch (e) {
         return undefined // probably not a diff
     }
+    return parsed
+}
+
+export function llmifyDiff(diff: string) {
+    if (!diff) return diff
+
+    const parsed = tryParseDiff(diff)
+    if (!parsed) return undefined
 
     for (const file of parsed) {
         for (const chunk of file.chunks) {

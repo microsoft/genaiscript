@@ -5,29 +5,19 @@ script({
     temperature: 0.5,
 })
 
-// resolve default branch
-const defaultBranch = (
-    await host.exec("git symbolic-ref refs/remotes/origin/HEAD")
-).stdout
-    .replace("refs/remotes/origin/", "")
-    .trim()
-
-// context
-// compute diff with the default branch
+const defaultBranch = await git.defaultBranch()
 const changes = await git.diff({
     base: defaultBranch,
-    staged: true,
     excludedPaths: [
-        ":!.vscode/*",
-        ":!*yarn.lock",
-        ":!*THIRD_PARTY_LICENSES.md",
+        ".vscode/*",
+        "*yarn.lock",
+        "**/genaiscript.d.ts",
+        "*THIRD_PARTY_LICENSES.md",
     ],
 })
+console.log(changes)
 
-def("GIT_DIFF", changes, {
-    language: "diff",
-    maxTokens: 20000,
-})
+def("GIT_DIFF", changes, { maxTokens: 20000 })
 
 // task
 $`You are an expert software developer and architect.

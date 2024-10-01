@@ -1,7 +1,7 @@
 // This module provides functions to add and remove line numbers from text.
 // It includes special handling for "diff" formatted text.
 
-import { llmifyDiff } from "./diff"
+import { llmifyDiff, tryParseDiff } from "./diff"
 
 /**
  * Adds 1-based line numbers to each line of a given text.
@@ -12,7 +12,7 @@ import { llmifyDiff } from "./diff"
  * @returns The text with line numbers added, or processed diff text if applicable.
  */
 export function addLineNumbers(text: string, language?: string) {
-    if (language === "diff") {
+    if (language === "diff" || tryParseDiff(text)) {
         const diffed = llmifyDiff(text) // Process the text with a special function for diffs
         if (diffed !== undefined) return diffed // Return processed text if diff handling was successful
     }

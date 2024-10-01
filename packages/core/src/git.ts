@@ -93,7 +93,9 @@ export class GitClient implements Git {
             if (!paths.length) paths.push(".")
             args.push("--")
             args.push(...paths)
-            args.push(...excludedPaths.map((p) => ":!" + p))
+            args.push(
+                ...excludedPaths.map((p) => (p.startsWith(":!") ? p : ":!" + p))
+            )
         }
     }
 
@@ -115,7 +117,7 @@ export class GitClient implements Git {
         if (staged) args.push("--staged")
         args.push("--ignore-all-space")
         if (unified > 0) args.push(`--unified=${unified}`)
-        if (base && !head) head = "head"
+        if (base && !head) head = "HEAD"
         if (head && !base) base = head + "^"
         if (base && head) args.push(`${base}..${head}`)
         GitClient.addFileFilters(paths, excludedPaths, args)
