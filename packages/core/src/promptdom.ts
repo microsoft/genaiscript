@@ -518,13 +518,16 @@ export interface PromptNodeRender {
  */
 async function layoutPromptNode(mode: string, root: PromptNode) {
     let changed = false
+    const variables: PromptNode["type"][] = ["def", "image"]
+
     await visitNode(root, {
         node: (n) => {
             // sort children
             const before = n.children?.map((c) => c.preview)?.join("\n")
             n.children?.sort(
                 (a, b) =>
-                    (a.type === "def" ? 1 : -1) - (b.type === "def" ? 1 : -1)
+                    (variables.includes(a.type) ? 1 : -1) -
+                    (variables.includes(b.type) ? 1 : -1)
             )
             const after = n.children?.map((c) => c.preview)?.join("\n")
             changed = changed || before !== after
