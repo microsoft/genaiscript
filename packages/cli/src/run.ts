@@ -530,7 +530,7 @@ export async function runScript(
     for (const [key, value] of Object.entries(usages)) {
         if (value.total_tokens > 0)
             logVerbose(
-                `  ${key}: ${value.total_tokens} (${value.prompt_tokens} => ${value.completion_tokens})`
+                `tokens:  ${key}, ${value.total_tokens} (${value.prompt_tokens} => ${value.completion_tokens})`
             )
     }
     if (outTraceFilename) logVerbose(`  trace: ${outTraceFilename}`)
