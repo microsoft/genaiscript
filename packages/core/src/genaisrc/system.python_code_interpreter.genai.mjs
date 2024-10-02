@@ -34,9 +34,12 @@ defTool(
     "python_code_interpreter_run",
     "Executes python 3.12 code for Data Analysis tasks in a docker container. The process output is returned. Do not generate visualizations. The only packages available are numpy, pandas, scipy. There is NO network connectivity. Do not attempt to install other packages or make web requests.",
     {
-        main: {
-            type: "string",
-            description: "python 3.12 source code to execute",
+        type: "object",
+        properties: {
+            main: {
+                type: "string",
+                description: "python 3.12 source code to execute",
+            },
         },
         required: ["main"],
     },
@@ -56,13 +59,16 @@ defTool(
     "python_code_interpreter_copy_files",
     "Copy files from the host file system to the container file system",
     {
-        from: {
-            type: "string",
-            description: "Host file path",
-        },
-        to: {
-            type: "string",
-            description: "Container file path",
+        type: "object",
+        properties: {
+            from: {
+                type: "string",
+                description: "Host file path",
+            },
+            to: {
+                type: "string",
+                description: "Container file path",
+            },
         },
         required: ["from"],
     },

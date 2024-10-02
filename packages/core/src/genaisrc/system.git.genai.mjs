@@ -15,26 +15,29 @@ defTool(
     "git_diff",
     "Generates concise file diffs.",
     {
-        base: {
-            type: "string",
-            description:
-                "Base branch to compare against. Use 'BASE' to compare against the repository default branch.",
-        },
-        head: {
-            type: "string",
-            description: "Head branch to compare",
-        },
-        staged: {
-            type: "boolean",
-            description: "Compare staged changes",
-        },
-        paths: {
-            type: "string[]",
-            description: "Paths to compare",
-        },
-        excludedPaths: {
-            type: "string[]",
-            description: "Paths to exclude",
+        type: "object",
+        properties: {
+            base: {
+                type: "string",
+                description:
+                    "Base branch to compare against. Use 'BASE' to compare against the repository default branch.",
+            },
+            head: {
+                type: "string",
+                description: "Head branch to compare",
+            },
+            staged: {
+                type: "boolean",
+                description: "Compare staged changes",
+            },
+            paths: {
+                type: "string[]",
+                description: "Paths to compare",
+            },
+            excludedPaths: {
+                type: "string[]",
+                description: "Paths to exclude",
+            },
         },
     },
     async (args) => {
@@ -49,21 +52,24 @@ defTool(
     "git_log",
     "Generates a log of commits.",
     {
-        base: {
-            type: "string",
-            description: "Base branch to compare against.",
-        },
-        head: {
-            type: "string",
-            description: "Head branch to compare",
-        },
-        paths: {
-            type: "string[]",
-            description: "Paths to compare",
-        },
-        excludedPaths: {
-            type: "string[]",
-            description: "Paths to exclude",
+        type: "object",
+        properties: {
+            base: {
+                type: "string",
+                description: "Base branch to compare against.",
+            },
+            head: {
+                type: "string",
+                description: "Head branch to compare",
+            },
+            paths: {
+                type: "string[]",
+                description: "Paths to compare",
+            },
+            excludedPaths: {
+                type: "string[]",
+                description: "Paths to exclude",
+            },
         },
     },
     async (args) => {

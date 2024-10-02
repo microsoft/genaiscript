@@ -834,26 +834,29 @@ defTool(
     "git_diff",
     "Generates concise file diffs.",
     {
-        base: {
-            type: "string",
-            description:
-                "Base branch to compare against. Use 'BASE' to compare against the repository default branch.",
-        },
-        head: {
-            type: "string",
-            description: "Head branch to compare",
-        },
-        staged: {
-            type: "boolean",
-            description: "Compare staged changes",
-        },
-        paths: {
-            type: "string[]",
-            description: "Paths to compare",
-        },
-        excludedPaths: {
-            type: "string[]",
-            description: "Paths to exclude",
+        type: "object",
+        properties: {
+            base: {
+                type: "string",
+                description:
+                    "Base branch to compare against. Use 'BASE' to compare against the repository default branch.",
+            },
+            head: {
+                type: "string",
+                description: "Head branch to compare",
+            },
+            staged: {
+                type: "boolean",
+                description: "Compare staged changes",
+            },
+            paths: {
+                type: "string[]",
+                description: "Paths to compare",
+            },
+            excludedPaths: {
+                type: "string[]",
+                description: "Paths to exclude",
+            },
         },
     },
     async (args) => {
@@ -868,21 +871,24 @@ defTool(
     "git_log",
     "Generates a log of commits.",
     {
-        base: {
-            type: "string",
-            description: "Base branch to compare against.",
-        },
-        head: {
-            type: "string",
-            description: "Head branch to compare",
-        },
-        paths: {
-            type: "string[]",
-            description: "Paths to compare",
-        },
-        excludedPaths: {
-            type: "string[]",
-            description: "Paths to exclude",
+        type: "object",
+        properties: {
+            base: {
+                type: "string",
+                description: "Base branch to compare against.",
+            },
+            head: {
+                type: "string",
+                description: "Head branch to compare",
+            },
+            paths: {
+                type: "string[]",
+                description: "Paths to compare",
+            },
+            excludedPaths: {
+                type: "string[]",
+                description: "Paths to exclude",
+            },
         },
     },
     async (args) => {
@@ -1493,9 +1499,12 @@ defTool(
     "python_code_interpreter_run",
     "Executes python 3.12 code for Data Analysis tasks in a docker container. The process output is returned. Do not generate visualizations. The only packages available are numpy, pandas, scipy. There is NO network connectivity. Do not attempt to install other packages or make web requests.",
     {
-        main: {
-            type: "string",
-            description: "python 3.12 source code to execute",
+        type: "object",
+        properties: {
+            main: {
+                type: "string",
+                description: "python 3.12 source code to execute",
+            },
         },
         required: ["main"],
     },
@@ -1515,13 +1524,16 @@ defTool(
     "python_code_interpreter_copy_files",
     "Copy files from the host file system to the container file system",
     {
-        from: {
-            type: "string",
-            description: "Host file path",
-        },
-        to: {
-            type: "string",
-            description: "Container file path",
+        type: "object",
+        properties: {
+            from: {
+                type: "string",
+                description: "Host file path",
+            },
+            to: {
+                type: "string",
+                description: "Container file path",
+            },
         },
         required: ["from"],
     },
@@ -1631,8 +1643,9 @@ defTool(
         const { files, q } = args
         const res = await retrieval.vectorSearch(
             q,
-            files.map((filename) => ({ filename }))
-            , { embeddingsModel })
+            files.map((filename) => ({ filename })),
+            { embeddingsModel }
+        )
         return YAML.stringify(res.map(({ filename }) => filename))
     }
 )
@@ -1661,16 +1674,16 @@ defTool(
     {
         type: "object",
         properties: {
-            q: {
+            query: {
                 type: "string",
                 description: "Search query.",
             },
         },
-        required: ["q"],
+        required: ["query"],
     },
     async (args) => {
-        const { q } = args
-        const webPages = await retrieval.webSearch(q)
+        const { query } = args
+        const webPages = await retrieval.webSearch(query)
         return YAML.stringify(
             webPages.map((f) => ({
                 url: f.filename,

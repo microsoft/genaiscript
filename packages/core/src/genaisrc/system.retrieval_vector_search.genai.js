@@ -32,8 +32,9 @@ defTool(
         const { files, q } = args
         const res = await retrieval.vectorSearch(
             q,
-            files.map((filename) => ({ filename }))
-            , { embeddingsModel })
+            files.map((filename) => ({ filename })),
+            { embeddingsModel }
+        )
         return YAML.stringify(res.map(({ filename }) => filename))
     }
 )
