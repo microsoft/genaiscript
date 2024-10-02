@@ -1,0 +1,89 @@
+---
+title: LLM Agents
+description: Learn how to use the inline prompts to create a LLM agent.
+sidebar:
+    order: 20
+---
+
+import { Code } from "@astrojs/starlight/components"
+import { Steps } from "@astrojs/starlight/components"
+import source from "../../../../../packages/sample/genaisrc/github-agent.genai.mts?raw"
+
+The "agent" is a special kind of [tool](/genaiscript/reference/scripts/tools) that
+uses an [inline prompt](/genaiscript/reference/scripts/inline-prompts) to solve a task. The inline prompt may use another set of tools.
+
+Let's illustrate this concept by create a GitHub agent, `agent_github`. The agent will use the LLM to answer queries about GitHub.
+
+## Example: GitHub failure investigator
+
+Using an agent to query GitHub would allow to write the generic run failure investigation script below.
+Most of the details are vague and left to be figured out by the LLM.
+
+<Code code={source} wrap={true} lang="js" title="agent-github.genai.mts" />
+
+## Defining `agent_github`
+
+We start by using [defTool](/genaiscript/reference/scripts/tools) to define the tool. The agent will receive a query, prompt an LLM and return the output.
+
+```js wrap
+defTool(
+    "agent_github",
+    // tool description is important! it lets the LLM know what the tool does
+    "Agent that can query GitHub  to accomplish tasks",
+    // tool parameters is a simple query string
+    {
+        query: {
+            type: "string",
+            description: "Query to answer",
+        },
+        required: ["query"]
+    },
+    async (args) => {
+        // destructure the query from the args
+        const { query } = args
+```
+
+## Defining the inline prompt
+
+Inside the tool, we use `runPrompt` to run an LLM query.
+
+-   the prompt takes the query argument and tells the LLM how to handle it.
+-   note the use of `ctx.` to nested prompt
+
+```js wrap
+        const res = await runPrompt(
+            (ctx) => {
+                ctx.def("QUERY", query)
+                ctx.$`Your are a helpfull LLM agent that can query GitHub to accomplish tasks.
+
+                Analyze and answer QUERY.
+
+                - Assume that your answer will be analyzed by an LLM, not a human.
+                - If you cannot answer the query, return an empty string.
+                `
+            }, {
+                ...
+            }
+        )
+        return res
+```
+
+## Selecting the tools, system prompts
+
+We use the `system` parameter to configure the tools that exposed to the LLM. In this case, we expose the GitHub tools (`system.github_files`, `system.github_issues`, ...)
+
+```js wrap
+            {
+                system: [
+                    "system",
+                    "system.tools",
+                    "system.explanations",
+                    "system.github_actions",
+                    "system.github_files",
+                    "system.github_issues",
+                    "system.github_pulls",
+                ],
+            }
+```
+
+This full source of this agent is defined in the [system.agent_github](/genaiscript/reference/scripts/system/#systemagent_github) system prompt.
