@@ -1532,6 +1532,11 @@ interface GitHub {
     ): Promise<string>
 
     /**
+     * Diffs two GitHub Action workflow job logs
+     */
+    diffWorkflowJobLogs(job_id: number, other_job_id: number): Promise<string>
+
+    /**
      * Lists issues for a given repository
      * @param options
      */

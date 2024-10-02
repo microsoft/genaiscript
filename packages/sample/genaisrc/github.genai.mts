@@ -32,6 +32,10 @@ const jobs = await github.listWorkflowJobs(runs[0].id)
 console.log(jobs[0].content)
 if (!jobs.length) throw new Error("No workflow jobs found")
 
+const diff = await github.diffWorkflowJobLogs(jobs[0].id, jobs[1].id)
+console.log(diff)
+if (!diff.length) throw new Error("No diff found")
+
 const languages = await github.listRepositoryLanguages()
 console.log(languages)
 if (!Object.keys(languages).length) throw new Error("No languages found")

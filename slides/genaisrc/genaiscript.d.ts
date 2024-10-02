@@ -115,7 +115,8 @@ type SystemToolId = OptionsOrString<
     | "git_last_tag"
     | "git_log"
     | "git_status"
-    | "github_actions_job_log"
+    | "github_actions_job_logs_get"
+    | "github_actions_job_los_diff"
     | "github_actions_jobs_list"
     | "github_actions_runs_list"
     | "github_actions_workflows_list"
@@ -1592,6 +1593,11 @@ interface GitHub {
         jobId: number,
         options?: { llmify?: boolean }
     ): Promise<string>
+
+    /**
+     * Diffs two GitHub Action workflow job logs
+     */
+    diffWorkflowJobLogs(job_id: number, other_job_id: number): Promise<string>
 
     /**
      * Lists issues for a given repository

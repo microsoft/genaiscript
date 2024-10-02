@@ -82,10 +82,11 @@ export class GitClient implements Git {
         }
     ): Promise<WorkspaceFile[]> {
         const { askStageOnEmpty } = options || {}
-        const paths = arrayify(options?.paths).filter((f) => !!f)
-        const excludedPaths = arrayify(options?.excludedPaths).filter(
-            (f) => !!f
-        )
+        const paths = arrayify(options?.paths, { filterEmpty: true })
+        const excludedPaths = arrayify(options?.excludedPaths, {
+            filterEmpty: true,
+        })
+
         let filenames: string[]
         if (scope === "modified-base" || scope === "staged") {
             const args = ["diff", "--name-only", "--diff-filter=AM"]
@@ -177,10 +178,10 @@ export class GitClient implements Git {
         excludedPaths?: ElementOrArray<string>
     }): Promise<GitCommit[]> {
         const { base, head, merges, excludedGrep } = options || {}
-        const paths = arrayify(options?.paths).filter((f) => !!f)
-        const excludedPaths = arrayify(options?.excludedPaths).filter(
-            (f) => !!f
-        )
+        const paths = arrayify(options?.paths, { filterEmpty: true })
+        const excludedPaths = arrayify(options?.excludedPaths, {
+            filterEmpty: true,
+        })
 
         const args = ["log", "--pretty=oneline"]
         if (!merges) args.push("--no-merges")
@@ -192,7 +193,7 @@ export class GitClient implements Git {
             args.push(`--grep='${pattern}'`, "--invert-grep")
         }
         if (base && head) args.push(`${base}..${head}`)
-        GitClient.addFileFilters(arrayify(paths), arrayify(excludedPaths), args)
+        GitClient.addFileFilters(paths, excludedPaths, args)
         const res = await this.exec(args)
         const commits = res
             .split("\n")
@@ -221,10 +222,10 @@ export class GitClient implements Git {
         unified?: number
         llmify?: boolean
     }): Promise<string> {
-        const paths = arrayify(options?.paths).filter((f) => !!f)
-        const excludedPaths = arrayify(options?.excludedPaths).filter(
-            (f) => !!f
-        )
+        const paths = arrayify(options?.paths, { filterEmpty: true })
+        const excludedPaths = arrayify(options?.excludedPaths, {
+            filterEmpty: true,
+        })
         const { staged, base, head, unified, askStageOnEmpty } = options || {}
         const args = ["diff"]
         if (staged) args.push("--staged")

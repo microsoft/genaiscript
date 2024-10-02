@@ -80,8 +80,8 @@ defTool(
 )
 
 defTool(
-    "github_actions_job_log",
-    "Download job log.",
+    "github_actions_job_logs_get",
+    "Download workflow job log.",
     {
         job_id: {
             type: "string",
@@ -95,6 +95,28 @@ defTool(
         const log = await github.downloadWorkflowJobLog(job_id, {
             llmify: true,
         })
+        return log
+    }
+)
+
+defTool(
+    "github_actions_job_los_diff",
+    "Diffs two workflow job logs.",
+    {
+        job_id: {
+            type: "string",
+            description: "ID of the job to compare.",
+        },
+        other_job_id: {
+            type: "string",
+            description: "ID of the other job to compare.",
+        },
+        required: ["job_id", "other_job_id"],
+    },
+    async (args) => {
+        const { job_id, other_job_id, context } = args
+        context.log(`github action diff job logs ${job_id} ${other_job_id}`)
+        const log = await github.diffWorkflowJobLogs(job_id, other_job_id)
         return log
     }
 )

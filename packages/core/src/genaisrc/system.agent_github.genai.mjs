@@ -25,8 +25,12 @@ defTool(
                 
                 Analyze and answer QUERY.
                 
+                ## Constraints
+
                 - Assume that your answer will be analyzed by an LLM, not a human.
                 - If you cannot answer the query, return an empty string.
+                - Prefer diffing job logs rather downloading entire logs which can be very large.
+
                 `
             },
             {
@@ -40,6 +44,7 @@ defTool(
                     "system.github_issues",
                     "system.github_pulls",
                 ],
+                label: "agent github",
             }
         )
         return res
