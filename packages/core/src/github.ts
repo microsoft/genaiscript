@@ -624,7 +624,7 @@ export class GitHubClient implements GitHub {
     }
 
     async listWorkflowRuns(
-        workflow_id: string | number,
+        workflowIdOrFilename: string | number,
         options?: {
             branch?: string
             status?: GitHubWorkflowRunStatus
@@ -637,7 +637,7 @@ export class GitHubClient implements GitHub {
             {
                 owner,
                 repo,
-                workflow_id,
+                workflow_id: workflowIdOrFilename,
                 per_page: 100,
                 ...rest,
             }

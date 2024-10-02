@@ -12,7 +12,7 @@ defTool(
         context.log("github action list workflows")
         const res = await github.listWorkflows()
         return CSV.stringify(
-            res.map(({ id, name }) => ({ id, name })),
+            res.map(({ id, name, path }) => ({ id, name, path })),
             { header: true }
         )
     }
@@ -26,7 +26,7 @@ defTool(
         properties: {
             workflow_id: {
                 type: "string",
-                description: "ID of the workflow to list runs for.",
+                description: "ID or filename of the workflow to list runs for.",
             },
             branch: {
                 type: "string",
@@ -110,8 +110,8 @@ defTool(
 )
 
 defTool(
-    "github_actions_job_los_diff",
-    "Diffs two workflow job logs.",
+    "github_actions_job_logs_diff",
+    "Diffs two workflow job logsr.",
     {
         type: "object",
         properties: {

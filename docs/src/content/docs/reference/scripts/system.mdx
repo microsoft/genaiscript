@@ -965,7 +965,7 @@ Queries results from workflows in GitHub actions.
 -  tool `github_actions_runs_list`: List all runs for a workflow. Use 'git_actions_list_workflows' to list workflows.
 -  tool `github_actions_jobs_list`: List all jobs for a run.
 -  tool `github_actions_job_logs_get`: Download workflow job log.
--  tool `github_actions_job_los_diff`: Diffs two workflow job logs.
+-  tool `github_actions_job_logs_diff`: Diffs two workflow job logsr.
 
 `````js wrap title="system.github_actions"
 system({
@@ -982,7 +982,7 @@ defTool(
         context.log("github action list workflows")
         const res = await github.listWorkflows()
         return CSV.stringify(
-            res.map(({ id, name }) => ({ id, name })),
+            res.map(({ id, name, path }) => ({ id, name, path })),
             { header: true }
         )
     }
@@ -996,7 +996,7 @@ defTool(
         properties: {
             workflow_id: {
                 type: "string",
-                description: "ID of the workflow to list runs for.",
+                description: "ID or filename of the workflow to list runs for.",
             },
             branch: {
                 type: "string",
@@ -1080,8 +1080,8 @@ defTool(
 )
 
 defTool(
-    "github_actions_job_los_diff",
-    "Diffs two workflow job logs.",
+    "github_actions_job_logs_diff",
+    "Diffs two workflow job logsr.",
     {
         type: "object",
         properties: {
