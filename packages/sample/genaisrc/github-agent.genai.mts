@@ -13,7 +13,7 @@ If the run failed, analyze the logs and identify the root cause of the failure.
 
 - Break down the steps in the workflow.
 - Take a deep breadth and think step by steps.
-- Use 'agent_git' to compare the code changes between runs.
+- Ask 'agent_git' to investigate the changes between the failed run and the last successful run.
 - Use 'github_actions_job_logs_diff' tool to compare run logs.
 - Analyze one failed run log at a time and stop once you find the root cause.
 `

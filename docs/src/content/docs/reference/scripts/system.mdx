@@ -1140,7 +1140,7 @@ defTool(
     },
     async (args) => {
         const { filepath, ref, context } = args
-        context.log(`github file get ${path}#${ref}`)
+        context.log(`github file get ${filepath}#${ref}`)
         const res = await github.getFile(filepath, ref)
         return res
     }

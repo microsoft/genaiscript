@@ -898,6 +898,8 @@ function parseJobLog(text: string) {
         } else if (line.startsWith("##[endgroup]")) {
             if (current) groups.push(current)
             current = undefined
+        } else if (line.includes("Post job cleanup.")) {
+            break // ignore cleanup typically
         } else {
             if (!current) current = { title: "", text: "" }
             current.text += line + "\n"
