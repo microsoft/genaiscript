@@ -304,7 +304,9 @@ export class DockerManager {
                 const files = await host.findFiles(from)
                 for (const file of files) {
                     const source = host.path.resolve(file)
-                    const target = host.path.resolve(hostPath, to, file)
+                    const target = to
+                        ? host.path.resolve(hostPath, to, file)
+                        : host.path.resolve(hostPath, file)
                     await ensureDir(host.path.dirname(target))
                     await copyFile(source, target)
                 }
