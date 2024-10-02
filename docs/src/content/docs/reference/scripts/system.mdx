@@ -107,12 +107,6 @@ Agent that can find, search or read files to accomplish tasks
 `````js wrap title="system.agent_fs"
 system({
     title: "Agent that can find, search or read files to accomplish tasks",
-    parameters: {
-        agentFsModel: {
-            type: "string",
-            description: "Model to use for the agent",
-        },
-    },
 })
 
 const model = env.vars.agentFsModel
@@ -172,12 +166,6 @@ Agent that can query Git to accomplish tasks.
 `````js wrap title="system.agent_git"
 system({
     title: "Agent that can query Git to accomplish tasks.",
-    parameters: {
-        agentGitModel: {
-            type: "string",
-            description: "Model to use for the agent",
-        },
-    },
 })
 
 const model = env.vars.agentGitModel
@@ -234,12 +222,6 @@ Agent that can query GitHub to accomplish tasks.
 `````js wrap title="system.agent_github"
 system({
     title: "Agent that can query GitHub to accomplish tasks.",
-    parameters: {
-        agentGithubModel: {
-            type: "string",
-            description: "Model to use for the agent",
-        },
-    },
 })
 
 const model = env.vars.agentGithubModel

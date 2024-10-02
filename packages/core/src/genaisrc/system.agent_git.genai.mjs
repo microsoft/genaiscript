@@ -1,11 +1,5 @@
 system({
     title: "Agent that can query Git to accomplish tasks.",
-    parameters: {
-        agentGitModel: {
-            type: "string",
-            description: "Model to use for the agent",
-        },
-    },
 })
 
 const model = env.vars.agentGitModel

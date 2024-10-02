@@ -1,11 +1,5 @@
 system({
     title: "Agent that can find, search or read files to accomplish tasks",
-    parameters: {
-        agentFsModel: {
-            type: "string",
-            description: "Model to use for the agent",
-        },
-    },
 })
 
 const model = env.vars.agentFsModel

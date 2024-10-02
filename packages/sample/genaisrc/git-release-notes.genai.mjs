@@ -4,14 +4,12 @@ const product = env.vars.product || "GenAIScript"
 
 // find previous tag
 const { version } = await workspace.readJSON("package.json")
-const tag = await git.exec(["describe", "--tags", "--abbrev=0", "HEAD^"])
-const commits = await git.exec([
-    "log",
-    "--grep='(skip ci|THIRD_PARTY_NOTICES|genai)'",
-    "--invert-grep",
-    "--no-merges",
-    `HEAD...${tag}`,
-])
+const tag = await git.lastTag()
+const commits = await git.log({
+    excludedGrep: "(skip ci|THIRD_PARTY_NOTICES|genai)",
+    base: tag,
+    head: "HEAD",
+})
 const diff = await git.diff({
     base: tag,
     head: "HEAD",
@@ -27,7 +25,11 @@ const diff = await git.diff({
     ],
 })
 
-const commitsName = def("COMMITS", commits, { maxTokens: 4000 })
+const commitsName = def(
+    "COMMITS",
+    commits.map(({ message }) => message).join("\n"),
+    { maxTokens: 4000 }
+)
 const diffName = def("DIFF", diff, { maxTokens: 20000 })
 
 $`
@@ -51,5 +53,5 @@ for the upcoming release ${version} of ${product} on GitHub.
 - do NOT add a top level title
 - do NOT mention ignore commits or instructions
 - be concise
-
+- do not wrap text in markdown section
 `
