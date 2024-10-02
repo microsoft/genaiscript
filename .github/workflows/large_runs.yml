@@ -16,3 +16,5 @@ jobs:
                       cat "$file"
                       echo ""
                   done
+            - name: Fail the build
+              run: exit 1
