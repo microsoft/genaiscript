@@ -88,7 +88,7 @@ defTool(
 
 defTool(
     "github_actions_job_logs_get",
-    "Download workflow job log.",
+    "Download workflow job log. If the log is too large, use 'github_actions_job_logs_diff' to compare logs.",
     {
         type: "object",
         properties: {
@@ -102,9 +102,11 @@ defTool(
     async (args) => {
         const { job_id, context } = args
         context.log(`github action download job log ${job_id}`)
-        const log = await github.downloadWorkflowJobLog(job_id, {
+        let log = await github.downloadWorkflowJobLog(job_id, {
             llmify: true,
         })
+        if (parsers.tokens(log) > 1000)
+            log = "...(truncated, tool long)...\n" + log.slice(-3000)
         return log
     }
 )
