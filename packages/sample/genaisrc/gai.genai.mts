@@ -14,6 +14,7 @@ script({
     system: ["system", "system.files"],
     flexTokens: 30000,
     cache: "gai",
+    tools: ["fs_read_file"],
 })
 
 // Assign the 'workflow' parameter from environment variables
