@@ -1,71 +1,74 @@
 import { ChatCompletionUsage } from "./chattypes"
 import { MarkdownTrace } from "./trace"
-import { logVerbose } from "./util"
+import { logVerbose, logWarn } from "./util"
 
 // Interface to hold statistics related to the generation process
 export class GenerationStats {
     toolCalls = 0 // Number of tool invocations
     repairs = 0 // Number of repairs made
     turns = 0 // Number of turns in the interaction
-    readonly usages: Record<string, ChatCompletionUsage>
+    readonly usage: ChatCompletionUsage
+    readonly children: GenerationStats[] = []
 
-    constructor() {
-        this.usages = {}
+    constructor(
+        public readonly model: string,
+        public readonly label?: string
+    ) {
+        this.usage = {
+            completion_tokens: 0,
+            prompt_tokens: 0,
+            total_tokens: 0,
+        }
+    }
+
+    createChild(model: string, label?: string) {
+        const child = new GenerationStats(model, label)
+        this.children.push(child)
+        return child
     }
 
     trace(trace: MarkdownTrace) {
         trace.startDetails("📊 generation stats")
         try {
-            trace.appendContent(
-                CSV.markdownify(
-                    Object.entries(this.usages).map(([model, v]) => ({
-                        model,
-                        prompt: v.prompt_tokens,
-                        completion: v.completion_tokens,
-                        total: v.total_tokens,
-                    }))
-                )
-            )
-            trace.itemValue("tool calls", this.toolCalls)
-            trace.itemValue("repairs", this.repairs)
-            trace.itemValue("turns", this.turns)
+            this.traceStats(trace)
         } finally {
             trace.endDetails()
         }
     }
 
-    log() {
-        const usages = this.usages
-        for (const [key, value] of Object.entries(usages)) {
-            if (value.total_tokens > 0)
-                logVerbose(
-                    `tokens:  ${key}, ${value.total_tokens} (${value.prompt_tokens} => ${value.completion_tokens})`
-                )
+    private traceStats(trace: MarkdownTrace) {
+        trace.itemValue("prompt", this.usage.prompt_tokens)
+        trace.itemValue("completion", this.usage.completion_tokens)
+        trace.itemValue("tokens", this.usage.total_tokens)
+        if (this.toolCalls) trace.itemValue("tool calls", this.toolCalls)
+        if (this.repairs) trace.itemValue("repairs", this.repairs)
+        if (this.turns) trace.itemValue("turns", this.turns)
+        for (const child of this.children) {
+            trace.startDetails(child.model)
+            child.traceStats(trace)
+            trace.endDetails()
         }
+    }
+
+    log() {
+        this.logTokens("")
+    }
+
+    private logTokens(indent: string) {
+        if (this.model || this.usage.total_tokens)
+            logVerbose(
+                `${indent}${this.model} ${this.label ? `(${this.label})` : ""} > ${this.usage.total_tokens} tokens (${this.usage.prompt_tokens} -> ${this.usage.completion_tokens})`
+            )
+        for (const child of this.children) child.logTokens(indent + "  ")
     }
 
     addUsage(model: string, usage: ChatCompletionUsage) {
         if (!usage) return
+        if (this.model && model !== this.model)
+            logWarn(`model mismatch: got ${model}, expected ${this.model}`)
 
-        const usages = this.usages
-        const u =
-            usages[model] ??
-            (usages[model] = <ChatCompletionUsage>{
-                completion_tokens: 0,
-                prompt_tokens: 0,
-                total_tokens: 0,
-            })
-        u.completion_tokens += usage.completion_tokens ?? 0
-        u.prompt_tokens += usage.prompt_tokens ?? 0
-        u.total_tokens += usage.total_tokens ?? 0
-    }
-
-    merge(other: GenerationStats) {
-        this.toolCalls += other.toolCalls
-        this.repairs += other.repairs
-        this.turns += other.turns
-        for (const [model, usage] of Object.entries(other.usages)) {
-            this.addUsage(model, usage)
-        }
+        this.usage.completion_tokens += usage.completion_tokens ?? 0
+        this.usage.prompt_tokens += usage.prompt_tokens ?? 0
+        this.usage.total_tokens += usage.total_tokens ?? 0
     }
 }

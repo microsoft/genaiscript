@@ -7,7 +7,7 @@ defTool("poet", "Writes 4 line poems", {}, () =>
 
 script({
     description: "Writes poems using the poet tool.",
-    model: "gpt-4o",
+    model: "openai:gpt-4o",
     maxTokens: 4000,
     tools: ["poet"],
     tests: {},

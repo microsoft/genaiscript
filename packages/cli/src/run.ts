@@ -245,7 +245,7 @@ export async function runScript(
         (acc, v) => ({ ...acc, ...parseKeyValuePair(v) }),
         {}
     )
-    const stats = new GenerationStats()
+    const stats = new GenerationStats("")
     try {
         if (options.label) trace.heading(2, options.label)
         const { info } = await resolveModelConnectionInfo(script, {

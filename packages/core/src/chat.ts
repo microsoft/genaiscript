@@ -557,10 +557,9 @@ export async function executeChatSession(
         seed,
         responseType,
         responseSchema,
-        stats,
         infoCb,
+        stats
     } = genOptions
-
     traceLanguageModelConnection(trace, genOptions, connectionToken)
     const tools: ChatCompletionTool[] = toolDefinitions?.length
         ? toolDefinitions.map((f) => ({
