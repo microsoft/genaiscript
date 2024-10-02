@@ -16,6 +16,7 @@ import { shellRemoveAsciiColors } from "./shell"
 import { isGlobMatch } from "./glob"
 import { fetchText } from "./fetch"
 import { concurrentLimit } from "./concurrency"
+import { createDiff, llmifyDiff } from "./diff"
 
 export interface GithubConnectionInfo {
     token: string
@@ -704,6 +705,29 @@ export class GitHubClient implements GitHub {
         let { text } = await fetchText(logs_url)
         if (options?.llmify) text = parseJobLog(text)
         return text
+    }
+
+    private async downladJob(job_id: number) {
+        const { client, owner, repo } = await this.client()
+        const { url: filename } =
+            await client.rest.actions.downloadJobLogsForWorkflowRun({
+                owner,
+                repo,
+                job_id,
+            })
+        const { text: content } = await fetchText(filename)
+        return { filename, content }
+    }
+
+    async diffWorkflowJobLogs(job_id: number, other_job_id: number) {
+        const job = await this.downladJob(job_id)
+        const other = await this.downladJob(other_job_id)
+
+        job.content = parseJobLog(job.content)
+        other.content = parseJobLog(other.content)
+
+        const diff = createDiff(job, other)
+        return llmifyDiff(diff)
     }
 
     async getFile(filename: string, ref: string): Promise<WorkspaceFile> {

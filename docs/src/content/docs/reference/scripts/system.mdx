@@ -119,6 +119,7 @@ defTool(
             type: "string",
             description: "Query to answer",
         },
+        required: ["query"],
     },
     async (args) => {
         const { context, query } = args
@@ -178,6 +179,7 @@ defTool(
             type: "string",
             description: "Query to answer",
         },
+        required: ["query"],
     },
     async (args) => {
         const { context, query } = args
@@ -234,6 +236,7 @@ defTool(
             type: "string",
             description: "Query to answer",
         },
+        required: ["query"],
     },
     async (args) => {
         const { context, query } = args
@@ -246,8 +249,12 @@ defTool(
                 
                 Analyze and answer QUERY.
                 
+                ## Constraints
+
                 - Assume that your answer will be analyzed by an LLM, not a human.
                 - If you cannot answer the query, return an empty string.
+                - Prefer diffing job logs rather downloading entire logs which can be very large.
+
                 `
             },
             {
@@ -796,7 +803,8 @@ Queries results from workflows in GitHub actions.
 -  tool `github_actions_workflows_list`: List all workflows as a list of 'id: name' pair.
 -  tool `github_actions_runs_list`: List all runs for a workflow. Use 'git_actions_list_workflows' to list workflows.
 -  tool `github_actions_jobs_list`: List all jobs for a run.
--  tool `github_actions_job_log`: Download job log.
+-  tool `github_actions_job_log_get`: Download workflow job log.
+-  tool `github_actions_job_log_diff`: Diffs two workflow job logs.
 
 `````js wrap title="system.github_actions"
 system({
@@ -881,8 +889,8 @@ defTool(
 )
 
 defTool(
-    "github_actions_job_log",
-    "Download job log.",
+    "github_actions_job_log_get",
+    "Download workflow job log.",
     {
         job_id: {
             type: "string",
@@ -896,6 +904,28 @@ defTool(
         const log = await github.downloadWorkflowJobLog(job_id, {
             llmify: true,
         })
+        return log
+    }
+)
+
+defTool(
+    "github_actions_job_log_diff",
+    "Diffs two workflow job logs.",
+    {
+        job_id: {
+            type: "string",
+            description: "ID of the job to compare.",
+        },
+        other_job_id: {
+            type: "string",
+            description: "ID of the other job to compare.",
+        },
+        required: ["job_id", "other_job_id"],
+    },
+    async (args) => {
+        const { job_id, other_job_id, context } = args
+        context.log(`github action diff job logs ${job_id} ${other_job_id}`)
+        const log = await github.diffWorkflowJobLogs(job_id, other_job_id)
         return log
     }
 )
