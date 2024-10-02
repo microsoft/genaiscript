@@ -964,7 +964,7 @@ Queries results from workflows in GitHub actions.
 -  tool `github_actions_workflows_list`: List all workflows as a list of 'id: name' pair.
 -  tool `github_actions_runs_list`: List all runs for a workflow. Use 'git_actions_list_workflows' to list workflows.
 -  tool `github_actions_jobs_list`: List all jobs for a run.
--  tool `github_actions_job_logs_get`: Download workflow job log.
+-  tool `github_actions_job_logs_get`: Download workflow job log. If the log is too large, use 'github_actions_job_logs_diff' to compare logs.
 -  tool `github_actions_job_logs_diff`: Diffs two workflow job logsr.
 
 `````js wrap title="system.github_actions"
@@ -1058,7 +1058,7 @@ defTool(
 
 defTool(
     "github_actions_job_logs_get",
-    "Download workflow job log.",
+    "Download workflow job log. If the log is too large, use 'github_actions_job_logs_diff' to compare logs.",
     {
         type: "object",
         properties: {
@@ -1072,9 +1072,11 @@ defTool(
     async (args) => {
         const { job_id, context } = args
         context.log(`github action download job log ${job_id}`)
-        const log = await github.downloadWorkflowJobLog(job_id, {
+        let log = await github.downloadWorkflowJobLog(job_id, {
             llmify: true,
         })
+        if (parsers.tokens(log) > 1000)
+            log = "...(truncated, tool long)...\n" + log.slice(-3000)
         return log
     }
 )
