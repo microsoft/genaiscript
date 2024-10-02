@@ -9,6 +9,7 @@ import { LinkCard } from '@astrojs/starlight/components';
 <LinkCard title="agent_fs" description="Agent that can query files to accomplish tasks" href="/genaiscript/reference/scripts/system#systemagent_fs" />
 <LinkCard title="agent_git" description="Agent that can query Git to accomplish tasks" href="/genaiscript/reference/scripts/system#systemagent_git" />
 <LinkCard title="agent_github" description="Agent that can query GitHub  to accomplish tasks" href="/genaiscript/reference/scripts/system#systemagent_github" />
+<LinkCard title="agent_interpreter" description="Run code interpreters for Python, Math. Use this agent to ground computation questions." href="/genaiscript/reference/scripts/system#systemagent_interpreter" />
 <LinkCard title="fs_find_files" description="Finds file matching a glob pattern. Use pattern to specify a regular expression to search for in the file content." href="/genaiscript/reference/scripts/system#systemfs_find_files" />
 <LinkCard title="fs_read_file" description="Reads a file as text from the file system. Returns undefined if the file does not exist." href="/genaiscript/reference/scripts/system#systemfs_read_file" />
 <LinkCard title="git_branch_current" description="Gets the current branch." href="/genaiscript/reference/scripts/system#systemgit" />
@@ -32,7 +33,8 @@ import { LinkCard } from '@astrojs/starlight/components';
 <LinkCard title="github_pulls_review_comments_list" description="Get review comments for a pull request." href="/genaiscript/reference/scripts/system#systemgithub_pulls" />
 <LinkCard title="math_eval" description="Evaluates a math expression" href="/genaiscript/reference/scripts/system#systemmath" />
 <LinkCard title="md_read_frontmatter" description="Reads the frontmatter of a markdown or MDX file." href="/genaiscript/reference/scripts/system#systemmd_frontmatter" />
-<LinkCard title="python_code_interpreter" description="Executes python 3.12 code for Data Analysis tasks in a docker container. The process output is returned. Do not generate visualizations. The only packages available are numpy, pandas, scipy. There is NO network connectivity. Do not attempt to install other packages or make web requests." href="/genaiscript/reference/scripts/system#systempython_code_interpreter" />
+<LinkCard title="python_code_interpreter_run" description="Executes python 3.12 code for Data Analysis tasks in a docker container. The process output is returned. Do not generate visualizations. The only packages available are numpy, pandas, scipy. There is NO network connectivity. Do not attempt to install other packages or make web requests." href="/genaiscript/reference/scripts/system#systempython_code_interpreter" />
+<LinkCard title="python_code_interpreter_copy_files" description="Copy files from the host file system to the container file system" href="/genaiscript/reference/scripts/system#systempython_code_interpreter" />
 <LinkCard title="retrieval_fuzz_search" description="Search for keywords using the full text of files and a fuzzy distance." href="/genaiscript/reference/scripts/system#systemretrieval_fuzz_search" />
 <LinkCard title="retrieval_vector_search" description="Search files using embeddings and similarity distance." href="/genaiscript/reference/scripts/system#systemretrieval_vector_search" />
 <LinkCard title="retrieval_web_search" description="Search the web for a user query using Bing Search." href="/genaiscript/reference/scripts/system#systemretrieval_web_search" />
