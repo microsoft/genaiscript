@@ -22,17 +22,21 @@ defTool(
     "github_actions_runs_list",
     "List all runs for a workflow. Use 'git_actions_list_workflows' to list workflows.",
     {
-        workflow_id: {
-            type: "string",
-            description: "ID of the workflow to list runs for.",
-        },
-        branch: {
-            type: "string",
-            description: "Branch to list runs for.",
-        },
-        status: {
-            type: "string",
-            description: "Filter runs by completion status: success, failured.",
+        type: "object",
+        properties: {
+            workflow_id: {
+                type: "string",
+                description: "ID of the workflow to list runs for.",
+            },
+            branch: {
+                type: "string",
+                description: "Branch to list runs for.",
+            },
+            status: {
+                type: "string",
+                description:
+                    "Filter runs by completion status: success, failured.",
+            },
         },
         required: ["workflow_id"],
     },
@@ -61,10 +65,13 @@ defTool(
     "github_actions_jobs_list",
     "List all jobs for a run.",
     {
-        run_id: {
-            type: "string",
-            description:
-                "ID of the run to list jobs for. Use 'git_actions_list_runs' to list runs for a workflow.",
+        type: "object",
+        properties: {
+            run_id: {
+                type: "string",
+                description:
+                    "ID of the run to list jobs for. Use 'git_actions_list_runs' to list runs for a workflow.",
+            },
         },
         required: ["run_id"],
     },
@@ -83,9 +90,12 @@ defTool(
     "github_actions_job_logs_get",
     "Download workflow job log.",
     {
-        job_id: {
-            type: "string",
-            description: "ID of the job to download log for.",
+        type: "object",
+        properties: {
+            job_id: {
+                type: "string",
+                description: "ID of the job to download log for.",
+            },
         },
         required: ["job_id"],
     },
@@ -103,13 +113,16 @@ defTool(
     "github_actions_job_los_diff",
     "Diffs two workflow job logs.",
     {
-        job_id: {
-            type: "string",
-            description: "ID of the job to compare.",
-        },
-        other_job_id: {
-            type: "string",
-            description: "ID of the other job to compare.",
+        type: "object",
+        properties: {
+            job_id: {
+                type: "string",
+                description: "ID of the job to compare.",
+            },
+            other_job_id: {
+                type: "string",
+                description: "ID of the other job to compare.",
+            },
         },
         required: ["job_id", "other_job_id"],
     },

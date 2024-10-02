@@ -6,13 +6,16 @@ defTool(
     "github_files_get",
     "Get a file from a repository.",
     {
-        filepath: {
-            type: "string",
-            description: "Path to the file",
-        },
-        ref: {
-            type: "string",
-            description: "Branch, tag, or commit to get the file from",
+        type: "object",
+        properties: {
+            filepath: {
+                type: "string",
+                description: "Path to the file",
+            },
+            ref: {
+                type: "string",
+                description: "Branch, tag, or commit to get the file from",
+            },
         },
         required: ["filepath", "ref"],
     },
@@ -28,14 +31,17 @@ defTool(
     "github_files_list",
     "List all files in a repository.",
     {
-        path: {
-            type: "string",
-            description: "Path to the directory",
-        },
-        ref: {
-            type: "string",
-            description:
-                "Branch, tag, or commit to get the file from. Uses default branch if not provided.",
+        type: "object",
+        properties: {
+            path: {
+                type: "string",
+                description: "Path to the directory",
+            },
+            ref: {
+                type: "string",
+                description:
+                    "Branch, tag, or commit to get the file from. Uses default branch if not provided.",
+            },
         },
         required: ["path"],
     },

@@ -6,22 +6,26 @@ defTool(
     "github_issues_list",
     "List all issues in a repository.",
     {
-        state: {
-            type: "string",
-            description:
-                "state of the issue from  'open, 'closed', 'all'. Default is 'open'.",
-        },
-        labels: {
-            type: "string",
-            description: "Comma-separated list of labels to filter by.",
-        },
-        sort: {
-            type: "string",
-            description: "What to sort by: 'created', 'updated', 'comments'",
-        },
-        direction: {
-            type: "string",
-            description: "Direction to sort: 'asc', 'desc'",
+        type: "object",
+        properties: {
+            state: {
+                type: "string",
+                description:
+                    "state of the issue from  'open, 'closed', 'all'. Default is 'open'.",
+            },
+            labels: {
+                type: "string",
+                description: "Comma-separated list of labels to filter by.",
+            },
+            sort: {
+                type: "string",
+                description:
+                    "What to sort by: 'created', 'updated', 'comments'",
+            },
+            direction: {
+                type: "string",
+                description: "Direction to sort: 'asc', 'desc'",
+            },
         },
     },
     async (args) => {
@@ -38,7 +42,16 @@ defTool(
 defTool(
     "github_issues_get",
     "Get a single issue by number.",
-    { number: "number" },
+    {
+        type: "object",
+        properties: {
+            number: {
+                type: "number",
+                description: "The 'number' of the issue (not the id)",
+            },
+        },
+        required: ["number"],
+    },
     async (args) => {
         const { number: issue_number, context } = args
         context.log(`github issue get ${issue_number}`)
@@ -58,7 +71,16 @@ defTool(
 defTool(
     "github_issues_comments_list",
     "Get comments for an issue.",
-    { number: "number" },
+    {
+        type: "object",
+        properties: {
+            number: {
+                type: "number",
+                description: "The 'number' of the issue (not the id)",
+            },
+        },
+        required: ["number"],
+    },
     async (args) => {
         const { number: issue_number, context } = args
         context.log(`github issue list comments ${issue_number}`)

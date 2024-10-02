@@ -75,6 +75,7 @@ type SystemPromptId = OptionsOrString<
     | "system.agent_git"
     | "system.agent_github"
     | "system.agent_interpreter"
+    | "system.agent_user_input"
     | "system.annotations"
     | "system.changelog"
     | "system.diagrams"
@@ -101,6 +102,7 @@ type SystemPromptId = OptionsOrString<
     | "system.technical"
     | "system.tools"
     | "system.typescript"
+    | "system.user_input"
     | "system.zero_shot_cot"
 >
 
@@ -109,6 +111,7 @@ type SystemToolId = OptionsOrString<
     | "agent_git"
     | "agent_github"
     | "agent_interpreter"
+    | "agent_user_input"
     | "fs_find_files"
     | "fs_read_file"
     | "git_branch_current"
@@ -137,6 +140,9 @@ type SystemToolId = OptionsOrString<
     | "retrieval_fuzz_search"
     | "retrieval_vector_search"
     | "retrieval_web_search"
+    | "user_input_confirm"
+    | "user_input_select"
+    | "user_input_text"
 >
 
 type FileMergeHandler = (

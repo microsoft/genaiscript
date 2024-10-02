@@ -12,7 +12,6 @@ defTool(
             type: "string",
             description: "Query to answer",
         },
-        required: ["query"],
     },
     async (args) => {
         const { context, query } = args

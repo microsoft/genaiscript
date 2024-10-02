@@ -119,7 +119,6 @@ defTool(
             type: "string",
             description: "Query to answer",
         },
-        required: ["query"],
     },
     async (args) => {
         const { context, query } = args
@@ -147,7 +146,7 @@ defTool(
                     "system.retrieval_fuzz_search",
                     "system.md_frontmatter",
                 ],
-                label: "agent file system"
+                label: "agent file system",
             }
         )
         return res
@@ -180,7 +179,6 @@ defTool(
             type: "string",
             description: "Query to answer",
         },
-        required: ["query"],
     },
     async (args) => {
         const { context, query } = args
@@ -205,7 +203,7 @@ defTool(
                     "system.explanations",
                     "system.git",
                 ],
-                label: "agent git"
+                label: "agent git",
             }
         )
         return res
@@ -238,7 +236,6 @@ defTool(
             type: "string",
             description: "Query to answer",
         },
-        required: ["query"],
     },
     async (args) => {
         const { context, query } = args
@@ -302,7 +299,6 @@ defTool(
             type: "string",
             description: "Query to answer",
         },
-        required: ["query"],
     },
     async (args) => {
         const { context, query } = args
@@ -330,6 +326,57 @@ defTool(
                     "system.python_code_interpreter",
                 ],
                 label: "agent interpreter",
+            }
+        )
+        return res
+    }
+)
+
+`````
+
+
+### `system.agent_user_input`
+
+Agent that can asks questions to the user.
+
+
+
+-  tool `agent_user_input`: Ask user for input to confirm, select or answer a question.
+
+`````js wrap title="system.agent_user_input"
+system({
+    title: "Agent that can asks questions to the user.",
+})
+
+const model = env.vars.agentInterpreterModel
+defTool(
+    "agent_user_input",
+    "Ask user for input to confirm, select or answer a question.",
+    {
+        query: {
+            type: "string",
+            description: "Query to answer",
+        },
+    },
+    async (args) => {
+        const { context, query } = args
+        context.log(`agent user input: ${query}`)
+        const res = await runPrompt(
+            (_) => {
+                _.def("QUERY", query)
+                _.$`You are an agent that can ask questions to the user and receive answers. Use the tools to interact with the user. 
+                
+                Analyze and answer QUERY.
+                
+                - the message should be very clear. Add context from the conversation as needed.
+                - Assume that your answer will be analyzed by an AI, not a human.
+                - If you cannot answer the query, return an empty string.
+                `
+            },
+            {
+                model,
+                system: ["system", "system.tools", "system.user_input"],
+                label: "agent user input",
             }
         )
         return res
@@ -893,17 +940,21 @@ defTool(
     "github_actions_runs_list",
     "List all runs for a workflow. Use 'git_actions_list_workflows' to list workflows.",
     {
-        workflow_id: {
-            type: "string",
-            description: "ID of the workflow to list runs for.",
-        },
-        branch: {
-            type: "string",
-            description: "Branch to list runs for.",
-        },
-        status: {
-            type: "string",
-            description: "Filter runs by completion status: success, failured.",
+        type: "object",
+        properties: {
+            workflow_id: {
+                type: "string",
+                description: "ID of the workflow to list runs for.",
+            },
+            branch: {
+                type: "string",
+                description: "Branch to list runs for.",
+            },
+            status: {
+                type: "string",
+                description:
+                    "Filter runs by completion status: success, failured.",
+            },
         },
         required: ["workflow_id"],
     },
@@ -932,10 +983,13 @@ defTool(
     "github_actions_jobs_list",
     "List all jobs for a run.",
     {
-        run_id: {
-            type: "string",
-            description:
-                "ID of the run to list jobs for. Use 'git_actions_list_runs' to list runs for a workflow.",
+        type: "object",
+        properties: {
+            run_id: {
+                type: "string",
+                description:
+                    "ID of the run to list jobs for. Use 'git_actions_list_runs' to list runs for a workflow.",
+            },
         },
         required: ["run_id"],
     },
@@ -954,9 +1008,12 @@ defTool(
     "github_actions_job_logs_get",
     "Download workflow job log.",
     {
-        job_id: {
-            type: "string",
-            description: "ID of the job to download log for.",
+        type: "object",
+        properties: {
+            job_id: {
+                type: "string",
+                description: "ID of the job to download log for.",
+            },
         },
         required: ["job_id"],
     },
@@ -974,13 +1031,16 @@ defTool(
     "github_actions_job_los_diff",
     "Diffs two workflow job logs.",
     {
-        job_id: {
-            type: "string",
-            description: "ID of the job to compare.",
-        },
-        other_job_id: {
-            type: "string",
-            description: "ID of the other job to compare.",
+        type: "object",
+        properties: {
+            job_id: {
+                type: "string",
+                description: "ID of the job to compare.",
+            },
+            other_job_id: {
+                type: "string",
+                description: "ID of the other job to compare.",
+            },
         },
         required: ["job_id", "other_job_id"],
     },
@@ -1013,13 +1073,16 @@ defTool(
     "github_files_get",
     "Get a file from a repository.",
     {
-        filepath: {
-            type: "string",
-            description: "Path to the file",
-        },
-        ref: {
-            type: "string",
-            description: "Branch, tag, or commit to get the file from",
+        type: "object",
+        properties: {
+            filepath: {
+                type: "string",
+                description: "Path to the file",
+            },
+            ref: {
+                type: "string",
+                description: "Branch, tag, or commit to get the file from",
+            },
         },
         required: ["filepath", "ref"],
     },
@@ -1035,14 +1098,17 @@ defTool(
     "github_files_list",
     "List all files in a repository.",
     {
-        path: {
-            type: "string",
-            description: "Path to the directory",
-        },
-        ref: {
-            type: "string",
-            description:
-                "Branch, tag, or commit to get the file from. Uses default branch if not provided.",
+        type: "object",
+        properties: {
+            path: {
+                type: "string",
+                description: "Path to the directory",
+            },
+            ref: {
+                type: "string",
+                description:
+                    "Branch, tag, or commit to get the file from. Uses default branch if not provided.",
+            },
         },
         required: ["path"],
     },
@@ -1076,22 +1142,26 @@ defTool(
     "github_issues_list",
     "List all issues in a repository.",
     {
-        state: {
-            type: "string",
-            description:
-                "state of the issue from  'open, 'closed', 'all'. Default is 'open'.",
-        },
-        labels: {
-            type: "string",
-            description: "Comma-separated list of labels to filter by.",
-        },
-        sort: {
-            type: "string",
-            description: "What to sort by: 'created', 'updated', 'comments'",
-        },
-        direction: {
-            type: "string",
-            description: "Direction to sort: 'asc', 'desc'",
+        type: "object",
+        properties: {
+            state: {
+                type: "string",
+                description:
+                    "state of the issue from  'open, 'closed', 'all'. Default is 'open'.",
+            },
+            labels: {
+                type: "string",
+                description: "Comma-separated list of labels to filter by.",
+            },
+            sort: {
+                type: "string",
+                description:
+                    "What to sort by: 'created', 'updated', 'comments'",
+            },
+            direction: {
+                type: "string",
+                description: "Direction to sort: 'asc', 'desc'",
+            },
         },
     },
     async (args) => {
@@ -1108,7 +1178,16 @@ defTool(
 defTool(
     "github_issues_get",
     "Get a single issue by number.",
-    { number: "number" },
+    {
+        type: "object",
+        properties: {
+            number: {
+                type: "number",
+                description: "The 'number' of the issue (not the id)",
+            },
+        },
+        required: ["number"],
+    },
     async (args) => {
         const { number: issue_number, context } = args
         context.log(`github issue get ${issue_number}`)
@@ -1128,7 +1207,16 @@ defTool(
 defTool(
     "github_issues_comments_list",
     "Get comments for an issue.",
-    { number: "number" },
+    {
+        type: "object",
+        properties: {
+            number: {
+                type: "number",
+                description: "The 'number' of the issue (not the id)",
+            },
+        },
+        required: ["number"],
+    },
     async (args) => {
         const { number: issue_number, context } = args
         context.log(`github issue list comments ${issue_number}`)
@@ -1166,22 +1254,26 @@ defTool(
     "github_pulls_list",
     "List all pull requests in a repository.",
     {
-        state: {
-            type: "string",
-            description:
-                "state of the pull request from  'open, 'closed', 'all'. Default is 'open'.",
-        },
-        labels: {
-            type: "string",
-            description: "Comma-separated list of labels to filter by.",
-        },
-        sort: {
-            type: "string",
-            description: "What to sort by: 'created', 'updated', 'comments'",
-        },
-        direction: {
-            type: "string",
-            description: "Direction to sort: 'asc', 'desc'",
+        type: "object",
+        properties: {
+            state: {
+                type: "string",
+                description:
+                    "state of the pull request from  'open, 'closed', 'all'. Default is 'open'.",
+            },
+            labels: {
+                type: "string",
+                description: "Comma-separated list of labels to filter by.",
+            },
+            sort: {
+                type: "string",
+                description:
+                    "What to sort by: 'created', 'updated', 'comments'",
+            },
+            direction: {
+                type: "string",
+                description: "Direction to sort: 'asc', 'desc'",
+            },
         },
     },
     async (args) => {
@@ -1202,7 +1294,16 @@ defTool(
 defTool(
     "github_pulls_get",
     "Get a single pull request by number.",
-    { number: "number" },
+    {
+        type: "object",
+        properties: {
+            number: {
+                type: "number",
+                description: "The 'number' of the pull request (not the id)",
+            },
+        },
+        required: ["number"],
+    },
     async (args) => {
         const { number: pull_number, context } = args
         context.log(`github pull get ${pull_number}`)
@@ -1222,7 +1323,17 @@ defTool(
 defTool(
     "github_pulls_review_comments_list",
     "Get review comments for a pull request.",
-    { number: "number" },
+    {
+        type: "object",
+        properties: {
+            number: {
+                type: "number",
+                description: "The 'number' of the pull request (not the id)",
+            },
+        },
+        required: ["number"],
+    },
+
     async (args) => {
         const { number: pull_number, context } = args
         context.log(`github pull comments list ${pull_number}`)
@@ -1251,19 +1362,25 @@ system({
     description: "Register a function that evaluates math expressions",
 })
 
-defTool("math_eval", "Evaluates a math expression", {
-    type: "object",
-    properties: {
-        expression: {
-            type: "string",
-            description: "Math expression to evaluate using mathjs format.",
-        }
+defTool(
+    "math_eval",
+    "Evaluates a math expression",
+    {
+        type: "object",
+        properties: {
+            expression: {
+                type: "string",
+                description: "Math expression to evaluate using mathjs format.",
+            },
+        },
+        required: ["expression"],
     },
-    required: ["expression"],
-}, async (args) => {
-    const { expression } = args
-    return "" + (await parsers.math(expression) ?? "?")
-})
+    async (args) => {
+        const { expression } = args
+        return "" + ((await parsers.math(expression)) ?? "?")
+    }
+)
+
 `````
 
 
@@ -1383,8 +1500,8 @@ defTool(
         required: ["main"],
     },
     async (args) => {
-        const { main = "" } = args
-        console.log(`python code interpreter: run`)
+        const { context, main = "" } = args
+        context.log(`python code interpreter: run`)
         const container = await getContainer
         return await queue.add(async () => {
             await container.writeText("main.py", main)
@@ -1409,8 +1526,8 @@ defTool(
         required: ["from"],
     },
     async (args) => {
-        const { from, to = "" } = args
-        console.log(`python code interpreter: cp ${from} ${to}`)
+        const { context, from, to = "" } = args
+        context.log(`python code interpreter: cp ${from} ${to}`)
         const container = await getContainer
         return await queue.add(async () => {
             await container.copyTo(from, to)
@@ -1678,6 +1795,91 @@ system({
 })
 
 $`Also, you are an expert coder in TypeScript.`
+
+`````
+
+
+### `system.user_input`
+
+Tools to ask questions to the user.
+
+
+
+-  tool `user_input_confirm`: Ask the user to confirm a message.
+-  tool `user_input_select`: Ask the user to select an option.
+-  tool `user_input_text`: Ask the user to input text.
+
+`````js wrap title="system.user_input"
+system({
+    title: "Tools to ask questions to the user.",
+})
+
+defTool(
+    "user_input_confirm",
+    "Ask the user to confirm a message.",
+    {
+        type: "object",
+        properties: {
+            message: {
+                type: "string",
+                description: "Message to confirm",
+            },
+        },
+        required: ["message"],
+    },
+    async (args) => {
+        const { context, message } = args
+        context.log(`user input confirm: ${message}`)
+        return await host.confirm(message)
+    }
+)
+
+defTool(
+    "user_input_select",
+    "Ask the user to select an option.",
+    {
+        type: "object",
+        properties: {
+            message: {
+                type: "string",
+                description: "Message to select",
+            },
+            options: {
+                type: "array",
+                description: "Options to select",
+                items: {
+                    type: "string",
+                },
+            },
+        },
+        required: ["message", "options"],
+    },
+    async (args) => {
+        const { context, message, options } = args
+        context.log(`user input select: ${message}`)
+        return await host.select(message, options)
+    }
+)
+
+defTool(
+    "user_input_text",
+    "Ask the user to input text.",
+    {
+        type: "object",
+        properties: {
+            message: {
+                type: "string",
+                description: "Message to input",
+            },
+        },
+        required: ["message"],
+    },
+    async (args) => {
+        const { context, message } = args
+        context.log(`user input text: ${message}`)
+        return await host.input(message)
+    }
+)
 
 `````
 

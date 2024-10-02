@@ -6,22 +6,26 @@ defTool(
     "github_pulls_list",
     "List all pull requests in a repository.",
     {
-        state: {
-            type: "string",
-            description:
-                "state of the pull request from  'open, 'closed', 'all'. Default is 'open'.",
-        },
-        labels: {
-            type: "string",
-            description: "Comma-separated list of labels to filter by.",
-        },
-        sort: {
-            type: "string",
-            description: "What to sort by: 'created', 'updated', 'comments'",
-        },
-        direction: {
-            type: "string",
-            description: "Direction to sort: 'asc', 'desc'",
+        type: "object",
+        properties: {
+            state: {
+                type: "string",
+                description:
+                    "state of the pull request from  'open, 'closed', 'all'. Default is 'open'.",
+            },
+            labels: {
+                type: "string",
+                description: "Comma-separated list of labels to filter by.",
+            },
+            sort: {
+                type: "string",
+                description:
+                    "What to sort by: 'created', 'updated', 'comments'",
+            },
+            direction: {
+                type: "string",
+                description: "Direction to sort: 'asc', 'desc'",
+            },
         },
     },
     async (args) => {
@@ -42,7 +46,16 @@ defTool(
 defTool(
     "github_pulls_get",
     "Get a single pull request by number.",
-    { number: "number" },
+    {
+        type: "object",
+        properties: {
+            number: {
+                type: "number",
+                description: "The 'number' of the pull request (not the id)",
+            },
+        },
+        required: ["number"],
+    },
     async (args) => {
         const { number: pull_number, context } = args
         context.log(`github pull get ${pull_number}`)
@@ -62,7 +75,17 @@ defTool(
 defTool(
     "github_pulls_review_comments_list",
     "Get review comments for a pull request.",
-    { number: "number" },
+    {
+        type: "object",
+        properties: {
+            number: {
+                type: "number",
+                description: "The 'number' of the pull request (not the id)",
+            },
+        },
+        required: ["number"],
+    },
+
     async (args) => {
         const { number: pull_number, context } = args
         context.log(`github pull comments list ${pull_number}`)

@@ -12,7 +12,6 @@ defTool(
             type: "string",
             description: "Query to answer",
         },
-        required: ["query"],
     },
     async (args) => {
         const { context, query } = args
@@ -40,7 +39,7 @@ defTool(
                     "system.retrieval_fuzz_search",
                     "system.md_frontmatter",
                 ],
-                label: "agent file system"
+                label: "agent file system",
             }
         )
         return res
