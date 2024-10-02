@@ -52,6 +52,7 @@ import { BrowserManager } from "./playwright"
 import { shellConfirm, shellInput, shellSelect } from "./input"
 import { shellQuote } from "../../core/src/shell"
 import { uniq } from "es-toolkit"
+import { PLimitPromiseQueue } from "../../core/src/concurrency"
 
 class NodeServerManager implements ServerManager {
     async start(): Promise<void> {
@@ -116,6 +117,7 @@ export class NodeHost implements RuntimeHost {
     readonly defaultEmbeddingsModelOptions = {
         embeddingsModel: DEFAULT_EMBEDDINGS_MODEL,
     }
+    readonly userInputQueue = new PLimitPromiseQueue(1)
 
     constructor(dotEnvPath: string) {
         this.dotEnvPath = dotEnvPath
@@ -362,23 +364,25 @@ export class NodeHost implements RuntimeHost {
      * @param message question to ask
      * @param options options to select from
      */
-    select(message: string, options: string[]): Promise<string> {
-        return shellSelect(message, options)
+    async select(message: string, options: string[]): Promise<string> {
+        return await this.userInputQueue.add(() =>
+            shellSelect(message, options)
+        )
     }
 
     /**
      * Asks the user to input a text
      * @param message message to ask
      */
-    input(message: string): Promise<string> {
-        return shellInput(message)
+    async input(message: string): Promise<string> {
+        return await this.userInputQueue.add(() => shellInput(message))
     }
 
     /**
      * Asks the user to confirm a message
      * @param message message to ask
      */
-    confirm(message: string): Promise<boolean> {
-        return shellConfirm(message)
+    async confirm(message: string): Promise<boolean> {
+        return await this.userInputQueue.add(() => shellConfirm(message))
     }
 }
