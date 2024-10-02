@@ -10,6 +10,7 @@ jobs:
             - name: Checkout repository
               uses: actions/checkout@v4
             - name: Read and echo files
+              continue-on-error: true
               run: |
                   for file in $(ls | head -n 10); do
                       echo "Contents of $file:"
