@@ -36,3 +36,10 @@ jobs:
                   OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
                   OPENAI_API_TYPE: ${{ secrets.OPENAI_API_TYPE }}
                   OPENAI_API_BASE: ${{ secrets.OPENAI_API_BASE }}
+            - name: genaiscript gai-agent
+              run: node packages/cli/built/genaiscript.cjs run gai -pr ${{ github.event.workflow_run.pull_requests[0].number }} -prc --vars "workflow=${{ github.event.workflow_run.workflow_id }}" --vars "run=${{ github.event.workflow_run.id }}" --vars "branch=${{ github.event.workflow_run.head_branch }}" --out-trace $GITHUB_STEP_SUMMARY
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+                  OPENAI_API_TYPE: ${{ secrets.OPENAI_API_TYPE }}
+                  OPENAI_API_BASE: ${{ secrets.OPENAI_API_BASE }}
