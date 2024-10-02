@@ -25,6 +25,7 @@ import { resolveFileContent } from "./file"
 import { resolveTokenEncoder } from "./encoders"
 import { mustacheRender } from "./mustache"
 import { jinjaRender } from "./jinja"
+import { createDiff, llmifyDiff } from "./diff"
 
 export async function createParsers(options: {
     trace: MarkdownTrace
@@ -115,5 +116,6 @@ export async function createParsers(options: {
             const f = filenameOrFileToContent(file)
             return jinjaRender(f, data)
         },
+        diff: (f1, f2) => llmifyDiff(createDiff(f1, f2)),
     })
 }

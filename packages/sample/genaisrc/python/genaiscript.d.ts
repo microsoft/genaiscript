@@ -83,6 +83,7 @@ type SystemPromptId = OptionsOrString<
     | "system.explanations"
     | "system.files"
     | "system.files_schema"
+    | "system.fs_diff_files"
     | "system.fs_find_files"
     | "system.fs_read_file"
     | "system.git"
@@ -112,6 +113,7 @@ type SystemToolId = OptionsOrString<
     | "agent_github"
     | "agent_interpreter"
     | "agent_user_input"
+    | "fs_diff_files"
     | "fs_find_files"
     | "fs_read_file"
     | "git_branch_current"
@@ -1242,6 +1244,11 @@ interface Parsers {
      * Renders a jinja template
      */
     jinja(text: string | WorkspaceFile, data: Record<string, any>): string
+
+    /**
+     * Computes a diff between two files
+     */
+    diff(left: WorkspaceFile, right: WorkspaceFile, options?: DefDiffOptions): string
 }
 
 interface AICIGenOptions {

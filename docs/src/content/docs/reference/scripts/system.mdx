@@ -143,6 +143,7 @@ defTool(
                     "system.explanations",
                     "system.fs_find_files",
                     "system.fs_read_file",
+                    "system.fs_diff_files",
                     "system.retrieval_fuzz_search",
                     "system.md_frontmatter",
                 ],
@@ -648,6 +649,51 @@ def(`File ${folder}/data.json`, `...`, {
     language: "json",
     schema: "CITY_SCHEMA",
 })
+
+`````
+
+
+### `system.fs_diff_files`
+
+File Diff Files
+
+Tool to compute a diff betweeen two files.
+
+-  tool `fs_diff_files`: Computes a diff between two files.
+
+`````js wrap title="system.fs_diff_files"
+system({
+    title: "File Diff Files",
+    description: "Tool to compute a diff betweeen two files.",
+})
+
+defTool(
+    "fs_diff_files",
+    "Computes a diff between two files.",
+    {
+        type: "object",
+        properties: {
+            filename: {
+                type: "string",
+                description:
+                    "Path of the file to compare, relative to the workspace.",
+            },
+            otherfilename: {
+                type: "string",
+                description:
+                    "Path of the other file to compare, relative to the workspace.",
+            },
+        },
+        required: ["filename"],
+    },
+    async (args) => {
+        const { context, filename, otherfilename } = args
+        context.log(`diff: ${filename} ${filename}`)
+        const f = await workspace.readText(filename)
+        const of = await workspace.readText(otherfilename)
+        return parsers.diff(f, of)
+    }
+)
 
 `````
 

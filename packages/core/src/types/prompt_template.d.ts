@@ -1170,6 +1170,11 @@ interface Parsers {
      * Renders a jinja template
      */
     jinja(text: string | WorkspaceFile, data: Record<string, any>): string
+
+    /**
+     * Computes a diff between two files
+     */
+    diff(left: WorkspaceFile, right: WorkspaceFile, options?: DefDiffOptions): string
 }
 
 interface AICIGenOptions {

@@ -36,6 +36,7 @@ defTool(
                     "system.explanations",
                     "system.fs_find_files",
                     "system.fs_read_file",
+                    "system.fs_diff_files",
                     "system.retrieval_fuzz_search",
                     "system.md_frontmatter",
                 ],
