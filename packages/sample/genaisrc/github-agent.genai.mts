@@ -3,9 +3,13 @@ script({
     tests: {},
 })
 
-$`Investigate the run status of build.yml in the current branch.
+const workflow = env.vars.workflow || "build.yml"
+const branch = env.vars.branch || "current"
+const run = env.vars.run || ""
 
-If the run failed, analyze the logs and identify the root cause of the failure.0
+$`Investigate the status of run ${run} of workflow ${workflow} in the ${branch} branch.
+
+If the run failed, analyze the logs and identify the root cause of the failure.
 
 - Break down the steps in the workflow.
 - Take a deep breadth and think step by steps.

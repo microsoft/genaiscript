@@ -29,7 +29,6 @@ import {
     ChatCompletionsOptions,
     ChatCompletionTool,
     ChatCompletionUsage,
-    ChatCompletionUsages,
     ChatCompletionUserMessageParam,
     CreateChatCompletionRequest,
 } from "./chattypes"
@@ -371,7 +370,7 @@ function structurifyChatSession(
         err?: any
     }
 ): RunPromptResult {
-    const { trace, responseType, responseSchema, usages } = options
+    const { trace, responseType, responseSchema } = options
     const { resp, err } = others || {}
     const text = assistantText(messages, responseType)
     const annotations = parseAnnotations(text)
@@ -428,7 +427,6 @@ function structurifyChatSession(
         error,
         genVars,
         schemas,
-        usages,
     }
 }
 
@@ -447,10 +445,9 @@ async function processChatMessage(
         maxToolCalls = MAX_TOOL_CALLS,
         trace,
         cancellationToken,
-        usages,
     } = options
 
-    accumulateChatUsage(usages, req.model, resp.usage)
+    stats.addUsage(req.model, resp.usage)
 
     if (resp.text)
         messages.push({
@@ -541,25 +538,6 @@ export function mergeGenerationOptions(
     }
 }
 
-function accumulateChatUsage(
-    usages: ChatCompletionUsages,
-    model: string,
-    usage: ChatCompletionUsage
-) {
-    if (!usage) return
-
-    const u =
-        usages[model] ??
-        (usages[model] = <ChatCompletionUsage>{
-            completion_tokens: 0,
-            prompt_tokens: 0,
-            total_tokens: 0,
-        })
-    u.completion_tokens += usage.completion_tokens ?? 0
-    u.prompt_tokens += usage.prompt_tokens ?? 0
-    u.total_tokens += usage.total_tokens ?? 0
-}
-
 export async function executeChatSession(
     connectionToken: LanguageModelConfiguration,
     cancellationToken: CancellationToken,
@@ -579,10 +557,9 @@ export async function executeChatSession(
         seed,
         responseType,
         responseSchema,
-        stats,
         infoCb,
+        stats
     } = genOptions
-
     traceLanguageModelConnection(trace, genOptions, connectionToken)
     const tools: ChatCompletionTool[] = toolDefinitions?.length
         ? toolDefinitions.map((f) => ({
@@ -672,6 +649,7 @@ export async function executeChatSession(
             }
         }
     } finally {
+        stats.trace(trace)
         trace.endDetails()
     }
 }

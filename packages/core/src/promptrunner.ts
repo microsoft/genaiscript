@@ -23,6 +23,7 @@ import { validateJSONWithSchema } from "./schema"
 import { YAMLParse } from "./yaml"
 import { expandTemplate } from "./expander"
 import { resolveLanguageModel } from "./lm"
+import { Stats } from "fs"
 
 // Asynchronously resolve expansion variables needed for a template
 /**
@@ -185,16 +186,6 @@ export async function runTemplate(
                 frames: [],
             }
         }
-        const genOptions: GenerationOptions = {
-            ...options,
-            responseType,
-            responseSchema,
-            model,
-            temperature,
-            maxTokens,
-            topP,
-            seed,
-        }
         const fileEdits: Record<string, FileUpdate> = {}
         const changelogs: string[] = []
         const edits: Edits[] = []
@@ -232,6 +223,17 @@ export async function runTemplate(
         )
 
         // Execute chat session with the resolved configuration
+        const genOptions: GenerationOptions = {
+            ...options,
+            responseType,
+            responseSchema,
+            model,
+            temperature,
+            maxTokens,
+            topP,
+            seed,
+            stats: options.stats.createChild(connection.info.model),
+        }
         const output = await executeChatSession(
             connection.configuration,
             cancellationToken,
@@ -458,7 +460,6 @@ export async function runTemplate(
             genVars,
             schemas,
             json,
-            usages,
         }
 
         // If there's an error, provide status text

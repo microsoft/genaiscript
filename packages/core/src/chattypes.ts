@@ -23,11 +23,6 @@ export type ChatCompletionUsage = Omit<
     "completion_tokens_details"
 >
 
-/**
- * Per model storage of chat completion usages.
- */
-export type ChatCompletionUsages = Record<string, ChatCompletionUsage>
-
 // Text content part of a chat completion
 export type ChatCompletionContentPartText =
     OpenAI.Chat.Completions.ChatCompletionContentPartText
