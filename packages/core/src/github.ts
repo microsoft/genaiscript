@@ -709,14 +709,16 @@ export class GitHubClient implements GitHub {
 
     private async downladJob(job_id: number) {
         const { client, owner, repo } = await this.client()
-        const { url: filename } =
-            await client.rest.actions.downloadJobLogsForWorkflowRun({
+        const filename = `job-${job_id}.log`
+        const { url } = await client.rest.actions.downloadJobLogsForWorkflowRun(
+            {
                 owner,
                 repo,
                 job_id,
-            })
-        const { text: content } = await fetchText(filename)
-        return { filename, content }
+            }
+        )
+        const { text: content } = await fetchText(url)
+        return { filename, url, content }
     }
 
     async diffWorkflowJobLogs(job_id: number, other_job_id: number) {
