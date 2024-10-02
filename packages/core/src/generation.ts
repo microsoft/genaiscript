@@ -1,12 +1,9 @@
 // Import necessary modules and interfaces
 import { CancellationToken } from "./cancellation"
 import { LanguageModel } from "./chat"
-import {
-    ChatCompletionMessageParam,
-    ChatCompletionsOptions,
-    ChatCompletionUsages,
-} from "./chattypes"
+import { ChatCompletionMessageParam, ChatCompletionsOptions } from "./chattypes"
 import { MarkdownTrace } from "./trace"
+import { GenerationStats } from "./usage"
 
 // Represents a code fragment with associated files
 export interface Fragment {
@@ -61,11 +58,6 @@ export interface GenerationResult extends GenerationOutput {
     finishReason?: string
 
     /**
-     * Token usage statistics if reported by LLM
-     */
-    usages?: ChatCompletionUsages
-
-    /**
      * Optional label for the run
      */
     label?: string
@@ -74,13 +66,6 @@ export interface GenerationResult extends GenerationOutput {
      * Version of the GenAIScript used
      */
     version: string
-}
-
-// Interface to hold statistics related to the generation process
-export interface GenerationStats {
-    toolCalls: number // Number of tool invocations
-    repairs: number // Number of repairs made
-    turns: number // Number of turns in the interaction
 }
 
 // Type representing possible statuses of generation
@@ -105,5 +90,4 @@ export interface GenerationOptions
     }
     vars?: PromptParameters // Variables for prompt customization
     stats: GenerationStats // Statistics of the generation
-    usages: ChatCompletionUsages
 }

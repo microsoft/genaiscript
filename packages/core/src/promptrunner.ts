@@ -106,7 +106,8 @@ export async function runTemplate(
     assert(fragment !== undefined)
     assert(options !== undefined)
     assert(options.trace !== undefined)
-    const { skipLLM, label, cliInfo, trace, cancellationToken, model } = options
+    const { skipLLM, label, cliInfo, trace, cancellationToken, model, stats } =
+        options
     const version = CORE_VERSION
     assert(model !== undefined)
 
@@ -458,7 +459,6 @@ export async function runTemplate(
             genVars,
             schemas,
             json,
-            usages,
         }
 
         // If there's an error, provide status text

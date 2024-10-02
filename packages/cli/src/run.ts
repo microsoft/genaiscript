@@ -6,10 +6,7 @@ import { convertDiagnosticsToSARIF } from "./sarif"
 import { buildProject } from "./build"
 import { diagnosticsToCSV } from "../../core/src/ast"
 import { CancellationOptions } from "../../core/src/cancellation"
-import {
-    ChatCompletionsProgressReport,
-    ChatCompletionUsages,
-} from "../../core/src/chattypes"
+import { ChatCompletionsProgressReport } from "../../core/src/chattypes"
 import { runTemplate } from "../../core/src/promptrunner"
 import {
     githubCreateIssueComment,
@@ -73,6 +70,7 @@ import { writeFile } from "fs/promises"
 import { writeFileSync } from "node:fs"
 import { prettifyMarkdown } from "../../core/src/markdown"
 import { delay } from "es-toolkit"
+import { GenerationStats } from "../../core/src/usage"
 
 async function setupTraceWriting(trace: MarkdownTrace, filename: string) {
     logVerbose(`trace: ${filename}`)
@@ -247,7 +245,7 @@ export async function runScript(
         (acc, v) => ({ ...acc, ...parseKeyValuePair(v) }),
         {}
     )
-    const usages: ChatCompletionUsages = {}
+    const stats = new GenerationStats()
     try {
         if (options.label) trace.heading(2, options.label)
         const { info } = await resolveModelConnectionInfo(script, {
@@ -265,7 +263,6 @@ export async function runScript(
         trace.options.encoder = await resolveTokenEncoder(info.model)
         await runtimeHost.models.pullModel(info.model)
         result = await runTemplate(prj, script, fragment, {
-            usages,
             inner: false,
             infoCb: (args) => {
                 const { text } = args
@@ -313,11 +310,7 @@ export async function runScript(
             cliInfo: {
                 files,
             },
-            stats: {
-                toolCalls: 0,
-                repairs: 0,
-                turns: 0,
-            },
+            stats,
         })
     } catch (err) {
         if (isCancelError(err))
@@ -527,12 +520,7 @@ export async function runScript(
         return fail("error annotations found", ANNOTATION_ERROR_CODE)
 
     logVerbose("genaiscript: done")
-    for (const [key, value] of Object.entries(usages)) {
-        if (value.total_tokens > 0)
-            logVerbose(
-                `tokens:  ${key}, ${value.total_tokens} (${value.prompt_tokens} => ${value.completion_tokens})`
-            )
-    }
+    stats.log()
     if (outTraceFilename) logVerbose(`  trace: ${outTraceFilename}`)
     return { exitCode: 0, result }
 }
