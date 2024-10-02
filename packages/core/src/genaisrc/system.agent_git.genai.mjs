@@ -37,6 +37,7 @@ defTool(
                     "system.explanations",
                     "system.git",
                 ],
+                label: "agent git"
             }
         )
         return res

@@ -44,6 +44,7 @@ defTool(
                     "system.github_issues",
                     "system.github_pulls",
                 ],
+                label: "agent github",
             }
         )
         return res

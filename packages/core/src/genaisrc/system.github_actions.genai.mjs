@@ -80,7 +80,7 @@ defTool(
 )
 
 defTool(
-    "github_actions_job_log_get",
+    "github_actions_job_logs_get",
     "Download workflow job log.",
     {
         job_id: {
@@ -100,7 +100,7 @@ defTool(
 )
 
 defTool(
-    "github_actions_job_log_diff",
+    "github_actions_job_los_diff",
     "Diffs two workflow job logs.",
     {
         job_id: {

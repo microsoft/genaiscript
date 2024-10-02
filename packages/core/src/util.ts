@@ -14,10 +14,20 @@ export function strcmp(a: string, b: string) {
     else return 1
 }
 
-export function arrayify<T>(a: T | T[]): T[] {
-    if (a === undefined) return []
-    if (Array.isArray(a)) return a.slice(0)
-    return [a]
+export function arrayify<T>(
+    a: T | T[],
+    options?: { filterEmpty?: boolean }
+): T[] {
+    const { filterEmpty } = options || {}
+
+    let r: T[]
+    if (a === undefined) r = []
+    else if (Array.isArray(a)) r = a.slice(0)
+    else r = [a]
+
+    if (filterEmpty) return r.filter((f) => !!f)
+
+    return r
 }
 
 export function toArray<T>(a: ArrayLike<T>): T[] {

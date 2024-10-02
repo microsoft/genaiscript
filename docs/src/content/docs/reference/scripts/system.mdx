@@ -147,6 +147,7 @@ defTool(
                     "system.retrieval_fuzz_search",
                     "system.md_frontmatter",
                 ],
+                label: "agent file system"
             }
         )
         return res
@@ -204,6 +205,7 @@ defTool(
                     "system.explanations",
                     "system.git",
                 ],
+                label: "agent git"
             }
         )
         return res
@@ -268,6 +270,7 @@ defTool(
                     "system.github_issues",
                     "system.github_pulls",
                 ],
+                label: "agent github",
             }
         )
         return res
@@ -803,8 +806,8 @@ Queries results from workflows in GitHub actions.
 -  tool `github_actions_workflows_list`: List all workflows as a list of 'id: name' pair.
 -  tool `github_actions_runs_list`: List all runs for a workflow. Use 'git_actions_list_workflows' to list workflows.
 -  tool `github_actions_jobs_list`: List all jobs for a run.
--  tool `github_actions_job_log_get`: Download workflow job log.
--  tool `github_actions_job_log_diff`: Diffs two workflow job logs.
+-  tool `github_actions_job_logs_get`: Download workflow job log.
+-  tool `github_actions_job_los_diff`: Diffs two workflow job logs.
 
 `````js wrap title="system.github_actions"
 system({
@@ -889,7 +892,7 @@ defTool(
 )
 
 defTool(
-    "github_actions_job_log_get",
+    "github_actions_job_logs_get",
     "Download workflow job log.",
     {
         job_id: {
@@ -909,7 +912,7 @@ defTool(
 )
 
 defTool(
-    "github_actions_job_log_diff",
+    "github_actions_job_los_diff",
     "Diffs two workflow job logs.",
     {
         job_id: {
