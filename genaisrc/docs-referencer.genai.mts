@@ -11,8 +11,7 @@ script({
     tools: ["fs", "md"],
 })
 
-const api =
-    env.vars.api || "the global variable 'git', implemented by the type 'Git'"
+const api = env.vars.api || "git"
 const doc = env.vars.route || api + ".md"
 const ref = "docs/src/content/docs/reference/scripts"
 const docpath = path.join(ref, doc)
@@ -38,6 +37,7 @@ Generate or update a reference documentation for ${api}.
 ## Context
 
 - the documentation is in markdown/MDX and has frontmatter: ${ref}/*.md*
+- take inspiration from the existing samples are in "packages/sample/genaisrc/*.genai.*" and you can grep for '${api}\.'
 - the online documentation: https://microsoft.github.io/genaiscript/
 - API_TYPES contains the public TypeScript types for the GenAIScript API
 `
