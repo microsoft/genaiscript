@@ -6,7 +6,7 @@ const model = env.vars.agentGitModel
 
 defTool(
     "agent_git",
-    "Agent that can query Git to accomplish tasks",
+    "Agent that can query a repository using Git to accomplish tasks. Provide all the context information available to execute git queries.",
     {
         query: {
             type: "string",
