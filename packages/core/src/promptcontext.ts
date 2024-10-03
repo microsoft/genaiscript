@@ -54,8 +54,9 @@ export async function createPromptContext(
     const workspace: WorkspaceFileSystem = {
         readText: (f) => runtimeHost.workspace.readText(f),
         readJSON: (f) => runtimeHost.workspace.readJSON(f),
-        readXML: (f) => runtimeHost.workspace.readXML(f),
-        readCSV: (f) => runtimeHost.workspace.readCSV(f),
+        readYAML: (f) => runtimeHost.workspace.readYAML(f),
+        readXML: (f, o) => runtimeHost.workspace.readXML(f, o),
+        readCSV: (f, o) => runtimeHost.workspace.readCSV(f, o),
         writeText: (f, c) => runtimeHost.workspace.writeText(f, c),
         cache: (n) => runtimeHost.workspace.cache(n),
         findFiles: async (pattern, options) => {

@@ -74,6 +74,9 @@
     "cSpell.enableFiletypes": [
         "!json"
     ],
+    "files.associations": {
+        ".gitignore.genai": "ignore",
+    },
     "files.eol": "\n",
     "terminal.integrated.defaultProfile.windows": "Git Bash",
     "workbench.colorCustomizations": {

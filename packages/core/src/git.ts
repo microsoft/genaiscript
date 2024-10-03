@@ -15,6 +15,17 @@ export class GitClient implements Git {
     readonly git = "git" // Git command identifier
     private _defaultBranch: string // Stores the default branch name
 
+    private async resolveExcludedPaths(options?: {
+        excludedPaths?: ElementOrArray<string>
+    }): Promise<string[]> {
+        const { excludedPaths } = options || {}
+        if (excludedPaths) return arrayify(excludedPaths, { filterEmpty: true })
+        const defaultExcludedPaths = (
+            await workspace.readText(".genaiscriptignore")
+        )?.content?.split("\n")
+        return arrayify(defaultExcludedPaths, { filterEmpty: true })
+    }
+
     /**
      * Retrieves the default branch name.
      * If not already set, it fetches from the Git remote.
@@ -77,15 +88,13 @@ export class GitClient implements Git {
         options?: {
             base?: string
             paths?: ElementOrArray<string>
-            askStageOnEmpty?: boolean
             excludedPaths?: ElementOrArray<string>
+            askStageOnEmpty?: boolean
         }
     ): Promise<WorkspaceFile[]> {
         const { askStageOnEmpty } = options || {}
         const paths = arrayify(options?.paths, { filterEmpty: true })
-        const excludedPaths = arrayify(options?.excludedPaths, {
-            filterEmpty: true,
-        })
+        const excludedPaths = await this.resolveExcludedPaths(options)
 
         let filenames: string[]
         if (scope === "modified-base" || scope === "staged") {
@@ -179,9 +188,7 @@ export class GitClient implements Git {
     }): Promise<GitCommit[]> {
         const { base, head, merges, excludedGrep } = options || {}
         const paths = arrayify(options?.paths, { filterEmpty: true })
-        const excludedPaths = arrayify(options?.excludedPaths, {
-            filterEmpty: true,
-        })
+        const excludedPaths = await this.resolveExcludedPaths(options)
 
         const args = ["log", "--pretty=oneline"]
         if (!merges) args.push("--no-merges")
@@ -223,9 +230,7 @@ export class GitClient implements Git {
         llmify?: boolean
     }): Promise<string> {
         const paths = arrayify(options?.paths, { filterEmpty: true })
-        const excludedPaths = arrayify(options?.excludedPaths, {
-            filterEmpty: true,
-        })
+        const excludedPaths = await this.resolveExcludedPaths(options)
         const { staged, base, head, unified, askStageOnEmpty } = options || {}
         const args = ["diff"]
         if (staged) args.push("--staged")

@@ -55,9 +55,14 @@ defTool(
         },
     },
     async (args) => {
-        let { base, context, ...rest } = args
+        let { base, context, excludedPaths, ...rest } = args
         if (base === "DEFAULT") base = await git.defaultBranch()
-        const res = await git.diff({ llmify: true, ...rest })
+        const res = await git.diff({
+            llmify: true,
+            base,
+            excludedPaths,
+            ...rest,
+        })
         return res
     }
 )
