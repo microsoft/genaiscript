@@ -4,10 +4,9 @@ system({
 
 const info = await github.info()
 if (info?.owner) {
+    const { auth, ...rest } = info
     $`## GitHub information:
 
-- owner: ${info.owner}
-- repo: ${info.repo}
-
+${YAML.stringify(rest)}
 `
 }
