@@ -1,7 +1,7 @@
 name: genai investigator
 on:
     workflow_run:
-        workflows: ["build"]
+        workflows: ["build", "playwright", "ollama"]
         types:
             - completed
 concurrency:

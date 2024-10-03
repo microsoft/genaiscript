@@ -988,31 +988,6 @@ defTool("git_last_tag", "Gets the last tag using git.", {}, async () => {
 `````
 
 
-### `system.github`
-
-General GitHub information.
-
-
-
-
-
-`````js wrap title="system.github"
-system({
-    title: "General GitHub information.",
-})
-
-const info = await github.info()
-if (info?.owner) {
-    const { auth, ...rest } = info
-    $`## GitHub information:
-
-${YAML.stringify(rest)}
-`
-}
-
-`````
-
-
 ### `system.github_actions`
 
 github workflows
@@ -1233,6 +1208,31 @@ defTool(
         return CSV.stringify(res, { header: true })
     }
 )
+
+`````
+
+
+### `system.github_info`
+
+General GitHub information.
+
+
+
+
+
+`````js wrap title="system.github_info"
+system({
+    title: "General GitHub information.",
+})
+
+const info = await github.info()
+if (info?.owner) {
+    const { auth, ...rest } = info
+    $`## GitHub information:
+
+${YAML.stringify(rest)}
+`
+}
 
 `````
 
