@@ -24,7 +24,7 @@ Your are a technical writer for GenAIScript. You write clear and concise documen
 
 Generate or update a reference documentation for ${api}.
 
-- update the existing documentation (EXISTING_DOC) if it exists with minimal changes
+- update the existing documentation (${doc}) if it exists with minimal changes
 - document every member of the API. This is important.
 - do NOT document other APIs
 
@@ -44,7 +44,6 @@ Generate or update a reference documentation for ${api}.
 - API_TYPES contains the public TypeScript types for the GenAIScript API
 `
 
-def("EXISTING_DOC", { filename: docpath }, { ignoreEmpty: true })
 def("API_TYPES", { filename: "genaisrc/genaiscript.d.ts" })
 
 defOutputProcessor(({ fences, fileEdits }) => {
