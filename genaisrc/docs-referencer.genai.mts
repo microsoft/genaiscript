@@ -12,7 +12,7 @@ script({
 })
 
 const api = env.vars.api || "git"
-const doc = env.vars.route || api + ".md"
+const doc = env.vars.route || api.toLocaleLowerCase() + ".mdx"
 const ref = "docs/src/content/docs/reference/scripts"
 const docpath = path.join(ref, doc)
 
@@ -25,6 +25,8 @@ Your are a technical writer for GenAIScript. You write clear and concise documen
 Generate or update a reference documentation for ${api}.
 
 - update the existing documentation (EXISTING_DOC) if it exists with minimal changes
+- document every member of the API. This is important.
+- do NOT document other APIs
 
 ## Output
 
