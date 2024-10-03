@@ -7,12 +7,13 @@ script({
             description: "The API to generate documentation for",
         },
     },
+    system: ["system", "system.files"],
     tools: ["fs", "md"],
 })
 
 const api =
     env.vars.api || "the global variable 'git', implemented by the type 'Git'"
-const doc = env.vars.route || "git.md"
+const doc = env.vars.route || api + ".md"
 const ref = "docs/src/content/docs/reference/scripts"
 const docpath = path.join(ref, doc)
 
@@ -28,10 +29,11 @@ Generate or update a reference documentation for ${api}.
 
 ## Output
 
-Generate markdown with a frontmatter compatible with @astro/starlight.
-
-- save markdown in ${docpath}
+- use markdown
 - the frontmatter should contain the title, description
+- do NOT modify attributes of the existing code regions. It is valid to have any parameters when declaring a code region.
+
+    \`\`\`js 'THIS IS OK' <-- do not modify
 
 ## Context
 
@@ -42,4 +44,14 @@ Generate markdown with a frontmatter compatible with @astro/starlight.
 
 def("EXISTING_DOC", { filename: docpath }, { ignoreEmpty: true })
 def("API_TYPES", { filename: "genaisrc/genaiscript.d.ts" })
-defFileOutput(docpath, "the generated documentation file")
+
+defOutputProcessor(({ fences, fileEdits }) => {
+    const src = fences.find(
+        (f) => f.language === "markdown" || f.language === "md"
+    )
+    return {
+        files: {
+            [docpath]: src?.content,
+        },
+    }
+})

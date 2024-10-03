@@ -5,7 +5,7 @@ sidebar:
     order: 50
 ---
 
-The `github` provides several helper function to query github. It also provides the connection information for more advanced usage.
+The `github` provides several helper functions to query GitHub. It also provides the connection information for more advanced usage.
 
 ## Configuration
 
@@ -19,8 +19,7 @@ In a GitHub CodeSpace, the `GITHUB_TOKEN` is automatically provisioned.
 
 ### GitHub Actions
 
-In GitHub Actions, you might will to add permissions to the
-workspace to access workflow logs and pull requests. You also need to pass the `secret.GITHUB_TOKEN` to the genaiscript script run.
+In GitHub Actions, you might need to add permissions to the workspace to access workflow logs and pull requests. You also need to pass the `secret.GITHUB_TOKEN` to the GenAIScript script run.
 
 ```yml title="genai.yml" 'actions: read' 'GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}'
 permissions:
@@ -51,10 +50,10 @@ console.log(issueComments)
 
 ### Pull Requests
 
-You can query pull requests and pull request reviews comments using `listPullRequests`, `listPullRequestReviewComments`.
+You can query pull requests and pull request review comments using `listPullRequests`, `listPullRequestReviewComments`.
 
 ```js
-const prs = await github.listPullRequests({ pre_page: 5 })
+const prs = await github.listPullRequests({ per_page: 5 })
 console.log(prs.map((i) => i.title))
 
 // use number!
@@ -64,7 +63,7 @@ console.log(prcs.map((i) => i.body))
 
 In GitHub Actions, you need to give the `pull-request: read` permission.
 
-### Workflow runs
+### Workflow Runs
 
 Access the log of workflow runs to analyze failures.
 
@@ -89,22 +88,22 @@ const res = await github.searchCode("HTMLToText")
 console.log(res)
 ```
 
-### Get file content
+### Get File Content
 
-Gets the file content for a given ref, tag or commit sha.
+Gets the file content for a given ref, tag, or commit SHA.
 
 ```js
 const pkg = await github.getFile("package.json", "main")
 console.log(pkg.content.slice(0, 50) + "...")
 ```
 
-### Get repository content
+### Get Repository Content
 
-List files or directories at a path in a remote repository. By default, file contents from a directory is not loaded, use `downloadContent: true`.
+List files or directories at a path in a remote repository. By default, file contents from a directory are not loaded, use `downloadContent: true`.
 
 ```js
 // get top-level markdown files
-const files = getRepositoryContent(const files = await github.getRepositoryContent("", {
+const files = await github.getRepositoryContent("", {
     type: "file",
     glob: "*.md",
     downloadContent: true,
@@ -122,14 +121,14 @@ const languages = await github.listRepositoryLanguages()
 
 ### Branches
 
-List the branches on the repository
+List the branches on the repository.
 
 ```js
 const branches = await github.listBranches()
 console.log(branches)
 ```
 
-## Advanced use
+## Advanced Use
 
 You can use [octokit](https://www.npmjs.com/package/octokit) to access the full GitHub APIs.
 
