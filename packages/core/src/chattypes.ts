@@ -18,10 +18,11 @@ export interface AICIRequest {
 }
 
 // Aliases for OpenAI chat completion types
-export type ChatCompletionUsage = Omit<
-    OpenAI.Completions.CompletionUsage,
-    "completion_tokens_details"
->
+export type ChatCompletionUsage = OpenAI.Completions.CompletionUsage
+export type ChatCompletionUsageCompletionTokensDetails =
+    OpenAI.Completions.CompletionUsage.CompletionTokensDetails
+export type ChatCompletionUsagePromptTokensDetails =
+    OpenAI.Completions.CompletionUsage.PromptTokensDetails
 
 // Text content part of a chat completion
 export type ChatCompletionContentPartText =

@@ -11,7 +11,7 @@ export class GenerationStats {
     toolCalls = 0 // Number of tool invocations
     repairs = 0 // Number of repairs made
     turns = 0 // Number of turns in the interaction
-    readonly usage: ChatCompletionUsage
+    readonly usage: Required<ChatCompletionUsage>
     readonly children: GenerationStats[] = []
 
     private chatTurns: {
@@ -27,6 +27,14 @@ export class GenerationStats {
             completion_tokens: 0,
             prompt_tokens: 0,
             total_tokens: 0,
+            completion_tokens_details: {
+                audio_tokens: 0,
+                reasoning_tokens: 0,
+            },
+            prompt_tokens_details: {
+                audio_tokens: 0,
+                cached_tokens: 0,
+            },
         }
     }
 
@@ -80,7 +88,7 @@ export class GenerationStats {
     private logTokens(indent: string) {
         if (this.model || this.usage.total_tokens) {
             logVerbose(
-                `${indent}${this.label ? `${this.label} (${this.model})` : this.model}> ${this.usage.total_tokens} tokens (${this.usage.prompt_tokens} -> ${this.usage.completion_tokens})`
+                `${indent}${this.label ? `${this.label} (${this.model})` : this.model}> ${this.usage.total_tokens} tokens (${this.usage.prompt_tokens}-${this.usage.prompt_tokens_details.cached_tokens} -> ${this.usage.completion_tokens})`
             )
         }
         if (this.chatTurns.length > 1)
@@ -101,6 +109,15 @@ export class GenerationStats {
         this.usage.completion_tokens += usage.completion_tokens ?? 0
         this.usage.prompt_tokens += usage.prompt_tokens ?? 0
         this.usage.total_tokens += usage.total_tokens ?? 0
+
+        this.usage.completion_tokens_details.audio_tokens +=
+            usage.completion_tokens_details?.audio_tokens ?? 0
+        this.usage.completion_tokens_details.reasoning_tokens +=
+            usage.completion_tokens_details?.reasoning_tokens ?? 0
+        this.usage.completion_tokens_details.audio_tokens +=
+            usage.prompt_tokens_details?.audio_tokens ?? 0
+        this.usage.completion_tokens_details.reasoning_tokens +=
+            usage.prompt_tokens_details?.cached_tokens ?? 0
 
         const chatTurn = {
             messages: structuredClone(messages),

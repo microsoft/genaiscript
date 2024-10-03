@@ -48,10 +48,17 @@ export function estimateChatTokens(
         }[] = messages
             .filter(
                 ({ role }) =>
-                    role === "user" || role === "system" || role === "assistant"
+                    role === "user" ||
+                    role === "system" ||
+                    role === "assistant" ||
+                    role === "tool"
             )
             .map(({ role, content }) => ({
-                role: role as "user" | "system" | "assistant",
+                // cheating
+                role:
+                    role === "tool"
+                        ? "system"
+                        : (role as "user" | "system" | "assistant"),
                 content:
                     typeof content === "string"
                         ? content // Use the string content directly
@@ -73,8 +80,9 @@ export function estimateChatTokens(
             }))
 
         // Encode the chat messages and count the number of tokens
-        const chatTokens = encodeChat(chat, model)
-        return chatTokens.length | 0 // Bitwise OR with 0 ensures integer return
+        const chatTokens = encodeChat(chat, model).length | 0
+
+        return chatTokens // Bitwise OR with 0 ensures integer return
     } catch (e) {
         // Log any errors encountered during processing
         logVerbose(e)

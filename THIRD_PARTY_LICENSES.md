@@ -1309,7 +1309,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.59.0
+ - genaiscript-vscode@1.60.2
 
 This package contains the following license and notice below:
 
@@ -4367,7 +4367,7 @@ THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 The following npm package may be included in this product:
 
- - mathjs@13.1.1
+ - mathjs@13.2.0
 
 This package contains the following license and notice below:
 
@@ -4431,9 +4431,9 @@ The following npm packages may be included in this product:
  - @tokenizer/token@0.3.0
  - agent-base@6.0.2
  - canvas@2.11.2
- - genaiscript-core-internal@1.59.0
- - genaiscript-sample@1.59.0
- - genaiscript@1.59.0
+ - genaiscript-core-internal@1.60.2
+ - genaiscript-sample@1.60.2
+ - genaiscript@1.60.2
  - https-proxy-agent@5.0.1
  - isarray@1.0.0
  - javascript-natural-sort@0.7.1
@@ -4513,7 +4513,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - @babel/runtime@7.25.6
+ - @babel/runtime@7.25.7
 
 This package contains the following license and notice below:
 
@@ -5024,7 +5024,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - @azure/msal-node@2.14.0
+ - @azure/msal-node@2.15.0
 
 This package contains the following license and notice below:
 
@@ -5363,7 +5363,7 @@ SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - @azure/msal-browser@3.24.0
+ - @azure/msal-browser@3.25.0
  - @azure/msal-common@14.15.0
 
 These packages each contain the following license and notice below:
@@ -5707,8 +5707,8 @@ SOFTWARE.
 The following npm packages may be included in this product:
 
  - @octokit/plugin-paginate-rest@11.3.5
- - @octokit/plugin-rest-endpoint-methods@13.2.5
- - @octokit/types@13.6.0
+ - @octokit/plugin-rest-endpoint-methods@13.2.6
+ - @octokit/types@13.6.1
 
 These packages each contain the following license and notice below:
 
@@ -7417,7 +7417,7 @@ The following npm packages may be included in this product:
  - @azure/core-auth@1.8.0
  - @azure/core-client@1.9.2
  - @azure/core-rest-pipeline@1.17.0
- - @azure/core-tracing@1.1.2
+ - @azure/core-tracing@1.2.0
  - @azure/core-util@1.10.0
  - @azure/identity@4.4.1
  - @azure/logger@1.1.4
