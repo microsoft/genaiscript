@@ -249,3 +249,9 @@ export const GITHUB_REST_API_CONCURRENCY_LIMIT = 8
 export const GITHUB_REST_PAGE_DEFAULT = 50
 
 export const TOKEN_TRUNCATION_THRESHOLD = 128
+
+export const LLMID_GITHUB_WORKFLOW = "gh_workflow"
+export const LLMID_GITHUB_WORKFLOW_RUN = "gh_run"
+export const LLMID_GITHUB_WORKFLOW_JOB = "gh_job"
+export const LLMID_GITHUB_ISSUE = "gh_issue"
+export const LLMID_GITHUB_PULL_REQUEST = "gh_pull"

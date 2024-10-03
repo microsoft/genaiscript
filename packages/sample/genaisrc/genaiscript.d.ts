@@ -1475,6 +1475,7 @@ type GitHubWorkflowRunStatus =
 
 interface GitHubWorkflowRun {
     id: number
+    llm_id: string
     name?: string
     display_title: string
     status: string
@@ -1487,7 +1488,9 @@ interface GitHubWorkflowRun {
 
 interface GitHubWorkflowJob {
     id: number
+    llm_id: string
     run_id: number
+    llm_run_id: string
     status: string
     conclusion: string
     name: string
@@ -1501,9 +1504,11 @@ interface GitHubWorkflowJob {
 
 interface GitHubIssue {
     id: number
+    llm_id: string
     body?: string
     title: string
     number: number
+    llm_number: string
     state: string
     state_reason?: "completed" | "reopened" | "not_planned" | null
     html_url: string 
@@ -1547,6 +1552,7 @@ interface GitHubCodeSearchResult {
 
 interface GitHubWorkflow {
     id: number
+    llm_id: string
     name: string
     path: string
 }
@@ -1597,7 +1603,7 @@ interface GitHub {
      * @param runId
      */
     listWorkflowJobs(
-        runId: number,
+        runId: number | string,
         options?: GitHubPaginationOptions
     ): Promise<GitHubWorkflowJob[]>
 
@@ -1606,14 +1612,14 @@ interface GitHub {
      * @param jobId
      */
     downloadWorkflowJobLog(
-        jobId: number,
+        jobId: number | string,
         options?: { llmify?: boolean }
     ): Promise<string>
 
     /**
      * Diffs two GitHub Action workflow job logs
      */
-    diffWorkflowJobLogs(job_id: number, other_job_id: number): Promise<string>
+    diffWorkflowJobLogs(job_id: number | string, other_job_id: number | string): Promise<string>
 
     /**
      * Lists issues for a given repository

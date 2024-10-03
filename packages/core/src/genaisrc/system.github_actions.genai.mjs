@@ -5,14 +5,14 @@ system({
 
 defTool(
     "github_actions_workflows_list",
-    "List all workflows as a list of 'id: name' pair.",
+    "List all workflows. 'llm_id' is the ID used in other tools.",
     {},
     async (args) => {
         const { context } = args
         context.log("github action list workflows")
         const res = await github.listWorkflows()
         return CSV.stringify(
-            res.map(({ id, name, path }) => ({ id, name, path })),
+            res.map(({ llm_id, name, path }) => ({ llm_id, name, path })),
             { header: true }
         )
     }
@@ -20,7 +20,7 @@ defTool(
 
 defTool(
     "github_actions_runs_list",
-    "List all runs for a workflow. Use 'git_actions_list_workflows' to list workflows.",
+    "List all runs for a workflow. 'llm_id' is the ID used in other tools. Use 'git_actions_list_workflows' to list workflows.",
     {
         type: "object",
         properties: {
@@ -50,8 +50,9 @@ defTool(
             status,
         })
         return CSV.stringify(
-            res.map(({ id, name, conclusion, head_sha }) => ({
+            res.map(({ id, llm_id, name, conclusion, head_sha }) => ({
                 id,
+                llm_id,
                 name,
                 conclusion,
                 head_sha,
@@ -63,7 +64,7 @@ defTool(
 
 defTool(
     "github_actions_jobs_list",
-    "List all jobs for a run.",
+    "List all jobs for a run. 'llm_id' is the ID used in other tools.",
     {
         type: "object",
         properties: {
@@ -80,7 +81,12 @@ defTool(
         context.log(`github action list jobs for run ${run_id}`)
         const res = await github.listWorkflowJobs(run_id)
         return CSV.stringify(
-            res.map(({ id, name, status }) => ({ id, name, status })),
+            res.map(({ id, llm_id, name, status }) => ({
+                id,
+                llm_id,
+                name,
+                status,
+            })),
             { header: true }
         )
     }

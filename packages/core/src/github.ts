@@ -6,6 +6,11 @@ import {
     GITHUB_REST_API_CONCURRENCY_LIMIT,
     GITHUB_REST_PAGE_DEFAULT,
     GITHUB_TOKEN,
+    LLMID_GITHUB_ISSUE,
+    LLMID_GITHUB_PULL_REQUEST,
+    LLMID_GITHUB_WORKFLOW,
+    LLMID_GITHUB_WORKFLOW_JOB,
+    LLMID_GITHUB_WORKFLOW_RUN,
     TOOL_ID,
 } from "./constants"
 import { createFetch } from "./fetch"
@@ -17,6 +22,7 @@ import { isGlobMatch } from "./glob"
 import { fetchText } from "./fetch"
 import { concurrentLimit } from "./concurrency"
 import { createDiff, llmifyDiff } from "./diff"
+import { llmifyId, unllmifyId, unllmifyIntId } from "./llmid"
 
 export interface GithubConnectionInfo {
     token: string
@@ -543,7 +549,19 @@ export class GitHubClient implements GitHub {
             ...rest,
         })
         const res = await paginatorToArray(ite, count, (i) => i.data)
-        return res
+        return res.map(
+            ({ id, number, title, state, html_url, created_at }) =>
+                <GitHubIssue>{
+                    id,
+                    llm_id: llmifyId(id, LLMID_GITHUB_ISSUE),
+                    number,
+                    llm_number: llmifyId(number, LLMID_GITHUB_ISSUE),
+                    title,
+                    state,
+                    html_url,
+                    created_at,
+                }
+        )
     }
 
     async getIssue(issue_number: number): Promise<GitHubIssue> {
@@ -553,7 +571,17 @@ export class GitHubClient implements GitHub {
             repo,
             issue_number,
         })
-        return data
+        const { id, number, title, state, html_url, created_at } = data
+        return <GitHubIssue>{
+            id,
+            llm_id: llmifyId(id, LLMID_GITHUB_ISSUE),
+            number,
+            llm_number: llmifyId(number, LLMID_GITHUB_ISSUE),
+            title,
+            state,
+            html_url,
+            created_at,
+        }
     }
 
     async listPullRequests(
@@ -571,7 +599,19 @@ export class GitHubClient implements GitHub {
             ...rest,
         })
         const res = await paginatorToArray(ite, count, (i) => i.data)
-        return res
+        return res.map(
+            ({ id, number, title, state, html_url, created_at }) =>
+                <GitHubPullRequest>{
+                    id,
+                    llm_id: llmifyId(id, LLMID_GITHUB_PULL_REQUEST),
+                    number,
+                    llm_number: llmifyId(number, LLMID_GITHUB_PULL_REQUEST),
+                    title,
+                    state,
+                    html_url,
+                    created_at,
+                }
+        )
     }
 
     async getPullRequest(pull_number: number): Promise<GitHubPullRequest> {
@@ -581,7 +621,17 @@ export class GitHubClient implements GitHub {
             repo,
             pull_number,
         })
-        return data
+        const { id, number, title, state, html_url, created_at } = data
+        return <GitHubPullRequest>{
+            id,
+            llm_id: llmifyId(id, LLMID_GITHUB_PULL_REQUEST),
+            number,
+            llm_number: llmifyId(number, LLMID_GITHUB_PULL_REQUEST),
+            title,
+            state,
+            html_url,
+            created_at,
+        }
     }
 
     async listPullRequestReviewComments(
@@ -637,7 +687,10 @@ export class GitHubClient implements GitHub {
             {
                 owner,
                 repo,
-                workflow_id: workflowIdOrFilename,
+                workflow_id: unllmifyId(
+                    workflowIdOrFilename,
+                    LLMID_GITHUB_WORKFLOW
+                ),
                 per_page: 100,
                 ...rest,
             }
@@ -648,11 +701,34 @@ export class GitHubClient implements GitHub {
             (i) => i.data,
             ({ conclusion }) => conclusion !== "skipped"
         )
-        return res
+        return res.map(
+            ({
+                id,
+                name,
+                status,
+                conclusion,
+                html_url,
+                display_title,
+                created_at,
+                head_branch,
+                head_sha,
+            }) => ({
+                id,
+                llm_id: llmifyId(id, LLMID_GITHUB_WORKFLOW),
+                name,
+                status,
+                conclusion,
+                html_url,
+                display_title,
+                created_at,
+                head_branch,
+                head_sha,
+            })
+        )
     }
 
     async listWorkflowJobs(
-        run_id: number,
+        run_id: number | string,
         options?: GitHubPaginationOptions
     ): Promise<GitHubWorkflowJob[]> {
         // Get the jobs for the specified workflow run
@@ -663,7 +739,7 @@ export class GitHubClient implements GitHub {
             {
                 owner,
                 repo,
-                run_id,
+                run_id: unllmifyIntId(run_id, LLMID_GITHUB_WORKFLOW),
             }
         )
         const jobs = await paginatorToArray(ite, count, (i) => i.data)
@@ -679,6 +755,8 @@ export class GitHubClient implements GitHub {
             const { text } = await fetchText(logs_url)
             res.push({
                 ...job,
+                llm_id: llmifyId(job.id, LLMID_GITHUB_WORKFLOW_JOB),
+                llm_run_id: llmifyId(job.run_id, LLMID_GITHUB_WORKFLOW_RUN),
                 logs_url,
                 logs: text,
                 content: parseJobLog(text),
@@ -700,7 +778,7 @@ export class GitHubClient implements GitHub {
             await client.rest.actions.downloadJobLogsForWorkflowRun({
                 owner,
                 repo,
-                job_id,
+                job_id: unllmifyIntId(job_id, LLMID_GITHUB_WORKFLOW_JOB),
             })
         let { text } = await fetchText(logs_url)
         if (options?.llmify) text = parseJobLog(text)
@@ -722,8 +800,12 @@ export class GitHubClient implements GitHub {
     }
 
     async diffWorkflowJobLogs(job_id: number, other_job_id: number) {
-        const job = await this.downladJob(job_id)
-        const other = await this.downladJob(other_job_id)
+        const job = await this.downladJob(
+            unllmifyIntId(job_id, LLMID_GITHUB_WORKFLOW_JOB)
+        )
+        const other = await this.downladJob(
+            unllmifyIntId(other_job_id, LLMID_GITHUB_WORKFLOW_JOB)
+        )
 
         job.content = parseJobLog(job.content)
         other.content = parseJobLog(other.content)
@@ -790,11 +872,15 @@ export class GitHubClient implements GitHub {
             }
         )
         const workflows = await paginatorToArray(ite, count, (i) => i.data)
-        return workflows.map(({ id, name, path }) => ({
-            id,
-            name,
-            path,
-        }))
+        return workflows.map(
+            ({ id, name, path }) =>
+                <GitHubWorkflow>{
+                    id,
+                    llm_id: llmifyId(id, LLMID_GITHUB_WORKFLOW),
+                    name,
+                    path,
+                }
+        )
     }
 
     async listBranches(options?: GitHubPaginationOptions): Promise<string[]> {
