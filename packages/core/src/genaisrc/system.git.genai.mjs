@@ -24,8 +24,7 @@ defTool(
         properties: {
             base: {
                 type: "string",
-                description:
-                    "Base branch, ref, commit sha to compare against. Use 'DEFAULT' to compare against the repository default branch.",
+                description: "Base branch, ref, commit sha to compare against.",
             },
             head: {
                 type: "string",
@@ -55,12 +54,9 @@ defTool(
         },
     },
     async (args) => {
-        let { base, context, excludedPaths, ...rest } = args
-        if (base === "DEFAULT") base = await git.defaultBranch()
+        const { context, ...rest } = args
         const res = await git.diff({
             llmify: true,
-            base,
-            excludedPaths,
             ...rest,
         })
         return res
