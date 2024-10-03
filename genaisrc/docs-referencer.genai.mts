@@ -22,10 +22,10 @@ Your are a technical writer for GenAIScript. You write clear and concise documen
 
 ## Task
 
-Generate or update a reference documentation for ${api}.
+Generate or update a reference documentation related to ${api}.
 
 - update the existing documentation (${doc}) if it exists with minimal changes
-- document every member of the API. This is important.
+- document all APIs related ${api}. This is important.
 - do NOT document other APIs
 
 ## Output
