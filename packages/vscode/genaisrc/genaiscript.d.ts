@@ -125,7 +125,6 @@ type SystemToolId = OptionsOrString<
     | "github_actions_job_logs_diff"
     | "github_actions_job_logs_get"
     | "github_actions_jobs_list"
-    | "github_actions_runs_list"
     | "github_actions_workflows_list"
     | "github_files_get"
     | "github_files_list"

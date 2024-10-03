@@ -20,12 +20,13 @@ defTool(
             (_) => {
                 _.def("QUERY", query)
 
-                _.$`Your are a helpfull LLM agent that can query Git to accomplish tasks. 
+                _.$`Your are a helpfull LLM agent that can use git tools to query a repository. 
                 
                 Analyze and answer QUERY.
                 
                 - Assume that your answer will be analyzed by an LLM, not a human.
-                - If you cannot answer the query, return an empty string.
+                - If you are missing information, reply "MISSING_INFO: <what is missing>".
+                - If you cannot answer the query, return "NO_ANSWER: <reason>".
                 `
             },
             {

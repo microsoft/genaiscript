@@ -1,30 +1,36 @@
 system({
     title: "git read operations",
-    description: "Various tools to explore git.",
+    description: "Tools to query a git repository.",
 })
 
-defTool("git_branch_current", "Gets the current branch.", {}, async () => {
-    return await git.branch()
-})
+defTool(
+    "git_branch_current",
+    "Gets the current branch using git.",
+    {},
+    async () => {
+        return await git.branch()
+    }
+)
 
-defTool("git_branch_list", "List all branches.", {}, async () => {
+defTool("git_branch_list", "List all branches using git.", {}, async () => {
     return await git.exec("branch")
 })
 
 defTool(
     "git_diff",
-    "Generates concise file diffs.",
+    "Generates concise file diffs using git.",
     {
         type: "object",
         properties: {
             base: {
                 type: "string",
                 description:
-                    "Base branch to compare against. Use 'BASE' to compare against the repository default branch.",
+                    "Base branch, ref, commit sha to compare against. Use 'DEFAULT' to compare against the repository default branch.",
             },
             head: {
                 type: "string",
-                description: "Head branch to compare",
+                description:
+                    "Head branch, ref, commit sha to compare. Use 'HEAD' to compare against the current branch.",
             },
             staged: {
                 type: "boolean",
@@ -50,7 +56,7 @@ defTool(
 
 defTool(
     "git_log",
-    "Generates a log of commits.",
+    "Generates a log of commits using git.",
     {
         type: "object",
         properties: {
@@ -79,10 +85,15 @@ defTool(
     }
 )
 
-defTool("git_status", "Generates a status of the repository.", {}, async () => {
-    return await git.exec(["status", "--porcelain"])
-})
+defTool(
+    "git_status",
+    "Generates a status of the repository using git.",
+    {},
+    async () => {
+        return await git.exec(["status", "--porcelain"])
+    }
+)
 
-defTool("git_last_tag", "Gets the last tag.", {}, async () => {
+defTool("git_last_tag", "Gets the last tag using git.", {}, async () => {
     return await git.lastTag()
 })

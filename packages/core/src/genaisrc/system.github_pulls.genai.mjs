@@ -10,6 +10,7 @@ defTool(
         properties: {
             state: {
                 type: "string",
+                enum: ["open", "closed", "all"],
                 description:
                     "state of the pull request from  'open, 'closed', 'all'. Default is 'open'.",
             },
@@ -19,12 +20,13 @@ defTool(
             },
             sort: {
                 type: "string",
-                description:
-                    "What to sort by: 'created', 'updated', 'comments'",
+                enum: ["created", "updated", "comments"],
+                description: "What to sort by",
             },
             direction: {
                 type: "string",
-                description: "Direction to sort: 'asc', 'desc'",
+                enum: ["asc", "desc"],
+                description: "Direction to sort",
             },
         },
     },

@@ -188,12 +188,13 @@ defTool(
             (_) => {
                 _.def("QUERY", query)
 
-                _.$`Your are a helpfull LLM agent that can query Git to accomplish tasks. 
+                _.$`Your are a helpfull LLM agent that can use git tools to query a repository. 
                 
                 Analyze and answer QUERY.
                 
                 - Assume that your answer will be analyzed by an LLM, not a human.
-                - If you cannot answer the query, return an empty string.
+                - If you are missing information, reply "MISSING_INFO: <what is missing>".
+                - If you cannot answer the query, return "NO_ANSWER: <reason>".
                 `
             },
             {
@@ -853,43 +854,49 @@ defTool(
 
 git read operations
 
-Various tools to explore git.
+Tools to query a git repository.
 
--  tool `git_branch_current`: Gets the current branch.
--  tool `git_branch_list`: List all branches.
--  tool `git_diff`: Generates concise file diffs.
--  tool `git_log`: Generates a log of commits.
--  tool `git_status`: Generates a status of the repository.
--  tool `git_last_tag`: Gets the last tag.
+-  tool `git_branch_current`: Gets the current branch using git.
+-  tool `git_branch_list`: List all branches using git.
+-  tool `git_diff`: Generates concise file diffs using git.
+-  tool `git_log`: Generates a log of commits using git.
+-  tool `git_status`: Generates a status of the repository using git.
+-  tool `git_last_tag`: Gets the last tag using git.
 
 `````js wrap title="system.git"
 system({
     title: "git read operations",
-    description: "Various tools to explore git.",
+    description: "Tools to query a git repository.",
 })
 
-defTool("git_branch_current", "Gets the current branch.", {}, async () => {
-    return await git.branch()
-})
+defTool(
+    "git_branch_current",
+    "Gets the current branch using git.",
+    {},
+    async () => {
+        return await git.branch()
+    }
+)
 
-defTool("git_branch_list", "List all branches.", {}, async () => {
+defTool("git_branch_list", "List all branches using git.", {}, async () => {
     return await git.exec("branch")
 })
 
 defTool(
     "git_diff",
-    "Generates concise file diffs.",
+    "Generates concise file diffs using git.",
     {
         type: "object",
         properties: {
             base: {
                 type: "string",
                 description:
-                    "Base branch to compare against. Use 'BASE' to compare against the repository default branch.",
+                    "Base branch, ref, commit sha to compare against. Use 'DEFAULT' to compare against the repository default branch.",
             },
             head: {
                 type: "string",
-                description: "Head branch to compare",
+                description:
+                    "Head branch, ref, commit sha to compare. Use 'HEAD' to compare against the current branch.",
             },
             staged: {
                 type: "boolean",
@@ -915,7 +922,7 @@ defTool(
 
 defTool(
     "git_log",
-    "Generates a log of commits.",
+    "Generates a log of commits using git.",
     {
         type: "object",
         properties: {
@@ -944,11 +951,16 @@ defTool(
     }
 )
 
-defTool("git_status", "Generates a status of the repository.", {}, async () => {
-    return await git.exec(["status", "--porcelain"])
-})
+defTool(
+    "git_status",
+    "Generates a status of the repository using git.",
+    {},
+    async () => {
+        return await git.exec(["status", "--porcelain"])
+    }
+)
 
-defTool("git_last_tag", "Gets the last tag.", {}, async () => {
+defTool("git_last_tag", "Gets the last tag using git.", {}, async () => {
     return await git.lastTag()
 })
 
@@ -962,7 +974,6 @@ github workflows
 Queries results from workflows in GitHub actions.
 
 -  tool `github_actions_workflows_list`: List all workflows as a list of 'id: name' pair.
--  tool `github_actions_runs_list`: List all runs for a workflow or the entire repository. Use 'git_actions_list_workflows' to list workflows. Omit 'workflow_id' to list all runs.
 -  tool `github_actions_jobs_list`: List all jobs for a run.
 -  tool `github_actions_job_logs_get`: Download workflow job log. If the log is too large, use 'github_actions_job_logs_diff' to compare logs.
 -  tool `github_actions_job_logs_diff`: Diffs two workflow job logsr.
@@ -990,7 +1001,10 @@ defTool(
 
 defTool(
     "github_actions_runs_list",
-    "List all runs for a workflow or the entire repository. Use 'git_actions_list_workflows' to list workflows. Omit 'workflow_id' to list all runs.",
+    `List all runs for a workflow or the entire repository. 
+    Use 'git_actions_list_workflows' to list workflows. 
+    Omit 'workflow_id' to list all runs.
+    head_sha is the commit hash.`,
     {
         type: "object",
         properties: {
@@ -1006,8 +1020,7 @@ defTool(
             status: {
                 type: "string",
                 enum: ["success", "failure"],
-                description:
-                    "Filter runs by completion status: success, failured.",
+                description: "Filter runs by completion status",
             },
         },
     },
@@ -1201,6 +1214,7 @@ defTool(
         properties: {
             state: {
                 type: "string",
+                enum: ["open", "closed", "all"],
                 description:
                     "state of the issue from  'open, 'closed', 'all'. Default is 'open'.",
             },
@@ -1210,12 +1224,13 @@ defTool(
             },
             sort: {
                 type: "string",
-                description:
-                    "What to sort by: 'created', 'updated', 'comments'",
+                enum: ["created", "updated", "comments"],
+                description: "What to sort by",
             },
             direction: {
                 type: "string",
-                description: "Direction to sort: 'asc', 'desc'",
+                enum: ["asc", "desc"],
+                description: "Direction to sort",
             },
         },
     },
@@ -1313,6 +1328,7 @@ defTool(
         properties: {
             state: {
                 type: "string",
+                enum: ["open", "closed", "all"],
                 description:
                     "state of the pull request from  'open, 'closed', 'all'. Default is 'open'.",
             },
@@ -1322,12 +1338,13 @@ defTool(
             },
             sort: {
                 type: "string",
-                description:
-                    "What to sort by: 'created', 'updated', 'comments'",
+                enum: ["created", "updated", "comments"],
+                description: "What to sort by",
             },
             direction: {
                 type: "string",
-                description: "Direction to sort: 'asc', 'desc'",
+                enum: ["asc", "desc"],
+                description: "Direction to sort",
             },
         },
     },

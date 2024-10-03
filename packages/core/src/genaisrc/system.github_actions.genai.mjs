@@ -20,7 +20,10 @@ defTool(
 
 defTool(
     "github_actions_runs_list",
-    "List all runs for a workflow or the entire repository. Use 'git_actions_list_workflows' to list workflows. Omit 'workflow_id' to list all runs.",
+    `List all runs for a workflow or the entire repository. 
+    Use 'git_actions_list_workflows' to list workflows. 
+    Omit 'workflow_id' to list all runs.
+    head_sha is the commit hash.`,
     {
         type: "object",
         properties: {
@@ -36,8 +39,7 @@ defTool(
             status: {
                 type: "string",
                 enum: ["success", "failure"],
-                description:
-                    "Filter runs by completion status: success, failured.",
+                description: "Filter runs by completion status",
             },
         },
     },
