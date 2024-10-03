@@ -87,6 +87,7 @@ type SystemPromptId = OptionsOrString<
     | "system.fs_find_files"
     | "system.fs_read_file"
     | "system.git"
+    | "system.github"
     | "system.github_actions"
     | "system.github_files"
     | "system.github_issues"

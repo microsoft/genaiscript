@@ -41,6 +41,8 @@ export function resolveSystems(
         // Add diagram system if diagrams or charts are found
         if (/\W(diagram|chart)\W/i.test(jsSource))
             systems.push("system.diagrams")
+
+        if (/github/i.test(jsSource)) systems.push("system.github")
     }
 
     // Include tools-related systems if specified in the script

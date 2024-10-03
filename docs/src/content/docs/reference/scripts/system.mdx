@@ -163,7 +163,7 @@ Agent that can query Git to accomplish tasks.
 
 
 
--  tool `agent_git`: Agent that can query Git to accomplish tasks
+-  tool `agent_git`: Agent that can query a repository using Git to accomplish tasks. Provide all the context information available to execute git queries.
 
 `````js wrap title="system.agent_git"
 system({
@@ -174,7 +174,7 @@ const model = env.vars.agentGitModel
 
 defTool(
     "agent_git",
-    "Agent that can query Git to accomplish tasks",
+    "Agent that can query a repository using Git to accomplish tasks. Provide all the context information available to execute git queries.",
     {
         query: {
             type: "string",
@@ -858,7 +858,7 @@ Tools to query a git repository.
 
 -  tool `git_branch_current`: Gets the current branch using git.
 -  tool `git_branch_list`: List all branches using git.
--  tool `git_diff`: Generates concise file diffs using git.
+-  tool `git_diff`: Computes file diffs using git.
 -  tool `git_log`: Generates a log of commits using git.
 -  tool `git_status`: Generates a status of the repository using git.
 -  tool `git_last_tag`: Gets the last tag using git.
@@ -884,7 +884,7 @@ defTool("git_branch_list", "List all branches using git.", {}, async () => {
 
 defTool(
     "git_diff",
-    "Generates concise file diffs using git.",
+    "Computes file diffs using git.",
     {
         type: "object",
         properties: {
@@ -903,12 +903,20 @@ defTool(
                 description: "Compare staged changes",
             },
             paths: {
-                type: "string[]",
+                type: "array",
                 description: "Paths to compare",
+                items: {
+                    type: "string",
+                    description: "File path or wildcard supported by git",
+                },
             },
             excludedPaths: {
-                type: "string[]",
+                type: "array",
                 description: "Paths to exclude",
+                items: {
+                    type: "string",
+                    description: "File path or wildcard supported by git",
+                },
             },
         },
     },
@@ -935,12 +943,20 @@ defTool(
                 description: "Head branch to compare",
             },
             paths: {
-                type: "string[]",
+                type: "array",
                 description: "Paths to compare",
+                items: {
+                    type: "string",
+                    description: "File path or wildcard supported by git",
+                },
             },
             excludedPaths: {
-                type: "string[]",
+                type: "array",
                 description: "Paths to exclude",
+                items: {
+                    type: "string",
+                    description: "File path or wildcard supported by git",
+                },
             },
         },
     },
@@ -963,6 +979,32 @@ defTool(
 defTool("git_last_tag", "Gets the last tag using git.", {}, async () => {
     return await git.lastTag()
 })
+
+`````
+
+
+### `system.github`
+
+General GitHub information.
+
+
+
+
+
+`````js wrap title="system.github"
+system({
+    title: "General GitHub information.",
+})
+
+const info = await github.info()
+if (info?.owner) {
+    $`## GitHub information:
+
+- owner: ${info.owner}
+- repo: ${info.repo}
+
+`
+}
 
 `````
 

@@ -18,7 +18,7 @@ defTool("git_branch_list", "List all branches using git.", {}, async () => {
 
 defTool(
     "git_diff",
-    "Generates concise file diffs using git.",
+    "Computes file diffs using git.",
     {
         type: "object",
         properties: {
@@ -37,12 +37,20 @@ defTool(
                 description: "Compare staged changes",
             },
             paths: {
-                type: "string[]",
+                type: "array",
                 description: "Paths to compare",
+                items: {
+                    type: "string",
+                    description: "File path or wildcard supported by git",
+                },
             },
             excludedPaths: {
-                type: "string[]",
+                type: "array",
                 description: "Paths to exclude",
+                items: {
+                    type: "string",
+                    description: "File path or wildcard supported by git",
+                },
             },
         },
     },
@@ -69,12 +77,20 @@ defTool(
                 description: "Head branch to compare",
             },
             paths: {
-                type: "string[]",
+                type: "array",
                 description: "Paths to compare",
+                items: {
+                    type: "string",
+                    description: "File path or wildcard supported by git",
+                },
             },
             excludedPaths: {
-                type: "string[]",
+                type: "array",
                 description: "Paths to exclude",
+                items: {
+                    type: "string",
+                    description: "File path or wildcard supported by git",
+                },
             },
         },
     },
