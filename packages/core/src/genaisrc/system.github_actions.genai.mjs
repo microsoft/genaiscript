@@ -50,8 +50,7 @@ defTool(
             status,
         })
         return CSV.stringify(
-            res.map(({ id, llm_id, name, conclusion, head_sha }) => ({
-                id,
+            res.map(({ llm_id, name, conclusion, head_sha }) => ({
                 llm_id,
                 name,
                 conclusion,
@@ -81,8 +80,7 @@ defTool(
         context.log(`github action list jobs for run ${run_id}`)
         const res = await github.listWorkflowJobs(run_id)
         return CSV.stringify(
-            res.map(({ id, llm_id, name, status }) => ({
-                id,
+            res.map(({ llm_id, name, status }) => ({
                 llm_id,
                 name,
                 status,

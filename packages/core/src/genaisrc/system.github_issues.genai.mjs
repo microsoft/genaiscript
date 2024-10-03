@@ -33,8 +33,7 @@ defTool(
         context.log(`github issue list ${state ?? "all"}`)
         const res = await github.listIssues({ state, labels, sort, direction })
         return CSV.stringify(
-            res.map(({ number, llm_number, title, state }) => ({
-                number,
+            res.map(({ llm_number, title, state }) => ({
                 llm_number,
                 title,
                 state,
@@ -60,10 +59,9 @@ defTool(
     async (args) => {
         const { number: issue_number, context } = args
         context.log(`github issue get ${issue_number}`)
-        const { number, llm_number, title, body, state, html_url, reactions } =
+        const { llm_number, title, body, state, html_url, reactions } =
             await github.getIssue(issue_number)
         return YAML.stringify({
-            number,
             llm_number,
             title,
             body,
@@ -92,8 +90,7 @@ defTool(
         context.log(`github issue list comments ${issue_number}`)
         const res = await github.listIssueComments(issue_number)
         return CSV.stringify(
-            res.map(({ id, llm_id, body, updated_at }) => ({
-                id,
+            res.map(({ llm_id, body, updated_at }) => ({
                 llm_id,
                 body,
                 updated_at,
