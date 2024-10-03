@@ -227,6 +227,7 @@ export class GitClient implements Git {
         unified?: number
         llmify?: boolean
     }): Promise<string> {
+        // change
         const paths = arrayify(options?.paths, { filterEmpty: true })
         const excludedPaths = await this.resolveExcludedPaths(options)
         const { staged, base, head, unified, askStageOnEmpty } = options || {}
