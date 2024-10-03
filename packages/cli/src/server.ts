@@ -23,7 +23,7 @@ import {
     runtimeHost,
 } from "../../core/src/host"
 import { MarkdownTrace, TraceChunkEvent } from "../../core/src/trace"
-import { logVerbose, logError, assert } from "../../core/src/util"
+import { logVerbose, logError, assert, chunkString } from "../../core/src/util"
 import { CORE_VERSION } from "../../core/src/version"
 import {
     RequestMessages,
@@ -43,6 +43,7 @@ import {
     CreateChatCompletionRequest,
 } from "../../core/src/chattypes"
 import { randomHex } from "../../core/src/crypto"
+import { chunk } from "es-toolkit"
 
 /**
  * Starts a WebSocket server for handling chat and script execution.
@@ -279,7 +280,9 @@ export async function startServer(options: { port: string; apiKey?: string }) {
                             )
                         trace.addEventListener(TRACE_CHUNK, (ev) => {
                             const tev = ev as TraceChunkEvent
-                            send({ trace: tev.chunk })
+                            chunkString(tev.chunk, 2 << 14).forEach((c) =>
+                                send({ trace: c })
+                            )
                         })
                         logVerbose(`run ${runId}: starting`)
                         const runner = runScript(script, files, {

@@ -4,6 +4,15 @@ import { LogLevel, host } from "./host"
 import { YAMLStringify } from "./yaml"
 import { escape as HTMLEscape_ } from "html-escaper"
 
+// chunk string into chunks of size n
+export function chunkString(s: string, n: number) {
+    if (s.length < n) return [s]
+
+    const r: string[] = []
+    for (let i = 0; i < s.length; i += n) r.push(s.slice(i, i + n))
+    return r
+}
+
 export function trimNewlines(s: string) {
     return s?.replace(/^\n*/, "").replace(/\n*$/, "")
 }
