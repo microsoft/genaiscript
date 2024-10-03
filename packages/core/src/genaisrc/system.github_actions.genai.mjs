@@ -20,13 +20,14 @@ defTool(
 
 defTool(
     "github_actions_runs_list",
-    "List all runs for a workflow. Use 'git_actions_list_workflows' to list workflows.",
+    "List all runs for a workflow or the entire repository. Use 'git_actions_list_workflows' to list workflows. Omit 'workflow_id' to list all runs.",
     {
         type: "object",
         properties: {
             workflow_id: {
                 type: "string",
-                description: "ID or filename of the workflow to list runs for.",
+                description:
+                    "ID or filename of the workflow to list runs for. Empty lists all runs.",
             },
             branch: {
                 type: "string",
@@ -34,16 +35,16 @@ defTool(
             },
             status: {
                 type: "string",
+                enum: ["success", "failure"],
                 description:
                     "Filter runs by completion status: success, failured.",
             },
         },
-        required: ["workflow_id"],
     },
     async (args) => {
         const { workflow_id, branch, status, context } = args
         context.log(
-            `github action list runs for worfklow ${workflow_id} and branch ${branch || "all"}`
+            `github action list runs for ${workflow_id ? `worfklow ${workflow_id}` : `repository`} and branch ${branch || "all"}`
         )
         const res = await github.listWorkflowRuns(workflow_id, {
             branch,

@@ -893,6 +893,7 @@ type JSONSchemaType =
 
 interface JSONSchemaString {
     type: "string"
+    enum?: string[]
     description?: string
     default?: string
 }

@@ -962,7 +962,7 @@ github workflows
 Queries results from workflows in GitHub actions.
 
 -  tool `github_actions_workflows_list`: List all workflows as a list of 'id: name' pair.
--  tool `github_actions_runs_list`: List all runs for a workflow. Use 'git_actions_list_workflows' to list workflows.
+-  tool `github_actions_runs_list`: List all runs for a workflow or the entire repository. Use 'git_actions_list_workflows' to list workflows. Omit 'workflow_id' to list all runs.
 -  tool `github_actions_jobs_list`: List all jobs for a run.
 -  tool `github_actions_job_logs_get`: Download workflow job log. If the log is too large, use 'github_actions_job_logs_diff' to compare logs.
 -  tool `github_actions_job_logs_diff`: Diffs two workflow job logsr.
@@ -990,13 +990,14 @@ defTool(
 
 defTool(
     "github_actions_runs_list",
-    "List all runs for a workflow. Use 'git_actions_list_workflows' to list workflows.",
+    "List all runs for a workflow or the entire repository. Use 'git_actions_list_workflows' to list workflows. Omit 'workflow_id' to list all runs.",
     {
         type: "object",
         properties: {
             workflow_id: {
                 type: "string",
-                description: "ID or filename of the workflow to list runs for.",
+                description:
+                    "ID or filename of the workflow to list runs for. Empty lists all runs.",
             },
             branch: {
                 type: "string",
@@ -1004,16 +1005,16 @@ defTool(
             },
             status: {
                 type: "string",
+                enum: ["success", "failure"],
                 description:
                     "Filter runs by completion status: success, failured.",
             },
         },
-        required: ["workflow_id"],
     },
     async (args) => {
         const { workflow_id, branch, status, context } = args
         context.log(
-            `github action list runs for worfklow ${workflow_id} and branch ${branch || "all"}`
+            `github action list runs for ${workflow_id ? `worfklow ${workflow_id}` : `repository`} and branch ${branch || "all"}`
         )
         const res = await github.listWorkflowRuns(workflow_id, {
             branch,

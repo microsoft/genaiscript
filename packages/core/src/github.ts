@@ -633,7 +633,9 @@ export class GitHubClient implements GitHub {
         const { client, owner, repo } = await this.client()
         const { count = GITHUB_REST_PAGE_DEFAULT, ...rest } = options ?? {}
         const ite = client.paginate.iterator(
-            client.rest.actions.listWorkflowRuns,
+            workflowIdOrFilename
+                ? client.rest.actions.listWorkflowRuns
+                : client.rest.actions.listWorkflowRunsForRepo,
             {
                 owner,
                 repo,
