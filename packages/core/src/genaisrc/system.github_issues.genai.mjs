@@ -4,7 +4,7 @@ system({
 
 defTool(
     "github_issues_list",
-    "List all issues in a repository.",
+    "List all issues in a repository. 'llm_number' is the ID used in other tools.",
     {
         type: "object",
         properties: {
@@ -33,7 +33,12 @@ defTool(
         context.log(`github issue list ${state ?? "all"}`)
         const res = await github.listIssues({ state, labels, sort, direction })
         return CSV.stringify(
-            res.map(({ number, title, state }) => ({ number, title, state })),
+            res.map(({ number, llm_number, title, state }) => ({
+                number,
+                llm_number,
+                title,
+                state,
+            })),
             { header: true }
         )
     }
@@ -41,7 +46,7 @@ defTool(
 
 defTool(
     "github_issues_get",
-    "Get a single issue by number.",
+    "Get a single issue by number. 'llm_number' is the ID used in other tools.",
     {
         type: "object",
         properties: {
@@ -55,10 +60,11 @@ defTool(
     async (args) => {
         const { number: issue_number, context } = args
         context.log(`github issue get ${issue_number}`)
-        const { number, title, body, state, html_url, reactions } =
+        const { number, llm_number, title, body, state, html_url, reactions } =
             await github.getIssue(issue_number)
         return YAML.stringify({
             number,
+            llm_number,
             title,
             body,
             state,
@@ -70,7 +76,7 @@ defTool(
 
 defTool(
     "github_issues_comments_list",
-    "Get comments for an issue.",
+    "Get comments for an issue. 'llm_id' is the ID used in other tools.",
     {
         type: "object",
         properties: {
@@ -86,8 +92,9 @@ defTool(
         context.log(`github issue list comments ${issue_number}`)
         const res = await github.listIssueComments(issue_number)
         return CSV.stringify(
-            res.map(({ id, body, updated_at }) => ({
+            res.map(({ id, llm_id, body, updated_at }) => ({
                 id,
+                llm_id,
                 body,
                 updated_at,
             })),

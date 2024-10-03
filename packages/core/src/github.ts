@@ -7,7 +7,9 @@ import {
     GITHUB_REST_PAGE_DEFAULT,
     GITHUB_TOKEN,
     LLMID_GITHUB_ISSUE,
+    LLMID_GITHUB_ISSUE_COMMENT,
     LLMID_GITHUB_PULL_REQUEST,
+    LLMID_GITHUB_PULL_REQUEST_REVIEW_COMMENT,
     LLMID_GITHUB_WORKFLOW,
     LLMID_GITHUB_WORKFLOW_JOB,
     LLMID_GITHUB_WORKFLOW_RUN,
@@ -569,7 +571,7 @@ export class GitHubClient implements GitHub {
         const { data } = await client.rest.issues.get({
             owner,
             repo,
-            issue_number,
+            issue_number: unllmifyIntId(issue_number, LLMID_GITHUB_ISSUE),
         })
         const { id, number, title, state, html_url, created_at } = data
         return <GitHubIssue>{
@@ -619,7 +621,7 @@ export class GitHubClient implements GitHub {
         const { data } = await client.rest.pulls.get({
             owner,
             repo,
-            pull_number,
+            pull_number: unllmifyIntId(pull_number, LLMID_GITHUB_PULL_REQUEST),
         })
         const { id, number, title, state, html_url, created_at } = data
         return <GitHubPullRequest>{
@@ -645,12 +647,29 @@ export class GitHubClient implements GitHub {
             {
                 owner,
                 repo,
-                pull_number,
+                pull_number: unllmifyIntId(
+                    pull_number,
+                    LLMID_GITHUB_PULL_REQUEST
+                ),
                 ...rest,
             }
         )
         const res = await paginatorToArray(ite, count, (i) => i.data)
-        return res
+        return res.map(
+            ({ id, body, created_at, user, updated_at, html_url }) =>
+                <GitHubComment>{
+                    id,
+                    llm_id: llmifyId(
+                        id,
+                        LLMID_GITHUB_PULL_REQUEST_REVIEW_COMMENT
+                    ),
+                    body,
+                    created_at,
+                    user,
+                    updated_at,
+                    html_url,
+                }
+        )
     }
 
     async listIssueComments(
@@ -666,11 +685,22 @@ export class GitHubClient implements GitHub {
         const ite = client.paginate.iterator(client.rest.issues.listComments, {
             owner,
             repo,
-            issue_number,
+            issue_number: unllmifyIntId(issue_number, LLMID_GITHUB_ISSUE),
             ...rest,
         })
         const res = await paginatorToArray(ite, count, (i) => i.data)
-        return res
+        return res.map(
+            ({ id, body, created_at, user, updated_at, html_url }) =>
+                <GitHubComment>{
+                    id,
+                    llm_id: llmifyId(id, LLMID_GITHUB_ISSUE_COMMENT),
+                    body,
+                    created_at,
+                    user,
+                    updated_at,
+                    html_url,
+                }
+        )
     }
 
     async listWorkflowRuns(

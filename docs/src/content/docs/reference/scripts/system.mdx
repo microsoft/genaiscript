@@ -1189,9 +1189,9 @@ Tools to query GitHub issues.
 
 
 
--  tool `github_issues_list`: List all issues in a repository.
--  tool `github_issues_get`: Get a single issue by number.
--  tool `github_issues_comments_list`: Get comments for an issue.
+-  tool `github_issues_list`: List all issues in a repository. 'llm_number' is the ID used in other tools.
+-  tool `github_issues_get`: Get a single issue by number. 'llm_number' is the ID used in other tools.
+-  tool `github_issues_comments_list`: Get comments for an issue. 'llm_id' is the ID used in other tools.
 
 `````js wrap title="system.github_issues"
 system({
@@ -1200,7 +1200,7 @@ system({
 
 defTool(
     "github_issues_list",
-    "List all issues in a repository.",
+    "List all issues in a repository. 'llm_number' is the ID used in other tools.",
     {
         type: "object",
         properties: {
@@ -1229,7 +1229,12 @@ defTool(
         context.log(`github issue list ${state ?? "all"}`)
         const res = await github.listIssues({ state, labels, sort, direction })
         return CSV.stringify(
-            res.map(({ number, title, state }) => ({ number, title, state })),
+            res.map(({ number, llm_number, title, state }) => ({
+                number,
+                llm_number,
+                title,
+                state,
+            })),
             { header: true }
         )
     }
@@ -1237,7 +1242,7 @@ defTool(
 
 defTool(
     "github_issues_get",
-    "Get a single issue by number.",
+    "Get a single issue by number. 'llm_number' is the ID used in other tools.",
     {
         type: "object",
         properties: {
@@ -1251,10 +1256,11 @@ defTool(
     async (args) => {
         const { number: issue_number, context } = args
         context.log(`github issue get ${issue_number}`)
-        const { number, title, body, state, html_url, reactions } =
+        const { number, llm_number, title, body, state, html_url, reactions } =
             await github.getIssue(issue_number)
         return YAML.stringify({
             number,
+            llm_number,
             title,
             body,
             state,
@@ -1266,7 +1272,7 @@ defTool(
 
 defTool(
     "github_issues_comments_list",
-    "Get comments for an issue.",
+    "Get comments for an issue. 'llm_id' is the ID used in other tools.",
     {
         type: "object",
         properties: {
@@ -1282,8 +1288,9 @@ defTool(
         context.log(`github issue list comments ${issue_number}`)
         const res = await github.listIssueComments(issue_number)
         return CSV.stringify(
-            res.map(({ id, body, updated_at }) => ({
+            res.map(({ id, llm_id, body, updated_at }) => ({
                 id,
+                llm_id,
                 body,
                 updated_at,
             })),
@@ -1301,9 +1308,9 @@ Tools to query GitHub pull requests.
 
 
 
--  tool `github_pulls_list`: List all pull requests in a repository.
--  tool `github_pulls_get`: Get a single pull request by number.
--  tool `github_pulls_review_comments_list`: Get review comments for a pull request.
+-  tool `github_pulls_list`: List all pull requests in a repository. 'llm_number' is the ID used in other tools.
+-  tool `github_pulls_get`: Get a single pull request by number. 'llm_number' is the ID used in other tools.
+-  tool `github_pulls_review_comments_list`: Get review comments for a pull request. 'llm_id' is the ID used in other tools.
 
 `````js wrap title="system.github_pulls"
 system({
@@ -1312,7 +1319,7 @@ system({
 
 defTool(
     "github_pulls_list",
-    "List all pull requests in a repository.",
+    "List all pull requests in a repository. 'llm_number' is the ID used in other tools.",
     {
         type: "object",
         properties: {
@@ -1341,8 +1348,9 @@ defTool(
         context.log(`github pull list`)
         const res = await github.listPullRequests({ state, sort, direction })
         return CSV.stringify(
-            res.map(({ number, title, state, body }) => ({
+            res.map(({ number, llm_number, title, state, body }) => ({
                 number,
+                llm_number,
                 title,
                 state,
             })),
@@ -1353,7 +1361,7 @@ defTool(
 
 defTool(
     "github_pulls_get",
-    "Get a single pull request by number.",
+    "Get a single pull request by number. 'llm_number' is the ID used in other tools.",
     {
         type: "object",
         properties: {
@@ -1367,10 +1375,11 @@ defTool(
     async (args) => {
         const { number: pull_number, context } = args
         context.log(`github pull get ${pull_number}`)
-        const { number, title, body, state, html_url, reactions } =
+        const { number, llm_number, title, body, state, html_url, reactions } =
             await github.getPullRequest(pull_number)
         return YAML.stringify({
             number,
+            llm_number,
             title,
             body,
             state,
@@ -1382,7 +1391,7 @@ defTool(
 
 defTool(
     "github_pulls_review_comments_list",
-    "Get review comments for a pull request.",
+    "Get review comments for a pull request. 'llm_id' is the ID used in other tools.",
     {
         type: "object",
         properties: {
@@ -1399,7 +1408,7 @@ defTool(
         context.log(`github pull comments list ${pull_number}`)
         const res = await github.listPullRequestReviewComments(pull_number)
         return CSV.stringify(
-            res.map(({ id, body }) => ({ id, body })),
+            res.map(({ id, llm_id, body }) => ({ id, llm_id, body })),
             { header: true }
         )
     }

@@ -4,7 +4,7 @@ system({
 
 defTool(
     "github_pulls_list",
-    "List all pull requests in a repository.",
+    "List all pull requests in a repository. 'llm_number' is the ID used in other tools.",
     {
         type: "object",
         properties: {
@@ -33,8 +33,9 @@ defTool(
         context.log(`github pull list`)
         const res = await github.listPullRequests({ state, sort, direction })
         return CSV.stringify(
-            res.map(({ number, title, state, body }) => ({
+            res.map(({ number, llm_number, title, state, body }) => ({
                 number,
+                llm_number,
                 title,
                 state,
             })),
@@ -45,7 +46,7 @@ defTool(
 
 defTool(
     "github_pulls_get",
-    "Get a single pull request by number.",
+    "Get a single pull request by number. 'llm_number' is the ID used in other tools.",
     {
         type: "object",
         properties: {
@@ -59,10 +60,11 @@ defTool(
     async (args) => {
         const { number: pull_number, context } = args
         context.log(`github pull get ${pull_number}`)
-        const { number, title, body, state, html_url, reactions } =
+        const { number, llm_number, title, body, state, html_url, reactions } =
             await github.getPullRequest(pull_number)
         return YAML.stringify({
             number,
+            llm_number,
             title,
             body,
             state,
@@ -74,7 +76,7 @@ defTool(
 
 defTool(
     "github_pulls_review_comments_list",
-    "Get review comments for a pull request.",
+    "Get review comments for a pull request. 'llm_id' is the ID used in other tools.",
     {
         type: "object",
         properties: {
@@ -91,7 +93,7 @@ defTool(
         context.log(`github pull comments list ${pull_number}`)
         const res = await github.listPullRequestReviewComments(pull_number)
         return CSV.stringify(
-            res.map(({ id, body }) => ({ id, body })),
+            res.map(({ id, llm_id, body }) => ({ id, llm_id, body })),
             { header: true }
         )
     }

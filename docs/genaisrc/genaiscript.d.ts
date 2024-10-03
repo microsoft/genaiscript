@@ -1531,6 +1531,7 @@ interface GitHubReactions {
 
 interface GitHubComment {
     id: number
+    llm_id: string
     body?: string
     created_at: string
     updated_at: string
