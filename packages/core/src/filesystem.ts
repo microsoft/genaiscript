@@ -8,6 +8,7 @@ import { host } from "./host"
 import { JSON5parse } from "./json5"
 import { logVerbose } from "./util"
 import { XMLParse, XMLTryParse } from "./xml"
+import { YAMLParse } from "./yaml"
 
 export function createFileSystem(): Omit<WorkspaceFileSystem, "grep"> {
     const fs: Omit<WorkspaceFileSystem, "grep"> = {
@@ -61,12 +62,20 @@ export function createFileSystem(): Omit<WorkspaceFileSystem, "grep"> {
         },
         readJSON: async (f: string | Awaitable<WorkspaceFile>) => {
             const file = await fs.readText(f)
-            const res = JSON5parse(file.content)
+            const res = JSON5parse(file.content, { repair: true })
             return res
         },
-        readXML: async (f: string | Awaitable<WorkspaceFile>) => {
+        readYAML: async (f: string | Awaitable<WorkspaceFile>) => {
             const file = await fs.readText(f)
-            const res = XMLParse(file.content)
+            const res = YAMLParse(file.content)
+            return res
+        },
+        readXML: async (
+            f: string | Awaitable<WorkspaceFile>,
+            options?: XMLParseOptions
+        ) => {
+            const file = await fs.readText(f)
+            const res = XMLParse(file.content, options)
             return res
         },
         readCSV: async <T extends object>(

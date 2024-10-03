@@ -890,8 +890,7 @@ defTool(
         properties: {
             base: {
                 type: "string",
-                description:
-                    "Base branch, ref, commit sha to compare against. Use 'DEFAULT' to compare against the repository default branch.",
+                description: "Base branch, ref, commit sha to compare against.",
             },
             head: {
                 type: "string",
@@ -921,9 +920,11 @@ defTool(
         },
     },
     async (args) => {
-        let { base, context, ...rest } = args
-        if (base === "DEFAULT") base = await git.defaultBranch()
-        const res = await git.diff({ llmify: true, ...rest })
+        const { context, ...rest } = args
+        const res = await git.diff({
+            llmify: true,
+            ...rest,
+        })
         return res
     }
 )
@@ -979,31 +980,6 @@ defTool(
 defTool("git_last_tag", "Gets the last tag using git.", {}, async () => {
     return await git.lastTag()
 })
-
-`````
-
-
-### `system.github`
-
-General GitHub information.
-
-
-
-
-
-`````js wrap title="system.github"
-system({
-    title: "General GitHub information.",
-})
-
-const info = await github.info()
-if (info?.owner) {
-    const { auth, ...rest } = info
-    $`## GitHub information:
-
-${YAML.stringify(rest)}
-`
-}
 
 `````
 
@@ -1228,6 +1204,31 @@ defTool(
         return CSV.stringify(res, { header: true })
     }
 )
+
+`````
+
+
+### `system.github_info`
+
+General GitHub information.
+
+
+
+
+
+`````js wrap title="system.github_info"
+system({
+    title: "General GitHub information.",
+})
+
+const info = await github.info()
+if (info?.owner) {
+    const { auth, ...rest } = info
+    $`## GitHub information:
+
+${YAML.stringify(rest)}
+`
+}
 
 `````
 

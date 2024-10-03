@@ -32,6 +32,7 @@ import {
     CONSOLE_COLOR_DEBUG,
     DOCS_CONFIGURATION_URL,
     TRACE_DETAILS,
+    CLI_ENV_VAR_RX,
 } from "../../core/src/constants"
 import { isCancelError, errorMessage } from "../../core/src/error"
 import { Fragment, GenerationResult } from "../../core/src/generation"
@@ -71,6 +72,23 @@ import { writeFileSync } from "node:fs"
 import { prettifyMarkdown } from "../../core/src/markdown"
 import { delay } from "es-toolkit"
 import { GenerationStats } from "../../core/src/usage"
+
+function parseVars(
+    vars: string[],
+    env: Record<string, string>
+): Record<string, string> {
+    const vals =
+        vars?.reduce((acc, v) => ({ ...acc, ...parseKeyValuePair(v) }), {}) ??
+        {}
+    const envVals = Object.keys(env)
+        .filter((k) => CLI_ENV_VAR_RX.test(k))
+        .map((k) => ({
+            [k.replace(CLI_ENV_VAR_RX, "").toLocaleLowerCase()]: env[k],
+        }))
+        .reduce((acc, v) => ({ ...acc, ...v }), {})
+
+    return { ...vals, ...envVals }
+}
 
 async function setupTraceWriting(trace: MarkdownTrace, filename: string) {
     logVerbose(`trace: ${filename}`)
@@ -241,10 +259,7 @@ export async function runScript(
     const fragment: Fragment = {
         files: Array.from(resolvedFiles),
     }
-    const vars = options.vars?.reduce(
-        (acc, v) => ({ ...acc, ...parseKeyValuePair(v) }),
-        {}
-    )
+    const vars = parseVars(options.vars, process.env)
     const stats = new GenerationStats("")
     try {
         if (options.label) trace.heading(2, options.label)

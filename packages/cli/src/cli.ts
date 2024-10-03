@@ -170,7 +170,7 @@ export async function cli() {
         .option("-ae, --apply-edits", "apply file edits")
         .option(
             "--vars <namevalue...>",
-            "variables, as name=value, stored in env.vars"
+            "variables, as name=value, stored in env.vars. Use environment variables GENAISCRIPT_VAR_name=value to pass variable through the environment"
         )
         .option(
             "-rr, --run-retry <number>",
@@ -358,6 +358,5 @@ export async function cli() {
         .arguments("[provider]")
         .option("-t, --token", "show token")
         .action(envInfo) // Action to show environment information
-
     program.parse() // Parse command-line arguments
 }

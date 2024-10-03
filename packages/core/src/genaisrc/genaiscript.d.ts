@@ -87,9 +87,9 @@ type SystemPromptId = OptionsOrString<
     | "system.fs_find_files"
     | "system.fs_read_file"
     | "system.git"
-    | "system.github"
     | "system.github_actions"
     | "system.github_files"
+    | "system.github_info"
     | "system.github_issues"
     | "system.github_pulls"
     | "system.math"
@@ -654,9 +654,15 @@ interface WorkspaceFileSystem {
     readJSON(path: string | Awaitable<WorkspaceFile>): Promise<any>
 
     /**
+     * Reads the content of a file and parses to YAML.
+     * @param path
+     */
+    readYAML(path: string | Awaitable<WorkspaceFile>): Promise<any>
+
+    /**
      * Reads the content of a file and parses to XML, using the XML parser.
      */
-    readXML(path: string | Awaitable<WorkspaceFile>): Promise<any>
+    readXML(path: string | Awaitable<WorkspaceFile>, options?: XMLParseOptions): Promise<any>
 
     /**
      * Reads the content of a CSV file.

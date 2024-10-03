@@ -1,9 +1,11 @@
 // This file contains the GitClient class, which provides methods to interact with Git repositories.
 // It includes functionality to find modified files, execute Git commands, and manage branches.
 
+import { uniq } from "es-toolkit"
+import { GIT_IGNORE_GENAI } from "./constants"
 import { llmifyDiff } from "./diff"
 import { resolveFileContents } from "./file"
-import { isGlobMatch } from "./glob"
+import { readText } from "./fs"
 import { runtimeHost } from "./host"
 import { shellParse } from "./shell"
 import { arrayify } from "./util"
@@ -14,6 +16,18 @@ import { arrayify } from "./util"
 export class GitClient implements Git {
     readonly git = "git" // Git command identifier
     private _defaultBranch: string // Stores the default branch name
+    private async resolveExcludedPaths(options?: {
+        excludedPaths?: ElementOrArray<string>
+    }): Promise<string[]> {
+        const { excludedPaths } = options || {}
+        const ep = arrayify(excludedPaths, { filterEmpty: true })
+        const dp = (await readText(GIT_IGNORE_GENAI))?.split("\n")
+        const ps = [
+            ...arrayify(ep, { filterEmpty: true }),
+            ...arrayify(dp, { filterEmpty: true }),
+        ]
+        return uniq(ps)
+    }
 
     /**
      * Retrieves the default branch name.
@@ -77,15 +91,13 @@ export class GitClient implements Git {
         options?: {
             base?: string
             paths?: ElementOrArray<string>
-            askStageOnEmpty?: boolean
             excludedPaths?: ElementOrArray<string>
+            askStageOnEmpty?: boolean
         }
     ): Promise<WorkspaceFile[]> {
         const { askStageOnEmpty } = options || {}
         const paths = arrayify(options?.paths, { filterEmpty: true })
-        const excludedPaths = arrayify(options?.excludedPaths, {
-            filterEmpty: true,
-        })
+        const excludedPaths = await this.resolveExcludedPaths(options)
 
         let filenames: string[]
         if (scope === "modified-base" || scope === "staged") {
@@ -118,6 +130,7 @@ export class GitClient implements Git {
             // For "modified" scope, ignore deleted files
             const rx = /^\s*(A|M|\?{1,2})\s+/gm
             const args = ["status", "--porcelain"]
+            GitClient.addFileFilters(paths, excludedPaths, args)
             const res = await this.exec(args, {
                 label: `git list modified files`,
             })
@@ -125,12 +138,6 @@ export class GitClient implements Git {
                 .split("\n")
                 .filter((f) => rx.test(f))
                 .map((f) => f.replace(rx, "").trim())
-            if (paths.length)
-                filenames = filenames.filter((f) => isGlobMatch(f, paths))
-            if (excludedPaths.length)
-                filenames = filenames.filter(
-                    (f) => !isGlobMatch(f, excludedPaths)
-                )
         }
 
         const files = filenames.map((filename) => ({ filename }))
@@ -179,9 +186,7 @@ export class GitClient implements Git {
     }): Promise<GitCommit[]> {
         const { base, head, merges, excludedGrep } = options || {}
         const paths = arrayify(options?.paths, { filterEmpty: true })
-        const excludedPaths = arrayify(options?.excludedPaths, {
-            filterEmpty: true,
-        })
+        const excludedPaths = await this.resolveExcludedPaths(options)
 
         const args = ["log", "--pretty=oneline"]
         if (!merges) args.push("--no-merges")
@@ -223,9 +228,7 @@ export class GitClient implements Git {
         llmify?: boolean
     }): Promise<string> {
         const paths = arrayify(options?.paths, { filterEmpty: true })
-        const excludedPaths = arrayify(options?.excludedPaths, {
-            filterEmpty: true,
-        })
+        const excludedPaths = await this.resolveExcludedPaths(options)
         const { staged, base, head, unified, askStageOnEmpty } = options || {}
         const args = ["diff"]
         if (staged) args.push("--staged")

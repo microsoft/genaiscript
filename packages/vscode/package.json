@@ -52,6 +52,11 @@
         "url": "https://github.com/microsoft/genaiscript"
     },
     "contributes": {
+        "configurationDefaults": {
+            "files.associations": {
+                ".gitignore.genai": "ignore"
+            }
+        },
         "markdown.markdownItPlugins": true,
         "problemMatchers": [
             {

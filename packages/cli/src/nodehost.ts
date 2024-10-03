@@ -2,7 +2,7 @@ import dotenv from "dotenv"
 
 import { TextDecoder, TextEncoder } from "util"
 import { readFile, unlink, writeFile } from "node:fs/promises"
-import { ensureDir, existsSync, remove } from "fs-extra"
+import { ensureDir, exists, existsSync, remove } from "fs-extra"
 import { resolve, dirname } from "node:path"
 import { glob } from "glob"
 import { debug, error, info, isQuiet, warn } from "./log"
@@ -232,7 +232,8 @@ export class NodeHost implements RuntimeHost {
         const wksrx = /^workspace:\/\//i
         if (wksrx.test(name))
             name = join(this.projectFolder(), name.replace(wksrx, ""))
-
+        // check if file exists
+        if (!(await exists(name))) return new Uint8Array()
         // read file
         const res = await readFile(name)
         return res ? new Uint8Array(res) : new Uint8Array()

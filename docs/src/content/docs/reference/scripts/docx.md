@@ -6,7 +6,7 @@ sidebar:
     order: 9
 ---
 
-The `def` function will automatically parse DOCX files and extract text from them
+The `def` function will automatically parse DOCX files and extract text from them:
 
 ```javascript
 def("DOCS", env.files, { endsWith: ".docx" })
@@ -14,7 +14,7 @@ def("DOCS", env.files, { endsWith: ".docx" })
 
 ## Parsers
 
-The `parsers.DOCX` function reads a PDF file and attempts to cleanly convert it into a text format
+The `parsers.DOCX` function reads a DOCX file and attempts to cleanly convert it into a text format
 that is friendly to the LLM.
 
 ```js
