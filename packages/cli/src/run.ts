@@ -82,7 +82,9 @@ function parseVars(
         {}
     const envVals = Object.keys(env)
         .filter((k) => CLI_ENV_VAR_RX.test(k))
-        .map((k) => ({ [k.replace(CLI_ENV_VAR_RX, "")]: env[k] }))
+        .map((k) => ({
+            [k.replace(CLI_ENV_VAR_RX, "").toLocaleLowerCase()]: env[k],
+        }))
         .reduce((acc, v) => ({ ...acc, ...v }), {})
 
     return { ...vals, ...envVals }
