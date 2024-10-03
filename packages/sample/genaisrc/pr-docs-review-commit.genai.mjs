@@ -23,7 +23,7 @@ def("GIT_DIFF", diff, {
 $`You are an expert technical documentation writer.
 
 GIT_DIFF contains the changes the current branch.
-Analyze the changes in GIT_DIFF in your mind and provide feedback on the documentation.
+Analyze the changes in GIT_DIFF in your mind and provide feedback on the style of the documentation.
 
 - the content is Markdown or MDX to be rendered with Astro Starlight https://starlight.astro.build/
 - ignore all whitespace issues
