@@ -1,9 +1,11 @@
 // This file contains the GitClient class, which provides methods to interact with Git repositories.
 // It includes functionality to find modified files, execute Git commands, and manage branches.
 
+import { uniq } from "es-toolkit"
+import { GIT_IGNORE_GENAI } from "./constants"
 import { llmifyDiff } from "./diff"
 import { resolveFileContents } from "./file"
-import { isGlobMatch } from "./glob"
+import { readText } from "./fs"
 import { runtimeHost } from "./host"
 import { shellParse } from "./shell"
 import { arrayify } from "./util"
@@ -14,16 +16,17 @@ import { arrayify } from "./util"
 export class GitClient implements Git {
     readonly git = "git" // Git command identifier
     private _defaultBranch: string // Stores the default branch name
-
     private async resolveExcludedPaths(options?: {
         excludedPaths?: ElementOrArray<string>
     }): Promise<string[]> {
         const { excludedPaths } = options || {}
-        if (excludedPaths) return arrayify(excludedPaths, { filterEmpty: true })
-        const defaultExcludedPaths = (
-            await workspace.readText(".genaiscriptignore")
-        )?.content?.split("\n")
-        return arrayify(defaultExcludedPaths, { filterEmpty: true })
+        const ep = arrayify(excludedPaths, { filterEmpty: true })
+        const dp = (await readText(GIT_IGNORE_GENAI))?.split("\n")
+        const ps = [
+            ...arrayify(ep, { filterEmpty: true }),
+            ...arrayify(dp, { filterEmpty: true }),
+        ]
+        return uniq(ps)
     }
 
     /**
@@ -127,6 +130,7 @@ export class GitClient implements Git {
             // For "modified" scope, ignore deleted files
             const rx = /^\s*(A|M|\?{1,2})\s+/gm
             const args = ["status", "--porcelain"]
+            GitClient.addFileFilters(paths, excludedPaths, args)
             const res = await this.exec(args, {
                 label: `git list modified files`,
             })
@@ -134,12 +138,6 @@ export class GitClient implements Git {
                 .split("\n")
                 .filter((f) => rx.test(f))
                 .map((f) => f.replace(rx, "").trim())
-            if (paths.length)
-                filenames = filenames.filter((f) => isGlobMatch(f, paths))
-            if (excludedPaths.length)
-                filenames = filenames.filter(
-                    (f) => !isGlobMatch(f, excludedPaths)
-                )
         }
 
         const files = filenames.map((filename) => ({ filename }))

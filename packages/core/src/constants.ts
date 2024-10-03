@@ -249,3 +249,5 @@ export const GITHUB_REST_API_CONCURRENCY_LIMIT = 8
 export const GITHUB_REST_PAGE_DEFAULT = 50
 
 export const TOKEN_TRUNCATION_THRESHOLD = 128
+
+export const GIT_IGNORE_GENAI = ".gitignore.genai"
