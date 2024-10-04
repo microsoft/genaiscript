@@ -254,4 +254,4 @@ export const GIT_IGNORE_GENAI = ".gitignore.genai"
 export const CLI_ENV_VAR_RX = /^genaiscript_var_/i
 
 export const GIT_DIFF_MAX_TOKENS = 8000
-export const MAX_TOOL_CONTENT_TOKENS = 1000
+export const MAX_TOOL_CONTENT_TOKENS = 2000
