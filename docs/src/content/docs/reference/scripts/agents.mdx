@@ -1,0 +1,37 @@
+---
+title: Agents (LLM Tools)
+description: An Agent is a tool that queries LLM, equipped with other tools, to accomplish tasks.
+sidebar:
+    order: 7.1
+---
+
+import { Content as BuiltinAgents } from "../../../../components/BuiltinAgents.mdx"
+
+GenAIScript defines an **agent** as a [tool](/genaiscript/reference/scripts/tools) that
+runs an [inline prompt](/genaiscript/reference/scripts/inline-prompts) to accomplish a task. The agent LLM is typically augmented with
+additional tools.
+
+## Agent flow engine
+
+**GenAIScript does _not_ implement any agentic workflow or decision.**
+It relies entierly on [tools](/genaiscript/reference/scripts/tools) support builtin to the LLMs.
+
+## defAgent
+
+The `defAgent` function is used to define an agent that can be called by the LLM. It takes a JSON schema to define the input and expects a string output. The LLM decides to call this agent on its own!
+
+```ts
+defAgent(
+    "git", // agent id becomes 'agent_git'
+    "Handles any git operation", // description
+    "You are a helpful expert in using git.",
+    {
+        tools: ["git"],
+    }
+)
+```
+
+-   the agent id will become the tool id `agent_<id>`
+-   the description of the agent will automatically be augmented with information about the available tools
+
+<BuiltinAgents />

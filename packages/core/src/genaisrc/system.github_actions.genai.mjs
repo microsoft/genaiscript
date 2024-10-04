@@ -1,11 +1,12 @@
 system({
     title: "github workflows",
-    description: "Queries results from workflows in GitHub actions.",
+    description:
+        "Queries results from workflows in GitHub actions. Prefer using dffs to compare logs.",
 })
 
 defTool(
     "github_actions_workflows_list",
-    "List all workflows as a list of 'id: name' pair.",
+    "List all github workflows.",
     {},
     async (args) => {
         const { context } = args
@@ -21,9 +22,9 @@ defTool(
 defTool(
     "github_actions_runs_list",
     `List all runs for a workflow or the entire repository. 
-    Use 'git_actions_list_workflows' to list workflows. 
-    Omit 'workflow_id' to list all runs.
-    head_sha is the commit hash.`,
+    - Use 'git_actions_list_workflows' to list workflows. 
+    - Omit 'workflow_id' to list all runs.
+    - head_sha is the commit hash.`,
     {
         type: "object",
         properties: {
@@ -71,7 +72,7 @@ defTool(
 
 defTool(
     "github_actions_jobs_list",
-    "List all jobs for a run.",
+    "List all jobs for a github workflow run.",
     {
         type: "object",
         properties: {
@@ -96,7 +97,7 @@ defTool(
 
 defTool(
     "github_actions_job_logs_get",
-    "Download workflow job log. If the log is too large, use 'github_actions_job_logs_diff' to compare logs.",
+    "Download github workflow job log. If the log is too large, use 'github_actions_job_logs_diff' to compare logs.",
     {
         type: "object",
         properties: {
@@ -121,7 +122,7 @@ defTool(
 
 defTool(
     "github_actions_job_logs_diff",
-    "Diffs two workflow job logsr.",
+    "Diffs two github workflow job logs.",
     {
         type: "object",
         properties: {

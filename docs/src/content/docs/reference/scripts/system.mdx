@@ -148,7 +148,7 @@ const model = env.vars.agentGitModel
 defAgent(
     "git",
     "Agent that can query a repository using Git to accomplish tasks. Provide all the context information available to execute git queries.",
-    `Your are a helpfull LLM agent that can use git tools to query a repository. `,
+    `Your are a helpfull LLM agent that can use the git tools to query the current repository. The current repository is the same as github repository.`,
     { model, system: ["system.github_info"], tools: ["git"] }
 )
 
@@ -860,22 +860,23 @@ defTool("git_last_tag", "Gets the last tag using git.", {}, async () => {
 
 github workflows
 
-Queries results from workflows in GitHub actions.
+Queries results from workflows in GitHub actions. Prefer using dffs to compare logs.
 
--  tool `github_actions_workflows_list`: List all workflows as a list of 'id: name' pair.
--  tool `github_actions_jobs_list`: List all jobs for a run.
--  tool `github_actions_job_logs_get`: Download workflow job log. If the log is too large, use 'github_actions_job_logs_diff' to compare logs.
--  tool `github_actions_job_logs_diff`: Diffs two workflow job logsr.
+-  tool `github_actions_workflows_list`: List all github workflows.
+-  tool `github_actions_jobs_list`: List all jobs for a github workflow run.
+-  tool `github_actions_job_logs_get`: Download github workflow job log. If the log is too large, use 'github_actions_job_logs_diff' to compare logs.
+-  tool `github_actions_job_logs_diff`: Diffs two github workflow job logs.
 
 `````js wrap title="system.github_actions"
 system({
     title: "github workflows",
-    description: "Queries results from workflows in GitHub actions.",
+    description:
+        "Queries results from workflows in GitHub actions. Prefer using dffs to compare logs.",
 })
 
 defTool(
     "github_actions_workflows_list",
-    "List all workflows as a list of 'id: name' pair.",
+    "List all github workflows.",
     {},
     async (args) => {
         const { context } = args
@@ -891,9 +892,9 @@ defTool(
 defTool(
     "github_actions_runs_list",
     `List all runs for a workflow or the entire repository. 
-    Use 'git_actions_list_workflows' to list workflows. 
-    Omit 'workflow_id' to list all runs.
-    head_sha is the commit hash.`,
+    - Use 'git_actions_list_workflows' to list workflows. 
+    - Omit 'workflow_id' to list all runs.
+    - head_sha is the commit hash.`,
     {
         type: "object",
         properties: {
@@ -941,7 +942,7 @@ defTool(
 
 defTool(
     "github_actions_jobs_list",
-    "List all jobs for a run.",
+    "List all jobs for a github workflow run.",
     {
         type: "object",
         properties: {
@@ -966,7 +967,7 @@ defTool(
 
 defTool(
     "github_actions_job_logs_get",
-    "Download workflow job log. If the log is too large, use 'github_actions_job_logs_diff' to compare logs.",
+    "Download github workflow job log. If the log is too large, use 'github_actions_job_logs_diff' to compare logs.",
     {
         type: "object",
         properties: {
@@ -991,7 +992,7 @@ defTool(
 
 defTool(
     "github_actions_job_logs_diff",
-    "Diffs two workflow job logsr.",
+    "Diffs two github workflow job logs.",
     {
         type: "object",
         properties: {

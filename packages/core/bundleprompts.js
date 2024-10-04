@@ -6,6 +6,7 @@ async function main() {
     const fp = "./src/default_prompts.ts"
     const fmp = "../../docs/src/content/docs/reference/scripts/system.mdx"
     const fnp = "../../docs/src/components/BuiltinTools.mdx"
+    const fap = "../../docs/src/components/BuiltinAgents.mdx"
     console.debug(`bundling ${dir}/*.genai.js into default_prompts.ts`)
     const promptMap = {}
     const prompts = readdirSync(dir)
@@ -83,9 +84,14 @@ async function main() {
             const v = promptMap[k]
             const tools = []
             v.replace(
-                /defTool\s*\(\s*"([^"]+)"\s*,\s*"([^"]+)"/gm,
-                (m, name, description) => {
-                    tools.push({ id: k, name, description })
+                /def(Agent|Tool)\s*\(\s*"([^"]+)"\s*,\s*"([^"]+)"/gm,
+                (m, kind, name, description) => {
+                    tools.push({
+                        id: k,
+                        kind: kind.toLowerCase(),
+                        name,
+                        description,
+                    })
                     return ""
                 }
             )
@@ -234,8 +240,34 @@ import { LinkCard } from '@astrojs/starlight/components';
 
 ### Builtin tools
 
-${functions.map(({ id, name, description }) => `<LinkCard title="${name}" description="${description}" href="/genaiscript/reference/scripts/system#${id.replace(/[^a-z0-9_]/gi, "")}" />`).join("\n")}
+${functions
+    .filter(({ kind }) => kind === "tool")
+    .map(
+        ({ id, name, description }) =>
+            `<LinkCard title="${name}" description="${description}" href="/genaiscript/reference/scripts/system#${id.replace(/[^a-z0-9_]/gi, "")}" />`
+    )
+    .join("\n")}
 
+`,
+        "utf-8"
+    )
+    writeFileSync(
+        fap,
+        `---
+title: Builtin Agents
+description: List of agents in system prompts
+---
+import { LinkCard } from '@astrojs/starlight/components';
+
+### Builtin Agents
+
+${functions
+    .filter(({ kind }) => kind === "agent")
+    .map(
+        ({ id, name, description }) =>
+            `<LinkCard title="${name}" description="${description}" href="/genaiscript/reference/scripts/system#${id.replace(/[^a-z0-9_]/gi, "")}" />`
+    )
+    .join("\n")}
 `,
         "utf-8"
     )

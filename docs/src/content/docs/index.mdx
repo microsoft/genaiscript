@@ -21,6 +21,7 @@ import { Card, CardGrid } from "@astrojs/starlight/components"
 import { FileTree } from "@astrojs/starlight/components"
 import AudioPlayer from "../../components/AudioPlayer.astro"
 import DirectoryLinks from "../../components/DirectoryLinks.astro"
+import { Content as BuiltinAgents } from "../../components/BuiltinAgents.mdx"
 
 import vscodeSrc from "../../../public/images/visual-studio-code.png"
 
@@ -113,6 +114,43 @@ Edit, [Debug](/genaiscript/getting-started/debugging-scripts/), [Run](/genaiscri
 or with a [command line](/genaiscript/getting-started/installation).
 
 <Image src={debuggerSrc} alt={debuggerAlt} loading="lazy" />
+
+</Card>
+
+<Card title="LLM Tools" icon="setting">
+
+Register JavaScript functions as [LLM tools](/genaiscript/reference/scripts/tools/)
+
+```js wrap
+defTool("weather", "live weahter",
+    { city: "Paris" }, // schema
+    async ({ city }) => // callback
+        { ... "sunny" }
+)
+```
+
+or use built-in [@agentic tools](/genaiscript/guides/agentic-tools/)
+
+```js wrap
+import { WeatherClient } from "@agentic/weather"
+defTool(new WeatherClient())
+```
+
+</Card>
+
+<Card title="LLM Agents" icon="sun">
+
+Combine [tools](/genaiscript/reference/scripts/tools) and [inline prompts](/genaiscript/reference/scripts/inline-prompts/)
+into an [agent](/genaiscript/reference/scripts/agents).
+
+```js wrap
+defAgent(
+    "git",
+    "Agent that answer git questions for the current repo",
+    "You are a helpful expert in using git.",
+    { tools: ["git"] }
+)
+```
 
 </Card>
 
@@ -259,27 +297,6 @@ script({ ..., model: "ollama:phi3" })
 
 </Card>
 
-<Card title="LLM Tools" icon="setting">
-
-Register JavaScript functions as [LLM tools](/genaiscript/reference/scripts/tools/)
-
-```js wrap
-defTool("weather", "live weahter",
-    { city: "Paris" }, // schema
-    async ({ city }) => // callback
-        { ... "sunny" }
-)
-```
-
-or use built-in [@agentic tools](/genaiscript/guides/agentic-tools/)
-
-```js wrap
-import { WeatherClient } from "@agentic/weather"
-defTool(new WeatherClient())
-```
-
-</Card>
-
 <Card title="Code Interpreter" icon="seti:python">
 
 Let the LLM run code in a sandboxed execution environment.
@@ -379,16 +396,23 @@ script({ ..., tests: {
 </CardGrid>
 
 ## Case Studies
+
 Tales from the real world using GenAIScript.
 
 <DirectoryLinks directory="case-studies" />
 
 ## Samples
+
 Fully fledged scripts ready to use.
 
 <DirectoryLinks directory="samples" />
 
 ## Guides
+
 A cookbook full of recipes to make you a genius scripter.
 
 <DirectoryLinks directory="guides" />
+
+## Agents
+
+<BuiltinAgents />

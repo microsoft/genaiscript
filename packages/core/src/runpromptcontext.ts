@@ -307,8 +307,8 @@ export function createChatGenerationContext(
             agentSystem,
             arrayify(tools)
         )
-        const agentDescription = `Agent uses LLM to ${description}. available tools: 
-        ${agentTools.map((t) => `- '${t.id}: ${t.description}`).join("\n")}`
+        const agentDescription = dedent`Agent uses LLM to ${description}. available tools: 
+        ${agentTools.map((t) => `- ${t.description}`).join("\n")}` // DO NOT LEAK TOOL ID HERE
 
         defTool(
             agentName,

@@ -181,7 +181,9 @@ async function runToolCalls(
                     const tool = tools.find((f) => f.spec.name === toolName)
                     if (!tool) {
                         logVerbose(JSON.stringify(tu, null, 2))
-                        throw new Error(`tool ${toolName} not found`)
+                        throw new Error(
+                            `multi tool ${toolName} not found in ${tools.map((t) => t.spec.name).join(", ")}`
+                        )
                     }
                     return { tool, args: tu.parameters }
                 })
@@ -189,7 +191,9 @@ async function runToolCalls(
                 const tool = tools.find((f) => f.spec.name === call.name)
                 if (!tool) {
                     logVerbose(JSON.stringify(call, null, 2))
-                    throw new Error(`tool ${call.name} not found`)
+                    throw new Error(
+                        `tool ${call.name} not found in ${tools.map((t) => t.spec.name).join(", ")}`
+                    )
                 }
                 todos = [{ tool, args: callArgs }]
             }
