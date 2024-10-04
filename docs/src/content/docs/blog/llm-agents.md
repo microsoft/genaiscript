@@ -1,7 +1,7 @@
 ---
 title: "LLM Agents"
 date: 2024-10-04
-authors: 
+authors:
     - genaiscript
     - pelikhan
 tags: ["genai", "interactive", "agent", "user-input", "questions"]
@@ -11,6 +11,17 @@ canonical_url: https://microsoft.github.io/genaiscript/blog/llm-agents
 GenAIScript defines an **agent** as a [tool](/genaiscript/reference/scripts/tools) that
 runs an [inline prompt](/genaiscript/reference/scripts/inline-prompts) to accomplish a task. The agent LLM is typically augmented with
 additional tools.
+
+```mermaid
+flowchart TD
+    query["query"] -->  |"confirm with user"| LLM
+
+    LLM --> |"ask user to confirm yes or no"| agent_user_LLM
+    subgraph agent["agent user (tool)"]
+        agent_user_LLM["agent LLM"] --> user_tools["user confirm (tool)"]
+    end
+    user_tools --> |"are you sure? Yes"| user
+```
 
 In this blog post, we'll walk through building a `user interaction agent` that enables the agent to ask questions to the user.
 
