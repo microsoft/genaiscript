@@ -11,7 +11,28 @@ GenAIScript defines an **agent** as a [tool](/genaiscript/reference/scripts/tool
 runs an [inline prompt](/genaiscript/reference/scripts/inline-prompts) to accomplish a task. The agent LLM is typically augmented with
 additional tools.
 
-## Agent flow engine
+```mermaid
+flowchart TD
+    query["query"] -->  |"why did the build fail?"| LLM
+
+    LLM --> |"query the last failed run"| agent_github["agent github"]
+    agent_github --> agent_github_LLM["LLM"]
+    agent_github --> |"commit failed_sha is responsible\nsuccess_sha is last known good"| LLM
+    agent_github_LLM --> github_tools["github tools"]
+    github_tools --> agent_github_LLM
+    agent_github_LLM --> agent_github
+
+    LLM --> |"diff success_sha...failed_sha"| agent_git["agent git"]
+    agent_git --> agent_git_LLM["LLM"]
+    agent_git --> |"in file: [50] + foo.bar()"| LLM
+    agent_git_LLM --> git_tools["git tools"]
+    git_tools --> agent_git_LLM
+    agent_git_LLM --> agent_git
+
+    LLM --> |"the change at line 50 is wrong"| response["response"]
+```
+
+## Agent orchestration
 
 **GenAIScript does _not_ implement any agentic workflow or decision.**
 It relies entierly on [tools](/genaiscript/reference/scripts/tools) support builtin to the LLMs.

@@ -1,6 +1,7 @@
 import { defineConfig, passthroughImageService } from "astro/config"
 import starlight from "@astrojs/starlight"
 import starlightBlog from "starlight-blog"
+import rehypeMermaid from "rehype-mermaid"
 
 // https://astro.build/config
 export default defineConfig({
@@ -9,6 +10,9 @@ export default defineConfig({
     image: {
         service: passthroughImageService(),
     },
+    markdown: {
+        rehypePlugins: [[rehypeMermaid, { strategy: "img-svg", dark: true }]],
+    },
     integrations: [
         starlight({
             title: "GenAIScript",
@@ -16,6 +20,7 @@ export default defineConfig({
             logo: {
                 src: "./src/assets/logo.svg",
             },
+            customCss: ["./src/styles/custom.css"],
             plugins: [
                 starlightBlog({
                     authors: {

@@ -1850,9 +1850,9 @@ cacheable-request@^10.2.8:
     responselike "^3.0.0"
 
 caniuse-lite@^1.0.30001663:
-  version "1.0.30001666"
-  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001666.tgz#112d77e80f1762f62a1b71ba92164e0cb3f3dd13"
-  integrity sha512-gD14ICmoV5ZZM1OdzPWmpx+q4GyefaK06zi8hmfHV5xe4/2nOQX3+Dw5o+fSqOws2xVwL9j+anOPFwHzdEdV4g==
+  version "1.0.30001667"
+  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001667.tgz#99fc5ea0d9c6e96897a104a8352604378377f949"
+  integrity sha512-7LTwJjcRkzKFmtqGsibMeuXmvFDfZq/nzIjnmgCGzKKRVzjD72selLDK1oPF/Oxzmt4fNcPvTDvGqSDG4tCALw==
 
 ccount@^2.0.0:
   version "2.0.1"
@@ -3209,9 +3209,9 @@ jiti@^1.21.6:
   integrity sha512-2yTgeWTWzMWkHu6Jp9NKgePDaYHbntiwvYuuJLbbN9vl7DC9DvXKOB2BC3ZZ92D3cvV/aflH0osDfwpHepQ53w==
 
 jiti@^2.0.0:
-  version "2.1.2"
-  resolved "https://registry.yarnpkg.com/jiti/-/jiti-2.1.2.tgz#2a37dbb3897d24767dc37bc29693a1033d368040"
-  integrity sha512-cYNjJus5X9J4jLzTaI8rYoIq1k6YySiA1lK4wxSnOrBRXkbVyreZfhoboJhsUmwgU82lpPjj1IoU7Ggrau8r3g==
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/jiti/-/jiti-2.2.1.tgz#0c968cd6c9b4baeb4074abd2f2f2dc42f6537a09"
+  integrity sha512-weIl/Bv3G0J3UKamLxEA2G+FfQ33Z1ZkQJGPjKFV21zQdKWu2Pi6o4elpj2uEl5XdFJZ9xzn1fsanWTFSt45zw==
 
 js-tokens@^4.0.0:
   version "4.0.0"
