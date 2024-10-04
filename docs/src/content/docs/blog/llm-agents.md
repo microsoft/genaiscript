@@ -10,7 +10,21 @@ GenAIScript defines an **agent** as a [tool](/genaiscript/reference/scripts/tool
 runs an [inline prompt](/genaiscript/reference/scripts/inline-prompts) to accomplish a task. The agent LLM is typically augmented with
 additional tools.
 
-In this blog post, we'll walk through building a `user interaction agent` that enables an agent to ask questions to the user. Let's dive into understanding how to create an "Agent that can asks questions to the user."
+In this blog post, we'll walk through building a `user interaction agent` that enables an agent to ask questions to the user.
+
+```js wrap
+script({
+    tools: ["agent_user_input"],
+})
+
+$`
+Imagine a funny question and ask the user to answer it.
+From the answer, generate 3 possible answers and ask the user to select the correct one.
+Ask the user if the answer is correct.
+`
+```
+
+Let's dive into understanding how to create an "Agent that can asks questions to the user."
 
 You can find the full script on GitHub right [here](https://github.com/microsoft/genaiscript/blob/main/packages/core/src/genaisrc/system.agent_user_input.genai.mjs).
 
@@ -103,7 +117,9 @@ prompting openai:gpt-4o (~234 tokens)
 
 user input text: What would be the most unexpected thing to find inside a refrigerator?
 ```
+
 ✔ What would be the most unexpected thing to find inside a refrigerator? toaster
+
 ```txt wrap
 prompting openai:gpt-4o (~240 tokens)
 toaster
@@ -120,7 +136,9 @@ prompting openai:gpt-4o (~263 tokens)
 
 user input select: Based on your answer, which of the following would also be unexpected to find inside a refrigerator?
 ```
+
 ✔ Based on your answer, which of the following would also be unexpected to find inside a refrigerator? A television
+
 ```txt wrap
 prompting openai:gpt-4o (~269 tokens)
 A television
@@ -132,7 +150,9 @@ prompting openai:gpt-4o (~239 tokens)
 
 user input confirm: Is your selection of 'A television' the correct unexpected item to find inside a refrigerator?
 ```
+
 ✔ Is your selection of 'A television' the correct unexpected item to find inside a refrigerator? yes
+
 ```txt wrap
 prompting openai:gpt-4o (~244 tokens)
 true
