@@ -8,7 +8,7 @@ tags: ["genai", "interactive", "agent", "user-input", "questions"]
 canonical_url: https://microsoft.github.io/genaiscript/blog/llm-agents
 ---
 
-GenAIScript defines an **agent** as a [tool](/genaiscript/reference/scripts/tools) that
+GenAIScript defines an [**agent**](/genaiscript/reference/scripts/agents) as a [tool](/genaiscript/reference/scripts/tools) that
 runs an [inline prompt](/genaiscript/reference/scripts/inline-prompts) to accomplish a task. The agent LLM is typically augmented with
 additional tools.
 
