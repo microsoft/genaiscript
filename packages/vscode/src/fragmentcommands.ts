@@ -49,7 +49,7 @@ async function showPromptParametersQuickPicks(
             case "number": {
                 const value = await vscode.window.showInputBox({
                     title: `Enter value for ${param}`,
-                    value: schema.default.toLocaleString(),
+                    value: schema.default?.toLocaleString(),
                     prompt: schema.description,
                     validateInput: (v) =>
                         isNaN(parseFloat(v))
