@@ -489,7 +489,7 @@ interface WorkspaceFileWithScore extends WorkspaceFile {
     score?: number
 }
 
-interface ToolDefinition {
+interface ToolDefinition extends DefToolOptions {
     /**
      * The name of the function to be called. Must be a-z, A-Z, 0-9, or contain
      * underscores and dashes, with a maximum length of 64.
@@ -512,6 +512,8 @@ interface ToolDefinition {
      * Omitting `parameters` defines a function with an empty parameter list.
      */
     parameters?: JSONSchema
+
+    
 }
 
 interface ToolCallTrace {
@@ -2077,6 +2079,13 @@ interface RunPromptResultPromiseWithOptions extends Promise<RunPromptResult> {
     options(values?: PromptGeneratorOptions): RunPromptResultPromiseWithOptions
 }
 
+interface DefToolOptions {
+    /**
+     * Maximum number of tokens per tool content response
+     */
+    maxTokens?: number
+}
+
 interface ChatGenerationContext extends ChatTurnGenerationContext {
     defSchema(
         name: string,
@@ -2088,7 +2097,8 @@ interface ChatGenerationContext extends ChatTurnGenerationContext {
         options?: DefImagesOptions
     ): void
     defTool(
-        tool: ToolCallback | AgenticToolCallback | AgenticToolProviderCallback
+        tool: ToolCallback | AgenticToolCallback | AgenticToolProviderCallback,
+        options?: DefToolOptions
     ): void
     defTool(
         name: string,
@@ -2998,13 +3008,15 @@ declare function defFileOutput(
  * @param fn callback invoked when the LLM requests to run this function
  */
 declare function defTool(
-    tool: ToolCallback | AgenticToolCallback | AgenticToolProviderCallback
+    tool: ToolCallback | AgenticToolCallback | AgenticToolProviderCallback,
+    options?: DefToolOptions
 ): void
 declare function defTool(
     name: string,
     description: string,
     parameters: PromptParametersSchema | JSONSchema,
-    fn: ChatFunctionHandler
+    fn: ChatFunctionHandler,
+    options?: DefToolOptions
 ): void
 
 /**

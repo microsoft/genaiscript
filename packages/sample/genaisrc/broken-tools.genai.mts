@@ -10,8 +10,14 @@ defTool("weather", "Get the current weather", {}, async () => {
 })
 
 // massive return
-defTool("time", "Get the curren time", {}, async () => {
-    const crypto = await import("crypto")
-    const randomString = crypto.randomBytes(1024 * 1024).toString("base64")
-    return randomString
-})
+defTool(
+    "time",
+    "Get the curren time",
+    {},
+    async () => {
+        const crypto = await import("crypto")
+        const randomString = crypto.randomBytes(1024 * 1024).toString("base64")
+        return randomString
+    },
+    { maxTokens: 2000 }
+)

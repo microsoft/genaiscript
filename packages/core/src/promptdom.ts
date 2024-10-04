@@ -39,7 +39,7 @@ export interface PromptNode extends ContextExpansionOptions {
         | "text"
         | "image"
         | "schema"
-        | "function"
+        | "tool"
         | "fileMerge"
         | "outputProcessor"
         | "stringTemplate"
@@ -127,8 +127,8 @@ export interface PromptSchemaNode extends PromptNode {
 }
 
 // Interface for a function node.
-export interface PromptFunctionNode extends PromptNode {
-    type: "function"
+export interface PromptToolNode extends PromptNode, DefToolOptions {
+    type: "tool"
     name: string // Function name
     description: string // Description of the function
     parameters: JSONSchema // Parameters for the function
@@ -304,18 +304,20 @@ export function createSchemaNode(
 }
 
 // Function to create a function node.
-export function createFunctionNode(
+export function createToolNode(
     name: string,
     description: string,
     parameters: JSONSchema,
-    impl: ChatFunctionHandler
-): PromptFunctionNode {
+    impl: ChatFunctionHandler,
+    options?: DefToolOptions
+): PromptToolNode {
     assert(!!name)
     assert(!!description)
     assert(parameters !== undefined)
     assert(impl !== undefined)
     return {
-        type: "function",
+        ...(options || {}),
+        type: "tool",
         name,
         description: dedent(description),
         parameters,
@@ -439,7 +441,7 @@ export interface PromptNodeVisitor {
     def?: (node: PromptDefNode) => Awaitable<void> // Definition node visitor
     image?: (node: PromptImageNode) => Awaitable<void> // Image node visitor
     schema?: (node: PromptSchemaNode) => Awaitable<void> // Schema node visitor
-    function?: (node: PromptFunctionNode) => Awaitable<void> // Function node visitor
+    tool?: (node: PromptToolNode) => Awaitable<void> // Function node visitor
     fileMerge?: (node: PromptFileMergeNode) => Awaitable<void> // File merge node visitor
     stringTemplate?: (node: PromptStringTemplateNode) => Awaitable<void> // String template node visitor
     outputProcessor?: (node: PromptOutputProcessorNode) => Awaitable<void> // Output processor node visitor
@@ -465,8 +467,8 @@ export async function visitNode(node: PromptNode, visitor: PromptNodeVisitor) {
         case "schema":
             await visitor.schema?.(node as PromptSchemaNode)
             break
-        case "function":
-            await visitor.function?.(node as PromptFunctionNode)
+        case "tool":
+            await visitor.tool?.(node as PromptToolNode)
             break
         case "fileMerge":
             await visitor.fileMerge?.(node as PromptFileMergeNode)
@@ -976,7 +978,7 @@ ${trimNewlines(schemaText)}
                     format
                 )
         },
-        function: (n) => {
+        tool: (n) => {
             const { name, description, parameters, impl: fn } = n
             functions.push({
                 spec: { name, description, parameters },

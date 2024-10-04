@@ -196,6 +196,9 @@ async function runToolCalls(
             const toolResult: string[] = []
             for (const todo of todos) {
                 const { tool, args } = todo
+                const {
+                    maxTokens: maxToolContentTokens = MAX_TOOL_CONTENT_TOKENS,
+                } = tool.spec
                 const context: ToolCallContext = {
                     log: (txt: string) => {
                         logVerbose(txt)
@@ -208,11 +211,12 @@ async function runToolCalls(
                 try {
                     output = await tool.impl({ context, ...args })
                 } catch (e) {
+                    context.log(`tool ${tool.spec.name} error`)
                     output = serializeError(e)
                 }
                 if (output === undefined || output === null)
                     throw new Error(
-                        `tool ${tool.spec.name} output is undefined`
+                        `error: tool ${tool.spec.name} raised an error`
                     )
                 let toolContent: string = undefined
                 let toolEdits: Edits[] = undefined
@@ -264,14 +268,17 @@ ${fenceMD(content, " ")}
                     )
                 }
 
-                const maxToolContentTokens = MAX_TOOL_CONTENT_TOKENS
                 const toolContentTokens = estimateTokens(toolContent, encoder)
-                if (toolContentTokens > maxToolContentTokens)
+                if (toolContentTokens > maxToolContentTokens) {
+                    context.log(
+                        `warning: tool ${tool.spec.name} content too long (${toolContentTokens} tokens), truncating ${maxToolContentTokens} tokens`
+                    )
                     toolContent = truncateTextToTokens(
                         toolContent,
                         maxToolContentTokens,
                         encoder
                     )
+                }
                 toolResult.push(toolContent)
             }
             messages.push({
