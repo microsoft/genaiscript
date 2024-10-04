@@ -100,7 +100,7 @@ export async function renderAICI(functionName: string, root: PromptNode) {
         },
         // Unsupported node types
         image: notSupported("image"),
-        tool: notSupported("function"),
+        tool: notSupported("tool"),
         assistant: notSupported("assistant"),
         schema: notSupported("schema"),
         // Capture output processors

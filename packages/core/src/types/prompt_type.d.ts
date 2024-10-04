@@ -41,6 +41,14 @@ declare function writeText(
 ): void
 
 /**
+ * Append given string to the prompt as an assistant mesage.
+ */
+declare function assistant(
+    text: Awaitable<string>,
+    options?: Omit<WriteTextOptions, "assistant">
+): void
+
+/**
  * Append given string to the prompt. It automatically appends "\n".
  * `` $`foo` `` is the same as `text("foo")`.
  */
