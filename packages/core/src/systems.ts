@@ -62,14 +62,8 @@ export function resolveSystems(
 // Helper function to resolve tools in the project and return their system IDs
 // Finds systems in the project associated with a specific tool
 function resolveTools(prj: Project, tool: string): string[] {
-    // Create regular expression to match tool definition in jsSource
-    const toolsRx = new RegExp(`defTool\\s*\\(\\s*('|"|\`)${tool}`)
-
-    // Filter project templates to find matching systems that define the tool
     const system = prj.templates.filter(
-        (t) => t.isSystem && toolsRx.test(t.jsSource)
+        (t) => t.isSystem && t.defTools?.find((to) => to.id === tool)
     )
-
-    // Return the IDs of matched systems
     return system.map(({ id }) => id)
 }

@@ -390,7 +390,7 @@ interface PromptScript
     /**
      * List of tools defined in the script
      */
-    defTools?: { id: string, description: string }[]
+    defTools?: { id: string, description: string, kind: "tool" | "agent" }[]
 }
 
 /**
