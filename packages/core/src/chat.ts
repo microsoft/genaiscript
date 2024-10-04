@@ -213,7 +213,7 @@ async function runToolCalls(
                 } catch (e) {
                     logWarn(`tool: ${tool.spec.name} error`)
                     trace.error(`tool: ${tool.spec.name} error`, e)
-                    output = serializeError(e)
+                    output = errorMessage(e)
                 }
                 if (output === undefined || output === null)
                     throw new Error(
