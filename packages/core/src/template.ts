@@ -12,6 +12,7 @@ import { JSON5TryParse } from "./json5"
 import { humanize } from "inflection"
 import { validateSchema } from "./schema"
 import { promptyParse, promptyToGenAIScript } from "./prompty"
+import { kind } from "openai/_shims/index.mjs"
 
 /**
  * Extracts a template ID from the given filename by removing specific extensions
@@ -329,14 +330,17 @@ export function parsePromptScriptMeta(
     return meta
 }
 
-function parsePromptScriptTools(
-    jsSource: string
-): { id: string; description: string }[] {
-    const tools: { id: string; description: string }[] = []
+function parsePromptScriptTools(jsSource: string) {
+    const tools: { id: string; description: string; kind: "tool" | "agent" }[] =
+        []
     jsSource.replace(
-        /defTool\s*\(\s*"([^"]+?)"\s*,\s*"([^"]+?)"/g,
-        (m, id, description) => {
-            tools.push({ id, description })
+        /def(?<kind>Tool|Agent)\s*\(\s*"(?<id>[^"]+?)"\s*,\s*"(?<description>[^"]+?)"/g,
+        (m, kind, id, description) => {
+            tools.push({
+                id: kind === "Agent" ? "agent_" + id : id,
+                description,
+                kind: kind.toLocaleLowerCase(),
+            })
             return ""
         }
     )

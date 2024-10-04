@@ -49,6 +49,7 @@ import { isCancelError, NotSupportedError, serializeError } from "./error"
 import { resolveLanguageModel } from "./lm"
 import { concurrentLimit } from "./concurrency"
 import { Project } from "./ast"
+import { dedent } from "./indent"
 
 export function createChatTurnGenerationContext(
     options: GenerationOptions,
@@ -287,16 +288,17 @@ export function createChatGenerationContext(
             agentCtx: ChatGenerationContext,
             args: ChatFunctionArgs
         ) => Promise<void>,
+        tools: ElementOrArray<SystemToolId>,
         options?: DefAgentOptions
     ): void => {
-        const { system, tools, ...rest } = options || {}
+        const { system, ...rest } = options || {}
 
+        name = name.replace(/^agent_/i, "")
         const agentName = `agent_${name}`
         const agentLabel = `agent ${name}`
         const agentDescription = `Agent uses LLM to ${description}. available tools: ${arrayify(tools).join(", ")}`
 
         const agentSystem = uniq([
-            "system",
             "system.tools",
             "system.explanations",
             ...arrayify(system),
@@ -321,16 +323,18 @@ export function createChatGenerationContext(
                 context.log(`${agentLabel}: ${query}`)
                 const res = await runPrompt(
                     async (_) => {
-                        _.def("QUERY", query)
-
-                        if (typeof fn === "string") _.writeText(fn)
+                        if (typeof fn === "string") _.writeText(dedent(fn))
                         else await fn(_, args)
 
-                        $`
+                        _.$`
                 ## Task
                 
-                Analyze and answer QUERY.
-                
+                Analyze and answer the task in QUERY.
+
+                `
+                        _.def("QUERY", query)
+
+                        $`
                 - Assume that your answer will be analyzed by an LLM, not a human.
                 - If you are missing information, reply "MISSING_INFO: <what is missing>".
                 - If you cannot answer the query, return "NO_ANSWER: <reason>".

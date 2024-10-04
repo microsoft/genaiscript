@@ -242,18 +242,18 @@ export async function expandTemplate(
 
     if (status !== "success" || text === "")
         // cancelled
-        return Object.freeze({
+        return {
             status,
             statusText,
             messages,
-        })
+        }
 
     if (cancellationToken?.isCancellationRequested)
-        return Object.freeze({
+        return {
             status: "cancelled",
             statusText: "user cancelled",
             messages,
-        })
+        }
 
     const systemMessage: ChatCompletionSystemMessageParam = {
         role: "system",
@@ -366,7 +366,7 @@ ${schemaTs}
 
     trace.endDetails()
 
-    return Object.freeze({
+    return {
         messages,
         images,
         schemas,
@@ -385,5 +385,5 @@ ${schemaTs}
         outputProcessors,
         chatParticipants,
         fileOutputs,
-    })
+    }
 }

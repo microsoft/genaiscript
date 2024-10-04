@@ -136,7 +136,7 @@ Agent that can query Git to accomplish tasks.
 
 
 
--  tool `agent_git`: Agent that can query a repository using Git to accomplish tasks. Provide all the context information available to execute git queries.
+
 
 `````js wrap title="system.agent_git"
 system({
@@ -145,44 +145,11 @@ system({
 
 const model = env.vars.agentGitModel
 
-defTool(
-    "agent_git",
+defAgent(
+    "git",
     "Agent that can query a repository using Git to accomplish tasks. Provide all the context information available to execute git queries.",
-    {
-        query: {
-            type: "string",
-            description: "Query to answer",
-        },
-    },
-    async (args) => {
-        const { context, query } = args
-        context.log(`agent git: ${query}`)
-        const res = await runPrompt(
-            (_) => {
-                _.def("QUERY", query)
-
-                _.$`Your are a helpfull LLM agent that can use git tools to query a repository. 
-                
-                Analyze and answer QUERY.
-                
-                - Assume that your answer will be analyzed by an LLM, not a human.
-                - If you are missing information, reply "MISSING_INFO: <what is missing>".
-                - If you cannot answer the query, return "NO_ANSWER: <reason>".
-                `
-            },
-            {
-                model,
-                system: [
-                    "system",
-                    "system.tools",
-                    "system.explanations",
-                    "system.git",
-                ],
-                label: "agent git",
-            }
-        )
-        return res
-    }
+    `Your are a helpfull LLM agent that can use git tools to query a repository. `,
+    { model, tools: ["git"] }
 )
 
 `````
@@ -194,7 +161,7 @@ Agent that can query GitHub to accomplish tasks.
 
 
 
--  tool `agent_github`: Agent that can query GitHub  to accomplish tasks
+
 
 `````js wrap title="system.agent_github"
 system({
@@ -203,50 +170,22 @@ system({
 
 const model = env.vars.agentGithubModel
 
-defTool(
-    "agent_github",
+defAgent(
+    "github",
     "Agent that can query GitHub  to accomplish tasks",
+    `Your are a helpfull LLM agent that can query GitHub to accomplish tasks.
+    Prefer diffing job logs rather downloading entire logs which can be very large.`,
     {
-        query: {
-            type: "string",
-            description: "Query to answer",
-        },
-    },
-    async (args) => {
-        const { context, query } = args
-        context.log(`agent github: ${query}`)
-        const res = await runPrompt(
-            (_) => {
-                _.def("QUERY", query)
-
-                _.$`Your are a helpfull LLM agent that can query GitHub to accomplish tasks. 
-                
-                Analyze and answer QUERY.
-                
-                ## Constraints
-
-                - Assume that your answer will be analyzed by an LLM, not a human.
-                - Prefer diffing job logs rather downloading entire logs which can be very large.
-                - If you are missing information, reply "MISSING_INFO: <what is missing>".
-                - If you cannot answer the query, return "NO_ANSWER: <reason>".
-
-                `
-            },
-            {
-                model,
-                system: [
-                    "system",
-                    "system.tools",
-                    "system.explanations",
-                    "system.github_actions",
-                    "system.github_files",
-                    "system.github_issues",
-                    "system.github_pulls",
-                ],
-                label: "agent github",
-            }
-        )
-        return res
+        model,
+        system: [
+            "system",
+            "system.tools",
+            "system.explanations",
+            "system.github_actions",
+            "system.github_files",
+            "system.github_issues",
+            "system.github_pulls",
+        ],
     }
 )
 
@@ -259,7 +198,7 @@ Agent that can run code interpreters for Python, Math.
 
 
 
--  tool `agent_interpreter`: Run code interpreters for Python, Math. Use this agent to ground computation questions.
+
 
 `````js wrap title="system.agent_interpreter"
 system({
@@ -267,45 +206,22 @@ system({
 })
 
 const model = env.vars.agentInterpreterModel
-defTool(
-    "agent_interpreter",
+defAgent(
+    "interpreter",
     "Run code interpreters for Python, Math. Use this agent to ground computation questions.",
+    `You are an agent that can run code interpreters for Python, Math. 
+    - Prefer math_eval for math expressions as it is much more efficient.
+    - To use file data in python, prefer copying data files using python_code_interpreter_copy_files rather than inline data in code.
+    `,
     {
-        query: {
-            type: "string",
-            description: "Query to answer",
-        },
-    },
-    async (args) => {
-        const { context, query } = args
-        context.log(`agent interpreter: ${query}`)
-        const res = await runPrompt(
-            (_) => {
-                _.def("QUERY", query)
-                _.$`You are an agent that can run code interpreters for Python, Math. 
-                
-                Analyze and answer QUERY. Use the best tool to ground computation questions.
-                
-                - Assume that your answer will be analyzed by an AI, not a human.
-                - Prefer math_eval for math expressions as it is much more efficient.
-                - To use file data in python, prefer copying data files using python_code_interpreter_copy_files rather than inline data in code.
-                - If you are missing information, reply "MISSING_INFO: <what is missing>".
-                - If you cannot answer the query, return "NO_ANSWER: <reason>".
-                `
-            },
-            {
-                model,
-                system: [
-                    "system",
-                    "system.tools",
-                    "system.explanations",
-                    "system.math",
-                    "system.python_code_interpreter",
-                ],
-                label: "agent interpreter",
-            }
-        )
-        return res
+        model,
+        system: [
+            "system",
+            "system.tools",
+            "system.explanations",
+            "system.math",
+            "system.python_code_interpreter",
+        ],
     }
 )
 
@@ -318,7 +234,7 @@ Agent that can asks questions to the user.
 
 
 
--  tool `agent_user_input`: Ask user for input to confirm, select or answer a question.
+
 
 `````js wrap title="system.agent_user_input"
 system({
@@ -326,38 +242,14 @@ system({
 })
 
 const model = env.vars.agentInterpreterModel
-defTool(
-    "agent_user_input",
+defAgent(
+    "user_input",
     "Ask user for input to confirm, select or answer a question.",
+    `You are an agent that can ask questions to the user and receive answers. Use the tools to interact with the user. 
+                - the message should be very clear. Add context from the conversation as needed.`,
     {
-        query: {
-            type: "string",
-            description: "Query to answer",
-        },
-    },
-    async (args) => {
-        const { context, query } = args
-        context.log(`agent user input: ${query}`)
-        const res = await runPrompt(
-            (_) => {
-                _.def("QUERY", query)
-                _.$`You are an agent that can ask questions to the user and receive answers. Use the tools to interact with the user. 
-                
-                Analyze and answer QUERY.
-                
-                - the message should be very clear. Add context from the conversation as needed.
-                - Assume that your answer will be analyzed by an AI, not a human.
-                - If you are missing information, reply "MISSING_INFO: <what is missing>".
-                - If you cannot answer the query, return "NO_ANSWER: <reason>".
-                `
-            },
-            {
-                model,
-                system: ["system", "system.tools", "system.user_input"],
-                label: "agent user input",
-            }
-        )
-        return res
+        model,
+        system: ["system", "system.tools", "system.user_input"],
     }
 )
 

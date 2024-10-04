@@ -3,44 +3,21 @@ system({
 })
 
 const model = env.vars.agentInterpreterModel
-defTool(
-    "agent_interpreter",
+defAgent(
+    "interpreter",
     "Run code interpreters for Python, Math. Use this agent to ground computation questions.",
+    `You are an agent that can run code interpreters for Python, Math. 
+    - Prefer math_eval for math expressions as it is much more efficient.
+    - To use file data in python, prefer copying data files using python_code_interpreter_copy_files rather than inline data in code.
+    `,
     {
-        query: {
-            type: "string",
-            description: "Query to answer",
-        },
-    },
-    async (args) => {
-        const { context, query } = args
-        context.log(`agent interpreter: ${query}`)
-        const res = await runPrompt(
-            (_) => {
-                _.def("QUERY", query)
-                _.$`You are an agent that can run code interpreters for Python, Math. 
-                
-                Analyze and answer QUERY. Use the best tool to ground computation questions.
-                
-                - Assume that your answer will be analyzed by an AI, not a human.
-                - Prefer math_eval for math expressions as it is much more efficient.
-                - To use file data in python, prefer copying data files using python_code_interpreter_copy_files rather than inline data in code.
-                - If you are missing information, reply "MISSING_INFO: <what is missing>".
-                - If you cannot answer the query, return "NO_ANSWER: <reason>".
-                `
-            },
-            {
-                model,
-                system: [
-                    "system",
-                    "system.tools",
-                    "system.explanations",
-                    "system.math",
-                    "system.python_code_interpreter",
-                ],
-                label: "agent interpreter",
-            }
-        )
-        return res
+        model,
+        system: [
+            "system",
+            "system.tools",
+            "system.explanations",
+            "system.math",
+            "system.python_code_interpreter",
+        ],
     }
 )

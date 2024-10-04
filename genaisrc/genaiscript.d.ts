@@ -109,6 +109,7 @@ type SystemPromptId = OptionsOrString<
 >
 
 type SystemToolId = OptionsOrString<
+    | "agent_fs"
     | "agent_git"
     | "agent_github"
     | "agent_interpreter"
@@ -292,12 +293,12 @@ interface PromptSystemOptions {
     /**
      * List of system script ids used by the prompt.
      */
-    system?: SystemPromptId | SystemPromptId[]
+    system?: ElementOrArray<SystemPromptId>
 
     /**
      * List of tools used by the prompt.
      */
-    tools?: SystemToolId | SystemToolId[]
+    tools?: ElementOrArray<SystemToolId>
 }
 
 interface ScriptRuntimeOptions {
@@ -2086,7 +2087,7 @@ interface DefToolOptions {
     maxTokens?: number
 }
 
-interface DefAgentOptions extends PromptGeneratorOptions {
+interface DefAgentOptions extends Omit<PromptGeneratorOptions, "label"> {
 
 }
 
