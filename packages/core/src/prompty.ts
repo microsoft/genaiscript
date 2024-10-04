@@ -173,7 +173,7 @@ export function promptyToGenAIScript(doc: PromptyDocument) {
         .map((msg) => {
             const { role, content } = msg
             if (role === "assistant") {
-                return `writeText(parsers.jinja(${JSON.stringify(content as string)}, env.vars), { assistant: true })`
+                return `assistant(parsers.jinja(${JSON.stringify(content as string)}, env.vars))`
             } else {
                 if (typeof content === "string") return renderJinja(content)
                 else if (Array.isArray(content))

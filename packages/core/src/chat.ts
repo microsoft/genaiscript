@@ -8,14 +8,18 @@ import {
     CancellationToken,
     checkCancelled,
 } from "./cancellation"
-import { assert, logError, logVerbose } from "./util"
+import { assert, logError, logVerbose, logWarn } from "./util"
 import { extractFenced, findFirstDataFence, unfence } from "./fence"
 import {
     toStrictJSONSchema,
     validateFencesWithSchema,
     validateJSONWithSchema,
 } from "./schema"
-import { MAX_DATA_REPAIRS, MAX_TOOL_CALLS } from "./constants"
+import {
+    MAX_DATA_REPAIRS,
+    MAX_TOOL_CALLS,
+    MAX_TOOL_CONTENT_TOKENS,
+} from "./constants"
 import { parseAnnotations } from "./annotations"
 import { errorMessage, isCancelError, serializeError } from "./error"
 import { estimateChatTokens } from "./chatencoder"
@@ -40,6 +44,8 @@ import {
 import { promptParametersSchemaToJSONSchema } from "./parameters"
 import { fenceMD, prettifyMarkdown } from "./markdown"
 import { YAMLStringify } from "./yaml"
+import { resolveTokenEncoder } from "./encoders"
+import { estimateTokens, truncateTextToTokens } from "./tokens"
 
 export function toChatCompletionUserMessage(
     expanded: string,
@@ -125,7 +131,8 @@ async function runToolCalls(
     options: GenerationOptions
 ) {
     const projFolder = host.projectFolder()
-    const { cancellationToken, trace } = options || {}
+    const { cancellationToken, trace, model } = options || {}
+    const encoder = await resolveTokenEncoder(model)
     assert(!!trace)
     let edits: Edits[] = []
 
@@ -189,6 +196,9 @@ async function runToolCalls(
             const toolResult: string[] = []
             for (const todo of todos) {
                 const { tool, args } = todo
+                const {
+                    maxTokens: maxToolContentTokens = MAX_TOOL_CONTENT_TOKENS,
+                } = tool.spec
                 const context: ToolCallContext = {
                     log: (txt: string) => {
                         logVerbose(txt)
@@ -196,10 +206,18 @@ async function runToolCalls(
                     },
                     trace,
                 }
-                const output = await tool.impl({ context, ...args })
+
+                let output: ToolCallOutput
+                try {
+                    output = await tool.impl({ context, ...args })
+                } catch (e) {
+                    logWarn(`tool: ${tool.spec.name} error`)
+                    trace.error(`tool: ${tool.spec.name} error`, e)
+                    output = serializeError(e)
+                }
                 if (output === undefined || output === null)
                     throw new Error(
-                        `tool ${tool.spec.name} output is undefined`
+                        `error: tool ${tool.spec.name} raised an error`
                     )
                 let toolContent: string = undefined
                 let toolEdits: Edits[] = undefined
@@ -236,7 +254,6 @@ ${fenceMD(content, " ")}
                 if (typeof output === "object")
                     toolEdits = (output as ToolCallContent)?.edits
 
-                if (toolContent) trace.fence(toolContent, "markdown")
                 if (toolEdits?.length) {
                     trace.fence(toolEdits)
                     edits.push(
@@ -251,6 +268,18 @@ ${fenceMD(content, " ")}
                     )
                 }
 
+                const toolContentTokens = estimateTokens(toolContent, encoder)
+                if (toolContentTokens > maxToolContentTokens) {
+                    logWarn(
+                        `tool: ${tool.spec.name} response too long (${toolContentTokens} tokens), truncating ${maxToolContentTokens} tokens`
+                    )
+                    toolContent = truncateTextToTokens(
+                        toolContent,
+                        maxToolContentTokens,
+                        encoder
+                    )
+                }
+                trace.fence(toolContent, "markdown")
                 toolResult.push(toolContent)
             }
             messages.push({
@@ -558,7 +587,7 @@ export async function executeChatSession(
         responseType,
         responseSchema,
         infoCb,
-        stats
+        stats,
     } = genOptions
     traceLanguageModelConnection(trace, genOptions, connectionToken)
     const tools: ChatCompletionTool[] = toolDefinitions?.length

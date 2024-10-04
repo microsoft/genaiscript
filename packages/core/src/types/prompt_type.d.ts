@@ -41,6 +41,14 @@ declare function writeText(
 ): void
 
 /**
+ * Append given string to the prompt as an assistant mesage.
+ */
+declare function assistant(
+    text: Awaitable<string>,
+    options?: Omit<WriteTextOptions, "assistant">
+): void
+
+/**
  * Append given string to the prompt. It automatically appends "\n".
  * `` $`foo` `` is the same as `text("foo")`.
  */
@@ -97,13 +105,15 @@ declare function defFileOutput(
  * @param fn callback invoked when the LLM requests to run this function
  */
 declare function defTool(
-    tool: ToolCallback | AgenticToolCallback | AgenticToolProviderCallback
+    tool: ToolCallback | AgenticToolCallback | AgenticToolProviderCallback,
+    options?: DefToolOptions
 ): void
 declare function defTool(
     name: string,
     description: string,
     parameters: PromptParametersSchema | JSONSchema,
-    fn: ChatFunctionHandler
+    fn: ChatFunctionHandler,
+    options?: DefToolOptions
 ): void
 
 /**

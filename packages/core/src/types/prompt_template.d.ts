@@ -415,7 +415,7 @@ interface WorkspaceFileWithScore extends WorkspaceFile {
     score?: number
 }
 
-interface ToolDefinition {
+interface ToolDefinition extends DefToolOptions {
     /**
      * The name of the function to be called. Must be a-z, A-Z, 0-9, or contain
      * underscores and dashes, with a maximum length of 64.
@@ -438,6 +438,8 @@ interface ToolDefinition {
      * Omitting `parameters` defines a function with an empty parameter list.
      */
     parameters?: JSONSchema
+
+    
 }
 
 interface ToolCallTrace {
@@ -509,6 +511,7 @@ type ToolCallOutput =
     | ShellOutput
     | WorkspaceFile
     | RunPromptResult
+    | SerializedError
     | undefined
 
 interface WorkspaceFileCache<K, V> {
@@ -2002,6 +2005,13 @@ interface RunPromptResultPromiseWithOptions extends Promise<RunPromptResult> {
     options(values?: PromptGeneratorOptions): RunPromptResultPromiseWithOptions
 }
 
+interface DefToolOptions {
+    /**
+     * Maximum number of tokens per tool content response
+     */
+    maxTokens?: number
+}
+
 interface ChatGenerationContext extends ChatTurnGenerationContext {
     defSchema(
         name: string,
@@ -2013,7 +2023,8 @@ interface ChatGenerationContext extends ChatTurnGenerationContext {
         options?: DefImagesOptions
     ): void
     defTool(
-        tool: ToolCallback | AgenticToolCallback | AgenticToolProviderCallback
+        tool: ToolCallback | AgenticToolCallback | AgenticToolProviderCallback,
+        options?: DefToolOptions
     ): void
     defTool(
         name: string,

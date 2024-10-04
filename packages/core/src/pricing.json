@@ -1,0 +1,166 @@
+{
+  "openai:gpt-4o": {
+    "price_per_million_input_tokens": 2.5,
+    "price_per_million_output_tokens": 10
+  },
+  "openai:gpt-4o-2024-08-06": {
+    "price_per_million_input_tokens": 2.5,
+    "price_per_million_output_tokens": 10
+  },
+  "openai:gpt-4o-2024-05-13": {
+    "price_per_million_input_tokens": 5,
+    "price_per_million_output_tokens": 15
+  },
+  "openai:gpt-4o-mini": {
+    "price_per_million_input_tokens": 0.15,
+    "price_per_million_output_tokens": 0.6
+  },
+  "openai:gpt-4o-mini-2024-07-18": {
+    "price_per_million_input_tokens": 0.15,
+    "price_per_million_output_tokens": 0.6
+  },
+  "openai:o1-preview": {
+    "price_per_million_input_tokens": 15,
+    "price_per_million_output_tokens": 60
+  },
+  "openai:o1-preview-2024-09-12": {
+    "price_per_million_input_tokens": 15,
+    "price_per_million_output_tokens": 60
+  },
+  "openai:o1-mini": {
+    "price_per_million_input_tokens": 3,
+    "price_per_million_output_tokens": 12
+  },
+  "openai:o1-mini-2024-09-12": {
+    "price_per_million_input_tokens": 3,
+    "price_per_million_output_tokens": 12
+  },
+  "openai:text-embedding-3-small": {
+    "price_per_million_input_tokens": 0.02,
+    "price_per_million_output_tokens": null
+  },
+  "openai:text-embedding-3-large": {
+    "price_per_million_input_tokens": 0.13,
+    "price_per_million_output_tokens": null
+  },
+  "openai:ada v2": {
+    "price_per_million_input_tokens": 0.1,
+    "price_per_million_output_tokens": null
+  },
+  "openai:gpt-4o-realtime-preview": {
+    "price_per_million_input_tokens": 5,
+    "price_per_million_output_tokens": 20
+  },
+  "openai:gpt-4o-realtime-preview-2024-10-01": {
+    "price_per_million_input_tokens": 5,
+    "price_per_million_output_tokens": 20
+  },
+  "openai:chatgpt-4o-latest": {
+    "price_per_million_input_tokens": 5,
+    "price_per_million_output_tokens": 15
+  },
+  "openai:gpt-4-turbo": {
+    "price_per_million_input_tokens": 10,
+    "price_per_million_output_tokens": 30
+  },
+  "openai:gpt-4-turbo-2024-04-09": {
+    "price_per_million_input_tokens": 10,
+    "price_per_million_output_tokens": 30
+  },
+  "openai:gpt-4": {
+    "price_per_million_input_tokens": 30,
+    "price_per_million_output_tokens": 60
+  },
+  "openai:gpt-4-32k": {
+    "price_per_million_input_tokens": 60,
+    "price_per_million_output_tokens": 120
+  },
+  "openai:gpt-4-0125-preview": {
+    "price_per_million_input_tokens": 10,
+    "price_per_million_output_tokens": 30
+  },
+  "openai:gpt-4-1106-preview": {
+    "price_per_million_input_tokens": 10,
+    "price_per_million_output_tokens": 30
+  },
+  "openai:gpt-4-vision-preview": {
+    "price_per_million_input_tokens": 10,
+    "price_per_million_output_tokens": 30
+  },
+  "openai:gpt-3.5-turbo-0125": {
+    "price_per_million_input_tokens": 0.5,
+    "price_per_million_output_tokens": 1.5
+  },
+  "openai:gpt-3.5-turbo-instruct": {
+    "price_per_million_input_tokens": 1.5,
+    "price_per_million_output_tokens": 2
+  },
+  "openai:gpt-3.5-turbo-1106": {
+    "price_per_million_input_tokens": 1,
+    "price_per_million_output_tokens": 2
+  },
+  "openai:gpt-3.5-turbo-0613": {
+    "price_per_million_input_tokens": 1.5,
+    "price_per_million_output_tokens": 2
+  },
+  "openai:gpt-3.5-turbo-16k-0613": {
+    "price_per_million_input_tokens": 3,
+    "price_per_million_output_tokens": 4
+  },
+  "openai:gpt-3.5-turbo-0301": {
+    "price_per_million_input_tokens": 1.5,
+    "price_per_million_output_tokens": 2
+  },
+  "openai:davinci-002": {
+    "price_per_million_input_tokens": 2,
+    "price_per_million_output_tokens": 2
+  },
+  "openai:babbage-002": {
+    "price_per_million_input_tokens": 0.4,
+    "price_per_million_output_tokens": 0.4
+  },
+  "azure:gpt-4o-2024-08-06 global deployment": {
+    "price_per_million_input_tokens": 2.5,
+    "price_per_million_output_tokens": 10
+  },
+  "azure:gpt-4o global deployment": {
+    "price_per_million_input_tokens": 5,
+    "price_per_million_output_tokens": 15
+  },
+  "azure:gpt-4o-mini global deployment": {
+    "price_per_million_input_tokens": 0.15,
+    "price_per_million_output_tokens": 0.6
+  },
+  "azure:gpt-3.5-turbo-0301": {
+    "price_per_million_input_tokens": 2,
+    "price_per_million_output_tokens": 2
+  },
+  "azure:gpt-3.5-turbo-0613": {
+    "price_per_million_input_tokens": 1.5,
+    "price_per_million_output_tokens": 2
+  },
+  "azure:gpt-3.5-turbo-0613 16k": {
+    "price_per_million_input_tokens": 3,
+    "price_per_million_output_tokens": 4
+  },
+  "azure:gpt-3.5-turbo-1106": {
+    "price_per_million_input_tokens": 1,
+    "price_per_million_output_tokens": 2
+  },
+  "azure:gpt-3.5-turbo-0125": {
+    "price_per_million_input_tokens": 0.5,
+    "price_per_million_output_tokens": 1.5
+  },
+  "azure:gpt-3.5-turbo-instruct": {
+    "price_per_million_input_tokens": 1.5,
+    "price_per_million_output_tokens": 2
+  },
+  "azure:gpt-4": {
+    "price_per_million_input_tokens": 30,
+    "price_per_million_output_tokens": 60
+  },
+  "azure:gpt-4 32k": {
+    "price_per_million_input_tokens": 60,
+    "price_per_million_output_tokens": 120
+  }
+}

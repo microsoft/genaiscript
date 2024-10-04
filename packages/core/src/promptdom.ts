@@ -3,7 +3,7 @@ import { CSVToMarkdown, CSVTryParse } from "./csv"
 import { renderFileContent, resolveFileContent } from "./file"
 import { addLineNumbers } from "./liner"
 import { JSONSchemaStringifyToTypeScript } from "./schema"
-import { estimateTokens } from "./tokens"
+import { estimateTokens, truncateTextToTokens } from "./tokens"
 import { MarkdownTrace, TraceOptions } from "./trace"
 import { arrayify, assert, toStringList, trimNewlines } from "./util"
 import { YAMLStringify } from "./yaml"
@@ -39,7 +39,7 @@ export interface PromptNode extends ContextExpansionOptions {
         | "text"
         | "image"
         | "schema"
-        | "function"
+        | "tool"
         | "fileMerge"
         | "outputProcessor"
         | "stringTemplate"
@@ -127,8 +127,8 @@ export interface PromptSchemaNode extends PromptNode {
 }
 
 // Interface for a function node.
-export interface PromptFunctionNode extends PromptNode {
-    type: "function"
+export interface PromptToolNode extends PromptNode, DefToolOptions {
+    type: "tool"
     name: string // Function name
     description: string // Description of the function
     parameters: JSONSchema // Parameters for the function
@@ -304,18 +304,20 @@ export function createSchemaNode(
 }
 
 // Function to create a function node.
-export function createFunctionNode(
+export function createToolNode(
     name: string,
     description: string,
     parameters: JSONSchema,
-    impl: ChatFunctionHandler
-): PromptFunctionNode {
+    impl: ChatFunctionHandler,
+    options?: DefToolOptions
+): PromptToolNode {
     assert(!!name)
     assert(!!description)
     assert(parameters !== undefined)
     assert(impl !== undefined)
     return {
-        type: "function",
+        ...(options || {}),
+        type: "tool",
         name,
         description: dedent(description),
         parameters,
@@ -439,7 +441,7 @@ export interface PromptNodeVisitor {
     def?: (node: PromptDefNode) => Awaitable<void> // Definition node visitor
     image?: (node: PromptImageNode) => Awaitable<void> // Image node visitor
     schema?: (node: PromptSchemaNode) => Awaitable<void> // Schema node visitor
-    function?: (node: PromptFunctionNode) => Awaitable<void> // Function node visitor
+    tool?: (node: PromptToolNode) => Awaitable<void> // Function node visitor
     fileMerge?: (node: PromptFileMergeNode) => Awaitable<void> // File merge node visitor
     stringTemplate?: (node: PromptStringTemplateNode) => Awaitable<void> // String template node visitor
     outputProcessor?: (node: PromptOutputProcessorNode) => Awaitable<void> // Output processor node visitor
@@ -465,8 +467,8 @@ export async function visitNode(node: PromptNode, visitor: PromptNodeVisitor) {
         case "schema":
             await visitor.schema?.(node as PromptSchemaNode)
             break
-        case "function":
-            await visitor.function?.(node as PromptFunctionNode)
+        case "tool":
+            await visitor.tool?.(node as PromptToolNode)
             break
         case "fileMerge":
             await visitor.fileMerge?.(node as PromptFileMergeNode)
@@ -695,38 +697,6 @@ async function resolvePromptNode(
     return { errors: err }
 }
 
-// Function to truncate text based on token limits.
-function truncateText(
-    content: string,
-    maxTokens: number,
-    encoder: TokenEncoder,
-    options?: {
-        threshold?: number
-    }
-): string {
-    const tokens = estimateTokens(content, encoder)
-    if (tokens <= maxTokens) return content
-    const { threshold = TOKEN_TRUNCATION_THRESHOLD } = options || {}
-
-    let left = 0
-    let right = content.length
-    let result = content
-
-    while (Math.abs(left - right) > threshold) {
-        const mid = Math.floor((left + right) / 2)
-        const truncated = content.slice(0, mid) + MAX_TOKENS_ELLIPSE
-        const truncatedTokens = estimateTokens(truncated, encoder)
-
-        if (truncatedTokens > maxTokens) {
-            right = mid
-        } else {
-            result = truncated
-            left = mid + 1
-        }
-    }
-    return result
-}
-
 // Function to handle truncation of prompt nodes based on token limits.
 async function truncatePromptNode(
     model: string,
@@ -750,7 +720,7 @@ async function truncatePromptNode(
             n.maxTokens !== undefined &&
             n.tokens > n.maxTokens
         ) {
-            n.resolved = n.preview = truncateText(
+            n.resolved = n.preview = truncateTextToTokens(
                 n.resolved,
                 n.maxTokens,
                 encoder
@@ -770,7 +740,7 @@ async function truncatePromptNode(
             n.maxTokens !== undefined &&
             n.tokens > n.maxTokens
         ) {
-            n.resolved.content = n.preview = truncateText(
+            n.resolved.content = n.preview = truncateTextToTokens(
                 n.resolved.content,
                 n.maxTokens,
                 encoder
@@ -917,7 +887,7 @@ export async function renderPromptNode(
     const images: PromptImage[] = []
     const errors: unknown[] = []
     const schemas: Record<string, JSONSchema> = {}
-    const functions: ToolCallback[] = []
+    const tools: ToolCallback[] = []
     const fileMerges: FileMergeHandler[] = []
     const outputProcessors: PromptOutputProcessorHandler[] = []
     const chatParticipants: ChatParticipant[] = []
@@ -1008,9 +978,9 @@ ${trimNewlines(schemaText)}
                     format
                 )
         },
-        function: (n) => {
+        tool: (n) => {
             const { name, description, parameters, impl: fn } = n
-            functions.push({
+            tools.push({
                 spec: { name, description, parameters },
                 impl: fn,
             })
@@ -1066,7 +1036,7 @@ ${fods.map((fo) => `   ${fo.pattern}: ${fo.description}`)}
         assistantPrompt,
         images,
         schemas,
-        functions,
+        functions: tools,
         fileMerges,
         outputProcessors,
         chatParticipants,

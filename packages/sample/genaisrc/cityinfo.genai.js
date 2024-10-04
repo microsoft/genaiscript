@@ -10,11 +10,17 @@ const schema = defSchema("CITY_SCHEMA", {
         description: "A city with population and elevation information.",
         properties: {
             name: { type: "string", description: "The name of the city." },
-            population: { type: "number", description: "The population of the city." },
-            url: { type: "string", description: "The URL of the city's Wikipedia page." }
+            population: {
+                type: "number",
+                description: "The population of the city.",
+            },
+            url: {
+                type: "string",
+                description: "The URL of the city's Wikipedia page.",
+            },
         },
-        required: ["name", "population", "url"]
-    }
+        required: ["name", "population", "url"],
+    },
 })
 
 // the task`
@@ -23,4 +29,4 @@ compliant with ${schema}.`
 $` Do not emit the enclosing markdown.`
 
 // help the LLM by starting the JSON array syntax
-writeText(`[`, { assistant: true })
+assistant(`[`)

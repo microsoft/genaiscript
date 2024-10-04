@@ -41,6 +41,10 @@ defTool(
                 enum: ["success", "failure"],
                 description: "Filter runs by completion status",
             },
+            count: {
+                type: "number",
+                description: "Number of runs to list. Default is 20.",
+            },
         },
     },
     async (args) => {
@@ -51,6 +55,7 @@ defTool(
         const res = await github.listWorkflowRuns(workflow_id, {
             branch,
             status,
+            count: 20,
         })
         return CSV.stringify(
             res.map(({ id, name, conclusion, head_sha }) => ({

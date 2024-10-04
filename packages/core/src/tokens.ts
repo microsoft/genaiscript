@@ -1,5 +1,9 @@
 // Importing constants and utility functions
-import { ESTIMATE_TOKEN_OVERHEAD } from "./constants"
+import {
+    ESTIMATE_TOKEN_OVERHEAD,
+    MAX_TOKENS_ELLIPSE,
+    TOKEN_TRUNCATION_THRESHOLD,
+} from "./constants"
 import { logVerbose } from "./util"
 
 /**
@@ -23,4 +27,36 @@ export function estimateTokens(text: string, encoder: TokenEncoder) {
         // This provides a rough estimate in case of encoding errors
         return (text.length >> 2) + ESTIMATE_TOKEN_OVERHEAD
     }
+}
+
+// Function to truncate text based on token limits.
+export function truncateTextToTokens(
+    content: string,
+    maxTokens: number,
+    encoder: TokenEncoder,
+    options?: {
+        threshold?: number
+    }
+): string {
+    const tokens = estimateTokens(content, encoder)
+    if (tokens <= maxTokens) return content
+    const { threshold = TOKEN_TRUNCATION_THRESHOLD } = options || {}
+
+    let left = 0
+    let right = content.length
+    let result = content
+
+    while (Math.abs(left - right) > threshold) {
+        const mid = Math.floor((left + right) / 2)
+        const truncated = content.slice(0, mid) + MAX_TOKENS_ELLIPSE
+        const truncatedTokens = estimateTokens(truncated, encoder)
+
+        if (truncatedTokens > maxTokens) {
+            right = mid
+        } else {
+            result = truncated
+            left = mid + 1
+        }
+    }
+    return result
 }

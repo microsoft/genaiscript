@@ -7,7 +7,7 @@ import {
     createDefDiff,
     createDef,
     createFileOutput,
-    createFunctionNode,
+    createToolNode,
     createImageNode,
     createImportTemplate,
     createSchemaNode,
@@ -253,13 +253,13 @@ export function createChatGenerationContext(
                 promptParametersSchemaToJSONSchema(parameters)
             appendChild(
                 node,
-                createFunctionNode(name, description, parameterSchema, fn)
+                createToolNode(name, description, parameterSchema, fn)
             )
         } else if ((name as ToolCallback | AgenticToolCallback).impl) {
             const tool = name as ToolCallback | AgenticToolCallback
             appendChild(
                 node,
-                createFunctionNode(
+                createToolNode(
                     tool.spec.name,
                     tool.spec.description,
                     tool.spec.parameters as any,
@@ -271,7 +271,7 @@ export function createChatGenerationContext(
             for (const tool of tools)
                 appendChild(
                     node,
-                    createFunctionNode(
+                    createToolNode(
                         tool.spec.name,
                         tool.spec.description,
                         tool.spec.parameters as any,

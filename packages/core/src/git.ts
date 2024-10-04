@@ -13,7 +13,7 @@ import { readText } from "./fs"
 import { runtimeHost } from "./host"
 import { shellParse } from "./shell"
 import { arrayify } from "./util"
-import { estimateTokens } from "./tokens"
+import { estimateTokens, truncateTextToTokens } from "./tokens"
 import { resolveTokenEncoder } from "./encoders"
 
 /**
@@ -281,7 +281,7 @@ export class GitClient implements Git {
                 res = `## Diff
 Truncated diff to large (${tokens} tokens). Diff files individually for details.
 
-${res.slice(0, maxTokensFullDiff * 3)}
+${truncateTextToTokens(res, maxTokensFullDiff, encoder)}
 ...
 
 ## Files
