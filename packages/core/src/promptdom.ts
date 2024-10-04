@@ -887,7 +887,7 @@ export async function renderPromptNode(
     const images: PromptImage[] = []
     const errors: unknown[] = []
     const schemas: Record<string, JSONSchema> = {}
-    const functions: ToolCallback[] = []
+    const tools: ToolCallback[] = []
     const fileMerges: FileMergeHandler[] = []
     const outputProcessors: PromptOutputProcessorHandler[] = []
     const chatParticipants: ChatParticipant[] = []
@@ -980,7 +980,7 @@ ${trimNewlines(schemaText)}
         },
         tool: (n) => {
             const { name, description, parameters, impl: fn } = n
-            functions.push({
+            tools.push({
                 spec: { name, description, parameters },
                 impl: fn,
             })
@@ -1036,7 +1036,7 @@ ${fods.map((fo) => `   ${fo.pattern}: ${fo.description}`)}
         assistantPrompt,
         images,
         schemas,
-        functions,
+        functions: tools,
         fileMerges,
         outputProcessors,
         chatParticipants,
