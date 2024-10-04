@@ -25,7 +25,7 @@ import { renderShellOutput } from "./chatrender"
 import { jinjaRender } from "./jinja"
 import { mustacheRender } from "./mustache"
 import { imageEncodeForLLM } from "./image"
-import { delay } from "es-toolkit"
+import { delay, uniq } from "es-toolkit"
 import {
     executeChatSession,
     mergeGenerationOptions,
@@ -279,6 +279,74 @@ export function createChatGenerationContext(
                     )
                 )
         }
+    }
+    const defAgent = (
+        name: string,
+        description: string,
+        fn: (
+            agentCtx: ChatGenerationContext,
+            args: ChatFunctionArgs
+        ) => Promise<void>,
+        options?: DefAgentOptions
+    ): void => {
+        const { system, tools, ...rest } = options || {}
+
+        const agentName = `agent_${name}`
+        const agentLabel = `agent ${name}`
+        const agentDescription = `Agent uses LLM to ${description}. available tools: ${arrayify(tools).join(", ")}`
+
+        const agentSystem = uniq([
+            "system",
+            "system.tools",
+            "system.explanations",
+            ...arrayify(system),
+        ])
+        const agentTools = uniq(arrayify(tools))
+
+        defTool(
+            agentName,
+            agentDescription,
+            {
+                type: "object",
+                properties: {
+                    query: {
+                        type: "string",
+                        description: "Query to answer by the LLM agent.",
+                    },
+                },
+                required: ["query"],
+            },
+            async (args) => {
+                const { context, query } = args
+                context.log(`${agentLabel}: ${query}`)
+                const res = await runPrompt(
+                    async (_) => {
+                        _.def("QUERY", query)
+
+                        if (typeof fn === "string") _.writeText(fn)
+                        else await fn(_, args)
+
+                        $`
+                ## Task
+                
+                Analyze and answer QUERY.
+                
+                - Assume that your answer will be analyzed by an LLM, not a human.
+                - If you are missing information, reply "MISSING_INFO: <what is missing>".
+                - If you cannot answer the query, return "NO_ANSWER: <reason>".
+                - Minimize output to the most relevant information to save context tokens.
+                `
+                    },
+                    {
+                        label: agentLabel,
+                        system: agentSystem,
+                        tools: agentTools,
+                        ...rest,
+                    }
+                )
+                return res
+            }
+        )
     }
 
     const defSchema = (

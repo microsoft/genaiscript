@@ -117,6 +117,20 @@ declare function defTool(
 ): void
 
 /**
+ * Declares a LLM agent tool that can be called from the prompt.
+ * @param name name of the agent, do not prefix with agent
+ * @param description description of the agent, used by the model to choose when and how to call the agent
+ * @param fn prompt generation context
+ * @param options additional options for the agent LLM
+ */
+declare function defAgent(
+    name: string,
+    description: string,
+    fn: string | ChatAgentHandler,
+    options?: DefAgentOptions
+): void
+
+/**
  * Registers a callback to be called when a file is being merged
  * @param fn
  */
