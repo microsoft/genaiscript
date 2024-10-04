@@ -27,8 +27,9 @@ defTool(
                 ## Constraints
 
                 - Assume that your answer will be analyzed by an LLM, not a human.
-                - If you cannot answer the query, return an empty string.
                 - Prefer diffing job logs rather downloading entire logs which can be very large.
+                - If you are missing information, reply "MISSING_INFO: <what is missing>".
+                - If you cannot answer the query, return "NO_ANSWER: <reason>".
 
                 `
             },

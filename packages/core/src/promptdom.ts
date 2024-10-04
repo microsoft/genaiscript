@@ -1031,7 +1031,7 @@ ${fods.map((fo) => `   ${fo.pattern}: ${fo.description}`)}
             role: "assistant",
             content: assistantPrompt,
         })
-    const res = <PromptNodeRender>{
+    const res = Object.freeze<PromptNodeRender>({
         userPrompt,
         assistantPrompt,
         images,
@@ -1043,6 +1043,6 @@ ${fods.map((fo) => `   ${fo.pattern}: ${fo.description}`)}
         errors,
         messages,
         fileOutputs,
-    }
+    })
     return res
 }

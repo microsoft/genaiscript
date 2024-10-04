@@ -25,7 +25,8 @@ defTool(
                 Analyze and answer QUERY.
                 
                 - Assume that your answer will be analyzed by an LLM, not a human.
-                - If you cannot answer the query, return an empty string.
+                - If you are missing information, reply "MISSING_INFO: <what is missing>".
+                - If you cannot answer the query, return "NO_ANSWER: <reason>".
                 `
             },
             {

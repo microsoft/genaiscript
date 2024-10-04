@@ -25,7 +25,8 @@ defTool(
                 - Assume that your answer will be analyzed by an AI, not a human.
                 - Prefer math_eval for math expressions as it is much more efficient.
                 - To use file data in python, prefer copying data files using python_code_interpreter_copy_files rather than inline data in code.
-                - If you cannot answer the query, return an empty string.
+                - If you are missing information, reply "MISSING_INFO: <what is missing>".
+                - If you cannot answer the query, return "NO_ANSWER: <reason>".
                 `
             },
             {

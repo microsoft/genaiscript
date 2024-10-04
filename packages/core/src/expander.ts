@@ -120,7 +120,7 @@ export async function callExpander(
         }
     }
 
-    return {
+    return Object.freeze({
         logs,
         status,
         statusText,
@@ -128,13 +128,13 @@ export async function callExpander(
         assistantText,
         images,
         schemas,
-        functions,
+        functions: Object.freeze(functions),
         fileMerges,
         outputProcessors,
         chatParticipants,
         fileOutputs,
         aici,
-    }
+    })
 }
 
 function traceEnv(
@@ -226,29 +226,34 @@ export async function expandTemplate(
         lineNumbers,
     })
 
-    const images = prompt.images
-    const schemas = prompt.schemas
-    const functions = prompt.functions
-    const fileMerges = prompt.fileMerges
-    const outputProcessors = prompt.outputProcessors
-    const chatParticipants = prompt.chatParticipants
-    const fileOutputs = prompt.fileOutputs
+    const { status, statusText, text } = prompt
+    const images = prompt.images.slice(0)
+    const schemas = structuredClone(prompt.schemas)
+    const functions = prompt.functions.slice(0)
+    const fileMerges = prompt.fileMerges.slice(0)
+    const outputProcessors = prompt.outputProcessors.slice(0)
+    const chatParticipants = prompt.chatParticipants.slice(0)
+    const fileOutputs = prompt.fileOutputs.slice(0)
 
     if (prompt.logs?.length) trace.details("📝 console.log", prompt.logs)
-    if (prompt.text) trace.detailsFenced(`📝 prompt`, prompt.text, "markdown")
+    if (text) trace.detailsFenced(`📝 prompt`, text, "markdown")
     if (prompt.aici) trace.fence(prompt.aici, "yaml")
     trace.endDetails()
 
-    if (prompt.status !== "success" || prompt.text === "")
+    if (status !== "success" || text === "")
         // cancelled
-        return {
-            status: prompt.status,
-            statusText: prompt.statusText,
+        return Object.freeze({
+            status,
+            statusText,
             messages,
-        }
+        })
 
     if (cancellationToken?.isCancellationRequested)
-        return { status: "cancelled", statusText: "user cancelled", messages }
+        return Object.freeze({
+            status: "cancelled",
+            statusText: "user cancelled",
+            messages,
+        })
 
     const systemMessage: ChatCompletionSystemMessageParam = {
         role: "system",
@@ -361,13 +366,13 @@ ${schemaTs}
 
     trace.endDetails()
 
-    return {
+    return Object.freeze({
         messages,
         images,
         schemas,
         functions,
-        status: <GenerationStatus>prompt.status,
-        statusText: prompt.statusText,
+        status: <GenerationStatus>status,
+        statusText: statusText,
         model,
         temperature,
         topP,
@@ -380,5 +385,5 @@ ${schemaTs}
         outputProcessors,
         chatParticipants,
         fileOutputs,
-    }
+    })
 }

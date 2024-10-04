@@ -7,10 +7,25 @@ import { MarkdownTrace } from "./trace"
 import { logVerbose, logWarn } from "./util"
 // import pricing.json and assert json
 import pricings from "./pricing.json" // Interface to hold statistics related to the generation process
+import { parseModelIdentifier } from "./models"
+import {
+    MODEL_PROVIDER_AICI,
+    MODEL_PROVIDER_AZURE,
+    MODEL_PROVIDER_GITHUB,
+    MODEL_PROVIDER_OPENAI,
+} from "./constants"
+import { assert } from "./util"
 
-export function estimateCost(model: string, usage: ChatCompletionUsage) {
+export function estimateCost(modelId: string, usage: ChatCompletionUsage) {
+    if (!modelId) return undefined
+
     const { completion_tokens, prompt_tokens } = usage
-    const cost = (pricings as any)[model] as {
+    let { provider, model } = parseModelIdentifier(modelId)
+    if (provider === MODEL_PROVIDER_AICI) return undefined
+    else if (provider === MODEL_PROVIDER_GITHUB)
+        provider = MODEL_PROVIDER_OPENAI
+    const m = `${provider}:${model}`
+    const cost = (pricings as any)[m] as {
         price_per_million_input_tokens: number
         price_per_million_output_tokens: number
         input_cache_token_rebate?: number
@@ -31,9 +46,12 @@ export function estimateCost(model: string, usage: ChatCompletionUsage) {
     return (input + output) / 1e6
 }
 
-export function renderCost(model: string, usage: ChatCompletionUsage) {
-    const cost = estimateCost(model, usage)
-    return cost !== undefined ? `$${cost.toFixed(3)}` : ""
+export function renderCost(value: number) {
+    return value !== undefined
+        ? value <= 0.1
+            ? `${(value * 100).toFixed(2)}¢`
+            : `${value.toFixed(2)}$`
+        : ""
 }
 
 export class GenerationStats {
@@ -49,6 +67,7 @@ export class GenerationStats {
     }[] = []
 
     constructor(
+        // maybe undefined
         public readonly model: string,
         public readonly label?: string
     ) {
@@ -67,8 +86,30 @@ export class GenerationStats {
         }
     }
 
-    cost() {
-        return estimateCost(this.model, this.usage)
+    cost(): number {
+        return [
+            estimateCost(this.model, this.usage),
+            ...this.children.map((c) => c.cost()),
+        ].reduce((a, b) => (a ?? 0) + (b ?? 0), 0)
+    }
+
+    accumulatedUsage(): ChatCompletionUsage {
+        const res: ChatCompletionUsage = structuredClone(this.usage)
+        for (const child of this.children) {
+            const childUsage = child.accumulatedUsage()
+            res.completion_tokens += childUsage.completion_tokens
+            res.prompt_tokens += childUsage.prompt_tokens
+            res.total_tokens += childUsage.total_tokens
+            res.completion_tokens_details.audio_tokens +=
+                childUsage.completion_tokens_details.audio_tokens
+            res.completion_tokens_details.reasoning_tokens +=
+                childUsage.completion_tokens_details.reasoning_tokens
+            res.prompt_tokens_details.audio_tokens +=
+                childUsage.prompt_tokens_details.audio_tokens
+            res.prompt_tokens_details.cached_tokens +=
+                childUsage.prompt_tokens_details.cached_tokens
+        }
+        return res
     }
 
     createChild(model: string, label?: string) {
@@ -90,8 +131,8 @@ export class GenerationStats {
         trace.itemValue("prompt", this.usage.prompt_tokens)
         trace.itemValue("completion", this.usage.completion_tokens)
         trace.itemValue("tokens", this.usage.total_tokens)
-        const cost = renderCost(this.model, this.usage)
-        if (cost) trace.itemValue("cost", cost)
+        const c = renderCost(this.cost())
+        if (c) trace.itemValue("cost", c)
         if (this.toolCalls) trace.itemValue("tool calls", this.toolCalls)
         if (this.repairs) trace.itemValue("repairs", this.repairs)
         if (this.turns) trace.itemValue("turns", this.turns)
@@ -121,15 +162,17 @@ export class GenerationStats {
     }
 
     private logTokens(indent: string) {
-        if (this.model || this.usage.total_tokens) {
+        const c = this.cost()
+        if (this.model || c) {
+            const au = this.accumulatedUsage()
             logVerbose(
-                `${indent}${this.label ? `${this.label} (${this.model})` : this.model}> ${this.usage.total_tokens} tokens (${this.usage.prompt_tokens}-${this.usage.prompt_tokens_details.cached_tokens} -> ${this.usage.completion_tokens}) ${renderCost(this.model, this.usage)}`
+                `${indent}${this.label ? `${this.label} (${this.model})` : this.model}> ${au.total_tokens} tokens (${au.prompt_tokens} -> ${au.completion_tokens}) ${renderCost(c)}`
             )
         }
         if (this.chatTurns.length > 1)
             for (const { messages, usage } of this.chatTurns) {
                 logVerbose(
-                    `${indent}  ${messages.length} messages, ${usage.total_tokens} tokens ${renderCost(this.model, usage)}`
+                    `${indent}  ${messages.length} messages, ${usage.total_tokens} tokens ${renderCost(estimateCost(this.model, usage))}`
                 )
             }
         for (const child of this.children) child.logTokens(indent + "  ")
