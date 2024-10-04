@@ -3,7 +3,7 @@ import { CSVToMarkdown, CSVTryParse } from "./csv"
 import { renderFileContent, resolveFileContent } from "./file"
 import { addLineNumbers } from "./liner"
 import { JSONSchemaStringifyToTypeScript } from "./schema"
-import { estimateTokens } from "./tokens"
+import { estimateTokens, truncateTextToTokens } from "./tokens"
 import { MarkdownTrace, TraceOptions } from "./trace"
 import { arrayify, assert, toStringList, trimNewlines } from "./util"
 import { YAMLStringify } from "./yaml"
@@ -695,38 +695,6 @@ async function resolvePromptNode(
     return { errors: err }
 }
 
-// Function to truncate text based on token limits.
-function truncateText(
-    content: string,
-    maxTokens: number,
-    encoder: TokenEncoder,
-    options?: {
-        threshold?: number
-    }
-): string {
-    const tokens = estimateTokens(content, encoder)
-    if (tokens <= maxTokens) return content
-    const { threshold = TOKEN_TRUNCATION_THRESHOLD } = options || {}
-
-    let left = 0
-    let right = content.length
-    let result = content
-
-    while (Math.abs(left - right) > threshold) {
-        const mid = Math.floor((left + right) / 2)
-        const truncated = content.slice(0, mid) + MAX_TOKENS_ELLIPSE
-        const truncatedTokens = estimateTokens(truncated, encoder)
-
-        if (truncatedTokens > maxTokens) {
-            right = mid
-        } else {
-            result = truncated
-            left = mid + 1
-        }
-    }
-    return result
-}
-
 // Function to handle truncation of prompt nodes based on token limits.
 async function truncatePromptNode(
     model: string,
@@ -750,7 +718,7 @@ async function truncatePromptNode(
             n.maxTokens !== undefined &&
             n.tokens > n.maxTokens
         ) {
-            n.resolved = n.preview = truncateText(
+            n.resolved = n.preview = truncateTextToTokens(
                 n.resolved,
                 n.maxTokens,
                 encoder
@@ -770,7 +738,7 @@ async function truncatePromptNode(
             n.maxTokens !== undefined &&
             n.tokens > n.maxTokens
         ) {
-            n.resolved.content = n.preview = truncateText(
+            n.resolved.content = n.preview = truncateTextToTokens(
                 n.resolved.content,
                 n.maxTokens,
                 encoder

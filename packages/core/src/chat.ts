@@ -15,7 +15,11 @@ import {
     validateFencesWithSchema,
     validateJSONWithSchema,
 } from "./schema"
-import { MAX_DATA_REPAIRS, MAX_TOOL_CALLS } from "./constants"
+import {
+    MAX_DATA_REPAIRS,
+    MAX_TOOL_CALLS,
+    MAX_TOOL_CONTENT_TOKENS,
+} from "./constants"
 import { parseAnnotations } from "./annotations"
 import { errorMessage, isCancelError, serializeError } from "./error"
 import { estimateChatTokens } from "./chatencoder"
@@ -40,6 +44,8 @@ import {
 import { promptParametersSchemaToJSONSchema } from "./parameters"
 import { fenceMD, prettifyMarkdown } from "./markdown"
 import { YAMLStringify } from "./yaml"
+import { resolveTokenEncoder } from "./encoders"
+import { estimateTokens, truncateTextToTokens } from "./tokens"
 
 export function toChatCompletionUserMessage(
     expanded: string,
@@ -125,7 +131,8 @@ async function runToolCalls(
     options: GenerationOptions
 ) {
     const projFolder = host.projectFolder()
-    const { cancellationToken, trace } = options || {}
+    const { cancellationToken, trace, model } = options || {}
+    const encoder = await resolveTokenEncoder(model)
     assert(!!trace)
     let edits: Edits[] = []
 
@@ -196,7 +203,13 @@ async function runToolCalls(
                     },
                     trace,
                 }
-                const output = await tool.impl({ context, ...args })
+
+                let output: ToolCallOutput
+                try {
+                    output = await tool.impl({ context, ...args })
+                } catch (e) {
+                    output = serializeError(e)
+                }
                 if (output === undefined || output === null)
                     throw new Error(
                         `tool ${tool.spec.name} output is undefined`
@@ -251,6 +264,14 @@ ${fenceMD(content, " ")}
                     )
                 }
 
+                const maxToolContentTokens = MAX_TOOL_CONTENT_TOKENS
+                const toolContentTokens = estimateTokens(toolContent, encoder)
+                if (toolContentTokens > maxToolContentTokens)
+                    toolContent = truncateTextToTokens(
+                        toolContent,
+                        maxToolContentTokens,
+                        encoder
+                    )
                 toolResult.push(toolContent)
             }
             messages.push({
@@ -558,7 +579,7 @@ export async function executeChatSession(
         responseType,
         responseSchema,
         infoCb,
-        stats
+        stats,
     } = genOptions
     traceLanguageModelConnection(trace, genOptions, connectionToken)
     const tools: ChatCompletionTool[] = toolDefinitions?.length

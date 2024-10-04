@@ -583,6 +583,7 @@ type ToolCallOutput =
     | ShellOutput
     | WorkspaceFile
     | RunPromptResult
+    | SerializedError
     | undefined
 
 interface WorkspaceFileCache<K, V> {
