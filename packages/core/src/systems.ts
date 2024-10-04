@@ -46,7 +46,7 @@ export function resolveSystems(
     }
 
     // Include tools-related systems if specified in the script
-    if (script.tools) {
+    if (script.tools?.length) {
         systems.push("system.tools")
         // Resolve and add each tool's systems based on its definition in the project
         arrayify(script.tools).forEach((tool) =>
@@ -63,9 +63,10 @@ export function resolveSystems(
 // Finds systems in the project associated with a specific tool
 function resolveSystemFromTools(prj: Project, tool: string): string[] {
     const system = prj.templates.filter(
-        (t) => t.isSystem && t.defTools?.find((to) => to.id === tool)
+        (t) => t.isSystem && t.defTools?.find((to) => to.id.startsWith(tool))
     )
-    return system.map(({ id }) => id)
+    const res = system.map(({ id }) => id)
+    return res
 }
 
 export function resolveTools(
@@ -73,19 +74,13 @@ export function resolveTools(
     systems: string[],
     tools: string[]
 ): { id: string; description: string }[] {
-    const toolIds = uniq(
-        tools.concat(
-            ...systems
-                .map((s) => prj.templates.find((t) => t.id === s)?.defTools)
-                .filter((t) => !!t)
-                .flat()
-                .map((t) => t.id)
-        )
-    )
-    return toolIds
-        .map((id) =>
-            prj.templates.map((t) => t.defTools.find((to) => to.id === id))
-        )
-        .flat()
-        .filter((t) => !!t)
+    const { templates: scripts } = prj
+    const toolScripts = uniq([
+        ...systems.map((sid) => scripts.find((s) => s.id === sid)),
+        ...tools.map((tid) =>
+            scripts.find((s) => s.defTools?.find((t) => t.id.startsWith(tid)))
+        ),
+    ])
+    const res = toolScripts.map(({ defTools }) => defTools ?? []).flat()
+    return res
 }

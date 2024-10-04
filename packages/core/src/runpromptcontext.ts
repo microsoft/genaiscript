@@ -325,22 +325,13 @@ export function createChatGenerationContext(
             },
             async (args) => {
                 const { context, query } = args
-                console.debug(`${agentLabel}: ${query}`)
+                logVerbose(`${agentLabel}: ${query}`)
                 const res = await runPrompt(
                     async (_) => {
+                        _.def("QUERY", query)
                         if (typeof fn === "string") _.writeText(dedent(fn))
                         else await fn(_, args)
-
-                        _.$`
-                ## Task
-                
-                Analyze and answer the task in QUERY.
-
-                `
-                        _.def("QUERY", query)
-
-                        _.$`
-                - Assume that your answer will be analyzed by an LLM, not a human.
+                        _.$`- Assume that your answer will be analyzed by an LLM, not a human.
                 - If you are missing information, reply "MISSING_INFO: <what is missing>".
                 - If you cannot answer the query, return "NO_ANSWER: <reason>".
                 - Be concise. Minimize output to the most relevant information to save context tokens.

@@ -1,5 +1,5 @@
 script({
-    system: "system.user_input"
+    tools: ["agent_user_input"],
 })
 
 $`Imagine a funny question and ask the user to answer it.

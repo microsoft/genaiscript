@@ -7,7 +7,8 @@ const model = env.vars.agentFsModel
 defAgent(
     "fs",
     "Queries files to accomplish tasks",
-    "Your are a helpfull LLM agent that can query the file system to accomplish tasks.",
+    `Your are a helpfull LLM agent that can query the file system.
+    Answer the question in QUERY.`,
     {
         model,
         tools: [
