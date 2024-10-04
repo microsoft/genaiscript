@@ -8,6 +8,18 @@ import { logVerbose, logWarn } from "./util"
 // import pricing.json and assert json
 import pricings from "./pricing.json" // Interface to hold statistics related to the generation process
 
+export function estimateCost(model: string, usage: ChatCompletionUsage) {
+    const { completion_tokens, prompt_tokens } = usage
+    const cost = (pricings as any)[model] as {
+        price_per_million_input_tokens: number
+        price_per_million_output_tokens: number
+    }
+    if (!cost) return undefined
+    const input = prompt_tokens * cost.price_per_million_input_tokens
+    const output = completion_tokens * cost.price_per_million_output_tokens
+    return (input + output) / 1e6
+}
+
 export class GenerationStats {
     toolCalls = 0 // Number of tool invocations
     repairs = 0 // Number of repairs made
@@ -40,15 +52,7 @@ export class GenerationStats {
     }
 
     cost() {
-        const { completion_tokens, prompt_tokens } = this.usage
-        const cost = (pricings as any)[this.model] as {
-            price_per_million_input_tokens: number
-            price_per_million_output_tokens: number
-        }
-        if (!cost) return undefined
-        const input = prompt_tokens * cost.price_per_million_input_tokens
-        const output = completion_tokens * cost.price_per_million_output_tokens
-        return (input + output) / 1e6
+        return estimateCost(this.model, this.usage)
     }
 
     renderCost() {
