@@ -10,7 +10,7 @@ GenAIScript defines an **agent** as a [tool](/genaiscript/reference/scripts/tool
 runs an [inline prompt](/genaiscript/reference/scripts/inline-prompts) to accomplish a task. The agent LLM is typically augmented with
 additional tools.
 
-In this blog post, we'll walk through building a `user interaction agent` that enables an agent to ask questions to the user.
+In this blog post, we'll walk through building a `user interaction agent` that enables the agent to ask questions to the user.
 
 ```js wrap
 script({
@@ -24,18 +24,18 @@ Ask the user if the answer is correct.
 `
 ```
 
-Let's dive into understanding how to create an "Agent that can asks questions to the user."
+Let's dive into understanding how to create an "Agent that can ask questions to the user."
 
 You can find the full script on GitHub right [here](https://github.com/microsoft/genaiscript/blob/main/packages/core/src/genaisrc/system.agent_user_input.genai.mjs).
 
 ## Metadata
 
-The script is written in JavaScript. It starts by declaring the metatadata to make the script available as as system script,
+The script is written in JavaScript. It starts by declaring the metadata to make the script available as a system script,
 which can be reused in other scripts.
 
 ```js title="system.agent_user_input.genai.mjs"
 system({
-    title: "Agent that can asks questions to the user.",
+    title: "Agent that can ask questions to the user.",
 })
 ```
 
@@ -43,8 +43,8 @@ This line sets up the title for our system, making it clear that it's intended t
 
 ## title and description
 
-The `defAgent` function defines the behavior of our agent. It takes an agent identifier and a description. These two are quite important
-as it will help the "host" LLM to choose to use this agent.
+The `defAgent` function defines the behavior of our agent. It takes an agent identifier and a description. These two are quite important,
+as they will help the "host" LLM choose to use this agent.
 
 ```js wrap
 defAgent(
@@ -57,8 +57,8 @@ GenAIScript will automatically append a description of all the tools used by the
 
 ## prompt
 
-The 3rd argument is a string or a function to craft prompt instructions for the agent LLM call. The agent implementation already contains generic prompting
-to make the prompt behave like an agent, but you can add more to specify a role, tone, dos and don'ts.
+The third argument is a string or a function to craft prompt instructions for the agent LLM call. The agent implementation already contains generic prompting
+to make the prompt behave like an agent, but you can add more to specify a role, tone, and dos and don'ts.
 
 ```js wrap
 defAgent(
@@ -70,8 +70,8 @@ defAgent(
 
 ## model configuration
 
-The last argument is a set of model options, similar to [runPrompt](/genaiscript/reference/scripts/inline-prompts) to configure the LLM call made by the agent.
-In particular, this is where you want to list the tools that the agent can use.
+The last argument is a set of model options, similar to [runPrompt](/genaiscript/reference/scripts/inline-prompts), to configure the LLM call made by the agent.
+In particular, this is where you list the tools that the agent can use.
 
 ```js 'tools: ["user_input"]' wrap
 defAgent(
@@ -94,7 +94,7 @@ script({
 
 ## Let's try it!
 
-Let's try the agent with
+Let's try the agent with:
 
 ```js wrap
 script({

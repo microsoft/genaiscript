@@ -1,6 +1,6 @@
 ---
 title: Agents (LLM Tools)
-description: An Agent is a tool that queries LLM, equipped with other tools, to accomplish tasks.
+description: An Agent is a tool that queries an LLM, equipped with other tools, to accomplish tasks.
 sidebar:
     order: 7.1
 ---
@@ -8,7 +8,7 @@ sidebar:
 import { Content as BuiltinAgents } from "../../../../components/BuiltinAgents.mdx"
 
 GenAIScript defines an **agent** as a [tool](/genaiscript/reference/scripts/tools) that
-runs an [inline prompt](/genaiscript/reference/scripts/inline-prompts) to accomplish a task. The agent LLM is typically augmented with
+runs an [inline prompt](/genaiscript/reference/scripts/inline-prompts) to accomplish a task. The agent's LLM is typically augmented with
 additional tools.
 
 ```mermaid
@@ -35,11 +35,11 @@ flowchart TD
 ## Agent orchestration
 
 **GenAIScript does _not_ implement any agentic workflow or decision.**
-It relies entierly on [tools](/genaiscript/reference/scripts/tools) support builtin to the LLMs.
+It relies entirely on [tools](/genaiscript/reference/scripts/tools) support built into the LLMs.
 
 ## defAgent
 
-The `defAgent` function is used to define an agent that can be called by the LLM. It takes a JSON schema to define the input and expects a string output. The LLM decides to call this agent on its own!
+The `defAgent` function is used to define an agent that can be called by the LLM. It takes a JSON schema to define the input and expects a string output. The LLM autonomously decides to call this agent.
 
 ```ts
 defAgent(
@@ -57,9 +57,9 @@ defAgent(
 
 <BuiltinAgents />
 
-## Expample `agent_github`
+## Example `agent_github`
 
-Let's illustrate building by building a GitHub agent. The agent is a tool that receives a query and executes a LLM prompt with GitHub-related tools.
+Let's illustrate this by building a GitHub agent. The agent is a tool that receives a query and executes an LLM prompt with GitHub-related tools.
 
 The definition of the agent looks like this:
 
@@ -107,7 +107,7 @@ defTool(
 Inside callback, we use `runPrompt` to run an LLM query.
 
 -   the prompt takes the query argument and tells the LLM how to handle it.
--   note the use of `ctx.` to nested prompt
+-   note the use of `ctx.` for nested prompts
 
 ```js wrap
         const res = await runPrompt(
@@ -129,9 +129,9 @@ Inside callback, we use `runPrompt` to run an LLM query.
         return res
 ```
 
-## Selecting the tools, system prompts
+## Selecting the Tools and System Prompts
 
-We use the `system` parameter to configure the tools that exposed to the LLM. In this case, we expose the GitHub tools (`system.github_files`, `system.github_issues`, ...)
+We use the `system` parameter to configure the tools exposed to the LLM. In this case, we expose the GitHub tools (`system.github_files`, `system.github_issues`, ...)
 
 ```js wrap
             {

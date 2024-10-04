@@ -28,7 +28,7 @@ let content = ""
 if (env.files.length) {
     content = def("FILE", env.files, {
         maxTokens: 5000,
-        glob: "**/*.{py,ts,cs,rs,c,cpp,h,hpp,js,mjs,mts}", // TODO:
+        glob: "**/*.{py,ts,cs,rs,c,cpp,h,hpp,js,mjs,mts,md,mdx}", // TODO:
     })
 } else {
     // No files selected, review the current changes
