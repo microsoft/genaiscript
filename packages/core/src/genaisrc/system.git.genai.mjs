@@ -18,7 +18,7 @@ defTool("git_branch_list", "List all branches using git.", {}, async () => {
 
 defTool(
     "git_diff",
-    "Computes file diffs using git. If the diff is too large, it returns the list of modified/added files.",
+    "Computes file diffs using the git diff command. If the diff is too large, it returns the list of modified/added files.",
     {
         type: "object",
         properties: {
@@ -68,8 +68,8 @@ defTool(
 )
 
 defTool(
-    "git_log",
-    "Generates a log of commits using git.",
+    "git_list_commits",
+    "Generates a history of commits using the git log command.",
     {
         type: "object",
         properties: {

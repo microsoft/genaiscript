@@ -11,6 +11,7 @@ import {
 import { assert, logError, logVerbose, logWarn } from "./util"
 import { extractFenced, findFirstDataFence, unfence } from "./fence"
 import {
+    JSONSchemaToFunctionParameters,
     toStrictJSONSchema,
     validateFencesWithSchema,
     validateJSONWithSchema,
@@ -180,7 +181,9 @@ async function runToolCalls(
                     const tool = tools.find((f) => f.spec.name === toolName)
                     if (!tool) {
                         logVerbose(JSON.stringify(tu, null, 2))
-                        throw new Error(`tool ${toolName} not found`)
+                        throw new Error(
+                            `multi tool ${toolName} not found in ${tools.map((t) => t.spec.name).join(", ")}`
+                        )
                     }
                     return { tool, args: tu.parameters }
                 })
@@ -188,7 +191,9 @@ async function runToolCalls(
                 const tool = tools.find((f) => f.spec.name === call.name)
                 if (!tool) {
                     logVerbose(JSON.stringify(call, null, 2))
-                    throw new Error(`tool ${call.name} not found`)
+                    throw new Error(
+                        `tool ${call.name} not found in ${tools.map((t) => t.spec.name).join(", ")}`
+                    )
                 }
                 todos = [{ tool, args: callArgs }]
             }
@@ -597,7 +602,34 @@ export async function executeChatSession(
           }))
         : undefined
     trace.startDetails(`🧠 llm chat`)
-    if (tools?.length) trace.detailsFenced(`🛠️ tools`, tools, "yaml")
+    if (toolDefinitions?.length)
+        trace.details(
+            `🛠️ tools`,
+            dedent`\`\`\`ts
+            ${toolDefinitions
+                .map(
+                    (t) => dedent`/**
+                         * ${t.spec.description}${
+                             t.spec.parameters?.type === "object"
+                                 ? Object.entries(
+                                       t.spec.parameters.properties || {}
+                                   )
+                                       .filter(([, ps]) => ps.description)
+                                       .map(
+                                           ([pn, ps]) =>
+                                               `\n * @param ${pn} ${ps.description}`
+                                       )
+                                       .join("")
+                                 : ""
+                         }
+                         */
+                        function ${t.spec.name}(${JSONSchemaToFunctionParameters(t.spec.parameters)})
+                        `
+                )
+                .join("\n")}
+            \`\`\`
+            `
+        )
     try {
         let genVars: Record<string, string>
         while (true) {

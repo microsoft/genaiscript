@@ -1,5 +1,5 @@
 script({
-    tools: ["agent_fs", "agent_git", "agent_github"],
+    tools: ["agent_fs", "agent_git", "agent_github", "agent_interpreter"],
     parameters: {
         workflow: { type: "string" }, // Workflow name
         failure_run_id: { type: "number" }, // ID of the failed run

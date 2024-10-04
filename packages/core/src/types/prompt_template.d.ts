@@ -219,12 +219,12 @@ interface PromptSystemOptions {
     /**
      * List of system script ids used by the prompt.
      */
-    system?: SystemPromptId | SystemPromptId[]
+    system?: ElementOrArray<SystemPromptId>
 
     /**
      * List of tools used by the prompt.
      */
-    tools?: SystemToolId | SystemToolId[]
+    tools?: ElementOrArray<SystemToolId>
 }
 
 interface ScriptRuntimeOptions {
@@ -390,7 +390,7 @@ interface PromptScript
     /**
      * List of tools defined in the script
      */
-    defTools?: { id: string, description: string }[]
+    defTools?: { id: string, description: string, kind: "tool" | "agent" }[]
 }
 
 /**
@@ -1892,8 +1892,9 @@ interface DefSchemaOptions {
     format?: "typescript" | "json" | "yaml"
 }
 
+type ChatFunctionArgs = { context: ToolCallContext } & Record<string, any>
 type ChatFunctionHandler = (
-    args: { context: ToolCallContext } & Record<string, any>
+    args: ChatFunctionArgs
 ) => Awaitable<ToolCallOutput>
 
 interface WriteTextOptions extends ContextExpansionOptions {
@@ -2012,6 +2013,12 @@ interface DefToolOptions {
     maxTokens?: number
 }
 
+interface DefAgentOptions extends Omit<PromptGeneratorOptions, "label"> {
+
+}
+
+type ChatAgentHandler = (ctx: ChatGenerationContext, args: ChatFunctionArgs) => Awaitable<unknown>
+
 interface ChatGenerationContext extends ChatTurnGenerationContext {
     defSchema(
         name: string,
@@ -2032,6 +2039,9 @@ interface ChatGenerationContext extends ChatTurnGenerationContext {
         parameters: PromptParametersSchema | JSONSchema,
         fn: ChatFunctionHandler
     ): void
+    defAgent(name: string, description: string,
+        fn: string | ChatAgentHandler,
+        options?: DefAgentOptions): void  
     defChatParticipant(
         participant: ChatParticipantHandler,
         options?: ChatParticipantOptions

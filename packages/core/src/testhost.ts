@@ -32,6 +32,7 @@ import {
     isAbsolute,
 } from "node:path"
 import { LanguageModel } from "./chat"
+import { Project } from "./ast"
 
 // Function to create a frozen object representing Node.js path methods
 // This object provides utility methods for path manipulations
@@ -50,6 +51,7 @@ export function createNodePath(): Path {
 
 // Class representing a test host for runtime, implementing the RuntimeHost interface
 export class TestHost implements RuntimeHost {
+    project: Project
     // Path to the dotenv file (if used)
     dotEnvPath: string = undefined
     // State object to store user-specific data

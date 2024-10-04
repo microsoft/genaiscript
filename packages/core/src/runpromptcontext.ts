@@ -25,7 +25,7 @@ import { renderShellOutput } from "./chatrender"
 import { jinjaRender } from "./jinja"
 import { mustacheRender } from "./mustache"
 import { imageEncodeForLLM } from "./image"
-import { delay } from "es-toolkit"
+import { delay, uniq } from "es-toolkit"
 import {
     executeChatSession,
     mergeGenerationOptions,
@@ -43,12 +43,14 @@ import {
     SYSTEM_FENCE,
 } from "./constants"
 import { renderAICI } from "./aici"
-import { resolveSystems } from "./systems"
+import { resolveSystems, resolveTools } from "./systems"
 import { callExpander } from "./expander"
 import { isCancelError, NotSupportedError, serializeError } from "./error"
 import { resolveLanguageModel } from "./lm"
 import { concurrentLimit } from "./concurrency"
 import { Project } from "./ast"
+import { dedent } from "./indent"
+import { runtimeHost } from "./host"
 
 export function createChatTurnGenerationContext(
     options: GenerationOptions,
@@ -279,6 +281,81 @@ export function createChatGenerationContext(
                     )
                 )
         }
+    }
+    const defAgent = (
+        name: string,
+        description: string,
+        fn: (
+            agentCtx: ChatGenerationContext,
+            args: ChatFunctionArgs
+        ) => Promise<void>,
+        options?: DefAgentOptions
+    ): void => {
+        const { tools, system, ...rest } = options || {}
+
+        name = name.replace(/^agent_/i, "")
+        const agentName = `agent_${name}`
+        const agentLabel = `agent ${name}`
+
+        const agentSystem = uniq([
+            "system.tools",
+            "system.explanations",
+            ...arrayify(system),
+        ])
+        const agentTools = resolveTools(
+            runtimeHost.project,
+            agentSystem,
+            arrayify(tools)
+        )
+        const agentDescription = dedent`Agent uses LLM to ${description}. available tools: 
+        ${agentTools.map((t) => `- ${t.description}`).join("\n")}` // DO NOT LEAK TOOL ID HERE
+
+        defTool(
+            agentName,
+            agentDescription,
+            {
+                type: "object",
+                properties: {
+                    query: {
+                        type: "string",
+                        description: "Query to answer by the LLM agent.",
+                    },
+                },
+                required: ["query"],
+            },
+            async (args) => {
+                const { context, query } = args
+                console.debug(`${agentLabel}: ${query}`)
+                const res = await runPrompt(
+                    async (_) => {
+                        if (typeof fn === "string") _.writeText(dedent(fn))
+                        else await fn(_, args)
+
+                        _.$`
+                ## Task
+                
+                Analyze and answer the task in QUERY.
+
+                `
+                        _.def("QUERY", query)
+
+                        _.$`
+                - Assume that your answer will be analyzed by an LLM, not a human.
+                - If you are missing information, reply "MISSING_INFO: <what is missing>".
+                - If you cannot answer the query, return "NO_ANSWER: <reason>".
+                - Be concise. Minimize output to the most relevant information to save context tokens.
+                `
+                    },
+                    {
+                        label: agentLabel,
+                        system: agentSystem,
+                        tools: agentTools.map(({ id }) => id),
+                        ...rest,
+                    }
+                )
+                return res
+            }
+        )
     }
 
     const defSchema = (
@@ -561,6 +638,7 @@ export function createChatGenerationContext(
 
     const ctx = <RunPromptContextNode>{
         ...turnCtx,
+        defAgent,
         defTool,
         defSchema,
         defImages,

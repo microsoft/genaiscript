@@ -111,6 +111,8 @@ export async function runTemplate(
     const version = CORE_VERSION
     assert(model !== undefined)
 
+    runtimeHost.project = prj
+
     try {
         trace.heading(3, `🧠 running ${template.id} with model ${model ?? ""}`)
         if (cliInfo) traceCliArgs(trace, template, options)

@@ -121,7 +121,7 @@ type SystemToolId = OptionsOrString<
     | "git_branch_list"
     | "git_diff"
     | "git_last_tag"
-    | "git_log"
+    | "git_list_commits"
     | "git_status"
     | "github_actions_job_logs_diff"
     | "github_actions_job_logs_get"
@@ -293,12 +293,12 @@ interface PromptSystemOptions {
     /**
      * List of system script ids used by the prompt.
      */
-    system?: SystemPromptId | SystemPromptId[]
+    system?: ElementOrArray<SystemPromptId>
 
     /**
      * List of tools used by the prompt.
      */
-    tools?: SystemToolId | SystemToolId[]
+    tools?: ElementOrArray<SystemToolId>
 }
 
 interface ScriptRuntimeOptions {
@@ -464,7 +464,7 @@ interface PromptScript
     /**
      * List of tools defined in the script
      */
-    defTools?: { id: string, description: string }[]
+    defTools?: { id: string, description: string, kind: "tool" | "agent" }[]
 }
 
 /**
@@ -1966,8 +1966,9 @@ interface DefSchemaOptions {
     format?: "typescript" | "json" | "yaml"
 }
 
+type ChatFunctionArgs = { context: ToolCallContext } & Record<string, any>
 type ChatFunctionHandler = (
-    args: { context: ToolCallContext } & Record<string, any>
+    args: ChatFunctionArgs
 ) => Awaitable<ToolCallOutput>
 
 interface WriteTextOptions extends ContextExpansionOptions {
@@ -2086,6 +2087,12 @@ interface DefToolOptions {
     maxTokens?: number
 }
 
+interface DefAgentOptions extends Omit<PromptGeneratorOptions, "label"> {
+
+}
+
+type ChatAgentHandler = (ctx: ChatGenerationContext, args: ChatFunctionArgs) => Awaitable<unknown>
+
 interface ChatGenerationContext extends ChatTurnGenerationContext {
     defSchema(
         name: string,
@@ -2106,6 +2113,9 @@ interface ChatGenerationContext extends ChatTurnGenerationContext {
         parameters: PromptParametersSchema | JSONSchema,
         fn: ChatFunctionHandler
     ): void
+    defAgent(name: string, description: string,
+        fn: string | ChatAgentHandler,
+        options?: DefAgentOptions): void  
     defChatParticipant(
         participant: ChatParticipantHandler,
         options?: ChatParticipantOptions
@@ -3025,6 +3035,20 @@ declare function defTool(
     parameters: PromptParametersSchema | JSONSchema,
     fn: ChatFunctionHandler,
     options?: DefToolOptions
+): void
+
+/**
+ * Declares a LLM agent tool that can be called from the prompt.
+ * @param name name of the agent, do not prefix with agent
+ * @param description description of the agent, used by the model to choose when and how to call the agent
+ * @param fn prompt generation context
+ * @param options additional options for the agent LLM
+ */
+declare function defAgent(
+    name: string,
+    description: string,
+    fn: string | ChatAgentHandler,
+    options?: DefAgentOptions
 ): void
 
 /**

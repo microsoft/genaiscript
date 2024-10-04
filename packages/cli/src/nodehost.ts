@@ -53,6 +53,7 @@ import { shellConfirm, shellInput, shellSelect } from "./input"
 import { shellQuote } from "../../core/src/shell"
 import { uniq } from "es-toolkit"
 import { PLimitPromiseQueue } from "../../core/src/concurrency"
+import { Project } from "../../core/src/ast"
 
 class NodeServerManager implements ServerManager {
     async start(): Promise<void> {
@@ -103,6 +104,7 @@ class ModelManager implements ModelService {
 
 export class NodeHost implements RuntimeHost {
     readonly dotEnvPath: string
+    project: Project
     userState: any = {}
     models: ModelService
     readonly path = createNodePath()
