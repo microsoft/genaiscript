@@ -265,7 +265,7 @@ ${functions
     .filter(({ kind }) => kind === "agent")
     .map(
         ({ id, name, description }) =>
-            `<LinkCard title="${name}" description="${description}" href="/genaiscript/reference/scripts/system#${id.replace(/[^a-z0-9_]/gi, "")}" />`
+            `<LinkCard title="agent ${name}" description="${description}" href="/genaiscript/reference/scripts/system#${id.replace(/[^a-z0-9_]/gi, "")}" />`
     )
     .join("\n")}
 `,
