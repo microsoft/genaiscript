@@ -5,8 +5,9 @@ import {
 } from "./chattypes"
 import { MarkdownTrace } from "./trace"
 import { logVerbose, logWarn } from "./util"
+// import pricing.json and assert json
+import pricings from "./pricing.json" // Interface to hold statistics related to the generation process
 
-// Interface to hold statistics related to the generation process
 export class GenerationStats {
     toolCalls = 0 // Number of tool invocations
     repairs = 0 // Number of repairs made
@@ -38,6 +39,23 @@ export class GenerationStats {
         }
     }
 
+    cost() {
+        const { completion_tokens, prompt_tokens } = this.usage
+        const cost = (pricings as any)[this.model] as {
+            price_per_million_input_tokens: number
+            price_per_million_output_tokens: number
+        }
+        if (!cost) return undefined
+        const input = prompt_tokens * cost.price_per_million_input_tokens
+        const output = completion_tokens * cost.price_per_million_output_tokens
+        return (input + output) / 1e6
+    }
+
+    renderCost() {
+        const cost = this.cost()
+        return cost !== undefined ? `$${cost.toFixed(2)}` : ""
+    }
+
     createChild(model: string, label?: string) {
         const child = new GenerationStats(model, label)
         this.children.push(child)
@@ -57,6 +75,8 @@ export class GenerationStats {
         trace.itemValue("prompt", this.usage.prompt_tokens)
         trace.itemValue("completion", this.usage.completion_tokens)
         trace.itemValue("tokens", this.usage.total_tokens)
+        const cost = this.renderCost()
+        if (cost) trace.itemValue("cost", cost)
         if (this.toolCalls) trace.itemValue("tool calls", this.toolCalls)
         if (this.repairs) trace.itemValue("repairs", this.repairs)
         if (this.turns) trace.itemValue("turns", this.turns)
@@ -88,7 +108,7 @@ export class GenerationStats {
     private logTokens(indent: string) {
         if (this.model || this.usage.total_tokens) {
             logVerbose(
-                `${indent}${this.label ? `${this.label} (${this.model})` : this.model}> ${this.usage.total_tokens} tokens (${this.usage.prompt_tokens}-${this.usage.prompt_tokens_details.cached_tokens} -> ${this.usage.completion_tokens})`
+                `${indent}${this.label ? `${this.label} (${this.model})` : this.model}> ${this.usage.total_tokens} tokens (${this.usage.prompt_tokens}-${this.usage.prompt_tokens_details.cached_tokens} -> ${this.usage.completion_tokens}) ${this.renderCost()}`
             )
         }
         if (this.chatTurns.length > 1)
