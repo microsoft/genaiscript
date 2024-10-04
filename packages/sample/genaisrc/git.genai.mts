@@ -24,3 +24,8 @@ console.log({ files })
 
 const log = await git.log()
 console.log({ log })
+
+for (const commit of log.slice(0, 10)) {
+    const diff = await git.diff({ base: commit.sha, llmify: true })
+    console.log({ commit: commit.sha, diff: parsers.tokens(diff) + " tokens" })
+}

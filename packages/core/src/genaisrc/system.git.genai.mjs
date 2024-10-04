@@ -18,7 +18,7 @@ defTool("git_branch_list", "List all branches using git.", {}, async () => {
 
 defTool(
     "git_diff",
-    "Computes file diffs using git.",
+    "Computes file diffs using git. If the diff is too large, it returns the list of modified/added files.",
     {
         type: "object",
         properties: {
@@ -34,6 +34,10 @@ defTool(
             staged: {
                 type: "boolean",
                 description: "Compare staged changes",
+            },
+            nameOnly: {
+                type: "boolean",
+                description: "Show only file names",
             },
             paths: {
                 type: "array",

@@ -2,13 +2,19 @@
 // It includes functionality to find modified files, execute Git commands, and manage branches.
 
 import { uniq } from "es-toolkit"
-import { GIT_IGNORE_GENAI } from "./constants"
+import {
+    DEFAULT_MODEL,
+    GIT_DIFF_MAX_TOKENS,
+    GIT_IGNORE_GENAI,
+} from "./constants"
 import { llmifyDiff } from "./diff"
 import { resolveFileContents } from "./file"
 import { readText } from "./fs"
 import { runtimeHost } from "./host"
 import { shellParse } from "./shell"
 import { arrayify } from "./util"
+import { estimateTokens } from "./tokens"
+import { resolveTokenEncoder } from "./encoders"
 
 /**
  * GitClient class provides an interface to interact with Git.
@@ -225,15 +231,30 @@ export class GitClient implements Git {
         paths?: ElementOrArray<string>
         excludedPaths?: ElementOrArray<string>
         unified?: number
+        nameOnly?: boolean
         llmify?: boolean
+        /**
+         * Maximum of tokens before returning a name-only diff
+         */
+        maxTokensFullDiff?: number
     }): Promise<string> {
         const paths = arrayify(options?.paths, { filterEmpty: true })
         const excludedPaths = await this.resolveExcludedPaths(options)
-        const { staged, base, head, unified, askStageOnEmpty } = options || {}
+        const {
+            staged,
+            base,
+            head,
+            unified,
+            askStageOnEmpty,
+            nameOnly,
+            maxTokensFullDiff = GIT_DIFF_MAX_TOKENS,
+            llmify,
+        } = options || {}
         const args = ["diff"]
         if (staged) args.push("--staged")
         args.push("--ignore-all-space")
         if (unified > 0) args.push(`--unified=${unified}`)
+        if (nameOnly) args.push("--name-only")
         if (base && !head) args.push(base)
         else if (head && !base) args.push(`${head}^..${head}`)
         else if (base && head) args.push(`${base}..${head}`)
@@ -252,7 +273,21 @@ export class GitClient implements Git {
                 res = await this.exec(args)
             }
         }
-        if (options?.llmify) res = llmifyDiff(res)
+        if (!nameOnly && llmify) {
+            res = llmifyDiff(res)
+            const encoder = await resolveTokenEncoder(DEFAULT_MODEL)
+            const tokens = estimateTokens(res, encoder)
+            if (tokens > maxTokensFullDiff)
+                res = `## Diff
+Truncated diff to large (${tokens} tokens). Diff files individually for details.
+
+${res.slice(0, maxTokensFullDiff * 3)}
+...
+
+## Files
+${await this.diff({ ...options, nameOnly: true })}
+`
+        }
         return res
     }
 }
