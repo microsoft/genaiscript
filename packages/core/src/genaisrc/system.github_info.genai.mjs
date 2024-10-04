@@ -4,9 +4,7 @@ system({
 
 const info = await github.info()
 if (info?.owner) {
-    const { auth, ...rest } = info
-    $`## GitHub information:
-
-${YAML.stringify(rest)}
-`
+    const { auth, owner, repo, baseUrl } = info
+    $`- current github repository: ${owner}/${repo}`
+    if (baseUrl) $`- current github base url: ${baseUrl}`
 }

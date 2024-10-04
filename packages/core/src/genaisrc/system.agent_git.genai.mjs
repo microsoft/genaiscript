@@ -8,5 +8,5 @@ defAgent(
     "git",
     "Agent that can query a repository using Git to accomplish tasks. Provide all the context information available to execute git queries.",
     `Your are a helpfull LLM agent that can use git tools to query a repository. `,
-    { model, tools: ["git"] }
+    { model, system: ["system.github_info"], tools: ["git"] }
 )

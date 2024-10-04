@@ -12,9 +12,9 @@ defAgent(
     {
         model,
         system: [
-            "system",
             "system.tools",
             "system.explanations",
+            "system.github_info",
             "system.github_actions",
             "system.github_files",
             "system.github_issues",

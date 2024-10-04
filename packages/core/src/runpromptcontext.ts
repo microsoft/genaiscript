@@ -288,10 +288,9 @@ export function createChatGenerationContext(
             agentCtx: ChatGenerationContext,
             args: ChatFunctionArgs
         ) => Promise<void>,
-        tools: ElementOrArray<SystemToolId>,
         options?: DefAgentOptions
     ): void => {
-        const { system, ...rest } = options || {}
+        const { tools, system, ...rest } = options || {}
 
         name = name.replace(/^agent_/i, "")
         const agentName = `agent_${name}`
@@ -320,7 +319,7 @@ export function createChatGenerationContext(
             },
             async (args) => {
                 const { context, query } = args
-                context.log(`${agentLabel}: ${query}`)
+                console.debug(`${agentLabel}: ${query}`)
                 const res = await runPrompt(
                     async (_) => {
                         if (typeof fn === "string") _.writeText(dedent(fn))
@@ -334,11 +333,11 @@ export function createChatGenerationContext(
                 `
                         _.def("QUERY", query)
 
-                        $`
+                        _.$`
                 - Assume that your answer will be analyzed by an LLM, not a human.
                 - If you are missing information, reply "MISSING_INFO: <what is missing>".
                 - If you cannot answer the query, return "NO_ANSWER: <reason>".
-                - Minimize output to the most relevant information to save context tokens.
+                - Be concise. Minimize output to the most relevant information to save context tokens.
                 `
                     },
                     {
@@ -633,6 +632,7 @@ export function createChatGenerationContext(
 
     const ctx = <RunPromptContextNode>{
         ...turnCtx,
+        defAgent,
         defTool,
         defSchema,
         defImages,
