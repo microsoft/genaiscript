@@ -1,7 +1,9 @@
 ---
 title: "LLM Agents"
 date: 2024-10-04
-authors: genaiscript
+authors: 
+    - genaiscript
+    - pelikhan
 tags: ["genai", "interactive", "agent", "user-input", "questions"]
 canonical_url: https://microsoft.github.io/genaiscript/blog/llm-agents
 ---

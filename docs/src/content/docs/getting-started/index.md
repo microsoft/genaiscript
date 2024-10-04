@@ -21,7 +21,7 @@ It allows users to create, debug, and automate LLM-based scripts.
 GenAIScript brings the flexibility of JavaScript with the convenience of built-in output parsing
 to streamline the creation of LLM-based software solutions.
 
-## script = prompt generator
+## Prompting is Coding
 
 The following script generates a prompt that
 takes files (.txt, .pdf, .docx) as input and
