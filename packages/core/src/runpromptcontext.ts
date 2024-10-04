@@ -43,13 +43,14 @@ import {
     SYSTEM_FENCE,
 } from "./constants"
 import { renderAICI } from "./aici"
-import { resolveSystems } from "./systems"
+import { resolveSystems, resolveTools } from "./systems"
 import { callExpander } from "./expander"
 import { isCancelError, NotSupportedError, serializeError } from "./error"
 import { resolveLanguageModel } from "./lm"
 import { concurrentLimit } from "./concurrency"
 import { Project } from "./ast"
 import { dedent } from "./indent"
+import { runtimeHost } from "./host"
 
 export function createChatTurnGenerationContext(
     options: GenerationOptions,
@@ -295,14 +296,19 @@ export function createChatGenerationContext(
         name = name.replace(/^agent_/i, "")
         const agentName = `agent_${name}`
         const agentLabel = `agent ${name}`
-        const agentDescription = `Agent uses LLM to ${description}. available tools: ${arrayify(tools).join(", ")}`
 
         const agentSystem = uniq([
             "system.tools",
             "system.explanations",
             ...arrayify(system),
         ])
-        const agentTools = uniq(arrayify(tools))
+        const agentTools = resolveTools(
+            runtimeHost.project,
+            agentSystem,
+            arrayify(tools)
+        )
+        const agentDescription = `Agent uses LLM to ${description}. available tools: 
+        ${agentTools.map((t) => `- '${t.id}: ${t.description}`).join("\n")}`
 
         defTool(
             agentName,
@@ -343,7 +349,7 @@ export function createChatGenerationContext(
                     {
                         label: agentLabel,
                         system: agentSystem,
-                        tools: agentTools,
+                        tools: agentTools.map(({ id }) => id),
                         ...rest,
                     }
                 )

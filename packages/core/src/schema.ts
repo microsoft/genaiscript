@@ -17,6 +17,30 @@ export function isJSONSchema(obj: any) {
     return false
 }
 
+export function JSONSchemaToFunctionParameters(schema: JSONSchemaType): string {
+    if (!schema) return ""
+    else if (schema.type === "array")
+        return `args: (${JSONSchemaToFunctionParameters(schema.items)})[]`
+    else if (schema.type === "object") {
+        const required = schema.required || []
+        return Object.entries(schema.properties)
+            .sort(
+                (l, r) =>
+                    (required.includes(l[0]) ? -1 : 1) -
+                    (required.includes(r[0]) ? -1 : 1)
+            )
+            .map(
+                ([name, prop]) =>
+                    `${name}${required.includes(name) ? "" : "?"}: ${JSONSchemaToFunctionParameters(prop)}`
+            )
+            .join(", ")
+    } else if (schema.type === "string") return "string"
+    else if (schema.type === "boolean") return "boolean"
+    else if (schema.type === "number" || schema.type === "integer")
+        return "number"
+    else return "?"
+}
+
 /**
  * Converts a JSON Schema to a TypeScript type definition as a string
  * @param schema - The JSON Schema

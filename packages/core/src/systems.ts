@@ -50,7 +50,7 @@ export function resolveSystems(
         systems.push("system.tools")
         // Resolve and add each tool's systems based on its definition in the project
         arrayify(script.tools).forEach((tool) =>
-            systems.push(...resolveTools(prj, tool))
+            systems.push(...resolveSystemFromTools(prj, tool))
         )
     }
 
@@ -61,9 +61,31 @@ export function resolveSystems(
 
 // Helper function to resolve tools in the project and return their system IDs
 // Finds systems in the project associated with a specific tool
-function resolveTools(prj: Project, tool: string): string[] {
+function resolveSystemFromTools(prj: Project, tool: string): string[] {
     const system = prj.templates.filter(
         (t) => t.isSystem && t.defTools?.find((to) => to.id === tool)
     )
     return system.map(({ id }) => id)
+}
+
+export function resolveTools(
+    prj: Project,
+    systems: string[],
+    tools: string[]
+): { id: string; description: string }[] {
+    const toolIds = uniq(
+        tools.concat(
+            ...systems
+                .map((s) => prj.templates.find((t) => t.id === s)?.defTools)
+                .filter((t) => !!t)
+                .flat()
+                .map((t) => t.id)
+        )
+    )
+    return toolIds
+        .map((id) =>
+            prj.templates.map((t) => t.defTools.find((to) => to.id === id))
+        )
+        .flat()
+        .filter((t) => !!t)
 }

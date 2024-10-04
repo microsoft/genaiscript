@@ -3,6 +3,7 @@ import { CancellationToken } from "./cancellation"
 import { LanguageModel } from "./chat"
 import { Progress } from "./progress"
 import { AbortSignalOptions, MarkdownTrace, TraceOptions } from "./trace"
+import { Project } from "./ast"
 
 // this is typically an instance of TextDecoder
 export interface UTF8Decoder {
@@ -125,6 +126,7 @@ export interface Host {
 }
 
 export interface RuntimeHost extends Host {
+    project: Project
     models: ModelService
     workspace: Omit<WorkspaceFileSystem, "grep">
 

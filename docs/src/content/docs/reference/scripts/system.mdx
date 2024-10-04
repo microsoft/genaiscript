@@ -726,8 +726,8 @@ Tools to query a git repository.
 
 -  tool `git_branch_current`: Gets the current branch using git.
 -  tool `git_branch_list`: List all branches using git.
--  tool `git_diff`: Computes file diffs using git. If the diff is too large, it returns the list of modified/added files.
--  tool `git_log`: Generates a log of commits using git.
+-  tool `git_diff`: Computes file diffs using the git diff command. If the diff is too large, it returns the list of modified/added files.
+-  tool `git_list_commits`: Generates a history of commits using the git log command.
 -  tool `git_status`: Generates a status of the repository using git.
 -  tool `git_last_tag`: Gets the last tag using git.
 
@@ -752,7 +752,7 @@ defTool("git_branch_list", "List all branches using git.", {}, async () => {
 
 defTool(
     "git_diff",
-    "Computes file diffs using git. If the diff is too large, it returns the list of modified/added files.",
+    "Computes file diffs using the git diff command. If the diff is too large, it returns the list of modified/added files.",
     {
         type: "object",
         properties: {
@@ -802,8 +802,8 @@ defTool(
 )
 
 defTool(
-    "git_log",
-    "Generates a log of commits using git.",
+    "git_list_commits",
+    "Generates a history of commits using the git log command.",
     {
         type: "object",
         properties: {
