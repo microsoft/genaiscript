@@ -80,7 +80,7 @@ export function resolveTools(
         ...tools.map((tid) =>
             scripts.find((s) => s.defTools?.find((t) => t.id.startsWith(tid)))
         ),
-    ])
+    ]).filter((s) => !!s)
     const res = toolScripts.map(({ defTools }) => defTools ?? []).flat()
     return res
 }
