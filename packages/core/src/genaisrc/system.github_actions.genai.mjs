@@ -51,7 +51,7 @@ defTool(
     async (args) => {
         const { workflow_id, branch, status, context } = args
         context.log(
-            `github action list runs for ${workflow_id ? `worfklow ${workflow_id}` : `repository`} and branch ${branch || "all"}`
+            `github action list ${status || ""} runs for ${workflow_id ? `worfklow ${workflow_id}` : `repository`} and branch ${branch || "all"}`
         )
         const res = await github.listWorkflowRuns(workflow_id, {
             branch,
