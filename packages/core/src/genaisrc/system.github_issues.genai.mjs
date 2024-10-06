@@ -28,14 +28,56 @@ defTool(
                 enum: ["asc", "desc"],
                 description: "Direction to sort",
             },
+            creator: {
+                type: "string",
+                description: "Filter by creator",
+            },
+            assignee: {
+                type: "string",
+                description: "Filter by assignee",
+            },
+            since: {
+                type: "string",
+                description:
+                    "Only issues updated at or after this time are returned.",
+            },
+            mentioned: {
+                type: "string",
+                description: "Filter by mentioned user",
+            },
         },
     },
     async (args) => {
-        const { state = "open", labels, sort, direction, context } = args
+        const {
+            state = "open",
+            labels,
+            sort,
+            direction,
+            context,
+            creator,
+            assignee,
+            since,
+            mentioned,
+        } = args
         context.log(`github issue list ${state ?? "all"}`)
-        const res = await github.listIssues({ state, labels, sort, direction })
+        const res = await github.listIssues({
+            state,
+            labels,
+            sort,
+            direction,
+            creator,
+            assignee,
+            since,
+            mentioned,
+        })
         return CSV.stringify(
-            res.map(({ number, title, state }) => ({ number, title, state })),
+            res.map(({ number, title, state, user, assignee }) => ({
+                number,
+                title,
+                state,
+                user: user?.login || "",
+                assignee: assignee?.login || "",
+            })),
             { header: true }
         )
     }
@@ -57,13 +99,23 @@ defTool(
     async (args) => {
         const { number: issue_number, context } = args
         context.log(`github issue get ${issue_number}`)
-        const { number, title, body, state, html_url, reactions } =
-            await github.getIssue(issue_number)
+        const {
+            number,
+            title,
+            body,
+            state,
+            html_url,
+            reactions,
+            user,
+            assignee,
+        } = await github.getIssue(issue_number)
         return YAML.stringify({
             number,
             title,
             body,
             state,
+            user: user?.login || "",
+            assignee: assignee?.login || "",
             html_url,
             reactions,
         })
@@ -88,8 +140,9 @@ defTool(
         context.log(`github issue list comments ${issue_number}`)
         const res = await github.listIssueComments(issue_number)
         return CSV.stringify(
-            res.map(({ id, body, updated_at }) => ({
+            res.map(({ id, user, body, updated_at }) => ({
                 id,
+                user: user?.login || "",
                 body,
                 updated_at,
             })),

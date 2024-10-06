@@ -390,7 +390,7 @@ interface PromptScript
     /**
      * List of tools defined in the script
      */
-    defTools?: { id: string, description: string, kind: "tool" | "agent" }[]
+    defTools?: { id: string; description: string; kind: "tool" | "agent" }[]
 }
 
 /**
@@ -438,8 +438,6 @@ interface ToolDefinition extends DefToolOptions {
      * Omitting `parameters` defines a function with an empty parameter list.
      */
     parameters?: JSONSchema
-
-    
 }
 
 interface ToolCallTrace {
@@ -591,7 +589,10 @@ interface WorkspaceFileSystem {
     /**
      * Reads the content of a file and parses to XML, using the XML parser.
      */
-    readXML(path: string | Awaitable<WorkspaceFile>, options?: XMLParseOptions): Promise<any>
+    readXML(
+        path: string | Awaitable<WorkspaceFile>,
+        options?: XMLParseOptions
+    ): Promise<any>
 
     /**
      * Reads the content of a CSV file.
@@ -692,7 +693,10 @@ interface ExpansionVariables {
 
 type MakeOptional<T, P extends keyof T> = Partial<Pick<T, P>> & Omit<T, P>
 
-type PromptArgs = Omit<PromptScript, "text" | "id" | "jsSource" | "activation" | "defTools">
+type PromptArgs = Omit<
+    PromptScript,
+    "text" | "id" | "jsSource" | "activation" | "defTools"
+>
 
 type PromptSystemArgs = Omit<
     PromptArgs,
@@ -1184,7 +1188,11 @@ interface Parsers {
     /**
      * Computes a diff between two files
      */
-    diff(left: WorkspaceFile, right: WorkspaceFile, options?: DefDiffOptions): string
+    diff(
+        left: WorkspaceFile,
+        right: WorkspaceFile,
+        options?: DefDiffOptions
+    ): string
 }
 
 interface AICIGenOptions {
@@ -1442,9 +1450,11 @@ interface GitHubIssue {
     number: number
     state: string
     state_reason?: "completed" | "reopened" | "not_planned" | null
-    html_url: string 
+    html_url: string
     draft?: boolean
     reactions?: GitHubReactions
+    user: GitHubUser
+    assignee?: GitHubUser
 }
 
 interface GitHubReactions {
@@ -1463,14 +1473,14 @@ interface GitHubReactions {
 interface GitHubComment {
     id: number
     body?: string
+    user: GitHubUser
     created_at: string
     updated_at: string
     html_url: string
     reactions?: GitHubReactions
 }
 
-interface GitHubPullRequest extends GitHubIssue {
-}
+interface GitHubPullRequest extends GitHubIssue {}
 
 interface GitHubCodeSearchResult {
     name: string
@@ -1561,16 +1571,19 @@ interface GitHub {
             labels?: string
             sort?: "created" | "updated" | "comments"
             direction?: "asc" | "desc"
+            creator?: string
+            assignee?: string
+            since?: string
+            mentioned?: string
         } & GitHubPaginationOptions
     ): Promise<GitHubIssue[]>
-
 
     /**
      * Gets the details of a GitHub issue
      * @param number issue number (not the issue id!)
      */
-    async getIssue(number: number): Promise<GitHubIssue>
-    
+    getIssue(number: number): Promise<GitHubIssue>
+
     /**
      * Lists comments for a given issue
      * @param issue_number
@@ -1893,9 +1906,7 @@ interface DefSchemaOptions {
 }
 
 type ChatFunctionArgs = { context: ToolCallContext } & Record<string, any>
-type ChatFunctionHandler = (
-    args: ChatFunctionArgs
-) => Awaitable<ToolCallOutput>
+type ChatFunctionHandler = (args: ChatFunctionArgs) => Awaitable<ToolCallOutput>
 
 interface WriteTextOptions extends ContextExpansionOptions {
     /**
@@ -2013,11 +2024,12 @@ interface DefToolOptions {
     maxTokens?: number
 }
 
-interface DefAgentOptions extends Omit<PromptGeneratorOptions, "label"> {
+interface DefAgentOptions extends Omit<PromptGeneratorOptions, "label"> {}
 
-}
-
-type ChatAgentHandler = (ctx: ChatGenerationContext, args: ChatFunctionArgs) => Awaitable<unknown>
+type ChatAgentHandler = (
+    ctx: ChatGenerationContext,
+    args: ChatFunctionArgs
+) => Awaitable<unknown>
 
 interface ChatGenerationContext extends ChatTurnGenerationContext {
     defSchema(
@@ -2039,9 +2051,12 @@ interface ChatGenerationContext extends ChatTurnGenerationContext {
         parameters: PromptParametersSchema | JSONSchema,
         fn: ChatFunctionHandler
     ): void
-    defAgent(name: string, description: string,
+    defAgent(
+        name: string,
+        description: string,
         fn: string | ChatAgentHandler,
-        options?: DefAgentOptions): void  
+        options?: DefAgentOptions
+    ): void
     defChatParticipant(
         participant: ChatParticipantHandler,
         options?: ChatParticipantOptions

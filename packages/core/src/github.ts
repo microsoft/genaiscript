@@ -533,6 +533,10 @@ export class GitHubClient implements GitHub {
             labels?: string
             sort?: "created" | "updated" | "comments"
             direction?: "asc" | "desc"
+            creator?: string
+            assignee?: string
+            since?: string
+            mentioned?: string
         } & GitHubPaginationOptions
     ): Promise<GitHubIssue[]> {
         const { client, owner, repo } = await this.client()

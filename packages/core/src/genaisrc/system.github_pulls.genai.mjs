@@ -35,10 +35,12 @@ defTool(
         context.log(`github pull list`)
         const res = await github.listPullRequests({ state, sort, direction })
         return CSV.stringify(
-            res.map(({ number, title, state, body }) => ({
+            res.map(({ number, title, state, body, user, assignee }) => ({
                 number,
                 title,
                 state,
+                user: user?.login || "",
+                assignee: assignee?.login || "",
             })),
             { header: true }
         )
@@ -61,13 +63,23 @@ defTool(
     async (args) => {
         const { number: pull_number, context } = args
         context.log(`github pull get ${pull_number}`)
-        const { number, title, body, state, html_url, reactions } =
-            await github.getPullRequest(pull_number)
+        const {
+            number,
+            title,
+            body,
+            state,
+            html_url,
+            reactions,
+            user,
+            assignee,
+        } = await github.getPullRequest(pull_number)
         return YAML.stringify({
             number,
             title,
             body,
             state,
+            user: user?.login || "",
+            assignee: assignee?.login || "",
             html_url,
             reactions,
         })
@@ -93,7 +105,11 @@ defTool(
         context.log(`github pull comments list ${pull_number}`)
         const res = await github.listPullRequestReviewComments(pull_number)
         return CSV.stringify(
-            res.map(({ id, body }) => ({ id, body })),
+            res.map(({ id, user, body }) => ({
+                id,
+                user: user?.login || "",
+                body,
+            })),
             { header: true }
         )
     }
