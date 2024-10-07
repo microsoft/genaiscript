@@ -6,7 +6,7 @@ const model = env.vars.agentGithubModel
 
 defAgent(
     "github",
-    "Agent that can query GitHub  to accomplish tasks",
+    "query GitHub to accomplish tasks",
     `Your are a helpfull LLM agent that can query GitHub to accomplish tasks. Answer the question in QUERY.
     Prefer diffing job logs rather downloading entire logs which can be very large.`,
     {

@@ -113,7 +113,7 @@ const model = env.vars.agentFsModel
 
 defAgent(
     "fs",
-    "Queries files to accomplish tasks",
+    "query files to accomplish tasks",
     `Your are a helpfull LLM agent that can query the file system.
     Answer the question in QUERY.`,
     {
@@ -148,7 +148,7 @@ const model = env.vars.agentGitModel
 
 defAgent(
     "git",
-    "Agent that can query a repository using Git to accomplish tasks. Provide all the context information available to execute git queries.",
+    "query a repository using Git to accomplish tasks. Provide all the context information available to execute git queries.",
     `Your are a helpfull LLM agent that can use the git tools to query the current repository.
     Answer the question in QUERY.
     - The current repository is the same as github repository.`,
@@ -175,7 +175,7 @@ const model = env.vars.agentGithubModel
 
 defAgent(
     "github",
-    "Agent that can query GitHub  to accomplish tasks",
+    "query GitHub to accomplish tasks",
     `Your are a helpfull LLM agent that can query GitHub to accomplish tasks. Answer the question in QUERY.
     Prefer diffing job logs rather downloading entire logs which can be very large.`,
     {
@@ -211,7 +211,7 @@ system({
 const model = env.vars.agentInterpreterModel
 defAgent(
     "interpreter",
-    "Run code interpreters for Python, Math. Use this agent to ground computation questions.",
+    "run code interpreters for Python, Math. Use this agent to ground computation questions.",
     `You are an agent that can run code interpreters for Python, Math. Answer the question in QUERY.
     - Prefer math_eval for math expressions as it is much more efficient.
     - To use file data in python, prefer copying data files using python_code_interpreter_copy_files rather than inline data in code.
@@ -247,7 +247,7 @@ system({
 const model = env.vars.agentInterpreterModel
 defAgent(
     "user_input",
-    "Ask user for input to confirm, select or answer the question in the query. The message should be very clear and provide all the context.",
+    "ask user for input to confirm, select or answer the question in the query. The message should be very clear and provide all the context.",
     `Your task is to ask the question in QUERY to the user using the tools.
     - Use the best tool to interact with the user. 
     - do NOT try to interpret the meaning of the question, let the user answer.

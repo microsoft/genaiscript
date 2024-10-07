@@ -96,6 +96,35 @@ Grep or fuzz search [files](https://microsoft.github.io/genaiscript/reference/sc
 const { files } = await workspace.grep(/[a-z][a-z0-9]+/, "**/*.md")
 ```
 
+### LLM Tools
+
+Register JavaScript functions as **tools**.
+
+```js
+defTool(
+    "weahter",
+    "query a weather web api",
+    { location: "string" },
+    async (args) =>
+        await fetch(`https://weather.api.api/?location=${args.location}`)
+)
+```
+
+### LLM Agents
+
+Register JavaScript functions as **tools** and combine tools + prompt into agents.
+
+```js
+defAgent(
+    "git",
+    "Query a repository using Git to accomplish tasks.",
+    `Your are a helpfull LLM agent that can use the git tools to query the current repository.
+    Answer the question in QUERY.
+    - The current repository is the same as github repository.`,
+    { model, system: ["system.github_info"], tools: ["git"] }
+)
+```
+
 ### 🔍 RAG Built-in
 
 [Vector search](https://microsoft.github.io/genaiscript/reference/scripts/vector-search/).
