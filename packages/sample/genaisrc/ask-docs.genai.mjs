@@ -8,6 +8,4 @@ script({
     ],
 })
 
-$`Review the documentation for "a LLM tool implemented by defTool" and suggest a list of missing topics.
-
-Go through each topic and generate documentation for it.`
+$`Based on the samples, update the documentation files for 'defTool. Generate updated files to be saved.`

@@ -596,40 +596,20 @@ export async function executeChatSession(
     } = genOptions
     traceLanguageModelConnection(trace, genOptions, connectionToken)
     const tools: ChatCompletionTool[] = toolDefinitions?.length
-        ? toolDefinitions.map((f) => ({
-              type: "function",
-              function: f.spec as any,
-          }))
+        ? toolDefinitions.map(
+              (f) =>
+                  <ChatCompletionTool>{
+                      type: "function",
+                      function: {
+                          name: f.spec.name,
+                          description: f.spec.description,
+                          parameters: f.spec.parameters as any,
+                      },
+                  }
+          )
         : undefined
     trace.startDetails(`🧠 llm chat`)
-    if (toolDefinitions?.length)
-        trace.details(
-            `🛠️ tools`,
-            dedent`\`\`\`ts
-            ${toolDefinitions
-                .map(
-                    (t) => dedent`/**
-                         * ${t.spec.description}${
-                             t.spec.parameters?.type === "object"
-                                 ? Object.entries(
-                                       t.spec.parameters.properties || {}
-                                   )
-                                       .filter(([, ps]) => ps.description)
-                                       .map(
-                                           ([pn, ps]) =>
-                                               `\n * @param ${pn} ${ps.description}`
-                                       )
-                                       .join("")
-                                 : ""
-                         }
-                         */
-                        function ${t.spec.name}(${JSONSchemaToFunctionParameters(t.spec.parameters)})
-                        `
-                )
-                .join("\n")}
-            \`\`\`
-            `
-        )
+    if (toolDefinitions?.length) trace.detailsFenced(`🛠️ tools`, tools, "yaml")
     try {
         let genVars: Record<string, string>
         while (true) {

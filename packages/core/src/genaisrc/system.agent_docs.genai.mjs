@@ -1,5 +1,5 @@
 system({
-    title: "Agent that perform tasks on the documentation.",
+    title: "Agent that can query on the documentation.",
 })
 
 const docsRoot = env.vars.docsRoot || "docs"
@@ -7,7 +7,7 @@ const samplesRoot = env.vars.samplesRoot || "packages/sample/genaisrc/"
 
 defAgent(
     "docs",
-    "query the documentation files",
+    "query the documentation",
     async (ctx) => {
         ctx.$`Your are a helpfull LLM agent that is an expert at Technical documentation. You can provide the best analyzis to any query about the documentation.
 
@@ -28,7 +28,12 @@ defAgent(
     },
     {
         system: ["system.explanations", "system.github_info"],
-        tools: ["md_find_files", "fs_read_file"],
-        maxTokens: 10000,
+        tools: [
+            "md_find_files",
+            "md_read_frontmatterm",
+            "fs_find_files",
+            "fs_read_file",
+        ],
+        maxTokens: 5000,
     }
 )

@@ -53,6 +53,7 @@ import { semverSatisfies } from "../../core/src/semver" // Semantic version chec
 export async function cli() {
     // Handle uncaught exceptions globally
     process.on("uncaughtException", (err) => {
+        debugger
         const se = serializeError(err) // Serialize the error object
         error(errorMessage(se)) // Log the error message
         if (!isQuiet && se?.stack) logVerbose(se?.stack) // Log stack trace if not in quiet mode

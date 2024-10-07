@@ -17,14 +17,18 @@ defTool(
             pattern: {
                 type: "string",
                 description:
-                    "Optional regular expression pattern to search for in the file content.",
+                    "regular expression pattern to search for in the file content.",
+            },
+            question: {
+                type: "string",
+                description: "Question to ask when computing the summary",
             },
         },
     },
     async (args) => {
-        const { path, pattern, context } = args
+        const { path, pattern, context, question } = args
         context.log(
-            `docs: ls ${path} ${pattern ? `| grep ${pattern}` : ""} --frontmatter`
+            `docs: ls ${path} ${pattern ? `| grep ${pattern}` : ""} --frontmatter ${question ? `--ask ${question}` : ""}`
         )
         const matches = pattern
             ? (await workspace.grep(pattern, { path, readText: true })).files
@@ -47,6 +51,7 @@ defTool(
                     (_) => {
                         _.def("CONTENT", content, { language: "markdown" })
                         _.$`As a professional summarizer, create a concise and comprehensive summary of the provided text, be it an article, post, conversation, or passage, while adhering to these guidelines:
+                        ${question ? `* ${question}` : ""}
                         * The summary is intended for an LLM, not a human.
                         * Craft a summary that is detailed, thorough, in-depth, and complex, while maintaining clarity and conciseness.
                         * Incorporate main ideas and essential information, eliminating extraneous language and focusing on critical aspects.
@@ -65,8 +70,7 @@ defTool(
             return file
         })
         const res = YAML.stringify(files)
-        context.log(res)
         return res
     },
-    { maxTokens: 10000 }
+    { maxTokens: 20000 }
 )
