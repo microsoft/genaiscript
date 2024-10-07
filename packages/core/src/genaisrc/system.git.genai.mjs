@@ -4,6 +4,15 @@ system({
 })
 
 defTool(
+    "git_branch_default",
+    "Gets the default branch using git.",
+    {},
+    async () => {
+        return await git.defaultBranch()
+    }
+)
+
+defTool(
     "git_branch_current",
     "Gets the current branch using git.",
     {},
@@ -64,7 +73,8 @@ defTool(
             ...rest,
         })
         return res
-    }
+    },
+    { maxTokens: 20000 }
 )
 
 defTool(

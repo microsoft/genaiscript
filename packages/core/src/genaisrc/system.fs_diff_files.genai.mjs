@@ -28,5 +28,8 @@ defTool(
         const f = await workspace.readText(filename)
         const of = await workspace.readText(otherfilename)
         return parsers.diff(f, of)
+    },
+    {
+        maxTokens: 20000,
     }
 )

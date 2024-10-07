@@ -14,6 +14,7 @@ $`You are an expert software developer and architect.
 
 ## Instructions
 
+- if the diff is too large, diff each file separately
 - This description will be used as the pull request description.
 - talk like a software engineer
 - try to extract the intent of the changes, don't focus on the details
@@ -21,5 +22,4 @@ $`You are an expert software developer and architect.
 - use emojis to make the description more engaging
 - focus on the most important changes
 - ignore comments about imports (like added, remove, changed, etc.)
-- do NOT add a "pull request description" header
 `

@@ -203,8 +203,10 @@ defAgent(
     "query a repository using Git to accomplish tasks. Provide all the context information available to execute git queries.",
     `Your are a helpfull LLM agent that can use the git tools to query the current repository.
     Answer the question in QUERY.
-    - The current repository is the same as github repository.`,
-    { model, system: ["system.github_info"], tools: ["git"] }
+    - The current repository is the same as github repository.
+    - Prefer using diff to compare files rather than listing files. Listing files is only useful when you need to read the content of the files. 
+    `,
+    { model, system: ["system.git_info", "system.github_info"], tools: ["git"] }
 )
 
 `````
@@ -620,6 +622,9 @@ defTool(
         const f = await workspace.readText(filename)
         const of = await workspace.readText(otherfilename)
         return parsers.diff(f, of)
+    },
+    {
+        maxTokens: 20000,
     }
 )
 
@@ -786,6 +791,7 @@ git read operations
 
 Tools to query a git repository.
 
+-  tool `git_branch_default`: Gets the default branch using git.
 -  tool `git_branch_current`: Gets the current branch using git.
 -  tool `git_branch_list`: List all branches using git.
 -  tool `git_diff`: Computes file diffs using the git diff command. If the diff is too large, it returns the list of modified/added files.
@@ -798,6 +804,15 @@ system({
     title: "git read operations",
     description: "Tools to query a git repository.",
 })
+
+defTool(
+    "git_branch_default",
+    "Gets the default branch using git.",
+    {},
+    async () => {
+        return await git.defaultBranch()
+    }
+)
 
 defTool(
     "git_branch_current",
@@ -860,7 +875,8 @@ defTool(
             ...rest,
         })
         return res
-    }
+    },
+    { maxTokens: 20000 }
 )
 
 defTool(
@@ -914,6 +930,27 @@ defTool(
 defTool("git_last_tag", "Gets the last tag using git.", {}, async () => {
     return await git.lastTag()
 })
+
+`````
+
+
+### `system.git_info`
+
+Git repository information
+
+
+
+
+
+`````js wrap title="system.git_info"
+system({
+    title: "Git repository information",
+})
+
+const branch = await git.branch()
+const defaultBranch = await git.defaultBranch()
+
+$`git: The current branch is ${branch} and the default branch is ${defaultBranch}.`
 
 `````
 
