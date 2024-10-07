@@ -14,12 +14,12 @@ Let's delve into the "Reviewer" script, which automates the code review process,
 
 ```ts
 script({
-    title: "Reviewer",
-    description: "Review the current files",
+    title: "Pull Request Reviewer",
+    description: "Review the current pull request",
     model: "openai:gpt-4o",
     system: ["system.annotations"],
     tools: ["fs_find_files", "fs_read_text"],
-    cache: "rv",
+    cache: "prv",
     parameters: {
         errors: {
             type: "boolean",

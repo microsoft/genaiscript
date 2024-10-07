@@ -1,9 +1,9 @@
 script({
-    title: "Reviewer",
-    description: "Review the current files",
+    title: "Pull Request Reviewer",
+    description: "Review the current pull request",
     system: ["system.annotations"],
     tools: ["fs"],
-    cache: "rv",
+    cache: "prv",
     parameters: {
         errors: {
             type: "boolean",
@@ -18,26 +18,13 @@ script({
  */
 const { errors } = env.vars
 
-/** ------------------------------------------------
- *  Context
- */
-let content = ""
-/**
- * env.files contains the file selected by the user in VSCode or through the cli arguments.
- */
-if (env.files.length) {
-    content = def("FILE", env.files, {
-        maxTokens: 5000,
-        glob: "**/*.{py,ts,cs,rs,c,cpp,h,hpp,js,mjs,mts,md,mdx}", // TODO:
-    })
-} else {
-    // No files selected, review the current changes
-    console.log("No files found. Using git diff.")
-    const diff = await git.diff({ unified: 6 })
-    // customize git diff to filter some files
-    if (!diff) cancel("No changes found, did you forget to stage your changes?")
-    content = def("GIT_DIFF", diff, { language: "diff" })
-}
+const defaultBranch = await git.defaultBranch()
+const changes = await git.diff({
+    base: defaultBranch,
+})
+console.log(changes)
+
+def("GIT_DIFF", changes, { maxTokens: 20000 })
 
 $`
 ## Role
@@ -47,7 +34,7 @@ You are very helpful at reviewing code and providing constructive feedback.
 
 ## Task
 
-Report ${errors ? `errors` : `errors and warnings`} in ${content} using the annotation format.
+Report ${errors ? `errors` : `errors and warnings`} in GIT_DIFF using the annotation format.
 
 ## Guidance
 

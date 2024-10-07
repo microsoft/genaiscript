@@ -8,12 +8,6 @@ script({
 const defaultBranch = await git.defaultBranch()
 const changes = await git.diff({
     base: defaultBranch,
-    excludedPaths: [
-        ".vscode/*",
-        "**/yarn.lock",
-        "**/genaiscript.d.ts",
-        "*THIRD_PARTY_LICENSES.md",
-    ],
 })
 console.log(changes)
 
