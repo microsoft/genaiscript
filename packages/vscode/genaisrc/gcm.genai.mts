@@ -9,7 +9,6 @@ script({
 // Check for staged changes and stage all changes if none are staged
 const diff = await git.diff({
     staged: true,
-    excludedPaths: "**/genaiscript.d.ts",
     askStageOnEmpty: true,
 })
 if (!diff) cancel("no staged changes")
@@ -30,6 +29,7 @@ git diff --cached
 \`\`\`
 Please generate a concise, one-line commit message for these changes.
 - do NOT add quotes
+- use emojis
 ` // TODO: add a better prompt
         },
         { cache: false, temperature: 0.8 }
