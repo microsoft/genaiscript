@@ -1028,6 +1028,28 @@ interface CSVParseOptions {
     headers?: string[]
 }
 
+interface Tokenizers {
+    /**
+     * Estimates the number of tokens in the content. May not be accurate
+     * @param model
+     * @param text
+     */
+    count(text: string, options?: { model: string }): Promise<number>
+
+    /**
+     * Truncates the text to a given number of tokens, approximation.
+     * @param model
+     * @param text
+     * @param maxTokens
+     * @param options
+     */
+    truncate(
+        text: string,
+        maxTokens: number,
+        options?: { model?: string; last?: boolean }
+    ): Promise<string>
+}
+
 interface Parsers {
     /**
      * Parses text as a JSON5 payload

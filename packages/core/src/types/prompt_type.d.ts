@@ -217,6 +217,11 @@ declare var github: GitHub
 declare var git: Git
 
 /**
+ * Computation around tokens
+ */
+declare var tokenizers: Tokenizers
+
+/**
  * Fetches a given URL and returns the response.
  * @param url
  */

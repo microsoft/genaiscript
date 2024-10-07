@@ -16,10 +16,13 @@ import { readText } from "./fs"
 import { logVerbose } from "./util"
 import { GitHubClient } from "./github"
 import { GitClient } from "./git"
+import { estimateTokens, truncateTextToTokens } from "./tokens"
+import { resolveTokenEncoder } from "./encoders"
+import { runtimeHost } from "./host"
 
 /**
  * This file defines global utilities and installs them into the global context.
- * It includes functions to parse and stringify various data formats, handle errors, 
+ * It includes functions to parse and stringify various data formats, handle errors,
  * and manage GitHub and Git clients. The utilities are frozen to prevent modification.
  */
 
@@ -117,6 +120,22 @@ export function installGlobals() {
 
     // Instantiate Git client
     glb.git = new GitClient()
+
+    glb.tokenizers = Object.freeze<Tokenizers>({
+        count: async (text, options) => {
+            const encoder = await resolveTokenEncoder(
+                options?.model || runtimeHost.defaultModelOptions.model
+            )
+            const c = await estimateTokens(text, encoder)
+            return c
+        },
+        truncate: async (text, maxTokens, options) => {
+            const encoder = await resolveTokenEncoder(
+                options?.model || runtimeHost.defaultModelOptions.model
+            )
+            return await truncateTextToTokens(text, maxTokens, encoder, options)
+        },
+    })
 
     /**
      * Asynchronous function to fetch text from a URL or file.

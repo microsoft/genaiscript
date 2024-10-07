@@ -1041,8 +1041,12 @@ defTool(
         let log = await github.downloadWorkflowJobLog(job_id, {
             llmify: true,
         })
-        if (parsers.tokens(log) > 1000)
-            log = "...(truncated, tool long)...\n" + log.slice(-3000)
+        if ((await tokenizers.count(log)) > 1000) {
+            log = await tokenizers.truncate(log, 1000, { last: true })
+            const annotations = await parsers.annotations(log)
+            if (annotations.length > 0)
+                log += "\n\n" + YAML.stringify(annotations)
+        }
         return log
     }
 )
