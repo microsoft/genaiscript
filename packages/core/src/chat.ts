@@ -188,12 +188,19 @@ async function runToolCalls(
                     return { tool, args: tu.parameters }
                 })
             } else {
-                const tool = tools.find((f) => f.spec.name === call.name)
+                let tool = tools.find((f) => f.spec.name === call.name)
                 if (!tool) {
                     logVerbose(JSON.stringify(call, null, 2))
-                    throw new Error(
+                    logVerbose(
                         `tool ${call.name} not found in ${tools.map((t) => t.spec.name).join(", ")}`
                     )
+                    tool = {
+                        spec: {
+                            name: call.name,
+                            description: "unknown tool",
+                        },
+                        impl: async () => "unknown tool",
+                    }
                 }
                 todos = [{ tool, args: callArgs }]
             }

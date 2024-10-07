@@ -3,7 +3,7 @@ script({
     description: "Review the current pull request",
     system: ["system.annotations"],
     tools: ["fs", "agent_git", "agent_github"],
-    cache: "prv",
+    cache: "prr",
     parameters: {
         errors: {
             type: "boolean",
