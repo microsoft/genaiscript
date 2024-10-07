@@ -37,7 +37,7 @@ if (!transform)
     )
 if (!transform) cancel("transform is missing")
 
-const { files } = await workspace.grep(patternRx, { globs })
+const { files } = await workspace.grep(patternRx, { glob })
 // cached computed transformations
 const patches = {}
 for (const file of files) {
