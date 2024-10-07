@@ -8,13 +8,10 @@ import { MarkdownTrace, TraceOptions } from "./trace"
 import { arrayify, assert, toStringList, trimNewlines } from "./util"
 import { YAMLStringify } from "./yaml"
 import {
-    DEDENT_INSPECT_MAX_DEPTH,
     MARKDOWN_PROMPT_FENCE,
-    MAX_TOKENS_ELLIPSE,
     PROMPT_FENCE,
     TEMPLATE_ARG_DATA_SLICE_SAMPLE,
     TEMPLATE_ARG_FILE_MAX_TOKENS,
-    TOKEN_TRUNCATION_THRESHOLD,
 } from "./constants"
 import { parseModelIdentifier } from "./models"
 import { toChatCompletionUserMessage } from "./chat"
@@ -30,7 +27,6 @@ import { resolveTokenEncoder } from "./encoders"
 import { expandFiles } from "./fs"
 import { interpolateVariables } from "./mustache"
 import { createDiff } from "./diff"
-import { total } from "@tidyjs/tidy"
 
 // Definition of the PromptNode interface which is an essential part of the code structure.
 export interface PromptNode extends ContextExpansionOptions {

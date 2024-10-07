@@ -37,9 +37,9 @@ const { docs, force, assets } = env.vars
 const resolveUrl = (filename: string, url: string) =>
     /^\//.test(url)
         ? path.join(assets, url.slice(1))
-        : /^\.\//.test(url)
-          ? path.join(path.dirname(filename), url.slice(2))
-          : url
+        : /^http?s:\/\//i.test(url)
+          ? url
+          : path.join(path.dirname(filename), url)
 
 /** ------------------------------------------------
  * Collect files
@@ -78,13 +78,11 @@ for (const file of files) {
         const { text, error } = await runPrompt(
             (_) => {
                 _.defImages(resolvedUrl)
-                /**
-                 * TODO: customize the prompt to match your domain
-                 */
                 _.$`
                 You are an expert in assistive technology. 
                 
-                You will analyze each image and generate a description alt text for the image.
+                You will analyze the image 
+                and generate a description alt text for the image.
                 
                 - Do not include alt text in the description.
                 - Keep it short but description.
@@ -95,16 +93,22 @@ for (const file of files) {
                 maxTokens: 4000,
                 temperature: 0.5,
                 cache: "alt-text",
+                label: `altextify ${resolvedUrl}`,
             }
         )
         if (error) throw error
+        else if (!text) console.log(`.. no description generated`)
         else imgs[url] = text.replace(/\[/g, "") // remove [ from alt text
     }
+    console.log(`.. ${Object.keys(imgs).length} image alt text generated`)
     // apply replacements
     const newContent = content.replace(
         rx,
         (m, url) => `![${imgs[url] ?? ""}](${url})`
     )
     // save updated content
-    if (newContent !== content) await workspace.writeText(filename, newContent)
+    if (newContent !== content) {
+        console.log(`.. updating ${filename}`)
+        await workspace.writeText(filename, newContent)
+    }
 }

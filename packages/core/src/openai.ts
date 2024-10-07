@@ -7,7 +7,7 @@ import {
 } from "./constants"
 import { estimateTokens } from "./tokens"
 import { ChatCompletionHandler, LanguageModel, LanguageModelInfo } from "./chat"
-import { RequestError, errorMessage } from "./error"
+import { RequestError, errorMessage, serializeError } from "./error"
 import { createFetch, traceFetchPost } from "./fetch"
 import { parseModelIdentifier } from "./models"
 import { JSON5TryParse } from "./json5"
@@ -102,6 +102,18 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
     }
     let postReq: any = r2
 
+    // stream_options fails in some cases
+    if (model === "gpt-4-turbo-v") delete r2.stream_options
+    if (
+        req.messages.find(
+            (msg) =>
+                msg.role === "user" &&
+                typeof msg.content !== "string" &&
+                msg.content.some((c) => c.type === "image_url")
+        )
+    )
+        delete r2.stream_options // crash on usage computation
+
     let url = ""
     const toolCalls: ChatCompletionToolCall[] = []
 
@@ -180,42 +192,10 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
     let chatResp = ""
     let pref = ""
     let usage: ChatCompletionUsage
+    let error: SerializedError
 
     const decoder = host.createUTF8Decoder()
-    if (r.body.getReader) {
-        const reader = r.body.getReader()
-        while (!cancellationToken?.isCancellationRequested) {
-            const { done, value } = await reader.read()
-            if (done) break
-            doChunk(value)
-        }
-    } else {
-        for await (const value of r.body as any) {
-            if (cancellationToken?.isCancellationRequested) break
-            doChunk(value)
-        }
-    }
-    if (cancellationToken?.isCancellationRequested) finishReason = "cancel"
-
-    trace.appendContent("\n\n")
-    trace.itemValue(`🏁 finish reason`, finishReason)
-    if (usage) {
-        trace.itemValue(
-            `🪙 tokens`,
-            `${usage.total_tokens} total, ${usage.prompt_tokens} prompt, ${usage.completion_tokens} completion`
-        )
-    }
-
-    if (done && finishReason === "stop")
-        await cacheStore.set(
-            cachedKey,
-            { text: chatResp, finishReason },
-            { trace }
-        )
-
-    return { text: chatResp, toolCalls, finishReason, usage }
-
-    function doChunk(value: Uint8Array) {
+    const doChunk = (value: Uint8Array) => {
         // Massage and parse the chunk of data
         let chunk = decoder.decode(value, { stream: true })
 
@@ -278,6 +258,43 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
         }
         pref = chunk
     }
+
+    try {
+        if (r.body.getReader) {
+            const reader = r.body.getReader()
+            while (!cancellationToken?.isCancellationRequested) {
+                const { done, value } = await reader.read()
+                if (done) break
+                doChunk(value)
+            }
+        } else {
+            for await (const value of r.body as any) {
+                if (cancellationToken?.isCancellationRequested) break
+                doChunk(value)
+            }
+        }
+        if (cancellationToken?.isCancellationRequested) finishReason = "cancel"
+    } catch (e) {
+        finishReason = "fail"
+        error = serializeError(e)
+    }
+
+    trace.appendContent("\n\n")
+    trace.itemValue(`🏁 finish reason`, finishReason)
+    if (usage) {
+        trace.itemValue(
+            `🪙 tokens`,
+            `${usage.total_tokens} total, ${usage.prompt_tokens} prompt, ${usage.completion_tokens} completion`
+        )
+    }
+
+    if (done && finishReason === "stop")
+        await cacheStore.set(
+            cachedKey,
+            { text: chatResp, finishReason },
+            { trace }
+        )
+    return { text: chatResp, toolCalls, finishReason, usage, error }
 }
 
 async function listModels(

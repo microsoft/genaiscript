@@ -20,7 +20,7 @@ import { GenerationOptions } from "./generation"
 import { promptParametersSchemaToJSONSchema } from "./parameters"
 import { consoleLogFormat } from "./logging"
 import { isGlobMatch } from "./glob"
-import { arrayify, logVerbose } from "./util"
+import { arrayify, logError, logVerbose } from "./util"
 import { renderShellOutput } from "./chatrender"
 import { jinjaRender } from "./jinja"
 import { mustacheRender } from "./mustache"
@@ -45,7 +45,12 @@ import {
 import { renderAICI } from "./aici"
 import { resolveSystems, resolveTools } from "./systems"
 import { callExpander } from "./expander"
-import { isCancelError, NotSupportedError, serializeError } from "./error"
+import {
+    errorMessage,
+    isCancelError,
+    NotSupportedError,
+    serializeError,
+} from "./error"
 import { resolveLanguageModel } from "./lm"
 import { concurrentLimit } from "./concurrency"
 import { Project } from "./ast"
@@ -518,8 +523,10 @@ export function createChatGenerationContext(
                 chatParticipants = cps
                 messages.push(...msgs)
 
-                if (errors?.length)
+                if (errors?.length) {
+                    logError(errors.map((err) => errorMessage(err)).join("\n"))
                     throw new Error("errors while running prompt")
+                }
             }
 
             const systemMessage: ChatCompletionSystemMessageParam = {

@@ -178,7 +178,8 @@ export async function resolveFileDataUri(
     }
     // Read file from local storage
     else {
-        bytes = new Uint8Array(await host.readFile(filename))
+        const buf = await host.readFile(filename)
+        bytes = new Uint8Array(buf)
     }
 
     const mime = (await fileTypeFromBuffer(bytes))?.mime
