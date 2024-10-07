@@ -35,12 +35,13 @@ export function truncateTextToTokens(
     maxTokens: number,
     encoder: TokenEncoder,
     options?: {
+        last?: boolean
         threshold?: number
     }
 ): string {
     const tokens = estimateTokens(content, encoder)
     if (tokens <= maxTokens) return content
-    const { threshold = TOKEN_TRUNCATION_THRESHOLD } = options || {}
+    const { last, threshold = TOKEN_TRUNCATION_THRESHOLD } = options || {}
 
     let left = 0
     let right = content.length
@@ -48,7 +49,9 @@ export function truncateTextToTokens(
 
     while (Math.abs(left - right) > threshold) {
         const mid = Math.floor((left + right) / 2)
-        const truncated = content.slice(0, mid) + MAX_TOKENS_ELLIPSE
+        const truncated = last
+            ? MAX_TOKENS_ELLIPSE + content.slice(-mid)
+            : content.slice(0, mid) + MAX_TOKENS_ELLIPSE
         const truncatedTokens = estimateTokens(truncated, encoder)
 
         if (truncatedTokens > maxTokens) {
