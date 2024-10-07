@@ -536,6 +536,26 @@ interface WorkspaceFileCache<K, V> {
     values(): Promise<V[]>
 }
 
+interface WorkspaceGrepOptions {
+    /**
+     * List of paths to
+     */
+    path?: ElementOrArray<string>
+    /**
+     * list of filename globs to search. !-prefixed globs are excluded. ** are not supported.
+     */
+    glob?: ElementOrArray<string>
+    /**
+     * Set to false to skip read text content. True by default
+     */
+    readText?: boolean
+}
+
+interface WorkspaceGrepResult {
+    files: WorkspaceFile[]
+    matches: WorkspaceFile[]
+}
+
 interface WorkspaceFileSystem {
     /**
      * Searches for files using the glob pattern and returns a list of files.
@@ -559,14 +579,13 @@ interface WorkspaceFileSystem {
      */
     grep(
         query: string | RegExp,
-        globs: string | string[],
-        options?: {
-            /**
-             * Set to false to skip read text content. True by default
-             */
-            readText?: boolean
-        }
-    ): Promise<{ files: WorkspaceFile[] }>
+        options?: WorkspaceGrepOptions
+    ): Promise<WorkspaceGrepResult>
+    grep(
+        query: string | RegExp,
+        glob: string,
+        options?: Omit<WorkspaceGrepOptions, "path" | "glob">
+    ): Promise<WorkspaceGrepResult>
 
     /**
      * Reads the content of a file as text

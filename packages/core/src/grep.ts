@@ -3,13 +3,20 @@ import { runtimeHost } from "./host"
 import { JSONLTryParse } from "./jsonl"
 import { resolveFileContent } from "./file"
 import { uniq } from "es-toolkit"
+import { addLineNumbers } from "./liner"
+import { arrayify } from "./util"
+import { YAMLStringify } from "./yaml"
 
 export async function grepSearch(
     query: string | RegExp,
-    globs: string[],
-    options?: TraceOptions & { readText?: boolean }
-): Promise<{ files: WorkspaceFile[] }> {
+    options?: TraceOptions & {
+        path?: string[]
+        glob?: string[]
+        readText?: boolean
+    }
+): Promise<{ files: WorkspaceFile[]; matches: WorkspaceFile[] }> {
     const { rgPath } = await import("@lvce-editor/ripgrep")
+    const { path: paths, glob: globs, readText } = options || {}
     const args: string[] = ["--json", "--multiline", "--context", "3"]
     if (typeof query === "string") {
         args.push("--smart-case", query)
@@ -17,13 +24,15 @@ export async function grepSearch(
         if (query.ignoreCase) args.push("--ignore-case")
         args.push(query.source)
     }
-    for (const glob of globs) {
-        args.push("-g")
-        args.push(glob)
-    }
+    if (globs)
+        for (const glob of globs) {
+            args.push("--glob")
+            args.push(glob.replace(/^\*\*\//, ""))
+        }
+    if (paths) args.push(...arrayify(paths))
     const res = await runtimeHost.exec(undefined, rgPath, args, options)
     const resl = JSONLTryParse(res.stdout) as {
-        type: "match"
+        type: "match" | "context" | "begin" | "end"
         data: {
             path: {
                 text: string
@@ -37,7 +46,18 @@ export async function grepSearch(
             .filter(({ type }) => type === "match")
             .map(({ data }) => data.path.text)
     ).map((filename) => <WorkspaceFile>{ filename })
-    if (options?.readText !== false)
+    const matches = resl
+        .filter(({ type }) => type === "match")
+        .map(
+            ({ data }) =>
+                <WorkspaceFile>{
+                    filename: data.path.text,
+                    content: addLineNumbers(data.lines.text.trimEnd(), {
+                        startLine: data.line_number,
+                    }),
+                }
+        )
+    if (readText !== false)
         for (const file of files) await resolveFileContent(file)
-    return { files }
+    return { files, matches }
 }

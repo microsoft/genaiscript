@@ -69,18 +69,35 @@ export async function createPromptContext(
             })
             return res
         },
-        grep: async (query, globs, options) => {
-            // Perform a grep search on specified files
+        grep: async (
+            query,
+            options: string | WorkspaceGrepOptions,
+            options2?: WorkspaceGrepOptions
+        ) => {
+            if (typeof options === "string") {
+                const p = runtimeHost.path
+                    .dirname(options)
+                    .replace(/(^|\/)\*\*$/, "")
+                const g = runtimeHost.path.basename(options)
+                options = <WorkspaceGrepOptions>{
+                    path: p,
+                    glob: g,
+                    ...(options2 || {}),
+                }
+            }
+            const { path, glob, ...rest } = options || {}
             const grepTrace = trace.startTraceDetails(
-                `🌐 grep <code>${HTMLEscape(typeof query === "string" ? query : query.source)}</code>`
+                `🌐 grep ${HTMLEscape(typeof query === "string" ? query : query.source)} ${glob ? `--glob ${glob}` : ""} ${path || ""}`
             )
             try {
-                const { files } = await grepSearch(query, arrayify(globs), {
+                const { files, matches } = await grepSearch(query, {
+                    path: arrayify(path),
+                    glob: arrayify(glob),
+                    ...rest,
                     trace: grepTrace,
-                    ...options,
                 })
-                grepTrace.files(files, { model, secrets: env.secrets })
-                return { files }
+                grepTrace.files(matches, { model, secrets: env.secrets })
+                return { files, matches }
             } finally {
                 grepTrace.endDetails()
             }

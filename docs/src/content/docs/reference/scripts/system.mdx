@@ -96,6 +96,53 @@ $`- You are concise.
 `````
 
 
+### `system.agent_docs`
+
+Agent that perform tasks on the documentation.
+
+
+
+
+
+`````js wrap title="system.agent_docs"
+system({
+    title: "Agent that perform tasks on the documentation.",
+})
+
+const docsRoot = env.vars.docsRoot || "docs"
+const samplesRoot = env.vars.samplesRoot || "packages/sample/genaisrc/"
+
+defAgent(
+    "docs",
+    "query the documentation files",
+    async (ctx) => {
+        ctx.$`Your are a helpfull LLM agent that is an expert at Technical documentation. You can provide the best analyzis to any query about the documentation.
+
+        Analyze QUERY and respond with the requested information.
+
+        ## Tools
+
+        The 'md_find_files' can perform a grep search over the documentation files and return the title, description, and filename for each match.
+        To optimize search, conver the QUERY request into keywords or a regex pattern.
+
+        Try multiple searches if you cannot find relevant files.
+        
+        ## Context
+
+        - the documentation is stored in markdown/MDX files in the ${docsRoot} folder
+        ${samplesRoot ? `- the code samples are stored in the ${samplesRoot} folder` : ""}
+        `
+    },
+    {
+        system: ["system.explanations", "system.github_info"],
+        tools: ["md_find_files", "fs_read_file"],
+        maxTokens: 10000,
+    }
+)
+
+`````
+
+
 ### `system.agent_fs`
 
 Agent that can find, search or read files to accomplish tasks
@@ -616,7 +663,7 @@ defTool(
             `ls ${glob} ${pattern ? `| grep ${pattern}` : ""} ${frontmatter ? "--frontmatter" : ""}`
         )
         const res = pattern
-            ? (await workspace.grep(pattern, glob, { readText: false })).files
+            ? (await workspace.grep(pattern, { glob, readText: false })).files
             : await workspace.findFiles(glob, { readText: false })
         if (!res?.length) return "No files found."
 
@@ -1106,7 +1153,7 @@ system({
 
 const info = await github.info()
 if (info?.owner) {
-    const { auth, owner, repo, baseUrl } = info
+    const { owner, repo, baseUrl } = info
     $`- current github repository: ${owner}/${repo}`
     if (baseUrl) $`- current github base url: ${baseUrl}`
 }
@@ -1443,6 +1490,91 @@ defTool(
         const { expression } = args
         return "" + ((await parsers.math(expression)) ?? "?")
     }
+)
+
+`````
+
+
+### `system.md_find_files`
+
+Tools to help with documentation tasks
+
+
+
+-  tool `md_find_files`: Get the file structure of the documentation markdown/MDX files. Retursn filename, title, description for each match. Use pattern to specify a regular expression to search for in the file content.
+
+`````js wrap title="system.md_find_files"
+system({
+    title: "Tools to help with documentation tasks",
+})
+
+const model = (env.vars.mdSummaryModel = "gpt-4o-mini")
+
+defTool(
+    "md_find_files",
+    "Get the file structure of the documentation markdown/MDX files. Retursn filename, title, description for each match. Use pattern to specify a regular expression to search for in the file content.",
+    {
+        type: "object",
+        properties: {
+            path: {
+                type: "string",
+                description: "root path to search for markdown/MDX files",
+            },
+            pattern: {
+                type: "string",
+                description:
+                    "Optional regular expression pattern to search for in the file content.",
+            },
+        },
+    },
+    async (args) => {
+        const { path, pattern, context } = args
+        context.log(
+            `docs: ls ${path} ${pattern ? `| grep ${pattern}` : ""} --frontmatter`
+        )
+        const matches = pattern
+            ? (await workspace.grep(pattern, { path, readText: true })).files
+            : await workspace.findFiles(path + "/**/*.{md,mdx}", {
+                  readText: true,
+              })
+        if (!matches?.length) return "No files found."
+        const q = await host.promiseQueue(5)
+        const files = await q.mapAll(matches, async ({ filename, content }) => {
+            const file = {
+                filename,
+            }
+            try {
+                const fm = await parsers.frontmatter(content)
+                if (fm) {
+                    file.title = fm.title
+                    file.description = fm.description
+                }
+                const { text: summary } = await runPrompt(
+                    (_) => {
+                        _.def("CONTENT", content, { language: "markdown" })
+                        _.$`As a professional summarizer, create a concise and comprehensive summary of the provided text, be it an article, post, conversation, or passage, while adhering to these guidelines:
+                        * The summary is intended for an LLM, not a human.
+                        * Craft a summary that is detailed, thorough, in-depth, and complex, while maintaining clarity and conciseness.
+                        * Incorporate main ideas and essential information, eliminating extraneous language and focusing on critical aspects.
+                        * Rely strictly on the provided text, without including external information.
+                        * Format the summary in one single paragraph form for easy understanding. Keep it short.
+                        * Generate a list of keywords that are relevant to the text.`
+                    },
+                    {
+                        label: `summarize ${filename}`,
+                        cache: "md_find_files_summary",
+                        model,
+                    }
+                )
+                file.summary = summary
+            } catch (e) {}
+            return file
+        })
+        const res = YAML.stringify(files)
+        context.log(res)
+        return res
+    },
+    { maxTokens: 10000 }
 )
 
 `````

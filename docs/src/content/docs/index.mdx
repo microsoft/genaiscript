@@ -249,7 +249,7 @@ The quick brown fox jumps over the lazy dog.
 Grep or fuzz search [files](/genaiscript/referen/script/files)
 
 ```js wrap
-const { files } = await workspace.grep(/[a-z][a-z0-9]+/, "**/*.md")
+const { files } = await workspace.grep(/[a-z][a-z0-9]+/, { globs: "*.md" })
 ```
 
 </Card>

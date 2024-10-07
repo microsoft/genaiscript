@@ -127,12 +127,13 @@ export interface PromptSchemaNode extends PromptNode {
 }
 
 // Interface for a function node.
-export interface PromptToolNode extends PromptNode, DefToolOptions {
+export interface PromptToolNode extends PromptNode {
     type: "tool"
     name: string // Function name
     description: string // Description of the function
     parameters: JSONSchema // Parameters for the function
     impl: ChatFunctionHandler // Implementation of the function
+    options?: DefToolOptions
 }
 
 // Interface for a file merge node.
@@ -222,7 +223,7 @@ function renderDefNode(def: PromptDefNode): string {
             : PROMPT_FENCE
     const norm = (s: string, lang: string) => {
         s = (s || "").replace(/\n*$/, "")
-        if (s && lineNumbers) s = addLineNumbers(s, lang)
+        if (s && lineNumbers) s = addLineNumbers(s, { language: lang })
         if (s) s += "\n"
         return s
     }
@@ -315,13 +316,13 @@ export function createToolNode(
     assert(!!description)
     assert(parameters !== undefined)
     assert(impl !== undefined)
-    return {
-        ...(options || {}),
+    return <PromptToolNode>{
         type: "tool",
         name,
         description: dedent(description),
         parameters,
         impl,
+        options,
     }
 }
 
@@ -979,9 +980,9 @@ ${trimNewlines(schemaText)}
                 )
         },
         tool: (n) => {
-            const { name, description, parameters, impl: fn } = n
+            const { name, description, parameters, impl: fn, options } = n
             tools.push({
-                spec: { name, description, parameters },
+                spec: { name, description, parameters, ...(options || {}) },
                 impl: fn,
             })
             trace.detailsFenced(

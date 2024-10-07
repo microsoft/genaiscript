@@ -71,6 +71,7 @@ interface PromptLike extends PromptDefinition {
 
 type SystemPromptId = OptionsOrString<
     | "system"
+    | "system.agent_docs"
     | "system.agent_fs"
     | "system.agent_git"
     | "system.agent_github"
@@ -93,6 +94,7 @@ type SystemPromptId = OptionsOrString<
     | "system.github_issues"
     | "system.github_pulls"
     | "system.math"
+    | "system.md_find_files"
     | "system.md_frontmatter"
     | "system.python"
     | "system.python_code_interpreter"
@@ -109,6 +111,7 @@ type SystemPromptId = OptionsOrString<
 >
 
 type SystemToolId = OptionsOrString<
+    | "agent_docs"
     | "agent_fs"
     | "agent_git"
     | "agent_github"
@@ -136,6 +139,7 @@ type SystemToolId = OptionsOrString<
     | "github_pulls_list"
     | "github_pulls_review_comments_list"
     | "math_eval"
+    | "md_find_files"
     | "md_read_frontmatter"
     | "python_code_interpreter_copy_files"
     | "python_code_interpreter_run"
@@ -610,6 +614,26 @@ interface WorkspaceFileCache<K, V> {
     values(): Promise<V[]>
 }
 
+interface WorkspaceGrepOptions {
+    /**
+     * List of paths to
+     */
+    path?: ElementOrArray<string>
+    /**
+     * list of filename globs to search. !-prefixed globs are excluded. ** are not supported.
+     */
+    glob?: ElementOrArray<string>
+    /**
+     * Set to false to skip read text content. True by default
+     */
+    readText?: boolean
+}
+
+interface WorkspaceGrepResult {
+    files: WorkspaceFile[]
+    matches: WorkspaceFile[]
+}
+
 interface WorkspaceFileSystem {
     /**
      * Searches for files using the glob pattern and returns a list of files.
@@ -633,14 +657,13 @@ interface WorkspaceFileSystem {
      */
     grep(
         query: string | RegExp,
-        globs: string | string[],
-        options?: {
-            /**
-             * Set to false to skip read text content. True by default
-             */
-            readText?: boolean
-        }
-    ): Promise<{ files: WorkspaceFile[] }>
+        options?: WorkspaceGrepOptions
+    ): Promise<WorkspaceGrepResult>
+    grep(
+        query: string | RegExp,
+        glob: string,
+        options?: Omit<WorkspaceGrepOptions, "path" | "glob">
+    ): Promise<WorkspaceGrepResult>
 
     /**
      * Reads the content of a file as text

@@ -13,10 +13,14 @@ import { grepSearch } from "../../core/src/grep"
  * @param pattern - The search pattern to match within files.
  * @param files - An array of file paths to search within.
  */
-export async function grep(pattern: string, files: string[]) {
+export async function grep(pattern: string, paths: string[]) {
     // Perform the search using the grepSearch function and await the result
-    const res = await grepSearch(pattern, files)
+    const res = await grepSearch(pattern, { path: paths })
 
     // Output the filenames from the search results, each on a new line
-    console.log(res.files.map((f) => f.filename).join("\n"))
+    console.log(
+        res.matches
+            .map((f) => `${f.filename}: ${f.content.split("\n", 1)[0]}`)
+            .join("\n")
+    )
 }
