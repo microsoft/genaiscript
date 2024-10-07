@@ -19,6 +19,7 @@ $`You are an expert software developer and architect.
 ## Task
 
 - Describe a high level summary of the changes in GIT_DIFF in a way that a software engineer will understand.
+This description will be used as the pull request description.
 
 ## Instructions
 
