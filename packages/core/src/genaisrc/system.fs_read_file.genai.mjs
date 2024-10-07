@@ -51,5 +51,8 @@ defTool(
             content = lines.slice(line_start, line_end).join("\n")
         }
         return content
+    },
+    {
+        maxTokens: 10000,
     }
 )

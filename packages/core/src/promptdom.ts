@@ -982,7 +982,12 @@ ${trimNewlines(schemaText)}
         tool: (n) => {
             const { name, description, parameters, impl: fn, options } = n
             tools.push({
-                spec: { name, description, parameters, ...(options || {}) },
+                spec: {
+                    name,
+                    description,
+                    parameters,
+                    maxTokens: options?.maxTokens,
+                },
                 impl: fn,
             })
             trace.detailsFenced(

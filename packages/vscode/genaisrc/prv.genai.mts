@@ -2,7 +2,7 @@ script({
     title: "Pull Request Reviewer",
     description: "Review the current pull request",
     system: ["system.annotations"],
-    tools: ["fs"],
+    tools: ["fs", "agent_git", "agent_github"],
     cache: "prv",
     parameters: {
         errors: {
