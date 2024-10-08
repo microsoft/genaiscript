@@ -20,3 +20,4 @@ yarn-error.log
 test.sh
 esbuild.*.json
 esbuild.*.html
+extrism/

@@ -1,6 +1,6 @@
 script({
     title: "Runs a extrism sample",
-    system: ["system", "system.explanations", "system.files"],
+    system: ["system", "system.explanations", "system.python", "system.files"],
 })
 
 const samples = path.resolve("eval/extrism/python/exercises/practice")
@@ -42,7 +42,7 @@ defTool(
     async ({ code }) => {
         await workspace.writeText(main, code)
         return await host.exec(
-            `python3.11 -m pytest -o markers=task {${sample}_test.py}`,
+            `python3.11 -m pytest -o markers=task ${sample}_test.py`,
             { cwd }
         )
     }
