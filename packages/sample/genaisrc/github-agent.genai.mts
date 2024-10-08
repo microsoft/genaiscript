@@ -26,7 +26,9 @@ $`
 2. Find the last successful run before the failed run
 3. Compare the run job logs between the failed run and the last successful run
 4. Compare the source code between the failed run commit (head_sha) and the last successful run commit (head_sha)
+    - show a diff of the source code that created the problem if possible
 5. Analyze all the above information and identify the root cause of the failure
+    - generate a patch to fix the problem if possible
 
 In your report, include html links to the relevant runs, commits, pull requests or issues.
 `

@@ -1247,7 +1247,7 @@ The following npm packages may be included in this product:
  - @types/http-cache-semantics@4.0.4
  - @types/mute-stream@0.0.4
  - @types/node@16.9.1
- - @types/node@22.7.4
+ - @types/node@22.7.5
  - @types/turndown@5.0.5
  - @types/yauzl@2.10.3
 
@@ -1309,7 +1309,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.60.2
+ - genaiscript-vscode@1.61.2
 
 This package contains the following license and notice below:
 
@@ -3045,7 +3045,7 @@ The following npm packages may be included in this product:
  - @inquirer/core@9.2.1
  - @inquirer/editor@3.0.1
  - @inquirer/expand@3.0.1
- - @inquirer/figures@1.0.6
+ - @inquirer/figures@1.0.7
  - @inquirer/input@3.0.1
  - @inquirer/number@2.0.1
  - @inquirer/password@3.0.1
@@ -3580,31 +3580,11 @@ IN THE SOFTWARE.
 
 The following npm package may be included in this product:
 
- - buildcheck@0.0.6
-
-This package contains the following license and notice below:
-
-http://github.com/mscdex/buildcheck/raw/master/LICENSE
-
------------
-
-The following npm package may be included in this product:
-
  - ssh2@1.16.0
 
 This package contains the following license and notice below:
 
 http://github.com/mscdex/ssh2/raw/master/LICENSE
-
------------
-
-The following npm package may be included in this product:
-
- - cpu-features@0.0.10
-
-This package contains the following license and notice below:
-
-https://github.com/mscdex/cpu-features/raw/master/LICENSE
 
 -----------
 
@@ -4431,9 +4411,9 @@ The following npm packages may be included in this product:
  - @tokenizer/token@0.3.0
  - agent-base@6.0.2
  - canvas@2.11.2
- - genaiscript-core-internal@1.60.2
- - genaiscript-sample@1.60.2
- - genaiscript@1.60.2
+ - genaiscript-core-internal@1.61.2
+ - genaiscript-sample@1.61.2
+ - genaiscript@1.61.2
  - https-proxy-agent@5.0.1
  - isarray@1.0.0
  - javascript-natural-sort@0.7.1
@@ -5114,7 +5094,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - gpt-tokenizer@2.4.0
+ - gpt-tokenizer@2.4.1
 
 This package contains the following license and notice below:
 
@@ -5145,7 +5125,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - @lvce-editor/ripgrep@1.2.0
+ - @lvce-editor/ripgrep@1.3.0
 
 This package contains the following license and notice below:
 
@@ -5205,7 +5185,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - complex.js@2.2.0
+ - complex.js@2.2.4
 
 This package contains the following license and notice below:
 
@@ -5363,7 +5343,7 @@ SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - @azure/msal-browser@3.25.0
+ - @azure/msal-browser@3.26.0
  - @azure/msal-common@14.15.0
 
 These packages each contain the following license and notice below:
@@ -5854,8 +5834,8 @@ IN THE SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - playwright-core@1.47.2
- - playwright@1.47.2
+ - playwright-core@1.48.0
+ - playwright@1.48.0
 
 These packages each contain the following license and notice below:
 
