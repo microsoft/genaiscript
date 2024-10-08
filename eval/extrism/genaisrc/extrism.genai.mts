@@ -30,7 +30,7 @@ for (const sample of samples) {
     const { files: samplefiles } = JSON.parse(
         await container.readText(path.join(cwd, ".meta/config.json"))
     )
-    const { solution } = samplefiles
+    const { solution, test } = samplefiles
     const filename = path.join(cwd, solution[0])
     let instructions = ""
     for (const introname of [
@@ -45,7 +45,7 @@ for (const sample of samples) {
     }
 
     let generatedCode = ""
-    let testPassed = true
+    let testPassed = false
     const res = await runPrompt(
         (ctx) => {
             ctx.$`
@@ -90,14 +90,13 @@ If the tests passed, stop.
                     console.log(code)
                     await container.writeText(filename, code)
                     const res = await container.exec(
-                        `python3.11 -m pytest -o markers=task ${sample}_test.py`,
+                        `python3.11 -m pytest -o markers=task ${test[0]}`,
                         { cwd }
                     )
                     if (res.exitCode) {
                         console.log(res.stdout || "")
                         console.log(res.stderr || "")
-                    }
-                    testPassed = true
+                    } else testPassed = true
                     return res
                 },
                 { maxTokens: 20000 }
@@ -123,7 +122,7 @@ If the tests passed, stop.
     )
 
     await workspace.writeText(
-        `eval/extrism/results/${sample}.yaml`,
+        `eval/extrism/results/res/${sample}.yaml`,
         YAML.stringify(res)
     )
     if (generatedCode)
