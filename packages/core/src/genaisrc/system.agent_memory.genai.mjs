@@ -1,5 +1,5 @@
 system({
-    title: "agent that retreives memories",
+    title: "agent that retrieves memories",
 })
 
 const cache = await host.cache("memory")
