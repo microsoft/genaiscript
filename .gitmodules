@@ -1,0 +1,3 @@
+[submodule "eval/extrism/python"]
+	path = eval/extrism/python
+	url = https://github.com/exercism/python
