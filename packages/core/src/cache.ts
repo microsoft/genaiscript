@@ -38,10 +38,14 @@ export class MemoryCache<K, V>
      * @param name - The name of the cache
      * @returns An instance of JSONLineCache
      */
-    static byName<K, V>(name: string): MemoryCache<K, V> {
+    static byName<K, V>(
+        name: string,
+        options?: { lookupOnly?: boolean }
+    ): MemoryCache<K, V> {
         name = name.replace(/[^a-z0-9_]/gi, "_") // Sanitize name
         const key = "memorycache." + name
         if (host.userState[key]) return host.userState[key] // Return if exists
+        if (options?.lookupOnly) return undefined
         const r = new MemoryCache<K, V>(name)
         host.userState[key] = r
         return r

@@ -41,7 +41,6 @@ import {
 import { parseModelIdentifier, resolveModelConnectionInfo } from "./models"
 import {
     CHAT_REQUEST_PER_MODEL_CONCURRENT_LIMIT,
-    AGENT_MEMORY_CACHE_NAME,
     MODEL_PROVIDER_AICI,
     SYSTEM_FENCE,
 } from "./constants"
@@ -60,7 +59,7 @@ import { Project } from "./ast"
 import { dedent } from "./indent"
 import { runtimeHost } from "./host"
 import { writeFileEdits } from "./fileedits"
-import { MemoryCache } from "./cache"
+import { agentAddMemory } from "./agent"
 
 export function createChatTurnGenerationContext(
     options: GenerationOptions,
@@ -365,27 +364,15 @@ export function createChatGenerationContext(
                 - Be concise. Minimize output to the most relevant information to save context tokens.
                 `
                         if (memory)
-                            _.defOutputProcessor(async ({ text }) => {
-                                const agentMemory = MemoryCache.byName<
-                                    { agent: string; query: string },
-                                    {
-                                        agent: string
-                                        query: string
-                                        answer: string
-                                    }
-                                >(AGENT_MEMORY_CACHE_NAME)
-                                const cacheKey = { agent: agentName, query }
-                                const cachedValue = {
-                                    ...cacheKey,
-                                    answer: text,
-                                }
-                                await agentMemory.set(cacheKey, cachedValue)
-                                trace.detailsFenced(
-                                    `🧠 memory: ${query}`,
-                                    cachedValue.answer,
-                                    "markdown"
-                                )
-                            })
+                            _.defOutputProcessor(
+                                async ({ text }) =>
+                                    await agentAddMemory(
+                                        agentName,
+                                        query,
+                                        text,
+                                        trace
+                                    )
+                            )
                     },
                     {
                         label: agentLabel,

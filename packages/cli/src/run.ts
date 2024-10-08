@@ -74,6 +74,7 @@ import { prettifyMarkdown } from "../../core/src/markdown"
 import { delay } from "es-toolkit"
 import { GenerationStats } from "../../core/src/usage"
 import { MemoryCache } from "../../core/src/cache"
+import { traceAgentMemory } from "../../core/src/agent"
 
 function parseVars(
     vars: string[],
@@ -337,6 +338,7 @@ export async function runScript(
     }
     if (!isQuiet) logVerbose("") // force new line
 
+    await traceAgentMemory(trace)
     if (outAnnotations && result.annotations?.length) {
         if (isJSONLFilename(outAnnotations))
             await appendJSONL(outAnnotations, result.annotations)
