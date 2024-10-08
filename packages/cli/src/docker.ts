@@ -320,7 +320,11 @@ export class DockerManager {
 
             const readText = async (filename: string, content: string) => {
                 const hostFilename = host.path.resolve(hostPath, filename)
-                return await readFile(hostFilename, { encoding: "utf8" })
+                try {
+                    return await readFile(hostFilename, { encoding: "utf8" })
+                } catch (e) {
+                    return undefined
+                }
             }
 
             const copyTo = async (from: string | string[], to: string) => {

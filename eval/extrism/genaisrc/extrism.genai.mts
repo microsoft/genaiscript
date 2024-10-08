@@ -1,9 +1,10 @@
 script({
+    model: "openai:gpt-4o",
     title: "Runs a extrism sample",
     system: ["system", "system.explanations", "system.python", "system.files"],
 })
 
-const samples = "python/exercises/practice"
+const practiceDir = "python/exercises/practice"
 const { sample = "anagram" } = env.vars
 
 // create container
@@ -23,19 +24,19 @@ await container.exec("pip install pytest --user", { cwd: "python" })
 await container.disconnect()
 
 // generate sample
-const cwd = path.join(samples, sample)
-const instructions = await container.readText(
-    path.join(cwd, ".docs/instructions.md")
+const cwd = path.join(practiceDir, sample)
+const { blurb, files: samplefiles } = JSON.parse(
+    await container.readText(path.join(cwd, ".meta/config.json"))
 )
-console.log(path.join(cwd, ".meta/config.json"))
-const {
-    blurb,
-    testRunner,
-    files: samplefiles,
-} = JSON.parse(await container.readText(path.join(cwd, ".meta/config.json")))
-console.log(`blurb: ${blurb}`)
-const { test, solution, example } = samplefiles
+const { solution } = samplefiles
 const filename = path.join(cwd, solution[0])
+let instructions = ""
+for (const introname of ["introduction", "instructions", "instructions.app"]) {
+    const intro = await container.readText(
+        path.join(cwd, `.docs/${introname}.md`)
+    )
+    if (intro) instructions += intro + "\n\n"
+}
 
 $`
 
@@ -58,12 +59,14 @@ Evaluate the generated code by running the unit tests.
 ## Task 3:
 
 If the tests fail, update the generated code in Task 1 and re-run the tests in Task 1.
-
+If the tests passed, stop.
 `
 
 def("INSTRUCTIONS", instructions, { language: "markdown" })
 def("TEMPLATE", { filename }, { language: "python" })
 
+let generatedCode = ""
+let testPassed = true
 defTool(
     "test_code",
     "Run unit tests against generated solution",
@@ -74,13 +77,24 @@ defTool(
         },
     },
     async ({ code }) => {
+        generatedCode = code
         console.log(code)
         await container.writeText(filename, code)
         const res = await container.exec(
             `python3.11 -m pytest -o markers=task ${sample}_test.py`,
             { cwd }
         )
-        console.log(YAML.stringify(res))
+        if (res.exitCode) {
+            console.log(res.stdout || "")
+            console.log(res.stderr || "")
+        }
+        testPassed = true
         return res
     }
 )
+
+defOutputProcessor(async (res) => {
+    if (!generatedCode) throw new Error("Generated code is missing")
+    if (!testPassed) throw new Error("Unit tests failed")
+    return { text: res.text + "\n\n<VALIDATED>" }
+})
