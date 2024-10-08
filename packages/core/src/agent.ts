@@ -42,7 +42,7 @@ export async function traceAgentMemory(trace: MarkdownTrace) {
         const memories = await cache.values()
         try {
             trace.startDetails("🧠 agent memory")
-            const res = memories
+            memories
                 .reverse()
                 .forEach(({ agent, query, answer }) =>
                     trace.detailsFenced(
