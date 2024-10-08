@@ -23,8 +23,6 @@ import { validateJSONWithSchema } from "./schema"
 import { YAMLParse } from "./yaml"
 import { expandTemplate } from "./expander"
 import { resolveLanguageModel } from "./lm"
-import { Stats } from "fs"
-import { computeFileEdits } from "./fileedits"
 
 // Asynchronously resolve expansion variables needed for a template
 /**
@@ -225,6 +223,9 @@ export async function runTemplate(
             messages,
             functions,
             schemas,
+            fileOutputs,
+            outputProcessors,
+            fileMerges,
             completer,
             chatParticipants,
             genOptions
@@ -239,19 +240,12 @@ export async function runTemplate(
             error,
             finishReason,
             usages,
+            fileEdits,
+            changelogs,
+            edits,
         } = output
         let { text, annotations } = output
 
-        const { fileEdits, changelogs, edits } = await computeFileEdits(
-            output,
-            {
-                trace,
-                fileOutputs,
-                schemas,
-                fileMerges,
-                outputProcessors,
-            }
-        )
         // Reporting and tracing output
         if (fences?.length)
             trace.details("📩 code regions", renderFencedVariables(fences))

@@ -22,11 +22,7 @@ export async function computeFileEdits(
         fileMerges?: FileMergeHandler[]
         outputProcessors?: PromptOutputProcessorHandler[]
     }
-): Promise<{
-    edits: Edits[]
-    fileEdits: Record<string, FileUpdate>
-    changelogs: string[]
-}> {
+): Promise<void> {
     const { trace, fileOutputs, fileMerges, outputProcessors, schemas } =
         options || {}
     const { fences, frames, genVars } = res
@@ -197,7 +193,11 @@ export async function computeFileEdits(
             })
         )
 
-    return { fileEdits, changelogs, edits }
+    res.text = text
+    res.fileEdits = fileEdits
+    res.changelogs = changelogs
+    res.annotations = annotations
+    res.edits = edits
 }
 
 // Validate file outputs against specified schemas and patterns

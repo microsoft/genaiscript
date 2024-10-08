@@ -1,5 +1,5 @@
 script({
-    model: "openai:gpt-3.5-turbo",
+    model: "openai:gpt-4o-mini",
     tests: {},
 })
 
@@ -39,3 +39,28 @@ fence(resPoem.text)
 
 $`Is this JSON? Respond yes or no.`
 fence(resJSON.text)
+
+const { text, fileEdits } = await runPrompt(
+    (_) => {
+        _.$`Create a file named "test.txt" with the following content: "hello world"`
+        _.defOutputProcessor((output) => {
+            console.log(`processing output: ${output.text}`)
+            return { text: output.text + "\n<processed>" }
+        })
+        _.defFileMerge((filename, label, before, after) => {
+            console.log({ filename, label, before, after })
+            if (path.basename(filename) !== "test.txt")
+                throw new Error("wrong file name")
+            return after + "\n<merged>"
+        })
+    },
+    { applyEdits: true, label: "outputs", system: ["system", "system.files"] }
+)
+console.log(text)
+console.log(YAML.stringify(fileEdits))
+if (!fileEdits?.["test.txt"]?.after?.includes("hello world"))
+    throw new Error("File not created")
+if (!text.includes("<processed>"))
+    throw new Error("output processor did not run")
+if (!fileEdits?.["test.txt"]?.after?.includes("<merged>"))
+    throw new Error("file merge did not run")

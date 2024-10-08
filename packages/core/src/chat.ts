@@ -47,6 +47,7 @@ import { fenceMD, prettifyMarkdown } from "./markdown"
 import { YAMLStringify } from "./yaml"
 import { resolveTokenEncoder } from "./encoders"
 import { estimateTokens, truncateTextToTokens } from "./tokens"
+import { computeFileEdits } from "./fileedits"
 
 export function toChatCompletionUserMessage(
     expanded: string,
@@ -401,16 +402,19 @@ function assistantText(
     return text
 }
 
-function structurifyChatSession(
+async function structurifyChatSession(
     messages: ChatCompletionMessageParam[],
     schemas: Record<string, JSONSchema>,
     genVars: Record<string, string>,
+    fileOutputs: FileOutput[],
+    outputProcessors: PromptOutputProcessorHandler[],
+    fileMerges: FileMergeHandler[],
     options: GenerationOptions,
     others?: {
         resp?: ChatCompletionResponse
         err?: any
     }
-): RunPromptResult {
+): Promise<RunPromptResult> {
     const { trace, responseType, responseSchema } = options
     const { resp, err } = others || {}
     const text = assistantText(messages, responseType)
@@ -458,7 +462,7 @@ function structurifyChatSession(
     if (fences?.length)
         frames.push(...validateFencesWithSchema(fences, schemas, { trace }))
 
-    return {
+    const res = <RunPromptResult>{
         text,
         annotations,
         finishReason,
@@ -469,6 +473,14 @@ function structurifyChatSession(
         genVars,
         schemas,
     }
+    await computeFileEdits(res, {
+        trace,
+        schemas,
+        fileOutputs,
+        fileMerges,
+        outputProcessors,
+    })
+    return res
 }
 
 async function processChatMessage(
@@ -479,6 +491,9 @@ async function processChatMessage(
     chatParticipants: ChatParticipant[],
     schemas: Record<string, JSONSchema>,
     genVars: Record<string, string>,
+    fileOutputs: FileOutput[],
+    outputProcessors: PromptOutputProcessorHandler[],
+    fileMerges: FileMergeHandler[],
     options: GenerationOptions
 ): Promise<RunPromptResult> {
     const {
@@ -554,9 +569,18 @@ async function processChatMessage(
         if (needsNewTurn) return undefined
     }
 
-    return structurifyChatSession(messages, schemas, genVars, options, {
-        resp,
-    })
+    return structurifyChatSession(
+        messages,
+        schemas,
+        genVars,
+        fileOutputs,
+        outputProcessors,
+        fileMerges,
+        options,
+        {
+            resp,
+        }
+    )
 }
 
 export function mergeGenerationOptions(
@@ -585,6 +609,9 @@ export async function executeChatSession(
     messages: ChatCompletionMessageParam[],
     toolDefinitions: ToolCallback[],
     schemas: Record<string, JSONSchema>,
+    fileOutputs: FileOutput[],
+    outputProcessors: PromptOutputProcessorHandler[],
+    fileMerges: FileMergeHandler[],
     completer: ChatCompletionHandler,
     chatParticipants: ChatParticipant[],
     genOptions: GenerationOptions
@@ -683,6 +710,9 @@ export async function executeChatSession(
                     chatParticipants,
                     schemas,
                     genVars,
+                    fileOutputs,
+                    outputProcessors,
+                    fileMerges,
                     genOptions
                 )
                 if (output) return output
@@ -691,6 +721,9 @@ export async function executeChatSession(
                     messages,
                     schemas,
                     genVars,
+                    fileOutputs,
+                    outputProcessors,
+                    fileMerges,
                     genOptions,
                     { resp, err }
                 )

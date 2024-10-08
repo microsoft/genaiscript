@@ -922,6 +922,9 @@ interface RunPromptResult {
         | "cancel"
         | "fail"
     usages?: ChatCompletionUsages
+    fileEdits?: Record<string, FileUpdate>
+    edits?: Edits[]
+    changelogs?: ChangeLog[]
 }
 
 /**

@@ -14,6 +14,8 @@ import {
     createStringTemplateNode,
     createTextNode,
     renderPromptNode,
+    createOutputProcessor,
+    createFileMerge,
 } from "./promptdom"
 import { MarkdownTrace } from "./trace"
 import { GenerationOptions } from "./generation"
@@ -56,7 +58,7 @@ import { concurrentLimit } from "./concurrency"
 import { Project } from "./ast"
 import { dedent } from "./indent"
 import { runtimeHost } from "./host"
-import { computeFileEdits, writeFileEdits } from "./fileedits"
+import { writeFileEdits } from "./fileedits"
 
 export function createChatTurnGenerationContext(
     options: GenerationOptions,
@@ -242,6 +244,11 @@ export function createChatGenerationContext(
     const { prj, env } = projectOptions
     const turnCtx = createChatTurnGenerationContext(options, trace)
     const node = turnCtx.node
+
+    // Default output processor for the prompt
+    const defOutputProcessor = (fn: PromptOutputProcessorHandler) => {
+        if (fn) appendChild(node, createOutputProcessor(fn))
+    }
 
     const defTool: (
         name:
@@ -634,20 +641,16 @@ export function createChatGenerationContext(
                     messages,
                     tools,
                     schemas,
+                    fileOutputs,
+                    outputProcessors,
+                    fileMerges,
                     completer,
                     chatParticipants,
                     genOptions
                 )
             )
             tracePromptResult(runTrace, resp)
-
-            const { fileEdits } = await computeFileEdits(resp, {
-                trace,
-                schemas,
-                fileOutputs,
-                fileMerges,
-                outputProcessors,
-            })
+            const { fileEdits } = resp
             if (fileEdits?.length && applyEdits)
                 await writeFileEdits(fileEdits, { trace })
             return resp
@@ -663,6 +666,10 @@ export function createChatGenerationContext(
         }
     }
 
+    const defFileMerge = (fn: FileMergeHandler) => {
+        appendChild(node, createFileMerge(fn))
+    }
+
     const ctx = <RunPromptContextNode>{
         ...turnCtx,
         defAgent,
@@ -671,6 +678,8 @@ export function createChatGenerationContext(
         defImages,
         defChatParticipant,
         defFileOutput,
+        defOutputProcessor,
+        defFileMerge,
         prompt,
         runPrompt,
     }

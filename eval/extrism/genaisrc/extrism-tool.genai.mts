@@ -1,11 +1,9 @@
 script({
     model: "openai:gpt-4o",
     title: "Runs a extrism sample",
-    system: ["system", "system.explanations", "system.python", "system.files"],
 })
 
 const practiceDir = "python/exercises/practice"
-const { sample = "anagram" } = env.vars
 
 // create container
 const container = await host.container({
@@ -23,22 +21,32 @@ await container.exec("pip install -r requirements.txt --user", {
 await container.exec("pip install pytest --user", { cwd: "python" })
 await container.disconnect()
 
-// generate sample
-const cwd = path.join(practiceDir, sample)
-const { files: samplefiles } = JSON.parse(
-    await container.readText(path.join(cwd, ".meta/config.json"))
-)
-const { solution } = samplefiles
-const filename = path.join(cwd, solution[0])
-let instructions = ""
-for (const introname of ["introduction", "instructions", "instructions.app"]) {
-    const intro = await container.readText(
-        path.join(cwd, `.docs/${introname}.md`)
+const samples = (await container.exec("ls -1", { cwd: practiceDir })).stdout
+    .trim()
+    .split(/\n/g)
+for (const sample of samples) {
+    const cwd = path.join(practiceDir, sample)
+    console.log(cwd)
+    const { files: samplefiles } = JSON.parse(
+        await container.readText(path.join(cwd, ".meta/config.json"))
     )
-    if (intro) instructions += intro + "\n\n"
-}
+    const { solution } = samplefiles
+    const filename = path.join(cwd, solution[0])
+    let instructions = ""
+    for (const introname of [
+        "introduction",
+        "instructions",
+        "instructions.app",
+    ]) {
+        const intro = await container.readText(
+            path.join(cwd, `.docs/${introname}.md`)
+        )
+        if (intro) instructions += intro + "\n\n"
+    }
 
-$`
+    await runPrompt(
+        (ctx) => {
+            ctx.$`
 
 ## Task 1:
 
@@ -62,39 +70,53 @@ If the tests fail, update the generated code in Task 1 and re-run the tests in T
 If the tests passed, stop.
 `
 
-def("INSTRUCTIONS", instructions, { language: "markdown" })
-def("TEMPLATE", { filename }, { language: "python" })
+            ctx.def("INSTRUCTIONS", instructions, { language: "markdown" })
+            ctx.def("TEMPLATE", { filename }, { language: "python" })
 
-let generatedCode = ""
-let testPassed = true
-defTool(
-    "test_code",
-    "Run unit tests against generated solution",
-    {
-        code: {
-            type: "string",
-            description: "Generated Python code to solve the problem",
+            let generatedCode = ""
+            let testPassed = true
+            ctx.defTool(
+                "test_code",
+                "Run unit tests against generated solution",
+                {
+                    code: {
+                        type: "string",
+                        description:
+                            "Generated Python code to solve the problem",
+                    },
+                },
+                async ({ code }) => {
+                    generatedCode = code
+                    console.log(code)
+                    await container.writeText(filename, code)
+                    const res = await container.exec(
+                        `python3.11 -m pytest -o markers=task ${sample}_test.py`,
+                        { cwd }
+                    )
+                    if (res.exitCode) {
+                        console.log(res.stdout || "")
+                        console.log(res.stderr || "")
+                    }
+                    testPassed = true
+                    return res
+                }
+            )
+
+            ctx.defOutputProcessor(async (res) => {
+                if (!generatedCode) throw new Error("Generated code is missing")
+                if (!testPassed) throw new Error("Unit tests failed")
+                return { text: res.text + "\n\n<VALIDATED>" }
+            })
         },
-    },
-    async ({ code }) => {
-        generatedCode = code
-        console.log(code)
-        await container.writeText(filename, code)
-        const res = await container.exec(
-            `python3.11 -m pytest -o markers=task ${sample}_test.py`,
-            { cwd }
-        )
-        if (res.exitCode) {
-            console.log(res.stdout || "")
-            console.log(res.stderr || "")
+        {
+            label: sample,
+            applyEdits: true,
+            system: [
+                "system",
+                "system.explanations",
+                "system.python",
+                "system.files",
+            ],
         }
-        testPassed = true
-        return res
-    }
-)
-
-defOutputProcessor(async (res) => {
-    if (!generatedCode) throw new Error("Generated code is missing")
-    if (!testPassed) throw new Error("Unit tests failed")
-    return { text: res.text + "\n\n<VALIDATED>" }
-})
+    )
+}
