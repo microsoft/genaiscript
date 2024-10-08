@@ -14,6 +14,11 @@ defAgent(
     `,
     {
         model,
-        system: ["system.git_info", "system.github_info", "system.git"],
+        system: [
+            "system.git_info",
+            "system.github_info",
+            "system.git",
+            "system.git_diff",
+        ],
     }
 )

@@ -22,7 +22,7 @@ if (failure_run_id) {
 2. Find the last successful run before the failed run`
 }
 $`3. Compare the run job logs between the failed run and the last successful run
-4. Compare the source code between the failed run commit (head_sha) and the last successful run commit (head_sha)
+4. git diff the failed run commit (head_sha) and the last successful run commit
     - show a diff of the source code that created the problem if possible
 5. Analyze all the above information and identify the root cause of the failure
     - generate a patch to fix the problem if possible
