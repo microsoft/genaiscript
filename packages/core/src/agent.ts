@@ -56,3 +56,27 @@ export async function traceAgentMemory(trace: MarkdownTrace) {
         }
     }
 }
+
+export async function defMemory(ctx: ChatTurnGenerationContext) {
+    const cache = MemoryCache.byName<
+        { agent: string; query: string },
+        {
+            agent: string
+            query: string
+            answer: string
+        }
+    >(AGENT_MEMORY_CACHE_NAME)
+    const memories = await cache.values()
+    memories.reverse().forEach(
+        ({ agent, query, answer }) =>
+            ctx.def(
+                "MEMORY",
+                `${agent}> ${query}?
+            ${answer}
+            `
+            ),
+        {
+            flex: 1,
+        }
+    )
+}

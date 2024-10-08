@@ -59,7 +59,7 @@ import { Project } from "./ast"
 import { dedent } from "./indent"
 import { runtimeHost } from "./host"
 import { writeFileEdits } from "./fileedits"
-import { agentAddMemory } from "./agent"
+import { agentAddMemory, defMemory } from "./agent"
 
 export function createChatTurnGenerationContext(
     options: GenerationOptions,
@@ -352,17 +352,42 @@ export function createChatGenerationContext(
             async (args) => {
                 const { context, query } = args
                 context.log(`${agentLabel}: ${query}`)
+
+                let memoryAnswer: string
+                if (memory) {
+                    // always pre-query memory with cheap model
+                    const res = await runPrompt(
+                        async (_) => {
+                            _.$`Answer QUERY using information from MEMORY.
+                            - If you are missing information, return empty output.
+                            - Use QUERY as the only source of information.
+                            - Be concise. The output is used by another LLM.`
+                            _.def("QUERY", query)
+                            await defMemory(_)
+                        },
+                        {
+                            model: "openai:gpt-4o-mini",
+                            system: ["system"],
+                            flexTokens: 20000,
+                            label: "memory query",
+                        }
+                    )
+                    memoryAnswer = res.text
+                }
+
                 const res = await runPrompt(
                     async (_) => {
-                        _.def("QUERY", query)
                         if (typeof fn === "string") _.writeText(dedent(fn))
                         else await fn(_, args)
                         _.$`- Assume that your answer will be analyzed by an LLM, not a human.
                 ${memory ? `- If you are missing information, try querying the memory using 'agent_memory'.` : ""}                        
                 - If you are missing information, reply "MISSING_INFO: <what is missing>".
                 - If you cannot answer the query, return "NO_ANSWER: <reason>".
-                - Be concise. Minimize output to the most relevant information to save context tokens.
-                `
+                - Be concise. Minimize output to the most relevant information to save context tokens.`
+                        if (memoryAnswer)
+                            _.$`- The query applied to the agent memory is in MEMORY_ANSWER.`
+                        _.def("QUERY", query)
+                        if (memoryAnswer) _.def("MEMORY_QUERY", memoryAnswer)
                         if (memory)
                             _.defOutputProcessor(
                                 async ({ text }) =>
