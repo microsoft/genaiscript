@@ -45,7 +45,9 @@ export class DockerManager {
             const c = await this._docker.getContainer(container.id)
             try {
                 await c.stop()
-            } catch {}
+            } catch (e) {
+                logVerbose(e)
+            }
             try {
                 await c.remove()
             } catch (e) {
