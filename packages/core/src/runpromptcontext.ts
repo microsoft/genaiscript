@@ -251,8 +251,8 @@ export function createChatGenerationContext(
         description: string,
         parameters: PromptParametersSchema | JSONSchemaObject,
         fn: ChatFunctionHandler,
-        options?: DefToolOptions
-    ) => void = (name, description, parameters, fn) => {
+        defOptions?: DefToolOptions
+    ) => void = (name, description, parameters, fn, defOptions) => {
         if (name === undefined || name === null)
             throw new Error("tool name is missing")
 
@@ -261,7 +261,13 @@ export function createChatGenerationContext(
                 promptParametersSchemaToJSONSchema(parameters)
             appendChild(
                 node,
-                createToolNode(name, description, parameterSchema, fn, options)
+                createToolNode(
+                    name,
+                    description,
+                    parameterSchema,
+                    fn,
+                    defOptions
+                )
             )
         } else if ((name as ToolCallback | AgenticToolCallback).impl) {
             const tool = name as ToolCallback | AgenticToolCallback
@@ -272,7 +278,7 @@ export function createChatGenerationContext(
                     tool.spec.description,
                     tool.spec.parameters as any,
                     tool.impl,
-                    options
+                    defOptions
                 )
             )
         } else if ((name as AgenticToolProviderCallback).functions) {
@@ -285,7 +291,7 @@ export function createChatGenerationContext(
                         tool.spec.description,
                         tool.spec.parameters as any,
                         tool.impl,
-                        options
+                        defOptions
                     )
                 )
         }

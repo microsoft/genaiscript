@@ -9,7 +9,7 @@ $`You are an expert software developer and architect.
 
 ## Task
 
-1. Compute the code different between the current branch and the default branch in this repository.
+1. Compute the code difference between the current branch and the default branch in this repository (use git diff).
 2. Describe a high level summary of the code changes.
 
 ## Instructions

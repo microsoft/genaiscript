@@ -415,7 +415,7 @@ interface WorkspaceFileWithScore extends WorkspaceFile {
     score?: number
 }
 
-interface ToolDefinition extends DefToolOptions {
+interface ToolDefinition {
     /**
      * The name of the function to be called. Must be a-z, A-Z, 0-9, or contain
      * underscores and dashes, with a maximum length of 64.
@@ -646,6 +646,7 @@ interface ToolCallContext {
 
 interface ToolCallback {
     spec: ToolDefinition
+    options?: DefToolOptions
     impl: (
         args: { context: ToolCallContext } & Record<string, any>
     ) => Awaitable<ToolCallOutput>

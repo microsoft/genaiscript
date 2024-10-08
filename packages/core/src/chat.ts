@@ -210,7 +210,7 @@ async function runToolCalls(
                 const { tool, args } = todo
                 const {
                     maxTokens: maxToolContentTokens = MAX_TOOL_CONTENT_TOKENS,
-                } = tool.spec
+                } = tool.options || {}
                 const context: ToolCallContext = {
                     log: (txt: string) => {
                         logVerbose(txt)

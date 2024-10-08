@@ -982,9 +982,9 @@ ${trimNewlines(schemaText)}
                     name,
                     description,
                     parameters,
-                    maxTokens: options?.maxTokens,
                 },
                 impl: fn,
+                options,
             })
             trace.detailsFenced(
                 `🛠️ tool ${name}`,
