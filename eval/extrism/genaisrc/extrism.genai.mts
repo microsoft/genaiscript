@@ -3,6 +3,7 @@ script({
     title: "Runs a extrism sample",
 })
 
+const results = `eval/extrism/results/${new Date().toISOString().replace(/:/g, "-")}`
 const practiceDir = "python/exercises/practice"
 
 // create container
@@ -21,10 +22,11 @@ await container.exec("pip install -r requirements.txt --user", {
 await container.exec("pip install pytest --user", { cwd: "python" })
 await container.disconnect()
 
+const q = host.promiseQueue(5)
 const samples = (await container.exec("ls -1", { cwd: practiceDir })).stdout
     .trim()
     .split(/\n/g)
-for (const sample of samples) {
+await q.mapAll(samples, async (sample) => {
     const cwd = path.join(practiceDir, sample)
     console.log(cwd)
     const { files: samplefiles } = JSON.parse(
@@ -59,7 +61,6 @@ Analyze INSTRUCTIONS and generate Python code that the requirements.
 You mush NOT change the function signature. Implement the functions.
 - do NOT generate unit tests.
 - you can only use built-in python libraries. pip packages are not allowed.
-- add comments to explain the generated code
 
 ## Task 2:
 
@@ -102,12 +103,6 @@ If the tests passed, stop.
                 },
                 { maxTokens: 20000 }
             )
-
-            ctx.defOutputProcessor(async (res) => {
-                if (!generatedCode) throw new Error("Generated code is missing")
-                if (!testPassed) throw new Error("Unit tests failed")
-                return { text: res.text + "\n\n<VALIDATED>" }
-            })
         },
         {
             label: sample,
@@ -123,12 +118,12 @@ If the tests passed, stop.
     )
 
     await workspace.writeText(
-        `eval/extrism/results/res/${sample}.yaml`,
+        `${results}/res/${sample}.yaml`,
         YAML.stringify(res)
     )
     if (generatedCode)
         await workspace.writeText(
-            `eval/extrism/results/${testPassed ? "success" : "failed"}/${solution[0]}`,
+            `${results}/${testPassed ? "success" : "failed"}/${solution[0]}`,
             generatedCode
         )
-}
+})
