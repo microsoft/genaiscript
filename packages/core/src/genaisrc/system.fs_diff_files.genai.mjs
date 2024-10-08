@@ -5,7 +5,7 @@ system({
 
 defTool(
     "fs_diff_files",
-    "Computes a diff between two files.",
+    "Computes a diff between two different files. Use git diff instead to compare versions of a file.",
     {
         type: "object",
         properties: {
