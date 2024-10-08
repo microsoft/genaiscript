@@ -3,7 +3,7 @@ https://www.npmjs.com/package/generate-license-file
 
 The following npm package may be included in this product:
 
- - pdfjs-dist@4.6.82
+ - pdfjs-dist@4.7.76
 
 This package contains the following license and notice below:
 
@@ -1245,7 +1245,6 @@ Apache License
 The following npm packages may be included in this product:
 
  - @types/http-cache-semantics@4.0.4
- - @types/mute-stream@0.0.4
  - @types/node@16.9.1
  - @types/node@22.7.5
  - @types/turndown@5.0.5
@@ -1256,36 +1255,6 @@ These packages each contain the following license and notice below:
 MIT License
 
     Copyright (c) Microsoft Corporation.
-
-    Permission is hereby granted, free of charge, to any person obtaining a copy
-    of this software and associated documentation files (the "Software"), to deal
-    in the Software without restriction, including without limitation the rights
-    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-    copies of the Software, and to permit persons to whom the Software is
-    furnished to do so, subject to the following conditions:
-
-    The above copyright notice and this permission notice shall be included in all
-    copies or substantial portions of the Software.
-
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-    SOFTWARE
-
------------
-
-The following npm package may be included in this product:
-
- - @types/wrap-ansi@3.0.0
-
-This package contains the following license and notice below:
-
-MIT License
-
-    Copyright (c) Microsoft Corporation. All rights reserved.
 
     Permission is hereby granted, free of charge, to any person obtaining a copy
     of this software and associated documentation files (the "Software"), to deal
@@ -2070,7 +2039,7 @@ Apache License
 
 The following npm package may be included in this product:
 
- - typescript@5.6.2
+ - typescript@5.6.3
 
 This package contains the following license and notice below:
 
@@ -3040,20 +3009,20 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - @inquirer/checkbox@3.0.1
- - @inquirer/confirm@4.0.1
- - @inquirer/core@9.2.1
- - @inquirer/editor@3.0.1
- - @inquirer/expand@3.0.1
+ - @inquirer/checkbox@4.0.0
+ - @inquirer/confirm@5.0.0
+ - @inquirer/core@10.0.0
+ - @inquirer/editor@4.0.0
+ - @inquirer/expand@4.0.0
  - @inquirer/figures@1.0.7
- - @inquirer/input@3.0.1
- - @inquirer/number@2.0.1
- - @inquirer/password@3.0.1
- - @inquirer/prompts@6.0.1
- - @inquirer/rawlist@3.0.1
- - @inquirer/search@2.0.1
- - @inquirer/select@3.0.1
- - @inquirer/type@2.0.0
+ - @inquirer/input@4.0.0
+ - @inquirer/number@3.0.0
+ - @inquirer/password@4.0.0
+ - @inquirer/prompts@7.0.0
+ - @inquirer/rawlist@4.0.0
+ - @inquirer/search@3.0.0
+ - @inquirer/select@4.0.0
+ - @inquirer/type@3.0.0
 
 These packages each contain the following license and notice below:
 
@@ -5363,7 +5332,7 @@ SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - @azure/msal-browser@3.26.0
+ - @azure/msal-browser@3.26.1
  - @azure/msal-common@14.15.0
 
 These packages each contain the following license and notice below:
@@ -6228,7 +6197,7 @@ The following npm packages may be included in this product:
  - fs-minipass@2.1.0
  - isexe@2.0.0
  - minimatch@3.1.2
- - mute-stream@1.0.0
+ - mute-stream@2.0.0
  - nopt@5.0.0
  - npmlog@5.0.1
  - once@1.4.0
