@@ -41,6 +41,7 @@ export class DockerManager {
         for (const container of this.containers.filter(
             (c) => !c.disablePurge
         )) {
+            logVerbose(`container: removing ${container.hostPath}`)
             const c = await this._docker.getContainer(container.id)
             try {
                 await c.stop()
@@ -48,9 +49,13 @@ export class DockerManager {
             try {
                 await c.remove()
             } catch (e) {
-                logError(e)
+                logVerbose(e)
             }
-            await remove(container.hostPath)
+            try {
+                await remove(container.hostPath)
+            } catch (e) {
+                logVerbose(e)
+            }
         }
         this.containers = []
     }
@@ -205,9 +210,25 @@ export class DockerManager {
 
             const exec = async (
                 command: string,
-                args?: string[],
+                args?: string[] | ShellOptions,
                 options?: ShellOptions
             ): Promise<ShellOutput> => {
+                // Parse the command and arguments if necessary
+                if (!Array.isArray(args) && typeof args === "object") {
+                    // exec("cmd arg arg", {...})
+                    if (options !== undefined)
+                        throw new Error("Options must be the second argument")
+                    options = args as ShellOptions
+                    const parsed = shellParse(command)
+                    command = parsed[0]
+                    args = parsed.slice(1)
+                } else if (args === undefined) {
+                    // exec("cmd arg arg")
+                    const parsed = shellParse(command)
+                    command = parsed[0]
+                    args = parsed.slice(1)
+                }
+
                 const { cwd: userCwd, label } = options || {}
                 const cwd = userCwd
                     ? host.path.join(containerPath, userCwd)
@@ -218,7 +239,7 @@ export class DockerManager {
                     )
                     trace?.itemValue(`container`, container.id)
                     trace?.itemValue(`cwd`, cwd)
-                    trace?.fence(`${command} ${args.join(" ")}`, "sh")
+                    trace?.fence(`${command} ${shellQuote(args || [])}`, "sh")
                     if (!isQuiet)
                         logVerbose(
                             `container exec: ${shellQuote([command, ...args])}`
@@ -341,9 +362,7 @@ export class DockerManager {
                 disconnect,
             }
             this.containers.push(c)
-            const res = await container.start()
-            console.log(res)
-
+            await container.start()
             const st = await container.inspect()
             if (st.State?.Status !== "running") {
                 logVerbose(`container: start failed`)

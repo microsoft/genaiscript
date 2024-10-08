@@ -99,6 +99,7 @@ type SystemPromptId = OptionsOrString<
     | "system.md_frontmatter"
     | "system.python"
     | "system.python_code_interpreter"
+    | "system.python-types"
     | "system.retrieval_fuzz_search"
     | "system.retrieval_vector_search"
     | "system.retrieval_web_search"
