@@ -59,6 +59,7 @@ Analyze INSTRUCTIONS and generate Python code that the requirements.
 You mush NOT change the function signature. Implement the functions.
 - do NOT generate unit tests.
 - you can only use built-in python libraries. pip packages are not allowed.
+- add comments to explain the generated code
 
 ## Task 2:
 
