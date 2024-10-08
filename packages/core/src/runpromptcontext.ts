@@ -41,6 +41,7 @@ import {
 import { parseModelIdentifier, resolveModelConnectionInfo } from "./models"
 import {
     CHAT_REQUEST_PER_MODEL_CONCURRENT_LIMIT,
+    AGENT_MEMORY_CACHE_NAME,
     MODEL_PROVIDER_AICI,
     SYSTEM_FENCE,
 } from "./constants"
@@ -59,6 +60,7 @@ import { Project } from "./ast"
 import { dedent } from "./indent"
 import { runtimeHost } from "./host"
 import { writeFileEdits } from "./fileedits"
+import { MemoryCache } from "./cache"
 
 export function createChatTurnGenerationContext(
     options: GenerationOptions,
@@ -313,7 +315,8 @@ export function createChatGenerationContext(
         ) => Promise<void>,
         options?: DefAgentOptions
     ): void => {
-        const { tools, system, ...rest } = options || {}
+        const { tools, system, disableMemory, ...rest } = options || {}
+        const memory = !disableMemory
 
         name = name.replace(/^agent_/i, "")
         const agentName = `agent_${name}`
@@ -327,7 +330,9 @@ export function createChatGenerationContext(
         const agentTools = resolveTools(
             runtimeHost.project,
             agentSystem,
-            arrayify(tools)
+            [...arrayify(tools), memory ? "agent_memory" : undefined].filter(
+                (t) => !!t
+            )
         )
         const agentDescription = dedent`Agent that uses an LLM to ${description}.\nAvailable tools: 
         ${agentTools.map((t) => `- ${t.description}`).join("\n")}` // DO NOT LEAK TOOL ID HERE
@@ -347,17 +352,40 @@ export function createChatGenerationContext(
             },
             async (args) => {
                 const { context, query } = args
-                logVerbose(`${agentLabel}: ${query}`)
+                context.log(`${agentLabel}: ${query}`)
                 const res = await runPrompt(
                     async (_) => {
                         _.def("QUERY", query)
                         if (typeof fn === "string") _.writeText(dedent(fn))
                         else await fn(_, args)
                         _.$`- Assume that your answer will be analyzed by an LLM, not a human.
+                ${memory ? `- If you are missing information, try querying the memory using 'agent_memory'.` : ""}                        
                 - If you are missing information, reply "MISSING_INFO: <what is missing>".
                 - If you cannot answer the query, return "NO_ANSWER: <reason>".
                 - Be concise. Minimize output to the most relevant information to save context tokens.
                 `
+                        if (memory)
+                            _.defOutputProcessor(async ({ text }) => {
+                                const agentMemory = MemoryCache.byName<
+                                    { agent: string; query: string },
+                                    {
+                                        agent: string
+                                        query: string
+                                        answer: string
+                                    }
+                                >(AGENT_MEMORY_CACHE_NAME)
+                                const cacheKey = { agent: agentName, query }
+                                const cachedValue = {
+                                    ...cacheKey,
+                                    answer: text,
+                                }
+                                await agentMemory.set(cacheKey, cachedValue)
+                                trace.detailsFenced(
+                                    `🧠 memory: ${query}`,
+                                    cachedValue.answer,
+                                    "markdown"
+                                )
+                            })
                     },
                     {
                         label: agentLabel,

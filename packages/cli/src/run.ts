@@ -33,6 +33,7 @@ import {
     DOCS_CONFIGURATION_URL,
     TRACE_DETAILS,
     CLI_ENV_VAR_RX,
+    AGENT_MEMORY_CACHE_NAME,
 } from "../../core/src/constants"
 import { isCancelError, errorMessage } from "../../core/src/error"
 import { Fragment, GenerationResult } from "../../core/src/generation"
@@ -72,6 +73,7 @@ import { writeFileSync } from "node:fs"
 import { prettifyMarkdown } from "../../core/src/markdown"
 import { delay } from "es-toolkit"
 import { GenerationStats } from "../../core/src/usage"
+import { MemoryCache } from "../../core/src/cache"
 
 function parseVars(
     vars: string[],
@@ -334,6 +336,7 @@ export async function runScript(
         return fail("runtime error", RUNTIME_ERROR_CODE)
     }
     if (!isQuiet) logVerbose("") // force new line
+
     if (outAnnotations && result.annotations?.length) {
         if (isJSONLFilename(outAnnotations))
             await appendJSONL(outAnnotations, result.annotations)

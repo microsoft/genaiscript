@@ -76,6 +76,7 @@ type SystemPromptId = OptionsOrString<
     | "system.agent_git"
     | "system.agent_github"
     | "system.agent_interpreter"
+    | "system.agent_memory"
     | "system.agent_user_input"
     | "system.annotations"
     | "system.changelog"
@@ -118,6 +119,7 @@ type SystemToolId = OptionsOrString<
     | "agent_git"
     | "agent_github"
     | "agent_interpreter"
+    | "agent_memory"
     | "agent_user_input"
     | "fs_diff_files"
     | "fs_find_files"
@@ -2155,7 +2157,12 @@ interface DefToolOptions {
     maxTokens?: number
 }
 
-interface DefAgentOptions extends Omit<PromptGeneratorOptions, "label"> {}
+interface DefAgentOptions extends Omit<PromptGeneratorOptions, "label"> {
+    /**
+     * Excludes agent conversation from agent memory
+     */
+    disableMemory?: boolean
+}
 
 type ChatAgentHandler = (
     ctx: ChatGenerationContext,

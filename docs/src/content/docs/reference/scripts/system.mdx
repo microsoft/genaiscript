@@ -235,7 +235,6 @@ defAgent(
     "query GitHub to accomplish tasks",
     `Your are a helpfull LLM agent that can query GitHub to accomplish tasks. Answer the question in QUERY.
     - Prefer diffing job logs rather downloading entire logs which can be very large.
-    - Pull Requests ar a specialized type of issues.
     `,
     {
         model,
@@ -284,6 +283,57 @@ defAgent(
             "system.math",
             "system.python_code_interpreter",
         ],
+    }
+)
+
+`````
+
+
+### `system.agent_memory`
+
+agent that retrieves memories
+
+
+
+
+
+`````js wrap title="system.agent_memory"
+system({
+    title: "agent that retrieves memories",
+})
+
+const cache = await host.cache("agent_memory")
+defAgent(
+    "memory",
+    "queries the memories created by other agent conversations.",
+    async (ctx) => {
+        const memories = await cache.values()
+        ctx.$`Your are a helpfull LLM agent that acts as a knowledge base for memories created by other agents.
+
+    Answer the question in QUERY with the memories in MEMORY.
+
+    - Use the information in MEMORY exclusively to answer the question in QUERY.
+    - If the information in MEMORY is not enough to answer the question in QUERY, respond <NO_MEMORY>.
+    - The memory 
+    `
+        memories.reverse().forEach(
+            ({ agent, query, answer }) =>
+                ctx.def(
+                    "MEMORY",
+                    `${agent}> ${query}?
+                ${answer}
+                `
+                ),
+            {
+                flex: 1,
+            }
+        )
+    },
+    {
+        model: "openai:gpt-4o",
+        flexTokens: 30000,
+        system: ["system"],
+        disableMemory: true,
     }
 )
 
@@ -1063,7 +1113,7 @@ defTool(
         context.log(`github action list jobs for run ${run_id}`)
         const res = await github.listWorkflowJobs(run_id)
         return CSV.stringify(
-            res.map(({ id, name, status }) => ({ id, name, status })),
+            res.map(({ id, name, conclusion }) => ({ id, name, conclusion })),
             { header: true }
         )
     }
