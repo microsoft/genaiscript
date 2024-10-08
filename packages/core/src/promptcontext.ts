@@ -71,21 +71,21 @@ export async function createPromptContext(
         },
         grep: async (
             query,
-            options: string | WorkspaceGrepOptions,
-            options2?: WorkspaceGrepOptions
+            grepOptions: string | WorkspaceGrepOptions,
+            grepOptions2?: WorkspaceGrepOptions
         ) => {
-            if (typeof options === "string") {
+            if (typeof grepOptions === "string") {
                 const p = runtimeHost.path
-                    .dirname(options)
+                    .dirname(grepOptions)
                     .replace(/(^|\/)\*\*$/, "")
-                const g = runtimeHost.path.basename(options)
-                options = <WorkspaceGrepOptions>{
-                    path: p,
-                    glob: g,
-                    ...(options2 || {}),
+                const g = runtimeHost.path.basename(grepOptions)
+                grepOptions = <WorkspaceGrepOptions>{
+                    path: p || undefined,
+                    glob: g || undefined,
+                    ...(grepOptions2 || {}),
                 }
             }
-            const { path, glob, ...rest } = options || {}
+            const { path, glob, ...rest } = grepOptions || {}
             const grepTrace = trace.startTraceDetails(
                 `🌐 grep ${HTMLEscape(typeof query === "string" ? query : query.source)} ${glob ? `--glob ${glob}` : ""} ${path || ""}`
             )

@@ -589,7 +589,7 @@ File Diff Files
 
 Tool to compute a diff betweeen two files.
 
--  tool `fs_diff_files`: Computes a diff between two files.
+-  tool `fs_diff_files`: Computes a diff between two different files. Use git diff instead to compare versions of a file.
 
 `````js wrap title="system.fs_diff_files"
 system({
@@ -599,7 +599,7 @@ system({
 
 defTool(
     "fs_diff_files",
-    "Computes a diff between two files.",
+    "Computes a diff between two different files. Use git diff instead to compare versions of a file.",
     {
         type: "object",
         properties: {
