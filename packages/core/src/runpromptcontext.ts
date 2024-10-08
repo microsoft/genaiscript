@@ -314,7 +314,8 @@ export function createChatGenerationContext(
         ) => Promise<void>,
         options?: DefAgentOptions
     ): void => {
-        const { tools, system, disableMemory, ...rest } = options || {}
+        const { tools, system, disableMemory, disableMemoryQuery, ...rest } =
+            options || {}
         const memory = !disableMemory
 
         name = name.replace(/^agent_/i, "")
@@ -354,14 +355,16 @@ export function createChatGenerationContext(
                 context.log(`${agentLabel}: ${query}`)
 
                 let memoryAnswer: string
-                if (memory) {
+                if (memory && !disableMemoryQuery) {
                     // always pre-query memory with cheap model
                     const res = await runPrompt(
                         async (_) => {
-                            _.$`Answer QUERY using information from MEMORY.
-                            - If you are missing information, return empty output.
+                            _.$`Answer QUERY with a summary of the information from MEMORY.
+                            - If you are missing information, return <NO_INFORMATION>.
                             - Use QUERY as the only source of information.
-                            - Be concise. The output is used by another LLM.`
+                            - Be concise. Keep it short. The output is used by another LLM.
+                            - Provide important details like identifiers and names.
+                            `
                             _.def("QUERY", query)
                             await defMemory(_)
                         },

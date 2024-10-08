@@ -2162,6 +2162,11 @@ interface DefAgentOptions extends Omit<PromptGeneratorOptions, "label"> {
      * Excludes agent conversation from agent memory
      */
     disableMemory?: boolean
+
+    /**
+     * Diable memory query on each query (let the agent call the tool)
+     */
+    disableMemoryQuery?: boolean
 }
 
 type ChatAgentHandler = (
