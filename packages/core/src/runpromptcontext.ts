@@ -41,6 +41,7 @@ import {
 import { parseModelIdentifier, resolveModelConnectionInfo } from "./models"
 import {
     CHAT_REQUEST_PER_MODEL_CONCURRENT_LIMIT,
+    MEMORY_CACHE_NAME,
     MODEL_PROVIDER_AICI,
     SYSTEM_FENCE,
 } from "./constants"
@@ -59,6 +60,8 @@ import { Project } from "./ast"
 import { dedent } from "./indent"
 import { runtimeHost } from "./host"
 import { writeFileEdits } from "./fileedits"
+import { JSONLineCache } from "./cache"
+import { string } from "mathjs"
 
 export function createChatTurnGenerationContext(
     options: GenerationOptions,
@@ -347,7 +350,7 @@ export function createChatGenerationContext(
             },
             async (args) => {
                 const { context, query } = args
-                logVerbose(`${agentLabel}: ${query}`)
+                context.log(`${agentLabel}: ${query}`)
                 const res = await runPrompt(
                     async (_) => {
                         _.def("QUERY", query)
@@ -358,6 +361,17 @@ export function createChatGenerationContext(
                 - If you cannot answer the query, return "NO_ANSWER: <reason>".
                 - Be concise. Minimize output to the most relevant information to save context tokens.
                 `
+                        _.defOutputProcessor(async ({ text }) => {
+                            const agentMemory = JSONLineCache.byName<
+                                { agent: string; query: string },
+                                { answer: string }
+                            >(MEMORY_CACHE_NAME)
+                            const cacheKey = { agent: agentName, query }
+                            agentMemory.set(cacheKey, {
+                                ...cacheKey,
+                                answer: text,
+                            })
+                        })
                     },
                     {
                         label: agentLabel,

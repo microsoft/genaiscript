@@ -137,7 +137,7 @@ defAgent(
         system: ["system.explanations", "system.github_info"],
         tools: [
             "md_find_files",
-            "md_read_frontmatterm",
+            "md_read_frontmatter",
             "fs_find_files",
             "fs_read_file",
         ],
@@ -284,6 +284,57 @@ defAgent(
             "system.math",
             "system.python_code_interpreter",
         ],
+    }
+)
+
+`````
+
+
+### `system.agent_memory`
+
+agent that retreives memories
+
+
+
+
+
+`````js wrap title="system.agent_memory"
+system({
+    title: "agent that retreives memories",
+})
+
+const cache = await workspace.cache("memory")
+
+defAgent(
+    "memory",
+    "queries the memories created by other agent conversations.",
+    async (ctx) => {
+        const memories = await cache.values()
+        ctx.$`Your are a helpfull LLM agent that acts as a knowledge base for memories created by other agents.
+
+    Answer the question in QUERY with the memories in MEMORY.
+
+    - Use the information in MEMORY exclusively to answer the question in QUERY.
+    - If the information in MEMORY is not enough to answer the question in QUERY, respond <NO_MEMORY>.
+    - The memory 
+    `
+        memories.reverse().forEach(
+            ({ agent, query, answer }) =>
+                ctx.def(
+                    "MEMORY",
+                    `${agent}> ${query}?
+                ${answer}
+                `
+                ),
+            {
+                flex: 1,
+            }
+        )
+    },
+    {
+        model: "openai:gpt-4o",
+        flexTokens: 30000,
+        system: ["system"],
     }
 )
 
