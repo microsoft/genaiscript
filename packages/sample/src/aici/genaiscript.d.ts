@@ -713,7 +713,7 @@ interface WorkspaceFileSystem {
     writeText(path: string, content: string): Promise<void>
 
     /**
-     * Opens a key-value cache for the given cache name.
+     * Opens a file-backed key-value cache for the given cache name.
      * The cache is persisted across runs of the script. Entries are dropped when the cache grows too large.
      * @param cacheName
      */
@@ -2917,6 +2917,14 @@ interface PromiseQueue {
 }
 
 interface PromptHost extends ShellHost {
+    /**
+     * Opens a in-memory key-value cache for the given cache name. Entries are dropped when the cache grows too large.
+     * @param cacheName
+     */
+    cache<K = any, V = any>(
+        cacheName: string
+    ): Promise<WorkspaceFileCache<K, V>>
+
     /**
      * Starts a container
      * @param options container creation options

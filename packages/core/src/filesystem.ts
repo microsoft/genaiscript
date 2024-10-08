@@ -89,13 +89,7 @@ export function createFileSystem(): Omit<WorkspaceFileSystem, "grep"> {
         cache: async (name: string) => {
             if (!name) throw new NotSupportedError("missing cache name")
             const res = JSONLineCache.byName<any, any>(name)
-            return <WorkspaceFileCache<any, any>>{
-                get: async (key: any) => res.get(key),
-                set: async (key: any, val: any) => res.set(key, val),
-                keys: async () => res.keys(),
-                values: async () =>
-                    res.entries().then((es) => es.map((e) => e.val)),
-            }
+            return res
         },
     }
     ;(fs as any).readFile = readText

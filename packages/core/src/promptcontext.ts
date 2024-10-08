@@ -26,6 +26,8 @@ import { vectorSearch } from "./vectorsearch"
 import { Project } from "./ast"
 import { shellParse } from "./shell"
 import { PLimitPromiseQueue } from "./concurrency"
+import { NotSupportedError } from "./error"
+import { JSONLineCache, MemoryCache } from "./cache"
 
 /**
  * Creates a prompt context for the given project, variables, trace, options, and model.
@@ -195,6 +197,11 @@ export async function createPromptContext(
 
     // Define the host for executing commands, browsing, and other operations
     const promptHost: PromptHost = Object.freeze<PromptHost>({
+        cache: async (name: string) => {
+            if (!name) throw new NotSupportedError("missing cache name")
+            const res = MemoryCache.byName<any, any>(name)
+            return res
+        },
         exec: async (
             command: string,
             args?: string[] | ShellOptions,

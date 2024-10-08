@@ -289,11 +289,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
     }
 
     if (done && finishReason === "stop")
-        await cacheStore.set(
-            cachedKey,
-            { text: chatResp, finishReason },
-            { trace }
-        )
+        await cacheStore.set(cachedKey, { text: chatResp, finishReason })
     return { text: chatResp, toolCalls, finishReason, usage, error }
 }
 
