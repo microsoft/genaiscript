@@ -1,5 +1,6 @@
 import { applyChangeLog, parseChangeLogs } from "./changelog"
-import { applyLLMDiff, applyLLMPatch, parseLLMDiffs } from "./diff"
+import { CSVToMarkdown } from "./csv"
+import { applyLLMDiff, applyLLMPatch, createDiff, parseLLMDiffs } from "./diff"
 import { errorMessage } from "./error"
 import { unquote } from "./fence"
 import { fileExists, readText } from "./fs"
@@ -11,6 +12,7 @@ import { validateJSONWithSchema } from "./schema"
 import { MarkdownTrace, TraceOptions } from "./trace"
 import { logError, logVerbose, relativePath } from "./util"
 import { YAMLParse } from "./yaml"
+import { writeText } from "./fs"
 
 export async function computeFileEdits(
     res: RunPromptResult,
@@ -187,6 +189,14 @@ export async function computeFileEdits(
             }
         })
 
+    if (edits.length)
+        trace.details(
+            "✏️ edits",
+            CSVToMarkdown(edits, {
+                headers: ["type", "filename", "message", "validated"],
+            })
+        )
+
     return { fileEdits, changelogs, edits }
 }
 
@@ -254,5 +264,44 @@ function validateFileOutputs(
             }
         }
         trace.endDetails()
+    }
+}
+
+/**
+ * Asynchronously writes file edits to disk.
+ *
+ * @param res - The result of a generation process containing file edits.
+ * @param applyEdits - A flag indicating whether edits should be applied even if validation fails.
+ */
+export async function writeFileEdits(
+    fileEdits: Record<string, FileUpdate>, // Contains the edits to be applied to files
+    options?: TraceOptions
+) {
+    const { trace } = options || {}
+    // Iterate over each file edit entry
+    for (const fileEdit of Object.entries(fileEdits || {})) {
+        // Destructure the filename, before content, after content, and validation from the entry
+        const [fn, { before, after, validation }] = fileEdit
+
+        // Skip writing if the edit is invalid and applyEdits is false
+        if (!validation?.valid) continue
+
+        // Check if there's a change between before and after content
+        if (after !== before) {
+            // Log whether the file is being updated or created
+            logVerbose(
+                `${before !== undefined ? `updating` : `creating`} ${fn}`
+            )
+            trace.detailsFenced(
+                `updating ${fn}`,
+                createDiff(
+                    { filename: fn, content: before },
+                    { filename: fn, content: after }
+                ),
+                "diff"
+            )
+            // Write the new content to the file
+            await writeText(fn, after ?? before) // Write 'after' content if available, otherwise 'before'
+        }
     }
 }

@@ -56,7 +56,7 @@ import { concurrentLimit } from "./concurrency"
 import { Project } from "./ast"
 import { dedent } from "./indent"
 import { runtimeHost } from "./host"
-import { computeFileEdits } from "./fileedits"
+import { computeFileEdits, writeFileEdits } from "./fileedits"
 
 export function createChatTurnGenerationContext(
     options: GenerationOptions,
@@ -478,7 +478,7 @@ export function createChatGenerationContext(
         generator: string | PromptGenerator,
         runOptions?: PromptGeneratorOptions
     ): Promise<RunPromptResult> => {
-        const { label } = runOptions || {}
+        const { label, applyEdits } = runOptions || {}
         const runTrace = trace.startTraceDetails(`🎁 run prompt ${label || ""}`)
         try {
             infoCb?.({ text: `run prompt ${label || ""}` })
@@ -574,13 +574,13 @@ export function createChatGenerationContext(
                         if (sysr.schemas) Object.assign(schemas, sysr.schemas)
                         if (sysr.functions) tools.push(...sysr.functions)
                         if (sysr.fileMerges?.length)
-                            throw new NotSupportedError("fileMerges")
+                            fileMerges.push(...sysr.fileMerges)
                         if (sysr.outputProcessors?.length)
-                            throw new NotSupportedError("outputProcessors")
+                            outputProcessors.push(...sysr.outputProcessors)
                         if (sysr.chatParticipants)
                             chatParticipants.push(...sysr.chatParticipants)
                         if (sysr.fileOutputs?.length)
-                            throw new NotSupportedError("fileOutputs")
+                            fileOutputs.push(...sysr.fileOutputs)
                         if (sysr.logs?.length)
                             runTrace.details("📝 console.log", sysr.logs)
                         if (sysr.text) {
@@ -641,14 +641,15 @@ export function createChatGenerationContext(
             )
             tracePromptResult(runTrace, resp)
 
-            const { edits } = await computeFileEdits(resp, {
+            const { fileEdits } = await computeFileEdits(resp, {
                 trace,
                 schemas,
                 fileOutputs,
                 fileMerges,
                 outputProcessors,
             })
-
+            if (fileEdits?.length && applyEdits)
+                await writeFileEdits(fileEdits, { trace })
             return resp
         } catch (e) {
             runTrace.error(e)

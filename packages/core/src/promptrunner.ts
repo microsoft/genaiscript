@@ -255,13 +255,6 @@ export async function runTemplate(
         // Reporting and tracing output
         if (fences?.length)
             trace.details("📩 code regions", renderFencedVariables(fences))
-        if (edits.length)
-            trace.details(
-                "✏️ edits",
-                CSVToMarkdown(edits, {
-                    headers: ["type", "filename", "message", "validated"],
-                })
-            )
         if (annotations?.length)
             trace.details(
                 "⚠️ annotations",

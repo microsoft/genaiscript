@@ -1964,6 +1964,11 @@ interface PromptGeneratorOptions extends ModelOptions, PromptSystemOptions {
      * Label for trace
      */
     label?: string
+
+    /**
+     * Write file edits to the file system
+     */
+    applyEdits?: boolean
 }
 
 interface FileOutputOptions {

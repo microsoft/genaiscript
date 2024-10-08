@@ -59,7 +59,7 @@ import {
 } from "../../core/src/util"
 import { YAMLStringify } from "../../core/src/yaml"
 import { PromptScriptRunOptions } from "../../core/src/server/messages"
-import { writeFileEdits } from "../../core/src/edits"
+import { writeFileEdits } from "../../core/src/fileedits"
 import {
     azureDevOpsCreateIssueComment,
     AzureDevOpsEnv,
@@ -355,8 +355,8 @@ export async function runScript(
         if (isJSONLFilename(outData)) await appendJSONL(outData, result.frames)
         else await writeText(outData, JSON.stringify(result.frames, null, 2))
 
-    if (result.status === "success" && result.fileEdits)
-        await writeFileEdits(result, applyEdits)
+    if (result.status === "success" && result.fileEdits && applyEdits)
+        await writeFileEdits(result.fileEdits, { trace })
 
     const promptjson = result.messages?.length
         ? JSON.stringify(result.messages, null, 2)
