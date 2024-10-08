@@ -2099,7 +2099,8 @@ interface ChatGenerationContext extends ChatTurnGenerationContext {
         name: string,
         description: string,
         parameters: PromptParametersSchema | JSONSchema,
-        fn: ChatFunctionHandler
+        fn: ChatFunctionHandler,
+        options?: DefToolOptions
     ): void
     defAgent(
         name: string,

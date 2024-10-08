@@ -44,6 +44,8 @@ for (const sample of samples) {
         if (intro) instructions += intro + "\n\n"
     }
 
+    let generatedCode = ""
+    let testPassed = true
     const res = await runPrompt(
         (ctx) => {
             ctx.$`
@@ -73,8 +75,6 @@ If the tests passed, stop.
             ctx.def("INSTRUCTIONS", instructions, { language: "markdown" })
             ctx.def("TEMPLATE", { filename }, { language: "python" })
 
-            let generatedCode = ""
-            let testPassed = true
             ctx.defTool(
                 "test_code",
                 "Run unit tests against generated solution",
@@ -99,7 +99,8 @@ If the tests passed, stop.
                     }
                     testPassed = true
                     return res
-                }
+                },
+                { maxTokens: 20000 }
             )
 
             ctx.defOutputProcessor(async (res) => {
@@ -111,6 +112,7 @@ If the tests passed, stop.
         {
             label: sample,
             applyEdits: true,
+            cache: "extrism",
             system: [
                 "system",
                 "system.explanations",
@@ -124,4 +126,9 @@ If the tests passed, stop.
         `eval/extrism/results/${sample}.yaml`,
         YAML.stringify(res)
     )
+    if (generatedCode)
+        await workspace.writeText(
+            `eval/extrism/results/${testPassed ? "success" : "failed"}/${solution[0]}`,
+            generatedCode
+        )
 }
