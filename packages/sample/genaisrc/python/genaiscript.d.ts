@@ -2157,7 +2157,12 @@ interface DefToolOptions {
     maxTokens?: number
 }
 
-interface DefAgentOptions extends Omit<PromptGeneratorOptions, "label"> {}
+interface DefAgentOptions extends Omit<PromptGeneratorOptions, "label"> {
+    /**
+     * Contributes to agent memories
+     */
+    memory?: boolean
+}
 
 type ChatAgentHandler = (
     ctx: ChatGenerationContext,

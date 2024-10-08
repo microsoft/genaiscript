@@ -2,8 +2,7 @@ system({
     title: "agent that retreives memories",
 })
 
-const cache = await workspace.cache("memory")
-
+const cache = await host.cache("memory")
 defAgent(
     "memory",
     "queries the memories created by other agent conversations.",
@@ -34,5 +33,6 @@ defAgent(
         model: "openai:gpt-4o",
         flexTokens: 30000,
         system: ["system"],
+        memory: false,
     }
 )

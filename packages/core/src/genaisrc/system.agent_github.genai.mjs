@@ -22,5 +22,6 @@ defAgent(
             "system.github_issues",
             "system.github_pulls",
         ],
+        memory: true,
     }
 )

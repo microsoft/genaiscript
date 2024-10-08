@@ -60,8 +60,7 @@ import { Project } from "./ast"
 import { dedent } from "./indent"
 import { runtimeHost } from "./host"
 import { writeFileEdits } from "./fileedits"
-import { JSONLineCache } from "./cache"
-import { string } from "mathjs"
+import { MemoryCache } from "./cache"
 
 export function createChatTurnGenerationContext(
     options: GenerationOptions,
@@ -316,7 +315,7 @@ export function createChatGenerationContext(
         ) => Promise<void>,
         options?: DefAgentOptions
     ): void => {
-        const { tools, system, ...rest } = options || {}
+        const { tools, system, memory, ...rest } = options || {}
 
         name = name.replace(/^agent_/i, "")
         const agentName = `agent_${name}`
@@ -330,7 +329,9 @@ export function createChatGenerationContext(
         const agentTools = resolveTools(
             runtimeHost.project,
             agentSystem,
-            arrayify(tools)
+            [...arrayify(tools), memory ? "agent_memory" : undefined].filter(
+                (t) => !!t
+            )
         )
         const agentDescription = dedent`Agent that uses an LLM to ${description}.\nAvailable tools: 
         ${agentTools.map((t) => `- ${t.description}`).join("\n")}` // DO NOT LEAK TOOL ID HERE
@@ -357,21 +358,33 @@ export function createChatGenerationContext(
                         if (typeof fn === "string") _.writeText(dedent(fn))
                         else await fn(_, args)
                         _.$`- Assume that your answer will be analyzed by an LLM, not a human.
+                ${memory ? `- If you are missing information, try querying the memory using 'agent_memory'.` : ""}                        
                 - If you are missing information, reply "MISSING_INFO: <what is missing>".
                 - If you cannot answer the query, return "NO_ANSWER: <reason>".
                 - Be concise. Minimize output to the most relevant information to save context tokens.
                 `
-                        _.defOutputProcessor(async ({ text }) => {
-                            const agentMemory = JSONLineCache.byName<
-                                { agent: string; query: string },
-                                { answer: string }
-                            >(MEMORY_CACHE_NAME)
-                            const cacheKey = { agent: agentName, query }
-                            agentMemory.set(cacheKey, {
-                                ...cacheKey,
-                                answer: text,
+                        if (memory)
+                            _.defOutputProcessor(async ({ text }) => {
+                                const agentMemory = MemoryCache.byName<
+                                    { agent: string; query: string },
+                                    {
+                                        agent: string
+                                        query: string
+                                        answer: string
+                                    }
+                                >(MEMORY_CACHE_NAME)
+                                const cacheKey = { agent: agentName, query }
+                                const cachedValue = {
+                                    ...cacheKey,
+                                    answer: text,
+                                }
+                                await agentMemory.set(cacheKey, cachedValue)
+                                trace.detailsFenced(
+                                    `🧠 memory: ${query}`,
+                                    cachedValue.answer,
+                                    "markdown"
+                                )
                             })
-                        })
                     },
                     {
                         label: agentLabel,
