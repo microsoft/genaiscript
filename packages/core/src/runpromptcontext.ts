@@ -14,6 +14,8 @@ import {
     createStringTemplateNode,
     createTextNode,
     renderPromptNode,
+    createOutputProcessor,
+    createFileMerge,
 } from "./promptdom"
 import { MarkdownTrace } from "./trace"
 import { GenerationOptions } from "./generation"
@@ -56,6 +58,7 @@ import { concurrentLimit } from "./concurrency"
 import { Project } from "./ast"
 import { dedent } from "./indent"
 import { runtimeHost } from "./host"
+import { writeFileEdits } from "./fileedits"
 
 export function createChatTurnGenerationContext(
     options: GenerationOptions,
@@ -241,6 +244,11 @@ export function createChatGenerationContext(
     const { prj, env } = projectOptions
     const turnCtx = createChatTurnGenerationContext(options, trace)
     const node = turnCtx.node
+
+    // Default output processor for the prompt
+    const defOutputProcessor = (fn: PromptOutputProcessorHandler) => {
+        if (fn) appendChild(node, createOutputProcessor(fn))
+    }
 
     const defTool: (
         name:
@@ -477,7 +485,7 @@ export function createChatGenerationContext(
         generator: string | PromptGenerator,
         runOptions?: PromptGeneratorOptions
     ): Promise<RunPromptResult> => {
-        const { label } = runOptions || {}
+        const { label, applyEdits } = runOptions || {}
         const runTrace = trace.startTraceDetails(`🎁 run prompt ${label || ""}`)
         try {
             infoCb?.({ text: `run prompt ${label || ""}` })
@@ -505,6 +513,9 @@ export function createChatGenerationContext(
             let tools: ToolCallback[] = undefined
             let schemas: Record<string, JSONSchema> = undefined
             let chatParticipants: ChatParticipant[] = undefined
+            const fileMerges: FileMergeHandler[] = []
+            const outputProcessors: PromptOutputProcessorHandler[] = []
+            const fileOutputs: FileOutput[] = []
 
             // expand template
             const { provider } = parseModelIdentifier(genOptions.model)
@@ -519,6 +530,9 @@ export function createChatGenerationContext(
                     functions: fns,
                     messages: msgs,
                     chatParticipants: cps,
+                    fileMerges: fms,
+                    outputProcessors: ops,
+                    fileOutputs: fos,
                 } = await renderPromptNode(genOptions.model, node, {
                     flexTokens: genOptions.flexTokens,
                     trace: runTrace,
@@ -528,6 +542,9 @@ export function createChatGenerationContext(
                 tools = fns
                 chatParticipants = cps
                 messages.push(...msgs)
+                fileMerges.push(...fms)
+                outputProcessors.push(...ops)
+                fileOutputs.push(...fos)
 
                 if (errors?.length) {
                     logError(errors.map((err) => errorMessage(err)).join("\n"))
@@ -564,13 +581,13 @@ export function createChatGenerationContext(
                         if (sysr.schemas) Object.assign(schemas, sysr.schemas)
                         if (sysr.functions) tools.push(...sysr.functions)
                         if (sysr.fileMerges?.length)
-                            throw new NotSupportedError("fileMerges")
+                            fileMerges.push(...sysr.fileMerges)
                         if (sysr.outputProcessors?.length)
-                            throw new NotSupportedError("outputProcessors")
+                            outputProcessors.push(...sysr.outputProcessors)
                         if (sysr.chatParticipants)
                             chatParticipants.push(...sysr.chatParticipants)
                         if (sysr.fileOutputs?.length)
-                            throw new NotSupportedError("fileOutputs")
+                            fileOutputs.push(...sysr.fileOutputs)
                         if (sysr.logs?.length)
                             runTrace.details("📝 console.log", sysr.logs)
                         if (sysr.text) {
@@ -624,12 +641,18 @@ export function createChatGenerationContext(
                     messages,
                     tools,
                     schemas,
+                    fileOutputs,
+                    outputProcessors,
+                    fileMerges,
                     completer,
                     chatParticipants,
                     genOptions
                 )
             )
             tracePromptResult(runTrace, resp)
+            const { fileEdits } = resp
+            if (fileEdits?.length && applyEdits)
+                await writeFileEdits(fileEdits, { trace })
             return resp
         } catch (e) {
             runTrace.error(e)
@@ -643,6 +666,10 @@ export function createChatGenerationContext(
         }
     }
 
+    const defFileMerge = (fn: FileMergeHandler) => {
+        appendChild(node, createFileMerge(fn))
+    }
+
     const ctx = <RunPromptContextNode>{
         ...turnCtx,
         defAgent,
@@ -651,6 +678,8 @@ export function createChatGenerationContext(
         defImages,
         defChatParticipant,
         defFileOutput,
+        defOutputProcessor,
+        defFileMerge,
         prompt,
         runPrompt,
     }

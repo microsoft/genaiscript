@@ -922,6 +922,9 @@ interface RunPromptResult {
         | "cancel"
         | "fail"
     usages?: ChatCompletionUsages
+    fileEdits?: Record<string, FileUpdate>
+    edits?: Edits[]
+    changelogs?: ChangeLog[]
 }
 
 /**
@@ -1964,6 +1967,11 @@ interface PromptGeneratorOptions extends ModelOptions, PromptSystemOptions {
      * Label for trace
      */
     label?: string
+
+    /**
+     * Write file edits to the file system
+     */
+    applyEdits?: boolean
 }
 
 interface FileOutputOptions {
@@ -2091,7 +2099,8 @@ interface ChatGenerationContext extends ChatTurnGenerationContext {
         name: string,
         description: string,
         parameters: PromptParametersSchema | JSONSchema,
-        fn: ChatFunctionHandler
+        fn: ChatFunctionHandler,
+        options?: DefToolOptions
     ): void
     defAgent(
         name: string,
@@ -2116,6 +2125,8 @@ interface ChatGenerationContext extends ChatTurnGenerationContext {
         strings: TemplateStringsArray,
         ...args: any[]
     ): RunPromptResultPromiseWithOptions
+    defFileMerge(fn: FileMergeHandler): void
+    defOutputProcessor(fn: PromptOutputProcessorHandler): void
 }
 
 interface GenerationOutput {
@@ -2890,8 +2901,6 @@ interface ContainerHost extends ShellHost {
 interface PromptContext extends ChatGenerationContext {
     script(options: PromptArgs): void
     system(options: PromptSystemArgs): void
-    defFileMerge(fn: FileMergeHandler): void
-    defOutputProcessor(fn: PromptOutputProcessorHandler): void
     env: ExpansionVariables
     path: Path
     parsers: Parsers

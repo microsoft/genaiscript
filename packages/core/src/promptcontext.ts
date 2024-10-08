@@ -193,11 +193,6 @@ export async function createPromptContext(
         },
     }
 
-    // Default output processor for the prompt
-    const defOutputProcessor = (fn: PromptOutputProcessorHandler) => {
-        if (fn) appendPromptChild(createOutputProcessor(fn))
-    }
-
     // Define the host for executing commands, browsing, and other operations
     const promptHost: PromptHost = Object.freeze<PromptHost>({
         exec: async (
@@ -263,10 +258,6 @@ export async function createPromptContext(
         parsers,
         retrieval,
         host: promptHost,
-        defOutputProcessor,
-        defFileMerge: (fn) => {
-            appendPromptChild(createFileMerge(fn))
-        },
     }
     env.generator = ctx
     ctx.env = Object.freeze(env)

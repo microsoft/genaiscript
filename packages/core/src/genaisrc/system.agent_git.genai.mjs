@@ -12,5 +12,8 @@ defAgent(
     - The current repository is the same as github repository.
     - Prefer using diff to compare files rather than listing files. Listing files is only useful when you need to read the content of the files. 
     `,
-    { model, system: ["system.git_info", "system.github_info"], tools: ["git"] }
+    {
+        model,
+        system: ["system.git_info", "system.github_info", "system.git"],
+    }
 )
