@@ -25,7 +25,7 @@ await container.disconnect()
 
 // generate sample
 const cwd = path.join(practiceDir, sample)
-const { blurb, files: samplefiles } = JSON.parse(
+const { files: samplefiles } = JSON.parse(
     await container.readText(path.join(cwd, ".meta/config.json"))
 )
 const { solution } = samplefiles
@@ -46,7 +46,7 @@ Analyze INSTRUCTIONS and generate Python code that the requirements.
 
 - use Python 3.11
 - Use the TEMPLATE code as a starting point and update it to solve the problem. 
-You mush not change the function signature.
+You mush NOT change the function signature. Implement the functions.
 - do NOT generate unit tests.
 - you can only use built-in python libraries. pip packages are not allowed.
 
