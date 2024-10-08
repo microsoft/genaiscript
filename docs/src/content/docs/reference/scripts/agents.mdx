@@ -153,8 +153,10 @@ This full source of this agent is defined in the [system.agent_github](/genaiscr
 
 The `agent_memory` is a special agent that queries the memories created by other agent conversations. It is used to store and retrieve information from the LLM's memory.
 
-All agent contribute to the conversation memory unless it is explicitely disabled using `disableMemory`.
+All agent contribute to the conversation memory, and use the `agent_memory`, tool unless it is explicitely disabled using `disableMemory`.
 
 ```js "disableMemory: true"
 defAgent(..., { disableMemory: true })
 ```
+
+To enable agent memory in the top level script, add the `agent_memory` tool.
