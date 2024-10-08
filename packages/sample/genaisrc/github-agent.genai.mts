@@ -15,15 +15,18 @@ script({
 })
 
 const {
-    workflow = "latest failed",
+    workflow = "build.yml",
     failure_run_id = "latest",
-    branch = await git.defaultBranch(),
+    branch = await git.branch(),
 } = env.vars
 
-$`Investigate the status of the ${workflow} workflow and identify the root cause of the failure of run ${failure_run_id} in branch ${branch}.
-
-- Correlate the failure with the relevant commits, pull requests or issues.
-- Compare the source code between the failed run and the last successful run before that run.
+$`
+0. Find the worflow ${workflow} in the repository
+1. Find the latest failed run of ${workflow}
+2. Find the last successful run before the failed run
+3. Compare the run job logs between the failed run and the last successful run
+4. Compare the source code between the failed run commit (head_sha) and the last successful run commit (head_sha)
+5. Analyze all the above information and identify the root cause of the failure
 
 In your report, include html links to the relevant runs, commits, pull requests or issues.
 `
