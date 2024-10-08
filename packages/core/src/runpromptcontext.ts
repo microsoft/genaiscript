@@ -315,7 +315,8 @@ export function createChatGenerationContext(
         ) => Promise<void>,
         options?: DefAgentOptions
     ): void => {
-        const { tools, system, memory, ...rest } = options || {}
+        const { tools, system, disableMemory, ...rest } = options || {}
+        const memory = !disableMemory
 
         name = name.replace(/^agent_/i, "")
         const agentName = `agent_${name}`

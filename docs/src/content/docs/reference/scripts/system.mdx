@@ -317,6 +317,7 @@ defAgent(
 
     - Use the information in MEMORY exclusively to answer the question in QUERY.
     - If the information in MEMORY is not enough to answer the question in QUERY, respond <NO_MEMORY>.
+    - The memory 
     `
         memories.reverse().forEach(
             ({ agent, query, answer }) =>
@@ -335,7 +336,7 @@ defAgent(
         model: "openai:gpt-4o",
         flexTokens: 30000,
         system: ["system"],
-        memory: false,
+        disableMemory: true,
     }
 )
 

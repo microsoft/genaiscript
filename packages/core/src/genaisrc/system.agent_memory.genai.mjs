@@ -33,6 +33,6 @@ defAgent(
         model: "openai:gpt-4o",
         flexTokens: 30000,
         system: ["system"],
-        memory: false,
+        disableMemory: true,
     }
 )

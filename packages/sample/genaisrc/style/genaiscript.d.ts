@@ -2159,9 +2159,9 @@ interface DefToolOptions {
 
 interface DefAgentOptions extends Omit<PromptGeneratorOptions, "label"> {
     /**
-     * Contributes to agent memories
+     * Excludes agent conversation from agent memory
      */
-    memory?: boolean
+    disableMemory?: boolean
 }
 
 type ChatAgentHandler = (
