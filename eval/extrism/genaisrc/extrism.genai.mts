@@ -44,7 +44,7 @@ for (const sample of samples) {
         if (intro) instructions += intro + "\n\n"
     }
 
-    await runPrompt(
+    const res = await runPrompt(
         (ctx) => {
             ctx.$`
 
@@ -118,5 +118,10 @@ If the tests passed, stop.
                 "system.files",
             ],
         }
+    )
+
+    await workspace.writeText(
+        `eval/extrism/results/${sample}.yaml`,
+        YAML.stringify(res)
     )
 }
