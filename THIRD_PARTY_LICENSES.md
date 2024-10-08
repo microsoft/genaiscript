@@ -3580,11 +3580,31 @@ IN THE SOFTWARE.
 
 The following npm package may be included in this product:
 
+ - buildcheck@0.0.6
+
+This package contains the following license and notice below:
+
+http://github.com/mscdex/buildcheck/raw/master/LICENSE
+
+-----------
+
+The following npm package may be included in this product:
+
  - ssh2@1.16.0
 
 This package contains the following license and notice below:
 
 http://github.com/mscdex/ssh2/raw/master/LICENSE
+
+-----------
+
+The following npm package may be included in this product:
+
+ - cpu-features@0.0.10
+
+This package contains the following license and notice below:
+
+https://github.com/mscdex/cpu-features/raw/master/LICENSE
 
 -----------
 
