@@ -42,7 +42,7 @@ export function resolveSystems(
         if (/\W(diagram|chart)\W/i.test(jsSource))
             systems.push("system.diagrams")
 
-        if (/github/i.test(jsSource)) systems.push("system.github_info")
+        if (/\W(github)\W/i.test(jsSource)) systems.push("system.github_info")
     }
 
     // Include tools-related systems if specified in the script
