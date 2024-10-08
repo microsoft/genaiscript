@@ -56,6 +56,7 @@ import { concurrentLimit } from "./concurrency"
 import { Project } from "./ast"
 import { dedent } from "./indent"
 import { runtimeHost } from "./host"
+import { computeFileEdits } from "./fileedits"
 
 export function createChatTurnGenerationContext(
     options: GenerationOptions,
@@ -505,6 +506,9 @@ export function createChatGenerationContext(
             let tools: ToolCallback[] = undefined
             let schemas: Record<string, JSONSchema> = undefined
             let chatParticipants: ChatParticipant[] = undefined
+            const fileMerges: FileMergeHandler[] = []
+            const outputProcessors: PromptOutputProcessorHandler[] = []
+            const fileOutputs: FileOutput[] = []
 
             // expand template
             const { provider } = parseModelIdentifier(genOptions.model)
@@ -519,6 +523,9 @@ export function createChatGenerationContext(
                     functions: fns,
                     messages: msgs,
                     chatParticipants: cps,
+                    fileMerges: fms,
+                    outputProcessors: ops,
+                    fileOutputs: fos,
                 } = await renderPromptNode(genOptions.model, node, {
                     flexTokens: genOptions.flexTokens,
                     trace: runTrace,
@@ -528,6 +535,9 @@ export function createChatGenerationContext(
                 tools = fns
                 chatParticipants = cps
                 messages.push(...msgs)
+                fileMerges.push(...fms)
+                outputProcessors.push(...ops)
+                fileOutputs.push(...fos)
 
                 if (errors?.length) {
                     logError(errors.map((err) => errorMessage(err)).join("\n"))
@@ -630,6 +640,15 @@ export function createChatGenerationContext(
                 )
             )
             tracePromptResult(runTrace, resp)
+
+            const { edits } = await computeFileEdits(resp, {
+                trace,
+                schemas,
+                fileOutputs,
+                fileMerges,
+                outputProcessors,
+            })
+
             return resp
         } catch (e) {
             runTrace.error(e)

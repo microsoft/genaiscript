@@ -24,6 +24,7 @@ import { YAMLParse } from "./yaml"
 import { expandTemplate } from "./expander"
 import { resolveLanguageModel } from "./lm"
 import { Stats } from "fs"
+import { computeFileEdits } from "./fileedits"
 
 // Asynchronously resolve expansion variables needed for a template
 /**
@@ -188,24 +189,6 @@ export async function runTemplate(
                 frames: [],
             }
         }
-        const fileEdits: Record<string, FileUpdate> = {}
-        const changelogs: string[] = []
-        const edits: Edits[] = []
-        const projFolder = runtimeHost.projectFolder()
-
-        // Helper function to get or create file edit object
-        const getFileEdit = async (fn: string) => {
-            fn = relativePath(projFolder, fn)
-            let fileEdit = fileEdits[fn]
-            if (!fileEdit) {
-                let before: string = null
-                let after: string = undefined
-                if (await fileExists(fn)) before = await readText(fn)
-                else if (await fileExists(fn)) after = await readText(fn)
-                fileEdit = fileEdits[fn] = <FileUpdate>{ before, after }
-            }
-            return fileEdit
-        }
 
         // Resolve model connection information
         const connection = await resolveModelConnectionInfo(
@@ -259,153 +242,16 @@ export async function runTemplate(
         } = output
         let { text, annotations } = output
 
-        // Handle fenced code regions within the output
-        if (json === undefined) {
-            for (const fence of fences.filter(
-                ({ validation }) => validation?.valid !== false
-            )) {
-                const { label: name, content: val, language } = fence
-                const pm = /^((file|diff):?)\s+/i.exec(name)
-                if (pm) {
-                    const kw = pm[1].toLowerCase()
-                    const n = unquote(name.slice(pm[0].length).trim())
-                    const fn = /^[^\/]/.test(n)
-                        ? runtimeHost.resolvePath(projFolder, n)
-                        : n
-                    const fileEdit = await getFileEdit(fn)
-                    if (kw === "file") {
-                        if (fileMerges.length) {
-                            try {
-                                for (const fileMerge of fileMerges)
-                                    fileEdit.after =
-                                        (await fileMerge(
-                                            fn,
-                                            label,
-                                            fileEdit.after ?? fileEdit.before,
-                                            val
-                                        )) ?? val
-                            } catch (e) {
-                                logVerbose(e)
-                                trace.error(
-                                    `error custom merging diff in ${fn}`,
-                                    e
-                                )
-                            }
-                        } else fileEdit.after = val
-                    } else if (kw === "diff") {
-                        const chunks = parseLLMDiffs(val)
-                        try {
-                            fileEdit.after = applyLLMPatch(
-                                fileEdit.after || fileEdit.before,
-                                chunks
-                            )
-                        } catch (e) {
-                            logVerbose(e)
-                            trace.error(`error applying patch to ${fn}`, e)
-                            try {
-                                fileEdit.after = applyLLMDiff(
-                                    fileEdit.after || fileEdit.before,
-                                    chunks
-                                )
-                            } catch (e) {
-                                logVerbose(e)
-                                trace.error(`error merging diff in ${fn}`, e)
-                            }
-                        }
-                    }
-                } else if (
-                    /^changelog$/i.test(name) ||
-                    /^changelog/i.test(language)
-                ) {
-                    changelogs.push(val)
-                    const cls = parseChangeLogs(val)
-                    for (const changelog of cls) {
-                        const { filename } = changelog
-                        const fn = /^[^\/]/.test(filename) // TODO
-                            ? runtimeHost.resolvePath(projFolder, filename)
-                            : filename
-                        const fileEdit = await getFileEdit(fn)
-                        fileEdit.after = applyChangeLog(
-                            fileEdit.after || fileEdit.before || "",
-                            changelog
-                        )
-                    }
-                }
+        const { fileEdits, changelogs, edits } = await computeFileEdits(
+            output,
+            {
+                trace,
+                fileOutputs,
+                schemas,
+                fileMerges,
+                outputProcessors,
             }
-        }
-
-        // Apply user-defined output processors
-        if (outputProcessors?.length) {
-            try {
-                trace.startDetails("🖨️ output processors")
-                for (const outputProcessor of outputProcessors) {
-                    const {
-                        text: newText,
-                        files,
-                        annotations: oannotations,
-                    } = (await outputProcessor({
-                        text,
-                        fileEdits,
-                        fences,
-                        frames,
-                        genVars,
-                        annotations,
-                        schemas,
-                    })) || {}
-
-                    if (newText !== undefined) {
-                        text = newText
-                        trace.detailsFenced(`📝 text`, text)
-                    }
-
-                    if (files)
-                        for (const [n, content] of Object.entries(files)) {
-                            const fn = runtimeHost.path.isAbsolute(n)
-                                ? n
-                                : runtimeHost.resolvePath(projFolder, n)
-                            trace.detailsFenced(`📁 file ${fn}`, content)
-                            const fileEdit = await getFileEdit(fn)
-                            fileEdit.after = content
-                            fileEdit.validation = { valid: true }
-                        }
-                    if (oannotations) annotations = oannotations.slice(0)
-                }
-            } catch (e) {
-                logError(e)
-                trace.error(`output processor failed`, e)
-            } finally {
-                trace.endDetails()
-            }
-        }
-
-        // Validate and apply file outputs
-        validateFileOutputs(fileOutputs, trace, fileEdits, schemas)
-
-        // Convert file edits into structured edits
-        Object.entries(fileEdits)
-            .filter(([, { before, after }]) => before !== after) // ignore unchanged files
-            .forEach(([fn, { before, after, validation }]) => {
-                if (before) {
-                    edits.push(<ReplaceEdit>{
-                        label: `Update ${fn}`,
-                        filename: fn,
-                        type: "replace",
-                        range: [[0, 0], stringToPos(after)],
-                        text: after,
-                        validated: validation?.valid,
-                    })
-                } else {
-                    edits.push({
-                        label: `Create ${fn}`,
-                        filename: fn,
-                        type: "createfile",
-                        text: after,
-                        overwrite: true,
-                        validated: validation?.valid,
-                    })
-                }
-            })
-
+        )
         // Reporting and tracing output
         if (fences?.length)
             trace.details("📩 code regions", renderFencedVariables(fences))
