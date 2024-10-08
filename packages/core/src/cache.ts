@@ -21,11 +21,14 @@ export type CacheEntry<K, V> = { sha: string; key: K; val: V }
  * @template K - Type of the key
  * @template V - Type of the value
  */
-export class JSONLineCache<K, V> extends EventTarget {
-    private _entries: Record<string, CacheEntry<K, V>>
+export class MemoryCache<K, V>
+    extends EventTarget
+    implements WorkspaceFileCache<any, any>
+{
+    protected _entries: Record<string, CacheEntry<K, V>>
 
     // Constructor is private to enforce the use of byName factory method
-    private constructor(public readonly name: string) {
+    protected constructor(public readonly name: string) {
         super() // Initialize EventTarget
     }
 
@@ -35,47 +38,18 @@ export class JSONLineCache<K, V> extends EventTarget {
      * @param name - The name of the cache
      * @returns An instance of JSONLineCache
      */
-    static byName<K, V>(name: string): JSONLineCache<K, V> {
+    static byName<K, V>(name: string): MemoryCache<K, V> {
         name = name.replace(/[^a-z0-9_]/gi, "_") // Sanitize name
-        const key = "cacheKV." + name
+        const key = "memorycache." + name
         if (host.userState[key]) return host.userState[key] // Return if exists
-        const r = new JSONLineCache<K, V>(name)
+        const r = new MemoryCache<K, V>(name)
         host.userState[key] = r
         return r
     }
 
-    // Get the folder path for the cache storage
-    private folder() {
-        return dotGenaiscriptPath("cache", this.name)
-    }
-
-    // Get the full path to the cache file
-    private path() {
-        return host.resolvePath(this.folder(), "db.jsonl")
-    }
-
-    /**
-     * Initialize the cache by loading entries from the file.
-     * Identifies duplicate entries and rewrites the file if necessary.
-     */
-    private async initialize() {
+    protected async initialize() {
         if (this._entries) return
         this._entries = {}
-        await host.createDirectory(this.folder()) // Ensure directory exists
-        const content = await tryReadText(this.path())
-        const objs: CacheEntry<K, V>[] = (await JSONLTryParse(content)) ?? []
-        let numdup = 0 // Counter for duplicates
-        for (const obj of objs) {
-            if (this._entries[obj.sha]) numdup++ // Count duplicates
-            this._entries[obj.sha] = obj
-        }
-        if (2 * numdup > objs.length) {
-            // Rewrite file if too many duplicates
-            await writeJSONL(
-                this.path(),
-                objs.filter((o) => this._entries[o.sha] === o) // Preserve order
-            )
-        }
     }
 
     /**
@@ -85,6 +59,15 @@ export class JSONLineCache<K, V> extends EventTarget {
     async keys(): Promise<K[]> {
         await this.initialize()
         return Object.values(this._entries).map((kv) => kv.key)
+    }
+
+    /**
+     * Retrieve all values from the cache.
+     * @returns
+     */
+    async values(): Promise<V[]> {
+        await this.initialize()
+        return Object.values(this._entries).map((kv) => kv.val)
     }
 
     /**
@@ -118,22 +101,22 @@ export class JSONLineCache<K, V> extends EventTarget {
         return this._entries[sha]?.val
     }
 
+    protected async appendEntry(entry: CacheEntry<K, V>) {}
+
     /**
      * Set a key-value pair in the cache, triggering a change event.
      * @param key - The key to set
      * @param val - The value to set
      * @param options - Optional trace options
      */
-    async set(key: K, val: V, options?: TraceOptions) {
-        const { trace } = options || {}
+    async set(key: K, val: V) {
         await this.initialize()
         const sha = await keySHA(key)
         const ent = { sha, key, val }
         const ex = this._entries[sha]
         if (ex && JSON.stringify(ex) == JSON.stringify(ent)) return // No change
         this._entries[sha] = ent
-        await appendJSONL(this.path(), [ent]) // Append to file
-        trace?.item(`cache ${this.name} set`)
+        await this.appendEntry(ent)
         this.dispatchEvent(new Event(CHANGE)) // Notify listeners
     }
 
@@ -143,9 +126,74 @@ export class JSONLineCache<K, V> extends EventTarget {
      * @returns A promise resolving to the SHA string
      */
     async getKeySHA(key: K) {
-        await this.initialize()
         const sha = await keySHA(key)
         return sha
+    }
+}
+
+/**
+ * A cache class that manages entries stored in JSONL format.
+ * It allows storage and retrieval of cache entries with unique SHA identifiers.
+ * @template K - Type of the key
+ * @template V - Type of the value
+ */
+export class JSONLineCache<K, V> extends MemoryCache<K, V> {
+    // Constructor is private to enforce the use of byName factory method
+    protected constructor(public readonly name: string) {
+        super(name) // Initialize EventTarget
+    }
+
+    /**
+     * Factory method to create or retrieve an existing cache by name.
+     * Sanitizes the name to ensure it is a valid identifier.
+     * @param name - The name of the cache
+     * @returns An instance of JSONLineCache
+     */
+    static byName<K, V>(name: string): JSONLineCache<K, V> {
+        name = name.replace(/[^a-z0-9_]/gi, "_") // Sanitize name
+        const key = "workspacecache." + name
+        if (host.userState[key]) return host.userState[key] // Return if exists
+        const r = new JSONLineCache<K, V>(name)
+        host.userState[key] = r
+        return r
+    }
+
+    // Get the folder path for the cache storage
+    private folder() {
+        return dotGenaiscriptPath("cache", this.name)
+    }
+
+    // Get the full path to the cache file
+    private path() {
+        return host.resolvePath(this.folder(), "db.jsonl")
+    }
+
+    /**
+     * Initialize the cache by loading entries from the file.
+     * Identifies duplicate entries and rewrites the file if necessary.
+     */
+    override async initialize() {
+        if (this._entries) return
+        this._entries = {}
+        await host.createDirectory(this.folder()) // Ensure directory exists
+        const content = await tryReadText(this.path())
+        const objs: CacheEntry<K, V>[] = (await JSONLTryParse(content)) ?? []
+        let numdup = 0 // Counter for duplicates
+        for (const obj of objs) {
+            if (this._entries[obj.sha]) numdup++ // Count duplicates
+            this._entries[obj.sha] = obj
+        }
+        if (2 * numdup > objs.length) {
+            // Rewrite file if too many duplicates
+            await writeJSONL(
+                this.path(),
+                objs.filter((o) => this._entries[o.sha] === o) // Preserve order
+            )
+        }
+    }
+
+    override async appendEntry(ent: CacheEntry<K, V>) {
+        await appendJSONL(this.path(), [ent]) // Append to file
     }
 }
 

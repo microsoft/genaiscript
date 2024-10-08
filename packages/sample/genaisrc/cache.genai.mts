@@ -1,5 +1,5 @@
 script({
-    model: "openai:gpt-3.5-turbo",
+    model: "openai:gpt-4o-mini",
     cache: "gpt-cache",
     tests: [{}, {}], // run twice to trigger caching
 })
@@ -20,20 +20,22 @@ if (!keys.includes(key)) throw new Error(`unexpected keys: ${keys}`)
 
 console.log(`cache test passed`)
 
-$`Generate a random word.`
+$`Generate 2 word poem.`
 
 defOutputProcessor(async ({ text }) => {
-    console.error(`process output`)
+    console.log(`process output`)
     const pcache = await workspace.cache<string, string>("poem-cache")
     const cached = await pcache.get("poem-result")
     if (cached) {
-        console.error(`cache hit ${cached} | ${text}`)
+        console.log(`cache hit ${cached} | ${text}`)
         if (cached !== text) {
             console.error(`cached value mismatch`)
-            throw new Error(`unexpected cached value: ${cached}`)
+            throw new Error(
+                `unexpected cached value: ${cached}, expected ${text}`
+            )
         }
     } else {
-        console.error(`storing poem in cache`)
+        console.log(`storing poem in cache`)
         await pcache.set("poem-result", text)
     }
 })
