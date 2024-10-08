@@ -148,3 +148,13 @@ We use the `system` parameter to configure the tools exposed to the LLM. In this
 ```
 
 This full source of this agent is defined in the [system.agent_github](/genaiscript/reference/scripts/system/#systemagent_github) system prompt.
+
+## Agent Memory
+
+The `agent_memory` is a special agent that queries the memories created by other agent conversations. It is used to store and retrieve information from the LLM's memory.
+
+All agent contribute to the conversation memory unless it is explicitely disabled using `disableMemory`.
+
+```js "disableMemory: true"
+defAgent(..., { disableMemory: true })
+```
