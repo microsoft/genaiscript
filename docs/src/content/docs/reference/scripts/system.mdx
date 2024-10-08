@@ -302,7 +302,7 @@ system({
     title: "agent that retrieves memories",
 })
 
-const cache = await host.cache("memory")
+const cache = await host.cache("agent_memory")
 defAgent(
     "memory",
     "queries the memories created by other agent conversations.",
@@ -1113,7 +1113,7 @@ defTool(
         context.log(`github action list jobs for run ${run_id}`)
         const res = await github.listWorkflowJobs(run_id)
         return CSV.stringify(
-            res.map(({ id, name, status }) => ({ id, name, status })),
+            res.map(({ id, name, conclusion }) => ({ id, name, conclusion })),
             { header: true }
         )
     }

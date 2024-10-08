@@ -659,23 +659,30 @@ export class GitHubClient implements GitHub {
 
     async listWorkflowJobs(
         run_id: number,
-        options?: GitHubPaginationOptions
+        options?: { filter?: "all" | "latest" } & GitHubPaginationOptions
     ): Promise<GitHubWorkflowJob[]> {
         // Get the jobs for the specified workflow run
         const { client, owner, repo } = await this.client()
-        const { count = GITHUB_REST_PAGE_DEFAULT, ...rest } = options ?? {}
+        const {
+            filter,
+            count = GITHUB_REST_PAGE_DEFAULT,
+            ...rest
+        } = options ?? {}
         const ite = client.paginate.iterator(
             client.rest.actions.listJobsForWorkflowRun,
             {
                 owner,
                 repo,
                 run_id,
+                filter,
             }
         )
         const jobs = await paginatorToArray(ite, count, (i) => i.data)
 
         const res: GitHubWorkflowJob[] = []
         for (const job of jobs) {
+            if (job.conclusion === "skipped" || job.conclusion === "cancelled")
+                continue
             const { url: logs_url } =
                 await client.rest.actions.downloadJobLogsForWorkflowRun({
                     owner,

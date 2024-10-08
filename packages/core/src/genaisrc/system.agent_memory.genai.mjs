@@ -2,7 +2,7 @@ system({
     title: "agent that retrieves memories",
 })
 
-const cache = await host.cache("memory")
+const cache = await host.cache("agent_memory")
 defAgent(
     "memory",
     "queries the memories created by other agent conversations.",

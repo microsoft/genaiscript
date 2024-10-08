@@ -41,7 +41,7 @@ import {
 import { parseModelIdentifier, resolveModelConnectionInfo } from "./models"
 import {
     CHAT_REQUEST_PER_MODEL_CONCURRENT_LIMIT,
-    MEMORY_CACHE_NAME,
+    AGENT_MEMORY_CACHE_NAME,
     MODEL_PROVIDER_AICI,
     SYSTEM_FENCE,
 } from "./constants"
@@ -373,7 +373,7 @@ export function createChatGenerationContext(
                                         query: string
                                         answer: string
                                     }
-                                >(MEMORY_CACHE_NAME)
+                                >(AGENT_MEMORY_CACHE_NAME)
                                 const cacheKey = { agent: agentName, query }
                                 const cachedValue = {
                                     ...cacheKey,
