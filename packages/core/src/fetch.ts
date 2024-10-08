@@ -165,7 +165,8 @@ export function traceFetchPost(
 ${Object.entries(headers)
     .map(([k, v]) => `-H "${k}: ${v}"`)
     .join("\\\n")} \\
--d '${JSON.stringify(body, null, 2).replace(/'/g, "'\\''")}' 
+-d '${JSON.stringify(body, null, 2).replace(/'/g, "'\\''")}'
+--no-buffer
 `
     if (trace) trace.detailsFenced(`✉️ fetch`, cmd, "bash")
     else logVerbose(cmd)

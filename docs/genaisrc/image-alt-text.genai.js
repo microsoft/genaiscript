@@ -1,7 +1,7 @@
 script({
     title: "Image Alt Text generator",
     description: "Generate alt text for images",
-    model: "openai:gpt-4-turbo-v",
+    model: "openai:gpt-4o",
     group: "docs",
     maxTokens: 4000,
     temperature: 0,

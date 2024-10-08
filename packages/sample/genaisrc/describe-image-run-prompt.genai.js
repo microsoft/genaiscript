@@ -17,7 +17,7 @@ for (const file of env.files) {
             _.defImages(file, { detail: "low" })
         },
         {
-            model: "openai:gpt-4-turbo-v",
+            model: "openai:gpt-4o",
             maxTokens: 4000,
         }
     )

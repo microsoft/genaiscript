@@ -118,25 +118,3 @@ describe("retrieval", () => {
         })
     })
 })
-
-describe("workspace", () => {
-    const cmd = "workspace"
-    describe("grep", () => {
-        const action = "grep"
-        test("markdown", async () => {
-            console.log(`grep markdown`)
-            const res =
-                await $`node ${cli} ${cmd} ${action} markdown "src/rag/*"`.nothrow()
-            console.log(`grep done`)
-            assert(res.stdout.includes("markdown.md"))
-            assert(!res.exitCode)
-        })
-        test("mark[d](o)wn", async () => {
-            console.log(`grep mark[d](o)wn`)
-            const res =
-                await $`node ${cli} ${cmd} ${action} "mark[d](o)wn" "src/rag/*"`.nothrow()
-            assert(res.stdout.includes("markdown.md"))
-            assert(!res.exitCode)
-        })
-    })
-})

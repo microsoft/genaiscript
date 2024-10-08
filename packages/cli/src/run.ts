@@ -522,7 +522,11 @@ export async function runScript(
             }
         }
     }
-    // final fail
+
+    logVerbose(`genaiscript: ${result.status}`)
+    stats.log()
+    if (outTraceFilename) logVerbose(`  trace: ${outTraceFilename}`)
+
     if (result.status !== "success" && result.status !== "cancelled") {
         const msg =
             errorMessage(result.error) ??
@@ -534,8 +538,5 @@ export async function runScript(
     if (failOnErrors && result.annotations?.some((a) => a.severity === "error"))
         return fail("error annotations found", ANNOTATION_ERROR_CODE)
 
-    logVerbose("genaiscript: done")
-    stats.log()
-    if (outTraceFilename) logVerbose(`  trace: ${outTraceFilename}`)
     return { exitCode: 0, result }
 }

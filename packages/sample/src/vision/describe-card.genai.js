@@ -1,7 +1,7 @@
 script({
     description: "Given an image of business card, extract the details to a csv file",
     group: "vision",
-    model: "gpt-4-turbo-v",
+    model: "gpt-4o",
     maxTokens: 4000,
 })
 defImages(env.files)

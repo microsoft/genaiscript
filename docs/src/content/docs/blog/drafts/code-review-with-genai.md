@@ -6,13 +6,12 @@ tags: ["code review", "development", "programming", "automation"]
 authors: genaiscript
 canonical_url: https://microsoft.github.io/genaiscript/blog/code-review-with-genai
 description: Dive into automated code review processes with GenAI, enhancing
-  developer efficiency and code quality.
-
+    developer efficiency and code quality.
 ---
 
 ## Introducing "Code Review with GenAI" 🧐
 
-Have you ever wished for an extra set of eyes while coding? Well, GenAI has got your back! Let's delve into the "Reviewer" script, which automates the code review process, making it a breeze for developers. This powerful script for the GenAIScript platform can be found [here on GitHub](https://github.com/microsoft/genaiscript/blob/main/packages/vscode/genaisrc/rv.genai.mts).
+Have you ever wished for an extra set of eyes while coding? Well, GenAI has got your back! Let's delve into the "Reviewer" script, which automates the code review process, making it a breeze for developers. This powerful script for the GenAIScript platform can be found [here on GitHub](https://github.com/microsoft/genaiscript/blob/main/packages/vscode/genaisrc/prr.genai.mts).
 
 ### What is the Script About?
 

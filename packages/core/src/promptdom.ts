@@ -8,13 +8,10 @@ import { MarkdownTrace, TraceOptions } from "./trace"
 import { arrayify, assert, toStringList, trimNewlines } from "./util"
 import { YAMLStringify } from "./yaml"
 import {
-    DEDENT_INSPECT_MAX_DEPTH,
     MARKDOWN_PROMPT_FENCE,
-    MAX_TOKENS_ELLIPSE,
     PROMPT_FENCE,
     TEMPLATE_ARG_DATA_SLICE_SAMPLE,
     TEMPLATE_ARG_FILE_MAX_TOKENS,
-    TOKEN_TRUNCATION_THRESHOLD,
 } from "./constants"
 import { parseModelIdentifier } from "./models"
 import { toChatCompletionUserMessage } from "./chat"
@@ -30,7 +27,6 @@ import { resolveTokenEncoder } from "./encoders"
 import { expandFiles } from "./fs"
 import { interpolateVariables } from "./mustache"
 import { createDiff } from "./diff"
-import { total } from "@tidyjs/tidy"
 
 // Definition of the PromptNode interface which is an essential part of the code structure.
 export interface PromptNode extends ContextExpansionOptions {
@@ -127,12 +123,13 @@ export interface PromptSchemaNode extends PromptNode {
 }
 
 // Interface for a function node.
-export interface PromptToolNode extends PromptNode, DefToolOptions {
+export interface PromptToolNode extends PromptNode {
     type: "tool"
     name: string // Function name
     description: string // Description of the function
     parameters: JSONSchema // Parameters for the function
     impl: ChatFunctionHandler // Implementation of the function
+    options?: DefToolOptions
 }
 
 // Interface for a file merge node.
@@ -222,7 +219,7 @@ function renderDefNode(def: PromptDefNode): string {
             : PROMPT_FENCE
     const norm = (s: string, lang: string) => {
         s = (s || "").replace(/\n*$/, "")
-        if (s && lineNumbers) s = addLineNumbers(s, lang)
+        if (s && lineNumbers) s = addLineNumbers(s, { language: lang })
         if (s) s += "\n"
         return s
     }
@@ -315,13 +312,13 @@ export function createToolNode(
     assert(!!description)
     assert(parameters !== undefined)
     assert(impl !== undefined)
-    return {
-        ...(options || {}),
+    return <PromptToolNode>{
         type: "tool",
         name,
         description: dedent(description),
         parameters,
         impl,
+        options,
     }
 }
 
@@ -979,10 +976,15 @@ ${trimNewlines(schemaText)}
                 )
         },
         tool: (n) => {
-            const { name, description, parameters, impl: fn } = n
+            const { name, description, parameters, impl: fn, options } = n
             tools.push({
-                spec: { name, description, parameters },
+                spec: {
+                    name,
+                    description,
+                    parameters,
+                },
                 impl: fn,
+                options,
             })
             trace.detailsFenced(
                 `🛠️ tool ${name}`,

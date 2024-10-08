@@ -33,7 +33,7 @@ defTool(
             `ls ${glob} ${pattern ? `| grep ${pattern}` : ""} ${frontmatter ? "--frontmatter" : ""}`
         )
         const res = pattern
-            ? (await workspace.grep(pattern, glob, { readText: false })).files
+            ? (await workspace.grep(pattern, { glob, readText: false })).files
             : await workspace.findFiles(glob, { readText: false })
         if (!res?.length) return "No files found."
 

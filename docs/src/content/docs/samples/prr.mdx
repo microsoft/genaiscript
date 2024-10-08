@@ -6,7 +6,7 @@ sidebar:
 ---
 
 import { Code } from "@astrojs/starlight/components"
-import source from "../../../../../packages/vscode/genaisrc/rv.genai.mts?raw"
+import source from "../../../../../packages/vscode/genaisrc/prr.genai.mts?raw"
 
 Let's delve into the "Reviewer" script, which automates the code review process, making it a breeze for developers.
 
@@ -14,12 +14,12 @@ Let's delve into the "Reviewer" script, which automates the code review process,
 
 ```ts
 script({
-    title: "Reviewer",
-    description: "Review the current files",
+    title: "Pull Request Reviewer",
+    description: "Review the current pull request",
     model: "openai:gpt-4o",
     system: ["system.annotations"],
     tools: ["fs_find_files", "fs_read_text"],
-    cache: "rv",
+    cache: "prr",
     parameters: {
         errors: {
             type: "boolean",

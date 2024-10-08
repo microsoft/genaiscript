@@ -32,21 +32,6 @@
                 "showReuseMessage": false,
                 "clear": true
             }
-        },
-        {
-            "label": "rv",
-            "type": "shell",
-            "command": "node packages/cli/built/genaiscript.cjs run rv",
-            "detail": "genai reviewer",
-            "problemMatcher": "$tsc",
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": false,
-                "panel": "shared",
-                "showReuseMessage": false,
-                "clear": true
-            }
         }
     ]
 }

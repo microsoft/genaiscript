@@ -3,28 +3,22 @@ script({
     description: "Generate a pull request description from the git diff",
     tools: ["fs"],
     temperature: 0.5,
+    model: "openai:gpt-4o",
 })
 
 const defaultBranch = await git.defaultBranch()
 const changes = await git.diff({
     base: defaultBranch,
-    excludedPaths: [
-        ".vscode/*",
-        "**/yarn.lock",
-        "**/genaiscript.d.ts",
-        "*THIRD_PARTY_LICENSES.md",
-    ],
 })
 console.log(changes)
-
-def("GIT_DIFF", changes, { maxTokens: 20000 })
 
 // task
 $`You are an expert software developer and architect.
 
 ## Task
 
-- Describe a high level summary of the changes in GIT_DIFF in a way that a software engineer will understand.
+Describe a high level summary of the changes in GIT_DIFF in a way that a software engineer will understand.
+This description will be used as the pull request description.
 
 ## Instructions
 
@@ -35,5 +29,7 @@ $`You are an expert software developer and architect.
 - focus on the most important changes
 - ignore comments about imports (like added, remove, changed, etc.)
 `
+
+def("GIT_DIFF", changes, { maxTokens: 30000 })
 
 // running: make sure to add the -prd flag

@@ -407,30 +407,6 @@ Options:
   -h, --help          display help for command
 ```
 
-## `workspace`
-
-```
-Usage: genaiscript workspace [options] [command]
-
-Workspace tasks
-
-Options:
-  -h, --help                 display help for command
-
-Commands:
-  grep <pattern> [files...]
-  help [command]             display help for command
-```
-
-### `workspace grep`
-
-```
-Usage: genaiscript workspace grep [options] <pattern> [files...]
-
-Options:
-  -h, --help  display help for command
-```
-
 ## `info`
 
 ```

@@ -188,12 +188,19 @@ async function runToolCalls(
                     return { tool, args: tu.parameters }
                 })
             } else {
-                const tool = tools.find((f) => f.spec.name === call.name)
+                let tool = tools.find((f) => f.spec.name === call.name)
                 if (!tool) {
                     logVerbose(JSON.stringify(call, null, 2))
-                    throw new Error(
+                    logVerbose(
                         `tool ${call.name} not found in ${tools.map((t) => t.spec.name).join(", ")}`
                     )
+                    tool = {
+                        spec: {
+                            name: call.name,
+                            description: "unknown tool",
+                        },
+                        impl: async () => "unknown tool",
+                    }
                 }
                 todos = [{ tool, args: callArgs }]
             }
@@ -203,7 +210,7 @@ async function runToolCalls(
                 const { tool, args } = todo
                 const {
                     maxTokens: maxToolContentTokens = MAX_TOOL_CONTENT_TOKENS,
-                } = tool.spec
+                } = tool.options || {}
                 const context: ToolCallContext = {
                     log: (txt: string) => {
                         logVerbose(txt)
@@ -596,40 +603,20 @@ export async function executeChatSession(
     } = genOptions
     traceLanguageModelConnection(trace, genOptions, connectionToken)
     const tools: ChatCompletionTool[] = toolDefinitions?.length
-        ? toolDefinitions.map((f) => ({
-              type: "function",
-              function: f.spec as any,
-          }))
+        ? toolDefinitions.map(
+              (f) =>
+                  <ChatCompletionTool>{
+                      type: "function",
+                      function: {
+                          name: f.spec.name,
+                          description: f.spec.description,
+                          parameters: f.spec.parameters as any,
+                      },
+                  }
+          )
         : undefined
     trace.startDetails(`🧠 llm chat`)
-    if (toolDefinitions?.length)
-        trace.details(
-            `🛠️ tools`,
-            dedent`\`\`\`ts
-            ${toolDefinitions
-                .map(
-                    (t) => dedent`/**
-                         * ${t.spec.description}${
-                             t.spec.parameters?.type === "object"
-                                 ? Object.entries(
-                                       t.spec.parameters.properties || {}
-                                   )
-                                       .filter(([, ps]) => ps.description)
-                                       .map(
-                                           ([pn, ps]) =>
-                                               `\n * @param ${pn} ${ps.description}`
-                                       )
-                                       .join("")
-                                 : ""
-                         }
-                         */
-                        function ${t.spec.name}(${JSONSchemaToFunctionParameters(t.spec.parameters)})
-                        `
-                )
-                .join("\n")}
-            \`\`\`
-            `
-        )
+    if (toolDefinitions?.length) trace.detailsFenced(`🛠️ tools`, tools, "yaml")
     try {
         let genVars: Record<string, string>
         while (true) {

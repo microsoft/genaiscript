@@ -93,7 +93,7 @@ The quick brown fox jumps over the lazy dog.
 Grep or fuzz search [files](https://microsoft.github.io/genaiscript/reference/scripts/files).
 
 ```js
-const { files } = await workspace.grep(/[a-z][a-z0-9]+/, "**/*.md")
+const { files } = await workspace.grep(/[a-z][a-z0-9]+/, { globs: "*.md" })
 ```
 
 ### LLM Tools

@@ -71,6 +71,7 @@ interface PromptLike extends PromptDefinition {
 
 type SystemPromptId = OptionsOrString<
     | "system"
+    | "system.agent_docs"
     | "system.agent_fs"
     | "system.agent_git"
     | "system.agent_github"
@@ -87,12 +88,14 @@ type SystemPromptId = OptionsOrString<
     | "system.fs_find_files"
     | "system.fs_read_file"
     | "system.git"
+    | "system.git_info"
     | "system.github_actions"
     | "system.github_files"
     | "system.github_info"
     | "system.github_issues"
     | "system.github_pulls"
     | "system.math"
+    | "system.md_find_files"
     | "system.md_frontmatter"
     | "system.python"
     | "system.python_code_interpreter"
@@ -109,6 +112,7 @@ type SystemPromptId = OptionsOrString<
 >
 
 type SystemToolId = OptionsOrString<
+    | "agent_docs"
     | "agent_fs"
     | "agent_git"
     | "agent_github"
@@ -118,6 +122,7 @@ type SystemToolId = OptionsOrString<
     | "fs_find_files"
     | "fs_read_file"
     | "git_branch_current"
+    | "git_branch_default"
     | "git_branch_list"
     | "git_diff"
     | "git_last_tag"
@@ -136,6 +141,7 @@ type SystemToolId = OptionsOrString<
     | "github_pulls_list"
     | "github_pulls_review_comments_list"
     | "math_eval"
+    | "md_find_files"
     | "md_read_frontmatter"
     | "python_code_interpreter_copy_files"
     | "python_code_interpreter_run"
@@ -489,7 +495,7 @@ interface WorkspaceFileWithScore extends WorkspaceFile {
     score?: number
 }
 
-interface ToolDefinition extends DefToolOptions {
+interface ToolDefinition {
     /**
      * The name of the function to be called. Must be a-z, A-Z, 0-9, or contain
      * underscores and dashes, with a maximum length of 64.
@@ -610,6 +616,26 @@ interface WorkspaceFileCache<K, V> {
     values(): Promise<V[]>
 }
 
+interface WorkspaceGrepOptions {
+    /**
+     * List of paths to
+     */
+    path?: ElementOrArray<string>
+    /**
+     * list of filename globs to search. !-prefixed globs are excluded. ** are not supported.
+     */
+    glob?: ElementOrArray<string>
+    /**
+     * Set to false to skip read text content. True by default
+     */
+    readText?: boolean
+}
+
+interface WorkspaceGrepResult {
+    files: WorkspaceFile[]
+    matches: WorkspaceFile[]
+}
+
 interface WorkspaceFileSystem {
     /**
      * Searches for files using the glob pattern and returns a list of files.
@@ -633,14 +659,13 @@ interface WorkspaceFileSystem {
      */
     grep(
         query: string | RegExp,
-        globs: string | string[],
-        options?: {
-            /**
-             * Set to false to skip read text content. True by default
-             */
-            readText?: boolean
-        }
-    ): Promise<{ files: WorkspaceFile[] }>
+        options?: WorkspaceGrepOptions
+    ): Promise<WorkspaceGrepResult>
+    grep(
+        query: string | RegExp,
+        glob: string,
+        options?: Omit<WorkspaceGrepOptions, "path" | "glob">
+    ): Promise<WorkspaceGrepResult>
 
     /**
      * Reads the content of a file as text
@@ -701,6 +726,7 @@ interface ToolCallContext {
 
 interface ToolCallback {
     spec: ToolDefinition
+    options?: DefToolOptions
     impl: (
         args: { context: ToolCallContext } & Record<string, any>
     ) => Awaitable<ToolCallOutput>
@@ -1081,6 +1107,28 @@ type TokenEncoder = (text: string) => number[]
 interface CSVParseOptions {
     delimiter?: string
     headers?: string[]
+}
+
+interface Tokenizers {
+    /**
+     * Estimates the number of tokens in the content. May not be accurate
+     * @param model
+     * @param text
+     */
+    count(text: string, options?: { model: string }): Promise<number>
+
+    /**
+     * Truncates the text to a given number of tokens, approximation.
+     * @param model
+     * @param text
+     * @param maxTokens
+     * @param options
+     */
+    truncate(
+        text: string,
+        maxTokens: number,
+        options?: { model?: string; last?: boolean }
+    ): Promise<string>
 }
 
 interface Parsers {
@@ -3151,6 +3199,11 @@ declare var github: GitHub
  * Access to Git operations for the current repository
  */
 declare var git: Git
+
+/**
+ * Computation around tokens
+ */
+declare var tokenizers: Tokenizers
 
 /**
  * Fetches a given URL and returns the response.

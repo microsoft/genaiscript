@@ -5,7 +5,7 @@ system({
 
 defTool(
     "fs_diff_files",
-    "Computes a diff between two files.",
+    "Computes a diff between two different files. Use git diff instead to compare versions of a file.",
     {
         type: "object",
         properties: {
@@ -24,9 +24,14 @@ defTool(
     },
     async (args) => {
         const { context, filename, otherfilename } = args
-        context.log(`diff: ${filename} ${filename}`)
+        context.log(`fs diff ${filename}..${otherfilename}`)
+        if (filename === otherfilename) return ""
+
         const f = await workspace.readText(filename)
         const of = await workspace.readText(otherfilename)
         return parsers.diff(f, of)
+    },
+    {
+        maxTokens: 20000,
     }
 )

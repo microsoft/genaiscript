@@ -20,7 +20,7 @@ import { GenerationOptions } from "./generation"
 import { promptParametersSchemaToJSONSchema } from "./parameters"
 import { consoleLogFormat } from "./logging"
 import { isGlobMatch } from "./glob"
-import { arrayify, logVerbose } from "./util"
+import { arrayify, logError, logVerbose } from "./util"
 import { renderShellOutput } from "./chatrender"
 import { jinjaRender } from "./jinja"
 import { mustacheRender } from "./mustache"
@@ -45,7 +45,12 @@ import {
 import { renderAICI } from "./aici"
 import { resolveSystems, resolveTools } from "./systems"
 import { callExpander } from "./expander"
-import { isCancelError, NotSupportedError, serializeError } from "./error"
+import {
+    errorMessage,
+    isCancelError,
+    NotSupportedError,
+    serializeError,
+} from "./error"
 import { resolveLanguageModel } from "./lm"
 import { concurrentLimit } from "./concurrency"
 import { Project } from "./ast"
@@ -245,8 +250,9 @@ export function createChatGenerationContext(
             | AgenticToolProviderCallback,
         description: string,
         parameters: PromptParametersSchema | JSONSchemaObject,
-        fn: ChatFunctionHandler
-    ) => void = (name, description, parameters, fn) => {
+        fn: ChatFunctionHandler,
+        defOptions?: DefToolOptions
+    ) => void = (name, description, parameters, fn, defOptions) => {
         if (name === undefined || name === null)
             throw new Error("tool name is missing")
 
@@ -255,7 +261,13 @@ export function createChatGenerationContext(
                 promptParametersSchemaToJSONSchema(parameters)
             appendChild(
                 node,
-                createToolNode(name, description, parameterSchema, fn)
+                createToolNode(
+                    name,
+                    description,
+                    parameterSchema,
+                    fn,
+                    defOptions
+                )
             )
         } else if ((name as ToolCallback | AgenticToolCallback).impl) {
             const tool = name as ToolCallback | AgenticToolCallback
@@ -265,7 +277,8 @@ export function createChatGenerationContext(
                     tool.spec.name,
                     tool.spec.description,
                     tool.spec.parameters as any,
-                    tool.impl
+                    tool.impl,
+                    defOptions
                 )
             )
         } else if ((name as AgenticToolProviderCallback).functions) {
@@ -277,7 +290,8 @@ export function createChatGenerationContext(
                         tool.spec.name,
                         tool.spec.description,
                         tool.spec.parameters as any,
-                        tool.impl
+                        tool.impl,
+                        defOptions
                     )
                 )
         }
@@ -515,8 +529,10 @@ export function createChatGenerationContext(
                 chatParticipants = cps
                 messages.push(...msgs)
 
-                if (errors?.length)
+                if (errors?.length) {
+                    logError(errors.map((err) => errorMessage(err)).join("\n"))
                     throw new Error("errors while running prompt")
+                }
             }
 
             const systemMessage: ChatCompletionSystemMessageParam = {

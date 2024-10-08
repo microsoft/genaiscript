@@ -43,7 +43,6 @@ import {
     serializeError,
 } from "../../core/src/error" // Error handling utilities
 import { CORE_VERSION, GITHUB_REPO } from "../../core/src/version" // Core version and repository info
-import { grep } from "./grep" // Grep functionality
 import { logVerbose } from "../../core/src/util" // Utility logging
 import { semverSatisfies } from "../../core/src/semver" // Semantic version checking
 
@@ -338,12 +337,6 @@ export async function cli() {
         .argument("<file...>", "input JSONL files")
         .option("-o, --out <string>", "output folder")
         .action(prompty2genaiscript) // Action to convert prompty files
-
-    // Define 'workspace' command group for workspace-related tasks
-    const workspace = program
-        .command("workspace")
-        .description("Workspace tasks")
-    workspace.command("grep").arguments("<pattern> [files...]").action(grep) // Action to grep files in workspace
 
     // Define 'info' command group for utility information tasks
     const info = program.command("info").description("Utility tasks")
