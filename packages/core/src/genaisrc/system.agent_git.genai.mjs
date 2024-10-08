@@ -15,6 +15,5 @@ defAgent(
     {
         model,
         system: ["system.git_info", "system.github_info", "system.git"],
-        memory: true
     }
 )

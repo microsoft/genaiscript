@@ -9,7 +9,6 @@ defAgent(
     "query GitHub to accomplish tasks",
     `Your are a helpfull LLM agent that can query GitHub to accomplish tasks. Answer the question in QUERY.
     - Prefer diffing job logs rather downloading entire logs which can be very large.
-    - Pull Requests ar a specialized type of issues.
     `,
     {
         model,
@@ -22,6 +21,5 @@ defAgent(
             "system.github_issues",
             "system.github_pulls",
         ],
-        memory: true,
     }
 )
