@@ -1,7 +1,7 @@
 script({
-    title: "Pull Request Descriptor - Agent",
+    title: "Pull Request Descriptor - Tools",
     description: "Generate a pull request description from the git diff",
-    tools: ["fs", "git_diff", "git_branch_current", "git_branch_default"],
+    tools: ["fs", "git"],
     temperature: 0.5,
 })
 
