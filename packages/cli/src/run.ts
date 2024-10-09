@@ -273,6 +273,7 @@ export async function runScript(
         const { info } = await resolveModelConnectionInfo(script, {
             trace,
             model: options.model,
+            token: true
         })
         if (info.error) {
             trace.error(undefined, info.error)

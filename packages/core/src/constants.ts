@@ -46,7 +46,6 @@ export const LARGE_MODEL_ID = "large"
 export const DEFAULT_MODEL = "openai:gpt-4o"
 export const DEFAULT_MODEL_CANDIDATES = [
     "azure:gpt-4o",
-    "azure:gpt-4-turbo",
     DEFAULT_MODEL,
     "github:gpt-4o",
     "client:gpt-4",

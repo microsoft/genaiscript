@@ -7,7 +7,7 @@ import { MarkdownTrace } from "./trace"
 import { logVerbose, logWarn } from "./util"
 // import pricing.json and assert json
 import pricings from "./pricing.json" // Interface to hold statistics related to the generation process
-import { parseModelIdentifier, resolveModelAlias } from "./models"
+import { parseModelIdentifier } from "./models"
 import {
     MODEL_PROVIDER_AICI,
     MODEL_PROVIDER_GITHUB,
