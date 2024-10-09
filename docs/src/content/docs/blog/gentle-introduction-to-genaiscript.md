@@ -95,7 +95,7 @@ GitHub Models, Ollama and more.
 script({
     title: "Technical proofreading",
     description: "Reviews the text as a tech writer.",
-    model: "openai:gpt-3.5-turbo",
+    model: "openai:gpt-4o",
     temperature: 0.1,
 })
 def("FILES", env.files)

@@ -38,7 +38,7 @@ The LLM engine will invoke the tool to validate the syntax of the generated code
 
 ```js
 script({
-    model: "openai:gpt-3.5-turbo",
+    model: "large",
 })
 let container = undefined
 let sourceIndex = 0
