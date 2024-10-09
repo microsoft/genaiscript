@@ -101,6 +101,7 @@ type SystemPromptId = OptionsOrString<
     | "system.md_frontmatter"
     | "system.node_info"
     | "system.node_test"
+    | "system.planner"
     | "system.python"
     | "system.python_code_interpreter"
     | "system.python-types"
