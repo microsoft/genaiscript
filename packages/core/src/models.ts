@@ -179,3 +179,14 @@ export async function resolveModelConnectionInfo(
         }
     }
 }
+
+export function resolveModelAlias(
+    modelId: string,
+    options?: ModelConnectionOptions
+) {
+    if (modelId === SMALL_MODEL_ID)
+        return options?.smallModel || host.defaultModelOptions.smallModel
+    if (modelId === LARGE_MODEL_ID)
+        return options?.model || host.defaultModelOptions.model
+    return modelId
+}

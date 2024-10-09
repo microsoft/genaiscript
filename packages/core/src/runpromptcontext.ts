@@ -356,7 +356,7 @@ export function createChatGenerationContext(
                 context.log(`${agentLabel}: ${query}`)
 
                 let memoryAnswer: string
-                if (memory && !disableMemoryQuery) {
+                if (memory && query && !disableMemoryQuery) {
                     // always pre-query memory with cheap model
                     const res = await runPrompt(
                         async (_) => {
@@ -376,7 +376,11 @@ export function createChatGenerationContext(
                             label: "agent memory query",
                         }
                     )
-                    memoryAnswer = res.text
+                    if (!res.error) memoryAnswer = res.text
+                    else
+                        logVerbose(
+                            `memory query error: ${errorMessage(res.error)}`
+                        )
                 }
 
                 const res = await runPrompt(
@@ -664,7 +668,8 @@ export function createChatGenerationContext(
             checkCancelled(cancellationToken)
             if (!connection.configuration)
                 throw new Error(
-                    "model connection error " + connection.info?.model
+                    "missing model connection information for " +
+                        connection.info?.model
                 )
             const { completer } = await resolveLanguageModel(
                 connection.configuration.provider
