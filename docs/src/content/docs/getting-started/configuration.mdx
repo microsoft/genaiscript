@@ -28,16 +28,26 @@ If you do not have access to an LLM, you can try [GitHub Models](#github), [GitH
 
 :::
 
-## model selection
+## Model selection
 
 The model used by the script is configured throught the `model` field in the `script` function.
 The model name is formatted as `provider:model-name`, where `provider` is the LLM provider
 and the `model-name` is provider specific.
 
-```js 'model: "openai:gpt-4"'
+```js 'model: "openai:gpt-4o"'
 script({
-    model: "openai:gpt-4",
+    model: "openai:gpt-4o",
 })
+```
+
+You can also use the `small` and `large` aliases to use the default configured small and large models.
+
+```js 'model: "small"'
+script({ model: "small" })
+```
+
+```js 'model: "large"'
+script({ model: "large" })
 ```
 
 The model can also be overriden from the [cli run command](/genaiscript/reference/cli/run#model).
