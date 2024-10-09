@@ -54,7 +54,7 @@ export const DEFAULT_MODEL_CANDIDATES = [
 export const DEFAULT_SMALL_MODEL = "openai:gpt-4o-mini"
 export const DEFAULT_SMALL_MODEL_CANDIDATES = [
     "azure:gpt-4o-mini",
-    DEFAULT_MODEL,
+    DEFAULT_SMALL_MODEL,
     "github:gpt-4o-mini",
     "client:gpt-4-mini",
 ]

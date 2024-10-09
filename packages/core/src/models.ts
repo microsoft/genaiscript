@@ -1,3 +1,4 @@
+import { uniq } from "es-toolkit"
 import {
     DEFAULT_EMBEDDINGS_MODEL_CANDIDATES,
     DEFAULT_MODEL_CANDIDATES,
@@ -97,24 +98,22 @@ export async function resolveModelConnectionInfo(
     configuration?: LanguageModelConfiguration
 }> {
     const { trace, token: askToken, signal } = options || {}
-    let candidates = [
-        host.defaultModelOptions.model,
-        ...DEFAULT_MODEL_CANDIDATES,
-    ]
+    let candidates = options?.candidates
     let m = options?.model ?? conn.model
     if (m === SMALL_MODEL_ID) {
-        m = host.defaultModelOptions.smallModel
+        m = undefined
         candidates ??= [
             host.defaultModelOptions.smallModel,
             ...DEFAULT_SMALL_MODEL_CANDIDATES,
         ]
     } else if (m === LARGE_MODEL_ID) {
-        m = host.defaultModelOptions.model
+        m = undefined
         candidates ??= [
             host.defaultModelOptions.model,
             ...DEFAULT_MODEL_CANDIDATES,
         ]
     }
+    candidates ??= [host.defaultModelOptions.model, ...DEFAULT_MODEL_CANDIDATES]
 
     const resolveModel = async (
         model: string,
@@ -165,7 +164,7 @@ export async function resolveModelConnectionInfo(
     if (m) {
         return await resolveModel(m, { withToken: askToken, reportError: true })
     } else {
-        for (const candidate of new Set(candidates || [])) {
+        for (const candidate of uniq(candidates).filter((c) => !!c)) {
             const res = await resolveModel(candidate, {
                 withToken: askToken,
                 reportError: false,
