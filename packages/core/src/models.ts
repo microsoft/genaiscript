@@ -103,13 +103,13 @@ export async function resolveModelConnectionInfo(
     ]
     let m = options?.model ?? conn.model
     if (m === SMALL_MODEL_ID) {
-        m = undefined
+        m = host.defaultModelOptions.smallModel
         candidates ??= [
             host.defaultModelOptions.smallModel,
             ...DEFAULT_SMALL_MODEL_CANDIDATES,
         ]
     } else if (m === LARGE_MODEL_ID) {
-        m = undefined // Large model is the default
+        m = host.defaultModelOptions.model
         candidates ??= [
             host.defaultModelOptions.model,
             ...DEFAULT_MODEL_CANDIDATES,

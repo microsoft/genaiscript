@@ -305,6 +305,7 @@ export function createChatGenerationContext(
                 )
         }
     }
+
     const defAgent = (
         name: string,
         description: string,
@@ -369,10 +370,10 @@ export function createChatGenerationContext(
                             await defMemory(_)
                         },
                         {
-                            model: "openai:gpt-4o-mini",
+                            model: "small",
                             system: ["system"],
                             flexTokens: 20000,
-                            label: "memory query",
+                            label: "agent memory query",
                         }
                     )
                     memoryAnswer = res.text
