@@ -379,7 +379,7 @@ export function createChatGenerationContext(
                     if (!res.error) memoryAnswer = res.text
                     else
                         logVerbose(
-                            `memory query error: ${errorMessage(res.error)}`
+                            `agent memory query error: ${errorMessage(res.error)}`
                         )
                 }
 
