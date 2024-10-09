@@ -18,7 +18,7 @@ export function estimateCost(modelId: string, usage: ChatCompletionUsage) {
     if (!modelId) return undefined
 
     const { completion_tokens, prompt_tokens } = usage
-    let { provider, model } = parseModelIdentifier(resolveModelAlias(modelId))
+    let { provider, model } = parseModelIdentifier(modelId)
     if (provider === MODEL_PROVIDER_AICI) return undefined
     else if (provider === MODEL_PROVIDER_GITHUB)
         provider = MODEL_PROVIDER_OPENAI
@@ -67,7 +67,7 @@ export class GenerationStats {
     }[] = []
 
     constructor(model: string, label?: string) {
-        this.model = resolveModelAlias(model)
+        this.model = model
         this.label = label
         this.usage = {
             completion_tokens: 0,

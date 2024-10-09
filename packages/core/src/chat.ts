@@ -26,7 +26,7 @@ import { errorMessage, isCancelError, serializeError } from "./error"
 import { estimateChatTokens } from "./chatencoder"
 import { createChatTurnGenerationContext } from "./runpromptcontext"
 import { dedent } from "./indent"
-import { resolveModelAlias, traceLanguageModelConnection } from "./models"
+import { traceLanguageModelConnection } from "./models"
 import {
     ChatCompletionContentPartImage,
     ChatCompletionMessageParam,
@@ -587,7 +587,7 @@ export function mergeGenerationOptions(
     options: GenerationOptions,
     runOptions: ModelOptions & EmbeddingsModelOptions
 ): GenerationOptions {
-    const res =  {
+    const res = {
         ...options,
         ...(runOptions || {}),
         model:
@@ -605,7 +605,6 @@ export function mergeGenerationOptions(
             options?.embeddingsModel ??
             host.defaultEmbeddingsModelOptions.embeddingsModel,
     }
-    res.model = resolveModelAlias(res.model, res)
     return res
 }
 

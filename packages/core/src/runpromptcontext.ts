@@ -543,10 +543,14 @@ export function createChatGenerationContext(
             const genOptions = mergeGenerationOptions(options, runOptions)
             genOptions.inner = true
             genOptions.trace = runTrace
+            const { info } = await resolveModelConnectionInfo(genOptions)
+            if (info.error) throw new Error(info.error)
+            genOptions.model = info.model
             genOptions.stats = genOptions.stats.createChild(
                 genOptions.model,
                 label
             )
+
             const ctx = createChatGenerationContext(
                 genOptions,
                 runTrace,
