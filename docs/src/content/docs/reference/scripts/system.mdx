@@ -1807,6 +1807,60 @@ defTool(
 `````
 
 
+### `system.node_info`
+
+Information about the current project
+
+
+
+
+
+`````js wrap title="system.node_info"
+system({
+    title: "Information about the current project",
+})
+
+const { stdout: nodeVersion } = await host.exec("node", ["--version"])
+const { stdout: npmVersion } = await host.exec("npm", ["--version"])
+const { name, version } = (await workspace.readJSON("package.json")) || {}
+if (nodeVersion) $`- node.js v${nodeVersion}`
+if (npmVersion) $`- npm v${npmVersion}`
+if (name) $`- package ${name} v${version || ""}`
+
+`````
+
+
+### `system.node_test`
+
+Tools to run node.js test script
+
+
+
+-  tool `node_test`: build and test current project using `npm test`
+
+`````js wrap title="system.node_test"
+system({
+    title: "Tools to run node.js test script",
+})
+
+defTool(
+    "node_test",
+    "build and test current project using `npm test`",
+    {
+        path: {
+            type: "string",
+            description:
+                "Path to the package folder relative to the workspace root",
+        },
+    },
+    async (args) => {
+        return await host.exec("npm", ["test"], { cwd: args.path })
+    }
+)
+
+`````
+
+
 ### `system.python`
 
 Expert at generating and understanding Python code.
