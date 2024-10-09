@@ -139,7 +139,10 @@ export async function githubUpdatePullRequestDescription(
             "X-GitHub-Api-Version": GITHUB_API_VERSION,
         },
     })
-    const resGetJson = (await resGet.json()) as { body: string }
+    const resGetJson = (await resGet.json()) as {
+        body: string
+        html_url: string
+    }
     const body = mergeDescription(commentTag, resGetJson.body, text)
     const res = await fetch(url, {
         method: "PATCH",
@@ -157,10 +160,9 @@ export async function githubUpdatePullRequestDescription(
 
     if (!r.updated)
         logError(
-            `pull request ${info.repository}/pull/${info.issue} update failed, ${r.statusText}`
+            `pull request ${resGetJson.html_url} update failed, ${r.statusText}`
         )
-    else
-        logVerbose(`pull request ${info.repository}/pull/${info.issue} updated`)
+    else logVerbose(`pull request ${resGetJson.html_url} updated`)
 
     return r
 }
