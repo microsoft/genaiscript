@@ -17,7 +17,6 @@ import { resolveTokenEncoder } from "../../core/src/encoders"
 import { DEFAULT_MODEL } from "../../core/src/constants"
 import { promptyParse, promptyToGenAIScript } from "../../core/src/prompty"
 import { basename, join } from "node:path"
-import { JSONLLMTryParse } from "../../core/src/json5"
 
 /**
  * This module provides various parsing utilities for different file types such

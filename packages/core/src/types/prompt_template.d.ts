@@ -125,6 +125,14 @@ interface ModelConnectionOptions {
         | "ollama:llama3"
         | "ollama:mixtral"
     >
+
+    /**
+     * Which LLM model to use.
+     *
+     * @default gpt-4
+     * @example gpt-4
+     */
+    smallModel?: OptionsOrString<"openai:gpt-4o-mini" | "openai:gpt-3.5-turbo">
 }
 
 interface ModelOptions extends ModelConnectionOptions {

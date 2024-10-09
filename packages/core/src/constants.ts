@@ -49,6 +49,14 @@ export const DEFAULT_MODEL_CANDIDATES = [
     "github:gpt-4o",
     "client:gpt-4",
 ]
+export const SMALL_MODEL_ID = "small"
+export const DEFAULT_SMALL_MODEL = "openai:gpt-4o-mini"
+export const DEFAULT_SMALL_MODEL_CANDIDATES = [
+    "azure:gpt-4o-mini",
+    DEFAULT_MODEL,
+    "github:gpt-4o-mini",
+    "client:gpt-4-mini",
+]
 export const DEFAULT_EMBEDDINGS_MODEL_CANDIDATES = [
     "azure:text-embedding-3-small",
     "openai:text-embedding-3-small",

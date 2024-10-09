@@ -152,6 +152,7 @@ export async function cli() {
         .option("-t, --temperature <number>", "temperature for the run")
         .option("-tp, --top-p <number>", "top-p for the run")
         .option("-m, --model <string>", "model for the run")
+        .option("-sm, --small-model <string>", "small model for the run")
         .option("-mt, --max-tokens <number>", "maximum tokens for the run")
         .option("-mdr, --max-data-repairs <number>", "maximum data repairs")
         .option(

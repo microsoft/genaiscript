@@ -10,6 +10,7 @@ import { parseDefaultsFromEnv } from "../../core/src/connection"
 import {
     DEFAULT_EMBEDDINGS_MODEL,
     DEFAULT_MODEL,
+    DEFAULT_SMALL_MODEL,
     DEFAULT_TEMPERATURE,
     DOT_ENV_FILENAME,
 } from "../../core/src/constants"
@@ -32,6 +33,7 @@ export class VSCodeHost extends EventTarget implements Host {
     readonly server: TerminalServerManager
     readonly defaultModelOptions = {
         model: DEFAULT_MODEL,
+        smallModel: DEFAULT_SMALL_MODEL,
         temperature: DEFAULT_TEMPERATURE,
     }
     readonly defaultEmbeddingsModelOptions = {

@@ -19,6 +19,7 @@ import { TraceOptions } from "./trace"
 import {
     DEFAULT_EMBEDDINGS_MODEL,
     DEFAULT_MODEL,
+    DEFAULT_SMALL_MODEL,
     DEFAULT_TEMPERATURE,
 } from "./constants"
 import {
@@ -68,6 +69,7 @@ export class TestHost implements RuntimeHost {
     // Default options for language models
     readonly defaultModelOptions = {
         model: DEFAULT_MODEL,
+        smallModel: DEFAULT_SMALL_MODEL,
         temperature: DEFAULT_TEMPERATURE,
     }
     // Default options for embeddings models

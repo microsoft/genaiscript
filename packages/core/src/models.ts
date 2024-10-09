@@ -101,6 +101,7 @@ export async function resolveModelConnectionInfo(
             ...DEFAULT_MODEL_CANDIDATES,
         ],
     } = options || {}
+    const m = options?.model ?? conn.model
 
     const resolveModel = async (
         model: string,
@@ -148,7 +149,6 @@ export async function resolveModelConnectionInfo(
         }
     }
 
-    const m = options?.model ?? conn.model
     if (m) {
         return await resolveModel(m, { withToken: askToken, reportError: true })
     } else {

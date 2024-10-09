@@ -97,7 +97,9 @@ export interface Host {
     resolvePath(...segments: string[]): string
 
     // read a secret from the environment or a .env file
-    defaultModelOptions: Required<Pick<ModelOptions, "model" | "temperature">>
+    defaultModelOptions: Required<
+        Pick<ModelOptions, "model" | "smallModel" | "temperature">
+    >
     defaultEmbeddingsModelOptions: Required<
         Pick<EmbeddingsModelOptions, "embeddingsModel">
     >

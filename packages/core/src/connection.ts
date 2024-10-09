@@ -36,6 +36,8 @@ import { normalizeFloat, trimTrailingSlash } from "./util"
 export async function parseDefaultsFromEnv(env: Record<string, string>) {
     if (env.GENAISCRIPT_DEFAULT_MODEL)
         host.defaultModelOptions.model = env.GENAISCRIPT_DEFAULT_MODEL
+    if (env.GENAISCRIPT_DEFAULT_SMALL_MODEL)
+        host.defaultModelOptions.smallModel = env.GENAISCRIPT_DEFAULT_SMALL_MODEL
     const t = normalizeFloat(env.GENAISCRIPT_DEFAULT_TEMPERATURE)
     if (!isNaN(t)) host.defaultModelOptions.temperature = t
     if (env.GENAISCRIPT_DEFAULT_EMBEDDINGS_MODEL)
