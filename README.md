@@ -1,4 +1,4 @@
-![GenAIScript Logo](./docs/public/images/favicon.png)
+![A yellow square with the word "gen" in lowercase black letters above the uppercase black letters "AI."](./docs/public/images/favicon.png)
 
 # GenAIScript
 

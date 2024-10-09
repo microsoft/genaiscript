@@ -36,6 +36,7 @@ export async function importPrompt(
             //    field === "console" || leakables.includes(field) || !glb[field],
             //    `overriding global field ${field}`
             //)
+            if (leakables.includes(field) && glb[field]) continue
             oldGlb[field] = glb[field]
             glb[field] = (ctx0 as any)[field]
         }
