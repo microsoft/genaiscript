@@ -1,9 +1,3 @@
-script({
-    title: "Pull Request Descriptor - Agent",
-    description: "Generate a pull request description from the git diff",
-    tools: ["agent_fs", "agent_git"],
-    temperature: 0.5,
-})
+script({ tools: ["agent_fs", "agent_git"] })
 
-$`Generate a pull request description for the current branch.
-`
+$`Generate a pull request description for the current branch.`
