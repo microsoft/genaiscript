@@ -5,7 +5,7 @@ script({
 
 const r = await prompt`write a haiku poem`
 if (r.error) throw r.error
-const r2 = await runPrompt(`write a haiku poem`)
+const r2 = await runPrompt(`write a haiku poem`, { model: "small" })
 if (r2.error) throw r2.error
 const r3 = await runPrompt(() => `write a haiku poem`)
 if (r3.error) throw r3.error

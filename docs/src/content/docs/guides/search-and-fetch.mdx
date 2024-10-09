@@ -24,7 +24,7 @@ You will need a [Bing Web Search API key](/genaiscript/reference/scripts/web-sea
     script({
         title: "plan-weekend",
         description: "Given details about my goals, help plan my weekend",
-        model: "openai:gpt-4",
+        model: "openai:gpt-4o",
     })
     ```
 3. Use the [`webSearch`](/genaiscript/reference/scripts/web-search/) function to 
@@ -85,7 +85,7 @@ Here's the complete GenAIScript:
 script({
     title: "plan-weekend",
     description: "Given details about my goals, help plan my weekend",
-    model: "openai:gpt-4",
+    model: "openai:gpt-4o",
 })
 
 const parkinfo = await retrieval.webSearch("mt rainier things to do")

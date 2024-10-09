@@ -191,6 +191,10 @@ export async function runScript(
     const cancellationToken = options.cancellationToken
     const jsSource = options.jsSource
 
+    if (options.model) host.defaultModelOptions.model = options.model
+    if (options.smallModel)
+        host.defaultModelOptions.smallModel = options.smallModel
+
     const fail = (msg: string, exitCode: number, url?: string) => {
         logError(url ? `${msg} (see ${url})` : msg)
         return { exitCode, result }

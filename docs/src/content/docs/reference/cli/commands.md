@@ -39,6 +39,7 @@ Options:
   -t, --temperature <number>                 temperature for the run
   -tp, --top-p <number>                      top-p for the run
   -m, --model <string>                       model for the run
+  -sm, --small-model <string>                small model for the run
   -mt, --max-tokens <number>                 maximum tokens for the run
   -mdr, --max-data-repairs <number>          maximum data repairs
   -mtc, --max-tool-calls <number>            maximum tool calls for the run

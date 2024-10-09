@@ -25,16 +25,14 @@ export function createScript(
 
 export async function fixPromptDefinitions(project: Project) {
     const folders = project.folders()
+    const systems = project.templates.filter((t) => t.isSystem)
+    const tools = systems.map(({ defTools }) => defTools || []).flat()
+
     for (const folder of folders) {
         const { dirname, ts, js } = folder
         for (let [defName, defContent] of Object.entries(promptDefinitions)) {
             // patch genaiscript
             if (defName === "genaiscript.d.ts") {
-                const systems = project.templates.filter((t) => t.isSystem)
-                const tools = systems
-                    .map(({ defTools }) => defTools || [])
-                    .flat()
-
                 // update the system prompt identifiers
                 defContent = defContent
                     .replace(

@@ -110,21 +110,28 @@ type PromptTemplateResponseType = "json_object" | "json_schema" | undefined
 
 interface ModelConnectionOptions {
     /**
-     * Which LLM model to use.
-     *
-     * @default gpt-4
-     * @example gpt-4
+     * Which LLM model to use. Use `large` for the default set of model candidates, `small` for the set of small models like gpt-4o-mini.
      */
     model?: OptionsOrString<
+        | "large"
+        | "small"
         | "openai:gpt-4o"
         | "openai:gpt-4o-mini"
-        | "openai:gpt-4"
-        | "openai:gpt-4-turbo"
         | "openai:gpt-3.5-turbo"
+        | "azure:gpt-4o"
+        | "azure:gpt-4o-mini"
         | "ollama:phi3"
         | "ollama:llama3"
         | "ollama:mixtral"
     >
+
+    /**
+     * Which LLM model to use for the "small" model.
+     *
+     * @default gpt-4
+     * @example gpt-4
+     */
+    smallModel?: OptionsOrString<"openai:gpt-4o-mini" | "openai:gpt-3.5-turbo">
 }
 
 interface ModelOptions extends ModelConnectionOptions {

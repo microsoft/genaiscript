@@ -305,6 +305,7 @@ export function createChatGenerationContext(
                 )
         }
     }
+
     const defAgent = (
         name: string,
         description: string,
@@ -355,7 +356,7 @@ export function createChatGenerationContext(
                 context.log(`${agentLabel}: ${query}`)
 
                 let memoryAnswer: string
-                if (memory && !disableMemoryQuery) {
+                if (memory && query && !disableMemoryQuery) {
                     // always pre-query memory with cheap model
                     const res = await runPrompt(
                         async (_) => {
@@ -369,13 +370,17 @@ export function createChatGenerationContext(
                             await defMemory(_)
                         },
                         {
-                            model: "openai:gpt-4o-mini",
+                            model: "small",
                             system: ["system"],
                             flexTokens: 20000,
-                            label: "memory query",
+                            label: "agent memory query",
                         }
                     )
-                    memoryAnswer = res.text
+                    if (!res.error) memoryAnswer = res.text
+                    else
+                        logVerbose(
+                            `memory query error: ${errorMessage(res.error)}`
+                        )
                 }
 
                 const res = await runPrompt(
@@ -383,14 +388,13 @@ export function createChatGenerationContext(
                         if (typeof fn === "string") _.writeText(dedent(fn))
                         else await fn(_, args)
                         _.$`- Assume that your answer will be analyzed by an LLM, not a human.
-                ${memory ? `- If you are missing information, try querying the memory using 'agent_memory'.` : ""}                        
                 - If you are missing information, reply "MISSING_INFO: <what is missing>".
                 - If you cannot answer the query, return "NO_ANSWER: <reason>".
                 - Be concise. Minimize output to the most relevant information to save context tokens.`
                         if (memoryAnswer)
-                            _.$`- The query applied to the agent memory is in MEMORY_ANSWER.`
+                            _.$`- The query applied to the agent memory is in MEMORY.`
                         _.def("QUERY", query)
-                        if (memoryAnswer) _.def("MEMORY_QUERY", memoryAnswer)
+                        if (memoryAnswer) _.def("MEMORY", memoryAnswer)
                         if (memory)
                             _.defOutputProcessor(async ({ text }) => {
                                 if (
@@ -664,7 +668,8 @@ export function createChatGenerationContext(
             checkCancelled(cancellationToken)
             if (!connection.configuration)
                 throw new Error(
-                    "model connection error " + connection.info?.model
+                    "missing model connection information for " +
+                        connection.info?.model
                 )
             const { completer } = await resolveLanguageModel(
                 connection.configuration.provider

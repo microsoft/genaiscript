@@ -1,10 +1,9 @@
 ---
 title: LLM as a tool
 sidebar:
-  order: 60
+    order: 60
 description: Create tools and inline prompts using LLM models for executing various tasks
 keywords: LLM, inline prompts, tools, gpt-3.5-turbo, task automation
-
 ---
 
 It is possible [tools](/genaiscript/reference/scripts/tools)
@@ -13,8 +12,8 @@ to create a tool that uses an LLM model to execute a prompt.
 
 ```js "defTool" "runPrompt"
 defTool(
-    "llm-gpt35",
-    "Invokes gpt-3.5-turbo to execute a LLM request",
+    "llm-small",
+    "Invokes smaller LLM",
     {
         prompt: {
             type: "string",
@@ -23,10 +22,18 @@ defTool(
     },
     async ({ prompt }) =>
         await runPrompt(prompt, {
-            model: "openai:gpt-3.5-turbo",
-            label: "llm-gpt35",
+            model: "small",
+            label: "llm-small",
         })
 )
+```
+
+The `"small"` model is an alias that can be configured in the `script` metadata, cli arguments or environment variables.
+
+```js "small"
+script({
+    smallModel: "openai:gpt-4o-mini",
+})
 ```
 
 The inlined prompts can declare their own tools or use system prompts declaring them.

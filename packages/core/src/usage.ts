@@ -7,20 +7,18 @@ import { MarkdownTrace } from "./trace"
 import { logVerbose, logWarn } from "./util"
 // import pricing.json and assert json
 import pricings from "./pricing.json" // Interface to hold statistics related to the generation process
-import { parseModelIdentifier } from "./models"
+import { parseModelIdentifier, resolveModelAlias } from "./models"
 import {
     MODEL_PROVIDER_AICI,
-    MODEL_PROVIDER_AZURE,
     MODEL_PROVIDER_GITHUB,
     MODEL_PROVIDER_OPENAI,
 } from "./constants"
-import { assert } from "./util"
 
 export function estimateCost(modelId: string, usage: ChatCompletionUsage) {
     if (!modelId) return undefined
 
     const { completion_tokens, prompt_tokens } = usage
-    let { provider, model } = parseModelIdentifier(modelId)
+    let { provider, model } = parseModelIdentifier(resolveModelAlias(modelId))
     if (provider === MODEL_PROVIDER_AICI) return undefined
     else if (provider === MODEL_PROVIDER_GITHUB)
         provider = MODEL_PROVIDER_OPENAI
@@ -55,6 +53,8 @@ export function renderCost(value: number) {
 }
 
 export class GenerationStats {
+    public readonly model: string
+    public readonly label?: string
     toolCalls = 0 // Number of tool invocations
     repairs = 0 // Number of repairs made
     turns = 0 // Number of turns in the interaction
@@ -66,11 +66,9 @@ export class GenerationStats {
         usage: ChatCompletionUsage
     }[] = []
 
-    constructor(
-        // maybe undefined
-        public readonly model: string,
-        public readonly label?: string
-    ) {
+    constructor(model: string, label?: string) {
+        this.model = resolveModelAlias(model)
+        this.label = label
         this.usage = {
             completion_tokens: 0,
             prompt_tokens: 0,

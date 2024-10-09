@@ -25,6 +25,7 @@ import {
     MODEL_PROVIDER_OLLAMA,
     TOOL_ID,
     DEFAULT_EMBEDDINGS_MODEL,
+    DEFAULT_SMALL_MODEL,
 } from "../../core/src/constants"
 import { tryReadText } from "../../core/src/fs"
 import {
@@ -114,6 +115,7 @@ export class NodeHost implements RuntimeHost {
     readonly browsers = new BrowserManager()
     readonly defaultModelOptions = {
         model: DEFAULT_MODEL,
+        smallModel: DEFAULT_SMALL_MODEL,
         temperature: DEFAULT_TEMPERATURE,
     }
     readonly defaultEmbeddingsModelOptions = {

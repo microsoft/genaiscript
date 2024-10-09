@@ -26,7 +26,7 @@ import { errorMessage, isCancelError, serializeError } from "./error"
 import { estimateChatTokens } from "./chatencoder"
 import { createChatTurnGenerationContext } from "./runpromptcontext"
 import { dedent } from "./indent"
-import { traceLanguageModelConnection } from "./models"
+import { resolveModelAlias, traceLanguageModelConnection } from "./models"
 import {
     ChatCompletionContentPartImage,
     ChatCompletionMessageParam,
@@ -587,13 +587,17 @@ export function mergeGenerationOptions(
     options: GenerationOptions,
     runOptions: ModelOptions & EmbeddingsModelOptions
 ): GenerationOptions {
-    return {
+    const res =  {
         ...options,
         ...(runOptions || {}),
         model:
             runOptions?.model ??
             options?.model ??
             host.defaultModelOptions.model,
+        smallModel:
+            runOptions?.smallModel ??
+            options?.smallModel ??
+            host.defaultModelOptions.smallModel,
         temperature:
             runOptions?.temperature ?? host.defaultModelOptions.temperature,
         embeddingsModel:
@@ -601,6 +605,8 @@ export function mergeGenerationOptions(
             options?.embeddingsModel ??
             host.defaultEmbeddingsModelOptions.embeddingsModel,
     }
+    res.model = resolveModelAlias(res.model, res)
+    return res
 }
 
 export async function executeChatSession(

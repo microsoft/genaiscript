@@ -41,6 +41,8 @@ export const CLIENT_RECONNECT_DELAY = 3000
 export const CLIENT_RECONNECT_MAX_ATTEMPTS = 20
 export const RETRIEVAL_PERSIST_DIR = "retrieval"
 export const HIGHLIGHT_LENGTH = 4000
+export const SMALL_MODEL_ID = "small"
+export const LARGE_MODEL_ID = "large"
 export const DEFAULT_MODEL = "openai:gpt-4o"
 export const DEFAULT_MODEL_CANDIDATES = [
     "azure:gpt-4o",
@@ -49,8 +51,16 @@ export const DEFAULT_MODEL_CANDIDATES = [
     "github:gpt-4o",
     "client:gpt-4",
 ]
+export const DEFAULT_SMALL_MODEL = "openai:gpt-4o-mini"
+export const DEFAULT_SMALL_MODEL_CANDIDATES = [
+    "azure:gpt-4o-mini",
+    DEFAULT_SMALL_MODEL,
+    "github:gpt-4o-mini",
+    "client:gpt-4-mini",
+]
 export const DEFAULT_EMBEDDINGS_MODEL_CANDIDATES = [
     "azure:text-embedding-3-small",
+    "azure:text-embedding-2-small",
     "openai:text-embedding-3-small",
     "github:text-embedding-3-small",
     "client:text-embedding-3-small",

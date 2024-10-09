@@ -52,8 +52,8 @@ export class RequestError extends Error {
         readonly retryAfter?: number
     ) {
         super(
-            `LLM error: ${
-                body?.message ? body?.message : `${statusText} (${status})`
+            `LLM error (${status}): ${
+                body?.message ? body?.message : statusText
             }`
         )
         this.name = "RequestError"

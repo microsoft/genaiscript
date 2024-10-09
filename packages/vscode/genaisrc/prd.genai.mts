@@ -3,7 +3,6 @@ script({
     description: "Generate a pull request description from the git diff",
     tools: ["fs"],
     temperature: 0.5,
-    model: "openai:gpt-4o",
 })
 
 const defaultBranch = await git.defaultBranch()

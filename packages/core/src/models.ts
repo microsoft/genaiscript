@@ -1,7 +1,12 @@
+import { uniq } from "es-toolkit"
 import {
+    DEFAULT_EMBEDDINGS_MODEL_CANDIDATES,
     DEFAULT_MODEL_CANDIDATES,
+    DEFAULT_SMALL_MODEL_CANDIDATES,
+    LARGE_MODEL_ID,
     MODEL_PROVIDER_LLAMAFILE,
     MODEL_PROVIDER_OPENAI,
+    SMALL_MODEL_ID,
 } from "./constants"
 import { errorMessage } from "./error"
 import { LanguageModelConfiguration, host } from "./host"
@@ -92,15 +97,23 @@ export async function resolveModelConnectionInfo(
     info: ModelConnectionInfo
     configuration?: LanguageModelConfiguration
 }> {
-    const {
-        trace,
-        token: askToken,
-        signal,
-        candidates = [
+    const { trace, token: askToken, signal } = options || {}
+    let candidates = options?.candidates
+    let m = options?.model ?? conn.model
+    if (m === SMALL_MODEL_ID) {
+        m = undefined
+        candidates ??= [
+            host.defaultModelOptions.smallModel,
+            ...DEFAULT_SMALL_MODEL_CANDIDATES,
+        ]
+    } else if (m === LARGE_MODEL_ID) {
+        m = undefined
+        candidates ??= [
             host.defaultModelOptions.model,
             ...DEFAULT_MODEL_CANDIDATES,
-        ],
-    } = options || {}
+        ]
+    }
+    candidates ??= [host.defaultModelOptions.model, ...DEFAULT_MODEL_CANDIDATES]
 
     const resolveModel = async (
         model: string,
@@ -148,11 +161,10 @@ export async function resolveModelConnectionInfo(
         }
     }
 
-    const m = options?.model ?? conn.model
     if (m) {
         return await resolveModel(m, { withToken: askToken, reportError: true })
     } else {
-        for (const candidate of new Set(candidates || [])) {
+        for (const candidate of uniq(candidates).filter((c) => !!c)) {
             const res = await resolveModel(candidate, {
                 withToken: askToken,
                 reportError: false,
@@ -166,4 +178,15 @@ export async function resolveModelConnectionInfo(
             },
         }
     }
+}
+
+export function resolveModelAlias(
+    modelId: string,
+    options?: ModelConnectionOptions
+) {
+    if (modelId === SMALL_MODEL_ID)
+        return options?.smallModel || host.defaultModelOptions.smallModel
+    if (modelId === LARGE_MODEL_ID)
+        return options?.model || host.defaultModelOptions.model
+    return modelId
 }
