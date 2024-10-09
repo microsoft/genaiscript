@@ -384,14 +384,13 @@ export function createChatGenerationContext(
                         if (typeof fn === "string") _.writeText(dedent(fn))
                         else await fn(_, args)
                         _.$`- Assume that your answer will be analyzed by an LLM, not a human.
-                ${memory ? `- If you are missing information, try querying the memory using 'agent_memory'.` : ""}                        
                 - If you are missing information, reply "MISSING_INFO: <what is missing>".
                 - If you cannot answer the query, return "NO_ANSWER: <reason>".
                 - Be concise. Minimize output to the most relevant information to save context tokens.`
                         if (memoryAnswer)
-                            _.$`- The query applied to the agent memory is in MEMORY_ANSWER.`
+                            _.$`- The query applied to the agent memory is in MEMORY.`
                         _.def("QUERY", query)
-                        if (memoryAnswer) _.def("MEMORY_QUERY", memoryAnswer)
+                        if (memoryAnswer) _.def("MEMORY", memoryAnswer)
                         if (memory)
                             _.defOutputProcessor(async ({ text }) => {
                                 if (
