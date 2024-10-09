@@ -5,8 +5,6 @@ script({
         "agent_github",
         "agent_interpreter",
         "agent_docs",
-        "agent_memory",
-        "gif_diff",
     ],
     parameters: {
         workflow: { type: "string" }, // Workflow name

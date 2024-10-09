@@ -392,15 +392,18 @@ export function createChatGenerationContext(
                         _.def("QUERY", query)
                         if (memoryAnswer) _.def("MEMORY_QUERY", memoryAnswer)
                         if (memory)
-                            _.defOutputProcessor(
-                                async ({ text }) =>
+                            _.defOutputProcessor(async ({ text }) => {
+                                if (
+                                    text &&
+                                    !/MISSING_INFO|NO_ANSWER/.test(text)
+                                )
                                     await agentAddMemory(
                                         agentName,
                                         query,
                                         text,
                                         trace
                                     )
-                            )
+                            })
                     },
                     {
                         label: agentLabel,
