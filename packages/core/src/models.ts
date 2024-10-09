@@ -1,7 +1,11 @@
 import {
+    DEFAULT_EMBEDDINGS_MODEL_CANDIDATES,
     DEFAULT_MODEL_CANDIDATES,
+    DEFAULT_SMALL_MODEL_CANDIDATES,
+    LARGE_MODEL_ID,
     MODEL_PROVIDER_LLAMAFILE,
     MODEL_PROVIDER_OPENAI,
+    SMALL_MODEL_ID,
 } from "./constants"
 import { errorMessage } from "./error"
 import { LanguageModelConfiguration, host } from "./host"
@@ -92,16 +96,25 @@ export async function resolveModelConnectionInfo(
     info: ModelConnectionInfo
     configuration?: LanguageModelConfiguration
 }> {
-    const {
-        trace,
-        token: askToken,
-        signal,
-        candidates = [
+    const { trace, token: askToken, signal } = options || {}
+    let candidates = [
+        host.defaultModelOptions.model,
+        ...DEFAULT_MODEL_CANDIDATES,
+    ]
+    let m = options?.model ?? conn.model
+    if (m === SMALL_MODEL_ID) {
+        m = undefined
+        candidates ??= [
+            host.defaultModelOptions.smallModel,
+            ...DEFAULT_SMALL_MODEL_CANDIDATES,
+        ]
+    } else if (m === LARGE_MODEL_ID) {
+        m = undefined // Large model is the default
+        candidates ??= [
             host.defaultModelOptions.model,
             ...DEFAULT_MODEL_CANDIDATES,
-        ],
-    } = options || {}
-    const m = options?.model ?? conn.model
+        ]
+    }
 
     const resolveModel = async (
         model: string,

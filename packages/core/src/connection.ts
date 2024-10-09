@@ -29,7 +29,6 @@ import {
 } from "./constants"
 import { fileExists, readText, tryReadText, writeText } from "./fs"
 import { APIType, host, LanguageModelConfiguration } from "./host"
-import { dedent } from "./indent"
 import { parseModelIdentifier } from "./models"
 import { normalizeFloat, trimTrailingSlash } from "./util"
 
@@ -37,7 +36,8 @@ export async function parseDefaultsFromEnv(env: Record<string, string>) {
     if (env.GENAISCRIPT_DEFAULT_MODEL)
         host.defaultModelOptions.model = env.GENAISCRIPT_DEFAULT_MODEL
     if (env.GENAISCRIPT_DEFAULT_SMALL_MODEL)
-        host.defaultModelOptions.smallModel = env.GENAISCRIPT_DEFAULT_SMALL_MODEL
+        host.defaultModelOptions.smallModel =
+            env.GENAISCRIPT_DEFAULT_SMALL_MODEL
     const t = normalizeFloat(env.GENAISCRIPT_DEFAULT_TEMPERATURE)
     if (!isNaN(t)) host.defaultModelOptions.temperature = t
     if (env.GENAISCRIPT_DEFAULT_EMBEDDINGS_MODEL)
@@ -259,95 +259,6 @@ export async function parseTokenFromEnv(
             trimTrailingSlash(b.replace(/\/openai\/deployments.*$/, "")) +
             `/openai/deployments`
         return b
-    }
-}
-
-function dotEnvTemplate(
-    provider: string,
-    apiType: APIType
-): { config: string; model: string } {
-    if (provider === MODEL_PROVIDER_OLLAMA)
-        return {
-            config: `
-## Ollama ${DOCS_CONFIGURATION_OLLAMA_URL}
-# use "${MODEL_PROVIDER_OLLAMA}:<model>" or "${MODEL_PROVIDER_OLLAMA}:<model>:<tag>" in script({ model: ... })
-# OLLAMA_API_BASE="${PLACEHOLDER_API_BASE}" # uses ${OLLAMA_API_BASE} by default
-`,
-            model: `${MODEL_PROVIDER_OLLAMA}:phi3`,
-        }
-
-    if (provider === MODEL_PROVIDER_LLAMAFILE)
-        return {
-            config: `
-## llamafile ${DOCS_CONFIGURATION_LLAMAFILE_URL}
-# use "${MODEL_PROVIDER_LLAMAFILE}" in script({ model: ... })
-# There is no configuration for llamafile
-`,
-            model: MODEL_PROVIDER_LLAMAFILE,
-        }
-
-    if (provider === MODEL_PROVIDER_LITELLM)
-        return {
-            config: `
-## LiteLLM ${DOCS_CONFIGURATION_LITELLM_URL}
-# use "${MODEL_PROVIDER_LITELLM}" in script({ model: ... })
-# LITELLM_API_BASE="${PLACEHOLDER_API_BASE}" # uses ${LITELLM_API_BASE} by default
-`,
-            model: MODEL_PROVIDER_LITELLM,
-        }
-
-    if (provider === MODEL_PROVIDER_AICI)
-        return {
-            config: `
-## AICI ${DOCS_CONFIGURATION_AICI_URL}
-# use "${MODEL_PROVIDER_AICI}:<model>" in script({ model: ... })
-AICI_API_BASE="${PLACEHOLDER_API_BASE}"
-`,
-            model: `${MODEL_PROVIDER_AICI}:mixtral`,
-        }
-
-    if (apiType === "azure" || provider === MODEL_PROVIDER_AZURE)
-        return {
-            config: `
-## Azure OpenAI ${DOCS_CONFIGURATION_AZURE_OPENAI_URL}
-# use "${MODEL_PROVIDER_AZURE}:<deployment>" in script({ model: ... })
-AZURE_OPENAI_ENDPOINT="${PLACEHOLDER_API_BASE}"
-# Uses managed identity by default, or set:
-# AZURE_OPENAI_API_KEY="${PLACEHOLDER_API_KEY}"
-`,
-            model: `${MODEL_PROVIDER_AZURE}:deployment`,
-        }
-
-    if (apiType === "localai")
-        return {
-            config: `
-## LocalAI ${DOCS_CONFIGURATION_LOCALAI_URL}
-# use "${MODEL_PROVIDER_OPENAI}:<model>" in script({ model: ... })
-OPENAI_API_TYPE="localai"
-# OPENAI_API_KEY="${PLACEHOLDER_API_KEY}" # use if you have an access token in the localai web ui
-# OPENAI_API_BASE="${PLACEHOLDER_API_BASE}" # uses ${LOCALAI_API_BASE} by default
-`,
-            model: `${MODEL_PROVIDER_OPENAI}:gpt-3.5-turbo`,
-        }
-
-    if (provider === MODEL_PROVIDER_GITHUB)
-        return {
-            config: `
-## GitHub Models ${DOCS_CONFIGURATION_GITHUB_URL}
-# use "${MODEL_PROVIDER_GITHUB}:<model>" in script({ model: ... })
-# GITHUB_MODELS_TOKEN="${PLACEHOLDER_API_KEY}" # use a personal access token if not available
-    `,
-            model: `${MODEL_PROVIDER_GITHUB}:gpt-4o`,
-        }
-
-    return {
-        config: `
-## OpenAI ${DOCS_CONFIGURATION_OPENAI_URL}
-# use "${MODEL_PROVIDER_OPENAI}:<model>" in script({ model: ... })
-OPENAI_API_KEY="${PLACEHOLDER_API_KEY}"
-# OPENAI_API_BASE="${PLACEHOLDER_API_BASE}" # uses ${OPENAI_API_BASE} by default
-`,
-        model: `${MODEL_PROVIDER_OPENAI}:gpt-4o`,
     }
 }
 
