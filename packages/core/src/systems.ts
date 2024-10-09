@@ -11,6 +11,7 @@ export function resolveSystems(
     const { jsSource } = script
     // Initialize systems array from script.system, converting to array if necessary using arrayify utility
     const systems = arrayify(script.system)
+    const tools = arrayify(script.tools)
 
     // If no system is defined in the script, determine systems based on jsSource
     if (script.system === undefined) {
@@ -23,11 +24,10 @@ export function resolveSystems(
             systems.push("system.explanations")
         }
 
+        if (tools.some((t) => /^agent/.test(t))) systems.push("system.planner")
+
         // Determine additional systems based on content of jsSource
-        // Check for specific keywords in jsSource to decide which systems to add
-        if (/\Wdiff\W/i.test(jsSource)) systems.push("system.diff")
-        else if (/\Wchangelog\W/i.test(jsSource))
-            systems.push("system.changelog")
+        if (/\Wchangelog\W/i.test(jsSource)) systems.push("system.changelog")
         else if (/\Wfile\W/i.test(jsSource)) {
             systems.push("system.files")
             // Add file schema system if schema is used
@@ -46,10 +46,10 @@ export function resolveSystems(
     }
 
     // Include tools-related systems if specified in the script
-    if (script.tools?.length) {
+    if (tools.length) {
         systems.push("system.tools")
         // Resolve and add each tool's systems based on its definition in the project
-        arrayify(script.tools).forEach((tool) =>
+        tools.forEach((tool) =>
             systems.push(...resolveSystemFromTools(prj, tool))
         )
     }

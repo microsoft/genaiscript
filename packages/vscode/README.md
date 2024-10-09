@@ -1,6 +1,6 @@
 Scripting environment with convinient tooling for file ingestion, prompt development and structured data extraction.
 
-[![Authoring a script, analyzing the output and the trace](https://microsoft.github.io/genaiscript/images/visual-studio-code.png)](https://microsoft.github.io/genaiscript/images/visual-studio-code.png)
+[![A screenshot of a code editor with multiple tabs open, showing TypeScript code for a "Code Optimizer" script. The editor displays a script with a class named "Greeter" and a description of optimizing code performance. The right pane previews the script's output and optimization suggestions. The left sidebar contains file navigation and icons for various functions.](https://microsoft.github.io/genaiscript/images/visual-studio-code.png)](https://microsoft.github.io/genaiscript/images/visual-studio-code.png)
 
 -   👀 **Read the documentation at https://microsoft.github.io/genaiscript/**
 
@@ -20,7 +20,7 @@ $`Analyze FILE and
 
 -   ⚡️ Edit, [debug](https://microsoft.github.io/genaiscript/genaiscript/getting-started/debugging-scripts/), [run](https://microsoft.github.io/genaiscript/genaiscript/getting-started/running-scripts/) your scripts
 
-![Debugging a script](https://microsoft.github.io/genaiscript/images/vscode-debugger.png)
+![A screenshot of a Visual Studio Code interface in debug mode, showing a paused breakpoint in a JavaScript file. The left side displays the "WATCH" and "CALL STACK" panels, while the right side shows code involving a filter function and a Python file label.](https://microsoft.github.io/genaiscript/images/vscode-debugger.png)
 
 -   📁 Scripts are [files](https://microsoft.github.io/genaiscript/reference/scripts/)! They can be versioned, shared, forked, ...
 

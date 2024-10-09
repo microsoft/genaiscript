@@ -89,7 +89,7 @@ for (const file of files) {
                 - Do not generate the [ character.`
             },
             {
-                system: [],
+                system: ["system.safety_harmful_content"],
                 maxTokens: 4000,
                 temperature: 0.5,
                 cache: "alt-text",
