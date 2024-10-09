@@ -387,7 +387,9 @@ export function createChatGenerationContext(
                     async (_) => {
                         if (typeof fn === "string") _.writeText(dedent(fn))
                         else await fn(_, args)
-                        _.$`- Assume that your answer will be analyzed by an LLM, not a human.
+                        _.$`Make a plan and solve this task.
+                        
+                - Assume that your answer will be analyzed by an LLM, not a human.
                 - If you are missing information, reply "MISSING_INFO: <what is missing>".
                 - If you cannot answer the query, return "NO_ANSWER: <reason>".
                 - Be concise. Minimize output to the most relevant information to save context tokens.`

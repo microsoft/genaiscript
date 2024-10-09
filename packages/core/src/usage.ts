@@ -45,11 +45,12 @@ export function estimateCost(modelId: string, usage: ChatCompletionUsage) {
 }
 
 export function renderCost(value: number) {
-    return value !== undefined
-        ? value <= 0.1
-            ? `${(value * 100).toFixed(2)}¢`
-            : `${value.toFixed(2)}$`
-        : ""
+    if (isNaN(value)) return ""
+    return value <= 0.01
+        ? `${(value * 100).toFixed(3)}¢`
+        : value <= 0.1
+          ? `${(value * 100).toFixed(2)}¢`
+          : `${value.toFixed(2)}$`
 }
 
 export class GenerationStats {
