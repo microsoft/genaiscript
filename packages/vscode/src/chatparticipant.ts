@@ -4,6 +4,7 @@ import { TOOL_ID } from "../../core/src/constants"
 import { parsePromptScriptMeta } from "../../core/src/template"
 import { Fragment } from "../../core/src/generation"
 import { arrayify } from "../../core/src/util"
+import { resolveSystems, resolveTools } from "../../core/src/systems"
 
 export async function activateChatParticipant(state: ExtensionState) {
     const { context } = state
@@ -19,6 +20,8 @@ export async function activateChatParticipant(state: ExtensionState) {
         ) => {
             const { command, prompt } = request
             if (command) throw new Error("Command not supported")
+            if (!state.project) await state.parseWorkspace()
+            if (token.isCancellationRequested) return
 
             const jsSource = `
 script({ tools: ["agent"] })
@@ -36,6 +39,12 @@ $\`## task
 def("QUESTION", ${JSON.stringify(prompt)})
 `
             const meta = parsePromptScriptMeta(jsSource)
+            meta.system = resolveSystems(state.project, meta)
+            meta.tools = resolveTools(
+                state.project,
+                meta.system,
+                arrayify(meta.tools)
+            ).map(({ id }) => id)
             const fragment: Fragment = {
                 files: arrayify([]),
             }
@@ -44,7 +53,6 @@ def("QUESTION", ${JSON.stringify(prompt)})
                 id: "copilot-chat",
                 jsSource,
             }
-
             await state.requestAI({
                 template,
                 label: "Executing cell",

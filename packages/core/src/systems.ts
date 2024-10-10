@@ -7,7 +7,7 @@ import { arrayify } from "./util"
 export function resolveSystems(
     prj: Project,
     script: PromptSystemOptions & ModelOptions & { jsSource?: string }
-) {
+): string[] {
     const { jsSource } = script
     // Initialize systems array from script.system, converting to array if necessary using arrayify utility
     const systems = arrayify(script.system)

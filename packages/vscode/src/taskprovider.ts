@@ -11,6 +11,8 @@ export async function activeTaskProvider(state: ExtensionState) {
     const taskProvider: vscode.TaskProvider = {
         provideTasks: async () => {
             try {
+                if (!state.project) return []
+
                 const { cliPath, cliVersion } = await resolveCli()
                 const exec = shellQuote([cliPath || `npx`])
                 const exeArgs = cliPath
