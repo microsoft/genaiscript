@@ -11,7 +11,10 @@ export function resolveSystems(
     const { jsSource } = script
     // Initialize systems array from script.system, converting to array if necessary using arrayify utility
     const systems = arrayify(script.system)
-    const tools = arrayify(script.tools)
+    const excludedTools = arrayify(script.excludedTools)
+    const tools = arrayify(script.tools).filter(
+        (t) => !excludedTools.some((et) => t.startsWith(et))
+    )
 
     // If no system is defined in the script, determine systems based on jsSource
     if (script.system === undefined) {
@@ -73,7 +76,8 @@ function resolveSystemFromTools(prj: Project, tool: string): string[] {
 export function resolveTools(
     prj: Project,
     systems: string[],
-    tools: string[]
+    tools: string[],
+    excludedTools: string[]
 ): { id: string; description: string }[] {
     const { templates: scripts } = prj
     const toolScripts = uniq([
@@ -82,6 +86,9 @@ export function resolveTools(
             scripts.find((s) => s.defTools?.find((t) => t.id.startsWith(tid)))
         ),
     ]).filter((s) => !!s)
-    const res = toolScripts.map(({ defTools }) => defTools ?? []).flat()
+    const res = toolScripts
+        .map(({ defTools }) => defTools ?? [])
+        .flat()
+        .filter((t) => !excludedTools.some((et) => t.id.startsWith(et)))
     return res
 }

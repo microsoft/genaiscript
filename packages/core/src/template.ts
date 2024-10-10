@@ -446,7 +446,7 @@ export async function parsePromptScript(
             c.checkBool("lineNumbers")
             c.checkObjectOrObjectArray("tests")
             c.checkStringArray("tools")
-
+            c.checkStringArray("excludedTools")
             c.checkStringOrBool("cache")
             c.checkString("cacheName")
 

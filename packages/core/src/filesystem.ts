@@ -1,14 +1,15 @@
 import { JSONLineCache } from "./cache"
 import { DOT_ENV_REGEX } from "./constants"
-import { CSVParse } from "./csv"
+import { CSVParse, CSVTryParse } from "./csv"
 import { NotSupportedError, errorMessage } from "./error"
 import { resolveFileContent } from "./file"
 import { readText, writeText } from "./fs"
 import { host } from "./host"
-import { JSON5parse } from "./json5"
+import { INITryParse } from "./ini"
+import { JSON5parse, JSON5TryParse } from "./json5"
 import { logVerbose } from "./util"
 import { XMLParse, XMLTryParse } from "./xml"
-import { YAMLParse } from "./yaml"
+import { YAMLParse, YAMLTryParse } from "./yaml"
 
 export function createFileSystem(): Omit<WorkspaceFileSystem, "grep"> {
     const fs: Omit<WorkspaceFileSystem, "grep"> = {
@@ -62,12 +63,12 @@ export function createFileSystem(): Omit<WorkspaceFileSystem, "grep"> {
         },
         readJSON: async (f: string | Awaitable<WorkspaceFile>) => {
             const file = await fs.readText(f)
-            const res = JSON5parse(file.content, { repair: true })
+            const res = JSON5TryParse(file.content, { repair: true })
             return res
         },
         readYAML: async (f: string | Awaitable<WorkspaceFile>) => {
             const file = await fs.readText(f)
-            const res = YAMLParse(file.content)
+            const res = YAMLTryParse(file.content)
             return res
         },
         readXML: async (
@@ -75,7 +76,7 @@ export function createFileSystem(): Omit<WorkspaceFileSystem, "grep"> {
             options?: XMLParseOptions
         ) => {
             const file = await fs.readText(f)
-            const res = XMLParse(file.content, options)
+            const res = XMLTryParse(file.content, options)
             return res
         },
         readCSV: async <T extends object>(
@@ -83,7 +84,15 @@ export function createFileSystem(): Omit<WorkspaceFileSystem, "grep"> {
             options?: CSVParseOptions
         ): Promise<T[]> => {
             const file = await fs.readText(f)
-            const res = CSVParse(file.content, options) as T[]
+            const res = CSVTryParse(file.content, options) as T[]
+            return res
+        },
+        readINI: async (
+            f: string | Awaitable<WorkspaceFile>,
+            options?: INIParseOptions
+        ): Promise<any> => {
+            const file = await fs.readText(f)
+            const res = INITryParse(file.content, options?.defaultValue)
             return res
         },
         cache: async (name: string) => {

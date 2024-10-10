@@ -1,6 +1,7 @@
 script({
     system: ["system"],
     tools: ["agent"],
+    excludedTools: ["agent_user_input"],
     group: "infrastructure",
     parameters: {
         question: {

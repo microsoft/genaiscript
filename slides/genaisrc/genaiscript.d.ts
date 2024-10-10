@@ -324,6 +324,11 @@ interface PromptSystemOptions {
      * List of tools used by the prompt.
      */
     tools?: ElementOrArray<SystemToolId>
+
+    /**
+     * List of tools to exclude from the prompt.
+     */
+    excludedTools?: ElementOrArray<SystemToolId>
 }
 
 interface ScriptRuntimeOptions {
@@ -655,6 +660,10 @@ interface WorkspaceGrepResult {
     matches: WorkspaceFile[]
 }
 
+interface INIParseOptions {
+    defaultValue?: any
+}
+
 interface WorkspaceFileSystem {
     /**
      * Searches for files using the glob pattern and returns a list of files.
@@ -720,6 +729,14 @@ interface WorkspaceFileSystem {
         path: string | Awaitable<WorkspaceFile>,
         options?: CSVParseOptions
     ): Promise<T[]>
+
+    /**
+     * Reads the content of a file and parses to INI
+     */
+    readINI(
+        path: string | Awaitable<WorkspaceFile>,
+        options?: INIParseOptions
+    ): Promise<any>
 
     /**
      * Writes a file as text to the file system
@@ -1242,7 +1259,7 @@ interface Parsers {
      */
     INI(
         content: string | WorkspaceFile,
-        options?: { defaultValue?: any }
+        options?: INIParseOptions
     ): any | undefined
 
     /**
