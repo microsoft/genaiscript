@@ -6,7 +6,6 @@ script({
         "system",
         "system.safety_harmful_content",
         "system.safety_protected_material",
-        "system.safety_ungrounded_content_summarization",
     ],
 })
 
