@@ -49,14 +49,14 @@ defTool(
         },
     },
     async (args) => {
-        const { workflow_id, branch, status, context } = args
+        const { workflow_id, branch, status, context, count } = args
         context.log(
             `github action list ${status || ""} runs for ${workflow_id ? `worfklow ${workflow_id}` : `repository`} and branch ${branch || "all"}`
         )
         const res = await github.listWorkflowRuns(workflow_id, {
             branch,
             status,
-            count: 20,
+            count,
         })
         return CSV.stringify(
             res.map(({ id, name, conclusion, head_sha }) => ({

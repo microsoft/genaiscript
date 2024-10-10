@@ -21,6 +21,11 @@ script({
     title: "Pull Request Descriptor",
     description: "Generate a pull request description from the git diff",
     temperature: 0.5,
+    system: [
+        "system",
+        "system.safety_harmful_content",
+        "system.safety_protected_material",
+    ],
 })
 ```
 
@@ -29,6 +34,7 @@ The `script` function is used to set up the script's metadata. It's the first th
 -   `title`: This is the name of the script, which is "Pull Request Descriptor."
 -   `description`: A brief explanation of what the script does.
 -   `temperature`: Sets the creativity level for the AI model. A lower temperature means less creativity, and `0.5` is a balanced choice.
+-   `system.safety...` injects safety rules to the system message to ensure the AI model is not producing harmful or protected content.
 
 ### Gathering Changes with Git
 

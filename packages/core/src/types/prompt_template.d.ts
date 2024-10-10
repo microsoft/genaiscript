@@ -1532,7 +1532,14 @@ interface GitHubComment {
     reactions?: GitHubReactions
 }
 
-interface GitHubPullRequest extends GitHubIssue {}
+interface GitHubPullRequest extends GitHubIssue {
+    head: {
+        ref: string
+    }
+    base: {
+        ref: string
+    }
+}
 
 interface GitHubCodeSearchResult {
     name: string
@@ -1660,9 +1667,9 @@ interface GitHub {
 
     /**
      * Gets the details of a GitHub pull request
-     * @param pull_number pull request number (not the pull request id!)
+     * @param pull_number pull request number. Default resolves the pull requeset for the current branch.
      */
-    getPullRequest(pull_number: number): Promise<GitHubPullRequest>
+    getPullRequest(pull_number?: number): Promise<GitHubPullRequest>
 
     /**
      * Lists comments for a given pull request

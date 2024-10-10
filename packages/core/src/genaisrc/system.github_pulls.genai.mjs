@@ -2,6 +2,12 @@ system({
     title: "Tools to query GitHub pull requests.",
 })
 
+const pr = await github.getPullRequest()
+if (pr) {
+    $`- current pull request number: ${pr.number}
+    - current pull request base ref: ${pr.base.ref}`
+}
+
 defTool(
     "github_pulls_list",
     "List all pull requests in a repository.",
@@ -28,12 +34,21 @@ defTool(
                 enum: ["asc", "desc"],
                 description: "Direction to sort",
             },
+            count: {
+                type: "number",
+                description: "Number of pull requests to list. Default is 20.",
+            },
         },
     },
     async (args) => {
-        const { context, state, sort, direction } = args
+        const { context, state, sort, direction, count } = args
         context.log(`github pull list`)
-        const res = await github.listPullRequests({ state, sort, direction })
+        const res = await github.listPullRequests({
+            state,
+            sort,
+            direction,
+            count,
+        })
         return CSV.stringify(
             res.map(({ number, title, state, body, user, assignee }) => ({
                 number,
@@ -96,14 +111,20 @@ defTool(
                 type: "number",
                 description: "The 'number' of the pull request (not the id)",
             },
+            count: {
+                type: "number",
+                description: "Number of runs to list. Default is 20.",
+            },
         },
         required: ["number"],
     },
 
     async (args) => {
-        const { number: pull_number, context } = args
+        const { number: pull_number, context, count } = args
         context.log(`github pull comments list ${pull_number}`)
-        const res = await github.listPullRequestReviewComments(pull_number)
+        const res = await github.listPullRequestReviewComments(pull_number, {
+            count,
+        })
         return CSV.stringify(
             res.map(({ id, user, body }) => ({
                 id,

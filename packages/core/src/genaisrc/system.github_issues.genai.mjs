@@ -45,6 +45,10 @@ defTool(
                 type: "string",
                 description: "Filter by mentioned user",
             },
+            count: {
+                type: "number",
+                description: "Number of issues to list. Default is 20.",
+            },
         },
     },
     async (args) => {
@@ -58,6 +62,7 @@ defTool(
             assignee,
             since,
             mentioned,
+            count,
         } = args
         context.log(`github issue list ${state ?? "all"}`)
         const res = await github.listIssues({
@@ -69,6 +74,7 @@ defTool(
             assignee,
             since,
             mentioned,
+            count,
         })
         return CSV.stringify(
             res.map(({ number, title, state, user, assignee }) => ({
@@ -132,13 +138,17 @@ defTool(
                 type: "number",
                 description: "The 'number' of the issue (not the id)",
             },
+            count: {
+                type: "number",
+                description: "Number of comments to list. Default is 20.",
+            },
         },
         required: ["number"],
     },
     async (args) => {
-        const { number: issue_number, context } = args
+        const { number: issue_number, context, count } = args
         context.log(`github issue list comments ${issue_number}`)
-        const res = await github.listIssueComments(issue_number)
+        const res = await github.listIssueComments(issue_number, { count })
         return CSV.stringify(
             res.map(({ id, user, body, updated_at }) => ({
                 id,

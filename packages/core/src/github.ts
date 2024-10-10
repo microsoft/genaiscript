@@ -17,6 +17,7 @@ import { isGlobMatch } from "./glob"
 import { fetchText } from "./fetch"
 import { concurrentLimit } from "./concurrency"
 import { createDiff, llmifyDiff } from "./diff"
+import { JSON5TryParse } from "./json5"
 
 export interface GithubConnectionInfo {
     token: string
@@ -91,7 +92,7 @@ export async function githubParseEnv(
             res.repository = res.owner + "/" + res.repo
         }
         if (!isNaN(options?.issue)) res.issue = options.issue
-        if (!res.issue) {
+        if (isNaN(res.issue)) {
             const { number: issue } = JSON.parse(
                 (
                     await runtimeHost.exec(
@@ -580,7 +581,26 @@ export class GitHubClient implements GitHub {
         return res
     }
 
-    async getPullRequest(pull_number: number): Promise<GitHubPullRequest> {
+    private _currentPullRequestNumber: number
+    async getPullRequest(pull_number?: number): Promise<GitHubPullRequest> {
+        if (isNaN(pull_number)) {
+            if (isNaN(this._currentPullRequestNumber)) {
+                const res = await runtimeHost.exec(
+                    undefined,
+                    "gh",
+                    ["pr", "view", "--json", "number"],
+                    {
+                        label: "resolve current pull request number",
+                    }
+                )
+                const resj = JSON5TryParse(res.stdout) as { number: number }
+                this._currentPullRequestNumber = resj?.number
+            }
+            pull_number = this._currentPullRequestNumber
+        }
+
+        if (isNaN(pull_number)) return undefined
+
         const { client, owner, repo } = await this.client()
         const { data } = await client.rest.pulls.get({
             owner,
