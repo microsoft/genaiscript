@@ -23,13 +23,15 @@ The `agent_git` tool itself has access to various git dedicated tools like `git 
 It will have to resolve the current and default branch, compute a diff and return it to the main LLM.
 
 ```mermaid
-flowchart TD
-    query["query"] -->  |"summarize changes in the current branch"| LLM
+flowchart LR
+    query(["summarize changes in the current branch"]) --> LLM((LLM))
 
-    LLM --> |"get changes in current branch"| agent_git["agent git (LLM)"]
+    LLM --> |"get changes in current branch"| agent_git
     agent_git --> |"diff +main.ts -main.ts...+ new code"| LLM
-    agent_git --> git_tools["git branch, git diff"]
-    git_tools --> agent_git
+
+    subgraph agent_git ["agent git"]
+        agent_git_LLM((LLM)) <--> git_tools["git branch, git diff"]
+    end
 ```
 
 ## Agent vs Tools
@@ -37,11 +39,10 @@ flowchart TD
 Note that in this simple example, you could also decide to flatten this tree and give access to the git tools to the main LLM and skip the agent.
 
 ```mermaid
-flowchart TD
-    query["query"] -->  |"summarize changes in the current branch"| LLM
+flowchart LR
+    query(["summarize changes in the current branch"]) --> LLM((LLM))
 
-    LLM --> git_tools["git branch, git diff"]
-    git_tools --> LLM
+    LLM <--> git_tools["git branch, git diff"]
 ```
 
 However, the agent abstraction becomes useful when you start to have too many functions or to keep the chat conversation length small as each agent LLM call gets "compressed" to the agent response.
@@ -51,21 +52,23 @@ However, the agent abstraction becomes useful when you start to have too many fu
 Let's take a look at a more complex example where multiple agents are involved in the conversation. In this case, we would like to investigate why a GitHub action failed.
 It involves the `agent_git` and the `agent_github` agents. The `agent_github` can query workflows, runs, jobs, logs and the `agent_git` can query the git repository.
 
+
 ```mermaid
 flowchart TD
-    query["query"] -->  |"why did the github action 'build' fail?"| LLM
+    query(["summarize changes in the current branch"]) --> LLM((LLM))
 
-    LLM --> |"query the last failed run"| agent_github["agent github (LLM)"]
-    agent_github --> |"commit failed_sha is responsible\nsuccess_sha is last known good"| LLM
-    agent_github --> github_tools["list workflow runs, list jobs, diff job logs"]
-    github_tools --> agent_github
-
-    LLM --> |"diff success_sha...failed_sha"| agent_git["agent git (LLM)"]
+    LLM --> |"get changes in current branch"| agent_git
     agent_git --> |"diff +main.ts -main.ts...+ new code"| LLM
-    agent_git --> git_tools["git diff"]
-    git_tools --> agent_git
 
-    LLM --> response["the change at line 50 is wrong"]
+    subgraph agent_git ["agent git"]
+        agent_git_LLM((LLM)) <--> git_tools["git branch, git diff"]
+    end
+
+    LLM --> |"query the last failed run"| agent_github
+    agent_github --> |"commit failed_sha is responsible\nsuccess_sha is last known good"| LLM
+    subgraph agent_github ["agent github"]
+        agent_github_LLM((LLM)) <--> github_tools["list workflow runs, list jobs, diff job logs"]
+    end
 ```
 
 ## Memory
@@ -84,18 +87,25 @@ ask agent about "query":
 
 ```mermaid
 flowchart TD
-    query["query"] -->  |"why did the github action 'build' fail?"| LLM
+    query(["summarize changes in the current branch"]) --> LLM((LLM))
 
-    LLM --> |"query the last failed run"| agent_github["agent github (LLM)"]
-    agent_github --> |"run failed_run is responsible"| LLM
-
-
-    LLM --> |"diff success_sha...failed_run"| agent_git["agent git (LLM)"]
+    LLM --> |"get changes in current branch"| agent_git
     agent_git --> |"diff +main.ts -main.ts...+ new code"| LLM
 
+    subgraph agent_git ["agent git"]
+        agent_git_LLM((LLM)) <--> git_tools["git branch, git diff"]
+    end
+
+    LLM --> |"query the last failed run"| agent_github
+    agent_github --> |"commit failed_sha is responsible\nsuccess_sha is last known good"| LLM
+    subgraph agent_github ["agent github"]
+        agent_github_LLM((LLM)) <--> github_tools["list workflow runs, list jobs, diff job logs"]
+    end
+
+    memory[(agent memory)]
+    memory ---> |"failed_sha"| agent_git
     agent_github --> |"remember failed_run, failed_sha"| memory
-    agent_git --> |"info about failed_run"| memory["memory (LLM RAG)"]
-    memory --> |"failed_sha"| agent_git
+
 ```
 
 All agent contribute to the conversation memory, and use the `agent_memory`, tool unless it is explicitely disabled using `disableMemory`.
