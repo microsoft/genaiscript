@@ -41,14 +41,14 @@ import { proxifyVars } from "./parameters"
  */
 export async function createPromptContext(
     prj: Project,
-    vars: ExpansionVariables,
+    ev: ExpansionVariables,
     trace: MarkdownTrace,
     options: GenerationOptions,
     model: string
 ) {
-    const { generator, ...varsNoGenerator } = vars
+    const { generator, vars, ...varsNoGenerator } = ev
     // Clone variables to prevent modification of the original object
-    const env = { generator, ...structuredClone(varsNoGenerator) }
+    const env = { generator, vars, ...structuredClone(varsNoGenerator) }
     // Create parsers for the given trace and model
     const parsers = await createParsers({ trace, model })
     const path = runtimeHost.path
