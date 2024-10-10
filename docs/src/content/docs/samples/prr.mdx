@@ -1,5 +1,5 @@
 ---
-title: Reviewer
+title: Pull Request Reviewer
 description: Review the current files or changes
 sidebar:
     order: 5
@@ -20,13 +20,6 @@ script({
     system: ["system.annotations"],
     tools: ["fs_find_files", "fs_read_text"],
     cache: "prr",
-    parameters: {
-        errors: {
-            type: "boolean",
-            description: "Report errors only",
-            default: false,
-        },
-    },
 })
 ```
 
@@ -43,21 +36,16 @@ In the configuration section, we extract the `errors` parameter from the environ
 ## Context and File Handling
 
 ```ts
-let content = ""
-if (env.files.length) {
-    content = def("FILE", env.files, {
-        maxTokens: 5000,
-        glob: "**/*.{py,ts,cs,rs,c,cpp,h,hpp,js,mjs,mts}",
-    })
-} else {
-    console.log("No files found. Using git diff.")
-    const { stdout: diff } = await host.exec("git diff -U6")
-    if (!diff) cancel("No changes found, did you forget to stage your changes?")
-    content = def("GIT_DIFF", diff, { language: "diff" })
-}
+const defaultBranch = await git.defaultBranch()
+const changes = await git.diff({
+    base: defaultBranch,
+})
+console.log(changes)
+
+def("GIT_DIFF", changes, { maxTokens: 20000 })
 ```
 
-This part deals with file selection. If files are provided through `env.files`, it defines the content to be reviewed. Otherwise, it falls back to using `git diff` to check for unstaged changes.
+
 
 ## The Prompt
 
