@@ -111,14 +111,20 @@ defTool(
                 type: "number",
                 description: "The 'number' of the pull request (not the id)",
             },
+            count: {
+                type: "number",
+                description: "Number of runs to list. Default is 20.",
+            },
         },
         required: ["number"],
     },
 
     async (args) => {
-        const { number: pull_number, context } = args
+        const { number: pull_number, context, count } = args
         context.log(`github pull comments list ${pull_number}`)
-        const res = await github.listPullRequestReviewComments(pull_number)
+        const res = await github.listPullRequestReviewComments(pull_number, {
+            count,
+        })
         return CSV.stringify(
             res.map(({ id, user, body }) => ({
                 id,

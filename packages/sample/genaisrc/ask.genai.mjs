@@ -13,4 +13,5 @@ end while
 
 ## guidance:
     - use the agent tools to help you
+    - do NOT try to ask the user questions directly, use the agent_user_input tool instead.
 `
