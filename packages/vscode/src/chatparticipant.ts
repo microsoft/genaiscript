@@ -40,7 +40,7 @@ export async function activateChatParticipant(state: ExtensionState) {
             if (token.isCancellationRequested) return
 
             const { text } = res || {}
-            if (text) response.markdown(text)
+            response.markdown(text || "")
         }
     )
 
