@@ -11,10 +11,8 @@ export function resolveSystems(
     const { jsSource } = script
     // Initialize systems array from script.system, converting to array if necessary using arrayify utility
     const systems = arrayify(script.system)
-    const excludedTools = arrayify(script.excludedTools)
-    const tools = arrayify(script.tools).filter(
-        (t) => !excludedTools.some((et) => t.startsWith(et))
-    )
+    const excludedSystem = arrayify(script.excludedSystem)
+    const tools = arrayify(script.tools)
 
     // If no system is defined in the script, determine systems based on jsSource
     if (script.system === undefined) {
@@ -60,7 +58,10 @@ export function resolveSystems(
 
     // Return a unique list of non-empty systems
     // Filters out duplicates and empty entries using unique utility
-    return uniq(systems.filter((s) => !!s))
+    const res = uniq(
+        systems.filter((s) => !!s).filter((s) => !excludedSystem.includes(s))
+    )
+    return res
 }
 
 // Helper function to resolve tools in the project and return their system IDs
@@ -70,14 +71,14 @@ function resolveSystemFromTools(prj: Project, tool: string): string[] {
         (t) => t.isSystem && t.defTools?.find((to) => to.id.startsWith(tool))
     )
     const res = system.map(({ id }) => id)
+
     return res
 }
 
 export function resolveTools(
     prj: Project,
     systems: string[],
-    tools: string[],
-    excludedTools: string[]
+    tools: string[]
 ): { id: string; description: string }[] {
     const { templates: scripts } = prj
     const toolScripts = uniq([
@@ -86,9 +87,6 @@ export function resolveTools(
             scripts.find((s) => s.defTools?.find((t) => t.id.startsWith(tid)))
         ),
     ]).filter((s) => !!s)
-    const res = toolScripts
-        .map(({ defTools }) => defTools ?? [])
-        .flat()
-        .filter((t) => !excludedTools.some((et) => t.id.startsWith(et)))
+    const res = toolScripts.map(({ defTools }) => defTools ?? []).flat()
     return res
 }

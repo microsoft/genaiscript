@@ -78,7 +78,7 @@ script({ ...,
 GenAIScript comes with a number of system prompt that support features like creating files, extracting diffs or
 generating annotations. If unspecified, GenAIScript looks for specific keywords to activate the various system prompts.
 
-### `chat_participant`
+### `copilot_chat_participant`
 
 
 
@@ -86,11 +86,11 @@ generating annotations. If unspecified, GenAIScript looks for specific keywords 
 
 
 
-`````js wrap title="chat_participant"
+`````js wrap title="copilot_chat_participant"
 script({
-    system: ["system"],
+    system: ["system", "system.git_info", "system.github_info"],
     tools: ["agent"],
-    excludedTools: ["agent_user_input"],
+    excludedSystem: ["system.agent_user_input"],
     group: "infrastructure",
     parameters: {
         question: {

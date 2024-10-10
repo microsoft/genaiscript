@@ -234,9 +234,9 @@ interface PromptSystemOptions {
     tools?: ElementOrArray<SystemToolId>
 
     /**
-     * List of tools to exclude from the prompt.
+     * List of system to exclude from the prompt.
      */
-    excludedTools?: ElementOrArray<SystemToolId>
+    excludedSystem?: ElementOrArray<SystemPromptId>
 }
 
 interface ScriptRuntimeOptions {

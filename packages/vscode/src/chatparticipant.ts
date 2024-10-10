@@ -22,7 +22,7 @@ export async function activateChatParticipant(state: ExtensionState) {
             if (token.isCancellationRequested) return
 
             const template = state.project.templates.find(
-                (t) => t.id === "chat_participant"
+                (t) => t.id === "copilot_chat_participant"
             )
             const fragment: Fragment = {
                 files: arrayify([]),

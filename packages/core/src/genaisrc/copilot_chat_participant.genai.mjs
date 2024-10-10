@@ -1,7 +1,7 @@
 script({
-    system: ["system"],
+    system: ["system", "system.git_info", "system.github_info"],
     tools: ["agent"],
-    excludedTools: ["agent_user_input"],
+    excludedSystem: ["system.agent_user_input"],
     group: "infrastructure",
     parameters: {
         question: {
