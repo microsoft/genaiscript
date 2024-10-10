@@ -27,7 +27,7 @@ import { Project } from "./ast"
 import { shellParse } from "./shell"
 import { PLimitPromiseQueue } from "./concurrency"
 import { NotSupportedError } from "./error"
-import { JSONLineCache, MemoryCache } from "./cache"
+import { MemoryCache } from "./cache"
 import { proxifyVars } from "./parameters"
 
 /**
