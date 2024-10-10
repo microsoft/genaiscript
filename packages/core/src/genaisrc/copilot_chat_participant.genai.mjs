@@ -7,6 +7,7 @@ script({
         "system.annotations",
         "system.git_info",
         "system.github_info",
+        "system.safety_harmful_content",
     ],
     tools: ["agent"],
     excludedSystem: ["system.agent_user_input"],
@@ -29,8 +30,8 @@ $`## task
 
 ## guidance:
     - use the agent tools to help you
-    - do NOT try to ask the user questions directly, use the agent_user_input tool instead.
-
+    - do NOT be lazy, always finish the tasks
+    - do NOT skip any steps
 `
 
 def("QUESTION", question)
