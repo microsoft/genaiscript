@@ -9,23 +9,18 @@ sidebar:
 import { Code } from "@astrojs/starlight/components"
 import source from "../../../../../packages/vscode/genaisrc/prd.genai.mts?raw"
 
-Pull requests are an integral part of collaborative software development. They allow developers to review code changes before merging them into the main codebase. Creating informative and concise pull request descriptions can be a time-consuming task, especially when dealing with large or complex changes. This is where GenAI comes in, streamlining the process with a smart script that generates pull request descriptions automatically. 🚀
+Pull requests are an integral part of collaborative software development.
+They allow developers to review code changes before merging them into the main codebase.
+Creating informative and concise pull request descriptions can be a time-consuming task, especially when dealing with large or complex changes.
+This is where GenAI comes in, streamlining the process with a smart script that generates pull request descriptions automatically. 🚀
 
 ### Script Metadata
 
-```ts
+```ts wrap
 script({
     title: "Pull Request Descriptor",
     description: "Generate a pull request description from the git diff",
-    tools: ["fs"],
     temperature: 0.5,
-    parameters: {
-        defaultBranch: {
-            type: "string",
-            description: "The default branch of the repository",
-            default: "main",
-        },
-    },
 })
 ```
 
@@ -33,27 +28,20 @@ The `script` function is used to set up the script's metadata. It's the first th
 
 -   `title`: This is the name of the script, which is "Pull Request Descriptor."
 -   `description`: A brief explanation of what the script does.
--   `tools`: An array of tools that the script will use. In this case, it uses the filesystem (`fs`) tool.
 -   `temperature`: Sets the creativity level for the AI model. A lower temperature means less creativity, and `0.5` is a balanced choice.
--   `parameters`: Defines the inputs that the script accepts. Here, it takes `defaultBranch` as a parameter, which is the branch against which the pull request will be compared.
 
 ### Gathering Changes with Git
 
-```ts
-const defaultBranch = env.vars.defaultBranch
-const { stdout: changes } = await host.exec("git", [
-    "diff",
-    defaultBranch,
-    "--cached",
-    "--",
-    ".",
-    ":!.vscode/*",
-    ":!*yarn.lock",
-    ":!*THIRD_PARTY_LICENSES.md",
-])
-```
+The script captures the difference between the current branch and the `defaultBranch`.
 
-The script captures the difference between the current branch and the `defaultBranch`. It uses the `exec` function to run the `git diff` command, excluding certain files and directories like `.vscode` and `yarn.lock`.
+```ts
+// compute diff
+const defaultBranch = await git.defaultBranch()
+const changes = await git.diff({
+    base: defaultBranch,
+})
+console.log(changes)
+```
 
 ### Defining the Git Diff Output
 
@@ -95,10 +83,14 @@ To use this script, you need the GenAIScript CLI installed. If you haven't insta
 Once you have the CLI set up, run the following command:
 
 ```shell
-genaiscript run prd -prd
+npx genaiscript run prd
 ```
 
-This will execute the `prd` script and give you a pull request description. The script's filename is `prd.genai.mts`, but we use `prd` without the file extension when invoking it through the CLI.
+Adding the `-prd` flag will automatically update the pull request description on github as well.
+
+```shell
+npx genaiscript run prd -prd
+```
 
 ## Full source ([GitHub](https://github.com/microsoft/genaiscript/blob/main/packages/vscode/genaisrc/prd.genai.mts))
 

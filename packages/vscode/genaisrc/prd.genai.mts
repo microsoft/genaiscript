@@ -1,11 +1,14 @@
 script({
     title: "Pull Request Descriptor",
     description: "Generate a pull request description from the git diff",
-    tools: ["fs"],
     temperature: 0.5,
 })
 
 const defaultBranch = await git.defaultBranch()
+const branch = await git.branch()
+if (branch === defaultBranch) cancel("you are already on the default branch")
+
+// compute diff
 const changes = await git.diff({
     base: defaultBranch,
 })
@@ -30,5 +33,3 @@ This description will be used as the pull request description.
 `
 
 def("GIT_DIFF", changes, { maxTokens: 30000 })
-
-// running: make sure to add the -prd flag
