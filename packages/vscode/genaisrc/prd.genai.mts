@@ -2,6 +2,12 @@ script({
     title: "Pull Request Descriptor",
     description: "Generate a pull request description from the git diff",
     temperature: 0.5,
+    system: [
+        "system",
+        "system.safety_harmful_content",
+        "system.safety_protected_material",
+        "system.safety_ungrounded_content_summarization",
+    ],
 })
 
 const defaultBranch = await git.defaultBranch()
