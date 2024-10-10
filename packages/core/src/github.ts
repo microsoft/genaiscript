@@ -17,6 +17,7 @@ import { isGlobMatch } from "./glob"
 import { fetchText } from "./fetch"
 import { concurrentLimit } from "./concurrency"
 import { createDiff, llmifyDiff } from "./diff"
+import { JSON5TryParse } from "./json5"
 
 export interface GithubConnectionInfo {
     token: string
@@ -580,7 +581,20 @@ export class GitHubClient implements GitHub {
         return res
     }
 
-    async getPullRequest(pull_number: number): Promise<GitHubPullRequest> {
+    async getPullRequest(pull_number?: number): Promise<GitHubPullRequest> {
+        if (isNaN(pull_number)) {
+            const res = await runtimeHost.exec(
+                undefined,
+                "gh",
+                ["pr", "view", "--json", "number"],
+                {}
+            )
+            const resj = JSON5TryParse(res.stdout) as { number: number }
+            pull_number = resj?.number
+        }
+
+        if (isNaN(pull_number)) return undefined
+
         const { client, owner, repo } = await this.client()
         const { data } = await client.rest.pulls.get({
             owner,
