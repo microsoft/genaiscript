@@ -24,6 +24,7 @@ import { updateConnectionConfiguration } from "../../core/src/connection"
 import { APIType } from "../../core/src/host"
 import { activeTaskProvider } from "./taskprovider"
 import { activateSamplesCommands } from "./samplescommands"
+import { activateChatParticipant } from "./chatparticipant"
 
 export async function activate(context: ExtensionContext) {
     const state = new ExtensionState(context)
@@ -39,6 +40,7 @@ export async function activate(context: ExtensionContext) {
     activateStatusBar(state)
     activateDocsNotebook(state)
     activeTaskProvider(state)
+    activateChatParticipant(state)
 
     context.subscriptions.push(
         registerCommand(

@@ -86,7 +86,6 @@ function activateNotebookExecutor(state: ExtensionState) {
         const currentExecutionId = executionId
         await state.cancelAiRequest()
         await state.parseWorkspace()
-        const project = state.project
 
         const firstCell = notebook.cellAt(0)
         const frontMatterText = firstCell?.document?.getText()

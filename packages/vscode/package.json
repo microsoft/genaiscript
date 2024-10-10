@@ -52,6 +52,22 @@
         "url": "https://github.com/microsoft/genaiscript"
     },
     "contributes": {
+        "chatParticipants": [
+            {
+                "id": "genaiscript",
+                "description": "Calls the GenAIScript agent.",
+                "name": "genaiscript",
+                "fullName": "GenAIScript",
+                "isSticky": false,
+                "disambiguation": [
+                    {
+                        "category": "workspace_question",
+                        "description": "Runs GenAIScript agents defined in the current respository.",
+                        "examples": []
+                    }
+                ]
+            }
+        ],
         "configurationDefaults": {
             "files.associations": {
                 ".gitignore.genai": "ignore"
