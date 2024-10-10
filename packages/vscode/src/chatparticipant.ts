@@ -27,7 +27,7 @@ export async function activateChatParticipant(state: ExtensionState) {
             const fragment: Fragment = {
                 files: arrayify([]),
             }
-            await state.requestAI({
+            const res = await state.requestAI({
                 template,
                 label: "Executing cell",
                 parameters: {
@@ -36,6 +36,11 @@ export async function activateChatParticipant(state: ExtensionState) {
                 fragment,
                 mode: "chat",
             })
+
+            if (token.isCancellationRequested) return
+
+            const { text } = res || {}
+            if (text) response.markdown(text)
         }
     )
 

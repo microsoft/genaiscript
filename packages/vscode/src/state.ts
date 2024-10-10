@@ -212,12 +212,12 @@ tests/
         this.dispatchChange()
     }
 
-    async requestAI(options: AIRequestOptions): Promise<void> {
+    async requestAI(options: AIRequestOptions): Promise<GenerationResult> {
         try {
             const req = await this.startAIRequest(options)
             if (!req) {
                 await this.cancelAiRequest()
-                return
+                return undefined
             }
             const res = await req?.request
             const { edits, text, status } = res || {}
@@ -240,8 +240,9 @@ tests/
             this.dispatchChange()
 
             if (edits?.length && options.mode != "notebook") this.applyEdits()
+            return res
         } catch (e) {
-            if (isCancelError(e)) return
+            if (isCancelError(e)) return undefined
             throw e
         }
     }
