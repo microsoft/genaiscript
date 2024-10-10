@@ -15,15 +15,15 @@ script({
             description: "regenerate all descriptions",
             default: false,
         },
-        dryRun: {
-            type: "boolean",
-            description: "show matches, do not compute alt text",
-            default: false,
-        },
         assets: {
             type: "string",
             description: "image assets path",
             default: "./slides/public",
+        },
+        dryRun: {
+            type: "boolean",
+            description: "show matches, do not compute alt text",
+            default: false,
         },
     },
 })
@@ -39,12 +39,14 @@ const { docs, force, assets, dryRun } = env.vars
 /**
  *  Return the resolved url for the image
  */
-const resolveUrl = (filename: string, url: string) =>
-    /^\//.test(url)
-        ? path.join(assets, url.slice(1))
-        : /^http?s:\/\//i.test(url)
-          ? url
-          : path.join(path.dirname(filename), url)
+const resolveUrl = (filename: string, url: string) => {
+    // ignore external urls
+    if (/^http?s:\/\//i.test(url)) return undefined
+    // map / to assets
+    else if (/^\//.test(url)) return path.join(assets, url.slice(1))
+    // resolve local paths
+    else return path.join(path.dirname(filename), url)
+}
 
 /** ------------------------------------------------
  * Collect files
@@ -80,6 +82,7 @@ for (const file of files) {
         if (imgs[url]) continue // already processed
 
         const resolvedUrl = resolveUrl(filename, url)
+        if (!resolvedUrl) continue // can't process url
         console.log(`└─ ${resolvedUrl}`)
 
         if (dryRun) continue
@@ -99,6 +102,7 @@ for (const file of files) {
                 - Do not generate the [ character.`
             },
             {
+                // safety system message to prevent generating harmful text
                 system: ["system.safety_harmful_content"],
                 maxTokens: 4000,
                 temperature: 0.5,

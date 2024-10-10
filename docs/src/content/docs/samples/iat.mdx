@@ -8,13 +8,12 @@ sidebar:
 import { Code } from "@astrojs/starlight/components"
 import source from "../../../../../packages/vscode/genaisrc/iat.genai.mts?raw"
 
-Have you ever stumbled upon a beautiful image in a Markdown file and wondered what it depicts?
-Or perhaps you're aiming to make your content more accessible by providing descriptive alt text for all the visuals? 🖼️✨
+Alt text is essential for making images accessible to everyone, including those with visual impairments. It provides a textual description of the image, allowing screen readers to convey the content to users who can't see the image.
+However, writing alt text for images can be time-consuming, especially when dealing with a large number of images. This is where AI can help. By using a language model like OpenAI's GPT-4, you can generate alt text for images automatically, saving you time and effort.
 
-In this sample, we'll dive into a GenAIScript tool that automates the generation of alt text for images in Markdown files,
-making your content more inclusive and SEO-friendly!
+In this sample, we will build a tool that generates alt text for images in Markdown files.
 
-### 👩‍💻 Understanding the Script Code
+## Configuring the script
 
 This script is composed of TypeScript code, designed to run with the GenAIScript CLI. Let's break it down:
 
@@ -22,7 +21,6 @@ This script is composed of TypeScript code, designed to run with the GenAIScript
 script({
     title: "Image Alt Textify",
     description: "Generate alt text for images in markdown files",
-    model: "openai:gpt-4o",
     parameters: {
         docs: {
             type: "string",
@@ -37,13 +35,15 @@ script({
         assets: {
             type: "string",
             description: "image assets path",
-            default: "./slides/public",
+            // change the default path to your assets folder
+            default: "./assets/images",
         },
     },
 })
 ```
 
-Here we declare the script with a title and description, specifying it uses OpenAI's GPT-4 model. We also set parameters for the file paths, choice to regenerate all descriptions, and the assets path.
+Here we declare the script with a title and description, specifying it uses OpenAI's GPT-4 model.
+We also set parameters for the file paths, choice to regenerate all descriptions, and the assets path.
 
 Next, we extract environmental variables:
 
@@ -51,53 +51,66 @@ Next, we extract environmental variables:
 const { docs, force, assets } = env.vars
 ```
 
-Configuration is crucial, as it allows customization of the script's behavior.
-
-Now, let's create a helper function:
-
-```ts
-const resolveUrl = (filename: string, url: string) =>
-    /^\//.test(url)
-        ? path.join(assets, url.slice(1))
-        : /^\.\//.test(url)
-          ? path.join(path.dirname(filename), url.slice(2))
-          : url
-```
-
-This function resolves the URL for the image, determining its absolute path based on different types of relative URLs.
+## Searching for images
 
 Following that, we define a regular expression to find images in Markdown:
 
 ```ts
 const rx = force
-    ? /!\[[^\]]*\]\(([^\)]+\.(png|jpg))\)/g
-    : /!\[\s*\]\(([^\)]+\.(png|jpg))\)/g
+    ? // match ![alt?](path) with alt text or not
+      /!\[[^\]]*\]\(([^\)]+\.(png|jpg))\)/g
+    : // match ![](path) without alt text
+      /!\[\s*\]\(([^\)]+\.(png|jpg))\)/g
+
+const { files } = await workspace.grep(rx, {
+    path: docs,
+    glob: "*.{md,mdx}",
+    readText: true,
+})
 ```
 
-This regex captures different scenarios based on whether we want to force regenerate all image descriptions or just the ones missing alt text.
+The script uses [workspace.grep](/genaiscript/reference/scripts/files#grep) to find all occurrences of the regex pattern in the specified documents.
 
-We then use this regex to find relevant files:
+## Generating alt text
 
-```ts
-const { files } = await workspace.grep(rx, docs, { readText: true })
-console.log(`found ${files.length} files`)
-```
-
-The script uses `workspace.grep` to find all occurrences of the regex pattern in the specified documents.
-
-For each image URL found, we generate alt text:
+For each image URL found, we generate alt text using an [inline prompt](/genaiscript/reference/scripts/inline-prompts)
+and [defImages](/genaiscript/references/scripts/images).
 
 ```ts
 for (const file of files) {
     const { filename, content } = file
-    // ...
-    // runPrompt is a faux function representing the LLM query
-    // ...
-    imgs[url] = text.replace(/\[/g, "")
+
+    // map documentation relative path to assets path
+    const url = resolveUrl(filename)
+
+    // execute a LLM query to generate alt text
+    const { text } = await runPrompt(
+        (_) => {
+            _.defImages(resolvedUrl)
+            _.$`
+                You are an expert in assistive technology.
+
+                You will analyze the image
+                and generate a description alt text for the image.
+
+                - Do not include alt text in the description.
+                - Keep it short but description.
+                - Do not generate the [ character.`
+        },
+        {
+            // safety system message to prevent generating harmful text
+            system: ["system.safety_harmful_content"],
+            // use multi-model model
+            model: "openai:gpt-4o",
+            ...
+        }
+    )
+
+    imgs[url] = text
 }
 ```
 
-In a loop, we process each file, generate the alt text using an AI model, and store it, making sure to strip out any brackets that could interfere with Markdown syntax.
+## Updating files
 
 Finally, we update the Markdown content with the generated alt text:
 
@@ -111,23 +124,27 @@ if (newContent !== content) await workspace.writeText(filename, newContent)
 
 We replace the placeholder in the original content with the alt text and save the updated file.
 
-### 💻 How to Run the Script
+## 💻 How to Run the Script
 
 To run this script, you'll need the GenAIScript CLI. If you haven't installed it yet, check out the [installation guide](https://microsoft.github.io/genaiscript/getting-started/installation).
 
 Once you have the CLI, you can run the script with the following command:
 
 ```bash
-genaiscript run image-alt-textify
+npx genaiscript run iat
 ```
 
-This command will execute the script using the filename without the `.genai.mts` extension. The script will search for Markdown files, generate alt text for images without descriptions or update existing ones if the `force` option is used.
+## Safety
 
-🧑‍💼 Make sure to navigate to the directory where your Markdown files are located before running the script.
+The script imports a default safety system message to prevent generating harmful text.
 
-That's it! You now have the power to enhance your Markdown files with descriptive alt text, making your content more accessible and engaging for all your readers.
+```js
+    // safety system message to prevent generating harmful text
+    system: ["system.safety_harmful_content"],
+```
 
-Happy coding! 🚀
+In Azure OpenAI deployments, you can also turn on [content filters](https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/content-filter)
+to prevent accidentally generating harmful content.
 
 ## Full source ([GitHub](https://github.com/microsoft/genaiscript/blob/main/packages/vscode/genaisrc/iat.genai.mts))
 
