@@ -21,9 +21,8 @@ let message
 do {
     // generate commit message
     const res = await runPrompt((_) => {
-        _.def("GIT_DIFF", diff, { maxTokens: 20000 })
-        _.$`GIT_DIFF is a git diff of all staged changes.
-        Generate a concise, one-line commit message for GIT_DIFF.
+        _.def("GIT_DIFF", diff, { maxTokens: 20000, language: "diff" })
+        _.$`Generate a git conventional commit message for the changes in GIT_DIFF.
         - do NOT add quotes
         - maximum 50 characters
         - use emojis`
