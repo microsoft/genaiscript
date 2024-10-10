@@ -1,5 +1,5 @@
 ---
-title: Agents (LLM Tools)
+title: Agents
 description: An Agent is a tool that queries an LLM, equipped with other tools, to accomplish tasks.
 sidebar:
     order: 7.1
@@ -80,6 +80,22 @@ and that information is passed to the agent query.
 ask agent about "query":
     wisdom = find info in memory about "query"
     agent answer "query" using your tools and information in "wisdom"
+```
+
+```mermaid
+flowchart TD
+    query["query"] -->  |"why did the github action 'build' fail?"| LLM
+
+    LLM --> |"query the last failed run"| agent_github["agent github (LLM)"]
+    agent_github --> |"run failed_run is responsible"| LLM
+
+
+    LLM --> |"diff success_sha...failed_run"| agent_git["agent git (LLM)"]
+    agent_git --> |"diff +main.ts -main.ts...+ new code"| LLM
+
+    agent_github --> |"remember failed_run, failed_sha"| memory
+    agent_git --> |"info about failed_run"| memory["memory (LLM RAG)"]
+    memory --> |"failed_sha"| agent_git
 ```
 
 All agent contribute to the conversation memory, and use the `agent_memory`, tool unless it is explicitely disabled using `disableMemory`.
