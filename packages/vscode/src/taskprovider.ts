@@ -19,7 +19,7 @@ export async function activeTaskProvider(state: ExtensionState) {
                     ? []
                     : ["--yes", `genaiscript@${cliVersion}`]
                 const scripts = state.project.templates.filter(
-                    (t) => !t.isSystem
+                    (t) => !t.isSystem && t.group !== "infrastructure"
                 )
                 const tasks = scripts.map((script) => {
                     const scriptName = host.path.relative(

@@ -1,6 +1,7 @@
 script({
     system: ["system"],
     tools: ["agent"],
+    group: "infrastructure",
     parameters: {
         question: {
             type: "string",
