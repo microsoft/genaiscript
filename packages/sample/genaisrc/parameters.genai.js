@@ -1,5 +1,4 @@
 script({
-    model: "small",
     parameters: {
         string: "abc",
         number: 123,
