@@ -19,7 +19,7 @@ console.log(diff)
 let choice
 let message
 do {
-    // generate commit message
+    // generate a conventional commit message (https://www.conventionalcommits.org/en/v1.0.0/)
     const res = await runPrompt((_) => {
         _.def("GIT_DIFF", diff, { maxTokens: 20000, language: "diff" })
         _.$`Generate a git conventional commit message for the changes in GIT_DIFF.
