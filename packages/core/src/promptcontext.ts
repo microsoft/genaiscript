@@ -28,6 +28,7 @@ import { shellParse } from "./shell"
 import { PLimitPromiseQueue } from "./concurrency"
 import { NotSupportedError } from "./error"
 import { JSONLineCache, MemoryCache } from "./cache"
+import { proxifyVars } from "./parameters"
 
 /**
  * Creates a prompt context for the given project, variables, trace, options, and model.
@@ -267,13 +268,8 @@ export async function createPromptContext(
         host: promptHost,
     }
     env.generator = ctx
+    env.vars = proxifyVars(env.vars)
     ctx.env = Object.freeze(env)
-
-    // Append a prompt child node
-    const appendPromptChild = (node: PromptNode) => {
-        if (!ctx.node) throw new Error("Prompt closed")
-        appendChild(ctx.node, node)
-    }
 
     return ctx
 }

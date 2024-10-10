@@ -2,7 +2,7 @@ import { Project } from "./ast"
 import { NotSupportedError } from "./error"
 import { isJSONSchema } from "./schema"
 import { resolveSystems } from "./systems"
-import { normalizeFloat, normalizeInt } from "./util"
+import { logError, normalizeFloat, normalizeInt } from "./util"
 
 export function promptParameterTypeToJSONSchema(
     t: PromptParameterType
@@ -122,7 +122,31 @@ export function parsePromptParameters(
             res[key] = /^\s*(y|yes|true|ok)\s*$/i.test(vars[key] + "")
         else if (t?.type === "string") res[key] = vars[key]
     }
+
+    // clone res to all lower case
+    for (const key of Object.keys(res)) {
+        const nkey = normalizeVarKey(key)
+        if (nkey !== key) {
+            if (res[nkey] !== undefined)
+                logError(`duplicate parameter ${key} (${nkey})`)
+            res[nkey] = res[key]
+            delete res[key]
+        }
+    }
     return Object.freeze(res)
+}
+
+export function proxifyVars(res: PromptParameters) {
+    const varsProxy: PromptParameters = new Proxy(res, {
+        get(target: PromptParameters, prop: string) {
+            return prop ? target[normalizeVarKey(prop)] : undefined
+        },
+    })
+    return varsProxy
+}
+
+function normalizeVarKey(key: string) {
+    return key.toLowerCase().replace(/[^a-z0-9\.]/g, "")
 }
 
 export function parametersToVars(parameters: PromptParameters): string[] {

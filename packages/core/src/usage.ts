@@ -15,7 +15,7 @@ import {
 } from "./constants"
 
 export function estimateCost(modelId: string, usage: ChatCompletionUsage) {
-    if (!modelId) return undefined
+    if (!modelId || !usage.total_tokens) return undefined
 
     const { completion_tokens, prompt_tokens } = usage
     let { provider, model } = parseModelIdentifier(modelId)
