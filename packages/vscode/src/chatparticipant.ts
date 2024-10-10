@@ -21,34 +21,20 @@ export async function activateChatParticipant(state: ExtensionState) {
             if (!state.project) await state.parseWorkspace()
             if (token.isCancellationRequested) return
 
-            const jsSource = `script({ tools: ["agent_git", "agent_github"] })
-
-$\`## task
-
-- make a plan to answer the QUESTION step by step
-- answer the QUESTION
-
-## guidance:
-    - use the agent tools to help you
-    - do NOT try to ask the user questions directly, use the agent_user_input tool instead.
-
-\`
-def("QUESTION", ${JSON.stringify(prompt)})
-`
+            const template = state.project.templates.find(
+                (t) => t.id === "chat_participant"
+            )
             const fragment: Fragment = {
                 files: arrayify([]),
-            }
-            const template: PromptScript = {
-                id: "copilot-chat",
-                jsSource,
             }
             await state.requestAI({
                 template,
                 label: "Executing cell",
-                parameters: {},
+                parameters: {
+                    question: prompt,
+                },
                 fragment,
                 mode: "chat",
-                jsSource,
             })
         }
     )

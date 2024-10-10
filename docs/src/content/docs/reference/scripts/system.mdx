@@ -78,6 +78,44 @@ script({ ...,
 GenAIScript comes with a number of system prompt that support features like creating files, extracting diffs or
 generating annotations. If unspecified, GenAIScript looks for specific keywords to activate the various system prompts.
 
+### `chat_participant`
+
+
+
+
+
+
+
+`````js wrap title="chat_participant"
+script({
+    system: ["system"],
+    tools: ["agent"],
+    parameters: {
+        question: {
+            type: "string",
+            description: "the user question",
+        },
+    },
+})
+
+const { question } = env.vars
+
+$`## task
+
+- make a plan to answer the QUESTION step by step
+- answer the QUESTION
+
+## guidance:
+    - use the agent tools to help you
+    - do NOT try to ask the user questions directly, use the agent_user_input tool instead.
+
+`
+
+def("QUESTION", question)
+
+`````
+
+
 ### `system`
 
 Base system prompt
