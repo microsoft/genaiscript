@@ -358,7 +358,7 @@ export function createChatGenerationContext(
                 let memoryAnswer: string
                 if (memory && query && !disableMemoryQuery) {
                     // always pre-query memory with cheap model
-                    const res = await runPrompt(
+                    const res = await ctx.runPrompt(
                         async (_) => {
                             _.$`Answer QUERY with a summary of the information from MEMORY.
                             - If you are missing information, return <NO_INFORMATION>.
@@ -383,7 +383,7 @@ export function createChatGenerationContext(
                         )
                 }
 
-                const res = await runPrompt(
+                const res = await ctx.runPrompt(
                     async (_) => {
                         if (typeof fn === "string") _.writeText(dedent(fn))
                         else await fn(_, args)
