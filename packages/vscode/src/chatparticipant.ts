@@ -31,6 +31,7 @@ $\`## task
 ## guidance:
     - use the agent tools to help you
     - do NOT try to ask the user questions directly, use the agent_user_input tool instead.
+
 \`
 def("QUESTION", ${JSON.stringify(prompt)})
 `
@@ -49,7 +50,7 @@ def("QUESTION", ${JSON.stringify(prompt)})
                 label: "Executing cell",
                 parameters: {},
                 fragment,
-                notebook: true,
+                mode: "chat",
                 jsSource,
             })
         }

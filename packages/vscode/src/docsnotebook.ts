@@ -136,7 +136,7 @@ function activateNotebookExecutor(state: ExtensionState) {
                     label: "Executing cell",
                     parameters,
                     fragment,
-                    notebook: true,
+                    mode: "notebook",
                     jsSource,
                 })
                 const res = state.aiRequest?.response
