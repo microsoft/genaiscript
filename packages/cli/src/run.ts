@@ -229,7 +229,7 @@ export async function runScript(
             })
             if (!ffs?.length) {
                 return fail(
-                    `no files matching ${arg}`,
+                    `no files matching ${arg} under ${process.cwd()}`,
                     FILES_NOT_FOUND_ERROR_CODE
                 )
             }
