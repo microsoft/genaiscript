@@ -8,11 +8,16 @@ script({
         docs: {
             type: "string",
             description: "path to search for markdown files",
-            default: "**.{md,mdx}",
+            default: "docs",
         },
         force: {
             type: "boolean",
             description: "regenerate all descriptions",
+            default: false,
+        },
+        dryRun: {
+            type: "boolean",
+            description: "show matches, do not compute alt text",
             default: false,
         },
         assets: {
@@ -26,7 +31,7 @@ script({
 /** ------------------------------------------------
  * Configuration
  */
-const { docs, force, assets } = env.vars
+const { docs, force, assets, dryRun } = env.vars
 
 /** ------------------------------------------------
  * Helper functions (update as needed)
@@ -50,8 +55,11 @@ const rx = force // upgrade all urls
       /!\[[^\]]*\]\(([^\)]+\.(png|jpg))\)/g
     : // match ![alt](url) where alt is empty
       /!\[\s*\]\(([^\)]+\.(png|jpg))\)/g
-const { files } = await workspace.grep(rx, docs, { readText: true })
-console.log(`found ${files.length} files`)
+const { files } = await workspace.grep(rx, {
+    path: docs,
+    glob: "*.{md,mdx}",
+    readText: true,
+})
 
 /** ------------------------------------------------
  * Generate alt text for images
@@ -64,7 +72,7 @@ const imgs: Record<string, string> = {}
 // process each file
 for (const file of files) {
     const { filename, content } = file
-    console.log(`. ${filename}`)
+    console.log(filename)
     const matches = content.matchAll(rx)
     // pre-compute matches
     for (const match of matches) {
@@ -72,7 +80,9 @@ for (const file of files) {
         if (imgs[url]) continue // already processed
 
         const resolvedUrl = resolveUrl(filename, url)
-        console.log(`.. ${resolvedUrl}`)
+        console.log(`└─ ${resolvedUrl}`)
+
+        if (dryRun) continue
 
         // execute a LLM query to generate alt text
         const { text, error } = await runPrompt(
@@ -100,7 +110,6 @@ for (const file of files) {
         else if (!text) console.log(`.. no description generated`)
         else imgs[url] = text.replace(/\[/g, "") // remove [ from alt text
     }
-    console.log(`.. ${Object.keys(imgs).length} image alt text generated`)
     // apply replacements
     const newContent = content.replace(
         rx,

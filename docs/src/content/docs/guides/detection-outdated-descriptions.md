@@ -53,7 +53,7 @@ $`Generate an error for each outdated description.`
 Once you save this script in your workspace, you will be able to execute it on a file or a folder through the context menu
 by selecting **Run GenAIScript...**.
 
-![A screenshot of a documentation page where the description field is outdated.](../../../assets/detect-outdated-descriptions.png)
+![A code editor window displays a markdown file with metadata for a documentation page titled "Containers". The description and keywords fields are highlighted. Below, there are warnings in the problems tab indicating outdated descriptions.](../../../assets/detect-outdated-descriptions.png)
 
 ## Automation
 

@@ -25,7 +25,8 @@ export function resolveSystems(
         }
 
         if (tools.some((t) => /^agent/.test(t))) systems.push("system.planner")
-
+        if (/\Wdefimages\W/i.test(jsSource))
+            systems.push("system.safety_harmful_content")
         // Determine additional systems based on content of jsSource
         if (/\Wchangelog\W/i.test(jsSource)) systems.push("system.changelog")
         else if (/\Wfile\W/i.test(jsSource)) {
@@ -41,7 +42,7 @@ export function resolveSystems(
         // Add diagram system if diagrams or charts are found
         if (/\W(diagram|chart)\W/i.test(jsSource))
             systems.push("system.diagrams")
-
+        if (/\W(git)\W/i.test(jsSource)) systems.push("system.git_info")
         if (/\W(github)\W/i.test(jsSource)) systems.push("system.github_info")
     }
 

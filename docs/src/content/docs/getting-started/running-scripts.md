@@ -24,7 +24,7 @@ In Visual Studio Code, the location where you start running a script determines 
 
 The `env.files` array will contain a single element with the selected file.
 
-![Context menu to run GenAIScript on a file](../../../assets/vscode-file-run.png)
+![A file explorer window shows various files and folders. The file "Document.docx" is selected, and a context menu is open with the option "Run GenAiScript..." highlighted.](../../../assets/vscode-file-run.png)
 
 ### Folder
 
@@ -32,13 +32,13 @@ The `env.files` array will contain a single element with the selected file.
 
 The `env.files` array will contain all nested files under that folder.
 
-![Context menu to run GenAIScript on a folder](../../../assets/vscode-folder-run.png)
+![The image shows a file explorer with a context menu. The "rag" folder is expanded, displaying files like "dir.gpspec.md.slides.md" and "Document.docx." The context menu includes options like "New File," "Cut," "Copy," and "Run GenAiScript."](../../../assets/vscode-folder-run.png)
 
 :::tip[Root folder]
 
 To run the script on the root folder, right click under the files.
 
-![Context menu to run GenAIScript on the root folder](../../../assets/vscode-folder-run-root.png)
+![A screenshot of a file explorer in a code editor showing various files and folders. The context menu is open with the option "Run GenAiScript..." highlighted by a red arrow.](../../../assets/vscode-folder-run-root.png)
 
 :::
 
@@ -89,7 +89,7 @@ You can also use the **Trace** to review the each transformation step of the scr
 
 -   Click on the GenAIScript status bar icon and select **Trace**
 
-![Menu opened by clicking the vscode status bar](../../../assets/vscode-statusbar-trace.png)
+![A code editor displaying a JSON array with city data, including names, populations, and Wikipedia URLs. A toolbar at the top shows options like "Retry," "Output," and "Trace." The bottom right corner indicates "150 tokens."](../../../assets/vscode-statusbar-trace.png)
 
 ## Next steps
 
