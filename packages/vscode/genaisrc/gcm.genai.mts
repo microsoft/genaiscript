@@ -19,21 +19,15 @@ console.log(diff)
 let choice
 let message
 do {
-    // Generate commit message
-    const res = await runPrompt(
-        (_) => {
-            _.def("GIT_DIFF", diff, { maxTokens: 20000 })
-            _.$`GIT_DIFF is a diff of all staged changes, coming from the command:
-\`\`\`
-git diff --cached
-\`\`\`
-Please generate a concise, one-line commit message for these changes.
-- do NOT add quotes
-- use emojis
-` // TODO: add a better prompt
-        },
-        { cache: false, temperature: 0.8 }
-    )
+    // generate commit message
+    const res = await runPrompt((_) => {
+        _.def("GIT_DIFF", diff, { maxTokens: 20000 })
+        _.$`GIT_DIFF is a git diff of all staged changes.
+        Generate a concise, one-line commit message for GIT_DIFF.
+        - do NOT add quotes
+        - maximum 50 characters
+        - use emojis`
+    })
     if (res.error) throw res.error
 
     message = res.text
