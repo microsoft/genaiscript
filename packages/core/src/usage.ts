@@ -1,3 +1,8 @@
+/**
+ * This module provides functionality for estimating costs and tracking usage statistics
+ * related to chat completions, including generating detailed reports and logs.
+ */
+
 import {
     ChatCompletionMessageParam,
     ChatCompletionUsage,
@@ -5,7 +10,6 @@ import {
 } from "./chattypes"
 import { MarkdownTrace } from "./trace"
 import { logVerbose, logWarn } from "./util"
-// import pricing.json and assert json
 import pricings from "./pricing.json" // Interface to hold statistics related to the generation process
 import { parseModelIdentifier } from "./models"
 import {
@@ -14,6 +18,13 @@ import {
     MODEL_PROVIDER_OPENAI,
 } from "./constants"
 
+/**
+ * Estimates the cost of a chat completion based on the model and usage.
+ * 
+ * @param modelId - The identifier of the model used for chat completion.
+ * @param usage - The usage statistics for the chat completion.
+ * @returns The estimated cost or undefined if estimation is not possible.
+ */
 export function estimateCost(modelId: string, usage: ChatCompletionUsage) {
     if (!modelId || !usage.total_tokens) return undefined
 
@@ -44,6 +55,12 @@ export function estimateCost(modelId: string, usage: ChatCompletionUsage) {
     return (input + output) / 1e6
 }
 
+/**
+ * Renders the cost as a string for display purposes.
+ * 
+ * @param value - The cost to be rendered.
+ * @returns A string representation of the cost.
+ */
 export function renderCost(value: number) {
     if (isNaN(value)) return ""
     return value <= 0.01
@@ -53,6 +70,9 @@ export function renderCost(value: number) {
           : `${value.toFixed(2)}$`
 }
 
+/**
+ * Class to track and log generation statistics for chat completions.
+ */
 export class GenerationStats {
     public readonly model: string
     public readonly label?: string
@@ -67,6 +87,12 @@ export class GenerationStats {
         usage: ChatCompletionUsage
     }[] = []
 
+    /**
+     * Constructs a GenerationStats instance.
+     * 
+     * @param model - The model used for chat completions.
+     * @param label - Optional label for the statistics.
+     */
     constructor(model: string, label?: string) {
         this.model = model
         this.label = label
@@ -85,6 +111,11 @@ export class GenerationStats {
         }
     }
 
+    /**
+     * Calculates the total cost based on the usage statistics.
+     * 
+     * @returns The total cost.
+     */
     cost(): number {
         return [
             estimateCost(this.model, this.usage),
@@ -92,6 +123,11 @@ export class GenerationStats {
         ].reduce((a, b) => (a ?? 0) + (b ?? 0), 0)
     }
 
+    /**
+     * Accumulates the usage statistics from this instance and its children.
+     * 
+     * @returns The accumulated usage statistics.
+     */
     accumulatedUsage(): ChatCompletionUsage {
         const res: ChatCompletionUsage = structuredClone(this.usage)
         for (const child of this.children) {
@@ -111,12 +147,24 @@ export class GenerationStats {
         return res
     }
 
+    /**
+     * Creates a new child GenerationStats instance.
+     * 
+     * @param model - The model used for the child chat completions.
+     * @param label - Optional label for the child's statistics.
+     * @returns The created child GenerationStats instance.
+     */
     createChild(model: string, label?: string) {
         const child = new GenerationStats(model, label)
         this.children.push(child)
         return child
     }
 
+    /**
+     * Traces the generation statistics using a MarkdownTrace instance.
+     * 
+     * @param trace - The MarkdownTrace instance used for tracing.
+     */
     trace(trace: MarkdownTrace) {
         trace.startDetails("📊 generation stats")
         try {
@@ -126,6 +174,11 @@ export class GenerationStats {
         }
     }
 
+    /**
+     * Helper method to trace individual statistics.
+     * 
+     * @param trace - The MarkdownTrace instance used for tracing.
+     */
     private traceStats(trace: MarkdownTrace) {
         trace.itemValue("prompt", this.usage.prompt_tokens)
         trace.itemValue("completion", this.usage.completion_tokens)
@@ -156,10 +209,18 @@ export class GenerationStats {
         }
     }
 
+    /**
+     * Logs the generation statistics.
+     */
     log() {
         this.logTokens("")
     }
 
+    /**
+     * Helper method to log tokens with indentation.
+     * 
+     * @param indent - The indentation used for logging.
+     */
     private logTokens(indent: string) {
         const c = this.cost()
         if (this.model || c) {
@@ -177,6 +238,12 @@ export class GenerationStats {
         for (const child of this.children) child.logTokens(indent + "  ")
     }
 
+    /**
+     * Adds usage statistics to the current instance.
+     * 
+     * @param req - The request containing details about the chat completion.
+     * @param usage - The usage statistics to be added.
+     */
     addUsage(req: CreateChatCompletionRequest, usage: ChatCompletionUsage) {
         if (!usage) return
         const { model, messages } = req

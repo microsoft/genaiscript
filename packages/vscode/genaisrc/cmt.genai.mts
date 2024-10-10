@@ -1,8 +1,6 @@
 script({
     title: "Source Code Comment Generator",
-    description: `Add comments to source code to make it more understandable for AI systems or human developers.
-    Modified from https://x.com/mckaywrigley/status/1838321570969981308.
-    `,
+    description: `Add comments to source code to make it more understandable for AI systems or human developers.`,
     parameters: {
         format: {
             type: "string",
@@ -82,19 +80,17 @@ async function addComments(file: WorkspaceFile): Promise<string | undefined> {
     let { filename, content } = file
     if (parsers.tokens(file) > 20000) return undefined // too big
 
-    // run twice as genai tend to be lazy
-    for (let i = 0; i < 2; i++) {
-        const res = await runPrompt(
-            (ctx) => {
-                // Define code snippet for AI context with line numbers
-                const code = ctx.def(
-                    "CODE",
-                    { filename, content },
-                    { lineNumbers: true }
-                )
+    const res = await runPrompt(
+        (ctx) => {
+            // Define code snippet for AI context with line numbers
+            const code = ctx.def(
+                "CODE",
+                { filename, content },
+                { lineNumbers: false }
+            )
 
-                // AI prompt to add comments for better understanding
-                ctx.$`You are an expert developer at all programming languages.
+            // AI prompt to add comments for better understanding
+            ctx.$`You are an expert developer at all programming languages.
 
 You are tasked with adding comments to code in ${code} to make it more understandable for AI systems or human developers.
 You should analyze it, and add/update appropriate comments as needed.
@@ -130,25 +126,20 @@ When adding or updating comments, follow these guidelines:
 - do NOT modify comments with URLs or links as they are reference to external resources.
 - do NOT add comments to imports
 
-Your output should be the original code with your added comments. Make sure to preserve the original code's formatting and structure. 
+Your output should be the original code with your added comments. Make sure to preserve ALL the original code's formatting and structure. DO NOT BE LAZY.
 
 Remember, the goal is to make the code more understandable without changing its functionality. DO NOT MODIFY THE CODE ITSELF.
 Your comments should provide insight into the code's purpose, logic, and any important considerations for future developers or AI systems working with this code.
 `
-            },
-            {
-                system: ["system", "system.files"],
-                cache: "cmt-gen",
-                label: `comment ${filename}`,
-            }
-        )
-        const { text, fences } = res
-        const newContent = fences?.[0]?.content ?? text
-        if (!newContent?.trim()) return undefined
-        if (newContent === content) break
-        content = newContent
-    }
-    return content
+        },
+        {
+            system: [],
+            label: `comment ${filename}`,
+        }
+    )
+    const { text, fences } = res
+    const newContent = fences?.[0]?.content ?? text
+    return newContent
 }
 
 async function checkModifications(filename: string): Promise<boolean> {
@@ -160,16 +151,19 @@ async function checkModifications(filename: string): Promise<boolean> {
             ctx.$`You are an expert developer at all programming languages.
         
         Your task is to analyze the changes in DIFF and make sure that only comments are modified. 
-        Report all changes that are not comments or spacing and print "MODIFIED";
-        otherwise, print "NO MODIFICATION".
+        Report all changes that are not comments or spacing and print <MODIFIED>;
+        otherwise, print <NO MODIFICATION>.
         `
         },
         {
+            system: [],
             cache: "cmt-check",
             label: `check comments in ${filename}`,
         }
     )
 
-    const modified = !res.text?.includes("NO MODIFICATION")
+    const modified =
+        res.text?.includes("<MODIFIED>") ||
+        !res.text?.includes("NO MODIFICATION")
     return modified
 }
