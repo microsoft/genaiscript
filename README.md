@@ -118,7 +118,7 @@ Register JavaScript functions as **tools** and combine tools + prompt into agent
 defAgent(
     "git",
     "Query a repository using Git to accomplish tasks.",
-    `Your are a helpfull LLM agent that can use the git tools to query the current repository.
+    `Your are a helpful LLM agent that can use the git tools to query the current repository.
     Answer the question in QUERY.
     - The current repository is the same as github repository.`,
     { model, system: ["system.github_info"], tools: ["git"] }
