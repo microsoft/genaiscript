@@ -194,10 +194,14 @@ export class DockerManager {
             image = DOCKER_DEFAULT_IMAGE,
             persistent,
             name: userName,
+            ports,
+            postCreateCommands,
+            env,
+            networkEnabled,
         } = options
         let name = (userName || image).replace(/[^a-zA-Z0-9]+/g, "_")
         if (persistent)
-            name += `_${(await sha1string(JSON.stringify(options))).slice(0, 12)}`
+            name += `_${(await sha1string(JSON.stringify({ image, name, ports, env, networkEnabled, postCreateCommands }))).slice(0, 12)}`
         else name += `_${randomHex(6)}`
         const hostPath = host.path.resolve(
             dotGenaiscriptPath(DOCKER_VOLUMES_DIR, name)

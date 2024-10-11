@@ -7,7 +7,8 @@ const packages = ["numpy", "pandas", "scipy"]
 
 const getContainer = async () =>
     await host.container({
-        instanceId: "python_code_interpreter",
+        name: "python",
+        persistent: true,
         image,
         postCreateCommands: `pip install --root-user-action ignore ${packages.join(" ")}`,
     })
