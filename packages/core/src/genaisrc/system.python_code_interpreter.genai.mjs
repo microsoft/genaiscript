@@ -16,16 +16,8 @@ const getContainer = queue.add(async () => {
         console.log(`python: preparing container...`)
         _container = await host.container({
             image,
-            networkEnabled: true,
+            postCreateCommands: `pip install --root-user-action ignore ${packages.join(" ")}`,
         })
-        const res = await _container.exec("pip", [
-            "install",
-            "--root-user-action",
-            "ignore",
-            ...packages,
-        ])
-        if (res.failed) throw new Error(`Failed to install requirements`)
-        await _container.disconnect()
     }
     return _container
 })
@@ -76,9 +68,9 @@ defTool(
         const { context, from, to = "" } = args
         context.log(`python code interpreter: cp ${from} ${to}`)
         const container = await getContainer
-        return await queue.add(async () => {
-            await container.copyTo(from, to)
-            return "OK"
-        })
+        const res = await queue.add(
+            async () => await container.copyTo(from, to)
+        )
+        return res
     }
 )

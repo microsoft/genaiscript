@@ -140,6 +140,7 @@ export class DockerManager {
             env = {},
             networkEnabled,
             name,
+            postCreateCommands,
         } = options
         const ports = arrayify(options.ports)
         try {
@@ -166,7 +167,7 @@ export class DockerManager {
                 Tty: true,
                 OpenStdin: false,
                 StdinOnce: false,
-                NetworkDisabled: !networkEnabled,
+                NetworkDisabled: false, // disable after post create commands
                 WorkingDir: containerPath,
                 Labels: {
                     genaiscript: "true",
@@ -316,9 +317,10 @@ export class DockerManager {
                 await writeFile(hostFilename, content ?? "", {
                     encoding: "utf8",
                 })
+                return `file ${hostFilename} written`
             }
 
-            const readText = async (filename: string, content: string) => {
+            const readText = async (filename: string) => {
                 const hostFilename = host.path.resolve(hostPath, filename)
                 try {
                     return await readFile(hostFilename, { encoding: "utf8" })
@@ -328,6 +330,7 @@ export class DockerManager {
             }
 
             const copyTo = async (from: string | string[], to: string) => {
+                const res: string[] = []
                 const files = await host.findFiles(from)
                 for (const file of files) {
                     const source = host.path.resolve(file)
@@ -336,7 +339,9 @@ export class DockerManager {
                         : host.path.resolve(hostPath, file)
                     await ensureDir(host.path.dirname(target))
                     await copyFile(source, target)
+                    res.push(`cp ${source} ${target}`)
                 }
+                return res.join("\n")
             }
 
             const disconnect = async () => {
@@ -355,7 +360,7 @@ export class DockerManager {
                 }
             }
 
-            const c = <ContainerHost>{
+            const c = Object.freeze<ContainerHost>({
                 id: container.id,
                 disablePurge: !!options.disablePurge,
                 hostPath,
@@ -366,7 +371,7 @@ export class DockerManager {
                 readText,
                 copyTo,
                 disconnect,
-            }
+            })
             this.containers.push(c)
             await container.start()
             const st = await container.inspect()
@@ -374,6 +379,15 @@ export class DockerManager {
                 logVerbose(`container: start failed`)
                 trace?.error(`container: start failed`)
             }
+            for (const command of arrayify(postCreateCommands)) {
+                const [cmd, ...args] = shellParse(command)
+                const res = await c.exec(cmd, args)
+                if (res.failed)
+                    throw new Error(
+                        `${cmd} ${args.join(" ")} failed with exit code ${res.exitCode}`
+                    )
+            }
+            if (!networkEnabled) await c.disconnect()
             return c
         } finally {
             trace?.endDetails()

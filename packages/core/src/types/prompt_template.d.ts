@@ -2771,7 +2771,9 @@ interface ShellHost {
         args: string[],
         options?: ShellOptions
     ): Promise<ShellOutput>
+}
 
+interface UserInterfaceHost {
     /**
      * Starts a headless browser and navigates to the page.
      * Requires to [install playwright and dependencies](https://microsoft.github.io/genaiscript/reference/scripts/browser).
@@ -2844,6 +2846,11 @@ interface ContainerOptions {
      * List of exposed TCP ports
      */
     ports?: ElementOrArray<ContainerPortBinding>
+
+    /**
+     * Commands to executes after the container is created
+     */
+    postCreateCommands?: ElementOrArray<string>
 }
 
 interface PromiseQueue {
@@ -2874,7 +2881,7 @@ interface PromiseQueue {
     ): Promise<ReturnType[]>
 }
 
-interface PromptHost extends ShellHost {
+interface PromptHost extends ShellHost, UserInterfaceHost {
     /**
      * Opens a in-memory key-value cache for the given cache name. Entries are dropped when the cache grows too large.
      * @param cacheName
@@ -2934,7 +2941,7 @@ interface ContainerHost extends ShellHost {
      * @param fromHost glob matching files
      * @param toContainer directory in the container
      */
-    copyTo(fromHost: string | string[], toContainer: string): Promise<void>
+    copyTo(fromHost: string | string[], toContainer: string): Promise<string>
 
     /**
      * Stops and cleans out the container
