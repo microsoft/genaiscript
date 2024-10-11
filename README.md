@@ -9,15 +9,21 @@
 
 https://github.com/user-attachments/assets/ce181cc0-47d5-41cd-bc03-f220407d4dd0
 
+---
+
 ## 🌟 Introduction
 
 GenAIScript is a powerful scripting environment tailored for building and managing Large Language Model (LLM) prompts with ease. Whether you are a developer, data scientist, or researcher, GenAIScript provides the tools you need to create, debug, and share scripts efficiently.
 
 > 🤖 This readme is maintained by the [readme-updater](https://github.com/microsoft/genaiscript/blob/main/packages/sample/genaisrc/readme-updater.genai.mts) script.
 
+---
+
 ## 🚀 Quickstart Guide
 
 Get started quickly by installing the [Visual Studio Code Extension](https://microsoft.github.io/genaiscript/getting-started/installation/) or using the [command line](https://microsoft.github.io/genaiscript/getting-started/installation).
+
+---
 
 ## ✨ Features
 
@@ -30,9 +36,13 @@ def("FILE", env.files, { endsWith: ".pdf" })
 $`Summarize FILE. Today is ${new Date()}.`
 ```
 
+---
+
 ### 🚀 Fast Development Loop
 
 Edit, [Debug](https://microsoft.github.io/genaiscript/getting-started/debugging-scripts/), [Run](https://microsoft.github.io/genaiscript/getting-started/running-scripts/), and [Test](https://microsoft.github.io/genaiscript/getting-started/testing-scripts/) your scripts in [Visual Studio Code](https://microsoft.github.io/genaiscript/getting-started/installation) or with the [command line](https://microsoft.github.io/genaiscript/getting-started/installation).
+
+---
 
 ### 🔗 Reuse and Share Scripts
 
@@ -47,6 +57,8 @@ const schema = defSchema("DATA", { type: "array", items: { type: "string" } })
 $`Analyze FILE and extract data to JSON using the ${schema} schema.`
 ```
 
+---
+
 ### 📋 Data Schemas
 
 Define, validate, and repair data using [schemas](https://microsoft.github.io/genaiscript/reference/scripts/schemas).
@@ -55,6 +67,8 @@ Define, validate, and repair data using [schemas](https://microsoft.github.io/ge
 const data = defSchema("MY_DATA", { type: "array", items: { ... } })
 $`Extract data from files using ${data} schema.`
 ```
+
+---
 
 ### 📄 Ingest Text from PDFs, DOCX, ...
 
@@ -65,6 +79,8 @@ def("PDF", env.files, { endsWith: ".pdf" })
 const { pages } = await parsers.PDF(env.files[0])
 ```
 
+---
+
 ### 📊 Ingest Tables from CSV, XLSX, ...
 
 Manipulate tabular data from [CSV](https://microsoft.github.io/genaiscript/reference/scripts/csv), [XLSX](https://microsoft.github.io/genaiscript/reference/scripts/xlsx), ...
@@ -74,6 +90,8 @@ def("DATA", env.files, { endsWith: ".csv", sliceHead: 100 })
 const rows = await parsers.CSV(env.files[0])
 defData("ROWS", rows, { sliceHead: 100 })
 ```
+
+---
 
 ### 📝 Generate Files
 
@@ -88,6 +106,8 @@ FILE ./poem.txt
 The quick brown fox jumps over the lazy dog.
 ```
 
+---
+
 ### 🔍 File Search
 
 Grep or fuzz search [files](https://microsoft.github.io/genaiscript/reference/scripts/files).
@@ -95,6 +115,8 @@ Grep or fuzz search [files](https://microsoft.github.io/genaiscript/reference/sc
 ```js
 const { files } = await workspace.grep(/[a-z][a-z0-9]+/, { globs: "*.md" })
 ```
+
+---
 
 ### LLM Tools
 
@@ -109,6 +131,8 @@ defTool(
         await fetch(`https://weather.api.api/?location=${args.location}`)
 )
 ```
+
+---
 
 ### LLM Agents
 
@@ -125,6 +149,8 @@ defAgent(
 )
 ```
 
+---
+
 ### 🔍 RAG Built-in
 
 [Vector search](https://microsoft.github.io/genaiscript/reference/scripts/vector-search/).
@@ -132,6 +158,8 @@ defAgent(
 ```js
 const { files } = await retrieval.vectorSearch("cats", "**/*.md")
 ```
+
+---
 
 ### 🐙 GitHub Models and GitHub Copilot
 
@@ -141,6 +169,8 @@ Run models through [GitHub Models](https://microsoft.github.io/genaiscript/getti
 script({ ..., model: "github:gpt-4o" })
 ```
 
+---
+
 ### 💻 Local Models
 
 Run your scripts with [Open Source models](https://microsoft.github.io/genaiscript/getting-started/configuration/#local-models), like [Phi-3](https://azure.microsoft.com/en-us/blog/introducing-phi-3-redefining-whats-possible-with-slms/), using [Ollama](https://ollama.com/), [LocalAI](https://localai.io/).
@@ -148,6 +178,8 @@ Run your scripts with [Open Source models](https://microsoft.github.io/genaiscri
 ```js
 script({ ..., model: "ollama:phi3" })
 ```
+
+---
 
 ### 🐍 Code Interpreter
 
@@ -157,6 +189,8 @@ Let the LLM run code in a sandboxed execution environment.
 script({ tools: ["python_code_interpreter"] })
 ```
 
+---
+
 ### 🐳 Containers
 
 Run code in Docker [containers](https://microsoft.github.io/genaiscript/reference/scripts/containers).
@@ -165,6 +199,8 @@ Run code in Docker [containers](https://microsoft.github.io/genaiscript/referenc
 const c = await host.container({ image: "python:alpine" })
 const res = await c.exec("python --version")
 ```
+
+---
 
 ### 🧩 LLM Composition
 
@@ -181,6 +217,8 @@ for (const file of env.files) {
 $`Summarize all the summaries.`
 ```
 
+---
+
 ### 🅿️ Prompty support
 
 Run your [Prompty](https://prompty.ai) files as well!
@@ -193,6 +231,8 @@ name: poem
 Write me a poem
 ```
 
+---
+
 ### ⚙ Automate with CLI
 
 Automate using the [CLI](https://microsoft.github.io/genaiscript/reference/cli), integrate reports in your CI/CD pipeline.
@@ -201,6 +241,8 @@ Automate using the [CLI](https://microsoft.github.io/genaiscript/reference/cli),
 npx genaiscript run tlaplus-linter "*.tla"
 ```
 
+---
+
 ### 💬 Pull Request Reviews
 
 Integrate into your [Pull Requests checks](https://microsoft.github.io/genaiscript/reference/cli/run/#pull-requests) through comments, reviews, or description updates. Supports GitHub Actions and Azure DevOps pipelines.
@@ -208,6 +250,8 @@ Integrate into your [Pull Requests checks](https://microsoft.github.io/genaiscri
 ```bash
 npx genaiscript ... --pull-request-reviews
 ```
+
+---
 
 ### ⭐ Tests and Evals
 
@@ -221,9 +265,13 @@ script({ ..., tests: {
 }})
 ```
 
+---
+
 ## Contributing
 
 We accept contributions! Checkout the [CONTRIBUTING](./CONTRIBUTING.md) page for details and developer setup.
+
+---
 
 ## Trademarks
 
