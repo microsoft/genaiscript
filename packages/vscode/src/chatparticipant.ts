@@ -3,6 +3,7 @@ import { ExtensionState } from "./state"
 import { TOOL_ID } from "../../core/src/constants"
 import { Fragment } from "../../core/src/generation"
 import { prettifyMarkdown } from "../../core/src/markdown"
+import { eraseAnnotations } from "../../core/src/annotations"
 
 export async function activateChatParticipant(state: ExtensionState) {
     const { context } = state
@@ -52,9 +53,12 @@ export async function activateChatParticipant(state: ExtensionState) {
 
             if (token.isCancellationRequested) return
 
-            const { text } = res || {}
+            const { text = "", annotations = [] } = res || {}
             response.markdown(
-                new vscode.MarkdownString(prettifyMarkdown(text || ""), true)
+                new vscode.MarkdownString(
+                    prettifyMarkdown(eraseAnnotations(text)),
+                    true
+                )
             )
         }
     )
