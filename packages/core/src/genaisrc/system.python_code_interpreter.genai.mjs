@@ -5,34 +5,17 @@ system({
 const image = env.vars.pythonImage ?? "python:3.12"
 const packages = ["numpy", "pandas", "scipy"]
 
-const queue = host.promiseQueue(1)
-
-/** @type {ContainerHost} */
-let _container = null
-
-/** @type {Promise<ContainerHost>} */
-const getContainer = queue.add(async () => {
-    if (!_container) {
-        console.log(`python: preparing container...`)
-        _container = await host.container({
-            image,
-            networkEnabled: true,
-        })
-        const res = await _container.exec("pip", [
-            "install",
-            "--root-user-action",
-            "ignore",
-            ...packages,
-        ])
-        if (res.failed) throw new Error(`Failed to install requirements`)
-        await _container.disconnect()
-    }
-    return _container
-})
+const getContainer = async () =>
+    await host.container({
+        name: "python",
+        persistent: true,
+        image,
+        postCreateCommands: `pip install --root-user-action ignore ${packages.join(" ")}`,
+    })
 
 defTool(
     "python_code_interpreter_run",
-    "Executes python 3.12 code for Data Analysis tasks in a docker container. The process output is returned. Do not generate visualizations. The only packages available are numpy, pandas, scipy. There is NO network connectivity. Do not attempt to install other packages or make web requests.",
+    "Executes python 3.12 code for Data Analysis tasks in a docker container. The process output is returned. Do not generate visualizations. The only packages available are numpy, pandas, scipy. There is NO network connectivity. Do not attempt to install other packages or make web requests. You must copy all the necessary files or pass all the data because the python code runs in a separate container.",
     {
         type: "object",
         properties: {
@@ -45,9 +28,10 @@ defTool(
     },
     async (args) => {
         const { context, main = "" } = args
-        context.log(`python code interpreter: run`)
-        const container = await getContainer
-        return await queue.add(async () => {
+        context.log(`python:`)
+        console.log(main)
+        const container = await getContainer()
+        return await container.scheduler.add(async () => {
             await container.writeText("main.py", main)
             const res = await container.exec("python", ["main.py"])
             return res
@@ -57,7 +41,7 @@ defTool(
 
 defTool(
     "python_code_interpreter_copy_files",
-    "Copy files from the host file system to the container file system",
+    "Copy files from the host file system to the container file system. NO absolute paths.",
     {
         type: "object",
         properties: {
@@ -65,20 +49,22 @@ defTool(
                 type: "string",
                 description: "Host file path",
             },
-            to: {
+            toFolder: {
                 type: "string",
-                description: "Container file path",
+                description: "Container directory path. Not a filename.",
             },
         },
         required: ["from"],
     },
     async (args) => {
-        const { context, from, to = "" } = args
-        context.log(`python code interpreter: cp ${from} ${to}`)
-        const container = await getContainer
-        return await queue.add(async () => {
-            await container.copyTo(from, to)
-            return "OK"
+        const { context, from, toFolder = "." } = args
+        context.log(`python: cp ${from} ${toFolder}`)
+        const container = await getContainer()
+        const res = await container.scheduler.add(async () => {
+            await container.copyTo(from, toFolder)
+            return container.listFiles(toFolder)
         })
+        console.log(res.join("\n"))
+        return res.join("\n")
     }
 )

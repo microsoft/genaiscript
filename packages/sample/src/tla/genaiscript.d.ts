@@ -2868,7 +2868,9 @@ interface ShellHost {
         args: string[],
         options?: ShellOptions
     ): Promise<ShellOutput>
+}
 
+interface UserInterfaceHost {
     /**
      * Starts a headless browser and navigates to the page.
      * Requires to [install playwright and dependencies](https://microsoft.github.io/genaiscript/reference/scripts/browser).
@@ -2928,19 +2930,24 @@ interface ContainerOptions {
     env?: Record<string, string>
 
     /**
-     * Assign the specified name to the container. Must match [a-zA-Z0-9_-]+
+     * Assign the specified name to the container. Must match [a-zA-Z0-9_-]+.
      */
     name?: string
 
     /**
-     * Disable automatic purge of container and volume directory
+     * Disable automatic purge of container and volume directory and potentially reuse with same name, configuration.
      */
-    disablePurge?: boolean
+    persistent?: boolean
 
     /**
      * List of exposed TCP ports
      */
     ports?: ElementOrArray<ContainerPortBinding>
+
+    /**
+     * Commands to executes after the container is created
+     */
+    postCreateCommands?: ElementOrArray<string>
 }
 
 interface PromiseQueue {
@@ -2971,7 +2978,7 @@ interface PromiseQueue {
     ): Promise<ReturnType[]>
 }
 
-interface PromptHost extends ShellHost {
+interface PromptHost extends ShellHost, UserInterfaceHost {
     /**
      * Opens a in-memory key-value cache for the given cache name. Entries are dropped when the cache grows too large.
      * @param cacheName
@@ -2999,9 +3006,14 @@ interface ContainerHost extends ShellHost {
     id: string
 
     /**
+     * Name assigned to the container. For persistent containers, also contains the sha of the options
+     */
+    name: string
+
+    /**
      * Disable automatic purge of container and volume directory
      */
-    disablePurge: boolean
+    persistent: boolean
 
     /**
      * Path to the volume mounted in the host
@@ -3034,14 +3046,35 @@ interface ContainerHost extends ShellHost {
     copyTo(fromHost: string | string[], toContainer: string): Promise<void>
 
     /**
+     * List files in a directory in the container
+     * @param dir
+     */
+    listFiles(dir: string): Promise<string[]>
+
+    /**
      * Stops and cleans out the container
      */
     stop(): Promise<void>
 
     /**
+     * Pause container
+     */
+    pause(): Promise<void>
+
+    /**
+     * Resume execution of the container
+     */
+    resume(): Promise<void>
+
+    /**
      * Force disconnect network
      */
     disconnect(): Promise<void>
+
+    /**
+     * A promise queue of concurrency 1 to run serialized functions against the container
+     */
+    scheduler: PromiseQueue
 }
 
 interface PromptContext extends ChatGenerationContext {

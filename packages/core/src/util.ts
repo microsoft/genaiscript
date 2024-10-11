@@ -105,6 +105,24 @@ export async function sha256(...buffers: Uint8Array[]) {
     return new Uint8Array(r)
 }
 
+export async function sha1(...buffers: Uint8Array[]) {
+    if (typeof self === "undefined" || !window.crypto) {
+        const req = require
+        const s = req("crypto").createHash("sha256")
+        for (const b of buffers) s.update(b)
+        return Promise.resolve(new Uint8Array(s.digest()))
+    }
+    const r = await self.crypto.subtle.digest(
+        "SHA-1",
+        concatBuffers(...buffers)
+    )
+    return new Uint8Array(r)
+}
+
+export async function sha1string(s: string) {
+    return toHex(await sha1(utf8Encode(s)))
+}
+
 export function toHex(bytes: ArrayLike<number>, sep?: string) {
     if (!bytes) return undefined
     let r = ""
