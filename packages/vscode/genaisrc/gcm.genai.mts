@@ -1,6 +1,8 @@
 /**
- * git commit flow with auto-generated commit message
+ * Script to automate the git commit process with AI-generated commit messages.
+ * It checks for staged changes, generates a commit message, and prompts the user to review or edit the message before committing.
  */
+
 script({
     title: "git commit message",
     description: "Generate a commit message for all staged changes",
@@ -11,15 +13,17 @@ const diff = await git.diff({
     staged: true,
     askStageOnEmpty: true,
 })
+
+// If no staged changes are found, cancel the script with a message
 if (!diff) cancel("no staged changes")
 
-// show diff in the console
+// Display the diff of staged changes in the console
 console.log(diff)
 
 let choice
 let message
 do {
-    // generate a conventional commit message (https://www.conventionalcommits.org/en/v1.0.0/)
+    // Generate a conventional commit message based on the staged changes diff
     const res = await runPrompt(
         (_) => {
             _.def("GIT_DIFF", diff, { maxTokens: 20000, language: "diff" })
@@ -33,6 +37,8 @@ do {
         `
         },
         {
+            model: "large", // Specifies the LLM model to use for message generation
+            label: "generate commit message", // Label for the prompt task
             system: [
                 "system.safety_jailbreak",
                 "system.safety_harmful_content",
@@ -48,7 +54,7 @@ do {
         break
     }
 
-    // Prompt user for commit message
+    // Prompt user to accept, edit, or regenerate the commit message
     choice = await host.select(message, [
         {
             value: "commit",
@@ -64,14 +70,14 @@ do {
         },
     ])
 
-    // Handle user choice
+    // Handle user's choice for commit message
     if (choice === "edit") {
         message = await host.input("Edit commit message", {
             required: true,
         })
         choice = "commit"
     }
-    // Regenerate message
+    // If user chooses to commit, execute the git commit and optionally push changes
     if (choice === "commit" && message) {
         console.log(await git.exec(["commit", "-m", message]))
         if (await host.confirm("Push changes?", { default: true }))
