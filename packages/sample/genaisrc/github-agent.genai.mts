@@ -15,7 +15,7 @@ script({
 
 const {
     workflow = "build.yml",
-    failure_run_id,
+    failure_run_id = "latest",
     branch = await git.branch(),
 } = env.vars
 
