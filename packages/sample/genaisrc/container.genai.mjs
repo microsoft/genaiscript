@@ -6,7 +6,12 @@ script({
 })
 
 const disablePurge = env.vars.purge === "no"
-const container = await host.container({ instanceId: "testing", disablePurge, networkEnabled: true, postCreateCommands: "pip install pandas" })
+const container = await host.container({
+    instanceId: "testing",
+    disablePurge,
+    networkEnabled: true,
+    postCreateCommands: "pip install pandas",
+})
 const version = await container.exec("python", ["--version"])
 if (!/^python \d/i.test(version.stdout))
     throw new Error("python --version failed")
@@ -16,8 +21,11 @@ if (version.stdout !== fversion)
     throw new Error(
         `writetext/readtext error, expected '${version.stdout}', got '${fversion}'`
     )
-await container.copyTo("src/rag/*", "copied")
+await container.copyTo("src/rag/*.md", "/copied")
 if (!(await container.readText("copied/src/rag/markdown.md")))
+    throw new Error("copy failed")
+await container.copyTo("src/rag/*.pdf", "copied")
+if (!(await container.readText("copied/src/rag/loremipsum.pdf")))
     throw new Error("copy failed")
 await container.writeText("main.py", 'print("hello")')
 const hello = await container.exec("python", ["main.py"])

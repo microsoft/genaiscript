@@ -2497,7 +2497,7 @@ defTool(
         required: ["from"],
     },
     async (args) => {
-        const { context, from, to } = args
+        const { context, from, to = "." } = args
         context.log(`python: cp ${from} ${to}`)
         const container = await getContainer()
         const res = await container.scheduler.add(async () => {

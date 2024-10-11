@@ -349,12 +349,14 @@ export class DockerManager {
             }
 
             const copyTo = async (from: string | string[], to: string) => {
+                to = /^\//.test(to)
+                    ? host.path.resolve(hostPath, to.replace(/^\//, ""))
+                    : host.path.resolve("app", to || "")
                 const files = await host.findFiles(from)
                 for (const file of files) {
                     const source = host.path.resolve(file)
-                    const target = to
-                        ? host.path.resolve(hostPath, to, file)
-                        : host.path.resolve(hostPath, file)
+                    const target = host.path.resolve(to, file)
+                    logVerbose(`container: cp ${source} ${target}`)
                     await ensureDir(host.path.dirname(target))
                     await copyFile(source, target)
                 }
