@@ -29,9 +29,9 @@ $`## task
 - answer the QUESTION
 
 ## guidance:
-    - use the agent tools to help you
-    - do NOT be lazy, always finish the tasks
-    - do NOT skip any steps
+- use the agent tools to help you
+- do NOT be lazy, always finish the tasks
+- do NOT skip any steps
 `
 
 def("QUESTION", question)

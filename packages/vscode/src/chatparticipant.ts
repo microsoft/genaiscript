@@ -53,7 +53,9 @@ export async function activateChatParticipant(state: ExtensionState) {
             if (token.isCancellationRequested) return
 
             const { text } = res || {}
-            response.markdown(prettifyMarkdown(text || ""))
+            response.markdown(
+                new vscode.MarkdownString(prettifyMarkdown(text || ""), true)
+            )
         }
     )
 
