@@ -109,6 +109,7 @@ type SystemPromptId = OptionsOrString<
     | "system.retrieval_vector_search"
     | "system.retrieval_web_search"
     | "system.safety_harmful_content"
+    | "system.safety_jailbreak"
     | "system.safety_protected_material"
     | "system.safety_ungrounded_content_summarization"
     | "system.schema"
