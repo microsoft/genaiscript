@@ -17,16 +17,28 @@ script({
             type: "string", // Type of the parameter
             description: "the user question", // Description of the parameter
         },
+        "copilot.editor": {
+            type: "string",
+            description: "the content of the opened editor",
+            default: "",
+        },
+        "copilot.selection": {
+            type: "string",
+            description: "the content of the opened editor",
+            default: "",
+        },
     },
     flexTokens: 20000, // Flexible token limit for the script
 })
 
 // Extract the 'question' parameter from the environment variables
 const { question } = env.vars
+const editor = env.vars["copilot.editor"]
+const selection = env.vars["copilot.selection"]
 
 $`## task
 
-- make a plan to answer the QUESTION step by step
+- make a plan to answer the QUESTION step by step using the information in the Context section
 - answer the QUESTION
 
 ## output
@@ -41,8 +53,13 @@ $`## task
 `
 
 // Define a variable QUESTION with the value of 'question'
-def("QUESTION", question)
+def("QUESTION", question, { lineNumbers: false })
+
+$`## Context`
 
 // Define a variable FILE with the file data from the environment variables
 // The { ignoreEmpty: true, flex: 1 } options specify to ignore empty files and to use flexible token allocation
-def("FILE", env.files, { ignoreEmpty: true, flex: 1 })
+def("FILE", env.files, { lineNumbers: false, ignoreEmpty: true, flex: 1 })
+
+if (editor) writeText(editor, { flex: 4 })
+if (selection) writeText(selection, { flex: 5 })

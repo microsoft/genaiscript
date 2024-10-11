@@ -5,7 +5,7 @@ system({
 
 defTool(
     "fs_find_files",
-    "Finds file matching a glob pattern. Use pattern to specify a regular expression to search for in the file content.",
+    "Finds file matching a glob pattern. Use pattern to specify a regular expression to search for in the file content. Be careful about asking too many files.",
     {
         type: "object",
         properties: {
@@ -24,18 +24,29 @@ defTool(
                 description:
                     "If true, parse frontmatter in markdown files and return as YAML.",
             },
+            count: {
+                type: "number",
+                description:
+                    "Number of files to return. Default is 20 maximum.",
+            },
         },
         required: ["glob"],
     },
     async (args) => {
-        const { glob, pattern, frontmatter, context } = args
+        const { glob, pattern, frontmatter, context, count = 20 } = args
         context.log(
             `ls ${glob} ${pattern ? `| grep ${pattern}` : ""} ${frontmatter ? "--frontmatter" : ""}`
         )
-        const res = pattern
+        let res = pattern
             ? (await workspace.grep(pattern, { glob, readText: false })).files
             : await workspace.findFiles(glob, { readText: false })
         if (!res?.length) return "No files found."
+
+        let suffix = ""
+        if (res.length > count) {
+            res = res.slice(0, count)
+            suffix = "\n...Too many files found. Showing first 20..."
+        }
 
         if (frontmatter) {
             const files = []
@@ -60,9 +71,9 @@ defTool(
                 )
                 .join("\n")
             context.log(preview)
-            return YAML.stringify(files)
+            return YAML.stringify(files) + suffix
         } else {
-            const filenames = res.map((f) => f.filename).join("\n")
+            const filenames = res.map((f) => f.filename).join("\n") + suffix
             context.log(filenames)
             return filenames
         }

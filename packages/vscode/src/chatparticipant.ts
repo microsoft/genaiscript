@@ -10,15 +10,19 @@ export async function activateChatParticipant(state: ExtensionState) {
     const { subscriptions } = context
 
     const resolveReference = (
-        reference: vscode.ChatPromptReference
-    ): string => {
-        const { value, range } = reference
-        if (value instanceof vscode.Uri)
-            return vscode.workspace.asRelativePath(value, false)
-        else if (typeof value === "string") return value
-        else if (value instanceof vscode.Location)
-            return vscode.workspace.asRelativePath(value.uri, false) // TODO range
-        else return undefined
+        references: readonly vscode.ChatPromptReference[]
+    ): { files: string[]; vars: Record<string, string> } => {
+        const files = []
+        const vars: Record<string, string> = {}
+        for (const reference of references) {
+            const { id, value } = reference
+            if (value instanceof vscode.Uri)
+                files.push(vscode.workspace.asRelativePath(value, false))
+            else if (typeof value === "string") vars[id] = value
+            else if (value instanceof vscode.Location)
+                files.push(vscode.workspace.asRelativePath(value.uri, false)) // TODO range
+        }
+        return { files, vars }
     }
 
     const participant = vscode.chat.createChatParticipant(
@@ -37,20 +41,25 @@ export async function activateChatParticipant(state: ExtensionState) {
             const template = state.project.templates.find(
                 (t) => t.id === "copilot_chat_participant"
             )
+            const { files, vars } = resolveReference(references)
             const fragment: Fragment = {
-                files: references.map(resolveReference),
+                files,
             }
 
+            const canceller = token.onCancellationRequested(
+                async () => await state.cancelAiRequest()
+            )
             const res = await state.requestAI({
                 template,
                 label: "genaiscript agent",
                 parameters: {
+                    ...vars,
                     question: prompt,
                 },
                 fragment,
                 mode: "chat",
             })
-
+            canceller.dispose()
             if (token.isCancellationRequested) return
 
             const { text = "" } = res || {}
