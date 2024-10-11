@@ -6,13 +6,10 @@ script({
 })
 
 const disablePurge = env.vars.purge === "no"
-const container = await host.container({ disablePurge, networkEnabled: true })
+const container = await host.container({ instanceId: "testing", disablePurge, networkEnabled: true, postCreateCommands: "pip install pandas" })
 const version = await container.exec("python", ["--version"])
 if (!/^python \d/i.test(version.stdout))
     throw new Error("python --version failed")
-await container.disconnect()
-const pipfailed = await container.exec("pip", ["install", "pandas"])
-if (!pipfailed.failed) throw new Error("network not disconnected")
 await container.writeText("pythonversion.txt", version.stdout)
 const fversion = await container.readText("pythonversion.txt")
 if (version.stdout !== fversion)

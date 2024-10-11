@@ -1,7 +1,7 @@
 import MemoryStream from "memorystream"
 import { finished } from "stream/promises"
 import { ensureDir, remove } from "fs-extra"
-import { copyFile, readFile, writeFile } from "fs/promises"
+import { copyFile, readFile, writeFile, readdir } from "fs/promises"
 import {
     DOCKER_DEFAULT_IMAGE,
     DOCKER_VOLUMES_DIR,
@@ -21,14 +21,18 @@ import { CORE_VERSION } from "../../core/src/version"
 import { isQuiet } from "./log"
 import Dockerode from "dockerode"
 import { shellParse, shellQuote } from "../../core/src/shell"
+import { PLimitPromiseQueue } from "../../core/src/concurrency"
 
 type DockerodeType = import("dockerode")
 
 export class DockerManager {
     private containers: ContainerHost[] = []
     private _docker: DockerodeType
+    private _createQueue: PLimitPromiseQueue
 
-    constructor() {}
+    constructor() {
+        this._createQueue = new PLimitPromiseQueue()
+    }
 
     private async init(options?: TraceOptions) {
         if (this._docker) return
@@ -134,7 +138,21 @@ export class DockerManager {
         options: ContainerOptions & TraceOptions
     ): Promise<ContainerHost> {
         await this.init()
+        const { instanceId } = options || {}
+        if (instanceId) {
+            const c = this.containers.find((c) => c.instanceId === instanceId)
+            if (c) return c
+        }
+        return await this._createQueue.add(async () =>
+            this.internalStartContainer(options)
+        )
+    }
+
+    private async internalStartContainer(
+        options: ContainerOptions & TraceOptions
+    ): Promise<ContainerHost> {
         const {
+            instanceId,
             image = DOCKER_DEFAULT_IMAGE,
             trace,
             env = {},
@@ -157,7 +175,9 @@ export class DockerManager {
             await ensureDir(hostPath)
 
             const containerPath = DOCKER_CONTAINER_VOLUME
-            logVerbose(`container: create ${image} ${name ?? ""}`)
+            logVerbose(
+                `container: create ${image} ${name || ""} ${instanceId || ""}`
+            )
             const containerOptions: Dockerode.ContainerCreateOptions = {
                 name,
                 Image: image,
@@ -317,7 +337,6 @@ export class DockerManager {
                 await writeFile(hostFilename, content ?? "", {
                     encoding: "utf8",
                 })
-                return `file ${hostFilename} written`
             }
 
             const readText = async (filename: string) => {
@@ -330,7 +349,6 @@ export class DockerManager {
             }
 
             const copyTo = async (from: string | string[], to: string) => {
-                const res: string[] = []
                 const files = await host.findFiles(from)
                 for (const file of files) {
                     const source = host.path.resolve(file)
@@ -339,9 +357,16 @@ export class DockerManager {
                         : host.path.resolve(hostPath, file)
                     await ensureDir(host.path.dirname(target))
                     await copyFile(source, target)
-                    res.push(`cp ${source} ${target}`)
                 }
-                return res.join("\n")
+            }
+
+            const listFiles = async (dir: string) => {
+                const source = host.path.resolve(hostPath, dir)
+                try {
+                    return await readdir(source)
+                } catch (e) {
+                    return []
+                }
             }
 
             const disconnect = async () => {
@@ -362,6 +387,7 @@ export class DockerManager {
 
             const c = Object.freeze<ContainerHost>({
                 id: container.id,
+                instanceId,
                 disablePurge: !!options.disablePurge,
                 hostPath,
                 containerPath,
@@ -370,7 +396,9 @@ export class DockerManager {
                 writeText,
                 readText,
                 copyTo,
+                listFiles,
                 disconnect,
+                scheduler: new PLimitPromiseQueue(1),
             })
             this.containers.push(c)
             await container.start()

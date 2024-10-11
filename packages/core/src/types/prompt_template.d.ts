@@ -2814,6 +2814,11 @@ interface ContainerPortBinding {
 
 interface ContainerOptions {
     /**
+     * User defined id of the container to allow sharing accross multiple tools agents
+     */
+    instanceId?: string
+
+    /**
      * Container image names.
      * @example python:alpine python:slim python
      * @see https://hub.docker.com/_/python/
@@ -2909,6 +2914,11 @@ interface ContainerHost extends ShellHost {
     id: string
 
     /**
+     * User assigned identifer of the container. The same id is used to share the same container across multiple tools, agents.
+     */
+    instanceId?: string
+
+    /**
      * Disable automatic purge of container and volume directory
      */
     disablePurge: boolean
@@ -2928,7 +2938,7 @@ interface ContainerHost extends ShellHost {
      * @param path
      * @param content
      */
-    writeText(path: string, content: string): Promise<string>
+    writeText(path: string, content: string): Promise<void>
 
     /**
      * Reads a file as text from the container mounted volume
@@ -2941,7 +2951,13 @@ interface ContainerHost extends ShellHost {
      * @param fromHost glob matching files
      * @param toContainer directory in the container
      */
-    copyTo(fromHost: string | string[], toContainer: string): Promise<string>
+    copyTo(fromHost: string | string[], toContainer: string): Promise<void>
+
+    /**
+     * List files in a directory in the container
+     * @param dir
+     */
+    listFiles(dir: string): Promise<string[]>
 
     /**
      * Stops and cleans out the container
@@ -2952,6 +2968,11 @@ interface ContainerHost extends ShellHost {
      * Force disconnect network
      */
     disconnect(): Promise<void>
+
+    /**
+     * A promise queue of concurrency 1 to run serialized functions against the container
+     */
+    scheduler: PromiseQueue
 }
 
 interface PromptContext extends ChatGenerationContext {
