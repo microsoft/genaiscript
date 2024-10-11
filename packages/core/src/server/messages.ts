@@ -53,7 +53,6 @@ export interface PromptScriptRunOptions {
     maxDelay: string
     json: boolean
     yaml: boolean
-    prompt: boolean
     outTrace: string
     outAnnotations: string
     outChangelogs: string

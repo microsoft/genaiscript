@@ -73,7 +73,6 @@ import { writeFileSync } from "node:fs"
 import { prettifyMarkdown } from "../../core/src/markdown"
 import { delay } from "es-toolkit"
 import { GenerationStats } from "../../core/src/usage"
-import { MemoryCache } from "../../core/src/cache"
 import { traceAgentMemory } from "../../core/src/agent"
 
 function parseVars(
@@ -163,7 +162,6 @@ export async function runScript(
     const excludeGitIgnore = !!options.excludeGitIgnore
     const out = options.out
     const stream = !options.json && !options.yaml && !out
-    const skipLLM = !!options.prompt
     const retry = parseInt(options.retry) || 8
     const retryDelay = parseInt(options.retryDelay) || 15000
     const maxDelay = parseInt(options.maxDelay) || 180000
@@ -310,7 +308,6 @@ export async function runScript(
                 }
                 partialCb?.(args)
             },
-            skipLLM,
             label,
             cache,
             cacheName,
@@ -446,9 +443,6 @@ export async function runScript(
             console.log(JSON.stringify(result, null, 2))
         if (options.yaml && result !== undefined)
             console.log(YAMLStringify(result))
-        if (options.prompt && promptjson) {
-            console.log(promptjson)
-        }
     }
 
     let _ghInfo: GithubConnectionInfo = undefined

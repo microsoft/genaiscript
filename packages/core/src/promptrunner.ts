@@ -106,7 +106,7 @@ export async function runTemplate(
     assert(fragment !== undefined)
     assert(options !== undefined)
     assert(options.trace !== undefined)
-    const { skipLLM, label, cliInfo, trace, cancellationToken, model } = options
+    const { label, cliInfo, trace, cancellationToken, model } = options
     const version = CORE_VERSION
     assert(model !== undefined)
 
@@ -154,26 +154,6 @@ export async function runTemplate(
             return <GenerationResult>{
                 status,
                 statusText,
-                messages,
-                vars,
-                text: "",
-                edits: [],
-                annotations: [],
-                changelogs: [],
-                fileEdits: {},
-                label,
-                version,
-                fences: [],
-                frames: [],
-            }
-        }
-
-        // If LLM is skipped, return early
-        if (skipLLM) {
-            trace.renderErrors()
-            return <GenerationResult>{
-                status: "cancelled",
-                statusText: "LLM generation skipped",
                 messages,
                 vars,
                 text: "",

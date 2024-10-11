@@ -83,7 +83,6 @@ export interface GenerationOptions
     trace: MarkdownTrace // Trace information for debugging or logging
     maxCachedTemperature?: number // Maximum temperature for caching purposes
     maxCachedTopP?: number // Maximum top-p value for caching
-    skipLLM?: boolean // Flag to skip LLM processing
     label?: string // Optional label for the operation
     cliInfo?: {
         files: string[] // Information about files in the CLI context

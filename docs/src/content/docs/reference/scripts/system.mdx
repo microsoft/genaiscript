@@ -106,7 +106,12 @@ script({
             type: "string", // Type of the parameter
             description: "the user question", // Description of the parameter
         },
-        editor: {
+        "copilot.editor": {
+            type: "string",
+            description: "the content of the opened editor",
+            default: "",
+        },
+        "copilot.selection": {
             type: "string",
             description: "the content of the opened editor",
             default: "",

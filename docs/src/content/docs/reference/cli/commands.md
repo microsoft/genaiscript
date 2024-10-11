@@ -30,7 +30,6 @@ Options:
   -prr, --pull-request-reviews               create pull request reviews from annotations
   -j, --json                                 emit full JSON response to output
   -y, --yaml                                 emit full YAML response to output
-  -p, --prompt                               dry run, don't execute LLM and return expanded prompt
   -fe, --fail-on-errors                      fails on detected annotation error
   -r, --retry <number>                       number of retries (default: "10")
   -rd, --retry-delay <number>                minimum delay between retries (default: "1000")

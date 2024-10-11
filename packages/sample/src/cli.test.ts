@@ -7,6 +7,7 @@ const cli = `../cli/built/${CLI_JS}`
 describe("init", async () => {
     await import("zx/globals")
 })
+/*
 describe("run", async () => {
     const cmd = "run"
     const flags = `--prompt`
@@ -30,6 +31,7 @@ describe("run", async () => {
         assert.equal(res.exitCode, 0)
     })
 })
+*/
 describe("scripts", async () => {
     const cmd = "scripts"
     await test("list", async () => {

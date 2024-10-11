@@ -128,10 +128,6 @@ export async function cli() {
         )
         .option("-j, --json", "emit full JSON response to output")
         .option("-y, --yaml", "emit full YAML response to output")
-        .option(
-            "-p, --prompt",
-            "dry run, don't execute LLM and return expanded prompt"
-        )
         .option(`-fe, --fail-on-errors`, `fails on detected annotation error`)
         .option(
             "-r, --retry <number>",
