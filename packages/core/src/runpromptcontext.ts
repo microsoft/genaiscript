@@ -59,7 +59,7 @@ import { Project } from "./ast"
 import { dedent } from "./indent"
 import { runtimeHost } from "./host"
 import { writeFileEdits } from "./fileedits"
-import { agentAddMemory, defMemory } from "./agent"
+import { agentAddMemory, agentQueryMemory, defMemory } from "./agent"
 
 export function createChatTurnGenerationContext(
     options: GenerationOptions,
@@ -353,32 +353,8 @@ export function createChatGenerationContext(
                 context.log(`${agentLabel}: ${query}`)
 
                 let memoryAnswer: string
-                if (memory && query && !disableMemoryQuery) {
-                    // always pre-query memory with cheap model
-                    const res = await ctx.runPrompt(
-                        async (_) => {
-                            _.$`Answer QUERY with a summary of the information from MEMORY.
-                            - If you are missing information, return <NO_INFORMATION>.
-                            - Use QUERY as the only source of information.
-                            - Be concise. Keep it short. The output is used by another LLM.
-                            - Provide important details like identifiers and names.
-                            `
-                            _.def("QUERY", query)
-                            await defMemory(_)
-                        },
-                        {
-                            model: "small",
-                            system: ["system"],
-                            flexTokens: 20000,
-                            label: "agent memory query",
-                        }
-                    )
-                    if (!res.error) memoryAnswer = res.text
-                    else
-                        logVerbose(
-                            `agent memory query error: ${errorMessage(res.error)}`
-                        )
-                }
+                if (memory && query && !disableMemoryQuery)
+                    memoryAnswer = await agentQueryMemory(ctx, query)
 
                 const res = await ctx.runPrompt(
                     async (_) => {

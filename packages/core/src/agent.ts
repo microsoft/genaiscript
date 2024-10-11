@@ -1,6 +1,39 @@
 import { MemoryCache } from "./cache"
 import { AGENT_MEMORY_CACHE_NAME } from "./constants"
+import { errorMessage } from "./error"
 import { MarkdownTrace } from "./trace"
+import { logVerbose } from "./util"
+
+export async function agentQueryMemory(
+    ctx: ChatGenerationContext,
+    query: string
+) {
+    if (!query) return undefined
+
+    let memoryAnswer: string | undefined
+    // always pre-query memory with cheap model
+    const res = await ctx.runPrompt(
+        async (_) => {
+            _.$`Answer QUERY with a summary of the information from MEMORY.
+                                - If you are missing information, return <NO_INFORMATION>.
+                                - Use QUERY as the only source of information.
+                                - Be concise. Keep it short. The output is used by another LLM.
+                                - Provide important details like identifiers and names.
+                                `
+            _.def("QUERY", query)
+            await defMemory(_)
+        },
+        {
+            model: "small",
+            system: ["system"],
+            flexTokens: 20000,
+            label: "agent memory query",
+        }
+    )
+    if (!res.error) memoryAnswer = res.text
+    else logVerbose(`agent memory query error: ${errorMessage(res.error)}`)
+    return memoryAnswer
+}
 
 export async function agentAddMemory(
     agent: string,
