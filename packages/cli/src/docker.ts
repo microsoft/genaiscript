@@ -158,7 +158,7 @@ export class DockerManager {
             const { name, hostPath } = await this.containerName(options)
             const c = this.containers.find((c) => c.name === name)
             if (c) {
-                console.log(`container: reusing ${name}`)
+                logVerbose(`container: reusing ${name}`)
                 await c.resume()
                 return c
             }

@@ -15,7 +15,7 @@ const getContainer = async () =>
 
 defTool(
     "python_code_interpreter_run",
-    "Executes python 3.12 code for Data Analysis tasks in a docker container. The process output is returned. Do not generate visualizations. The only packages available are numpy, pandas, scipy. There is NO network connectivity. Do not attempt to install other packages or make web requests. You must copy all the necessary files because the python code runs in a separate container.",
+    "Executes python 3.12 code for Data Analysis tasks in a docker container. The process output is returned. Do not generate visualizations. The only packages available are numpy, pandas, scipy. There is NO network connectivity. Do not attempt to install other packages or make web requests. You must copy all the necessary files or pass all the data because the python code runs in a separate container.",
     {
         type: "object",
         properties: {
