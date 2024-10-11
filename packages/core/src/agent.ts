@@ -15,11 +15,10 @@ export async function agentQueryMemory(
     const res = await ctx.runPrompt(
         async (_) => {
             _.$`Answer QUERY with a summary of the information from MEMORY.
-                                - If you are missing information, return <NO_INFORMATION>.
-                                - Use QUERY as the only source of information.
-                                - Be concise. Keep it short. The output is used by another LLM.
-                                - Provide important details like identifiers and names.
-                                `
+            - If you are missing information, return <NO_INFORMATION>.
+            - Use QUERY as the only source of information.
+            - Be concise. Keep it short. The output is used by another LLM.
+            - Provide important details like identifiers and names.`
             _.def("QUERY", query)
             await defMemory(_)
         },
