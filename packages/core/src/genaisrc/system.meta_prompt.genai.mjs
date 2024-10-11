@@ -1,19 +1,26 @@
+// This module defines a system tool that applies OpenAI's meta prompt guidelines to a user-provided prompt.
+// The tool refines a given prompt to create a detailed system prompt designed to guide a language model for task completion.
+
 system({
+    // Metadata for the tool
     title: "Tool that applies OpenAI's meta prompt guidelines to a user prompt",
     description:
         "Modified meta-prompt tool from https://platform.openai.com/docs/guides/prompt-generation?context=text-out.",
 })
 
+// Define the 'meta_prompt' tool with its properties and functionality
 defTool(
     "meta_prompt",
     "Tool that applies OpenAI's meta prompt guidelines to a user prompt. Modified from https://platform.openai.com/docs/guides/prompt-generation?context=text-out.",
     {
+        // Input parameter for the tool
         prompt: {
             type: "string",
             description:
                 "User prompt to be converted to a detailed system prompt using OpenAI's meta prompt guidelines",
         },
     },
+    // Asynchronous function that processes the user prompt
     async ({ prompt: userPrompt }) => {
         const res = await runPrompt(
             (_) => {
@@ -62,11 +69,15 @@ The final prompt you output should adhere to the following structure below. Do n
                 _.def("USER_PROMPT", userPrompt)
             },
             {
+                // Specify the model to be used
                 model: "large",
+                // Label for the prompt run
                 label: "meta-prompt",
+                // System configuration, including safety mechanisms
                 system: ["system.safety_jailbreak"],
             }
         )
+        // Log the result or any errors for debugging purposes
         console.log(res.text ?? res.error)
         return res
     }
