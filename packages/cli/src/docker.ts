@@ -177,7 +177,7 @@ export class DockerManager {
                     logVerbose(`container: start failed`)
                     trace?.error(`container: start failed`)
                 }
-                console.log(`container: resuming ${name}`)
+                logVerbose(`container: resuming ${name}`)
                 return c
             }
         }

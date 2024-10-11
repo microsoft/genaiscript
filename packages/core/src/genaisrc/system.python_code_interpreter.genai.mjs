@@ -49,20 +49,20 @@ defTool(
                 type: "string",
                 description: "Host file path",
             },
-            to: {
+            toFolder: {
                 type: "string",
-                description: "Container directory path",
+                description: "Container directory path. Not a filename.",
             },
         },
         required: ["from"],
     },
     async (args) => {
-        const { context, from, to = "." } = args
-        context.log(`python: cp ${from} ${to}`)
+        const { context, from, toFolder = "." } = args
+        context.log(`python: cp ${from} ${toFolder}`)
         const container = await getContainer()
         const res = await container.scheduler.add(async () => {
-            await container.copyTo(from, to)
-            return container.listFiles(to)
+            await container.copyTo(from, toFolder)
+            return container.listFiles(toFolder)
         })
         console.log(res.join("\n"))
         return res.join("\n")
