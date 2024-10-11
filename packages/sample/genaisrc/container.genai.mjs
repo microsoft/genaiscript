@@ -7,8 +7,7 @@ script({
 
 const persistent = env.vars.purge === "no"
 const container = await host.container({
-    instanceId: "testing",
-    persistent,
+    name: "testing",
     networkEnabled: true,
     postCreateCommands: "pip install --root-user-action ignore pandas",
 })
