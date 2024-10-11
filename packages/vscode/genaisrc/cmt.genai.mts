@@ -32,7 +32,7 @@ files = files.filter(
 files = files.sort(() => Math.random() - 0.5)
 
 console.log(YAML.stringify(files.map((f) => f.filename)))
-cancel("done")
+
 // Process each file separately to avoid context explosion
 const jobs = host.promiseQueue(5)
 await jobs.mapAll(files, processFile)
