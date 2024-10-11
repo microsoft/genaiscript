@@ -149,6 +149,14 @@ defAgent(
 )
 ```
 
+then use it as a tool
+
+```js
+script({ tools: "agent_git" })
+
+$`What is the current branch?`
+```
+
 ---
 
 ### 🔍 RAG Built-in
