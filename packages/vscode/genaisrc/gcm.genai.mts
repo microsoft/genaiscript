@@ -24,8 +24,9 @@ do {
         (_) => {
             _.def("GIT_DIFF", diff, { maxTokens: 20000, language: "diff" })
             _.$`Generate a git conventional commit message for the changes in GIT_DIFF.
+        - do NOT use markdown syntax
         - do NOT add quotes or code blocks
-        - maximum 50 characters
+        - keep it short, maximum 50 characters
         - use emojis`
         },
         { system: ["system.safety_jailbreak", "system.safety_harmful_content"] }
