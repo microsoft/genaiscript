@@ -3025,7 +3025,7 @@ interface ContainerHost extends ShellHost {
      * @param path
      * @param content
      */
-    writeText(path: string, content: string): Promise<void>
+    writeText(path: string, content: string): Promise<string>
 
     /**
      * Reads a file as text from the container mounted volume
