@@ -9,7 +9,7 @@ import { Content as BuiltinAgents } from "../../../../components/BuiltinAgents.m
 
 GenAIScript defines an **agent** as a [tool](/genaiscript/reference/scripts/tools) that
 runs an [inline prompt](/genaiscript/reference/scripts/inline-prompts) to accomplish a task. The agent's LLM is typically augmented with
-additional tools.
+additional tools and a memory.
 
 **GenAIScript does _not_ implement any agentic workflow or decision.**
 It relies entirely on [tools](/genaiscript/reference/scripts/tools) support built into the LLMs.
@@ -51,7 +51,6 @@ However, the agent abstraction becomes useful when you start to have too many fu
 
 Let's take a look at a more complex example where multiple agents are involved in the conversation. In this case, we would like to investigate why a GitHub action failed.
 It involves the `agent_git` and the `agent_github` agents. The `agent_github` can query workflows, runs, jobs, logs and the `agent_git` can query the git repository.
-
 
 ```mermaid
 flowchart TD
