@@ -22,6 +22,7 @@ import { isQuiet } from "./log"
 import Dockerode from "dockerode"
 import { shellParse, shellQuote } from "../../core/src/shell"
 import { PLimitPromiseQueue } from "../../core/src/concurrency"
+import { resolve } from "path"
 
 type DockerodeType = import("dockerode")
 
@@ -231,6 +232,13 @@ export class DockerManager {
                 await this.stopContainer(container.id)
             }
 
+            const resolveContainerPath = (to: string) => {
+                to = /^\//.test(to)
+                    ? host.path.resolve(hostPath, to.replace(/^\//, ""))
+                    : host.path.resolve(hostPath, to || "")
+                return to
+            }
+
             const exec = async (
                 command: string,
                 args?: string[] | ShellOptions,
@@ -254,7 +262,7 @@ export class DockerManager {
 
                 const { cwd: userCwd, label } = options || {}
                 const cwd = userCwd
-                    ? host.path.join(containerPath, userCwd)
+                    ? resolveContainerPath(userCwd)
                     : containerPath
                 try {
                     trace?.startDetails(
@@ -332,7 +340,10 @@ export class DockerManager {
             }
 
             const writeText = async (filename: string, content: string) => {
-                const hostFilename = host.path.resolve(hostPath, filename)
+                const hostFilename = host.path.resolve(
+                    hostPath,
+                    resolveContainerPath(filename)
+                )
                 await ensureDir(host.path.dirname(hostFilename))
                 await writeFile(hostFilename, content ?? "", {
                     encoding: "utf8",
@@ -340,7 +351,10 @@ export class DockerManager {
             }
 
             const readText = async (filename: string) => {
-                const hostFilename = host.path.resolve(hostPath, filename)
+                const hostFilename = host.path.resolve(
+                    hostPath,
+                    resolveContainerPath(filename)
+                )
                 try {
                     return await readFile(hostFilename, { encoding: "utf8" })
                 } catch (e) {
@@ -349,21 +363,21 @@ export class DockerManager {
             }
 
             const copyTo = async (from: string | string[], to: string) => {
-                to = /^\//.test(to)
-                    ? host.path.resolve(hostPath, to.replace(/^\//, ""))
-                    : host.path.resolve("app", to || "")
+                to = resolveContainerPath(to)
                 const files = await host.findFiles(from)
                 for (const file of files) {
                     const source = host.path.resolve(file)
-                    const target = host.path.resolve(to, file)
-                    logVerbose(`container: cp ${source} ${target}`)
+                    const target = host.path.resolve(to, path.basename(file))
                     await ensureDir(host.path.dirname(target))
                     await copyFile(source, target)
                 }
             }
 
-            const listFiles = async (dir: string) => {
-                const source = host.path.resolve(hostPath, dir)
+            const listFiles = async (to: string) => {
+                const source = host.path.resolve(
+                    hostPath,
+                    resolveContainerPath(to)
+                )
                 try {
                     return await readdir(source)
                 } catch (e) {

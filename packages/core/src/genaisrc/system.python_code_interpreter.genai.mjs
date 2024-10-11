@@ -14,7 +14,7 @@ const getContainer = async () =>
 
 defTool(
     "python_code_interpreter_run",
-    "Executes python 3.12 code for Data Analysis tasks in a docker container. The process output is returned. Do not generate visualizations. The only packages available are numpy, pandas, scipy. There is NO network connectivity. Do not attempt to install other packages or make web requests. You must copy all the necessary files because the python code runs in a separate container. do NOT use the /tmp/ folder.",
+    "Executes python 3.12 code for Data Analysis tasks in a docker container. The process output is returned. Do not generate visualizations. The only packages available are numpy, pandas, scipy. There is NO network connectivity. Do not attempt to install other packages or make web requests. You must copy all the necessary files because the python code runs in a separate container.",
     {
         type: "object",
         properties: {
@@ -40,7 +40,7 @@ defTool(
 
 defTool(
     "python_code_interpreter_copy_files",
-    "Copy files from the host file system to the container file system",
+    "Copy files from the host file system to the container file system. NO absolute paths.",
     {
         type: "object",
         properties: {
