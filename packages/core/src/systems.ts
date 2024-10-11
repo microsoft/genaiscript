@@ -23,8 +23,8 @@ export function resolveSystems(
         if (!script.responseType) {
             systems.push("system")
             systems.push("system.explanations")
-            systems.push("system.safey_jailbreak")
-            systems.push("system.safey_harmful_content")
+            systems.push("system.safety_jailbreak")
+            systems.push("system.safety_harmful_content")
         }
 
         if (tools.some((t) => /^agent/.test(t))) systems.push("system.planner")

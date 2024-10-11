@@ -10,7 +10,6 @@ script({
         "system.safety_harmful_content",
     ],
     tools: ["agent"],
-    excludedSystem: ["system.agent_user_input"],
     group: "infrastructure",
     parameters: {
         question: {
