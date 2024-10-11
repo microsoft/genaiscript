@@ -5,10 +5,10 @@ script({
     },
 })
 
-const disablePurge = env.vars.purge === "no"
+const persistent = env.vars.purge === "no"
 const container = await host.container({
     instanceId: "testing",
-    disablePurge,
+    persistent,
     networkEnabled: true,
     postCreateCommands: "pip install --root-user-action ignore pandas",
 })

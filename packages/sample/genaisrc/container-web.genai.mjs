@@ -2,12 +2,12 @@ script({
     model: "gpt-3.5-turbo",
 })
 
-const disablePurge = env.vars.purge === "no"
+const persistent = env.vars.purge === "no"
 
 // start web server
 const hostPort = 8089
 const webContainer = await host.container({
-    disablePurge,
+    persistent,
     networkEnabled: true,
     ports: { containerPort: "80/tcp", hostPort: 8088 },
 })

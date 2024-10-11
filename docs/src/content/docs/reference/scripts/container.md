@@ -60,10 +60,10 @@ const container = await host.container({ image: repo, ... })
 
 ### Disable auto-purge
 
-By default, the container is removed when it is no longer needed. You can disable this behavior using the `disablePurge` option.
+By default, the container is removed when it is no longer needed. You can disable this behavior using the `persistent` option.
 
-```js "disablePurge"
-const container = await host.container({ disablePurge: true })
+```js "persistent"
+const container = await host.container({ persistent: true })
 ```
 
 ### Enable network

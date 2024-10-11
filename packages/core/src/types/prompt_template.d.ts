@@ -2814,11 +2814,6 @@ interface ContainerPortBinding {
 
 interface ContainerOptions {
     /**
-     * User defined id of the container to allow sharing accross multiple tools agents
-     */
-    instanceId?: string
-
-    /**
      * Container image names.
      * @example python:alpine python:slim python
      * @see https://hub.docker.com/_/python/
@@ -2838,14 +2833,14 @@ interface ContainerOptions {
     env?: Record<string, string>
 
     /**
-     * Assign the specified name to the container. Must match [a-zA-Z0-9_-]+
+     * Assign the specified name to the container. Must match [a-zA-Z0-9_-]+.
      */
     name?: string
 
     /**
-     * Disable automatic purge of container and volume directory
+     * Disable automatic purge of container and volume directory and potentially reuse with same name, configuration.
      */
-    disablePurge?: boolean
+    persistent?: boolean
 
     /**
      * List of exposed TCP ports
@@ -2914,14 +2909,14 @@ interface ContainerHost extends ShellHost {
     id: string
 
     /**
-     * User assigned identifer of the container. The same id is used to share the same container across multiple tools, agents.
+     * Name assigned to the container. For persistent containers, also contains the sha of the options
      */
-    instanceId?: string
+    name: string
 
     /**
      * Disable automatic purge of container and volume directory
      */
-    disablePurge: boolean
+    persistent: boolean
 
     /**
      * Path to the volume mounted in the host
@@ -2963,6 +2958,16 @@ interface ContainerHost extends ShellHost {
      * Stops and cleans out the container
      */
     stop(): Promise<void>
+
+    /**
+     * Pause container
+     */
+    pause(): Promise<void>
+
+    /**
+     * Resume execution of the container
+     */
+    resume(): Promise<void>
 
     /**
      * Force disconnect network
