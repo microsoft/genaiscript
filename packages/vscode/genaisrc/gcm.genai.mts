@@ -33,6 +33,8 @@ do {
         `
         },
         {
+            model: "large",
+            label: "generate commit message",
             system: [
                 "system.safety_jailbreak",
                 "system.safety_harmful_content",
