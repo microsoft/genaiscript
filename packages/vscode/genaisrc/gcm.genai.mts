@@ -23,7 +23,7 @@ do {
     const res = await runPrompt((_) => {
         _.def("GIT_DIFF", diff, { maxTokens: 20000, language: "diff" })
         _.$`Generate a git conventional commit message for the changes in GIT_DIFF.
-        - do NOT add quotes
+        - do NOT add quotes or code blocks
         - maximum 50 characters
         - use emojis`
     })
