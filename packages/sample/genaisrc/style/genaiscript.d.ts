@@ -109,6 +109,7 @@ type SystemPromptId = OptionsOrString<
     | "system.retrieval_vector_search"
     | "system.retrieval_web_search"
     | "system.safety_harmful_content"
+    | "system.safety_jailbreak"
     | "system.safety_protected_material"
     | "system.safety_ungrounded_content_summarization"
     | "system.schema"
@@ -324,6 +325,11 @@ interface PromptSystemOptions {
      * List of tools used by the prompt.
      */
     tools?: ElementOrArray<SystemToolId>
+
+    /**
+     * List of system to exclude from the prompt.
+     */
+    excludedSystem?: ElementOrArray<SystemPromptId>
 }
 
 interface ScriptRuntimeOptions {
@@ -655,6 +661,10 @@ interface WorkspaceGrepResult {
     matches: WorkspaceFile[]
 }
 
+interface INIParseOptions {
+    defaultValue?: any
+}
+
 interface WorkspaceFileSystem {
     /**
      * Searches for files using the glob pattern and returns a list of files.
@@ -720,6 +730,14 @@ interface WorkspaceFileSystem {
         path: string | Awaitable<WorkspaceFile>,
         options?: CSVParseOptions
     ): Promise<T[]>
+
+    /**
+     * Reads the content of a file and parses to INI
+     */
+    readINI(
+        path: string | Awaitable<WorkspaceFile>,
+        options?: INIParseOptions
+    ): Promise<any>
 
     /**
      * Writes a file as text to the file system
@@ -1242,7 +1260,7 @@ interface Parsers {
      */
     INI(
         content: string | WorkspaceFile,
-        options?: { defaultValue?: any }
+        options?: INIParseOptions
     ): any | undefined
 
     /**

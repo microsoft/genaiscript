@@ -20,13 +20,17 @@ let choice
 let message
 do {
     // generate a conventional commit message (https://www.conventionalcommits.org/en/v1.0.0/)
-    const res = await runPrompt((_) => {
-        _.def("GIT_DIFF", diff, { maxTokens: 20000, language: "diff" })
-        _.$`Generate a git conventional commit message for the changes in GIT_DIFF.
-        - do NOT add quotes
-        - maximum 50 characters
+    const res = await runPrompt(
+        (_) => {
+            _.def("GIT_DIFF", diff, { maxTokens: 20000, language: "diff" })
+            _.$`Generate a git conventional commit message for the changes in GIT_DIFF.
+        - do NOT use markdown syntax
+        - do NOT add quotes or code blocks
+        - keep it short, maximum 50 characters
         - use emojis`
-    })
+        },
+        { system: ["system.safety_jailbreak", "system.safety_harmful_content"] }
+    )
     if (res.error) throw res.error
 
     message = res.text

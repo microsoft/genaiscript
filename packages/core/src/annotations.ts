@@ -64,6 +64,14 @@ export function parseAnnotations(text: string): Diagnostic[] {
     return Array.from(annotations.values()) // Convert the set to an array
 }
 
+export function eraseAnnotations(text: string) {
+    return [
+        TYPESCRIPT_ANNOTATIONS_RX,
+        GITHUB_ANNOTATIONS_RX,
+        AZURE_DEVOPS_ANNOTATIONS_RX,
+    ].reduce((t, rx) => t.replace(rx, ""), text)
+}
+
 /**
  * Converts a `Diagnostic` to a GitHub Action command string.
  *

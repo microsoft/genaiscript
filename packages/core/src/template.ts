@@ -435,6 +435,7 @@ export async function parsePromptScript(
             c.checkNat("flexTokens")
 
             c.checkStringArray("system")
+            c.checkStringArray("excludedSystem")
             c.checkStringArray("files")
             c.checkString("group")
 
@@ -446,7 +447,6 @@ export async function parsePromptScript(
             c.checkBool("lineNumbers")
             c.checkObjectOrObjectArray("tests")
             c.checkStringArray("tools")
-
             c.checkStringOrBool("cache")
             c.checkString("cacheName")
 

@@ -11,13 +11,15 @@ export async function activeTaskProvider(state: ExtensionState) {
     const taskProvider: vscode.TaskProvider = {
         provideTasks: async () => {
             try {
+                if (!state.project) return []
+
                 const { cliPath, cliVersion } = await resolveCli()
                 const exec = shellQuote([cliPath || `npx`])
                 const exeArgs = cliPath
                     ? []
                     : ["--yes", `genaiscript@${cliVersion}`]
                 const scripts = state.project.templates.filter(
-                    (t) => !t.isSystem
+                    (t) => !t.isSystem && t.group !== "infrastructure"
                 )
                 const tasks = scripts.map((script) => {
                     const scriptName = host.path.relative(

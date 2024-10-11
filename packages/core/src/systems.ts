@@ -7,10 +7,11 @@ import { arrayify } from "./util"
 export function resolveSystems(
     prj: Project,
     script: PromptSystemOptions & ModelOptions & { jsSource?: string }
-) {
+): string[] {
     const { jsSource } = script
     // Initialize systems array from script.system, converting to array if necessary using arrayify utility
     const systems = arrayify(script.system)
+    const excludedSystem = arrayify(script.excludedSystem)
     const tools = arrayify(script.tools)
 
     // If no system is defined in the script, determine systems based on jsSource
@@ -22,6 +23,8 @@ export function resolveSystems(
         if (!script.responseType) {
             systems.push("system")
             systems.push("system.explanations")
+            systems.push("system.safey_jailbreak")
+            systems.push("system.safey_harmful_content")
         }
 
         if (tools.some((t) => /^agent/.test(t))) systems.push("system.planner")
@@ -57,7 +60,10 @@ export function resolveSystems(
 
     // Return a unique list of non-empty systems
     // Filters out duplicates and empty entries using unique utility
-    return uniq(systems.filter((s) => !!s))
+    const res = uniq(
+        systems.filter((s) => !!s).filter((s) => !excludedSystem.includes(s))
+    )
+    return res
 }
 
 // Helper function to resolve tools in the project and return their system IDs
@@ -67,6 +73,7 @@ function resolveSystemFromTools(prj: Project, tool: string): string[] {
         (t) => t.isSystem && t.defTools?.find((to) => to.id.startsWith(tool))
     )
     const res = system.map(({ id }) => id)
+
     return res
 }
 

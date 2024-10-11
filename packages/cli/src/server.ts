@@ -43,7 +43,6 @@ import {
     CreateChatCompletionRequest,
 } from "../../core/src/chattypes"
 import { randomHex } from "../../core/src/crypto"
-import { chunk } from "es-toolkit"
 
 /**
  * Starts a WebSocket server for handling chat and script execution.

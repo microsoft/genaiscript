@@ -48,7 +48,7 @@ export interface AIRequestOptions {
     template: PromptScript
     fragment: Fragment
     parameters: PromptParameters
-    notebook?: boolean
+    mode?: "notebook" | "chat"
     jsSource?: string
 }
 
@@ -212,17 +212,17 @@ tests/
         this.dispatchChange()
     }
 
-    async requestAI(options: AIRequestOptions): Promise<void> {
+    async requestAI(options: AIRequestOptions): Promise<GenerationResult> {
         try {
             const req = await this.startAIRequest(options)
             if (!req) {
                 await this.cancelAiRequest()
-                return
+                return undefined
             }
             const res = await req?.request
             const { edits, text, status } = res || {}
 
-            if (!options.notebook) {
+            if (!options.mode) {
                 if (status === "error")
                     vscode.commands.executeCommand(
                         "genaiscript.request.open.trace"
@@ -239,9 +239,10 @@ tests/
             this.setDiagnostics()
             this.dispatchChange()
 
-            if (edits?.length && !options.notebook) this.applyEdits()
+            if (edits?.length && options.mode != "notebook") this.applyEdits()
+            return res
         } catch (e) {
-            if (isCancelError(e)) return
+            if (isCancelError(e)) return undefined
             throw e
         }
     }
@@ -340,8 +341,11 @@ tests/
         )
         r.runId = runId
         r.request = request
-        vscode.commands.executeCommand("workbench.view.extension.genaiscript")
-        if (!options.notebook && !hasOutputOrTraceOpened())
+        if (options.mode !== "chat")
+            vscode.commands.executeCommand(
+                "workbench.view.extension.genaiscript"
+            )
+        if (options.mode !== "notebook" && !hasOutputOrTraceOpened())
             vscode.commands.executeCommand("genaiscript.request.open.output")
         r.request
             .then((resp) => {
@@ -483,7 +487,7 @@ tests/
 
     private setDiagnostics() {
         this._diagColl.clear()
-        if (this._aiRequest?.options?.notebook) return
+        if (this._aiRequest?.options?.mode === "notebook") return
 
         let diagnostics = this.project.diagnostics
         if (this._aiRequest?.response?.annotations?.length)
