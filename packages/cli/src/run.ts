@@ -1,7 +1,7 @@
 import { capitalize } from "inflection"
 import { resolve, join, relative, dirname } from "node:path"
 import { isQuiet, wrapColor } from "./log"
-import { emptyDir, ensureDir, appendFileSync } from "fs-extra"
+import { emptyDir, ensureDir, appendFileSync, exists } from "fs-extra"
 import { convertDiagnosticsToSARIF } from "./sarif"
 import { buildProject } from "./build"
 import { diagnosticsToCSV } from "../../core/src/ast"
@@ -34,6 +34,7 @@ import {
     TRACE_DETAILS,
     CLI_ENV_VAR_RX,
     AGENT_MEMORY_CACHE_NAME,
+    STATS_DIR_NAME,
 } from "../../core/src/constants"
 import { isCancelError, errorMessage } from "../../core/src/error"
 import { Fragment, GenerationResult } from "../../core/src/generation"
@@ -74,6 +75,8 @@ import { prettifyMarkdown } from "../../core/src/markdown"
 import { delay } from "es-toolkit"
 import { GenerationStats } from "../../core/src/usage"
 import { traceAgentMemory } from "../../core/src/agent"
+import { JSONLineCache } from "../../core/src/cache"
+import { appendFile, stat } from "node:fs/promises"
 
 function parseVars(
     vars: string[],
@@ -340,6 +343,7 @@ export async function runScript(
     }
     if (!isQuiet) logVerbose("") // force new line
 
+    await aggregateResults(scriptId, outTrace, result)
     await traceAgentMemory(trace)
     if (outAnnotations && result.annotations?.length) {
         if (isJSONLFilename(outAnnotations))
@@ -543,4 +547,45 @@ export async function runScript(
         return fail("error annotations found", ANNOTATION_ERROR_CODE)
 
     return { exitCode: 0, result }
+}
+
+async function aggregateResults(
+    scriptId: string,
+    outTrace: string,
+    result: GenerationResult
+) {
+    const statsDir = dotGenaiscriptPath(".")
+    await ensureDir(statsDir)
+    const statsFile = path.join(statsDir, "stats.csv")
+    if (!(await exists(statsFile)))
+        await writeFile(
+            statsFile,
+            [
+                "script",
+                "status",
+                "cost",
+                "total_tokens",
+                "prompt_tokens",
+                "completion_tokens",
+                "trace",
+                "version",
+            ].join(",") + "\n",
+            { encoding: "utf-8" }
+        )
+    await appendFile(
+        statsFile,
+        [
+            scriptId,
+            result.status,
+            result.stats.cost,
+            result.stats.total_tokens,
+            result.stats.prompt_tokens,
+            result.stats.completion_tokens,
+            path.basename(outTrace),
+            result.version,
+        ]
+            .map((s) => String(s))
+            .join(",") + "\n",
+        { encoding: "utf-8" }
+    )
 }

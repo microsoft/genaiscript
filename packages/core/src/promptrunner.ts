@@ -275,6 +275,10 @@ export async function runTemplate(
             genVars,
             schemas,
             json,
+            stats: {
+                cost: options.stats.cost(),
+                ...options.stats.usage,
+            },
         }
 
         // If there's an error, provide status text

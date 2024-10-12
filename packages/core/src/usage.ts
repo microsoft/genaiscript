@@ -20,7 +20,7 @@ import {
 
 /**
  * Estimates the cost of a chat completion based on the model and usage.
- * 
+ *
  * @param modelId - The identifier of the model used for chat completion.
  * @param usage - The usage statistics for the chat completion.
  * @returns The estimated cost or undefined if estimation is not possible.
@@ -57,7 +57,7 @@ export function estimateCost(modelId: string, usage: ChatCompletionUsage) {
 
 /**
  * Renders the cost as a string for display purposes.
- * 
+ *
  * @param value - The cost to be rendered.
  * @returns A string representation of the cost.
  */
@@ -89,7 +89,7 @@ export class GenerationStats {
 
     /**
      * Constructs a GenerationStats instance.
-     * 
+     *
      * @param model - The model used for chat completions.
      * @param label - Optional label for the statistics.
      */
@@ -113,7 +113,7 @@ export class GenerationStats {
 
     /**
      * Calculates the total cost based on the usage statistics.
-     * 
+     *
      * @returns The total cost.
      */
     cost(): number {
@@ -125,7 +125,7 @@ export class GenerationStats {
 
     /**
      * Accumulates the usage statistics from this instance and its children.
-     * 
+     *
      * @returns The accumulated usage statistics.
      */
     accumulatedUsage(): ChatCompletionUsage {
@@ -149,7 +149,7 @@ export class GenerationStats {
 
     /**
      * Creates a new child GenerationStats instance.
-     * 
+     *
      * @param model - The model used for the child chat completions.
      * @param label - Optional label for the child's statistics.
      * @returns The created child GenerationStats instance.
@@ -162,7 +162,7 @@ export class GenerationStats {
 
     /**
      * Traces the generation statistics using a MarkdownTrace instance.
-     * 
+     *
      * @param trace - The MarkdownTrace instance used for tracing.
      */
     trace(trace: MarkdownTrace) {
@@ -176,7 +176,7 @@ export class GenerationStats {
 
     /**
      * Helper method to trace individual statistics.
-     * 
+     *
      * @param trace - The MarkdownTrace instance used for tracing.
      */
     private traceStats(trace: MarkdownTrace) {
@@ -218,7 +218,7 @@ export class GenerationStats {
 
     /**
      * Helper method to log tokens with indentation.
-     * 
+     *
      * @param indent - The indentation used for logging.
      */
     private logTokens(indent: string) {
@@ -240,7 +240,7 @@ export class GenerationStats {
 
     /**
      * Adds usage statistics to the current instance.
-     * 
+     *
      * @param req - The request containing details about the chat completion.
      * @param usage - The usage statistics to be added.
      */

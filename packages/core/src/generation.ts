@@ -1,7 +1,11 @@
 // Import necessary modules and interfaces
 import { CancellationToken } from "./cancellation"
 import { LanguageModel } from "./chat"
-import { ChatCompletionMessageParam, ChatCompletionsOptions } from "./chattypes"
+import {
+    ChatCompletionMessageParam,
+    ChatCompletionsOptions,
+    ChatCompletionUsage,
+} from "./chattypes"
 import { MarkdownTrace } from "./trace"
 import { GenerationStats } from "./usage"
 
@@ -66,6 +70,13 @@ export interface GenerationResult extends GenerationOutput {
      * Version of the GenAIScript used
      */
     version: string
+
+    /**
+     * Statistics of the generation
+     */
+    stats: {
+        cost: number
+    } & ChatCompletionUsage
 }
 
 // Type representing possible statuses of generation
