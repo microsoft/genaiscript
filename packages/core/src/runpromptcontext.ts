@@ -81,7 +81,7 @@ export function createChatTurnGenerationContext(
         error: log,
     })
 
-    const ctx = <ChatTurnGenerationContext & { node: PromptNode }>{
+    const ctx: ChatTurnGenerationContext & { node: PromptNode } = {
         node,
         writeText: (body, options) => {
             if (body !== undefined && body !== null) {
@@ -690,6 +690,7 @@ export function createChatGenerationContext(
         } catch (e) {
             runTrace.error(e)
             return {
+                messages: [],
                 text: "",
                 finishReason: isCancelError(e) ? "cancel" : "fail",
                 error: serializeError(e),
@@ -703,7 +704,7 @@ export function createChatGenerationContext(
         appendChild(node, createFileMerge(fn))
     }
 
-    const ctx = <RunPromptContextNode>{
+    const ctx: RunPromptContextNode = {
         ...turnCtx,
         defAgent,
         defTool,

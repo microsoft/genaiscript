@@ -1027,6 +1027,7 @@ interface DataFrame {
 }
 
 interface RunPromptResult {
+    messages: ChatCompletionMessageParam[]
     text: string
     annotations?: Diagnostic[]
     fences?: Fenced[]
@@ -2268,6 +2269,11 @@ interface ChatGenerationContext extends ChatTurnGenerationContext {
 }
 
 interface GenerationOutput {
+    /**
+     * full chat history
+     */
+    messages: ChatCompletionMessageParam[]
+
     /**
      * LLM output.
      */

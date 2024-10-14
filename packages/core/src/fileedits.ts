@@ -25,7 +25,7 @@ export async function computeFileEdits(
 ): Promise<void> {
     const { trace, fileOutputs, fileMerges, outputProcessors, schemas } =
         options || {}
-    const { fences, frames, genVars } = res
+    const { fences, frames, genVars, messages } = res
     let text = res.text
     let annotations = res.annotations?.slice(0)
     const fileEdits: Record<string, FileUpdate> = {}
@@ -36,13 +36,13 @@ export async function computeFileEdits(
     // Helper function to get or create file edit object
     const getFileEdit = async (fn: string) => {
         fn = relativePath(projFolder, fn)
-        let fileEdit = fileEdits[fn]
+        let fileEdit: FileUpdate = fileEdits[fn]
         if (!fileEdit) {
             let before: string = null
             let after: string = undefined
             if (await fileExists(fn)) before = await readText(fn)
             else if (await fileExists(fn)) after = await readText(fn)
-            fileEdit = fileEdits[fn] = <FileUpdate>{ before, after }
+            fileEdit = fileEdits[fn] = { before, after }
         }
         return fileEdit
     }
@@ -130,6 +130,7 @@ export async function computeFileEdits(
                     genVars,
                     annotations,
                     schemas,
+                    messages,
                 })) || {}
 
                 if (newText !== undefined) {

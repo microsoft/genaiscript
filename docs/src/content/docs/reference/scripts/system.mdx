@@ -397,7 +397,7 @@ defAgent(
 
     - Use the information in MEMORY exclusively to answer the question in QUERY.
     - If the information in MEMORY is not enough to answer the question in QUERY, respond <NO_MEMORY>.
-    - The memory 
+    - If the information in MEMORY is not relevant to the question in QUERY, respond <NO_MEMORY>.
     `
         memories.reverse().forEach(
             ({ agent, query, answer }) =>

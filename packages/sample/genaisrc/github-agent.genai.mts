@@ -38,3 +38,7 @@ $`3. Compare the run job logs between the failed run and the last successful run
     - include the patch if generated
     - include a summary of the root cause
 `
+
+defOutputProcessor(output => {
+    output.
+})
