@@ -40,8 +40,10 @@ $`3. Compare the run job logs between the failed run and the last successful run
 `
 
 defOutputProcessor(async ({ messages }) => {
-    const plan = await runPrompt((_) => {
-        _.$`Generate a pseudo code summary of the plan implemented in MESSAGES. MESSAGES is a LLM conversation with tools.`
+    await runPrompt((_) => {
+        _.$`- Generate a pseudo code summary of the plan implemented in MESSAGES. MESSAGES is a LLM conversation with tools.
+        - Judge the quality of the plan and suggest 2 improvements.
+        - Generate a python program that optimizes the plan in code. Assume "llm" is a LLM call.`
         _.def(
             "MESSAGES",
             messages
@@ -52,7 +54,5 @@ defOutputProcessor(async ({ messages }) => {
                 .join("\n")
         )
     })
-
-    console.log(plan.text)
     return undefined
 })
