@@ -99,16 +99,15 @@ export async function defMemory(ctx: ChatTurnGenerationContext) {
         }
     >(AGENT_MEMORY_CACHE_NAME)
     const memories = await cache.values()
-    memories.reverse().forEach(
-        ({ agent, query, answer }) =>
-            ctx.def(
-                "MEMORY",
-                `${agent}> ${query}?
+    memories.reverse().forEach(({ agent, query, answer }, index) =>
+        ctx.def(
+            "MEMORY",
+            `${agent}> ${query}?
             ${answer}
-            `
-            ),
-        {
-            flex: 1,
-        }
+            `,
+            {
+                flex: memories.length - index,
+            }
+        )
     )
 }

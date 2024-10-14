@@ -41,6 +41,8 @@ import {
 import { parseModelIdentifier, resolveModelConnectionInfo } from "./models"
 import {
     CHAT_REQUEST_PER_MODEL_CONCURRENT_LIMIT,
+    LLM_TAG_MISSING_INFO,
+    LLM_TAG_NO_ANSWER,
     MODEL_PROVIDER_AICI,
     SYSTEM_FENCE,
 } from "./constants"
@@ -352,7 +354,7 @@ export function createChatGenerationContext(
             },
             async (args) => {
                 const { context, query } = args
-                context.log(`${agentLabel}: ${query}`)
+                infoCb?.({ text: `${agentLabel}: ${query}` })
 
                 let memoryAnswer: string
                 if (memory && query && !disableMemoryQuery)
@@ -365,18 +367,21 @@ export function createChatGenerationContext(
                         _.$`Make a plan and solve the task described in QUERY.
                         
                 - Assume that your answer will be analyzed by an LLM, not a human.
-                - If you are missing information, reply "MISSING_INFO: <what is missing>".
-                - If you cannot answer the query, return "NO_ANSWER: <reason>".
+                - If you are missing information, reply "${LLM_TAG_MISSING_INFO}: <what is missing>".
+                - If you cannot answer the query, return "${LLM_TAG_NO_ANSWER}: <reason>".
                 - Be concise. Minimize output to the most relevant information to save context tokens.`
                         if (memoryAnswer)
-                            _.$`- The query applied to the agent memory is in MEMORY.`
+                            _.$`- The QUERY applied to the agent memory is in MEMORY.`
                         _.def("QUERY", query)
                         if (memoryAnswer) _.def("MEMORY", memoryAnswer)
                         if (memory)
                             _.defOutputProcessor(async ({ text }) => {
                                 if (
                                     text &&
-                                    !/MISSING_INFO|NO_ANSWER/.test(text)
+                                    !(
+                                        text.startsWith(LLM_TAG_MISSING_INFO) ||
+                                        text.startsWith(LLM_TAG_NO_ANSWER)
+                                    )
                                 )
                                     await agentAddMemory(
                                         agentName,
@@ -515,7 +520,7 @@ export function createChatGenerationContext(
         const { label, applyEdits } = runOptions || {}
         const runTrace = trace.startTraceDetails(`🎁 run prompt ${label || ""}`)
         try {
-            infoCb?.({ text: `run prompt ${label || ""}` })
+            infoCb?.({ text: `prompt ${label || ""}` })
 
             const genOptions = mergeGenerationOptions(options, runOptions)
             genOptions.inner = true
