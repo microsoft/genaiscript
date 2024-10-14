@@ -70,6 +70,19 @@ function githubFromEnv(env: Record<string, string>): GithubConnectionInfo {
     }
 }
 
+async function githubGetPullRequestNumber() {
+    const res = await runtimeHost.exec(
+        undefined,
+        "gh",
+        ["pr", "view", "--json", "number"],
+        {
+            label: "resolve current pull request number",
+        }
+    )
+    const resj = JSON5TryParse(res.stdout) as { number: number }
+    return resj?.number
+}
+
 export async function githubParseEnv(
     env: Record<string, string>,
     options?: { issue?: number }
@@ -92,10 +105,7 @@ export async function githubParseEnv(
             res.repository = res.owner + "/" + res.repo
         }
         if (!isNaN(options?.issue)) res.issue = options.issue
-        if (isNaN(res.issue)) {
-            const pr = await github.getPullRequest(undefined)
-            res.issue = pr?.number
-        }
+        if (isNaN(res.issue)) res.issue = await githubGetPullRequestNumber()
     } catch (e) {}
     return Object.freeze(res)
 }
@@ -436,9 +446,7 @@ export class GitHubClient implements GitHub {
     constructor() {}
 
     private connection(): Promise<Omit<GithubConnectionInfo, "issue">> {
-        if (!this._connection) {
-            this._connection = githubParseEnv(process.env)
-        }
+        if (!this._connection) this._connection = githubParseEnv(process.env)
         return this._connection
     }
 
@@ -454,7 +462,7 @@ export class GitHubClient implements GitHub {
                 const { paginateRest } = await import(
                     "@octokit/plugin-paginate-rest"
                 )
-                const { retry } = await import("@octokit/plugin-retry")
+                //const { retry } = await import("@octokit/plugin-retry")
                 const OctokitWithPlugins =
                     Octokit.plugin(paginateRest).plugin(throttling)
                 //                    .plugin(retry)
@@ -572,27 +580,11 @@ export class GitHubClient implements GitHub {
         return res
     }
 
-    private _currentPullRequestNumber: number
     async getPullRequest(pull_number?: number): Promise<GitHubPullRequest> {
-        if (isNaN(pull_number)) {
-            if (isNaN(this._currentPullRequestNumber)) {
-                const res = await runtimeHost.exec(
-                    undefined,
-                    "gh",
-                    ["pr", "view", "--json", "number"],
-                    {
-                        label: "resolve current pull request number",
-                    }
-                )
-                const resj = JSON5TryParse(res.stdout) as { number: number }
-                this._currentPullRequestNumber = resj?.number
-            }
-            pull_number = this._currentPullRequestNumber
-        }
-
+        const { client, owner, repo } = await this.client()
+        if (isNaN(pull_number)) pull_number = (await this._connection).issue
         if (isNaN(pull_number)) return undefined
 
-        const { client, owner, repo } = await this.client()
         const { data } = await client.rest.pulls.get({
             owner,
             repo,
