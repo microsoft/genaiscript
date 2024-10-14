@@ -58,6 +58,7 @@ import {
     logVerbose,
     logError,
     dotGenaiscriptPath,
+    logInfo,
 } from "../../core/src/util"
 import { YAMLStringify } from "../../core/src/yaml"
 import { PromptScriptRunOptions } from "../../core/src/server/messages"
@@ -291,7 +292,7 @@ export async function runScript(
             infoCb: (args) => {
                 const { text } = args
                 if (text) {
-                    if (!isQuiet) logVerbose(text)
+                    if (!isQuiet) logInfo(text)
                     infoCb?.(args)
                 }
             },

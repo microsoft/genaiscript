@@ -234,8 +234,8 @@ export const PLACEHOLDER_API_KEY = "<your token>"
 export const VSCODE_CONFIG_CLI_VERSION = "cli.version"
 export const VSCODE_CONFIG_CLI_PATH = "cli.path"
 
-export const CONSOLE_COLOR_INFO = 97
-export const CONSOLE_COLOR_DEBUG = 34
+export const CONSOLE_COLOR_INFO = 32
+export const CONSOLE_COLOR_DEBUG = 90
 export const CONSOLE_COLOR_WARNING = 95
 export const CONSOLE_COLOR_ERROR = 91
 
@@ -256,7 +256,7 @@ export const CHAT_REQUEST_PER_MODEL_CONCURRENT_LIMIT = 8
 export const PROMISE_QUEUE_CONCURRENCY_DEFAULT = 16
 
 export const GITHUB_REST_API_CONCURRENCY_LIMIT = 8
-export const GITHUB_REST_PAGE_DEFAULT = 20
+export const GITHUB_REST_PAGE_DEFAULT = 10
 
 export const TOKEN_TRUNCATION_THRESHOLD = 128
 

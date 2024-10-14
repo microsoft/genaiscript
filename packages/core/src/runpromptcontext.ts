@@ -350,7 +350,7 @@ export function createChatGenerationContext(
             },
             async (args) => {
                 const { context, query } = args
-                context.log(`${agentLabel}: ${query}`)
+                infoCb?.({ text: `${agentLabel}: ${query}` })
 
                 let memoryAnswer: string
                 if (memory && query && !disableMemoryQuery)
@@ -360,14 +360,14 @@ export function createChatGenerationContext(
                     async (_) => {
                         if (typeof fn === "string") _.writeText(dedent(fn))
                         else await fn(_, args)
-                        _.$`Make a plan and solve this task.
+                        _.$`Make a plan and solve the task in QUERY.
                         
                 - Assume that your answer will be analyzed by an LLM, not a human.
                 - If you are missing information, reply "MISSING_INFO: <what is missing>".
                 - If you cannot answer the query, return "NO_ANSWER: <reason>".
                 - Be concise. Minimize output to the most relevant information to save context tokens.`
                         if (memoryAnswer)
-                            _.$`- The query applied to the agent memory is in MEMORY.`
+                            _.$`- The QUERY applied to the agent memory is in MEMORY.`
                         _.def("QUERY", query)
                         if (memoryAnswer) _.def("MEMORY", memoryAnswer)
                         if (memory)
@@ -513,7 +513,7 @@ export function createChatGenerationContext(
         const { label, applyEdits } = runOptions || {}
         const runTrace = trace.startTraceDetails(`🎁 run prompt ${label || ""}`)
         try {
-            infoCb?.({ text: `run prompt ${label || ""}` })
+            infoCb?.({ text: `prompt ${label || ""}` })
 
             const genOptions = mergeGenerationOptions(options, runOptions)
             genOptions.inner = true
