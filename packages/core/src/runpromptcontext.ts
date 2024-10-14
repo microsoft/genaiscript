@@ -257,15 +257,17 @@ export function createChatGenerationContext(
             | ToolCallback
             | AgenticToolCallback
             | AgenticToolProviderCallback,
-        description: string,
-        parameters: PromptParametersSchema | JSONSchemaObject,
-        fn: ChatFunctionHandler,
+        description: string | DefToolOptions,
+        parameters?: PromptParametersSchema | JSONSchemaObject,
+        fn?: ChatFunctionHandler,
         defOptions?: DefToolOptions
     ) => void = (name, description, parameters, fn, defOptions) => {
         if (name === undefined || name === null)
             throw new Error("tool name is missing")
 
         if (typeof name === "string") {
+            if (typeof description !== "string")
+                throw new Error("tool description is missing")
             const parameterSchema =
                 promptParametersSchemaToJSONSchema(parameters)
             appendChild(
@@ -360,7 +362,7 @@ export function createChatGenerationContext(
                     async (_) => {
                         if (typeof fn === "string") _.writeText(dedent(fn))
                         else await fn(_, args)
-                        _.$`Make a plan and solve this task.
+                        _.$`Make a plan and solve the task described in QUERY.
                         
                 - Assume that your answer will be analyzed by an LLM, not a human.
                 - If you are missing information, reply "MISSING_INFO: <what is missing>".
@@ -529,15 +531,15 @@ export function createChatGenerationContext(
                 label
             )
 
-            const ctx = createChatGenerationContext(
+            const runCtx = createChatGenerationContext(
                 genOptions,
                 runTrace,
                 projectOptions
             )
             if (typeof generator === "string")
-                ctx.node.children.push(createTextNode(generator))
-            else await generator(ctx)
-            const node = ctx.node
+                runCtx.node.children.push(createTextNode(generator))
+            else await generator(runCtx)
+            const node = runCtx.node
 
             checkCancelled(cancellationToken)
 
@@ -704,7 +706,7 @@ export function createChatGenerationContext(
         appendChild(node, createFileMerge(fn))
     }
 
-    const ctx: RunPromptContextNode = {
+    const ctx: RunPromptContextNode = Object.freeze<RunPromptContextNode>({
         ...turnCtx,
         defAgent,
         defTool,
@@ -716,7 +718,7 @@ export function createChatGenerationContext(
         defFileMerge,
         prompt,
         runPrompt,
-    }
+    })
 
     return ctx
 }
