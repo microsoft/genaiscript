@@ -58,6 +58,7 @@ import {
     logVerbose,
     logError,
     dotGenaiscriptPath,
+    logInfo,
 } from "../../core/src/util"
 import { YAMLStringify } from "../../core/src/yaml"
 import { PromptScriptRunOptions } from "../../core/src/server/messages"
@@ -201,7 +202,7 @@ export async function runScript(
         return { exitCode, result }
     }
 
-    logVerbose(`genaiscript: ${scriptId}`)
+    logInfo(`genaiscript: ${scriptId}`)
 
     if (out) {
         if (removeOut) await emptyDir(out)
@@ -291,7 +292,7 @@ export async function runScript(
             infoCb: (args) => {
                 const { text } = args
                 if (text) {
-                    if (!isQuiet) logVerbose(text)
+                    if (!isQuiet) logInfo(text)
                     infoCb?.(args)
                 }
             },
@@ -531,7 +532,7 @@ export async function runScript(
         }
     }
 
-    logVerbose(`genaiscript: ${result.status}`)
+    logInfo(`genaiscript: ${result.status}`)
     stats.log()
     if (outTraceFilename) logVerbose(`  trace: ${outTraceFilename}`)
 
