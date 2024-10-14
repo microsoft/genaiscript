@@ -202,7 +202,7 @@ export async function runScript(
         return { exitCode, result }
     }
 
-    logVerbose(`genaiscript: ${scriptId}`)
+    logInfo(`genaiscript: ${scriptId}`)
 
     if (out) {
         if (removeOut) await emptyDir(out)
@@ -532,7 +532,7 @@ export async function runScript(
         }
     }
 
-    logVerbose(`genaiscript: ${result.status}`)
+    logInfo(`genaiscript: ${result.status}`)
     stats.log()
     if (outTraceFilename) logVerbose(`  trace: ${outTraceFilename}`)
 
