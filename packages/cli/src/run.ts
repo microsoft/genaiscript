@@ -556,9 +556,9 @@ async function aggregateResults(
     stats: GenerationStats,
     result: GenerationResult
 ) {
-    const statsDir = dotGenaiscriptPath(".")
+    const statsDir = dotGenaiscriptPath("stats")
     await ensureDir(statsDir)
-    const statsFile = path.join(statsDir, "stats.csv")
+    const statsFile = path.join(statsDir, "runs.csv")
     if (!(await exists(statsFile)))
         await writeFile(
             statsFile,

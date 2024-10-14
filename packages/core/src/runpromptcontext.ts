@@ -520,6 +520,7 @@ export function createChatGenerationContext(
     ): Promise<RunPromptResult> => {
         const { label, applyEdits } = runOptions || {}
         const runTrace = trace.startTraceDetails(`🎁 run prompt ${label || ""}`)
+        let messages: ChatCompletionMessageParam[] = []
         try {
             infoCb?.({ text: `prompt ${label || ""}` })
 
@@ -549,7 +550,6 @@ export function createChatGenerationContext(
 
             checkCancelled(cancellationToken)
 
-            let messages: ChatCompletionMessageParam[] = []
             let tools: ToolCallback[] = undefined
             let schemas: Record<string, JSONSchema> = undefined
             let chatParticipants: ChatParticipant[] = undefined
@@ -698,7 +698,7 @@ export function createChatGenerationContext(
         } catch (e) {
             runTrace.error(e)
             return {
-                messages: [],
+                messages,
                 text: "",
                 finishReason: isCancelError(e) ? "cancel" : "fail",
                 error: serializeError(e),
