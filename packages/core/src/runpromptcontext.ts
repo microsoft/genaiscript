@@ -370,10 +370,6 @@ export function createChatGenerationContext(
                         - If you are missing information, reply "${LLM_TAG_MISSING_INFO}: <what is missing>".
                         - If you cannot answer the query, return "${LLM_TAG_NO_ANSWER}: <reason>".
                         - Be concise. Minimize output to the most relevant information to save context tokens.
-                        - Return a pseudo-code of the executed plan in a "plan" code section
-                            \`\`\`plan
-                            // your plan here
-                            \`\`\`
                         `
                         if (memoryAnswer)
                             _.$`- The QUERY applied to the agent memory is in MEMORY.`

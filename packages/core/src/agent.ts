@@ -14,9 +14,9 @@ export async function agentQueryMemory(
     // always pre-query memory with cheap model
     const res = await ctx.runPrompt(
         async (_) => {
-            _.$`Answer QUERY with a summary of the information from MEMORY.
-            - If you are missing information, return <NO_INFORMATION>.
-            - Use QUERY as the only source of information.
+            _.$`Return the contextual information useful to answer QUERY from the content in  MEMORY.
+            - Use MEMORY as the only source of information.
+            - If you cannot find relevant information to answer QUERY, return <NO_INFORMATION>. DO NOT INVENT INFORMATION.
             - Be concise. Keep it short. The output is used by another LLM.
             - Provide important details like identifiers and names.`
             _.def("QUERY", query)
