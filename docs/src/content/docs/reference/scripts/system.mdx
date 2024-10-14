@@ -756,7 +756,7 @@ defTool(
     },
     async (args) => {
         const { filename, query, context } = args
-        if (!filename) return "MISSIN_INFO: filename is missing"
+        if (!filename) return "MISSING_INFO: filename is missing"
         const file = await workspace.readText(filename)
         if (!file) return "MISSING_INFO: File not found"
         if (!file.content)

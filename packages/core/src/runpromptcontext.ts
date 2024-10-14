@@ -366,10 +366,15 @@ export function createChatGenerationContext(
                         else await fn(_, args)
                         _.$`Make a plan and solve the task described in QUERY.
                         
-                - Assume that your answer will be analyzed by an LLM, not a human.
-                - If you are missing information, reply "${LLM_TAG_MISSING_INFO}: <what is missing>".
-                - If you cannot answer the query, return "${LLM_TAG_NO_ANSWER}: <reason>".
-                - Be concise. Minimize output to the most relevant information to save context tokens.`
+                        - Assume that your answer will be analyzed by an LLM, not a human.
+                        - If you are missing information, reply "${LLM_TAG_MISSING_INFO}: <what is missing>".
+                        - If you cannot answer the query, return "${LLM_TAG_NO_ANSWER}: <reason>".
+                        - Be concise. Minimize output to the most relevant information to save context tokens.
+                        - Return a pseudo-code of the executed plan in a "plan" code section
+                            \`\`\`plan
+                            // your plan here
+                            \`\`\`
+                        `
                         if (memoryAnswer)
                             _.$`- The QUERY applied to the agent memory is in MEMORY.`
                         _.def("QUERY", query)
