@@ -34,6 +34,7 @@ import {
     TRACE_DETAILS,
     CLI_ENV_VAR_RX,
     STATS_DIR_NAME,
+    GENAI_ANYTS_REGEX,
 } from "../../core/src/constants"
 import { isCancelError, errorMessage } from "../../core/src/error"
 import { Fragment, GenerationResult } from "../../core/src/generation"
@@ -127,7 +128,8 @@ export async function runScriptWithExitCode(
         if (!outTrace)
             outTrace = dotGenaiscriptPath(
                 RUNS_DIR_NAME,
-                `${host.path.basename(scriptId)}_${new Date().toISOString().replace(/[:.]/g, "-")}.trace.md`
+                host.path.basename(scriptId).replace(GENAI_ANYTS_REGEX, ""),
+                `${new Date().toISOString().replace(/[:.]/g, "-")}.trace.md`
             )
         const res = await runScript(scriptId, files, { ...options, outTrace })
         exitCode = res.exitCode
