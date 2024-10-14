@@ -284,7 +284,14 @@ export async function writeFileEdits(
         const [fn, { before, after, validation }] = fileEdit
 
         // Skip writing if the edit is invalid and applyEdits is false
-        if (!validation?.valid) continue
+        if (validation?.valid === false) {
+            trace.detailsFenced(
+                `skipping ${fn}, invalid`,
+                validation.error,
+                "text"
+            )
+            continue
+        }
 
         // Check if there's a change between before and after content
         if (after !== before) {
