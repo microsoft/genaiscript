@@ -93,17 +93,8 @@ export async function githubParseEnv(
         }
         if (!isNaN(options?.issue)) res.issue = options.issue
         if (isNaN(res.issue)) {
-            const { number: issue } = JSON.parse(
-                (
-                    await runtimeHost.exec(
-                        undefined,
-                        "gh",
-                        ["pr", "view", "--json", "number"],
-                        {}
-                    )
-                ).stdout
-            )
-            if (!isNaN(issue)) res.issue = issue
+            const pr = await github.getPullRequest(undefined)
+            res.issue = pr?.number
         }
     } catch (e) {}
     return Object.freeze(res)

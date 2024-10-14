@@ -267,3 +267,6 @@ export const GIT_DIFF_MAX_TOKENS = 8000
 export const MAX_TOOL_CONTENT_TOKENS = 4000
 
 export const AGENT_MEMORY_CACHE_NAME = "agent_memory"
+
+export const LLM_TAG_MISSING_INFO = "MISSING_INFO"
+export const LLM_TAG_NO_ANSWER = "NO_ANSWER"

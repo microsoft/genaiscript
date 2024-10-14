@@ -41,6 +41,8 @@ import {
 import { parseModelIdentifier, resolveModelConnectionInfo } from "./models"
 import {
     CHAT_REQUEST_PER_MODEL_CONCURRENT_LIMIT,
+    LLM_TAG_MISSING_INFO,
+    LLM_TAG_NO_ANSWER,
     MODEL_PROVIDER_AICI,
     SYSTEM_FENCE,
 } from "./constants"
@@ -363,8 +365,8 @@ export function createChatGenerationContext(
                         _.$`Make a plan and solve the task in QUERY.
                         
                 - Assume that your answer will be analyzed by an LLM, not a human.
-                - If you are missing information, reply "MISSING_INFO: <what is missing>".
-                - If you cannot answer the query, return "NO_ANSWER: <reason>".
+                - If you are missing information, reply "${LLM_TAG_MISSING_INFO}: <what is missing>".
+                - If you cannot answer the query, return "${LLM_TAG_NO_ANSWER}: <reason>".
                 - Be concise. Minimize output to the most relevant information to save context tokens.`
                         if (memoryAnswer)
                             _.$`- The QUERY applied to the agent memory is in MEMORY.`
@@ -374,7 +376,10 @@ export function createChatGenerationContext(
                             _.defOutputProcessor(async ({ text }) => {
                                 if (
                                     text &&
-                                    !/MISSING_INFO|NO_ANSWER/.test(text)
+                                    !(
+                                        text.startsWith(LLM_TAG_MISSING_INFO) ||
+                                        text.startsWith(LLM_TAG_NO_ANSWER)
+                                    )
                                 )
                                     await agentAddMemory(
                                         agentName,
