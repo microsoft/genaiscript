@@ -343,7 +343,7 @@ export async function runScript(
     }
     if (!isQuiet) logVerbose("") // force new line
 
-    await aggregateResults(scriptId, outTrace, result)
+    await aggregateResults(scriptId, outTrace, stats, result)
     await traceAgentMemory(trace)
     if (outAnnotations && result.annotations?.length) {
         if (isJSONLFilename(outAnnotations))
@@ -552,6 +552,7 @@ export async function runScript(
 async function aggregateResults(
     scriptId: string,
     outTrace: string,
+    stats: GenerationStats,
     result: GenerationResult
 ) {
     const statsDir = dotGenaiscriptPath(".")
@@ -577,10 +578,10 @@ async function aggregateResults(
         [
             scriptId,
             result.status,
-            result.stats.cost,
-            result.stats.total_tokens,
-            result.stats.prompt_tokens,
-            result.stats.completion_tokens,
+            stats.cost,
+            stats.usage.total_tokens,
+            stats.usage.prompt_tokens,
+            stats.usage.completion_tokens,
             path.basename(outTrace),
             result.version,
         ]
