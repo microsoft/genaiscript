@@ -578,7 +578,7 @@ async function aggregateResults(
         [
             scriptId,
             result.status,
-            stats.cost,
+            stats.cost(),
             stats.usage.total_tokens,
             stats.usage.prompt_tokens,
             stats.usage.completion_tokens,
