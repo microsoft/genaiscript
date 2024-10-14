@@ -1,10 +1,10 @@
-import { uniqBy } from "es-toolkit"
 import { Project } from "./ast"
 import { NEW_SCRIPT_TEMPLATE } from "./constants"
 import { promptDefinitions } from "./default_prompts"
 import { tryReadText, writeText } from "./fs"
 import { host } from "./host"
 import { logVerbose } from "./util"
+import { dedent } from "./indent"
 
 export function createScript(
     name: string,
@@ -30,6 +30,18 @@ export async function fixPromptDefinitions(project: Project) {
 
     for (const folder of folders) {
         const { dirname, ts, js } = folder
+        {
+            const fn = host.path.join(dirname, ".gitignore")
+            const current = await tryReadText(fn)
+            const content = dedent`# auto-generated
+            genaiscript.d.ts
+            tsconfig.json
+            jsconfig.json`
+            if (current !== content) {
+                logVerbose(`updating ${fn}`)
+                await writeText(fn, content)
+            }
+        }
         for (let [defName, defContent] of Object.entries(promptDefinitions)) {
             // patch genaiscript
             if (defName === "genaiscript.d.ts") {
@@ -73,9 +85,9 @@ ${tools.map((s) => `* - \`${s.id}\`: ${s.description}`).join("\n")}
             if (defName === "tsconfig.json" && !ts) continue
             if (defName === "jsconfig.json" && !js) continue
 
-            const current = await tryReadText(host.path.join(dirname, defName))
+            const fn = host.path.join(dirname, defName)
+            const current = await tryReadText(fn)
             if (current !== defContent) {
-                const fn = host.path.join(dirname, defName)
                 logVerbose(`updating ${fn}`)
                 await writeText(fn, defContent)
             }
