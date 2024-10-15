@@ -23,7 +23,7 @@ The DIFF format should be used to generate diff changes on large files with smal
 - only emit a couple unmodified lines before and after the changes
 - keep the diffs AS SMALL AS POSSIBLE
 - when reading files, ask for line numbers
-- minimize the number of unmodified lines
+- minimize the number of unmodified lines. DO NOT EMIT MORE THEN 2 UNMODIFIED LINES BEFORE AND AFTER THE CHANGES. Otherwise use the FILE file format.
 
 - do NOT generate diff for files that have no changes
 - do NOT emit diff if lines are the same
