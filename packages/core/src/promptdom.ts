@@ -243,12 +243,14 @@ function renderDefNode(def: PromptDefNode): string {
     while (dfence && body.includes(dfence)) {
         dfence += "`"
     }
+    const diffFormat = body.length > 500 ? "preferred_diff_format=DIFF" : ""
     const res =
         (name ? name + ":\n" : "") +
         dfence +
         dtype +
         (file.filename ? ` file="${file.filename}"` : "") +
         (schema ? ` schema=${schema}` : "") +
+        diffFormat +
         "\n" +
         body +
         dfence +
