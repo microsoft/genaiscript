@@ -282,18 +282,23 @@ function validateFileOutputs(
  */
 export async function writeFileEdits(
     fileEdits: Record<string, FileUpdate>, // Contains the edits to be applied to files
-    options?: TraceOptions
+    options?: { applyEdits?: boolean } & TraceOptions
 ) {
-    const { trace } = options || {}
+    const { applyEdits, trace } = options || {}
     // Iterate over each file edit entry
     for (const fileEdit of Object.entries(fileEdits || {})) {
         // Destructure the filename, before content, after content, and validation from the entry
         const [fn, { before, after, validation }] = fileEdit
 
+        if (!applyEdits && !validation?.valid) {
+            // path not validated
+            continue
+        }
+
         // Skip writing if the edit is invalid and applyEdits is false
-        if (validation?.valid === false) {
+        if (validation?.error) {
             trace.detailsFenced(
-                `skipping ${fn}, invalid`,
+                `skipping ${fn}, invalid schema`,
                 validation.error,
                 "text"
             )

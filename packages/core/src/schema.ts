@@ -168,7 +168,7 @@ export function validateJSONWithSchema(
     object: any,
     schema: JSONSchema,
     options?: { trace: MarkdownTrace }
-): JSONSchemaValidation {
+): FileEditValidation {
     const { trace } = options || {}
     if (!schema)
         return {

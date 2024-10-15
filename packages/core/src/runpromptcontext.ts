@@ -691,9 +691,7 @@ export function createChatGenerationContext(
                 )
             )
             tracePromptResult(runTrace, resp)
-            const { fileEdits } = resp
-            if (fileEdits?.length && applyEdits)
-                await writeFileEdits(fileEdits, { trace })
+            await writeFileEdits(resp.fileEdits, { applyEdits, trace })
             return resp
         } catch (e) {
             runTrace.error(e)
