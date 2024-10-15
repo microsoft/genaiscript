@@ -3,6 +3,8 @@ system({
     description: "Find files with glob and content regex.",
 })
 
+const findFilesCount = env.vars.fsFindFilesCount || 64
+
 defTool(
     "fs_find_files",
     "Finds file matching a glob pattern. Use pattern to specify a regular expression to search for in the file content. Be careful about asking too many files.",
@@ -33,7 +35,13 @@ defTool(
         required: ["glob"],
     },
     async (args) => {
-        const { glob, pattern, frontmatter, context, count } = args
+        const {
+            glob,
+            pattern,
+            frontmatter,
+            context,
+            count = findFilesCount,
+        } = args
         context.log(
             `ls ${glob} ${pattern ? `| grep ${pattern}` : ""} ${frontmatter ? "--frontmatter" : ""}`
         )
@@ -43,10 +51,10 @@ defTool(
         if (!res?.length) return "No files found."
 
         let suffix = ""
-        if (!pattern && isNaN(count) && res.length > 100) {
-            res = res.slice(0, 100)
+        if (res.length > findFilesCount) {
+            res = res.slice(0, findFilesCount)
             suffix =
-                "\n<too many files found. Showing first 100. Use 'count' to specify how many or use 'pattern' to do a grep search>"
+                "\n<too many files found. Showing first 100. Use 'count' to specify how many and/or use 'pattern' to do a grep search>"
         }
 
         if (frontmatter) {

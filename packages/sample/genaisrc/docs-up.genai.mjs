@@ -5,7 +5,6 @@ script({
     tools: ["fs", "md"],
     system: [
         "system",
-        "system.files",
         "system.diff",
         "system.safety_harmful_content",
         "system.safety_protected_material",
@@ -19,7 +18,11 @@ if (branch === defaultBranch) cancel("you are already on the default branch")
 // compute diff
 const changes = await git.diff({
     base: defaultBranch,
-    paths: ["**/prompt_templates.d.ts", "**/prompt_type.d.ts"],
+    paths: [
+        "**/prompt_template.d.ts",
+        "**/prompt_type.d.ts",
+        "packages/sample/**",
+    ],
 })
 console.log(changes)
 
@@ -34,7 +37,7 @@ $`You are an expert software developer and architect.
 
 ## Guidance
 
-- the documentation markdown is located under docs/src/content/docs/**.md*
+- the documentation markdown is located under docs/src/content/docs/**/*.md*
 - do NOT try to call tools within the agents
 - do NOT create new documentation pages
 `
