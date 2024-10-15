@@ -7,11 +7,14 @@ export function editTest() {
 
     defOutputProcessor((output) => {
         const { fileEdits } = output
-        //console.log(YAML.stringify(fileEdits))
-        const res = fileEdits[Object.keys(fileEdits)[0]].after
-        if (/^\s*\/\/.*$/.test(res))
-            throw new Error("some comments were not removed")
-        if (res.includes("// BODY"))
-            throw new Error("the // BODY comment was not removed")
+        if (Object.keys(fileEdits).length !== env.files.length)
+            throw new Error("no file edits")
+        for (const [fn, fe] of Object.entries(fileEdits)) {
+            const res = fe.after
+            if (/^\s*(#|\/\/).*$/.test(res))
+                throw new Error(fn + " some comments were not removed")
+            if (res.includes("// BODY"))
+                throw new Error(fn + " the // BODY comment was not removed")
+        }
     })
 }
