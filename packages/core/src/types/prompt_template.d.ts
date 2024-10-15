@@ -164,7 +164,7 @@ interface ModelOptions extends ModelConnectionOptions {
     topP?: number
 
     /**
-     * When to stop producing output.
+     * Maximum number of completion tokens
      *
      */
     maxTokens?: number
