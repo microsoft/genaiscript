@@ -3,14 +3,10 @@ script({
     description: "Generate a pull request description from the git diff",
     temperature: 0.5,
     tools: ["fs", "md"],
-    system: [
-        "system",
-        "system.diff",
-        "system.safety_harmful_content",
-        "system.safety_protected_material",
-    ],
+    system: ["system", "system.files"],
 })
 
+const tip = env.vars.tip
 const defaultBranch = await git.defaultBranch()
 const branch = await git.branch()
 if (branch === defaultBranch) cancel("you are already on the default branch")
@@ -37,6 +33,7 @@ $`You are an expert software developer and architect.
 
 ## Guidance
 
+${tip || ""}
 - the documentation markdown is located under docs/src/content/docs/**/*.md*
 - do NOT try to call tools within the agents
 - do NOT create new documentation pages
