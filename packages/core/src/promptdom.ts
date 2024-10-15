@@ -771,6 +771,7 @@ async function flexPromptNode(
 
     const { trace, flexTokens } = options || {}
 
+    let log = ""
     // Collect all nodes
     const nodes: PromptNode[] = []
     await visitNode(root, {
@@ -815,10 +816,9 @@ async function flexPromptNode(
             Math.floor(totalRemaining * proportion)
         )
         node.maxTokens = tokenBudget
-        trace.log(
-            `flexed ${node.type} ${node.name || ""} to ${tokenBudget} tokens`
-        )
+        log += `- flexed ${node.type} ${node.name || ""} to ${tokenBudget} tokens\n`
     }
+    if (log) trace?.details(`flexing`, log)
 }
 
 // Function to trace the prompt node structure for debugging.

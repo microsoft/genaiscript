@@ -168,12 +168,12 @@ export function validateJSONWithSchema(
     object: any,
     schema: JSONSchema,
     options?: { trace: MarkdownTrace }
-): JSONSchemaValidation {
+): FileEditValidation {
     const { trace } = options || {}
     if (!schema)
         return {
-            valid: false,
-            error: "no schema provided",
+            pathValid: false,
+            schemaError: "no schema provided",
         }
 
     try {
@@ -186,14 +186,14 @@ export function validateJSONWithSchema(
             trace?.fence(schema, "json")
             return {
                 schema,
-                valid: false,
-                error: ajv.errorsText(validate.errors),
+                pathValid: false,
+                schemaError: ajv.errorsText(validate.errors),
             }
         }
-        return { schema, valid: true }
+        return { schema, pathValid: true }
     } catch (e) {
         trace?.warn("schema validation failed")
-        return { schema, valid: false, error: errorMessage(e) }
+        return { schema, pathValid: false, schemaError: errorMessage(e) }
     }
 }
 
@@ -225,8 +225,8 @@ export function validateFencesWithSchema(
             else if (language === "yaml") data = YAMLParse(val)
         } catch (e) {
             fence.validation = {
-                valid: false,
-                error: errorMessage(e),
+                pathValid: false,
+                schemaError: errorMessage(e),
             }
         }
         if (!fence.validation) {
@@ -234,8 +234,8 @@ export function validateFencesWithSchema(
             const schemaObj = schemas[schema]
             if (!schemaObj) {
                 fence.validation = {
-                    valid: false,
-                    error: `schema ${schema} not found`,
+                    pathValid: false,
+                    schemaError: `schema ${schema} not found`,
                 }
             } else
                 fence.validation = validateJSONWithSchema(

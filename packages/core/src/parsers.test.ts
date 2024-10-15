@@ -93,6 +93,6 @@ describe("parsers", () => {
             },
             { key: "value" }
         )
-        assert.strictEqual(res.valid, true)
+        assert.strictEqual(res.pathValid, true)
     })
 })

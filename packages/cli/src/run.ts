@@ -367,8 +367,7 @@ export async function runScript(
         if (isJSONLFilename(outData)) await appendJSONL(outData, result.frames)
         else await writeText(outData, JSON.stringify(result.frames, null, 2))
 
-    if (result.status === "success" && result.fileEdits && applyEdits)
-        await writeFileEdits(result.fileEdits, { trace })
+    await writeFileEdits(result.fileEdits, { applyEdits, trace })
 
     const promptjson = result.messages?.length
         ? JSON.stringify(result.messages, null, 2)
@@ -532,7 +531,10 @@ export async function runScript(
         }
     }
 
-    logInfo(`genaiscript: ${result.status}`)
+    if (result.status === "success") logInfo(`genaiscript: ${result.status}`)
+    else if (result.status === "cancelled")
+        logInfo(`genaiscript: ${result.status}`)
+    else logError(`genaiscript: ${result.status}`)
     stats.log()
     if (outTraceFilename) logVerbose(`  trace: ${outTraceFilename}`)
 

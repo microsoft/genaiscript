@@ -330,13 +330,13 @@ async function applyRepairs(
     const content = renderMessageContent(lastMessage)
     const fences = extractFenced(content)
     validateFencesWithSchema(fences, schemas, { trace })
-    const invalids = fences.filter((f) => f?.validation?.valid === false)
+    const invalids = fences.filter((f) => f?.validation?.schemaError)
 
     if (responseSchema) {
         const value = JSONLLMTryParse(content)
         const schema = promptParametersSchemaToJSONSchema(responseSchema)
         const res = validateJSONWithSchema(value, schema, { trace })
-        if (!res.valid)
+        if (res.schemaError)
             invalids.push({
                 label: "",
                 content,
@@ -360,7 +360,7 @@ async function applyRepairs(
             (f) =>
                 `data: ${f.label || ""}
 schema: ${f.args?.schema || ""},
-error: ${f.validation.error}`
+error: ${f.validation.schemaError}`
         )
         .join("\n\n")
     const repairMsg = dedent`DATA_FORMAT_ISSUES:
@@ -441,10 +441,10 @@ async function structurifyChatSession(
                 const res = validateJSONWithSchema(json, schema, {
                     trace,
                 })
-                if (!res.valid) {
+                if (res.schemaError) {
                     trace.fence(schema, "json")
                     trace?.warn(
-                        `response schema validation failed, ${errorMessage(res.error)}`
+                        `response schema validation failed, ${errorMessage(res.schemaError)}`
                     )
                 }
             }

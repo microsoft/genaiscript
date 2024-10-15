@@ -932,16 +932,25 @@ interface JSONSchemaArray {
 
 type JSONSchema = JSONSchemaObject | JSONSchemaArray
 
-interface JSONSchemaValidation {
+interface FileEditValidation {
+    /**
+     * JSON schema
+     */
     schema?: JSONSchema
-    valid: boolean
-    error?: string
+    /**
+     * Error while validating the JSON schema
+     */
+    schemaError?: string
+    /**
+     * The path was validated with a file output (defFileOutput)
+     */
+    pathValid?: boolean
 }
 
 interface DataFrame {
     schema?: string
     data: unknown
-    validation?: JSONSchemaValidation
+    validation?: FileEditValidation
 }
 
 interface RunPromptResult {
@@ -1023,7 +1032,7 @@ interface Fenced {
     content: string
     args?: { schema?: string } & Record<string, string>
 
-    validation?: JSONSchemaValidation
+    validation?: FileEditValidation
 }
 
 interface XMLParseOptions {
@@ -1257,7 +1266,7 @@ interface Parsers {
      * @param schema JSON schema instance
      * @param content object to validate
      */
-    validateJSON(schema: JSONSchema, content: any): JSONSchemaValidation
+    validateJSON(schema: JSONSchema, content: any): FileEditValidation
 
     /**
      * Renders a mustache template
@@ -2107,7 +2116,7 @@ interface ChatTurnGenerationContext {
 interface FileUpdate {
     before: string
     after: string
-    validation?: JSONSchemaValidation
+    validation?: FileEditValidation
 }
 
 interface RunPromptResultPromiseWithOptions extends Promise<RunPromptResult> {
