@@ -4,6 +4,7 @@ script({
     temperature: 0.5,
     tools: ["fs", "md"],
     system: ["system", "system.files"],
+    cache: "docs-up"
 })
 
 const tip = env.vars.tip
@@ -41,6 +42,6 @@ ${tip || ""}
 
 def("GIT_DIFF", changes, { maxTokens: 30000 })
 defFileOutput(
-    "docs/src/content/docs/**.md*",
+    "docs/src/content/docs/**/*.md*",
     "Updated documentation markdown pages"
 )
