@@ -166,7 +166,6 @@ export class ExtensionState extends EventTarget {
         const dir = this.host.toUri(dotGenaiscriptPath("."))
         await vscode.workspace.fs.createDirectory(dir)
 
-        // add .gitignore
         await writeFile(
             dir,
             ".gitattributes",
@@ -186,6 +185,8 @@ retrieval/
 containers/
 temp/
 tests/
+stats/
+*.csv
 `
         )
     }

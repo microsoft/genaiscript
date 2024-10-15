@@ -38,3 +38,21 @@ $`3. Compare the run job logs between the failed run and the last successful run
     - include the patch if generated
     - include a summary of the root cause
 `
+
+defOutputProcessor(async ({ messages }) => {
+    await runPrompt((_) => {
+        _.$`- Generate a pseudo code summary of the plan implemented in MESSAGES. MESSAGES is a LLM conversation with tools.
+        - Judge the quality of the plan and suggest 2 improvements.
+        - Generate a python program that optimizes the plan in code. Assume "llm" is a LLM call.`
+        _.def(
+            "MESSAGES",
+            messages
+                .map(
+                    (msg) =>
+                        _.$`- ${msg.role}: ${msg.content || msg.value || JSON.stringify(msg)}`
+                )
+                .join("\n")
+        )
+    })
+    return undefined
+})

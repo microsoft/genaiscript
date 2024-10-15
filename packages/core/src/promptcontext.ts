@@ -83,11 +83,11 @@ export async function createPromptContext(
                     .dirname(grepOptions)
                     .replace(/(^|\/)\*\*$/, "")
                 const g = runtimeHost.path.basename(grepOptions)
-                grepOptions = <WorkspaceGrepOptions>{
+                grepOptions = {
                     path: p || undefined,
                     glob: g || undefined,
                     ...(grepOptions2 || {}),
-                }
+                } as WorkspaceGrepOptions
             }
             const { path, glob, ...rest } = grepOptions || {}
             const grepTrace = trace.startTraceDetails(

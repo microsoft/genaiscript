@@ -462,7 +462,8 @@ async function structurifyChatSession(
     if (fences?.length)
         frames.push(...validateFencesWithSchema(fences, schemas, { trace }))
 
-    const res = <RunPromptResult>{
+    const res: RunPromptResult = {
+        messages,
         text,
         annotations,
         finishReason,

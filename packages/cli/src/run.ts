@@ -33,8 +33,8 @@ import {
     DOCS_CONFIGURATION_URL,
     TRACE_DETAILS,
     CLI_ENV_VAR_RX,
-    AGENT_MEMORY_CACHE_NAME,
     STATS_DIR_NAME,
+    GENAI_ANYTS_REGEX,
 } from "../../core/src/constants"
 import { isCancelError, errorMessage } from "../../core/src/error"
 import { Fragment, GenerationResult } from "../../core/src/generation"
@@ -76,8 +76,7 @@ import { prettifyMarkdown } from "../../core/src/markdown"
 import { delay } from "es-toolkit"
 import { GenerationStats } from "../../core/src/usage"
 import { traceAgentMemory } from "../../core/src/agent"
-import { JSONLineCache } from "../../core/src/cache"
-import { appendFile, stat } from "node:fs/promises"
+import { appendFile } from "node:fs/promises"
 
 function parseVars(
     vars: string[],
@@ -129,6 +128,7 @@ export async function runScriptWithExitCode(
         if (!outTrace)
             outTrace = dotGenaiscriptPath(
                 RUNS_DIR_NAME,
+                host.path.basename(scriptId).replace(GENAI_ANYTS_REGEX, ""),
                 `${new Date().toISOString().replace(/[:.]/g, "-")}.trace.md`
             )
         const res = await runScript(scriptId, files, { ...options, outTrace })
@@ -556,9 +556,9 @@ async function aggregateResults(
     stats: GenerationStats,
     result: GenerationResult
 ) {
-    const statsDir = dotGenaiscriptPath(".")
+    const statsDir = dotGenaiscriptPath(STATS_DIR_NAME)
     await ensureDir(statsDir)
-    const statsFile = path.join(statsDir, "stats.csv")
+    const statsFile = path.join(statsDir, "runs.csv")
     if (!(await exists(statsFile)))
         await writeFile(
             statsFile,

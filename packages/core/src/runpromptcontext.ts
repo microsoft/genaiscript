@@ -83,7 +83,7 @@ export function createChatTurnGenerationContext(
         error: log,
     })
 
-    const ctx = <ChatTurnGenerationContext & { node: PromptNode }>{
+    const ctx: ChatTurnGenerationContext & { node: PromptNode } = {
         node,
         writeText: (body, options) => {
             if (body !== undefined && body !== null) {
@@ -259,15 +259,17 @@ export function createChatGenerationContext(
             | ToolCallback
             | AgenticToolCallback
             | AgenticToolProviderCallback,
-        description: string,
-        parameters: PromptParametersSchema | JSONSchemaObject,
-        fn: ChatFunctionHandler,
+        description: string | DefToolOptions,
+        parameters?: PromptParametersSchema | JSONSchemaObject,
+        fn?: ChatFunctionHandler,
         defOptions?: DefToolOptions
     ) => void = (name, description, parameters, fn, defOptions) => {
         if (name === undefined || name === null)
             throw new Error("tool name is missing")
 
         if (typeof name === "string") {
+            if (typeof description !== "string")
+                throw new Error("tool description is missing")
             const parameterSchema =
                 promptParametersSchemaToJSONSchema(parameters)
             appendChild(
@@ -362,12 +364,13 @@ export function createChatGenerationContext(
                     async (_) => {
                         if (typeof fn === "string") _.writeText(dedent(fn))
                         else await fn(_, args)
-                        _.$`Make a plan and solve the task in QUERY.
+                        _.$`Make a plan and solve the task described in QUERY.
                         
-                - Assume that your answer will be analyzed by an LLM, not a human.
-                - If you are missing information, reply "${LLM_TAG_MISSING_INFO}: <what is missing>".
-                - If you cannot answer the query, return "${LLM_TAG_NO_ANSWER}: <reason>".
-                - Be concise. Minimize output to the most relevant information to save context tokens.`
+                        - Assume that your answer will be analyzed by an LLM, not a human.
+                        - If you are missing information, reply "${LLM_TAG_MISSING_INFO}: <what is missing>".
+                        - If you cannot answer the query, return "${LLM_TAG_NO_ANSWER}: <reason>".
+                        - Be concise. Minimize output to the most relevant information to save context tokens.
+                        `
                         if (memoryAnswer)
                             _.$`- The QUERY applied to the agent memory is in MEMORY.`
                         _.def("QUERY", query)
@@ -517,6 +520,7 @@ export function createChatGenerationContext(
     ): Promise<RunPromptResult> => {
         const { label, applyEdits } = runOptions || {}
         const runTrace = trace.startTraceDetails(`🎁 run prompt ${label || ""}`)
+        let messages: ChatCompletionMessageParam[] = []
         try {
             infoCb?.({ text: `prompt ${label || ""}` })
 
@@ -534,19 +538,18 @@ export function createChatGenerationContext(
                 label
             )
 
-            const ctx = createChatGenerationContext(
+            const runCtx = createChatGenerationContext(
                 genOptions,
                 runTrace,
                 projectOptions
             )
             if (typeof generator === "string")
-                ctx.node.children.push(createTextNode(generator))
-            else await generator(ctx)
-            const node = ctx.node
+                runCtx.node.children.push(createTextNode(generator))
+            else await generator(runCtx)
+            const node = runCtx.node
 
             checkCancelled(cancellationToken)
 
-            let messages: ChatCompletionMessageParam[] = []
             let tools: ToolCallback[] = undefined
             let schemas: Record<string, JSONSchema> = undefined
             let chatParticipants: ChatParticipant[] = undefined
@@ -695,6 +698,7 @@ export function createChatGenerationContext(
         } catch (e) {
             runTrace.error(e)
             return {
+                messages,
                 text: "",
                 finishReason: isCancelError(e) ? "cancel" : "fail",
                 error: serializeError(e),
@@ -708,7 +712,7 @@ export function createChatGenerationContext(
         appendChild(node, createFileMerge(fn))
     }
 
-    const ctx = <RunPromptContextNode>{
+    const ctx: RunPromptContextNode = Object.freeze<RunPromptContextNode>({
         ...turnCtx,
         defAgent,
         defTool,
@@ -720,7 +724,7 @@ export function createChatGenerationContext(
         defFileMerge,
         prompt,
         runPrompt,
-    }
+    })
 
     return ctx
 }
