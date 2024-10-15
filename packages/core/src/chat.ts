@@ -673,6 +673,7 @@ export async function executeChatSession(
                     temperature: temperature,
                     top_p: topP,
                     max_tokens: maxTokens,
+                    max_completion_tokens: maxTokens,
                     seed,
                     stream: true,
                     messages,
