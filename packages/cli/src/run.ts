@@ -558,7 +558,7 @@ async function aggregateResults(
 ) {
     const statsDir = dotGenaiscriptPath(STATS_DIR_NAME)
     await ensureDir(statsDir)
-    const statsFile = path.join(statsDir, "runs.csv")
+    const statsFile = host.path.join(statsDir, "runs.csv")
     if (!(await exists(statsFile)))
         await writeFile(
             statsFile,
@@ -583,7 +583,7 @@ async function aggregateResults(
             stats.usage.total_tokens,
             stats.usage.prompt_tokens,
             stats.usage.completion_tokens,
-            path.basename(outTrace),
+            host.path.basename(outTrace),
             result.version,
         ]
             .map((s) => String(s))
