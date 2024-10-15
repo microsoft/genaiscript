@@ -2,10 +2,11 @@ script({
     title: "Pull Request Descriptor",
     description: "Generate a pull request description from the git diff",
     temperature: 0.5,
-    tools: ["agent"],
+    tools: ["fs", "md"],
     system: [
         "system",
-        "system.changelog",
+        "system.files",
+        "system.diff",
         "system.safety_harmful_content",
         "system.safety_protected_material",
     ],
@@ -18,7 +19,7 @@ if (branch === defaultBranch) cancel("you are already on the default branch")
 // compute diff
 const changes = await git.diff({
     base: defaultBranch,
-    excludedPaths: "**/system.mdx",
+    paths: ["**/prompt_templates.d.ts", "**/prompt_type.d.ts"],
 })
 console.log(changes)
 
@@ -27,9 +28,19 @@ $`You are an expert software developer and architect.
 
 ## Task
 
-Analyze the changes in the codebase described in GIT_DIFF and update the documentation accordingly.
-Generate file updates with the suggested changes using changelog.
+- Analyze and summarize the changes in the codebase described in GIT_DIFF in your own dialog and extract a list of impacted public APIs.
+- Find the list of related documentation pages of those APIs that need to be updated.
+- Update the documentation markdown files according to the changes.
 
+## Guidance
+
+- the documentation markdown is located under docs/src/content/docs/**.md*
+- do NOT try to call tools within the agents
+- do NOT create new documentation pages
 `
 
 def("GIT_DIFF", changes, { maxTokens: 30000 })
+defFileOutput(
+    "docs/src/content/docs/**.md*",
+    "Updated documentation markdown pages"
+)

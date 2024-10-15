@@ -98,17 +98,23 @@ export async function computeFileEdits(
             }
         } else if (/^changelog$/i.test(name) || /^changelog/i.test(language)) {
             changelogs.push(val)
-            const cls = parseChangeLogs(val)
-            for (const changelog of cls) {
-                const { filename } = changelog
-                const fn = /^[^\/]/.test(filename) // TODO
-                    ? runtimeHost.resolvePath(projFolder, filename)
-                    : filename
-                const fileEdit = await getFileEdit(fn)
-                fileEdit.after = applyChangeLog(
-                    fileEdit.after || fileEdit.before || "",
-                    changelog
-                )
+            try {
+                const cls = parseChangeLogs(val)
+                for (const changelog of cls) {
+                    const { filename } = changelog
+                    const fn = /^[^\/]/.test(filename) // TODO
+                        ? runtimeHost.resolvePath(projFolder, filename)
+                        : filename
+                    const fileEdit = await getFileEdit(fn)
+                    fileEdit.after = applyChangeLog(
+                        fileEdit.after || fileEdit.before || "",
+                        changelog
+                    )
+                }
+            } catch (e) {
+                logError(e)
+                trace.error(`error parsing changelog`, e)
+                trace.detailsFenced(`changelog`, val, "text")
             }
         }
     }

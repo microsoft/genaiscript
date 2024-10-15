@@ -33,7 +33,7 @@ defTool(
         required: ["glob"],
     },
     async (args) => {
-        const { glob, pattern, frontmatter, context, count = 20 } = args
+        const { glob, pattern, frontmatter, context, count } = args
         context.log(
             `ls ${glob} ${pattern ? `| grep ${pattern}` : ""} ${frontmatter ? "--frontmatter" : ""}`
         )
@@ -43,9 +43,10 @@ defTool(
         if (!res?.length) return "No files found."
 
         let suffix = ""
-        if (res.length > count) {
-            res = res.slice(0, count)
-            suffix = "\n...Too many files found. Showing first 20..."
+        if (!pattern && isNaN(count) && res.length > 100) {
+            res = res.slice(0, 100)
+            suffix =
+                "\n<too many files found. Showing first 100. Use 'count' to specify how many or use 'pattern' to do a grep search>"
         }
 
         if (frontmatter) {
