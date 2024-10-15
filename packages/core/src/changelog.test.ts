@@ -241,4 +241,22 @@ ChangedCode@46-48:
         console.log(res)
         assert.equal(res[0].filename, "packages/core/src/cancellation.ts")
     })
+
+    test("missing header", () => {
+        const source = `
+ChangeLog:1@src/edits/su/fib.ts
+Description: Implement the Fibonacci function and remove comments and empty lines.
+OriginalCode@105-107:
+[105]     // TODO: implement fibonacci algorithm
+[106]     return 0 // BODY
+[107] }
+ChangedCode@105-107:
+[105]     if (n <= 1) return n;
+[106]     return fibonacci(n - 1) + fibonacci(n - 2);
+[107] }
+`
+        const res = parseChangeLogs(source)
+        console.log(res)
+        assert.equal(res[0].filename, "src/edits/su/fib.ts")
+    })
 })
