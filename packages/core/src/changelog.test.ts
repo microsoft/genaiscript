@@ -259,4 +259,24 @@ ChangedCode@105-107:
         console.log(res)
         assert.equal(res[0].filename, "src/edits/su/fib.ts")
     })
+
+    test("unbalancred fences", () => {
+        const source = `\`\`\`\`\`changelog
+ChangeLog:1@src/edits/bigfibs/fib.py
+Description: Implemented new_function, removed comments and empty lines.
+OriginalCode@48-51:
+[48] def new_function(sum):
+[49]     # TODO
+[50]     return 0
+[51]     # return (10 - (sum % 10)) % 10;
+ChangedCode@48-50:
+[48] def new_function(sum):
+[49]     return (10 - (sum % 10)) % 10
+[50] 
+\`\`\`
+`
+        const res = parseChangeLogs(source)
+        console.log(res)
+        assert.equal(res[0].filename, "src/edits/bigfibs/fib.py")
+    })
 })

@@ -243,7 +243,12 @@ function renderDefNode(def: PromptDefNode): string {
     while (dfence && body.includes(dfence)) {
         dfence += "`"
     }
-    const diffFormat = "" // body.length > 500 ? "preferred_diff_format=DIFF" : ""
+    const diffFormat =
+        body.length > 500
+            ? " preferred_output_format=CHANGELOG "
+            : body.length < 200
+              ? " preferred_output_format=FILE "
+              : ""
     const res =
         (name ? name + ":\n" : "") +
         dfence +

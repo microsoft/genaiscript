@@ -3,6 +3,8 @@
  * A changelog describes changes between original and modified code segments.
  */
 
+import { unfence } from "./fence"
+
 // Represents a chunk of code with a start and end line and its content.
 export interface ChangeLogChunk {
     start: number // Starting line number
@@ -31,19 +33,26 @@ export interface ChangeLog {
  * @returns An array of parsed ChangeLog objects.
  */
 export function parseChangeLogs(source: string): ChangeLog[] {
-    const lines = source.split("\n")
+    const lines = unfence(source, "changelog").split("\n")
     const changelogs: ChangeLog[] = []
 
     // Process each line to extract changelog information.
     while (lines.length) {
         if (!lines[0].trim()) {
             lines.shift()
-            continue // Skip empty lines
+            continue
+        }
+
+        // each back ticks
+        if (/^[\`\.]{3,}/.test(lines[0])) {
+            lines.shift()
+            continue
         }
 
         // Parse the ChangeLog header line.
-        let m = /^ChangeLog:\s*(?<index>\d+)@(?<file>.*)$/i.exec(lines[0])
-        if (!m) throw new Error("missing ChangeLog header in " + lines[0])
+        let m = /^ChangeLog:\s*(?<index>\d+)@(?<file>.*)\s*$/i.exec(lines[0])
+        if (!m)
+            throw new Error("missing ChangeLog header in |" + lines[0] + "|")
         const changelog: ChangeLog = {
             index: parseInt(m.groups.index),
             filename: m.groups.file.trim(),
@@ -66,6 +75,14 @@ export function parseChangeLogs(source: string): ChangeLog[] {
                 lines.shift()
                 continue
             }
+
+            // each back ticks
+            if (/^[\`\.]{3,}/.test(lines[0])) {
+                // somehow we have finished this changed
+                lines.shift()
+                continue
+            }
+
             // Attempt to parse a change.
             const change = parseChange()
             if (change) changelog.changes.push(change)
@@ -89,7 +106,8 @@ export function parseChangeLogs(source: string): ChangeLog[] {
 
         lines.shift()
         const changed = parseChunk(m)
-        return <ChangeLogChange>{ original, changed }
+        const res = <ChangeLogChange>{ original, changed }
+        return res
     }
 
     // Parses a chunk of code from the changelog.

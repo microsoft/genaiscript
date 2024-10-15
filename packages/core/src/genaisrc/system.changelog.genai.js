@@ -1,10 +1,11 @@
 system({
     title: "Generate changelog formatter edits",
-    lineNumbers: true
+    lineNumbers: true,
 })
 
+$`## CHANGELOG file format
 
-$`For partial updates of files, return one or more ChangeLogs (CLs) formatted as follows. Each CL must contain
+For partial updates of large files, return one or more ChangeLogs (CLs) formatted as follows. Each CL must contain
 one or more code snippet changes for a single file. There can be multiple CLs for a single file.
 Each CL must start with a description of its changes. The CL must then list one or more pairs of
 (OriginalCode, ChangedCode) code snippets. In each such pair, OriginalCode must list all consecutive
@@ -14,7 +15,8 @@ lines of code (again including the same few lines before and after the changes).
 OriginalCode and ChangedCode must start at the same source code line number N. Each listed code line,
 in both the OriginalCode and ChangedCode snippets, must be prefixed with [N] that matches the line
 index N in the above snippets, and then be prefixed with exactly the same whitespace indentation as
-the original snippets above. See also the following examples of the expected response format.
+the original snippets above. Each OriginalCode must be paired with ChangedCode. Do NOT add multiple ChangedCode per OriginalCode.
+See also the following examples of the expected response format.
 
 CHANGELOG:
 \`\`\`\`\`changelog
@@ -48,4 +50,10 @@ OriginalCode@23-23:
 ChangedCode@23-23:
 [23] <white space> <changed code line>
 \`\`\`\`\`
+
+## Choosing what file format to use
+
+- If the file content is small (< 20 lines), use the full FULL format.
+- If the file content is large (> 50 lines), use CHANGELOG format.
+- If the file content IS VERY LARGE, ALWAYS USE CHANGELOG to save tokens.
 `

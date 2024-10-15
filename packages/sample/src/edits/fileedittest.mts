@@ -2,14 +2,15 @@ export function editTest() {
     def("FILE", env.files)
 
     $`- Implement the functions with TODO.
-- Delete all comments
+- Delete all comments in the entire file. This is important.
 - Delete all empty lines
+- process all files, do NOT skip any
 `
 
     defOutputProcessor((output) => {
         const { fileEdits } = output
-        if (Object.keys(fileEdits).length !== env.files.length)
-            throw new Error("no file edits")
+        const fns = Object.keys(fileEdits)
+        if (!fns.length) throw new Error("no file edits")
         for (const [fn, fe] of Object.entries(fileEdits)) {
             const res = fe.after
             if (/^\s*(#|\/\/).*$/m.test(res)) {

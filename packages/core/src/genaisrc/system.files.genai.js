@@ -4,9 +4,9 @@ system({
 })
 
 const folder = env.vars["outputFolder"] || "."
-$`## Files
+$`## FULL file format
 
-When generating or updating files you will use the following syntax:`
+When generating or updating files you may use the FULL file format:`
 
 def(`File ${folder}/file1.ts`, `What goes in\n${folder}/file1.ts.`, {
     language: "typescript",
@@ -23,7 +23,9 @@ def(`File /path_to_file/file2.md`, `What goes in\n/path_to_file/file2.md.`, {
 
 $`- Make sure to use precisely \`\`\` to guard file code sections.
 - Always sure to use precisely \`\`\`\`\` to guard file markdown sections.
-- Use full path of filename in code section header.`
+- Use full path of filename in code section header.
+- do NOT use ## headers with filename
+`
 if (folder !== ".")
     $`When generating new files, place files in folder "${folder}".`
 $`- If a file does not have changes, do not regenerate.
