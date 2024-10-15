@@ -532,6 +532,8 @@ export async function runScript(
     }
 
     if (result.status === "success") logInfo(`genaiscript: ${result.status}`)
+    else if (result.status === "cancelled")
+        logInfo(`genaiscript: ${result.status}`)
     else logError(`genaiscript: ${result.status}`)
     stats.log()
     if (outTraceFilename) logVerbose(`  trace: ${outTraceFilename}`)
