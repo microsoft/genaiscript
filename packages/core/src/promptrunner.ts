@@ -178,7 +178,7 @@ export async function runTemplate(
         if (!connection.configuration)
             throw new RequestError(
                 403,
-                "LLM configuration missing",
+                `LLM configuration missing for model ${model}`,
                 connection.info
             )
         const { completer } = await resolveLanguageModel(

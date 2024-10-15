@@ -98,8 +98,9 @@ export async function resolveModelConnectionInfo(
     configuration?: LanguageModelConfiguration
 }> {
     const { trace, token: askToken, signal } = options || {}
+    const hint = options?.model || conn.model || ""
     let candidates = options?.candidates
-    let m = options?.model ?? conn.model
+    let m = hint
     if (m === SMALL_MODEL_ID) {
         m = undefined
         candidates ??= [
@@ -174,7 +175,7 @@ export async function resolveModelConnectionInfo(
         return {
             info: {
                 model: "?",
-                error: "No model configured",
+                error: `No model configured for ${hint}`,
             },
         }
     }
