@@ -45,7 +45,7 @@ export function resolveSystems(
         if (/\Wchangelog\W/i.test(jsSource)) systems.push("system.changelog")
         else if (/\Wfile\W/i.test(jsSource)) {
             systems.push("system.files")
-            systems.push("system.diff")
+           // systems.push("system.diff")
             // Add file schema system if schema is used
             if (useSchema) systems.push("system.files_schema")
         }
