@@ -1,7 +1,7 @@
 // Importing various utility functions and constants from different modules.
 import { CSVToMarkdown, CSVTryParse } from "./csv"
 import { renderFileContent, resolveFileContent } from "./file"
-import { addLineNumbers } from "./liner"
+import { addLineNumbers, extractRange } from "./liner"
 import { JSONSchemaStringifyToTypeScript } from "./schema"
 import { estimateTokens, truncateTextToTokens } from "./tokens"
 import { MarkdownTrace, TraceOptions } from "./trace"
@@ -210,9 +210,11 @@ export function createDefDiff(
 
 // Function to render a definition node to a string.
 function renderDefNode(def: PromptDefNode): string {
-    const { name, resolved } = def
-    const file = resolved
-    const { language, lineNumbers, schema, } = def || {}
+    const { name, resolved: file } = def
+    const { language, lineNumbers, schema } = def || {}
+
+    file.content = extractRange(file.content, def)
+
     const fence =
         language === "markdown" || language === "mdx"
             ? MARKDOWN_PROMPT_FENCE
