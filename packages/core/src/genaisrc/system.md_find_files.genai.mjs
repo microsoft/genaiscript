@@ -2,7 +2,7 @@ system({
     title: "Tools to help with documentation tasks",
 })
 
-const model = (env.vars.mdSummaryModel = "gpt-4o-mini")
+const model = env.vars.mdSummaryModel || "gpt-4o-mini"
 
 defTool(
     "md_find_files",

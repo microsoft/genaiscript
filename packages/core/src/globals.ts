@@ -145,4 +145,8 @@ export function installGlobals() {
      * @returns Fetch result.
      */
     glb.fetchText = fetchText // Assign fetchText function to global
+
+    // these are overriden, ignored
+    glb.script = () => {}
+    glb.system = () => {}
 }

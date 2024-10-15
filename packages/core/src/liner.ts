@@ -44,3 +44,21 @@ export function removeLineNumbers(text: string) {
 
     return lines.map((line) => line.replace(rx, "")).join("\n") // Remove line numbers and join lines back
 }
+
+/**
+ * Extracts a line range from a given text using 1-based inclusive line numbers.
+ * @param text
+ * @param options
+ */
+export function extractRange(
+    text: string,
+    options?: { lineStart?: number; lineEnd?: number }
+) {
+    const { lineStart, lineEnd } = options || {}
+    if (isNaN(lineStart) && isNaN(lineEnd)) return text
+
+    const lines = text.split("\n")
+    const startLine = lineStart || 1
+    const endLine = lineEnd || lines.length
+    return lines.slice(startLine - 1, endLine).join("\n")
+}

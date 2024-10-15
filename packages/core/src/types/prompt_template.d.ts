@@ -810,7 +810,22 @@ interface ContextExpansionOptions {
     ephemeral?: boolean
 }
 
-interface DefOptions extends FenceOptions, ContextExpansionOptions, DataFilter {
+interface RangeOptions {
+    /**
+     * The inclusive start of the line range, with a 1-based index
+     */
+    lineStart?: number
+    /**
+     * The inclusive end of the line range, with a 1-based index
+     */
+    lineEnd?: number
+}
+
+interface DefOptions
+    extends FenceOptions,
+        ContextExpansionOptions,
+        DataFilter,
+        RangeOptions {
     /**
      * Filename filter based on file suffix. Case insensitive.
      */
