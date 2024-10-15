@@ -8,7 +8,7 @@ import { arrayify } from "./util"
 /**
  * Function to resolve and return a list of systems based on the provided script and project.
  * This function analyzes the script options and JavaScript source code to determine applicable systems.
- * 
+ *
  * @param prj - The project object containing templates and other project-related data.
  * @param script - An object containing options for the prompt system, model options, and optionally JavaScript source code.
  * @returns An array of unique system IDs that are applicable based on the analysis.
@@ -45,6 +45,7 @@ export function resolveSystems(
         if (/\Wchangelog\W/i.test(jsSource)) systems.push("system.changelog")
         else if (/\Wfile\W/i.test(jsSource)) {
             systems.push("system.files")
+            systems.push("system.changelog")
             // Add file schema system if schema is used
             if (useSchema) systems.push("system.files_schema")
         }
@@ -82,7 +83,7 @@ export function resolveSystems(
 /**
  * Helper function to resolve tools in the project and return their system IDs.
  * Finds systems in the project associated with a specific tool.
- * 
+ *
  * @param prj - The project object containing templates and other project-related data.
  * @param tool - The tool ID to resolve systems for.
  * @returns An array of system IDs associated with the specified tool.
@@ -99,7 +100,7 @@ function resolveSystemFromTools(prj: Project, tool: string): string[] {
 /**
  * Function to resolve tools in the project based on provided systems and tools.
  * This function returns a list of tool objects with their IDs and descriptions.
- * 
+ *
  * @param prj - The project object containing templates and other project-related data.
  * @param systems - An array of system IDs to resolve tools for.
  * @param tools - An array of tool IDs to resolve tools for.

@@ -505,11 +505,12 @@ Generate changelog formatter edits
 `````js wrap title="system.changelog"
 system({
     title: "Generate changelog formatter edits",
-    lineNumbers: true
+    lineNumbers: true,
 })
 
+$`## CHANGELOG file format
 
-$`For partial updates of files, return one or more ChangeLogs (CLs) formatted as follows. Each CL must contain
+For partial updates of large files, return one or more ChangeLogs (CLs) formatted as follows. Each CL must contain
 one or more code snippet changes for a single file. There can be multiple CLs for a single file.
 Each CL must start with a description of its changes. The CL must then list one or more pairs of
 (OriginalCode, ChangedCode) code snippets. In each such pair, OriginalCode must list all consecutive
@@ -519,7 +520,8 @@ lines of code (again including the same few lines before and after the changes).
 OriginalCode and ChangedCode must start at the same source code line number N. Each listed code line,
 in both the OriginalCode and ChangedCode snippets, must be prefixed with [N] that matches the line
 index N in the above snippets, and then be prefixed with exactly the same whitespace indentation as
-the original snippets above. See also the following examples of the expected response format.
+the original snippets above. Each OriginalCode must be paired with ChangedCode. Do NOT add multiple ChangedCode per OriginalCode.
+See also the following examples of the expected response format.
 
 CHANGELOG:
 \`\`\`\`\`changelog
@@ -553,7 +555,14 @@ OriginalCode@23-23:
 ChangedCode@23-23:
 [23] <white space> <changed code line>
 \`\`\`\`\`
+
+## Choosing what file format to use
+
+- If the file content is small (< 20 lines), use the full FULL format.
+- If the file content is large (> 50 lines), use CHANGELOG format.
+- If the file content IS VERY LARGE, ALWAYS USE CHANGELOG to save tokens.
 `
+
 `````
 
 
@@ -590,7 +599,7 @@ system({
 
 $`## DIFF file format
 
-The DIFF format should be used to generate diff changes on large files: 
+The DIFF format should be used to generate diff changes on large files with small number of changes: 
 
 - existing lines must start with their original line number: [<line number>] <line>
 - deleted lines MUST start with - followed by the line number: - [<line number>] <deleted line>
@@ -608,7 +617,7 @@ The DIFF format should be used to generate diff changes on large files:
 - only emit a couple unmodified lines before and after the changes
 - keep the diffs AS SMALL AS POSSIBLE
 - when reading files, ask for line numbers
-- minimize the number of unmodified lines
+- minimize the number of unmodified lines. DO NOT EMIT MORE THEN 2 UNMODIFIED LINES BEFORE AND AFTER THE CHANGES. Otherwise use the FILE file format.
 
 - do NOT generate diff for files that have no changes
 - do NOT emit diff if lines are the same
@@ -623,36 +632,40 @@ The DIFF format should be used to generate diff changes on large files:
 FOLLOW THE SYNTAX PRECISLY. THIS IS IMPORTANT.
 DIFF ./file.ts:
 \`\`\`diff
-[original line number]  <2 lines before changes (not the whole file)>
+[original line number]  line before changes
 - [original line number] <deleted line>
 + <added line>
-[original line number]   <2 lines after changes (not the whole file)>
+[original line number]  line after changes
 \`\`\`
 
 DIFF ./file2.ts:
 \`\`\`diff
-[original line number]   <2 lines before changes (not the whole file)>
+[original line number]  line before changes
 - [original line number] <deleted line>
 - [original line number] <delete line 2>
 + <added line>
 + <added line 2>
-[original line number]   <2 lines after changes (not the whole file)>
+[original line number]  line after changes
 \`\`\`
 
 DIFF ./file3.ts:
 \`\`\`diff
-[original line number]   <2 lines before changes (not the whole file)>
+[original line number]  line before changes
 + <added line>
-[original line number]   <2 lines after changes (not the whole file)>
+[original line number]  line after changes
 \`\`\`
 
 DIFF ./file4.ts:
 \`\`\`diff
-[original line number]   <2 lines before changes (not the whole file)>
+[original line number]  line before changes
 - [original line number] <deleted line>
-[original line number]   <2 lines after changes (not the whole file)>
+[original line number]  line after changes
 \`\`\`
 
+## Choosing what file format to use
+
+- If the file content is large (> 50 lines) and the changes are small, use the DIFF format.
+- In all other cases, use the FILE file format.
 `
 
 `````
@@ -688,9 +701,9 @@ system({
 })
 
 const folder = env.vars["outputFolder"] || "."
-$`## Files
+$`## FILE file format
 
-When generating or updating files you will use the following syntax:`
+When generating or updating files you should use the FILE file syntax preferrably:`
 
 def(`File ${folder}/file1.ts`, `What goes in\n${folder}/file1.ts.`, {
     language: "typescript",
@@ -705,9 +718,24 @@ def(`File /path_to_file/file2.md`, `What goes in\n/path_to_file/file2.md.`, {
     language: "markdown",
 })
 
+$`You MUST specify a start_line and end_line to only update a specific part of a file:
+
+FILE ${folder}/file1.py:
+\`\`\`python start_line=15 end_line=20
+Replace line range 15-20 in \n${folder}/file1.py
+\`\`\`
+
+FILE ${folder}/file1.py:
+\`\`\`python start_line=30 end_line=35
+Replace line range 30-35 in \n${folder}/file1.py
+\`\`\`
+
+`
+
 $`- Make sure to use precisely \`\`\` to guard file code sections.
 - Always sure to use precisely \`\`\`\`\` to guard file markdown sections.
-- Use full path of filename in code section header.`
+- Use full path of filename in code section header.
+- Use start_line, end_line for large files with small updates`
 if (folder !== ".")
     $`When generating new files, place files in folder "${folder}".`
 $`- If a file does not have changes, do not regenerate.
