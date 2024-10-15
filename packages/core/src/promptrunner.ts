@@ -229,6 +229,12 @@ export async function runTemplate(
         // Reporting and tracing output
         if (fences?.length)
             trace.details("📩 code regions", renderFencedVariables(fences))
+        if (fileEdits && Object.keys(fileEdits).length) {
+            trace.startDetails("📝 file edits")
+            for (const [f, e] of Object.entries(fileEdits))
+                trace.detailsFenced(f, e.after)
+            trace.endDetails()
+        }
         if (annotations?.length)
             trace.details(
                 "⚠️ annotations",

@@ -4,9 +4,14 @@ script({
     title: "system.diff test",
     files: "src/edits/fibs/fib.*",
     system: ["system", "system.diff"],
-    tests: {
-        files: "src/edits/fibs/fib.*",
-    },
+    tests: [
+        {
+            files: "src/edits/fibs/fib.*",
+        },
+        {
+            files: "src/edits/bigfibs/fib.*",
+        },
+    ],
 })
 
 editTest()

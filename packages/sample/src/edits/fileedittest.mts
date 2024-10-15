@@ -2,7 +2,8 @@ export function editTest() {
     def("FILE", env.files)
 
     $`- Implement the functions with TODO.
-- Remove all comments.
+- Delete all comments
+- Delete all empty lines
 `
 
     defOutputProcessor((output) => {
@@ -11,8 +12,10 @@ export function editTest() {
             throw new Error("no file edits")
         for (const [fn, fe] of Object.entries(fileEdits)) {
             const res = fe.after
-            if (/^\s*(#|\/\/).*$/.test(res))
+            if (/^\s*(#|\/\/).*$/m.test(res)) {
+                console.log(res)
                 throw new Error(fn + " some comments were not removed")
+            }
             if (res.includes("// BODY"))
                 throw new Error(fn + " the // BODY comment was not removed")
         }

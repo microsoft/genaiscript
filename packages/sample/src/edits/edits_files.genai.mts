@@ -3,9 +3,14 @@ script({
     title: "system.files test",
     files: "src/edits/fibs/fib.*",
     system: ["system", "system.files"],
-    tests: {
-        files: "src/edits/fibs/fib.*",
-    },
+    tests: [
+        {
+            files: "src/edits/fibs/fib.*",
+        },
+        {
+            files: "src/edits/bigfibs/fib.*",
+        },
+    ],
 })
 import { editTest } from "./fileedittest.mts"
 editTest()
