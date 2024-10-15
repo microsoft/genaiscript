@@ -33,6 +33,7 @@ defAgent(
             "md_read_frontmatter",
             "fs_find_files",
             "fs_read_file",
+            "fs_ask_file",
         ],
         maxTokens: 5000,
     }

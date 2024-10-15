@@ -218,6 +218,7 @@ defAgent(
             "md_read_frontmatter",
             "fs_find_files",
             "fs_read_file",
+            "fs_ask_file",
         ],
         maxTokens: 5000,
     }
@@ -1883,7 +1884,7 @@ system({
     title: "Tools to help with documentation tasks",
 })
 
-const model = (env.vars.mdSummaryModel = "gpt-4o-mini")
+const model = env.vars.mdSummaryModel || "gpt-4o-mini"
 
 defTool(
     "md_find_files",

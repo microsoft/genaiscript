@@ -63,6 +63,7 @@ export function estimateCost(modelId: string, usage: ChatCompletionUsage) {
  */
 export function renderCost(value: number) {
     if (isNaN(value)) return ""
+    if (value === 0) return `0$ (cached)`
     return value <= 0.01
         ? `${(value * 100).toFixed(3)}¢`
         : value <= 0.1
