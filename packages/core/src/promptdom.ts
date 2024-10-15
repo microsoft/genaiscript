@@ -212,7 +212,7 @@ export function createDefDiff(
 function renderDefNode(def: PromptDefNode): string {
     const { name, resolved } = def
     const file = resolved
-    const { language, lineNumbers, schema } = def || {}
+    const { language, lineNumbers, schema, } = def || {}
     const fence =
         language === "markdown" || language === "mdx"
             ? MARKDOWN_PROMPT_FENCE

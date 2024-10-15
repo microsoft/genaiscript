@@ -821,7 +821,11 @@ interface RangeOptions {
     lineEnd?: number
 }
 
-interface DefOptions extends FenceOptions, ContextExpansionOptions, DataFilter {
+interface DefOptions
+    extends FenceOptions,
+        ContextExpansionOptions,
+        DataFilter,
+        RangeOptions {
     /**
      * Filename filter based on file suffix. Case insensitive.
      */
