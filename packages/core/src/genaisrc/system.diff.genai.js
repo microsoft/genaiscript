@@ -5,7 +5,7 @@ system({
 
 $`## DIFF file format
 
-The DIFF format should be used to generate diff changes on large files: 
+The DIFF format should be used to generate diff changes on large files with small number of changes: 
 
 - existing lines must start with their original line number: [<line number>] <line>
 - deleted lines MUST start with - followed by the line number: - [<line number>] <deleted line>
@@ -38,34 +38,38 @@ The DIFF format should be used to generate diff changes on large files:
 FOLLOW THE SYNTAX PRECISLY. THIS IS IMPORTANT.
 DIFF ./file.ts:
 \`\`\`diff
-[original line number]  <2 lines before changes (not the whole file)>
+[original line number]  line before changes
 - [original line number] <deleted line>
 + <added line>
-[original line number]   <2 lines after changes (not the whole file)>
+[original line number]  line after changes
 \`\`\`
 
 DIFF ./file2.ts:
 \`\`\`diff
-[original line number]   <2 lines before changes (not the whole file)>
+[original line number]  line before changes
 - [original line number] <deleted line>
 - [original line number] <delete line 2>
 + <added line>
 + <added line 2>
-[original line number]   <2 lines after changes (not the whole file)>
+[original line number]  line after changes
 \`\`\`
 
 DIFF ./file3.ts:
 \`\`\`diff
-[original line number]   <2 lines before changes (not the whole file)>
+[original line number]  line before changes
 + <added line>
-[original line number]   <2 lines after changes (not the whole file)>
+[original line number]  line after changes
 \`\`\`
 
 DIFF ./file4.ts:
 \`\`\`diff
-[original line number]   <2 lines before changes (not the whole file)>
+[original line number]  line before changes
 - [original line number] <deleted line>
-[original line number]   <2 lines after changes (not the whole file)>
+[original line number]  line after changes
 \`\`\`
 
+## Choosing what file format to use
+
+- If the file content is large (> 50 lines) and the changes are small, use the DIFF format.
+- In all other cases, use the FILE file format.
 `

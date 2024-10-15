@@ -590,7 +590,7 @@ system({
 
 $`## DIFF file format
 
-The DIFF format should be used to generate diff changes on large files: 
+The DIFF format should be used to generate diff changes on large files with small number of changes: 
 
 - existing lines must start with their original line number: [<line number>] <line>
 - deleted lines MUST start with - followed by the line number: - [<line number>] <deleted line>
@@ -623,36 +623,40 @@ The DIFF format should be used to generate diff changes on large files:
 FOLLOW THE SYNTAX PRECISLY. THIS IS IMPORTANT.
 DIFF ./file.ts:
 \`\`\`diff
-[original line number]  <2 lines before changes (not the whole file)>
+[original line number]  line before changes
 - [original line number] <deleted line>
 + <added line>
-[original line number]   <2 lines after changes (not the whole file)>
+[original line number]  line after changes
 \`\`\`
 
 DIFF ./file2.ts:
 \`\`\`diff
-[original line number]   <2 lines before changes (not the whole file)>
+[original line number]  line before changes
 - [original line number] <deleted line>
 - [original line number] <delete line 2>
 + <added line>
 + <added line 2>
-[original line number]   <2 lines after changes (not the whole file)>
+[original line number]  line after changes
 \`\`\`
 
 DIFF ./file3.ts:
 \`\`\`diff
-[original line number]   <2 lines before changes (not the whole file)>
+[original line number]  line before changes
 + <added line>
-[original line number]   <2 lines after changes (not the whole file)>
+[original line number]  line after changes
 \`\`\`
 
 DIFF ./file4.ts:
 \`\`\`diff
-[original line number]   <2 lines before changes (not the whole file)>
+[original line number]  line before changes
 - [original line number] <deleted line>
-[original line number]   <2 lines after changes (not the whole file)>
+[original line number]  line after changes
 \`\`\`
 
+## Choosing what file format to use
+
+- If the file content is large (> 50 lines) and the changes are small, use the DIFF format.
+- In all other cases, use the FILE file format.
 `
 
 `````
@@ -688,9 +692,9 @@ system({
 })
 
 const folder = env.vars["outputFolder"] || "."
-$`## Files
+$`## FILE file format
 
-When generating or updating files you will use the following syntax:`
+When generating or updating files you should use the FILE file syntax preferrably:`
 
 def(`File ${folder}/file1.ts`, `What goes in\n${folder}/file1.ts.`, {
     language: "typescript",
@@ -705,9 +709,24 @@ def(`File /path_to_file/file2.md`, `What goes in\n/path_to_file/file2.md.`, {
     language: "markdown",
 })
 
+$`You MUST specify a start_line and end_line to only update a specific part of a file:
+
+FILE ${folder}/file1.py:
+\`\`\`python start_line=15 end_line=20
+Replace line range 15-20 in \n${folder}/file1.py
+\`\`\`
+
+FILE ${folder}/file1.py:
+\`\`\`python start_line=30 end_line=35
+Replace line range 30-35 in \n${folder}/file1.py
+\`\`\`
+
+`
+
 $`- Make sure to use precisely \`\`\` to guard file code sections.
 - Always sure to use precisely \`\`\`\`\` to guard file markdown sections.
-- Use full path of filename in code section header.`
+- Use full path of filename in code section header.
+- Use start_line, end_line for large files with small updates`
 if (folder !== ".")
     $`When generating new files, place files in folder "${folder}".`
 $`- If a file does not have changes, do not regenerate.
