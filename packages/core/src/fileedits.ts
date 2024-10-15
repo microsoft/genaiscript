@@ -48,7 +48,7 @@ export async function computeFileEdits(
     }
 
     for (const fence of fences.filter(
-        ({ validation }) => validation?.valid !== false
+        ({ validation }) => !validation?.schemaError
     )) {
         const { label: name, content: val, language } = fence
         const pm = /^((file|diff):?)\s+/i.exec(name)
@@ -152,7 +152,7 @@ export async function computeFileEdits(
                         trace.detailsFenced(`📁 file ${fn}`, content)
                         const fileEdit = await getFileEdit(fn)
                         fileEdit.after = content
-                        fileEdit.validation = { valid: true }
+                        fileEdit.validation = { pathValid: true }
                     }
                 if (oannotations) annotations = oannotations.slice(0)
             }
@@ -178,7 +178,8 @@ export async function computeFileEdits(
                     type: "replace",
                     range: [[0, 0], stringToPos(after)],
                     text: after,
-                    validated: validation?.valid,
+                    validated:
+                        !validation?.schemaError && validation?.pathValid,
                 })
             } else {
                 edits.push({
@@ -187,7 +188,8 @@ export async function computeFileEdits(
                     type: "createfile",
                     text: after,
                     overwrite: true,
-                    validated: validation?.valid,
+                    validated:
+                        !validation?.schemaError && validation?.pathValid,
                 })
             }
         })
@@ -242,8 +244,7 @@ function validateFileOutputs(
                                 const schema = schemas[schemaId]
                                 if (!schema)
                                     fe.validation = {
-                                        valid: false,
-                                        error: `schema ${schemaId} not found`,
+                                        schemaError: `schema ${schemaId} not found`,
                                     }
                                 else
                                     fe.validation = validateJSONWithSchema(
@@ -255,13 +256,12 @@ function validateFileOutputs(
                                     )
                             }
                         } else {
-                            fe.validation = { valid: true }
+                            fe.validation = { pathValid: true }
                         }
                     } catch (e) {
                         trace.error(errorMessage(e))
                         fe.validation = {
-                            valid: false,
-                            error: errorMessage(e),
+                            schemaError: errorMessage(e),
                         }
                     } finally {
                         trace.endDetails()
@@ -290,16 +290,16 @@ export async function writeFileEdits(
         // Destructure the filename, before content, after content, and validation from the entry
         const [fn, { before, after, validation }] = fileEdit
 
-        if (!applyEdits && !validation?.valid) {
+        if (!applyEdits && !validation?.pathValid) {
             // path not validated
             continue
         }
 
         // Skip writing if the edit is invalid and applyEdits is false
-        if (validation?.error) {
+        if (validation?.schemaError) {
             trace.detailsFenced(
                 `skipping ${fn}, invalid schema`,
-                validation.error,
+                validation.schemaError,
                 "text"
             )
             continue

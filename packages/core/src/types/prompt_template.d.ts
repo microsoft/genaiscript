@@ -933,9 +933,18 @@ interface JSONSchemaArray {
 type JSONSchema = JSONSchemaObject | JSONSchemaArray
 
 interface FileEditValidation {
+    /**
+     * JSON schema
+     */
     schema?: JSONSchema
-    valid: boolean
-    error?: string
+    /**
+     * Error while validating the JSON schema
+     */
+    schemaError?: string
+    /**
+     * The path was validated with a file output (defFileOutput)
+     */
+    pathValid?: boolean
 }
 
 interface DataFrame {

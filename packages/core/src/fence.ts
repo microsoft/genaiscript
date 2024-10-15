@@ -1,7 +1,7 @@
 // Import necessary constants and functions from other modules
 import { EMOJI_FAIL, EMOJI_SUCCESS, EMOJI_UNDEFINED } from "./constants"
 import { JSON5TryParse } from "./json5"
-import { arrayify } from "./util"
+import { arrayify, toStringList } from "./util"
 import { YAMLTryParse } from "./yaml"
 
 // Regular expression for detecting the start of a code fence
@@ -220,7 +220,7 @@ export function renderFencedVariables(vars: Fenced[]) {
                 language,
             }) => `-   ${k ? `\`${k}\`` : ""} ${
                 validation !== undefined
-                    ? `schema ${args.schema}: ${validation.valid === undefined ? EMOJI_UNDEFINED : validation.valid ? EMOJI_SUCCESS : EMOJI_FAIL}`
+                    ? `${validation.schema ? validation.schema : ""} ${!validation.schemaError ? EMOJI_UNDEFINED : validation.pathValid === false ? EMOJI_FAIL : EMOJI_SUCCESS}`
                     : "no label"
             }\n
 \`\`\`\`\`${
@@ -232,10 +232,10 @@ export function renderFencedVariables(vars: Fenced[]) {
 ${v}
 \`\`\`\`\`
 ${
-    validation?.error
+    validation?.schemaError
         ? `> [!CAUTION] 
 > Schema ${args.schema} validation errors
-${validation.error.split("\n").join("\n> ")}`
+${validation.schemaError.split("\n").join("\n> ")}`
         : ""
 }
 `
