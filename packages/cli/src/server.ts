@@ -322,9 +322,8 @@ export async function startServer(options: { port: string; apiKey?: string }) {
                             .catch((e) => {
                                 if (canceller.controller.signal.aborted) return
                                 if (!isCancelError(e)) trace.error(e)
-                                logVerbose(
-                                    `\nrun ${runId}: failed with ${errorMessage(e)}`
-                                )
+                                logError(`\nrun ${runId}: failed`)
+                                logError(e)
                                 ws?.send(
                                     JSON.stringify(<
                                         PromptScriptEndResponseEvent

@@ -583,7 +583,7 @@ async function aggregateResults(
             stats.usage.total_tokens,
             stats.usage.prompt_tokens,
             stats.usage.completion_tokens,
-            host.path.basename(outTrace),
+            outTrace ? host.path.basename(outTrace) : "",
             result.version,
         ]
             .map((s) => String(s))
