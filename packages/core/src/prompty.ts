@@ -96,7 +96,7 @@ function promptyFrontmatterToMeta(frontmatter: PromptyFrontmatter): PromptArgs {
             throw new Error("azure_deployment required")
         modelName = `azure:${configuration.azure_deployment}`
     } else if (configuration?.type === "azure_serverless") {
-        throw new Error("azure_serverless not supported")
+        modelName = `azure_serverless:${configuration.azure_endpoint}`
     } else if (configuration?.type === "openai")
         modelName = `openai:${configuration.type}`
 

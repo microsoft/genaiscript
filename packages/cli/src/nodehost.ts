@@ -172,7 +172,7 @@ export class NodeHost implements RuntimeHost {
             askToken &&
             tok &&
             !tok.token &&
-            tok.provider === MODEL_PROVIDER_AZURE
+            tok.provider === MODEL_PROVIDER_AZURE // MODEL_PROVIDER_AZURE_SERVERLESS does not support Entra yet
         ) {
             if (isAzureTokenExpired(this._azureToken)) {
                 logVerbose(

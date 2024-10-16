@@ -11,6 +11,7 @@ import {
     MODEL_PROVIDER_CLIENT,
     MODEL_PROVIDER_GITHUB,
     TOOL_NAME,
+    MODEL_PROVIDER_AZURE_SERVERLESS,
 } from "../../core/src/constants"
 import { APIType } from "../../core/src/host"
 import { parseModelIdentifier } from "../../core/src/models"
@@ -31,6 +32,7 @@ async function generateLanguageModelConfiguration(
         provider === MODEL_PROVIDER_LLAMAFILE ||
         provider === MODEL_PROVIDER_AICI ||
         provider === MODEL_PROVIDER_AZURE ||
+        provider === MODEL_PROVIDER_AZURE_SERVERLESS ||
         provider === MODEL_PROVIDER_LITELLM
     ) {
         return { provider }
@@ -66,6 +68,12 @@ async function generateLanguageModelConfiguration(
             detail: `Use a Azure-hosted OpenAI subscription.`,
             provider: MODEL_PROVIDER_AZURE,
             apiType: "azure",
+        },
+        {
+            label: "Azure AI Models (serverless deployment)",
+            detail: `Use a Azure serverless model deployment.`,
+            provider: MODEL_PROVIDER_AZURE_SERVERLESS,
+            apiType: "azure_serverless",
         },
         {
             label: "GitHub Models",

@@ -29,7 +29,10 @@ export function getConfigHeaders(cfg: LanguageModelConfiguration) {
         // openai
         authorization: /^Bearer /.test(cfg.token)
             ? cfg.token
-            : cfg.token && (cfg.type === "openai" || cfg.type === "localai")
+            : cfg.token &&
+                (cfg.type === "openai" ||
+                    cfg.type === "localai" ||
+                    cfg.type === "azure_serverless")
               ? `Bearer ${cfg.token}`
               : undefined,
         // azure
@@ -126,6 +129,14 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
             "/" +
             model.replace(/\./g, "") +
             `/chat/completions?api-version=${AZURE_OPENAI_API_VERSION}`
+    } else if (cfg.type === "azure_serverless") {
+        url =
+            trimTrailingSlash(cfg.base).replace(
+                /^https?:\/\/(?<deployment>[^\.]+)\.(?<region>[^\.]+)\.models\.ai\.azure\.com/i,
+                (m, deployment, region) =>
+                    `https://${r2.model}.${region}.models.ai.azure.com`
+            ) + `/chat/completions`
+        delete r2.model
     } else throw new Error(`api type ${cfg.type} not supported`)
 
     trace.itemValue(`url`, `[${url}](${url})`)

@@ -14,8 +14,8 @@ import {
     LITELLM_API_BASE,
     LLAMAFILE_API_BASE,
     LOCALAI_API_BASE,
-    MODEL_PROVIDER_AICI,
     MODEL_PROVIDER_AZURE,
+    MODEL_PROVIDER_AZURE_SERVERLESS,
     MODEL_PROVIDER_CLIENT,
     MODEL_PROVIDER_GITHUB,
     MODEL_PROVIDER_LITELLM,
@@ -57,16 +57,24 @@ export async function parseTokenFromEnv(
             const token = env.OPENAI_API_KEY ?? ""
             let base = env.OPENAI_API_BASE
             let type =
-                (env.OPENAI_API_TYPE as "azure" | "openai" | "localai") ||
-                "openai"
+                (env.OPENAI_API_TYPE as
+                    | "azure"
+                    | "openai"
+                    | "localai"
+                    | "azure_serverless") || "openai"
             const version = env.OPENAI_API_VERSION
-            if (type !== "azure" && type !== "openai" && type !== "localai")
+            if (
+                type !== "azure" &&
+                type !== "openai" &&
+                type !== "localai" &&
+                type !== "azure_serverless"
+            )
                 throw new Error(
-                    "OPENAI_API_TYPE must be 'azure' or 'openai' or 'localai'"
+                    "OPENAI_API_TYPE must be 'azure', 'azure_serverless' or 'openai' or 'localai'"
                 )
             if (type === "openai" && !base) base = OPENAI_API_BASE
             if (type === "localai" && !base) base = LOCALAI_API_BASE
-            if (type === "azure" && !base)
+            if ((type === "azure" || type === "azure_serverless") && !base)
                 throw new Error(
                     "OPENAI_API_BASE must be set when type is 'azure'"
                 )
@@ -164,6 +172,39 @@ export async function parseTokenFromEnv(
             source: token
                 ? "env: AZURE_OPENAI_API_..."
                 : "env: AZURE_OPENAI_API_... + Entra ID",
+            version,
+            curlHeaders: tokenVar
+                ? {
+                      "api-key": `$${tokenVar}`,
+                  }
+                : undefined,
+        }
+    }
+
+    if (provider === MODEL_PROVIDER_AZURE_SERVERLESS) {
+        const tokenVar = "AZURE_INFERENCE_CREDENTIAL"
+        const token = env[tokenVar]
+        const base = trimTrailingSlash(env.AZURE_INFERENCE_ENDPOINT)
+        if (!token && !base) return undefined
+        if (token === PLACEHOLDER_API_KEY)
+            throw new Error("AZURE_INFERENCE_CREDENTIAL not configured")
+        if (!base) throw new Error("AZURE_INFERENCE_ENDPOINT missing")
+        if (base === PLACEHOLDER_API_BASE)
+            throw new Error("AZURE_INFERENCE_ENDPOINT not configured")
+        if (!URL.canParse(base))
+            throw new Error("AZURE_INFERENCE_ENDPOINT must be a valid URL")
+        const version = env.AZURE_INFERENCE_API_VERSION
+        if (version && version !== AZURE_OPENAI_API_VERSION)
+            throw new Error(
+                `AZURE_INFERENCE_ENDPOINT must be '${AZURE_OPENAI_API_VERSION}'`
+            )
+        return {
+            provider,
+            model,
+            base,
+            token,
+            type: "azure_serverless",
+            source: "env: AZURE_INFERENCE_...",
             version,
             curlHeaders: tokenVar
                 ? {
