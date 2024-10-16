@@ -193,10 +193,12 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
     let pref = ""
     let usage: ChatCompletionUsage
     let error: SerializedError
+    let responseModel: string
 
     const decoder = host.createUTF8Decoder()
     const doChunk = (value: Uint8Array) => {
         // Massage and parse the chunk of data
+        let tokens: string[] = []
         let chunk = decoder.decode(value, { stream: true })
 
         chunk = pref + chunk
@@ -209,6 +211,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
             try {
                 const obj: ChatCompletionChunk = JSON.parse(json)
                 if (obj.usage) usage = obj.usage
+                if (!responseModel && obj.model) responseModel = obj.model
                 if (!obj.choices?.length) return ""
                 else if (obj.choices?.length != 1)
                     throw new Error("too many choices in response")
@@ -218,6 +221,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
                 if (typeof delta?.content == "string") {
                     numTokens += estimateTokens(delta.content, encoder)
                     chatResp += delta.content
+                    tokens.push(delta.content)
                     trace.appendToken(delta.content)
                 } else if (Array.isArray(delta.tool_calls)) {
                     const { tool_calls } = delta
@@ -246,6 +250,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
             }
             return ""
         })
+        // end replace
         const progress = chatResp.slice(ch0.length)
         if (progress != "") {
             // logVerbose(`... ${progress.length} chars`);
@@ -253,6 +258,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
                 responseSoFar: chatResp,
                 tokensSoFar: numTokens,
                 responseChunk: progress,
+                responseTokens: tokens,
                 inner,
             })
         }
@@ -280,6 +286,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
     }
 
     trace.appendContent("\n\n")
+    if (responseModel) trace.itemValue(`model`, responseModel)
     trace.itemValue(`🏁 finish reason`, finishReason)
     if (usage) {
         trace.itemValue(
@@ -290,7 +297,14 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
 
     if (done && finishReason === "stop")
         await cacheStore.set(cachedKey, { text: chatResp, finishReason })
-    return { text: chatResp, toolCalls, finishReason, usage, error }
+    return {
+        text: chatResp,
+        toolCalls,
+        finishReason,
+        usage,
+        error,
+        model: responseModel,
+    }
 }
 
 async function listModels(

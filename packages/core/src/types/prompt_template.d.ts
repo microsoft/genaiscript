@@ -974,6 +974,7 @@ interface RunPromptResult {
     fileEdits?: Record<string, FileUpdate>
     edits?: Edits[]
     changelogs?: ChangeLog[]
+    model?: string
 }
 
 /**
