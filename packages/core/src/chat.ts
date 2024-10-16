@@ -473,6 +473,7 @@ async function structurifyChatSession(
         error,
         genVars,
         schemas,
+        model: resp?.model,
     }
     await computeFileEdits(res, {
         trace,
@@ -673,7 +674,6 @@ export async function executeChatSession(
                     temperature: temperature,
                     top_p: topP,
                     max_tokens: maxTokens,
-                    max_completion_tokens: maxTokens,
                     seed,
                     stream: true,
                     messages,
@@ -694,7 +694,10 @@ export async function executeChatSession(
                                 }
                               : undefined,
                 }
-                if (model === "gpt-4-32k") delete req.max_completion_tokens
+                if (/^o1/i.test(model)) {
+                    req.max_completion_tokens = maxTokens
+                    delete req.max_tokens
+                }
                 try {
                     trace.startDetails(`📤 llm request`)
                     resp = await completer(

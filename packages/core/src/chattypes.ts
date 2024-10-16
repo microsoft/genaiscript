@@ -105,6 +105,7 @@ export interface ChatCompletionResponse {
     finishReason?: // Reason why the chat completion finished
     "stop" | "length" | "tool_calls" | "content_filter" | "cancel" | "fail"
     usage?: ChatCompletionUsage // Usage information for the completion
+    model?: string // Model used for the completion
 }
 
 // Alias for OpenAI's API error type
@@ -117,6 +118,7 @@ export interface ChatCompletionsProgressReport {
     tokensSoFar: number // Number of tokens processed so far
     responseSoFar: string // Partial response generated so far
     responseChunk: string // Current chunk of response being processed
+    responseTokens?: string[] // Tokens in the current response chunk
     inner: boolean // Indicates if this is an inner report
 }
 

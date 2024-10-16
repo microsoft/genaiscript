@@ -46,7 +46,7 @@
     "fetch-retry": "^6.0.0",
     "fflate": "^0.8.2",
     "file-type": "19.1.1",
-    "gpt-tokenizer": "^2.4.1",
+    "gpt-tokenizer": "^2.5.0",
     "html-escaper": "^3.0.3",
     "html-to-text": "^9.0.5",
     "ignore": "^6.0.2",
@@ -55,9 +55,9 @@
     "jimp": "^1.6.0",
     "json5": "^2.2.3",
     "jsonrepair": "^3.8.1",
-    "magic-string": "^0.30.11",
+    "magic-string": "^0.30.12",
     "mammoth": "^1.8.0",
-    "mathjs": "^13.1.1",
+    "mathjs": "^13.2.0",
     "mime-types": "^2.1.35",
     "minimatch": "^10.0.1",
     "minisearch": "^7.1.0",
@@ -79,7 +79,7 @@
     "typescript": "5.6.3",
     "vectra": "^0.9.0",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz",
-    "yaml": "^2.5.1"
+    "yaml": "^2.6.0"
   },
   "scripts": {
     "typecheck": "tsc -p src",

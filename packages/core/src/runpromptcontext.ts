@@ -64,8 +64,8 @@ import { Project } from "./ast"
 import { dedent } from "./indent"
 import { runtimeHost } from "./host"
 import { writeFileEdits } from "./fileedits"
-import { agentAddMemory, agentQueryMemory, defMemory } from "./agent"
-import { shellQuote } from "./shell"
+import { agentAddMemory, agentQueryMemory } from "./agent"
+import { YAMLStringify } from "./yaml"
 
 export function createChatTurnGenerationContext(
     options: GenerationOptions,
@@ -370,7 +370,7 @@ export function createChatGenerationContext(
                     memoryAnswer = await agentQueryMemory(
                         ctx,
                         query + hasExtraArgs
-                            ? `\n${YAML.stringify(argsNoQuery)}`
+                            ? `\n${YAMLStringify(argsNoQuery)}`
                             : ""
                     )
 

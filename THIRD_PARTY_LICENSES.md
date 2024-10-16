@@ -1278,7 +1278,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.61.2
+ - genaiscript-vscode@1.64.3
 
 This package contains the following license and notice below:
 
@@ -2413,7 +2413,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 The following npm package may be included in this product:
 
- - form-data@4.0.0
+ - form-data@4.0.1
 
 This package contains the following license and notice below:
 
@@ -2501,9 +2501,9 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - parse5-htmlparser2-tree-adapter@7.0.0
+ - parse5-htmlparser2-tree-adapter@7.1.0
  - parse5-parser-stream@7.1.2
- - parse5@7.1.2
+ - parse5@7.2.0
 
 These packages each contain the following license and notice below:
 
@@ -3080,7 +3080,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 The following npm package may be included in this product:
 
- - tslib@2.7.0
+ - tslib@2.8.0
 
 This package contains the following license and notice below:
 
@@ -4400,9 +4400,9 @@ The following npm packages may be included in this product:
  - @tokenizer/token@0.3.0
  - agent-base@6.0.2
  - canvas@2.11.2
- - genaiscript-core-internal@1.61.2
- - genaiscript-sample@1.61.2
- - genaiscript@1.61.2
+ - genaiscript-core-internal@1.64.3
+ - genaiscript-sample@1.64.3
+ - genaiscript@1.64.3
  - https-proxy-agent@5.0.1
  - isarray@1.0.0
  - javascript-natural-sort@0.7.1
@@ -5083,7 +5083,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - gpt-tokenizer@2.4.1
+ - gpt-tokenizer@2.5.0
 
 This package contains the following license and notice below:
 
@@ -5174,13 +5174,13 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - complex.js@2.2.4
+ - complex.js@2.3.0
 
 This package contains the following license and notice below:
 
 MIT License
 
-Copyright (c) 2025 Robert Eisele
+Copyright (c) 2024 Robert Eisele
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -5302,7 +5302,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 The following npm packages may be included in this product:
 
  - undici-types@6.19.8
- - undici@6.19.8
+ - undici@6.20.1
 
 These packages each contain the following license and notice below:
 
@@ -5373,7 +5373,7 @@ The following npm packages may be included in this product:
  - file-type@16.5.4
  - get-stream@5.2.0
  - get-stream@9.0.1
- - got@14.4.2
+ - got@14.4.3
  - is-docker@2.2.1
  - is-plain-obj@4.1.0
  - is-stream@3.0.0
@@ -5823,8 +5823,8 @@ IN THE SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - playwright-core@1.48.0
- - playwright@1.48.0
+ - playwright-core@1.48.1
+ - playwright@1.48.1
 
 These packages each contain the following license and notice below:
 
@@ -7213,7 +7213,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - nan@2.20.0
+ - nan@2.22.0
 
 This package contains the following license and notice below:
 

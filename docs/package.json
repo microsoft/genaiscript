@@ -22,7 +22,7 @@
   "devDependencies": {
     "@astrojs/check": "^0.9.4",
     "@astrojs/starlight": "^0.28.3",
-    "astro": "^4.15.12",
+    "astro": "^4.16.5",
     "typescript": "5.6.3",
     "rehype-mermaid": "^3.0.0",
     "starlight-blog": "^0.13.0",
