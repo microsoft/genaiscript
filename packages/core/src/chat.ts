@@ -505,7 +505,7 @@ async function processChatMessage(
         cancellationToken,
     } = options
 
-    stats.addUsage(req, resp.usage)
+    stats.addUsage(req, resp)
 
     if (resp.text)
         messages.push({
