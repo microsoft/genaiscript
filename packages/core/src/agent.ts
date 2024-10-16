@@ -78,7 +78,7 @@ export async function traceAgentMemory(trace: MarkdownTrace) {
                 .reverse()
                 .forEach(({ agent, query, answer }) =>
                     trace.detailsFenced(
-                        `👤 ${agent}: \`${query}\``,
+                        `👤 ${agent}: ${query}`,
                         answer,
                         "markdown"
                     )
