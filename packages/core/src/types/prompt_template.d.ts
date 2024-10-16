@@ -120,6 +120,7 @@ interface ModelConnectionOptions {
         | "openai:gpt-3.5-turbo"
         | "azure:gpt-4o"
         | "azure:gpt-4o-mini"
+        | "azure:llama3-1-405"
         | "ollama:phi3"
         | "ollama:llama3"
         | "ollama:mixtral"

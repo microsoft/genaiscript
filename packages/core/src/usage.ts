@@ -5,6 +5,7 @@
 
 import {
     ChatCompletionMessageParam,
+    ChatCompletionResponse,
     ChatCompletionUsage,
     CreateChatCompletionRequest,
 } from "./chattypes"
@@ -62,8 +63,7 @@ export function estimateCost(modelId: string, usage: ChatCompletionUsage) {
  * @returns A string representation of the cost.
  */
 export function renderCost(value: number) {
-    if (isNaN(value)) return ""
-    if (value === 0) return `0$ (cached)`
+    if (!value) return ""
     return value <= 0.01
         ? `${(value * 100).toFixed(3)}¢`
         : value <= 0.1
@@ -86,6 +86,7 @@ export class GenerationStats {
     private chatTurns: {
         messages: ChatCompletionMessageParam[]
         usage: ChatCompletionUsage
+        model: string
     }[] = []
 
     /**
@@ -112,6 +113,10 @@ export class GenerationStats {
         }
     }
 
+    get resolvedModel() {
+        return this.chatTurns?.[0]?.model ?? this.model
+    }
+
     /**
      * Calculates the total cost based on the usage statistics.
      *
@@ -119,7 +124,11 @@ export class GenerationStats {
      */
     cost(): number {
         return [
-            estimateCost(this.model, this.usage),
+            ...this.chatTurns.map(
+                ({ usage, model }) =>
+                    estimateCost(model, usage) ??
+                    estimateCost(this.model, usage)
+            ),
             ...this.children.map((c) => c.cost()),
         ].reduce((a, b) => (a ?? 0) + (b ?? 0), 0)
     }
@@ -227,7 +236,7 @@ export class GenerationStats {
         if (this.model || c) {
             const au = this.accumulatedUsage()
             logVerbose(
-                `${indent}${this.label ? `${this.label} (${this.model})` : this.model}> ${au.total_tokens} tokens (${au.prompt_tokens} -> ${au.completion_tokens}) ${renderCost(c)}`
+                `${indent}${this.label ? `${this.label} (${this.resolvedModel})` : this.resolvedModel}> ${au.total_tokens} tokens (${au.prompt_tokens} -> ${au.completion_tokens}) ${renderCost(c)}`
             )
         }
         if (this.chatTurns.length > 1)
@@ -245,11 +254,9 @@ export class GenerationStats {
      * @param req - The request containing details about the chat completion.
      * @param usage - The usage statistics to be added.
      */
-    addUsage(req: CreateChatCompletionRequest, usage: ChatCompletionUsage) {
-        if (!usage) return
-        const { model, messages } = req
-        if (this.model && model !== this.model)
-            logWarn(`model mismatch: got ${model}, expected ${this.model}`)
+    addUsage(req: CreateChatCompletionRequest, resp: ChatCompletionResponse) {
+        const { usage, model } = resp
+        const { messages } = req
 
         this.usage.completion_tokens += usage.completion_tokens ?? 0
         this.usage.prompt_tokens += usage.prompt_tokens ?? 0
@@ -264,9 +271,11 @@ export class GenerationStats {
         this.usage.completion_tokens_details.reasoning_tokens +=
             usage.prompt_tokens_details?.cached_tokens ?? 0
 
+        const { provider } = parseModelIdentifier(this.model)
         const chatTurn = {
             messages: structuredClone(messages),
             usage: structuredClone(usage),
+            model: `${provider}:${model}`,
         }
         this.chatTurns.push(chatTurn)
     }

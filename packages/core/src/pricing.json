@@ -166,5 +166,13 @@
     "azure:gpt-4-32k": {
         "price_per_million_input_tokens": 60,
         "price_per_million_output_tokens": 120
+    },
+    "openai:Meta-Llama-3-405B-Instruct": {
+        "price_per_million_input_tokens": 5.33,
+        "price_per_million_output_tokens": 16
+    },
+    "azure:Meta-Llama-3-405B-Instruct": {
+        "price_per_million_input_tokens": 5.33,
+        "price_per_million_output_tokens": 16
     }
 }
