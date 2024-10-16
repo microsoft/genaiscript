@@ -107,7 +107,7 @@ export class TerminalServerManager implements ServerManager {
     private closeTerminal() {
         const t = this._terminal
         this._terminal = undefined
-        t?.dispose()
+        if (!this.state.diagnostics) t?.dispose()
     }
 
     dispose(): any {
