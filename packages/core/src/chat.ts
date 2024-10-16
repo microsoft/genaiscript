@@ -694,6 +694,7 @@ export async function executeChatSession(
                                 }
                               : undefined,
                 }
+                if (model === "gpt-4-32k") delete req.max_completion_tokens
                 try {
                     trace.startDetails(`📤 llm request`)
                     resp = await completer(

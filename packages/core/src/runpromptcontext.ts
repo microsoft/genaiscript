@@ -19,7 +19,10 @@ import {
 } from "./promptdom"
 import { MarkdownTrace } from "./trace"
 import { GenerationOptions } from "./generation"
-import { promptParametersSchemaToJSONSchema } from "./parameters"
+import {
+    parametersToVars,
+    promptParametersSchemaToJSONSchema,
+} from "./parameters"
 import { consoleLogFormat } from "./logging"
 import { isGlobMatch } from "./glob"
 import { arrayify, logError, logVerbose } from "./util"
@@ -62,6 +65,7 @@ import { dedent } from "./indent"
 import { runtimeHost } from "./host"
 import { writeFileEdits } from "./fileedits"
 import { agentAddMemory, agentQueryMemory, defMemory } from "./agent"
+import { shellQuote } from "./shell"
 
 export function createChatTurnGenerationContext(
     options: GenerationOptions,
@@ -353,12 +357,22 @@ export function createChatGenerationContext(
                 required: ["query"],
             },
             async (args) => {
-                const { context, query } = args
-                infoCb?.({ text: `${agentLabel}: ${query}` })
+                // the LLM automatically adds extract arguments to the context
+                const { context, ...rest } = args
+                const { query, ...argsNoQuery } = rest
+                infoCb?.({
+                    text: `${agentLabel}: ${query} ${parametersToVars(argsNoQuery)}`,
+                })
 
+                const hasExtraArgs = Object.keys(argsNoQuery).length > 0
                 let memoryAnswer: string
                 if (memory && query && !disableMemoryQuery)
-                    memoryAnswer = await agentQueryMemory(ctx, query)
+                    memoryAnswer = await agentQueryMemory(
+                        ctx,
+                        query + hasExtraArgs
+                            ? `\n${YAML.stringify(argsNoQuery)}`
+                            : ""
+                    )
 
                 const res = await ctx.runPrompt(
                     async (_) => {
@@ -374,6 +388,11 @@ export function createChatGenerationContext(
                         if (memoryAnswer)
                             _.$`- The QUERY applied to the agent memory is in MEMORY.`
                         _.def("QUERY", query)
+                        if (Object.keys(argsNoQuery).length)
+                            _.defData("QUERY_CONTEXT", argsNoQuery, {
+                                format: "yaml",
+                            })
+
                         if (memoryAnswer) _.def("MEMORY", memoryAnswer)
                         if (memory)
                             _.defOutputProcessor(async ({ text }) => {

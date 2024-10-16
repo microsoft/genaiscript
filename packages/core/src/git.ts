@@ -22,6 +22,7 @@ import { resolveTokenEncoder } from "./encoders"
 export class GitClient implements Git {
     readonly git = "git" // Git command identifier
     private _defaultBranch: string // Stores the default branch name
+    private _branch: string // Stores the current branch name
     private async resolveExcludedPaths(options?: {
         excludedPaths?: ElementOrArray<string>
     }): Promise<string[]> {
@@ -55,8 +56,11 @@ export class GitClient implements Git {
      * @returns
      */
     async branch(): Promise<string> {
-        const res = await this.exec(["branch", "--show-current"])
-        return res.trim()
+        if (!this._branch) {
+            const res = await this.exec(["branch", "--show-current"])
+            this._branch = res.trim()
+        }
+        return this._branch
     }
 
     async listBranches(): Promise<string[]> {

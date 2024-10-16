@@ -25,6 +25,7 @@ $`- Make sure to use precisely \`\`\` to guard file code sections.
 - Always sure to use precisely \`\`\`\`\` to guard file markdown sections.
 - Use full path of filename in code section header.
 - do NOT use ## headers with filename
+- do NOT emit "preferred_output_format=FILE" when responding to an LLM.
 `
 if (folder !== ".")
     $`When generating new files, place files in folder "${folder}".`

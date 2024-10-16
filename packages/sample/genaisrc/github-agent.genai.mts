@@ -7,6 +7,7 @@ script({
         "agent_docs",
     ],
     parameters: {
+        jobUrl: { type: "string" }, // URL of the job
         workflow: { type: "string" }, // Workflow name
         failure_run_id: { type: "number" }, // ID of the failed run
         branch: { type: "string" }, // Branch name
@@ -17,9 +18,13 @@ const {
     workflow = "build.yml",
     failure_run_id,
     branch = await git.branch(),
+    jobUrl,
 } = env.vars
 
-if (failure_run_id) {
+if (jobUrl) {
+    $`1. Extract the run id and job id from the  ${jobUrl}`
+    $`2. Find the last successful run before the failed run for the same workflow and branch`
+} else if (failure_run_id) {
     $`1. Find the failed run ${failure_run_id} of ${workflow} for branch ${branch}
     2. Find the last successful run before the failed run for the same workflow and branch`
 } else {
