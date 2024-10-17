@@ -40,7 +40,11 @@ script({
 })
 ```
 
+### Large and small models
+
 You can also use the `small` and `large` aliases to use the default configured small and large models.
+Large models are typically in the OpenAI gpt-4 reasoning range and can be used for more complex tasks.
+Small models are in the OpenAI gpt-4o-mini range, and are useful for quick and simple tasks.
 
 ```js 'model: "small"'
 script({ model: "small" })
@@ -51,6 +55,11 @@ script({ model: "large" })
 ```
 
 The model can also be overriden from the [cli run command](/genaiscript/reference/cli/run#model)
+
+```sh
+genaiscript run ... --model largemodelid --small-model smallmodelid
+```
+
 or by adding the `GENAISCRIPT_DEFAULT_MODEL` and `GENAISCRIPT_DEFAULT_SMALL_MODEL` environment variables.
 
 ```txt title=".env"
@@ -357,9 +366,9 @@ The rest of the steps are the same: Find the deployment name and use it in your 
 
 </Steps>
 
-## Azure AI Models (Serverless APIs) <a id="azure_serverless" href=""></a>
+## Azure AI Models (Serverless Deployments) <a id="azure_serverless" href=""></a>
 
-Certain models in the model catalog can be deployed as [a serverless API](https://learn.microsoft.com/en-us/azure/ai-studio/how-to/deploy-models-serverless-availability) with pay-as-you-go billing.
+The `azure_serverless` supports models in the Azure AI model catalog can be deployed as [a serverless API](https://learn.microsoft.com/en-us/azure/ai-studio/how-to/deploy-models-serverless-availability) with pay-as-you-go billing.
 This kind of deployment provides a way to consume models
 as an API without hosting them on your subscription,
 while keeping the enterprise security and compliance that organizations need.
@@ -405,6 +414,17 @@ Find the deployment name and use it in your script, `model: "azure_serverless:de
 </ol>
 
 </Steps>
+
+:::tip[Default Model Configuration]
+
+Use `GENAISCRIPT_DEFAULT_MODEL` and `GENAISCRIPT_DEFAULT_SMALL_MODEL` in your `.env` file to set the default model and small model.
+
+```txt
+GENAISCRIPT_DEFAULT_MODEL=azure_serverless:<deploymentid>
+GENAISCRIPT_DEFAULT_SMALL_MODEL=azure_serverless:<deploymentid>
+```
+
+:::
 
 Note: better support will come in future versions.
 
