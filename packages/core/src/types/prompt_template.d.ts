@@ -2014,7 +2014,7 @@ type ChatFunctionHandler = (args: ChatFunctionArgs) => Awaitable<ToolCallOutput>
 
 interface WriteTextOptions extends ContextExpansionOptions {
     /**
-     * Append text to the assistant response
+     * Append text to the assistant response. This feature is not supported by all models.
      */
     assistant?: boolean
 }

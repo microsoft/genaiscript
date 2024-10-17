@@ -59,6 +59,12 @@ List 5 colors. Answer with a JSON array. Do not emit the enclosing markdown.
 
 <!-- genaiscript output end -->
 
+:::caution
+
+This feature is **not** supported by all models.
+
+:::
+
 ### How does it work?
 
 Internally when invoking the LLM, an additional message is added to the query as if the LLM had generated this content.
