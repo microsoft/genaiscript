@@ -170,5 +170,17 @@
     "azure_serverless:Meta-Llama-3-405B-Instruct": {
         "price_per_million_input_tokens": 5.33,
         "price_per_million_output_tokens": 16
+    },
+    "azure_serverless:Mistral-large": {
+        "price_per_million_input_tokens": 12,
+        "price_per_million_output_tokens": 4
+    },
+    "azure_serverless:Mistral-large-2407": {
+        "price_per_million_input_tokens": 9,
+        "price_per_million_output_tokens": 3
+    },
+    "azure_serverless:Mistral-small": {
+        "price_per_million_input_tokens": 3,
+        "price_per_million_output_tokens": 1
     }
 }
