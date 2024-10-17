@@ -426,7 +426,16 @@ GENAISCRIPT_DEFAULT_SMALL_MODEL=azure_serverless:<deploymentid>
 
 :::
 
-Note: better support will come in future versions.
+### Support for multiple inference deployements
+
+You can update the `AZURE_INFERENCE_CREDENTIAL` with a list of `deploymentid=key` pairs to support multiple deployments (each deployment has a different key).
+
+```txt title=".env"
+AZURE_INFERENCE_CREDENTIAL="
+model1=key1
+model2=key2model3=key3
+"
+```
 
 ## GitHub Copilot Chat Models <a id="github-copilot" href=""></a>
 

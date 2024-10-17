@@ -183,7 +183,7 @@ export async function parseTokenFromEnv(
 
     if (provider === MODEL_PROVIDER_AZURE_SERVERLESS) {
         const tokenVar = "AZURE_INFERENCE_CREDENTIAL"
-        const token = env[tokenVar]
+        const token = env[tokenVar]?.trim()
         const base = trimTrailingSlash(env.AZURE_INFERENCE_ENDPOINT)
         if (!token && !base) return undefined
         if (token === PLACEHOLDER_API_KEY)

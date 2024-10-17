@@ -23,22 +23,28 @@ import {
 } from "./chattypes"
 import { resolveTokenEncoder } from "./encoders"
 import { toSignal } from "./cancellation"
+import { INITryParse } from "./ini"
 
 export function getConfigHeaders(cfg: LanguageModelConfiguration) {
+    let { token, type } = cfg
+    if (type === "azure_serverless") {
+        const keys = INITryParse(token)
+        if (keys && Object.keys(keys).length > 1) token = keys[cfg.model]
+    }
     const res: Record<string, string> = {
         // openai
         authorization: /^Bearer /.test(cfg.token)
-            ? cfg.token
-            : cfg.token &&
-                (cfg.type === "openai" ||
-                    cfg.type === "localai" ||
-                    cfg.type === "azure_serverless")
-              ? `Bearer ${cfg.token}`
+            ? token
+            : token &&
+                (type === "openai" ||
+                    type === "localai" ||
+                    type === "azure_serverless")
+              ? `Bearer ${token}`
               : undefined,
         // azure
         "api-key":
-            cfg.token && !/^Bearer /.test(cfg.token) && cfg.type === "azure"
-                ? cfg.token
+            token && !/^Bearer /.test(token) && type === "azure"
+                ? token
                 : undefined,
         "user-agent": TOOL_ID,
     }
@@ -106,7 +112,9 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
     let postReq: any = r2
 
     // stream_options fails in some cases
-    if (model === "gpt-4-turbo-v") delete r2.stream_options
+    if (model === "gpt-4-turbo-v" || /mistral/i.test(model)) {
+        delete r2.stream_options
+    }
     if (
         req.messages.find(
             (msg) =>
