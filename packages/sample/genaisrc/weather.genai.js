@@ -1,5 +1,5 @@
 script({
-    model: "openai:gpt-3.5-turbo",
+    model: "small",
     title: "Weather as function",
     description:
         "Query the weather for each city using a dummy weather function",

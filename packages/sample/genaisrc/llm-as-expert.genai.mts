@@ -45,7 +45,7 @@ defTool(
     },
     async ({ prompt }) => {
         const res = await env.generator.runPrompt(prompt, {
-            model: "openai:gpt-3.5-turbo",
+            model: "small",
             label: "llm-gpt35",
         })
         return res.text

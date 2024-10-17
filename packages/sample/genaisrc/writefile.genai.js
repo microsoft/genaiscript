@@ -1,6 +1,6 @@
 script({
     tests: {},
-    model: "openai:gpt-3.5-turbo",
+    model: "small",
 })
 const fn = `temp/${Math.random() + ""}.txt`
 const content = JSON.stringify({ val: Math.random() + "" })

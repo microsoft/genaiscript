@@ -1,6 +1,6 @@
 script({
     title: "summarize pdf",
-    model: "openai:gpt-3.5-turbo",
+    model: "small",
     tests: {
         files: "src/rag/loremipsum.pdf",
         keywords: ["lorem", "ipsum"],

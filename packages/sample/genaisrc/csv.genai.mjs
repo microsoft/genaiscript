@@ -1,7 +1,7 @@
 script({
     files: "src/penguins.csv",
     tests: {},
-    model: "openai:gpt-3.5-turbo",
+    model: "small",
 })
 
 def("DATA", env.files, { sliceSample: 3 })
@@ -18,9 +18,9 @@ const srows = CSV.parse(
     `A|1
     B|2
     C|3`,
-    { delimiter: ",", headers: ["name", "value"] }
+    { delimiter: "|", headers: ["name", "value"] }
 )
-console.log(srows)
+console.log({ srows })
 if (
     JSON.stringify(srows) ===
     JSON.stringify([

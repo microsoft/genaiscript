@@ -1,4 +1,4 @@
-script({ model: "openai:gpt-3.5-turbo", tests: {} })
+script({ model: "small", tests: {} })
 const json = await workspace.readJSON("src/sample.json")
 if (json.foo !== "bar") throw new Error("Invalid JSON")
 const xml = await workspace.readXML("src/sample.xml")

@@ -51,6 +51,7 @@ function parseModelSpec(m: string): ModelOptions {
     if (Object.keys(values).length > 1)
         return {
             model: values["m"],
+            smallModel: values["s"],
             temperature: normalizeFloat(values["t"]),
             topP: normalizeFloat(values["p"]),
         }

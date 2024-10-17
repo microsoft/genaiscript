@@ -4,7 +4,7 @@ script({
     group: "samples",
     system: ["system", "system.files"],
     temperature: 0,
-    model: "openai:gpt-3.5-turbo",
+    model: "small",
     tests: {
         files: "src/fib.ts",
         asserts: [{

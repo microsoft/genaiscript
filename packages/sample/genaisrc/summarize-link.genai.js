@@ -1,6 +1,6 @@
 script({
     title: "summarize links",
-    model: "openai:gpt-3.5-turbo",
+    model: "small",
     description: "Given a URL, summarize the contents of the page",
     group: "hello world",
     system: ["system", "system.files"],

@@ -1,7 +1,7 @@
 script({
     title: "summarize-files-function",
     tools: ["fs"],
-    model: "openai:gpt-3.5-turbo",
+    model: "small",
     tests: {
         files: ["src/rag/*"],
         keywords: ["markdown", "lorem", "word"],
