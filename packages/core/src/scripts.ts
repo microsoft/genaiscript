@@ -25,7 +25,7 @@ export function createScript(
 
 export async function fixPromptDefinitions(project: Project) {
     const folders = project.folders()
-    const systems = project.templates.filter((t) => t.isSystem)
+    const systems = project.templates.filter((t) => t.isSystem && !t.unlisted)
     const tools = systems.map(({ defTools }) => defTools || []).flat()
 
     for (const folder of folders) {
