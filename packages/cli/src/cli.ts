@@ -185,7 +185,7 @@ export async function cli() {
         )
         .option(
             "--models <models...>",
-            "models to test where mode is the key value pair list of m (model), t (temperature), p (top-p)"
+            "models to test where mode is the key value pair list of m (model), s (small model), t (temperature), p (top-p)"
         )
         .option("-o, --out <folder>", "output folder")
         .option("-rmo, --remove-out", "remove output folder if it exists")

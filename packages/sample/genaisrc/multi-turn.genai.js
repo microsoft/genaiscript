@@ -1,5 +1,5 @@
 script({
-    model: "openai:gpt-3.5-turbo",
+    model: "small",
     title: "Multi-turn conversation",
     files: ["src/rag/markdown.md"],
     system: ["system", "system.files"],

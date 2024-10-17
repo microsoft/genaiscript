@@ -1,6 +1,6 @@
 script({
     title: "top-level-mjs",
-    model: "openai:gpt-3.5-turbo",
+    model: "small",
     files: ["src/rag/markdown.md"],
     tests: {
         files: ["src/rag/markdown.md"],

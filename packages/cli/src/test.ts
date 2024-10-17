@@ -47,10 +47,20 @@ import { delay } from "es-toolkit"
  * @returns A ModelOptions object with model, temperature, and topP fields if applicable.
  */
 function parseModelSpec(m: string): ModelOptions {
-    const values = parseKeyValuePairs(m)
+    const values = m
+        .split(/&/g)
+        .map((kv) => kv.split("=", 2))
+        .reduce(
+            (acc, [key, value]) => {
+                acc[key] = decodeURIComponent(value)
+                return acc
+            },
+            {} as Record<string, string>
+        )
     if (Object.keys(values).length > 1)
         return {
             model: values["m"],
+            smallModel: values["s"],
             temperature: normalizeFloat(values["t"]),
             topP: normalizeFloat(values["p"]),
         }

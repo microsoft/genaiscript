@@ -1,6 +1,6 @@
 script({
     title: "Describe objects in each image",
-    model: "openai:gpt-3.5-turbo",
+    model: "small",
     group: "vision",
     maxTokens: 4000,
     system: [],

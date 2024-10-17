@@ -1,6 +1,6 @@
 script({
     title: "summarize with nested arguments",
-    model: "openai:gpt-3.5-turbo",
+    model: "small",
     files: ["src/rag/markdown.md", "src/penguins.csv"],
     tests: [
         {

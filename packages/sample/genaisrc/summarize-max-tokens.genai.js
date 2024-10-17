@@ -1,6 +1,6 @@
 script({
     title: "summarize with max tokens",
-    model: "openai:gpt-3.5-turbo",
+    model: "small",
     files: ["src/rag/*"],
     tests: {
         files: ["src/rag/*"],

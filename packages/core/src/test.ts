@@ -59,17 +59,19 @@ export function generatePromptFooConfiguration(
         prompts: [id],
         // Map model options to providers
         providers: models
-            .map(({ model, temperature, topP }) => ({
+            .map(({ model, smallModel, temperature, topP }) => ({
                 model: model ?? host.defaultModelOptions.model,
+                smallModel: smallModel ?? host.defaultModelOptions.smallModel,
                 temperature: !isNaN(temperature)
                     ? temperature
                     : host.defaultModelOptions.temperature,
                 top_p: topP,
             }))
-            .map(({ model, temperature, top_p }) => ({
+            .map(({ model, smallModel, temperature, top_p }) => ({
                 id: provider,
                 label: [
                     model,
+                    smallModel,
                     `t=${temperature}`,
                     top_p !== undefined ? `p=${top_p}` : undefined,
                 ]
@@ -77,6 +79,7 @@ export function generatePromptFooConfiguration(
                     .join(":"),
                 config: {
                     model,
+                    smallModel,
                     temperature,
                     top_p,
                     cli,

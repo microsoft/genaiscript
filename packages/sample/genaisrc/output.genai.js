@@ -1,5 +1,5 @@
 script({
-    model: "openai:gpt-3.5-turbo",
+    model: "small",
     title: "custom output",
     files: "src/rag/markdown.md", tests: { files: "src/rag/markdown.md" },
     system: [],

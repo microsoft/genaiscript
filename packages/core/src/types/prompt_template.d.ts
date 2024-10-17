@@ -131,7 +131,9 @@ interface ModelConnectionOptions {
      * @default gpt-4
      * @example gpt-4
      */
-    smallModel?: OptionsOrString<"openai:gpt-4o-mini" | "openai:gpt-3.5-turbo">
+    smallModel?: OptionsOrString<
+        "openai:gpt-4o-mini" | "openai:gpt-3.5-turbo" | "azure:gpt-4o-mini"
+    >
 }
 
 interface ModelOptions extends ModelConnectionOptions {

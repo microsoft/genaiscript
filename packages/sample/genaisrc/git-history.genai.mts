@@ -1,5 +1,5 @@
 script({ 
-    model: "openai:gpt-3.5-turbo",
+    model: "small",
     title: "git-history", tests: {} })
 
 const author = env.vars.author as string || "pelikhan"

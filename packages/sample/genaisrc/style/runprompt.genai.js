@@ -15,7 +15,7 @@ const resPoem = await runPrompt(
         _.$`write haiku poem`
     },
     {
-        model: "openai:gpt-3.5-turbo",
+        model: "small",
         label: "generate poem",
         system: ["system"],
     }
@@ -27,7 +27,7 @@ const resJSON = await runPrompt(
         _.$`generate 3 random numbers between 1 and 10 and respond in JSON`
     },
     {
-        model: "openai:gpt-3.5-turbo",
+        model: "small",
         label: "generate json",
         responseType: "json_object",
     }

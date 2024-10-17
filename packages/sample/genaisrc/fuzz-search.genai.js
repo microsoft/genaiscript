@@ -1,6 +1,6 @@
 script({
     title: "fuzz search",
-    model: "openai:gpt-3.5-turbo",
+    model: "small",
     tests: {},
 })
 const kw = (env.vars.keyword || "defdata") + ""

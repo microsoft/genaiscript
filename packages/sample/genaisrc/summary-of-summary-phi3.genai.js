@@ -1,5 +1,5 @@
 script({
-    model: "openai:gpt-3.5-turbo",
+    model: "small",
     title: "summary of summary - phi3",
     files: ["src/rag/*.md"],
     tests: {
