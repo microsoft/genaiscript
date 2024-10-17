@@ -50,7 +50,13 @@ script({ model: "small" })
 script({ model: "large" })
 ```
 
-The model can also be overriden from the [cli run command](/genaiscript/reference/cli/run#model).
+The model can also be overriden from the [cli run command](/genaiscript/reference/cli/run#model)
+or by adding the `GENAISCRIPT_DEFAULT_MODEL` and `GENAISCRIPT_DEFAULT_SMALL_MODEL` environment variables.
+
+```txt title=".env"
+GENAISCRIPT_DEFAULT_MODEL="azure_serverless:..."
+GENAISCRIPT_DEFAULT_SMALL_MODEL="azure_serverless:..."
+```
 
 ## `.env` file
 
