@@ -279,4 +279,151 @@ ChangedCode@48-50:
         console.log(res)
         assert.equal(res[0].filename, "src/edits/bigfibs/fib.py")
     })
+
+    /*
+    test("missing ChangedCode Change", async () => {
+        const source = `
+\`\`\`\`\`changelog
+ChangeLog:1@src/LLMFrontEnd.py
+Description: Refactor \`fix_prompt\` to use \`render_prompt\` with a prompty template.
+OriginalCode@265-305:
+[265]     def fix_prompt(self, prompt, failed_tests):
+[266]         Dbg.debug(f"[LLM FrontEnd][fix_prompt] fixing prompt with failed tests:\n {failed_tests}")
+[267] 
+[268]         system_prompt = """You are given a description of a task given to a person and instances of where this person made errors (question, answer and reason of incorrectness highlighting the error). This person is very smart so the reason of these failure must be in the instructions or the description of the task provided to this person. Your goal is to improve the description of task / instructions so that the person can correctly answer all the questions.
+[269] 
+[270] Follow these instructions for generating the fix:
+[271] 1. Analyze the question, answer and the associated reason for each incorrect answer.
+[272] 2. Since the person is very smart, you must connect the reason of failure to a rule or a constraint in the task description as the description is the only source of information for the person.
+[273] 3. If the task description does not have a rule or a constraint related to the reason of incorrect, add a new rule or constraint to the task description. For example, if the reason of failure was the use of comma as delimiter in the answer but the task description did not specify the delimiter, then add a rule specifying the delimiter.
+[274] 4. If the task description has a rule or a constraint already which is related to the incorrect answer, then analyze if falls in one of the following categories:
+[275]     - The rule or constraint is not clear or have ambiguity. In this case, make the rule or constraint more clear and specific.
+[276]     - The rule or constraint is not specific enough to handle this particular test (corner case). In this case, make the rule or constraint more specific while keeping it general enough to handle other cases.
+[277]     - The rule or constraint is not comprehensive enough to handle a particular test. In this case, make the rule or constraint more comprehensive.
+[278]     - The rule or constraint assumes context which is not provided in the task description. In this case, make the rule or constraint more general by adding the context to the task description.
+[279]     - The task description can correctly handle the test but the answer is still incorrect. In this case, increase the specificity or emphasis of the rule or constraint in the description hoping it will fix the failed test cases.
+[280] 
+[281] The incorrect answers can only be corrected by modifying the task description. Please feel to try other techniques to fix the incorrect answers. Analyze each incorrect answer and reason step by step and generate a fix trying to fix all the incorrect answers not just one.
+[282] 
+[283] While generating the fix you must follow these guidelines:
+[284] 1. Only add or remove a single sentence at a time to the task description to fix the incorrect answers.
+[285] 2. Do not change the existing sentences in the task description unless necessary.
+[286] 3. Do not add more examples to the task description especially to fix a particular incorrect answer.
+[287] 4. Do not mention any specific question or answer in the task description as the task description must be general enough to handle all the questions.
+[288] 5. Always address the question or test which will be given to the person as input.
+[289] 
+[290] First output the reasoning and analysis used in generating the fix, also output how did you follow the instruction and which of the above categories were involved in the incorrect answer and then output the fixed description. The fixed description must start with a heading "Fixed:" and then the fixed description without any other delimiter like \`\`\`.
+[291] 
+[292] Do not output anything after the fixed description.
+[293] """
+[294]         messages = [{"role": "system", "content": system_prompt}, {"role": "user", "content": f"Here is the task:\n" + prompt + "\nHere are the incorrect answers:\n" + failed_tests}]
+[295]         output = self.get_bot_response(messages)
+[296]         if output is None:
+[297]             return ""
+[298]         output = output.split("**Fixed Description:**")[-1].strip()
+[299]         output = output.split("Fixed Description:")[-1].strip()
+[300]         output = output.split("Fixed Description")[-1].strip()
+[301]         output = output.split("**Fixed:**")[-1].strip()
+[302]         output = output.split("**Fixed**")[-1].strip()
+[303]         output = output.split("Fixed:")[-1].strip()
+[304]         output = output.split("Fixed")[-1].strip()
+[305]         return output
+ChangedCode@265-305:
+[265]     def fix_prompt(self, prompt, failed_tests):
+[266]         Dbg.debug(f"[LLM FrontEnd][fix_prompt] fixing prompt with failed tests:\n {failed_tests}")
+[267] 
+[268]         messages = render_prompt(
+[269]             "fix_prompt",
+[270]             prompt=prompt,
+[271]             failed_tests=failed_tests
+[272]         )
+[273]         output = self.get_bot_response(messages)
+[274]         if output is None:
+[275]             return ""
+[276]         output = output.split("**Fixed Description:**")[-1].strip()
+[277]         output = output.split("Fixed Description:")[-1].strip()
+[278]         output = output.split("Fixed Description")[-1].strip()
+[279]         output = output.split("**Fixed:**")[-1].strip()
+[280]         output = output.split("**Fixed**")[-1].strip()
+[281]         output = output.split("Fixed:")[-1].strip()
+[282]         output = output.split("Fixed")[-1].strip()
+[283]         return output
+\`\`\`\`
+        `
+        const res = parseChangeLogs(source)
+        console.log(res)
+    })
+
+    test("missing ChangeLog header", () => {
+        const source = `
+
+
+CHANGELOG:
+\`\`\`\`\`changelog
+ChangeLog:1@src/LLMFrontEnd.py
+Description: Refactor \`fix_prompt\` to use \`render_prompt\` instead of inline prompt.
+OriginalCode@267-305:
+[267]     def fix_prompt(self, prompt, failed_tests):
+[268]         Dbg.debug(f"[LLM FrontEnd][fix_prompt] fixing prompt with failed tests:\n {failed_tests}")
+[269] 
+[270]         system_prompt = """You are given a description of a task given to a person and instances of where this person made errors (question, answer and reason of incorrectness highlighting the error). This person is very smart so the reason of these failure must be in the instructions or the description of the task provided to this person. Your goal is to improve the description of task / instructions so that the person can correctly answer all the questions.
+[271] 
+[272] Follow these instructions for generating the fix:
+[273] 1. Analyze the question, answer and the associated reason for each incorrect answer.
+[274] 2. Since the person is very smart, you must connect the reason of failure to a rule or a constraint in the task description as the description is the only source of information for the person.
+[275] 3. If the task description does not have a rule or a constraint related to the reason of incorrect, add a new rule or constraint to the task description. For example, if the reason of failure was the use of comma as delimiter in the answer but the task description did not specify the delimiter, then add a rule specifying the delimiter.
+[276] 4. If the task description has a rule or a constraint already which is related to the incorrect answer, then analyze if falls in one of the following categories:
+[277]     - The rule or constraint is not clear or have ambiguity. In this case, make the rule or constraint more clear and specific.
+[278]     - The rule or constraint is not specific enough to handle this particular test (corner case). In this case, make the rule or constraint more specific while keeping it general enough to handle other cases.
+[279]     - The rule or constraint is not comprehensive enough to handle a particular test. In this case, make the rule or constraint more comprehensive.
+[280]     - The rule or constraint assumes context which is not provided in the task description. In this case, make the rule or constraint more general by adding the context to the task description.
+[281]     - The task description can correctly handle the test but the answer is still incorrect. In this case, increase the specificity or emphasis of the rule or constraint in the description hoping it will fix the failed test cases.
+[282] 
+[283] The incorrect answers can only be corrected by modifying the task description. Please feel to try other techniques to fix the incorrect answers. Analyze each incorrect answer and reason step by step and generate a fix trying to fix all the incorrect answers not just one.
+[284] 
+[285] While generating the fix you must follow these guidelines:
+[286] 1. Only add or remove a single sentence at a time to the task description to fix the incorrect answers.
+[287] 2. Do not change the existing sentences in the task description unless necessary.
+[288] 3. Do not add more examples to the task description especially to fix a particular incorrect answer.
+[289] 4. Do not mention any specific question or answer in the task description as the task description must be general enough to handle all the questions.
+[290] 5. Always address the question or test which will be given to the person as input.
+[291] 
+[292] First output the reasoning and analysis used in generating the fix, also output how did you follow the instruction and which of the above categories were involved in the incorrect answer and then output the fixed description. The fixed description must start with a heading "Fixed:" and then the fixed description without any other delimiter like \`\`\`.
+[293] 
+[294] Do not output anything after the fixed description.
+[295] """
+[296]         messages = [{"role": "system", "content": system_prompt}, {"role": "user", "content": f"Here is the task:\n" + prompt + "\nHere are the incorrect answers:\n" + failed_tests}]
+[297]         output = self.get_bot_response(messages)
+[298]         if output is None:
+[299]             return ""
+[300]         output = output.split("**Fixed Description:**")[-1].strip()
+[301]         output = output.split("Fixed Description:")[-1].strip()
+[302]         output = output.split("Fixed Description")[-1].strip()
+[303]         output = output.split("**Fixed:**")[-1].strip()
+[304]         output = output.split("**Fixed**")[-1].strip()
+[305]         output = output.split("Fixed:")[-1].strip()
+ChangedCode@267-272:
+[267]     def fix_prompt(self, prompt, failed_tests):
+[268]         Dbg.debug(f"[LLM FrontEnd][fix_prompt] fixing prompt with failed tests:\n {failed_tests}")
+[269] 
+[270]         messages = render_prompt("fix_prompt", task=prompt, failed_tests=failed_tests)
+[271]         output = self.get_bot_response(messages)
+[272]         if output is None:
+ChangedCode@297-306:
+[297]             return ""
+[298]         output = output.split("**Fixed Description:**")[-1].strip()
+[299]         output = output.split("Fixed Description:")[-1].strip()
+[300]         output = output.split("Fixed Description")[-1].strip()
+[301]         output = output.split("**Fixed:**")[-1].strip()
+[302]         output = output.split("**Fixed**")[-1].strip()
+[303]         output = output.split("Fixed:")[-1].strip()
+[304]         output = output.split("Fixed")[-1].strip()
+[305]         return output
+\`\`\`\`\`
+        
+        `
+        const res = parseChangeLogs(source)
+        console.log(res)
+    })
+        */
 })

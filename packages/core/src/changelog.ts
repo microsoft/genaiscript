@@ -101,8 +101,9 @@ export function parseChangeLogs(source: string): ChangeLog[] {
         const original = parseChunk(m)
 
         // Parse ChangedCode block
-        m = /^ChangedCode@(?<start>\d+)-(?<end>\d+):$/i.exec(lines[0])
-        if (!m) throw new Error("missing ChangedCode Changed in " + lines[0])
+        m = /^ChangedCode@(?<start>\d+)-(?<end>\d+):\s*$/i.exec(lines[0])
+        if (!m)
+            throw new Error("missing ChangedCode Changed in '" + lines[0] + "'")
 
         lines.shift()
         const changed = parseChunk(m)

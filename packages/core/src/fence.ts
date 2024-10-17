@@ -1,6 +1,7 @@
 // Import necessary constants and functions from other modules
 import { EMOJI_FAIL, EMOJI_SUCCESS, EMOJI_UNDEFINED } from "./constants"
 import { JSON5TryParse } from "./json5"
+import { removeLineNumbers } from "./liner"
 import { arrayify, toStringList } from "./util"
 import { YAMLTryParse } from "./yaml"
 
@@ -158,6 +159,9 @@ export function extractFenced(text: string): Fenced[] {
      * @returns The normalized text.
      */
     function normalize(label: string, text: string) {
+        // remove extra line numbers
+        text = removeLineNumbers(text)
+
         /** handles situations like this:
 
         ````` file=problem1.py

@@ -246,7 +246,8 @@ export const CONSOLE_COLOR_INFO = 32
 export const CONSOLE_COLOR_DEBUG = 90
 export const CONSOLE_COLOR_WARNING = 95
 export const CONSOLE_COLOR_ERROR = 91
-export const CONSOLE_TOKEN_COLORS = [97, 93]
+export const CONSOLE_TOKEN_COLORS = [90, 37]
+//export const CONSOLE_TOKEN_COLORS = [97, 93]
 export const CONSOLE_TOKEN_INNER_COLORS = [90, 37]
 
 export const PLAYWRIGHT_DEFAULT_BROWSER = "chromium"
