@@ -1,4 +1,4 @@
-script({ tests: {}, model: "openai:gpt-4o-mini" })
+script({ tests: {}, model: "small" })
 const res = await runPrompt(
     async (ctx) => {
         const poem = ctx.runPrompt(
@@ -6,15 +6,15 @@ const res = await runPrompt(
                 const theme = ctx2.prompt`Pick a random poem theme`.options({
                     temperature: 1,
                     label: "theme",
-                    model: "openai:gpt-4o-mini",
+                    model: "small",
                 })
                 ctx2.$`Write a poen about ${theme}`
             },
-            { label: "poem", model: "openai:gpt-4o-mini" }
+            { label: "poem", model: "small" }
         )
         ctx.$`Summarize this text: ${poem}`
     },
-    { label: "summarize", model: "openai:gpt-4o-mini" }
+    { label: "summarize", model: "small" }
 )
 if (!res.text) throw new Error("No text generated")
 $`Generate a poem from ${res}`

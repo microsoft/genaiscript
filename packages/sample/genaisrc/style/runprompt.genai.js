@@ -1,5 +1,5 @@
 script({
-    model: "openai:gpt-4o-mini",
+    model: "small",
     tests: {},
 })
 

@@ -1,6 +1,6 @@
 script({
     title: "summarize concurrently",
-    model: "openai:gpt-4o-mini",
+    model: "small",
     files: "src/rag/*",
 })
 

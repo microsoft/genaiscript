@@ -3,7 +3,7 @@ import { WeatherClient } from "@agentic/weather"
 
 const { question, city } = env.vars
 script({
-    model: "openai:gpt-35-turbo",
+    model: "small",
     parameters: {
         question: {
             type: "string",
@@ -14,10 +14,10 @@ script({
             default: "Paris",
         },
     },
-    tests: {
+    /*tests: {
         description: "Testing the default prompt",
         keywords: "5",
-    },
+    },*/
 })
 
 defTool(calculator)

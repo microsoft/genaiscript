@@ -1,5 +1,5 @@
 // Import necessary utilities and constants
-import { HTTPS_REGEX } from "./constants"
+import { HTTPS_REGEX, LARGE_MODEL_ID, SMALL_MODEL_ID } from "./constants"
 import { arrayify } from "./util"
 import { host } from "./host"
 
@@ -52,6 +52,13 @@ export function generatePromptFooConfiguration(
     const cli = options?.cli
     const transform = "output.text"
 
+    const resolveModel = (m: string) =>
+        m === SMALL_MODEL_ID
+            ? host.defaultModelOptions.smallModel
+            : m === LARGE_MODEL_ID
+              ? host.defaultModelOptions.model
+              : m
+
     // Create configuration object
     const res = {
         // Description combining title and description
@@ -60,8 +67,10 @@ export function generatePromptFooConfiguration(
         // Map model options to providers
         providers: models
             .map(({ model, smallModel, temperature, topP }) => ({
-                model: model ?? host.defaultModelOptions.model,
-                smallModel: smallModel ?? host.defaultModelOptions.smallModel,
+                model: resolveModel(model) ?? host.defaultModelOptions.model,
+                smallModel:
+                    resolveModel(smallModel) ??
+                    host.defaultModelOptions.smallModel,
                 temperature: !isNaN(temperature)
                     ? temperature
                     : host.defaultModelOptions.temperature,
