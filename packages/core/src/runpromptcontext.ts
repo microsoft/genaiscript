@@ -92,16 +92,24 @@ export function createChatTurnGenerationContext(
         writeText: (body, options) => {
             if (body !== undefined && body !== null) {
                 const { priority, maxTokens } = options || {}
+                const role = options?.assistant
+                    ? "assistant"
+                    : options?.role || "user"
                 appendChild(
                     node,
-                    options?.assistant
+                    role === "assistant"
                         ? createAssistantNode(body, { priority, maxTokens })
-                        : createTextNode(body, { priority, maxTokens })
+                        : role === "system"
+                          ? creatSystemNode(body, { priority, maxTokens })
+                          : createTextNode(body, { priority, maxTokens })
                 )
             }
         },
         assistant: (body, options) =>
-            ctx.writeText(body, { ...options, assistant: true }),
+            ctx.writeText(body, {
+                ...options,
+                role: "assistant",
+            } as WriteTextOptions),
         $: (strings, ...args) => {
             const current = createStringTemplateNode(strings, args)
             appendChild(node, current)
@@ -744,4 +752,10 @@ export function createChatGenerationContext(
     })
 
     return ctx
+}
+function creatSystemNode(
+    body: Awaitable<string>,
+    arg1: { priority: number; maxTokens: number }
+): PromptNode {
+    throw new Error("Function not implemented.")
 }
