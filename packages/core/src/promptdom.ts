@@ -1065,7 +1065,7 @@ ${trimNewlines(schemaText)}
 
     const fods = fileOutputs?.filter((f) => !!f.description)
     if (fods?.length > 0) {
-        userPrompt += `
+        systemPrompt += `
 ## File generation rules
 
 When generating files, use the following rules which are formatted as "file glob: description":
