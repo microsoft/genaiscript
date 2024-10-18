@@ -4,6 +4,7 @@
 import { parse } from "csv-parse/sync"
 import { TraceOptions } from "./trace"
 import { stringify } from "csv-stringify/sync"
+import { arrayify } from "./util"
 
 /**
  * Parses a CSV string into an array of objects.
@@ -18,17 +19,18 @@ export function CSVParse(
     text: string,
     options?: {
         delimiter?: string
-        headers?: string[]
+        headers?: ElementOrArray<string>
     }
 ): object[] {
     // Destructure options or provide defaults
     const { delimiter, headers } = options || {}
+    const columns = headers ? arrayify(headers) : true
     // Parse the CSV string based on the provided options
     return parse(text, {
         autoParse: true, // Automatically parse values to appropriate types
         castDate: false, // Do not cast strings to dates
         comment: "#", // Ignore comments starting with '#'
-        columns: headers || true, // Use provided headers or infer from the first line
+        columns, // Use provided headers or infer from the first line
         skipEmptyLines: true, // Skip empty lines in the CSV
         skipRecordsWithError: true, // Skip records that cause errors
         delimiter, // Use the provided delimiter
@@ -49,7 +51,7 @@ export function CSVTryParse(
     text: string,
     options?: {
         delimiter?: string
-        headers?: string[]
+        headers?: ElementOrArray<string>
     } & TraceOptions
 ): object[] | undefined {
     const { trace } = options || {}
@@ -83,10 +85,14 @@ export function CSVStringify(csv: object[], options?: CSVStringifyOptions) {
  * @param options.headers - Array of headers for the table columns.
  * @returns A string representing the CSV data in Markdown table format.
  */
-export function CSVToMarkdown(csv: object[], options?: { headers?: string[] }) {
+export function CSVToMarkdown(
+    csv: object[],
+    options?: { headers?: ElementOrArray<string> }
+) {
     if (!csv?.length) return "" // Return empty string if CSV is empty
 
-    const { headers = Object.keys(csv[0]) } = options || {}
+    const headers = arrayify(options?.headers)
+    if (headers.length === 0) headers.push(...Object.keys(csv[0])) // Use object keys as headers if not provided
     const res: string[] = [
         `|${headers.join("|")}|`, // Create Markdown header row
         `|${headers.map(() => "-").join("|")}|`, // Create Markdown separator row
