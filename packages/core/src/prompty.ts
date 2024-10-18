@@ -163,7 +163,13 @@ export function promptyToGenAIScript(doc: PromptyDocument) {
     const renderJinja = (content: string) =>
         `$\`${content.replace(/`/g, "\\`")}\`${/\{(%|\{)/.test(content) ? `.jinja(env.vars)` : ""}`
     const renderPart = (c: ChatCompletionContentPart) =>
-        c.type === "text" ? renderJinja(c.text) : `defImages("${c.image_url}")`
+        c.type === "text"
+            ? renderJinja(c.text)
+            : c.type === "image_url"
+              ? `defImages("${c.image_url}")`
+              : c.type === "input_audio"
+                ? `defAudio("${c.input_audio}")`
+                : `unknown message`
 
     let src = ``
     if (Object.keys(meta).length) {

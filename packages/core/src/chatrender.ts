@@ -60,9 +60,13 @@ export function renderMessageContent(
                     // Handle different types of content: text, refusal, and image.
                     c.type === "text"
                         ? c.text
-                        : c.type === "refusal"
-                          ? `refused: ${c.refusal}`
-                          : `![](${c.image_url})`
+                        : c.type === "image_url"
+                          ? `![](${c.image_url})`
+                          : c.type === "input_audio"
+                            ? `🔊 [audio](${c.input_audio})`
+                            : c.type === "refusal"
+                              ? `refused: ${c.refusal}`
+                              : `unknown message`
                 )
                 // Join the content array into a single string with spaces.
                 .join(` `)

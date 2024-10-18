@@ -1246,7 +1246,7 @@ The following npm packages may be included in this product:
 
  - @types/http-cache-semantics@4.0.4
  - @types/node@16.9.1
- - @types/node@22.7.5
+ - @types/node@22.7.6
  - @types/turndown@5.0.5
  - @types/yauzl@2.10.3
 
@@ -1278,7 +1278,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.64.3
+ - genaiscript-vscode@1.64.6
 
 This package contains the following license and notice below:
 
@@ -4400,9 +4400,9 @@ The following npm packages may be included in this product:
  - @tokenizer/token@0.3.0
  - agent-base@6.0.2
  - canvas@2.11.2
- - genaiscript-core-internal@1.64.3
- - genaiscript-sample@1.64.3
- - genaiscript@1.64.3
+ - genaiscript-core-internal@1.64.6
+ - genaiscript-sample@1.64.6
+ - genaiscript@1.64.6
  - https-proxy-agent@5.0.1
  - isarray@1.0.0
  - javascript-natural-sort@0.7.1
@@ -5368,7 +5368,7 @@ The following npm packages may be included in this product:
  - ansi-escapes@4.3.2
  - crypto-random-string@4.0.0
  - decompress-response@6.0.0
- - execa@9.4.0
+ - execa@9.4.1
  - figures@6.1.0
  - file-type@16.5.4
  - get-stream@5.2.0
@@ -7381,14 +7381,13 @@ THE SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - @azure/abort-controller@1.1.0
  - @azure/abort-controller@2.1.2
- - @azure/core-auth@1.8.0
+ - @azure/core-auth@1.9.0
  - @azure/core-client@1.9.2
  - @azure/core-rest-pipeline@1.17.0
  - @azure/core-tracing@1.2.0
- - @azure/core-util@1.10.0
- - @azure/identity@4.4.1
+ - @azure/core-util@1.11.0
+ - @azure/identity@4.5.0
  - @azure/logger@1.1.4
 
 These packages each contain the following license and notice below:
