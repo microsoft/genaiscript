@@ -326,10 +326,7 @@ export class DockerManager {
 
         const resolveContainerPath = (to: string) => {
             const res = /^\//.test(to)
-                ? host.path.resolve(
-                      hostPath,
-                      to.replace(/^\//, "")
-                  )
+                ? host.path.resolve(hostPath, to.replace(/^\//, ""))
                 : host.path.resolve(hostPath, to || "")
             return res
         }
@@ -350,7 +347,8 @@ export class DockerManager {
 
         const pause: () => Promise<void> = async () => {
             const state = await container.inspect()
-            if (state.State.Running) await container.pause()
+            if (state.State.Running || state.State.Restarting)
+                await container.pause()
         }
 
         const exec = async (
@@ -375,7 +373,8 @@ export class DockerManager {
             }
 
             const { cwd: userCwd, label } = options || {}
-            const cwd = "/" + host.path.join(DOCKER_CONTAINER_VOLUME, userCwd || ".")
+            const cwd =
+                "/" + host.path.join(DOCKER_CONTAINER_VOLUME, userCwd || ".")
 
             try {
                 trace?.startDetails(
@@ -392,16 +391,7 @@ export class DockerManager {
                         `container exec: ${userCwd || ""}> ${shellQuote([command, ...args])}`
                     )
 
-                let inspection = await container.inspect()
-                trace?.itemValue(`container state`, inspection.State?.Status)
-                if (inspection.State?.Paused) {
-                    trace?.log(`unpausing container`)
-                    await container.unpause()
-                } else if (!inspection.State?.Running) {
-                    trace?.log(`restarting container`)
-                    await container.restart()
-                }
-
+                await resume()
                 const exec = await container.exec({
                     Cmd: [command, ...args],
                     WorkingDir: cwd,
