@@ -11,6 +11,7 @@ import {
     MARKDOWN_PROMPT_FENCE,
     PROMPT_FENCE,
     PROMPTY_REGEX,
+    SYSTEM_FENCE,
     TEMPLATE_ARG_DATA_SLICE_SAMPLE,
     TEMPLATE_ARG_FILE_MAX_TOKENS,
 } from "./constants"
@@ -18,11 +19,11 @@ import { parseModelIdentifier } from "./models"
 import { toChatCompletionUserMessage } from "./chat"
 import { errorMessage } from "./error"
 import { tidyData } from "./tidy"
-import { inspect } from "./logging"
 import { dedent } from "./indent"
 import {
     ChatCompletionAssistantMessageParam,
     ChatCompletionMessageParam,
+    ChatCompletionSystemMessageParam,
 } from "./chattypes"
 import { resolveTokenEncoder } from "./encoders"
 import { expandFiles } from "./fs"
@@ -43,6 +44,7 @@ export interface PromptNode extends ContextExpansionOptions {
         | "outputProcessor"
         | "stringTemplate"
         | "assistant"
+        | "system"
         | "def"
         | "chatParticipant"
         | "fileOutput"
@@ -81,6 +83,12 @@ export interface PromptDefNode extends PromptNode, DefOptions {
 // Interface for an assistant node.
 export interface PromptAssistantNode extends PromptNode {
     type: "assistant"
+    value: Awaitable<string> // Assistant-related content
+    resolved?: string // Resolved assistant content
+}
+
+export interface PromptSystemNode extends PromptNode {
+    type: "system"
     value: Awaitable<string> // Assistant-related content
     resolved?: string // Resolved assistant content
 }
@@ -271,6 +279,14 @@ export function createAssistantNode(
     return { type: "assistant", value, ...(options || {}) }
 }
 
+export function createSystemNode(
+    value: Awaitable<string>,
+    options?: ContextExpansionOptions
+): PromptSystemNode {
+    assert(value !== undefined)
+    return { type: "system", value, ...(options || {}) }
+}
+
 // Function to create a string template node.
 export function createStringTemplateNode(
     strings: TemplateStringsArray,
@@ -450,6 +466,7 @@ export interface PromptNodeVisitor {
     stringTemplate?: (node: PromptStringTemplateNode) => Awaitable<void> // String template node visitor
     outputProcessor?: (node: PromptOutputProcessorNode) => Awaitable<void> // Output processor node visitor
     assistant?: (node: PromptAssistantNode) => Awaitable<void> // Assistant node visitor
+    system?: (node: PromptSystemNode) => Awaitable<void> // System node visitor
     chatParticipant?: (node: PromptChatParticipantNode) => Awaitable<void> // Chat participant node visitor
     fileOutput?: (node: FileOutputNode) => Awaitable<void> // File output node visitor
     importTemplate?: (node: PromptImportTemplate) => Awaitable<void> // Import template node visitor
@@ -486,6 +503,9 @@ export async function visitNode(node: PromptNode, visitor: PromptNodeVisitor) {
         case "assistant":
             await visitor.assistant?.(node as PromptAssistantNode)
             break
+        case "system":
+            await visitor.system?.(node as PromptSystemNode)
+            break
         case "chatParticipant":
             await visitor.chatParticipant?.(node as PromptChatParticipantNode)
             break
@@ -509,6 +529,7 @@ export async function visitNode(node: PromptNode, visitor: PromptNodeVisitor) {
 export interface PromptNodeRender {
     userPrompt: string // User prompt content
     assistantPrompt: string // Assistant prompt content
+    systemPrompt: string // System prompt content
     images: PromptImage[] // Images included in the prompt
     errors: unknown[] // Errors encountered during rendering
     schemas: Record<string, JSONSchema> // Schemas included in the prompt
@@ -581,6 +602,15 @@ async function resolvePromptNode(
                 const rendered = renderDefNode(n)
                 n.preview = rendered
                 n.tokens = estimateTokens(rendered, encoder)
+            } catch (e) {
+                n.error = e
+            }
+        },
+        system: async (n) => {
+            try {
+                const value = await n.value
+                n.resolved = n.preview = value
+                n.tokens = estimateTokens(value, encoder)
             } catch (e) {
                 n.error = e
             }
@@ -717,6 +747,8 @@ async function resolveImportPrompty(
         const txt = jinjaRenderChatMessage(message, args)
         if (message.role === "assistant")
             n.children.push(createAssistantNode(txt))
+        else if (message.role === "system")
+            n.children.push(createSystemNode(txt))
         else n.children.push(createTextNode(txt))
         n.preview += txt + "\n"
     }
@@ -909,6 +941,7 @@ export async function renderPromptNode(
 
     let userPrompt = ""
     let assistantPrompt = ""
+    let systemPrompt = ""
     const images: PromptImage[] = []
     const errors: unknown[] = []
     const schemas: Record<string, JSONSchema> = {}
@@ -934,6 +967,11 @@ export async function renderPromptNode(
             const value = await n.resolved
             if (value != undefined) assistantPrompt += value + "\n"
         },
+        system: async (n) => {
+            if (n.error) errors.push(n.error)
+            const value = await n.resolved
+            if (value != undefined) systemPrompt += value + SYSTEM_FENCE
+        },
         stringTemplate: async (n) => {
             if (n.error) errors.push(n.error)
             const value = n.resolved
@@ -950,22 +988,6 @@ export async function renderPromptNode(
                     )
                     trace.image(value.url, value.filename)
                     trace.endDetails()
-                }
-            }
-        },
-        importTemplate: async (n) => {
-            if (n.error) errors.push(n.error)
-            const value = n.resolved
-            if (value) {
-                for (const [filename, content] of Object.entries(value)) {
-                    userPrompt += content
-                    userPrompt += "\n"
-                    if (trace)
-                        trace.detailsFenced(
-                            `📦 import template ${filename}`,
-                            content,
-                            "markdown"
-                        )
                 }
             }
         },
@@ -1057,13 +1079,19 @@ ${fods.map((fo) => `   ${fo.pattern}: ${fo.description}`)}
         toChatCompletionUserMessage(userPrompt, images),
     ]
     if (assistantPrompt)
-        messages.push(<ChatCompletionAssistantMessageParam>{
+        messages.push({
             role: "assistant",
             content: assistantPrompt,
-        })
+        } as ChatCompletionAssistantMessageParam)
+    if (systemPrompt)
+        messages.unshift({
+            role: "system",
+            content: systemPrompt,
+        } as ChatCompletionSystemMessageParam)
     const res = Object.freeze<PromptNodeRender>({
         userPrompt,
         assistantPrompt,
+        systemPrompt,
         images,
         schemas,
         functions: tools,

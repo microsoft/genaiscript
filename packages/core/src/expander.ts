@@ -44,6 +44,7 @@ export async function callExpander(
     let logs = ""
     let text = ""
     let assistantText = ""
+    let systemText = ""
     let images: PromptImage[] = []
     let schemas: Record<string, JSONSchema> = {}
     let functions: ToolCallback[] = []
@@ -75,6 +76,7 @@ export async function callExpander(
             const {
                 userPrompt,
                 assistantPrompt,
+                systemPrompt,
                 images: imgs,
                 errors,
                 schemas: schs,
@@ -89,6 +91,7 @@ export async function callExpander(
             })
             text = userPrompt
             assistantText = assistantPrompt
+            systemText = systemPrompt
             images = imgs
             schemas = schs
             functions = fns
@@ -126,6 +129,7 @@ export async function callExpander(
         statusText,
         text,
         assistantText,
+        systemText,
         images,
         schemas,
         functions: Object.freeze(functions),
@@ -362,6 +366,19 @@ ${schemaTs}
             content: prompt.assistantText,
         }
         messages.push(assistantMessage)
+    }
+    if (prompt.systemText) {
+        trace.detailsFenced("👾 system", prompt.systemText, "markdown")
+        const systemMessage: ChatCompletionSystemMessageParam = {
+            role: "system",
+            content: prompt.systemText,
+        }
+        // insert system messages after the last system role message in messages
+        // assume system messages are at the start
+        let li = -1
+        for (let li = 0; li < messages.length; li++)
+            if (messages[li].role === "system") break
+        messages.splice(li, 0, systemMessage)
     }
 
     trace.endDetails()
