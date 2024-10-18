@@ -16,6 +16,7 @@ async function main() {
         if (/\.genai\.m?js$/.test(prompt))
             promptMap[prompt.replace(/\.genai\.m?js$/i, "")] = text
     }
+    console.log(`found ${prompts.length} prompts`)
     const promptFooDriver = readFileSync(
         "./src/genaiscript-api-provider.mjs",
         "utf-8"

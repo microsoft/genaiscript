@@ -28,8 +28,8 @@ defTool(
     },
     async (args) => {
         const { context, main = "" } = args
-        context.log(`python:`)
-        console.log(main)
+        context.log(`python: exec`)
+        context.debug(main)
         const container = await getContainer()
         return await container.scheduler.add(async () => {
             await container.writeText("main.py", main)

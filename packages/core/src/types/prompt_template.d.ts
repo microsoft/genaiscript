@@ -667,6 +667,7 @@ interface WorkspaceFileSystem {
 
 interface ToolCallContext {
     log(message: string): void
+    debug(message: string): void
     trace: ToolCallTrace
 }
 

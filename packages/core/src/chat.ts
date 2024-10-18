@@ -11,7 +11,6 @@ import {
 import { assert, logError, logVerbose, logWarn } from "./util"
 import { extractFenced, findFirstDataFence, unfence } from "./fence"
 import {
-    JSONSchemaToFunctionParameters,
     toStrictJSONSchema,
     validateFencesWithSchema,
     validateJSONWithSchema,
@@ -33,7 +32,7 @@ import {
     ChatCompletionResponse,
     ChatCompletionsOptions,
     ChatCompletionTool,
-    ChatCompletionUsage,
+    ChatCompletionToolCall,
     ChatCompletionUserMessageParam,
     CreateChatCompletionRequest,
 } from "./chattypes"
@@ -153,164 +152,179 @@ async function runToolCalls(
     // call tool and run again
     for (const call of resp.toolCalls) {
         checkCancelled(cancellationToken)
-
-        trace.startDetails(`📠 tool call ${call.name}`)
+        const toolTrace = trace.startTraceDetails(`📠 tool call ${call.name}`)
         try {
-            const callArgs: any = call.arguments // sometimes wrapped in \`\`\`json ...
-                ? JSONLLMTryParse(call.arguments)
-                : undefined
-            trace.fence(call.arguments, "json")
-            if (callArgs === undefined) trace.error("arguments failed to parse")
-
-            let todos: { tool: ToolCallback; args: any }[]
-            if (call.name === "multi_tool_use.parallel") {
-                // special undocumented openai hallucination, argument contains multiple tool calls
-                // {
-                //  "id": "call_D48fudXi4oBxQ2rNeHhpwIKh",
-                //  "name": "multi_tool_use.parallel",
-                //  "arguments": "{\"tool_uses\":[{\"recipient_name\":\"functions.fs_find_files\",\"parameters\":{\"glob\":\"src/content/docs/**/*.md\"}},{\"recipient_name\":\"functions.fs_find_files\",\"parameters\":{\"glob\":\"src/content/docs/**/*.mdx\"}},{\"recipient_name\":\"functions.fs_find_files\",\"parameters\":{\"glob\":\"../packages/sample/src/*.genai.{js,mjs}\"}},{\"recipient_name\":\"functions.fs_find_files\",\"parameters\":{\"glob\":\"src/assets/*.txt\"}}]}"
-                // }
-                const toolUses = callArgs.tool_uses as {
-                    recipient_name: string
-                    parameters: any
-                }[]
-                todos = toolUses.map((tu) => {
-                    const toolName = tu.recipient_name.replace(
-                        /^functions\./,
-                        ""
-                    )
-                    const tool = tools.find((f) => f.spec.name === toolName)
-                    if (!tool) {
-                        logVerbose(JSON.stringify(tu, null, 2))
-                        throw new Error(
-                            `multi tool ${toolName} not found in ${tools.map((t) => t.spec.name).join(", ")}`
-                        )
-                    }
-                    return { tool, args: tu.parameters }
-                })
-            } else {
-                let tool = tools.find((f) => f.spec.name === call.name)
-                if (!tool) {
-                    logVerbose(JSON.stringify(call, null, 2))
-                    logVerbose(
-                        `tool ${call.name} not found in ${tools.map((t) => t.spec.name).join(", ")}`
-                    )
-                    tool = {
-                        spec: {
-                            name: call.name,
-                            description: "unknown tool",
-                        },
-                        impl: async () => "unknown tool",
-                    }
-                }
-                todos = [{ tool, args: callArgs }]
-            }
-
-            const toolResult: string[] = []
-            for (const todo of todos) {
-                const { tool, args } = todo
-                const {
-                    maxTokens: maxToolContentTokens = MAX_TOOL_CONTENT_TOKENS,
-                } = tool.options || {}
-                const context: ToolCallContext = {
-                    log: (txt: string) => {
-                        logVerbose(txt)
-                        trace.log(txt)
-                    },
-                    trace,
-                }
-
-                let output: ToolCallOutput
-                try {
-                    output = await tool.impl({ context, ...args })
-                } catch (e) {
-                    logWarn(`tool: ${tool.spec.name} error`)
-                    logError(e)
-                    trace.error(`tool: ${tool.spec.name} error`, e)
-                    output = errorMessage(e)
-                }
-                if (output === undefined || output === null)
-                    throw new Error(
-                        `error: tool ${tool.spec.name} raised an error`
-                    )
-                let toolContent: string = undefined
-                let toolEdits: Edits[] = undefined
-                if (typeof output === "string") toolContent = output
-                else if (
-                    typeof output === "number" ||
-                    typeof output === "boolean"
-                )
-                    toolContent = String(output)
-                else if (
-                    typeof output === "object" &&
-                    (output as ShellOutput).exitCode !== undefined
-                ) {
-                    toolContent = renderShellOutput(output as ShellOutput)
-                } else if (
-                    typeof output === "object" &&
-                    (output as WorkspaceFile).filename &&
-                    (output as WorkspaceFile).content
-                ) {
-                    const { filename, content } = output as WorkspaceFile
-                    toolContent = `FILENAME: ${filename}
-${fenceMD(content, " ")}
-`
-                } else if (
-                    typeof output === "object" &&
-                    (output as RunPromptResult).text
-                ) {
-                    const { text } = output as RunPromptResult
-                    toolContent = text
-                } else {
-                    toolContent = YAMLStringify(output)
-                }
-
-                if (typeof output === "object")
-                    toolEdits = (output as ToolCallContent)?.edits
-
-                if (toolEdits?.length) {
-                    trace.fence(toolEdits)
-                    edits.push(
-                        ...toolEdits.map((e) => {
-                            const { filename, ...rest } = e
-                            const n = e.filename
-                            const fn = /^[^\/]/.test(n)
-                                ? host.resolvePath(projFolder, n)
-                                : n
-                            return { filename: fn, ...rest }
-                        })
-                    )
-                }
-
-                const toolContentTokens = estimateTokens(toolContent, encoder)
-                if (toolContentTokens > maxToolContentTokens) {
-                    logWarn(
-                        `tool: ${tool.spec.name} response too long (${toolContentTokens} tokens), truncating ${maxToolContentTokens} tokens`
-                    )
-                    toolContent = truncateTextToTokens(
-                        toolContent,
-                        maxToolContentTokens,
-                        encoder
-                    )
-                }
-                trace.fence(toolContent, "markdown")
-                toolResult.push(toolContent)
-            }
-            messages.push({
-                role: "tool",
-                content: toolResult.join("\n\n"),
-                tool_call_id: call.id,
-            })
+            await runToolCall(
+                trace,
+                call,
+                tools,
+                edits,
+                projFolder,
+                encoder,
+                messages
+            )
         } catch (e) {
             logError(e)
-            trace.error(`tool call ${call.id} error`, e)
+            toolTrace.error(`tool call ${call.id} error`, e)
             throw e
         } finally {
-            trace.endDetails()
+            toolTrace.endDetails()
         }
     }
 
     return { edits }
+}
+
+async function runToolCall(
+    trace: MarkdownTrace,
+    call: ChatCompletionToolCall,
+    tools: ToolCallback[],
+    edits: Edits[],
+    projFolder: string,
+    encoder: TokenEncoder,
+    messages: ChatCompletionMessageParam[]
+) {
+    const callArgs: any = call.arguments // sometimes wrapped in \`\`\`json ...
+        ? JSONLLMTryParse(call.arguments)
+        : undefined
+    trace.fence(call.arguments, "json")
+    if (callArgs === undefined) trace.error("arguments failed to parse")
+
+    let todos: { tool: ToolCallback; args: any }[]
+    if (call.name === "multi_tool_use.parallel") {
+        // special undocumented openai hallucination, argument contains multiple tool calls
+        // {
+        //  "id": "call_D48fudXi4oBxQ2rNeHhpwIKh",
+        //  "name": "multi_tool_use.parallel",
+        //  "arguments": "{\"tool_uses\":[{\"recipient_name\":\"functions.fs_find_files\",\"parameters\":{\"glob\":\"src/content/docs/**/*.md\"}},{\"recipient_name\":\"functions.fs_find_files\",\"parameters\":{\"glob\":\"src/content/docs/**/*.mdx\"}},{\"recipient_name\":\"functions.fs_find_files\",\"parameters\":{\"glob\":\"../packages/sample/src/*.genai.{js,mjs}\"}},{\"recipient_name\":\"functions.fs_find_files\",\"parameters\":{\"glob\":\"src/assets/*.txt\"}}]}"
+        // }
+        const toolUses = callArgs.tool_uses as {
+            recipient_name: string
+            parameters: any
+        }[]
+        todos = toolUses.map((tu) => {
+            const toolName = tu.recipient_name.replace(/^functions\./, "")
+            const tool = tools.find((f) => f.spec.name === toolName)
+            if (!tool) {
+                logVerbose(JSON.stringify(tu, null, 2))
+                throw new Error(
+                    `multi tool ${toolName} not found in ${tools.map((t) => t.spec.name).join(", ")}`
+                )
+            }
+            return { tool, args: tu.parameters }
+        })
+    } else {
+        let tool = tools.find((f) => f.spec.name === call.name)
+        if (!tool) {
+            logVerbose(JSON.stringify(call, null, 2))
+            logVerbose(
+                `tool ${call.name} not found in ${tools.map((t) => t.spec.name).join(", ")}`
+            )
+            trace.log(`tool ${call.name} not found`)
+            tool = {
+                spec: {
+                    name: call.name,
+                    description: "unknown tool",
+                },
+                impl: async () => "unknown tool",
+            }
+        }
+        todos = [{ tool, args: callArgs }]
+    }
+
+    const toolResult: string[] = []
+    for (const todo of todos) {
+        const { tool, args } = todo
+        const { maxTokens: maxToolContentTokens = MAX_TOOL_CONTENT_TOKENS } =
+            tool.options || {}
+        const context: ToolCallContext = {
+            log: (message: string) => {
+                logVerbose(message)
+                trace.log(message)
+            },
+            debug: (message: string) => {
+                logVerbose(message)
+                trace.log(message)
+            },
+            trace,
+        }
+
+        let output: ToolCallOutput
+        try {
+            output = await tool.impl({ context, ...args })
+        } catch (e) {
+            logWarn(`tool: ${tool.spec.name} error`)
+            logError(e)
+            trace.error(`tool: ${tool.spec.name} error`, e)
+            output = errorMessage(e)
+        }
+        if (output === undefined || output === null)
+            throw new Error(`error: tool ${tool.spec.name} raised an error`)
+        let toolContent: string = undefined
+        let toolEdits: Edits[] = undefined
+        if (typeof output === "string") toolContent = output
+        else if (typeof output === "number" || typeof output === "boolean")
+            toolContent = String(output)
+        else if (
+            typeof output === "object" &&
+            (output as ShellOutput).exitCode !== undefined
+        ) {
+            toolContent = renderShellOutput(output as ShellOutput)
+        } else if (
+            typeof output === "object" &&
+            (output as WorkspaceFile).filename &&
+            (output as WorkspaceFile).content
+        ) {
+            const { filename, content } = output as WorkspaceFile
+            toolContent = `FILENAME: ${filename}
+${fenceMD(content, " ")}
+`
+        } else if (
+            typeof output === "object" &&
+            (output as RunPromptResult).text
+        ) {
+            const { text } = output as RunPromptResult
+            toolContent = text
+        } else {
+            toolContent = YAMLStringify(output)
+        }
+
+        if (typeof output === "object")
+            toolEdits = (output as ToolCallContent)?.edits
+
+        if (toolEdits?.length) {
+            trace.fence(toolEdits)
+            edits.push(
+                ...toolEdits.map((e) => {
+                    const { filename, ...rest } = e
+                    const n = e.filename
+                    const fn = /^[^\/]/.test(n)
+                        ? host.resolvePath(projFolder, n)
+                        : n
+                    return { filename: fn, ...rest }
+                })
+            )
+        }
+
+        const toolContentTokens = estimateTokens(toolContent, encoder)
+        if (toolContentTokens > maxToolContentTokens) {
+            logWarn(
+                `tool: ${tool.spec.name} response too long (${toolContentTokens} tokens), truncating ${maxToolContentTokens} tokens`
+            )
+            toolContent = truncateTextToTokens(
+                toolContent,
+                maxToolContentTokens,
+                encoder
+            )
+        }
+        trace.fence(toolContent, "markdown")
+        toolResult.push(toolContent)
+    }
+    messages.push({
+        role: "tool",
+        content: toolResult.join("\n\n"),
+        tool_call_id: call.id,
+    })
 }
 
 async function applyRepairs(

@@ -61,6 +61,7 @@ import {
     logError,
     dotGenaiscriptPath,
     logInfo,
+    logWarn,
 } from "../../core/src/util"
 import { YAMLStringify } from "../../core/src/yaml"
 import { PromptScriptRunOptions } from "../../core/src/server/messages"
@@ -551,7 +552,7 @@ export async function runScript(
 
     if (result.status === "success") logInfo(`genaiscript: ${result.status}`)
     else if (result.status === "cancelled")
-        logInfo(`genaiscript: ${result.status}`)
+        logWarn(`genaiscript: ${result.status}`)
     else logError(`genaiscript: ${result.status}`)
     stats.log()
     if (outTraceFilename) logVerbose(`  trace: ${outTraceFilename}`)
