@@ -24,6 +24,7 @@ import { isQuiet } from "./log"
 import Dockerode, { Container } from "dockerode"
 import { shellParse, shellQuote } from "../../core/src/shell"
 import { PLimitPromiseQueue } from "../../core/src/concurrency"
+import { delay } from "es-toolkit"
 
 type DockerodeType = import("dockerode")
 
@@ -145,7 +146,9 @@ export class DockerManager {
                 filters,
             })
             const info = containers?.[0]
-            if (info) return this._docker.getContainer(info.Id)
+            if (info) {
+                return this._docker.getContainer(info.Id)
+            }
         } catch {}
         return undefined
     }
@@ -173,13 +176,14 @@ export class DockerManager {
                     hostPath
                 )
                 this.containers.push(c)
+                logVerbose(`container: resuming ${name}`)
                 await c.resume()
                 const st = await container.inspect()
-                if (st.State?.Status !== "running") {
-                    logVerbose(`container: start failed`)
-                    trace?.error(`container: start failed`)
+                const status = st.State?.Status
+                if (status !== "running") {
+                    logVerbose(`container: start failed (${status})`)
+                    trace?.error(`container: ${status}`)
                 }
-                logVerbose(`container: resuming ${name}`)
                 return c
             }
         }
@@ -203,7 +207,7 @@ export class DockerManager {
         } = options
         let name = (userName || image).replace(/[^a-zA-Z0-9]+/g, "_")
         if (persistent)
-            name += `_${(await sha1string(JSON.stringify({ image, name, ports, env, networkEnabled, postCreateCommands }))).slice(0, 12)}`
+            name += `_${(await sha1string(JSON.stringify({ image, name, ports, env, networkEnabled, postCreateCommands, CORE_VERSION }))).slice(0, 12)}`
         else name += `_${randomHex(6)}`
         const hostPath = host.path.resolve(
             dotGenaiscriptPath(DOCKER_VOLUMES_DIR, name)
@@ -324,16 +328,24 @@ export class DockerManager {
             const res = /^\//.test(to)
                 ? host.path.resolve(
                       hostPath,
-                      DOCKER_CONTAINER_VOLUME,
                       to.replace(/^\//, "")
                   )
-                : host.path.resolve(hostPath, DOCKER_CONTAINER_VOLUME, to || "")
+                : host.path.resolve(hostPath, to || "")
             return res
         }
 
         const resume: () => Promise<void> = async () => {
-            const state = await container.inspect()
-            if (state.State.Paused) await container.unpause()
+            let state = await container.inspect()
+            if (state.State.Status === "paused") await container.unpause()
+            else if (state.State.Status === "exited") {
+                await container.start()
+            } else if (state.State.Status === "restarting") {
+                let retry = 0
+                while (state.State.Restarting && retry++ < 5) {
+                    await delay(1000)
+                    state = await container.inspect()
+                }
+            }
         }
 
         const pause: () => Promise<void> = async () => {
@@ -363,17 +375,21 @@ export class DockerManager {
             }
 
             const { cwd: userCwd, label } = options || {}
-            const cwd = userCwd
-                ? resolveContainerPath(userCwd)
-                : "/" + DOCKER_CONTAINER_VOLUME
+            const cwd = "/" + host.path.join(DOCKER_CONTAINER_VOLUME, userCwd || ".")
+
             try {
-                trace?.startDetails(`📦 ▶️ container exec ${label || command}`)
+                trace?.startDetails(
+                    `📦 ▶️ container exec: ${userCwd || ""}> ${label || command}`
+                )
                 trace?.itemValue(`container`, container.id)
                 trace?.itemValue(`cwd`, cwd)
-                trace?.fence(`${command} ${shellQuote(args || [])}`, "sh")
+                trace?.fence(
+                    `${cwd}> ${command} ${shellQuote(args || [])}`,
+                    "sh"
+                )
                 if (!isQuiet)
                     logVerbose(
-                        `container exec: ${shellQuote([command, ...args])}`
+                        `container exec: ${userCwd || ""}> ${shellQuote([command, ...args])}`
                     )
 
                 let inspection = await container.inspect()

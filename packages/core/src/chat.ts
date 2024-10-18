@@ -225,6 +225,7 @@ async function runToolCalls(
                     output = await tool.impl({ context, ...args })
                 } catch (e) {
                     logWarn(`tool: ${tool.spec.name} error`)
+                    logError(e)
                     trace.error(`tool: ${tool.spec.name} error`, e)
                     output = errorMessage(e)
                 }

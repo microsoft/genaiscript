@@ -40,7 +40,7 @@ defTool(
 )
 
 defTool(
-    "python_code_interpreter_copy_files",
+    "python_code_interpreter_copy_files_to_container",
     "Copy files from the host file system to the container file system. NO absolute paths. Returns the path of each file copied in the container.",
     {
         type: "object",
@@ -51,7 +51,8 @@ defTool(
             },
             toFolder: {
                 type: "string",
-                description: "Container directory path. Not a filename.",
+                description:
+                    "Container directory path. Default is '.'  Not a filename.",
             },
         },
         required: ["from"],
@@ -62,6 +63,30 @@ defTool(
         const container = await getContainer()
         const res = await container.scheduler.add(
             async () => await container.copyTo(from, toFolder)
+        )
+        return res.join("\n")
+    }
+)
+
+defTool(
+    "python_code_interpreter_read_file",
+    "Reads a file from the container file system. No absolute paths.",
+    {
+        type: "object",
+        properties: {
+            filename: {
+                type: "string",
+                description: "Container file path",
+            },
+        },
+        required: ["filename"],
+    },
+    async (args) => {
+        const { context, filename } = args
+        context.log(`python: cat ${filename}`)
+        const container = await getContainer()
+        const res = await container.scheduler.add(
+            async () => await container.readText(filename)
         )
         return res
     }
