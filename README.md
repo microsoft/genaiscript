@@ -152,9 +152,9 @@ defAgent(
 then use it as a tool
 
 ```js
-script({ tools: "agent_git" })
+script({ tools: "agent" })
 
-$`What is the current branch?`
+$`Do a statistical analysis of the last commits`
 ```
 
 ---
