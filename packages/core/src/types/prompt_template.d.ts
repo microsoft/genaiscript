@@ -1290,6 +1290,13 @@ interface Parsers {
         right: WorkspaceFile,
         options?: DefDiffOptions
     ): string
+
+    /**
+     * Cleans up a dataset made of rows of data
+     * @param rows
+     * @param options
+     */
+    tidyData(rows: object[], options?: DataFilter): object[]
 }
 
 interface AICIGenOptions {
@@ -1973,7 +1980,7 @@ interface DataFilter {
      * The keys to select from the object.
      * If a key is prefixed with -, it will be removed from the object.
      */
-    headers?: string[]
+    headers?: ElementOrArray<string>
     /**
      * Selects the first N elements from the data
      */
@@ -1986,11 +1993,15 @@ interface DataFilter {
      * Selects the a random sample of N items in the collection.
      */
     sliceSample?: number
-
     /**
      * Removes items with duplicate values for the specified keys.
      */
-    distinct?: string[]
+    distinct?: ElementOrArray<string>
+
+    /**
+     * Sorts the data by the specified key(s)
+     */
+    sort?: ElementOrArray<string>
 }
 
 interface DefDataOptions

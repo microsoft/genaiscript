@@ -26,6 +26,7 @@ import { resolveTokenEncoder } from "./encoders"
 import { mustacheRender } from "./mustache"
 import { jinjaRender } from "./jinja"
 import { createDiff, llmifyDiff } from "./diff"
+import { tidyData } from "./tidy"
 
 export async function createParsers(options: {
     trace: MarkdownTrace
@@ -117,5 +118,6 @@ export async function createParsers(options: {
             return jinjaRender(f, data)
         },
         diff: (f1, f2) => llmifyDiff(createDiff(f1, f2)),
+        tidyData: (rows, options) => tidyData(rows, options),
     })
 }

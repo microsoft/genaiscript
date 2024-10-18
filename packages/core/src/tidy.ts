@@ -6,7 +6,10 @@ import {
     sliceSample,
     select,
     distinct,
+    arrange,
+    asc,
 } from "@tidyjs/tidy"
+import { arrayify } from "./util"
 
 // JSDoc comment for the tidyData function
 /**
@@ -21,11 +24,12 @@ import {
  */
 export function tidyData(rows: object[], options: DataFilter = {}) {
     // Check if distinct operation is specified in options and apply it
-    if (options.distinct?.length)
-        rows = tidy(rows, distinct(options.distinct as any))
+    const ds = arrayify(options.distinct)
+    if (ds.length) rows = tidy(rows, distinct(ds as any))
 
     // Check if specific headers need to be selected and apply the selection
-    if (options.headers?.length) rows = tidy(rows, select(options.headers))
+    const headers = arrayify(options.headers)
+    if (headers.length) rows = tidy(rows, select(headers))
 
     // Check if a random sample of rows is to be sliced and apply sampling
     if (options.sliceSample > 0)
@@ -37,6 +41,8 @@ export function tidyData(rows: object[], options: DataFilter = {}) {
     // Check if the tail of rows is to be sliced and apply slicing
     if (options.sliceTail > 0) rows = tidy(rows, sliceTail(options.sliceTail))
 
+    const sorts = arrayify(options.sort)
+    if (sorts) rows = tidy(rows, arrange(sorts))
     // Return the processed rows after applying all specified operations
     return rows
 }

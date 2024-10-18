@@ -306,3 +306,12 @@ Runs the [jinja](https://jinja.palletsprojects.com/en/3.1.x/) template (using [@
 ```js
 const rendered = parsers.jinja("Today is {{date}}.", { date: new Date() })
 ```
+
+## tidyData
+
+A set of data manipulation options that is internally
+used with `defData`.
+
+```js
+const d = parsers.tidyData(rows, { sliceSample: 100, sort: "name" })
+```

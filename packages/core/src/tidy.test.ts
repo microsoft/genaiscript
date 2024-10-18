@@ -40,4 +40,12 @@ describe("tidyData", function () {
         const result = tidyData(rows, options)
         assert.deepStrictEqual(result, [{ a: 2 }, { a: 3 }])
     })
+
+    // add test for sort option
+    it("should handle sort option", function () {
+        const rows = [{ a: 2 }, { a: 1 }, { a: 0 }]
+        const options = { sort: ["a"] }
+        const result = tidyData(rows, options)
+        assert.deepStrictEqual(result, [{ a: 0 }, { a: 1 }, { a: 2 }])
+    })
 })

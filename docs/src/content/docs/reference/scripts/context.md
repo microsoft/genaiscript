@@ -219,6 +219,9 @@ defData("DATA", data, {
 })
 ```
 
+You can leverage the data filtering functionality
+using `parsers.tidyData` as well.
+
 ## Diff Definition (`defDiff`)
 
 It is very common to compare two piece of data and ask the LLM to analyze the differences. Using diffs is a great way
@@ -237,3 +240,5 @@ defDiff("DIFF", "cat", "dog")
 // diff objects
 defDiff("DIFF", { name: "cat" }, { name: "dog" })
 ```
+
+You can leverage the diff functionality using `parsers.diff`.
