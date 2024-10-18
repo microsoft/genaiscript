@@ -255,7 +255,10 @@ export class GenerationStats {
      * @param usage - The usage statistics to be added.
      */
     addUsage(req: CreateChatCompletionRequest, resp: ChatCompletionResponse) {
-        const { usage, model } = resp
+        const {
+            usage = { completion_tokens: 0, prompt_tokens: 0, total_tokens: 0 },
+            model,
+        } = resp
         const { messages } = req
 
         this.usage.completion_tokens += usage.completion_tokens ?? 0
