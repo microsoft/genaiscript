@@ -742,7 +742,7 @@ async function resolveImportPrompty(
     args: Record<string, string | number | boolean>,
     options: ImportTemplateOptions
 ) {
-    const { meta, messages } = promptyParse(f.content)
+    const { messages } = promptyParse(f.content)
     for (const message of messages) {
         const txt = jinjaRenderChatMessage(message, args)
         if (message.role === "assistant")
@@ -907,6 +907,7 @@ async function tracePromptNode(
                 })
                 if (n.preview) trace.fence(n.preview, "markdown")
             } else trace.resultItem(!n.error, title)
+            if (n.error) trace.error(undefined, n.error)
         },
         afterNode: (n) => {
             if (n.children?.length || n.preview) trace.endDetails()
