@@ -11,13 +11,16 @@ defTool(
         properties: {
             expression: {
                 type: "string",
-                description: "Math expression to evaluate using mathjs format.",
+                description:
+                    "Math expression to evaluate using mathjs format. Use ^ for power operator.",
             },
         },
         required: ["expression"],
     },
     async (args) => {
-        const { expression } = args
-        return "" + ((await parsers.math(expression)) ?? "?")
+        const { context, expression } = args
+        const res = String((await parsers.math(expression)) ?? "?")
+        context.log(`math: ${expression} => ${res}`)
+        return res
     }
 )
