@@ -519,7 +519,6 @@ export class DockerManager {
             name,
             persistent,
             hostPath,
-            containerPath: DOCKER_CONTAINER_VOLUME,
             stop,
             exec,
             writeText,

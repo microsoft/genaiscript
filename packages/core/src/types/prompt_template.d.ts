@@ -2969,11 +2969,6 @@ interface ContainerHost extends ShellHost {
     hostPath: string
 
     /**
-     * Path to the volume mounted in the container
-     */
-    containerPath: string
-
-    /**
      * Writes a file as text to the container file system
      * @param path
      * @param content
