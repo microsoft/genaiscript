@@ -33,7 +33,7 @@ export class DockerManager {
     private _createQueue: PLimitPromiseQueue
 
     constructor() {
-        this._createQueue = new PLimitPromiseQueue()
+        this._createQueue = new PLimitPromiseQueue(1)
     }
 
     private async init(options?: TraceOptions) {
@@ -141,6 +141,7 @@ export class DockerManager {
     }): Promise<Container> {
         try {
             const containers = await this._docker.listContainers({
+                all: true,
                 filters,
             })
             const info = containers?.[0]
@@ -164,6 +165,7 @@ export class DockerManager {
             }
             const container = await this.tryGetContainer({ name: [name] })
             if (container) {
+                logVerbose(`container: reclaiming ${name}`)
                 const c = await this.wrapContainer(
                     container,
                     options,
@@ -181,8 +183,8 @@ export class DockerManager {
                 return c
             }
         }
-        return await this._createQueue.add(async () =>
-            this.internalStartContainer(options)
+        return await this._createQueue.add(
+            async () => await this.internalStartContainer(options)
         )
     }
 
@@ -239,7 +241,7 @@ export class DockerManager {
                 OpenStdin: false,
                 StdinOnce: false,
                 NetworkDisabled: false, // disable after post create commands
-                WorkingDir: DOCKER_CONTAINER_VOLUME,
+                WorkingDir: "/" + DOCKER_CONTAINER_VOLUME,
                 Labels: {
                     genaiscript: "true",
                     "genaiscript.version": CORE_VERSION,
@@ -258,7 +260,7 @@ export class DockerManager {
                     <Record<string, any>>{}
                 ),
                 HostConfig: {
-                    Binds: [`${hostPath}:${DOCKER_CONTAINER_VOLUME}`],
+                    Binds: [`${hostPath}:/${DOCKER_CONTAINER_VOLUME}`],
                     PortBindings: ports?.reduce(
                         (acc, { containerPort, hostPort }) => {
                             acc[containerPort] = [
@@ -319,10 +321,14 @@ export class DockerManager {
         }
 
         const resolveContainerPath = (to: string) => {
-            to = /^\//.test(to)
-                ? host.path.resolve(hostPath, to.replace(/^\//, ""))
-                : host.path.resolve(hostPath, to || "")
-            return to
+            const res = /^\//.test(to)
+                ? host.path.resolve(
+                      hostPath,
+                      DOCKER_CONTAINER_VOLUME,
+                      to.replace(/^\//, "")
+                  )
+                : host.path.resolve(hostPath, DOCKER_CONTAINER_VOLUME, to || "")
+            return res
         }
 
         const resume: () => Promise<void> = async () => {
@@ -359,7 +365,7 @@ export class DockerManager {
             const { cwd: userCwd, label } = options || {}
             const cwd = userCwd
                 ? resolveContainerPath(userCwd)
-                : DOCKER_CONTAINER_VOLUME
+                : "/" + DOCKER_CONTAINER_VOLUME
             try {
                 trace?.startDetails(`📦 ▶️ container exec ${label || command}`)
                 trace?.itemValue(`container`, container.id)
@@ -449,21 +455,28 @@ export class DockerManager {
             }
         }
 
-        const copyTo = async (from: string | string[], to: string) => {
-            to = resolveContainerPath(to)
+        const copyTo = async (
+            from: string | string[],
+            to: string
+        ): Promise<string[]> => {
+            const cto = resolveContainerPath(to)
             const files = await host.findFiles(from)
+            const res: string[] = []
             for (const file of files) {
                 const source = host.path.resolve(file)
-                const target = host.path.resolve(to, host.path.basename(file))
+                const target = host.path.resolve(cto, host.path.basename(file))
                 await ensureDir(host.path.dirname(target))
                 await copyFile(source, target)
+                res.push(host.path.join(to, host.path.basename(file)))
             }
+            return res
         }
 
         const listFiles = async (to: string) => {
             const source = host.path.resolve(hostPath, resolveContainerPath(to))
             try {
-                return await readdir(source)
+                const files = await readdir(source)
+                return files
             } catch (e) {
                 return []
             }

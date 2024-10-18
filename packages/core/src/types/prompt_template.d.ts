@@ -2990,7 +2990,7 @@ interface ContainerHost extends ShellHost {
      * @param fromHost glob matching files
      * @param toContainer directory in the container
      */
-    copyTo(fromHost: string | string[], toContainer: string): Promise<void>
+    copyTo(fromHost: string | string[], toContainer: string): Promise<string[]>
 
     /**
      * List files in a directory in the container

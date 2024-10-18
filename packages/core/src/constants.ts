@@ -224,7 +224,7 @@ export const JSON_META_SCHEMA_URI =
 export const SHELL_EXEC_TIMEOUT = 300000
 export const DOCKER_DEFAULT_IMAGE = "python:alpine"
 export const DOCKER_VOLUMES_DIR = "containers"
-export const DOCKER_CONTAINER_VOLUME = "/app"
+export const DOCKER_CONTAINER_VOLUME = "app"
 
 export const CLI_RUN_FILES_FOLDER = "files"
 

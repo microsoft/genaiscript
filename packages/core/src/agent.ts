@@ -29,7 +29,8 @@ export async function agentQueryMemory(
             label: "agent memory query",
         }
     )
-    if (!res.error) memoryAnswer = res.text
+    if (!res.error)
+        memoryAnswer = res.text.includes("<NO_INFORMATION>") ? "" : res.text
     else logVerbose(`agent memory query error: ${errorMessage(res.error)}`)
     return memoryAnswer
 }
