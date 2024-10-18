@@ -11,6 +11,17 @@ GenAIScript defines an **agent** as a [tool](/genaiscript/reference/scripts/tool
 runs an [inline prompt](/genaiscript/reference/scripts/inline-prompts) to accomplish a task. The agent's LLM is typically augmented with
 additional tools and a memory.
 
+```js
+script({
+    // use all agents
+    tools: "agent",
+})
+
+// agent git to get the commits
+// agent interpreter to run python code
+$`Do a statistical analysis of the last commits`
+```
+
 **GenAIScript does _not_ implement any agentic workflow or decision.**
 It relies entirely on [tools](/genaiscript/reference/scripts/tools) support built into the LLMs.
 

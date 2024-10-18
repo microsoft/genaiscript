@@ -6,6 +6,7 @@ import {
     DEFAULT_MODEL,
     GIT_DIFF_MAX_TOKENS,
     GIT_IGNORE_GENAI,
+    GIT_LOG_COUNT,
 } from "./constants"
 import { llmifyDiff } from "./diff"
 import { resolveFileContents } from "./file"
@@ -190,11 +191,12 @@ export class GitClient implements Git {
         base?: string
         head?: string
         merges?: boolean
+        count?: number
         excludedGrep?: string | RegExp
         paths?: ElementOrArray<string>
         excludedPaths?: ElementOrArray<string>
     }): Promise<GitCommit[]> {
-        const { base, head, merges, excludedGrep } = options || {}
+        const { base, head, merges, excludedGrep, count } = options || {}
         const paths = arrayify(options?.paths, { filterEmpty: true })
         const excludedPaths = await this.resolveExcludedPaths(options)
 
@@ -207,6 +209,7 @@ export class GitClient implements Git {
                     : excludedGrep.source
             args.push(`--grep='${pattern}'`, "--invert-grep")
         }
+        if (!isNaN(count)) args.push(`-n`, String(count))
         if (base && head) args.push(`${base}..${head}`)
         GitClient.addFileFilters(paths, excludedPaths, args)
         const res = await this.exec(args)

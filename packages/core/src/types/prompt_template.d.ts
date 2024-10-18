@@ -1490,6 +1490,7 @@ interface Git {
     log(options?: {
         base?: string
         head?: string
+        count?: number
         merges?: boolean
         excludedGrep?: string | RegExp
         paths?: ElementOrArray<string>

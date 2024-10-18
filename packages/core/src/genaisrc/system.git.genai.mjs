@@ -91,6 +91,10 @@ defTool(
                 type: "string",
                 description: "Head branch to compare",
             },
+            count: {
+                type: "number",
+                description: "Number of commits to return",
+            },
             paths: {
                 type: "array",
                 description: "Paths to compare",
@@ -110,8 +114,8 @@ defTool(
         },
     },
     async (args) => {
-        const { base, head, paths, excludedPaths } = args
-        const commits = await git.log({ base, head, paths, excludedPaths })
+        const { base, head, paths, excludedPaths, count } = args
+        const commits = await git.log({ base, head, paths, excludedPaths, count })
         return commits.map(({ sha, message }) => `${sha} ${message}`).join("\n")
     }
 )
