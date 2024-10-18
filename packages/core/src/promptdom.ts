@@ -23,6 +23,7 @@ import { dedent } from "./indent"
 import {
     ChatCompletionAssistantMessageParam,
     ChatCompletionMessageParam,
+    ChatCompletionSystemMessageParam,
 } from "./chattypes"
 import { resolveTokenEncoder } from "./encoders"
 import { expandFiles } from "./fs"
@@ -1078,10 +1079,15 @@ ${fods.map((fo) => `   ${fo.pattern}: ${fo.description}`)}
         toChatCompletionUserMessage(userPrompt, images),
     ]
     if (assistantPrompt)
-        messages.push(<ChatCompletionAssistantMessageParam>{
+        messages.push({
             role: "assistant",
             content: assistantPrompt,
-        })
+        } as ChatCompletionAssistantMessageParam)
+    if (systemPrompt)
+        messages.unshift({
+            role: "system",
+            content: systemPrompt,
+        } as ChatCompletionSystemMessageParam)
     const res = Object.freeze<PromptNodeRender>({
         userPrompt,
         assistantPrompt,
