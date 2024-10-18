@@ -10,6 +10,7 @@ import { YAMLStringify } from "./yaml"
 import {
     MARKDOWN_PROMPT_FENCE,
     PROMPT_FENCE,
+    PROMPTY_REGEX,
     TEMPLATE_ARG_DATA_SLICE_SAMPLE,
     TEMPLATE_ARG_FILE_MAX_TOKENS,
 } from "./constants"
@@ -27,6 +28,8 @@ import { resolveTokenEncoder } from "./encoders"
 import { expandFiles } from "./fs"
 import { interpolateVariables } from "./mustache"
 import { createDiff } from "./diff"
+import { promptyParse } from "./prompty"
+import { jinjaRenderChatMessage } from "./jinja"
 
 // Definition of the PromptNode interface which is an essential part of the code structure.
 export interface PromptNode extends ContextExpansionOptions {
@@ -97,7 +100,6 @@ export interface PromptImportTemplate extends PromptNode {
     files: string | string[] // Files to import
     args?: Record<string, string | number | boolean> // Arguments for the template
     options?: ImportTemplateOptions // Additional options
-    resolved?: Record<string, string> // Resolved content from files
 }
 
 // Interface representing a prompt image.
@@ -244,9 +246,7 @@ function renderDefNode(def: PromptDefNode): string {
         dfence += "`"
     }
     const diffFormat =
-        body.length > 500
-            ? " preferred_output_format=CHANGELOG "
-            : ""
+        body.length > 500 ? " preferred_output_format=CHANGELOG " : ""
     const res =
         (name ? name + ":\n" : "") +
         dfence +
@@ -667,23 +667,28 @@ async function resolvePromptNode(
         },
         importTemplate: async (n) => {
             try {
-                n.resolved = {}
                 const { files, args, options } = n
+                n.children = []
+                n.preview = ""
                 const fs = await (
                     await expandFiles(arrayify(files))
                 ).map((filename) => <WorkspaceFile>{ filename })
+                if (fs.length === 0)
+                    throw new Error(`No files found for import: ${files}`)
                 for (const f of fs) {
                     await resolveFileContent(f, options)
-                    n.resolved[f.filename] = await interpolateVariables(
-                        f.content,
-                        args
-                    )
+                    if (PROMPTY_REGEX.test(f.filename))
+                        await resolveImportPrompty(n, f, args, options)
+                    else {
+                        const rendered = await interpolateVariables(
+                            f.content,
+                            args
+                        )
+                        n.children.push(createTextNode(rendered))
+                        n.preview += rendered + "\n"
+                    }
                 }
-                n.preview = inspect(n.resolved, { maxDepth: 3 })
-                n.tokens = estimateTokens(
-                    Object.values(n.resolved).join("\n"),
-                    encoder
-                )
+                n.tokens = estimateTokens(n.preview, encoder)
             } catch (e) {
                 n.error = e
             }
@@ -699,6 +704,22 @@ async function resolvePromptNode(
         },
     })
     return { errors: err }
+}
+
+async function resolveImportPrompty(
+    n: PromptImportTemplate,
+    f: WorkspaceFile,
+    args: Record<string, string | number | boolean>,
+    options: ImportTemplateOptions
+) {
+    const { meta, messages } = promptyParse(f.content)
+    for (const message of messages) {
+        const txt = jinjaRenderChatMessage(message, args)
+        if (message.role === "assistant")
+            n.children.push(createAssistantNode(txt))
+        else n.children.push(createTextNode(txt))
+        n.preview += txt + "\n"
+    }
 }
 
 // Function to handle truncation of prompt nodes based on token limits.

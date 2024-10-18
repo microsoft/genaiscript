@@ -1,5 +1,6 @@
 // Import the Template class from the @huggingface/jinja package
 import { Template } from "@huggingface/jinja"
+import { ChatCompletionMessageParam } from "./chattypes"
 
 /**
  * Renders a string template using the Jinja templating engine.
@@ -24,4 +25,22 @@ export function jinjaRender(
 
     // Return the rendered string
     return res
+}
+
+export function jinjaRenderChatMessage(
+    msg: ChatCompletionMessageParam,
+    args: Record<string, any>
+) {
+    const { content } = msg
+    let template: string[] = []
+    if (typeof content === "string") template.push(content)
+    else
+        for (const part of content) {
+            if (part.type === "text") template.push(part.text)
+            else if (part.type === "image_url")
+                template.push(`![](${part.image_url})`)
+            else if (part.type === "refusal")
+                template.push(`refusal: ${part.refusal}`)
+        }
+    return jinjaRender(template.join("\n"), args)
 }
