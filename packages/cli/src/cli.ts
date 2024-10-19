@@ -298,7 +298,7 @@ export async function cli() {
     const parserData = parser
         .command("data <file>")
         .description(
-            "Convert CSV, YAML, TOML, INI, XLSX or JSON data files into various formats"
+            "Convert CSV, YAML, TOML, INI, XLSX, XML, MD/X frontmatter or JSON data files into various formats"
         )
         .action(parseAnyToJSON)
     parserData.addOption(

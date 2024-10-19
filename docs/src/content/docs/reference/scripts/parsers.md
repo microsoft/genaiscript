@@ -315,3 +315,12 @@ used with `defData`.
 ```js
 const d = parsers.tidyData(rows, { sliceSample: 100, sort: "name" })
 ```
+
+## Command line
+
+Use the [parse](/genaiscript/reference/cli/commands#parse) command from the CLI to try out various parsers.
+
+```sh
+# convert any known data format to JSON
+npx --yes genaiscript parse data mydata.csv
+```

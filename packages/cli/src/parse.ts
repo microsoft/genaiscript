@@ -20,6 +20,7 @@ import {
     INI_REGEX,
     JSON5_REGEX,
     MD_REGEX,
+    MDX_REGEX,
     PROMPTY_REGEX,
     TOML_REGEX,
     XLSX_REGEX,
@@ -123,9 +124,12 @@ export async function parseAnyToJSON(
         if (CSV_REGEX.test(file)) data = CSVParse(src)
         else if (INI_REGEX.test(file)) data = INIParse(src)
         else if (TOML_REGEX.test(file)) data = TOMLParse(src)
-        else if (JSON5_REGEX.test(file)) data = JSON5parse(src)
+        else if (JSON5_REGEX.test(file))
+            data = JSON5parse(src, { repair: true })
         else if (YAML_REGEX.test(file)) data = YAMLParse(src)
         else if (XML_REGEX.test(file)) data = XMLParse(src)
+        else if (MD_REGEX.test(file) || MDX_REGEX.test(file))
+            data = YAML.parse(splitMarkdown(src).frontmatter)
         else throw new Error("Unsupported file format")
     }
 

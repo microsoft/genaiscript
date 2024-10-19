@@ -303,8 +303,9 @@ Options:
   -h, --help                   display help for command
 
 Commands:
-  data [options] <file>        Convert CSV, YAML, TOML, INI, XLSX or JSON data
-                               files into various formats
+  data [options] <file>        Convert CSV, YAML, TOML, INI, XLSX, XML, MD/X
+                               frontmatter or JSON data files into various
+                               formats
   fence <language> <file>      Extracts a code fenced regions of the given type
   pdf <file>                   Parse a PDF into text
   docx <file>                  Parse a DOCX into texts
@@ -322,11 +323,12 @@ Commands:
 ```
 Usage: genaiscript parse data [options] <file>
 
-Convert CSV, YAML, TOML, INI, XLSX or JSON data files into various formats
+Convert CSV, YAML, TOML, INI, XLSX, XML, MD/X frontmatter or JSON data files
+into various formats
 
 Options:
   -f, --format <string>  output format (choices: "json", "json5", "yaml",
-                         "ini", "csv", "md")
+                         "ini", "csv", "xml", "md", "mdx")
   -h, --help             display help for command
 ```
 
