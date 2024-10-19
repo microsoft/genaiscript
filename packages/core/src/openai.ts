@@ -151,7 +151,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
                 trimTrailingSlash(cfg.base) +
                 "/" +
                 model.replace(/\./g, "") +
-                `/chat/completions?api-version=${AZURE_OPENAI_API_VERSION}`
+                `/chat/completions?api-version=${AZURE_AI_INFERENCE_VERSION}`
             // https://learn.microsoft.com/en-us/azure/machine-learning/reference-model-inference-api?view=azureml-api-2&tabs=javascript#extensibility
         ;(headers as any)["extra-parameters"] = "drop"
         delete r2.model
