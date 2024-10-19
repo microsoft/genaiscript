@@ -123,6 +123,13 @@ interface ModelConnectionOptions {
         | "ollama:phi3"
         | "ollama:llama3"
         | "ollama:mixtral"
+        | "anthropic:claude-3-5-sonnet-20240620"
+        | "anthropic:claude-3-opus-20240229"
+        | "anthropic:claude-3-sonnet-20240229"
+        | "anthropic:claude-3-haiku-20240307"
+        | "anthropic:claude-2.1"
+        | "anthropic:claude-2.0"
+        | "anthropic:claude-instant-1.2"
     >
 
     /**
