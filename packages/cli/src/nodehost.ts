@@ -192,7 +192,9 @@ export class NodeHost implements RuntimeHost {
                 if (!this._azureOpenAIToken)
                     throw new Error("Azure OpenAI token not available")
                 tok.token = "Bearer " + this._azureOpenAIToken.token
-            } else {
+            }
+            /* not supported yet         
+            else {
                 if (isAzureTokenExpired(this._azureServerlessToken)) {
                     logVerbose(
                         `fetching Azure AI Infererence token ${this._azureServerlessToken?.expiresOnTimestamp >= Date.now() ? `(expired ${new Date(this._azureServerlessToken.expiresOnTimestamp).toLocaleString()})` : ""}`
@@ -206,6 +208,7 @@ export class NodeHost implements RuntimeHost {
                     throw new Error("Azure AI Inference token not available")
                 tok.token = "Bearer " + this._azureServerlessToken.token
             }
+*/
         }
         if (!tok) {
             const { provider } = parseModelIdentifier(modelId)
