@@ -12,11 +12,24 @@ import { HTMLToText } from "../../core/src/html"
 import { isJSONLFilename, JSONLTryParse } from "../../core/src/jsonl"
 import { parsePdf } from "../../core/src/pdf"
 import { estimateTokens } from "../../core/src/tokens"
-import { YAMLStringify } from "../../core/src/yaml"
+import { YAMLParse, YAMLStringify } from "../../core/src/yaml"
 import { resolveTokenEncoder } from "../../core/src/encoders"
-import { DEFAULT_MODEL } from "../../core/src/constants"
+import {
+    CSV_REGEX,
+    DEFAULT_MODEL,
+    INI_REGEX,
+    JSON5_REGEX,
+    TOML_REGEX,
+    XLSX_REGEX,
+    YAML_REGEX,
+} from "../../core/src/constants"
 import { promptyParse, promptyToGenAIScript } from "../../core/src/prompty"
 import { basename, join } from "node:path"
+import { CSVParse, CSVStringify, CSVToMarkdown } from "../../core/src/csv"
+import { INIParse, INIStringify } from "../../core/src/ini"
+import { TOMLParse } from "../../core/src/toml"
+import { JSON5parse, JSON5Stringify } from "../../core/src/json5"
+import { XLSXParse } from "../../core/src/xlsx"
 
 /**
  * This module provides various parsing utilities for different file types such
@@ -68,6 +81,48 @@ export async function parseHTMLToText(file: string) {
     // Converts HTML to plain text
     const text = HTMLToText(html)
     console.log(text)
+}
+
+export async function parseAnyToJSON(
+    file: string,
+    options: { format: string }
+) {
+    let data: any
+    if (XLSX_REGEX.test(file)) data = await XLSXParse(await readFile(file))
+    else {
+        const src = await readFile(file, { encoding: "utf-8" })
+        if (CSV_REGEX.test(file)) data = CSVParse(src)
+        else if (INI_REGEX.test(file)) data = INIParse(src)
+        else if (TOML_REGEX.test(file)) data = TOMLParse(src)
+        else if (JSON5_REGEX.test(file)) data = JSON5parse(src)
+        else if (YAML_REGEX.test(file)) data = YAMLParse(src)
+        else throw new Error("Unsupported file format")
+    }
+
+    let out: string
+    switch (options?.format?.toLowerCase() || "") {
+        case "yaml":
+            out = YAMLStringify(data)
+            break
+        case "ini":
+            out = INIStringify(data)
+            break
+        case "csv":
+            out = CSVStringify(data, { header: true })
+            break
+        case "md":
+        case "markdown":
+            out = CSVToMarkdown(data)
+            break
+        case "json5":
+            out = JSON5Stringify(data, null, 2)
+            break
+        default:
+            out = JSON.stringify(data, null, 2)
+            break
+    }
+
+    console.log(out)
 }
 
 /**

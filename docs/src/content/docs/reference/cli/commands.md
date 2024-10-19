@@ -303,6 +303,8 @@ Options:
   -h, --help                   display help for command
 
 Commands:
+  data [options] <file>        Convert CSV, YAML, TOML, INI, XLSX or JSON files
+                               into various formats
   fence <language> <file>      Extracts a code fenced regions of the given type
   pdf <file>                   Parse a PDF into text
   docx <file>                  Parse a DOCX into texts
@@ -312,6 +314,19 @@ Commands:
   tokens [options] <files...>  Count tokens in a set of files
   jsonl2json                   Converts JSONL files to a JSON file
   prompty [options] <file...>  Converts .prompty files to genaiscript
+```
+
+### `parse data`
+
+```
+Usage: genaiscript parse data [options] <file>
+
+Convert CSV, YAML, TOML, INI, XLSX or JSON files into various formats
+
+Options:
+  -f, --format <string>  output format (choices: "json", "json5", "yaml",
+                         "ini", "csv", "md")
+  -h, --help             display help for command
 ```
 
 ### `parse fence`
