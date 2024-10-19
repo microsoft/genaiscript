@@ -33,7 +33,6 @@ export interface LanguageModelConfiguration {
     model: string
     base: string
     token: string
-    curlHeaders?: Record<string, string>
     type?: APIType
     source?: string
     aici?: boolean

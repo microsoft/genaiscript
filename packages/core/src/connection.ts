@@ -1,14 +1,6 @@
 import {
+    AZURE_AI_INFERENCE_VERSION,
     AZURE_OPENAI_API_VERSION,
-    DEFAULT_TEMPERATURE,
-    DOCS_CONFIGURATION_AICI_URL,
-    DOCS_CONFIGURATION_AZURE_OPENAI_URL,
-    DOCS_CONFIGURATION_GITHUB_URL,
-    DOCS_CONFIGURATION_LITELLM_URL,
-    DOCS_CONFIGURATION_LLAMAFILE_URL,
-    DOCS_CONFIGURATION_LOCALAI_URL,
-    DOCS_CONFIGURATION_OLLAMA_URL,
-    DOCS_CONFIGURATION_OPENAI_URL,
     DOT_ENV_FILENAME,
     GITHUB_MODELS_BASE,
     LITELLM_API_BASE,
@@ -27,7 +19,7 @@ import {
     PLACEHOLDER_API_BASE,
     PLACEHOLDER_API_KEY,
 } from "./constants"
-import { fileExists, readText, tryReadText, writeText } from "./fs"
+import { fileExists, readText, writeText } from "./fs"
 import { APIType, host, LanguageModelConfiguration } from "./host"
 import { parseModelIdentifier } from "./models"
 import { normalizeFloat, trimTrailingSlash } from "./util"
@@ -104,9 +96,6 @@ export async function parseTokenFromEnv(
                 token,
                 source: "env: OPENAI_API_...",
                 version,
-                curlHeaders: {
-                    Authorization: `Bearer $OPENAI_API_KEY`,
-                },
             }
         }
     }
@@ -127,9 +116,6 @@ export async function parseTokenFromEnv(
             type,
             token,
             source: `env: ${tokenVar}`,
-            curlHeaders: {
-                Authorization: `Bearer $${tokenVar}`,
-            },
         }
     }
 
@@ -173,15 +159,11 @@ export async function parseTokenFromEnv(
                 ? "env: AZURE_OPENAI_API_..."
                 : "env: AZURE_OPENAI_API_... + Entra ID",
             version,
-            curlHeaders: tokenVar
-                ? {
-                      "api-key": `$${tokenVar}`,
-                  }
-                : undefined,
         }
     }
 
     if (provider === MODEL_PROVIDER_AZURE_SERVERLESS) {
+        // https://github.com/Azure/azure-sdk-for-js/tree/@azure-rest/ai-inference_1.0.0-beta.2/sdk/ai/ai-inference-rest
         const tokenVar = "AZURE_INFERENCE_CREDENTIAL"
         const token = env[tokenVar]?.trim()
         const base = trimTrailingSlash(env.AZURE_INFERENCE_ENDPOINT)
@@ -194,9 +176,9 @@ export async function parseTokenFromEnv(
         if (!URL.canParse(base))
             throw new Error("AZURE_INFERENCE_ENDPOINT must be a valid URL")
         const version = env.AZURE_INFERENCE_API_VERSION
-        if (version && version !== AZURE_OPENAI_API_VERSION)
+        if (version && version !== AZURE_AI_INFERENCE_VERSION)
             throw new Error(
-                `AZURE_INFERENCE_ENDPOINT must be '${AZURE_OPENAI_API_VERSION}'`
+                `AZURE_INFERENCE_API_VERSION must be '${AZURE_AI_INFERENCE_VERSION}'`
             )
         return {
             provider,
@@ -206,11 +188,6 @@ export async function parseTokenFromEnv(
             type: "azure_serverless",
             source: "env: AZURE_INFERENCE_...",
             version,
-            curlHeaders: tokenVar
-                ? {
-                      "api-key": `$${tokenVar}`,
-                  }
-                : undefined,
         }
     }
 
@@ -241,11 +218,6 @@ export async function parseTokenFromEnv(
                 type,
                 version,
                 source,
-                curlHeaders: token
-                    ? {
-                          Authorization: `Bearer $${modelKey}`,
-                      }
-                    : undefined,
             }
         }
     }
