@@ -34,6 +34,7 @@ export const TOML_REGEX = /\.toml$/i
 export const XLSX_REGEX = /\.xlsx$/i
 export const DOCX_REGEX = /\.docx$/i
 export const PDF_REGEX = /\.pdf$/i
+export const MD_REGEX = /\.md$/i
 export const MDX_REGEX = /\.mdx$/i
 export const MJS_REGEX = /\.mjs$/i
 export const JS_REGEX = /\.js$/i

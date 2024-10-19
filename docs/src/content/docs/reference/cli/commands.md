@@ -303,8 +303,8 @@ Options:
   -h, --help                   display help for command
 
 Commands:
-  data [options] <file>        Convert CSV, YAML, TOML, INI, XLSX or JSON files
-                               into various formats
+  data [options] <file>        Convert CSV, YAML, TOML, INI, XLSX or JSON data
+                               files into various formats
   fence <language> <file>      Extracts a code fenced regions of the given type
   pdf <file>                   Parse a PDF into text
   docx <file>                  Parse a DOCX into texts
@@ -314,6 +314,7 @@ Commands:
   tokens [options] <files...>  Count tokens in a set of files
   jsonl2json                   Converts JSONL files to a JSON file
   prompty [options] <file...>  Converts .prompty files to genaiscript
+  jinja2 [options] <file>      Renders Jinj2 or prompty template
 ```
 
 ### `parse data`
@@ -321,7 +322,7 @@ Commands:
 ```
 Usage: genaiscript parse data [options] <file>
 
-Convert CSV, YAML, TOML, INI, XLSX or JSON files into various formats
+Convert CSV, YAML, TOML, INI, XLSX or JSON data files into various formats
 
 Options:
   -f, --format <string>  output format (choices: "json", "json5", "yaml",
@@ -420,6 +421,21 @@ Arguments:
 Options:
   -o, --out <string>  output folder
   -h, --help          display help for command
+```
+
+### `parse jinja2`
+
+```
+Usage: genaiscript parse jinja2 [options] <file>
+
+Renders Jinj2 or prompty template
+
+Arguments:
+  file                   input Jinja2 or prompty template file
+
+Options:
+  --vars <namevalue...>  variables, as name=value passed to the template
+  -h, --help             display help for command
 ```
 
 ## `info`

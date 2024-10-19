@@ -19,6 +19,8 @@ import {
     DEFAULT_MODEL,
     INI_REGEX,
     JSON5_REGEX,
+    MD_REGEX,
+    PROMPTY_REGEX,
     TOML_REGEX,
     XLSX_REGEX,
     YAML_REGEX,
@@ -30,6 +32,9 @@ import { INIParse, INIStringify } from "../../core/src/ini"
 import { TOMLParse } from "../../core/src/toml"
 import { JSON5parse, JSON5Stringify } from "../../core/src/json5"
 import { XLSXParse } from "../../core/src/xlsx"
+import { jinjaRender } from "../../core/src/jinja"
+import { splitMarkdown } from "../../core/src/frontmatter"
+import { parseOptionsVars } from "./vars"
 
 /**
  * This module provides various parsing utilities for different file types such
@@ -81,6 +86,21 @@ export async function parseHTMLToText(file: string) {
     // Converts HTML to plain text
     const text = HTMLToText(html)
     console.log(text)
+}
+
+export async function parseJinja2(
+    file: string,
+    options: {
+        vars: string[]
+    }
+) {
+    let src = await readFile(file, { encoding: "utf-8" })
+    if (PROMPTY_REGEX.test(file)) src = promptyParse(src).content
+    else if (MD_REGEX.test(file)) src = splitMarkdown(src).content
+
+    const vars = parseOptionsVars(options.vars, process.env)
+    const res = jinjaRender(src, vars)
+    console.log(res)
 }
 
 export async function parseAnyToJSON(

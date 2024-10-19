@@ -17,6 +17,7 @@ import {
     parseDOCX,
     parseFence,
     parseHTMLToText,
+    parseJinja2,
     parsePDF,
     parseTokens,
     prompty2genaiscript,
@@ -347,6 +348,15 @@ export async function cli() {
         .argument("<file...>", "input JSONL files")
         .option("-o, --out <string>", "output folder")
         .action(prompty2genaiscript) // Action to convert prompty files
+    parser
+        .command("jinja2")
+        .description("Renders Jinj2 or prompty template")
+        .argument("<file>", "input Jinja2 or prompty template file")
+        .option(
+            "--vars <namevalue...>",
+            "variables, as name=value passed to the template"
+        )
+        .action(parseJinja2)
 
     // Define 'info' command group for utility information tasks
     const info = program.command("info").description("Utility tasks")
