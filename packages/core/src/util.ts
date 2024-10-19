@@ -64,6 +64,10 @@ export function deleteUndefinedValues<T extends Record<string, any>>(o: T): T {
     return o
 }
 
+export function collapseEmptyLines(text: string) {
+    return text?.replace(/(\r?\n){2,}/g, "\n\n")
+}
+
 export function assert(
     cond: boolean,
     msg = "Assertion failed",

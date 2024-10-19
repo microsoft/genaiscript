@@ -23,6 +23,7 @@ import {
     PROMPTY_REGEX,
     TOML_REGEX,
     XLSX_REGEX,
+    XML_REGEX,
     YAML_REGEX,
 } from "../../core/src/constants"
 import { promptyParse, promptyToGenAIScript } from "../../core/src/prompty"
@@ -35,6 +36,7 @@ import { XLSXParse } from "../../core/src/xlsx"
 import { jinjaRender } from "../../core/src/jinja"
 import { splitMarkdown } from "../../core/src/frontmatter"
 import { parseOptionsVars } from "./vars"
+import { XMLParse } from "../../core/src/xml"
 
 /**
  * This module provides various parsing utilities for different file types such
@@ -98,7 +100,14 @@ export async function parseJinja2(
     if (PROMPTY_REGEX.test(file)) src = promptyParse(src).content
     else if (MD_REGEX.test(file)) src = splitMarkdown(src).content
 
-    const vars = parseOptionsVars(options.vars, process.env)
+    const vars: Record<string, any> = parseOptionsVars(
+        options.vars,
+        process.env
+    )
+    for (const k in vars) {
+        const i = parseFloat(vars[k])
+        if (!isNaN(i)) vars[k] = i
+    }
     const res = jinjaRender(src, vars)
     console.log(res)
 }
@@ -116,6 +125,7 @@ export async function parseAnyToJSON(
         else if (TOML_REGEX.test(file)) data = TOMLParse(src)
         else if (JSON5_REGEX.test(file)) data = JSON5parse(src)
         else if (YAML_REGEX.test(file)) data = YAMLParse(src)
+        else if (XML_REGEX.test(file)) data = XMLParse(src)
         else throw new Error("Unsupported file format")
     }
 

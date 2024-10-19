@@ -32,6 +32,7 @@ export const YAML_REGEX = /\.yaml$/i
 export const INI_REGEX = /\.ini$/i
 export const TOML_REGEX = /\.toml$/i
 export const XLSX_REGEX = /\.xlsx$/i
+export const XML_REGEX = /\.xml$/i
 export const DOCX_REGEX = /\.docx$/i
 export const PDF_REGEX = /\.pdf$/i
 export const MD_REGEX = /\.md$/i

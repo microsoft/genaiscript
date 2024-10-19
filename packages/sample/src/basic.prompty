@@ -13,7 +13,8 @@ inputs:
   question:
     type: string
 sample:
-  "question": Who is the most famous person in the world?
+  question: Who is the most famous person in the world?
+  n: 5
 tests:
   - vars:
       question: what is the capital of france?
@@ -23,6 +24,13 @@ tests:
 system:
 You are an AI assistant who helps people find information.
 As the assistant, you answer questions briefly, succinctly. 
+
+{% if n > 0 %}
+Give multiple hints.
+{% else %}
+Give only 1 hint.
+{% endif %}
+
 
 user:
 {{question}}
