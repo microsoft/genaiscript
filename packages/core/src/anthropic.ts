@@ -1,256 +1,191 @@
 import { ChatCompletionHandler, LanguageModel, LanguageModelInfo } from "./chat"
 import { ANTHROPIC_MAX_TOKEN, MODEL_PROVIDER_ANTHROPIC } from "./constants"
-import { LanguageModelConfiguration, host } from "./host"
+import { LanguageModelConfiguration } from "./host"
 import { parseModelIdentifier } from "./models"
-import { RequestError, errorMessage, serializeError } from "./error"
+import { serializeError } from "./error"
 import { estimateTokens } from "./tokens"
-import { toSignal } from "./cancellation"
 import { resolveTokenEncoder } from "./encoders"
 import Anthropic from "@anthropic-ai/sdk"
 
 import {
-    ChatCompletionMessageParam,
     ChatCompletionResponse,
-    ChatCompletionTool,
     ChatCompletionToolCall,
     ChatCompletionUsage,
 } from "./chattypes"
-import {
-    Message,
-    ContentBlock,
-    ToolUseBlock,
-    TextBlock,
-} from "@anthropic-ai/sdk/resources/messages"
+// Add this line after the import
+import * as OpenAI from "./chattypes"
+
 import { logError } from "./util"
 import { ChatCompletionMessageToolCall } from "openai/resources/index.mjs"
 
-const anthropic_to_openai = {
-    /**
-     * Converts Anthropic's stop_reason to OpenAI's finish_reason
-     */
-    convertFinishReason: (
-        stopReason: Message["stop_reason"]
-    ): ChatCompletionResponse["finishReason"] => {
-        switch (stopReason) {
-            case "end_turn":
-                return "stop"
-            case "max_tokens":
-                return "length"
-            case "stop_sequence":
-                return "stop"
-            case "tool_use":
-                return "tool_calls"
-            default:
-                return undefined
-        }
-    },
-    /**
-     * Converts Anthropic usage to OpenAI-compatible usage
-     */
-    convertUsage: (
-        usage: Anthropic.Usage
-    ): ChatCompletionResponse["usage"] | undefined => {
-        if (!usage) return undefined
-        return {
-            prompt_tokens: usage.input_tokens,
-            completion_tokens: usage.output_tokens,
-            total_tokens: usage.input_tokens + usage.output_tokens,
-        } satisfies ChatCompletionUsage
-    },
+const convertFinishReason = (
+    stopReason: Anthropic.Message["stop_reason"]
+): OpenAI.ChatCompletionResponse["finishReason"] => {
+    switch (stopReason) {
+        case "end_turn":
+            return "stop"
+        case "max_tokens":
+            return "length"
+        case "stop_sequence":
+            return "stop"
+        case "tool_use":
+            return "tool_calls"
+        default:
+            return undefined
+    }
+}
 
-    /**
-     * Converts an Anthropic Message to an OpenAI-compatible ChatCompletionResponse
-     */
-    messageToResponse: (message: Message): ChatCompletionResponse => {
-        return {
-            text: message.content
-                .map((block) => {
-                    if (block.type === "text") return block.text
-                    return ""
-                })
-                .join(""),
-            finishReason: anthropic_to_openai.convertFinishReason(
-                message.stop_reason
-            ),
-            usage: anthropic_to_openai.convertUsage(message.usage),
-            model: message.model,
-            toolCalls: message.content
-                .filter(
-                    (block): block is ToolUseBlock => block.type === "tool_use"
-                )
-                .map(anthropic_to_openai.toolUseBlockToToolCall),
-        }
-    },
+const convertUsage = (
+    usage: Anthropic.Usage | undefined
+): OpenAI.ChatCompletionUsage | undefined => {
+    if (!usage) return undefined
+    return {
+        prompt_tokens: usage.input_tokens,
+        completion_tokens: usage.output_tokens,
+        total_tokens: usage.input_tokens + usage.output_tokens,
+    } satisfies OpenAI.ChatCompletionUsage
+}
+const adjustUsage = (
+    usage: ChatCompletionUsage,
+    outputTokens: Anthropic.MessageDeltaUsage
+): ChatCompletionUsage => {
+    return {
+        ...usage,
+        completion_tokens: usage.completion_tokens + outputTokens.output_tokens,
+        total_tokens: usage.total_tokens + outputTokens.output_tokens,
+    }
+}
 
-    /**
-     * Converts an Anthropic ToolUseBlock to an OpenAI-compatible ChatCompletionToolCall
-     */
-    toolUseBlockToToolCall: (block: ToolUseBlock): ChatCompletionToolCall => {
-        return {
-            id: block.id,
-            name: block.name,
-            arguments: JSON.stringify(block.input),
-        }
-    },
+const convertMessages = (
+    messages: OpenAI.ChatCompletionMessageParam[]
+): Array<Anthropic.Messages.MessageParam> => {
+    return messages.map(convertSingleMessage)
+}
 
-    /**
-     * Converts OpenAI-style messages to Anthropic-compatible messages
-     */
-    convertMessages: (
-        messages: ChatCompletionMessageParam[]
-    ): Array<Anthropic.Messages.MessageParam> => {
-        return messages.map(anthropic_to_openai.convertSingleMessage)
-    },
-
-    /**
-     * Converts a single OpenAI-style message to an Anthropic-compatible message
-     */
-    convertSingleMessage: (
-        msg: ChatCompletionMessageParam
-    ): Anthropic.Messages.MessageParam => {
-        if ("role" in msg) {
-            if (msg.role === "assistant" && Array.isArray(msg.tool_calls)) {
-                return anthropic_to_openai.convertAssistantToolCallMessage({
-                    ...msg,
-                    tool_calls: msg.tool_calls,
-                })
-            }
-
-            if (msg.role === "tool") {
-                return anthropic_to_openai.convertToolResultMessage(msg)
-            }
-
-            return anthropic_to_openai.convertStandardMessage(msg)
-        }
-
+const convertSingleMessage = (
+    msg: OpenAI.ChatCompletionMessageParam
+): Anthropic.Messages.MessageParam => {
+    if (!("role" in msg)) {
         // Handle AICIRequest or other custom types
         return {
             role: "user",
             content: [{ type: "text", text: JSON.stringify(msg) }],
         }
-    },
+    }
 
-    /**
-     * Converts an assistant message with tool calls
-     */
-    convertAssistantToolCallMessage: (
-        msg: ChatCompletionMessageParam & {
-            role: "assistant"
-            tool_calls: ChatCompletionMessageToolCall[]
-        }
-    ): Anthropic.Messages.MessageParam => {
-        return {
-            role: "assistant",
-            content: msg.tool_calls.map((tool) => ({
-                type: "tool_use",
-                id: tool.id,
-                input: JSON.parse(tool.function.arguments),
-                name: tool.function.name,
-            })),
-        }
-    },
+    if (msg.role === "assistant" && Array.isArray(msg.tool_calls)) {
+        return convertToolCallMessage({
+            ...msg,
+            tool_calls: msg.tool_calls,
+        })
+    }
 
-    /**
-     * Converts a tool result message
-     */
-    convertToolResultMessage: (
-        msg: ChatCompletionMessageParam & { role: "tool"; tool_call_id: string }
-    ): Anthropic.Messages.MessageParam => {
-        return {
-            role: "user",
-            content: [
-                {
-                    type: "tool_result",
-                    tool_use_id: msg.tool_call_id,
-                    content: msg.content,
-                },
-            ],
-        }
-    },
+    if (msg.role === "tool") {
+        return convertToolResultMessage(msg)
+    }
 
-    /**
-     * Converts a standard message (user or assistant)
-     */
-    convertStandardMessage: (
-        msg: ChatCompletionMessageParam & { role: string }
-    ): Anthropic.Messages.MessageParam => {
-        const role = msg.role === "assistant" ? "assistant" : "user"
-        if (Array.isArray(msg.content)) {
-            return {
-                role,
-                content: msg.content.map(
-                    anthropic_to_openai.convertContentBlock
-                ),
-            }
-        } else {
-            return {
-                role,
-                content: [{ type: "text", text: msg.content }],
-            }
-        }
-    },
+    return convertStandardMessage(msg)
+}
 
-    /**
-     * Converts OpenAI-style content blocks to Anthropic-compatible content blocks
-     */
-    convertContentBlock: (
-        block: ChatCompletionMessageParam["content"][number]
-    ):
-        | Anthropic.Messages.TextBlockParam
-        | Anthropic.Messages.ImageBlockParam
-        | Anthropic.Messages.ToolUseBlockParam
-        | Anthropic.Messages.ToolResultBlockParam => {
-        if (typeof block === "string") {
-            return { type: "text", text: block }
-        }
-        if (block.type === "text") {
-            return { type: "text", text: block.text }
-        }
-        if (block.type === "image_url") {
-            return anthropic_to_openai.convertImageUrlBlock(block)
-        }
-        // Handle other types or return a default
-        return { type: "text", text: JSON.stringify(block) }
-    },
+const convertToolCallMessage = (
+    msg: OpenAI.ChatCompletionMessageParam & {
+        role: "assistant"
+        tool_calls: ChatCompletionMessageToolCall[]
+    }
+): Anthropic.Messages.MessageParam => {
+    return {
+        role: "assistant",
+        content: msg.tool_calls.map((tool) => ({
+            type: "tool_use",
+            id: tool.id,
+            input: JSON.parse(tool.function.arguments),
+            name: tool.function.name,
+        })),
+    }
+}
 
-    /**
-     * Converts an image_url block to Anthropic format
-     */
-    convertImageUrlBlock: (block: {
-        type: "image_url"
-        image_url: { url: string }
-    }): Anthropic.Messages.ImageBlockParam => {
-        return {
-            type: "image",
-            source: {
-                type: "base64",
-                media_type: block.image_url.url.startsWith("data:image/png")
-                    ? "image/png"
-                    : "image/jpeg",
-                data: block.image_url.url.split(",")[1],
+const convertToolResultMessage = (
+    msg: OpenAI.ChatCompletionMessageParam & {
+        role: "tool"
+        tool_call_id: string
+    }
+): Anthropic.Messages.MessageParam => {
+    return {
+        role: "user",
+        content: [
+            {
+                type: "tool_result",
+                tool_use_id: msg.tool_call_id,
+                content: msg.content,
             },
-        }
-    },
+        ],
+    }
+}
 
-    /**
-     * Converts OpenAI-style tools to Anthropic-compatible tools
-     */
-    convertTools: (
-        tools?: ChatCompletionTool[]
-    ): Anthropic.Messages.Tool[] | undefined => {
-        if (!tools) return undefined
-        return tools.map(
-            (tool) =>
-                ({
-                    name: tool.function.name,
-                    description: tool.function.description,
-                    input_schema: {
-                        type: "object",
-                        ...tool.function.parameters,
-                    },
-                }) satisfies Anthropic.Messages.Tool
-        )
-    },
+const convertStandardMessage = (
+    msg: OpenAI.ChatCompletionMessageParam & { role: string }
+): Anthropic.Messages.MessageParam => {
+    const role = msg.role === "assistant" ? "assistant" : "user"
+    if (Array.isArray(msg.content)) {
+        return {
+            role,
+            content: msg.content.map(convertContentBlock),
+        }
+    } else {
+        return {
+            role,
+            content: [{ type: "text", text: msg.content }],
+        }
+    }
+}
+
+const convertContentBlock = (
+    block: OpenAI.ChatCompletionMessageParam["content"][number]
+): Anthropic.Messages.TextBlockParam | Anthropic.Messages.ImageBlockParam => {
+    if (typeof block === "string") {
+        return { type: "text", text: block }
+    }
+    if (block.type === "text") {
+        return { type: "text", text: block.text }
+    }
+    if (block.type === "image_url") {
+        return convertImageUrlBlock(block)
+    }
+    // Handle other types or return a default
+    return { type: "text", text: JSON.stringify(block) }
+}
+
+const convertImageUrlBlock = (block: {
+    type: "image_url"
+    image_url: { url: string }
+}): Anthropic.Messages.ImageBlockParam => {
+    return {
+        type: "image",
+        source: {
+            type: "base64",
+            media_type: block.image_url.url.startsWith("data:image/png")
+                ? "image/png"
+                : "image/jpeg",
+            data: block.image_url.url.split(",")[1],
+        },
+    }
+}
+
+const convertTools = (
+    tools?: OpenAI.ChatCompletionTool[]
+): Anthropic.Messages.Tool[] | undefined => {
+    if (!tools) return undefined
+    return tools.map(
+        (tool) =>
+            ({
+                name: tool.function.name,
+                description: tool.function.description,
+                input_schema: {
+                    type: "object",
+                    ...tool.function.parameters,
+                },
+            }) satisfies Anthropic.Messages.Tool
+    )
 }
 
 export const AnthropicChatCompletion: ChatCompletionHandler = async (
@@ -270,23 +205,24 @@ export const AnthropicChatCompletion: ChatCompletionHandler = async (
     })
 
     trace.itemValue(`url`, `[${anthropic.baseURL}](${anthropic.baseURL})`)
-    const messages = anthropic_to_openai.convertMessages(req.messages)
+    const messages = convertMessages(req.messages)
 
     let numTokens = 0
     let chatResp = ""
+    let chunkContent = ""
     let finishReason: ChatCompletionResponse["finishReason"]
     let usage: ChatCompletionResponse["usage"] | undefined
     const toolCalls: ChatCompletionToolCall[] = []
 
     try {
-        const stream = await anthropic.messages.stream({
+        const stream = anthropic.messages.stream({
             model,
             messages,
             max_tokens: req.max_tokens || ANTHROPIC_MAX_TOKEN,
             temperature: req.temperature,
             top_p: req.top_p,
             stream: true,
-            tools: anthropic_to_openai.convertTools(req.tools),
+            tools: convertTools(req.tools),
             ...headers,
         })
 
@@ -298,13 +234,7 @@ export const AnthropicChatCompletion: ChatCompletionHandler = async (
 
             switch (chunk.type) {
                 case "message_start":
-                    usage = {
-                        prompt_tokens: chunk.message.usage.input_tokens,
-                        completion_tokens: chunk.message.usage.output_tokens,
-                        total_tokens:
-                            chunk.message.usage.input_tokens +
-                            chunk.message.usage.output_tokens,
-                    }
+                    usage = convertUsage(chunk.message.usage)
                     break
 
                 case "content_block_start":
@@ -334,19 +264,12 @@ export const AnthropicChatCompletion: ChatCompletionHandler = async (
 
                 case "message_delta":
                     if (chunk.delta.stop_reason) {
-                        finishReason = anthropic_to_openai.convertFinishReason(
+                        finishReason = convertFinishReason(
                             chunk.delta.stop_reason
                         )
                     }
                     if (chunk.usage) {
-                        usage = {
-                            ...usage,
-                            completion_tokens:
-                                usage.completion_tokens +
-                                chunk.usage.output_tokens,
-                            total_tokens:
-                                usage.total_tokens + chunk.usage.output_tokens,
-                        }
+                        usage = adjustUsage(usage, chunk.usage)
                     }
                     break
             }
