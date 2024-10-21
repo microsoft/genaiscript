@@ -22,15 +22,15 @@ const diff = await git.diff({
         ".vscode/*",
         "**/yarn.lock",
         "THIRD_PARTY_NOTICES.md",
-    ],
+    ],    
 })
 
 const commitsName = def(
     "COMMITS",
     commits.map(({ message }) => message).join("\n"),
-    { maxTokens: 4000 }
+    { maxTokens: 3000 }
 )
-const diffName = def("DIFF", diff, { maxTokens: 20000 })
+const diffName = def("DIFF", diff, { maxTokens: 12000 })
 
 $`
 You are an expert software developer and release manager.
