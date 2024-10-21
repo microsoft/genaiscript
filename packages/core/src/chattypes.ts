@@ -108,6 +108,8 @@ export interface ChatCompletionResponse {
     model?: string // Model used for the completion
 }
 
+export type ChatFinishReason = ChatCompletionResponse["finishReason"]
+
 // Alias for OpenAI's API error type
 export const ModelError = OpenAI.APIError
 

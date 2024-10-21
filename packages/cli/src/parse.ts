@@ -12,11 +12,32 @@ import { HTMLToText } from "../../core/src/html"
 import { isJSONLFilename, JSONLTryParse } from "../../core/src/jsonl"
 import { parsePdf } from "../../core/src/pdf"
 import { estimateTokens } from "../../core/src/tokens"
-import { YAMLStringify } from "../../core/src/yaml"
+import { YAMLParse, YAMLStringify } from "../../core/src/yaml"
 import { resolveTokenEncoder } from "../../core/src/encoders"
-import { DEFAULT_MODEL } from "../../core/src/constants"
+import {
+    CSV_REGEX,
+    DEFAULT_MODEL,
+    INI_REGEX,
+    JSON5_REGEX,
+    MD_REGEX,
+    MDX_REGEX,
+    PROMPTY_REGEX,
+    TOML_REGEX,
+    XLSX_REGEX,
+    XML_REGEX,
+    YAML_REGEX,
+} from "../../core/src/constants"
 import { promptyParse, promptyToGenAIScript } from "../../core/src/prompty"
 import { basename, join } from "node:path"
+import { CSVParse, CSVStringify, CSVToMarkdown } from "../../core/src/csv"
+import { INIParse, INIStringify } from "../../core/src/ini"
+import { TOMLParse } from "../../core/src/toml"
+import { JSON5parse, JSON5Stringify } from "../../core/src/json5"
+import { XLSXParse } from "../../core/src/xlsx"
+import { jinjaRender } from "../../core/src/jinja"
+import { splitMarkdown } from "../../core/src/frontmatter"
+import { parseOptionsVars } from "./vars"
+import { XMLParse } from "../../core/src/xml"
 
 /**
  * This module provides various parsing utilities for different file types such
@@ -68,6 +89,74 @@ export async function parseHTMLToText(file: string) {
     // Converts HTML to plain text
     const text = HTMLToText(html)
     console.log(text)
+}
+
+export async function parseJinja2(
+    file: string,
+    options: {
+        vars: string[]
+    }
+) {
+    let src = await readFile(file, { encoding: "utf-8" })
+    if (PROMPTY_REGEX.test(file)) src = promptyParse(src).content
+    else if (MD_REGEX.test(file)) src = splitMarkdown(src).content
+
+    const vars: Record<string, any> = parseOptionsVars(
+        options.vars,
+        process.env
+    )
+    for (const k in vars) {
+        const i = parseFloat(vars[k])
+        if (!isNaN(i)) vars[k] = i
+    }
+    const res = jinjaRender(src, vars)
+    console.log(res)
+}
+
+export async function parseAnyToJSON(
+    file: string,
+    options: { format: string }
+) {
+    let data: any
+    if (XLSX_REGEX.test(file)) data = await XLSXParse(await readFile(file))
+    else {
+        const src = await readFile(file, { encoding: "utf-8" })
+        if (CSV_REGEX.test(file)) data = CSVParse(src)
+        else if (INI_REGEX.test(file)) data = INIParse(src)
+        else if (TOML_REGEX.test(file)) data = TOMLParse(src)
+        else if (JSON5_REGEX.test(file))
+            data = JSON5parse(src, { repair: true })
+        else if (YAML_REGEX.test(file)) data = YAMLParse(src)
+        else if (XML_REGEX.test(file)) data = XMLParse(src)
+        else if (MD_REGEX.test(file) || MDX_REGEX.test(file))
+            data = YAML.parse(splitMarkdown(src).frontmatter)
+        else throw new Error("Unsupported file format")
+    }
+
+    let out: string
+    switch (options?.format?.toLowerCase() || "") {
+        case "yaml":
+            out = YAMLStringify(data)
+            break
+        case "ini":
+            out = INIStringify(data)
+            break
+        case "csv":
+            out = CSVStringify(data, { header: true })
+            break
+        case "md":
+        case "markdown":
+            out = CSVToMarkdown(data)
+            break
+        case "json5":
+            out = JSON5Stringify(data, null, 2)
+            break
+        default:
+            out = JSON.stringify(data, null, 2)
+            break
+    }
+
+    console.log(out)
 }
 
 /**

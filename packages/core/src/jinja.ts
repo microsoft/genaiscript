@@ -1,6 +1,7 @@
 // Import the Template class from the @huggingface/jinja package
 import { Template } from "@huggingface/jinja"
 import { ChatCompletionMessageParam } from "./chattypes"
+import { collapseEmptyLines } from "./util"
 
 /**
  * Renders a string template using the Jinja templating engine.
@@ -24,7 +25,7 @@ export function jinjaRender(
     const res = t.render(values)
 
     // Return the rendered string
-    return res
+    return collapseEmptyLines(res)
 }
 
 export function jinjaRenderChatMessage(

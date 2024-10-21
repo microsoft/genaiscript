@@ -30,12 +30,18 @@ export const GENAI_ANYJS_REGEX = /\.genai\.js$/i
 export const GENAI_ANYTS_REGEX = /\.genai\.(ts|mts|mjs)$/i
 export const HTTPS_REGEX = /^https:\/\//i
 export const CSV_REGEX = /\.(t|c)sv$/i
+export const YAML_REGEX = /\.yaml$/i
+export const INI_REGEX = /\.ini$/i
+export const TOML_REGEX = /\.toml$/i
 export const XLSX_REGEX = /\.xlsx$/i
+export const XML_REGEX = /\.xml$/i
 export const DOCX_REGEX = /\.docx$/i
 export const PDF_REGEX = /\.pdf$/i
+export const MD_REGEX = /\.md$/i
 export const MDX_REGEX = /\.mdx$/i
 export const MJS_REGEX = /\.mjs$/i
 export const JS_REGEX = /\.js$/i
+export const JSON5_REGEX = /\.json5?$/i
 export const PROMPTY_REGEX = /\.prompty$/i
 export const TOOL_NAME = "GenAIScript"
 export const SERVER_PORT = 8003
@@ -51,6 +57,7 @@ export const DEFAULT_MODEL_CANDIDATES = [
     DEFAULT_MODEL,
     "github:gpt-4o",
     "client:gpt-4",
+    "anthropic:claude-2",
 ]
 export const DEFAULT_SMALL_MODEL = "openai:gpt-4o-mini"
 export const DEFAULT_SMALL_MODEL_CANDIDATES = [
@@ -58,6 +65,7 @@ export const DEFAULT_SMALL_MODEL_CANDIDATES = [
     DEFAULT_SMALL_MODEL,
     "github:gpt-4o-mini",
     "client:gpt-4-mini",
+    "anthropic:claude-instant-1",
 ]
 export const DEFAULT_EMBEDDINGS_MODEL_CANDIDATES = [
     "azure:text-embedding-3-small",
@@ -116,6 +124,7 @@ export const OLLAMA_API_BASE = "http://localhost:11434/v1"
 export const LLAMAFILE_API_BASE = "http://localhost:8080/v1"
 export const LOCALAI_API_BASE = "http://localhost:8080/v1"
 export const LITELLM_API_BASE = "http://localhost:4000"
+export const ANTHROPIC_API_BASE = "https://api.anthropic.com"
 
 export const PROMPTFOO_CACHE_PATH = ".genaiscript/cache/tests"
 export const PROMPTFOO_CONFIG_DIR = ".genaiscript/config/tests"
@@ -137,6 +146,7 @@ export const MODEL_PROVIDER_LLAMAFILE = "llamafile"
 export const MODEL_PROVIDER_LITELLM = "litellm"
 export const MODEL_PROVIDER_AICI = "aici"
 export const MODEL_PROVIDER_CLIENT = "client"
+export const MODEL_PROVIDER_ANTHROPIC = "anthropic"
 
 export const TRACE_FILE_PREVIEW_MAX_LENGTH = 240
 
@@ -162,6 +172,8 @@ export const DOCS_CONFIGURATION_LOCALAI_URL =
     "https://microsoft.github.io/genaiscript/getting-started/configuration/#localai"
 export const DOCS_CONFIGURATION_AICI_URL =
     "https://microsoft.github.io/genaiscript/reference/scripts/aici/"
+export const DOCS_CONFIGURATION_ANTHROPIC_URL =
+    "https://microsoft.github.io/genaiscript/getting-started/configuration/#anthropic"
 
 export const MODEL_PROVIDERS = Object.freeze([
     {
@@ -203,6 +215,11 @@ export const MODEL_PROVIDERS = Object.freeze([
         id: MODEL_PROVIDER_AICI,
         detail: "AICI controller",
         url: DOCS_CONFIGURATION_AICI_URL,
+    },
+    {
+        id: MODEL_PROVIDER_ANTHROPIC,
+        detail: "Anthropic models",
+        url: DOCS_CONFIGURATION_ANTHROPIC_URL,
     },
 ])
 
@@ -261,6 +278,8 @@ export const DEDENT_INSPECT_MAX_DEPTH = 3
 export const OPENAI_MAX_RETRY_DELAY = 10000
 export const OPENAI_MAX_RETRY_COUNT = 10
 export const OPENAI_RETRY_DEFAULT_DEFAULT = 1000
+
+export const ANTHROPIC_MAX_TOKEN = 4096
 
 export const TEMPLATE_ARG_FILE_MAX_TOKENS = 4000
 export const TEMPLATE_ARG_DATA_SLICE_SAMPLE = 2000

@@ -77,8 +77,8 @@ function promptyFrontmatterToMeta(frontmatter: PromptyFrontmatter): PromptArgs {
     if (parameters && sample && typeof sample === "object")
         for (const p in sample) {
             const s = sample[p]
-            if (s !== undefined && parameters[p].type !== "object")
-                parameters[p].default = s
+            const pp = parameters[p]
+            if (s !== undefined && pp && pp?.type !== "object") pp.default = s
         }
 
     let modelName: string = undefined
@@ -123,7 +123,7 @@ function promptyFrontmatterToMeta(frontmatter: PromptyFrontmatter): PromptArgs {
 export function promptyParse(text: string): PromptyDocument {
     const { frontmatter = "", content = "" } = splitMarkdown(text)
     const fm = YAMLTryParse(frontmatter) ?? {}
-    const meta = promptyFrontmatterToMeta(fm)
+    const meta = fm ? promptyFrontmatterToMeta(fm) : {}
     // todo: validate frontmatter?
     const messages: ChatCompletionMessageParam[] = []
 

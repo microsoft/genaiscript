@@ -21,7 +21,7 @@ import type MarkdownIt from "markdown-it"
 import MarkdownItGitHubAlerts from "markdown-it-github-alerts"
 import { activateConnectionInfoTree } from "./connectioninfotree"
 import { updateConnectionConfiguration } from "../../core/src/connection"
-import { APIType } from "../../core/src/host"
+import { OpenAIAPIType } from "../../core/src/host"
 import { activeTaskProvider } from "./taskprovider"
 import { activateSamplesCommands } from "./samplescommands"
 import { activateChatParticipant } from "./chatparticipant"
@@ -45,7 +45,7 @@ export async function activate(context: ExtensionContext) {
     context.subscriptions.push(
         registerCommand(
             "genaiscript.connection.configure",
-            async (provider?: string, apiType?: APIType) => {
+            async (provider?: string, apiType?: OpenAIAPIType) => {
                 await updateConnectionConfiguration(provider, apiType)
                 await vscode.env.openExternal(
                     vscode.Uri.parse(DOCS_CONFIGURATION_URL)

@@ -13,7 +13,7 @@ import {
     TOOL_NAME,
     MODEL_PROVIDER_AZURE_SERVERLESS,
 } from "../../core/src/constants"
-import { APIType } from "../../core/src/host"
+import { OpenAIAPIType } from "../../core/src/host"
 import { parseModelIdentifier } from "../../core/src/models"
 import { ChatCompletionMessageParam } from "../../core/src/chattypes"
 import { LanguageModelChatRequest } from "../../core/src/server/client"
@@ -45,7 +45,7 @@ async function generateLanguageModelConfiguration(
     const items: (vscode.QuickPickItem & {
         model?: string
         provider?: string
-        apiType?: APIType
+        apiType?: OpenAIAPIType
     })[] = []
     if (isLanguageModelsAvailable()) {
         const models = await vscode.lm.selectChatModels()
@@ -101,12 +101,12 @@ async function generateLanguageModelConfiguration(
         }
     )
 
-    const res: { model?: string; provider?: string; apiType?: APIType } =
+    const res: { model?: string; provider?: string; apiType?: OpenAIAPIType } =
         await vscode.window.showQuickPick<
             vscode.QuickPickItem & {
                 model?: string
                 provider?: string
-                apiType?: APIType
+                apiType?: OpenAIAPIType
             }
         >(items, {
             title: `Configure a Language Model for ${modelId}`,

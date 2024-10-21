@@ -69,7 +69,8 @@
         "genai:docify": "node packages/cli/built/genaiscript.cjs run docify",
         "gcm": "node packages/cli/built/genaiscript.cjs run gcm",
         "genai": "node packages/cli/built/genaiscript.cjs run",
-        "upgrade:deps": "zx scripts/upgrade-deps.mjs"
+        "upgrade:deps": "zx scripts/upgrade-deps.mjs",
+        "cli": "node packages/cli/built/genaiscript.cjs"
     },
     "release-it": {
         "github": {

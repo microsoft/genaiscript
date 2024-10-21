@@ -1,4 +1,5 @@
 import {
+    ANTHROPIC_API_BASE,
     AZURE_AI_INFERENCE_VERSION,
     AZURE_OPENAI_API_VERSION,
     DOT_ENV_FILENAME,
@@ -6,6 +7,7 @@ import {
     LITELLM_API_BASE,
     LLAMAFILE_API_BASE,
     LOCALAI_API_BASE,
+    MODEL_PROVIDER_ANTHROPIC,
     MODEL_PROVIDER_AZURE,
     MODEL_PROVIDER_AZURE_SERVERLESS,
     MODEL_PROVIDER_CLIENT,
@@ -19,8 +21,8 @@ import {
     PLACEHOLDER_API_BASE,
     PLACEHOLDER_API_KEY,
 } from "./constants"
-import { fileExists, readText, writeText } from "./fs"
-import { APIType, host, LanguageModelConfiguration } from "./host"
+import { fileExists, readText, tryReadText, writeText } from "./fs"
+import { OpenAIAPIType, host, LanguageModelConfiguration } from "./host"
 import { parseModelIdentifier } from "./models"
 import { normalizeFloat, trimTrailingSlash } from "./util"
 
@@ -191,6 +193,26 @@ export async function parseTokenFromEnv(
         }
     }
 
+    if (provider === MODEL_PROVIDER_ANTHROPIC) {
+        const token = env.ANTHROPIC_API_KEY?.trim()
+        if (token === undefined || token === PLACEHOLDER_API_KEY)
+            throw new Error("ANTHROPIC_API_KEY not configured")
+        const base =
+            trimTrailingSlash(env.ANTHROPIC_API_BASE) || ANTHROPIC_API_BASE
+        const version = env.ANTHROPIC_API_VERSION || undefined
+        const source = "env: ANTHROPIC_API_..."
+        const modelKey = "ANTHROPIC_API_KEY"
+
+        return {
+            provider,
+            model,
+            token,
+            base,
+            version,
+            source,
+        }
+    }
+
     const prefixes = [
         tag ? `${provider}_${model}_${tag}` : undefined,
         provider ? `${provider}_${model}` : undefined,
@@ -207,7 +229,7 @@ export async function parseTokenFromEnv(
             const base = trimTrailingSlash(env[modelBase])
             const version = env[prefix + "_API_VERSION"]
             const source = `env: ${prefix}_API_...`
-            const type: APIType = "openai"
+            const type: OpenAIAPIType = "openai"
             if (base && !URL.canParse(base))
                 throw new Error(`${modelBase} must be a valid URL`)
             return {
@@ -277,7 +299,7 @@ export async function parseTokenFromEnv(
 
 export async function updateConnectionConfiguration(
     provider?: string,
-    apiType?: APIType
+    apiType?: OpenAIAPIType
 ): Promise<void> {
     // update .gitignore file
     if (!(await fileExists(".gitignore")))

@@ -80,23 +80,7 @@ import { delay } from "es-toolkit"
 import { GenerationStats } from "../../core/src/usage"
 import { traceAgentMemory } from "../../core/src/agent"
 import { appendFile } from "node:fs/promises"
-
-function parseVars(
-    vars: string[],
-    env: Record<string, string>
-): Record<string, string> {
-    const vals =
-        vars?.reduce((acc, v) => ({ ...acc, ...parseKeyValuePair(v) }), {}) ??
-        {}
-    const envVals = Object.keys(env)
-        .filter((k) => CLI_ENV_VAR_RX.test(k))
-        .map((k) => ({
-            [k.replace(CLI_ENV_VAR_RX, "").toLocaleLowerCase()]: env[k],
-        }))
-        .reduce((acc, v) => ({ ...acc, ...v }), {})
-
-    return { ...vals, ...envVals }
-}
+import { parseOptionsVars } from "./vars"
 
 async function setupTraceWriting(trace: MarkdownTrace, filename: string) {
     logVerbose(`trace: ${filename}`)
@@ -271,7 +255,7 @@ export async function runScript(
     const fragment: Fragment = {
         files: Array.from(resolvedFiles),
     }
-    const vars = parseVars(options.vars, process.env)
+    const vars = parseOptionsVars(options.vars, process.env)
     const stats = new GenerationStats("")
     try {
         if (options.label) trace.heading(2, options.label)

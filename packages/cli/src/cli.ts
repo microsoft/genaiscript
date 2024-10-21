@@ -4,7 +4,7 @@
  */
 
 import { NodeHost } from "./nodehost" // Handles node environment setup
-import { program } from "commander" // Command-line argument parsing library
+import { Option, program } from "commander" // Command-line argument parsing library
 import { error, isQuiet, setConsoleColors, setQuiet } from "./log" // Logging utilities
 import { startServer } from "./server" // Function to start server
 import { NODE_MIN_VERSION, PROMPTFOO_VERSION } from "./version" // Version constants
@@ -13,9 +13,11 @@ import { retrievalFuzz, retrievalSearch } from "./retrieval" // Retrieval functi
 import { helpAll } from "./help" // Display help for all commands
 import {
     jsonl2json,
+    parseAnyToJSON,
     parseDOCX,
     parseFence,
     parseHTMLToText,
+    parseJinja2,
     parsePDF,
     parseTokens,
     prompty2genaiscript,
@@ -293,26 +295,38 @@ export async function cli() {
         .command("parse")
         .alias("parsers")
         .description("Parse various outputs")
+    const parserData = parser
+        .command("data <file>")
+        .description(
+            "Convert CSV, YAML, TOML, INI, XLSX, XML, MD/X frontmatter or JSON data files into various formats"
+        )
+        .action(parseAnyToJSON)
+    parserData.addOption(
+        new Option("-f, --format <string>", "output format").choices([
+            "json",
+            "json5",
+            "yaml",
+            "ini",
+            "csv",
+            "md",
+        ])
+    )
     parser
         .command("fence <language> <file>")
         .description("Extracts a code fenced regions of the given type")
         .action(parseFence) // Action to parse fenced code regions
-
     parser
         .command("pdf <file>")
         .description("Parse a PDF into text")
         .action(parsePDF) // Action to parse PDF files
-
     parser
         .command("docx <file>")
         .description("Parse a DOCX into texts")
         .action(parseDOCX) // Action to parse DOCX files
-
     parser
         .command("html-to-text <file>")
         .description("Parse an HTML file into text")
         .action(parseHTMLToText) // Action to parse HTML files
-
     parser
         .command("code")
         .description("Parse code using tree sitter and executes a query")
@@ -334,6 +348,15 @@ export async function cli() {
         .argument("<file...>", "input JSONL files")
         .option("-o, --out <string>", "output folder")
         .action(prompty2genaiscript) // Action to convert prompty files
+    parser
+        .command("jinja2")
+        .description("Renders Jinj2 or prompty template")
+        .argument("<file>", "input Jinja2 or prompty template file")
+        .option(
+            "--vars <namevalue...>",
+            "variables, as name=value passed to the template"
+        )
+        .action(parseJinja2)
 
     // Define 'info' command group for utility information tasks
     const info = program.command("info").description("Utility tasks")
