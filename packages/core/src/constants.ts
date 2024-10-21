@@ -11,10 +11,11 @@ export const MAX_TOOL_CALLS = 10000
 export const AZURE_OPENAI_API_VERSION = "2024-06-01"
 export const AZURE_OPENAI_TOKEN_SCOPES = Object.freeze([
     "https://cognitiveservices.azure.com/.default",
-    "offline_access",
 ])
 export const AZURE_AI_INFERENCE_VERSION = "2024-08-01-preview"
-export const AZURE_AI_INFERENCE_TOKEN_SCOPES = Object.freeze(["https://ml.azure.com/.default", "offline_access"])
+export const AZURE_AI_INFERENCE_TOKEN_SCOPES = Object.freeze([
+    "https://ml.azure.com/.default",
+])
 export const AZURE_TOKEN_EXPIRATION = 59 * 60_000 // 59 minutes
 
 export const TOOL_ID = "genaiscript"
