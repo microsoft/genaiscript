@@ -2,11 +2,11 @@ import * as vscode from "vscode"
 import { ExtensionState } from "./state"
 import { MODEL_PROVIDERS } from "../../core/src/constants"
 import { YAMLStringify } from "../../core/src/yaml"
-import { APIType } from "../../core/src/host"
+import { OpenAIAPIType } from "../../core/src/host"
 
 class ConnectionInfoTreeData {
     provider: string
-    apiType?: APIType
+    apiType?: OpenAIAPIType
 }
 
 class ConnectionInfoTreeDataProvider
