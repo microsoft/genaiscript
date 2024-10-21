@@ -26,7 +26,12 @@ export enum LogLevel {
     Error = 4,
 }
 
-export type APIType = "openai" | "azure" | "localai" | "azure_serverless"
+export type APIType =
+    | "openai"
+    | "azure"
+    | "localai"
+    | "azure_serverless"
+    | "anthropic"
 
 export interface LanguageModelConfiguration {
     provider: string

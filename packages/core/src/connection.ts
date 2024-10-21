@@ -1,4 +1,5 @@
 import {
+    ANTHROPIC_API_BASE,
     AZURE_OPENAI_API_VERSION,
     DEFAULT_TEMPERATURE,
     DOCS_CONFIGURATION_AICI_URL,
@@ -14,6 +15,7 @@ import {
     LITELLM_API_BASE,
     LLAMAFILE_API_BASE,
     LOCALAI_API_BASE,
+    MODEL_PROVIDER_ANTHROPIC,
     MODEL_PROVIDER_AZURE,
     MODEL_PROVIDER_AZURE_SERVERLESS,
     MODEL_PROVIDER_CLIENT,
@@ -211,6 +213,28 @@ export async function parseTokenFromEnv(
                       "api-key": `$${tokenVar}`,
                   }
                 : undefined,
+        }
+    }
+
+    if (provider === MODEL_PROVIDER_ANTHROPIC) {
+        const token = env.ANTHROPIC_API_KEY?.trim()
+        if (token === undefined || token === PLACEHOLDER_API_KEY)
+            throw new Error("ANTHROPIC_API_KEY not configured")
+        const base =
+            trimTrailingSlash(env.ANTHROPIC_API_BASE) || ANTHROPIC_API_BASE
+        const version = env.ANTHROPIC_API_VERSION || undefined
+        const source = "env: ANTHROPIC_API_..."
+        const modelKey = "ANTHROPIC_API_KEY"
+        const type = "anthropic"
+
+        return {
+            provider,
+            model,
+            token,
+            base,
+            type,
+            version,
+            source,
         }
     }
 
