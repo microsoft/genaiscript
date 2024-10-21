@@ -55,14 +55,16 @@ export const LARGE_MODEL_ID = "large"
 export const DEFAULT_MODEL = "openai:gpt-4o"
 export const DEFAULT_MODEL_CANDIDATES = [
     "azure:gpt-4o",
+    "azure-serverless:gpt-4o",
     DEFAULT_MODEL,
     "github:gpt-4o",
-    "client:gpt-4",
     "anthropic:claude-2",
+    "client:gpt-4",
 ]
 export const DEFAULT_SMALL_MODEL = "openai:gpt-4o-mini"
 export const DEFAULT_SMALL_MODEL_CANDIDATES = [
     "azure:gpt-4o-mini",
+    "azure-serverless:gpt-4o-mini",
     DEFAULT_SMALL_MODEL,
     "github:gpt-4o-mini",
     "client:gpt-4-mini",
