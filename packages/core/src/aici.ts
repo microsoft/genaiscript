@@ -273,8 +273,8 @@ const AICIChatCompletion: ChatCompletionHandler = async (
     const r = await fetchRetry(url, {
         headers: {
             "api-key": connection.token,
-            "user-agent": TOOL_ID,
-            "content-type": "application/json",
+            "User-Agent": TOOL_ID,
+            "Content-Type": "application/json",
             ...(headers || {}),
         },
         body,
@@ -426,8 +426,8 @@ async function listModels(cfg: LanguageModelConfiguration) {
         method: "GET",
         headers: {
             "api-key": token,
-            "user-agent": TOOL_ID,
-            accept: "application/json",
+            "User-Agent": TOOL_ID,
+            Accept: "application/json",
         },
     })
     if (res.status !== 200) return []

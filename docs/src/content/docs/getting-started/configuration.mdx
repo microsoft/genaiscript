@@ -271,14 +271,14 @@ to try the Azure OpenAI service.
 
 <li>
 
-Open your [Azure OpenAI resource](https://portal.azure.com)
+Open your Azure OpenAI resource in the [Azure Portal](https://portal.azure.com)
 
 </li>
 <li>
 
-Navigate to **Access Control**, then **View My Access**. Make sure your
+Navigate to **Access Control (IAM)**, then **View My Access**. Make sure your
 user or service principal has the **Cognitive Services OpenAI User/Contributor** role.
-If you get a `401` error, it's typically here that you will fix it.
+If you get a `401` error, click on **Add**, **Add role assignment** and add the **Cognitive Services OpenAI User** role to your user.
 
 </li>
 <li>
@@ -370,9 +370,107 @@ The rest of the steps are the same: Find the deployment name and use it in your 
 
 The `azure_serverless` supports models in the Azure AI model catalog can be deployed as [a serverless API](https://learn.microsoft.com/en-us/azure/ai-studio/how-to/deploy-models-serverless-availability) with pay-as-you-go billing.
 This kind of deployment provides a way to consume models
-as an API without hosting them on your subscription,
-while keeping the enterprise security and compliance that organizations need.
-This deployment option doesn't require quota from your subscription.
+as an API without hosting them on your subscription, while keeping the enterprise security and compliance that organizations need.
+
+Note that the OpenAI models, like gpt-4o..., are deployed to `.openai.azure.com` endpoints,
+while the Azure AI models are deployed to `.models.ai.azure.com` endpoints.
+They are configured slightly differently.
+
+### Managed Identity (Entra ID)
+
+<Steps>
+
+<ol>
+
+<li>
+
+Open your **Azure AI Project** resource in the [Azure Portal](https://portal.azure.com)
+
+</li>
+<li>
+
+Navigate to **Access Control (IAM)**, then **View My Access**. Make sure your
+user or service principal has the **Azure AI Developer** role.
+If you get a `401` error, click on **Add**, **Add role assignment** and add the **Azure AI Developer** role to your user.
+
+</li>
+
+<li>
+
+Open a terminal and **login** with [Azure CLI](https://learn.microsoft.com/en-us/javascript/api/overview/azure/identity-readme?view=azure-node-latest#authenticate-via-the-azure-cli).
+
+```sh
+az login
+```
+
+</li>
+
+<li>
+
+Open https://ai.azure.com/ and open the **Deployments** page.
+
+</li>
+
+<li>
+
+Deploy a **base model** from the catalog.
+You can use the `Deployment Options` -> `Serverless API` option to deploy a model as a serverless API.
+
+</li>
+
+</ol>
+
+</Steps>
+
+The OpenAI models (gpt-4o, ...) are deployed to `.openai.azure.com` endpoints,
+the other models are deployed to `.models.ai.azure.com` endpoints.
+
+### `.models.ai.azure.com` endpoints
+
+<Steps>
+
+<ol>
+
+<li>
+
+Configure the **Endpoint Target URL** as the `AZURE_INFERENCE_ENDPOINT`.
+
+```txt title=".env"
+AZURE_INFERENCE_ENDPOINT=https://...models.ai.azure.com
+```
+
+</li>
+
+<li>
+
+Navigate to **deployments** and make sure that you have your LLM deployed and copy the Deployment Info name, you will need it in the script.
+
+</li>
+
+<li>
+
+Update the `model` field in the `script` function to match the model deployment name in your Azure resource.
+
+```js 'model: "azure_serverless:deployment-info-name"'
+script({
+    model: "azure_serverless:deployment-info-name",
+    ...
+})
+```
+
+</li>
+
+</ol>
+
+</Steps>
+
+#### Support for multiple inference deployements
+
+For non-OpenAI models deployed on `.models.ai.azure.com`,
+you can keep the same `AZURE_INFERENCE_ENDPOINT` and GenAIScript will automatically update the endpoint
+with the deployment id name.
+
+For OpenAI models deployed on `.openai.azure.com`, you can also keep the same deployment name.
 
 ### API Key
 
@@ -426,14 +524,15 @@ GENAISCRIPT_DEFAULT_SMALL_MODEL=azure_serverless:<deploymentid>
 
 :::
 
-### Support for multiple inference deployements
+#### Support for multiple inference deployements
 
 You can update the `AZURE_INFERENCE_CREDENTIAL` with a list of `deploymentid=key` pairs to support multiple deployments (each deployment has a different key).
 
 ```txt title=".env"
 AZURE_INFERENCE_CREDENTIAL="
 model1=key1
-model2=key2model3=key3
+model2=key2
+model3=key3
 "
 ```
 

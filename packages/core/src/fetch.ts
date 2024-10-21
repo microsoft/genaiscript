@@ -14,7 +14,7 @@ import { readText } from "./fs"
 
 /**
  * Creates a fetch function with retry logic.
- * 
+ *
  * This function wraps the `crossFetch` with retry capabilities based
  * on provided options. It allows configuring the number of retries,
  * delay between retries, and specific HTTP status codes to retry on.
@@ -161,7 +161,6 @@ export function traceFetchPost(
                         : "***") // Mask other authorization headers
             )
     const cmd = `curl ${url} \\
--H  "Content-Type: application/json" \\
 ${Object.entries(headers)
     .map(([k, v]) => `-H "${k}: ${v}"`)
     .join("\\\n")} \\

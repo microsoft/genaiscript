@@ -1,6 +1,7 @@
 import { logVerbose, normalizeInt, trimTrailingSlash } from "./util"
 import { LanguageModelConfiguration, host } from "./host"
 import {
+    AZURE_AI_INFERENCE_VERSION,
     AZURE_OPENAI_API_VERSION,
     MODEL_PROVIDER_OPENAI,
     TOOL_ID,
@@ -33,7 +34,7 @@ export function getConfigHeaders(cfg: LanguageModelConfiguration) {
     }
     const res: Record<string, string> = {
         // openai
-        authorization: /^Bearer /.test(cfg.token)
+        Authorization: /^Bearer /.test(cfg.token)
             ? token
             : token &&
                 (type === "openai" ||
@@ -46,7 +47,7 @@ export function getConfigHeaders(cfg: LanguageModelConfiguration) {
             token && !/^Bearer /.test(token) && type === "azure"
                 ? token
                 : undefined,
-        "user-agent": TOOL_ID,
+        "User-Agent": TOOL_ID,
     }
     for (const [k, v] of Object.entries(res)) if (v === undefined) delete res[k]
     return res
@@ -69,7 +70,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
         cancellationToken,
         inner,
     } = options
-    const { headers, ...rest } = requestOptions || {}
+    const { headers = {}, ...rest } = requestOptions || {}
     const { token, source, ...cfgNoToken } = cfg
     const { model } = parseModelIdentifier(req.model)
     const encoder = await resolveTokenEncoder(model)
@@ -138,12 +139,22 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
             model.replace(/\./g, "") +
             `/chat/completions?api-version=${AZURE_OPENAI_API_VERSION}`
     } else if (cfg.type === "azure_serverless") {
-        url =
-            trimTrailingSlash(cfg.base).replace(
-                /^https?:\/\/(?<deployment>[^\.]+)\.(?<region>[^\.]+)\.models\.ai\.azure\.com/i,
-                (m, deployment, region) =>
-                    `https://${r2.model}.${region}.models.ai.azure.com`
-            ) + `/chat/completions`
+        if (/\.models\.ai\.azure\.com/i.test(cfg.base))
+            url =
+                trimTrailingSlash(cfg.base).replace(
+                    /^https?:\/\/(?<deployment>[^\.]+)\.(?<region>[^\.]+)\.models\.ai\.azure\.com/i,
+                    (m, deployment, region) =>
+                        `https://${r2.model}.${region}.models.ai.azure.com`
+                ) +
+                `/chat/completions?api-version=${AZURE_AI_INFERENCE_VERSION}`
+        else if (/\.openai\.azure\.com/i.test(cfg.base))
+            url =
+                trimTrailingSlash(cfg.base) +
+                "/" +
+                model.replace(/\./g, "") +
+                `/chat/completions?api-version=${AZURE_AI_INFERENCE_VERSION}`
+            // https://learn.microsoft.com/en-us/azure/machine-learning/reference-model-inference-api?view=azureml-api-2&tabs=javascript#extensibility
+        ;(headers as any)["extra-parameters"] = "drop"
         delete r2.model
     } else throw new Error(`api type ${cfg.type} not supported`)
 
@@ -159,16 +170,17 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
     })
     trace.dispatchChange()
 
-    traceFetchPost(trace, url, cfg.curlHeaders, postReq)
+    const fetchHeaders: HeadersInit = {
+        ...getConfigHeaders(cfg),
+        "Content-Type": "application/json",
+        ...(headers || {}),
+    }
+    traceFetchPost(trace, url, fetchHeaders as any, postReq)
     const body = JSON.stringify(postReq)
     let r: Response
     try {
         r = await fetchRetry(url, {
-            headers: {
-                ...getConfigHeaders(cfg),
-                "content-type": "application/json",
-                ...(headers || {}),
-            },
+            headers: fetchHeaders,
             body,
             method: "POST",
             signal: toSignal(cancellationToken),

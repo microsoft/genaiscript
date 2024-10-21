@@ -1,15 +1,7 @@
 import {
     ANTHROPIC_API_BASE,
+    AZURE_AI_INFERENCE_VERSION,
     AZURE_OPENAI_API_VERSION,
-    DEFAULT_TEMPERATURE,
-    DOCS_CONFIGURATION_AICI_URL,
-    DOCS_CONFIGURATION_AZURE_OPENAI_URL,
-    DOCS_CONFIGURATION_GITHUB_URL,
-    DOCS_CONFIGURATION_LITELLM_URL,
-    DOCS_CONFIGURATION_LLAMAFILE_URL,
-    DOCS_CONFIGURATION_LOCALAI_URL,
-    DOCS_CONFIGURATION_OLLAMA_URL,
-    DOCS_CONFIGURATION_OPENAI_URL,
     DOT_ENV_FILENAME,
     GITHUB_MODELS_BASE,
     LITELLM_API_BASE,
@@ -106,9 +98,6 @@ export async function parseTokenFromEnv(
                 token,
                 source: "env: OPENAI_API_...",
                 version,
-                curlHeaders: {
-                    Authorization: `Bearer $OPENAI_API_KEY`,
-                },
             }
         }
     }
@@ -129,9 +118,6 @@ export async function parseTokenFromEnv(
             type,
             token,
             source: `env: ${tokenVar}`,
-            curlHeaders: {
-                Authorization: `Bearer $${tokenVar}`,
-            },
         }
     }
 
@@ -175,30 +161,27 @@ export async function parseTokenFromEnv(
                 ? "env: AZURE_OPENAI_API_..."
                 : "env: AZURE_OPENAI_API_... + Entra ID",
             version,
-            curlHeaders: tokenVar
-                ? {
-                      "api-key": `$${tokenVar}`,
-                  }
-                : undefined,
         }
     }
 
     if (provider === MODEL_PROVIDER_AZURE_SERVERLESS) {
+        // https://github.com/Azure/azure-sdk-for-js/tree/@azure-rest/ai-inference_1.0.0-beta.2/sdk/ai/ai-inference-rest
         const tokenVar = "AZURE_INFERENCE_CREDENTIAL"
         const token = env[tokenVar]?.trim()
-        const base = trimTrailingSlash(env.AZURE_INFERENCE_ENDPOINT)
+        let base = trimTrailingSlash(env.AZURE_INFERENCE_ENDPOINT)
         if (!token && !base) return undefined
         if (token === PLACEHOLDER_API_KEY)
             throw new Error("AZURE_INFERENCE_CREDENTIAL not configured")
         if (!base) throw new Error("AZURE_INFERENCE_ENDPOINT missing")
         if (base === PLACEHOLDER_API_BASE)
             throw new Error("AZURE_INFERENCE_ENDPOINT not configured")
+        base = cleanAzureBase(base)
         if (!URL.canParse(base))
             throw new Error("AZURE_INFERENCE_ENDPOINT must be a valid URL")
         const version = env.AZURE_INFERENCE_API_VERSION
-        if (version && version !== AZURE_OPENAI_API_VERSION)
+        if (version && version !== AZURE_AI_INFERENCE_VERSION)
             throw new Error(
-                `AZURE_INFERENCE_ENDPOINT must be '${AZURE_OPENAI_API_VERSION}'`
+                `AZURE_INFERENCE_API_VERSION must be '${AZURE_AI_INFERENCE_VERSION}'`
             )
         return {
             provider,
@@ -206,25 +189,22 @@ export async function parseTokenFromEnv(
             base,
             token,
             type: "azure_serverless",
-            source: "env: AZURE_INFERENCE_...",
+            source: token
+                ? "env: AZURE_INFERENCE_..."
+                : "env: AZURE_INFERENCE_... + Entra ID",
             version,
-            curlHeaders: tokenVar
-                ? {
-                      "api-key": `$${tokenVar}`,
-                  }
-                : undefined,
         }
     }
 
     if (provider === MODEL_PROVIDER_ANTHROPIC) {
-        const token = env.ANTHROPIC_API_KEY?.trim()
+        const modelKey = "ANTHROPIC_API_KEY"
+        const token = env[modelKey]?.trim()
         if (token === undefined || token === PLACEHOLDER_API_KEY)
             throw new Error("ANTHROPIC_API_KEY not configured")
         const base =
             trimTrailingSlash(env.ANTHROPIC_API_BASE) || ANTHROPIC_API_BASE
         const version = env.ANTHROPIC_API_VERSION || undefined
         const source = "env: ANTHROPIC_API_..."
-        const modelKey = "ANTHROPIC_API_KEY"
 
         return {
             provider,
@@ -263,11 +243,6 @@ export async function parseTokenFromEnv(
                 type,
                 version,
                 source,
-                curlHeaders: token
-                    ? {
-                          Authorization: `Bearer $${modelKey}`,
-                      }
-                    : undefined,
             }
         }
     }
@@ -317,7 +292,7 @@ export async function parseTokenFromEnv(
     return undefined
 
     function cleanAzureBase(b: string) {
-        if (!b) return b
+        if (!b || !/\.openai\.azure\.com/i.test(b)) return b
         b =
             trimTrailingSlash(b.replace(/\/openai\/deployments.*$/, "")) +
             `/openai/deployments`

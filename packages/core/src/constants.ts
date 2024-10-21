@@ -11,9 +11,12 @@ export const MAX_TOOL_CALLS = 10000
 export const AZURE_OPENAI_API_VERSION = "2024-06-01"
 export const AZURE_OPENAI_TOKEN_SCOPES = Object.freeze([
     "https://cognitiveservices.azure.com/.default",
-    "offline_access",
 ])
-export const AZURE_OPENAI_TOKEN_EXPIRATION = 59 * 60_000 // 59 minutes
+export const AZURE_AI_INFERENCE_VERSION = "2024-08-01-preview"
+export const AZURE_AI_INFERENCE_TOKEN_SCOPES = Object.freeze([
+    "https://ml.azure.com/.default",
+])
+export const AZURE_TOKEN_EXPIRATION = 59 * 60_000 // 59 minutes
 
 export const TOOL_ID = "genaiscript"
 export const GENAISCRIPT_FOLDER = "." + TOOL_ID
@@ -52,14 +55,16 @@ export const LARGE_MODEL_ID = "large"
 export const DEFAULT_MODEL = "openai:gpt-4o"
 export const DEFAULT_MODEL_CANDIDATES = [
     "azure:gpt-4o",
+    "azure-serverless:gpt-4o",
     DEFAULT_MODEL,
     "github:gpt-4o",
-    "client:gpt-4",
     "anthropic:claude-2",
+    "client:gpt-4",
 ]
 export const DEFAULT_SMALL_MODEL = "openai:gpt-4o-mini"
 export const DEFAULT_SMALL_MODEL_CANDIDATES = [
     "azure:gpt-4o-mini",
+    "azure-serverless:gpt-4o-mini",
     DEFAULT_SMALL_MODEL,
     "github:gpt-4o-mini",
     "client:gpt-4-mini",
