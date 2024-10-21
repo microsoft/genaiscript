@@ -1246,7 +1246,7 @@ The following npm packages may be included in this product:
 
  - @types/http-cache-semantics@4.0.4
  - @types/node@16.9.1
- - @types/node@22.7.6
+ - @types/node@22.7.7
  - @types/turndown@5.0.5
  - @types/yauzl@2.10.3
 
@@ -1278,7 +1278,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.64.6
+ - genaiscript-vscode@1.65.0
 
 This package contains the following license and notice below:
 
@@ -3549,31 +3549,11 @@ IN THE SOFTWARE.
 
 The following npm package may be included in this product:
 
- - buildcheck@0.0.6
-
-This package contains the following license and notice below:
-
-http://github.com/mscdex/buildcheck/raw/master/LICENSE
-
------------
-
-The following npm package may be included in this product:
-
  - ssh2@1.16.0
 
 This package contains the following license and notice below:
 
 http://github.com/mscdex/ssh2/raw/master/LICENSE
-
------------
-
-The following npm package may be included in this product:
-
- - cpu-features@0.0.10
-
-This package contains the following license and notice below:
-
-https://github.com/mscdex/cpu-features/raw/master/LICENSE
 
 -----------
 
@@ -4400,9 +4380,9 @@ The following npm packages may be included in this product:
  - @tokenizer/token@0.3.0
  - agent-base@6.0.2
  - canvas@2.11.2
- - genaiscript-core-internal@1.64.6
- - genaiscript-sample@1.64.6
- - genaiscript@1.64.6
+ - genaiscript-core-internal@1.65.0
+ - genaiscript-sample@1.65.0
+ - genaiscript@1.65.0
  - https-proxy-agent@5.0.1
  - isarray@1.0.0
  - javascript-natural-sort@0.7.1
@@ -5083,7 +5063,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - gpt-tokenizer@2.5.0
+ - gpt-tokenizer@2.5.1
 
 This package contains the following license and notice below:
 

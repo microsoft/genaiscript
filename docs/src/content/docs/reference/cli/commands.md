@@ -328,7 +328,7 @@ into various formats
 
 Options:
   -f, --format <string>  output format (choices: "json", "json5", "yaml",
-                         "ini", "csv", "xml", "md", "mdx")
+                         "ini", "csv", "md")
   -h, --help             display help for command
 ```
 

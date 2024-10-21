@@ -30,7 +30,7 @@ import {
     PLACEHOLDER_API_KEY,
 } from "./constants"
 import { fileExists, readText, tryReadText, writeText } from "./fs"
-import { APIType, host, LanguageModelConfiguration } from "./host"
+import { OpenAIAPIType, host, LanguageModelConfiguration } from "./host"
 import { parseModelIdentifier } from "./models"
 import { normalizeFloat, trimTrailingSlash } from "./util"
 
@@ -225,14 +225,12 @@ export async function parseTokenFromEnv(
         const version = env.ANTHROPIC_API_VERSION || undefined
         const source = "env: ANTHROPIC_API_..."
         const modelKey = "ANTHROPIC_API_KEY"
-        const type = "anthropic"
 
         return {
             provider,
             model,
             token,
             base,
-            type,
             version,
             source,
         }
@@ -254,7 +252,7 @@ export async function parseTokenFromEnv(
             const base = trimTrailingSlash(env[modelBase])
             const version = env[prefix + "_API_VERSION"]
             const source = `env: ${prefix}_API_...`
-            const type: APIType = "openai"
+            const type: OpenAIAPIType = "openai"
             if (base && !URL.canParse(base))
                 throw new Error(`${modelBase} must be a valid URL`)
             return {
@@ -329,7 +327,7 @@ export async function parseTokenFromEnv(
 
 export async function updateConnectionConfiguration(
     provider?: string,
-    apiType?: APIType
+    apiType?: OpenAIAPIType
 ): Promise<void> {
     // update .gitignore file
     if (!(await fileExists(".gitignore")))

@@ -120,7 +120,7 @@ the `.env` file will appear grayed out in Visual Studio Code.
 
 ## OpenAI
 
-This provider, `openai`, is the default provider.
+This provider, `openai`, is the OpenAI chat model provider.
 It uses the `OPENAI_API_...` environment variables.
 
 <Steps>
@@ -436,6 +436,44 @@ model1=key1
 model2=key2model3=key3
 "
 ```
+
+## Anthropic
+
+This provider, `anthropic`, is the Anthropic chat model provider.
+It uses the `ANTHROPIC_API_...` environment variables.
+
+<Steps>
+
+<ol>
+
+<li>
+
+Update the `.env` file with the secret key.
+
+```txt title=".env"
+ANTHROPIC_API_KEY=...
+# optional
+ANTHROPIC_API_BASE=...
+```
+
+</li>
+
+<li>
+
+Set the `model` field in `script` to the model you want to use.
+
+```js 'model: "anthropic:claude-2"'
+script({
+    model: "anthropic:claude-2",
+    ...
+})
+```
+
+</li>
+
+</ol>
+
+</Steps>
 
 ## GitHub Copilot Chat Models <a id="github-copilot" href=""></a>
 

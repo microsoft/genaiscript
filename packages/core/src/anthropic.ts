@@ -2,7 +2,7 @@ import { ChatCompletionHandler, LanguageModel, LanguageModelInfo } from "./chat"
 import { ANTHROPIC_MAX_TOKEN, MODEL_PROVIDER_ANTHROPIC } from "./constants"
 import { LanguageModelConfiguration } from "./host"
 import { parseModelIdentifier } from "./models"
-import { serializeError } from "./error"
+import { NotSupportedError, serializeError } from "./error"
 import { estimateTokens } from "./tokens"
 import { resolveTokenEncoder } from "./encoders"
 import Anthropic from "@anthropic-ai/sdk"
@@ -11,16 +11,21 @@ import {
     ChatCompletionResponse,
     ChatCompletionToolCall,
     ChatCompletionUsage,
+    ChatCompletionMessageParam,
+    ChatCompletionAssistantMessageParam,
+    ChatCompletionUserMessageParam,
+    ChatCompletionTool,
+    ChatFinishReason,
+    ChatCompletionContentPartImage,
+    ChatCompletionSystemMessageParam,
+    ChatCompletionToolMessageParam,
 } from "./chattypes"
-// Add this line after the import
-import * as OpenAI from "./chattypes"
 
 import { logError } from "./util"
-import { ChatCompletionMessageToolCall } from "openai/resources/index.mjs"
 
 const convertFinishReason = (
     stopReason: Anthropic.Message["stop_reason"]
-): OpenAI.ChatCompletionResponse["finishReason"] => {
+): ChatFinishReason => {
     switch (stopReason) {
         case "end_turn":
             return "stop"
@@ -37,13 +42,13 @@ const convertFinishReason = (
 
 const convertUsage = (
     usage: Anthropic.Usage | undefined
-): OpenAI.ChatCompletionUsage | undefined => {
+): ChatCompletionUsage | undefined => {
     if (!usage) return undefined
     return {
         prompt_tokens: usage.input_tokens,
         completion_tokens: usage.output_tokens,
         total_tokens: usage.input_tokens + usage.output_tokens,
-    } satisfies OpenAI.ChatCompletionUsage
+    } satisfies ChatCompletionUsage
 }
 const adjustUsage = (
     usage: ChatCompletionUsage,
@@ -57,41 +62,36 @@ const adjustUsage = (
 }
 
 const convertMessages = (
-    messages: OpenAI.ChatCompletionMessageParam[]
+    messages: ChatCompletionMessageParam[]
 ): Array<Anthropic.Messages.MessageParam> => {
     return messages.map(convertSingleMessage)
 }
 
 const convertSingleMessage = (
-    msg: OpenAI.ChatCompletionMessageParam
+    msg: ChatCompletionMessageParam
 ): Anthropic.Messages.MessageParam => {
-    if (!("role" in msg)) {
+    const { role } = msg
+    if (!role || role === "aici") {
         // Handle AICIRequest or other custom types
         return {
             role: "user",
             content: [{ type: "text", text: JSON.stringify(msg) }],
         }
-    }
-
-    if (msg.role === "assistant" && Array.isArray(msg.tool_calls)) {
+    } else if (msg.role === "assistant" && Array.isArray(msg.tool_calls)) {
         return convertToolCallMessage({
             ...msg,
             tool_calls: msg.tool_calls,
         })
-    }
-
-    if (msg.role === "tool") {
+    } else if (role === "tool") {
         return convertToolResultMessage(msg)
-    }
+    } else if (role === "function")
+        throw new NotSupportedError("function message not supported")
 
     return convertStandardMessage(msg)
 }
 
 const convertToolCallMessage = (
-    msg: OpenAI.ChatCompletionMessageParam & {
-        role: "assistant"
-        tool_calls: ChatCompletionMessageToolCall[]
-    }
+    msg: ChatCompletionAssistantMessageParam
 ): Anthropic.Messages.MessageParam => {
     return {
         role: "assistant",
@@ -105,10 +105,7 @@ const convertToolCallMessage = (
 }
 
 const convertToolResultMessage = (
-    msg: OpenAI.ChatCompletionMessageParam & {
-        role: "tool"
-        tool_call_id: string
-    }
+    msg: ChatCompletionToolMessageParam
 ): Anthropic.Messages.MessageParam => {
     return {
         role: "user",
@@ -123,13 +120,33 @@ const convertToolResultMessage = (
 }
 
 const convertStandardMessage = (
-    msg: OpenAI.ChatCompletionMessageParam & { role: string }
+    msg:
+        | ChatCompletionSystemMessageParam
+        | ChatCompletionAssistantMessageParam
+        | ChatCompletionUserMessageParam
 ): Anthropic.Messages.MessageParam => {
     const role = msg.role === "assistant" ? "assistant" : "user"
     if (Array.isArray(msg.content)) {
         return {
             role,
-            content: msg.content.map(convertContentBlock),
+            content: msg.content.map(
+                (
+                    block
+                ):
+                    | Anthropic.Messages.TextBlockParam
+                    | Anthropic.Messages.ImageBlockParam => {
+                    if (typeof block === "string") {
+                        return { type: "text", text: block }
+                    } else if (block.type === "text") {
+                        return { type: "text", text: block.text }
+                    } else if (block.type === "image_url") {
+                        return convertImageUrlBlock(block)
+                    }
+                    // audio?
+                    // Handle other types or return a default
+                    else return { type: "text", text: JSON.stringify(block) }
+                }
+            ),
         }
     } else {
         return {
@@ -139,26 +156,9 @@ const convertStandardMessage = (
     }
 }
 
-const convertContentBlock = (
-    block: OpenAI.ChatCompletionMessageParam["content"][number]
-): Anthropic.Messages.TextBlockParam | Anthropic.Messages.ImageBlockParam => {
-    if (typeof block === "string") {
-        return { type: "text", text: block }
-    }
-    if (block.type === "text") {
-        return { type: "text", text: block.text }
-    }
-    if (block.type === "image_url") {
-        return convertImageUrlBlock(block)
-    }
-    // Handle other types or return a default
-    return { type: "text", text: JSON.stringify(block) }
-}
-
-const convertImageUrlBlock = (block: {
-    type: "image_url"
-    image_url: { url: string }
-}): Anthropic.Messages.ImageBlockParam => {
+const convertImageUrlBlock = (
+    block: ChatCompletionContentPartImage
+): Anthropic.Messages.ImageBlockParam => {
     return {
         type: "image",
         source: {
@@ -172,7 +172,7 @@ const convertImageUrlBlock = (block: {
 }
 
 const convertTools = (
-    tools?: OpenAI.ChatCompletionTool[]
+    tools?: ChatCompletionTool[]
 ): Anthropic.Messages.Tool[] | undefined => {
     if (!tools) return undefined
     return tools.map(
