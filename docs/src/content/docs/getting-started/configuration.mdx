@@ -517,6 +517,55 @@ select the best chat model that matches the one you have in your script
 
 The mapping of GenAIScript model names to Visual Studio Models is stored in the settings.
 
+## Anthropic
+
+[Anthropic](https://www.anthropic.com/) is an AI research company that offers powerful language models, including the Claude series.
+
+To use Anthropic models with GenAIScript, follow these steps:
+
+<Steps>
+
+<ol>
+
+<li>
+
+Sign up for an Anthropic account and obtain an API key from their [console](https://console.anthropic.com/).
+
+</li>
+
+<li>
+
+Add your Anthropic API key to the `.env` file:
+
+```txt title=".env"
+ANTHROPIC_API_KEY=sk-ant-api...
+```
+
+</li>
+
+<li>
+
+Find the model that best suits your needs by visiting the [Anthropic model documentation](https://docs.anthropic.com/en/docs/about-claude/models#model-names).
+
+</li>
+
+<li>
+
+Update your script to use the `model` you choose.
+
+```js
+script({
+    ...
+    model: "anthropic:claude-3-5-sonnet-20240620",
+})
+```
+
+</li>
+
+</ol>
+
+</Steps>
+
 ## Local Models
 
 There are many projects that allow you to run models locally on your machine,
