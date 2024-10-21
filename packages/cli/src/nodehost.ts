@@ -26,6 +26,9 @@ import {
     TOOL_ID,
     DEFAULT_EMBEDDINGS_MODEL,
     DEFAULT_SMALL_MODEL,
+    AZURE_OPENAI_TOKEN_SCOPES,
+    MODEL_PROVIDER_AZURE_SERVERLESS,
+    AZURE_AI_INFERENCE_TOKEN_SCOPES,
 } from "../../core/src/constants"
 import { tryReadText } from "../../core/src/fs"
 import {
@@ -87,8 +90,8 @@ class ModelManager implements ModelService {
             const res = await fetch(`${conn.base}/api/pull`, {
                 method: "POST",
                 headers: {
-                    "user-agent": TOOL_ID,
-                    "content-type": "application/json",
+                    "User-Agent": TOOL_ID,
+                    "Content-Type": "application/json",
                 },
                 body: JSON.stringify({ name: model, stream: false }, null, 2),
             })
@@ -159,7 +162,8 @@ export class NodeHost implements RuntimeHost {
     }
     clientLanguageModel: LanguageModel
 
-    private _azureToken: AuthenticationToken
+    private _azureOpenAIToken: AuthenticationToken
+    private _azureServerlessToken: AuthenticationToken
     async getLanguageModelConfiguration(
         modelId: string,
         options?: { token?: boolean } & AbortSignalOptions & TraceOptions
@@ -168,25 +172,45 @@ export class NodeHost implements RuntimeHost {
         await this.parseDefaults()
         const tok = await parseTokenFromEnv(process.env, modelId)
         if (!askToken && tok?.token) tok.token = "***"
-        if (
-            askToken &&
-            tok &&
-            !tok.token &&
-            tok.provider === MODEL_PROVIDER_AZURE // MODEL_PROVIDER_AZURE_SERVERLESS does not support Entra yet
-        ) {
-            if (isAzureTokenExpired(this._azureToken)) {
-                logVerbose(
-                    `fetching azure token (${this._azureToken?.expiresOnTimestamp >= Date.now() ? `expired ${new Date(this._azureToken.expiresOnTimestamp).toLocaleString()}` : "not available"})`
-                )
-                this._azureToken = await createAzureToken(signal)
+        if (askToken && tok && !tok.token) {
+            if (
+                tok.provider === MODEL_PROVIDER_AZURE ||
+                (tok.provider === MODEL_PROVIDER_AZURE_SERVERLESS &&
+                    /\.openai\.azure\.com/i.test(tok.base))
+            ) {
+                if (isAzureTokenExpired(this._azureOpenAIToken)) {
+                    logVerbose(
+                        `fetching Azure OpenAI token ${this._azureOpenAIToken?.expiresOnTimestamp >= Date.now() ? `(expired ${new Date(this._azureOpenAIToken.expiresOnTimestamp).toLocaleString()})` : ""}`
+                    )
+                    this._azureOpenAIToken = await createAzureToken(
+                        AZURE_OPENAI_TOKEN_SCOPES,
+                        signal
+                    )
+                }
+                if (!this._azureOpenAIToken)
+                    throw new Error("Azure OpenAI token not available")
+                tok.token = "Bearer " + this._azureOpenAIToken.token
+            } else if (tok.provider === MODEL_PROVIDER_AZURE_SERVERLESS) {
+                if (isAzureTokenExpired(this._azureServerlessToken)) {
+                    logVerbose(
+                        `fetching Azure AI Infererence token ${this._azureServerlessToken?.expiresOnTimestamp >= Date.now() ? `(expired ${new Date(this._azureServerlessToken.expiresOnTimestamp).toLocaleString()})` : ""}`
+                    )
+                    this._azureServerlessToken = await createAzureToken(
+                        AZURE_AI_INFERENCE_TOKEN_SCOPES,
+                        signal
+                    )
+                }
+                if (!this._azureServerlessToken)
+                    throw new Error("Azure AI Inference token not available")
+                tok.token = "Bearer " + this._azureServerlessToken.token
             }
-            if (!this._azureToken) throw new Error("Azure token not available")
-            tok.token = "Bearer " + this._azureToken.token
         }
         if (!tok) {
             const { provider } = parseModelIdentifier(modelId)
             if (provider === MODEL_PROVIDER_AZURE)
-                throw new Error("Azure end point not configured")
+                throw new Error("Azure OpenAI end point not configured")
+            else if (provider === MODEL_PROVIDER_AZURE_SERVERLESS)
+                throw new Error("Azure AI Inference end point not configured")
         }
         if (!tok && this.clientLanguageModel) {
             return <LanguageModelConfiguration>{

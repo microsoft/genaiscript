@@ -1,7 +1,4 @@
-import {
-    AZURE_OPENAI_TOKEN_EXPIRATION,
-    AZURE_OPENAI_TOKEN_SCOPES,
-} from "../../core/src/constants"
+import { AZURE_TOKEN_EXPIRATION } from "../../core/src/constants"
 import { logVerbose } from "../../core/src/util"
 
 /**
@@ -41,15 +38,16 @@ export function isAzureTokenExpired(token: AuthenticationToken) {
  * Logs the expiration time of the token for debugging or informational purposes.
  */
 export async function createAzureToken(
-    signal: AbortSignal
+    scopes: readonly string[],
+    abortSignal: AbortSignal
 ): Promise<AuthenticationToken> {
     // Dynamically import DefaultAzureCredential from the Azure SDK
     const { DefaultAzureCredential } = await import("@azure/identity")
 
     // Obtain the Azure token using the DefaultAzureCredential
     const azureToken = await new DefaultAzureCredential().getToken(
-        AZURE_OPENAI_TOKEN_SCOPES.slice(),
-        { abortSignal: signal }
+        scopes.slice(),
+        { abortSignal }
     )
 
     // Prepare the result token object with the token and expiration timestamp
@@ -58,7 +56,7 @@ export async function createAzureToken(
         // Use provided expiration timestamp or default to a constant expiration time
         expiresOnTimestamp: azureToken.expiresOnTimestamp
             ? azureToken.expiresOnTimestamp
-            : Date.now() + AZURE_OPENAI_TOKEN_EXPIRATION,
+            : Date.now() + AZURE_TOKEN_EXPIRATION,
     }
 
     // Log the expiration time of the token
