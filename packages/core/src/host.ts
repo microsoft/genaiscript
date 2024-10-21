@@ -1,4 +1,3 @@
-import { Embeddings } from "openai/resources/embeddings.mjs"
 import { CancellationToken } from "./cancellation"
 import { LanguageModel } from "./chat"
 import { Progress } from "./progress"
@@ -34,6 +33,7 @@ export interface LanguageModelConfiguration {
     base: string
     token: string
     source?: string
+    type?: OpenAIAPIType
     aici?: boolean
     version?: string
 }

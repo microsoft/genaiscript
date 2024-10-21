@@ -145,7 +145,8 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
                     /^https?:\/\/(?<deployment>[^\.]+)\.(?<region>[^\.]+)\.models\.ai\.azure\.com/i,
                     (m, deployment, region) =>
                         `https://${r2.model}.${region}.models.ai.azure.com`
-                ) + `/chat/completions`
+                ) +
+                `/chat/completions?api-version=${AZURE_AI_INFERENCE_VERSION}`
         else if (/\.openai\.azure\.com/i.test(cfg.base))
             url =
                 trimTrailingSlash(cfg.base) +

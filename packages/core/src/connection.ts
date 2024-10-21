@@ -168,13 +168,14 @@ export async function parseTokenFromEnv(
         // https://github.com/Azure/azure-sdk-for-js/tree/@azure-rest/ai-inference_1.0.0-beta.2/sdk/ai/ai-inference-rest
         const tokenVar = "AZURE_INFERENCE_CREDENTIAL"
         const token = env[tokenVar]?.trim()
-        const base = trimTrailingSlash(env.AZURE_INFERENCE_ENDPOINT)
+        let base = trimTrailingSlash(env.AZURE_INFERENCE_ENDPOINT)
         if (!token && !base) return undefined
         if (token === PLACEHOLDER_API_KEY)
             throw new Error("AZURE_INFERENCE_CREDENTIAL not configured")
         if (!base) throw new Error("AZURE_INFERENCE_ENDPOINT missing")
         if (base === PLACEHOLDER_API_BASE)
             throw new Error("AZURE_INFERENCE_ENDPOINT not configured")
+        base = cleanAzureBase(base)
         if (!URL.canParse(base))
             throw new Error("AZURE_INFERENCE_ENDPOINT must be a valid URL")
         const version = env.AZURE_INFERENCE_API_VERSION
@@ -188,20 +189,22 @@ export async function parseTokenFromEnv(
             base,
             token,
             type: "azure_serverless",
-            source: "env: AZURE_INFERENCE_...",
+            source: token
+                ? "env: AZURE_INFERENCE_..."
+                : "env: AZURE_INFERENCE_... + Entra ID",
             version,
         }
     }
 
     if (provider === MODEL_PROVIDER_ANTHROPIC) {
-        const token = env.ANTHROPIC_API_KEY?.trim()
+        const modelKey = "ANTHROPIC_API_KEY"
+        const token = env[modelKey]?.trim()
         if (token === undefined || token === PLACEHOLDER_API_KEY)
             throw new Error("ANTHROPIC_API_KEY not configured")
         const base =
             trimTrailingSlash(env.ANTHROPIC_API_BASE) || ANTHROPIC_API_BASE
         const version = env.ANTHROPIC_API_VERSION || undefined
         const source = "env: ANTHROPIC_API_..."
-        const modelKey = "ANTHROPIC_API_KEY"
 
         return {
             provider,
@@ -289,7 +292,7 @@ export async function parseTokenFromEnv(
     return undefined
 
     function cleanAzureBase(b: string) {
-        if (!b) return b
+        if (!b || !/\.openai\.azure\.com/i.test(b)) return b
         b =
             trimTrailingSlash(b.replace(/\/openai\/deployments.*$/, "")) +
             `/openai/deployments`

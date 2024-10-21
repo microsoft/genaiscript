@@ -172,14 +172,12 @@ export class NodeHost implements RuntimeHost {
         await this.parseDefaults()
         const tok = await parseTokenFromEnv(process.env, modelId)
         if (!askToken && tok?.token) tok.token = "***"
-        if (
-            askToken &&
-            tok &&
-            !tok.token &&
-            (tok.provider === MODEL_PROVIDER_AZURE ||
-                tok.provider === MODEL_PROVIDER_AZURE_SERVERLESS)
-        ) {
-            if (tok.provider === MODEL_PROVIDER_AZURE) {
+        if (askToken && tok && !tok.token) {
+            if (
+                tok.provider === MODEL_PROVIDER_AZURE ||
+                (tok.provider === MODEL_PROVIDER_AZURE_SERVERLESS &&
+                    /\.openai\.azure\.com/i.test(tok.base))
+            ) {
                 if (isAzureTokenExpired(this._azureOpenAIToken)) {
                     logVerbose(
                         `fetching Azure OpenAI token ${this._azureOpenAIToken?.expiresOnTimestamp >= Date.now() ? `(expired ${new Date(this._azureOpenAIToken.expiresOnTimestamp).toLocaleString()})` : ""}`
@@ -192,9 +190,7 @@ export class NodeHost implements RuntimeHost {
                 if (!this._azureOpenAIToken)
                     throw new Error("Azure OpenAI token not available")
                 tok.token = "Bearer " + this._azureOpenAIToken.token
-            }
-            /* not supported yet         
-            else {
+            } else if (tok.provider === MODEL_PROVIDER_AZURE_SERVERLESS) {
                 if (isAzureTokenExpired(this._azureServerlessToken)) {
                     logVerbose(
                         `fetching Azure AI Infererence token ${this._azureServerlessToken?.expiresOnTimestamp >= Date.now() ? `(expired ${new Date(this._azureServerlessToken.expiresOnTimestamp).toLocaleString()})` : ""}`
@@ -208,7 +204,6 @@ export class NodeHost implements RuntimeHost {
                     throw new Error("Azure AI Inference token not available")
                 tok.token = "Bearer " + this._azureServerlessToken.token
             }
-*/
         }
         if (!tok) {
             const { provider } = parseModelIdentifier(modelId)
