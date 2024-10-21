@@ -32,7 +32,7 @@ do {
         - do NOT use markdown syntax
         - do NOT add quotes or code blocks
         - keep it short, 1 line only, maximum 50 characters
-        - use emojis
+        - use gitmoji
         - do NOT confuse delete lines starting with '-' and add lines starting with '+'
         `
         },
