@@ -1246,7 +1246,7 @@ The following npm packages may be included in this product:
 
  - @types/http-cache-semantics@4.0.4
  - @types/node@16.9.1
- - @types/node@22.7.7
+ - @types/node@22.7.8
  - @types/turndown@5.0.5
  - @types/yauzl@2.10.3
 
@@ -1278,7 +1278,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.65.0
+ - genaiscript-vscode@1.66.0
 
 This package contains the following license and notice below:
 
@@ -4400,9 +4400,9 @@ The following npm packages may be included in this product:
  - @tokenizer/token@0.3.0
  - agent-base@6.0.2
  - canvas@2.11.2
- - genaiscript-core-internal@1.65.0
- - genaiscript-sample@1.65.0
- - genaiscript@1.65.0
+ - genaiscript-core-internal@1.66.0
+ - genaiscript-sample@1.66.0
+ - genaiscript@1.66.0
  - https-proxy-agent@5.0.1
  - isarray@1.0.0
  - javascript-natural-sort@0.7.1
