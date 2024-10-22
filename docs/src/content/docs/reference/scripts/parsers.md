@@ -324,7 +324,7 @@ Utility to hash an object, array into a string that is appropriate for hashing p
 const h = parsers.hash({ obj, other }, { length: 12 })
 ```
 
-By default, uses `sha-1`, but `sha-256` can also be used. The hash packing logic may change between versions of genaiscript.
+By default, uses `sha1`, but `sha256` can also be used. The hash packing logic may change between versions of genaiscript.
 
 ## Command line
 

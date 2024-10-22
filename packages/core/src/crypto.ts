@@ -2,7 +2,7 @@
 
 // Importing the toHex function from the util module to convert byte arrays to hexadecimal strings
 import { toHex, utf8Encode } from "./util"
-import { getRandomValues, createHash } from "node:crypto"
+import { getRandomValues, createHash } from "crypto"
 
 /**
  * Generates a random hexadecimal string of a specified size.
@@ -22,9 +22,9 @@ export function randomHex(size: number) {
 }
 
 export async function hash(value: any, options?: HashOptions) {
-    const { algorithm = "sha-1", length, ...rest } = options || {}
+    const { algorithm = "sha1", length, ...rest } = options || {}
 
-    const h = createHash(algorithm.toUpperCase())
+    const h = createHash(algorithm)
     const append = async (v: any) => {
         if (
             typeof v == "string" ||

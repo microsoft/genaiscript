@@ -1115,7 +1115,7 @@ interface Tokenizers {
 }
 
 interface HashOptions {
-    algorithm?: "sha-1" | "sha-256"
+    algorithm?: "sha1" | "sha256"
     length?: number
     version?: boolean
 }

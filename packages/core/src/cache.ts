@@ -207,5 +207,5 @@ export class JSONLineCache<K, V> extends MemoryCache<K, V> {
  * @returns A promise resolving to the SHA256 hash string
  */
 async function keySHA(key: any) {
-    return await hash(key, { algorithm: "sha-256", version: true }) // Compute SHA256 hash
+    return await hash(key, { algorithm: "sha256", version: true }) // Compute SHA256 hash
 }
