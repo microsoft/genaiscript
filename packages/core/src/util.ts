@@ -2,7 +2,6 @@ import { GENAISCRIPT_FOLDER, HTTPS_REGEX } from "./constants"
 import { isCancelError, serializeError } from "./error"
 import { LogLevel, host } from "./host"
 import { YAMLStringify } from "./yaml"
-import { escape as HTMLEscape_ } from "html-escaper"
 
 // chunk string into chunks of size n
 export function chunkString(s: string, n: number) {
@@ -320,8 +319,6 @@ export function renderWithPrecision(
     }
     return rs
 }
-
-export const HTMLEscape = HTMLEscape_
 
 export function tagFilter(tags: string[], tag: string) {
     if (!tags?.length || !tag) return true

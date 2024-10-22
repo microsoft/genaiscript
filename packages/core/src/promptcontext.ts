@@ -3,7 +3,7 @@
 // The context is essential for executing prompts within a project environment.
 
 import { host } from "./host"
-import { HTMLEscape, arrayify, dotGenaiscriptPath, sha256string } from "./util"
+import { arrayify, dotGenaiscriptPath, sha256string } from "./util"
 import { runtimeHost } from "./host"
 import { MarkdownTrace } from "./trace"
 import { createParsers } from "./parsers"
@@ -29,6 +29,7 @@ import { PLimitPromiseQueue } from "./concurrency"
 import { NotSupportedError } from "./error"
 import { MemoryCache } from "./cache"
 import { proxifyVars } from "./parameters"
+import { HTMLEscape } from "./html"
 
 /**
  * Creates a prompt context for the given project, variables, trace, options, and model.

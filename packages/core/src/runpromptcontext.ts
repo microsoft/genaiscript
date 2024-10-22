@@ -626,7 +626,7 @@ export function createChatGenerationContext(
             const systemScripts = resolveSystems(prj, runOptions ?? {})
             if (systemScripts.length)
                 try {
-                    trace.startDetails("👾 systems")
+                    runTrace.startDetails("👾 systems")
                     for (const systemId of systemScripts) {
                         checkCancelled(cancellationToken)
 
@@ -674,7 +674,7 @@ export function createChatGenerationContext(
                             )
                     }
                 } finally {
-                    trace.endDetails()
+                    runTrace.endDetails()
                 }
             if (systemMessage.content) messages.unshift(systemMessage)
 
@@ -718,7 +718,10 @@ export function createChatGenerationContext(
                 )
             )
             tracePromptResult(runTrace, resp)
-            await writeFileEdits(resp.fileEdits, { applyEdits, trace })
+            await writeFileEdits(resp.fileEdits, {
+                applyEdits,
+                trace: runTrace,
+            })
             return resp
         } catch (e) {
             runTrace.error(e)

@@ -2,7 +2,12 @@ import { MarkdownTrace } from "./trace"
 import { PromptImage, renderPromptNode } from "./promptdom"
 import { LanguageModelConfiguration, host } from "./host"
 import { GenerationOptions } from "./generation"
-import { JSON5parse, JSONLLMTryParse, isJSONObjectOrArray } from "./json5"
+import {
+    JSON5TryParse,
+    JSON5parse,
+    JSONLLMTryParse,
+    isJSONObjectOrArray,
+} from "./json5"
 import {
     CancellationOptions,
     CancellationToken,
@@ -43,10 +48,12 @@ import {
 } from "./chatrender"
 import { promptParametersSchemaToJSONSchema } from "./parameters"
 import { fenceMD, prettifyMarkdown } from "./markdown"
-import { YAMLStringify } from "./yaml"
+import { YAMLStringify, YAMLTryParse } from "./yaml"
 import { resolveTokenEncoder } from "./encoders"
 import { estimateTokens, truncateTextToTokens } from "./tokens"
 import { computeFileEdits } from "./fileedits"
+import { HTMLEscape } from "./html"
+import { XMLTryParse } from "./xml"
 
 export function toChatCompletionUserMessage(
     expanded: string,
@@ -763,6 +770,18 @@ export async function executeChatSession(
 
 export function tracePromptResult(trace: MarkdownTrace, resp: RunPromptResult) {
     const { json, text } = resp
-    trace.details(`🔠 output`, prettifyMarkdown(text), { expanded: true })
-    if (resp.json) trace.detailsFenced("📩 JSON (parsed)", json, "json")
+
+    // try to sniff the output type
+    const language = JSON5TryParse(text)
+        ? "json"
+        : XMLTryParse(text)
+          ? "xml"
+          : /^(-|\*|#+|```)\s/im.test(text)
+            ? "markdown"
+            : "text"
+    trace.detailsFenced(`🔠 output`, text, language)
+    if (language === "markdown")
+        trace.appendContent(
+            "\n\n" + HTMLEscape(prettifyMarkdown(text)) + "\n\n"
+        )
 }

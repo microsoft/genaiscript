@@ -2,6 +2,7 @@
 // It imports necessary libraries for HTML conversion and logging purposes.
 
 import { TraceOptions } from "./trace" // Import TraceOptions for optional logging features
+import { escape as HTMLEscape_ } from "html-escaper"
 
 /**
  * Converts HTML tables to JSON objects.
@@ -67,3 +68,5 @@ export async function HTMLToMarkdown(
         return undefined
     }
 }
+
+export const HTMLEscape = HTMLEscape_
