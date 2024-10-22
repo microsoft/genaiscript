@@ -1,14 +1,14 @@
+import { getRandomValues as cryptoGetRandomValues } from "crypto"
 // crypto.ts - Provides cryptographic functions for secure operations
 
 // Importing the toHex function from the util module to convert byte arrays to hexadecimal strings
 import { concatBuffers, toHex, utf8Encode } from "./util"
 
-async function getRandomValues(bytes: Uint8Array) {
+function getRandomValues(bytes: Uint8Array) {
     if (typeof self !== "undefined" && self.crypto) {
-        self.crypto.getRandomValues(bytes)
+        return self.crypto.getRandomValues(bytes)
     } else {
-        const { getRandomValues } = await import("crypto")
-        getRandomValues(bytes)
+        return cryptoGetRandomValues(bytes)
     }
 }
 
@@ -33,10 +33,10 @@ export function randomHex(size: number) {
     const bytes = new Uint8Array(size)
 
     // Fill the array with cryptographically secure random values using the Web Crypto API
-    getRandomValues(bytes)
+    const res = getRandomValues(bytes)
 
     // Convert the random byte array to a hexadecimal string using the toHex function and return it
-    return toHex(bytes)
+    return toHex(res)
 }
 
 export async function hash(value: any, options?: HashOptions) {
