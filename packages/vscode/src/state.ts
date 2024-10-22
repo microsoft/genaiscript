@@ -251,9 +251,12 @@ stats/
             template: {
                 id: options.template.id,
                 title: options.template.title,
-                hash: await hash({
-                    template: options.template,
-                }),
+                hash: await hash(
+                    {
+                        template: options.template,
+                    },
+                    { version: true }
+                ),
             },
             fragment: options.fragment,
             version: CORE_VERSION,

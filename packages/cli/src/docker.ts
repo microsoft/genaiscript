@@ -205,7 +205,7 @@ export class DockerManager {
         } = options
         let name = (userName || image).replace(/[^a-zA-Z0-9]+/g, "_")
         if (persistent)
-            name += `_${await hash({ image, name, ports, env, networkEnabled, postCreateCommands, CORE_VERSION }, { length: 12 })}`
+            name += `_${await hash({ image, name, ports, env, networkEnabled, postCreateCommands, CORE_VERSION }, { length: 12, version: true })}`
         else name += `_${randomHex(6)}`
         const hostPath = host.path.resolve(
             dotGenaiscriptPath(DOCKER_VOLUMES_DIR, name)
