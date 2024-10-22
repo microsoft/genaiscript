@@ -46,7 +46,8 @@ export async function hash(value: any, options?: HashOptions) {
     await append(value)
     await append(rest)
 
-    let res = await h.digest("hex")
+    const buf = await h.digest()
+    let res = await buf.toString("hex")
     if (length) res = res.slice(0, length)
     return res
 }
