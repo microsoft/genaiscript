@@ -81,7 +81,7 @@ export function assert(
     }
 }
 
-export function concatBuffers(...chunks: Uint8Array[]) {
+export function concatBuffers(...chunks: ArrayLike<number>[]) {
     let sz = 0
     for (const ch of chunks) sz += ch.length
     const r = new Uint8Array(sz)
@@ -91,39 +91,6 @@ export function concatBuffers(...chunks: Uint8Array[]) {
         sz += ch.length
     }
     return r
-}
-
-declare var require: any
-export async function sha256(...buffers: Uint8Array[]) {
-    if (typeof self === "undefined" || !window.crypto) {
-        const req = require
-        const s = req("crypto").createHash("sha256")
-        for (const b of buffers) s.update(b)
-        return Promise.resolve(new Uint8Array(s.digest()))
-    }
-    const r = await self.crypto.subtle.digest(
-        "SHA-256",
-        concatBuffers(...buffers)
-    )
-    return new Uint8Array(r)
-}
-
-export async function sha1(...buffers: Uint8Array[]) {
-    if (typeof self === "undefined" || !window.crypto) {
-        const req = require
-        const s = req("crypto").createHash("sha256")
-        for (const b of buffers) s.update(b)
-        return Promise.resolve(new Uint8Array(s.digest()))
-    }
-    const r = await self.crypto.subtle.digest(
-        "SHA-1",
-        concatBuffers(...buffers)
-    )
-    return new Uint8Array(r)
-}
-
-export async function sha1string(s: string) {
-    return toHex(await sha1(utf8Encode(s)))
 }
 
 export function toHex(bytes: ArrayLike<number>, sep?: string) {
@@ -149,10 +116,6 @@ export function utf8Encode(s: string) {
 
 export function utf8Decode(buf: Uint8Array) {
     return host.createUTF8Decoder().decode(buf)
-}
-
-export async function sha256string(s: string) {
-    return toHex(await sha256(utf8Encode(s)))
 }
 
 // this will take lower 8 bits from each character

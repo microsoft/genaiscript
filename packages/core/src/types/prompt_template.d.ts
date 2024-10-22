@@ -1114,6 +1114,12 @@ interface Tokenizers {
     ): Promise<string>
 }
 
+interface HashOptions {
+    algorithm?: "sha-1" | "sha-256"
+    length?: number
+    version?: boolean
+}
+
 interface Parsers {
     /**
      * Parses text as a JSON5 payload
@@ -1305,6 +1311,12 @@ interface Parsers {
      * @param options
      */
     tidyData(rows: object[], options?: DataFilter): object[]
+
+    /**
+     * Computes a sha1 that can be used for hashing purpose, not cryptographic.
+     * @param content content to hash
+     */
+    hash(content: any, options?: HashOptions): Promise<string>
 }
 
 interface AICIGenOptions {

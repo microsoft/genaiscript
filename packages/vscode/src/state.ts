@@ -25,16 +25,11 @@ import { isCancelError } from "../../core/src/error"
 import { resolveModelConnectionInfo } from "../../core/src/models"
 import { parseProject } from "../../core/src/parser"
 import { MarkdownTrace } from "../../core/src/trace"
-import {
-    dotGenaiscriptPath,
-    sha256string,
-    logInfo,
-    groupBy,
-} from "../../core/src/util"
+import { dotGenaiscriptPath, logInfo, groupBy } from "../../core/src/util"
 import { CORE_VERSION } from "../../core/src/version"
 import { Fragment, GenerationResult } from "../../core/src/generation"
 import { parametersToVars } from "../../core/src/parameters"
-import { randomHex } from "../../core/src/crypto"
+import { hash, randomHex } from "../../core/src/crypto"
 import { delay } from "es-toolkit"
 
 export const FRAGMENTS_CHANGE = "fragmentsChange"
@@ -256,11 +251,9 @@ stats/
             template: {
                 id: options.template.id,
                 title: options.template.title,
-                hash: await sha256string(
-                    JSON.stringify({
-                        template: options.template,
-                    })
-                ),
+                hash: await hash({
+                    template: options.template,
+                }),
             },
             fragment: options.fragment,
             version: CORE_VERSION,

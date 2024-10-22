@@ -3,16 +3,10 @@
 // The context is essential for executing prompts within a project environment.
 
 import { host } from "./host"
-import { arrayify, dotGenaiscriptPath, sha256string } from "./util"
+import { arrayify, dotGenaiscriptPath } from "./util"
 import { runtimeHost } from "./host"
 import { MarkdownTrace } from "./trace"
 import { createParsers } from "./parsers"
-import {
-    PromptNode,
-    appendChild,
-    createFileMerge,
-    createOutputProcessor,
-} from "./promptdom"
 import { bingSearch } from "./websearch"
 import {
     RunPromptContextNode,
@@ -30,6 +24,7 @@ import { NotSupportedError } from "./error"
 import { MemoryCache } from "./cache"
 import { proxifyVars } from "./parameters"
 import { HTMLEscape } from "./html"
+import { hash } from "./crypto"
 
 /**
  * Creates a prompt context for the given project, variables, trace, options, and model.
@@ -176,9 +171,7 @@ export async function createPromptContext(
                     searchOptions?.embeddingsModel ??
                     options?.embeddingsModel ??
                     host.defaultEmbeddingsModelOptions.embeddingsModel
-                const key = await sha256string(
-                    JSON.stringify({ files, searchOptions })
-                )
+                const key = await hash({ files, searchOptions }, { length: 12 })
                 const folderPath = dotGenaiscriptPath("vectors", key)
                 const res = await vectorSearch(q, files, {
                     ...searchOptions,

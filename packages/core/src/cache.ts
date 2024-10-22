@@ -1,12 +1,11 @@
 // Import necessary modules and types
 import { appendJSONL, JSONLTryParse, writeJSONL } from "./jsonl"
 import { host } from "./host"
-import { dotGenaiscriptPath, sha256string } from "./util"
+import { dotGenaiscriptPath } from "./util"
 import { CHANGE } from "./constants"
-import { TraceOptions } from "./trace"
 import { CORE_VERSION } from "./version"
 import { tryReadText } from "./fs"
-import { JSON5TryParse } from "./json5"
+import { hash } from "./crypto"
 
 /**
  * Represents a cache entry with a hashed identifier (`sha`), `key`, and `val`.
@@ -202,12 +201,11 @@ export class JSONLineCache<K, V> extends MemoryCache<K, V> {
 }
 
 /**
- * Compute the SHA256 hash of a key for uniqueness.
+ * Compute the SHA1 hash of a key for uniqueness.
  * Normalizes the key by converting it to a string and appending the core version.
  * @param key - The key to hash
  * @returns A promise resolving to the SHA256 hash string
  */
 async function keySHA(key: any) {
-    if (typeof key != "string") key = JSON.stringify(key) + CORE_VERSION // Normalize key
-    return await sha256string(key)
+    return await hash({ key, CORE_VERSION }, { algorithm: "sha-256" }) // Compute SHA256 hash
 }

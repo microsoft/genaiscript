@@ -27,6 +27,7 @@ import { mustacheRender } from "./mustache"
 import { jinjaRender } from "./jinja"
 import { createDiff, llmifyDiff } from "./diff"
 import { tidyData } from "./tidy"
+import { hash } from "./crypto"
 
 export async function createParsers(options: {
     trace: MarkdownTrace
@@ -119,5 +120,6 @@ export async function createParsers(options: {
         },
         diff: (f1, f2) => llmifyDiff(createDiff(f1, f2)),
         tidyData: (rows, options) => tidyData(rows, options),
+        hash: async (text, options) => await hash(text, options)
     })
 }

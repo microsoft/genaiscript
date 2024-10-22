@@ -1,7 +1,8 @@
 // crypto.ts - Provides cryptographic functions for secure operations
 
 // Importing the toHex function from the util module to convert byte arrays to hexadecimal strings
-import { toHex } from "./util"
+import { toHex, utf8Encode } from "./util"
+import { getRandomValues, createHash } from "node:crypto"
 
 /**
  * Generates a random hexadecimal string of a specified size.
@@ -14,8 +15,38 @@ export function randomHex(size: number) {
     const bytes = new Uint8Array(size)
 
     // Fill the array with cryptographically secure random values using the Web Crypto API
-    crypto.getRandomValues(bytes)
+    getRandomValues(bytes)
 
     // Convert the random byte array to a hexadecimal string using the toHex function and return it
     return toHex(bytes)
+}
+
+export async function hash(value: any, options?: HashOptions) {
+    const { algorithm = "sha-1", length, ...rest } = options || {}
+
+    const h = createHash(algorithm.toUpperCase())
+    const append = async (v: any) => {
+        if (
+            typeof v == "string" ||
+            typeof v === "number" ||
+            typeof v === "boolean"
+        )
+            h.update(String(v), "utf8")
+        else if (Array.isArray(v)) for (const c of v) await append(c)
+        else if (v instanceof Buffer) h.update(v)
+        else if (v instanceof Blob)
+            h.update(new Uint8Array(await v.arrayBuffer()))
+        else if (typeof v === "object")
+            for (const c of Object.keys(v).sort()) {
+                h.update(c, "utf8")
+                await append(v[c])
+            }
+        else h.update(utf8Encode(JSON.stringify(v)))
+    }
+    await append(value)
+    await append(rest)
+
+    let res = await h.digest("hex")
+    if (length) res = res.slice(0, length)
+    return res
 }

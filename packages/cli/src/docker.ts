@@ -7,7 +7,7 @@ import {
     DOCKER_VOLUMES_DIR,
     DOCKER_CONTAINER_VOLUME,
 } from "../../core/src/constants"
-import { randomHex } from "../../core/src/crypto"
+import { hash, randomHex } from "../../core/src/crypto"
 import { errorMessage } from "../../core/src/error"
 import { host } from "../../core/src/host"
 import { MarkdownTrace, TraceOptions } from "../../core/src/trace"
@@ -16,8 +16,6 @@ import {
     dotGenaiscriptPath,
     logVerbose,
     arrayify,
-    sha1,
-    sha1string,
 } from "../../core/src/util"
 import { CORE_VERSION } from "../../core/src/version"
 import { isQuiet } from "./log"
@@ -207,7 +205,7 @@ export class DockerManager {
         } = options
         let name = (userName || image).replace(/[^a-zA-Z0-9]+/g, "_")
         if (persistent)
-            name += `_${(await sha1string(JSON.stringify({ image, name, ports, env, networkEnabled, postCreateCommands, CORE_VERSION }))).slice(0, 12)}`
+            name += `_${await hash({ image, name, ports, env, networkEnabled, postCreateCommands, CORE_VERSION }, { length: 12 })}`
         else name += `_${randomHex(6)}`
         const hostPath = host.path.resolve(
             dotGenaiscriptPath(DOCKER_VOLUMES_DIR, name)
