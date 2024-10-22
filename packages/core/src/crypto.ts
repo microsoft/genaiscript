@@ -1,8 +1,26 @@
 // crypto.ts - Provides cryptographic functions for secure operations
 
 // Importing the toHex function from the util module to convert byte arrays to hexadecimal strings
-import { toHex, utf8Encode } from "./util"
-import { getRandomValues, createHash } from "crypto"
+import { concatBuffers, toHex, utf8Encode } from "./util"
+
+async function getRandomValues(bytes: Uint8Array) {
+    if (typeof self !== "undefined" && self.crypto) {
+        self.crypto.getRandomValues(bytes)
+    } else {
+        const { getRandomValues } = await import("crypto")
+        getRandomValues(bytes)
+    }
+}
+
+async function digest(algorithm: string, data: Uint8Array) {
+    algorithm = algorithm.toUpperCase()
+    if (typeof self !== "undefined" && self.crypto) {
+        return self.crypto.subtle.digest(algorithm, data)
+    } else {
+        const { subtle } = await import("crypto")
+        return subtle.digest(algorithm, data)
+    }
+}
 
 /**
  * Generates a random hexadecimal string of a specified size.
@@ -22,37 +40,32 @@ export function randomHex(size: number) {
 }
 
 export async function hash(value: any, options?: HashOptions) {
-    const { algorithm = "sha1", length, ...rest } = options || {}
+    const { algorithm = "sha-1", length, ...rest } = options || {}
 
-    const h = createHash(algorithm)
+    const h: Uint8Array[] = []
     const append = async (v: any) => {
         if (
             typeof v == "string" ||
             typeof v === "number" ||
             typeof v === "boolean"
         )
-            h.update(String(v), "utf8")
+            h.push(utf8Encode(String(v)))
         else if (Array.isArray(v)) for (const c of v) await append(c)
-        else if (v instanceof Buffer) h.update(v)
+        else if (v instanceof Buffer) h.push(new Uint8Array(v))
         else if (v instanceof Blob)
-            h.update(new Uint8Array(await v.arrayBuffer()))
+            h.push(new Uint8Array(await v.arrayBuffer()))
         else if (typeof v === "object")
             for (const c of Object.keys(v).sort()) {
-                h.update(c, "utf8")
+                h.push(utf8Encode(c))
                 await append(v[c])
             }
-        else h.update(utf8Encode(JSON.stringify(v)))
+        else h.push(utf8Encode(JSON.stringify(v)))
     }
     await append(value)
     await append(rest)
 
-    const buf = await h.digest()
-    let res: string
-    try {
-        res = await buf.toString("hex")
-    } catch (e) {
-        res = toHex(new Uint8Array(buf))
-    }
+    const buf = await digest(algorithm, concatBuffers(...h))
+    let res = toHex(new Uint8Array(buf))
     if (length) res = res.slice(0, length)
     return res
 }
