@@ -316,6 +316,16 @@ used with `defData`.
 const d = parsers.tidyData(rows, { sliceSample: 100, sort: "name" })
 ```
 
+## hash
+
+Utility to hash an object, array into a string that is appropriate for hashing purposes.
+
+```js
+const h = parsers.hash({ obj, other }, { length: 12 })
+```
+
+By default, uses `sha-1`, but `sha-256` can also be used. The hash packing logic may change between versions of genaiscript.
+
 ## Command line
 
 Use the [parse](/genaiscript/reference/cli/commands#parse) command from the CLI to try out various parsers.
