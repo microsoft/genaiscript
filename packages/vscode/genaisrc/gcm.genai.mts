@@ -33,6 +33,7 @@ do {
         - do NOT add quotes or code blocks
         - keep it short, 1 line only, maximum 50 characters
         - use gitmoji
+        - follow the conventional commit spec at https://www.conventionalcommits.org/en/v1.0.0/#specification
         - do NOT confuse delete lines starting with '-' and add lines starting with '+'
         `
         },
