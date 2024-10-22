@@ -1,6 +1,8 @@
 import { MemoryCache } from "./cache"
 import { AGENT_MEMORY_CACHE_NAME } from "./constants"
 import { errorMessage } from "./error"
+import { HTMLEscape } from "./html"
+import { prettifyMarkdown } from "./markdown"
 import { MarkdownTrace } from "./trace"
 import { logVerbose } from "./util"
 
@@ -56,8 +58,8 @@ export async function agentAddMemory(
     }
     await cache.set(cacheKey, cachedValue)
     trace.detailsFenced(
-        `🧠 agent memory: ${query}`,
-        cachedValue.answer,
+        `🧠 agent memory: ${HTMLEscape(query)}`,
+        HTMLEscape(prettifyMarkdown(cachedValue.answer)),
         "markdown"
     )
 }
@@ -79,8 +81,8 @@ export async function traceAgentMemory(trace: MarkdownTrace) {
                 .reverse()
                 .forEach(({ agent, query, answer }) =>
                     trace.detailsFenced(
-                        `👤 ${agent}: ${query}`,
-                        answer,
+                        `👤 ${agent}: ${HTMLEscape(query)}`,
+                        HTMLEscape(prettifyMarkdown(answer)),
                         "markdown"
                     )
                 )
