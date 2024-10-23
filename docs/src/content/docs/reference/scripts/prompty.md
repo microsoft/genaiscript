@@ -73,7 +73,7 @@ $`{{question}}
 {{hint}}`.jinja(env.vars)
 ```
 
-## Supported features
+### Supported features
 
 -   `name`, `description`, `temperature`, `max_tokens`, `top_p`, ...0
 -   `inputs` converted to `parameters`
@@ -84,9 +84,20 @@ $`{{question}}
 
 -   images are not yet supported
 
-## Extensions
+### Extensions
 
 Extra fields that genaiscript use:
 
 -   `files` to specify one or many files to populate `env.files`
 -   `tests` to specify one or many tests
+
+## Importing .prompty
+
+You can also import and render a .prompty file at runtime while generating the prompt using `importTemplate`.
+
+```ts
+importTemplate("basic.prompty", {
+    question: "what is the capital of france?",
+    hint: "starts with p",
+})
+```
