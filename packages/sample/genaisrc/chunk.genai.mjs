@@ -1,5 +1,6 @@
 script({
     files: "src/rag/loremipsum.pdf",
+    tests: {},
 })
 
 const chunks = await tokenizers.chunk(env.files[0], {
