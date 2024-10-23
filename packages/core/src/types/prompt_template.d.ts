@@ -252,16 +252,11 @@ interface PromptSystemOptions {
     excludedSystem?: ElementOrArray<SystemPromptId>
 }
 
-interface ScriptRuntimeOptions {
+interface ScriptRuntimeOptions extends LineNumberingOptions {
     /**
      * Secrets required by the prompt
      */
     secrets?: string[]
-
-    /**
-     * Default value for emitting line numbers in fenced code blocks.
-     */
-    lineNumbers?: boolean
 }
 
 type PromptParameterType =
@@ -1100,19 +1095,14 @@ interface CSVParseOptions {
     headers?: string[]
 }
 
-interface TextChunk extends LineNumberingOptions {
+interface TextChunk {
     text: string
-    lineStart: number
-    lineEnd: number
 }
 
-interface TextChunkerConfig {
+interface TextChunkerConfig extends LineNumberingOptions {
     model?: ModelType
-    separators?: string[]
-    keepSeparators?: boolean
     chunkSize?: number
     chunkOverlap?: number
-    lineNumbers?: boolean
     docType?: OptionsOrString<
         | "cpp"
         | "python"

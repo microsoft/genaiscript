@@ -70,18 +70,16 @@ export async function chunk(
         ...rest,
         docType,
         tokenizer,
+        keepSeparators: true,
     })
     const chunksRaw = ts.split(content)
-    const chunks = chunksRaw.map(({ tokens, startPos, endPos }) => {
-        const lineStart = indexToLineNumber(content, startPos)
-        const lineEnd = indexToLineNumber(content, endPos)
-        let chunkText = tokenizer.decode(tokens || [])
-        if (lineNumbers)
-            chunkText = addLineNumbers(chunkText, { startLine: lineStart })
+    const chunks = chunksRaw.map(({ text, startPos }) => {
+        if (lineNumbers) {
+            const startLine = indexToLineNumber(content, startPos)
+            text = addLineNumbers(text, { startLine })
+        }
         return {
-            text: chunkText,
-            lineStart,
-            lineEnd,
+            text,
         } satisfies TextChunk
     })
     return chunks
