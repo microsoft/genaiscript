@@ -25,7 +25,7 @@ import {
 } from "./parameters"
 import { consoleLogFormat } from "./logging"
 import { isGlobMatch } from "./glob"
-import { arrayify, logError, logVerbose } from "./util"
+import { arrayify, logError, logVerbose, logWarn } from "./util"
 import { renderShellOutput } from "./chatrender"
 import { jinjaRender } from "./jinja"
 import { mustacheRender } from "./mustache"
@@ -73,18 +73,35 @@ export function createChatTurnGenerationContext(
 ): ChatTurnGenerationContext & { node: PromptNode } {
     const node: PromptNode = { children: [] }
 
-    const log = (...args: any[]) => {
-        const line = consoleLogFormat(...args)
-        if (line) {
-            trace.log(line)
-            logVerbose(line)
-        }
-    }
     const console = Object.freeze<PromptGenerationConsole>({
-        log,
-        debug: log,
-        warn: log,
-        error: log,
+        log: (...args: any[]) => {
+            const line = consoleLogFormat(...args)
+            if (line) {
+                trace.log(line)
+                process.stdout.write(line + "\n")
+            }
+        },
+        debug: (...args: any[]) => {
+            const line = consoleLogFormat(...args)
+            if (line) {
+                trace.log(line)
+                logVerbose(line)
+            }
+        },
+        warn: (...args: any[]) => {
+            const line = consoleLogFormat(...args)
+            if (line) {
+                trace.log(line)
+                logWarn(line)
+            }
+        },
+        error: (...args: any[]) => {
+            const line = consoleLogFormat(...args)
+            if (line) {
+                trace.log(line)
+                logError(line)
+            }
+        },
     })
 
     const ctx: ChatTurnGenerationContext & { node: PromptNode } = {
