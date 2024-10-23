@@ -84,8 +84,7 @@ function promptyFrontmatterToMeta(frontmatter: PromptyFrontmatter): PromptArgs {
     let modelName: string = undefined
     if (api !== "chat") throw new Error("completion api not supported")
     if (modelParameters?.n > 1) throw new Error("multi-turn not supported")
-    if (modelParameters?.tools?.length)
-        throw new Error("streaming not supported")
+    if (modelParameters?.tools?.length) throw new Error("tools not supported")
 
     // resolve model
     if (
@@ -120,11 +119,11 @@ function promptyFrontmatterToMeta(frontmatter: PromptyFrontmatter): PromptArgs {
     return meta
 }
 
-export function promptyParse(text: string): PromptyDocument {
+export function promptyParse(filename: string, text: string): PromptyDocument {
     const { frontmatter = "", content = "" } = splitMarkdown(text)
     const fm = YAMLTryParse(frontmatter) ?? {}
-    const meta = fm ? promptyFrontmatterToMeta(fm) : {}
-    // todo: validate frontmatter?
+    const meta: PromptArgs = fm ? promptyFrontmatterToMeta(fm) : {}
+    meta.filename = filename
     const messages: ChatCompletionMessageParam[] = []
 
     // split

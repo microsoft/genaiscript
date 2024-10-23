@@ -1,6 +1,10 @@
 /// <reference path="./types/prompt_template.d.ts" />
 // Import necessary regular expressions for file type detection and host utilities
-import { GENAI_ANYJS_REGEX, GENAI_ANYTS_REGEX } from "./constants"
+import {
+    GENAI_ANYJS_REGEX,
+    GENAI_ANYTS_REGEX,
+    PROMPTY_REGEX,
+} from "./constants"
 import { host } from "./host"
 
 // Type alias for PromptScript used globally
@@ -73,7 +77,8 @@ export class Project {
             { dirname: string; js?: boolean; ts?: boolean }
         > = {}
         for (const t of Object.values(this.templates).filter(
-            (t) => t.filename // Filter templates that have a filename set
+            // must have a filename and not propmty
+            (t) => t.filename && !PROMPTY_REGEX.test(t.filename)
         )) {
             const dirname = host.path.dirname(t.filename) // Get directory name from the filename
             const folder = folders[dirname] || (folders[dirname] = { dirname })
