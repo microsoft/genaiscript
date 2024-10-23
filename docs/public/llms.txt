@@ -4,31 +4,31 @@
 
 ## Getting Started
 
-- [Tutorial](/genaiscript/getting-started/tutorial)
-- [Running Scripts](/genaiscript/getting-started/running-scripts)
-- [Best Practices](/genaiscript/getting-started/best-practices)
+- [Tutorial](https://microsoft.github.io/genaiscript/getting-started/tutorial.md)
+- [Running Scripts](https://microsoft.github.io/genaiscript/getting-started/running-scripts.md)
+- [Best Practices](https://microsoft.github.io/genaiscript/getting-started/best-practices.md)
 
 ## Guides
 
-- [Prompt as Code](/genaiscript/guides/prompt-as-code)
-- [Detection of Outdated Descriptions](/genaiscript/guides/detection-outdated-descriptions)
-- [Containerized Tools](/genaiscript/guides/containerized-tools)
+- [Prompt as Code](https://microsoft.github.io/genaiscript/guides/prompt-as-code.md)
+- [Detection of Outdated Descriptions](https://microsoft.github.io/genaiscript/guides/detection-outdated-descriptions.md)
+- [Containerized Tools](https://microsoft.github.io/genaiscript/guides/containerized-tools.md)
 
 ## Reference
 
-- [Settings](/genaiscript/reference/vscode/settings)
-- [Run Command](/genaiscript/reference/cli/run)
-- [Commands](/genaiscript/reference/cli/commands)
-- [Scripts - YAML](/genaiscript/reference/scripts/yaml)
+- [Settings](https://microsoft.github.io/genaiscript/reference/vscode/settings.md)
+- [Run Command](https://microsoft.github.io/genaiscript/reference/cli/run.md)
+- [Commands](https://microsoft.github.io/genaiscript/reference/cli/commands.md)
+- [Scripts - YAML](https://microsoft.github.io/genaiscript/reference/scripts/yaml.md)
 
 ## Blogs
 
-- [Support for Agentic Tools](/genaiscript/blog/support-for-agentic-tools)
-- [Readme Maintenance](/genaiscript/blog/readme-maintenance)
-- [Gentle Introduction to GenAIScript](/genaiscript/blog/gentle-introduction-to-genaiscript)
-- [Creating Release Notes with GenAI](/genaiscript/blog/creating-release-notes-with-genai)
-- [Automatic Web Page Content Analysis with GenAIScript](/genaiscript/blog/automatic-web-page-content-analysis-with-genaiscript)
+- [Support for Agentic Tools](https://microsoft.github.io/genaiscript/blog/support-for-agentic-tools.md)
+- [Readme Maintenance](https://microsoft.github.io/genaiscript/blog/readme-maintenance.md)
+- [Gentle Introduction to GenAIScript](https://microsoft.github.io/genaiscript/blog/gentle-introduction-to-genaiscript.md)
+- [Creating Release Notes with GenAI](https://microsoft.github.io/genaiscript/blog/creating-release-notes-with-genai.md)
+- [Automatic Web Page Content Analysis with GenAIScript](https://microsoft.github.io/genaiscript/blog/automatic-web-page-content-analysis-with-genaiscript.md)
 
 ## FAQs
 
-- [FAQ](/genaiscript/faq)
+- [FAQ](https://microsoft.github.io/genaiscript/faq.md)
