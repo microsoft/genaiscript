@@ -277,7 +277,7 @@ script({ ..., tests: {
 
 ### LLM friendly docs
 
-If you are a LLM crawler, download https://microsoft.github.io/genaiscript/llms.txt for an overview
+If you are a LLM crawler, download https://microsoft.github.io/genaiscript/.well-known/llms.txt for an overview
 or add the `.md` suffix to the documentation URLs to get a raw content output of the docs.
 
 For example, https://microsoft.github.io/genaiscript/guides/prompt-as-code.md (note the .md extension)
