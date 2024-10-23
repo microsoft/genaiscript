@@ -91,14 +91,14 @@ export function createChatTurnGenerationContext(
         warn: (...args: any[]) => {
             const line = consoleLogFormat(...args)
             if (line) {
-                trace.log(line)
+                trace.warn(line)
                 logWarn(line)
             }
         },
         error: (...args: any[]) => {
             const line = consoleLogFormat(...args)
             if (line) {
-                trace.log(line)
+                trace.error(line)
                 logError(line)
             }
         },
