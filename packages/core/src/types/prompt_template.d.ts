@@ -1100,12 +1100,10 @@ interface CSVParseOptions {
     headers?: string[]
 }
 
-interface TextChunk {
+interface TextChunk extends LineNumberingOptions {
     text: string
-    startPos: number
-    endPos: number
-    startOverlap: string
-    endOverlap: string
+    lineStart: number
+    lineEnd: number
 }
 
 interface TextChunkerConfig {
@@ -1114,6 +1112,7 @@ interface TextChunkerConfig {
     keepSeparators?: boolean
     chunkSize?: number
     chunkOverlap?: number
+    lineNumbers?: boolean
     docType?: OptionsOrString<
         | "cpp"
         | "python"

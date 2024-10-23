@@ -2,6 +2,7 @@
 import { parseModelIdentifier } from "./models"
 import { runtimeHost } from "./host"
 import path from "node:path"
+import { addLineNumbers, indexToLineNumber } from "./liner"
 
 /**
  * Resolves the appropriate token encoder based on the given model ID.
@@ -42,7 +43,13 @@ export async function chunkText(
     docType: string
     chunks: TextChunk[]
 }> {
-    const { model, docType: optionsDocType, filename, ...rest } = options || {}
+    const {
+        model,
+        docType: optionsDocType,
+        filename,
+        lineNumbers,
+        ...rest
+    } = options || {}
     const docType = (
         optionsDocType || (filename ? path.extname(filename) : undefined)
     )
@@ -56,15 +63,17 @@ export async function chunkText(
         tokenizer,
     })
     const chunksRaw = ts.split(text)
-    const chunks = chunksRaw.map(
-        ({ tokens, startPos, endPos, startOverlap, endOverlap }) =>
-            ({
-                text: tokenizer.decode(tokens || []),
-                startPos,
-                endPos,
-                startOverlap: tokenizer.decode(startOverlap || []),
-                endOverlap: tokenizer.decode(endOverlap || []),
-            }) satisfies TextChunk
-    )
+    const chunks = chunksRaw.map(({ tokens, startPos, endPos }) => {
+        const lineStart = indexToLineNumber(text, startPos)
+        const lineEnd = indexToLineNumber(text, endPos)
+        let chunkText = tokenizer.decode(tokens || [])
+        if (lineNumbers)
+            chunkText = addLineNumbers(chunkText, { startLine: lineStart })
+        return {
+            text: chunkText,
+            lineStart,
+            lineEnd,
+        } satisfies TextChunk
+    })
     return { model: tokenizer.model, docType, chunks }
 }
