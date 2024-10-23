@@ -1136,7 +1136,6 @@ interface TextChunkerConfig {
         | "rst"
         | "rust"
     >
-    filename?: string
 }
 
 interface Tokenizers {
@@ -1172,13 +1171,9 @@ interface Tokenizers {
      * @param options
      */
     chunk(
-        text: string,
+        file: Awaitable<string | WorkspaceFile>,
         options?: TextChunkerConfig
-    ): Promise<{
-        model: string
-        docType: string
-        chunks: TextChunk[]
-    }>
+    ): Promise<TextChunk[]>
 }
 
 interface HashOptions {

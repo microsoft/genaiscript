@@ -12,12 +12,10 @@ import { JSONLStringify, JSONLTryParse } from "./jsonl"
 import { HTMLTablesToJSON, HTMLToMarkdown, HTMLToText } from "./html"
 import { CancelError } from "./error"
 import { fetchText } from "./fetch"
-import { readText } from "./fs"
-import { logVerbose } from "./util"
 import { GitHubClient } from "./github"
 import { GitClient } from "./git"
 import { estimateTokens, truncateTextToTokens } from "./tokens"
-import { chunkText, resolveTokenEncoder } from "./encoders"
+import { chunk, resolveTokenEncoder } from "./encoders"
 import { runtimeHost } from "./host"
 
 /**
@@ -136,7 +134,7 @@ export function installGlobals() {
             )
             return await truncateTextToTokens(text, maxTokens, encoder, options)
         },
-        chunk: chunkText,
+        chunk: chunk,
     })
 
     /**

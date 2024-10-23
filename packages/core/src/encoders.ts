@@ -3,6 +3,8 @@ import { parseModelIdentifier } from "./models"
 import { runtimeHost } from "./host"
 import path from "node:path"
 import { addLineNumbers, indexToLineNumber } from "./liner"
+import { resolveFileContent } from "./file"
+import { NotSupportedError } from "./error"
 
 /**
  * Resolves the appropriate token encoder based on the given model ID.
@@ -35,18 +37,25 @@ export async function resolveTokenEncoder(modelId: string): Promise<Tokenizer> {
     }
 }
 
-export async function chunkText(
-    text: string,
+export async function chunk(
+    file: Awaitable<string | WorkspaceFile>,
     options?: TextChunkerConfig
-): Promise<{
-    model: string
-    docType: string
-    chunks: TextChunk[]
-}> {
+): Promise<TextChunk[]> {
+    const f = await file
+    let filename: string
+    let content: string
+    if (typeof f === "string") {
+        filename = undefined
+        content = f
+    } else if (typeof f === "object") {
+        await resolveFileContent(f)
+        filename = f.filename
+        content = f.content
+    } else return []
+
     const {
         model,
         docType: optionsDocType,
-        filename,
         lineNumbers,
         ...rest
     } = options || {}
@@ -62,10 +71,10 @@ export async function chunkText(
         docType,
         tokenizer,
     })
-    const chunksRaw = ts.split(text)
+    const chunksRaw = ts.split(content)
     const chunks = chunksRaw.map(({ tokens, startPos, endPos }) => {
-        const lineStart = indexToLineNumber(text, startPos)
-        const lineEnd = indexToLineNumber(text, endPos)
+        const lineStart = indexToLineNumber(content, startPos)
+        const lineEnd = indexToLineNumber(content, endPos)
         let chunkText = tokenizer.decode(tokens || [])
         if (lineNumbers)
             chunkText = addLineNumbers(chunkText, { startLine: lineStart })
@@ -75,5 +84,5 @@ export async function chunkText(
             lineEnd,
         } satisfies TextChunk
     })
-    return { model: tokenizer.model, docType, chunks }
+    return chunks
 }

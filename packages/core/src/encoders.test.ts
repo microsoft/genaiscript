@@ -1,6 +1,6 @@
 import test, { describe } from "node:test"
 import assert from "node:assert"
-import { chunkText, resolveTokenEncoder } from "./encoders"
+import { chunk, resolveTokenEncoder } from "./encoders"
 
 describe("resolveTokenEncoder", () => {
     test("gpt-3.5-turbo", async () => {
@@ -29,8 +29,10 @@ describe("resolveTokenEncoder", () => {
         assert.deepEqual(result, [27, 91, 321, 13707, 91, 29])
     })
     test("gpt-4o chunk", async () => {
-        const { chunks } = await chunkText(
-            `---
+        const chunks = await chunk(
+            {
+                filename: "markdown.md",
+                content: `---
 title: What is Markdown? - Understanding Markdown Syntax
 description: Learn about Markdown, a lightweight markup language for formatting plain text, its syntax, and how it differs from WYSIWYG editors.
 keywords: Markdown, markup language, formatting, plain text, syntax
@@ -43,11 +45,11 @@ Using Markdown is different than using a WYSIWYG editor. In an application like 
 
 For example, to denote a heading, you add a number sign before it (e.g., # Heading One). Or to make a phrase bold, you add two asterisks before and after it (e.g., **this text is bold**). It may take a while to get used to seeing Markdown syntax in your text, especially if you’re accustomed to WYSIWYG applications. The screenshot below shows a Markdown file displayed in the Visual Studio Code text editor....
 `,
+            },
             {
                 chunkSize: 15,
                 chunkOverlap: 2,
                 model: "gpt-4o",
-                filename: "markdown.md",
             }
         )
         assert.equal(chunks.length, 21)
