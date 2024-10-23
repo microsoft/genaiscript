@@ -6,10 +6,8 @@ script({
     tests: {},
 })
 
-
 def("FILE", env.files)
 $`Generate a set of questions for the files to build a FAQ.`
-
 
 // turn 2
 let turn = 0
@@ -39,9 +37,9 @@ using the JSONL format:
 File: <filename>.qt.jsonl
 \`\`\`
 ${JSONL.stringify([
-                { q: "<question1>", a: "<answer1>" },
-                { q: "<question2>", a: "<answer2>" }
-            ])}
+    { q: "<question1>", a: "<answer1>" },
+    { q: "<question2>", a: "<answer2>" },
+])}
 ...
 \`\`\`
 \`\`\`\`
@@ -68,7 +66,7 @@ Answer the QUESTION using the contents in FILE.
 - Use information in FILE exclusively.
 - Be concise.
 - Use simple language.
-- use emojis.
+- use gitmojis.
 `
                     },
                     { label: question }
