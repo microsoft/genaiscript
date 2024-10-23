@@ -73,13 +73,17 @@ export async function chunk(
         keepSeparators: true,
     })
     const chunksRaw = ts.split(content)
-    const chunks = chunksRaw.map(({ text, startPos }) => {
+    const chunks = chunksRaw.map(({ text, startPos, endPos }) => {
+        const lineStart = indexToLineNumber(content, startPos)
+        const lineEnd = indexToLineNumber(content, endPos)
         if (lineNumbers) {
-            const startLine = indexToLineNumber(content, startPos)
-            text = addLineNumbers(text, { startLine })
+            text = addLineNumbers(text, { startLine: lineStart })
         }
         return {
-            text,
+            content: text,
+            filename,
+            lineStart,
+            lineEnd,
         } satisfies TextChunk
     })
     return chunks

@@ -1095,8 +1095,9 @@ interface CSVParseOptions {
     headers?: string[]
 }
 
-interface TextChunk {
-    text: string
+interface TextChunk extends WorkspaceFile {
+    lineStart: number
+    lineEnd: number
 }
 
 interface TextChunkerConfig extends LineNumberingOptions {
