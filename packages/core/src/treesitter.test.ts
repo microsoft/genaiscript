@@ -24,4 +24,13 @@ describe("treesitter", () => {
         const x = await treeSitterQuery(f)
         assert.strictEqual(x[0].name, "tree")
     })
+
+    describe("tags", () => {
+        test("ts", async () => {
+            const f: WorkspaceFile = { filename: "./src/treesitter.ts" }
+            await resolveFileContent(f)
+            const x = await treeSitterQuery(f, "tags")
+            console.log(x)
+        })
+    })
 })

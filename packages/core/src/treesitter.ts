@@ -4,6 +4,9 @@ import { treeSitterWasms } from "./default_prompts"
 import { NotSupportedError } from "./error"
 import type Parser from "web-tree-sitter"
 import { YAMLStringify } from "./yaml"
+import queries from "./treesitterqueries.json"
+
+export const TREE_SITTER_QUERIES_TAGS = "tags"
 
 async function resolveLanguage(filename: string, trace?: MarkdownTrace) {
     const ext = host.path.extname(filename).slice(1).toLowerCase()
@@ -23,12 +26,10 @@ async function resolveLanguage(filename: string, trace?: MarkdownTrace) {
         yml: "yaml",
     }
     const language = EXT_MAP[ext] || ext
-
     if (!treeSitterWasms.includes(language))
         throw new NotSupportedError(`language '${language}' not supported`)
-
     const moduleName = `tree-sitter-wasms/out/tree-sitter-${language}.wasm`
-    return require.resolve(moduleName)
+    return { wasm: require.resolve(moduleName), language }
 }
 
 let _initPromise: Promise<void>
@@ -54,6 +55,26 @@ export function serializeQueryCapture(filename: string, capture: QueryCapture) {
     }
 }
 
+export function resolveTags(language: string) {
+    const query = (queries as Record<string, string>)[`${language}/tags`]
+    if (!query)
+        throw new NotSupportedError(
+            `no tags query found for language ${language}`
+        )
+    return query
+}
+
+export function renderCaptures(nodes: QueryCapture[]) {
+    return nodes
+        .map((tag) => {
+            const node = tag.node
+            const line = node.startPosition.row + 1
+            const column = node.startPosition.column + 1
+            return `${tag.name} (${line},${column}): ${node.type} ${node.text}`
+        })
+        .join("\n")
+}
+
 export async function treeSitterQuery(
     file: WorkspaceFile,
     query?: string,
@@ -70,9 +91,11 @@ export async function treeSitterQuery(
         trace?.itemValue(`file`, file.filename)
         await init()
 
-        const url = await resolveLanguage(filename)
-        trace?.itemValue(`wasm`, url)
-        const parser = await createParser(url)
+        const { wasm, language } = await resolveLanguage(filename)
+        trace?.itemValue(`language`, language)
+        trace?.itemValue(`wasm`, wasm)
+
+        const parser = await createParser(wasm)
         // test query
         const lang = parser.getLanguage()
         // try parse
