@@ -123,14 +123,14 @@ export function installGlobals() {
 
     glb.tokenizers = Object.freeze<Tokenizers>({
         count: async (text, options) => {
-            const encoder = await resolveTokenEncoder(
+            const { encode: encoder } = await resolveTokenEncoder(
                 options?.model || runtimeHost.defaultModelOptions.model
             )
             const c = await estimateTokens(text, encoder)
             return c
         },
         truncate: async (text, maxTokens, options) => {
-            const encoder = await resolveTokenEncoder(
+            const { encode: encoder } = await resolveTokenEncoder(
                 options?.model || runtimeHost.defaultModelOptions.model
             )
             return await truncateTextToTokens(text, maxTokens, encoder, options)

@@ -98,7 +98,7 @@ export async function parseJinja2(
     }
 ) {
     let src = await readFile(file, { encoding: "utf-8" })
-    if (PROMPTY_REGEX.test(file)) src = promptyParse(src).content
+    if (PROMPTY_REGEX.test(file)) src = promptyParse(file, src).content
     else if (MD_REGEX.test(file)) src = splitMarkdown(src).content
 
     const vars: Record<string, any> = parseOptionsVars(
@@ -188,7 +188,7 @@ export async function parseTokens(
     options: { excludedFiles: string[]; model: string }
 ) {
     const { model = DEFAULT_MODEL } = options || {}
-    const encoder = await resolveTokenEncoder(model)
+    const { encode: encoder } = await resolveTokenEncoder(model)
 
     const files = await expandFiles(filesGlobs, options?.excludedFiles)
     console.log(`parsing ${files.length} files`)
@@ -222,7 +222,7 @@ export async function prompty2genaiscript(
             : replaceExt(f, ".genai.mts")
         console.log(`${f} -> ${gf}`)
         const content = await readText(f)
-        const doc = promptyParse(content)
+        const doc = promptyParse(f, content)
         const script = promptyToGenAIScript(doc)
         await writeText(gf, script)
     }

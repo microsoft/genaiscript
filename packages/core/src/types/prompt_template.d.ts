@@ -1083,6 +1083,7 @@ interface ParseZipOptions {
 }
 
 type TokenEncoder = (text: string) => number[]
+type TokenDecoder = (lines: Iterable<number>) => string
 
 interface CSVParseOptions {
     delimiter?: string

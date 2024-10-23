@@ -197,7 +197,7 @@ export const AnthropicChatCompletion: ChatCompletionHandler = async (
     const { requestOptions, partialCb, cancellationToken, inner } = options
     const { headers } = requestOptions || {}
     const { model } = parseModelIdentifier(req.model)
-    const encoder = await resolveTokenEncoder(model)
+    const { encode: encoder } = await resolveTokenEncoder(model)
 
     const anthropic = new Anthropic({
         baseURL: cfg.base,

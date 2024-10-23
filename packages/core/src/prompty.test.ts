@@ -4,7 +4,7 @@ import assert from "node:assert/strict"
 
 describe("promptyParse", () => {
     test("correctly parses an empty markdown string", () => {
-        const result = promptyParse("")
+        const result = promptyParse(undefined, "")
         assert.deepStrictEqual(result, {
             meta: {},
             frontmatter: {},
@@ -15,7 +15,7 @@ describe("promptyParse", () => {
 
     test("correctly parses a markdown string without frontmatter", () => {
         const content = "This is a sample content without frontmatter."
-        const result = promptyParse(content)
+        const result = promptyParse(undefined, "")
         assert.deepStrictEqual(result, {
             meta: {},
             frontmatter: {},
@@ -40,7 +40,7 @@ sample:
 ---
 # Heading
 Content below heading.`
-        const result = promptyParse(markdownString)
+        const result = promptyParse(undefined, markdownString)
         assert.deepStrictEqual(result.frontmatter, {
             name: "Test",
             description: "A test description",
@@ -59,7 +59,7 @@ assistant:
 Assistant's reply
 user:
 Another message from the user`
-        const result = promptyParse(markdownContent)
+        const result = promptyParse(undefined, markdownContent)
         assert.deepStrictEqual(result.messages, [
             { role: "user", content: "User's message" },
             { role: "assistant", content: "Assistant's reply" },
@@ -69,7 +69,7 @@ Another message from the user`
 
     test("correctly handles a markdown string with content but without roles", () => {
         const markdownContent = `Just some content without specifying roles.`
-        const result = promptyParse(markdownContent)
+        const result = promptyParse(undefined, markdownContent)
         assert.deepStrictEqual(result.messages, [
             { role: "system", content: markdownContent },
         ])
