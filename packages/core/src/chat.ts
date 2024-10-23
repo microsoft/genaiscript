@@ -140,7 +140,7 @@ async function runToolCalls(
 ) {
     const projFolder = host.projectFolder()
     const { cancellationToken, trace, model } = options || {}
-    const encoder = await resolveTokenEncoder(model)
+    const { encode: encoder } = await resolveTokenEncoder(model)
     assert(!!trace)
     let edits: Edits[] = []
 

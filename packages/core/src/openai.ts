@@ -73,7 +73,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
     const { headers = {}, ...rest } = requestOptions || {}
     const { token, source, ...cfgNoToken } = cfg
     const { model } = parseModelIdentifier(req.model)
-    const encoder = await resolveTokenEncoder(model)
+    const { encode: encoder } = await resolveTokenEncoder(model)
 
     const cache = !!cacheOrName || !!cacheName
     const cacheStore = getChatCompletionCache(

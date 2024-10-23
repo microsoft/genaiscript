@@ -282,7 +282,7 @@ export class GitClient implements Git {
         }
         if (!nameOnly && llmify) {
             res = llmifyDiff(res)
-            const encoder = await resolveTokenEncoder(
+            const { encode: encoder } = await resolveTokenEncoder(
                 runtimeHost.defaultModelOptions.model || DEFAULT_MODEL
             )
             const tokens = estimateTokens(res, encoder)

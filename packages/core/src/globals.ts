@@ -12,12 +12,10 @@ import { JSONLStringify, JSONLTryParse } from "./jsonl"
 import { HTMLTablesToJSON, HTMLToMarkdown, HTMLToText } from "./html"
 import { CancelError } from "./error"
 import { fetchText } from "./fetch"
-import { readText } from "./fs"
-import { logVerbose } from "./util"
 import { GitHubClient } from "./github"
 import { GitClient } from "./git"
 import { estimateTokens, truncateTextToTokens } from "./tokens"
-import { resolveTokenEncoder } from "./encoders"
+import { chunk, resolveTokenEncoder } from "./encoders"
 import { runtimeHost } from "./host"
 
 /**
@@ -122,19 +120,21 @@ export function installGlobals() {
     glb.git = new GitClient()
 
     glb.tokenizers = Object.freeze<Tokenizers>({
+        resolve: resolveTokenEncoder,
         count: async (text, options) => {
-            const encoder = await resolveTokenEncoder(
+            const { encode: encoder } = await resolveTokenEncoder(
                 options?.model || runtimeHost.defaultModelOptions.model
             )
             const c = await estimateTokens(text, encoder)
             return c
         },
         truncate: async (text, maxTokens, options) => {
-            const encoder = await resolveTokenEncoder(
+            const { encode: encoder } = await resolveTokenEncoder(
                 options?.model || runtimeHost.defaultModelOptions.model
             )
             return await truncateTextToTokens(text, maxTokens, encoder, options)
         },
+        chunk: chunk,
     })
 
     /**

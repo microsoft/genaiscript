@@ -568,7 +568,7 @@ async function resolvePromptNode(
     model: string,
     root: PromptNode
 ): Promise<{ errors: number }> {
-    const encoder = await resolveTokenEncoder(model)
+    const { encode: encoder } = await resolveTokenEncoder(model)
     let err = 0
     const names = new Set<string>()
     const uniqueName = (n_: string) => {
@@ -742,7 +742,7 @@ async function resolveImportPrompty(
     args: Record<string, string | number | boolean>,
     options: ImportTemplateOptions
 ) {
-    const { messages } = promptyParse(f.content)
+    const { messages } = promptyParse(f.filename, f.content)
     for (const message of messages) {
         const txt = jinjaRenderChatMessage(message, args)
         if (message.role === "assistant")
@@ -761,7 +761,7 @@ async function truncatePromptNode(
     options?: TraceOptions
 ): Promise<boolean> {
     const { trace } = options || {}
-    const encoder = await resolveTokenEncoder(model)
+    const { encode: encoder } = await resolveTokenEncoder(model)
     let truncated = false
 
     const cap = (n: {
@@ -923,7 +923,7 @@ export async function renderPromptNode(
 ): Promise<PromptNodeRender> {
     const { trace, flexTokens } = options || {}
     const { model } = parseModelIdentifier(modelId)
-    const encoder = await resolveTokenEncoder(model)
+    const { encode: encoder } = await resolveTokenEncoder(model)
 
     await resolvePromptNode(model, node)
     await tracePromptNode(trace, node)

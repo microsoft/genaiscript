@@ -272,7 +272,7 @@ export async function runScript(
                 DOCS_CONFIGURATION_URL
             )
         }
-        trace.options.encoder = await resolveTokenEncoder(info.model)
+        trace.options.encoder = (await resolveTokenEncoder(info.model)).encode
         await runtimeHost.models.pullModel(info.model)
 
         let tokenColor = 0

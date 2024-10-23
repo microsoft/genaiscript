@@ -62,3 +62,27 @@ export function extractRange(
     const endLine = lineEnd || lines.length
     return lines.slice(startLine - 1, endLine).join("\n")
 }
+
+/**
+ * Converts a string position index to a line number.
+ * @param text - The text in which to find the line number.
+ * @param index - The position index within the text.
+ * @returns The line number corresponding to the position index, starting from 1.
+ */
+export function indexToLineNumber(text: string, index: number): number {
+    if (
+        text === undefined ||
+        text === null ||
+        index < 0 ||
+        index >= text.length
+    )
+        return -1
+    let lineNumber = 1
+    const n = Math.min(index, text.length)
+    for (let i = 0; i < n; i++) {
+        if (text[i] === "\n") {
+            lineNumber++
+        }
+    }
+    return lineNumber
+}
