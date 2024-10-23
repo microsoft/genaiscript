@@ -17,7 +17,7 @@ import { logVerbose } from "./util"
 import { GitHubClient } from "./github"
 import { GitClient } from "./git"
 import { estimateTokens, truncateTextToTokens } from "./tokens"
-import { resolveTokenEncoder } from "./encoders"
+import { chunkText, resolveTokenEncoder } from "./encoders"
 import { runtimeHost } from "./host"
 
 /**
@@ -122,6 +122,7 @@ export function installGlobals() {
     glb.git = new GitClient()
 
     glb.tokenizers = Object.freeze<Tokenizers>({
+        resolve: resolveTokenEncoder,
         count: async (text, options) => {
             const { encode: encoder } = await resolveTokenEncoder(
                 options?.model || runtimeHost.defaultModelOptions.model
@@ -135,6 +136,7 @@ export function installGlobals() {
             )
             return await truncateTextToTokens(text, maxTokens, encoder, options)
         },
+        chunk: chunkText,
     })
 
     /**

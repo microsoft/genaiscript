@@ -108,29 +108,35 @@ type PromptOutputProcessorHandler = (
 
 type PromptTemplateResponseType = "json_object" | "json_schema" | undefined
 
+type ModelType = OptionsOrString<
+    | "large"
+    | "small"
+    | "openai:gpt-4o"
+    | "openai:gpt-4o-mini"
+    | "openai:gpt-3.5-turbo"
+    | "azure:gpt-4o"
+    | "azure:gpt-4o-mini"
+    | "ollama:phi3"
+    | "ollama:llama3"
+    | "ollama:mixtral"
+    | "anthropic:claude-3-5-sonnet-20240620"
+    | "anthropic:claude-3-opus-20240229"
+    | "anthropic:claude-3-sonnet-20240229"
+    | "anthropic:claude-3-haiku-20240307"
+    | "anthropic:claude-2.1"
+    | "anthropic:claude-2.0"
+    | "anthropic:claude-instant-1.2"
+>
+
+type ModelSmallType = OptionsOrString<
+    "openai:gpt-4o-mini" | "openai:gpt-3.5-turbo" | "azure:gpt-4o-mini"
+>
+
 interface ModelConnectionOptions {
     /**
      * Which LLM model to use. Use `large` for the default set of model candidates, `small` for the set of small models like gpt-4o-mini.
      */
-    model?: OptionsOrString<
-        | "large"
-        | "small"
-        | "openai:gpt-4o"
-        | "openai:gpt-4o-mini"
-        | "openai:gpt-3.5-turbo"
-        | "azure:gpt-4o"
-        | "azure:gpt-4o-mini"
-        | "ollama:phi3"
-        | "ollama:llama3"
-        | "ollama:mixtral"
-        | "anthropic:claude-3-5-sonnet-20240620"
-        | "anthropic:claude-3-opus-20240229"
-        | "anthropic:claude-3-sonnet-20240229"
-        | "anthropic:claude-3-haiku-20240307"
-        | "anthropic:claude-2.1"
-        | "anthropic:claude-2.0"
-        | "anthropic:claude-instant-1.2"
-    >
+    model?: ModelType
 
     /**
      * Which LLM model to use for the "small" model.
@@ -138,9 +144,7 @@ interface ModelConnectionOptions {
      * @default gpt-4
      * @example gpt-4
      */
-    smallModel?: OptionsOrString<
-        "openai:gpt-4o-mini" | "openai:gpt-3.5-turbo" | "azure:gpt-4o-mini"
-    >
+    smallModel?: ModelSmallType
 }
 
 interface ModelOptions extends ModelConnectionOptions {
@@ -981,7 +985,7 @@ interface RunPromptResult {
     fileEdits?: Record<string, FileUpdate>
     edits?: Edits[]
     changelogs?: ChangeLog[]
-    model?: string
+    model?: ModelType
 }
 
 /**
@@ -1085,9 +1089,55 @@ interface ParseZipOptions {
 type TokenEncoder = (text: string) => number[]
 type TokenDecoder = (lines: Iterable<number>) => string
 
+interface Tokenizer {
+    model: string
+    encode: TokenEncoder
+    decode: TokenDecoder
+}
+
 interface CSVParseOptions {
     delimiter?: string
     headers?: string[]
+}
+
+interface TextChunk {
+    text: string
+    startPos: number
+    endPos: number
+    startOverlap: string
+    endOverlap: string
+}
+
+interface TextChunkerConfig {
+    model?: ModelType
+    separators?: string[]
+    keepSeparators?: boolean
+    chunkSize?: number
+    chunkOverlap?: number
+    docType?: OptionsOrString<
+        | "cpp"
+        | "python"
+        | "py"
+        | "java"
+        | "go"
+        | "c#"
+        | "c"
+        | "cs"
+        | "ts"
+        | "js"
+        | "tsx"
+        | "typescript"
+        | "js"
+        | "jsx"
+        | "javascript"
+        | "php"
+        | "md"
+        | "mdx"
+        | "markdown"
+        | "rst"
+        | "rust"
+    >
+    filename?: string
 }
 
 interface Tokenizers {
@@ -1096,7 +1146,7 @@ interface Tokenizers {
      * @param model
      * @param text
      */
-    count(text: string, options?: { model: string }): Promise<number>
+    count(text: string, options?: { model?: ModelType }): Promise<number>
 
     /**
      * Truncates the text to a given number of tokens, approximation.
@@ -1108,8 +1158,28 @@ interface Tokenizers {
     truncate(
         text: string,
         maxTokens: number,
-        options?: { model?: string; last?: boolean }
+        options?: { model?: ModelType; last?: boolean }
     ): Promise<string>
+
+    /**
+     * Tries to resolve a tokenizer for a given model. Defaults to gpt-4o if not found.
+     * @param model
+     */
+    resolve(model?: ModelType): Promise<Tokenizer>
+
+    /**
+     * Chunk the text into smaller pieces based on a token limit and chunking strategy.
+     * @param text
+     * @param options
+     */
+    chunk(
+        text: string,
+        options?: TextChunkerConfig
+    ): Promise<{
+        model: string
+        docType: string
+        chunks: TextChunk[]
+    }>
 }
 
 interface HashOptions {
