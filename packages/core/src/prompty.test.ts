@@ -15,7 +15,7 @@ describe("promptyParse", () => {
 
     test("correctly parses a markdown string without frontmatter", () => {
         const content = "This is a sample content without frontmatter."
-        const result = promptyParse(undefined, "")
+        const result = promptyParse(undefined, content)
         assert.deepStrictEqual(result, {
             meta: {},
             frontmatter: {},

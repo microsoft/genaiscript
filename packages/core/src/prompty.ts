@@ -123,7 +123,7 @@ export function promptyParse(filename: string, text: string): PromptyDocument {
     const { frontmatter = "", content = "" } = splitMarkdown(text)
     const fm = YAMLTryParse(frontmatter) ?? {}
     const meta: PromptArgs = fm ? promptyFrontmatterToMeta(fm) : {}
-    meta.filename = filename
+    if (filename) meta.filename = filename
     const messages: ChatCompletionMessageParam[] = []
 
     // split
