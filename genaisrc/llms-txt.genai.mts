@@ -24,6 +24,8 @@ Explore and analyze the GenAIScript documentation site at https://microsoft.gith
 
 Using the documentation structured, generate a /llms.txt file for the GenAIScript documentation site at https://microsoft.github.io/genaiscript.
 
+- use concise, clear language. 
+- When linking to resources, include brief, informative descriptions. Avoid ambiguous terms or unexplained jargon.
 - All URLs in the /llms.txt file should be relative to the root of the documentation site: /genaiscript/<relative path>
 - do NOT use file extension in the URLS. The '.md' or '.mdx' extensions are removed from the URL.
 - The documentation is compiled using @astrojs/starlight. 

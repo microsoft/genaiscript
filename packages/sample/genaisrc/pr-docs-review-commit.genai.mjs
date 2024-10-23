@@ -1,5 +1,5 @@
 script({
-    model: "openai:gpt-4",
+    model: "large",
     files: [],
     temperature: 0,
     title: "pull request docs review",
