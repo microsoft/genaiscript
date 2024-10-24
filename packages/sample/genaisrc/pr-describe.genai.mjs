@@ -1,6 +1,4 @@
 script({
-    model: "openai:gpt-4-32k",
-    files: [],
     temperature: 1,
     title: "pr-describe",
     system: ["system", "system.fs_find_files", "system.fs_read_file"],
