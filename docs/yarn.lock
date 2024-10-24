@@ -4558,9 +4558,9 @@ typesafe-path@^0.2.2:
   integrity sha512-OJabfkAg1WLZSqJAJ0Z6Sdt3utnbzr/jh+NAHoyWHJe8CMSy79Gm085094M9nvTPy22KzTVn5Zq5mbapCI/hPA==
 
 typescript-auto-import-cache@^0.3.3:
-  version "0.3.3"
-  resolved "https://registry.yarnpkg.com/typescript-auto-import-cache/-/typescript-auto-import-cache-0.3.3.tgz#45f376313d1eb0929ce47ef1d1aae5a353d060a3"
-  integrity sha512-ojEC7+Ci1ij9eE6hp8Jl9VUNnsEKzztktP5gtYNRMrTmfXVwA1PITYYAkpxCvvupdSYa/Re51B6KMcv1CTZEUA==
+  version "0.3.4"
+  resolved "https://registry.yarnpkg.com/typescript-auto-import-cache/-/typescript-auto-import-cache-0.3.4.tgz#2798beecbdabcd4dd07eb89013222d7f083dfca6"
+  integrity sha512-ztlGq1CB0TX9wKv3DJPRBiT5GJf0Gio1bRzcXElEZMjW1VlyZifiZqk6No3OS1XwNBx+n74dSbH2Bjy+5fN5Xw==
   dependencies:
     semver "^7.3.8"
 
