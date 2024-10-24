@@ -124,7 +124,7 @@ Register JavaScript functions as **tools**.
 
 ```js
 defTool(
-    "weahter",
+    "weather",
     "query a weather web api",
     { location: "string" },
     async (args) =>
