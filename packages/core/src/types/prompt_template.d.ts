@@ -927,6 +927,8 @@ interface JSONSchemaObject {
     }
     required?: string[]
     additionalProperties?: boolean
+
+    default?: object
 }
 
 interface JSONSchemaArray {
@@ -934,6 +936,8 @@ interface JSONSchemaArray {
     type: "array"
     description?: string
     items?: JSONSchemaType
+
+    default?: any[]
 }
 
 type JSONSchema = JSONSchemaObject | JSONSchemaArray

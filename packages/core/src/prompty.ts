@@ -81,17 +81,11 @@ function promptyFrontmatterToMeta(frontmatter: PromptyFrontmatter): PromptArgs {
         else acc[k] = v
         return acc
     }, {})
-    if (parameters && sample && typeof sample === "object")
+    if (sample && typeof sample === "object")
         for (const p in sample) {
             const s = sample[p]
             const pp = parameters[p]
-            if (
-                s !== undefined &&
-                pp &&
-                pp.type !== "object" &&
-                pp.type !== "array"
-            )
-                pp.default = s
+            if (s !== undefined && pp) pp.default = s
         }
 
     let modelName: string = undefined
@@ -112,13 +106,13 @@ function promptyFrontmatterToMeta(frontmatter: PromptyFrontmatter): PromptArgs {
     } else if (configuration?.type === "openai")
         modelName = `openai:${configuration.type}`
 
-    const meta = deleteUndefinedValues(<PromptArgs>{
+    const meta = deleteUndefinedValues({
         model: modelName,
         title: name,
         description,
         files,
         tests,
-        tags,
+        //tags,
         parameters,
         responseType: outputs
             ? "json_object"
@@ -128,7 +122,7 @@ function promptyFrontmatterToMeta(frontmatter: PromptyFrontmatter): PromptArgs {
         maxTokens: modelParameters?.max_tokens,
         topP: modelParameters?.top_p,
         seed: modelParameters?.seed,
-    })
+    } satisfies PromptArgs)
     return meta
 }
 

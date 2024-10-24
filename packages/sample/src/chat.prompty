@@ -13,7 +13,7 @@ model:
     temperature: 0.2
 inputs:
   customer:
-    type: object
+    type: list
   documentation:
     type: list
   question:
@@ -29,11 +29,11 @@ sample:
       title: biz
       content: bizbiz
   customer:
-    - firstName: John
+      firstName: John
       lastName: Doe
       age: 30
       membership: gold
-      order:
+      orders:
        - name: "foo"
          description: "bar"
        - name: "fizz"
