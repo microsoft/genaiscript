@@ -5003,9 +5003,9 @@ yocto-queue@^1.1.1:
   integrity sha512-b4JR1PFR10y1mKjhHY9LaGo6tmrgjit7hxVIeAmyMw3jegXR4dhYqLaQF5zMXZxY7tLpMyJeLjr1C4rLmkVe8g==
 
 zod-to-json-schema@^3.23.3:
-  version "3.23.4"
-  resolved "https://registry.yarnpkg.com/zod-to-json-schema/-/zod-to-json-schema-3.23.4.tgz#f6fa99a15412ac2c79721ad1b9d901ecfb11575b"
-  integrity sha512-LjSQ9WT8qkvb4OHlkC3AlizvC+pwKIxpBohK4FLzCm7RyJES8uLpHP6BWljCtBjBXJ9Xa1R9IGZcICuSf8xl2Q==
+  version "3.23.5"
+  resolved "https://registry.yarnpkg.com/zod-to-json-schema/-/zod-to-json-schema-3.23.5.tgz#ec23def47dcafe3a4d640eba6a346b34f9a693a5"
+  integrity sha512-5wlSS0bXfF/BrL4jPAbz9da5hDlDptdEppYfe+x4eIJ7jioqKG9uUxOwPzqof09u/XeVdrgFu29lZi+8XNDJtA==
 
 zod-to-ts@^1.2.0:
   version "1.2.0"
