@@ -32,6 +32,7 @@ import { createChatTurnGenerationContext } from "./runpromptcontext"
 import { dedent } from "./indent"
 import { traceLanguageModelConnection } from "./models"
 import {
+    ChatCompletionAssistantMessageParam,
     ChatCompletionContentPartImage,
     ChatCompletionMessageParam,
     ChatCompletionResponse,
@@ -578,7 +579,11 @@ async function processChatMessage(
                         throw new Error(
                             "system messages not supported for chat participants"
                         )
-                    trace.detailsFenced(`💬 message`, userPrompt, "markdown")
+                    renderMessagesToMarkdown(participantMessages)
+                    trace.details(
+                        `💬 messages (${participantMessages.length})`,
+                        renderMessagesToMarkdown(participantMessages)
+                    )
                     messages.push(...participantMessages)
                     needsNewTurn = true
                 } else trace.item("no message")
@@ -789,4 +794,30 @@ export function tracePromptResult(trace: MarkdownTrace, resp: RunPromptResult) {
         trace.appendContent(
             "\n\n" + HTMLEscape(prettifyMarkdown(text)) + "\n\n"
         )
+}
+
+export function appendUserMessage(
+    messages: ChatCompletionMessageParam[],
+    content: string
+) {
+    const last = messages.at(-1) as ChatCompletionUserMessageParam
+    if (last?.role === "user") last.content += content + "\n"
+    else
+        messages.push({
+            role: "user",
+            content,
+        } as ChatCompletionUserMessageParam)
+}
+
+export function appendAssistantMessage(
+    messages: ChatCompletionMessageParam[],
+    content: string
+) {
+    const last = messages.at(-1) as ChatCompletionAssistantMessageParam
+    if (last?.role === "assistant") last.content += content
+    else
+        messages.push({
+            role: "assistant",
+            content,
+        } satisfies ChatCompletionAssistantMessageParam)
 }

@@ -1,7 +1,7 @@
 import { Project, PromptScript } from "./ast"
 import { assert, normalizeFloat, normalizeInt } from "./util"
 import { MarkdownTrace } from "./trace"
-import { errorMessage, isCancelError } from "./error"
+import { errorMessage, isCancelError, NotSupportedError } from "./error"
 import {
     JS_REGEX,
     MAX_TOOL_CALLS,
@@ -293,10 +293,18 @@ export async function expandTemplate(
                 if (sysr.fileOutputs) fileOutputs.push(...sysr.fileOutputs)
                 if (sysr.logs?.length)
                     trace.details("📝 console.log", sysr.logs)
-                if (sysr.text) {
-                    systemMessage.content +=
-                        SYSTEM_FENCE + "\n" + sysr.text + "\n"
-                    trace.fence(sysr.text, "markdown")
+                for (const smsg of sysr.messages) {
+                    if (
+                        smsg.role === "user" &&
+                        typeof smsg.content === "string"
+                    ) {
+                        systemMessage.content +=
+                            SYSTEM_FENCE + "\n" + smsg.content + "\n"
+                        trace.fence(smsg.content, "markdown")
+                    } else
+                        throw new NotSupportedError(
+                            "only string user messages supported in system"
+                        )
                 }
                 if (sysr.aici) {
                     trace.fence(sysr.aici, "yaml")
@@ -328,20 +336,14 @@ export async function expandTemplate(
         const schemaTs = JSONSchemaStringifyToTypeScript(responseSchema, {
             typeName,
         })
-        messages.unshift({
-            role: "system",
-            content: `You are a service that translates user requests 
+        systemMessage.content += `You are a service that translates user requests 
 into JSON objects of type "${typeName}" 
 according to the following TypeScript definitions:
 \`\`\`ts
 ${schemaTs}
-\`\`\``,
-        })
+\`\`\``
     } else if (responseType === "json_object") {
-        messages.unshift({
-            role: "system",
-            content: `Answer using JSON.`,
-        })
+        systemMessage.content += SYSTEM_FENCE + "Answer using JSON.\n"
     } else if (responseType === "json_schema") {
         if (!responseSchema)
             throw new Error(`responseSchema is required for json_schema`)
@@ -349,29 +351,7 @@ ${schemaTs}
         toStrictJSONSchema(responseSchema)
     }
     if (systemMessage.content) messages.unshift(systemMessage)
-
-    if (prompt.assistantText) {
-        trace.detailsFenced("🤖 assistant", prompt.assistantText, "markdown")
-        const assistantMessage: ChatCompletionAssistantMessageParam = {
-            role: "assistant",
-            content: prompt.assistantText,
-        }
-        messages.push(assistantMessage)
-    }
-    if (prompt.systemText) {
-        trace.detailsFenced("👾 system", prompt.systemText, "markdown")
-        const systemMessage: ChatCompletionSystemMessageParam = {
-            role: "system",
-            content: prompt.systemText,
-        }
-        // insert system messages after the last system role message in messages
-        // assume system messages are at the start
-        let li = -1
-        for (let li = 0; li < messages.length; li++)
-            if (messages[li].role === "system") break
-        messages.splice(li, 0, systemMessage)
-    }
-
+    messages.push(...prompt.messages)
     trace.endDetails()
 
     return {

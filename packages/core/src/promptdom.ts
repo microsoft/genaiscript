@@ -16,12 +16,11 @@ import {
     TEMPLATE_ARG_FILE_MAX_TOKENS,
 } from "./constants"
 import { parseModelIdentifier } from "./models"
-import { toChatCompletionUserMessage } from "./chat"
+import { appendAssistantMessage, appendUserMessage } from "./chat"
 import { errorMessage } from "./error"
 import { tidyData } from "./tidy"
 import { dedent } from "./indent"
 import {
-    ChatCompletionAssistantMessageParam,
     ChatCompletionMessageParam,
     ChatCompletionSystemMessageParam,
     ChatCompletionUserMessageParam,
@@ -950,24 +949,9 @@ export async function renderPromptNode(
                 content,
             } as ChatCompletionSystemMessageParam)
     }
-    const appendUser = (content: string) => {
-        const last = messages.at(-1) as ChatCompletionUserMessageParam
-        if (last?.role === "user") last.content += content + "\n"
-        else
-            messages.push({
-                role: "user",
-                content,
-            } as ChatCompletionUserMessageParam)
-    }
-    const appendAssistant = (content: string) => {
-        const last = messages.at(-1) as ChatCompletionAssistantMessageParam
-        if (last?.role === "assistant") last.content += content
-        else
-            messages.push({
-                role: "assistant",
-                content,
-            } satisfies ChatCompletionAssistantMessageParam)
-    }
+    const appendUser = (content: string) => appendUserMessage(messages, content)
+    const appendAssistant = (content: string) =>
+        appendAssistantMessage(messages, content)
 
     const images: PromptImage[] = []
     const errors: unknown[] = []
