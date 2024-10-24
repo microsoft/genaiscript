@@ -27,4 +27,11 @@ JSON schemas can also be applied to YAML or TOML files.
     ...
     \`\`\`
 
+
+## Code section with Schema
+
+When you generate JSON or YAML or CSV code section according to a named schema, 
+you MUST add the schema identifier in the code fence header.
 `
+
+fence("...", { language: "json", schema: "<schema-identifier>" })

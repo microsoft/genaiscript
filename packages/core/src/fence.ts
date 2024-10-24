@@ -224,7 +224,7 @@ export function renderFencedVariables(vars: Fenced[]) {
                 language,
             }) => `-   ${k ? `\`${k}\`` : ""} ${
                 validation !== undefined
-                    ? `${validation.schema ? validation.schema : ""} ${!validation.schemaError ? EMOJI_UNDEFINED : validation.pathValid === false ? EMOJI_FAIL : EMOJI_SUCCESS}`
+                    ? `${validation.schemaError ? EMOJI_UNDEFINED : validation.pathValid === false ? EMOJI_FAIL : EMOJI_SUCCESS}`
                     : "no label"
             }\n
 \`\`\`\`\`${
