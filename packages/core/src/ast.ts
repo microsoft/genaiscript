@@ -94,6 +94,6 @@ export class Project {
      * @returns The matching PromptScript or undefined if no match is found.
      */
     getTemplate(id: string) {
-        return this.templates.find((t) => t.id == id) // Find and return the template with the matching ID
+        return this.templat es.find((t) => t.id == id) // Find and return the template with the matching ID
     }
 }
