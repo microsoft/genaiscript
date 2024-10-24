@@ -1,0 +1,364 @@
+<?xml version="1.0" encoding="UTF-8"?><rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>GenAIScript | Blog</title><description/><link>https://microsoft.github.io/</link><language>en</language><item><title>Anthropic Models</title><link>https://microsoft.github.io/genaiscript/blog/anthropic/</link><guid isPermaLink="true">https://microsoft.github.io/genaiscript/blog/anthropic/</guid><pubDate>Tue, 22 Oct 2024 00:00:00 GMT</pubDate><content:encoded>&lt;p&gt;Big thanks to &lt;a href=&quot;https://github.com/waltoss&quot;&gt;@waltoss&lt;/a&gt; who contributed the &lt;a href=&quot;https://github.com/microsoft/genaiscript/pull/788&quot;&gt;Anthropic model&lt;/a&gt; support. There are still some &lt;a href=&quot;https://github.com/microsoft/genaiscript/discussions/790&quot;&gt;TODOs&lt;/a&gt; but the basics are in place.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;https://microsoft.github.io/genaiscript/getting-started/configuration/#anthropic&quot;&gt;documentation&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</content:encoded><category>anthropic</category></item><item><title>LLM Agents</title><link>https://microsoft.github.io/genaiscript/blog/llm-agents/</link><guid isPermaLink="true">https://microsoft.github.io/genaiscript/blog/llm-agents/</guid><pubDate>Fri, 04 Oct 2024 00:00:00 GMT</pubDate><content:encoded>&lt;p&gt;GenAIScript defines an &lt;a href=&quot;/genaiscript/reference/scripts/agents&quot;&gt;&lt;strong&gt;agent&lt;/strong&gt;&lt;/a&gt; as a &lt;a href=&quot;/genaiscript/reference/scripts/tools&quot;&gt;tool&lt;/a&gt; that
+runs an &lt;a href=&quot;/genaiscript/reference/scripts/inline-prompts&quot;&gt;inline prompt&lt;/a&gt; to accomplish a task. The agent LLM is typically augmented with
+additional tools.&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-mermaid&quot;&gt;flowchart TD
+    query[&amp;quot;query&amp;quot;] --&amp;gt;  |&amp;quot;confirm with user&amp;quot;| LLM
+
+    LLM --&amp;gt; |&amp;quot;ask user to confirm yes or no&amp;quot;| agent_user_LLM
+    subgraph agent[&amp;quot;agent user (tool)&amp;quot;]
+        agent_user_LLM[&amp;quot;agent LLM&amp;quot;] --&amp;gt; user_tools[&amp;quot;user confirm (tool)&amp;quot;]
+    end
+    user_tools --&amp;gt; |&amp;quot;are you sure? Yes&amp;quot;| user
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;In this blog post, we&amp;#39;ll walk through building a &lt;code&gt;user interaction agent&lt;/code&gt; that enables the agent to ask questions to the user.&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-js&quot;&gt;script({
+    tools: [&amp;quot;agent_user_input&amp;quot;],
+})
+
+$`
+Imagine a funny question and ask the user to answer it.
+From the answer, generate 3 possible answers and ask the user to select the correct one.
+Ask the user if the answer is correct.
+`
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Let&amp;#39;s dive into understanding how to create an &amp;quot;Agent that can ask questions to the user.&amp;quot;&lt;/p&gt;
+&lt;p&gt;You can find the full script on GitHub right &lt;a href=&quot;https://github.com/microsoft/genaiscript/blob/main/packages/core/src/genaisrc/system.agent_user_input.genai.mjs&quot;&gt;here&lt;/a&gt;.&lt;/p&gt;
+&lt;h2&gt;Metadata&lt;/h2&gt;
+&lt;p&gt;The script is written in JavaScript. It starts by declaring the metadata to make the script available as a system script,
+which can be reused in other scripts.&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-js&quot;&gt;system({
+    title: &amp;quot;Agent that can ask questions to the user.&amp;quot;,
+})
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;This line sets up the title for our system, making it clear that it&amp;#39;s intended to interact with the user by asking questions.&lt;/p&gt;
+&lt;h2&gt;title and description&lt;/h2&gt;
+&lt;p&gt;The &lt;code&gt;defAgent&lt;/code&gt; function defines the behavior of our agent. It takes an agent identifier and a description. These two are quite important,
+as they will help the &amp;quot;host&amp;quot; LLM choose to use this agent.&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-js&quot;&gt;defAgent(
+    &amp;quot;user_input&amp;quot;,
+    &amp;quot;Ask user for input to confirm, select or answer a question.&amp;quot;,
+    ...
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;GenAIScript will automatically append a description of all the tools used by the agent prompt so you don&amp;#39;t have to worry about that part in the description.&lt;/p&gt;
+&lt;h2&gt;prompt&lt;/h2&gt;
+&lt;p&gt;The third argument is a string or a function to craft prompt instructions for the agent LLM call. The agent implementation already contains generic prompting
+to make the prompt behave like an agent, but you can add more to specify a role, tone, and dos and don&amp;#39;ts.&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-js&quot;&gt;defAgent(
+    ...,
+    `You are an agent that can ask questions to the user and receive answers. Use the tools to interact with the user.
+    - the message should be very clear. Add context from the conversation as needed.`,
+    ...
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2&gt;model configuration&lt;/h2&gt;
+&lt;p&gt;The last argument is a set of model options, similar to &lt;a href=&quot;/genaiscript/reference/scripts/inline-prompts&quot;&gt;runPrompt&lt;/a&gt;, to configure the LLM call made by the agent.
+In particular, this is where you list the tools that the agent can use.&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-js&quot;&gt;defAgent(
+    ..., {
+        tools: [&amp;quot;user_input&amp;quot;],
+    }
+)
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2&gt;How to use the agent&lt;/h2&gt;
+&lt;p&gt;The agent is used like any other &lt;a href=&quot;/genaiscript/reference/scripts/tools&quot;&gt;tool&lt;/a&gt; by referencing it in the &lt;code&gt;script&lt;/code&gt; options.&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-js&quot;&gt;script({
+    tools: [&amp;quot;agent_user_input&amp;quot;]
+})
+...
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2&gt;Let&amp;#39;s try it!&lt;/h2&gt;
+&lt;p&gt;Let&amp;#39;s try the agent with:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-js&quot;&gt;script({
+    tools: [&amp;quot;agent_user_input&amp;quot;],
+})
+
+$`Imagine a funny question and ask the user to answer it.
+From the answer, generate 3 possible answers and ask the user to select the correct one.
+Ask the user if the answer is correct.`
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;and let&amp;#39;s look at the results...&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-txt&quot;&gt;prompting openai:gpt-4o (~150 tokens)
+
+agent user_input: What would be the most unexpected thing to find inside a refrigerator?
+run prompt agent user_input
+prompting openai:gpt-4o (~234 tokens)
+
+user input text: What would be the most unexpected thing to find inside a refrigerator?
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;✔ What would be the most unexpected thing to find inside a refrigerator? toaster&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-txt&quot;&gt;prompting openai:gpt-4o (~240 tokens)
+toaster
+prompting openai:gpt-4o (~156 tokens)
+
+agent user_input: Based on your answer, which of the following would also be unexpected to find inside a refrigerator?
+1. A television
+2. A penguin
+3. A snowman
+
+Please select the correct answer.
+run prompt agent user_input
+prompting openai:gpt-4o (~263 tokens)
+
+user input select: Based on your answer, which of the following would also be unexpected to find inside a refrigerator?
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;✔ Based on your answer, which of the following would also be unexpected to find inside a refrigerator? A television&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-txt&quot;&gt;prompting openai:gpt-4o (~269 tokens)
+A television
+prompting openai:gpt-4o (~162 tokens)
+
+agent user_input: Is your selection of &amp;#39;A television&amp;#39; the correct unexpected item to find inside a refrigerator?
+run prompt agent user_input
+prompting openai:gpt-4o (~239 tokens)
+
+user input confirm: Is your selection of &amp;#39;A television&amp;#39; the correct unexpected item to find inside a refrigerator?
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;✔ Is your selection of &amp;#39;A television&amp;#39; the correct unexpected item to find inside a refrigerator? yes&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-txt&quot;&gt;prompting openai:gpt-4o (~244 tokens)
+true
+prompting openai:gpt-4o (~167 tokens)
+Great choice! A television inside a refrigerator would indeed be quite unexpected.
+&lt;/code&gt;&lt;/pre&gt;
+</content:encoded><category>genai</category><category>interactive</category><category>agent</category><category>user-input</category><category>questions</category></item><item><title>Search and Transform</title><link>https://microsoft.github.io/genaiscript/blog/search-transform-genai/</link><guid isPermaLink="true">https://microsoft.github.io/genaiscript/blog/search-transform-genai/</guid><pubDate>Tue, 24 Sep 2024 00:00:00 GMT</pubDate><content:encoded>&lt;p&gt;Have you ever found yourself in a situation where you need to search through multiple files in your project, find a specific pattern, and then apply a transformation to it? It can be a tedious task, but fear not! In this blog post, I&amp;#39;ll walk you through a GenAIScript that does just that, automating the process and saving you time. 🕒💡&lt;/p&gt;
+&lt;p&gt;For example, when GenAIScript added the ability to use a string command string in
+the &lt;code&gt;exec&lt;/code&gt; command, we needed to convert all script using&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-js&quot;&gt;host.exec(&amp;quot;cmd&amp;quot;, [&amp;quot;arg0&amp;quot;, &amp;quot;arg1&amp;quot;, &amp;quot;arg2&amp;quot;])
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;to&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-js&quot;&gt;host.exec(`cmd arg0 arg1 arg2`)`
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;The &lt;a href=&quot;/genaiscript/guides/search-and-transform&quot;&gt;Search And Transform guide&lt;/a&gt; covers the detail on this new approach...&lt;/p&gt;
+</content:encoded><category>search</category><category>transform</category><category>automation</category><category>scripting</category><category>productivity</category></item><item><title>Listen to the podcast</title><link>https://microsoft.github.io/genaiscript/blog/we-have-a-podcast/</link><guid isPermaLink="true">https://microsoft.github.io/genaiscript/blog/we-have-a-podcast/</guid><pubDate>Fri, 20 Sep 2024 00:00:00 GMT</pubDate><content:encoded>&lt;p&gt;import AudioPlayer from &amp;quot;../../../components/AudioPlayer.astro&amp;quot;&lt;/p&gt;
+&lt;p&gt;We generated a podcast from the help using Google&amp;#39;s NotebookLM (so you don&amp;#39;t have to). Here it is...&lt;/p&gt;
+
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;/genaiscript/podcasts/overview.wav&quot;&gt;direct link&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</content:encoded><category>podcast</category></item><item><title>Automatic Web Page Content Analysis</title><link>https://microsoft.github.io/genaiscript/blog/automatic-web-page-content-analysis-with-genaiscript-/</link><guid isPermaLink="true">https://microsoft.github.io/genaiscript/blog/automatic-web-page-content-analysis-with-genaiscript-/</guid><pubDate>Thu, 12 Sep 2024 00:00:00 GMT</pubDate><content:encoded>&lt;p&gt;In this blog post, we&amp;#39;ll dive into a practical example showcasing how to leverage GenAIScript for automatic web page content analysis. GenAIScript uses the &lt;a href=&quot;https://playwright.dev/&quot;&gt;playwright&lt;/a&gt; browser automation library which allows to load, interact and inspect web pages.&lt;/p&gt;
+&lt;h3&gt;Step-by-Step Explanation of the Code&lt;/h3&gt;
+&lt;p&gt;The following snippet provides a concise and effective way to analyze a web page&amp;#39;s content using GenAIScript:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-javascript&quot;&gt;const page = await host.browse(&amp;quot;https://bing.com&amp;quot;)
+const screenshot = await page.screenshot()
+defImages(screenshot, { maxWidth: 800 })
+const text = parsers.HTMLtoMarkdown(await page.content())
+def(&amp;quot;PAGE_TEXT&amp;quot;, text)
+$`Analyze the content of the page and provide insights.`
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Let&amp;#39;s break down what each line of this script does:&lt;/p&gt;
+&lt;h4&gt;1. Navigating to a Web Page&lt;/h4&gt;
+&lt;pre&gt;&lt;code class=&quot;language-javascript&quot;&gt;const page = await host.browse(&amp;quot;https://example.com&amp;quot;)
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;This line automatically navigates to the specified URL (&lt;code&gt;https://example.com&lt;/code&gt;). The &lt;code&gt;host.browse&lt;/code&gt; function is a powerful feature of GenAIScript that initializes a browser session and returns a page object for further interactions.&lt;/p&gt;
+&lt;h4&gt;2. Taking a Screenshot&lt;/h4&gt;
+&lt;pre&gt;&lt;code class=&quot;language-javascript&quot;&gt;const screenshot = await page.screenshot()
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Here, the script captures a screenshot of the current view of the page. This is particularly useful for archiving or visual analysis.&lt;/p&gt;
+&lt;h4&gt;3. Defining Images for Analysis&lt;/h4&gt;
+&lt;pre&gt;&lt;code class=&quot;language-javascript&quot;&gt;defImages(screenshot, { maxWidth: 800 })
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;After capturing the screenshot, this line registers the image for further analysis. &lt;code&gt;defImages&lt;/code&gt; is a function that makes the screenshot available to subsequent analytical or AI-driven functions in the script.&lt;/p&gt;
+&lt;h4&gt;4. Extracting Text Content&lt;/h4&gt;
+&lt;pre&gt;&lt;code class=&quot;language-javascript&quot;&gt;const text = parsers.HTMLtoMarkdown(await page.content())
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;This command extracts all text content from the page, which can be invaluable for content audits or textual analysis.&lt;/p&gt;
+&lt;h4&gt;5. Storing Text for Further Use&lt;/h4&gt;
+&lt;pre&gt;&lt;code class=&quot;language-javascript&quot;&gt;def(&amp;quot;PAGE_TEXT&amp;quot;, text)
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;The extracted text is then stored under the identifier &lt;code&gt;PAGE_TEXT&lt;/code&gt;, allowing it to be referenced in later parts of the script or for documentation purposes.&lt;/p&gt;
+&lt;h4&gt;6. Analyzing the Content&lt;/h4&gt;
+&lt;pre&gt;&lt;code class=&quot;language-javascript&quot;&gt;$`Analyze the content of the page and provide insights.`
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Finally, this line represents a call to an AI or script-defined function that analyzes the captured content and provides insights. This is where the real power of automation and AI integration into GenAIScript shines, enabling detailed analysis without manual intervention.&lt;/p&gt;
+&lt;h3&gt;Conclusion&lt;/h3&gt;
+&lt;p&gt;With a simple yet powerful script like the one discussed, GenAIScript makes it feasible to automate the process of web page content analysis. Whether you&amp;#39;re conducting competitive analysis, performing content audits, or simply archiving web pages, GenAIScript offers a scalable and efficient solution.&lt;/p&gt;
+</content:encoded><category>content analysis</category><category>playwright</category><category>automation</category><category>GenAIScript</category><category>web</category></item><item><title>Support for Agentic tools</title><link>https://microsoft.github.io/genaiscript/blog/support-for-agentic-tools/</link><guid isPermaLink="true">https://microsoft.github.io/genaiscript/blog/support-for-agentic-tools/</guid><pubDate>Tue, 27 Aug 2024 00:00:00 GMT</pubDate><content:encoded>&lt;p&gt;&lt;a href=&quot;https://agentic.so/&quot;&gt;Agentic&lt;/a&gt; is a standard library of TypeScript AI tools are optimized for both TS-usage as well as LLM-based usage, which is really important for testing and debugging.&lt;/p&gt;
+&lt;p&gt;Agentic brings support for a variety of online APIs, like Bing, Wolfram Alpha, Wikipedia, and more.You can register any &lt;a href=&quot;https://agentic.so/tools/&quot;&gt;Agentic tool&lt;/a&gt; in your script using &lt;code&gt;defTool&lt;/code&gt;. Here&amp;#39;s an example of how to use the Weather tool:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-js&quot;&gt;import { WeatherClient } from &amp;quot;@agentic/weather&amp;quot;
+const weather = new WeatherClient()
+defTool(weather)
+&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;https://agentic.so/sdks/genaiscript&quot;&gt;Agentic documentation&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://microsoft.github.io/genaiscript/guides/agentic-tools/&quot;&gt;GenAIScript documentation&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</content:encoded><category>JavaScript</category><category>Ecosystem</category><category>Integration</category><category>Tool Integration</category></item><item><title>Creating Release Notes with GenAI</title><link>https://microsoft.github.io/genaiscript/blog/creating-release-notes-with-genai/</link><guid isPermaLink="true">https://microsoft.github.io/genaiscript/blog/creating-release-notes-with-genai/</guid><pubDate>Mon, 26 Aug 2024 00:00:00 GMT</pubDate><content:encoded>&lt;h2&gt;Automating Your Release Notes with GenAI&lt;/h2&gt;
+&lt;p&gt;Bringing a new version of a product into the world is always exciting! But alongside the thrill comes the duty of informing users about what&amp;#39;s changed. That&amp;#39;s where generating crisp, engaging release notes comes into play. ✨&lt;/p&gt;
+&lt;p&gt;Today, we&amp;#39;re going to explore a script that automates the creation of release notes for GenAI. The script is part of the GenAIScript ecosystem, which harnesses the power of AI to bring efficiency to software development processes. 🚀&lt;/p&gt;
+&lt;p&gt;If you want to dive straight into the script, it&amp;#39;s available on GitHub right &lt;a href=&quot;https://github.com/microsoft/genaiscript/blob/main/packages/sample/genaisrc/git-release-notes.genai.js&quot;&gt;here&lt;/a&gt;.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;This blog post was co-authored with a &lt;a href=&quot;https://github.com/microsoft/genaiscript/blob/main/packages/sample/genaisrc/blogify-sample.genai.mts&quot;&gt;script&lt;/a&gt;.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h3&gt;Breaking Down the Script&lt;/h3&gt;
+&lt;p&gt;The script is a &lt;code&gt;.genai.mjs&lt;/code&gt; file, meaning it&amp;#39;s a JavaScript file designed to be run with the GenAIScript CLI. The code within orchestrates the creation of release notes by leveraging Git commands and GenAI&amp;#39;s capabilities.&lt;/p&gt;
+&lt;p&gt;Let&amp;#39;s walk through the script, step by step:&lt;/p&gt;
+&lt;h4&gt;Step 1: Initializing the Script&lt;/h4&gt;
+&lt;pre&gt;&lt;code class=&quot;language-javascript&quot;&gt;script({ system: [&amp;quot;system&amp;quot;], temperature: 0.5, model: &amp;quot;openai:gpt-4-turbo&amp;quot; })
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;The script starts by initializing with a &lt;code&gt;script&lt;/code&gt; function. We&amp;#39;re setting it up to access system commands and specifying the AI model to use. The temperature controls the creativity of the AI, with 0.5 being a balanced choice.&lt;/p&gt;
+&lt;h4&gt;Step 2: Setting the Product Name&lt;/h4&gt;
+&lt;pre&gt;&lt;code class=&quot;language-javascript&quot;&gt;const product = env.vars.product || &amp;quot;GenAIScript&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Here, we&amp;#39;re using an environment variable to set the product name, defaulting to &amp;quot;GenAIScript&amp;quot; if it&amp;#39;s not provided.&lt;/p&gt;
+&lt;h4&gt;Step 3: Finding the Previous Tag&lt;/h4&gt;
+&lt;pre&gt;&lt;code class=&quot;language-javascript&quot;&gt;const pkg = await workspace.readJSON(&amp;quot;package.json&amp;quot;)
+const { version } = pkg
+const { stdout: tag } = await host.exec(&amp;quot;git describe --tags --abbrev=0 HEAD^&amp;quot;)
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;We are reading the current version from &lt;code&gt;package.json&lt;/code&gt; and using Git to find the previous release tag in the repository.&lt;/p&gt;
+&lt;h4&gt;Step 4: Gathering Commits&lt;/h4&gt;
+&lt;pre&gt;&lt;code class=&quot;language-javascript&quot;&gt;const { stdout: commits } = await host.exec(`git log --grep=&amp;#39;skip ci&amp;#39; --invert-grep --no-merges HEAD...${tag}`)
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;This block runs a Git command to retrieve the list of commits that will be included in the release notes, excluding any with &amp;#39;skip ci&amp;#39; in the message.&lt;/p&gt;
+&lt;h4&gt;Step 5: Obtaining the Diff&lt;/h4&gt;
+&lt;pre&gt;&lt;code class=&quot;language-javascript&quot;&gt;const { stdout: diff } = await host.exec(`git diff ${tag}..HEAD --no-merges -- &amp;#39;:!**/package.json&amp;#39; &amp;#39;:!**/genaiscript.d.ts&amp;#39; &amp;#39;:!**/jsconfig.json&amp;#39; &amp;#39;:!docs/**&amp;#39; &amp;#39;:!.github/*&amp;#39; &amp;#39;:!.vscode/*&amp;#39; &amp;#39;:!*yarn.lock&amp;#39; &amp;#39;:!*THIRD_PARTY_NOTICES.md&amp;#39;`)
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Next, we get the diff of changes since the last release, excluding certain files and directories that aren&amp;#39;t relevant to the user-facing release notes.&lt;/p&gt;
+&lt;h4&gt;Step 6: Defining Placeholders&lt;/h4&gt;
+&lt;pre&gt;&lt;code class=&quot;language-javascript&quot;&gt;const commitsName = def(&amp;quot;COMMITS&amp;quot;, commits, { maxTokens: 4000 })
+const diffName = def(&amp;quot;DIFF&amp;quot;, diff, { maxTokens: 20000 })
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;We define two placeholders, &lt;code&gt;COMMITS&lt;/code&gt; and &lt;code&gt;DIFF&lt;/code&gt;, which will be used to reference the commits and diff within the prompt.&lt;/p&gt;
+&lt;h4&gt;Step 7: Writing the Prompt&lt;/h4&gt;
+&lt;pre&gt;&lt;code class=&quot;language-javascript&quot;&gt;$`
+You are an expert software developer and release manager.
+
+## Task
+
+Generate a clear, exciting, relevant, useful release notes
+for the upcoming release ${version} of ${product} on GitHub. 
+
+- The commits in the release are in ${commitsName}.
+- The diff of the changes are in ${diffName}.
+
+## Guidelines
+
+- only include the most important changes. All changes must be in the commits.
+- tell a story about the changes
+- use emojis
+- ignore commits with &amp;#39;[skip ci]&amp;#39; in the message
+- do NOT give a commit overview
+- do NOT add a top level title
+- do NOT mention ignore commits or instructions
+- be concise
+
+`
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Finally, the script ends with a prompt that instructs GenAI to generate the release notes. It details the task, guidelines for what to include, and the style to adhere to.&lt;/p&gt;
+&lt;h3&gt;How to Run the Script with Genaiscript CLI&lt;/h3&gt;
+&lt;p&gt;Once you&amp;#39;ve crafted your script, running it is a breeze with the Genaiscript CLI. If you haven&amp;#39;t installed the CLI yet, you can find the instructions &lt;a href=&quot;https://microsoft.github.io/genaiscript/getting-started/installation&quot;&gt;here&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;To execute the script, navigate to your project&amp;#39;s root directory in the terminal and run:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-bash&quot;&gt;genaiscript run git-release-notes
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Remember, we use the script filename without the &lt;code&gt;.genai.mjs&lt;/code&gt; extension when invoking it with the CLI.&lt;/p&gt;
+&lt;p&gt;And that&amp;#39;s it! The GenAIScript CLI will take care of the rest, combining the power of AI with your code to generate those sleek release notes for your project&amp;#39;s next big launch. 🌟&lt;/p&gt;
+</content:encoded><category>release notes</category><category>automation</category><category>scripting</category><category>software development</category><category>AI</category></item><item><title>Keeping your README Fresh and Engaging</title><link>https://microsoft.github.io/genaiscript/blog/readme-maintenance/</link><guid isPermaLink="true">https://microsoft.github.io/genaiscript/blog/readme-maintenance/</guid><pubDate>Sat, 24 Aug 2024 00:00:00 GMT</pubDate><content:encoded>&lt;p&gt;In the world of open source, a well-maintained &lt;code&gt;README&lt;/code&gt; file acts as the front door to your project. It&amp;#39;s often the first thing potential users and contributors see, and as such, it should be both informative and inviting. Today, we&amp;#39;re diving into the GenAIScript that helps keep the &lt;code&gt;README&lt;/code&gt; of the &lt;a href=&quot;https://github.com/microsoft/genaiscript&quot;&gt;GenAI project&lt;/a&gt; as fresh as a daisy! 🌼 Check out the actual &lt;a href=&quot;https://github.com/microsoft/genaiscript/blob/main/packages/sample/genaisrc/readme-updater.genai.mts&quot;&gt;script file&lt;/a&gt; for the details.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;This blog post was co-authored with a &lt;a href=&quot;https://github.com/microsoft/genaiscript/blob/main/packages/sample/genaisrc/blogify-sample.genai.mts&quot;&gt;script&lt;/a&gt;.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2&gt;The Intention Behind the Script&lt;/h2&gt;
+&lt;p&gt;The script we&amp;#39;re analyzing is a maintenance tool designed to import relevant information from documentation and samples into the &lt;code&gt;README&lt;/code&gt; to enhance its appeal to users. It ensures that the &lt;code&gt;README&lt;/code&gt; is not just a static file but a vibrant, updated document that accurately reflects the features and capabilities of GenAI.&lt;/p&gt;
+&lt;h2&gt;Line-by-Line Explanation&lt;/h2&gt;
+&lt;p&gt;Let&amp;#39;s walk through the script code as if we are crafting it from the ground up:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-ts&quot;&gt;script({
+    description:
+        &amp;quot;Maintenance script for the README that imports information from the documentation and samples to make it more attractive to users.&amp;quot;,
+    tools: [&amp;quot;fs&amp;quot;],
+})
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Here, we&amp;#39;re defining the script&amp;#39;s metadata, including a description of its purpose and the tools it will utilize. The &lt;code&gt;fs&lt;/code&gt; tool indicates file system operations will be involved.&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-ts&quot;&gt;def(&amp;quot;README&amp;quot;, { filename: &amp;quot;README.md&amp;quot; })
+def(&amp;quot;FEATURES&amp;quot;, { filename: &amp;quot;docs/src/content/docs/index.mdx&amp;quot; })
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;These lines declare two important files: the &lt;code&gt;README&lt;/code&gt; itself and a &lt;code&gt;FEATURES&lt;/code&gt; file that contains information to be imported into the &lt;code&gt;README&lt;/code&gt;.&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-ts&quot;&gt;$`You are an expert open source maintainer.
+...
+`
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;In this template literal, we&amp;#39;re outlining the tasks for the script, including guidelines for updating the &lt;code&gt;README&lt;/code&gt; with features, samples, and documentation links while preserving certain sections unchanged.&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-ts&quot;&gt;defFileOutput(&amp;quot;README.md&amp;quot;)
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Finally, we specify that the output of this script will be an updated &lt;code&gt;README.md&lt;/code&gt; file.&lt;/p&gt;
+&lt;h2&gt;How to Run the Script&lt;/h2&gt;
+&lt;p&gt;To execute this maintenance script, you&amp;#39;ll need the GenAIScript CLI. If you haven&amp;#39;t installed it yet, head over to the &lt;a href=&quot;https://microsoft.github.io/genaiscript/&quot;&gt;official documentation&lt;/a&gt; for installation instructions. Once you have the CLI ready, run the following command in your terminal:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-shell&quot;&gt;genaiscript run readme-updater
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;This command will kick off the script and apply the enhancements to your &lt;code&gt;README&lt;/code&gt; file, ensuring it&amp;#39;s up-to-date and user-friendly.&lt;/p&gt;
+&lt;h2&gt;Conclusion&lt;/h2&gt;
+&lt;p&gt;A meticulous &lt;code&gt;README&lt;/code&gt; is a hallmark of a well-maintained open source project. With this GenAIScript, the GenAI project sets an excellent example of automating the upkeep of project documentation. Embrace the power of automation to keep your project&amp;#39;s welcome mat clean and welcoming. Happy coding! 👨‍💻👩‍💻&lt;/p&gt;
+</content:encoded><category>README</category><category>Open Source</category><category>Documentation</category><category>Maintenance</category><category>Engagement</category></item><item><title>Unlocking the Power of Prompts - A Gentle Introduction to GenAIScript 🚀</title><link>https://microsoft.github.io/genaiscript/blog/gentle-introduction-to-genaiscript/</link><guid isPermaLink="true">https://microsoft.github.io/genaiscript/blog/gentle-introduction-to-genaiscript/</guid><pubDate>Tue, 20 Aug 2024 00:00:00 GMT</pubDate><content:encoded>&lt;p&gt;Ever wondered how to leverage the power of AI and Large Language Models (LLMs) in your projects? Look no further! 
+This post will introduce you to &lt;a href=&quot;https://microsoft.github.io/genaiscript&quot;&gt;GenAIScript&lt;/a&gt;, a tool designed to simplify the creation of prompts and interactions with LLMs. Let&amp;#39;s dive in! 🌊&lt;/p&gt;
+&lt;h2&gt;What is GenAIScript?&lt;/h2&gt;
+&lt;p&gt;GenAIScript uses a stylized version of JavaScript to generate prompts, which are then sent to an LLM. 
+Scripts are stored as files (&lt;code&gt;genaisrc/*.genai.mjs&lt;/code&gt;), executed to produce the prompt text and structured results (files, diagnostics) are extracted automatically.&lt;/p&gt;
+&lt;h2&gt;Getting Started&lt;/h2&gt;
+&lt;p&gt;Here&amp;#39;s a simple example to get you started. Create a file named &lt;code&gt;poem.genai.mjs&lt;/code&gt; in the &lt;code&gt;genaisrc&lt;/code&gt; folder and add the following code:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-js&quot;&gt;$`Write a one sentence poem.`
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;When executed, this script will generate the following prompt:&lt;/p&gt;
+&lt;details&gt;
+&lt;summary&gt;👤 User&lt;/summary&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-markdown&quot;&gt;Write a one sentence poem.
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/details&gt;
+
+&lt;details open=&quot;&quot;&gt;
+&lt;summary&gt;🤖 Assistant&lt;/summary&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-markdown&quot;&gt;Roses bloom, hearts swoon, under the silver moon.
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/details&gt;
+
+&lt;h2&gt;Adding Context&lt;/h2&gt;
+&lt;p&gt;GenAIScript can also use context variables, allowing you to interact with files or other data sources. Let&amp;#39;s see an example where we define a context variable using &lt;code&gt;env.files&lt;/code&gt;:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-js&quot;&gt;def(&amp;quot;FILES&amp;quot;, env.files)
+$`You are an expert technical writer and proofreader.
+Review the documents in FILES and report the 2 most important issues.`
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Execute this script to see the generated user message and the assistant&amp;#39;s response. The context variable &lt;code&gt;FILES&lt;/code&gt; will contain the list of files in the environment.&lt;/p&gt;
+&lt;details&gt;
+&lt;summary&gt;👤 User&lt;/summary&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-markdown&quot;&gt;FILES: 
+file=&amp;quot;src/samples/markdown.md&amp;quot;
+What is Markdown?
+Markdown is a lightweight markup language that...
+
+You are an expert technical writer and proofreader.
+Review the documents in FILES and report the 2 most important issues.
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/details&gt;
+
+&lt;details open=&quot;&quot;&gt;
+&lt;summary&gt;🤖 Assistant&lt;/summary&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-markdown&quot;&gt;I reviewed the document in &amp;quot;src/samples/markdown.md&amp;quot; 
+and found the following two important issues:
+
+1. **Missing Consistency in Heading Styles**: ...
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/details&gt;
+
+&lt;h2&gt;Metadata and Script Configuration&lt;/h2&gt;
+&lt;p&gt;You can add metadata to your script using the &lt;code&gt;script&lt;/code&gt; function. This helps in organizing and configuring the script, including specifying the model and other parameters. GenAIScript supports various LLM providers, such as OpenAI, Azure OpenAI,
+GitHub Models, Ollama and more.&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-js&quot;&gt;script({
+    title: &amp;quot;Technical proofreading&amp;quot;,
+    description: &amp;quot;Reviews the text as a tech writer.&amp;quot;,
+    model: &amp;quot;openai:gpt-4o&amp;quot;,
+    temperature: 0.1,
+})
+def(&amp;quot;FILES&amp;quot;, env.files)
+$`You are an expert technical writer and proofreader.
+Review the documents in FILES and report the 2 most important issues.`
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2&gt;Next Steps&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;https://microsoft.github.io/genaiscript/getting-started/&quot;&gt;Getting started&lt;/a&gt; guide to configure and start using GenAIScript.&lt;/li&gt;
+&lt;li&gt;Explore more advanced scripts by following the &lt;a href=&quot;https://microsoft.github.io/genaiscript/guides/prompt-as-code&quot;&gt;Prompt As Code guide&lt;/a&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;There you have it! A gentle introduction to GenAIScript to get you started on your prompt engineering journey. Happy scripting! 💻✨&lt;/p&gt;
+</content:encoded><category>GenAIScript</category><category>JavaScript</category><category>AI</category><category>LLM</category><category>Prompt Engineering</category></item></channel></rss>

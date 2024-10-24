@@ -1,0 +1,815 @@
+
+import { FileTree } from "@astrojs/starlight/components"
+import { Steps } from "@astrojs/starlight/components"
+import { Tabs, TabItem } from "@astrojs/starlight/components"
+import { Image } from "astro:assets"
+
+import lmSrc from "../../../assets/vscode-language-models.png"
+import lmAlt from "../../../assets/vscode-language-models.png.txt?raw"
+
+import lmSelectSrc from "../../../assets/vscode-language-models-select.png"
+import lmSelectAlt from "../../../assets/vscode-language-models-select.png.txt?raw"
+
+import oaiModelsSrc from "../../../assets/openai-model-names.png"
+import oaiModelsAlt from "../../../assets/openai-model-names.png.txt?raw"
+
+You will need to configure the LLM connection and authorizion secrets.
+
+:::tip
+
+If you do not have access to an LLM, you can try [GitHub Models](#github), [GitHub Copilot Models](#github-copilot) or use a [local model](#local-models) for inferencing.
+
+:::
+
+## Model selection
+
+The model used by the script is configured throught the `model` field in the `script` function.
+The model name is formatted as `provider:model-name`, where `provider` is the LLM provider
+and the `model-name` is provider specific.
+
+```js 'model: "openai:gpt-4o"'
+script({
+    model: "openai:gpt-4o",
+})
+```
+
+### Large and small models
+
+You can also use the `small` and `large` aliases to use the default configured small and large models.
+Large models are typically in the OpenAI gpt-4 reasoning range and can be used for more complex tasks.
+Small models are in the OpenAI gpt-4o-mini range, and are useful for quick and simple tasks.
+
+```js 'model: "small"'
+script({ model: "small" })
+```
+
+```js 'model: "large"'
+script({ model: "large" })
+```
+
+The model can also be overriden from the [cli run command](/genaiscript/reference/cli/run#model)
+
+```sh
+genaiscript run ... --model largemodelid --small-model smallmodelid
+```
+
+or by adding the `GENAISCRIPT_DEFAULT_MODEL` and `GENAISCRIPT_DEFAULT_SMALL_MODEL` environment variables.
+
+```txt title=".env"
+GENAISCRIPT_DEFAULT_MODEL="azure_serverless:..."
+GENAISCRIPT_DEFAULT_SMALL_MODEL="azure_serverless:..."
+```
+
+## `.env` file
+
+GenAIScript uses a `.env` file to store the secrets.
+
+<Steps>
+
+<ol>
+
+<li>
+
+Create or update a `.gitignore` file in the root of your project and make it sure it includes `.env`.
+This ensures that you do not accidentally commit your secrets to your source control.
+
+```txt title=".gitignore" ".env"
+...
+.env
+```
+
+</li>
+
+<li>
+
+Create a `.env` file in the root of your project.
+
+<FileTree>
+
+-   .gitignore
+-   **.env**
+
+</FileTree>
+
+</li>
+
+<li>
+
+Update the `.env` file with the configuration information (see below).
+
+</li>
+
+</ol>
+
+</Steps>
+
+:::caution[Do Not Commit Secrets]
+
+The `.env` file should never be commited to your source control!
+If the `.gitignore` file is properly configured,
+the `.env` file will appear grayed out in Visual Studio Code.
+
+:::
+
+## OpenAI
+
+This provider, `openai`, is the OpenAI chat model provider.
+It uses the `OPENAI_API_...` environment variables.
+
+<Steps>
+
+<ol>
+
+<li>
+    Create a new secret key from the [OpenAI API Keys
+    portal](https://platform.openai.com/api-keys).
+</li>
+
+<li>
+
+Update the `.env` file with the secret key.
+
+```txt title=".env"
+OPENAI_API_KEY=sk_...
+```
+
+</li>
+
+<li>
+
+Find the model you want to use
+from the [OpenAI API Reference](https://platform.openai.com/docs/models/gpt-4o)
+or the [OpenAI Chat Playground](https://platform.openai.com/playground/chat).
+
+<Image src={oaiModelsSrc} alt={oaiModelsAlt} loading="lazy" />
+
+</li>
+
+<li>
+
+Set the `model` field in `script` to the model you want to use.
+
+```js 'model: "openai:gpt-4o"'
+script({
+    model: "openai:gpt-4o",
+    ...
+})
+```
+
+</li>
+
+</ol>
+
+</Steps>
+
+:::tip[Default Model Configuration]
+
+Use `GENAISCRIPT_DEFAULT_MODEL` and `GENAISCRIPT_DEFAULT_SMALL_MODEL` in your `.env` file to set the default model and small model.
+
+```txt
+GENAISCRIPT_DEFAULT_MODEL=openai:gpt-4o
+GENAISCRIPT_DEFAULT_SMALL_MODEL=openai:gpt-4o-mini
+```
+
+:::
+
+## GitHub Models <a id="github" href=""></a>
+
+The [GitHub Models](https://github.com/marketplace/models) provider, `github`, allows running models through the GitHub Marketplace.
+This provider is useful for prototyping and subject to [rate limits](https://docs.github.com/en/github-models/prototyping-with-ai-models#rate-limits)
+depending on your subscription.
+
+**If you are running from a [GitHub Codespace](https://github.com/features/codespaces), the token is already configured for you.**
+
+<Steps>
+
+<ol>
+
+<li>
+
+Create a [GitHub personal access token](https://github.com/settings/tokens/new).
+The token should not have any scopes or permissions.
+
+</li>
+
+<li>
+
+Update the `.env` file with the token.
+
+```txt title=".env"
+GITHUB_TOKEN=...
+```
+
+</li>
+
+</ol>
+
+</Steps>
+
+To configure a specific model,
+
+<Steps>
+
+<ol>
+
+<li>
+
+Open the [GitHub Marketplace](https://github.com/marketplace/models) and find the model you want to use.
+
+</li>
+
+<li>
+
+Copy the model name from the Javascript/Python samples
+
+```js "Phi-3-mini-4k-instruct"
+const modelName = "Phi-3-mini-4k-instruct"
+```
+
+to configure your script.
+
+```js "Phi-3-mini-4k-instruct"
+script({
+    model: "github:Phi-3-mini-4k-instruct",
+})
+```
+
+</li>
+
+</ol>
+
+</Steps>
+
+If you are already using `GITHUB_TOKEN` variable in your script and need a different one
+for GitHub Models, you can use the `GITHUB_MODELS_TOKEN` variable instead.
+
+## Azure OpenAI <a id="azure" href=""></a>
+
+The [Azure OpenAI](https://learn.microsoft.com/en-us/azure/ai-services/openai/reference#chat-completions) provider, `azure` uses the `AZURE_OPENAI_...` environment variables.
+You can use a managed identity (recommended) or a API key to authenticate with the Azure OpenAI service.
+You can also use a service principal as documented in [automation](/genaiscript/getting-started/automating-scripts).
+
+:::tip
+
+If your are a Visual Studio Subscriber, you can [get free Azure credits](https://azure.microsoft.com/en-us/pricing/member-offers/credit-for-visual-studio-subscribers/)
+to try the Azure OpenAI service.
+
+:::
+
+### Managed Identity (Entra ID)
+
+<Steps>
+
+<ol>
+
+<li>
+
+Open your Azure OpenAI resource in the [Azure Portal](https://portal.azure.com)
+
+</li>
+<li>
+
+Navigate to **Access Control (IAM)**, then **View My Access**. Make sure your
+user or service principal has the **Cognitive Services OpenAI User/Contributor** role.
+If you get a `401` error, click on **Add**, **Add role assignment** and add the **Cognitive Services OpenAI User** role to your user.
+
+</li>
+<li>
+Navigate to **Resource Management**, then **Keys and Endpoint**.
+</li>
+<li>
+
+Update the `.env` file with the endpoint.
+
+```txt title=".env"
+AZURE_OPENAI_ENDPOINT=https://....openai.azure.com
+```
+
+:::note
+
+Make sure to remove any `AZURE_API_KEY`, `AZURE_OPENAI_API_KEY` entries from `.env` file.
+
+:::
+
+</li>
+
+<li>
+
+Navigate to **deployments** and make sure that you have your LLM deployed and copy the `deployment-id`, you will need it in the script.
+
+</li>
+
+<li>
+
+Open a terminal and **login** with [Azure CLI](https://learn.microsoft.com/en-us/javascript/api/overview/azure/identity-readme?view=azure-node-latest#authenticate-via-the-azure-cli).
+
+```sh
+az login
+```
+
+</li>
+
+<li>
+
+Update the `model` field in the `script` function to match the model deployment name in your Azure resource.
+
+```js 'model: "azure:deployment-id"'
+script({
+    model: "azure:deployment-id",
+    ...
+})
+```
+
+</li>
+
+</ol>
+
+</Steps>
+
+### API Key
+
+<Steps>
+
+<ol>
+
+<li>
+
+Open your [Azure OpenAI resource](https://portal.azure.com) and navigate to **Resource Management**, then **Keys and Endpoint**.
+
+</li>
+
+<li>
+
+Update the `.env` file with the secret key (**Key 1** or **Key 2**) and the endpoint.
+
+```txt title=".env"
+AZURE_OPENAI_API_KEY=...
+AZURE_OPENAI_API_ENDPOINT=https://....openai.azure.com
+```
+
+</li>
+
+<li>
+
+The rest of the steps are the same: Find the deployment name and use it in your script, `model: "azure:deployment-id"`.
+
+</li>
+
+</ol>
+
+</Steps>
+
+## Azure AI Models (Serverless Deployments) <a id="azure_serverless" href=""></a>
+
+The `azure_serverless` supports models in the Azure AI model catalog can be deployed as [a serverless API](https://learn.microsoft.com/en-us/azure/ai-studio/how-to/deploy-models-serverless-availability) with pay-as-you-go billing.
+This kind of deployment provides a way to consume models
+as an API without hosting them on your subscription, while keeping the enterprise security and compliance that organizations need.
+
+Note that the OpenAI models, like gpt-4o..., are deployed to `.openai.azure.com` endpoints,
+while the Azure AI models are deployed to `.models.ai.azure.com` endpoints.
+They are configured slightly differently.
+
+### Managed Identity (Entra ID)
+
+<Steps>
+
+<ol>
+
+<li>
+
+Open your **Azure AI Project** resource in the [Azure Portal](https://portal.azure.com)
+
+</li>
+<li>
+
+Navigate to **Access Control (IAM)**, then **View My Access**. Make sure your
+user or service principal has the **Azure AI Developer** role.
+If you get a `401` error, click on **Add**, **Add role assignment** and add the **Azure AI Developer** role to your user.
+
+</li>
+
+<li>
+
+Open a terminal and **login** with [Azure CLI](https://learn.microsoft.com/en-us/javascript/api/overview/azure/identity-readme?view=azure-node-latest#authenticate-via-the-azure-cli).
+
+```sh
+az login
+```
+
+</li>
+
+<li>
+
+Open https://ai.azure.com/ and open the **Deployments** page.
+
+</li>
+
+<li>
+
+Deploy a **base model** from the catalog.
+You can use the `Deployment Options` -> `Serverless API` option to deploy a model as a serverless API.
+
+</li>
+
+</ol>
+
+</Steps>
+
+The OpenAI models (gpt-4o, ...) are deployed to `.openai.azure.com` endpoints,
+the other models are deployed to `.models.ai.azure.com` endpoints.
+
+### `.models.ai.azure.com` endpoints
+
+<Steps>
+
+<ol>
+
+<li>
+
+Configure the **Endpoint Target URL** as the `AZURE_INFERENCE_ENDPOINT`.
+
+```txt title=".env"
+AZURE_INFERENCE_ENDPOINT=https://...models.ai.azure.com
+```
+
+</li>
+
+<li>
+
+Navigate to **deployments** and make sure that you have your LLM deployed and copy the Deployment Info name, you will need it in the script.
+
+</li>
+
+<li>
+
+Update the `model` field in the `script` function to match the model deployment name in your Azure resource.
+
+```js 'model: "azure_serverless:deployment-info-name"'
+script({
+    model: "azure_serverless:deployment-info-name",
+    ...
+})
+```
+
+</li>
+
+</ol>
+
+</Steps>
+
+#### Support for multiple inference deployements
+
+For non-OpenAI models deployed on `.models.ai.azure.com`,
+you can keep the same `AZURE_INFERENCE_ENDPOINT` and GenAIScript will automatically update the endpoint
+with the deployment id name.
+
+For OpenAI models deployed on `.openai.azure.com`, you can also keep the same deployment name.
+
+### API Key
+
+<Steps>
+
+<ol>
+
+<li>
+
+Open https://ai.azure.com/ and open the **Deployments** page.
+
+</li>
+
+<li>
+
+Deploy a **base model** from the catalog.
+You can use the `Deployment Options` -> `Serverless API` option to deploy a model as a serverless API.
+
+</li>
+
+<li>
+
+Configure the **Endpoint Target URL** as the `AZURE_INFERENCE_ENDPOINT` variable and the key in
+`AZURE_INFERENCE_CREDENTIAL` in the `.env` file.
+
+```txt title=".env"
+AZURE_INFERENCE_ENDPOINT=https://...models.ai.azure.com
+AZURE_INFERENCE_CREDENTIAL=...
+```
+
+</li>
+
+<li>
+
+Find the deployment name and use it in your script, `model: "azure_serverless:deployment-id"`.
+
+</li>
+
+</ol>
+
+</Steps>
+
+:::tip[Default Model Configuration]
+
+Use `GENAISCRIPT_DEFAULT_MODEL` and `GENAISCRIPT_DEFAULT_SMALL_MODEL` in your `.env` file to set the default model and small model.
+
+```txt
+GENAISCRIPT_DEFAULT_MODEL=azure_serverless:<deploymentid>
+GENAISCRIPT_DEFAULT_SMALL_MODEL=azure_serverless:<deploymentid>
+```
+
+:::
+
+#### Support for multiple inference deployements
+
+You can update the `AZURE_INFERENCE_CREDENTIAL` with a list of `deploymentid=key` pairs to support multiple deployments (each deployment has a different key).
+
+```txt title=".env"
+AZURE_INFERENCE_CREDENTIAL="
+model1=key1
+model2=key2
+model3=key3
+"
+```
+
+## Anthropic
+
+This provider, `anthropic`, is the Anthropic chat model provider.
+It uses the `ANTHROPIC_API_...` environment variables.
+
+<Steps>
+
+<ol>
+
+<li>
+
+Update the `.env` file with the secret key.
+
+```txt title=".env"
+ANTHROPIC_API_KEY=...
+# optional
+ANTHROPIC_API_BASE=...
+```
+
+</li>
+
+<li>
+
+Set the `model` field in `script` to the model you want to use.
+
+```js 'model: "anthropic:claude-2"'
+script({
+    model: "anthropic:claude-2",
+    ...
+})
+```
+
+</li>
+
+</ol>
+
+</Steps>
+
+## GitHub Copilot Chat Models <a id="github-copilot" href=""></a>
+
+If you have access to **GitHub Copilot Chat in Visual Studio Code**,
+GenAIScript will be able to leverage those [language models](https://code.visualstudio.com/api/extension-guides/language-model) as well.
+
+This mode is useful to run your scripts without having a separate LLM provider or local LLMs. However, those models are not available from the command line
+and have additional limitations and rate limiting defined by the GitHub Copilot platform.
+
+There is no configuration needed as long as you have GitHub Copilot installed and configured in Visual Studio Code.
+You can force using this model by using `client:*` as a model name.
+
+<Steps>
+
+<ol>
+
+<li>
+
+Install [GitHub Copilot Chat](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot-chat) (emphasis on **Chat**)
+
+</li>
+
+<li>run your script</li>
+<li>
+
+Confirm that you are allowing GenAIScript to use the GitHub Copilot Chat models.
+
+</li>
+<li>
+select the best chat model that matches the one you have in your script
+
+<Image src={lmSelectSrc} alt={lmSelectAlt} loading="lazy" />
+
+(This step is skipped if you already have mappings in your settings)
+
+</li>
+
+</ol>
+
+</Steps>
+
+The mapping of GenAIScript model names to Visual Studio Models is stored in the settings.
+
+## Anthropic
+
+[Anthropic](https://www.anthropic.com/) is an AI research company that offers powerful language models, including the Claude series.
+
+To use Anthropic models with GenAIScript, follow these steps:
+
+<Steps>
+
+<ol>
+
+<li>
+
+Sign up for an Anthropic account and obtain an API key from their [console](https://console.anthropic.com/).
+
+</li>
+
+<li>
+
+Add your Anthropic API key to the `.env` file:
+
+```txt title=".env"
+ANTHROPIC_API_KEY=sk-ant-api...
+```
+
+</li>
+
+<li>
+
+Find the model that best suits your needs by visiting the [Anthropic model documentation](https://docs.anthropic.com/en/docs/about-claude/models#model-names).
+
+</li>
+
+<li>
+
+Update your script to use the `model` you choose.
+
+```js
+script({
+    ...
+    model: "anthropic:claude-3-5-sonnet-20240620",
+})
+```
+
+</li>
+
+</ol>
+
+</Steps>
+
+## Local Models
+
+There are many projects that allow you to run models locally on your machine,
+or in a container.
+
+### LocalAI
+
+[LocalAI](https://localai.io/) act as a drop-in replacement REST API that’s compatible
+with OpenAI API specifications for local inferencing. It uses free Open Source models
+and it runs on CPUs.
+
+LocalAI acts as an OpenAI replacement, you can see the [model name mapping](https://localai.io/basics/container/#all-in-one-images)
+used in the container, like `gpt-4` is mapped to `phi-2`.
+
+<Steps>
+
+<ol>
+
+<li>
+
+Install Docker. See the [LocalAI documentation](https://localai.io/basics/getting_started/#prerequisites) for more information.
+
+</li>
+
+<li>
+
+Update the `.env` file and set the api type to `localai`.
+
+```txt title=".env" "localai"
+OPENAI_API_TYPE=localai
+```
+
+</li>
+
+</ol>
+
+</Steps>
+
+### Ollama
+
+[Ollama](https://ollama.ai/) is a desktop application that let you download and run model locally.
+
+Running tools locally may require additional GPU resources depending on the model you are using.
+
+Use the `ollama` provider to access Ollama models.
+
+<Steps>
+
+<ol>
+
+<li>
+
+Start the Ollama application or
+
+```sh
+ollama serve
+```
+
+</li>
+
+<li>
+
+Update your script to use the `ollama:phi3.5` model (or any [other model](https://ollama.com/library) or from [Hugging Face](https://huggingface.co/docs/hub/en/ollama)).
+
+```js "ollama:phi3.5"
+script({
+    ...,
+    model: "ollama:phi3.5",
+})
+```
+
+GenAIScript will automatically pull the model, which may take some time depending on the model size. The model is cached locally by Ollama.
+
+</li>
+
+</ol>
+
+</Steps>
+
+You can specify the model size by adding the size to the model name, like `ollama:llama3.2:3b`.
+
+```js "ollama:llama3.2:3b"
+script({
+    ...,
+    model: "ollama:llama3.2:3b",
+})
+```
+
+You can also use [GGUF models](https://huggingface.co/models?library=gguf) from [Hugging Face](https://huggingface.co/docs/hub/en/ollama).
+
+```js "hf.co/bartowski/Llama-3.2-1B-Instruct-GGUF"
+script({
+    ...,
+    model: "ollama:hf.co/bartowski/Llama-3.2-1B-Instruct-GGUF",
+})
+```
+
+### Llamafile
+
+[https://llamafile.ai/](https://llamafile.ai/) is a single file desktop application
+that allows you to run an LLM locally.
+
+The provider is `llamafile` and the model name is ignored.
+
+### Jan, LMStudio, LLaMA.cpp
+
+[Jan](https://jan.ai/), [LMStudio](https://lmstudio.ai/),
+[LLaMA.cpp](https://github.com/ggerganov/llama.cpp/tree/master/examples/server)
+also allow running models locally or interfacing with other LLM vendors.
+
+<Steps>
+
+<ol>
+
+<li>
+
+Update the `.env` file with the local server information.
+
+```txt title=".env"
+OPENAI_API_BASE=http://localhost:...
+```
+
+</li>
+
+</ol>
+
+</Steps>
+
+### Model specific environment variables
+
+You can provide different environment variables
+for each named model by using the `PROVIDER_MODEL_API_...` prefix or `PROVIDER_API_...` prefix.
+The model name is capitalized and
+all non-alphanumeric characters are converted to `_`.
+
+This allows to have various sources of LLM computations
+for different models. For example, to enable the `ollama:phi3`
+model running locally, while keeping the default `openai` model connection information.
+
+```txt title=".env"
+OLLAMA_PHI3_API_BASE=http://localhost:11434/v1
+```
+
+## Checking your configuration
+
+You can check your configuration by running the `genaiscript info env` [command](/genaiscript/reference/cli).
+It will display the current configuration information parsed by GenAIScript.
+
+```sh
+genaiscript info env
+```
+
+## Next steps
+
+Write your [first script](/genaiscript/getting-started/your-first-genai-script).
