@@ -13,10 +13,10 @@ import {
     createSchemaNode,
     createStringTemplateNode,
     createTextNode,
-    createSystemNode,
     renderPromptNode,
     createOutputProcessor,
     createFileMerge,
+    createSystemNode,
 } from "./promptdom"
 import { MarkdownTrace } from "./trace"
 import { GenerationOptions } from "./generation"
@@ -675,10 +675,18 @@ export function createChatGenerationContext(
                             fileOutputs.push(...sysr.fileOutputs)
                         if (sysr.logs?.length)
                             runTrace.details("📝 console.log", sysr.logs)
-                        if (sysr.text) {
-                            systemMessage.content +=
-                                SYSTEM_FENCE + "\n" + sysr.text + "\n"
-                            runTrace.fence(sysr.text, "markdown")
+                        for (const smsg of sysr.messages) {
+                            if (
+                                smsg.role === "user" &&
+                                typeof smsg.content === "string"
+                            ) {
+                                systemMessage.content +=
+                                    SYSTEM_FENCE + "\n" + smsg.content + "\n"
+                                runTrace.fence(smsg.content, "markdown")
+                            } else
+                                throw new NotSupportedError(
+                                    "only string user messages supported in system"
+                                )
                         }
                         if (sysr.aici) {
                             runTrace.fence(sysr.aici, "yaml")

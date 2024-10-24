@@ -83,7 +83,7 @@
     "devDependencies": {
         "@inquirer/prompts": "^7.0.0",
         "glob": "^11.0.0",
-        "npm-check-updates": "^17.1.4",
+        "npm-check-updates": "^17.1.5",
         "prettier": "^3.3.3",
         "zx": "^8.1.9"
     }

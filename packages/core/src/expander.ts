@@ -1,7 +1,7 @@
 import { Project, PromptScript } from "./ast"
 import { assert, normalizeFloat, normalizeInt } from "./util"
 import { MarkdownTrace } from "./trace"
-import { errorMessage, isCancelError } from "./error"
+import { errorMessage, isCancelError, NotSupportedError } from "./error"
 import {
     JS_REGEX,
     MAX_TOOL_CALLS,
@@ -13,7 +13,7 @@ import { PromptImage, renderPromptNode } from "./promptdom"
 import { createPromptContext } from "./promptcontext"
 import { evalPrompt } from "./evalprompt"
 import { renderAICI } from "./aici"
-import { toChatCompletionUserMessage } from "./chat"
+import { appendSystemMessage, toChatCompletionUserMessage } from "./chat"
 import { importPrompt } from "./importprompt"
 import { parseModelIdentifier } from "./models"
 import { JSONSchemaStringifyToTypeScript, toStrictJSONSchema } from "./schema"
@@ -42,9 +42,7 @@ export async function callExpander(
     let status: GenerationStatus = undefined
     let statusText: string = undefined
     let logs = ""
-    let text = ""
-    let assistantText = ""
-    let systemText = ""
+    let messages: ChatCompletionMessageParam[] = []
     let images: PromptImage[] = []
     let schemas: Record<string, JSONSchema> = {}
     let functions: ToolCallback[] = []
@@ -74,9 +72,7 @@ export async function callExpander(
         const node = ctx.node
         if (provider !== MODEL_PROVIDER_AICI) {
             const {
-                userPrompt,
-                assistantPrompt,
-                systemPrompt,
+                messages: msgs,
                 images: imgs,
                 errors,
                 schemas: schs,
@@ -89,9 +85,7 @@ export async function callExpander(
                 flexTokens: options.flexTokens,
                 trace,
             })
-            text = userPrompt
-            assistantText = assistantPrompt
-            systemText = systemPrompt
+            messages = msgs
             images = imgs
             schemas = schs
             functions = fns
@@ -127,9 +121,7 @@ export async function callExpander(
         logs,
         status,
         statusText,
-        text,
-        assistantText,
-        systemText,
+        messages,
         images,
         schemas,
         functions: Object.freeze(functions),
@@ -177,7 +169,6 @@ export async function expandTemplate(
 ) {
     const model = options.model
     assert(!!model)
-    const messages: ChatCompletionMessageParam[] = []
     const cancellationToken = options.cancellationToken
     const systems = resolveSystems(prj, template)
     const systemTemplates = systems.map((s) => prj.getTemplate(s))
@@ -230,7 +221,7 @@ export async function expandTemplate(
         lineNumbers,
     })
 
-    const { status, statusText, text } = prompt
+    const { status, statusText, messages } = prompt
     const images = prompt.images.slice(0)
     const schemas = structuredClone(prompt.schemas)
     const functions = prompt.functions.slice(0)
@@ -240,11 +231,17 @@ export async function expandTemplate(
     const fileOutputs = prompt.fileOutputs.slice(0)
 
     if (prompt.logs?.length) trace.details("📝 console.log", prompt.logs)
-    if (text) trace.detailsFenced(`📝 prompt`, text, "markdown")
     if (prompt.aici) trace.fence(prompt.aici, "yaml")
     trace.endDetails()
 
-    if (status !== "success" || text === "")
+    if (cancellationToken?.isCancellationRequested || status === "cancelled")
+        return {
+            status: "cancelled",
+            statusText: "user cancelled",
+            messages,
+        }
+
+    if (status !== "success" || prompt.messages.length === 0)
         // cancelled
         return {
             status,
@@ -252,20 +249,14 @@ export async function expandTemplate(
             messages,
         }
 
-    if (cancellationToken?.isCancellationRequested)
-        return {
-            status: "cancelled",
-            statusText: "user cancelled",
-            messages,
-        }
-
-    const systemMessage: ChatCompletionSystemMessageParam = {
-        role: "system",
-        content: "",
-    }
-    if (prompt.text)
-        messages.push(toChatCompletionUserMessage(prompt.text, prompt.images))
+    if (prompt.images?.length)
+        messages.push(toChatCompletionUserMessage("", prompt.images))
     if (prompt.aici) messages.push(prompt.aici)
+
+    const addSystemMessage = (content: string) => {
+        appendSystemMessage(messages, content)
+        trace.fence(content, "markdown")
+    }
 
     if (systems.length)
         try {
@@ -302,10 +293,16 @@ export async function expandTemplate(
                 if (sysr.fileOutputs) fileOutputs.push(...sysr.fileOutputs)
                 if (sysr.logs?.length)
                     trace.details("📝 console.log", sysr.logs)
-                if (sysr.text) {
-                    systemMessage.content +=
-                        SYSTEM_FENCE + "\n" + sysr.text + "\n"
-                    trace.fence(sysr.text, "markdown")
+                for (const smsg of sysr.messages) {
+                    if (
+                        smsg.role === "user" &&
+                        typeof smsg.content === "string"
+                    ) {
+                        addSystemMessage(smsg.content)
+                    } else
+                        throw new NotSupportedError(
+                            "only string user messages supported in system"
+                        )
                 }
                 if (sysr.aici) {
                     trace.fence(sysr.aici, "yaml")
@@ -337,50 +334,20 @@ export async function expandTemplate(
         const schemaTs = JSONSchemaStringifyToTypeScript(responseSchema, {
             typeName,
         })
-        messages.unshift({
-            role: "system",
-            content: `You are a service that translates user requests 
+        addSystemMessage(`You are a service that translates user requests 
 into JSON objects of type "${typeName}" 
 according to the following TypeScript definitions:
 \`\`\`ts
 ${schemaTs}
-\`\`\``,
-        })
+\`\`\``)
     } else if (responseType === "json_object") {
-        messages.unshift({
-            role: "system",
-            content: `Answer using JSON.`,
-        })
+        addSystemMessage("Answer using JSON.")
     } else if (responseType === "json_schema") {
         if (!responseSchema)
             throw new Error(`responseSchema is required for json_schema`)
         // try conversion
         toStrictJSONSchema(responseSchema)
     }
-    if (systemMessage.content) messages.unshift(systemMessage)
-
-    if (prompt.assistantText) {
-        trace.detailsFenced("🤖 assistant", prompt.assistantText, "markdown")
-        const assistantMessage: ChatCompletionAssistantMessageParam = {
-            role: "assistant",
-            content: prompt.assistantText,
-        }
-        messages.push(assistantMessage)
-    }
-    if (prompt.systemText) {
-        trace.detailsFenced("👾 system", prompt.systemText, "markdown")
-        const systemMessage: ChatCompletionSystemMessageParam = {
-            role: "system",
-            content: prompt.systemText,
-        }
-        // insert system messages after the last system role message in messages
-        // assume system messages are at the start
-        let li = -1
-        for (let li = 0; li < messages.length; li++)
-            if (messages[li].role === "system") break
-        messages.splice(li, 0, systemMessage)
-    }
-
     trace.endDetails()
 
     return {

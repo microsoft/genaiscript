@@ -2542,7 +2542,7 @@ es-errors@^1.3.0:
   resolved "https://registry.yarnpkg.com/es-errors/-/es-errors-1.3.0.tgz#05f75a25dab98e4fb1dcd5e1472c0546d5057c8f"
   integrity sha512-Zf5H2Kxt2xjTvbJvP2ZWLEICxA6j+hAmMzIlypy4xcBg1vKVnx89Wy0GbS+kf5cwCVFFzdCFh2XSCFNULS6csw==
 
-es-toolkit@^1.25.2:
+es-toolkit@^1.26.0:
   version "1.26.0"
   resolved "https://registry.yarnpkg.com/es-toolkit/-/es-toolkit-1.26.0.tgz#3545d06a00a66d61ecff8b160feb89cbae6e5059"
   integrity sha512-gg6ZaI4eTwzkQGkdEG+t4b4VH2mTxodBQ2KvyTKAQFIag3Vvxoq3XZ1ie4ijIQmVxiipL2+dZLDMkh1VIvAFyg==
@@ -4169,10 +4169,10 @@ normalize-url@^8.0.1:
   resolved "https://registry.yarnpkg.com/normalize-url/-/normalize-url-8.0.1.tgz#9b7d96af9836577c58f5883e939365fa15623a4a"
   integrity sha512-IO9QvjUMWxPQQhs60oOu10CRkWCiZzSUkzbXGGV9pviYl1fXYcvkzQ5jV9z8Y6un8ARoVRl4EtC6v6jNqbaJ/w==
 
-npm-check-updates@^17.1.4:
-  version "17.1.4"
-  resolved "https://registry.yarnpkg.com/npm-check-updates/-/npm-check-updates-17.1.4.tgz#1bebfb7a32a92c0d98f6ed6cf780b8841d787077"
-  integrity sha512-crOUeN2GngqlkRCFQ/zi1zsneWd9IGZgIfAWYGAuhYiPnfbBTmJBL7Yq1wI0e1dsW8CfWc+h348WmfCREqeOBA==
+npm-check-updates@^17.1.5:
+  version "17.1.5"
+  resolved "https://registry.yarnpkg.com/npm-check-updates/-/npm-check-updates-17.1.5.tgz#aa65db7d3bdac4690b98b23a49664a25c5eb72ca"
+  integrity sha512-COZrBinIHW+S0ewV/NyMV9nax7bUAbRCLeV/g5vFpeio5Zl8d4ucqtLzU5uvtqYPaNSuI0scOad463uf5bnjSg==
 
 npm-run-path@^6.0.0:
   version "6.0.0"
@@ -4322,7 +4322,7 @@ openai@^3.2.1:
     axios "^0.26.0"
     form-data "^4.0.0"
 
-openai@^4.68.3:
+openai@^4.68.4:
   version "4.68.4"
   resolved "https://registry.yarnpkg.com/openai/-/openai-4.68.4.tgz#f8d684c1f2408d362164ad71916e961941aeedd1"
   integrity sha512-LRinV8iU9VQplkr25oZlyrsYGPGasIwYN8KFMAAFTHHLHjHhejtJ5BALuLFrkGzY4wfbKhOhuT+7lcHZ+F3iEA==
@@ -6031,10 +6031,10 @@ yoctocolors@^2.0.0:
   resolved "https://registry.yarnpkg.com/yoctocolors/-/yoctocolors-2.1.1.tgz#e0167474e9fbb9e8b3ecca738deaa61dd12e56fc"
   integrity sha512-GQHQqAopRhwU8Kt1DDM8NjibDXHC8eoh1erhGAJPEyveY9qqVeXvVikNKrDz69sHowPMorbPUrH/mx8c50eiBQ==
 
-zod-to-json-schema@^3.23.3:
-  version "3.23.4"
-  resolved "https://registry.yarnpkg.com/zod-to-json-schema/-/zod-to-json-schema-3.23.4.tgz#f6fa99a15412ac2c79721ad1b9d901ecfb11575b"
-  integrity sha512-LjSQ9WT8qkvb4OHlkC3AlizvC+pwKIxpBohK4FLzCm7RyJES8uLpHP6BWljCtBjBXJ9Xa1R9IGZcICuSf8xl2Q==
+zod-to-json-schema@^3.23.5:
+  version "3.23.5"
+  resolved "https://registry.yarnpkg.com/zod-to-json-schema/-/zod-to-json-schema-3.23.5.tgz#ec23def47dcafe3a4d640eba6a346b34f9a693a5"
+  integrity sha512-5wlSS0bXfF/BrL4jPAbz9da5hDlDptdEppYfe+x4eIJ7jioqKG9uUxOwPzqof09u/XeVdrgFu29lZi+8XNDJtA==
 
 zod-validation-error@^3.4.0:
   version "3.4.0"

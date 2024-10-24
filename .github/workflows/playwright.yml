@@ -35,9 +35,7 @@ jobs:
               run: yarn typecheck
             - name: compile
               run: yarn compile
+            - name: download ollama docker
+              run: docker run -d -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama
             - name: run browse-text
-              run: yarn run:script browse-text --out ./temp/browse-text
-              env:
-                  OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-                  OPENAI_API_TYPE: ${{ secrets.OPENAI_API_TYPE }}
-                  OPENAI_API_BASE: ${{ secrets.OPENAI_API_BASE }}
+              run: yarn run:script browse-text --out ./temp/browse-text --model ollama:phi3.5

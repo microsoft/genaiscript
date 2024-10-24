@@ -16,14 +16,14 @@ import {
     TEMPLATE_ARG_FILE_MAX_TOKENS,
 } from "./constants"
 import { parseModelIdentifier } from "./models"
-import { toChatCompletionUserMessage } from "./chat"
+import { appendAssistantMessage, appendUserMessage } from "./chat"
 import { errorMessage } from "./error"
 import { tidyData } from "./tidy"
 import { dedent } from "./indent"
 import {
-    ChatCompletionAssistantMessageParam,
     ChatCompletionMessageParam,
     ChatCompletionSystemMessageParam,
+    ChatCompletionUserMessageParam,
 } from "./chattypes"
 import { resolveTokenEncoder } from "./encoders"
 import { expandFiles } from "./fs"
@@ -527,9 +527,6 @@ export async function visitNode(node: PromptNode, visitor: PromptNodeVisitor) {
 
 // Interface for representing a rendered prompt node.
 export interface PromptNodeRender {
-    userPrompt: string // User prompt content
-    assistantPrompt: string // Assistant prompt content
-    systemPrompt: string // System prompt content
     images: PromptImage[] // Images included in the prompt
     errors: unknown[] // Errors encountered during rendering
     schemas: Record<string, JSONSchema> // Schemas included in the prompt
@@ -885,7 +882,7 @@ async function tracePromptNode(
     root: PromptNode,
     options?: { label: string }
 ) {
-    if (!trace) return
+    if (!trace || !root.children?.length) return
 
     await visitNode(root, {
         node: (n) => {
@@ -940,9 +937,22 @@ export async function renderPromptNode(
     const truncated = await truncatePromptNode(model, node, options)
     if (truncated) await tracePromptNode(trace, node, { label: "truncated" })
 
-    let userPrompt = ""
-    let assistantPrompt = ""
-    let systemPrompt = ""
+    const messages: ChatCompletionMessageParam[] = []
+    const appendSystem = (content: string) => {
+        const last = messages.find(
+            ({ role }) => role === "system"
+        ) as ChatCompletionSystemMessageParam
+        if (last) last.content += content + SYSTEM_FENCE
+        else
+            messages.push({
+                role: "system",
+                content,
+            } as ChatCompletionSystemMessageParam)
+    }
+    const appendUser = (content: string) => appendUserMessage(messages, content)
+    const appendAssistant = (content: string) =>
+        appendAssistantMessage(messages, content)
+
     const images: PromptImage[] = []
     const errors: unknown[] = []
     const schemas: Record<string, JSONSchema> = {}
@@ -956,27 +966,27 @@ export async function renderPromptNode(
         text: async (n) => {
             if (n.error) errors.push(n.error)
             const value = n.resolved
-            if (value != undefined) userPrompt += value + "\n"
+            if (value != undefined) appendUser(value)
         },
         def: async (n) => {
             if (n.error) errors.push(n.error)
             const value = n.resolved
-            if (value !== undefined) userPrompt += renderDefNode(n) + "\n"
+            if (value !== undefined) appendUser(renderDefNode(n))
         },
         assistant: async (n) => {
             if (n.error) errors.push(n.error)
             const value = await n.resolved
-            if (value != undefined) assistantPrompt += value + "\n"
+            if (value != undefined) appendAssistant(value)
         },
         system: async (n) => {
             if (n.error) errors.push(n.error)
             const value = await n.resolved
-            if (value != undefined) systemPrompt += value + SYSTEM_FENCE
+            if (value != undefined) appendSystem(value)
         },
         stringTemplate: async (n) => {
             if (n.error) errors.push(n.error)
             const value = n.resolved
-            if (value != undefined) userPrompt += value + "\n"
+            if (value != undefined) appendUser(value)
         },
         image: async (n) => {
             if (n.error) errors.push(n.error)
@@ -1015,9 +1025,8 @@ export async function renderPromptNode(
             const text = `${schemaName}:
 \`\`\`${format + "-schema"}
 ${trimNewlines(schemaText)}
-\`\`\`
-`
-            userPrompt += text
+\`\`\``
+            appendUser(text)
             n.tokens = estimateTokens(text, encoder)
             if (trace && format !== "json")
                 trace.detailsFenced(
@@ -1066,33 +1075,16 @@ ${trimNewlines(schemaText)}
 
     const fods = fileOutputs?.filter((f) => !!f.description)
     if (fods?.length > 0) {
-        systemPrompt += `
+        appendSystem(`
 ## File generation rules
 
 When generating files, use the following rules which are formatted as "file glob: description":
 
 ${fods.map((fo) => `   ${fo.pattern}: ${fo.description}`)}
-
-`
+`)
     }
 
-    const messages: ChatCompletionMessageParam[] = [
-        toChatCompletionUserMessage(userPrompt, images),
-    ]
-    if (assistantPrompt)
-        messages.push({
-            role: "assistant",
-            content: assistantPrompt,
-        } as ChatCompletionAssistantMessageParam)
-    if (systemPrompt)
-        messages.unshift({
-            role: "system",
-            content: systemPrompt,
-        } as ChatCompletionSystemMessageParam)
     const res = Object.freeze<PromptNodeRender>({
-        userPrompt,
-        assistantPrompt,
-        systemPrompt,
         images,
         schemas,
         functions: tools,

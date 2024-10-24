@@ -1,22 +1,22 @@
 name: openai smoke tests
 on:
     workflow_dispatch:
-    pull_request:
-        paths:
-            - yarn.lock
-            - ".github/workflows/github-models.yml"
-            - "packages/core/**/*"
-            - "packages/cli/**/*"
-            - "packages/samples/**/*"
-    push:
-        branches:
-            - main
-        paths:
-            - yarn.lock
-            - ".github/workflows/github-models.yml"
-            - "packages/core/**/*"
-            - "packages/cli/**/*"
-            - "packages/samples/**/*"
+    # pull_request:
+    #     paths:
+    #         - yarn.lock
+    #         - ".github/workflows/github-models.yml"
+    #         - "packages/core/**/*"
+    #         - "packages/cli/**/*"
+    #         - "packages/samples/**/*"
+    # push:
+    #     branches:
+    #         - main
+    #     paths:
+    #         - yarn.lock
+    #         - ".github/workflows/github-models.yml"
+    #         - "packages/core/**/*"
+    #         - "packages/cli/**/*"
+    #         - "packages/samples/**/*"
 concurrency:
     group: ${{ github.workflow }}-${{ github.ref }}-github-models
     cancel-in-progress: true

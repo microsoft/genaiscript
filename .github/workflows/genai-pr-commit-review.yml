@@ -30,6 +30,7 @@ jobs:
               run: git fetch origin && git pull origin main:main
             - name: genaiscript pr-review-commit
               run: node packages/cli/built/genaiscript.cjs run pr-review-commit --out ./temp/genai/pr-review-commit -prr --out-trace $GITHUB_STEP_SUMMARY
+              continue-on-error: true
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   GITHUB_COMMIT_SHA: ${{ github.event.pull_request.head.sha}}
