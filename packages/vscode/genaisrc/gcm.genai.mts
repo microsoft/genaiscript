@@ -92,9 +92,10 @@ do {
                 ],
             })
         if (res.error) throw res.error
-        message = res.text?.trim()
+        message = res.text
     }
 
+    message = message?.trim()
     if (!message) {
         console.log(
             "No commit message generated, did you configure the LLM model?"
