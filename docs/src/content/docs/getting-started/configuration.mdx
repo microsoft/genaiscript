@@ -727,20 +727,40 @@ ollama serve
 
 <li>
 
-Update your script to use the `ollama:phi3` model.
+Update your script to use the `ollama:phi3.5` model (or any [other model](https://ollama.com/library) or from [Hugging Face](https://huggingface.co/docs/hub/en/ollama)).
 
-```js "ollama:phi3"
+```js "ollama:phi3.5"
 script({
     ...,
-    model: "ollama:phi3",
+    model: "ollama:phi3.5",
 })
 ```
+
+GenAIScript will automatically pull the model, which may take some time depending on the model size. The model is cached locally by Ollama.
 
 </li>
 
 </ol>
 
 </Steps>
+
+You can specify the model size by adding the size to the model name, like `ollama:llama3.2:3b`.
+
+```js "ollama:llama3.2:3b"
+script({
+    ...,
+    model: "ollama:llama3.2:3b",
+})
+```
+
+You can also use [GGUF models](https://huggingface.co/models?library=gguf) from [Hugging Face](https://huggingface.co/docs/hub/en/ollama).
+
+```js "hf.co/bartowski/Llama-3.2-1B-Instruct-GGUF"
+script({
+    ...,
+    model: "ollama:hf.co/bartowski/Llama-3.2-1B-Instruct-GGUF",
+})
+```
 
 ### Llamafile
 

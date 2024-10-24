@@ -1581,9 +1581,9 @@
     "@vscode/vsce-sign-win32-x64" "2.0.2"
 
 "@vscode/vsce@^3.2.0":
-  version "3.2.0"
-  resolved "https://registry.yarnpkg.com/@vscode/vsce/-/vsce-3.2.0.tgz#7e16c39940f40d1e308faf5f81783865ef8c227a"
-  integrity sha512-c/AId5Lp50HTszCBDfXfD/Go2djm6qO/WfedP2Y3BpRP+V+ttr8T0mTvZ8WEyTiBp2EfrYnzYUCx0ocB9mHy4Q==
+  version "3.2.1"
+  resolved "https://registry.yarnpkg.com/@vscode/vsce/-/vsce-3.2.1.tgz#7bfa869ea43fe7d787f09e164f0f0e239df8fb1d"
+  integrity sha512-AY9vBjwExakK1c0cI/3NN2Ey0EgiKLBye/fxl/ue+o4q6RZ7N+xzd1jAD6eI6eBeMVANi617+V2rxIAkDPco2Q==
   dependencies:
     "@azure/identity" "^4.1.0"
     "@vscode/vsce-sign" "^2.0.0"
@@ -2543,9 +2543,9 @@ es-errors@^1.3.0:
   integrity sha512-Zf5H2Kxt2xjTvbJvP2ZWLEICxA6j+hAmMzIlypy4xcBg1vKVnx89Wy0GbS+kf5cwCVFFzdCFh2XSCFNULS6csw==
 
 es-toolkit@^1.25.2:
-  version "1.25.2"
-  resolved "https://registry.yarnpkg.com/es-toolkit/-/es-toolkit-1.25.2.tgz#5ac913f4f312a05c199da7c5f5d99449e1dddf9a"
-  integrity sha512-zEh2aJUwnlDwashas6JN+oFVN08F2s2qBaEwTo6EOACjO9PdPH4eGRBZC2JP/3SDLeANiMTEtVnOGhoG7GwZcA==
+  version "1.26.0"
+  resolved "https://registry.yarnpkg.com/es-toolkit/-/es-toolkit-1.26.0.tgz#3545d06a00a66d61ecff8b160feb89cbae6e5059"
+  integrity sha512-gg6ZaI4eTwzkQGkdEG+t4b4VH2mTxodBQ2KvyTKAQFIag3Vvxoq3XZ1ie4ijIQmVxiipL2+dZLDMkh1VIvAFyg==
 
 es5-ext@^0.10.35, es5-ext@^0.10.62, es5-ext@^0.10.63, es5-ext@^0.10.64, es5-ext@~0.10.14:
   version "0.10.64"
@@ -4323,9 +4323,9 @@ openai@^3.2.1:
     form-data "^4.0.0"
 
 openai@^4.68.3:
-  version "4.68.3"
-  resolved "https://registry.yarnpkg.com/openai/-/openai-4.68.3.tgz#104eeb3538f3d69de86fe45b660728142b3c15ce"
-  integrity sha512-KfnhZ7mR9rK/f0O1vJGRnB3aYuDGgVkNIegJFxGviV0SGDVGlTha7FR8UV9P0NbO6l/podml0E/rk2R1egY94w==
+  version "4.68.4"
+  resolved "https://registry.yarnpkg.com/openai/-/openai-4.68.4.tgz#f8d684c1f2408d362164ad71916e961941aeedd1"
+  integrity sha512-LRinV8iU9VQplkr25oZlyrsYGPGasIwYN8KFMAAFTHHLHjHhejtJ5BALuLFrkGzY4wfbKhOhuT+7lcHZ+F3iEA==
   dependencies:
     "@types/node" "^18.11.18"
     "@types/node-fetch" "^2.6.4"
@@ -6032,9 +6032,9 @@ yoctocolors@^2.0.0:
   integrity sha512-GQHQqAopRhwU8Kt1DDM8NjibDXHC8eoh1erhGAJPEyveY9qqVeXvVikNKrDz69sHowPMorbPUrH/mx8c50eiBQ==
 
 zod-to-json-schema@^3.23.3:
-  version "3.23.3"
-  resolved "https://registry.yarnpkg.com/zod-to-json-schema/-/zod-to-json-schema-3.23.3.tgz#56cf4e0bd5c4096ab46e63159e20998ec7b19c39"
-  integrity sha512-TYWChTxKQbRJp5ST22o/Irt9KC5nj7CdBKYB/AosCRdj/wxEMvv4NNaj9XVUHDOIp53ZxArGhnw5HMZziPFjog==
+  version "3.23.4"
+  resolved "https://registry.yarnpkg.com/zod-to-json-schema/-/zod-to-json-schema-3.23.4.tgz#f6fa99a15412ac2c79721ad1b9d901ecfb11575b"
+  integrity sha512-LjSQ9WT8qkvb4OHlkC3AlizvC+pwKIxpBohK4FLzCm7RyJES8uLpHP6BWljCtBjBXJ9Xa1R9IGZcICuSf8xl2Q==
 
 zod-validation-error@^3.4.0:
   version "3.4.0"

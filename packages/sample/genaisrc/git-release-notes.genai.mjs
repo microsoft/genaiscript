@@ -1,35 +1,46 @@
-script({ system: ["system"], temperature: 0.5 })
+script({
+    system: ["system"],
+    temperature: 0.5,
+})
 
 const product = env.vars.product || "GenAIScript"
 
 // find previous tag
 const { version } = await workspace.readJSON("package.json")
 const tag = await git.lastTag()
-const commits = await git.log({
-    excludedGrep: "(skip ci|THIRD_PARTY_NOTICES|genai)",
-    base: tag,
-    head: "HEAD",
-})
+const excludedPaths = [
+    "package.json",
+    "**/package.json",
+    "yarn.lock",
+    "**/yarn.lock",
+    "**/genaiscript.d.ts",
+    "**/jsconfig.json",
+    "docs/**",
+    ".github/*",
+    ".vscode/*",
+    "slides/**",
+    "THIRD_PARTY_LICENSES.md",
+]
+const commits = (
+    await git.log({
+        excludedGrep:
+            "(skip ci|THIRD_PARTY_NOTICES|THIRD_PARTY_LICENSES|genai)",
+        base: tag,
+        head: "HEAD",
+        excludedPaths,
+    })
+)
+    .map(({ message }) => message)
+    .join("\n")
+console.debug(commits)
 const diff = await git.diff({
     base: tag,
     head: "HEAD",
-    excludedPaths: [
-        "**/package.json",
-        "**/genaiscript.d.ts",
-        "**/jsconfig.json",
-        "docs/**",
-        ".github/*",
-        ".vscode/*",
-        "**/yarn.lock",
-        "THIRD_PARTY_NOTICES.md",
-    ],    
+    excludedPaths,
 })
+console.debug(diff)
 
-const commitsName = def(
-    "COMMITS",
-    commits.map(({ message }) => message).join("\n"),
-    { maxTokens: 3000 }
-)
+const commitsName = def("COMMITS", commits, { maxTokens: 3000 })
 const diffName = def("DIFF", diff, { maxTokens: 12000 })
 
 $`

@@ -12,6 +12,10 @@ model:
 inputs:
   question:
     type: string
+  hint:
+    type: string
+  n:
+    type: number
 sample:
   question: Who is the most famous person in the world?
   n: 5
