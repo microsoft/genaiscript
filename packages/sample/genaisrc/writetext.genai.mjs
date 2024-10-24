@@ -1,0 +1,7 @@
+script({ model: "small", tests: {} })
+writeText("This is a system prompt.", { role: "system" })
+writeText("This is another system prompt.", { role: "system" })
+writeText("This is a user prompt.", { role: "user" })
+writeText("This is a asssitant prompt.", { role: "assistant" })
+writeText("This is a another user prompt.", { role: "user" })
+writeText("This is a another assitant prompt.", { role: "assistant" })

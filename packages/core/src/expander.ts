@@ -42,9 +42,7 @@ export async function callExpander(
     let status: GenerationStatus = undefined
     let statusText: string = undefined
     let logs = ""
-    let text = ""
-    let assistantText = ""
-    let systemText = ""
+    let messages: ChatCompletionMessageParam[] = []
     let images: PromptImage[] = []
     let schemas: Record<string, JSONSchema> = {}
     let functions: ToolCallback[] = []
@@ -74,9 +72,7 @@ export async function callExpander(
         const node = ctx.node
         if (provider !== MODEL_PROVIDER_AICI) {
             const {
-                userPrompt,
-                assistantPrompt,
-                systemPrompt,
+                messages: msgs,
                 images: imgs,
                 errors,
                 schemas: schs,
@@ -89,9 +85,7 @@ export async function callExpander(
                 flexTokens: options.flexTokens,
                 trace,
             })
-            text = userPrompt
-            assistantText = assistantPrompt
-            systemText = systemPrompt
+            messages = msgs
             images = imgs
             schemas = schs
             functions = fns
@@ -127,9 +121,7 @@ export async function callExpander(
         logs,
         status,
         statusText,
-        text,
-        assistantText,
-        systemText,
+        messages,
         images,
         schemas,
         functions: Object.freeze(functions),
@@ -230,7 +222,7 @@ export async function expandTemplate(
         lineNumbers,
     })
 
-    const { status, statusText, text } = prompt
+    const { status, statusText } = prompt
     const images = prompt.images.slice(0)
     const schemas = structuredClone(prompt.schemas)
     const functions = prompt.functions.slice(0)
@@ -240,11 +232,17 @@ export async function expandTemplate(
     const fileOutputs = prompt.fileOutputs.slice(0)
 
     if (prompt.logs?.length) trace.details("📝 console.log", prompt.logs)
-    if (text) trace.detailsFenced(`📝 prompt`, text, "markdown")
     if (prompt.aici) trace.fence(prompt.aici, "yaml")
     trace.endDetails()
 
-    if (status !== "success" || text === "")
+    if (cancellationToken?.isCancellationRequested || status === "cancelled")
+        return {
+            status: "cancelled",
+            statusText: "user cancelled",
+            messages,
+        }
+
+    if (status !== "success")
         // cancelled
         return {
             status,
@@ -252,19 +250,12 @@ export async function expandTemplate(
             messages,
         }
 
-    if (cancellationToken?.isCancellationRequested)
-        return {
-            status: "cancelled",
-            statusText: "user cancelled",
-            messages,
-        }
-
     const systemMessage: ChatCompletionSystemMessageParam = {
         role: "system",
         content: "",
     }
-    if (prompt.text)
-        messages.push(toChatCompletionUserMessage(prompt.text, prompt.images))
+    if (prompt.images)
+        messages.push(toChatCompletionUserMessage("", prompt.images))
     if (prompt.aici) messages.push(prompt.aici)
 
     if (systems.length)

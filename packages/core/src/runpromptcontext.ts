@@ -16,6 +16,7 @@ import {
     renderPromptNode,
     createOutputProcessor,
     createFileMerge,
+    createSystemNode,
 } from "./promptdom"
 import { MarkdownTrace } from "./trace"
 import { GenerationOptions } from "./generation"
@@ -117,7 +118,7 @@ export function createChatTurnGenerationContext(
                     role === "assistant"
                         ? createAssistantNode(body, { priority, maxTokens })
                         : role === "system"
-                          ? creatSystemNode(body, { priority, maxTokens })
+                          ? createSystemNode(body, { priority, maxTokens })
                           : createTextNode(body, { priority, maxTokens })
                 )
             }
@@ -772,10 +773,4 @@ export function createChatGenerationContext(
     })
 
     return ctx
-}
-function creatSystemNode(
-    body: Awaitable<string>,
-    arg1: { priority: number; maxTokens: number }
-): PromptNode {
-    throw new Error("Function not implemented.")
 }

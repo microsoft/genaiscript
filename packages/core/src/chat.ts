@@ -564,17 +564,22 @@ async function processChatMessage(
                 const node = ctx.node
                 checkCancelled(cancellationToken)
                 // expand template
-                const { errors, userPrompt } = await renderPromptNode(
-                    options.model,
-                    node,
-                    {
+                const { errors, messages: participantMessages } =
+                    await renderPromptNode(options.model, node, {
                         flexTokens: options.flexTokens,
                         trace,
-                    }
-                )
-                if (userPrompt?.trim().length) {
+                    })
+                if (participantMessages?.length) {
+                    if (
+                        participantMessages.some(
+                            ({ role }) => role === "system"
+                        )
+                    )
+                        throw new Error(
+                            "system messages not supported for chat participants"
+                        )
                     trace.detailsFenced(`💬 message`, userPrompt, "markdown")
-                    messages.push({ role: "user", content: userPrompt })
+                    messages.push(...participantMessages)
                     needsNewTurn = true
                 } else trace.item("no message")
                 if (errors?.length) {
