@@ -27,7 +27,7 @@ flowchart LR
     LLM((LLM))
     memory[(agent memory)]
 
-    LLM --> |"get changes in current branch"| agent_git
+    LLM --> |"get changes in failed_sha"| agent_git
     agent_git["agent git"] --> |"diff +main.ts -main.ts...+ new code"| LLM
 
     memory ---> |"failed_sha"| agent_git
