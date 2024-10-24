@@ -20,6 +20,7 @@ export interface PromptyFrontmatter {
         | JSONSchemaBoolean
         | JSONSchemaString
         | JSONSchemaObject
+        | { type: "list" }
     >
     outputs?: JSONSchemaObject
     model?: {
@@ -62,8 +63,8 @@ function promptyFrontmatterToMeta(frontmatter: PromptyFrontmatter): PromptArgs {
         description,
         tags,
         sample,
-        inputs,
-        outputs,
+        inputs = {},
+        outputs = {},
         model,
         files,
         tests,
@@ -73,12 +74,24 @@ function promptyFrontmatterToMeta(frontmatter: PromptyFrontmatter): PromptArgs {
         configuration,
         parameters: modelParameters,
     } = model ?? {}
-    const parameters = inputs ? structuredClone(inputs) : undefined
+    const parameters: Record<string, JSONSchemaType> = Object.entries(
+        inputs
+    ).reduce<Record<string, JSONSchemaType>>((acc, [k, v]) => {
+        if (v.type === "list") acc[k] = { type: "array" }
+        else acc[k] = v
+        return acc
+    }, {})
     if (parameters && sample && typeof sample === "object")
         for (const p in sample) {
             const s = sample[p]
             const pp = parameters[p]
-            if (s !== undefined && pp && pp?.type !== "object") pp.default = s
+            if (
+                s !== undefined &&
+                pp &&
+                pp.type !== "object" &&
+                pp.type !== "array"
+            )
+                pp.default = s
         }
 
     let modelName: string = undefined
