@@ -242,7 +242,7 @@ export async function expandTemplate(
             messages,
         }
 
-    if (status !== "success")
+    if (status !== "success" || prompt.messages.length === 0)
         // cancelled
         return {
             status,

@@ -882,7 +882,7 @@ async function tracePromptNode(
     root: PromptNode,
     options?: { label: string }
 ) {
-    if (!trace) return
+    if (!trace || !root.children?.length) return
 
     await visitNode(root, {
         node: (n) => {
