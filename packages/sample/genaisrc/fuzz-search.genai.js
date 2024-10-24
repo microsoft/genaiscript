@@ -1,4 +1,4 @@
-script({
+scr  ipt({
     title: "fuzz search",
     model: "small",
     tests: {},
