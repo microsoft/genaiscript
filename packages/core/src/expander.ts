@@ -13,7 +13,7 @@ import { PromptImage, renderPromptNode } from "./promptdom"
 import { createPromptContext } from "./promptcontext"
 import { evalPrompt } from "./evalprompt"
 import { renderAICI } from "./aici"
-import { toChatCompletionUserMessage } from "./chat"
+import { appendSystemMessage, toChatCompletionUserMessage } from "./chat"
 import { importPrompt } from "./importprompt"
 import { parseModelIdentifier } from "./models"
 import { JSONSchemaStringifyToTypeScript, toStrictJSONSchema } from "./schema"
@@ -169,7 +169,6 @@ export async function expandTemplate(
 ) {
     const model = options.model
     assert(!!model)
-    const messages: ChatCompletionMessageParam[] = []
     const cancellationToken = options.cancellationToken
     const systems = resolveSystems(prj, template)
     const systemTemplates = systems.map((s) => prj.getTemplate(s))
@@ -222,7 +221,7 @@ export async function expandTemplate(
         lineNumbers,
     })
 
-    const { status, statusText } = prompt
+    const { status, statusText, messages } = prompt
     const images = prompt.images.slice(0)
     const schemas = structuredClone(prompt.schemas)
     const functions = prompt.functions.slice(0)
@@ -250,13 +249,14 @@ export async function expandTemplate(
             messages,
         }
 
-    const systemMessage: ChatCompletionSystemMessageParam = {
-        role: "system",
-        content: "",
-    }
-    if (prompt.images)
+    if (prompt.images?.length)
         messages.push(toChatCompletionUserMessage("", prompt.images))
     if (prompt.aici) messages.push(prompt.aici)
+
+    const addSystemMessage = (content: string) => {
+        appendSystemMessage(messages, content)
+        trace.fence(content, "markdown")
+    }
 
     if (systems.length)
         try {
@@ -298,9 +298,7 @@ export async function expandTemplate(
                         smsg.role === "user" &&
                         typeof smsg.content === "string"
                     ) {
-                        systemMessage.content +=
-                            SYSTEM_FENCE + "\n" + smsg.content + "\n"
-                        trace.fence(smsg.content, "markdown")
+                        addSystemMessage(smsg.content)
                     } else
                         throw new NotSupportedError(
                             "only string user messages supported in system"
@@ -336,22 +334,20 @@ export async function expandTemplate(
         const schemaTs = JSONSchemaStringifyToTypeScript(responseSchema, {
             typeName,
         })
-        systemMessage.content += `You are a service that translates user requests 
+        addSystemMessage(`You are a service that translates user requests 
 into JSON objects of type "${typeName}" 
 according to the following TypeScript definitions:
 \`\`\`ts
 ${schemaTs}
-\`\`\``
+\`\`\``)
     } else if (responseType === "json_object") {
-        systemMessage.content += SYSTEM_FENCE + "Answer using JSON.\n"
+        addSystemMessage("Answer using JSON.")
     } else if (responseType === "json_schema") {
         if (!responseSchema)
             throw new Error(`responseSchema is required for json_schema`)
         // try conversion
         toStrictJSONSchema(responseSchema)
     }
-    if (systemMessage.content) messages.unshift(systemMessage)
-    messages.push(...prompt.messages)
     trace.endDetails()
 
     return {

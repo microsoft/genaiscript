@@ -24,6 +24,7 @@ import {
     MAX_DATA_REPAIRS,
     MAX_TOOL_CALLS,
     MAX_TOOL_CONTENT_TOKENS,
+    SYSTEM_FENCE,
 } from "./constants"
 import { parseAnnotations } from "./annotations"
 import { errorMessage, isCancelError, serializeError } from "./error"
@@ -37,6 +38,7 @@ import {
     ChatCompletionMessageParam,
     ChatCompletionResponse,
     ChatCompletionsOptions,
+    ChatCompletionSystemMessageParam,
     ChatCompletionTool,
     ChatCompletionToolCall,
     ChatCompletionUserMessageParam,
@@ -800,6 +802,7 @@ export function appendUserMessage(
     messages: ChatCompletionMessageParam[],
     content: string
 ) {
+    if (!content) return
     const last = messages.at(-1) as ChatCompletionUserMessageParam
     if (last?.role === "user") last.content += content + "\n"
     else
@@ -813,6 +816,7 @@ export function appendAssistantMessage(
     messages: ChatCompletionMessageParam[],
     content: string
 ) {
+    if (!content) return
     const last = messages.at(-1) as ChatCompletionAssistantMessageParam
     if (last?.role === "assistant") last.content += content
     else
@@ -820,4 +824,21 @@ export function appendAssistantMessage(
             role: "assistant",
             content,
         } satisfies ChatCompletionAssistantMessageParam)
+}
+
+export function appendSystemMessage(
+    messages: ChatCompletionMessageParam[],
+    content: string
+) {
+    if (!content) return
+    let last = messages[0] as ChatCompletionSystemMessageParam
+    if (!last) {
+        last = {
+            role: "system",
+            content,
+        } as ChatCompletionSystemMessageParam
+        messages.unshift(last)
+    }
+    if (last.content) last.content += SYSTEM_FENCE
+    last.content += content
 }
