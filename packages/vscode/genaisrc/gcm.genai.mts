@@ -92,7 +92,7 @@ do {
                 ],
             })
         if (res.error) throw res.error
-        message = res.text
+        message = res.text?.trim()
     }
 
     if (!message) {
