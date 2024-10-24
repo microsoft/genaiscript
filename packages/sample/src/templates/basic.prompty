@@ -17,7 +17,8 @@ inputs:
   n:
     type: number
 sample:
-  question: Who is the most famous person in the world?
+  question: Who is the capital of france?
+  hint: starts with p
   n: 5
 tests:
   - vars:
@@ -30,9 +31,9 @@ You are an AI assistant who helps people find information.
 As the assistant, you answer questions briefly, succinctly. 
 
 {% if n > 0 %}
-Give multiple hints.
+Give multiple hints (n = {{n}})
 {% else %}
-Give only 1 hint.
+Give only 1 hint (n = {{n}}).
 {% endif %}
 
 
