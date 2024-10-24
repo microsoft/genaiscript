@@ -168,9 +168,9 @@ export class GitClient implements Git {
         args: string[]
     ) {
         if (paths.length > 0 || excludedPaths.length > 0) {
-            if (!paths.length) paths.push(".")
             args.push("--")
-            args.push(...paths)
+            if (!paths.length) args.push(".")
+            else args.push(...paths)
             args.push(
                 ...excludedPaths.map((p) => (p.startsWith(":!") ? p : ":!" + p))
             )
