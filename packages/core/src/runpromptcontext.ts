@@ -13,6 +13,7 @@ import {
     createSchemaNode,
     createStringTemplateNode,
     createTextNode,
+    createSystemNode,
     renderPromptNode,
     createOutputProcessor,
     createFileMerge,
