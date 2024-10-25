@@ -57,8 +57,8 @@ export const DEFAULT_MODEL_CANDIDATES = [
     "azure:gpt-4o",
     "azure_serverless:gpt-4o",
     DEFAULT_MODEL,
-    "github:gpt-4o",
     "anthropic:claude-2",
+    "github:gpt-4o",
     "client:gpt-4",
 ]
 export const DEFAULT_SMALL_MODEL = "openai:gpt-4o-mini"
@@ -66,9 +66,9 @@ export const DEFAULT_SMALL_MODEL_CANDIDATES = [
     "azure:gpt-4o-mini",
     "azure_serverless:gpt-4o-mini",
     DEFAULT_SMALL_MODEL,
+    "anthropic:claude-instant-1",
     "github:gpt-4o-mini",
     "client:gpt-4-mini",
-    "anthropic:claude-instant-1",
 ]
 export const DEFAULT_EMBEDDINGS_MODEL_CANDIDATES = [
     "azure:text-embedding-3-small",
@@ -143,10 +143,8 @@ export const EMOJI_UNDEFINED = "?"
 export const MODEL_PROVIDER_OPENAI = "openai"
 export const MODEL_PROVIDER_GITHUB = "github"
 export const MODEL_PROVIDER_AZURE_OPENAI = "azure"
-export const MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI =
-    "azure_serverless"
-export const MODEL_PROVIDER_AZURE_SERVERLESS_MODELS =
-    "azure_serverless_models"
+export const MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI = "azure_serverless"
+export const MODEL_PROVIDER_AZURE_SERVERLESS_MODELS = "azure_serverless_models"
 export const MODEL_PROVIDER_OLLAMA = "ollama"
 export const MODEL_PROVIDER_LLAMAFILE = "llamafile"
 export const MODEL_PROVIDER_LITELLM = "litellm"

@@ -185,6 +185,8 @@ export async function cli() {
             "[script...]",
             "Script ids. If not provided, all scripts are tested"
         )
+        .option("-m, --model <string>", "model for the run")
+        .option("-sm, --small-model <string>", "small model for the run")
         .option(
             "--models <models...>",
             "models to test where mode is the key value pair list of m (model), s (small model), t (temperature), p (top-p)"

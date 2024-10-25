@@ -1,5 +1,4 @@
 script({
-    model: "openai:gpt-4-32k",
     system: ["system", "system.files"],
     files: "src/xpai/*.txt",
     tests: {

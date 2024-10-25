@@ -1,6 +1,6 @@
 script({
     title: "grep search",
-    model: "gpt-4o-mini",
+    model: "small",
     tests: {},
 })
 

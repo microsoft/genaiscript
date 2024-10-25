@@ -2,7 +2,6 @@ script({
     title: "Code annotator",
     description: "Given a problem description and code, write a code review",
     maxTokens: 4000,
-    model: "openai:gpt-4-32k",
     group: "hello world",
     system: ["system", "system.annotations"],
     temperature: 0,

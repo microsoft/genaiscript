@@ -1,5 +1,4 @@
 script({
-    model: "openai:gpt-4-32k",
     files: [],
     temperature: 1,
     title: "pr-describe",

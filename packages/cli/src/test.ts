@@ -111,8 +111,14 @@ export async function runPromptScriptTests(
         promptfooVersion?: string
         outSummary?: string
         testDelay?: string
+        model?: string
+        smallModel?: string
     }
 ): Promise<PromptScriptTestRunResponse> {
+    if (options.model) host.defaultModelOptions.model = options.model
+    if (options.smallModel)
+        host.defaultModelOptions.smallModel = options.smallModel
+
     const scripts = await listTests({ ids, ...(options || {}) })
     if (!scripts.length)
         return {
@@ -127,7 +133,6 @@ export async function runPromptScriptTests(
         ? resolve(options.outSummary)
         : undefined
     const provider = join(out, "provider.mjs")
-    const models = options?.models
     const testDelay = normalizeInt(options?.testDelay)
     logInfo(`writing tests to ${out}`)
 
@@ -147,7 +152,9 @@ export async function runPromptScriptTests(
         const config = generatePromptFooConfiguration(script, {
             out,
             cli,
-            models: models?.map(parseModelSpec),
+            model: options.model,
+            smallModel: options.smallModel,
+            models: options.models?.map(parseModelSpec),
             provider: "provider.mjs",
             testProvider,
         })
