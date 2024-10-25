@@ -28,7 +28,7 @@ import { INITryParse } from "./ini"
 
 export function getConfigHeaders(cfg: LanguageModelConfiguration) {
     let { token, type } = cfg
-    if (type === "azure_serverless") {
+    if (type === "azure_serverless_models") {
         const keys = INITryParse(token)
         if (keys && Object.keys(keys).length > 1) token = keys[cfg.model]
     }
@@ -39,7 +39,8 @@ export function getConfigHeaders(cfg: LanguageModelConfiguration) {
             : token &&
                 (type === "openai" ||
                     type === "localai" ||
-                    type === "azure_serverless")
+                    type === "azure_serverless" ||
+                    type === "azure_serverless_models")
               ? `Bearer ${token}`
               : undefined,
         // azure
@@ -138,22 +139,22 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
             "/" +
             model.replace(/\./g, "") +
             `/chat/completions?api-version=${AZURE_OPENAI_API_VERSION}`
+    } else if (cfg.type === "azure_serverless_models") {
+        url =
+            trimTrailingSlash(cfg.base).replace(
+                /^https?:\/\/(?<deployment>[^\.]+)\.(?<region>[^\.]+)\.models\.ai\.azure\.com/i,
+                (m, deployment, region) =>
+                    `https://${r2.model}.${region}.models.ai.azure.com`
+            ) + `/chat/completions?api-version=${AZURE_AI_INFERENCE_VERSION}`
+        ;(headers as any)["extra-parameters"] = "drop"
+        delete r2.model
     } else if (cfg.type === "azure_serverless") {
-        if (/\.models\.ai\.azure\.com/i.test(cfg.base))
-            url =
-                trimTrailingSlash(cfg.base).replace(
-                    /^https?:\/\/(?<deployment>[^\.]+)\.(?<region>[^\.]+)\.models\.ai\.azure\.com/i,
-                    (m, deployment, region) =>
-                        `https://${r2.model}.${region}.models.ai.azure.com`
-                ) +
-                `/chat/completions?api-version=${AZURE_AI_INFERENCE_VERSION}`
-        else if (/\.openai\.azure\.com/i.test(cfg.base))
-            url =
-                trimTrailingSlash(cfg.base) +
-                "/" +
-                model.replace(/\./g, "") +
-                `/chat/completions?api-version=${AZURE_AI_INFERENCE_VERSION}`
-            // https://learn.microsoft.com/en-us/azure/machine-learning/reference-model-inference-api?view=azureml-api-2&tabs=javascript#extensibility
+        url =
+            trimTrailingSlash(cfg.base) +
+            "/" +
+            model.replace(/\./g, "") +
+            `/chat/completions?api-version=${AZURE_AI_INFERENCE_VERSION}`
+        // https://learn.microsoft.com/en-us/azure/machine-learning/reference-model-inference-api?view=azureml-api-2&tabs=javascript#extensibility
         ;(headers as any)["extra-parameters"] = "drop"
         delete r2.model
     } else throw new Error(`api type ${cfg.type} not supported`)

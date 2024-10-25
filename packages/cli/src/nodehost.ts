@@ -27,8 +27,9 @@ import {
     DEFAULT_EMBEDDINGS_MODEL,
     DEFAULT_SMALL_MODEL,
     AZURE_OPENAI_TOKEN_SCOPES,
-    MODEL_PROVIDER_AZURE_SERVERLESS,
+    MODEL_PROVIDER_AZURE_SERVERLESS_MODELS,
     AZURE_AI_INFERENCE_TOKEN_SCOPES,
+    MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI,
 } from "../../core/src/constants"
 import { tryReadText } from "../../core/src/fs"
 import {
@@ -175,8 +176,8 @@ export class NodeHost implements RuntimeHost {
         if (askToken && tok && !tok.token) {
             if (
                 tok.provider === MODEL_PROVIDER_AZURE_OPENAI ||
-                (tok.provider === MODEL_PROVIDER_AZURE_SERVERLESS &&
-                    /\.openai\.azure\.com/i.test(tok.base))
+                tok.provider ===
+                    MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI
             ) {
                 if (isAzureTokenExpired(this._azureOpenAIToken)) {
                     logVerbose(
@@ -190,10 +191,13 @@ export class NodeHost implements RuntimeHost {
                 if (!this._azureOpenAIToken)
                     throw new Error("Azure OpenAI token not available")
                 tok.token = "Bearer " + this._azureOpenAIToken.token
-            } else if (tok.provider === MODEL_PROVIDER_AZURE_SERVERLESS) {
+            } else if (
+                tok.provider ===
+                MODEL_PROVIDER_AZURE_SERVERLESS_MODELS
+            ) {
                 if (isAzureTokenExpired(this._azureServerlessToken)) {
                     logVerbose(
-                        `fetching Azure AI Infererence token ${this._azureServerlessToken?.expiresOnTimestamp >= Date.now() ? `(expired ${new Date(this._azureServerlessToken.expiresOnTimestamp).toLocaleString()})` : ""}`
+                        `fetching Azure AI token ${this._azureServerlessToken?.expiresOnTimestamp >= Date.now() ? `(expired ${new Date(this._azureServerlessToken.expiresOnTimestamp).toLocaleString()})` : ""}`
                     )
                     this._azureServerlessToken = await createAzureToken(
                         AZURE_AI_INFERENCE_TOKEN_SCOPES,
@@ -201,16 +205,28 @@ export class NodeHost implements RuntimeHost {
                     )
                 }
                 if (!this._azureServerlessToken)
-                    throw new Error("Azure AI Inference token not available")
+                    throw new Error("Azure AI token not available")
                 tok.token = "Bearer " + this._azureServerlessToken.token
             }
         }
         if (!tok) {
             const { provider } = parseModelIdentifier(modelId)
             if (provider === MODEL_PROVIDER_AZURE_OPENAI)
-                throw new Error("Azure OpenAI end point not configured")
-            else if (provider === MODEL_PROVIDER_AZURE_SERVERLESS)
-                throw new Error("Azure AI Inference end point not configured")
+                throw new Error(
+                    "Azure OpenAI end point not configured (AZURE_OPENAI_ENDPOINT)"
+                )
+            else if (
+                provider === MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI
+            )
+                throw new Error(
+                    "Azure AI OpenAI Serverless end point not configured (AZURE_SERVERLESS_OPENAI_API_ENDPOINT)"
+                )
+            else if (
+                provider === MODEL_PROVIDER_AZURE_SERVERLESS_MODELS
+            )
+                throw new Error(
+                    "Azure AI Models end point not configured (AZURE_SERVERLESS_MODELS_API_ENDPOINT)"
+                )
         }
         if (!tok && this.clientLanguageModel) {
             return <LanguageModelConfiguration>{

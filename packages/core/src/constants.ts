@@ -143,7 +143,10 @@ export const EMOJI_UNDEFINED = "?"
 export const MODEL_PROVIDER_OPENAI = "openai"
 export const MODEL_PROVIDER_GITHUB = "github"
 export const MODEL_PROVIDER_AZURE_OPENAI = "azure"
-export const MODEL_PROVIDER_AZURE_SERVERLESS = "azure_serverless"
+export const MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI =
+    "azure_serverless"
+export const MODEL_PROVIDER_AZURE_SERVERLESS_MODELS =
+    "azure_serverless_models"
 export const MODEL_PROVIDER_OLLAMA = "ollama"
 export const MODEL_PROVIDER_LLAMAFILE = "llamafile"
 export const MODEL_PROVIDER_LITELLM = "litellm"
@@ -163,8 +166,10 @@ export const DOCS_CONFIGURATION_GITHUB_URL =
     "https://microsoft.github.io/genaiscript/getting-started/configuration/#github"
 export const DOCS_CONFIGURATION_AZURE_OPENAI_URL =
     "https://microsoft.github.io/genaiscript/getting-started/configuration/#azure"
-export const DOCS_CONFIGURATION_AZURE_SERVERLESS_URL =
+export const DOCS_CONFIGURATION_AZURE_OPENAI_SERVERLESS_URL =
     "https://microsoft.github.io/genaiscript/getting-started/configuration/#azure_serverless"
+export const DOCS_CONFIGURATION_AZURE_MODELS_SERVERLESS_URL =
+    "https://microsoft.github.io/genaiscript/getting-started/configuration/#azure_serverless_models"
 export const DOCS_CONFIGURATION_OLLAMA_URL =
     "https://microsoft.github.io/genaiscript/getting-started/configuration/#ollama"
 export const DOCS_CONFIGURATION_LLAMAFILE_URL =
@@ -195,9 +200,14 @@ export const MODEL_PROVIDERS = Object.freeze([
         url: DOCS_CONFIGURATION_AZURE_OPENAI_URL,
     },
     {
-        id: MODEL_PROVIDER_AZURE_SERVERLESS,
-        detail: "Azure AI Models (serverless deployments)",
-        url: DOCS_CONFIGURATION_AZURE_SERVERLESS_URL,
+        id: MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI,
+        detail: "Azure AI OpenAI (serverless deployments)",
+        url: DOCS_CONFIGURATION_AZURE_OPENAI_SERVERLESS_URL,
+    },
+    {
+        id: MODEL_PROVIDER_AZURE_SERVERLESS_MODELS,
+        detail: "Azure AI Models (serverless deployments, not OpenAI)",
+        url: DOCS_CONFIGURATION_AZURE_MODELS_SERVERLESS_URL,
     },
     {
         id: MODEL_PROVIDER_OLLAMA,

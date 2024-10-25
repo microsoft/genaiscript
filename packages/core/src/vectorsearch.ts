@@ -10,7 +10,8 @@ import {
     AZURE_OPENAI_API_VERSION,
     DEFAULT_EMBEDDINGS_MODEL_CANDIDATES,
     MODEL_PROVIDER_AZURE_OPENAI,
-    MODEL_PROVIDER_AZURE_SERVERLESS,
+    MODEL_PROVIDER_AZURE_SERVERLESS_MODELS,
+    MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI,
 } from "./constants"
 import type { EmbeddingsModel, EmbeddingsResponse } from "vectra/lib/types"
 import { createFetch, traceFetchPost } from "./fetch"
@@ -110,10 +111,17 @@ class OpenAIEmbeddings implements EmbeddingsModel {
         headers["Content-Type"] = "application/json"
 
         // Determine the URL based on provider type
-        if (provider === MODEL_PROVIDER_AZURE_OPENAI || type === "azure") {
+        if (
+            provider === MODEL_PROVIDER_AZURE_OPENAI ||
+            provider === MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI ||
+            type === "azure" ||
+            type === "azure_serverless"
+        ) {
             url = `${trimTrailingSlash(base)}/${model.replace(/\./g, "")}/embeddings?api-version=${AZURE_OPENAI_API_VERSION}`
             delete body.model
-        } else if (provider === MODEL_PROVIDER_AZURE_SERVERLESS) {
+        } else if (
+            provider === MODEL_PROVIDER_AZURE_SERVERLESS_MODELS
+        ) {
             url = base.replace(/^https?:\/\/([^/]+)\/?/, body.model)
             delete body.model
         } else {
