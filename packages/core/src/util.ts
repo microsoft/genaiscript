@@ -187,7 +187,7 @@ export function logError(msg: string | Error | SerializedError) {
     if (stack) host.log(LogLevel.Verbose, stack)
     if (Object.keys(e).length) {
         const se = YAMLStringify(e)
-        if (!/^\s*\{\s*\}\s*$/.test(se)) host.log(LogLevel.Verbose, se)
+        host.log(LogLevel.Verbose, se)
     }
 }
 
