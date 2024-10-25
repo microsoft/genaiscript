@@ -16,10 +16,6 @@ concurrency:
 jobs:
     build:
         runs-on: ubuntu-latest
-        env:
-            AZURE_INFERENCE_OPENAI_API_ENDPOINT: ${{ secrets.AZURE_INFERENCE_OPENAI_API_ENDPOINT }}
-            AZURE_INFERENCE_OPENAI_API_KEY: ${{ secrets.AZURE_INFERENCE_OPENAI_API_KEY }}
-            WEATHER_API_KEY: ${{ secrets.WEATHER_API_KEY }}
         steps:
             - uses: actions/checkout@v4
               with:
@@ -41,8 +37,15 @@ jobs:
               run: mkdir -p temp && touch temp/commit-tests.txt
             - name: select llm tests to run
               run: node packages/cli/built/genaiscript.cjs run test-commit --out-trace $GITHUB_STEP_SUMMARY
+              env:
+                  AZURE_INFERENCE_OPENAI_API_ENDPOINT: ${{ secrets.AZURE_INFERENCE_OPENAI_API_ENDPOINT }}
+                  AZURE_INFERENCE_OPENAI_API_KEY: ${{ secrets.AZURE_INFERENCE_OPENAI_API_KEY }}
             - name: run llm tests
               working-directory: packages/sample
               run: xargs -r -a temp/commit-tests.txt node ../cli/built/genaiscript.cjs test --out-summary $GITHUB_STEP_SUMMARY --test-delay 10
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  AZURE_INFERENCE_OPENAI_API_ENDPOINT: ${{ secrets.AZURE_INFERENCE_OPENAI_API_ENDPOINT }}
+                  AZURE_INFERENCE_OPENAI_API_KEY: ${{ secrets.AZURE_INFERENCE_OPENAI_API_KEY }}
+                  WEATHER_API_KEY: ${{ secrets.WEATHER_API_KEY }}
+      
