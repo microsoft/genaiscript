@@ -50,17 +50,7 @@ export function estimateCost(modelId: string, usage: ChatCompletionUsage) {
         }
     > = pricings
     const cost = costs[m]
-    if (!cost) {
-        if (
-            provider === MODEL_PROVIDER_OPENAI ||
-            provider === MODEL_PROVIDER_AZURE_OPENAI ||
-            provider === MODEL_PROVIDER_AZURE_SERVERLESS_MODELS ||
-            provider === MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI ||
-            provider === MODEL_PROVIDER_ANTHROPIC
-        )
-            logVerbose(`No cost information for model ${m}`)
-        return undefined
-    }
+    if (!cost) return undefined
 
     const {
         price_per_million_output_tokens,
@@ -89,6 +79,17 @@ export function renderCost(value: number) {
         : value <= 0.1
           ? `${(value * 100).toFixed(2)}¢`
           : `${value.toFixed(2)}$`
+}
+
+export function isCosteable(model: string) {
+    const { provider } = parseModelIdentifier(model)
+    return (
+        provider === MODEL_PROVIDER_OPENAI ||
+        provider === MODEL_PROVIDER_AZURE_OPENAI ||
+        provider === MODEL_PROVIDER_AZURE_SERVERLESS_MODELS ||
+        provider === MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI ||
+        provider === MODEL_PROVIDER_ANTHROPIC
+    )
 }
 
 /**
@@ -252,7 +253,10 @@ export class GenerationStats {
      * @param indent - The indentation used for logging.
      */
     private logTokens(indent: string) {
+        const unknowns = new Set<string>()
         const c = this.cost()
+        if (this.model && isNaN(c) && isCosteable(this.model))
+            unknowns.add(this.model)
         if (this.model || c) {
             const au = this.accumulatedUsage()
             logVerbose(
@@ -260,12 +264,18 @@ export class GenerationStats {
             )
         }
         if (this.chatTurns.length > 1)
-            for (const { messages, usage } of this.chatTurns) {
+            for (const { messages, usage, model: turnModel } of this
+                .chatTurns) {
+                const cost = estimateCost(this.model, usage)
+                if (cost === undefined && isCosteable(turnModel))
+                    unknowns.add(this.model)
                 logVerbose(
-                    `${indent}  ${messages.length} messages, ${usage.total_tokens} tokens ${renderCost(estimateCost(this.model, usage))}`
+                    `${indent}  ${messages.length} messages, ${usage.total_tokens} tokens ${renderCost(cost)}`
                 )
             }
         for (const child of this.children) child.logTokens(indent + "  ")
+        if (unknowns.size)
+            logVerbose(`missing pricing for ${[...unknowns].join(", ")}`)
     }
 
     /**

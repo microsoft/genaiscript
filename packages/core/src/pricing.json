@@ -175,6 +175,10 @@
         "price_per_million_input_tokens": 0.15,
         "price_per_million_output_tokens": 0.6
     },
+    "azure_serverless:gpt-4o-2024-05-13": {
+        "price_per_million_input_tokens": 2.5,
+        "price_per_million_output_tokens": 10
+    },
     "azure_serverless:gpt-4o-2024-08-06": {
         "price_per_million_input_tokens": 2.5,
         "price_per_million_output_tokens": 10
