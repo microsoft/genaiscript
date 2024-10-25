@@ -17,11 +17,8 @@ jobs:
     build:
         runs-on: ubuntu-latest
         env:
-            OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-            OPENAI_API_TYPE: ${{ secrets.OPENAI_API_TYPE }}
-            OPENAI_API_BASE: ${{ secrets.OPENAI_API_BASE }}
-            AZURE_OPENAI_API_BASE: ${{ secrets.OPENAI_API_BASE }}
-            AZURE_OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+            AZURE_INFERENCE_OPENAI_API_ENDPOINT: ${{ secrets.AZURE_INFERENCE_OPENAI_API_ENDPOINT }}
+            AZURE_INFERENCE_OPENAI_API_KEY: ${{ secrets.AZURE_INFERENCE_OPENAI_API_KEY }}
             WEATHER_API_KEY: ${{ secrets.WEATHER_API_KEY }}
         steps:
             - uses: actions/checkout@v4
