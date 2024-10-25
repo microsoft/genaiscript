@@ -23,7 +23,7 @@ export function CSVParse(
     }
 ): object[] {
     // Destructure options or provide defaults
-    const { delimiter, headers } = options || {}
+    const { delimiter, headers, ...rest } = options || {}
     const columns = headers ? arrayify(headers) : true
     // Parse the CSV string based on the provided options
     return parse(text, {
@@ -34,6 +34,10 @@ export function CSVParse(
         skipEmptyLines: true, // Skip empty lines in the CSV
         skipRecordsWithError: true, // Skip records that cause errors
         delimiter, // Use the provided delimiter
+        relaxQuotes: true, // Allow quotes to be relaxed
+        relaxColumnCount: true, // Allow rows to have different column counts
+        trim: true, // Trim whitespace from values
+        ...rest,
     })
 }
 
