@@ -449,6 +449,7 @@ export async function parsePromptScript(
             c.checkStringArray("tools")
             c.checkStringOrBool("cache")
             c.checkString("cacheName")
+            c.checkString("filename")
 
             c.checkRecord("modelConcurrency")
             c.checkObjectArray("defTools")
