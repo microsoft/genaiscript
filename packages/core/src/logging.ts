@@ -18,7 +18,7 @@ export function consoleLogFormat(...args: any[]) {
                 break
             case "object":
             case "function":
-                line += inspect(a)
+                line += inspect(a, { indent: 2, maxStringLength: 2048 })
                 break
         }
     }
