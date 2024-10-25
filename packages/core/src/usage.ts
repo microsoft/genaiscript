@@ -10,14 +10,20 @@ import {
     CreateChatCompletionRequest,
 } from "./chattypes"
 import { MarkdownTrace } from "./trace"
-import { logVerbose, logWarn } from "./util"
+import { assert, logVerbose } from "./util"
 import pricings from "./pricing.json" // Interface to hold statistics related to the generation process
 import { parseModelIdentifier } from "./models"
 import {
     MODEL_PROVIDER_AICI,
+    MODEL_PROVIDER_ANTHROPIC,
+    MODEL_PROVIDER_AZURE_OPENAI,
+    MODEL_PROVIDER_AZURE_SERVERLESS_MODELS,
+    MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI,
     MODEL_PROVIDER_GITHUB,
     MODEL_PROVIDER_OPENAI,
 } from "./constants"
+
+assert(Object.keys(pricings).every((k) => k === k.toLowerCase()))
 
 /**
  * Estimates the cost of a chat completion based on the model and usage.
@@ -34,13 +40,27 @@ export function estimateCost(modelId: string, usage: ChatCompletionUsage) {
     if (provider === MODEL_PROVIDER_AICI) return undefined
     else if (provider === MODEL_PROVIDER_GITHUB)
         provider = MODEL_PROVIDER_OPENAI
-    const m = `${provider}:${model}`
-    const cost = (pricings as any)[m] as {
-        price_per_million_input_tokens: number
-        price_per_million_output_tokens: number
-        input_cache_token_rebate?: number
+    const m = `${provider}:${model}`.toLowerCase()
+    const costs: Record<
+        string,
+        {
+            price_per_million_input_tokens: number
+            price_per_million_output_tokens: number
+            input_cache_token_rebate?: number
+        }
+    > = pricings
+    const cost = costs[m]
+    if (!cost) {
+        if (
+            provider === MODEL_PROVIDER_OPENAI ||
+            provider === MODEL_PROVIDER_AZURE_OPENAI ||
+            provider === MODEL_PROVIDER_AZURE_SERVERLESS_MODELS ||
+            provider === MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI ||
+            provider === MODEL_PROVIDER_ANTHROPIC
+        )
+            logVerbose(`No cost information for model ${m}`)
+        return undefined
     }
-    if (!cost) return undefined
 
     const {
         price_per_million_output_tokens,

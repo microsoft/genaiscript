@@ -167,22 +167,6 @@
         "price_per_million_input_tokens": 60,
         "price_per_million_output_tokens": 120
     },
-    "azure_serverless:Meta-Llama-3-405B-Instruct": {
-        "price_per_million_input_tokens": 5.33,
-        "price_per_million_output_tokens": 16
-    },
-    "azure_serverless:Mistral-large": {
-        "price_per_million_input_tokens": 12,
-        "price_per_million_output_tokens": 4
-    },
-    "azure_serverless:Mistral-large-2407": {
-        "price_per_million_input_tokens": 9,
-        "price_per_million_output_tokens": 3
-    },
-    "azure_serverless:Mistral-small": {
-        "price_per_million_input_tokens": 3,
-        "price_per_million_output_tokens": 1
-    },
     "azure_serverless:gpt-4o": {
         "price_per_million_input_tokens": 5,
         "price_per_million_output_tokens": 15
@@ -207,28 +191,80 @@
         "price_per_million_input_tokens": 10,
         "price_per_million_output_tokens": 30
     },
-    "azure_serverless:llama-3.2-11b-vision-instruct": {
-        "price_per_million_input_tokens": 0.37,
-        "price_per_million_output_tokens": 0.37
-    },
-    "azure_serverless:meta-llama-3.1-405b-instruct": {
+    "azure_serverless_models:meta-llama-3-405b-instruct": {
         "price_per_million_input_tokens": 5.33,
         "price_per_million_output_tokens": 16
     },
-    "azure_serverless:meta-llama-3.1-70b-instruct": {
+    "azure_serverless_models:llama-3.2-90b-vision-instruct": {
+        "price_per_million_input_tokens": 2.04,
+        "price_per_million_output_tokens": 2.04
+    },
+    "azure_serverless_models:llama-3.2-11b-vision-instruct": {
+        "price_per_million_input_tokens": 0.37,
+        "price_per_million_output_tokens": 0.37
+    },
+    "azure_serverless_models:meta-llama-3.1-405b-instruct": {
+        "price_per_million_input_tokens": 5.33,
+        "price_per_million_output_tokens": 16
+    },
+    "azure_serverless_models:meta-llama-3.1-70b-instruct": {
         "price_per_million_input_tokens": 2.68,
         "price_per_million_output_tokens": 3.64
     },
-    "azure_serverless:mistral-large": {
+    "azure_serverless_models:meta-llama-3.1-8b-instruct": {
+        "price_per_million_input_tokens": 0.61,
+        "price_per_million_output_tokens": 0.3
+    },
+    "azure_serverless_models:meta-llama-3-8b-instruct": {
+        "price_per_million_input_tokens": 0.61,
+        "price_per_million_output_tokens": 0.3
+    },
+    "azure_serverless_models:meta-llama-3-2-90b-vision-instruct": {
+        "price_per_million_input_tokens": 2.04,
+        "price_per_million_output_tokens": 2.04
+    },
+    "azure_serverless_models:mistral-large": {
         "price_per_million_input_tokens": 12,
         "price_per_million_output_tokens": 4
     },
-    "azure_serverless:mistral-large-2407": {
+    "azure_serverless_models:mistral-large-2407": {
         "price_per_million_input_tokens": 9,
         "price_per_million_output_tokens": 3
     },
-    "azure_serverless:mistral-small": {
+    "azure_serverless_models:mistral-small": {
         "price_per_million_input_tokens": 3,
         "price_per_million_output_tokens": 1
+    },
+    "azure_serverless_models:mistral-nemo": {
+        "price_per_million_input_tokens": 0.3,
+        "price_per_million_output_tokens": 0.3
+    },
+    "azure_serverless_models:mistral-3b": {
+        "price_per_million_input_tokens": 0.04,
+        "price_per_million_output_tokens": 0.04
+    },
+    "azure_serverless_models:cohere command r+": {
+        "price_per_million_input_tokens": 10,
+        "price_per_million_output_tokens": 2.5
+    },
+    "azure_serverless_models:cohere command r": {
+        "price_per_million_input_tokens": 0.6,
+        "price_per_million_output_tokens": 0.15
+    },
+    "azure_serverless_models:ai21-jamba-1.5-large": {
+        "price_per_million_input_tokens": 2,
+        "price_per_million_output_tokens": 8
+    },
+    "azure_serverless_models:ai21-jamba-1.5-mini": {
+        "price_per_million_input_tokens": 0.2,
+        "price_per_million_output_tokens": 0.4
+    },
+    "azure_serverless_models:mistral-3b-2410": {
+        "price_per_million_input_tokens": 0.04,
+        "price_per_million_output_tokens": 0.04
+    },
+    "azure_serverless_models:ministral-3b": {
+        "price_per_million_input_tokens": 0.04,
+        "price_per_million_output_tokens": 0.04
     }
 }

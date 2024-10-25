@@ -146,8 +146,9 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
                 (m, deployment, region) =>
                     `https://${r2.model}.${region}.models.ai.azure.com`
             ) + `/chat/completions?api-version=${AZURE_AI_INFERENCE_VERSION}`
-        ;(headers as any)["extra-parameters"] = "drop"
+        ;(headers as any)["extra-parameters"] = "pass-through"
         delete r2.model
+        delete r2.stream_options
     } else if (cfg.type === "azure_serverless") {
         url =
             trimTrailingSlash(cfg.base) +
@@ -155,7 +156,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
             model.replace(/\./g, "") +
             `/chat/completions?api-version=${AZURE_AI_INFERENCE_VERSION}`
         // https://learn.microsoft.com/en-us/azure/machine-learning/reference-model-inference-api?view=azureml-api-2&tabs=javascript#extensibility
-        ;(headers as any)["extra-parameters"] = "drop"
+        ;(headers as any)["extra-parameters"] = "pass-through"
         delete r2.model
     } else throw new Error(`api type ${cfg.type} not supported`)
 
