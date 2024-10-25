@@ -142,7 +142,7 @@ export const EMOJI_UNDEFINED = "?"
 
 export const MODEL_PROVIDER_OPENAI = "openai"
 export const MODEL_PROVIDER_GITHUB = "github"
-export const MODEL_PROVIDER_AZURE = "azure"
+export const MODEL_PROVIDER_AZURE_OPENAI = "azure"
 export const MODEL_PROVIDER_AZURE_SERVERLESS = "azure_serverless"
 export const MODEL_PROVIDER_OLLAMA = "ollama"
 export const MODEL_PROVIDER_LLAMAFILE = "llamafile"
@@ -190,7 +190,7 @@ export const MODEL_PROVIDERS = Object.freeze([
         url: DOCS_CONFIGURATION_GITHUB_URL,
     },
     {
-        id: MODEL_PROVIDER_AZURE,
+        id: MODEL_PROVIDER_AZURE_OPENAI,
         detail: "Azure OpenAI deployment",
         url: DOCS_CONFIGURATION_AZURE_OPENAI_URL,
     },

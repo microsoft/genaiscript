@@ -8,7 +8,7 @@ import {
     LLAMAFILE_API_BASE,
     LOCALAI_API_BASE,
     MODEL_PROVIDER_ANTHROPIC,
-    MODEL_PROVIDER_AZURE,
+    MODEL_PROVIDER_AZURE_OPENAI,
     MODEL_PROVIDER_AZURE_SERVERLESS,
     MODEL_PROVIDER_CLIENT,
     MODEL_PROVIDER_GITHUB,
@@ -121,7 +121,7 @@ export async function parseTokenFromEnv(
         }
     }
 
-    if (provider === MODEL_PROVIDER_AZURE) {
+    if (provider === MODEL_PROVIDER_AZURE_OPENAI) {
         const tokenVar = env.AZURE_OPENAI_API_KEY
             ? "AZURE_OPENAI_API_KEY"
             : "AZURE_API_KEY"

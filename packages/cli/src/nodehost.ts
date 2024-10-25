@@ -19,7 +19,7 @@ import {
 import {
     DEFAULT_MODEL,
     DEFAULT_TEMPERATURE,
-    MODEL_PROVIDER_AZURE,
+    MODEL_PROVIDER_AZURE_OPENAI,
     SHELL_EXEC_TIMEOUT,
     DOT_ENV_FILENAME,
     MODEL_PROVIDER_OLLAMA,
@@ -174,7 +174,7 @@ export class NodeHost implements RuntimeHost {
         if (!askToken && tok?.token) tok.token = "***"
         if (askToken && tok && !tok.token) {
             if (
-                tok.provider === MODEL_PROVIDER_AZURE ||
+                tok.provider === MODEL_PROVIDER_AZURE_OPENAI ||
                 (tok.provider === MODEL_PROVIDER_AZURE_SERVERLESS &&
                     /\.openai\.azure\.com/i.test(tok.base))
             ) {
@@ -207,7 +207,7 @@ export class NodeHost implements RuntimeHost {
         }
         if (!tok) {
             const { provider } = parseModelIdentifier(modelId)
-            if (provider === MODEL_PROVIDER_AZURE)
+            if (provider === MODEL_PROVIDER_AZURE_OPENAI)
                 throw new Error("Azure OpenAI end point not configured")
             else if (provider === MODEL_PROVIDER_AZURE_SERVERLESS)
                 throw new Error("Azure AI Inference end point not configured")

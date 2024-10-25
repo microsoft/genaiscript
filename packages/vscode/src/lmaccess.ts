@@ -5,7 +5,7 @@ import {
     MODEL_PROVIDER_OLLAMA,
     MODEL_PROVIDER_LLAMAFILE,
     MODEL_PROVIDER_AICI,
-    MODEL_PROVIDER_AZURE,
+    MODEL_PROVIDER_AZURE_OPENAI,
     MODEL_PROVIDER_LITELLM,
     MODEL_PROVIDER_OPENAI,
     MODEL_PROVIDER_CLIENT,
@@ -31,7 +31,7 @@ async function generateLanguageModelConfiguration(
         provider === MODEL_PROVIDER_OLLAMA ||
         provider === MODEL_PROVIDER_LLAMAFILE ||
         provider === MODEL_PROVIDER_AICI ||
-        provider === MODEL_PROVIDER_AZURE ||
+        provider === MODEL_PROVIDER_AZURE_OPENAI ||
         provider === MODEL_PROVIDER_AZURE_SERVERLESS ||
         provider === MODEL_PROVIDER_LITELLM
     ) {
@@ -66,7 +66,7 @@ async function generateLanguageModelConfiguration(
         {
             label: "Azure OpenAI",
             detail: `Use a Azure-hosted OpenAI subscription.`,
-            provider: MODEL_PROVIDER_AZURE,
+            provider: MODEL_PROVIDER_AZURE_OPENAI,
             apiType: "azure",
         },
         {

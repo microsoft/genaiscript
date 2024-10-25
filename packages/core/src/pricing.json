@@ -182,5 +182,53 @@
     "azure_serverless:Mistral-small": {
         "price_per_million_input_tokens": 3,
         "price_per_million_output_tokens": 1
+    },
+    "azure_serverless:gpt-4o": {
+        "price_per_million_input_tokens": 5,
+        "price_per_million_output_tokens": 15
+    },
+    "azure_serverless:gpt-4o-mini": {
+        "price_per_million_input_tokens": 0.15,
+        "price_per_million_output_tokens": 0.6
+    },
+    "azure_serverless:gpt-4o-2024-08-06": {
+        "price_per_million_input_tokens": 2.5,
+        "price_per_million_output_tokens": 10
+    },
+    "azure_serverless:gpt-3.5-turbo-11066": {
+        "price_per_million_input_tokens": 1,
+        "price_per_million_output_tokens": 2
+    },
+    "azure_serverless:gpt-4-turbo": {
+        "price_per_million_input_tokens": 10,
+        "price_per_million_output_tokens": 30
+    },
+    "azure_serverless:gpt-4-turbo-vision": {
+        "price_per_million_input_tokens": 10,
+        "price_per_million_output_tokens": 30
+    },
+    "azure_serverless:llama-3.2-11b-vision-instruct": {
+        "price_per_million_input_tokens": 0.37,
+        "price_per_million_output_tokens": 0.37
+    },
+    "azure_serverless:meta-llama-3.1-405b-instruct": {
+        "price_per_million_input_tokens": 5.33,
+        "price_per_million_output_tokens": 16
+    },
+    "azure_serverless:meta-llama-3.1-70b-instruct": {
+        "price_per_million_input_tokens": 2.68,
+        "price_per_million_output_tokens": 3.64
+    },
+    "azure_serverless:mistral-large": {
+        "price_per_million_input_tokens": 12,
+        "price_per_million_output_tokens": 4
+    },
+    "azure_serverless:mistral-large-2407": {
+        "price_per_million_input_tokens": 9,
+        "price_per_million_output_tokens": 3
+    },
+    "azure_serverless:mistral-small": {
+        "price_per_million_input_tokens": 3,
+        "price_per_million_output_tokens": 1
     }
 }
