@@ -1374,6 +1374,13 @@ interface Parsers {
      * @param content content to hash
      */
     hash(content: any, options?: HashOptions): Promise<string>
+
+    /**
+     * Optionally removes a code fence section around the text
+     * @param text
+     * @param language
+     */
+    unfence(text: string, language: string): string
 }
 
 interface AICIGenOptions {
