@@ -39,6 +39,14 @@ describe("CSVParse", () => {
             { name: "Jane", age: "25" },
         ])
     })
+    test("Parse CSV data with invalid quotes", () => {
+        const csv = "\"\\\"John\\\"\",30\nJane,25"
+        const result = CSVParse(csv, { headers: ["name", "age"], repair: true })
+        assert.deepEqual(result, [
+            { name: "\"John\"", age: "30" },
+            { name: "Jane", age: "25" },
+        ])
+    })
 
 })
 

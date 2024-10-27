@@ -1097,6 +1097,7 @@ interface Tokenizer {
 interface CSVParseOptions {
     delimiter?: string
     headers?: string[]
+    repair?: boolean
 }
 
 interface TextChunk extends WorkspaceFile {
@@ -1939,13 +1940,7 @@ interface CSV {
      * @param options.headers - An array of headers to use. If not provided, headers will be inferred from the first row.
      * @returns An array of objects representing the parsed CSV data.
      */
-    parse(
-        text: string,
-        options?: {
-            delimiter?: string
-            headers?: string[]
-        }
-    ): object[]
+    parse(text: string, options?: CSVParseOptions): object[]
 
     /**
      * Converts an array of objects to a CSV string.
