@@ -222,6 +222,10 @@ export class NodeHost implements RuntimeHost {
             }
         }
         if (!tok) {
+            if (!modelId)
+                throw new Error(
+                    "could not determine default model from current configuration"
+                )
             const { provider } = parseModelIdentifier(modelId)
             if (provider === MODEL_PROVIDER_AZURE_OPENAI)
                 throw new Error(

@@ -1246,7 +1246,7 @@ The following npm packages may be included in this product:
 
  - @types/http-cache-semantics@4.0.4
  - @types/node@16.9.1
- - @types/node@22.7.9
+ - @types/node@22.8.2
  - @types/turndown@5.0.5
  - @types/yauzl@2.10.3
 
@@ -1278,7 +1278,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.69.0
+ - genaiscript-vscode@1.69.3
 
 This package contains the following license and notice below:
 
@@ -2503,7 +2503,7 @@ The following npm packages may be included in this product:
 
  - parse5-htmlparser2-tree-adapter@7.1.0
  - parse5-parser-stream@7.1.2
- - parse5@7.2.0
+ - parse5@7.2.1
 
 These packages each contain the following license and notice below:
 
@@ -3009,19 +3009,19 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - @inquirer/checkbox@4.0.0
- - @inquirer/confirm@5.0.0
- - @inquirer/core@10.0.0
- - @inquirer/editor@4.0.0
- - @inquirer/expand@4.0.0
+ - @inquirer/checkbox@4.0.1
+ - @inquirer/confirm@5.0.1
+ - @inquirer/core@10.0.1
+ - @inquirer/editor@4.0.1
+ - @inquirer/expand@4.0.1
  - @inquirer/figures@1.0.7
- - @inquirer/input@4.0.0
- - @inquirer/number@3.0.0
- - @inquirer/password@4.0.0
- - @inquirer/prompts@7.0.0
- - @inquirer/rawlist@4.0.0
- - @inquirer/search@3.0.0
- - @inquirer/select@4.0.0
+ - @inquirer/input@4.0.1
+ - @inquirer/number@3.0.1
+ - @inquirer/password@4.0.1
+ - @inquirer/prompts@7.0.1
+ - @inquirer/rawlist@4.0.1
+ - @inquirer/search@3.0.1
+ - @inquirer/select@4.0.1
  - @inquirer/type@3.0.0
 
 These packages each contain the following license and notice below:
@@ -4400,9 +4400,9 @@ The following npm packages may be included in this product:
  - @tokenizer/token@0.3.0
  - agent-base@6.0.2
  - canvas@2.11.2
- - genaiscript-core-internal@1.69.0
- - genaiscript-sample@1.69.0
- - genaiscript@1.69.0
+ - genaiscript-core-internal@1.69.3
+ - genaiscript-sample@1.69.3
+ - genaiscript@1.69.3
  - https-proxy-agent@5.0.1
  - isarray@1.0.0
  - javascript-natural-sort@0.7.1
@@ -4482,7 +4482,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - @babel/runtime@7.25.9
+ - @babel/runtime@7.26.0
 
 This package contains the following license and notice below:
 
@@ -5174,7 +5174,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - complex.js@2.3.0
+ - complex.js@2.4.0
 
 This package contains the following license and notice below:
 
@@ -5204,7 +5204,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - tsx@4.19.1
+ - tsx@4.19.2
 
 This package contains the following license and notice below:
 
@@ -5368,7 +5368,7 @@ The following npm packages may be included in this product:
  - ansi-escapes@4.3.2
  - crypto-random-string@4.0.0
  - decompress-response@6.0.0
- - execa@9.4.1
+ - execa@9.5.1
  - figures@6.1.0
  - file-type@16.5.4
  - get-stream@5.2.0
@@ -5823,8 +5823,8 @@ IN THE SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - playwright-core@1.48.1
- - playwright@1.48.1
+ - playwright-core@1.48.2
+ - playwright@1.48.2
 
 These packages each contain the following license and notice below:
 

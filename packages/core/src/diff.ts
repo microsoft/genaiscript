@@ -29,13 +29,13 @@ export function parseLLMDiffs(text: string): Chunk[] {
     for (let i = 0; i < lines.length; ++i) {
         let line = lines[i]
         const diffM = /^(\[(\d+)\] )?(-|\+) (\[(\d+)\] )?/.exec(line)
-        
+
         // Process lines that match the diff pattern
         if (diffM) {
             const l = line.substring(diffM[0].length)
             let diffln = diffM ? parseInt(diffM[5] ?? diffM[2]) : Number.NaN
             const op = diffM[3]
-            
+
             // Adjust line numbers
             if (isNaN(diffln) && !isNaN(currentLine)) {
                 currentLine++
@@ -352,10 +352,10 @@ export function createDiff(
     options?: { context?: number }
 ) {
     const res = createTwoFilesPatch(
-        left.filename,
-        right.filename,
-        left.content,
-        right.content,
+        left.filename || "",
+        right.filename || "",
+        left.content || "",
+        right.content || "",
         undefined,
         undefined,
         {
