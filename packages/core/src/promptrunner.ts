@@ -148,8 +148,10 @@ export async function runTemplate(
             trace
         )
 
+        const { ok } = await runtimeHost.models.pullModel(options.model, { trace })
+
         // Handle failed expansion scenario
-        if (status !== "success" || !messages.length) {
+        if (status !== "success" || !ok || !messages.length) {
             trace.renderErrors()
             return <GenerationResult>{
                 status,

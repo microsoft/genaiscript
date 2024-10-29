@@ -2127,6 +2127,11 @@ interface PromptGeneratorOptions extends ModelOptions, PromptSystemOptions {
      * Write file edits to the file system
      */
     applyEdits?: boolean
+
+    /**
+     * Throws if the generation is not successful
+     */
+    throwOnError?: boolean
 }
 
 interface FileOutputOptions {

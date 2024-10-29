@@ -563,7 +563,7 @@ export function createChatGenerationContext(
         generator: string | PromptGenerator,
         runOptions?: PromptGeneratorOptions
     ): Promise<RunPromptResult> => {
-        const { label, applyEdits } = runOptions || {}
+        const { label, applyEdits, throwOnError } = runOptions || {}
         const runTrace = trace.startTraceDetails(`🎁 run prompt ${label || ""}`)
         let messages: ChatCompletionMessageParam[] = []
         try {
@@ -582,6 +582,12 @@ export function createChatGenerationContext(
                 genOptions.model,
                 label
             )
+
+            const { ok } = await runtimeHost.models.pullModel(
+                genOptions.model,
+                { trace: runTrace }
+            )
+            if (!ok) throw new Error(`failed to pull model ${genOptions.model}`)
 
             const runCtx = createChatGenerationContext(
                 genOptions,
@@ -712,7 +718,7 @@ export function createChatGenerationContext(
             if (!connection.configuration)
                 throw new Error(
                     "missing model connection information for " +
-                        connection.info?.model
+                        genOptions.model
                 )
             const { completer } = await resolveLanguageModel(
                 connection.configuration.provider
@@ -748,9 +754,12 @@ export function createChatGenerationContext(
                 applyEdits,
                 trace: runTrace,
             })
+            if (resp.error && throwOnError)
+                throw new Error(errorMessage(resp.error))
             return resp
         } catch (e) {
             runTrace.error(e)
+            if (throwOnError) throw e
             return {
                 messages,
                 text: "",

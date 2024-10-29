@@ -44,7 +44,7 @@ import {
     ResponseStatus,
 } from "../../core/src/host"
 import { AbortSignalOptions, TraceOptions } from "../../core/src/trace"
-import { logVerbose } from "../../core/src/util"
+import { logError, logVerbose } from "../../core/src/util"
 import { parseModelIdentifier } from "../../core/src/models"
 import {
     AuthenticationToken,
@@ -52,7 +52,7 @@ import {
     isAzureTokenExpired,
 } from "./azuretoken"
 import { LanguageModel } from "../../core/src/chat"
-import { errorMessage } from "../../core/src/error"
+import { errorMessage, serializeError } from "../../core/src/error"
 import { BrowserManager } from "./playwright"
 import { shellConfirm, shellInput, shellSelect } from "./input"
 import { shellQuote } from "../../core/src/shell"
@@ -81,26 +81,40 @@ class ModelManager implements ModelService {
         return conn
     }
 
-    async pullModel(modelid: string): Promise<ResponseStatus> {
+    async pullModel(
+        modelid: string,
+        options?: TraceOptions
+    ): Promise<ResponseStatus> {
+        const { trace } = options || {}
         const { provider, model } = parseModelIdentifier(modelid)
         if (provider === MODEL_PROVIDER_OLLAMA) {
             if (this.pulled.includes(modelid)) return { ok: true }
 
             if (!isQuiet) logVerbose(`ollama pull ${model}`)
-            const conn = await this.getModelToken(modelid)
-            const res = await fetch(`${conn.base}/api/pull`, {
-                method: "POST",
-                headers: {
-                    "User-Agent": TOOL_ID,
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ name: model, stream: false }, null, 2),
-            })
-            if (res.ok) {
-                const resp = await res.json()
+            try {
+                const conn = await this.getModelToken(modelid)
+                const res = await fetch(`${conn.base}/api/pull`, {
+                    method: "POST",
+                    headers: {
+                        "User-Agent": TOOL_ID,
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(
+                        { name: model, stream: false },
+                        null,
+                        2
+                    ),
+                })
+                if (res.ok) {
+                    const resp = await res.json()
+                }
+                if (res.ok) this.pulled.push(modelid)
+                return { ok: res.ok, status: res.status }
+            } catch (e) {
+                logError(`failed to pull model ${model}`)
+                trace?.error("pull model failed", e)
+                return { ok: false, status: 500, error: serializeError(e) }
             }
-            if (res.ok) this.pulled.push(modelid)
-            return { ok: res.ok, status: res.status }
         }
 
         return { ok: true }
@@ -176,8 +190,7 @@ export class NodeHost implements RuntimeHost {
         if (askToken && tok && !tok.token) {
             if (
                 tok.provider === MODEL_PROVIDER_AZURE_OPENAI ||
-                tok.provider ===
-                    MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI
+                tok.provider === MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI
             ) {
                 if (isAzureTokenExpired(this._azureOpenAIToken)) {
                     logVerbose(
@@ -192,8 +205,7 @@ export class NodeHost implements RuntimeHost {
                     throw new Error("Azure OpenAI token not available")
                 tok.token = "Bearer " + this._azureOpenAIToken.token
             } else if (
-                tok.provider ===
-                MODEL_PROVIDER_AZURE_SERVERLESS_MODELS
+                tok.provider === MODEL_PROVIDER_AZURE_SERVERLESS_MODELS
             ) {
                 if (isAzureTokenExpired(this._azureServerlessToken)) {
                     logVerbose(
@@ -215,15 +227,11 @@ export class NodeHost implements RuntimeHost {
                 throw new Error(
                     "Azure OpenAI end point not configured (AZURE_OPENAI_ENDPOINT)"
                 )
-            else if (
-                provider === MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI
-            )
+            else if (provider === MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI)
                 throw new Error(
                     "Azure AI OpenAI Serverless end point not configured (AZURE_SERVERLESS_OPENAI_API_ENDPOINT)"
                 )
-            else if (
-                provider === MODEL_PROVIDER_AZURE_SERVERLESS_MODELS
-            )
+            else if (provider === MODEL_PROVIDER_AZURE_SERVERLESS_MODELS)
                 throw new Error(
                     "Azure AI Models end point not configured (AZURE_SERVERLESS_MODELS_API_ENDPOINT)"
                 )

@@ -119,9 +119,7 @@ class OpenAIEmbeddings implements EmbeddingsModel {
         ) {
             url = `${trimTrailingSlash(base)}/${model.replace(/\./g, "")}/embeddings?api-version=${AZURE_OPENAI_API_VERSION}`
             delete body.model
-        } else if (
-            provider === MODEL_PROVIDER_AZURE_SERVERLESS_MODELS
-        ) {
+        } else if (provider === MODEL_PROVIDER_AZURE_SERVERLESS_MODELS) {
             url = base.replace(/^https?:\/\/([^/]+)\/?/, body.model)
             delete body.model
         } else {
@@ -211,7 +209,7 @@ export async function vectorSearch(
             throw new Error("No configuration found for vector search")
 
         // Pull the model
-        await runtimeHost.models.pullModel(info.model)
+        await runtimeHost.models.pullModel(info.model, { trace })
         const embeddings = new OpenAIEmbeddings(info, configuration, { trace })
 
         // Create a local document index
