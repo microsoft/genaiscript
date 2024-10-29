@@ -1,4 +1,4 @@
-import { logVerbose, normalizeInt, trimTrailingSlash } from "./util"
+import { deleteUndefinedValues, normalizeInt, trimTrailingSlash } from "./util"
 import { LanguageModelConfiguration, host } from "./host"
 import {
     AZURE_AI_INFERENCE_VERSION,
@@ -32,25 +32,27 @@ export function getConfigHeaders(cfg: LanguageModelConfiguration) {
         const keys = INITryParse(token)
         if (keys && Object.keys(keys).length > 1) token = keys[cfg.model]
     }
+    const isBearer = /^Bearer /i.test(cfg.token)
     const res: Record<string, string> = {
         // openai
-        Authorization: /^Bearer /.test(cfg.token)
+        Authorization: isBearer
             ? token
             : token &&
                 (type === "openai" ||
                     type === "localai" ||
-                    type === "azure_serverless" ||
                     type === "azure_serverless_models")
               ? `Bearer ${token}`
               : undefined,
         // azure
         "api-key":
-            token && !/^Bearer /.test(token) && type === "azure"
+            token &&
+            !isBearer &&
+            (type === "azure" || type === "azure_serverless")
                 ? token
                 : undefined,
         "User-Agent": TOOL_ID,
     }
-    for (const [k, v] of Object.entries(res)) if (v === undefined) delete res[k]
+    deleteUndefinedValues(res)
     return res
 }
 
