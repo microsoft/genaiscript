@@ -690,9 +690,7 @@ export async function executeChatSession(
         while (true) {
             stats.turns++
             const tokens = estimateChatTokens(model, messages)
-            infoCb?.({
-                text: `prompting ${model} (~${tokens ?? "?"} tokens)`,
-            })
+            logVerbose(`prompting ${model} (~${tokens ?? "?"} tokens)\n`)
             if (messages)
                 trace.details(
                     `💬 messages (${messages.length})`,
