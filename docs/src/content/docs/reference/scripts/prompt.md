@@ -72,3 +72,12 @@ $`What is the capital of {{ country }}?`.jinja(env.vars)
 $`What is the capital of {{ country }}?`.mustache(env.vars)
 ```
 
+## Inline prompts
+
+When running an [inline prompt](/docs/reference/scripts/inline-prompts), you can use the `$` to generate the prompt dynamically but you need to call it on the generation context.
+
+```js title="example.genai.mjs" "ctx.$"
+const res = await runPrompt(ctx => {
+  ctx.$`What is the capital of France?`
+})
+```

@@ -49,6 +49,11 @@ interface PromptDefinition {
      * Longer description of the prompt. Shows in UI grayed-out.
      */
     description?: string
+ 
+    /**
+     * Groups template in UI
+     */
+    group?: string
 }
 
 interface PromptLike extends PromptDefinition {
@@ -371,11 +376,6 @@ interface PromptScript
         PromptSystemOptions,
         EmbeddingsModelOptions,
         ScriptRuntimeOptions {
-    /**
-     * Groups template in UI
-     */
-    group?: string
-
     /**
      * Additional template parameters that will populate `env.vars`
      */
@@ -724,24 +724,30 @@ interface ExpansionVariables {
     files: WorkspaceFile[]
 
     /**
-     * current prompt template
-     */
-    template: PromptDefinition
-
-    /**
      * User defined variables
      */
-    vars?: Record<string, string | boolean | number | object | any>
+    vars: Record<string, string | boolean | number | object | any>
 
     /**
      * List of secrets used by the prompt, must be registered in `genaiscript`.
      */
-    secrets?: Record<string, string>
+    secrets: Record<string, string>
 
     /**
      * Root prompt generation context
      */
     generator: ChatGenerationContext
+
+    /**
+     * current prompt template
+     * @deprecated use `meta` instead
+     */
+    template: PromptDefinition & ModelConnectionOptions
+
+    /**
+     * Metadata of the top-level prompt
+     */
+    meta: PromptDefinition & ModelConnectionOptions
 }
 
 type MakeOptional<T, P extends keyof T> = Partial<Pick<T, P>> & Omit<T, P>
@@ -3015,7 +3021,20 @@ interface PromiseQueue {
     ): Promise<ReturnType[]>
 }
 
-interface PromptHost extends ShellHost, UserInterfaceHost {
+interface LanguageModelReference {
+    provider: string
+    model: string
+}
+
+interface LanguageModelHost {
+    /**
+     * Resolve a language model alias to a provider and model based on the current configuration
+     * @param modelId
+     */
+    resolveLanguageModel(modelId?: string): Promise<LanguageModelReference>
+}
+
+interface PromptHost extends ShellHost, UserInterfaceHost, LanguageModelHost {
     /**
      * Opens a in-memory key-value cache for the given cache name. Entries are dropped when the cache grows too large.
      * @param cacheName
