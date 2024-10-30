@@ -116,10 +116,25 @@ script({
 
 See `genaiscript.d.ts` in the sources for details.
 
+## `env.meta`
+
+You can consult the metadata of the top level script in the `env.meta` object.
+
+```js
+const { model } = env.meta
+```
+
 ## Model resolution
 
 Use the `host.resolveModel` function to resolve a model name or alias to its provider and model name.
 
 ```js wrap
-const { provider, model } = await host.resolveModel("large")
+const info = await host.resolveModel("large")
+console.log(info)
+```
+```json
+{
+    "provider": "openai",
+    "model": "gpt-4o"
+}
 ```
