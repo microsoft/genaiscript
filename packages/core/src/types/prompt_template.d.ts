@@ -3015,7 +3015,20 @@ interface PromiseQueue {
     ): Promise<ReturnType[]>
 }
 
-interface PromptHost extends ShellHost, UserInterfaceHost {
+interface LanguageModelReference {
+    provider: string
+    model: string
+}
+
+interface LanguageModelHost {
+    /**
+     * Resolve a language model alias to a provider and model based on the current configuration
+     * @param modelId
+     */
+    resolveLanguageModel(modelId?: string): Promise<LanguageModelReference>
+}
+
+interface PromptHost extends ShellHost, UserInterfaceHost, LanguageModelHost {
     /**
      * Opens a in-memory key-value cache for the given cache name. Entries are dropped when the cache grows too large.
      * @param cacheName

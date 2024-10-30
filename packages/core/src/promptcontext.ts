@@ -25,6 +25,7 @@ import { MemoryCache } from "./cache"
 import { proxifyVars } from "./parameters"
 import { HTMLEscape } from "./html"
 import { hash } from "./crypto"
+import { resolveModelConnectionInfo } from "./models"
 
 /**
  * Creates a prompt context for the given project, variables, trace, options, and model.
@@ -193,6 +194,19 @@ export async function createPromptContext(
 
     // Define the host for executing commands, browsing, and other operations
     const promptHost: PromptHost = Object.freeze<PromptHost>({
+        resolveLanguageModel: async (modelId) => {
+            const { configuration } = await resolveModelConnectionInfo(
+                { model: modelId },
+                {
+                    token: false,
+                    trace,
+                }
+            )
+            return {
+                provider: configuration.provider,
+                model: configuration.model,
+            } satisfies LanguageModelReference
+        },
         cache: async (name: string) => {
             if (!name) throw new NotSupportedError("missing cache name")
             const res = MemoryCache.byName<any, any>(name)

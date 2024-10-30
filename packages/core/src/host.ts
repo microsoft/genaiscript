@@ -32,9 +32,7 @@ export type OpenAIAPIType =
     | "azure_serverless"
     | "azure_serverless_models"
 
-export interface LanguageModelConfiguration {
-    provider: string
-    model: string
+export interface LanguageModelConfiguration extends LanguageModelReference {
     base: string
     token: string
     source?: string
