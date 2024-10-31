@@ -830,7 +830,7 @@ export function appendSystemMessage(
 ) {
     if (!content) return
     let last = messages[0] as ChatCompletionSystemMessageParam
-    if (!last) {
+    if (last?.role !== "system") {
         last = {
             role: "system",
             content,
