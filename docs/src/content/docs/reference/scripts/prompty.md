@@ -44,8 +44,8 @@ user:
 
 There are two ways to leverage prompty files with GenAIScript:
 
-    - run them directly through GenAIScript
-    - import them in a script using `importTemplate`
+-   run them directly through GenAIScript
+-   import them in a script using `importTemplate`
 
 ## Running .prompty with GenAIScript
 
