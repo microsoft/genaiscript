@@ -9,7 +9,7 @@ import { writeFile } from "./fs"
 export function activateSamplesCommands(state: ExtensionState) {
     const { context, host } = state
 
-    registerCommand("genaiscript.samples.download", async () => {
+    registerCommand("genaiscript.samples.download", async (name: string) => {
         const dir = Utils.joinPath(context.extensionUri, GENAI_SRC)
         const files = await vscode.workspace.fs.readDirectory(
             Utils.joinPath(context.extensionUri, GENAI_SRC)
@@ -31,16 +31,18 @@ export function activateSamplesCommands(state: ExtensionState) {
             )
         ).map((s) => ({ ...s, meta: parsePromptScriptMeta(s.jsSource) }))
 
-        const res = await vscode.window.showQuickPick<
-            vscode.QuickPickItem & { filename: string; jsSource: string }
-        >(
-            samples.map((s) => ({
-                label: s.meta.title,
-                detail: s.meta.description,
-                ...s,
-            })),
-            { title: "Pick a sample to download" }
-        )
+        const res =
+            samples.find((s) => s.filename === name) ||
+            (await vscode.window.showQuickPick<
+                vscode.QuickPickItem & { filename: string; jsSource: string }
+            >(
+                samples.map((s) => ({
+                    label: s.meta.title,
+                    detail: s.meta.description,
+                    ...s,
+                })),
+                { title: "Pick a sample to download" }
+            ))
         if (res === undefined) return
 
         const { jsSource, filename } = res

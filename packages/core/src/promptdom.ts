@@ -11,20 +11,19 @@ import {
     MARKDOWN_PROMPT_FENCE,
     PROMPT_FENCE,
     PROMPTY_REGEX,
-    SYSTEM_FENCE,
     TEMPLATE_ARG_DATA_SLICE_SAMPLE,
     TEMPLATE_ARG_FILE_MAX_TOKENS,
 } from "./constants"
 import { parseModelIdentifier } from "./models"
-import { appendAssistantMessage, appendUserMessage } from "./chat"
+import {
+    appendAssistantMessage,
+    appendSystemMessage,
+    appendUserMessage,
+} from "./chat"
 import { errorMessage } from "./error"
 import { tidyData } from "./tidy"
 import { dedent } from "./indent"
-import {
-    ChatCompletionMessageParam,
-    ChatCompletionSystemMessageParam,
-    ChatCompletionUserMessageParam,
-} from "./chattypes"
+import { ChatCompletionMessageParam } from "./chattypes"
 import { resolveTokenEncoder } from "./encoders"
 import { expandFiles } from "./fs"
 import { interpolateVariables } from "./mustache"
@@ -938,17 +937,8 @@ export async function renderPromptNode(
     if (truncated) await tracePromptNode(trace, node, { label: "truncated" })
 
     const messages: ChatCompletionMessageParam[] = []
-    const appendSystem = (content: string) => {
-        const last = messages.find(
-            ({ role }) => role === "system"
-        ) as ChatCompletionSystemMessageParam
-        if (last) last.content += content + SYSTEM_FENCE
-        else
-            messages.push({
-                role: "system",
-                content,
-            } as ChatCompletionSystemMessageParam)
-    }
+    const appendSystem = (content: string) =>
+        appendSystemMessage(messages, content)
     const appendUser = (content: string) => appendUserMessage(messages, content)
     const appendAssistant = (content: string) =>
         appendAssistantMessage(messages, content)

@@ -59,11 +59,12 @@
                 "name": "genaiscript",
                 "fullName": "GenAIScript",
                 "isSticky": false,
-                "disambiguation": [
+                "commands": [
                     {
-                        "category": "workspace_question",
-                        "description": "Runs GenAIScript agents defined in the current respository.",
-                        "examples": []
+                        "name": "run",
+                        "description": "Runs a GenAIScript script. The query should start with the script filename without the extension.",
+                        "isSticky": false,
+                        "sampleRequest": "/run poem"
                     }
                 ]
             }
@@ -248,6 +249,10 @@
                 },
                 {
                     "command": "genaiscript.request.status",
+                    "when": "false"
+                },
+                {
+                    "command": "genaiscript.samples.download",
                     "when": "false"
                 }
             ],
