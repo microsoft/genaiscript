@@ -219,6 +219,16 @@ export class GenerationStats {
         if (this.toolCalls) trace.itemValue("tool calls", this.toolCalls)
         if (this.repairs) trace.itemValue("repairs", this.repairs)
         if (this.turns) trace.itemValue("turns", this.turns)
+        if (this.usage.prompt_tokens_details?.cached_tokens)
+            trace.itemValue(
+                "cached tokens",
+                this.usage.prompt_tokens_details.cached_tokens
+            )
+        if (this.usage.completion_tokens_details?.reasoning_tokens)
+            trace.itemValue(
+                "reasoning tokens",
+                this.usage.completion_tokens_details.reasoning_tokens
+            )
 
         if (this.chatTurns.length > 1) {
             trace.startDetails("chat turns")
