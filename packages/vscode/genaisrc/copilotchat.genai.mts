@@ -3,15 +3,23 @@ script({
     system: [
         // List of system components and tools available for the script
         "system",
+        "system.safety_harmful_content",
+        "system.safety_jailbreak",
+        "system.safety_protected_material",
         "system.tools",
         "system.files",
+        "system.files_schema",
         "system.diagrams",
         "system.annotations",
         "system.git_info",
         "system.github_info",
         "system.safety_harmful_content",
+        "system.agent_fs",
+        "system.agent_git",
+        "system.agent_github",
+        "system.agent_interpreter",
+        "system.agent_docs",
     ],
-    tools: ["agent"], // Tools that the script can use
     group: "copilot", // Group categorization for the script
     parameters: {
         question: {
@@ -61,6 +69,5 @@ $`## Context`
 // Define a variable FILE with the file data from the environment variables
 // The { ignoreEmpty: true, flex: 1 } options specify to ignore empty files and to use flexible token allocation
 def("FILE", env.files, { lineNumbers: false, ignoreEmpty: true, flex: 1 })
-
-if (editor) writeText(editor, { flex: 4 })
-if (selection) writeText(selection, { flex: 5 })
+def("EDITOR", editor, { flex: 4, ignoreEmpty: true })
+def("SELECTION", selection, { flex: 5, ignoreEmpty: true })
