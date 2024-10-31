@@ -198,6 +198,7 @@ export class NodeHost implements RuntimeHost {
                     )
                     this._azureOpenAIToken = await createAzureToken(
                         AZURE_OPENAI_TOKEN_SCOPES,
+                        tok.azureCredentialsType,
                         signal
                     )
                 }
@@ -213,6 +214,7 @@ export class NodeHost implements RuntimeHost {
                     )
                     this._azureServerlessToken = await createAzureToken(
                         AZURE_AI_INFERENCE_TOKEN_SCOPES,
+                        tok.azureCredentialsType,
                         signal
                     )
                 }

@@ -23,7 +23,12 @@ import {
     MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI,
 } from "./constants"
 import { fileExists, readText, tryReadText, writeText } from "./fs"
-import { OpenAIAPIType, host, LanguageModelConfiguration } from "./host"
+import {
+    OpenAIAPIType,
+    host,
+    LanguageModelConfiguration,
+    AzureCredentialsType,
+} from "./host"
 import { parseModelIdentifier } from "./models"
 import { normalizeFloat, trimTrailingSlash } from "./util"
 
@@ -148,6 +153,8 @@ export async function parseTokenFromEnv(
             throw new Error(
                 `AZURE_OPENAI_API_VERSION must be '${AZURE_OPENAI_API_VERSION}'`
             )
+        const azureCredentialsType =
+            env.AZURE_OPENAI_API_CREDENTIALS?.toLowerCase().trim() as AzureCredentialsType
         return {
             provider,
             model,
@@ -158,6 +165,7 @@ export async function parseTokenFromEnv(
                 ? "env: AZURE_OPENAI_API_..."
                 : "env: AZURE_OPENAI_API_... + Entra ID",
             version,
+            azureCredentialsType,
         }
     }
 
@@ -185,6 +193,9 @@ export async function parseTokenFromEnv(
         const version =
             env.AZURE_SERVERLESS_OPENAI_API_VERSION ||
             env.AZURE_SERVERLESS_OPENAI_VERSION
+        const azureCredentialsType =
+            env.AZURE_SERVERLESS_OPENAI_API_CREDENTIALS?.toLowerCase().trim() as AzureCredentialsType
+
         if (version && version !== AZURE_OPENAI_API_VERSION)
             throw new Error(
                 `AZURE_SERVERLESS_OPENAI_API_VERSION must be '${AZURE_OPENAI_API_VERSION}'`
@@ -199,6 +210,7 @@ export async function parseTokenFromEnv(
                 ? "env: AZURE_SERVERLESS_OPENAI_API_..."
                 : "env: AZURE_SERVERLESS_OPENAI_API_... + Entra ID",
             version,
+            azureCredentialsType,
         }
     }
 
