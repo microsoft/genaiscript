@@ -64,17 +64,12 @@ export async function activateChatParticipant(state: ExtensionState) {
                 )
                 if (!template) {
                     response.markdown(
-                        dedent`The \`${COPILOT_CHAT_PARTICIPANT_SCRIPT_ID}\` script has not been configured yet in this workspace. 
+                        dedent`
+                        The \`${COPILOT_CHAT_PARTICIPANT_SCRIPT_ID}\` script has not been configured yet in this workspace. 
                     
-                    Would you want to save a starter script in your project? \`copilotchat\` will be invoked when you use the @genaiscript chat participant in a chat.`
+                        Save [starter template](https://microsoft.github.io/genaiscript/reference/vscode/github-copilot-chat#copilotchat) in your workspace to get started.
+                        `
                     )
-                    response.button({
-                        title: "Create copilotchat script",
-                        command: "genaiscript.samples.download",
-                        arguments: [
-                            `${COPILOT_CHAT_PARTICIPANT_SCRIPT_ID}.genai.mts`,
-                        ],
-                    })
                     return
                 }
             }
