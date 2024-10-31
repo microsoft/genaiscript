@@ -52,6 +52,7 @@ export async function createAzureToken(
         ManagedIdentityCredential,
         AzurePowerShellCredential,
         AzureDeveloperCliCredential,
+        WorkloadIdentityCredential
     } = await import("@azure/identity")
 
     let credential: TokenCredential
@@ -70,6 +71,9 @@ export async function createAzureToken(
             break
         case "managedidentity":
             credential = new ManagedIdentityCredential()
+            break
+        case "workloadidentity":
+            credential = new WorkloadIdentityCredential()
             break
         default:
             credential = new DefaultAzureCredential()

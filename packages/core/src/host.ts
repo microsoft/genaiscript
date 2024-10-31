@@ -39,6 +39,7 @@ export type AzureCredentialsType =
     | "powershell"
     | "devcli"
     | "managedidentity"
+    | "workloadidentity"
 
 export interface LanguageModelConfiguration extends LanguageModelReference {
     base: string
