@@ -11,20 +11,20 @@ script({
         "system.safety_harmful_content",
     ],
     tools: ["agent"], // Tools that the script can use
-    group: "infrastructure", // Group categorization for the script
+    group: "copilot", // Group categorization for the script
     parameters: {
         question: {
-            type: "string", // Type of the parameter
-            description: "the user question", // Description of the parameter
+            type: "string",
+            description: "the user question",
         },
         "copilot.editor": {
             type: "string",
-            description: "the content of the opened editor",
+            description: "the content of the opened editor, if any",
             default: "",
         },
         "copilot.selection": {
             type: "string",
-            description: "the content of the opened editor",
+            description: "the content of the opened editor, if any",
             default: "",
         },
     },

@@ -58,14 +58,7 @@
                 "description": "Calls the GenAIScript agent.",
                 "name": "genaiscript",
                 "fullName": "GenAIScript",
-                "isSticky": false,
-                "disambiguation": [
-                    {
-                        "category": "workspace_question",
-                        "description": "Runs GenAIScript agents defined in the current respository.",
-                        "examples": []
-                    }
-                ]
+                "isSticky": false
             }
         ],
         "configurationDefaults": {
@@ -248,6 +241,10 @@
                 },
                 {
                     "command": "genaiscript.request.status",
+                    "when": "false"
+                },
+                {
+                    "command": "genaiscript.samples.download",
                     "when": "false"
                 }
             ],

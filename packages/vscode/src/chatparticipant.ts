@@ -1,9 +1,13 @@
 import * as vscode from "vscode"
 import { ExtensionState } from "./state"
-import { TOOL_ID } from "../../core/src/constants"
+import {
+    COPILOT_CHAT_PARTICIPANT_SCRIPT_ID,
+    COPILOT_CHAT_PARTICIPANT_ID,
+} from "../../core/src/constants"
 import { Fragment } from "../../core/src/generation"
 import { prettifyMarkdown } from "../../core/src/markdown"
 import { eraseAnnotations } from "../../core/src/annotations"
+import { dedent } from "../../core/src/indent"
 
 export async function activateChatParticipant(state: ExtensionState) {
     const { context } = state
@@ -26,7 +30,7 @@ export async function activateChatParticipant(state: ExtensionState) {
     }
 
     const participant = vscode.chat.createChatParticipant(
-        TOOL_ID,
+        COPILOT_CHAT_PARTICIPANT_ID,
         async (
             request: vscode.ChatRequest,
             context: vscode.ChatContext,
@@ -34,13 +38,28 @@ export async function activateChatParticipant(state: ExtensionState) {
             token: vscode.CancellationToken
         ) => {
             const { command, prompt, references } = request
-            if (command) throw new Error("Command not supported")
+            if (command) throw new Error("Commands are not supported")
             if (!state.project) await state.parseWorkspace()
             if (token.isCancellationRequested) return
 
             const template = state.project.templates.find(
-                (t) => t.id === "copilot_chat_participant"
+                (t) => t.id === COPILOT_CHAT_PARTICIPANT_SCRIPT_ID
             )
+            if (!template) {
+                response.markdown(
+                    dedent`The \`${COPILOT_CHAT_PARTICIPANT_SCRIPT_ID}\` script has not been configured yet in this workspace. 
+                    
+                    Would you want to save a starter script in your project?`
+                )
+                response.button({
+                    title: "Save chat script",
+                    command: "genaiscript.samples.download",
+                    arguments: [
+                        `${COPILOT_CHAT_PARTICIPANT_SCRIPT_ID}.genai.mts`,
+                    ],
+                })
+                return
+            }
             const { files, vars } = resolveReference(references)
             const fragment: Fragment = {
                 files,
