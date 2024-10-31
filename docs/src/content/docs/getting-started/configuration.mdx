@@ -254,6 +254,17 @@ script({
 If you are already using `GITHUB_TOKEN` variable in your script and need a different one
 for GitHub Models, you can use the `GITHUB_MODELS_TOKEN` variable instead.
 
+### `o1-preview` and `o1-mini` models
+
+Currently these models do not support streaming and
+system prompts. GenAIScript handles this internally.
+
+```js "github:o1-mini"
+script({
+    model: "github:o1-mini",
+})
+```
+
 ## Azure OpenAI <a id="azure" href=""></a>
 
 The [Azure OpenAI](https://learn.microsoft.com/en-us/azure/ai-services/openai/reference#chat-completions) provider, `azure` uses the `AZURE_OPENAI_...` environment variables.

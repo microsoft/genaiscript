@@ -49,7 +49,7 @@ interface PromptDefinition {
      * Longer description of the prompt. Shows in UI grayed-out.
      */
     description?: string
- 
+
     /**
      * Groups template in UI
      */
@@ -119,6 +119,10 @@ type ModelType = OptionsOrString<
     | "openai:gpt-4o"
     | "openai:gpt-4o-mini"
     | "openai:gpt-3.5-turbo"
+    | "github:gpt-4o"
+    | "github:gpt-4o-mini"
+    | "github:o1-mini"
+    | "github:o1-preview"
     | "azure:gpt-4o"
     | "azure:gpt-4o-mini"
     | "ollama:phi3.5"
@@ -134,7 +138,11 @@ type ModelType = OptionsOrString<
 >
 
 type ModelSmallType = OptionsOrString<
-    "openai:gpt-4o-mini" | "openai:gpt-3.5-turbo" | "azure:gpt-4o-mini"
+    | "openai:gpt-4o-mini"
+    | "github:gpt-4o-mini"
+    | "azure:gpt-4o-mini"
+    | "openai:gpt-3.5-turbo"
+    | "github:Phi-3-5-mini-instruct"
 >
 
 interface ModelConnectionOptions {
