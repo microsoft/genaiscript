@@ -12,7 +12,7 @@ describe("treesitter", () => {
     test("ts", async () => {
         const f: WorkspaceFile = { filename: "./src/treesitter.ts" }
         await resolveFileContent(f)
-        const x = await treeSitterQuery(f)
+        const { captures: x } = await treeSitterQuery(f)
         assert.strictEqual(x[0].name, "tree")
     })
 
@@ -21,7 +21,15 @@ describe("treesitter", () => {
             filename: "./src/dummy.py",
             content: "def foo():\n    pass",
         }
-        const x = await treeSitterQuery(f)
+        const { captures: x } = await treeSitterQuery(f)
         assert.strictEqual(x[0].name, "tree")
+    })
+
+    describe("tags", () => {
+        test("ts", async () => {
+            const f: WorkspaceFile = { filename: "./src/treesitter.ts" }
+            await resolveFileContent(f)
+            const x = await treeSitterQuery(f, "tags")
+        })
     })
 })
