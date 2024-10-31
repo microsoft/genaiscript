@@ -35,7 +35,7 @@
   "dependencies": {
     "@azure/identity": "^4.5.0",
     "@inquirer/prompts": "^7.0.1",
-    "@lvce-editor/ripgrep": "^1.3.0",
+    "@lvce-editor/ripgrep": "^1.4.0",
     "@octokit/plugin-paginate-rest": "^11.3.5",
     "@octokit/plugin-retry": "^7.1.2",
     "@octokit/plugin-throttling": "^9.3.2",
@@ -64,7 +64,7 @@
     "promptfoo": "0.94.5"
   },
   "devDependencies": {
-    "@types/diff": "^5.2.3",
+    "@types/diff": "^6.0.0",
     "@types/dockerode": "^3.3.31",
     "@types/fs-extra": "^11.0.4",
     "@types/memorystream": "^0.3.4",
@@ -84,7 +84,7 @@
     "memorystream": "^0.3.1",
     "node-sarif-builder": "^3.2.0",
     "octokit": "^4.0.2",
-    "openai": "^4.68.4",
+    "openai": "^4.69.0",
     "pretty-bytes": "^6.1.1",
     "replace-ext": "^2.0.0",
     "ws": "^8.18.0",
