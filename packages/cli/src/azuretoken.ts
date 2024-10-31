@@ -1,5 +1,7 @@
 import { AZURE_TOKEN_EXPIRATION } from "../../core/src/constants"
+import { AzureCredentialsType } from "../../core/src/host"
 import { logVerbose } from "../../core/src/util"
+import type { TokenCredential } from "@azure/identity"
 
 /**
  * This module provides functions to handle Azure authentication tokens,
@@ -39,16 +41,44 @@ export function isAzureTokenExpired(token: AuthenticationToken) {
  */
 export async function createAzureToken(
     scopes: readonly string[],
+    credentialsType: AzureCredentialsType,
     abortSignal: AbortSignal
 ): Promise<AuthenticationToken> {
     // Dynamically import DefaultAzureCredential from the Azure SDK
-    const { DefaultAzureCredential } = await import("@azure/identity")
+    const {
+        DefaultAzureCredential,
+        EnvironmentCredential,
+        AzureCliCredential,
+        ManagedIdentityCredential,
+        AzurePowerShellCredential,
+        AzureDeveloperCliCredential,
+    } = await import("@azure/identity")
 
+    let credential: TokenCredential
+    switch (credentialsType) {
+        case "cli":
+            credential = new AzureCliCredential()
+            break
+        case "env":
+            credential = new EnvironmentCredential()
+            break
+        case "powershell":
+            credential = new AzurePowerShellCredential()
+            break
+        case "devcli":
+            credential = new AzureDeveloperCliCredential()
+            break
+        case "managedidentity":
+            credential = new ManagedIdentityCredential()
+            break
+        default:
+            credential = new DefaultAzureCredential()
+            break
+    }
     // Obtain the Azure token using the DefaultAzureCredential
-    const azureToken = await new DefaultAzureCredential().getToken(
-        scopes.slice(),
-        { abortSignal }
-    )
+    const azureToken = await credential.getToken(scopes.slice(), {
+        abortSignal,
+    })
 
     // Prepare the result token object with the token and expiration timestamp
     const res = {
