@@ -254,6 +254,17 @@ script({
 If you are already using `GITHUB_TOKEN` variable in your script and need a different one
 for GitHub Models, you can use the `GITHUB_MODELS_TOKEN` variable instead.
 
+### `o1-preview` and `o1-mini` models
+
+Currently these models do not support streaming and
+system prompts. GenAIScript handles this internally.
+
+```js "github:o1-mini"
+script({
+    model: "github:o1-mini",
+})
+```
+
 ## Azure OpenAI <a id="azure" href=""></a>
 
 The [Azure OpenAI](https://learn.microsoft.com/en-us/azure/ai-services/openai/reference#chat-completions) provider, `azure` uses the `AZURE_OPENAI_...` environment variables.
@@ -340,6 +351,23 @@ script({
 </ol>
 
 </Steps>
+
+### Custom credentials
+
+In some situation, the default credentials chain lookup may not work. In that case, you can specify an additional environment variable `AZURE_SERVERLESS_OPENAI_API_CREDENTIALS`
+with the type of credential that should be used.
+
+```txt title=".env"
+AZURE_SERVERLESS_OPENAI_API_CREDENTIALS=cli
+```
+
+The types are mapped directly to their [@azure/identity](https://www.npmjs.com/package/@azure/identity) credential types:
+
+-   `cli` - `AzureCliCredential`
+-   `env` - `EnvironmentCredential`
+-   `powershell` - `AzurePowerShellCredential`
+-   `devcli` - `AzureDeveloperCliCredential`
+-   `managedidentity` - `ManagedIdentityCredential`
 
 ### API Key
 

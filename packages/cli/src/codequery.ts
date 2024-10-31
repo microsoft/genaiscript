@@ -16,7 +16,7 @@ import { logVerbose } from "../../core/src/util"
  * @param files - A glob pattern to match files for querying.
  * @param query - The Tree-sitter query to be executed on each file.
  */
-export async function codeQuery(files: string, query: string) {
+export async function codeQuery(files: string, query: OptionsOrString<"tags">) {
     // Find files matching the given pattern, respecting .gitignore rules.
     const ffs = await host.findFiles(files, {
         applyGitIgnore: true, // Ensure .gitignore rules are applied when finding files
@@ -40,7 +40,9 @@ export async function codeQuery(files: string, query: string) {
         const res = await treeSitterQuery(f, query)
 
         // Serialize and collect the query capture results
-        captures.push(...res.map((r) => serializeQueryCapture(f.filename, r)))
+        captures.push(
+            ...res.captures.map((r) => serializeQueryCapture(f.filename, r))
+        )
     }
 
     // Output the collected captures in YAML format

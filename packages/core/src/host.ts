@@ -32,15 +32,23 @@ export type OpenAIAPIType =
     | "azure_serverless"
     | "azure_serverless_models"
 
-export interface LanguageModelConfiguration {
-    provider: string
-    model: string
+export type AzureCredentialsType =
+    | "default"
+    | "cli"
+    | "env"
+    | "powershell"
+    | "devcli"
+    | "managedidentity"
+    | "workloadidentity"
+
+export interface LanguageModelConfiguration extends LanguageModelReference {
     base: string
     token: string
     source?: string
     type?: OpenAIAPIType
     aici?: boolean
     version?: string
+    azureCredentialsType?: AzureCredentialsType
 }
 
 export interface RetrievalClientOptions {

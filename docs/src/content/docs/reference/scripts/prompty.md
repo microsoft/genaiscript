@@ -1,14 +1,13 @@
 ---
 title: Prompty
 sidebar:
-  order: 51
+    order: 51
 description: Learn about the .prompty file format for parameterized prompts and
-  its integration with GenAIScript for AI scripting.
+    its integration with GenAIScript for AI scripting.
 keywords: prompty, scripts, AI, parameterized prompts, automation
-
 ---
 
-GenAIScript supports running [.prompty](https://prompty.ai/) files as scripts (with some limitations).
+GenAIScript supports running [.prompty](https://prompty.ai/) files as scripts (with some limitations) or importing them in a script.
 
 ## What is prompty?
 
@@ -43,6 +42,11 @@ user:
 {{hint}}
 ```
 
+There are two ways to leverage prompty files with GenAIScript:
+
+-   run them directly through GenAIScript
+-   import them in a script using `importTemplate`
+
 ## Running .prompty with GenAIScript
 
 You can run a `.prompty` file from the [cli](/genaiscript/reference/cli) or Visual Studio Code as any other `.genai.mjs` script.
@@ -66,8 +70,11 @@ script({
     maxTokens: 128,
 })
 
-$`You are an AI assistant who helps people find information.
-As the assistant, you answer questions briefly, succinctly.`
+writeTesxt(
+    `You are an AI assistant who helps people find information.
+As the assistant, you answer questions briefly, succinctly.`,
+    { role: "system" }
+)
 $`{{question}}
 
 {{hint}}`.jinja(env.vars)
@@ -79,9 +86,11 @@ $`{{question}}
 -   `inputs` converted to `parameters`
 -   `sample` value populates the parameters `default` section
 -   `outputs` converted to `responseSchema`
--   [Jinja](https://www.npmjs.com/package/@huggingface/jinja) template engine
--   model configuration uses GenAIScript `.env` file (see [configuration](/genaiscript/getting-started/configuration)).
+-   [Jinja2](https://www.npmjs.com/package/@huggingface/jinja) template engine
 
+### Limitations
+
+-   model configuration uses GenAIScript `.env` file (see [configuration](/genaiscript/getting-started/configuration)).
 -   images are not yet supported
 
 ### Extensions
@@ -101,3 +110,5 @@ importTemplate("basic.prompty", {
     hint: "starts with p",
 })
 ```
+
+In this scenario, the `.prompty` file is not executed as a script but imported as a template. The `importTemplate` function will render the template with the provided parameters.

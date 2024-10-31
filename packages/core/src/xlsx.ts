@@ -42,6 +42,7 @@ export async function XLSXTryParse(
     options?: ParseXLSXOptions
 ): Promise<WorkbookSheet[]> {
     try {
+        if (!data) return []
         // Attempt to parse the XLSX data
         return await XLSXParse(data, options)
     } catch (e) {

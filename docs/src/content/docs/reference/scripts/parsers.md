@@ -211,9 +211,15 @@ library. It returns an AST (Abstract Syntax Tree) that can be used to analyze th
 
 ```js
 // the whole tree
-const [tree] = await parsers.code(file)
+const { captures } = await parsers.code(file)
 // with a query
-const captures = await parsers.code(file, "(interface_declaration) @i")
+const { captures } = await parsers.code(file, "(interface_declaration) @i")
+```
+
+The `tags` query is a built-in alias for the [tree-sitter `tags` query](https://tree-sitter.github.io/tree-sitter/code-navigation-systems) that is made available in most tree-sitter libraries.
+
+````js
+const { captures } = await parsers.code(file, 'tags')
 ```
 
 ## Math expression
@@ -222,7 +228,7 @@ The `parsers.math` function uses [mathjs](https://mathjs.org/) to parse a math e
 
 ```js
 const res = await parsers.math("1 + 1")
-```
+````
 
 ## .env
 

@@ -1246,7 +1246,7 @@ The following npm packages may be included in this product:
 
  - @types/http-cache-semantics@4.0.4
  - @types/node@16.9.1
- - @types/node@22.8.2
+ - @types/node@22.8.6
  - @types/turndown@5.0.5
  - @types/yauzl@2.10.3
 
@@ -1278,7 +1278,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.69.3
+ - genaiscript-vscode@1.70.1
 
 This package contains the following license and notice below:
 
@@ -4400,9 +4400,9 @@ The following npm packages may be included in this product:
  - @tokenizer/token@0.3.0
  - agent-base@6.0.2
  - canvas@2.11.2
- - genaiscript-core-internal@1.69.3
- - genaiscript-sample@1.69.3
- - genaiscript@1.69.3
+ - genaiscript-core-internal@1.70.1
+ - genaiscript-sample@1.70.1
+ - genaiscript@1.70.1
  - https-proxy-agent@5.0.1
  - isarray@1.0.0
  - javascript-natural-sort@0.7.1
@@ -5114,7 +5114,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - @lvce-editor/ripgrep@1.3.0
+ - @lvce-editor/ripgrep@1.4.0
 
 This package contains the following license and notice below:
 
@@ -5174,7 +5174,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - complex.js@2.4.0
+ - complex.js@2.4.1
 
 This package contains the following license and notice below:
 

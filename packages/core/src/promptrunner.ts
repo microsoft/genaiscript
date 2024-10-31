@@ -74,17 +74,21 @@ async function resolveExpansionVars(
     }
 
     // Create and return an object containing resolved variables
-    const res: Partial<ExpansionVariables> = {
+    const meta: PromptDefinition & ModelConnectionOptions = {
+        id: template.id,
+        title: template.title,
+        description: template.description,
+        group: template.group,
+        model: template.model,
+    }
+    const res = {
         dir: ".",
         files,
-        template: {
-            id: template.id,
-            title: template.title,
-            description: template.description,
-        },
+        meta,
+        template: meta,
         vars: attrs,
         secrets,
-    }
+    } satisfies Partial<ExpansionVariables>
     return res
 }
 
@@ -148,7 +152,9 @@ export async function runTemplate(
             trace
         )
 
-        const { ok } = await runtimeHost.models.pullModel(options.model, { trace })
+        const { ok } = await runtimeHost.models.pullModel(options.model, {
+            trace,
+        })
 
         // Handle failed expansion scenario
         if (status !== "success" || !ok || !messages.length) {

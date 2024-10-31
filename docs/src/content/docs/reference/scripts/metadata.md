@@ -14,7 +14,7 @@ However, the `script` argument should a valid [JSON5](https://json5.org/) litera
 
 ## Title, description, group
 
-The `title`, `description` and `group` are used in the UI to display the prompt.
+The `title`, `description` and `group` are (optionally) used in the UI to display the prompt.
 
 ```javascript
 script({
@@ -26,40 +26,9 @@ script({
 })
 ```
 
-### title
-
-`title` is used as the prompt name, displayed in the light-bulb UI
-
-```js
-script({ title: "Shorten" })
-```
-
-#### description
-
-`description` provides more details and context about the prompt.
-
-```js
-script({
-    title: "Shorten",
-    description:
-        "A prompt that shrinks the size of text without losing meaning.",
-})
-```
-
-### category
-
-Helps organizing your scripts.
-
-```js
-script({
-    ...
-    category: ["proofreading"]
-})
-```
-
 ### system
 
-Override the system prompts included with the script.
+Override the system prompts included with the script. The default set of system prompt is inferred dynamicaly from the script content.
 
 ```js
 script({
@@ -70,8 +39,9 @@ script({
 
 ### model
 
-You can specify the LLM `model` identifier in the script. The default is `gpt-4`.
+You can specify the LLM `model` identifier in the script.
 The IntelliSense provided by `genaiscript.g.ts` will assist in discovering the list of supported models.
+Use `large` and `small` aliases to select default models regardless of the configuration.
 
 ```js
 script({
@@ -86,7 +56,7 @@ You can override the model from the [CLI](/genaiscript/reference/cli/)
 
 ### maxTokens
 
-You can specify the LLM `max tokens` in the script. The default is unspecified.
+You can specify the LLM maximum **completion** tokens in the script. The default is unspecified.
 
 ```js
 script({
@@ -108,7 +78,7 @@ script({
 
 ### temperature
 
-You can specify the LLM `temperature` in the script, between `0` and `2`. The default is `0.01`.
+You can specify the LLM `temperature` in the script, between `0` and `2`. The default is `0.8`.
 
 ```js
 script({
@@ -140,12 +110,31 @@ script({
 })
 ```
 
-### fileMerge: (label, before, generated) => string
-
-A function that merges the generated content with the original content. The default is to replace the original content with the generated content. This function can be used to implement custom merge strategies.
-
 ### Other parameters
 
 -   `unlisted: true`, don't show it to the user in lists. Template `system.*` are automatically unlisted.
 
 See `genaiscript.d.ts` in the sources for details.
+
+## `env.meta`
+
+You can consult the metadata of the top level script in the `env.meta` object.
+
+```js
+const { model } = env.meta
+```
+
+## Model resolution
+
+Use the `host.resolveModel` function to resolve a model name or alias to its provider and model name.
+
+```js wrap
+const info = await host.resolveModel("large")
+console.log(info)
+```
+```json
+{
+    "provider": "openai",
+    "model": "gpt-4o"
+}
+```

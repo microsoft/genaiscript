@@ -44,7 +44,7 @@ export async function copyPrompt(
     let fn = promptPath(n)
 
     // Handle forking logic by appending a suffix if needed
-    if (options.fork) {
+    if (options.fork && (await fileExists(fn))) {
         let suff = 2
         for (;;) {
             fn = promptPath(n + "_" + suff) // Construct new name with suffix
