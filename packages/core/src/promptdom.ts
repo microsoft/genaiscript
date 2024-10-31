@@ -23,11 +23,7 @@ import {
 import { errorMessage } from "./error"
 import { tidyData } from "./tidy"
 import { dedent } from "./indent"
-import {
-    ChatCompletionMessageParam,
-    ChatCompletionSystemMessageParam,
-    ChatCompletionUserMessageParam,
-} from "./chattypes"
+import { ChatCompletionMessageParam } from "./chattypes"
 import { resolveTokenEncoder } from "./encoders"
 import { expandFiles } from "./fs"
 import { interpolateVariables } from "./mustache"

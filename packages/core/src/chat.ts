@@ -833,7 +833,7 @@ export function appendSystemMessage(
     if (last?.role !== "system") {
         last = {
             role: "system",
-            content,
+            content: "",
         } as ChatCompletionSystemMessageParam
         messages.unshift(last)
     }
