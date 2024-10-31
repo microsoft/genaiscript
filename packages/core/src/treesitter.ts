@@ -77,7 +77,7 @@ export function renderCaptures(nodes: QueryCapture[]) {
 
 export async function treeSitterQuery(
     file: WorkspaceFile,
-    query?: string,
+    query?: OptionsOrString<"tags">,
     options?: TraceOptions
 ): Promise<QueryCapture[]> {
     const { filename } = file
@@ -94,6 +94,9 @@ export async function treeSitterQuery(
         const { wasm, language } = await resolveLanguage(filename)
         trace?.itemValue(`language`, language)
         trace?.itemValue(`wasm`, wasm)
+
+        if (query === TREE_SITTER_QUERIES_TAGS) query = resolveTags(language)
+        if (query) trace?.detailsFenced(`query`, query, "txt")
 
         const parser = await createParser(wasm)
         // test query
