@@ -35,12 +35,20 @@ describe("run", async () => {
 describe("scripts", async () => {
     const cmd = "scripts"
     await test("list", async () => {
-        const res = await $`node ${cli} ${cmd}`
+        const res = await $`node ${cli} ${cmd} list`
         assert(
             res.stdout.includes(
                 "system.files, File generation, system, builtin, system"
             )
         )
+    })
+    await test("create foobar", async () => {
+        const res = await $`node ${cli} ${cmd} create foobar`
+        assert(res.stdout.includes("foobar"))
+    })
+    await test("create foobar", async () => {
+        const res = await $`node ${cli} ${cmd} create foobar`
+        assert(res.stdout.includes("foobar"))
     })
 })
 describe("cli", async () => {
