@@ -1,0 +1,44 @@
+---
+title: GitHub Copilot Chat
+sidebar:
+    order: 3
+---
+
+import { Image } from "astro:assets"
+import { Code } from "@astrojs/starlight/components"
+import scriptSource from "../../../../../../packages/vscode/genaisrc/copilotchat.genai.mjs?raw"
+
+The `@genaiscript` [chat participant](https://code.visualstudio.com/api/extension-guides/chat#parts-of-the-chat-user-experience) lets your run scripts without the context
+of a [GitHub Copilot Chat](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot-chat) conversation.
+This is useful for leverage existing scripts in an interactive chat session.
+
+## Choosing which script to run
+
+The `/run` command expects a script id as the first argument (e.g., `/run poem`). The rest of the query is
+passed to the script as the `env.vars.question` variable.
+
+```sh
+@genaiscript /run summarize
+```
+
+If you omit the `/run` command, GenAIScript will look for a script named `copilotchat`. If it finds one, it will run it.
+Otherwise, it will propose you to create a new script.
+
+```sh
+@genaiscript add comments to the current editor
+```
+
+## Context
+
+The context selected by the user in Copilot Chat is converted to variables and passed to the script:
+
+- the prompt content is passed in `env.vars.question`. The script id is removed in the case of `/run`.
+- the current editor text is passed in `env.vars["copilot.editor"]`
+- the current editor selection is passed in `env.vars["copilot.selection"]`
+- the file references are passed in `env.files`
+
+## Default script
+
+The following script is used as a starter template to create the default script when the user does not use the `/run` command.
+
+<Code code={scriptSource} wrap={true} lang="ts" title="copilotchat.genai.mts" />
