@@ -9,6 +9,7 @@ export async function unzip(
     options?: ParseZipOptions
 ): Promise<WorkspaceFile[]> {
     const { glob } = options || {}
+    if (!data) return []
     const res = unzipSync(data, {
         filter: (file: { name: string; originalSize: number }) => {
             if (glob) return isGlobMatch(file.name, glob)

@@ -289,7 +289,7 @@ export class NodeHost implements RuntimeHost {
         if (wksrx.test(name))
             name = join(this.projectFolder(), name.replace(wksrx, ""))
         // check if file exists
-        if (!(await exists(name))) return new Uint8Array()
+        if (!(await exists(name))) return undefined
         // read file
         const res = await readFile(name)
         return res ? new Uint8Array(res) : new Uint8Array()

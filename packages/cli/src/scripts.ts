@@ -37,7 +37,7 @@ export async function listScripts() {
  */
 export async function createScript(name: string) {
     const t = coreCreateScript(name) // Call core function to create a script
-    const pr = await copyPrompt(t, { fork: false, name }) // Copy prompt definitions
+    const pr = await copyPrompt(t, { fork: true, name }) // Copy prompt definitions
     console.log(`created script at ${pr}`) // Notify the location of the created script
     await compileScript([]) // Compile all scripts immediately after creation
 }
