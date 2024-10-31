@@ -1,5 +1,4 @@
 script({
-    model: "openai:gpt-4-32k",
     temperature: 0,
     files: [],
     title: "pull request commit review",

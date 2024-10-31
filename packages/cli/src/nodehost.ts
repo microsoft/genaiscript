@@ -19,7 +19,7 @@ import {
 import {
     DEFAULT_MODEL,
     DEFAULT_TEMPERATURE,
-    MODEL_PROVIDER_AZURE,
+    MODEL_PROVIDER_AZURE_OPENAI,
     SHELL_EXEC_TIMEOUT,
     DOT_ENV_FILENAME,
     MODEL_PROVIDER_OLLAMA,
@@ -27,8 +27,9 @@ import {
     DEFAULT_EMBEDDINGS_MODEL,
     DEFAULT_SMALL_MODEL,
     AZURE_OPENAI_TOKEN_SCOPES,
-    MODEL_PROVIDER_AZURE_SERVERLESS,
+    MODEL_PROVIDER_AZURE_SERVERLESS_MODELS,
     AZURE_AI_INFERENCE_TOKEN_SCOPES,
+    MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI,
 } from "../../core/src/constants"
 import { tryReadText } from "../../core/src/fs"
 import {
@@ -43,7 +44,7 @@ import {
     ResponseStatus,
 } from "../../core/src/host"
 import { AbortSignalOptions, TraceOptions } from "../../core/src/trace"
-import { logVerbose } from "../../core/src/util"
+import { logError, logVerbose } from "../../core/src/util"
 import { parseModelIdentifier } from "../../core/src/models"
 import {
     AuthenticationToken,
@@ -51,7 +52,7 @@ import {
     isAzureTokenExpired,
 } from "./azuretoken"
 import { LanguageModel } from "../../core/src/chat"
-import { errorMessage } from "../../core/src/error"
+import { errorMessage, serializeError } from "../../core/src/error"
 import { BrowserManager } from "./playwright"
 import { shellConfirm, shellInput, shellSelect } from "./input"
 import { shellQuote } from "../../core/src/shell"
@@ -80,26 +81,40 @@ class ModelManager implements ModelService {
         return conn
     }
 
-    async pullModel(modelid: string): Promise<ResponseStatus> {
+    async pullModel(
+        modelid: string,
+        options?: TraceOptions
+    ): Promise<ResponseStatus> {
+        const { trace } = options || {}
         const { provider, model } = parseModelIdentifier(modelid)
         if (provider === MODEL_PROVIDER_OLLAMA) {
             if (this.pulled.includes(modelid)) return { ok: true }
 
             if (!isQuiet) logVerbose(`ollama pull ${model}`)
-            const conn = await this.getModelToken(modelid)
-            const res = await fetch(`${conn.base}/api/pull`, {
-                method: "POST",
-                headers: {
-                    "User-Agent": TOOL_ID,
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ name: model, stream: false }, null, 2),
-            })
-            if (res.ok) {
-                const resp = await res.json()
+            try {
+                const conn = await this.getModelToken(modelid)
+                const res = await fetch(`${conn.base}/api/pull`, {
+                    method: "POST",
+                    headers: {
+                        "User-Agent": TOOL_ID,
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(
+                        { name: model, stream: false },
+                        null,
+                        2
+                    ),
+                })
+                if (res.ok) {
+                    const resp = await res.json()
+                }
+                if (res.ok) this.pulled.push(modelid)
+                return { ok: res.ok, status: res.status }
+            } catch (e) {
+                logError(`failed to pull model ${model}`)
+                trace?.error("pull model failed", e)
+                return { ok: false, status: 500, error: serializeError(e) }
             }
-            if (res.ok) this.pulled.push(modelid)
-            return { ok: res.ok, status: res.status }
         }
 
         return { ok: true }
@@ -174,9 +189,8 @@ export class NodeHost implements RuntimeHost {
         if (!askToken && tok?.token) tok.token = "***"
         if (askToken && tok && !tok.token) {
             if (
-                tok.provider === MODEL_PROVIDER_AZURE ||
-                (tok.provider === MODEL_PROVIDER_AZURE_SERVERLESS &&
-                    /\.openai\.azure\.com/i.test(tok.base))
+                tok.provider === MODEL_PROVIDER_AZURE_OPENAI ||
+                tok.provider === MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI
             ) {
                 if (isAzureTokenExpired(this._azureOpenAIToken)) {
                     logVerbose(
@@ -184,33 +198,49 @@ export class NodeHost implements RuntimeHost {
                     )
                     this._azureOpenAIToken = await createAzureToken(
                         AZURE_OPENAI_TOKEN_SCOPES,
+                        tok.azureCredentialsType,
                         signal
                     )
                 }
                 if (!this._azureOpenAIToken)
                     throw new Error("Azure OpenAI token not available")
                 tok.token = "Bearer " + this._azureOpenAIToken.token
-            } else if (tok.provider === MODEL_PROVIDER_AZURE_SERVERLESS) {
+            } else if (
+                tok.provider === MODEL_PROVIDER_AZURE_SERVERLESS_MODELS
+            ) {
                 if (isAzureTokenExpired(this._azureServerlessToken)) {
                     logVerbose(
-                        `fetching Azure AI Infererence token ${this._azureServerlessToken?.expiresOnTimestamp >= Date.now() ? `(expired ${new Date(this._azureServerlessToken.expiresOnTimestamp).toLocaleString()})` : ""}`
+                        `fetching Azure AI token ${this._azureServerlessToken?.expiresOnTimestamp >= Date.now() ? `(expired ${new Date(this._azureServerlessToken.expiresOnTimestamp).toLocaleString()})` : ""}`
                     )
                     this._azureServerlessToken = await createAzureToken(
                         AZURE_AI_INFERENCE_TOKEN_SCOPES,
+                        tok.azureCredentialsType,
                         signal
                     )
                 }
                 if (!this._azureServerlessToken)
-                    throw new Error("Azure AI Inference token not available")
+                    throw new Error("Azure AI token not available")
                 tok.token = "Bearer " + this._azureServerlessToken.token
             }
         }
         if (!tok) {
+            if (!modelId)
+                throw new Error(
+                    "could not determine default model from current configuration"
+                )
             const { provider } = parseModelIdentifier(modelId)
-            if (provider === MODEL_PROVIDER_AZURE)
-                throw new Error("Azure OpenAI end point not configured")
-            else if (provider === MODEL_PROVIDER_AZURE_SERVERLESS)
-                throw new Error("Azure AI Inference end point not configured")
+            if (provider === MODEL_PROVIDER_AZURE_OPENAI)
+                throw new Error(
+                    "Azure OpenAI end point not configured (AZURE_OPENAI_ENDPOINT)"
+                )
+            else if (provider === MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI)
+                throw new Error(
+                    "Azure AI OpenAI Serverless end point not configured (AZURE_SERVERLESS_OPENAI_API_ENDPOINT)"
+                )
+            else if (provider === MODEL_PROVIDER_AZURE_SERVERLESS_MODELS)
+                throw new Error(
+                    "Azure AI Models end point not configured (AZURE_SERVERLESS_MODELS_API_ENDPOINT)"
+                )
         }
         if (!tok && this.clientLanguageModel) {
             return <LanguageModelConfiguration>{
@@ -261,7 +291,7 @@ export class NodeHost implements RuntimeHost {
         if (wksrx.test(name))
             name = join(this.projectFolder(), name.replace(wksrx, ""))
         // check if file exists
-        if (!(await exists(name))) return new Uint8Array()
+        if (!(await exists(name))) return undefined
         // read file
         const res = await readFile(name)
         return res ? new Uint8Array(res) : new Uint8Array()

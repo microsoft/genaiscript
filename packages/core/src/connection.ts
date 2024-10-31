@@ -8,8 +8,8 @@ import {
     LLAMAFILE_API_BASE,
     LOCALAI_API_BASE,
     MODEL_PROVIDER_ANTHROPIC,
-    MODEL_PROVIDER_AZURE,
-    MODEL_PROVIDER_AZURE_SERVERLESS,
+    MODEL_PROVIDER_AZURE_OPENAI,
+    MODEL_PROVIDER_AZURE_SERVERLESS_MODELS,
     MODEL_PROVIDER_CLIENT,
     MODEL_PROVIDER_GITHUB,
     MODEL_PROVIDER_LITELLM,
@@ -20,9 +20,15 @@ import {
     OPENAI_API_BASE,
     PLACEHOLDER_API_BASE,
     PLACEHOLDER_API_KEY,
+    MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI,
 } from "./constants"
 import { fileExists, readText, tryReadText, writeText } from "./fs"
-import { OpenAIAPIType, host, LanguageModelConfiguration } from "./host"
+import {
+    OpenAIAPIType,
+    host,
+    LanguageModelConfiguration,
+    AzureCredentialsType,
+} from "./host"
 import { parseModelIdentifier } from "./models"
 import { normalizeFloat, trimTrailingSlash } from "./util"
 
@@ -50,21 +56,17 @@ export async function parseTokenFromEnv(
         if (env.OPENAI_API_KEY || env.OPENAI_API_BASE || env.OPENAI_API_TYPE) {
             const token = env.OPENAI_API_KEY ?? ""
             let base = env.OPENAI_API_BASE
-            let type =
-                (env.OPENAI_API_TYPE as
-                    | "azure"
-                    | "openai"
-                    | "localai"
-                    | "azure_serverless") || "openai"
+            let type = (env.OPENAI_API_TYPE as OpenAIAPIType) || "openai"
             const version = env.OPENAI_API_VERSION
             if (
                 type !== "azure" &&
                 type !== "openai" &&
                 type !== "localai" &&
-                type !== "azure_serverless"
+                type !== "azure_serverless" &&
+                type !== "azure_serverless_models"
             )
                 throw new Error(
-                    "OPENAI_API_TYPE must be 'azure', 'azure_serverless' or 'openai' or 'localai'"
+                    "OPENAI_API_TYPE must be 'azure', 'azure_serverless', 'azure_serverless_models' or 'openai' or 'localai'"
                 )
             if (type === "openai" && !base) base = OPENAI_API_BASE
             if (type === "localai" && !base) base = LOCALAI_API_BASE
@@ -121,7 +123,7 @@ export async function parseTokenFromEnv(
         }
     }
 
-    if (provider === MODEL_PROVIDER_AZURE) {
+    if (provider === MODEL_PROVIDER_AZURE_OPENAI) {
         const tokenVar = env.AZURE_OPENAI_API_KEY
             ? "AZURE_OPENAI_API_KEY"
             : "AZURE_API_KEY"
@@ -145,12 +147,14 @@ export async function parseTokenFromEnv(
             throw new Error("AZURE_OPENAI_API_ENDPOINT not configured")
         base = cleanAzureBase(base)
         if (!URL.canParse(base))
-            throw new Error("AZURE_OPENAI_ENDPOINT must be a valid URL")
+            throw new Error("AZURE_OPENAI_API_ENDPOINT must be a valid URL")
         const version = env.AZURE_OPENAI_API_VERSION || env.AZURE_API_VERSION
         if (version && version !== AZURE_OPENAI_API_VERSION)
             throw new Error(
                 `AZURE_OPENAI_API_VERSION must be '${AZURE_OPENAI_API_VERSION}'`
             )
+        const azureCredentialsType =
+            env.AZURE_OPENAI_API_CREDENTIALS?.toLowerCase().trim() as AzureCredentialsType
         return {
             provider,
             model,
@@ -161,27 +165,40 @@ export async function parseTokenFromEnv(
                 ? "env: AZURE_OPENAI_API_..."
                 : "env: AZURE_OPENAI_API_... + Entra ID",
             version,
+            azureCredentialsType,
         }
     }
 
-    if (provider === MODEL_PROVIDER_AZURE_SERVERLESS) {
-        // https://github.com/Azure/azure-sdk-for-js/tree/@azure-rest/ai-inference_1.0.0-beta.2/sdk/ai/ai-inference-rest
-        const tokenVar = "AZURE_INFERENCE_CREDENTIAL"
-        const token = env[tokenVar]?.trim()
-        let base = trimTrailingSlash(env.AZURE_INFERENCE_ENDPOINT)
+    if (provider === MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI) {
+        const tokenVar = "AZURE_SERVERLESS_OPENAI_API_KEY"
+        const token = env[tokenVar]
+        let base = trimTrailingSlash(
+            env.AZURE_SERVERLESS_OPENAI_ENDPOINT ||
+                env.AZURE_SERVERLESS_OPENAI_API_ENDPOINT
+        )
         if (!token && !base) return undefined
         if (token === PLACEHOLDER_API_KEY)
-            throw new Error("AZURE_INFERENCE_CREDENTIAL not configured")
-        if (!base) throw new Error("AZURE_INFERENCE_ENDPOINT missing")
+            throw new Error("AZURE_SERVERLESS_OPENAI_API_KEY not configured")
+        if (!base)
+            throw new Error("AZURE_SERVERLESS_OPENAI_API_ENDPOINT missing")
         if (base === PLACEHOLDER_API_BASE)
-            throw new Error("AZURE_INFERENCE_ENDPOINT not configured")
+            throw new Error(
+                "AZURE_SERVERLESS_OPENAI_API_ENDPOINT not configured"
+            )
         base = cleanAzureBase(base)
         if (!URL.canParse(base))
-            throw new Error("AZURE_INFERENCE_ENDPOINT must be a valid URL")
-        const version = env.AZURE_INFERENCE_API_VERSION
-        if (version && version !== AZURE_AI_INFERENCE_VERSION)
             throw new Error(
-                `AZURE_INFERENCE_API_VERSION must be '${AZURE_AI_INFERENCE_VERSION}'`
+                "AZURE_SERVERLESS_OPENAI_API_ENDPOINT must be a valid URL"
+            )
+        const version =
+            env.AZURE_SERVERLESS_OPENAI_API_VERSION ||
+            env.AZURE_SERVERLESS_OPENAI_VERSION
+        const azureCredentialsType =
+            env.AZURE_SERVERLESS_OPENAI_API_CREDENTIALS?.toLowerCase().trim() as AzureCredentialsType
+
+        if (version && version !== AZURE_OPENAI_API_VERSION)
+            throw new Error(
+                `AZURE_SERVERLESS_OPENAI_API_VERSION must be '${AZURE_OPENAI_API_VERSION}'`
             )
         return {
             provider,
@@ -190,8 +207,51 @@ export async function parseTokenFromEnv(
             token,
             type: "azure_serverless",
             source: token
-                ? "env: AZURE_INFERENCE_..."
-                : "env: AZURE_INFERENCE_... + Entra ID",
+                ? "env: AZURE_SERVERLESS_OPENAI_API_..."
+                : "env: AZURE_SERVERLESS_OPENAI_API_... + Entra ID",
+            version,
+            azureCredentialsType,
+        }
+    }
+
+    if (provider === MODEL_PROVIDER_AZURE_SERVERLESS_MODELS) {
+        // https://github.com/Azure/azure-sdk-for-js/tree/@azure-rest/ai-inference_1.0.0-beta.2/sdk/ai/ai-inference-rest
+        const tokenVar = "AZURE_SERVERLESS_MODELS_API_KEY"
+        const token = env[tokenVar]?.trim()
+        let base = trimTrailingSlash(
+            env.AZURE_SERVERLESS_MODELS_ENDPOINT ||
+                env.AZURE_SERVERLESS_MODELS_API_ENDPOINT
+        )
+        if (!token && !base) return undefined
+        if (token === PLACEHOLDER_API_KEY)
+            throw new Error("AZURE_SERVERLESS_MODELS_API_KEY not configured")
+        if (!base)
+            throw new Error("AZURE_SERVERLESS_MODELS_API_ENDPOINT missing")
+        if (base === PLACEHOLDER_API_BASE)
+            throw new Error(
+                "AZURE_SERVERLESS_MODELS_API_ENDPOINT not configured"
+            )
+        base = cleanAzureBase(base)
+        if (!URL.canParse(base))
+            throw new Error(
+                "AZURE_SERVERLESS_MODELS_API_ENDPOINT must be a valid URL"
+            )
+        const version =
+            env.AZURE_SERVERLESS_MODELS_API_VERSION ||
+            env.AZURE_SERVERLESS_MODELS_VERSION
+        if (version && version !== AZURE_AI_INFERENCE_VERSION)
+            throw new Error(
+                `AZURE_SERVERLESS_MODELS_API_VERSION must be '${AZURE_AI_INFERENCE_VERSION}'`
+            )
+        return {
+            provider,
+            model,
+            base,
+            token,
+            type: "azure_serverless_models",
+            source: token
+                ? "env: AZURE_SERVERLESS_MODELS_API_..."
+                : "env: AZURE_SERVERLESS_MODELS_API_... + Entra ID",
             version,
         }
     }

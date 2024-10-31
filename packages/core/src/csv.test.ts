@@ -3,6 +3,16 @@ import assert from "node:assert/strict"
 import { CSVParse, CSVTryParse, CSVToMarkdown, CSVStringify } from "./csv"
 
 describe("CSVParse", () => {
+    test("parse values with quotes", () => {
+        const csv = `RuleID, TestID, TestInput, ExpectedOutput, Reasoning
+1, 1, "The quick brown fox jumps over the lazy dog.;fox", "NN", "Tests if the word 'fox' is tagged correctly as a noun."
+1, 2, "He runs quickly to the store.;quickly", "RB", "Tests if the word 'quickly' is tagged correctly as an adverb."
+`
+        const result = CSVParse(csv)
+        console.log(result)
+        assert.equal(result.length, 2)
+    })
+
     test("Parse simple CSV data with default options", () => {
         const csv = "name,age\nJohn,30\nJane,25"
         const result = CSVParse(csv)
@@ -29,6 +39,15 @@ describe("CSVParse", () => {
             { name: "Jane", age: "25" },
         ])
     })
+    test("Parse CSV data with invalid quotes", () => {
+        const csv = "\"\\\"John\\\"\",30\nJane,25"
+        const result = CSVParse(csv, { headers: ["name", "age"], repair: true })
+        assert.deepEqual(result, [
+            { name: "\"John\"", age: "30" },
+            { name: "Jane", age: "25" },
+        ])
+    })
+
 })
 
 describe("CSVTryParse", () => {

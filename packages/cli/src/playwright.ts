@@ -40,7 +40,7 @@ export class BrowserManager {
             undefined,
             "npx",
             [
-                "--yes,",
+                "--yes",
                 `playwright@${PLAYWRIGHT_VERSION}`,
                 "install",
                 "--with-deps",

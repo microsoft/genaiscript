@@ -411,7 +411,7 @@ export async function parsePromptScript(
     prj: Project
 ) {
     if (PROMPTY_REGEX.test(filename)) {
-        const doc = await promptyParse(content)
+        const doc = await promptyParse(filename, content)
         content = await promptyToGenAIScript(doc)
     }
 
@@ -449,6 +449,7 @@ export async function parsePromptScript(
             c.checkStringArray("tools")
             c.checkStringOrBool("cache")
             c.checkString("cacheName")
+            c.checkString("filename")
 
             c.checkRecord("modelConcurrency")
             c.checkObjectArray("defTools")

@@ -20,6 +20,7 @@ export interface PromptyFrontmatter {
         | JSONSchemaBoolean
         | JSONSchemaString
         | JSONSchemaObject
+        | { type: "list" }
     >
     outputs?: JSONSchemaObject
     model?: {
@@ -73,19 +74,24 @@ function promptyFrontmatterToMeta(frontmatter: PromptyFrontmatter): PromptArgs {
         configuration,
         parameters: modelParameters,
     } = model ?? {}
-    const parameters = inputs ? structuredClone(inputs) : undefined
+    const parameters: Record<string, JSONSchemaType> = inputs ? Object.entries(
+        inputs
+    ).reduce<Record<string, JSONSchemaType>>((acc, [k, v]) => {
+        if (v.type === "list") acc[k] = { type: "array" }
+        else acc[k] = v
+        return acc
+    }, {}) : undefined
     if (parameters && sample && typeof sample === "object")
         for (const p in sample) {
             const s = sample[p]
             const pp = parameters[p]
-            if (s !== undefined && pp && pp?.type !== "object") pp.default = s
+            if (s !== undefined && pp) pp.default = s
         }
 
     let modelName: string = undefined
     if (api !== "chat") throw new Error("completion api not supported")
     if (modelParameters?.n > 1) throw new Error("multi-turn not supported")
-    if (modelParameters?.tools?.length)
-        throw new Error("streaming not supported")
+    if (modelParameters?.tools?.length) throw new Error("tools not supported")
 
     // resolve model
     if (
@@ -100,13 +106,13 @@ function promptyFrontmatterToMeta(frontmatter: PromptyFrontmatter): PromptArgs {
     } else if (configuration?.type === "openai")
         modelName = `openai:${configuration.type}`
 
-    const meta = deleteUndefinedValues(<PromptArgs>{
+    const meta = deleteUndefinedValues({
         model: modelName,
         title: name,
         description,
         files,
         tests,
-        tags,
+        //tags,
         parameters,
         responseType: outputs
             ? "json_object"
@@ -116,15 +122,15 @@ function promptyFrontmatterToMeta(frontmatter: PromptyFrontmatter): PromptArgs {
         maxTokens: modelParameters?.max_tokens,
         topP: modelParameters?.top_p,
         seed: modelParameters?.seed,
-    })
+    } satisfies PromptArgs)
     return meta
 }
 
-export function promptyParse(text: string): PromptyDocument {
+export function promptyParse(filename: string, text: string): PromptyDocument {
     const { frontmatter = "", content = "" } = splitMarkdown(text)
     const fm = YAMLTryParse(frontmatter) ?? {}
-    const meta = fm ? promptyFrontmatterToMeta(fm) : {}
-    // todo: validate frontmatter?
+    const meta: PromptArgs = fm ? promptyFrontmatterToMeta(fm) : {}
+    if (filename) meta.filename = filename
     const messages: ChatCompletionMessageParam[] = []
 
     // split

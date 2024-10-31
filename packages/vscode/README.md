@@ -1,4 +1,4 @@
-Scripting environment with convinient tooling for file ingestion, prompt development and structured data extraction.
+Scripting environment with convenient tooling for file ingestion, prompt development and structured data extraction.
 
 [![A screenshot of a code editor with multiple tabs open, showing TypeScript code for a "Code Optimizer" script. The editor displays a script with a class named "Greeter" and a description of optimizing code performance. The right pane previews the script's output and optimization suggestions. The left sidebar contains file navigation and icons for various functions.](https://microsoft.github.io/genaiscript/images/visual-studio-code.png)](https://microsoft.github.io/genaiscript/images/visual-studio-code.png)
 

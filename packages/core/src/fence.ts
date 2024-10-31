@@ -224,7 +224,7 @@ export function renderFencedVariables(vars: Fenced[]) {
                 language,
             }) => `-   ${k ? `\`${k}\`` : ""} ${
                 validation !== undefined
-                    ? `${validation.schema ? validation.schema : ""} ${!validation.schemaError ? EMOJI_UNDEFINED : validation.pathValid === false ? EMOJI_FAIL : EMOJI_SUCCESS}`
+                    ? `${validation.schemaError ? EMOJI_UNDEFINED : validation.pathValid === false ? EMOJI_FAIL : EMOJI_SUCCESS}`
                     : "no label"
             }\n
 \`\`\`\`\`${
@@ -256,10 +256,13 @@ ${validation.schemaError.split("\n").join("\n> ")}`
 export function unfence(text: string, language: string) {
     if (!text) return text
 
-    const startRx = new RegExp(`^[\r\n\s]*\`\`\`${language}\s*\r?\n`)
-    const endRx = /\r?\n```[\r\n\s]*$/
-    if (startRx.test(text) && endRx.test(text)) {
-        return text.replace(startRx, "").replace(endRx, "")
+    const startRx = new RegExp(`^[\r\n\s]*(\`{3,})${language}\s*\r?\n`, "i")
+    const mstart = startRx.exec(text)
+    if (mstart) {
+        const n = mstart[1].length
+        const endRx = new RegExp(`\r?\n\`{${n},}[\r\n\s]*$`, "i")
+        const mend = endRx.exec(text)
+        if (mend) return text.slice(mstart.index + mstart[0].length, mend.index)
     }
     return text
 }

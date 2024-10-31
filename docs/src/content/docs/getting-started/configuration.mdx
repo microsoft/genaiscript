@@ -186,6 +186,10 @@ The [GitHub Models](https://github.com/marketplace/models) provider, `github`, a
 This provider is useful for prototyping and subject to [rate limits](https://docs.github.com/en/github-models/prototyping-with-ai-models#rate-limits)
 depending on your subscription.
 
+```js "github:"
+script({ model: "github:gpt-4" })
+```
+
 **If you are running from a [GitHub Codespace](https://github.com/features/codespaces), the token is already configured for you.**
 
 <Steps>
@@ -250,11 +254,26 @@ script({
 If you are already using `GITHUB_TOKEN` variable in your script and need a different one
 for GitHub Models, you can use the `GITHUB_MODELS_TOKEN` variable instead.
 
+### `o1-preview` and `o1-mini` models
+
+Currently these models do not support streaming and
+system prompts. GenAIScript handles this internally.
+
+```js "github:o1-mini"
+script({
+    model: "github:o1-mini",
+})
+```
+
 ## Azure OpenAI <a id="azure" href=""></a>
 
 The [Azure OpenAI](https://learn.microsoft.com/en-us/azure/ai-services/openai/reference#chat-completions) provider, `azure` uses the `AZURE_OPENAI_...` environment variables.
 You can use a managed identity (recommended) or a API key to authenticate with the Azure OpenAI service.
 You can also use a service principal as documented in [automation](/genaiscript/getting-started/automating-scripts).
+
+```js "azure:"
+script({ model: "azure:deployment-id" })
+```
 
 :::tip
 
@@ -289,7 +308,7 @@ Navigate to **Resource Management**, then **Keys and Endpoint**.
 Update the `.env` file with the endpoint.
 
 ```txt title=".env"
-AZURE_OPENAI_ENDPOINT=https://....openai.azure.com
+AZURE_OPENAI_API_ENDPOINT=https://....openai.azure.com
 ```
 
 :::note
@@ -333,6 +352,23 @@ script({
 
 </Steps>
 
+### Custom credentials
+
+In some situation, the default credentials chain lookup may not work. In that case, you can specify an additional environment variable `AZURE_SERVERLESS_OPENAI_API_CREDENTIALS`
+with the type of credential that should be used.
+
+```txt title=".env"
+AZURE_SERVERLESS_OPENAI_API_CREDENTIALS=cli
+```
+
+The types are mapped directly to their [@azure/identity](https://www.npmjs.com/package/@azure/identity) credential types:
+
+-   `cli` - `AzureCliCredential`
+-   `env` - `EnvironmentCredential`
+-   `powershell` - `AzurePowerShellCredential`
+-   `devcli` - `AzureDeveloperCliCredential`
+-   `managedidentity` - `ManagedIdentityCredential`
+
 ### API Key
 
 <Steps>
@@ -366,34 +402,32 @@ The rest of the steps are the same: Find the deployment name and use it in your 
 
 </Steps>
 
-## Azure AI Models (Serverless Deployments) <a id="azure_serverless" href=""></a>
+## Azure AI Serverless Deployments <a id="azure_serverless" href=""></a>
 
-The `azure_serverless` supports models in the Azure AI model catalog can be deployed as [a serverless API](https://learn.microsoft.com/en-us/azure/ai-studio/how-to/deploy-models-serverless-availability) with pay-as-you-go billing.
-This kind of deployment provides a way to consume models
-as an API without hosting them on your subscription, while keeping the enterprise security and compliance that organizations need.
+You can deploy "serverless" models through [Azure AI Studio](https://ai.azure.com/) and pay as you go per token.
+You can browse the [Azure AI model catalog](https://ai.azure.com/explore/models)
+and use the [serverless API](https://learn.microsoft.com/en-us/azure/ai-studio/how-to/deploy-models-serverless-availability) filter to see the available models.
 
-Note that the OpenAI models, like gpt-4o..., are deployed to `.openai.azure.com` endpoints,
-while the Azure AI models are deployed to `.models.ai.azure.com` endpoints.
+There two types of serverless deployments that require different configurations: OpenAI models and all other models.
+The OpenAI models, like `gpt-4o`, are deployed to `.openai.azure.com` endpoints,
+while the Azure AI models, like `Meta-Llama-3.1-405B-Instruct` are deployed to `.models.ai.azure.com` endpoints.
+
 They are configured slightly differently.
 
-### Managed Identity (Entra ID)
+### Azure AI OpenAI
+
+The `azure_serverless` provider supports OpenAI models deployed through the Azure AI Studio serverless deployments.
+It supports both Entra ID and key-based authentication.
+
+```js "azure_serverless:"
+script({ model: "azure_serverless:deployment-id" })
+```
+
+#### Managed Identity (Entra ID)
 
 <Steps>
 
 <ol>
-
-<li>
-
-Open your **Azure AI Project** resource in the [Azure Portal](https://portal.azure.com)
-
-</li>
-<li>
-
-Navigate to **Access Control (IAM)**, then **View My Access**. Make sure your
-user or service principal has the **Azure AI Developer** role.
-If you get a `401` error, click on **Add**, **Add role assignment** and add the **Azure AI Developer** role to your user.
-
-</li>
 
 <li>
 
@@ -418,14 +452,40 @@ You can use the `Deployment Options` -> `Serverless API` option to deploy a mode
 
 </li>
 
+<li>
+
+Deploy an OpenAI base model. This will also create a new Azure OpenAI resource in your subscription.
+
+</li>
+
+<li>
+
+Update the `.env` file with the deployment endpoint in the `AZURE_SERVERLESS_OPENAI_API_ENDPOINT` variable.
+
+```txt title=".env"
+AZURE_SERVERLESS_OPENAI_API_ENDPOINT=https://....openai.azure.com
+```
+
+</li>
+
+<li>
+
+Open your **Azure OpenAI** resource that was created by Azure AI in the [Azure Portal](https://portal.azure.com)
+
+</li>
+<li>
+
+Navigate to **Access Control (IAM)**, then **View My Access**. Make sure your
+user or service principal has the **Cognitive Services OpenAI User/Contributor** role.
+If you get a `401` error, click on **Add**, **Add role assignment** and add the **Cognitive Services OpenAI User** role to your user.
+
+</li>
+
 </ol>
 
 </Steps>
 
-The OpenAI models (gpt-4o, ...) are deployed to `.openai.azure.com` endpoints,
-the other models are deployed to `.models.ai.azure.com` endpoints.
-
-### `.models.ai.azure.com` endpoints
+#### API Key
 
 <Steps>
 
@@ -433,10 +493,58 @@ the other models are deployed to `.models.ai.azure.com` endpoints.
 
 <li>
 
-Configure the **Endpoint Target URL** as the `AZURE_INFERENCE_ENDPOINT`.
+Open your [Azure OpenAI resource](https://portal.azure.com) and navigate to **Resource Management**, then **Keys and Endpoint**.
+
+</li>
+
+<li>
+
+Update the `.env` file with the endpoint and the secret key (**Key 1** or **Key 2**) and the endpoint.
 
 ```txt title=".env"
-AZURE_INFERENCE_ENDPOINT=https://...models.ai.azure.com
+AZURE_SERVERLESS_OPENAI_API_ENDPOINT=https://....openai.azure.com
+AZURE_SERVERLESS_OPENAI_API_KEY=...
+```
+
+</li>
+
+</ol>
+
+</Steps>
+
+### Azure AI Models
+
+The `azure_serverless_models` provider supports non-OpenAI models deployed through the Azure AI Studio serverless deployments.
+
+```js "azure_serverless_models:"
+script({ model: "azure_serverless_models:deployment-id" })
+```
+
+#### Managed Identity (Entra ID)
+
+<Steps>
+
+<ol>
+
+<li>
+
+Open your **Azure AI Project** resource in the [Azure Portal](https://portal.azure.com)
+
+</li>
+<li>
+
+Navigate to **Access Control (IAM)**, then **View My Access**. Make sure your
+user or service principal has the **Azure AI Developer** role.
+If you get a `401` error, click on **Add**, **Add role assignment** and add the **Azure AI Developer** role to your user.
+
+</li>
+
+<li>
+
+Configure the **Endpoint Target URL** as the `AZURE_SERVERLESS_MODELS_API_ENDPOINT`.
+
+```txt title=".env"
+AZURE_SERVERLESS_MODELS_API_ENDPOINT=https://...models.ai.azure.com
 ```
 
 </li>
@@ -464,15 +572,7 @@ script({
 
 </Steps>
 
-#### Support for multiple inference deployements
-
-For non-OpenAI models deployed on `.models.ai.azure.com`,
-you can keep the same `AZURE_INFERENCE_ENDPOINT` and GenAIScript will automatically update the endpoint
-with the deployment id name.
-
-For OpenAI models deployed on `.openai.azure.com`, you can also keep the same deployment name.
-
-### API Key
+#### API Key
 
 <Steps>
 
@@ -493,12 +593,12 @@ You can use the `Deployment Options` -> `Serverless API` option to deploy a mode
 
 <li>
 
-Configure the **Endpoint Target URL** as the `AZURE_INFERENCE_ENDPOINT` variable and the key in
-`AZURE_INFERENCE_CREDENTIAL` in the `.env` file.
+Configure the **Endpoint Target URL** as the `AZURE_SERVERLESS_MODELS_API_ENDPOINT` variable and the key in
+`AZURE_SERVERLESS_MODELS_API_KEY` in the `.env` file\***\*.\*\***
 
 ```txt title=".env"
-AZURE_INFERENCE_ENDPOINT=https://...models.ai.azure.com
-AZURE_INFERENCE_CREDENTIAL=...
+AZURE_SERVERLESS_MODELS_API_ENDPOINT=https://...models.ai.azure.com
+AZURE_SERVERLESS_MODELS_API_KEY=...
 ```
 
 </li>
@@ -513,66 +613,17 @@ Find the deployment name and use it in your script, `model: "azure_serverless:de
 
 </Steps>
 
-:::tip[Default Model Configuration]
-
-Use `GENAISCRIPT_DEFAULT_MODEL` and `GENAISCRIPT_DEFAULT_SMALL_MODEL` in your `.env` file to set the default model and small model.
-
-```txt
-GENAISCRIPT_DEFAULT_MODEL=azure_serverless:<deploymentid>
-GENAISCRIPT_DEFAULT_SMALL_MODEL=azure_serverless:<deploymentid>
-```
-
-:::
-
 #### Support for multiple inference deployements
 
-You can update the `AZURE_INFERENCE_CREDENTIAL` with a list of `deploymentid=key` pairs to support multiple deployments (each deployment has a different key).
+You can update the `AZURE_SERVERLESS_MODELS_API_KEY` with a list of `deploymentid=key` pairs to support multiple deployments (each deployment has a different key).
 
 ```txt title=".env"
-AZURE_INFERENCE_CREDENTIAL="
+AZURE_SERVERLESS_MODELS_API_KEY="
 model1=key1
 model2=key2
 model3=key3
 "
 ```
-
-## Anthropic
-
-This provider, `anthropic`, is the Anthropic chat model provider.
-It uses the `ANTHROPIC_API_...` environment variables.
-
-<Steps>
-
-<ol>
-
-<li>
-
-Update the `.env` file with the secret key.
-
-```txt title=".env"
-ANTHROPIC_API_KEY=...
-# optional
-ANTHROPIC_API_BASE=...
-```
-
-</li>
-
-<li>
-
-Set the `model` field in `script` to the model you want to use.
-
-```js 'model: "anthropic:claude-2"'
-script({
-    model: "anthropic:claude-2",
-    ...
-})
-```
-
-</li>
-
-</ol>
-
-</Steps>
 
 ## GitHub Copilot Chat Models <a id="github-copilot" href=""></a>
 
@@ -619,6 +670,10 @@ The mapping of GenAIScript model names to Visual Studio Models is stored in the 
 ## Anthropic
 
 [Anthropic](https://www.anthropic.com/) is an AI research company that offers powerful language models, including the Claude series.
+
+```js "anthropic:"
+script({ model: "anthropic:claude-2.1" })
+```
 
 To use Anthropic models with GenAIScript, follow these steps:
 
@@ -727,20 +782,40 @@ ollama serve
 
 <li>
 
-Update your script to use the `ollama:phi3` model.
+Update your script to use the `ollama:phi3.5` model (or any [other model](https://ollama.com/library) or from [Hugging Face](https://huggingface.co/docs/hub/en/ollama)).
 
-```js "ollama:phi3"
+```js "ollama:phi3.5"
 script({
     ...,
-    model: "ollama:phi3",
+    model: "ollama:phi3.5",
 })
 ```
+
+GenAIScript will automatically pull the model, which may take some time depending on the model size. The model is cached locally by Ollama.
 
 </li>
 
 </ol>
 
 </Steps>
+
+You can specify the model size by adding the size to the model name, like `ollama:llama3.2:3b`.
+
+```js "ollama:llama3.2:3b"
+script({
+    ...,
+    model: "ollama:llama3.2:3b",
+})
+```
+
+You can also use [GGUF models](https://huggingface.co/models?library=gguf) from [Hugging Face](https://huggingface.co/docs/hub/en/ollama).
+
+```js "hf.co/bartowski/Llama-3.2-1B-Instruct-GGUF"
+script({
+    ...,
+    model: "ollama:hf.co/bartowski/Llama-3.2-1B-Instruct-GGUF",
+})
+```
 
 ### Llamafile
 

@@ -20,11 +20,17 @@ export function CSVParse(
     options?: {
         delimiter?: string
         headers?: ElementOrArray<string>
+        repair?: boolean
     }
 ): object[] {
     // Destructure options or provide defaults
-    const { delimiter, headers } = options || {}
+    const { delimiter, headers, repair, ...rest } = options || {}
     const columns = headers ? arrayify(headers) : true
+
+    // common LLM escape errors
+    if (repair) {
+        text = text.replace(/\\"/g, '""').replace(/""""/g, '""')
+    }
     // Parse the CSV string based on the provided options
     return parse(text, {
         autoParse: true, // Automatically parse values to appropriate types
@@ -34,6 +40,10 @@ export function CSVParse(
         skipEmptyLines: true, // Skip empty lines in the CSV
         skipRecordsWithError: true, // Skip records that cause errors
         delimiter, // Use the provided delimiter
+        relaxQuotes: true, // Allow quotes to be relaxed
+        relaxColumnCount: true, // Allow rows to have different column counts
+        trim: true, // Trim whitespace from values
+        ...rest,
     })
 }
 
@@ -52,6 +62,7 @@ export function CSVTryParse(
     options?: {
         delimiter?: string
         headers?: ElementOrArray<string>
+        repair?: boolean
     } & TraceOptions
 ): object[] | undefined {
     const { trace } = options || {}

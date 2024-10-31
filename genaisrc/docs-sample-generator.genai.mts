@@ -1,5 +1,5 @@
 script({
-    model: "openai:gpt-4",
+    model: "large",
     title: "generating tests from samples",
     system: ["system", "system.files"],
     parameters: {

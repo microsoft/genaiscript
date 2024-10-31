@@ -24,6 +24,7 @@ import {
     MAX_DATA_REPAIRS,
     MAX_TOOL_CALLS,
     MAX_TOOL_CONTENT_TOKENS,
+    SYSTEM_FENCE,
 } from "./constants"
 import { parseAnnotations } from "./annotations"
 import { errorMessage, isCancelError, serializeError } from "./error"
@@ -32,10 +33,12 @@ import { createChatTurnGenerationContext } from "./runpromptcontext"
 import { dedent } from "./indent"
 import { traceLanguageModelConnection } from "./models"
 import {
+    ChatCompletionAssistantMessageParam,
     ChatCompletionContentPartImage,
     ChatCompletionMessageParam,
     ChatCompletionResponse,
     ChatCompletionsOptions,
+    ChatCompletionSystemMessageParam,
     ChatCompletionTool,
     ChatCompletionToolCall,
     ChatCompletionUserMessageParam,
@@ -140,7 +143,7 @@ async function runToolCalls(
 ) {
     const projFolder = host.projectFolder()
     const { cancellationToken, trace, model } = options || {}
-    const encoder = await resolveTokenEncoder(model)
+    const { encode: encoder } = await resolveTokenEncoder(model)
     assert(!!trace)
     let edits: Edits[] = []
 
@@ -564,17 +567,26 @@ async function processChatMessage(
                 const node = ctx.node
                 checkCancelled(cancellationToken)
                 // expand template
-                const { errors, userPrompt } = await renderPromptNode(
-                    options.model,
-                    node,
-                    {
+                const { errors, messages: participantMessages } =
+                    await renderPromptNode(options.model, node, {
                         flexTokens: options.flexTokens,
                         trace,
-                    }
-                )
-                if (userPrompt?.trim().length) {
-                    trace.detailsFenced(`💬 message`, userPrompt, "markdown")
-                    messages.push({ role: "user", content: userPrompt })
+                    })
+                if (participantMessages?.length) {
+                    if (
+                        participantMessages.some(
+                            ({ role }) => role === "system"
+                        )
+                    )
+                        throw new Error(
+                            "system messages not supported for chat participants"
+                        )
+                    renderMessagesToMarkdown(participantMessages)
+                    trace.details(
+                        `💬 messages (${participantMessages.length})`,
+                        renderMessagesToMarkdown(participantMessages)
+                    )
+                    messages.push(...participantMessages)
                     needsNewTurn = true
                 } else trace.item("no message")
                 if (errors?.length) {
@@ -678,9 +690,7 @@ export async function executeChatSession(
         while (true) {
             stats.turns++
             const tokens = estimateChatTokens(model, messages)
-            infoCb?.({
-                text: `prompting ${model} (~${tokens ?? "?"} tokens)`,
-            })
+            logVerbose(`prompting ${model} (~${tokens ?? "?"} tokens)\n`)
             if (messages)
                 trace.details(
                     `💬 messages (${messages.length})`,
@@ -784,4 +794,49 @@ export function tracePromptResult(trace: MarkdownTrace, resp: RunPromptResult) {
         trace.appendContent(
             "\n\n" + HTMLEscape(prettifyMarkdown(text)) + "\n\n"
         )
+}
+
+export function appendUserMessage(
+    messages: ChatCompletionMessageParam[],
+    content: string
+) {
+    if (!content) return
+    const last = messages.at(-1) as ChatCompletionUserMessageParam
+    if (last?.role === "user") last.content += content + "\n"
+    else
+        messages.push({
+            role: "user",
+            content,
+        } as ChatCompletionUserMessageParam)
+}
+
+export function appendAssistantMessage(
+    messages: ChatCompletionMessageParam[],
+    content: string
+) {
+    if (!content) return
+    const last = messages.at(-1) as ChatCompletionAssistantMessageParam
+    if (last?.role === "assistant") last.content += content
+    else
+        messages.push({
+            role: "assistant",
+            content,
+        } satisfies ChatCompletionAssistantMessageParam)
+}
+
+export function appendSystemMessage(
+    messages: ChatCompletionMessageParam[],
+    content: string
+) {
+    if (!content) return
+    let last = messages[0] as ChatCompletionSystemMessageParam
+    if (last?.role !== "system") {
+        last = {
+            role: "system",
+            content,
+        } as ChatCompletionSystemMessageParam
+        messages.unshift(last)
+    }
+    if (last.content) last.content += SYSTEM_FENCE
+    last.content += content
 }

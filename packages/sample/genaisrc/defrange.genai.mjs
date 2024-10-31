@@ -1,6 +1,6 @@
 script({
     model: "small",
-    files: "src/basic.prompty",
+    files: "src/templates/basic.prompty",
     tests: {
         keywords: ["CORRECT1", "CORRECT2", "CORRECT3"],
     },

@@ -2,10 +2,7 @@
 layout: two-cols-header
 ---
 
-# Tools = JavaScript Function
-
-- Tools are JavaScript functions
-- Builtin "Agentic" framework
+# Tool = JavaScript Function
 
 ::left::
 
@@ -24,23 +21,22 @@ stateDiagram
 
 ::right::
 
+- definition
+
 ```js
 defTool(
     "fs_read_file",
     "Reads a file as text from the file system.",
     {
-        type: "object",
-        properties: {
-            filename: {
-                type: "string",
-                description: "Path of the file.",
-            },
-        },
-        required: ["filename"],
+        filename: { type: "string" },
     },
-    async (args) => {
-        const { filename } = args
-        return await workspace.readText(filename)
-    }
+    async ({ filename }) => await workspace.readText(filename)
 )
+```
+
+- usage
+
+```js
+script({ tools: ["fs_read_file"]})
+...
 ```

@@ -1,6 +1,6 @@
 {
   "name": "genaiscript-sample",
-  "version": "1.67.1",
+  "version": "1.70.1",
   "license": "MIT",
   "private": true,
   "scripts": {
@@ -15,9 +15,9 @@
     "test:scripts:view": "node ../cli/built/genaiscript.cjs test view"
   },
   "devDependencies": {
-    "@agentic/calculator": "^7.0.0",
-    "@agentic/core": "^7.0.0",
-    "@agentic/weather": "^7.0.0",
+    "@agentic/calculator": "^7.1.0",
+    "@agentic/core": "^7.1.0",
+    "@agentic/weather": "^7.1.0",
     "@azure/identity": "^4.5.0",
     "@azure/storage-blob": "^12.25.0",
     "@tidyjs/tidy": "^2.5.2",
@@ -25,6 +25,6 @@
     "p-all": "^5.0.0",
     "vectorstore": "^0.0.4",
     "zod": "^3.23.8",
-    "zod-to-json-schema": "^3.23.3"
+    "zod-to-json-schema": "^3.23.5"
   }
 }

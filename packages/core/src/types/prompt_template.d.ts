@@ -49,6 +49,11 @@ interface PromptDefinition {
      * Longer description of the prompt. Shows in UI grayed-out.
      */
     description?: string
+
+    /**
+     * Groups template in UI
+     */
+    group?: string
 }
 
 interface PromptLike extends PromptDefinition {
@@ -108,29 +113,45 @@ type PromptOutputProcessorHandler = (
 
 type PromptTemplateResponseType = "json_object" | "json_schema" | undefined
 
+type ModelType = OptionsOrString<
+    | "large"
+    | "small"
+    | "openai:gpt-4o"
+    | "openai:gpt-4o-mini"
+    | "openai:gpt-3.5-turbo"
+    | "openai:o1-mini"
+    | "openai:o1-preview"
+    | "github:gpt-4o"
+    | "github:gpt-4o-mini"
+    | "github:o1-mini"
+    | "github:o1-preview"
+    | "azure:gpt-4o"
+    | "azure:gpt-4o-mini"
+    | "ollama:phi3.5"
+    | "ollama:llama3.2"
+    | "ollama:qwen2.5-coder"
+    | "anthropic:claude-3-5-sonnet-20240620"
+    | "anthropic:claude-3-opus-20240229"
+    | "anthropic:claude-3-sonnet-20240229"
+    | "anthropic:claude-3-haiku-20240307"
+    | "anthropic:claude-2.1"
+    | "anthropic:claude-2.0"
+    | "anthropic:claude-instant-1.2"
+>
+
+type ModelSmallType = OptionsOrString<
+    | "openai:gpt-4o-mini"
+    | "github:gpt-4o-mini"
+    | "azure:gpt-4o-mini"
+    | "openai:gpt-3.5-turbo"
+    | "github:Phi-3-5-mini-instruct"
+>
+
 interface ModelConnectionOptions {
     /**
      * Which LLM model to use. Use `large` for the default set of model candidates, `small` for the set of small models like gpt-4o-mini.
      */
-    model?: OptionsOrString<
-        | "large"
-        | "small"
-        | "openai:gpt-4o"
-        | "openai:gpt-4o-mini"
-        | "openai:gpt-3.5-turbo"
-        | "azure:gpt-4o"
-        | "azure:gpt-4o-mini"
-        | "ollama:phi3"
-        | "ollama:llama3"
-        | "ollama:mixtral"
-        | "anthropic:claude-3-5-sonnet-20240620"
-        | "anthropic:claude-3-opus-20240229"
-        | "anthropic:claude-3-sonnet-20240229"
-        | "anthropic:claude-3-haiku-20240307"
-        | "anthropic:claude-2.1"
-        | "anthropic:claude-2.0"
-        | "anthropic:claude-instant-1.2"
-    >
+    model?: ModelType
 
     /**
      * Which LLM model to use for the "small" model.
@@ -138,9 +159,7 @@ interface ModelConnectionOptions {
      * @default gpt-4
      * @example gpt-4
      */
-    smallModel?: OptionsOrString<
-        "openai:gpt-4o-mini" | "openai:gpt-3.5-turbo" | "azure:gpt-4o-mini"
-    >
+    smallModel?: ModelSmallType
 }
 
 interface ModelOptions extends ModelConnectionOptions {
@@ -248,16 +267,11 @@ interface PromptSystemOptions {
     excludedSystem?: ElementOrArray<SystemPromptId>
 }
 
-interface ScriptRuntimeOptions {
+interface ScriptRuntimeOptions extends LineNumberingOptions {
     /**
      * Secrets required by the prompt
      */
     secrets?: string[]
-
-    /**
-     * Default value for emitting line numbers in fenced code blocks.
-     */
-    lineNumbers?: boolean
 }
 
 type PromptParameterType =
@@ -372,11 +386,6 @@ interface PromptScript
         PromptSystemOptions,
         EmbeddingsModelOptions,
         ScriptRuntimeOptions {
-    /**
-     * Groups template in UI
-     */
-    group?: string
-
     /**
      * Additional template parameters that will populate `env.vars`
      */
@@ -725,32 +734,35 @@ interface ExpansionVariables {
     files: WorkspaceFile[]
 
     /**
-     * current prompt template
-     */
-    template: PromptDefinition
-
-    /**
      * User defined variables
      */
-    vars?: Record<string, string | boolean | number | object | any>
+    vars: Record<string, string | boolean | number | object | any>
 
     /**
      * List of secrets used by the prompt, must be registered in `genaiscript`.
      */
-    secrets?: Record<string, string>
+    secrets: Record<string, string>
 
     /**
      * Root prompt generation context
      */
     generator: ChatGenerationContext
+
+    /**
+     * current prompt template
+     * @deprecated use `meta` instead
+     */
+    template: PromptDefinition & ModelConnectionOptions
+
+    /**
+     * Metadata of the top-level prompt
+     */
+    meta: PromptDefinition & ModelConnectionOptions
 }
 
 type MakeOptional<T, P extends keyof T> = Partial<Pick<T, P>> & Omit<T, P>
 
-type PromptArgs = Omit<
-    PromptScript,
-    "text" | "id" | "jsSource" | "activation" | "defTools"
->
+type PromptArgs = Omit<PromptScript, "text" | "id" | "jsSource" | "defTools">
 
 type PromptSystemArgs = Omit<
     PromptArgs,
@@ -931,6 +943,8 @@ interface JSONSchemaObject {
     }
     required?: string[]
     additionalProperties?: boolean
+
+    default?: object
 }
 
 interface JSONSchemaArray {
@@ -938,6 +952,8 @@ interface JSONSchemaArray {
     type: "array"
     description?: string
     items?: JSONSchemaType
+
+    default?: any[]
 }
 
 type JSONSchema = JSONSchemaObject | JSONSchemaArray
@@ -984,7 +1000,7 @@ interface RunPromptResult {
     fileEdits?: Record<string, FileUpdate>
     edits?: Edits[]
     changelogs?: ChangeLog[]
-    model?: string
+    model?: ModelType
 }
 
 /**
@@ -1086,10 +1102,52 @@ interface ParseZipOptions {
 }
 
 type TokenEncoder = (text: string) => number[]
+type TokenDecoder = (lines: Iterable<number>) => string
+
+interface Tokenizer {
+    model: string
+    encode: TokenEncoder
+    decode: TokenDecoder
+}
 
 interface CSVParseOptions {
     delimiter?: string
     headers?: string[]
+    repair?: boolean
+}
+
+interface TextChunk extends WorkspaceFile {
+    lineStart: number
+    lineEnd: number
+}
+
+interface TextChunkerConfig extends LineNumberingOptions {
+    model?: ModelType
+    chunkSize?: number
+    chunkOverlap?: number
+    docType?: OptionsOrString<
+        | "cpp"
+        | "python"
+        | "py"
+        | "java"
+        | "go"
+        | "c#"
+        | "c"
+        | "cs"
+        | "ts"
+        | "js"
+        | "tsx"
+        | "typescript"
+        | "js"
+        | "jsx"
+        | "javascript"
+        | "php"
+        | "md"
+        | "mdx"
+        | "markdown"
+        | "rst"
+        | "rust"
+    >
 }
 
 interface Tokenizers {
@@ -1098,7 +1156,7 @@ interface Tokenizers {
      * @param model
      * @param text
      */
-    count(text: string, options?: { model: string }): Promise<number>
+    count(text: string, options?: { model?: ModelType }): Promise<number>
 
     /**
      * Truncates the text to a given number of tokens, approximation.
@@ -1110,8 +1168,24 @@ interface Tokenizers {
     truncate(
         text: string,
         maxTokens: number,
-        options?: { model?: string; last?: boolean }
+        options?: { model?: ModelType; last?: boolean }
     ): Promise<string>
+
+    /**
+     * Tries to resolve a tokenizer for a given model. Defaults to gpt-4o if not found.
+     * @param model
+     */
+    resolve(model?: ModelType): Promise<Tokenizer>
+
+    /**
+     * Chunk the text into smaller pieces based on a token limit and chunking strategy.
+     * @param text
+     * @param options
+     */
+    chunk(
+        file: Awaitable<string | WorkspaceFile>,
+        options?: TextChunkerConfig
+    ): Promise<TextChunk[]>
 }
 
 interface HashOptions {
@@ -1317,6 +1391,13 @@ interface Parsers {
      * @param content content to hash
      */
     hash(content: any, options?: HashOptions): Promise<string>
+
+    /**
+     * Optionally removes a code fence section around the text
+     * @param text
+     * @param language
+     */
+    unfence(text: string, language: string): string
 }
 
 interface AICIGenOptions {
@@ -1875,13 +1956,7 @@ interface CSV {
      * @param options.headers - An array of headers to use. If not provided, headers will be inferred from the first row.
      * @returns An array of objects representing the parsed CSV data.
      */
-    parse(
-        text: string,
-        options?: {
-            delimiter?: string
-            headers?: string[]
-        }
-    ): object[]
+    parse(text: string, options?: CSVParseOptions): object[]
 
     /**
      * Converts an array of objects to a CSV string.
@@ -2068,6 +2143,11 @@ interface PromptGeneratorOptions extends ModelOptions, PromptSystemOptions {
      * Write file edits to the file system
      */
     applyEdits?: boolean
+
+    /**
+     * Throws if the generation is not successful
+     */
+    throwOnError?: boolean
 }
 
 interface FileOutputOptions {
@@ -2951,7 +3031,20 @@ interface PromiseQueue {
     ): Promise<ReturnType[]>
 }
 
-interface PromptHost extends ShellHost, UserInterfaceHost {
+interface LanguageModelReference {
+    provider: string
+    model: string
+}
+
+interface LanguageModelHost {
+    /**
+     * Resolve a language model alias to a provider and model based on the current configuration
+     * @param modelId
+     */
+    resolveLanguageModel(modelId?: string): Promise<LanguageModelReference>
+}
+
+interface PromptHost extends ShellHost, UserInterfaceHost, LanguageModelHost {
     /**
      * Opens a in-memory key-value cache for the given cache name. Entries are dropped when the cache grows too large.
      * @param cacheName

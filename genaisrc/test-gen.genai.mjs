@@ -1,5 +1,5 @@
 script({
-    model: "openai:gpt-4",
+    model: "large",
     title: "unit test generator",
     system: ["system", "system.typescript", "system.files"],
     tools: ["fs"],

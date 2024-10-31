@@ -98,10 +98,6 @@ export function JSON5TryParse<T = unknown>(
     })
 }
 
-// Regular expressions to match the start and end of a fenced JSON block.
-const startRx = /^\s*\`\`\`json\s/
-const endRx = /\`\`\`\s*$/
-
 /**
  * Attempts to parse a JSON-like string, removing any fencing, and returns the parsed object.
  * @param s - The string to parse.

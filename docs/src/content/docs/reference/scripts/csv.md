@@ -3,10 +3,9 @@ title: CSV
 description: Learn how to parse and stringify CSV data using the CSV class in scripting.
 keywords: CSV parsing, CSV stringifying, CSV data, CSV manipulation, CSV utility
 sidebar:
-  order: 17
+    order: 17
 genaiscript:
-  files: src/samples/penguins.csv
-
+    files: src/samples/penguins.csv
 ---
 
 Parsing and stringifying of Comma Separated Values (CSV) data.
@@ -24,18 +23,18 @@ maps to the following array of objects:
 
 ```json
 [
-  {
-    "name": "A",
-    "value": 10
-  },
-  {
-    "name": "B",
-    "value": 2
-  },
-  {
-    "name": "C",
-    "value": 3
-  }
+    {
+        "name": "A",
+        "value": 10
+    },
+    {
+        "name": "B",
+        "value": 2
+    },
+    {
+        "name": "C",
+        "value": 3
+    }
 ]
 ```
 
@@ -51,9 +50,9 @@ def("DATA", env.files[0])
 
 ```js assistant=false
 def("DATA", env.files[0], {
-  sliceHead: 50, // take first 50
-  sliceTail: 25, // take last 25
-  sliceSample: 5 // take 5 at random
+    sliceHead: 50, // take first 50
+    sliceTail: 25, // take last 25
+    sliceSample: 5, // take 5 at random
 })
 ```
 
@@ -75,7 +74,7 @@ If the CSV file does not have a header row, you can specify the column names as 
 ```js
 const rows = CSV.parse(csv, {
     delimiter: "|",
-    headers: ["name", "value"]
+    headers: ["name", "value"],
 })
 ```
 
@@ -121,4 +120,13 @@ The [parsers](/genaiscript/reference/scripts/parsers) also provide a parser for 
 
 ```js
 const rows = parsers.CSV(env.files[0])
+```
+
+
+## Repair
+
+You can specify the `repair: true` option to fix common LLM mistakes around CSV.
+
+```js
+const rows = CSV.parse(csv, { repair: true })
 ```

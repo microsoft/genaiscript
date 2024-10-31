@@ -7,7 +7,7 @@ import { MarkdownTrace } from "./trace"
 import { YAMLTryParse } from "./yaml"
 import { DOCXTryParse } from "./docx"
 import { frontmatterTryParse } from "./frontmatter"
-import { extractFenced } from "./fence"
+import { extractFenced, unfence } from "./fence"
 import { parseAnnotations } from "./annotations"
 import { dotEnvTryParse } from "./dotenv"
 import { INITryParse } from "./ini"
@@ -34,7 +34,7 @@ export async function createParsers(options: {
     model: string
 }): Promise<Parsers> {
     const { trace, model } = options
-    const encoder = await resolveTokenEncoder(model)
+    const { encode: encoder } = await resolveTokenEncoder(model)
     return Object.freeze<Parsers>({
         JSON5: (text, options) =>
             JSON5TryParse(filenameOrFileToContent(text), options?.defaultValue),
@@ -120,6 +120,7 @@ export async function createParsers(options: {
         },
         diff: (f1, f2) => llmifyDiff(createDiff(f1, f2)),
         tidyData: (rows, options) => tidyData(rows, options),
-        hash: async (text, options) => await hash(text, options)
+        hash: async (text, options) => await hash(text, options),
+        unfence: unfence
     })
 }

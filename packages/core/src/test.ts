@@ -38,6 +38,8 @@ export function generatePromptFooConfiguration(
         testProvider?: string
         out?: string
         cli?: string
+        model?: string
+        smallModel?: string
         models?: ModelOptions[]
     }
 ) {
@@ -47,7 +49,13 @@ export function generatePromptFooConfiguration(
     const models = options?.models || []
 
     // Ensure at least one model exists
-    if (!models.length) models.push(script)
+    if (!models.length) {
+        models.push({
+            ...script,
+            model: options?.model || script.model,
+            smallModel: options?.smallModel || script.smallModel,
+        })
+    }
 
     const cli = options?.cli
     const transform = "output.text"

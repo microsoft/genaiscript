@@ -1,4 +1,4 @@
-import { logVerbose, normalizeInt, trimTrailingSlash } from "./util"
+import { deleteUndefinedValues, normalizeInt, trimTrailingSlash } from "./util"
 import { LanguageModelConfiguration, host } from "./host"
 import {
     AZURE_AI_INFERENCE_VERSION,
@@ -21,6 +21,9 @@ import {
     ChatCompletionResponse,
     ChatCompletionChunk,
     ChatCompletionUsage,
+    ChatCompletion,
+    ChatCompletionChunkChoice,
+    ChatCompletionChoice,
 } from "./chattypes"
 import { resolveTokenEncoder } from "./encoders"
 import { toSignal } from "./cancellation"
@@ -28,28 +31,31 @@ import { INITryParse } from "./ini"
 
 export function getConfigHeaders(cfg: LanguageModelConfiguration) {
     let { token, type } = cfg
-    if (type === "azure_serverless") {
+    if (type === "azure_serverless_models") {
         const keys = INITryParse(token)
         if (keys && Object.keys(keys).length > 1) token = keys[cfg.model]
     }
+    const isBearer = /^Bearer /i.test(cfg.token)
     const res: Record<string, string> = {
         // openai
-        Authorization: /^Bearer /.test(cfg.token)
+        Authorization: isBearer
             ? token
             : token &&
                 (type === "openai" ||
                     type === "localai" ||
-                    type === "azure_serverless")
+                    type === "azure_serverless_models")
               ? `Bearer ${token}`
               : undefined,
         // azure
         "api-key":
-            token && !/^Bearer /.test(token) && type === "azure"
+            token &&
+            !isBearer &&
+            (type === "azure" || type === "azure_serverless")
                 ? token
                 : undefined,
         "User-Agent": TOOL_ID,
     }
-    for (const [k, v] of Object.entries(res)) if (v === undefined) delete res[k]
+    deleteUndefinedValues(res)
     return res
 }
 
@@ -73,7 +79,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
     const { headers = {}, ...rest } = requestOptions || {}
     const { token, source, ...cfgNoToken } = cfg
     const { model } = parseModelIdentifier(req.model)
-    const encoder = await resolveTokenEncoder(model)
+    const { encode: encoder } = await resolveTokenEncoder(model)
 
     const cache = !!cacheOrName || !!cacheName
     const cacheStore = getChatCompletionCache(
@@ -104,27 +110,36 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
         return { text: cached, finishReason: cachedFinishReason, cached: true }
     }
 
-    const r2 = {
+    const postReq = structuredClone({
         ...req,
         stream: true,
         stream_options: { include_usage: true },
         model,
-    }
-    let postReq: any = r2
+    })
 
     // stream_options fails in some cases
     if (model === "gpt-4-turbo-v" || /mistral/i.test(model)) {
-        delete r2.stream_options
+        delete postReq.stream_options
+    }
+    if (/o1-(mini|preview)/i.test(model)) {
+        delete postReq.temperature
+        delete postReq.stream
+        delete postReq.stream_options
+        for (const msg of postReq.messages) {
+            if (msg.role === "system") {
+                ;(msg as any).role = "user"
+            }
+        }
     }
     if (
-        req.messages.find(
+        postReq.messages.find(
             (msg) =>
                 msg.role === "user" &&
                 typeof msg.content !== "string" &&
                 msg.content.some((c) => c.type === "image_url")
         )
     )
-        delete r2.stream_options // crash on usage computation
+        delete postReq.stream_options // crash on usage computation
 
     let url = ""
     const toolCalls: ChatCompletionToolCall[] = []
@@ -132,30 +147,31 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
     if (cfg.type === "openai" || cfg.type === "localai") {
         url = trimTrailingSlash(cfg.base) + "/chat/completions"
     } else if (cfg.type === "azure") {
-        delete r2.model
+        delete postReq.model
         url =
             trimTrailingSlash(cfg.base) +
             "/" +
             model.replace(/\./g, "") +
             `/chat/completions?api-version=${AZURE_OPENAI_API_VERSION}`
+    } else if (cfg.type === "azure_serverless_models") {
+        url =
+            trimTrailingSlash(cfg.base).replace(
+                /^https?:\/\/(?<deployment>[^\.]+)\.(?<region>[^\.]+)\.models\.ai\.azure\.com/i,
+                (m, deployment, region) =>
+                    `https://${postReq.model}.${region}.models.ai.azure.com`
+            ) + `/chat/completions?api-version=${AZURE_AI_INFERENCE_VERSION}`
+        ;(headers as any)["extra-parameters"] = "pass-through"
+        delete postReq.model
+        delete postReq.stream_options
     } else if (cfg.type === "azure_serverless") {
-        if (/\.models\.ai\.azure\.com/i.test(cfg.base))
-            url =
-                trimTrailingSlash(cfg.base).replace(
-                    /^https?:\/\/(?<deployment>[^\.]+)\.(?<region>[^\.]+)\.models\.ai\.azure\.com/i,
-                    (m, deployment, region) =>
-                        `https://${r2.model}.${region}.models.ai.azure.com`
-                ) +
-                `/chat/completions?api-version=${AZURE_AI_INFERENCE_VERSION}`
-        else if (/\.openai\.azure\.com/i.test(cfg.base))
-            url =
-                trimTrailingSlash(cfg.base) +
-                "/" +
-                model.replace(/\./g, "") +
-                `/chat/completions?api-version=${AZURE_AI_INFERENCE_VERSION}`
-            // https://learn.microsoft.com/en-us/azure/machine-learning/reference-model-inference-api?view=azureml-api-2&tabs=javascript#extensibility
-        ;(headers as any)["extra-parameters"] = "drop"
-        delete r2.model
+        url =
+            trimTrailingSlash(cfg.base) +
+            "/" +
+            model.replace(/\./g, "") +
+            `/chat/completions?api-version=${AZURE_AI_INFERENCE_VERSION}`
+        // https://learn.microsoft.com/en-us/azure/machine-learning/reference-model-inference-api?view=azureml-api-2&tabs=javascript#extensibility
+        ;(headers as any)["extra-parameters"] = "pass-through"
+        delete postReq.model
     } else throw new Error(`api type ${cfg.type} not supported`)
 
     trace.itemValue(`url`, `[${url}](${url})`)
@@ -226,94 +242,121 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
     let error: SerializedError
     let responseModel: string
 
-    const decoder = host.createUTF8Decoder()
-    const doChunk = (value: Uint8Array) => {
-        // Massage and parse the chunk of data
-        let tokens: string[] = []
-        let chunk = decoder.decode(value, { stream: true })
+    const doChoices = (json: string, tokens: string[]) => {
+        const obj: ChatCompletionChunk | ChatCompletion = JSON.parse(json)
 
-        chunk = pref + chunk
-        const ch0 = chatResp
-        chunk = chunk.replace(/^data:\s*(.*)[\r\n]+/gm, (_, json) => {
-            if (json === "[DONE]") {
-                done = true
-                return ""
-            }
-            try {
-                const obj: ChatCompletionChunk = JSON.parse(json)
-                if (obj.usage) usage = obj.usage
-                if (!responseModel && obj.model) responseModel = obj.model
-                if (!obj.choices?.length) return ""
-                else if (obj.choices?.length != 1)
-                    throw new Error("too many choices in response")
-                const choice = obj.choices[0]
-                const { finish_reason, delta } = choice
-                if (finish_reason) finishReason = finish_reason as any
-                if (typeof delta?.content == "string") {
-                    numTokens += estimateTokens(delta.content, encoder)
-                    chatResp += delta.content
-                    tokens.push(delta.content)
-                    trace.appendToken(delta.content)
-                } else if (Array.isArray(delta.tool_calls)) {
-                    const { tool_calls } = delta
-                    for (const call of tool_calls) {
-                        const tc =
-                            toolCalls[call.index] ||
-                            (toolCalls[call.index] = {
-                                id: call.id,
-                                name: call.function.name,
-                                arguments: "",
-                            })
-                        if (call.function.arguments)
-                            tc.arguments += call.function.arguments
-                    }
+        if (!postReq.stream) trace.detailsFenced(`response`, obj, "json")
+
+        if (obj.usage) usage = obj.usage
+        if (!responseModel && obj.model) responseModel = obj.model
+        if (!obj.choices?.length) return
+        else if (obj.choices?.length != 1)
+            throw new Error("too many choices in response")
+        const choice = obj.choices[0]
+        const { finish_reason } = choice
+        if (finish_reason) finishReason = finish_reason as any
+        if ((choice as ChatCompletionChunkChoice).delta) {
+            const { delta } = choice as ChatCompletionChunkChoice
+            if (typeof delta?.content === "string") {
+                numTokens += estimateTokens(delta.content, encoder)
+                chatResp += delta.content
+                tokens.push(delta.content)
+                trace.appendToken(delta.content)
+            } else if (Array.isArray(delta.tool_calls)) {
+                const { tool_calls } = delta
+                for (const call of tool_calls) {
+                    const tc =
+                        toolCalls[call.index] ||
+                        (toolCalls[call.index] = {
+                            id: call.id,
+                            name: call.function.name,
+                            arguments: "",
+                        })
+                    if (call.function.arguments)
+                        tc.arguments += call.function.arguments
                 }
-                if (
-                    finish_reason === "function_call" ||
-                    finish_reason === "tool_calls"
-                ) {
-                    finishReason = "tool_calls"
-                } else {
-                    finishReason = finish_reason
-                }
-            } catch (e) {
-                trace.error(`error processing chunk`, e)
             }
-            return ""
-        })
-        // end replace
-        const progress = chatResp.slice(ch0.length)
-        if (progress != "") {
-            // logVerbose(`... ${progress.length} chars`);
+        } else if ((choice as ChatCompletionChoice).message) {
+            const { message } = choice as ChatCompletionChoice
+            chatResp = message.content
+            numTokens = usage?.total_tokens ?? estimateTokens(chatResp, encoder)
             partialCb?.({
                 responseSoFar: chatResp,
                 tokensSoFar: numTokens,
-                responseChunk: progress,
-                responseTokens: tokens,
+                responseChunk: chatResp,
                 inner,
             })
         }
-        pref = chunk
+
+        if (
+            finish_reason === "function_call" ||
+            finish_reason === "tool_calls"
+        ) {
+            finishReason = "tool_calls"
+        } else {
+            finishReason = finish_reason
+        }
     }
 
-    try {
-        if (r.body.getReader) {
-            const reader = r.body.getReader()
-            while (!cancellationToken?.isCancellationRequested) {
-                const { done, value } = await reader.read()
-                if (done) break
-                doChunk(value)
+    if (!postReq.stream) {
+        const responseBody = await r.text()
+        doChoices(responseBody, [])
+    } else {
+        const decoder = host.createUTF8Decoder()
+        const doChunk = (value: Uint8Array) => {
+            // Massage and parse the chunk of data
+            let tokens: string[] = []
+            let chunk = decoder.decode(value, { stream: true })
+
+            chunk = pref + chunk
+            const ch0 = chatResp
+            chunk = chunk.replace(/^data:\s*(.*)[\r\n]+/gm, (_, json) => {
+                if (json === "[DONE]") {
+                    done = true
+                    return ""
+                }
+                try {
+                    doChoices(json, tokens)
+                } catch (e) {
+                    trace.error(`error processing chunk`, e)
+                }
+                return ""
+            })
+            // end replace
+            const progress = chatResp.slice(ch0.length)
+            if (progress != "") {
+                // logVerbose(`... ${progress.length} chars`);
+                partialCb?.({
+                    responseSoFar: chatResp,
+                    tokensSoFar: numTokens,
+                    responseChunk: progress,
+                    responseTokens: tokens,
+                    inner,
+                })
             }
-        } else {
-            for await (const value of r.body as any) {
-                if (cancellationToken?.isCancellationRequested) break
-                doChunk(value)
-            }
+            pref = chunk
         }
-        if (cancellationToken?.isCancellationRequested) finishReason = "cancel"
-    } catch (e) {
-        finishReason = "fail"
-        error = serializeError(e)
+
+        try {
+            if (r.body.getReader) {
+                const reader = r.body.getReader()
+                while (!cancellationToken?.isCancellationRequested) {
+                    const { done, value } = await reader.read()
+                    if (done) break
+                    doChunk(value)
+                }
+            } else {
+                for await (const value of r.body as any) {
+                    if (cancellationToken?.isCancellationRequested) break
+                    doChunk(value)
+                }
+            }
+            if (cancellationToken?.isCancellationRequested)
+                finishReason = "cancel"
+        } catch (e) {
+            finishReason = "fail"
+            error = serializeError(e)
+        }
     }
 
     trace.appendContent("\n\n")

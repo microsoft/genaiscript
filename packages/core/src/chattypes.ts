@@ -37,6 +37,10 @@ export type ChatCompletionTool = OpenAI.Chat.Completions.ChatCompletionTool
 
 // Chunk of a chat completion response
 export type ChatCompletionChunk = OpenAI.Chat.Completions.ChatCompletionChunk
+export type ChatCompletionChunkChoice = OpenAI.Chat.Completions.ChatCompletionChunk.Choice
+
+export type ChatCompletion = OpenAI.Chat.Completions.ChatCompletion
+export type ChatCompletionChoice = OpenAI.Chat.Completions.ChatCompletion.Choice
 
 // Parameters for a system message in a chat completion
 export type ChatCompletionSystemMessageParam =

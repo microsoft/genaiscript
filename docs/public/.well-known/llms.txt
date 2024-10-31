@@ -1,0 +1,34 @@
+# GenAIScript Documentation
+
+> GenAIScript provides powerful AI-driven automation for scripting and managing documentation workflows.
+
+## Getting Started
+
+- [Tutorial](https://microsoft.github.io/genaiscript/getting-started/tutorial.md)
+- [Running Scripts](https://microsoft.github.io/genaiscript/getting-started/running-scripts.md)
+- [Best Practices](https://microsoft.github.io/genaiscript/getting-started/best-practices.md)
+
+## Guides
+
+- [Prompt as Code](https://microsoft.github.io/genaiscript/guides/prompt-as-code.md)
+- [Detection of Outdated Descriptions](https://microsoft.github.io/genaiscript/guides/detection-outdated-descriptions.md)
+- [Containerized Tools](https://microsoft.github.io/genaiscript/guides/containerized-tools.md)
+
+## Reference
+
+- [Settings](https://microsoft.github.io/genaiscript/reference/vscode/settings.md)
+- [Run Command](https://microsoft.github.io/genaiscript/reference/cli/run.md)
+- [Commands](https://microsoft.github.io/genaiscript/reference/cli/commands.md)
+- [Scripts - YAML](https://microsoft.github.io/genaiscript/reference/scripts/yaml.md)
+
+## Blogs
+
+- [Support for Agentic Tools](https://microsoft.github.io/genaiscript/blog/support-for-agentic-tools.md)
+- [Readme Maintenance](https://microsoft.github.io/genaiscript/blog/readme-maintenance.md)
+- [Gentle Introduction to GenAIScript](https://microsoft.github.io/genaiscript/blog/gentle-introduction-to-genaiscript.md)
+- [Creating Release Notes with GenAI](https://microsoft.github.io/genaiscript/blog/creating-release-notes-with-genai.md)
+- [Automatic Web Page Content Analysis with GenAIScript](https://microsoft.github.io/genaiscript/blog/automatic-web-page-content-analysis-with-genaiscript.md)
+
+## FAQs
+
+- [FAQ](https://microsoft.github.io/genaiscript/faq.md)

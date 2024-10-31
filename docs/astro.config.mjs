@@ -41,6 +41,7 @@ export default defineConfig({
                 }),
             ],
             components: {
+                Head: "./src/components/Head.astro",
                 Footer: "./src/components/Footer.astro",
             },
             social: {

@@ -1,5 +1,5 @@
 script({
-    model: "openai:gpt-4",
+    model: "large",
     title: "tweetify",
     tools: ["fs", "md"],
     description: "Generates a tweet about a documentation page",

@@ -1,6 +1,5 @@
 script({
     title: "Generate python tests",
-    model: "openai:gpt-4-32k",
     description: "Given a task and code, generate tests",
     group: "hello world",
     system: ["system", "system.explanations", "system.files", "system.python"],

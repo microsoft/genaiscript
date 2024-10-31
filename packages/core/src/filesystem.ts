@@ -63,7 +63,7 @@ export function createFileSystem(): Omit<WorkspaceFileSystem, "grep"> {
         },
         readJSON: async (f: string | Awaitable<WorkspaceFile>) => {
             const file = await fs.readText(f)
-            const res = JSON5TryParse(file.content, { repair: true })
+            const res = JSON5TryParse(file.content, undefined)
             return res
         },
         readYAML: async (f: string | Awaitable<WorkspaceFile>) => {

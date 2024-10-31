@@ -2,7 +2,7 @@ script({
     files: "packages/sample/genaisrc/readme-updater.genai.mts",
     system: ["system.files"],
     tools: ["fs"],
-    model: "openai:gpt-4",
+    model: "large",
     temperature: 0.8,
 })
 

@@ -94,13 +94,12 @@ export function parsePromptParameters(
 
     // apply defaults
     for (const key in parameters || {}) {
-        const t = promptParameterTypeToJSONSchema(parameters[key])
-        if (
-            t.type !== "object" &&
-            t.type !== "array" &&
-            t.default !== undefined
-        )
-            res[key] = t.default
+        const p = parameters[key] as any
+        if (p.default !== undefined) res[key] = structuredClone(p.default)
+        else {
+            const t = promptParameterTypeToJSONSchema(p)
+            if (t.default !== undefined) res[key] = structuredClone(t.default)
+        }
     }
 
     const vars = {
@@ -140,6 +139,24 @@ export function proxifyVars(res: PromptParameters) {
     const varsProxy: PromptParameters = new Proxy(res, {
         get(target: PromptParameters, prop: string) {
             return prop ? target[normalizeVarKey(prop)] : undefined
+        },
+        ownKeys(target: PromptParameters) {
+            return Reflect.ownKeys(target).map((k) =>
+                normalizeVarKey(k as string)
+            )
+        },
+        getOwnPropertyDescriptor(target: PromptParameters, prop: string) {
+            const normalizedKey = normalizeVarKey(prop)
+            const value = target[normalizedKey]
+            if (value !== undefined) {
+                return {
+                    enumerable: true,
+                    configurable: false,
+                    writable: false,
+                    value,
+                }
+            }
+            return undefined
         },
     })
     return varsProxy

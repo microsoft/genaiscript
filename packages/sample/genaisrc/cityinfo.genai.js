@@ -1,3 +1,6 @@
+script({
+    files: "src/cities.md",
+})
 // the data to analyze
 def("CITIES", env.files)
 
@@ -27,6 +30,3 @@ const schema = defSchema("CITY_SCHEMA", {
 $`Answer with a JSON array with the information of the cities in the CITIES data set,
 compliant with ${schema}.`
 $` Do not emit the enclosing markdown.`
-
-// help the LLM by starting the JSON array syntax
-assistant(`[`)

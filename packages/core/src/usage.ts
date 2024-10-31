@@ -10,14 +10,20 @@ import {
     CreateChatCompletionRequest,
 } from "./chattypes"
 import { MarkdownTrace } from "./trace"
-import { logVerbose, logWarn } from "./util"
+import { assert, logVerbose } from "./util"
 import pricings from "./pricing.json" // Interface to hold statistics related to the generation process
 import { parseModelIdentifier } from "./models"
 import {
     MODEL_PROVIDER_AICI,
+    MODEL_PROVIDER_ANTHROPIC,
+    MODEL_PROVIDER_AZURE_OPENAI,
+    MODEL_PROVIDER_AZURE_SERVERLESS_MODELS,
+    MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI,
     MODEL_PROVIDER_GITHUB,
     MODEL_PROVIDER_OPENAI,
 } from "./constants"
+
+assert(Object.keys(pricings).every((k) => k === k.toLowerCase()))
 
 /**
  * Estimates the cost of a chat completion based on the model and usage.
@@ -34,12 +40,16 @@ export function estimateCost(modelId: string, usage: ChatCompletionUsage) {
     if (provider === MODEL_PROVIDER_AICI) return undefined
     else if (provider === MODEL_PROVIDER_GITHUB)
         provider = MODEL_PROVIDER_OPENAI
-    const m = `${provider}:${model}`
-    const cost = (pricings as any)[m] as {
-        price_per_million_input_tokens: number
-        price_per_million_output_tokens: number
-        input_cache_token_rebate?: number
-    }
+    const m = `${provider}:${model}`.toLowerCase()
+    const costs: Record<
+        string,
+        {
+            price_per_million_input_tokens: number
+            price_per_million_output_tokens: number
+            input_cache_token_rebate?: number
+        }
+    > = pricings
+    const cost = costs[m]
     if (!cost) return undefined
 
     const {
@@ -69,6 +79,17 @@ export function renderCost(value: number) {
         : value <= 0.1
           ? `${(value * 100).toFixed(2)}¢`
           : `${value.toFixed(2)}$`
+}
+
+export function isCosteable(model: string) {
+    const { provider } = parseModelIdentifier(model)
+    return (
+        provider === MODEL_PROVIDER_OPENAI ||
+        provider === MODEL_PROVIDER_AZURE_OPENAI ||
+        provider === MODEL_PROVIDER_AZURE_SERVERLESS_MODELS ||
+        provider === MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI ||
+        provider === MODEL_PROVIDER_ANTHROPIC
+    )
 }
 
 /**
@@ -198,6 +219,16 @@ export class GenerationStats {
         if (this.toolCalls) trace.itemValue("tool calls", this.toolCalls)
         if (this.repairs) trace.itemValue("repairs", this.repairs)
         if (this.turns) trace.itemValue("turns", this.turns)
+        if (this.usage.prompt_tokens_details?.cached_tokens)
+            trace.itemValue(
+                "cached tokens",
+                this.usage.prompt_tokens_details.cached_tokens
+            )
+        if (this.usage.completion_tokens_details?.reasoning_tokens)
+            trace.itemValue(
+                "reasoning tokens",
+                this.usage.completion_tokens_details.reasoning_tokens
+            )
 
         if (this.chatTurns.length > 1) {
             trace.startDetails("chat turns")
@@ -232,7 +263,10 @@ export class GenerationStats {
      * @param indent - The indentation used for logging.
      */
     private logTokens(indent: string) {
+        const unknowns = new Set<string>()
         const c = this.cost()
+        if (this.model && isNaN(c) && isCosteable(this.model))
+            unknowns.add(this.model)
         if (this.model || c) {
             const au = this.accumulatedUsage()
             logVerbose(
@@ -240,12 +274,18 @@ export class GenerationStats {
             )
         }
         if (this.chatTurns.length > 1)
-            for (const { messages, usage } of this.chatTurns) {
+            for (const { messages, usage, model: turnModel } of this
+                .chatTurns) {
+                const cost = estimateCost(this.model, usage)
+                if (cost === undefined && isCosteable(turnModel))
+                    unknowns.add(this.model)
                 logVerbose(
-                    `${indent}  ${messages.length} messages, ${usage.total_tokens} tokens ${renderCost(estimateCost(this.model, usage))}`
+                    `${indent}  ${messages.length} messages, ${usage.total_tokens} tokens ${renderCost(cost)}`
                 )
             }
         for (const child of this.children) child.logTokens(indent + "  ")
+        if (unknowns.size)
+            logVerbose(`missing pricing for ${[...unknowns].join(", ")}`)
     }
 
     /**

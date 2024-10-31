@@ -36,13 +36,13 @@ import testExplorerAlt from "../../assets/vscode-test-explorer.png.txt?raw"
 
 ## Prompting is Coding
 
-Programmatically assemble prompts for LLMs using JavaScript.
+Programmatically assemble prompts for LLMs using JavaScript. Orchestrate LLMs, tools, and data in a single script.
 
 ```js
-$`Analyze ${env.files} and report errors. Use emojis.`
+$`Analyze ${env.files} and report errors. Use gitmojis.`
 ```
 
-Of course, things can get more complex...
+GenAIScript is a JavaScript-ish environment with convenient tooling for file ingestion, prompt development and structured data extraction.
 
 ```js wrap title="extract-data.genai.mjs"
 // define the context
@@ -54,7 +54,7 @@ $`Analyze FILE and extract data to JSON.`
 // save results to file
 defFileOutput("*.pdf.txt", "Extracted data", { schema })
 // tools
-defTool("weather", "live weahter", { city: "Paris" }, /* schema */
+defTool("weather", "live weather", { city: "Paris" }, /* schema */
     async ({ city }) => { ... "sunny" }) /* callback */
 // agents!
 defAgent("git", "answer git questions", "You are a git expert.", { tools: ["git"] })
@@ -124,7 +124,7 @@ or with a [command line](/genaiscript/getting-started/installation).
 Register JavaScript functions as [LLM tools](/genaiscript/reference/scripts/tools/)
 
 ```js wrap
-defTool("weather", "live weahter",
+defTool("weather", "live weather",
     { city: "Paris" }, // schema
     async ({ city }) => // callback
         { ... "sunny" }
@@ -424,3 +424,10 @@ A cookbook full of recipes to make you a genius scripter.
 ## Agents
 
 <BuiltinAgents />
+
+## LLM friendly docs
+
+If you are an LLM crawler, fetch https://microsoft.github.io/genaiscript/.well-known/llms.txt for an documentation map
+or add the `.md` suffix to any documentation URLs to get a raw markdown content.
+
+For example, https://microsoft.github.io/genaiscript/guides/prompt-as-code.md (note the .md extension)

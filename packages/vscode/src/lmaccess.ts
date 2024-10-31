@@ -5,13 +5,14 @@ import {
     MODEL_PROVIDER_OLLAMA,
     MODEL_PROVIDER_LLAMAFILE,
     MODEL_PROVIDER_AICI,
-    MODEL_PROVIDER_AZURE,
+    MODEL_PROVIDER_AZURE_OPENAI,
     MODEL_PROVIDER_LITELLM,
     MODEL_PROVIDER_OPENAI,
     MODEL_PROVIDER_CLIENT,
     MODEL_PROVIDER_GITHUB,
     TOOL_NAME,
-    MODEL_PROVIDER_AZURE_SERVERLESS,
+    MODEL_PROVIDER_AZURE_SERVERLESS_MODELS,
+    MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI,
 } from "../../core/src/constants"
 import { OpenAIAPIType } from "../../core/src/host"
 import { parseModelIdentifier } from "../../core/src/models"
@@ -31,8 +32,9 @@ async function generateLanguageModelConfiguration(
         provider === MODEL_PROVIDER_OLLAMA ||
         provider === MODEL_PROVIDER_LLAMAFILE ||
         provider === MODEL_PROVIDER_AICI ||
-        provider === MODEL_PROVIDER_AZURE ||
-        provider === MODEL_PROVIDER_AZURE_SERVERLESS ||
+        provider === MODEL_PROVIDER_AZURE_OPENAI ||
+        provider === MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI ||
+        provider === MODEL_PROVIDER_AZURE_SERVERLESS_MODELS ||
         provider === MODEL_PROVIDER_LITELLM
     ) {
         return { provider }
@@ -66,14 +68,20 @@ async function generateLanguageModelConfiguration(
         {
             label: "Azure OpenAI",
             detail: `Use a Azure-hosted OpenAI subscription.`,
-            provider: MODEL_PROVIDER_AZURE,
+            provider: MODEL_PROVIDER_AZURE_OPENAI,
             apiType: "azure",
         },
         {
-            label: "Azure AI Models (serverless deployment)",
-            detail: `Use a Azure serverless model deployment.`,
-            provider: MODEL_PROVIDER_AZURE_SERVERLESS,
+            label: "Azure AI OpenAI (serverless deployment)",
+            detail: `Use a Azure OpenAI serverless model deployment through Azure AI Studio.`,
+            provider: MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI,
             apiType: "azure_serverless",
+        },
+        {
+            label: "Azure AI Models (serverless deployment)",
+            detail: `Use a Azure serverless model deployment through Azure AI Studio.`,
+            provider: MODEL_PROVIDER_AZURE_SERVERLESS_MODELS,
+            apiType: "azure_serverless_models",
         },
         {
             label: "GitHub Models",

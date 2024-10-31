@@ -80,6 +80,8 @@ Arguments:
                                       are tested
 
 Options:
+  -m, --model <string>                model for the run
+  -sm, --small-model <string>         small model for the run
   --models <models...>                models to test where mode is the key
                                       value pair list of m (model), s (small
                                       model), t (temperature), p (top-p)
@@ -90,7 +92,7 @@ Options:
   -td, --test-delay <string>          delay between tests in seconds
   --cache                             enable LLM result cache
   -v, --verbose                       verbose output
-  -pv, --promptfoo-version [version]  promptfoo version, default is 0.89.3
+  -pv, --promptfoo-version [version]  promptfoo version, default is 0.94.5
   -os, --out-summary <file>           append output summary in file
   --groups <groups...>                groups to include or exclude. Use :!
                                       prefix to exclude
