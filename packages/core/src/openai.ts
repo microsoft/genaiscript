@@ -121,7 +121,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
     if (model === "gpt-4-turbo-v" || /mistral/i.test(model)) {
         delete postReq.stream_options
     }
-    if (/^o1-mini/.test(model)) {
+    if (/o1-(mini|preview)/i.test(model)) {
         delete postReq.temperature
         delete postReq.stream
         delete postReq.stream_options
