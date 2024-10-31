@@ -58,7 +58,15 @@
                 "description": "Calls the GenAIScript agent.",
                 "name": "genaiscript",
                 "fullName": "GenAIScript",
-                "isSticky": false
+                "isSticky": false,
+                "commands": [
+                    {
+                        "name": "run",
+                        "description": "Runs a GenAIScript script. The query should start with the script filename without the extension.",
+                        "isSticky": false,
+                        "sampleRequest": "/run poem"
+                    }
+                ]
             }
         ],
         "configurationDefaults": {

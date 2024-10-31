@@ -38,28 +38,45 @@ export async function activateChatParticipant(state: ExtensionState) {
             response: vscode.ChatResponseStream,
             token: vscode.CancellationToken
         ) => {
-            const { command, prompt, references } = request
-            if (command) throw new Error("Commands are not supported")
+            let { command, prompt, references, model } = request
             if (!state.project) await state.parseWorkspace()
             if (token.isCancellationRequested) return
 
-            const template = state.project.templates.find(
-                (t) => t.id === COPILOT_CHAT_PARTICIPANT_SCRIPT_ID
-            )
-            if (!template) {
-                response.markdown(
-                    dedent`The \`${COPILOT_CHAT_PARTICIPANT_SCRIPT_ID}\` script has not been configured yet in this workspace. 
+            let template: PromptScript
+            if (command === "run") {
+                const scriptid = prompt.split(" ")[0]
+                prompt = prompt.slice(scriptid.length).trim()
+                template = state.project.templates.find(
+                    (t) => t.id === scriptid
+                )
+                if (!template) {
+                    response.markdown(dedent`Oops, I could not find any genaiscript matching \`${scriptid}\`. Try one of the following:
+                    ${state.project.templates
+                        .filter((s) => !s.system && !s.unlisted)
+                        .map((s) => `- \`${s.id}\`: ${s.title}`)
+                        .join("\n")}
+                    `)
+                    return
+                }
+            } else {
+                template = state.project.templates.find(
+                    (t) => t.id === COPILOT_CHAT_PARTICIPANT_SCRIPT_ID
+                )
+                if (!template) {
+                    response.markdown(
+                        dedent`The \`${COPILOT_CHAT_PARTICIPANT_SCRIPT_ID}\` script has not been configured yet in this workspace. 
                     
                     Would you want to save a starter script in your project? \`copilotchat\` will be invoked when you use the @genaiscript chat participant in a chat.`
-                )
-                response.button({
-                    title: "Create copilotchat script",
-                    command: "genaiscript.samples.download",
-                    arguments: [
-                        `${COPILOT_CHAT_PARTICIPANT_SCRIPT_ID}.genai.mts`,
-                    ],
-                })
-                return
+                    )
+                    response.button({
+                        title: "Create copilotchat script",
+                        command: "genaiscript.samples.download",
+                        arguments: [
+                            `${COPILOT_CHAT_PARTICIPANT_SCRIPT_ID}.genai.mts`,
+                        ],
+                    })
+                    return
+                }
             }
             const { files, vars } = resolveReference(references)
             const fragment: Fragment = {
