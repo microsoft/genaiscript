@@ -1,4 +1,5 @@
 script({
+    model: "large",
     system: [
         // List of system components and tools available for the script
         "system",

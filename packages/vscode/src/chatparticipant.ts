@@ -3,6 +3,7 @@ import { ExtensionState } from "./state"
 import {
     COPILOT_CHAT_PARTICIPANT_SCRIPT_ID,
     COPILOT_CHAT_PARTICIPANT_ID,
+    ICON_LOGO_NAME,
 } from "../../core/src/constants"
 import { Fragment } from "../../core/src/generation"
 import { prettifyMarkdown } from "../../core/src/markdown"
@@ -49,10 +50,10 @@ export async function activateChatParticipant(state: ExtensionState) {
                 response.markdown(
                     dedent`The \`${COPILOT_CHAT_PARTICIPANT_SCRIPT_ID}\` script has not been configured yet in this workspace. 
                     
-                    Would you want to save a starter script in your project?`
+                    Would you want to save a starter script in your project? \`copilotchat\` will be invoked when you use the @genaiscript chat participant in a chat.`
                 )
                 response.button({
-                    title: "Save chat script",
+                    title: "Create copilotchat script",
                     command: "genaiscript.samples.download",
                     arguments: [
                         `${COPILOT_CHAT_PARTICIPANT_SCRIPT_ID}.genai.mts`,
@@ -90,6 +91,7 @@ export async function activateChatParticipant(state: ExtensionState) {
             )
         }
     )
+    participant.iconPath = new vscode.ThemeIcon(ICON_LOGO_NAME)
 
     subscriptions.push(participant)
 }
