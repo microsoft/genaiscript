@@ -119,6 +119,8 @@ type ModelType = OptionsOrString<
     | "openai:gpt-4o"
     | "openai:gpt-4o-mini"
     | "openai:gpt-3.5-turbo"
+    | "openai:o1-mini"
+    | "openai:o1-preview"
     | "github:gpt-4o"
     | "github:gpt-4o-mini"
     | "github:o1-mini"
