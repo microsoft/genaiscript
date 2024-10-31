@@ -342,7 +342,7 @@ stats/
             vscode.commands.executeCommand(
                 "workbench.view.extension.genaiscript"
             )
-        if (options.mode !== "notebook" && !hasOutputOrTraceOpened())
+        if (!options.mode && !hasOutputOrTraceOpened())
             vscode.commands.executeCommand("genaiscript.request.open.output")
         r.request
             .then((resp) => {

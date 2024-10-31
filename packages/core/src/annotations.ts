@@ -18,6 +18,13 @@ const AZURE_DEVOPS_ANNOTATIONS_RX =
 // Example: foo.ts:10:error TS1005: ';' expected.
 const TYPESCRIPT_ANNOTATIONS_RX =
     /^(?<file>[^:\s].*?):(?<line>\d+)(?::(?<endLine>\d+))?(?::\d+)?\s+-\s+(?<severity>error|warning)\s+(?<code>[^:]+)\s*:\s*(?<message>.*)$/gim
+// Maps severity strings to `DiagnosticSeverity`.
+const SEV_MAP: Record<string, DiagnosticSeverity> = Object.freeze({
+    ["info"]: "info",
+    ["notice"]: "info", // Maps 'notice' to 'info' severity
+    ["warning"]: "warning",
+    ["error"]: "error",
+})
 
 /**
  * Parses annotations from TypeScript, GitHub Actions, and Azure DevOps.
@@ -28,20 +35,12 @@ const TYPESCRIPT_ANNOTATIONS_RX =
 export function parseAnnotations(text: string): Diagnostic[] {
     if (!text) return []
 
-    // Maps severity strings to `DiagnosticSeverity`.
-    const sevMap: Record<string, DiagnosticSeverity> = {
-        ["info"]: "info",
-        ["notice"]: "info", // Maps 'notice' to 'info' severity
-        ["warning"]: "warning",
-        ["error"]: "error",
-    }
-
     // Helper function to add an annotation to the set.
     // Extracts groups from the regex match and constructs a `Diagnostic` object.
     const addAnnotation = (m: RegExpMatchArray) => {
         const { file, line, endLine, severity, code, message } = m.groups
         const annotation: Diagnostic = {
-            severity: sevMap[severity?.toLowerCase()] ?? "info", // Default to "info" if severity is missing
+            severity: SEV_MAP[severity?.toLowerCase()] ?? "info", // Default to "info" if severity is missing
             filename: file,
             range: [
                 [parseInt(line) - 1, 0], // Start of range, 0-based index
@@ -70,6 +69,23 @@ export function eraseAnnotations(text: string) {
         GITHUB_ANNOTATIONS_RX,
         AZURE_DEVOPS_ANNOTATIONS_RX,
     ].reduce((t, rx) => t.replace(rx, ""), text)
+}
+
+export function convertAnnotationsToItems(text: string) {
+    return [
+        TYPESCRIPT_ANNOTATIONS_RX,
+        GITHUB_ANNOTATIONS_RX,
+        AZURE_DEVOPS_ANNOTATIONS_RX,
+    ].reduce(
+        (t, rx) =>
+            t.replace(rx, (s) => {
+                const m = rx.exec(s)
+                if (!m) return s
+                const { file, line, severity, code, message } = m.groups
+                return `- ${SEV_MAP[severity?.toLowerCase()] ?? "info"}: ${message} (${file}#L${line} ${code || ""})`
+            }),
+        text
+    )
 }
 
 /**

@@ -6,8 +6,8 @@ import {
     ICON_LOGO_NAME,
 } from "../../core/src/constants"
 import { Fragment } from "../../core/src/generation"
-import { prettifyMarkdown } from "../../core/src/markdown"
-import { eraseAnnotations } from "../../core/src/annotations"
+import { cleanMarkdown } from "../../core/src/markdown"
+import { convertAnnotationsToItems } from "../../core/src/annotations"
 import { dedent } from "../../core/src/indent"
 
 export async function activateChatParticipant(state: ExtensionState) {
@@ -102,7 +102,7 @@ export async function activateChatParticipant(state: ExtensionState) {
             const { text = "" } = res || {}
             response.markdown(
                 new vscode.MarkdownString(
-                    prettifyMarkdown(eraseAnnotations(text)),
+                    cleanMarkdown(convertAnnotationsToItems(text)),
                     true
                 )
             )
