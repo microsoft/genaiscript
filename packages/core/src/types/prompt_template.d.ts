@@ -1347,7 +1347,7 @@ interface Parsers {
     code(
         file: WorkspaceFile,
         query?: OptionsOrString<"tags">
-    ): Promise<QueryCapture[]>
+    ): Promise<{ captures: QueryCapture[] }>
 
     /**
      * Parses and evaluates a math expression

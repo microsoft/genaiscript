@@ -79,7 +79,7 @@ export async function treeSitterQuery(
     file: WorkspaceFile,
     query?: OptionsOrString<"tags">,
     options?: TraceOptions
-): Promise<QueryCapture[]> {
+): Promise<{ captures: QueryCapture[] }> {
     const { filename } = file
     const { trace } = options || {}
 
@@ -96,7 +96,6 @@ export async function treeSitterQuery(
         trace?.itemValue(`wasm`, wasm)
 
         if (query === TREE_SITTER_QUERIES_TAGS) query = resolveTags(language)
-        if (query) trace?.detailsFenced(`query`, query, "txt")
 
         const parser = await createParser(wasm)
         // test query
@@ -104,16 +103,26 @@ export async function treeSitterQuery(
         // try parse
         const tree = parser.parse(file.content)
         trace?.detailsFenced(`tree`, tree.rootNode.toString(), "lisp")
-        if (!query) return [{ name: "tree", node: tree.rootNode }]
 
-        trace?.fence(query, "txt")
-        const q = lang.query(query)
-        const res: QueryCapture[] = q.captures(tree.rootNode)
-        const captures = res.map((capture) =>
-            serializeQueryCapture(filename, capture)
-        )
-        trace?.detailsFenced(`captures`, YAMLStringify(captures), "yaml")
-        return res
+        let captures: QueryCapture[]
+
+        if (!query) {
+            captures = [{ name: "tree", node: tree.rootNode }]
+        } else {
+            trace?.detailsFenced(`query`, query, "txt")
+            const q = lang.query(query)
+            captures = q.captures(tree.rootNode)
+        }
+        if (trace)
+            trace?.detailsFenced(
+                `captures`,
+                captures.map((capture) =>
+                    serializeQueryCapture(filename, capture)
+                ),
+                "yaml"
+            )
+
+        return { captures }
     } finally {
         trace?.endDetails()
     }
