@@ -13,9 +13,37 @@ https://github.com/user-attachments/assets/ce181cc0-47d5-41cd-bc03-f220407d4dd0
 
 ## 🌟 Introduction
 
-GenAIScript is a powerful scripting environment tailored for building and managing Large Language Model (LLM) prompts with ease. Whether you are a developer, data scientist, or researcher, GenAIScript provides the tools you need to create, debug, and share scripts efficiently.
+## Prompting is Coding
 
-> 🤖 This readme is maintained by the [readme-updater](https://github.com/microsoft/genaiscript/blob/main/packages/sample/genaisrc/readme-updater.genai.mts) script.
+Programmatically assemble prompts for LLMs using JavaScript. Orchestrate LLMs, tools, and data in a single script.
+
+-   JavaScript toolbox to work with prompts
+-   Abstraction to make it easy and productive
+-   Seamless Visual Studio Code integration
+
+## Hello world
+
+Say to you want to create an LLM script that generates a 'hello world' poem. You can write the following script:
+
+```js
+$`Write a 'hello world' poem.`
+```
+
+The `$` function is a template tag that creates a prompt. The prompt is then sent to the LLM (you configured), which generates the poem.
+
+Let's make it more interresting by adding files, data and structured output. Say you want to include a file in the prompt, and then save the output in a file. You can write the following script:
+
+```js
+// read files
+const file = await workspace.readText("data.txt")
+// include the file content in the prompt in a context-friendly way
+def("DATA", file)
+// the task
+$`Analyze DATA and extract data in JSON in data.json.`
+```
+
+The `def` function includes the content of the file, and optimizes it if necessary for the target LLM. GenAIScript script also parses the LLM output
+and will extract the `data.json` file automatically.
 
 ---
 
