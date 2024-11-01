@@ -45,17 +45,18 @@ const { question } = env.vars
 const editor = env.vars["copilot.editor"]
 const selection = env.vars["copilot.selection"]
 
-$`## task
+$`## Tasks
 
 - make a plan to answer the QUESTION step by step using the information in the Context section
 - answer the QUESTION
 
-## output
+## Output
 
 - The final output will be inserted into the Visual Studio Code Copilot Chat window.
 - do NOT include the plan in the output
 
-## guidance:
+## Guidance
+
 - use the agent tools to help you
 - do NOT be lazy, always finish the tasks
 - do NOT skip any steps
