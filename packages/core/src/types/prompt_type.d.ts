@@ -224,7 +224,7 @@ declare var tokenizers: Tokenizers
 /**
  * Concent safety services
  */
-declare var contentSafety: detectPromptInjection
+declare var contentSafety: ContentSafety
 
 /**
  * Fetches a given URL and returns the response.
