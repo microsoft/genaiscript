@@ -40,7 +40,7 @@ Our library's JavaScript [`def`](/genaiscript/reference/scripts/context) command
 the contents of a document into the 
 LLM prompt and defines a name that
 can be used in the prompt to refer to that document, which is the value returned by `def` (e.g., `FILE`, the first argument to `def`).
-`env.files` is a built-in variable that GenAIScript defines what is bound
+`env.files` is a built-in variable that GenAIScript defines that is bound
 to the arguments to the script that are either passed on the command-line or
 by right-clicking to invoke the script in VS Code.  
 
