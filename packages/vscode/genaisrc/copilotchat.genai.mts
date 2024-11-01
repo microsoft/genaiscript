@@ -3,6 +3,7 @@ script({
     system: [
         // List of system components and tools available for the script
         "system",
+        "system.assistant",
         "system.safety_harmful_content",
         "system.safety_jailbreak",
         "system.safety_protected_material",

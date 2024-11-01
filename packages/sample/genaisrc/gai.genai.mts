@@ -11,7 +11,7 @@ script({
         success_run_id: { type: "number" }, // ID of the successful run
         branch: { type: "string" }, // Branch name
     },
-    system: ["system", "system.files"],
+    system: ["system", "system.assistant", "system.files"],
     flexTokens: 30000,
     cache: "gai",
     tools: ["fs_read_file"],

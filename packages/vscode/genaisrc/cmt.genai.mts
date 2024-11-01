@@ -133,7 +133,7 @@ Your comments should provide insight into the code's purpose, logic, and any imp
 `
         },
         {
-            system: [],
+            system: ["system.assistant"],
             label: `comment ${filename}`,
         }
     )
@@ -156,7 +156,7 @@ async function checkModifications(filename: string): Promise<boolean> {
         `
         },
         {
-            system: [],
+            system: ["system.assistant"],
             cache: "cmt-check",
             label: `check comments in ${filename}`,
         }
