@@ -287,6 +287,21 @@ const { files } = await retrieval.vectorSearch("cats", "**/*.md")
 
 </Card>
 
+<Card title="Safety First!" icon="seti:lock">
+
+GenAIScript provides built-in Responsible AI system prompts and Azure Content Safety supports
+to validate [content safety](/genaiscript/reference/scripts/content-safety).
+
+```js
+script({ ...,
+    system: ["system.safety_harmful_content", ...],
+})
+
+const res = contentSafety.detectPromptInjection(env.vars.input)
+```
+
+</Card>
+
 <Card title="GitHub Models and GitHub Copilot" icon="github">
 
 Run models through GitHub using [GitHub Models](/getting-started/configuration/#github-models)
@@ -353,7 +368,7 @@ $`Summarize all the summaries.`
 
 </Card>
 
-<Card title="Prompty" link="markdown">
+<Card title="Prompty" icon="seti:markdown">
 
 Run or convert [Prompty](https://prompty.ai/) files using GenAIScript.
 
@@ -362,7 +377,14 @@ Run or convert [Prompty](https://prompty.ai/) files using GenAIScript.
 name: poem
 ---
 
-Write a short poem.
+system:
+Write a short poem about
+user:
+{{something}}.
+```
+
+```js wrap
+importTemplate("poem.prompty", { something: "code " })
 ```
 
 </Card>
