@@ -1,7 +1,10 @@
 import { createFetch } from "./fetch"
 import { TraceOptions } from "./trace"
 import { chunkString, trimTrailingSlash } from "./util"
-import { AZURE_CONTENT_SAFETY_PROMPT_SHIELD_MAX_LENGTH } from "./constants"
+import {
+    AZURE_CONTENT_SAFETY_PROMPT_SHIELD_MAX_LENGTH,
+    DOCS_CONFIGURATION_CONTENT_SAFETY_URL,
+} from "./constants"
 import { AuthenticationToken, AzureCredentialsType, runtimeHost } from "./host"
 
 interface AzureContentSafetyRequest {
@@ -83,10 +86,12 @@ class AzureContentSafetyClient implements ContentSafety {
         const version = process.env.AZURE_CONTENT_SAFETY_VERSION || "2024-09-01"
 
         if (!endpoint)
-            throw new Error("AZURE_CONTENT_SAFETY_ENDPOINT is not set")
+            throw new Error(
+                `AZURE_CONTENT_SAFETY_ENDPOINT is not set. See ${DOCS_CONFIGURATION_CONTENT_SAFETY_URL} for help.`
+            )
         if (!subscriptionKey)
             throw new Error(
-                "AZURE_CONTENT_SAFETY_KEY is not set or not signed in with Azure"
+                `AZURE_CONTENT_SAFETY_KEY is not set or not signed in with Azure. See ${DOCS_CONFIGURATION_CONTENT_SAFETY_URL} for help.`
             )
 
         const headers = {
@@ -107,10 +112,10 @@ class AzureContentSafetyClient implements ContentSafety {
     }
 }
 
-export async function createAzureContentSafetyClient(
+export function createAzureContentSafetyClient(
     options: TraceOptions & {
         signal?: AbortSignal
     }
-): Promise<ContentSafety> {
+): ContentSafety {
     return new AzureContentSafetyClient(options)
 }

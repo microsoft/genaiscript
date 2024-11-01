@@ -181,6 +181,7 @@ export const DOCS_CONFIGURATION_AICI_URL =
     "https://microsoft.github.io/genaiscript/reference/scripts/aici/"
 export const DOCS_CONFIGURATION_ANTHROPIC_URL =
     "https://microsoft.github.io/genaiscript/getting-started/configuration/#anthropic"
+export const DOCS_CONFIGURATION_CONTENT_SAFETY_URL = "https://microsoft.github.io/genaiscript/reference/scripts/content-safety"
 
 export const MODEL_PROVIDERS = Object.freeze([
     {
