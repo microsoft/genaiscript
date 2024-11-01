@@ -279,6 +279,21 @@ npx genaiscript run tlaplus-linter "*.tla"
 
 ---
 
+### Safety First!
+
+GenAIScript provides built-in Responsible AI system prompts and Azure Content Safety supports
+to validate [content safety](https://microsoft.github.io/genaiscript/reference/scripts/content-safety).
+
+```js
+script({ ...,
+    system: ["system.safety_harmful_content", ...],
+})
+
+const res = contentSafety.detectPromptInjection(env.vars.input)
+```
+
+---
+
 ### 💬 Pull Request Reviews
 
 Integrate into your [Pull Requests checks](https://microsoft.github.io/genaiscript/reference/cli/run/#pull-requests) through comments, reviews, or description updates. Supports GitHub Actions and Azure DevOps pipelines.
