@@ -12,9 +12,9 @@ GenAIScript has multiple built-in safety features to protect the system from mal
 
 The following safety prompts are included by default when running a prompt, unless the system option is configured:
 
--   [system.safety_harmful_content](../system#systemsafety_harmful_content), safety prompt against Harmful Content: Hate and Fairness, Sexual, Violence, Self-Harm.
--   [system.safety_jailbreak](../system#systemsafety_jailbreak), safety script to ignore instructions in code sections.
--   [system.safety_protected_material](../system#systemsafety_protected_material) safety prompt against Protected material
+-   [system.safety_harmful_content](../system#systemsafety_harmful_content), safety prompt against Harmful Content: Hate and Fairness, Sexual, Violence, Self-Harm. See https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/safety-system-message-templates.
+-   [system.safety_jailbreak](../system#systemsafety_jailbreak), safety script to ignore prompting instructions in code sections, which are created by the `def` function.
+-   [system.safety_protected_material](../system#systemsafety_protected_material) safety prompt against Protected material. See https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/safety-system-message-templates
 
 Other system scripts can be added to the prompt by using the `system` option.
 
