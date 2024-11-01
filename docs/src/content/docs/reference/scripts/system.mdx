@@ -1541,6 +1541,10 @@ defTool(
                 description:
                     "state of the issue from  'open, 'closed', 'all'. Default is 'open'.",
             },
+            count: {
+                type: "number",
+                description: "Number of issues to list. Default is 20.",
+            },
             labels: {
                 type: "string",
                 description: "Comma-separated list of labels to filter by.",
@@ -1571,10 +1575,6 @@ defTool(
             mentioned: {
                 type: "string",
                 description: "Filter by mentioned user",
-            },
-            count: {
-                type: "number",
-                description: "Number of issues to list. Default is 20.",
             },
         },
     },
