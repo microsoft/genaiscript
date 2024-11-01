@@ -83,6 +83,12 @@ keywords: AI, script generation, performance, best practices, limitations
 -   **What foundation models and LLMs are recommended for use with GenAIScript?**
     Services like Azure Open AI with updated safety and Responsible AI features are recommended. GenAIScript can also be used with existing open-source LLMs.
 
+-   **Do you provide system prompts to guard against common problems like harmful content or jailbreaking?**
+    Yes, GenAIScript includes system prompts to guard against harmful content and jailbreaking. For more information, see the [Content Safety](/genaiscript/reference/scripts/content-safety) documentation.
+
+-   **Do you support Azure Content Services?**
+    Yes, GenAIScript provides APIs to interact with Azure Content Safety services. For more information, see the [Content Safety](/genaiscript/reference/scripts/content-safety) documentation.
+
 ### Community and Support
 
 -   **Where can I find the GenAIScript community for discussions and support?**
