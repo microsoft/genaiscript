@@ -1,5 +1,7 @@
 system({
-    title: "Helpful assistant prompt."
+    title: "Helpful assistant prompt.",
+    description:
+        "A prompt for a helpful assistant from https://medium.com/@stunspot/omni-f3b1934ae0ea.",
 })
 
 $`## Role
