@@ -5,7 +5,7 @@ import {
     AZURE_CONTENT_SAFETY_PROMPT_SHIELD_MAX_LENGTH,
     DOCS_CONFIGURATION_CONTENT_SAFETY_URL,
 } from "./constants"
-import { AuthenticationToken, AzureCredentialsType, runtimeHost } from "./host"
+import { AzureCredentialsType, runtimeHost } from "./host"
 
 interface AzureContentSafetyRequest {
     userPrompt?: string
