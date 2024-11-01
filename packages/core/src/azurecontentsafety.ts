@@ -8,6 +8,7 @@ import {
 import { AzureCredentialsType, runtimeHost } from "./host"
 import { CancellationOptions } from "./cancellation"
 import { YAMLStringify } from "./yaml"
+import { JSONLineCache } from "./cache"
 
 interface AzureContentSafetyRequest {
     userPrompt?: string
@@ -24,7 +25,13 @@ interface AzureContentSafetyResponse {
 }
 
 class AzureContentSafetyClient implements ContentSafety {
-    constructor(readonly options?: TraceOptions & AbortSignalOptions) {}
+    private readonly cache: JSONLineCache<
+        { route: string; body: object; options: object },
+        object
+    >
+    constructor(readonly options?: TraceOptions & AbortSignalOptions) {
+        this.cache = JSONLineCache.byName("azurecontentsafety")
+    }
 
     async detectHarmfulContent(
         content: Awaitable<string | WorkspaceFile>,
@@ -46,7 +53,14 @@ class AzureContentSafetyClient implements ContentSafety {
             const fetcher = await this.createClient(route)
             const analyze = async (text: string) => {
                 trace?.fence(YAMLStringify(text), "yaml")
-                const res = await fetcher({ text })
+                const body = { text }
+                const cached = await this.cache.get({ route, body, options })
+                if (cached) {
+                    trace?.itemValue("cached", YAMLStringify(cached))
+                    return cached as { harmfulContentDetected: boolean }
+                }
+
+                const res = await fetcher(body)
                 if (!res.ok)
                     throw new Error(
                         `Azure Content Safety API failed with status ${res.status}`
@@ -58,7 +72,9 @@ class AzureContentSafetyClient implements ContentSafety {
                 const harmfulContentDetected = resBody.categoriesAnalysis?.some(
                     ({ severity }) => severity > maxAllowedSeverity
                 )
-                return { harmfulContentDetected, ...resBody }
+                const r = { harmfulContentDetected, ...resBody }
+                await this.cache.set({ route, body, options }, r)
+                return r
             }
 
             const inputs = arrayify(await content)
@@ -79,6 +95,7 @@ class AzureContentSafetyClient implements ContentSafety {
                         }
                 }
             }
+
             return { harmfulContentDetected: false }
         } finally {
             trace?.endDetails()
@@ -88,7 +105,8 @@ class AzureContentSafetyClient implements ContentSafety {
     async detectPromptInjection(
         content: Awaitable<
             ElementOrArray<string> | ElementOrArray<WorkspaceFile>
-        >
+        >,
+        options?: {}
     ): Promise<{ attackDetected: boolean; filename?: string; chunk?: string }> {
         const { trace } = this.options || {}
         const route = "text:shieldPrompt"
@@ -101,9 +119,14 @@ class AzureContentSafetyClient implements ContentSafety {
             const documents = input.filter((i) => typeof i === "object")
 
             const fetcher = await this.createClient(route)
-            const shieldPrompt = async (content: AzureContentSafetyRequest) => {
-                trace?.fence(YAMLStringify(content), "yaml")
-                const res = await fetcher(content)
+            const shieldPrompt = async (body: AzureContentSafetyRequest) => {
+                trace?.fence(YAMLStringify(body), "yaml")
+                const cached = await this.cache.get({ route, body, options })
+                if (cached) {
+                    trace?.itemValue("cached", YAMLStringify(cached))
+                    return cached as { attackDetected: boolean }
+                }
+                const res = await fetcher(body)
                 if (!res.ok)
                     throw new Error(
                         `Azure Content Safety API failed with status ${res.status}`
@@ -112,7 +135,9 @@ class AzureContentSafetyClient implements ContentSafety {
                 const attackDetected =
                     !!resBody.userPromptAnalysis?.attackDetected ||
                     resBody.documentsAnalysis?.some((doc) => doc.attackDetected)
-                return { attackDetected }
+                const r = { attackDetected }
+                await this.cache.set({ route, body, options }, r)
+                return r
             }
 
             for (const userPrompt of userPrompts) {
