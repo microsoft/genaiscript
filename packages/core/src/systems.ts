@@ -34,6 +34,7 @@ export function resolveSystems(
             systems.push("system.explanations")
             systems.push("system.safety_jailbreak")
             systems.push("system.safety_harmful_content")
+            systems.push("system.safety_protected_material")
         }
 
         // Add planner system if any tool starts with "agent"
