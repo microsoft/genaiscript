@@ -1989,10 +1989,11 @@ interface ContentSafety {
     /**
      * Scans text for the risk of a User input attack on a Large Language Model.
      */
-    detectPromptInjection(content: {
-        userPrompt?: string
-        documents?: string[]
-    }): Promise<{ attackDetected: boolean }>
+    detectPromptInjection(
+        content: Awaitable<
+            ElementOrArray<string> | ElementOrArray<WorkspaceFile>
+        >
+    ): Promise<{ attackDetected: boolean; filename?: string; chunk?: string }>
 }
 
 interface HighlightOptions {

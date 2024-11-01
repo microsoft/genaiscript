@@ -1,6 +1,6 @@
 import { createFetch, traceFetchPost } from "./fetch"
 import { AbortSignalOptions, TraceOptions } from "./trace"
-import { chunkString, trimTrailingSlash } from "./util"
+import { arrayify, chunkString, trimTrailingSlash } from "./util"
 import {
     AZURE_CONTENT_SAFETY_PROMPT_SHIELD_MAX_LENGTH,
     DOCS_CONFIGURATION_CONTENT_SAFETY_URL,
@@ -26,15 +26,20 @@ interface AzureContentSafetyResponse {
 class AzureContentSafetyClient implements ContentSafety {
     constructor(readonly options?: TraceOptions & AbortSignalOptions) {}
 
-    async detectPromptInjection(content: {
-        userPrompt?: string
-        documents?: string[]
-    }): Promise<{ attackDetected: boolean }> {
+    async detectPromptInjection(
+        content: Awaitable<
+            ElementOrArray<string> | ElementOrArray<WorkspaceFile>
+        >
+    ): Promise<{ attackDetected: boolean; filename?: string; chunk?: string }> {
         const { trace } = this.options || {}
         const route = "text:shieldPrompt"
 
         try {
             trace?.startDetails("🛡️ content safety: shield prompt")
+
+            const input = arrayify(await content)
+            const userPrompts = input.filter((i) => typeof i === "string")
+            const documents = input.filter((i) => typeof i === "object")
 
             const fetcher = await this.createClient(route)
             const shieldPrompt = async (content: AzureContentSafetyRequest) => {
@@ -51,26 +56,38 @@ class AzureContentSafetyClient implements ContentSafety {
                 return { attackDetected }
             }
 
-            // https://learn.microsoft.com/en-us/azure/ai-services/content-safety/overview#input-requirements
-            // Maximum prompt length: 10K characters.
-            // Up to five documents with a total of 10K characters.
-            for (const userPrompt of chunkString(
-                content.userPrompt || "",
-                AZURE_CONTENT_SAFETY_PROMPT_SHIELD_MAX_LENGTH
-            )) {
-                const res = await shieldPrompt({ userPrompt, documents: [] })
-                if (res.attackDetected) return res
+            for (const userPrompt of userPrompts) {
+                for (const chunk of chunkString(
+                    userPrompt,
+                    AZURE_CONTENT_SAFETY_PROMPT_SHIELD_MAX_LENGTH
+                )) {
+                    const res = await shieldPrompt({
+                        userPrompt: chunk,
+                        documents: [],
+                    })
+                    if (res.attackDetected)
+                        return {
+                            ...res,
+                            chunk,
+                        }
+                }
             }
-            const documents = (content.documents || []).join("\n")
-            for (const document of chunkString(
-                documents,
-                AZURE_CONTENT_SAFETY_PROMPT_SHIELD_MAX_LENGTH
-            )) {
-                const res = await shieldPrompt({
-                    userPrompt: "",
-                    documents: [document],
-                })
-                if (res.attackDetected) return res
+            for (const document of documents) {
+                for (const chunk of chunkString(
+                    document.content,
+                    AZURE_CONTENT_SAFETY_PROMPT_SHIELD_MAX_LENGTH
+                )) {
+                    const res = await shieldPrompt({
+                        userPrompt: "",
+                        documents: [chunk],
+                    })
+                    if (res.attackDetected)
+                        return {
+                            ...res,
+                            filename: document.filename,
+                            chunk,
+                        }
+                }
             }
             return { attackDetected: false }
         } finally {
