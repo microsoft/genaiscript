@@ -21,7 +21,10 @@ export function concurrentLimit(
 export class PLimitPromiseQueue implements PromiseQueue {
     private queue: LimitFunction
     constructor(concurrency?: number) {
-        this.queue = pLimit(concurrency ?? PROMISE_QUEUE_CONCURRENCY_DEFAULT)
+        const c = isNaN(concurrency)
+            ? PROMISE_QUEUE_CONCURRENCY_DEFAULT
+            : concurrency
+        this.queue = pLimit(Math.max(1, c))
     }
 
     async mapAll<T extends unknown, Arguments extends unknown[], ReturnType>(
