@@ -9,7 +9,7 @@ export const MAX_TOOL_CALLS = 10000
 // https://github.com/Azure/azure-rest-api-specs/blob/main/specification/cognitiveservices/data-plane/AzureOpenAI/inference/stable/2024-02-01/inference.yaml
 // https://learn.microsoft.com/en-us/azure/ai-services/openai/api-version-deprecation
 export const AZURE_OPENAI_API_VERSION = "2024-06-01"
-export const AZURE_OPENAI_TOKEN_SCOPES = Object.freeze([
+export const AZURE_COGNITIVE_SERVICES_TOKEN_SCOPES = Object.freeze([
     "https://cognitiveservices.azure.com/.default",
 ])
 export const AZURE_AI_INFERENCE_VERSION = "2024-08-01-preview"
@@ -181,6 +181,7 @@ export const DOCS_CONFIGURATION_AICI_URL =
     "https://microsoft.github.io/genaiscript/reference/scripts/aici/"
 export const DOCS_CONFIGURATION_ANTHROPIC_URL =
     "https://microsoft.github.io/genaiscript/getting-started/configuration/#anthropic"
+export const DOCS_CONFIGURATION_CONTENT_SAFETY_URL = "https://microsoft.github.io/genaiscript/reference/scripts/content-safety"
 
 export const MODEL_PROVIDERS = Object.freeze([
     {
@@ -315,3 +316,6 @@ export const AGENT_MEMORY_CACHE_NAME = "agent_memory"
 
 export const LLM_TAG_MISSING_INFO = "MISSING_INFO"
 export const LLM_TAG_NO_ANSWER = "NO_ANSWER"
+
+export const AZURE_CONTENT_SAFETY_PROMPT_SHIELD_MAX_LENGTH = 9000
+export const AZURE_CONTENT_SAFETY_PROMPT_SHIELD_MAX_DOCUMENTS = 9000

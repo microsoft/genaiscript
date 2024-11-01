@@ -5,6 +5,7 @@ import { YAMLStringify } from "./yaml"
 
 // chunk string into chunks of size n
 export function chunkString(s: string, n: number) {
+    if (!s?.length) return []
     if (s.length < n) return [s]
 
     const r: string[] = []

@@ -26,6 +26,7 @@ import { proxifyVars } from "./parameters"
 import { HTMLEscape } from "./html"
 import { hash } from "./crypto"
 import { resolveModelConnectionInfo } from "./models"
+import { createAzureContentSafetyClient } from "./azurecontentsafety"
 
 /**
  * Creates a prompt context for the given project, variables, trace, options, and model.
@@ -262,6 +263,10 @@ export async function createPromptContext(
         promiseQueue: (concurrency) => new PLimitPromiseQueue(concurrency),
     })
 
+    const contentSafety = createAzureContentSafetyClient({
+        trace,
+    })
+
     // Freeze project options to prevent modification
     const projectOptions = Object.freeze({ prj, env })
     const ctx: PromptContext & RunPromptContextNode = {
@@ -274,6 +279,7 @@ export async function createPromptContext(
         workspace,
         parsers,
         retrieval,
+        contentSafety,
         host: promptHost,
     }
     env.generator = ctx

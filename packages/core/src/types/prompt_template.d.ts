@@ -1982,6 +1982,20 @@ interface CSV {
     markdownify(csv: object[], options?: { headers?: string[] }): string
 }
 
+/**
+ * Provide service for responsible.
+ */
+interface ContentSafety {
+    /**
+     * Scans text for the risk of a User input attack on a Large Language Model.
+     */
+    detectPromptInjection(
+        content: Awaitable<
+            ElementOrArray<string> | ElementOrArray<WorkspaceFile>
+        >
+    ): Promise<{ attackDetected: boolean; filename?: string; chunk?: string }>
+}
+
 interface HighlightOptions {
     maxLength?: number
 }
@@ -3148,6 +3162,7 @@ interface PromptContext extends ChatGenerationContext {
     path: Path
     parsers: Parsers
     retrieval: Retrieval
+    contentSafety: ContentSafetyClient
     /**
      * @deprecated Use `workspace` instead
      */
