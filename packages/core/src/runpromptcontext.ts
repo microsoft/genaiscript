@@ -358,8 +358,11 @@ export function createChatGenerationContext(
         const agentLabel = `agent ${name}`
 
         const agentSystem = uniq([
+            "system.assistant",
             "system.tools",
             "system.explanations",
+            "system.safety_harmful_content",
+            "system.safety_jailbreak",
             ...arrayify(system),
         ])
         const agentTools = resolveTools(runtimeHost.project, agentSystem, [

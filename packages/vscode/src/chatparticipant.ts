@@ -39,7 +39,7 @@ export async function activateChatParticipant(state: ExtensionState) {
             token: vscode.CancellationToken
         ) => {
             let { command, prompt, references, model } = request
-            if (!state.project) await state.parseWorkspace()
+            await state.parseWorkspace()
             if (token.isCancellationRequested) return
 
             let template: PromptScript
@@ -64,11 +64,9 @@ export async function activateChatParticipant(state: ExtensionState) {
                 )
                 if (!template) {
                     response.markdown(
-                        dedent`
-                        The \`${COPILOT_CHAT_PARTICIPANT_SCRIPT_ID}\` script has not been configured yet in this workspace. 
-                    
-                        Save [starter template](https://microsoft.github.io/genaiscript/reference/vscode/github-copilot-chat#copilotchat) in your workspace to get started.
-                        `
+                        dedent`The \`${COPILOT_CHAT_PARTICIPANT_SCRIPT_ID}\` script has not been configured yet in this workspace.
+
+                        Save the [starter script template](https://microsoft.github.io/genaiscript/reference/vscode/github-copilot-chat#copilotchat) in your workspace to get started.`
                     )
                     return
                 }

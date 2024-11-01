@@ -6,7 +6,7 @@
 script({
     title: "git commit message",
     description: "Generate a commit message for all staged changes",
-    system: [],
+    system: ["system.assistant"],
 })
 
 // Check for staged changes and stage all changes if none are staged
