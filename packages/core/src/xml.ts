@@ -24,8 +24,6 @@ export function XMLTryParse(
         // Try parsing the text and return the result or defaultValue
         return XMLParse(text, options) ?? defaultValue
     } catch (e) {
-        // Log any errors during parsing
-        logError(e)
         // Return the default value if parsing fails
         return defaultValue
     }
