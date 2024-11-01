@@ -149,11 +149,14 @@ export function traceFetchPost(
     body: any,
     options?: { showAuthorization?: boolean }
 ) {
+    if (!trace) return
     const { showAuthorization } = options || {}
     headers = { ...(headers || {}) }
     if (!showAuthorization)
         Object.entries(headers)
-            .filter(([k]) => /^(authorization|api-key)$/i.test(k))
+            .filter(([k]) =>
+                /^(authorization|api-key|ocp-apim-subscription-key)$/i.test(k)
+            )
             .forEach(
                 ([k]) =>
                     (headers[k] = /Bearer /i.test(headers[k])

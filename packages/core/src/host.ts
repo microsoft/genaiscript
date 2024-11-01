@@ -107,7 +107,7 @@ export function isAzureTokenExpired(token: AuthenticationToken) {
 export interface AzureTokenResolver {
     token(
         credentialsType: AzureCredentialsType,
-        signal?: AbortSignal
+        options?: AbortSignalOptions
     ): Promise<AuthenticationToken>
 }
 

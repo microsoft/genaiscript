@@ -26,7 +26,7 @@ import {
     TOOL_ID,
     DEFAULT_EMBEDDINGS_MODEL,
     DEFAULT_SMALL_MODEL,
-    AZURE_OPENAI_TOKEN_SCOPES,
+    AZURE_COGNITIVE_SERVICES_TOKEN_SCOPES,
     MODEL_PROVIDER_AZURE_SERVERLESS_MODELS,
     AZURE_AI_INFERENCE_TOKEN_SCOPES,
     MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI,
@@ -146,7 +146,7 @@ export class NodeHost implements RuntimeHost {
         this.models = new ModelManager(this)
         this.azureToken = createAzureTokenResolver(
             "Azure",
-            AZURE_OPENAI_TOKEN_SCOPES
+            AZURE_COGNITIVE_SERVICES_TOKEN_SCOPES
         )
         this.azureServerlessToken = createAzureTokenResolver(
             "Azure AI Serverless",
@@ -199,7 +199,7 @@ export class NodeHost implements RuntimeHost {
             ) {
                 const azureToken = await this.azureToken.token(
                     tok.azureCredentialsType,
-                    signal
+                    options
                 )
                 if (!azureToken)
                     throw new Error("Azure OpenAI token not available")
@@ -209,7 +209,7 @@ export class NodeHost implements RuntimeHost {
             ) {
                 const azureToken = await this.azureServerlessToken.token(
                     tok.azureCredentialsType,
-                    signal
+                    options
                 )
                 if (!azureToken) throw new Error("Azure AI token not available")
                 tok.token = "Bearer " + azureToken.token

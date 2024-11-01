@@ -95,11 +95,13 @@ class AzureTokenResolverImpl implements AzureTokenResolver {
 
     async token(
         credentialsType: AzureCredentialsType,
-        signal?: AbortSignal
+        optoins?: { signal?: AbortSignal }
     ): Promise<AuthenticationToken> {
         // cached
-        if (!isAzureTokenExpired(this._token)) return this._token
+        const { signal } = optoins || {}
 
+        if (isAzureTokenExpired(this._token)) this._token = undefined
+        if (this._token) return this._token
         if (!this._resolver)
             this._resolver = createAzureToken(
                 this.scopes,
