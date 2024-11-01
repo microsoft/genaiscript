@@ -1994,6 +1994,20 @@ interface ContentSafety {
             ElementOrArray<string> | ElementOrArray<WorkspaceFile>
         >
     ): Promise<{ attackDetected: boolean; filename?: string; chunk?: string }>
+
+    /**
+     * Analyzes text for harmful content.
+     * @param content
+     */
+    detectHarmfulContent(
+        content: Awaitable<
+            ElementOrArray<string> | ElementOrArray<WorkspaceFile>
+        >
+    ): Promise<{
+        harmfulContentDetected: boolean
+        filename?: string
+        chunk?: string
+    }>
 }
 
 interface HighlightOptions {

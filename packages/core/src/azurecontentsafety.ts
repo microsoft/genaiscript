@@ -26,6 +26,65 @@ interface AzureContentSafetyResponse {
 class AzureContentSafetyClient implements ContentSafety {
     constructor(readonly options?: TraceOptions & AbortSignalOptions) {}
 
+    async detectHarmfulContent(
+        content: Awaitable<string | WorkspaceFile>,
+        options?: {
+            maxAllowedSeverity?: number
+        }
+    ): Promise<{
+        harmfulContentDetected: boolean
+        filename?: string
+        chunk?: string
+    }> {
+        const { trace } = this.options || {}
+        const { maxAllowedSeverity = 0 } = options || {}
+        const route = "text:analyze"
+
+        try {
+            trace?.startDetails("🛡️ content safety: detect harmful content")
+
+            const fetcher = await this.createClient(route)
+            const analyze = async (text: string) => {
+                trace?.fence(YAMLStringify(text), "yaml")
+                const res = await fetcher({ text })
+                if (!res.ok)
+                    throw new Error(
+                        `Azure Content Safety API failed with status ${res.status}`
+                    )
+                const resBody = (await res.json()) as {
+                    blockslistMath: string[]
+                    categoriesAnalysis: { category: string; severity: number }[]
+                }
+                const harmfulContentDetected = resBody.categoriesAnalysis?.some(
+                    ({ severity }) => severity > maxAllowedSeverity
+                )
+                return { harmfulContentDetected, ...resBody }
+            }
+
+            const inputs = arrayify(await content)
+            for (const input of inputs) {
+                const text = typeof input === "string" ? input : input.content
+                const filename =
+                    typeof input === "string" ? undefined : input.filename
+                for (const chunk of chunkString(
+                    text,
+                    AZURE_CONTENT_SAFETY_PROMPT_SHIELD_MAX_LENGTH
+                )) {
+                    const res = await analyze(chunk)
+                    if (res.harmfulContentDetected)
+                        return {
+                            ...res,
+                            filename,
+                            chunk,
+                        }
+                }
+            }
+            return { harmfulContentDetected: false }
+        } finally {
+            trace?.endDetails()
+        }
+    }
+
     async detectPromptInjection(
         content: Awaitable<
             ElementOrArray<string> | ElementOrArray<WorkspaceFile>
@@ -35,7 +94,7 @@ class AzureContentSafetyClient implements ContentSafety {
         const route = "text:shieldPrompt"
 
         try {
-            trace?.startDetails("🛡️ content safety: shield prompt")
+            trace?.startDetails("🛡️ content safety: detect prompt injection")
 
             const input = arrayify(await content)
             const userPrompts = input.filter((i) => typeof i === "string")
