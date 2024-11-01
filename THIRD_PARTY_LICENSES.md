@@ -3080,7 +3080,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 The following npm package may be included in this product:
 
- - tslib@2.8.0
+ - tslib@2.8.1
 
 This package contains the following license and notice below:
 

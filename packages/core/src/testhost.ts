@@ -14,6 +14,7 @@ import {
     UTF8Encoder,
     setRuntimeHost,
     RuntimeHost,
+    AzureTokenResolver,
 } from "./host"
 import { TraceOptions } from "./trace"
 import {
@@ -65,6 +66,7 @@ export class TestHost implements RuntimeHost {
     path: Path = createNodePath()
     // File system for workspace
     workspace: WorkspaceFileSystem
+    azureToken: AzureTokenResolver = undefined
 
     // Default options for language models
     readonly defaultModelOptions = {
