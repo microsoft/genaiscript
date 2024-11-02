@@ -21,16 +21,19 @@ jobs:
                   node-version: "20"
                   cache: yarn
             - run: yarn install --frozen-lockfile
+            - run: yarn playwright install
             - name: Typecheck
               run: yarn typecheck
             - name: Compile
               run: yarn compile
+            - name: Build slides
+              run: yarn build:slides
             - name: Build docs
               run: yarn build:docs
             - name: no jekyll
               run: touch docs/dist/.nojekyll
             - name: Deploy 🚀
-              uses: JamesIves/github-pages-deploy-action@v4
+              uses: JamesIves/github-pages-deploy-action@v4.6.4
               with:
                   folder: docs/dist
                   single-commit: true

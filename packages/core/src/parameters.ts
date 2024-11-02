@@ -2,7 +2,7 @@ import { Project } from "./ast"
 import { NotSupportedError } from "./error"
 import { isJSONSchema } from "./schema"
 import { resolveSystems } from "./systems"
-import { normalizeFloat, normalizeInt } from "./util"
+import { logError, normalizeFloat, normalizeInt } from "./util"
 
 export function promptParameterTypeToJSONSchema(
     t: PromptParameterType
@@ -25,16 +25,17 @@ export function promptParameterTypeToJSONSchema(
         }
     else if (
         typeof t === "object" &&
-        ["number", "integer", "string", "object"].includes((t as any).type)
-    )
+        ["number", "integer", "string", "boolean", "object"].includes(
+            (t as any).type
+        )
+    ) {
         return <
             | JSONSchemaNumber
             | JSONSchemaString
             | JSONSchemaBoolean
             | JSONSchemaObject
         >t
-    // TODO better filtering
-    else if (typeof t === "object")
+    } else if (typeof t === "object")
         return <JSONSchemaObject>{
             type: "object",
             properties: Object.fromEntries(
@@ -93,13 +94,12 @@ export function parsePromptParameters(
 
     // apply defaults
     for (const key in parameters || {}) {
-        const t = promptParameterTypeToJSONSchema(parameters[key])
-        if (
-            t.type !== "object" &&
-            t.type !== "array" &&
-            t.default !== undefined
-        )
-            res[key] = t.default
+        const p = parameters[key] as any
+        if (p.default !== undefined) res[key] = structuredClone(p.default)
+        else {
+            const t = promptParameterTypeToJSONSchema(p)
+            if (t.default !== undefined) res[key] = structuredClone(t.default)
+        }
     }
 
     const vars = {
@@ -121,5 +121,52 @@ export function parsePromptParameters(
             res[key] = /^\s*(y|yes|true|ok)\s*$/i.test(vars[key] + "")
         else if (t?.type === "string") res[key] = vars[key]
     }
+
+    // clone res to all lower case
+    for (const key of Object.keys(res)) {
+        const nkey = normalizeVarKey(key)
+        if (nkey !== key) {
+            if (res[nkey] !== undefined)
+                logError(`duplicate parameter ${key} (${nkey})`)
+            res[nkey] = res[key]
+            delete res[key]
+        }
+    }
     return Object.freeze(res)
+}
+
+export function proxifyVars(res: PromptParameters) {
+    const varsProxy: PromptParameters = new Proxy(res, {
+        get(target: PromptParameters, prop: string) {
+            return prop ? target[normalizeVarKey(prop)] : undefined
+        },
+        ownKeys(target: PromptParameters) {
+            return Reflect.ownKeys(target).map((k) =>
+                normalizeVarKey(k as string)
+            )
+        },
+        getOwnPropertyDescriptor(target: PromptParameters, prop: string) {
+            const normalizedKey = normalizeVarKey(prop)
+            const value = target[normalizedKey]
+            if (value !== undefined) {
+                return {
+                    enumerable: true,
+                    configurable: false,
+                    writable: false,
+                    value,
+                }
+            }
+            return undefined
+        },
+    })
+    return varsProxy
+}
+
+function normalizeVarKey(key: string) {
+    return key.toLowerCase().replace(/[^a-z0-9\.]/g, "")
+}
+
+export function parametersToVars(parameters: PromptParameters): string[] {
+    if (!parameters) return undefined
+    return Object.keys(parameters).map((k) => `${k}=${parameters[k]}`)
 }

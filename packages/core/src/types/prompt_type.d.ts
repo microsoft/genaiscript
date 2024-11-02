@@ -19,6 +19,19 @@ declare function script(options: PromptArgs): void
 declare function system(options: PromptSystemArgs): void
 
 /**
+ * Imports template prompt file and expands arguments in it.
+ * @param files
+ * @param arguments
+ */
+declare function importTemplate(
+    files: string | string[],
+    arguments?: Record<
+        string | number | boolean | (() => string | number | boolean)
+    >,
+    options?: ImportTemplateOptions
+): void
+
+/**
  * Append given string to the prompt. It automatically appends "\n".
  * Typically best to use `` $`...` ``-templates instead.
  */
@@ -28,10 +41,21 @@ declare function writeText(
 ): void
 
 /**
+ * Append given string to the prompt as an assistant mesage.
+ */
+declare function assistant(
+    text: Awaitable<string>,
+    options?: Omit<WriteTextOptions, "assistant">
+): void
+
+/**
  * Append given string to the prompt. It automatically appends "\n".
  * `` $`foo` `` is the same as `text("foo")`.
  */
-declare function $(strings: TemplateStringsArray, ...args: any[]): string
+declare function $(
+    strings: TemplateStringsArray,
+    ...args: any[]
+): PromptTemplateString
 
 /**
  * Appends given (often multi-line) string to the prompt, surrounded in fences.
@@ -51,7 +75,13 @@ declare function fence(body: StringLike, options?: FenceOptions): void
  */
 declare function def(
     name: string,
-    body: StringLike,
+    body:
+        | string
+        | WorkspaceFile
+        | WorkspaceFile[]
+        | ShellOutput
+        | Fenced
+        | RunPromptResult,
     options?: DefOptions
 ): string
 
@@ -61,23 +91,43 @@ declare function def(
  * @param options expectations about the generated file content
  */
 declare function defFileOutput(
-    pattern: string,
-    description: string,
+    pattern: ElementOrArray<string | WorkspaceFile>,
+    description?: string,
     options?: FileOutputOptions
 ): void
 
 /**
  * Declares a tool that can be called from the prompt.
+ * @param tool Agentic tool function.
  * @param name The name of the tool to be called. Must be a-z, A-Z, 0-9, or contain underscores and dashes, with a maximum length of 64.
  * @param description A description of what the function does, used by the model to choose when and how to call the function.
  * @param parameters The parameters the tool accepts, described as a JSON Schema object.
  * @param fn callback invoked when the LLM requests to run this function
  */
 declare function defTool(
+    tool: ToolCallback | AgenticToolCallback | AgenticToolProviderCallback,
+    options?: DefToolOptions
+): void
+declare function defTool(
     name: string,
     description: string,
     parameters: PromptParametersSchema | JSONSchema,
-    fn: ChatFunctionHandler
+    fn: ChatFunctionHandler,
+    options?: DefToolOptions
+): void
+
+/**
+ * Declares a LLM agent tool that can be called from the prompt.
+ * @param name name of the agent, do not prefix with agent
+ * @param description description of the agent, used by the model to choose when and how to call the agent
+ * @param fn prompt generation context
+ * @param options additional options for the agent LLM
+ */
+declare function defAgent(
+    name: string,
+    description: string,
+    fn: string | ChatAgentHandler,
+    options?: DefAgentOptions
 ): void
 
 /**
@@ -132,6 +182,16 @@ declare var CSV: CSV
 declare var XML: XML
 
 /**
+ * HTML parsing
+ */
+declare var HTML: HTML
+
+/**
+ * Markdown and frontmatter parsing.
+ */
+declare var MD: MD
+
+/**
  * JSONL parsing and stringifying.
  */
 declare var JSONL: JSONL
@@ -145,6 +205,26 @@ declare var AICI: AICI
  * Access to current LLM chat session information
  */
 declare var host: PromptHost
+
+/**
+ * Access to GitHub queries for the current repository
+ */
+declare var github: GitHub
+
+/**
+ * Access to Git operations for the current repository
+ */
+declare var git: Git
+
+/**
+ * Computation around tokens
+ */
+declare var tokenizers: Tokenizers
+
+/**
+ * Concent safety services
+ */
+declare var contentSafety: ContentSafety
 
 /**
  * Fetches a given URL and returns the response.
@@ -172,7 +252,10 @@ declare function defSchema(
  * @param files
  * @param options
  */
-declare function defImages(files: StringLike, options?: DefImagesOptions): void
+declare function defImages(
+    files: ElementOrArray<string | WorkspaceFile | Buffer | Blob>,
+    options?: DefImagesOptions
+): void
 
 /**
  * Renders a table or object in the prompt
@@ -185,6 +268,19 @@ declare function defData(
     name: string,
     data: object[] | object,
     options?: DefDataOptions
+): string
+
+/**
+ * Renders a diff of the two given values
+ * @param left
+ * @param right
+ * @param options
+ */
+declare function defDiff<T extends string | WorkspaceFile>(
+    name: string,
+    left: T,
+    right: T,
+    options?: DefDiffOptions
 ): string
 
 /**
@@ -203,6 +299,14 @@ declare function runPrompt(
 ): Promise<RunPromptResult>
 
 /**
+ * Expands and executes the prompt
+ */
+declare function prompt(
+    strings: TemplateStringsArray,
+    ...args: any[]
+): RunPromptResultPromiseWithOptions
+
+/**
  * Registers a callback to process the LLM output
  * @param fn
  */
@@ -216,8 +320,3 @@ declare function defChatParticipant(
     participant: ChatParticipantHandler,
     options?: ChatParticipantOptions
 ): void
-
-/**
- * @deprecated Use `defOutputProcessor` instead.
- */
-declare function defOutput(fn: PromptOutputProcessorHandler): void

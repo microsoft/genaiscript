@@ -1,8 +1,8 @@
 script({
     description:
         "Given an image of a receipt, extract a csv of the receipt data",
-    group: "image tools",
-    model: "gpt-4-turbo-v",
+    group: "vision",
+    model: "gpt-4o",
     maxTokens: 4000,
 })
 defImages(env.files)

@@ -1,8 +1,8 @@
-import { Embeddings } from "openai/resources/embeddings.mjs"
 import { CancellationToken } from "./cancellation"
 import { LanguageModel } from "./chat"
 import { Progress } from "./progress"
 import { AbortSignalOptions, MarkdownTrace, TraceOptions } from "./trace"
+import { Project } from "./ast"
 
 // this is typically an instance of TextDecoder
 export interface UTF8Decoder {
@@ -25,18 +25,30 @@ export enum LogLevel {
     Error = 4,
 }
 
-export type APIType = "openai" | "azure" | "localai"
+export type OpenAIAPIType =
+    | "openai"
+    | "azure"
+    | "localai"
+    | "azure_serverless"
+    | "azure_serverless_models"
 
-export interface LanguageModelConfiguration {
-    provider: string
-    model: string
+export type AzureCredentialsType =
+    | "default"
+    | "cli"
+    | "env"
+    | "powershell"
+    | "devcli"
+    | "managedidentity"
+    | "workloadidentity"
+
+export interface LanguageModelConfiguration extends LanguageModelReference {
     base: string
     token: string
-    curlHeaders?: Record<string, string>
-    type?: APIType
     source?: string
+    type?: OpenAIAPIType
     aici?: boolean
     version?: string
+    azureCredentialsType?: AzureCredentialsType
 }
 
 export interface RetrievalClientOptions {
@@ -51,15 +63,14 @@ export interface ResponseStatus {
     status?: number
 }
 
-export interface RetrievalSearchOptions extends VectorSearchOptions {
-}
+export interface RetrievalSearchOptions extends VectorSearchOptions {}
 
 export interface RetrievalSearchResponse extends ResponseStatus {
     results: WorkspaceFileWithScore[]
 }
 
 export interface ModelService {
-    pullModel(model: string): Promise<ResponseStatus>
+    pullModel(model: string, options?: TraceOptions): Promise<ResponseStatus>
 }
 
 export interface RetrievalService {
@@ -83,6 +94,23 @@ export interface ServerManager {
     close(): Promise<void>
 }
 
+export interface AuthenticationToken {
+    token: string
+    expiresOnTimestamp: number
+}
+
+export function isAzureTokenExpired(token: AuthenticationToken) {
+    // Consider the token expired 5 seconds before the actual expiration to avoid timing issues
+    return !token || token.expiresOnTimestamp < Date.now() - 5_000
+}
+
+export interface AzureTokenResolver {
+    token(
+        credentialsType: AzureCredentialsType,
+        options?: AbortSignalOptions
+    ): Promise<AuthenticationToken>
+}
+
 export interface Host {
     readonly dotEnvPath: string
 
@@ -97,7 +125,9 @@ export interface Host {
     resolvePath(...segments: string[]): string
 
     // read a secret from the environment or a .env file
-    defaultModelOptions: Required<Pick<ModelOptions, "model" | "temperature">>
+    defaultModelOptions: Required<
+        Pick<ModelOptions, "model" | "smallModel" | "temperature">
+    >
     defaultEmbeddingsModelOptions: Required<
         Pick<EmbeddingsModelOptions, "embeddingsModel">
     >
@@ -126,8 +156,10 @@ export interface Host {
 }
 
 export interface RuntimeHost extends Host {
+    project: Project
     models: ModelService
     workspace: Omit<WorkspaceFileSystem, "grep">
+    azureToken: AzureTokenResolver
 
     readSecret(name: string): Promise<string | undefined>
     // executes a process
@@ -145,9 +177,47 @@ export interface RuntimeHost extends Host {
     container(options: ContainerOptions & TraceOptions): Promise<ContainerHost>
 
     /**
+     * Launches a browser page
+     * @param url
+     * @param options
+     */
+    browse(
+        url: string,
+        options?: BrowseSessionOptions & TraceOptions
+    ): Promise<BrowserPage>
+
+    /**
      * Cleanup all temporary containers.
      */
     removeContainers(): Promise<void>
+
+    /**
+     * Cleanup all temporary browsers.
+     */
+    removeBrowsers(): Promise<void>
+
+    /**
+     * Asks the user to select between options
+     * @param message question to ask
+     * @param options options to select from
+     */
+    select(
+        message: string,
+        choices: (string | ShellSelectChoice)[],
+        options?: ShellSelectOptions
+    ): Promise<string>
+
+    /**
+     * Asks the user to input a text
+     * @param message message to ask
+     */
+    input(message: string, options?: ShellInputOptions): Promise<string>
+
+    /**
+     * Asks the user to confirm a message
+     * @param message message to ask
+     */
+    confirm(message: string, options?: ShellConfirmOptions): Promise<boolean>
 }
 
 export let host: Host

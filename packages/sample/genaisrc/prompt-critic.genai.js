@@ -2,7 +2,7 @@ script({
     title: "Prompt critic",
     description: "Given a goal and a prompt, evaluate the prompt",
     maxTokens: 4000,
-    model: "gpt-4",
+    model: "large",
     group: "tutorial",
     system: []
 })

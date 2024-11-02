@@ -20,3 +20,6 @@ yarn-error.log
 test.sh
 esbuild.*.json
 esbuild.*.html
+dev/
+foobar*.genai.mjs
+azure-sdk-for-js/

@@ -25,15 +25,12 @@ import { isCancelError } from "../../core/src/error"
 import { resolveModelConnectionInfo } from "../../core/src/models"
 import { parseProject } from "../../core/src/parser"
 import { MarkdownTrace } from "../../core/src/trace"
-import {
-    dotGenaiscriptPath,
-    sha256string,
-    delay,
-    logInfo,
-    groupBy,
-} from "../../core/src/util"
+import { dotGenaiscriptPath, logInfo, groupBy } from "../../core/src/util"
 import { CORE_VERSION } from "../../core/src/version"
 import { Fragment, GenerationResult } from "../../core/src/generation"
+import { parametersToVars } from "../../core/src/parameters"
+import { hash, randomHex } from "../../core/src/crypto"
+import { delay } from "es-toolkit"
 
 export const FRAGMENTS_CHANGE = "fragmentsChange"
 export const AI_REQUEST_CHANGE = "aiRequestChange"
@@ -46,7 +43,7 @@ export interface AIRequestOptions {
     template: PromptScript
     fragment: Fragment
     parameters: PromptParameters
-    notebook?: boolean
+    mode?: "notebook" | "chat"
     jsSource?: string
 }
 
@@ -108,6 +105,7 @@ export class ExtensionState extends EventTarget {
         AIRequestSnapshot
     > = undefined
     readonly output: vscode.LogOutputChannel
+    readonly sessionApiKey = randomHex(128)
 
     constructor(public readonly context: ExtensionContext) {
         super()
@@ -163,7 +161,6 @@ export class ExtensionState extends EventTarget {
         const dir = this.host.toUri(dotGenaiscriptPath("."))
         await vscode.workspace.fs.createDirectory(dir)
 
-        // add .gitignore
         await writeFile(
             dir,
             ".gitattributes",
@@ -177,11 +174,14 @@ export class ExtensionState extends EventTarget {
         await writeFile(
             dir,
             ".gitignore",
-            `cache/
+            `runs/
+cache/
 retrieval/
 containers/
 temp/
 tests/
+stats/
+*.csv
 `
         )
     }
@@ -208,17 +208,17 @@ tests/
         this.dispatchChange()
     }
 
-    async requestAI(options: AIRequestOptions): Promise<void> {
+    async requestAI(options: AIRequestOptions): Promise<GenerationResult> {
         try {
             const req = await this.startAIRequest(options)
             if (!req) {
                 await this.cancelAiRequest()
-                return
+                return undefined
             }
             const res = await req?.request
             const { edits, text, status } = res || {}
 
-            if (!options.notebook) {
+            if (!options.mode) {
                 if (status === "error")
                     vscode.commands.executeCommand(
                         "genaiscript.request.open.trace"
@@ -235,9 +235,10 @@ tests/
             this.setDiagnostics()
             this.dispatchChange()
 
-            if (edits?.length && !options.notebook) this.applyEdits()
+            if (edits?.length && options.mode != "notebook") this.applyEdits()
+            return res
         } catch (e) {
-            if (isCancelError(e)) return
+            if (isCancelError(e)) return undefined
             throw e
         }
     }
@@ -250,10 +251,11 @@ tests/
             template: {
                 id: options.template.id,
                 title: options.template.title,
-                hash: await sha256string(
-                    JSON.stringify({
+                hash: await hash(
+                    {
                         template: options.template,
-                    })
+                    },
+                    { version: true }
                 ),
             },
             fragment: options.fragment,
@@ -267,7 +269,7 @@ tests/
     ): Promise<AIRequest> {
         const controller = new AbortController()
         const config = vscode.workspace.getConfiguration(TOOL_ID)
-        const cache = config.get("cache")
+        const cache = config.get("cache") as boolean
         const signal = controller.signal
         const trace = new MarkdownTrace()
 
@@ -330,12 +332,17 @@ tests/
                 infoCb,
                 partialCb,
                 label,
-                cache: cache && template.cache,
+                cache: cache ? template.cache : undefined,
+                vars: parametersToVars(options.parameters),
             }
         )
         r.runId = runId
         r.request = request
-        if (!options.notebook && !hasOutputOrTraceOpened())
+        if (options.mode !== "chat")
+            vscode.commands.executeCommand(
+                "workbench.view.extension.genaiscript"
+            )
+        if (!options.mode && !hasOutputOrTraceOpened())
             vscode.commands.executeCommand("genaiscript.request.open.output")
         r.request
             .then((resp) => {
@@ -477,7 +484,7 @@ tests/
 
     private setDiagnostics() {
         this._diagColl.clear()
-        if (this._aiRequest?.options?.notebook) return
+        if (this._aiRequest?.options?.mode === "notebook") return
 
         let diagnostics = this.project.diagnostics
         if (this._aiRequest?.response?.annotations?.length)

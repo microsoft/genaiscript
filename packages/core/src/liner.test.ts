@@ -47,8 +47,8 @@ index 8cf2f17f..e17283d9 100644
 [4] +line 3
 `
         assertDiff(diff, expected)
-    })   
-    
+    })
+
     test("diff test 3", function () {
         const diff = `diff --git a/packages/core/src/liner.diff.txt b/packages/core/src/liner.diff.txt
 index 8cf2f17f..519f67a6 100644
@@ -71,7 +71,7 @@ index 8cf2f17f..519f67a6 100644
 [4]  line 3
 `
         assertDiff(diff, expected)
-    })    
+    })
 
     test("diff test 4", function () {
         const diff = `diff --git a/packages/core/src/liner.ts b/packages/core/src/liner.ts
@@ -100,7 +100,7 @@ index 1215f7e7..385884e0 100644
 [37]              }
 `
         assertDiff(diff, expected)
-    })      
+    })
     test("returns the original diff if it is empty", function () {
         const diff = ""
         const result = llmifyDiff(diff)
@@ -109,10 +109,14 @@ index 1215f7e7..385884e0 100644
 })
 function assertDiff(diff: string, expected: string) {
     const result = llmifyDiff(diff)
-    console.log(diff)
-    console.log("\n> result")
-    console.log(result)
-    console.log("\n> expected")
-    console.log(expected)
-    assert.strictEqual(result, expected)
+    try {
+        assert.strictEqual(result, expected)
+    } catch (e) {
+        console.log(diff)
+        console.log("\n> result")
+        console.log(result)
+        console.log("\n> expected")
+        console.log(expected)
+        throw e
+    }
 }

@@ -24,6 +24,7 @@ export interface ServerEnv extends RequestMessage {
 export interface PromptScriptTestRunOptions {
     testProvider?: string
     models?: string[]
+    groups?: string[]
 }
 
 export interface PromptScriptTestRun extends RequestMessage {
@@ -42,18 +43,20 @@ export interface PromptScriptTestRunResponse extends ResponseStatus {
 }
 
 export interface PromptScriptRunOptions {
+    filesChunkSize: number
     excludedFiles: string[]
     excludeGitIgnore: boolean
+    runRetry: string
     out: string
     retry: string
     retryDelay: string
     maxDelay: string
     json: boolean
     yaml: boolean
-    prompt: boolean
     outTrace: string
     outAnnotations: string
     outChangelogs: string
+    pullRequest: string
     pullRequestComment: string | boolean
     pullRequestDescription: string | boolean
     pullRequestReviews: boolean
@@ -66,9 +69,10 @@ export interface PromptScriptRunOptions {
     maxToolCalls: string
     maxDataRepairs: string
     model: string
+    smallModel: string
     embeddingsModel: string
     csvSeparator: string
-    cache: boolean
+    cache: boolean | string
     cacheName: string
     applyEdits: boolean
     failOnErrors: boolean
@@ -113,6 +117,7 @@ export interface PromptScriptProgressResponseEvent {
     tokens?: number
     response?: string
     responseChunk?: string
+    inner?: boolean
 }
 
 export interface ShellExecResponse extends ResponseStatus {

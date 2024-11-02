@@ -1,87 +1,103 @@
+// Import necessary modules and interfaces
 import { CancellationToken } from "./cancellation"
 import { LanguageModel } from "./chat"
-import { ChatCompletionMessageParam, ChatCompletionsOptions } from "./chattypes"
+import {
+    ChatCompletionMessageParam,
+    ChatCompletionsOptions,
+    ChatCompletionUsage,
+} from "./chattypes"
 import { MarkdownTrace } from "./trace"
+import { GenerationStats } from "./usage"
 
+// Represents a code fragment with associated files
 export interface Fragment {
-    files: string[]
+    files: string[] // Array of file paths or names
 }
 
+// Interface for the result of a generation process
 export interface GenerationResult extends GenerationOutput {
     /**
-     * The env variables sent to the prompt
+     * The environment variables passed to the prompt
      */
     vars: Partial<ExpansionVariables>
 
     /**
-     * Expanded prompt text
+     * Expanded prompt text composed of multiple messages
      */
     messages: ChatCompletionMessageParam[]
 
     /**
-     * Zero or more edits to apply.
+     * Edits to apply, if any
      */
     edits: Edits[]
 
     /**
-     * Parsed source annotations
+     * Source annotations parsed as diagnostics
      */
     annotations: Diagnostic[]
 
     /**
-     * ChangeLog sections
+     * Sections of the ChangeLog
      */
     changelogs: string[]
 
     /**
-     * Error message if any
+     * Error message or object, if any error occurred
      */
     error?: unknown
 
     /**
-     * Run status
+     * Status of the generation process (success, error, or cancelled)
      */
     status: GenerationStatus
 
     /**
-     * Status message if any
+     * Additional status information or message
      */
     statusText?: string
 
     /**
-     * Run label if provided
+     * Completion status from the language model
+     */
+    finishReason?: string
+
+    /**
+     * Optional label for the run
      */
     label?: string
 
     /**
-     * GenAIScript version
+     * Version of the GenAIScript used
      */
     version: string
+
+    /**
+     * Statistics of the generation
+     */
+    stats: {
+        cost: number
+    } & ChatCompletionUsage
 }
 
-export interface GenerationStats {
-    toolCalls: number
-    repairs: number
-    turns: number
-}
-
+// Type representing possible statuses of generation
 export type GenerationStatus = "success" | "error" | "cancelled" | undefined
 
+// Options for configuring the generation process, extending multiple other options
 export interface GenerationOptions
     extends ChatCompletionsOptions,
         ModelOptions,
         EmbeddingsModelOptions,
         ScriptRuntimeOptions {
-    cancellationToken?: CancellationToken
-    infoCb?: (partialResponse: { text: string }) => void
-    trace: MarkdownTrace
-    maxCachedTemperature?: number
-    maxCachedTopP?: number
-    skipLLM?: boolean
-    label?: string
+    inner: boolean // Indicates if the process is an inner operation
+    cancellationToken?: CancellationToken // Token to cancel the operation
+    infoCb?: (partialResponse: { text: string }) => void // Callback for providing partial responses
+    trace: MarkdownTrace // Trace information for debugging or logging
+    maxCachedTemperature?: number // Maximum temperature for caching purposes
+    maxCachedTopP?: number // Maximum top-p value for caching
+    label?: string // Optional label for the operation
     cliInfo?: {
-        files: string[]
+        files: string[] // Information about files in the CLI context
     }
-    vars?: PromptParameters
-    stats: GenerationStats
+    vars?: PromptParameters // Variables for prompt customization
+    stats: GenerationStats // Statistics of the generation
 }

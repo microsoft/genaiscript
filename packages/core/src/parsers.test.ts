@@ -93,6 +93,15 @@ describe("parsers", () => {
             },
             { key: "value" }
         )
-        assert.strictEqual(res.valid, true)
+        assert.strictEqual(res.pathValid, true)
+    })
+
+    // write test about hash
+    test("hash", async () => {
+        const result = await parsers.hash(
+            { test: "test string", arr: [1, 2, "32"], v: new Uint8Array(123) },
+            { length: 20 }
+        )
+        assert.strictEqual(result, "35a5db1d84a2da503d69") // Example hash value
     })
 })

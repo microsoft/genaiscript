@@ -1,28 +1,86 @@
+// Import statements for various message parameters used in chat rendering.
 import {
     ChatCompletionAssistantMessageParam,
     ChatCompletionMessageParam,
     ChatCompletionSystemMessageParam,
     ChatCompletionToolMessageParam,
+    ChatCompletionUserMessageParam,
 } from "./chattypes"
+
+// Import utility functions for JSON5 parsing, markdown formatting, and YAML stringification.
 import { JSON5TryParse } from "./json5"
 import { details, fenceMD } from "./markdown"
 import { YAMLStringify } from "./yaml"
 
+/**
+ * Renders the output of a shell command.
+ * @param output - The shell output containing exit code, stdout, and stderr.
+ * @returns A formatted string representing the shell output.
+ */
+export function renderShellOutput(output: ShellOutput) {
+    // Destructure the output object to retrieve exitCode, stdout, and stderr.
+    const { exitCode, stdout, stderr } = output
+    if (exitCode === 0) return stdout
+    return (
+        [
+            // Include exit code in the output only if it's non-zero.
+            exitCode !== 0 ? `EXIT_CODE: ${exitCode}` : undefined,
+            // Include stdout if it exists, formatted as text.
+            stdout ? `STDOUT:${fenceMD(stdout, "text")}` : undefined,
+            // Include stderr if it exists, formatted as text.
+            stderr ? `STDERR:${fenceMD(stderr, "text")}` : undefined,
+        ]
+            // Filter out undefined values from the array.
+            .filter((s) => s)
+            // Join the elements with two newlines for separation.
+            .join("\n\n")
+    )
+}
+
+/**
+ * Renders message content to a string.
+ * @param msg - The message which could be of various types.
+ * @returns A string representing the message content or undefined.
+ */
 export function renderMessageContent(
     msg:
         | ChatCompletionAssistantMessageParam
         | ChatCompletionSystemMessageParam
+        | ChatCompletionUserMessageParam
         | ChatCompletionToolMessageParam
 ): string {
     const content = msg.content
+    // Return the content directly if it's a simple string.
     if (typeof content === "string") return content
+    // If the content is an array, process each element based on its type.
     else if (Array.isArray(content))
-        return content
-            .map((c) => (c.type === "text" ? c.text : c.refusal))
-            .join(` `)
+        return (
+            content
+                .map((c) =>
+                    // Handle different types of content: text, refusal, and image.
+                    c.type === "text"
+                        ? c.text
+                        : c.type === "image_url"
+                          ? `![](${c.image_url})`
+                          : c.type === "input_audio"
+                            ? `🔊 [audio](${c.input_audio})`
+                            : c.type === "refusal"
+                              ? `refused: ${c.refusal}`
+                              : `unknown message`
+                )
+                // Join the content array into a single string with spaces.
+                .join(` `)
+        )
+    // Return undefined if the content is neither a string nor an array.
     return undefined
 }
 
+/**
+ * Converts a list of chat messages to a markdown string.
+ * @param messages - Array of chat messages.
+ * @param options - Optional filtering options for different roles.
+ * @returns A formatted markdown string of the chat messages.
+ */
 export function renderMessagesToMarkdown(
     messages: ChatCompletionMessageParam[],
     options?: {
@@ -31,14 +89,17 @@ export function renderMessagesToMarkdown(
         assistant?: boolean
     }
 ) {
+    // Set default options for filtering message roles.
     const {
-        system = undefined,
-        user = undefined,
-        assistant = true,
+        system = undefined, // Include system messages unless explicitly set to false.
+        user = undefined, // Include user messages unless explicitly set to false.
+        assistant = true, // Include assistant messages by default.
     } = options || {}
+
     const res: string[] = []
     messages
         ?.filter((msg) => {
+            // Filter messages based on their roles.
             switch (msg.role) {
                 case "system":
                     return system !== false
@@ -114,11 +175,18 @@ export function renderMessagesToMarkdown(
                     break
             }
         })
+    // Join the result array into a single markdown string.
     return res.filter((s) => s !== undefined).join("\n")
 }
 
+/**
+ * Parses and renders tool arguments into formatted YAML or JSON.
+ * @param args - The tool arguments as a string.
+ * @returns A formatted string in YAML or JSON.
+ */
 function renderToolArguments(args: string) {
     const js = JSON5TryParse(args)
+    // Convert arguments to YAML if possible, otherwise keep as JSON.
     if (js) return fenceMD(YAMLStringify(js), "yaml")
     else return fenceMD(args, "json")
 }

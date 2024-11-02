@@ -1,7 +1,7 @@
 import { createFetch } from "./fetch"
 import { generatedByFooter, mergeDescription } from "./github"
 import { prettifyMarkdown } from "./markdown"
-import { logError, logVerbose, trimTrailingSlash } from "./util"
+import { logError, logVerbose } from "./util"
 
 // https://learn.microsoft.com/en-us/rest/api/azure/devops/git/pull-requests/update?view=azure-devops-rest-7.1
 export interface AzureDevOpsEnv {
@@ -16,9 +16,9 @@ export interface AzureDevOpsEnv {
 }
 
 // https://learn.microsoft.com/en-us/azure/devops/pipelines/build/variables?view=azure-devops&tabs=yaml
-export function azureDevOpsParseEnv(
+export async function azureDevOpsParseEnv(
     env: Record<string, string>
-): AzureDevOpsEnv {
+): Promise<AzureDevOpsEnv> {
     const fork = env.SYSTEM_PULLREQUEST_ISFORK !== "False"
     const accessToken = env.SYSTEM_ACCESSTOKEN
     const collectionUri = env.SYSTEM_COLLECTIONURI // https://dev.azure.com/msresearch/

@@ -1,20 +1,20 @@
-import path from "path"
 import { GENAISCRIPT_FOLDER, HTTPS_REGEX } from "./constants"
-import { serializeError } from "./error"
+import { isCancelError, serializeError } from "./error"
 import { LogLevel, host } from "./host"
 import { YAMLStringify } from "./yaml"
-import { escape as HTMLEscape_ } from "html-escaper"
 
-export function unique(strings: string[]) {
-    return Array.from(new Set(strings))
+// chunk string into chunks of size n
+export function chunkString(s: string, n: number) {
+    if (!s?.length) return []
+    if (s.length < n) return [s]
+
+    const r: string[] = []
+    for (let i = 0; i < s.length; i += n) r.push(s.slice(i, i + n))
+    return r
 }
 
 export function trimNewlines(s: string) {
     return s?.replace(/^\n*/, "").replace(/\n*$/, "")
-}
-
-export function delay<T>(millis: number, value?: T): Promise<T | undefined> {
-    return new Promise((resolve) => setTimeout(() => resolve(value), millis))
 }
 
 export function strcmp(a: string, b: string) {
@@ -23,10 +23,20 @@ export function strcmp(a: string, b: string) {
     else return 1
 }
 
-export function arrayify<T>(a: T | T[]): T[] {
-    if (a === undefined) return []
-    if (Array.isArray(a)) return a
-    return [a]
+export function arrayify<T>(
+    a: T | T[],
+    options?: { filterEmpty?: boolean }
+): T[] {
+    const { filterEmpty } = options || {}
+
+    let r: T[]
+    if (a === undefined) r = []
+    else if (Array.isArray(a)) r = a.slice(0)
+    else r = [a]
+
+    if (filterEmpty) return r.filter((f) => !!f)
+
+    return r
 }
 
 export function toArray<T>(a: ArrayLike<T>): T[] {
@@ -49,6 +59,15 @@ export function parseBoolean(s: string) {
           : undefined
 }
 
+export function deleteUndefinedValues<T extends Record<string, any>>(o: T): T {
+    for (const k in o) if (o[k] === undefined) delete o[k]
+    return o
+}
+
+export function collapseEmptyLines(text: string) {
+    return text?.replace(/(\r?\n){2,}/g, "\n\n")
+}
+
 export function assert(
     cond: boolean,
     msg = "Assertion failed",
@@ -63,7 +82,7 @@ export function assert(
     }
 }
 
-export function concatBuffers(...chunks: Uint8Array[]) {
+export function concatBuffers(...chunks: ArrayLike<number>[]) {
     let sz = 0
     for (const ch of chunks) sz += ch.length
     const r = new Uint8Array(sz)
@@ -73,21 +92,6 @@ export function concatBuffers(...chunks: Uint8Array[]) {
         sz += ch.length
     }
     return r
-}
-
-declare var require: any
-export async function sha256(...buffers: Uint8Array[]) {
-    if (typeof self === "undefined" || !window.crypto) {
-        const req = require
-        const s = req("crypto").createHash("sha256")
-        for (const b of buffers) s.update(b)
-        return Promise.resolve(new Uint8Array(s.digest()))
-    }
-    const r = await self.crypto.subtle.digest(
-        "SHA-256",
-        concatBuffers(...buffers)
-    )
-    return new Uint8Array(r)
 }
 
 export function toHex(bytes: ArrayLike<number>, sep?: string) {
@@ -113,10 +117,6 @@ export function utf8Encode(s: string) {
 
 export function utf8Decode(buf: Uint8Array) {
     return host.createUTF8Decoder().decode(buf)
-}
-
-export async function sha256string(s: string) {
-    return toHex(await sha256(utf8Encode(s)))
 }
 
 // this will take lower 8 bits from each character
@@ -178,23 +178,23 @@ export function logWarn(msg: string) {
 }
 
 export function logError(msg: string | Error | SerializedError) {
-    const { message, ...e } = serializeError(msg)
-    if (message) host.log(LogLevel.Error, message)
-    const se = YAMLStringify(e)
-    if (!/^\s*\{\}\s*$/) host.log(LogLevel.Info, se)
+    const err = serializeError(msg)
+    const { message, name, stack, ...e } = err || {}
+    if (isCancelError(err)) {
+        host.log(LogLevel.Warn, message || "cancelled")
+        return
+    }
+    host.log(LogLevel.Error, message ?? name ?? "error")
+    if (stack) host.log(LogLevel.Verbose, stack)
+    if (Object.keys(e).length) {
+        const se = YAMLStringify(e)
+        host.log(LogLevel.Verbose, se)
+    }
 }
 
 export function concatArrays<T>(...arrays: T[][]): T[] {
     if (arrays.length == 0) return []
     return arrays[0].concat(...arrays.slice(1))
-}
-
-export function randomRange(min: number, max: number) {
-    return Math.round(Math.random() * (max - min) + min)
-}
-
-export function last<T>(a: ArrayLike<T>) {
-    return a[a.length - 1]
 }
 
 export function groupBy<T>(
@@ -284,4 +284,17 @@ export function renderWithPrecision(
     return rs
 }
 
-export const HTMLEscape = HTMLEscape_
+export function tagFilter(tags: string[], tag: string) {
+    if (!tags?.length || !tag) return true
+    const ltag = tag.toLocaleLowerCase()
+    let inclusive = false
+    for (const t of tags) {
+        const lt = t.toLocaleLowerCase()
+        const exclude = lt.startsWith(":!")
+        if (!exclude) inclusive = true
+
+        if (exclude && ltag.startsWith(lt.slice(2))) return false
+        else if (ltag.startsWith(t)) return true
+    }
+    return !inclusive
+}

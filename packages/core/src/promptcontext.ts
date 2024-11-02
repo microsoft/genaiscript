@@ -1,97 +1,68 @@
-import {
-    executeChatSession,
-    mergeGenerationOptions,
-    tracePromptResult,
-} from "./chat"
+// This file defines the creation of a prompt context, which includes various services
+// like file operations, web search, fuzzy search, vector search, and more.
+// The context is essential for executing prompts within a project environment.
+
 import { host } from "./host"
-import {
-    HTMLEscape,
-    arrayify,
-    dotGenaiscriptPath,
-    logVerbose,
-    sha256string,
-} from "./util"
+import { arrayify, dotGenaiscriptPath } from "./util"
 import { runtimeHost } from "./host"
 import { MarkdownTrace } from "./trace"
-import { YAMLParse, YAMLStringify } from "./yaml"
 import { createParsers } from "./parsers"
-import { readText } from "./fs"
-import {
-    PromptNode,
-    appendChild,
-    createFileMergeNode,
-    createOutputProcessor,
-    createTextNode,
-    renderPromptNode,
-} from "./promptdom"
 import { bingSearch } from "./websearch"
-import { checkCancelled } from "./cancellation"
 import {
     RunPromptContextNode,
     createChatGenerationContext,
 } from "./runpromptcontext"
-import { CSVParse, CSVToMarkdown } from "./csv"
-import { INIParse, INIStringify } from "./ini"
-import { CancelError, isCancelError, serializeError } from "./error"
-import { createFetch } from "./fetch"
-import { XMLParse } from "./xml"
 import { GenerationOptions } from "./generation"
 import { fuzzSearch } from "./fuzzsearch"
-import { parseModelIdentifier } from "./models"
-import { renderAICI } from "./aici"
-import { MODEL_PROVIDER_AICI } from "./constants"
-import { JSONLStringify, JSONLTryParse } from "./jsonl"
 import { grepSearch } from "./grep"
 import { resolveFileContents, toWorkspaceFile } from "./file"
 import { vectorSearch } from "./vectorsearch"
-import { ChatCompletionMessageParam } from "./chattypes"
+import { Project } from "./ast"
+import { shellParse } from "./shell"
+import { PLimitPromiseQueue } from "./concurrency"
+import { NotSupportedError } from "./error"
+import { MemoryCache } from "./cache"
+import { proxifyVars } from "./parameters"
+import { HTMLEscape } from "./html"
+import { hash } from "./crypto"
 import { resolveModelConnectionInfo } from "./models"
-import { resolveLanguageModel } from "./lm"
+import { createAzureContentSafetyClient } from "./azurecontentsafety"
 
+/**
+ * Creates a prompt context for the given project, variables, trace, options, and model.
+ * @param prj The project for which the context is created.
+ * @param vars Expansion variables used in the context.
+ * @param trace Markdown trace for logging purposes.
+ * @param options Generation options for the prompt.
+ * @param model The model identifier for context creation.
+ * @returns A context object that includes methods and properties for prompt execution.
+ */
 export async function createPromptContext(
-    vars: ExpansionVariables,
+    prj: Project,
+    ev: ExpansionVariables,
     trace: MarkdownTrace,
     options: GenerationOptions,
     model: string
 ) {
-    const { cancellationToken, infoCb } = options || {}
-    const env = structuredClone(vars)
+    const { generator, vars, ...varsNoGenerator } = ev
+    // Clone variables to prevent modification of the original object
+    const env = { generator, vars, ...structuredClone(varsNoGenerator) }
+    // Create parsers for the given trace and model
     const parsers = await createParsers({ trace, model })
-    const YAML = Object.freeze<YAML>({
-        stringify: YAMLStringify,
-        parse: YAMLParse,
-    })
-    const CSV = Object.freeze<CSV>({
-        parse: CSVParse,
-        markdownify: CSVToMarkdown,
-    })
-    const INI = Object.freeze<INI>({
-        parse: INIParse,
-        stringify: INIStringify,
-    })
-    const XML = Object.freeze<XML>({
-        parse: XMLParse,
-    })
-    const JSONL = Object.freeze<JSONL>({
-        parse: JSONLTryParse,
-        stringify: JSONLStringify,
-    })
-    const AICI = Object.freeze<AICI>({
-        gen: (options: AICIGenOptions) => {
-            // validate options
-            return {
-                type: "aici",
-                name: "gen",
-                options,
-            }
-        },
-    })
     const path = runtimeHost.path
+
+    // Define the workspace file system operations
     const workspace: WorkspaceFileSystem = {
         readText: (f) => runtimeHost.workspace.readText(f),
         readJSON: (f) => runtimeHost.workspace.readJSON(f),
+        readYAML: (f) => runtimeHost.workspace.readYAML(f),
+        readXML: (f, o) => runtimeHost.workspace.readXML(f, o),
+        readCSV: (f, o) => runtimeHost.workspace.readCSV(f, o),
+        readINI: (f, o) => runtimeHost.workspace.readINI(f, o),
         writeText: (f, c) => runtimeHost.workspace.writeText(f, c),
+        cache: (n) => runtimeHost.workspace.cache(n),
         findFiles: async (pattern, options) => {
+            // Log and find files matching the given pattern
             const res = await runtimeHost.workspace.findFiles(pattern, options)
             trace.files(res, {
                 title: `🗃 find files <code>${HTMLEscape(pattern)}</code>`,
@@ -100,24 +71,45 @@ export async function createPromptContext(
             })
             return res
         },
-        grep: async (query, globs) => {
-            trace.startDetails(
-                `🌐 grep <code>${HTMLEscape(typeof query === "string" ? query : query.source)}</code>`
+        grep: async (
+            query,
+            grepOptions: string | WorkspaceGrepOptions,
+            grepOptions2?: WorkspaceGrepOptions
+        ) => {
+            if (typeof grepOptions === "string") {
+                const p = runtimeHost.path
+                    .dirname(grepOptions)
+                    .replace(/(^|\/)\*\*$/, "")
+                const g = runtimeHost.path.basename(grepOptions)
+                grepOptions = {
+                    path: p || undefined,
+                    glob: g || undefined,
+                    ...(grepOptions2 || {}),
+                } as WorkspaceGrepOptions
+            }
+            const { path, glob, ...rest } = grepOptions || {}
+            const grepTrace = trace.startTraceDetails(
+                `🌐 grep ${HTMLEscape(typeof query === "string" ? query : query.source)} ${glob ? `--glob ${glob}` : ""} ${path || ""}`
             )
             try {
-                const { files } = await grepSearch(query, arrayify(globs), {
-                    trace,
+                const { files, matches } = await grepSearch(query, {
+                    path: arrayify(path),
+                    glob: arrayify(glob),
+                    ...rest,
+                    trace: grepTrace,
                 })
-                trace.files(files, { model, secrets: env.secrets })
-                return { files }
+                grepTrace.files(matches, { model, secrets: env.secrets })
+                return { files, matches }
             } finally {
-                trace.endDetails()
+                grepTrace.endDetails()
             }
         },
     }
 
+    // Define retrieval operations
     const retrieval: Retrieval = {
         webSearch: async (q) => {
+            // Conduct a web search and return the results
             try {
                 trace.startDetails(
                     `🌐 web search <code>${HTMLEscape(q)}</code>`
@@ -137,18 +129,22 @@ export async function createPromptContext(
             }
         },
         fuzzSearch: async (q, files_, searchOptions) => {
+            // Perform a fuzzy search on the provided files
             const files = arrayify(files_)
             searchOptions = searchOptions || {}
+            const fuzzTrace = trace.startTraceDetails(
+                `🧐 fuzz search <code>${HTMLEscape(q)}</code>`
+            )
             try {
-                trace.startDetails(
-                    `🧐 fuzz search <code>${HTMLEscape(q)}</code>`
-                )
                 if (!files?.length) {
-                    trace.error("no files provided")
+                    fuzzTrace.error("no files provided")
                     return []
                 } else {
-                    const res = await fuzzSearch(q, files, searchOptions)
-                    trace.files(res, {
+                    const res = await fuzzSearch(q, files, {
+                        ...searchOptions,
+                        trace: fuzzTrace,
+                    })
+                    fuzzTrace.files(res, {
                         model,
                         secrets: env.secrets,
                         skipIfEmpty: true,
@@ -156,18 +152,19 @@ export async function createPromptContext(
                     return res
                 }
             } finally {
-                trace.endDetails()
+                fuzzTrace.endDetails()
             }
         },
         vectorSearch: async (q, files_, searchOptions) => {
+            // Perform a vector-based search on the provided files
             const files = arrayify(files_).map(toWorkspaceFile)
             searchOptions = { ...(searchOptions || {}) }
+            const vecTrace = trace.startTraceDetails(
+                `🔍 vector search <code>${HTMLEscape(q)}</code>`
+            )
             try {
-                trace.startDetails(
-                    `🔍 vector search <code>${HTMLEscape(q)}</code>`
-                )
                 if (!files?.length) {
-                    trace.error("no files provided")
+                    vecTrace.error("no files provided")
                     return []
                 }
 
@@ -176,51 +173,104 @@ export async function createPromptContext(
                     searchOptions?.embeddingsModel ??
                     options?.embeddingsModel ??
                     host.defaultEmbeddingsModelOptions.embeddingsModel
-                const key = await sha256string(
-                    JSON.stringify({ files, searchOptions })
-                )
+                const key = await hash({ files, searchOptions }, { length: 12 })
                 const folderPath = dotGenaiscriptPath("vectors", key)
                 const res = await vectorSearch(q, files, {
                     ...searchOptions,
                     folderPath,
-                    trace,
+                    trace: vecTrace,
                 })
-                // search
-                trace.files(res, {
+                // Log search results
+                vecTrace.files(res, {
                     model,
                     secrets: env.secrets,
                     skipIfEmpty: true,
                 })
                 return res
             } finally {
-                trace.endDetails()
+                vecTrace.endDetails()
             }
         },
     }
 
-    const defOutputProcessor = (fn: PromptOutputProcessorHandler) => {
-        if (fn) appendPromptChild(createOutputProcessor(fn))
-    }
-
+    // Define the host for executing commands, browsing, and other operations
     const promptHost: PromptHost = Object.freeze<PromptHost>({
-        exec: async (command, args, options) => {
+        resolveLanguageModel: async (modelId) => {
+            const { configuration } = await resolveModelConnectionInfo(
+                { model: modelId },
+                {
+                    token: false,
+                    trace,
+                }
+            )
+            return {
+                provider: configuration.provider,
+                model: configuration.model,
+            } satisfies LanguageModelReference
+        },
+        cache: async (name: string) => {
+            if (!name) throw new NotSupportedError("missing cache name")
+            const res = MemoryCache.byName<any, any>(name)
+            return res
+        },
+        exec: async (
+            command: string,
+            args?: string[] | ShellOptions,
+            options?: ShellOptions
+        ) => {
+            // Parse the command and arguments if necessary
+            if (!Array.isArray(args) && typeof args === "object") {
+                // exec("cmd arg arg", {...})
+                if (options !== undefined)
+                    throw new Error("Options must be the second argument")
+                options = args as ShellOptions
+                const parsed = shellParse(command)
+                command = parsed[0]
+                args = parsed.slice(1)
+            } else if (args === undefined) {
+                // exec("cmd arg arg")
+                const parsed = shellParse(command)
+                command = parsed[0]
+                args = parsed.slice(1)
+            }
+            // Execute the command using the runtime host
             const res = await runtimeHost.exec(undefined, command, args, {
                 cwd: options?.cwd,
                 trace,
             })
             return res
         },
+        browse: async (url, options) => {
+            // Browse a URL and return the result
+            const res = await runtimeHost.browse(url, {
+                trace,
+                ...(options || {}),
+            })
+            return res
+        },
         container: async (options) => {
+            // Execute operations within a container and return the result
             const res = await runtimeHost.container({
                 ...(options || {}),
                 trace,
             })
             return res
         },
+        select: async (message, options) =>
+            await runtimeHost.select(message, options),
+        input: async (message) => await runtimeHost.input(message),
+        confirm: async (message) => await runtimeHost.confirm(message),
+        promiseQueue: (concurrency) => new PLimitPromiseQueue(concurrency),
     })
 
+    const contentSafety = createAzureContentSafetyClient({
+        trace,
+    })
+
+    // Freeze project options to prevent modification
+    const projectOptions = Object.freeze({ prj, env })
     const ctx: PromptContext & RunPromptContextNode = {
-        ...createChatGenerationContext(options, trace),
+        ...createChatGenerationContext(options, trace, projectOptions),
         script: () => {},
         system: () => {},
         env: undefined, // set later
@@ -228,150 +278,13 @@ export async function createPromptContext(
         fs: workspace,
         workspace,
         parsers,
-        YAML,
-        CSV,
-        INI,
-        AICI,
-        XML,
-        JSONL,
         retrieval,
+        contentSafety,
         host: promptHost,
-        defOutputProcessor,
-        defFileMerge: (fn) => {
-            appendPromptChild(createFileMergeNode(fn))
-        },
-        cancel: (reason?: string) => {
-            throw new CancelError(reason || "user cancelled")
-        },
-        runPrompt: async (generator, runOptions): Promise<RunPromptResult> => {
-            try {
-                const { label } = runOptions || {}
-                trace.startDetails(`🎁 run prompt ${label || ""}`)
-                infoCb?.({ text: `run prompt ${label || ""}` })
-
-                const genOptions = mergeGenerationOptions(options, runOptions)
-                const ctx = createChatGenerationContext(genOptions, trace)
-                if (typeof generator === "string")
-                    ctx.node.children.push(createTextNode(generator))
-                else await generator(ctx)
-                const node = ctx.node
-
-                checkCancelled(cancellationToken)
-
-                let messages: ChatCompletionMessageParam[] = []
-                let tools: ToolCallback[] = undefined
-                let schemas: Record<string, JSONSchema> = undefined
-                let chatParticipants: ChatParticipant[] = undefined
-                // expand template
-                const { provider } = parseModelIdentifier(genOptions.model)
-                if (provider === MODEL_PROVIDER_AICI) {
-                    const { aici } = await renderAICI("prompt", node)
-                    // todo: output processor?
-                    messages.push(aici)
-                } else {
-                    const {
-                        errors,
-                        schemas: scs,
-                        functions: fns,
-                        messages: msgs,
-                        chatParticipants: cps,
-                    } = await renderPromptNode(genOptions.model, node, {
-                        trace,
-                    })
-
-                    schemas = scs
-                    tools = fns
-                    chatParticipants = cps
-                    messages.push(...msgs)
-
-                    if (errors?.length)
-                        throw new Error("errors while running prompt")
-                }
-
-                const connection = await resolveModelConnectionInfo(
-                    genOptions,
-                    { trace, token: true }
-                )
-                if (!connection.configuration)
-                    throw new Error(
-                        "model connection error " + connection.info?.model
-                    )
-                const { completer } = await resolveLanguageModel(
-                    connection.configuration.provider
-                )
-                if (!completer)
-                    throw new Error(
-                        "model driver not found for " + connection.info
-                    )
-                const resp = await executeChatSession(
-                    connection.configuration,
-                    cancellationToken,
-                    messages,
-                    vars,
-                    tools,
-                    schemas,
-                    completer,
-                    chatParticipants,
-                    genOptions
-                )
-                tracePromptResult(trace, resp)
-                return resp
-            } catch (e) {
-                trace.error(e)
-                return {
-                    text: "",
-                    finishReason: isCancelError(e) ? "cancel" : "fail",
-                    error: serializeError(e),
-                }
-            } finally {
-                trace.endDetails()
-            }
-        },
-        fetchText: async (urlOrFile, fetchOptions) => {
-            if (typeof urlOrFile === "string") {
-                urlOrFile = {
-                    filename: urlOrFile,
-                    content: "",
-                }
-            }
-            const url = urlOrFile.filename
-            let ok = false
-            let status = 404
-            let text: string
-            if (/^https?:\/\//i.test(url)) {
-                const fetch = await createFetch({ cancellationToken })
-                const resp = await fetch(url, fetchOptions)
-                ok = resp.ok
-                status = resp.status
-                if (ok) text = await resp.text()
-            } else {
-                try {
-                    text = await readText("workspace://" + url)
-                    ok = true
-                } catch (e) {
-                    logVerbose(e)
-                    ok = false
-                    status = 404
-                }
-            }
-            const file: WorkspaceFile = {
-                filename: urlOrFile.filename,
-                content: text,
-            }
-            return {
-                ok,
-                status,
-                text,
-                file,
-            }
-        },
     }
     env.generator = ctx
+    env.vars = proxifyVars(env.vars)
     ctx.env = Object.freeze(env)
-    const appendPromptChild = (node: PromptNode) => {
-        if (!ctx.node) throw new Error("Prompt closed")
-        appendChild(ctx.node, node)
-    }
 
     return ctx
 }

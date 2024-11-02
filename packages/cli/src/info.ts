@@ -1,3 +1,9 @@
+/**
+ * This module provides functions to display system, environment, and model information.
+ * It includes functions for retrieving system specs, environment variables related to model providers,
+ * and resolving model connection info for specific scripts.
+ */
+
 import { parseTokenFromEnv } from "../../core/src/connection"
 import { MODEL_PROVIDERS } from "../../core/src/constants"
 import { errorMessage } from "../../core/src/error"
@@ -10,6 +16,9 @@ import { CORE_VERSION } from "../../core/src/version"
 import { YAMLStringify } from "../../core/src/yaml"
 import { buildProject } from "./build"
 
+/**
+ * Outputs basic system information including node version, platform, architecture, and process ID.
+ */
 export async function systemInfo() {
     console.log(`node: ${process.version}`)
     console.log(`genaiscript: ${CORE_VERSION}`)
@@ -18,23 +27,32 @@ export async function systemInfo() {
     console.log(`pid: ${process.pid}`)
 }
 
+/**
+ * Outputs environment information for model providers.
+ * @param provider - The specific provider to filter by (optional).
+ * @param options - Configuration options, including whether to show tokens.
+ */
 export async function envInfo(provider: string, options?: { token?: boolean }) {
     const { token } = options || {}
     const res: any = {}
     res[".env"] = host.dotEnvPath ?? ""
     res.providers = []
     const env = process.env
+
+    // Iterate through model providers, filtering if a specific provider is given
     for (const modelProvider of MODEL_PROVIDERS.filter(
         (mp) => !provider || mp.id === provider
     )) {
         try {
+            // Attempt to parse connection token from environment variables
             const conn = await parseTokenFromEnv(env, `${modelProvider.id}:*`)
             if (conn) {
-                if (!token && conn.token)
-                    conn.token = "***"
+                // Mask the token if the option is set
+                if (!token && conn.token) conn.token = "***"
                 res.providers.push(conn)
             }
         } catch (e) {
+            // Capture and store any errors encountered
             res.providers.push({
                 provider: modelProvider.id,
                 error: errorMessage(e),
@@ -44,11 +62,19 @@ export async function envInfo(provider: string, options?: { token?: boolean }) {
     console.log(YAMLStringify(res))
 }
 
+/**
+ * Resolves connection information for script templates by deduplicating model options.
+ * @param templates - Array of model connection options to resolve.
+ * @param options - Configuration options, including whether to show tokens.
+ * @returns A promise that resolves to an array of model connection information.
+ */
 async function resolveScriptsConnectionInfo(
     templates: ModelConnectionOptions[],
     options?: { token?: boolean }
 ): Promise<ModelConnectionInfo[]> {
     const models: Record<string, ModelConnectionOptions> = {}
+
+    // Deduplicate model connection options
     for (const template of templates) {
         const conn: ModelConnectionOptions = {
             model: template.model ?? host.defaultModelOptions.model,
@@ -56,6 +82,8 @@ async function resolveScriptsConnectionInfo(
         const key = JSON.stringify(conn)
         if (!models[key]) models[key] = conn
     }
+
+    // Resolve model connection information
     const res: ModelConnectionInfo[] = await Promise.all(
         Object.values(models).map((conn) =>
             resolveModelConnectionInfo(conn, options).then((res) => res.info)
@@ -64,6 +92,11 @@ async function resolveScriptsConnectionInfo(
     return res
 }
 
+/**
+ * Outputs model connection info for a given script.
+ * @param script - The specific script ID or filename to filter by (optional).
+ * @param options - Configuration options, including whether to show tokens.
+ */
 export async function modelInfo(script: string, options?: { token?: boolean }) {
     const prj = await buildProject()
     const templates = prj.templates.filter(

@@ -6,10 +6,7 @@ import {
     OPEN,
     TOOL_NAME,
     ICON_LOGO_NAME,
-    CLIENT_RECONNECT_MAX_ATTEMPTS,
     TOOL_ID,
-    VSCODE_CONFIG_CLI_VERSION,
-    VSCODE_CONFIG_CLI_PATH,
 } from "../../core/src/constants"
 import { ServerManager, host } from "../../core/src/host"
 import { logError, logVerbose } from "../../core/src/util"
@@ -17,13 +14,14 @@ import { WebSocketClient } from "../../core/src/server/client"
 import { CORE_VERSION } from "../../core/src/version"
 import { createChatModelRunner } from "./lmaccess"
 import { semverParse, semverSatisfies } from "../../core/src/semver"
+import { resolveCli } from "./config"
 
 export class TerminalServerManager implements ServerManager {
     private _terminal: vscode.Terminal
     readonly client: WebSocketClient
 
     constructor(readonly state: ExtensionState) {
-        const { context } = state
+        const { context, sessionApiKey } = state
         const { subscriptions } = context
         subscriptions.push(this)
         subscriptions.push(
@@ -44,7 +42,9 @@ export class TerminalServerManager implements ServerManager {
             })
         )
 
-        this.client = new WebSocketClient(`http://localhost:${SERVER_PORT}`)
+        this.client = new WebSocketClient(
+            `http://localhost:${SERVER_PORT}?api-key=${sessionApiKey}`
+        )
         this.client.chatRequest = createChatModelRunner(this.state)
         this.client.addEventListener(OPEN, async () => {
             // client connected to a rogue server
@@ -69,12 +69,9 @@ export class TerminalServerManager implements ServerManager {
         })
         this.client.addEventListener(RECONNECT, () => {
             // server process died somehow
-            if (
-                this.client.connectedOnce &&
-                this.client.reconnectAttempts > CLIENT_RECONNECT_MAX_ATTEMPTS
-            ) {
+            if (this.client.connectedOnce) {
                 this.closeTerminal()
-                this.start()
+                if (this.client.pending) this.start()
             }
         })
     }
@@ -88,16 +85,13 @@ export class TerminalServerManager implements ServerManager {
             cwd: host.projectFolder(),
             isTransient: true,
             iconPath: new vscode.ThemeIcon(ICON_LOGO_NAME),
+            env: {
+                GENAISCRIPT_API_KEY: this.state.sessionApiKey,
+            },
         })
-        const config = vscode.workspace.getConfiguration(TOOL_ID)
-        const cliPath = config.get(VSCODE_CONFIG_CLI_PATH) as string
+        const { cliPath, cliVersion } = await resolveCli()
         if (cliPath) this._terminal.sendText(`node "${cliPath}" serve`)
-        else {
-            const cliVersion =
-                (config.get(VSCODE_CONFIG_CLI_VERSION) as string) ||
-                CORE_VERSION
-            this._terminal.sendText(`npx --yes ${TOOL_ID}@${cliVersion} serve`)
-        }
+        else this._terminal.sendText(`npx --yes ${TOOL_ID}@${cliVersion} serve`)
         this._terminal.show()
     }
 
@@ -113,7 +107,7 @@ export class TerminalServerManager implements ServerManager {
     private closeTerminal() {
         const t = this._terminal
         this._terminal = undefined
-        t?.dispose()
+        if (!this.state.diagnostics) t?.dispose()
     }
 
     dispose(): any {

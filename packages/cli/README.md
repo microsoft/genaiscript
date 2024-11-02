@@ -1,12 +1,12 @@
 # GenAIScript
 
-Scripting environment with convinient tooling for file ingestion, prompt development and structured data extraction.
+Scripting environment with convenient tooling for file ingestion, prompt development and structured data extraction.
 
 ```js
 // define the context
 def("FILE", env.files, { endsWith: ".pdf" })
 // define the data
-const chema = defSchema("DATA", 
+const schema = defSchema("DATA",
   { type: "array", items: { type: "string" } })
 // define the task
 $`Analyze FILE and

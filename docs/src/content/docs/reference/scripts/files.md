@@ -79,6 +79,30 @@ Reads the content of a file as JSON (using a [JSON5](https://json5.org/) parser)
 const data = await workspace.readJSON("data.json")
 ```
 
+### `readXML`
+
+Reads the content of a file as XML.
+
+```ts
+const data = await workspace.readXML("data.xml")
+```
+
+### `readCSV`
+
+Reads the content of a file as CSV.
+
+```ts
+const data = await workspace.readCSV("data.csv")
+```
+
+In Typescript, you can type the output.
+
+```ts '<{ name: string; value: number }>'
+const data = await workspace.readCSV<{ name: string; value: number }>(
+    "data.csv"
+)
+```
+
 ### `writeText`
 
 Writes text to a file, relative to the workspace root.

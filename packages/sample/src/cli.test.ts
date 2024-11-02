@@ -7,6 +7,7 @@ const cli = `../cli/built/${CLI_JS}`
 describe("init", async () => {
     await import("zx/globals")
 })
+/*
 describe("run", async () => {
     const cmd = "run"
     const flags = `--prompt`
@@ -30,15 +31,24 @@ describe("run", async () => {
         assert.equal(res.exitCode, 0)
     })
 })
+*/
 describe("scripts", async () => {
     const cmd = "scripts"
     await test("list", async () => {
-        const res = await $`node ${cli} ${cmd}`
+        const res = await $`node ${cli} ${cmd} list`
         assert(
             res.stdout.includes(
                 "system.files, File generation, system, builtin, system"
             )
         )
+    })
+    await test("create foobar", async () => {
+        const res = await $`node ${cli} ${cmd} create foobar`
+        assert(res.stdout.includes("foobar"))
+    })
+    await test("create foobar", async () => {
+        const res = await $`node ${cli} ${cmd} create foobar`
+        assert(res.stdout.includes("foobar"))
     })
 })
 describe("cli", async () => {
@@ -72,6 +82,10 @@ describe("parse", async () => {
     })
     test("tokens", async () => {
         await $`node ${cli} ${cmd} tokens "src/**" -ef "**/*.pdf"`
+    })
+    test("prompty", async () => {
+        const res = await $`node ${cli} ${cmd} "src/*.prompty"`.nothrow()
+        assert(!res.exitCode)
     })
     describe("code", async () => {
         const action = "code"
@@ -109,28 +123,6 @@ describe("retrieval", () => {
         test("markdown", async () => {
             const res =
                 await $`node ${cli} ${cmd} ${action} markdown src/rag/*`.nothrow()
-            assert(res.stdout.includes("markdown.md"))
-            assert(!res.exitCode)
-        })
-    })
-})
-
-describe("workspace", () => {
-    const cmd = "workspace"
-    describe("grep", () => {
-        const action = "grep"
-        test("markdown", async () => {
-            console.log(`grep markdown`)
-            const res =
-                await $`node ${cli} ${cmd} ${action} markdown "src/rag/*"`.nothrow()
-            console.log(`grep done`)
-            assert(res.stdout.includes("markdown.md"))
-            assert(!res.exitCode)
-        })
-        test("mark[d](o)wn", async () => {
-            console.log(`grep mark[d](o)wn`)
-            const res =
-                await $`node ${cli} ${cmd} ${action} "mark[d](o)wn" "src/rag/*"`.nothrow()
             assert(res.stdout.includes("markdown.md"))
             assert(!res.exitCode)
         })

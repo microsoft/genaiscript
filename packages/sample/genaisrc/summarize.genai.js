@@ -1,6 +1,6 @@
 script({
     title: "summarize all files",
-    model: "openai:gpt-3.5-turbo",
+    model: "small",
     files: "src/rag/markdown.md",
     tests: [
         {

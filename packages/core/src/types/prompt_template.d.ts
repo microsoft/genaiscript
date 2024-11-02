@@ -1,3 +1,7 @@
+type OptionsOrString<TOptions extends string> = (string & {}) | TOptions
+
+type ElementOrArray<T> = T | T[]
+
 interface PromptGenerationConsole {
     log(...data: any[]): void
     warn(...data: any[]): void
@@ -45,6 +49,11 @@ interface PromptDefinition {
      * Longer description of the prompt. Shows in UI grayed-out.
      */
     description?: string
+
+    /**
+     * Groups template in UI
+     */
+    group?: string
 }
 
 interface PromptLike extends PromptDefinition {
@@ -65,9 +74,9 @@ interface PromptLike extends PromptDefinition {
     text?: string
 }
 
-type SystemPromptId = string
+type SystemPromptId = OptionsOrString<string>
 
-type SystemToolId = string
+type SystemToolId = OptionsOrString<string>
 
 type FileMergeHandler = (
     filename: string,
@@ -99,24 +108,58 @@ type PromptOutputProcessorHandler = (
     | Promise<PromptOutputProcessorResult>
     | undefined
     | Promise<undefined>
+    | void
+    | Promise<void>
 
 type PromptTemplateResponseType = "json_object" | "json_schema" | undefined
 
+type ModelType = OptionsOrString<
+    | "large"
+    | "small"
+    | "openai:gpt-4o"
+    | "openai:gpt-4o-mini"
+    | "openai:gpt-3.5-turbo"
+    | "openai:o1-mini"
+    | "openai:o1-preview"
+    | "github:gpt-4o"
+    | "github:gpt-4o-mini"
+    | "github:o1-mini"
+    | "github:o1-preview"
+    | "azure:gpt-4o"
+    | "azure:gpt-4o-mini"
+    | "ollama:phi3.5"
+    | "ollama:llama3.2"
+    | "ollama:qwen2.5-coder"
+    | "anthropic:claude-3-5-sonnet-20240620"
+    | "anthropic:claude-3-opus-20240229"
+    | "anthropic:claude-3-sonnet-20240229"
+    | "anthropic:claude-3-haiku-20240307"
+    | "anthropic:claude-2.1"
+    | "anthropic:claude-2.0"
+    | "anthropic:claude-instant-1.2"
+>
+
+type ModelSmallType = OptionsOrString<
+    | "openai:gpt-4o-mini"
+    | "github:gpt-4o-mini"
+    | "azure:gpt-4o-mini"
+    | "openai:gpt-3.5-turbo"
+    | "github:Phi-3-5-mini-instruct"
+>
+
 interface ModelConnectionOptions {
     /**
-     * Which LLM model to use.
+     * Which LLM model to use. Use `large` for the default set of model candidates, `small` for the set of small models like gpt-4o-mini.
+     */
+    model?: ModelType
+
+    /**
+     * Which LLM model to use for the "small" model.
      *
      * @default gpt-4
-     * @example gpt-4 gpt-4-32k gpt-3.5-turbo ollama:phi3 ollama:llama3 ollama:mixtral aici:mixtral
+     * @example gpt-4
      */
-    model?:
-        | "openai:gpt-4"
-        | "openai:gpt-4-32k"
-        | "openai:gpt-3.5-turbo"
-        | "ollama:phi3"
-        | "ollama:llama3"
-        | "ollama:mixtral"
-        | string
+    smallModel?: ModelSmallType
 }
 
 interface ModelOptions extends ModelConnectionOptions {
@@ -149,7 +192,7 @@ interface ModelOptions extends ModelConnectionOptions {
     topP?: number
 
     /**
-     * When to stop producing output.
+     * Maximum number of completion tokens
      *
      */
     maxTokens?: number
@@ -170,46 +213,65 @@ interface ModelOptions extends ModelConnectionOptions {
     seed?: number
 
     /**
-     * If true, the prompt will be cached. If false, the LLM chat is never cached.
-     * Leave empty to use the default behavior.
+     * By default, LLM queries are not cached. If true, the LLM request will be cached. Use a string to override the default cache name
      */
-    cache?: boolean
+    cache?: boolean | string
 
     /**
      * Custom cache name. If not set, the default cache is used.
+     * @deprecated Use `cache` instead with a string
      */
     cacheName?: string
+
+    /**
+     * Budget of tokens to apply the prompt flex renderer.
+     */
+    flexTokens?: number
+
+    /**
+     * A list of model ids and their maximum number of concurrent requests.
+     */
+    modelConcurrency?: Record<string, number>
 }
 
 interface EmbeddingsModelConnectionOptions {
     /**
      * LLM model to use for embeddings.
      */
-    embeddingsModel?: "openai:text-embedding-ada-002" | string
+    embeddingsModel?: OptionsOrString<
+        "openai:text-embedding-3-small",
+        "openai:text-embedding-3-large",
+        "openai:text-embedding-ada-002",
+        "github:text-embedding-3-small",
+        "github:text-embedding-3-large",
+        "ollama:nomic-embed-text"
+    >
 }
 
 interface EmbeddingsModelOptions extends EmbeddingsModelConnectionOptions {}
 
-interface ScriptRuntimeOptions {
+interface PromptSystemOptions {
     /**
      * List of system script ids used by the prompt.
      */
-    system?: SystemPromptId[]
+    system?: ElementOrArray<SystemPromptId>
 
     /**
      * List of tools used by the prompt.
      */
-    tools?: SystemToolId[]
+    tools?: ElementOrArray<SystemToolId>
 
+    /**
+     * List of system to exclude from the prompt.
+     */
+    excludedSystem?: ElementOrArray<SystemPromptId>
+}
+
+interface ScriptRuntimeOptions extends LineNumberingOptions {
     /**
      * Secrets required by the prompt
      */
     secrets?: string[]
-
-    /**
-     * Default value for emitting line numbers in fenced code blocks.
-     */
-    lineNumbers?: boolean
 }
 
 type PromptParameterType =
@@ -281,6 +343,10 @@ type PromptAssertion = {
 
 interface PromptTest {
     /**
+     * Short name of the test
+     */
+    name?: string
+    /**
      * Description of the test.
      */
     description?: string
@@ -317,13 +383,9 @@ interface PromptTest {
 interface PromptScript
     extends PromptLike,
         ModelOptions,
+        PromptSystemOptions,
         EmbeddingsModelOptions,
         ScriptRuntimeOptions {
-    /**
-     * Groups template in UI
-     */
-    group?: string
-
     /**
      * Additional template parameters that will populate `env.vars`
      */
@@ -354,10 +416,15 @@ interface PromptScript
      * Set if this is a system prompt.
      */
     isSystem?: boolean
+
+    /**
+     * List of tools defined in the script
+     */
+    defTools?: { id: string; description: string; kind: "tool" | "agent" }[]
 }
 
 /**
- * Represent a file linked from a `.gpsec.md` document.
+ * Represent a workspace file and optional content.
  */
 interface WorkspaceFile {
     /**
@@ -464,7 +531,64 @@ interface ToolCallContent {
     edits?: Edits[]
 }
 
-type ToolCallOutput = string | ToolCallContent | ShellOutput | WorkspaceFile
+type ToolCallOutput =
+    | string
+    | number
+    | boolean
+    | ToolCallContent
+    | ShellOutput
+    | WorkspaceFile
+    | RunPromptResult
+    | SerializedError
+    | undefined
+
+interface WorkspaceFileCache<K, V> {
+    /**
+     * Gets the value associated with the key, or undefined if there is none.
+     * @param key
+     */
+    get(key: K): Promise<V | undefined>
+    /**
+     * Sets the value associated with the key.
+     * @param key
+     * @param value
+     */
+    set(key: K, value: V): Promise<void>
+
+    /**
+     * List of keys
+     */
+    keys(): Promise<K[]>
+
+    /**
+     * List the values in the cache.
+     */
+    values(): Promise<V[]>
+}
+
+interface WorkspaceGrepOptions {
+    /**
+     * List of paths to
+     */
+    path?: ElementOrArray<string>
+    /**
+     * list of filename globs to search. !-prefixed globs are excluded. ** are not supported.
+     */
+    glob?: ElementOrArray<string>
+    /**
+     * Set to false to skip read text content. True by default
+     */
+    readText?: boolean
+}
+
+interface WorkspaceGrepResult {
+    files: WorkspaceFile[]
+    matches: WorkspaceFile[]
+}
+
+interface INIParseOptions {
+    defaultValue?: any
+}
 
 interface WorkspaceFileSystem {
     /**
@@ -489,20 +613,56 @@ interface WorkspaceFileSystem {
      */
     grep(
         query: string | RegExp,
-        globs: string | string[]
-    ): Promise<{ files: WorkspaceFile[] }>
+        options?: WorkspaceGrepOptions
+    ): Promise<WorkspaceGrepResult>
+    grep(
+        query: string | RegExp,
+        glob: string,
+        options?: Omit<WorkspaceGrepOptions, "path" | "glob">
+    ): Promise<WorkspaceGrepResult>
 
     /**
      * Reads the content of a file as text
      * @param path
      */
-    readText(path: string | WorkspaceFile): Promise<WorkspaceFile>
+    readText(path: string | Awaitable<WorkspaceFile>): Promise<WorkspaceFile>
 
     /**
      * Reads the content of a file and parses to JSON, using the JSON5 parser.
      * @param path
      */
-    readJSON(path: string | WorkspaceFile): Promise<any>
+    readJSON(path: string | Awaitable<WorkspaceFile>): Promise<any>
+
+    /**
+     * Reads the content of a file and parses to YAML.
+     * @param path
+     */
+    readYAML(path: string | Awaitable<WorkspaceFile>): Promise<any>
+
+    /**
+     * Reads the content of a file and parses to XML, using the XML parser.
+     */
+    readXML(
+        path: string | Awaitable<WorkspaceFile>,
+        options?: XMLParseOptions
+    ): Promise<any>
+
+    /**
+     * Reads the content of a CSV file.
+     * @param path
+     */
+    readCSV<T extends object>(
+        path: string | Awaitable<WorkspaceFile>,
+        options?: CSVParseOptions
+    ): Promise<T[]>
+
+    /**
+     * Reads the content of a file and parses to INI
+     */
+    readINI(
+        path: string | Awaitable<WorkspaceFile>,
+        options?: INIParseOptions
+    ): Promise<any>
 
     /**
      * Writes a file as text to the file system
@@ -510,17 +670,39 @@ interface WorkspaceFileSystem {
      * @param content
      */
     writeText(path: string, content: string): Promise<void>
+
+    /**
+     * Opens a file-backed key-value cache for the given cache name.
+     * The cache is persisted across runs of the script. Entries are dropped when the cache grows too large.
+     * @param cacheName
+     */
+    cache<K = any, V = any>(
+        cacheName: string
+    ): Promise<WorkspaceFileCache<K, V>>
 }
 
 interface ToolCallContext {
+    log(message: string): void
+    debug(message: string): void
     trace: ToolCallTrace
 }
 
 interface ToolCallback {
-    definition: ToolDefinition
-    fn: (
+    spec: ToolDefinition
+    options?: DefToolOptions
+    impl: (
         args: { context: ToolCallContext } & Record<string, any>
-    ) => ToolCallOutput | Promise<ToolCallOutput>
+    ) => Awaitable<ToolCallOutput>
+}
+
+type AgenticToolCallback = Omit<ToolCallback, "spec"> & {
+    spec: Omit<ToolDefinition, "parameters"> & {
+        parameters: Record<string, any>
+    }
+}
+
+interface AgenticToolProviderCallback {
+    functions: Iterable<AgenticToolCallback>
 }
 
 type ChatParticipantHandler = (
@@ -552,29 +734,35 @@ interface ExpansionVariables {
     files: WorkspaceFile[]
 
     /**
-     * current prompt template
-     */
-    template: PromptDefinition
-
-    /**
      * User defined variables
      */
-    vars?: Record<string, string | boolean | number | object | any>
+    vars: Record<string, string | boolean | number | object | any>
 
     /**
      * List of secrets used by the prompt, must be registered in `genaiscript`.
      */
-    secrets?: Record<string, string>
+    secrets: Record<string, string>
 
     /**
      * Root prompt generation context
      */
     generator: ChatGenerationContext
+
+    /**
+     * current prompt template
+     * @deprecated use `meta` instead
+     */
+    template: PromptDefinition & ModelConnectionOptions
+
+    /**
+     * Metadata of the top-level prompt
+     */
+    meta: PromptDefinition & ModelConnectionOptions
 }
 
 type MakeOptional<T, P extends keyof T> = Partial<Pick<T, P>> & Omit<T, P>
 
-type PromptArgs = Omit<PromptScript, "text" | "id" | "jsSource" | "activation">
+type PromptArgs = Omit<PromptScript, "text" | "id" | "jsSource" | "defTools">
 
 type PromptSystemArgs = Omit<
     PromptArgs,
@@ -585,14 +773,24 @@ type PromptSystemArgs = Omit<
     | "maxTokens"
     | "seed"
     | "tests"
+    | "responseLanguage"
     | "responseType"
     | "responseSchema"
     | "files"
+    | "modelConcurrency"
+    | "parameters"
 >
 
 type StringLike = string | WorkspaceFile | WorkspaceFile[]
 
-interface FenceOptions {
+interface LineNumberingOptions {
+    /**
+     * Prepend each line with a line numbers. Helps with generating diffs.
+     */
+    lineNumbers?: boolean
+}
+
+interface FenceOptions extends LineNumberingOptions {
     /**
      * Language of the fenced code block. Defaults to "markdown".
      */
@@ -608,34 +806,57 @@ interface FenceOptions {
         | string
 
     /**
-     * Prepend each line with a line numbers. Helps with generating diffs.
-     */
-    lineNumbers?: boolean
-
-    /**
      * JSON schema identifier
      */
     schema?: string
 }
 
 interface ContextExpansionOptions {
-    priority?: number
     /**
-     * Specifies an maximum of estimated tokesn for this entry; after which it will be truncated.
+     * Specifies an maximum of estimated tokens for this entry; after which it will be truncated.
      */
     maxTokens?: number
+    /*
+     * Value that is conceptually similar to a zIndex (higher number == higher priority).
+     * If a rendered prompt has more message tokens than can fit into the available context window, the prompt renderer prunes messages with the lowest priority from the ChatMessages result, preserving the order in which they were declared. This means your extension code can safely declare TSX components for potentially large pieces of context like conversation history and codebase context.
+     */
+    priority?: number
+    /**
+     * Controls the proportion of tokens allocated from the container's budget to this element.
+     * It defaults to 1 on all elements.
+     */
+    flex?: number
+    /**
+     * This text is likely to change and will probably break the prefix cache.
+     */
+    ephemeral?: boolean
 }
 
-interface DefOptions extends FenceOptions, ContextExpansionOptions, DataFilter {
+interface RangeOptions {
+    /**
+     * The inclusive start of the line range, with a 1-based index
+     */
+    lineStart?: number
+    /**
+     * The inclusive end of the line range, with a 1-based index
+     */
+    lineEnd?: number
+}
+
+interface DefOptions
+    extends FenceOptions,
+        ContextExpansionOptions,
+        DataFilter,
+        RangeOptions {
     /**
      * Filename filter based on file suffix. Case insensitive.
      */
-    endsWith?: string
+    endsWith?: ElementOrArray<string>
 
     /**
      * Filename filter using glob syntax.
      */
-    glob?: string
+    glob?: ElementOrArray<string>
 
     /**
      * By default, throws an error if the value in def is empty.
@@ -643,8 +864,27 @@ interface DefOptions extends FenceOptions, ContextExpansionOptions, DataFilter {
     ignoreEmpty?: boolean
 }
 
+/**
+ * Options for the `defDiff` command.
+ */
+interface DefDiffOptions
+    extends ContextExpansionOptions,
+        LineNumberingOptions {}
+
 interface DefImagesOptions {
     detail?: "high" | "low"
+    /**
+     * Maximum width of the image
+     */
+    maxWidth?: number
+    /**
+     * Maximum height of the image
+     */
+    maxHeight?: number
+    /**
+     * Auto cropping same color on the edges of the image
+     */
+    autoCrop?: boolean
 }
 
 interface ChatTaskOptions {
@@ -673,6 +913,7 @@ type JSONSchemaType =
 
 interface JSONSchemaString {
     type: "string"
+    enum?: string[]
     description?: string
     default?: string
 }
@@ -702,6 +943,8 @@ interface JSONSchemaObject {
     }
     required?: string[]
     additionalProperties?: boolean
+
+    default?: object
 }
 
 interface JSONSchemaArray {
@@ -709,23 +952,35 @@ interface JSONSchemaArray {
     type: "array"
     description?: string
     items?: JSONSchemaType
+
+    default?: any[]
 }
 
 type JSONSchema = JSONSchemaObject | JSONSchemaArray
 
-interface JSONSchemaValidation {
+interface FileEditValidation {
+    /**
+     * JSON schema
+     */
     schema?: JSONSchema
-    valid: boolean
-    error?: string
+    /**
+     * Error while validating the JSON schema
+     */
+    schemaError?: string
+    /**
+     * The path was validated with a file output (defFileOutput)
+     */
+    pathValid?: boolean
 }
 
 interface DataFrame {
     schema?: string
     data: unknown
-    validation?: JSONSchemaValidation
+    validation?: FileEditValidation
 }
 
 interface RunPromptResult {
+    messages: ChatCompletionMessageParam[]
     text: string
     annotations?: Diagnostic[]
     fences?: Fenced[]
@@ -741,6 +996,11 @@ interface RunPromptResult {
         | "content_filter"
         | "cancel"
         | "fail"
+    usages?: ChatCompletionUsages
+    fileEdits?: Record<string, FileUpdate>
+    edits?: Edits[]
+    changelogs?: ChangeLog[]
+    model?: ModelType
 }
 
 /**
@@ -799,7 +1059,7 @@ interface Fenced {
     content: string
     args?: { schema?: string } & Record<string, string>
 
-    validation?: JSONSchemaValidation
+    validation?: FileEditValidation
 }
 
 interface XMLParseOptions {
@@ -842,6 +1102,97 @@ interface ParseZipOptions {
 }
 
 type TokenEncoder = (text: string) => number[]
+type TokenDecoder = (lines: Iterable<number>) => string
+
+interface Tokenizer {
+    model: string
+    encode: TokenEncoder
+    decode: TokenDecoder
+}
+
+interface CSVParseOptions {
+    delimiter?: string
+    headers?: string[]
+    repair?: boolean
+}
+
+interface TextChunk extends WorkspaceFile {
+    lineStart: number
+    lineEnd: number
+}
+
+interface TextChunkerConfig extends LineNumberingOptions {
+    model?: ModelType
+    chunkSize?: number
+    chunkOverlap?: number
+    docType?: OptionsOrString<
+        | "cpp"
+        | "python"
+        | "py"
+        | "java"
+        | "go"
+        | "c#"
+        | "c"
+        | "cs"
+        | "ts"
+        | "js"
+        | "tsx"
+        | "typescript"
+        | "js"
+        | "jsx"
+        | "javascript"
+        | "php"
+        | "md"
+        | "mdx"
+        | "markdown"
+        | "rst"
+        | "rust"
+    >
+}
+
+interface Tokenizers {
+    /**
+     * Estimates the number of tokens in the content. May not be accurate
+     * @param model
+     * @param text
+     */
+    count(text: string, options?: { model?: ModelType }): Promise<number>
+
+    /**
+     * Truncates the text to a given number of tokens, approximation.
+     * @param model
+     * @param text
+     * @param maxTokens
+     * @param options
+     */
+    truncate(
+        text: string,
+        maxTokens: number,
+        options?: { model?: ModelType; last?: boolean }
+    ): Promise<string>
+
+    /**
+     * Tries to resolve a tokenizer for a given model. Defaults to gpt-4o if not found.
+     * @param model
+     */
+    resolve(model?: ModelType): Promise<Tokenizer>
+
+    /**
+     * Chunk the text into smaller pieces based on a token limit and chunking strategy.
+     * @param text
+     * @param options
+     */
+    chunk(
+        file: Awaitable<string | WorkspaceFile>,
+        options?: TextChunkerConfig
+    ): Promise<TextChunk[]>
+}
+
+interface HashOptions {
+    algorithm?: "sha-1" | "sha-256"
+    length?: number
+    version?: boolean
+}
 
 interface Parsers {
     /**
@@ -859,7 +1210,7 @@ interface Parsers {
     JSONL(content: string | WorkspaceFile): any[] | undefined
 
     /**
-     * Parses text as a YAML paylaod
+     * Parses text as a YAML payload
      */
     YAML(
         content: string | WorkspaceFile,
@@ -908,7 +1259,7 @@ interface Parsers {
      */
     CSV(
         content: string | WorkspaceFile,
-        options?: { delimiter?: string; headers?: string[] }
+        options?: CSVParseOptions
     ): object[] | undefined
 
     /**
@@ -932,7 +1283,7 @@ interface Parsers {
      */
     INI(
         content: string | WorkspaceFile,
-        options?: { defaultValue?: any }
+        options?: INIParseOptions
     ): any | undefined
 
     /**
@@ -952,7 +1303,14 @@ interface Parsers {
     HTMLToText(
         content: string | WorkspaceFile,
         options?: HTMLToTextOptions
-    ): string
+    ): Promise<string>
+
+    /**
+     * Convert HTML to markdown
+     * @param content html string or file
+     * @param options
+     */
+    HTMLToMarkdown(content: string | WorkspaceFile): Promise<string>
 
     /**
      * Extracts the contents of a zip archive file
@@ -984,9 +1342,12 @@ interface Parsers {
     /**
      * Executes a tree-sitter query on a code file
      * @param file
-     * @param query tree sitter query; if missing, returns the entire tree
+     * @param query tree sitter query; if missing, returns the entire tree. `tags` return tags
      */
-    code(file: WorkspaceFile, query?: string): Promise<QueryCapture[]>
+    code(
+        file: WorkspaceFile,
+        query?: OptionsOrString<"tags">
+    ): Promise<{ captures: QueryCapture[] }>
 
     /**
      * Parses and evaluates a math expression
@@ -999,7 +1360,47 @@ interface Parsers {
      * @param schema JSON schema instance
      * @param content object to validate
      */
-    validateJSON(schema: JSONSchema, content: any): JSONSchemaValidation
+    validateJSON(schema: JSONSchema, content: any): FileEditValidation
+
+    /**
+     * Renders a mustache template
+     * @param text template text
+     * @param data data to render
+     */
+    mustache(text: string | WorkspaceFile, data: Record<string, any>): str
+    /**
+     * Renders a jinja template
+     */
+    jinja(text: string | WorkspaceFile, data: Record<string, any>): string
+
+    /**
+     * Computes a diff between two files
+     */
+    diff(
+        left: WorkspaceFile,
+        right: WorkspaceFile,
+        options?: DefDiffOptions
+    ): string
+
+    /**
+     * Cleans up a dataset made of rows of data
+     * @param rows
+     * @param options
+     */
+    tidyData(rows: object[], options?: DataFilter): object[]
+
+    /**
+     * Computes a sha1 that can be used for hashing purpose, not cryptographic.
+     * @param content content to hash
+     */
+    hash(content: any, options?: HashOptions): Promise<string>
+
+    /**
+     * Optionally removes a code fence section around the text
+     * @param text
+     * @param language
+     */
+    unfence(text: string, language: string): string
 }
 
 interface AICIGenOptions {
@@ -1073,7 +1474,444 @@ interface XML {
      * Parses an XML payload to an object
      * @param text
      */
-    parse(text: string): any
+    parse(text: string, options?: XMLParseOptions): any
+}
+
+interface HTMLTableToJSONOptions {
+    useFirstRowForHeadings?: boolean
+    headers?: HeaderRows
+    stripHtmlFromHeadings?: boolean
+    stripHtmlFromCells?: boolean
+    stripHtml?: boolean | null
+    forceIndexAsNumber?: boolean
+    countDuplicateHeadings?: boolean
+    ignoreColumns?: number[] | null
+    onlyColumns?: number[] | null
+    ignoreHiddenRows?: boolean
+    id?: string[] | null
+    headings?: string[] | null
+    containsClasses?: string[] | null
+    limitrows?: number | null
+}
+
+interface HTML {
+    /**
+     * Converts all HTML tables to JSON.
+     * @param html
+     * @param options
+     */
+    convertTablesToJSON(
+        html: string,
+        options?: HTMLTableToJSONOptions
+    ): Promise<object[][]>
+    /**
+     * Converts HTML markup to plain text
+     * @param html
+     */
+    convertToText(html: string): Promise<string>
+    /**
+     * Converts HTML markup to markdown
+     * @param html
+     */
+    convertToMarkdown(html: string): Promise<string>
+}
+
+interface GitCommit {
+    sha: string
+    message: string
+}
+
+interface Git {
+    /**
+     * Resolves the default branch for this repository
+     */
+    defaultBranch(): Promise<string>
+
+    /**
+     * Gets the last tag in the repository
+     */
+    lastTag(): Promise<string>
+
+    /**
+     * Gets the current branch of the repository
+     */
+    branch(): Promise<string>
+
+    /**
+     * Executes a git command in the repository and returns the stdout
+     * @param cmd
+     */
+    exec(args: string[] | string, options?: { label?: string }): Promise<string>
+
+    /**
+     * Lists the branches in the git repository
+     */
+    listBranches(): Promise<string[]>
+
+    /**
+     * Finds specific files in the git repository.
+     * By default, work
+     * @param options
+     */
+    listFiles(
+        scope: "modified-base" | "staged" | "modified",
+        options?: {
+            base?: string
+            /**
+             * Ask the user to stage the changes if the diff is empty.
+             */
+            askStageOnEmpty?: boolean
+            paths?: ElementOrArray<string>
+            excludedPaths?: ElementOrArray<string>
+        }
+    ): Promise<WorkspaceFile[]>
+
+    /**
+     *
+     * @param options
+     */
+    diff(options?: {
+        staged?: boolean
+        /**
+         * Ask the user to stage the changes if the diff is empty.
+         */
+        askStageOnEmpty?: boolean
+        base?: string
+        head?: string
+        paths?: ElementOrArray<string>
+        excludedPaths?: ElementOrArray<string>
+        unified?: number
+        /**
+         * Modifies the diff to be in a more LLM friendly format
+         */
+        llmify?: boolean
+    }): Promise<string>
+
+    /**
+     * Lists the commits in the git repository
+     */
+    log(options?: {
+        base?: string
+        head?: string
+        count?: number
+        merges?: boolean
+        excludedGrep?: string | RegExp
+        paths?: ElementOrArray<string>
+        excludedPaths?: ElementOrArray<string>
+    }): Promise<GitCommit[]>
+}
+
+interface GitHubOptions {
+    owner: string
+    repo: string
+    baseUrl?: string
+    auth?: string
+    ref?: string
+    refName?: string
+}
+
+type GitHubWorkflowRunStatus =
+    | "completed"
+    | "action_required"
+    | "cancelled"
+    | "failure"
+    | "neutral"
+    | "skipped"
+    | "stale"
+    | "success"
+    | "timed_out"
+    | "in_progress"
+    | "queued"
+    | "requested"
+    | "waiting"
+    | "pending"
+
+interface GitHubWorkflowRun {
+    id: number
+    name?: string
+    display_title: string
+    status: string
+    conclusion: string
+    html_url: string
+    created_at: string
+    head_branch: string
+    head_sha: string
+}
+
+interface GitHubWorkflowJob {
+    id: number
+    run_id: number
+    status: string
+    conclusion: string
+    name: string
+    html_url: string
+    logs_url: string
+    logs: string
+    started_at: string
+    completed_at: string
+    content: string
+}
+
+interface GitHubIssue {
+    id: number
+    body?: string
+    title: string
+    number: number
+    state: string
+    state_reason?: "completed" | "reopened" | "not_planned" | null
+    html_url: string
+    draft?: boolean
+    reactions?: GitHubReactions
+    user: GitHubUser
+    assignee?: GitHubUser
+}
+
+interface GitHubReactions {
+    url: string
+    total_count: number
+    "+1": number
+    "-1": number
+    laugh: number
+    confused: number
+    heart: number
+    hooray: number
+    eyes: number
+    rocket: number
+}
+
+interface GitHubComment {
+    id: number
+    body?: string
+    user: GitHubUser
+    created_at: string
+    updated_at: string
+    html_url: string
+    reactions?: GitHubReactions
+}
+
+interface GitHubPullRequest extends GitHubIssue {
+    head: {
+        ref: string
+    }
+    base: {
+        ref: string
+    }
+}
+
+interface GitHubCodeSearchResult {
+    name: string
+    path: string
+    sha: string
+    html_url: string
+    score: number
+    repository: string
+}
+
+interface GitHubWorkflow {
+    id: number
+    name: string
+    path: string
+}
+
+interface GitHubPaginationOptions {
+    /**
+     * Default number of items to fetch, default is 50.
+     */
+    count?: number
+}
+
+interface GitHubFile extends WorkspaceFile {
+    type: "file" | "dir" | "submodule" | "symlink"
+    size: number
+}
+
+interface GitHubUser {
+    login: string
+}
+
+interface GitHub {
+    /**
+     * Gets connection information for octokit
+     */
+    info(): Promise<GitHubOptions | undefined>
+
+    /**
+     * Lists workflows in a GitHub repository
+     */
+    listWorkflows(options?: GitHubPaginationOptions): Promise<GitHubWorkflow[]>
+
+    /**
+     * Lists workflow runs for a given workflow
+     * @param workflowId
+     * @param options
+     */
+    listWorkflowRuns(
+        workflow_id: string | number,
+        options?: {
+            branch?: string
+            event?: string
+            status?: GitHubWorkflowRunStatus
+        } & GitHubPaginationOptions
+    ): Promise<GitHubWorkflowRun[]>
+
+    /**
+     * Downloads a GitHub Action workflow run log
+     * @param runId
+     */
+    listWorkflowJobs(
+        runId: number,
+        options?: GitHubPaginationOptions
+    ): Promise<GitHubWorkflowJob[]>
+
+    /**
+     * Downloads a GitHub Action workflow run log
+     * @param jobId
+     */
+    downloadWorkflowJobLog(
+        jobId: number,
+        options?: { llmify?: boolean }
+    ): Promise<string>
+
+    /**
+     * Diffs two GitHub Action workflow job logs
+     */
+    diffWorkflowJobLogs(job_id: number, other_job_id: number): Promise<string>
+
+    /**
+     * Lists issues for a given repository
+     * @param options
+     */
+    listIssues(
+        options?: {
+            state?: "open" | "closed" | "all"
+            labels?: string
+            sort?: "created" | "updated" | "comments"
+            direction?: "asc" | "desc"
+            creator?: string
+            assignee?: string
+            since?: string
+            mentioned?: string
+        } & GitHubPaginationOptions
+    ): Promise<GitHubIssue[]>
+
+    /**
+     * Gets the details of a GitHub issue
+     * @param number issue number (not the issue id!)
+     */
+    getIssue(number: number): Promise<GitHubIssue>
+
+    /**
+     * Lists comments for a given issue
+     * @param issue_number
+     * @param options
+     */
+    listIssueComments(
+        issue_number: number,
+        options?: GitHubPaginationOptions
+    ): Promise<GitHubComment[]>
+
+    /**
+     * Lists pull requests for a given repository
+     * @param options
+     */
+    listPullRequests(
+        options?: {
+            state?: "open" | "closed" | "all"
+            sort?: "created" | "updated" | "popularity" | "long-running"
+            direction?: "asc" | "desc"
+        } & GitHubPaginationOptions
+    ): Promise<GitHubPullRequest[]>
+
+    /**
+     * Gets the details of a GitHub pull request
+     * @param pull_number pull request number. Default resolves the pull requeset for the current branch.
+     */
+    getPullRequest(pull_number?: number): Promise<GitHubPullRequest>
+
+    /**
+     * Lists comments for a given pull request
+     * @param pull_number
+     * @param options
+     */
+    listPullRequestReviewComments(
+        pull_number: number,
+        options?: GitHubPaginationOptions
+    ): Promise<GitHubComment[]>
+
+    /**
+     * Gets the content of a file from a GitHub repository
+     * @param filepath
+     * @param options
+     */
+    getFile(
+        filepath: string,
+        /**
+         * commit sha, branch name or tag name
+         */
+        ref: string
+    ): Promise<WorkspaceFile>
+
+    /**
+     * Searches code in a GitHub repository
+     */
+    searchCode(
+        query: string,
+        options?: GitHubPaginationOptions
+    ): Promise<GitHubCodeSearchResult[]>
+
+    /**
+     * Lists branches in a GitHub repository
+     */
+    listBranches(options?: GitHubPaginationOptions): Promise<string[]>
+
+    /**
+     * Lists tags in a GitHub repository
+     */
+    listRepositoryLanguages(): Promise<Record<string, number>>
+
+    /**
+     * Lists tags in a GitHub repository
+     */
+    getRepositoryContent(
+        path?: string,
+        options?: {
+            ref?: string
+            glob?: string
+            downloadContent?: boolean
+            maxDownloadSize?: number
+            type?: (typeof GitHubFile)["type"]
+        }
+    ): Promise<GitHubFile[]>
+
+    /**
+     * Gets the underlying Octokit client
+     */
+    client(): Promise<any>
+}
+
+interface MD {
+    /**
+     * Parses front matter from markdown
+     * @param text
+     */
+    frontmatter(text: string, format?: "yaml" | "json" | "toml" | "text"): any
+
+    /**
+     * Removes the front matter from the markdown text
+     */
+    content(text: string): string
+
+    /**
+     * Merges frontmatter with the existing text
+     * @param text
+     * @param frontmatter
+     * @param format
+     */
+    updateFrontmatter(
+        text: string,
+        frontmatter: any,
+        format?: "yaml" | "json"
+    ): string
 }
 
 interface JSONL {
@@ -1103,26 +1941,73 @@ interface INI {
     stringify(value: any): string
 }
 
+interface CSVStringifyOptions {
+    delimiter?: string
+    header?: boolean
+}
+
+/**
+ * Interface representing CSV operations.
+ */
 interface CSV {
     /**
-     * Parses a CSV string to an array of objects
-     * @param text
-     * @param options
+     * Parses a CSV string to an array of objects.
+     *
+     * @param text - The CSV string to parse.
+     * @param options - Optional settings for parsing.
+     * @param options.delimiter - The delimiter used in the CSV string. Defaults to ','.
+     * @param options.headers - An array of headers to use. If not provided, headers will be inferred from the first row.
+     * @returns An array of objects representing the parsed CSV data.
      */
-    parse(
-        text: string,
-        options?: {
-            delimiter?: string
-            headers?: string[]
-        }
-    ): object[]
+    parse(text: string, options?: CSVParseOptions): object[]
 
     /**
-     * Converts an array of object that represents a data table to a markdown table
-     * @param csv
-     * @param options
+     * Converts an array of objects to a CSV string.
+     *
+     * @param csv - The array of objects to convert.
+     * @param options - Optional settings for stringifying.
+     * @param options.headers - An array of headers to use. If not provided, headers will be inferred from the object keys.
+     * @returns A CSV string representing the data.
+     */
+    stringify(csv: object[], options?: CSVStringifyOptions): string
+
+    /**
+     * Converts an array of objects that represents a data table to a markdown table.
+     *
+     * @param csv - The array of objects to convert.
+     * @param options - Optional settings for markdown conversion.
+     * @param options.headers - An array of headers to use. If not provided, headers will be inferred from the object keys.
+     * @returns A markdown string representing the data table.
      */
     markdownify(csv: object[], options?: { headers?: string[] }): string
+}
+
+/**
+ * Provide service for responsible.
+ */
+interface ContentSafety {
+    /**
+     * Scans text for the risk of a User input attack on a Large Language Model.
+     */
+    detectPromptInjection(
+        content: Awaitable<
+            ElementOrArray<string> | ElementOrArray<WorkspaceFile>
+        >
+    ): Promise<{ attackDetected: boolean; filename?: string; chunk?: string }>
+
+    /**
+     * Analyzes text for harmful content.
+     * @param content
+     */
+    detectHarmfulContent(
+        content: Awaitable<
+            ElementOrArray<string> | ElementOrArray<WorkspaceFile>
+        >
+    ): Promise<{
+        harmfulContentDetected: boolean
+        filename?: string
+        chunk?: string
+    }>
 }
 
 interface HighlightOptions {
@@ -1222,7 +2107,7 @@ interface DataFilter {
      * The keys to select from the object.
      * If a key is prefixed with -, it will be removed from the object.
      */
-    headers?: string[]
+    headers?: ElementOrArray<string>
     /**
      * Selects the first N elements from the data
      */
@@ -1235,18 +2120,22 @@ interface DataFilter {
      * Selects the a random sample of N items in the collection.
      */
     sliceSample?: number
-
     /**
      * Removes items with duplicate values for the specified keys.
      */
-    distinct?: string[]
+    distinct?: ElementOrArray<string>
+
+    /**
+     * Sorts the data by the specified key(s)
+     */
+    sort?: ElementOrArray<string>
 }
 
 interface DefDataOptions
     extends Omit<ContextExpansionOptions, "maxTokens">,
         DataFilter {
     /**
-     * Output format in the prompt. Defaults to markdownified CSV
+     * Output format in the prompt. Defaults to Markdown table rendering.
      */
     format?: "json" | "yaml" | "csv"
 }
@@ -1258,24 +2147,38 @@ interface DefSchemaOptions {
     format?: "typescript" | "json" | "yaml"
 }
 
-type ChatFunctionHandler = (
-    args: { context: ToolCallContext } & Record<string, any>
-) => ToolCallOutput | Promise<ToolCallOutput>
+type ChatFunctionArgs = { context: ToolCallContext } & Record<string, any>
+type ChatFunctionHandler = (args: ChatFunctionArgs) => Awaitable<ToolCallOutput>
 
 interface WriteTextOptions extends ContextExpansionOptions {
     /**
-     * Append text to the assistant response
+     * Append text to the assistant response. This feature is not supported by all models.
+     * @deprecated
      */
     assistant?: boolean
+    /**
+     * Specifies the message role. Default is user
+     */
+    role?: "user" | "assistant" | "system"
 }
 
-type PromptGenerator = (ctx: ChatGenerationContext) => Awaitable<void>
+type PromptGenerator = (ctx: ChatGenerationContext) => Awaitable<unknown>
 
-interface PromptGeneratorOptions extends ModelOptions {
+interface PromptGeneratorOptions extends ModelOptions, PromptSystemOptions {
     /**
      * Label for trace
      */
     label?: string
+
+    /**
+     * Write file edits to the file system
+     */
+    applyEdits?: boolean
+
+    /**
+     * Throws if the generation is not successful
+     */
+    throwOnError?: boolean
 }
 
 interface FileOutputOptions {
@@ -1286,20 +2189,77 @@ interface FileOutputOptions {
 }
 
 interface FileOutput {
-    pattern: string
-    description: string
+    pattern: string[]
+    description?: string
     options?: FileOutputOptions
 }
 
+interface ImportTemplateOptions {}
+
+interface PromptTemplateString {
+    /**
+     * Set a priority similar to CSS z-index
+     * to control the trimming of the prompt when the context is full
+     * @param priority
+     */
+    priority(value: number): PromptTemplateString
+    /**
+     * Sets the context layout flex weight
+     */
+    flex(value: number): PromptTemplateString
+    /**
+     * Applies jinja template to the string lazily
+     * @param data jinja data
+     */
+    jinja(data: Record<string, any>): PromptTemplateString
+    /**
+     * Applies mustache template to the string lazily
+     * @param data mustache data
+     */
+    mustache(data: Record<string, any>): PromptTemplateString
+    /**
+     * Sets the max tokens for this string
+     * @param tokens
+     */
+    maxTokens(tokens: number): PromptTemplateString
+}
+
 interface ChatTurnGenerationContext {
+    importTemplate(
+        files: string | string[],
+        arguments?: Record<
+            string | number | boolean | (() => string | number | boolean)
+        >,
+        options?: ImportTemplateOptions
+    ): void
     writeText(body: Awaitable<string>, options?: WriteTextOptions): void
-    $(strings: TemplateStringsArray, ...args: any[]): void
+    assistant(
+        text: Awaitable<string>,
+        options?: Omit<WriteTextOptions, "assistant">
+    ): void
+    $(strings: TemplateStringsArray, ...args: any[]): PromptTemplateString
     fence(body: StringLike, options?: FenceOptions): void
-    def(name: string, body: StringLike, options?: DefOptions): string
+    def(
+        name: string,
+        body:
+            | string
+            | WorkspaceFile
+            | WorkspaceFile[]
+            | ShellOutput
+            | Fenced
+            | RunPromptResult,
+        options?: DefOptions
+    ): string
     defData(
         name: string,
         data: object[] | object,
         options?: DefDataOptions
+    ): string
+    defDiff<T extends string | WorkspaceFile>(
+        name: string,
+        left: T,
+        right: T,
+        options?: DefDiffOptions
     ): string
     console: PromptGenerationConsole
 }
@@ -1307,8 +2267,36 @@ interface ChatTurnGenerationContext {
 interface FileUpdate {
     before: string
     after: string
-    validation?: JSONSchemaValidation
+    validation?: FileEditValidation
 }
+
+interface RunPromptResultPromiseWithOptions extends Promise<RunPromptResult> {
+    options(values?: PromptGeneratorOptions): RunPromptResultPromiseWithOptions
+}
+
+interface DefToolOptions {
+    /**
+     * Maximum number of tokens per tool content response
+     */
+    maxTokens?: number
+}
+
+interface DefAgentOptions extends Omit<PromptGeneratorOptions, "label"> {
+    /**
+     * Excludes agent conversation from agent memory
+     */
+    disableMemory?: boolean
+
+    /**
+     * Diable memory query on each query (let the agent call the tool)
+     */
+    disableMemoryQuery?: boolean
+}
+
+type ChatAgentHandler = (
+    ctx: ChatGenerationContext,
+    args: ChatFunctionArgs
+) => Awaitable<unknown>
 
 interface ChatGenerationContext extends ChatTurnGenerationContext {
     defSchema(
@@ -1316,25 +2304,54 @@ interface ChatGenerationContext extends ChatTurnGenerationContext {
         schema: JSONSchema,
         options?: DefSchemaOptions
     ): string
-    defImages(files: StringLike, options?: DefImagesOptions): void
+    defImages(
+        files: ElementOrArray<string | WorkspaceFile | Buffer | Blob>,
+        options?: DefImagesOptions
+    ): void
+    defTool(
+        tool: ToolCallback | AgenticToolCallback | AgenticToolProviderCallback,
+        options?: DefToolOptions
+    ): void
     defTool(
         name: string,
         description: string,
         parameters: PromptParametersSchema | JSONSchema,
-        fn: ChatFunctionHandler
+        fn: ChatFunctionHandler,
+        options?: DefToolOptions
+    ): void
+    defAgent(
+        name: string,
+        description: string,
+        fn: string | ChatAgentHandler,
+        options?: DefAgentOptions
     ): void
     defChatParticipant(
         participant: ChatParticipantHandler,
         options?: ChatParticipantOptions
     ): void
     defFileOutput(
-        pattern: string,
-        description: string,
+        pattern: ElementOrArray<string | WorkspaceFile>,
+        description?: string,
         options?: FileOutputOptions
     ): void
+    runPrompt(
+        generator: string | PromptGenerator,
+        options?: PromptGeneratorOptions
+    ): Promise<RunPromptResult>
+    prompt(
+        strings: TemplateStringsArray,
+        ...args: any[]
+    ): RunPromptResultPromiseWithOptions
+    defFileMerge(fn: FileMergeHandler): void
+    defOutputProcessor(fn: PromptOutputProcessorHandler): void
 }
 
 interface GenerationOutput {
+    /**
+     * full chat history
+     */
+    messages: ChatCompletionMessageParam[]
+
     /**
      * LLM output.
      */
@@ -1501,17 +2518,479 @@ interface ShellOptions {
 interface ShellOutput {
     stdout?: string
     stderr?: string
-    output?: string
     exitCode: number
     failed: boolean
 }
 
+interface BrowserOptions {
+    /**
+     * Browser engine for this page. Defaults to chromium
+     *
+     */
+    browser?: "chromium" | "firefox" | "webkit"
+
+    /**
+     * If specified, accepted downloads are downloaded into this directory. Otherwise, temporary directory is created and is deleted when browser is closed. In either case, the downloads are deleted when the browser context they were created in is closed.
+     */
+    downloadsPath?: string
+
+    /**
+     * Whether to run browser in headless mode. More details for Chromium and Firefox. Defaults to true unless the devtools option is true.
+     */
+    headless?: boolean
+
+    /**
+     * Specify environment variables that will be visible to the browser. Defaults to process.env.
+     */
+    env?: Record<string, string>
+}
+
+interface BrowseSessionOptions extends BrowserOptions, TimeoutOptions {
+    /**
+     * Creates a new context for the browser session
+     */
+    incognito?: boolean
+
+    /**
+     * Base url to use for relative urls
+     * @link https://playwright.dev/docs/api/class-browser#browser-new-context-option-base-url
+     */
+    baseUrl?: string
+
+    /**
+     * Toggles bypassing page's Content-Security-Policy. Defaults to false.
+     * @link https://playwright.dev/docs/api/class-browser#browser-new-context-option-bypass-csp
+     */
+    bypassCSP?: boolean
+
+    /**
+     * Whether to ignore HTTPS errors when sending network requests. Defaults to false.
+     * @link https://playwright.dev/docs/api/class-browser#browser-new-context-option-ignore-https-errors
+     */
+    ignoreHTTPSErrors?: boolean
+
+    /**
+     * Whether or not to enable JavaScript in the context. Defaults to true.
+     * @link https://playwright.dev/docs/api/class-browser#browser-new-context-option-java-script-enabled
+     */
+    javaScriptEnabled?: boolean
+}
+
+interface TimeoutOptions {
+    /**
+     * Maximum time in milliseconds. Default to no timeout
+     */
+    timeout?: number
+}
+
+interface ScreenshotOptions extends TimeoutOptions {
+    quality?: number
+    scale?: "css" | "device"
+    type?: "png" | "jpeg"
+    style?: string
+}
+
+interface PageScreenshotOptions extends ScreenshotOptions {
+    fullPage?: boolean
+    omitBackground?: boolean
+    clip?: {
+        x: number
+        y: number
+        width: number
+        height: number
+    }
+}
+
+interface BrowserLocatorSelector {
+    /**
+     * Allows locating elements by their ARIA role, ARIA attributes and accessible name.
+     * @param role
+     * @param options
+     */
+    getByRole(
+        role:
+            | "alert"
+            | "alertdialog"
+            | "application"
+            | "article"
+            | "banner"
+            | "blockquote"
+            | "button"
+            | "caption"
+            | "cell"
+            | "checkbox"
+            | "code"
+            | "columnheader"
+            | "combobox"
+            | "complementary"
+            | "contentinfo"
+            | "definition"
+            | "deletion"
+            | "dialog"
+            | "directory"
+            | "document"
+            | "emphasis"
+            | "feed"
+            | "figure"
+            | "form"
+            | "generic"
+            | "grid"
+            | "gridcell"
+            | "group"
+            | "heading"
+            | "img"
+            | "insertion"
+            | "link"
+            | "list"
+            | "listbox"
+            | "listitem"
+            | "log"
+            | "main"
+            | "marquee"
+            | "math"
+            | "meter"
+            | "menu"
+            | "menubar"
+            | "menuitem"
+            | "menuitemcheckbox"
+            | "menuitemradio"
+            | "navigation"
+            | "none"
+            | "note"
+            | "option"
+            | "paragraph"
+            | "presentation"
+            | "progressbar"
+            | "radio"
+            | "radiogroup"
+            | "region"
+            | "row"
+            | "rowgroup"
+            | "rowheader"
+            | "scrollbar"
+            | "search"
+            | "searchbox"
+            | "separator"
+            | "slider"
+            | "spinbutton"
+            | "status"
+            | "strong"
+            | "subscript"
+            | "superscript"
+            | "switch"
+            | "tab"
+            | "table"
+            | "tablist"
+            | "tabpanel"
+            | "term"
+            | "textbox"
+            | "time"
+            | "timer"
+            | "toolbar"
+            | "tooltip"
+            | "tree"
+            | "treegrid"
+            | "treeitem",
+        options?: {
+            checked?: boolean
+            disabled?: boolean
+            exact?: boolean
+            expanded?: boolean
+            name?: string
+            selected?: boolean
+        } & TimeoutOptions
+    ): Locator
+
+    /**
+     * Allows locating input elements by the text of the associated <label> or aria-labelledby element, or by the aria-label attribute.
+     * @param name
+     * @param options
+     */
+    getByLabel(
+        name: string,
+        options?: { exact?: boolean } & TimeoutOptions
+    ): Locator
+
+    /**
+     * Allows locating elements that contain given text.
+     * @param text
+     * @param options
+     */
+    getByText(
+        text: string,
+        options?: { exact?: boolean } & TimeoutOptions
+    ): Locator
+
+    /** Locate element by the test id. */
+    getByTestId(testId: string, options?: TimeoutOptions): Locator
+}
+
+/**
+ * A Locator instance
+ * @link https://playwright.dev/docs/api/class-locator
+ */
+interface BrowserLocator extends BrowserLocatorSelector {
+    /**
+     * Click an element
+     * @link https://playwright.dev/docs/api/class-locator#locator-click
+     */
+    click(
+        options?: { button: "left" | "right" | "middle" } & TimeoutOptions
+    ): Promise<void>
+
+    /**
+     * Returns when element specified by locator satisfies the state option.
+     * @link https://playwright.dev/docs/api/class-locator#locator-wait-for
+     */
+    waitFor(
+        options?: {
+            state: "attached" | "detached" | "visible" | "hidden"
+        } & TimeoutOptions
+    ): Promise<void>
+
+    /**
+     * Set a value to the input field.
+     * @param value
+     * @link https://playwright.dev/docs/api/class-locator#locator-fill
+     */
+    fill(value: string, options?: TimeoutOptions): Promise<void>
+
+    /**
+     * Returns the element.innerText.
+     * @link https://playwright.dev/docs/api/class-locator#locator-inner-text
+     */
+    innerText(options?: TimeoutOptions): Promise<string>
+
+    /**
+     * Returns the element.innerHTML
+     * @link https://playwright.dev/docs/api/class-locator#locator-inner-html
+     */
+    innerHTML(options?: TimeoutOptions): Promise<string>
+
+    /**
+     * Returns the element.textContent
+     * @link https://playwright.dev/docs/api/class-locator#locator-text-content
+     * @param options
+     */
+    textContent(options?: TimeoutOptions): Promise<string>
+
+    /**
+     * Returns the value for the matching <input> or <textarea> or <select> element.
+     * @link https://playwright.dev/docs/api/class-locator#locator-input-value
+     */
+    inputValue(options?: TimeoutOptions): Promise<string>
+
+    /**
+     * Get the attribute value
+     * @param name
+     * @param options
+     * @link https://playwright.dev/docs/api/class-locator#locator-get-attribute
+     */
+    getAttribute(name: string, options?: TimeoutOptions): Promise<null | string>
+
+    /**
+     * Clears the input field.
+     * @link https://playwright.dev/docs/api/class-locator#locator-clear
+     */
+    clear(options?: TimeoutOptions): Promise<void>
+
+    /**
+     * Take a screenshot of the element matching the locator.
+     * @link https://playwright.dev/docs/api/class-locator#locator-screenshot
+     */
+    screenshot(options?: ScreenshotOptions): Promise<Buffer>
+
+    /**
+     * This method waits for actionability checks, then tries to scroll element into view, unless it is completely visible as defined by IntersectionObserver's ratio.
+     * @link https://playwright.dev/docs/api/class-locator#locator-scroll-into-view-if-needed
+     */
+    scrollIntoViewIfNeeded(options?: TimeoutOptions): Promise<void>
+
+    /**
+     * This method narrows existing locator according to the options, for example filters by text. It can be chained to filter multiple times.
+     * @param options
+     */
+    filter(
+        options: {
+            has?: BrowserLocator
+            hasNot?: BrowserLocator
+            hasNotText?: string | RegExp
+            hasText?: string | RegExp
+        } & TimeoutOptions
+    ): Locator
+}
+
+/**
+ * Playwright Response instance
+ * @link https://playwright.dev/docs/api/class-response
+ */
+interface BrowseResponse {
+    /**
+     * Contains a boolean stating whether the response was successful (status in the range 200-299) or not.
+     * @link https://playwright.dev/docs/api/class-response#response-ok
+     */
+    ok(): boolean
+    /**
+     * Contains the status code of the response (e.g., 200 for a success).
+     * @link https://playwright.dev/docs/api/class-response#response-status
+     */
+    status(): number
+    /**
+     * Contains the status text of the response (e.g. usually an "OK" for a success).
+     * @link https://playwright.dev/docs/api/class-response#response-status-text
+     */
+    statusText(): string
+
+    /**
+     * Contains the URL of the response.
+     * @link https://playwright.dev/docs/api/class-response#response-url
+     */
+    url(): string
+}
+
+interface BrowserJSHandle {}
+
+/**
+ * A playwright Page instance
+ * @link https://playwright.dev/docs/api/class-page
+ */
+interface BrowserPage extends BrowserLocatorSelector {
+    /**
+     * Returns the page's title.
+     * @link https://playwright.dev/docs/api/class-page#page-title
+     */
+    title(): Promise<string>
+    /**
+     * Current page url
+     * @link https://playwright.dev/docs/api/class-page#page-url
+     */
+    url(): string
+
+    /**
+     * Returns the main resource response. In case of multiple redirects, the navigation will resolve with the first non-redirect response.
+     * @link https://playwright.dev/docs/api/class-page#page-goto
+     * @param url
+     * @param options
+     */
+    goto(
+        url: string,
+        options?: {
+            waitUntil?: "load" | "domcontentloaded" | "networkidle" | "commit"
+        } & TimeoutOptions
+    ): Promise<null | BrowseResponse>
+
+    /**
+     * Returns the buffer of the captured screenshot
+     * @link https://playwright.dev/docs/api/class-page#page-screenshot
+     */
+    screenshot(options?: PageScreenshotOptions): Promise<Buffer>
+
+    /**
+     * Gets the full HTML contents of the page, including the doctype.
+     * @link https://playwright.dev/docs/api/class-page#page-content
+     */
+    content(): Promise<string>
+
+    /**
+     * The method returns an element locator that can be used to perform actions on this page / frame.
+     * @param selector A selector to use when resolving DOM element.
+     * @link https://playwright.dev/docs/locators
+     */
+    locator(selector: string): BrowserLocator
+
+    /**
+     * Closes the browser page, context and other resources
+     */
+    close(): Promise<void>
+
+    /**
+     * Returns the value of the pageFunction evaluation.
+     * @param fn
+     * @param args serializable object
+     * @link https://playwright.dev/docs/api/class-page#page-evaluate
+     */
+    evaluate<T = any>(pageFunction: Function | string, arg?: any): Promise<T>
+
+    /**
+     * Returns the value of the pageFunction evaluation as a JSHandle.
+     * @param fn
+     * @param args serializable object
+     * @link https://playwright.dev/docs/api/class-page#page-evaluate-handle
+     */
+    evaluateHandle<T = any>(
+        selector: string,
+        arg?: any
+    ): Promise<BrowserJSHandle>
+}
+
+interface ShellSelectOptions {}
+
+interface ShellSelectChoice {
+    name?: string
+    value: string
+    description?: string
+}
+
+interface ShellInputOptions {
+    required?: boolean
+}
+
+interface ShellConfirmOptions {
+    default?: boolean
+}
+
 interface ShellHost {
+    /**
+     * Executes a shell command
+     * @param command
+     * @param args
+     * @param options
+     */
+    exec(commandWithArgs: string, options?: ShellOptions): Promise<ShellOutput>
     exec(
         command: string,
         args: string[],
         options?: ShellOptions
     ): Promise<ShellOutput>
+}
+
+interface UserInterfaceHost {
+    /**
+     * Starts a headless browser and navigates to the page.
+     * Requires to [install playwright and dependencies](https://microsoft.github.io/genaiscript/reference/scripts/browser).
+     * @link https://microsoft.github.io/genaiscript/reference/scripts/browser
+     * @param url
+     * @param options
+     */
+    browse(url: string, options?: BrowseSessionOptions): Promise<BrowserPage>
+
+    /**
+     * Asks the user to select between options
+     * @param message question to ask
+     * @param options options to select from
+     */
+    select(
+        message: string,
+        options: (string | ShellSelectChoice)[],
+        options?: ShellSelectOptions
+    ): Promise<string>
+
+    /**
+     * Asks the user to input a text
+     * @param message message to ask
+     */
+    input(message: string, options?: ShellInputOptions): Promise<string>
+
+    /**
+     * Asks the user to confirm a message
+     * @param message message to ask
+     */
+    confirm(message: string, options?: ShellConfirmOptions): Promise<boolean>
+}
+
+interface ContainerPortBinding {
+    containerPort: OptionsOrString<"8000/tcp">
+    hostPort: string | number
 }
 
 interface ContainerOptions {
@@ -1520,7 +2999,9 @@ interface ContainerOptions {
      * @example python:alpine python:slim python
      * @see https://hub.docker.com/_/python/
      */
-    image?: string
+    image?: OptionsOrString<
+        "python:alpine" | "python:slim" | "python" | "node" | "gcc"
+    >
 
     /**
      * Enable networking in container (disabled by default)
@@ -1533,18 +3014,86 @@ interface ContainerOptions {
     env?: Record<string, string>
 
     /**
-     * Assign the specified name to the container. Must match [a-zA-Z0-9_-]+
+     * Assign the specified name to the container. Must match [a-zA-Z0-9_-]+.
      */
     name?: string
 
     /**
-     * Disable automatic purge of container and volume directory
+     * Disable automatic purge of container and volume directory and potentially reuse with same name, configuration.
      */
-    disablePurge?: boolean
+    persistent?: boolean
+
+    /**
+     * List of exposed TCP ports
+     */
+    ports?: ElementOrArray<ContainerPortBinding>
+
+    /**
+     * Commands to executes after the container is created
+     */
+    postCreateCommands?: ElementOrArray<string>
 }
 
-interface PromptHost extends ShellHost {
+interface PromiseQueue {
+    /**
+     * Adds a new promise to the queue
+     * @param fn
+     */
+    add<Arguments extends unknown[], ReturnType>(
+        function_: (...arguments_: Arguments) => Awaitable<ReturnType>,
+        ...arguments_: Arguments
+    ): Promise<ReturnType>
+
+    /**
+     * Runs all the functions in the queue with limited concurrency
+     * @param fns
+     */
+    all<T = any>(fns: (() => Awaitable<T>)[]): Promise<T[]>
+
+    /**
+     * Applies a function to all the values in the queue with limited concurrency
+     * @param values
+     * @param fn
+     */
+    mapAll<T extends unknown, Arguments extends unknown[], ReturnType>(
+        values: T[],
+        fn: (value: T, ...arguments_: Arguments) => Awaitable<ReturnType>,
+        ...arguments_: Arguments
+    ): Promise<ReturnType[]>
+}
+
+interface LanguageModelReference {
+    provider: string
+    model: string
+}
+
+interface LanguageModelHost {
+    /**
+     * Resolve a language model alias to a provider and model based on the current configuration
+     * @param modelId
+     */
+    resolveLanguageModel(modelId?: string): Promise<LanguageModelReference>
+}
+
+interface PromptHost extends ShellHost, UserInterfaceHost, LanguageModelHost {
+    /**
+     * Opens a in-memory key-value cache for the given cache name. Entries are dropped when the cache grows too large.
+     * @param cacheName
+     */
+    cache<K = any, V = any>(
+        cacheName: string
+    ): Promise<WorkspaceFileCache<K, V>>
+
+    /**
+     * Starts a container
+     * @param options container creation options
+     */
     container(options?: ContainerOptions): Promise<ContainerHost>
+
+    /**
+     * Create a new promise queue to run async functions with limited concurrency
+     */
+    promiseQueue(concurrency: number): PromiseQueue
 }
 
 interface ContainerHost extends ShellHost {
@@ -1554,19 +3103,19 @@ interface ContainerHost extends ShellHost {
     id: string
 
     /**
+     * Name assigned to the container. For persistent containers, also contains the sha of the options
+     */
+    name: string
+
+    /**
      * Disable automatic purge of container and volume directory
      */
-    disablePurge: boolean
+    persistent: boolean
 
     /**
      * Path to the volume mounted in the host
      */
     hostPath: string
-
-    /**
-     * Path to the volume mounted in the container
-     */
-    containerPath: string
 
     /**
      * Writes a file as text to the container file system
@@ -1586,39 +3135,52 @@ interface ContainerHost extends ShellHost {
      * @param fromHost glob matching files
      * @param toContainer directory in the container
      */
-    copyTo(fromHost: string | string[], toContainer: string): Promise<void>
+    copyTo(fromHost: string | string[], toContainer: string): Promise<string[]>
+
+    /**
+     * List files in a directory in the container
+     * @param dir
+     */
+    listFiles(dir: string): Promise<string[]>
+
+    /**
+     * Stops and cleans out the container
+     */
+    stop(): Promise<void>
+
+    /**
+     * Pause container
+     */
+    pause(): Promise<void>
+
+    /**
+     * Resume execution of the container
+     */
+    resume(): Promise<void>
+
+    /**
+     * Force disconnect network
+     */
+    disconnect(): Promise<void>
+
+    /**
+     * A promise queue of concurrency 1 to run serialized functions against the container
+     */
+    scheduler: PromiseQueue
 }
 
 interface PromptContext extends ChatGenerationContext {
     script(options: PromptArgs): void
     system(options: PromptSystemArgs): void
-    defFileMerge(fn: FileMergeHandler): void
-    defOutputProcessor(fn: PromptOutputProcessorHandler): void
-    runPrompt(
-        generator: string | PromptGenerator,
-        options?: PromptGeneratorOptions
-    ): Promise<RunPromptResult>
-    fetchText(
-        urlOrFile: string | WorkspaceFile,
-        options?: FetchTextOptions
-    ): Promise<{
-        ok: boolean
-        status: number
-        text?: string
-        file?: WorkspaceFile
-    }>
-    cancel(reason?: string): void
     env: ExpansionVariables
     path: Path
     parsers: Parsers
     retrieval: Retrieval
+    contentSafety: ContentSafetyClient
+    /**
+     * @deprecated Use `workspace` instead
+     */
     fs: WorkspaceFileSystem
     workspace: WorkspaceFileSystem
-    YAML: YAML
-    XML: XML
-    JSONL: JSONL
-    CSV: CSV
-    INI: INI
-    AICI: AICI
     host: PromptHost
 }

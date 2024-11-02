@@ -32,32 +32,20 @@ We recommend installing the LTS version using a [node version manager](https://d
 
 <li>
 
-Install node version manager.
-
-On Linux, MacOS, install [nvm](https://github.com/creationix/nvm).
-On Windows, install [nvm-windows](https://github.com/coreybutler/nvm-windows).
+Install Node.JS (node) [with a package manager](https://nodejs.org/en/download/package-manager).
 
 </li>
 
 <li>
 
-Install the LTS version of Node.JS.
-
-```sh
-nvm install --lts
-nvm use --lts
-```
-
-</li>
-
-<li>
-
-Check installation
+Check your installation
 
 ```sh
 node -v
 npx -v
 ```
+
+You should see something similar or higher than the following versions:
 
 ```text
 v20.11.1
@@ -192,7 +180,7 @@ from any terminal.
 npx genaiscript run my-script some/path/*.pdf
 ```
 
-`npx` will automatically install and cache the CLI. You can also add it as a `devDependency` to your projec.
+`npx` will automatically install and cache the CLI. You can also add it as a `devDependency` to your project.
 
 ```sh
 npm install -D genaiscript

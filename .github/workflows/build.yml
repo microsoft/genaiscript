@@ -25,6 +25,10 @@ jobs:
               run: yarn typecheck
             - name: compile
               run: yarn compile
+            - name: lint
+              run: yarn lint
+            - name: package vscode
+              run: yarn package
             - name: compile system scripts
               run: yarn test:system
             - name: compile tests
@@ -33,7 +37,3 @@ jobs:
               run: yarn test:core
             - name: unit tests
               run: yarn test:samples
-            - name: docs
-              run: yarn build:docs
-            - name: package vscode
-              run: yarn package

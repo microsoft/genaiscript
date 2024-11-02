@@ -7,7 +7,7 @@ Build your own PR description generator!
 -   get branch history using `git`
 
 ```js
-const { stdout: changes } = await host.exec("git", ["diff", "main"])
+const { stdout: changes } = await host.exec("git diff main")
 def("GIT_DIFF", changes, { language: "diff", maxTokens: 20000 })
 ```
 
@@ -37,7 +37,6 @@ script({ ..., tools: ["fs_read_file"],})
 ```
 
 </v-click>
-
 
 <v-click>
 

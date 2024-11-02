@@ -2,28 +2,30 @@
   "name": "docs",
   "type": "module",
   "private": true,
-  "version": "1.48.5",
+  "version": "1.70.1",
   "license": "MIT",
   "scripts": {
+    "install:force": "rm yarn.lock && yarn install",
     "dev": "astro dev --host",
     "start": "astro dev --host",
     "check": "astro check",
-    "build": "npx --yes astro build",
+    "build": "astro build",
     "build:asw": "rm -Rf distasw && mkdir distasw && touch distasw/index.html && mkdir distasw/genaiscript && cp -r dist/* distasw/genaiscript",
     "preview": "astro preview",
     "astro": "astro",
     "genai:test": "node ../packages/cli/built/genaiscript.cjs test src/**/*.md",
-    "genai:frontmatter": "for file in \"src/**/*.md\"; do\nnode ../packages/cli/built/genaiscript.cjs run frontmatter \"$file\" --apply-edits\ndone",
+    "genai:frontmatter": "node ../packages/cli/built/genaiscript.cjs run frontmatter \"src/**/*.{md,mdx}\" --apply-edits",
     "genai:technical": "for file in \"src/**/*.md\"; do\nnode ../packages/cli/built/genaiscript.cjs run technical \"$file\" --apply-edits\ndone",
     "genai:alt-text": "node scripts/image-alt-text.mjs"
   },
-  "dependencies": {
-    "@astrojs/check": "^0.9.1",
-    "@astrojs/starlight": "^0.25.3",
-    "astro": "^4.13.1",
-    "typescript": "5.5.4"
-  },
+  "dependencies": {},
   "devDependencies": {
-    "zx": "^8.1.4"
+    "@astrojs/check": "^0.9.4",
+    "@astrojs/starlight": "^0.28.4",
+    "astro": "^4.16.8",
+    "rehype-mermaid": "^3.0.0",
+    "starlight-blog": "^0.14.1",
+    "typescript": "5.6.3",
+    "zx": "^8.2.0"
   }
 }

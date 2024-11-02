@@ -1,27 +1,21 @@
 script({
+    model: "large",
     title: "unit test generator",
     system: ["system", "system.typescript", "system.files"],
-    tools: ["fs_find_files", "fs_read_file"],
+    tools: ["fs"],
 })
 
 const code = def("CODE", env.files)
-
-// const { text: keywords } = await runPrompt(_ => {
-//     const file = _.def("FILE", env.files)
-//     _.$`You are an expert TypeScript developer.
-// Extract the list of exported functions and classes in ${file},
-// as a comma separate list of keywords. Be concise.`
-// }, { model: "gpt-3.5-turbo" })
-// const relevantTests = await retrieval.vectorSearch(keywords, testFiles)
-// const tests = def("TESTS", relevantTests)
 
 $`## Step 1
 
 For each file in ${code}, 
 generate a plan to test the source code in each file
 
-- use input test files from packages/sample/src/rag/*
+- generate self-contained tests as much as possible by inlining all necessary values
+- if needed, use input test files from packages/sample/src/rag/*
 - only generate tests for files in ${code}
+- update the existing test files (<code filename>.test.ts). keep old tests if possible.
 
 ## Step 2
 
@@ -41,16 +35,24 @@ ${fence('import test, { beforeEach, describe } from "node:test"', { language: "j
 - if you need to create files, place them under a "temp" folder
 - use Partial<T> to declare a partial type of a type T
 - do NOT generate negative test cases
+- do NOT generate trace instance
+- do NOT use tools in generated code
 
 ## Step 3 
 
 Validate and fix test sources.
 
-Use 'run_test' tool to execute the generated test code and fix the test code to make tests pass.
+Call the 'run_test' tool to execute the generated test code and fix the test code to make tests pass.
 
 - this is important.
 `
 
+defFileOutput(
+    env.files.map(
+        ({ filename }) => filename.replace(/\.ts$/, ".test.ts"),
+        "generated test files"
+    )
+)
 defTool(
     "run_test",
     "run test code with node:test",
@@ -60,8 +62,8 @@ defTool(
     },
     async (args) => {
         const { filename, source } = args
+        if (source) await workspace.writeText(filename, source)
         console.debug(`running test code ${filename}`)
-        await workspace.writeText(filename, source)
         return host.exec(`node`, ["--import", "tsx", "--test", filename])
     }
 )

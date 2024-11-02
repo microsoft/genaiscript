@@ -22,7 +22,7 @@ class GenAIScriptApiProvider {
     }
 
     async callApi(prompt, context) {
-        const { model, temperature, top_p, cache, version, cli, quiet } =
+        const { model, smallModel, temperature, top_p, cache, version, cli, quiet } =
             this.config
         const { vars, logger } = context
         try {
@@ -41,6 +41,7 @@ class GenAIScriptApiProvider {
 
             args.push("run", prompt)
             if (files) args.push(...files)
+            args.push("--run-retry", 2)
             if (testVars && typeof testVars === "object") {
                 args.push("--vars")
                 for (const [key, value] of Object.entries(testVars)) {
@@ -50,10 +51,11 @@ class GenAIScriptApiProvider {
             args.push("--json")
             if (quiet) args.push("--quiet")
             if (model) args.push("--model", model)
+            if (smallModel) args.push("--small-model", smallModel)
             if (temperature !== undefined)
                 args.push("--temperature", temperature)
             if (top_p !== undefined) args.push("--top_p", top_p)
-            if (cache === false) args.push("--no-cache")
+            if (cache === true) args.push("--cache")
 
             const cmd = args
                 .map((a) =>

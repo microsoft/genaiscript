@@ -1,22 +1,18 @@
 import * as vscode from "vscode"
 import { createVSPath } from "./vspath"
 import { TerminalServerManager } from "./servermanager"
-import { AzureManager } from "./azuremanager"
 import { Uri } from "vscode"
 import { ExtensionState } from "./state"
 import { Utils } from "vscode-uri"
 import { checkFileExists, readFileText } from "./fs"
 import { filterGitIgnore } from "../../core/src/gitignore"
-import {
-    parseDefaultsFromEnv,
-    parseTokenFromEnv,
-} from "../../core/src/connection"
+import { parseDefaultsFromEnv } from "../../core/src/connection"
 import {
     DEFAULT_EMBEDDINGS_MODEL,
     DEFAULT_MODEL,
+    DEFAULT_SMALL_MODEL,
     DEFAULT_TEMPERATURE,
     DOT_ENV_FILENAME,
-    MODEL_PROVIDER_AZURE,
 } from "../../core/src/constants"
 import { dotEnvTryParse } from "../../core/src/dotenv"
 import {
@@ -26,17 +22,18 @@ import {
     Host,
 } from "../../core/src/host"
 import { TraceOptions, AbortSignalOptions } from "../../core/src/trace"
-import { arrayify, logVerbose, unique } from "../../core/src/util"
+import { arrayify } from "../../core/src/util"
 import { LanguageModel } from "../../core/src/chat"
+import { uniq } from "es-toolkit"
 
 export class VSCodeHost extends EventTarget implements Host {
     dotEnvPath: string = DOT_ENV_FILENAME
     userState: any = {}
     readonly path = createVSPath()
     readonly server: TerminalServerManager
-    private _azure: AzureManager
     readonly defaultModelOptions = {
         model: DEFAULT_MODEL,
+        smallModel: DEFAULT_SMALL_MODEL,
         temperature: DEFAULT_TEMPERATURE,
     }
     readonly defaultEmbeddingsModelOptions = {
@@ -54,11 +51,6 @@ export class VSCodeHost extends EventTarget implements Host {
         const dotenv = await readFileText(this.projectUri, DOT_ENV_FILENAME)
         const env = dotEnvTryParse(dotenv) ?? {}
         await parseDefaultsFromEnv(env)
-    }
-
-    get azure() {
-        if (!this._azure) this._azure = new AzureManager(this.state)
-        return this._azure
     }
 
     get context() {
@@ -178,7 +170,7 @@ export class VSCodeHost extends EventTarget implements Host {
             const gitignore = await readFileText(this.projectUri, ".gitignore")
             files = await filterGitIgnore(gitignore, files)
         }
-        return unique(files)
+        return uniq(files)
     }
     async createDirectory(name: string): Promise<void> {
         const uri = this.toProjectFileUri(name)
@@ -198,20 +190,6 @@ export class VSCodeHost extends EventTarget implements Host {
             modelId,
             options
         )
-        const { token: askToken } = options || {}
-        if (
-            askToken &&
-            tok &&
-            !tok.token &&
-            tok.provider === MODEL_PROVIDER_AZURE
-        ) {
-            const azureToken = await this.azure.getOpenAIToken()
-            if (!azureToken) throw new Error("Azure token not available")
-            tok.token = "Bearer " + azureToken
-            tok.curlHeaders = {
-                Authorization: "Bearer ***",
-            }
-        }
         return tok
     }
 

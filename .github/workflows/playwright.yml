@@ -1,0 +1,41 @@
+name: playwright smoke tests
+on:
+    workflow_dispatch:
+    pull_request:
+        paths:
+            - yarn.lock
+            - ".github/workflows/playwright.yml"
+            - "packages/core/**/*"
+            - "packages/cli/**/*"
+    push:
+        branches:
+            - main
+        paths:
+            - yarn.lock
+            - ".github/workflows/playwright.yml"
+            - "packages/core/**/*"
+            - "packages/cli/**/*"
+concurrency:
+    group: ${{ github.workflow }}-${{ github.ref }}-playwright
+    cancel-in-progress: true
+jobs:
+    tests:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  submodules: "recursive"
+                  fetch-depth: 0
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: "20"
+                  cache: yarn
+            - run: yarn install --frozen-lockfile
+            - name: typecheck
+              run: yarn typecheck
+            - name: compile
+              run: yarn compile
+            - name: download ollama docker
+              run: docker run -d -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama
+            - name: run browse-text
+              run: yarn run:script browse-text --out ./temp/browse-text --model ollama:phi3.5

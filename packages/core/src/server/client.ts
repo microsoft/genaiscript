@@ -154,6 +154,7 @@ export class WebSocketClient extends EventTarget {
                                 responseChunk: ev.responseChunk,
                                 responseSoFar: ev.response,
                                 tokensSoFar: ev.tokens,
+                                inner: ev.inner,
                             })
                         break
                     }
@@ -209,6 +210,10 @@ export class WebSocketClient extends EventTarget {
                 this._ws.send(m)
             } else this._pendingMessages.push(m)
         })
+    }
+
+    get pending() {
+        return this._pendingMessages?.length > 0
     }
 
     stop() {

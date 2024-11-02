@@ -10,16 +10,16 @@ defTool(
     {
         type: "object",
         properties: {
-            q: {
+            query: {
                 type: "string",
                 description: "Search query.",
             },
         },
-        required: ["q"],
+        required: ["query"],
     },
     async (args) => {
-        const { q } = args
-        const webPages = await retrieval.webSearch(q)
+        const { query } = args
+        const webPages = await retrieval.webSearch(query)
         return YAML.stringify(
             webPages.map((f) => ({
                 url: f.filename,

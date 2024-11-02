@@ -1,0 +1,18 @@
+name: Read and Echo Files
+
+on:
+    workflow_dispatch:
+
+jobs:
+    read_and_echo:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+            - name: Read and echo files
+              run: |
+                  for file in $(ls | head -n 10); do
+                      echo "Contents of $file:"
+                      cat "$file"
+                      echo ""
+                  done

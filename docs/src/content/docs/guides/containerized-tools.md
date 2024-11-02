@@ -7,7 +7,7 @@ keywords: containerization, docker, GCC, tool integration, secure execution
 ---
 
 This guide shows how to create a [tool](/genaiscript/reference/scripts/tools)
-that call an executable in a [container](/genaiscript/referenc/scripts/container).
+that call an executable in a [container](/genaiscript/reference/scripts/container).
 This is a flexible and secure way to run tools that may have dependencies or security concerns.
 
 This is typically done by creating a container with a particular image (`gcc` here)
@@ -38,11 +38,9 @@ The LLM engine will invoke the tool to validate the syntax of the generated code
 
 ```js
 script({
-    model: "openai:gpt-3.5-turbo",
+    model: "large",
 })
-const container = await host.container({
-    image: "gcc",
-})
+let container = undefined
 let sourceIndex = 0
 defTool(
     "gcc",
@@ -52,6 +50,12 @@ defTool(
     },
     async (args) => {
         const { source } = args
+
+        if (!container) // lazy allocation of container
+            container = await host.container({
+                image: "gcc",
+            })
+
         const fn = `tmp/${sourceIndex++}/main.c`
         await container.writeText(fn, source)
         const res = await container.exec("gcc", [fn])

@@ -2,11 +2,10 @@
 title: Prompt As Code
 description: Tutorial on using GenAIScript runtime and syntax to assemble prompts
 sidebar:
-  order: 0
+    order: 0
 genaiscript:
-  files: src/samples/markdown.md
-  model: openai:gpt-3.5-turbo
-
+    files: src/samples/markdown.md
+    model: openai:gpt-3.5-turbo
 ---
 
 This page is a tutorial on creating prompt with GenAIScript. It is designed to be opened in Visual Studio Code as a Notebook.
@@ -16,7 +15,7 @@ This page is a tutorial on creating prompt with GenAIScript. It is designed to b
 To follow this tutorial in Visual Studio Code,
 
 1. Follow the steps in [installation](/genaiscript/getting-started/installation) and
-[configuration](/genaiscript/getting-started/configuration) to set up your environment.
+   [configuration](/genaiscript/getting-started/configuration) to set up your environment.
 
 2. Open the command palette (Ctrl+Shift+P) and run the `GenAIScript: Create GenAIScript Markdown Notebook` command.
 
@@ -26,9 +25,9 @@ To follow this tutorial in Visual Studio Code,
 
 The [GenAIScript Markdown Notebook](/genaiscript/reference/scripts/notebook) will parse the markdown document into a Notebook view and use Visual Studio Code's support to provide a rich editing experience. It should work with any markdown file as long as the code fence use "```".
 
-- Each **JavaScript** code block is an self-contained GenAIScript that can be executed individually. The results are attached to each code block and saved in the markdown file.
-- This is a stateless kernel, so the variables are not shared between code blocks.
-- Other languages are not supported in this notebook and simply ignored.
+-   Each **JavaScript** code block is an self-contained GenAIScript that can be executed individually. The results are attached to each code block and saved in the markdown file.
+-   This is a stateless kernel, so the variables are not shared between code blocks.
+-   Other languages are not supported in this notebook and simply ignored.
 
 ## Prompt as code
 
@@ -47,32 +46,22 @@ $`Say "hello!" in emojis`
 <details>
 <summary>👤 user</summary>
 
-
 ```markdown wrap
 Say "hello!" in emojis
 ```
 
-
 </details>
-
 
 <details open>
 <summary>🤖 assistant </summary>
-
 
 ```markdown wrap
 👋😃!
 ```
 
-
 </details>
 
 <!-- genaiscript output end -->
-
-
-
-
-
 
 The `$` function formats the strings and write them to the user message. This user message is added to the chat messages and sent to the LLM API. Under the snippet, you can review both the **user** message (that our program generated) and the **assistant** (LLM) response.
 
@@ -85,8 +74,7 @@ You can use the JavaScript `for` loop and sequence multiple `$` calls to append 
 ```js
 // let's give 3 tasks to the LLM
 // to get 3 different outputs
-for(let i = 1; i <= 3; i++)
-  $`- Say "hello!" in ${i} emojis.`
+for (let i = 1; i <= 3; i++) $`- Say "hello!" in ${i} emojis.`
 $`Respond with a markdown list`
 ```
 
@@ -95,37 +83,27 @@ $`Respond with a markdown list`
 <details>
 <summary>👤 user</summary>
 
-
 ```markdown wrap
-- Say "hello!" in 1 emojis.
-- Say "hello!" in 2 emojis.
-- Say "hello!" in 3 emojis.
-Respond with a markdown list
+-   Say "hello!" in 1 emojis.
+-   Say "hello!" in 2 emojis.
+-   Say "hello!" in 3 emojis.
+    Respond with a markdown list
 ```
 
-
 </details>
-
 
 <details open>
 <summary>🤖 assistant </summary>
 
-
 ```markdown wrap
-- 👋
-- 👋😊
-- 👋✨😃
+-   👋
+-   👋😊
+-   👋✨😃
 ```
-
 
 </details>
 
 <!-- genaiscript output end -->
-
-
-
-
-
 
 To recap, the GenAIScript runs and generates a user messages; that gets sent to the LLM. You can review the user message (and others) in the trace.
 
@@ -143,51 +121,42 @@ $`Summarize FILE in one short sentence. Respond as plain text.`
 <details>
 <summary>👤 user</summary>
 
-
 ``````markdown wrap
 FILE:
-`````md file="src/samples/markdown.md"
+
+```md file="src/samples/markdown.md"
 ---
 title: What is Markdown? - Understanding Markdown Syntax
 description: Learn about Markdown, a lightweight markup language for formatting plain text, its syntax, and how it differs from WYSIWYG editors.
 keywords: Markdown, markup language, formatting, plain text, syntax
 sidebar: mydoc_sidebar
 ---
+
 What is Markdown?
- Markdown is a lightweight markup language that you can use to add formatting elements to plaintext text documents. Created by John Gruber in 2004, Markdown is now one of the world’s most popular markup languages. 
+Markdown is a lightweight markup language that you can use to add formatting elements to plaintext text documents. Created by John Gruber in 2004, Markdown is now one of the world’s most popular markup languages.
 
 Using Markdown is different than using a WYSIWYG editor. In an application like Microsoft Word, you click buttons to format words and phrases, and the changes are visible immediately. Markdown isn’t like that. When you create a Markdown-formatted file, you add Markdown syntax to the text to indicate which words and phrases should look different.
 
 For example, to denote a heading, you add a number sign before it (e.g., # Heading One). Or to make a phrase bold, you add two asterisks before and after it (e.g., **this text is bold**). It may take a while to get used to seeing Markdown syntax in your text, especially if you’re accustomed to WYSIWYG applications. The screenshot below shows a Markdown file displayed in the Visual Studio Code text editor....
-`````
+```
 
 Summarize FILE in one short sentence. Respond as plain text.
 ``````
 
-
 </details>
-
 
 <details open>
 <summary>🤖 assistant </summary>
-
 
 ```markdown wrap
 Markdown is a lightweight markup language for formatting plain text, using syntax to indicate formatting elements.
 ```
 
-
 </details>
 
 <!-- genaiscript output end -->
 
-
-
-
 In GenAIScript, the [`env.files`](https://microsoft.github.io/genaiscript/reference/scripts/context/#environment-env) variable contains the [list of files in context](/genaiscript/reference/script/files), which can be determined by a user selection in the UI, CLI arguments, or pre-configured like in this script. You can change the files in `env.files` by editing the `files` field in the front matter at the start of the document.
-
-
-
 
 ### Filtering
 
@@ -206,42 +175,37 @@ $`Summarize FILE in one short sentence. Respond as plain text.`
 <details>
 <summary>👤 user</summary>
 
-
 ``````markdown wrap
 FILE:
-`````md file="src/samples/markdown.md"
+
+```md file="src/samples/markdown.md"
 ---
 title: What is Markdown? - Understanding Markdown Syntax
 description: Learn about Markdown, a lightweight markup language for formatting plain text, its syntax, and how it differs from WYSIWYG editors.
 keywords: Markdown, markup language, formatting, plain text, syntax
 sidebar: mydoc_sidebar
 ---
+
 What is Markdown?
- Markdown is a lightweight markup language that you can use to add formatting elements to plaintext text documents. Created by John Gruber in 2004, Markdown is now one of the world’s most popular markup languages. 
+Markdown is a lightweight markup language that you can use to add formatting elements to plaintext text documents. Created by John Gruber in 2004, Markdown is now one of the world’s most popular markup languages.
 
 Using Markdown is different than using a WYSIWYG editor. In an application like Microsoft Word, you click buttons to format words and phrases, and the changes are visible immediately. Markdown isn’t like that. When you create a Markdown-formatted file, you add Markdown syntax to the text to indicate which words and phrases should look different.
 
 For example, to denote a heading, you add a number sign before it (e.g., # Heading One). Or to make a phrase bold, you add two asterisks before and after it (e.g., **this text is bold**). It may take a while to get used to seeing Markdown syntax in your text, especially if you’re accustomed to WYSIWYG applications. The screenshot below shows a Markdown file displayed in the Visual Studio Code text editor....
-`````
+```
 
 Summarize FILE in one short sentence. Respond as plain text.
 ``````
 
-
 </details>
-
 
 <details open>
 <summary>🤖 assistant </summary>
-
 
 ```markdown wrap
 Markdown is a lightweight markup language for formatting plaintext documents, different from WYSIWYG editors.
 ```
 
-
 </details>
 
 <!-- genaiscript output end -->
-
-

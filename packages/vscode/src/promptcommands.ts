@@ -37,7 +37,7 @@ export function activatePromptCommands(state: ExtensionState) {
         ),
         registerCommand(
             "genaiscript.prompt.fork",
-            async (template: PromptScript) => {
+            async (template: PromptScript | string) => {
                 if (!template) {
                     if (!state.project) await state.parseWorkspace()
                     const templates = state.project?.templates
@@ -50,22 +50,18 @@ export function activatePromptCommands(state: ExtensionState) {
                     )
                     if (picked === undefined) return
                     template = picked.template
+                } else if (typeof template === "string") {
+                    if (!state.project) await state.parseWorkspace()
+                    template = state.project?.templates.find(
+                        (t) => t.id === template
+                    )
                 }
-                const name = await vscode.window.showInputBox({
-                    title: `Pick a file name for the new GenAIScript script.`,
-                    value: template.id,
-                })
-                if (name === undefined) return
                 await showPrompt(
-                    await copyPrompt(template, { fork: true, name })
+                    await copyPrompt(template, {
+                        fork: true,
+                        name: template.id,
+                    })
                 )
-            }
-        ),
-        registerCommand(
-            "genaiscript.prompt.unbuiltin",
-            async (template: PromptScript) => {
-                if (!template) return
-                await showPrompt(await copyPrompt(template, { fork: false }))
             }
         ),
         registerCommand(

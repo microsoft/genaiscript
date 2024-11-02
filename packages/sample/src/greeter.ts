@@ -1,14 +1,13 @@
 class Greeter {
-    greeting: string;
-   
+    greeting: string
+
     constructor(message: string) {
-      this.greeting = message;
+        this.greeting = message
     }
-   
+
     greet() {
-      return "Hello, " + this.greeting;
+        return "Hello, " + this.greeting
     }
-    
 }
 
 interface IGreeter {
@@ -16,8 +15,6 @@ interface IGreeter {
     greet(): string
 }
 
-export function hello() {
+export function hello() {}
 
-}
-   
 let greeter = new Greeter("world")

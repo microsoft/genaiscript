@@ -31,7 +31,7 @@ BING_SEARCH_API_KEY="your-api-key"
 
 ## Tool
 
-Add the [system.retrieval_web_search](https://github.com/microsoft/genaiscript/blob/main/packages/core/src/genaisrc/system.retrieval_web_search.genai.js) system script to register a [tool](/genaiscript/reference/scripts/tools) that uses `retrieval.webSearch`.
+Add the [system.retrieval_web_search](https://github.com/microsoft/genaiscript/blob/main/packages/core/src/genaisrc/system.retrieval_web_search.genai.mjs) system script to register a [tool](/genaiscript/reference/scripts/tools) that uses `retrieval.webSearch`.
 
 ```js
 script({

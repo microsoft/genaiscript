@@ -39,7 +39,7 @@ const { stdout: diff } = await host.exec("git", [
     ":!genaisrc/*",
     ":!.github/*",
     ":!.vscode/*",
-    ":!yarn.lock",
+    ":!*yarn.lock",
 ])
 ```
 
@@ -92,7 +92,7 @@ script({
 
 ### All together
 
-<Code code={importedCode} wrap={true} lang="js" title="pr-review.genai.js" />
+<Code code={importedCode} wrap={true} lang="js" title="pr-review.genai.mjs" />
 
 ## Step 2: Automation in Github Actions
 
@@ -102,6 +102,7 @@ and takes care of upserting a comment in the pull request conversation.
 
 ```yaml "-prc"
 permissions:
+    content: read # permission to read the repository
     pull-requests: write # permission to write a comment
 
 ...

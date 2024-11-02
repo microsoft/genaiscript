@@ -1,8 +1,41 @@
 import { describe, test } from "node:test"
 import assert from "node:assert/strict"
-import { extractFenced } from "./fence"
+import { extractFenced, unfence } from "./fence"
 
 describe("fence", () => {
+    test("unfence", () => {
+        const source = `
+\`\`\`python
+import re
+\`\`\`
+`
+        const fenced = unfence(source, "python")
+        assert.equal(fenced, "import re")
+    })
+
+    test("unfencenested", () => {
+      const source = `
+\`\`\`\`\`md
+\`\`\`
+import re
+\`\`\`
+\`\`\`\`\`
+`
+      const fenced = unfence(source, "md")
+      assert.equal(fenced, "\`\`\`\nimport re\n\`\`\`")
+  })
+
+  test("unbalanced", () => {
+    const source = `
+\`\`\`\`\`md
+\`\`\`
+import re
+\`\`\`\`\`
+`
+    const fenced = unfence(source, "md")
+    assert.equal(fenced, "\`\`\`\nimport re")
+})
+
     test("fence opt", () => {
         const source = `
 The provided \`email_recognizer.py\` file contains a simple function that uses a regular expression to validate an email address. The time it takes to run this function depends on the complexity of the regular expression and the length of the input email string. However, without specific performance metrics or a larger context, it's not possible to provide an exact time for how long this function might take to run.
@@ -122,6 +155,5 @@ bla
         assert.equal(fenced.length, 1)
         assert.equal(fenced[0].args.schema, "CITY_SCHEMA")
         assert.equal(fenced[0].language, "yaml")
-
     })
 })

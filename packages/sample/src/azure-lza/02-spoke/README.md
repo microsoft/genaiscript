@@ -10,7 +10,7 @@ The regional spoke network in which your application platform is laid into acts 
 
 After executing these steps you'll have the spoke resource group (`rg-lzaaca-spoke-dev-reg`, by default) populated with a virtual network, subnets, and peering to the regional hub. Based on how you [configured the naming and deployment parameters](../../README.md#steps), your result may be slightly different.
 
-![A picture of the networking components in the spoke resource group.](./media/spoke.png)
+![The image displays a network diagram with multiple interconnected nodes representing virtual networks, subnets, resource groups, and virtual network peerings. Connections between nodes illustrate the relationships and interactions among these components.](./media/spoke.png)
 
 ### Resources
 

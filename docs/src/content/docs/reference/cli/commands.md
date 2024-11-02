@@ -17,37 +17,39 @@ Runs a GenAIScript against files.
 
 Options:
   -ef, --excluded-files <string...>          excluded files
-  -egi, --exclude-git-ignore                 exclude files that are ignore through the .gitignore file in the workspace root
+  -egi, --exclude-git-ignore                 exclude files that are ignored through the .gitignore file in the workspace root
   -o, --out <string>                         output folder. Extra markdown fields for output and trace will also be generated
   -rmo, --remove-out                         remove output folder if it exists
   -ot, --out-trace <string>                  output file for trace
   -od, --out-data <string>                   output file for data (.jsonl/ndjson will be aggregated). JSON schema information and validation will be included if available.
   -oa, --out-annotations <string>            output file for annotations (.csv will be rendered as csv, .jsonl/ndjson will be aggregated)
   -ocl, --out-changelog <string>             output file for changelogs
+  -pr, --pull-request <number>               pull request identifier
   -prc, --pull-request-comment [string]      create comment on a pull request with a unique id (defaults to script id)
   -prd, --pull-request-description [string]  create comment on a pull request description with a unique id (defaults to script id)
   -prr, --pull-request-reviews               create pull request reviews from annotations
   -j, --json                                 emit full JSON response to output
   -y, --yaml                                 emit full YAML response to output
-  -p, --prompt                               dry run, don't execute LLM and return expanded prompt
   -fe, --fail-on-errors                      fails on detected annotation error
-  -r, --retry <number>                       number of retries (default: "8")
-  -rd, --retry-delay <number>                minimum delay between retries (default: "15000")
-  -md, --max-delay <number>                  maximum delay between retries (default: "180000")
+  -r, --retry <number>                       number of retries (default: "10")
+  -rd, --retry-delay <number>                minimum delay between retries (default: "1000")
+  -md, --max-delay <number>                  maximum delay between retries (default: "10000")
   -l, --label <string>                       label for the run
   -t, --temperature <number>                 temperature for the run
   -tp, --top-p <number>                      top-p for the run
   -m, --model <string>                       model for the run
+  -sm, --small-model <string>                small model for the run
   -mt, --max-tokens <number>                 maximum tokens for the run
   -mdr, --max-data-repairs <number>          maximum data repairs
   -mtc, --max-tool-calls <number>            maximum tool calls for the run
   -se, --seed <number>                       seed for the run
   -em, --embeddings-model <string>           embeddings model for the run
-  --no-cache                                 disable LLM result cache
+  --cache                                    enable LLM result cache
   -cn, --cache-name <name>                   custom cache file name
-  --cs, --csv-separator <string>             csv separator (default: "\t")
+  -cs, --csv-separator <string>              csv separator (default: "\t")
   -ae, --apply-edits                         apply file edits
-  --vars <namevalue...>                      variables, as name=value, stored in env.vars
+  --vars <namevalue...>                      variables, as name=value, stored in env.vars. Use environment variables GENAISCRIPT_VAR_name=value to pass variable through the environment
+  -rr, --run-retry <number>                  number of retries for the entire run
   -h, --help                                 display help for command
 ```
 
@@ -61,6 +63,7 @@ Options:
 
 Commands:
   run [options] [script...]  Runs the tests for scripts
+  list [options]             List available tests in workspace
   view                       Launch test viewer
   help [command]             display help for command
 ```
@@ -77,19 +80,35 @@ Arguments:
                                       are tested
 
 Options:
+  -m, --model <string>                model for the run
+  -sm, --small-model <string>         small model for the run
   --models <models...>                models to test where mode is the key
-                                      value pair list of m (model), t
-                                      (temperature), p (top-p)
+                                      value pair list of m (model), s (small
+                                      model), t (temperature), p (top-p)
   -o, --out <folder>                  output folder
   -rmo, --remove-out                  remove output folder if it exists
   --cli <string>                      override path to the cli
   -tp, --test-provider <string>       test provider
   -td, --test-delay <string>          delay between tests in seconds
-  --no-cache                          disable LLM result cache
+  --cache                             enable LLM result cache
   -v, --verbose                       verbose output
-  -pv, --promptfoo-version [version]  promptfoo version, default is ^0.75.2
+  -pv, --promptfoo-version [version]  promptfoo version, default is 0.94.5
   -os, --out-summary <file>           append output summary in file
+  --groups <groups...>                groups to include or exclude. Use :!
+                                      prefix to exclude
   -h, --help                          display help for command
+```
+
+### `test list`
+
+```
+Usage: genaiscript test list [options]
+
+List available tests in workspace
+
+Options:
+  --groups <groups...>  groups to include or exclude. Use :! prefix to exclude
+  -h, --help            display help for command
 ```
 
 ### `test view`
@@ -117,7 +136,7 @@ Commands:
   list                      List all available scripts in workspace
   create <name>             Create a new script
   fix                       fix all definition files
-  compile                   Compile all script in workspace
+  compile [folders...]      Compile all scripts in workspace
   model [options] [script]  List model connection information for scripts
   help [command]            display help for command
 ```
@@ -161,9 +180,12 @@ Options:
 ### `scripts compile`
 
 ```
-Usage: genaiscript scripts compile [options]
+Usage: genaiscript scripts compile [options] [folders...]
 
-Compile all script in workspace
+Compile all scripts in workspace
+
+Arguments:
+  folders     Pattern to match files
 
 Options:
   -h, --help  display help for command
@@ -227,7 +249,6 @@ Commands:
   search [options] <query> [files...]  Search using vector embeddings
                                        similarity
   fuzz [options] <query> [files...]    Search using string distance
-  code
   help [command]                       display help for command
 ```
 
@@ -257,15 +278,6 @@ Options:
   -h, --help                         display help for command
 ```
 
-### `retrieval code`
-
-```
-Usage: genaiscript retrieval code [options]
-
-Options:
-  -h, --help  display help for command
-```
-
 ## `serve`
 
 ```
@@ -274,8 +286,9 @@ Usage: genaiscript serve [options]
 Start a GenAIScript local server
 
 Options:
-  -p, --port <number>  Specify the port number, default: 8003
-  -h, --help           display help for command
+  -p, --port <number>     Specify the port number, default: 8003
+  -k, --api-key <string>  API key to authenticate requests
+  -h, --help              display help for command
 ```
 
 ## `parse`
@@ -292,20 +305,39 @@ Options:
   -h, --help                   display help for command
 
 Commands:
-  fence <language>             Extracts a code fenced regions of the given type
+  data [options] <file>        Convert CSV, YAML, TOML, INI, XLSX, XML, MD/X
+                               frontmatter or JSON data files into various
+                               formats
+  fence <language> <file>      Extracts a code fenced regions of the given type
   pdf <file>                   Parse a PDF into text
   docx <file>                  Parse a DOCX into texts
-  html-to-text [file]          Parse an HTML file into text
+  html-to-text <file>          Parse an HTML file into text
   code <file> [query]          Parse code using tree sitter and executes a
                                query
   tokens [options] <files...>  Count tokens in a set of files
   jsonl2json                   Converts JSONL files to a JSON file
+  prompty [options] <file...>  Converts .prompty files to genaiscript
+  jinja2 [options] <file>      Renders Jinj2 or prompty template
+```
+
+### `parse data`
+
+```
+Usage: genaiscript parse data [options] <file>
+
+Convert CSV, YAML, TOML, INI, XLSX, XML, MD/X frontmatter or JSON data files
+into various formats
+
+Options:
+  -f, --format <string>  output format (choices: "json", "json5", "yaml",
+                         "ini", "csv", "md")
+  -h, --help             display help for command
 ```
 
 ### `parse fence`
 
 ```
-Usage: genaiscript parse fence [options] <language>
+Usage: genaiscript parse fence [options] <language> <file>
 
 Extracts a code fenced regions of the given type
 
@@ -338,7 +370,7 @@ Options:
 ### `parse html-to-text`
 
 ```
-Usage: genaiscript parse html-to-text [options] [file]
+Usage: genaiscript parse html-to-text [options] <file>
 
 Parse an HTML file into text
 
@@ -380,28 +412,34 @@ Options:
   -h, --help  display help for command
 ```
 
-## `workspace`
+### `parse prompty`
 
 ```
-Usage: genaiscript workspace [options] [command]
+Usage: genaiscript parse prompty [options] <file...>
 
-Workspace tasks
+Converts .prompty files to genaiscript
+
+Arguments:
+  file                input JSONL files
 
 Options:
-  -h, --help                 display help for command
-
-Commands:
-  grep <pattern> [files...]
-  help [command]             display help for command
+  -o, --out <string>  output folder
+  -h, --help          display help for command
 ```
 
-### `workspace grep`
+### `parse jinja2`
 
 ```
-Usage: genaiscript workspace grep [options] <pattern> [files...]
+Usage: genaiscript parse jinja2 [options] <file>
+
+Renders Jinj2 or prompty template
+
+Arguments:
+  file                   input Jinja2 or prompty template file
 
 Options:
-  -h, --help  display help for command
+  --vars <namevalue...>  variables, as name=value passed to the template
+  -h, --help             display help for command
 ```
 
 ## `info`

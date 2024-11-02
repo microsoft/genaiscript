@@ -3,19 +3,12 @@ import { ExtensionState } from "./state"
 import { checkDirectoryExists, checkFileExists } from "./fs"
 import { registerCommand } from "./commands"
 import { templateGroup } from "../../core/src/ast"
-import {
-    GENAI_ANY_REGEX,
-    TOOL_ID,
-    TOOL_NAME,
-    VSCODE_CONFIG_CLI_PATH,
-    VSCODE_CONFIG_CLI_VERSION,
-} from "../../core/src/constants"
+import { GENAI_ANY_REGEX, TOOL_ID, TOOL_NAME } from "../../core/src/constants"
 import { NotSupportedError } from "../../core/src/error"
 import { promptParameterTypeToJSONSchema } from "../../core/src/parameters"
 import { Fragment } from "../../core/src/generation"
 import { assert, dotGenaiscriptPath, groupBy } from "../../core/src/util"
-import { CORE_VERSION } from "../../core/src/version"
-import { semverParse, semverSatisfies } from "../../core/src/semver"
+import { resolveCli } from "./config"
 
 type TemplateQuickPickItem = {
     template?: PromptScript
@@ -56,7 +49,7 @@ async function showPromptParametersQuickPicks(
             case "number": {
                 const value = await vscode.window.showInputBox({
                     title: `Enter value for ${param}`,
-                    value: schema.default.toLocaleString(),
+                    value: schema.default?.toLocaleString(),
                     prompt: schema.description,
                     validateInput: (v) =>
                         isNaN(parseFloat(v))
@@ -85,7 +78,7 @@ export function activateFragmentCommands(state: ExtensionState) {
     }) => {
         const { filter = () => true } = options || {}
         const templates = state.project.templates
-            .filter((t) => !t.isSystem)
+            .filter((t) => !t.isSystem && t.group !== "infrastructure")
             .filter(filter)
 
         const picked = await vscode.window.showQuickPick(
@@ -188,8 +181,7 @@ export function activateFragmentCommands(state: ExtensionState) {
             files = [file]
         }
 
-        const config = vscode.workspace.getConfiguration(TOOL_ID)
-        const program = config.get(VSCODE_CONFIG_CLI_PATH) as string
+        const { cliPath, cliVersion } = await resolveCli()
         const args = [
             "run",
             vscode.workspace.asRelativePath(template.filename),
@@ -197,19 +189,10 @@ export function activateFragmentCommands(state: ExtensionState) {
                 vscode.workspace.asRelativePath(file.fsPath)
             ),
         ]
-        const cliVersion =
-            (config.get(VSCODE_CONFIG_CLI_VERSION) as string) || CORE_VERSION
-        const gv = semverParse(CORE_VERSION)
-        if (!semverSatisfies(cliVersion, ">=" + gv.major + "." + gv.minor))
-            vscode.window.showWarningMessage(
-                TOOL_ID +
-                    ` - genaiscript cli version (${cliVersion}) outdated, please update to ${CORE_VERSION}`
-            )
-
-        const configuration = program
+        const configuration = cliPath
             ? <vscode.DebugConfiguration>{
                   name: TOOL_NAME,
-                  program,
+                  cliPath,
                   request: "launch",
                   skipFiles: ["<node_internals>/**", dotGenaiscriptPath("**")],
                   type: "node",

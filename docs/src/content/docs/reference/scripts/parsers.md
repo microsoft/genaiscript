@@ -98,12 +98,23 @@ You can use `parsers.JSONL` to parse the JSONL files into an array of object (`a
 const res = parsers.JSONL(file)
 ```
 
-## XML
+## [XML](./xml.md)
 
 The `parsers.XML` function parses for the [XML format](https://en.wikipedia.org/wiki/XML).
 
 ```js
-const res = parsers.XML("<xml></xml>")
+const res = parsers.XML('<xml attr="1"><child /></xml>')
+```
+
+Attribute names are prepended with "@\_".
+
+```json
+{
+    "xml": {
+        "@_attr": "1",
+        "child": {}
+    }
+}
 ```
 
 ## front matter
@@ -118,7 +129,7 @@ title: "Hello, World!"
 ...
 ```
 
-You can use the `parsers.frontmatter` to parse out the metadata into an object
+You can use the `parsers.frontmatter` or [MD](./md.md) to parse out the metadata into an object
 
 ```js
 const meta = parsers.frontmatter(file)
@@ -200,9 +211,15 @@ library. It returns an AST (Abstract Syntax Tree) that can be used to analyze th
 
 ```js
 // the whole tree
-const [tree] = await parsers.code(file)
+const { captures } = await parsers.code(file)
 // with a query
-const captures = await parsers.code(file, "(interface_declaration) @i")
+const { captures } = await parsers.code(file, "(interface_declaration) @i")
+```
+
+The `tags` query is a built-in alias for the [tree-sitter `tags` query](https://tree-sitter.github.io/tree-sitter/code-navigation-systems) that is made available in most tree-sitter libraries.
+
+````js
+const { captures } = await parsers.code(file, 'tags')
 ```
 
 ## Math expression
@@ -211,7 +228,7 @@ The `parsers.math` function uses [mathjs](https://mathjs.org/) to parse a math e
 
 ```js
 const res = await parsers.math("1 + 1")
-```
+````
 
 ## .env
 
@@ -278,4 +295,48 @@ The `parsers.validateJSON` function validates a JSON string against a schema.
 
 ```js
 const validation = parsers.validateJSON(schema, json)
+```
+
+## mustache
+
+Runs the [mustache](https://mustache.github.io/) template engine in the string and arguments.
+
+```js
+const rendered = parsers.mustache("Today is {{date}}.", { date: new Date() })
+```
+
+## jinja
+
+Runs the [jinja](https://jinja.palletsprojects.com/en/3.1.x/) template (using [@huggingface/jinja](https://www.npmjs.com/package/@huggingface/jinja)).
+
+```js
+const rendered = parsers.jinja("Today is {{date}}.", { date: new Date() })
+```
+
+## tidyData
+
+A set of data manipulation options that is internally
+used with `defData`.
+
+```js
+const d = parsers.tidyData(rows, { sliceSample: 100, sort: "name" })
+```
+
+## hash
+
+Utility to hash an object, array into a string that is appropriate for hashing purposes.
+
+```js
+const h = parsers.hash({ obj, other }, { length: 12 })
+```
+
+By default, uses `sha-1`, but `sha-256` can also be used. The hash packing logic may change between versions of genaiscript.
+
+## Command line
+
+Use the [parse](/genaiscript/reference/cli/commands#parse) command from the CLI to try out various parsers.
+
+```sh
+# convert any known data format to JSON
+npx --yes genaiscript parse data mydata.csv
 ```

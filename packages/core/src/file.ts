@@ -1,3 +1,9 @@
+/**
+ * This module provides functions to handle file content resolution, rendering,
+ * and data URI conversion. It includes support for various file formats like
+ * PDF, DOCX, XLSX, and CSV.
+ */
+
 import { DOCXTryParse } from "./docx"
 import { readText } from "./fs"
 import { lookupMime } from "./mime"
@@ -20,17 +26,29 @@ import {
 import { UrlAdapter, defaultUrlAdapters } from "./urlAdapters"
 import { tidyData } from "./tidy"
 
+/**
+ * Resolves the content of a given file, attempting to fetch or parse it based on its type.
+ * @param file - The WorkspaceFile containing the file information.
+ * @param options - Optional TraceOptions for logging and tracing.
+ * @returns The updated WorkspaceFile with the resolved content.
+ */
 export async function resolveFileContent(
     file: WorkspaceFile,
     options?: TraceOptions
 ) {
     const { trace } = options || {}
     const { filename } = file
+
+    // If file content is already available or filename is missing, return the file as is.
     if (file.content) return file
     if (!filename) return file
+
+    // Handle URL files
     if (HTTPS_REGEX.test(filename)) {
         let url = filename
         let adapter: UrlAdapter = undefined
+
+        // Use URL adapters to modify the URL if needed
         for (const a of defaultUrlAdapters) {
             const newUrl = a.matcher(url)
             if (newUrl) {
@@ -39,6 +57,7 @@ export async function resolveFileContent(
                 break
             }
         }
+
         trace?.item(`fetch ${url}`)
         const fetch = await createFetch()
         const resp = await fetch(url, {
@@ -47,21 +66,31 @@ export async function resolveFileContent(
             },
         })
         trace?.itemValue(`status`, `${resp.status}, ${resp.statusText}`)
+
+        // Set file content based on response and adapter type
         if (resp.ok)
             file.content =
                 adapter?.contentType === "application/json"
                     ? adapter.adapter(await resp.json())
                     : await resp.text()
-    } else if (PDF_REGEX.test(filename)) {
+    }
+    // Handle PDF files
+    else if (PDF_REGEX.test(filename)) {
         const { content } = await parsePdf(filename, options)
         file.content = content
-    } else if (DOCX_REGEX.test(filename)) {
+    }
+    // Handle DOCX files
+    else if (DOCX_REGEX.test(filename)) {
         file.content = await DOCXTryParse(filename, options)
-    } else if (XLSX_REGEX.test(filename)) {
+    }
+    // Handle XLSX files
+    else if (XLSX_REGEX.test(filename)) {
         const bytes = await host.readFile(filename)
         const sheets = await XLSXParse(bytes)
         file.content = JSON.stringify(sheets, null, 2)
-    } else {
+    }
+    // Handle other file types
+    else {
         const mime = lookupMime(filename)
         const isBinary = isBinaryMimeType(mime)
         if (!isBinary) file.content = await readText(filename)
@@ -70,30 +99,49 @@ export async function resolveFileContent(
     return file
 }
 
+/**
+ * Converts a string or WorkspaceFile into a consistent WorkspaceFile structure.
+ * @param fileOrFilename - The input which could be a filename string or a WorkspaceFile object.
+ * @returns A WorkspaceFile object.
+ */
 export function toWorkspaceFile(fileOrFilename: string | WorkspaceFile) {
     return typeof fileOrFilename === "string"
         ? { filename: fileOrFilename }
         : fileOrFilename
 }
 
+/**
+ * Resolves the contents of multiple files asynchronously.
+ * @param files - An array of WorkspaceFiles to process.
+ */
 export async function resolveFileContents(files: WorkspaceFile[]) {
-    for(const file of files) {
+    for (const file of files) {
         await resolveFileContent(file)
     }
 }
 
+/**
+ * Renders the content of a file into a markdown format if applicable (e.g., CSV or XLSX).
+ * @param file - The WorkspaceFile containing the file data.
+ * @param options - Options for tracing and data filtering.
+ * @returns An object with the filename and rendered content.
+ */
 export async function renderFileContent(
     file: WorkspaceFile,
     options: TraceOptions & DataFilter
 ) {
     const { filename, content } = file
+
+    // Render CSV content
     if (content && CSV_REGEX.test(filename)) {
         let csv = CSVTryParse(content, options)
         if (csv) {
             csv = tidyData(csv, options)
             return { filename, content: CSVToMarkdown(csv, options) }
         }
-    } else if (content && XLSX_REGEX.test(filename)) {
+    }
+    // Render XLSX content
+    else if (content && XLSX_REGEX.test(filename)) {
         const sheets = JSON.parse(content) as WorkbookSheet[]
         const trimmed = sheets.length
             ? sheets
@@ -109,21 +157,34 @@ ${CSVToMarkdown(tidyData(rows, options))}
     return { ...file }
 }
 
+/**
+ * Converts a file into a Data URI format.
+ * @param filename - The file name or URL to convert.
+ * @param options - Optional TraceOptions for fetching.
+ * @returns The Data URI string or undefined if the MIME type cannot be determined.
+ */
 export async function resolveFileDataUri(
-    file: WorkspaceFile,
+    filename: string,
     options?: TraceOptions
 ) {
     let bytes: Uint8Array
-    if (/^https?:\/\//i.test(file.filename)) {
+
+    // Fetch file from URL
+    if (/^https?:\/\//i.test(filename)) {
         const fetch = await createFetch(options)
-        const resp = await fetch(file.filename)
+        const resp = await fetch(filename)
         const buffer = await resp.arrayBuffer()
         bytes = new Uint8Array(buffer)
-    } else {
-        bytes = new Uint8Array(await host.readFile(file.filename))
     }
+    // Read file from local storage
+    else {
+        const buf = await host.readFile(filename)
+        bytes = new Uint8Array(buf)
+    }
+
     const mime = (await fileTypeFromBuffer(bytes))?.mime
     if (!mime) return undefined
+
     const b64 = toBase64(bytes)
     return `data:${mime};base64,${b64}`
 }

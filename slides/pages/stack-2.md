@@ -1,4 +1,4 @@
 <p></p>
 
-![](/system-stack-2.png)
+![The image shows two diagrams labeled "System Stack 1.0" and "System Stack 2.0" side by side. The left diagram, System Stack 1.0, has three layers in orange: "POSW Application" at the top, "Language/runtime: (e.g., C#/CLR)" in the middle, and "OS" at the bottom, all above a base labeled "Hardware" with "HW ISA" written below. The right diagram, System Stack 2.0, has four layers in green: "AISW Application" at the top, "AI Language/Runtime (e.g., GenAIScript)" below it, followed by "AI Controller (AIC)" and "LLM Inference Engine" at the bottom, all above a base labeled "AI ISA."](/system-stack-2.png)
 #### See https://blog.sigplan.org/2024/04/23/ai-software-should-be-more-like-plain-old-software/

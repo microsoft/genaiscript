@@ -1,6 +1,8 @@
 script({
     files: "src/cities.md",
-    tests: {},
+    tests: {
+        files: "src/cities.md",
+    },
     responseSchema: {
         type: "object",
         required: ["cities"],

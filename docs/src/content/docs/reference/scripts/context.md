@@ -38,11 +38,21 @@ script({
 
 -   [CLI](/genaiscript/reference/cli) files arguments.
 
+The files are stored in `env.files` which can be injected in the prompt.
+
+-   directly in a `$` call
+
+```js
+$`Summarize ${env.files}.
+```
+
+-   using `def`
+
 ```js
 def("FILE", env.files)
 ```
 
-Or filtered,
+-   filtered,
 
 ```js
 def("DOCS", env.files, { endsWith: ".md" })
@@ -59,16 +69,6 @@ const locale = env.vars.locale || "en-US"
 ```
 
 Read more about [variables](/genaiscript/reference/scripts/variables).
-
-### `env.secrets`
-
-The `secrets` property contains the secrets that have been defined in the script execution context.
-
-```javascript
-const token = env.secrets.SECRET_TOKEN
-```
-
-Read more about [secrets](/genaiscript/reference/scripts/secrets).
 
 ## Definition (`def`)
 
@@ -94,10 +94,19 @@ The `def` function can also be used with an array of files, such as `env.files`.
 def("FILE", env.files)
 ```
 
+### Language
+
+You can specify the language of the text contained in `def`. This can help GenAIScript optimize the rendering of the text.
+
+```js 'language: "diff"'
+// hint that the output is a diff
+def("DIFF", gitdiff, { language: "diff" })
+```
+
 ### Referencing
 
 The `def` function returns a variable name that can be used in the prompt.
-The name might be formatted diferently to accommodate the model's preference.
+The name might be formatted differently to accommodate the model's preference.
 
 ```js "const f = "
 const f = def("FILE", file)
@@ -173,6 +182,15 @@ def("FILE", env.files, { sliceTail: 100 })
 def("FILE", env.files, { sliceSample: 100 })
 ```
 
+### Prompt Caching
+
+You can specify `ephemeral: true` to turn on some prompt caching optimization. In paricular, a `def` with `ephemeral` will be rendered at the back of the prompt
+to persist the [cache prefix](https://openai.com/index/api-prompt-caching/).
+
+```js
+def("FILE", env.files, { ephemeral: true })
+```
+
 ## Data definition (`defData`)
 
 The `defData` function offers additional formatting options for converting a data object into a textual representation. It supports rendering objects as YAML, JSON, or CSV (formatted as a markdown table).
@@ -200,3 +218,27 @@ defData("DATA", data, {
     sliceSample: 100,
 })
 ```
+
+You can leverage the data filtering functionality
+using `parsers.tidyData` as well.
+
+## Diff Definition (`defDiff`)
+
+It is very common to compare two piece of data and ask the LLM to analyze the differences. Using diffs is a great way
+to naturally compress the information since we only reason about differences!
+
+The `defDiff` takes care of formatting the diff in a way that helps LLM reason. It behaves similarly to `def` and assigns
+a name to the diff.
+
+```js
+// diff files
+defDiff("DIFF", env.files[0], env.files[1])
+
+// diff strings
+defDiff("DIFF", "cat", "dog")
+
+// diff objects
+defDiff("DIFF", { name: "cat" }, { name: "dog" })
+```
+
+You can leverage the diff functionality using `parsers.diff`.

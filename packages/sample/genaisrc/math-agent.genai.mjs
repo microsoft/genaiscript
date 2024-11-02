@@ -1,6 +1,6 @@
 script({
     title: "math-agent",
-    model: "gpt-35-turbo",
+    model: "small",
     description: "A port of https://ts.llamaindex.ai/examples/agent",
     parameters: {
         question: {

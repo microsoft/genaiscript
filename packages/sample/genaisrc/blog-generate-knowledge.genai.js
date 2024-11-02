@@ -1,6 +1,6 @@
 script({
     title: "blog using generated knowledge",
-    model: "openai:gpt-3.5-turbo",
+    model: "small",
     description:
         "Using Generated Knowledge technique. More at https://learnprompting.org/docs/intermediate/generated_knowledge",
     tests: {

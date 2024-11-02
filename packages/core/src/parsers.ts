@@ -7,14 +7,14 @@ import { MarkdownTrace } from "./trace"
 import { YAMLTryParse } from "./yaml"
 import { DOCXTryParse } from "./docx"
 import { frontmatterTryParse } from "./frontmatter"
-import { extractFenced } from "./fence"
+import { extractFenced, unfence } from "./fence"
 import { parseAnnotations } from "./annotations"
 import { dotEnvTryParse } from "./dotenv"
 import { INITryParse } from "./ini"
 import { XMLTryParse } from "./xml"
 import { treeSitterQuery } from "./treesitter"
 import { parsePdf } from "./pdf"
-import { HTMLToText } from "./html"
+import { HTMLToMarkdown, HTMLToText } from "./html"
 import { MathTryEvaluate } from "./math"
 import { validateJSONWithSchema } from "./schema"
 import { XLSXTryParse } from "./xlsx"
@@ -23,13 +23,18 @@ import { unzip } from "./zip"
 import { JSONLTryParse } from "./jsonl"
 import { resolveFileContent } from "./file"
 import { resolveTokenEncoder } from "./encoders"
+import { mustacheRender } from "./mustache"
+import { jinjaRender } from "./jinja"
+import { createDiff, llmifyDiff } from "./diff"
+import { tidyData } from "./tidy"
+import { hash } from "./crypto"
 
 export async function createParsers(options: {
     trace: MarkdownTrace
     model: string
 }): Promise<Parsers> {
     const { trace, model } = options
-    const encoder = await resolveTokenEncoder(model)
+    const { encode: encoder } = await resolveTokenEncoder(model)
     return Object.freeze<Parsers>({
         JSON5: (text, options) =>
             JSON5TryParse(filenameOrFileToContent(text), options?.defaultValue),
@@ -64,6 +69,10 @@ export async function createParsers(options: {
         HTMLToText: (text, options) =>
             HTMLToText(filenameOrFileToContent(text), {
                 ...(options || {}),
+                trace,
+            }),
+        HTMLToMarkdown: (text) =>
+            HTMLToMarkdown(filenameOrFileToContent(text), {
                 trace,
             }),
         DOCX: async (file) => {
@@ -101,5 +110,17 @@ export async function createParsers(options: {
             await MathTryEvaluate(expression, { trace }),
         validateJSON: (schema, content) =>
             validateJSONWithSchema(content, schema, { trace }),
+        mustache: (file, args) => {
+            const f = filenameOrFileToContent(file)
+            return mustacheRender(f, args)
+        },
+        jinja: (file, data) => {
+            const f = filenameOrFileToContent(file)
+            return jinjaRender(f, data)
+        },
+        diff: (f1, f2) => llmifyDiff(createDiff(f1, f2)),
+        tidyData: (rows, options) => tidyData(rows, options),
+        hash: async (text, options) => await hash(text, options),
+        unfence: unfence
     })
 }

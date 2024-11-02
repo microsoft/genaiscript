@@ -1,16 +1,14 @@
 ---
 title: Tutorial Notebook
 sidebar:
-  order: 100
-genaiscript:
-  files: "*.md"
-
+    order: 100
+description: Learn how to use GenAIScript with this interactive tutorial notebook featuring executable JavaScript code blocks.
+keywords: tutorial, GenAIScript notebook, interactive learning, JavaScript, markdown
 ---
 
-This Notebook is a GenAISCript tutorial. It is a Markdown document where each JavaScript code section is a runnable GenAIScript. You can execute each code block individually and see the results in the output section below the code block.
+This Notebook is a GenAISCript tutorial. It is a Markdown document where each JavaScript code section is a runnable GenAIScript. You can execute each code block individually and see the results in the output section below the code block. To open this notebook in Visual Studio Code, press **F1** and run **GenAIScript: Create GenAIScript Markdown Notebook**.
 
 Follow the steps in [configuration](https://microsoft.github.io/genaiscript/getting-started/configuration) to set up your environment and LLM access.
-
 
 ## Prompt as code
 
@@ -46,10 +44,9 @@ Say "hello!" in emojis
 
 <!-- genaiscript output end -->
 
-
 The `$` function formats the strings and write them to the user message. This user message is added to the chat messages and sent to the LLM API. Under the snippet, you can review both the **user** message (that our program generated) and the **assistant** (LLM) response.
 
-You can run the code block by clicking the **Execute Cell** button on the top left corner of the code block. It will be default try to use the `openai:gpt-3.5-turbo` LLM. If you need to use a different model, update the `model` field in the front matter at the start of the document. There are many options documented in [configuration](https://microsoft.github.io/genaiscript/getting-started/configuration).
+You can run the code block by clicking the **Execute Cell** button on the top left corner of the code block. It will be default try to use the LLMs from various providers. If you need to use a different model, update the `model` field in the front matter at the start of the document. There are many options documented in [configuration](https://microsoft.github.io/genaiscript/getting-started/configuration).
 
 Once the execution is done, you will also an additional **trace** entry that allows you to dive in the internal details of the GenAIScript execution. This is very helpful to diagnose issues with your prompts. The trace can be quite large so it is not serialized in the markdown file.
 
@@ -89,7 +86,6 @@ $`Respond with a markdown list`
 
 <!-- genaiscript output end -->
 
-
 To recap, the GenAIScript runs and generates a user messages; that gets sent to the LLM. You can review the user message (and others) in the trace.
 
 ## `def` and `env.files`
@@ -106,7 +102,7 @@ $`Summarize FILE in one short sentence. Respond as plain text.`
 <details>
 <summary>👤 user</summary>
 
-``````markdown wrap
+````markdown wrap
 FILE:
 
 ```md file="src/samples/markdown.md"
@@ -126,7 +122,7 @@ For example, to denote a heading, you add a number sign before it (e.g., # Headi
 ```
 
 Summarize FILE in one short sentence. Respond as plain text.
-``````
+````
 
 </details>
 
@@ -140,7 +136,6 @@ Markdown is a lightweight markup language for formatting plain text, using synta
 </details>
 
 <!-- genaiscript output end -->
-
 
 In GenAIScript, the [`env.files`](https://microsoft.github.io/genaiscript/reference/scripts/context/#environment-env) variable contains the [list of files in context](https://microsoft.github.io/genaiscript/reference/script/files), which can be determined by a user selection in the UI, CLI arguments, or pre-configured like in this script. You can change the files in `env.files` by editing the `files` field in the front matter at the start of the document.
 
@@ -161,7 +156,7 @@ $`Summarize FILE in one short sentence. Respond as plain text.`
 <details>
 <summary>👤 user</summary>
 
-``````markdown wrap
+````markdown wrap
 FILE:
 
 ```md file="src/samples/markdown.md"
@@ -181,7 +176,7 @@ For example, to denote a heading, you add a number sign before it (e.g., # Headi
 ```
 
 Summarize FILE in one short sentence. Respond as plain text.
-``````
+````
 
 </details>
 
@@ -196,14 +191,18 @@ Markdown is a lightweight markup language for formatting plaintext documents, di
 
 <!-- genaiscript output end -->
 
-
 ## Tools
 
 You can register JavaScript functions as tools that the LLM will call as needed.
 
 ```js
 // requires openai, azure openai or github models
-defTool("fetch", "Download text from a URL", { url: "https://...", }, ({ url }) => fetchText(url))
+defTool(
+    "fetch",
+    "Download text from a URL",
+    { url: "https://..." },
+    ({ url }) => fetchText(url)
+)
 
 $`Summarize https://raw.githubusercontent.com/microsoft/genaiscript/main/README.md in 1 sentence.`
 ```
@@ -215,12 +214,10 @@ You can run nested LLMs to execute tasks on other, smaller models.
 ```js
 // summarize each files individually
 for (const file of env.files) {
-    const { text } = await runPrompt(
-        (_) => {
-            _.def("FILE", file)
-            _.$`Summarize the FILE.`
-        },
-    )
+    const { text } = await runPrompt((_) => {
+        _.def("FILE", file)
+        _.$`Summarize the FILE.`
+    })
     def("FILE", { ...file, content: text })
 }
 // summarize all summaries

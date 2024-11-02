@@ -2,7 +2,7 @@ import dotenv from "dotenv"
 
 import { TextDecoder, TextEncoder } from "util"
 import { readFile, unlink, writeFile } from "node:fs/promises"
-import { ensureDir, existsSync, remove } from "fs-extra"
+import { ensureDir, exists, existsSync, remove } from "fs-extra"
 import { resolve, dirname } from "node:path"
 import { glob } from "glob"
 import { debug, error, info, isQuiet, warn } from "./log"
@@ -19,12 +19,17 @@ import {
 import {
     DEFAULT_MODEL,
     DEFAULT_TEMPERATURE,
-    MODEL_PROVIDER_AZURE,
+    MODEL_PROVIDER_AZURE_OPENAI,
     SHELL_EXEC_TIMEOUT,
     DOT_ENV_FILENAME,
     MODEL_PROVIDER_OLLAMA,
     TOOL_ID,
     DEFAULT_EMBEDDINGS_MODEL,
+    DEFAULT_SMALL_MODEL,
+    AZURE_COGNITIVE_SERVICES_TOKEN_SCOPES,
+    MODEL_PROVIDER_AZURE_SERVERLESS_MODELS,
+    AZURE_AI_INFERENCE_TOKEN_SCOPES,
+    MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI,
 } from "../../core/src/constants"
 import { tryReadText } from "../../core/src/fs"
 import {
@@ -37,13 +42,20 @@ import {
     RuntimeHost,
     setRuntimeHost,
     ResponseStatus,
+    AzureTokenResolver,
 } from "../../core/src/host"
 import { AbortSignalOptions, TraceOptions } from "../../core/src/trace"
-import { logVerbose, unique } from "../../core/src/util"
+import { logError, logVerbose } from "../../core/src/util"
 import { parseModelIdentifier } from "../../core/src/models"
-import { createAzureToken } from "./azuretoken"
 import { LanguageModel } from "../../core/src/chat"
-import { errorMessage } from "../../core/src/error"
+import { errorMessage, serializeError } from "../../core/src/error"
+import { BrowserManager } from "./playwright"
+import { shellConfirm, shellInput, shellSelect } from "./input"
+import { shellQuote } from "../../core/src/shell"
+import { uniq } from "es-toolkit"
+import { PLimitPromiseQueue } from "../../core/src/concurrency"
+import { Project } from "../../core/src/ast"
+import { createAzureTokenResolver } from "./azuretoken"
 
 class NodeServerManager implements ServerManager {
     async start(): Promise<void> {
@@ -66,26 +78,40 @@ class ModelManager implements ModelService {
         return conn
     }
 
-    async pullModel(modelid: string): Promise<ResponseStatus> {
+    async pullModel(
+        modelid: string,
+        options?: TraceOptions
+    ): Promise<ResponseStatus> {
+        const { trace } = options || {}
         const { provider, model } = parseModelIdentifier(modelid)
         if (provider === MODEL_PROVIDER_OLLAMA) {
             if (this.pulled.includes(modelid)) return { ok: true }
 
             if (!isQuiet) logVerbose(`ollama pull ${model}`)
-            const conn = await this.getModelToken(modelid)
-            const res = await fetch(`${conn.base}/api/pull`, {
-                method: "POST",
-                headers: {
-                    "user-agent": TOOL_ID,
-                    "content-type": "application/json",
-                },
-                body: JSON.stringify({ name: model, stream: false }, null, 2),
-            })
-            if (res.ok) {
-                const resp = await res.json()
+            try {
+                const conn = await this.getModelToken(modelid)
+                const res = await fetch(`${conn.base}/api/pull`, {
+                    method: "POST",
+                    headers: {
+                        "User-Agent": TOOL_ID,
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(
+                        { name: model, stream: false },
+                        null,
+                        2
+                    ),
+                })
+                if (res.ok) {
+                    const resp = await res.json()
+                }
+                if (res.ok) this.pulled.push(modelid)
+                return { ok: res.ok, status: res.status }
+            } catch (e) {
+                logError(`failed to pull model ${model}`)
+                trace?.error("pull model failed", e)
+                return { ok: false, status: 500, error: serializeError(e) }
             }
-            if (res.ok) this.pulled.push(modelid)
-            return { ok: res.ok, status: res.status }
         }
 
         return { ok: true }
@@ -94,24 +120,38 @@ class ModelManager implements ModelService {
 
 export class NodeHost implements RuntimeHost {
     readonly dotEnvPath: string
+    project: Project
     userState: any = {}
     models: ModelService
     readonly path = createNodePath()
     readonly server = new NodeServerManager()
     readonly workspace = createFileSystem()
-    readonly docker = new DockerManager()
+    readonly containers = new DockerManager()
+    readonly browsers = new BrowserManager()
     readonly defaultModelOptions = {
         model: DEFAULT_MODEL,
+        smallModel: DEFAULT_SMALL_MODEL,
         temperature: DEFAULT_TEMPERATURE,
     }
     readonly defaultEmbeddingsModelOptions = {
         embeddingsModel: DEFAULT_EMBEDDINGS_MODEL,
     }
+    readonly userInputQueue = new PLimitPromiseQueue(1)
+    readonly azureToken: AzureTokenResolver
+    readonly azureServerlessToken: AzureTokenResolver
 
     constructor(dotEnvPath: string) {
         this.dotEnvPath = dotEnvPath
         this.syncDotEnv()
         this.models = new ModelManager(this)
+        this.azureToken = createAzureTokenResolver(
+            "Azure",
+            AZURE_COGNITIVE_SERVICES_TOKEN_SCOPES
+        )
+        this.azureServerlessToken = createAzureTokenResolver(
+            "Azure AI Serverless",
+            AZURE_AI_INFERENCE_TOKEN_SCOPES
+        )
     }
 
     private syncDotEnv() {
@@ -144,7 +184,6 @@ export class NodeHost implements RuntimeHost {
     }
     clientLanguageModel: LanguageModel
 
-    private _azureToken: string
     async getLanguageModelConfiguration(
         modelId: string,
         options?: { token?: boolean } & AbortSignalOptions & TraceOptions
@@ -152,16 +191,48 @@ export class NodeHost implements RuntimeHost {
         const { signal, token: askToken } = options || {}
         await this.parseDefaults()
         const tok = await parseTokenFromEnv(process.env, modelId)
-        if (
-            askToken &&
-            tok &&
-            !tok.token &&
-            tok.provider === MODEL_PROVIDER_AZURE
-        ) {
-            if (!this._azureToken)
-                this._azureToken = await createAzureToken(signal)
-            if (!this._azureToken) throw new Error("Azure token not available")
-            tok.token = "Bearer " + this._azureToken
+        if (!askToken && tok?.token) tok.token = "***"
+        if (askToken && tok && !tok.token) {
+            if (
+                tok.provider === MODEL_PROVIDER_AZURE_OPENAI ||
+                tok.provider === MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI
+            ) {
+                const azureToken = await this.azureToken.token(
+                    tok.azureCredentialsType,
+                    options
+                )
+                if (!azureToken)
+                    throw new Error("Azure OpenAI token not available")
+                tok.token = "Bearer " + azureToken.token
+            } else if (
+                tok.provider === MODEL_PROVIDER_AZURE_SERVERLESS_MODELS
+            ) {
+                const azureToken = await this.azureServerlessToken.token(
+                    tok.azureCredentialsType,
+                    options
+                )
+                if (!azureToken) throw new Error("Azure AI token not available")
+                tok.token = "Bearer " + azureToken.token
+            }
+        }
+        if (!tok) {
+            if (!modelId)
+                throw new Error(
+                    "could not determine default model from current configuration"
+                )
+            const { provider } = parseModelIdentifier(modelId)
+            if (provider === MODEL_PROVIDER_AZURE_OPENAI)
+                throw new Error(
+                    "Azure OpenAI end point not configured (AZURE_OPENAI_ENDPOINT)"
+                )
+            else if (provider === MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI)
+                throw new Error(
+                    "Azure AI OpenAI Serverless end point not configured (AZURE_SERVERLESS_OPENAI_API_ENDPOINT)"
+                )
+            else if (provider === MODEL_PROVIDER_AZURE_SERVERLESS_MODELS)
+                throw new Error(
+                    "Azure AI Models end point not configured (AZURE_SERVERLESS_MODELS_API_ENDPOINT)"
+                )
         }
         if (!tok && this.clientLanguageModel) {
             return <LanguageModelConfiguration>{
@@ -211,7 +282,8 @@ export class NodeHost implements RuntimeHost {
         const wksrx = /^workspace:\/\//i
         if (wksrx.test(name))
             name = join(this.projectFolder(), name.replace(wksrx, ""))
-
+        // check if file exists
+        if (!(await exists(name))) return undefined
         // read file
         const res = await readFile(name)
         return res ? new Uint8Array(res) : new Uint8Array()
@@ -233,7 +305,7 @@ export class NodeHost implements RuntimeHost {
             const gitignore = await tryReadText(".gitignore")
             files = await filterGitIgnore(gitignore, files)
         }
-        return unique(files)
+        return uniq(files)
     }
     async writeFile(name: string, content: Uint8Array): Promise<void> {
         await ensureDir(dirname(name))
@@ -249,6 +321,13 @@ export class NodeHost implements RuntimeHost {
         await remove(name)
     }
 
+    async browse(
+        url: string,
+        options?: BrowseSessionOptions & TraceOptions
+    ): Promise<BrowserPage> {
+        return this.browsers.browse(url, options)
+    }
+
     async exec(
         containerId: string,
         command: string,
@@ -256,7 +335,7 @@ export class NodeHost implements RuntimeHost {
         options: ShellOptions & TraceOptions
     ) {
         if (containerId) {
-            const container = await this.docker.container(containerId)
+            const container = await this.containers.container(containerId)
             return await container.exec(command, args, options)
         }
 
@@ -276,8 +355,10 @@ export class NodeHost implements RuntimeHost {
             if (command === "python" && process.platform !== "win32")
                 command = "python3"
 
+            const cmd = shellQuote([command, ...args])
+            logVerbose(`${cwd ? `${cwd}> ` : ""}${cmd}`)
             trace?.itemValue(`cwd`, cwd)
-            trace?.item(`\`${command}\` ${args.join(" ")}`)
+            trace?.item(cmd)
 
             const { stdout, stderr, exitCode, failed } = await execa(
                 command,
@@ -318,10 +399,41 @@ export class NodeHost implements RuntimeHost {
     async container(
         options: ContainerOptions & TraceOptions
     ): Promise<ContainerHost> {
-        return await this.docker.startContainer(options)
+        return await this.containers.startContainer(options)
     }
 
     async removeContainers(): Promise<void> {
-        await this.docker.stopAndRemove()
+        await this.containers.stopAndRemove()
+    }
+
+    async removeBrowsers(): Promise<void> {
+        await this.browsers.stopAndRemove()
+    }
+
+    /**
+     * Asks the user to select between options
+     * @param message question to ask
+     * @param options options to select from
+     */
+    async select(message: string, options: string[]): Promise<string> {
+        return await this.userInputQueue.add(() =>
+            shellSelect(message, options)
+        )
+    }
+
+    /**
+     * Asks the user to input a text
+     * @param message message to ask
+     */
+    async input(message: string): Promise<string> {
+        return await this.userInputQueue.add(() => shellInput(message))
+    }
+
+    /**
+     * Asks the user to confirm a message
+     * @param message message to ask
+     */
+    async confirm(message: string): Promise<boolean> {
+        return await this.userInputQueue.add(() => shellConfirm(message))
     }
 }

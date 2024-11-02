@@ -1,0 +1,8 @@
+.vscode/*
+**/genaiscript.d.ts
+**/yarn.lock
+THIRD_PARTY_LICENSES.md
+package.json
+package-lock.json
+yarn.lock
+**/package.lock

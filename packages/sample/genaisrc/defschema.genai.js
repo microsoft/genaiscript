@@ -1,6 +1,6 @@
 script({
     tests: {},
-    model: "openai:gpt-3.5-turbo",
+    model: "small",
     files: "src/cities.md"
 })
 

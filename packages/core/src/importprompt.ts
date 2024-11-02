@@ -1,16 +1,8 @@
-import { assert } from "console"
 import { host } from "./host"
-import { logError } from "./util"
+import { logError, logVerbose } from "./util"
 import { TraceOptions } from "./trace"
-import { fileURLToPath, pathToFileURL } from "url"
-
-function resolveGlobal(): any {
-    if (typeof window !== "undefined")
-        return window // Browser environment
-    else if (typeof self !== "undefined") return self
-    else if (typeof global !== "undefined") return global // Node.js environment
-    throw new Error("Could not find global")
-}
+import { pathToFileURL } from "url"
+import { resolveGlobal } from "./globals"
 
 export async function importPrompt(
     ctx0: PromptContext,
@@ -30,14 +22,8 @@ export async function importPrompt(
         "parsers",
         "env",
         "retrieval",
-        "YAML",
-        "INI",
-        "CSV",
-        "XML",
-        "JSONL",
-        "AICI",
-        "fetchText",
-        "cancel",
+        "runPrompt",
+        "prompt",
     ]
 
     const oldGlb: any = {}
@@ -46,10 +32,11 @@ export async function importPrompt(
     try {
         // override global context
         for (const field of Object.keys(ctx0)) {
-            assert(
-                field === "console" || leakables.includes(field) || !glb[field],
-                `overriding global field ${field}`
-            )
+            //logVerbose(
+            //    field === "console" || leakables.includes(field) || !glb[field],
+            //    `overriding global field ${field}`
+            //)
+            if (leakables.includes(field) && glb[field]) continue
             oldGlb[field] = glb[field]
             glb[field] = (ctx0 as any)[field]
         }

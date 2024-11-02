@@ -1,5 +1,4 @@
 script({
-    model: "gpt-35-turbo",
     parameters: {
         string: "abc",
         number: 123,
@@ -35,17 +34,32 @@ script({
 console.log(`string: ${env.vars.string} ${typeof env.vars.string}`)
 console.log(`number: ${env.vars.number} ${typeof env.vars.number}`)
 console.log(`boolean: ${env.vars.boolean} ${typeof env.vars.boolean}`)
+console.log(
+    `stringSchema: ${env.vars.stringSchema} ${typeof env.vars.stringSchema}`
+)
+console.log(
+    `numberSchema: ${env.vars.numberSchema} ${typeof env.vars.numberSchema}`
+)
+console.log(
+    `booleanSchema: ${env.vars.booleanSchema} ${typeof env.vars.booleanSchema}`
+)
+console.log(
+    `string-schema: ${env.vars.stringSchema} ${typeof env.vars.stringSchema}`
+)
+console.log(`boolean-schema: ${env.vars["boolean-schema"]}`)
 
 if (env.vars["string"] !== "abc") throw new Error("string parameter not set")
 if (env.vars["number"] !== 123) throw new Error("number parameter not set")
 if (env.vars["boolean"] !== true) throw new Error("boolean parameter not set")
 if (env.vars["stringSchema"] !== "efg")
     throw new Error("stringSchema parameter not set")
+if (env.vars["string-schema"] !== "efg")
+    throw new Error("stringSchema parameter not set")
 if (env.vars["numberSchema"] !== 456)
+    throw new Error("numberSchema parameter not set")
+if (env.vars["number-schema"] !== 456)
     throw new Error("numberSchema parameter not set")
 if (env.vars["booleanSchema"] !== true)
     throw new Error("booleanSchema parameter not set")
-
-// use $ to output formatted text to the prompt
-$`You are a helpful assistant.
-`
+if (env.vars["boolean-schema"] !== true)
+    throw new Error("booleanSchema parameter not set")

@@ -3,7 +3,7 @@ import * as ini from "ini"
 script({
     files: "src/data.ini",
     tests: {},
-    model: "openai:gpt-35-turbo",
+    model: "small",
 })
 
 const src = env.files[0].content

@@ -1,5 +1,5 @@
 script({
-    model: "openai:gpt-3.5-turbo",
+    model: "small",
     tests: {},
 })
 $`Generate a diagram of a merge.`

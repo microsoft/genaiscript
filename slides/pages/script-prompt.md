@@ -13,12 +13,17 @@ stateDiagram
     context: files (text, PDF, DOCX, ...)
     script : user script (.genai.js)
     prompt : prompt (system+user messages)
+    api: OpenAI API
     system: system script (system.*.genai.js)
+    tools: custom tools
     context --> script
     note right of context : Users selects files in VSCode/CLI.
     script --> prompt
     system --> prompt
+    prompt --> api
+    api --> tools
+    tools --> api
+    api --> response
     note left of system: Teach LLM about micro-formats.
-    prompt --> response : LLM (OpenAI Chat API)
     response: response (raw text)
 ```

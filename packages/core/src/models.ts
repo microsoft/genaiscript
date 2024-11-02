@@ -1,7 +1,12 @@
+import { uniq } from "es-toolkit"
 import {
+    DEFAULT_EMBEDDINGS_MODEL_CANDIDATES,
     DEFAULT_MODEL_CANDIDATES,
+    DEFAULT_SMALL_MODEL_CANDIDATES,
+    LARGE_MODEL_ID,
     MODEL_PROVIDER_LLAMAFILE,
     MODEL_PROVIDER_OPENAI,
+    SMALL_MODEL_ID,
 } from "./constants"
 import { errorMessage } from "./error"
 import { LanguageModelConfiguration, host } from "./host"
@@ -82,17 +87,38 @@ export function traceLanguageModelConnection(
 
 export async function resolveModelConnectionInfo(
     conn: ModelConnectionOptions,
-    options?: { model?: string; token?: boolean } & TraceOptions &
+    options?: {
+        model?: string
+        token?: boolean
+        candidates?: string[]
+    } & TraceOptions &
         AbortSignalOptions
 ): Promise<{
     info: ModelConnectionInfo
     configuration?: LanguageModelConfiguration
 }> {
     const { trace, token: askToken, signal } = options || {}
+    const hint = options?.model || conn.model || ""
+    let candidates = options?.candidates
+    let m = hint
+    if (m === SMALL_MODEL_ID) {
+        m = undefined
+        candidates ??= [
+            host.defaultModelOptions.smallModel,
+            ...DEFAULT_SMALL_MODEL_CANDIDATES,
+        ]
+    } else if (m === LARGE_MODEL_ID) {
+        m = undefined
+        candidates ??= [
+            host.defaultModelOptions.model,
+            ...DEFAULT_MODEL_CANDIDATES,
+        ]
+    }
+    candidates ??= [host.defaultModelOptions.model, ...DEFAULT_MODEL_CANDIDATES]
 
     const resolveModel = async (
         model: string,
-        withToken: boolean
+        resolveOptions: { withToken: boolean; reportError: boolean }
     ): Promise<{
         info: ModelConnectionInfo
         configuration?: LanguageModelConfiguration
@@ -101,7 +127,7 @@ export async function resolveModelConnectionInfo(
             const configuration = await host.getLanguageModelConfiguration(
                 model,
                 {
-                    token: askToken,
+                    token: resolveOptions.withToken,
                     signal,
                     trace,
                 }
@@ -115,13 +141,17 @@ export async function resolveModelConnectionInfo(
                         ...conn,
                         ...rest,
                         model,
-                        token: theToken ? (withToken ? theToken : "***") : "",
+                        token: theToken
+                            ? resolveOptions.withToken
+                                ? theToken
+                                : "***"
+                            : "",
                     },
                     configuration,
                 }
             }
         } catch (e) {
-            trace?.error(undefined, e)
+            if (resolveOptions.reportError) trace?.error(undefined, e)
             return {
                 info: {
                     ...conn,
@@ -132,23 +162,20 @@ export async function resolveModelConnectionInfo(
         }
     }
 
-    const m = options?.model ?? conn.model
     if (m) {
-        return await resolveModel(m, true)
+        return await resolveModel(m, { withToken: askToken, reportError: true })
     } else {
-        // go through various options
-        const candidates = new Set([
-            host.defaultModelOptions.model,
-            ...DEFAULT_MODEL_CANDIDATES,
-        ])
-        for (const candidate of candidates) {
-            const res = await resolveModel(candidate, true)
+        for (const candidate of uniq(candidates).filter((c) => !!c)) {
+            const res = await resolveModel(candidate, {
+                withToken: askToken,
+                reportError: false,
+            })
             if (!res.info.error && res.info.token) return res
         }
         return {
             info: {
                 model: "?",
-                error: "No model configured",
+                error: `No model configured for ${hint}`,
             },
         }
     }

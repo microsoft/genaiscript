@@ -1,6 +1,7 @@
 import { HTTPS_REGEX } from "./constants"
 import { host } from "./host"
-import { unique, utf8Decode, utf8Encode } from "./util"
+import { utf8Decode, utf8Encode } from "./util"
+import { uniq } from "es-toolkit"
 
 export async function readText(fn: string) {
     const curr = await host.readFile(fn)
@@ -21,8 +22,7 @@ export async function writeText(fn: string, content: string) {
 
 export async function fileExists(fn: string) {
     try {
-        await host.readFile(fn)
-        return true
+        return await host.readFile(fn) !== undefined
     } catch {
         return false
     }
@@ -60,7 +60,7 @@ export async function expandFiles(files: string[], excludedFiles?: string[]) {
         files.filter((f) => !HTTPS_REGEX.test(f)),
         { ignore: excludedFiles?.filter((f) => !HTTPS_REGEX.test(f)) }
     )
-    return unique([...urls, ...others])
+    return uniq([...urls, ...others])
 }
 
 export function filePathOrUrlToWorkspaceFile(f: string) {

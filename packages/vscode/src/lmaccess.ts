@@ -5,19 +5,23 @@ import {
     MODEL_PROVIDER_OLLAMA,
     MODEL_PROVIDER_LLAMAFILE,
     MODEL_PROVIDER_AICI,
-    MODEL_PROVIDER_AZURE,
+    MODEL_PROVIDER_AZURE_OPENAI,
     MODEL_PROVIDER_LITELLM,
     MODEL_PROVIDER_OPENAI,
     MODEL_PROVIDER_CLIENT,
     MODEL_PROVIDER_GITHUB,
+    TOOL_NAME,
+    MODEL_PROVIDER_AZURE_SERVERLESS_MODELS,
+    MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI,
 } from "../../core/src/constants"
-import { APIType } from "../../core/src/host"
+import { OpenAIAPIType } from "../../core/src/host"
 import { parseModelIdentifier } from "../../core/src/models"
-import { updateConnectionConfiguration } from "../../core/src/connection"
 import { ChatCompletionMessageParam } from "../../core/src/chattypes"
 import { LanguageModelChatRequest } from "../../core/src/server/client"
 import { ChatStart } from "../../core/src/server/messages"
 import { serializeError } from "../../core/src/error"
+import { logVerbose } from "../../core/src/util"
+import { renderMessageContent } from "../../core/src/chatrender"
 
 async function generateLanguageModelConfiguration(
     state: ExtensionState,
@@ -28,7 +32,9 @@ async function generateLanguageModelConfiguration(
         provider === MODEL_PROVIDER_OLLAMA ||
         provider === MODEL_PROVIDER_LLAMAFILE ||
         provider === MODEL_PROVIDER_AICI ||
-        provider === MODEL_PROVIDER_AZURE ||
+        provider === MODEL_PROVIDER_AZURE_OPENAI ||
+        provider === MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI ||
+        provider === MODEL_PROVIDER_AZURE_SERVERLESS_MODELS ||
         provider === MODEL_PROVIDER_LITELLM
     ) {
         return { provider }
@@ -41,7 +47,7 @@ async function generateLanguageModelConfiguration(
     const items: (vscode.QuickPickItem & {
         model?: string
         provider?: string
-        apiType?: APIType
+        apiType?: OpenAIAPIType
     })[] = []
     if (isLanguageModelsAvailable()) {
         const models = await vscode.lm.selectChatModels()
@@ -62,8 +68,20 @@ async function generateLanguageModelConfiguration(
         {
             label: "Azure OpenAI",
             detail: `Use a Azure-hosted OpenAI subscription.`,
-            provider: MODEL_PROVIDER_AZURE,
+            provider: MODEL_PROVIDER_AZURE_OPENAI,
             apiType: "azure",
+        },
+        {
+            label: "Azure AI OpenAI (serverless deployment)",
+            detail: `Use a Azure OpenAI serverless model deployment through Azure AI Studio.`,
+            provider: MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI,
+            apiType: "azure_serverless",
+        },
+        {
+            label: "Azure AI Models (serverless deployment)",
+            detail: `Use a Azure serverless model deployment through Azure AI Studio.`,
+            provider: MODEL_PROVIDER_AZURE_SERVERLESS_MODELS,
+            apiType: "azure_serverless_models",
         },
         {
             label: "GitHub Models",
@@ -91,12 +109,12 @@ async function generateLanguageModelConfiguration(
         }
     )
 
-    const res: { model?: string; provider?: string; apiType?: APIType } =
+    const res: { model?: string; provider?: string; apiType?: OpenAIAPIType } =
         await vscode.window.showQuickPick<
             vscode.QuickPickItem & {
                 model?: string
                 provider?: string
-                apiType?: APIType
+                apiType?: OpenAIAPIType
             }
         >(items, {
             title: `Configure a Language Model for ${modelId}`,
@@ -143,11 +161,18 @@ export async function pickLanguageModel(
 
     if (res.model) return res.model
     else {
-        await updateConnectionConfiguration(res.provider, res.apiType)
-        const doc = await vscode.workspace.openTextDocument(
-            state.host.toUri("./.env")
-        )
-        await vscode.window.showTextDocument(doc)
+        const configure = "Configure..."
+        vscode.window
+            .showWarningMessage(
+                `${TOOL_NAME} - model connection not configured.`,
+                configure
+            )
+            .then((res) => {
+                if (res === configure)
+                    vscode.commands.executeCommand(
+                        "genaiscript.connection.configure"
+                    )
+            })
         return undefined
     }
 }
@@ -163,33 +188,22 @@ function messagesToChatMessages(messages: ChatCompletionMessageParam[]) {
     const res: vscode.LanguageModelChatMessage[] = messages.map((m) => {
         switch (m.role) {
             case "system":
-                return <vscode.LanguageModelChatMessage>{
-                    role: vscode.LanguageModelChatMessageRole.User,
-                    content: m.content,
-                }
             case "user":
+            case "assistant":
                 if (
                     Array.isArray(m.content) &&
                     m.content.some((c) => c.type === "image_url")
                 )
                     throw new Error("Vision model not supported")
-                return <vscode.LanguageModelChatMessage>{
-                    role: vscode.LanguageModelChatMessageRole.User,
-                    content:
-                        typeof m.content === "string"
-                            ? m.content
-                            : m.content.map((c) => c).join("\n"),
-                }
-            case "assistant":
-                return <vscode.LanguageModelChatMessage>{
-                    role: vscode.LanguageModelChatMessageRole.Assistant,
-                    content: m.content,
-                }
+                return vscode.LanguageModelChatMessage.User(
+                    renderMessageContent(m),
+                    "genaiscript"
+                )
             case "function":
             case "tool":
                 throw new Error("tools not supported with copilot models")
             default:
-                throw new Error("uknown role")
+                throw new Error("unknown role " + m.role)
         }
     })
     return res
@@ -206,8 +220,12 @@ export function createChatModelRunner(
             const { model, messages, modelOptions } = req
             const chatModel = await pickChatModel(state, model)
             if (!chatModel) {
+                logVerbose("no language chat model selected, cancelling")
                 onChunk({
-                    finishReason: "cancel",
+                    finishReason: "fail",
+                    error: serializeError(
+                        new Error("No language chat model selected")
+                    ),
                 })
                 return
             }
@@ -226,7 +244,7 @@ export function createChatModelRunner(
                 text += fragment
                 onChunk({
                     chunk: fragment,
-                    tokens: await chatModel.countTokens(text),
+                    tokens: await chatModel.countTokens(fragment),
                     finishReason: undefined,
                     model: chatModel.id,
                 })

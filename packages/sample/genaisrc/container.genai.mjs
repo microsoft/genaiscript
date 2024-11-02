@@ -1,12 +1,16 @@
 script({
-    model: "gpt-3.5-turbo",
+    model: "small",
     tests: {
         keywords: ["Python", "3."],
     },
 })
 
-const disablePurge = env.vars.purge === "no"
-const container = await host.container({ disablePurge })
+const persistent = env.vars.purge === "no"
+const container = await host.container({
+    name: "testing",
+    networkEnabled: true,
+    postCreateCommands: "pip install --root-user-action ignore pandas",
+})
 const version = await container.exec("python", ["--version"])
 if (!/^python \d/i.test(version.stdout))
     throw new Error("python --version failed")
@@ -16,9 +20,17 @@ if (version.stdout !== fversion)
     throw new Error(
         `writetext/readtext error, expected '${version.stdout}', got '${fversion}'`
     )
-await container.copyTo("src/rag/*", "copied")
-if (!await container.readText("copied/src/rag/markdown.md")) throw new Error("copy failed")
+await container.copyTo("src/rag/*.md", "/copied")
+console.log(await container.listFiles("/copied"))
+if (!(await container.readText("/copied/markdown.md")))
+    throw new Error("copy absolute failed")
+await container.copyTo("src/rag/sub/*.md", "copied")
+console.log(await container.listFiles("copied"))
+if (!(await container.readText("copied/markdown.summary.md")))
+    throw new Error("copy local failed")
 await container.writeText("main.py", 'print("hello")')
+console.log(await container.listFiles("."))
+console.log(await container.listFiles("/app/"))
 const hello = await container.exec("python", ["main.py"])
 if (hello.exitCode) throw new Error("python script failed")
 defTool(

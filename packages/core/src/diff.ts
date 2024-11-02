@@ -1,6 +1,10 @@
 import { assert } from "./util"
 import parseDiff from "parse-diff"
+import { createTwoFilesPatch } from "diff"
 
+/**
+ * Represents a chunk of changes in a diff.
+ */
 export interface Chunk {
     state: "existing" | "deleted" | "added"
     lines: string[]
@@ -8,15 +12,16 @@ export interface Chunk {
 }
 
 /**
- * The LLMD diff format is a simple format that can be used to represent changes.
- * It is not precise:
- * - indentation may be lost
- * - some code may be not regenerated
+ * Parses a text in the LLMD diff format into a list of chunks.
+ * The format may lose indentation or some code during regeneration.
+ * @param text - The diff text to parse.
+ * @returns An array of chunks representing the diff.
  */
 export function parseLLMDiffs(text: string): Chunk[] {
     const lines = text.split("\n")
     const chunks: Chunk[] = []
 
+    // Initialize the first chunk
     let chunk: Chunk = { state: "existing", lines: [], lineNumbers: [] }
     chunks.push(chunk)
 
@@ -24,10 +29,14 @@ export function parseLLMDiffs(text: string): Chunk[] {
     for (let i = 0; i < lines.length; ++i) {
         let line = lines[i]
         const diffM = /^(\[(\d+)\] )?(-|\+) (\[(\d+)\] )?/.exec(line)
+
+        // Process lines that match the diff pattern
         if (diffM) {
             const l = line.substring(diffM[0].length)
             let diffln = diffM ? parseInt(diffM[5] ?? diffM[2]) : Number.NaN
             const op = diffM[3]
+
+            // Adjust line numbers
             if (isNaN(diffln) && !isNaN(currentLine)) {
                 currentLine++
                 diffln = currentLine
@@ -35,10 +44,12 @@ export function parseLLMDiffs(text: string): Chunk[] {
             } else {
                 currentLine = diffln
             }
+
+            // Handle added lines
             if (op === "+") {
                 const l = line.substring(diffM[0].length)
                 if (lines[diffln] === l) {
-                    // trying to duplicate line
+                    // Skip duplicate line
                     continue
                 }
                 if (chunk.state === "added") {
@@ -53,6 +64,7 @@ export function parseLLMDiffs(text: string): Chunk[] {
                     chunks.push(chunk)
                 }
             } else {
+                // Handle deleted lines
                 assert(op === "-")
                 if (chunk.state === "deleted") {
                     chunk.lines.push(l)
@@ -67,6 +79,7 @@ export function parseLLMDiffs(text: string): Chunk[] {
                 }
             }
         } else {
+            // Handle existing lines
             const lineM = /^\[(\d+)\] /.exec(line)
             let lineNumber = lineM ? parseInt(lineM[1]) : Number.NaN
             const l = line.substring(lineM ? lineM[0].length : 0)
@@ -90,7 +103,7 @@ export function parseLLMDiffs(text: string): Chunk[] {
         }
     }
 
-    // clean last chunk
+    // Clean trailing empty lines in the last chunk
     if (chunk.state === "existing") {
         while (/^\s*$/.test(chunk.lines[chunk.lines.length - 1])) {
             chunk.lines.pop()
@@ -99,7 +112,7 @@ export function parseLLMDiffs(text: string): Chunk[] {
         if (chunk.lines.length === 0) chunks.pop()
     }
 
-    // clean added duplicate lines
+    // Remove duplicate lines added without changes
     for (let i = 0; i < chunks.length - 1; ++i) {
         const current = chunks[i]
         const next = chunks[i + 1]
@@ -110,7 +123,7 @@ export function parseLLMDiffs(text: string): Chunk[] {
             next.state === "added" &&
             current.lines[0] === next.lines[0]
         ) {
-            // remove current, added line since it does not change the file
+            // Remove current, added line since it does not change the file
             chunks.splice(i, 2)
         }
     }
@@ -119,6 +132,14 @@ export function parseLLMDiffs(text: string): Chunk[] {
 }
 
 const MIN_CHUNK_SIZE = 4
+
+/**
+ * Finds the starting position of a chunk in the given lines.
+ * @param lines - The array of lines to search through.
+ * @param chunk - The chunk to find.
+ * @param startLine - The line to start the search from.
+ * @returns The index of the starting line of the chunk, or -1 if not found.
+ */
 function findChunk(lines: string[], chunk: Chunk, startLine: number): number {
     const chunkLines = chunk.lines
     if (chunkLines.length === 0) return startLine
@@ -147,6 +168,12 @@ function findChunk(lines: string[], chunk: Chunk, startLine: number): number {
     return -1
 }
 
+/**
+ * Applies a series of LLMDiff chunks to a source string.
+ * @param source - The original source content.
+ * @param chunks - The chunks representing changes to apply.
+ * @returns The modified source content.
+ */
 export function applyLLMDiff(source: string, chunks: Chunk[]): string {
     if (!chunks?.length || !source) return source
 
@@ -158,12 +185,12 @@ export function applyLLMDiff(source: string, chunks: Chunk[]): string {
         if (chunk.state !== "existing")
             throw new Error("expecting existing chunk")
 
-        // find location of chunk
+        // Find location of existing chunk
         const chunkStart = findChunk(lines, chunk, current)
         if (chunkStart === -1) break
         current = chunkStart + chunk.lines.length
 
-        // handle deleted chunk
+        // Handle deleted chunk
         if (chunks[i]?.state === "deleted") {
             const deletedChunk = chunks[i++]
             const chunkDel = findChunk(lines, deletedChunk, current)
@@ -178,7 +205,7 @@ export function applyLLMDiff(source: string, chunks: Chunk[]): string {
         if (addedChunk?.state !== "added")
             throw new Error("expecting added chunk")
 
-        // find the end chunk
+        // Find the end of the next existing chunk
         let nextChunk = chunks[i]
         if (nextChunk && nextChunk.state !== "existing")
             throw new Error("expecting existing chunk")
@@ -188,7 +215,7 @@ export function applyLLMDiff(source: string, chunks: Chunk[]): string {
 
         if (chunkEnd === -1) break
 
-        // finally swap the lines in
+        // Finally, replace the lines with the added chunk
         const toRemove = chunkEnd - current
         lines.splice(current, toRemove, ...addedChunk.lines)
 
@@ -198,18 +225,27 @@ export function applyLLMDiff(source: string, chunks: Chunk[]): string {
     return lines.join("\n")
 }
 
+/**
+ * Custom error class for handling diff-related errors.
+ */
 export class DiffError extends Error {
     constructor(message: string) {
         super(message)
     }
 }
 
+/**
+ * Applies a series of LLMDiff chunks to a source string using line numbers.
+ * @param source - The original source content.
+ * @param chunks - The chunks representing changes to apply.
+ * @returns The modified source content.
+ */
 export function applyLLMPatch(source: string, chunks: Chunk[]): string {
     if (!chunks?.length || !source) return source
 
     const lines = source.split("\n")
 
-    // modified, deleted
+    // Process modified and deleted chunks
     chunks
         .filter((c) => c.state !== "added")
         .forEach((chunk) => {
@@ -217,19 +253,23 @@ export function applyLLMPatch(source: string, chunks: Chunk[]): string {
                 const line =
                     chunk.state === "deleted" ? undefined : chunk.lines[li]
                 const linei = chunk.lineNumbers[li] - 1
-                if (isNaN(linei)) throw new DiffError("missing line number")
+                if (isNaN(linei))
+                    throw new DiffError(`diff: missing or nan line number`)
                 if (linei < 0 || linei >= lines.length)
-                    throw new DiffError("invalid line number")
+                    throw new DiffError(
+                        `diff: invalid line number ${linei} in ${lines.length}`
+                    )
                 lines[linei] = line
             }
         })
 
-    // update added
+    // Insert added chunks after processing deletions and modifications
     for (let ci = chunks.length - 1; ci > 0; ci--) {
         const chunk = chunks[ci]
         if (chunk.state !== "added") continue
         let previ = ci - 1
         let prev = chunks[previ]
+        // Find the previous existing chunk
         while (prev && prev.state !== "existing") {
             prev = chunks[--previ]
         }
@@ -238,18 +278,36 @@ export function applyLLMPatch(source: string, chunks: Chunk[]): string {
         lines.splice(prevLinei, 0, ...chunk.lines)
     }
 
+    // Filter out undefined lines (deleted)
     return lines.filter((l) => l !== undefined).join("\n")
 }
 
-export function llmifyDiff(diff: string) {
-    if (!diff) return diff
-
+/**
+ * Tries to parse a diff string into a structured format.
+ * @param diff - The diff string to parse.
+ * @returns The parsed diff as an array of files, or undefined if parsing fails.
+ */
+export function tryParseDiff(diff: string) {
     let parsed: parseDiff.File[]
     try {
         parsed = parseDiff(diff)
+        if (!parsed?.length) parsed = undefined
     } catch (e) {
-        return undefined // probably not a diff
+        parsed = undefined
     }
+    return parsed
+}
+
+/**
+ * Converts a diff string into the LLMDiff format.
+ * @param diff - The diff string to convert.
+ * @returns The LLMDiff formatted string, or undefined if parsing fails.
+ */
+export function llmifyDiff(diff: string) {
+    if (!diff) return diff
+
+    const parsed = tryParseDiff(diff)
+    if (!parsed) return undefined
 
     for (const file of parsed) {
         for (const chunk of file.chunks) {
@@ -279,4 +337,32 @@ export function llmifyDiff(diff: string) {
     }
 
     return result
+}
+
+/**
+ * Creates a diff between two workspace files.
+ * @param left - The original workspace file.
+ * @param right - The modified workspace file.
+ * @param options - Optional settings for creating the diff.
+ * @returns The diff as a string, with certain headers removed.
+ */
+export function createDiff(
+    left: WorkspaceFile,
+    right: WorkspaceFile,
+    options?: { context?: number }
+) {
+    const res = createTwoFilesPatch(
+        left.filename || "",
+        right.filename || "",
+        left.content || "",
+        right.content || "",
+        undefined,
+        undefined,
+        {
+            ignoreCase: true,
+            ignoreWhitespace: true,
+            ...(options ?? {}),
+        }
+    )
+    return res.replace(/^[^=]*={10,}\n/, "")
 }

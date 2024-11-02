@@ -1,10 +1,15 @@
+import { JSONLineCache } from "./cache"
 import { DOT_ENV_REGEX } from "./constants"
+import { CSVParse, CSVTryParse } from "./csv"
 import { NotSupportedError, errorMessage } from "./error"
 import { resolveFileContent } from "./file"
 import { readText, writeText } from "./fs"
 import { host } from "./host"
-import { JSON5parse } from "./json5"
+import { INITryParse } from "./ini"
+import { JSON5parse, JSON5TryParse } from "./json5"
 import { logVerbose } from "./util"
+import { XMLParse, XMLTryParse } from "./xml"
+import { YAMLParse, YAMLTryParse } from "./yaml"
 
 export function createFileSystem(): Omit<WorkspaceFileSystem, "grep"> {
     const fs: Omit<WorkspaceFileSystem, "grep"> = {
@@ -35,7 +40,7 @@ export function createFileSystem(): Omit<WorkspaceFileSystem, "grep"> {
 
             await writeText(filename, c)
         },
-        readText: async (f: string | WorkspaceFile) => {
+        readText: async (f: string | Awaitable<WorkspaceFile>) => {
             if (f === undefined)
                 throw new NotSupportedError("missing file name")
 
@@ -45,7 +50,7 @@ export function createFileSystem(): Omit<WorkspaceFileSystem, "grep"> {
                           filename: f,
                           content: undefined,
                       }
-                    : f
+                    : await f
             if (DOT_ENV_REGEX.test(file.filename)) return file
             try {
                 await resolveFileContent(file)
@@ -56,9 +61,43 @@ export function createFileSystem(): Omit<WorkspaceFileSystem, "grep"> {
             }
             return file
         },
-        readJSON: async (f: string | WorkspaceFile) => {
+        readJSON: async (f: string | Awaitable<WorkspaceFile>) => {
             const file = await fs.readText(f)
-            const res = JSON5parse(file.content)
+            const res = JSON5TryParse(file.content, undefined)
+            return res
+        },
+        readYAML: async (f: string | Awaitable<WorkspaceFile>) => {
+            const file = await fs.readText(f)
+            const res = YAMLTryParse(file.content)
+            return res
+        },
+        readXML: async (
+            f: string | Awaitable<WorkspaceFile>,
+            options?: XMLParseOptions
+        ) => {
+            const file = await fs.readText(f)
+            const res = XMLTryParse(file.content, options)
+            return res
+        },
+        readCSV: async <T extends object>(
+            f: string | Awaitable<WorkspaceFile>,
+            options?: CSVParseOptions
+        ): Promise<T[]> => {
+            const file = await fs.readText(f)
+            const res = CSVTryParse(file.content, options) as T[]
+            return res
+        },
+        readINI: async (
+            f: string | Awaitable<WorkspaceFile>,
+            options?: INIParseOptions
+        ): Promise<any> => {
+            const file = await fs.readText(f)
+            const res = INITryParse(file.content, options?.defaultValue)
+            return res
+        },
+        cache: async (name: string) => {
+            if (!name) throw new NotSupportedError("missing cache name")
+            const res = JSONLineCache.byName<any, any>(name)
             return res
         },
     }

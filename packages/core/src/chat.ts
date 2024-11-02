@@ -2,39 +2,61 @@ import { MarkdownTrace } from "./trace"
 import { PromptImage, renderPromptNode } from "./promptdom"
 import { LanguageModelConfiguration, host } from "./host"
 import { GenerationOptions } from "./generation"
-import { JSON5TryParse, JSON5parse, isJSONObjectOrArray } from "./json5"
+import {
+    JSON5TryParse,
+    JSON5parse,
+    JSONLLMTryParse,
+    isJSONObjectOrArray,
+} from "./json5"
 import {
     CancellationOptions,
     CancellationToken,
     checkCancelled,
 } from "./cancellation"
-import { assert } from "./util"
-import { extractFenced, findFirstDataFence } from "./fence"
+import { assert, logError, logVerbose, logWarn } from "./util"
+import { extractFenced, findFirstDataFence, unfence } from "./fence"
 import {
     toStrictJSONSchema,
     validateFencesWithSchema,
     validateJSONWithSchema,
 } from "./schema"
-import { MAX_DATA_REPAIRS, MAX_TOOL_CALLS } from "./constants"
+import {
+    MAX_DATA_REPAIRS,
+    MAX_TOOL_CALLS,
+    MAX_TOOL_CONTENT_TOKENS,
+    SYSTEM_FENCE,
+} from "./constants"
 import { parseAnnotations } from "./annotations"
 import { errorMessage, isCancelError, serializeError } from "./error"
-import { YAMLStringify } from "./yaml"
 import { estimateChatTokens } from "./chatencoder"
 import { createChatTurnGenerationContext } from "./runpromptcontext"
 import { dedent } from "./indent"
 import { traceLanguageModelConnection } from "./models"
 import {
+    ChatCompletionAssistantMessageParam,
     ChatCompletionContentPartImage,
     ChatCompletionMessageParam,
     ChatCompletionResponse,
     ChatCompletionsOptions,
+    ChatCompletionSystemMessageParam,
     ChatCompletionTool,
+    ChatCompletionToolCall,
     ChatCompletionUserMessageParam,
     CreateChatCompletionRequest,
 } from "./chattypes"
-import { renderMessageContent, renderMessagesToMarkdown } from "./chatrender"
+import {
+    renderMessageContent,
+    renderMessagesToMarkdown,
+    renderShellOutput,
+} from "./chatrender"
 import { promptParametersSchemaToJSONSchema } from "./parameters"
-import { fenceMD } from "./markdown"
+import { fenceMD, prettifyMarkdown } from "./markdown"
+import { YAMLStringify, YAMLTryParse } from "./yaml"
+import { resolveTokenEncoder } from "./encoders"
+import { estimateTokens, truncateTextToTokens } from "./tokens"
+import { computeFileEdits } from "./fileedits"
+import { HTMLEscape } from "./html"
+import { XMLTryParse } from "./xml"
 
 export function toChatCompletionUserMessage(
     expanded: string,
@@ -116,11 +138,12 @@ export interface LanguageModel {
 async function runToolCalls(
     resp: ChatCompletionResponse,
     messages: ChatCompletionMessageParam[],
-    functions: ToolCallback[],
+    tools: ToolCallback[],
     options: GenerationOptions
 ) {
     const projFolder = host.projectFolder()
-    const { cancellationToken, trace } = options || {}
+    const { cancellationToken, trace, model } = options || {}
+    const { encode: encoder } = await resolveTokenEncoder(model)
     assert(!!trace)
     let edits: Edits[] = []
 
@@ -139,82 +162,179 @@ async function runToolCalls(
     // call tool and run again
     for (const call of resp.toolCalls) {
         checkCancelled(cancellationToken)
-        trace.startDetails(`📠 tool call ${call.name}`)
+        const toolTrace = trace.startTraceDetails(`📠 tool call ${call.name}`)
         try {
-            const callArgs: any = call.arguments
-                ? JSON5TryParse(call.arguments)
-                : undefined
-            trace.itemValue(`args`, callArgs ?? call.arguments)
-            const fd = functions.find((f) => f.definition.name === call.name)
-            if (!fd) throw new Error(`tool ${call.name} not found`)
-
-            const context: ToolCallContext = {
+            await runToolCall(
                 trace,
-            }
-
-            const output = await fd.fn({ context, ...callArgs })
-            if (output === undefined || output === null)
-                throw new Error(`tool ${call.name} output is undefined`)
-            let toolContent: string = undefined
-            let toolEdits: Edits[] = undefined
-            if (typeof output === "string") toolContent = output
-            else if (
-                typeof output === "object" &&
-                (output as ShellOutput).exitCode !== undefined
-            ) {
-                const { stdout, stderr, exitCode } = output as ShellOutput
-                toolContent = `EXIT_CODE: ${exitCode}
-
-STDOUT:
-${stdout}
-
-STDERR:
-${stderr}`
-            } else if (
-                typeof output === "object" &&
-                (output as WorkspaceFile).filename &&
-                (output as WorkspaceFile).content
-            ) {
-                const { filename, content } = output as WorkspaceFile
-                toolContent = `FILENAME: ${filename}
-${fenceMD(content, " ")}
-`
-            } else {
-                toolContent = (output as ToolCallContent)?.content
-            }
-
-            if (typeof output === "object")
-                toolEdits = (output as ToolCallContent)?.edits
-
-            if (toolContent) trace.fence(toolContent, "markdown")
-            if (toolEdits?.length) {
-                trace.fence(toolEdits)
-                edits.push(
-                    ...toolEdits.map((e) => {
-                        const { filename, ...rest } = e
-                        const n = e.filename
-                        const fn = /^[^\/]/.test(n)
-                            ? host.resolvePath(projFolder, n)
-                            : n
-                        return { filename: fn, ...rest }
-                    })
-                )
-            }
-
-            messages.push({
-                role: "tool",
-                content: toolContent,
-                tool_call_id: call.id,
-            })
+                call,
+                tools,
+                edits,
+                projFolder,
+                encoder,
+                messages
+            )
         } catch (e) {
-            trace.error(`tool call ${call.id} error`, e)
+            logError(e)
+            toolTrace.error(`tool call ${call.id} error`, e)
             throw e
         } finally {
-            trace.endDetails()
+            toolTrace.endDetails()
         }
     }
 
     return { edits }
+}
+
+async function runToolCall(
+    trace: MarkdownTrace,
+    call: ChatCompletionToolCall,
+    tools: ToolCallback[],
+    edits: Edits[],
+    projFolder: string,
+    encoder: TokenEncoder,
+    messages: ChatCompletionMessageParam[]
+) {
+    const callArgs: any = call.arguments // sometimes wrapped in \`\`\`json ...
+        ? JSONLLMTryParse(call.arguments)
+        : undefined
+    trace.fence(call.arguments, "json")
+    if (callArgs === undefined) trace.error("arguments failed to parse")
+
+    let todos: { tool: ToolCallback; args: any }[]
+    if (call.name === "multi_tool_use.parallel") {
+        // special undocumented openai hallucination, argument contains multiple tool calls
+        // {
+        //  "id": "call_D48fudXi4oBxQ2rNeHhpwIKh",
+        //  "name": "multi_tool_use.parallel",
+        //  "arguments": "{\"tool_uses\":[{\"recipient_name\":\"functions.fs_find_files\",\"parameters\":{\"glob\":\"src/content/docs/**/*.md\"}},{\"recipient_name\":\"functions.fs_find_files\",\"parameters\":{\"glob\":\"src/content/docs/**/*.mdx\"}},{\"recipient_name\":\"functions.fs_find_files\",\"parameters\":{\"glob\":\"../packages/sample/src/*.genai.{js,mjs}\"}},{\"recipient_name\":\"functions.fs_find_files\",\"parameters\":{\"glob\":\"src/assets/*.txt\"}}]}"
+        // }
+        const toolUses = callArgs.tool_uses as {
+            recipient_name: string
+            parameters: any
+        }[]
+        todos = toolUses.map((tu) => {
+            const toolName = tu.recipient_name.replace(/^functions\./, "")
+            const tool = tools.find((f) => f.spec.name === toolName)
+            if (!tool) {
+                logVerbose(JSON.stringify(tu, null, 2))
+                throw new Error(
+                    `multi tool ${toolName} not found in ${tools.map((t) => t.spec.name).join(", ")}`
+                )
+            }
+            return { tool, args: tu.parameters }
+        })
+    } else {
+        let tool = tools.find((f) => f.spec.name === call.name)
+        if (!tool) {
+            logVerbose(JSON.stringify(call, null, 2))
+            logVerbose(
+                `tool ${call.name} not found in ${tools.map((t) => t.spec.name).join(", ")}`
+            )
+            trace.log(`tool ${call.name} not found`)
+            tool = {
+                spec: {
+                    name: call.name,
+                    description: "unknown tool",
+                },
+                impl: async () => "unknown tool",
+            }
+        }
+        todos = [{ tool, args: callArgs }]
+    }
+
+    const toolResult: string[] = []
+    for (const todo of todos) {
+        const { tool, args } = todo
+        const { maxTokens: maxToolContentTokens = MAX_TOOL_CONTENT_TOKENS } =
+            tool.options || {}
+        const context: ToolCallContext = {
+            log: (message: string) => {
+                logVerbose(message)
+                trace.log(message)
+            },
+            debug: (message: string) => {
+                logVerbose(message)
+                trace.log(message)
+            },
+            trace,
+        }
+
+        let output: ToolCallOutput
+        try {
+            output = await tool.impl({ context, ...args })
+        } catch (e) {
+            logWarn(`tool: ${tool.spec.name} error`)
+            logError(e)
+            trace.error(`tool: ${tool.spec.name} error`, e)
+            output = errorMessage(e)
+        }
+        if (output === undefined || output === null)
+            throw new Error(`error: tool ${tool.spec.name} raised an error`)
+        let toolContent: string = undefined
+        let toolEdits: Edits[] = undefined
+        if (typeof output === "string") toolContent = output
+        else if (typeof output === "number" || typeof output === "boolean")
+            toolContent = String(output)
+        else if (
+            typeof output === "object" &&
+            (output as ShellOutput).exitCode !== undefined
+        ) {
+            toolContent = renderShellOutput(output as ShellOutput)
+        } else if (
+            typeof output === "object" &&
+            (output as WorkspaceFile).filename &&
+            (output as WorkspaceFile).content
+        ) {
+            const { filename, content } = output as WorkspaceFile
+            toolContent = `FILENAME: ${filename}
+${fenceMD(content, " ")}
+`
+        } else if (
+            typeof output === "object" &&
+            (output as RunPromptResult).text
+        ) {
+            const { text } = output as RunPromptResult
+            toolContent = text
+        } else {
+            toolContent = YAMLStringify(output)
+        }
+
+        if (typeof output === "object")
+            toolEdits = (output as ToolCallContent)?.edits
+
+        if (toolEdits?.length) {
+            trace.fence(toolEdits)
+            edits.push(
+                ...toolEdits.map((e) => {
+                    const { filename, ...rest } = e
+                    const n = e.filename
+                    const fn = /^[^\/]/.test(n)
+                        ? host.resolvePath(projFolder, n)
+                        : n
+                    return { filename: fn, ...rest }
+                })
+            )
+        }
+
+        const toolContentTokens = estimateTokens(toolContent, encoder)
+        if (toolContentTokens > maxToolContentTokens) {
+            logWarn(
+                `tool: ${tool.spec.name} response too long (${toolContentTokens} tokens), truncating ${maxToolContentTokens} tokens`
+            )
+            toolContent = truncateTextToTokens(
+                toolContent,
+                maxToolContentTokens,
+                encoder
+            )
+        }
+        trace.fence(toolContent, "markdown")
+        toolResult.push(toolContent)
+    }
+    messages.push({
+        role: "tool",
+        content: toolResult.join("\n\n"),
+        tool_call_id: call.id,
+    })
 }
 
 async function applyRepairs(
@@ -235,13 +355,13 @@ async function applyRepairs(
     const content = renderMessageContent(lastMessage)
     const fences = extractFenced(content)
     validateFencesWithSchema(fences, schemas, { trace })
-    const invalids = fences.filter((f) => f?.validation?.valid === false)
+    const invalids = fences.filter((f) => f?.validation?.schemaError)
 
     if (responseSchema) {
-        const value = JSON5TryParse(content)
+        const value = JSONLLMTryParse(content)
         const schema = promptParametersSchemaToJSONSchema(responseSchema)
         const res = validateJSONWithSchema(value, schema, { trace })
-        if (!res.valid)
+        if (res.schemaError)
             invalids.push({
                 label: "",
                 content,
@@ -265,7 +385,7 @@ async function applyRepairs(
             (f) =>
                 `data: ${f.label || ""}
 schema: ${f.args?.schema || ""},
-error: ${f.validation.error}`
+error: ${f.validation.schemaError}`
         )
         .join("\n\n")
     const repairMsg = dedent`DATA_FORMAT_ISSUES:
@@ -289,29 +409,40 @@ Repair the DATA_FORMAT_ISSUES. THIS IS IMPORTANT.`
     return true
 }
 
-function assistantText(messages: ChatCompletionMessageParam[]) {
+function assistantText(
+    messages: ChatCompletionMessageParam[],
+    responseType?: PromptTemplateResponseType
+) {
     let text = ""
     for (let i = messages.length - 1; i >= 0; i--) {
         const msg = messages[i]
         if (msg.role !== "assistant") break
         text = msg.content + text
     }
+
+    if (responseType === undefined) {
+        text = unfence(text, "(markdown|md)")
+    }
+
     return text
 }
 
-function structurifyChatSession(
+async function structurifyChatSession(
     messages: ChatCompletionMessageParam[],
     schemas: Record<string, JSONSchema>,
     genVars: Record<string, string>,
+    fileOutputs: FileOutput[],
+    outputProcessors: PromptOutputProcessorHandler[],
+    fileMerges: FileMergeHandler[],
     options: GenerationOptions,
     others?: {
         resp?: ChatCompletionResponse
         err?: any
     }
-): RunPromptResult {
+): Promise<RunPromptResult> {
     const { trace, responseType, responseSchema } = options
     const { resp, err } = others || {}
-    const text = assistantText(messages)
+    const text = assistantText(messages, responseType)
     const annotations = parseAnnotations(text)
     const finishReason = isCancelError(err)
         ? "cancel"
@@ -335,10 +466,10 @@ function structurifyChatSession(
                 const res = validateJSONWithSchema(json, schema, {
                     trace,
                 })
-                if (!res.valid) {
+                if (res.schemaError) {
                     trace.fence(schema, "json")
                     trace?.warn(
-                        `response schema validation failed, ${errorMessage(res.error)}`
+                        `response schema validation failed, ${errorMessage(res.schemaError)}`
                     )
                 }
             }
@@ -347,8 +478,8 @@ function structurifyChatSession(
         }
     } else {
         json = isJSONObjectOrArray(text)
-            ? JSON5TryParse(text, undefined)
-            : (undefined ?? findFirstDataFence(fences))
+            ? JSONLLMTryParse(text)
+            : findFirstDataFence(fences)
     }
     const frames: DataFrame[] = []
 
@@ -356,7 +487,8 @@ function structurifyChatSession(
     if (fences?.length)
         frames.push(...validateFencesWithSchema(fences, schemas, { trace }))
 
-    return {
+    const res: RunPromptResult = {
+        messages,
         text,
         annotations,
         finishReason,
@@ -366,16 +498,29 @@ function structurifyChatSession(
         error,
         genVars,
         schemas,
+        model: resp?.model,
     }
+    await computeFileEdits(res, {
+        trace,
+        schemas,
+        fileOutputs,
+        fileMerges,
+        outputProcessors,
+    })
+    return res
 }
 
 async function processChatMessage(
+    req: CreateChatCompletionRequest,
     resp: ChatCompletionResponse,
     messages: ChatCompletionMessageParam[],
-    functions: ToolCallback[],
+    tools: ToolCallback[],
     chatParticipants: ChatParticipant[],
     schemas: Record<string, JSONSchema>,
     genVars: Record<string, string>,
+    fileOutputs: FileOutput[],
+    outputProcessors: PromptOutputProcessorHandler[],
+    fileMerges: FileMergeHandler[],
     options: GenerationOptions
 ): Promise<RunPromptResult> {
     const {
@@ -385,6 +530,8 @@ async function processChatMessage(
         cancellationToken,
     } = options
 
+    stats.addUsage(req, resp)
+
     if (resp.text)
         messages.push({
             role: "assistant",
@@ -393,7 +540,7 @@ async function processChatMessage(
 
     // execute tools as needed
     if (resp.toolCalls?.length) {
-        await runToolCalls(resp, messages, functions, options)
+        await runToolCalls(resp, messages, tools, options)
         stats.toolCalls += resp.toolCalls.length
         if (stats.toolCalls > maxToolCalls)
             throw new Error(
@@ -420,16 +567,26 @@ async function processChatMessage(
                 const node = ctx.node
                 checkCancelled(cancellationToken)
                 // expand template
-                const { errors, prompt } = await renderPromptNode(
-                    options.model,
-                    node,
-                    {
+                const { errors, messages: participantMessages } =
+                    await renderPromptNode(options.model, node, {
+                        flexTokens: options.flexTokens,
                         trace,
-                    }
-                )
-                if (prompt?.trim().length) {
-                    trace.detailsFenced(`💬 message`, prompt, "markdown")
-                    messages.push({ role: "user", content: prompt })
+                    })
+                if (participantMessages?.length) {
+                    if (
+                        participantMessages.some(
+                            ({ role }) => role === "system"
+                        )
+                    )
+                        throw new Error(
+                            "system messages not supported for chat participants"
+                        )
+                    renderMessagesToMarkdown(participantMessages)
+                    trace.details(
+                        `💬 messages (${participantMessages.length})`,
+                        renderMessagesToMarkdown(participantMessages)
+                    )
+                    messages.push(...participantMessages)
                     needsNewTurn = true
                 } else trace.item("no message")
                 if (errors?.length) {
@@ -448,22 +605,35 @@ async function processChatMessage(
         if (needsNewTurn) return undefined
     }
 
-    return structurifyChatSession(messages, schemas, genVars, options, {
-        resp,
-    })
+    return structurifyChatSession(
+        messages,
+        schemas,
+        genVars,
+        fileOutputs,
+        outputProcessors,
+        fileMerges,
+        options,
+        {
+            resp,
+        }
+    )
 }
 
 export function mergeGenerationOptions(
     options: GenerationOptions,
     runOptions: ModelOptions & EmbeddingsModelOptions
 ): GenerationOptions {
-    return {
+    const res = {
         ...options,
         ...(runOptions || {}),
         model:
             runOptions?.model ??
             options?.model ??
             host.defaultModelOptions.model,
+        smallModel:
+            runOptions?.smallModel ??
+            options?.smallModel ??
+            host.defaultModelOptions.smallModel,
         temperature:
             runOptions?.temperature ?? host.defaultModelOptions.temperature,
         embeddingsModel:
@@ -471,15 +641,18 @@ export function mergeGenerationOptions(
             options?.embeddingsModel ??
             host.defaultEmbeddingsModelOptions.embeddingsModel,
     }
+    return res
 }
 
 export async function executeChatSession(
     connectionToken: LanguageModelConfiguration,
     cancellationToken: CancellationToken,
     messages: ChatCompletionMessageParam[],
-    vars: Partial<ExpansionVariables>,
     toolDefinitions: ToolCallback[],
     schemas: Record<string, JSONSchema>,
+    fileOutputs: FileOutput[],
+    outputProcessors: PromptOutputProcessorHandler[],
+    fileMerges: FileMergeHandler[],
     completer: ChatCompletionHandler,
     chatParticipants: ChatParticipant[],
     genOptions: GenerationOptions
@@ -493,62 +666,74 @@ export async function executeChatSession(
         seed,
         responseType,
         responseSchema,
-        stats,
         infoCb,
+        stats,
     } = genOptions
-
     traceLanguageModelConnection(trace, genOptions, connectionToken)
     const tools: ChatCompletionTool[] = toolDefinitions?.length
-        ? toolDefinitions.map((f) => ({
-              type: "function",
-              function: f.definition as any,
-          }))
+        ? toolDefinitions.map(
+              (f) =>
+                  <ChatCompletionTool>{
+                      type: "function",
+                      function: {
+                          name: f.spec.name,
+                          description: f.spec.description,
+                          parameters: f.spec.parameters as any,
+                      },
+                  }
+          )
         : undefined
     trace.startDetails(`🧠 llm chat`)
+    if (toolDefinitions?.length) trace.detailsFenced(`🛠️ tools`, tools, "yaml")
     try {
         let genVars: Record<string, string>
         while (true) {
             stats.turns++
-            infoCb?.({
-                text: `prompting ${model} (~${estimateChatTokens(model, messages)} tokens)`,
-            })
-            trace.details(
-                `💬 messages (${messages.length})`,
-                renderMessagesToMarkdown(messages)
-            )
+            const tokens = estimateChatTokens(model, messages)
+            logVerbose(`prompting ${model} (~${tokens ?? "?"} tokens)\n`)
+            if (messages)
+                trace.details(
+                    `💬 messages (${messages.length})`,
+                    renderMessagesToMarkdown(messages)
+                )
 
             // make request
             let resp: ChatCompletionResponse
             try {
                 checkCancelled(cancellationToken)
+                const req: CreateChatCompletionRequest = {
+                    model,
+                    temperature: temperature,
+                    top_p: topP,
+                    max_tokens: maxTokens,
+                    seed,
+                    stream: true,
+                    messages,
+                    tools,
+                    response_format:
+                        responseType === "json_object"
+                            ? { type: responseType }
+                            : responseType === "json_schema"
+                              ? {
+                                    type: "json_schema",
+                                    json_schema: {
+                                        name: "result",
+                                        schema: toStrictJSONSchema(
+                                            responseSchema
+                                        ),
+                                        strict: true,
+                                    },
+                                }
+                              : undefined,
+                }
+                if (/^o1/i.test(model)) {
+                    req.max_completion_tokens = maxTokens
+                    delete req.max_tokens
+                }
                 try {
                     trace.startDetails(`📤 llm request`)
                     resp = await completer(
-                        {
-                            model,
-                            temperature: temperature,
-                            top_p: topP,
-                            max_tokens: maxTokens,
-                            seed,
-                            stream: true,
-                            messages,
-                            tools,
-                            response_format:
-                                responseType === "json_object"
-                                    ? { type: responseType }
-                                    : responseType === "json_schema"
-                                      ? {
-                                            type: "json_schema",
-                                            json_schema: {
-                                                name: "result",
-                                                schema: toStrictJSONSchema(
-                                                    responseSchema
-                                                ),
-                                                strict: true,
-                                            },
-                                        }
-                                      : undefined,
-                        },
+                        req,
                         connectionToken,
                         genOptions,
                         trace
@@ -556,16 +741,21 @@ export async function executeChatSession(
                     if (resp.variables)
                         genVars = { ...(genVars || {}), ...resp.variables }
                 } finally {
+                    logVerbose("")
                     trace.endDetails()
                 }
 
                 const output = await processChatMessage(
+                    req,
                     resp,
                     messages,
                     toolDefinitions,
                     chatParticipants,
                     schemas,
                     genVars,
+                    fileOutputs,
+                    outputProcessors,
+                    fileMerges,
                     genOptions
                 )
                 if (output) return output
@@ -574,18 +764,79 @@ export async function executeChatSession(
                     messages,
                     schemas,
                     genVars,
+                    fileOutputs,
+                    outputProcessors,
+                    fileMerges,
                     genOptions,
                     { resp, err }
                 )
             }
         }
     } finally {
+        stats.trace(trace)
         trace.endDetails()
     }
 }
 
 export function tracePromptResult(trace: MarkdownTrace, resp: RunPromptResult) {
     const { json, text } = resp
-    trace.detailsFenced(`🔠 output`, text, `markdown`)
-    if (resp.json) trace.detailsFenced("📩 JSON (parsed)", json, "json")
+
+    // try to sniff the output type
+    const language = JSON5TryParse(text)
+        ? "json"
+        : XMLTryParse(text)
+          ? "xml"
+          : /^(-|\*|#+|```)\s/im.test(text)
+            ? "markdown"
+            : "text"
+    trace.detailsFenced(`🔠 output`, text, language)
+    if (language === "markdown")
+        trace.appendContent(
+            "\n\n" + HTMLEscape(prettifyMarkdown(text)) + "\n\n"
+        )
+}
+
+export function appendUserMessage(
+    messages: ChatCompletionMessageParam[],
+    content: string
+) {
+    if (!content) return
+    const last = messages.at(-1) as ChatCompletionUserMessageParam
+    if (last?.role === "user") last.content += content + "\n"
+    else
+        messages.push({
+            role: "user",
+            content,
+        } as ChatCompletionUserMessageParam)
+}
+
+export function appendAssistantMessage(
+    messages: ChatCompletionMessageParam[],
+    content: string
+) {
+    if (!content) return
+    const last = messages.at(-1) as ChatCompletionAssistantMessageParam
+    if (last?.role === "assistant") last.content += content
+    else
+        messages.push({
+            role: "assistant",
+            content,
+        } satisfies ChatCompletionAssistantMessageParam)
+}
+
+export function appendSystemMessage(
+    messages: ChatCompletionMessageParam[],
+    content: string
+) {
+    if (!content) return
+    let last = messages[0] as ChatCompletionSystemMessageParam
+    if (last?.role !== "system") {
+        last = {
+            role: "system",
+            content: "",
+        } as ChatCompletionSystemMessageParam
+        messages.unshift(last)
+    }
+    if (last.content) last.content += SYSTEM_FENCE
+    last.content += content
 }

@@ -1,14 +1,13 @@
 ---
 title: Tool Agent
 sidebar:
-  order: 7
+    order: 7
 description: Learn how to define a built-in agent using functions for
-  decision-making and reasoning in arithmetic operations.
+    decision-making and reasoning in arithmetic operations.
 keywords: tool agent, arithmetic agent, function declaration, script parameters,
-  system.math
+    system.math
 genaiscript:
-  model: openai:gpt-3.5-turbo
-
+    model: openai:gpt-3.5-turbo
 ---
 
 import { Code } from "@astrojs/starlight/components"
@@ -51,15 +50,10 @@ defTool(
 )
 ```
 
-You can also simplify the parameter definition by provider an example object and the schema will be inferred._createMdxContent
+You can also simplify the parameter definition by provider an example object and the schema will be inferred.\_createMdxContent
 
 ```js "{ a: 1, b: 2 }"
-defTool(
-    "sum",
-    "Sum two numbers",
-    { a: 1, b: 2 },
-    ({ a, b }) => `${a + b}`
-)
+defTool("sum", "Sum two numbers", { a: 1, b: 2 }, ({ a, b }) => `${a + b}`)
 ```
 
 ## Parameters
@@ -94,49 +88,59 @@ and inline an arithmetic question.
 ```js wrap
 script({
     title: "math-agent",
-    model: "openai:gpt-35-turbo",
+    model: "small",
     description: "A port of https://ts.llamaindex.ai/examples/agent",
     parameters: {
-        "question": {
+        question: {
             type: "string",
-            default: "How much is 11 + 4? then divide by 3?"
+            default: "How much is 11 + 4? then divide by 3?",
         },
     },
     tests: {
         description: "Testing the default prompt",
-        keywords: "5"
-    }
+        keywords: "5",
+    },
 })
 
-defTool("sum", "Use this function to sum two numbers", {
-    type: "object",
-    properties: {
-        a: {
-            type: "number",
-            description: "The first number",
+defTool(
+    "sum",
+    "Use this function to sum two numbers",
+    {
+        type: "object",
+        properties: {
+            a: {
+                type: "number",
+                description: "The first number",
+            },
+            b: {
+                type: "number",
+                description: "The second number",
+            },
         },
-        b: {
-            type: "number",
-            description: "The second number",
-        },
+        required: ["a", "b"],
     },
-    required: ["a", "b"],
-}, ({ a, b }) => `${a + b}`)
+    ({ a, b }) => `${a + b}`
+)
 
-defTool("divide", "Use this function to divide two numbers", {
-    type: "object",
-    properties: {
-        a: {
-            type: "number",
-            description: "The first number",
+defTool(
+    "divide",
+    "Use this function to divide two numbers",
+    {
+        type: "object",
+        properties: {
+            a: {
+                type: "number",
+                description: "The first number",
+            },
+            b: {
+                type: "number",
+                description: "The second number",
+            },
         },
-        b: {
-            type: "number",
-            description: "The second number",
-        },
+        required: ["a", "b"],
     },
-    required: ["a", "b"],
-}, ({ a, b }) => `${a / b}`)
+    ({ a, b }) => `${a / b}`
+)
 
 $`Answer the following arithmetic question: 
 
@@ -149,51 +153,40 @@ $`Answer the following arithmetic question:
 <details>
 <summary>👤 user</summary>
 
-
 ```markdown wrap
-Answer the following arithmetic question: 
+Answer the following arithmetic question:
 
 How much is 11 + 4? then divide by 3?
 ```
 
-
 </details>
-
 
 <details open>
 <summary>🤖 assistant </summary>
 
--  📠 tool call `divide({"a":15,"b":3})` (`call_9p0oWdWpT6vGyxzwq2vJXHrq`)
+-   📠 tool call `divide({"a":15,"b":3})` (`call_9p0oWdWpT6vGyxzwq2vJXHrq`)
 
 </details>
 
-
 <details>
 <summary>🛠️ tool <code>call_9p0oWdWpT6vGyxzwq2vJXHrq</code></summary>
-
 
 ```json wrap
 5
 ```
 
-
 </details>
-
 
 <details open>
 <summary>🤖 assistant </summary>
-
 
 ```markdown wrap
 The result of (11 + 4) divided by 3 is 5.
 ```
 
-
 </details>
 
 {/* genaiscript output end */}
-
-
 
 ## Using `system.math`
 

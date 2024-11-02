@@ -4,7 +4,7 @@ import { ExtensionState } from "./state"
 import { activateStatusBar } from "./statusbar"
 import { activateFragmentCommands } from "./fragmentcommands"
 import { activateMarkdownTextDocumentContentProvider } from "./markdowndocumentprovider"
-import { activatePrompTreeDataProvider } from "./prompttree"
+import { activatePromptTreeDataProvider } from "./prompttree"
 import { activatePromptCommands, commandButtons } from "./promptcommands"
 import { activateLLMRequestTreeDataProvider } from "./llmrequesttree"
 import { activateAIRequestTreeDataProvider } from "./airequesttree"
@@ -12,23 +12,46 @@ import { activateTestController } from "./testcontroller"
 import { activateDocsNotebook } from "./docsnotebook"
 import { activateTraceTreeDataProvider } from "./tracetree"
 import { registerCommand } from "./commands"
-import { EXTENSION_ID, TOOL_NAME } from "../../core/src/constants"
+import {
+    DOCS_CONFIGURATION_URL,
+    EXTENSION_ID,
+    TOOL_NAME,
+} from "../../core/src/constants"
 import type MarkdownIt from "markdown-it"
 import MarkdownItGitHubAlerts from "markdown-it-github-alerts"
+import { activateConnectionInfoTree } from "./connectioninfotree"
+import { updateConnectionConfiguration } from "../../core/src/connection"
+import { OpenAIAPIType } from "../../core/src/host"
+import { activeTaskProvider } from "./taskprovider"
+import { activateSamplesCommands } from "./samplescommands"
+import { activateChatParticipant } from "./chatparticipant"
 
 export async function activate(context: ExtensionContext) {
     const state = new ExtensionState(context)
     activatePromptCommands(state)
     activateFragmentCommands(state)
+    activateSamplesCommands(state)
     activateMarkdownTextDocumentContentProvider(state)
-    activatePrompTreeDataProvider(state)
+    activatePromptTreeDataProvider(state)
+    activateConnectionInfoTree(state)
     activateAIRequestTreeDataProvider(state)
     activateLLMRequestTreeDataProvider(state)
     activateTraceTreeDataProvider(state)
     activateStatusBar(state)
     activateDocsNotebook(state)
+    activeTaskProvider(state)
+    activateChatParticipant(state)
 
     context.subscriptions.push(
+        registerCommand(
+            "genaiscript.connection.configure",
+            async (provider?: string, apiType?: OpenAIAPIType) => {
+                await updateConnectionConfiguration(provider, apiType)
+                await vscode.env.openExternal(
+                    vscode.Uri.parse(DOCS_CONFIGURATION_URL)
+                )
+            }
+        ),
         registerCommand("genaiscript.request.abort", async () => {
             await state.cancelAiRequest()
             await vscode.window.showInformationMessage(

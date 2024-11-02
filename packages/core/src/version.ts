@@ -4,6 +4,7 @@ import packageJson from "../package.json"
  * The current version of the core package.
  */
 export const CORE_VERSION = packageJson.version
+export const VSCODE_CLI_VERSION = CORE_VERSION
 
 /**
  * GitHub repository URL.

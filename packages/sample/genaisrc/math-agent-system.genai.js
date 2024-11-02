@@ -1,6 +1,6 @@
 script({
     title: "math-agent-system",
-    model: "openai:gpt-3.5-turbo",
+    model: "small",
     description: "A port of https://ts.llamaindex.ai/examples/agent",
     system: ["system.math"],
     parameters: {

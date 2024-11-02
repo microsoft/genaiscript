@@ -21,10 +21,10 @@ keywords: AI, script generation, performance, best practices, limitations
     The specific installation steps are documented here: [Installation](/genaiscript/getting-started/installation)
 
 -   **Do I need to install Node.JS?**
-    Some features like the Command Line or vector databases use Node.JS. To install it, follow the [installation instructions](/genaiscript/reference/cli/).
+    Yes. To install it, follow the [installation instructions](/genaiscript/reference/cli/).
 
 -   **Can I use GenAIScript in IDEs other than VS Code?**
-    Currently, GenAIScript is integrated with VS Code, but it can be written in any IDE. The VS Code extension, however, provides additional support for creating and debugging scripts.
+    Currently, GenAIScript is integrated with VS Code, but it can be written in any IDE. The VS Code extension, however, provides additional support for creating and debugging scripts. Although not thoroughly tested, you can use GenAIScript in VS Code variants like Cursor.
 
 -   **What are foundation models and LLMs in the context of GenAIScript?**
     Foundation models and LLMs (Large Language Models) are AI models that GenAIScript can interact with to perform tasks like generating text or processing information.
@@ -82,6 +82,12 @@ keywords: AI, script generation, performance, best practices, limitations
 
 -   **What foundation models and LLMs are recommended for use with GenAIScript?**
     Services like Azure Open AI with updated safety and Responsible AI features are recommended. GenAIScript can also be used with existing open-source LLMs.
+
+-   **Do you provide system prompts to guard against common problems like harmful content or jailbreaking?**
+    Yes, GenAIScript includes system prompts to guard against harmful content and jailbreaking. For more information, see the [Content Safety](/genaiscript/reference/scripts/content-safety) documentation.
+
+-   **Do you support Azure Content Services?**
+    Yes, GenAIScript provides APIs to interact with Azure Content Safety services. For more information, see the [Content Safety](/genaiscript/reference/scripts/content-safety) documentation.
 
 ### Community and Support
 

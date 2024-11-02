@@ -1,11 +1,16 @@
 script({
-    model: "openai:gpt-3.5-turbo",
     tests: {},
 })
 
 console.log("log")
 console.warn(`warn`)
 console.error(`error`)
+
+try {
+    throw new Error(`error`)
+} catch(e) {
+    console.error(e)
+}
 
 await runPrompt(
     (_) => {
@@ -14,7 +19,7 @@ await runPrompt(
         _.console.error("prompt.error")
         _.$`write a movie title`
     },
-    { label: "inner prompt" }
+    { label: "inner prompt", model: "small" }
 )
 
 console.log(`after run prompt`)
