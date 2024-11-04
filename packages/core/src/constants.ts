@@ -18,6 +18,7 @@ export const AZURE_AI_INFERENCE_TOKEN_SCOPES = Object.freeze([
 ])
 export const AZURE_TOKEN_EXPIRATION = 59 * 60_000 // 59 minutes
 
+export const TOOL_URL = "https://microsoft.github.io/genaiscript"
 export const TOOL_ID = "genaiscript"
 export const GENAISCRIPT_FOLDER = "." + TOOL_ID
 export const CLI_JS = TOOL_ID + ".cjs"
@@ -155,6 +156,10 @@ export const MODEL_PROVIDER_CLIENT = "client"
 export const MODEL_PROVIDER_ANTHROPIC = "anthropic"
 
 export const TRACE_FILE_PREVIEW_MAX_LENGTH = 240
+
+export const OPENROUTER_API_CHAT_URL = "https://openrouter.ai/api/v1/chat/completions"
+export const OPENROUTER_SITE_URL_HEADER = "HTTP-Referer"
+export const OPENROUTER_SITE_NAME_HEADER = "X-Title"
 
 export const GITHUB_MODELS_BASE = "https://models.inference.ai.azure.com"
 
