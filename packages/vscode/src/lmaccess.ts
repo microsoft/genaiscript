@@ -35,7 +35,7 @@ async function generateLanguageModelConfiguration(
         provider === MODEL_PROVIDER_AZURE_OPENAI ||
         provider === MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI ||
         provider === MODEL_PROVIDER_AZURE_SERVERLESS_MODELS ||
-        provider === MODEL_PROVIDER_LITELLM
+        provider === MODEL_PROVIDER_LITELLM 
     ) {
         return { provider }
     }

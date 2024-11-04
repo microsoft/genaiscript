@@ -720,6 +720,66 @@ script({
 
 </Steps>
 
+## HuggingFace
+
+The `huggingface` provider allows you to use models from [Hugging Face Text Generation Inference](https://huggingface.co/docs/text-generation-inference/index).
+
+```js "huggingface:"
+script({ model: "huggingface:deepseek-ai/DeepSeek-Coder-V2-Instruct" })
+```
+
+To use Anthropic models with GenAIScript, follow these steps:
+
+<Steps>
+
+<ol>
+
+<li>
+
+Sign up for a [HuggingFace account](https://huggingface.co/) and obtain an API key from their [console](https://huggingface.co/settings/tokens).
+If you are creating a **Fined Grained** token, enable the **Make calls to the serverless inference API** option.
+
+</li>
+
+<li>
+
+Add your HuggingFace API key to the `.env` file:
+
+```txt title=".env"
+HUGGINGFACE_API_KEY=hf_...
+```
+
+</li>
+
+<li>
+
+Find the model that best suits your needs by visiting the [HuggingFace models](https://huggingface.co/models?other=text-generation-inference).
+
+</li>
+
+<li>
+
+Update your script to use the `model` you choose.
+
+```js
+script({
+    ...
+    model: "huggingface:microsoft/Phi-3-mini-4k-instruct",
+})
+```
+
+</li>
+
+</ol>
+
+</Steps>
+
+:::note
+
+Some model require a Pro account.
+
+:::
+
 ## LocalAI
 
 [LocalAI](https://localai.io/) act as a drop-in replacement REST API that’s compatible

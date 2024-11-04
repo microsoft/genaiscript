@@ -137,6 +137,7 @@ type ModelType = OptionsOrString<
     | "anthropic:claude-2.1"
     | "anthropic:claude-2.0"
     | "anthropic:claude-instant-1.2"
+    | "huggingface:microsoft/Phi-3-mini-4k-instruct"
 >
 
 type ModelSmallType = OptionsOrString<
