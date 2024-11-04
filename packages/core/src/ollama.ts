@@ -9,8 +9,56 @@ import { isRequestError } from "./error"
 import { createFetch } from "./fetch"
 import { parseModelIdentifier } from "./models"
 import { OpenAIChatCompletion } from "./openai"
-import { LanguageModelConfiguration, host } from "./host"
+import { LanguageModelConfiguration } from "./host"
 import { URL } from "url"
+import { Ollama, Message } from "ollama"
+import { ChatCompletionMessageParam } from "./chattypes"
+import { TraceOptions } from "./trace"
+
+async function messagesToOllamaMessages(
+    messages: ChatCompletionMessageParam[],
+    options?: TraceOptions
+): Promise<Message[]> {
+    const renderMessageContent = async (
+        msg: ChatCompletionMessageParam
+    ): Promise<Message> => {
+        const { role, content } = msg
+        // Return the content directly if it's a simple string.
+        if (typeof content === "string") return { role, content }
+        // If the content is an array, process each element based on its type.
+        else if (Array.isArray(content)) {
+            let images: string[] = []
+            let text = ""
+            for (const c of content) {
+                switch (c.type) {
+                    case "text":
+                        text += c.text
+                        break
+                    case "image_url": {
+                        const fetch = await createFetch(options)
+                        const imgRes = await fetch(c.image_url.url)
+                        const buf = Buffer.from(await imgRes.arrayBuffer())
+                        images.push(buf.toString("base64"))
+                        break
+                    }
+                    default:
+                        text += `unknown message type ${c.type}`
+                }
+            }
+            return {
+                role,
+                content: text,
+                images: images?.length ? images : undefined,
+            }
+        }
+        throw new Error("unknown message")
+    }
+    const res: Message[] = []
+    for (const msg of messages) {
+        res.push(await renderMessageContent(msg))
+    }
+    return res
+}
 
 /**
  * Handles chat completion requests using the Ollama model.
@@ -30,12 +78,36 @@ export const OllamaCompletion: ChatCompletionHandler = async (
     options,
     trace
 ) => {
+    const { model } = parseModelIdentifier(req.model)
+    const { tools, messages } = req
+    const stream: boolean = !tools?.length
     try {
-        // Attempt to complete the request using OpenAIChatCompletion
-        return await OpenAIChatCompletion(req, cfg, options, trace)
+        const ollamaMessages = await messagesToOllamaMessages(messages, {
+            trace,
+        })
+        const fetch = await createFetch({ trace })
+        const client = new Ollama({
+            host: cfg.base,
+            fetch,
+        })
+        if (stream) {
+            const response = await client.chat({
+                model,
+                messages: [{ role: "user", content: "Why is the sky blue?" }],
+                stream: true,
+            })
+            for await (const part of response) {
+            }
+        } else {
+            const response = await client.chat({
+                model,
+                messages: [{ role: "user", content: "Why is the sky blue?" }],
+                stream: false,
+                tools,
+            })
+        }
     } catch (e) {
         if (isRequestError(e)) {
-            const { model } = parseModelIdentifier(req.model)
             // If model is not found, try pulling it from the remote source
             if (
                 e.status === 404 &&

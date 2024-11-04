@@ -65,6 +65,7 @@
     "minisearch": "^7.1.0",
     "mustache": "^4.2.0",
     "object-inspect": "^1.13.2",
+    "ollama": "^0.5.9",
     "openai": "^4.70.0",
     "p-limit": "^6.1.0",
     "parse-diff": "^0.11.1",
