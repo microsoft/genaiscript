@@ -157,35 +157,6 @@ export class ExtensionState extends EventTarget {
         return res
     }
 
-    private async saveScripts() {
-        const dir = this.host.toUri(dotGenaiscriptPath("."))
-        await vscode.workspace.fs.createDirectory(dir)
-
-        await writeFile(
-            dir,
-            ".gitattributes",
-            `# avoid merge issues and ignore files in diffs
-*.json -diff merge=ours linguist-generated
-*.jsonl -diff merge=ours linguist-generated        
-*.js -diff merge=ours linguist-generated
-`
-        )
-        // add .gitignore
-        await writeFile(
-            dir,
-            ".gitignore",
-            `runs/
-cache/
-retrieval/
-containers/
-temp/
-tests/
-stats/
-*.csv
-`
-        )
-    }
-
     aiRequestCache() {
         return this._aiRequestCache
     }
@@ -414,7 +385,6 @@ stats/
 
     async activate() {
         await this.host.activate()
-        await this.saveScripts()
         await this.parseWorkspace()
         await this.fixPromptDefinitions()
 
