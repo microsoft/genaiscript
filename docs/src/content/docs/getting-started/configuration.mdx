@@ -798,7 +798,7 @@ GenAIScript will automatically pull the model, which may take some time dependin
 
 <li>
 
-If Ollama runs on a server or a different computer or on a different port, 
+If Ollama runs on a server or a different computer or on a different port,
 you have to configure the `OLLAMA_HOST` environment variable to connect to a remote Ollama server.
 
 ```txt title=".env"
@@ -860,6 +860,30 @@ OPENAI_API_BASE=http://localhost:...
 </ol>
 
 </Steps>
+
+## OpenRouter
+
+You can configure the OpenAI provider to use the [OpenRouter](https://openrouter.ai/docs/quick-start) service instead
+by setting the `OPENAI_API_BASE` to `https://openrouter.ai/api/v1`.
+You will also need an [api key](https://openrouter.ai/settings/keys).
+
+```txt title=".env"
+OPENAI_API_BASE=https://openrouter.ai/api/v1
+OPENAI_API_KEY=...
+```
+
+Then use the OpenRouter model name in your script:
+
+```js
+script({ model: "openai:openai/gpt-4o-mini" })
+```
+
+By default, GenAIScript will set the site url and name to `GenAIScript` but you can override these settigns with your own values:
+
+```txt title=".env"
+OPENROUTER_SITE_URL=... # populates HTTP-Referer header
+OPENROUTER_SITE_NAME=... # populate X-Title header
+```
 
 ## Model specific environment variables
 

@@ -4,7 +4,12 @@ import {
     AZURE_AI_INFERENCE_VERSION,
     AZURE_OPENAI_API_VERSION,
     MODEL_PROVIDER_OPENAI,
+    OPENROUTER_API_CHAT_URL,
+    OPENROUTER_SITE_NAME_HEADER,
+    OPENROUTER_SITE_URL_HEADER,
     TOOL_ID,
+    TOOL_NAME,
+    TOOL_URL,
 } from "./constants"
 import { estimateTokens } from "./tokens"
 import { ChatCompletionHandler, LanguageModel, LanguageModelInfo } from "./chat"
@@ -30,7 +35,7 @@ import { toSignal } from "./cancellation"
 import { INITryParse } from "./ini"
 
 export function getConfigHeaders(cfg: LanguageModelConfiguration) {
-    let { token, type } = cfg
+    let { token, type, base } = cfg
     if (type === "azure_serverless_models") {
         const keys = INITryParse(token)
         if (keys && Object.keys(keys).length > 1) token = keys[cfg.model]
@@ -43,7 +48,8 @@ export function getConfigHeaders(cfg: LanguageModelConfiguration) {
             : token &&
                 (type === "openai" ||
                     type === "localai" ||
-                    type === "azure_serverless_models")
+                    type === "azure_serverless_models" ||
+                    base === OPENROUTER_API_CHAT_URL)
               ? `Bearer ${token}`
               : undefined,
         // azure
@@ -146,6 +152,12 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
 
     if (cfg.type === "openai" || cfg.type === "localai") {
         url = trimTrailingSlash(cfg.base) + "/chat/completions"
+        if (url === OPENROUTER_API_CHAT_URL) {
+            ;(headers as any)[OPENROUTER_SITE_URL_HEADER] =
+                process.env.OPENROUTER_SITE_URL || TOOL_URL
+            ;(headers as any)[OPENROUTER_SITE_NAME_HEADER] =
+                process.env.OPENROUTE_SITE_NAME || TOOL_NAME
+        }
     } else if (cfg.type === "azure") {
         delete postReq.model
         url =
@@ -353,6 +365,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
             }
             if (cancellationToken?.isCancellationRequested)
                 finishReason = "cancel"
+            finishReason = finishReason || "stop" // some provider do not implement this final mesage
         } catch (e) {
             finishReason = "fail"
             error = serializeError(e)
