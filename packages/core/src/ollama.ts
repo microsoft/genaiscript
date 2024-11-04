@@ -1,11 +1,16 @@
 // Import necessary modules and types for handling chat completions and model management
 import { ChatCompletionHandler, LanguageModel, LanguageModelInfo } from "./chat"
-import { MODEL_PROVIDER_OLLAMA } from "./constants"
+import {
+    MODEL_PROVIDER_OLLAMA,
+    OLLAMA_API_BASE,
+    OLLAMA_DEFAUT_PORT,
+} from "./constants"
 import { isRequestError } from "./error"
 import { createFetch } from "./fetch"
 import { parseModelIdentifier } from "./models"
 import { OpenAIChatCompletion } from "./openai"
 import { LanguageModelConfiguration, host } from "./host"
+import { URL } from "url"
 
 /**
  * Handles chat completion requests using the Ollama model.
@@ -105,3 +110,17 @@ export const OllamaModel = Object.freeze<LanguageModel>({
     id: MODEL_PROVIDER_OLLAMA,
     listModels,
 })
+
+export function parseHostVariable(env: Record<string, string>) {
+    const s = (
+        env.OLLAMA_HOST ||
+        env.OLLAMA_API_BASE ||
+        OLLAMA_API_BASE
+    )?.trim()
+    const ipm =
+        /^(?<address>(localhost|\d+\.\d+\.\d+\.\d+))(:(?<port>\d+))?$/i.exec(s)
+    if (ipm)
+        return `http://${ipm.groups.address}:${ipm.groups.port || OLLAMA_DEFAUT_PORT}`
+    const url = new URL(s)
+    return url.href
+}

@@ -30,6 +30,7 @@ import {
     AzureCredentialsType,
 } from "./host"
 import { parseModelIdentifier } from "./models"
+import { parseHostVariable } from "./ollama"
 import { normalizeFloat, trimTrailingSlash } from "./util"
 
 export async function parseDefaultsFromEnv(env: Record<string, string>) {
@@ -276,6 +277,19 @@ export async function parseTokenFromEnv(
         }
     }
 
+    if (provider === MODEL_PROVIDER_OLLAMA) {
+        const host = parseHostVariable(env)
+        const base = cleanApiBase(host)
+        return {
+            provider,
+            model,
+            base,
+            token: "ollama",
+            type: "openai",
+            source: "env: OLLAMA_HOST",
+        }
+    }
+
     const prefixes = [
         tag ? `${provider}_${model}_${tag}` : undefined,
         provider ? `${provider}_${model}` : undefined,
@@ -304,17 +318,6 @@ export async function parseTokenFromEnv(
                 version,
                 source,
             }
-        }
-    }
-
-    if (provider === MODEL_PROVIDER_OLLAMA) {
-        return {
-            provider,
-            model,
-            base: OLLAMA_API_BASE,
-            token: "ollama",
-            type: "openai",
-            source: "default",
         }
     }
 
@@ -356,6 +359,13 @@ export async function parseTokenFromEnv(
         b =
             trimTrailingSlash(b.replace(/\/openai\/deployments.*$/, "")) +
             `/openai/deployments`
+        return b
+    }
+
+    function cleanApiBase(b: string) {
+        if (!b) return b
+        b = trimTrailingSlash(b)
+        if (!/\/v1$/.test(b)) b += "/v1"
         return b
     }
 }
