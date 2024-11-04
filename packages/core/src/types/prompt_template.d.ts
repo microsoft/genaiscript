@@ -3176,7 +3176,7 @@ interface PromptContext extends ChatGenerationContext {
     path: Path
     parsers: Parsers
     retrieval: Retrieval
-    contentSafety: ContentSafetyClient
+    contentSafety: ContentSafety
     /**
      * @deprecated Use `workspace` instead
      */
