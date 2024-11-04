@@ -218,6 +218,15 @@ export interface RuntimeHost extends Host {
      * @param message message to ask
      */
     confirm(message: string, options?: ShellConfirmOptions): Promise<boolean>
+
+    /**
+     * Instantiates a content safety client
+     * @param id
+     */
+    contentSafety(
+        id?: ContentSafetyProvider,
+        options?: TraceOptions
+    ): Promise<ContentSafety>
 }
 
 export let host: Host

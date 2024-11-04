@@ -380,11 +380,16 @@ interface PromptTest {
     asserts?: PromptAssertion | PromptAssertion[]
 }
 
+interface ContentSafetyOptions {
+    contentSafety?: ContentSafetyProvider
+}
+
 interface PromptScript
     extends PromptLike,
         ModelOptions,
         PromptSystemOptions,
         EmbeddingsModelOptions,
+        ContentSafetyOptions,
         ScriptRuntimeOptions {
     /**
      * Additional template parameters that will populate `env.vars`
@@ -843,11 +848,7 @@ interface RangeOptions {
     lineEnd?: number
 }
 
-interface DefOptions
-    extends FenceOptions,
-        ContextExpansionOptions,
-        DataFilter,
-        RangeOptions {
+interface FileFilterOptions {
     /**
      * Filename filter based on file suffix. Case insensitive.
      */
@@ -857,7 +858,23 @@ interface DefOptions
      * Filename filter using glob syntax.
      */
     glob?: ElementOrArray<string>
+}
 
+interface ContentSafetyOptions {
+    /**
+     * Runs the default content safety validator
+     * to prevent prompt injection.
+     */
+    detectPromptInjection?: boolean
+}
+
+interface DefOptions
+    extends FenceOptions,
+        ContextExpansionOptions,
+        DataFilter,
+        RangeOptions,
+        FileFilterOptions,
+        ContentSafetyOptions {
     /**
      * By default, throws an error if the value in def is empty.
      */
@@ -1988,18 +2005,19 @@ interface CSV {
 interface ContentSafety {
     /**
      * Scans text for the risk of a User input attack on a Large Language Model.
+     * If not supported, the method is not defined.
      */
-    detectPromptInjection(
+    detectPromptInjection?(
         content: Awaitable<
             ElementOrArray<string> | ElementOrArray<WorkspaceFile>
         >
     ): Promise<{ attackDetected: boolean; filename?: string; chunk?: string }>
-
     /**
      * Analyzes text for harmful content.
+     * If not supported, the method is not defined.
      * @param content
      */
-    detectHarmfulContent(
+    detectHarmfulContent?(
         content: Awaitable<
             ElementOrArray<string> | ElementOrArray<WorkspaceFile>
         >
@@ -2164,7 +2182,10 @@ interface WriteTextOptions extends ContextExpansionOptions {
 
 type PromptGenerator = (ctx: ChatGenerationContext) => Awaitable<unknown>
 
-interface PromptGeneratorOptions extends ModelOptions, PromptSystemOptions {
+interface PromptGeneratorOptions
+    extends ModelOptions,
+        PromptSystemOptions,
+        ContentSafetyOptions {
     /**
      * Label for trace
      */
@@ -3075,7 +3096,21 @@ interface LanguageModelHost {
     resolveLanguageModel(modelId?: string): Promise<LanguageModelReference>
 }
 
-interface PromptHost extends ShellHost, UserInterfaceHost, LanguageModelHost {
+type ContentSafetyProvider = "azure"
+
+interface ContentSafetyHost {
+    /**
+     * Resolve a content safety client
+     * @param id safety detection project
+     */
+    contentSafety(id?: ContentSafetyProvider): Promise<ContentSafety>
+}
+
+interface PromptHost
+    extends ShellHost,
+        UserInterfaceHost,
+        LanguageModelHost,
+        ContentSafetyHost {
     /**
      * Opens a in-memory key-value cache for the given cache name. Entries are dropped when the cache grows too large.
      * @param cacheName
@@ -3176,7 +3211,6 @@ interface PromptContext extends ChatGenerationContext {
     path: Path
     parsers: Parsers
     retrieval: Retrieval
-    contentSafety: ContentSafety
     /**
      * @deprecated Use `workspace` instead
      */

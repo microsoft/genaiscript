@@ -261,10 +261,10 @@ export async function createPromptContext(
         input: async (message) => await runtimeHost.input(message),
         confirm: async (message) => await runtimeHost.confirm(message),
         promiseQueue: (concurrency) => new PLimitPromiseQueue(concurrency),
-    })
-
-    const contentSafety = createAzureContentSafetyClient({
-        trace,
+        contentSafety: async (id) =>
+            await runtimeHost.contentSafety(id || options?.contentSafety, {
+                trace,
+            }),
     })
 
     // Freeze project options to prevent modification
@@ -279,7 +279,6 @@ export async function createPromptContext(
         workspace,
         parsers,
         retrieval,
-        contentSafety,
         host: promptHost,
     }
     env.generator = ctx

@@ -292,12 +292,14 @@ const { files } = await retrieval.vectorSearch("cats", "**/*.md")
 GenAIScript provides built-in Responsible AI system prompts and Azure Content Safety supports
 to validate [content safety](/genaiscript/reference/scripts/content-safety).
 
-```js
+```js wrap
 script({ ...,
     system: ["system.safety_harmful_content", ...],
+    contentSafety: "azure" // use azure content safety
 })
 
-const res = contentSafety.detectPromptInjection(env.vars.input)
+const safety = await host.contentSafety()
+const res = await safety.detectPromptInjection(env.vars.input)
 ```
 
 </Card>

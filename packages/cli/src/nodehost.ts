@@ -48,7 +48,11 @@ import { AbortSignalOptions, TraceOptions } from "../../core/src/trace"
 import { logError, logVerbose } from "../../core/src/util"
 import { parseModelIdentifier } from "../../core/src/models"
 import { LanguageModel } from "../../core/src/chat"
-import { errorMessage, serializeError } from "../../core/src/error"
+import {
+    errorMessage,
+    NotSupportedError,
+    serializeError,
+} from "../../core/src/error"
 import { BrowserManager } from "./playwright"
 import { shellConfirm, shellInput, shellSelect } from "./input"
 import { shellQuote } from "../../core/src/shell"
@@ -56,6 +60,7 @@ import { uniq } from "es-toolkit"
 import { PLimitPromiseQueue } from "../../core/src/concurrency"
 import { Project } from "../../core/src/ast"
 import { createAzureTokenResolver } from "./azuretoken"
+import { createAzureContentSafetyClient } from "../../core/src/azurecontentsafety"
 
 class NodeServerManager implements ServerManager {
     async start(): Promise<void> {
@@ -319,6 +324,17 @@ export class NodeHost implements RuntimeHost {
     }
     async deleteDirectory(name: string): Promise<void> {
         await remove(name)
+    }
+
+    async contentSafety(
+        id?: "azure",
+        options?: TraceOptions
+    ): Promise<ContentSafety> {
+        if (!id || id === "azure") {
+            const safety = createAzureContentSafetyClient(options)
+            return safety
+        }
+        throw new NotSupportedError(`content safety ${id} not supported`)
     }
 
     async browse(

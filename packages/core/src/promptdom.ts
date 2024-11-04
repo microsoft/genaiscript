@@ -30,6 +30,7 @@ import { interpolateVariables } from "./mustache"
 import { createDiff } from "./diff"
 import { promptyParse } from "./prompty"
 import { jinjaRenderChatMessage } from "./jinja"
+import { runtimeHost } from "./host"
 
 // Definition of the PromptNode interface which is an essential part of the code structure.
 export interface PromptNode extends ContextExpansionOptions {
@@ -911,6 +912,37 @@ async function tracePromptNode(
     })
 }
 
+async function validateSafetyPromptNode(
+    trace: MarkdownTrace,
+    root: PromptNode
+) {
+    let mod = false
+    await visitNode(root, {
+        def: async (n) => {
+            if (n.detectPromptInjection && n.resolved?.content) {
+                const safety = await runtimeHost.contentSafety(undefined, {
+                    trace,
+                })
+                const res = await safety.detectPromptInjection(n.resolved)
+                if (res.attackDetected) {
+                    mod = true
+                    n.resolved = {
+                        filename: n.resolved.filename,
+                        content:
+                            "...prompt injection detected, content removed...",
+                    }
+                    n.preview = `...prompt injection detected, content removed...`
+                    n.error = `safety: prompt injection detected`
+                    trace.error(
+                        `safety: prompt injection detected in ${n.resolved.filename}`
+                    )
+                }
+            }
+        },
+    })
+    return mod
+}
+
 // Main function to render a prompt node.
 export async function renderPromptNode(
     modelId: string,
@@ -935,6 +967,9 @@ export async function renderPromptNode(
 
     const truncated = await truncatePromptNode(model, node, options)
     if (truncated) await tracePromptNode(trace, node, { label: "truncated" })
+
+    const safety = await validateSafetyPromptNode(trace, node)
+    if (safety) await tracePromptNode(trace, node, { label: "safety" })
 
     const messages: ChatCompletionMessageParam[] = []
     const appendSystem = (content: string) =>
