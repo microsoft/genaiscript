@@ -817,6 +817,13 @@ script({
 })
 ```
 
+If Ollama runs on a server or a different computer, you have to configure the `OLLAMA_API_BASE` environment variable.
+
+```txt OLLAMA_API_BASE
+OLLAMA_API_BASE=http://<IP or domain>:<port>/v1
+```
+As GenAIScript uses OpenAI style api, you must use the `/v1` endpoints and not `/api`.
+
 ### Llamafile
 
 [https://llamafile.ai/](https://llamafile.ai/) is a single file desktop application
