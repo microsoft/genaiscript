@@ -5,6 +5,7 @@ import {
     AZURE_OPENAI_API_VERSION,
     MODEL_PROVIDER_OPENAI,
     OPENROUTER_API_CHAT_URL,
+    OPENROUTER_SITE_NAME_HEADER,
     OPENROUTER_SITE_URL_HEADER,
     TOOL_ID,
     TOOL_NAME,
@@ -154,7 +155,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
         if (url === OPENROUTER_API_CHAT_URL) {
             ;(headers as any)[OPENROUTER_SITE_URL_HEADER] =
                 process.env.OPENROUTER_SITE_URL || TOOL_URL
-            ;(headers as any)[OPENROUTER_SITE_URL_HEADER] =
+            ;(headers as any)[OPENROUTER_SITE_NAME_HEADER] =
                 process.env.OPENROUTE_SITE_NAME || TOOL_NAME
         }
     } else if (cfg.type === "azure") {
