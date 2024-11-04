@@ -239,7 +239,10 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
             })
         throw new RequestError(
             r.status,
-            message ?? error?.message ?? r.statusText,
+            message ??
+                (typeof error === "string" ? error : undefined) ??
+                error?.message ??
+                r.statusText,
             error,
             responseBody,
             normalizeInt(r.headers.get("retry-after"))
