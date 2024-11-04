@@ -87,6 +87,7 @@ export interface GenerationOptions
     extends ChatCompletionsOptions,
         ModelOptions,
         EmbeddingsModelOptions,
+        ContentSafetyOptions,
         ScriptRuntimeOptions {
     inner: boolean // Indicates if the process is an inner operation
     cancellationToken?: CancellationToken // Token to cancel the operation

@@ -380,11 +380,16 @@ interface PromptTest {
     asserts?: PromptAssertion | PromptAssertion[]
 }
 
+interface ContentSafetyOptions {
+    contentSafety?: "azure"
+}
+
 interface PromptScript
     extends PromptLike,
         ModelOptions,
         PromptSystemOptions,
         EmbeddingsModelOptions,
+        ContentSafetyOptions,
         ScriptRuntimeOptions {
     /**
      * Additional template parameters that will populate `env.vars`
@@ -2176,7 +2181,10 @@ interface WriteTextOptions extends ContextExpansionOptions {
 
 type PromptGenerator = (ctx: ChatGenerationContext) => Awaitable<unknown>
 
-interface PromptGeneratorOptions extends ModelOptions, PromptSystemOptions {
+interface PromptGeneratorOptions
+    extends ModelOptions,
+        PromptSystemOptions,
+        ContentSafetyOptions {
     /**
      * Label for trace
      */
@@ -3087,7 +3095,19 @@ interface LanguageModelHost {
     resolveLanguageModel(modelId?: string): Promise<LanguageModelReference>
 }
 
-interface PromptHost extends ShellHost, UserInterfaceHost, LanguageModelHost {
+interface ContentSafetyHost {
+    /**
+     * Resolve a content safety client
+     * @param id safety detection project
+     */
+    contentSafety(id?: "azure"): Promise<ContentSafety>
+}
+
+interface PromptHost
+    extends ShellHost,
+        UserInterfaceHost,
+        LanguageModelHost,
+        ContentSafetyHost {
     /**
      * Opens a in-memory key-value cache for the given cache name. Entries are dropped when the cache grows too large.
      * @param cacheName
@@ -3188,7 +3208,6 @@ interface PromptContext extends ChatGenerationContext {
     path: Path
     parsers: Parsers
     retrieval: Retrieval
-    contentSafety: ContentSafety
     /**
      * @deprecated Use `workspace` instead
      */
