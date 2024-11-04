@@ -187,8 +187,16 @@ def("FILE", env.files, { sliceSample: 100 })
 You can specify `ephemeral: true` to turn on some prompt caching optimization. In paricular, a `def` with `ephemeral` will be rendered at the back of the prompt
 to persist the [cache prefix](https://openai.com/index/api-prompt-caching/).
 
-```js
+```js "ephemeral: true"
 def("FILE", env.files, { ephemeral: true })
+```
+
+### Safety: Prompt Injection detection
+
+You can schedule a check for prompt injection/jai break with your configured [content safety](/genaiscript/reference/scripts/content-safety) provider.
+
+```js "detectPromptInjection: true"
+def("FILE", env.files, { detectPromptInjection: true })
 ```
 
 ## Data definition (`defData`)

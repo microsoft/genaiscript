@@ -122,6 +122,12 @@ console.log(resf)
 }
 ```
 
+The [def](/genaiscript/reference/scripts/context#def) also supports setting a `detectPromptInjection` flag to apply the detection to each file.
+
+```js
+def("FILE", env.files, { detectPromptInjection: true })
+```
+
 ### Detect Harmful content
 
 The `detectHarmfulContent` method uses the
