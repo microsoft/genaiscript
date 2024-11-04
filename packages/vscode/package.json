@@ -435,9 +435,9 @@
         "es-toolkit": "^1.26.1",
         "markdown-it-github-alerts": "^0.3.0",
         "process": "^0.11.10",
+        "svgtofont": "^5.0.2",
         "typescript": "5.6.3",
         "vscode-uri": "^3.0.8",
-        "webfont": "^11.2.26",
         "websocket-polyfill": "0.0.3",
         "zx": "^8.2.0"
     }
