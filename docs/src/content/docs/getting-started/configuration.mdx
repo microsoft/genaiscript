@@ -720,12 +720,7 @@ script({
 
 </Steps>
 
-## Local Models
-
-There are many projects that allow you to run models locally on your machine,
-or in a container.
-
-### LocalAI
+## LocalAI
 
 [LocalAI](https://localai.io/) act as a drop-in replacement REST API that’s compatible
 with OpenAI API specifications for local inferencing. It uses free Open Source models
@@ -758,7 +753,7 @@ OPENAI_API_TYPE=localai
 
 </Steps>
 
-### Ollama
+## Ollama
 
 [Ollama](https://ollama.ai/) is a desktop application that let you download and run model locally.
 
@@ -803,10 +798,12 @@ GenAIScript will automatically pull the model, which may take some time dependin
 
 <li>
 
-Optional configure the `OLLAMA_HOST` environment variable to connect to a remote Ollama server.
+If Ollama runs on a server or a different computer or on a different port, 
+you have to configure the `OLLAMA_HOST` environment variable to connect to a remote Ollama server.
 
 ```txt title=".env"
-OLLAMA_HOST=0.0.0.0
+OLLAMA_HOST=https://<IP or domain>:<port>/ # server url
+OLLAMA_HOST=0.0.0.0:12345 # different port
 ```
 
 </li>
@@ -833,21 +830,14 @@ script({
 })
 ```
 
-If Ollama runs on a server or a different computer, you have to configure the `OLLAMA_API_BASE` environment variable.
-
-```txt OLLAMA_API_BASE
-OLLAMA_API_BASE=http://<IP or domain>:<port>/v1
-```
-As GenAIScript uses OpenAI style api, you must use the `/v1` endpoints and not `/api`.
-
-### Llamafile
+## Llamafile
 
 [https://llamafile.ai/](https://llamafile.ai/) is a single file desktop application
 that allows you to run an LLM locally.
 
 The provider is `llamafile` and the model name is ignored.
 
-### Jan, LMStudio, LLaMA.cpp
+## Jan, LMStudio, LLaMA.cpp
 
 [Jan](https://jan.ai/), [LMStudio](https://lmstudio.ai/),
 [LLaMA.cpp](https://github.com/ggerganov/llama.cpp/tree/master/examples/server)
@@ -871,7 +861,7 @@ OPENAI_API_BASE=http://localhost:...
 
 </Steps>
 
-### Model specific environment variables
+## Model specific environment variables
 
 You can provide different environment variables
 for each named model by using the `PROVIDER_MODEL_API_...` prefix or `PROVIDER_API_...` prefix.
