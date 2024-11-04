@@ -720,15 +720,15 @@ script({
 
 </Steps>
 
-## HuggingFace
+## HuggingFace <a href="" id="huggingface" />
 
-The `huggingface` provider allows you to use models from [Hugging Face Text Generation Inference](https://huggingface.co/docs/text-generation-inference/index).
+The `huggingface` provider allows you to use [Hugging Face Models](https://huggingface.co/models?other=text-generation-inference) using [Text Generation Inference](https://huggingface.co/docs/text-generation-inference/index).
 
 ```js "huggingface:"
-script({ model: "huggingface:deepseek-ai/DeepSeek-Coder-V2-Instruct" })
+script({ model: "huggingface:microsoft/Phi-3-mini-4k-instruct" })
 ```
 
-To use Anthropic models with GenAIScript, follow these steps:
+To use Hugging Face models with GenAIScript, follow these steps:
 
 <Steps>
 
@@ -776,7 +776,7 @@ script({
 
 :::note
 
-Some model require a Pro account.
+Some models may require a Pro account.
 
 :::
 
