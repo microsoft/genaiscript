@@ -124,6 +124,7 @@ export const PROMPT_FENCE = "```"
 export const MARKDOWN_PROMPT_FENCE = "`````"
 
 export const OPENAI_API_BASE = "https://api.openai.com/v1"
+export const OLLAMA_DEFAUT_PORT = 11434
 export const OLLAMA_API_BASE = "http://localhost:11434/v1"
 export const LLAMAFILE_API_BASE = "http://localhost:8080/v1"
 export const LOCALAI_API_BASE = "http://localhost:8080/v1"

@@ -32,5 +32,6 @@ jobs:
               run: docker run -d -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama
             - name: run summarize-ollama-phi3
               run: yarn test:summarize --model ollama:phi3.5 --out ./temp/summarize-ollama-phi3
-#            - name: run vector-search
-#              run: yarn run:script vector-search --model ollama:phi3 --out ./temp/rag
+              env:
+                  OLLAMA_HOST: "http://localhost:11434"                  
+
