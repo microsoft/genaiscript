@@ -4,7 +4,7 @@ import { ExtensionContext } from "vscode"
 import { VSCodeHost } from "./vshost"
 import { applyEdits, toRange } from "./edit"
 import { Utils } from "vscode-uri"
-import { findFiles, listFiles, saveAllTextDocuments, writeFile } from "./fs"
+import { findFiles, listFiles, saveAllTextDocuments } from "./fs"
 import { startLocalAI } from "./localai"
 import { hasOutputOrTraceOpened } from "./markdowndocumentprovider"
 import { pickLanguageModel } from "./lmaccess"
@@ -25,7 +25,7 @@ import { isCancelError } from "../../core/src/error"
 import { resolveModelConnectionInfo } from "../../core/src/models"
 import { parseProject } from "../../core/src/parser"
 import { MarkdownTrace } from "../../core/src/trace"
-import { dotGenaiscriptPath, logInfo, groupBy } from "../../core/src/util"
+import { logInfo, groupBy } from "../../core/src/util"
 import { CORE_VERSION } from "../../core/src/version"
 import { Fragment, GenerationResult } from "../../core/src/generation"
 import { parametersToVars } from "../../core/src/parameters"
@@ -155,35 +155,6 @@ export class ExtensionState extends EventTarget {
                 string
             >) || {}
         return res
-    }
-
-    private async saveScripts() {
-        const dir = this.host.toUri(dotGenaiscriptPath("."))
-        await vscode.workspace.fs.createDirectory(dir)
-
-        await writeFile(
-            dir,
-            ".gitattributes",
-            `# avoid merge issues and ignore files in diffs
-*.json -diff merge=ours linguist-generated
-*.jsonl -diff merge=ours linguist-generated        
-*.js -diff merge=ours linguist-generated
-`
-        )
-        // add .gitignore
-        await writeFile(
-            dir,
-            ".gitignore",
-            `runs/
-cache/
-retrieval/
-containers/
-temp/
-tests/
-stats/
-*.csv
-`
-        )
     }
 
     aiRequestCache() {
@@ -414,7 +385,6 @@ stats/
 
     async activate() {
         await this.host.activate()
-        await this.saveScripts()
         await this.parseWorkspace()
         await this.fixPromptDefinitions()
 
