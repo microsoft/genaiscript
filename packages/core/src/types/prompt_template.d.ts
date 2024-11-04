@@ -843,11 +843,7 @@ interface RangeOptions {
     lineEnd?: number
 }
 
-interface DefOptions
-    extends FenceOptions,
-        ContextExpansionOptions,
-        DataFilter,
-        RangeOptions {
+interface FileFilterOptions {
     /**
      * Filename filter based on file suffix. Case insensitive.
      */
@@ -857,7 +853,23 @@ interface DefOptions
      * Filename filter using glob syntax.
      */
     glob?: ElementOrArray<string>
+}
 
+interface ContentSafetyOptions {
+    /**
+     * Runs the default content safety validator
+     * to prevent prompt injection.
+     */
+    detectPromptInjection?: boolean
+}
+
+interface DefOptions
+    extends FenceOptions,
+        ContextExpansionOptions,
+        DataFilter,
+        RangeOptions,
+        FileFilterOptions,
+        ContentSafetyOptions {
     /**
      * By default, throws an error if the value in def is empty.
      */

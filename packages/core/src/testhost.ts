@@ -35,6 +35,7 @@ import {
 } from "node:path"
 import { LanguageModel } from "./chat"
 import { Project } from "./ast"
+import { NotSupportedError } from "./error"
 
 // Function to create a frozen object representing Node.js path methods
 // This object provides utility methods for path manipulations
@@ -82,6 +83,13 @@ export class TestHost implements RuntimeHost {
     // Static method to set this class as the runtime host
     static install() {
         setRuntimeHost(new TestHost())
+    }
+
+    contentSafety(
+        id?: "azure",
+        options?: TraceOptions
+    ): Promise<ContentSafety> {
+        throw new NotSupportedError("contentSafety")
     }
 
     // Method to create a UTF-8 decoder
