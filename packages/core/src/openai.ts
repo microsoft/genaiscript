@@ -364,6 +364,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
             }
             if (cancellationToken?.isCancellationRequested)
                 finishReason = "cancel"
+            finishReason = finishReason || "stop" // some provider do not implement this final mesage
         } catch (e) {
             finishReason = "fail"
             error = serializeError(e)
