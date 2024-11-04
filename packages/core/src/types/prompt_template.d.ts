@@ -381,7 +381,7 @@ interface PromptTest {
 }
 
 interface ContentSafetyOptions {
-    contentSafety?: "azure"
+    contentSafety?: ContentSafetyProvider
 }
 
 interface PromptScript
@@ -2005,18 +2005,19 @@ interface CSV {
 interface ContentSafety {
     /**
      * Scans text for the risk of a User input attack on a Large Language Model.
+     * If not supported, the method is not defined.
      */
-    detectPromptInjection(
+    detectPromptInjection?(
         content: Awaitable<
             ElementOrArray<string> | ElementOrArray<WorkspaceFile>
         >
     ): Promise<{ attackDetected: boolean; filename?: string; chunk?: string }>
-
     /**
      * Analyzes text for harmful content.
+     * If not supported, the method is not defined.
      * @param content
      */
-    detectHarmfulContent(
+    detectHarmfulContent?(
         content: Awaitable<
             ElementOrArray<string> | ElementOrArray<WorkspaceFile>
         >
@@ -3095,12 +3096,14 @@ interface LanguageModelHost {
     resolveLanguageModel(modelId?: string): Promise<LanguageModelReference>
 }
 
+type ContentSafetyProvider = "azure"
+
 interface ContentSafetyHost {
     /**
      * Resolve a content safety client
      * @param id safety detection project
      */
-    contentSafety(id?: "azure"): Promise<ContentSafety>
+    contentSafety(id?: ContentSafetyProvider): Promise<ContentSafety>
 }
 
 interface PromptHost

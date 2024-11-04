@@ -223,7 +223,10 @@ export interface RuntimeHost extends Host {
      * Instantiates a content safety client
      * @param id
      */
-    contentSafety(id?: "azure", options?: TraceOptions): Promise<ContentSafety>
+    contentSafety(
+        id?: ContentSafetyProvider,
+        options?: TraceOptions
+    ): Promise<ContentSafety>
 }
 
 export let host: Host
