@@ -99,5 +99,19 @@
         "titleBar.inactiveForeground": "#e7e7e799"
     },
     "peacock.remoteColor": "#110f00",
-    "mdmath.delimiters": "brackets"
+    "mdmath.delimiters": "brackets",
+    "spellright.language": [
+        "en"
+    ],
+    "spellright.documentTypes": [
+        "markdown",
+        "latex",
+        "plaintext",
+        "mdx"
+    ],
+    "spellright.parserByClass": {
+        "mdx": {
+            "parser": "markdown"
+        }
+    }
 }
