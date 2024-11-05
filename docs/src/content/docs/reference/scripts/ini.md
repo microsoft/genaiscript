@@ -19,7 +19,7 @@ const txt = INI.string(obj)
 
 ## `parsers`
 
-The [parsers](/genaiscript/reference/scripts/parsers) also provides merciful parser for `.env`.
+The [parsers](/genaiscript/reference/scripts/parsers) also provide a merciful parser for `.env`.
 Returns `undefined` for invalid inputs.
 
 ```js

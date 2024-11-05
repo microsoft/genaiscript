@@ -116,7 +116,7 @@ const md = CSV.markdownify(rows)
 
 ## `parsers`
 
-The [parsers](/genaiscript/reference/scripts/parsers) also provide a parser for CSV. Returns `undefined` for invalid inputs. It supports files and parsing options.
+The [parsers](/genaiscript/reference/scripts/parsers) also provide a parser for CSV. It returns `undefined` for invalid inputs and supports files and parsing options.
 
 ```js
 const rows = parsers.CSV(env.files[0])

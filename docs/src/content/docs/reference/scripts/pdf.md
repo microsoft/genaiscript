@@ -22,7 +22,7 @@ that is friendly to the LLM.
 const { file, pages } = await parsers.PDF(env.files[0])
 ```
 
-Once parse, you can use the `file` and `pages` to generate prompts. If the parsing fails, `file` will be `undefined`.
+Once parsed, you can use the `file` and `pages` to generate prompts. If the parsing fails, `file` will be `undefined`.
 
 ```js
 const { file, pages } = await parsers.PDF(env.files[0])

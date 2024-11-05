@@ -6,10 +6,10 @@ sidebar:
     order: 11
 ---
 
-The `defFileMerge` function allows to register a custom callback to override the default file merge behavior.
-This can be useful to merge files in a different way than the default one, for example to merge files in a different format than the default one.
+The `defFileMerge` function allows you to register a custom callback to override the default file merge behavior.
+This can be useful for merging files in a different way than the default, for example, to merge files in a different format.
 
-The function is called for all files; return the merged content or `undefined` is skipped.
+The function is called for all files; return the merged content or `undefined` to skip.
 
 ```js
 defFileMerge((filename, label, before, generated) => {

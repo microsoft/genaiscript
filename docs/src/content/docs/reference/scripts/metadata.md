@@ -28,7 +28,7 @@ script({
 
 ### system
 
-Override the system prompts included with the script. The default set of system prompt is inferred dynamicaly from the script content.
+Override the system prompts included with the script. The default set of system prompts is inferred dynamically from the script content.
 
 ```js
 script({
@@ -100,7 +100,7 @@ script({
 
 ### seed
 
-For some models,You can specify the LLM `seed` in the script, for models that support it. The default is not specified.
+For some models, you can specify the LLM `seed` in the script, for models that support it. The default is not specified.
 For some models, you can specify the LLM `seed` in the script, for models that support it. The default is unspecified.
 
 ```js

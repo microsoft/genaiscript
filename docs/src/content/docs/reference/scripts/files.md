@@ -8,7 +8,7 @@ sidebar:
 
 GenAIScript provides access to the file system of workspace and to the selected files in the user interface.
 
-The file path are rooted to the project workspace folder. In Visual Studio Code, this is the root folder opened (multi-root workspaces are not yet supported). Using the command line, the workspace root is the current working directory when launching the CLI.
+The file paths are rooted to the project workspace folder. In Visual Studio Code, this is the root folder opened (multi-root workspaces are not yet supported). Using the command line, the workspace root is the current working directory when launching the CLI.
 
 ## `env.files`
 
@@ -24,7 +24,7 @@ def("PDFS", env.files, { endsWith: ".pdf" })
 
 ## file output
 
-Use [defFileOutput](/genaiscript/reference/scripts/file-output) to specify allow file output paths and the description
+Use [defFileOutput](/genaiscript/reference/scripts/file-output) to specify allowed file output paths and the description
 of the purpose of those files.
 
 ```js
@@ -53,7 +53,7 @@ const { files } = await workspace.grep("monkey", "**/*.md")
 def("FILE", files)
 ```
 
-The pattern can also be a regex in which case sensitivy follows the regex option.
+The pattern can also be a regex, in which case sensitivity follows the regex option.
 
 ```ts
 const { files } = await workspace.grep(/[a-z]+\d/i, "**/*.md")

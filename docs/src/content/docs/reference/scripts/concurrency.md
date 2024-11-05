@@ -5,7 +5,7 @@ sidebar:
     order: 50
 ---
 
-When working with a GenAI, your program will likely be idling waiting for tokens to come back from the LLM.
+When working with a GenAI, your program will likely be idle, waiting for tokens to come back from the LLM.
 
 ## await and async
 

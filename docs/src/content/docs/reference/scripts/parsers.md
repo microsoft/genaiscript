@@ -6,15 +6,15 @@ description: Comprehensive guide on various data format parsers including JSON5,
 keywords: parsers, JSON5, YAML, TOML, CSV, token estimation
 ---
 
-The `parsers` object provide various parers for commomn data formats.
+The `parsers` object provides various parsers for common data formats.
 
 ## JSON5
 
 The `parsers.json5` function parses the JSON5 format.
 [JSON5](https://json5.org/) is an extension to the popular JSON file format that aims to be easier to write and maintain by hand (e.g. for config files).
 
-In general, parsing a JSON file as JSON5 does not hurt but it might be more merciful
-to syntactic errors. In addition to JSON5, [JSON repair](https://www.npmjs.com/package/jsonrepair) is applied with the initial parse fails.
+In general, parsing a JSON file as JSON5 does not cause harm, but it might be more forgiving
+to syntactic errors. In addition to JSON5, [JSON repair](https://www.npmjs.com/package/jsonrepair) is applied if the initial parse fails.
 
 -   JSON5 example
 
@@ -66,7 +66,7 @@ const res = parsers.YAML("...")
 ## TOML
 
 The `parsers.TOML` function parses for the [TOML format](https://toml.io/).
-YAML is more friendly to the LLM tokenizer than JSON. YAML is commonly used in configuration
+TOML is more friendly to the LLM tokenizer than JSON. TOML is commonly used in configuration
 files.
 
 ```toml
@@ -161,7 +161,7 @@ The `parsers.DOCX` function reads a .docx file as raw text.
 ## [INI](./ini.md)
 
 The `parsers.INI` parses [.ini](https://en.wikipedia.org/wiki/INI_file) files, typically
-using for configuration files. This format is similar to the `key=value` format.
+used for configuration files. This format is similar to the `key=value` format.
 
 ```txt
 KEY=VALUE

@@ -27,7 +27,7 @@ $`Analyze DATA.`
 
 ## Installation
 
-Playwright needs to [install the browsers and dependencies](https://playwright.dev/docs/browsers#install-system-dependencies) before execution. GenAIScript will automatically try to install them if it fails to load the browser;
+Playwright needs to [install the browsers and dependencies](https://playwright.dev/docs/browsers#install-system-dependencies) before execution. GenAIScript will automatically try to install them if it fails to load the browser,
 but you can also do it manually using the following command:
 
 ```bash
@@ -49,7 +49,7 @@ If you see this error message, you might have to install the dependencies manual
 
 ## `host.browse`
 
-This function launches a new browser instance and optionally navigates to the page. The page are automatically closed when the script ends.
+This function launches a new browser instance and optionally navigates to the page. The pages are automatically closed when the script ends.
 
 ```js
 const page = await host.browse(url)
@@ -105,7 +105,7 @@ defImages(screenshot)
 ## (Advanced) Native Playwright APIs
 
 The `page` instance returned is a native [Playwright Page](https://playwright.dev/docs/api/class-page) object.
-You can import `playwright` and case the instance back to the native playwright object.
+You can import `playwright` and cast the instance back to the native Playwright object.
 
 ```js
 import { Page } from "playwright"

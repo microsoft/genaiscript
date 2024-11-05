@@ -20,7 +20,7 @@ GenAIScript uses Docker to orchestrate the containers.
 
 -   [Install docker](https://docs.docker.com/engine/install/)
 
-## start a container
+## Start a container
 
 Start by creating and starting a new container. GenAIScript will pull the container image on demand
 and will remove the container when it is no longer needed.
@@ -52,7 +52,7 @@ await host.exec(
 )
 ```
 
-then use repo as your image name
+Then use the repo as your image name
 
 ```js
 const container = await host.container({ image: repo, ... })
@@ -106,7 +106,7 @@ const { stdout } = await container.exec("python", ["--version"])
 
 ## Read and write files
 
-The container has a volume mounted in the host file system, which allows to read and write files to the container.
+The container has a volume mounted in the host file system, which allows reading and writing files to the container.
 
 ```js
 await container.writeText("hello.txt", "Hello, world!")

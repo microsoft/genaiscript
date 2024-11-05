@@ -52,7 +52,7 @@ npx --yes genaiscript run ... --pull-request-reviews
 ## Visual Studio Code Programs
 
 Annotations are converted into Visual Studio **Diagnostics**, which are presented to the user
-through the **Problems** panel. These diagnostics also manifest as squiggly lines in the editor.
+through the **Problems** panel. These diagnostics also appear as squiggly lines in the editor.
 
 ## Static Analysis Results Interchange Format (SARIF)
 
