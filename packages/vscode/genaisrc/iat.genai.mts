@@ -98,7 +98,7 @@ for (const file of files) {
                 and generate a description alt text for the image.
                 
                 - Do not include alt text in the description.
-                - Keep it short but description.
+                - Keep it short but descriptive.
                 - Do not generate the [ character.`
             },
             {
