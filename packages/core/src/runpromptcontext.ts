@@ -361,8 +361,9 @@ export function createChatGenerationContext(
             "system.assistant",
             "system.tools",
             "system.explanations",
-            "system.safety_harmful_content",
             "system.safety_jailbreak",
+            "system.safety_harmful_content",
+            "system.safety_protected_content",
             ...arrayify(system),
         ])
         const agentTools = resolveTools(runtimeHost.project, agentSystem, [
