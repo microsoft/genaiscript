@@ -1,6 +1,13 @@
 script({
     title: "Spell checker",
-    system: ["system", "system.files", "system.changelog"],
+    system: [
+        "system",
+        "system.assistant",
+        "system.files",
+        "system.changelog",
+        "system.safety_jailbreak",
+        "system.safety_harmful_content",
+    ],
     temperature: 0.2,
 })
 

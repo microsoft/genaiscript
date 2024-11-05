@@ -4,6 +4,7 @@ script({
     system: [
         "system.assistant",
         "system.annotations",
+        "system.safety_jailbreak",
         "system.safety_harmful_content",
     ],
     tools: ["fs", "git"],

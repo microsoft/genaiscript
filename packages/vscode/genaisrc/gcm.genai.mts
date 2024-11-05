@@ -56,7 +56,6 @@ do {
                     "system.assistant",
                     "system.safety_jailbreak",
                     "system.safety_harmful_content",
-                    "system.safety_ungrounded_content_summarization",
                 ],
             }
         )
@@ -90,7 +89,6 @@ do {
                     "system.assistant",
                     "system.safety_jailbreak",
                     "system.safety_harmful_content",
-                    "system.safety_ungrounded_content_summarization",
                 ],
             })
         if (res.error) throw res.error

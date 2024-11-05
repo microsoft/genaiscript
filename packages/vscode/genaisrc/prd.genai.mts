@@ -5,8 +5,8 @@ script({
     system: [
         "system",
         "system.assistant",
+        "system.safety_jailbreak",
         "system.safety_harmful_content",
-        "system.safety_protected_material",
     ],
 })
 

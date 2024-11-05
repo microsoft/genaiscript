@@ -133,7 +133,11 @@ Your comments should provide insight into the code's purpose, logic, and any imp
 `
         },
         {
-            system: ["system.assistant"],
+            system: [
+                "system.assistant",
+                "system.safety_jailbreak",
+                "system.safety_harmful_content",
+            ],
             label: `comment ${filename}`,
         }
     )
@@ -151,19 +155,18 @@ async function checkModifications(filename: string): Promise<boolean> {
             ctx.$`You are an expert developer at all programming languages.
         
         Your task is to analyze the changes in DIFF and make sure that only comments are modified. 
-        Report all changes that are not comments or spacing and print <MODIFIED>;
-        otherwise, print <NO MODIFICATION>.
+        Report all changes that are not comments or spacing and print <MOD>;
+        otherwise, print <NO_MOD>.
         `
         },
         {
-            system: ["system.assistant"],
+            system: ["system.assistant", "system.safety_jailbreak"],
             cache: "cmt-check",
             label: `check comments in ${filename}`,
         }
     )
 
     const modified =
-        res.text?.includes("<MODIFIED>") ||
-        !res.text?.includes("NO MODIFICATION")
+        res.text?.includes("<MOD>") || !res.text?.includes("<NO_MOD>")
     return modified
 }

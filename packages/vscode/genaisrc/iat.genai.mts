@@ -103,7 +103,11 @@ for (const file of files) {
             },
             {
                 // safety system message to prevent generating harmful text
-                system: ["system.safety_harmful_content"],
+                system: [
+                    "system.assistant",
+                    "system.safety_jailbreak",
+                    "system.safety_harmful_content",
+                ],
                 maxTokens: 4000,
                 temperature: 0.5,
                 cache: "alt-text",

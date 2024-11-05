@@ -102,3 +102,14 @@ npx genaiscript run gcm
 
 ## Content Safety
 
+The following measures are taken to ensure the safety of the generated content.
+
+-   This script includes system prompts to prevent prompt injection and harmful content generation.
+    - [system.safety_jailbreak](/genaiscript/reference/scripts/system#systemsafety_jailbreak)
+    - [system.safety_harmful_content](/genaiscript/reference/scripts/system#systemsafety_harmful_content)
+-   The commit message is reviewed and approved by the user before committing the changes.
+
+Additional measures to further enhance safety would be to run [a model with a safety filter](https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/content-filter?tabs=warning%2Cuser-prompt%2Cpython-new)
+or validate the message with a [content safety service](/genaiscript/reference/scripts/content-safety).
+
+Refer to the [Transparency Note](/genaiscript/reference/transparency-note/) for more information on content safety.
