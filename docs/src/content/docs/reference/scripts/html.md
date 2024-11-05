@@ -10,7 +10,7 @@ HTML processing enables you to parse HTML content effectively. Below you can fin
 
 ## Overview
 
-HTML processing functions allow you to convert HTML content to text or markdown, helping in content extraction and manipulation for various automation tasks.
+HTML processing functions allow you to convert HTML content to text or markdown, aiding in content extraction and manipulation for various automation tasks.
 
 ## `convertToText`
 

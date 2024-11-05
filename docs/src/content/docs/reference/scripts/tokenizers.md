@@ -5,7 +5,7 @@ sidebar:
     order: 60
 ---
 
-The `tokenizers` helper module providers a set of functions to split text into tokens.
+The `tokenizers` helper module provides a set of functions to split text into tokens.
 
 ```ts
 const n = tokenizers.count("hello world")

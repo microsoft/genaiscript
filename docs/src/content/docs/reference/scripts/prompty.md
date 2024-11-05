@@ -2,8 +2,8 @@
 title: Prompty
 sidebar:
     order: 51
-description: Learn about the .prompty file format for parameterized prompts and
-    its integration with GenAIScript for AI scripting.
+description: Learn about the .prompty file format for parameterized prompts and its
+    integration with GenAIScript for AI scripting.
 keywords: prompty, scripts, AI, parameterized prompts, automation
 ---
 

@@ -4,7 +4,7 @@ script({
         concurrency: {
             type: "number",
             description: "Number of concurrent jobs",
-            default: 2,
+            default: 1,
         },
     },
 })
@@ -47,6 +47,7 @@ await jobs.mapAll(
                 ctx.defFileOutput(files, "fixed markdown or mdx files")
             },
             {
+                label: `spell check ${file.filename}`,
                 model: "large",
                 system: [
                     "system.assistant",

@@ -43,8 +43,8 @@ const res = parsers.JSON5("...")
 
 ## YAML
 
-The `parsers.YAML` function parses for the [YAML format](/genaiscript/reference/scripts/yaml).
-YAML is more friendly to the LLM tokenizer than JSON. YAML is commonly used in configuration
+The `parsers.YAML` function parses the [YAML format](/genaiscript/reference/scripts/yaml).
+YAML is more friendly to the LLM tokenizer than JSON and is commonly used in configuration
 files.
 
 ```yaml
@@ -65,8 +65,8 @@ const res = parsers.YAML("...")
 
 ## TOML
 
-The `parsers.TOML` function parses for the [TOML format](https://toml.io/).
-TOML is more friendly to the LLM tokenizer than JSON. TOML is commonly used in configuration
+The `parsers.TOML` function parses the [TOML format](https://toml.io/).
+TOML is more friendly to the LLM tokenizer than JSON and is commonly used in configuration
 files.
 
 ```toml

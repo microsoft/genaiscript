@@ -9,8 +9,8 @@ keywords: importTemplate, prompts, mustache, variable interpolation, file globs
 
 ---
 
-Various LLM tools allow to store prompts in text or markdown files.
-You can use `importTemplate` to import these files into the prompt.
+Various LLM tools allow storing prompts in text or markdown files.
+You can use `importTemplate` to import these files into a prompt.
 
 ```markdown title="cot.md"
 Explain your answer step by step.
@@ -49,7 +49,7 @@ importTemplate("*.prompt")
 
 ## Other File formats
 
-Aside from the basic text or markdown formats, `importTemplate` also automatically supports these variations.
+Aside from the basic text or markdown formats, `importTemplate` also supports these variations automatically.
 
 ### Prompty
 

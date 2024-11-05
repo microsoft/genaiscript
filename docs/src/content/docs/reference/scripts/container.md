@@ -22,8 +22,8 @@ GenAIScript uses Docker to orchestrate the containers.
 
 ## Start a container
 
-Start by creating and starting a new container. GenAIScript will pull the container image on demand
-and will remove the container when it is no longer needed.
+Start by creating and starting a new container. GenAIScript will pull the container image on demand,
+removing the container when it is no longer needed.
 
 ```js
 const container = await host.container()
@@ -68,8 +68,8 @@ const container = await host.container({ persistent: true })
 
 ### Enable network
 
-By default, the container network is disabled and web requests won't work. This is the safest solution;
-if you need to install additional packages, it is recommended to create an image with all the necessary software enabled.
+By default, the container network is disabled, and web requests won't work. This is the safest solution;
+if you need to install additional packages, it is recommended to create an image with all the necessary software included.
 
 You can enable network access using `networkEnabled`.
 
@@ -106,8 +106,7 @@ const { stdout } = await container.exec("python", ["--version"])
 
 ## Read and write files
 
-The container has a volume mounted in the host file system, which allows reading and writing files to the container.
-
+The container has a volume mounted in the host file system, allowing reading and writing files to the container.
 ```js
 await container.writeText("hello.txt", "Hello, world!")
 const content = await container.readText("hello.txt")

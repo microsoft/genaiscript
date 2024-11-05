@@ -201,17 +201,17 @@ def("FILE", env.files, { detectPromptInjection: true })
 
 ## Data definition (`defData`)
 
-The `defData` function offers additional formatting options for converting a data object into a textual representation. It supports rendering objects as YAML, JSON, or CSV (formatted as a markdown table).
+The `defData` function offers additional formatting options for converting a data object into a textual representation. It supports rendering objects as YAML, JSON, or CSV (formatted as a Markdown table).
 
 ```js
-// render to mardownified CSV by default
+// render to markdown-ified CSV by default
 defData("DATA", data)
 
 // render as yaml
 defData("DATA", csv, { format: "yaml" })
 ```
 
-The `defData` function also support functions to slice the input rows and columns.
+The `defData` function also supports functions to slice the input rows and columns.
 
 -   `headers`, list of column names to include
 -   `sliceHead`, number of rows to include from the beginning

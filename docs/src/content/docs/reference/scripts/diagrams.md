@@ -6,13 +6,13 @@ description: Create diagrams and charts within markdown using GenAIScript and th
 keywords: diagrams, charts, mermaid, GenAIScript, data visualization
 ---
 
-It is often useful to request the LLM to generate a diagram. Fortunately,
+It is often useful to request an LLM to generate a diagram. Fortunately,
 many LLMs already know [mermaid](https://mermaid.js.org/), a popular Markdown extension
 to create diagrams and charts.
 
 -   Install the [Markdown Preview Mermaid Support](https://marketplace.visualstudio.com/items?itemName=bierner.markdown-mermaid) extension for VS Code.
 
--   Mention `diagram` in the program or add the `system.diagram` in the system prompt list.
+-   Mention `diagram` in the program or add `system.diagram` to the system prompt list.
 
 ```js
 $`Generate a diagram of a merge.`

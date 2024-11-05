@@ -10,7 +10,7 @@ genaiscript:
 
 Parsing and stringifying of Comma Separated Values (CSV) data.
 
-The parsers map CSV data to an array of objects with field names mapping the header. For example, the CSV data:
+The parsers map CSV data to an array of objects, with field names corresponding to the header. For example, the CSV data:
 
 ```csv
 name, value
@@ -46,7 +46,7 @@ The [def](/genaiscript/reference/scripts/context) function automatically parses 
 def("DATA", env.files[0])
 ```
 
-`def` also supports basic row filtering options that control how many rows you want to insert in the prompt.
+`def` also supports basic row filtering options that control how many rows you want to insert into the prompt.
 
 ```js assistant=false
 def("DATA", env.files[0], {
@@ -98,9 +98,7 @@ The `stringify` method converts an array of objects to a CSV string.
 const csvString = CSV.stringify(rows)
 ```
 
-### `markdownify`
-
-The `markdownify` method converts an array of objects into a markdown table. This encoding is more efficient with LLM tokenizers.
+The `markdownify` method converts an array of objects into a Markdown table. This encoding is more efficient with LLM tokenizers.
 
 ```js "CSV.markdownify"
 const md = CSV.markdownify(rows)

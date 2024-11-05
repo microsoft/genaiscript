@@ -27,8 +27,8 @@ $`Analyze DATA.`
 
 ## Installation
 
-Playwright needs to [install the browsers and dependencies](https://playwright.dev/docs/browsers#install-system-dependencies) before execution. GenAIScript will automatically try to install them if it fails to load the browser,
-but you can also do it manually using the following command:
+Playwright needs to [install the browsers and dependencies](https://playwright.dev/docs/browsers#install-system-dependencies) before execution. GenAIScript will automatically try to install them if it fails to load the browser.
+However, you can also do it manually using the following command:
 
 ```bash
 npx playwright install --with-deps chromium
@@ -49,7 +49,7 @@ If you see this error message, you might have to install the dependencies manual
 
 ## `host.browse`
 
-This function launches a new browser instance and optionally navigates to the page. The pages are automatically closed when the script ends.
+This function launches a new browser instance and optionally navigates to a page. The pages are automatically closed when the script ends.
 
 ```js
 const page = await host.browse(url)

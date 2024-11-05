@@ -11,7 +11,7 @@ genaiscript:
 ---
 
 It is possible to provide the start of the LLM response (`assistant` message) in the script.
-This allows to steer the answer of the LLM to a specify syntax or format.
+This allows steering the answer of the LLM to a specific syntax or format.
 
 Use `assistant` function to provide the assistant text.
 

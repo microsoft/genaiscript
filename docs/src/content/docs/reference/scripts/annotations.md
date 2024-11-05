@@ -27,23 +27,23 @@ script({
 
 :::hint
 
-To get a pretty rendering in the Markdown preview, try the [Markdown Preview for Github Alerts](https://marketplace.visualstudio.com/items?itemName=yahyabatulu.vscode-markdown-alert) extension.
+To get a pretty rendering in the Markdown preview, try the [Markdown Preview for GitHub Alerts](https://marketplace.visualstudio.com/items?itemName=yahyabatulu.vscode-markdown-alert) extension.
 
 :::
 
 ### Line numbers
 
-The `system.annotations` prompt automatically enables line number injection for all `def` sections. This enhances
-the precision of the LLM's responses and reduces the likelihood of hallucinations.
+The `system.annotations` prompt automatically enables line number injection for all `def` sections. This enhancement
+increases the precision of the LLM's responses and reduces the likelihood of hallucinations.
 
 ## GitHub Action Commands
 
 By default, the annotations use the [GitHub Action Commands](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-an-error-message) syntax.
 This means that the annotations will automatically be extracted by GitHub if you run your script in a GitHub Action.
 
-## Github Pull Request Review Comments
+## GitHub Pull Request Review Comments
 
-Use the `--pull-request-reviews` (`-prr`) flag on the [cli run](/genaiscript/reference/cli/run/#pull-request-reviews) to add annotations as [review comments](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/reviewing-changes-in-pull-requests/commenting-on-a-pull-request#about-pull-request-comments) on a pull request.
+Use the `--pull-request-reviews` (`-prr`) flag in the [cli run](/genaiscript/reference/cli/run/#pull-request-reviews) to add annotations as [review comments](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/reviewing-changes-in-pull-requests/commenting-on-a-pull-request#about-pull-request-comments) on a pull request.
 
 ```sh "cli"
 npx --yes genaiscript run ... --pull-request-reviews

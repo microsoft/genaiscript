@@ -63,7 +63,7 @@ script({ ...
 
 ## `gen`
 
-The `AICI.gen` function creates a constrain in the prompt flow.
+The `AICI.gen` function creates a constraint in the prompt flow.
 
 ## Token
 

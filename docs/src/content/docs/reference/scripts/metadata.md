@@ -100,7 +100,6 @@ script({
 
 ### seed
 
-For some models, you can specify the LLM `seed` in the script, for models that support it. The default is not specified.
 For some models, you can specify the LLM `seed` in the script, for models that support it. The default is unspecified.
 
 ```js
