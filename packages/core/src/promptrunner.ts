@@ -74,18 +74,20 @@ async function resolveExpansionVars(
     }
 
     // Create and return an object containing resolved variables
-    const meta: PromptDefinition & ModelConnectionOptions = {
-        id: template.id,
-        title: template.title,
-        description: template.description,
-        group: template.group,
-        model: template.model,
-    }
+    const meta: PromptDefinition & ModelConnectionOptions = Object.freeze(
+        structuredClone({
+            id: template.id,
+            title: template.title,
+            description: template.description,
+            group: template.group,
+            model: template.model,
+            defTools: template.defTools,
+        })
+    )
     const res = {
         dir: ".",
         files,
         meta,
-        template: meta,
         vars: attrs,
         secrets,
     } satisfies Partial<ExpansionVariables>

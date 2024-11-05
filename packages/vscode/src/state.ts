@@ -434,7 +434,6 @@ export class ExtensionState extends EventTarget {
         uri: vscode.Uri,
         token?: vscode.CancellationToken
     ): Promise<Fragment> {
-        const fspath = uri.fsPath
         const files = await listFiles(uri)
 
         return <Fragment>{
@@ -446,9 +445,9 @@ export class ExtensionState extends EventTarget {
         document: vscode.Uri,
         token?: vscode.CancellationToken
     ): Promise<Fragment> {
-        const fspath = document.fsPath
+        const fsPath = document.fsPath
         return <Fragment>{
-            files: [fspath],
+            files: [fsPath],
         }
     }
 
