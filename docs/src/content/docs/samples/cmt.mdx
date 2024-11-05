@@ -8,10 +8,10 @@ sidebar:
 import { Code } from "@astrojs/starlight/components"
 import source from "../../../../../packages/vscode/genaisrc/cmt.genai.mts?raw"
 
-This sample automates adding comments to source code using an LLM
-and validates the changes haven't introduced any code modifications.
+This sample automates the process of adding comments to source code using an LLM
+and validates that the changes haven't introduced any code modifications.
 
-To do so, we could use a combination of tools to validate the transformer: source formatters,
+To achieve this, we could use a combination of tools to validate the transformation: source formatters,
 compilers, linters, or LLM-as-judge.
 
 The algorithm could be summarized as follows:
@@ -24,7 +24,7 @@ for each file of files
     // validate validate validate!
     format generated code (optional) -- keep things consistent
     build generated -- let's make sure it's still valid code
-    check that only comments were changed -- LLM as judge
+    check that only comments were changed -- LLM as a judge
 
 // and more validate
 final human code review
@@ -34,7 +34,7 @@ Let's get started with analyzing the script.
 
 ### Getting Files to Process
 
-The user can select which files to comment or, if nothing is selected, we'll use Git to find all modified files.
+The user can select which files to comment on or, if none are selected, we'll use Git to find all modified files.
 
 ```ts
 let files = env.files
@@ -45,7 +45,7 @@ if (files.length === 0)
 
 ### Processing Each File
 
-We process each file separately to avoid exploding the token context and keep the AI focused. We can use [inline prompts](/genaiscript/reference/scripts/inline-prompts) to make inner queries.
+We process each file separately to avoid overwhelming the token context and to keep the AI focused. We can use [inline prompts](/genaiscript/reference/scripts/inline-prompts) to make inner queries.
 
 ```ts
 for (const file of files) {
@@ -61,7 +61,7 @@ for (const file of files) {
 
 Within the `addComments` function, we prompt GenAI to add comments.
 We do this twice to increase the likelihood of generating useful comments,
-or the LLM might have been lazy on the first pass.
+as the LLM might have been less effective on the first pass.
 
 ```ts
 const res = await runPrompt(
@@ -76,7 +76,7 @@ We provide a detailed set of instructions to the AI on how to analyze and commen
 
 ### Format, build, lint
 
-At this point, we have a modified source code by an LLM. We should try to use all the available tools to validate the changes. It is best to start with formatters and compilers as they are deterministic and typically fast.
+At this point, we have source code modified by an LLM. We should try to use all available tools to validate the changes. It is best to start with formatters and compilers, as they are deterministic and typically fast.
 
 ### Judge results with LLM
 
@@ -144,7 +144,7 @@ genaiscript run cmt --vars "build=npm run build" "format=npm run format"
 
 ## Content Safety
 
-The following measures are taken to ensure the safety of the generated content.
+The following measures are taken to ensure the safety of the generated content:
 
 -   This script includes system prompts to prevent prompt injection and harmful content generation.
     -   [system.safety_jailbreak](/genaiscript/reference/scripts/system#systemsafety_jailbreak)
