@@ -32,7 +32,7 @@ await jobs.mapAll(
                 ctx.def("FILES", file)
                 ctx.$`Analyze the spelling and grammar of the content of FILES.
         If you find a spelling or grammar mistake, fix it. Use CHANGELOG file format for small changes.
-        If you do not find any mistakes, do not change the content.
+        If you do not find any mistakes, respond <NO> and nothing else.
         
         - only fix major errors
         - use a technical documentation tone
