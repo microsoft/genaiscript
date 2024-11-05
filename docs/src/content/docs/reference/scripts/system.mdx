@@ -116,14 +116,14 @@ defAgent(
     "docs",
     "query the documentation",
     async (ctx) => {
-        ctx.$`Your are a helpfull LLM agent that is an expert at Technical documentation. You can provide the best analyzis to any query about the documentation.
+        ctx.$`Your are a helpful LLM agent that is an expert at Technical documentation. You can provide the best analyzis to any query about the documentation.
 
         Analyze QUERY and respond with the requested information.
 
         ## Tools
 
         The 'md_find_files' can perform a grep search over the documentation files and return the title, description, and filename for each match.
-        To optimize search, conver the QUERY request into keywords or a regex pattern.
+        To optimize search, convert the QUERY request into keywords or a regex pattern.
 
         Try multiple searches if you cannot find relevant files.
         
@@ -202,7 +202,7 @@ const model = env.vars.agentGitModel
 defAgent(
     "git",
     "query a repository using Git to accomplish tasks. Provide all the context information available to execute git queries.",
-    `Your are a helpfull LLM agent that can use the git tools to query the current repository.
+    `Your are a helpful LLM agent that can use the git tools to query the current repository.
     Answer the question in QUERY.
     - The current repository is the same as github repository.
     - Prefer using diff to compare files rather than listing files. Listing files is only useful when you need to read the content of the files. 
@@ -239,7 +239,7 @@ const model = env.vars.agentGithubModel
 defAgent(
     "github",
     "query GitHub to accomplish tasks",
-    `Your are a helpfull LLM agent that can query GitHub to accomplish tasks. Answer the question in QUERY.
+    `Your are a helpful LLM agent that can query GitHub to accomplish tasks. Answer the question in QUERY.
     - Prefer diffing job logs rather downloading entire logs which can be very large.
     - Always return sha, head_sha information for runs
     - do NOT return full job logs, they are too large and will fill the response buffer.
@@ -297,57 +297,6 @@ defAgent(
 `````
 
 
-### `system.agent_memory`
-
-agent that retrieves memories
-
-
-
-
-
-`````js wrap title="system.agent_memory"
-system({
-    title: "agent that retrieves memories",
-})
-
-const cache = await host.cache("agent_memory")
-defAgent(
-    "memory",
-    "queries the memories created by other agent conversations.",
-    async (ctx) => {
-        const memories = await cache.values()
-        ctx.$`Your are a helpfull LLM agent that acts as a knowledge base for memories created by other agents.
-
-    Answer the question in QUERY with the memories in MEMORY.
-
-    - Use the information in MEMORY exclusively to answer the question in QUERY.
-    - If the information in MEMORY is not enough to answer the question in QUERY, respond <NO_MEMORY>.
-    - If the information in MEMORY is not relevant to the question in QUERY, respond <NO_MEMORY>.
-    `
-        memories.reverse().forEach(
-            ({ agent, query, answer }) =>
-                ctx.def(
-                    "MEMORY",
-                    `${agent}> ${query}?
-                ${answer}
-                `
-                ),
-            {
-                flex: 1,
-            }
-        )
-    },
-    {
-        model: "large",
-        flexTokens: 30000,
-        system: ["system"],
-        disableMemory: true,
-    }
-)
-
-`````
-
-
 ### `system.agent_planner`
 
 A planner agent
@@ -361,9 +310,20 @@ system({
     title: "A planner agent",
 })
 
-defAgent("planner", "generates a plan to solve a task", async (ctx) => {}, {
-    model: "github:o1-preview",
-})
+defAgent(
+    "planner",
+    "generates a plan to solve a task",
+    `Generate a detailed plan as a list of tasks so that a smaller LLM can use agents to execute the plan.`,
+    {
+        model: "github:o1-preview",
+        system: [
+            "system.assistant",
+            "system.planner",
+            "system.safety_jailbreak",
+            "system.safety_harmful_content",
+        ],
+    }
+)
 
 `````
 

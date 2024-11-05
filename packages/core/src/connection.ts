@@ -390,7 +390,7 @@ export async function parseTokenFromEnv(
     return undefined
 
     function cleanAzureBase(b: string) {
-        if (!b || !/\.openai\.azure\.com/i.test(b)) return b
+        if (!b) return b
         b =
             trimTrailingSlash(b.replace(/\/openai\/deployments.*$/, "")) +
             `/openai/deployments`

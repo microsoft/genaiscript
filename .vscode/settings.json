@@ -40,6 +40,8 @@
         "icontains",
         "labelledby",
         "limitrows",
+        "LITELLM",
+        "LLAMAFILE",
         "llmify",
         "llmrequest",
         "localai",
