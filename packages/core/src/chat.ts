@@ -581,10 +581,17 @@ async function processChatMessage(
                         throw new Error(
                             "system messages not supported for chat participants"
                         )
-                    renderMessagesToMarkdown(participantMessages)
+                    renderMessagesToMarkdown(participantMessages, {
+                        user: true,
+                        assistant: true,
+                    })
                     trace.details(
                         `💬 messages (${participantMessages.length})`,
-                        renderMessagesToMarkdown(participantMessages)
+                        renderMessagesToMarkdown(participantMessages, {
+                            user: true,
+                            assistant: true,
+                        }),
+                        { expanded: true }
                     )
                     messages.push(...participantMessages)
                     needsNewTurn = true
@@ -694,7 +701,11 @@ export async function executeChatSession(
             if (messages)
                 trace.details(
                     `💬 messages (${messages.length})`,
-                    renderMessagesToMarkdown(messages)
+                    renderMessagesToMarkdown(messages, {
+                        user: true,
+                        assistant: true,
+                    }),
+                    { expanded: true }
                 )
 
             // make request
@@ -833,7 +844,7 @@ export function appendSystemMessage(
     if (last?.role !== "system") {
         last = {
             role: "system",
-            content,
+            content: "",
         } as ChatCompletionSystemMessageParam
         messages.unshift(last)
     }

@@ -1,7 +1,7 @@
 ---
 title: Transparency Note
 sidebar:
-  order: 99
+    order: 99
 description: Learn about the GenAIScript framework, its capabilities, use cases, and best practices for responsible AI integration.
 keywords: AI scripting, LLM integration, VS Code extension, AI automation, responsible AI
 lastUpdated: 2024-04-13
@@ -115,8 +115,7 @@ written in another programming language might be used but the use cases
 are much more ambitious because the LLM can do much more than ordinary
 code. Here are some examples:
 
--   **Checking for potential inconsistencies in a collection of
-    configuration files or other content.** Using the LLM, a GenAIScript
+-   **Checking for potential inconsistencies in a collection of configuration files or other content.** Using the LLM, a GenAIScript
     can inspect configuration files and leverage the LLM's understanding
     of common configuration errors to detect and report them. Before
     LLMs, professional developers would write tools, such as lint[^2],
@@ -140,16 +139,14 @@ code. Here are some examples:
     snippets. With GenAIScript, we can have a script that goes through
     every documentation file, pulls the current localized version and
     assembles a prompt to ask the LLM to fill in the missing
-    translations, while leaving the existing ones alone. Because the LLM model we use has already been trained on 
+    translations, while leaving the existing ones alone. Because the LLM model we use has already been trained on
     MakeCode examples and documentation it is aware of the syntax.
 
--   **Generating executable code from a natural language
-    specification.** A GPSpec file can be used to specify the task being
+-   **Generating executable code from a natural language specification.** A GPSpec file can be used to specify the task being
     performed and a GenAIScript that specializes in code generation can
     translate the spec into code.
 
--   **Creating a short version of a longer white paper by summarizing
-    each chapter.** LLMs are quite effective at summarizing documents. A
+-   **Creating a short version of a longer white paper by summarizing each chapter.** LLMs are quite effective at summarizing documents. A
     GenAIScript can be written to take each chapter of a long document
     and summarize it in a section of a shorter document.
 
@@ -171,7 +168,7 @@ any infrastructure that makes programming easier, including languages
 such as PowerShell, JavaScript, and Python, as well as IDEs such as VS
 Code and Visual Studio. While we cannot prevent unintended uses, we will
 encourage users to consider Responsible AI practices when they build
-GenAIScripts.  We provide more details about issues related to security and trust in [security and trust](https://microsoft.github.io/genaiscript/reference/security-and-trust/).
+GenAIScripts. We provide more details about issues related to security and trust in [security and trust](https://microsoft.github.io/genaiscript/reference/security-and-trust/).
 
 #### Foundation model best practices
 
@@ -180,13 +177,14 @@ LLMs that support robust Responsible AI mitigations, such as the Azure
 Open AI (AOAI) services. Such services continually update the safety and
 RAI mitigations to track our up-to-date understanding on how to deploy
 and use foundation models most responsibly. Here are resources to help
-understand and use best practices when employing foundations models 
+understand and use best practices when employing foundations models
 for scripts and applications:
 
-- [Blog post on responsible AI features in AOAI that were presented at Ignite 2023](https://techcommunity.microsoft.com/t5/ai-azure-ai-services-blog/announcing-new-ai-safety-amp-responsible-ai-features-in-azure/ba-p/3983686)
-- [Transparency note for Azure OpenAI Service](https://learn.microsoft.com/en-us/legal/cognitive-services/openai/transparency-note?tabs=text)
-- [Microsoft Office of Responsible AI (ORA) Best Practices on using AOAI models](https://learn.microsoft.com/en-us/legal/cognitive-services/openai/overview)
+-   [Blog post on responsible AI features in AOAI that were presented at Ignite 2023](https://techcommunity.microsoft.com/t5/ai-azure-ai-services-blog/announcing-new-ai-safety-amp-responsible-ai-features-in-azure/ba-p/3983686)
+-   [Transparency note for Azure OpenAI Service](https://learn.microsoft.com/en-us/legal/cognitive-services/openai/transparency-note?tabs=text)
+-   [Microsoft Office of Responsible AI (ORA) Best Practices on using AOAI models](https://learn.microsoft.com/en-us/legal/cognitive-services/openai/overview)
 
+We recommand to review the [Content Safety](/genaiscript/reference/scripts/content-safety) documentation for more information on how to guard against harmful content and jailbreaking.
 
 ## Limitations
 
@@ -195,7 +193,7 @@ from users. Existing limitations in the framework include integration into only 
 (VS code), and internal support for OpenAI APIs plus a relatively small
 number of other LLMs. We intend to allow users to integrate calls to
 external services (such as RAG) in GenAIScript to provide the LLM with
-more context.  We anticipate adding support for more foundation models as the use cases evolve.
+more context. We anticipate adding support for more foundation models as the use cases evolve.
 
 We also anticipate that the on-ramp to using GenAIScript will evolve. We
 have explored supporting invoking the GenAIScript framework as part of a VS

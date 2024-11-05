@@ -1,6 +1,6 @@
 ---
 title: Web Search
-description: Execute web searches with Bing API using retrieval.webSearch in scripts.
+description: Execute web searches with the Bing API using retrieval.webSearch in scripts.
 keywords: web search, Bing API, search automation, API configuration, search function
 sidebar:
     order: 15

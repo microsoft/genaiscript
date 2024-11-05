@@ -11,26 +11,26 @@ import {
     MARKDOWN_PROMPT_FENCE,
     PROMPT_FENCE,
     PROMPTY_REGEX,
-    SYSTEM_FENCE,
     TEMPLATE_ARG_DATA_SLICE_SAMPLE,
     TEMPLATE_ARG_FILE_MAX_TOKENS,
 } from "./constants"
 import { parseModelIdentifier } from "./models"
-import { appendAssistantMessage, appendUserMessage } from "./chat"
+import {
+    appendAssistantMessage,
+    appendSystemMessage,
+    appendUserMessage,
+} from "./chat"
 import { errorMessage } from "./error"
 import { tidyData } from "./tidy"
 import { dedent } from "./indent"
-import {
-    ChatCompletionMessageParam,
-    ChatCompletionSystemMessageParam,
-    ChatCompletionUserMessageParam,
-} from "./chattypes"
+import { ChatCompletionMessageParam } from "./chattypes"
 import { resolveTokenEncoder } from "./encoders"
 import { expandFiles } from "./fs"
 import { interpolateVariables } from "./mustache"
 import { createDiff } from "./diff"
 import { promptyParse } from "./prompty"
 import { jinjaRenderChatMessage } from "./jinja"
+import { runtimeHost } from "./host"
 
 // Definition of the PromptNode interface which is an essential part of the code structure.
 export interface PromptNode extends ContextExpansionOptions {
@@ -912,6 +912,37 @@ async function tracePromptNode(
     })
 }
 
+async function validateSafetyPromptNode(
+    trace: MarkdownTrace,
+    root: PromptNode
+) {
+    let mod = false
+    await visitNode(root, {
+        def: async (n) => {
+            if (n.detectPromptInjection && n.resolved?.content) {
+                const safety = await runtimeHost.contentSafety(undefined, {
+                    trace,
+                })
+                const res = await safety.detectPromptInjection(n.resolved)
+                if (res.attackDetected) {
+                    mod = true
+                    n.resolved = {
+                        filename: n.resolved.filename,
+                        content:
+                            "...prompt injection detected, content removed...",
+                    }
+                    n.preview = `...prompt injection detected, content removed...`
+                    n.error = `safety: prompt injection detected`
+                    trace.error(
+                        `safety: prompt injection detected in ${n.resolved.filename}`
+                    )
+                }
+            }
+        },
+    })
+    return mod
+}
+
 // Main function to render a prompt node.
 export async function renderPromptNode(
     modelId: string,
@@ -937,18 +968,12 @@ export async function renderPromptNode(
     const truncated = await truncatePromptNode(model, node, options)
     if (truncated) await tracePromptNode(trace, node, { label: "truncated" })
 
+    const safety = await validateSafetyPromptNode(trace, node)
+    if (safety) await tracePromptNode(trace, node, { label: "safety" })
+
     const messages: ChatCompletionMessageParam[] = []
-    const appendSystem = (content: string) => {
-        const last = messages.find(
-            ({ role }) => role === "system"
-        ) as ChatCompletionSystemMessageParam
-        if (last) last.content += content + SYSTEM_FENCE
-        else
-            messages.push({
-                role: "system",
-                content,
-            } as ChatCompletionSystemMessageParam)
-    }
+    const appendSystem = (content: string) =>
+        appendSystemMessage(messages, content)
     const appendUser = (content: string) => appendUserMessage(messages, content)
     const appendAssistant = (content: string) =>
         appendAssistantMessage(messages, content)

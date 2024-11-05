@@ -1,7 +1,7 @@
 system({
     title: "Safety prompt against Harmful Content: Hate and Fairness, Sexual, Violence, Self-Harm",
     description:
-        "This category should be considered for content generation (either grounded or ungrounded), multi-turn and single-turn chats, Q&A, rewrite, and summarization scenario. See https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/safety-system-message-templates.",
+        "This system script should be considered for content generation (either grounded or ungrounded), multi-turn and single-turn chats, Q&A, rewrite, and summarization scenario. See https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/safety-system-message-templates.",
 })
 
 $`## Safety: Harmful Content

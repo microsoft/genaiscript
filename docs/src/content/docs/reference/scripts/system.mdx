@@ -78,84 +78,6 @@ script({ ...,
 GenAIScript comes with a number of system prompt that support features like creating files, extracting diffs or
 generating annotations. If unspecified, GenAIScript looks for specific keywords to activate the various system prompts.
 
-### `copilot_chat_participant`
-
-
-
-
-
-
-
-`````js wrap title="copilot_chat_participant"
-script({
-    system: [
-        // List of system components and tools available for the script
-        "system",
-        "system.tools",
-        "system.files",
-        "system.diagrams",
-        "system.annotations",
-        "system.git_info",
-        "system.github_info",
-        "system.safety_harmful_content",
-    ],
-    tools: ["agent"], // Tools that the script can use
-    group: "infrastructure", // Group categorization for the script
-    parameters: {
-        question: {
-            type: "string", // Type of the parameter
-            description: "the user question", // Description of the parameter
-        },
-        "copilot.editor": {
-            type: "string",
-            description: "the content of the opened editor",
-            default: "",
-        },
-        "copilot.selection": {
-            type: "string",
-            description: "the content of the opened editor",
-            default: "",
-        },
-    },
-    flexTokens: 20000, // Flexible token limit for the script
-})
-
-// Extract the 'question' parameter from the environment variables
-const { question } = env.vars
-const editor = env.vars["copilot.editor"]
-const selection = env.vars["copilot.selection"]
-
-$`## task
-
-- make a plan to answer the QUESTION step by step using the information in the Context section
-- answer the QUESTION
-
-## output
-
-- The final output will be inserted into the Visual Studio Code Copilot Chat window.
-- do NOT include the plan in the output
-
-## guidance:
-- use the agent tools to help you
-- do NOT be lazy, always finish the tasks
-- do NOT skip any steps
-`
-
-// Define a variable QUESTION with the value of 'question'
-def("QUESTION", question, { lineNumbers: false })
-
-$`## Context`
-
-// Define a variable FILE with the file data from the environment variables
-// The { ignoreEmpty: true, flex: 1 } options specify to ignore empty files and to use flexible token allocation
-def("FILE", env.files, { lineNumbers: false, ignoreEmpty: true, flex: 1 })
-
-if (editor) writeText(editor, { flex: 4 })
-if (selection) writeText(selection, { flex: 5 })
-
-`````
-
-
 ### `system`
 
 Base system prompt
@@ -491,6 +413,27 @@ For example, an error in app.js between line 1 and 4 with message "Missing semic
 - Do NOT indent or place annotation in a code fence.
 - The error_id field will be used to deduplicate annotations between multiple invocations of the LLM.
 `
+
+`````
+
+
+### `system.assistant`
+
+Helpful assistant prompt.
+
+A prompt for a helpful assistant from https://medium.com/@stunspot/omni-f3b1934ae0ea.
+
+
+
+`````js wrap title="system.assistant"
+system({
+    title: "Helpful assistant prompt.",
+    description:
+        "A prompt for a helpful assistant from https://medium.com/@stunspot/omni-f3b1934ae0ea.",
+})
+
+$`## Role
+Act as a maximally omnicompetent, optimally-tuned metagenius savant contributively helpful pragmatic Assistant.`
 
 `````
 
@@ -1598,6 +1541,10 @@ defTool(
                 description:
                     "state of the issue from  'open, 'closed', 'all'. Default is 'open'.",
             },
+            count: {
+                type: "number",
+                description: "Number of issues to list. Default is 20.",
+            },
             labels: {
                 type: "string",
                 description: "Comma-separated list of labels to filter by.",
@@ -1628,10 +1575,6 @@ defTool(
             mentioned: {
                 type: "string",
                 description: "Filter by mentioned user",
-            },
-            count: {
-                type: "number",
-                description: "Number of issues to list. Default is 20.",
             },
         },
     },
@@ -2855,7 +2798,7 @@ defTool(
 
 Safety prompt against Harmful Content: Hate and Fairness, Sexual, Violence, Self-Harm
 
-This category should be considered for content generation (either grounded or ungrounded), multi-turn and single-turn chats, Q&A, rewrite, and summarization scenario. See https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/safety-system-message-templates.
+This system script should be considered for content generation (either grounded or ungrounded), multi-turn and single-turn chats, Q&A, rewrite, and summarization scenario. See https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/safety-system-message-templates.
 
 
 
@@ -2863,7 +2806,7 @@ This category should be considered for content generation (either grounded or un
 system({
     title: "Safety prompt against Harmful Content: Hate and Fairness, Sexual, Violence, Self-Harm",
     description:
-        "This category should be considered for content generation (either grounded or ungrounded), multi-turn and single-turn chats, Q&A, rewrite, and summarization scenario. See https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/safety-system-message-templates.",
+        "This system script should be considered for content generation (either grounded or ungrounded), multi-turn and single-turn chats, Q&A, rewrite, and summarization scenario. See https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/safety-system-message-templates.",
 })
 
 $`## Safety: Harmful Content
@@ -2893,7 +2836,7 @@ $`## Safety: Jailbreak
 
 Safety prompt against Protected material - Text
 
-This category should be considered for scenarios such as: content generation (grounded and ungrounded), multi-turn and single-turn chat, Q&A, rewrite, summarization, and code generation. See https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/safety-system-message-templates.
+This system script should be considered for scenarios such as: content generation (grounded and ungrounded), multi-turn and single-turn chat, Q&A, rewrite, summarization, and code generation. See https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/safety-system-message-templates.
 
 
 
@@ -2901,7 +2844,7 @@ This category should be considered for scenarios such as: content generation (gr
 system({
     title: "Safety prompt against Protected material - Text",
     description:
-        "This category should be considered for scenarios such as: content generation (grounded and ungrounded), multi-turn and single-turn chat, Q&A, rewrite, summarization, and code generation. See https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/safety-system-message-templates.",
+        "This system script should be considered for scenarios such as: content generation (grounded and ungrounded), multi-turn and single-turn chat, Q&A, rewrite, summarization, and code generation. See https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/safety-system-message-templates.",
 })
 
 $`## Safety: Protected Material

@@ -6,7 +6,7 @@ sidebar:
     order: 12
 ---
 
-The `defOutputProcessor` function registers a callback to do custom processing of the LLM output at the end of the generation process. This function allows to create new files or modify the existing ones.
+The `defOutputProcessor` function registers a callback to perform custom processing of the LLM output at the end of the generation process. This function allows the creation of new files or modification of existing ones.
 
 :::caution
 

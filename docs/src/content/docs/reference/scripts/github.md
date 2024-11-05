@@ -19,7 +19,7 @@ In a GitHub CodeSpace, the `GITHUB_TOKEN` is automatically provisioned.
 
 ### GitHub Actions
 
-In GitHub Actions, you might need to add permissions to the workspace to access workflow logs and pull requests. You also need to pass the `secret.GITHUB_TOKEN` to the GenAIScript script run.
+In GitHub Actions, you might need to add permissions to the workspace to access workflow logs and pull requests. Additionally, you need to pass the `secret.GITHUB_TOKEN` to the GenAIScript script run.
 
 ```yml title="genai.yml" 'actions: read' 'GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}'
 permissions:

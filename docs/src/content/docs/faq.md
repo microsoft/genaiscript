@@ -30,7 +30,7 @@ keywords: AI, script generation, performance, best practices, limitations
     Foundation models and LLMs (Large Language Models) are AI models that GenAIScript can interact with to perform tasks like generating text or processing information.
 
 -   **How do I write my first GenAIScript?**
-    Start by learning the basics of JavaScript and the GenAIScript framework, then use the VS Code extension to create a script that defines the task, calls the LLM, and processes the output. More informatoin is available here: [Getting Started](/genaiscript/getting-started)
+    Start by learning the basics of JavaScript and the GenAIScript framework, then use the VS Code extension to create a script that defines the task, calls the LLM, and processes the output. More information is available here: [Getting Started](/genaiscript/getting-started)
 
 ### Using GenAIScript
 
@@ -82,6 +82,12 @@ keywords: AI, script generation, performance, best practices, limitations
 
 -   **What foundation models and LLMs are recommended for use with GenAIScript?**
     Services like Azure Open AI with updated safety and Responsible AI features are recommended. GenAIScript can also be used with existing open-source LLMs.
+
+-   **Do you provide system prompts to guard against common problems like harmful content or jailbreaking?**
+    Yes, GenAIScript includes system prompts to guard against harmful content and jailbreaking. For more information, see the [Content Safety](/genaiscript/reference/scripts/content-safety) documentation.
+
+-   **Do you support Azure Content Services?**
+    Yes, GenAIScript provides APIs to interact with Azure Content Safety services. For more information, see the [Content Safety](/genaiscript/reference/scripts/content-safety) documentation.
 
 ### Community and Support
 

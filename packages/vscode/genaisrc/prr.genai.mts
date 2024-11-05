@@ -1,7 +1,12 @@
 script({
     title: "Pull Request Reviewer",
     description: "Review the current pull request",
-    system: ["system.annotations", "system.safety_harmful_content"],
+    system: [
+        "system.assistant",
+        "system.annotations",
+        "system.safety_jailbreak",
+        "system.safety_harmful_content",
+    ],
     tools: ["fs", "git"],
     cache: "prr",
 })

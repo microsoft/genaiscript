@@ -38,28 +38,33 @@ import testExplorerAlt from "../../assets/vscode-test-explorer.png.txt?raw"
 
 Programmatically assemble prompts for LLMs using JavaScript. Orchestrate LLMs, tools, and data in a single script.
 
+-   JavaScript toolbox to work with prompts
+-   Abstraction to make it easy and productive
+-   Seamless Visual Studio Code integration
+
+## Hello world
+
+Say to you want to create an LLM script that generates a 'hello world' poem. You can write the following script:
+
 ```js
-$`Analyze ${env.files} and report errors. Use gitmojis.`
+$`Write a 'hello world' poem.`
 ```
 
-GenAIScript is a JavaScript-ish environment with convenient tooling for file ingestion, prompt development and structured data extraction.
+The `$` function is a template tag that creates a prompt. The prompt is then sent to the LLM (you configured), which generates the poem.
 
-```js wrap title="extract-data.genai.mjs"
-// define the context
-def("FILE", env.files, { endsWith: ".pdf" })
-// structure the data
-const schema = defSchema("DATA", { type: "array", items: { type: "string" } })
-// assign the task
-$`Analyze FILE and extract data to JSON.`
-// save results to file
-defFileOutput("*.pdf.txt", "Extracted data", { schema })
-// tools
-defTool("weather", "live weather", { city: "Paris" }, /* schema */
-    async ({ city }) => { ... "sunny" }) /* callback */
-// agents!
-defAgent("git", "answer git questions", "You are a git expert.", { tools: ["git"] })
-...
+Let's make it more interesting by adding files, data, and structured output. Say you want to include a file in the prompt, and then save the output in a file. You can write the following script:
+
+```js
+// read files
+const file = await workspace.readText("data.txt")
+// include the file content in the prompt in a context-friendly way
+def("DATA", file)
+// the task
+$`Analyze DATA and extract data in JSON in data.json.`
 ```
+
+The `def` function includes the content of the file, and optimizes it if necessary for the target LLM. GenAIScript script also parses the LLM output
+and will extract the `data.json` file automatically.
 
 ## Next steps
 
@@ -282,6 +287,23 @@ const { files } = await retrieval.vectorSearch("cats", "**/*.md")
 
 </Card>
 
+<Card title="Safety First!" icon="seti:lock">
+
+GenAIScript provides built-in Responsible AI system prompts and Azure Content Safety supports
+to validate [content safety](/genaiscript/reference/scripts/content-safety).
+
+```js wrap
+script({ ...,
+    system: ["system.safety_harmful_content", ...],
+    contentSafety: "azure" // use azure content safety
+})
+
+const safety = await host.contentSafety()
+const res = await safety.detectPromptInjection(env.vars.input)
+```
+
+</Card>
+
 <Card title="GitHub Models and GitHub Copilot" icon="github">
 
 Run models through GitHub using [GitHub Models](/getting-started/configuration/#github-models)
@@ -348,7 +370,7 @@ $`Summarize all the summaries.`
 
 </Card>
 
-<Card title="Prompty" link="markdown">
+<Card title="Prompty" icon="seti:markdown">
 
 Run or convert [Prompty](https://prompty.ai/) files using GenAIScript.
 
@@ -357,7 +379,14 @@ Run or convert [Prompty](https://prompty.ai/) files using GenAIScript.
 name: poem
 ---
 
-Write a short poem.
+system:
+Write a short poem about
+user:
+{{something}}.
+```
+
+```js wrap
+importTemplate("poem.prompty", { something: "code " })
 ```
 
 </Card>

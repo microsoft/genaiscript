@@ -1,6 +1,6 @@
 {
   "name": "genaiscript-core-internal",
-  "version": "1.70.1",
+  "version": "1.71.2",
   "main": "src/index.ts",
   "license": "MIT",
   "private": true,
@@ -65,7 +65,7 @@
     "minisearch": "^7.1.0",
     "mustache": "^4.2.0",
     "object-inspect": "^1.13.2",
-    "openai": "^4.69.0",
+    "openai": "^4.70.0",
     "p-limit": "^6.1.0",
     "parse-diff": "^0.11.1",
     "prettier": "^3.3.3",

@@ -6,7 +6,6 @@
 script({
     title: "git commit message",
     description: "Generate a commit message for all staged changes",
-    system: [],
 })
 
 // Check for staged changes and stage all changes if none are staged
@@ -54,9 +53,9 @@ do {
                 model: "large", // Specifies the LLM model to use for message generation
                 label: "generate commit message", // Label for the prompt task
                 system: [
+                    "system.assistant",
                     "system.safety_jailbreak",
                     "system.safety_harmful_content",
-                    "system.safety_ungrounded_content_summarization",
                 ],
             }
         )
@@ -87,9 +86,9 @@ do {
                 model: "large",
                 label: "summarize chunk commit messages",
                 system: [
+                    "system.assistant",
                     "system.safety_jailbreak",
                     "system.safety_harmful_content",
-                    "system.safety_ungrounded_content_summarization",
                 ],
             })
         if (res.error) throw res.error

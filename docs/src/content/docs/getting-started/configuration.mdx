@@ -720,12 +720,67 @@ script({
 
 </Steps>
 
-## Local Models
+## Hugging Face <a href="" id="huggingface" />
 
-There are many projects that allow you to run models locally on your machine,
-or in a container.
+The `huggingface` provider allows you to use [Hugging Face Models](https://huggingface.co/models?other=text-generation-inference) using [Text Generation Inference](https://huggingface.co/docs/text-generation-inference/index).
 
-### LocalAI
+```js "huggingface:"
+script({ model: "huggingface:microsoft/Phi-3-mini-4k-instruct" })
+```
+
+To use Hugging Face models with GenAIScript, follow these steps:
+
+<Steps>
+
+<ol>
+
+<li>
+
+Sign up for a [Hugging Face account](https://huggingface.co/) and obtain an API key from their [console](https://huggingface.co/settings/tokens).
+If you are creating a **Fined Grained** token, enable the **Make calls to the serverless inference API** option.
+
+</li>
+
+<li>
+
+Add your Hugging Face API key to the `.env` file:
+
+```txt title=".env"
+HUGGINGFACE_API_KEY=hf_...
+```
+
+</li>
+
+<li>
+
+Find the model that best suits your needs by visiting the [HuggingFace models](https://huggingface.co/models?other=text-generation-inference).
+
+</li>
+
+<li>
+
+Update your script to use the `model` you choose.
+
+```js
+script({
+    ...
+    model: "huggingface:microsoft/Phi-3-mini-4k-instruct",
+})
+```
+
+</li>
+
+</ol>
+
+</Steps>
+
+:::note
+
+Some models may require a Pro account.
+
+:::
+
+## LocalAI
 
 [LocalAI](https://localai.io/) act as a drop-in replacement REST API that’s compatible
 with OpenAI API specifications for local inferencing. It uses free Open Source models
@@ -758,13 +813,19 @@ OPENAI_API_TYPE=localai
 
 </Steps>
 
-### Ollama
+## Ollama
 
 [Ollama](https://ollama.ai/) is a desktop application that let you download and run model locally.
 
 Running tools locally may require additional GPU resources depending on the model you are using.
 
 Use the `ollama` provider to access Ollama models.
+
+:::note
+
+GenAIScript is currently using the OpenAI API compatibility layer of Ollama.
+
+:::
 
 <Steps>
 
@@ -795,6 +856,18 @@ GenAIScript will automatically pull the model, which may take some time dependin
 
 </li>
 
+<li>
+
+If Ollama runs on a server or a different computer or on a different port,
+you have to configure the `OLLAMA_HOST` environment variable to connect to a remote Ollama server.
+
+```txt title=".env"
+OLLAMA_HOST=https://<IP or domain>:<port>/ # server url
+OLLAMA_HOST=0.0.0.0:12345 # different port
+```
+
+</li>
+
 </ol>
 
 </Steps>
@@ -817,14 +890,14 @@ script({
 })
 ```
 
-### Llamafile
+## Llamafile
 
 [https://llamafile.ai/](https://llamafile.ai/) is a single file desktop application
 that allows you to run an LLM locally.
 
 The provider is `llamafile` and the model name is ignored.
 
-### Jan, LMStudio, LLaMA.cpp
+## Jan, LMStudio, LLaMA.cpp
 
 [Jan](https://jan.ai/), [LMStudio](https://lmstudio.ai/),
 [LLaMA.cpp](https://github.com/ggerganov/llama.cpp/tree/master/examples/server)
@@ -848,7 +921,31 @@ OPENAI_API_BASE=http://localhost:...
 
 </Steps>
 
-### Model specific environment variables
+## OpenRouter
+
+You can configure the OpenAI provider to use the [OpenRouter](https://openrouter.ai/docs/quick-start) service instead
+by setting the `OPENAI_API_BASE` to `https://openrouter.ai/api/v1`.
+You will also need an [api key](https://openrouter.ai/settings/keys).
+
+```txt title=".env"
+OPENAI_API_BASE=https://openrouter.ai/api/v1
+OPENAI_API_KEY=...
+```
+
+Then use the OpenRouter model name in your script:
+
+```js
+script({ model: "openai:openai/gpt-4o-mini" })
+```
+
+By default, GenAIScript will set the site url and name to `GenAIScript` but you can override these settigns with your own values:
+
+```txt title=".env"
+OPENROUTER_SITE_URL=... # populates HTTP-Referer header
+OPENROUTER_SITE_NAME=... # populate X-Title header
+```
+
+## Model specific environment variables
 
 You can provide different environment variables
 for each named model by using the `PROVIDER_MODEL_API_...` prefix or `PROVIDER_API_...` prefix.

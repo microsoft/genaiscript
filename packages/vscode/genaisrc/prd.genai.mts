@@ -4,8 +4,9 @@ script({
     temperature: 0.5,
     system: [
         "system",
+        "system.assistant",
+        "system.safety_jailbreak",
         "system.safety_harmful_content",
-        "system.safety_protected_material",
     ],
 })
 
@@ -20,9 +21,7 @@ const changes = await git.diff({
 console.log(changes)
 
 // task
-$`You are an expert software developer and architect.
-
-## Task
+$`## Task
 
 Describe a high level summary of the changes in GIT_DIFF in a way that a software engineer will understand.
 This description will be used as the pull request description.

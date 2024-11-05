@@ -18,7 +18,7 @@ script({
 
 ## Schema validation
 
-You can specify a [schema](/genaiscript/reference/scripts/schemas) through `responseSchema` which will automatically turn on the JSON mode. The output will be validated against the schema, and GenAIScript will attempt to repair the output is not valid. The script will fail if the output does not match the schema.
+You can specify a [schema](/genaiscript/reference/scripts/schemas) through `responseSchema` which will automatically turn on the JSON mode. The output will be validated against the schema, and GenAIScript will attempt to repair the output if it is not valid. The script will fail if the output does not match the schema.
 
 ```js "responseSchema"
 script({

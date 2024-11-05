@@ -1,5 +1,10 @@
 import { AZURE_TOKEN_EXPIRATION } from "../../core/src/constants"
-import { AzureCredentialsType } from "../../core/src/host"
+import {
+    AuthenticationToken,
+    AzureCredentialsType,
+    AzureTokenResolver,
+    isAzureTokenExpired,
+} from "../../core/src/host"
 import { logVerbose } from "../../core/src/util"
 import type { TokenCredential } from "@azure/identity"
 
@@ -7,28 +12,6 @@ import type { TokenCredential } from "@azure/identity"
  * This module provides functions to handle Azure authentication tokens,
  * including checking expiration and creating new tokens using Azure Identity SDK.
  */
-
-/**
- * Represents an authentication token with its expiration timestamp.
- */
-export interface AuthenticationToken {
-    token: string
-    expiresOnTimestamp: number
-}
-
-/**
- * Checks if the Azure token is expired.
- *
- * @param token - The authentication token to check.
- * @returns True if the token is expired, false otherwise.
- *
- * This function avoids data races by considering the token expired slightly before
- * its actual expiration time.
- */
-export function isAzureTokenExpired(token: AuthenticationToken) {
-    // Consider the token expired 5 seconds before the actual expiration to avoid timing issues
-    return !token || token.expiresOnTimestamp < Date.now() - 5_000
-}
 
 /**
  * Creates a new Azure authentication token.
@@ -52,7 +35,7 @@ export async function createAzureToken(
         ManagedIdentityCredential,
         AzurePowerShellCredential,
         AzureDeveloperCliCredential,
-        WorkloadIdentityCredential
+        WorkloadIdentityCredential,
     } = await import("@azure/identity")
 
     let credential: TokenCredential
@@ -99,4 +82,43 @@ export async function createAzureToken(
     )
 
     return res
+}
+
+class AzureTokenResolverImpl implements AzureTokenResolver {
+    _token: AuthenticationToken
+    _resolver: Promise<AuthenticationToken>
+
+    constructor(
+        public readonly name: string,
+        public readonly scopes: readonly string[]
+    ) {}
+
+    async token(
+        credentialsType: AzureCredentialsType,
+        optoins?: { signal?: AbortSignal }
+    ): Promise<AuthenticationToken> {
+        // cached
+        const { signal } = optoins || {}
+
+        if (isAzureTokenExpired(this._token)) this._token = undefined
+        if (this._token) return this._token
+        if (!this._resolver)
+            this._resolver = createAzureToken(
+                this.scopes,
+                credentialsType,
+                signal || new AbortController().signal
+            ).then((res) => {
+                this._token = res
+                this._resolver = undefined
+                return res
+            })
+        return this._resolver
+    }
+}
+
+export function createAzureTokenResolver(
+    name: string,
+    scopes: readonly string[]
+): AzureTokenResolver {
+    return new AzureTokenResolverImpl(name, scopes)
 }

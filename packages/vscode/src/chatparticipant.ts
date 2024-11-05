@@ -1,9 +1,14 @@
 import * as vscode from "vscode"
 import { ExtensionState } from "./state"
-import { TOOL_ID } from "../../core/src/constants"
+import {
+    COPILOT_CHAT_PARTICIPANT_SCRIPT_ID,
+    COPILOT_CHAT_PARTICIPANT_ID,
+    ICON_LOGO_NAME,
+} from "../../core/src/constants"
 import { Fragment } from "../../core/src/generation"
-import { prettifyMarkdown } from "../../core/src/markdown"
-import { eraseAnnotations } from "../../core/src/annotations"
+import { cleanMarkdown } from "../../core/src/markdown"
+import { convertAnnotationsToItems } from "../../core/src/annotations"
+import { dedent } from "../../core/src/indent"
 
 export async function activateChatParticipant(state: ExtensionState) {
     const { context } = state
@@ -26,21 +31,46 @@ export async function activateChatParticipant(state: ExtensionState) {
     }
 
     const participant = vscode.chat.createChatParticipant(
-        TOOL_ID,
+        COPILOT_CHAT_PARTICIPANT_ID,
         async (
             request: vscode.ChatRequest,
             context: vscode.ChatContext,
             response: vscode.ChatResponseStream,
             token: vscode.CancellationToken
         ) => {
-            const { command, prompt, references } = request
-            if (command) throw new Error("Command not supported")
-            if (!state.project) await state.parseWorkspace()
+            let { command, prompt, references, model } = request
+            await state.parseWorkspace()
             if (token.isCancellationRequested) return
 
-            const template = state.project.templates.find(
-                (t) => t.id === "copilot_chat_participant"
-            )
+            let template: PromptScript
+            if (command === "run") {
+                const scriptid = prompt.split(" ")[0]
+                prompt = prompt.slice(scriptid.length).trim()
+                template = state.project.templates.find(
+                    (t) => t.id === scriptid
+                )
+                if (!template) {
+                    response.markdown(dedent`Oops, I could not find any genaiscript matching \`${scriptid}\`. Try one of the following:
+                    ${state.project.templates
+                        .filter((s) => !s.system && !s.unlisted)
+                        .map((s) => `- \`${s.id}\`: ${s.title}`)
+                        .join("\n")}
+                    `)
+                    return
+                }
+            } else {
+                template = state.project.templates.find(
+                    (t) => t.id === COPILOT_CHAT_PARTICIPANT_SCRIPT_ID
+                )
+                if (!template) {
+                    response.markdown(
+                        dedent`The \`${COPILOT_CHAT_PARTICIPANT_SCRIPT_ID}\` script has not been configured yet in this workspace.
+
+                        Save the [starter script template](https://microsoft.github.io/genaiscript/reference/vscode/github-copilot-chat#copilotchat) in your workspace to get started.`
+                    )
+                    return
+                }
+            }
             const { files, vars } = resolveReference(references)
             const fragment: Fragment = {
                 files,
@@ -65,12 +95,13 @@ export async function activateChatParticipant(state: ExtensionState) {
             const { text = "" } = res || {}
             response.markdown(
                 new vscode.MarkdownString(
-                    prettifyMarkdown(eraseAnnotations(text)),
+                    cleanMarkdown(convertAnnotationsToItems(text)),
                     true
                 )
             )
         }
     )
+    participant.iconPath = new vscode.ThemeIcon(ICON_LOGO_NAME)
 
     subscriptions.push(participant)
 }

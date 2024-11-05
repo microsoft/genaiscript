@@ -1,5 +1,5 @@
 import { capitalize } from "inflection"
-import { resolve, join, relative, dirname } from "node:path"
+import path, { resolve, join, relative, dirname } from "node:path"
 import { consoleColors, isQuiet, wrapColor } from "./log"
 import { emptyDir, ensureDir, appendFileSync, exists } from "fs-extra"
 import { convertDiagnosticsToSARIF } from "./sarif"
@@ -101,6 +101,23 @@ async function setupTraceWriting(trace: MarkdownTrace, filename: string) {
     return filename
 }
 
+async function ensureDotGenaiscriptPath() {
+    const dir = dotGenaiscriptPath(".")
+    if (await exists(dir)) return
+
+    await ensureDir(dir)
+    await writeFile(
+        path.join(dir, ".gitattributes"),
+        `# avoid merge issues and ignore files in diffs
+*.json -diff merge=ours linguist-generated
+*.jsonl -diff merge=ours linguist-generated        
+*.js -diff merge=ours linguist-generated
+`,
+        { encoding: "utf-8" }
+    )
+    await writeFile(path.join(dir, ".gitignore"), "*\n", { encoding: "utf-8" })
+}
+
 export async function runScriptWithExitCode(
     scriptId: string,
     files: string[],
@@ -108,6 +125,7 @@ export async function runScriptWithExitCode(
         TraceOptions &
         CancellationOptions
 ) {
+    await ensureDotGenaiscriptPath()
     const runRetry = Math.max(1, normalizeInt(options.runRetry) || 1)
     let exitCode = -1
     for (let r = 0; r < runRetry; ++r) {

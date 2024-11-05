@@ -8,7 +8,7 @@ sidebar:
 
 GenAIScript provides access to the file system of workspace and to the selected files in the user interface.
 
-The file path are rooted to the project workspace folder. In Visual Studio Code, this is the root folder opened (multi-root workspaces are not yet supported). Using the command line, the workspace root is the current working directory when launching the CLI.
+The file paths are rooted in the project workspace folder. In Visual Studio Code, this is the root folder opened (multi-root workspaces are not yet supported). Using the command line, the workspace root is the current working directory when launching the CLI.
 
 ## `env.files`
 
@@ -24,7 +24,7 @@ def("PDFS", env.files, { endsWith: ".pdf" })
 
 ## file output
 
-Use [defFileOutput](/genaiscript/reference/scripts/file-output) to specify allow file output paths and the description
+Use [defFileOutput](/genaiscript/reference/scripts/file-output) to specify allowed file output paths and the description
 of the purpose of those files.
 
 ```js
@@ -33,11 +33,11 @@ defFileOutput("src/*.md", "Product documentation in markdown format")
 
 ## `workspace`
 
-The `workspace` object gives access to file system of the workspace.
+The `workspace` object provides access to the file system of the workspace.
 
 ### `findFiles`
 
-Performs a search for files under the workspace. glob patterns are supported.
+Performs a search for files under the workspace. Glob patterns are supported.
 
 ```ts
 const mds = await workspace.findFiles("**/*.md")
@@ -46,14 +46,14 @@ def("DOCS", mds)
 
 ### `grep`
 
-Performs a regex 'grep' search for files under the workspace using [ripgrep](https://github.com/BurntSushi/ripgrep). The pattern can be a string or a regex.
+Performs a regex 'grep' search for files under the workspace using [ripgrep](https://github.com/BurntSushi/ripgrep). The pattern can be a string or a regular expression.
 
 ```ts
 const { files } = await workspace.grep("monkey", "**/*.md")
 def("FILE", files)
 ```
 
-The pattern can also be a regex in which case sensitivy follows the regex option.
+The pattern can also be a regex, in which case sensitivity follows the regex option.
 
 ```ts
 const { files } = await workspace.grep(/[a-z]+\d/i, "**/*.md")
@@ -73,7 +73,7 @@ It will automatically convert PDFs and DOCX files to text.
 
 ### `readJSON`
 
-Reads the content of a file as JSON (using a [JSON5](https://json5.org/) parser)
+Reads the content of a file as JSON (using a [JSON5](https://json5.org/) parser).
 
 ```ts
 const data = await workspace.readJSON("data.json")
@@ -81,7 +81,7 @@ const data = await workspace.readJSON("data.json")
 
 ### `readXML`
 
-Reads the content of a file as XML.
+Reads the content of a file as XML format.
 
 ```ts
 const data = await workspace.readXML("data.xml")
@@ -89,7 +89,7 @@ const data = await workspace.readXML("data.xml")
 
 ### `readCSV`
 
-Reads the content of a file as CSV.
+Reads the content of a file as CSV format.
 
 ```ts
 const data = await workspace.readCSV("data.csv")
@@ -117,7 +117,7 @@ The `paths` object contains helper methods to manipulate file names.
 
 ### Current path vs workspace path
 
-By default, files are resolved relative to the workspace root. You can use the `path` object to resolve paths relative to the current spec, `env.spec`.
+By default, files are resolved relative to the workspace root. You can use the `path` object to resolve paths relative to the current specification, `env.spec`.
 
 ```ts
 const cur = path.dirname(env.spec.filename)
@@ -126,7 +126,7 @@ const fs = path.join(cur, "myfile.md)
 
 ### globs
 
-File path "globs" are patterns used to match file and directory names. They are commonly used in Unix-like operating systems and programming languages to specify sets of filenames with wildcard characters. This tutorial will cover the basics of using globs in file paths with workspace.findFiles.
+File path "globs" are patterns used to match file and directory names. They are commonly used in Unix-like operating systems and programming languages to specify sets of filenames with wildcard characters. This section covers the basics of using globs in file paths with workspace.findFiles.
 
 Glob patterns can have the following syntax:
 

@@ -94,6 +94,23 @@ export interface ServerManager {
     close(): Promise<void>
 }
 
+export interface AuthenticationToken {
+    token: string
+    expiresOnTimestamp: number
+}
+
+export function isAzureTokenExpired(token: AuthenticationToken) {
+    // Consider the token expired 5 seconds before the actual expiration to avoid timing issues
+    return !token || token.expiresOnTimestamp < Date.now() - 5_000
+}
+
+export interface AzureTokenResolver {
+    token(
+        credentialsType: AzureCredentialsType,
+        options?: AbortSignalOptions
+    ): Promise<AuthenticationToken>
+}
+
 export interface Host {
     readonly dotEnvPath: string
 
@@ -142,6 +159,7 @@ export interface RuntimeHost extends Host {
     project: Project
     models: ModelService
     workspace: Omit<WorkspaceFileSystem, "grep">
+    azureToken: AzureTokenResolver
 
     readSecret(name: string): Promise<string | undefined>
     // executes a process
@@ -200,6 +218,15 @@ export interface RuntimeHost extends Host {
      * @param message message to ask
      */
     confirm(message: string, options?: ShellConfirmOptions): Promise<boolean>
+
+    /**
+     * Instantiates a content safety client
+     * @param id
+     */
+    contentSafety(
+        id?: ContentSafetyProvider,
+        options?: TraceOptions
+    ): Promise<ContentSafety>
 }
 
 export let host: Host

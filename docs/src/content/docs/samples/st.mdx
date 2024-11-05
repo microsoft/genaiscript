@@ -1,6 +1,6 @@
 ---
 title: Search and transform
-description: Search for a pattern in files and apply a LLM transformation the match
+description: Search for a pattern in files and apply an LLM transformation to the match
 sidebar:
     order: 25
 ---
@@ -9,10 +9,10 @@ import { Code } from "@astrojs/starlight/components"
 import source from "../../../../../packages/vscode/genaisrc/st.genai.mts?raw"
 
 Search And Replace is a powerful tool in the developer toolbelt that can save you time and effort...
-if you can forumlate the right regular expression.
+if you can formulate the right regular expression.
 
 **Search and Transform** is a twist on the same concept
-but we use a LLM to perform the transformation instead of a simple string replacement.
+but we use an LLM to perform the transformation instead of a simple string replacement.
 
 ### 👩‍💻 Understanding the Script Code
 
@@ -20,7 +20,7 @@ but we use a LLM to perform the transformation instead of a simple string replac
 script({
     title: "Search and transform",
     description:
-        "Search for a pattern in files and apply a LLM transformation the match",
+        "Search for a pattern in files and apply an LLM transformation to the match",
     parameters: {
         glob: {
             type: "string",
@@ -87,7 +87,7 @@ const res = await runPrompt(
         _.$`
             ## Task
             
-            Your task is to transform the MATCH with the following TRANSFORM.
+            Your task is to transform the MATCH using the following TRANSFORM.
             Return the transformed text.
             - do NOT add enclosing quotes.
             
@@ -139,3 +139,17 @@ genaiscript run st
 ## Full source ([GitHub](https://github.com/microsoft/genaiscript/blob/main/packages/vscode/genaisrc/st.genai.mts))
 
 <Code code={source} wrap={true} lang="ts" title="st.genai.mts" />
+
+## Content Safety
+
+The following measures are taken to ensure the safety of the generated content.
+
+-   This script includes system prompts to prevent prompt injection and harmful content generation.
+    - [system.safety_jailbreak](/genaiscript/reference/scripts/system#systemsafety_jailbreak)
+    - [system.safety_harmful_content](/genaiscript/reference/scripts/system#systemsafety_harmful_content)
+-   The generated description is saved to a file at a specific path, which allows for a manual review before committing the changes.
+
+Additional measures to further enhance safety would be to run [a model with a safety filter](https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/content-filter?tabs=warning%2Cuser-prompt%2Cpython-new)
+or validate the message with a [content safety service](/genaiscript/reference/scripts/content-safety).
+
+Refer to the [Transparency Note](/genaiscript/reference/transparency-note/) for more information on content safety.

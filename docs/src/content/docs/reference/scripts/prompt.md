@@ -37,7 +37,7 @@ You are a helpful assistant.
 
 ## Inline expressions
 
-You can weave expressions in the template using `${...}`. Expression can be promises and will be awaited when rendering the final prompt.
+You can weave expressions in the template using `${...}`. Expressions can be promises and will be awaited when rendering the final prompt.
 
 ```js title="example.genai.mjs" assistant=false user=true
 $`Today is ${new Date().toDateString()}.`

@@ -26,7 +26,7 @@ import {
     TOOL_ID,
     DEFAULT_EMBEDDINGS_MODEL,
     DEFAULT_SMALL_MODEL,
-    AZURE_OPENAI_TOKEN_SCOPES,
+    AZURE_COGNITIVE_SERVICES_TOKEN_SCOPES,
     MODEL_PROVIDER_AZURE_SERVERLESS_MODELS,
     AZURE_AI_INFERENCE_TOKEN_SCOPES,
     MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI,
@@ -42,23 +42,25 @@ import {
     RuntimeHost,
     setRuntimeHost,
     ResponseStatus,
+    AzureTokenResolver,
 } from "../../core/src/host"
 import { AbortSignalOptions, TraceOptions } from "../../core/src/trace"
 import { logError, logVerbose } from "../../core/src/util"
 import { parseModelIdentifier } from "../../core/src/models"
-import {
-    AuthenticationToken,
-    createAzureToken,
-    isAzureTokenExpired,
-} from "./azuretoken"
 import { LanguageModel } from "../../core/src/chat"
-import { errorMessage, serializeError } from "../../core/src/error"
+import {
+    errorMessage,
+    NotSupportedError,
+    serializeError,
+} from "../../core/src/error"
 import { BrowserManager } from "./playwright"
 import { shellConfirm, shellInput, shellSelect } from "./input"
 import { shellQuote } from "../../core/src/shell"
 import { uniq } from "es-toolkit"
 import { PLimitPromiseQueue } from "../../core/src/concurrency"
 import { Project } from "../../core/src/ast"
+import { createAzureTokenResolver } from "./azuretoken"
+import { createAzureContentSafetyClient } from "../../core/src/azurecontentsafety"
 
 class NodeServerManager implements ServerManager {
     async start(): Promise<void> {
@@ -140,11 +142,21 @@ export class NodeHost implements RuntimeHost {
         embeddingsModel: DEFAULT_EMBEDDINGS_MODEL,
     }
     readonly userInputQueue = new PLimitPromiseQueue(1)
+    readonly azureToken: AzureTokenResolver
+    readonly azureServerlessToken: AzureTokenResolver
 
     constructor(dotEnvPath: string) {
         this.dotEnvPath = dotEnvPath
         this.syncDotEnv()
         this.models = new ModelManager(this)
+        this.azureToken = createAzureTokenResolver(
+            "Azure",
+            AZURE_COGNITIVE_SERVICES_TOKEN_SCOPES
+        )
+        this.azureServerlessToken = createAzureTokenResolver(
+            "Azure AI Serverless",
+            AZURE_AI_INFERENCE_TOKEN_SCOPES
+        )
     }
 
     private syncDotEnv() {
@@ -177,8 +189,6 @@ export class NodeHost implements RuntimeHost {
     }
     clientLanguageModel: LanguageModel
 
-    private _azureOpenAIToken: AuthenticationToken
-    private _azureServerlessToken: AuthenticationToken
     async getLanguageModelConfiguration(
         modelId: string,
         options?: { token?: boolean } & AbortSignalOptions & TraceOptions
@@ -192,35 +202,22 @@ export class NodeHost implements RuntimeHost {
                 tok.provider === MODEL_PROVIDER_AZURE_OPENAI ||
                 tok.provider === MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI
             ) {
-                if (isAzureTokenExpired(this._azureOpenAIToken)) {
-                    logVerbose(
-                        `fetching Azure OpenAI token ${this._azureOpenAIToken?.expiresOnTimestamp >= Date.now() ? `(expired ${new Date(this._azureOpenAIToken.expiresOnTimestamp).toLocaleString()})` : ""}`
-                    )
-                    this._azureOpenAIToken = await createAzureToken(
-                        AZURE_OPENAI_TOKEN_SCOPES,
-                        tok.azureCredentialsType,
-                        signal
-                    )
-                }
-                if (!this._azureOpenAIToken)
+                const azureToken = await this.azureToken.token(
+                    tok.azureCredentialsType,
+                    options
+                )
+                if (!azureToken)
                     throw new Error("Azure OpenAI token not available")
-                tok.token = "Bearer " + this._azureOpenAIToken.token
+                tok.token = "Bearer " + azureToken.token
             } else if (
                 tok.provider === MODEL_PROVIDER_AZURE_SERVERLESS_MODELS
             ) {
-                if (isAzureTokenExpired(this._azureServerlessToken)) {
-                    logVerbose(
-                        `fetching Azure AI token ${this._azureServerlessToken?.expiresOnTimestamp >= Date.now() ? `(expired ${new Date(this._azureServerlessToken.expiresOnTimestamp).toLocaleString()})` : ""}`
-                    )
-                    this._azureServerlessToken = await createAzureToken(
-                        AZURE_AI_INFERENCE_TOKEN_SCOPES,
-                        tok.azureCredentialsType,
-                        signal
-                    )
-                }
-                if (!this._azureServerlessToken)
-                    throw new Error("Azure AI token not available")
-                tok.token = "Bearer " + this._azureServerlessToken.token
+                const azureToken = await this.azureServerlessToken.token(
+                    tok.azureCredentialsType,
+                    options
+                )
+                if (!azureToken) throw new Error("Azure AI token not available")
+                tok.token = "Bearer " + azureToken.token
             }
         }
         if (!tok) {
@@ -327,6 +324,17 @@ export class NodeHost implements RuntimeHost {
     }
     async deleteDirectory(name: string): Promise<void> {
         await remove(name)
+    }
+
+    async contentSafety(
+        id?: "azure",
+        options?: TraceOptions
+    ): Promise<ContentSafety> {
+        if (!id || id === "azure") {
+            const safety = createAzureContentSafetyClient(options)
+            return safety
+        }
+        throw new NotSupportedError(`content safety ${id} not supported`)
     }
 
     async browse(

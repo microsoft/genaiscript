@@ -98,12 +98,16 @@ for (const file of files) {
                 and generate a description alt text for the image.
                 
                 - Do not include alt text in the description.
-                - Keep it short but description.
+                - Keep it short but descriptive.
                 - Do not generate the [ character.`
             },
             {
                 // safety system message to prevent generating harmful text
-                system: ["system.safety_harmful_content"],
+                system: [
+                    "system.assistant",
+                    "system.safety_jailbreak",
+                    "system.safety_harmful_content",
+                ],
                 maxTokens: 4000,
                 temperature: 0.5,
                 cache: "alt-text",

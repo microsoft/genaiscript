@@ -8,7 +8,7 @@ keywords: alt text automation, image accessibility, SEO optimization, OpenAI Vis
 
 import { Image } from "astro:assets"
 import { Code } from "@astrojs/starlight/components"
-import scriptSrc from "../../../../genaisrc/image-alt-text.genai.js?raw"
+import scriptSrc from "../../../../genaisrc/image-alt-text.genai.mjs?raw"
 import src from "../../../assets/debugger.png"
 import alt from "../../../assets/debugger.png.txt?raw"
 
@@ -20,7 +20,7 @@ It is also used by search engines to understand the content of the image.
 <img src="..." alt="describe the image here" />
 ```
 
-However, this task can be tedious and developer are often tempted to skip it, or provide a generic `alt` text like "image".
+However, this task can be tedious and developers are often tempted to skip it, or provide a generic `alt` text like "image".
 
 ```html
 <img src="..." alt="image" />

@@ -45,8 +45,8 @@ import {
 import { parseModelIdentifier, resolveModelConnectionInfo } from "./models"
 import {
     CHAT_REQUEST_PER_MODEL_CONCURRENT_LIMIT,
-    LLM_TAG_MISSING_INFO,
-    LLM_TAG_NO_ANSWER,
+    TOKEN_MISSING_INFO,
+    TOKEN_NO_ANSWER,
     MODEL_PROVIDER_AICI,
     SYSTEM_FENCE,
 } from "./constants"
@@ -358,8 +358,12 @@ export function createChatGenerationContext(
         const agentLabel = `agent ${name}`
 
         const agentSystem = uniq([
+            "system.assistant",
             "system.tools",
             "system.explanations",
+            "system.safety_jailbreak",
+            "system.safety_harmful_content",
+            "system.safety_protected_material",
             ...arrayify(system),
         ])
         const agentTools = resolveTools(runtimeHost.project, agentSystem, [
@@ -407,8 +411,8 @@ export function createChatGenerationContext(
                         _.$`Make a plan and solve the task described in QUERY.
                         
                         - Assume that your answer will be analyzed by an LLM, not a human.
-                        - If you are missing information, reply "${LLM_TAG_MISSING_INFO}: <what is missing>".
-                        - If you cannot answer the query, return "${LLM_TAG_NO_ANSWER}: <reason>".
+                        - If you are missing information, reply "${TOKEN_MISSING_INFO}: <what is missing>".
+                        - If you cannot answer the query, return "${TOKEN_NO_ANSWER}: <reason>".
                         - Be concise. Minimize output to the most relevant information to save context tokens.
                         `
                         if (memoryAnswer)
@@ -425,8 +429,8 @@ export function createChatGenerationContext(
                                 if (
                                     text &&
                                     !(
-                                        text.startsWith(LLM_TAG_MISSING_INFO) ||
-                                        text.startsWith(LLM_TAG_NO_ANSWER)
+                                        text.startsWith(TOKEN_MISSING_INFO) ||
+                                        text.startsWith(TOKEN_NO_ANSWER)
                                     )
                                 )
                                     await agentAddMemory(
@@ -488,7 +492,7 @@ export function createChatGenerationContext(
                 )
             )
         } else {
-            const file: WorkspaceFile = files
+            const file = files as WorkspaceFile
             appendChild(
                 node,
                 createImageNode(
