@@ -115,8 +115,7 @@ written in another programming language might be used but the use cases
 are much more ambitious because the LLM can do much more than ordinary
 code. Here are some examples:
 
--   **Checking for potential inconsistencies in a collection of
-    configuration files or other content.** Using the LLM, a GenAIScript
+-   **Checking for potential inconsistencies in a collection of configuration files or other content.** Using the LLM, a GenAIScript
     can inspect configuration files and leverage the LLM's understanding
     of common configuration errors to detect and report them. Before
     LLMs, professional developers would write tools, such as lint[^2],
@@ -143,13 +142,11 @@ code. Here are some examples:
     translations, while leaving the existing ones alone. Because the LLM model we use has already been trained on
     MakeCode examples and documentation it is aware of the syntax.
 
--   **Generating executable code from a natural language
-    specification.** A GPSpec file can be used to specify the task being
+-   **Generating executable code from a natural language specification.** A GPSpec file can be used to specify the task being
     performed and a GenAIScript that specializes in code generation can
     translate the spec into code.
 
--   **Creating a short version of a longer white paper by summarizing
-    each chapter.** LLMs are quite effective at summarizing documents. A
+-   **Creating a short version of a longer white paper by summarizing each chapter.** LLMs are quite effective at summarizing documents. A
     GenAIScript can be written to take each chapter of a long document
     and summarize it in a section of a shorter document.
 
