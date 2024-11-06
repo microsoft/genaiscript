@@ -60,13 +60,14 @@ import {
     serializeError,
 } from "./error"
 import { resolveLanguageModel } from "./lm"
-import { concurrentLimit } from "./concurrency"
+import { concurrentLimit, PLimitPromiseQueue } from "./concurrency"
 import { Project } from "./ast"
 import { dedent } from "./indent"
 import { runtimeHost } from "./host"
 import { writeFileEdits } from "./fileedits"
 import { agentAddMemory, agentQueryMemory } from "./agent"
 import { YAMLStringify } from "./yaml"
+import { filterFile } from "./files"
 
 export function createChatTurnGenerationContext(
     options: GenerationOptions,
@@ -182,18 +183,8 @@ export function createChatTurnGenerationContext(
                 (body as WorkspaceFile).filename
             ) {
                 const file = body as WorkspaceFile
-                const { glob } = defOptions || {}
-                const endsWith = arrayify(defOptions?.endsWith)
-                const { filename } = file
-                if (glob && filename) {
-                    if (!isGlobMatch(filename, glob)) return undefined
-                }
-                if (
-                    endsWith.length &&
-                    !endsWith.some((ext) => filename.endsWith(ext))
-                )
-                    return undefined
-                appendChild(node, createDef(name, file, doptions))
+                if (filterFile(file, defOptions))
+                    appendChild(node, createDef(name, file, doptions))
             } else if (
                 typeof body === "object" &&
                 (body as ShellOutput).exitCode !== undefined
@@ -776,6 +767,48 @@ export function createChatGenerationContext(
         }
     }
 
+    const mapPrompts = async <T>(
+        values: Awaitable<Awaitable<T>[]>,
+        generator: PromptGeneratorT<T>,
+        options?: Omit<PromptGeneratorOptions, "label"> &
+            FileFilterOptions &
+            ConcurrencyOptions & {
+                label: (value: T) => string
+            }
+    ): Promise<RunPromptResult[]> => {
+        const {
+            concurrency = CHAT_REQUEST_PER_MODEL_CONCURRENT_LIMIT,
+            label,
+            ...rest
+        } = options || {}
+        const scheduler =
+            options?.scheduler || new PLimitPromiseQueue(concurrency)
+        const awaitedValues: T[] = []
+        for (const value of await values) {
+            const v: any = await value
+            if (typeof v === "object" && v.filename && !filterFile(v, options))
+                continue
+            awaitedValues.push(v)
+        }
+        const res = scheduler.mapAll(awaitedValues, async (value) => {
+            const valueLabel =
+                label?.(value) ??
+                (value as WorkspaceFile)?.filename ??
+                String(value)?.slice(0, 42)
+            const pres = await runPrompt(
+                async (ctx) => {
+                    await generator(value, ctx)
+                },
+                {
+                    ...rest,
+                    label: valueLabel,
+                }
+            )
+            return pres
+        })
+        return res
+    }
+
     const defFileMerge = (fn: FileMergeHandler) => {
         appendChild(node, createFileMerge(fn))
     }
@@ -792,6 +825,7 @@ export function createChatGenerationContext(
         defFileMerge,
         prompt,
         runPrompt,
+        mapPrompts,
     })
 
     return ctx

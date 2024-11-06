@@ -302,6 +302,22 @@ declare function prompt(
 ): RunPromptResultPromiseWithOptions
 
 /**
+ * Applies a prompt to a list of values
+ * @param values
+ * @param generator
+ * @param options
+ */
+declare function mapPrompts<T>(
+    values: Awaitable<Awaitable<T>[]>,
+    generator: PromptGeneratorT<T>,
+    options?: Omit<PromptGeneratorOptions, "label"> &
+        FileFilterOptions &
+        ConcurrencyOptions & {
+            label: (value: T) => string
+        }
+): Promise<RunPromptResult[]>
+
+/**
  * Registers a callback to process the LLM output
  * @param fn
  */

@@ -2176,6 +2176,10 @@ interface WriteTextOptions extends ContextExpansionOptions {
 }
 
 type PromptGenerator = (ctx: ChatGenerationContext) => Awaitable<unknown>
+type PromptGeneratorT<T> = (
+    value: T,
+    ctx: ChatGenerationContext
+) => Awaitable<unknown>
 
 interface PromptGeneratorOptions
     extends ModelOptions,
@@ -2314,6 +2318,17 @@ type ChatAgentHandler = (
     args: ChatFunctionArgs
 ) => Awaitable<unknown>
 
+interface ConcurrencyOptions {
+    /**
+     * Number of concurrent prompts to run
+     */
+    concurrency?: number
+    /**
+     * Optional scheduler to use for the prompt execution
+     */
+    scheduler?: PromiseQueue
+}
+
 interface ChatGenerationContext extends ChatTurnGenerationContext {
     defSchema(
         name: string,
@@ -2354,6 +2369,15 @@ interface ChatGenerationContext extends ChatTurnGenerationContext {
         generator: string | PromptGenerator,
         options?: PromptGeneratorOptions
     ): Promise<RunPromptResult>
+    mapPrompts<T>(
+        values: Awaitable<Awaitable<T>[]>,
+        generator: PromptGeneratorT<T>,
+        options?: Omit<PromptGeneratorOptions, "label"> &
+            FileFilterOptions &
+            ConcurrencyOptions & {
+                label: (value: T) => string
+            }
+    ): Promise<RunPromptResult[]>
     prompt(
         strings: TemplateStringsArray,
         ...args: any[]
