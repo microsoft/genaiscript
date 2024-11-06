@@ -553,6 +553,7 @@ async function processChatMessage(
         return undefined // keep working
     }
 
+    let err: any
     if (chatParticipants?.length) {
         let needsNewTurn = false
         for (const participant of chatParticipants) {
@@ -602,6 +603,8 @@ async function processChatMessage(
                     break
                 }
             } catch (e) {
+                err = e
+                logError(e)
                 trace.error(`participant error`, e)
                 needsNewTurn = false
                 break
@@ -622,6 +625,7 @@ async function processChatMessage(
         options,
         {
             resp,
+            err,
         }
     )
 }
