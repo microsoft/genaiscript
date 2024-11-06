@@ -767,48 +767,6 @@ export function createChatGenerationContext(
         }
     }
 
-    const mapPrompts = async <T>(
-        values: Awaitable<Awaitable<T>[]>,
-        generator: PromptGeneratorT<T>,
-        options?: Omit<PromptGeneratorOptions, "label"> &
-            FileFilterOptions &
-            ConcurrencyOptions & {
-                label: (value: T) => string
-            }
-    ): Promise<RunPromptResult[]> => {
-        const {
-            concurrency = CHAT_REQUEST_PER_MODEL_CONCURRENT_LIMIT,
-            label,
-            ...rest
-        } = options || {}
-        const scheduler =
-            options?.scheduler || new PLimitPromiseQueue(concurrency)
-        const awaitedValues: T[] = []
-        for (const value of await values) {
-            const v: any = await value
-            if (typeof v === "object" && v.filename && !filterFile(v, options))
-                continue
-            awaitedValues.push(v)
-        }
-        const res = scheduler.mapAll(awaitedValues, async (value) => {
-            const valueLabel =
-                label?.(value) ??
-                (value as WorkspaceFile)?.filename ??
-                String(value)?.slice(0, 42)
-            const pres = await runPrompt(
-                async (ctx) => {
-                    await generator(value, ctx)
-                },
-                {
-                    ...rest,
-                    label: valueLabel,
-                }
-            )
-            return pres
-        })
-        return res
-    }
-
     const defFileMerge = (fn: FileMergeHandler) => {
         appendChild(node, createFileMerge(fn))
     }
@@ -825,7 +783,6 @@ export function createChatGenerationContext(
         defFileMerge,
         prompt,
         runPrompt,
-        mapPrompts,
     })
 
     return ctx

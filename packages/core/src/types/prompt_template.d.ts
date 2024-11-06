@@ -2176,10 +2176,6 @@ interface WriteTextOptions extends ContextExpansionOptions {
 }
 
 type PromptGenerator = (ctx: ChatGenerationContext) => Awaitable<unknown>
-type PromptGeneratorT<T> = (
-    value: T,
-    ctx: ChatGenerationContext
-) => Awaitable<unknown>
 
 interface PromptGeneratorOptions
     extends ModelOptions,
@@ -2369,15 +2365,6 @@ interface ChatGenerationContext extends ChatTurnGenerationContext {
         generator: string | PromptGenerator,
         options?: PromptGeneratorOptions
     ): Promise<RunPromptResult>
-    mapPrompts<T>(
-        values: Awaitable<Awaitable<T>[]>,
-        generator: PromptGeneratorT<T>,
-        options?: Omit<PromptGeneratorOptions, "label"> &
-            FileFilterOptions &
-            ConcurrencyOptions & {
-                label: (value: T) => string
-            }
-    ): Promise<RunPromptResult[]>
     prompt(
         strings: TemplateStringsArray,
         ...args: any[]
