@@ -139,9 +139,7 @@ to scan for [harmful content categories](https://learn.microsoft.com/en-us/azure
 
 ```js
 const safety = await host.contentSafety()
-const harms = await safety.detectHarmfulContent(
-    "you are a very bad person"
-)
+const harms = await safety.detectHarmfulContent("you are a very bad person")
 console.log(harms)
 ```
 
@@ -156,4 +154,15 @@ console.log(harms)
  ],
   chunk: 'you are a very bad person'
 }
+```
+
+## Detect Prompt Leaks using Canary Words
+
+The system prompt [system.safety_canary_word](../system#systemsafety_canary_word) injects unique words into the system prompt
+and tracks the generate response for theses words. If the canary words are detected in the generated response, the system will throw an error.
+
+```js
+script({
+  system: [..., "system.safety_canary_word"]
+})
 ```
