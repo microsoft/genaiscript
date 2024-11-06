@@ -409,6 +409,12 @@ interface PromptScript
     files?: string | string[]
 
     /**
+     * Files batching mode. `all` will batch all files together, `single` will batch each file separately.
+     * @default all
+     */
+    filesBatch?: "all" | "single"
+
+    /**
      * Extra variable values that can be used to configure system prompts.
      */
     vars?: Record<string, string>
