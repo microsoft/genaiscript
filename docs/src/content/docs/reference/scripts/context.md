@@ -40,12 +40,6 @@ script({
 
 The files are stored in `env.files` which can be injected in the prompt.
 
--   directly in a `$` call
-
-```js
-$`Summarize ${env.files}.
-```
-
 -   using `def`
 
 ```js
@@ -57,6 +51,20 @@ def("FILE", env.files)
 ```js
 def("DOCS", env.files, { endsWith: ".md" })
 def("CODE", env.files, { endsWith: ".py" })
+```
+
+-   directly in a `$` call
+
+```js
+$`Summarize ${env.files}.
+```
+
+In this case, the prompt is automatically expanded with a `def` call and the value of `env.files`.
+
+```js
+// expanded
+const files = def("FILES", env.files, { ignoreEmpty: true })
+$`Summarize ${files}.
 ```
 
 ### `env.vars`
