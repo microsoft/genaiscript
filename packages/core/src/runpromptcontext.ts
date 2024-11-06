@@ -60,13 +60,14 @@ import {
     serializeError,
 } from "./error"
 import { resolveLanguageModel } from "./lm"
-import { concurrentLimit } from "./concurrency"
+import { concurrentLimit, PLimitPromiseQueue } from "./concurrency"
 import { Project } from "./ast"
 import { dedent } from "./indent"
 import { runtimeHost } from "./host"
 import { writeFileEdits } from "./fileedits"
 import { agentAddMemory, agentQueryMemory } from "./agent"
 import { YAMLStringify } from "./yaml"
+import { filterFile } from "./files"
 
 export function createChatTurnGenerationContext(
     options: GenerationOptions,
@@ -182,18 +183,8 @@ export function createChatTurnGenerationContext(
                 (body as WorkspaceFile).filename
             ) {
                 const file = body as WorkspaceFile
-                const { glob } = defOptions || {}
-                const endsWith = arrayify(defOptions?.endsWith)
-                const { filename } = file
-                if (glob && filename) {
-                    if (!isGlobMatch(filename, glob)) return undefined
-                }
-                if (
-                    endsWith.length &&
-                    !endsWith.some((ext) => filename.endsWith(ext))
-                )
-                    return undefined
-                appendChild(node, createDef(name, file, doptions))
+                if (filterFile(file, defOptions))
+                    appendChild(node, createDef(name, file, doptions))
             } else if (
                 typeof body === "object" &&
                 (body as ShellOutput).exitCode !== undefined

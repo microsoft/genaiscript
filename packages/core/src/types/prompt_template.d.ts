@@ -2320,6 +2320,17 @@ type ChatAgentHandler = (
     args: ChatFunctionArgs
 ) => Awaitable<unknown>
 
+interface ConcurrencyOptions {
+    /**
+     * Number of concurrent prompts to run
+     */
+    concurrency?: number
+    /**
+     * Optional scheduler to use for the prompt execution
+     */
+    scheduler?: PromiseQueue
+}
+
 interface ChatGenerationContext extends ChatTurnGenerationContext {
     defSchema(
         name: string,

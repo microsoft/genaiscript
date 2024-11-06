@@ -1,7 +1,7 @@
 import { capitalize } from "inflection"
 import path, { resolve, join, relative, dirname } from "node:path"
 import { consoleColors, isQuiet, wrapColor } from "./log"
-import { emptyDir, ensureDir, appendFileSync, exists } from "fs-extra"
+import { emptyDir, ensureDir, appendFileSync, exists, statSync } from "fs-extra"
 import { convertDiagnosticsToSARIF } from "./sarif"
 import { buildProject } from "./build"
 import { diagnosticsToCSV } from "../../core/src/ast"
@@ -32,7 +32,6 @@ import {
     CONSOLE_COLOR_DEBUG,
     DOCS_CONFIGURATION_URL,
     TRACE_DETAILS,
-    CLI_ENV_VAR_RX,
     STATS_DIR_NAME,
     GENAI_ANYTS_REGEX,
     CONSOLE_TOKEN_COLORS,
@@ -40,9 +39,8 @@ import {
 } from "../../core/src/constants"
 import { isCancelError, errorMessage } from "../../core/src/error"
 import { Fragment, GenerationResult } from "../../core/src/generation"
-import { parseKeyValuePair } from "../../core/src/fence"
 import { filePathOrUrlToWorkspaceFile, writeText } from "../../core/src/fs"
-import { host, runtimeHost } from "../../core/src/host"
+import { host } from "../../core/src/host"
 import { isJSONLFilename, appendJSONL } from "../../core/src/jsonl"
 import { resolveModelConnectionInfo } from "../../core/src/models"
 import {
@@ -155,6 +153,48 @@ export async function runScriptWithExitCode(
     process.exit(exitCode)
 }
 
+async function resolveFiles(
+    files: string[],
+    excludedFiles: string[],
+    excludeGitIgnore: boolean
+) {
+    const resolvedFiles = new Set<string>()
+    for (let arg of files) {
+        if (HTTPS_REGEX.test(arg)) resolvedFiles.add(arg)
+        else {
+            if (statSync(arg).isDirectory()) arg = path.join(arg, "/*")
+            const ffs = await host.findFiles(arg, {
+                applyGitIgnore: excludeGitIgnore,
+            })
+            if (!ffs?.length) {
+                return {
+                    error: `no files matching ${arg} under ${process.cwd()}`,
+                    code: FILES_NOT_FOUND_ERROR_CODE,
+                }
+            }
+            for (const file of ffs) {
+                resolvedFiles.add(filePathOrUrlToWorkspaceFile(file))
+            }
+        }
+    }
+
+    if (excludedFiles?.length) {
+        for (const arg of excludedFiles) {
+            const ffs = await host.findFiles(arg)
+            for (const f of ffs)
+                resolvedFiles.delete(filePathOrUrlToWorkspaceFile(f))
+        }
+    }
+
+    if (resolvedFiles.size)
+        logVerbose(`files:\n${YAMLStringify(resolvedFiles)}`)
+
+    return {
+        resolvedFiles: Array.from(resolvedFiles),
+        code: SUCCESS_ERROR_CODE,
+    }
+}
+
 export async function runScript(
     scriptId: string,
     files: string[],
@@ -224,35 +264,12 @@ export async function runScript(
     }
 
     const toolFiles: string[] = []
-    const resolvedFiles = new Set<string>()
-
-    if (GENAI_ANY_REGEX.test(scriptId)) toolFiles.push(scriptId)
-
-    for (const arg of files) {
-        if (HTTPS_REGEX.test(arg)) resolvedFiles.add(arg)
-        else {
-            const ffs = await host.findFiles(arg, {
-                applyGitIgnore: excludeGitIgnore,
-            })
-            if (!ffs?.length) {
-                return fail(
-                    `no files matching ${arg} under ${process.cwd()}`,
-                    FILES_NOT_FOUND_ERROR_CODE
-                )
-            }
-            for (const file of ffs) {
-                resolvedFiles.add(filePathOrUrlToWorkspaceFile(file))
-            }
-        }
-    }
-
-    if (excludedFiles?.length) {
-        for (const arg of excludedFiles) {
-            const ffs = await host.findFiles(arg)
-            for (const f of ffs)
-                resolvedFiles.delete(filePathOrUrlToWorkspaceFile(f))
-        }
-    }
+    const {
+        resolvedFiles,
+        code: resolvedFilesCode,
+        error: resolvedFilesError,
+    } = await resolveFiles(files, excludedFiles, excludeGitIgnore)
+    if (resolvedFilesError) return fail(resolvedFilesError, resolvedFilesCode)
 
     const prj = await buildProject({
         toolFiles,
