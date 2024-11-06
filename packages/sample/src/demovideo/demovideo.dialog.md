@@ -2,7 +2,7 @@ Ethan: Welcome to our presentation of GP tools in Visual Studio Code. We'll star
 
 Nancy: That's right, Ethan. The task is to write a function that takes a string and validates if the whole string is a valid email address. This description is in natural language, in what we call the GP spec file.
 
-Ethan: Now, this GP spec file is run against a GP tool. The GP tools are JavaScript files defined in the project. Let's open the generate python GP tool, which has some metadata used to populate the UI, a programmatic way to access the context, and the typical prompt engineering using an intuitive syntax.
+Ethan: Now, this GP spec file is run against a GP tool. The GP tools are JavaScript files defined in the project. Let's open the generated python GP tool, which has some metadata used to populate the UI, a programmatic way to access the context, and the typical prompt engineering using an intuitive syntax.
 
 Nancy: From the user's perspective, they can take the code action tool and select the "generate python code" option. This will execute the GP tool against the GP spec and the rest of the context. The results are streamed in Visual Studio Code and previewed as a refactoring.
 
