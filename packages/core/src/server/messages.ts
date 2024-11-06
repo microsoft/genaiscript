@@ -79,6 +79,7 @@ export interface PromptScriptRunOptions {
     removeOut: boolean
     vars: string[]
     jsSource: string
+    singleFile: string
 }
 
 export interface PromptScriptStart extends RequestMessage {

@@ -79,6 +79,7 @@ import { GenerationStats } from "../../core/src/usage"
 import { traceAgentMemory } from "../../core/src/agent"
 import { appendFile } from "node:fs/promises"
 import { parseOptionsVars } from "./vars"
+import { isGlobMatch } from "../../core/src/glob"
 
 async function setupTraceWriting(trace: MarkdownTrace, filename: string) {
     logVerbose(`trace: ${filename}`)
@@ -156,11 +157,12 @@ export async function runScriptWithExitCode(
 async function resolveFiles(
     files: string[],
     excludedFiles: string[],
-    excludeGitIgnore: boolean
+    excludeGitIgnore: boolean,
+    singleFile: string
 ) {
-    const resolvedFiles = new Set<string>()
+    const res = new Set<string>()
     for (let arg of files) {
-        if (HTTPS_REGEX.test(arg)) resolvedFiles.add(arg)
+        if (HTTPS_REGEX.test(arg)) res.add(arg)
         else {
             if (statSync(arg).isDirectory()) arg = path.join(arg, "/*")
             const ffs = await host.findFiles(arg, {
@@ -173,7 +175,7 @@ async function resolveFiles(
                 }
             }
             for (const file of ffs) {
-                resolvedFiles.add(filePathOrUrlToWorkspaceFile(file))
+                res.add(filePathOrUrlToWorkspaceFile(file))
             }
         }
     }
@@ -181,16 +183,20 @@ async function resolveFiles(
     if (excludedFiles?.length) {
         for (const arg of excludedFiles) {
             const ffs = await host.findFiles(arg)
-            for (const f of ffs)
-                resolvedFiles.delete(filePathOrUrlToWorkspaceFile(f))
+            for (const f of ffs) res.delete(filePathOrUrlToWorkspaceFile(f))
         }
     }
 
-    if (resolvedFiles.size)
-        logVerbose(`files:\n${YAMLStringify(resolvedFiles)}`)
+    let resolvedFiles = Array.from(res)
+    if (singleFile)
+        resolvedFiles = resolvedFiles.filter((f) =>
+            isGlobMatch(f, singleFile, { matchBase: true })
+        )
+
+    if (res.size) logVerbose(`files:\n${YAMLStringify(resolvedFiles)}`)
 
     return {
-        resolvedFiles: Array.from(resolvedFiles),
+        resolvedFiles,
         code: SUCCESS_ERROR_CODE,
     }
 }
@@ -237,6 +243,7 @@ export async function runScript(
     const cacheName = options.cacheName
     const cancellationToken = options.cancellationToken
     const jsSource = options.jsSource
+    const singleFile = options.singleFile
 
     if (options.model) host.defaultModelOptions.model = options.model
     if (options.smallModel)
@@ -268,7 +275,7 @@ export async function runScript(
         resolvedFiles,
         code: resolvedFilesCode,
         error: resolvedFilesError,
-    } = await resolveFiles(files, excludedFiles, excludeGitIgnore)
+    } = await resolveFiles(files, excludedFiles, excludeGitIgnore, singleFile)
     if (resolvedFilesError) return fail(resolvedFilesError, resolvedFilesCode)
 
     const prj = await buildProject({
@@ -287,11 +294,13 @@ export async function runScript(
                 resolve(t.filename) === resolve(scriptId))
     )
     if (!script) throw new Error(`script ${scriptId} not found`)
+
+    const vars = parseOptionsVars(options.vars, process.env)
+    const stats = new GenerationStats("")
+
     const fragment: Fragment = {
         files: Array.from(resolvedFiles),
     }
-    const vars = parseOptionsVars(options.vars, process.env)
-    const stats = new GenerationStats("")
     try {
         if (options.label) trace.heading(2, options.label)
         const { info } = await resolveModelConnectionInfo(script, {

@@ -19,6 +19,7 @@ Options:
   -ef, --excluded-files <string...>          excluded files
   -egi, --exclude-git-ignore                 exclude files that are ignored through the .gitignore file in the workspace root
   -o, --out <string>                         output folder. Extra markdown fields for output and trace will also be generated
+  -sf, --single-file [glob]                  run script separately on each file
   -rmo, --remove-out                         remove output folder if it exists
   -ot, --out-trace <string>                  output file for trace
   -od, --out-data <string>                   output file for data (.jsonl/ndjson will be aggregated). JSON schema information and validation will be included if available.

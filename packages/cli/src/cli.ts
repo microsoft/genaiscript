@@ -104,6 +104,10 @@ export async function cli() {
             "-o, --out <string>",
             "output folder. Extra markdown fields for output and trace will also be generated"
         )
+        .option(
+            "-sf, --single-file [glob]",
+            "run script separately on each file. Optional glob matches the file basename, like *.md"
+        )
         .option("-rmo, --remove-out", "remove output folder if it exists")
         .option("-ot, --out-trace <string>", "output file for trace")
         .option(
