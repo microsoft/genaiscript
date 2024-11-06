@@ -273,9 +273,11 @@ export async function runTemplate(
             status:
                 finishReason === "cancel"
                     ? "cancelled"
-                    : finishReason === "stop"
-                      ? "success"
-                      : "error",
+                    : error
+                      ? "error"
+                      : finishReason === "stop"
+                        ? "success"
+                        : "error",
             finishReason,
             error,
             messages,
