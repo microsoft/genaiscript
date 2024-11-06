@@ -366,10 +366,11 @@ export function createChatGenerationContext(
             "system.safety_protected_material",
             ...arrayify(system),
         ])
-        const agentTools = resolveTools(runtimeHost.project, agentSystem, [
-            ...arrayify(tools),
-            ...(memory ? ["agent_memory"] : []),
-        ])
+        const agentTools = resolveTools(
+            runtimeHost.project,
+            agentSystem,
+            arrayify(tools)
+        )
         const agentDescription = dedent`Agent that uses an LLM to ${description}.\nAvailable tools: 
         ${agentTools.map((t) => `- ${t.description}`).join("\n")}` // DO NOT LEAK TOOL ID HERE
 

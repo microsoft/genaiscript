@@ -19,6 +19,7 @@ The following safety prompts are included by default when running a prompt, unle
 Other system scripts can be added to the prompt by using the `system` option.
 
 -   [system.safety_ungrounded_content_summarization](../system#systemsafety_ungrounded_content_summarization) safety prompt against ungrounded content in summarization
+-   [system.safety_canary_word](../system#systemsafety_canary_word) safety prompt against prompt leaks.
 
 ## Azure AI Content Safety services
 
@@ -138,9 +139,7 @@ to scan for [harmful content categories](https://learn.microsoft.com/en-us/azure
 
 ```js
 const safety = await host.contentSafety()
-const harms = await safety.detectHarmfulContent(
-    "you are a very bad person"
-)
+const harms = await safety.detectHarmfulContent("you are a very bad person")
 console.log(harms)
 ```
 
@@ -155,4 +154,15 @@ console.log(harms)
  ],
   chunk: 'you are a very bad person'
 }
+```
+
+## Detect Prompt Leaks using Canary Words
+
+The system prompt [system.safety_canary_word](../system#systemsafety_canary_word) injects unique words into the system prompt
+and tracks the generated response for theses words. If the canary words are detected in the generated response, the system will throw an error.
+
+```js
+script({
+  system: [..., "system.safety_canary_word"]
+})
 ```

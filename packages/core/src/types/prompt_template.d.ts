@@ -54,9 +54,14 @@ interface PromptDefinition {
      * Groups template in UI
      */
     group?: string
+
+    /**
+     * List of tools defined in the script
+     */
+    defTools?: { id: string; description: string; kind: "tool" | "agent" }[]
 }
 
-interface PromptLike extends PromptDefinition {
+interface PromptLike extends PromptDefinition, PromptToolsDefinition {
     /**
      * File where the prompt comes from (if any).
      */
@@ -428,11 +433,6 @@ interface PromptScript
      * Set if this is a system prompt.
      */
     isSystem?: boolean
-
-    /**
-     * List of tools defined in the script
-     */
-    defTools?: { id: string; description: string; kind: "tool" | "agent" }[]
 }
 
 /**
@@ -759,12 +759,6 @@ interface ExpansionVariables {
      * Root prompt generation context
      */
     generator: ChatGenerationContext
-
-    /**
-     * current prompt template
-     * @deprecated use `meta` instead
-     */
-    template: PromptDefinition & ModelConnectionOptions
 
     /**
      * Metadata of the top-level prompt
@@ -1848,7 +1842,7 @@ interface GitHub {
 
     /**
      * Gets the details of a GitHub pull request
-     * @param pull_number pull request number. Default resolves the pull requeset for the current branch.
+     * @param pull_number pull request number. Default resolves the pull request for the current branch.
      */
     getPullRequest(pull_number?: number): Promise<GitHubPullRequest>
 
@@ -2316,7 +2310,7 @@ interface DefAgentOptions extends Omit<PromptGeneratorOptions, "label"> {
     disableMemory?: boolean
 
     /**
-     * Diable memory query on each query (let the agent call the tool)
+     * Disable memory query on each query (let the agent call the tool)
      */
     disableMemoryQuery?: boolean
 }
