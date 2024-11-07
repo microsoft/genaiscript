@@ -430,7 +430,7 @@
     "devDependencies": {
         "@types/markdown-it": "^14.1.2",
         "@types/vscode": "^1.93.0",
-        "@vscode/vsce": "^3.2.0",
+        "@vscode/vsce": "^3.2.1",
         "assert": "^2.1.0",
         "es-toolkit": "^1.26.1",
         "markdown-it-github-alerts": "^0.3.0",
