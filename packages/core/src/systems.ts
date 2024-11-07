@@ -1,9 +1,12 @@
+// cspell: disable
 // This module resolves and returns a list of applicable systems based on the provided script and project.
 // It analyzes script options and the JavaScript source code to determine which systems to include or exclude.
 
 import { uniq } from "es-toolkit"
 import { Project } from "./ast"
 import { arrayify } from "./util"
+import { GenerationOptions } from "./generation"
+import { isToolsSupported } from "./tools"
 
 /**
  * Function to resolve and return a list of systems based on the provided script and project.
@@ -15,11 +18,13 @@ import { arrayify } from "./util"
  */
 export function resolveSystems(
     prj: Project,
-    script: PromptSystemOptions & ModelOptions & { jsSource?: string }
+    script: PromptSystemOptions & ModelOptions & { jsSource?: string },
+    resolvedTools?: ToolCallback[],
+    options?: GenerationOptions
 ): string[] {
     const { jsSource } = script
     // Initialize systems array from script.system, converting to array if necessary using arrayify utility
-    const systems = arrayify(script.system)
+    let systems = arrayify(script.system)
     const excludedSystem = arrayify(script.excludedSystem)
     const tools = arrayify(script.tools)
 
@@ -74,11 +79,19 @@ export function resolveSystems(
         )
     }
 
+    // filter out
+    systems = systems
+        .filter((s) => !!s)
+        .filter((s) => !excludedSystem.includes(s))
+
+    const fallbackTools =
+        isToolsSupported(options?.model) === false || options?.fallbackTools
+    if (fallbackTools && (tools.length || resolvedTools?.length))
+        systems.push("system.tool_calls")
+
     // Return a unique list of non-empty systems
     // Filters out duplicates and empty entries using unique utility
-    const res = uniq(
-        systems.filter((s) => !!s).filter((s) => !excludedSystem.includes(s))
-    )
+    const res = uniq(systems)
     return res
 }
 

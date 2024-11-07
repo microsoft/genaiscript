@@ -130,6 +130,8 @@ type ModelType = OptionsOrString<
     | "github:gpt-4o-mini"
     | "github:o1-mini"
     | "github:o1-preview"
+    | "github:AI21-Jamba-1.5-Large"
+    | "github:AI21-Jamba-1-5-Mini"
     | "azure:gpt-4o"
     | "azure:gpt-4o-mini"
     | "ollama:phi3.5"
@@ -151,6 +153,7 @@ type ModelSmallType = OptionsOrString<
     | "azure:gpt-4o-mini"
     | "openai:gpt-3.5-turbo"
     | "github:Phi-3-5-mini-instruct"
+    | "github:AI21-Jamba-1-5-Mini"
 >
 
 interface ModelConnectionOptions {
@@ -280,14 +283,16 @@ interface ScriptRuntimeOptions extends LineNumberingOptions {
     secrets?: string[]
 }
 
+type PromptJSONParameterType<T> = T & { required?: boolean }
+
 type PromptParameterType =
     | string
     | number
     | boolean
     | object
-    | JSONSchemaNumber
-    | JSONSchemaString
-    | JSONSchemaBoolean
+    | PromptJSONParameterType<JSONSchemaNumber>
+    | PromptJSONParameterType<JSONSchemaString>
+    | PromptJSONParameterType<JSONSchemaBoolean>
 type PromptParametersSchema = Record<
     string,
     PromptParameterType | PromptParameterType[]
@@ -778,7 +783,6 @@ type PromptSystemArgs = Omit<
     | "responseSchema"
     | "files"
     | "modelConcurrency"
-    | "parameters"
 >
 
 type StringLike = string | WorkspaceFile | WorkspaceFile[]

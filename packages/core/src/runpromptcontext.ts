@@ -1,3 +1,4 @@
+// cspell: disable
 import {
     PromptNode,
     appendChild,
@@ -33,6 +34,8 @@ import { mustacheRender } from "./mustache"
 import { imageEncodeForLLM } from "./image"
 import { delay, uniq } from "es-toolkit"
 import {
+    addToolDefinitionsMessage,
+    appendSystemMessage,
     executeChatSession,
     mergeGenerationOptions,
     tracePromptResult,
@@ -575,6 +578,7 @@ export function createChatGenerationContext(
             infoCb?.({ text: `prompt ${label || ""}` })
 
             const genOptions = mergeGenerationOptions(options, runOptions)
+            genOptions.fallbackTools = undefined
             genOptions.inner = true
             genOptions.trace = runTrace
             const { info } = await resolveModelConnectionInfo(genOptions, {
@@ -648,11 +652,12 @@ export function createChatGenerationContext(
                 }
             }
 
-            const systemMessage: ChatCompletionSystemMessageParam = {
-                role: "system",
-                content: "",
-            }
-            const systemScripts = resolveSystems(prj, runOptions ?? {})
+            const systemScripts = resolveSystems(
+                prj,
+                runOptions ?? {},
+                tools,
+                genOptions
+            )
             if (systemScripts.length)
                 try {
                     runTrace.startDetails("👾 systems")
@@ -691,8 +696,7 @@ export function createChatGenerationContext(
                                 smsg.role === "user" &&
                                 typeof smsg.content === "string"
                             ) {
-                                systemMessage.content +=
-                                    SYSTEM_FENCE + "\n" + smsg.content + "\n"
+                                appendSystemMessage(messages, smsg.content)
                                 runTrace.fence(smsg.content, "markdown")
                             } else
                                 throw new NotSupportedError(
@@ -713,8 +717,10 @@ export function createChatGenerationContext(
                 } finally {
                     runTrace.endDetails()
                 }
-            if (systemMessage.content) messages.unshift(systemMessage)
-
+            if (systemScripts.includes("system.tool_calls")) {
+                addToolDefinitionsMessage(messages, tools)
+                genOptions.fallbackTools = true
+            }
             const connection = await resolveModelConnectionInfo(genOptions, {
                 trace: runTrace,
                 token: true,

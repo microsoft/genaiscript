@@ -1,8 +1,14 @@
+import { rest } from "es-toolkit"
 import { Project } from "./ast"
 import { NotSupportedError } from "./error"
 import { isJSONSchema } from "./schema"
 import { resolveSystems } from "./systems"
 import { logError, normalizeFloat, normalizeInt } from "./util"
+
+function isPromptParameterTypeRequired(t: PromptParameterType): boolean {
+    const ta = t as any
+    return !!ta?.required
+}
 
 export function promptParameterTypeToJSONSchema(
     t: PromptParameterType
@@ -13,30 +19,31 @@ export function promptParameterTypeToJSONSchema(
     | JSONSchemaObject
     | JSONSchemaArray {
     if (typeof t === "string")
-        return <JSONSchemaString>{ type: "string", default: t }
+        return { type: "string", default: t } satisfies JSONSchemaString
     else if (typeof t === "number")
-        return <JSONSchemaNumber>{ type: "number", default: t }
+        return { type: "number", default: t } satisfies JSONSchemaNumber
     else if (typeof t === "boolean")
-        return <JSONSchemaBoolean>{ type: "boolean", default: t }
+        return { type: "boolean", default: t } satisfies JSONSchemaBoolean
     else if (Array.isArray(t))
-        return <JSONSchemaArray>{
+        return {
             type: "array",
             items: promptParameterTypeToJSONSchema(t[0]),
-        }
+        } satisfies JSONSchemaArray
     else if (
         typeof t === "object" &&
         ["number", "integer", "string", "boolean", "object"].includes(
             (t as any).type
         )
     ) {
+        const { required, ...rest } = t as any
         return <
             | JSONSchemaNumber
             | JSONSchemaString
             | JSONSchemaBoolean
             | JSONSchemaObject
-        >t
-    } else if (typeof t === "object")
-        return <JSONSchemaObject>{
+        >{ ...rest }
+    } else if (typeof t === "object") {
+        const o = {
             type: "object",
             properties: Object.fromEntries(
                 Object.entries(t).map(([k, v]) => [
@@ -44,8 +51,12 @@ export function promptParameterTypeToJSONSchema(
                     promptParameterTypeToJSONSchema(v),
                 ])
             ),
-        }
-    else throw new NotSupportedError(`prompt type ${typeof t} not supported`)
+            required: Object.entries(t)
+                .filter(([, v]) => isPromptParameterTypeRequired(v))
+                .map(([k]) => k),
+        } satisfies JSONSchemaObject
+        return o
+    } else throw new NotSupportedError(`prompt type ${typeof t} not supported`)
 }
 
 export function promptParametersSchemaToJSONSchema(
@@ -61,13 +72,9 @@ export function promptParametersSchemaToJSONSchema(
     }
     for (const [k, v] of Object.entries(parameters)) {
         const t = promptParameterTypeToJSONSchema(v)
+        const required = isPromptParameterTypeRequired(v)
         res.properties[k] = t
-        if (
-            t.type !== "object" &&
-            t.type !== "array" &&
-            t.default !== undefined &&
-            t.default !== null
-        )
+        if (t.type !== "object" && t.type !== "array" && required)
             res.required.push(k)
     }
     return res

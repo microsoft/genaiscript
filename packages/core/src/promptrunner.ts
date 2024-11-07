@@ -133,7 +133,7 @@ export async function runTemplate(
         let {
             messages,
             schemas,
-            functions,
+            tools,
             fileMerges,
             outputProcessors,
             chatParticipants,
@@ -211,7 +211,7 @@ export async function runTemplate(
             connection.configuration,
             cancellationToken,
             messages,
-            functions,
+            tools,
             schemas,
             fileOutputs,
             outputProcessors,

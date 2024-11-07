@@ -156,7 +156,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
             ;(headers as any)[OPENROUTER_SITE_URL_HEADER] =
                 process.env.OPENROUTER_SITE_URL || TOOL_URL
             ;(headers as any)[OPENROUTER_SITE_NAME_HEADER] =
-                process.env.OPENROUTE_SITE_NAME || TOOL_NAME
+                process.env.OPENROUTER_SITE_NAME || TOOL_NAME
         }
     } else if (cfg.type === "azure") {
         delete postReq.model

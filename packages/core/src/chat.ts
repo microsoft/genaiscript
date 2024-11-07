@@ -1,3 +1,4 @@
+// cspell: disable
 import { MarkdownTrace } from "./trace"
 import { PromptImage, renderPromptNode } from "./promptdom"
 import { LanguageModelConfiguration, host } from "./host"
@@ -147,17 +148,22 @@ async function runToolCalls(
     assert(!!trace)
     let edits: Edits[] = []
 
-    messages.push({
-        role: "assistant",
-        tool_calls: resp.toolCalls.map((c) => ({
-            id: c.id,
-            function: {
-                name: c.name,
-                arguments: c.arguments,
-            },
-            type: "function",
-        })),
-    })
+    if (!options.fallbackTools)
+        messages.push({
+            role: "assistant",
+            tool_calls: resp.toolCalls.map((c) => ({
+                id: c.id,
+                function: {
+                    name: c.name,
+                    arguments: c.arguments,
+                },
+                type: "function",
+            })),
+        })
+    else {
+        // pop the last assistant message
+        appendUserMessage(messages, "## Tool Results (computed by tools)")
+    }
 
     // call tool and run again
     for (const call of resp.toolCalls) {
@@ -171,7 +177,8 @@ async function runToolCalls(
                 edits,
                 projFolder,
                 encoder,
-                messages
+                messages,
+                options
             )
         } catch (e) {
             logError(e)
@@ -192,7 +199,8 @@ async function runToolCall(
     edits: Edits[],
     projFolder: string,
     encoder: TokenEncoder,
-    messages: ChatCompletionMessageParam[]
+    messages: ChatCompletionMessageParam[],
+    options: GenerationOptions
 ) {
     const callArgs: any = call.arguments // sometimes wrapped in \`\`\`json ...
         ? JSONLLMTryParse(call.arguments)
@@ -330,11 +338,22 @@ ${fenceMD(content, " ")}
         trace.fence(toolContent, "markdown")
         toolResult.push(toolContent)
     }
-    messages.push({
-        role: "tool",
-        content: toolResult.join("\n\n"),
-        tool_call_id: call.id,
-    })
+
+    if (options.fallbackTools)
+        appendUserMessage(
+            messages,
+            `- ${call.name}(${JSON.stringify(call.arguments || {})})
+\`\`\`\`\`
+${toolResult.join("\n\n")}
+\`\`\`\`\`
+`
+        )
+    else
+        messages.push({
+            role: "tool",
+            content: toolResult.join("\n\n"),
+            tool_call_id: call.id,
+        })
 }
 
 async function applyRepairs(
@@ -538,6 +557,28 @@ async function processChatMessage(
             content: resp.text,
         })
 
+    if (options.fallbackTools && resp.text && tools.length) {
+        resp.toolCalls = []
+        // parse tool call
+        const toolCallFences = extractFenced(resp.text).filter((f) =>
+            /^tool_calls?$/.test(f.language)
+        )
+        for (const toolCallFence of toolCallFences) {
+            for (const toolCall of toolCallFence.content.split("\n")) {
+                const { name, args } =
+                    /^(?<name>[\w\d]+):\s*(?<args>\{.*\})\s*$/i.exec(toolCall)
+                        ?.groups || {}
+                if (name) {
+                    resp.toolCalls.push({
+                        id: undefined,
+                        name,
+                        arguments: args,
+                    } satisfies ChatCompletionToolCall)
+                }
+            }
+        }
+    }
+
     // execute tools as needed
     if (resp.toolCalls?.length) {
         await runToolCalls(resp, messages, tools, options)
@@ -651,7 +692,7 @@ export function mergeGenerationOptions(
             runOptions?.embeddingsModel ??
             options?.embeddingsModel ??
             host.defaultEmbeddingsModelOptions.embeddingsModel,
-    }
+    } satisfies GenerationOptions
     return res
 }
 
@@ -679,6 +720,7 @@ export async function executeChatSession(
         responseSchema,
         infoCb,
         stats,
+        fallbackTools,
     } = genOptions
     traceLanguageModelConnection(trace, genOptions, connectionToken)
     const tools: ChatCompletionTool[] = toolDefinitions?.length
@@ -724,7 +766,7 @@ export async function executeChatSession(
                     seed,
                     stream: true,
                     messages,
-                    tools,
+                    tools: fallbackTools ? undefined : tools,
                     response_format:
                         responseType === "json_object"
                             ? { type: responseType }
@@ -854,4 +896,19 @@ export function appendSystemMessage(
     }
     if (last.content) last.content += SYSTEM_FENCE
     last.content += content
+}
+
+export function addToolDefinitionsMessage(
+    messages: ChatCompletionMessageParam[],
+    tools: ToolCallback[]
+) {
+    appendSystemMessage(
+        messages,
+        `
+TOOLS:
+\`\`\`yaml
+${YAMLStringify(tools.map((t) => t.spec))}
+\`\`\`
+`
+    )
 }

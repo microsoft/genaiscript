@@ -16,8 +16,11 @@ Usage: genaiscript run [options] <script> [files...]
 Runs a GenAIScript against files.
 
 Options:
+  -m, --model <string>                       model for the run
+  -sm, --small-model <string>                small model for the run
   -ef, --excluded-files <string...>          excluded files
   -egi, --exclude-git-ignore                 exclude files that are ignored through the .gitignore file in the workspace root
+  -ft, --fallback-tools                      Enable prompt-based tools instead of builtin LLM tool calling builtin tool calls
   -o, --out <string>                         output folder. Extra markdown fields for output and trace will also be generated
   -rmo, --remove-out                         remove output folder if it exists
   -ot, --out-trace <string>                  output file for trace
@@ -37,9 +40,7 @@ Options:
   -l, --label <string>                       label for the run
   -t, --temperature <number>                 temperature for the run
   -tp, --top-p <number>                      top-p for the run
-  -m, --model <string>                       model for the run
-  -sm, --small-model <string>                small model for the run
-  -mt, --max-tokens <number>                 maximum tokens for the run
+  -mt, --max-tokens <number>                 maximum completion tokens for the run
   -mdr, --max-data-repairs <number>          maximum data repairs
   -mtc, --max-tool-calls <number>            maximum tool calls for the run
   -se, --seed <number>                       seed for the run

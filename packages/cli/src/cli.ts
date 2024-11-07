@@ -95,10 +95,16 @@ export async function cli() {
         .command("run")
         .description("Runs a GenAIScript against files.")
         .arguments("<script> [files...]")
+        .option("-m, --model <string>", "model for the run")
+        .option("-sm, --small-model <string>", "small model for the run")
         .option("-ef, --excluded-files <string...>", "excluded files")
         .option(
             "-egi, --exclude-git-ignore",
             "exclude files that are ignored through the .gitignore file in the workspace root"
+        )
+        .option(
+            "-ft, --fallback-tools",
+            "Enable prompt-based tools instead of builtin LLM tool calling builtin tool calls"
         )
         .option(
             "-o, --out <string>",
@@ -149,9 +155,10 @@ export async function cli() {
         .option("-l, --label <string>", "label for the run")
         .option("-t, --temperature <number>", "temperature for the run")
         .option("-tp, --top-p <number>", "top-p for the run")
-        .option("-m, --model <string>", "model for the run")
-        .option("-sm, --small-model <string>", "small model for the run")
-        .option("-mt, --max-tokens <number>", "maximum tokens for the run")
+        .option(
+            "-mt, --max-tokens <number>",
+            "maximum completion tokens for the run"
+        )
         .option("-mdr, --max-data-repairs <number>", "maximum data repairs")
         .option(
             "-mtc, --max-tool-calls <number>",
