@@ -20,7 +20,7 @@ Options:
   -sm, --small-model <string>                small model for the run
   -ef, --excluded-files <string...>          excluded files
   -egi, --exclude-git-ignore                 exclude files that are ignored through the .gitignore file in the workspace root
-  -dmt, --disable-model-tools                disable builtin tool calls and use internal tools instead
+  -ft, --fallback-tools                      Enable prompt-based tools instead of builtin LLM tool calling builtin tool calls
   -o, --out <string>                         output folder. Extra markdown fields for output and trace will also be generated
   -rmo, --remove-out                         remove output folder if it exists
   -ot, --out-trace <string>                  output file for trace

@@ -103,8 +103,8 @@ export async function cli() {
             "exclude files that are ignored through the .gitignore file in the workspace root"
         )
         .option(
-            "-dmt, --disable-model-tools",
-            "disable builtin tool calls and use internal tools instead"
+            "-ft, --fallback-tools",
+            "Enable prompt-based tools instead of builtin LLM tool calling builtin tool calls"
         )
         .option(
             "-o, --out <string>",
