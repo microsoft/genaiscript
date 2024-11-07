@@ -5,6 +5,7 @@ import { uniq } from "es-toolkit"
 import { Project } from "./ast"
 import { arrayify } from "./util"
 import { GenerationOptions } from "./generation"
+import { isToolsSupported } from "./tools"
 
 /**
  * Function to resolve and return a list of systems based on the provided script and project.
@@ -81,7 +82,9 @@ export function resolveSystems(
         .filter((s) => !!s)
         .filter((s) => !excludedSystem.includes(s))
 
-    if (options?.disableModelTools) systems.push("system.tool_calls")
+    const disableModelTools =
+        isToolsSupported(options?.model) === false || options?.disableModelTools
+    if (disableModelTools) systems.push("system.tool_calls")
 
     // Return a unique list of non-empty systems
     // Filters out duplicates and empty entries using unique utility
