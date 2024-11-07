@@ -3066,12 +3066,13 @@ system({
 
 $`## Tool support                 
 
-You can call external tools to help your answering questions.
+You can call external tools to help generating the answer of the user questions.
 
 - The list of tools is defined in TOOLS. Use the description to help you choose the best tools.
 - Each tool has an id, description, and a JSON schema for the arguments.
 - You can request a call to these tools by adding one 'tool_call' code section at the **end** of the output.
 The result will be provided in the next user response.
+- Use the tool results to generate the answer to the user questions.
 
 \`\`\`tool_call
 <tool_id>: { <JSON_serialized_tool_call_arguments> }
