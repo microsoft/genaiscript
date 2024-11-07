@@ -39,6 +39,7 @@
         "hostpath",
         "huggingface",
         "icontains",
+        "Jamba",
         "labelledby",
         "limitrows",
         "LITELLM",

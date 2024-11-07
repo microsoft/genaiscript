@@ -3073,7 +3073,7 @@ You can call external tools to help generating the answer of the user questions.
 The result will be provided in the next user response.
 - Use the tool results to generate the answer to the user questions.
 
-\`\`\`tool_call
+\`\`\`tool_calls
 <tool_id>: { <JSON_serialized_tool_call_arguments> }
 <tool_id_2>: { <JSON_serialized_tool_call_arguments_2> }
 ...
@@ -3081,7 +3081,7 @@ The result will be provided in the next user response.
 
 ### Rules
 
-- for each generated tool_call, validate that the tool_id exists in TOOLS
+- for each generated tool_call entry, validate that the tool_id exists in TOOLS
 - calling tools is your secret superpower; do not bother to explain how you do it
 - you can group multiple tool calls in a single 'tool_call' code section, one per line
 - you can add additional contextual arguments if you think it can be useful to the tool
@@ -3097,13 +3097,13 @@ These are example of tool calls. Only consider tools defined in TOOLS.
 
 - ask a random number
 
-\`\`\`tool_call
+\`\`\`tool_calls
 random: {}
 \`\`\`
 
 - ask the weather in Brussels and Paris
 
-\`\`\`tool_call
+\`\`\`tool_calls
 weather: { "city": "Brussels" } }
 weather: { "city": "Paris" } }
 \`\`\`

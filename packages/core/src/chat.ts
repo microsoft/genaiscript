@@ -560,8 +560,8 @@ async function processChatMessage(
     if (options.fallbackTools && resp.text && tools.length) {
         resp.toolCalls = []
         // parse tool call
-        const toolCallFences = extractFenced(resp.text).filter(
-            (f) => f.language === "tool_call"
+        const toolCallFences = extractFenced(resp.text).filter((f) =>
+            /^tool_calls?$/.test(f.language)
         )
         for (const toolCallFence of toolCallFences) {
             for (const toolCall of toolCallFence.content.split("\n")) {
