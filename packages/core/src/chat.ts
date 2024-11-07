@@ -13,7 +13,7 @@ import {
     CancellationToken,
     checkCancelled,
 } from "./cancellation"
-import { assert, logError, logVerbose, logWarn } from "./util"
+import { assert, logError, logInfo, logVerbose, logWarn } from "./util"
 import { extractFenced, findFirstDataFence, unfence } from "./fence"
 import {
     toStrictJSONSchema,
@@ -249,7 +249,7 @@ async function runToolCall(
             tool.options || {}
         const context: ToolCallContext = {
             log: (message: string) => {
-                logVerbose(message)
+                logInfo(message)
                 trace.log(message)
             },
             debug: (message: string) => {

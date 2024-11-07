@@ -18,9 +18,9 @@ defTool(
         },
         required: ["filename"],
     },
-    async ({ filename }) => {
+    async ({ filename, context }) => {
         try {
-            console.log(`cat ${filename} | frontmatter`)
+            context.log(`cat ${filename} | frontmatter`)
             const res = await workspace.readText(filename)
             return parsers.frontmatter(res.content) ?? ""
         } catch (e) {

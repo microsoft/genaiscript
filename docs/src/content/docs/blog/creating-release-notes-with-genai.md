@@ -19,7 +19,7 @@ Bringing a new version of a product into the world is always exciting! But along
 
 Today, we're going to explore a script that automates the creation of release notes for GenAI. The script is part of the GenAIScript ecosystem, which harnesses the power of AI to bring efficiency to software development processes. 🚀
 
-If you want to dive straight into the script, it's available on GitHub right [here](https://github.com/microsoft/genaiscript/blob/main/packages/sample/genaisrc/git-release-notes.genai.js).
+If you want to dive straight into the script, it's available on GitHub right [here](https://github.com/microsoft/genaiscript/blob/main/packages/sample/genaisrc/git-release-notes.genai.mjs).
 
 > This blog post was co-authored with a [script](https://github.com/microsoft/genaiscript/blob/main/packages/sample/genaisrc/blogify-sample.genai.mts).
 
