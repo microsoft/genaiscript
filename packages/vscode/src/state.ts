@@ -73,7 +73,7 @@ export interface AIRequest {
     controller: AbortController
     trace: MarkdownTrace
     runId?: string
-    request?: Promise<GenerationResult>
+    request?: Promise<void>
     response?: Partial<GenerationResult>
     computing?: boolean
     error?: any
@@ -281,10 +281,6 @@ export class ExtensionState extends EventTarget {
             vscode.window.showErrorMessage(TOOL_NAME + " - " + info.error)
             return undefined
         }
-        const infoCb = (partialResponse: { text: string }) => {
-            r.response = partialResponse
-            reqChange()
-        }
         if (!connectionToken) {
             // we don't have a token so ask user if they want to use copilot
             const lm = await pickLanguageModel(this, info.model)
@@ -293,6 +289,11 @@ export class ExtensionState extends EventTarget {
         if (connectionToken?.type === "localai") await startLocalAI()
 
         // todo: send js source
+        const infoCb = (partialResponse: { text: string }) => {
+            r.response = partialResponse
+            reqChange()
+        }
+        const resultCb = (result: GenerationResult) => {}
         const { runId, request } = await this.host.server.client.startScript(
             template.id,
             files,
@@ -302,6 +303,7 @@ export class ExtensionState extends EventTarget {
                 trace,
                 infoCb,
                 partialCb,
+                resultCb,
                 label,
                 cache: cache ? template.cache : undefined,
                 vars: parametersToVars(options.parameters),

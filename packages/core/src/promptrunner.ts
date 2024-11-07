@@ -1,28 +1,23 @@
 // Import necessary modules and functions for handling chat sessions, templates, file management, etc.
 import { executeChatSession, tracePromptResult } from "./chat"
 import { Project, PromptScript } from "./ast"
-import { stringToPos } from "./parser"
-import { arrayify, assert, logError, logVerbose, relativePath } from "./util"
+import { arrayify, assert, relativePath } from "./util"
 import { runtimeHost } from "./host"
-import { applyLLMDiff, applyLLMPatch, parseLLMDiffs } from "./diff"
 import { MarkdownTrace } from "./trace"
-import { applyChangeLog, parseChangeLogs } from "./changelog"
 import { CORE_VERSION } from "./version"
-import { expandFiles, fileExists, readText } from "./fs"
+import { expandFiles } from "./fs"
 import { CSVToMarkdown } from "./csv"
 import { Fragment, GenerationOptions } from "./generation"
 import { traceCliArgs } from "./clihelp"
 import { GenerationResult } from "./generation"
 import { resolveModelConnectionInfo } from "./models"
 import { RequestError, errorMessage } from "./error"
-import { renderFencedVariables, unquote } from "./fence"
+import { renderFencedVariables } from "./fence"
 import { parsePromptParameters } from "./parameters"
 import { resolveFileContent } from "./file"
-import { isGlobMatch } from "./glob"
-import { validateJSONWithSchema } from "./schema"
-import { YAMLParse } from "./yaml"
 import { expandTemplate } from "./expander"
 import { resolveLanguageModel } from "./lm"
+import { traceAgentMemory } from "./agent"
 
 // Asynchronously resolve expansion variables needed for a template
 /**
@@ -267,7 +262,7 @@ export async function runTemplate(
                     }
                 )
             )
-
+        await traceAgentMemory(trace)
         trace.renderErrors()
         const res: GenerationResult = {
             status:

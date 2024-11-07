@@ -94,11 +94,16 @@ export interface PromptScriptStartResponse extends ResponseStatus {
     runId: string
 }
 
+export interface PromptScriptResultResponseEvent {
+    type: "script.result"
+    runId: string
+    result: GenerationResult
+}
+
 export interface PromptScriptEndResponseEvent {
     type: "script.end"
     runId: string
     exitCode: number
-    result: GenerationResult
 }
 
 export interface PromptScriptAbort extends RequestMessage {
@@ -183,6 +188,7 @@ export type RequestMessages =
 
 export type PromptScriptResponseEvents =
     | PromptScriptProgressResponseEvent
+    | PromptScriptResultResponseEvent
     | PromptScriptEndResponseEvent
 
 export type ChatEvents = ChatStart | ChatCancel

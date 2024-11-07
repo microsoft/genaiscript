@@ -1,5 +1,10 @@
 import { ChatCompletionsProgressReport } from "../chattypes"
-import { CLIENT_RECONNECT_DELAY, OPEN, RECONNECT } from "../constants"
+import {
+    CLIENT_RECONNECT_DELAY,
+    OPEN,
+    RECONNECT,
+    SUCCESS_ERROR_CODE,
+} from "../constants"
 import { randomHex } from "../crypto"
 import { errorMessage } from "../error"
 import { GenerationResult } from "../generation"
@@ -59,8 +64,9 @@ export class WebSocketClient extends EventTarget {
             trace: MarkdownTrace
             infoCb: (partialResponse: { text: string }) => void
             partialCb: (progress: ChatCompletionsProgressReport) => void
-            promise: Promise<GenerationResult>
-            resolve: (value: GenerationResult) => void
+            resultCb: (result: GenerationResult) => void
+            promise: Promise<void>
+            resolve: () => void
             reject: (reason?: any) => void
             signal: AbortSignal
         }
@@ -158,13 +164,22 @@ export class WebSocketClient extends EventTarget {
                             })
                         break
                     }
-                    case "script.end": {
+                    case "script.result": {
                         const run = this.runs[runId]
-                        delete this.runs[runId]
                         if (run) {
                             const res = structuredClone(ev.result)
                             if (res) run.infoCb(res)
-                            run.resolve(res)
+                            run.resultCb(res)
+                        }
+                        break
+                    }
+                    case "script.end": {
+                        delete this.runs[runId]
+                        const run = this.runs[runId]
+                        if (run) {
+                            if (ev.exitCode !== SUCCESS_ERROR_CODE)
+                                run.reject(ev.exitCode)
+                            else run.resolve()
                         }
                         break
                     }
@@ -273,13 +288,15 @@ export class WebSocketClient extends EventTarget {
             trace: MarkdownTrace
             infoCb: (partialResponse: { text: string }) => void
             partialCb: (progress: ChatCompletionsProgressReport) => void
+            resultCb: (result: GenerationResult) => void
         }
     ) {
         const runId = randomHex(6)
-        const { signal, infoCb, partialCb, trace, ...optionsRest } = options
-        let resolve: (value: GenerationResult) => void
+        const { signal, infoCb, partialCb, resultCb, trace, ...optionsRest } =
+            options
+        let resolve: () => void
         let reject: (reason?: any) => void
-        const promise = new Promise<GenerationResult>((res, rej) => {
+        const promise = new Promise<void>((res, rej) => {
             resolve = res
             reject = rej
         })
@@ -290,6 +307,7 @@ export class WebSocketClient extends EventTarget {
             trace,
             infoCb,
             partialCb,
+            resultCb,
             promise,
             resolve,
             reject,

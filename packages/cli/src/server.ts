@@ -34,6 +34,7 @@ import {
     ChatChunk,
     ChatCancel,
     LanguageModelConfigurationResponse,
+    PromptScriptResultResponseEvent,
 } from "../../core/src/server/messages"
 import { envInfo } from "./info"
 import { LanguageModel } from "../../core/src/chat"
@@ -303,38 +304,43 @@ export async function startServer(options: { port: string; apiKey?: string }) {
                                     tokens: tokensSoFar,
                                 })
                             },
+                            resultCb: (result) => {
+                                ws?.send(
+                                    JSON.stringify({
+                                        type: "script.result",
+                                        runId,
+                                        result,
+                                    } satisfies PromptScriptResultResponseEvent)
+                                )
+                            },
                         })
-                            .then(({ exitCode, result }) => {
+                            .then(({ exitCode }) => {
                                 delete runs[runId]
                                 logVerbose(
                                     `\nrun ${runId}: completed with ${exitCode}`
                                 )
                                 ws?.send(
-                                    JSON.stringify(<
-                                        PromptScriptEndResponseEvent
-                                    >{
+                                    JSON.stringify({
                                         type: "script.end",
                                         runId,
                                         exitCode,
-                                        result,
-                                    })
+                                    } satisfies PromptScriptEndResponseEvent)
                                 )
                             })
                             .catch((e) => {
+                                delete runs[runId]
                                 if (canceller.controller.signal.aborted) return
                                 if (!isCancelError(e)) trace.error(e)
                                 logError(`\nrun ${runId}: failed`)
                                 logError(e)
                                 ws?.send(
-                                    JSON.stringify(<
-                                        PromptScriptEndResponseEvent
-                                    >{
+                                    JSON.stringify({
                                         type: "script.end",
                                         runId,
                                         exitCode: isCancelError(e)
                                             ? USER_CANCELLED_ERROR_CODE
                                             : UNHANDLED_ERROR_CODE,
-                                    })
+                                    } satisfies PromptScriptEndResponseEvent)
                                 )
                             })
                         runs[runId] = {

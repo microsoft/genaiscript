@@ -82,6 +82,12 @@ export interface GenerationResult extends GenerationOutput {
 // Type representing possible statuses of generation
 export type GenerationStatus = "success" | "error" | "cancelled" | undefined
 
+export function mergeGenerationStatus(left: GenerationStatus, right: GenerationStatus): GenerationStatus {
+    if (left === "error" || right === "error") return "error"
+    if (left === "cancelled" || right === "cancelled") return "cancelled"
+    return "success"
+}
+
 // Options for configuring the generation process, extending multiple other options
 export interface GenerationOptions
     extends ChatCompletionsOptions,
