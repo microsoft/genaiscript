@@ -22,6 +22,8 @@ import {
     MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI,
     MODEL_PROVIDER_HUGGINGFACE,
     HUGGINGFACE_API_BASE,
+    OLLAMA_API_BASE,
+    OLLAMA_DEFAUT_PORT,
 } from "./constants"
 import { fileExists, readText, writeText } from "./fs"
 import {
@@ -31,8 +33,21 @@ import {
     AzureCredentialsType,
 } from "./host"
 import { parseModelIdentifier } from "./models"
-import { parseHostVariable } from "./ollama"
 import { normalizeFloat, trimTrailingSlash } from "./util"
+
+export function ollamaParseHostVariable(env: Record<string, string>) {
+    const s = (
+        env.OLLAMA_HOST ||
+        env.OLLAMA_API_BASE ||
+        OLLAMA_API_BASE
+    )?.trim()
+    const ipm =
+        /^(?<address>(localhost|\d+\.\d+\.\d+\.\d+))(:(?<port>\d+))?$/i.exec(s)
+    if (ipm)
+        return `http://${ipm.groups.address}:${ipm.groups.port || OLLAMA_DEFAUT_PORT}`
+    const url = new URL(s)
+    return url.href
+}
 
 export function findEnvVar(
     env: Record<string, string>,
@@ -296,7 +311,7 @@ export async function parseTokenFromEnv(
     }
 
     if (provider === MODEL_PROVIDER_OLLAMA) {
-        const host = parseHostVariable(env)
+        const host = ollamaParseHostVariable(env)
         const base = cleanApiBase(host)
         return {
             provider,
