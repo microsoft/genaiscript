@@ -23,7 +23,7 @@ defTool(
         properties: { url: { type: "string" } },
         required: ["url"],
     },
-    ({ url }) => "bla"
+    ({ url }) => "<html>empty</html>"
 )
 defTool(
     "math_add",
@@ -32,7 +32,7 @@ defTool(
     ({ a, b }) => String(a + b)
 )
 
-$`Answer all questions:
+$`Answer all questions. Be concise, do not explain:
 
 - Generate a random number between 0 and 1. 
 - Tell the weather in Brussels now.

@@ -26,7 +26,9 @@ The result will be provided in the next user response.
 - you can add additional contextual arguments if you think it can be useful to the tool
 - do NOT try to generate the source code of the tools
 - do NOT explain how tool calls are implemented
+- do NOT try to explain errors or exceptions in the tool calls
 - use the information in Tool Results to help you answer questions
+- do NOT suggest missing tools or improvements to the tools
 
 ### Examples
 
