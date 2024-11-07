@@ -651,7 +651,7 @@ export function mergeGenerationOptions(
             runOptions?.embeddingsModel ??
             options?.embeddingsModel ??
             host.defaultEmbeddingsModelOptions.embeddingsModel,
-    }
+    } satisfies GenerationOptions
     return res
 }
 
@@ -679,21 +679,23 @@ export async function executeChatSession(
         responseSchema,
         infoCb,
         stats,
+        disableModelTools,
     } = genOptions
     traceLanguageModelConnection(trace, genOptions, connectionToken)
-    const tools: ChatCompletionTool[] = toolDefinitions?.length
-        ? toolDefinitions.map(
-              (f) =>
-                  <ChatCompletionTool>{
-                      type: "function",
-                      function: {
-                          name: f.spec.name,
-                          description: f.spec.description,
-                          parameters: f.spec.parameters as any,
-                      },
-                  }
-          )
-        : undefined
+    const tools: ChatCompletionTool[] =
+        !disableModelTools && toolDefinitions?.length
+            ? toolDefinitions.map(
+                  (f) =>
+                      <ChatCompletionTool>{
+                          type: "function",
+                          function: {
+                              name: f.spec.name,
+                              description: f.spec.description,
+                              parameters: f.spec.parameters as any,
+                          },
+                      }
+              )
+            : undefined
     trace.startDetails(`🧠 llm chat`)
     if (toolDefinitions?.length) trace.detailsFenced(`🛠️ tools`, tools, "yaml")
     try {
@@ -854,4 +856,19 @@ export function appendSystemMessage(
     }
     if (last.content) last.content += SYSTEM_FENCE
     last.content += content
+}
+
+export function addToolDefinitionsMessage(
+    messages: ChatCompletionMessageParam[],
+    tools: ToolCallback[]
+) {
+    appendSystemMessage(
+        messages,
+        `
+TOOLS:
+\`\`\`yaml
+${YAMLStringify(tools.map((t) => t.spec))}
+\`\`\`
+`
+    )
 }
