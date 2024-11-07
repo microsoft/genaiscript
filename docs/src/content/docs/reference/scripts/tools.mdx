@@ -3,22 +3,26 @@ title: Tools
 description: Learn how to define and use tools within GenAIScript to enhance answer assembly with custom logic and CLI tools.
 keywords: functions,tools, custom logic, CLI integration, scripting, automation
 sidebar:
-    order: 7
+    order: 5
 ---
 
-import { Code } from '@astrojs/starlight/components';
+import { Code } from "@astrojs/starlight/components"
 import { Content as BuiltinTools } from "../../../../components/BuiltinTools.mdx"
 import weatherScriptSource from "../../../../../../packages/sample/genaisrc/weather.genai.js?raw"
 import mathScriptSource from "../../../../../../packages/sample/genaisrc/math-agent.genai.mjs?raw"
 
 You can register **tools** (also known as **functions**) that the LLM may decide to call as part of assembling the answer.
-See [OpenAI functions](https://platform.openai.com/docs/guides/function-calling).
+See [OpenAI functions](https://platform.openai.com/docs/guides/function-calling), [Ollama tools](https://ollama.com/blog/tool-support),
+or [Anthropic tool use](https://docs.anthropic.com/en/docs/build-with-claude/tool-use).
 
-## Definition
+Not all LLM models support tools, in those cases, GenAIScript also support a fallback mechanism to implement tool call through system prompts (see [Ad Hoc Tools](#adhoctools)).
+
+## `defTool`
 
 `defTool` is used to define a tool that can be called by the LLM.
-It takes a JSON schema to define the input and expects a string output. **The LLM decides to call
-this tool on its own!**
+It takes a JSON schema to define the input and expects a string output.
+
+**The LLM decides to call this tool on its own!**
 
 ```javascript
 defTool(
@@ -42,22 +46,62 @@ defTool(
 )
 ```
 
-In the example above, we define a tool called `current_weather` 
+In the example above, we define a tool called `current_weather`
 that takes a location as input and returns the weather.
-
 
 ### Weather tool example
 
 This example uses the `current_weather` tool to get the weather for Brussels.
 
-<Code code={weatherScriptSource} wrap={true} lang="js" title="weather.genai.mjs" />
+<Code
+    code={weatherScriptSource}
+    wrap={true}
+    lang="js"
+    title="weather.genai.mjs"
+/>
 
 ### Math tool example
 
-This example uses the [math expression evaluator](/genaiscript/reference/scripts/math) 
+This example uses the [math expression evaluator](/genaiscript/reference/scripts/math)
 to evaluate a math expression.
 
-<Code code={mathScriptSource} wrap={true} lang="js" title="math-agent.genai.mjs" />
+<Code
+    code={mathScriptSource}
+    wrap={true}
+    lang="js"
+    title="math-agent.genai.mjs"
+/>
+
+## Disable Model Tools
+
+Some LLM models do not have built-in model support.
+For those model, it is possible to enable tool support through system prompts. The performance may be lower than built-in tools, but it is still possible to use tools.
+
+The tool support is implemented in [system.tool_calls](/genaiscript/reference/scripts/system#systemtool_calls)
+and "teaches" the LLM how to call tools. When this mode is enabled, you will see
+the tool call tokens being responded by the LLM.
+
+To enable this mode, you can either
+
+-   add the `disableToolCalls` option to the script
+
+```js "disableToolCalls: true"
+script({
+    disableToolCalls: true,
+})
+```
+
+-   or add the `--disable-model-tools` flag to the CLI
+
+```sh "--disable-model-tools"
+npx genaiscript run ... --disable-model-tools
+```
+
+:::note
+
+The performance of this feature will vary greatly based on the LLM model you decide to use.
+
+:::
 
 ## Packaging as System scripts
 
@@ -81,9 +125,7 @@ script({
 })
 ```
 
-<BuiltinTools />
-
-## Example
+### Example
 
 Let's illustrate how tools come together with a question answering script.
 
@@ -113,3 +155,5 @@ We can then apply this script to the `questions.md` file blow.
 After the first request, the LLM requests to call the `web_search` for each questions.
 The web search answers are then added to the LLM message history and the request is made again.
 The second yields the final result which includes the web search results.
+
+<BuiltinTools />

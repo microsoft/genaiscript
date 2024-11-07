@@ -280,14 +280,16 @@ interface ScriptRuntimeOptions extends LineNumberingOptions {
     secrets?: string[]
 }
 
+type PromptJSONParameterType<T> = T & { required?: boolean }
+
 type PromptParameterType =
     | string
     | number
     | boolean
     | object
-    | JSONSchemaNumber
-    | JSONSchemaString
-    | JSONSchemaBoolean
+    | PromptJSONParameterType<JSONSchemaNumber>
+    | PromptJSONParameterType<JSONSchemaString>
+    | PromptJSONParameterType<JSONSchemaBoolean>
 type PromptParametersSchema = Record<
     string,
     PromptParameterType | PromptParameterType[]
