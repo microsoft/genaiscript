@@ -14,6 +14,11 @@ defTool(
                 description:
                     "Path of the file to load, relative to the workspace.",
             },
+            line: {
+                type: "integer",
+                description:
+                    "Line number (starting at 1) to read with a few lines before and after.",
+            },
             line_start: {
                 type: "integer",
                 description:
@@ -31,8 +36,13 @@ defTool(
         required: ["filename"],
     },
     async (args) => {
-        let { filename, line_start, line_end, line_numbers, context } = args
+        let { filename, line, line_start, line_end, line_numbers, context } =
+            args
         if (!filename) return "<MISSING>filename</MISSING>"
+        if (!isNaN(line)) {
+            line_start = Math.max(1, line - 5)
+            line_end = Math.max(1, line + 5)
+        }
         const hasRange = !isNaN(line_start) && !isNaN(line_end)
         if (hasRange) {
             line_start = Math.max(1, line_start)
