@@ -82,9 +82,9 @@ export function resolveSystems(
         .filter((s) => !!s)
         .filter((s) => !excludedSystem.includes(s))
 
-    const disableModelTools =
-        isToolsSupported(options?.model) === false || options?.disableModelTools
-    if (disableModelTools) systems.push("system.tool_calls")
+    const fallbackTools =
+        isToolsSupported(options?.model) === false || options?.fallbackTools
+    if (fallbackTools) systems.push("system.tool_calls")
 
     // Return a unique list of non-empty systems
     // Filters out duplicates and empty entries using unique utility

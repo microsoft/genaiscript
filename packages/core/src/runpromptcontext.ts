@@ -578,7 +578,7 @@ export function createChatGenerationContext(
             infoCb?.({ text: `prompt ${label || ""}` })
 
             const genOptions = mergeGenerationOptions(options, runOptions)
-            genOptions.disableModelTools = undefined
+            genOptions.fallbackTools = undefined
             genOptions.inner = true
             genOptions.trace = runTrace
             const { info } = await resolveModelConnectionInfo(genOptions, {
@@ -718,7 +718,7 @@ export function createChatGenerationContext(
                 }
             if (systemScripts.includes("system.tool_calls")) {
                 addToolDefinitionsMessage(messages, tools)
-                genOptions.disableModelTools = true
+                genOptions.fallbackTools = true
             }
             const connection = await resolveModelConnectionInfo(genOptions, {
                 trace: runTrace,

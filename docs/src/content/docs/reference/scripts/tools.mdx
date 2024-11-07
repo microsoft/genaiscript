@@ -72,7 +72,7 @@ to evaluate a math expression.
     title="math-agent.genai.mjs"
 />
 
-## Disable Model Tools
+## Fallback Tools
 
 Some LLM models do not have built-in model support.
 For those model, it is possible to enable tool support through system prompts. The performance may be lower than built-in tools, but it is still possible to use tools.
@@ -81,13 +81,16 @@ The tool support is implemented in [system.tool_calls](/genaiscript/reference/sc
 and "teaches" the LLM how to call tools. When this mode is enabled, you will see
 the tool call tokens being responded by the LLM.
 
+GenAIScript maintains a list of well-known models that do not support
+tools so it will happen automatically for those models.
+
 To enable this mode, you can either
 
--   add the `disableModelTools` option to the script
+-   add the `fallbackTools` option to the script
 
-```js "disableModelTools: true"
+```js "fallbackTools: true"
 script({
-    disableModelTools: true,
+    fallbackTools: true,
 })
 ```
 

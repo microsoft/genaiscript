@@ -328,7 +328,7 @@ export async function expandTemplate(
 
     if (systems.includes("system.tool_calls")) {
         addToolDefinitionsMessage(messages, tools)
-        options.disableModelTools = true
+        options.fallbackTools = true
     }
 
     const responseSchema = promptParametersSchemaToJSONSchema(

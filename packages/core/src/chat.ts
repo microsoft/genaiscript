@@ -148,7 +148,7 @@ async function runToolCalls(
     assert(!!trace)
     let edits: Edits[] = []
 
-    if (!options.disableModelTools)
+    if (!options.fallbackTools)
         messages.push({
             role: "assistant",
             tool_calls: resp.toolCalls.map((c) => ({
@@ -339,7 +339,7 @@ ${fenceMD(content, " ")}
         toolResult.push(toolContent)
     }
 
-    if (options.disableModelTools)
+    if (options.fallbackTools)
         appendUserMessage(
             messages,
             `- ${call.name}(${JSON.stringify(call.arguments || {})})
@@ -557,7 +557,7 @@ async function processChatMessage(
             content: resp.text,
         })
 
-    if (options.disableModelTools && resp.text && tools.length) {
+    if (options.fallbackTools && resp.text && tools.length) {
         resp.toolCalls = []
         // parse tool call
         const toolCallFences = extractFenced(resp.text).filter(
@@ -720,7 +720,7 @@ export async function executeChatSession(
         responseSchema,
         infoCb,
         stats,
-        disableModelTools,
+        fallbackTools,
     } = genOptions
     traceLanguageModelConnection(trace, genOptions, connectionToken)
     const tools: ChatCompletionTool[] = toolDefinitions?.length
@@ -766,7 +766,7 @@ export async function executeChatSession(
                     seed,
                     stream: true,
                     messages,
-                    tools: disableModelTools ? undefined : tools,
+                    tools: fallbackTools ? undefined : tools,
                     response_format:
                         responseType === "json_object"
                             ? { type: responseType }
