@@ -32,7 +32,8 @@ defTool(
     ({ a, b }) => String(a + b)
 )
 
-$`
+$`Answer all questions:
+
 - Generate a random number between 0 and 1. 
 - Tell the weather in Brussels now.
 - Download the HTML of https://bing.com

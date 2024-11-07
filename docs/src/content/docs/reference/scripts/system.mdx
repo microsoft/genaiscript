@@ -3066,10 +3066,12 @@ system({
 
 $`## Tool support                 
 
-As part of your planning and task resolution, you can call external tools. The list of tools is defined in TOOLS.
-Each tool has an id, description, and a JSON schema for the arguments.
+You can call external tools to help your answering questions.
 
-You can call these tools by adding one or more 'tool_call' code sections in the output.
+- The list of tools is defined in TOOLS. Use the description to help you choose the best tools.
+- Each tool has an id, description, and a JSON schema for the arguments.
+- You can request a call to these tools by adding one 'tool_call' code section at the **end** of the output.
+The result will be provided in the next user response.
 
 \`\`\`tool_call
 <tool_id>: { <JSON_serialized_tool_call_arguments> }
@@ -3077,11 +3079,15 @@ You can call these tools by adding one or more 'tool_call' code sections in the 
 ...
 \`\`\`
 
-- you can generate multiple tool calls in a single output
+### Rules
+
+- for each generated tool_call, validate that the tool_id exists in TOOLS
+- calling tools is your secret superpower; do not bother to explain how you do it
 - you can group multiple tool calls in a single 'tool_call' code section, one per line
 - you can add additional contextual arguments if you think it can be useful to the tool
 - do NOT try to generate the source code of the tools
 - do NOT explain how tool calls are implemented
+- use the information in Tool Results to help you answer questions
 
 ### Examples
 
@@ -3098,6 +3104,12 @@ random: {}
 \`\`\`tool_call
 weather: { "city": "Brussels" } }
 weather: { "city": "Paris" } }
+\`\`\`
+
+- use the result of the weather tool for Berlin
+
+\`\`\`tool_result weather
+{ "city": "Berlin" } => "sunny"
 \`\`\`
 `
 
