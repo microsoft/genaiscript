@@ -84,7 +84,7 @@ export function resolveSystems(
 
     const fallbackTools =
         isToolsSupported(options?.model) === false || options?.fallbackTools
-    if (fallbackTools) systems.push("system.tool_calls")
+    if (fallbackTools && tools.length) systems.push("system.tool_calls")
 
     // Return a unique list of non-empty systems
     // Filters out duplicates and empty entries using unique utility
