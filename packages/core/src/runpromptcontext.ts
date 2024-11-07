@@ -652,7 +652,11 @@ export function createChatGenerationContext(
                 }
             }
 
-            const systemScripts = resolveSystems(prj, runOptions ?? {})
+            const systemScripts = resolveSystems(
+                prj,
+                runOptions ?? {},
+                genOptions
+            )
             if (systemScripts.length)
                 try {
                     runTrace.startDetails("👾 systems")

@@ -197,6 +197,7 @@ export async function runScript(
     const cacheName = options.cacheName
     const cancellationToken = options.cancellationToken
     const jsSource = options.jsSource
+    const disableModelTools = !!options.disableModelTools
 
     if (options.model) host.defaultModelOptions.model = options.model
     if (options.smallModel)
@@ -351,6 +352,7 @@ export async function runScript(
             maxDelay,
             vars,
             trace,
+            disableModelTools,
             cliInfo: {
                 files,
             },

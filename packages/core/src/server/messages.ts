@@ -78,6 +78,7 @@ export interface PromptScriptRunOptions {
     failOnErrors: boolean
     removeOut: boolean
     vars: string[]
+    disableModelTools: boolean
     jsSource: string
 }
 

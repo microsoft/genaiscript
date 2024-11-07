@@ -1,4 +1,4 @@
-script({ system: ["system.tool_calls"] })
+script({ system: ["system", "system.tool_calls"] })
 defTool("random", "Generate a random number", {}, () => Math.random())
 defTool(
     "weather",
@@ -37,5 +37,5 @@ $`Answer all questions. Be concise, do not explain:
 - Generate a random number between 0 and 1. 
 - Tell the weather in Brussels now.
 - Download the HTML of https://bing.com
-- Compute the sum of 0.123123 + 0.123123
+- Compute 0.123123 * 0.23456
 `

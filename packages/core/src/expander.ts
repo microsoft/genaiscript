@@ -174,7 +174,7 @@ export async function expandTemplate(
     const model = options.model
     assert(!!model)
     const cancellationToken = options.cancellationToken
-    const systems = resolveSystems(prj, template)
+    const systems = resolveSystems(prj, template, options)
     const systemTemplates = systems.map((s) => prj.getTemplate(s))
     // update options
     const lineNumbers =
