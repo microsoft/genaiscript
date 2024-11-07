@@ -10,7 +10,9 @@ export function isToolsSupported(modelId: string): boolean | undefined {
     if (!modelId) return undefined
     const { provider, model } = parseModelIdentifier(modelId)
 
-    if (/^o1-(mini|preview)/.test(model)) return false
+    if (/^o1-(mini|preview)/.test(model)) {
+        return false
+    }
 
     const oai = {
         "o1-preview": false,

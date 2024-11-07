@@ -1,3 +1,4 @@
+// cspell: disable
 // This module resolves and returns a list of applicable systems based on the provided script and project.
 // It analyzes script options and the JavaScript source code to determine which systems to include or exclude.
 
@@ -18,6 +19,7 @@ import { isToolsSupported } from "./tools"
 export function resolveSystems(
     prj: Project,
     script: PromptSystemOptions & ModelOptions & { jsSource?: string },
+    resolvedTools?: ToolCallback[],
     options?: GenerationOptions
 ): string[] {
     const { jsSource } = script
@@ -84,7 +86,8 @@ export function resolveSystems(
 
     const fallbackTools =
         isToolsSupported(options?.model) === false || options?.fallbackTools
-    if (fallbackTools && tools.length) systems.push("system.tool_calls")
+    if (fallbackTools && (tools.length || resolvedTools?.length))
+        systems.push("system.tool_calls")
 
     // Return a unique list of non-empty systems
     // Filters out duplicates and empty entries using unique utility

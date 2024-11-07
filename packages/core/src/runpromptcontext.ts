@@ -655,6 +655,7 @@ export function createChatGenerationContext(
             const systemScripts = resolveSystems(
                 prj,
                 runOptions ?? {},
+                tools,
                 genOptions
             )
             if (systemScripts.length)

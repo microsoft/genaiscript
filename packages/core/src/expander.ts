@@ -174,13 +174,13 @@ export async function expandTemplate(
     const model = options.model
     assert(!!model)
     const cancellationToken = options.cancellationToken
-    const systems = resolveSystems(prj, template, options)
-    const systemTemplates = systems.map((s) => prj.getTemplate(s))
     // update options
     const lineNumbers =
         options.lineNumbers ??
         template.lineNumbers ??
-        systemTemplates.some((s) => s?.lineNumbers)
+        resolveSystems(prj, template, undefined, options)
+            .map((s) => prj.getTemplate(s))
+            .some((t) => t?.lineNumbers)
     const temperature =
         options.temperature ??
         normalizeFloat(env.vars["temperature"]) ??
@@ -262,6 +262,7 @@ export async function expandTemplate(
         trace.fence(content, "markdown")
     }
 
+    const systems = resolveSystems(prj, template, tools, options)
     if (systems.length)
         try {
             trace.startDetails("👾 systems")
