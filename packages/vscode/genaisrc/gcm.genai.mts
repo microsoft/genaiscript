@@ -25,21 +25,9 @@ const chunks = await tokenizers.chunk(diff, { chunkSize: 10000 })
 if (chunks.length > 1)
     console.log(`staged changes chunked into ${chunks.length} parts`)
 
-// check if content safety service is configured
-const contentSafety = await host.contentSafety()
-
 let choice
 let message
 do {
-    if (contentSafety?.detectPromptInjection) {
-        const { attackDetected } =
-            await contentSafety.detectPromptInjection(diff)
-        if (attackDetected) {
-            console.error("Prompt injection detected in the staged changes")
-            break
-        }
-    }
-
     // Generate a conventional commit message based on the staged changes diff
     message = ""
     for (const chunk of chunks) {
@@ -48,6 +36,7 @@ do {
                 _.def("GIT_DIFF", chunk, {
                     maxTokens: 10000,
                     language: "diff",
+                    detectPromptInjection: true,
                 })
                 _.$`Generate a git conventional commit message that summarizes the changes in GIT_DIFF.
 

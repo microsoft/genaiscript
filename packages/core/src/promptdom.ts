@@ -11,6 +11,7 @@ import {
     MARKDOWN_PROMPT_FENCE,
     PROMPT_FENCE,
     PROMPTY_REGEX,
+    SANITIZED_PROMPT_INJECTION,
     TEMPLATE_ARG_DATA_SLICE_SAMPLE,
     TEMPLATE_ARG_FILE_MAX_TOKENS,
 } from "./constants"
@@ -927,18 +928,25 @@ async function validateSafetyPromptNode(
     await visitNode(root, {
         def: async (n) => {
             if (n.detectPromptInjection && n.resolved?.content) {
-                const safety = await runtimeHost.contentSafety(undefined, {
-                    trace,
-                })
-                const res = await safety.detectPromptInjection(n.resolved)
-                if (res.attackDetected) {
+                const { detectPromptInjection } =
+                    (await runtimeHost.contentSafety(undefined, {
+                        trace,
+                    })) || {}
+                if (
+                    (!detectPromptInjection &&
+                        n.detectPromptInjection === true) ||
+                    n.detectPromptInjection === "always"
+                )
+                    throw new Error("content safety service not available")
+                const { attackDetected } =
+                    (await detectPromptInjection?.(n.resolved)) || {}
+                if (attackDetected) {
                     mod = true
                     n.resolved = {
                         filename: n.resolved.filename,
-                        content:
-                            "...prompt injection detected, content removed...",
+                        content: SANITIZED_PROMPT_INJECTION,
                     }
-                    n.preview = `...prompt injection detected, content removed...`
+                    n.preview = SANITIZED_PROMPT_INJECTION
                     n.error = `safety: prompt injection detected`
                     trace.error(
                         `safety: prompt injection detected in ${n.resolved.filename}`
