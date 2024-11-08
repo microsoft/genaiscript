@@ -71,6 +71,7 @@ do {
                     "system.assistant",
                     "system.safety_jailbreak",
                     "system.safety_harmful_content",
+                    "system.safety_validate_harmful_content",
                 ],
             }
         )
@@ -104,6 +105,7 @@ do {
                     "system.assistant",
                     "system.safety_jailbreak",
                     "system.safety_harmful_content",
+                    "system.safety_validate_harmful_content",
                 ],
             })
         if (res.error) throw res.error
