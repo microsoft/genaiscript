@@ -29,6 +29,8 @@ import {
     ChatCompletion,
     ChatCompletionChunkChoice,
     ChatCompletionChoice,
+    CreateChatCompletionRequest,
+    ChatCompletionTokenLogprob,
 } from "./chattypes"
 import { resolveTokenEncoder } from "./encoders"
 import { toSignal } from "./cancellation"
@@ -122,7 +124,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
         stream: true,
         stream_options: { include_usage: true },
         model,
-    })
+    } satisfies CreateChatCompletionRequest)
 
     // stream_options fails in some cases
     if (model === "gpt-4-turbo-v" || /mistral/i.test(model)) {
@@ -257,12 +259,14 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
     let usage: ChatCompletionUsage
     let error: SerializedError
     let responseModel: string
+    let lbs: ChatCompletionTokenLogprob[] = []
 
     const doChoices = (json: string, tokens: string[]) => {
         const obj: ChatCompletionChunk | ChatCompletion = JSON.parse(json)
 
         if (!postReq.stream) trace.detailsFenced(`response`, obj, "json")
 
+        console.log(JSON.stringify(obj, null, 2))
         if (obj.usage) usage = obj.usage
         if (!responseModel && obj.model) responseModel = obj.model
         if (!obj.choices?.length) return
@@ -272,7 +276,8 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
         const { finish_reason } = choice
         if (finish_reason) finishReason = finish_reason as any
         if ((choice as ChatCompletionChunkChoice).delta) {
-            const { delta } = choice as ChatCompletionChunkChoice
+            const { delta, logprobs } = choice as ChatCompletionChunkChoice
+            if (logprobs?.content) lbs.push(...logprobs.content)
             if (typeof delta?.content === "string") {
                 numTokens += estimateTokens(delta.content, encoder)
                 chatResp += delta.content
@@ -395,7 +400,8 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
         usage,
         error,
         model: responseModel,
-    }
+        logprobs: lbs,
+    } satisfies ChatCompletionResponse
 }
 
 async function listModels(

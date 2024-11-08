@@ -48,6 +48,8 @@
         "llmrequest",
         "localai",
         "logit",
+        "Logprob",
+        "logprobs",
         "lvce",
         "markdownify",
         "memorystream",

@@ -455,6 +455,7 @@ export async function parsePromptScript(
 
             c.checkRecord("modelConcurrency")
             c.checkObjectArray("defTools")
+            c.checkBool("logprobs")
         })
 
         const r = c.template
