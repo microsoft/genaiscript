@@ -31,6 +31,7 @@ import { createDiff } from "./diff"
 import { promptyParse } from "./prompty"
 import { jinjaRenderChatMessage } from "./jinja"
 import { runtimeHost } from "./host"
+import { hash } from "./crypto"
 
 // Definition of the PromptNode interface which is an essential part of the code structure.
 export interface PromptNode extends ContextExpansionOptions {
@@ -63,6 +64,11 @@ export interface PromptNode extends ContextExpansionOptions {
      */
     preview?: string
     name?: string
+
+    /**
+     * Node removed from the tree
+     */
+    deleted?: boolean
 }
 
 // Interface for a text node in the prompt tree.
@@ -517,10 +523,11 @@ export async function visitNode(node: PromptNode, visitor: PromptNodeVisitor) {
             break
     }
     if (node.error) visitor.error?.(node)
-    if (!node.error && node.children) {
+    if (!node.error && !node.deleted && node.children) {
         for (const child of node.children) {
             await visitNode(child, visitor)
         }
+        node.children = node.children?.filter((c) => !c.deleted)
     }
     await visitor.afterNode?.(node)
 }
@@ -949,10 +956,10 @@ async function deduplicatePromptNode(trace: MarkdownTrace, root: PromptNode) {
     const defs = new Set<string>()
     await visitNode(root, {
         def: async (n) => {
-            const { name, resolved } = n
-            const key = JSON.stringify({ name, resolved })
+            const key = await hash(n)
             if (defs.has(key)) {
-                n.error = `duplicate definition and content: ${name}`
+                trace.log(`duplicate definition and content: ${n.name}`)
+                n.deleted = true
                 mod = true
             } else {
                 defs.add(key)

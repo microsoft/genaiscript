@@ -42,6 +42,7 @@ export function randomHex(size: number) {
 export async function hash(value: any, options?: HashOptions) {
     const { algorithm = "sha-1", length, ...rest } = options || {}
 
+    const sep = utf8Encode("|")
     const h: Uint8Array[] = []
     const append = async (v: any) => {
         if (
@@ -50,18 +51,25 @@ export async function hash(value: any, options?: HashOptions) {
             typeof v === "boolean"
         )
             h.push(utf8Encode(String(v)))
-        else if (Array.isArray(v)) for (const c of v) await append(c)
+        else if (Array.isArray(v))
+            for (const c of v) {
+                h.push(sep)
+                await append(c)
+            }
         else if (v instanceof Buffer) h.push(new Uint8Array(v))
         else if (v instanceof Blob)
             h.push(new Uint8Array(await v.arrayBuffer()))
         else if (typeof v === "object")
             for (const c of Object.keys(v).sort()) {
+                h.push(sep)
                 h.push(utf8Encode(c))
+                h.push(sep)
                 await append(v[c])
             }
         else h.push(utf8Encode(JSON.stringify(v)))
     }
     await append(value)
+    await append(sep)
     await append(rest)
 
     const buf = await digest(algorithm, concatBuffers(...h))
