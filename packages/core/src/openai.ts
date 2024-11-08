@@ -35,6 +35,7 @@ import {
 import { resolveTokenEncoder } from "./encoders"
 import { toSignal } from "./cancellation"
 import { INITryParse } from "./ini"
+import { choiceToToken, logprobToPercent } from "./logprob"
 
 export function getConfigHeaders(cfg: LanguageModelConfiguration) {
     let { token, type, base } = cfg
@@ -261,7 +262,10 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
     let responseModel: string
     let lbs: ChatCompletionTokenLogprob[] = []
 
-    const doChoices = (json: string, tokens: string[]) => {
+    const doChoices = (
+        json: string,
+        tokens: { token: string; logprob?: number }[]
+    ) => {
         const obj: ChatCompletionChunk | ChatCompletion = JSON.parse(json)
 
         if (!postReq.stream) trace.detailsFenced(`response`, obj, "json")
@@ -280,7 +284,9 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
             if (typeof delta?.content === "string") {
                 numTokens += estimateTokens(delta.content, encoder)
                 chatResp += delta.content
-                tokens.push(delta.content)
+                tokens.push(
+                    ...choiceToToken(choice as ChatCompletionChunkChoice)
+                )
                 trace.appendToken(delta.content)
             } else if (Array.isArray(delta.tool_calls)) {
                 const { tool_calls } = delta
@@ -325,7 +331,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
         const decoder = host.createUTF8Decoder()
         const doChunk = (value: Uint8Array) => {
             // Massage and parse the chunk of data
-            let tokens: string[] = []
+            let tokens: { token: string; logprob?: number }[] = []
             let chunk = decoder.decode(value, { stream: true })
 
             chunk = pref + chunk

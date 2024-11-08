@@ -1,6 +1,6 @@
 import { capitalize } from "inflection"
 import path, { resolve, join, relative, dirname } from "node:path"
-import { consoleColors, isQuiet, wrapColor } from "./log"
+import { consoleColors, isQuiet, wrapColor, wrapRgbColor } from "./log"
 import { emptyDir, ensureDir, appendFileSync, exists } from "fs-extra"
 import { convertDiagnosticsToSARIF } from "./sarif"
 import { buildProject } from "./build"
@@ -81,6 +81,7 @@ import { GenerationStats } from "../../core/src/usage"
 import { traceAgentMemory } from "../../core/src/agent"
 import { appendFile } from "node:fs/promises"
 import { parseOptionsVars } from "./vars"
+import { logprobColor } from "../../core/src/logprob"
 
 async function setupTraceWriting(trace: MarkdownTrace, filename: string) {
     logVerbose(`trace: ${filename}`)
@@ -313,9 +314,20 @@ export async function runScript(
                                 ? CONSOLE_TOKEN_INNER_COLORS
                                 : CONSOLE_TOKEN_COLORS
                             for (const token of responseTokens) {
-                                tokenColor = (tokenColor + 1) % colors.length
-                                const c = colors[tokenColor]
-                                process.stdout.write(wrapColor(c, token))
+                                if (token.logprob !== undefined) {
+                                    const c = wrapRgbColor(
+                                        logprobColor(token.logprob, 255),
+                                        token.token
+                                    )
+                                    process.stdout.write(c)
+                                } else {
+                                    tokenColor =
+                                        (tokenColor + 1) % colors.length
+                                    const c = colors[tokenColor]
+                                    process.stdout.write(
+                                        wrapColor(c, token.token)
+                                    )
+                                }
                             }
                         } else {
                             if (!inner) process.stdout.write(responseChunk)
