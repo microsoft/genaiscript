@@ -120,16 +120,6 @@ do {
         break
     }
 
-    if (contentSafety?.detectHarmfulContent) {
-        const { harmfulContentDetected } =
-            await contentSafety.detectHarmfulContent(message)
-        if (harmfulContentDetected) {
-            console.error("Harmful content detected in the commit message")
-            message = undefined
-            break
-        }
-    }
-
     // Prompt user to accept, edit, or regenerate the commit message
     choice = await host.select(message, [
         {
