@@ -1,6 +1,5 @@
-script({
-    model: "openai:gpt-4-turbo",
-    tools: ["fs", "md"],
+script({    
+    tools: ["agent"],
 })
 
 const api = env.vars.api + ""

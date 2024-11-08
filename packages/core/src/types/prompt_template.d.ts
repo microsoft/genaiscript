@@ -181,6 +181,11 @@ interface ModelOptions extends ModelConnectionOptions {
     temperature?: number
 
     /**
+     * A list of keywords that should be found in the output.
+     */
+    choices?: ElementOrArray<string>
+
+    /**
      * Specifies the type of output. Default is plain text.
      * - `json_object` enables JSON mode
      * - `json_schema` enables structured outputs

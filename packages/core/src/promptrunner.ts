@@ -198,6 +198,7 @@ export async function runTemplate(
         // Execute chat session with the resolved configuration
         const genOptions: GenerationOptions = {
             ...options,
+            choices: template.choices,
             responseType,
             responseSchema,
             model,

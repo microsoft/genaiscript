@@ -14,7 +14,14 @@ import {
     CancellationToken,
     checkCancelled,
 } from "./cancellation"
-import { assert, logError, logInfo, logVerbose, logWarn } from "./util"
+import {
+    arrayify,
+    assert,
+    logError,
+    logInfo,
+    logVerbose,
+    logWarn,
+} from "./util"
 import { extractFenced, findFirstDataFence, unfence } from "./fence"
 import {
     toStrictJSONSchema,
@@ -22,6 +29,7 @@ import {
     validateJSONWithSchema,
 } from "./schema"
 import {
+    CHOICE_LOGIT_BIAS,
     MAX_DATA_REPAIRS,
     MAX_TOOL_CALLS,
     MAX_TOOL_CONTENT_TOKENS,
@@ -52,7 +60,7 @@ import {
 } from "./chatrender"
 import { promptParametersSchemaToJSONSchema } from "./parameters"
 import { fenceMD, prettifyMarkdown } from "./markdown"
-import { YAMLStringify, YAMLTryParse } from "./yaml"
+import { YAMLStringify } from "./yaml"
 import { resolveTokenEncoder } from "./encoders"
 import { estimateTokens, truncateTextToTokens } from "./tokens"
 import { computeFileEdits } from "./fileedits"
@@ -696,6 +704,37 @@ export function mergeGenerationOptions(
     return res
 }
 
+async function choicesToLogitBias(
+    trace: MarkdownTrace,
+    model: string,
+    choices: ElementOrArray<string>
+) {
+    choices = arrayify(choices)
+    if (!choices?.length) return undefined
+    const { encode } = await resolveTokenEncoder(model, {
+        disableFallback: true,
+    })
+    if (!encode) {
+        trace.error(
+            `unabled to compute logit bias, no token encoder found for ${model}`
+        )
+        return undefined
+    }
+    const res = Object.fromEntries(
+        choices.map((c) => {
+            const tokens = encode(c)
+            if (tokens.length !== 1)
+                trace.warn(
+                    `choice ${c} tokenizes to ${tokens.join(", ")} (expected one token)`
+                )
+            return [tokens[0], CHOICE_LOGIT_BIAS]
+        })
+    )
+    trace.itemValue("choices", choices.join(", "))
+    trace.itemValue("logit bias", JSON.stringify(res))
+    return res
+}
+
 export async function executeChatSession(
     connectionToken: LanguageModelConfiguration,
     cancellationToken: CancellationToken,
@@ -718,9 +757,9 @@ export async function executeChatSession(
         seed,
         responseType,
         responseSchema,
-        infoCb,
         stats,
         fallbackTools,
+        choices,
     } = genOptions
     traceLanguageModelConnection(trace, genOptions, connectionToken)
     const tools: ChatCompletionTool[] = toolDefinitions?.length
@@ -736,9 +775,10 @@ export async function executeChatSession(
                   }
           )
         : undefined
-    trace.startDetails(`🧠 llm chat`)
-    if (toolDefinitions?.length) trace.detailsFenced(`🛠️ tools`, tools, "yaml")
     try {
+        trace.startDetails(`🧠 llm chat`)
+        if (toolDefinitions?.length)
+            trace.detailsFenced(`🛠️ tools`, tools, "yaml")
         let genVars: Record<string, string>
         while (true) {
             stats.turns++
@@ -755,40 +795,47 @@ export async function executeChatSession(
                 )
 
             // make request
+            let req: CreateChatCompletionRequest
             let resp: ChatCompletionResponse
             try {
                 checkCancelled(cancellationToken)
-                const req: CreateChatCompletionRequest = {
-                    model,
-                    temperature: temperature,
-                    top_p: topP,
-                    max_tokens: maxTokens,
-                    seed,
-                    stream: true,
-                    messages,
-                    tools: fallbackTools ? undefined : tools,
-                    response_format:
-                        responseType === "json_object"
-                            ? { type: responseType }
-                            : responseType === "json_schema"
-                              ? {
-                                    type: "json_schema",
-                                    json_schema: {
-                                        name: "result",
-                                        schema: toStrictJSONSchema(
-                                            responseSchema
-                                        ),
-                                        strict: true,
-                                    },
-                                }
-                              : undefined,
-                }
-                if (/^o1/i.test(model)) {
-                    req.max_completion_tokens = maxTokens
-                    delete req.max_tokens
-                }
                 try {
                     trace.startDetails(`📤 llm request`)
+                    const logit_bias = await choicesToLogitBias(
+                        trace,
+                        model,
+                        choices
+                    )
+                    req = {
+                        model,
+                        temperature: temperature,
+                        top_p: topP,
+                        max_tokens: maxTokens,
+                        logit_bias,
+                        seed,
+                        stream: true,
+                        messages,
+                        tools: fallbackTools ? undefined : tools,
+                        response_format:
+                            responseType === "json_object"
+                                ? { type: responseType }
+                                : responseType === "json_schema"
+                                  ? {
+                                        type: "json_schema",
+                                        json_schema: {
+                                            name: "result",
+                                            schema: toStrictJSONSchema(
+                                                responseSchema
+                                            ),
+                                            strict: true,
+                                        },
+                                    }
+                                  : undefined,
+                    }
+                    if (/^o1/i.test(model)) {
+                        req.max_completion_tokens = maxTokens
+                        delete req.max_tokens
+                    }
                     resp = await completer(
                         req,
                         connectionToken,

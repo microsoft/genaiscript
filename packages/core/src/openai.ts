@@ -99,6 +99,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
               temperature: req.temperature,
               top_p: req.top_p,
               max_tokens: req.max_tokens,
+              logit_bias: req.logit_bias,
           }
         : undefined
     trace.itemValue(`caching`, cache)

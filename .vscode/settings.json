@@ -47,6 +47,7 @@
         "llmify",
         "llmrequest",
         "localai",
+        "logit",
         "lvce",
         "markdownify",
         "memorystream",
