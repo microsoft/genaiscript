@@ -11,7 +11,11 @@ import type { EncodeOptions } from "gpt-tokenizer/GptEncoding"
  * @param modelId - The identifier for the model to resolve the encoder for.
  * @returns A Promise that resolves to a TokenEncoder function.
  */
-export async function resolveTokenEncoder(modelId: string): Promise<Tokenizer> {
+export async function resolveTokenEncoder(
+    modelId: string,
+    options?: { disableFallback?: boolean }
+): Promise<Tokenizer> {
+    const { disableFallback } = options || {}
     // Parse the model identifier to extract the model information
     if (!modelId) modelId = runtimeHost.defaultModelOptions.model
     const { model } = parseModelIdentifier(modelId)
@@ -34,6 +38,8 @@ export async function resolveTokenEncoder(modelId: string): Promise<Tokenizer> {
             decode,
         })
     } catch (e) {
+        if (disableFallback) return undefined
+
         // If the specific model encoder is not found, default to gpt-4o encoder
         const {
             encode,

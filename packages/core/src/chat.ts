@@ -14,7 +14,14 @@ import {
     CancellationToken,
     checkCancelled,
 } from "./cancellation"
-import { assert, logError, logInfo, logVerbose, logWarn } from "./util"
+import {
+    arrayify,
+    assert,
+    logError,
+    logInfo,
+    logVerbose,
+    logWarn,
+} from "./util"
 import { extractFenced, findFirstDataFence, unfence } from "./fence"
 import {
     toStrictJSONSchema,
@@ -52,7 +59,7 @@ import {
 } from "./chatrender"
 import { promptParametersSchemaToJSONSchema } from "./parameters"
 import { fenceMD, prettifyMarkdown } from "./markdown"
-import { YAMLStringify, YAMLTryParse } from "./yaml"
+import { YAMLStringify } from "./yaml"
 import { resolveTokenEncoder } from "./encoders"
 import { estimateTokens, truncateTextToTokens } from "./tokens"
 import { computeFileEdits } from "./fileedits"
@@ -696,6 +703,26 @@ export function mergeGenerationOptions(
     return res
 }
 
+async function choicesToLogitBias(
+    trace: MarkdownTrace,
+    model: string,
+    choices: ElementOrArray<string>
+) {
+    choices = arrayify(choices)
+    if (!choices?.length) return undefined
+    const { encode } = await resolveTokenEncoder(model, {
+        disableFallback: true,
+    })
+    if (!encode) {
+        trace.warn(`no token encoder found for ${model}`)
+        return undefined
+    }
+    const res = Object.fromEntries(choices.map((c) => [encode(c), 5]))
+    trace.itemValue("choices", choices.join(", "))
+    trace.itemValue("logit bias", JSON.stringify(res))
+    return res
+}
+
 export async function executeChatSession(
     connectionToken: LanguageModelConfiguration,
     cancellationToken: CancellationToken,
@@ -718,11 +745,13 @@ export async function executeChatSession(
         seed,
         responseType,
         responseSchema,
-        infoCb,
         stats,
         fallbackTools,
+        choices,
     } = genOptions
     traceLanguageModelConnection(trace, genOptions, connectionToken)
+    const logit_bias = await choicesToLogitBias(trace, model, choices)
+    console.log({ choices, logit_bias })
     const tools: ChatCompletionTool[] = toolDefinitions?.length
         ? toolDefinitions.map(
               (f) =>
@@ -763,6 +792,7 @@ export async function executeChatSession(
                     temperature: temperature,
                     top_p: topP,
                     max_tokens: maxTokens,
+                    logit_bias,
                     seed,
                     stream: true,
                     messages,
