@@ -6,12 +6,23 @@
 script({
     title: "git commit message",
     description: "Generate a commit message for all staged changes",
+    parameters: {
+        stageOnEmpty: {
+            type: "boolean",
+            description: "Stage all changes if none are staged",
+        },
+        validator: {
+            type: "string",
+            description: "Content safety provider used to the commit message",
+        },
+    },
 })
+const { stageOnEmpty, validator } = env.vars
 
 // Check for staged changes and stage all changes if none are staged
 const diff = await git.diff({
     staged: true,
-    askStageOnEmpty: true,
+    askStageOnEmpty: !stageOnEmpty,
 })
 
 // If no staged changes are found, cancel the script with a message
@@ -101,6 +112,26 @@ do {
             "No commit message generated, did you configure the LLM model?"
         )
         break
+    }
+
+    if (validator) {
+        const contentSafety = await host.contentSafety(validator)
+        if (contentSafety.detectHarmfulContent) {
+            const { harmfulContentDetected } =
+                await contentSafety.detectHarmfulContent(message)
+            if (harmfulContentDetected) {
+                console.error("Harmful content detected in the commit message")
+                message = undefined
+                break
+            }
+            const { attackDetected } =
+                await contentSafety.detectPromptInjection(message)
+            if (attackDetected) {
+                console.error("Prompt injection detected in the commit message")
+                message = undefined
+                break
+            }
+        }
     }
 
     // Prompt user to accept, edit, or regenerate the commit message
