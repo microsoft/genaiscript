@@ -39,12 +39,20 @@ if (chunks.length > 1)
 let choice
 let message
 do {
+    // check for prompt injection
+    const contentSafety = validator
+        ? await host.contentSafety(validator)
+        : undefined
     // Generate a conventional commit message based on the staged changes diff
     message = ""
     for (const chunk of chunks) {
         const res = await runPrompt(
             (_) => {
-                _.def("GIT_DIFF", chunk, { maxTokens: 10000, language: "diff" })
+                _.def("GIT_DIFF", chunk, {
+                    maxTokens: 10000,
+                    language: "diff",
+                    contentSafety: validator,
+                })
                 _.$`Generate a git conventional commit message that summarizes the changes in GIT_DIFF.
 
         <type>: <description>
@@ -115,19 +123,12 @@ do {
     }
 
     if (validator) {
-        const contentSafety = await host.contentSafety(validator)
         if (contentSafety.detectHarmfulContent) {
+            console.log(`validating harmful content...`)
             const { harmfulContentDetected } =
                 await contentSafety.detectHarmfulContent(message)
             if (harmfulContentDetected) {
                 console.error("Harmful content detected in the commit message")
-                message = undefined
-                break
-            }
-            const { attackDetected } =
-                await contentSafety.detectPromptInjection(message)
-            if (attackDetected) {
-                console.error("Prompt injection detected in the commit message")
                 message = undefined
                 break
             }
