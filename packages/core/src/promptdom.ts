@@ -943,6 +943,25 @@ async function validateSafetyPromptNode(
     return mod
 }
 
+async function deduplicatePromptNode(trace: MarkdownTrace, root: PromptNode) {
+    let mod = false
+
+    const defs = new Set<string>()
+    await visitNode(root, {
+        def: async (n) => {
+            const { name, resolved } = n
+            const key = JSON.stringify({ name, resolved })
+            if (defs.has(key)) {
+                n.error = `duplicate definition and content: ${name}`
+                mod = true
+            } else {
+                defs.add(key)
+            }
+        },
+    })
+    return mod
+}
+
 // Main function to render a prompt node.
 export async function renderPromptNode(
     modelId: string,
@@ -955,6 +974,9 @@ export async function renderPromptNode(
 
     await resolvePromptNode(model, node)
     await tracePromptNode(trace, node)
+
+    if (await deduplicatePromptNode(trace, node))
+        await tracePromptNode(trace, node, { label: "deduplicate" })
 
     if (await layoutPromptNode(model, node))
         await tracePromptNode(trace, node, { label: "layout" })
