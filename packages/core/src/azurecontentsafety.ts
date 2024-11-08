@@ -113,7 +113,7 @@ class AzureContentSafetyClient implements ContentSafety {
         const route = "text:shieldPrompt"
 
         try {
-            trace?.startDetails("🛡️ content safety: detect prompt injection")
+            trace?.startDetails("🛡️ content safety: detecting prompt injection")
 
             const input = arrayify(await content)
             const userPrompts = input.filter((i) => typeof i === "string")
@@ -174,6 +174,7 @@ class AzureContentSafetyClient implements ContentSafety {
                         }
                 }
             }
+            trace.item("no attack detected")
             return { attackDetected: false }
         } finally {
             trace?.endDetails()
