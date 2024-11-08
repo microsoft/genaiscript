@@ -1,7 +1,7 @@
 script({
     choices: ["OK", "ERR"],
 })
-
+// tests logit_bias
 const res = await runPrompt(
     (_) => _.$`Is this correct? 1+1=3. Answer with OK or ERR.`,
     { choices: ["OK", "ERR"] }

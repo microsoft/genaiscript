@@ -29,6 +29,7 @@ import {
     validateJSONWithSchema,
 } from "./schema"
 import {
+    CHOICE_LOGIT_BIAS,
     MAX_DATA_REPAIRS,
     MAX_TOOL_CALLS,
     MAX_TOOL_CONTENT_TOKENS,
@@ -719,7 +720,16 @@ async function choicesToLogitBias(
         )
         return undefined
     }
-    const res = Object.fromEntries(choices.map((c) => [encode(c), 5]))
+    const res = Object.fromEntries(
+        choices.map((c) => {
+            const tokens = encode(c)
+            if (tokens.length !== 1)
+                trace.warn(
+                    `choice ${c} tokenizes to ${tokens.join(", ")} (expected one token)`
+                )
+            return [tokens[0], CHOICE_LOGIT_BIAS]
+        })
+    )
     trace.itemValue("choices", choices.join(", "))
     trace.itemValue("logit bias", JSON.stringify(res))
     return res
@@ -752,7 +762,6 @@ export async function executeChatSession(
         choices,
     } = genOptions
     traceLanguageModelConnection(trace, genOptions, connectionToken)
-    const logit_bias = await choicesToLogitBias(trace, model, choices)
     const tools: ChatCompletionTool[] = toolDefinitions?.length
         ? toolDefinitions.map(
               (f) =>
@@ -766,9 +775,10 @@ export async function executeChatSession(
                   }
           )
         : undefined
-    trace.startDetails(`🧠 llm chat`)
-    if (toolDefinitions?.length) trace.detailsFenced(`🛠️ tools`, tools, "yaml")
     try {
+        trace.startDetails(`🧠 llm chat`)
+        if (toolDefinitions?.length)
+            trace.detailsFenced(`🛠️ tools`, tools, "yaml")
         let genVars: Record<string, string>
         while (true) {
             stats.turns++
@@ -785,41 +795,47 @@ export async function executeChatSession(
                 )
 
             // make request
+            let req: CreateChatCompletionRequest
             let resp: ChatCompletionResponse
             try {
                 checkCancelled(cancellationToken)
-                const req: CreateChatCompletionRequest = {
-                    model,
-                    temperature: temperature,
-                    top_p: topP,
-                    max_tokens: maxTokens,
-                    logit_bias,
-                    seed,
-                    stream: true,
-                    messages,
-                    tools: fallbackTools ? undefined : tools,
-                    response_format:
-                        responseType === "json_object"
-                            ? { type: responseType }
-                            : responseType === "json_schema"
-                              ? {
-                                    type: "json_schema",
-                                    json_schema: {
-                                        name: "result",
-                                        schema: toStrictJSONSchema(
-                                            responseSchema
-                                        ),
-                                        strict: true,
-                                    },
-                                }
-                              : undefined,
-                }
-                if (/^o1/i.test(model)) {
-                    req.max_completion_tokens = maxTokens
-                    delete req.max_tokens
-                }
                 try {
                     trace.startDetails(`📤 llm request`)
+                    const logit_bias = await choicesToLogitBias(
+                        trace,
+                        model,
+                        choices
+                    )
+                    req = {
+                        model,
+                        temperature: temperature,
+                        top_p: topP,
+                        max_tokens: maxTokens,
+                        logit_bias,
+                        seed,
+                        stream: true,
+                        messages,
+                        tools: fallbackTools ? undefined : tools,
+                        response_format:
+                            responseType === "json_object"
+                                ? { type: responseType }
+                                : responseType === "json_schema"
+                                  ? {
+                                        type: "json_schema",
+                                        json_schema: {
+                                            name: "result",
+                                            schema: toStrictJSONSchema(
+                                                responseSchema
+                                            ),
+                                            strict: true,
+                                        },
+                                    }
+                                  : undefined,
+                    }
+                    if (/^o1/i.test(model)) {
+                        req.max_completion_tokens = maxTokens
+                        delete req.max_tokens
+                    }
                     resp = await completer(
                         req,
                         connectionToken,
@@ -829,7 +845,6 @@ export async function executeChatSession(
                     if (resp.variables)
                         genVars = { ...(genVars || {}), ...resp.variables }
                 } finally {
-                    logVerbose("")
                     trace.endDetails()
                 }
 
