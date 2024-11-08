@@ -1,0 +1,73 @@
+---
+title: LogProbs
+description: Learn how to use logprobs to diagnose the performance of your scripts
+sidebar:
+    order: 50
+---
+
+`logprobs` is a mode where LLMs return probably of each token. 
+
+- See [OpenAI Logprobs](https://cookbook.openai.com/examples/using_logprobs)
+
+:::note
+
+The `logprobs` feature is not available in all model or providers.
+
+:::
+
+## Colored output
+
+When `logprobs` is enable, the [cli](/genaiscript/reference/cli) will color the output based on the probability of each token.
+Blue color indicates high probability and red color indicates low probability.
+
+
+Here is an example of logprobs in action when running a summarization prompt with gpt-4o. 
+
+---
+
+<span class="logprobs" title="93.54% (-0.07)" style="background: rgb(12, 0, 168); color: white; white-space: pre; font-family: monospace;">Markdown</span>
+<span class="logprobs" title="99.96% (-0.0004)" style="background: rgb(0, 0, 180); color: white; white-space: pre; font-family: monospace;">&nbsp;is</span>
+<span class="logprobs" title="100% (-0.00001)" style="background: rgb(0, 0, 180); color: white; white-space: pre; font-family: monospace;">&nbsp;a</span>
+<span class="logprobs" title="45.55% (-0.79)" style="background: rgb(98, 0, 82); color: white; white-space: pre; font-family: monospace;">&nbsp;lightweight</span>
+<span class="logprobs" title="86.15% (-0.15)" style="background: rgb(25, 0, 155); color: white; white-space: pre; font-family: monospace;">&nbsp;markup</span>
+<span class="logprobs" title="100% (-0.000001)" style="background: rgb(0, 0, 180); color: white; white-space: pre; font-family: monospace;">&nbsp;language</span>
+<span class="logprobs" title="89.53% (-0.11)" style="background: rgb(19, 0, 161); color: white; white-space: pre; font-family: monospace;">&nbsp;for</span>
+<span class="logprobs" title="99.44% (-0.01)" style="background: rgb(1, 0, 179); color: white; white-space: pre; font-family: monospace;">&nbsp;formatting</span>
+<span class="logprobs" title="45.94% (-0.78)" style="background: rgb(97, 0, 83); color: white; white-space: pre; font-family: monospace;">&nbsp;plaintext</span>
+<span class="logprobs" title="26.83% (-1.32)" style="background: rgb(132, 0, 48); color: white; white-space: pre; font-family: monospace;">,</span>
+<span class="logprobs" title="14.01% (-1.97)" style="background: rgb(155, 0, 25); color: white; white-space: pre; font-family: monospace;">&nbsp;created</span>
+<span class="logprobs" title="81.76% (-0.2)" style="background: rgb(33, 0, 147); color: white; white-space: pre; font-family: monospace;">&nbsp;by</span>
+<span class="logprobs" title="100% (-0.000003)" style="background: rgb(0, 0, 180); color: white; white-space: pre; font-family: monospace;">&nbsp;John</span>
+<span class="logprobs" title="100% (0)" style="background: rgb(0, 0, 180); color: white; white-space: pre; font-family: monospace;">&nbsp;Gr</span>
+<span class="logprobs" title="100% (-0.00004)" style="background: rgb(0, 0, 180); color: white; white-space: pre; font-family: monospace;">uber</span>
+<span class="logprobs" title="98.72% (-0.01)" style="background: rgb(2, 0, 178); color: white; white-space: pre; font-family: monospace;">&nbsp;in</span>
+<span class="logprobs" title="100% (0)" style="background: rgb(0, 0, 180); color: white; white-space: pre; font-family: monospace;">&nbsp;</span>
+<span class="logprobs" title="100% (0)" style="background: rgb(0, 0, 180); color: white; white-space: pre; font-family: monospace;">200</span>
+<span class="logprobs" title="100% (0)" style="background: rgb(0, 0, 180); color: white; white-space: pre; font-family: monospace;">4</span>
+<span class="logprobs" title="43.77% (-0.83)" style="background: rgb(101, 0, 79); color: white; white-space: pre; font-family: monospace;">,</span>
+<span class="logprobs" title="71.2% (-0.34)" style="background: rgb(52, 0, 128); color: white; white-space: pre; font-family: monospace;">&nbsp;differing</span>
+<span class="logprobs" title="99.91% (-0.001)" style="background: rgb(0, 0, 180); color: white; white-space: pre; font-family: monospace;">&nbsp;from</span>
+<span class="logprobs" title="99.91% (-0.001)" style="background: rgb(0, 0, 180); color: white; white-space: pre; font-family: monospace;">&nbsp;W</span>
+<span class="logprobs" title="100% (-4e-7)" style="background: rgb(0, 0, 180); color: white; white-space: pre; font-family: monospace;">YS</span>
+<span class="logprobs" title="100% (-0.000003)" style="background: rgb(0, 0, 180); color: white; white-space: pre; font-family: monospace;">IW</span>
+<span class="logprobs" title="100% (-0.000001)" style="background: rgb(0, 0, 180); color: white; white-space: pre; font-family: monospace;">YG</span>
+<span class="logprobs" title="99.95% (-0.0005)" style="background: rgb(0, 0, 180); color: white; white-space: pre; font-family: monospace;">&nbsp;editors</span>
+<span class="logprobs" title="99.94% (-0.001)" style="background: rgb(0, 0, 180); color: white; white-space: pre; font-family: monospace;">.</span>
+
+---
+
+## Configuration
+
+You can enable logprobs in the following ways:
+
+- Use the `logprobs` flag on the run command
+
+```sh
+npx genaiscript run ... --logprobs
+```
+
+- add the `logprobs` flag to the `script` metadata
+
+```js "logprobs: true"
+script({ logprobs: true, ...})
+```

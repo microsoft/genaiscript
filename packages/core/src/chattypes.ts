@@ -37,7 +37,9 @@ export type ChatCompletionTool = OpenAI.Chat.Completions.ChatCompletionTool
 
 // Chunk of a chat completion response
 export type ChatCompletionChunk = OpenAI.Chat.Completions.ChatCompletionChunk
-export type ChatCompletionChunkChoice = OpenAI.Chat.Completions.ChatCompletionChunk.Choice
+export type ChatCompletionChunkChoice =
+    OpenAI.Chat.Completions.ChatCompletionChunk.Choice
+export type ChatCompletionTokenLogprob = OpenAI.ChatCompletionTokenLogprob
 
 export type ChatCompletion = OpenAI.Chat.Completions.ChatCompletion
 export type ChatCompletionChoice = OpenAI.Chat.Completions.ChatCompletion.Choice
@@ -110,6 +112,8 @@ export interface ChatCompletionResponse {
     "stop" | "length" | "tool_calls" | "content_filter" | "cancel" | "fail"
     usage?: ChatCompletionUsage // Usage information for the completion
     model?: string // Model used for the completion
+    error?: SerializedError
+    logprobs?: ChatCompletionTokenLogprob[]
 }
 
 export type ChatFinishReason = ChatCompletionResponse["finishReason"]
@@ -124,7 +128,7 @@ export interface ChatCompletionsProgressReport {
     tokensSoFar: number // Number of tokens processed so far
     responseSoFar: string // Partial response generated so far
     responseChunk: string // Current chunk of response being processed
-    responseTokens?: string[] // Tokens in the current response chunk
+    responseTokens?: { token: string; logprob?: number }[] // Tokens in the current response chunk
     inner: boolean // Indicates if this is an inner report
 }
 

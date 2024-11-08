@@ -7,7 +7,6 @@ import {
     MAX_TOOL_CALLS,
     MODEL_PROVIDER_AICI,
     PROMPTY_REGEX,
-    SYSTEM_FENCE,
 } from "./constants"
 import { PromptImage, renderPromptNode } from "./promptdom"
 import { createPromptContext } from "./promptcontext"
@@ -24,12 +23,7 @@ import { JSONSchemaStringifyToTypeScript, toStrictJSONSchema } from "./schema"
 import { host } from "./host"
 import { resolveSystems } from "./systems"
 import { GenerationOptions, GenerationStatus } from "./generation"
-import {
-    AICIRequest,
-    ChatCompletionAssistantMessageParam,
-    ChatCompletionMessageParam,
-    ChatCompletionSystemMessageParam,
-} from "./chattypes"
+import { AICIRequest, ChatCompletionMessageParam } from "./chattypes"
 import { promptParametersSchemaToJSONSchema } from "./parameters"
 
 export async function callExpander(
@@ -206,6 +200,7 @@ export async function expandTemplate(
         template.flexTokens
     let seed = options.seed ?? normalizeInt(env.vars["seed"]) ?? template.seed
     if (seed !== undefined) seed = seed >> 0
+    let logprobs = options.logprobs || template.logprobs
 
     trace.startDetails("💾 script")
 
@@ -313,6 +308,7 @@ export async function expandTemplate(
                     trace.fence(sysr.aici, "yaml")
                     messages.push(sysr.aici)
                 }
+                logprobs = logprobs || system.logprobs
                 trace.detailsFenced("js", system.jsSource, "js")
                 trace.endDetails()
 
@@ -379,5 +375,6 @@ ${schemaTs}
         outputProcessors,
         chatParticipants,
         fileOutputs,
+        logprobs,
     }
 }

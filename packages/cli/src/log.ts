@@ -72,6 +72,16 @@ export function wrapColor(n: number | string, message: string) {
     else return message
 }
 
+export function wrapRgbColor(rgb: number, text: string): string {
+    if (!consoleColors) return text
+    const r = (rgb >> 16) & 0xff
+    const g = (rgb >> 8) & 0xff
+    const b = rgb & 0xff
+    const rgbColorCode = `\x1b[38;2;${r};${g};${b}m`
+    const resetCode = `\x1b[0m`
+    return `${rgbColorCode}${text}${resetCode}`
+}
+
 /**
  * Wraps arguments for logging, applying color if appropriate.
  * Combines string and number arguments into a single colored message.

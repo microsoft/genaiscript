@@ -146,6 +146,7 @@ export async function runTemplate(
             seed,
             responseType,
             responseSchema,
+            logprobs,
         } = await expandTemplate(
             prj,
             template,
@@ -206,6 +207,7 @@ export async function runTemplate(
             maxTokens,
             topP,
             seed,
+            logprobs,
             stats: options.stats.createChild(connection.info.model),
         }
         const output = await executeChatSession(

@@ -18,6 +18,7 @@ Runs a GenAIScript against files.
 Options:
   -m, --model <string>                       model for the run
   -sm, --small-model <string>                small model for the run
+  -lp, --logprobs                            enable reporting token probabilities
   -ef, --excluded-files <string...>          excluded files
   -egi, --exclude-git-ignore                 exclude files that are ignored through the .gitignore file in the workspace root
   -ft, --fallback-tools                      Enable prompt-based tools instead of builtin LLM tool calling builtin tool calls

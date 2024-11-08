@@ -186,6 +186,11 @@ interface ModelOptions extends ModelConnectionOptions {
     choices?: ElementOrArray<string>
 
     /**
+     * Returns the log probabilities of the each tokens. Not supported in all models.
+     */
+    logprobs?: boolean
+
+    /**
      * Specifies the type of output. Default is plain text.
      * - `json_object` enables JSON mode
      * - `json_schema` enables structured outputs
