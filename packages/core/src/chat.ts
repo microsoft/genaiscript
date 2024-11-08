@@ -751,7 +751,6 @@ export async function executeChatSession(
     } = genOptions
     traceLanguageModelConnection(trace, genOptions, connectionToken)
     const logit_bias = await choicesToLogitBias(trace, model, choices)
-    console.log({ choices, logit_bias })
     const tools: ChatCompletionTool[] = toolDefinitions?.length
         ? toolDefinitions.map(
               (f) =>
