@@ -714,7 +714,9 @@ async function choicesToLogitBias(
         disableFallback: true,
     })
     if (!encode) {
-        trace.warn(`no token encoder found for ${model}`)
+        trace.error(
+            `unabled to compute logit bias, no token encoder found for ${model}`
+        )
         return undefined
     }
     const res = Object.fromEntries(choices.map((c) => [encode(c), 5]))
