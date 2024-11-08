@@ -64,7 +64,9 @@ for (const file of files) {
             ## Context
             `
                 _.def("MATCHED", match[0])
-                _.def("TRANSFORM", transform)
+                _.def("TRANSFORM", transform, {
+                    detectPromptInjection: "available",
+                })
             },
             {
                 label: match[0],

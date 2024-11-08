@@ -90,9 +90,10 @@ async function addComments(file: WorkspaceFile): Promise<string | undefined> {
             )
 
             // AI prompt to add comments for better understanding
+            ctx.def("FILE", code, { detectPromptInjection: "available" })
             ctx.$`You are an expert developer at all programming languages.
 
-You are tasked with adding comments to code in ${code} to make it more understandable for AI systems or human developers.
+You are tasked with adding comments to code in FILE to make it more understandable for AI systems or human developers.
 You should analyze it, and add/update appropriate comments as needed.
 
 To add or update comments to this code, follow these steps:
@@ -137,6 +138,7 @@ Your comments should provide insight into the code's purpose, logic, and any imp
                 "system.assistant",
                 "system.safety_jailbreak",
                 "system.safety_harmful_content",
+                "system.safety_validate_harmful_content",
             ],
             label: `comment ${filename}`,
         }

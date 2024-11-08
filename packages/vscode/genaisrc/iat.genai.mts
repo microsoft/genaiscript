@@ -107,6 +107,7 @@ for (const file of files) {
                     "system.assistant",
                     "system.safety_jailbreak",
                     "system.safety_harmful_content",
+                    "system.safety_validate_harmful_content",
                 ],
                 maxTokens: 4000,
                 temperature: 0.5,
