@@ -567,7 +567,11 @@ async function processChatMessage(
         })
 
     if (resp.logprobs?.length)
-        trace.details("📊 logprobs", resp.logprobs.map(logprobToMarkdown).join("\n"))
+        trace.details(
+            "📊 logprobs",
+            resp.logprobs.map(logprobToMarkdown).join("\n") +
+                `\n\n _High confidence: blue, lower confidence: red_\n\n`
+        )
 
     if (options.fallbackTools && resp.text && tools.length) {
         resp.toolCalls = []
