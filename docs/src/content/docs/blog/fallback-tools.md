@@ -11,7 +11,7 @@ description: Support for Tools.
 that allows you to augment the LLM reasoning with external tools.
 
 These days, many LLM models come with a built-in support for tools. However, some of them
-don't... like OpenAI's o1-preview and o1-mini.
+don't... like [OpenAI's o1-preview and o1-mini](https://platform.openai.com/docs/guides/reasoning).
 
 ## Fallback tools
 
