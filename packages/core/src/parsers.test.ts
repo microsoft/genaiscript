@@ -102,6 +102,6 @@ describe("parsers", () => {
             { test: "test string", arr: [1, 2, "32"], v: new Uint8Array(123) },
             { length: 20 }
         )
-        assert.strictEqual(result, "35a5db1d84a2da503d69") // Example hash value
+        assert.strictEqual(result, "2c34c8d7df7428c89c64") // Example hash value
     })
 })

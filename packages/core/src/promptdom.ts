@@ -31,6 +31,7 @@ import { createDiff } from "./diff"
 import { promptyParse } from "./prompty"
 import { jinjaRenderChatMessage } from "./jinja"
 import { runtimeHost } from "./host"
+import { hash } from "./crypto"
 
 // Definition of the PromptNode interface which is an essential part of the code structure.
 export interface PromptNode extends ContextExpansionOptions {
@@ -63,6 +64,11 @@ export interface PromptNode extends ContextExpansionOptions {
      */
     preview?: string
     name?: string
+
+    /**
+     * Node removed from the tree
+     */
+    deleted?: boolean
 }
 
 // Interface for a text node in the prompt tree.
@@ -517,10 +523,11 @@ export async function visitNode(node: PromptNode, visitor: PromptNodeVisitor) {
             break
     }
     if (node.error) visitor.error?.(node)
-    if (!node.error && node.children) {
+    if (!node.error && !node.deleted && node.children) {
         for (const child of node.children) {
             await visitNode(child, visitor)
         }
+        node.children = node.children?.filter((c) => !c.deleted)
     }
     await visitor.afterNode?.(node)
 }
@@ -943,6 +950,25 @@ async function validateSafetyPromptNode(
     return mod
 }
 
+async function deduplicatePromptNode(trace: MarkdownTrace, root: PromptNode) {
+    let mod = false
+
+    const defs = new Set<string>()
+    await visitNode(root, {
+        def: async (n) => {
+            const key = await hash(n)
+            if (defs.has(key)) {
+                trace.log(`duplicate definition and content: ${n.name}`)
+                n.deleted = true
+                mod = true
+            } else {
+                defs.add(key)
+            }
+        },
+    })
+    return mod
+}
+
 // Main function to render a prompt node.
 export async function renderPromptNode(
     modelId: string,
@@ -955,6 +981,9 @@ export async function renderPromptNode(
 
     await resolvePromptNode(model, node)
     await tracePromptNode(trace, node)
+
+    if (await deduplicatePromptNode(trace, node))
+        await tracePromptNode(trace, node, { label: "deduplicate" })
 
     if (await layoutPromptNode(model, node))
         await tracePromptNode(trace, node, { label: "layout" })
