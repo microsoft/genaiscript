@@ -72,7 +72,8 @@
         "genai": "node packages/cli/built/genaiscript.cjs run",
         "upgrade:deps": "zx scripts/upgrade-deps.mjs",
         "cli": "node packages/cli/built/genaiscript.cjs",
-        "ollama": "docker run -d -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama",
+        "ollama": "yarn ollama:stop && yarn ollama:start",
+        "ollama:start": "docker run -d -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama",
         "ollama:stop": "docker stop ollama && docker rm ollama"
     },
     "release-it": {
