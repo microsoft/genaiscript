@@ -316,7 +316,7 @@ export const PROMISE_QUEUE_CONCURRENCY_DEFAULT = 16
 export const GITHUB_REST_API_CONCURRENCY_LIMIT = 8
 export const GITHUB_REST_PAGE_DEFAULT = 10
 
-export const TOKEN_TRUNCATION_THRESHOLD = 128
+export const TOKEN_TRUNCATION_THRESHOLD = 16
 
 export const GIT_IGNORE_GENAI = ".gitignore.genai"
 export const CLI_ENV_VAR_RX = /^genaiscript_var_/i

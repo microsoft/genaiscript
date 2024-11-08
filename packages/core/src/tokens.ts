@@ -49,15 +49,14 @@ export function truncateTextToTokens(
 
     while (Math.abs(left - right) > threshold) {
         const mid = Math.floor((left + right) / 2)
-        const truncated = last
+        result = last
             ? MAX_TOKENS_ELLIPSE + content.slice(-mid)
             : content.slice(0, mid) + MAX_TOKENS_ELLIPSE
-        const truncatedTokens = estimateTokens(truncated, encoder)
+        const truncatedTokens = estimateTokens(result, encoder)
 
         if (truncatedTokens > maxTokens) {
             right = mid
         } else {
-            result = truncated
             left = mid + 1
         }
     }
