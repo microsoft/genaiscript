@@ -48,7 +48,7 @@ class AzureContentSafetyClient implements ContentSafety {
         const route = "text:analyze"
 
         try {
-            trace?.startDetails("🛡️ content safety: detect harmful content")
+            trace?.startDetails("🛡️ content safety: detecting harmful content")
 
             const fetcher = await this.createClient(route)
             const analyze = async (text: string) => {
@@ -96,6 +96,7 @@ class AzureContentSafetyClient implements ContentSafety {
                 }
             }
 
+            trace?.item("no harmful content detected")
             return { harmfulContentDetected: false }
         } finally {
             trace?.endDetails()
@@ -105,14 +106,14 @@ class AzureContentSafetyClient implements ContentSafety {
     async detectPromptInjection(
         content: Awaitable<
             ElementOrArray<string> | ElementOrArray<WorkspaceFile>
-        >,
-        options?: {}
+        >
     ): Promise<{ attackDetected: boolean; filename?: string; chunk?: string }> {
+        const options = {}
         const { trace } = this.options || {}
         const route = "text:shieldPrompt"
 
         try {
-            trace?.startDetails("🛡️ content safety: detect prompt injection")
+            trace?.startDetails("🛡️ content safety: detecting prompt injection")
 
             const input = arrayify(await content)
             const userPrompts = input.filter((i) => typeof i === "string")
@@ -136,7 +137,7 @@ class AzureContentSafetyClient implements ContentSafety {
                     !!resBody.userPromptAnalysis?.attackDetected ||
                     resBody.documentsAnalysis?.some((doc) => doc.attackDetected)
                 const r = { attackDetected }
-                await this.cache.set({ route, body, options }, r)
+                await this.cache.set({ route, body, options: {} }, r)
                 return r
             }
 
@@ -173,6 +174,7 @@ class AzureContentSafetyClient implements ContentSafety {
                         }
                 }
             }
+            trace.item("no attack detected")
             return { attackDetected: false }
         } finally {
             trace?.endDetails()
@@ -238,11 +240,23 @@ class AzureContentSafetyClient implements ContentSafety {
     }
 }
 
+export function isAzureContentSafetyClientConfigured() {
+    const endpoint = trimTrailingSlash(
+        process.env.AZURE_CONTENT_SAFETY_ENDPOINT ||
+            process.env.AZURE_CONTENT_SAFETY_API_ENDPOINT
+    )
+    return !!endpoint
+}
+
 export function createAzureContentSafetyClient(
     options: CancellationOptions &
         TraceOptions & {
             signal?: AbortSignal
         }
 ): ContentSafety {
-    return new AzureContentSafetyClient(options)
+    const client = new AzureContentSafetyClient(options)
+    return {
+        detectHarmfulContent: client.detectHarmfulContent.bind(client),
+        detectPromptInjection: client.detectPromptInjection.bind(client),
+    } satisfies ContentSafety
 }

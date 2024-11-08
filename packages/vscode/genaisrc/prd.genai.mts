@@ -7,8 +7,10 @@ script({
         "system.assistant",
         "system.safety_jailbreak",
         "system.safety_harmful_content",
+        "system.safety_validate_harmful_content",
     ],
 })
+const { safety } = env.vars
 
 const defaultBranch = await git.defaultBranch()
 const branch = await git.branch()
@@ -36,4 +38,4 @@ This description will be used as the pull request description.
 - ignore comments about imports (like added, remove, changed, etc.)
 `
 
-def("GIT_DIFF", changes, { maxTokens: 30000 })
+def("GIT_DIFF", changes, { maxTokens: 30000, detectPromptInjection: "available" })

@@ -15,7 +15,7 @@ const formattedDate = `${yyyy}-${mm}-${dd}`
 def("FILE", env.files)
 defFileOutput("docs/src/content/docs/blog/drafts/*.md", "generated blog posts")
 
-$`Create a blog post that explains the GenAIScript source code in FILE.
+$`Create a blog post file that explains the GenAIScript source code in FILE.
 
 - the title should be the intention of the script  as if the user wrote it, use simple words, keep it short, mention genai, wrap in quotes
 - tell the motivation for the script.  Add a link to the script file using a GitHub URL.

@@ -334,3 +334,5 @@ export const TOKEN_MISSING_INFO = "<MISSING_INFO>"
 export const TOKEN_NO_ANSWER = "<NO_ANSWER>"
 
 export const CHOICE_LOGIT_BIAS = 5
+
+export const SANITIZED_PROMPT_INJECTION = "...prompt injection detected, content removed..."

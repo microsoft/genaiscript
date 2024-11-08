@@ -869,7 +869,7 @@ interface ContentSafetyOptions {
      * Runs the default content safety validator
      * to prevent prompt injection.
      */
-    detectPromptInjection?: boolean
+    detectPromptInjection?: "always" | "available" | boolean
 }
 
 interface DefOptions

@@ -2964,6 +2964,34 @@ $`## Summarization
 `````
 
 
+### `system.safety_validate_harmful_content`
+
+Uses the content safety provider to validate the LLM output for harmful content
+
+
+
+
+
+`````js wrap title="system.safety_validate_harmful_content"
+system({
+    title: "Uses the content safety provider to validate the LLM output for harmful content",
+})
+
+defOutputProcessor(async (res) => {
+    const contentSafety = await host.contentSafety()
+    const { harmfulContentDetected } =
+        (await contentSafety?.detectHarmfulContent?.(res.text)) || {}
+    if (harmfulContentDetected) {
+        return {
+            files: {},
+            text: "response erased: harmful content detected",
+        }
+    }
+})
+
+`````
+
+
 ### `system.schema`
 
 JSON Schema support

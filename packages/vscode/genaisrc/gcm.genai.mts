@@ -33,7 +33,11 @@ do {
     for (const chunk of chunks) {
         const res = await runPrompt(
             (_) => {
-                _.def("GIT_DIFF", chunk, { maxTokens: 10000, language: "diff" })
+                _.def("GIT_DIFF", chunk, {
+                    maxTokens: 10000,
+                    language: "diff",
+                    detectPromptInjection: "available",
+                })
                 _.$`Generate a git conventional commit message that summarizes the changes in GIT_DIFF.
 
         <type>: <description>
@@ -56,6 +60,7 @@ do {
                     "system.assistant",
                     "system.safety_jailbreak",
                     "system.safety_harmful_content",
+                    "system.safety_validate_harmful_content",
                 ],
             }
         )
@@ -89,6 +94,7 @@ do {
                     "system.assistant",
                     "system.safety_jailbreak",
                     "system.safety_harmful_content",
+                    "system.safety_validate_harmful_content",
                 ],
             })
         if (res.error) throw res.error
