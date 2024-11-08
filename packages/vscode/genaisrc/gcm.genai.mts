@@ -51,6 +51,7 @@ do {
                 _.def("GIT_DIFF", chunk, {
                     maxTokens: 10000,
                     language: "diff",
+                    detectPromptInjection: !!validator,
                     contentSafety: validator,
                 })
                 _.$`Generate a git conventional commit message that summarizes the changes in GIT_DIFF.
