@@ -198,6 +198,7 @@ export async function runScript(
     const cancellationToken = options.cancellationToken
     const jsSource = options.jsSource
     const fallbackTools = !!options.fallbackTools
+    const logprobs = options.logprobs
 
     if (options.model) host.defaultModelOptions.model = options.model
     if (options.smallModel)
@@ -353,6 +354,7 @@ export async function runScript(
             vars,
             trace,
             fallbackTools,
+            logprobs,
             cliInfo: {
                 files,
             },

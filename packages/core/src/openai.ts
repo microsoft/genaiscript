@@ -266,7 +266,6 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
 
         if (!postReq.stream) trace.detailsFenced(`response`, obj, "json")
 
-        console.log(JSON.stringify(obj, null, 2))
         if (obj.usage) usage = obj.usage
         if (!responseModel && obj.model) responseModel = obj.model
         if (!obj.choices?.length) return

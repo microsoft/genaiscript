@@ -197,7 +197,7 @@ export class GenerationStats {
      * @param trace - The MarkdownTrace instance used for tracing.
      */
     trace(trace: MarkdownTrace) {
-        trace.startDetails("📊 generation stats")
+        trace.startDetails("🪙 generation stats")
         try {
             this.traceStats(trace)
         } finally {

@@ -714,6 +714,8 @@ export function createChatGenerationContext(
                             runTrace.fence(sysr.aici, "yaml")
                             messages.push(sysr.aici)
                         }
+                        genOptions.logprobs =
+                            genOptions.logprobs || system.logprobs
                         runTrace.detailsFenced("js", system.jsSource, "js")
                         runTrace.endDetails()
                         if (sysr.status !== "success")

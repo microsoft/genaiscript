@@ -66,6 +66,7 @@ import { estimateTokens, truncateTextToTokens } from "./tokens"
 import { computeFileEdits } from "./fileedits"
 import { HTMLEscape } from "./html"
 import { XMLTryParse } from "./xml"
+import { logprobToMarkdown } from "./logprob"
 
 export function toChatCompletionUserMessage(
     expanded: string,
@@ -565,6 +566,9 @@ async function processChatMessage(
             content: resp.text,
         })
 
+    if (resp.logprobs?.length)
+        trace.details("📊 logprobs", resp.logprobs.map(logprobToMarkdown).join("\n"))
+
     if (options.fallbackTools && resp.text && tools.length) {
         resp.toolCalls = []
         // parse tool call
@@ -760,6 +764,7 @@ export async function executeChatSession(
         stats,
         fallbackTools,
         choices,
+        logprobs,
     } = genOptions
     traceLanguageModelConnection(trace, genOptions, connectionToken)
     const tools: ChatCompletionTool[] = toolDefinitions?.length
@@ -814,6 +819,7 @@ export async function executeChatSession(
                         logit_bias,
                         seed,
                         stream: true,
+                        logprobs,
                         messages,
                         tools: fallbackTools ? undefined : tools,
                         response_format:
