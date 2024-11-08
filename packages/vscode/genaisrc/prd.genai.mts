@@ -9,6 +9,7 @@ script({
         "system.safety_harmful_content",
     ],
 })
+const { safety } = env.vars
 
 const defaultBranch = await git.defaultBranch()
 const branch = await git.branch()
@@ -19,6 +20,14 @@ const changes = await git.diff({
     base: defaultBranch,
 })
 console.log(changes)
+
+// check for prompt injection
+const { detectPromptInjection } = (await host.contentSafety()) || {}
+if (detectPromptInjection) {
+    const { attackDetected } = await detectPromptInjection(changes)
+    if (attackDetected)
+        throw new Error("Prompt injection detected in the staged changes")
+}
 
 // task
 $`## Task

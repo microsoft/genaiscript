@@ -6,14 +6,7 @@
 script({
     title: "git commit message",
     description: "Generate a commit message for all staged changes",
-    parameters: {
-        safety: {
-            type: "string",
-            description: "Content safety provider used to the commit message",
-        },
-    },
 })
-const { safety } = env.vars
 
 // Check for staged changes and stage all changes if none are staged
 const diff = await git.diff({
@@ -32,8 +25,8 @@ const chunks = await tokenizers.chunk(diff, { chunkSize: 10000 })
 if (chunks.length > 1)
     console.log(`staged changes chunked into ${chunks.length} parts`)
 
-// check for prompt injection
-const contentSafety = safety ? await host.contentSafety(safety) : undefined
+// check if content safety service is configured
+const contentSafety = await host.contentSafety()
 
 let choice
 let message

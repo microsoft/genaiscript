@@ -240,6 +240,14 @@ class AzureContentSafetyClient implements ContentSafety {
     }
 }
 
+export function isAzureContentSafetyClientConfigured() {
+    const endpoint = trimTrailingSlash(
+        process.env.AZURE_CONTENT_SAFETY_ENDPOINT ||
+            process.env.AZURE_CONTENT_SAFETY_API_ENDPOINT
+    )
+    return !!endpoint
+}
+
 export function createAzureContentSafetyClient(
     options: CancellationOptions &
         TraceOptions & {

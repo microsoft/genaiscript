@@ -60,7 +60,10 @@ import { uniq } from "es-toolkit"
 import { PLimitPromiseQueue } from "../../core/src/concurrency"
 import { Project } from "../../core/src/ast"
 import { createAzureTokenResolver } from "./azuretoken"
-import { createAzureContentSafetyClient } from "../../core/src/azurecontentsafety"
+import {
+    createAzureContentSafetyClient,
+    isAzureContentSafetyClientConfigured,
+} from "../../core/src/azurecontentsafety"
 
 class NodeServerManager implements ServerManager {
     async start(): Promise<void> {
@@ -330,11 +333,13 @@ export class NodeHost implements RuntimeHost {
         id?: "azure",
         options?: TraceOptions
     ): Promise<ContentSafety> {
-        if (!id || id === "azure") {
+        if (!id && isAzureContentSafetyClientConfigured()) id = "azure"
+        if (id === "azure") {
             const safety = createAzureContentSafetyClient(options)
             return safety
-        }
-        throw new NotSupportedError(`content safety ${id} not supported`)
+        } else if (id)
+            throw new NotSupportedError(`content safety ${id} not supported`)
+        return undefined
     }
 
     async browse(
