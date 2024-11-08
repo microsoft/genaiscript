@@ -845,6 +845,7 @@ export async function executeChatSession(
                     if (resp.variables)
                         genVars = { ...(genVars || {}), ...resp.variables }
                 } finally {
+                    logVerbose("")
                     trace.endDetails()
                 }
 
