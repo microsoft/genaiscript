@@ -106,9 +106,9 @@ class AzureContentSafetyClient implements ContentSafety {
     async detectPromptInjection(
         content: Awaitable<
             ElementOrArray<string> | ElementOrArray<WorkspaceFile>
-        >,
-        options?: {}
+        >
     ): Promise<{ attackDetected: boolean; filename?: string; chunk?: string }> {
+        const options = {}
         const { trace } = this.options || {}
         const route = "text:shieldPrompt"
 
@@ -137,7 +137,7 @@ class AzureContentSafetyClient implements ContentSafety {
                     !!resBody.userPromptAnalysis?.attackDetected ||
                     resBody.documentsAnalysis?.some((doc) => doc.attackDetected)
                 const r = { attackDetected }
-                await this.cache.set({ route, body, options }, r)
+                await this.cache.set({ route, body, options: {} }, r)
                 return r
             }
 
@@ -254,5 +254,9 @@ export function createAzureContentSafetyClient(
             signal?: AbortSignal
         }
 ): ContentSafety {
-    return new AzureContentSafetyClient(options)
+    const client = new AzureContentSafetyClient(options)
+    return {
+        detectHarmfulContent: client.detectHarmfulContent.bind(client),
+        detectPromptInjection: client.detectPromptInjection.bind(client),
+    } satisfies ContentSafety
 }
