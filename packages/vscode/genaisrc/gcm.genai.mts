@@ -7,22 +7,18 @@ script({
     title: "git commit message",
     description: "Generate a commit message for all staged changes",
     parameters: {
-        stageOnEmpty: {
-            type: "boolean",
-            description: "Stage all changes if none are staged",
-        },
-        validator: {
+        safety: {
             type: "string",
             description: "Content safety provider used to the commit message",
         },
     },
 })
-const { stageOnEmpty, validator } = env.vars
+const { stageOnEmpty, safety } = env.vars
 
 // Check for staged changes and stage all changes if none are staged
 const diff = await git.diff({
     staged: true,
-    askStageOnEmpty: !stageOnEmpty,
+    askStageOnEmpty: true,
 })
 
 // If no staged changes are found, cancel the script with a message
@@ -37,9 +33,7 @@ if (chunks.length > 1)
     console.log(`staged changes chunked into ${chunks.length} parts`)
 
 // check for prompt injection
-const contentSafety = validator
-    ? await host.contentSafety(validator)
-    : undefined
+const contentSafety = safety ? await host.contentSafety(safety) : undefined
 
 let choice
 let message
@@ -131,15 +125,13 @@ do {
         break
     }
 
-    if (validator) {
-        if (contentSafety.detectHarmfulContent) {
-            const { harmfulContentDetected } =
-                await contentSafety.detectHarmfulContent(message)
-            if (harmfulContentDetected) {
-                console.error("Harmful content detected in the commit message")
-                message = undefined
-                break
-            }
+    if (contentSafety?.detectHarmfulContent) {
+        const { harmfulContentDetected } =
+            await contentSafety.detectHarmfulContent(message)
+        if (harmfulContentDetected) {
+            console.error("Harmful content detected in the commit message")
+            message = undefined
+            break
         }
     }
 
