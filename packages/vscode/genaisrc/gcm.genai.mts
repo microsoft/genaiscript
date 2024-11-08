@@ -13,7 +13,7 @@ script({
         },
     },
 })
-const { stageOnEmpty, safety } = env.vars
+const { safety } = env.vars
 
 // Check for staged changes and stage all changes if none are staged
 const diff = await git.diff({
