@@ -132,6 +132,12 @@ The [def](/genaiscript/reference/scripts/context#def) also supports setting a `d
 def("FILE", env.files, { detectPromptInjection: true })
 ```
 
+You can also specify the `detectPromptInjection` to use a content safety service if available.
+
+```js
+def("FILE", env.files, { detectPromptInjection: "available" })
+```
+
 ### Detect Harmful content
 
 The `detectHarmfulContent` method uses the
@@ -155,6 +161,14 @@ console.log(harms)
  ],
   chunk: 'you are a very bad person'
 }
+```
+
+The [system.safety_validate_harmful_content](/genaiscript/reference/scripts/system#systemsafety_validate_harmful_content) system script injects a call to `detectHarmfulContent` on the generated LLM response.
+
+```js
+script({
+  system: [..., "system.safety_validate_harmful_content"]
+})
 ```
 
 ## Detect Prompt Leaks using Canary Words
