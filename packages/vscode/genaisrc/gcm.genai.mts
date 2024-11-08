@@ -124,7 +124,6 @@ do {
 
     if (validator) {
         if (contentSafety.detectHarmfulContent) {
-            console.log(`validating harmful content...`)
             const { harmfulContentDetected } =
                 await contentSafety.detectHarmfulContent(message)
             if (harmfulContentDetected) {

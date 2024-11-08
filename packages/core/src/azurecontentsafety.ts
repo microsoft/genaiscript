@@ -48,7 +48,7 @@ class AzureContentSafetyClient implements ContentSafety {
         const route = "text:analyze"
 
         try {
-            trace?.startDetails("🛡️ content safety: detect harmful content")
+            trace?.startDetails("🛡️ content safety: detecting harmful content")
 
             const fetcher = await this.createClient(route)
             const analyze = async (text: string) => {
@@ -96,6 +96,7 @@ class AzureContentSafetyClient implements ContentSafety {
                 }
             }
 
+            trace?.item("no harmful content detected")
             return { harmfulContentDetected: false }
         } finally {
             trace?.endDetails()
