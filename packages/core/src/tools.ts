@@ -39,7 +39,8 @@ export function isToolsSupported(modelId: string): boolean | undefined {
         [MODEL_PROVIDER_AZURE_OPENAI]: oai,
         [MODEL_PROVIDER_AZURE_SERVERLESS_MODELS]: oai,
         [MODEL_PROVIDER_GITHUB]: {
-        }
+            "Phi-3.5-mini-instruct": false,
+        },
     }
 
     return data[provider]?.[model]
