@@ -522,17 +522,14 @@ async function structurifyChatSession(
     if (fences?.length)
         frames.push(...validateFencesWithSchema(fences, schemas, { trace }))
 
-    const tokenizer = await resolveTokenEncoder(options.model)
     const perplexity = computePerplexity(resp.logprobs)
-    const entropy = computeNormalizedEntry(resp.logprobs, tokenizer)
     if (resp.logprobs?.length) {
         logVerbose(
-            `${resp.logprobs.length} tokens, perplexity: ${roundWithPrecision(perplexity, 3) || ""}, entropy: ${roundWithPrecision(entropy, 3) || ""}`
+            `${resp.logprobs.length} tokens, perplexity: ${roundWithPrecision(perplexity, 3) || ""}`
         )
         trace.details(
             "📊 logprobs",
             `- perplexity: ${perplexity || ""}\n` +
-                `- entropy (normalized): ${entropy || ""}\n\n` +
                 resp.logprobs.map(logprobToMarkdown).join("\n") +
                 `\n\n _High confidence: blue, lower confidence: red_\n\n`
         )
@@ -551,7 +548,6 @@ async function structurifyChatSession(
         schemas,
         logprobs,
         perplexity,
-        entropy,
         model: resp?.model,
     } satisfies RunPromptResult
     await computeFileEdits(res, {

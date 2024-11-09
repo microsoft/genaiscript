@@ -57,15 +57,8 @@ export function computePerplexity(logprobs: LogProb[]): number {
     return Math.exp(-sum / logprobs.length)
 }
 
-export function computeNormalizedEntry(
-    logprobs: LogProb[],
-    tokenizer: Tokenizer
-): number {
-    if (
-        !logprobs ||
-        !tokenizer?.size ||
-        logprobs.some(({ logprob }) => logprob === undefined)
-    )
+export function computeNormalizedEntry(logprobs: LogProb[]): number {
+    if (!logprobs || logprobs.some(({ logprob }) => logprob === undefined))
         return undefined
 
     // Calculate entropy
@@ -75,7 +68,7 @@ export function computeNormalizedEntry(
     )
 
     // Maximum possible entropy with vocab size N
-    const maxEntropy = Math.log(tokenizer.size)
+    const maxEntropy = Math.log(logprobs.length)
 
     // Calculate normalized entropy
     const normalizedEntropy = entropy / maxEntropy
