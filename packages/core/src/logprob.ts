@@ -5,16 +5,17 @@ import {
 import { HTMLEscape } from "./html"
 import { roundWithPrecision } from "./util"
 
-export function choiceToToken(
-    choice: ChatCompletionChunkChoice
-): { token: string; logprob?: number }[] {
+export function choiceToToken(choice: ChatCompletionChunkChoice): LogProb[] {
     const { delta, logprobs } = choice
     if (logprobs)
-        return logprobs.content.map(({ token, logprob }) => ({
-            token,
-            logprob,
-        }))
-    else return [{ token: delta.content }]
+        return logprobs.content.map(
+            ({ token, logprob }) =>
+                ({
+                    token,
+                    logprob,
+                }) satisfies LogProb
+        )
+    else return [{ token: delta.content } satisfies LogProb]
 }
 
 export function logprobToPercent(value: number): number {
@@ -43,10 +44,17 @@ export function logprobCssColor(value: number): string {
     return `rgb(${red}, 0, ${blue})`
 }
 
-export function logprobToMarkdown(value: ChatCompletionTokenLogprob) {
+export function logprobToMarkdown(value: LogProb) {
     const { token, logprob } = value
     const c = logprobCssColor(logprob)
     const e = HTMLEscape(token).replace(/ /g, "&nbsp;").replace(/\n/g, "<br>")
     const lp = logprobToPercent(logprob)
     return `<span class="logprobs" title="${lp}% (${roundWithPrecision(logprob, 2)})" style="background: ${c}; color: white; white-space: pre; font-family: monospace;">${e}</span>`
+}
+
+export function computePerplexity(logprobs: LogProb[]): number {
+    if (!logprobs || logprobs.some(({ logprob }) => logprob === undefined))
+        return undefined
+    const sum = logprobs.reduce((acc, { logprob }) => acc + logprob, 0)
+    return Math.exp(-sum / logprobs.length)
 }

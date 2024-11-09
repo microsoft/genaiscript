@@ -262,10 +262,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
     let responseModel: string
     let lbs: ChatCompletionTokenLogprob[] = []
 
-    const doChoices = (
-        json: string,
-        tokens: { token: string; logprob?: number }[]
-    ) => {
+    const doChoices = (json: string, tokens: LogProb[]) => {
         const obj: ChatCompletionChunk | ChatCompletion = JSON.parse(json)
 
         if (!postReq.stream) trace.detailsFenced(`response`, obj, "json")
@@ -331,7 +328,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
         const decoder = host.createUTF8Decoder()
         const doChunk = (value: Uint8Array) => {
             // Massage and parse the chunk of data
-            let tokens: { token: string; logprob?: number }[] = []
+            let tokens: LogProb[] = []
             let chunk = decoder.decode(value, { stream: true })
 
             chunk = pref + chunk

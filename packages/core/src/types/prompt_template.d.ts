@@ -1005,6 +1005,11 @@ interface DataFrame {
     validation?: FileEditValidation
 }
 
+interface LogProb {
+    token: string
+    logprob?: number
+}
+
 interface RunPromptResult {
     messages: ChatCompletionMessageParam[]
     text: string
@@ -1027,6 +1032,7 @@ interface RunPromptResult {
     edits?: Edits[]
     changelogs?: ChangeLog[]
     model?: ModelType
+    logprobs?: LogProb[]
 }
 
 /**

@@ -128,7 +128,7 @@ export interface ChatCompletionsProgressReport {
     tokensSoFar: number // Number of tokens processed so far
     responseSoFar: string // Partial response generated so far
     responseChunk: string // Current chunk of response being processed
-    responseTokens?: { token: string; logprob?: number }[] // Tokens in the current response chunk
+    responseTokens?: LogProb[] // Tokens in the current response chunk
     inner: boolean // Indicates if this is an inner report
 }
 

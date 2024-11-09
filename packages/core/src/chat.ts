@@ -66,7 +66,7 @@ import { estimateTokens, truncateTextToTokens } from "./tokens"
 import { computeFileEdits } from "./fileedits"
 import { HTMLEscape } from "./html"
 import { XMLTryParse } from "./xml"
-import { logprobToMarkdown } from "./logprob"
+import { computePerplexity, logprobToMarkdown } from "./logprob"
 
 export function toChatCompletionUserMessage(
     expanded: string,
@@ -462,6 +462,7 @@ async function structurifyChatSession(
     fileOutputs: FileOutput[],
     outputProcessors: PromptOutputProcessorHandler[],
     fileMerges: FileMergeHandler[],
+    logprobs: LogProb[],
     options: GenerationOptions,
     others?: {
         resp?: ChatCompletionResponse
@@ -526,6 +527,7 @@ async function structurifyChatSession(
         error,
         genVars,
         schemas,
+        logprobs,
         model: resp?.model,
     }
     await computeFileEdits(res, {
@@ -569,7 +571,8 @@ async function processChatMessage(
     if (resp.logprobs?.length)
         trace.details(
             "📊 logprobs",
-            resp.logprobs.map(logprobToMarkdown).join("\n") +
+            `- perplexity: ${computePerplexity(resp.logprobs)}\n\n` +
+                resp.logprobs.map(logprobToMarkdown).join("\n") +
                 `\n\n _High confidence: blue, lower confidence: red_\n\n`
         )
 
@@ -672,6 +675,13 @@ async function processChatMessage(
         if (needsNewTurn) return undefined
     }
 
+    const logprobs = resp.logprobs?.map(
+        ({ token, logprob }) =>
+            ({
+                token,
+                logprob,
+            }) satisfies LogProb
+    )
     return structurifyChatSession(
         messages,
         schemas,
@@ -679,6 +689,7 @@ async function processChatMessage(
         fileOutputs,
         outputProcessors,
         fileMerges,
+        logprobs,
         options,
         {
             resp,
