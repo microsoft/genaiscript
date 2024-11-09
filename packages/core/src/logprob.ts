@@ -22,12 +22,15 @@ export function logprobToPercent(value: number): number {
     return linearProbability
 }
 
-export function logprobColor(value: number, maxIntensity?: number): number {
-    const m = maxIntensity || 180
-    const linearProbability = logprobToPercent(value)
+export function logprobColor(
+    logprob: LogProb,
+    options?: { maxIntensity?: number }
+): number {
+    const { maxIntensity = 210 } = options || {}
     // Normalize log probability for a red to blue gradient range
-    const intensity = Math.round((m * linearProbability) / 100)
-    const red = m - intensity // Higher logProb gives less red, more blue
+    const alpha = logprobToPercent(logprob.logprob) / 100
+    const intensity = Math.round(maxIntensity * alpha)
+    const red = maxIntensity - intensity // Higher logProb gives less red, more blue
     const blue = intensity // Higher logProb gives more blue
     const green = 0
     return (red << 16) | (green << 8) | (blue << 0)

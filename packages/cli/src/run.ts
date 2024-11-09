@@ -316,7 +316,7 @@ export async function runScript(
                             for (const token of responseTokens) {
                                 if (token.logprob !== undefined) {
                                     const c = wrapRgbColor(
-                                        logprobColor(token.logprob, 255),
+                                        logprobColor(token),
                                         token.token
                                     )
                                     process.stdout.write(c)

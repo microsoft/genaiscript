@@ -67,12 +67,7 @@ import { estimateTokens, truncateTextToTokens } from "./tokens"
 import { computeFileEdits } from "./fileedits"
 import { HTMLEscape } from "./html"
 import { XMLTryParse } from "./xml"
-import {
-    computeNormalizedEntry,
-    computePerplexity,
-    logprobToMarkdown,
-} from "./logprob"
-import { log } from "node:console"
+import { computePerplexity, logprobToMarkdown } from "./logprob"
 
 export function toChatCompletionUserMessage(
     expanded: string,
@@ -847,6 +842,7 @@ export async function executeChatSession(
                         seed,
                         stream: true,
                         logprobs,
+                        //top_logprobs: logprobs ? 3 : 0,
                         messages,
                         tools: fallbackTools ? undefined : tools,
                         response_format:
