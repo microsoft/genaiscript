@@ -1008,6 +1008,7 @@ interface DataFrame {
 interface LogProb {
     token: string
     logprob?: number
+    entropy?: number
 }
 
 interface RunPromptResult {

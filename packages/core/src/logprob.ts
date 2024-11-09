@@ -7,10 +7,11 @@ export function choiceToToken(choice: ChatCompletionChunkChoice): LogProb[] {
     const { delta, logprobs } = choice
     if (logprobs)
         return logprobs.content.map(
-            ({ token, logprob }) =>
+            ({ token, logprob, top_logprobs }) =>
                 ({
                     token,
                     logprob,
+                    entropy: computeNormalizedEntry(top_logprobs),
                 }) satisfies LogProb
         )
     else return [{ token: delta.content } satisfies LogProb]
@@ -57,9 +58,8 @@ export function computePerplexity(logprobs: LogProb[]): number {
     return Math.exp(-sum / logprobs.length)
 }
 
-export function computeNormalizedEntry(logprobs: LogProb[]): number {
-    if (!logprobs || logprobs.some(({ logprob }) => logprob === undefined))
-        return undefined
+function computeNormalizedEntry(logprobs: LogProb[]): number {
+    if (!logprobs?.length) return undefined
 
     // Calculate entropy
     const entropy = -logprobs.reduce(
