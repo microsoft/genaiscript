@@ -1033,6 +1033,8 @@ interface RunPromptResult {
     changelogs?: ChangeLog[]
     model?: ModelType
     logprobs?: LogProb[]
+    perplexity?: number
+    entropy?: number
 }
 
 /**
@@ -1138,6 +1140,10 @@ type TokenDecoder = (lines: Iterable<number>) => string
 
 interface Tokenizer {
     model: string
+    /**
+     * Number of tokens
+     */
+    size?: number
     encode: TokenEncoder
     decode: TokenDecoder
 }

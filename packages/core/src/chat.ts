@@ -21,6 +21,7 @@ import {
     logInfo,
     logVerbose,
     logWarn,
+    roundWithPrecision,
 } from "./util"
 import { extractFenced, findFirstDataFence, unfence } from "./fence"
 import {
@@ -66,7 +67,12 @@ import { estimateTokens, truncateTextToTokens } from "./tokens"
 import { computeFileEdits } from "./fileedits"
 import { HTMLEscape } from "./html"
 import { XMLTryParse } from "./xml"
-import { computePerplexity, logprobToMarkdown } from "./logprob"
+import {
+    computeNormalizedEntry,
+    computePerplexity,
+    logprobToMarkdown,
+} from "./logprob"
+import { log } from "node:console"
 
 export function toChatCompletionUserMessage(
     expanded: string,
@@ -516,6 +522,22 @@ async function structurifyChatSession(
     if (fences?.length)
         frames.push(...validateFencesWithSchema(fences, schemas, { trace }))
 
+    const tokenizer = await resolveTokenEncoder(options.model)
+    const perplexity = computePerplexity(resp.logprobs)
+    const entropy = computeNormalizedEntry(resp.logprobs, tokenizer)
+    if (resp.logprobs?.length) {
+        logVerbose(
+            `${resp.logprobs.length} tokens, perplexity: ${roundWithPrecision(perplexity, 3) || ""}, entropy: ${roundWithPrecision(entropy, 3) || ""}`
+        )
+        trace.details(
+            "📊 logprobs",
+            `- perplexity: ${perplexity || ""}\n` +
+                `- entropy (normalized): ${entropy || ""}\n\n` +
+                resp.logprobs.map(logprobToMarkdown).join("\n") +
+                `\n\n _High confidence: blue, lower confidence: red_\n\n`
+        )
+    }
+
     const res: RunPromptResult = {
         messages,
         text,
@@ -528,8 +550,10 @@ async function structurifyChatSession(
         genVars,
         schemas,
         logprobs,
+        perplexity,
+        entropy,
         model: resp?.model,
-    }
+    } satisfies RunPromptResult
     await computeFileEdits(res, {
         trace,
         schemas,
@@ -567,14 +591,6 @@ async function processChatMessage(
             role: "assistant",
             content: resp.text,
         })
-
-    if (resp.logprobs?.length)
-        trace.details(
-            "📊 logprobs",
-            `- perplexity: ${computePerplexity(resp.logprobs)}\n\n` +
-                resp.logprobs.map(logprobToMarkdown).join("\n") +
-                `\n\n _High confidence: blue, lower confidence: red_\n\n`
-        )
 
     if (options.fallbackTools && resp.text && tools.length) {
         resp.toolCalls = []
@@ -866,7 +882,7 @@ export async function executeChatSession(
                     if (resp.variables)
                         genVars = { ...(genVars || {}), ...resp.variables }
                 } finally {
-                    logVerbose("")
+                    logVerbose("\n")
                     trace.endDetails()
                 }
 
@@ -892,6 +908,7 @@ export async function executeChatSession(
                     fileOutputs,
                     outputProcessors,
                     fileMerges,
+                    [],
                     genOptions,
                     { resp, err }
                 )

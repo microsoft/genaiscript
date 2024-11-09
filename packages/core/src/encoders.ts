@@ -32,8 +32,12 @@ export async function resolveTokenEncoder(
             default: api,
         } = await import(`gpt-tokenizer/model/${module}`)
         const { modelName } = api
+        const size =
+            api.bytePairEncodingCoreProcessor?.mergeableBytePairRankCount +
+            (api.bytePairEncodingCoreProcessor?.specialTokenMapping?.size || 0)
         return Object.freeze<Tokenizer>({
             model: modelName,
+            size,
             encode: (line) => encode(line, encoderOptions), // Return the default encoder function
             decode,
         })
@@ -47,8 +51,14 @@ export async function resolveTokenEncoder(
             default: api,
         } = await import("gpt-tokenizer/model/gpt-4o")
         const { modelName } = api
+        const size =
+            (api as any).bytePairEncodingCoreProcessor
+                ?.mergeableBytePairRankCount +
+            ((api as any).bytePairEncodingCoreProcessor?.specialTokenMapping
+                ?.size || 0)
         return Object.freeze<Tokenizer>({
             model: modelName,
+            size,
             encode: (line) => encode(line, encoderOptions), // Return the default encoder function
             decode,
         })

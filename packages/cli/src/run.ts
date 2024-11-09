@@ -378,7 +378,6 @@ export async function runScript(
         logError(err)
         return fail("runtime error", RUNTIME_ERROR_CODE)
     }
-    if (!isQuiet) logVerbose("") // force new line
 
     await aggregateResults(scriptId, outTrace, stats, result)
     await traceAgentMemory(trace)
@@ -478,7 +477,6 @@ export async function runScript(
                 )
         }
     } else {
-        logVerbose("")
         if (options.json && result !== undefined)
             console.log(JSON.stringify(result, null, 2))
         if (options.yaml && result !== undefined)

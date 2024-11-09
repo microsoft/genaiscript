@@ -1,7 +1,5 @@
-import {
-    ChatCompletionChunkChoice,
-    ChatCompletionTokenLogprob,
-} from "./chattypes"
+// cspell: disable
+import { ChatCompletionChunkChoice } from "./chattypes"
 import { HTMLEscape } from "./html"
 import { roundWithPrecision } from "./util"
 
@@ -57,4 +55,30 @@ export function computePerplexity(logprobs: LogProb[]): number {
         return undefined
     const sum = logprobs.reduce((acc, { logprob }) => acc + logprob, 0)
     return Math.exp(-sum / logprobs.length)
+}
+
+export function computeNormalizedEntry(
+    logprobs: LogProb[],
+    tokenizer: Tokenizer
+): number {
+    if (
+        !logprobs ||
+        !tokenizer?.size ||
+        logprobs.some(({ logprob }) => logprob === undefined)
+    )
+        return undefined
+
+    // Convert log-probabilities to probabilities
+    const probs = logprobs.map(({ logprob }) => Math.exp(logprob))
+
+    // Calculate entropy
+    const entropy = -probs.reduce((acc, prob) => acc + prob * Math.log(prob), 0)
+
+    // Maximum possible entropy with vocab size N
+    const maxEntropy = Math.log(tokenizer.size)
+
+    // Calculate normalized entropy
+    const normalizedEntropy = entropy / maxEntropy
+
+    return normalizedEntropy
 }
