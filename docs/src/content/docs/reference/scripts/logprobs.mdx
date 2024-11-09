@@ -5,19 +5,19 @@ sidebar:
     order: 50
 ---
 
-`logprobs` is a mode where LLMs return probably of each token. 
+`logprobs` is a mode where LLMs return the probability of each token.
 
 - See [OpenAI Logprobs](https://cookbook.openai.com/examples/using_logprobs)
 
 :::note
 
-The `logprobs` feature is not available in all model or providers.
+The `logprobs` feature is not available in all models or providers.
 
 :::
 
 ## Colored output
 
-When `logprobs` is enable, the [cli](/genaiscript/reference/cli) will color the output based on the probability of each token.
+When `logprobs` is enabled, the [cli](/genaiscript/reference/cli) will color the output based on the probability of each token.
 Blue color indicates high probability and red color indicates low probability.
 
 
