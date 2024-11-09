@@ -68,11 +68,11 @@ export function computeNormalizedEntry(
     )
         return undefined
 
-    // Convert log-probabilities to probabilities
-    const probs = logprobs.map(({ logprob }) => Math.exp(logprob))
-
     // Calculate entropy
-    const entropy = -probs.reduce((acc, prob) => acc + prob * Math.log(prob), 0)
+    const entropy = -logprobs.reduce(
+        (acc, lp) => acc + Math.exp(lp.logprob) * lp.logprob,
+        0
+    )
 
     // Maximum possible entropy with vocab size N
     const maxEntropy = Math.log(tokenizer.size)
