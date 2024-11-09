@@ -72,6 +72,11 @@ export interface GenerationResult extends GenerationOutput {
     version: string
 
     /**
+     * Logprobs if computed
+     */
+    logprobs?: LogProb[]
+
+    /**
      * Statistics of the generation
      */
     stats: {
@@ -95,7 +100,7 @@ export interface GenerationOptions
     trace: MarkdownTrace // Trace information for debugging or logging
     maxCachedTemperature?: number // Maximum temperature for caching purposes
     maxCachedTopP?: number // Maximum top-p value for caching
-    fallbackTools?: boolean // Disables model tools    
+    fallbackTools?: boolean // Disables model tools
     label?: string // Optional label for the operation
     cliInfo?: {
         files: string[] // Information about files in the CLI context

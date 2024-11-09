@@ -786,8 +786,9 @@ export async function executeChatSession(
         stats,
         fallbackTools,
         choices,
-        logprobs,
+        topLogprobs,
     } = genOptions
+    const logprobs = genOptions.logprobs || genOptions.topLogprobs > 0
     traceLanguageModelConnection(trace, genOptions, connectionToken)
     const tools: ChatCompletionTool[] = toolDefinitions?.length
         ? toolDefinitions.map(
@@ -842,7 +843,7 @@ export async function executeChatSession(
                         seed,
                         stream: true,
                         logprobs,
-                        //top_logprobs: logprobs ? 3 : 0,
+                        top_logprobs: topLogprobs,
                         messages,
                         tools: fallbackTools ? undefined : tools,
                         response_format:

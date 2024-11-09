@@ -191,6 +191,11 @@ interface ModelOptions extends ModelConnectionOptions {
     logprobs?: boolean
 
     /**
+     * Number of alternate token logprobs to generate, up to 5. Enables logprobs.
+     */
+    topLogprobs?: number
+
+    /**
      * Specifies the type of output. Default is plain text.
      * - `json_object` enables JSON mode
      * - `json_schema` enables structured outputs

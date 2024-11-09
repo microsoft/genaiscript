@@ -172,9 +172,9 @@ export async function runScript(
     const excludeGitIgnore = !!options.excludeGitIgnore
     const out = options.out
     const stream = !options.json && !options.yaml && !out
-    const retry = parseInt(options.retry) || 8
-    const retryDelay = parseInt(options.retryDelay) || 15000
-    const maxDelay = parseInt(options.maxDelay) || 180000
+    const retry = normalizeInt(options.retry) || 8
+    const retryDelay = normalizeInt(options.retryDelay) || 15000
+    const maxDelay = normalizeInt(options.maxDelay) || 180000
     const outTrace = options.outTrace
     const outAnnotations = options.outAnnotations
     const failOnErrors = options.failOnErrors
@@ -200,6 +200,7 @@ export async function runScript(
     const jsSource = options.jsSource
     const fallbackTools = !!options.fallbackTools
     const logprobs = options.logprobs
+    const topLogprobs = normalizeInt(options.topLogprobs)
 
     if (options.model) host.defaultModelOptions.model = options.model
     if (options.smallModel)
@@ -367,6 +368,7 @@ export async function runScript(
             trace,
             fallbackTools,
             logprobs,
+            topLogprobs,
             cliInfo: {
                 files,
             },
