@@ -5,7 +5,7 @@ import { roundWithPrecision } from "./util"
 
 export function choiceToToken(choice: ChatCompletionChunkChoice): LogProb[] {
     const { delta, logprobs } = choice
-    if (logprobs)
+    if (logprobs?.content)
         return logprobs.content.map(
             ({ token, logprob, top_logprobs }) =>
                 ({
