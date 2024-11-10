@@ -299,6 +299,7 @@ export async function runTemplate(
             schemas,
             json,
             logprobs: output.logprobs,
+            perplexity: output.perplexity,
             stats: {
                 cost: options.stats.cost(),
                 ...options.stats.usage,

@@ -74,7 +74,12 @@ export interface GenerationResult extends GenerationOutput {
     /**
      * Logprobs if computed
      */
-    logprobs?: LogProb[]
+    logprobs?: Logprob[]
+
+    /**
+     * Statistics of the generation
+     */
+    perplexity?: number
 
     /**
      * Statistics of the generation

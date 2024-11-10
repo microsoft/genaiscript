@@ -3,7 +3,9 @@ import { ChatCompletionChunkChoice } from "./chattypes"
 import { HTMLEscape } from "./html"
 import { roundWithPrecision } from "./util"
 
-export function choiceToToken(choice: ChatCompletionChunkChoice): LogProb[] {
+export function chunkChoiceToLogProb(
+    choice: ChatCompletionChunkChoice
+): Logprob[] {
     const { delta, logprobs } = choice
     if (logprobs?.content)
         return logprobs.content.map(
@@ -11,10 +13,14 @@ export function choiceToToken(choice: ChatCompletionChunkChoice): LogProb[] {
                 ({
                     token,
                     logprob,
+                    topLogprobs: top_logprobs?.map((tp) => ({
+                        token: tp.token,
+                        logprob: tp.logprob,
+                    })),
                     entropy: computeNormalizedEntry(top_logprobs),
-                }) satisfies LogProb
+                }) satisfies Logprob
         )
-    else return [{ token: delta.content } satisfies LogProb]
+    else return [{ token: delta.content, logprob: -Infinity } satisfies Logprob]
 }
 
 export function logprobToPercent(value: number): number {
@@ -23,7 +29,7 @@ export function logprobToPercent(value: number): number {
 }
 
 export function logprobColor(
-    logprob: LogProb,
+    logprob: Logprob,
     options?: { maxIntensity?: number }
 ): number {
     const { maxIntensity = 210 } = options || {}
@@ -46,7 +52,7 @@ export function logprobCssColor(value: number): string {
     return `rgb(${red}, 0, ${blue})`
 }
 
-export function logprobToMarkdown(value: LogProb) {
+export function logprobToMarkdown(value: Logprob) {
     const { token, logprob } = value
     const c = logprobCssColor(logprob)
     const e = HTMLEscape(token).replace(/ /g, "&nbsp;").replace(/\n/g, "<br>")
@@ -54,14 +60,13 @@ export function logprobToMarkdown(value: LogProb) {
     return `<span class="logprobs" title="${lp}% (${roundWithPrecision(logprob, 2)})" style="background: ${c}; color: white; white-space: pre; font-family: monospace;">${e}</span>`
 }
 
-export function computePerplexity(logprobs: LogProb[]): number {
-    if (!logprobs || logprobs.some(({ logprob }) => logprob === undefined))
-        return undefined
+export function computePerplexity(logprobs: Logprob[]): number {
+    if (!logprobs?.length) return undefined
     const sum = logprobs.reduce((acc, { logprob }) => acc + logprob, 0)
     return Math.exp(-sum / logprobs.length)
 }
 
-function computeNormalizedEntry(logprobs: LogProb[]): number {
+function computeNormalizedEntry(logprobs: Logprob[]): number {
     if (!logprobs?.length) return undefined
 
     // Calculate entropy

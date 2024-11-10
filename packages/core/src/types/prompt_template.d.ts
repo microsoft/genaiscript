@@ -1010,10 +1010,11 @@ interface DataFrame {
     validation?: FileEditValidation
 }
 
-interface LogProb {
+interface Logprob {
     token: string
-    logprob?: number
+    logprob: number
     entropy?: number
+    topLogprobs?: { token: string; logprob: number }[]
 }
 
 interface RunPromptResult {
@@ -1038,7 +1039,7 @@ interface RunPromptResult {
     edits?: Edits[]
     changelogs?: ChangeLog[]
     model?: ModelType
-    logprobs?: LogProb[]
+    logprobs?: Logprob[]
     perplexity?: number
 }
 

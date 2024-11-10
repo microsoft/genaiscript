@@ -463,7 +463,7 @@ async function structurifyChatSession(
     fileOutputs: FileOutput[],
     outputProcessors: PromptOutputProcessorHandler[],
     fileMerges: FileMergeHandler[],
-    logprobs: LogProb[],
+    logprobs: Logprob[],
     options: GenerationOptions,
     others?: {
         resp?: ChatCompletionResponse
@@ -687,7 +687,7 @@ async function processChatMessage(
             ({
                 token,
                 logprob,
-            }) satisfies LogProb
+            }) satisfies Logprob
     )
     return structurifyChatSession(
         messages,
