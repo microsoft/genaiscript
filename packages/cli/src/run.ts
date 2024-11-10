@@ -315,7 +315,7 @@ export async function runScript(
                                 ? CONSOLE_TOKEN_INNER_COLORS
                                 : CONSOLE_TOKEN_COLORS
                             for (const token of responseTokens) {
-                                if (token.logprob !== undefined) {
+                                if (!isNaN(token.logprob)) {
                                     const c = wrapRgbColor(
                                         logprobColor(token),
                                         token.token

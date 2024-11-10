@@ -517,17 +517,20 @@ async function structurifyChatSession(
     if (fences?.length)
         frames.push(...validateFencesWithSchema(fences, schemas, { trace }))
 
-    const perplexity = computePerplexity(resp.logprobs)
-    if (resp.logprobs?.length) {
+    const perplexity = computePerplexity(logprobs)
+    if (logprobs?.length) {
         logVerbose(
-            `${resp.logprobs.length} tokens, perplexity: ${roundWithPrecision(perplexity, 3) || ""}`
+            `${logprobs.length} tokens, perplexity: ${roundWithPrecision(perplexity, 3) || ""}`
         )
-        trace.details(
-            "📊 logprobs",
-            `- perplexity: ${perplexity || ""}\n` +
-                resp.logprobs.map(logprobToMarkdown).join("\n") +
-                `\n\n _High confidence: blue, lower confidence: red_\n\n`
-        )
+        try {
+            trace.startDetails("📊 logprobs")
+            trace.itemValue("perplexity", perplexity)
+            trace.item("logprobs (0%:red, 100%: blue)")
+            trace.appendContent(logprobs.map(logprobToMarkdown).join("\n"))
+            trace.appendContent("\n")
+        } finally {
+            trace.endDetails()
+        }
     }
 
     const res: RunPromptResult = {

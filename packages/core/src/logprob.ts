@@ -20,7 +20,7 @@ export function chunkChoiceToLogProb(
                     entropy: computeNormalizedEntry(top_logprobs),
                 }) satisfies Logprob
         )
-    else return [{ token: delta.content, logprob: -Infinity } satisfies Logprob]
+    else return [{ token: delta.content, logprob: Number.NaN } satisfies Logprob]
 }
 
 export function logprobToPercent(value: number): number {
