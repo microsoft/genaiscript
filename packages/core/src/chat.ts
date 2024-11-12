@@ -71,6 +71,7 @@ import {
     computePerplexity,
     logprobToMarkdown,
     serializeLogProb,
+    topLogprobsToMarkdown,
 } from "./logprob"
 
 export function toChatCompletionUserMessage(
@@ -542,6 +543,14 @@ async function structurifyChatSession(
                     logprobs
                         .map((lp) => logprobToMarkdown(lp, { entropy: true }))
                         .join("\n")
+                )
+                trace.appendContent("\n\n")
+            }
+            if (logprobs[0]?.topLogprobs?.length) {
+                trace.item("top_logprobs")
+                trace.appendContent("\n\n")
+                trace.appendContent(
+                    logprobs.map((lp) => topLogprobsToMarkdown(lp)).join("\n")
                 )
                 trace.appendContent("\n\n")
             }

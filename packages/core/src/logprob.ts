@@ -40,7 +40,7 @@ export function logprobColor(
     const { maxIntensity = 210, entropy } = options || {}
     // Normalize log probability for a red to blue gradient range
     const alpha = entropy
-        ? logprob.entropy
+        ? 1 - logprob.entropy
         : logprobToPercent(logprob.logprob) / 100
     const intensity = Math.round(maxIntensity * alpha)
     const red = maxIntensity - intensity // Higher logProb gives less red, more blue
@@ -57,14 +57,26 @@ function rgbToCss(value: number): string {
 
 export function logprobToMarkdown(
     value: Logprob,
-    options?: { maxIntensity?: number; entropy?: boolean }
+    options?: { maxIntensity?: number; entropy?: boolean; eatSpaces?: boolean }
 ) {
     const { token, logprob, entropy } = value
     const c = rgbToCss(logprobColor(value, options))
+    const title = options?.entropy
+        ? roundWithPrecision(entropy, 2)
+        : `${logprobToPercent(logprob)}% (${roundWithPrecision(logprob, 2)})`
+    let text = HTMLEscape(token).replace(/</g, "&lt;").replace(/>/g, "&gt;")
+    if (options?.eatSpaces) text = text.replace(/\n/g, " ")
+    else text = text.replace(/ /g, "&nbsp;").replace(/\n/g, "<br/>")
+    return `<span class="logprobs" title="${title}" style="background: ${c}; color: white; white-space: pre; font-family: monospace;">${text}</span>`
+}
 
-    const e = HTMLEscape(token).replace(/ /g, "&nbsp;").replace(/\n/g, "<br>")
-    const lp = logprobToPercent(logprob)
-    return `<span class="logprobs" title="${lp}% (${roundWithPrecision(logprob, 2)})" style="background: ${c}; color: white; white-space: pre; font-family: monospace;">${e}</span>`
+export function topLogprobsToMarkdown(
+    value: Logprob,
+    options?: { maxIntensity?: number }
+) {
+    const { token, topLogprobs } = value
+    const opts = { ...options, eatSpaces: true }
+    return `<table class="toplogprobs" style="display: inline-block; padding: 0; margin: 0; border: solid 1px grey; border-radius: 0.2rem;">${topLogprobs.map((tp) => `<tr><td style="border: none; padding: 0;">${logprobToMarkdown(tp, opts)}</td></tr>`).join("")}</table>${/\n/.test(token) ? "<br/>" : ""}`
 }
 
 export function computePerplexity(logprobs: Logprob[]): number {
