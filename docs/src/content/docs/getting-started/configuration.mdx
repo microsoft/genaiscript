@@ -354,11 +354,12 @@ script({
 
 ### Custom credentials
 
-In some situation, the default credentials chain lookup may not work. In that case, you can specify an additional environment variable `AZURE_SERVERLESS_OPENAI_API_CREDENTIALS`
+In some situation, the default credentials chain lookup may not work.
+In that case, you can specify an additional environment variable `AZURE_OPENAI_API_CREDENTIALS`
 with the type of credential that should be used.
 
 ```txt title=".env"
-AZURE_SERVERLESS_OPENAI_API_CREDENTIALS=cli
+AZURE_OPENAI_API_CREDENTIALS=cli
 ```
 
 The types are mapped directly to their [@azure/identity](https://www.npmjs.com/package/@azure/identity) credential types:
@@ -368,6 +369,15 @@ The types are mapped directly to their [@azure/identity](https://www.npmjs.com/p
 -   `powershell` - `AzurePowerShellCredential`
 -   `devcli` - `AzureDeveloperCliCredential`
 -   `managedidentity` - `ManagedIdentityCredential`
+
+### Custom token scopes
+
+The default token scope for Azure OpenAI access is `https://cognitiveservices.azure.com/.default`.
+You can override this value using the `AZURE_OPENAI_TOKEN_SCOPES` environment variable.
+
+```txt title=".env"
+AZURE_OPENAI_TOKEN_SCOPES=...
+```
 
 ### API Key
 
