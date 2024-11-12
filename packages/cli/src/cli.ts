@@ -98,6 +98,10 @@ export async function cli() {
         .option("-m, --model <string>", "model for the run")
         .option("-sm, --small-model <string>", "small model for the run")
         .option("-lp, --logprobs", "enable reporting token probabilities")
+        .option(
+            "-tlp, --top-logprobs <number>",
+            "number of top logprobs (1 to 5)"
+        )
         .option("-ef, --excluded-files <string...>", "excluded files")
         .option(
             "-egi, --exclude-git-ignore",

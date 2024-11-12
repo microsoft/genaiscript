@@ -147,6 +147,7 @@ export async function runTemplate(
             responseType,
             responseSchema,
             logprobs,
+            topLogprobs,
         } = await expandTemplate(
             prj,
             template,
@@ -208,6 +209,7 @@ export async function runTemplate(
             topP,
             seed,
             logprobs,
+            topLogprobs,
             stats: options.stats.createChild(connection.info.model),
         }
         const output = await executeChatSession(
@@ -296,6 +298,8 @@ export async function runTemplate(
             genVars,
             schemas,
             json,
+            logprobs: output.logprobs,
+            perplexity: output.perplexity,
             stats: {
                 cost: options.stats.cost(),
                 ...options.stats.usage,

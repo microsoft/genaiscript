@@ -191,6 +191,11 @@ interface ModelOptions extends ModelConnectionOptions {
     logprobs?: boolean
 
     /**
+     * Number of alternate token logprobs to generate, up to 5. Enables logprobs.
+     */
+    topLogprobs?: number
+
+    /**
      * Specifies the type of output. Default is plain text.
      * - `json_object` enables JSON mode
      * - `json_schema` enables structured outputs
@@ -1005,10 +1010,11 @@ interface DataFrame {
     validation?: FileEditValidation
 }
 
-interface LogProb {
+interface Logprob {
     token: string
-    logprob?: number
+    logprob: number
     entropy?: number
+    topLogprobs?: { token: string; logprob: number }[]
 }
 
 interface RunPromptResult {
@@ -1033,7 +1039,7 @@ interface RunPromptResult {
     edits?: Edits[]
     changelogs?: ChangeLog[]
     model?: ModelType
-    logprobs?: LogProb[]
+    logprobs?: Logprob[]
     perplexity?: number
 }
 

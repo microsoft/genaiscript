@@ -201,6 +201,10 @@ export async function expandTemplate(
     let seed = options.seed ?? normalizeInt(env.vars["seed"]) ?? template.seed
     if (seed !== undefined) seed = seed >> 0
     let logprobs = options.logprobs || template.logprobs
+    let topLogprobs = Math.max(
+        options.topLogprobs || 0,
+        template.topLogprobs || 0
+    )
 
     trace.startDetails("💾 script")
 
@@ -309,6 +313,7 @@ export async function expandTemplate(
                     messages.push(sysr.aici)
                 }
                 logprobs = logprobs || system.logprobs
+                topLogprobs = Math.max(topLogprobs, system.topLogprobs || 0)
                 trace.detailsFenced("js", system.jsSource, "js")
                 trace.endDetails()
 
@@ -376,5 +381,6 @@ ${schemaTs}
         chatParticipants,
         fileOutputs,
         logprobs,
+        topLogprobs,
     }
 }

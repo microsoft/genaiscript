@@ -67,7 +67,11 @@ import { estimateTokens, truncateTextToTokens } from "./tokens"
 import { computeFileEdits } from "./fileedits"
 import { HTMLEscape } from "./html"
 import { XMLTryParse } from "./xml"
-import { computePerplexity, logprobToMarkdown } from "./logprob"
+import {
+    computePerplexity,
+    logprobToMarkdown,
+    serializeLogProb,
+} from "./logprob"
 
 export function toChatCompletionUserMessage(
     expanded: string,
@@ -463,7 +467,7 @@ async function structurifyChatSession(
     fileOutputs: FileOutput[],
     outputProcessors: PromptOutputProcessorHandler[],
     fileMerges: FileMergeHandler[],
-    logprobs: LogProb[],
+    logprobs: Logprob[],
     options: GenerationOptions,
     others?: {
         resp?: ChatCompletionResponse
@@ -517,17 +521,33 @@ async function structurifyChatSession(
     if (fences?.length)
         frames.push(...validateFencesWithSchema(fences, schemas, { trace }))
 
-    const perplexity = computePerplexity(resp.logprobs)
-    if (resp.logprobs?.length) {
+    const perplexity = computePerplexity(logprobs)
+    if (logprobs?.length) {
         logVerbose(
-            `${resp.logprobs.length} tokens, perplexity: ${roundWithPrecision(perplexity, 3) || ""}`
+            `${logprobs.length} tokens, perplexity: ${roundWithPrecision(perplexity, 3) || ""}`
         )
-        trace.details(
-            "📊 logprobs",
-            `- perplexity: ${perplexity || ""}\n` +
-                resp.logprobs.map(logprobToMarkdown).join("\n") +
-                `\n\n _High confidence: blue, lower confidence: red_\n\n`
-        )
+        try {
+            trace.startDetails("📊 logprobs")
+            trace.itemValue("perplexity", perplexity)
+            trace.item("logprobs (0%:red, 100%: blue)")
+            trace.appendContent("\n\n")
+            trace.appendContent(
+                logprobs.map((lp) => logprobToMarkdown(lp)).join("\n")
+            )
+            trace.appendContent("\n\n")
+            if (!isNaN(logprobs[0].entropy)) {
+                trace.item("entropy (0:red, 1: blue)")
+                trace.appendContent("\n\n")
+                trace.appendContent(
+                    logprobs
+                        .map((lp) => logprobToMarkdown(lp, { entropy: true }))
+                        .join("\n")
+                )
+                trace.appendContent("\n\n")
+            }
+        } finally {
+            trace.endDetails()
+        }
     }
 
     const res: RunPromptResult = {
@@ -682,13 +702,7 @@ async function processChatMessage(
         if (needsNewTurn) return undefined
     }
 
-    const logprobs = resp.logprobs?.map(
-        ({ token, logprob }) =>
-            ({
-                token,
-                logprob,
-            }) satisfies LogProb
-    )
+    const logprobs = resp.logprobs?.map(serializeLogProb)
     return structurifyChatSession(
         messages,
         schemas,
@@ -786,8 +800,10 @@ export async function executeChatSession(
         stats,
         fallbackTools,
         choices,
-        logprobs,
+        topLogprobs,
     } = genOptions
+    const top_logprobs = genOptions.topLogprobs > 0 ? topLogprobs : undefined
+    const logprobs = genOptions.logprobs || top_logprobs > 0
     traceLanguageModelConnection(trace, genOptions, connectionToken)
     const tools: ChatCompletionTool[] = toolDefinitions?.length
         ? toolDefinitions.map(
@@ -842,7 +858,7 @@ export async function executeChatSession(
                         seed,
                         stream: true,
                         logprobs,
-                        //top_logprobs: logprobs ? 3 : 0,
+                        top_logprobs,
                         messages,
                         tools: fallbackTools ? undefined : tools,
                         response_format:

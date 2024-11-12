@@ -81,6 +81,7 @@ export interface PromptScriptRunOptions {
     fallbackTools: boolean
     jsSource: string
     logprobs: boolean
+    topLogprobs: number
 }
 
 export interface PromptScriptStart extends RequestMessage {
