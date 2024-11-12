@@ -5,7 +5,6 @@ import { resolveFileContent } from "./file"
 import { uniq } from "es-toolkit"
 import { addLineNumbers } from "./liner"
 import { arrayify } from "./util"
-import { YAMLStringify } from "./yaml"
 
 export async function grepSearch(
     query: string | RegExp,

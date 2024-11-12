@@ -50,15 +50,10 @@ export async function resolveTokenEncoder(
             decode,
             default: api,
         } = await import("gpt-tokenizer/model/gpt-4o")
-        const { modelName } = api
-        const size =
-            (api as any).bytePairEncodingCoreProcessor
-                ?.mergeableBytePairRankCount +
-            ((api as any).bytePairEncodingCoreProcessor?.specialTokenMapping
-                ?.size || 0)
+        const { modelName, vocabularySize } = api
         return Object.freeze<Tokenizer>({
             model: modelName,
-            size,
+            size: vocabularySize,
             encode: (line) => encode(line, encoderOptions), // Return the default encoder function
             decode,
         })

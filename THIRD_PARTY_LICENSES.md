@@ -1702,7 +1702,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.71.5
+ - genaiscript-vscode@1.74.0
 
 This package contains the following license:
 
@@ -3348,20 +3348,20 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - @inquirer/checkbox@4.0.1
- - @inquirer/confirm@5.0.1
- - @inquirer/core@10.0.1
- - @inquirer/editor@4.0.1
- - @inquirer/expand@4.0.1
- - @inquirer/figures@1.0.7
- - @inquirer/input@4.0.1
- - @inquirer/number@3.0.1
- - @inquirer/password@4.0.1
- - @inquirer/prompts@7.0.1
- - @inquirer/rawlist@4.0.1
- - @inquirer/search@3.0.1
- - @inquirer/select@4.0.1
- - @inquirer/type@3.0.0
+ - @inquirer/checkbox@4.0.2
+ - @inquirer/confirm@5.0.2
+ - @inquirer/core@10.1.0
+ - @inquirer/editor@4.1.0
+ - @inquirer/expand@4.0.2
+ - @inquirer/figures@1.0.8
+ - @inquirer/input@4.0.2
+ - @inquirer/number@3.0.2
+ - @inquirer/password@4.0.2
+ - @inquirer/prompts@7.1.0
+ - @inquirer/rawlist@4.0.2
+ - @inquirer/search@3.0.2
+ - @inquirer/select@4.0.2
+ - @inquirer/type@3.0.1
 
 These packages each contain the following license:
 
@@ -4585,9 +4585,9 @@ The following npm packages may be included in this product:
  - @esbuild/linux-x64@0.23.1
  - @tokenizer/token@0.3.0
  - canvas@3.0.0-rc2
- - genaiscript-core-internal@1.71.5
- - genaiscript-sample@1.71.5
- - genaiscript@1.71.5
+ - genaiscript-core-internal@1.74.0
+ - genaiscript-sample@1.74.0
+ - genaiscript@1.74.0
  - isarray@1.0.0
  - javascript-natural-sort@0.7.1
  - keyv@4.5.4
@@ -5176,7 +5176,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - @azure/msal-node@2.16.0
+ - @azure/msal-node@2.16.1
 
 This package contains the following license:
 
@@ -5296,37 +5296,6 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - gpt-tokenizer@2.6.0
-
-This package contains the following license:
-
-MIT License
-
-Copyright (c) 2023 Dmitry Brazhenko
-Copyright (c) 2023 Bazyli Brzoska
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
------------
-
-The following npm package may be included in this product:
-
  - @lvce-editor/ripgrep@1.4.0
 
 This package contains the following license:
@@ -5364,6 +5333,36 @@ This package contains the following license:
 MIT License
 
 Copyright (c) 2023 Robert Eisele
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+-----------
+
+The following npm package may be included in this product:
+
+ - gpt-tokenizer@2.6.1
+
+This package contains the following license:
+
+MIT License
+
+Copyright (c) 2023-2024 Bazyli Brzoska
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -7474,7 +7473,7 @@ The following npm packages may be included in this product:
  - @azure/abort-controller@2.1.2
  - @azure/core-auth@1.9.0
  - @azure/core-client@1.9.2
- - @azure/core-rest-pipeline@1.17.0
+ - @azure/core-rest-pipeline@1.18.0
  - @azure/core-tracing@1.2.0
  - @azure/core-util@1.11.0
  - @azure/identity@4.5.0
@@ -7568,7 +7567,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - @lvce-editor/verror@1.4.0
+ - @lvce-editor/verror@1.5.0
 
 This package contains the following license:
 

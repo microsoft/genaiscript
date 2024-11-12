@@ -15,8 +15,8 @@
     "test:scripts:view": "node ../cli/built/genaiscript.cjs test view"
   },
   "devDependencies": {
-    "@agentic/calculator": "^7.1.0",
-    "@agentic/core": "^7.1.0",
+    "@agentic/calculator": "^7.2.0",
+    "@agentic/core": "^7.2.0",
     "@agentic/weather": "^7.1.0",
     "@azure/identity": "^4.5.0",
     "@azure/storage-blob": "^12.25.0",
