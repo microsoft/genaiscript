@@ -67,7 +67,11 @@ import { estimateTokens, truncateTextToTokens } from "./tokens"
 import { computeFileEdits } from "./fileedits"
 import { HTMLEscape } from "./html"
 import { XMLTryParse } from "./xml"
-import { computePerplexity, logprobToMarkdown } from "./logprob"
+import {
+    computePerplexity,
+    logprobToMarkdown,
+    serializeLogProb,
+} from "./logprob"
 
 export function toChatCompletionUserMessage(
     expanded: string,
@@ -526,18 +530,20 @@ async function structurifyChatSession(
             trace.startDetails("📊 logprobs")
             trace.itemValue("perplexity", perplexity)
             trace.item("logprobs (0%:red, 100%: blue)")
+            trace.appendContent("\n\n")
             trace.appendContent(
                 logprobs.map((lp) => logprobToMarkdown(lp)).join("\n")
             )
-            trace.appendContent("\n")
+            trace.appendContent("\n\n")
             if (!isNaN(logprobs[0].entropy)) {
                 trace.item("entropy (0:red, 1: blue)")
+                trace.appendContent("\n\n")
                 trace.appendContent(
                     logprobs
                         .map((lp) => logprobToMarkdown(lp, { entropy: true }))
                         .join("\n")
                 )
-                trace.appendContent("\n")
+                trace.appendContent("\n\n")
             }
         } finally {
             trace.endDetails()
@@ -696,13 +702,7 @@ async function processChatMessage(
         if (needsNewTurn) return undefined
     }
 
-    const logprobs = resp.logprobs?.map(
-        ({ token, logprob }) =>
-            ({
-                token,
-                logprob,
-            }) satisfies Logprob
-    )
+    const logprobs = resp.logprobs?.map(serializeLogProb)
     return structurifyChatSession(
         messages,
         schemas,

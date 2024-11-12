@@ -1,25 +1,29 @@
 // cspell: disable
-import { ChatCompletionChunkChoice } from "./chattypes"
+import {
+    ChatCompletionChunkChoice,
+    ChatCompletionTokenLogprob,
+} from "./chattypes"
 import { HTMLEscape } from "./html"
 import { roundWithPrecision } from "./util"
 
-export function chunkChoiceToLogProb(
+export function serializeLogProb(content: ChatCompletionTokenLogprob): Logprob {
+    const { token, logprob, top_logprobs } = content
+    return {
+        token,
+        logprob,
+        topLogprobs: top_logprobs?.map((tp) => ({
+            token: tp.token,
+            logprob: tp.logprob,
+        })),
+        entropy: computeNormalizedEntry(top_logprobs),
+    } satisfies Logprob
+}
+
+export function serializeChunkChoiceToLogProbs(
     choice: ChatCompletionChunkChoice
 ): Logprob[] {
     const { delta, logprobs } = choice
-    if (logprobs?.content)
-        return logprobs.content.map(
-            ({ token, logprob, top_logprobs }) =>
-                ({
-                    token,
-                    logprob,
-                    topLogprobs: top_logprobs?.map((tp) => ({
-                        token: tp.token,
-                        logprob: tp.logprob,
-                    })),
-                    entropy: computeNormalizedEntry(top_logprobs),
-                }) satisfies Logprob
-        )
+    if (logprobs?.content) return logprobs.content.map(serializeLogProb)
     else
         return [{ token: delta.content, logprob: Number.NaN } satisfies Logprob]
 }

@@ -35,7 +35,7 @@ import {
 import { resolveTokenEncoder } from "./encoders"
 import { toSignal } from "./cancellation"
 import { INITryParse } from "./ini"
-import { chunkChoiceToLogProb } from "./logprob"
+import { serializeChunkChoiceToLogProbs } from "./logprob"
 
 export function getConfigHeaders(cfg: LanguageModelConfiguration) {
     let { token, type, base } = cfg
@@ -282,7 +282,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
                 numTokens += estimateTokens(delta.content, encoder)
                 chatResp += delta.content
                 tokens.push(
-                    ...chunkChoiceToLogProb(choice as ChatCompletionChunkChoice)
+                    ...serializeChunkChoiceToLogProbs(choice as ChatCompletionChunkChoice)
                 )
                 trace.appendToken(delta.content)
             } else if (Array.isArray(delta.tool_calls)) {
