@@ -5,7 +5,8 @@ sidebar:
     order: 50
 ---
 
-`logprobs` is a mode where LLMs return the probability of each token.
+`logprobs` is a mode where LLMs return the probability of each token. `topLogProbs` also returns list list of alternate tokens
+and their log probabilities. This can be useful for debugging and understanding the model's behavior.
 
 - See [OpenAI Logprobs](https://cookbook.openai.com/examples/using_logprobs)
 
@@ -71,3 +72,21 @@ npx genaiscript run ... --logprobs
 ```js "logprobs: true"
 script({ logprobs: true, ...})
 ```
+
+## Top logprobs Configuration
+
+You can enable `top-logprobs` in the following ways:
+
+- Use the `top-logprobs` flag on the run command. It enables `logprobs` as well.
+
+```sh
+npx genaiscript run ... --top-logprobs 4
+```
+
+- add the `topLogprobs` flag to the `script` metadata
+
+```js "logprobs: true"
+script({ topLogProbs: 4, ...})
+```
+
+When `top-logprobs` are enabled, the console window is colored with the entropy of the alternate tokens. 
