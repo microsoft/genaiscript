@@ -1641,6 +1641,8 @@ interface Git {
         count?: number
         merges?: boolean
         author?: string
+        until?: string
+        after?: string
         excludedGrep?: string | RegExp
         paths?: ElementOrArray<string>
         excludedPaths?: ElementOrArray<string>
