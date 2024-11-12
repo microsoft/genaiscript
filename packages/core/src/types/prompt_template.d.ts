@@ -1562,6 +1562,7 @@ interface HTML {
 
 interface GitCommit {
     sha: string
+    date: string
     message: string
 }
 
@@ -1639,6 +1640,9 @@ interface Git {
         head?: string
         count?: number
         merges?: boolean
+        author?: string
+        until?: string
+        after?: string
         excludedGrep?: string | RegExp
         paths?: ElementOrArray<string>
         excludedPaths?: ElementOrArray<string>

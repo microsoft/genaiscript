@@ -95,6 +95,20 @@ defTool(
                 type: "number",
                 description: "Number of commits to return",
             },
+            author: {
+                type: "string",
+                description: "Author to filter by",
+            },
+            until: {
+                type: "string",
+                description:
+                    "Display commits until the given date. Formatted yyyy-mm-dd",
+            },
+            after: {
+                type: "string",
+                description:
+                    "Display commits after the given date. Formatted yyyy-mm-dd",
+            },
             paths: {
                 type: "array",
                 description: "Paths to compare",
@@ -114,9 +128,29 @@ defTool(
         },
     },
     async (args) => {
-        const { base, head, paths, excludedPaths, count } = args
-        const commits = await git.log({ base, head, paths, excludedPaths, count })
-        return commits.map(({ sha, message }) => `${sha} ${message}`).join("\n")
+        const {
+            base,
+            head,
+            paths,
+            excludedPaths,
+            count,
+            author,
+            until,
+            after,
+        } = args
+        const commits = await git.log({
+            base,
+            head,
+            author,
+            paths,
+            until,
+            after,
+            excludedPaths,
+            count,
+        })
+        return commits
+            .map(({ sha, date, message }) => `${sha} ${date} ${message}`)
+            .join("\n")
     }
 )
 

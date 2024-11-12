@@ -154,10 +154,12 @@ export class NodeHost implements RuntimeHost {
         this.models = new ModelManager(this)
         this.azureToken = createAzureTokenResolver(
             "Azure",
+            "AZURE_OPENAI_TOKEN_SCOPES",
             AZURE_COGNITIVE_SERVICES_TOKEN_SCOPES
         )
         this.azureServerlessToken = createAzureTokenResolver(
             "Azure AI Serverless",
+            "AZURE_SERVERLESS_OPENAI_TOKEN_SCOPES",
             AZURE_AI_INFERENCE_TOKEN_SCOPES
         )
     }

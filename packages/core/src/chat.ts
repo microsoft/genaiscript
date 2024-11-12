@@ -268,6 +268,7 @@ async function runToolCall(
     const toolResult: string[] = []
     for (const todo of todos) {
         const { tool, args } = todo
+        logVerbose(`tool: ${tool.spec.name}`)
         const { maxTokens: maxToolContentTokens = MAX_TOOL_CONTENT_TOKENS } =
             tool.options || {}
         const context: ToolCallContext = {
@@ -348,7 +349,7 @@ ${fenceMD(content, " ")}
                 toolContent,
                 maxToolContentTokens,
                 encoder
-            )
+            ) + "... (truncated)"
         }
         trace.fence(toolContent, "markdown")
         toolResult.push(toolContent)
@@ -961,7 +962,7 @@ export function appendUserMessage(
 ) {
     if (!content) return
     const last = messages.at(-1) as ChatCompletionUserMessageParam
-    if (last?.role === "user") last.content += content + "\n"
+    if (last?.role === "user") last.content += "\n" + content
     else
         messages.push({
             role: "user",
@@ -975,7 +976,7 @@ export function appendAssistantMessage(
 ) {
     if (!content) return
     const last = messages.at(-1) as ChatCompletionAssistantMessageParam
-    if (last?.role === "assistant") last.content += content
+    if (last?.role === "assistant") last.content += "\n" + content
     else
         messages.push({
             role: "assistant",

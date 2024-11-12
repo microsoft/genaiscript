@@ -573,7 +573,7 @@ export class GitHubClient implements GitHub {
         const { count = GITHUB_REST_PAGE_DEFAULT, ...rest } = options ?? {}
         const ite = client.paginate.iterator(client.rest.pulls.list, {
             owner,
-            repo,
+            repo,            
             ...rest,
         })
         const res = await paginatorToArray(ite, count, (i) => i.data)
