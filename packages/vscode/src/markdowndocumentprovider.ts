@@ -23,6 +23,10 @@ import {
     prettifyMarkdown,
     fenceMD,
 } from "../../core/src/markdown"
+import {
+    logprobToMarkdown,
+    topLogprobsToMarkdown,
+} from "../../core/src/logprob"
 
 const SCHEME = "genaiscript"
 
@@ -83,6 +87,19 @@ ${prettifyMarkdown(md)}
 
         switch (uri.path) {
             case REQUEST_OUTPUT_FILENAME: {
+                const tokens = res?.logprobs
+                if (tokens?.length) {
+                    if (tokens[0].topLogprobs?.length)
+                        return wrap(
+                            tokens
+                                .map((lp) => topLogprobsToMarkdown(lp))
+                                .join("\n")
+                        )
+                    else
+                        return wrap(
+                            tokens.map((lp) => logprobToMarkdown(lp)).join("\n")
+                        )
+                }
                 let text = res?.text
                 if (/^\s*\{/.test(text)) text = fenceMD(text, "json")
                 return wrap(text)

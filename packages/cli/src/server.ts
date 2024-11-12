@@ -296,11 +296,13 @@ export async function startServer(options: { port: string; apiKey?: string }) {
                                 responseChunk,
                                 responseSoFar,
                                 tokensSoFar,
+                                responseTokens,
                             }) => {
                                 send({
                                     response: responseSoFar,
                                     responseChunk,
                                     tokens: tokensSoFar,
+                                    responseTokens,
                                 })
                             },
                         })

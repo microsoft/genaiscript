@@ -264,6 +264,7 @@ export class ExtensionState extends EventTarget {
             r.progress = progress
             if (r.response) {
                 r.response.text = progress.responseSoFar
+                r.response.logprobs = progress.responseTokens
                 if (/\n/.test(progress.responseChunk))
                     r.response.annotations = parseAnnotations(r.response.text)
             }

@@ -120,6 +120,7 @@ export interface PromptScriptProgressResponseEvent {
     tokens?: number
     response?: string
     responseChunk?: string
+    responseTokens?: Logprob[]
     inner?: boolean
 }
 
