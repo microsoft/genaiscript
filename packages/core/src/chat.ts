@@ -526,8 +526,19 @@ async function structurifyChatSession(
             trace.startDetails("📊 logprobs")
             trace.itemValue("perplexity", perplexity)
             trace.item("logprobs (0%:red, 100%: blue)")
-            trace.appendContent(logprobs.map(logprobToMarkdown).join("\n"))
+            trace.appendContent(
+                logprobs.map((lp) => logprobToMarkdown(lp)).join("\n")
+            )
             trace.appendContent("\n")
+            if (!isNaN(logprobs[0].entropy)) {
+                trace.item("entropy (0:red, 1: blue)")
+                trace.appendContent(
+                    logprobs
+                        .map((lp) => logprobToMarkdown(lp, { entropy: true }))
+                        .join("\n")
+                )
+                trace.appendContent("\n")
+            }
         } finally {
             trace.endDetails()
         }
