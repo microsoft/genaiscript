@@ -35,7 +35,7 @@ import {
 import { resolveTokenEncoder } from "./encoders"
 import { toSignal } from "./cancellation"
 import { INITryParse } from "./ini"
-import { chunkChoiceToLogProb, logprobToPercent } from "./logprob"
+import { chunkChoiceToLogProb } from "./logprob"
 
 export function getConfigHeaders(cfg: LanguageModelConfiguration) {
     let { token, type, base } = cfg

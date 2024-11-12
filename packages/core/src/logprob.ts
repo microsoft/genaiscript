@@ -20,21 +20,24 @@ export function chunkChoiceToLogProb(
                     entropy: computeNormalizedEntry(top_logprobs),
                 }) satisfies Logprob
         )
-    else return [{ token: delta.content, logprob: Number.NaN } satisfies Logprob]
+    else
+        return [{ token: delta.content, logprob: Number.NaN } satisfies Logprob]
 }
 
-export function logprobToPercent(value: number): number {
+function logprobToPercent(value: number): number {
     const linearProbability = roundWithPrecision(Math.exp(value) * 100, 2)
     return linearProbability
 }
 
 export function logprobColor(
     logprob: Logprob,
-    options?: { maxIntensity?: number }
+    options?: { maxIntensity?: number; entropy?: boolean }
 ): number {
-    const { maxIntensity = 210 } = options || {}
+    const { maxIntensity = 210, entropy } = options || {}
     // Normalize log probability for a red to blue gradient range
-    const alpha = logprobToPercent(logprob.logprob) / 100
+    const alpha = entropy
+        ? logprob.entropy
+        : logprobToPercent(logprob.logprob) / 100
     const intensity = Math.round(maxIntensity * alpha)
     const red = maxIntensity - intensity // Higher logProb gives less red, more blue
     const blue = intensity // Higher logProb gives more blue
@@ -42,19 +45,19 @@ export function logprobColor(
     return (red << 16) | (green << 8) | (blue << 0)
 }
 
-export function logprobCssColor(value: number): string {
-    const m = 180
-    const linearProbability = logprobToPercent(value)
-    // Normalize log probability for a red to blue gradient range
-    const intensity = Math.round((m * linearProbability) / 100)
-    const red = m - intensity // Higher logProb gives less red, more blue
-    const blue = intensity // Higher logProb gives more blue
-    return `rgb(${red}, 0, ${blue})`
+function rgbToCss(value: number): string {
+    return isNaN(value)
+        ? `#fff`
+        : `rgb(${(value >> 16) & 0xff}, ${(value >> 8) & 0xff}, ${value & 0xff})`
 }
 
-export function logprobToMarkdown(value: Logprob) {
-    const { token, logprob } = value
-    const c = logprobCssColor(logprob)
+export function logprobToMarkdown(
+    value: Logprob,
+    options?: { maxIntensity?: number; entropy?: boolean }
+) {
+    const { token, logprob, entropy } = value
+    const c = rgbToCss(logprobColor(value, options))
+
     const e = HTMLEscape(token).replace(/ /g, "&nbsp;").replace(/\n/g, "<br>")
     const lp = logprobToPercent(logprob)
     return `<span class="logprobs" title="${lp}% (${roundWithPrecision(logprob, 2)})" style="background: ${c}; color: white; white-space: pre; font-family: monospace;">${e}</span>`
