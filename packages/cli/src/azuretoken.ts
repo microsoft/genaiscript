@@ -4,6 +4,7 @@ import {
     AzureCredentialsType,
     AzureTokenResolver,
     isAzureTokenExpired,
+    runtimeHost,
 } from "../../core/src/host"
 import { logVerbose } from "../../core/src/util"
 import type { TokenCredential } from "@azure/identity"
@@ -104,7 +105,7 @@ class AzureTokenResolverImpl implements AzureTokenResolver {
         if (isAzureTokenExpired(this._token)) this._token = undefined
         if (this._token) return this._token
         if (!this._resolver) {
-            const scope = process.env[this.envName]
+            const scope = await runtimeHost.readSecret(this.envName)
             const scopes = scope ? scope.split(",") : this.scopes
             this._resolver = createAzureToken(
                 scopes,

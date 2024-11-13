@@ -399,11 +399,6 @@
                 "category": "GenAIScript"
             },
             {
-                "command": "genaiscript.connection.configure",
-                "title": "Configure connection...",
-                "category": "GenAIScript"
-            },
-            {
                 "command": "genaiscript.samples.download",
                 "title": "Download sample...",
                 "category": "GenAIScript"

@@ -122,8 +122,6 @@ export interface HostConfiguration {
 }
 
 export interface Host {
-    readonly config: HostConfiguration
-
     userState: any
     server: ServerManager
     path: Path
@@ -166,6 +164,7 @@ export interface Host {
 }
 
 export interface RuntimeHost extends Host {
+    readonly config: HostConfiguration
     project: Project
     models: ModelService
     workspace: Omit<WorkspaceFileSystem, "grep">
