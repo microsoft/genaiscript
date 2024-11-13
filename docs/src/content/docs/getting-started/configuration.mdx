@@ -20,7 +20,7 @@ import lmSelectAlt from "../../../assets/vscode-language-models-select.png.txt?r
 import oaiModelsSrc from "../../../assets/openai-model-names.png"
 import oaiModelsAlt from "../../../assets/openai-model-names.png.txt?raw"
 
-You will need to configure the LLM connection and authorizion secrets.
+You will need to configure the LLM connection and authorization secrets.
 
 :::tip
 
@@ -30,7 +30,7 @@ If you do not have access to an LLM, you can try [GitHub Models](#github), [GitH
 
 ## Model selection
 
-The model used by the script is configured throught the `model` field in the `script` function.
+The model used by the script is configured through the `model` field in the `script` function.
 The model name is formatted as `provider:model-name`, where `provider` is the LLM provider
 and the `model-name` is provider specific.
 
@@ -54,7 +54,7 @@ script({ model: "small" })
 script({ model: "large" })
 ```
 
-The model can also be overriden from the [cli run command](/genaiscript/reference/cli/run#model)
+The model can also be overridden from the [cli run command](/genaiscript/reference/cli/run#model)
 
 ```sh
 genaiscript run ... --model largemodelid --small-model smallmodelid
@@ -117,6 +117,22 @@ If the `.gitignore` file is properly configured,
 the `.env` file will appear grayed out in Visual Studio Code.
 
 :::
+
+### Custom .env file location
+
+You can specify a custom `.env` file location through the CLI or an environment variable.
+
+-   by adding the `--env <file>` argument to the CLI.
+
+```sh "--env .env.local"
+npx genaiscript ... --env .env.local
+```
+
+-   by setting the `GENAISCRIPT_ENV_FILE` environment variable.
+
+```sh
+GENAISCRIPT_ENV_FILE=.env.local npx genaiscript ...
+```
 
 ## OpenAI
 
@@ -268,7 +284,7 @@ script({
 ## Azure OpenAI <a id="azure" href=""></a>
 
 The [Azure OpenAI](https://learn.microsoft.com/en-us/azure/ai-services/openai/reference#chat-completions) provider, `azure` uses the `AZURE_OPENAI_...` environment variables.
-You can use a managed identity (recommended) or a API key to authenticate with the Azure OpenAI service.
+You can use a managed identity (recommended) or an API key to authenticate with the Azure OpenAI service.
 You can also use a service principal as documented in [automation](/genaiscript/getting-started/automating-scripts).
 
 ```js "azure:"
@@ -277,7 +293,7 @@ script({ model: "azure:deployment-id" })
 
 :::tip
 
-If your are a Visual Studio Subscriber, you can [get free Azure credits](https://azure.microsoft.com/en-us/pricing/member-offers/credit-for-visual-studio-subscribers/)
+If you are a Visual Studio Subscriber, you can [get free Azure credits](https://azure.microsoft.com/en-us/pricing/member-offers/credit-for-visual-studio-subscribers/)
 to try the Azure OpenAI service.
 
 :::
@@ -354,7 +370,7 @@ script({
 
 ### Custom credentials
 
-In some situation, the default credentials chain lookup may not work.
+In some situations, the default credentials chain lookup may not work.
 In that case, you can specify an additional environment variable `AZURE_OPENAI_API_CREDENTIALS`
 with the type of credential that should be used.
 
@@ -418,7 +434,7 @@ You can deploy "serverless" models through [Azure AI Studio](https://ai.azure.co
 You can browse the [Azure AI model catalog](https://ai.azure.com/explore/models)
 and use the [serverless API](https://learn.microsoft.com/en-us/azure/ai-studio/how-to/deploy-models-serverless-availability) filter to see the available models.
 
-There two types of serverless deployments that require different configurations: OpenAI models and all other models.
+There are two types of serverless deployments that require different configurations: OpenAI models and all other models.
 The OpenAI models, like `gpt-4o`, are deployed to `.openai.azure.com` endpoints,
 while the Azure AI models, like `Meta-Llama-3.1-405B-Instruct` are deployed to `.models.ai.azure.com` endpoints.
 
@@ -825,7 +841,7 @@ OPENAI_API_TYPE=localai
 
 ## Ollama
 
-[Ollama](https://ollama.ai/) is a desktop application that let you download and run model locally.
+[Ollama](https://ollama.ai/) is a desktop application that lets you download and run models locally.
 
 Running tools locally may require additional GPU resources depending on the model you are using.
 
@@ -948,7 +964,7 @@ Then use the OpenRouter model name in your script:
 script({ model: "openai:openai/gpt-4o-mini" })
 ```
 
-By default, GenAIScript will set the site url and name to `GenAIScript` but you can override these settigns with your own values:
+By default, GenAIScript will set the site URL and name to `GenAIScript` but you can override these settings with your own values:
 
 ```txt title=".env"
 OPENROUTER_SITE_URL=... # populates HTTP-Referer header

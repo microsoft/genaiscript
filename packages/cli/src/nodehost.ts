@@ -176,7 +176,14 @@ export class NodeHost implements RuntimeHost {
     }
 
     static async install(dotEnvPath: string) {
-        dotEnvPath = dotEnvPath || resolve(DOT_ENV_FILENAME)
+        dotEnvPath = dotEnvPath || process.env.GENAISCRIPT_ENV_FILE
+        if (dotEnvPath) {
+            // if the user provided a path, check file existence
+            if (!(await exists(dotEnvPath)))
+                throw new Error(`.env file not found at ${dotEnvPath}`)
+        } else {
+            dotEnvPath = resolve(DOT_ENV_FILENAME)
+        }
         const h = new NodeHost(dotEnvPath)
         setRuntimeHost(h)
         await h.parseDefaults()
