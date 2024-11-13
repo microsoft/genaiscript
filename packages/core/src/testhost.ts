@@ -15,7 +15,6 @@ import {
     setRuntimeHost,
     RuntimeHost,
     AzureTokenResolver,
-    HostConfiguration,
 } from "./host"
 import { TraceOptions } from "./trace"
 import {
@@ -37,6 +36,7 @@ import {
 import { LanguageModel } from "./chat"
 import { Project } from "./ast"
 import { NotSupportedError } from "./error"
+import { HostConfiguration } from "./hostconfiguration"
 
 // Function to create a frozen object representing Node.js path methods
 // This object provides utility methods for path manipulations
