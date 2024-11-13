@@ -29,6 +29,7 @@ import {
     MODEL_PROVIDER_AZURE_SERVERLESS_MODELS,
     AZURE_AI_INFERENCE_TOKEN_SCOPES,
     MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI,
+    DOT_ENV_FILENAME,
 } from "../../core/src/constants"
 import { tryReadText } from "../../core/src/fs"
 import {
@@ -167,7 +168,8 @@ export class NodeHost implements RuntimeHost {
     private async syncDotEnv() {
         const { envFile } = this.config
         if (existsSync(envFile)) {
-            logVerbose(`.env: loading ${envFile}`)
+            if (resolve(envFile) !== resolve(DOT_ENV_FILENAME))
+                logVerbose(`.env: loading ${envFile}`)
             const res = dotenv.config({
                 path: envFile,
                 debug: !!process.env.DEBUG,
