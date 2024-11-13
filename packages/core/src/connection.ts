@@ -87,54 +87,46 @@ export async function parseTokenFromEnv(
     const BASE_SUFFIX = ["_API_BASE", "_API_ENDPOINT", "_BASE", "_ENDPOINT"]
 
     if (provider === MODEL_PROVIDER_OPENAI) {
-        if (env.OPENAI_API_KEY || env.OPENAI_API_BASE || env.OPENAI_API_TYPE) {
-            const token = env.OPENAI_API_KEY ?? ""
-            let base = env.OPENAI_API_BASE
-            let type = (env.OPENAI_API_TYPE as OpenAIAPIType) || "openai"
-            const version = env.OPENAI_API_VERSION
-            if (
-                type !== "azure" &&
-                type !== "openai" &&
-                type !== "localai" &&
-                type !== "azure_serverless" &&
-                type !== "azure_serverless_models"
+        const token = env.OPENAI_API_KEY ?? ""
+        let base = env.OPENAI_API_BASE
+        let type = (env.OPENAI_API_TYPE as OpenAIAPIType) || "openai"
+        const version = env.OPENAI_API_VERSION
+        if (
+            type !== "azure" &&
+            type !== "openai" &&
+            type !== "localai" &&
+            type !== "azure_serverless" &&
+            type !== "azure_serverless_models"
+        )
+            throw new Error(
+                "OPENAI_API_TYPE must be 'azure', 'azure_serverless', 'azure_serverless_models' or 'openai' or 'localai'"
             )
-                throw new Error(
-                    "OPENAI_API_TYPE must be 'azure', 'azure_serverless', 'azure_serverless_models' or 'openai' or 'localai'"
-                )
-            if (type === "openai" && !base) base = OPENAI_API_BASE
-            if (type === "localai" && !base) base = LOCALAI_API_BASE
-            if ((type === "azure" || type === "azure_serverless") && !base)
-                throw new Error(
-                    "OPENAI_API_BASE must be set when type is 'azure'"
-                )
-            if (type === "azure") base = cleanAzureBase(base)
-            if (
-                type === "azure" &&
-                version &&
-                version !== AZURE_OPENAI_API_VERSION
+        if (type === "openai" && !base) base = OPENAI_API_BASE
+        if (type === "localai" && !base) base = LOCALAI_API_BASE
+        if ((type === "azure" || type === "azure_serverless") && !base)
+            throw new Error("OPENAI_API_BASE must be set when type is 'azure'")
+        if (type === "azure") base = cleanAzureBase(base)
+        if (type === "azure" && version && version !== AZURE_OPENAI_API_VERSION)
+            throw new Error(
+                `OPENAI_API_VERSION must be '${AZURE_OPENAI_API_VERSION}'`
             )
-                throw new Error(
-                    `OPENAI_API_VERSION must be '${AZURE_OPENAI_API_VERSION}'`
-                )
-            if (!token && !/^http:\/\//i.test(base))
-                // localhost typically requires no key
-                throw new Error("OPENAI_API_KEY missing")
-            if (token === PLACEHOLDER_API_KEY)
-                throw new Error("OPENAI_API_KEY not configured")
-            if (base === PLACEHOLDER_API_BASE)
-                throw new Error("OPENAI_API_BASE not configured")
-            if (base && !URL.canParse(base))
-                throw new Error("OPENAI_API_BASE must be a valid URL")
-            return {
-                provider,
-                model,
-                base,
-                type,
-                token,
-                source: "env: OPENAI_API_...",
-                version,
-            }
+        if (!token && !/^http:\/\//i.test(base))
+            // localhost typically requires no key
+            throw new Error("OPENAI_API_KEY missing")
+        if (token === PLACEHOLDER_API_KEY)
+            throw new Error("OPENAI_API_KEY not configured")
+        if (base === PLACEHOLDER_API_BASE)
+            throw new Error("OPENAI_API_BASE not configured")
+        if (base && !URL.canParse(base))
+            throw new Error("OPENAI_API_BASE must be a valid URL")
+        return {
+            provider,
+            model,
+            base,
+            type,
+            token,
+            source: "env: OPENAI_API_...",
+            version,
         }
     }
 
