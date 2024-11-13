@@ -4,11 +4,13 @@ import { YAMLTryParse } from "./yaml"
 import { JSON5TryParse } from "./json5"
 import mergeDescriptors from "merge-descriptors"
 import { DOT_ENV_FILENAME, TOOL_ID } from "./constants"
-import { HostConfiguration } from "./host"
 import { resolve } from "path"
 import { validateJSONWithSchema } from "./schema"
+import { HostConfiguration } from "./hostconfiguration"
 
-export async function resolveGlobalConfiguration(dotEnvPath?: string): Promise<HostConfiguration> {
+export async function resolveGlobalConfiguration(
+    dotEnvPath?: string
+): Promise<HostConfiguration> {
     // ~/genaiscript.config.yml
     // ~/genaiscript.config.json
     const dirs = [homedir(), "."]
@@ -50,8 +52,7 @@ export async function resolveGlobalConfiguration(dotEnvPath?: string): Promise<H
         config.envFile = process.env.GENAISCRIPT_ENV_FILE
 
     // override with CLI command
-    if (dotEnvPath)
-        config.envFile = dotEnvPath
+    if (dotEnvPath) config.envFile = dotEnvPath
 
     if (config.envFile) {
         // if the user provided a path, check file existence

@@ -10,6 +10,7 @@ import { FileTree } from "@astrojs/starlight/components"
 import { Steps } from "@astrojs/starlight/components"
 import { Tabs, TabItem } from "@astrojs/starlight/components"
 import { Image } from "astro:assets"
+import { Code } from "@astrojs/starlight/components"
 
 import lmSrc from "../../../assets/vscode-language-models.png"
 import lmAlt from "../../../assets/vscode-language-models.png.txt?raw"
@@ -19,6 +20,9 @@ import lmSelectAlt from "../../../assets/vscode-language-models-select.png.txt?r
 
 import oaiModelsSrc from "../../../assets/openai-model-names.png"
 import oaiModelsAlt from "../../../assets/openai-model-names.png.txt?raw"
+
+import hostConfigurationSource from "../../../../../packages/core/src/hostconfiguration.ts?raw"
+
 
 You will need to configure the LLM connection and authorization secrets.
 
@@ -132,6 +136,12 @@ npx genaiscript ... --env .env.local
 
 ```sh
 GENAISCRIPT_ENV_FILE=.env.local npx genaiscript ...
+```
+
+- by specifying the `.env` file location in a [configuration file](#configurationfiles).
+
+```yaml file="~/genaiscript.config.yaml"
+envFile: ~/.env.genaiscript
 ```
 
 ## OpenAI
@@ -985,6 +995,20 @@ model running locally, while keeping the default `openai` model connection infor
 ```txt title=".env"
 OLLAMA_PHI3_API_BASE=http://localhost:11434/v1
 ```
+
+## Configuration files <a href="" id="configurationfiles" />
+
+GenAIScript will scan for the following configuration files 
+and merge their content into the final configuration.
+
+- `~/genaiscript.config.yaml`
+- `~/genaiscript.config.json`
+- `./genaiscript.config.yaml`
+- `./genaiscript.config.json`
+
+The configuration file format is the following:
+
+<Code code={hostConfigurationSource} wrap={true} lang="ts" />
 
 ## Checking your configuration
 
