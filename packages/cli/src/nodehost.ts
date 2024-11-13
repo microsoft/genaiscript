@@ -42,7 +42,6 @@ import {
     setRuntimeHost,
     ResponseStatus,
     AzureTokenResolver,
-    HostConfiguration,
 } from "../../core/src/host"
 import { AbortSignalOptions, TraceOptions } from "../../core/src/trace"
 import { logError, logVerbose } from "../../core/src/util"
@@ -65,6 +64,7 @@ import {
     isAzureContentSafetyClientConfigured,
 } from "../../core/src/azurecontentsafety"
 import { resolveGlobalConfiguration } from "../../core/src/config"
+import { HostConfiguration } from "../../core/src/hostconfiguration"
 
 class NodeServerManager implements ServerManager {
     async start(): Promise<void> {
