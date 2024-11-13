@@ -56,7 +56,7 @@ export async function cli() {
     process.on("uncaughtException", (err) => {
         const se = serializeError(err) // Serialize the error object
         error(errorMessage(se)) // Log the error message
-        if (!isQuiet && se?.stack) logVerbose(se?.stack) // Log stack trace if not in quiet mode
+        if (!isQuiet && se?.stack && nodeHost) logVerbose(se?.stack) // Log stack trace if not in quiet mode
         if (isRequestError(err)) {
             const exitCode = (err as RequestError).status // Use the error status as exit code
             process.exit(exitCode) // Exit with the error status code

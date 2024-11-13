@@ -118,6 +118,22 @@ the `.env` file will appear grayed out in Visual Studio Code.
 
 :::
 
+### Custom .env file location
+
+You can specify a custom `.env` file location.
+
+-   by adding the `--env <file>` argument to the CLI.
+
+```sh "--env .env.local"
+npx genaiscript ... --env .env.local
+```
+
+-   by setting the `GENAISCRIPT_ENV_FILE` environment variable.
+
+```sh
+GENAISCRIPT_ENV_FILE=.env.local npx genaiscript ...
+```
+
 ## OpenAI
 
 This provider, `openai`, is the OpenAI chat model provider.
