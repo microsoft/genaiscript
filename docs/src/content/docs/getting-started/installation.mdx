@@ -193,6 +193,15 @@ the command line tool lets you use GenAiScript from any editor as well.
 
 :::
 
+:::note
+
+Some optional packages used by the CLI do not support an installation behind an HTTP proxy, which is very common in an enterprise setting.
+
+If your work environment requires going through a proxy, you should use `npm install --omit=optional` to have optional packages fail gracefully during the installation.
+
+:::
+
+
 ## Next steps
 
 Let's configure the [LLM connection information](/genaiscript/getting-started/configuration)
