@@ -36,7 +36,6 @@ export async function resolveGlobalConfiguration(
                     properties: {
                         envFile: {
                             type: "string",
-                            description: "Path to .env file",
                         },
                     },
                 })
