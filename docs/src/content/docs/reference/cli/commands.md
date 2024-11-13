@@ -492,5 +492,6 @@ Show .env information
 
 Options:
   -t, --token  show token
+  -e, --error  show errors
   -h, --help   display help for command
 ```

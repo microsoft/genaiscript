@@ -385,6 +385,7 @@ export async function cli() {
         .description("Show .env information")
         .arguments("[provider]")
         .option("-t, --token", "show token")
+        .option("-e, --error", "show errors")
         .action(envInfo) // Action to show environment information
     program.parse() // Parse command-line arguments
 }
