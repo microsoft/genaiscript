@@ -3822,11 +3822,31 @@ IN THE SOFTWARE.
 
 The following npm package may be included in this product:
 
+ - buildcheck@0.0.6
+
+This package contains the following license:
+
+http://github.com/mscdex/buildcheck/raw/master/LICENSE
+
+-----------
+
+The following npm package may be included in this product:
+
  - ssh2@1.16.0
 
 This package contains the following license:
 
 http://github.com/mscdex/ssh2/raw/master/LICENSE
+
+-----------
+
+The following npm package may be included in this product:
+
+ - cpu-features@0.0.10
+
+This package contains the following license:
+
+https://github.com/mscdex/cpu-features/raw/master/LICENSE
 
 -----------
 
@@ -4562,7 +4582,7 @@ THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 The following npm packages may be included in this product:
 
- - @esbuild/win32-x64@0.23.1
+ - @esbuild/linux-x64@0.23.1
  - @tokenizer/token@0.3.0
  - canvas@3.0.0-rc2
  - genaiscript-core-internal@1.74.1
