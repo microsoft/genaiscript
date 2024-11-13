@@ -52,6 +52,8 @@ import { semverSatisfies } from "../../core/src/semver" // Semantic version chec
  * Main function to initialize and run the CLI.
  */
 export async function cli() {
+    let nodeHost: NodeHost // Variable to hold NodeHost instance
+
     // Handle uncaught exceptions globally
     process.on("uncaughtException", (err) => {
         const se = serializeError(err) // Serialize the error object
@@ -71,7 +73,6 @@ export async function cli() {
         process.exit(RUNTIME_ERROR_CODE) // Exit with runtime error code if version is incompatible
     }
 
-    let nodeHost: NodeHost // Variable to hold NodeHost instance
     program.hook("preAction", async (cmd) => {
         nodeHost = await NodeHost.install(cmd.opts().env) // Install NodeHost with environment options
     })
