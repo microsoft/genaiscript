@@ -194,7 +194,8 @@ export const DOCS_CONFIGURATION_HUGGINGFACE_URL =
     "https://microsoft.github.io/genaiscript/getting-started/configuration/#huggingface"
 export const DOCS_CONFIGURATION_CONTENT_SAFETY_URL =
     "https://microsoft.github.io/genaiscript/reference/scripts/content-safety"
-export const DOCS_DEF_FILES_IS_EMPTY_URL = "https://microsoft.github.io/genaiscript/reference/scripts/context/#empty-files"
+export const DOCS_DEF_FILES_IS_EMPTY_URL =
+    "https://microsoft.github.io/genaiscript/reference/scripts/context/#empty-files"
 
 export const MODEL_PROVIDERS = Object.freeze([
     {
@@ -223,6 +224,16 @@ export const MODEL_PROVIDERS = Object.freeze([
         url: DOCS_CONFIGURATION_AZURE_MODELS_SERVERLESS_URL,
     },
     {
+        id: MODEL_PROVIDER_ANTHROPIC,
+        detail: "Anthropic models",
+        url: DOCS_CONFIGURATION_ANTHROPIC_URL,
+    },
+    {
+        id: MODEL_PROVIDER_HUGGINGFACE,
+        detail: "Hugging Face models",
+        url: DOCS_CONFIGURATION_HUGGINGFACE_URL,
+    },
+    {
         id: MODEL_PROVIDER_OLLAMA,
         detail: "Ollama local model",
         url: DOCS_CONFIGURATION_OLLAMA_URL,
@@ -236,16 +247,6 @@ export const MODEL_PROVIDERS = Object.freeze([
         id: MODEL_PROVIDER_LITELLM,
         detail: "LiteLLM proxy",
         url: DOCS_CONFIGURATION_LITELLM_URL,
-    },
-    {
-        id: MODEL_PROVIDER_ANTHROPIC,
-        detail: "Anthropic models",
-        url: DOCS_CONFIGURATION_ANTHROPIC_URL,
-    },
-    {
-        id: MODEL_PROVIDER_HUGGINGFACE,
-        detail: "Hugging Face models",
-        url: DOCS_CONFIGURATION_HUGGINGFACE_URL,
     },
 ])
 
@@ -335,4 +336,5 @@ export const TOKEN_NO_ANSWER = "<NO_ANSWER>"
 
 export const CHOICE_LOGIT_BIAS = 5
 
-export const SANITIZED_PROMPT_INJECTION = "...prompt injection detected, content removed..."
+export const SANITIZED_PROMPT_INJECTION =
+    "...prompt injection detected, content removed..."
