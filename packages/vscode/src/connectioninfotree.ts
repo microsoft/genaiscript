@@ -42,14 +42,7 @@ class ConnectionInfoTreeDataProvider
                 command: "vscode.open",
                 arguments: [this.state.host.toUri("./.env")],
             }
-        } else {
-            item.description = "not configured"
-            item.command = <vscode.Command>{
-                command: "genaiscript.connection.configure",
-                arguments: [element.provider, element.apiType],
-            }
         }
-
         return item
     }
     getChildren(

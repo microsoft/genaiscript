@@ -3,6 +3,7 @@ import { LanguageModel } from "./chat"
 import { Progress } from "./progress"
 import { AbortSignalOptions, MarkdownTrace, TraceOptions } from "./trace"
 import { Project } from "./ast"
+import { HostConfiguration } from "./hostconfiguration"
 
 // this is typically an instance of TextDecoder
 export interface UTF8Decoder {
@@ -112,8 +113,6 @@ export interface AzureTokenResolver {
 }
 
 export interface Host {
-    readonly dotEnvPath: string
-
     userState: any
     server: ServerManager
     path: Path
@@ -156,6 +155,7 @@ export interface Host {
 }
 
 export interface RuntimeHost extends Host {
+    readonly config: HostConfiguration
     project: Project
     models: ModelService
     workspace: Omit<WorkspaceFileSystem, "grep">

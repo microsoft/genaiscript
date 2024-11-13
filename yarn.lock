@@ -2986,9 +2986,9 @@ gpt-3-encoder@1.1.4:
   integrity sha512-fSQRePV+HUAhCn7+7HL7lNIXNm6eaFWFbNLOOGtmSJ0qJycyQvj60OvRlH7mee8xAMjBDNRdMXlMwjAbMTDjkg==
 
 gpt-tokenizer@^2.6.1:
-  version "2.6.1"
-  resolved "https://registry.yarnpkg.com/gpt-tokenizer/-/gpt-tokenizer-2.6.1.tgz#7099ffd12f4a8499369b9c3361873915a788c068"
-  integrity sha512-o/gLZb9EFV4ivihD1SfKip6+WjVQLPx14w6QDJJ8S1S6fEiGlgiAlVvpdWSL9keUwOexDwm7DdsfedsDJFQKmg==
+  version "2.6.2"
+  resolved "https://registry.yarnpkg.com/gpt-tokenizer/-/gpt-tokenizer-2.6.2.tgz#90e6932c7b5f73df7c13d360802edb43a2776586"
+  integrity sha512-OznIET3z069FiwbLtLFXJ9pVESYAa8EnX0BMogs6YJ4Fn2FIcyeZYEbxsp2grPiK0DVaqP1f+0JR/8t9R7/jlg==
 
 graceful-fs@^4.1.6, graceful-fs@^4.2.0:
   version "4.2.11"
@@ -3731,9 +3731,9 @@ markdown-it@^14.1.0:
     uc.micro "^2.1.0"
 
 mathjs@^13.0.3, mathjs@^13.2.1:
-  version "13.2.1"
-  resolved "https://registry.yarnpkg.com/mathjs/-/mathjs-13.2.1.tgz#4c675de0d4a54095adad1075ac621ca323e3d009"
-  integrity sha512-HEKNV0hckO5Y4uY/KHucmQMMiXgdNUXfJ+SkExRJHLlD3f7mt4DZMJzndQOoTp/dX8ROwk4zl2xO+iq49OEliQ==
+  version "13.2.2"
+  resolved "https://registry.yarnpkg.com/mathjs/-/mathjs-13.2.2.tgz#22b6e2a86217325e79baf052266f37aaf2a10a4d"
+  integrity sha512-tBNMmwNsLMjD7xGHSF9IEuuzNVG8xPDgshDBY1eQ5ZS1HQr5O+bY8eG2peZYSkIsw79y2QcPkGMcQL5ZqtLu5A==
   dependencies:
     "@babel/runtime" "^7.25.7"
     complex.js "^2.2.5"
@@ -3772,6 +3772,11 @@ meow@^9.0.0:
     trim-newlines "^3.0.0"
     type-fest "^0.18.0"
     yargs-parser "^20.2.3"
+
+merge-descriptors@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/merge-descriptors/-/merge-descriptors-2.0.0.tgz#ea922f660635a2249ee565e0449f951e6b603808"
+  integrity sha512-Snk314V5ayFLhp3fkUREub6WtjBfPdCPY1Ln8/8munuLuiYhsABgBVWsozAG+MWMbVEvcdcpbi9R7ww22l9Q3g==
 
 merge2@^1.3.0, merge2@^1.4.1:
   version "1.4.1"
@@ -4937,9 +4942,9 @@ stoppable@^1.1.0:
   integrity sha512-KXDYZ9dszj6bzvnEMRYvxgeTHU74QBFL54XKtP3nyMuJ81CFYtABZ3bAzL2EdFUaEwJOBOgENyFj3R7oTzDyyw==
 
 streamx@^2.15.0, streamx@^2.20.0:
-  version "2.20.1"
-  resolved "https://registry.yarnpkg.com/streamx/-/streamx-2.20.1.tgz#471c4f8b860f7b696feb83d5b125caab2fdbb93c"
-  integrity sha512-uTa0mU6WUC65iUvzKH4X9hEdvSW7rbPxPtwfWiLMSj3qTdQbAiUboZTxauKfpFuGIGa1C2BYijZ7wgdUXICJhA==
+  version "2.20.2"
+  resolved "https://registry.yarnpkg.com/streamx/-/streamx-2.20.2.tgz#6a8911959d6f307c19781a1d19ecd94b5f042d78"
+  integrity sha512-aDGDLU+j9tJcUdPGOaHmVF1u/hhI+CsGkT02V3OKlHDV7IukOI+nTWAGkiZEKCO35rWN1wIr4tS7YFr1f4qSvA==
   dependencies:
     fast-fifo "^1.3.2"
     queue-tick "^1.0.1"
@@ -5407,9 +5412,9 @@ undici-types@~6.19.2, undici-types@~6.19.8:
   integrity sha512-ve2KP6f/JnbPBFyobGHuerC9g1FYGn/F8n1LWTwNxCEzd6IfqTwUQcNXgEtmmQ6DlRrC1hrSrBnCZPokRrDHjw==
 
 undici@^6.19.5:
-  version "6.20.1"
-  resolved "https://registry.yarnpkg.com/undici/-/undici-6.20.1.tgz#fbb87b1e2b69d963ff2d5410a40ffb4c9e81b621"
-  integrity sha512-AjQF1QsmqfJys+LXfGTNum+qw4S88CojRInG/6t31W/1fk6G59s92bnAvGz5Cmur+kQv2SURXEvvudLmbrE8QA==
+  version "6.21.0"
+  resolved "https://registry.yarnpkg.com/undici/-/undici-6.21.0.tgz#4b3d3afaef984e07b48e7620c34ed8a285ed4cd4"
+  integrity sha512-BUgJXc752Kou3oOIuU1i+yZZypyZRqNPW0vqoMPl8VaoalSfeR0D8/t4iAS3yirs79SSMTxTag+ZC86uswv+Cw==
 
 unicorn-magic@^0.3.0:
   version "0.3.0"
@@ -5683,6 +5688,7 @@ xdg-basedir@^5.1.0:
 
 "xlsx@https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz":
   version "0.20.2"
+  uid "0f64eeed3f1a46e64724620c3553f2dbd3cd2d7d"
   resolved "https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz#0f64eeed3f1a46e64724620c3553f2dbd3cd2d7d"
 
 xml-parse-from-string@^1.0.0:

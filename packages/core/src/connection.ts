@@ -2,7 +2,6 @@ import {
     ANTHROPIC_API_BASE,
     AZURE_AI_INFERENCE_VERSION,
     AZURE_OPENAI_API_VERSION,
-    DOT_ENV_FILENAME,
     GITHUB_MODELS_BASE,
     LITELLM_API_BASE,
     LLAMAFILE_API_BASE,
@@ -409,19 +408,5 @@ export async function parseTokenFromEnv(
         b = trimTrailingSlash(b)
         if (!/\/v1$/.test(b)) b += "/v1"
         return b
-    }
-}
-
-export async function updateConnectionConfiguration(
-    provider?: string,
-    apiType?: OpenAIAPIType
-): Promise<void> {
-    // update .gitignore file
-    if (!(await fileExists(".gitignore")))
-        await writeText(".gitignore", `${DOT_ENV_FILENAME}\n`)
-    else {
-        const content = await readText(".gitignore")
-        if (!content.includes(DOT_ENV_FILENAME))
-            await writeText(".gitignore", content + `\n${DOT_ENV_FILENAME}\n`)
     }
 }

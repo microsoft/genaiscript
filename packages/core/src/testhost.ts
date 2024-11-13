@@ -36,6 +36,7 @@ import {
 import { LanguageModel } from "./chat"
 import { Project } from "./ast"
 import { NotSupportedError } from "./error"
+import { HostConfiguration } from "./hostconfiguration"
 
 // Function to create a frozen object representing Node.js path methods
 // This object provides utility methods for path manipulations
@@ -54,9 +55,8 @@ export function createNodePath(): Path {
 
 // Class representing a test host for runtime, implementing the RuntimeHost interface
 export class TestHost implements RuntimeHost {
+    config: HostConfiguration
     project: Project
-    // Path to the dotenv file (if used)
-    dotEnvPath: string = undefined
     // State object to store user-specific data
     userState: any = {}
     // Service to manage language models

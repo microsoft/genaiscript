@@ -175,7 +175,9 @@ export async function resolveModelConnectionInfo(
         return {
             info: {
                 model: "?",
-                error: `No model configured for ${hint}`,
+                error: hint
+                    ? `No LLM provider configured for ${hint}`
+                    : "No LLM provider configured",
             },
         }
     }

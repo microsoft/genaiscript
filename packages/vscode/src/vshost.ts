@@ -12,7 +12,6 @@ import {
     DEFAULT_MODEL,
     DEFAULT_SMALL_MODEL,
     DEFAULT_TEMPERATURE,
-    DOT_ENV_FILENAME,
 } from "../../core/src/constants"
 import { dotEnvTryParse } from "../../core/src/dotenv"
 import {
@@ -27,7 +26,6 @@ import { LanguageModel } from "../../core/src/chat"
 import { uniq } from "es-toolkit"
 
 export class VSCodeHost extends EventTarget implements Host {
-    dotEnvPath: string = DOT_ENV_FILENAME
     userState: any = {}
     readonly path = createVSPath()
     readonly server: TerminalServerManager
@@ -47,11 +45,7 @@ export class VSCodeHost extends EventTarget implements Host {
         this.state.context.subscriptions.push(this)
     }
 
-    async activate() {
-        const dotenv = await readFileText(this.projectUri, DOT_ENV_FILENAME)
-        const env = dotEnvTryParse(dotenv) ?? {}
-        await parseDefaultsFromEnv(env)
-    }
+    async activate() {}
 
     get context() {
         return this.state.context

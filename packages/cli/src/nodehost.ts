@@ -21,7 +21,6 @@ import {
     DEFAULT_TEMPERATURE,
     MODEL_PROVIDER_AZURE_OPENAI,
     SHELL_EXEC_TIMEOUT,
-    DOT_ENV_FILENAME,
     MODEL_PROVIDER_OLLAMA,
     TOOL_ID,
     DEFAULT_EMBEDDINGS_MODEL,
@@ -30,6 +29,7 @@ import {
     MODEL_PROVIDER_AZURE_SERVERLESS_MODELS,
     AZURE_AI_INFERENCE_TOKEN_SCOPES,
     MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI,
+    DOT_ENV_FILENAME,
 } from "../../core/src/constants"
 import { tryReadText } from "../../core/src/fs"
 import {
@@ -64,6 +64,8 @@ import {
     createAzureContentSafetyClient,
     isAzureContentSafetyClientConfigured,
 } from "../../core/src/azurecontentsafety"
+import { resolveGlobalConfiguration } from "../../core/src/config"
+import { HostConfiguration } from "../../core/src/hostconfiguration"
 
 class NodeServerManager implements ServerManager {
     async start(): Promise<void> {
@@ -127,7 +129,7 @@ class ModelManager implements ModelService {
 }
 
 export class NodeHost implements RuntimeHost {
-    readonly dotEnvPath: string
+    readonly config: HostConfiguration
     project: Project
     userState: any = {}
     models: ModelService
@@ -148,9 +150,8 @@ export class NodeHost implements RuntimeHost {
     readonly azureToken: AzureTokenResolver
     readonly azureServerlessToken: AzureTokenResolver
 
-    constructor(dotEnvPath: string) {
-        this.dotEnvPath = dotEnvPath
-        this.syncDotEnv()
+    constructor(config: HostConfiguration) {
+        this.config = config
         this.models = new ModelManager(this)
         this.azureToken = createAzureTokenResolver(
             "Azure",
@@ -164,10 +165,13 @@ export class NodeHost implements RuntimeHost {
         )
     }
 
-    private syncDotEnv() {
-        if (existsSync(this.dotEnvPath)) {
+    private async syncDotEnv() {
+        const { envFile } = this.config
+        if (existsSync(envFile)) {
+            if (resolve(envFile) !== resolve(DOT_ENV_FILENAME))
+                logVerbose(`.env: loading ${envFile}`)
             const res = dotenv.config({
-                path: this.dotEnvPath,
+                path: envFile,
                 debug: !!process.env.DEBUG,
                 override: true,
             })
@@ -176,27 +180,19 @@ export class NodeHost implements RuntimeHost {
     }
 
     static async install(dotEnvPath: string) {
-        dotEnvPath = dotEnvPath || process.env.GENAISCRIPT_ENV_FILE
-        if (dotEnvPath) {
-            // if the user provided a path, check file existence
-            if (!(await exists(dotEnvPath)))
-                throw new Error(`.env file not found at ${dotEnvPath}`)
-        } else {
-            dotEnvPath = resolve(DOT_ENV_FILENAME)
-        }
-        const h = new NodeHost(dotEnvPath)
+        const config = await resolveGlobalConfiguration(dotEnvPath)
+        const h = new NodeHost(config)
         setRuntimeHost(h)
         await h.parseDefaults()
         return h
     }
 
     async readSecret(name: string): Promise<string | undefined> {
-        this.syncDotEnv()
         return process.env[name]
     }
 
     private async parseDefaults() {
-        this.syncDotEnv()
+        await this.syncDotEnv()
         await parseDefaultsFromEnv(process.env)
     }
     clientLanguageModel: LanguageModel
@@ -206,7 +202,6 @@ export class NodeHost implements RuntimeHost {
         options?: { token?: boolean } & AbortSignalOptions & TraceOptions
     ): Promise<LanguageModelConfiguration> {
         const { signal, token: askToken } = options || {}
-        await this.parseDefaults()
         const tok = await parseTokenFromEnv(process.env, modelId)
         if (!askToken && tok?.token) tok.token = "***"
         if (askToken && tok && !tok.token) {
@@ -239,17 +234,11 @@ export class NodeHost implements RuntimeHost {
                 )
             const { provider } = parseModelIdentifier(modelId)
             if (provider === MODEL_PROVIDER_AZURE_OPENAI)
-                throw new Error(
-                    "Azure OpenAI end point not configured (AZURE_OPENAI_ENDPOINT)"
-                )
+                throw new Error("Azure OpenAI not configured")
             else if (provider === MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI)
-                throw new Error(
-                    "Azure AI OpenAI Serverless end point not configured (AZURE_SERVERLESS_OPENAI_API_ENDPOINT)"
-                )
+                throw new Error("Azure AI OpenAI Serverless not configured")
             else if (provider === MODEL_PROVIDER_AZURE_SERVERLESS_MODELS)
-                throw new Error(
-                    "Azure AI Models end point not configured (AZURE_SERVERLESS_MODELS_API_ENDPOINT)"
-                )
+                throw new Error("Azure AI Models not configured")
         }
         if (!tok && this.clientLanguageModel) {
             return <LanguageModelConfiguration>{
