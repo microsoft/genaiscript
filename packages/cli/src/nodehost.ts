@@ -64,6 +64,7 @@ import {
     createAzureContentSafetyClient,
     isAzureContentSafetyClientConfigured,
 } from "../../core/src/azurecontentsafety"
+import { resolveGlobalConfiguration } from "../../core/src/config"
 
 class NodeServerManager implements ServerManager {
     async start(): Promise<void> {
@@ -127,7 +128,7 @@ class ModelManager implements ModelService {
 }
 
 export class NodeHost implements RuntimeHost {
-    readonly dotEnvPath: string
+    readonly config: GenAIScriptConfiguration
     project: Project
     userState: any = {}
     models: ModelService
@@ -148,8 +149,8 @@ export class NodeHost implements RuntimeHost {
     readonly azureToken: AzureTokenResolver
     readonly azureServerlessToken: AzureTokenResolver
 
-    constructor(dotEnvPath: string) {
-        this.dotEnvPath = dotEnvPath
+    constructor(config: GenAIScriptConfiguration) {
+        this.config = config
         this.syncDotEnv()
         this.models = new ModelManager(this)
         this.azureToken = createAzureTokenResolver(
@@ -165,9 +166,10 @@ export class NodeHost implements RuntimeHost {
     }
 
     private syncDotEnv() {
-        if (existsSync(this.dotEnvPath)) {
+        if (existsSync(this.config.dotEnvPath)) {
+            logVerbose(`loading .env from ${this.config.dotEnvPath}`)
             const res = dotenv.config({
-                path: this.dotEnvPath,
+                path: this.config.dotEnvPath,
                 debug: !!process.env.DEBUG,
                 override: true,
             })
@@ -176,15 +178,15 @@ export class NodeHost implements RuntimeHost {
     }
 
     static async install(dotEnvPath: string) {
-        dotEnvPath = dotEnvPath || process.env.GENAISCRIPT_ENV_FILE
-        if (dotEnvPath) {
+        const config = await resolveGlobalConfiguration()
+        if (config.envFile) {
             // if the user provided a path, check file existence
             if (!(await exists(dotEnvPath)))
                 throw new Error(`.env file not found at ${dotEnvPath}`)
         } else {
-            dotEnvPath = resolve(DOT_ENV_FILENAME)
+            config.envFile = resolve(DOT_ENV_FILENAME)
         }
-        const h = new NodeHost(dotEnvPath)
+        const h = new NodeHost(config)
         setRuntimeHost(h)
         await h.parseDefaults()
         return h

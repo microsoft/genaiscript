@@ -15,6 +15,7 @@ import {
     setRuntimeHost,
     RuntimeHost,
     AzureTokenResolver,
+    HostConfiguration,
 } from "./host"
 import { TraceOptions } from "./trace"
 import {
@@ -54,9 +55,8 @@ export function createNodePath(): Path {
 
 // Class representing a test host for runtime, implementing the RuntimeHost interface
 export class TestHost implements RuntimeHost {
+    config: HostConfiguration
     project: Project
-    // Path to the dotenv file (if used)
-    dotEnvPath: string = undefined
     // State object to store user-specific data
     userState: any = {}
     // Service to manage language models

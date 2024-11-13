@@ -111,8 +111,18 @@ export interface AzureTokenResolver {
     ): Promise<AuthenticationToken>
 }
 
+/**
+ * Schema for a global configuration file
+ */
+export interface HostConfiguration {
+    /**
+     * Path to the .env file
+     */
+    envFile?: string
+}
+
 export interface Host {
-    readonly dotEnvPath: string
+    readonly config: HostConfiguration
 
     userState: any
     server: ServerManager
