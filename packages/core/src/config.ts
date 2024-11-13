@@ -16,7 +16,7 @@ export async function resolveGlobalConfiguration(
     const dirs = [homedir(), "."]
     const exts = ["yml", "yaml", "json"]
 
-    // import and merge gobal local files
+    // import and merge global local files
     let config: HostConfiguration = {}
     for (const dir of dirs) {
         for (const ext of exts) {
