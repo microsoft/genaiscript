@@ -11,6 +11,11 @@ defAgent(
     Answer the question in QUERY.`,
     {
         model,
-        system: ["system.retrieval_fuzz_search", "system.retrieval_web_search"],
+        system: [
+            "system.safety_jailbreak",
+            "system.safety_harmful_content",
+            "system.safety_protected_material",
+            "system.retrieval_web_search",
+        ],
     }
 )

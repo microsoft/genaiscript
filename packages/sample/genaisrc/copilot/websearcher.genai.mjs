@@ -1,5 +1,4 @@
 const res = await retrieval.webSearch(env.vars.question)
-
 def("WEB_SEARCH", res)
 def("FILE", env.files, { ignoreEmpty: true})
 

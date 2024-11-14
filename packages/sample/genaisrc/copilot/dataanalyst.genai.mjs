@@ -9,4 +9,7 @@ script({
 def("DATA", env.files.map(({ filename }) => filename).join("\n"))
 def("QUESTION", env.vars.question)
 
-$`Run python code to answer the data analyst question in QUESTION using the data in DATA.`
+$`Run python code to answer the data analyst question 
+in QUESTION using the data in DATA.
+Return the python code that was used to compute the answer.
+`
