@@ -1464,7 +1464,7 @@ available under the Apache 2.0 license (https://github.com/puppeteer/puppeteer/b
 
 The following npm package may be included in this product:
 
- - mathjs@13.2.1
+ - mathjs@13.2.2
 
 This package contains the following license:
 
@@ -1702,7 +1702,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.74.0
+ - genaiscript-vscode@1.74.1
 
 This package contains the following license:
 
@@ -4585,9 +4585,9 @@ The following npm packages may be included in this product:
  - @esbuild/linux-x64@0.23.1
  - @tokenizer/token@0.3.0
  - canvas@3.0.0-rc2
- - genaiscript-core-internal@1.74.0
- - genaiscript-sample@1.74.0
- - genaiscript@1.74.0
+ - genaiscript-core-internal@1.74.1
+ - genaiscript-sample@1.74.1
+ - genaiscript@1.74.1
  - isarray@1.0.0
  - javascript-natural-sort@0.7.1
  - keyv@4.5.4
@@ -5356,7 +5356,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - gpt-tokenizer@2.6.1
+ - gpt-tokenizer@2.6.2
 
 This package contains the following license:
 
@@ -5514,7 +5514,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 The following npm packages may be included in this product:
 
  - undici-types@6.19.8
- - undici@6.20.1
+ - undici@6.21.0
 
 These packages each contain the following license:
 

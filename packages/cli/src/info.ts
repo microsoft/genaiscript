@@ -7,7 +7,7 @@
 import { parseTokenFromEnv } from "../../core/src/connection"
 import { MODEL_PROVIDERS } from "../../core/src/constants"
 import { errorMessage } from "../../core/src/error"
-import { host } from "../../core/src/host"
+import { host, runtimeHost } from "../../core/src/host"
 import {
     ModelConnectionInfo,
     resolveModelConnectionInfo,
@@ -38,7 +38,7 @@ export async function envInfo(
 ) {
     const { token, error } = options || {}
     const res: any = {}
-    res[".env"] = host.dotEnvPath ?? ""
+    res[".env"] = runtimeHost.config.envFile ?? ""
     res.providers = []
     const env = process.env
 

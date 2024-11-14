@@ -191,7 +191,7 @@ export function findFirstDataFence(fences: Fenced[]): any {
                 !f.label &&
                 (f.language === "yaml" || f.language === "json")
         ) || {}
-    if (language === "yaml") return YAMLTryParse(content)
+    if (language === "yaml" || language === "yml") return YAMLTryParse(content)
     else if (language === "json") return JSON5TryParse(content)
     return undefined
 }

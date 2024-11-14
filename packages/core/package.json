@@ -60,6 +60,7 @@
     "magic-string": "^0.30.12",
     "mammoth": "^1.8.0",
     "mathjs": "^13.2.1",
+    "merge-descriptors": "^2.0.0",
     "mime-types": "^2.1.35",
     "minimatch": "^10.0.1",
     "minisearch": "^7.1.0",

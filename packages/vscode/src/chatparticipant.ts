@@ -21,9 +21,9 @@ export async function activateChatParticipant(state: ExtensionState) {
         const vars: Record<string, string> = {}
         for (const reference of references) {
             const { id, value } = reference
-            if (value instanceof vscode.Uri)
+            if (typeof value === "string") vars[id] = value
+            else if (value instanceof vscode.Uri)
                 files.push(vscode.workspace.asRelativePath(value, false))
-            else if (typeof value === "string") vars[id] = value
             else if (value instanceof vscode.Location)
                 files.push(vscode.workspace.asRelativePath(value.uri, false)) // TODO range
         }

@@ -20,6 +20,7 @@ import lmSelectAlt from "../../../assets/vscode-language-models-select.png.txt?r
 import oaiModelsSrc from "../../../assets/openai-model-names.png"
 import oaiModelsAlt from "../../../assets/openai-model-names.png.txt?raw"
 
+
 You will need to configure the LLM connection and authorization secrets.
 
 :::tip
@@ -116,6 +117,11 @@ The `.env` file should never be commited to your source control!
 If the `.gitignore` file is properly configured,
 the `.env` file will appear grayed out in Visual Studio Code.
 
+```txt title=".gitignore" ".env"
+...
+.env
+```
+
 :::
 
 ### Custom .env file location
@@ -132,6 +138,12 @@ npx genaiscript ... --env .env.local
 
 ```sh
 GENAISCRIPT_ENV_FILE=.env.local npx genaiscript ...
+```
+
+-   by specifying the `.env` file location in a [configuration file](/genaiscript/reference/configuration-files).
+
+```yaml file="~/genaiscript.config.yaml"
+envFile: ~/.env.genaiscript
 ```
 
 ## OpenAI
