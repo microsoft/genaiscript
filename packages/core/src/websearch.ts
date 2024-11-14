@@ -6,7 +6,7 @@ import {
 } from "./constants"
 import { createFetch } from "./fetch"
 import { runtimeHost } from "./host"
-import { MarkdownTrace } from "./trace"
+import { MarkdownTrace, TraceOptions } from "./trace"
 
 /**
  * Converts an object into a URL search parameters string.
@@ -36,14 +36,13 @@ function toURLSearchParams(o: any) {
 export async function bingSearch(
     q: string,
     options?: {
-        trace?: MarkdownTrace
         endPoint?: string
         count?: number
         cc?: string
         freshness?: string
         responseFilter?: string
         safeSearch?: string
-    }
+    } & TraceOptions
 ): Promise<WorkspaceFile[]> {
     const {
         trace,
@@ -80,7 +79,7 @@ export async function bingSearch(
     const url = endPoint + "?" + query
 
     // Create a fetch function for making the HTTP request.
-    const fetch = await createFetch()
+    const fetch = await createFetch({ trace })
     const res = await fetch(url, {
         method: "GET",
         headers: {
@@ -127,12 +126,11 @@ export async function bingSearch(
 export async function tavilySearch(
     q: string,
     options?: {
-        trace?: MarkdownTrace
         endPoint?: string
         topic?: "general" | "news"
         days?: number
         count?: number
-    }
+    } & TraceOptions
 ): Promise<WorkspaceFile[]> {
     const {
         trace,
@@ -166,7 +164,8 @@ export async function tavilySearch(
     const url = endPoint + "?" + query
 
     // Create a fetch function for making the HTTP request.
-    const fetch = await createFetch()
+    const fetch = await createFetch({ trace })
+    console.log({ url })
     const res = await fetch(url, {
         method: "POST",
     })

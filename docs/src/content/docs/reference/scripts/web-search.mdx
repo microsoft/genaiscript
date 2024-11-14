@@ -6,7 +6,7 @@ sidebar:
     order: 15
 ---
 
-The `retrieval.webSearch` executes a web search using Tavily or the Bing Web Search.
+The `retrieval.webSearch` executes a web search using [Tavily](https://docs.tavily.com/) or the Bing Web Search.
 
 ## Web Pages
 
@@ -22,6 +22,13 @@ def("PAGES", webPages)
 You can use `fetchText` to download the full content of the web page.
 
 ## Tavily Configuration <a href="" id="tavily" />
+
+The [Tavily API](https://docs.tavily.com/docs/rest-api/api-reference#endpoint-post-search)
+provides access to a powerfull search engine for LLM agents.
+
+```txt title=".env"
+TAVILY_API_KEY="your-api-key"
+```
 
 ## Bing Web Search configuration <a href="" id="bing" />
 
