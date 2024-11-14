@@ -87,7 +87,10 @@ export const TRACE_NODE_PREFIX = "genaiscript/trace/"
 export const EXTENSION_ID = "genaiscript.genaiscript-vscode"
 export const COPILOT_CHAT_PARTICIPANT_ID = TOOL_ID
 export const COPILOT_CHAT_PARTICIPANT_SCRIPT_ID = "copilotchat"
+
 export const BING_SEARCH_ENDPOINT = "https://api.bing.microsoft.com/v7.0/search"
+export const TAVILY_ENDPOINT = "https://api.tavily.com/search"
+
 export const SYSTEM_FENCE = "\n"
 export const MAX_DATA_REPAIRS = 1
 export const NPM_CLI_PACKAGE = "genaiscript"
@@ -196,6 +199,11 @@ export const DOCS_CONFIGURATION_CONTENT_SAFETY_URL =
     "https://microsoft.github.io/genaiscript/reference/scripts/content-safety"
 export const DOCS_DEF_FILES_IS_EMPTY_URL =
     "https://microsoft.github.io/genaiscript/reference/scripts/context/#empty-files"
+export const DOCS_WEB_SEARCH_URL =
+    "https://microsoft.github.io/genaiscript/reference/scripts/web-search/"
+export const DOCS_WEB_SEARCH_BING_SEARCH_URL =
+    "https://microsoft.github.io/genaiscript/reference/scripts/web-search/#bingn"
+export const DOCS_WEB_SEARCH_TAVILY_URL = "https://microsoft.github.io/genaiscript/reference/scripts/web-search/#tavily"
 
 export const MODEL_PROVIDERS = Object.freeze([
     {

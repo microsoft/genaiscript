@@ -7,7 +7,7 @@ import { arrayify, dotGenaiscriptPath } from "./util"
 import { runtimeHost } from "./host"
 import { MarkdownTrace } from "./trace"
 import { createParsers } from "./parsers"
-import { bingSearch } from "./websearch"
+import { bingSearch, tavilySearch } from "./websearch"
 import {
     RunPromptContextNode,
     createChatGenerationContext,
@@ -27,6 +27,7 @@ import { HTMLEscape } from "./html"
 import { hash } from "./crypto"
 import { resolveModelConnectionInfo } from "./models"
 import { createAzureContentSafetyClient } from "./azurecontentsafety"
+import { DOCS_WEB_SEARCH_URL } from "./constants"
 
 /**
  * Creates a prompt context for the given project, variables, trace, options, and model.
@@ -108,20 +109,27 @@ export async function createPromptContext(
 
     // Define retrieval operations
     const retrieval: Retrieval = {
-        webSearch: async (q) => {
+        webSearch: async (q, options) => {
+            const { provider, count } = options || {}
             // Conduct a web search and return the results
             try {
                 trace.startDetails(
                     `🌐 web search <code>${HTMLEscape(q)}</code>`
                 )
-                const { webPages } = (await bingSearch(q, { trace })) || {}
-                const files = webPages?.value?.map(
-                    ({ url, snippet }) =>
-                        <WorkspaceFile>{
-                            filename: url,
-                            content: snippet,
-                        }
-                )
+                let files: WorkspaceFile[]
+                if (provider === "bing") files = await bingSearch(q, { trace, count })
+                else if (provider === "tavily")
+                    files = await tavilySearch(q, { trace, count })
+                else {
+                    for (const f of [bingSearch, tavilySearch]) {
+                        files = await f(q, { ignoreMissingApiKey: true, trace, count })
+                        if (files) break
+                    }
+                }
+                if (!files)
+                    throw new Error(
+                        `No search provider configured. See ${DOCS_WEB_SEARCH_URL}.`
+                    )
                 trace.files(files, { model, secrets: env.secrets })
                 return files
             } finally {

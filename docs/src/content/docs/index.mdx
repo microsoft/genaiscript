@@ -258,7 +258,7 @@ The quick brown fox jumps over the lazy dog.
 
 <Card title="File search" icon="document">
 
-Grep or fuzz search [files](/genaiscript/referen/script/files)
+Grep or fuzz search [files](/genaiscript/reference/script/files)
 
 ```js wrap
 const { files } = await workspace.grep(/[a-z][a-z0-9]+/, { globs: "*.md" })
@@ -266,7 +266,17 @@ const { files } = await workspace.grep(/[a-z][a-z0-9]+/, { globs: "*.md" })
 
 </Card>
 
-<Card title="Browser automation" icon="document">
+<Card title="Web search" icon="magnifier">
+
+[Web search](/genaiscript/reference/scripts/web-search) using Bing or Tavily.
+
+```js wrap
+const pages = await retreival.webSearch("what are the latest news about AI?")
+```
+
+</Card>
+
+<Card title="Browser automation" icon="approve-check-circle">
 
 Browse and scrape the web with [Playwright](/genaiscript/reference/scripts/browse).
 

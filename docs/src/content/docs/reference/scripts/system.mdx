@@ -360,6 +360,35 @@ defAgent(
 `````
 
 
+### `system.agent_web`
+
+Agent that can search the web.
+
+
+
+
+
+`````js wrap title="system.agent_web"
+system({
+    title: "Agent that can search the web.",
+})
+
+const model = env.vars.agentWebSearchModel
+
+defAgent(
+    "web-search",
+    "search the web to accomplish tasks.",
+    `Your are a helpful LLM agent that can use web search.
+    Answer the question in QUERY.`,
+    {
+        model,
+        system: ["system.retrieval_fuzz_search", "system.retrieval_web_search"],
+    }
+)
+
+`````
+
+
 ### `system.annotations`
 
 Emits annotations compatible with GitHub Actions
@@ -2788,18 +2817,17 @@ Web Search
 
 Function to do a web search.
 
--  tool `retrieval_web_search`: Search the web for a user query using Bing Search.
+-  tool `retrieval_web_search`: Search the web for a user query using Tavily or Bing Search.
 
 `````js wrap title="system.retrieval_web_search"
 system({
     title: "Web Search",
     description: "Function to do a web search.",
-    secrets: ["BING_SEARCH_ENDPOINT"],
 })
 
 defTool(
     "retrieval_web_search",
-    "Search the web for a user query using Bing Search.",
+    "Search the web for a user query using Tavily or Bing Search.",
     {
         type: "object",
         properties: {
@@ -2807,16 +2835,20 @@ defTool(
                 type: "string",
                 description: "Search query.",
             },
+            count: {
+                type: "integer",
+                description: "Number of results to return.",
+            },
         },
         required: ["query"],
     },
     async (args) => {
-        const { query } = args
-        const webPages = await retrieval.webSearch(query)
+        const { query, count } = args
+        const webPages = await retrieval.webSearch(query, { count })
         return YAML.stringify(
             webPages.map((f) => ({
                 url: f.filename,
-                snippet: f.content,
+                content: f.content,
             }))
         )
     }
