@@ -2127,7 +2127,7 @@ interface Retrieval {
      */
     webSearch(
         query: string,
-        options?: { provider?: "tavily" | "bing" }
+        options?: { count?: number; provider?: "tavily" | "bing" }
     ): Promise<WorkspaceFile[]>
 
     /**

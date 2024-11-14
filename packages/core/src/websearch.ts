@@ -133,10 +133,12 @@ export async function tavilySearch(
     options?: {
         ignoreMissingApiKey?: boolean
         endPoint?: string
+        count?: number
     } & TraceOptions
 ): Promise<WorkspaceFile[]> {
     const {
         trace,
+        count,
         ignoreMissingApiKey,
         endPoint = TAVILY_ENDPOINT,
     } = options || {}
@@ -158,6 +160,7 @@ export async function tavilySearch(
     const body = deleteUndefinedValues({
         query: q,
         api_key: apiKey,
+        max_results: count,
     })
 
     // Create a fetch function for making the HTTP request.

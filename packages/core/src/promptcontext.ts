@@ -110,19 +110,19 @@ export async function createPromptContext(
     // Define retrieval operations
     const retrieval: Retrieval = {
         webSearch: async (q, options) => {
-            const { provider } = options || {}
+            const { provider, count } = options || {}
             // Conduct a web search and return the results
             try {
                 trace.startDetails(
                     `🌐 web search <code>${HTMLEscape(q)}</code>`
                 )
                 let files: WorkspaceFile[]
-                if (provider === "bing") files = await bingSearch(q, { trace })
+                if (provider === "bing") files = await bingSearch(q, { trace, count })
                 else if (provider === "tavily")
-                    files = await tavilySearch(q, { trace })
+                    files = await tavilySearch(q, { trace, count })
                 else {
                     for (const f of [bingSearch, tavilySearch]) {
-                        files = await f(q, { ignoreMissingApiKey: true, trace })
+                        files = await f(q, { ignoreMissingApiKey: true, trace, count })
                         if (files) break
                     }
                 }
