@@ -39,8 +39,7 @@ for the LLM call, allows arbitrary JavaScript code execution, packages
 the prompt input for the LLM, calls the LLM, and unpacks that LLM output
 based on the directions given in the prompt.
 
-**GPVM**: A runtime system that given a GenAIScript and an optional
-GPSpec, executes the GenAIScript, which involves integrating the context
+**GPVM**: A runtime system that given a GenAIScript executes the GenAIScript, which involves integrating the context
 into a prompt, calling the specified LLM, and extracting content from
 the LLM result.
 
@@ -141,10 +140,6 @@ code. Here are some examples:
     assembles a prompt to ask the LLM to fill in the missing
     translations, while leaving the existing ones alone. Because the LLM model we use has already been trained on
     MakeCode examples and documentation it is aware of the syntax.
-
--   **Generating executable code from a natural language specification.** A GPSpec file can be used to specify the task being
-    performed and a GenAIScript that specializes in code generation can
-    translate the spec into code.
 
 -   **Creating a short version of a longer white paper by summarizing each chapter.** LLMs are quite effective at summarizing documents. A
     GenAIScript can be written to take each chapter of a long document

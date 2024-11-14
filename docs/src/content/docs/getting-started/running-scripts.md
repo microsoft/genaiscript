@@ -32,7 +32,7 @@ The `env.files` array will contain a single element with the selected file.
 
 The `env.files` array will contain all nested files under that folder.
 
-![The image shows a file explorer with a context menu. The "rag" folder is expanded, displaying files like "dir.gpspec.md.slides.md" and "Document.docx." The context menu includes options like "New File," "Cut," "Copy," and "Run GenAiScript."](../../../assets/vscode-folder-run.png)
+![The image shows a file explorer with a context menu. The "rag" folder is expanded, displaying files like "Document.docx." The context menu includes options like "New File," "Cut," "Copy," and "Run GenAiScript."](../../../assets/vscode-folder-run.png)
 
 :::tip[Root folder]
 
