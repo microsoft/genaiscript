@@ -122,10 +122,8 @@ export async function createPromptContext(
                     files = await tavilySearch(q, { trace })
                 else {
                     for (const f of [bingSearch, tavilySearch]) {
-                        try {
-                            files = await f(q, { trace })
-                            break
-                        } catch (e) {}
+                        files = await f(q, { ignoreMissingApiKey: true, trace })
+                        if (files) break
                     }
                 }
                 if (!files)

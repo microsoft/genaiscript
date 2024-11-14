@@ -7,6 +7,7 @@ import {
 import { createFetch } from "./fetch"
 import { runtimeHost } from "./host"
 import { MarkdownTrace, TraceOptions } from "./trace"
+import { deleteUndefinedValues, logVerbose } from "./util"
 
 /**
  * Converts an object into a URL search parameters string.
@@ -36,6 +37,7 @@ function toURLSearchParams(o: any) {
 export async function bingSearch(
     q: string,
     options?: {
+        ignoreMissingApiKey?: boolean
         endPoint?: string
         count?: number
         cc?: string
@@ -45,6 +47,7 @@ export async function bingSearch(
     } & TraceOptions
 ): Promise<WorkspaceFile[]> {
     const {
+        ignoreMissingApiKey,
         trace,
         endPoint = BING_SEARCH_ENDPOINT,
         count,
@@ -59,11 +62,13 @@ export async function bingSearch(
 
     // Retrieve the API key from the runtime host.
     const apiKey = await runtimeHost.readSecret("BING_SEARCH_API_KEY")
-    if (!apiKey)
+    if (!apiKey) {
+        if (ignoreMissingApiKey) return undefined
         throw new Error(
             `BING_SEARCH_API_KEY secret is required to use bing search. See ${DOCS_WEB_SEARCH_BING_SEARCH_URL}.`,
             { cause: "missing key" }
         )
+    }
 
     // Construct the query string using provided and default parameters.
     const query = toURLSearchParams({
@@ -88,12 +93,12 @@ export async function bingSearch(
     })
 
     // Log the search response status for tracing purposes.
-    trace?.itemValue(`Bing search`, res.statusText)
+    trace?.itemValue(`Bing search`, res.status + " " + res.statusText)
 
     // Throw an error if the response is not OK, and log details for debugging.
     if (!res.ok) {
         trace?.detailsFenced("error response", await res.text())
-        throw new Error(`Bing search failed: ${res.statusText}`)
+        throw new Error(`Bing search failed: ${res.status} ${res.statusText}`)
     }
 
     // Parse and return the JSON response, logging the results.
@@ -126,18 +131,14 @@ export async function bingSearch(
 export async function tavilySearch(
     q: string,
     options?: {
+        ignoreMissingApiKey?: boolean
         endPoint?: string
-        topic?: "general" | "news"
-        days?: number
-        count?: number
     } & TraceOptions
 ): Promise<WorkspaceFile[]> {
     const {
         trace,
+        ignoreMissingApiKey,
         endPoint = TAVILY_ENDPOINT,
-        topic,
-        days,
-        count,
     } = options || {}
 
     // Return an empty response if the query is empty.
@@ -145,48 +146,51 @@ export async function tavilySearch(
 
     // Retrieve the API key from the runtime host.
     const apiKey = await runtimeHost.readSecret("TAVILY_API_KEY")
-    if (!apiKey)
+    if (!apiKey) {
+        if (ignoreMissingApiKey) return undefined
         throw new Error(
             `TAVILY_API_KEY secret is required to use Tavily search. See ${DOCS_WEB_SEARCH_TAVILY_URL}.`,
             { cause: "missing key" }
         )
+    }
 
     // Construct the query string using provided and default parameters.
-    const query = toURLSearchParams({
+    const body = deleteUndefinedValues({
         query: q,
         api_key: apiKey,
-        topic,
-        days,
-        max_results: count,
     })
-
-    // Construct the full URL for the search request.
-    const url = endPoint + "?" + query
 
     // Create a fetch function for making the HTTP request.
     const fetch = await createFetch({ trace })
-    console.log({ url })
-    const res = await fetch(url, {
+    const res = await fetch(endPoint, {
         method: "POST",
+        headers: {
+            ["Content-Type"]: "application/json",
+            Accept: "application/json",
+        },
+        retryOn: [429],
+        body: JSON.stringify(body),
     })
 
     // Log the search response status for tracing purposes.
-    trace?.itemValue(`Tavily search`, res.statusText)
+    trace?.itemValue(`Tavily search`, res.status + " " + res.statusText)
 
     // Throw an error if the response is not OK, and log details for debugging.
     if (!res.ok) {
-        trace?.detailsFenced("error response", await res.text())
-        throw new Error(`Tavily search failed: ${res.statusText}`)
+        const err = await res.text()
+        trace?.detailsFenced("error response", err)
+        logVerbose(err)
+        throw new Error(`Tavily search failed: ${res.status} ${res.statusText}`)
     }
 
     // Parse and return the JSON response, logging the results.
     const json: {
         query: string
-        results: { url: string; description: string }[]
+        results: { url: string; content: string }[]
     } = await res.json()
     trace?.detailsFenced("results", json, "yaml")
     return json.results.map(
-        ({ url, description }) =>
-            ({ filename: url, content: description }) satisfies WorkspaceFile
+        ({ url, content }) =>
+            ({ filename: url, content }) satisfies WorkspaceFile
     )
 }
