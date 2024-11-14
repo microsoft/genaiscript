@@ -25,7 +25,7 @@
     type-fest "^4.26.1"
     zod-validation-error "^3.4.0"
 
-"@agentic/weather@^7.1.0":
+"@agentic/weather@^7.2.0":
   version "7.2.0"
   resolved "https://registry.yarnpkg.com/@agentic/weather/-/weather-7.2.0.tgz#d1eea2bbfb351f992269992d26f43c4d122b9ee3"
   integrity sha512-ydpfpcGzYtdMhRkW5Y/MaUKVN7uJD/TcsB9zgMkkdn94upCucYj2ndv88CtfakbC3TASEZOoDNVn3LxiiW0ZGA==
@@ -563,7 +563,7 @@
     "@inquirer/type" "^3.0.1"
     ansi-escapes "^4.3.2"
 
-"@inquirer/prompts@^7.0.1":
+"@inquirer/prompts@^7.1.0":
   version "7.1.0"
   resolved "https://registry.yarnpkg.com/@inquirer/prompts/-/prompts-7.1.0.tgz#a55ee589c0eed0ca2ee0fbc7fc63f42f4c31a24e"
   integrity sha512-5U/XiVRH2pp1X6gpNAjWOglMf38/Ys522ncEHIKT1voRUvSj/DQnR22OVxHnwu5S+rCFaUiPQ57JOtMFQayqYA==
@@ -1478,7 +1478,7 @@
   resolved "https://registry.yarnpkg.com/@types/turndown/-/turndown-5.0.5.tgz#614de24fc9ace4d8c0d9483ba81dc8c1976dd26f"
   integrity sha512-TL2IgGgc7B5j78rIccBtlYAnkuv8nUQqhQc+DSYV5j9Be9XOcm/SKOVRuA47xAVI3680Tk9B1d8flK2GWT2+4w==
 
-"@types/vscode@^1.93.0":
+"@types/vscode@^1.95.0":
   version "1.95.0"
   resolved "https://registry.yarnpkg.com/@types/vscode/-/vscode-1.95.0.tgz#484aee82c69fa2d73e29d4bf2a91191e570dbc70"
   integrity sha512-0LBD8TEiNbet3NvWsmn59zLzOFu/txSlGxnv5yAFHCrhG9WvAnR3IvfHzMOs2aeWqgvNjq9pO99IUw8d3n+unw==
@@ -2985,7 +2985,7 @@ gpt-3-encoder@1.1.4:
   resolved "https://registry.yarnpkg.com/gpt-3-encoder/-/gpt-3-encoder-1.1.4.tgz#d6cdaacf5824857e133b6065247c757fc7e4fa72"
   integrity sha512-fSQRePV+HUAhCn7+7HL7lNIXNm6eaFWFbNLOOGtmSJ0qJycyQvj60OvRlH7mee8xAMjBDNRdMXlMwjAbMTDjkg==
 
-gpt-tokenizer@^2.6.1:
+gpt-tokenizer@^2.6.2:
   version "2.6.2"
   resolved "https://registry.yarnpkg.com/gpt-tokenizer/-/gpt-tokenizer-2.6.2.tgz#90e6932c7b5f73df7c13d360802edb43a2776586"
   integrity sha512-OznIET3z069FiwbLtLFXJ9pVESYAa8EnX0BMogs6YJ4Fn2FIcyeZYEbxsp2grPiK0DVaqP1f+0JR/8t9R7/jlg==
@@ -3730,7 +3730,7 @@ markdown-it@^14.1.0:
     punycode.js "^2.3.1"
     uc.micro "^2.1.0"
 
-mathjs@^13.0.3, mathjs@^13.2.1:
+mathjs@^13.0.3, mathjs@^13.2.2:
   version "13.2.2"
   resolved "https://registry.yarnpkg.com/mathjs/-/mathjs-13.2.2.tgz#22b6e2a86217325e79baf052266f37aaf2a10a4d"
   integrity sha512-tBNMmwNsLMjD7xGHSF9IEuuzNVG8xPDgshDBY1eQ5ZS1HQr5O+bY8eG2peZYSkIsw79y2QcPkGMcQL5ZqtLu5A==
@@ -4005,7 +4005,7 @@ normalize-url@^8.0.1:
   resolved "https://registry.yarnpkg.com/normalize-url/-/normalize-url-8.0.1.tgz#9b7d96af9836577c58f5883e939365fa15623a4a"
   integrity sha512-IO9QvjUMWxPQQhs60oOu10CRkWCiZzSUkzbXGGV9pviYl1fXYcvkzQ5jV9z8Y6un8ARoVRl4EtC6v6jNqbaJ/w==
 
-npm-check-updates@^17.1.10:
+npm-check-updates@^17.1.11:
   version "17.1.11"
   resolved "https://registry.yarnpkg.com/npm-check-updates/-/npm-check-updates-17.1.11.tgz#f6d48ca6a9adc0df990f6cd11de3bcd1e48e5c54"
   integrity sha512-TR2RuGIH7P3Qrb0jfdC/nT7JWqXPKjDlxuNQt3kx4oNVf1Pn5SBRB7KLypgYZhruivJthgTtfkkyK4mz342VjA==
@@ -5688,7 +5688,6 @@ xdg-basedir@^5.1.0:
 
 "xlsx@https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz":
   version "0.20.2"
-  uid "0f64eeed3f1a46e64724620c3553f2dbd3cd2d7d"
   resolved "https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz#0f64eeed3f1a46e64724620c3553f2dbd3cd2d7d"
 
 xml-parse-from-string@^1.0.0:

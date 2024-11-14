@@ -21,8 +21,8 @@
   "dependencies": {},
   "devDependencies": {
     "@astrojs/check": "^0.9.4",
-    "@astrojs/starlight": "^0.28.6",
-    "astro": "^4.16.10",
+    "@astrojs/starlight": "^0.29.0",
+    "astro": "^4.16.12",
     "rehype-mermaid": "^3.0.0",
     "starlight-blog": "^0.14.1",
     "typescript": "5.6.3",

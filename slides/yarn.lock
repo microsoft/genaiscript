@@ -749,7 +749,7 @@
   resolved "https://registry.yarnpkg.com/@polka/url/-/url-1.0.0-next.28.tgz#d45e01c4a56f143ee69c54dd6b12eade9e270a73"
   integrity sha512-8LduaNlMZGwdZ6qWrKlfa+2M4gahzFkprZiAt2TF8uS0qQgBizKXpXURqvTJ4WtmupWxaLqjRb2UCTe72mu+Aw==
 
-"@rollup/pluginutils@^5.1.0", "@rollup/pluginutils@^5.1.2":
+"@rollup/pluginutils@^5.1.0", "@rollup/pluginutils@^5.1.3":
   version "5.1.3"
   resolved "https://registry.yarnpkg.com/@rollup/pluginutils/-/pluginutils-5.1.3.tgz#3001bf1a03f3ad24457591f2c259c8e514e0dbdf"
   integrity sha512-Pnsb6f32CD2W3uCaLZIzDmeFyQ2b8UWMFI7xtwUezpcGBDVDW6y9XgAWIlARiGAo6eNF5FK5aQTr0LFyNyqq5A==
@@ -1917,7 +1917,7 @@
   dependencies:
     vue-demi ">=0.14.10"
 
-acorn@^8.12.1, acorn@^8.14.0, acorn@^8.8.2:
+acorn@^8.14.0, acorn@^8.8.2:
   version "8.14.0"
   resolved "https://registry.yarnpkg.com/acorn/-/acorn-8.14.0.tgz#063e2c70cac5fb4f6467f0b11152e04c682795b0"
   integrity sha512-cl669nCJTZBsL97OF4kUQm5g5hC2uihk0NxY3WENAC0TYdILVkAyHymAntgxGkl7K+t0cXIrH5siy5S4XkFycA==
@@ -2763,9 +2763,9 @@ ee-first@1.1.1:
   integrity sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow==
 
 electron-to-chromium@^1.5.41:
-  version "1.5.57"
-  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.5.57.tgz#cb43af8784166bca24565b3418bf5f775a6b1c86"
-  integrity sha512-xS65H/tqgOwUBa5UmOuNSLuslDo7zho0y/lgQw35pnrqiZh7UOWHCeL/Bt6noJATbA6tpQJGCifsFsIRZj1Fqg==
+  version "1.5.58"
+  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.5.58.tgz#d90bd7a04d9223dce4e72316e14492140ec9af40"
+  integrity sha512-al2l4r+24ZFL7WzyPTlyD0fC33LLzvxqLCwurtBibVPghRGO9hSTl+tis8t1kD7biPiH/en4U0I7o/nQbYeoVA==
 
 emoji-regex@^8.0.0:
   version "8.0.0"
@@ -3593,7 +3593,7 @@ magic-string-stack@^0.1.1:
     "@ampproject/remapping" "^2.3.0"
     magic-string "^0.30.10"
 
-magic-string@^0.30.0, magic-string@^0.30.10, magic-string@^0.30.11:
+magic-string@^0.30.0, magic-string@^0.30.10, magic-string@^0.30.11, magic-string@^0.30.12:
   version "0.30.12"
   resolved "https://registry.yarnpkg.com/magic-string/-/magic-string-0.30.12.tgz#9eb11c9d072b9bcb4940a5b2c2e1a217e4ee1a60"
   integrity sha512-Ea8I3sQMVXr8JhN4z+H/d8zwo+tYDgHE9+5G4Wnrwhs0gaK9fXTKx0Tw5Xwsd/bCPTTZNRAdpyzvoeORe9LYpw==
@@ -4080,7 +4080,7 @@ mkdirp@^1.0.3:
   resolved "https://registry.yarnpkg.com/mkdirp/-/mkdirp-1.0.4.tgz#3eb5ed62622756d79a5f0e2a221dfebad75c2f7e"
   integrity sha512-vVqVZQyf3WLx2Shd0qJ9xuvqgAyKPLAiqITEtqW0oIUjzo3PePDd6fW9iFz30ef7Ysp/oiWqbhszeGWW2T6Gzw==
 
-mlly@^1.4.2, mlly@^1.5.0, mlly@^1.7.1, mlly@^1.7.2:
+mlly@^1.4.2, mlly@^1.5.0, mlly@^1.7.1, mlly@^1.7.2, mlly@^1.7.3:
   version "1.7.3"
   resolved "https://registry.yarnpkg.com/mlly/-/mlly-1.7.3.tgz#d86c0fcd8ad8e16395eb764a5f4b831590cee48c"
   integrity sha512-xUsx5n/mN0uQf4V548PKQ+YShA4/IW0KI1dZhrNrPCLG+xizETbHTkOa1f8/xut9JRPp8kQuMnz0oqwkTiLo/A==
@@ -4925,23 +4925,23 @@ unicorn-magic@^0.1.0:
   integrity sha512-lRfVq8fE8gz6QMBuDM6a+LO3IAzTi05H6gCVaUpir2E1Rwpo4ZUog45KpNXKC/Mn3Yb9UDuHumeFTo9iV/D9FQ==
 
 unimport@^3.13.1:
-  version "3.13.1"
-  resolved "https://registry.yarnpkg.com/unimport/-/unimport-3.13.1.tgz#4362340e2df7edad212c693d33808189e058dded"
-  integrity sha512-nNrVzcs93yrZQOW77qnyOVHtb68LegvhYFwxFMfuuWScmwQmyVCG/NBuN8tYsaGzgQUVYv34E/af+Cc9u4og4A==
+  version "3.13.2"
+  resolved "https://registry.yarnpkg.com/unimport/-/unimport-3.13.2.tgz#2a5f7458c66bc65485d62ad28462d38832aee0ba"
+  integrity sha512-VKAepeIb6BWLtBl4tmyHY1/7rJgz3ynmZrWf8cU1a+v5Uv/k1gyyAEeGBnYcrwy8bxG5sflxEx4a9VQUqOVHUA==
   dependencies:
-    "@rollup/pluginutils" "^5.1.2"
-    acorn "^8.12.1"
+    "@rollup/pluginutils" "^5.1.3"
+    acorn "^8.14.0"
     escape-string-regexp "^5.0.0"
     estree-walker "^3.0.3"
     fast-glob "^3.3.2"
     local-pkg "^0.5.0"
-    magic-string "^0.30.11"
-    mlly "^1.7.1"
+    magic-string "^0.30.12"
+    mlly "^1.7.3"
     pathe "^1.1.2"
-    pkg-types "^1.2.0"
+    pkg-types "^1.2.1"
     scule "^1.3.0"
     strip-literal "^2.1.0"
-    unplugin "^1.14.1"
+    unplugin "^1.15.0"
 
 unist-util-is@^6.0.0:
   version "6.0.0"
@@ -5056,10 +5056,10 @@ unplugin-vue-markdown@^0.26.2:
     markdown-it "^14.1.0"
     unplugin "^1.10.1"
 
-unplugin@^1.10.1, unplugin@^1.12.0, unplugin@^1.12.1, unplugin@^1.14.1, unplugin@^1.3.1:
-  version "1.15.0"
-  resolved "https://registry.yarnpkg.com/unplugin/-/unplugin-1.15.0.tgz#cd1e92e537ab14a03354d6f83f29d536fac2e5a9"
-  integrity sha512-jTPIs63W+DUEDW207ztbaoO7cQ4p5aVaB823LSlxpsFEU3Mykwxf3ZGC/wzxFJeZlASZYgVrWeo7LgOrqJZ8RA==
+unplugin@^1.10.1, unplugin@^1.12.0, unplugin@^1.12.1, unplugin@^1.15.0, unplugin@^1.3.1:
+  version "1.16.0"
+  resolved "https://registry.yarnpkg.com/unplugin/-/unplugin-1.16.0.tgz#ca0f248bf8798cd752dd02e5b381223b737cef72"
+  integrity sha512-5liCNPuJW8dqh3+DM6uNM2EI3MLLpCKp/KY+9pB5M2S2SR2qvvDHhKgBOaTWEbZTAws3CXfB0rKTIolWKL05VQ==
   dependencies:
     acorn "^8.14.0"
     webpack-virtual-modules "^0.6.2"

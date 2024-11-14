@@ -1702,7 +1702,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.74.1
+ - genaiscript-vscode@1.75.0
 
 This package contains the following license:
 
@@ -4585,9 +4585,9 @@ The following npm packages may be included in this product:
  - @esbuild/linux-x64@0.23.1
  - @tokenizer/token@0.3.0
  - canvas@3.0.0-rc2
- - genaiscript-core-internal@1.74.1
- - genaiscript-sample@1.74.1
- - genaiscript@1.74.1
+ - genaiscript-core-internal@1.75.0
+ - genaiscript-sample@1.75.0
+ - genaiscript@1.75.0
  - isarray@1.0.0
  - javascript-natural-sort@0.7.1
  - keyv@4.5.4
