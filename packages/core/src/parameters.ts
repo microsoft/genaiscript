@@ -4,6 +4,7 @@ import { NotSupportedError } from "./error"
 import { isJSONSchema } from "./schema"
 import { resolveSystems } from "./systems"
 import { logError, normalizeFloat, normalizeInt } from "./util"
+import { YAMLStringify } from "./yaml"
 
 function isPromptParameterTypeRequired(t: PromptParameterType): boolean {
     const ta = t as any
@@ -145,7 +146,18 @@ export function parsePromptParameters(
 export function proxifyVars(res: PromptParameters) {
     const varsProxy: PromptParameters = new Proxy(res, {
         get(target: PromptParameters, prop: string) {
-            return prop ? target[normalizeVarKey(prop)] : undefined
+            if ((prop as any) === Object.prototype.toString)
+                return YAMLStringify(
+                    Object.fromEntries(
+                        Object.entries(res).map(([k, v]) => [
+                            normalizeVarKey(k),
+                            v,
+                        ])
+                    )
+                )
+            return typeof prop === "string"
+                ? target[normalizeVarKey(prop)]
+                : undefined
         },
         ownKeys(target: PromptParameters) {
             return Reflect.ownKeys(target).map((k) =>

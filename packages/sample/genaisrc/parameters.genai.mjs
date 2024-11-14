@@ -31,6 +31,10 @@ script({
     },
 })
 
+console.log(env.vars)
+console.log(Object.keys(env.vars))
+console.log(Object.entries(env.vars))
+console.log(Object.values(env.vars))
 console.log(`string: ${env.vars.string} ${typeof env.vars.string}`)
 console.log(`number: ${env.vars.number} ${typeof env.vars.number}`)
 console.log(`boolean: ${env.vars.boolean} ${typeof env.vars.boolean}`)
