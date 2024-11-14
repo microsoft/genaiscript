@@ -147,6 +147,13 @@ export class TestHost implements RuntimeHost {
         return new Uint8Array(await readFile(resolve(name)))
     }
 
+    async statFile(name: string): Promise<{
+        size: number
+        type: "file" | "directory"
+    }> {
+        return undefined
+    }
+
     // Method to write content to a file
     async writeFile(name: string, content: Uint8Array): Promise<void> {
         await writeFile(resolve(name), content)
