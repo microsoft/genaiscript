@@ -92,7 +92,11 @@ export async function activateChatParticipant(state: ExtensionState) {
             canceller.dispose()
             if (token.isCancellationRequested) return
 
-            const { text = "" } = res || {}
+            const { text = "", status, statusText } = res || {}
+            if (status !== "success")
+                response.markdown(
+                    new vscode.MarkdownString("$(error) " + statusText, true)
+                )
             if (text) {
                 response.markdown(
                     new vscode.MarkdownString(
