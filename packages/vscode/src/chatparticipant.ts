@@ -93,12 +93,19 @@ export async function activateChatParticipant(state: ExtensionState) {
             if (token.isCancellationRequested) return
 
             const { text = "" } = res || {}
-            response.markdown(
-                new vscode.MarkdownString(
-                    cleanMarkdown(convertAnnotationsToItems(text)),
-                    true
+            if (text) {
+                response.markdown(
+                    new vscode.MarkdownString(
+                        cleanMarkdown(convertAnnotationsToItems(text)),
+                        true
+                    )
                 )
-            )
+                response.button({
+                    command: "genaiscript.request.open.output",
+                    tooltip: "Open generated markdown in Preview mode",
+                    title: "Open Preview",
+                })
+            }
         }
     )
     participant.iconPath = new vscode.ThemeIcon(ICON_LOGO_NAME)
