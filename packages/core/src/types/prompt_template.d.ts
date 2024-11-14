@@ -2122,10 +2122,13 @@ interface FuzzSearchOptions {
 
 interface Retrieval {
     /**
-     * Executers a Bing web search. Requires to configure the BING_SEARCH_API_KEY secret.
+     * Executers a web search with Tavily or Bing Search.
      * @param query
      */
-    webSearch(query: string): Promise<WorkspaceFile[]>
+    webSearch(
+        query: string,
+        options?: { provider?: "tavily" | "bing" }
+    ): Promise<WorkspaceFile[]>
 
     /**
      * Search using similarity distance on embeddings
