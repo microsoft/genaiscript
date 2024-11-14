@@ -1,7 +1,7 @@
 import dotenv from "dotenv"
 
 import { TextDecoder, TextEncoder } from "util"
-import { readFile, unlink, writeFile } from "node:fs/promises"
+import { lstat, readFile, unlink, writeFile } from "node:fs/promises"
 import { ensureDir, exists, existsSync, remove } from "fs-extra"
 import { resolve, dirname } from "node:path"
 import { glob } from "glob"
@@ -283,6 +283,26 @@ export class NodeHost implements RuntimeHost {
     }
     resolvePath(...segments: string[]) {
         return this.path.resolve(...segments)
+    }
+    async statFile(name: string): Promise<{
+        size: number
+        type: "file" | "directory" | "symlink"
+    }> {
+        try {
+            const stats = await lstat(name)
+            return {
+                size: stats.size,
+                type: stats.isFile()
+                    ? "file"
+                    : stats.isDirectory()
+                      ? "directory"
+                      : stats.isSymbolicLink()
+                        ? "symlink"
+                        : undefined,
+            }
+        } catch (error) {
+            return undefined
+        }
     }
     async readFile(name: string): Promise<Uint8Array> {
         const wksrx = /^workspace:\/\//i

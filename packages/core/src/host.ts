@@ -138,6 +138,10 @@ export interface Host {
     clientLanguageModel?: LanguageModel
 
     // fs
+    statFile(name: string): Promise<{
+        size: number
+        type: "file" | "directory" | "symlink"
+    }>
     readFile(name: string): Promise<Uint8Array>
     writeFile(name: string, content: Uint8Array): Promise<void>
     deleteFile(name: string): Promise<void>

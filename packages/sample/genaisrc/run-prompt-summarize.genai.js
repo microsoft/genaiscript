@@ -1,6 +1,7 @@
 script({
     title: "run prompt summarize",
     model: "small",
+    files: "src/rag/*",
     tests: [
         {
             files: ["src/rag/markdown.md"],

@@ -104,6 +104,29 @@ export class VSCodeHost extends EventTarget implements Host {
                 break
         }
     }
+    async statFile(name: string): Promise<{
+        size: number
+        type: "file" | "directory" | "symlink"
+    }> {
+        const uri = this.toProjectFileUri(name)
+        try {
+            const stat = await vscode.workspace.fs.stat(uri)
+            if (!stat) return undefined
+            return {
+                size: stat.size,
+                type:
+                    stat.type === vscode.FileType.File
+                        ? "file"
+                        : stat.type === vscode.FileType.Directory
+                          ? "directory"
+                          : stat.type == vscode.FileType.SymbolicLink
+                            ? "symlink"
+                            : undefined,
+            }
+        } catch (e) {
+            return undefined
+        }
+    }
     async readFile(name: string): Promise<Uint8Array> {
         const uri = this.toProjectFileUri(name)
         const buffer = await vscode.workspace.fs.readFile(uri)
