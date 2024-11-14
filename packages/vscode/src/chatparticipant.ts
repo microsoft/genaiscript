@@ -104,12 +104,18 @@ export async function activateChatParticipant(state: ExtensionState) {
                         true
                     )
                 )
-                response.button({
-                    command: "genaiscript.request.open.output",
-                    tooltip: "Open generated markdown in Preview mode",
-                    title: "Open Preview",
-                })
             }
+            const buttons = new vscode.MarkdownString(
+                `\n[output](command:genaiscript.request.open.output) | [trace](command:genaiscript.request.open.trace)`,
+                true
+            )
+            buttons.isTrusted = {
+                enabledCommands: [
+                    "genaiscript.request.open.output",
+                    "genaiscript.request.open.trace",
+                ],
+            }
+            response.markdown(buttons)
         }
     )
     participant.iconPath = new vscode.ThemeIcon(ICON_LOGO_NAME)
