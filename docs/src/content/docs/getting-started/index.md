@@ -187,7 +187,7 @@ The file "src/rag/markdown.md" explains that Markdown...
 I'll save the summary to the file `markdown.md.txt`.
 
 FILE markdown.md.txt:
-``` wrap
+```
 The file "src/rag/markdown.md" explains that Markdown....
 ```
 `````
