@@ -1,6 +1,6 @@
 {
   "name": "genaiscript",
-  "version": "1.74.1",
+  "version": "1.75.0",
   "main": "built/genaiscript.cjs",
   "type": "commonjs",
   "bin": {
