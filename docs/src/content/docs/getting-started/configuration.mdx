@@ -70,7 +70,7 @@ GENAISCRIPT_DEFAULT_SMALL_MODEL="azure_serverless:..."
 
 ## `.env` file
 
-GenAIScript uses a `.env` file to store the secrets.
+GenAIScript uses a `.env` file to load secrets and configuration information into the process environment variables.
 
 <Steps>
 
@@ -137,14 +137,36 @@ npx genaiscript ... --env .env.local
 -   by setting the `GENAISCRIPT_ENV_FILE` environment variable.
 
 ```sh
-GENAISCRIPT_ENV_FILE=.env.local npx genaiscript ...
+GENAISCRIPT_ENV_FILE=".env.local" npx genaiscript ...
 ```
 
 -   by specifying the `.env` file location in a [configuration file](/genaiscript/reference/configuration-files).
 
-```yaml file="~/genaiscript.config.yaml"
+```yaml title="~/genaiscript.config.yaml"
 envFile: ~/.env.genaiscript
 ```
+
+### No .env file
+
+If you do not want to use a `.env` file, make sure to populate the environment variables 
+of the genaiscript process with the configuration values.
+
+Here are some common examples:
+
+- Using bash syntax
+
+```sh
+OPENAI_API_KEY="value" npx --yes genaiscript run ...
+```
+
+- GitHub Action configuration
+
+```yaml title=".github/workflows/genaiscript.yml"
+    run: npx --yes genaiscript run ...
+    env:
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+```
+
 
 ## OpenAI
 
