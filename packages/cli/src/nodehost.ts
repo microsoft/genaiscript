@@ -214,7 +214,9 @@ export class NodeHost implements RuntimeHost {
                     options
                 )
                 if (!azureToken)
-                    throw new Error("Azure OpenAI token not available")
+                    throw new Error(
+                        `Azure OpenAI token not available for ${modelId}`
+                    )
                 tok.token = "Bearer " + azureToken.token
             } else if (
                 tok.provider === MODEL_PROVIDER_AZURE_SERVERLESS_MODELS
@@ -223,22 +225,27 @@ export class NodeHost implements RuntimeHost {
                     tok.azureCredentialsType,
                     options
                 )
-                if (!azureToken) throw new Error("Azure AI token not available")
+                if (!azureToken)
+                    throw new Error(
+                        `Azure AI token not available for ${modelId}`
+                    )
                 tok.token = "Bearer " + azureToken.token
             }
         }
         if (!tok) {
             if (!modelId)
                 throw new Error(
-                    "could not determine default model from current configuration"
+                    "Could not determine default model from current configuration"
                 )
             const { provider } = parseModelIdentifier(modelId)
             if (provider === MODEL_PROVIDER_AZURE_OPENAI)
-                throw new Error("Azure OpenAI not configured")
+                throw new Error(`Azure OpenAI not configured for ${modelId}`)
             else if (provider === MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI)
-                throw new Error("Azure AI OpenAI Serverless not configured")
+                throw new Error(
+                    `Azure AI OpenAI Serverless not configured for ${modelId}`
+                )
             else if (provider === MODEL_PROVIDER_AZURE_SERVERLESS_MODELS)
-                throw new Error("Azure AI Models not configured")
+                throw new Error(`Azure AI Models not configured for ${modelId}`)
         }
         if (!tok && this.clientLanguageModel) {
             return <LanguageModelConfiguration>{
