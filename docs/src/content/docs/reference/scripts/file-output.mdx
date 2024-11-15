@@ -63,7 +63,7 @@ $`Comment every line of code and update the file. Use the changelog format.`
 When we run the script on a source file, the LLM generates a changelog that contains the changes to the file.
 GenAIScript will parse this output and generate a file edit similar to a full file update.\
 
-``````md wrap
+````md wrap
 ```changelog
 ChangeLog:1@packages/sample/src/greeter.ts
 Description: Added comments to each line of code to explain functionality.
@@ -126,7 +126,7 @@ ChangedCode@19-20:
 [24] // Create a new instance of Greeter with the message "world"
 [25] let greeter = new Greeter("world")
 ```
-``````
+````
 
 As you can see, the changelog format is much more heavyweight in terms of token; however, it is more reliable at producing edits in large files.
 
@@ -170,6 +170,11 @@ defFileOutput("src/rag/*.keywords.json", "An array of keywords in the file", {
     schema,
 })
 ```
+
+## File output post processing
+
+You can register a callback to programmaticaly manipulate the generate files
+using [defOutputProcessor](/genaiscript/reference/scripts/custom-output/).
 
 ## System prompts <a href="" id="system" />
 
