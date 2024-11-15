@@ -18,6 +18,7 @@ import {
     createOutputProcessor,
     createFileMerge,
     createSystemNode,
+    finalizeMessages,
 } from "./promptdom"
 import { MarkdownTrace } from "./trace"
 import { GenerationOptions } from "./generation"
@@ -730,6 +731,7 @@ export function createChatGenerationContext(
                 addToolDefinitionsMessage(messages, tools)
                 genOptions.fallbackTools = true
             }
+            finalizeMessages(messages, { fileOutputs })
             const connection = await resolveModelConnectionInfo(genOptions, {
                 trace: runTrace,
                 token: true,
