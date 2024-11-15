@@ -1,6 +1,8 @@
-import { GENAI_ANYJS_GLOB } from "../../core/src/constants"
-import { host } from "../../core/src/host"
+import { uniq } from "es-toolkit"
+import { GENAI_ANY_REGEX, GENAI_ANYJS_GLOB } from "../../core/src/constants"
+import { host, runtimeHost } from "../../core/src/host"
 import { parseProject } from "../../core/src/parser"
+import { arrayify } from "../../core/src/util"
 
 /**
  * Asynchronously builds a project by parsing tool files.
@@ -12,15 +14,30 @@ import { parseProject } from "../../core/src/parser"
  */
 export async function buildProject(options?: {
     toolFiles?: string[]
-    toolsPath?: string
+    toolsPath?: string | string[]
 }) {
-    // Destructure options with a default value for toolsPath
-    const { toolFiles, toolsPath = GENAI_ANYJS_GLOB } = options || {}
+    const { toolFiles, toolsPath } = options || {}
+    let scriptFiles: string[] = []
+    if (toolFiles?.length) {
+        scriptFiles = toolFiles
+    } else {
+        let tps = toolsPath
+        if (!tps?.length) {
+            tps = [GENAI_ANYJS_GLOB, ...arrayify(runtimeHost.config.include)]
+        }
+        tps = arrayify(tps)
+        scriptFiles = []
+        for (const tp of tps) {
+            const fs = await host.findFiles(tp)
+            scriptFiles.push(...fs)
+        }
+    }
 
-    // Determine script files to use: either provided or found at the toolsPath
-    const scriptFiles = toolFiles?.length
-        ? toolFiles // Use provided tool files if available
-        : await host.findFiles(toolsPath) // Otherwise, find files at the specified toolsPath
+    // filter out unwanted files
+    scriptFiles = scriptFiles.filter((f) => GENAI_ANY_REGEX.test(f))
+
+    // Ensure that the script files are unique
+    scriptFiles = uniq(scriptFiles)
 
     // Parse the project using the determined script files
     const newProject = await parseProject({
