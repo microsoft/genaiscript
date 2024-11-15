@@ -9,6 +9,11 @@ import { Fragment } from "../../core/src/generation"
 import { cleanMarkdown } from "../../core/src/markdown"
 import { convertAnnotationsToItems } from "../../core/src/annotations"
 import { dedent } from "../../core/src/indent"
+import {
+    ChatCompletionAssistantMessageParam,
+    ChatCompletionUserMessageParam,
+} from "../../core/src/chattypes"
+import { deleteUndefinedValues } from "../../core/src/util"
 
 export async function activateChatParticipant(state: ExtensionState) {
     const { context } = state
@@ -72,6 +77,7 @@ export async function activateChatParticipant(state: ExtensionState) {
                 }
             }
             const { files, vars } = resolveReference(references)
+            const history = renderHistory(context)
             const fragment: Fragment = {
                 files,
             }
@@ -82,10 +88,11 @@ export async function activateChatParticipant(state: ExtensionState) {
             const res = await state.requestAI({
                 template,
                 label: "genaiscript agent",
-                parameters: {
+                parameters: deleteUndefinedValues({
                     ...vars,
+                    history,
                     question: prompt,
-                },
+                }),
                 fragment,
                 mode: "chat",
             })
@@ -121,4 +128,45 @@ export async function activateChatParticipant(state: ExtensionState) {
     participant.iconPath = new vscode.ThemeIcon(ICON_LOGO_NAME)
 
     subscriptions.push(participant)
+}
+
+function renderHistory(context: vscode.ChatContext): string {
+    const { history } = context
+    if (!history?.length) return undefined
+    const res = history
+        .map((message) => {
+            if (message instanceof vscode.ChatRequestTurn) {
+                return {
+                    role: "user",
+                    content: message.prompt,
+                } satisfies ChatCompletionUserMessageParam
+            } else if (message instanceof vscode.ChatResponseTurn) {
+                return {
+                    role: "assistant",
+                    name: message.participant,
+                    content: message.response
+                        .map((r) => {
+                            if (r instanceof vscode.ChatResponseMarkdownPart) {
+                                return r.value.value
+                            } else if (
+                                r instanceof vscode.ChatResponseAnchorPart
+                            ) {
+                                if (r.value instanceof vscode.Uri)
+                                    return vscode.workspace.asRelativePath(
+                                        r.value.fsPath
+                                    )
+                                else
+                                    return vscode.workspace.asRelativePath(
+                                        r.value.uri.fsPath
+                                    )
+                            }
+                            return ""
+                        })
+                        .join(""),
+                } as ChatCompletionAssistantMessageParam
+            } else return undefined
+        })
+        .filter((f) => !!f)
+    if (res.length) return JSON.stringify(res)
+    else return undefined
 }
