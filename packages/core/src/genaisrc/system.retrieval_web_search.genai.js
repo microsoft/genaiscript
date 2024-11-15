@@ -22,7 +22,11 @@ defTool(
     },
     async (args) => {
         const { query, count } = args
-        const webPages = await retrieval.webSearch(query, { count })
+        const webPages = await retrieval.webSearch(query, {
+            count,
+            ignoreMissingProvider: true,
+        })
+        if (!webPages) return "error: no web search provider configured"
         return YAML.stringify(
             webPages.map((f) => ({
                 url: f.filename,

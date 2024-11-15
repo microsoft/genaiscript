@@ -109,7 +109,7 @@ export async function createPromptContext(
     // Define retrieval operations
     const retrieval: Retrieval = {
         webSearch: async (q, options) => {
-            const { provider, count } = options || {}
+            const { provider, count, ignoreMissingProvider } = options || {}
             // Conduct a web search and return the results
             try {
                 trace.startDetails(
@@ -130,10 +130,15 @@ export async function createPromptContext(
                         if (files) break
                     }
                 }
-                if (!files)
+                if (!files) {
+                    if (ignoreMissingProvider) {
+                        trace.log(`no search provider configured`)
+                        return undefined
+                    }
                     throw new Error(
                         `No search provider configured. See ${DOCS_WEB_SEARCH_URL}.`
                     )
+                }
                 trace.files(files, { model, secrets: env.secrets })
                 return files
             } finally {

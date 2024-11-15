@@ -2080,10 +2080,6 @@ interface HighlightOptions {
     maxLength?: number
 }
 
-interface WebSearchResult {
-    webPages: WorkspaceFile[]
-}
-
 interface VectorSearchOptions extends EmbeddingsModelOptions {
     /**
      * Maximum number of embeddings to use
@@ -2144,7 +2140,14 @@ interface Retrieval {
      */
     webSearch(
         query: string,
-        options?: { count?: number; provider?: "tavily" | "bing" }
+        options?: {
+            count?: number
+            provider?: "tavily" | "bing"
+            /**
+             * Return undefined when no web search providers are present
+             */
+            ignoreMissingProvider?: boolean
+        }
     ): Promise<WorkspaceFile[]>
 
     /**
