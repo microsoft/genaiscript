@@ -21,7 +21,7 @@ export async function buildProject(options?: {
     if (toolFiles?.length) {
         scriptFiles = toolFiles
     } else {
-        let tps = toolsPath
+        let tps = arrayify(toolsPath)
         if (!tps?.length) {
             tps = [GENAI_ANYJS_GLOB, ...arrayify(runtimeHost.config.include)]
         }
