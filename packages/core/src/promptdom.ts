@@ -1136,14 +1136,13 @@ ${trimNewlines(schemaText)}
         },
     })
 
-    const fods = fileOutputs?.filter((f) => !!f.description)
-    if (fods?.length > 0) {
+    if (fileOutputs?.length > 0) {
         appendSystem(`
 ## File generation rules
 
 When generating files, use the following rules which are formatted as "file glob: description":
 
-${fods.map((fo) => `   ${fo.pattern}: ${fo.description}`)}
+${fileOutputs.map((fo) => `   ${fo.pattern}: ${fo.description || "generated file"}`)}
 `)
     }
 
