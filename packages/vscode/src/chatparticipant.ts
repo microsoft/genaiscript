@@ -5,6 +5,8 @@ import {
     COPILOT_CHAT_PARTICIPANT_SCRIPT_ID,
     COPILOT_CHAT_PARTICIPANT_ID,
     ICON_LOGO_NAME,
+    CACHE_AIREQUEST_TRACE_PREFIX,
+    CACHE_AIREQUEST_TEXT_PREFIX,
 } from "../../core/src/constants"
 import { Fragment } from "../../core/src/generation"
 import { convertAnnotationsToItems } from "../../core/src/annotations"
@@ -105,14 +107,11 @@ export async function activateChatParticipant(state: ExtensionState) {
             if (status !== "success") md("$(error) " + statusText)
             if (text) md("\n\n" + convertAnnotationsToItems(text))
             const buttons = new vscode.MarkdownString(
-                `\n\n[output](command:genaiscript.request.open.output) | [trace](command:genaiscript.request.open.trace)`,
+                `\n\n[output](command:genaiscript.request.open?${encodeURIComponent(JSON.stringify([CACHE_AIREQUEST_TEXT_PREFIX + res.requestSha + ".md"]))}) | [trace](command:genaiscript.request.open?${encodeURIComponent(JSON.stringify([CACHE_AIREQUEST_TRACE_PREFIX + res.requestSha + ".md"]))})`,
                 true
             )
             buttons.isTrusted = {
-                enabledCommands: [
-                    "genaiscript.request.open.output",
-                    "genaiscript.request.open.trace",
-                ],
+                enabledCommands: ["genaiscript.request.open"],
             }
             response.markdown(buttons)
         }

@@ -82,7 +82,8 @@ export const DEFAULT_EMBEDDINGS_MODEL = "openai:text-embedding-ada-002"
 export const DEFAULT_TEMPERATURE = 0.8
 export const BUILTIN_PREFIX = "_builtin/"
 export const CACHE_LLMREQUEST_PREFIX = "genaiscript/cache/llm/"
-export const CACHE_AIREQUEST_PREFIX = "genaiscript/cache/ai/"
+export const CACHE_AIREQUEST_TRACE_PREFIX = "genaiscript/cache/ai/trace/"
+export const CACHE_AIREQUEST_TEXT_PREFIX = "genaiscript/cache/ai/text/"
 export const TRACE_NODE_PREFIX = "genaiscript/trace/"
 export const EXTENSION_ID = "genaiscript.genaiscript-vscode"
 export const COPILOT_CHAT_PARTICIPANT_ID = TOOL_ID
@@ -96,7 +97,7 @@ export const MAX_DATA_REPAIRS = 1
 export const NPM_CLI_PACKAGE = "genaiscript"
 export const AICI_CONTROLLER = "gh:microsoft/aici/jsctrl"
 export const ICON_LOGO_NAME = "genaiscript-logo"
-export const SARIFF_RULEID_PREFIX = "genascript/"
+export const SARIFF_RULEID_PREFIX = "genaiscript/"
 export const SARIFF_BUILDER_URL = "https://github.com/microsoft/genaiscript/"
 export const SARIFF_BUILDER_TOOL_DRIVER_NAME = TOOL_ID
 export const FETCH_RETRY_DEFAULT = 5
@@ -203,7 +204,8 @@ export const DOCS_WEB_SEARCH_URL =
     "https://microsoft.github.io/genaiscript/reference/scripts/web-search/"
 export const DOCS_WEB_SEARCH_BING_SEARCH_URL =
     "https://microsoft.github.io/genaiscript/reference/scripts/web-search/#bingn"
-export const DOCS_WEB_SEARCH_TAVILY_URL = "https://microsoft.github.io/genaiscript/reference/scripts/web-search/#tavily"
+export const DOCS_WEB_SEARCH_TAVILY_URL =
+    "https://microsoft.github.io/genaiscript/reference/scripts/web-search/#tavily"
 
 export const MODEL_PROVIDERS = Object.freeze([
     {

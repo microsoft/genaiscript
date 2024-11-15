@@ -7,7 +7,7 @@ import {
 import { infoUri } from "./markdowndocumentprovider"
 import { toMarkdownString } from "./markdown"
 import { CacheEntry, JSONLineCache } from "../../core/src/cache"
-import { CHANGE, CACHE_AIREQUEST_PREFIX } from "../../core/src/constants"
+import { CHANGE, CACHE_AIREQUEST_TRACE_PREFIX } from "../../core/src/constants"
 
 type AIRequestTreeNode = CacheEntry<AIRequestSnapshotKey, AIRequestSnapshot>
 
@@ -30,7 +30,7 @@ class AIRequestTreeDataProvider
         item.id = sha
         item.command = {
             command: "markdown.showPreview",
-            arguments: [infoUri(CACHE_AIREQUEST_PREFIX + sha + ".md")],
+            arguments: [infoUri(CACHE_AIREQUEST_TRACE_PREFIX + sha + ".md")],
             title: "Show Trace",
         }
         return item
