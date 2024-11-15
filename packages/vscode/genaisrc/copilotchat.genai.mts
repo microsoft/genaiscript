@@ -46,6 +46,7 @@ script({
 const { question } = env.vars
 const editor = env.vars["copilot.editor"]
 const selection = env.vars["copilot.selection"]
+const history = env.vars["copilot.history"]
 
 $`## Tasks
 

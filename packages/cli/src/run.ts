@@ -82,6 +82,7 @@ import { traceAgentMemory } from "../../core/src/agent"
 import { appendFile } from "node:fs/promises"
 import { parseOptionsVars } from "./vars"
 import { logprobColor } from "../../core/src/logprob"
+import { structuralMerge } from "../../core/src/merge"
 
 async function setupTraceWriting(trace: MarkdownTrace, filename: string) {
     logVerbose(`trace: ${filename}`)
@@ -281,7 +282,10 @@ export async function runScript(
     const fragment: Fragment = {
         files: Array.from(resolvedFiles),
     }
-    const vars = parseOptionsVars(options.vars, process.env)
+    const vars = structuralMerge(
+        options.varsMap || {},
+        parseOptionsVars(options.vars, process.env)
+    )
     const stats = new GenerationStats("")
     try {
         if (options.label) trace.heading(2, options.label)

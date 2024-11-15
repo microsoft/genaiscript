@@ -2201,6 +2201,18 @@ interface DefSchemaOptions {
 
 type ChatFunctionArgs = { context: ToolCallContext } & Record<string, any>
 type ChatFunctionHandler = (args: ChatFunctionArgs) => Awaitable<ToolCallOutput>
+type ChatMessageRole = "user" | "assistant" | "system"
+
+interface HistoryMessageUser {
+    role: "user"
+    content: string
+}
+
+interface HistoryMessageAssistant {
+    role: "assistant"
+    name?: string
+    content: string
+}
 
 interface WriteTextOptions extends ContextExpansionOptions {
     /**
@@ -2211,7 +2223,7 @@ interface WriteTextOptions extends ContextExpansionOptions {
     /**
      * Specifies the message role. Default is user
      */
-    role?: "user" | "assistant" | "system"
+    role?: ChatMessageRole
 }
 
 type PromptGenerator = (ctx: ChatGenerationContext) => Awaitable<unknown>

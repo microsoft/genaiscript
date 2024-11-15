@@ -102,7 +102,7 @@ export async function activateChatParticipant(state: ExtensionState) {
                 label: "genaiscript agent",
                 parameters: deleteUndefinedValues({
                     ...vars,
-                    history,
+                    ["copilot.history"]: history,
                     question: prompt,
                 }),
                 fragment,
@@ -129,7 +129,9 @@ export async function activateChatParticipant(state: ExtensionState) {
     subscriptions.push(participant)
 }
 
-function renderHistory(context: vscode.ChatContext): string {
+function renderHistory(
+    context: vscode.ChatContext
+): (HistoryMessageUser | HistoryMessageAssistant)[] {
     const { history } = context
     if (!history?.length) return undefined
     const res = history
@@ -138,7 +140,7 @@ function renderHistory(context: vscode.ChatContext): string {
                 return {
                     role: "user",
                     content: message.prompt,
-                } satisfies ChatCompletionUserMessageParam
+                } satisfies HistoryMessageUser
             } else if (message instanceof vscode.ChatResponseTurn) {
                 return {
                     role: "assistant",
@@ -162,10 +164,9 @@ function renderHistory(context: vscode.ChatContext): string {
                             return ""
                         })
                         .join(""),
-                } as ChatCompletionAssistantMessageParam
+                } as HistoryMessageAssistant
             } else return undefined
         })
         .filter((f) => !!f)
-    if (res.length) return JSON.stringify(res)
-    else return undefined
+    return res.length ? res : undefined
 }
