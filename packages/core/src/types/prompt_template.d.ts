@@ -762,7 +762,24 @@ interface ExpansionVariables {
     /**
      * User defined variables
      */
-    vars: Record<string, string | boolean | number | object | any>
+    vars: Record<string, string | boolean | number | object | any> & {
+        /**
+         * When running in GitHub Copilot Chat, the current user prompt
+         */
+        question?: string
+        /**
+         * When running in GitHub Copilot Chat, the current chat history
+         */
+        "copilot.history"?: (HistoryMessageUser | HistoryMessageAssistant)[]
+        /**
+         * When running in GitHub Copilot Chat, the current editor content
+         */
+        "copilot.editor"?: string
+        /**
+         * When running in GitHub Copilot Chat, the current selection
+         */
+        "copilot.selection"?: string
+    }
 
     /**
      * List of secrets used by the prompt, must be registered in `genaiscript`.
@@ -2201,6 +2218,18 @@ interface DefSchemaOptions {
 
 type ChatFunctionArgs = { context: ToolCallContext } & Record<string, any>
 type ChatFunctionHandler = (args: ChatFunctionArgs) => Awaitable<ToolCallOutput>
+type ChatMessageRole = "user" | "assistant" | "system"
+
+interface HistoryMessageUser {
+    role: "user"
+    content: string
+}
+
+interface HistoryMessageAssistant {
+    role: "assistant"
+    name?: string
+    content: string
+}
 
 interface WriteTextOptions extends ContextExpansionOptions {
     /**
@@ -2211,7 +2240,7 @@ interface WriteTextOptions extends ContextExpansionOptions {
     /**
      * Specifies the message role. Default is user
      */
-    role?: "user" | "assistant" | "system"
+    role?: ChatMessageRole
 }
 
 type PromptGenerator = (ctx: ChatGenerationContext) => Awaitable<unknown>

@@ -2,11 +2,11 @@ import { homedir } from "os"
 import { existsSync, readFileSync } from "fs"
 import { YAMLTryParse } from "./yaml"
 import { JSON5TryParse } from "./json5"
-import mergeDescriptors from "merge-descriptors"
 import { DOT_ENV_FILENAME, TOOL_ID } from "./constants"
 import { resolve } from "path"
 import { validateJSONWithSchema } from "./schema"
 import { HostConfiguration } from "./hostconfiguration"
+import { structuralMerge } from "./merge"
 
 export async function resolveGlobalConfiguration(
     dotEnvPath?: string
@@ -41,7 +41,7 @@ export async function resolveGlobalConfiguration(
                 })
                 if (validation.schemaError)
                     throw new Error(validation.schemaError)
-                config = mergeDescriptors(config, parsed)
+                config = structuralMerge(config, parsed)
             }
         }
     }

@@ -82,6 +82,8 @@ export interface PromptScriptRunOptions {
     jsSource: string
     logprobs: boolean
     topLogprobs: number
+
+    varsMap?: Record<string, string | boolean | number | object>
 }
 
 export interface PromptScriptStart extends RequestMessage {

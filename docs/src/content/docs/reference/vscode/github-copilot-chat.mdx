@@ -26,7 +26,7 @@ passed to the script as the `env.vars.question` variable.
 ```
 
 If you omit the `/run` command, GenAIScript will look for a script named `copilotchat`. If it finds one, it will run it.
-Otherwise, it will propose you to create a new script.
+Otherwise, it will ask you to pick a script from the list of available scripts.
 
 ```sh
 @genaiscript add comments to the current editor
@@ -39,7 +39,24 @@ The context selected by the user in Copilot Chat is converted to variables and p
 -   the prompt content is passed in `env.vars.question`. The script id is removed in the case of `/run`.
 -   the current editor text is passed in `env.vars["copilot.editor"]`
 -   the current editor selection is passed in `env.vars["copilot.selection"]`
--   the file references are passed in `env.files`
+-   all other file references are passed in `env.files`
+
+### History
+
+The history of messages is passed in `env.vars["copilot.history"]`. It is an array of `HistoryMessageUser | HistoryMessageAssistant`:
+
+```json
+[
+    {
+        "role": "user",
+        "content": "write a poem"
+    },
+    {
+        "role": "assistant",
+        "content": "I am an assistant"
+    }
+]
+```
 
 ## Default script <a id="copilotchat" href="" />
 
@@ -51,3 +68,10 @@ The following script can used as a starter template to create the default script
     lang="ts"
     title="genaisrc/copilotchat.genai.mts"
 />
+
+## Unsupported features
+
+The following features are currently not supported in the chat participant:
+
+- Tools (`#tool`)
+- `Workspace` reference
