@@ -2386,7 +2386,7 @@ interface ChatGenerationContext extends ChatTurnGenerationContext {
     ): void
     defFileOutput(
         pattern: ElementOrArray<string | WorkspaceFile>,
-        description?: string,
+        description: string,
         options?: FileOutputOptions
     ): void
     runPrompt(

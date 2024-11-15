@@ -1136,17 +1136,6 @@ ${trimNewlines(schemaText)}
         },
     })
 
-    const fods = fileOutputs?.filter((f) => !!f.description)
-    if (fods?.length > 0) {
-        appendSystem(`
-## File generation rules
-
-When generating files, use the following rules which are formatted as "file glob: description":
-
-${fods.map((fo) => `   ${fo.pattern}: ${fo.description}`)}
-`)
-    }
-
     const res = Object.freeze<PromptNodeRender>({
         images,
         schemas,
@@ -1159,4 +1148,23 @@ ${fods.map((fo) => `   ${fo.pattern}: ${fo.description}`)}
         fileOutputs,
     })
     return res
+}
+
+export function finalizeMessages(
+    messages: ChatCompletionMessageParam[],
+    options?: { fileOutputs?: FileOutput[] }
+) {
+    const { fileOutputs } = options || {}
+    if (fileOutputs?.length > 0) {
+        appendSystemMessage(
+            messages,
+            `
+## File generation rules
+
+When generating files, use the following rules which are formatted as "file glob: description":
+
+${fileOutputs.map((fo) => `   ${fo.pattern}: ${fo.description || "generated file"}`)}
+`
+        )
+    }
 }

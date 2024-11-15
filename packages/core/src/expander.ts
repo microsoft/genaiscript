@@ -8,7 +8,7 @@ import {
     MODEL_PROVIDER_AICI,
     PROMPTY_REGEX,
 } from "./constants"
-import { PromptImage, renderPromptNode } from "./promptdom"
+import { finalizeMessages, PromptImage, renderPromptNode } from "./promptdom"
 import { createPromptContext } from "./promptcontext"
 import { evalPrompt } from "./evalprompt"
 import { renderAICI } from "./aici"
@@ -359,6 +359,9 @@ ${schemaTs}
         // try conversion
         toStrictJSONSchema(responseSchema)
     }
+
+    finalizeMessages(messages, { fileOutputs })
+
     trace.endDetails()
 
     return {

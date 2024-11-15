@@ -179,7 +179,9 @@ export class ExtensionState extends EventTarget {
         this.dispatchChange()
     }
 
-    async requestAI(options: AIRequestOptions): Promise<GenerationResult> {
+    async requestAI(
+        options: AIRequestOptions
+    ): Promise<GenerationResult & { requestSha: string }> {
         try {
             const req = await this.startAIRequest(options)
             if (!req) {
@@ -200,31 +202,31 @@ export class ExtensionState extends EventTarget {
                     )
             }
 
-            const key = await this.snapshotAIRequestKey(req)
+            const { key, sha } = await this.snapshotAIRequestKey(req)
             const snapshot = snapshotAIRequest(req)
             await this._aiRequestCache.set(key, snapshot)
             this.setDiagnostics()
             this.dispatchChange()
 
             if (edits?.length && options.mode != "notebook") this.applyEdits()
-            return res
+            return { ...res, requestSha: sha }
         } catch (e) {
             if (isCancelError(e)) return undefined
             throw e
         }
     }
 
-    private async snapshotAIRequestKey(
-        r: AIRequest
-    ): Promise<AIRequestSnapshotKey> {
+    private async snapshotAIRequestKey(r: AIRequest) {
         const { options } = r
-        const key = {
+        const key: AIRequestSnapshotKey = {
             template: {
                 id: options.template.id,
                 title: options.template.title,
                 hash: await hash(
                     {
                         template: options.template,
+                        parameters: options.parameters,
+                        mode: options.mode,
                     },
                     { version: true }
                 ),
@@ -232,7 +234,7 @@ export class ExtensionState extends EventTarget {
             fragment: options.fragment,
             version: CORE_VERSION,
         }
-        return key
+        return { key, sha: await this._aiRequestCache.getKeySHA(key) }
     }
 
     private async startAIRequest(

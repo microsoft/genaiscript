@@ -13,7 +13,7 @@ const file = env.files[0]
 defImages(file)
 // task
 $`You are an expert in assistive technology. You will analyze each image 
-and generate a description alt text for the image.
+and generate a description alt text for the image and save it to a file.
 - Do not include Alt text in the description.`
 // output
 defFileOutput(file.filename + ".txt", `Alt text for image ${file.filename}`)
