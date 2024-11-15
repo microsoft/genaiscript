@@ -1,3 +1,4 @@
+// cspell: disable
 import * as vscode from "vscode"
 import { ExtensionState } from "./state"
 import {
@@ -6,9 +7,8 @@ import {
     ICON_LOGO_NAME,
 } from "../../core/src/constants"
 import { Fragment } from "../../core/src/generation"
-import { cleanMarkdown } from "../../core/src/markdown"
 import { convertAnnotationsToItems } from "../../core/src/annotations"
-import { dedent } from "../../core/src/indent"
+import { templatesToQuickPickItems } from "./fragmentcommands"
 
 export async function activateChatParticipant(state: ExtensionState) {
     const { context } = state
@@ -42,15 +42,19 @@ export async function activateChatParticipant(state: ExtensionState) {
             await state.parseWorkspace()
             if (token.isCancellationRequested) return
 
+            const md = (t: string) => {
+                response.markdown(new vscode.MarkdownString(t, true))
+            }
+
+            const { project } = state
+            const { templates } = project
             let template: PromptScript
             if (command === "run") {
                 const scriptid = prompt.split(" ")[0]
                 prompt = prompt.slice(scriptid.length).trim()
-                template = state.project.templates.find(
-                    (t) => t.id === scriptid
-                )
+                template = templates.find((t) => t.id === scriptid)
                 if (!template) {
-                    response.markdown(dedent`Oops, I could not find any genaiscript matching \`${scriptid}\`. Try one of the following:
+                    md(`$(error) Oops, I could not find any genaiscript matching \`${scriptid}\`. Try one of the following:
                     ${state.project.templates
                         .filter((s) => !s.system && !s.unlisted)
                         .map((s) => `- \`${s.id}\`: ${s.title}`)
@@ -63,12 +67,17 @@ export async function activateChatParticipant(state: ExtensionState) {
                     (t) => t.id === COPILOT_CHAT_PARTICIPANT_SCRIPT_ID
                 )
                 if (!template) {
-                    response.markdown(
-                        dedent`The \`${COPILOT_CHAT_PARTICIPANT_SCRIPT_ID}\` script has not been configured yet in this workspace.
-
-                        Save the [starter script template](https://microsoft.github.io/genaiscript/reference/vscode/github-copilot-chat#copilotchat) in your workspace to get started.`
+                    const picked = await vscode.window.showQuickPick(
+                        templatesToQuickPickItems(templates),
+                        {
+                            title: `Pick a GenAIScript to run`,
+                        }
                     )
-                    return
+                    template = picked?.template
+                    if (!template) {
+                        md(`\n\n$(error) Cancelled, no script selected.`)
+                        return
+                    }
                 }
             }
             const { files, vars } = resolveReference(references)
@@ -93,20 +102,10 @@ export async function activateChatParticipant(state: ExtensionState) {
             if (token.isCancellationRequested) return
 
             const { text = "", status, statusText } = res || {}
-            if (status !== "success")
-                response.markdown(
-                    new vscode.MarkdownString("$(error) " + statusText, true)
-                )
-            if (text) {
-                response.markdown(
-                    new vscode.MarkdownString(
-                        cleanMarkdown(convertAnnotationsToItems(text)),
-                        true
-                    )
-                )
-            }
+            if (status !== "success") md("$(error) " + statusText)
+            if (text) md("\n\n" + convertAnnotationsToItems(text))
             const buttons = new vscode.MarkdownString(
-                `\n[output](command:genaiscript.request.open.output) | [trace](command:genaiscript.request.open.trace)`,
+                `\n\n[output](command:genaiscript.request.open.output) | [trace](command:genaiscript.request.open.trace)`,
                 true
             )
             buttons.isTrusted = {
