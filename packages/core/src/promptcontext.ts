@@ -26,7 +26,6 @@ import { proxifyVars } from "./parameters"
 import { HTMLEscape } from "./html"
 import { hash } from "./crypto"
 import { resolveModelConnectionInfo } from "./models"
-import { createAzureContentSafetyClient } from "./azurecontentsafety"
 import { DOCS_WEB_SEARCH_URL } from "./constants"
 
 /**
@@ -117,12 +116,17 @@ export async function createPromptContext(
                     `🌐 web search <code>${HTMLEscape(q)}</code>`
                 )
                 let files: WorkspaceFile[]
-                if (provider === "bing") files = await bingSearch(q, { trace, count })
+                if (provider === "bing")
+                    files = await bingSearch(q, { trace, count })
                 else if (provider === "tavily")
                     files = await tavilySearch(q, { trace, count })
                 else {
                     for (const f of [bingSearch, tavilySearch]) {
-                        files = await f(q, { ignoreMissingApiKey: true, trace, count })
+                        files = await f(q, {
+                            ignoreMissingApiKey: true,
+                            trace,
+                            count,
+                        })
                         if (files) break
                     }
                 }

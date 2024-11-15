@@ -70,53 +70,64 @@ export async function bingSearch(
         )
     }
 
-    // Construct the query string using provided and default parameters.
-    const query = toURLSearchParams({
-        q,
-        count,
-        cc,
-        freshness,
-        responseFilter,
-        safeSearch,
-    })
+    try {
+        trace?.startDetails(`bing: search`)
+        trace?.itemValue(`query`, q)
+        // Construct the query string using provided and default parameters.
+        const query = toURLSearchParams({
+            q,
+            count,
+            cc,
+            freshness,
+            responseFilter,
+            safeSearch,
+        })
 
-    // Construct the full URL for the search request.
-    const url = endPoint + "?" + query
+        // Construct the full URL for the search request.
+        const url = endPoint + "?" + query
 
-    // Create a fetch function for making the HTTP request.
-    const fetch = await createFetch({ trace })
-    const res = await fetch(url, {
-        method: "GET",
-        headers: {
-            "Ocp-Apim-Subscription-Key": apiKey,
-        },
-    })
+        // Create a fetch function for making the HTTP request.
+        const fetch = await createFetch({ trace })
+        const res = await fetch(url, {
+            method: "GET",
+            headers: {
+                "Ocp-Apim-Subscription-Key": apiKey,
+            },
+        })
 
-    // Log the search response status for tracing purposes.
-    trace?.itemValue(`Bing search`, res.status + " " + res.statusText)
+        // Log the search response status for tracing purposes.
+        trace?.itemValue(`status`, res.status + " " + res.statusText)
 
-    // Throw an error if the response is not OK, and log details for debugging.
-    if (!res.ok) {
-        trace?.detailsFenced("error response", await res.text())
-        throw new Error(`Bing search failed: ${res.status} ${res.statusText}`)
-    }
-
-    // Parse and return the JSON response, logging the results.
-    const json = (await res.json()) as {
-        webPages?: {
-            value: {
-                snippet: string
-                url: string
-            }[]
+        // Throw an error if the response is not OK, and log details for debugging.
+        if (!res.ok) {
+            trace?.detailsFenced("error response", await res.text())
+            throw new Error(
+                `Bing search failed: ${res.status} ${res.statusText}`
+            )
         }
+
+        // Parse and return the JSON response, logging the results.
+        const json = (await res.json()) as {
+            webPages?: {
+                value: {
+                    snippet: string
+                    url: string
+                }[]
+            }
+        }
+        trace?.detailsFenced("results", json, "yaml")
+        return (
+            json.webPages?.value?.map(
+                ({ snippet, url }) =>
+                    ({
+                        filename: url,
+                        content: snippet,
+                    }) satisfies WorkspaceFile
+            ) || []
+        )
+    } finally {
+        trace?.endDetails()
     }
-    trace?.detailsFenced("results", json, "yaml")
-    return (
-        json.webPages?.value?.map(
-            ({ snippet, url }) =>
-                ({ filename: url, content: snippet }) satisfies WorkspaceFile
-        ) || []
-    )
 }
 
 /**
@@ -156,44 +167,54 @@ export async function tavilySearch(
         )
     }
 
-    // Construct the query string using provided and default parameters.
-    const body = deleteUndefinedValues({
-        query: q,
-        api_key: apiKey,
-        max_results: count,
-    })
+    try {
+        logVerbose(`tavily: search '${q}'`)
+        trace?.startDetails(`tavily: search`)
+        trace?.itemValue(`query`, q)
 
-    // Create a fetch function for making the HTTP request.
-    const fetch = await createFetch({ trace })
-    const res = await fetch(endPoint, {
-        method: "POST",
-        headers: {
-            ["Content-Type"]: "application/json",
-            Accept: "application/json",
-        },
-        retryOn: [429],
-        body: JSON.stringify(body),
-    })
+        // Construct the query string using provided and default parameters.
+        const body = deleteUndefinedValues({
+            query: q,
+            api_key: apiKey,
+            max_results: count,
+        })
 
-    // Log the search response status for tracing purposes.
-    trace?.itemValue(`Tavily search`, res.status + " " + res.statusText)
+        // Create a fetch function for making the HTTP request.
+        const fetch = await createFetch({ trace })
+        const res = await fetch(endPoint, {
+            method: "POST",
+            headers: {
+                ["Content-Type"]: "application/json",
+                Accept: "application/json",
+            },
+            retryOn: [429],
+            body: JSON.stringify(body),
+        })
 
-    // Throw an error if the response is not OK, and log details for debugging.
-    if (!res.ok) {
-        const err = await res.text()
-        trace?.detailsFenced("error response", err)
-        logVerbose(err)
-        throw new Error(`Tavily search failed: ${res.status} ${res.statusText}`)
+        // Log the search response status for tracing purposes.
+        trace?.itemValue(`status`, res.status + " " + res.statusText)
+
+        // Throw an error if the response is not OK, and log details for debugging.
+        if (!res.ok) {
+            const err = await res.text()
+            trace?.detailsFenced("error response", err)
+            logVerbose(err)
+            throw new Error(
+                `Tavily search failed: ${res.status} ${res.statusText}`
+            )
+        }
+
+        // Parse and return the JSON response, logging the results.
+        const json: {
+            query: string
+            results: { url: string; content: string }[]
+        } = await res.json()
+        trace?.detailsFenced("results", json, "yaml")
+        return json.results.map(
+            ({ url, content }) =>
+                ({ filename: url, content }) satisfies WorkspaceFile
+        )
+    } finally {
+        trace?.endDetails()
     }
-
-    // Parse and return the JSON response, logging the results.
-    const json: {
-        query: string
-        results: { url: string; content: string }[]
-    } = await res.json()
-    trace?.detailsFenced("results", json, "yaml")
-    return json.results.map(
-        ({ url, content }) =>
-            ({ filename: url, content }) satisfies WorkspaceFile
-    )
 }

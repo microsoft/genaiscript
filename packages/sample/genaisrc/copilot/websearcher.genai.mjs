@@ -1,5 +1,6 @@
 const res = await retrieval.webSearch(env.vars.question)
+def("QUESTION", env.vars.question)
 def("WEB_SEARCH", res)
 def("FILE", env.files, { ignoreEmpty: true})
 
-$`Summarize the content of WEB_SEARCH and use the content of FILE to ground your answer.`
+$`Answer QUESTION using WEB_SEARCH and FILE.`
