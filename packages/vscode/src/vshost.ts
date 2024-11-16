@@ -12,6 +12,7 @@ import {
     DEFAULT_MODEL,
     DEFAULT_SMALL_MODEL,
     DEFAULT_TEMPERATURE,
+    DEFAULT_VISION_MODEL,
 } from "../../core/src/constants"
 import { dotEnvTryParse } from "../../core/src/dotenv"
 import {
@@ -32,6 +33,7 @@ export class VSCodeHost extends EventTarget implements Host {
     readonly defaultModelOptions = {
         model: DEFAULT_MODEL,
         smallModel: DEFAULT_SMALL_MODEL,
+        visionModel: DEFAULT_VISION_MODEL,
         temperature: DEFAULT_TEMPERATURE,
     }
     readonly defaultEmbeddingsModelOptions = {

@@ -345,11 +345,12 @@ ${fenceMD(content, " ")}
             logWarn(
                 `tool: ${tool.spec.name} response too long (${toolContentTokens} tokens), truncating ${maxToolContentTokens} tokens`
             )
-            toolContent = truncateTextToTokens(
-                toolContent,
-                maxToolContentTokens,
-                encoder
-            ) + "... (truncated)"
+            toolContent =
+                truncateTextToTokens(
+                    toolContent,
+                    maxToolContentTokens,
+                    encoder
+                ) + "... (truncated)"
         }
         trace.fence(toolContent, "markdown")
         toolResult.push(toolContent)
@@ -744,6 +745,10 @@ export function mergeGenerationOptions(
             runOptions?.smallModel ??
             options?.smallModel ??
             host.defaultModelOptions.smallModel,
+        visionModel:
+            runOptions?.visionModel ??
+            options?.visionModel ??
+            host.defaultModelOptions.visionModel,
         temperature:
             runOptions?.temperature ?? host.defaultModelOptions.temperature,
         embeddingsModel:

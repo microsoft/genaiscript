@@ -30,6 +30,7 @@ import {
     AZURE_AI_INFERENCE_TOKEN_SCOPES,
     MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI,
     DOT_ENV_FILENAME,
+    DEFAULT_VISION_MODEL,
 } from "../../core/src/constants"
 import { tryReadText } from "../../core/src/fs"
 import {
@@ -141,6 +142,7 @@ export class NodeHost implements RuntimeHost {
     readonly defaultModelOptions = {
         model: DEFAULT_MODEL,
         smallModel: DEFAULT_SMALL_MODEL,
+        visionModel: DEFAULT_VISION_MODEL,
         temperature: DEFAULT_TEMPERATURE,
     }
     readonly defaultEmbeddingsModelOptions = {

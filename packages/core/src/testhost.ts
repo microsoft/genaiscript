@@ -22,6 +22,7 @@ import {
     DEFAULT_MODEL,
     DEFAULT_SMALL_MODEL,
     DEFAULT_TEMPERATURE,
+    DEFAULT_VISION_MODEL,
 } from "./constants"
 import {
     dirname,
@@ -73,6 +74,7 @@ export class TestHost implements RuntimeHost {
     readonly defaultModelOptions = {
         model: DEFAULT_MODEL,
         smallModel: DEFAULT_SMALL_MODEL,
+        visionModel: DEFAULT_VISION_MODEL,
         temperature: DEFAULT_TEMPERATURE,
     }
     // Default options for embeddings models

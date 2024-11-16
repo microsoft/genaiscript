@@ -15,10 +15,12 @@ export async function imageEncodeForLLM(
 ) {
     // Dynamically import the Jimp library and its alignment enums
     const { Jimp, HorizontalAlign, VerticalAlign } = await import("jimp")
-    const { autoCrop, maxHeight, maxWidth } = options
+    let { autoCrop, maxHeight, maxWidth } = options
 
     // If the URL is a string, resolve it to a data URI
     if (typeof url === "string") url = await resolveFileDataUri(url)
+
+    // https://platform.openai.com/docs/guides/vision/calculating-costs#managing-images
 
     // Return the URL if no image processing is required
     if (

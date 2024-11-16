@@ -206,6 +206,8 @@ export async function runScript(
     if (options.model) host.defaultModelOptions.model = options.model
     if (options.smallModel)
         host.defaultModelOptions.smallModel = options.smallModel
+    if (options.visionModel)
+        host.defaultModelOptions.visionModel = options.visionModel
 
     const fail = (msg: string, exitCode: number, url?: string) => {
         logError(url ? `${msg} (see ${url})` : msg)

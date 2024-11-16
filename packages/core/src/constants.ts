@@ -53,6 +53,7 @@ export const RETRIEVAL_PERSIST_DIR = "retrieval"
 export const HIGHLIGHT_LENGTH = 4000
 export const SMALL_MODEL_ID = "small"
 export const LARGE_MODEL_ID = "large"
+export const VISION_MODEL_ID = "vision"
 export const DEFAULT_MODEL = "openai:gpt-4o"
 export const DEFAULT_MODEL_CANDIDATES = [
     "azure:gpt-4o",
@@ -61,6 +62,14 @@ export const DEFAULT_MODEL_CANDIDATES = [
     "anthropic:claude-2",
     "github:gpt-4o",
     "client:gpt-4",
+]
+export const DEFAULT_VISION_MODEL = "openai:gpt-4o"
+export const DEFAULT_VISION_MODEL_CANDIDATES = [
+    "azure:gpt-4o",
+    "azure_serverless:gpt-4o",
+    DEFAULT_MODEL,
+    "anthropic:claude-2",
+    "github:gpt-4o",
 ]
 export const DEFAULT_SMALL_MODEL = "openai:gpt-4o-mini"
 export const DEFAULT_SMALL_MODEL_CANDIDATES = [

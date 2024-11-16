@@ -96,8 +96,9 @@ export async function cli() {
         .command("run")
         .description("Runs a GenAIScript against files.")
         .arguments("<script> [files...]")
-        .option("-m, --model <string>", "model for the run")
-        .option("-sm, --small-model <string>", "small model for the run")
+        .option("-m, --model <string>", "'large' model alias (default)")
+        .option("-sm, --small-model <string>", "'small' alias model")
+        .option("-vm, --vision-model <string>", "'vision' alias model")
         .option("-lp, --logprobs", "enable reporting token probabilities")
         .option(
             "-tlp, --top-logprobs <number>",
