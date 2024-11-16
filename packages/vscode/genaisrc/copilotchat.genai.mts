@@ -52,7 +52,8 @@ const history = env.vars["copilot.history"]
 
 $`## Tasks
 
-- make a plan to answer the QUESTION step by step using the information in the Context section
+- make a plan to answer the QUESTION step by step 
+  using the information in the Context section
 - answer the QUESTION
 
 ## Output
@@ -77,6 +78,8 @@ $`## Context`
 
 // Define a variable FILE with the file data from the environment variables
 // The { ignoreEmpty: true, flex: 1 } options specify to ignore empty files and to use flexible token allocation
+if (history?.length > 0)
+    defData("HISTORY", history, { flex: 1, format: "yaml", sliceTail: 10 })
 def("FILE", env.files, {
     lineNumbers: false,
     ignoreEmpty: true,
