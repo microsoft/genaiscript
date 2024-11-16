@@ -779,6 +779,10 @@ interface ExpansionVariables {
          * When running in GitHub Copilot Chat, the current selection
          */
         "copilot.selection"?: string
+        /**
+         * When running in GitHub Copilot Chat, the current terminal content
+         */
+        "copilot.terminalSelection?": string
     }
 
     /**
