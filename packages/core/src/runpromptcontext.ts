@@ -19,6 +19,7 @@ import {
     createFileMerge,
     createSystemNode,
     finalizeMessages,
+    PromptImage,
 } from "./promptdom"
 import { MarkdownTrace } from "./trace"
 import { GenerationOptions } from "./generation"
@@ -39,6 +40,7 @@ import {
     appendSystemMessage,
     executeChatSession,
     mergeGenerationOptions,
+    toChatCompletionUserMessage,
     tracePromptResult,
 } from "./chat"
 import { checkCancelled } from "./cancellation"
@@ -621,6 +623,7 @@ export function createChatGenerationContext(
             let tools: ToolCallback[] = undefined
             let schemas: Record<string, JSONSchema> = undefined
             let chatParticipants: ChatParticipant[] = undefined
+            const images: PromptImage[] = []
             const fileMerges: FileMergeHandler[] = []
             const outputProcessors: PromptOutputProcessorHandler[] = []
             const fileOutputs: FileOutput[] = []
@@ -641,6 +644,7 @@ export function createChatGenerationContext(
                     fileMerges: fms,
                     outputProcessors: ops,
                     fileOutputs: fos,
+                    images: imgs,
                 } = await renderPromptNode(genOptions.model, node, {
                     flexTokens: genOptions.flexTokens,
                     trace: runTrace,
@@ -653,6 +657,7 @@ export function createChatGenerationContext(
                 fileMerges.push(...fms)
                 outputProcessors.push(...ops)
                 fileOutputs.push(...fos)
+                images.push(...imgs)
 
                 if (errors?.length) {
                     logError(errors.map((err) => errorMessage(err)).join("\n"))
@@ -731,6 +736,9 @@ export function createChatGenerationContext(
                 addToolDefinitionsMessage(messages, tools)
                 genOptions.fallbackTools = true
             }
+            if (images?.length)
+                messages.push(toChatCompletionUserMessage("", images))
+
             finalizeMessages(messages, { fileOutputs })
             const connection = await resolveModelConnectionInfo(genOptions, {
                 trace: runTrace,

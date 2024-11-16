@@ -125,7 +125,7 @@ export interface Host {
 
     // read a secret from the environment or a .env file
     defaultModelOptions: Required<
-        Pick<ModelOptions, "model" | "smallModel" | "temperature">
+        Pick<ModelOptions, "model" | "smallModel" | "visionModel" | "temperature">
     >
     defaultEmbeddingsModelOptions: Required<
         Pick<EmbeddingsModelOptions, "embeddingsModel">

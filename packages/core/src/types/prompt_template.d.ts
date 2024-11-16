@@ -121,6 +121,7 @@ type PromptTemplateResponseType = "json_object" | "json_schema" | undefined
 type ModelType = OptionsOrString<
     | "large"
     | "small"
+    | "vision"
     | "openai:gpt-4o"
     | "openai:gpt-4o-mini"
     | "openai:gpt-3.5-turbo"
@@ -156,6 +157,10 @@ type ModelSmallType = OptionsOrString<
     | "github:AI21-Jamba-1-5-Mini"
 >
 
+type ModelVisionType = OptionsOrString<
+    "openai:gpt-4o" | "github:gpt-4o" | "azure:gpt-4o" | "azure:gpt-4o-mini"
+>
+
 interface ModelConnectionOptions {
     /**
      * Which LLM model to use. Use `large` for the default set of model candidates, `small` for the set of small models like gpt-4o-mini.
@@ -169,6 +174,11 @@ interface ModelConnectionOptions {
      * @example gpt-4
      */
     smallModel?: ModelSmallType
+
+    /**
+     * Which LLM to use for the "vision" model.
+     */
+    visionModel?: ModelVisionType
 }
 
 interface ModelOptions extends ModelConnectionOptions {
@@ -782,7 +792,7 @@ interface ExpansionVariables {
         /**
          * When running in GitHub Copilot Chat, the current terminal content
          */
-        "copilot.terminalSelection?": string
+        "copilot.terminalSelection"?: string
     }
 
     /**

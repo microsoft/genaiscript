@@ -22,8 +22,17 @@ class GenAIScriptApiProvider {
     }
 
     async callApi(prompt, context) {
-        const { model, smallModel, temperature, top_p, cache, version, cli, quiet } =
-            this.config
+        const {
+            model,
+            smallModel,
+            visionModel,
+            temperature,
+            top_p,
+            cache,
+            version,
+            cli,
+            quiet,
+        } = this.config
         const { vars, logger } = context
         try {
             let files = vars.files // string or string[]
@@ -52,6 +61,7 @@ class GenAIScriptApiProvider {
             if (quiet) args.push("--quiet")
             if (model) args.push("--model", model)
             if (smallModel) args.push("--small-model", smallModel)
+            if (visionModel) args.push("--vision-model", visionModel)
             if (temperature !== undefined)
                 args.push("--temperature", temperature)
             if (top_p !== undefined) args.push("--top_p", top_p)

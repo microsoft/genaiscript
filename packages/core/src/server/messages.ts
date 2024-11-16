@@ -70,6 +70,7 @@ export interface PromptScriptRunOptions {
     maxDataRepairs: string
     model: string
     smallModel: string
+    visionModel: string
     embeddingsModel: string
     csvSeparator: string
     cache: boolean | string

@@ -65,6 +65,7 @@ function parseModelSpec(m: string): ModelOptions {
         return {
             model: values["m"],
             smallModel: values["s"],
+            visionModel: values["v"],
             temperature: normalizeFloat(values["t"]),
             topP: normalizeFloat(values["p"]),
         }
@@ -120,11 +121,14 @@ export async function runPromptScriptTests(
         testDelay?: string
         model?: string
         smallModel?: string
+        visionModel?: string
     }
 ): Promise<PromptScriptTestRunResponse> {
     if (options.model) host.defaultModelOptions.model = options.model
     if (options.smallModel)
         host.defaultModelOptions.smallModel = options.smallModel
+    if (options.visionModel)
+        host.defaultModelOptions.visionModel = options.visionModel
 
     const scripts = await listTests({ ids, ...(options || {}) })
     if (!scripts.length)
@@ -163,6 +167,7 @@ export async function runPromptScriptTests(
             cli,
             model: info.model,
             smallModel: info.smallModel,
+            visionModel: info.visionModel,
             models: options.models?.map(parseModelSpec),
             provider: "provider.mjs",
             testProvider,
