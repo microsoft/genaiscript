@@ -792,7 +792,7 @@ interface ExpansionVariables {
         /**
          * When running in GitHub Copilot Chat, the current terminal content
          */
-        "copilot.terminalSelection?": string
+        "copilot.terminalSelection"?: string
     }
 
     /**
