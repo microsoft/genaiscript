@@ -22,7 +22,7 @@ that is friendly to the LLM.
 const { file, pages } = await parsers.PDF(env.files[0])
 ```
 
-Once parse, you can use the `file` and `pages` to generate prompts. If the parsing fails, `file` will be `undefined`.
+Once parsed, you can use the `file` and `pages` to generate prompts. If the parsing fails, `file` will be `undefined`.
 
 ```js
 const { file, pages } = await parsers.PDF(env.files[0])
@@ -36,6 +36,6 @@ pages.slice(0, 2).forEach((page, i) => {
 })
 ```
 
-## PDF are messy
+## PDFs are messy
 
-The PDF format was never really meant to allow for clean text extraction. The `parsers.PDF` function uses the `pdf-parse` package to extract text from the PDF. This package is not perfect and may fail to extract text from some PDFs. If you have access to the original document, it is recommended to use a more text-friendly format such as markdown or plain text.
+The PDF format was never really meant to allow for clean text extraction. The `parsers.PDF` function uses the `pdf-parse` package to extract text from PDFs. This package is not perfect and may fail to extract text from some PDFs. If you have access to the original document, it is recommended to use a more text-friendly format such as markdown or plain text.

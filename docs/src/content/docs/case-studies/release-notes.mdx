@@ -13,7 +13,7 @@ There are plenty of automated `release notes` generator
 that inspect the list of commits since the last release and generate a list of changes.
 The release notes are typically exclusively based on the commit messages.
 
-In the GenAIScript projet, we create a release notes generator **that uses 
+In the GenAIScript project, we create a release notes generator **that uses 
 both commit history and the diff of the changes**.
 
 You can see one of the first prototype generated 
@@ -31,8 +31,8 @@ Improved Release Script: We've fine-tuned our release script to ensure smoother 
 
 ## Commit history and diff
 
-We start our script by calling `git` a few times to retreive the previous release tag,
-the list of commits, the diff since the tag. 
+We start our script by calling `git` a few times to retrieve the previous release tag,
+the list of commits, and the diff since the tag. 
 (This magic was mostly found using a GitHub Copilot Chat session).
 
 ```js title="git-release-notes.genai.mjs" wrap

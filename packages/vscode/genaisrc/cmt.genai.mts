@@ -90,9 +90,10 @@ async function addComments(file: WorkspaceFile): Promise<string | undefined> {
             )
 
             // AI prompt to add comments for better understanding
+            ctx.def("FILE", code, { detectPromptInjection: "available" })
             ctx.$`You are an expert developer at all programming languages.
 
-You are tasked with adding comments to code in ${code} to make it more understandable for AI systems or human developers.
+You are tasked with adding comments to code in FILE to make it more understandable for AI systems or human developers.
 You should analyze it, and add/update appropriate comments as needed.
 
 To add or update comments to this code, follow these steps:
@@ -133,7 +134,12 @@ Your comments should provide insight into the code's purpose, logic, and any imp
 `
         },
         {
-            system: ["system.assistant"],
+            system: [
+                "system.assistant",
+                "system.safety_jailbreak",
+                "system.safety_harmful_content",
+                "system.safety_validate_harmful_content",
+            ],
             label: `comment ${filename}`,
         }
     )
@@ -151,19 +157,18 @@ async function checkModifications(filename: string): Promise<boolean> {
             ctx.$`You are an expert developer at all programming languages.
         
         Your task is to analyze the changes in DIFF and make sure that only comments are modified. 
-        Report all changes that are not comments or spacing and print <MODIFIED>;
-        otherwise, print <NO MODIFICATION>.
+        Report all changes that are not comments or spacing and print <MOD>;
+        otherwise, print <NO_MOD>.
         `
         },
         {
-            system: ["system.assistant"],
+            system: ["system.assistant", "system.safety_jailbreak"],
             cache: "cmt-check",
             label: `check comments in ${filename}`,
         }
     )
 
     const modified =
-        res.text?.includes("<MODIFIED>") ||
-        !res.text?.includes("NO MODIFICATION")
+        res.text?.includes("<MOD>") || !res.text?.includes("<NO_MOD>")
     return modified
 }

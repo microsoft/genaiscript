@@ -1,6 +1,6 @@
 {
     "name": "genaiscript-workspace",
-    "version": "1.71.0",
+    "version": "1.75.3",
     "license": "MIT",
     "private": true,
     "workspaces": {
@@ -72,7 +72,8 @@
         "genai": "node packages/cli/built/genaiscript.cjs run",
         "upgrade:deps": "zx scripts/upgrade-deps.mjs",
         "cli": "node packages/cli/built/genaiscript.cjs",
-        "ollama": "docker run -d -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama",
+        "ollama": "yarn ollama:stop && yarn ollama:start",
+        "ollama:start": "docker run -d -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama",
         "ollama:stop": "docker stop ollama && docker rm ollama"
     },
     "release-it": {
@@ -84,10 +85,10 @@
         }
     },
     "devDependencies": {
-        "@inquirer/prompts": "^7.0.1",
+        "@inquirer/prompts": "^7.1.0",
         "glob": "^11.0.0",
-        "npm-check-updates": "^17.1.9",
+        "npm-check-updates": "^17.1.11",
         "prettier": "^3.3.3",
-        "zx": "^8.2.0"
+        "zx": "^8.2.2"
     }
 }

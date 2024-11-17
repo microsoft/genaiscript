@@ -6,11 +6,11 @@ description: Learn how to use GenAIScript's retrieval utilities for content sear
 keywords: RAG, content retrieval, search augmentation, indexing, web search
 ---
 
-GenAIScript provides various utilities to retrieve content and augment the prompt. This technique is typically referred as **RAG** (Retrieval-Augmentation-Generation) in the literature.
+GenAIScript provides various utilities to retrieve content and augment the prompt. This technique is typically referred to as **RAG** (Retrieval-Augmentation-Generation) in the literature.
 
 ## Vector Search
 
-GenAIScript provides tiny vector database based on [vectra](https://www.npmjs.com/package/vectra).
+GenAIScript provides a tiny vector database based on [vectra](https://www.npmjs.com/package/vectra).
 The `retrieve.vectorSearch` performs a embeddings search to find the most similar documents to the prompt.
 
 ```js

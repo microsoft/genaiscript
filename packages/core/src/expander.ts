@@ -7,25 +7,23 @@ import {
     MAX_TOOL_CALLS,
     MODEL_PROVIDER_AICI,
     PROMPTY_REGEX,
-    SYSTEM_FENCE,
 } from "./constants"
-import { PromptImage, renderPromptNode } from "./promptdom"
+import { finalizeMessages, PromptImage, renderPromptNode } from "./promptdom"
 import { createPromptContext } from "./promptcontext"
 import { evalPrompt } from "./evalprompt"
 import { renderAICI } from "./aici"
-import { appendSystemMessage, toChatCompletionUserMessage } from "./chat"
+import {
+    addToolDefinitionsMessage,
+    appendSystemMessage,
+    toChatCompletionUserMessage,
+} from "./chat"
 import { importPrompt } from "./importprompt"
 import { parseModelIdentifier } from "./models"
 import { JSONSchemaStringifyToTypeScript, toStrictJSONSchema } from "./schema"
 import { host } from "./host"
 import { resolveSystems } from "./systems"
 import { GenerationOptions, GenerationStatus } from "./generation"
-import {
-    AICIRequest,
-    ChatCompletionAssistantMessageParam,
-    ChatCompletionMessageParam,
-    ChatCompletionSystemMessageParam,
-} from "./chattypes"
+import { AICIRequest, ChatCompletionMessageParam } from "./chattypes"
 import { promptParametersSchemaToJSONSchema } from "./parameters"
 
 export async function callExpander(
@@ -170,13 +168,13 @@ export async function expandTemplate(
     const model = options.model
     assert(!!model)
     const cancellationToken = options.cancellationToken
-    const systems = resolveSystems(prj, template)
-    const systemTemplates = systems.map((s) => prj.getTemplate(s))
     // update options
     const lineNumbers =
         options.lineNumbers ??
         template.lineNumbers ??
-        systemTemplates.some((s) => s?.lineNumbers)
+        resolveSystems(prj, template, undefined, options)
+            .map((s) => prj.getTemplate(s))
+            .some((t) => t?.lineNumbers)
     const temperature =
         options.temperature ??
         normalizeFloat(env.vars["temperature"]) ??
@@ -202,6 +200,11 @@ export async function expandTemplate(
         template.flexTokens
     let seed = options.seed ?? normalizeInt(env.vars["seed"]) ?? template.seed
     if (seed !== undefined) seed = seed >> 0
+    let logprobs = options.logprobs || template.logprobs
+    let topLogprobs = Math.max(
+        options.topLogprobs || 0,
+        template.topLogprobs || 0
+    )
 
     trace.startDetails("💾 script")
 
@@ -224,7 +227,7 @@ export async function expandTemplate(
     const { status, statusText, messages } = prompt
     const images = prompt.images.slice(0)
     const schemas = structuredClone(prompt.schemas)
-    const functions = prompt.functions.slice(0)
+    const tools = prompt.functions.slice(0)
     const fileMerges = prompt.fileMerges.slice(0)
     const outputProcessors = prompt.outputProcessors.slice(0)
     const chatParticipants = prompt.chatParticipants.slice(0)
@@ -258,6 +261,7 @@ export async function expandTemplate(
         trace.fence(content, "markdown")
     }
 
+    const systems = resolveSystems(prj, template, tools, options)
     if (systems.length)
         try {
             trace.startDetails("👾 systems")
@@ -284,7 +288,7 @@ export async function expandTemplate(
 
                 if (sysr.images) images.push(...sysr.images)
                 if (sysr.schemas) Object.assign(schemas, sysr.schemas)
-                if (sysr.functions) functions.push(...sysr.functions)
+                if (sysr.functions) tools.push(...sysr.functions)
                 if (sysr.fileMerges) fileMerges.push(...sysr.fileMerges)
                 if (sysr.outputProcessors)
                     outputProcessors.push(...sysr.outputProcessors)
@@ -308,6 +312,8 @@ export async function expandTemplate(
                     trace.fence(sysr.aici, "yaml")
                     messages.push(sysr.aici)
                 }
+                logprobs = logprobs || system.logprobs
+                topLogprobs = Math.max(topLogprobs, system.topLogprobs || 0)
                 trace.detailsFenced("js", system.jsSource, "js")
                 trace.endDetails()
 
@@ -321,6 +327,11 @@ export async function expandTemplate(
         } finally {
             trace.endDetails()
         }
+
+    if (systems.includes("system.tool_calls")) {
+        addToolDefinitionsMessage(messages, tools)
+        options.fallbackTools = true
+    }
 
     const responseSchema = promptParametersSchemaToJSONSchema(
         template.responseSchema
@@ -348,13 +359,16 @@ ${schemaTs}
         // try conversion
         toStrictJSONSchema(responseSchema)
     }
+
+    finalizeMessages(messages, { fileOutputs })
+
     trace.endDetails()
 
     return {
         messages,
         images,
         schemas,
-        functions,
+        tools,
         status: <GenerationStatus>status,
         statusText: statusText,
         model,
@@ -369,5 +383,7 @@ ${schemaTs}
         outputProcessors,
         chatParticipants,
         fileOutputs,
+        logprobs,
+        topLogprobs,
     }
 }

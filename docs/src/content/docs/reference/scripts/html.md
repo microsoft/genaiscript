@@ -10,7 +10,7 @@ HTML processing enables you to parse HTML content effectively. Below you can fin
 
 ## Overview
 
-HTML processing functions allow you to convert HTML content to text or markdown, helping in content extraction and manipulation for various automation tasks.
+HTML processing functions allow you to convert HTML content to text or markdown, aiding in content extraction and manipulation for various automation tasks.
 
 ## `convertToText`
 
@@ -34,7 +34,7 @@ const markdown = HTML.HTMLToMarkdown(htmlContent)
 
 ## `convertTablesToJSON`
 
-This function specializes in extracting tables from HTML content and converting them into JSON format. It is useful for data extraction tasks from web pages.
+This function specializes in extracting tables from HTML content and converting them into JSON format. It is useful for data extraction tasks on web pages.
 
 ```js
 const tables = await HTML.convertTablesToJSON(htmlContent)

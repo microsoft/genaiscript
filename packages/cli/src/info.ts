@@ -7,7 +7,7 @@
 import { parseTokenFromEnv } from "../../core/src/connection"
 import { MODEL_PROVIDERS } from "../../core/src/constants"
 import { errorMessage } from "../../core/src/error"
-import { host } from "../../core/src/host"
+import { host, runtimeHost } from "../../core/src/host"
 import {
     ModelConnectionInfo,
     resolveModelConnectionInfo,
@@ -32,10 +32,13 @@ export async function systemInfo() {
  * @param provider - The specific provider to filter by (optional).
  * @param options - Configuration options, including whether to show tokens.
  */
-export async function envInfo(provider: string, options?: { token?: boolean }) {
-    const { token } = options || {}
+export async function envInfo(
+    provider: string,
+    options?: { token?: boolean; error?: boolean }
+) {
+    const { token, error } = options || {}
     const res: any = {}
-    res[".env"] = host.dotEnvPath ?? ""
+    res[".env"] = runtimeHost.config.envFile ?? ""
     res.providers = []
     const env = process.env
 
@@ -52,11 +55,12 @@ export async function envInfo(provider: string, options?: { token?: boolean }) {
                 res.providers.push(conn)
             }
         } catch (e) {
-            // Capture and store any errors encountered
-            res.providers.push({
-                provider: modelProvider.id,
-                error: errorMessage(e),
-            })
+            if (error)
+                // Capture and store any errors encountered
+                res.providers.push({
+                    provider: modelProvider.id,
+                    error: errorMessage(e),
+                })
         }
     }
     console.log(YAMLStringify(res))

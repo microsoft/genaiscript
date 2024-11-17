@@ -15,11 +15,14 @@ script({
         "system.git_info",
         "system.github_info",
         "system.safety_harmful_content",
+        "system.safety_validate_harmful_content",
         "system.agent_fs",
         "system.agent_git",
         "system.agent_github",
         "system.agent_interpreter",
         "system.agent_docs",
+        "system.agent_vision",
+        "system.agent_web",
     ],
     group: "copilot", // Group categorization for the script
     parameters: {
@@ -45,10 +48,12 @@ script({
 const { question } = env.vars
 const editor = env.vars["copilot.editor"]
 const selection = env.vars["copilot.selection"]
+const history = env.vars["copilot.history"]
 
 $`## Tasks
 
-- make a plan to answer the QUESTION step by step using the information in the Context section
+- make a plan to answer the QUESTION step by step 
+  using the information in the Context section
 - answer the QUESTION
 
 ## Output
@@ -64,12 +69,30 @@ $`## Tasks
 `
 
 // Define a variable QUESTION with the value of 'question'
-def("QUESTION", question, { lineNumbers: false })
+def("QUESTION", question, {
+    lineNumbers: false,
+    detectPromptInjection: "available",
+})
 
 $`## Context`
 
 // Define a variable FILE with the file data from the environment variables
 // The { ignoreEmpty: true, flex: 1 } options specify to ignore empty files and to use flexible token allocation
-def("FILE", env.files, { lineNumbers: false, ignoreEmpty: true, flex: 1 })
-def("EDITOR", editor, { flex: 4, ignoreEmpty: true })
-def("SELECTION", selection, { flex: 5, ignoreEmpty: true })
+if (history?.length > 0)
+    defData("HISTORY", history, { flex: 1, format: "yaml", sliceTail: 10 })
+def("FILE", env.files, {
+    lineNumbers: false,
+    ignoreEmpty: true,
+    flex: 1,
+    detectPromptInjection: "available",
+})
+def("EDITOR", editor, {
+    flex: 4,
+    ignoreEmpty: true,
+    detectPromptInjection: "available",
+})
+def("SELECTION", selection, {
+    flex: 5,
+    ignoreEmpty: true,
+    detectPromptInjection: "available",
+})

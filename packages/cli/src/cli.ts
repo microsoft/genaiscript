@@ -52,11 +52,13 @@ import { semverSatisfies } from "../../core/src/semver" // Semantic version chec
  * Main function to initialize and run the CLI.
  */
 export async function cli() {
+    let nodeHost: NodeHost // Variable to hold NodeHost instance
+
     // Handle uncaught exceptions globally
     process.on("uncaughtException", (err) => {
         const se = serializeError(err) // Serialize the error object
         error(errorMessage(se)) // Log the error message
-        if (!isQuiet && se?.stack) logVerbose(se?.stack) // Log stack trace if not in quiet mode
+        if (!isQuiet && se?.stack && nodeHost) logVerbose(se?.stack) // Log stack trace if not in quiet mode
         if (isRequestError(err)) {
             const exitCode = (err as RequestError).status // Use the error status as exit code
             process.exit(exitCode) // Exit with the error status code
@@ -71,7 +73,6 @@ export async function cli() {
         process.exit(RUNTIME_ERROR_CODE) // Exit with runtime error code if version is incompatible
     }
 
-    let nodeHost: NodeHost // Variable to hold NodeHost instance
     program.hook("preAction", async (cmd) => {
         nodeHost = await NodeHost.install(cmd.opts().env) // Install NodeHost with environment options
     })
@@ -95,10 +96,22 @@ export async function cli() {
         .command("run")
         .description("Runs a GenAIScript against files.")
         .arguments("<script> [files...]")
+        .option("-m, --model <string>", "'large' model alias (default)")
+        .option("-sm, --small-model <string>", "'small' alias model")
+        .option("-vm, --vision-model <string>", "'vision' alias model")
+        .option("-lp, --logprobs", "enable reporting token probabilities")
+        .option(
+            "-tlp, --top-logprobs <number>",
+            "number of top logprobs (1 to 5)"
+        )
         .option("-ef, --excluded-files <string...>", "excluded files")
         .option(
             "-egi, --exclude-git-ignore",
             "exclude files that are ignored through the .gitignore file in the workspace root"
+        )
+        .option(
+            "-ft, --fallback-tools",
+            "Enable prompt-based tools instead of builtin LLM tool calling builtin tool calls"
         )
         .option(
             "-o, --out <string>",
@@ -149,9 +162,10 @@ export async function cli() {
         .option("-l, --label <string>", "label for the run")
         .option("-t, --temperature <number>", "temperature for the run")
         .option("-tp, --top-p <number>", "top-p for the run")
-        .option("-m, --model <string>", "model for the run")
-        .option("-sm, --small-model <string>", "small model for the run")
-        .option("-mt, --max-tokens <number>", "maximum tokens for the run")
+        .option(
+            "-mt, --max-tokens <number>",
+            "maximum completion tokens for the run"
+        )
         .option("-mdr, --max-data-repairs <number>", "maximum data repairs")
         .option(
             "-mtc, --max-tool-calls <number>",
@@ -372,6 +386,7 @@ export async function cli() {
         .description("Show .env information")
         .arguments("[provider]")
         .option("-t, --token", "show token")
+        .option("-e, --error", "show errors")
         .action(envInfo) // Action to show environment information
     program.parse() // Parse command-line arguments
 }

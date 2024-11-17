@@ -1,5 +1,10 @@
 // Import necessary utilities and constants
-import { HTTPS_REGEX, LARGE_MODEL_ID, SMALL_MODEL_ID } from "./constants"
+import {
+    HTTPS_REGEX,
+    LARGE_MODEL_ID,
+    SMALL_MODEL_ID,
+    VISION_MODEL_ID,
+} from "./constants"
 import { arrayify } from "./util"
 import { host } from "./host"
 
@@ -40,6 +45,7 @@ export function generatePromptFooConfiguration(
         cli?: string
         model?: string
         smallModel?: string
+        visionModel?: string
         models?: ModelOptions[]
     }
 ) {
@@ -54,6 +60,7 @@ export function generatePromptFooConfiguration(
             ...script,
             model: options?.model || script.model,
             smallModel: options?.smallModel || script.smallModel,
+            visionModel: options?.visionModel || script.visionModel,
         })
     }
 
@@ -63,9 +70,11 @@ export function generatePromptFooConfiguration(
     const resolveModel = (m: string) =>
         m === SMALL_MODEL_ID
             ? host.defaultModelOptions.smallModel
-            : m === LARGE_MODEL_ID
-              ? host.defaultModelOptions.model
-              : m
+            : m === VISION_MODEL_ID
+              ? host.defaultModelOptions.visionModel
+              : m === LARGE_MODEL_ID
+                ? host.defaultModelOptions.model
+                : m
 
     // Create configuration object
     const res = {
@@ -74,21 +83,25 @@ export function generatePromptFooConfiguration(
         prompts: [id],
         // Map model options to providers
         providers: models
-            .map(({ model, smallModel, temperature, topP }) => ({
+            .map(({ model, smallModel, visionModel, temperature, topP }) => ({
                 model: resolveModel(model) ?? host.defaultModelOptions.model,
                 smallModel:
                     resolveModel(smallModel) ??
                     host.defaultModelOptions.smallModel,
+                visionModel:
+                    resolveModel(visionModel) ??
+                    host.defaultModelOptions.visionModel,
                 temperature: !isNaN(temperature)
                     ? temperature
                     : host.defaultModelOptions.temperature,
                 top_p: topP,
             }))
-            .map(({ model, smallModel, temperature, top_p }) => ({
+            .map(({ model, smallModel, visionModel, temperature, top_p }) => ({
                 id: provider,
                 label: [
                     model,
                     smallModel,
+                    visionModel,
                     `t=${temperature}`,
                     top_p !== undefined ? `p=${top_p}` : undefined,
                 ]
@@ -97,6 +110,7 @@ export function generatePromptFooConfiguration(
                 config: {
                     model,
                     smallModel,
+                    visionModel,
                     temperature,
                     top_p,
                     cli,

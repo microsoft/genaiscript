@@ -228,13 +228,12 @@ function activateNotebookExecutor(state: ExtensionState) {
 function activateNotebookSerializer(state: ExtensionState) {
     const { context } = state
     const { subscriptions } = context
-    const encoder = new TextEncoder()
-    const decoder = new TextDecoder()
 
     const deserializeNotebook: (
         data: Uint8Array,
         token: vscode.CancellationToken
     ) => vscode.NotebookData = (data, token) => {
+        const decoder = new TextDecoder()
         const content = decoder.decode(data)
         const cellRawData = parseMarkdown(content)
         const cells = cellRawData.map(
@@ -277,6 +276,8 @@ function activateNotebookSerializer(state: ExtensionState) {
                     data: vscode.NotebookData,
                     token: vscode.CancellationToken
                 ): Uint8Array {
+                    const encoder = new TextEncoder()
+                    const decoder = new TextDecoder()
                     const { cells } = data
                     let result = ""
                     for (let i = 0; i < cells.length; i++) {
@@ -304,7 +305,10 @@ function activateNotebookSerializer(state: ExtensionState) {
                                     output &&
                                     output.mime === MARKDOWN_MIME_TYPE
                                 ) {
-                                    result += decoder.decode(output.data)
+                                    const data = output.data
+                                    result += decoder.decode(
+                                        new Uint8Array(data)
+                                    )
                                 }
                             }
                         } else {

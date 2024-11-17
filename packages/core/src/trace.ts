@@ -163,7 +163,7 @@ ${this.toResultIcon(success, "")}${title}
     }
 
     log(message: string) {
-        this.appendContent("\n> " + (message ?? "") + "\n")
+        this.fence(message ?? "")
     }
 
     startFence(language: string) {

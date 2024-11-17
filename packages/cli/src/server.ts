@@ -284,7 +284,7 @@ export async function startServer(options: { port: string; apiKey?: string }) {
                                 send({ trace: c })
                             )
                         })
-                        logVerbose(`run ${runId}: starting`)
+                        logVerbose(`run ${runId}: starting ${script}`)
                         const runner = runScript(script, files, {
                             ...options,
                             trace,
@@ -296,11 +296,13 @@ export async function startServer(options: { port: string; apiKey?: string }) {
                                 responseChunk,
                                 responseSoFar,
                                 tokensSoFar,
+                                responseTokens,
                             }) => {
                                 send({
                                     response: responseSoFar,
                                     responseChunk,
                                     tokens: tokensSoFar,
+                                    responseTokens,
                                 })
                             },
                         })

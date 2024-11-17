@@ -4,6 +4,7 @@ import {
     AzureCredentialsType,
     AzureTokenResolver,
     isAzureTokenExpired,
+    runtimeHost,
 } from "../../core/src/host"
 import { logVerbose } from "../../core/src/util"
 import type { TokenCredential } from "@azure/identity"
@@ -90,6 +91,7 @@ class AzureTokenResolverImpl implements AzureTokenResolver {
 
     constructor(
         public readonly name: string,
+        public readonly envName: string,
         public readonly scopes: readonly string[]
     ) {}
 
@@ -102,9 +104,11 @@ class AzureTokenResolverImpl implements AzureTokenResolver {
 
         if (isAzureTokenExpired(this._token)) this._token = undefined
         if (this._token) return this._token
-        if (!this._resolver)
+        if (!this._resolver) {
+            const scope = await runtimeHost.readSecret(this.envName)
+            const scopes = scope ? scope.split(",") : this.scopes
             this._resolver = createAzureToken(
-                this.scopes,
+                scopes,
                 credentialsType,
                 signal || new AbortController().signal
             ).then((res) => {
@@ -112,13 +116,15 @@ class AzureTokenResolverImpl implements AzureTokenResolver {
                 this._resolver = undefined
                 return res
             })
+        }
         return this._resolver
     }
 }
 
 export function createAzureTokenResolver(
     name: string,
+    envName: string,
     scopes: readonly string[]
 ): AzureTokenResolver {
-    return new AzureTokenResolverImpl(name, scopes)
+    return new AzureTokenResolverImpl(name, envName, scopes)
 }

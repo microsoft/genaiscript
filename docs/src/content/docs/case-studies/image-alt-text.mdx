@@ -20,7 +20,7 @@ It is also used by search engines to understand the content of the image.
 <img src="..." alt="describe the image here" />
 ```
 
-However, this task can be tedious and developer are often tempted to skip it, or provide a generic `alt` text like "image".
+However, this task can be tedious and developers are often tempted to skip it, or provide a generic `alt` text like "image".
 
 ```html
 <img src="..." alt="image" />
@@ -58,7 +58,7 @@ defFileOutput(file.filename + ".txt", `Alt text for image ${file.filename}`)
 ## Usage in Astro
 
 The GenAIScript documentation uses Astro, which allows to author pages in [MDX](https://docs.astro.build/en/guides/markdown-content/).
-The code below shows how the generate alt text, stored in a separate text file, is injected in the final HTML.
+The code below shows how the generated alt text, stored in a separate text file, is injected in the final HTML.
 
 ```mdx
 import { Image } from "astro:assets"
@@ -68,7 +68,7 @@ import alt from "../../../assets/debugger.png.txt?raw"
 <Image src={src} alt={alt} />
 ```
 
-The `debugger.png` image shows the screenshot of a debugging session and the generate alt text file contents.
+The `debugger.png` image shows the screenshot of a debugging session and the generated alt text file contents.
 
 <Image src={src} alt={alt} />
 

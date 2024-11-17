@@ -8,7 +8,7 @@ keywords: YAML serialization, configuration files, data parsing, YAML stringify,
 
 [YAML](https://yaml.org/) is a human-readable data serialization format that is commonly used for configuration files and data exchange.
 
-In the context of LLM, YAML is friendlier to the tokenizer algorithm and can generally be preferred to JSON to represent structured data.
+In the context of LLM, YAML is friendlier to the tokenizer algorithm and is generally preferred over JSON to represent structured data.
 
 ## `defData`
 
@@ -29,8 +29,8 @@ const str = YAML.stringify(obj)
 
 ## `parsers`
 
-The [parsers](/genaiscript/reference/scripts/parsers) also provides merciful parser for YAML.
-Returns `undefined` for invalid inputs.
+The [parsers](/genaiscript/reference/scripts/parsers) also provide a lenient parser for YAML.
+It returns `undefined` for invalid inputs.
 
 ```js
 const res = parsers.YAML("...")

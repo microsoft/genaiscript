@@ -182,17 +182,3 @@ export const OllamaModel = Object.freeze<LanguageModel>({
     id: MODEL_PROVIDER_OLLAMA,
     listModels,
 })
-
-export function parseHostVariable(env: Record<string, string>) {
-    const s = (
-        env.OLLAMA_HOST ||
-        env.OLLAMA_API_BASE ||
-        OLLAMA_API_BASE
-    )?.trim()
-    const ipm =
-        /^(?<address>(localhost|\d+\.\d+\.\d+\.\d+))(:(?<port>\d+))?$/i.exec(s)
-    if (ipm)
-        return `http://${ipm.groups.address}:${ipm.groups.port || OLLAMA_DEFAUT_PORT}`
-    const url = new URL(s)
-    return url.href
-}

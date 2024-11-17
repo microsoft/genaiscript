@@ -23,3 +23,6 @@ esbuild.*.html
 dev/
 foobar*.genai.mjs
 azure-sdk-for-js/
+trapi.md
+.env.local
+genaiscript.config.yaml

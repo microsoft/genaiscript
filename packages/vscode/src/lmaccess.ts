@@ -13,6 +13,7 @@ import {
     TOOL_NAME,
     MODEL_PROVIDER_AZURE_SERVERLESS_MODELS,
     MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI,
+    DOCS_CONFIGURATION_URL,
 } from "../../core/src/constants"
 import { OpenAIAPIType } from "../../core/src/host"
 import { parseModelIdentifier } from "../../core/src/models"
@@ -162,17 +163,12 @@ export async function pickLanguageModel(
     if (res.model) return res.model
     else {
         const configure = "Configure..."
-        vscode.window
-            .showWarningMessage(
-                `${TOOL_NAME} - model connection not configured.`,
-                configure
-            )
-            .then((res) => {
-                if (res === configure)
-                    vscode.commands.executeCommand(
-                        "genaiscript.connection.configure"
-                    )
-            })
+        vscode.window.showWarningMessage(
+            `${TOOL_NAME} - model connection not configured.`,
+            configure
+        )
+        if (configure)
+            vscode.env.openExternal(vscode.Uri.parse(DOCS_CONFIGURATION_URL))
         return undefined
     }
 }

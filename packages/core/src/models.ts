@@ -3,10 +3,12 @@ import {
     DEFAULT_EMBEDDINGS_MODEL_CANDIDATES,
     DEFAULT_MODEL_CANDIDATES,
     DEFAULT_SMALL_MODEL_CANDIDATES,
+    DEFAULT_VISION_MODEL_CANDIDATES,
     LARGE_MODEL_ID,
     MODEL_PROVIDER_LLAMAFILE,
     MODEL_PROVIDER_OPENAI,
     SMALL_MODEL_ID,
+    VISION_MODEL_ID,
 } from "./constants"
 import { errorMessage } from "./error"
 import { LanguageModelConfiguration, host } from "./host"
@@ -107,6 +109,12 @@ export async function resolveModelConnectionInfo(
             host.defaultModelOptions.smallModel,
             ...DEFAULT_SMALL_MODEL_CANDIDATES,
         ]
+    } else if (m === VISION_MODEL_ID) {
+        m = undefined
+        candidates ??= [
+            host.defaultModelOptions.visionModel,
+            ...DEFAULT_VISION_MODEL_CANDIDATES,
+        ]
     } else if (m === LARGE_MODEL_ID) {
         m = undefined
         candidates ??= [
@@ -175,7 +183,9 @@ export async function resolveModelConnectionInfo(
         return {
             info: {
                 model: "?",
-                error: `No model configured for ${hint}`,
+                error: hint
+                    ? `No LLM provider configured for ${hint}`
+                    : "No LLM provider configured",
             },
         }
     }

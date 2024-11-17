@@ -1,3 +1,4 @@
+// cspell: disable
 import {
     PromptNode,
     appendChild,
@@ -17,6 +18,8 @@ import {
     createOutputProcessor,
     createFileMerge,
     createSystemNode,
+    finalizeMessages,
+    PromptImage,
 } from "./promptdom"
 import { MarkdownTrace } from "./trace"
 import { GenerationOptions } from "./generation"
@@ -33,8 +36,11 @@ import { mustacheRender } from "./mustache"
 import { imageEncodeForLLM } from "./image"
 import { delay, uniq } from "es-toolkit"
 import {
+    addToolDefinitionsMessage,
+    appendSystemMessage,
     executeChatSession,
     mergeGenerationOptions,
+    toChatCompletionUserMessage,
     tracePromptResult,
 } from "./chat"
 import { checkCancelled } from "./cancellation"
@@ -45,10 +51,11 @@ import {
 import { parseModelIdentifier, resolveModelConnectionInfo } from "./models"
 import {
     CHAT_REQUEST_PER_MODEL_CONCURRENT_LIMIT,
-    LLM_TAG_MISSING_INFO,
-    LLM_TAG_NO_ANSWER,
+    TOKEN_MISSING_INFO,
+    TOKEN_NO_ANSWER,
     MODEL_PROVIDER_AICI,
     SYSTEM_FENCE,
+    DOCS_DEF_FILES_IS_EMPTY_URL,
 } from "./constants"
 import { renderAICI } from "./aici"
 import { resolveSystems, resolveTools } from "./systems"
@@ -164,15 +171,21 @@ export function createChatTurnGenerationContext(
             // shortcuts
             if (body === undefined || body === null) {
                 if (!doptions.ignoreEmpty)
-                    throw new Error(`def ${name} is ${body}`)
+                    throw new Error(
+                        `def ${name} is ${body}. See ${DOCS_DEF_FILES_IS_EMPTY_URL}`
+                    )
                 return undefined
             } else if (Array.isArray(body)) {
                 if (body.length === 0 && !doptions.ignoreEmpty)
-                    throw new Error(`def ${name} is empty`)
+                    throw new Error(
+                        `def ${name} is empty. See ${DOCS_DEF_FILES_IS_EMPTY_URL}`
+                    )
                 body.forEach((f) => ctx.def(name, f, defOptions))
             } else if (typeof body === "string") {
                 if (body.trim() === "" && !doptions.ignoreEmpty)
-                    throw new Error(`def ${name} is empty`)
+                    throw new Error(
+                        `def ${name} is empty. See ${DOCS_DEF_FILES_IS_EMPTY_URL}`
+                    )
                 appendChild(
                     node,
                     createDef(name, { filename: "", content: body }, doptions)
@@ -361,14 +374,16 @@ export function createChatGenerationContext(
             "system.assistant",
             "system.tools",
             "system.explanations",
-            "system.safety_harmful_content",
             "system.safety_jailbreak",
+            "system.safety_harmful_content",
+            "system.safety_protected_material",
             ...arrayify(system),
         ])
-        const agentTools = resolveTools(runtimeHost.project, agentSystem, [
-            ...arrayify(tools),
-            ...(memory ? ["agent_memory"] : []),
-        ])
+        const agentTools = resolveTools(
+            runtimeHost.project,
+            agentSystem,
+            arrayify(tools)
+        )
         const agentDescription = dedent`Agent that uses an LLM to ${description}.\nAvailable tools: 
         ${agentTools.map((t) => `- ${t.description}`).join("\n")}` // DO NOT LEAK TOOL ID HERE
 
@@ -410,8 +425,8 @@ export function createChatGenerationContext(
                         _.$`Make a plan and solve the task described in QUERY.
                         
                         - Assume that your answer will be analyzed by an LLM, not a human.
-                        - If you are missing information, reply "${LLM_TAG_MISSING_INFO}: <what is missing>".
-                        - If you cannot answer the query, return "${LLM_TAG_NO_ANSWER}: <reason>".
+                        - If you are missing information, reply "${TOKEN_MISSING_INFO}: <what is missing>".
+                        - If you cannot answer the query, return "${TOKEN_NO_ANSWER}: <reason>".
                         - Be concise. Minimize output to the most relevant information to save context tokens.
                         `
                         if (memoryAnswer)
@@ -428,8 +443,8 @@ export function createChatGenerationContext(
                                 if (
                                     text &&
                                     !(
-                                        text.startsWith(LLM_TAG_MISSING_INFO) ||
-                                        text.startsWith(LLM_TAG_NO_ANSWER)
+                                        text.startsWith(TOKEN_MISSING_INFO) ||
+                                        text.startsWith(TOKEN_NO_ANSWER)
                                     )
                                 )
                                     await agentAddMemory(
@@ -491,7 +506,7 @@ export function createChatGenerationContext(
                 )
             )
         } else {
-            const file: WorkspaceFile = files
+            const file = files as WorkspaceFile
             appendChild(
                 node,
                 createImageNode(
@@ -573,6 +588,7 @@ export function createChatGenerationContext(
             infoCb?.({ text: `prompt ${label || ""}` })
 
             const genOptions = mergeGenerationOptions(options, runOptions)
+            genOptions.fallbackTools = undefined
             genOptions.inner = true
             genOptions.trace = runTrace
             const { info } = await resolveModelConnectionInfo(genOptions, {
@@ -607,6 +623,7 @@ export function createChatGenerationContext(
             let tools: ToolCallback[] = undefined
             let schemas: Record<string, JSONSchema> = undefined
             let chatParticipants: ChatParticipant[] = undefined
+            const images: PromptImage[] = []
             const fileMerges: FileMergeHandler[] = []
             const outputProcessors: PromptOutputProcessorHandler[] = []
             const fileOutputs: FileOutput[] = []
@@ -627,6 +644,7 @@ export function createChatGenerationContext(
                     fileMerges: fms,
                     outputProcessors: ops,
                     fileOutputs: fos,
+                    images: imgs,
                 } = await renderPromptNode(genOptions.model, node, {
                     flexTokens: genOptions.flexTokens,
                     trace: runTrace,
@@ -639,6 +657,7 @@ export function createChatGenerationContext(
                 fileMerges.push(...fms)
                 outputProcessors.push(...ops)
                 fileOutputs.push(...fos)
+                images.push(...imgs)
 
                 if (errors?.length) {
                     logError(errors.map((err) => errorMessage(err)).join("\n"))
@@ -646,11 +665,12 @@ export function createChatGenerationContext(
                 }
             }
 
-            const systemMessage: ChatCompletionSystemMessageParam = {
-                role: "system",
-                content: "",
-            }
-            const systemScripts = resolveSystems(prj, runOptions ?? {})
+            const systemScripts = resolveSystems(
+                prj,
+                runOptions ?? {},
+                tools,
+                genOptions
+            )
             if (systemScripts.length)
                 try {
                     runTrace.startDetails("👾 systems")
@@ -689,8 +709,7 @@ export function createChatGenerationContext(
                                 smsg.role === "user" &&
                                 typeof smsg.content === "string"
                             ) {
-                                systemMessage.content +=
-                                    SYSTEM_FENCE + "\n" + smsg.content + "\n"
+                                appendSystemMessage(messages, smsg.content)
                                 runTrace.fence(smsg.content, "markdown")
                             } else
                                 throw new NotSupportedError(
@@ -701,6 +720,8 @@ export function createChatGenerationContext(
                             runTrace.fence(sysr.aici, "yaml")
                             messages.push(sysr.aici)
                         }
+                        genOptions.logprobs =
+                            genOptions.logprobs || system.logprobs
                         runTrace.detailsFenced("js", system.jsSource, "js")
                         runTrace.endDetails()
                         if (sysr.status !== "success")
@@ -711,8 +732,14 @@ export function createChatGenerationContext(
                 } finally {
                     runTrace.endDetails()
                 }
-            if (systemMessage.content) messages.unshift(systemMessage)
+            if (systemScripts.includes("system.tool_calls")) {
+                addToolDefinitionsMessage(messages, tools)
+                genOptions.fallbackTools = true
+            }
+            if (images?.length)
+                messages.push(toChatCompletionUserMessage("", images))
 
+            finalizeMessages(messages, { fileOutputs })
             const connection = await resolveModelConnectionInfo(genOptions, {
                 trace: runTrace,
                 token: true,

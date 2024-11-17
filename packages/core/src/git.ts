@@ -191,17 +191,32 @@ export class GitClient implements Git {
         base?: string
         head?: string
         merges?: boolean
+        author?: string
+        until?: string
+        after?: string
         count?: number
         excludedGrep?: string | RegExp
         paths?: ElementOrArray<string>
         excludedPaths?: ElementOrArray<string>
     }): Promise<GitCommit[]> {
-        const { base, head, merges, excludedGrep, count } = options || {}
+        const {
+            base,
+            head,
+            merges,
+            excludedGrep,
+            count,
+            author,
+            until,
+            after,
+        } = options || {}
         const paths = arrayify(options?.paths, { filterEmpty: true })
         const excludedPaths = await this.resolveExcludedPaths(options)
 
-        const args = ["log", "--pretty=oneline"]
+        const args = ["log", "--pretty=format:%h %ad %s", "--date=short"]
         if (!merges) args.push("--no-merges")
+        if (author) args.push(`--author`, author)
+        if (until) args.push("--until", until)
+        if (after) args.push("--after", after)
         if (excludedGrep) {
             const pattern =
                 typeof excludedGrep === "string"
@@ -217,11 +232,19 @@ export class GitClient implements Git {
             .split("\n")
             .map(
                 (line) =>
-                    /^(?<sha>[a-z0-9]{40,40})\s+(?<message>.*)$/.exec(line)
-                        ?.groups
+                    /^(?<sha>[a-z0-9]{9,40})\s+(?<date>\d{4,4}-\d{2,2}-\d{2,2})\s+(?<message>.*)$/.exec(
+                        line
+                    )?.groups
             )
             .filter((g) => !!g)
-            .map((g) => <GitCommit>{ sha: g?.sha, message: g?.message })
+            .map(
+                (g) =>
+                    <GitCommit>{
+                        sha: g?.sha,
+                        date: g?.date,
+                        message: g?.message,
+                    }
+            )
         return commits
     }
 

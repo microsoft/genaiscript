@@ -5,7 +5,7 @@ sidebar:
     order: 50
 ---
 
-When working with a GenAI, your program will likely be idling waiting for tokens to come back from the LLM.
+When working with GenAI, your program will likely be idle, waiting for tokens to return from the LLM.
 
 ## await and async
 
@@ -39,12 +39,12 @@ const [poem, essay] = await Promise.all(
 )
 ```
 
-This works but it may become problematic if you have a lot of entries as you will create a lot of requests concurrently and probably hit some rate limiting boundaries.
+This works, but it may become problematic if you have many entries, as you will create numerous requests concurrently and likely hit some rate-limiting boundaries.
 Note that GenAIScript automatically limits the number of concurrent requests to a single model to prevent this scenario.
 
 ## Promise queue
 
-The promise queue provides a way to run promises concurrently with a guaranteed concurrency limit, how many are allowed to run at the same time.
+The promise queue provides a way to run promises concurrently with a guaranteed concurrency limit, specifying how many are allowed to run at the same time.
 The difference with `Promise.all` is that you wrap each promise in a function.
 
 ```js

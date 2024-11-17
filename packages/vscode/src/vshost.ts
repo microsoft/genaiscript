@@ -12,7 +12,7 @@ import {
     DEFAULT_MODEL,
     DEFAULT_SMALL_MODEL,
     DEFAULT_TEMPERATURE,
-    DOT_ENV_FILENAME,
+    DEFAULT_VISION_MODEL,
 } from "../../core/src/constants"
 import { dotEnvTryParse } from "../../core/src/dotenv"
 import {
@@ -27,13 +27,13 @@ import { LanguageModel } from "../../core/src/chat"
 import { uniq } from "es-toolkit"
 
 export class VSCodeHost extends EventTarget implements Host {
-    dotEnvPath: string = DOT_ENV_FILENAME
     userState: any = {}
     readonly path = createVSPath()
     readonly server: TerminalServerManager
     readonly defaultModelOptions = {
         model: DEFAULT_MODEL,
         smallModel: DEFAULT_SMALL_MODEL,
+        visionModel: DEFAULT_VISION_MODEL,
         temperature: DEFAULT_TEMPERATURE,
     }
     readonly defaultEmbeddingsModelOptions = {
@@ -47,11 +47,7 @@ export class VSCodeHost extends EventTarget implements Host {
         this.state.context.subscriptions.push(this)
     }
 
-    async activate() {
-        const dotenv = await readFileText(this.projectUri, DOT_ENV_FILENAME)
-        const env = dotEnvTryParse(dotenv) ?? {}
-        await parseDefaultsFromEnv(env)
-    }
+    async activate() {}
 
     get context() {
         return this.state.context
@@ -108,6 +104,29 @@ export class VSCodeHost extends EventTarget implements Host {
             default:
                 output.info(msg)
                 break
+        }
+    }
+    async statFile(name: string): Promise<{
+        size: number
+        type: "file" | "directory" | "symlink"
+    }> {
+        const uri = this.toProjectFileUri(name)
+        try {
+            const stat = await vscode.workspace.fs.stat(uri)
+            if (!stat) return undefined
+            return {
+                size: stat.size,
+                type:
+                    stat.type === vscode.FileType.File
+                        ? "file"
+                        : stat.type === vscode.FileType.Directory
+                          ? "directory"
+                          : stat.type == vscode.FileType.SymbolicLink
+                            ? "symlink"
+                            : undefined,
+            }
+        } catch (e) {
+            return undefined
         }
     }
     async readFile(name: string): Promise<Uint8Array> {

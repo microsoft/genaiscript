@@ -1,5 +1,5 @@
 import { MemoryCache } from "./cache"
-import { AGENT_MEMORY_CACHE_NAME } from "./constants"
+import { AGENT_MEMORY_CACHE_NAME, TOKEN_NO_ANSWER } from "./constants"
 import { errorMessage } from "./error"
 import { HTMLEscape } from "./html"
 import { prettifyMarkdown } from "./markdown"
@@ -18,7 +18,7 @@ export async function agentQueryMemory(
         async (_) => {
             _.$`Return the contextual information useful to answer QUERY from the content in  MEMORY.
             - Use MEMORY as the only source of information.
-            - If you cannot find relevant information to answer QUERY, return <NO_INFORMATION>. DO NOT INVENT INFORMATION.
+            - If you cannot find relevant information to answer QUERY, return ${TOKEN_NO_ANSWER}. DO NOT INVENT INFORMATION.
             - Be concise. Keep it short. The output is used by another LLM.
             - Provide important details like identifiers and names.`
             _.def("QUERY", query)
@@ -32,7 +32,7 @@ export async function agentQueryMemory(
         }
     )
     if (!res.error)
-        memoryAnswer = res.text.includes("<NO_INFORMATION>") ? "" : res.text
+        memoryAnswer = res.text.includes(TOKEN_NO_ANSWER) ? "" : res.text
     else logVerbose(`agent memory query error: ${errorMessage(res.error)}`)
     return memoryAnswer
 }

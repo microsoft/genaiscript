@@ -22,6 +22,7 @@ import {
     DEFAULT_MODEL,
     DEFAULT_SMALL_MODEL,
     DEFAULT_TEMPERATURE,
+    DEFAULT_VISION_MODEL,
 } from "./constants"
 import {
     dirname,
@@ -35,6 +36,8 @@ import {
 } from "node:path"
 import { LanguageModel } from "./chat"
 import { Project } from "./ast"
+import { NotSupportedError } from "./error"
+import { HostConfiguration } from "./hostconfiguration"
 
 // Function to create a frozen object representing Node.js path methods
 // This object provides utility methods for path manipulations
@@ -53,9 +56,8 @@ export function createNodePath(): Path {
 
 // Class representing a test host for runtime, implementing the RuntimeHost interface
 export class TestHost implements RuntimeHost {
+    config: HostConfiguration
     project: Project
-    // Path to the dotenv file (if used)
-    dotEnvPath: string = undefined
     // State object to store user-specific data
     userState: any = {}
     // Service to manage language models
@@ -72,6 +74,7 @@ export class TestHost implements RuntimeHost {
     readonly defaultModelOptions = {
         model: DEFAULT_MODEL,
         smallModel: DEFAULT_SMALL_MODEL,
+        visionModel: DEFAULT_VISION_MODEL,
         temperature: DEFAULT_TEMPERATURE,
     }
     // Default options for embeddings models
@@ -82,6 +85,13 @@ export class TestHost implements RuntimeHost {
     // Static method to set this class as the runtime host
     static install() {
         setRuntimeHost(new TestHost())
+    }
+
+    contentSafety(
+        id?: "azure",
+        options?: TraceOptions
+    ): Promise<ContentSafety> {
+        throw new NotSupportedError("contentSafety")
     }
 
     // Method to create a UTF-8 decoder
@@ -137,6 +147,13 @@ export class TestHost implements RuntimeHost {
     // Method to read a file and return its content as a Uint8Array
     async readFile(name: string): Promise<Uint8Array> {
         return new Uint8Array(await readFile(resolve(name)))
+    }
+
+    async statFile(name: string): Promise<{
+        size: number
+        type: "file" | "directory"
+    }> {
+        return undefined
     }
 
     // Method to write content to a file

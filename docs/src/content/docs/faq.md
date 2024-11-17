@@ -30,7 +30,7 @@ keywords: AI, script generation, performance, best practices, limitations
     Foundation models and LLMs (Large Language Models) are AI models that GenAIScript can interact with to perform tasks like generating text or processing information.
 
 -   **How do I write my first GenAIScript?**
-    Start by learning the basics of JavaScript and the GenAIScript framework, then use the VS Code extension to create a script that defines the task, calls the LLM, and processes the output. More informatoin is available here: [Getting Started](/genaiscript/getting-started)
+    Start by learning the basics of JavaScript and the GenAIScript framework, then use the VS Code extension to create a script that defines the task, calls the LLM, and processes the output. More information is available here: [Getting Started](/genaiscript/getting-started)
 
 ### Using GenAIScript
 

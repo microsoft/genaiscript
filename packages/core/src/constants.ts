@@ -53,6 +53,7 @@ export const RETRIEVAL_PERSIST_DIR = "retrieval"
 export const HIGHLIGHT_LENGTH = 4000
 export const SMALL_MODEL_ID = "small"
 export const LARGE_MODEL_ID = "large"
+export const VISION_MODEL_ID = "vision"
 export const DEFAULT_MODEL = "openai:gpt-4o"
 export const DEFAULT_MODEL_CANDIDATES = [
     "azure:gpt-4o",
@@ -61,6 +62,14 @@ export const DEFAULT_MODEL_CANDIDATES = [
     "anthropic:claude-2",
     "github:gpt-4o",
     "client:gpt-4",
+]
+export const DEFAULT_VISION_MODEL = "openai:gpt-4o"
+export const DEFAULT_VISION_MODEL_CANDIDATES = [
+    "azure:gpt-4o",
+    "azure_serverless:gpt-4o",
+    DEFAULT_MODEL,
+    "anthropic:claude-2",
+    "github:gpt-4o",
 ]
 export const DEFAULT_SMALL_MODEL = "openai:gpt-4o-mini"
 export const DEFAULT_SMALL_MODEL_CANDIDATES = [
@@ -82,18 +91,22 @@ export const DEFAULT_EMBEDDINGS_MODEL = "openai:text-embedding-ada-002"
 export const DEFAULT_TEMPERATURE = 0.8
 export const BUILTIN_PREFIX = "_builtin/"
 export const CACHE_LLMREQUEST_PREFIX = "genaiscript/cache/llm/"
-export const CACHE_AIREQUEST_PREFIX = "genaiscript/cache/ai/"
+export const CACHE_AIREQUEST_TRACE_PREFIX = "genaiscript/cache/ai/trace/"
+export const CACHE_AIREQUEST_TEXT_PREFIX = "genaiscript/cache/ai/text/"
 export const TRACE_NODE_PREFIX = "genaiscript/trace/"
 export const EXTENSION_ID = "genaiscript.genaiscript-vscode"
 export const COPILOT_CHAT_PARTICIPANT_ID = TOOL_ID
 export const COPILOT_CHAT_PARTICIPANT_SCRIPT_ID = "copilotchat"
+
 export const BING_SEARCH_ENDPOINT = "https://api.bing.microsoft.com/v7.0/search"
+export const TAVILY_ENDPOINT = "https://api.tavily.com/search"
+
 export const SYSTEM_FENCE = "\n"
 export const MAX_DATA_REPAIRS = 1
 export const NPM_CLI_PACKAGE = "genaiscript"
 export const AICI_CONTROLLER = "gh:microsoft/aici/jsctrl"
 export const ICON_LOGO_NAME = "genaiscript-logo"
-export const SARIFF_RULEID_PREFIX = "genascript/"
+export const SARIFF_RULEID_PREFIX = "genaiscript/"
 export const SARIFF_BUILDER_URL = "https://github.com/microsoft/genaiscript/"
 export const SARIFF_BUILDER_TOOL_DRIVER_NAME = TOOL_ID
 export const FETCH_RETRY_DEFAULT = 5
@@ -131,6 +144,7 @@ export const LLAMAFILE_API_BASE = "http://localhost:8080/v1"
 export const LOCALAI_API_BASE = "http://localhost:8080/v1"
 export const LITELLM_API_BASE = "http://localhost:4000"
 export const ANTHROPIC_API_BASE = "https://api.anthropic.com"
+export const HUGGINGFACE_API_BASE = "https://api-inference.huggingface.co/v1"
 
 export const PROMPTFOO_CACHE_PATH = ".genaiscript/cache/tests"
 export const PROMPTFOO_CONFIG_DIR = ".genaiscript/config/tests"
@@ -154,10 +168,12 @@ export const MODEL_PROVIDER_LITELLM = "litellm"
 export const MODEL_PROVIDER_AICI = "aici"
 export const MODEL_PROVIDER_CLIENT = "client"
 export const MODEL_PROVIDER_ANTHROPIC = "anthropic"
+export const MODEL_PROVIDER_HUGGINGFACE = "huggingface"
 
 export const TRACE_FILE_PREVIEW_MAX_LENGTH = 240
 
-export const OPENROUTER_API_CHAT_URL = "https://openrouter.ai/api/v1/chat/completions"
+export const OPENROUTER_API_CHAT_URL =
+    "https://openrouter.ai/api/v1/chat/completions"
 export const OPENROUTER_SITE_URL_HEADER = "HTTP-Referer"
 export const OPENROUTER_SITE_NAME_HEADER = "X-Title"
 
@@ -187,7 +203,18 @@ export const DOCS_CONFIGURATION_AICI_URL =
     "https://microsoft.github.io/genaiscript/reference/scripts/aici/"
 export const DOCS_CONFIGURATION_ANTHROPIC_URL =
     "https://microsoft.github.io/genaiscript/getting-started/configuration/#anthropic"
-export const DOCS_CONFIGURATION_CONTENT_SAFETY_URL = "https://microsoft.github.io/genaiscript/reference/scripts/content-safety"
+export const DOCS_CONFIGURATION_HUGGINGFACE_URL =
+    "https://microsoft.github.io/genaiscript/getting-started/configuration/#huggingface"
+export const DOCS_CONFIGURATION_CONTENT_SAFETY_URL =
+    "https://microsoft.github.io/genaiscript/reference/scripts/content-safety"
+export const DOCS_DEF_FILES_IS_EMPTY_URL =
+    "https://microsoft.github.io/genaiscript/reference/scripts/context/#empty-files"
+export const DOCS_WEB_SEARCH_URL =
+    "https://microsoft.github.io/genaiscript/reference/scripts/web-search/"
+export const DOCS_WEB_SEARCH_BING_SEARCH_URL =
+    "https://microsoft.github.io/genaiscript/reference/scripts/web-search/#bingn"
+export const DOCS_WEB_SEARCH_TAVILY_URL =
+    "https://microsoft.github.io/genaiscript/reference/scripts/web-search/#tavily"
 
 export const MODEL_PROVIDERS = Object.freeze([
     {
@@ -216,6 +243,16 @@ export const MODEL_PROVIDERS = Object.freeze([
         url: DOCS_CONFIGURATION_AZURE_MODELS_SERVERLESS_URL,
     },
     {
+        id: MODEL_PROVIDER_ANTHROPIC,
+        detail: "Anthropic models",
+        url: DOCS_CONFIGURATION_ANTHROPIC_URL,
+    },
+    {
+        id: MODEL_PROVIDER_HUGGINGFACE,
+        detail: "Hugging Face models",
+        url: DOCS_CONFIGURATION_HUGGINGFACE_URL,
+    },
+    {
         id: MODEL_PROVIDER_OLLAMA,
         detail: "Ollama local model",
         url: DOCS_CONFIGURATION_OLLAMA_URL,
@@ -229,16 +266,6 @@ export const MODEL_PROVIDERS = Object.freeze([
         id: MODEL_PROVIDER_LITELLM,
         detail: "LiteLLM proxy",
         url: DOCS_CONFIGURATION_LITELLM_URL,
-    },
-    {
-        id: MODEL_PROVIDER_AICI,
-        detail: "AICI controller",
-        url: DOCS_CONFIGURATION_AICI_URL,
-    },
-    {
-        id: MODEL_PROVIDER_ANTHROPIC,
-        detail: "Anthropic models",
-        url: DOCS_CONFIGURATION_ANTHROPIC_URL,
     },
 ])
 
@@ -309,7 +336,7 @@ export const PROMISE_QUEUE_CONCURRENCY_DEFAULT = 16
 export const GITHUB_REST_API_CONCURRENCY_LIMIT = 8
 export const GITHUB_REST_PAGE_DEFAULT = 10
 
-export const TOKEN_TRUNCATION_THRESHOLD = 128
+export const TOKEN_TRUNCATION_THRESHOLD = 16
 
 export const GIT_IGNORE_GENAI = ".gitignore.genai"
 export const CLI_ENV_VAR_RX = /^genaiscript_var_/i
@@ -320,8 +347,13 @@ export const MAX_TOOL_CONTENT_TOKENS = 4000
 
 export const AGENT_MEMORY_CACHE_NAME = "agent_memory"
 
-export const LLM_TAG_MISSING_INFO = "MISSING_INFO"
-export const LLM_TAG_NO_ANSWER = "NO_ANSWER"
-
 export const AZURE_CONTENT_SAFETY_PROMPT_SHIELD_MAX_LENGTH = 9000
 export const AZURE_CONTENT_SAFETY_PROMPT_SHIELD_MAX_DOCUMENTS = 9000
+
+export const TOKEN_MISSING_INFO = "<MISSING_INFO>"
+export const TOKEN_NO_ANSWER = "<NO_ANSWER>"
+
+export const CHOICE_LOGIT_BIAS = 5
+
+export const SANITIZED_PROMPT_INJECTION =
+    "...prompt injection detected, content removed..."

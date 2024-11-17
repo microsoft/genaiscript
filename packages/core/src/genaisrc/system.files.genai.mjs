@@ -6,7 +6,7 @@ system({
 const folder = env.vars["outputFolder"] || "."
 $`## FILE file format
 
-When generating or updating files you should use the FILE file syntax preferrably:`
+When generating, saving or updating files you should use the FILE file syntax preferably:`
 
 def(`File ${folder}/file1.ts`, `What goes in\n${folder}/file1.ts.`, {
     language: "typescript",
@@ -21,6 +21,8 @@ def(`File /path_to_file/file2.md`, `What goes in\n/path_to_file/file2.md.`, {
     language: "markdown",
 })
 
+$`If you need to save a file and there are no tools available, use the FILE file format. The output of the LLM will parsed 
+and saved. It is important to use the proper syntax.`
 $`You MUST specify a start_line and end_line to only update a specific part of a file:
 
 FILE ${folder}/file1.py:

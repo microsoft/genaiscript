@@ -118,20 +118,22 @@ export function JSONSchemaStringifyToTypeScript(
 
     // Convert a JSON Schema object to TypeScript
     function stringifyObject(object: JSONSchemaObject): void {
-        const { required, additionalProperties } = object
+        const { required, properties, additionalProperties } = object
         append(`{`)
         indent++
         if (additionalProperties) append(`[key: string]: any,`)
-        Object.keys(object.properties).forEach((key) => {
-            const prop = object.properties[key]
-            const field = `${key}${required?.includes(key) ? "" : "?"}`
-            const doc = stringifyNodeDoc(prop)
-            appendJsDoc(doc)
-            append(`${field}:`)
-            const v = stringifyNode(prop)
-            if (v) lines[lines.length - 1] = lines[lines.length - 1] + " " + v
-            lines[lines.length - 1] = lines[lines.length - 1] + ","
-        })
+        if (properties)
+            Object.keys(properties).forEach((key) => {
+                const prop = properties[key]
+                const field = `${key}${required?.includes(key) ? "" : "?"}`
+                const doc = stringifyNodeDoc(prop)
+                appendJsDoc(doc)
+                append(`${field}:`)
+                const v = stringifyNode(prop)
+                if (v)
+                    lines[lines.length - 1] = lines[lines.length - 1] + " " + v
+                lines[lines.length - 1] = lines[lines.length - 1] + ","
+            })
         indent--
         append(`}`)
     }

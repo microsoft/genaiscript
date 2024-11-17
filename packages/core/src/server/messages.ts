@@ -70,6 +70,7 @@ export interface PromptScriptRunOptions {
     maxDataRepairs: string
     model: string
     smallModel: string
+    visionModel: string
     embeddingsModel: string
     csvSeparator: string
     cache: boolean | string
@@ -78,7 +79,12 @@ export interface PromptScriptRunOptions {
     failOnErrors: boolean
     removeOut: boolean
     vars: string[]
+    fallbackTools: boolean
     jsSource: string
+    logprobs: boolean
+    topLogprobs: number
+
+    varsMap?: Record<string, string | boolean | number | object>
 }
 
 export interface PromptScriptStart extends RequestMessage {
@@ -117,6 +123,7 @@ export interface PromptScriptProgressResponseEvent {
     tokens?: number
     response?: string
     responseChunk?: string
+    responseTokens?: Logprob[]
     inner?: boolean
 }
 

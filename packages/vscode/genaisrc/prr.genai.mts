@@ -4,7 +4,9 @@ script({
     system: [
         "system.assistant",
         "system.annotations",
+        "system.safety_jailbreak",
         "system.safety_harmful_content",
+        "system.safety_validate_harmful_content",
     ],
     tools: ["fs", "git"],
     cache: "prr",
@@ -15,7 +17,10 @@ const changes = await git.diff({
     base: defaultBranch,
 })
 console.log(changes)
-def("GIT_DIFF", changes, { maxTokens: 20000 })
+def("GIT_DIFF", changes, {
+    maxTokens: 20000,
+    detectPromptInjection: "available",
+})
 
 $`Report errors in GIT_DIFF using the annotation format.
 

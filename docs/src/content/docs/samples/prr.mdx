@@ -8,7 +8,7 @@ sidebar:
 import { Code } from "@astrojs/starlight/components"
 import source from "../../../../../packages/vscode/genaisrc/prr.genai.mts?raw"
 
-Let's delve into the "Reviewer" script, which automates the code review process, making it a breeze for developers.
+Let's delve into the "Reviewer" script, which automates the code review process and makes it easier for developers.
 
 ### Script Metadata
 
@@ -23,7 +23,7 @@ script({
 })
 ```
 
-This block defines the script's metadata. It sets the `title` and `description` for the script, along with specifying the `model`, which is `openai:gpt-4o` in this case. The `system` and `tools` arrays list the dependencies that the script requires. Lastly, we have `parameters` which can control the behavior of the script—here, we see a boolean named `errors` that determines if only errors should be reported.
+This block defines the script's metadata. It sets the `title` and `description` for the script, along with specifying the `model`, which is `openai:gpt-4o` in this case. The `system` and `tools` arrays list the dependencies that the script requires. Lastly, we have `parameters`, which can control the behavior of the script—here, we see a boolean named `errors` that determines if only errors should be reported.
 
 ## Configuration
 
@@ -72,7 +72,7 @@ ${errors ? `- Do not report warnings, only errors.` : ``}
 `
 ```
 
-As you can see, the AI's role is that of an expert developer reviewing code. It's tasked with reporting errors (or errors and warnings) in the provided content. The guidance section sets clear expectations for the quality of the review.
+As you can see, the AI's role is that of an expert developer reviewing code. It is tasked with reporting errors (or errors and warnings) in the provided content. The guidance section sets clear expectations for the quality of the review.
 
 ## How to Run the Script
 
@@ -85,8 +85,22 @@ genaiscript run rv
 ```
 
 This will execute the script and provide you with the AI's feedback directly in your terminal or command prompt.
-It's like having a virtual code reviewer at your disposal whenever you need it!
+It's like having a virtual code reviewer at your disposal whenever you need it.
 
 ## Full source ([GitHub](https://github.com/microsoft/genaiscript/blob/main/packages/vscode/genaisrc/rv.genai.mts))
 
-<Code code={source} wrap={true} lang="ts" title="rv.genai.mts" />
+<Code code={source} wrap={true} lang="ts" title="prr.genai.mts" />
+
+## Content Safety
+
+The following measures are taken to ensure the safety of the generated content.
+
+-   This script includes system prompts to prevent prompt injection and harmful content generation.
+    - [system.safety_jailbreak](/genaiscript/reference/scripts/system#systemsafety_jailbreak)
+    - [system.safety_harmful_content](/genaiscript/reference/scripts/system#systemsafety_harmful_content)
+-   The generated description is saved to a file at a specific path, which allows for a manual review before committing the changes.
+
+Additional measures to further enhance safety would be to run [a model with a safety filter](https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/content-filter?tabs=warning%2Cuser-prompt%2Cpython-new)
+or validate the message with a [content safety service](/genaiscript/reference/scripts/content-safety).
+
+Refer to the [Transparency Note](/genaiscript/reference/transparency-note/) for more information on content safety.

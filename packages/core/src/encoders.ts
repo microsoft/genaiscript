@@ -4,34 +4,57 @@ import { runtimeHost } from "./host"
 import path from "node:path"
 import { addLineNumbers, indexToLineNumber } from "./liner"
 import { resolveFileContent } from "./file"
-import { NotSupportedError } from "./error"
+import type { EncodeOptions } from "gpt-tokenizer/GptEncoding"
 
 /**
  * Resolves the appropriate token encoder based on the given model ID.
  * @param modelId - The identifier for the model to resolve the encoder for.
  * @returns A Promise that resolves to a TokenEncoder function.
  */
-export async function resolveTokenEncoder(modelId: string): Promise<Tokenizer> {
+export async function resolveTokenEncoder(
+    modelId: string,
+    options?: { disableFallback?: boolean }
+): Promise<Tokenizer> {
+    const { disableFallback } = options || {}
     // Parse the model identifier to extract the model information
     if (!modelId) modelId = runtimeHost.defaultModelOptions.model
     const { model } = parseModelIdentifier(modelId)
-    const module = model // Assign model to module for dynamic import path
+    const module = model.toLowerCase() // Assign model to module for dynamic import path
 
-    const options = { disallowedSpecial: new Set<string>() }
+    const encoderOptions = {
+        disallowedSpecial: new Set<string>(),
+    } satisfies EncodeOptions
     try {
         // Attempt to dynamically import the encoder module for the specified model
-        const { encode, decode } = await import(`gpt-tokenizer/model/${module}`)
+        const {
+            encode,
+            decode,
+            default: api,
+        } = await import(`gpt-tokenizer/model/${module}`)
+        const { modelName } = api
+        const size =
+            api.bytePairEncodingCoreProcessor?.mergeableBytePairRankCount +
+            (api.bytePairEncodingCoreProcessor?.specialTokenMapping?.size || 0)
         return Object.freeze<Tokenizer>({
-            model,
-            encode: (line) => encode(line, options), // Return the default encoder function
+            model: modelName,
+            size,
+            encode: (line) => encode(line, encoderOptions), // Return the default encoder function
             decode,
         })
     } catch (e) {
+        if (disableFallback) return undefined
+
         // If the specific model encoder is not found, default to gpt-4o encoder
-        const { encode, decode } = await import("gpt-tokenizer")
+        const {
+            encode,
+            decode,
+            default: api,
+        } = await import("gpt-tokenizer/model/gpt-4o")
+        const { modelName, vocabularySize } = api
         return Object.freeze<Tokenizer>({
-            model: "gpt-4o",
-            encode: (line) => encode(line, options), // Return the default encoder function
+            model: modelName,
+            size: vocabularySize,
+            encode: (line) => encode(line, encoderOptions), // Return the default encoder function
             decode,
         })
     }

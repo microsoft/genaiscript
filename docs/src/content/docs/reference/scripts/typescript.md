@@ -42,11 +42,11 @@ const { summarize } = await import("./summarizer.mts")
 summarize(env.generator, env.files)
 ```
 
-## Does GenAIScript typecheck prompts?
+## Does GenAIScript type-check prompts?
 
 No.
 
 GenAIScript converts TypeScript to JavaScript **without type checks** through [tsx](https://tsx.is/usage#no-type-checking).
 
-Most modern editors, like like Visual Studio Code, will automatically
-typecheck TypeScript sources.
+Most modern editors, like Visual Studio Code, will automatically
+type-check TypeScript sources.

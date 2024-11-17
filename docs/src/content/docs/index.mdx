@@ -52,7 +52,7 @@ $`Write a 'hello world' poem.`
 
 The `$` function is a template tag that creates a prompt. The prompt is then sent to the LLM (you configured), which generates the poem.
 
-Let's make it more interresting by adding files, data and structured output. Say you want to include a file in the prompt, and then save the output in a file. You can write the following script:
+Let's make it more interesting by adding files, data, and structured output. Say you want to include a file in the prompt, and then save the output in a file. You can write the following script:
 
 ```js
 // read files
@@ -127,6 +127,7 @@ or with a [command line](/genaiscript/getting-started/installation).
 <Card title="LLM Tools" icon="setting">
 
 Register JavaScript functions as [LLM tools](/genaiscript/reference/scripts/tools/)
+(with fallback for models that don't support tools).
 
 ```js wrap
 defTool("weather", "live weather",
@@ -257,7 +258,7 @@ The quick brown fox jumps over the lazy dog.
 
 <Card title="File search" icon="document">
 
-Grep or fuzz search [files](/genaiscript/referen/script/files)
+Grep or fuzz search [files](/genaiscript/reference/script/files)
 
 ```js wrap
 const { files } = await workspace.grep(/[a-z][a-z0-9]+/, { globs: "*.md" })
@@ -265,7 +266,17 @@ const { files } = await workspace.grep(/[a-z][a-z0-9]+/, { globs: "*.md" })
 
 </Card>
 
-<Card title="Browser automation" icon="document">
+<Card title="Web search" icon="magnifier">
+
+[Web search](/genaiscript/reference/scripts/web-search) using Bing or Tavily.
+
+```js wrap
+const pages = await retreival.webSearch("what are the latest news about AI?")
+```
+
+</Card>
+
+<Card title="Browser automation" icon="approve-check-circle">
 
 Browse and scrape the web with [Playwright](/genaiscript/reference/scripts/browse).
 
@@ -292,12 +303,14 @@ const { files } = await retrieval.vectorSearch("cats", "**/*.md")
 GenAIScript provides built-in Responsible AI system prompts and Azure Content Safety supports
 to validate [content safety](/genaiscript/reference/scripts/content-safety).
 
-```js
+```js wrap
 script({ ...,
     system: ["system.safety_harmful_content", ...],
+    contentSafety: "azure" // use azure content safety
 })
 
-const res = contentSafety.detectPromptInjection(env.vars.input)
+const safety = await host.contentSafety()
+const res = await safety.detectPromptInjection(env.vars.input)
 ```
 
 </Card>

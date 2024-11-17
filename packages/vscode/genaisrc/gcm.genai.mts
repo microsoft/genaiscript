@@ -6,7 +6,6 @@
 script({
     title: "git commit message",
     description: "Generate a commit message for all staged changes",
-    system: ["system.assistant"],
 })
 
 // Check for staged changes and stage all changes if none are staged
@@ -34,7 +33,11 @@ do {
     for (const chunk of chunks) {
         const res = await runPrompt(
             (_) => {
-                _.def("GIT_DIFF", chunk, { maxTokens: 10000, language: "diff" })
+                _.def("GIT_DIFF", chunk, {
+                    maxTokens: 10000,
+                    language: "diff",
+                    detectPromptInjection: "available",
+                })
                 _.$`Generate a git conventional commit message that summarizes the changes in GIT_DIFF.
 
         <type>: <description>
@@ -54,9 +57,10 @@ do {
                 model: "large", // Specifies the LLM model to use for message generation
                 label: "generate commit message", // Label for the prompt task
                 system: [
+                    "system.assistant",
                     "system.safety_jailbreak",
                     "system.safety_harmful_content",
-                    "system.safety_ungrounded_content_summarization",
+                    "system.safety_validate_harmful_content",
                 ],
             }
         )
@@ -87,9 +91,10 @@ do {
                 model: "large",
                 label: "summarize chunk commit messages",
                 system: [
+                    "system.assistant",
                     "system.safety_jailbreak",
                     "system.safety_harmful_content",
-                    "system.safety_ungrounded_content_summarization",
+                    "system.safety_validate_harmful_content",
                 ],
             })
         if (res.error) throw res.error

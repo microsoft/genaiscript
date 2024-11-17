@@ -1,7 +1,7 @@
 import dotenv from "dotenv"
 
 import { TextDecoder, TextEncoder } from "util"
-import { readFile, unlink, writeFile } from "node:fs/promises"
+import { lstat, readFile, unlink, writeFile } from "node:fs/promises"
 import { ensureDir, exists, existsSync, remove } from "fs-extra"
 import { resolve, dirname } from "node:path"
 import { glob } from "glob"
@@ -21,7 +21,6 @@ import {
     DEFAULT_TEMPERATURE,
     MODEL_PROVIDER_AZURE_OPENAI,
     SHELL_EXEC_TIMEOUT,
-    DOT_ENV_FILENAME,
     MODEL_PROVIDER_OLLAMA,
     TOOL_ID,
     DEFAULT_EMBEDDINGS_MODEL,
@@ -30,6 +29,8 @@ import {
     MODEL_PROVIDER_AZURE_SERVERLESS_MODELS,
     AZURE_AI_INFERENCE_TOKEN_SCOPES,
     MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI,
+    DOT_ENV_FILENAME,
+    DEFAULT_VISION_MODEL,
 } from "../../core/src/constants"
 import { tryReadText } from "../../core/src/fs"
 import {
@@ -48,7 +49,11 @@ import { AbortSignalOptions, TraceOptions } from "../../core/src/trace"
 import { logError, logVerbose } from "../../core/src/util"
 import { parseModelIdentifier } from "../../core/src/models"
 import { LanguageModel } from "../../core/src/chat"
-import { errorMessage, serializeError } from "../../core/src/error"
+import {
+    errorMessage,
+    NotSupportedError,
+    serializeError,
+} from "../../core/src/error"
 import { BrowserManager } from "./playwright"
 import { shellConfirm, shellInput, shellSelect } from "./input"
 import { shellQuote } from "../../core/src/shell"
@@ -56,6 +61,12 @@ import { uniq } from "es-toolkit"
 import { PLimitPromiseQueue } from "../../core/src/concurrency"
 import { Project } from "../../core/src/ast"
 import { createAzureTokenResolver } from "./azuretoken"
+import {
+    createAzureContentSafetyClient,
+    isAzureContentSafetyClientConfigured,
+} from "../../core/src/azurecontentsafety"
+import { resolveGlobalConfiguration } from "../../core/src/config"
+import { HostConfiguration } from "../../core/src/hostconfiguration"
 
 class NodeServerManager implements ServerManager {
     async start(): Promise<void> {
@@ -119,7 +130,7 @@ class ModelManager implements ModelService {
 }
 
 export class NodeHost implements RuntimeHost {
-    readonly dotEnvPath: string
+    readonly config: HostConfiguration
     project: Project
     userState: any = {}
     models: ModelService
@@ -131,6 +142,7 @@ export class NodeHost implements RuntimeHost {
     readonly defaultModelOptions = {
         model: DEFAULT_MODEL,
         smallModel: DEFAULT_SMALL_MODEL,
+        visionModel: DEFAULT_VISION_MODEL,
         temperature: DEFAULT_TEMPERATURE,
     }
     readonly defaultEmbeddingsModelOptions = {
@@ -140,24 +152,28 @@ export class NodeHost implements RuntimeHost {
     readonly azureToken: AzureTokenResolver
     readonly azureServerlessToken: AzureTokenResolver
 
-    constructor(dotEnvPath: string) {
-        this.dotEnvPath = dotEnvPath
-        this.syncDotEnv()
+    constructor(config: HostConfiguration) {
+        this.config = config
         this.models = new ModelManager(this)
         this.azureToken = createAzureTokenResolver(
             "Azure",
+            "AZURE_OPENAI_TOKEN_SCOPES",
             AZURE_COGNITIVE_SERVICES_TOKEN_SCOPES
         )
         this.azureServerlessToken = createAzureTokenResolver(
             "Azure AI Serverless",
+            "AZURE_SERVERLESS_OPENAI_TOKEN_SCOPES",
             AZURE_AI_INFERENCE_TOKEN_SCOPES
         )
     }
 
-    private syncDotEnv() {
-        if (existsSync(this.dotEnvPath)) {
+    private async syncDotEnv() {
+        const { envFile } = this.config
+        if (existsSync(envFile)) {
+            if (resolve(envFile) !== resolve(DOT_ENV_FILENAME))
+                logVerbose(`.env: loading ${envFile}`)
             const res = dotenv.config({
-                path: this.dotEnvPath,
+                path: envFile,
                 debug: !!process.env.DEBUG,
                 override: true,
             })
@@ -166,20 +182,19 @@ export class NodeHost implements RuntimeHost {
     }
 
     static async install(dotEnvPath: string) {
-        dotEnvPath = dotEnvPath || resolve(DOT_ENV_FILENAME)
-        const h = new NodeHost(dotEnvPath)
+        const config = await resolveGlobalConfiguration(dotEnvPath)
+        const h = new NodeHost(config)
         setRuntimeHost(h)
         await h.parseDefaults()
         return h
     }
 
     async readSecret(name: string): Promise<string | undefined> {
-        this.syncDotEnv()
         return process.env[name]
     }
 
     private async parseDefaults() {
-        this.syncDotEnv()
+        await this.syncDotEnv()
         await parseDefaultsFromEnv(process.env)
     }
     clientLanguageModel: LanguageModel
@@ -189,7 +204,6 @@ export class NodeHost implements RuntimeHost {
         options?: { token?: boolean } & AbortSignalOptions & TraceOptions
     ): Promise<LanguageModelConfiguration> {
         const { signal, token: askToken } = options || {}
-        await this.parseDefaults()
         const tok = await parseTokenFromEnv(process.env, modelId)
         if (!askToken && tok?.token) tok.token = "***"
         if (askToken && tok && !tok.token) {
@@ -202,7 +216,9 @@ export class NodeHost implements RuntimeHost {
                     options
                 )
                 if (!azureToken)
-                    throw new Error("Azure OpenAI token not available")
+                    throw new Error(
+                        `Azure OpenAI token not available for ${modelId}`
+                    )
                 tok.token = "Bearer " + azureToken.token
             } else if (
                 tok.provider === MODEL_PROVIDER_AZURE_SERVERLESS_MODELS
@@ -211,28 +227,27 @@ export class NodeHost implements RuntimeHost {
                     tok.azureCredentialsType,
                     options
                 )
-                if (!azureToken) throw new Error("Azure AI token not available")
+                if (!azureToken)
+                    throw new Error(
+                        `Azure AI token not available for ${modelId}`
+                    )
                 tok.token = "Bearer " + azureToken.token
             }
         }
         if (!tok) {
             if (!modelId)
                 throw new Error(
-                    "could not determine default model from current configuration"
+                    "Could not determine default model from current configuration"
                 )
             const { provider } = parseModelIdentifier(modelId)
             if (provider === MODEL_PROVIDER_AZURE_OPENAI)
-                throw new Error(
-                    "Azure OpenAI end point not configured (AZURE_OPENAI_ENDPOINT)"
-                )
+                throw new Error(`Azure OpenAI not configured for ${modelId}`)
             else if (provider === MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI)
                 throw new Error(
-                    "Azure AI OpenAI Serverless end point not configured (AZURE_SERVERLESS_OPENAI_API_ENDPOINT)"
+                    `Azure AI OpenAI Serverless not configured for ${modelId}`
                 )
             else if (provider === MODEL_PROVIDER_AZURE_SERVERLESS_MODELS)
-                throw new Error(
-                    "Azure AI Models end point not configured (AZURE_SERVERLESS_MODELS_API_ENDPOINT)"
-                )
+                throw new Error(`Azure AI Models not configured for ${modelId}`)
         }
         if (!tok && this.clientLanguageModel) {
             return <LanguageModelConfiguration>{
@@ -278,6 +293,26 @@ export class NodeHost implements RuntimeHost {
     resolvePath(...segments: string[]) {
         return this.path.resolve(...segments)
     }
+    async statFile(name: string): Promise<{
+        size: number
+        type: "file" | "directory" | "symlink"
+    }> {
+        try {
+            const stats = await lstat(name)
+            return {
+                size: stats.size,
+                type: stats.isFile()
+                    ? "file"
+                    : stats.isDirectory()
+                      ? "directory"
+                      : stats.isSymbolicLink()
+                        ? "symlink"
+                        : undefined,
+            }
+        } catch (error) {
+            return undefined
+        }
+    }
     async readFile(name: string): Promise<Uint8Array> {
         const wksrx = /^workspace:\/\//i
         if (wksrx.test(name))
@@ -319,6 +354,19 @@ export class NodeHost implements RuntimeHost {
     }
     async deleteDirectory(name: string): Promise<void> {
         await remove(name)
+    }
+
+    async contentSafety(
+        id?: "azure",
+        options?: TraceOptions
+    ): Promise<ContentSafety> {
+        if (!id && isAzureContentSafetyClientConfigured()) id = "azure"
+        if (id === "azure") {
+            const safety = createAzureContentSafetyClient(options)
+            return safety
+        } else if (id)
+            throw new NotSupportedError(`content safety ${id} not supported`)
+        return undefined
     }
 
     async browse(

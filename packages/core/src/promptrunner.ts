@@ -74,18 +74,20 @@ async function resolveExpansionVars(
     }
 
     // Create and return an object containing resolved variables
-    const meta: PromptDefinition & ModelConnectionOptions = {
-        id: template.id,
-        title: template.title,
-        description: template.description,
-        group: template.group,
-        model: template.model,
-    }
+    const meta: PromptDefinition & ModelConnectionOptions = Object.freeze(
+        structuredClone({
+            id: template.id,
+            title: template.title,
+            description: template.description,
+            group: template.group,
+            model: template.model,
+            defTools: template.defTools,
+        })
+    )
     const res = {
         dir: ".",
         files,
         meta,
-        template: meta,
         vars: attrs,
         secrets,
     } satisfies Partial<ExpansionVariables>
@@ -131,7 +133,7 @@ export async function runTemplate(
         let {
             messages,
             schemas,
-            functions,
+            tools,
             fileMerges,
             outputProcessors,
             chatParticipants,
@@ -144,6 +146,8 @@ export async function runTemplate(
             seed,
             responseType,
             responseSchema,
+            logprobs,
+            topLogprobs,
         } = await expandTemplate(
             prj,
             template,
@@ -196,6 +200,7 @@ export async function runTemplate(
         // Execute chat session with the resolved configuration
         const genOptions: GenerationOptions = {
             ...options,
+            choices: template.choices,
             responseType,
             responseSchema,
             model,
@@ -203,13 +208,15 @@ export async function runTemplate(
             maxTokens,
             topP,
             seed,
+            logprobs,
+            topLogprobs,
             stats: options.stats.createChild(connection.info.model),
         }
         const output = await executeChatSession(
             connection.configuration,
             cancellationToken,
             messages,
-            functions,
+            tools,
             schemas,
             fileOutputs,
             outputProcessors,
@@ -271,9 +278,11 @@ export async function runTemplate(
             status:
                 finishReason === "cancel"
                     ? "cancelled"
-                    : finishReason === "stop"
-                      ? "success"
-                      : "error",
+                    : error
+                      ? "error"
+                      : finishReason === "stop"
+                        ? "success"
+                        : "error",
             finishReason,
             error,
             messages,
@@ -289,6 +298,8 @@ export async function runTemplate(
             genVars,
             schemas,
             json,
+            logprobs: output.logprobs,
+            perplexity: output.perplexity,
             stats: {
                 cost: options.stats.cost(),
                 ...options.stats.usage,

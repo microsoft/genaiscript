@@ -11,6 +11,7 @@ import {
     MARKDOWN_PROMPT_FENCE,
     PROMPT_FENCE,
     PROMPTY_REGEX,
+    SANITIZED_PROMPT_INJECTION,
     TEMPLATE_ARG_DATA_SLICE_SAMPLE,
     TEMPLATE_ARG_FILE_MAX_TOKENS,
 } from "./constants"
@@ -30,6 +31,8 @@ import { interpolateVariables } from "./mustache"
 import { createDiff } from "./diff"
 import { promptyParse } from "./prompty"
 import { jinjaRenderChatMessage } from "./jinja"
+import { runtimeHost } from "./host"
+import { hash } from "./crypto"
 
 // Definition of the PromptNode interface which is an essential part of the code structure.
 export interface PromptNode extends ContextExpansionOptions {
@@ -62,6 +65,11 @@ export interface PromptNode extends ContextExpansionOptions {
      */
     preview?: string
     name?: string
+
+    /**
+     * Node removed from the tree
+     */
+    deleted?: boolean
 }
 
 // Interface for a text node in the prompt tree.
@@ -255,6 +263,7 @@ function renderDefNode(def: PromptDefNode): string {
     const diffFormat =
         body.length > 500 ? " preferred_output_format=CHANGELOG " : ""
     const res =
+        "\n" +
         (name ? name + ":\n" : "") +
         dfence +
         dtype +
@@ -516,10 +525,11 @@ export async function visitNode(node: PromptNode, visitor: PromptNodeVisitor) {
             break
     }
     if (node.error) visitor.error?.(node)
-    if (!node.error && node.children) {
+    if (!node.error && !node.deleted && node.children) {
         for (const child of node.children) {
             await visitNode(child, visitor)
         }
+        node.children = node.children?.filter((c) => !c.deleted)
     }
     await visitor.afterNode?.(node)
 }
@@ -911,6 +921,63 @@ async function tracePromptNode(
     })
 }
 
+async function validateSafetyPromptNode(
+    trace: MarkdownTrace,
+    root: PromptNode
+) {
+    let mod = false
+    await visitNode(root, {
+        def: async (n) => {
+            if (n.detectPromptInjection && n.resolved?.content) {
+                const { detectPromptInjection } =
+                    (await runtimeHost.contentSafety(undefined, {
+                        trace,
+                    })) || {}
+                if (
+                    (!detectPromptInjection &&
+                        n.detectPromptInjection === true) ||
+                    n.detectPromptInjection === "always"
+                )
+                    throw new Error("content safety service not available")
+                const { attackDetected } =
+                    (await detectPromptInjection?.(n.resolved)) || {}
+                if (attackDetected) {
+                    mod = true
+                    n.resolved = {
+                        filename: n.resolved.filename,
+                        content: SANITIZED_PROMPT_INJECTION,
+                    }
+                    n.preview = SANITIZED_PROMPT_INJECTION
+                    n.error = `safety: prompt injection detected`
+                    trace.error(
+                        `safety: prompt injection detected in ${n.resolved.filename}`
+                    )
+                }
+            }
+        },
+    })
+    return mod
+}
+
+async function deduplicatePromptNode(trace: MarkdownTrace, root: PromptNode) {
+    let mod = false
+
+    const defs = new Set<string>()
+    await visitNode(root, {
+        def: async (n) => {
+            const key = await hash(n)
+            if (defs.has(key)) {
+                trace.log(`duplicate definition and content: ${n.name}`)
+                n.deleted = true
+                mod = true
+            } else {
+                defs.add(key)
+            }
+        },
+    })
+    return mod
+}
+
 // Main function to render a prompt node.
 export async function renderPromptNode(
     modelId: string,
@@ -924,6 +991,9 @@ export async function renderPromptNode(
     await resolvePromptNode(model, node)
     await tracePromptNode(trace, node)
 
+    if (await deduplicatePromptNode(trace, node))
+        await tracePromptNode(trace, node, { label: "deduplicate" })
+
     if (await layoutPromptNode(model, node))
         await tracePromptNode(trace, node, { label: "layout" })
 
@@ -935,6 +1005,9 @@ export async function renderPromptNode(
 
     const truncated = await truncatePromptNode(model, node, options)
     if (truncated) await tracePromptNode(trace, node, { label: "truncated" })
+
+    const safety = await validateSafetyPromptNode(trace, node)
+    if (safety) await tracePromptNode(trace, node, { label: "safety" })
 
     const messages: ChatCompletionMessageParam[] = []
     const appendSystem = (content: string) =>
@@ -1063,17 +1136,6 @@ ${trimNewlines(schemaText)}
         },
     })
 
-    const fods = fileOutputs?.filter((f) => !!f.description)
-    if (fods?.length > 0) {
-        appendSystem(`
-## File generation rules
-
-When generating files, use the following rules which are formatted as "file glob: description":
-
-${fods.map((fo) => `   ${fo.pattern}: ${fo.description}`)}
-`)
-    }
-
     const res = Object.freeze<PromptNodeRender>({
         images,
         schemas,
@@ -1086,4 +1148,23 @@ ${fods.map((fo) => `   ${fo.pattern}: ${fo.description}`)}
         fileOutputs,
     })
     return res
+}
+
+export function finalizeMessages(
+    messages: ChatCompletionMessageParam[],
+    options?: { fileOutputs?: FileOutput[] }
+) {
+    const { fileOutputs } = options || {}
+    if (fileOutputs?.length > 0) {
+        appendSystemMessage(
+            messages,
+            `
+## File generation rules
+
+When generating files, use the following rules which are formatted as "file glob: description":
+
+${fileOutputs.map((fo) => `   ${fo.pattern}: ${fo.description || "generated file"}`)}
+`
+        )
+    }
 }

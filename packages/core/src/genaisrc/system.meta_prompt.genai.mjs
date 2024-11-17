@@ -21,7 +21,7 @@ defTool(
         },
     },
     // Asynchronous function that processes the user prompt
-    async ({ prompt: userPrompt }) => {
+    async ({ prompt: userPrompt, context }) => {
         const res = await runPrompt(
             (_) => {
                 _.$`Given a task description or existing prompt in USER_PROMPT, produce a detailed system prompt to guide a language model in completing the task effectively.
@@ -78,7 +78,7 @@ The final prompt you output should adhere to the following structure below. Do n
             }
         )
         // Log the result or any errors for debugging purposes
-        console.log(res.text ?? res.error)
+        context.debug(String(res.text ?? res.error))
         return res
     }
 )

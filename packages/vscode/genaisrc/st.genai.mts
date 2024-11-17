@@ -64,9 +64,19 @@ for (const file of files) {
             ## Context
             `
                 _.def("MATCHED", match[0])
-                _.def("TRANSFORM", transform)
+                _.def("TRANSFORM", transform, {
+                    detectPromptInjection: "available",
+                })
             },
-            { label: match[0], system: [], cache: "search-and-transform" }
+            {
+                label: match[0],
+                system: [
+                    "system.assistant",
+                    "system.safety_jailbreak",
+                    "system.safety_harmful_content",
+                ],
+                cache: "search-and-transform",
+            }
         )
 
         const transformed = res.fences?.[0].content ?? res.text

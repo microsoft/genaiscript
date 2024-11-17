@@ -40,6 +40,10 @@ import {
 } from "../../core/src/server/messages"
 import { generatePromptFooConfiguration } from "../../core/src/test"
 import { delay } from "es-toolkit"
+import {
+    ModelConnectionInfo,
+    resolveModelConnectionInfo,
+} from "../../core/src/models"
 
 /**
  * Parses model specifications from a string and returns a ModelOptions object.
@@ -61,6 +65,7 @@ function parseModelSpec(m: string): ModelOptions {
         return {
             model: values["m"],
             smallModel: values["s"],
+            visionModel: values["v"],
             temperature: normalizeFloat(values["t"]),
             topP: normalizeFloat(values["p"]),
         }
@@ -72,9 +77,12 @@ function parseModelSpec(m: string): ModelOptions {
  * @param script - The PromptScript object for which to determine the provider.
  * @returns The resolved provider or undefined if not found.
  */
-async function resolveTestProvider(script: PromptScript) {
-    const token = await host.getLanguageModelConfiguration(script.model)
-    if (token && token.type === "azure") return token.base
+async function resolveTestProvider(info: ModelConnectionInfo) {
+    switch (info?.type) {
+        case "azure":
+        case "azure_serverless":
+            return info?.base
+    }
     return undefined
 }
 
@@ -113,11 +121,14 @@ export async function runPromptScriptTests(
         testDelay?: string
         model?: string
         smallModel?: string
+        visionModel?: string
     }
 ): Promise<PromptScriptTestRunResponse> {
     if (options.model) host.defaultModelOptions.model = options.model
     if (options.smallModel)
         host.defaultModelOptions.smallModel = options.smallModel
+    if (options.visionModel)
+        host.defaultModelOptions.visionModel = options.visionModel
 
     const scripts = await listTests({ ids, ...(options || {}) })
     if (!scripts.length)
@@ -147,13 +158,16 @@ export async function runPromptScriptTests(
             ? join(out, `${script.id}.promptfoo.yaml`)
             : script.filename.replace(GENAI_ANY_REGEX, ".promptfoo.yaml")
         logInfo(`  ${fn}`)
+        const { info } = await resolveModelConnectionInfo(script)
+        if (info.error) throw new Error(info.error)
         const testProvider =
-            options?.testProvider || (await resolveTestProvider(scripts[0]))
+            options?.testProvider || (await resolveTestProvider(info))
         const config = generatePromptFooConfiguration(script, {
             out,
             cli,
-            model: options.model,
-            smallModel: options.smallModel,
+            model: info.model,
+            smallModel: info.smallModel,
+            visionModel: info.visionModel,
             models: options.models?.map(parseModelSpec),
             provider: "provider.mjs",
             testProvider,

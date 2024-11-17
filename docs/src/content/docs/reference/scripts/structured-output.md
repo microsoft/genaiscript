@@ -24,7 +24,11 @@ script({
 })
 ```
 
-Note that there are [several restrictions](https://platform.openai.com/docs/guides/structured-outputs/how-to-use) on the schema features supported by this mode. 
+Note that there are [several restrictions](https://platform.openai.com/docs/guides/structured-outputs/how-to-use) on the schema features supported by this mode.
 
-- `additionalProperties: true` is not supported.
-- all optional fields (e.g. not in `required`) will be returned and might be `null`
+-   `additionalProperties: true` is not supported.
+-   all optional fields (e.g. not in `required`) will be returned and might be `null`
+
+## Choices
+
+If you are looking to build a LLM-as-a-Judge and only looking for outputs in a set of words, you can also consider using [choices](/genaiscript/reference/scripts/choices) to increase the probability of the model generating the specified words.

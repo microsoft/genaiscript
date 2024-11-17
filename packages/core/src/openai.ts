@@ -29,10 +29,13 @@ import {
     ChatCompletion,
     ChatCompletionChunkChoice,
     ChatCompletionChoice,
+    CreateChatCompletionRequest,
+    ChatCompletionTokenLogprob,
 } from "./chattypes"
 import { resolveTokenEncoder } from "./encoders"
 import { toSignal } from "./cancellation"
 import { INITryParse } from "./ini"
+import { serializeChunkChoiceToLogProbs } from "./logprob"
 
 export function getConfigHeaders(cfg: LanguageModelConfiguration) {
     let { token, type, base } = cfg
@@ -99,6 +102,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
               temperature: req.temperature,
               top_p: req.top_p,
               max_tokens: req.max_tokens,
+              logit_bias: req.logit_bias,
           }
         : undefined
     trace.itemValue(`caching`, cache)
@@ -121,7 +125,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
         stream: true,
         stream_options: { include_usage: true },
         model,
-    })
+    } satisfies CreateChatCompletionRequest)
 
     // stream_options fails in some cases
     if (model === "gpt-4-turbo-v" || /mistral/i.test(model)) {
@@ -156,7 +160,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
             ;(headers as any)[OPENROUTER_SITE_URL_HEADER] =
                 process.env.OPENROUTER_SITE_URL || TOOL_URL
             ;(headers as any)[OPENROUTER_SITE_NAME_HEADER] =
-                process.env.OPENROUTE_SITE_NAME || TOOL_NAME
+                process.env.OPENROUTER_SITE_NAME || TOOL_NAME
         }
     } else if (cfg.type === "azure") {
         delete postReq.model
@@ -239,7 +243,10 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
             })
         throw new RequestError(
             r.status,
-            message ?? error?.message ?? r.statusText,
+            message ??
+                (typeof error === "string" ? error : undefined) ??
+                error?.message ??
+                r.statusText,
             error,
             responseBody,
             normalizeInt(r.headers.get("retry-after"))
@@ -253,8 +260,9 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
     let usage: ChatCompletionUsage
     let error: SerializedError
     let responseModel: string
+    let lbs: ChatCompletionTokenLogprob[] = []
 
-    const doChoices = (json: string, tokens: string[]) => {
+    const doChoices = (json: string, tokens: Logprob[]) => {
         const obj: ChatCompletionChunk | ChatCompletion = JSON.parse(json)
 
         if (!postReq.stream) trace.detailsFenced(`response`, obj, "json")
@@ -268,11 +276,14 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
         const { finish_reason } = choice
         if (finish_reason) finishReason = finish_reason as any
         if ((choice as ChatCompletionChunkChoice).delta) {
-            const { delta } = choice as ChatCompletionChunkChoice
+            const { delta, logprobs } = choice as ChatCompletionChunkChoice
+            if (logprobs?.content) lbs.push(...logprobs.content)
             if (typeof delta?.content === "string") {
                 numTokens += estimateTokens(delta.content, encoder)
                 chatResp += delta.content
-                tokens.push(delta.content)
+                tokens.push(
+                    ...serializeChunkChoiceToLogProbs(choice as ChatCompletionChunkChoice)
+                )
                 trace.appendToken(delta.content)
             } else if (Array.isArray(delta.tool_calls)) {
                 const { tool_calls } = delta
@@ -317,7 +328,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
         const decoder = host.createUTF8Decoder()
         const doChunk = (value: Uint8Array) => {
             // Massage and parse the chunk of data
-            let tokens: string[] = []
+            let tokens: Logprob[] = []
             let chunk = decoder.decode(value, { stream: true })
 
             chunk = pref + chunk
@@ -391,7 +402,8 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
         usage,
         error,
         model: responseModel,
-    }
+        logprobs: lbs,
+    } satisfies ChatCompletionResponse
 }
 
 async function listModels(

@@ -1,3 +1,4 @@
+// cspell: disable
 import * as vscode from "vscode"
 import {
     AI_REQUEST_CHANGE,
@@ -11,10 +12,11 @@ import { getChatCompletionCache } from "../../core/src/chatcache"
 import {
     TRACE_NODE_PREFIX,
     CACHE_LLMREQUEST_PREFIX,
-    CACHE_AIREQUEST_PREFIX,
+    CACHE_AIREQUEST_TRACE_PREFIX,
     BUILTIN_PREFIX,
     GENAI_ANY_REGEX,
     GENAI_JS_EXT,
+    CACHE_AIREQUEST_TEXT_PREFIX,
 } from "../../core/src/constants"
 import { defaultPrompts } from "../../core/src/default_prompts"
 import { extractFenced, renderFencedVariables } from "../../core/src/fence"
@@ -23,6 +25,10 @@ import {
     prettifyMarkdown,
     fenceMD,
 } from "../../core/src/markdown"
+import {
+    logprobToMarkdown,
+    topLogprobsToMarkdown,
+} from "../../core/src/logprob"
 
 const SCHEME = "genaiscript"
 
@@ -83,6 +89,19 @@ ${prettifyMarkdown(md)}
 
         switch (uri.path) {
             case REQUEST_OUTPUT_FILENAME: {
+                const tokens = res?.logprobs
+                if (tokens?.length) {
+                    if (tokens[0].topLogprobs?.length)
+                        return wrap(
+                            tokens
+                                .map((lp) => topLogprobsToMarkdown(lp))
+                                .join("\n")
+                        )
+                    else
+                        return wrap(
+                            tokens.map((lp) => logprobToMarkdown(lp)).join("\n")
+                        )
+                }
                 let text = res?.text
                 if (/^\s*\{/.test(text)) text = fenceMD(text, "json")
                 return wrap(text)
@@ -102,11 +121,17 @@ ${prettifyMarkdown(md)}
                 .replace(/\.md$/, "")
             return previewOpenAICacheEntry(sha)
         }
-        if (uri.path.startsWith(CACHE_AIREQUEST_PREFIX)) {
+        if (uri.path.startsWith(CACHE_AIREQUEST_TRACE_PREFIX)) {
             const sha = uri.path
-                .slice(CACHE_AIREQUEST_PREFIX.length)
+                .slice(CACHE_AIREQUEST_TRACE_PREFIX.length)
                 .replace(/\.md$/, "")
-            return this.previewAIRequest(sha)
+            return this.previewAIRequest(sha, "trace")
+        }
+        if (uri.path.startsWith(CACHE_AIREQUEST_TEXT_PREFIX)) {
+            const sha = uri.path
+                .slice(CACHE_AIREQUEST_TEXT_PREFIX.length)
+                .replace(/\.md$/, "")
+            return this.previewAIRequest(sha, "text")
         }
         if (uri.path.startsWith(BUILTIN_PREFIX)) {
             const id = uri.path
@@ -117,7 +142,7 @@ ${prettifyMarkdown(md)}
         return ""
     }
 
-    private async previewAIRequest(sha: string) {
+    private async previewAIRequest(sha: string, type: "trace" | "text") {
         const cache = this.state.aiRequestCache()
         const { key, val } = (await cache.getEntryBySha(sha)) || {}
         if (!key)
@@ -126,7 +151,7 @@ ${prettifyMarkdown(md)}
         Request \`${sha}\` not found in cache.
         `
 
-        return val?.trace
+        return type === "trace" ? val?.trace : val?.response?.text
     }
 }
 
