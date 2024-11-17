@@ -20,6 +20,7 @@ import {
     MODEL_PROVIDER_AZURE_SERVERLESS_MODELS,
     MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI,
     MODEL_PROVIDER_GITHUB,
+    MODEL_PROVIDER_GOOGLE,
     MODEL_PROVIDER_OPENAI,
 } from "./constants"
 
@@ -83,13 +84,15 @@ export function renderCost(value: number) {
 
 export function isCosteable(model: string) {
     const { provider } = parseModelIdentifier(model)
-    return (
-        provider === MODEL_PROVIDER_OPENAI ||
-        provider === MODEL_PROVIDER_AZURE_OPENAI ||
-        provider === MODEL_PROVIDER_AZURE_SERVERLESS_MODELS ||
-        provider === MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI ||
-        provider === MODEL_PROVIDER_ANTHROPIC
-    )
+    const costeableProviders = [
+        MODEL_PROVIDER_OPENAI,
+        MODEL_PROVIDER_AZURE_OPENAI,
+        MODEL_PROVIDER_AZURE_SERVERLESS_MODELS,
+        MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI,
+        MODEL_PROVIDER_ANTHROPIC,
+        MODEL_PROVIDER_GOOGLE,
+    ]
+    return costeableProviders.includes(provider)
 }
 
 /**

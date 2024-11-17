@@ -69,6 +69,7 @@ export const DEFAULT_VISION_MODEL_CANDIDATES = [
     "azure_serverless:gpt-4o",
     DEFAULT_MODEL,
     "anthropic:claude-2",
+    "google:gemini-1.5-pro-002",
     "github:gpt-4o",
 ]
 export const DEFAULT_SMALL_MODEL = "openai:gpt-4o-mini"
@@ -78,6 +79,7 @@ export const DEFAULT_SMALL_MODEL_CANDIDATES = [
     DEFAULT_SMALL_MODEL,
     "anthropic:claude-instant-1",
     "github:gpt-4o-mini",
+    "google:gemini-1.5-flash-002",
     "client:gpt-4-mini",
 ]
 export const DEFAULT_EMBEDDINGS_MODEL_CANDIDATES = [
@@ -160,6 +162,7 @@ export const EMOJI_UNDEFINED = "?"
 export const MODEL_PROVIDER_OPENAI = "openai"
 export const MODEL_PROVIDER_GITHUB = "github"
 export const MODEL_PROVIDER_AZURE_OPENAI = "azure"
+export const MODEL_PROVIDER_GOOGLE = "google"
 export const MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI = "azure_serverless"
 export const MODEL_PROVIDER_AZURE_SERVERLESS_MODELS = "azure_serverless_models"
 export const MODEL_PROVIDER_OLLAMA = "ollama"
@@ -203,6 +206,8 @@ export const DOCS_CONFIGURATION_AICI_URL =
     "https://microsoft.github.io/genaiscript/reference/scripts/aici/"
 export const DOCS_CONFIGURATION_ANTHROPIC_URL =
     "https://microsoft.github.io/genaiscript/getting-started/configuration/#anthropic"
+export const DOCS_CONFIGURATION_GOOGLE_URL =
+    "https://microsoft.github.io/genaiscript/getting-started/configuration/#google"
 export const DOCS_CONFIGURATION_HUGGINGFACE_URL =
     "https://microsoft.github.io/genaiscript/getting-started/configuration/#huggingface"
 export const DOCS_CONFIGURATION_CONTENT_SAFETY_URL =
@@ -246,6 +251,11 @@ export const MODEL_PROVIDERS = Object.freeze([
         id: MODEL_PROVIDER_ANTHROPIC,
         detail: "Anthropic models",
         url: DOCS_CONFIGURATION_ANTHROPIC_URL,
+    },
+    {
+        id: MODEL_PROVIDER_GOOGLE,
+        detail: "Google AI",
+        url: DOCS_CONFIGURATION_GOOGLE_URL,
     },
     {
         id: MODEL_PROVIDER_HUGGINGFACE,
@@ -357,3 +367,6 @@ export const CHOICE_LOGIT_BIAS = 5
 
 export const SANITIZED_PROMPT_INJECTION =
     "...prompt injection detected, content removed..."
+
+export const GOOGLE_API_BASE =
+    "https://generativelanguage.googleapis.com/v1beta/openai/"

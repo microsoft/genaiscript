@@ -163,12 +163,12 @@ export function traceFetchPost(
                         ? "Bearer ***" // Mask Bearer tokens
                         : "***") // Mask other authorization headers
             )
-    const cmd = `curl ${url} \\
+    const cmd = `curl "${url}" \\
+--no-buffer \\
 ${Object.entries(headers)
     .map(([k, v]) => `-H "${k}: ${v}"`)
-    .join("\\\n")} \\
+    .join(" \\\n")} \\
 -d '${JSON.stringify(body, null, 2).replace(/'/g, "'\\''")}'
---no-buffer
 `
     if (trace) trace.detailsFenced(`✉️ fetch`, cmd, "bash")
     else logVerbose(cmd)

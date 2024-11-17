@@ -146,6 +146,12 @@ type ModelType = OptionsOrString<
     | "anthropic:claude-2.0"
     | "anthropic:claude-instant-1.2"
     | "huggingface:microsoft/Phi-3-mini-4k-instruct"
+    | "google:gemini-1.5-flash"
+    | "google:gemini-1.5-flash-8b"
+    | "google:gemini-1.5-flash-002"
+    | "google:gemini-1.5-pro"
+    | "google:gemini-1.5-pro-002"
+    | "google:gemini-1-pro"
 >
 
 type ModelSmallType = OptionsOrString<
