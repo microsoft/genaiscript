@@ -41,6 +41,47 @@ The context selected by the user in Copilot Chat is converted to variables and p
 -   the current editor selection is passed in `env.vars["copilot.selection"]`
 -   all other file references are passed in `env.files`
 
+### Examples
+
+-   `mermaid` will generate a diagram from the user prompt.
+
+```js title="mermaid.genai.mjs" wrap
+def("CODE", env.files)
+$`Generate a class diagram using mermaid of the code symbols in the CODE.`
+```
+
+- `websearcher` will search the web for the user prompt
+and use the file in context in the answer.
+
+```js title="websearcher.genai.mjs" wrap
+const res = await retrieval.webSearch(env.vars.question)
+def("QUESTION", env.vars.question)
+def("WEB_SEARCH", res)
+def("FILE", env.files, { ignoreEmpty: true})
+$`Answer QUESTION using WEB_SEARCH and FILE.`
+```
+
+-   `dataanalyst` uses the Python code interpreter tools to
+    resolve a data computation question.
+
+```js title="dataanalyst.genai.mjs" wrap
+script({
+    tools: [
+        "fs_read_file",
+        "python_code_interpreter_copy_files_to_container",
+        "python_code_interpreter_read_file",
+        "python_code_interpreter_run",
+    ],
+})
+def("DATA", env.files.map(({ filename }) => filename).join("\n"))
+def("QUESTION", env.vars.question)
+
+$`Run python code to answer the data analyst question 
+in QUESTION using the data in DATA.
+Return the python code that was used to compute the answer.
+`
+```
+
 ### History
 
 The history of messages is passed in `env.vars["copilot.history"]`. It is an array of `HistoryMessageUser | HistoryMessageAssistant`:
@@ -73,5 +114,5 @@ The following script can used as a starter template to create the default script
 
 The following features are currently not supported in the chat participant:
 
-- Tools (`#tool`)
-- `Workspace` reference
+-   Tools (`#tool`)
+-   `Workspace` reference

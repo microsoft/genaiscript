@@ -2,6 +2,8 @@
 title: Choices
 description: Specify a list of preferred token choices for a script.
 keywords: choices, preferred words, logit bias
+sidebar:
+    order: 20
 ---
 
 You can specify a list of preferred words (choices) in the script metadata. It will increase the probability of the model generating the specified words.
