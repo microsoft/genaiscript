@@ -46,6 +46,19 @@ describe("parsers", () => {
         assert.equal(result.key, "value")
     })
 
+    test("PDF", async () => {
+        const result = await parsers.PDF({ filename: "src/rag/loremipsum.pdf" })
+        assert(result.file.content.includes("Lorem"))
+    })
+
+    test("PDF-image", async () => {
+        const result = await parsers.PDF(
+            { filename: "src/rag/loremipsum.pdf" },
+            { renderAsImage: true }
+        )
+        assert(result.file.content.includes("Lorem"))
+    })
+
     test("CSV", () => {
         const result = parsers.CSV("key,value\n1,2")
         assert.deepStrictEqual(result, [{ key: "1", value: "2" }])

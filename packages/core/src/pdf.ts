@@ -4,6 +4,8 @@ import { host } from "./host"
 import { TraceOptions } from "./trace"
 import os from "os"
 import { serializeError } from "./error"
+import { logVerbose, logWarn } from "./util"
+import { log } from "console"
 
 // Declare a global type for SVGGraphics as any
 declare global {
@@ -28,6 +30,17 @@ async function tryImportPdfjs(options?: TraceOptions) {
 
     pdfjs.GlobalWorkerOptions.workerSrc = workerSrc
     return pdfjs
+}
+
+async function tryImportCanvas() {
+    try {
+        const { createCanvas } = await import("canvas")
+        return createCanvas
+    } catch (error) {
+        logWarn("Failed to import canvas")
+        logVerbose(error)
+        return undefined
+    }
 }
 
 /**
@@ -60,9 +73,10 @@ function installPromiseWithResolversShim() {
 async function PDFTryParse(
     fileOrUrl: string,
     content?: Uint8Array,
-    options?: { disableCleanup?: boolean } & TraceOptions
+    options?: ParsePDFOptions & TraceOptions
 ) {
-    const { disableCleanup, trace } = options || {}
+    const { disableCleanup, trace, renderAsImage } = options || {}
+
     try {
         const pdfjs = await tryImportPdfjs(options)
         const { getDocument } = pdfjs
@@ -75,6 +89,7 @@ async function PDFTryParse(
         const doc = await loader.promise
         const numPages = doc.numPages
         const pages: string[] = []
+        const images: Buffer[] = []
 
         // Iterate through each page and extract text content
         for (let i = 0; i < numPages; i++) {
@@ -91,8 +106,26 @@ async function PDFTryParse(
 
             // Collapse trailing spaces
             pages.push(lines.join("\n"))
+
+            if (renderAsImage) {
+                const viewport = page.getViewport({ scale: 1.5 })
+                const createCanvas = await tryImportCanvas()
+                if (createCanvas) {
+                    const canvas = await createCanvas(
+                        viewport.width,
+                        viewport.height
+                    )
+                    const canvasContext = canvas.getContext("2d")
+                    await page.render({
+                        canvasContext: canvasContext as any,
+                        viewport,
+                    }).promise
+                    const buffer = canvas.toBuffer("image/png")
+                    images.push(buffer)
+                }
+            }
         }
-        return { ok: true, pages }
+        return { ok: true, pages, images }
     } catch (error) {
         trace?.error(`reading pdf`, error) // Log error if tracing is enabled
         return { ok: false, error: serializeError(error) }
@@ -117,14 +150,14 @@ function PDFPagesToString(pages: string[]) {
 export async function parsePdf(
     filename: string,
     options?: ParsePDFOptions & TraceOptions
-): Promise<{ pages: string[]; content: string }> {
-    const { trace, filter } = options || {}
-    let { pages } = await PDFTryParse(filename, undefined, options)
+): Promise<{ pages: string[]; images?: Buffer[]; content: string }> {
+    const { filter } = options || {}
+    let { pages, images } = await PDFTryParse(filename, undefined, options)
 
     // Apply filter if provided
     if (filter) pages = pages.filter((page, index) => filter(index, page))
     const content = PDFPagesToString(pages)
-    return { pages, content }
+    return { pages, images, content }
 }
 
 /**
