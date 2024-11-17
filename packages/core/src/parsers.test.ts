@@ -47,7 +47,8 @@ describe("parsers", () => {
     })
 
     test("PDF", async () => {
-        const result = await parsers.PDF({ filename: "src/rag/loremipsum.pdf" })
+        const result = await parsers.PDF({ filename: "./src/rag/loremipsum.pdf" })
+        console.log(result)
         assert(result.file.content.includes("Lorem"))
     })
 
