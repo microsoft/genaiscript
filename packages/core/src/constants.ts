@@ -206,6 +206,8 @@ export const DOCS_CONFIGURATION_AICI_URL =
     "https://microsoft.github.io/genaiscript/reference/scripts/aici/"
 export const DOCS_CONFIGURATION_ANTHROPIC_URL =
     "https://microsoft.github.io/genaiscript/getting-started/configuration/#anthropic"
+export const DOCS_CONFIGURATION_GOOGLE_URL =
+    "https://microsoft.github.io/genaiscript/getting-started/configuration/#google"
 export const DOCS_CONFIGURATION_HUGGINGFACE_URL =
     "https://microsoft.github.io/genaiscript/getting-started/configuration/#huggingface"
 export const DOCS_CONFIGURATION_CONTENT_SAFETY_URL =
@@ -249,6 +251,11 @@ export const MODEL_PROVIDERS = Object.freeze([
         id: MODEL_PROVIDER_ANTHROPIC,
         detail: "Anthropic models",
         url: DOCS_CONFIGURATION_ANTHROPIC_URL,
+    },
+    {
+        id: MODEL_PROVIDER_GOOGLE,
+        detail: "Google AI",
+        url: DOCS_CONFIGURATION_GOOGLE_URL,
     },
     {
         id: MODEL_PROVIDER_HUGGINGFACE,

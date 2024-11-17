@@ -282,7 +282,9 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
                 numTokens += estimateTokens(delta.content, encoder)
                 chatResp += delta.content
                 tokens.push(
-                    ...serializeChunkChoiceToLogProbs(choice as ChatCompletionChunkChoice)
+                    ...serializeChunkChoiceToLogProbs(
+                        choice as ChatCompletionChunkChoice
+                    )
                 )
                 trace.appendToken(delta.content)
             } else if (Array.isArray(delta.tool_calls)) {
@@ -409,7 +411,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
 async function listModels(
     cfg: LanguageModelConfiguration
 ): Promise<LanguageModelInfo[]> {
-    const fetch = await createFetch()
+    const fetch = await createFetch({ retries: 1 })
     const res = await fetch(cfg.base + "/models", {
         method: "GET",
         headers: {
