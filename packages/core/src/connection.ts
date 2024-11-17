@@ -23,6 +23,8 @@ import {
     HUGGINGFACE_API_BASE,
     OLLAMA_API_BASE,
     OLLAMA_DEFAUT_PORT,
+    MODEL_PROVIDER_GOOGLE,
+    GOOGLE_API_BASE,
 } from "./constants"
 import { fileExists, readText, writeText } from "./fs"
 import {
@@ -129,7 +131,7 @@ export async function parseTokenFromEnv(
             token,
             source: "env: OPENAI_API_...",
             version,
-        }
+        } satisfies LanguageModelConfiguration
     }
 
     if (provider === MODEL_PROVIDER_GITHUB) {
@@ -148,7 +150,7 @@ export async function parseTokenFromEnv(
             type,
             token,
             source: `env: ${tokenVar}`,
-        }
+        } satisfies LanguageModelConfiguration
     }
 
     if (provider === MODEL_PROVIDER_AZURE_OPENAI) {
@@ -194,7 +196,7 @@ export async function parseTokenFromEnv(
                 : "env: AZURE_OPENAI_API_... + Entra ID",
             version,
             azureCredentialsType,
-        }
+        } satisfies LanguageModelConfiguration
     }
 
     if (provider === MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI) {
@@ -239,7 +241,7 @@ export async function parseTokenFromEnv(
                 : "env: AZURE_SERVERLESS_OPENAI_API_... + Entra ID",
             version,
             azureCredentialsType,
-        }
+        } satisfies LanguageModelConfiguration
     }
 
     if (provider === MODEL_PROVIDER_AZURE_SERVERLESS_MODELS) {
@@ -281,7 +283,25 @@ export async function parseTokenFromEnv(
                 ? "env: AZURE_SERVERLESS_MODELS_API_..."
                 : "env: AZURE_SERVERLESS_MODELS_API_... + Entra ID",
             version,
-        }
+        } satisfies LanguageModelConfiguration
+    }
+
+    if (provider === MODEL_PROVIDER_GOOGLE) {
+        const token = env.GOOGLE_API_KEY
+        if (!token) return undefined
+        if (token === PLACEHOLDER_API_KEY)
+            throw new Error("GOOGLE_API_KEY not configured")
+        const base = env.GOOGLE_API_BASE || GOOGLE_API_BASE
+        if (base === PLACEHOLDER_API_BASE)
+            throw new Error("GOOGLE_API_BASE not configured")
+        return {
+            provider,
+            model,
+            base,
+            token,
+            type: "openai",
+            source: "env: GOOGLE_API_...",
+        } satisfies LanguageModelConfiguration
     }
 
     if (provider === MODEL_PROVIDER_ANTHROPIC) {
@@ -301,7 +321,7 @@ export async function parseTokenFromEnv(
             base,
             version,
             source,
-        }
+        } satisfies LanguageModelConfiguration
     }
 
     if (provider === MODEL_PROVIDER_OLLAMA) {
@@ -314,7 +334,7 @@ export async function parseTokenFromEnv(
             token: "ollama",
             type: "openai",
             source: "env: OLLAMA_HOST",
-        }
+        } satisfies LanguageModelConfiguration
     }
 
     if (provider === MODEL_PROVIDER_HUGGINGFACE) {

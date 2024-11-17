@@ -818,7 +818,7 @@ export async function executeChatSession(
         topLogprobs,
     } = genOptions
     const top_logprobs = genOptions.topLogprobs > 0 ? topLogprobs : undefined
-    const logprobs = genOptions.logprobs || top_logprobs > 0
+    const logprobs = genOptions.logprobs || top_logprobs > 0 ? true : undefined
     traceLanguageModelConnection(trace, genOptions, connectionToken)
     const tools: ChatCompletionTool[] = toolDefinitions?.length
         ? toolDefinitions.map(

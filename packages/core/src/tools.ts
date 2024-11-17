@@ -2,6 +2,7 @@ import {
     MODEL_PROVIDER_AZURE_OPENAI,
     MODEL_PROVIDER_AZURE_SERVERLESS_MODELS,
     MODEL_PROVIDER_GITHUB,
+    MODEL_PROVIDER_GOOGLE,
     MODEL_PROVIDER_OLLAMA,
     MODEL_PROVIDER_OPENAI,
 } from "./constants"
@@ -38,6 +39,9 @@ export function isToolsSupported(modelId: string): boolean | undefined {
         [MODEL_PROVIDER_OPENAI]: oai,
         [MODEL_PROVIDER_AZURE_OPENAI]: oai,
         [MODEL_PROVIDER_AZURE_SERVERLESS_MODELS]: oai,
+        [MODEL_PROVIDER_GOOGLE]: {
+            // all supported
+        },
         [MODEL_PROVIDER_GITHUB]: {
             "Phi-3.5-mini-instruct": false,
         },

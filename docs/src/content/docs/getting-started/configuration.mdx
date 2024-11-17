@@ -20,7 +20,6 @@ import lmSelectAlt from "../../../assets/vscode-language-models-select.png.txt?r
 import oaiModelsSrc from "../../../assets/openai-model-names.png"
 import oaiModelsAlt from "../../../assets/openai-model-names.png.txt?raw"
 
-
 You will need to configure the LLM connection and authorization secrets.
 
 :::tip
@@ -148,25 +147,24 @@ envFile: ~/.env.genaiscript
 
 ### No .env file
 
-If you do not want to use a `.env` file, make sure to populate the environment variables 
+If you do not want to use a `.env` file, make sure to populate the environment variables
 of the genaiscript process with the configuration values.
 
 Here are some common examples:
 
-- Using bash syntax
+-   Using bash syntax
 
 ```sh
 OPENAI_API_KEY="value" npx --yes genaiscript run ...
 ```
 
-- GitHub Action configuration
+-   GitHub Action configuration
 
 ```yaml title=".github/workflows/genaiscript.yml"
-    run: npx --yes genaiscript run ...
-    env:
-        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+run: npx --yes genaiscript run ...
+env:
+    OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 ```
-
 
 ## OpenAI
 
@@ -684,6 +682,61 @@ model2=key2
 model3=key3
 "
 ```
+
+## Google AI
+
+The `google` provider allows you to use Google AI models. It gives you access
+
+:::note
+
+GenAIScript uses the [OpenAI compatibility](https://ai.google.dev/gemini-api/docs/openai) layer of Google AI,
+so some [limitations](https://ai.google.dev/gemini-api/docs/openai#current-limitations) apply.
+
+:::
+
+<Steps>
+
+<ol>
+
+<li>
+
+Open [Google AI Studio](https://aistudio.google.com/app/apikey) and create a new API key.
+
+</li>
+
+<li>
+
+Update the `.env` file with the API key.
+
+```txt title=".env"
+GOOGLE_API_KEY=...
+```
+
+</li>
+
+<li>
+
+Open [Google AI Studio](https://aistudio.google.com/prompts/new_chat) and select the model you want, then select **Get code** to extract the model identifier.
+
+```py "gemini-1.5-pro-002"
+...
+const model = genAI.getGenerativeModel({
+  model: "gemini-1.5-pro-002",
+});
+...
+```
+
+then use the model identifier in your script.
+
+```js "gemini-1.5-pro-002"
+script({ model: "google:gemini-1.5-pro-002" })
+```
+
+</li>
+
+</ol>
+
+</Steps>
 
 ## GitHub Copilot Chat Models <a id="github-copilot" href=""></a>
 
