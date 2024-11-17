@@ -203,8 +203,8 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
     trace.dispatchChange()
 
     const fetchHeaders: HeadersInit = {
-        ...getConfigHeaders(cfg),
         "Content-Type": "application/json",
+        ...getConfigHeaders(cfg),
         ...(headers || {}),
     }
     traceFetchPost(trace, url, fetchHeaders as any, postReq)
