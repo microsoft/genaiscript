@@ -2,7 +2,8 @@
 title: Prompty
 sidebar:
     order: 51
-description: Learn about the .prompty file format for parameterized prompts and its
+description:
+    Learn about the .prompty file format for parameterized prompts and its
     integration with GenAIScript for AI scripting.
 keywords: prompty, scripts, AI, parameterized prompts, automation
 ---
@@ -80,6 +81,19 @@ $`{{question}}
 {{hint}}`.jinja(env.vars)
 ```
 
+## Importing .prompty
+
+You can also import and render a .prompty file at runtime while generating the prompt using `importTemplate`.
+
+```ts
+importTemplate("basic.prompty", {
+    question: "what is the capital of france?",
+    hint: "starts with p",
+})
+```
+
+In this scenario, the `.prompty` file is not executed as a script but imported as a template. The `importTemplate` function will render the template with the provided parameters.
+
 ### Supported features
 
 -   `name`, `description`, `temperature`, `max_tokens`, `top_p`, ...0
@@ -99,16 +113,3 @@ Extra fields that genaiscript use:
 
 -   `files` to specify one or many files to populate `env.files`
 -   `tests` to specify one or many tests
-
-## Importing .prompty
-
-You can also import and render a .prompty file at runtime while generating the prompt using `importTemplate`.
-
-```ts
-importTemplate("basic.prompty", {
-    question: "what is the capital of france?",
-    hint: "starts with p",
-})
-```
-
-In this scenario, the `.prompty` file is not executed as a script but imported as a template. The `importTemplate` function will render the template with the provided parameters.

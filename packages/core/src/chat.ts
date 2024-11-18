@@ -17,6 +17,7 @@ import {
 import {
     arrayify,
     assert,
+    deleteUndefinedValues,
     logError,
     logInfo,
     logVerbose,
@@ -561,7 +562,7 @@ async function structurifyChatSession(
         }
     }
 
-    const res: RunPromptResult = {
+    const res: RunPromptResult = deleteUndefinedValues({
         messages,
         text,
         annotations,
@@ -575,7 +576,7 @@ async function structurifyChatSession(
         logprobs,
         perplexity,
         model: resp?.model,
-    } satisfies RunPromptResult
+    } satisfies RunPromptResult)
     await computeFileEdits(res, {
         trace,
         schemas,
@@ -696,6 +697,7 @@ async function processChatMessage(
                     needsNewTurn = true
                 } else trace.item("no message")
                 if (errors?.length) {
+                    err = errors[0]
                     for (const error of errors) trace.error(undefined, error)
                     needsNewTurn = false
                     break

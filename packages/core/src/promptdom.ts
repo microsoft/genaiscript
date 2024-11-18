@@ -5,7 +5,14 @@ import { addLineNumbers, extractRange } from "./liner"
 import { JSONSchemaStringifyToTypeScript } from "./schema"
 import { estimateTokens, truncateTextToTokens } from "./tokens"
 import { MarkdownTrace, TraceOptions } from "./trace"
-import { arrayify, assert, toStringList, trimNewlines } from "./util"
+import {
+    arrayify,
+    assert,
+    logError,
+    logWarn,
+    toStringList,
+    trimNewlines,
+} from "./util"
 import { YAMLStringify } from "./yaml"
 import {
     MARKDOWN_PROMPT_FENCE,
@@ -572,8 +579,10 @@ async function layoutPromptNode(mode: string, root: PromptNode) {
 // Function to resolve a prompt node.
 async function resolvePromptNode(
     model: string,
-    root: PromptNode
+    root: PromptNode,
+    options: TraceOptions
 ): Promise<{ errors: number }> {
+    const { trace } = options || {}
     const { encode: encoder } = await resolveTokenEncoder(model)
     let err = 0
     const names = new Set<string>()
@@ -588,7 +597,8 @@ async function resolvePromptNode(
     }
 
     await visitNode(root, {
-        error: () => {
+        error: (node) => {
+            logError(node.error)
             err++
         },
         text: async (n) => {
@@ -712,7 +722,7 @@ async function resolvePromptNode(
                 if (fs.length === 0)
                     throw new Error(`No files found for import: ${files}`)
                 for (const f of fs) {
-                    await resolveFileContent(f, options)
+                    await resolveFileContent(f, { ...(options || {}), trace })
                     if (PROMPTY_REGEX.test(f.filename))
                         await resolveImportPrompty(n, f, args, options)
                     else {
@@ -748,7 +758,27 @@ async function resolveImportPrompty(
     args: Record<string, string | number | boolean>,
     options: ImportTemplateOptions
 ) {
-    const { messages } = promptyParse(f.filename, f.content)
+    const { allowExtraArguments } = options || {}
+    const { messages, meta } = promptyParse(f.filename, f.content)
+    const { parameters } = meta
+    args = args || {}
+
+    const extra = Object.keys(args).find((arg) => !parameters[arg])
+    if (extra) {
+        if (allowExtraArguments)
+            logWarn(`Extra input argument '${extra}' in ${f.filename}`)
+        else throw new Error(`Extra input argument '${extra}' in ${f.filename}`)
+    }
+    if (parameters) {
+        const missing = Object.keys(parameters).find(
+            (p) => args[p] === undefined
+        )
+        if (missing)
+            throw new Error(
+                `Missing input argument for '${missing[0]}' in ${f.filename}`
+            )
+    }
+
     for (const message of messages) {
         const txt = jinjaRenderChatMessage(message, args)
         if (message.role === "assistant")
@@ -988,7 +1018,7 @@ export async function renderPromptNode(
     const { model } = parseModelIdentifier(modelId)
     const { encode: encoder } = await resolveTokenEncoder(model)
 
-    await resolvePromptNode(model, node)
+    await resolvePromptNode(model, node, options)
     await tracePromptNode(trace, node)
 
     if (await deduplicatePromptNode(trace, node))
@@ -1026,33 +1056,30 @@ export async function renderPromptNode(
     const fileOutputs: FileOutput[] = []
 
     await visitNode(node, {
+        error: (n) => {
+            errors.push(n.error)
+        },
         text: async (n) => {
-            if (n.error) errors.push(n.error)
             const value = n.resolved
             if (value != undefined) appendUser(value)
         },
         def: async (n) => {
-            if (n.error) errors.push(n.error)
             const value = n.resolved
             if (value !== undefined) appendUser(renderDefNode(n))
         },
         assistant: async (n) => {
-            if (n.error) errors.push(n.error)
             const value = await n.resolved
             if (value != undefined) appendAssistant(value)
         },
         system: async (n) => {
-            if (n.error) errors.push(n.error)
             const value = await n.resolved
             if (value != undefined) appendSystem(value)
         },
         stringTemplate: async (n) => {
-            if (n.error) errors.push(n.error)
             const value = n.resolved
             if (value != undefined) appendUser(value)
         },
         image: async (n) => {
-            if (n.error) errors.push(n.error)
             const value = n.resolved
             if (value?.url) {
                 images.push(value)

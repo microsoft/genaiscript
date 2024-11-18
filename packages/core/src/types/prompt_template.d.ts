@@ -2305,7 +2305,12 @@ interface FileOutput {
     options?: FileOutputOptions
 }
 
-interface ImportTemplateOptions {}
+interface ImportTemplateOptions {
+    /**
+     * Ignore unknown arguments
+     */
+    allowExtraArguments?: boolean
+}
 
 interface PromptTemplateString {
     /**
