@@ -11,6 +11,8 @@ declare global {
     export type SVGGraphics = any
 }
 
+let standardFontDataUrl: string
+
 /**
  * Attempts to import pdfjs and configure worker source
  * based on the operating system.
@@ -26,6 +28,11 @@ async function tryImportPdfjs(options?: TraceOptions) {
     // Adjust worker source path for Windows platform
     if (os.platform() === "win32")
         workerSrc = "file://" + workerSrc.replace(/\\/g, "/")
+
+    standardFontDataUrl = workerSrc.replace(
+        "build/pdf.worker.min.mjs",
+        "standard_fonts"
+    )
 
     pdfjs.GlobalWorkerOptions.workerSrc = workerSrc
     return pdfjs
@@ -90,6 +97,8 @@ async function PDFTryParse(
         const loader = await getDocument({
             data,
             useSystemFonts: true,
+            disableFontFace: false,
+            standardFontDataUrl,
         })
         const doc = await loader.promise
         const numPages = doc.numPages
