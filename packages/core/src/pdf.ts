@@ -5,7 +5,6 @@ import { TraceOptions } from "./trace"
 import os from "os"
 import { serializeError } from "./error"
 import { logVerbose, logWarn } from "./util"
-import { log } from "console"
 
 // Declare a global type for SVGGraphics as any
 declare global {
