@@ -59,10 +59,10 @@ describe("parsers", async () => {
             { filename: "../sample/src/rag/loremipsum.pdf" },
             { renderAsImage: true }
         )
-        //let i = 1
-        //for (const img of result.images) {
-        //  await writeFile(`./loremipsum.test.${i++}.png`, img)
-        //  }
+        let i = 1
+        for (const img of result.images) {
+          await writeFile(`./loremipsum.temp.${i++}.png`, img)
+        }
         assert(result.file.content.includes("Lorem"))
     })
 

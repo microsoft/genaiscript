@@ -40,8 +40,8 @@ async function tryImportPdfjs(options?: TraceOptions) {
 
 async function tryImportCanvas() {
     try {
-        const { createCanvas } = await import("canvas")
-        return createCanvas
+        const { Canvas } = await import("skia-canvas")
+        return (w: number, h: number) => new Canvas(w, h)
     } catch (error) {
         logWarn("Failed to import canvas")
         logVerbose(error)
@@ -137,7 +137,7 @@ async function PDFTryParse(
                         canvasContext: canvasContext as any,
                         viewport,
                     }).promise
-                    const buffer = canvas.toBuffer("image/png")
+                    const buffer = canvas.toBufferSync("png")
                     p.image = buffer
                 }
             }
