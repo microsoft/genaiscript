@@ -38,10 +38,64 @@ async function tryImportPdfjs(options?: TraceOptions) {
     return pdfjs
 }
 
+class CanvasFactory {
+    #enableHWA = false
+    static createCanvas: (w: number, h: number) => any
+
+    constructor() {}
+
+    create(width: number, height: number) {
+        if (width <= 0 || height <= 0) {
+            throw new Error("Invalid canvas size")
+        }
+        const canvas = this._createCanvas(width, height)
+        return {
+            canvas,
+            context: canvas.getContext("2d", {
+                willReadFrequently: !this.#enableHWA,
+            }),
+        }
+    }
+
+    reset(canvasAndContext: any, width: number, height: number) {
+        if (!canvasAndContext.canvas) {
+            throw new Error("Canvas is not specified")
+        }
+        if (width <= 0 || height <= 0) {
+            throw new Error("Invalid canvas size")
+        }
+        canvasAndContext.canvas.width = width
+        canvasAndContext.canvas.height = height
+    }
+
+    destroy(canvasAndContext: any) {
+        if (!canvasAndContext.canvas) {
+            throw new Error("Canvas is not specified")
+        }
+        // Zeroing the width and height cause Firefox to release graphics
+        // resources immediately, which can greatly reduce memory consumption.
+        canvasAndContext.canvas.width = 0
+        canvasAndContext.canvas.height = 0
+        canvasAndContext.canvas = null
+        canvasAndContext.context = null
+    }
+
+    /**
+     * @ignore
+     */
+    _createCanvas(width: number, height: number) {
+        return CanvasFactory.createCanvas(width, height)
+    }
+}
+
 async function tryImportCanvas() {
+    if (CanvasFactory.createCanvas) return CanvasFactory.createCanvas
+
     try {
         const { Canvas } = await import("skia-canvas")
-        return (w: number, h: number) => new Canvas(w, h)
+        const createCanvas = (w: number, h: number) => new Canvas(w, h)
+        CanvasFactory.createCanvas = createCanvas
+        return createCanvas
     } catch (error) {
         logWarn("Failed to import canvas")
         logVerbose(error)
@@ -91,6 +145,7 @@ async function PDFTryParse(
 
     try {
         const pdfjs = await tryImportPdfjs(options)
+        const createCanvas = renderAsImage ? await tryImportCanvas() : undefined
         const { getDocument } = pdfjs
         // Read data from file or use provided content
         const data = content || (await host.readFile(fileOrUrl))
@@ -99,6 +154,7 @@ async function PDFTryParse(
             useSystemFonts: true,
             disableFontFace: false,
             standardFontDataUrl,
+            CanvasFactory: createCanvas ? CanvasFactory : undefined,
         })
         const doc = await loader.promise
         const numPages = doc.numPages
@@ -124,22 +180,20 @@ async function PDFTryParse(
             }
             pages.push(p)
 
-            if (renderAsImage) {
+            if (createCanvas) {
                 const viewport = page.getViewport({ scale: 1.5 })
-                const createCanvas = await tryImportCanvas()
-                if (createCanvas) {
-                    const canvas = await createCanvas(
-                        viewport.width,
-                        viewport.height
-                    )
-                    const canvasContext = canvas.getContext("2d")
-                    await page.render({
-                        canvasContext: canvasContext as any,
-                        viewport,
-                    }).promise
-                    const buffer = canvas.toBufferSync("png")
-                    p.image = buffer
-                }
+                const canvas = await createCanvas(
+                    viewport.width,
+                    viewport.height
+                )
+                const canvasContext = canvas.getContext("2d")
+                const render = page.render({
+                    canvasContext: canvasContext as any,
+                    viewport,
+                })
+                await render.promise
+                const buffer = canvas.toBufferSync("png")
+                p.image = buffer
             }
         }
         return { ok: true, pages }
