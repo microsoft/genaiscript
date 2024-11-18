@@ -7,6 +7,7 @@ import { readFile } from "fs/promises"
 import { resolve } from "path"
 import { TestHost } from "./testhost"
 import { estimateTokens } from "./tokens"
+import { writeFile } from "fs/promises"
 
 describe("parsers", async () => {
     let trace: MarkdownTrace
@@ -47,7 +48,9 @@ describe("parsers", async () => {
     })
 
     await test("PDF", async () => {
-        const result = await parsers.PDF({ filename: "../sample/src/rag/loremipsum.pdf" })
+        const result = await parsers.PDF({
+            filename: "../sample/src/rag/loremipsum.pdf",
+        })
         assert(result.file.content.includes("Lorem"))
     })
 
@@ -56,7 +59,10 @@ describe("parsers", async () => {
             { filename: "../sample/src/rag/loremipsum.pdf" },
             { renderAsImage: true }
         )
-        console.log(result)
+        //let i = 1
+        //for (const img of result.images) {
+        //  await writeFile(`./loremipsum.test.${i++}.png`, img)
+        //  }
         assert(result.file.content.includes("Lorem"))
     })
 
