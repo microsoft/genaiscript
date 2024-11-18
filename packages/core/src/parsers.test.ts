@@ -8,7 +8,7 @@ import { resolve } from "path"
 import { TestHost } from "./testhost"
 import { estimateTokens } from "./tokens"
 
-describe("parsers", () => {
+describe("parsers", async () => {
     let trace: MarkdownTrace
     let model: string
     let parsers: Awaited<ReturnType<typeof createParsers>>
@@ -46,17 +46,17 @@ describe("parsers", () => {
         assert.equal(result.key, "value")
     })
 
-    test("PDF", async () => {
-        const result = await parsers.PDF({ filename: "./src/rag/loremipsum.pdf" })
-        console.log(result)
+    await test("PDF", async () => {
+        const result = await parsers.PDF({ filename: "../sample/src/rag/loremipsum.pdf" })
         assert(result.file.content.includes("Lorem"))
     })
 
-    test("PDF-image", async () => {
+    await test("PDF-image", async () => {
         const result = await parsers.PDF(
-            { filename: "src/rag/loremipsum.pdf" },
+            { filename: "../sample/src/rag/loremipsum.pdf" },
             { renderAsImage: true }
         )
+        console.log(result)
         assert(result.file.content.includes("Lorem"))
     })
 

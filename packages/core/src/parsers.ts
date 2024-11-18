@@ -91,15 +91,14 @@ export async function createParsers(options: {
                 trace,
             }
             const filename = typeof file === "string" ? file : file.filename
-            const { pages, images, content } =
-                (await parsePdf(filename, opts)) || {}
+            const { pages, content } = (await parsePdf(filename, opts)) || {}
             return {
                 file: <WorkspaceFile>{
                     filename,
                     content,
                 },
-                pages,
-                images,
+                pages: pages?.map((p) => p.content),
+                images: pages?.map((p) => p.image),
             }
         },
         code: async (file, query) => {

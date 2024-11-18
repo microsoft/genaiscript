@@ -63,6 +63,12 @@ function installPromiseWithResolversShim() {
         })
 }
 
+export interface PDFPage {
+    index: number
+    content: string
+    image?: Buffer
+}
+
 /**
  * Parses PDF files using pdfjs-dist.
  * @param fileOrUrl - The file path or URL of the PDF
@@ -88,8 +94,7 @@ async function PDFTryParse(
         })
         const doc = await loader.promise
         const numPages = doc.numPages
-        const pages: string[] = []
-        const images: Buffer[] = []
+        const pages: PDFPage[] = []
 
         // Iterate through each page and extract text content
         for (let i = 0; i < numPages; i++) {
@@ -105,7 +110,11 @@ async function PDFTryParse(
                 lines = lines.map((line) => line.replace(/[\t ]+$/g, ""))
 
             // Collapse trailing spaces
-            pages.push(lines.join("\n"))
+            const p: PDFPage = {
+                index: i + 1,
+                content: lines.join("\n"),
+            }
+            pages.push(p)
 
             if (renderAsImage) {
                 const viewport = page.getViewport({ scale: 1.5 })
@@ -121,11 +130,11 @@ async function PDFTryParse(
                         viewport,
                     }).promise
                     const buffer = canvas.toBuffer("image/png")
-                    images.push(buffer)
+                    p.image = buffer
                 }
             }
         }
-        return { ok: true, pages, images }
+        return { ok: true, pages }
     } catch (error) {
         trace?.error(`reading pdf`, error) // Log error if tracing is enabled
         return { ok: false, error: serializeError(error) }
@@ -137,8 +146,10 @@ async function PDFTryParse(
  * @param pages - Array of page content strings
  * @returns A single string representing the entire document
  */
-function PDFPagesToString(pages: string[]) {
-    return pages?.join("\n\n-------- Page Break --------\n\n")
+function PDFPagesToString(pages: PDFPage[]) {
+    return pages
+        ?.map((p) => `-------- Page ${p.index} --------\n\n${p.content}`)
+        .join("\n\n")
 }
 
 /**
@@ -150,14 +161,16 @@ function PDFPagesToString(pages: string[]) {
 export async function parsePdf(
     filename: string,
     options?: ParsePDFOptions & TraceOptions
-): Promise<{ pages: string[]; images?: Buffer[]; content: string }> {
+): Promise<{ pages: PDFPage[]; content: string }> {
     const { filter } = options || {}
-    let { pages, images } = await PDFTryParse(filename, undefined, options)
+    let { pages, ok } = await PDFTryParse(filename, undefined, options)
+    if (!ok) return { pages: [], content: "" }
 
     // Apply filter if provided
-    if (filter) pages = pages.filter((page, index) => filter(index, page))
+    if (filter)
+        pages = pages.filter((page, index) => filter(index, page.content))
     const content = PDFPagesToString(pages)
-    return { pages, images, content }
+    return { pages, content }
 }
 
 /**
