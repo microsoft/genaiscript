@@ -36,6 +36,16 @@ pages.slice(0, 2).forEach((page, i) => {
 })
 ```
 
+## Rendering to images
+
+Add the `renderAsImage` option to also reach each page to a PNG image (as a buffer). This buffer can be used with a vision model to perform
+an OCR operation.
+
+```js wrap
+const { images } = await parsers.PDF(env.files[0], 
+  { renderAsImage: true })
+```
+
 ## PDFs are messy
 
 The PDF format was never really meant to allow for clean text extraction. The `parsers.PDF` function uses the `pdf-parse` package to extract text from PDFs. This package is not perfect and may fail to extract text from some PDFs. If you have access to the original document, it is recommended to use a more text-friendly format such as markdown or plain text.
