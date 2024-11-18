@@ -1150,6 +1150,8 @@ interface XMLParseOptions {
 }
 
 interface ParsePDFOptions {
+    disableCleanup?: boolean
+    renderAsImage?: boolean
     filter?: (pageIndex: number, text?: string) => boolean
 }
 
@@ -1324,7 +1326,9 @@ interface Parsers {
     PDF(
         content: string | WorkspaceFile,
         options?: ParsePDFOptions
-    ): Promise<{ file: WorkspaceFile; pages: string[] } | undefined>
+    ): Promise<
+        { file: WorkspaceFile; pages: string[]; images?: Buffer[] } | undefined
+    >
 
     /**
      * Parses a .docx file

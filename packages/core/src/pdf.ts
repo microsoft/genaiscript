@@ -4,11 +4,14 @@ import { host } from "./host"
 import { TraceOptions } from "./trace"
 import os from "os"
 import { serializeError } from "./error"
+import { logVerbose, logWarn } from "./util"
 
 // Declare a global type for SVGGraphics as any
 declare global {
     export type SVGGraphics = any
 }
+
+let standardFontDataUrl: string
 
 /**
  * Attempts to import pdfjs and configure worker source
@@ -26,8 +29,24 @@ async function tryImportPdfjs(options?: TraceOptions) {
     if (os.platform() === "win32")
         workerSrc = "file://" + workerSrc.replace(/\\/g, "/")
 
+    standardFontDataUrl = workerSrc.replace(
+        "build/pdf.worker.min.mjs",
+        "standard_fonts"
+    )
+
     pdfjs.GlobalWorkerOptions.workerSrc = workerSrc
     return pdfjs
+}
+
+async function tryImportCanvas() {
+    try {
+        const { Canvas } = await import("skia-canvas")
+        return (w: number, h: number) => new Canvas(w, h)
+    } catch (error) {
+        logWarn("Failed to import canvas")
+        logVerbose(error)
+        return undefined
+    }
 }
 
 /**
@@ -50,6 +69,12 @@ function installPromiseWithResolversShim() {
         })
 }
 
+export interface PDFPage {
+    index: number
+    content: string
+    image?: Buffer
+}
+
 /**
  * Parses PDF files using pdfjs-dist.
  * @param fileOrUrl - The file path or URL of the PDF
@@ -60,9 +85,10 @@ function installPromiseWithResolversShim() {
 async function PDFTryParse(
     fileOrUrl: string,
     content?: Uint8Array,
-    options?: { disableCleanup?: boolean } & TraceOptions
+    options?: ParsePDFOptions & TraceOptions
 ) {
-    const { disableCleanup, trace } = options || {}
+    const { disableCleanup, trace, renderAsImage } = options || {}
+
     try {
         const pdfjs = await tryImportPdfjs(options)
         const { getDocument } = pdfjs
@@ -71,10 +97,12 @@ async function PDFTryParse(
         const loader = await getDocument({
             data,
             useSystemFonts: true,
+            disableFontFace: false,
+            standardFontDataUrl,
         })
         const doc = await loader.promise
         const numPages = doc.numPages
-        const pages: string[] = []
+        const pages: PDFPage[] = []
 
         // Iterate through each page and extract text content
         for (let i = 0; i < numPages; i++) {
@@ -90,7 +118,29 @@ async function PDFTryParse(
                 lines = lines.map((line) => line.replace(/[\t ]+$/g, ""))
 
             // Collapse trailing spaces
-            pages.push(lines.join("\n"))
+            const p: PDFPage = {
+                index: i + 1,
+                content: lines.join("\n"),
+            }
+            pages.push(p)
+
+            if (renderAsImage) {
+                const viewport = page.getViewport({ scale: 1.5 })
+                const createCanvas = await tryImportCanvas()
+                if (createCanvas) {
+                    const canvas = await createCanvas(
+                        viewport.width,
+                        viewport.height
+                    )
+                    const canvasContext = canvas.getContext("2d")
+                    await page.render({
+                        canvasContext: canvasContext as any,
+                        viewport,
+                    }).promise
+                    const buffer = canvas.toBufferSync("png")
+                    p.image = buffer
+                }
+            }
         }
         return { ok: true, pages }
     } catch (error) {
@@ -104,8 +154,10 @@ async function PDFTryParse(
  * @param pages - Array of page content strings
  * @returns A single string representing the entire document
  */
-function PDFPagesToString(pages: string[]) {
-    return pages?.join("\n\n-------- Page Break --------\n\n")
+function PDFPagesToString(pages: PDFPage[]) {
+    return pages
+        ?.map((p) => `-------- Page ${p.index} --------\n\n${p.content}`)
+        .join("\n\n")
 }
 
 /**
@@ -117,12 +169,14 @@ function PDFPagesToString(pages: string[]) {
 export async function parsePdf(
     filename: string,
     options?: ParsePDFOptions & TraceOptions
-): Promise<{ pages: string[]; content: string }> {
-    const { trace, filter } = options || {}
-    let { pages } = await PDFTryParse(filename, undefined, options)
+): Promise<{ pages: PDFPage[]; content: string }> {
+    const { filter } = options || {}
+    let { pages, ok } = await PDFTryParse(filename, undefined, options)
+    if (!ok) return { pages: [], content: "" }
 
     // Apply filter if provided
-    if (filter) pages = pages.filter((page, index) => filter(index, page))
+    if (filter)
+        pages = pages.filter((page, index) => filter(index, page.content))
     const content = PDFPagesToString(pages)
     return { pages, content }
 }

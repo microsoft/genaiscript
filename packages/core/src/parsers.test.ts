@@ -7,8 +7,9 @@ import { readFile } from "fs/promises"
 import { resolve } from "path"
 import { TestHost } from "./testhost"
 import { estimateTokens } from "./tokens"
+import { writeFile } from "fs/promises"
 
-describe("parsers", () => {
+describe("parsers", async () => {
     let trace: MarkdownTrace
     let model: string
     let parsers: Awaited<ReturnType<typeof createParsers>>
@@ -44,6 +45,25 @@ describe("parsers", () => {
     test("TOML", () => {
         const result = parsers.TOML('key = "value"')
         assert.equal(result.key, "value")
+    })
+
+    await test("PDF", async () => {
+        const result = await parsers.PDF({
+            filename: "../sample/src/rag/loremipsum.pdf",
+        })
+        assert(result.file.content.includes("Lorem"))
+    })
+
+    await test("PDF-image", async () => {
+        const result = await parsers.PDF(
+            { filename: "../sample/src/rag/loremipsum.pdf" },
+            { renderAsImage: true }
+        )
+        let i = 1
+        for (const img of result.images) {
+          await writeFile(`./loremipsum.temp.${i++}.png`, img)
+        }
+        assert(result.file.content.includes("Lorem"))
     })
 
     test("CSV", () => {

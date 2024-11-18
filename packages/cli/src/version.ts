@@ -30,4 +30,4 @@ export const DOCKERODE_VERSION = packageJson.dependencies.dockerode
  * The version of the 'playwright' dependency.
  * Retrieved from the "dependencies" field in package.json.
  */
-export const PLAYWRIGHT_VERSION = packageJson.dependencies.playwright
+export const PLAYWRIGHT_VERSION = packageJson.optionalDependencies.playwright
