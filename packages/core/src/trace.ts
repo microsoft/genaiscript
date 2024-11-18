@@ -15,6 +15,7 @@ import prettyBytes from "pretty-bytes"
 import { host } from "./host"
 import { ellipse, renderWithPrecision, toStringList } from "./util"
 import { estimateTokens } from "./tokens"
+import { hideSecrets } from "./secrets"
 
 export class TraceChunkEvent extends Event {
     constructor(readonly chunk: string) {
@@ -64,13 +65,13 @@ export class MarkdownTrace extends EventTarget implements ToolCallTrace {
             this.dispatchEvent(new Event(TRACE_DETAILS))
         )
         trace.startDetails(title)
-        this._content.push(trace)
+        this._content.push(hideSecrets(title))
         return trace
     }
 
     appendContent(value: string) {
         if (value !== undefined && value !== null && value !== "") {
-            this._content.push(value)
+            this._content.push(hideSecrets(value))
             this._tree = undefined
             this.dispatchChange()
             this.dispatchEvent(new TraceChunkEvent(value))

@@ -73,6 +73,7 @@ import {
     serializeLogProb,
     topLogprobsToMarkdown,
 } from "./logprob"
+import { hideSecrets } from "./secrets"
 
 export function toChatCompletionUserMessage(
     expanded: string,
@@ -967,11 +968,11 @@ export function appendUserMessage(
 ) {
     if (!content) return
     const last = messages.at(-1) as ChatCompletionUserMessageParam
-    if (last?.role === "user") last.content += "\n" + content
+    if (last?.role === "user") last.content += "\n" + hideSecrets(content)
     else
         messages.push({
             role: "user",
-            content,
+            content: hideSecrets(content),
         } as ChatCompletionUserMessageParam)
 }
 
@@ -981,11 +982,11 @@ export function appendAssistantMessage(
 ) {
     if (!content) return
     const last = messages.at(-1) as ChatCompletionAssistantMessageParam
-    if (last?.role === "assistant") last.content += "\n" + content
+    if (last?.role === "assistant") last.content += "\n" + hideSecrets(content)
     else
         messages.push({
             role: "assistant",
-            content,
+            content: hideSecrets(content),
         } satisfies ChatCompletionAssistantMessageParam)
 }
 
@@ -1003,7 +1004,7 @@ export function appendSystemMessage(
         messages.unshift(last)
     }
     if (last.content) last.content += SYSTEM_FENCE
-    last.content += content
+    last.content += hideSecrets(content)
 }
 
 export function addToolDefinitionsMessage(
