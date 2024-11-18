@@ -3,12 +3,10 @@ import { logVerbose } from "./util"
 
 const secretPatterns: Record<string, RegExp> = {
     "AWS Access Key": /AKIA[0-9A-Z]{16}/g,
-    "AWS Secret Key": /[0-9a-zA-Z/+]{40}/g,
     "GitHub Token": /ghp_[0-9a-zA-Z]{36}/g,
     "Slack Token": /xox[baprs]-[0-9a-zA-Z]{10,48}/g,
     "Google API Key": /AIza[0-9A-Za-z-_]{35}/g,
     "Azure Key": /[0-9a-zA-Z/+]{88}/g,
-    "Heroku API Key": /[0-9a-fA-F]{32}/g,
     "Stripe API Key": /sk_live_[0-9a-zA-Z]{24}/g,
     "Google AI Key": /AIza[0-9A-Za-z-_]{35}/g,
     "OpenAI Key": /sk-[0-9a-zA-Z]{32}/g,
@@ -40,7 +38,6 @@ const secretPatterns: Record<string, RegExp> = {
     "Database Connection String": /(?:jdbc|odbc):[a-zA-Z0-9@:\/\.\?&=]+/g,
     "Basic Auth Header": /Basic [a-zA-Z0-9=+\/]+/g,
     "Bearer Token Header": /Bearer [A-Za-z0-9\-_]+/g,
-    "Base64 Encoded Secret": /[A-Za-z0-9+/]{40,}(={0,2})/g,
     "Google OAuth Refresh Token": /1\/[A-Za-z0-9_-]{43}/g,
     "Kubernetes Secret": /apiVersion:\s+v1[\s\S]+kind:\s+Secret[\s\S]+data:/g,
     "Firebase Database URL": /https:\/\/[a-z0-9-]+\.firebaseio\.com/g,
@@ -54,6 +51,7 @@ export function hideSecrets(text: string): string {
         result = result.replace(pattern[1], "***")
         if (prev !== result) {
             logVerbose(`secrets: hidding potential ${pattern[0]} secret`)
+            process.stderr.write(pattern[1].exec(prev) + "\n")
         }
     }
     return result
