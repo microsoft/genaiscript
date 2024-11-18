@@ -1,5 +1,5 @@
 script({
-    model: "openai:gpt-4o",
+    model: "large",
     responseType: "json_schema",
     responseSchema: {
         type: "object",
