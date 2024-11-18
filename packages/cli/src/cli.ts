@@ -333,7 +333,9 @@ export async function cli() {
         .action(parseFence) // Action to parse fenced code regions
     parser
         .command("pdf <file>")
-        .description("Parse a PDF into text")
+        .description("Parse a PDF into text and images")
+        .option("-i, --images", "extract images")
+        .option("-o, --out <string>", "output folder")
         .action(parsePDF) // Action to parse PDF files
     parser
         .command("docx <file>")

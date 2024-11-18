@@ -5,6 +5,7 @@ import { TraceOptions } from "./trace"
 import os from "os"
 import { serializeError } from "./error"
 import { logVerbose, logWarn } from "./util"
+import { PDF_SCALE } from "./constants"
 
 // Declare a global type for SVGGraphics as any
 declare global {
@@ -141,7 +142,12 @@ async function PDFTryParse(
     content?: Uint8Array,
     options?: ParsePDFOptions & TraceOptions
 ) {
-    const { disableCleanup, trace, renderAsImage } = options || {}
+    const {
+        disableCleanup,
+        trace,
+        renderAsImage,
+        scale = PDF_SCALE,
+    } = options || {}
 
     try {
         const pdfjs = await tryImportPdfjs(options)
@@ -152,7 +158,7 @@ async function PDFTryParse(
         const loader = await getDocument({
             data,
             useSystemFonts: true,
-            disableFontFace: false,
+            disableFontFace: true,
             standardFontDataUrl,
             CanvasFactory: createCanvas ? CanvasFactory : undefined,
         })
@@ -181,7 +187,7 @@ async function PDFTryParse(
             pages.push(p)
 
             if (createCanvas) {
-                const viewport = page.getViewport({ scale: 1.5 })
+                const viewport = page.getViewport({ scale: PDF_SCALE })
                 const canvas = await createCanvas(
                     viewport.width,
                     viewport.height

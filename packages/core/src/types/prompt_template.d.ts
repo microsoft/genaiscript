@@ -1152,6 +1152,7 @@ interface XMLParseOptions {
 interface ParsePDFOptions {
     disableCleanup?: boolean
     renderAsImage?: boolean
+    scale?: number
     filter?: (pageIndex: number, text?: string) => boolean
 }
 

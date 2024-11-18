@@ -1,5 +1,5 @@
 import replaceExt from "replace-ext"
-import { readFile } from "node:fs/promises"
+import { readFile, writeFile } from "node:fs/promises"
 import { DOCXTryParse } from "../../core/src/docx"
 import { extractFenced } from "../../core/src/fence"
 import {
@@ -38,6 +38,8 @@ import { jinjaRender } from "../../core/src/jinja"
 import { splitMarkdown } from "../../core/src/frontmatter"
 import { parseOptionsVars } from "./vars"
 import { XMLParse } from "../../core/src/xml"
+import { resolveFileContent } from "../../core/src/file"
+import path from "node:path"
 
 /**
  * This module provides various parsing utilities for different file types such
@@ -51,7 +53,7 @@ import { XMLParse } from "../../core/src/xml"
  * @param file - The PDF file to parse.
  */
 export async function parseFence(language: string, file: string) {
-    const res = await parsePdf(file)
+    const res = await resolveFileContent({ filename: file })
     const fences = extractFenced(res.content || "").filter(
         (f) => f.language === language
     )
@@ -63,11 +65,26 @@ export async function parseFence(language: string, file: string) {
  * Parses the contents of a PDF file and outputs them in YAML format.
  * @param file - The PDF file to parse.
  */
-export async function parsePDF(file: string) {
-    const res = await parsePdf(file)
-    const out = YAMLStringify(res)
-    // Logs the parsed content in YAML format
-    console.log(out)
+export async function parsePDF(
+    file: string,
+    options: { images: boolean; out: string }
+) {
+    const { images, out } = options
+    const { content, pages } = await parsePdf(file, { renderAsImage: images })
+    if (out) {
+        const fn = path.basename(file)
+        console.log(`writing ${path.join(out, fn + ".txt")}`)
+        await writeText(path.join(out, fn + ".txt"), content || "")
+        for (const page of pages) {
+            if (page.image) {
+                const n = path.join(out, fn + ".page" + page.index + ".png")
+                console.log(`writing ${n}`)
+                await writeFile(n, page.image)
+            }
+        }
+    } else {
+        console.log(content || "")
+    }
 }
 
 /**

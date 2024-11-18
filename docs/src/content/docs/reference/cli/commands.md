@@ -313,7 +313,7 @@ Commands:
                                frontmatter or JSON data files into various
                                formats
   fence <language> <file>      Extracts a code fenced regions of the given type
-  pdf <file>                   Parse a PDF into text
+  pdf [options] <file>         Parse a PDF into text and images
   docx <file>                  Parse a DOCX into texts
   html-to-text <file>          Parse an HTML file into text
   code <file> [query]          Parse code using tree sitter and executes a
@@ -354,10 +354,12 @@ Options:
 ```
 Usage: genaiscript parse pdf [options] <file>
 
-Parse a PDF into text
+Parse a PDF into text and images
 
 Options:
-  -h, --help  display help for command
+  -i, --images        extract images
+  -o, --out <string>  output folder
+  -h, --help          display help for command
 ```
 
 ### `parse docx`

@@ -281,7 +281,7 @@ export const MODEL_PROVIDERS = Object.freeze([
 
 export const NEW_SCRIPT_TEMPLATE = `$\`Write a short poem in code.\`
 `
-
+export const PDF_SCALE = 4
 export const PDF_MIME_TYPE = "application/pdf"
 export const DOCX_MIME_TYPE =
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
