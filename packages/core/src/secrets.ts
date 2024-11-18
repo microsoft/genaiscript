@@ -52,7 +52,9 @@ export function hideSecrets(text: string): string {
     for (const pattern of Object.entries(secretPatterns)) {
         let prev = result
         result = result.replace(pattern[1], "***")
-        if (prev !== result) logVerbose(`secrets: hidding ${pattern[0]}`)
+        if (prev !== result) {
+            logVerbose(`secrets: hidding potential ${pattern[0]} secret`)
+        }
     }
     return result
 }
