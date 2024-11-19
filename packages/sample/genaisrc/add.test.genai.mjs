@@ -3,7 +3,7 @@ script({
     description: 'Validates that the model correctly calculates 1+1.',
     group: 'Basic Tests',
     temperature: 0,  
-    model: 'azure:gpt-4o',
+    model: 'large',
     maxTokens: 10, 
     tests: [
       {

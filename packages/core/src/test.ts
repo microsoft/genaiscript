@@ -100,13 +100,13 @@ export function generatePromptFooConfiguration(
                 id: provider,
                 label: [
                     model,
-                    smallModel,
-                    visionModel,
-                    `t=${temperature}`,
+                    `small=${smallModel}`,
+                    `vision=${visionModel}`,
+                    `temp=${temperature}`,
                     top_p !== undefined ? `p=${top_p}` : undefined,
                 ]
                     .filter((v) => v !== undefined)
-                    .join(":"),
+                    .join(", "),
                 config: {
                     model,
                     smallModel,
