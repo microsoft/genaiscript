@@ -13,8 +13,9 @@ class GenAIScriptApiProvider {
     constructor(options) {
         this.config = options.config
         this.providerId =
-            options.id || `genaiscript:${this.config.model || "default"}`
-        this.label = `genaiscript ${this.config.model || "default"}`
+            options.id ||
+            `genaiscript/${this.config.model || "large"}/${this.config.smallModel || "small"}/${this.config.visionModel || "vision"}`
+        this.label = `genaiscript ${this.config.model || "large"}, ${this.config.smallModel || "small"}, ${this.config.visionModel || "vision"}`
     }
 
     id() {

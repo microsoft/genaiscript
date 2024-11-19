@@ -21,10 +21,17 @@ export interface ServerEnv extends RequestMessage {
     type: "server.env"
 }
 
-export interface PromptScriptTestRunOptions {
+export interface PromptScriptTestRunOptions
+    extends PromptScriptModelRunOptions {
     testProvider?: string
     models?: string[]
     groups?: string[]
+}
+
+export interface PromptScriptModelRunOptions {
+    model?: string
+    smallModel?: string
+    visionModel?: string
 }
 
 export interface PromptScriptTestRun extends RequestMessage {

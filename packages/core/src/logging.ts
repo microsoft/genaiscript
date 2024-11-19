@@ -1,5 +1,13 @@
 import inspect from "object-inspect"
 
+export let stdout: NodeJS.WriteStream = process.stdout
+
+export let stderr: NodeJS.WriteStream = process.stderr
+
+export function overrideStdoutWithStdErr() {
+    stdout = stderr
+}
+
 export function consoleLogFormat(...args: any[]) {
     let line = ""
     for (let i = 0; i < args.length; ++i) {
