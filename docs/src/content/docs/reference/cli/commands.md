@@ -86,6 +86,7 @@ Arguments:
 Options:
   -m, --model <string>                model for the run
   -sm, --small-model <string>         small model for the run
+  -vm, --vision-model <string>        'vision' alias model
   --models <models...>                models to test where mode is the key
                                       value pair list of m (model), s (small
                                       model), t (temperature), p (top-p)

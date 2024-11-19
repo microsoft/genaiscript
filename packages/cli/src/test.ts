@@ -119,9 +119,6 @@ export async function runPromptScriptTests(
         promptfooVersion?: string
         outSummary?: string
         testDelay?: string
-        model?: string
-        smallModel?: string
-        visionModel?: string
     }
 ): Promise<PromptScriptTestRunResponse> {
     if (options.model) host.defaultModelOptions.model = options.model
@@ -129,6 +126,10 @@ export async function runPromptScriptTests(
         host.defaultModelOptions.smallModel = options.smallModel
     if (options.visionModel)
         host.defaultModelOptions.visionModel = options.visionModel
+
+    logVerbose(
+        `model: ${host.defaultModelOptions.model}, small model: ${host.defaultModelOptions.smallModel}, vision model: ${host.defaultModelOptions.visionModel}`
+    )
 
     const scripts = await listTests({ ids, ...(options || {}) })
     if (!scripts.length)
@@ -158,7 +159,9 @@ export async function runPromptScriptTests(
             ? join(out, `${script.id}.promptfoo.yaml`)
             : script.filename.replace(GENAI_ANY_REGEX, ".promptfoo.yaml")
         logInfo(`  ${fn}`)
-        const { info } = await resolveModelConnectionInfo(script)
+        const { info } = await resolveModelConnectionInfo(script, {
+            model: options.model,
+        })
         if (info.error) throw new Error(info.error)
         const testProvider =
             options?.testProvider || (await resolveTestProvider(info))
