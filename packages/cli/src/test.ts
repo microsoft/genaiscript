@@ -73,20 +73,6 @@ function parseModelSpec(m: string): ModelOptions {
 }
 
 /**
- * Resolves the test provider for a given script by determining the language model configuration.
- * @param script - The PromptScript object for which to determine the provider.
- * @returns The resolved provider or undefined if not found.
- */
-async function resolveTestProvider(info: ModelConnectionInfo) {
-    switch (info?.type) {
-        case "azure":
-        case "azure_serverless":
-            return info?.base
-    }
-    return undefined
-}
-
-/**
  * Creates an environment object for execution with defaults and optional overrides.
  * @returns An environment object with necessary configurations.
  */
@@ -160,17 +146,12 @@ export async function runPromptScriptTests(
         logInfo(`  ${fn}`)
         const { info } = await resolveModelConnectionInfo(script)
         if (info.error) throw new Error(info.error)
-        const testProvider =
-            options?.testProvider || (await resolveTestProvider(info))
         const config = generatePromptFooConfiguration(script, {
             out,
             cli,
-            model: info.model,
-            smallModel: info.smallModel,
-            visionModel: info.visionModel,
             models: options.models?.map(parseModelSpec),
             provider: "provider.mjs",
-            testProvider,
+            info,
         })
         const yaml = YAMLStringify(config)
         await writeFile(fn, yaml)
