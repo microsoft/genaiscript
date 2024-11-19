@@ -1244,8 +1244,8 @@ Apache License
 
 The following npm packages may be included in this product:
 
- - playwright-core@1.48.2
- - playwright@1.48.2
+ - playwright-core@1.49.0
+ - playwright@1.49.0
 
 These packages each contain the following license:
 
@@ -1702,7 +1702,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.75.3
+ - genaiscript-vscode@1.76.0
 
 This package contains the following license:
 
@@ -4862,9 +4862,9 @@ The following npm packages may be included in this product:
  - @tokenizer/token@0.3.0
  - agent-base@6.0.2
  - canvas@3.0.0-rc2
- - genaiscript-core-internal@1.75.3
- - genaiscript-sample@1.75.3
- - genaiscript@1.75.3
+ - genaiscript-core-internal@1.76.0
+ - genaiscript-sample@1.76.0
+ - genaiscript@1.76.0
  - https-proxy-agent@5.0.1
  - isarray@1.0.0
  - javascript-natural-sort@0.7.1
@@ -8019,7 +8019,7 @@ THE SOFTWARE.
 
 The following npm package may be included in this product:
 
- - cross-spawn@7.0.5
+ - cross-spawn@7.0.6
 
 This package contains the following license:
 
