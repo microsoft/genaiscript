@@ -13,7 +13,8 @@ script({
 def("FILE", env.files)
 
 $`
-Summarize all files in FILE in a single page.
+Summarize all files in FILE in a single paragraph.
 - Keep it short.
 - At most 3 paragraphs.
+- Consider all files at once, do NOT summarize files individually.
 `

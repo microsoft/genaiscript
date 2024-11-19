@@ -323,6 +323,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
         }
     }
 
+    trace.appendContent("\n\n")
     if (!postReq.stream) {
         const responseBody = await r.text()
         doChoices(responseBody, [])
