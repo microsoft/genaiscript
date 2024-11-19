@@ -62,12 +62,24 @@ export async function activateChatParticipant(state: ExtensionState) {
                 prompt = prompt.slice(scriptid.length).trim()
                 template = templates.find((t) => t.id === scriptid)
                 if (!template) {
-                    md(`$(error) Oops, I could not find any genaiscript matching \`${scriptid}\`. Try one of the following:
+                    if (state.project.templates.length === 0) {
+                        md(
+                            `$(error) Oops, I could not find any genaiscript. Try **GenAIScript: Create new script...** to create one.`
+                        )
+                    } else {
+                        if (scriptid === "")
+                            md(`$(error) Please specify a genaiscript to run.`)
+                        else
+                            md(
+                                `$(error) Oops, I could not find any genaiscript matching \`${scriptid}\`.`
+                            )
+                        md(`Try one of the following:
                     ${state.project.templates
                         .filter((s) => !s.system && !s.unlisted)
                         .map((s) => `- \`${s.id}\`: ${s.title}`)
                         .join("\n")}
                     `)
+                    }
                     return
                 }
             } else {
