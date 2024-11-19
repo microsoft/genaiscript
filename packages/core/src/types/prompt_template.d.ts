@@ -1628,7 +1628,12 @@ interface Git {
      * Executes a git command in the repository and returns the stdout
      * @param cmd
      */
-    exec(args: string[] | string, options?: { label?: string }): Promise<string>
+    exec(
+        args: string[] | string,
+        options?: {
+            label?: string
+        }
+    ): Promise<string>
 
     /**
      * Lists the branches in the git repository
@@ -1689,6 +1694,12 @@ interface Git {
         paths?: ElementOrArray<string>
         excludedPaths?: ElementOrArray<string>
     }): Promise<GitCommit[]>
+
+    /**
+     * Open a git client on a different directory
+     * @param cwd working directory
+     */
+    client(cwd: string): Git
 }
 
 interface GitHubOptions {
@@ -1976,7 +1987,14 @@ interface GitHub {
     /**
      * Gets the underlying Octokit client
      */
-    client(): Promise<any>
+    api(): Promise<any>
+
+    /**
+     * Opens a client to a different repository
+     * @param owner
+     * @param repo
+     */
+    client(owner: string, repo: string): GitHub
 }
 
 interface MD {

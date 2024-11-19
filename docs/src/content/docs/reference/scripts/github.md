@@ -11,7 +11,7 @@ The `github` module provides several helper functions to query GitHub, along wit
 
 The `github` configuration is automatically detected from the environment and git.
 
-- The GitHub token is read from the `GITHUB_TOKEN` environment variable. Some queries might work without authentication for public repositories.
+-   The GitHub token is read from the `GITHUB_TOKEN` environment variable. Some queries might work without authentication for public repositories.
 
 ### GitHub CodeSpaces
 
@@ -128,14 +128,14 @@ const branches = await github.listBranches()
 console.log(branches)
 ```
 
-## Advanced Use
+## Octokit access
 
 Utilize [octokit](https://www.npmjs.com/package/octokit) to access the full GitHub APIs.
 
 ```js
 import { Octokit } from "@octokit/core"
 
-const client: Octokit = await github.client()
+const api: Octokit = await github.api()
 ...
 ```
 
@@ -143,4 +143,12 @@ Install octokit in your list of packages:
 
 ```sh
 npm install -D octokit
+```
+
+## Working on a different repository
+
+Use `client` to open a github client on a different repository using the same secrets.
+
+```js
+const client = github.client("owner", "repo")
 ```

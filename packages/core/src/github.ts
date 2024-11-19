@@ -18,6 +18,7 @@ import { fetchText } from "./fetch"
 import { concurrentLimit } from "./concurrency"
 import { createDiff, llmifyDiff } from "./diff"
 import { JSON5TryParse } from "./json5"
+import { resolve } from "node:path"
 
 export interface GithubConnectionInfo {
     token: string
@@ -85,10 +86,16 @@ async function githubGetPullRequestNumber() {
 
 export async function githubParseEnv(
     env: Record<string, string>,
-    options?: { issue?: number }
+    options?: { issue?: number } & Partial<Pick<GithubConnectionInfo, "owner" | "repo">>
 ): Promise<GithubConnectionInfo> {
     const res = githubFromEnv(env)
     try {
+        if (options?.owner && options?.repo) {
+            res.owner = options.owner
+            res.repo = options.repo
+            res.repository = res.owner + "/" + res.repo
+        }
+        if (!isNaN(options?.issue)) res.issue = options.issue
         if (!res.owner || !res.repo || !res.repository) {
             const { name: repo, owner } = JSON.parse(
                 (
@@ -103,9 +110,8 @@ export async function githubParseEnv(
             res.repo = repo
             res.owner = owner.login
             res.repository = res.owner + "/" + res.repo
+            if (isNaN(res.issue)) res.issue = await githubGetPullRequestNumber()
         }
-        if (!isNaN(options?.issue)) res.issue = options.issue
-        if (isNaN(res.issue)) res.issue = await githubGetPullRequestNumber()
     } catch (e) {}
     return Object.freeze(res)
 }
@@ -433,6 +439,7 @@ async function paginatorToArray<T, R>(
 }
 
 export class GitHubClient implements GitHub {
+    private readonly _info: Pick<GithubConnectionInfo, "owner" | "repo">
     private _connection: Promise<GithubConnectionInfo>
     private _client: Promise<
         | ({
@@ -443,14 +450,22 @@ export class GitHubClient implements GitHub {
         | undefined
     >
 
-    constructor() {}
+    constructor(info: Pick<GithubConnectionInfo, "owner" | "repo">) {
+        this._info = info
+    }
 
     private connection(): Promise<Omit<GithubConnectionInfo, "issue">> {
-        if (!this._connection) this._connection = githubParseEnv(process.env)
+        if (!this._connection) {
+            this._connection = githubParseEnv(process.env, this._info)
+        }
         return this._connection
     }
 
-    async client() {
+    client(owner: string, repo: string) {
+        return new GitHubClient({ owner, repo })
+    }
+
+    async api() {
         if (!this._client) {
             this._client = new Promise(async (resolve) => {
                 const conn = await this.connection()
@@ -541,7 +556,7 @@ export class GitHubClient implements GitHub {
             mentioned?: string
         } & GitHubPaginationOptions
     ): Promise<GitHubIssue[]> {
-        const { client, owner, repo } = await this.client()
+        const { client, owner, repo } = await this.api()
         const { count = GITHUB_REST_PAGE_DEFAULT, ...rest } = options ?? {}
         const ite = client.paginate.iterator(client.rest.issues.listForRepo, {
             owner,
@@ -553,7 +568,7 @@ export class GitHubClient implements GitHub {
     }
 
     async getIssue(issue_number: number): Promise<GitHubIssue> {
-        const { client, owner, repo } = await this.client()
+        const { client, owner, repo } = await this.api()
         const { data } = await client.rest.issues.get({
             owner,
             repo,
@@ -569,11 +584,11 @@ export class GitHubClient implements GitHub {
             direction?: "asc" | "desc"
         } & GitHubPaginationOptions
     ): Promise<GitHubPullRequest[]> {
-        const { client, owner, repo } = await this.client()
+        const { client, owner, repo } = await this.api()
         const { count = GITHUB_REST_PAGE_DEFAULT, ...rest } = options ?? {}
         const ite = client.paginate.iterator(client.rest.pulls.list, {
             owner,
-            repo,            
+            repo,
             ...rest,
         })
         const res = await paginatorToArray(ite, count, (i) => i.data)
@@ -581,7 +596,7 @@ export class GitHubClient implements GitHub {
     }
 
     async getPullRequest(pull_number?: number): Promise<GitHubPullRequest> {
-        const { client, owner, repo } = await this.client()
+        const { client, owner, repo } = await this.api()
         if (isNaN(pull_number)) pull_number = (await this._connection).issue
         if (isNaN(pull_number)) return undefined
 
@@ -597,7 +612,7 @@ export class GitHubClient implements GitHub {
         pull_number: number,
         options?: GitHubPaginationOptions
     ): Promise<GitHubComment[]> {
-        const { client, owner, repo } = await this.client()
+        const { client, owner, repo } = await this.api()
         const { count = GITHUB_REST_PAGE_DEFAULT, ...rest } = options ?? {}
         const ite = client.paginate.iterator(
             client.rest.pulls.listReviewComments,
@@ -616,7 +631,7 @@ export class GitHubClient implements GitHub {
         issue_number: number,
         options?: { reactions?: boolean } & GitHubPaginationOptions
     ): Promise<GitHubComment[]> {
-        const { client, owner, repo } = await this.client()
+        const { client, owner, repo } = await this.api()
         const {
             reactions,
             count = GITHUB_REST_PAGE_DEFAULT,
@@ -639,7 +654,7 @@ export class GitHubClient implements GitHub {
             status?: GitHubWorkflowRunStatus
         } & GitHubPaginationOptions
     ): Promise<GitHubWorkflowRun[]> {
-        const { client, owner, repo } = await this.client()
+        const { client, owner, repo } = await this.api()
         const { count = GITHUB_REST_PAGE_DEFAULT, ...rest } = options ?? {}
         const ite = client.paginate.iterator(
             workflowIdOrFilename
@@ -667,7 +682,7 @@ export class GitHubClient implements GitHub {
         options?: { filter?: "all" | "latest" } & GitHubPaginationOptions
     ): Promise<GitHubWorkflowJob[]> {
         // Get the jobs for the specified workflow run
-        const { client, owner, repo } = await this.client()
+        const { client, owner, repo } = await this.api()
         const {
             filter,
             count = GITHUB_REST_PAGE_DEFAULT,
@@ -713,7 +728,7 @@ export class GitHubClient implements GitHub {
         job_id: number,
         options?: { llmify?: boolean }
     ): Promise<string> {
-        const { client, owner, repo } = await this.client()
+        const { client, owner, repo } = await this.api()
         const { url: logs_url } =
             await client.rest.actions.downloadJobLogsForWorkflowRun({
                 owner,
@@ -726,7 +741,7 @@ export class GitHubClient implements GitHub {
     }
 
     private async downladJob(job_id: number) {
-        const { client, owner, repo } = await this.client()
+        const { client, owner, repo } = await this.api()
         const filename = `job-${job_id}.log`
         const { url } = await client.rest.actions.downloadJobLogsForWorkflowRun(
             {
@@ -751,7 +766,7 @@ export class GitHubClient implements GitHub {
     }
 
     async getFile(filename: string, ref: string): Promise<WorkspaceFile> {
-        const { client, owner, repo } = await this.client()
+        const { client, owner, repo } = await this.api()
         const { data: content } = await client.rest.repos.getContent({
             owner,
             repo,
@@ -774,7 +789,7 @@ export class GitHubClient implements GitHub {
         query: string,
         options?: GitHubPaginationOptions
     ): Promise<GitHubCodeSearchResult[]> {
-        const { client, owner, repo } = await this.client()
+        const { client, owner, repo } = await this.api()
         const q = query + `+repo:${owner}/${repo}`
         const { count = GITHUB_REST_PAGE_DEFAULT, ...rest } = options ?? {}
         const ite = client.paginate.iterator(client.rest.search.code, {
@@ -797,7 +812,7 @@ export class GitHubClient implements GitHub {
     async listWorkflows(
         options?: GitHubPaginationOptions
     ): Promise<GitHubWorkflow[]> {
-        const { client, owner, repo } = await this.client()
+        const { client, owner, repo } = await this.api()
         const { count = GITHUB_REST_PAGE_DEFAULT, ...rest } = options ?? {}
         const ite = client.paginate.iterator(
             client.rest.actions.listRepoWorkflows,
@@ -816,7 +831,7 @@ export class GitHubClient implements GitHub {
     }
 
     async listBranches(options?: GitHubPaginationOptions): Promise<string[]> {
-        const { client, owner, repo } = await this.client()
+        const { client, owner, repo } = await this.api()
         const { count = GITHUB_REST_PAGE_DEFAULT, ...rest } = options ?? {}
         const ite = client.paginate.iterator(client.rest.repos.listBranches, {
             owner,
@@ -828,7 +843,7 @@ export class GitHubClient implements GitHub {
     }
 
     async listRepositoryLanguages(): Promise<Record<string, number>> {
-        const { client, owner, repo } = await this.client()
+        const { client, owner, repo } = await this.api()
         const { data: languages } = await client.rest.repos.listLanguages({
             owner,
             repo,
@@ -846,7 +861,7 @@ export class GitHubClient implements GitHub {
             type?: string
         }
     ): Promise<GitHubFile[]> {
-        const { client, owner, repo } = await this.client()
+        const { client, owner, repo } = await this.api()
         const { ref, type, glob, downloadContent, maxDownloadSize } =
             options ?? {}
         const { data: contents } = await client.rest.repos.getContent({

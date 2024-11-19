@@ -114,10 +114,10 @@ export function installGlobals() {
     }
 
     // Instantiate GitHub client
-    glb.github = new GitHubClient()
+    glb.github = new GitHubClient(undefined)
 
     // Instantiate Git client
-    glb.git = new GitClient()
+    glb.git = new GitClient(undefined)
 
     glb.tokenizers = Object.freeze<Tokenizers>({
         resolve: resolveTokenEncoder,

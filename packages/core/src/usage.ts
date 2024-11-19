@@ -276,9 +276,9 @@ export class GenerationStats {
                 `${indent}${this.label ? `${this.label} (${this.resolvedModel})` : this.resolvedModel}> ${au.total_tokens} tokens (${au.prompt_tokens} -> ${au.completion_tokens}) ${renderCost(c)}`
             )
         }
-        if (this.chatTurns.length > 1)
-            for (const { messages, usage, model: turnModel } of this
-                .chatTurns) {
+        if (this.chatTurns.length > 1) {
+            const chatTurns = this.chatTurns.slice(0, 10)
+            for (const { messages, usage, model: turnModel } of chatTurns) {
                 const cost = estimateCost(this.model, usage)
                 if (cost === undefined && isCosteable(turnModel))
                     unknowns.add(this.model)
@@ -286,6 +286,9 @@ export class GenerationStats {
                     `${indent}  ${messages.length} messages, ${usage.total_tokens} tokens ${renderCost(cost)}`
                 )
             }
+            if (this.chatTurns.length > chatTurns.length)
+                logVerbose(`${indent}  ...`)
+        }
         for (const child of this.children) child.logTokens(indent + "  ")
         if (unknowns.size)
             logVerbose(`missing pricing for ${[...unknowns].join(", ")}`)
