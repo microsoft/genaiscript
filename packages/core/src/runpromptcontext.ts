@@ -27,7 +27,7 @@ import {
     parametersToVars,
     promptParametersSchemaToJSONSchema,
 } from "./parameters"
-import { consoleLogFormat } from "./logging"
+import { consoleLogFormat, stdout } from "./logging"
 import { isGlobMatch } from "./glob"
 import { arrayify, logError, logVerbose, logWarn } from "./util"
 import { renderShellOutput } from "./chatrender"
@@ -54,7 +54,6 @@ import {
     TOKEN_MISSING_INFO,
     TOKEN_NO_ANSWER,
     MODEL_PROVIDER_AICI,
-    SYSTEM_FENCE,
     DOCS_DEF_FILES_IS_EMPTY_URL,
 } from "./constants"
 import { renderAICI } from "./aici"
@@ -86,7 +85,7 @@ export function createChatTurnGenerationContext(
             const line = consoleLogFormat(...args)
             if (line) {
                 trace.log(line)
-                process.stdout.write(line + "\n")
+                stdout.write(line + "\n")
             }
         },
         debug: (...args: any[]) => {
