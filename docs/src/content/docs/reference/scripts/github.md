@@ -135,7 +135,7 @@ Utilize [octokit](https://www.npmjs.com/package/octokit) to access the full GitH
 ```js
 import { Octokit } from "@octokit/core"
 
-const api: Octokit = await github.api()
+const { client }: { client: Octokit } = await github.api()
 ...
 ```
 
