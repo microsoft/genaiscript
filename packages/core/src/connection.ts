@@ -261,7 +261,7 @@ export async function parseTokenFromEnv(
             throw new Error(
                 "AZURE_SERVERLESS_MODELS_API_ENDPOINT not configured"
             )
-        base = cleanAzureBase(base)
+        base = trimTrailingSlash(base)
         if (!URL.canParse(base))
             throw new Error(
                 "AZURE_SERVERLESS_MODELS_API_ENDPOINT must be a valid URL"

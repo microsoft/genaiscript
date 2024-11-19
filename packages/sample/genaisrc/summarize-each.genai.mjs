@@ -1,5 +1,5 @@
 script({
-    title: "summarize all files",
+    title: "summarize each files",
     model: "small",
     files: "src/rag/markdown.md",
     tests: [

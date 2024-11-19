@@ -12,16 +12,17 @@ const downloadScm = async (repo: string, name: string) => {
         })
         if (res.status === 200) {
             // download and stream content to a file
+            const data = res.data.toString()
             await workspace.writeText(
                 `packages/core/src/queries/${repoName}/${name}.scm`,
-                res.data
+                data
             )
-            files[`${repoName}/${name}`] = res.data
+            files[`${repoName}/${name}`] = data
         }
     } catch (e) {}
 }
 
-const { client } = await github.client()
+const { client }: { client: Octokit } = await github.api()
 
 const repos = await client.rest.repos.listForOrg({
     org: "tree-sitter",

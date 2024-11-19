@@ -2,31 +2,49 @@
 import {
     HTTPS_REGEX,
     LARGE_MODEL_ID,
+    MODEL_PROVIDER_AZURE_OPENAI,
+    MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI,
     SMALL_MODEL_ID,
     VISION_MODEL_ID,
 } from "./constants"
-import { arrayify } from "./util"
+import { arrayify, deleteUndefinedValues } from "./util"
 import { host } from "./host"
+import { ModelConnectionInfo } from "./models"
 
 /**
- * Function to remove properties with undefined values from an object.
- *
- * @param obj - An object with string keys and any type of values.
- * @returns A new object with undefined values removed, or undefined if the input is undefined.
+ * Convert GenAIScript connection info into prompt foo configuration
+ * @param info
  */
-function cleanUndefined(obj: Record<string, any>) {
-    // Check if the object is defined
-    return obj
-        ? Object.entries(obj) // Convert object to entries
-              .filter(([_, value]) => value !== undefined) // Filter out undefined values
-              .reduce(
-                  (newObj, [key, value]) => {
-                      newObj[key] = value // Add key-value pair to new object
-                      return newObj // Return accumulated object
-                  },
-                  {} as Record<string, any> // Initialize as empty object
-              )
-        : undefined // Return undefined if input is undefined
+function resolveTestProvider(info: ModelConnectionInfo) {
+    const { provider, model, base } = info
+    switch (provider) {
+        case MODEL_PROVIDER_AZURE_OPENAI:
+        case MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI:
+            return {
+                text: {
+                    id: "azureopenai:chat:gpt-4",
+                    config: {
+                        apiHost: base
+                            .replace(HTTPS_REGEX, "")
+                            .replace(/\/openai\/deployments$/i, ""),
+                    },
+                },
+                embedding: {
+                    id: "azureopenai:embeddings:text-embedding-ada-002",
+                    config: {
+                        apiHost: base
+                            .replace(HTTPS_REGEX, "")
+                            .replace(/\/openai\/deployments$/i, ""),
+                    },
+                },
+            }
+        // openai
+        default:
+            return {
+                text: provider + ":chat:" + model,
+                embedding: provider + ":embeddings:" + base,
+            }
+    }
 }
 
 /**
@@ -38,19 +56,16 @@ function cleanUndefined(obj: Record<string, any>) {
  */
 export function generatePromptFooConfiguration(
     script: PromptScript,
-    options?: {
+    options: {
+        info: ModelConnectionInfo
         provider?: string
-        testProvider?: string
         out?: string
         cli?: string
-        model?: string
-        smallModel?: string
-        visionModel?: string
         models?: ModelOptions[]
     }
 ) {
     // Destructure options with default values
-    const { provider = "provider.mjs", testProvider } = options || {}
+    const { provider = "provider.mjs", info } = options || {}
     const { description, title, tests = [], id } = script
     const models = options?.models || []
 
@@ -58,9 +73,9 @@ export function generatePromptFooConfiguration(
     if (!models.length) {
         models.push({
             ...script,
-            model: options?.model || script.model,
-            smallModel: options?.smallModel || script.smallModel,
-            visionModel: options?.visionModel || script.visionModel,
+            model: info.model,
+            smallModel: info.smallModel,
+            visionModel: info.visionModel,
         })
     }
 
@@ -75,6 +90,8 @@ export function generatePromptFooConfiguration(
               : m === LARGE_MODEL_ID
                 ? host.defaultModelOptions.model
                 : m
+
+    const testProvider = resolveTestProvider(info)
 
     // Create configuration object
     const res = {
@@ -117,38 +134,7 @@ export function generatePromptFooConfiguration(
                 },
             })),
         // Default test configuration if testProvider is present
-        defaultTest: testProvider
-            ? {
-                  options: {
-                      provider: testProvider
-                          ? {
-                                text: {
-                                    id: "azureopenai:chat:gpt-4",
-                                    config: {
-                                        apiHost: testProvider
-                                            .replace(HTTPS_REGEX, "")
-                                            .replace(
-                                                /\/openai\/deployments$/i,
-                                                ""
-                                            ),
-                                    },
-                                },
-                                embedding: {
-                                    id: "azureopenai:embeddings:text-embedding-ada-002",
-                                    config: {
-                                        apiHost: testProvider
-                                            .replace(HTTPS_REGEX, "")
-                                            .replace(
-                                                /\/openai\/deployments$/i,
-                                                ""
-                                            ),
-                                    },
-                                },
-                            }
-                          : undefined,
-                  },
-              }
-            : undefined,
+        defaultTest: testProvider ? { provider: testProvider } : undefined,
         // Map tests to configuration format
         tests: arrayify(tests).map(
             ({
@@ -162,7 +148,7 @@ export function generatePromptFooConfiguration(
                 asserts = [],
             }) => ({
                 description,
-                vars: cleanUndefined({
+                vars: deleteUndefinedValues({
                     files,
                     vars,
                 }),

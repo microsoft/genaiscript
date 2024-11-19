@@ -93,7 +93,6 @@ Options:
   -o, --out <folder>                  output folder
   -rmo, --remove-out                  remove output folder if it exists
   --cli <string>                      override path to the cli
-  -tp, --test-provider <string>       test provider
   -td, --test-delay <string>          delay between tests in seconds
   --cache                             enable LLM result cache
   -v, --verbose                       verbose output
