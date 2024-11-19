@@ -146,7 +146,7 @@ export async function runPromptScriptTests(
             : script.filename.replace(GENAI_ANY_REGEX, ".promptfoo.yaml")
         logInfo(`  ${fn}`)
         const { info } = await resolveModelConnectionInfo(script, {
-            model: options.model,
+            model: host.defaultModelOptions.model,
         })
         if (info.error) throw new Error(info.error)
         const config = generatePromptFooConfiguration(script, {

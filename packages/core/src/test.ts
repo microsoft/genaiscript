@@ -4,6 +4,7 @@ import {
     LARGE_MODEL_ID,
     MODEL_PROVIDER_AZURE_OPENAI,
     MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI,
+    MODEL_PROVIDER_GITHUB,
     SMALL_MODEL_ID,
     VISION_MODEL_ID,
 } from "./constants"
@@ -17,6 +18,9 @@ import { ModelConnectionInfo } from "./models"
  */
 function resolveTestProvider(info: ModelConnectionInfo) {
     const { provider, model, base } = info
+    const apiHost = base
+        .replace(HTTPS_REGEX, "")
+        .replace(/\/openai\/deployments$/i, "")
     switch (provider) {
         case MODEL_PROVIDER_AZURE_OPENAI:
         case MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI:
@@ -24,25 +28,37 @@ function resolveTestProvider(info: ModelConnectionInfo) {
                 text: {
                     id: "azureopenai:chat:gpt-4",
                     config: {
-                        apiHost: base
-                            .replace(HTTPS_REGEX, "")
-                            .replace(/\/openai\/deployments$/i, ""),
+                        apiHost,
                     },
                 },
                 embedding: {
                     id: "azureopenai:embeddings:text-embedding-ada-002",
                     config: {
-                        apiHost: base
-                            .replace(HTTPS_REGEX, "")
-                            .replace(/\/openai\/deployments$/i, ""),
+                        apiHost,
                     },
+                },
+            }
+        case MODEL_PROVIDER_GITHUB:
+            return {
+                text: {
+                    id: provider + ":" + model,
                 },
             }
         // openai
         default:
             return {
-                text: provider + ":chat:" + model,
-                embedding: provider + ":embeddings:" + base,
+                text: {
+                    id: provider + ":chat:" + model,
+                    config: {
+                        apiHost,
+                    },
+                },
+                embedding: {
+                    id: provider + ":embeddings:" + model,
+                    config: {
+                        apiHost,
+                    },
+                },
             }
     }
 }
