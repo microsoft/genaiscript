@@ -92,6 +92,9 @@ export function generatePromptFooConfiguration(
                 : m
 
     const testProvider = resolveTestProvider(info)
+    const defaultTest = deleteUndefinedValues({
+        options: deleteUndefinedValues({ provider: testProvider }),
+    })
 
     // Create configuration object
     const res = {
@@ -133,8 +136,7 @@ export function generatePromptFooConfiguration(
                     cli,
                 },
             })),
-        // Default test configuration if testProvider is present
-        defaultTest: testProvider ? { provider: testProvider } : undefined,
+        defaultTest,
         // Map tests to configuration format
         tests: arrayify(tests).map(
             ({
