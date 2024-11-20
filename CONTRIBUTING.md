@@ -31,11 +31,57 @@ You can open this repo in GitHub CodeSpace/Docker to get the build environment n
 yarn install --frozen-lockfile --prefer-offline
 ```
 
+## Build
+
+You can do a full compile using esbuild.
+
+```sh
+yarn compile
+```
+
+or a typecheck using `tsc`.
+
+```sh
+yarn typecheck
+```
+
+or start a debug session in VSCode.
+
 -   Start the **Run - sample** Debugger to launch the sample project in debugging mode
+
+## Running local scripts
+
+To run a script using the locally built cli,
+
+```sh
+yarn genai <scriptid> ...
+```
+
+To run a sample script under the `packages/sample` folder:
+
+```sh
+yarn run:script <scriptid> ...
+```
+
+In this case, it will use the `packages/sample/.env` file for the environment variables and workspace will be rooted at `packages/sample`.
+
+## Debugging local scripts
+
+Open a `JavaScript Debug Terminal` and launch the script using
+
+```sh
+yarn genai:debug <scriptid> ...
+```
+
+or for samples
+
+```sh
+yarn run:script:debug <scriptid> ...
+```
 
 ## Dependencies
 
--   run `yarn install` to refresh the lock file
+-   run `yarn install:force` to refresh the lock file
 -   run `yarn gen:licenses` to refresh the 3rd party licenses
 
 ## Docs
