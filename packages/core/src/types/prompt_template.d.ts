@@ -930,6 +930,12 @@ interface DefOptions
      * By default, throws an error if the value in def is empty.
      */
     ignoreEmpty?: boolean
+
+    /**
+     * The content of the def is a predicted output.
+     * This setting disables line numbers.
+     */
+    prediction?: boolean
 }
 
 /**

@@ -94,6 +94,11 @@ export interface PromptDefNode extends PromptNode, DefOptions {
     resolved?: WorkspaceFile // Resolved file content
 }
 
+export interface PromptPrediction {
+    type: "content"
+    content: string
+}
+
 // Interface for an assistant node.
 export interface PromptAssistantNode extends PromptNode {
     type: "assistant"
@@ -235,7 +240,7 @@ export function createDefDiff(
 // Function to render a definition node to a string.
 function renderDefNode(def: PromptDefNode): string {
     const { name, resolved: file } = def
-    const { language, lineNumbers, schema } = def || {}
+    const { language, lineNumbers, schema, prediction } = def || {}
 
     file.content = extractRange(file.content, def)
 
@@ -245,7 +250,8 @@ function renderDefNode(def: PromptDefNode): string {
             : PROMPT_FENCE
     const norm = (s: string, lang: string) => {
         s = (s || "").replace(/\n*$/, "")
-        if (s && lineNumbers) s = addLineNumbers(s, { language: lang })
+        if (s && lineNumbers && !prediction)
+            s = addLineNumbers(s, { language: lang })
         if (s) s += "\n"
         return s
     }
@@ -552,6 +558,7 @@ export interface PromptNodeRender {
     chatParticipants: ChatParticipant[] // Chat participants
     messages: ChatCompletionMessageParam[] // Messages for chat completion
     fileOutputs: FileOutput[] // File outputs
+    prediction: PromptPrediction // predicted output for the prompt
 }
 
 /**
@@ -1054,6 +1061,7 @@ export async function renderPromptNode(
     const outputProcessors: PromptOutputProcessorHandler[] = []
     const chatParticipants: ChatParticipant[] = []
     const fileOutputs: FileOutput[] = []
+    let prediction: PromptPrediction
 
     await visitNode(node, {
         error: (n) => {
@@ -1065,7 +1073,17 @@ export async function renderPromptNode(
         },
         def: async (n) => {
             const value = n.resolved
-            if (value !== undefined) appendUser(renderDefNode(n))
+            if (value !== undefined) {
+                appendUser(renderDefNode(n))
+                if (n.prediction) {
+                    if (prediction) n.error = "duplicate prediction"
+                    else
+                        prediction = {
+                            type: "content",
+                            content: extractRange(value.content, n),
+                        }
+                }
+            }
         },
         assistant: async (n) => {
             const value = await n.resolved
@@ -1173,6 +1191,7 @@ ${trimNewlines(schemaText)}
         errors,
         messages,
         fileOutputs,
+        prediction,
     })
     return res
 }

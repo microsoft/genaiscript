@@ -138,6 +138,7 @@ export async function runTemplate(
             outputProcessors,
             chatParticipants,
             fileOutputs,
+            prediction,
             status,
             statusText,
             temperature,
@@ -221,6 +222,7 @@ export async function runTemplate(
             fileOutputs,
             outputProcessors,
             fileMerges,
+            prediction,
             completer,
             chatParticipants,
             genOptions
