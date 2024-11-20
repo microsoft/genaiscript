@@ -930,6 +930,12 @@ interface DefOptions
      * By default, throws an error if the value in def is empty.
      */
     ignoreEmpty?: boolean
+
+    /**
+     * The content of the def is a predicted output.
+     * @see https://platform.openai.com/docs/guides/predicted-outputs
+     */
+    prediction?: boolean
 }
 
 /**

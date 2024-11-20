@@ -20,6 +20,7 @@ import {
     createSystemNode,
     finalizeMessages,
     PromptImage,
+    PromptPrediction,
 } from "./promptdom"
 import { MarkdownTrace } from "./trace"
 import { GenerationOptions } from "./generation"
@@ -626,6 +627,7 @@ export function createChatGenerationContext(
             const fileMerges: FileMergeHandler[] = []
             const outputProcessors: PromptOutputProcessorHandler[] = []
             const fileOutputs: FileOutput[] = []
+            let prediction: PromptPrediction
 
             // expand template
             const { provider } = parseModelIdentifier(genOptions.model)
@@ -644,6 +646,7 @@ export function createChatGenerationContext(
                     outputProcessors: ops,
                     fileOutputs: fos,
                     images: imgs,
+                    prediction: pred,
                 } = await renderPromptNode(genOptions.model, node, {
                     flexTokens: genOptions.flexTokens,
                     trace: runTrace,
@@ -657,6 +660,7 @@ export function createChatGenerationContext(
                 outputProcessors.push(...ops)
                 fileOutputs.push(...fos)
                 images.push(...imgs)
+                prediction = pred
 
                 if (errors?.length) {
                     logError(errors.map((err) => errorMessage(err)).join("\n"))
@@ -773,6 +777,7 @@ export function createChatGenerationContext(
                     fileOutputs,
                     outputProcessors,
                     fileMerges,
+                    prediction,
                     completer,
                     chatParticipants,
                     genOptions

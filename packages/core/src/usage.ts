@@ -129,6 +129,8 @@ export class GenerationStats {
             completion_tokens_details: {
                 audio_tokens: 0,
                 reasoning_tokens: 0,
+                accepted_prediction_tokens: 0,
+                rejected_prediction_tokens: 0,
             },
             prompt_tokens_details: {
                 audio_tokens: 0,
@@ -169,6 +171,12 @@ export class GenerationStats {
             res.completion_tokens += childUsage.completion_tokens
             res.prompt_tokens += childUsage.prompt_tokens
             res.total_tokens += childUsage.total_tokens
+            res.completion_tokens_details.accepted_prediction_tokens +=
+                childUsage.completion_tokens_details
+                    .accepted_prediction_tokens ?? 0
+            res.completion_tokens_details.rejected_prediction_tokens +=
+                childUsage.completion_tokens_details
+                    .rejected_prediction_tokens ?? 0
             res.completion_tokens_details.audio_tokens +=
                 childUsage.completion_tokens_details.audio_tokens
             res.completion_tokens_details.reasoning_tokens +=
@@ -232,7 +240,16 @@ export class GenerationStats {
                 "reasoning tokens",
                 this.usage.completion_tokens_details.reasoning_tokens
             )
-
+        if (this.usage.completion_tokens_details?.accepted_prediction_tokens)
+            trace.itemValue(
+                "accepted prediction tokens",
+                this.usage.completion_tokens_details.accepted_prediction_tokens
+            )
+        if (this.usage.completion_tokens_details?.rejected_prediction_tokens)
+            trace.itemValue(
+                "rejected prediction tokens",
+                this.usage.completion_tokens_details.rejected_prediction_tokens
+            )
         if (this.chatTurns.length > 1) {
             trace.startDetails("chat turns")
             try {

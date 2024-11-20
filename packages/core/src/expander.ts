@@ -8,7 +8,12 @@ import {
     MODEL_PROVIDER_AICI,
     PROMPTY_REGEX,
 } from "./constants"
-import { finalizeMessages, PromptImage, renderPromptNode } from "./promptdom"
+import {
+    finalizeMessages,
+    PromptImage,
+    PromptPrediction,
+    renderPromptNode,
+} from "./promptdom"
 import { createPromptContext } from "./promptcontext"
 import { evalPrompt } from "./evalprompt"
 import { renderAICI } from "./aici"
@@ -48,6 +53,7 @@ export async function callExpander(
     let outputProcessors: PromptOutputProcessorHandler[] = []
     let chatParticipants: ChatParticipant[] = []
     let fileOutputs: FileOutput[] = []
+    let prediction: PromptPrediction
     let aici: AICIRequest
 
     const logCb = (msg: any) => {
@@ -79,6 +85,7 @@ export async function callExpander(
                 outputProcessors: ops,
                 chatParticipants: cps,
                 fileOutputs: fos,
+                prediction: pred,
             } = await renderPromptNode(model, node, {
                 flexTokens: options.flexTokens,
                 trace,
@@ -91,6 +98,7 @@ export async function callExpander(
             outputProcessors = ops
             chatParticipants = cps
             fileOutputs = fos
+            prediction = pred
             if (errors?.length) {
                 for (const error of errors) trace.error(``, error)
                 status = "error"
@@ -127,6 +135,7 @@ export async function callExpander(
         outputProcessors,
         chatParticipants,
         fileOutputs,
+        prediction,
         aici,
     })
 }
@@ -232,7 +241,8 @@ export async function expandTemplate(
     const outputProcessors = prompt.outputProcessors.slice(0)
     const chatParticipants = prompt.chatParticipants.slice(0)
     const fileOutputs = prompt.fileOutputs.slice(0)
-
+    const prediction = prompt.prediction
+    
     if (prompt.logs?.length) trace.details("📝 console.log", prompt.logs)
     if (prompt.aici) trace.fence(prompt.aici, "yaml")
     trace.endDetails()
@@ -380,6 +390,7 @@ ${schemaTs}
         responseType,
         responseSchema,
         fileMerges,
+        prediction,
         outputProcessors,
         chatParticipants,
         fileOutputs,

@@ -1,6 +1,6 @@
 // cspell: disable
 import { MarkdownTrace } from "./trace"
-import { PromptImage, renderPromptNode } from "./promptdom"
+import { PromptImage, PromptPrediction, renderPromptNode } from "./promptdom"
 import { LanguageModelConfiguration, host } from "./host"
 import { GenerationOptions } from "./generation"
 import {
@@ -801,6 +801,7 @@ export async function executeChatSession(
     fileOutputs: FileOutput[],
     outputProcessors: PromptOutputProcessorHandler[],
     fileMerges: FileMergeHandler[],
+    prediction: PromptPrediction,
     completer: ChatCompletionHandler,
     chatParticipants: ChatParticipant[],
     genOptions: GenerationOptions
@@ -878,6 +879,10 @@ export async function executeChatSession(
                         top_logprobs,
                         messages,
                         tools: fallbackTools ? undefined : tools,
+                        // https://platform.openai.com/docs/guides/predicted-outputs
+                        prediction: prediction?.content
+                            ? prediction
+                            : undefined,
                         response_format:
                             responseType === "json_object"
                                 ? { type: responseType }
