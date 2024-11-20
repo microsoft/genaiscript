@@ -336,6 +336,10 @@ export class GenerationStats {
             usage.prompt_tokens_details?.audio_tokens ?? 0
         this.usage.completion_tokens_details.reasoning_tokens +=
             usage.prompt_tokens_details?.cached_tokens ?? 0
+        this.usage.completion_tokens_details.accepted_prediction_tokens +=
+            usage.completion_tokens_details?.accepted_prediction_tokens ?? 0
+        this.usage.completion_tokens_details.rejected_prediction_tokens +=
+            usage.completion_tokens_details?.rejected_prediction_tokens ?? 0
 
         const { provider } = parseModelIdentifier(this.model)
         const chatTurn = {

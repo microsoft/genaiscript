@@ -240,7 +240,7 @@ export function createDefDiff(
 // Function to render a definition node to a string.
 function renderDefNode(def: PromptDefNode): string {
     const { name, resolved: file } = def
-    const { language, lineNumbers, schema } = def || {}
+    const { language, lineNumbers, schema, prediction } = def || {}
 
     file.content = extractRange(file.content, def)
 
@@ -250,7 +250,8 @@ function renderDefNode(def: PromptDefNode): string {
             : PROMPT_FENCE
     const norm = (s: string, lang: string) => {
         s = (s || "").replace(/\n*$/, "")
-        if (s && lineNumbers) s = addLineNumbers(s, { language: lang })
+        if (s && lineNumbers && !prediction)
+            s = addLineNumbers(s, { language: lang })
         if (s) s += "\n"
         return s
     }

@@ -933,7 +933,7 @@ interface DefOptions
 
     /**
      * The content of the def is a predicted output.
-     * @see https://platform.openai.com/docs/guides/predicted-outputs
+     * This setting disables line numbers.
      */
     prediction?: boolean
 }

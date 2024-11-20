@@ -1,4 +1,5 @@
 script({
+    model: "openai:gpt-4o",
     files: "src/greeter.ts",
     tests: {
         files: "src/greeter.ts",
@@ -7,4 +8,4 @@ script({
 
 def("FILE", env.files[0], { prediction: true })
 
-$`Add comments to every line of code. Respond only with code.`
+$`Update FILE with a top level file comment that summarize the content.`
