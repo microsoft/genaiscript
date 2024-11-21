@@ -984,13 +984,6 @@ interface DefImagesOptions {
     flip?: { horizontal?: boolean; vertical?: boolean }
 }
 
-interface ChatTaskOptions {
-    command: string
-    cwd?: string
-    env?: Record<string, string>
-    args?: string[]
-}
-
 type JSONSchemaTypeName =
     | "string"
     | "number"
