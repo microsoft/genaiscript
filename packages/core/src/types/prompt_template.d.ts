@@ -948,17 +948,37 @@ interface DefDiffOptions
 interface DefImagesOptions {
     detail?: "high" | "low"
     /**
-     * Maximum width of the image
+     * Crops the image to the specified region.
      */
-    maxWidth?: number
-    /**
-     * Maximum height of the image
-     */
-    maxHeight?: number
+    crop?: { x?: number; y?: number; w?: number; h?: number }
     /**
      * Auto cropping same color on the edges of the image
      */
     autoCrop?: boolean
+    /**
+     * Applies a scaling factor to the image after cropping.
+     */
+    scale?: number
+    /**
+     * Rotates the image by the specified number of degrees.
+     */
+    rotate?: number
+    /**
+     * Maximum width of the image. Applied after rotation.
+     */
+    maxWidth?: number
+    /**
+     * Maximum height of the image. Applied after rotation.
+     */
+    maxHeight?: number
+    /**
+     * Removes colour from the image using ITU Rec 709 luminance values
+     */
+    greyscale?: boolean
+    /**
+     * Flips the image horizontally and/or vertically.
+     */
+    flip?: { horizontal?: boolean; vertical?: boolean }
 }
 
 interface ChatTaskOptions {

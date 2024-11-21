@@ -14,8 +14,16 @@ export async function imageEncodeForLLM(
     options: DefImagesOptions & TraceOptions
 ) {
     // Dynamically import the Jimp library and its alignment enums
-    const { Jimp, HorizontalAlign, VerticalAlign } = await import("jimp")
-    let { autoCrop, maxHeight, maxWidth } = options
+    let {
+        autoCrop,
+        maxHeight,
+        maxWidth,
+        scale,
+        rotate,
+        greyscale,
+        crop,
+        flip,
+    } = options
 
     // If the URL is a string, resolve it to a data URI
     if (typeof url === "string") url = await resolveFileDataUri(url)
@@ -26,8 +34,13 @@ export async function imageEncodeForLLM(
     if (
         typeof url === "string" &&
         !autoCrop &&
-        maxHeight === undefined &&
-        maxWidth === undefined
+        !greyscale &&
+        isNaN(scale) &&
+        isNaN(rotate) &&
+        isNaN(maxHeight) &&
+        isNaN(maxWidth) &&
+        !crop &&
+        !flip
     )
         return url
 
@@ -35,10 +48,23 @@ export async function imageEncodeForLLM(
     if (url instanceof Blob) url = Buffer.from(await url.arrayBuffer())
 
     // Read the image using Jimp
+    const { Jimp, HorizontalAlign, VerticalAlign } = await import("jimp")
     const img = await Jimp.read(url)
+    const { width, height } = img
+    if (crop) {
+        const x = Math.max(0, Math.min(width, crop.x ?? 0))
+        const y = Math.max(0, Math.min(height, crop.y ?? 0))
+        const w = Math.max(1, Math.min(width - x, crop.w ?? width))
+        const h = Math.max(1, Math.min(height - y, crop.h ?? height))
+        await img.crop({ x, y, w, h })
+    }
 
     // Auto-crop the image if required by options
     if (autoCrop) await img.autocrop()
+
+    if (!isNaN(scale)) await img.scale(scale)
+
+    if (!isNaN(rotate)) await img.rotate(rotate)
 
     // Contain the image within specified max dimensions if provided
     if (options.maxWidth ?? options.maxHeight) {
@@ -48,6 +74,10 @@ export async function imageEncodeForLLM(
             align: HorizontalAlign.CENTER | VerticalAlign.MIDDLE, // Center alignment
         })
     }
+
+    if (greyscale) await img.greyscale()
+
+    if (flip) await img.flip(flip)
 
     // Determine the output MIME type, defaulting to image/jpeg
     const outputMime = img.mime ?? ("image/jpeg" as any)
