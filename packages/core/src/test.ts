@@ -10,14 +10,23 @@ import {
 } from "./constants"
 import { arrayify, deleteUndefinedValues } from "./util"
 import { host } from "./host"
-import { ModelConnectionInfo } from "./models"
+import { ModelConnectionInfo, parseModelIdentifier } from "./models"
 
 /**
  * Convert GenAIScript connection info into prompt foo configuration
  * @param info
  */
-function resolveTestProvider(info: ModelConnectionInfo) {
-    const { provider, model, base } = info
+function resolveTestProvider(
+    info: ModelConnectionInfo,
+    modelType: "chat" | "embedding"
+): {
+    id: string
+    config?: { apiHost: string }
+} {
+    if (!info) return undefined
+
+    const { base } = info
+    const { provider, model } = parseModelIdentifier(info.model)
     const apiHost = base
         .replace(HTTPS_REGEX, "")
         .replace(/\/openai\/deployments$/i, "")
@@ -25,39 +34,21 @@ function resolveTestProvider(info: ModelConnectionInfo) {
         case MODEL_PROVIDER_AZURE_OPENAI:
         case MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI:
             return {
-                text: {
-                    id: "azureopenai:chat:gpt-4",
-                    config: {
-                        apiHost,
-                    },
-                },
-                embedding: {
-                    id: "azureopenai:embeddings:text-embedding-ada-002",
-                    config: {
-                        apiHost,
-                    },
+                id: "azureopenai:" + modelType + ":" + model,
+                config: {
+                    apiHost,
                 },
             }
         case MODEL_PROVIDER_GITHUB:
             return {
-                text: {
-                    id: provider + ":" + model,
-                },
+                id: provider + ":" + model,
             }
         // openai
         default:
             return {
-                text: {
-                    id: provider + ":chat:" + model,
-                    config: {
-                        apiHost,
-                    },
-                },
-                embedding: {
-                    id: provider + ":embeddings:" + model,
-                    config: {
-                        apiHost,
-                    },
+                id: provider + ":" + modelType + ":" + model,
+                config: {
+                    apiHost,
                 },
             }
     }
@@ -73,7 +64,8 @@ function resolveTestProvider(info: ModelConnectionInfo) {
 export function generatePromptFooConfiguration(
     script: PromptScript,
     options: {
-        info: ModelConnectionInfo
+        chatInfo: ModelConnectionInfo
+        embeddingsInfo?: ModelConnectionInfo
         provider?: string
         out?: string
         cli?: string
@@ -81,7 +73,11 @@ export function generatePromptFooConfiguration(
     }
 ) {
     // Destructure options with default values
-    const { provider = "provider.mjs", info } = options || {}
+    const {
+        provider = "provider.mjs",
+        chatInfo,
+        embeddingsInfo,
+    } = options || {}
     const { description, title, tests = [], id } = script
     const models = options?.models || []
 
@@ -89,9 +85,9 @@ export function generatePromptFooConfiguration(
     if (!models.length) {
         models.push({
             ...script,
-            model: info.model,
-            smallModel: info.smallModel,
-            visionModel: info.visionModel,
+            model: chatInfo.model,
+            smallModel: chatInfo.smallModel,
+            visionModel: chatInfo.visionModel,
         })
     }
 
@@ -107,7 +103,10 @@ export function generatePromptFooConfiguration(
                 ? host.defaultModelOptions.model
                 : m
 
-    const testProvider = resolveTestProvider(info)
+    const testProvider = deleteUndefinedValues({
+        text: resolveTestProvider(chatInfo, "chat"),
+        embedding: resolveTestProvider(embeddingsInfo, "embedding"),
+    })
     const defaultTest = deleteUndefinedValues({
         options: deleteUndefinedValues({ provider: testProvider }),
     })

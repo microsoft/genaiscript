@@ -145,16 +145,22 @@ export async function runPromptScriptTests(
             ? join(out, `${script.id}.promptfoo.yaml`)
             : script.filename.replace(GENAI_ANY_REGEX, ".promptfoo.yaml")
         logInfo(`  ${fn}`)
-        const { info } = await resolveModelConnectionInfo(script, {
+        const { info: chatInfo } = await resolveModelConnectionInfo(script, {
             model: host.defaultModelOptions.model,
         })
-        if (info.error) throw new Error(info.error)
+        if (chatInfo.error) throw new Error(chatInfo.error)
+        let { info: embeddingsInfo } = await resolveModelConnectionInfo(
+            script,
+            { model: host.defaultEmbeddingsModelOptions.embeddingsModel }
+        )
+        if (embeddingsInfo?.error) embeddingsInfo = undefined
         const config = generatePromptFooConfiguration(script, {
             out,
             cli,
             models: options.models?.map(parseModelSpec),
             provider: "provider.mjs",
-            info,
+            chatInfo,
+            embeddingsInfo,
         })
         const yaml = YAMLStringify(config)
         await writeFile(fn, yaml)
