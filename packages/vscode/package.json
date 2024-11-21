@@ -61,6 +61,12 @@
                 "isSticky": false,
                 "commands": [
                     {
+                        "name": "list",
+                        "description": "Lists all available GenAIScript scripts.",
+                        "isSticky": false,
+                        "sampleRequest": "/list"
+                    },
+                    {
                         "name": "run",
                         "description": "Runs a GenAIScript script. The query should start with the script filename without the extension.",
                         "isSticky": false,

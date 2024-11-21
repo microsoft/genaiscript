@@ -56,6 +56,19 @@ export async function activateChatParticipant(state: ExtensionState) {
 
             const { project } = state
             const { templates } = project
+            const mdTemplateList = () =>
+                md(
+                    state.project.templates
+                        .filter((s) => !s.system && !s.unlisted)
+                        .map((s) => `- \`${s.id}\`: ${s.title}`)
+                        .join("\n")
+                )
+            if (command === "list") {
+                md("Use `@genaiscript /run ...` with one of these scripts:")
+                mdTemplateList()
+                return
+            }
+
             let template: PromptScript
             if (command === "run") {
                 const scriptid = prompt.split(" ")[0]
@@ -64,7 +77,7 @@ export async function activateChatParticipant(state: ExtensionState) {
                 if (!template) {
                     if (state.project.templates.length === 0) {
                         md(
-                            `$(error) Oops, I could not find any genaiscript. Try **GenAIScript: Create new script...** to create one.`
+                            `$(error) Oops, I could not find any genaiscript. Try **GenAIScript: Create new script...** to create one or checkout [samples](https://microsoft.github.io/genaiscript/reference/vscode/github-copilot-chat/).`
                         )
                     } else {
                         if (scriptid === "")
@@ -73,12 +86,8 @@ export async function activateChatParticipant(state: ExtensionState) {
                             md(
                                 `$(error) Oops, I could not find any genaiscript matching \`${scriptid}\`.`
                             )
-                        md(`Try one of the following:
-                    ${state.project.templates
-                        .filter((s) => !s.system && !s.unlisted)
-                        .map((s) => `- \`${s.id}\`: ${s.title}`)
-                        .join("\n")}
-                    `)
+                        md(`Try one of the following:\n`)
+                        mdTemplateList()
                     }
                     return
                 }
