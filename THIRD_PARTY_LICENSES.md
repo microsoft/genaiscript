@@ -1464,7 +1464,7 @@ available under the Apache 2.0 license (https://github.com/puppeteer/puppeteer/b
 
 The following npm package may be included in this product:
 
- - mathjs@13.2.2
+ - mathjs@13.2.3
 
 This package contains the following license:
 
@@ -1670,7 +1670,7 @@ The following npm packages may be included in this product:
 
  - @types/http-cache-semantics@4.0.4
  - @types/node@16.9.1
- - @types/node@22.9.0
+ - @types/node@22.9.1
  - @types/turndown@5.0.5
  - @types/yauzl@2.10.3
 
@@ -1702,7 +1702,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.76.1
+ - genaiscript-vscode@1.76.2
 
 This package contains the following license:
 
@@ -4862,9 +4862,9 @@ The following npm packages may be included in this product:
  - @tokenizer/token@0.3.0
  - agent-base@6.0.2
  - canvas@3.0.0-rc2
- - genaiscript-core-internal@1.76.1
- - genaiscript-sample@1.76.1
- - genaiscript@1.76.1
+ - genaiscript-core-internal@1.76.2
+ - genaiscript-sample@1.76.2
+ - genaiscript@1.76.2
  - https-proxy-agent@5.0.1
  - isarray@1.0.0
  - javascript-natural-sort@0.7.1
@@ -5546,7 +5546,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - @azure/msal-node@2.16.1
+ - @azure/msal-node@2.16.2
 
 This package contains the following license:
 

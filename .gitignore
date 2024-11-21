@@ -27,3 +27,4 @@ trapi.md
 .env.local
 genaiscript.config.yaml
 packages/core/*.temp.*
+*.vsix
