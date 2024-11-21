@@ -56,6 +56,10 @@ export async function activateChatParticipant(state: ExtensionState) {
 
             const { project } = state
             const { templates } = project
+            const mdEmpty = () =>
+                md(
+                    `$(error) Oops, I could not find any genaiscript. Try **GenAIScript: Create new script...** to create one or checkout [samples](https://microsoft.github.io/genaiscript/reference/vscode/github-copilot-chat/).`
+                )
             const mdTemplateList = () =>
                 md(
                     state.project.templates
@@ -64,8 +68,10 @@ export async function activateChatParticipant(state: ExtensionState) {
                         .join("\n")
                 )
             if (command === "list") {
-                md("Use `@genaiscript /run ...` with one of these scripts:")
-                mdTemplateList()
+                if (state.project.templates.length) {
+                    md("Use `@genaiscript /run ...` with one of these scripts:")
+                    mdTemplateList()
+                } else mdEmpty()
                 return
             }
 
@@ -76,9 +82,7 @@ export async function activateChatParticipant(state: ExtensionState) {
                 template = templates.find((t) => t.id === scriptid)
                 if (!template) {
                     if (state.project.templates.length === 0) {
-                        md(
-                            `$(error) Oops, I could not find any genaiscript. Try **GenAIScript: Create new script...** to create one or checkout [samples](https://microsoft.github.io/genaiscript/reference/vscode/github-copilot-chat/).`
-                        )
+                        mdEmpty()
                     } else {
                         if (scriptid === "")
                             md(`$(error) Please specify a genaiscript to run.`)
