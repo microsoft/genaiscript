@@ -4,14 +4,15 @@ keywords: ["genai", "pdf", "markdown", "ocr", "beginner"]
 sidebar:
     order: 60
 ---
+
 import { Code } from "@astrojs/starlight/components"
 import source from "../../../../../packages/sample/genaisrc/pdfocr.genai.mts?raw"
 
-Extracting markdown from PDFs is a tricky task that may involve customized toolchains.
+Extracting markdown from PDFs is a tricky task... the PDF file format was never really meant to be read back.
 
 There are many techniques applied in the field to get the best results:
 
--   one can read the text using pdfjs (GenAIScript uses that), which may give some results but the text might be garbled or not in the correct order. And tables are a challenge. And this won't work for PDFs that are images only.
+-   one can read the text using [Mozilla's pdfjs](https://mozilla.github.io/pdf.js/) (GenAIScript uses that), which may give some results but the text might be garbled or not in the correct order. And tables are a challenge. And this won't work for PDFs that are images only.
 -   another technique would be to apply OCR algorithm on segments of the image to "read" the rendered text.
 
 In this guide, we will build a GenAIScript that uses a LLM with vision support to extract text and images from a PDF, converting each page into markdown.
@@ -109,9 +110,4 @@ This script provides a straightforward way to convert PDFs into markdown, making
 
 The full script source code is available below:
 
-<Code
-    code={source}
-    wrap={true}
-    lang="js"
-    title="pdfocr.genai.mts"
-/>
+<Code code={source} wrap={true} lang="js" title="pdfocr.genai.mts" />
