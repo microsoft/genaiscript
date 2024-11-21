@@ -92,5 +92,8 @@
         "npm-check-updates": "^17.1.11",
         "prettier": "^3.3.3",
         "zx": "^8.2.2"
+    },
+    "dependencies": {
+        "https-proxy-agent": "^7.0.5"
     }
 }
