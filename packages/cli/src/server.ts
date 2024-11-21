@@ -248,7 +248,7 @@ export async function startServer(options: { port: string; apiKey?: string }) {
                         )
                         response = await runPromptScriptTests(data.scripts, {
                             ...(data.options || {}),
-                            cache: true,
+                            //cache: true,
                             verbose: true,
                             promptfooVersion: PROMPTFOO_VERSION,
                         })
