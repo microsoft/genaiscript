@@ -2,7 +2,7 @@ script({
     files: [],
 })
 
-import { pipeline, env as transformersEnv } from "@xenova/transformers"
+import { pipeline, env as transformersEnv } from "@huggingface/transformers"
 
 // https://huggingface.co/docs/transformers.js/tutorials/node#model-caching
 transformersEnv.cacheDir = "./.genaiscript/cache/transformers"
@@ -31,7 +31,7 @@ const log = (res) => console.log(res)
         "Xenova/toxic-bert",
         { progress_callback }
     )
-    const output = await classifier("I hate you!", { topk: null })
+    const output = await classifier("I hate you!")
     log(output)
 }
 
@@ -66,9 +66,7 @@ const log = (res) => console.log(res)
         "the addition of a broadcasting aerial at the top of the tower in 1957, it is now taller than the " +
         "Chrysler Building by 5.2 metres (17 ft). Excluding transmitters, the Eiffel Tower is the second " +
         "tallest free-standing structure in France after the Millau Viaduct."
-    const output = await generator(text, {
-        max_new_tokens: 100,
-    })
+    const output = await generator(text)
     log(output)
 }
 

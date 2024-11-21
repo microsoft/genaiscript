@@ -2,7 +2,7 @@ script({
     files: "src/rag/*"
 })
 
-import { pipeline, cos_sim } from '@xenova/transformers';
+import { pipeline, cos_sim } from '@huggingface/transformers';
 
 const featureExtractor = await pipeline('feature-extraction');
 
