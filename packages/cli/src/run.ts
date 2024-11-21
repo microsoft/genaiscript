@@ -503,7 +503,10 @@ export async function runScript(
     let _ghInfo: GithubConnectionInfo = undefined
     const resolveGitHubInfo = async () => {
         if (!_ghInfo)
-            _ghInfo = await githubParseEnv(process.env, { issue: pullRequest })
+            _ghInfo = await githubParseEnv(process.env, {
+                issue: pullRequest,
+                resolveIssue: true,
+            })
         return _ghInfo
     }
     let adoInfo: AzureDevOpsEnv = undefined

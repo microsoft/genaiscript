@@ -201,7 +201,7 @@ defTool(
     "fetch",
     "Download text from a URL",
     { url: "https://..." },
-    ({ url }) => fetchText(url)
+    ({ url }) => host.fetchText(url)
 )
 
 $`Summarize https://raw.githubusercontent.com/microsoft/genaiscript/main/README.md in 1 sentence.`

@@ -30,7 +30,7 @@ for (const link of biceps) {
     const [, , p] = dependency
     if (p.includes("shared")) continue // ignore those shared files
     const dp = path.join(dirname, p)
-    const resp = await fetchText(dp)
+    const resp = await host.fetchText(dp)
     def("DEPS", resp.file, { lineNumbers: true })
   }
 }

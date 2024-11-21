@@ -2237,8 +2237,6 @@ interface Retrieval {
     ): Promise<WorkspaceFile[]>
 }
 
-type FetchTextOptions = Omit<RequestInit, "body" | "signal" | "window">
-
 interface DataFilter {
     /**
      * The keys to select from the object.
@@ -3242,11 +3240,43 @@ interface ContentSafetyHost {
     contentSafety(id?: ContentSafetyProvider): Promise<ContentSafety>
 }
 
+type FetchOptions = RequestInit & {
+    retryOn?: number[] // HTTP status codes to retry on
+    retries?: number // Number of retry attempts
+    retryDelay?: number // Initial delay between retries
+    maxDelay?: number // Maximum delay between retries
+}
+
+type FetchTextOptions = Omit<FetchOptions, "body" | "signal" | "window">
+
 interface PromptHost
     extends ShellHost,
         UserInterfaceHost,
         LanguageModelHost,
         ContentSafetyHost {
+    /**
+     * A fetch wrapper with proxy, retry and timeout handling.
+     */
+    fetch(
+        input: string | URL | globalThis.Request,
+        init?: FetchOptions
+    ): Promise<Response>
+
+    /**
+     * A function that fetches text from a URL or a file
+     * @param url
+     * @param options
+     */
+    fetchText(
+        url: string | WorkspaceFile,
+        options?: FetchTextOptions
+    ): Promise<{
+        ok: boolean
+        status: number
+        text?: string
+        file?: WorkspaceFile
+    }>
+
     /**
      * Opens a in-memory key-value cache for the given cache name. Entries are dropped when the cache grows too large.
      * @param cacheName
