@@ -52,6 +52,7 @@
     "gpt-tokenizer": "^2.6.2",
     "html-escaper": "^3.0.3",
     "html-to-text": "^9.0.5",
+    "https-proxy-agent": "^7.0.5",
     "ignore": "^6.0.2",
     "inflection": "^3.0.0",
     "ini": "^5.0.0",
