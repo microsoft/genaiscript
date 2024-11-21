@@ -15,8 +15,8 @@ import {
     CACHE_AIREQUEST_TRACE_PREFIX,
     BUILTIN_PREFIX,
     GENAI_ANY_REGEX,
-    GENAI_JS_EXT,
     CACHE_AIREQUEST_TEXT_PREFIX,
+    GENAI_MJS_EXT,
 } from "../../core/src/constants"
 import { defaultPrompts } from "../../core/src/default_prompts"
 import { extractFenced, renderFencedVariables } from "../../core/src/fence"
@@ -212,7 +212,7 @@ export function infoUri(path: string) {
 export function builtinPromptUri(id: string) {
     return vscode.Uri.from({
         scheme: SCHEME,
-        path: BUILTIN_PREFIX + id + GENAI_JS_EXT,
+        path: BUILTIN_PREFIX + id + GENAI_MJS_EXT,
     })
 }
 

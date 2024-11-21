@@ -64,7 +64,10 @@ export async function activateChatParticipant(state: ExtensionState) {
                 md(
                     state.project.templates
                         .filter((s) => !s.system && !s.unlisted)
-                        .map((s) => `- \`${s.id}\`: ${s.title}`)
+                        .map(
+                            (s) =>
+                                `- [${[s.id]}](${vscode.workspace.asRelativePath(s.filename)}): ${s.title}`
+                        )
                         .join("\n")
                 )
             if (command === "list") {
