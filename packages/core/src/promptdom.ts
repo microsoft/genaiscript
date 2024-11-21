@@ -274,7 +274,9 @@ function renderDefNode(def: PromptDefNode): string {
         dfence += "`"
     }
     const diffFormat =
-        body.length > 500 ? " preferred_output_format=CHANGELOG " : ""
+        body.length > 500 && !prediction
+            ? " preferred_output_format=CHANGELOG "
+            : ""
     const res =
         "\n" +
         (name ? name + ":\n" : "") +
