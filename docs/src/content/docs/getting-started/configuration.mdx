@@ -1074,6 +1074,14 @@ model running locally, while keeping the default `openai` model connection infor
 OLLAMA_PHI3_API_BASE=http://localhost:11434/v1
 ```
 
+## Running behind a proxy
+
+You can set the `HTTP_PROXY` and/or `HTTPS_PROXY` environment variables to run GenAIScript behind a proxy.
+
+```txt title=".env"
+HTTP_PROXY=http://proxy.example.com:8080
+```
+
 ## Checking your configuration
 
 You can check your configuration by running the `genaiscript info env` [command](/genaiscript/reference/cli).
