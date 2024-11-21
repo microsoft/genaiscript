@@ -42,7 +42,7 @@ export async function createFetch(
     } = options || {}
 
     // We create a proxy based on Node.js environment variables.
-    const proxy = process.env.HTTPS_PROXY || process.env.HTTP_PROXY
+    const proxy = process.env.HTTPS_PROXY || process.env.HTTP_PROXY || process.env.https_proxy || process.env.http_proxy;
     const agent = proxy ? new HttpsProxyAgent(proxy) : null
 
     // We enrich crossFetch with the proxy.
