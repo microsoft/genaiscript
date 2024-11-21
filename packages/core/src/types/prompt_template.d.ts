@@ -946,6 +946,9 @@ interface DefDiffOptions
         LineNumberingOptions {}
 
 interface DefImagesOptions {
+    /**
+     * A "low" detail image is always downsampled to 512x512 pixels.
+     */
     detail?: "high" | "low"
     /**
      * Crops the image to the specified region.
