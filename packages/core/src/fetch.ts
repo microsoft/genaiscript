@@ -11,6 +11,13 @@ import { errorMessage } from "./error"
 import { logVerbose, roundWithPrecision, toStringList } from "./util"
 import { CancellationToken } from "./cancellation"
 import { readText } from "./fs"
+import { HttpsProxyAgent } from 'https-proxy-agent';
+
+
+// We create a proxy based on Node.js environment variables.
+const proxy = process.env.HTTPS_PROXY || process.env.HTTP_PROXY;
+const agent = proxy ? new HttpsProxyAgent(proxy) : null;
+
 
 /**
  * Creates a fetch function with retry logic.
@@ -40,11 +47,17 @@ export async function createFetch(
         cancellationToken,
     } = options || {}
 
+    // We enrich crossFetch with the proxy.
+    let crossFetchWithProxy = (url: string | WorkspaceFile, options = {}) => {
+        return crossFetch(url, { ...options, agent })
+    };
+
+
     // Return the default fetch if no retry status codes are specified
-    if (!retryOn?.length) return crossFetch
+    if (!retryOn?.length) return crossFetchWithProxy
 
     // Create a fetch function with retry logic
-    const fetchRetry = await wrapFetch(crossFetch, {
+    const fetchRetry = await wrapFetch(crossFetchWithProxy, {
         retryOn,
         retries,
         retryDelay: (attempt, error, response) => {
@@ -163,12 +176,12 @@ export function traceFetchPost(
                         ? "Bearer ***" // Mask Bearer tokens
                         : "***") // Mask other authorization headers
             )
-    const cmd = `curl "${url}" \\
---no-buffer \\
+    const cmd = `curl ${url} \\
 ${Object.entries(headers)
     .map(([k, v]) => `-H "${k}: ${v}"`)
-    .join(" \\\n")} \\
+    .join("\\\n")} \\
 -d '${JSON.stringify(body, null, 2).replace(/'/g, "'\\''")}'
+--no-buffer
 `
     if (trace) trace.detailsFenced(`✉️ fetch`, cmd, "bash")
     else logVerbose(cmd)
