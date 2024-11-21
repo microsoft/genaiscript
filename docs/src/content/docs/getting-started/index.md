@@ -73,7 +73,7 @@ about the history of markdown:
 ````markdown wrap
 FILE:
 
-```txt file="src/samples/markdown-small.txt"
+```text file="src/samples/markdown-small.txt"
 What is Markdown?
 
 Markdown is a lightweight markup language that you can use to add formatting elements to plaintext text documents. Created by John Gruber in 2004, Markdown is now one of the world’s most popular markup languages.
@@ -93,7 +93,7 @@ the GenAIScript runtime interprets based on what the prompt requested from the m
 ````markdown wrap
 File src/samples/markdown-small.txt.summary:
 
-```txt
+```text
 Markdown is a lightweight markup language created by John Gruber in 2004, known for adding formatting elements to plaintext text documents.
 ```
 ````
@@ -138,7 +138,7 @@ A possible trace looks like as follows.
 - cat src/rag/markdown.md
 - prompting github:gpt-4o
 
-````` wrap
+`````text wrap
 Saving this summary to the file `markdown.md.txt`.
 
 FILE ./markdown.md.txt:
@@ -177,13 +177,13 @@ $`
   - cat src/rag/markdown.md
   - prompting github:gpt-4o (~635 tokens)
 
-```
+```md
 The file "src/rag/markdown.md" explains that Markdown...
 ```
 
 - prompting github:gpt-4o (~1625 tokens)
 
-`````
+`````md
 I'll save the summary to the file `markdown.md.txt`.
 
 FILE markdown.md.txt:

@@ -6,7 +6,7 @@ sidebar:
 ---
 
 import { Code } from "@astrojs/starlight/components"
-import source from "../../../../../packages/vscode/genaisrc/iat.genai.mts?raw"
+import source from "../../../../../packages/sample/genaisrc/samples/iat.genai.mts?raw"
 
 Alt text is essential for making images accessible to everyone, including those with visual impairments. It provides a textual description of the image, allowing screen readers to convey the content to users who can't see the image.
 However, writing alt text for images can be time-consuming, especially when dealing with a large number of images. This is where AI can help. By using a language model like OpenAI's GPT-4, you can generate alt text for images automatically, thus saving you time and effort.
@@ -146,7 +146,7 @@ The script imports a default safety system message to prevent generating harmful
 In Azure OpenAI deployments, you can also turn on [content filters](https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/content-filter)
 to prevent accidentally generating harmful content.
 
-## Full source ([GitHub](https://github.com/microsoft/genaiscript/blob/main/packages/vscode/genaisrc/iat.genai.mts))
+## Full source ([GitHub](https://github.com/microsoft/genaiscript/blob/main/packages/sample/genaisrc/samples/iat.genai.mts))
 
 <Code code={source} wrap={true} lang="ts" title="iat.genai.mts" />
 
