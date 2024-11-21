@@ -51,30 +51,42 @@ export async function activateChatParticipant(state: ExtensionState) {
             if (token.isCancellationRequested) return
 
             const md = (t: string) => {
-                response.markdown(new vscode.MarkdownString(t, true))
+                response.markdown(new vscode.MarkdownString(t + "\n", true))
             }
 
             const { project } = state
             const { templates } = project
+            const mdHelp = () =>
+                md(
+                    `\n\n[Docs](https://microsoft.github.io/genaiscript/reference/vscode/github-copilot-chat/) | [Samples](https://microsoft.github.io/genaiscript/samples/)\n`
+                )
             const mdEmpty = () =>
                 md(
-                    `$(error) Oops, I could not find any genaiscript. Try **GenAIScript: Create new script...** to create one or checkout [samples](https://microsoft.github.io/genaiscript/reference/vscode/github-copilot-chat/).`
+                    `$(error) Oops, I could not find any genaiscript. Try **GenAIScript: Create new script...** to create one.\n`
                 )
-            const mdTemplateList = () =>
-                md(
-                    state.project.templates
-                        .filter((s) => !s.system && !s.unlisted)
-                        .map(
-                            (s) =>
-                                `- [${[s.id]}](${vscode.workspace.asRelativePath(s.filename)}): ${s.title}`
-                        )
-                        .join("\n")
-                )
+            const mdTemplateList = () => {
+                templates
+                    .filter((s) => !s.system && !s.unlisted)
+                    .sort((a, b) => a.id.localeCompare(b.id))
+                    .forEach((s) => {
+                        response.markdown("- ")
+                        if (s.filename)
+                            response.anchor(vscode.Uri.file(s.filename), s.id)
+                        else response.markdown(`\`${s.id}\``)
+                        response.markdown(`: ${s.title}\n`)
+                    })
+            }
             if (command === "list") {
-                if (state.project.templates.length) {
-                    md("Use `@genaiscript /run ...` with one of these scripts:")
+                if (templates.length) {
+                    md(
+                        "Use `@genaiscript /run ...` with one of these scripts:\n"
+                    )
                     mdTemplateList()
-                } else mdEmpty()
+                    mdHelp()
+                } else {
+                    mdEmpty()
+                    mdHelp()
+                }
                 return
             }
 
@@ -84,22 +96,25 @@ export async function activateChatParticipant(state: ExtensionState) {
                 prompt = prompt.slice(scriptid.length).trim()
                 template = templates.find((t) => t.id === scriptid)
                 if (!template) {
-                    if (state.project.templates.length === 0) {
+                    if (templates.length === 0) {
                         mdEmpty()
                     } else {
                         if (scriptid === "")
-                            md(`$(error) Please specify a genaiscript to run.`)
+                            md(
+                                `$(error) Please specify a genaiscript to run.\n`
+                            )
                         else
                             md(
-                                `$(error) Oops, I could not find any genaiscript matching \`${scriptid}\`.`
+                                `$(error) Oops, I could not find any genaiscript matching \`${scriptid}\`.\n`
                             )
                         md(`Try one of the following:\n`)
                         mdTemplateList()
+                        mdHelp()
                     }
                     return
                 }
             } else {
-                template = state.project.templates.find(
+                template = templates.find(
                     (t) => t.id === COPILOT_CHAT_PARTICIPANT_SCRIPT_ID
                 )
                 if (!template) {
