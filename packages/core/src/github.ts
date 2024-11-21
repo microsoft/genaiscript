@@ -86,7 +86,9 @@ async function githubGetPullRequestNumber() {
 
 export async function githubParseEnv(
     env: Record<string, string>,
-    options?: { issue?: number } & Partial<Pick<GithubConnectionInfo, "owner" | "repo">>
+    options?: { issue?: number; resolveIssue?: boolean } & Partial<
+        Pick<GithubConnectionInfo, "owner" | "repo">
+    >
 ): Promise<GithubConnectionInfo> {
     const res = githubFromEnv(env)
     try {
@@ -110,8 +112,9 @@ export async function githubParseEnv(
             res.repo = repo
             res.owner = owner.login
             res.repository = res.owner + "/" + res.repo
-            if (isNaN(res.issue)) res.issue = await githubGetPullRequestNumber()
         }
+        if (isNaN(res.issue) && options?.resolveIssue)
+            res.issue = await githubGetPullRequestNumber()
     } catch (e) {}
     return Object.freeze(res)
 }
