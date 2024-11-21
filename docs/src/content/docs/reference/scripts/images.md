@@ -43,7 +43,8 @@ defImages(screenshot)
 
 ## Detail
 
-OpenAI supports a "low" / "high" field.
+OpenAI supports a "low" / "high" field. An image in "low" detail
+will be downsampled to 512x512 pixels.
 
 ```js 'detail: "low"'
 defImages(img, { detail: "low" })

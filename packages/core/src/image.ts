@@ -1,4 +1,5 @@
 // Import necessary functions and types from other modules
+import { IMAGE_DETAIL_LOW_HEIGHT, IMAGE_DETAIL_LOW_WIDTH } from "./constants"
 import { resolveFileDataUri } from "./file"
 import { TraceOptions } from "./trace"
 
@@ -23,6 +24,7 @@ export async function imageEncodeForLLM(
         greyscale,
         crop,
         flip,
+        detail,
     } = options
 
     // If the URL is a string, resolve it to a data URI
@@ -40,7 +42,8 @@ export async function imageEncodeForLLM(
         isNaN(maxHeight) &&
         isNaN(maxWidth) &&
         !crop &&
-        !flip
+        !flip &&
+        detail !== "high"
     )
         return url
 
@@ -48,7 +51,8 @@ export async function imageEncodeForLLM(
     if (url instanceof Blob) url = Buffer.from(await url.arrayBuffer())
 
     // Read the image using Jimp
-    const { Jimp, HorizontalAlign, VerticalAlign } = await import("jimp")
+    const { Jimp, HorizontalAlign, VerticalAlign, ResizeStrategy } =
+        await import("jimp")
     const img = await Jimp.read(url)
     const { width, height } = img
     if (crop) {
@@ -78,6 +82,19 @@ export async function imageEncodeForLLM(
     if (greyscale) await img.greyscale()
 
     if (flip) await img.flip(flip)
+
+    // https://platform.openai.com/docs/guides/vision/low-or-high-fidelity-image-understanding#low-or-high-fidelity-image-understanding
+    if (
+        detail === "low" &&
+        (img.width > IMAGE_DETAIL_LOW_WIDTH ||
+            img.height > IMAGE_DETAIL_LOW_HEIGHT)
+    ) {
+        await img.contain({
+            w: Math.min(img.width, IMAGE_DETAIL_LOW_WIDTH),
+            h: Math.min(img.height, IMAGE_DETAIL_LOW_HEIGHT),
+            align: HorizontalAlign.CENTER | VerticalAlign.MIDDLE,
+        })
+    }
 
     // Determine the output MIME type, defaulting to image/jpeg
     const outputMime = img.mime ?? ("image/jpeg" as any)

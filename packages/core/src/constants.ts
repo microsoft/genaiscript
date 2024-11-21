@@ -370,3 +370,6 @@ export const SANITIZED_PROMPT_INJECTION =
 
 export const GOOGLE_API_BASE =
     "https://generativelanguage.googleapis.com/v1beta/openai/"
+
+export const IMAGE_DETAIL_LOW_WIDTH = 512
+export const IMAGE_DETAIL_LOW_HEIGHT = 512

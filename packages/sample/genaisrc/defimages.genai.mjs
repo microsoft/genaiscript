@@ -2,6 +2,7 @@ script({
     files: "src/robots.jpg",
     model: "github:gpt-4o",
 })
+defImages(env.files, { detail: "low", autoCrop: true })
 defImages(env.files, {
     autoCrop: true,
     greyscale: true,
