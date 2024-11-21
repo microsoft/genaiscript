@@ -60,27 +60,26 @@ export async function activateChatParticipant(state: ExtensionState) {
             }
 
             const { project } = state
-            const { templates } = project
+            const templates = project.templates
+                .filter((s) => !s.system && !s.unlisted)
+                .sort((a, b) => a.id.localeCompare(b.id))
+
             const mdHelp = () =>
                 md(
                     `\n\n[Docs](https://microsoft.github.io/genaiscript/reference/vscode/github-copilot-chat/) | [Samples](https://microsoft.github.io/genaiscript/samples/)\n`
                 )
             const mdEmpty = () =>
                 md(
-                    `\n$(error) Oops, I could not find any genaiscript. [Create a new script](command:genaiscript.prompt.create)).\n`,
+                    `\n😞 Oops, I could not find any genaiscript. [Create a new script](command:genaiscript.prompt.create)?\n`,
                     "genaiscript.prompt.create"
                 )
             const mdTemplateList = () => {
-                templates
-                    .filter((s) => !s.system && !s.unlisted)
-                    .sort((a, b) => a.id.localeCompare(b.id))
-                    .forEach((s) => {
-                        response.markdown("- ")
-                        if (s.filename)
-                            response.anchor(vscode.Uri.file(s.filename), s.id)
-                        else response.markdown(`\`${s.id}\``)
-                        response.markdown(`: ${s.title}\n`)
-                    })
+                templates.forEach((s) => {
+                    response.markdown(`- \`${s.id}\`: `)
+                    if (s.filename)
+                        response.anchor(vscode.Uri.file(s.filename), s.id)
+                    response.markdown(` ${s.title}\n`)
+                })
             }
             if (command === "list") {
                 if (templates.length) {
@@ -100,10 +99,10 @@ export async function activateChatParticipant(state: ExtensionState) {
                 template = templates.find((t) => t.id === scriptid)
                 if (!template) {
                     if (scriptid === "")
-                        md(`$(error) Please specify a genaiscript to run.\n`)
+                        md(`😓 Please specify a genaiscript to run.\n`)
                     else
                         md(
-                            `$(error) Oops, I could not find any genaiscript matching \`${scriptid}\`.\n`
+                            `😕 Oops, I could not find any genaiscript matching \`${scriptid}\`.\n`
                         )
                     if (templates.length === 0) {
                         mdEmpty()
@@ -127,7 +126,7 @@ export async function activateChatParticipant(state: ExtensionState) {
                     )
                     template = picked?.template
                     if (!template) {
-                        md(`\n\n$(error) Cancelled, no script selected.`)
+                        md(`\n\n😬 Cancelled, no script selected.`)
                         mdHelp()
                         return
                     }
