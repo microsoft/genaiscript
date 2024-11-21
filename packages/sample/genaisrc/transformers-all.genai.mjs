@@ -66,9 +66,7 @@ const log = (res) => console.log(res)
         "the addition of a broadcasting aerial at the top of the tower in 1957, it is now taller than the " +
         "Chrysler Building by 5.2 metres (17 ft). Excluding transmitters, the Eiffel Tower is the second " +
         "tallest free-standing structure in France after the Millau Viaduct."
-    const output = await generator(text, {
-        max_new_tokens: 100,
-    })
+    const output = await generator(text)
     log(output)
 }
 
