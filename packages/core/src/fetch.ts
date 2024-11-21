@@ -42,7 +42,13 @@ export async function createFetch(
     } = options || {}
 
     // We create a proxy based on Node.js environment variables.
-    const proxy = process.env.HTTPS_PROXY || process.env.HTTP_PROXY || process.env.https_proxy || process.env.http_proxy;
+    const proxy =
+        process.env.GENAISCRIPT_HTTPS_PROXY ||
+        process.env.GENAISCRIPT_HTTP_PROXY ||
+        process.env.HTTPS_PROXY ||
+        process.env.HTTP_PROXY ||
+        process.env.https_proxy ||
+        process.env.http_proxy
     const agent = proxy ? new HttpsProxyAgent(proxy) : null
 
     // We enrich crossFetch with the proxy.
@@ -89,6 +95,22 @@ export async function createFetch(
     return fetchRetry
 }
 
+export async function fetch(
+    input: string | URL | globalThis.Request,
+    options?: FetchOptions & TraceOptions
+): Promise<Response> {
+    const { retryOn, retries, retryDelay, maxDelay, trace, ...rest } =
+        options || {}
+    const f = await createFetch({
+        retryOn,
+        retries,
+        retryDelay,
+        maxDelay,
+        trace,
+    })
+    return f(input, rest)
+}
+
 /**
  * Fetches text content from a URL or file.
  *
@@ -101,8 +123,10 @@ export async function createFetch(
  */
 export async function fetchText(
     urlOrFile: string | WorkspaceFile,
-    fetchOptions?: FetchTextOptions
+    fetchOptions?: FetchTextOptions & TraceOptions
 ) {
+    const { retries, retryDelay, retryOn, maxDelay, trace, ...rest } =
+        fetchOptions || {}
     if (typeof urlOrFile === "string") {
         urlOrFile = {
             filename: urlOrFile,
@@ -114,8 +138,14 @@ export async function fetchText(
     let status = 404
     let text: string
     if (/^https?:\/\//i.test(url)) {
-        const fetch = await createFetch()
-        const resp = await fetch(url, fetchOptions)
+        const f = await createFetch({
+            retries,
+            retryDelay,
+            retryOn,
+            maxDelay,
+            trace,
+        })
+        const resp = await f(url, rest)
         ok = resp.ok
         status = resp.status
         if (ok) text = await resp.text()

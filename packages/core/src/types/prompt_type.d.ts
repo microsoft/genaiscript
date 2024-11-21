@@ -222,8 +222,7 @@ declare var git: Git
 declare var tokenizers: Tokenizers
 
 /**
- * Fetches a given URL and returns the response.
- * @param url
+ * @deprecated use `host.fetchText` instead
  */
 declare function fetchText(
     url: string | WorkspaceFile,
