@@ -26,6 +26,8 @@ import {
     MODEL_PROVIDER_GOOGLE,
     GOOGLE_API_BASE,
     MODEL_PROVIDER_TRANSFORMERS,
+    MODEL_PROVIDER_ALIBABA,
+    ALIBABA_BASE,
 } from "./constants"
 import { fileExists, readText, writeText } from "./fs"
 import {
@@ -323,6 +325,28 @@ export async function parseTokenFromEnv(
             version,
             source,
         } satisfies LanguageModelConfiguration
+    }
+
+    if (provider === MODEL_PROVIDER_ALIBABA) {
+        const base =
+            env.ALIBABA_API_BASE ||
+            env.DASHSCOPE_API_BASE ||
+            env.DASHSCOPE_HTTP_BASE_URL ||
+            ALIBABA_BASE
+        if (base === PLACEHOLDER_API_BASE)
+            throw new Error("ALIBABA_API_BASE not configured")
+        if (!URL.canParse(base)) throw new Error(`${base} must be a valid URL`)
+        const token = env.ALIBABA_API_KEY || env.DASHSCOPE_API_KEY
+        if (token === undefined || token === PLACEHOLDER_API_KEY)
+            throw new Error("ALIBABA_API_KEY not configured")
+        return {
+            provider,
+            model,
+            base,
+            token,
+            type: "alibaba",
+            source: "env: ALIBABA_API_...",
+        }
     }
 
     if (provider === MODEL_PROVIDER_OLLAMA) {

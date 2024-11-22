@@ -59,7 +59,9 @@ export function getConfigHeaders(cfg: LanguageModelConfiguration) {
         "api-key":
             token &&
             !isBearer &&
-            (type === "azure" || type === "azure_serverless")
+            (type === "azure" ||
+                type === "azure_serverless" ||
+                type === "alibaba")
                 ? token
                 : undefined,
         "User-Agent": TOOL_ID,
@@ -154,7 +156,11 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
     let url = ""
     const toolCalls: ChatCompletionToolCall[] = []
 
-    if (cfg.type === "openai" || cfg.type === "localai") {
+    if (
+        cfg.type === "openai" ||
+        cfg.type === "localai" ||
+        cfg.type === "alibaba"
+    ) {
         url = trimTrailingSlash(cfg.base) + "/chat/completions"
         if (url === OPENROUTER_API_CHAT_URL) {
             ;(headers as any)[OPENROUTER_SITE_URL_HEADER] =
