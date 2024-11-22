@@ -5,6 +5,7 @@ import { parse } from "csv-parse/sync"
 import { TraceOptions } from "./trace"
 import { stringify } from "csv-stringify/sync"
 import { arrayify } from "./util"
+import { chunk } from "es-toolkit"
 
 /**
  * Parses a CSV string into an array of objects.
@@ -125,4 +126,21 @@ export function CSVToMarkdown(
         ),
     ]
     return res.join("\n") // Join rows with newline
+}
+
+/**
+ * Splits the original array into chunks of the specified size.
+ * @param csv
+ * @param rows
+ */
+export function CSVChunk(
+    rows: object[],
+    size: number
+): { chunkStartIndex: number; rows: object[] }[] {
+    return chunk(rows || [], Math.max(1, size | 0)).map(
+        (rows, chunkStartIndex) => ({
+            chunkStartIndex,
+            rows,
+        })
+    )
 }

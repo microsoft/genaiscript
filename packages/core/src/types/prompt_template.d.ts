@@ -2110,6 +2110,16 @@ interface CSV {
      * @returns A markdown string representing the data table.
      */
     markdownify(csv: object[], options?: { headers?: string[] }): string
+
+    /**
+     * Splits the original array into chunks of the specified size.
+     * @param csv
+     * @param rows
+     */
+    chunk(
+        csv: object[],
+        size: number
+    ): { chunkStartIndex: number; rows: object[] }[]
 }
 
 /**

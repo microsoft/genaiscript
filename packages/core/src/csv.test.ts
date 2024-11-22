@@ -1,6 +1,12 @@
 import { describe, test, beforeEach } from "node:test"
 import assert from "node:assert/strict"
-import { CSVParse, CSVTryParse, CSVToMarkdown, CSVStringify } from "./csv"
+import {
+    CSVParse,
+    CSVTryParse,
+    CSVToMarkdown,
+    CSVStringify,
+    CSVChunk,
+} from "./csv"
 
 describe("CSVParse", () => {
     test("parse values with quotes", () => {
@@ -40,14 +46,13 @@ describe("CSVParse", () => {
         ])
     })
     test("Parse CSV data with invalid quotes", () => {
-        const csv = "\"\\\"John\\\"\",30\nJane,25"
+        const csv = '"\\"John\\"",30\nJane,25'
         const result = CSVParse(csv, { headers: ["name", "age"], repair: true })
         assert.deepEqual(result, [
-            { name: "\"John\"", age: "30" },
+            { name: '"John"', age: "30" },
             { name: "Jane", age: "25" },
         ])
     })
-
 })
 
 describe("CSVTryParse", () => {
@@ -129,5 +134,16 @@ describe("CSVStringify", () => {
         const result = CSVStringify(csv, { header: true, delimiter: "|" })
         const expected = "name|age\nJohn|30\nJane|25\n"
         assert.equal(result, expected)
+    })
+
+    test("chunk", () => {
+        const csv = [
+            { name: "John", age: "30" },
+            { name: "Jane", age: "25" },
+            { name: "Doe", age: "35" },
+            { name: "Smith", age: "40" },
+        ]
+        const result = CSVChunk(csv, 2)
+        assert.equal(result.length, 2)
     })
 })
