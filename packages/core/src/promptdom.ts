@@ -119,6 +119,7 @@ export interface PromptStringTemplateNode extends PromptNode {
     args: any[] // Arguments for the template
     transforms: ((s: string) => Awaitable<string>)[] // Transform functions to apply to the template
     resolved?: string // Resolved templated content
+    role?: ChatMessageRole
 }
 
 // Interface for an import template node.
@@ -1097,7 +1098,12 @@ export async function renderPromptNode(
         },
         stringTemplate: async (n) => {
             const value = n.resolved
-            if (value != undefined) appendUser(value)
+            const role = n.role || "user"
+            if (value != undefined) {
+                if (role === "system") appendSystem(value)
+                else if (role === "assistant") appendAssistant(value)
+                else appendUser(value)
+            }
         },
         image: async (n) => {
             const value = n.resolved

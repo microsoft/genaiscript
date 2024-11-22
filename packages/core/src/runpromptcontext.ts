@@ -161,6 +161,10 @@ export function createChatTurnGenerationContext(
                     current.maxTokens = tokens
                     return res
                 },
+                role: (r) => {
+                    current.role = r
+                    return res
+                }
             })
             return res
         },

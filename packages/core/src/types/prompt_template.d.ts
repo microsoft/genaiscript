@@ -2393,6 +2393,11 @@ interface PromptTemplateString {
      * @param tokens
      */
     maxTokens(tokens: number): PromptTemplateString
+
+    /**
+     * Updates the role of the message
+     */
+    role(role: ChatMessageRole): PromptTemplateString
 }
 
 interface ChatTurnGenerationContext {
