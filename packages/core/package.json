@@ -21,6 +21,7 @@
     "@anthropic-ai/sdk": "^0.32.1",
     "@azure/identity": "^4.5.0",
     "@huggingface/jinja": "^0.3.2",
+    "@huggingface/transformers": "^3.0.2",
     "@octokit/plugin-paginate-rest": "^11.3.5",
     "@octokit/plugin-retry": "^7.1.2",
     "@octokit/plugin-throttling": "^9.3.2",
