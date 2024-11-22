@@ -1,5 +1,10 @@
 import test, { beforeEach, describe } from "node:test"
-import { parseAnnotations } from "./annotations"
+import {
+    convertAnnotationsToItems,
+    convertAnnotationsToMarkdown,
+    eraseAnnotations,
+    parseAnnotations,
+} from "./annotations"
 import assert from "assert/strict"
 
 describe("annotations", () => {
@@ -42,4 +47,24 @@ src/annotations.ts:11:28 - error TS1005: ',' expected.
         assert.strictEqual(diags[0].code, "TS1005")
         assert.strictEqual(diags[0].message, "',' expected.")
     })
+})
+
+test("convertAnnotationsToItems", () => {
+    const input = `
+::warning file=src/greeter.ts,line=2,endLine=2,code=missing_semicolon::Missing semicolon after property declaration.
+::warning file=src/greeter.ts,line=5,endLine=5,code=missing_semicolon::Missing semicolon after assignment.
+::warning file=src/greeter.ts,line=9,endLine=9,code=missing_semicolon::Missing semicolon after return statement.
+::warning file=src/greeter.ts,line=18,endLine=18,code=empty_function::The function 'hello' is empty and should contain logic or be removed if not needed.
+::warning file=src/greeter.ts,line=20,endLine=20,code=missing_semicolon::Missing semicolon after variable declaration.
+    `
+    const output = convertAnnotationsToItems(input)
+    console.log(output)
+    assert.strictEqual(
+        output.trim(),
+        `- ⚠️ Missing semicolon after property declaration. ([src/greeter.ts#L2](src/greeter.ts) missing_semicolon)
+- ⚠️ Missing semicolon after assignment. ([src/greeter.ts#L5](src/greeter.ts) missing_semicolon)
+- ⚠️ Missing semicolon after return statement. ([src/greeter.ts#L9](src/greeter.ts) missing_semicolon)
+- ⚠️ The function 'hello' is empty and should contain logic or be removed if not needed. ([src/greeter.ts#L18](src/greeter.ts) empty_function)
+- ⚠️ Missing semicolon after variable declaration. ([src/greeter.ts#L20](src/greeter.ts) missing_semicolon)`
+    )
 })

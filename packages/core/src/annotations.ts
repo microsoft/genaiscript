@@ -82,16 +82,15 @@ export function eraseAnnotations(text: string) {
 
 export function convertAnnotationsToItems(text: string) {
     return [
-        TYPESCRIPT_ANNOTATIONS_RX,
         GITHUB_ANNOTATIONS_RX,
+        TYPESCRIPT_ANNOTATIONS_RX,
         AZURE_DEVOPS_ANNOTATIONS_RX,
     ].reduce(
         (t, rx) =>
-            t.replace(rx, (s) => {
-                const m = rx.exec(s)
-                if (!m) return s
-                const { file, line, severity, code, message } = m.groups
-                return `- ${SEV_EMOJI_MAP[severity?.toLowerCase()] ?? "info"}: ${message} ([${file}#L${line}](${file}) ${code || ""})\n`
+            t.replace(rx, (s, ...args) => {
+                const groups = args.at(-1)
+                const { file, line, severity, code, message } = groups
+                return `- ${SEV_EMOJI_MAP[severity?.toLowerCase()] ?? "info"} ${message} ([${file}#L${line}](${file}) ${code || ""})`
             }),
         text
     )
