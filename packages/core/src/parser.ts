@@ -1,5 +1,5 @@
 // Importing utility functions and constants from other files
-import { strcmp } from "./util" // String comparison function
+import { logVerbose, strcmp } from "./util" // String comparison function
 import { Project, PromptScript } from "./ast" // Class imports
 import { defaultPrompts } from "./default_prompts" // Default prompt data
 import { parsePromptScript } from "./template" // Function to parse scripts
@@ -93,7 +93,10 @@ export async function parseProject(options: { scriptFiles: string[] }) {
     // Process each script file, parsing its content and updating the project
     for (const f of scriptFiles) {
         const tmpl = await parsePromptScript(f, await readText(f), prj)
-        if (!tmpl) continue // Skip if no template is parsed
+        if (!tmpl) {
+            logVerbose(`skipping invalid script file: ${f}`)
+            continue
+        } // Skip if no template is parsed
         delete deflPr[tmpl.id] // Remove the parsed template from defaults
         prj.templates.push(tmpl) // Add to project templates
     }

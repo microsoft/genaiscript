@@ -61,7 +61,7 @@ export async function activateChatParticipant(state: ExtensionState) {
 
             const { project } = state
             const templates = project.templates
-                .filter((s) => !s.system && !s.unlisted)
+                .filter((s) => !s.isSystem && !s.unlisted)
                 .sort((a, b) => a.id.localeCompare(b.id))
 
             const mdHelp = () =>
