@@ -315,5 +315,17 @@
     "google:gemini-1-pro": {
         "price_per_million_input_tokens": 0.5,
         "price_per_million_output_tokens": 1.5
+    },
+    "alibaba:qwen-max": {
+        "price_per_million_input_tokens": 10,
+        "price_per_million_output_tokens": 30
+    },
+    "alibaba:qwen-plus": {
+        "price_per_million_input_tokens": 3,
+        "price_per_million_output_tokens": 9
+    },
+    "alibaba:qwen-turbo": {
+        "price_per_million_input_tokens": 0.4,
+        "price_per_million_output_tokens": 1.2
     }
 }
