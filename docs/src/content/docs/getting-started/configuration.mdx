@@ -894,46 +894,13 @@ Some models may require a Pro account.
 
 :::
 
-## LocalAI
-
-[LocalAI](https://localai.io/) act as a drop-in replacement REST API that’s compatible
-with OpenAI API specifications for local inferencing. It uses free Open Source models
-and it runs on CPUs.
-
-LocalAI acts as an OpenAI replacement, you can see the [model name mapping](https://localai.io/basics/container/#all-in-one-images)
-used in the container, like `gpt-4` is mapped to `phi-2`.
-
-<Steps>
-
-<ol>
-
-<li>
-
-Install Docker. See the [LocalAI documentation](https://localai.io/basics/getting_started/#prerequisites) for more information.
-
-</li>
-
-<li>
-
-Update the `.env` file and set the api type to `localai`.
-
-```txt title=".env" "localai"
-OPENAI_API_TYPE=localai
-```
-
-</li>
-
-</ol>
-
-</Steps>
-
-## Alibaba Cloud
+## Alibaba Cloud <a href="" id="alibaba" />
 
 [Alibaba Cloud](https://www.alibabacloud.com/) provides a range of AI services, including language models.
 
 ```js "alibaba:"
 script({
-    model: "alibaba:qwen-max"
+    model: "alibaba:qwen-max",
 })
 ```
 
@@ -1064,6 +1031,39 @@ script({
 })
 ```
 
+## LocalAI
+
+[LocalAI](https://localai.io/) act as a drop-in replacement REST API that’s compatible
+with OpenAI API specifications for local inferencing. It uses free Open Source models
+and it runs on CPUs.
+
+LocalAI acts as an OpenAI replacement, you can see the [model name mapping](https://localai.io/basics/container/#all-in-one-images)
+used in the container, like `gpt-4` is mapped to `phi-2`.
+
+<Steps>
+
+<ol>
+
+<li>
+
+Install Docker. See the [LocalAI documentation](https://localai.io/basics/getting_started/#prerequisites) for more information.
+
+</li>
+
+<li>
+
+Update the `.env` file and set the api type to `localai`.
+
+```txt title=".env" "localai"
+OPENAI_API_TYPE=localai
+```
+
+</li>
+
+</ol>
+
+</Steps>
+
 ## Llamafile
 
 [https://llamafile.ai/](https://llamafile.ai/) is a single file desktop application
@@ -1119,7 +1119,7 @@ OPENROUTER_SITE_URL=... # populates HTTP-Referer header
 OPENROUTER_SITE_NAME=... # populate X-Title header
 ```
 
-## Hugging Face Transformer.js (experimental)
+## Hugging Face Transformer.js (experimental) <a href="" id="transformers" />
 
 This `transformers` provider runs models on device using [Hugging Face Transformers.js](https://huggingface.co/docs/transformers.js/index).
 
