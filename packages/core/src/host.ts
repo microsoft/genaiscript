@@ -32,6 +32,7 @@ export type OpenAIAPIType =
     | "localai"
     | "azure_serverless"
     | "azure_serverless_models"
+    | "alibaba"
 
 export type AzureCredentialsType =
     | "default"

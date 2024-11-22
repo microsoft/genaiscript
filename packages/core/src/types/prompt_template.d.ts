@@ -152,6 +152,11 @@ type ModelType = OptionsOrString<
     | "google:gemini-1.5-pro"
     | "google:gemini-1.5-pro-002"
     | "google:gemini-1-pro"
+    | "alibaba:qwen-max"
+    | "alibaba:qwen-plus"
+    | "alibaba:qwen-turbo"
+    | "alibaba:qwen2-72b-instruct"
+    | "alibaba:qwen2-57b-a14b-instruct"
     | "transformers:onnx-community/Qwen2.5-0.5B-Instruct:q4"
 >
 

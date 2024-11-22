@@ -927,6 +927,66 @@ OPENAI_API_TYPE=localai
 
 </Steps>
 
+## Alibaba Cloud
+
+[Alibaba Cloud](https://www.alibabacloud.com/) provides a range of AI services, including language models.
+
+```js "alibaba:"
+script({
+    model: "alibaba:qwen-max"
+})
+```
+
+<Steps>
+
+<ol>
+
+<li>
+
+Sign up for a [Alibaba Cloud account](https://www.alibabacloud.com/help/en/model-studio/developer-reference/get-api-key) and obtain an API key from their [console](https://bailian.console.alibabacloud.com/).
+
+</li>
+
+<li>
+
+Add your Alibaba API key to the `.env` file:
+
+```txt title=".env"
+ALIBABA_API_KEY=sk_...
+```
+
+</li>
+
+<li>
+
+Find the model that best suits your needs by visiting the [Alibaba models](https://www.alibabacloud.com/help/en/model-studio/developer-reference/use-qwen-by-calling-api).
+
+</li>
+
+<li>
+
+Update your script to use the `model` you choose.
+
+```js
+script({
+    ...
+    model: "alibaba:qwen-max",
+})
+```
+
+</li>
+
+</ol>
+
+</Steps>
+
+:::note
+
+GenAIScript uses the [OpenAI compatibility](https://www.alibabacloud.com/help/en/model-studio/developer-reference/compatibility-of-openai-with-dashscope) layer
+to access Alibaba.
+
+:::
+
 ## Ollama
 
 [Ollama](https://ollama.ai/) is a desktop application that lets you download and run models locally.

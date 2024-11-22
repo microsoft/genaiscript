@@ -1,10 +1,12 @@
 import {
+    MODEL_PROVIDER_ALIBABA,
     MODEL_PROVIDER_AZURE_OPENAI,
     MODEL_PROVIDER_AZURE_SERVERLESS_MODELS,
     MODEL_PROVIDER_GITHUB,
     MODEL_PROVIDER_GOOGLE,
     MODEL_PROVIDER_OLLAMA,
     MODEL_PROVIDER_OPENAI,
+    MODEL_PROVIDER_TRANSFORMERS,
 } from "./constants"
 import { parseModelIdentifier } from "./models"
 
@@ -15,6 +17,8 @@ export function isToolsSupported(modelId: string): boolean | undefined {
     if (/^o1-(mini|preview)/.test(model)) {
         return false
     }
+
+    if (provider === MODEL_PROVIDER_TRANSFORMERS) return false
 
     const oai = {
         "o1-preview": false,
@@ -45,6 +49,9 @@ export function isToolsSupported(modelId: string): boolean | undefined {
         [MODEL_PROVIDER_GITHUB]: {
             "Phi-3.5-mini-instruct": false,
         },
+        [MODEL_PROVIDER_ALIBABA]: {
+            // all supported
+        }
     }
 
     return data[provider]?.[model]

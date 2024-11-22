@@ -147,6 +147,8 @@ export const LOCALAI_API_BASE = "http://localhost:8080/v1"
 export const LITELLM_API_BASE = "http://localhost:4000"
 export const ANTHROPIC_API_BASE = "https://api.anthropic.com"
 export const HUGGINGFACE_API_BASE = "https://api-inference.huggingface.co/v1"
+export const ALIBABA_BASE =
+    "https://dashscope-intl.aliyuncs.com/compatible-mode/v1"
 
 export const PROMPTFOO_CACHE_PATH = ".genaiscript/cache/tests"
 export const PROMPTFOO_CONFIG_DIR = ".genaiscript/config/tests"
@@ -173,6 +175,7 @@ export const MODEL_PROVIDER_CLIENT = "client"
 export const MODEL_PROVIDER_ANTHROPIC = "anthropic"
 export const MODEL_PROVIDER_HUGGINGFACE = "huggingface"
 export const MODEL_PROVIDER_TRANSFORMERS = "transformers"
+export const MODEL_PROVIDER_ALIBABA = "alibaba"
 
 export const TRACE_FILE_PREVIEW_MAX_LENGTH = 240
 
@@ -213,6 +216,8 @@ export const DOCS_CONFIGURATION_HUGGINGFACE_URL =
     "https://microsoft.github.io/genaiscript/getting-started/configuration/#huggingface"
 export const DOCS_CONFIGURATION_HUGGINGFACE_TRANSFORMERS_URL =
     "https://microsoft.github.io/genaiscript/getting-started/configuration/#transformers"
+export const DOCS_CONFIGURATION_ALIBABA_URL =
+    "https://microsoft.github.io/genaiscript/getting-started/configuration/#alibaba"
 export const DOCS_CONFIGURATION_CONTENT_SAFETY_URL =
     "https://microsoft.github.io/genaiscript/reference/scripts/content-safety"
 export const DOCS_DEF_FILES_IS_EMPTY_URL =
@@ -274,6 +279,11 @@ export const MODEL_PROVIDERS = Object.freeze([
         id: MODEL_PROVIDER_OLLAMA,
         detail: "Ollama local model",
         url: DOCS_CONFIGURATION_OLLAMA_URL,
+    },
+    {
+        id: MODEL_PROVIDER_ALIBABA,
+        detail: "Alibaba models",
+        url: DOCS_CONFIGURATION_ALIBABA_URL,
     },
     {
         id: MODEL_PROVIDER_LLAMAFILE,
