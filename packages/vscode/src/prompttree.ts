@@ -24,7 +24,7 @@ class PromptTreeDataProvider
             item.id = `genaiscript.promptCategory.${element}`
             return item
         } else {
-            const { id, title, description = "" } = element
+            const { id, filename, title, description = "" } = element
             const ai = this.state.aiRequest
             const { computing, options, progress } = ai || {}
             const { template } = options || {}
@@ -33,7 +33,7 @@ class PromptTreeDataProvider
                 title,
                 vscode.TreeItemCollapsibleState.None
             )
-            item.id = `genaiscript.prompts.${id}`
+            item.id = `genaiscript.prompts.${filename || id}`
             item.contextValue = element.filename ? `prompt` : `prompt.builtin`
             item.description = generating
                 ? `${progress?.tokensSoFar || 0} tokens`

@@ -125,7 +125,7 @@ class Checker<T extends PromptLike> {
 
             if (!this.keyFound) this.verror(`unhandled key: ${this.key}`)
 
-            if (numdiag == this.diagnostics.length) obj[key] = this.val
+            if (numdiag === this.diagnostics.length) obj[key] = this.val
         }
 
         return obj
