@@ -24,7 +24,7 @@ import { URL } from "url"
  * @returns The result of the chat completion.
  * @throws Will throw an error if the model cannot be pulled or any other request error occurs.
  */
-export const OllamaCompletion: ChatCompletionHandler = async (
+const OllamaCompletion: ChatCompletionHandler = async (
     req,
     cfg,
     options,

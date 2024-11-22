@@ -106,29 +106,7 @@ export function toChatCompletionUserMessage(
             content: expanded,
         }
 }
-/*
-function encodeMessagesForLlama(req: CreateChatCompletionRequest) {
-    return (
-        req.messages
-            .map((msg) => {
-                switch (msg.role) {
-                    case "user":
-                        return `[INST]\n${msg.content}\n[/INST]`
-                    case "system":
-                        return `[INST] <<SYS>>\n${msg.content}\n<</SYS>>\n[/INST]`
-                    case "assistant":
-                        return msg.content
-                    case "function":
-                        return "???function"
-                    default:
-                        return "???role " + msg.role
-                }
-            })
-            .join("\n")
-            .replace(/\[\/INST\]\n\[INST\]/g, "\n") + "\n"
-    )
-}
-*/
+
 export type ChatCompletionHandler = (
     req: CreateChatCompletionRequest,
     connection: LanguageModelConfiguration,

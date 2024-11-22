@@ -25,6 +25,7 @@ import {
     OLLAMA_DEFAUT_PORT,
     MODEL_PROVIDER_GOOGLE,
     GOOGLE_API_BASE,
+    MODEL_PROVIDER_TRANSFORMERS,
 } from "./constants"
 import { fileExists, readText, writeText } from "./fs"
 import {
@@ -403,6 +404,16 @@ export async function parseTokenFromEnv(
             base: LITELLM_API_BASE,
             token: "litellm",
             type: "openai",
+            source: "default",
+        }
+    }
+
+    if (provider === MODEL_PROVIDER_TRANSFORMERS) {
+        return {
+            provider,
+            model,
+            base: undefined,
+            token: "transformers",
             source: "default",
         }
     }

@@ -1059,6 +1059,27 @@ OPENROUTER_SITE_URL=... # populates HTTP-Referer header
 OPENROUTER_SITE_NAME=... # populate X-Title header
 ```
 
+## Hugging Face Transformer.js (experimental)
+
+This `transformers` provider runs models on device using [Hugging Face Transformers.js](https://huggingface.co/docs/transformers.js/index).
+
+The model syntax is `transformers:<repo>:<dtype>` where
+
+-   `repo` is the model repository on Hugging Face,
+-   [`dtype`](https://huggingface.co/docs/transformers.js/guides/dtypes) is the quantization type.
+
+```js "transformers:"
+script({
+    model: "transformers:onnx-community/Qwen2.5-Coder-0.5B-Instruct:q4",
+})
+```
+
+:::note
+
+This provider is experimental and may not work with all models.
+
+:::
+
 ## Model specific environment variables
 
 You can provide different environment variables

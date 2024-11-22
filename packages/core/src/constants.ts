@@ -172,6 +172,7 @@ export const MODEL_PROVIDER_AICI = "aici"
 export const MODEL_PROVIDER_CLIENT = "client"
 export const MODEL_PROVIDER_ANTHROPIC = "anthropic"
 export const MODEL_PROVIDER_HUGGINGFACE = "huggingface"
+export const MODEL_PROVIDER_TRANSFORMERS = "transformers"
 
 export const TRACE_FILE_PREVIEW_MAX_LENGTH = 240
 
@@ -210,6 +211,8 @@ export const DOCS_CONFIGURATION_GOOGLE_URL =
     "https://microsoft.github.io/genaiscript/getting-started/configuration/#google"
 export const DOCS_CONFIGURATION_HUGGINGFACE_URL =
     "https://microsoft.github.io/genaiscript/getting-started/configuration/#huggingface"
+export const DOCS_CONFIGURATION_HUGGINGFACE_TRANSFORMERS_URL =
+    "https://microsoft.github.io/genaiscript/getting-started/configuration/#transformers"
 export const DOCS_CONFIGURATION_CONTENT_SAFETY_URL =
     "https://microsoft.github.io/genaiscript/reference/scripts/content-safety"
 export const DOCS_DEF_FILES_IS_EMPTY_URL =
@@ -261,6 +264,11 @@ export const MODEL_PROVIDERS = Object.freeze([
         id: MODEL_PROVIDER_HUGGINGFACE,
         detail: "Hugging Face models",
         url: DOCS_CONFIGURATION_HUGGINGFACE_URL,
+    },
+    {
+        id: MODEL_PROVIDER_TRANSFORMERS,
+        detail: "Hugging Face Transformers",
+        url: DOCS_CONFIGURATION_HUGGINGFACE_TRANSFORMERS_URL,
     },
     {
         id: MODEL_PROVIDER_OLLAMA,
