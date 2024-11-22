@@ -283,6 +283,8 @@ export class GenerationStats {
      * @param indent - The indentation used for logging.
      */
     private logTokens(indent: string) {
+        if (!this.resolvedModel) return
+
         const unknowns = new Set<string>()
         const c = this.cost()
         if (this.model && isNaN(c) && isCosteable(this.model))

@@ -46,18 +46,18 @@ export const TransformersCompletion: ChatCompletionHandler = async (
 ) => {
     const { messages, temperature, top_p, max_tokens } = req
     const { partialCb, inner } = options
-    const { model } = parseModelIdentifier(req.model)
+    const { model, tag, family } = parseModelIdentifier(req.model)
     try {
         trace.startDetails(`transformer`)
         trace.itemValue("model", model)
 
         const { pipeline } = await import("@huggingface/transformers")
         // Create a text generation pipeline
-        const generator = await pipeline("text-generation", model, {
-            dtype: "q4",
-            cache_dir: dotGenaiscriptPath("transformers"),
+        const generator = await pipeline("text-generation", family, {
+            dtype: tag as any,
+            cache_dir: dotGenaiscriptPath("cache", "transformers"),
             progress_callback: progressBar(),
-            device: "cpu"
+            device: "cpu",
         })
         logVerbose(`transformers model ${model} loaded`)
         logVerbose(``)
