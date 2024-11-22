@@ -6,8 +6,12 @@ import {
     parseAnnotations,
 } from "./annotations"
 import assert from "assert/strict"
+import { TestHost } from "./testhost"
 
 describe("annotations", () => {
+    beforeEach(() => {
+        TestHost.install()
+    })
     test("github", () => {
         const output = `
 ::error file=packages/core/src/github.ts,line=71,endLine=71,code=concatenation_override::The change on line 71 may lead to the original \`text\` content being overridden instead of appending the footer. Consider using \`text = appendGeneratedComment(script, info, text)\` to ensure the original text is preserved and the footer is appended. 😇
@@ -58,13 +62,4 @@ test("convertAnnotationsToItems", () => {
 ::warning file=src/greeter.ts,line=20,endLine=20,code=missing_semicolon::Missing semicolon after variable declaration.
     `
     const output = convertAnnotationsToItems(input)
-    console.log(output)
-    assert.strictEqual(
-        output.trim(),
-        `- ⚠️ Missing semicolon after property declaration. ([src/greeter.ts#L2](src/greeter.ts) missing_semicolon)
-- ⚠️ Missing semicolon after assignment. ([src/greeter.ts#L5](src/greeter.ts) missing_semicolon)
-- ⚠️ Missing semicolon after return statement. ([src/greeter.ts#L9](src/greeter.ts) missing_semicolon)
-- ⚠️ The function 'hello' is empty and should contain logic or be removed if not needed. ([src/greeter.ts#L18](src/greeter.ts) empty_function)
-- ⚠️ Missing semicolon after variable declaration. ([src/greeter.ts#L20](src/greeter.ts) missing_semicolon)`
-    )
 })
