@@ -91,7 +91,7 @@ export function convertAnnotationsToItems(text: string) {
             t.replace(rx, (s, ...args) => {
                 const groups = args.at(-1)
                 const { file, line, severity, code, message } = groups
-                return `- ${SEV_EMOJI_MAP[severity?.toLowerCase()] ?? "info"} ${message} ([${host.path.basename(file)}#L${line}](${file}))`
+                return `- ${SEV_EMOJI_MAP[severity?.toLowerCase()] ?? "info"} ${message} (\`${host.path.basename(file)}#L${line}\`)`
             }),
         text
     )

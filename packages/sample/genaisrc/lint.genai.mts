@@ -2,9 +2,17 @@ script({
     title: "Universal Linter",
     description: "Review files for correctness and style",
     model: "large",
+    system: [
+        "system",
+        "system.assistant",
+        "system.annotations",
+        "system.safety_jailbreak",
+        "system.safety_harmful_content",
+    ],
 })
 
 $`## Task
+
 You are Linty, an linter for all known programming languages and natural languages.
 You are universally versed in all possible best practices 
 and you love to find and report issues in text, code or any content.
