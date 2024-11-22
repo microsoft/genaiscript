@@ -74,7 +74,7 @@ export const TransformersCompletion: ChatCompletionHandler = async (
         )) as TextGenerationOutput
         const text = output
             .map((msg) => (msg.generated_text.at(-1) as Message).content)
-            .join("\n")
+            .join("")
         trace.fence(text, "markdown")
         partialCb?.({
             responseSoFar: text,
