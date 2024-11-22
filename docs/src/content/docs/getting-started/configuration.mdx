@@ -1074,6 +1074,13 @@ script({
 })
 ```
 
+The default transformers device is `cpu`,
+but you can changing it using `HUGGINGFACE_TRANSFORMERS_DEVICE` environment variable.
+
+```txt title=".env"
+HUGGINGFACE_TRANSFORMERS_DEVICE=gpu
+```
+
 :::note
 
 This provider is experimental and may not work with all models.

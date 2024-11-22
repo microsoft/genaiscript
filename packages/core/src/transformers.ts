@@ -112,10 +112,16 @@ export const TransformersCompletion: ChatCompletionHandler = async (
         return { text: cached, finishReason: cachedFinishReason, cached: true }
     }
 
-    const generator = await generationQueue.add(() => loadGenerator(family, {
-        dtype: tag,
-        device: "cpu",
-    }))
+    const device =
+        process.env.HUGGINGFACE_TRANSFORMERS_DEVICE ||
+        process.env.TRANSFORMERS_DEVICE ||
+        "cpu"
+    const generator = await generationQueue.add(() =>
+        loadGenerator(family, {
+            dtype: tag,
+            device,
+        })
+    )
     const msgs: Chat = chatMessagesToTranformerMessages(messages)
     trace.detailsFenced("messages", msgs, "yaml")
     const output = (await generator(
