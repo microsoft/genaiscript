@@ -159,6 +159,7 @@ export const STATS_DIR_NAME = "stats"
 
 export const EMOJI_SUCCESS = "✅"
 export const EMOJI_FAIL = "❌"
+export const EMOJI_WARNING = "⚠️"
 export const EMOJI_UNDEFINED = "?"
 
 export const MODEL_PROVIDER_OPENAI = "openai"
