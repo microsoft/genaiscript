@@ -28,6 +28,8 @@ import {
     MODEL_PROVIDER_TRANSFORMERS,
     MODEL_PROVIDER_ALIBABA,
     ALIBABA_BASE,
+    MODEL_PROVIDER_MISTRAL,
+    MISTRAL_API_BASE,
 } from "./constants"
 import { fileExists, readText, writeText } from "./fs"
 import {
@@ -324,6 +326,20 @@ export async function parseTokenFromEnv(
             base,
             version,
             source,
+        } satisfies LanguageModelConfiguration
+    }
+
+    if (provider === MODEL_PROVIDER_MISTRAL) {
+        const base = env.MISTRAL_API_BASE || MISTRAL_API_BASE
+        const token = env.MISTRAL_API_KEY
+        if (!token) throw new Error("MISTRAL_API_KEY not configured")
+        return {
+            provider,
+            model,
+            token,
+            base,
+            source: "env: MISTRAL_API_...",
+            type: "openai",
         } satisfies LanguageModelConfiguration
     }
 
