@@ -59,7 +59,9 @@ export const DEFAULT_MODEL_CANDIDATES = [
     "azure:gpt-4o",
     "azure_serverless:gpt-4o",
     DEFAULT_MODEL,
+    "google:gemini-1.5-pro-002",
     "anthropic:claude-2",
+    "mistral:mistral-large-latest",
     "github:gpt-4o",
     "client:gpt-4",
 ]
@@ -68,8 +70,8 @@ export const DEFAULT_VISION_MODEL_CANDIDATES = [
     "azure:gpt-4o",
     "azure_serverless:gpt-4o",
     DEFAULT_MODEL,
-    "anthropic:claude-2",
     "google:gemini-1.5-pro-002",
+    "anthropic:claude-2",
     "github:gpt-4o",
 ]
 export const DEFAULT_SMALL_MODEL = "openai:gpt-4o-mini"
@@ -77,9 +79,10 @@ export const DEFAULT_SMALL_MODEL_CANDIDATES = [
     "azure:gpt-4o-mini",
     "azure_serverless:gpt-4o-mini",
     DEFAULT_SMALL_MODEL,
-    "anthropic:claude-instant-1",
-    "github:gpt-4o-mini",
     "google:gemini-1.5-flash-002",
+    "anthropic:claude-instant-1",
+    "mistral:mistral-small-latest",
+    "github:gpt-4o-mini",
     "client:gpt-4-mini",
 ]
 export const DEFAULT_EMBEDDINGS_MODEL_CANDIDATES = [
@@ -147,8 +150,11 @@ export const LOCALAI_API_BASE = "http://localhost:8080/v1"
 export const LITELLM_API_BASE = "http://localhost:4000"
 export const ANTHROPIC_API_BASE = "https://api.anthropic.com"
 export const HUGGINGFACE_API_BASE = "https://api-inference.huggingface.co/v1"
+export const GOOGLE_API_BASE =
+    "https://generativelanguage.googleapis.com/v1beta/openai/"
 export const ALIBABA_BASE =
     "https://dashscope-intl.aliyuncs.com/compatible-mode/v1"
+export const MISTRAL_API_BASE = "https://api.mistral.ai/v1"
 
 export const PROMPTFOO_CACHE_PATH = ".genaiscript/cache/tests"
 export const PROMPTFOO_CONFIG_DIR = ".genaiscript/config/tests"
@@ -177,6 +183,7 @@ export const MODEL_PROVIDER_ANTHROPIC = "anthropic"
 export const MODEL_PROVIDER_HUGGINGFACE = "huggingface"
 export const MODEL_PROVIDER_TRANSFORMERS = "transformers"
 export const MODEL_PROVIDER_ALIBABA = "alibaba"
+export const MODEL_PROVIDER_MISTRAL = "mistral"
 
 export const TRACE_FILE_PREVIEW_MAX_LENGTH = 240
 
@@ -219,6 +226,8 @@ export const DOCS_CONFIGURATION_HUGGINGFACE_TRANSFORMERS_URL =
     "https://microsoft.github.io/genaiscript/getting-started/configuration/#transformers"
 export const DOCS_CONFIGURATION_ALIBABA_URL =
     "https://microsoft.github.io/genaiscript/getting-started/configuration/#alibaba"
+export const DOCS_CONFIGURATION_MISTRAL_URL =
+    "https://microsoft.github.io/genaiscript/getting-started/configuration/#mistral"
 export const DOCS_CONFIGURATION_CONTENT_SAFETY_URL =
     "https://microsoft.github.io/genaiscript/reference/scripts/content-safety"
 export const DOCS_DEF_FILES_IS_EMPTY_URL =
@@ -270,6 +279,11 @@ export const MODEL_PROVIDERS = Object.freeze([
         id: MODEL_PROVIDER_HUGGINGFACE,
         detail: "Hugging Face models",
         url: DOCS_CONFIGURATION_HUGGINGFACE_URL,
+    },
+    {
+        id: MODEL_PROVIDER_MISTRAL,
+        detail: "Mistral AI",
+        url: DOCS_CONFIGURATION_MISTRAL_URL,
     },
     {
         id: MODEL_PROVIDER_TRANSFORMERS,
@@ -386,9 +400,6 @@ export const CHOICE_LOGIT_BIAS = 5
 
 export const SANITIZED_PROMPT_INJECTION =
     "...prompt injection detected, content removed..."
-
-export const GOOGLE_API_BASE =
-    "https://generativelanguage.googleapis.com/v1beta/openai/"
 
 export const IMAGE_DETAIL_LOW_WIDTH = 512
 export const IMAGE_DETAIL_LOW_HEIGHT = 512

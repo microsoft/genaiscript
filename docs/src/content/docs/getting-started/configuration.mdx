@@ -894,9 +894,56 @@ Some models may require a Pro account.
 
 :::
 
+## Mistral AI <a href="" id="mistral" />
+
+The `mistral` provider allows you to use [Mistral AI Models](https://mistral.ai/technology/#models)
+using the [Mistral API](https://docs.mistral.ai/).
+
+```js "mistral:"
+script({ model: "mistral:mistral-large-latest" })
+```
+
+<Steps>
+
+<ol>
+
+<li>
+
+Sign up for a [Mistral AI account](https://mistral.ai/)
+and obtain an API key from their [console](https://console.mistral.ai/).
+
+</li>
+
+<li>
+
+Add your Mistral AI API key to the `.env` file:
+
+```txt title=".env"
+MISTRAL_API_KEY=...
+```
+
+</li>
+
+<li>
+
+Update your script to use the `model` you choose.
+
+```js
+script({
+    ...
+    model: "mistral:mistral-large-latest",
+})
+```
+
+</li>
+
+</ol>
+
+</Steps>
+
 ## Alibaba Cloud <a href="" id="alibaba" />
 
-[Alibaba Cloud](https://www.alibabacloud.com/) provides a range of AI services, including language models.
+The `alibaba` provider access the [Alibaba Cloud](https://www.alibabacloud.com/) models.
 
 ```js "alibaba:"
 script({

@@ -327,5 +327,25 @@
     "alibaba:qwen-turbo": {
         "price_per_million_input_tokens": 0.4,
         "price_per_million_output_tokens": 1.2
+    },
+    "mistral:mistral-large-latest": {
+        "price_per_million_input_tokens": 2,
+        "price_per_million_output_tokens": 6
+    },
+    "mistral:mistral-small-latest": {
+        "price_per_million_input_tokens": 0.2,
+        "price_per_million_output_tokens": 0.6
+    },
+    "mistral:pixtral-large-latest": {
+        "price_per_million_input_tokens": 2,
+        "price_per_million_output_tokens": 6
+    },
+    "mistral:codestral-latest": {
+        "price_per_million_input_tokens": 0.2,
+        "price_per_million_output_tokens": 0.6
+    },
+    "mistral:mistral-nemo": {
+        "price_per_million_input_tokens": 0.2,
+        "price_per_million_output_tokens": 0.6
     }
 }

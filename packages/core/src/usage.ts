@@ -15,12 +15,14 @@ import pricings from "./pricing.json" // Interface to hold statistics related to
 import { parseModelIdentifier } from "./models"
 import {
     MODEL_PROVIDER_AICI,
+    MODEL_PROVIDER_ALIBABA,
     MODEL_PROVIDER_ANTHROPIC,
     MODEL_PROVIDER_AZURE_OPENAI,
     MODEL_PROVIDER_AZURE_SERVERLESS_MODELS,
     MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI,
     MODEL_PROVIDER_GITHUB,
     MODEL_PROVIDER_GOOGLE,
+    MODEL_PROVIDER_MISTRAL,
     MODEL_PROVIDER_OPENAI,
 } from "./constants"
 
@@ -91,6 +93,8 @@ export function isCosteable(model: string) {
         MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI,
         MODEL_PROVIDER_ANTHROPIC,
         MODEL_PROVIDER_GOOGLE,
+        MODEL_PROVIDER_ALIBABA,
+        MODEL_PROVIDER_MISTRAL,
     ]
     return costeableProviders.includes(provider)
 }
