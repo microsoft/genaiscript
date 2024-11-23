@@ -93,7 +93,7 @@ export async function parsePDF(
  */
 export async function parseDOCX(file: string) {
     // Uses DOCXTryParse to extract text from the DOCX file
-    const text = await DOCXTryParse(file)
+    const text: string = await DOCXTryParse(file)
     console.log(text)
 }
 
@@ -104,7 +104,7 @@ export async function parseDOCX(file: string) {
 export async function parseHTMLToText(file: string) {
     const html = await readFile(file, { encoding: "utf-8" })
     // Converts HTML to plain text
-    const text = HTMLToText(html)
+    const text: string = await HTMLToText(html)
     console.log(text)
 }
 
@@ -126,7 +126,7 @@ export async function parseJinja2(
         const i = parseFloat(vars[k])
         if (!isNaN(i)) vars[k] = i
     }
-    const res = jinjaRender(src, vars)
+    const res: string = jinjaRender(src, vars)
     console.log(res)
 }
 
@@ -189,7 +189,7 @@ export async function jsonl2json(files: string[]) {
         }
         const content = await tryReadText(file)
         const objs = await JSONLTryParse(content, { repair: true })
-        const out = replaceExt(file, ".json")
+        const out: string = replaceExt(file, ".json")
         await writeText(out, JSON.stringify(objs, null, 2))
         console.log(`${file} -> ${out}`)
     }
@@ -240,7 +240,7 @@ export async function prompty2genaiscript(
         console.log(`${f} -> ${gf}`)
         const content = await readText(f)
         const doc = promptyParse(f, content)
-        const script = promptyToGenAIScript(doc)
+        const script: string = promptyToGenAIScript(doc)
         await writeText(gf, script)
     }
 }
