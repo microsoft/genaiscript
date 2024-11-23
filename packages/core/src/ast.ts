@@ -61,7 +61,7 @@ export const eofPosition: CharPosition = [0x3fffffff, 0] // End of file position
  * Provides utility methods to manage templates and diagnose issues.
  */
 export class Project {
-    readonly templates: PromptScript[] = [] // Array of templates within the project
+    readonly scripts: PromptScript[] = [] // Array of templates within the project
     readonly diagnostics: Diagnostic[] = [] // Array of diagnostic records
 
     _finalizers: (() => void)[] = [] // Array of cleanup functions to be called when project is disposed
@@ -76,7 +76,7 @@ export class Project {
             string,
             { dirname: string; js?: boolean; ts?: boolean }
         > = {}
-        for (const t of Object.values(this.templates).filter(
+        for (const t of Object.values(this.scripts).filter(
             // must have a filename and not propmty
             (t) => t.filename && !PROMPTY_REGEX.test(t.filename)
         )) {
@@ -94,6 +94,6 @@ export class Project {
      * @returns The matching PromptScript or undefined if no match is found.
      */
     getTemplate(id: string) {
-        return this.templates.find((t) => t.id == id) // Find and return the template with the matching ID
+        return this.scripts.find((t) => t.id == id) // Find and return the template with the matching ID
     }
 }

@@ -20,7 +20,7 @@ import { RUNTIME_ERROR_CODE } from "../../core/src/constants"
 export async function listScripts() {
     const prj = await buildProject() // Build the project to get script templates
     console.log("id, title, group, filename, system")
-    prj.templates.forEach((t) =>
+    prj.scripts.forEach((t) =>
         console.log(
             `${t.id}, ${t.title}, ${t.group || ""}, ${t.filename || "builtin"}, ${
                 t.isSystem ? "system" : "user"

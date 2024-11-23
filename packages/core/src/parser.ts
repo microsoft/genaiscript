@@ -98,12 +98,12 @@ export async function parseProject(options: { scriptFiles: string[] }) {
             continue
         } // Skip if no template is parsed
         delete deflPr[tmpl.id] // Remove the parsed template from defaults
-        prj.templates.push(tmpl) // Add to project templates
+        prj.scripts.push(tmpl) // Add to project templates
     }
 
     // Add remaining default prompts to the project
     for (const [id, v] of Object.entries(deflPr)) {
-        prj.templates.push(await parsePromptScript(BUILTIN_PREFIX + id, v, prj))
+        prj.scripts.push(await parsePromptScript(BUILTIN_PREFIX + id, v, prj))
     }
 
     runFinalizers() // Run finalizers after processing all scripts
@@ -120,7 +120,7 @@ export async function parseProject(options: { scriptFiles: string[] }) {
     }
 
     // Sort templates by the generated key
-    prj.templates.sort((a, b) => strcmp(templKey(a), templKey(b)))
+    prj.scripts.sort((a, b) => strcmp(templKey(a), templKey(b)))
 
     return prj // Return the fully parsed project
 }

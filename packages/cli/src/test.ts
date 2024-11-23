@@ -257,7 +257,7 @@ export async function runPromptScriptTests(
 async function listTests(options: { ids?: string[]; groups?: string[] }) {
     const { ids, groups } = options || {}
     const prj = await buildProject()
-    const scripts = prj.templates
+    const scripts = prj.scripts
         .filter((t) => arrayify(t.tests)?.length)
         .filter((t) => !ids?.length || ids.includes(t.id))
         .filter((t) => tagFilter(groups, t.group))

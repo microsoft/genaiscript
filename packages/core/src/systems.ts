@@ -104,7 +104,7 @@ export function resolveSystems(
  * @returns An array of system IDs associated with the specified tool.
  */
 function resolveSystemFromTools(prj: Project, tool: string): string[] {
-    const system = prj.templates.filter(
+    const system = prj.scripts.filter(
         (t) => t.isSystem && t.defTools?.find((to) => to.id.startsWith(tool))
     )
     const res = system.map(({ id }) => id)
@@ -126,7 +126,7 @@ export function resolveTools(
     systems: string[],
     tools: string[]
 ): { id: string; description: string }[] {
-    const { templates: scripts } = prj
+    const { scripts: scripts } = prj
     const toolScripts = uniq([
         ...systems.map((sid) => scripts.find((s) => s.id === sid)),
         ...tools.map((tid) =>

@@ -274,11 +274,11 @@ export async function runScript(
         toolFiles,
     })
     if (jsSource)
-        prj.templates.push({
+        prj.scripts.push({
             id: scriptId,
             jsSource,
         })
-    const script = prj.templates.find(
+    const script = prj.scripts.find(
         (t) =>
             t.id === scriptId ||
             (t.filename &&

@@ -67,13 +67,13 @@ ${description}
     async getChildren(
         element?: PromptTreeNode | undefined
     ): Promise<PromptTreeNode[]> {
-        const templates = this.state.project?.templates || []
+        const templates = this.state.project?.scripts || []
         if (!element) {
             // collect and sort all groups
             const cats = Object.keys(groupBy(templates, templateGroup))
             return [...cats.filter((t) => t !== "system"), "system"]
         } else if (typeof element === "string") {
-            const templates = this.state.project?.templates || []
+            const templates = this.state.project?.scripts || []
             return templates.filter((t) => templateGroup(t) === element)
         } else {
             return undefined
