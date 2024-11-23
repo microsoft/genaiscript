@@ -4,7 +4,7 @@
  * data types and formats.
  */
 
-import { Project, PromptScript } from "./ast"
+import { Project } from "./ast"
 import { BUILTIN_PREFIX, GENAI_ANY_REGEX, PROMPTY_REGEX } from "./constants"
 import { errorMessage } from "./error"
 import { host } from "./host"
@@ -87,14 +87,14 @@ class Checker<T extends PromptLike> {
     /**
      * Constructs a new Checker instance.
      *
-     * @param template - The prompt-like object to validate.
+     * @param script - The prompt-like object to validate.
      * @param filename - The filename of the script.
      * @param diagnostics - The diagnostics array to report errors to.
      * @param js - The JavaScript source code of the script.
      * @param jsobj - The parsed JSON object of the script.
      */
     constructor(
-        public template: T,
+        public script: T,
         public filename: string,
         public diagnostics: Diagnostic[],
         public js: string,
@@ -359,8 +359,7 @@ function parsePromptScriptTools(jsSource: string) {
 async function parsePromptTemplateCore(
     filename: string,
     content: string,
-    prj: Project,
-    finalizer: (checker: Checker<PromptScript>) => void
+    prj: Project
 ) {
     const r = {
         id: templateIdFromFileName(filename),
@@ -381,8 +380,50 @@ async function parsePromptTemplateCore(
             content,
             meta
         )
-        prj._finalizers.push(() => finalizer(checker))
-        return checker.template
+        const obj = checker.validateKV(() => {
+            // Validate various fields using the Checker methods
+            checker.checkString("title")
+            checker.checkString("description")
+            checker.checkString("model")
+            checker.checkString("responseType")
+            checker.checkJSONSchema("responseSchema")
+
+            checker.checkString("embeddingsModel")
+
+            checker.checkBool("unlisted")
+
+            checker.checkNat("maxTokens")
+            checker.checkNumber("temperature")
+            checker.checkNumber("topP")
+            checker.checkNumber("seed")
+            checker.checkNat("flexTokens")
+
+            checker.checkStringArray("system")
+            checker.checkStringArray("excludedSystem")
+            checker.checkStringArray("files")
+            checker.checkString("group")
+
+            checker.checkBool("isSystem")
+            checker.checkRecord("parameters")
+            checker.checkRecord("vars")
+            checker.checkStringArray("secrets")
+
+            checker.checkBool("lineNumbers")
+            checker.checkObjectOrObjectArray("tests")
+            checker.checkStringArray("tools")
+            checker.checkStringOrBool("cache")
+            checker.checkString("cacheName")
+            checker.checkString("filename")
+            checker.checkString("contentSafety")
+            checker.checkStringArray("choices")
+            checker.checkNumber("topLogprobs")
+
+            checker.checkRecord("modelConcurrency")
+            checker.checkObjectArray("defTools")
+            checker.checkBool("logprobs")
+        })
+        Object.assign(checker.script, obj)
+        return checker.script
     } catch (e) {
         prj.diagnostics.push({
             filename,
@@ -415,51 +456,5 @@ export async function parsePromptScript(
         content = await promptyToGenAIScript(doc)
     }
 
-    return await parsePromptTemplateCore(filename, content, prj, (c) => {
-        const obj = c.validateKV(() => {
-            // Validate various fields using the Checker methods
-            c.checkString("title")
-            c.checkString("description")
-            c.checkString("model")
-            c.checkString("responseType")
-            c.checkJSONSchema("responseSchema")
-
-            c.checkString("embeddingsModel")
-
-            c.checkBool("unlisted")
-
-            c.checkNat("maxTokens")
-            c.checkNumber("temperature")
-            c.checkNumber("topP")
-            c.checkNumber("seed")
-            c.checkNat("flexTokens")
-
-            c.checkStringArray("system")
-            c.checkStringArray("excludedSystem")
-            c.checkStringArray("files")
-            c.checkString("group")
-
-            c.checkBool("isSystem")
-            c.checkRecord("parameters")
-            c.checkRecord("vars")
-            c.checkStringArray("secrets")
-
-            c.checkBool("lineNumbers")
-            c.checkObjectOrObjectArray("tests")
-            c.checkStringArray("tools")
-            c.checkStringOrBool("cache")
-            c.checkString("cacheName")
-            c.checkString("filename")
-            c.checkString("contentSafety")
-            c.checkStringArray("choices")
-            c.checkNumber("topLogprobs")
-
-            c.checkRecord("modelConcurrency")
-            c.checkObjectArray("defTools")
-            c.checkBool("logprobs")
-        })
-
-        const r = c.template
-        Object.assign(r, obj)
-    })
+    return await parsePromptTemplateCore(filename, content, prj)
 }

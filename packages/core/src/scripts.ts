@@ -1,4 +1,4 @@
-import { Project } from "./ast"
+import { collectFolders, Project } from "./ast"
 import { NEW_SCRIPT_TEMPLATE } from "./constants"
 import { promptDefinitions } from "./default_prompts"
 import { tryReadText, writeText } from "./fs"
@@ -24,7 +24,7 @@ export function createScript(
 }
 
 export async function fixPromptDefinitions(project: Project) {
-    const folders = project.folders()
+    const folders = collectFolders(project)
     const systems = project.scripts.filter((t) => t.isSystem)
     const tools = systems.map(({ defTools }) => defTools || []).flat()
 

@@ -11,6 +11,7 @@ import {
 import { logError, logInfo, logVerbose } from "../../core/src/util"
 import { runtimeHost } from "../../core/src/host"
 import { RUNTIME_ERROR_CODE } from "../../core/src/constants"
+import { collectFolders } from "../../core/src/ast"
 
 /**
  * Lists all the scripts in the project.
@@ -61,9 +62,9 @@ export async function fixScripts() {
 export async function compileScript(folders: string[]) {
     const project = await buildProject() // Build the project to gather script information
     await fixPromptDefinitions(project) // Fix prompt definitions before compiling
-    const scriptFolders = project.folders() // Retrieve available script folders
+    const scriptFolders = collectFolders(project) // Retrieve available script folders
     const foldersToCompile = (
-        folders?.length ? folders : project.folders().map((f) => f.dirname)
+        folders?.length ? folders : scriptFolders.map((f) => f.dirname)
     )
         .map((f) => scriptFolders.find((sf) => sf.dirname === f))
         .filter((f) => f)

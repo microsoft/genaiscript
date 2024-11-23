@@ -1,6 +1,5 @@
 // Importing utility functions and constants from other files
 import { logVerbose, strcmp } from "./util" // String comparison function
-import { Project, PromptScript } from "./ast" // Class imports
 import { defaultPrompts } from "./default_prompts" // Default prompt data
 import { parsePromptScript } from "./template" // Function to parse scripts
 import { readText } from "./fs" // Function to read text from a file
@@ -10,6 +9,8 @@ import {
     PDF_MIME_TYPE,
     XLSX_MIME_TYPE,
 } from "./constants" // Constants for MIME types and prefixes
+import { diag } from "mathjs"
+import { Project } from "./ast"
 
 /**
  * Converts a string to a character position represented as [row, column].
@@ -76,16 +77,10 @@ const BINARY_MIME_TYPES = [
  */
 export async function parseProject(options: { scriptFiles: string[] }) {
     const { scriptFiles } = options
-    const prj = new Project() // Initialize a new project instance
-
-    // Helper function to run finalizers stored in the project
-    const runFinalizers = () => {
-        const fins = prj._finalizers.slice() // Copy finalizers
-        prj._finalizers = [] // Clear the finalizers
-        for (const fin of fins) fin() // Execute each finalizer
-    }
-
-    runFinalizers() // Run any initial finalizers
+    const prj: Project = {
+        scripts: [],
+        diagnostics: [],
+    } // Initialize a new project instance
 
     // Clone the default prompts
     const deflPr: Record<string, string> = Object.assign({}, defaultPrompts)
@@ -105,8 +100,6 @@ export async function parseProject(options: { scriptFiles: string[] }) {
     for (const [id, v] of Object.entries(deflPr)) {
         prj.scripts.push(await parsePromptScript(BUILTIN_PREFIX + id, v, prj))
     }
-
-    runFinalizers() // Run finalizers after processing all scripts
 
     /**
      * Generates a sorting key for a PromptScript

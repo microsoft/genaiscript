@@ -1,5 +1,5 @@
 import { rest } from "es-toolkit"
-import { Project } from "./ast"
+import { Project, resolveScript } from "./ast"
 import { NotSupportedError } from "./error"
 import { isJSONSchema } from "./schema"
 import { resolveSystems } from "./systems"
@@ -93,7 +93,7 @@ export function parsePromptParameters(
         ...(script.parameters || {}),
     }
     for (const system of resolveSystems(prj, script)
-        .map((s) => prj.getTemplate(s))
+        .map((s) => resolveScript(prj, s))
         .filter((t) => t?.parameters)) {
         Object.entries(system.parameters).forEach(([k, v]) => {
             parameters[`${system.id}.${k}`] = v

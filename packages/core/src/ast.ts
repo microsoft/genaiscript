@@ -7,10 +7,6 @@ import {
 } from "./constants"
 import { host } from "./host"
 
-// Type alias for PromptScript used globally
-type PromptScript = globalThis.PromptScript
-export type { PromptScript }
-
 // Interface representing a file reference, with a name and filename property
 export interface FileReference {
     name: string
@@ -57,43 +53,41 @@ export const eolPosition = 0x3fffffff // End of line position, a large constant
 export const eofPosition: CharPosition = [0x3fffffff, 0] // End of file position, a tuple with a large constant
 
 /**
+ * Groups templates by their directory and determines if JS or TS files are present.
+ * Useful for organizing templates based on their file type.
+ * @returns An array of folder information objects, each containing directory name and file type presence.
+ */
+export function collectFolders(prj: Project) {
+    const folders: Record<
+        string,
+        { dirname: string; js?: boolean; ts?: boolean }
+    > = {}
+    for (const t of Object.values(prj.scripts).filter(
+        // must have a filename and not propmty
+        (t) => t.filename && !PROMPTY_REGEX.test(t.filename)
+    )) {
+        const dirname = host.path.dirname(t.filename) // Get directory name from the filename
+        const folder = folders[dirname] || (folders[dirname] = { dirname })
+        folder.js = folder.js || GENAI_ANYJS_REGEX.test(t.filename) // Check for presence of JS files
+        folder.ts = folder.ts || GENAI_ANYTS_REGEX.test(t.filename) // Check for presence of TS files
+    }
+    return Object.values(folders) // Return an array of folders with their properties
+}
+
+/**
+ * Retrieves a template by its ID.
+ * @param id - The ID of the template to retrieve.
+ * @returns The matching PromptScript or undefined if no match is found.
+ */
+export function resolveScript(prj: Project, id: string) {
+    return prj?.scripts?.find((t) => t.id == id) // Find and return the template with the matching ID
+}
+
+/**
  * Represents a project containing templates and diagnostics.
  * Provides utility methods to manage templates and diagnose issues.
  */
-export class Project {
-    readonly scripts: PromptScript[] = [] // Array of templates within the project
-    readonly diagnostics: Diagnostic[] = [] // Array of diagnostic records
-
-    _finalizers: (() => void)[] = [] // Array of cleanup functions to be called when project is disposed
-
-    /**
-     * Groups templates by their directory and determines if JS or TS files are present.
-     * Useful for organizing templates based on their file type.
-     * @returns An array of folder information objects, each containing directory name and file type presence.
-     */
-    folders() {
-        const folders: Record<
-            string,
-            { dirname: string; js?: boolean; ts?: boolean }
-        > = {}
-        for (const t of Object.values(this.scripts).filter(
-            // must have a filename and not propmty
-            (t) => t.filename && !PROMPTY_REGEX.test(t.filename)
-        )) {
-            const dirname = host.path.dirname(t.filename) // Get directory name from the filename
-            const folder = folders[dirname] || (folders[dirname] = { dirname })
-            folder.js = folder.js || GENAI_ANYJS_REGEX.test(t.filename) // Check for presence of JS files
-            folder.ts = folder.ts || GENAI_ANYTS_REGEX.test(t.filename) // Check for presence of TS files
-        }
-        return Object.values(folders) // Return an array of folders with their properties
-    }
-
-    /**
-     * Retrieves a template by its ID.
-     * @param id - The ID of the template to retrieve.
-     * @returns The matching PromptScript or undefined if no match is found.
-     */
-    getTemplate(id: string) {
-        return this.scripts.find((t) => t.id == id) // Find and return the template with the matching ID
-    }
+export interface Project {
+    scripts: PromptScript[] // Array of templates within the project
+    diagnostics: Diagnostic[] // Array of diagnostic records
 }
