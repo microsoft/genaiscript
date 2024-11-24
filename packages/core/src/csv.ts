@@ -68,6 +68,7 @@ export function CSVTryParse(
 ): object[] | undefined {
     const { trace } = options || {}
     try {
+        if (!text) return [] // Return empty array if CSV is empty
         // Attempt to parse the CSV
         return CSVParse(text, options)
     } catch (e) {
