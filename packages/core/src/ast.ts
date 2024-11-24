@@ -6,6 +6,7 @@ import {
     PROMPTY_REGEX,
 } from "./constants"
 import { host } from "./host"
+import { Project } from "./server/messages"
 
 // Interface representing a file reference, with a name and filename property
 export interface FileReference {
@@ -81,13 +82,4 @@ export function collectFolders(prj: Project) {
  */
 export function resolveScript(prj: Project, id: string) {
     return prj?.scripts?.find((t) => t.id == id) // Find and return the template with the matching ID
-}
-
-/**
- * Represents a project containing templates and diagnostics.
- * Provides utility methods to manage templates and diagnose issues.
- */
-export interface Project {
-    scripts: PromptScript[] // Array of templates within the project
-    diagnostics: Diagnostic[] // Array of diagnostic records
 }

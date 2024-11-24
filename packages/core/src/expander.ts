@@ -1,4 +1,4 @@
-import { Project, resolveScript } from "./ast"
+import { resolveScript } from "./ast"
 import { assert, normalizeFloat, normalizeInt } from "./util"
 import { MarkdownTrace } from "./trace"
 import { errorMessage, isCancelError, NotSupportedError } from "./error"
@@ -30,6 +30,7 @@ import { resolveSystems } from "./systems"
 import { GenerationOptions, GenerationStatus } from "./generation"
 import { AICIRequest, ChatCompletionMessageParam } from "./chattypes"
 import { promptParametersSchemaToJSONSchema } from "./parameters"
+import { Project } from "./server/messages"
 
 export async function callExpander(
     prj: Project,

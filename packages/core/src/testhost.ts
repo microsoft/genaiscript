@@ -35,9 +35,9 @@ import {
     isAbsolute,
 } from "node:path"
 import { LanguageModel } from "./chat"
-import { Project } from "./ast"
 import { NotSupportedError } from "./error"
 import { HostConfiguration } from "./hostconfiguration"
+import { Project } from "./server/messages"
 
 // Function to create a frozen object representing Node.js path methods
 // This object provides utility methods for path manipulations

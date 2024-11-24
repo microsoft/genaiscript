@@ -10,7 +10,7 @@ import {
     XLSX_MIME_TYPE,
 } from "./constants" // Constants for MIME types and prefixes
 import { diag } from "mathjs"
-import { Project } from "./ast"
+import { Project } from "./server/messages"
 
 /**
  * Converts a string to a character position represented as [row, column].

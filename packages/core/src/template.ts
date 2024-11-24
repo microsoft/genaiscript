@@ -4,7 +4,7 @@
  * data types and formats.
  */
 
-import { Project } from "./ast"
+import { Project } from "./server/messages"
 import { BUILTIN_PREFIX, GENAI_ANY_REGEX, PROMPTY_REGEX } from "./constants"
 import { errorMessage } from "./error"
 import { host } from "./host"
@@ -12,7 +12,6 @@ import { JSON5TryParse } from "./json5"
 import { humanize } from "inflection"
 import { validateSchema } from "./schema"
 import { promptyParse, promptyToGenAIScript } from "./prompty"
-import { kind } from "openai/_shims/index.mjs"
 
 /**
  * Extracts a template ID from the given filename by removing specific extensions

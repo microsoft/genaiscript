@@ -34,6 +34,7 @@ import {
     ChatChunk,
     ChatCancel,
     LanguageModelConfigurationResponse,
+    promptScriptListResponse,
 } from "../../core/src/server/messages"
 import { envInfo } from "./info"
 import { LanguageModel } from "../../core/src/chat"
@@ -43,6 +44,7 @@ import {
     CreateChatCompletionRequest,
 } from "../../core/src/chattypes"
 import { randomHex } from "../../core/src/crypto"
+import { buildProject } from "./build"
 
 /**
  * Starts a WebSocket server for handling chat and script execution.
@@ -238,6 +240,16 @@ export async function startServer(options: { port: string; apiKey?: string }) {
                             response = <LanguageModelConfigurationResponse>{
                                 ok: false,
                             }
+                        }
+                        break
+                    }
+                    case "script.list": {
+                        logVerbose(`project: list scripts`)
+                        const project = await buildProject()
+                        response = <promptScriptListResponse>{
+                            ok: true,
+                            status: 0,
+                            project,
                         }
                         break
                     }

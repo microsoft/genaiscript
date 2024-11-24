@@ -1,10 +1,11 @@
-import { collectFolders, Project } from "./ast"
+import { collectFolders } from "./ast"
 import { NEW_SCRIPT_TEMPLATE } from "./constants"
 import { promptDefinitions } from "./default_prompts"
 import { tryReadText, writeText } from "./fs"
 import { host } from "./host"
 import { logVerbose } from "./util"
 import { dedent } from "./indent"
+import { Project } from "./server/messages"
 
 export function createScript(
     name: string,

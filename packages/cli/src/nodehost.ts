@@ -59,7 +59,7 @@ import { shellConfirm, shellInput, shellSelect } from "./input"
 import { shellQuote } from "../../core/src/shell"
 import { uniq } from "es-toolkit"
 import { PLimitPromiseQueue } from "../../core/src/concurrency"
-import { Project } from "../../core/src/ast"
+import { Project } from "../../core/src/server/messages"
 import { createAzureTokenResolver } from "./azuretoken"
 import {
     createAzureContentSafetyClient,

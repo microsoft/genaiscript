@@ -68,12 +68,13 @@ import {
 } from "./error"
 import { resolveLanguageModel } from "./lm"
 import { concurrentLimit } from "./concurrency"
-import { Project, resolveScript } from "./ast"
+import { resolveScript } from "./ast"
 import { dedent } from "./indent"
 import { runtimeHost } from "./host"
 import { writeFileEdits } from "./fileedits"
 import { agentAddMemory, agentQueryMemory } from "./agent"
 import { YAMLStringify } from "./yaml"
+import { Project } from "./server/messages"
 
 export function createChatTurnGenerationContext(
     options: GenerationOptions,

@@ -8,7 +8,7 @@ import {
     fixPromptDefinitions,
     createScript as coreCreateScript,
 } from "../../core/src/scripts"
-import { logError, logInfo, logVerbose } from "../../core/src/util"
+import { logInfo, logVerbose } from "../../core/src/util"
 import { runtimeHost } from "../../core/src/host"
 import { RUNTIME_ERROR_CODE } from "../../core/src/constants"
 import { collectFolders } from "../../core/src/ast"

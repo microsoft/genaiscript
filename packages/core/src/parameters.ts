@@ -1,10 +1,11 @@
 import { rest } from "es-toolkit"
-import { Project, resolveScript } from "./ast"
+import { resolveScript } from "./ast"
 import { NotSupportedError } from "./error"
 import { isJSONSchema } from "./schema"
 import { resolveSystems } from "./systems"
 import { logError, normalizeFloat, normalizeInt } from "./util"
 import { YAMLStringify } from "./yaml"
+import { Project } from "./server/messages"
 
 function isPromptParameterTypeRequired(t: PromptParameterType): boolean {
     const ta = t as any
