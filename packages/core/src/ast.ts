@@ -7,6 +7,7 @@ import {
 } from "./constants"
 import { host } from "./host"
 import { Project } from "./server/messages"
+import { arrayify, tagFilter } from "./util"
 
 // Interface representing a file reference, with a name and filename property
 export interface FileReference {
@@ -82,4 +83,21 @@ export function collectFolders(prj: Project) {
  */
 export function resolveScript(prj: Project, id: string) {
     return prj?.scripts?.find((t) => t.id == id) // Find and return the template with the matching ID
+}
+
+export interface ScriptFilterOptions {
+    ids?: string[]
+    groups?: string[]
+    test?: boolean
+}
+
+export function filterScripts(
+    scripts: PromptScript[],
+    options: ScriptFilterOptions
+) {
+    const { ids, groups, test } = options || {}
+    return scripts
+        .filter((t) => !test || arrayify(t.tests)?.length)
+        .filter((t) => !ids?.length || ids.includes(t.id))
+        .filter((t) => tagFilter(groups, t.group))
 }

@@ -1,0 +1,4 @@
+{
+    "$schema": "../../core/src/schemas/hostconfiguration.schema.json",
+    "include": ["../../genaisrc/*.genai.mts"]
+}

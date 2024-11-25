@@ -98,7 +98,7 @@ Options:
   -v, --verbose                       verbose output
   -pv, --promptfoo-version [version]  promptfoo version, default is 0.97.0
   -os, --out-summary <file>           append output summary in file
-  --groups <groups...>                groups to include or exclude. Use :!
+  -g, --groups <groups...>            groups to include or exclude. Use :!
                                       prefix to exclude
   -h, --help                          display help for command
 ```
@@ -111,8 +111,9 @@ Usage: genaiscript test list [options]
 List available tests in workspace
 
 Options:
-  --groups <groups...>  groups to include or exclude. Use :! prefix to exclude
-  -h, --help            display help for command
+  -g, --groups <groups...>  groups to include or exclude. Use :! prefix to
+                            exclude
+  -h, --help                display help for command
 ```
 
 ### `test view`
@@ -137,7 +138,7 @@ Options:
   -h, --help                display help for command
 
 Commands:
-  list                      List all available scripts in workspace
+  list [options]            List all available scripts in workspace
   create <name>             Create a new script
   fix                       fix all definition files
   compile [folders...]      Compile all scripts in workspace
@@ -153,7 +154,9 @@ Usage: genaiscript scripts list [options]
 List all available scripts in workspace
 
 Options:
-  -h, --help  display help for command
+  -g, --groups <groups...>  groups to include or exclude. Use :! prefix to
+                            exclude
+  -h, --help                display help for command
 ```
 
 ### `scripts create`

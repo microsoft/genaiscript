@@ -44,6 +44,7 @@ import {
     ModelConnectionInfo,
     resolveModelConnectionInfo,
 } from "../../core/src/models"
+import { filterScripts } from "../../core/src/ast"
 
 /**
  * Parses model specifications from a string and returns a ModelOptions object.
@@ -255,12 +256,11 @@ export async function runPromptScriptTests(
  * @returns A Promise resolving to an array of filtered scripts.
  */
 async function listTests(options: { ids?: string[]; groups?: string[] }) {
-    const { ids, groups } = options || {}
     const prj = await buildProject()
-    const scripts = prj.scripts
-        .filter((t) => arrayify(t.tests)?.length)
-        .filter((t) => !ids?.length || ids.includes(t.id))
-        .filter((t) => tagFilter(groups, t.group))
+    const scripts = filterScripts(prj.scripts, {
+        ...(options || {}),
+        test: true,
+    })
     return scripts
 }
 

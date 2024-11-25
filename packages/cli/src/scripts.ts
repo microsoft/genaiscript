@@ -11,17 +11,22 @@ import {
 import { logInfo, logVerbose } from "../../core/src/util"
 import { runtimeHost } from "../../core/src/host"
 import { RUNTIME_ERROR_CODE } from "../../core/src/constants"
-import { collectFolders } from "../../core/src/ast"
+import {
+    collectFolders,
+    filterScripts,
+    ScriptFilterOptions,
+} from "../../core/src/ast"
 
 /**
  * Lists all the scripts in the project.
  * Displays id, title, group, filename, and system status.
  * Generates this list by first building the project.
  */
-export async function listScripts() {
+export async function listScripts(options?: ScriptFilterOptions) {
     const prj = await buildProject() // Build the project to get script templates
+    const scripts = filterScripts(prj.scripts, options) // Filter scripts based on options
     console.log("id, title, group, filename, system")
-    prj.scripts.forEach((t) =>
+    scripts.forEach((t) =>
         console.log(
             `${t.id}, ${t.title}, ${t.group || ""}, ${t.filename || "builtin"}, ${
                 t.isSystem ? "system" : "user"
