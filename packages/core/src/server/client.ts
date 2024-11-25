@@ -29,6 +29,9 @@ import {
     ChatChunk,
     ChatStart,
     LanguageModelConfigurationRequest,
+    Project,
+    PromptScriptList,
+    promptScriptListResponse,
 } from "./messages"
 
 export type LanguageModelChatRequest = (
@@ -262,6 +265,12 @@ export class WebSocketClient extends EventTarget {
     async infoEnv(): Promise<ResponseStatus> {
         const res = await this.queue<ServerEnv>({ type: "server.env" })
         return res.response
+    }
+
+    async listScripts(): Promise<Project> {
+        const res = await this.queue<PromptScriptList>({ type: "script.list" })
+        const project = (res.response as promptScriptListResponse)?.project
+        return project
     }
 
     async startScript(

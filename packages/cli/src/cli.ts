@@ -218,7 +218,7 @@ export async function cli() {
         )
         .option("-os, --out-summary <file>", "append output summary in file")
         .option(
-            "--groups <groups...>",
+            "-g, --groups <groups...>",
             "groups to include or exclude. Use :! prefix to exclude"
         )
         .action(scriptsTest) // Action to run the tests
@@ -228,7 +228,7 @@ export async function cli() {
         .description("List available tests in workspace")
         .action(scriptTestList) // Action to list the tests
         .option(
-            "--groups <groups...>",
+            "-g, --groups <groups...>",
             "groups to include or exclude. Use :! prefix to exclude"
         )
 
@@ -245,6 +245,10 @@ export async function cli() {
     scripts
         .command("list", { isDefault: true })
         .description("List all available scripts in workspace")
+        .option(
+            "-g, --groups <groups...>",
+            "groups to include or exclude. Use :! prefix to exclude"
+        )
         .action(listScripts) // Action to list scripts
     scripts
         .command("create")

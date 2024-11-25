@@ -68,12 +68,13 @@ import {
 } from "./error"
 import { resolveLanguageModel } from "./lm"
 import { concurrentLimit } from "./concurrency"
-import { Project } from "./ast"
+import { resolveScript } from "./ast"
 import { dedent } from "./indent"
 import { runtimeHost } from "./host"
 import { writeFileEdits } from "./fileedits"
 import { agentAddMemory, agentQueryMemory } from "./agent"
 import { YAMLStringify } from "./yaml"
+import { Project } from "./server/messages"
 
 export function createChatTurnGenerationContext(
     options: GenerationOptions,
@@ -164,7 +165,7 @@ export function createChatTurnGenerationContext(
                 role: (r) => {
                     current.role = r
                     return res
-                }
+                },
             })
             return res
         },
@@ -684,7 +685,7 @@ export function createChatGenerationContext(
                     for (const systemId of systemScripts) {
                         checkCancelled(cancellationToken)
 
-                        const system = prj.getTemplate(systemId)
+                        const system = resolveScript(prj, systemId)
                         if (!system)
                             throw new Error(
                                 `system template ${systemId} not found`

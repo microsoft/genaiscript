@@ -35,7 +35,7 @@ export async function activateTestController(state: ExtensionState) {
         if (!vscode.workspace.workspaceFolders) return // handle the case of no open folders
 
         if (testToResolve) {
-            const script = state.project.templates.find(
+            const script = state.project.scripts.find(
                 (script) =>
                     vscode.workspace.asRelativePath(script.filename) ===
                     vscode.workspace.asRelativePath(testToResolve.uri)
@@ -51,7 +51,7 @@ export async function activateTestController(state: ExtensionState) {
         if (!state.project) await state.parseWorkspace()
         if (token?.isCancellationRequested) return
         const scripts =
-            state.project.templates.filter((t) => arrayify(t.tests)?.length) ||
+            state.project.scripts.filter((t) => arrayify(t.tests)?.length) ||
             []
         // refresh existing
         for (const script of scripts) {
@@ -86,7 +86,7 @@ export async function activateTestController(state: ExtensionState) {
             const scripts = Array.from(tests)
                 .map((test) => ({
                     test,
-                    script: project.templates.find((s) => s.id === test.id),
+                    script: project.scripts.find((s) => s.id === test.id),
                 }))
                 .filter(({ script }) => script)
 

@@ -1,10 +1,11 @@
 import { rest } from "es-toolkit"
-import { Project } from "./ast"
+import { resolveScript } from "./ast"
 import { NotSupportedError } from "./error"
 import { isJSONSchema } from "./schema"
 import { resolveSystems } from "./systems"
 import { logError, normalizeFloat, normalizeInt } from "./util"
 import { YAMLStringify } from "./yaml"
+import { Project } from "./server/messages"
 
 function isPromptParameterTypeRequired(t: PromptParameterType): boolean {
     const ta = t as any
@@ -93,7 +94,7 @@ export function parsePromptParameters(
         ...(script.parameters || {}),
     }
     for (const system of resolveSystems(prj, script)
-        .map((s) => prj.getTemplate(s))
+        .map((s) => resolveScript(prj, s))
         .filter((t) => t?.parameters)) {
         Object.entries(system.parameters).forEach(([k, v]) => {
             parameters[`${system.id}.${k}`] = v

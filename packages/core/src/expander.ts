@@ -1,4 +1,4 @@
-import { Project, PromptScript } from "./ast"
+import { resolveScript } from "./ast"
 import { assert, normalizeFloat, normalizeInt } from "./util"
 import { MarkdownTrace } from "./trace"
 import { errorMessage, isCancelError, NotSupportedError } from "./error"
@@ -30,6 +30,7 @@ import { resolveSystems } from "./systems"
 import { GenerationOptions, GenerationStatus } from "./generation"
 import { AICIRequest, ChatCompletionMessageParam } from "./chattypes"
 import { promptParametersSchemaToJSONSchema } from "./parameters"
+import { Project } from "./server/messages"
 
 export async function callExpander(
     prj: Project,
@@ -182,7 +183,7 @@ export async function expandTemplate(
         options.lineNumbers ??
         template.lineNumbers ??
         resolveSystems(prj, template, undefined, options)
-            .map((s) => prj.getTemplate(s))
+            .map((s) => resolveScript(prj, s))
             .some((t) => t?.lineNumbers)
     const temperature =
         options.temperature ??
@@ -242,7 +243,7 @@ export async function expandTemplate(
     const chatParticipants = prompt.chatParticipants.slice(0)
     const fileOutputs = prompt.fileOutputs.slice(0)
     const prediction = prompt.prediction
-    
+
     if (prompt.logs?.length) trace.details("📝 console.log", prompt.logs)
     if (prompt.aici) trace.fence(prompt.aici, "yaml")
     trace.endDetails()
@@ -283,7 +284,7 @@ export async function expandTemplate(
                         messages,
                     }
 
-                const system = prj.getTemplate(systems[i])
+                const system = resolveScript(prj, systems[i])
                 if (!system)
                     throw new Error(`system template ${systems[i]} not found`)
 

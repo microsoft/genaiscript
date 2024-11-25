@@ -13,6 +13,7 @@ script({
             description: "The topic and goal of the article",
         },
     },
+    group: "docs"
 })
 let { topic, theme } = env.vars
 

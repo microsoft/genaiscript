@@ -59,7 +59,7 @@ import { shellConfirm, shellInput, shellSelect } from "./input"
 import { shellQuote } from "../../core/src/shell"
 import { uniq } from "es-toolkit"
 import { PLimitPromiseQueue } from "../../core/src/concurrency"
-import { Project } from "../../core/src/ast"
+import { Project } from "../../core/src/server/messages"
 import { createAzureTokenResolver } from "./azuretoken"
 import {
     createAzureContentSafetyClient,
@@ -130,7 +130,7 @@ class ModelManager implements ModelService {
 }
 
 export class NodeHost implements RuntimeHost {
-    readonly config: HostConfiguration
+    private readonly dotEnvPath: string
     project: Project
     userState: any = {}
     models: ModelService
@@ -153,7 +153,6 @@ export class NodeHost implements RuntimeHost {
     readonly azureServerlessToken: AzureTokenResolver
 
     constructor(config: HostConfiguration) {
-        this.config = config
         this.models = new ModelManager(this)
         this.azureToken = createAzureTokenResolver(
             "Azure",
@@ -167,8 +166,12 @@ export class NodeHost implements RuntimeHost {
         )
     }
 
+    async readConfig(): Promise<HostConfiguration> {
+        return resolveGlobalConfiguration(this.dotEnvPath)
+    }
+
     private async syncDotEnv() {
-        const { envFile } = this.config
+        const { envFile } = await this.readConfig()
         if (existsSync(envFile)) {
             if (resolve(envFile) !== resolve(DOT_ENV_FILENAME))
                 logVerbose(`.env: loading ${envFile}`)

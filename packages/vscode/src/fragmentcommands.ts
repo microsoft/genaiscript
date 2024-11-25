@@ -77,7 +77,7 @@ export function activateFragmentCommands(state: ExtensionState) {
         filter?: (p: PromptScript) => boolean
     }) => {
         const { filter = () => true } = options || {}
-        const templates = state.project.templates
+        const templates = state.project.scripts
             .filter((t) => !t.isSystem && t.group !== "infrastructure")
             .filter(filter)
 
@@ -138,7 +138,7 @@ export function activateFragmentCommands(state: ExtensionState) {
             fragment instanceof vscode.Uri &&
             GENAI_ANY_REGEX.test(fragment.path)
         ) {
-            template = state.project.templates.find(
+            template = state.project.scripts.find(
                 (p) => p.filename === (fragment as vscode.Uri).fsPath
             )
             assert(template !== undefined)
@@ -169,7 +169,7 @@ export function activateFragmentCommands(state: ExtensionState) {
         let template: PromptScript
         let files: vscode.Uri[]
         if (GENAI_ANY_REGEX.test(file.path)) {
-            template = state.project.templates.find(
+            template = state.project.scripts.find(
                 (p) => p.filename === file.fsPath
             )
             assert(template !== undefined)

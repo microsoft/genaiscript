@@ -40,7 +40,9 @@ export async function resolveGlobalConfiguration(
                     },
                 })
                 if (validation.schemaError)
-                    throw new Error(validation.schemaError)
+                    throw new Error(
+                        `Configuration error: ` + validation.schemaError
+                    )
                 config = structuralMerge(config, parsed)
             }
         }

@@ -35,9 +35,9 @@ import {
     isAbsolute,
 } from "node:path"
 import { LanguageModel } from "./chat"
-import { Project } from "./ast"
 import { NotSupportedError } from "./error"
 import { HostConfiguration } from "./hostconfiguration"
+import { Project } from "./server/messages"
 
 // Function to create a frozen object representing Node.js path methods
 // This object provides utility methods for path manipulations
@@ -56,7 +56,6 @@ export function createNodePath(): Path {
 
 // Class representing a test host for runtime, implementing the RuntimeHost interface
 export class TestHost implements RuntimeHost {
-    config: HostConfiguration
     project: Project
     // State object to store user-specific data
     userState: any = {}
@@ -85,6 +84,10 @@ export class TestHost implements RuntimeHost {
     // Static method to set this class as the runtime host
     static install() {
         setRuntimeHost(new TestHost())
+    }
+
+    async readConfig() {
+        return {}
     }
 
     contentSafety(

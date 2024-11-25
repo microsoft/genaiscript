@@ -40,7 +40,7 @@ export function activatePromptCommands(state: ExtensionState) {
             async (template: PromptScript | string) => {
                 if (!template) {
                     if (!state.project) await state.parseWorkspace()
-                    const templates = state.project?.templates
+                    const templates = state.project?.scripts
                     if (!templates?.length) return
                     const picked = await vscode.window.showQuickPick(
                         templatesToQuickPickItems(templates),
@@ -52,7 +52,7 @@ export function activatePromptCommands(state: ExtensionState) {
                     template = picked.template
                 } else if (typeof template === "string") {
                     if (!state.project) await state.parseWorkspace()
-                    template = state.project?.templates.find(
+                    template = state.project?.scripts.find(
                         (t) => t.id === template
                     )
                 }
