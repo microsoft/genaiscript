@@ -26,6 +26,9 @@ export function isToolsSupported(modelId: string): boolean | undefined {
     }
     const data: Record<string, Record<string, boolean>> = {
         [MODEL_PROVIDER_OLLAMA]: {
+            ["marco-o1"]: false,
+            ["tulu3"]: false,
+            ["opencoder"]: false,
             ["llama3.2-vision"]: false,
             ["phi3.5"]: false,
             ["gemma2"]: false,
@@ -51,7 +54,7 @@ export function isToolsSupported(modelId: string): boolean | undefined {
         },
         [MODEL_PROVIDER_ALIBABA]: {
             // all supported
-        }
+        },
     }
 
     return data[provider]?.[model]
