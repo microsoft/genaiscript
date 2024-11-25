@@ -9,6 +9,7 @@ import { logError } from "./util"
 
 // Import a custom function to clean up INI content by removing any fencing
 import { unfence } from "./fence"
+import { filenameOrFileToContent } from "./fs"
 
 /**
  * Parses an INI formatted string after cleaning it up.
@@ -17,6 +18,7 @@ import { unfence } from "./fence"
  * @returns The parsed object
  */
 export function INIParse(text: string) {
+    text = filenameOrFileToContent(text)
     const cleaned = unfence(text, "ini") // Remove any fencing from the text
     return parse(cleaned) // Parse the cleaned text into an object
 }

@@ -6,6 +6,7 @@ import { logError } from "./util"
 
 // Import a function to remove certain markers from XML strings
 import { unfence } from "./fence"
+import { filenameOrFileToContent, filePathOrUrlToWorkspaceFile } from "./fs"
 
 /**
  * Attempts to parse an XML string, returning a default value on failure.
@@ -16,7 +17,7 @@ import { unfence } from "./fence"
  * @returns The parsed XML object or defaultValue if an error occurs
  */
 export function XMLTryParse(
-    text: string,
+    text: string | WorkspaceFile,
     defaultValue?: any,
     options?: XMLParseOptions
 ) {
@@ -36,7 +37,11 @@ export function XMLTryParse(
  * @param options - Optional configuration for the XML parser
  * @returns The parsed XML object
  */
-export function XMLParse(text: string, options?: XMLParseOptions) {
+export function XMLParse(
+    text: string | WorkspaceFile,
+    options?: XMLParseOptions
+) {
+    text = filenameOrFileToContent(text)
     // Remove specific markers from the XML string for cleaner processing
     const cleaned = unfence(text, "xml")
 

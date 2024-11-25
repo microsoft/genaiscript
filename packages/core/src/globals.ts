@@ -68,7 +68,7 @@ export function installGlobals() {
 
     // Freeze XML utilities
     glb.XML = Object.freeze<XML>({
-        parse: XMLParse, // Parse XML string to objects
+    parse: XMLParse, // Parse XML string to objects
     })
 
     // Freeze Markdown utilities with frontmatter operations

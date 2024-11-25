@@ -1,11 +1,14 @@
+import { filenameOrFileToContent } from "./fs"
 import { JSON5TryParse } from "./json5"
 import { TOMLTryParse } from "./toml"
 import { YAMLTryParse, YAMLStringify } from "./yaml"
 
 export function frontmatterTryParse(
-    text: string,
+    text: string | WorkspaceFile,
     options?: { format: "yaml" | "json" | "toml" | "text" }
 ): { text: string; value: any; endLine?: number } | undefined {
+    text = filenameOrFileToContent(text)
+
     const { format = "yaml" } = options || {}
     const { frontmatter, endLine } = splitMarkdown(text)
     if (!frontmatter) return undefined
@@ -28,11 +31,12 @@ export function frontmatterTryParse(
     return { text: frontmatter, value: res, endLine }
 }
 
-export function splitMarkdown(text: string): {
+export function splitMarkdown(text: string | WorkspaceFile): {
     frontmatter?: string
     endLine?: number
     content: string
 } {
+    text = filenameOrFileToContent(text)
     if (!text) return { content: text }
     const lines = text.split(/\r?\n/g)
     const delimiter = "---"

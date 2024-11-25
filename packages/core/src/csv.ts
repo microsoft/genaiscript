@@ -6,6 +6,7 @@ import { TraceOptions } from "./trace"
 import { stringify } from "csv-stringify/sync"
 import { arrayify } from "./util"
 import { chunk } from "es-toolkit"
+import { filenameOrFileToContent } from "./fs"
 
 /**
  * Parses a CSV string into an array of objects.
@@ -17,19 +18,21 @@ import { chunk } from "es-toolkit"
  * @returns An array of objects representing the CSV data.
  */
 export function CSVParse(
-    text: string,
+    text: string | WorkspaceFile,
     options?: {
         delimiter?: string
         headers?: ElementOrArray<string>
         repair?: boolean
     }
 ): object[] {
+    text = filenameOrFileToContent(text)
+
     // Destructure options or provide defaults
     const { delimiter, headers, repair, ...rest } = options || {}
     const columns = headers ? arrayify(headers) : true
 
     // common LLM escape errors
-    if (repair) {
+    if (repair && text) {
         text = text.replace(/\\"/g, '""').replace(/""""/g, '""')
     }
     // Parse the CSV string based on the provided options

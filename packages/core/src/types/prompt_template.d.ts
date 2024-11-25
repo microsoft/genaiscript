@@ -1585,7 +1585,7 @@ interface YAML {
     /**
      * Parses a YAML string to object
      */
-    parse(text: string): any
+    parse(text: string | WorkspaceFile): any
 }
 
 interface XML {
@@ -1593,7 +1593,7 @@ interface XML {
      * Parses an XML payload to an object
      * @param text
      */
-    parse(text: string, options?: XMLParseOptions): any
+    parse(text: string | WorkspaceFile, options?: XMLParseOptions): any
 }
 
 interface HTMLTableToJSONOptions {
@@ -2035,12 +2035,15 @@ interface MD {
      * Parses front matter from markdown
      * @param text
      */
-    frontmatter(text: string, format?: "yaml" | "json" | "toml" | "text"): any
+    frontmatter(
+        text: string | WorkspaceFile,
+        format?: "yaml" | "json" | "toml" | "text"
+    ): any
 
     /**
      * Removes the front matter from the markdown text
      */
-    content(text: string): string
+    content(text: string | WorkspaceFile): string
 
     /**
      * Merges frontmatter with the existing text
@@ -2060,7 +2063,7 @@ interface JSONL {
      * Parses a JSONL string to an array of objects
      * @param text
      */
-    parse(text: string): any[]
+    parse(text: string | WorkspaceFile): any[]
     /**
      * Converts objects to JSONL format
      * @param objs
@@ -2073,7 +2076,7 @@ interface INI {
      * Parses a .ini file
      * @param text
      */
-    parse(text: string): any
+    parse(text: string | WorkspaceFile): any
 
     /**
      * Converts an object to.ini string
@@ -2100,7 +2103,7 @@ interface CSV {
      * @param options.headers - An array of headers to use. If not provided, headers will be inferred from the first row.
      * @returns An array of objects representing the parsed CSV data.
      */
-    parse(text: string, options?: CSVParseOptions): object[]
+    parse(text: string | WorkspaceFile, options?: CSVParseOptions): object[]
 
     /**
      * Converts an array of objects to a CSV string.
