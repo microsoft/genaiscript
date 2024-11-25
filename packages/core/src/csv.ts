@@ -86,6 +86,7 @@ export function CSVTryParse(
  * @returns A string representing the CSV formatted data.
  */
 export function CSVStringify(csv: object[], options?: CSVStringifyOptions) {
+    if (!csv) return "" // Return empty string if CSV is empty
     // Convert objects to CSV string using the provided options
     return stringify(csv, options)
 }
