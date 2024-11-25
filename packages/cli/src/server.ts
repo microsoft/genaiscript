@@ -246,6 +246,9 @@ export async function startServer(options: { port: string; apiKey?: string }) {
                     case "script.list": {
                         logVerbose(`project: list scripts`)
                         const project = await buildProject()
+                        logVerbose(
+                            `project: found ${project?.scripts?.length || 0} scripts`
+                        )
                         response = <promptScriptListResponse>{
                             ok: true,
                             status: 0,

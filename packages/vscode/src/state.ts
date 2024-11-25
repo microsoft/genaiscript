@@ -4,7 +4,7 @@ import { ExtensionContext } from "vscode"
 import { VSCodeHost } from "./vshost"
 import { applyEdits, toRange } from "./edit"
 import { Utils } from "vscode-uri"
-import { findFiles, listFiles, saveAllTextDocuments } from "./fs"
+import { listFiles, saveAllTextDocuments } from "./fs"
 import { startLocalAI } from "./localai"
 import { hasOutputOrTraceOpened } from "./markdowndocumentprovider"
 import { pickLanguageModel } from "./lmaccess"
@@ -19,11 +19,9 @@ import {
     CHANGE,
     AI_REQUESTS_CACHE,
     TOOL_ID,
-    GENAI_ANYJS_GLOB,
 } from "../../core/src/constants"
 import { isCancelError } from "../../core/src/error"
 import { resolveModelConnectionInfo } from "../../core/src/models"
-import { parseProject } from "../../core/src/parser"
 import { MarkdownTrace } from "../../core/src/trace"
 import { logInfo, groupBy } from "../../core/src/util"
 import { CORE_VERSION } from "../../core/src/version"
@@ -367,6 +365,8 @@ export class ExtensionState extends EventTarget {
     }
 
     get project() {
+        if (!this._project)
+            this.parseWorkspace()
         return this._project
     }
 
@@ -387,20 +387,12 @@ export class ExtensionState extends EventTarget {
 
     async activate() {
         await this.host.activate()
-        await this.parseWorkspace()
-        await this.fixPromptDefinitions()
-
         logInfo("genaiscript extension activated")
     }
 
     async fixPromptDefinitions() {
         const project = this.project
         if (project) await fixPromptDefinitions(project)
-    }
-
-    async findScripts() {
-        const scriptFiles = await findFiles(GENAI_ANYJS_GLOB)
-        return scriptFiles
     }
 
     async parseWorkspace() {
@@ -413,11 +405,7 @@ export class ExtensionState extends EventTarget {
                 await saveAllTextDocuments()
                 performance.mark(`project-start`)
                 performance.mark(`scan-tools`)
-                const scriptFiles = await this.findScripts()
-                performance.mark(`parse-project`)
-                const newProject = await parseProject({
-                    scriptFiles,
-                })
+                const newProject = await this.host.server.client.listScripts()
                 await this.setProject(newProject)
                 this.setDiagnostics()
                 logMeasure(`project`, `project-start`, `project-end`)
