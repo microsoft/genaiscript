@@ -160,12 +160,12 @@ export interface Host {
 }
 
 export interface RuntimeHost extends Host {
-    readonly config: HostConfiguration
     project: Project
     models: ModelService
     workspace: Omit<WorkspaceFileSystem, "grep">
     azureToken: AzureTokenResolver
 
+    readConfig(): Promise<HostConfiguration>
     readSecret(name: string): Promise<string | undefined>
     // executes a process
     exec(

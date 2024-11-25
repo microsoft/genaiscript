@@ -37,8 +37,9 @@ export async function envInfo(
     options?: { token?: boolean; error?: boolean }
 ) {
     const { token, error } = options || {}
-    const res: any = {}
-    res[".env"] = runtimeHost.config.envFile ?? ""
+    const config = await runtimeHost.readConfig()
+    const res: any = {}    
+    res[".env"] = config.envFile ?? ""
     res.providers = []
     const env = process.env
 

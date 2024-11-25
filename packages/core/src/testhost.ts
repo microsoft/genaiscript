@@ -56,7 +56,6 @@ export function createNodePath(): Path {
 
 // Class representing a test host for runtime, implementing the RuntimeHost interface
 export class TestHost implements RuntimeHost {
-    config: HostConfiguration
     project: Project
     // State object to store user-specific data
     userState: any = {}
@@ -85,6 +84,10 @@ export class TestHost implements RuntimeHost {
     // Static method to set this class as the runtime host
     static install() {
         setRuntimeHost(new TestHost())
+    }
+
+    async readConfig() {
+        return {}
     }
 
     contentSafety(

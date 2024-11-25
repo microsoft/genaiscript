@@ -3,17 +3,16 @@
     "title": "GenAIScript Configuration",
     "type": "object",
     "properties": {
-      "envFile": {
-        "type": "string",
-        "description": "Path to the .env file"
-      },
-      "include": {
-        "type": "array",
-        "items": {
-          "type": "string"
+        "envFile": {
+            "type": "string",
+            "description": "Path to the .env file"
         },
-        "description": "List of glob paths to scan for genai scripts"
-      }
-    },
-    "additionalProperties": false
-  }
+        "include": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            },
+            "description": "List of glob paths to scan for genai scripts"
+        }
+    }
+}
