@@ -1095,7 +1095,20 @@ Install [LMStudio](https://lmstudio.ai/download) (v0.3.5+)
 
 <li>
 
-Open LMStudio, open the settings (Gearwheel icon) and enable **Enable Local LLM Service**.
+Open LMStudio,
+
+</li>
+
+<li>
+
+Open the [Model Catalog](https://lmstudio.ai/models),
+select your model and load it at least once so it is downloaded locally.
+
+</li>
+
+<li>
+
+Open the settings (Gearwheel icon) and enable **Enable Local LLM Service**.
 
 </li>
 
@@ -1114,19 +1127,11 @@ LMSTUDIO_API_BASE=http://localhost:2345/v1
 
 </Steps>
 
-Open the [Model Catalog](https://lmstudio.ai/models),
-select your model and find the model identifier
-in the docs. Typically, it will be the identifier used in the `lms` example
-
-```sh
-lms get <modelid>
-```
-
-then use that identifier in your script:
+Find the model **API identifier** in the dialog of loaded models then use that identifier in your script:
 
 ```js '"lmstudio:llama-3.2-1b"'
 script({
-    model: "lmstudio:llama-3.2-1b",
+    model: "lmstudio:llama-3.2-1b-instruct",
 })
 ```
 
