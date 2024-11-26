@@ -1078,6 +1078,63 @@ script({
 })
 ```
 
+## LMStudio
+
+The `lmstudio` provider connects to the [LMStudio](https://lmstudio.ai/) headless server.
+and allows to run local LLMs.
+
+<Steps>
+
+<ol>
+
+<li>
+
+Install [LMStudio](https://lmstudio.ai/download) (v0.3.5+)
+
+</li>
+
+<li>
+
+Open LMStudio,
+
+</li>
+
+<li>
+
+Open the [Model Catalog](https://lmstudio.ai/models),
+select your model and load it at least once so it is downloaded locally.
+
+</li>
+
+<li>
+
+Open the settings (Gearwheel icon) and enable **Enable Local LLM Service**.
+
+</li>
+
+<li>
+
+GenAIScript assumes the local server is at `http://localhost:1234/v1` by default.
+Add a `LMSTUDIO_API_BASE` environment variable to change the server URL.
+
+```txt title=".env"
+LMSTUDIO_API_BASE=http://localhost:2345/v1
+```
+
+</li>
+
+</ol>
+
+</Steps>
+
+Find the model **API identifier** in the dialog of loaded models then use that identifier in your script:
+
+```js '"lmstudio:llama-3.2-1b"'
+script({
+    model: "lmstudio:llama-3.2-1b-instruct",
+})
+```
+
 ## LocalAI
 
 [LocalAI](https://localai.io/) act as a drop-in replacement REST API that’s compatible
@@ -1118,9 +1175,9 @@ that allows you to run an LLM locally.
 
 The provider is `llamafile` and the model name is ignored.
 
-## Jan, LMStudio, LLaMA.cpp
+## Jan, LLaMA.cpp
 
-[Jan](https://jan.ai/), [LMStudio](https://lmstudio.ai/),
+[Jan](https://jan.ai/),
 [LLaMA.cpp](https://github.com/ggerganov/llama.cpp/tree/master/examples/server)
 also allow running models locally or interfacing with other LLM vendors.
 

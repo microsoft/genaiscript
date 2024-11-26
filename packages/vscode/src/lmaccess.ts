@@ -16,6 +16,7 @@ import {
     DOCS_CONFIGURATION_URL,
     MODEL_PROVIDER_GOOGLE,
     MODEL_PROVIDER_ALIBABA,
+    MODEL_PROVIDER_LMSTUDIO,
 } from "../../core/src/constants"
 import { OpenAIAPIType } from "../../core/src/host"
 import { parseModelIdentifier } from "../../core/src/models"
@@ -39,6 +40,7 @@ async function generateLanguageModelConfiguration(
         MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI,
         MODEL_PROVIDER_AZURE_SERVERLESS_MODELS,
         MODEL_PROVIDER_LITELLM,
+        MODEL_PROVIDER_LMSTUDIO,
         MODEL_PROVIDER_GOOGLE,
         MODEL_PROVIDER_ALIBABA,
     ]

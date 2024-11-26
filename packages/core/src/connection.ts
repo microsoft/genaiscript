@@ -30,6 +30,8 @@ import {
     ALIBABA_BASE,
     MODEL_PROVIDER_MISTRAL,
     MISTRAL_API_BASE,
+    MODEL_PROVIDER_LMSTUDIO,
+    LMSTUDIO_API_BASE,
 } from "./constants"
 import { fileExists, readText, writeText } from "./fs"
 import {
@@ -427,10 +429,14 @@ export async function parseTokenFromEnv(
     }
 
     if (provider === MODEL_PROVIDER_LLAMAFILE) {
+        const base =
+            findEnvVar(env, "LLAMAFILE", BASE_SUFFIX)?.value ||
+            LLAMAFILE_API_BASE
+        if (!URL.canParse(base)) throw new Error(`${base} must be a valid URL`)
         return {
             provider,
             model,
-            base: LLAMAFILE_API_BASE,
+            base,
             token: "llamafile",
             type: "openai",
             source: "default",
@@ -438,13 +444,30 @@ export async function parseTokenFromEnv(
     }
 
     if (provider === MODEL_PROVIDER_LITELLM) {
+        const base =
+            findEnvVar(env, "LITELLM", BASE_SUFFIX)?.value || LITELLM_API_BASE
+        if (!URL.canParse(base)) throw new Error(`${base} must be a valid URL`)
         return {
             provider,
             model,
-            base: LITELLM_API_BASE,
+            base,
             token: "litellm",
             type: "openai",
             source: "default",
+        }
+    }
+
+    if (provider === MODEL_PROVIDER_LMSTUDIO) {
+        const base =
+            findEnvVar(env, "LMSTUDIO", BASE_SUFFIX)?.value || LMSTUDIO_API_BASE
+        if (!URL.canParse(base)) throw new Error(`${base} must be a valid URL`)
+        return {
+            provider,
+            model,
+            base,
+            token: "lmstudio",
+            type: "openai",
+            source: "env: LMSTUDIO_API_...",
         }
     }
 
