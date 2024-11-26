@@ -168,6 +168,7 @@ type ModelType = OptionsOrString<
     | "alibaba:qwen2-72b-instruct"
     | "alibaba:qwen2-57b-a14b-instruct"
     | "transformers:onnx-community/Qwen2.5-0.5B-Instruct:q4"
+    | "transformers:HuggingFaceTB/SmolLM2-1.7B-Instruct:q4"
 >
 
 type ModelSmallType = OptionsOrString<

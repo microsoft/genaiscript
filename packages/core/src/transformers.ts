@@ -124,8 +124,13 @@ export const TransformersCompletion: ChatCompletionHandler = async (
     )
     const msgs: Chat = chatMessagesToTranformerMessages(messages)
     trace.detailsFenced("messages", msgs, "yaml")
+    const chatTemplate = !!generator.tokenizer.chat_template
+    const texts: Chat | string = chatTemplate
+        ? msgs
+        : msgs.map((msg) => `${msg.role}:\n${msg.content}`).join("\n\n")
+    if (chatTemplate) trace.detailsFenced("texts", texts, "markdown")
     const output = (await generator(
-        msgs,
+        texts,
         deleteUndefinedValues({
             max_new_tokens: max_tokens || 4000,
             temperature,
@@ -134,7 +139,10 @@ export const TransformersCompletion: ChatCompletionHandler = async (
         })
     )) as TextGenerationOutput
     const text = output
-        .map((msg) => (msg.generated_text.at(-1) as Message).content)
+        .map((msg) => msg.generated_text)
+        .map((msg) =>
+            typeof msg === "string" ? msg : (msg.at(-1) as Message).content
+        )
         .join("")
     trace.fence(text, "markdown")
     partialCb?.({
