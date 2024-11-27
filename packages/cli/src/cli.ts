@@ -393,6 +393,7 @@ export async function cli() {
         .arguments("[provider]")
         .option("-t, --token", "show token")
         .option("-e, --error", "show errors")
+        .option("-m, --models", "show models if possible")
         .action(envInfo) // Action to show environment information
     program.parse() // Parse command-line arguments
 }

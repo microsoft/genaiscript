@@ -497,7 +497,8 @@ Usage: genaiscript info env [options] [provider]
 Show .env information
 
 Options:
-  -t, --token  show token
-  -e, --error  show errors
-  -h, --help   display help for command
+  -t, --token   show token
+  -e, --error   show errors
+  -m, --models  show models if possible
+  -h, --help    display help for command
 ```
