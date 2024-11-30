@@ -1477,8 +1477,12 @@ interface Parsers {
     /**
      * Parses and evaluates a math expression
      * @param expression math expression compatible with mathjs
+     * @param scope object to read/write variables
      */
-    math(expression: string): Promise<string | number | undefined>
+    math(
+        expression: string,
+        scope?: object
+    ): Promise<string | number | undefined>
 
     /**
      * Using the JSON schema, validates the content

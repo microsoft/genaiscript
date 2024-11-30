@@ -105,8 +105,8 @@ export async function createParsers(options: {
             await resolveFileContent(file, { trace })
             return await treeSitterQuery(file, query, { trace })
         },
-        math: async (expression) =>
-            await MathTryEvaluate(expression, { trace }),
+        math: async (expression, scope) =>
+            await MathTryEvaluate(expression, { scope, trace }),
         validateJSON: (schema, content) =>
             validateJSONWithSchema(content, schema, { trace }),
         mustache: (file, args) => {
