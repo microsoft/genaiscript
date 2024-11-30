@@ -35,12 +35,13 @@
   "dependencies": {
     "@azure/identity": "^4.5.0",
     "@inquirer/prompts": "^7.1.0",
-    "@octokit/plugin-paginate-rest": "^11.3.5",
+    "@modelcontextprotocol/sdk": "^1.0.1",
+    "@octokit/plugin-paginate-rest": "^11.3.6",
     "@octokit/plugin-retry": "^7.1.2",
     "@octokit/plugin-throttling": "^9.3.2",
     "@octokit/rest": "^21.0.2",
     "dockerode": "^4.0.2",
-    "gpt-tokenizer": "^2.6.2",
+    "gpt-tokenizer": "^2.7.0",
     "html-to-text": "^9.0.5",
     "jimp": "^1.6.0",
     "mammoth": "^1.8.0",
@@ -48,12 +49,12 @@
     "tabletojson": "^4.1.5",
     "tsx": "^4.19.2",
     "turndown": "^7.2.0",
-    "typescript": "5.6.3",
+    "typescript": "5.7.2",
     "vectra": "^0.9.0",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz"
   },
   "optionalDependencies": {
-    "@huggingface/transformers": "^3.0.2",
+    "@huggingface/transformers": "^3.1.0",
     "@lvce-editor/ripgrep": "^1.4.0",
     "pdfjs-dist": "4.8.69",
     "playwright": "^1.49.0",
@@ -69,11 +70,11 @@
   },
   "devDependencies": {
     "@types/diff": "^6.0.0",
-    "@types/dockerode": "^3.3.31",
+    "@types/dockerode": "^3.3.32",
     "@types/fs-extra": "^11.0.4",
     "@types/memorystream": "^0.3.4",
     "@types/node": "^20.14.12",
-    "@types/papaparse": "^5.3.14",
+    "@types/papaparse": "^5.3.15",
     "@types/prompts": "^2.4.9",
     "@types/replace-ext": "^2.0.2",
     "@types/ws": "^8.5.12",
@@ -88,11 +89,11 @@
     "memorystream": "^0.3.1",
     "node-sarif-builder": "^3.2.0",
     "octokit": "^4.0.2",
-    "openai": "^4.73.0",
+    "openai": "^4.73.1",
     "pretty-bytes": "^6.1.1",
     "replace-ext": "^2.0.0",
     "ws": "^8.18.0",
-    "zx": "^8.2.2"
+    "zx": "^8.2.4"
   },
   "scripts": {
     "compile": "esbuild src/main.ts --metafile=./esbuild.meta.json --bundle --platform=node --target=node20 --outfile=built/genaiscript.cjs --external:tsx --external:esbuild --external:get-tsconfig --external:resolve-pkg-maps --external:dockerode --external:pdfjs-dist --external:web-tree-sitter --external:tree-sitter-wasms --external:promptfoo --external:typescript --external:@lvce-editor/ripgrep --external:gpt-3-encoder --external:mammoth --external:xlsx --external:mathjs --external:@azure/identity --external:gpt-tokenizer --external:playwright --external:@inquirer/prompts --external:jimp --external:turndown --external:vectra --external:tabletojson --external:html-to-text --external:@octokit/rest --external:@octokit/plugin-throttling --external:@octokit/plugin-retry --external:@octokit/plugin-paginate-rest --external:skia-canvas --external:@huggingface/transformers && node ../../scripts/patch-cli.mjs",
