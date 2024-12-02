@@ -9,7 +9,9 @@ if (!issue) throw new Error(`Issue ${GITHUB_ISSUE} not found`)
 
 const { title, body } = issue
 
-$`You are an expert developer and have been asked to review an issue. 
+$`## Tasks
+
+You are an expert developer and have been asked to review an issue. 
 
 Review the TITLE and BODY and report your feedback that will be added as a comment to the issue.
 `.role("system")

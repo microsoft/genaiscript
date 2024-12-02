@@ -24,7 +24,7 @@ import { PLimitPromiseQueue } from "./concurrency"
 function progressBar(): ProgressCallback {
     const progress: Record<string, number> = {}
     return (cb: ProgressInfo) => {
-        switch (cb.status) {
+        switch (cb.status as string) {
             case "progress":
                 const p = progress[cb.file] || 0
                 const cp = Math.floor(cb.progress)
@@ -33,8 +33,8 @@ function progressBar(): ProgressCallback {
                     logVerbose(`${cb.file}: ${cp}% (${prettyBytes(cb.loaded)})`)
                 }
                 break
-            case "done": {
-                logVerbose(`model ${cb.name} ready`)
+            case "ready": {
+                logVerbose(`model ${(cb as any).model} ready`)
                 logVerbose(``)
                 break
             }
@@ -45,7 +45,7 @@ function progressBar(): ProgressCallback {
 const generators: Record<string, Promise<TextGenerationPipeline>> = {}
 const generationQueue = new PLimitPromiseQueue(1)
 
-async function loadGenerator(family: string, options: object) {
+async function loadGenerator(family: string, options: object): Promise<TextGenerationPipeline> {
     const h = await hash({ family, options })
     let p = generators[h]
     if (!p) {

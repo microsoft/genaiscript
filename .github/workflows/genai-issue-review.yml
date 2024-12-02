@@ -25,9 +25,10 @@ jobs:
             - run: yarn install --frozen-lockfile
             - name: compile
               run: yarn compile
+            - name: start ollama
+              run: docker run -d -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama
             - name: genaiscript issue-review
-              continue-on-error: true
-              run: node packages/cli/built/genaiscript.cjs run issue-reviewer -prc --out-trace $GITHUB_STEP_SUMMARY
+              run: node packages/cli/built/genaiscript.cjs run issue-reviewer -prc --out-trace $GITHUB_STEP_SUMMARY --model ollama:qwen2.5-coder:3b
               env:
                 GITHUB_ISSUE: ${{ github.event.issue.number }}
                 GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

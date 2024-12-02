@@ -28,7 +28,7 @@ jobs:
               run: yarn typecheck
             - name: compile
               run: yarn compile
-            - name: download ollama docker
+            - name: start ollama
               run: docker run -d -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama
             - name: run summarize-ollama-phi3
               run: yarn test:summarize --model ollama:phi3.5 --out ./temp/summarize-ollama-phi3
