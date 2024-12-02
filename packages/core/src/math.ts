@@ -19,7 +19,7 @@ export async function MathTryEvaluate(
     options?: { scope?: object; defaultValue?: number } & TraceOptions
 ): Promise<string | number | undefined> {
     // Destructuring options with defaults
-    const { trace, defaultValue, scope } = options || {}
+    const { trace, defaultValue, scope = {} } = options || {}
 
     try {
         // Return defaultValue if expression is empty
