@@ -570,8 +570,12 @@ export class GitHubClient implements GitHub {
         return res
     }
 
-    async getIssue(issue_number: number): Promise<GitHubIssue> {
+    async getIssue(issue_number?: number | string): Promise<GitHubIssue> {
+        if (typeof issue_number === "string")
+            issue_number = parseInt(issue_number)
         const { client, owner, repo } = await this.api()
+        if (isNaN(issue_number)) issue_number = (await this._connection).issue
+        if (isNaN(issue_number)) return undefined
         const { data } = await client.rest.issues.get({
             owner,
             repo,
@@ -598,7 +602,10 @@ export class GitHubClient implements GitHub {
         return res
     }
 
-    async getPullRequest(pull_number?: number): Promise<GitHubPullRequest> {
+    async getPullRequest(
+        pull_number?: number | string
+    ): Promise<GitHubPullRequest> {
+        if (typeof pull_number === "string") pull_number = parseInt(pull_number)
         const { client, owner, repo } = await this.api()
         if (isNaN(pull_number)) pull_number = (await this._connection).issue
         if (isNaN(pull_number)) return undefined

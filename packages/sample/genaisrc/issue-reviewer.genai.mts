@@ -3,11 +3,7 @@ script({
     description: "Review issues and provide feedback",
 })
 
-const { GITHUB_ISSUE } = process.env
-const issue = await github.getIssue(parseInt(GITHUB_ISSUE))
-if (!issue) throw new Error(`Issue ${GITHUB_ISSUE} not found`)
-
-const { title, body } = issue
+const { title, body } = await github.getIssue()
 
 $`## Tasks
 

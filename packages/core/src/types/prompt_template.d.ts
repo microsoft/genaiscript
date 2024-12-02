@@ -1940,9 +1940,9 @@ interface GitHub {
 
     /**
      * Gets the details of a GitHub issue
-     * @param number issue number (not the issue id!)
+     * @param number issue number (not the issue id!). If missing, reads value from GITHUB_ISSUE environment variable.
      */
-    getIssue(number: number): Promise<GitHubIssue>
+    getIssue(number?: number | string): Promise<GitHubIssue>
 
     /**
      * Lists comments for a given issue
@@ -1950,7 +1950,7 @@ interface GitHub {
      * @param options
      */
     listIssueComments(
-        issue_number: number,
+        issue_number: number | string,
         options?: GitHubPaginationOptions
     ): Promise<GitHubComment[]>
 
@@ -1970,7 +1970,7 @@ interface GitHub {
      * Gets the details of a GitHub pull request
      * @param pull_number pull request number. Default resolves the pull request for the current branch.
      */
-    getPullRequest(pull_number?: number): Promise<GitHubPullRequest>
+    getPullRequest(pull_number?: number | string): Promise<GitHubPullRequest>
 
     /**
      * Lists comments for a given pull request

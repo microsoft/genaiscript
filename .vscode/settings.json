@@ -116,5 +116,24 @@
         "mdx": {
             "parser": "markdown"
         }
+    },
+    "workbench.colorCustomizations": {
+        "activityBar.activeBackground": "#443c00",
+        "activityBar.background": "#443c00",
+        "activityBar.foreground": "#e7e7e7",
+        "activityBar.inactiveForeground": "#e7e7e799",
+        "activityBarBadge.background": "#008071",
+        "activityBarBadge.foreground": "#e7e7e7",
+        "commandCenter.border": "#e7e7e799",
+        "sash.hoverBorder": "#443c00",
+        "statusBar.background": "#110f00",
+        "statusBar.foreground": "#e7e7e7",
+        "statusBarItem.hoverBackground": "#443c00",
+        "statusBarItem.remoteBackground": "#110f00",
+        "statusBarItem.remoteForeground": "#e7e7e7",
+        "titleBar.activeBackground": "#110f00",
+        "titleBar.activeForeground": "#e7e7e7",
+        "titleBar.inactiveBackground": "#110f0099",
+        "titleBar.inactiveForeground": "#e7e7e799"
     }
 }
