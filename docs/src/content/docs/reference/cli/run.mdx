@@ -135,9 +135,9 @@ Emit changelogs in the specified file as text.
 npx genaiscript run <script> <files> --out-changelogs changelogs.txt
 ```
 
-## Pull Requests
+## Pull Requests and Issues <a href="" id="pull-requests" />
 
-The CLI can update pull request description and comments when running in a GitHub Action or Azure DevOps pipeline.
+The CLI can update a pull request/issue description and comments when running in a GitHub Action or Azure DevOps pipeline.
 
 ### GitHub Action workflow configuration
 
@@ -184,7 +184,7 @@ The `tag` parameter is a unique id used to differentiate description generate by
 
 ### --pull-request-comment \[tag\];
 
-Upserts a comment on the pull request with the LLM output ([example](https://github.com/microsoft/genaiscript/pull/564#issuecomment-2200474305))
+Upserts a comment on the pull request/issue with the LLM output ([example](https://github.com/microsoft/genaiscript/pull/564#issuecomment-2200474305))
 
 ```sh
 npx genaiscript run ... -prc
