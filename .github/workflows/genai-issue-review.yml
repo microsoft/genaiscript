@@ -1,16 +1,17 @@
 name: genai issue review
 on:
     issues:
-        types: [opened]
+        types: [opened, edited]
 concurrency:
     group: issues-${{ github.workflow }}-${{ github.ref }}
     cancel-in-progress: true
+permissions:
+    contents: read
+    actions: read
+    issues: write
 jobs:
     build:
         runs-on: ubuntu-latest
-        env:
-            AZURE_OPENAI_API_BASE: ${{ secrets.OPENAI_API_BASE }}
-            AZURE_OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         permissions:
             pull-requests: write
         steps:
