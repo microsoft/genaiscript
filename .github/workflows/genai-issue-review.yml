@@ -5,16 +5,12 @@ on:
 concurrency:
     group: issues-${{ github.workflow }}-${{ github.ref }}
     cancel-in-progress: true
-permissions:
-    contents: read
-    actions: read
-    issues: write
-    pull-requests: write
 jobs:
     build:
         runs-on: ubuntu-latest
         permissions:
-            pull-requests: write
+            contents: read
+            issues: write
         steps:
             - uses: actions/checkout@v4
               with:
