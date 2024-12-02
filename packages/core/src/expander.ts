@@ -274,70 +274,64 @@ export async function expandTemplate(
 
     const systems = resolveSystems(prj, template, tools, options)
     if (systems.length)
-        try {
-            trace.startDetails("👾 systems")
-            for (let i = 0; i < systems.length; ++i) {
-                if (cancellationToken?.isCancellationRequested)
-                    return {
-                        status: "cancelled",
-                        statusText: "user cancelled",
-                        messages,
-                    }
+        if (messages[0].role === "system")
+            // there's already a system message. add empty before
+            messages.unshift({ role: "system", content: "" })
 
-                const system = resolveScript(prj, systems[i])
-                if (!system)
-                    throw new Error(`system template ${systems[i]} not found`)
-
-                trace.startDetails(`👾 ${system.id}`)
-                const sysr = await callExpander(
-                    prj,
-                    system,
-                    env,
-                    trace,
-                    options
-                )
-
-                if (sysr.images) images.push(...sysr.images)
-                if (sysr.schemas) Object.assign(schemas, sysr.schemas)
-                if (sysr.functions) tools.push(...sysr.functions)
-                if (sysr.fileMerges) fileMerges.push(...sysr.fileMerges)
-                if (sysr.outputProcessors)
-                    outputProcessors.push(...sysr.outputProcessors)
-                if (sysr.chatParticipants)
-                    chatParticipants.push(...sysr.chatParticipants)
-                if (sysr.fileOutputs) fileOutputs.push(...sysr.fileOutputs)
-                if (sysr.logs?.length)
-                    trace.details("📝 console.log", sysr.logs)
-                for (const smsg of sysr.messages) {
-                    if (
-                        smsg.role === "user" &&
-                        typeof smsg.content === "string"
-                    ) {
-                        addSystemMessage(smsg.content)
-                    } else
-                        throw new NotSupportedError(
-                            "only string user messages supported in system"
-                        )
+    try {
+        trace.startDetails("👾 systems")
+        for (let i = 0; i < systems.length; ++i) {
+            if (cancellationToken?.isCancellationRequested)
+                return {
+                    status: "cancelled",
+                    statusText: "user cancelled",
+                    messages,
                 }
-                if (sysr.aici) {
-                    trace.fence(sysr.aici, "yaml")
-                    messages.push(sysr.aici)
-                }
-                logprobs = logprobs || system.logprobs
-                topLogprobs = Math.max(topLogprobs, system.topLogprobs || 0)
-                trace.detailsFenced("js", system.jsSource, "js")
-                trace.endDetails()
 
-                if (sysr.status !== "success")
-                    return {
-                        status: sysr.status,
-                        statusText: sysr.statusText,
-                        messages,
-                    }
+            const system = resolveScript(prj, systems[i])
+            if (!system)
+                throw new Error(`system template ${systems[i]} not found`)
+
+            trace.startDetails(`👾 ${system.id}`)
+            const sysr = await callExpander(prj, system, env, trace, options)
+
+            if (sysr.images) images.push(...sysr.images)
+            if (sysr.schemas) Object.assign(schemas, sysr.schemas)
+            if (sysr.functions) tools.push(...sysr.functions)
+            if (sysr.fileMerges) fileMerges.push(...sysr.fileMerges)
+            if (sysr.outputProcessors)
+                outputProcessors.push(...sysr.outputProcessors)
+            if (sysr.chatParticipants)
+                chatParticipants.push(...sysr.chatParticipants)
+            if (sysr.fileOutputs) fileOutputs.push(...sysr.fileOutputs)
+            if (sysr.logs?.length) trace.details("📝 console.log", sysr.logs)
+            for (const smsg of sysr.messages) {
+                if (smsg.role === "user" && typeof smsg.content === "string") {
+                    addSystemMessage(smsg.content)
+                } else
+                    throw new NotSupportedError(
+                        "only string user messages supported in system"
+                    )
             }
-        } finally {
+            if (sysr.aici) {
+                trace.fence(sysr.aici, "yaml")
+                messages.push(sysr.aici)
+            }
+            logprobs = logprobs || system.logprobs
+            topLogprobs = Math.max(topLogprobs, system.topLogprobs || 0)
+            trace.detailsFenced("js", system.jsSource, "js")
             trace.endDetails()
+
+            if (sysr.status !== "success")
+                return {
+                    status: sysr.status,
+                    statusText: sysr.statusText,
+                    messages,
+                }
         }
+    } finally {
+        trace.endDetails()
+    }
 
     if (systems.includes("system.tool_calls")) {
         addToolDefinitionsMessage(messages, tools)
