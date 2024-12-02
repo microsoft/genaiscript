@@ -6,6 +6,8 @@ import type {
     Message,
     TextGenerationOutput,
     TextGenerationPipeline,
+    ProgressCallback,
+    ProgressInfo
 } from "@huggingface/transformers"
 import { NotSupportedError } from "./error"
 import { ChatCompletionMessageParam, ChatCompletionResponse } from "./chattypes"
@@ -19,23 +21,9 @@ import {
 } from "./chatcache"
 import { PLimitPromiseQueue } from "./concurrency"
 
-type GeneratorProgress =
-    | {
-          status: "initiate"
-      }
-    | {
-          status: "progress"
-          file: string
-          name: string
-          progress: number
-          loaded: number
-          total: number
-      }
-    | { status: "ready"; task: string; model: string }
-
-function progressBar() {
+function progressBar(): ProgressCallback {
     const progress: Record<string, number> = {}
-    return (cb: GeneratorProgress) => {
+    return (cb: ProgressInfo) => {
         switch (cb.status) {
             case "progress":
                 const p = progress[cb.file] || 0
@@ -45,8 +33,8 @@ function progressBar() {
                     logVerbose(`${cb.file}: ${cp}% (${prettyBytes(cb.loaded)})`)
                 }
                 break
-            case "ready": {
-                logVerbose(`model ${cb.model} ready`)
+            case "done": {
+                logVerbose(`model ${cb.name} ready`)
                 logVerbose(``)
                 break
             }
