@@ -9,6 +9,7 @@ permissions:
     contents: read
     actions: read
     issues: write
+    pull-requests: write
 jobs:
     build:
         runs-on: ubuntu-latest
