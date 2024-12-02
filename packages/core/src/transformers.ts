@@ -7,7 +7,7 @@ import type {
     TextGenerationOutput,
     TextGenerationPipeline,
     ProgressCallback,
-    ProgressInfo
+    ProgressInfo,
 } from "@huggingface/transformers"
 import { NotSupportedError } from "./error"
 import { ChatCompletionMessageParam, ChatCompletionResponse } from "./chattypes"
@@ -45,7 +45,10 @@ function progressBar(): ProgressCallback {
 const generators: Record<string, Promise<TextGenerationPipeline>> = {}
 const generationQueue = new PLimitPromiseQueue(1)
 
-async function loadGenerator(family: string, options: object): Promise<TextGenerationPipeline> {
+async function loadGenerator(
+    family: string,
+    options: object
+): Promise<TextGenerationPipeline> {
     const h = await hash({ family, options })
     let p = generators[h]
     if (!p) {
@@ -104,7 +107,7 @@ export const TransformersCompletion: ChatCompletionHandler = async (
         process.env.HUGGINGFACE_TRANSFORMERS_DEVICE ||
         process.env.TRANSFORMERS_DEVICE ||
         "cpu"
-    const generator = await generationQueue.add(() =>
+    const generator: TextGenerationPipeline = await generationQueue.add(() =>
         loadGenerator(family, {
             dtype: tag,
             device,
@@ -112,18 +115,37 @@ export const TransformersCompletion: ChatCompletionHandler = async (
     )
     const msgs: Chat = chatMessagesToTranformerMessages(messages)
     trace.detailsFenced("messages", msgs, "yaml")
-    const chatTemplate = !!generator.tokenizer.chat_template
+    const tokenizer = generator.tokenizer
+    const chatTemplate = !!tokenizer.chat_template
     const texts: Chat | string = chatTemplate
         ? msgs
         : msgs.map((msg) => `${msg.role}:\n${msg.content}`).join("\n\n")
     if (chatTemplate) trace.detailsFenced("texts", texts, "markdown")
+
+    const { TextStreamer } = await import("@huggingface/transformers")
+    let chatResp = ""
+    const streamer = new TextStreamer(tokenizer, {
+        skip_prompt: true,
+        callback_function: (text: string) => {
+            chatResp += text
+            partialCb?.({
+                tokensSoFar: tokenizer(chatResp),
+                responseSoFar: chatResp,
+                responseChunk: text,
+                responseTokens:  [{ token: text, logprob: Number.NaN } satisfies Logprob],
+                inner,
+            })
+        },
+    })
     const output = (await generator(
         texts,
         deleteUndefinedValues({
             max_new_tokens: max_tokens || 4000,
+            do_sample: false,
             temperature,
             top_p,
             early_stopping: true,
+            streamer,
         })
     )) as TextGenerationOutput
     const text = output
@@ -136,7 +158,7 @@ export const TransformersCompletion: ChatCompletionHandler = async (
     partialCb?.({
         responseSoFar: text,
         responseChunk: text,
-        tokensSoFar: 0,
+        tokensSoFar: tokenizer(chatResp),
         inner,
     })
 
