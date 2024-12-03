@@ -1,5 +1,11 @@
 import { TraceOptions } from "./trace"
-import { logVerbose } from "./util"
+import { arrayify, logVerbose } from "./util"
+import type {
+    TextContent,
+    ImageContent,
+    EmbeddedResource,
+} from "@modelcontextprotocol/sdk/types.js"
+import { YAMLStringify } from "./yaml"
 
 export async function startMcpServer(
     serverConfig: McpServerConfig,
@@ -38,14 +44,32 @@ export async function startMcpServer(
                         parameters: inputSchema as any,
                     },
                     impl: async (args: any) => {
-                        const { content, ...rest } = args
+                        const { context, ...rest } = args
                         const res = await client.callTool({
                             name: name,
                             arguments: rest,
                         })
-                        return (res.content as { text?: string }[])
-                            .map((c) => c.text)
+                        const content = res.content as (
+                            | TextContent
+                            | ImageContent
+                            | EmbeddedResource
+                        )[]
+                        let text = arrayify(content)
+                            ?.map((c) => {
+                                switch (c.type) {
+                                    case "text":
+                                        return c.text || ""
+                                    case "image":
+                                        return c.data
+                                    case "resource":
+                                        return c.resource?.uri || ""
+                                    default:
+                                        return c
+                                }
+                            })
                             .join("\n")
+                        if (res.isError) text = `Tool Error\n${text}`
+                        return text
                     },
                 }) satisfies ToolCallback
         )
