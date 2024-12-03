@@ -4,6 +4,20 @@ script({
     tests: {},
 })
 
+await runPrompt((ctx) => {
+    ctx.defTool({
+        filesystem: {
+            command: "npx",
+            args: [
+                "-y",
+                "@modelcontextprotocol/server-filesystem",
+                path.resolve("."),
+            ],
+        },
+    })
+    ctx.$`Write a poem about the file README.md`
+})
+
 defTool({
     memory: {
         command: "npx",

@@ -42,6 +42,13 @@ defTool({
 GenAIScript will launch the server and register all the tools listed by the server.
 The tool identifier will be `server_toolname` to avoid clashes.
 
+## Lifecycle of servers
+
+Servers are started when rendering the prompt and stopped once the chat session is completed.
+
+This means that if you define servers in an [inline prompt](/genaiscript/reference/prompts/inline),
+the server will be started/stopped for each inline prompt.
+
 ## Finding servers
 
 The list of available servers can be found in the [Model Context Protocol Servers project](https://github.com/modelcontextprotocol/servers).
