@@ -72,20 +72,6 @@ to evaluate a math expression.
     title="math-agent.genai.mjs"
 />
 
-## Agentic Tools
-
-[Agentic](https://agentic.so) is
-a standard library of AI functions / tools
-which are optimized for both normal TS-usage as well as LLM-based usage.
-You can register any agentic tool in your script using `defTool`.
-
-```js
-import { calculator } from "@agentic/calculator"
-defTool(calculator)
-```
-
-See [Agentic tools](/genaiscript/reference/scripts/agentic-tools) for more information.
-
 ## Model Context Protocol Tools
 
 [Model Context Provider](https://modelcontextprotocol.io/) (MCP) is an open protocol
@@ -103,6 +89,21 @@ defTool({
 ```
 
 See [Model Context Protocol Tools](/genaiscript/reference/scripts/mcp-tools) for more information.
+
+
+## Agentic Tools
+
+[Agentic](https://agentic.so) is
+a standard library of AI functions / tools
+which are optimized for both normal TS-usage as well as LLM-based usage.
+You can register any agentic tool in your script using `defTool`.
+
+```js
+import { calculator } from "@agentic/calculator"
+defTool(calculator)
+```
+
+See [Agentic tools](/genaiscript/guides/agentic-tools) for more information.
 
 ## Fallback Tool Support
 
