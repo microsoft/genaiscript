@@ -21,6 +21,7 @@
     "@azure/identity": "^4.5.0",
     "@azure/storage-blob": "^12.25.0",
     "@huggingface/transformers": "^3.1.0",
+    "@modelcontextprotocol/sdk": "^1.0.1",
     "@tidyjs/tidy": "^2.5.2",
     "p-all": "^5.0.0",
     "vectorstore": "^0.0.4",
