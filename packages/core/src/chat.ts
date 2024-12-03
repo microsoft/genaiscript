@@ -749,7 +749,7 @@ async function choicesToLogitBias(
     if (!choices?.length) return undefined
     const { encode } = await resolveTokenEncoder(model, {
         disableFallback: true,
-    })
+    }) || {}
     if (!encode) {
         trace.error(
             `unabled to compute logit bias, no token encoder found for ${model}`
