@@ -40,6 +40,7 @@ import { promptyParse } from "./prompty"
 import { jinjaRenderChatMessage } from "./jinja"
 import { runtimeHost } from "./host"
 import { hash } from "./crypto"
+import { startMcpServer } from "./mcp"
 
 // Definition of the PromptNode interface which is an essential part of the code structure.
 export interface PromptNode extends ContextExpansionOptions {
@@ -58,6 +59,7 @@ export interface PromptNode extends ContextExpansionOptions {
         | "chatParticipant"
         | "fileOutput"
         | "importTemplate"
+        | "mcpServer"
         | undefined
     children?: PromptNode[] // Child nodes for hierarchical structure
     error?: unknown // Error information if present
@@ -160,6 +162,11 @@ export interface PromptToolNode extends PromptNode {
     parameters: JSONSchema // Parameters for the function
     impl: ChatFunctionHandler // Implementation of the function
     options?: DefToolOptions
+}
+
+export interface PromptMcpServerNode extends PromptNode {
+    type: "mcpServer"
+    config: McpServerConfig
 }
 
 // Interface for a file merge node.
@@ -392,7 +399,7 @@ export function createChatParticipant(
 
 // Function to create a file output node.
 export function createFileOutput(output: FileOutput): FileOutputNode {
-    return { type: "fileOutput", output }
+    return { type: "fileOutput", output } satisfies FileOutputNode
 }
 
 // Function to create an import template node.
@@ -402,7 +409,23 @@ export function createImportTemplate(
     options?: ImportTemplateOptions
 ): PromptImportTemplate {
     assert(!!files)
-    return { type: "importTemplate", files, args, options }
+    return {
+        type: "importTemplate",
+        files,
+        args,
+        options,
+    } satisfies PromptImportTemplate
+}
+
+export function createMcpServer(
+    id: string,
+    config: McpServerConfig,
+    options?: DefToolOptions
+): PromptMcpServerNode {
+    return {
+        type: "mcpServer",
+        config: { ...config, id, options },
+    } satisfies PromptMcpServerNode
 }
 
 // Function to check if data objects have the same keys and simple values.
@@ -494,6 +517,7 @@ export interface PromptNodeVisitor {
     chatParticipant?: (node: PromptChatParticipantNode) => Awaitable<void> // Chat participant node visitor
     fileOutput?: (node: FileOutputNode) => Awaitable<void> // File output node visitor
     importTemplate?: (node: PromptImportTemplate) => Awaitable<void> // Import template node visitor
+    mcpServer?: (node: PromptMcpServerNode) => Awaitable<void> // Mcp server node visitor
 }
 
 // Function to visit nodes in the prompt tree.
@@ -539,6 +563,9 @@ export async function visitNode(node: PromptNode, visitor: PromptNodeVisitor) {
         case "importTemplate":
             await visitor.importTemplate?.(node as PromptImportTemplate)
             break
+        case "mcpServer":
+            await visitor.mcpServer?.(node as PromptMcpServerNode)
+            break
     }
     if (node.error) visitor.error?.(node)
     if (!node.error && !node.deleted && node.children) {
@@ -562,6 +589,7 @@ export interface PromptNodeRender {
     messages: ChatCompletionMessageParam[] // Messages for chat completion
     fileOutputs: FileOutput[] // File outputs
     prediction: PromptPrediction // predicted output for the prompt
+    disposables: AsyncDisposable[] // Disposables
 }
 
 /**
@@ -1064,6 +1092,8 @@ export async function renderPromptNode(
     const outputProcessors: PromptOutputProcessorHandler[] = []
     const chatParticipants: ChatParticipant[] = []
     const fileOutputs: FileOutput[] = []
+    const mcpServers: McpServerConfig[] = []
+    const disposables: AsyncDisposable[] = []
     let prediction: PromptPrediction
 
     await visitNode(node, {
@@ -1187,7 +1217,19 @@ ${trimNewlines(schemaText)}
             fileOutputs.push(n.output)
             trace.itemValue(`file output`, n.output.pattern)
         },
+        mcpServer: (n) => {
+            mcpServers.push(n.config)
+            trace.itemValue(`mcp server`, n.config.id)
+        },
     })
+
+    if (mcpServers.length) {
+        for (const mcpServer of mcpServers) {
+            const res = await startMcpServer(mcpServer, options)
+            tools.push(...res.tools)
+            disposables.push(res)
+        }
+    }
 
     const res = Object.freeze<PromptNodeRender>({
         images,
@@ -1200,6 +1242,7 @@ ${trimNewlines(schemaText)}
         messages,
         fileOutputs,
         prediction,
+        disposables,
     })
     return res
 }

@@ -2492,6 +2492,18 @@ type ChatAgentHandler = (
     args: ChatFunctionArgs
 ) => Awaitable<unknown>
 
+interface McpServerConfig {
+    command: string
+    args: string[]
+    params?: string[]
+    version?: string
+
+    id: string
+    options?: DefToolOptions
+}
+
+type McpServersConfig = Record<string, Omit<McpServerConfig, "id" | "options">>
+
 interface ChatGenerationContext extends ChatTurnGenerationContext {
     defSchema(
         name: string,
@@ -2503,7 +2515,11 @@ interface ChatGenerationContext extends ChatTurnGenerationContext {
         options?: DefImagesOptions
     ): void
     defTool(
-        tool: ToolCallback | AgenticToolCallback | AgenticToolProviderCallback,
+        tool:
+            | ToolCallback
+            | AgenticToolCallback
+            | AgenticToolProviderCallback
+            | McpServersConfig,
         options?: DefToolOptions
     ): void
     defTool(

@@ -31,6 +31,7 @@ import { GenerationOptions, GenerationStatus } from "./generation"
 import { AICIRequest, ChatCompletionMessageParam } from "./chattypes"
 import { promptParametersSchemaToJSONSchema } from "./parameters"
 import { Project } from "./server/messages"
+import { dispose } from "./dispose"
 
 export async function callExpander(
     prj: Project,
@@ -54,6 +55,7 @@ export async function callExpander(
     let outputProcessors: PromptOutputProcessorHandler[] = []
     let chatParticipants: ChatParticipant[] = []
     let fileOutputs: FileOutput[] = []
+    let disposables: AsyncDisposable[] = []
     let prediction: PromptPrediction
     let aici: AICIRequest
 
@@ -87,6 +89,7 @@ export async function callExpander(
                 chatParticipants: cps,
                 fileOutputs: fos,
                 prediction: pred,
+                disposables: mcps,
             } = await renderPromptNode(model, node, {
                 flexTokens: options.flexTokens,
                 trace,
@@ -99,6 +102,7 @@ export async function callExpander(
             outputProcessors = ops
             chatParticipants = cps
             fileOutputs = fos
+            disposables = mcps
             prediction = pred
             if (errors?.length) {
                 for (const error of errors) trace.error(``, error)
@@ -136,6 +140,7 @@ export async function callExpander(
         outputProcessors,
         chatParticipants,
         fileOutputs,
+        disposables,
         prediction,
         aici,
     })
@@ -243,25 +248,30 @@ export async function expandTemplate(
     const chatParticipants = prompt.chatParticipants.slice(0)
     const fileOutputs = prompt.fileOutputs.slice(0)
     const prediction = prompt.prediction
+    const disposables = prompt.disposables.slice(0)
 
     if (prompt.logs?.length) trace.details("📝 console.log", prompt.logs)
     if (prompt.aici) trace.fence(prompt.aici, "yaml")
     trace.endDetails()
 
-    if (cancellationToken?.isCancellationRequested || status === "cancelled")
+    if (cancellationToken?.isCancellationRequested || status === "cancelled") {
+        await dispose(disposables, { trace })
         return {
             status: "cancelled",
             statusText: "user cancelled",
             messages,
         }
+    }
 
-    if (status !== "success" || prompt.messages.length === 0)
+    if (status !== "success" || prompt.messages.length === 0) {
         // cancelled
+        await dispose(disposables, { trace })
         return {
             status,
             statusText,
             messages,
         }
+    }
 
     if (prompt.images?.length)
         messages.push(toChatCompletionUserMessage("", prompt.images))
@@ -281,12 +291,14 @@ export async function expandTemplate(
     try {
         trace.startDetails("👾 systems")
         for (let i = 0; i < systems.length; ++i) {
-            if (cancellationToken?.isCancellationRequested)
+            if (cancellationToken?.isCancellationRequested) {
+                await dispose(disposables, { trace })
                 return {
                     status: "cancelled",
                     statusText: "user cancelled",
                     messages,
                 }
+            }
 
             const system = resolveScript(prj, systems[i])
             if (!system)
@@ -304,6 +316,7 @@ export async function expandTemplate(
             if (sysr.chatParticipants)
                 chatParticipants.push(...sysr.chatParticipants)
             if (sysr.fileOutputs) fileOutputs.push(...sysr.fileOutputs)
+            if (sysr.disposables?.length) disposables.push(...sysr.disposables)
             if (sysr.logs?.length) trace.details("📝 console.log", sysr.logs)
             for (const smsg of sysr.messages) {
                 if (smsg.role === "user" && typeof smsg.content === "string") {
@@ -322,12 +335,14 @@ export async function expandTemplate(
             trace.detailsFenced("js", system.jsSource, "js")
             trace.endDetails()
 
-            if (sysr.status !== "success")
+            if (sysr.status !== "success") {
+                await dispose(disposables, options)
                 return {
                     status: sysr.status,
                     statusText: sysr.statusText,
                     messages,
                 }
+            }
         }
     } finally {
         trace.endDetails()
@@ -391,5 +406,6 @@ ${schemaTs}
         fileOutputs,
         logprobs,
         topLogprobs,
+        disposables,
     }
 }

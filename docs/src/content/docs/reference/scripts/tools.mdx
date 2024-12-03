@@ -72,7 +72,40 @@ to evaluate a math expression.
     title="math-agent.genai.mjs"
 />
 
-## Fallback Tools
+## Model Context Protocol Tools
+
+[Model Context Provider](https://modelcontextprotocol.io/) (MCP) is an open protocol
+that enables seamless integration between LLM applications and external data sources and [tools](https://modelcontextprotocol.io/docs/concepts/tools).
+
+You can leverage [MCP servers](https://github.com/modelcontextprotocol/servers) to provide tools to your LLM.
+
+```js
+defTool({
+    memory: {
+        command: "npx",
+        args: ["-y", "@modelcontextprotocol/server-memory"],
+    },
+})
+```
+
+See [Model Context Protocol Tools](/genaiscript/reference/scripts/mcp-tools) for more information.
+
+
+## Agentic Tools
+
+[Agentic](https://agentic.so) is
+a standard library of AI functions / tools
+which are optimized for both normal TS-usage as well as LLM-based usage.
+You can register any agentic tool in your script using `defTool`.
+
+```js
+import { calculator } from "@agentic/calculator"
+defTool(calculator)
+```
+
+See [Agentic tools](/genaiscript/guides/agentic-tools) for more information.
+
+## Fallback Tool Support
 
 Some LLM models do not have built-in model support.
 For those model, it is possible to enable tool support through system prompts. The performance may be lower than built-in tools, but it is still possible to use tools.
@@ -86,7 +119,7 @@ tools so it will happen automatically for those models.
 
 To enable this mode, you can either
 
--   add the `fallbackTools` option to the script
+- add the `fallbackTools` option to the script
 
 ```js "fallbackTools: true"
 script({
@@ -94,7 +127,7 @@ script({
 })
 ```
 
--   or add the `--fallack-tools` flag to the CLI
+- or add the `--fallack-tools` flag to the CLI
 
 ```sh "--fallback-tools"
 npx genaiscript run ... --fallback-tools
@@ -119,12 +152,12 @@ script({
 defTool("current_weather", ...)
 ```
 
-then use the script id in the `tools` field.
+then use the tool id in the `tools` field.
 
-```js 'tools: ["system.current_weather"]'
+```js 'tools: ["current_weather"]'
 script({
     ...,
-    tools: ["system.current_weather"],
+    tools: ["current_weather"],
 })
 ```
 
@@ -132,13 +165,13 @@ script({
 
 Let's illustrate how tools come together with a question answering script.
 
-In the script below, we add the `system.retrieval_web_search` which registers the `retrieval_web_search` tool. This tool
+In the script below, we add the `retrieval_web_search` tool. This tool
 will call into `retrieval.webSearch` as needed.
 
 ```js file="answers.genai.mjs"
 script({
     title: "Answer questions",
-    system: ["system", "system.retrieval_web_search"]
+    tool: ["retrieval_web_search"]
 })
 
 def("FILES", env.files)
@@ -151,8 +184,8 @@ $`Answer the questions in FILES using a web search.
 We can then apply this script to the `questions.md` file below.
 
 ```md file="questions.md"
--   What is the weather in Seattle?
--   What laws were voted in the USA congress last week?
+- What is the weather in Seattle?
+- What laws were voted in the USA congress last week?
 ```
 
 After the first request, the LLM requests to call the `web_search` for each questions.
