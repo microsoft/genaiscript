@@ -102,7 +102,7 @@ export class ExtensionState extends EventTarget {
         AIRequestSnapshot
     > = undefined
     readonly output: vscode.LogOutputChannel
-    readonly sessionApiKey = randomHex(128)
+    readonly sessionApiKey = randomHex(64)
 
     constructor(public readonly context: ExtensionContext) {
         super()
@@ -365,8 +365,7 @@ export class ExtensionState extends EventTarget {
     }
 
     get project() {
-        if (!this._project)
-            this.parseWorkspace()
+        if (!this._project) this.parseWorkspace()
         return this._project
     }
 

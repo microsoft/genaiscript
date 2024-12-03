@@ -43,7 +43,7 @@ export class TerminalServerManager implements ServerManager {
         )
 
         this.client = new WebSocketClient(
-            `http://localhost:${SERVER_PORT}?api-key=${sessionApiKey}`
+            `http://localhost:${SERVER_PORT}?api-key=${encodeURIComponent(sessionApiKey)}`
         )
         this.client.chatRequest = createChatModelRunner(this.state)
         this.client.addEventListener(OPEN, async () => {

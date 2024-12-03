@@ -176,7 +176,7 @@ export async function startServer(options: { port: string; apiKey?: string }) {
             const hash = search.get("api-key")
             if (req.headers.authorization !== apiKey && hash !== apiKey) {
                 logError(`clients: connection unauthorized ${url}, ${hash}`)
-                ws.close(401, "Unauthorized")
+                ws.close(1008, "Unauthorized")
                 return
             }
         }
