@@ -1,5 +1,7 @@
 script({
     description: "Model Context Protocol server demo",
+    model: "small",
+    tests: {},
 })
 
 defTool({
