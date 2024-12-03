@@ -3,6 +3,7 @@ import { MarkdownTrace } from "./trace"
 import { PromptImage, PromptPrediction, renderPromptNode } from "./promptdom"
 import { LanguageModelConfiguration, host } from "./host"
 import { GenerationOptions } from "./generation"
+import { dispose } from "./dispose"
 import {
     JSON5TryParse,
     JSON5parse,
@@ -74,7 +75,6 @@ import {
     serializeLogProb,
     topLogprobsToMarkdown,
 } from "./logprob"
-import { startMcpServers } from "./mcp"
 
 export function toChatCompletionUserMessage(
     expanded: string,
@@ -783,7 +783,7 @@ export async function executeChatSession(
     prediction: PromptPrediction,
     completer: ChatCompletionHandler,
     chatParticipants: ChatParticipant[],
-    mcpServers: McpServerConfig[],
+    disposables: AsyncDisposable[],
     genOptions: GenerationOptions
 ): Promise<RunPromptResult> {
     const {
@@ -817,7 +817,6 @@ export async function executeChatSession(
           )
         : undefined
 
-    const servers = await startMcpServers(mcpServers, genOptions)
     try {
         trace.startDetails(`🧠 llm chat`)
         if (toolDefinitions?.length)
@@ -927,7 +926,7 @@ export async function executeChatSession(
             }
         }
     } finally {
-        await servers.dispose()
+        await dispose(disposables, { trace })
         stats.trace(trace)
         trace.endDetails()
     }

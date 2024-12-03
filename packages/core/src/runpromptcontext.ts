@@ -645,7 +645,7 @@ export function createChatGenerationContext(
             const fileMerges: FileMergeHandler[] = []
             const outputProcessors: PromptOutputProcessorHandler[] = []
             const fileOutputs: FileOutput[] = []
-            const mcpServers: McpServerConfig[] = []
+            const disposables: AsyncDisposable[] = []
             let prediction: PromptPrediction
 
             // expand template
@@ -666,7 +666,7 @@ export function createChatGenerationContext(
                     fileOutputs: fos,
                     images: imgs,
                     prediction: pred,
-                    mcpServers: mcp,
+                    disposables: dps,
                 } = await renderPromptNode(genOptions.model, node, {
                     flexTokens: genOptions.flexTokens,
                     trace: runTrace,
@@ -680,7 +680,7 @@ export function createChatGenerationContext(
                 outputProcessors.push(...ops)
                 fileOutputs.push(...fos)
                 images.push(...imgs)
-                mcpServers.push(...mcp)
+                disposables.push(...dps)
                 prediction = pred
 
                 if (errors?.length) {
@@ -726,8 +726,8 @@ export function createChatGenerationContext(
                             chatParticipants.push(...sysr.chatParticipants)
                         if (sysr.fileOutputs?.length)
                             fileOutputs.push(...sysr.fileOutputs)
-                        if (sysr.mcpServers?.length)
-                            mcpServers.push(...sysr.mcpServers)
+                        if (sysr.disposables?.length)
+                            disposables.push(...sysr.disposables)
                         if (sysr.logs?.length)
                             runTrace.details("📝 console.log", sysr.logs)
                         for (const smsg of sysr.messages) {
@@ -803,7 +803,7 @@ export function createChatGenerationContext(
                     prediction,
                     completer,
                     chatParticipants,
-                    mcpServers,
+                    disposables,
                     genOptions
                 )
             )

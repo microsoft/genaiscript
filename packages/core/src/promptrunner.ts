@@ -149,6 +149,7 @@ export async function runTemplate(
             responseSchema,
             logprobs,
             topLogprobs,
+            disposables,
         } = await expandTemplate(
             prj,
             template,
@@ -225,7 +226,7 @@ export async function runTemplate(
             prediction,
             completer,
             chatParticipants,
-            mcpServers,
+            disposables,
             genOptions
         )
         tracePromptResult(trace, output)

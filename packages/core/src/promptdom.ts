@@ -40,6 +40,7 @@ import { promptyParse } from "./prompty"
 import { jinjaRenderChatMessage } from "./jinja"
 import { runtimeHost } from "./host"
 import { hash } from "./crypto"
+import { startMcpServer } from "./mcp"
 
 // Definition of the PromptNode interface which is an essential part of the code structure.
 export interface PromptNode extends ContextExpansionOptions {
@@ -580,7 +581,7 @@ export interface PromptNodeRender {
     messages: ChatCompletionMessageParam[] // Messages for chat completion
     fileOutputs: FileOutput[] // File outputs
     prediction: PromptPrediction // predicted output for the prompt
-    mcpServers: McpServerConfig[] // Mcp servers
+    disposables: AsyncDisposable[] // Disposables
 }
 
 /**
@@ -1084,6 +1085,7 @@ export async function renderPromptNode(
     const chatParticipants: ChatParticipant[] = []
     const fileOutputs: FileOutput[] = []
     const mcpServers: McpServerConfig[] = []
+    const disposables: AsyncDisposable[] = []
     let prediction: PromptPrediction
 
     await visitNode(node, {
@@ -1209,9 +1211,17 @@ ${trimNewlines(schemaText)}
         },
         mcpServer: (n) => {
             mcpServers.push(n.config)
-            trace.itemValue(`mcp server`, n.options.id)
+            trace.itemValue(`mcp server`, n.config.id)
         },
     })
+
+    if (mcpServers.length) {
+        for (const mcpServer of mcpServers) {
+            const res = await startMcpServer(mcpServer, options)
+            tools.push(...res.tools)
+            disposables.push(res)
+        }
+    }
 
     const res = Object.freeze<PromptNodeRender>({
         images,
@@ -1224,7 +1234,7 @@ ${trimNewlines(schemaText)}
         messages,
         fileOutputs,
         prediction,
-        mcpServers,
+        disposables
     })
     return res
 }
