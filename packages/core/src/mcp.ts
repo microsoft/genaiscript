@@ -1,10 +1,13 @@
 import { TraceOptions } from "./trace"
+import { logVerbose } from "./util"
 
 export async function startMcpServer(
     serverConfig: McpServerConfig,
     options: TraceOptions
 ): Promise<{ tools: ToolCallback[] } & AsyncDisposable> {
-    const trace = options.trace.startTraceDetails(`🪚 mcp ${name}`)
+    const { id, version = "1.0.0", params = [], ...rest } = serverConfig
+    logVerbose(`mcp: starting ${id}`)
+    const trace = options.trace.startTraceDetails(`🪚 mcp ${id}`)
     try {
         const { Client } = await import(
             "@modelcontextprotocol/sdk/client/index.js"
@@ -14,7 +17,6 @@ export async function startMcpServer(
         )
 
         const capabilities = { tools: {} }
-        const { id, version = "1.0.0", params = [], ...rest } = serverConfig
         const transport = new StdioClientTransport({
             ...rest,
             stderr: "inherit",
@@ -50,6 +52,7 @@ export async function startMcpServer(
         return {
             tools,
             [Symbol.asyncDispose]: async () => {
+                logVerbose(`mcp: closing ${id}`)
                 await client.close()
                 await transport.close()
             },

@@ -167,7 +167,6 @@ export interface PromptToolNode extends PromptNode {
 export interface PromptMcpServerNode extends PromptNode {
     type: "mcpServer"
     config: McpServerConfig
-    options?: DefToolOptions
 }
 
 // Interface for a file merge node.
@@ -400,7 +399,7 @@ export function createChatParticipant(
 
 // Function to create a file output node.
 export function createFileOutput(output: FileOutput): FileOutputNode {
-    return { type: "fileOutput", output }
+    return { type: "fileOutput", output } satisfies FileOutputNode
 }
 
 // Function to create an import template node.
@@ -410,14 +409,23 @@ export function createImportTemplate(
     options?: ImportTemplateOptions
 ): PromptImportTemplate {
     assert(!!files)
-    return { type: "importTemplate", files, args, options }
+    return {
+        type: "importTemplate",
+        files,
+        args,
+        options,
+    } satisfies PromptImportTemplate
 }
 
 export function createMcpServer(
+    id: string,
     config: McpServerConfig,
     options?: DefToolOptions
 ): PromptMcpServerNode {
-    return { type: "mcpServer", config, options }
+    return {
+        type: "mcpServer",
+        config: { ...config, id, options },
+    } satisfies PromptMcpServerNode
 }
 
 // Function to check if data objects have the same keys and simple values.
@@ -1234,7 +1242,7 @@ ${trimNewlines(schemaText)}
         messages,
         fileOutputs,
         prediction,
-        disposables
+        disposables,
     })
     return res
 }

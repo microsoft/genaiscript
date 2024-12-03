@@ -305,7 +305,7 @@ export function createChatGenerationContext(
             | ToolCallback
             | AgenticToolCallback
             | AgenticToolProviderCallback
-            | McpServerConfig,
+            | McpServersConfig,
         description: string | DefToolOptions,
         parameters?: PromptParametersSchema | JSONSchemaObject,
         fn?: ChatFunctionHandler,
@@ -365,7 +365,10 @@ export function createChatGenerationContext(
                 const [id, def] = kv
                 if ((def as McpServerConfig).command) {
                     const serverConfig = def as McpServerConfig
-                    appendChild(node, createMcpServer(serverConfig, defOptions))
+                    appendChild(
+                        node,
+                        createMcpServer(id, serverConfig, defOptions)
+                    )
                 }
             }
         }
