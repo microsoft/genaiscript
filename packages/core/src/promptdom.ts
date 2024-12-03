@@ -58,6 +58,7 @@ export interface PromptNode extends ContextExpansionOptions {
         | "chatParticipant"
         | "fileOutput"
         | "importTemplate"
+        | "mcpServer"
         | undefined
     children?: PromptNode[] // Child nodes for hierarchical structure
     error?: unknown // Error information if present
@@ -159,6 +160,12 @@ export interface PromptToolNode extends PromptNode {
     description: string // Description of the function
     parameters: JSONSchema // Parameters for the function
     impl: ChatFunctionHandler // Implementation of the function
+    options?: DefToolOptions
+}
+
+export interface PromptMcpServerNode extends PromptNode {
+    type: "mcpServer"
+    config: McpServerConfig
     options?: DefToolOptions
 }
 
@@ -405,6 +412,13 @@ export function createImportTemplate(
     return { type: "importTemplate", files, args, options }
 }
 
+export function createMcpServer(
+    config: McpServerConfig,
+    options?: DefToolOptions
+): PromptMcpServerNode {
+    return { type: "mcpServer", config, options }
+}
+
 // Function to check if data objects have the same keys and simple values.
 function haveSameKeysAndSimpleValues(data: object[]): boolean {
     if (data.length === 0) return true
@@ -494,6 +508,7 @@ export interface PromptNodeVisitor {
     chatParticipant?: (node: PromptChatParticipantNode) => Awaitable<void> // Chat participant node visitor
     fileOutput?: (node: FileOutputNode) => Awaitable<void> // File output node visitor
     importTemplate?: (node: PromptImportTemplate) => Awaitable<void> // Import template node visitor
+    mcpServer?: (node: PromptMcpServerNode) => Awaitable<void> // Mcp server node visitor
 }
 
 // Function to visit nodes in the prompt tree.
@@ -539,6 +554,9 @@ export async function visitNode(node: PromptNode, visitor: PromptNodeVisitor) {
         case "importTemplate":
             await visitor.importTemplate?.(node as PromptImportTemplate)
             break
+        case "mcpServer":
+            await visitor.mcpServer?.(node as PromptMcpServerNode)
+            break
     }
     if (node.error) visitor.error?.(node)
     if (!node.error && !node.deleted && node.children) {
@@ -562,6 +580,7 @@ export interface PromptNodeRender {
     messages: ChatCompletionMessageParam[] // Messages for chat completion
     fileOutputs: FileOutput[] // File outputs
     prediction: PromptPrediction // predicted output for the prompt
+    mcpServers: McpServerConfig[] // Mcp servers
 }
 
 /**
@@ -1064,6 +1083,7 @@ export async function renderPromptNode(
     const outputProcessors: PromptOutputProcessorHandler[] = []
     const chatParticipants: ChatParticipant[] = []
     const fileOutputs: FileOutput[] = []
+    const mcpServers: McpServerConfig[] = []
     let prediction: PromptPrediction
 
     await visitNode(node, {
@@ -1187,6 +1207,10 @@ ${trimNewlines(schemaText)}
             fileOutputs.push(n.output)
             trace.itemValue(`file output`, n.output.pattern)
         },
+        mcpServer: (n) => {
+            mcpServers.push(n.config)
+            trace.itemValue(`mcp server`, n.options.id)
+        },
     })
 
     const res = Object.freeze<PromptNodeRender>({
@@ -1200,6 +1224,7 @@ ${trimNewlines(schemaText)}
         messages,
         fileOutputs,
         prediction,
+        mcpServers,
     })
     return res
 }

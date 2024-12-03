@@ -54,6 +54,7 @@ export async function callExpander(
     let outputProcessors: PromptOutputProcessorHandler[] = []
     let chatParticipants: ChatParticipant[] = []
     let fileOutputs: FileOutput[] = []
+    let mcpServers: McpServerConfig[] = []
     let prediction: PromptPrediction
     let aici: AICIRequest
 
@@ -87,6 +88,7 @@ export async function callExpander(
                 chatParticipants: cps,
                 fileOutputs: fos,
                 prediction: pred,
+                mcpServers: mcps
             } = await renderPromptNode(model, node, {
                 flexTokens: options.flexTokens,
                 trace,
@@ -99,6 +101,7 @@ export async function callExpander(
             outputProcessors = ops
             chatParticipants = cps
             fileOutputs = fos
+            mcpServers = mcps
             prediction = pred
             if (errors?.length) {
                 for (const error of errors) trace.error(``, error)
@@ -136,6 +139,7 @@ export async function callExpander(
         outputProcessors,
         chatParticipants,
         fileOutputs,
+        mcpServers,
         prediction,
         aici,
     })

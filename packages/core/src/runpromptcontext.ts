@@ -21,6 +21,7 @@ import {
     finalizeMessages,
     PromptImage,
     PromptPrediction,
+    createMcpServer,
 } from "./promptdom"
 import { MarkdownTrace } from "./trace"
 import { GenerationOptions } from "./generation"
@@ -45,10 +46,7 @@ import {
     tracePromptResult,
 } from "./chat"
 import { checkCancelled } from "./cancellation"
-import {
-    ChatCompletionMessageParam,
-    ChatCompletionSystemMessageParam,
-} from "./chattypes"
+import { ChatCompletionMessageParam } from "./chattypes"
 import { parseModelIdentifier, resolveModelConnectionInfo } from "./models"
 import {
     CHAT_REQUEST_PER_MODEL_CONCURRENT_LIMIT,
@@ -306,7 +304,8 @@ export function createChatGenerationContext(
             | string
             | ToolCallback
             | AgenticToolCallback
-            | AgenticToolProviderCallback,
+            | AgenticToolProviderCallback
+            | McpServerConfig,
         description: string | DefToolOptions,
         parameters?: PromptParametersSchema | JSONSchemaObject,
         fn?: ChatFunctionHandler,
@@ -330,7 +329,10 @@ export function createChatGenerationContext(
                     defOptions
                 )
             )
-        } else if ((name as ToolCallback | AgenticToolCallback).impl) {
+        } else if (
+            typeof name === "object" &&
+            (name as ToolCallback | AgenticToolCallback).impl
+        ) {
             const tool = name as ToolCallback | AgenticToolCallback
             appendChild(
                 node,
@@ -342,7 +344,10 @@ export function createChatGenerationContext(
                     defOptions
                 )
             )
-        } else if ((name as AgenticToolProviderCallback).functions) {
+        } else if (
+            typeof name === "object" &&
+            (name as AgenticToolProviderCallback).functions
+        ) {
             const tools = (name as AgenticToolProviderCallback).functions
             for (const tool of tools)
                 appendChild(
@@ -355,6 +360,14 @@ export function createChatGenerationContext(
                         defOptions
                     )
                 )
+        } else if (typeof name === "object") {
+            for (const kv of Object.entries(name)) {
+                const [id, def] = kv
+                if ((def as McpServerConfig).command) {
+                    const serverConfig = def as McpServerConfig
+                    appendChild(node, createMcpServer(serverConfig, defOptions))
+                }
+            }
         }
     }
 
@@ -632,6 +645,7 @@ export function createChatGenerationContext(
             const fileMerges: FileMergeHandler[] = []
             const outputProcessors: PromptOutputProcessorHandler[] = []
             const fileOutputs: FileOutput[] = []
+            const mcpServers: McpServerConfig[] = []
             let prediction: PromptPrediction
 
             // expand template
@@ -652,6 +666,7 @@ export function createChatGenerationContext(
                     fileOutputs: fos,
                     images: imgs,
                     prediction: pred,
+                    mcpServers: mcp,
                 } = await renderPromptNode(genOptions.model, node, {
                     flexTokens: genOptions.flexTokens,
                     trace: runTrace,
@@ -665,6 +680,7 @@ export function createChatGenerationContext(
                 outputProcessors.push(...ops)
                 fileOutputs.push(...fos)
                 images.push(...imgs)
+                mcpServers.push(...mcp)
                 prediction = pred
 
                 if (errors?.length) {
@@ -710,6 +726,8 @@ export function createChatGenerationContext(
                             chatParticipants.push(...sysr.chatParticipants)
                         if (sysr.fileOutputs?.length)
                             fileOutputs.push(...sysr.fileOutputs)
+                        if (sysr.mcpServers?.length)
+                            mcpServers.push(...sysr.mcpServers)
                         if (sysr.logs?.length)
                             runTrace.details("📝 console.log", sysr.logs)
                         for (const smsg of sysr.messages) {
@@ -785,6 +803,7 @@ export function createChatGenerationContext(
                     prediction,
                     completer,
                     chatParticipants,
+                    mcpServers,
                     genOptions
                 )
             )

@@ -225,6 +225,7 @@ export async function runTemplate(
             prediction,
             completer,
             chatParticipants,
+            mcpServers,
             genOptions
         )
         tracePromptResult(trace, output)

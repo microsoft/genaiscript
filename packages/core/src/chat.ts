@@ -74,6 +74,7 @@ import {
     serializeLogProb,
     topLogprobsToMarkdown,
 } from "./logprob"
+import { startMcpServers } from "./mcp"
 
 export function toChatCompletionUserMessage(
     expanded: string,
@@ -782,6 +783,7 @@ export async function executeChatSession(
     prediction: PromptPrediction,
     completer: ChatCompletionHandler,
     chatParticipants: ChatParticipant[],
+    mcpServers: McpServerConfig[],
     genOptions: GenerationOptions
 ): Promise<RunPromptResult> {
     const {
@@ -814,6 +816,8 @@ export async function executeChatSession(
                   }
           )
         : undefined
+
+    const servers = await startMcpServers(mcpServers, genOptions)
     try {
         trace.startDetails(`🧠 llm chat`)
         if (toolDefinitions?.length)
@@ -923,6 +927,7 @@ export async function executeChatSession(
             }
         }
     } finally {
+        await servers.dispose()
         stats.trace(trace)
         trace.endDetails()
     }
