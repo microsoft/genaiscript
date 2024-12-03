@@ -17,11 +17,6 @@ async function startMcpServer(name: string, serverConfig: McpServerConfig) {
 
     const capabilities = { tools: {} }
     const { version = "1.0.0", params = [], ...rest } = serverConfig
-    // fill up empty env with process.env values
-    for (const ekv of Object.entries(rest.env || {})) {
-        const [key, value] = ekv
-        if (value === undefined) rest.env[key] = process.env[key]
-    }
     const transport = new StdioClientTransport({
         ...rest,
         stderr: "inherit",
