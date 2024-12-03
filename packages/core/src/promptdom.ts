@@ -801,7 +801,7 @@ async function resolveImportPrompty(
     const { parameters } = meta
     args = args || {}
 
-    const extra = Object.keys(args).find((arg) => !parameters[arg])
+    const extra = Object.keys(args).find((arg) => !parameters?.[arg])
     if (extra) {
         if (allowExtraArguments)
             logWarn(`Extra input argument '${extra}' in ${f.filename}`)
