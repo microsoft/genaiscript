@@ -32,14 +32,13 @@ async function startMcpServer(name: string, serverConfig: McpServerConfig) {
     // list tools
     const { tools } = await client.listTools()
     for (const tool of tools) {
-        console.debug(`mcp: tool ${tool.name}`)
+        //console.debug(`mcp: tool ${tool.name}`)
         defTool(
-            tool.name,
+            `${name}_${tool.name}`,
             tool.description,
             tool.inputSchema as any,
             async (args: any) => {
                 const { content, ...rest } = args
-                console.debug(`mcp: calling ${tool.name}`)
                 const res = await client.callTool({
                     name: tool.name,
                     arguments: rest,
@@ -53,10 +52,12 @@ async function startMcpServer(name: string, serverConfig: McpServerConfig) {
 }
 
 async function startMcpServers(config: McpServersConfig) {
-    for (const skv of Object.entries(config)) {
-        const [name, serverConfig] = skv
-        await startMcpServer(name, serverConfig)
-    }
+    await Promise.all(
+        Object.entries(config).map(
+            async ([name, serverConfig]) =>
+                await startMcpServer(name, serverConfig)
+        )
+    )
 }
 
 await startMcpServers({
