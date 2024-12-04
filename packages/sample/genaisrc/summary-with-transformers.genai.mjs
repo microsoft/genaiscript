@@ -1,6 +1,6 @@
 script({
     title: "summary of summary - transformers.js",
-    model: "ollama:phi3",
+    model: "ollama:llama3.2:1b",
     files: ["src/rag/markdown.md"],
     tests: {
         files: ["src/rag/markdown.md"],
@@ -9,7 +9,7 @@ script({
 })
 
 console.log("loading summarizer transformer")
-import { pipeline } from "@xenova/transformers"
+import { pipeline } from "@huggingface/transformers"
 const summarizer = await pipeline("summarization")
 
 for (const file of env.files) {

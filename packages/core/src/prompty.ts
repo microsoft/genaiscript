@@ -16,6 +16,7 @@ export interface PromptyFrontmatter {
     sample?: Record<string, any> | string
     inputs?: Record<
         string,
+        | JSONSchemaArray
         | JSONSchemaNumber
         | JSONSchemaBoolean
         | JSONSchemaString

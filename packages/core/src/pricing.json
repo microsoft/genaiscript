@@ -270,5 +270,82 @@
     "azure_serverless_models:ministral-3b": {
         "price_per_million_input_tokens": 0.04,
         "price_per_million_output_tokens": 0.04
+    },
+    "google:gemini-1.5-flash": {
+        "price_per_million_input_tokens": 0.075,
+        "price_per_million_output_tokens": 0.3
+    },
+    "google:gemini-1.5-flash-002": {
+        "price_per_million_input_tokens": 0.075,
+        "price_per_million_output_tokens": 0.3
+    },
+    "google:gemini-1.5-flash-8b": {
+        "price_per_million_input_tokens": 0.0375,
+        "price_per_million_output_tokens": 0.15,
+        "tiers": [
+            {
+                "context_size": 128000,
+                "price_per_million_input_tokens": 0.075,
+                "price_per_million_output_tokens": 0.3
+            }
+        ]
+    },
+    "google:gemini-1.5-pro": {
+        "price_per_million_input_tokens": 1.25,
+        "price_per_million_output_tokens": 5,
+        "tiers": [
+            {
+                "context_size": 128000,
+                "price_per_million_input_tokens": 2.5,
+                "price_per_million_output_tokens": 10
+            }
+        ]
+    },
+    "google:gemini-1.5-pro-002": {
+        "price_per_million_input_tokens": 1.25,
+        "price_per_million_output_tokens": 5,
+        "tiers": [
+            {
+                "context_size": 128000,
+                "price_per_million_input_tokens": 2.5,
+                "price_per_million_output_tokens": 10
+            }
+        ]
+    },
+    "google:gemini-1-pro": {
+        "price_per_million_input_tokens": 0.5,
+        "price_per_million_output_tokens": 1.5
+    },
+    "alibaba:qwen-max": {
+        "price_per_million_input_tokens": 10,
+        "price_per_million_output_tokens": 30
+    },
+    "alibaba:qwen-plus": {
+        "price_per_million_input_tokens": 3,
+        "price_per_million_output_tokens": 9
+    },
+    "alibaba:qwen-turbo": {
+        "price_per_million_input_tokens": 0.4,
+        "price_per_million_output_tokens": 1.2
+    },
+    "mistral:mistral-large-latest": {
+        "price_per_million_input_tokens": 2,
+        "price_per_million_output_tokens": 6
+    },
+    "mistral:mistral-small-latest": {
+        "price_per_million_input_tokens": 0.2,
+        "price_per_million_output_tokens": 0.6
+    },
+    "mistral:pixtral-large-latest": {
+        "price_per_million_input_tokens": 2,
+        "price_per_million_output_tokens": 6
+    },
+    "mistral:codestral-latest": {
+        "price_per_million_input_tokens": 0.2,
+        "price_per_million_output_tokens": 0.6
+    },
+    "mistral:mistral-nemo": {
+        "price_per_million_input_tokens": 0.2,
+        "price_per_million_output_tokens": 0.6
     }
 }

@@ -5,6 +5,7 @@ import path from "node:path"
 import { addLineNumbers, indexToLineNumber } from "./liner"
 import { resolveFileContent } from "./file"
 import type { EncodeOptions } from "gpt-tokenizer/GptEncoding"
+import { assert } from "./util"
 
 /**
  * Resolves the appropriate token encoder based on the given model ID.
@@ -31,6 +32,7 @@ export async function resolveTokenEncoder(
             decode,
             default: api,
         } = await import(`gpt-tokenizer/model/${module}`)
+        assert(!!encode)
         const { modelName } = api
         const size =
             api.bytePairEncodingCoreProcessor?.mergeableBytePairRankCount +
@@ -50,6 +52,7 @@ export async function resolveTokenEncoder(
             decode,
             default: api,
         } = await import("gpt-tokenizer/model/gpt-4o")
+        assert(!!encode)
         const { modelName, vocabularySize } = api
         return Object.freeze<Tokenizer>({
             model: modelName,

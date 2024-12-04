@@ -1,6 +1,6 @@
 // Import various parsing and stringifying utilities
 import { YAMLParse, YAMLStringify } from "./yaml"
-import { CSVParse, CSVToMarkdown, CSVStringify } from "./csv"
+import { CSVParse, CSVToMarkdown, CSVStringify, CSVChunk } from "./csv"
 import { INIParse, INIStringify } from "./ini"
 import { XMLParse } from "./xml"
 import {
@@ -57,6 +57,7 @@ export function installGlobals() {
         parse: CSVParse, // Parse CSV string to objects
         stringify: CSVStringify, // Convert objects to CSV string
         markdownify: CSVToMarkdown, // Convert CSV to Markdown format
+        chunk: CSVChunk,
     })
 
     // Freeze INI utilities
@@ -67,7 +68,7 @@ export function installGlobals() {
 
     // Freeze XML utilities
     glb.XML = Object.freeze<XML>({
-        parse: XMLParse, // Parse XML string to objects
+    parse: XMLParse, // Parse XML string to objects
     })
 
     // Freeze Markdown utilities with frontmatter operations
@@ -114,10 +115,10 @@ export function installGlobals() {
     }
 
     // Instantiate GitHub client
-    glb.github = new GitHubClient()
+    glb.github = new GitHubClient(undefined)
 
     // Instantiate Git client
-    glb.git = new GitClient()
+    glb.git = new GitClient(undefined)
 
     glb.tokenizers = Object.freeze<Tokenizers>({
         resolve: resolveTokenEncoder,

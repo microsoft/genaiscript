@@ -86,19 +86,19 @@ Arguments:
 Options:
   -m, --model <string>                model for the run
   -sm, --small-model <string>         small model for the run
+  -vm, --vision-model <string>        'vision' alias model
   --models <models...>                models to test where mode is the key
                                       value pair list of m (model), s (small
                                       model), t (temperature), p (top-p)
   -o, --out <folder>                  output folder
   -rmo, --remove-out                  remove output folder if it exists
   --cli <string>                      override path to the cli
-  -tp, --test-provider <string>       test provider
   -td, --test-delay <string>          delay between tests in seconds
   --cache                             enable LLM result cache
   -v, --verbose                       verbose output
-  -pv, --promptfoo-version [version]  promptfoo version, default is 0.94.5
+  -pv, --promptfoo-version [version]  promptfoo version, default is 0.97.0
   -os, --out-summary <file>           append output summary in file
-  --groups <groups...>                groups to include or exclude. Use :!
+  -g, --groups <groups...>            groups to include or exclude. Use :!
                                       prefix to exclude
   -h, --help                          display help for command
 ```
@@ -111,8 +111,9 @@ Usage: genaiscript test list [options]
 List available tests in workspace
 
 Options:
-  --groups <groups...>  groups to include or exclude. Use :! prefix to exclude
-  -h, --help            display help for command
+  -g, --groups <groups...>  groups to include or exclude. Use :! prefix to
+                            exclude
+  -h, --help                display help for command
 ```
 
 ### `test view`
@@ -137,7 +138,7 @@ Options:
   -h, --help                display help for command
 
 Commands:
-  list                      List all available scripts in workspace
+  list [options]            List all available scripts in workspace
   create <name>             Create a new script
   fix                       fix all definition files
   compile [folders...]      Compile all scripts in workspace
@@ -153,7 +154,9 @@ Usage: genaiscript scripts list [options]
 List all available scripts in workspace
 
 Options:
-  -h, --help  display help for command
+  -g, --groups <groups...>  groups to include or exclude. Use :! prefix to
+                            exclude
+  -h, --help                display help for command
 ```
 
 ### `scripts create`
@@ -313,7 +316,7 @@ Commands:
                                frontmatter or JSON data files into various
                                formats
   fence <language> <file>      Extracts a code fenced regions of the given type
-  pdf <file>                   Parse a PDF into text
+  pdf [options] <file>         Parse a PDF into text and images
   docx <file>                  Parse a DOCX into texts
   html-to-text <file>          Parse an HTML file into text
   code <file> [query]          Parse code using tree sitter and executes a
@@ -354,10 +357,12 @@ Options:
 ```
 Usage: genaiscript parse pdf [options] <file>
 
-Parse a PDF into text
+Parse a PDF into text and images
 
 Options:
-  -h, --help  display help for command
+  -i, --images        extract images
+  -o, --out <string>  output folder
+  -h, --help          display help for command
 ```
 
 ### `parse docx`
@@ -492,7 +497,8 @@ Usage: genaiscript info env [options] [provider]
 Show .env information
 
 Options:
-  -t, --token  show token
-  -e, --error  show errors
-  -h, --help   display help for command
+  -t, --token   show token
+  -e, --error   show errors
+  -m, --models  show models if possible
+  -h, --help    display help for command
 ```

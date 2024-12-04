@@ -7,7 +7,7 @@
     },
     "displayName": "GenAIScript Insiders",
     "description": "Generative AI Scripting.",
-    "version": "1.75.3",
+    "version": "1.80.5",
     "icon": "icon.png",
     "engines": {
         "vscode": "^1.95.0"
@@ -60,6 +60,12 @@
                 "fullName": "GenAIScript",
                 "isSticky": false,
                 "commands": [
+                    {
+                        "name": "list",
+                        "description": "Lists all available GenAIScript scripts.",
+                        "isSticky": false,
+                        "sampleRequest": "/list"
+                    },
                     {
                         "name": "run",
                         "description": "Runs a GenAIScript script. The query should start with the script filename without the extension.",
@@ -409,7 +415,7 @@
         "vscode:update-dts": "npx @vscode/dts dev && mv vscode.*.d.ts src/",
         "vscode:prepublish": "yarn run compile",
         "compile:icons": "node updatefonts.mjs",
-        "compile:extension": "esbuild src/extension.ts --sourcemap --metafile=./esbuild.meta.json --bundle --format=cjs --platform=node --target=node20 --outfile=built/extension.js --external:tsx --external:esbuild --external:get-tsconfig --external:resolve-pkg-maps --external:vscode --external:pdfjs-dist --external:web-tree-sitter --external:tree-sitter-wasms --external:@lvce-editor/ripgrep --external:gpt-3-encoder",
+        "compile:extension": "esbuild src/extension.ts --sourcemap --metafile=./esbuild.meta.json --bundle --format=cjs --platform=node --target=node20 --outfile=built/extension.js --external:tsx --external:esbuild --external:get-tsconfig --external:resolve-pkg-maps --external:vscode --external:pdfjs-dist --external:web-tree-sitter --external:tree-sitter-wasms --external:@lvce-editor/ripgrep --external:gpt-3-encoder  --external:skia-canvas --external:@huggingface/transformers --external:@modelcontextprotocol/sdk",
         "compile": "yarn compile:icons && yarn compile:extension",
         "vis:treemap": "npx --yes esbuild-visualizer --metadata esbuild.meta.json --filename esbuild.treemap.html",
         "vis:network": "npx --yes esbuild-visualizer --metadata esbuild.meta.json --filename esbuild.network.html --template network",
@@ -427,13 +433,13 @@
         "@types/vscode": "^1.95.0",
         "@vscode/vsce": "^3.2.1",
         "assert": "^2.1.0",
-        "es-toolkit": "^1.27.0",
+        "es-toolkit": "^1.29.0",
         "markdown-it-github-alerts": "^0.3.0",
         "process": "^0.11.10",
-        "typescript": "5.6.3",
+        "typescript": "5.7.2",
         "vscode-uri": "^3.0.8",
         "webfont": "^11.2.26",
         "websocket-polyfill": "0.0.3",
-        "zx": "^8.2.2"
+        "zx": "^8.2.4"
     }
 }

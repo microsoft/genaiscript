@@ -1,4 +1,4 @@
-import { Project, PromptScript } from "./ast"
+import { resolveScript } from "./ast"
 import { assert, normalizeFloat, normalizeInt } from "./util"
 import { MarkdownTrace } from "./trace"
 import { errorMessage, isCancelError, NotSupportedError } from "./error"
@@ -8,7 +8,12 @@ import {
     MODEL_PROVIDER_AICI,
     PROMPTY_REGEX,
 } from "./constants"
-import { finalizeMessages, PromptImage, renderPromptNode } from "./promptdom"
+import {
+    finalizeMessages,
+    PromptImage,
+    PromptPrediction,
+    renderPromptNode,
+} from "./promptdom"
 import { createPromptContext } from "./promptcontext"
 import { evalPrompt } from "./evalprompt"
 import { renderAICI } from "./aici"
@@ -25,6 +30,8 @@ import { resolveSystems } from "./systems"
 import { GenerationOptions, GenerationStatus } from "./generation"
 import { AICIRequest, ChatCompletionMessageParam } from "./chattypes"
 import { promptParametersSchemaToJSONSchema } from "./parameters"
+import { Project } from "./server/messages"
+import { dispose } from "./dispose"
 
 export async function callExpander(
     prj: Project,
@@ -48,6 +55,8 @@ export async function callExpander(
     let outputProcessors: PromptOutputProcessorHandler[] = []
     let chatParticipants: ChatParticipant[] = []
     let fileOutputs: FileOutput[] = []
+    let disposables: AsyncDisposable[] = []
+    let prediction: PromptPrediction
     let aici: AICIRequest
 
     const logCb = (msg: any) => {
@@ -79,6 +88,8 @@ export async function callExpander(
                 outputProcessors: ops,
                 chatParticipants: cps,
                 fileOutputs: fos,
+                prediction: pred,
+                disposables: mcps,
             } = await renderPromptNode(model, node, {
                 flexTokens: options.flexTokens,
                 trace,
@@ -91,6 +102,8 @@ export async function callExpander(
             outputProcessors = ops
             chatParticipants = cps
             fileOutputs = fos
+            disposables = mcps
+            prediction = pred
             if (errors?.length) {
                 for (const error of errors) trace.error(``, error)
                 status = "error"
@@ -127,6 +140,8 @@ export async function callExpander(
         outputProcessors,
         chatParticipants,
         fileOutputs,
+        disposables,
+        prediction,
         aici,
     })
 }
@@ -173,7 +188,7 @@ export async function expandTemplate(
         options.lineNumbers ??
         template.lineNumbers ??
         resolveSystems(prj, template, undefined, options)
-            .map((s) => prj.getTemplate(s))
+            .map((s) => resolveScript(prj, s))
             .some((t) => t?.lineNumbers)
     const temperature =
         options.temperature ??
@@ -232,25 +247,31 @@ export async function expandTemplate(
     const outputProcessors = prompt.outputProcessors.slice(0)
     const chatParticipants = prompt.chatParticipants.slice(0)
     const fileOutputs = prompt.fileOutputs.slice(0)
+    const prediction = prompt.prediction
+    const disposables = prompt.disposables.slice(0)
 
     if (prompt.logs?.length) trace.details("📝 console.log", prompt.logs)
     if (prompt.aici) trace.fence(prompt.aici, "yaml")
     trace.endDetails()
 
-    if (cancellationToken?.isCancellationRequested || status === "cancelled")
+    if (cancellationToken?.isCancellationRequested || status === "cancelled") {
+        await dispose(disposables, { trace })
         return {
             status: "cancelled",
             statusText: "user cancelled",
             messages,
         }
+    }
 
-    if (status !== "success" || prompt.messages.length === 0)
+    if (status !== "success" || prompt.messages.length === 0) {
         // cancelled
+        await dispose(disposables, { trace })
         return {
             status,
             statusText,
             messages,
         }
+    }
 
     if (prompt.images?.length)
         messages.push(toChatCompletionUserMessage("", prompt.images))
@@ -263,70 +284,69 @@ export async function expandTemplate(
 
     const systems = resolveSystems(prj, template, tools, options)
     if (systems.length)
-        try {
-            trace.startDetails("👾 systems")
-            for (let i = 0; i < systems.length; ++i) {
-                if (cancellationToken?.isCancellationRequested)
-                    return {
-                        status: "cancelled",
-                        statusText: "user cancelled",
-                        messages,
-                    }
+        if (messages[0].role === "system")
+            // there's already a system message. add empty before
+            messages.unshift({ role: "system", content: "" })
 
-                const system = prj.getTemplate(systems[i])
-                if (!system)
-                    throw new Error(`system template ${systems[i]} not found`)
-
-                trace.startDetails(`👾 ${system.id}`)
-                const sysr = await callExpander(
-                    prj,
-                    system,
-                    env,
-                    trace,
-                    options
-                )
-
-                if (sysr.images) images.push(...sysr.images)
-                if (sysr.schemas) Object.assign(schemas, sysr.schemas)
-                if (sysr.functions) tools.push(...sysr.functions)
-                if (sysr.fileMerges) fileMerges.push(...sysr.fileMerges)
-                if (sysr.outputProcessors)
-                    outputProcessors.push(...sysr.outputProcessors)
-                if (sysr.chatParticipants)
-                    chatParticipants.push(...sysr.chatParticipants)
-                if (sysr.fileOutputs) fileOutputs.push(...sysr.fileOutputs)
-                if (sysr.logs?.length)
-                    trace.details("📝 console.log", sysr.logs)
-                for (const smsg of sysr.messages) {
-                    if (
-                        smsg.role === "user" &&
-                        typeof smsg.content === "string"
-                    ) {
-                        addSystemMessage(smsg.content)
-                    } else
-                        throw new NotSupportedError(
-                            "only string user messages supported in system"
-                        )
+    try {
+        trace.startDetails("👾 systems")
+        for (let i = 0; i < systems.length; ++i) {
+            if (cancellationToken?.isCancellationRequested) {
+                await dispose(disposables, { trace })
+                return {
+                    status: "cancelled",
+                    statusText: "user cancelled",
+                    messages,
                 }
-                if (sysr.aici) {
-                    trace.fence(sysr.aici, "yaml")
-                    messages.push(sysr.aici)
-                }
-                logprobs = logprobs || system.logprobs
-                topLogprobs = Math.max(topLogprobs, system.topLogprobs || 0)
-                trace.detailsFenced("js", system.jsSource, "js")
-                trace.endDetails()
-
-                if (sysr.status !== "success")
-                    return {
-                        status: sysr.status,
-                        statusText: sysr.statusText,
-                        messages,
-                    }
             }
-        } finally {
+
+            const system = resolveScript(prj, systems[i])
+            if (!system)
+                throw new Error(`system template ${systems[i]} not found`)
+
+            trace.startDetails(`👾 ${system.id}`)
+            const sysr = await callExpander(prj, system, env, trace, options)
+
+            if (sysr.images) images.push(...sysr.images)
+            if (sysr.schemas) Object.assign(schemas, sysr.schemas)
+            if (sysr.functions) tools.push(...sysr.functions)
+            if (sysr.fileMerges) fileMerges.push(...sysr.fileMerges)
+            if (sysr.outputProcessors)
+                outputProcessors.push(...sysr.outputProcessors)
+            if (sysr.chatParticipants)
+                chatParticipants.push(...sysr.chatParticipants)
+            if (sysr.fileOutputs) fileOutputs.push(...sysr.fileOutputs)
+            if (sysr.disposables?.length) disposables.push(...sysr.disposables)
+            if (sysr.logs?.length) trace.details("📝 console.log", sysr.logs)
+            for (const smsg of sysr.messages) {
+                if (smsg.role === "user" && typeof smsg.content === "string") {
+                    addSystemMessage(smsg.content)
+                } else
+                    throw new NotSupportedError(
+                        "only string user messages supported in system"
+                    )
+            }
+            if (sysr.aici) {
+                trace.fence(sysr.aici, "yaml")
+                messages.push(sysr.aici)
+            }
+            logprobs = logprobs || system.logprobs
+            topLogprobs = Math.max(topLogprobs, system.topLogprobs || 0)
+            trace.detailsFenced("js", system.jsSource, "js")
             trace.endDetails()
+
+            if (sysr.status !== "success") {
+                await dispose(disposables, options)
+                return {
+                    status: sysr.status,
+                    statusText: sysr.statusText,
+                    messages,
+                }
+            }
         }
+    } finally {
+        trace.endDetails()
+    }
 
     if (systems.includes("system.tool_calls")) {
         addToolDefinitionsMessage(messages, tools)
@@ -380,10 +400,12 @@ ${schemaTs}
         responseType,
         responseSchema,
         fileMerges,
+        prediction,
         outputProcessors,
         chatParticipants,
         fileOutputs,
         logprobs,
         topLogprobs,
+        disposables,
     }
 }

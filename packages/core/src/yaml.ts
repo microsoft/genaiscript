@@ -5,6 +5,7 @@
  */
 
 import { parse, stringify } from "yaml"
+import { filenameOrFileToContent } from "./fs"
 
 /**
  * Safely attempts to parse a YAML string into a JavaScript object.
@@ -23,11 +24,12 @@ import { parse, stringify } from "yaml"
  *          conditions are met.
  */
 export function YAMLTryParse<T = any>(
-    text: string,
+    text: string | WorkspaceFile,
     defaultValue?: T,
     options?: { ignoreLiterals?: boolean }
 ): T {
     const { ignoreLiterals } = options || {}
+    text = filenameOrFileToContent(text)
     try {
         const res = parse(text)
         // Check if parsed result is a primitive and ignoreLiterals is true
@@ -50,7 +52,8 @@ export function YAMLTryParse<T = any>(
  * @param text - The YAML string to parse.
  * @returns The parsed object.
  */
-export function YAMLParse(text: string): any {
+export function YAMLParse(text: string | WorkspaceFile): any {
+    text = filenameOrFileToContent(text)
     return parse(text)
 }
 

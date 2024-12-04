@@ -6,7 +6,7 @@ sidebar:
 
 import { Image } from "astro:assets"
 import { Code } from "@astrojs/starlight/components"
-import scriptSource from "../../../../../../packages/vscode/genaisrc/copilotchat.genai.mjs?raw"
+import scriptSource from "../../../../../../packages/sample/genaisrc/samples/copilotchat.genai.mjs?raw"
 import src from "../../../../assets/chat-participant.png"
 import alt from "../../../../assets/chat-participant.png.txt?raw"
 
@@ -14,7 +14,7 @@ The `@genaiscript` [chat participant](https://code.visualstudio.com/api/extensio
 of a [GitHub Copilot Chat](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot-chat) conversation.
 This is useful for leverage existing scripts in an interactive chat session.
 
-<Image src={src} alt={alt} />
+<Image src={src} alt={alt} loading="lazy" />
 
 ## Choosing which script to run
 

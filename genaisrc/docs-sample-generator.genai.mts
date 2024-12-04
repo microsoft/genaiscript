@@ -9,6 +9,7 @@ script({
             default: "defTool",
         },
     },
+    group: "docs"
 })
 
 const api = env.vars.api + ""

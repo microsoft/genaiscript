@@ -14,6 +14,9 @@ import {
     MODEL_PROVIDER_AZURE_SERVERLESS_MODELS,
     MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI,
     DOCS_CONFIGURATION_URL,
+    MODEL_PROVIDER_GOOGLE,
+    MODEL_PROVIDER_ALIBABA,
+    MODEL_PROVIDER_LMSTUDIO,
 } from "../../core/src/constants"
 import { OpenAIAPIType } from "../../core/src/host"
 import { parseModelIdentifier } from "../../core/src/models"
@@ -29,15 +32,19 @@ async function generateLanguageModelConfiguration(
     modelId: string
 ) {
     const { provider } = parseModelIdentifier(modelId)
-    if (
-        provider === MODEL_PROVIDER_OLLAMA ||
-        provider === MODEL_PROVIDER_LLAMAFILE ||
-        provider === MODEL_PROVIDER_AICI ||
-        provider === MODEL_PROVIDER_AZURE_OPENAI ||
-        provider === MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI ||
-        provider === MODEL_PROVIDER_AZURE_SERVERLESS_MODELS ||
-        provider === MODEL_PROVIDER_LITELLM
-    ) {
+    const supportedProviders = [
+        MODEL_PROVIDER_OLLAMA,
+        MODEL_PROVIDER_LLAMAFILE,
+        MODEL_PROVIDER_AICI,
+        MODEL_PROVIDER_AZURE_OPENAI,
+        MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI,
+        MODEL_PROVIDER_AZURE_SERVERLESS_MODELS,
+        MODEL_PROVIDER_LITELLM,
+        MODEL_PROVIDER_LMSTUDIO,
+        MODEL_PROVIDER_GOOGLE,
+        MODEL_PROVIDER_ALIBABA,
+    ]
+    if (supportedProviders.includes(provider)) {
         return { provider }
     }
 
@@ -88,6 +95,11 @@ async function generateLanguageModelConfiguration(
             label: "GitHub Models",
             detail: `Use a GitHub Models with a GitHub subscription.`,
             provider: MODEL_PROVIDER_GITHUB,
+        },
+        {
+            label: "Alibaba Cloud",
+            detail: "Use Alibaba Cloud models.",
+            provider: MODEL_PROVIDER_ALIBABA,
         },
         {
             label: "LocalAI",

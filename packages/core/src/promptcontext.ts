@@ -17,7 +17,7 @@ import { fuzzSearch } from "./fuzzsearch"
 import { grepSearch } from "./grep"
 import { resolveFileContents, toWorkspaceFile } from "./file"
 import { vectorSearch } from "./vectorsearch"
-import { Project } from "./ast"
+import { Project } from "./server/messages"
 import { shellParse } from "./shell"
 import { PLimitPromiseQueue } from "./concurrency"
 import { NotSupportedError } from "./error"
@@ -27,6 +27,7 @@ import { HTMLEscape } from "./html"
 import { hash } from "./crypto"
 import { resolveModelConnectionInfo } from "./models"
 import { DOCS_WEB_SEARCH_URL } from "./constants"
+import { fetch, fetchText } from "./fetch"
 
 /**
  * Creates a prompt context for the given project, variables, trace, options, and model.
@@ -212,6 +213,8 @@ export async function createPromptContext(
 
     // Define the host for executing commands, browsing, and other operations
     const promptHost: PromptHost = Object.freeze<PromptHost>({
+        fetch: (url, options) => fetch(url, {...(options || {}), trace }),
+        fetchText: (url, options) => fetchText(url, {...(options || {}), trace }),
         resolveLanguageModel: async (modelId) => {
             const { configuration } = await resolveModelConnectionInfo(
                 { model: modelId },

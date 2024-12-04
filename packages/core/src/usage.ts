@@ -15,11 +15,14 @@ import pricings from "./pricing.json" // Interface to hold statistics related to
 import { parseModelIdentifier } from "./models"
 import {
     MODEL_PROVIDER_AICI,
+    MODEL_PROVIDER_ALIBABA,
     MODEL_PROVIDER_ANTHROPIC,
     MODEL_PROVIDER_AZURE_OPENAI,
     MODEL_PROVIDER_AZURE_SERVERLESS_MODELS,
     MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI,
     MODEL_PROVIDER_GITHUB,
+    MODEL_PROVIDER_GOOGLE,
+    MODEL_PROVIDER_MISTRAL,
     MODEL_PROVIDER_OPENAI,
 } from "./constants"
 
@@ -83,13 +86,17 @@ export function renderCost(value: number) {
 
 export function isCosteable(model: string) {
     const { provider } = parseModelIdentifier(model)
-    return (
-        provider === MODEL_PROVIDER_OPENAI ||
-        provider === MODEL_PROVIDER_AZURE_OPENAI ||
-        provider === MODEL_PROVIDER_AZURE_SERVERLESS_MODELS ||
-        provider === MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI ||
-        provider === MODEL_PROVIDER_ANTHROPIC
-    )
+    const costeableProviders = [
+        MODEL_PROVIDER_OPENAI,
+        MODEL_PROVIDER_AZURE_OPENAI,
+        MODEL_PROVIDER_AZURE_SERVERLESS_MODELS,
+        MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI,
+        MODEL_PROVIDER_ANTHROPIC,
+        MODEL_PROVIDER_GOOGLE,
+        MODEL_PROVIDER_ALIBABA,
+        MODEL_PROVIDER_MISTRAL,
+    ]
+    return costeableProviders.includes(provider)
 }
 
 /**
@@ -126,6 +133,8 @@ export class GenerationStats {
             completion_tokens_details: {
                 audio_tokens: 0,
                 reasoning_tokens: 0,
+                accepted_prediction_tokens: 0,
+                rejected_prediction_tokens: 0,
             },
             prompt_tokens_details: {
                 audio_tokens: 0,
@@ -166,6 +175,12 @@ export class GenerationStats {
             res.completion_tokens += childUsage.completion_tokens
             res.prompt_tokens += childUsage.prompt_tokens
             res.total_tokens += childUsage.total_tokens
+            res.completion_tokens_details.accepted_prediction_tokens +=
+                childUsage.completion_tokens_details
+                    .accepted_prediction_tokens ?? 0
+            res.completion_tokens_details.rejected_prediction_tokens +=
+                childUsage.completion_tokens_details
+                    .rejected_prediction_tokens ?? 0
             res.completion_tokens_details.audio_tokens +=
                 childUsage.completion_tokens_details.audio_tokens
             res.completion_tokens_details.reasoning_tokens +=
@@ -229,7 +244,16 @@ export class GenerationStats {
                 "reasoning tokens",
                 this.usage.completion_tokens_details.reasoning_tokens
             )
-
+        if (this.usage.completion_tokens_details?.accepted_prediction_tokens)
+            trace.itemValue(
+                "accepted prediction tokens",
+                this.usage.completion_tokens_details.accepted_prediction_tokens
+            )
+        if (this.usage.completion_tokens_details?.rejected_prediction_tokens)
+            trace.itemValue(
+                "rejected prediction tokens",
+                this.usage.completion_tokens_details.rejected_prediction_tokens
+            )
         if (this.chatTurns.length > 1) {
             trace.startDetails("chat turns")
             try {
@@ -263,6 +287,8 @@ export class GenerationStats {
      * @param indent - The indentation used for logging.
      */
     private logTokens(indent: string) {
+        if (!this.resolvedModel) return
+
         const unknowns = new Set<string>()
         const c = this.cost()
         if (this.model && isNaN(c) && isCosteable(this.model))
@@ -273,9 +299,9 @@ export class GenerationStats {
                 `${indent}${this.label ? `${this.label} (${this.resolvedModel})` : this.resolvedModel}> ${au.total_tokens} tokens (${au.prompt_tokens} -> ${au.completion_tokens}) ${renderCost(c)}`
             )
         }
-        if (this.chatTurns.length > 1)
-            for (const { messages, usage, model: turnModel } of this
-                .chatTurns) {
+        if (this.chatTurns.length > 1) {
+            const chatTurns = this.chatTurns.slice(0, 10)
+            for (const { messages, usage, model: turnModel } of chatTurns) {
                 const cost = estimateCost(this.model, usage)
                 if (cost === undefined && isCosteable(turnModel))
                     unknowns.add(this.model)
@@ -283,6 +309,9 @@ export class GenerationStats {
                     `${indent}  ${messages.length} messages, ${usage.total_tokens} tokens ${renderCost(cost)}`
                 )
             }
+            if (this.chatTurns.length > chatTurns.length)
+                logVerbose(`${indent}  ...`)
+        }
         for (const child of this.children) child.logTokens(indent + "  ")
         if (unknowns.size)
             logVerbose(`missing pricing for ${[...unknowns].join(", ")}`)
@@ -313,6 +342,10 @@ export class GenerationStats {
             usage.prompt_tokens_details?.audio_tokens ?? 0
         this.usage.completion_tokens_details.reasoning_tokens +=
             usage.prompt_tokens_details?.cached_tokens ?? 0
+        this.usage.completion_tokens_details.accepted_prediction_tokens +=
+            usage.completion_tokens_details?.accepted_prediction_tokens ?? 0
+        this.usage.completion_tokens_details.rejected_prediction_tokens +=
+            usage.completion_tokens_details?.rejected_prediction_tokens ?? 0
 
         const { provider } = parseModelIdentifier(this.model)
         const chatTurn = {

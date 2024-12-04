@@ -11,6 +11,7 @@ import { errorMessage } from "./error"
 import { logVerbose, roundWithPrecision, toStringList } from "./util"
 import { CancellationToken } from "./cancellation"
 import { readText } from "./fs"
+import { HttpsProxyAgent } from "https-proxy-agent"
 
 /**
  * Creates a fetch function with retry logic.
@@ -40,11 +41,27 @@ export async function createFetch(
         cancellationToken,
     } = options || {}
 
+    // We create a proxy based on Node.js environment variables.
+    const proxy =
+        process.env.GENAISCRIPT_HTTPS_PROXY ||
+        process.env.GENAISCRIPT_HTTP_PROXY ||
+        process.env.HTTPS_PROXY ||
+        process.env.HTTP_PROXY ||
+        process.env.https_proxy ||
+        process.env.http_proxy
+    const agent = proxy ? new HttpsProxyAgent(proxy) : null
+
+    // We enrich crossFetch with the proxy.
+    const crossFetchWithProxy: typeof fetch = agent
+        ? (url, options) =>
+              crossFetch(url, { ...(options || {}), agent } as any)
+        : crossFetch
+
     // Return the default fetch if no retry status codes are specified
-    if (!retryOn?.length) return crossFetch
+    if (!retryOn?.length) return crossFetchWithProxy
 
     // Create a fetch function with retry logic
-    const fetchRetry = await wrapFetch(crossFetch, {
+    const fetchRetry = await wrapFetch(crossFetchWithProxy, {
         retryOn,
         retries,
         retryDelay: (attempt, error, response) => {
@@ -78,6 +95,22 @@ export async function createFetch(
     return fetchRetry
 }
 
+export async function fetch(
+    input: string | URL | globalThis.Request,
+    options?: FetchOptions & TraceOptions
+): Promise<Response> {
+    const { retryOn, retries, retryDelay, maxDelay, trace, ...rest } =
+        options || {}
+    const f = await createFetch({
+        retryOn,
+        retries,
+        retryDelay,
+        maxDelay,
+        trace,
+    })
+    return f(input, rest)
+}
+
 /**
  * Fetches text content from a URL or file.
  *
@@ -90,8 +123,10 @@ export async function createFetch(
  */
 export async function fetchText(
     urlOrFile: string | WorkspaceFile,
-    fetchOptions?: FetchTextOptions
+    fetchOptions?: FetchTextOptions & TraceOptions
 ) {
+    const { retries, retryDelay, retryOn, maxDelay, trace, ...rest } =
+        fetchOptions || {}
     if (typeof urlOrFile === "string") {
         urlOrFile = {
             filename: urlOrFile,
@@ -103,8 +138,14 @@ export async function fetchText(
     let status = 404
     let text: string
     if (/^https?:\/\//i.test(url)) {
-        const fetch = await createFetch()
-        const resp = await fetch(url, fetchOptions)
+        const f = await createFetch({
+            retries,
+            retryDelay,
+            retryOn,
+            maxDelay,
+            trace,
+        })
+        const resp = await f(url, rest)
         ok = resp.ok
         status = resp.status
         if (ok) text = await resp.text()
@@ -164,11 +205,11 @@ export function traceFetchPost(
                         : "***") // Mask other authorization headers
             )
     const cmd = `curl ${url} \\
+--no-buffer \\
 ${Object.entries(headers)
     .map(([k, v]) => `-H "${k}: ${v}"`)
-    .join("\\\n")} \\
+    .join(" \\\n")} \\
 -d '${JSON.stringify(body, null, 2).replace(/'/g, "'\\''")}'
---no-buffer
 `
     if (trace) trace.detailsFenced(`✉️ fetch`, cmd, "bash")
     else logVerbose(cmd)

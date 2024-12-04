@@ -59,7 +59,9 @@ export const DEFAULT_MODEL_CANDIDATES = [
     "azure:gpt-4o",
     "azure_serverless:gpt-4o",
     DEFAULT_MODEL,
+    "google:gemini-1.5-pro-002",
     "anthropic:claude-2",
+    "mistral:mistral-large-latest",
     "github:gpt-4o",
     "client:gpt-4",
 ]
@@ -68,6 +70,7 @@ export const DEFAULT_VISION_MODEL_CANDIDATES = [
     "azure:gpt-4o",
     "azure_serverless:gpt-4o",
     DEFAULT_MODEL,
+    "google:gemini-1.5-pro-002",
     "anthropic:claude-2",
     "github:gpt-4o",
 ]
@@ -76,7 +79,9 @@ export const DEFAULT_SMALL_MODEL_CANDIDATES = [
     "azure:gpt-4o-mini",
     "azure_serverless:gpt-4o-mini",
     DEFAULT_SMALL_MODEL,
+    "google:gemini-1.5-flash-002",
     "anthropic:claude-instant-1",
+    "mistral:mistral-small-latest",
     "github:gpt-4o-mini",
     "client:gpt-4-mini",
 ]
@@ -145,6 +150,12 @@ export const LOCALAI_API_BASE = "http://localhost:8080/v1"
 export const LITELLM_API_BASE = "http://localhost:4000"
 export const ANTHROPIC_API_BASE = "https://api.anthropic.com"
 export const HUGGINGFACE_API_BASE = "https://api-inference.huggingface.co/v1"
+export const GOOGLE_API_BASE =
+    "https://generativelanguage.googleapis.com/v1beta/openai/"
+export const ALIBABA_BASE =
+    "https://dashscope-intl.aliyuncs.com/compatible-mode/v1"
+export const MISTRAL_API_BASE = "https://api.mistral.ai/v1"
+export const LMSTUDIO_API_BASE = "http://localhost:1234/v1"
 
 export const PROMPTFOO_CACHE_PATH = ".genaiscript/cache/tests"
 export const PROMPTFOO_CONFIG_DIR = ".genaiscript/config/tests"
@@ -155,11 +166,13 @@ export const STATS_DIR_NAME = "stats"
 
 export const EMOJI_SUCCESS = "✅"
 export const EMOJI_FAIL = "❌"
+export const EMOJI_WARNING = "⚠️"
 export const EMOJI_UNDEFINED = "?"
 
 export const MODEL_PROVIDER_OPENAI = "openai"
 export const MODEL_PROVIDER_GITHUB = "github"
 export const MODEL_PROVIDER_AZURE_OPENAI = "azure"
+export const MODEL_PROVIDER_GOOGLE = "google"
 export const MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI = "azure_serverless"
 export const MODEL_PROVIDER_AZURE_SERVERLESS_MODELS = "azure_serverless_models"
 export const MODEL_PROVIDER_OLLAMA = "ollama"
@@ -169,6 +182,10 @@ export const MODEL_PROVIDER_AICI = "aici"
 export const MODEL_PROVIDER_CLIENT = "client"
 export const MODEL_PROVIDER_ANTHROPIC = "anthropic"
 export const MODEL_PROVIDER_HUGGINGFACE = "huggingface"
+export const MODEL_PROVIDER_TRANSFORMERS = "transformers"
+export const MODEL_PROVIDER_ALIBABA = "alibaba"
+export const MODEL_PROVIDER_MISTRAL = "mistral"
+export const MODEL_PROVIDER_LMSTUDIO = "lmstudio"
 
 export const TRACE_FILE_PREVIEW_MAX_LENGTH = 240
 
@@ -193,6 +210,8 @@ export const DOCS_CONFIGURATION_AZURE_MODELS_SERVERLESS_URL =
     "https://microsoft.github.io/genaiscript/getting-started/configuration/#azure_serverless_models"
 export const DOCS_CONFIGURATION_OLLAMA_URL =
     "https://microsoft.github.io/genaiscript/getting-started/configuration/#ollama"
+export const DOCS_CONFIGURATION_LMSTUDIO_URL =
+    "https://microsoft.github.io/genaiscript/getting-started/configuration/#lmstudio"
 export const DOCS_CONFIGURATION_LLAMAFILE_URL =
     "https://microsoft.github.io/genaiscript/getting-started/configuration/#llamafile"
 export const DOCS_CONFIGURATION_LITELLM_URL =
@@ -203,8 +222,16 @@ export const DOCS_CONFIGURATION_AICI_URL =
     "https://microsoft.github.io/genaiscript/reference/scripts/aici/"
 export const DOCS_CONFIGURATION_ANTHROPIC_URL =
     "https://microsoft.github.io/genaiscript/getting-started/configuration/#anthropic"
+export const DOCS_CONFIGURATION_GOOGLE_URL =
+    "https://microsoft.github.io/genaiscript/getting-started/configuration/#google"
 export const DOCS_CONFIGURATION_HUGGINGFACE_URL =
     "https://microsoft.github.io/genaiscript/getting-started/configuration/#huggingface"
+export const DOCS_CONFIGURATION_HUGGINGFACE_TRANSFORMERS_URL =
+    "https://microsoft.github.io/genaiscript/getting-started/configuration/#transformers"
+export const DOCS_CONFIGURATION_ALIBABA_URL =
+    "https://microsoft.github.io/genaiscript/getting-started/configuration/#alibaba"
+export const DOCS_CONFIGURATION_MISTRAL_URL =
+    "https://microsoft.github.io/genaiscript/getting-started/configuration/#mistral"
 export const DOCS_CONFIGURATION_CONTENT_SAFETY_URL =
     "https://microsoft.github.io/genaiscript/reference/scripts/content-safety"
 export const DOCS_DEF_FILES_IS_EMPTY_URL =
@@ -248,14 +275,39 @@ export const MODEL_PROVIDERS = Object.freeze([
         url: DOCS_CONFIGURATION_ANTHROPIC_URL,
     },
     {
+        id: MODEL_PROVIDER_GOOGLE,
+        detail: "Google AI",
+        url: DOCS_CONFIGURATION_GOOGLE_URL,
+    },
+    {
         id: MODEL_PROVIDER_HUGGINGFACE,
         detail: "Hugging Face models",
         url: DOCS_CONFIGURATION_HUGGINGFACE_URL,
     },
     {
+        id: MODEL_PROVIDER_MISTRAL,
+        detail: "Mistral AI",
+        url: DOCS_CONFIGURATION_MISTRAL_URL,
+    },
+    {
+        id: MODEL_PROVIDER_TRANSFORMERS,
+        detail: "Hugging Face Transformers",
+        url: DOCS_CONFIGURATION_HUGGINGFACE_TRANSFORMERS_URL,
+    },
+    {
         id: MODEL_PROVIDER_OLLAMA,
         detail: "Ollama local model",
         url: DOCS_CONFIGURATION_OLLAMA_URL,
+    },
+    {
+        id: MODEL_PROVIDER_LMSTUDIO,
+        detail: "LM Studio local server",
+        url: DOCS_CONFIGURATION_LMSTUDIO_URL,
+    },
+    {
+        id: MODEL_PROVIDER_ALIBABA,
+        detail: "Alibaba models",
+        url: DOCS_CONFIGURATION_ALIBABA_URL,
     },
     {
         id: MODEL_PROVIDER_LLAMAFILE,
@@ -271,7 +323,7 @@ export const MODEL_PROVIDERS = Object.freeze([
 
 export const NEW_SCRIPT_TEMPLATE = `$\`Write a short poem in code.\`
 `
-
+export const PDF_SCALE = 4
 export const PDF_MIME_TYPE = "application/pdf"
 export const DOCX_MIME_TYPE =
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
@@ -357,3 +409,6 @@ export const CHOICE_LOGIT_BIAS = 5
 
 export const SANITIZED_PROMPT_INJECTION =
     "...prompt injection detected, content removed..."
+
+export const IMAGE_DETAIL_LOW_WIDTH = 512
+export const IMAGE_DETAIL_LOW_HEIGHT = 512

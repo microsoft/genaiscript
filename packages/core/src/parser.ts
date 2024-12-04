@@ -1,6 +1,5 @@
 // Importing utility functions and constants from other files
-import { strcmp } from "./util" // String comparison function
-import { Project, PromptScript } from "./ast" // Class imports
+import { logVerbose, strcmp } from "./util" // String comparison function
 import { defaultPrompts } from "./default_prompts" // Default prompt data
 import { parsePromptScript } from "./template" // Function to parse scripts
 import { readText } from "./fs" // Function to read text from a file
@@ -10,6 +9,8 @@ import {
     PDF_MIME_TYPE,
     XLSX_MIME_TYPE,
 } from "./constants" // Constants for MIME types and prefixes
+import { diag } from "mathjs"
+import { Project } from "./server/messages"
 
 /**
  * Converts a string to a character position represented as [row, column].
@@ -76,16 +77,10 @@ const BINARY_MIME_TYPES = [
  */
 export async function parseProject(options: { scriptFiles: string[] }) {
     const { scriptFiles } = options
-    const prj = new Project() // Initialize a new project instance
-
-    // Helper function to run finalizers stored in the project
-    const runFinalizers = () => {
-        const fins = prj._finalizers.slice() // Copy finalizers
-        prj._finalizers = [] // Clear the finalizers
-        for (const fin of fins) fin() // Execute each finalizer
-    }
-
-    runFinalizers() // Run any initial finalizers
+    const prj: Project = {
+        scripts: [],
+        diagnostics: [],
+    } // Initialize a new project instance
 
     // Clone the default prompts
     const deflPr: Record<string, string> = Object.assign({}, defaultPrompts)
@@ -93,17 +88,18 @@ export async function parseProject(options: { scriptFiles: string[] }) {
     // Process each script file, parsing its content and updating the project
     for (const f of scriptFiles) {
         const tmpl = await parsePromptScript(f, await readText(f), prj)
-        if (!tmpl) continue // Skip if no template is parsed
+        if (!tmpl) {
+            logVerbose(`skipping invalid script file: ${f}`)
+            continue
+        } // Skip if no template is parsed
         delete deflPr[tmpl.id] // Remove the parsed template from defaults
-        prj.templates.push(tmpl) // Add to project templates
+        prj.scripts.push(tmpl) // Add to project templates
     }
 
     // Add remaining default prompts to the project
     for (const [id, v] of Object.entries(deflPr)) {
-        prj.templates.push(await parsePromptScript(BUILTIN_PREFIX + id, v, prj))
+        prj.scripts.push(await parsePromptScript(BUILTIN_PREFIX + id, v, prj))
     }
-
-    runFinalizers() // Run finalizers after processing all scripts
 
     /**
      * Generates a sorting key for a PromptScript
@@ -117,7 +113,7 @@ export async function parseProject(options: { scriptFiles: string[] }) {
     }
 
     // Sort templates by the generated key
-    prj.templates.sort((a, b) => strcmp(templKey(a), templKey(b)))
+    prj.scripts.sort((a, b) => strcmp(templKey(a), templKey(b)))
 
     return prj // Return the fully parsed project
 }

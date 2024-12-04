@@ -1,4 +1,5 @@
 // cspell: disable
+import { log } from "console"
 import {
     ChatCompletionChunkChoice,
     ChatCompletionTokenLogprob,
@@ -15,7 +16,7 @@ export function serializeLogProb(content: ChatCompletionTokenLogprob): Logprob {
             token: tp.token,
             logprob: tp.logprob,
         })),
-        entropy: computeNormalizedEntry(top_logprobs),
+        entropy: computeNormalizedEntropy(top_logprobs),
     } satisfies Logprob
 }
 
@@ -85,10 +86,11 @@ export function computePerplexity(logprobs: Logprob[]): number {
     return Math.exp(-sum / logprobs.length)
 }
 
-function computeNormalizedEntry(logprobs: Logprob[]): number {
-    if (!logprobs?.length) return undefined
+function computeNormalizedEntropy(logprobs: Logprob[]): number {
+    if (logprobs?.length < 2) return undefined
 
     // Calculate entropy
+    // https://www.watchful.io/blog/decoding-llm-uncertainties-for-better-predictability
     const entropy = -logprobs.reduce(
         (acc, lp) => acc + Math.exp(lp.logprob) * lp.logprob,
         0
@@ -101,4 +103,14 @@ function computeNormalizedEntry(logprobs: Logprob[]): number {
     const normalizedEntropy = entropy / maxEntropy
 
     return normalizedEntropy
+}
+
+// https://www.watchful.io/blog/decoding-llm-uncertainties-for-better-predictability
+export function computeStructuralUncertainty(logprobs: Logprob[]): number {
+    if (!logprobs?.length) return undefined
+    const vs = logprobs
+        .map((logprob) => computeNormalizedEntropy(logprob.topLogprobs))
+        .filter((v) => !isNaN(v))
+    if (!vs.length) return undefined
+    return vs.reduce((acc, v) => acc + v, 0) / vs.length
 }

@@ -5,7 +5,14 @@ import { addLineNumbers, extractRange } from "./liner"
 import { JSONSchemaStringifyToTypeScript } from "./schema"
 import { estimateTokens, truncateTextToTokens } from "./tokens"
 import { MarkdownTrace, TraceOptions } from "./trace"
-import { arrayify, assert, toStringList, trimNewlines } from "./util"
+import {
+    arrayify,
+    assert,
+    logError,
+    logWarn,
+    toStringList,
+    trimNewlines,
+} from "./util"
 import { YAMLStringify } from "./yaml"
 import {
     MARKDOWN_PROMPT_FENCE,
@@ -33,6 +40,7 @@ import { promptyParse } from "./prompty"
 import { jinjaRenderChatMessage } from "./jinja"
 import { runtimeHost } from "./host"
 import { hash } from "./crypto"
+import { startMcpServer } from "./mcp"
 
 // Definition of the PromptNode interface which is an essential part of the code structure.
 export interface PromptNode extends ContextExpansionOptions {
@@ -51,6 +59,7 @@ export interface PromptNode extends ContextExpansionOptions {
         | "chatParticipant"
         | "fileOutput"
         | "importTemplate"
+        | "mcpServer"
         | undefined
     children?: PromptNode[] // Child nodes for hierarchical structure
     error?: unknown // Error information if present
@@ -87,6 +96,11 @@ export interface PromptDefNode extends PromptNode, DefOptions {
     resolved?: WorkspaceFile // Resolved file content
 }
 
+export interface PromptPrediction {
+    type: "content"
+    content: string
+}
+
 // Interface for an assistant node.
 export interface PromptAssistantNode extends PromptNode {
     type: "assistant"
@@ -107,6 +121,7 @@ export interface PromptStringTemplateNode extends PromptNode {
     args: any[] // Arguments for the template
     transforms: ((s: string) => Awaitable<string>)[] // Transform functions to apply to the template
     resolved?: string // Resolved templated content
+    role?: ChatMessageRole
 }
 
 // Interface for an import template node.
@@ -147,6 +162,11 @@ export interface PromptToolNode extends PromptNode {
     parameters: JSONSchema // Parameters for the function
     impl: ChatFunctionHandler // Implementation of the function
     options?: DefToolOptions
+}
+
+export interface PromptMcpServerNode extends PromptNode {
+    type: "mcpServer"
+    config: McpServerConfig
 }
 
 // Interface for a file merge node.
@@ -228,7 +248,7 @@ export function createDefDiff(
 // Function to render a definition node to a string.
 function renderDefNode(def: PromptDefNode): string {
     const { name, resolved: file } = def
-    const { language, lineNumbers, schema } = def || {}
+    const { language, lineNumbers, schema, prediction } = def || {}
 
     file.content = extractRange(file.content, def)
 
@@ -238,7 +258,8 @@ function renderDefNode(def: PromptDefNode): string {
             : PROMPT_FENCE
     const norm = (s: string, lang: string) => {
         s = (s || "").replace(/\n*$/, "")
-        if (s && lineNumbers) s = addLineNumbers(s, { language: lang })
+        if (s && lineNumbers && !prediction)
+            s = addLineNumbers(s, { language: lang })
         if (s) s += "\n"
         return s
     }
@@ -261,7 +282,9 @@ function renderDefNode(def: PromptDefNode): string {
         dfence += "`"
     }
     const diffFormat =
-        body.length > 500 ? " preferred_output_format=CHANGELOG " : ""
+        body.length > 500 && !prediction
+            ? " preferred_output_format=CHANGELOG "
+            : ""
     const res =
         "\n" +
         (name ? name + ":\n" : "") +
@@ -376,7 +399,7 @@ export function createChatParticipant(
 
 // Function to create a file output node.
 export function createFileOutput(output: FileOutput): FileOutputNode {
-    return { type: "fileOutput", output }
+    return { type: "fileOutput", output } satisfies FileOutputNode
 }
 
 // Function to create an import template node.
@@ -386,7 +409,23 @@ export function createImportTemplate(
     options?: ImportTemplateOptions
 ): PromptImportTemplate {
     assert(!!files)
-    return { type: "importTemplate", files, args, options }
+    return {
+        type: "importTemplate",
+        files,
+        args,
+        options,
+    } satisfies PromptImportTemplate
+}
+
+export function createMcpServer(
+    id: string,
+    config: McpServerConfig,
+    options?: DefToolOptions
+): PromptMcpServerNode {
+    return {
+        type: "mcpServer",
+        config: { ...config, id, options },
+    } satisfies PromptMcpServerNode
 }
 
 // Function to check if data objects have the same keys and simple values.
@@ -478,6 +517,7 @@ export interface PromptNodeVisitor {
     chatParticipant?: (node: PromptChatParticipantNode) => Awaitable<void> // Chat participant node visitor
     fileOutput?: (node: FileOutputNode) => Awaitable<void> // File output node visitor
     importTemplate?: (node: PromptImportTemplate) => Awaitable<void> // Import template node visitor
+    mcpServer?: (node: PromptMcpServerNode) => Awaitable<void> // Mcp server node visitor
 }
 
 // Function to visit nodes in the prompt tree.
@@ -523,6 +563,9 @@ export async function visitNode(node: PromptNode, visitor: PromptNodeVisitor) {
         case "importTemplate":
             await visitor.importTemplate?.(node as PromptImportTemplate)
             break
+        case "mcpServer":
+            await visitor.mcpServer?.(node as PromptMcpServerNode)
+            break
     }
     if (node.error) visitor.error?.(node)
     if (!node.error && !node.deleted && node.children) {
@@ -545,6 +588,8 @@ export interface PromptNodeRender {
     chatParticipants: ChatParticipant[] // Chat participants
     messages: ChatCompletionMessageParam[] // Messages for chat completion
     fileOutputs: FileOutput[] // File outputs
+    prediction: PromptPrediction // predicted output for the prompt
+    disposables: AsyncDisposable[] // Disposables
 }
 
 /**
@@ -572,8 +617,10 @@ async function layoutPromptNode(mode: string, root: PromptNode) {
 // Function to resolve a prompt node.
 async function resolvePromptNode(
     model: string,
-    root: PromptNode
+    root: PromptNode,
+    options: TraceOptions
 ): Promise<{ errors: number }> {
+    const { trace } = options || {}
     const { encode: encoder } = await resolveTokenEncoder(model)
     let err = 0
     const names = new Set<string>()
@@ -588,7 +635,8 @@ async function resolvePromptNode(
     }
 
     await visitNode(root, {
-        error: () => {
+        error: (node) => {
+            logError(node.error)
             err++
         },
         text: async (n) => {
@@ -712,7 +760,7 @@ async function resolvePromptNode(
                 if (fs.length === 0)
                     throw new Error(`No files found for import: ${files}`)
                 for (const f of fs) {
-                    await resolveFileContent(f, options)
+                    await resolveFileContent(f, { ...(options || {}), trace })
                     if (PROMPTY_REGEX.test(f.filename))
                         await resolveImportPrompty(n, f, args, options)
                     else {
@@ -748,7 +796,27 @@ async function resolveImportPrompty(
     args: Record<string, string | number | boolean>,
     options: ImportTemplateOptions
 ) {
-    const { messages } = promptyParse(f.filename, f.content)
+    const { allowExtraArguments } = options || {}
+    const { messages, meta } = promptyParse(f.filename, f.content)
+    const { parameters } = meta
+    args = args || {}
+
+    const extra = Object.keys(args).find((arg) => !parameters?.[arg])
+    if (extra) {
+        if (allowExtraArguments)
+            logWarn(`Extra input argument '${extra}' in ${f.filename}`)
+        else throw new Error(`Extra input argument '${extra}' in ${f.filename}`)
+    }
+    if (parameters) {
+        const missing = Object.keys(parameters).find(
+            (p) => args[p] === undefined
+        )
+        if (missing)
+            throw new Error(
+                `Missing input argument for '${missing[0]}' in ${f.filename}`
+            )
+    }
+
     for (const message of messages) {
         const txt = jinjaRenderChatMessage(message, args)
         if (message.role === "assistant")
@@ -988,7 +1056,7 @@ export async function renderPromptNode(
     const { model } = parseModelIdentifier(modelId)
     const { encode: encoder } = await resolveTokenEncoder(model)
 
-    await resolvePromptNode(model, node)
+    await resolvePromptNode(model, node, options)
     await tracePromptNode(trace, node)
 
     if (await deduplicatePromptNode(trace, node))
@@ -1024,35 +1092,50 @@ export async function renderPromptNode(
     const outputProcessors: PromptOutputProcessorHandler[] = []
     const chatParticipants: ChatParticipant[] = []
     const fileOutputs: FileOutput[] = []
+    const mcpServers: McpServerConfig[] = []
+    const disposables: AsyncDisposable[] = []
+    let prediction: PromptPrediction
 
     await visitNode(node, {
+        error: (n) => {
+            errors.push(n.error)
+        },
         text: async (n) => {
-            if (n.error) errors.push(n.error)
             const value = n.resolved
             if (value != undefined) appendUser(value)
         },
         def: async (n) => {
-            if (n.error) errors.push(n.error)
             const value = n.resolved
-            if (value !== undefined) appendUser(renderDefNode(n))
+            if (value !== undefined) {
+                appendUser(renderDefNode(n))
+                if (n.prediction) {
+                    if (prediction) n.error = "duplicate prediction"
+                    else
+                        prediction = {
+                            type: "content",
+                            content: extractRange(value.content, n),
+                        }
+                }
+            }
         },
         assistant: async (n) => {
-            if (n.error) errors.push(n.error)
             const value = await n.resolved
             if (value != undefined) appendAssistant(value)
         },
         system: async (n) => {
-            if (n.error) errors.push(n.error)
             const value = await n.resolved
             if (value != undefined) appendSystem(value)
         },
         stringTemplate: async (n) => {
-            if (n.error) errors.push(n.error)
             const value = n.resolved
-            if (value != undefined) appendUser(value)
+            const role = n.role || "user"
+            if (value != undefined) {
+                if (role === "system") appendSystem(value)
+                else if (role === "assistant") appendAssistant(value)
+                else appendUser(value)
+            }
         },
         image: async (n) => {
-            if (n.error) errors.push(n.error)
             const value = n.resolved
             if (value?.url) {
                 images.push(value)
@@ -1134,7 +1217,19 @@ ${trimNewlines(schemaText)}
             fileOutputs.push(n.output)
             trace.itemValue(`file output`, n.output.pattern)
         },
+        mcpServer: (n) => {
+            mcpServers.push(n.config)
+            trace.itemValue(`mcp server`, n.config.id)
+        },
     })
+
+    if (mcpServers.length) {
+        for (const mcpServer of mcpServers) {
+            const res = await startMcpServer(mcpServer, options)
+            tools.push(...res.tools)
+            disposables.push(res)
+        }
+    }
 
     const res = Object.freeze<PromptNodeRender>({
         images,
@@ -1146,6 +1241,8 @@ ${trimNewlines(schemaText)}
         errors,
         messages,
         fileOutputs,
+        prediction,
+        disposables,
     })
     return res
 }

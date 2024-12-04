@@ -410,7 +410,9 @@ system({
     lineNumbers: true,
 })
 
-$`Use the following format to create **file annotations** (same as GitHub Actions workflow).
+$`## Annotation Format
+
+Use the following format to report **file annotations** (same as GitHub Actions workflow).
 
 ::(notice|warning|error) file=<filename>,line=<start line>,endLine=<end line>,code=<error_id>::<message>
 
@@ -2588,24 +2590,6 @@ $`You are an expert coder in Python. You create code that is PEP8 compliant.`
 `````
 
 
-### `system.python-types`
-
-Python developer that adds types.
-
-
-
-
-
-`````js wrap title="system.python-types"
-system({
-    title: "Python developer that adds types.",
-})
-
-$`When generating Python, emit type information compatible with PyLance and Pyright.`
-
-`````
-
-
 ### `system.python_code_interpreter`
 
 Python Dockerized code execution for data analysis
@@ -2715,6 +2699,24 @@ defTool(
         return res
     }
 )
+
+`````
+
+
+### `system.python_types`
+
+Python developer that adds types.
+
+
+
+
+
+`````js wrap title="system.python_types"
+system({
+    title: "Python developer that adds types.",
+})
+
+$`When generating Python, emit type information compatible with PyLance and Pyright.`
 
 `````
 
@@ -3401,6 +3403,7 @@ defTool(
             },
             {
                 model: "vision",
+                cache: "vision_ask_image",
                 system: [
                     "system",
                     "system.assistant",

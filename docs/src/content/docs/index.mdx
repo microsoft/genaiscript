@@ -38,9 +38,9 @@ import testExplorerAlt from "../../assets/vscode-test-explorer.png.txt?raw"
 
 Programmatically assemble prompts for LLMs using JavaScript. Orchestrate LLMs, tools, and data in a single script.
 
--   JavaScript toolbox to work with prompts
--   Abstraction to make it easy and productive
--   Seamless Visual Studio Code integration
+- JavaScript toolbox to work with prompts
+- Abstraction to make it easy and productive
+- Seamless Visual Studio Code integration
 
 ## Hello world
 
@@ -136,13 +136,25 @@ defTool("weather", "live weather",
         { ... "sunny" }
 )
 ```
-
-or use built-in [@agentic tools](/genaiscript/guides/agentic-tools/)
+or use [@agentic tools](/genaiscript/guides/agentic-tools/)
 
 ```js wrap
 import { WeatherClient } from "@agentic/weather"
 defTool(new WeatherClient())
-```
+````
+
+</Card>
+
+<Card title="Model Context Provider Client" icon="setting">
+
+Use [tools](https://modelcontextprotocol.io/docs/concepts/tools) exposed in [MCP Servers](/genaiscript/reference/scripts/mcp-tools)
+
+````js wrap
+defTool({ "memory": { 
+    command: "npx",
+    args: ["-y", "@modelcontextprotocol/server-memory"] 
+}})
+````
 
 </Card>
 
@@ -174,9 +186,9 @@ Scripts are [files](/genaiscript/reference/scripts/)! They can be versioned, sha
 
 <FileTree>
 
--   genaisrc
-    -   my-script.genai.mjs
-    -   another-great-script.genai.mjs
+- genaisrc
+    - my-script.genai.mjs
+    - another-great-script.genai.mjs
 
 </FileTree>
 
@@ -250,7 +262,7 @@ The quick brown fox jumps over the lazy dog.
 
 <FileTree>
 
--   poem.txt extracted by genaiscript
+- poem.txt extracted by genaiscript
 
 </FileTree>
 
@@ -322,6 +334,17 @@ or [GitHub Copilot](/getting-started/configuration/#github-copilot-in-visual-stu
 
 ```js wrap
 script({ ..., model: "github:gpt-4o" })
+```
+
+</Card>
+
+<Card title="Google, Anthropic, Alibaba, ..." icon="rocket">
+
+Run models from [Google](https://aistudio.google.com/), [Anthropic](https://www.anthropic.com/), [Alibaba](https://www.alibaba.com/), and more.
+See [Configuration](/genaiscript/getting-started/configuration/).
+
+```js wrap
+script({ ..., model: "google:gemini-1.5-flash"})
 ```
 
 </Card>

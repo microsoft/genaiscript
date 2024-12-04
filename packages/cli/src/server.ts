@@ -34,6 +34,7 @@ import {
     ChatChunk,
     ChatCancel,
     LanguageModelConfigurationResponse,
+    promptScriptListResponse,
 } from "../../core/src/server/messages"
 import { envInfo } from "./info"
 import { LanguageModel } from "../../core/src/chat"
@@ -43,6 +44,7 @@ import {
     CreateChatCompletionRequest,
 } from "../../core/src/chattypes"
 import { randomHex } from "../../core/src/crypto"
+import { buildProject } from "./build"
 
 /**
  * Starts a WebSocket server for handling chat and script execution.
@@ -174,7 +176,11 @@ export async function startServer(options: { port: string; apiKey?: string }) {
             const hash = search.get("api-key")
             if (req.headers.authorization !== apiKey && hash !== apiKey) {
                 logError(`clients: connection unauthorized ${url}, ${hash}`)
-                ws.close(401, "Unauthorized")
+                logVerbose(`url:${req.url}`)
+                logVerbose(`api:${apiKey}`)
+                logVerbose(`auth:${req.headers.authorization}`)
+                logVerbose(`hash:${hash}`)
+                ws.close(1008, "Unauthorized")
                 return
             }
         }
@@ -241,6 +247,19 @@ export async function startServer(options: { port: string; apiKey?: string }) {
                         }
                         break
                     }
+                    case "script.list": {
+                        logVerbose(`project: list scripts`)
+                        const project = await buildProject()
+                        logVerbose(
+                            `project: found ${project?.scripts?.length || 0} scripts`
+                        )
+                        response = <promptScriptListResponse>{
+                            ok: true,
+                            status: 0,
+                            project,
+                        }
+                        break
+                    }
                     // Handle test run request
                     case "tests.run": {
                         logVerbose(
@@ -248,7 +267,7 @@ export async function startServer(options: { port: string; apiKey?: string }) {
                         )
                         response = await runPromptScriptTests(data.scripts, {
                             ...(data.options || {}),
-                            cache: true,
+                            //cache: true,
                             verbose: true,
                             promptfooVersion: PROMPTFOO_VERSION,
                         })

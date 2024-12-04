@@ -23,6 +23,15 @@ import {
     HUGGINGFACE_API_BASE,
     OLLAMA_API_BASE,
     OLLAMA_DEFAUT_PORT,
+    MODEL_PROVIDER_GOOGLE,
+    GOOGLE_API_BASE,
+    MODEL_PROVIDER_TRANSFORMERS,
+    MODEL_PROVIDER_ALIBABA,
+    ALIBABA_BASE,
+    MODEL_PROVIDER_MISTRAL,
+    MISTRAL_API_BASE,
+    MODEL_PROVIDER_LMSTUDIO,
+    LMSTUDIO_API_BASE,
 } from "./constants"
 import { fileExists, readText, writeText } from "./fs"
 import {
@@ -129,7 +138,7 @@ export async function parseTokenFromEnv(
             token,
             source: "env: OPENAI_API_...",
             version,
-        }
+        } satisfies LanguageModelConfiguration
     }
 
     if (provider === MODEL_PROVIDER_GITHUB) {
@@ -148,7 +157,7 @@ export async function parseTokenFromEnv(
             type,
             token,
             source: `env: ${tokenVar}`,
-        }
+        } satisfies LanguageModelConfiguration
     }
 
     if (provider === MODEL_PROVIDER_AZURE_OPENAI) {
@@ -194,7 +203,7 @@ export async function parseTokenFromEnv(
                 : "env: AZURE_OPENAI_API_... + Entra ID",
             version,
             azureCredentialsType,
-        }
+        } satisfies LanguageModelConfiguration
     }
 
     if (provider === MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI) {
@@ -239,7 +248,7 @@ export async function parseTokenFromEnv(
                 : "env: AZURE_SERVERLESS_OPENAI_API_... + Entra ID",
             version,
             azureCredentialsType,
-        }
+        } satisfies LanguageModelConfiguration
     }
 
     if (provider === MODEL_PROVIDER_AZURE_SERVERLESS_MODELS) {
@@ -259,7 +268,7 @@ export async function parseTokenFromEnv(
             throw new Error(
                 "AZURE_SERVERLESS_MODELS_API_ENDPOINT not configured"
             )
-        base = cleanAzureBase(base)
+        base = trimTrailingSlash(base)
         if (!URL.canParse(base))
             throw new Error(
                 "AZURE_SERVERLESS_MODELS_API_ENDPOINT must be a valid URL"
@@ -281,7 +290,25 @@ export async function parseTokenFromEnv(
                 ? "env: AZURE_SERVERLESS_MODELS_API_..."
                 : "env: AZURE_SERVERLESS_MODELS_API_... + Entra ID",
             version,
-        }
+        } satisfies LanguageModelConfiguration
+    }
+
+    if (provider === MODEL_PROVIDER_GOOGLE) {
+        const token = env.GOOGLE_API_KEY
+        if (!token) return undefined
+        if (token === PLACEHOLDER_API_KEY)
+            throw new Error("GOOGLE_API_KEY not configured")
+        const base = env.GOOGLE_API_BASE || GOOGLE_API_BASE
+        if (base === PLACEHOLDER_API_BASE)
+            throw new Error("GOOGLE_API_BASE not configured")
+        return {
+            provider,
+            model,
+            base,
+            token,
+            type: "openai",
+            source: "env: GOOGLE_API_...",
+        } satisfies LanguageModelConfiguration
     }
 
     if (provider === MODEL_PROVIDER_ANTHROPIC) {
@@ -301,6 +328,42 @@ export async function parseTokenFromEnv(
             base,
             version,
             source,
+        } satisfies LanguageModelConfiguration
+    }
+
+    if (provider === MODEL_PROVIDER_MISTRAL) {
+        const base = env.MISTRAL_API_BASE || MISTRAL_API_BASE
+        const token = env.MISTRAL_API_KEY
+        if (!token) throw new Error("MISTRAL_API_KEY not configured")
+        return {
+            provider,
+            model,
+            token,
+            base,
+            source: "env: MISTRAL_API_...",
+            type: "openai",
+        } satisfies LanguageModelConfiguration
+    }
+
+    if (provider === MODEL_PROVIDER_ALIBABA) {
+        const base =
+            env.ALIBABA_API_BASE ||
+            env.DASHSCOPE_API_BASE ||
+            env.DASHSCOPE_HTTP_BASE_URL ||
+            ALIBABA_BASE
+        if (base === PLACEHOLDER_API_BASE)
+            throw new Error("ALIBABA_API_BASE not configured")
+        if (!URL.canParse(base)) throw new Error(`${base} must be a valid URL`)
+        const token = env.ALIBABA_API_KEY || env.DASHSCOPE_API_KEY
+        if (token === undefined || token === PLACEHOLDER_API_KEY)
+            throw new Error("ALIBABA_API_KEY not configured")
+        return {
+            provider,
+            model,
+            base,
+            token,
+            type: "alibaba",
+            source: "env: ALIBABA_API_...",
         }
     }
 
@@ -314,7 +377,7 @@ export async function parseTokenFromEnv(
             token: "ollama",
             type: "openai",
             source: "env: OLLAMA_HOST",
-        }
+        } satisfies LanguageModelConfiguration
     }
 
     if (provider === MODEL_PROVIDER_HUGGINGFACE) {
@@ -366,10 +429,14 @@ export async function parseTokenFromEnv(
     }
 
     if (provider === MODEL_PROVIDER_LLAMAFILE) {
+        const base =
+            findEnvVar(env, "LLAMAFILE", BASE_SUFFIX)?.value ||
+            LLAMAFILE_API_BASE
+        if (!URL.canParse(base)) throw new Error(`${base} must be a valid URL`)
         return {
             provider,
             model,
-            base: LLAMAFILE_API_BASE,
+            base,
             token: "llamafile",
             type: "openai",
             source: "default",
@@ -377,12 +444,39 @@ export async function parseTokenFromEnv(
     }
 
     if (provider === MODEL_PROVIDER_LITELLM) {
+        const base =
+            findEnvVar(env, "LITELLM", BASE_SUFFIX)?.value || LITELLM_API_BASE
+        if (!URL.canParse(base)) throw new Error(`${base} must be a valid URL`)
         return {
             provider,
             model,
-            base: LITELLM_API_BASE,
+            base,
             token: "litellm",
             type: "openai",
+            source: "default",
+        }
+    }
+
+    if (provider === MODEL_PROVIDER_LMSTUDIO) {
+        const base =
+            findEnvVar(env, "LMSTUDIO", BASE_SUFFIX)?.value || LMSTUDIO_API_BASE
+        if (!URL.canParse(base)) throw new Error(`${base} must be a valid URL`)
+        return {
+            provider,
+            model,
+            base,
+            token: "lmstudio",
+            type: "openai",
+            source: "env: LMSTUDIO_API_...",
+        }
+    }
+
+    if (provider === MODEL_PROVIDER_TRANSFORMERS) {
+        return {
+            provider,
+            model,
+            base: undefined,
+            token: "transformers",
             source: "default",
         }
     }

@@ -4,6 +4,9 @@
  * of annotations into different formats for integration with CI/CD tools.
  */
 
+import { EMOJI_FAIL, EMOJI_SUCCESS, EMOJI_WARNING } from "./constants"
+import { host } from "./host"
+
 // Regular expression for matching GitHub Actions annotations.
 // Example: ::error file=foo.js,line=10,endLine=11::Something went wrong.
 const GITHUB_ANNOTATIONS_RX =
@@ -18,12 +21,19 @@ const AZURE_DEVOPS_ANNOTATIONS_RX =
 // Example: foo.ts:10:error TS1005: ';' expected.
 const TYPESCRIPT_ANNOTATIONS_RX =
     /^(?<file>[^:\s].*?):(?<line>\d+)(?::(?<endLine>\d+))?(?::\d+)?\s+-\s+(?<severity>error|warning)\s+(?<code>[^:]+)\s*:\s*(?<message>.*)$/gim
+
 // Maps severity strings to `DiagnosticSeverity`.
 const SEV_MAP: Record<string, DiagnosticSeverity> = Object.freeze({
     ["info"]: "info",
     ["notice"]: "info", // Maps 'notice' to 'info' severity
     ["warning"]: "warning",
     ["error"]: "error",
+})
+const SEV_EMOJI_MAP: Record<string, string> = Object.freeze({
+    ["info"]: "ℹ️",
+    ["notice"]: "ℹ️", // Maps 'notice' to 'info' severity
+    ["warning"]: EMOJI_WARNING,
+    ["error"]: EMOJI_FAIL,
 })
 
 /**
@@ -73,16 +83,15 @@ export function eraseAnnotations(text: string) {
 
 export function convertAnnotationsToItems(text: string) {
     return [
-        TYPESCRIPT_ANNOTATIONS_RX,
         GITHUB_ANNOTATIONS_RX,
+        TYPESCRIPT_ANNOTATIONS_RX,
         AZURE_DEVOPS_ANNOTATIONS_RX,
     ].reduce(
         (t, rx) =>
-            t.replace(rx, (s) => {
-                const m = rx.exec(s)
-                if (!m) return s
-                const { file, line, severity, code, message } = m.groups
-                return `- ${SEV_MAP[severity?.toLowerCase()] ?? "info"}: ${message} (${file}#L${line} ${code || ""})`
+            t.replace(rx, (s, ...args) => {
+                const groups = args.at(-1)
+                const { file, line, severity, code, message } = groups
+                return `- ${SEV_EMOJI_MAP[severity?.toLowerCase()] ?? "info"} ${message} (\`${host.path.basename(file)}#L${line}\`)`
             }),
         text
     )

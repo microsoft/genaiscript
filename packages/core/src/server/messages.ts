@@ -2,6 +2,15 @@ import { ChatCompletionAssistantMessageParam } from "../chattypes"
 import { GenerationResult } from "../generation"
 import { LanguageModelConfiguration, ResponseStatus } from "../host"
 
+/**
+ * Represents a project containing templates and diagnostics.
+ * Provides utility methods to manage templates and diagnose issues.
+ */
+export interface Project {
+    scripts: PromptScript[] // Array of templates within the project
+    diagnostics: Diagnostic[] // Array of diagnostic records
+}
+
 export interface RequestMessage {
     type: string
     id: string
@@ -21,10 +30,17 @@ export interface ServerEnv extends RequestMessage {
     type: "server.env"
 }
 
-export interface PromptScriptTestRunOptions {
+export interface PromptScriptTestRunOptions
+    extends PromptScriptModelRunOptions {
     testProvider?: string
     models?: string[]
     groups?: string[]
+}
+
+export interface PromptScriptModelRunOptions {
+    model?: string
+    smallModel?: string
+    visionModel?: string
 }
 
 export interface PromptScriptTestRun extends RequestMessage {
@@ -85,6 +101,14 @@ export interface PromptScriptRunOptions {
     topLogprobs: number
 
     varsMap?: Record<string, string | boolean | number | object>
+}
+
+export interface PromptScriptList extends RequestMessage {
+    type: "script.list"    
+}
+
+export interface promptScriptListResponse extends ResponseStatus {
+    project: Project
 }
 
 export interface PromptScriptStart extends RequestMessage {
@@ -186,6 +210,7 @@ export type RequestMessages =
     | PromptScriptAbort
     | ChatChunk
     | LanguageModelConfigurationRequest
+    | PromptScriptList
 
 export type PromptScriptResponseEvents =
     | PromptScriptProgressResponseEvent

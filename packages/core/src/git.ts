@@ -21,9 +21,15 @@ import { resolveTokenEncoder } from "./encoders"
  * GitClient class provides an interface to interact with Git.
  */
 export class GitClient implements Git {
+    readonly cwd: string
     readonly git = "git" // Git command identifier
     private _defaultBranch: string // Stores the default branch name
     private _branch: string // Stores the current branch name
+
+    constructor(cwd: string) {
+        this.cwd = cwd
+    }
+
     private async resolveExcludedPaths(options?: {
         excludedPaths?: ElementOrArray<string>
     }): Promise<string[]> {
@@ -82,11 +88,15 @@ export class GitClient implements Git {
         args: string | string[],
         options?: { label?: string }
     ): Promise<string> {
+        const opts = {
+            ...(options || {}),
+            cwd: this.cwd,
+        }
         const res = await runtimeHost.exec(
             undefined,
             this.git,
             Array.isArray(args) ? args : shellParse(args),
-            options
+            opts
         )
         return res.stdout
     }
@@ -319,7 +329,15 @@ ${truncateTextToTokens(res, maxTokensFullDiff, encoder)}
 ## Files
 ${await this.diff({ ...options, nameOnly: true })}
 `
-        }
+    }
         return res
+    }
+
+    client(cwd: string) {
+        return new GitClient(cwd)
+    }
+
+    toString() {
+        return `git ${this.cwd || ""}`
     }
 }

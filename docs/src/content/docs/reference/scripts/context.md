@@ -207,6 +207,23 @@ You can schedule a check for prompt injection/jai break with your configured [co
 def("FILE", env.files, { detectPromptInjection: true })
 ```
 
+### Predicted output
+
+Some models, like OpenAI gpt-4o and gpt-4o-mini, support specifying a [predicted output](https://platform.openai.com/docs/guides/predicted-outputs) (with some [limitations](https://platform.openai.com/docs/guides/predicted-outputs#limitations)). This helps reduce latency for model responses where much of the response is known ahead of time.
+This can be helpful when asking the LLM to edit specific files.
+
+Set the `prediction: true` flag to enable it on a `def` call. Note that only a single file can be predicted.
+
+```js
+def("FILE", env.files[0], { prediction: true })
+```
+
+:::note
+
+This feature disables line number insertion.
+
+:::
+
 ## Data definition (`defData`)
 
 The `defData` function offers additional formatting options for converting a data object into a textual representation. It supports rendering objects as YAML, JSON, or CSV (formatted as a Markdown table).

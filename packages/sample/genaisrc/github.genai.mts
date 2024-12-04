@@ -3,11 +3,21 @@ script({
     tests: {},
 })
 
+const info = await github.info()
+console.log(info)
+
+const ts = github.client("microsoft", "typescript")
+const tsissues = await ts.listIssues({ count: 5 })
+console.log({ typescriptIssues: tsissues.map((i) => i.title) })
+
 const issues = await github.listIssues({ count: 5 })
 if (issues.length === 0) throw new Error("No issues found")
 console.log(issues.map((i) => i.title))
 const issueComments = await github.listIssueComments(issues[0].number)
 console.log(issueComments)
+
+if (tsissues[0].title === issues[0].title)
+    throw new Error("Issue titles are the same")
 
 const prs = await github.listPullRequests()
 console.log(prs.slice(0, 5).map((i) => i.title))
@@ -55,3 +65,6 @@ console.log(
 
 const branches = await github.listBranches()
 console.log(branches)
+
+if (info.issueNumber)
+    await github.createIssueComment(info.issueNumber, "Hello from GenAIClient")

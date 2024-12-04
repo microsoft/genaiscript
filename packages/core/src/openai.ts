@@ -59,7 +59,9 @@ export function getConfigHeaders(cfg: LanguageModelConfiguration) {
         "api-key":
             token &&
             !isBearer &&
-            (type === "azure" || type === "azure_serverless")
+            (type === "azure" ||
+                type === "azure_serverless" ||
+                type === "alibaba")
                 ? token
                 : undefined,
         "User-Agent": TOOL_ID,
@@ -154,7 +156,11 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
     let url = ""
     const toolCalls: ChatCompletionToolCall[] = []
 
-    if (cfg.type === "openai" || cfg.type === "localai") {
+    if (
+        cfg.type === "openai" ||
+        cfg.type === "localai" ||
+        cfg.type === "alibaba"
+    ) {
         url = trimTrailingSlash(cfg.base) + "/chat/completions"
         if (url === OPENROUTER_API_CHAT_URL) {
             ;(headers as any)[OPENROUTER_SITE_URL_HEADER] =
@@ -203,8 +209,8 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
     trace.dispatchChange()
 
     const fetchHeaders: HeadersInit = {
-        ...getConfigHeaders(cfg),
         "Content-Type": "application/json",
+        ...getConfigHeaders(cfg),
         ...(headers || {}),
     }
     traceFetchPost(trace, url, fetchHeaders as any, postReq)
@@ -282,7 +288,9 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
                 numTokens += estimateTokens(delta.content, encoder)
                 chatResp += delta.content
                 tokens.push(
-                    ...serializeChunkChoiceToLogProbs(choice as ChatCompletionChunkChoice)
+                    ...serializeChunkChoiceToLogProbs(
+                        choice as ChatCompletionChunkChoice
+                    )
                 )
                 trace.appendToken(delta.content)
             } else if (Array.isArray(delta.tool_calls)) {
@@ -321,6 +329,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
         }
     }
 
+    trace.appendContent("\n\n")
     if (!postReq.stream) {
         const responseBody = await r.text()
         doChoices(responseBody, [])
@@ -409,7 +418,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
 async function listModels(
     cfg: LanguageModelConfiguration
 ): Promise<LanguageModelInfo[]> {
-    const fetch = await createFetch()
+    const fetch = await createFetch({ retries: 1 })
     const res = await fetch(cfg.base + "/models", {
         method: "GET",
         headers: {

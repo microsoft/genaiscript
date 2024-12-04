@@ -9,6 +9,7 @@ script({
     },
     system: ["system", "system.files"],
     tools: ["fs", "md"],
+    group: "docs"
 })
 
 const api = env.vars.api || "git"

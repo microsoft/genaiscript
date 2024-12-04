@@ -201,6 +201,7 @@ export async function cli() {
         )
         .option("-m, --model <string>", "model for the run")
         .option("-sm, --small-model <string>", "small model for the run")
+        .option("-vm, --vision-model <string>", "'vision' alias model")
         .option(
             "--models <models...>",
             "models to test where mode is the key value pair list of m (model), s (small model), t (temperature), p (top-p)"
@@ -208,7 +209,6 @@ export async function cli() {
         .option("-o, --out <folder>", "output folder")
         .option("-rmo, --remove-out", "remove output folder if it exists")
         .option("--cli <string>", "override path to the cli")
-        .option("-tp, --test-provider <string>", "test provider")
         .option("-td, --test-delay <string>", "delay between tests in seconds")
         .option("--cache", "enable LLM result cache")
         .option("-v, --verbose", "verbose output")
@@ -218,7 +218,7 @@ export async function cli() {
         )
         .option("-os, --out-summary <file>", "append output summary in file")
         .option(
-            "--groups <groups...>",
+            "-g, --groups <groups...>",
             "groups to include or exclude. Use :! prefix to exclude"
         )
         .action(scriptsTest) // Action to run the tests
@@ -228,7 +228,7 @@ export async function cli() {
         .description("List available tests in workspace")
         .action(scriptTestList) // Action to list the tests
         .option(
-            "--groups <groups...>",
+            "-g, --groups <groups...>",
             "groups to include or exclude. Use :! prefix to exclude"
         )
 
@@ -245,6 +245,10 @@ export async function cli() {
     scripts
         .command("list", { isDefault: true })
         .description("List all available scripts in workspace")
+        .option(
+            "-g, --groups <groups...>",
+            "groups to include or exclude. Use :! prefix to exclude"
+        )
         .action(listScripts) // Action to list scripts
     scripts
         .command("create")
@@ -333,7 +337,9 @@ export async function cli() {
         .action(parseFence) // Action to parse fenced code regions
     parser
         .command("pdf <file>")
-        .description("Parse a PDF into text")
+        .description("Parse a PDF into text and images")
+        .option("-i, --images", "extract images")
+        .option("-o, --out <string>", "output folder")
         .action(parsePDF) // Action to parse PDF files
     parser
         .command("docx <file>")
@@ -387,6 +393,7 @@ export async function cli() {
         .arguments("[provider]")
         .option("-t, --token", "show token")
         .option("-e, --error", "show errors")
+        .option("-m, --models", "show models if possible")
         .action(envInfo) // Action to show environment information
     program.parse() // Parse command-line arguments
 }

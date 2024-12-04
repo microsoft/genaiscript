@@ -2,7 +2,6 @@
 // including constructing file paths and handling copy operations,
 // with optional forking functionality.
 
-import { PromptScript } from "./ast" // Import PromptScript type
 import { GENAI_MJS_EXT, GENAI_SRC } from "./constants" // Import constants for file extensions and source directory
 import { host } from "./host" // Import host module for file operations
 import { fileExists, writeText } from "./fs" // Import file system utilities

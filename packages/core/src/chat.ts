@@ -1,8 +1,9 @@
 // cspell: disable
 import { MarkdownTrace } from "./trace"
-import { PromptImage, renderPromptNode } from "./promptdom"
+import { PromptImage, PromptPrediction, renderPromptNode } from "./promptdom"
 import { LanguageModelConfiguration, host } from "./host"
 import { GenerationOptions } from "./generation"
+import { dispose } from "./dispose"
 import {
     JSON5TryParse,
     JSON5parse,
@@ -17,11 +18,13 @@ import {
 import {
     arrayify,
     assert,
+    deleteUndefinedValues,
     logError,
     logInfo,
     logVerbose,
     logWarn,
     roundWithPrecision,
+    toStringList,
 } from "./util"
 import { extractFenced, findFirstDataFence, unfence } from "./fence"
 import {
@@ -69,6 +72,7 @@ import { HTMLEscape } from "./html"
 import { XMLTryParse } from "./xml"
 import {
     computePerplexity,
+    computeStructuralUncertainty,
     logprobToMarkdown,
     serializeLogProb,
     topLogprobsToMarkdown,
@@ -105,7 +109,6 @@ export function toChatCompletionUserMessage(
             content: expanded,
         }
 }
-
 
 export type ChatCompletionHandler = (
     req: CreateChatCompletionRequest,
@@ -504,13 +507,23 @@ async function structurifyChatSession(
         frames.push(...validateFencesWithSchema(fences, schemas, { trace }))
 
     const perplexity = computePerplexity(logprobs)
+    const uncertainty = computeStructuralUncertainty(logprobs)
     if (logprobs?.length) {
         logVerbose(
-            `${logprobs.length} tokens, perplexity: ${roundWithPrecision(perplexity, 3) || ""}`
+            toStringList(
+                `${logprobs.length} tokens`,
+                !isNaN(perplexity)
+                    ? `perplexity: ${roundWithPrecision(perplexity, 3)}`
+                    : undefined,
+                !isNaN(uncertainty)
+                    ? `uncertainty: ${roundWithPrecision(uncertainty, 3)}`
+                    : undefined
+            )
         )
         try {
             trace.startDetails("📊 logprobs")
             trace.itemValue("perplexity", perplexity)
+            trace.itemValue("uncertainty", uncertainty)
             trace.item("logprobs (0%:red, 100%: blue)")
             trace.appendContent("\n\n")
             trace.appendContent(
@@ -540,7 +553,7 @@ async function structurifyChatSession(
         }
     }
 
-    const res: RunPromptResult = {
+    const res: RunPromptResult = deleteUndefinedValues({
         messages,
         text,
         annotations,
@@ -553,8 +566,9 @@ async function structurifyChatSession(
         schemas,
         logprobs,
         perplexity,
+        uncertainty,
         model: resp?.model,
-    } satisfies RunPromptResult
+    } satisfies RunPromptResult)
     await computeFileEdits(res, {
         trace,
         schemas,
@@ -675,6 +689,7 @@ async function processChatMessage(
                     needsNewTurn = true
                 } else trace.item("no message")
                 if (errors?.length) {
+                    err = errors[0]
                     for (const error of errors) trace.error(undefined, error)
                     needsNewTurn = false
                     break
@@ -745,9 +760,10 @@ async function choicesToLogitBias(
 ) {
     choices = arrayify(choices)
     if (!choices?.length) return undefined
-    const { encode } = await resolveTokenEncoder(model, {
-        disableFallback: true,
-    })
+    const { encode } =
+        (await resolveTokenEncoder(model, {
+            disableFallback: true,
+        })) || {}
     if (!encode) {
         trace.error(
             `unabled to compute logit bias, no token encoder found for ${model}`
@@ -778,8 +794,10 @@ export async function executeChatSession(
     fileOutputs: FileOutput[],
     outputProcessors: PromptOutputProcessorHandler[],
     fileMerges: FileMergeHandler[],
+    prediction: PromptPrediction,
     completer: ChatCompletionHandler,
     chatParticipants: ChatParticipant[],
+    disposables: AsyncDisposable[],
     genOptions: GenerationOptions
 ): Promise<RunPromptResult> {
     const {
@@ -797,7 +815,7 @@ export async function executeChatSession(
         topLogprobs,
     } = genOptions
     const top_logprobs = genOptions.topLogprobs > 0 ? topLogprobs : undefined
-    const logprobs = genOptions.logprobs || top_logprobs > 0
+    const logprobs = genOptions.logprobs || top_logprobs > 0 ? true : undefined
     traceLanguageModelConnection(trace, genOptions, connectionToken)
     const tools: ChatCompletionTool[] = toolDefinitions?.length
         ? toolDefinitions.map(
@@ -812,6 +830,7 @@ export async function executeChatSession(
                   }
           )
         : undefined
+
     try {
         trace.startDetails(`🧠 llm chat`)
         if (toolDefinitions?.length)
@@ -855,6 +874,10 @@ export async function executeChatSession(
                         top_logprobs,
                         messages,
                         tools: fallbackTools ? undefined : tools,
+                        // https://platform.openai.com/docs/guides/predicted-outputs
+                        prediction: prediction?.content
+                            ? prediction
+                            : undefined,
                         response_format:
                             responseType === "json_object"
                                 ? { type: responseType }
@@ -917,6 +940,7 @@ export async function executeChatSession(
             }
         }
     } finally {
+        await dispose(disposables, { trace })
         stats.trace(trace)
         trace.endDetails()
     }

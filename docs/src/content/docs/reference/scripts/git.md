@@ -14,7 +14,7 @@ The `git` helper provides a thin wrapper around invoking the [git](https://git-s
 Resolves the default branch, typically `main` or `master`, in the repository.
 
 ```typescript
-const df = await git.defaultBranch();
+const df = await git.defaultBranch()
 ```
 
 ### lastTag
@@ -22,7 +22,7 @@ const df = await git.defaultBranch();
 Gets the last tag in the repository.
 
 ```typescript
-const tag = await git.lastTag();
+const tag = await git.lastTag()
 ```
 
 ### branch
@@ -30,7 +30,7 @@ const tag = await git.lastTag();
 Gets the current branch of the repository.
 
 ```typescript
-const branchName = await git.branch();
+const branchName = await git.branch()
 ```
 
 ### exec
@@ -38,7 +38,7 @@ const branchName = await git.branch();
 Executes a git command in the repository and returns the stdout.
 
 ```typescript
-const output = await git.exec(['status']);
+const output = await git.exec(["status"])
 ```
 
 ### listBranches
@@ -46,7 +46,7 @@ const output = await git.exec(['status']);
 Lists the branches in the git repository.
 
 ```typescript
-const branches = await git.listBranches();
+const branches = await git.listBranches()
 ```
 
 ### listFiles
@@ -54,7 +54,7 @@ const branches = await git.listBranches();
 Finds specific files in the git repository.
 
 ```typescript
-const files = await git.listFiles('modified');
+const files = await git.listFiles("modified")
 ```
 
 ### diff
@@ -62,7 +62,7 @@ const files = await git.listFiles('modified');
 Gets the diff for the current repository state.
 
 ```typescript
-const diffOutput = await git.diff({ staged: true });
+const diffOutput = await git.diff({ staged: true })
 ```
 
 ### log
@@ -70,7 +70,7 @@ const diffOutput = await git.diff({ staged: true });
 Lists the commits in the git repository.
 
 ```typescript
-const commits = await git.log();
+const commits = await git.log()
 ```
 
 ## Configuring Ignores
@@ -79,4 +79,13 @@ Since GenAIScript uses git, it already supports the `.gitignore` instructions. Y
 
 ```txt title=".gitignore.genai"
 **/genaiscript.d.ts
+```
+
+## Git in other repositories
+
+Use `git.client` to open a git client on a different working directory. This allows you to run git commands on a different repository.
+
+```js
+const other = git.client("/path/to/other/repo")
+const branch = await other.branch()
 ```

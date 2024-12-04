@@ -20,6 +20,8 @@ import {
     createSystemNode,
     finalizeMessages,
     PromptImage,
+    PromptPrediction,
+    createMcpServer,
 } from "./promptdom"
 import { MarkdownTrace } from "./trace"
 import { GenerationOptions } from "./generation"
@@ -27,7 +29,7 @@ import {
     parametersToVars,
     promptParametersSchemaToJSONSchema,
 } from "./parameters"
-import { consoleLogFormat } from "./logging"
+import { consoleLogFormat, stdout } from "./logging"
 import { isGlobMatch } from "./glob"
 import { arrayify, logError, logVerbose, logWarn } from "./util"
 import { renderShellOutput } from "./chatrender"
@@ -44,17 +46,13 @@ import {
     tracePromptResult,
 } from "./chat"
 import { checkCancelled } from "./cancellation"
-import {
-    ChatCompletionMessageParam,
-    ChatCompletionSystemMessageParam,
-} from "./chattypes"
+import { ChatCompletionMessageParam } from "./chattypes"
 import { parseModelIdentifier, resolveModelConnectionInfo } from "./models"
 import {
     CHAT_REQUEST_PER_MODEL_CONCURRENT_LIMIT,
     TOKEN_MISSING_INFO,
     TOKEN_NO_ANSWER,
     MODEL_PROVIDER_AICI,
-    SYSTEM_FENCE,
     DOCS_DEF_FILES_IS_EMPTY_URL,
 } from "./constants"
 import { renderAICI } from "./aici"
@@ -68,12 +66,13 @@ import {
 } from "./error"
 import { resolveLanguageModel } from "./lm"
 import { concurrentLimit } from "./concurrency"
-import { Project } from "./ast"
+import { resolveScript } from "./ast"
 import { dedent } from "./indent"
 import { runtimeHost } from "./host"
 import { writeFileEdits } from "./fileedits"
 import { agentAddMemory, agentQueryMemory } from "./agent"
 import { YAMLStringify } from "./yaml"
+import { Project } from "./server/messages"
 
 export function createChatTurnGenerationContext(
     options: GenerationOptions,
@@ -86,7 +85,7 @@ export function createChatTurnGenerationContext(
             const line = consoleLogFormat(...args)
             if (line) {
                 trace.log(line)
-                process.stdout.write(line + "\n")
+                stdout.write(line + "\n")
             }
         },
         debug: (...args: any[]) => {
@@ -159,6 +158,10 @@ export function createChatTurnGenerationContext(
                 },
                 maxTokens: (tokens) => {
                     current.maxTokens = tokens
+                    return res
+                },
+                role: (r) => {
+                    current.role = r
                     return res
                 },
             })
@@ -301,7 +304,8 @@ export function createChatGenerationContext(
             | string
             | ToolCallback
             | AgenticToolCallback
-            | AgenticToolProviderCallback,
+            | AgenticToolProviderCallback
+            | McpServersConfig,
         description: string | DefToolOptions,
         parameters?: PromptParametersSchema | JSONSchemaObject,
         fn?: ChatFunctionHandler,
@@ -325,7 +329,10 @@ export function createChatGenerationContext(
                     defOptions
                 )
             )
-        } else if ((name as ToolCallback | AgenticToolCallback).impl) {
+        } else if (
+            typeof name === "object" &&
+            (name as ToolCallback | AgenticToolCallback).impl
+        ) {
             const tool = name as ToolCallback | AgenticToolCallback
             appendChild(
                 node,
@@ -337,7 +344,10 @@ export function createChatGenerationContext(
                     defOptions
                 )
             )
-        } else if ((name as AgenticToolProviderCallback).functions) {
+        } else if (
+            typeof name === "object" &&
+            (name as AgenticToolProviderCallback).functions
+        ) {
             const tools = (name as AgenticToolProviderCallback).functions
             for (const tool of tools)
                 appendChild(
@@ -350,6 +360,17 @@ export function createChatGenerationContext(
                         defOptions
                     )
                 )
+        } else if (typeof name === "object") {
+            for (const kv of Object.entries(name)) {
+                const [id, def] = kv
+                if ((def as McpServerConfig).command) {
+                    const serverConfig = def as McpServerConfig
+                    appendChild(
+                        node,
+                        createMcpServer(id, serverConfig, defOptions)
+                    )
+                }
+            }
         }
     }
 
@@ -627,6 +648,8 @@ export function createChatGenerationContext(
             const fileMerges: FileMergeHandler[] = []
             const outputProcessors: PromptOutputProcessorHandler[] = []
             const fileOutputs: FileOutput[] = []
+            const disposables: AsyncDisposable[] = []
+            let prediction: PromptPrediction
 
             // expand template
             const { provider } = parseModelIdentifier(genOptions.model)
@@ -645,6 +668,8 @@ export function createChatGenerationContext(
                     outputProcessors: ops,
                     fileOutputs: fos,
                     images: imgs,
+                    prediction: pred,
+                    disposables: dps,
                 } = await renderPromptNode(genOptions.model, node, {
                     flexTokens: genOptions.flexTokens,
                     trace: runTrace,
@@ -658,6 +683,8 @@ export function createChatGenerationContext(
                 outputProcessors.push(...ops)
                 fileOutputs.push(...fos)
                 images.push(...imgs)
+                disposables.push(...dps)
+                prediction = pred
 
                 if (errors?.length) {
                     logError(errors.map((err) => errorMessage(err)).join("\n"))
@@ -677,7 +704,7 @@ export function createChatGenerationContext(
                     for (const systemId of systemScripts) {
                         checkCancelled(cancellationToken)
 
-                        const system = prj.getTemplate(systemId)
+                        const system = resolveScript(prj, systemId)
                         if (!system)
                             throw new Error(
                                 `system template ${systemId} not found`
@@ -702,6 +729,8 @@ export function createChatGenerationContext(
                             chatParticipants.push(...sysr.chatParticipants)
                         if (sysr.fileOutputs?.length)
                             fileOutputs.push(...sysr.fileOutputs)
+                        if (sysr.disposables?.length)
+                            disposables.push(...sysr.disposables)
                         if (sysr.logs?.length)
                             runTrace.details("📝 console.log", sysr.logs)
                         for (const smsg of sysr.messages) {
@@ -774,8 +803,10 @@ export function createChatGenerationContext(
                     fileOutputs,
                     outputProcessors,
                     fileMerges,
+                    prediction,
                     completer,
                     chatParticipants,
+                    disposables,
                     genOptions
                 )
             )

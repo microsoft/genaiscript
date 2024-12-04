@@ -1,0 +1,32 @@
+name: genai issue review
+on:
+    issues:
+        types: [opened, edited]
+concurrency:
+    group: issues-${{ github.event.issue.number }}
+    cancel-in-progress: true
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+            issues: write
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  submodules: "recursive"
+                  fetch-depth: 10
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: "20"
+                  cache: yarn
+            - run: yarn install --frozen-lockfile
+            - name: compile
+              run: yarn compile
+            - name: start ollama
+              run: docker run -d -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama
+            - name: genaiscript issue-review
+              run: node packages/cli/built/genaiscript.cjs run issue-reviewer -prc --out-trace $GITHUB_STEP_SUMMARY --model ollama:qwen2.5-coder:7b
+              env:
+                GITHUB_ISSUE: ${{ github.event.issue.number }}
+                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

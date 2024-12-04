@@ -48,7 +48,7 @@ export function JSONSchemaToFunctionParameters(schema: JSONSchemaType): string {
  * @returns TypeScript type definition string
  */
 export function JSONSchemaStringifyToTypeScript(
-    schema: JSONSchema,
+    schema: JSONSchema | JSONSchemaType,
     options?: { typeName?: string; export?: boolean }
 ) {
     const { typeName = "Response" } = options || {}

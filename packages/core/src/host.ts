@@ -2,7 +2,7 @@ import { CancellationToken } from "./cancellation"
 import { LanguageModel } from "./chat"
 import { Progress } from "./progress"
 import { AbortSignalOptions, MarkdownTrace, TraceOptions } from "./trace"
-import { Project } from "./ast"
+import { Project } from "./server/messages"
 import { HostConfiguration } from "./hostconfiguration"
 
 // this is typically an instance of TextDecoder
@@ -32,6 +32,7 @@ export type OpenAIAPIType =
     | "localai"
     | "azure_serverless"
     | "azure_serverless_models"
+    | "alibaba"
 
 export type AzureCredentialsType =
     | "default"
@@ -159,12 +160,12 @@ export interface Host {
 }
 
 export interface RuntimeHost extends Host {
-    readonly config: HostConfiguration
     project: Project
     models: ModelService
     workspace: Omit<WorkspaceFileSystem, "grep">
     azureToken: AzureTokenResolver
 
+    readConfig(): Promise<HostConfiguration>
     readSecret(name: string): Promise<string | undefined>
     // executes a process
     exec(

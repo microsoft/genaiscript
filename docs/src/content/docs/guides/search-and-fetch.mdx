@@ -30,16 +30,16 @@ You will need a [Bing Web Search API key](/genaiscript/reference/scripts/web-sea
 3. Use the [`webSearch`](/genaiscript/reference/scripts/web-search/) function to 
 search for information about the destination. 
     If you don't have one, then you can search for the web pages manually and use the URLs directly
-    in the call to the `fetchText` function.
+    in the call to the `host.fetchText` function.
     ```js
     const parkinfo = await retrieval.webSearch("mt rainier things to do")   
     ```
 4. `webSearch` returns a list of URLs.  Use [`fetchText`](/genaiscript/reference/scripts/fetch/)
     to fetch the contents of the 1st URL.
     ```js
-    const parktext = await fetchText(parkinfo.webPages[0])
+    const parktext = await host.fetchText(parkinfo.webPages[0])
     ```
-5. `fetchText` returns a lot of formatting HTML tags, etc.
+5. `host.fetchText` returns a lot of formatting HTML tags, etc.
     Use [`runPrompt`](/genaiscript/reference/scripts/inline-prompts/)
     to call the LLM to clean out the tags and just keep the text.
     ```js

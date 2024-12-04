@@ -1,5 +1,5 @@
 import replaceExt from "replace-ext"
-import { readFile } from "node:fs/promises"
+import { readFile, writeFile } from "node:fs/promises"
 import { DOCXTryParse } from "../../core/src/docx"
 import { extractFenced } from "../../core/src/fence"
 import {
@@ -38,6 +38,8 @@ import { jinjaRender } from "../../core/src/jinja"
 import { splitMarkdown } from "../../core/src/frontmatter"
 import { parseOptionsVars } from "./vars"
 import { XMLParse } from "../../core/src/xml"
+import { resolveFileContent } from "../../core/src/file"
+import path from "node:path"
 
 /**
  * This module provides various parsing utilities for different file types such
@@ -51,7 +53,7 @@ import { XMLParse } from "../../core/src/xml"
  * @param file - The PDF file to parse.
  */
 export async function parseFence(language: string, file: string) {
-    const res = await parsePdf(file)
+    const res = await resolveFileContent({ filename: file })
     const fences = extractFenced(res.content || "").filter(
         (f) => f.language === language
     )
@@ -63,11 +65,26 @@ export async function parseFence(language: string, file: string) {
  * Parses the contents of a PDF file and outputs them in YAML format.
  * @param file - The PDF file to parse.
  */
-export async function parsePDF(file: string) {
-    const res = await parsePdf(file)
-    const out = YAMLStringify(res)
-    // Logs the parsed content in YAML format
-    console.log(out)
+export async function parsePDF(
+    file: string,
+    options: { images: boolean; out: string }
+) {
+    const { images, out } = options
+    const { content, pages } = await parsePdf(file, { renderAsImage: images })
+    if (out) {
+        const fn = path.basename(file)
+        console.log(`writing ${path.join(out, fn + ".txt")}`)
+        await writeText(path.join(out, fn + ".txt"), content || "")
+        for (const page of pages) {
+            if (page.image) {
+                const n = path.join(out, fn + ".page" + page.index + ".png")
+                console.log(`writing ${n}`)
+                await writeFile(n, page.image)
+            }
+        }
+    } else {
+        console.log(content || "")
+    }
 }
 
 /**
@@ -76,7 +93,7 @@ export async function parsePDF(file: string) {
  */
 export async function parseDOCX(file: string) {
     // Uses DOCXTryParse to extract text from the DOCX file
-    const text = await DOCXTryParse(file)
+    const text: string = await DOCXTryParse(file)
     console.log(text)
 }
 
@@ -87,7 +104,7 @@ export async function parseDOCX(file: string) {
 export async function parseHTMLToText(file: string) {
     const html = await readFile(file, { encoding: "utf-8" })
     // Converts HTML to plain text
-    const text = HTMLToText(html)
+    const text: string = await HTMLToText(html)
     console.log(text)
 }
 
@@ -109,7 +126,7 @@ export async function parseJinja2(
         const i = parseFloat(vars[k])
         if (!isNaN(i)) vars[k] = i
     }
-    const res = jinjaRender(src, vars)
+    const res: string = jinjaRender(src, vars)
     console.log(res)
 }
 
@@ -172,7 +189,7 @@ export async function jsonl2json(files: string[]) {
         }
         const content = await tryReadText(file)
         const objs = await JSONLTryParse(content, { repair: true })
-        const out = replaceExt(file, ".json")
+        const out: string = replaceExt(file, ".json")
         await writeText(out, JSON.stringify(objs, null, 2))
         console.log(`${file} -> ${out}`)
     }
@@ -223,7 +240,7 @@ export async function prompty2genaiscript(
         console.log(`${f} -> ${gf}`)
         const content = await readText(f)
         const doc = promptyParse(f, content)
-        const script = promptyToGenAIScript(doc)
+        const script: string = promptyToGenAIScript(doc)
         await writeText(gf, script)
     }
 }

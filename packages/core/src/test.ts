@@ -2,31 +2,56 @@
 import {
     HTTPS_REGEX,
     LARGE_MODEL_ID,
+    MODEL_PROVIDER_AZURE_OPENAI,
+    MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI,
+    MODEL_PROVIDER_GITHUB,
     SMALL_MODEL_ID,
     VISION_MODEL_ID,
 } from "./constants"
-import { arrayify } from "./util"
+import { arrayify, deleteUndefinedValues } from "./util"
 import { host } from "./host"
+import { ModelConnectionInfo, parseModelIdentifier } from "./models"
 
 /**
- * Function to remove properties with undefined values from an object.
- *
- * @param obj - An object with string keys and any type of values.
- * @returns A new object with undefined values removed, or undefined if the input is undefined.
+ * Convert GenAIScript connection info into prompt foo configuration
+ * @param info
  */
-function cleanUndefined(obj: Record<string, any>) {
-    // Check if the object is defined
-    return obj
-        ? Object.entries(obj) // Convert object to entries
-              .filter(([_, value]) => value !== undefined) // Filter out undefined values
-              .reduce(
-                  (newObj, [key, value]) => {
-                      newObj[key] = value // Add key-value pair to new object
-                      return newObj // Return accumulated object
-                  },
-                  {} as Record<string, any> // Initialize as empty object
-              )
-        : undefined // Return undefined if input is undefined
+function resolveTestProvider(
+    info: ModelConnectionInfo,
+    modelType: "chat" | "embedding"
+): {
+    id: string
+    config?: { apiHost: string }
+} {
+    if (!info) return undefined
+
+    const { base } = info
+    const { provider, model } = parseModelIdentifier(info.model)
+    const apiHost = base
+        .replace(HTTPS_REGEX, "")
+        .replace(/\/openai\/deployments$/i, "")
+    switch (provider) {
+        case MODEL_PROVIDER_AZURE_OPENAI:
+        case MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI:
+            return {
+                id: "azureopenai:" + modelType + ":" + model,
+                config: {
+                    apiHost,
+                },
+            }
+        case MODEL_PROVIDER_GITHUB:
+            return {
+                id: provider + ":" + model,
+            }
+        // openai
+        default:
+            return {
+                id: provider + ":" + modelType + ":" + model,
+                config: {
+                    apiHost,
+                },
+            }
+    }
 }
 
 /**
@@ -38,19 +63,21 @@ function cleanUndefined(obj: Record<string, any>) {
  */
 export function generatePromptFooConfiguration(
     script: PromptScript,
-    options?: {
+    options: {
+        chatInfo: ModelConnectionInfo
+        embeddingsInfo?: ModelConnectionInfo
         provider?: string
-        testProvider?: string
         out?: string
         cli?: string
-        model?: string
-        smallModel?: string
-        visionModel?: string
         models?: ModelOptions[]
     }
 ) {
     // Destructure options with default values
-    const { provider = "provider.mjs", testProvider } = options || {}
+    const {
+        provider = "provider.mjs",
+        chatInfo,
+        embeddingsInfo,
+    } = options || {}
     const { description, title, tests = [], id } = script
     const models = options?.models || []
 
@@ -58,9 +85,9 @@ export function generatePromptFooConfiguration(
     if (!models.length) {
         models.push({
             ...script,
-            model: options?.model || script.model,
-            smallModel: options?.smallModel || script.smallModel,
-            visionModel: options?.visionModel || script.visionModel,
+            model: chatInfo.model,
+            smallModel: chatInfo.smallModel,
+            visionModel: chatInfo.visionModel,
         })
     }
 
@@ -75,6 +102,14 @@ export function generatePromptFooConfiguration(
               : m === LARGE_MODEL_ID
                 ? host.defaultModelOptions.model
                 : m
+
+    const testProvider = deleteUndefinedValues({
+        text: resolveTestProvider(chatInfo, "chat"),
+        embedding: resolveTestProvider(embeddingsInfo, "embedding"),
+    })
+    const defaultTest = deleteUndefinedValues({
+        options: deleteUndefinedValues({ provider: testProvider }),
+    })
 
     // Create configuration object
     const res = {
@@ -100,13 +135,13 @@ export function generatePromptFooConfiguration(
                 id: provider,
                 label: [
                     model,
-                    smallModel,
-                    visionModel,
-                    `t=${temperature}`,
+                    `small=${smallModel}`,
+                    `vision=${visionModel}`,
+                    `temp=${temperature}`,
                     top_p !== undefined ? `p=${top_p}` : undefined,
                 ]
                     .filter((v) => v !== undefined)
-                    .join(":"),
+                    .join(", "),
                 config: {
                     model,
                     smallModel,
@@ -116,39 +151,7 @@ export function generatePromptFooConfiguration(
                     cli,
                 },
             })),
-        // Default test configuration if testProvider is present
-        defaultTest: testProvider
-            ? {
-                  options: {
-                      provider: testProvider
-                          ? {
-                                text: {
-                                    id: "azureopenai:chat:gpt-4",
-                                    config: {
-                                        apiHost: testProvider
-                                            .replace(HTTPS_REGEX, "")
-                                            .replace(
-                                                /\/openai\/deployments$/i,
-                                                ""
-                                            ),
-                                    },
-                                },
-                                embedding: {
-                                    id: "azureopenai:embeddings:text-embedding-ada-002",
-                                    config: {
-                                        apiHost: testProvider
-                                            .replace(HTTPS_REGEX, "")
-                                            .replace(
-                                                /\/openai\/deployments$/i,
-                                                ""
-                                            ),
-                                    },
-                                },
-                            }
-                          : undefined,
-                  },
-              }
-            : undefined,
+        defaultTest,
         // Map tests to configuration format
         tests: arrayify(tests).map(
             ({
@@ -162,7 +165,7 @@ export function generatePromptFooConfiguration(
                 asserts = [],
             }) => ({
                 description,
-                vars: cleanUndefined({
+                vars: deleteUndefinedValues({
                     files,
                     vars,
                 }),

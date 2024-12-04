@@ -285,16 +285,16 @@ export function renderWithPrecision(
 }
 
 export function tagFilter(tags: string[], tag: string) {
-    if (!tags?.length || !tag) return true
-    const ltag = tag.toLocaleLowerCase()
-    let inclusive = false
+    if (!tags?.length) return true
+    const ltag = tag?.toLocaleLowerCase() || ""
+    let exclusive = false
     for (const t of tags) {
         const lt = t.toLocaleLowerCase()
         const exclude = lt.startsWith(":!")
-        if (!exclude) inclusive = true
+        if (exclude) exclusive = true
 
         if (exclude && ltag.startsWith(lt.slice(2))) return false
         else if (ltag.startsWith(t)) return true
     }
-    return !inclusive
+    return exclusive
 }

@@ -24,7 +24,13 @@ class PromptTreeDataProvider
             item.id = `genaiscript.promptCategory.${element}`
             return item
         } else {
-            const { id, title, description = "" } = element
+            const {
+                id,
+                filename,
+                title,
+                description = "",
+                system = [],
+            } = element
             const ai = this.state.aiRequest
             const { computing, options, progress } = ai || {}
             const { template } = options || {}
@@ -33,7 +39,7 @@ class PromptTreeDataProvider
                 title,
                 vscode.TreeItemCollapsibleState.None
             )
-            item.id = `genaiscript.prompts.${id}`
+            item.id = `genaiscript.prompts.${filename || id}`
             item.contextValue = element.filename ? `prompt` : `prompt.builtin`
             item.description = generating
                 ? `${progress?.tokensSoFar || 0} tokens`
@@ -45,11 +51,11 @@ class PromptTreeDataProvider
             }
             item.tooltip = new vscode.MarkdownString(
                 `
-## ${title}
+## ${title} \`${id}\`
 
 ${description}
 
--  id: \`${id}\`
+- filename: \`${filename ? vscode.workspace.asRelativePath(filename) : "builtin"}\`
 `,
                 true
             )
@@ -67,13 +73,14 @@ ${description}
     async getChildren(
         element?: PromptTreeNode | undefined
     ): Promise<PromptTreeNode[]> {
-        const templates = this.state.project?.templates || []
+        const project = this.state.project
+        const templates = project?.scripts || []
         if (!element) {
-            // collect and sort all groups
-            const cats = Object.keys(groupBy(templates, templateGroup))
-            return [...cats.filter((t) => t !== "system"), "system"]
+            if (!templates.length) return []
+            const groups = Object.keys(groupBy(templates, templateGroup))
+            return [...groups.filter((t) => t !== "system"), "system"]
         } else if (typeof element === "string") {
-            const templates = this.state.project?.templates || []
+            const templates = this.state.project?.scripts || []
             return templates.filter((t) => templateGroup(t) === element)
         } else {
             return undefined

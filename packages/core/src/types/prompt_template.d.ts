@@ -135,9 +135,14 @@ type ModelType = OptionsOrString<
     | "github:AI21-Jamba-1-5-Mini"
     | "azure:gpt-4o"
     | "azure:gpt-4o-mini"
-    | "ollama:phi3.5"
-    | "ollama:llama3.2"
+    | "ollama:marco-o1"
+    | "ollama:tulu3"
+    | "ollama:athene-v2"
+    | "ollama:opencoder"
     | "ollama:qwen2.5-coder"
+    | "ollama:llama3.2-vision"
+    | "ollama:llama3.2"
+    | "ollama:phi3.5"
     | "anthropic:claude-3-5-sonnet-20240620"
     | "anthropic:claude-3-opus-20240229"
     | "anthropic:claude-3-sonnet-20240229"
@@ -146,6 +151,24 @@ type ModelType = OptionsOrString<
     | "anthropic:claude-2.0"
     | "anthropic:claude-instant-1.2"
     | "huggingface:microsoft/Phi-3-mini-4k-instruct"
+    | "google:gemini-1.5-flash"
+    | "google:gemini-1.5-flash-8b"
+    | "google:gemini-1.5-flash-002"
+    | "google:gemini-1.5-pro"
+    | "google:gemini-1.5-pro-002"
+    | "google:gemini-1-pro"
+    | "mistral:mistral-large-latest"
+    | "mistral:mistral-small-latest"
+    | "mistral:pixtral-large-latest"
+    | "mistral:codestral-latest"
+    | "mistral:nemo"
+    | "alibaba:qwen-turbo"
+    | "alibaba:qwen-max"
+    | "alibaba:qwen-plus"
+    | "alibaba:qwen2-72b-instruct"
+    | "alibaba:qwen2-57b-a14b-instruct"
+    | "transformers:onnx-community/Qwen2.5-0.5B-Instruct:q4"
+    | "transformers:HuggingFaceTB/SmolLM2-1.7B-Instruct:q4f16"
 >
 
 type ModelSmallType = OptionsOrString<
@@ -924,6 +947,12 @@ interface DefOptions
      * By default, throws an error if the value in def is empty.
      */
     ignoreEmpty?: boolean
+
+    /**
+     * The content of the def is a predicted output.
+     * This setting disables line numbers.
+     */
+    prediction?: boolean
 }
 
 /**
@@ -934,26 +963,42 @@ interface DefDiffOptions
         LineNumberingOptions {}
 
 interface DefImagesOptions {
+    /**
+     * A "low" detail image is always downsampled to 512x512 pixels.
+     */
     detail?: "high" | "low"
     /**
-     * Maximum width of the image
+     * Crops the image to the specified region.
      */
-    maxWidth?: number
-    /**
-     * Maximum height of the image
-     */
-    maxHeight?: number
+    crop?: { x?: number; y?: number; w?: number; h?: number }
     /**
      * Auto cropping same color on the edges of the image
      */
     autoCrop?: boolean
-}
-
-interface ChatTaskOptions {
-    command: string
-    cwd?: string
-    env?: Record<string, string>
-    args?: string[]
+    /**
+     * Applies a scaling factor to the image after cropping.
+     */
+    scale?: number
+    /**
+     * Rotates the image by the specified number of degrees.
+     */
+    rotate?: number
+    /**
+     * Maximum width of the image. Applied after rotation.
+     */
+    maxWidth?: number
+    /**
+     * Maximum height of the image. Applied after rotation.
+     */
+    maxHeight?: number
+    /**
+     * Removes colour from the image using ITU Rec 709 luminance values
+     */
+    greyscale?: boolean
+    /**
+     * Flips the image horizontally and/or vertically.
+     */
+    flip?: { horizontal?: boolean; vertical?: boolean }
 }
 
 type JSONSchemaTypeName =
@@ -1072,6 +1117,7 @@ interface RunPromptResult {
     model?: ModelType
     logprobs?: Logprob[]
     perplexity?: number
+    uncertainty?: number
 }
 
 /**
@@ -1144,6 +1190,9 @@ interface XMLParseOptions {
 }
 
 interface ParsePDFOptions {
+    disableCleanup?: boolean
+    renderAsImage?: boolean
+    scale?: number
     filter?: (pageIndex: number, text?: string) => boolean
 }
 
@@ -1318,7 +1367,9 @@ interface Parsers {
     PDF(
         content: string | WorkspaceFile,
         options?: ParsePDFOptions
-    ): Promise<{ file: WorkspaceFile; pages: string[] } | undefined>
+    ): Promise<
+        { file: WorkspaceFile; pages: string[]; images?: Buffer[] } | undefined
+    >
 
     /**
      * Parses a .docx file
@@ -1427,8 +1478,12 @@ interface Parsers {
     /**
      * Parses and evaluates a math expression
      * @param expression math expression compatible with mathjs
+     * @param scope object to read/write variables
      */
-    math(expression: string): Promise<string | number | undefined>
+    math(
+        expression: string,
+        scope?: object
+    ): Promise<string | number | undefined>
 
     /**
      * Using the JSON schema, validates the content
@@ -1541,7 +1596,7 @@ interface YAML {
     /**
      * Parses a YAML string to object
      */
-    parse(text: string): any
+    parse(text: string | WorkspaceFile): any
 }
 
 interface XML {
@@ -1549,7 +1604,7 @@ interface XML {
      * Parses an XML payload to an object
      * @param text
      */
-    parse(text: string, options?: XMLParseOptions): any
+    parse(text: string | WorkspaceFile, options?: XMLParseOptions): any
 }
 
 interface HTMLTableToJSONOptions {
@@ -1617,7 +1672,12 @@ interface Git {
      * Executes a git command in the repository and returns the stdout
      * @param cmd
      */
-    exec(args: string[] | string, options?: { label?: string }): Promise<string>
+    exec(
+        args: string[] | string,
+        options?: {
+            label?: string
+        }
+    ): Promise<string>
 
     /**
      * Lists the branches in the git repository
@@ -1678,6 +1738,12 @@ interface Git {
         paths?: ElementOrArray<string>
         excludedPaths?: ElementOrArray<string>
     }): Promise<GitCommit[]>
+
+    /**
+     * Open a git client on a different directory
+     * @param cwd working directory
+     */
+    client(cwd: string): Git
 }
 
 interface GitHubOptions {
@@ -1687,6 +1753,7 @@ interface GitHubOptions {
     auth?: string
     ref?: string
     refName?: string
+    issueNumber?: number
 }
 
 type GitHubWorkflowRunStatus =
@@ -1875,9 +1942,19 @@ interface GitHub {
 
     /**
      * Gets the details of a GitHub issue
-     * @param number issue number (not the issue id!)
+     * @param issueNumber issue number (not the issue id!). If undefined, reads value from GITHUB_ISSUE environment variable.
      */
-    getIssue(number: number): Promise<GitHubIssue>
+    getIssue(issueNumber?: number | string): Promise<GitHubIssue>
+
+    /**
+     * Create a GitHub issue comment
+     * @param issueNumber issue number (not the issue id!). If undefined, reads value from GITHUB_ISSUE environment variable.
+     * @param body the body of the comment as Github Flavored markdown
+     */
+    createIssueComment(
+        issueNumber: number | string,
+        body: string
+    ): Promise<GitHubComment>
 
     /**
      * Lists comments for a given issue
@@ -1885,7 +1962,7 @@ interface GitHub {
      * @param options
      */
     listIssueComments(
-        issue_number: number,
+        issue_number: number | string,
         options?: GitHubPaginationOptions
     ): Promise<GitHubComment[]>
 
@@ -1905,7 +1982,7 @@ interface GitHub {
      * Gets the details of a GitHub pull request
      * @param pull_number pull request number. Default resolves the pull request for the current branch.
      */
-    getPullRequest(pull_number?: number): Promise<GitHubPullRequest>
+    getPullRequest(pull_number?: number | string): Promise<GitHubPullRequest>
 
     /**
      * Lists comments for a given pull request
@@ -1965,7 +2042,14 @@ interface GitHub {
     /**
      * Gets the underlying Octokit client
      */
-    client(): Promise<any>
+    api(): Promise<any>
+
+    /**
+     * Opens a client to a different repository
+     * @param owner
+     * @param repo
+     */
+    client(owner: string, repo: string): GitHub
 }
 
 interface MD {
@@ -1973,12 +2057,15 @@ interface MD {
      * Parses front matter from markdown
      * @param text
      */
-    frontmatter(text: string, format?: "yaml" | "json" | "toml" | "text"): any
+    frontmatter(
+        text: string | WorkspaceFile,
+        format?: "yaml" | "json" | "toml" | "text"
+    ): any
 
     /**
      * Removes the front matter from the markdown text
      */
-    content(text: string): string
+    content(text: string | WorkspaceFile): string
 
     /**
      * Merges frontmatter with the existing text
@@ -1998,7 +2085,7 @@ interface JSONL {
      * Parses a JSONL string to an array of objects
      * @param text
      */
-    parse(text: string): any[]
+    parse(text: string | WorkspaceFile): any[]
     /**
      * Converts objects to JSONL format
      * @param objs
@@ -2011,7 +2098,7 @@ interface INI {
      * Parses a .ini file
      * @param text
      */
-    parse(text: string): any
+    parse(text: string | WorkspaceFile): any
 
     /**
      * Converts an object to.ini string
@@ -2038,7 +2125,7 @@ interface CSV {
      * @param options.headers - An array of headers to use. If not provided, headers will be inferred from the first row.
      * @returns An array of objects representing the parsed CSV data.
      */
-    parse(text: string, options?: CSVParseOptions): object[]
+    parse(text: string | WorkspaceFile, options?: CSVParseOptions): object[]
 
     /**
      * Converts an array of objects to a CSV string.
@@ -2059,6 +2146,16 @@ interface CSV {
      * @returns A markdown string representing the data table.
      */
     markdownify(csv: object[], options?: { headers?: string[] }): string
+
+    /**
+     * Splits the original array into chunks of the specified size.
+     * @param csv
+     * @param rows
+     */
+    chunk(
+        csv: object[],
+        size: number
+    ): { chunkStartIndex: number; rows: object[] }[]
 }
 
 /**
@@ -2186,8 +2283,6 @@ interface Retrieval {
     ): Promise<WorkspaceFile[]>
 }
 
-type FetchTextOptions = Omit<RequestInit, "body" | "signal" | "window">
-
 interface DataFilter {
     /**
      * The keys to select from the object.
@@ -2295,7 +2390,12 @@ interface FileOutput {
     options?: FileOutputOptions
 }
 
-interface ImportTemplateOptions {}
+interface ImportTemplateOptions {
+    /**
+     * Ignore unknown arguments
+     */
+    allowExtraArguments?: boolean
+}
 
 interface PromptTemplateString {
     /**
@@ -2323,6 +2423,11 @@ interface PromptTemplateString {
      * @param tokens
      */
     maxTokens(tokens: number): PromptTemplateString
+
+    /**
+     * Updates the role of the message
+     */
+    role(role: ChatMessageRole): PromptTemplateString
 }
 
 interface ChatTurnGenerationContext {
@@ -2399,6 +2504,18 @@ type ChatAgentHandler = (
     args: ChatFunctionArgs
 ) => Awaitable<unknown>
 
+interface McpServerConfig {
+    command: string
+    args: string[]
+    params?: string[]
+    version?: string
+
+    id: string
+    options?: DefToolOptions
+}
+
+type McpServersConfig = Record<string, Omit<McpServerConfig, "id" | "options">>
+
 interface ChatGenerationContext extends ChatTurnGenerationContext {
     defSchema(
         name: string,
@@ -2410,7 +2527,11 @@ interface ChatGenerationContext extends ChatTurnGenerationContext {
         options?: DefImagesOptions
     ): void
     defTool(
-        tool: ToolCallback | AgenticToolCallback | AgenticToolProviderCallback,
+        tool:
+            | ToolCallback
+            | AgenticToolCallback
+            | AgenticToolProviderCallback
+            | McpServersConfig,
         options?: DefToolOptions
     ): void
     defTool(
@@ -3186,11 +3307,43 @@ interface ContentSafetyHost {
     contentSafety(id?: ContentSafetyProvider): Promise<ContentSafety>
 }
 
+type FetchOptions = RequestInit & {
+    retryOn?: number[] // HTTP status codes to retry on
+    retries?: number // Number of retry attempts
+    retryDelay?: number // Initial delay between retries
+    maxDelay?: number // Maximum delay between retries
+}
+
+type FetchTextOptions = Omit<FetchOptions, "body" | "signal" | "window">
+
 interface PromptHost
     extends ShellHost,
         UserInterfaceHost,
         LanguageModelHost,
         ContentSafetyHost {
+    /**
+     * A fetch wrapper with proxy, retry and timeout handling.
+     */
+    fetch(
+        input: string | URL | globalThis.Request,
+        init?: FetchOptions
+    ): Promise<Response>
+
+    /**
+     * A function that fetches text from a URL or a file
+     * @param url
+     * @param options
+     */
+    fetchText(
+        url: string | WorkspaceFile,
+        options?: FetchTextOptions
+    ): Promise<{
+        ok: boolean
+        status: number
+        text?: string
+        file?: WorkspaceFile
+    }>
+
     /**
      * Opens a in-memory key-value cache for the given cache name. Entries are dropped when the cache grows too large.
      * @param cacheName

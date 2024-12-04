@@ -93,21 +93,20 @@ export async function createParsers(options: {
             const filename = typeof file === "string" ? file : file.filename
             const { pages, content } = (await parsePdf(filename, opts)) || {}
             return {
-                file: pages
-                    ? <WorkspaceFile>{
-                          filename,
-                          content,
-                      }
-                    : undefined,
-                pages,
+                file: <WorkspaceFile>{
+                    filename,
+                    content,
+                },
+                pages: pages?.map((p) => p.content),
+                images: pages?.map((p) => p.image),
             }
         },
         code: async (file, query) => {
             await resolveFileContent(file, { trace })
             return await treeSitterQuery(file, query, { trace })
         },
-        math: async (expression) =>
-            await MathTryEvaluate(expression, { trace }),
+        math: async (expression, scope) =>
+            await MathTryEvaluate(expression, { scope, trace }),
         validateJSON: (schema, content) =>
             validateJSONWithSchema(content, schema, { trace }),
         mustache: (file, args) => {
@@ -121,6 +120,6 @@ export async function createParsers(options: {
         diff: (f1, f2) => llmifyDiff(createDiff(f1, f2)),
         tidyData: (rows, options) => tidyData(rows, options),
         hash: async (text, options) => await hash(text, options),
-        unfence: unfence
+        unfence: unfence,
     })
 }

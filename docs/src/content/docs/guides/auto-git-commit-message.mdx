@@ -10,7 +10,7 @@ description: Streamline your Git workflow with an automation script for
 
 In the world of software development, making consistent and informative commit messages is crucial but often overlooked.
 This task can become tedious, especially when you are in the flow of coding.
-To help with this, we've crafted a [script tailored to automate generating Git commit messages](https://github.com/microsoft/genaiscript/blob/main/genaisrc/gcm.genai.mts),
+To help with this, we've crafted a [script tailored to automate generating Git commit messages](https://github.com/microsoft/genaiscript/blob/main/packages/sample/genaisrc/samples/gcm.genai.mts),
 ensuring they are meaningful and save you time.
 
 The script acts as a regular node.js automation script and uses [runPrompt](/genaiscript/reference/scripts/inner-prompts)
@@ -126,7 +126,7 @@ so that it gets populated in the `env.files` variable.
 npx --yes genaiscript run commit-msg "$1"
 ```
 
-In the script, we check if the content of the file already has a user message, otherwize generate a new message.
+In the script, we check if the content of the file already has a user message, otherwise generate a new message.
 
 ```js title="commit-msg.genai.mts"
 const msg = env.files[0] // file created by git to hold the message

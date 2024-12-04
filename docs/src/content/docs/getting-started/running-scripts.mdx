@@ -6,6 +6,10 @@ sidebar:
     order: 4
 ---
 
+import copilotSrc from "../../../assets/chat-participant.png"
+import copilotAlt from "../../../assets/chat-participant.png.txt?raw"
+import { Image } from "astro:assets"
+
 :::caution
 
 Script are executed in the context of your environment.
@@ -41,6 +45,12 @@ To run the script on the root folder, right click under the files.
 ![A screenshot of a file explorer in a code editor showing various files and folders. The context menu is open with the option "Run GenAiScript..." highlighted by a red arrow.](../../../assets/vscode-folder-run-root.png)
 
 :::
+
+### GitHub Copilot Chat
+
+You can run scripts in the [GitHub Copilot Chat](https://code.visualstudio.com/docs/copilot/getting-started-chat) through the [**@genaiscript**](/genaiscript/reference/vscode/github-copilot-chat) participant.
+
+<Image src={copilotSrc} alt={copilotAlt} loading="lazy" />
 
 ### Default files
 

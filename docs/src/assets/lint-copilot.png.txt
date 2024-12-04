@@ -1,0 +1,1 @@
+Screenshot of a TypeScript file in a code editor showing a class named "Greeter" with a constructor and a method. The editor highlights four problems: missing semicolons on lines 5 and 9, an empty function on line 18, and a suggestion to add a type annotation on line 20. The right panel displays these issues with red and yellow icons.

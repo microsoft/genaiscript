@@ -28,25 +28,21 @@ jobs:
             - run: yarn install --frozen-lockfile
             - name: compile
               run: yarn compile
+            - name: start ollama
+              run: docker run -d -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama
             - name: git stuff
               run: git fetch origin && git pull origin main:main
             - name: genaiscript pr-describe
               continue-on-error: true
-              run: node packages/cli/built/genaiscript.cjs run pr-describe --out ./temp/genai/pr-describe -prd --out-trace $GITHUB_STEP_SUMMARY
+              run: node packages/cli/built/genaiscript.cjs run pr-describe --out ./temp/genai/pr-describe -prd --out-trace $GITHUB_STEP_SUMMARY --model ollama:qwen2.5-coder:7b
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                  OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-                  OPENAI_API_TYPE: ${{ secrets.OPENAI_API_TYPE }}
-                  OPENAI_API_BASE: ${{ secrets.OPENAI_API_BASE }}
             - name: genaiscript pr-review
-              run: node packages/cli/built/genaiscript.cjs run pr-review --out ./temp/genai/pr-review -prc --out-trace $GITHUB_STEP_SUMMARY
+              run: node packages/cli/built/genaiscript.cjs run pr-review --out ./temp/genai/pr-review -prc --out-trace $GITHUB_STEP_SUMMARY --model ollama:qwen2.5-coder:7b
               continue-on-error: true
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   GITHUB_COMMIT_SHA: ${{ github.event.pull_request.base.sha}}
-                  OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-                  OPENAI_API_TYPE: ${{ secrets.OPENAI_API_TYPE }}
-                  OPENAI_API_BASE: ${{ secrets.OPENAI_API_BASE }}
             - name: Archive genai results
               if: always()
               uses: actions/upload-artifact@v4

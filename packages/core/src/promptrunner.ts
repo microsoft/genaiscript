@@ -1,6 +1,6 @@
 // Import necessary modules and functions for handling chat sessions, templates, file management, etc.
 import { executeChatSession, tracePromptResult } from "./chat"
-import { Project, PromptScript } from "./ast"
+import { Project } from "./server/messages"
 import { stringToPos } from "./parser"
 import { arrayify, assert, logError, logVerbose, relativePath } from "./util"
 import { runtimeHost } from "./host"
@@ -138,6 +138,7 @@ export async function runTemplate(
             outputProcessors,
             chatParticipants,
             fileOutputs,
+            prediction,
             status,
             statusText,
             temperature,
@@ -148,6 +149,7 @@ export async function runTemplate(
             responseSchema,
             logprobs,
             topLogprobs,
+            disposables,
         } = await expandTemplate(
             prj,
             template,
@@ -221,8 +223,10 @@ export async function runTemplate(
             fileOutputs,
             outputProcessors,
             fileMerges,
+            prediction,
             completer,
             chatParticipants,
+            disposables,
             genOptions
         )
         tracePromptResult(trace, output)

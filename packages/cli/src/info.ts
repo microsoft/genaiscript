@@ -4,10 +4,16 @@
  * and resolving model connection info for specific scripts.
  */
 
+import { LanguageModelInfo } from "../../core/src/chat"
 import { parseTokenFromEnv } from "../../core/src/connection"
 import { MODEL_PROVIDERS } from "../../core/src/constants"
 import { errorMessage } from "../../core/src/error"
-import { host, runtimeHost } from "../../core/src/host"
+import {
+    host,
+    LanguageModelConfiguration,
+    runtimeHost,
+} from "../../core/src/host"
+import { resolveLanguageModel } from "../../core/src/lm"
 import {
     ModelConnectionInfo,
     resolveModelConnectionInfo,
@@ -34,11 +40,12 @@ export async function systemInfo() {
  */
 export async function envInfo(
     provider: string,
-    options?: { token?: boolean; error?: boolean }
+    options?: { token?: boolean; error?: boolean; models?: boolean }
 ) {
-    const { token, error } = options || {}
+    const { token, error, models } = options || {}
+    const config = await runtimeHost.readConfig()
     const res: any = {}
-    res[".env"] = runtimeHost.config.envFile ?? ""
+    res[".env"] = config.envFile ?? ""
     res.providers = []
     const env = process.env
 
@@ -48,10 +55,19 @@ export async function envInfo(
     )) {
         try {
             // Attempt to parse connection token from environment variables
-            const conn = await parseTokenFromEnv(env, `${modelProvider.id}:*`)
+            const conn: LanguageModelConfiguration & {
+                models?: LanguageModelInfo[]
+            } = await parseTokenFromEnv(env, `${modelProvider.id}:*`)
             if (conn) {
                 // Mask the token if the option is set
                 if (!token && conn.token) conn.token = "***"
+                if (models) {
+                    const lm = await resolveLanguageModel(modelProvider.id)
+                    if (lm.listModels) {
+                        const ms = await lm.listModels(conn)
+                        if (ms?.length) conn.models = ms
+                    }
+                }
                 res.providers.push(conn)
             }
         } catch (e) {
@@ -103,7 +119,7 @@ async function resolveScriptsConnectionInfo(
  */
 export async function modelInfo(script: string, options?: { token?: boolean }) {
     const prj = await buildProject()
-    const templates = prj.templates.filter(
+    const templates = prj.scripts.filter(
         (t) =>
             !script ||
             t.id === script ||

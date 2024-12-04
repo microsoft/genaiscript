@@ -16,10 +16,10 @@ import { TraceOptions } from "./trace"
  */
 export async function MathTryEvaluate(
     expr: string,
-    options?: { defaultValue?: number } & TraceOptions
+    options?: { scope?: object; defaultValue?: number } & TraceOptions
 ): Promise<string | number | undefined> {
     // Destructuring options with defaults
-    const { trace, defaultValue } = options || {}
+    const { trace, defaultValue, scope = {} } = options || {}
 
     try {
         // Return defaultValue if expression is empty
@@ -29,7 +29,7 @@ export async function MathTryEvaluate(
         const { evaluate } = await import("mathjs")
 
         // Evaluate the expression and return the result
-        const res = evaluate(expr)
+        const res = evaluate(expr, scope)
         return res
     } catch (e) {
         // Log an error if tracing is enabled

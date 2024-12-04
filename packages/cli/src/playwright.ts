@@ -5,7 +5,6 @@ import { runtimeHost } from "../../core/src/host"
 import { PLAYWRIGHT_VERSION } from "./version"
 import { ellipseUri } from "../../core/src/url"
 import { PLAYWRIGHT_DEFAULT_BROWSER } from "../../core/src/constants"
-import { log } from "node:console"
 
 /**
  * Manages browser instances using Playwright, including launching,

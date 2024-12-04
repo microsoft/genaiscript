@@ -32,7 +32,6 @@ import {
     CONSOLE_COLOR_DEBUG,
     DOCS_CONFIGURATION_URL,
     TRACE_DETAILS,
-    CLI_ENV_VAR_RX,
     STATS_DIR_NAME,
     GENAI_ANYTS_REGEX,
     CONSOLE_TOKEN_COLORS,
@@ -83,6 +82,11 @@ import { appendFile } from "node:fs/promises"
 import { parseOptionsVars } from "./vars"
 import { logprobColor } from "../../core/src/logprob"
 import { structuralMerge } from "../../core/src/merge"
+import {
+    overrideStdoutWithStdErr,
+    stderr,
+    stdout,
+} from "../../core/src/logging"
 
 async function setupTraceWriting(trace: MarkdownTrace, filename: string) {
     logVerbose(`trace: ${filename}`)
@@ -203,6 +207,7 @@ export async function runScript(
     const logprobs = options.logprobs
     const topLogprobs = normalizeInt(options.topLogprobs)
 
+    if (options.json || options.yaml) overrideStdoutWithStdErr()
     if (options.model) host.defaultModelOptions.model = options.model
     if (options.smallModel)
         host.defaultModelOptions.smallModel = options.smallModel
@@ -269,11 +274,11 @@ export async function runScript(
         toolFiles,
     })
     if (jsSource)
-        prj.templates.push({
+        prj.scripts.push({
             id: scriptId,
             jsSource,
         })
-    const script = prj.templates.find(
+    const script = prj.scripts.find(
         (t) =>
             t.id === scriptId ||
             (t.filename &&
@@ -330,20 +335,18 @@ export async function runScript(
                                         logprobColor(token),
                                         token.token
                                     )
-                                    process.stdout.write(c)
+                                    stdout.write(c)
                                 } else {
                                     tokenColor =
                                         (tokenColor + 1) % colors.length
                                     const c = colors[tokenColor]
-                                    process.stdout.write(
-                                        wrapColor(c, token.token)
-                                    )
+                                    stdout.write(wrapColor(c, token.token))
                                 }
                             }
                         } else {
-                            if (!inner) process.stdout.write(responseChunk)
+                            if (!inner) stdout.write(responseChunk)
                             else
-                                process.stderr.write(
+                                stderr.write(
                                     wrapColor(
                                         CONSOLE_COLOR_DEBUG,
                                         responseChunk
@@ -351,7 +354,7 @@ export async function runScript(
                                 )
                         }
                     } else if (!isQuiet)
-                        process.stderr.write(
+                        stderr.write(
                             wrapColor(CONSOLE_COLOR_DEBUG, responseChunk)
                         )
                 }
@@ -488,17 +491,22 @@ export async function runScript(
                     edits.after
                 )
         }
-    } else {
-        if (options.json && result !== undefined)
-            console.log(JSON.stringify(result, null, 2))
-        if (options.yaml && result !== undefined)
-            console.log(YAMLStringify(result))
     }
+
+    if (options.json && result !== undefined)
+        // needs to go to process.stdout
+        process.stdout.write(JSON.stringify(result, null, 2))
+    if (options.yaml && result !== undefined)
+        // needs to go to process.stdout
+        process.stdout.write(YAMLStringify(result))
 
     let _ghInfo: GithubConnectionInfo = undefined
     const resolveGitHubInfo = async () => {
         if (!_ghInfo)
-            _ghInfo = await githubParseEnv(process.env, { issue: pullRequest })
+            _ghInfo = await githubParseEnv(process.env, {
+                issue: pullRequest,
+                resolveIssue: true,
+            })
         return _ghInfo
     }
     let adoInfo: AzureDevOpsEnv = undefined

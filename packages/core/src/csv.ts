@@ -5,6 +5,8 @@ import { parse } from "csv-parse/sync"
 import { TraceOptions } from "./trace"
 import { stringify } from "csv-stringify/sync"
 import { arrayify } from "./util"
+import { chunk } from "es-toolkit"
+import { filenameOrFileToContent } from "./fs"
 
 /**
  * Parses a CSV string into an array of objects.
@@ -16,19 +18,21 @@ import { arrayify } from "./util"
  * @returns An array of objects representing the CSV data.
  */
 export function CSVParse(
-    text: string,
+    text: string | WorkspaceFile,
     options?: {
         delimiter?: string
         headers?: ElementOrArray<string>
         repair?: boolean
     }
 ): object[] {
+    text = filenameOrFileToContent(text)
+
     // Destructure options or provide defaults
     const { delimiter, headers, repair, ...rest } = options || {}
     const columns = headers ? arrayify(headers) : true
 
     // common LLM escape errors
-    if (repair) {
+    if (repair && text) {
         text = text.replace(/\\"/g, '""').replace(/""""/g, '""')
     }
     // Parse the CSV string based on the provided options
@@ -67,6 +71,7 @@ export function CSVTryParse(
 ): object[] | undefined {
     const { trace } = options || {}
     try {
+        if (!text) return [] // Return empty array if CSV is empty
         // Attempt to parse the CSV
         return CSVParse(text, options)
     } catch (e) {
@@ -84,6 +89,7 @@ export function CSVTryParse(
  * @returns A string representing the CSV formatted data.
  */
 export function CSVStringify(csv: object[], options?: CSVStringifyOptions) {
+    if (!csv) return "" // Return empty string if CSV is empty
     // Convert objects to CSV string using the provided options
     return stringify(csv, options)
 }
@@ -125,4 +131,21 @@ export function CSVToMarkdown(
         ),
     ]
     return res.join("\n") // Join rows with newline
+}
+
+/**
+ * Splits the original array into chunks of the specified size.
+ * @param csv
+ * @param rows
+ */
+export function CSVChunk(
+    rows: object[],
+    size: number
+): { chunkStartIndex: number; rows: object[] }[] {
+    return chunk(rows || [], Math.max(1, size | 0)).map(
+        (rows, chunkStartIndex) => ({
+            chunkStartIndex,
+            rows,
+        })
+    )
 }

@@ -1,0 +1,78 @@
+---
+title: Issue Reviewer
+sidebar:
+  order: 19
+description: Learn how to automate reviewing issues with a script.
+keywords: pull request automation, code review, GitHub Actions, GenAIScript reviewer, PR feedback
+---
+import { Code } from '@astrojs/starlight/components';
+import importedCode from "../../../../../packages/sample/genaisrc/issue-reviewer.genai?raw"
+
+This guide shows how to automate reviewing issues 
+with a GenAIScript that provides feedback and code analysis in GitHub Actions.
+
+## Resolving the issue
+
+The script starts by getting the current issue information from the GitHub API.
+
+```js title="issue-reviewer.genai.mjs"
+const { title, body } = await github.getIssue()
+```
+
+The `github.getIssue` assumes that GenAIScript is running in a GitHub Action, 
+it will have access to the github token (`GITHUB_TOKEN`) and the `GITHUB_ISSUE` issue id.
+
+The `GITHUB_ISSUE` needs to be configured in the GitHub Action from the `github.event.issue` object.
+
+```yaml title="github-action.yml" "GITHUB_ISSUE: ${{ github.event.issue.number }}" wrap
+jobs:
+  review:
+    - run: ...
+      env:
+        GITHUB_ISSUE: ${{ github.event.issue.number }}
+```
+
+
+## The task
+
+The prompt sets the task and how to perform the review in a system message.
+
+```js title="issue-reviewer.genai.mts" wrap
+$`## Tasks
+
+You are an expert developer and have been asked to review an issue. 
+
+Review the TITLE and BODY and report your feedback that will be added as a comment to the issue.
+`.role("system")
+```
+
+## The context
+
+Then it adds the issue title and body to the prompt.
+
+```js title="issue-reviewer.genai.mts" wrap
+def("TITLE", title)
+def("BODY", body)
+```
+
+## Automation in Github Actions
+
+Add this step to your Github Actions workflow to automate the issue review process.
+The `-prc` flag stands for [--pull-request-comment](/genaiscript/reference/cli/run#pull-request-comment)
+and takes care of upserting a comment in the pull request/issue conversation.
+
+```yaml wrap
+permissions:
+    content: read # permission to read the repository
+    issues: write # permission to write a comment
+...
+    - run: npx --yes genaiscript run issue-reviewer -prc --out-trace $GITHUB_STEP_SUMMARY
+      env:
+        GITHUB_ISSUE: ${{ github.event.issue.number }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        ... # LLM secrets
+```
+
+## Full source
+
+<Code code={importedCode} wrap={true} lang="js" title="issue-reviewer.genai.mjs" />

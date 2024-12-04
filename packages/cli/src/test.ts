@@ -44,6 +44,7 @@ import {
     ModelConnectionInfo,
     resolveModelConnectionInfo,
 } from "../../core/src/models"
+import { filterScripts } from "../../core/src/ast"
 
 /**
  * Parses model specifications from a string and returns a ModelOptions object.
@@ -70,20 +71,6 @@ function parseModelSpec(m: string): ModelOptions {
             topP: normalizeFloat(values["p"]),
         }
     else return { model: m }
-}
-
-/**
- * Resolves the test provider for a given script by determining the language model configuration.
- * @param script - The PromptScript object for which to determine the provider.
- * @returns The resolved provider or undefined if not found.
- */
-async function resolveTestProvider(info: ModelConnectionInfo) {
-    switch (info?.type) {
-        case "azure":
-        case "azure_serverless":
-            return info?.base
-    }
-    return undefined
 }
 
 /**
@@ -119,9 +106,6 @@ export async function runPromptScriptTests(
         promptfooVersion?: string
         outSummary?: string
         testDelay?: string
-        model?: string
-        smallModel?: string
-        visionModel?: string
     }
 ): Promise<PromptScriptTestRunResponse> {
     if (options.model) host.defaultModelOptions.model = options.model
@@ -129,6 +113,10 @@ export async function runPromptScriptTests(
         host.defaultModelOptions.smallModel = options.smallModel
     if (options.visionModel)
         host.defaultModelOptions.visionModel = options.visionModel
+
+    logVerbose(
+        `model: ${host.defaultModelOptions.model}, small model: ${host.defaultModelOptions.smallModel}, vision model: ${host.defaultModelOptions.visionModel}`
+    )
 
     const scripts = await listTests({ ids, ...(options || {}) })
     if (!scripts.length)
@@ -158,19 +146,22 @@ export async function runPromptScriptTests(
             ? join(out, `${script.id}.promptfoo.yaml`)
             : script.filename.replace(GENAI_ANY_REGEX, ".promptfoo.yaml")
         logInfo(`  ${fn}`)
-        const { info } = await resolveModelConnectionInfo(script)
-        if (info.error) throw new Error(info.error)
-        const testProvider =
-            options?.testProvider || (await resolveTestProvider(info))
+        const { info: chatInfo } = await resolveModelConnectionInfo(script, {
+            model: host.defaultModelOptions.model,
+        })
+        if (chatInfo.error) throw new Error(chatInfo.error)
+        let { info: embeddingsInfo } = await resolveModelConnectionInfo(
+            script,
+            { model: host.defaultEmbeddingsModelOptions.embeddingsModel }
+        )
+        if (embeddingsInfo?.error) embeddingsInfo = undefined
         const config = generatePromptFooConfiguration(script, {
             out,
             cli,
-            model: info.model,
-            smallModel: info.smallModel,
-            visionModel: info.visionModel,
             models: options.models?.map(parseModelSpec),
             provider: "provider.mjs",
-            testProvider,
+            chatInfo,
+            embeddingsInfo,
         })
         const yaml = YAMLStringify(config)
         await writeFile(fn, yaml)
@@ -265,12 +256,11 @@ export async function runPromptScriptTests(
  * @returns A Promise resolving to an array of filtered scripts.
  */
 async function listTests(options: { ids?: string[]; groups?: string[] }) {
-    const { ids, groups } = options || {}
     const prj = await buildProject()
-    const scripts = prj.templates
-        .filter((t) => arrayify(t.tests)?.length)
-        .filter((t) => !ids?.length || ids.includes(t.id))
-        .filter((t) => tagFilter(groups, t.group))
+    const scripts = filterScripts(prj.scripts, {
+        ...(options || {}),
+        test: true,
+    })
     return scripts
 }
 

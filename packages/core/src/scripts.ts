@@ -1,10 +1,11 @@
-import { Project } from "./ast"
+import { collectFolders } from "./ast"
 import { NEW_SCRIPT_TEMPLATE } from "./constants"
 import { promptDefinitions } from "./default_prompts"
 import { tryReadText, writeText } from "./fs"
 import { host } from "./host"
 import { logVerbose } from "./util"
 import { dedent } from "./indent"
+import { Project } from "./server/messages"
 
 export function createScript(
     name: string,
@@ -24,8 +25,8 @@ export function createScript(
 }
 
 export async function fixPromptDefinitions(project: Project) {
-    const folders = project.folders()
-    const systems = project.templates.filter((t) => t.isSystem)
+    const folders = collectFolders(project)
+    const systems = project.scripts.filter((t) => t.isSystem)
     const tools = systems.map(({ defTools }) => defTools || []).flat()
 
     for (const folder of folders) {
