@@ -138,10 +138,9 @@ export function activateFragmentCommands(state: ExtensionState) {
             fragment instanceof vscode.Uri &&
             GENAI_ANY_REGEX.test(fragment.path)
         ) {
-            template = state.project.scripts.find(
-                (p) => p.filename === (fragment as vscode.Uri).fsPath
-            )
-            assert(template !== undefined)
+            const rp = vscode.workspace.asRelativePath(fragment.fsPath)
+            template = state.project.scripts.find((p) => p.filename === rp)
+            assert(template !== undefined, "Script not found")
             fragment = undefined
         }
         fragment = await resolveSpec(fragment)
