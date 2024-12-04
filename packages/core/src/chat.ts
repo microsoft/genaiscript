@@ -24,6 +24,7 @@ import {
     logVerbose,
     logWarn,
     roundWithPrecision,
+    toStringList,
 } from "./util"
 import { extractFenced, findFirstDataFence, unfence } from "./fence"
 import {
@@ -71,6 +72,7 @@ import { HTMLEscape } from "./html"
 import { XMLTryParse } from "./xml"
 import {
     computePerplexity,
+    computeStructuralUncertainty,
     logprobToMarkdown,
     serializeLogProb,
     topLogprobsToMarkdown,
@@ -505,13 +507,23 @@ async function structurifyChatSession(
         frames.push(...validateFencesWithSchema(fences, schemas, { trace }))
 
     const perplexity = computePerplexity(logprobs)
+    const uncertainty = computeStructuralUncertainty(logprobs)
     if (logprobs?.length) {
         logVerbose(
-            `${logprobs.length} tokens, perplexity: ${roundWithPrecision(perplexity, 3) || ""}`
+            toStringList(
+                `${logprobs.length} tokens`,
+                !isNaN(perplexity)
+                    ? `perplexity: ${roundWithPrecision(perplexity, 3)}`
+                    : undefined,
+                !isNaN(uncertainty)
+                    ? `uncertainty: ${roundWithPrecision(uncertainty, 3)}`
+                    : undefined
+            )
         )
         try {
             trace.startDetails("📊 logprobs")
             trace.itemValue("perplexity", perplexity)
+            trace.itemValue("uncertainty", uncertainty)
             trace.item("logprobs (0%:red, 100%: blue)")
             trace.appendContent("\n\n")
             trace.appendContent(
@@ -554,6 +566,7 @@ async function structurifyChatSession(
         schemas,
         logprobs,
         perplexity,
+        uncertainty,
         model: resp?.model,
     } satisfies RunPromptResult)
     await computeFileEdits(res, {
@@ -747,9 +760,10 @@ async function choicesToLogitBias(
 ) {
     choices = arrayify(choices)
     if (!choices?.length) return undefined
-    const { encode } = await resolveTokenEncoder(model, {
-        disableFallback: true,
-    }) || {}
+    const { encode } =
+        (await resolveTokenEncoder(model, {
+            disableFallback: true,
+        })) || {}
     if (!encode) {
         trace.error(
             `unabled to compute logit bias, no token encoder found for ${model}`

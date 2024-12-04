@@ -1117,6 +1117,7 @@ interface RunPromptResult {
     model?: ModelType
     logprobs?: Logprob[]
     perplexity?: number
+    uncertainty?: number
 }
 
 /**
