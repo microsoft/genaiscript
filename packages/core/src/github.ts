@@ -584,6 +584,25 @@ export class GitHubClient implements GitHub {
         return data
     }
 
+    async createIssueComment(
+        issue_number: number | string,
+        body: string
+    ): Promise<GitHubComment> {
+        if (typeof issue_number === "string")
+            issue_number = parseInt(issue_number)
+        const { client, owner, repo } = await this.api()
+        if (isNaN(issue_number)) issue_number = (await this._connection).issue
+        if (isNaN(issue_number)) return undefined
+        const { data } = await client.rest.issues.createComment({
+            owner,
+            repo,
+            issue_number,
+            body,
+        })
+        return data
+    }
+
+
     async listPullRequests(
         options?: {
             state?: "open" | "closed" | "all"

@@ -1941,9 +1941,19 @@ interface GitHub {
 
     /**
      * Gets the details of a GitHub issue
-     * @param number issue number (not the issue id!). If missing, reads value from GITHUB_ISSUE environment variable.
+     * @param issueNumber issue number (not the issue id!). If undefined, reads value from GITHUB_ISSUE environment variable.
      */
-    getIssue(number?: number | string): Promise<GitHubIssue>
+    getIssue(issueNumber?: number | string): Promise<GitHubIssue>
+
+    /**
+     * Create a GitHub issue comment
+     * @param issueNumber issue number (not the issue id!). If undefined, reads value from GITHUB_ISSUE environment variable.
+     * @param body the body of the comment as Github Flavored markdown
+     */
+    createIssueComment(
+        issueNumber: number | string,
+        body: string
+    ): Promise<GitHubComment>
 
     /**
      * Lists comments for a given issue
