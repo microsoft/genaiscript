@@ -1,4 +1,5 @@
 // cspell: disable
+import { log } from "console"
 import {
     ChatCompletionChunkChoice,
     ChatCompletionTokenLogprob,
@@ -106,6 +107,7 @@ function computeNormalizedEntropy(logprobs: Logprob[]): number {
 
 // https://www.watchful.io/blog/decoding-llm-uncertainties-for-better-predictability
 export function computeStructuralUncertainty(logprobs: Logprob[]): number {
+    if (!logprobs?.length) return undefined
     const vs = logprobs
         .map((logprob) => computeNormalizedEntropy(logprob.topLogprobs))
         .filter((v) => !isNaN(v))
