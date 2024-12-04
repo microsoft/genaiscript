@@ -457,10 +457,9 @@ export class GitHubClient implements GitHub {
         this._info = info
     }
 
-    private connection(): Promise<Omit<GithubConnectionInfo, "issue">> {
-        if (!this._connection) {
+    private connection(): Promise<GithubConnectionInfo> {
+        if (!this._connection)
             this._connection = githubParseEnv(process.env, this._info)
-        }
         return this._connection
     }
 
@@ -536,6 +535,7 @@ export class GitHubClient implements GitHub {
             owner,
             ref,
             refName,
+            issue,
         } = await this.connection()
         return Object.freeze({
             baseUrl,
@@ -544,6 +544,7 @@ export class GitHubClient implements GitHub {
             auth,
             ref,
             refName,
+            issueNumber: issue
         })
     }
 
@@ -580,6 +581,24 @@ export class GitHubClient implements GitHub {
             owner,
             repo,
             issue_number,
+        })
+        return data
+    }
+
+    async createIssueComment(
+        issue_number: number | string,
+        body: string
+    ): Promise<GitHubComment> {
+        if (typeof issue_number === "string")
+            issue_number = parseInt(issue_number)
+        const { client, owner, repo } = await this.api()
+        if (isNaN(issue_number)) issue_number = (await this._connection).issue
+        if (isNaN(issue_number)) return undefined
+        const { data } = await client.rest.issues.createComment({
+            owner,
+            repo,
+            issue_number,
+            body,
         })
         return data
     }

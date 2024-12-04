@@ -3,6 +3,9 @@ script({
     tests: {},
 })
 
+const info = await github.info()
+console.log(info)
+
 const ts = github.client("microsoft", "typescript")
 const tsissues = await ts.listIssues({ count: 5 })
 console.log({ typescriptIssues: tsissues.map((i) => i.title) })
@@ -62,3 +65,6 @@ console.log(
 
 const branches = await github.listBranches()
 console.log(branches)
+
+if (info.issueNumber)
+    await github.createIssueComment(info.issueNumber, "Hello from GenAIClient")
