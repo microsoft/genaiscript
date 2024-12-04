@@ -35,7 +35,7 @@
   "dependencies": {
     "@azure/identity": "^4.5.0",
     "@inquirer/prompts": "^7.1.0",
-    "@modelcontextprotocol/sdk": "^1.0.1",
+    "@modelcontextprotocol/sdk": "^1.0.3",
     "@octokit/plugin-paginate-rest": "^11.3.6",
     "@octokit/plugin-retry": "^7.1.2",
     "@octokit/plugin-throttling": "^9.3.2",
@@ -54,9 +54,9 @@
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz"
   },
   "optionalDependencies": {
-    "@huggingface/transformers": "^3.1.0",
+    "@huggingface/transformers": "^3.1.1",
     "@lvce-editor/ripgrep": "^1.4.0",
-    "pdfjs-dist": "4.8.69",
+    "pdfjs-dist": "4.9.124",
     "playwright": "^1.49.0",
     "skia-canvas": "^2.0.0",
     "tree-sitter-wasms": "^0.1.11",
@@ -81,7 +81,7 @@
     "commander": "^12.1.0",
     "diff": "^7.0.0",
     "dotenv": "^16.4.5",
-    "es-toolkit": "^1.27.0",
+    "es-toolkit": "^1.29.0",
     "esbuild": "^0.24.0",
     "execa": "^9.5.1",
     "fs-extra": "^11.2.0",
@@ -89,7 +89,7 @@
     "memorystream": "^0.3.1",
     "node-sarif-builder": "^3.2.0",
     "octokit": "^4.0.2",
-    "openai": "^4.73.1",
+    "openai": "^4.75.0",
     "pretty-bytes": "^6.1.1",
     "replace-ext": "^2.0.0",
     "ws": "^8.18.0",
