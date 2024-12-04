@@ -102,7 +102,7 @@ export class ExtensionState extends EventTarget {
         AIRequestSnapshot
     > = undefined
     readonly output: vscode.LogOutputChannel
-    readonly sessionApiKey = randomHex(64)
+    readonly sessionApiKey = randomHex(32)
 
     constructor(public readonly context: ExtensionContext) {
         super()
