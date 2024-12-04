@@ -38,7 +38,7 @@ jobs:
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             - name: genaiscript pr-review
-              run: node packages/cli/built/genaiscript.cjs run pr-review --out ./temp/genai/pr-review -prc --out-trace $GITHUB_STEP_SUMMARY --model ollama:qwen2.5-coder:3b
+              run: node packages/cli/built/genaiscript.cjs run pr-review --out ./temp/genai/pr-review -prc --out-trace $GITHUB_STEP_SUMMARY --model ollama:qwen2.5-coder:7b
               continue-on-error: true
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

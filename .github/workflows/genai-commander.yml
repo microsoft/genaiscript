@@ -43,28 +43,21 @@ jobs:
               run: yarn install --frozen-lockfile
             - name: compile
               run: yarn compile
+            - name: start ollama
+              run: docker run -d -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama
             - name: genaiscript pr-describe
               if: contains(github.event.comment.body, '/genai-describe')
-              run: node packages/cli/built/genaiscript.cjs run pr-describe --out ./temp/genai/pr-describe -prd --out-trace $GITHUB_STEP_SUMMARY
+              run: node packages/cli/built/genaiscript.cjs run pr-describe --out ./temp/genai/pr-describe -prd --out-trace $GITHUB_STEP_SUMMARY --model ollama:qwen2.5-coder:7b
               env:
                   GITHUB_ISSUE: ${{ github.event.issue.number }}
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                  OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-                  OPENAI_API_TYPE: ${{ secrets.OPENAI_API_TYPE }}
-                  OPENAI_API_BASE: ${{ secrets.OPENAI_API_BASE }}
             - name: genaiscript pr-review
               if: contains(github.event.comment.body, '/genai-review')
-              run: node packages/cli/built/genaiscript.cjs run pr-review --out ./temp/genai/pr-review -prc --out-trace $GITHUB_STEP_SUMMARY
+              run: node packages/cli/built/genaiscript.cjs run pr-review --out ./temp/genai/pr-review -prc --out-trace $GITHUB_STEP_SUMMARY --model ollama:qwen2.5-coder:7b
               env:
                   GITHUB_ISSUE: ${{ github.event.issue.number }}
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   GITHUB_COMMIT_SHA: ${{ fromJSON(steps.sha.outputs.result).sha }}
-                  OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-                  OPENAI_API_TYPE: ${{ secrets.OPENAI_API_TYPE }}
-                  OPENAI_API_BASE: ${{ secrets.OPENAI_API_BASE }}
-            - name: start ollama
-              if: contains(github.event.comment.body, '/genai-test')
-              run: docker run -d -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama
             - name: run test within scripts
               if: contains(github.event.comment.body, '/genai-test')
               run: yarn test:scripts --out-summary $GITHUB_STEP_SUMMARY --test-delay 10
