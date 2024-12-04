@@ -23,7 +23,7 @@ jobs:
                   script: |
                       const { owner, repo, number } = context.issue;
                       console.log({ owner, repo, number })
-                      console.log(github.pulls)
+                      console.log(github)
                       const pr = await github.pulls.get({ owner, repo, pull_number: number, });
                       console.log(pr)
                       const res = { sha: pr.data.head.sha, ref: pr.data.head.ref }
