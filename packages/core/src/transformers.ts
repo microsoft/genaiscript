@@ -124,12 +124,14 @@ export const TransformersCompletion: ChatCompletionHandler = async (
 
     const { TextStreamer } = await import("@huggingface/transformers")
     let chatResp = ""
+    let tokensSoFar = 0
     const streamer = new TextStreamer(tokenizer, {
         skip_prompt: true,
         callback_function: (text: string) => {
             chatResp += text
+            tokensSoFar += tokenizer(text).length
             partialCb?.({
-                tokensSoFar: tokenizer(chatResp),
+                tokensSoFar,
                 responseSoFar: chatResp,
                 responseChunk: text,
                 responseTokens:  [{ token: text, logprob: Number.NaN } satisfies Logprob],
