@@ -138,9 +138,22 @@ export function activateFragmentCommands(state: ExtensionState) {
             fragment instanceof vscode.Uri &&
             GENAI_ANY_REGEX.test(fragment.path)
         ) {
-            const rp = vscode.workspace.asRelativePath(fragment.fsPath)
-            template = state.project.scripts.find((p) => p.filename === rp)
-            assert(template !== undefined, "Script not found")
+            const fsPath = state.host.path.resolve(fragment.fsPath)
+            template = state.project.scripts
+                .filter((p) => !!p.filename)
+                .find(
+                    (p) =>
+                        state.host.path.resolve(
+                            state.host.projectFolder(),
+                            p.filename
+                        ) === fsPath
+                )
+            if (!template) {
+                vscode.window.showErrorMessage(
+                    `Could not find a GenAiScript ${fsPath}. This is most likely a bug in GenAIScript.`
+                )
+                return
+            }
             fragment = undefined
         }
         fragment = await resolveSpec(fragment)
