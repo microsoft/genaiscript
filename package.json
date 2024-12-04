@@ -90,7 +90,7 @@
         "@inquirer/prompts": "^7.1.0",
         "glob": "^11.0.0",
         "npm-check-updates": "^17.1.11",
-        "prettier": "^3.4.1",
+        "prettier": "^3.4.2",
         "zx": "^8.2.4"
     }
 }
