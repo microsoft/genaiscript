@@ -1,6 +1,6 @@
 import packageJson from "../package.json"
 
-// This file exports specific versions of dependencies and engines from package.json.
+// This file exports specific versions of dependencies and engines from package.json
 
 /**
  * The minimum required Node.js version for this package.
