@@ -1753,6 +1753,7 @@ interface GitHubOptions {
     auth?: string
     ref?: string
     refName?: string
+    issueNumber?: number
 }
 
 type GitHubWorkflowRunStatus =

@@ -457,10 +457,9 @@ export class GitHubClient implements GitHub {
         this._info = info
     }
 
-    private connection(): Promise<Omit<GithubConnectionInfo, "issue">> {
-        if (!this._connection) {
+    private connection(): Promise<GithubConnectionInfo> {
+        if (!this._connection)
             this._connection = githubParseEnv(process.env, this._info)
-        }
         return this._connection
     }
 
@@ -536,6 +535,7 @@ export class GitHubClient implements GitHub {
             owner,
             ref,
             refName,
+            issue,
         } = await this.connection()
         return Object.freeze({
             baseUrl,
@@ -544,6 +544,7 @@ export class GitHubClient implements GitHub {
             auth,
             ref,
             refName,
+            issueNumber: issue
         })
     }
 
@@ -601,7 +602,6 @@ export class GitHubClient implements GitHub {
         })
         return data
     }
-
 
     async listPullRequests(
         options?: {
