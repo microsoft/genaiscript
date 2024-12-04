@@ -48,6 +48,13 @@ const issueComments = await github.listIssueComments(issues[0].number)
 console.log(issueComments)
 ```
 
+You can also create issue comments:
+
+```js
+// Use issue number!
+await github.createIssueComment(issues[0].number, "Hello, world!")
+```
+
 ### Pull Requests
 
 Query pull requests and pull request review comments using `listPullRequests` and `listPullRequestReviewComments`.
