@@ -7,8 +7,9 @@ import { GENAI_ANY_REGEX, TOOL_ID, TOOL_NAME } from "../../core/src/constants"
 import { NotSupportedError } from "../../core/src/error"
 import { promptParameterTypeToJSONSchema } from "../../core/src/parameters"
 import { Fragment } from "../../core/src/generation"
-import { assert, dotGenaiscriptPath, groupBy } from "../../core/src/util"
+import { dotGenaiscriptPath, groupBy, logInfo } from "../../core/src/util"
 import { resolveCli } from "./config"
+import { YAMLStringify } from "../../core/src/yaml"
 
 type TemplateQuickPickItem = {
     template?: PromptScript
@@ -193,7 +194,11 @@ export function activateFragmentCommands(state: ExtensionState) {
                 return
             }
             files = vscode.window.visibleTextEditors
-                .filter((editor) => editor.document.uri.fsPath !== file.fsPath)
+                .filter(
+                    (editor) =>
+                        editor.document.uri.fsPath !== file.fsPath &&
+                        editor.document.uri.scheme === "file"
+                )
                 .map((editor) => editor.document.uri)
         } else {
             template = await pickTemplate()
@@ -210,22 +215,28 @@ export function activateFragmentCommands(state: ExtensionState) {
         ]
         const configuration = cliPath
             ? <vscode.DebugConfiguration>{
+                  type: "node",
                   name: TOOL_NAME,
                   request: "launch",
-                  skipFiles: ["<node_internals>/**", dotGenaiscriptPath("**")],
-                  type: "node",
-                  args: [cliPath, ...args],
-              }
-            : <vscode.DebugConfiguration>{
-                  name: TOOL_NAME,
-                  type: "node",
-                  request: "launch",
-                  runtimeExecutable: "npx",
-                  runtimeArgs: [`--yes`, `${TOOL_ID}@${cliVersion}`, ...args],
                   console: "integratedTerminal",
                   internalConsoleOptions: "neverOpen",
+                  skipFiles: ["<node_internals>/**", dotGenaiscriptPath("**")],
+
+                  args: [cliPath, ...args],
+              } satisfies vscode.DebugConfiguration
+            : <vscode.DebugConfiguration>{
+                  type: "node",
+                  name: TOOL_NAME,
+                  request: "launch",
+                  console: "integratedTerminal",
+                  internalConsoleOptions: "neverOpen",
+                  skipFiles: ["<node_internals>/**", dotGenaiscriptPath("**")],
+
+                  runtimeExecutable: "npx",
+                  runtimeArgs: [`--yes`, `${TOOL_ID}@${cliVersion}`, ...args],
               }
 
+        logInfo(`start debugging ${YAMLStringify(configuration)}`)
         await vscode.debug.startDebugging(
             vscode.workspace.workspaceFolders[0],
             configuration

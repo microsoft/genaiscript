@@ -9,7 +9,7 @@ import {
     TOOL_ID,
 } from "../../core/src/constants"
 import { ServerManager, host } from "../../core/src/host"
-import { logError, logVerbose } from "../../core/src/util"
+import { logError, logInfo, logVerbose } from "../../core/src/util"
 import { WebSocketClient } from "../../core/src/server/client"
 import { CORE_VERSION } from "../../core/src/version"
 import { createChatModelRunner } from "./lmaccess"
@@ -42,9 +42,9 @@ export class TerminalServerManager implements ServerManager {
             })
         )
 
-        this.client = new WebSocketClient(
-            `http://localhost:${SERVER_PORT}?api-key=${encodeURIComponent(sessionApiKey)}`
-        )
+        const url = `http://localhost:${SERVER_PORT}?api-key=${encodeURIComponent(sessionApiKey)}`
+        logInfo(`client url: ${url}`)
+        this.client = new WebSocketClient(url)
         this.client.chatRequest = createChatModelRunner(this.state)
         this.client.addEventListener(OPEN, async () => {
             // client connected to a rogue server
