@@ -14,7 +14,7 @@
   "optionalDependencies": {
     "@lvce-editor/ripgrep": "^1.4.0",
     "pdfjs-dist": "4.8.69",
-    "skia-canvas": "^1.0.2",
+    "skia-canvas": "^2.0.0",
     "web-tree-sitter": "0.22.2"
   },
   "devDependencies": {
