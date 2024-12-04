@@ -3,6 +3,8 @@ on:
     issue_comment:
         types: [created]
 env:
+  # Configure default GenAIScript models
+  # using Ollama's models
   GENAISCRIPT_DEFAULT_MODEL: ollama:qwen2.5-coder:7b
   GENAISCRIPT_DEFAULT_SMALL_MODEL: ollama:qwen2.5-coder:1.5b
   GENAISCRIPT_DEFAULT_VISION_MODEL: ollama:llama3.2-vision:11b
@@ -15,6 +17,9 @@ jobs:
             contents: read
             pull-requests: write
         steps:
+            #
+            # Resolve the PR sha and ref
+            #
             - name: resolve pr sha
               id: sha
               uses: actions/github-script@v7
@@ -22,13 +27,13 @@ jobs:
                   result-encoding: string
                   script: |
                       const { owner, repo, number } = context.issue;
-                      console.log({ owner, repo, number })
-                      console.log(github)
                       const pr = await github.rest.pulls.get({ owner, repo, pull_number: number, });
-                      console.log(pr)
                       const res = { sha: pr.data.head.sha, ref: pr.data.head.ref }
                       console.log(res)
                       return JSON.stringify(res)
+            #
+            # Checkout both main and PR branches
+            #
             - name: checkout
               uses: actions/checkout@v4
               with:
@@ -41,6 +46,9 @@ jobs:
               run: git checkout ${{ fromJSON(steps.sha.outputs.result).sha }}
             - name: diff main
               run: git diff origin/main
+            #
+            # Setup and build project
+            #
             - uses: actions/setup-node@v4
               with:
                   node-version: "20"
@@ -49,8 +57,14 @@ jobs:
               run: yarn install --frozen-lockfile
             - name: compile
               run: yarn compile
+            #
+            # Start Ollama in a docker container
+            #
             - name: start ollama
               run: docker run -d -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama
+            #
+            # Execute the /genai <command> found in the comment
+            #
             - name: genaiscript pr-describe
               if: contains(github.event.comment.body, '/genai describe')
               run: node packages/cli/built/genaiscript.cjs run pr-describe --out ./temp/genai/pr-describe -prd --out-trace $GITHUB_STEP_SUMMARY
@@ -64,6 +78,9 @@ jobs:
                   GITHUB_ISSUE: ${{ github.event.issue.number }}
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   GITHUB_COMMIT_SHA: ${{ fromJSON(steps.sha.outputs.result).sha }}
+            #
+            # Archive the results
+            #
             - name: Archive genai results
               if: always()
               uses: actions/upload-artifact@v4
