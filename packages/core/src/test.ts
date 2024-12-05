@@ -69,7 +69,7 @@ export function generatePromptFooConfiguration(
         provider?: string
         out?: string
         cli?: string
-        models?: ModelOptions[]
+        models?: (ModelOptions & ModelAliasesOptions)[]
     }
 ) {
     // Destructure options with default values
@@ -86,8 +86,8 @@ export function generatePromptFooConfiguration(
         models.push({
             ...script,
             model: chatInfo.model,
-            smallModel: chatInfo.smallModel,
-            visionModel: chatInfo.visionModel,
+            smallModel: chatInfo.model,
+            visionModel: chatInfo.model,
         })
     }
 

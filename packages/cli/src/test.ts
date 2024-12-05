@@ -51,7 +51,7 @@ import { filterScripts } from "../../core/src/ast"
  * @param m - The string representation of the model specification.
  * @returns A ModelOptions object with model, temperature, and topP fields if applicable.
  */
-function parseModelSpec(m: string): ModelOptions {
+function parseModelSpec(m: string): ModelOptions & ModelAliasesOptions {
     const values = m
         .split(/&/g)
         .map((kv) => kv.split("=", 2))

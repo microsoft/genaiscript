@@ -736,14 +736,6 @@ export function mergeGenerationOptions(
             runOptions?.model ??
             options?.model ??
             host.modelAliases.large.model,
-        smallModel:
-            runOptions?.smallModel ??
-            options?.smallModel ??
-            host.modelAliases.small.model,
-        visionModel:
-            runOptions?.visionModel ??
-            options?.visionModel ??
-            host.modelAliases.vision.model,
         temperature:
             runOptions?.temperature ?? host.modelAliases.large.temperature,
         embeddingsModel:

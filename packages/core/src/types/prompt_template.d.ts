@@ -189,7 +189,9 @@ interface ModelConnectionOptions {
      * Which LLM model to use. Use `large` for the default set of model candidates, `small` for the set of small models like gpt-4o-mini.
      */
     model?: ModelType
+}
 
+interface ModelAliasesOptions {
     /**
      * @deprecated use model aliases
      */
@@ -443,6 +445,7 @@ interface ContentSafetyOptions {
 interface PromptScript
     extends PromptLike,
         ModelOptions,
+        ModelAliasesOptions,
         PromptSystemOptions,
         EmbeddingsModelOptions,
         ContentSafetyOptions,
