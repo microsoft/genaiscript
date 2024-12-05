@@ -129,6 +129,7 @@ defTool(
     },
     async (args) => {
         const {
+            context,
             base,
             head,
             paths,
@@ -148,9 +149,11 @@ defTool(
             excludedPaths,
             count,
         })
-        return commits
+        const res = commits
             .map(({ sha, date, message }) => `${sha} ${date} ${message}`)
             .join("\n")
+        context.debug(res)
+        return res
     }
 )
 

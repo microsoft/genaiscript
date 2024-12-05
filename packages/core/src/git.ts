@@ -242,7 +242,7 @@ export class GitClient implements Git {
             .split("\n")
             .map(
                 (line) =>
-                    /^(?<sha>[a-z0-9]{9,40})\s+(?<date>\d{4,4}-\d{2,2}-\d{2,2})\s+(?<message>.*)$/.exec(
+                    /^(?<sha>[a-z0-9]{6,40})\s+(?<date>\d{4,4}-\d{2,2}-\d{2,2})\s+(?<message>.*)$/.exec(
                         line
                     )?.groups
             )
