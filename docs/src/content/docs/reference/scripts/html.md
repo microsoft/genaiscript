@@ -32,6 +32,12 @@ const markdown = HTML.HTMLToMarkdown(htmlContent)
 // Output will be: "Hello, **world**!"
 ```
 
+By default, the converter produces GitHub-flavored markdown. You can disable this behavior by setting the `disableGfm` parameter to `true`.
+
+```js ", { disableGfm: true }"
+const markdown = HTML.HTMLToMarkdown(htmlContent, { disableGfm: true })
+```
+
 ## `convertTablesToJSON`
 
 This function specializes in extracting tables from HTML content and converting them into JSON format. It is useful for data extraction tasks on web pages.

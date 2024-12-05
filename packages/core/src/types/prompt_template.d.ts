@@ -1434,9 +1434,12 @@ interface Parsers {
     /**
      * Convert HTML to markdown
      * @param content html string or file
-     * @param options
+     * @param options rendering options
      */
-    HTMLToMarkdown(content: string | WorkspaceFile): Promise<string>
+    HTMLToMarkdown(
+        content: string | WorkspaceFile,
+        options?: HTMLToMarkdownOptions
+    ): Promise<string>
 
     /**
      * Extracts the contents of a zip archive file
@@ -1624,6 +1627,10 @@ interface HTMLTableToJSONOptions {
     limitrows?: number | null
 }
 
+interface HTMLToMarkdownOptions {
+    disableGfm?: boolean
+}
+
 interface HTML {
     /**
      * Converts all HTML tables to JSON.
@@ -1643,7 +1650,10 @@ interface HTML {
      * Converts HTML markup to markdown
      * @param html
      */
-    convertToMarkdown(html: string): Promise<string>
+    convertToMarkdown(
+        html: string,
+        options?: HTMLToMarkdownOptions
+    ): Promise<string>
 }
 
 interface GitCommit {

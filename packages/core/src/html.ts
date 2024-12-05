@@ -54,16 +54,18 @@ export async function HTMLToText(
  */
 export async function HTMLToMarkdown(
     html: string,
-    options?: TraceOptions
+    options?: HTMLToMarkdownOptions & TraceOptions
 ): Promise<string> {
     if (!html) return html // Return original content if no HTML is provided
-    const { trace } = options || {} // Extract trace for logging if available
+    const { disableGfm, trace } = options || {} // Extract trace for logging if available
 
     try {
         const Turndown = (await import("turndown")).default // Import Turndown library for HTML to Markdown conversion
-        const GFMPlugin: any = require("turndown-plugin-gfm")
         const turndown = new Turndown()
-        turndown.use(GFMPlugin.gfm) // Use GFM plugin for GitHub Flavored Markdown
+        if (!disableGfm) {
+            const GFMPlugin: any = require("turndown-plugin-gfm")
+            turndown.use(GFMPlugin.gfm) // Use GFM plugin for GitHub Flavored Markdown
+        }
         const res = turndown.turndown(html) // Use Turndown library to convert HTML to Markdown
         return res
     } catch (e) {

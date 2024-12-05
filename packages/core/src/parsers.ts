@@ -71,8 +71,9 @@ export async function createParsers(options: {
                 ...(options || {}),
                 trace,
             }),
-        HTMLToMarkdown: (text) =>
+        HTMLToMarkdown: (text, options) =>
             HTMLToMarkdown(filenameOrFileToContent(text), {
+                ...(options || {}),
                 trace,
             }),
         DOCX: async (file) => {

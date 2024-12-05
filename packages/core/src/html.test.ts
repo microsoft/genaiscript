@@ -29,10 +29,16 @@ describe("html", () => {
     })
 
     describe("HTMLToMarkdown", async () => {
-        test("converts simple HTML to Markdown", async () => {
+        test("converts simple HTML to gfm", async () => {
             const html = "<h1>Title</h1>"
             const expected = "Title\n====="
             const result = await HTMLToMarkdown(html)
+            assert.strictEqual(result, expected)
+        })
+        test("converts simple HTML to Markdown", async () => {
+            const html = "<h1>Title</h1>"
+            const expected = "Title\n====="
+            const result = await HTMLToMarkdown(html, { disableGfm: true })
             assert.strictEqual(result, expected)
         })
     })
