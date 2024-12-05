@@ -22,7 +22,7 @@ jobs:
             - name: compile
               run: yarn compile
             - name: start ollama
-              run: docker run -d -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama
+              run: yarn ollama:start
             - name: git stuff
               run: git fetch origin && git pull origin main:main
             - name: genaiscript pr-review-commit
