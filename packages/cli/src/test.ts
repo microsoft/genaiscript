@@ -20,7 +20,7 @@ import {
 import { promptFooDriver } from "../../core/src/default_prompts"
 import { serializeError } from "../../core/src/error"
 import { parseKeyValuePairs } from "../../core/src/fence"
-import { host } from "../../core/src/host"
+import { host, runtimeHost } from "../../core/src/host"
 import { JSON5TryParse } from "../../core/src/json5"
 import { MarkdownTrace } from "../../core/src/trace"
 import {
@@ -51,7 +51,7 @@ import { filterScripts } from "../../core/src/ast"
  * @param m - The string representation of the model specification.
  * @returns A ModelOptions object with model, temperature, and topP fields if applicable.
  */
-function parseModelSpec(m: string): ModelOptions {
+function parseModelSpec(m: string): ModelOptions & ModelAliasesOptions {
     const values = m
         .split(/&/g)
         .map((kv) => kv.split("=", 2))
@@ -108,14 +108,13 @@ export async function runPromptScriptTests(
         testDelay?: string
     }
 ): Promise<PromptScriptTestRunResponse> {
-    if (options.model) host.defaultModelOptions.model = options.model
+    if (options.model) runtimeHost.modelAliases.large.model = options.model
     if (options.smallModel)
-        host.defaultModelOptions.smallModel = options.smallModel
+        runtimeHost.modelAliases.small.model = options.smallModel
     if (options.visionModel)
-        host.defaultModelOptions.visionModel = options.visionModel
-
-    logVerbose(
-        `model: ${host.defaultModelOptions.model}, small model: ${host.defaultModelOptions.smallModel}, vision model: ${host.defaultModelOptions.visionModel}`
+        runtimeHost.modelAliases.vision.model = options.visionModel
+    Object.entries(runtimeHost.modelAliases).forEach(([key, value]) =>
+        logVerbose(` ${key}: ${value.model}`)
     )
 
     const scripts = await listTests({ ids, ...(options || {}) })
@@ -147,12 +146,12 @@ export async function runPromptScriptTests(
             : script.filename.replace(GENAI_ANY_REGEX, ".promptfoo.yaml")
         logInfo(`  ${fn}`)
         const { info: chatInfo } = await resolveModelConnectionInfo(script, {
-            model: host.defaultModelOptions.model,
+            model: runtimeHost.modelAliases.large.model,
         })
         if (chatInfo.error) throw new Error(chatInfo.error)
         let { info: embeddingsInfo } = await resolveModelConnectionInfo(
             script,
-            { model: host.defaultEmbeddingsModelOptions.embeddingsModel }
+            { model: runtimeHost.modelAliases.embeddings.model }
         )
         if (embeddingsInfo?.error) embeddingsInfo = undefined
         const config = generatePromptFooConfiguration(script, {

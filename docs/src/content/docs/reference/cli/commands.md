@@ -19,6 +19,7 @@ Options:
   -m, --model <string>                       'large' model alias (default)
   -sm, --small-model <string>                'small' alias model
   -vm, --vision-model <string>               'vision' alias model
+  -ma, --model-alias <nameid...>             model alias as name=modelid
   -lp, --logprobs                            enable reporting token probabilities
   -tlp, --top-logprobs <number>              number of top logprobs (1 to 5)
   -ef, --excluded-files <string...>          excluded files

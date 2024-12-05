@@ -6,15 +6,6 @@ import { ExtensionState } from "./state"
 import { Utils } from "vscode-uri"
 import { checkFileExists, readFileText } from "./fs"
 import { filterGitIgnore } from "../../core/src/gitignore"
-import { parseDefaultsFromEnv } from "../../core/src/connection"
-import {
-    DEFAULT_EMBEDDINGS_MODEL,
-    DEFAULT_MODEL,
-    DEFAULT_SMALL_MODEL,
-    DEFAULT_TEMPERATURE,
-    DEFAULT_VISION_MODEL,
-} from "../../core/src/constants"
-import { dotEnvTryParse } from "../../core/src/dotenv"
 import {
     setHost,
     LanguageModelConfiguration,
@@ -30,16 +21,6 @@ export class VSCodeHost extends EventTarget implements Host {
     userState: any = {}
     readonly path = createVSPath()
     readonly server: TerminalServerManager
-    readonly defaultModelOptions = {
-        model: DEFAULT_MODEL,
-        smallModel: DEFAULT_SMALL_MODEL,
-        visionModel: DEFAULT_VISION_MODEL,
-        temperature: DEFAULT_TEMPERATURE,
-    }
-    readonly defaultEmbeddingsModelOptions = {
-        embeddingsModel: DEFAULT_EMBEDDINGS_MODEL,
-    }
-
     constructor(readonly state: ExtensionState) {
         super()
         setHost(this)

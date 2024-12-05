@@ -190,7 +190,7 @@ export async function createPromptContext(
                 searchOptions.embeddingsModel =
                     searchOptions?.embeddingsModel ??
                     options?.embeddingsModel ??
-                    host.defaultEmbeddingsModelOptions.embeddingsModel
+                    runtimeHost.modelAliases.embeddings.model
                 const key = await hash({ files, searchOptions }, { length: 12 })
                 const folderPath = dotGenaiscriptPath("vectors", key)
                 const res = await vectorSearch(q, files, {
@@ -213,8 +213,9 @@ export async function createPromptContext(
 
     // Define the host for executing commands, browsing, and other operations
     const promptHost: PromptHost = Object.freeze<PromptHost>({
-        fetch: (url, options) => fetch(url, {...(options || {}), trace }),
-        fetchText: (url, options) => fetchText(url, {...(options || {}), trace }),
+        fetch: (url, options) => fetch(url, { ...(options || {}), trace }),
+        fetchText: (url, options) =>
+            fetchText(url, { ...(options || {}), trace }),
         resolveLanguageModel: async (modelId) => {
             const { configuration } = await resolveModelConnectionInfo(
                 { model: modelId },

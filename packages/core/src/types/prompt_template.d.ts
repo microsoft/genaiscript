@@ -186,20 +186,19 @@ type ModelVisionType = OptionsOrString<
 
 interface ModelConnectionOptions {
     /**
-     * Which LLM model to use. Use `large` for the default set of model candidates, `small` for the set of small models like gpt-4o-mini.
+     * Which LLM model by default or for the `large` alias.
      */
     model?: ModelType
+}
 
+interface ModelAliasesOptions {
     /**
-     * Which LLM model to use for the "small" model.
-     *
-     * @default gpt-4
-     * @example gpt-4
+     * Configure the `small` model alias.
      */
     smallModel?: ModelSmallType
 
     /**
-     * Which LLM to use for the "vision" model.
+     * Configure the `vision` model alias.
      */
     visionModel?: ModelVisionType
 }
@@ -446,6 +445,7 @@ interface ContentSafetyOptions {
 interface PromptScript
     extends PromptLike,
         ModelOptions,
+        ModelAliasesOptions,
         PromptSystemOptions,
         EmbeddingsModelOptions,
         ContentSafetyOptions,

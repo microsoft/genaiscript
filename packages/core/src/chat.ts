@@ -1,7 +1,7 @@
 // cspell: disable
 import { MarkdownTrace } from "./trace"
 import { PromptImage, PromptPrediction, renderPromptNode } from "./promptdom"
-import { LanguageModelConfiguration, host } from "./host"
+import { LanguageModelConfiguration, host, runtimeHost } from "./host"
 import { GenerationOptions } from "./generation"
 import { dispose } from "./dispose"
 import {
@@ -735,21 +735,13 @@ export function mergeGenerationOptions(
         model:
             runOptions?.model ??
             options?.model ??
-            host.defaultModelOptions.model,
-        smallModel:
-            runOptions?.smallModel ??
-            options?.smallModel ??
-            host.defaultModelOptions.smallModel,
-        visionModel:
-            runOptions?.visionModel ??
-            options?.visionModel ??
-            host.defaultModelOptions.visionModel,
+            runtimeHost.modelAliases.large.model,
         temperature:
-            runOptions?.temperature ?? host.defaultModelOptions.temperature,
+            runOptions?.temperature ?? runtimeHost.modelAliases.large.temperature,
         embeddingsModel:
             runOptions?.embeddingsModel ??
             options?.embeddingsModel ??
-            host.defaultEmbeddingsModelOptions.embeddingsModel,
+            runtimeHost.modelAliases.embeddings.model,
     } satisfies GenerationOptions
     return res
 }
@@ -803,8 +795,8 @@ export async function executeChatSession(
 ): Promise<RunPromptResult> {
     const {
         trace,
-        model = host.defaultModelOptions.model,
-        temperature = host.defaultModelOptions.temperature,
+        model,
+        temperature,
         topP,
         maxTokens,
         seed,
@@ -815,6 +807,7 @@ export async function executeChatSession(
         choices,
         topLogprobs,
     } = genOptions
+    assert(!!model, "model is required")
     const top_logprobs = genOptions.topLogprobs > 0 ? topLogprobs : undefined
     const logprobs = genOptions.logprobs || top_logprobs > 0 ? true : undefined
     traceLanguageModelConnection(trace, genOptions, connectionToken)
@@ -863,7 +856,7 @@ export async function executeChatSession(
                         model,
                         choices
                     )
-                    req = {
+                    req = deleteUndefinedValues({
                         model,
                         temperature: temperature,
                         top_p: topP,
@@ -894,7 +887,7 @@ export async function executeChatSession(
                                         },
                                     }
                                   : undefined,
-                    }
+                    })
                     if (/^o1/i.test(model)) {
                         req.max_completion_tokens = maxTokens
                         delete req.max_tokens

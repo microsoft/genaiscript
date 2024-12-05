@@ -39,6 +39,7 @@ import {
     host,
     LanguageModelConfiguration,
     AzureCredentialsType,
+    runtimeHost,
 } from "./host"
 import { parseModelIdentifier } from "./models"
 import { normalizeFloat, trimTrailingSlash } from "./util"
@@ -71,20 +72,29 @@ export function findEnvVar(
     return undefined
 }
 
+export function setModelAlias(id: string, modelid: string) {
+    id = id.toLowerCase()
+    const c =
+        runtimeHost.modelAliases[id] || (runtimeHost.modelAliases[id] = {})
+    c.model = modelid
+}
+
 export async function parseDefaultsFromEnv(env: Record<string, string>) {
+    // legacy
     if (env.GENAISCRIPT_DEFAULT_MODEL)
-        host.defaultModelOptions.model = env.GENAISCRIPT_DEFAULT_MODEL
-    if (env.GENAISCRIPT_DEFAULT_SMALL_MODEL)
-        host.defaultModelOptions.smallModel =
-            env.GENAISCRIPT_DEFAULT_SMALL_MODEL
-    if (env.GENAISCRIPT_DEFAULT_VISION_MODEL)
-        host.defaultModelOptions.visionModel =
-            env.GENAISCRIPT_DEFAULT_VISION_MODEL
+        runtimeHost.modelAliases.large.model = env.GENAISCRIPT_DEFAULT_MODEL
+
+    const rx =
+        /^GENAISCRIPT(_DEFAULT)?_((?<id>[A-Z0-9]+)_MODEL|MODEL_(?<id2>[A-Z0-9]+))$/i
+    for (const kv of Object.entries(env)) {
+        const [k, v] = kv
+        const m = rx.exec(k)
+        if (!m) continue
+        const id = m.groups.id || m.groups.id2
+        setModelAlias(id, v)
+    }
     const t = normalizeFloat(env.GENAISCRIPT_DEFAULT_TEMPERATURE)
-    if (!isNaN(t)) host.defaultModelOptions.temperature = t
-    if (env.GENAISCRIPT_DEFAULT_EMBEDDINGS_MODEL)
-        host.defaultEmbeddingsModelOptions.embeddingsModel =
-            env.GENAISCRIPT_DEFAULT_EMBEDDINGS_MODEL
+    if (!isNaN(t)) runtimeHost.modelAliases.large.temperature = t
 }
 
 export async function parseTokenFromEnv(
@@ -92,7 +102,7 @@ export async function parseTokenFromEnv(
     modelId: string
 ): Promise<LanguageModelConfiguration> {
     const { provider, model, tag } = parseModelIdentifier(
-        modelId ?? host.defaultModelOptions.model
+        modelId ?? runtimeHost.modelAliases.large.model
     )
     const TOKEN_SUFFIX = ["_API_KEY", "_API_TOKEN", "_TOKEN", "_KEY"]
     const BASE_SUFFIX = ["_API_BASE", "_API_ENDPOINT", "_BASE", "_ENDPOINT"]

@@ -18,7 +18,7 @@ export async function resolveTokenEncoder(
 ): Promise<Tokenizer> {
     const { disableFallback } = options || {}
     // Parse the model identifier to extract the model information
-    if (!modelId) modelId = runtimeHost.defaultModelOptions.model
+    if (!modelId) modelId = runtimeHost.modelAliases.large.model
     const { model } = parseModelIdentifier(modelId)
     const module = model.toLowerCase() // Assign model to module for dynamic import path
 

@@ -113,6 +113,15 @@ export interface AzureTokenResolver {
     ): Promise<AuthenticationToken>
 }
 
+export type ModelConfiguration = Pick<ModelOptions, "model" | "temperature">
+
+export type ModelConfigurations = {
+    large: ModelConfiguration
+    small: ModelConfiguration
+    vision: ModelConfiguration
+    embeddings: ModelConfiguration
+} & Record<string, ModelConfiguration>
+
 export interface Host {
     userState: any
     server: ServerManager
@@ -124,13 +133,6 @@ export interface Host {
     installFolder(): string
     resolvePath(...segments: string[]): string
 
-    // read a secret from the environment or a .env file
-    defaultModelOptions: Required<
-        Pick<ModelOptions, "model" | "smallModel" | "visionModel" | "temperature">
-    >
-    defaultEmbeddingsModelOptions: Required<
-        Pick<EmbeddingsModelOptions, "embeddingsModel">
-    >
     getLanguageModelConfiguration(
         modelId: string,
         options?: { token?: boolean } & AbortSignalOptions & TraceOptions
@@ -164,6 +166,7 @@ export interface RuntimeHost extends Host {
     models: ModelService
     workspace: Omit<WorkspaceFileSystem, "grep">
     azureToken: AzureTokenResolver
+    modelAliases: ModelConfigurations
 
     readConfig(): Promise<HostConfiguration>
     readSecret(name: string): Promise<string | undefined>

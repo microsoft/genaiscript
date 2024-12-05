@@ -68,7 +68,7 @@ export function installGlobals() {
 
     // Freeze XML utilities
     glb.XML = Object.freeze<XML>({
-    parse: XMLParse, // Parse XML string to objects
+        parse: XMLParse, // Parse XML string to objects
     })
 
     // Freeze Markdown utilities with frontmatter operations
@@ -124,14 +124,14 @@ export function installGlobals() {
         resolve: resolveTokenEncoder,
         count: async (text, options) => {
             const { encode: encoder } = await resolveTokenEncoder(
-                options?.model || runtimeHost.defaultModelOptions.model
+                options?.model || runtimeHost.modelAliases.large.model
             )
             const c = await estimateTokens(text, encoder)
             return c
         },
         truncate: async (text, maxTokens, options) => {
             const { encode: encoder } = await resolveTokenEncoder(
-                options?.model || runtimeHost.defaultModelOptions.model
+                options?.model || runtimeHost.modelAliases.large.model
             )
             return await truncateTextToTokens(text, maxTokens, encoder, options)
         },

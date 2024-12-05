@@ -9,7 +9,7 @@ import {
     VISION_MODEL_ID,
 } from "./constants"
 import { arrayify, deleteUndefinedValues } from "./util"
-import { host } from "./host"
+import { host, runtimeHost } from "./host"
 import { ModelConnectionInfo, parseModelIdentifier } from "./models"
 
 /**
@@ -64,12 +64,12 @@ function resolveTestProvider(
 export function generatePromptFooConfiguration(
     script: PromptScript,
     options: {
-        chatInfo: ModelConnectionInfo
+        chatInfo: ModelConnectionInfo & ModelAliasesOptions
         embeddingsInfo?: ModelConnectionInfo
         provider?: string
         out?: string
         cli?: string
-        models?: ModelOptions[]
+        models?: (ModelOptions & ModelAliasesOptions)[]
     }
 ) {
     // Destructure options with default values
@@ -94,14 +94,7 @@ export function generatePromptFooConfiguration(
     const cli = options?.cli
     const transform = "output.text"
 
-    const resolveModel = (m: string) =>
-        m === SMALL_MODEL_ID
-            ? host.defaultModelOptions.smallModel
-            : m === VISION_MODEL_ID
-              ? host.defaultModelOptions.visionModel
-              : m === LARGE_MODEL_ID
-                ? host.defaultModelOptions.model
-                : m
+    const resolveModel = (m: string) => runtimeHost.modelAliases[m]?.model ?? m
 
     const testProvider = deleteUndefinedValues({
         text: resolveTestProvider(chatInfo, "chat"),
@@ -119,16 +112,17 @@ export function generatePromptFooConfiguration(
         // Map model options to providers
         providers: models
             .map(({ model, smallModel, visionModel, temperature, topP }) => ({
-                model: resolveModel(model) ?? host.defaultModelOptions.model,
+                model:
+                    resolveModel(model) ?? runtimeHost.modelAliases.large.model,
                 smallModel:
                     resolveModel(smallModel) ??
-                    host.defaultModelOptions.smallModel,
+                    runtimeHost.modelAliases.small.model,
                 visionModel:
                     resolveModel(visionModel) ??
-                    host.defaultModelOptions.visionModel,
+                    runtimeHost.modelAliases.vision.model,
                 temperature: !isNaN(temperature)
                     ? temperature
-                    : host.defaultModelOptions.temperature,
+                    : runtimeHost.modelAliases.temperature,
                 top_p: topP,
             }))
             .map(({ model, smallModel, visionModel, temperature, top_p }) => ({

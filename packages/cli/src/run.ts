@@ -87,6 +87,7 @@ import {
     stderr,
     stdout,
 } from "../../core/src/logging"
+import { setModelAlias } from "../../core/src/connection"
 
 async function setupTraceWriting(trace: MarkdownTrace, filename: string) {
     logVerbose(`trace: ${filename}`)
@@ -208,11 +209,16 @@ export async function runScript(
     const topLogprobs = normalizeInt(options.topLogprobs)
 
     if (options.json || options.yaml) overrideStdoutWithStdErr()
-    if (options.model) host.defaultModelOptions.model = options.model
+    if (options.model) runtimeHost.modelAliases.large.model = options.model
     if (options.smallModel)
-        host.defaultModelOptions.smallModel = options.smallModel
+        runtimeHost.modelAliases.small.model = options.smallModel
     if (options.visionModel)
-        host.defaultModelOptions.visionModel = options.visionModel
+        runtimeHost.modelAliases.vision.model = options.visionModel
+    for (const kv of options.modelAlias || []) {
+        const aliases = parseKeyValuePair(kv)
+        for (const [key, value] of Object.entries(aliases))
+            setModelAlias(key, value)
+    }
 
     const fail = (msg: string, exitCode: number, url?: string) => {
         logError(url ? `${msg} (see ${url})` : msg)
@@ -220,9 +226,9 @@ export async function runScript(
     }
 
     logInfo(`genaiscript: ${scriptId}`)
-    logVerbose(` large : ${host.defaultModelOptions.model}`)
-    logVerbose(` small : ${host.defaultModelOptions.smallModel}`)
-    logVerbose(` vision: ${host.defaultModelOptions.visionModel}`)
+    Object.entries(runtimeHost.modelAliases).forEach(([key, value]) =>
+        logVerbose(` ${key}: ${value.model}`)
+    )
 
     if (out) {
         if (removeOut) await emptyDir(out)
@@ -376,7 +382,7 @@ export async function runScript(
             model: info.model,
             embeddingsModel:
                 options.embeddingsModel ??
-                host.defaultEmbeddingsModelOptions.embeddingsModel,
+                runtimeHost.modelAliases.embeddings.model,
             retry,
             retryDelay,
             maxDelay,

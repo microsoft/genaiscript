@@ -175,8 +175,7 @@ export async function vectorSearch(
     const {
         topK,
         folderPath,
-        embeddingsModel = runtimeHost.defaultEmbeddingsModelOptions
-            .embeddingsModel,
+        embeddingsModel = runtimeHost.modelAliases.embeddings.model,
         minScore = 0,
         trace,
     } = options
@@ -199,7 +198,7 @@ export async function vectorSearch(
             {
                 token: true,
                 candidates: [
-                    host.defaultEmbeddingsModelOptions.embeddingsModel,
+                    runtimeHost.modelAliases.embeddings.model,
                     ...DEFAULT_EMBEDDINGS_MODEL_CANDIDATES,
                 ],
             }
