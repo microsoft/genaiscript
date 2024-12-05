@@ -61,7 +61,10 @@ export async function HTMLToMarkdown(
 
     try {
         const Turndown = (await import("turndown")).default // Import Turndown library for HTML to Markdown conversion
-        const res = new Turndown().turndown(html) // Use Turndown library to convert HTML to Markdown
+        const GFMPlugin: any = require("turndown-plugin-gfm")
+        const turndown = new Turndown()
+        turndown.use(GFMPlugin) // Use GFM plugin for GitHub Flavored Markdown
+        const res = turndown.turndown(html) // Use Turndown library to convert HTML to Markdown
         return res
     } catch (e) {
         trace?.error("HTML conversion failed", e) // Log error if conversion fails
