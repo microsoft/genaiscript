@@ -40,9 +40,9 @@ script({
 })
 ```
 
-### Large and small models
+### Large, small, vision models
 
-You can also use the `small` and `large` aliases to use the default configured small and large models.
+You can also use the `small`, `large`, `vision` aliases to use the default configured small, large and vision-enabled models.
 Large models are typically in the OpenAI gpt-4 reasoning range and can be used for more complex tasks.
 Small models are in the OpenAI gpt-4o-mini range, and are useful for quick and simple tasks.
 
@@ -60,11 +60,28 @@ The model can also be overridden from the [cli run command](/genaiscript/referen
 genaiscript run ... --model largemodelid --small-model smallmodelid
 ```
 
-or by adding the `GENAISCRIPT_DEFAULT_MODEL` and `GENAISCRIPT_DEFAULT_SMALL_MODEL` environment variables.
+or by adding the `GENAISCRIPT_LARGE_MODEL` and `GENAISCRIPT_SMALL_MODEL` environment variables.
 
 ```txt title=".env"
-GENAISCRIPT_DEFAULT_MODEL="azure_serverless:..."
-GENAISCRIPT_DEFAULT_SMALL_MODEL="azure_serverless:..."
+GENAISCRIPT_MODEL_LARGE="azure_serverless:..."
+GENAISCRIPT_MODEL_SMALL="azure_serverless:..."
+GENAISCRIPT_MODEL_VISION="azure_serverless:..."
+```
+
+### Model aliases
+
+In fact, you can define any alias for your model (only alphanumeric characters are allowed)
+through environment variables of the name `GENAISCRIPT_MODEL_ALIAS`
+where `ALIAS` is the alias you want to use.
+
+```txt title=".env"
+GENAISCRIPT_MODEL_TINY=...
+```
+
+Model aliases are always lowercased when used in the script.
+
+```js
+script({ model: "tiny" })
 ```
 
 ## `.env` file
@@ -93,8 +110,8 @@ Create a `.env` file in the root of your project.
 
 <FileTree>
 
--   .gitignore
--   **.env**
+- .gitignore
+- **.env**
 
 </FileTree>
 
@@ -127,19 +144,19 @@ the `.env` file will appear grayed out in Visual Studio Code.
 
 You can specify a custom `.env` file location through the CLI or an environment variable.
 
--   by adding the `--env <file>` argument to the CLI.
+- by adding the `--env <file>` argument to the CLI.
 
 ```sh "--env .env.local"
 npx genaiscript ... --env .env.local
 ```
 
--   by setting the `GENAISCRIPT_ENV_FILE` environment variable.
+- by setting the `GENAISCRIPT_ENV_FILE` environment variable.
 
 ```sh
 GENAISCRIPT_ENV_FILE=".env.local" npx genaiscript ...
 ```
 
--   by specifying the `.env` file location in a [configuration file](/genaiscript/reference/configuration-files).
+- by specifying the `.env` file location in a [configuration file](/genaiscript/reference/configuration-files).
 
 ```yaml title="~/genaiscript.config.yaml"
 envFile: ~/.env.genaiscript
@@ -152,13 +169,13 @@ of the genaiscript process with the configuration values.
 
 Here are some common examples:
 
--   Using bash syntax
+- Using bash syntax
 
 ```sh
 OPENAI_API_KEY="value" npx --yes genaiscript run ...
 ```
 
--   GitHub Action configuration
+- GitHub Action configuration
 
 ```yaml title=".github/workflows/genaiscript.yml"
 run: npx --yes genaiscript run ...
@@ -219,11 +236,11 @@ script({
 
 :::tip[Default Model Configuration]
 
-Use `GENAISCRIPT_DEFAULT_MODEL` and `GENAISCRIPT_DEFAULT_SMALL_MODEL` in your `.env` file to set the default model and small model.
+Use `GENAISCRIPT_MODEL_LARGE` and `GENAISCRIPT_MODEL_SMALL` in your `.env` file to set the default model and small model.
 
 ```txt
-GENAISCRIPT_DEFAULT_MODEL=openai:gpt-4o
-GENAISCRIPT_DEFAULT_SMALL_MODEL=openai:gpt-4o-mini
+GENAISCRIPT_MODEL_LARGE=openai:gpt-4o
+GENAISCRIPT_MODEL_SMALL=openai:gpt-4o-mini
 ```
 
 :::
@@ -412,11 +429,11 @@ AZURE_OPENAI_API_CREDENTIALS=cli
 
 The types are mapped directly to their [@azure/identity](https://www.npmjs.com/package/@azure/identity) credential types:
 
--   `cli` - `AzureCliCredential`
--   `env` - `EnvironmentCredential`
--   `powershell` - `AzurePowerShellCredential`
--   `devcli` - `AzureDeveloperCliCredential`
--   `managedidentity` - `ManagedIdentityCredential`
+- `cli` - `AzureCliCredential`
+- `env` - `EnvironmentCredential`
+- `powershell` - `AzurePowerShellCredential`
+- `devcli` - `AzureDeveloperCliCredential`
+- `managedidentity` - `ManagedIdentityCredential`
 
 ### Custom token scopes
 
@@ -1080,7 +1097,6 @@ script({
 })
 ```
 
-
 ### Ollama with Docker
 
 You can conviniately run Ollama in a Docker container.
@@ -1097,11 +1113,10 @@ docker run -d -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama
 docker stop ollama && docker rm ollama
 ```
 
-
 ## LMStudio
 
 The `lmstudio` provider connects to the [LMStudio](https://lmstudio.ai/) headless server.
-and allows to run local LLMs. 
+and allows to run local LLMs.
 
 :::note
 
@@ -1259,8 +1274,8 @@ This `transformers` provider runs models on device using [Hugging Face Transform
 
 The model syntax is `transformers:<repo>:<dtype>` where
 
--   `repo` is the model repository on Hugging Face,
--   [`dtype`](https://huggingface.co/docs/transformers.js/guides/dtypes) is the quantization type.
+- `repo` is the model repository on Hugging Face,
+- [`dtype`](https://huggingface.co/docs/transformers.js/guides/dtypes) is the quantization type.
 
 ```js "transformers:"
 script({

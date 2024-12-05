@@ -186,19 +186,19 @@ type ModelVisionType = OptionsOrString<
 
 interface ModelConnectionOptions {
     /**
-     * Which LLM model to use. Use `large` for the default set of model candidates, `small` for the set of small models like gpt-4o-mini.
+     * Which LLM model by default or for the `large` alias.
      */
     model?: ModelType
 }
 
 interface ModelAliasesOptions {
     /**
-     * @deprecated use model aliases
+     * Configure the `small` model alias.
      */
     smallModel?: ModelSmallType
 
     /**
-     * @deprecated use model aliases
+     * Configure the `vision` model alias.
      */
     visionModel?: ModelVisionType
 }

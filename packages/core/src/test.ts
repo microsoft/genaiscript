@@ -64,7 +64,7 @@ function resolveTestProvider(
 export function generatePromptFooConfiguration(
     script: PromptScript,
     options: {
-        chatInfo: ModelConnectionInfo
+        chatInfo: ModelConnectionInfo & ModelAliasesOptions
         embeddingsInfo?: ModelConnectionInfo
         provider?: string
         out?: string
@@ -86,8 +86,8 @@ export function generatePromptFooConfiguration(
         models.push({
             ...script,
             model: chatInfo.model,
-            smallModel: chatInfo.model,
-            visionModel: chatInfo.model,
+            smallModel: chatInfo.smallModel,
+            visionModel: chatInfo.visionModel,
         })
     }
 

@@ -76,15 +76,16 @@ export async function parseDefaultsFromEnv(env: Record<string, string>) {
     if (env.GENAISCRIPT_DEFAULT_MODEL)
         host.modelAliases.large.model = env.GENAISCRIPT_DEFAULT_MODEL
 
-    const m = /^GENAISCRIPT_DEFAULT_(?<id>[A-Z0-9]+)_MODEL$/i
-    Object.keys(env)
-        .map((k) => m.exec(k)?.groups.id)
-        .filter((id) => !!id)
-        .forEach((id: string) => {
-            id = id.toLocaleLowerCase()
-            const c = host.modelAliases[id] || (host.modelAliases[id] = {})
-            c.model = env[`GENAISCRIPT_DEFAULT_${id}_MODEL`]
-        })
+    const rx =
+        /^GENAISCRIPT(_DEFAULT)?_((?<id>[A-Z0-9]+)_MODEL|MODEL_(?<id2>[A-Z0-9]+))$/i
+    for (const kv of Object.entries(env)) {
+        const [k, v] = kv
+        const m = rx.exec(k)
+        if (!m) continue
+        const id = (m.groups.id || m.groups.id2).toLocaleLowerCase()
+        const c = host.modelAliases[id] || (host.modelAliases[id] = {})
+        c.model = v
+    }
     const t = normalizeFloat(env.GENAISCRIPT_DEFAULT_TEMPERATURE)
     if (!isNaN(t)) host.modelAliases.large.temperature = t
 }
