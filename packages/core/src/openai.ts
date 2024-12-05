@@ -284,7 +284,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
         if ((choice as ChatCompletionChunkChoice).delta) {
             const { delta, logprobs } = choice as ChatCompletionChunkChoice
             if (logprobs?.content) lbs.push(...logprobs.content)
-            if (typeof delta?.content === "string") {
+            if (typeof delta?.content === "string" && delta.content !== "") {
                 numTokens += estimateTokens(delta.content, encoder)
                 chatResp += delta.content
                 tokens.push(
@@ -293,7 +293,8 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
                     )
                 )
                 trace.appendToken(delta.content)
-            } else if (Array.isArray(delta.tool_calls)) {
+            }
+            if (Array.isArray(delta?.tool_calls)) {
                 const { tool_calls } = delta
                 for (const call of tool_calls) {
                     const tc =
@@ -385,6 +386,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
             }
             if (cancellationToken?.isCancellationRequested)
                 finishReason = "cancel"
+            else if (toolCalls?.length) finishReason = "tool_calls"
             finishReason = finishReason || "stop" // some provider do not implement this final mesage
         } catch (e) {
             finishReason = "fail"

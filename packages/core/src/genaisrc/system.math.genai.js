@@ -5,7 +5,7 @@ system({
 
 defTool(
     "math_eval",
-    "Evaluates a math expression",
+    "Evaluates a math expression. Do NOT try to compute arithmetic operations yourself, use this tool.",
     {
         type: "object",
         properties: {
