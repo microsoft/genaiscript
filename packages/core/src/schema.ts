@@ -93,7 +93,7 @@ export function JSONSchemaStringifyToTypeScript(
             return n.anyOf
                 .map((x) => {
                     const v = stringifyNode(x)
-                    return v ? `(${v})` : undefined
+                    return /\s/.test(v) ? `(${v})` : v
                 })
                 .filter((x) => x)
                 .join(" | ")
