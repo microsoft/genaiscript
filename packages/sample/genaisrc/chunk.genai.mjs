@@ -13,11 +13,19 @@ let summary = ""
 for (const chunk of chunks) {
     const { text } = await runPrompt(
         (ctx) => {
-            ctx.def("CHUNK", chunk)
-            ctx.def("SUMMARY_SO_FAR", summary, { ignoreEmpty: true })
-            ctx.$`Summarize CHUNK. Use SUMMARY_SO_FAR as a starting point (but do not repeat it).`
+            ctx.$`Summarize the content in CHUNK. Use the content in SUMMARY_SO_FAR as a starting point (but do not repeat it). Answer in plain text.`.role(
+                "system"
+            )
+            ctx.def("CHUNK", chunk, { lineNumbers: false })
+            ctx.def("SUMMARY_SO_FAR", summary, {
+                ignoreEmpty: true,
+                lineNumbers: false,
+            })
         },
-        { model: "small", system: ["system"] }
+        {
+            model: "small",
+            label: chunk.content.slice(0, 42) + "...",
+        }
     )
     summary = text
 }

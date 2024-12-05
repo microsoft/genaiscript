@@ -220,6 +220,9 @@ export async function runScript(
     }
 
     logInfo(`genaiscript: ${scriptId}`)
+    logVerbose(` large : ${host.defaultModelOptions.model}`)
+    logVerbose(` small : ${host.defaultModelOptions.smallModel}`)
+    logVerbose(` vision: ${host.defaultModelOptions.visionModel}`)
 
     if (out) {
         if (removeOut) await emptyDir(out)

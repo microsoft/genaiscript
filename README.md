@@ -16,7 +16,7 @@ https://github.com/user-attachments/assets/ce181cc0-47d5-41cd-bc03-f220407d4dd0
 
 ## Prompting is Coding
 
-Programmatically assemble prompts for LLMs using JavaScript. Orchestrate LLMs, tools, and data in a single script.
+Programmatically assemble prompts for LLMs using JavaScript. Orchestrate LLMs, tools, and data in code.
 
 - JavaScript toolbox to work with prompts
 - Abstraction to make it easy and productive
