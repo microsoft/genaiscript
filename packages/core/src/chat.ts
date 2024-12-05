@@ -168,7 +168,7 @@ async function runToolCalls(
         const toolTrace = trace.startTraceDetails(`📠 tool call ${call.name}`)
         try {
             await runToolCall(
-                trace,
+                toolTrace,
                 call,
                 tools,
                 edits,
