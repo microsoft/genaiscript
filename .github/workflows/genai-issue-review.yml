@@ -5,6 +5,12 @@ on:
 concurrency:
     group: issues-${{ github.event.issue.number }}
     cancel-in-progress: true
+env:
+    # Configure default GenAIScript models
+    # using Ollama's models
+    GENAISCRIPT_DEFAULT_MODEL: ollama:qwen2.5-coder:7b
+    GENAISCRIPT_DEFAULT_SMALL_MODEL: ollama:qwen2.5-coder:1.5b
+    GENAISCRIPT_DEFAULT_VISION_MODEL: ollama:llama3.2-vision:11b
 jobs:
     build:
         runs-on: ubuntu-latest
@@ -26,7 +32,7 @@ jobs:
             - name: start ollama
               run: yarn ollama:start
             - name: genaiscript issue-review
-              run: node packages/cli/built/genaiscript.cjs run issue-reviewer -prc --out-trace $GITHUB_STEP_SUMMARY --model ollama:qwen2.5-coder:7b
+              run: node packages/cli/built/genaiscript.cjs run issue-reviewer -prc --out-trace $GITHUB_STEP_SUMMARY
               env:
-                GITHUB_ISSUE: ${{ github.event.issue.number }}
-                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  GITHUB_ISSUE: ${{ github.event.issue.number }}
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

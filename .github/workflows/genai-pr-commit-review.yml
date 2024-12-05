@@ -7,6 +7,12 @@ on:
             - "packages/core/**/*"
             - "packages/cli/**/*"
             - "packages/samples/**/*"
+env:
+    # Configure default GenAIScript models
+    # using Ollama's models
+    GENAISCRIPT_DEFAULT_MODEL: ollama:qwen2.5-coder:7b
+    GENAISCRIPT_DEFAULT_SMALL_MODEL: ollama:qwen2.5-coder:1.5b
+    GENAISCRIPT_DEFAULT_VISION_MODEL: ollama:llama3.2-vision:11b
 jobs:
     build:
         runs-on: ubuntu-latest
@@ -31,7 +37,7 @@ jobs:
             - name: git stuff
               run: git fetch origin && git pull origin main:main
             - name: genaiscript pr-review-commit
-              run: node packages/cli/built/genaiscript.cjs run pr-review-commit --out ./temp/genai/pr-review-commit -prr --out-trace $GITHUB_STEP_SUMMARY --model ollama:qwen2.5-coder:7b
+              run: node packages/cli/built/genaiscript.cjs run pr-review-commit --out ./temp/genai/pr-review-commit -prr --out-trace $GITHUB_STEP_SUMMARY
               continue-on-error: true
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
