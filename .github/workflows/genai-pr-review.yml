@@ -11,6 +11,12 @@ on:
 concurrency:
     group: ${{ github.workflow }}-${{ github.ref }}
     cancel-in-progress: true
+env:
+    # Configure default GenAIScript models
+    # using Ollama's models
+    GENAISCRIPT_DEFAULT_MODEL: ollama:qwen2.5-coder:7b
+    GENAISCRIPT_DEFAULT_SMALL_MODEL: ollama:qwen2.5-coder:1.5b
+    GENAISCRIPT_DEFAULT_VISION_MODEL: ollama:llama3.2-vision:11b
 jobs:
     build:
         runs-on: ubuntu-latest
@@ -34,11 +40,11 @@ jobs:
               run: git fetch origin && git pull origin main:main
             - name: genaiscript pr-describe
               continue-on-error: true
-              run: node packages/cli/built/genaiscript.cjs run pr-describe --out ./temp/genai/pr-describe -prd --out-trace $GITHUB_STEP_SUMMARY --model ollama:qwen2.5-coder:7b
+              run: node packages/cli/built/genaiscript.cjs run pr-describe --out ./temp/genai/pr-describe -prd --out-trace $GITHUB_STEP_SUMMARY
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             - name: genaiscript pr-review
-              run: node packages/cli/built/genaiscript.cjs run pr-review --out ./temp/genai/pr-review -prc --out-trace $GITHUB_STEP_SUMMARY --model ollama:qwen2.5-coder:7b
+              run: node packages/cli/built/genaiscript.cjs run pr-review --out ./temp/genai/pr-review -prc --out-trace $GITHUB_STEP_SUMMARY
               continue-on-error: true
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
