@@ -54,6 +54,7 @@ import {
     ChatCompletionSystemMessageParam,
     ChatCompletionTool,
     ChatCompletionToolCall,
+    ChatCompletionToolMessageParam,
     ChatCompletionUserMessageParam,
     CreateChatCompletionRequest,
 } from "./chattypes"
@@ -352,7 +353,7 @@ ${toolResult.join("\n\n")}
             role: "tool",
             content: toolResult.join("\n\n"),
             tool_call_id: call.id,
-        })
+        } satisfies ChatCompletionToolMessageParam)
 }
 
 async function applyRepairs(
