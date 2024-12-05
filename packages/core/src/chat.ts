@@ -176,7 +176,7 @@ async function runToolCalls(
                 projFolder,
                 encoder,
                 messages,
-                options
+                { ...options, trace: toolTrace }
             )
         } catch (e) {
             logError(e)
