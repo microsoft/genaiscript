@@ -25,6 +25,6 @@ jobs:
             - name: compile
               run: yarn compile
             - name: download ollama docker
-              run: docker run -d -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama
+              run: yarn ollama:start
             - name: run test within scripts
               run: yarn test:scripts --out-summary $GITHUB_STEP_SUMMARY --test-delay 10

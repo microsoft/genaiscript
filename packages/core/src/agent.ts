@@ -12,6 +12,9 @@ export async function agentQueryMemory(
 ) {
     if (!query) return undefined
 
+    const memories = await loadMemories()
+    if (!memories?.length) return undefined
+
     let memoryAnswer: string | undefined
     // always pre-query memory with cheap model
     const res = await ctx.runPrompt(
@@ -20,7 +23,9 @@ export async function agentQueryMemory(
             - Use MEMORY as the only source of information.
             - If you cannot find relevant information to answer QUERY, return ${TOKEN_NO_ANSWER}. DO NOT INVENT INFORMATION.
             - Be concise. Keep it short. The output is used by another LLM.
-            - Provide important details like identifiers and names.`
+            - Provide important details like identifiers and names.`.role(
+                "system"
+            )
             _.def("QUERY", query)
             await defMemory(_)
         },
@@ -64,7 +69,7 @@ export async function agentAddMemory(
     )
 }
 
-export async function traceAgentMemory(trace: MarkdownTrace) {
+async function loadMemories() {
     const cache = MemoryCache.byName<
         { agent: string; query: string },
         {
@@ -73,8 +78,13 @@ export async function traceAgentMemory(trace: MarkdownTrace) {
             answer: string
         }
     >(AGENT_MEMORY_CACHE_NAME, { lookupOnly: true })
-    if (cache) {
-        const memories = await cache.values()
+    const memories = await cache?.values()
+    return memories
+}
+
+export async function traceAgentMemory(trace: MarkdownTrace) {
+    const memories = await loadMemories()
+    if (memories) {
         try {
             trace.startDetails("🧠 agent memory")
             memories
@@ -92,7 +102,7 @@ export async function traceAgentMemory(trace: MarkdownTrace) {
     }
 }
 
-export async function defMemory(ctx: ChatTurnGenerationContext) {
+async function defMemory(ctx: ChatTurnGenerationContext) {
     const cache = MemoryCache.byName<
         { agent: string; query: string },
         {

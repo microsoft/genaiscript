@@ -71,8 +71,7 @@ jobs:
             # Start Ollama in a docker container
             #
             - name: start ollama
-              run: docker run -d -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama
-            #
+              run: yarn ollama:start
             # Execute the /genai <command> found in the comment
             #
             - name: genaiscript pr-describe

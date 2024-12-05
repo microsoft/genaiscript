@@ -1,5 +1,6 @@
 script({
-    model: "large",
+    model: "small",
+    system: ["system", "system.assistant", "system.tools"],
     tests: {
         keywords: [
             "Permanent Waves",
@@ -35,42 +36,45 @@ const rushAlbums = [
 defData("RUSH_ALBUMS", rushAlbums)
 
 defTool(
-    "llm-gpt35",
-    "Invokes gpt-3.5-turbo to execute a LLM request",
+    "llm-small",
+    "Invokes small LLM (like gpt-4o-mini) to execute a LLM request",
     {
         prompt: {
             type: "string",
             description: "the prompt to be executed by the LLM",
+            required: true,
         },
     },
     async ({ prompt }) => {
         const res = await env.generator.runPrompt(prompt, {
             model: "small",
-            label: "llm-gpt35",
+            label: "llm-small",
         })
         return res.text
     }
 )
 
 defTool(
-    "llm-4o",
-    "Invokes gpt-4o to execute a LLM request",
+    "llm-large",
+    "Invokes large LLM (like gpt-4o) to execute a LLM request",
     {
         prompt: {
             type: "string",
             description: "the prompt to be executed by the LLM",
+            required: true,
         },
     },
     async ({ prompt }) => {
         const res = await env.generator.runPrompt(prompt, {
-            model: "openai:gpt-4o",
-            label: "llm-4o",
+            model: "large",
+            label: "llm-small",
         })
         return res.text
     }
 )
 
-$`
+$`You are a small LLM model.
+
 Filter the list to only include rush albums released in the 1980's.
 
 Sort the result from the previous task chronologically from oldest to newest.
@@ -80,6 +84,6 @@ Validate results.
 Report as YAML list.
 
 Let's solve this step by step. 
-Use gpt-3.5 for filter and sort options. 
-Use gpt-4o for validation.
+Use a small LLM for filter and sort options. 
+Use a large LLM for validation.
 `

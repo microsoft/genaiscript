@@ -449,9 +449,11 @@ export function createChatGenerationContext(
                         - If you are missing information, reply "${TOKEN_MISSING_INFO}: <what is missing>".
                         - If you cannot answer the query, return "${TOKEN_NO_ANSWER}: <reason>".
                         - Be concise. Minimize output to the most relevant information to save context tokens.
-                        `
+                        `.role("system")
                         if (memoryAnswer)
-                            _.$`- The QUERY applied to the agent memory is in MEMORY.`
+                            _.$`- The QUERY applied to the agent memory is in MEMORY.`.role(
+                                "system"
+                            )
                         _.def("QUERY", query)
                         if (Object.keys(argsNoQuery).length)
                             _.defData("QUERY_CONTEXT", argsNoQuery, {

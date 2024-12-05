@@ -54,6 +54,7 @@ import {
     ChatCompletionSystemMessageParam,
     ChatCompletionTool,
     ChatCompletionToolCall,
+    ChatCompletionToolMessageParam,
     ChatCompletionUserMessageParam,
     CreateChatCompletionRequest,
 } from "./chattypes"
@@ -168,14 +169,14 @@ async function runToolCalls(
         const toolTrace = trace.startTraceDetails(`📠 tool call ${call.name}`)
         try {
             await runToolCall(
-                trace,
+                toolTrace,
                 call,
                 tools,
                 edits,
                 projFolder,
                 encoder,
                 messages,
-                options
+                { ...options, trace: toolTrace }
             )
         } catch (e) {
             logError(e)
@@ -352,7 +353,7 @@ ${toolResult.join("\n\n")}
             role: "tool",
             content: toolResult.join("\n\n"),
             tool_call_id: call.id,
-        })
+        } satisfies ChatCompletionToolMessageParam)
 }
 
 async function applyRepairs(

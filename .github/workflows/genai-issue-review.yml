@@ -30,7 +30,7 @@ jobs:
             - name: compile
               run: yarn compile
             - name: start ollama
-              run: docker run -d -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama
+              run: yarn ollama:start
             - name: genaiscript issue-review
               run: node packages/cli/built/genaiscript.cjs run issue-reviewer -prc --out-trace $GITHUB_STEP_SUMMARY
               env:

@@ -1193,6 +1193,7 @@ defTool(
     },
     async (args) => {
         const {
+            context,
             base,
             head,
             paths,
@@ -1212,9 +1213,11 @@ defTool(
             excludedPaths,
             count,
         })
-        return commits
+        const res = commits
             .map(({ sha, date, message }) => `${sha} ${date} ${message}`)
             .join("\n")
+        context.debug(res)
+        return res
     }
 )
 
@@ -1916,7 +1919,7 @@ Math expression evaluator
 
 Register a function that evaluates math expressions
 
--  tool `math_eval`: Evaluates a math expression
+-  tool `math_eval`: Evaluates a math expression. Do NOT try to compute arithmetic operations yourself, use this tool.
 
 `````js wrap title="system.math"
 system({
@@ -1926,7 +1929,7 @@ system({
 
 defTool(
     "math_eval",
-    "Evaluates a math expression",
+    "Evaluates a math expression. Do NOT try to compute arithmetic operations yourself, use this tool.",
     {
         type: "object",
         properties: {
