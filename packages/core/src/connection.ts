@@ -71,6 +71,12 @@ export function findEnvVar(
     return undefined
 }
 
+export function setModelAlias(id: string, modelid: string) {
+    id = id.toLowerCase()
+    const c = host.modelAliases[id] || (host.modelAliases[id] = {})
+    c.model = modelid
+}
+
 export async function parseDefaultsFromEnv(env: Record<string, string>) {
     // legacy
     if (env.GENAISCRIPT_DEFAULT_MODEL)
@@ -82,9 +88,8 @@ export async function parseDefaultsFromEnv(env: Record<string, string>) {
         const [k, v] = kv
         const m = rx.exec(k)
         if (!m) continue
-        const id = (m.groups.id || m.groups.id2).toLocaleLowerCase()
-        const c = host.modelAliases[id] || (host.modelAliases[id] = {})
-        c.model = v
+        const id = m.groups.id || m.groups.id2
+        setModelAlias(id, v)
     }
     const t = normalizeFloat(env.GENAISCRIPT_DEFAULT_TEMPERATURE)
     if (!isNaN(t)) host.modelAliases.large.temperature = t

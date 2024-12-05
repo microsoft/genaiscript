@@ -99,6 +99,7 @@ export async function cli() {
         .option("-m, --model <string>", "'large' model alias (default)")
         .option("-sm, --small-model <string>", "'small' alias model")
         .option("-vm, --vision-model <string>", "'vision' alias model")
+        .option("-ma, --model-alias <nameid...>", "model alias as name=modelid")
         .option("-lp, --logprobs", "enable reporting token probabilities")
         .option(
             "-tlp, --top-logprobs <number>",

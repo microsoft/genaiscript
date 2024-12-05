@@ -121,8 +121,11 @@ export async function resolveModelConnectionInfo(
             host.modelAliases.large.model,
             ...DEFAULT_MODEL_CANDIDATES,
         ]
-    }
+    } 
     candidates ??= [host.modelAliases.large.model, ...DEFAULT_MODEL_CANDIDATES]
+
+    // apply model alias
+    m = host.modelAliases[m]?.model || m
 
     const resolveModel = async (
         model: string,

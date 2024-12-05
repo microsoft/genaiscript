@@ -87,6 +87,7 @@ import {
     stderr,
     stdout,
 } from "../../core/src/logging"
+import { setModelAlias } from "../../core/src/connection"
 
 async function setupTraceWriting(trace: MarkdownTrace, filename: string) {
     logVerbose(`trace: ${filename}`)
@@ -212,6 +213,11 @@ export async function runScript(
     if (options.smallModel) host.modelAliases.small.model = options.smallModel
     if (options.visionModel)
         host.modelAliases.vision.model = options.visionModel
+    for (const kv of options.modelAlias || []) {
+        const aliases = parseKeyValuePair(kv)
+        for (const [key, value] of Object.entries(aliases))
+            setModelAlias(key, value)
+    }
 
     const fail = (msg: string, exitCode: number, url?: string) => {
         logError(url ? `${msg} (see ${url})` : msg)
