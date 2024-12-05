@@ -52,6 +52,7 @@ describe("schema", () => {
                 "    population: number,\n" +
                 "    // The URL of the city's Wikipedia page.\n" +
                 "    url: string,\n" +
+                "    extra?: string | number,\n" +
                 "  }>"
         )
     }),
