@@ -18,91 +18,142 @@ genaiscript:
 GenAIScript is a scripting language that integrates LLMs into the scripting process using a simplified JavaScript syntax.
 Supported by our VS Code GenAIScript extension, it allows users to create, debug, and automate LLM-based scripts.
 
-## Writing a GenAIScript
+## Hello World
 
-A GenAIScript contains JavaScript that uses a library of operations we've defined
-plus an LLM prompt. The prompt is written with a JavaScript string template `$ ... ` that
-allows the user to interleave the contents of JavaScript variables with the
-natural language of the prompt. Our library also makes it easy to import documents into the LLM prompt and helps parse the output of the LLM after running the prompt.
-
-The following script, which summarizes the content of any document passed to it as an
-argument, illustrates all of these capabilities. (Note that in typical use, GenAIScripts
+A GenAIScript is a JavaScript program that builds an LLM which is then executed by the GenAIScript runtime.
+Let's start with a simple script that tells the LLM to generate a poem. In typical use, GenAIScript files
 have the naming convention `<scriptname>.genai.mjs` and are stored in the `genaisrc` directory
-in a repository).
+in a repository. Let's call this script `poem.genai.mjs`.
 
-```js wrap title="summarize.genai.mjs"
-// context: define a "FILE" variable
-const file = def("FILE", env.files)
-// task: appends text to the prompt (file is the variable name)
-$`Summarize ${file} in one sentence. Save output to ${file}.summary`
+```js wrap title="poem.genai.mjs"
+$`Write a poem in code.`
 ```
 
-Our library's JavaScript [`def`](/genaiscript/reference/scripts/context) command puts
-the contents of a document into the
-LLM prompt and defines a name that
-can be used in the prompt to refer to that document, which is the value returned by `def` (e.g., `FILE`, the first argument to `def`).
+The `$...` syntax is [template literal](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals)
+that renders to a user message to the LLM prompt. In this example, it would be:
 
-`env.files` is a built-in variable that GenAIScript defines that is bound
-to the arguments to the script that are either passed on the command-line or
-by right-clicking to invoke the script in VS Code.
+```txt
+Write a poem in code.
+```
 
-The prompt `$ ... ` is a template string that allows JavaScript variables (e.g, `file`) to be embedded
-into the string conveniently. In our example, the prompt that is sent to the LLM
-is "Summarize FILE in one sentence. Save output to FILE.summary".
+In practice, your script may also import [system scripts](/genaiscript/reference/scripts/system) (automatically or manually specified) that add more messages to the requests.
+So the final JSON payload sent to the LLM server might look more like this:
 
-`def` can take documents with different formats as input (.txt, .pdf, .docx) so
-in our example, the input file could be one of many different document formats, making the
-script general.
+```js
+{   ...
+    messages: [
+        { role: "system", content: "You are helpful. ..." },
+        { role: "user", content: "Write a poem in code." }
+    ]
+}
+```
 
-# Executing a GenAIScript
+GenAIScripts can be executed from the [command line](/genaiscript/reference/cli) or run with a right-click context
+menu selection inside Visual Studio Code. Because a GenAIScript is just JavaScript, 
+the execution of a script follows the normal JavaScript evaluation rules. 
+Once the script is executed, the generated messages are sent to the LLM server, and the response is processed by the GenAIScript runtime.
 
-GenAIScripts can be executed from the command line or run with a right-click context
-menu selection inside VS Code. Because a GenAIScript is just JavaScript, the execution of a script follows the normal JavaScript evaluation rules with the exception that when a prompt is present, `$ ... `, that prompt is treated
-by the GenAIScript runtime as a function call to the AI model defined in in the script metadata. To execute the prompt,
-the `$ ... ` prompt is augmented with additional content,
-including any documents defined by `def` and other built-in prompt messages that GenAIScript
-defines and then is sent to the user-defined AI model. In our example, this is what is
-sent to the LLM given an input file `markdown-small.txt` that contains information
-about the history of markdown:
+```sh wrap
+npx --yes genaiscript run poem
+```
 
-<!-- genaiscript output start -->
+Here is an example output for this prompt (shortened) that got returned by OpenAI gpt-4o.
 
-<details style="margin-left: 1rem;"  open>
-<summary>👤 Content sent to model</summary>
+````markdown
+```python
+def poem():
+    # In the silence of code,
+    ...
+# And thus, in syntax sublime,
+# We find the art of the rhyme.
+```
+````
 
-````markdown wrap
+GenAIScript supports extracting structured data and files from the LLM output as we will see later.
+
+:::note
+
+The CLI will scan you project for `*.genai.mjs/mts` files and you can use the filename without the extension to refer to them.
+
+:::
+
+## Variables
+
+GenAIScripts support a way to declare [prompt variables](/genaiscript/reference/scripts/context), which allow to include content into the prompt and to refer to it later in the script.
+
+Let's take a look at a `summarize` script that includes the content of a file and asks the LLM to summarize it.
+
+```js wrap title="summarize.genai.mjs"
+def("FILE", workspace.readText("some/relative/markdown.txt"))
+$`Summarize FILE in one sentence.`
+```
+
+In this snippet, we use `workspace.readText` to read the content of a file (path relatie to workspace root)
+and we use `def` to include it in the prompt as a `prompt variable`. We then "referenced" this variable in the prompt.
+
+````markdown wrap title="prompt"
 FILE:
-
-```text file="src/samples/markdown-small.txt"
+```text file="some/relative/markdown.txt"
 What is Markdown?
 
 Markdown is a lightweight markup language that you can use to add formatting elements to plaintext text documents. Created by John Gruber in 2004, Markdown is now one of the world’s most popular markup languages.
 ```
-
-Summarize FILE in one sentence. Save output to FILE.summary
+Summarize FILE in one sentence.
 ````
 
-</details>
+The `def` function supports many configuration flags to control how the content is included in the prompt. For example, you can insert line numbers or limit the number of tokens.
+
+```js
+def("FILE", ..., { lineNumbers: true, maxTokens: 100 })
+```
+
+:::note
+
+The variable name (FILE) matters! Make sure it represents the content of the variable or it might confuse the LLM.
+
+:::
+
+## Files parameters
+
+GenAIScript are meant to work on a file or set of files. When you run a script in Visual Studio Code on a file or a folder, those files are passed to the script using the `env.files` variable. You can use this `env.files` to replace hard-coded paths and make your scripts
+more resuable.
+
+```js wrap title="summarize.genai.mjs" "env.files"
+// summarize all files in the env.files array
+def("FILE", env.files)
+$`Summarize FILE in one sentence.`
+```
+
+And now apply it to a bunch of files
+
+```sh
+npx --yes genaiscript run summarize **/*.md
+```
+
+## Processing outputs
+
+GenAIScript processes the outputs of the LLM and extracts files, diagnostics and code sections when possible.
+
+Let's update the summarizer script to specify an output file pattern.
+
+```js wrap title="summarize.genai.mjs"
+// summarize all files in the env.files array
+def("FILE", env.files)
+$`Summarize each FILE in one sentence.
+  Save each generated summary to "<filename>.summary"`
+```
 
 Given this input, the model returns a string, which
 the GenAIScript runtime interprets based on what the prompt requested from the model:
 
-<details style="margin-left: 1rem;"  open>
-<summary>🤖 Content returned from model</summary>
-
 ````markdown wrap
 File src/samples/markdown-small.txt.summary:
-
 ```text
 Markdown is a lightweight markup language created by John Gruber in 2004, known for adding formatting elements to plaintext text documents.
 ```
 ````
 
-</details>
-
-<!-- genaiscript output end -->
-
-Because the prompt requested that a file be written ("Save the output to FILE.summary"),
+Because the prompt requested that a file be written,
 the model has responded with content describing the contents of the file that should be created.
 In this case, the model has chosen to call that file `markdown-small.txt.summary`.
 
@@ -134,12 +185,10 @@ A possible trace looks like as follows.
 <details style="margin-left: 1rem;"  open>
 <summary>Trace</summary>
 
+`````markdown
 - prompting github:gpt-4o
 - cat src/rag/markdown.md
 - prompting github:gpt-4o
-
-`````text wrap
-Saving this summary to the file `markdown.md.txt`.
 
 FILE ./markdown.md.txt:
 ```text
@@ -170,6 +219,7 @@ $`
 <details style="margin-left: 1rem;"  open>
 <summary>Trace</summary>
 
+`````markdown
 - prompting github:gpt-4o (~1569 tokens)
 - agent fs: read and summarize file src/rag/markdown.md in one sentence 
   - prompt agent memory query with github:gpt-4o-mini: "NO_ANSWER"
@@ -183,7 +233,6 @@ The file "src/rag/markdown.md" explains that Markdown...
 
 - prompting github:gpt-4o (~1625 tokens)
 
-`````md
 I'll save the summary to the file `markdown.md.txt`.
 
 FILE markdown.md.txt:
