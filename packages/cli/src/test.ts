@@ -20,7 +20,7 @@ import {
 import { promptFooDriver } from "../../core/src/default_prompts"
 import { serializeError } from "../../core/src/error"
 import { parseKeyValuePairs } from "../../core/src/fence"
-import { host } from "../../core/src/host"
+import { host, runtimeHost } from "../../core/src/host"
 import { JSON5TryParse } from "../../core/src/json5"
 import { MarkdownTrace } from "../../core/src/trace"
 import {
@@ -108,12 +108,13 @@ export async function runPromptScriptTests(
         testDelay?: string
     }
 ): Promise<PromptScriptTestRunResponse> {
-    if (options.model) host.modelAliases.large.model = options.model
-    if (options.smallModel) host.modelAliases.small.model = options.smallModel
+    if (options.model) runtimeHost.modelAliases.large.model = options.model
+    if (options.smallModel)
+        runtimeHost.modelAliases.small.model = options.smallModel
     if (options.visionModel)
-        host.modelAliases.vision.model = options.visionModel
-    Object.entries(host.modelAliases).forEach(([key, host]) =>
-        logVerbose(` ${key}: ${host.model}`)
+        runtimeHost.modelAliases.vision.model = options.visionModel
+    Object.entries(runtimeHost.modelAliases).forEach(([key, value]) =>
+        logVerbose(` ${key}: ${value.model}`)
     )
 
     const scripts = await listTests({ ids, ...(options || {}) })
@@ -145,12 +146,12 @@ export async function runPromptScriptTests(
             : script.filename.replace(GENAI_ANY_REGEX, ".promptfoo.yaml")
         logInfo(`  ${fn}`)
         const { info: chatInfo } = await resolveModelConnectionInfo(script, {
-            model: host.modelAliases.large.model,
+            model: runtimeHost.modelAliases.large.model,
         })
         if (chatInfo.error) throw new Error(chatInfo.error)
         let { info: embeddingsInfo } = await resolveModelConnectionInfo(
             script,
-            { model: host.modelAliases.embeddings.model }
+            { model: runtimeHost.modelAliases.embeddings.model }
         )
         if (embeddingsInfo?.error) embeddingsInfo = undefined
         const config = generatePromptFooConfiguration(script, {

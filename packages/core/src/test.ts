@@ -9,7 +9,7 @@ import {
     VISION_MODEL_ID,
 } from "./constants"
 import { arrayify, deleteUndefinedValues } from "./util"
-import { host } from "./host"
+import { host, runtimeHost } from "./host"
 import { ModelConnectionInfo, parseModelIdentifier } from "./models"
 
 /**
@@ -94,7 +94,7 @@ export function generatePromptFooConfiguration(
     const cli = options?.cli
     const transform = "output.text"
 
-    const resolveModel = (m: string) => host.modelAliases[m]?.model ?? m
+    const resolveModel = (m: string) => runtimeHost.modelAliases[m]?.model ?? m
 
     const testProvider = deleteUndefinedValues({
         text: resolveTestProvider(chatInfo, "chat"),
@@ -112,14 +112,17 @@ export function generatePromptFooConfiguration(
         // Map model options to providers
         providers: models
             .map(({ model, smallModel, visionModel, temperature, topP }) => ({
-                model: resolveModel(model) ?? host.modelAliases.large.model,
+                model:
+                    resolveModel(model) ?? runtimeHost.modelAliases.large.model,
                 smallModel:
-                    resolveModel(smallModel) ?? host.modelAliases.small.model,
+                    resolveModel(smallModel) ??
+                    runtimeHost.modelAliases.small.model,
                 visionModel:
-                    resolveModel(visionModel) ?? host.modelAliases.vision.model,
+                    resolveModel(visionModel) ??
+                    runtimeHost.modelAliases.vision.model,
                 temperature: !isNaN(temperature)
                     ? temperature
-                    : host.modelAliases.temperature,
+                    : runtimeHost.modelAliases.temperature,
                 top_p: topP,
             }))
             .map(({ model, smallModel, visionModel, temperature, top_p }) => ({

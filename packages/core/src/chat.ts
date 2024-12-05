@@ -1,7 +1,7 @@
 // cspell: disable
 import { MarkdownTrace } from "./trace"
 import { PromptImage, PromptPrediction, renderPromptNode } from "./promptdom"
-import { LanguageModelConfiguration, host } from "./host"
+import { LanguageModelConfiguration, host, runtimeHost } from "./host"
 import { GenerationOptions } from "./generation"
 import { dispose } from "./dispose"
 import {
@@ -735,13 +735,13 @@ export function mergeGenerationOptions(
         model:
             runOptions?.model ??
             options?.model ??
-            host.modelAliases.large.model,
+            runtimeHost.modelAliases.large.model,
         temperature:
-            runOptions?.temperature ?? host.modelAliases.large.temperature,
+            runOptions?.temperature ?? runtimeHost.modelAliases.large.temperature,
         embeddingsModel:
             runOptions?.embeddingsModel ??
             options?.embeddingsModel ??
-            host.modelAliases.embeddings.model,
+            runtimeHost.modelAliases.embeddings.model,
     } satisfies GenerationOptions
     return res
 }

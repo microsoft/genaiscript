@@ -209,10 +209,11 @@ export async function runScript(
     const topLogprobs = normalizeInt(options.topLogprobs)
 
     if (options.json || options.yaml) overrideStdoutWithStdErr()
-    if (options.model) host.modelAliases.large.model = options.model
-    if (options.smallModel) host.modelAliases.small.model = options.smallModel
+    if (options.model) runtimeHost.modelAliases.large.model = options.model
+    if (options.smallModel)
+        runtimeHost.modelAliases.small.model = options.smallModel
     if (options.visionModel)
-        host.modelAliases.vision.model = options.visionModel
+        runtimeHost.modelAliases.vision.model = options.visionModel
     for (const kv of options.modelAlias || []) {
         const aliases = parseKeyValuePair(kv)
         for (const [key, value] of Object.entries(aliases))
@@ -225,8 +226,8 @@ export async function runScript(
     }
 
     logInfo(`genaiscript: ${scriptId}`)
-    Object.entries(host.modelAliases).forEach(([key, host]) =>
-        logVerbose(` ${key}: ${host.model}`)
+    Object.entries(runtimeHost.modelAliases).forEach(([key, value]) =>
+        logVerbose(` ${key}: ${value.model}`)
     )
 
     if (out) {
@@ -380,7 +381,8 @@ export async function runScript(
             maxDataRepairs,
             model: info.model,
             embeddingsModel:
-                options.embeddingsModel ?? host.modelAliases.embeddings.model,
+                options.embeddingsModel ??
+                runtimeHost.modelAliases.embeddings.model,
             retry,
             retryDelay,
             maxDelay,

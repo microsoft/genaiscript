@@ -25,7 +25,7 @@ import {
 import { importPrompt } from "./importprompt"
 import { parseModelIdentifier } from "./models"
 import { JSONSchemaStringifyToTypeScript, toStrictJSONSchema } from "./schema"
-import { host } from "./host"
+import { host, runtimeHost } from "./host"
 import { resolveSystems } from "./systems"
 import { GenerationOptions, GenerationStatus } from "./generation"
 import { AICIRequest, ChatCompletionMessageParam } from "./chattypes"
@@ -194,7 +194,7 @@ export async function expandTemplate(
         options.temperature ??
         normalizeFloat(env.vars["temperature"]) ??
         template.temperature ??
-        host.modelAliases.large.temperature
+        runtimeHost.modelAliases.large.temperature
     const topP =
         options.topP ?? normalizeFloat(env.vars["top_p"]) ?? template.topP
     const maxTokens =

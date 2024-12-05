@@ -97,7 +97,7 @@ async function resolveScriptsConnectionInfo(
     // Deduplicate model connection options
     for (const script of scripts) {
         const conn: ModelConnectionOptions = {
-            model: script.model ?? host.modelAliases.large.model,
+            model: script.model ?? runtimeHost.modelAliases.large.model,
         }
         const key = JSON.stringify(conn)
         if (!models[key]) models[key] = conn

@@ -198,7 +198,7 @@ export async function vectorSearch(
             {
                 token: true,
                 candidates: [
-                    host.modelAliases.embeddings.model,
+                    runtimeHost.modelAliases.embeddings.model,
                     ...DEFAULT_EMBEDDINGS_MODEL_CANDIDATES,
                 ],
             }

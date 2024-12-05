@@ -39,6 +39,7 @@ import {
     host,
     LanguageModelConfiguration,
     AzureCredentialsType,
+    runtimeHost,
 } from "./host"
 import { parseModelIdentifier } from "./models"
 import { normalizeFloat, trimTrailingSlash } from "./util"
@@ -73,14 +74,15 @@ export function findEnvVar(
 
 export function setModelAlias(id: string, modelid: string) {
     id = id.toLowerCase()
-    const c = host.modelAliases[id] || (host.modelAliases[id] = {})
+    const c =
+        runtimeHost.modelAliases[id] || (runtimeHost.modelAliases[id] = {})
     c.model = modelid
 }
 
 export async function parseDefaultsFromEnv(env: Record<string, string>) {
     // legacy
     if (env.GENAISCRIPT_DEFAULT_MODEL)
-        host.modelAliases.large.model = env.GENAISCRIPT_DEFAULT_MODEL
+        runtimeHost.modelAliases.large.model = env.GENAISCRIPT_DEFAULT_MODEL
 
     const rx =
         /^GENAISCRIPT(_DEFAULT)?_((?<id>[A-Z0-9]+)_MODEL|MODEL_(?<id2>[A-Z0-9]+))$/i
@@ -92,7 +94,7 @@ export async function parseDefaultsFromEnv(env: Record<string, string>) {
         setModelAlias(id, v)
     }
     const t = normalizeFloat(env.GENAISCRIPT_DEFAULT_TEMPERATURE)
-    if (!isNaN(t)) host.modelAliases.large.temperature = t
+    if (!isNaN(t)) runtimeHost.modelAliases.large.temperature = t
 }
 
 export async function parseTokenFromEnv(
@@ -100,7 +102,7 @@ export async function parseTokenFromEnv(
     modelId: string
 ): Promise<LanguageModelConfiguration> {
     const { provider, model, tag } = parseModelIdentifier(
-        modelId ?? host.modelAliases.large.model
+        modelId ?? runtimeHost.modelAliases.large.model
     )
     const TOKEN_SUFFIX = ["_API_KEY", "_API_TOKEN", "_TOKEN", "_KEY"]
     const BASE_SUFFIX = ["_API_BASE", "_API_ENDPOINT", "_BASE", "_ENDPOINT"]

@@ -11,7 +11,7 @@ import {
     VISION_MODEL_ID,
 } from "./constants"
 import { errorMessage } from "./error"
-import { LanguageModelConfiguration, host } from "./host"
+import { LanguageModelConfiguration, host, runtimeHost } from "./host"
 import { AbortSignalOptions, MarkdownTrace, TraceOptions } from "./trace"
 import { assert } from "./util"
 
@@ -106,26 +106,29 @@ export async function resolveModelConnectionInfo(
     if (m === SMALL_MODEL_ID) {
         m = undefined
         candidates ??= [
-            host.modelAliases.small.model,
+            runtimeHost.modelAliases.small.model,
             ...DEFAULT_SMALL_MODEL_CANDIDATES,
         ]
     } else if (m === VISION_MODEL_ID) {
         m = undefined
         candidates ??= [
-            host.modelAliases.vision.model,
+            runtimeHost.modelAliases.vision.model,
             ...DEFAULT_VISION_MODEL_CANDIDATES,
         ]
     } else if (m === LARGE_MODEL_ID) {
         m = undefined
         candidates ??= [
-            host.modelAliases.large.model,
+            runtimeHost.modelAliases.large.model,
             ...DEFAULT_MODEL_CANDIDATES,
         ]
-    } 
-    candidates ??= [host.modelAliases.large.model, ...DEFAULT_MODEL_CANDIDATES]
+    }
+    candidates ??= [
+        runtimeHost.modelAliases.large.model,
+        ...DEFAULT_MODEL_CANDIDATES,
+    ]
 
     // apply model alias
-    m = host.modelAliases[m]?.model || m
+    m = runtimeHost.modelAliases[m]?.model || m
 
     const resolveModel = async (
         model: string,

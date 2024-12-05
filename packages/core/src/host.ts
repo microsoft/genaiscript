@@ -133,7 +133,6 @@ export interface Host {
     installFolder(): string
     resolvePath(...segments: string[]): string
 
-    modelAliases: ModelConfigurations
     getLanguageModelConfiguration(
         modelId: string,
         options?: { token?: boolean } & AbortSignalOptions & TraceOptions
@@ -167,6 +166,7 @@ export interface RuntimeHost extends Host {
     models: ModelService
     workspace: Omit<WorkspaceFileSystem, "grep">
     azureToken: AzureTokenResolver
+    modelAliases: ModelConfigurations
 
     readConfig(): Promise<HostConfiguration>
     readSecret(name: string): Promise<string | undefined>
