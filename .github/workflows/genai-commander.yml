@@ -3,11 +3,11 @@ on:
     issue_comment:
         types: [created]
 env:
-  # Configure default GenAIScript models
-  # using Ollama's models
-  GENAISCRIPT_DEFAULT_MODEL: ollama:qwen2.5-coder:7b
-  GENAISCRIPT_DEFAULT_SMALL_MODEL: ollama:qwen2.5-coder:1.5b
-  GENAISCRIPT_DEFAULT_VISION_MODEL: ollama:llama3.2-vision:11b
+    # Configure default GenAIScript models
+    # using Ollama's models
+    GENAISCRIPT_DEFAULT_MODEL: ollama:qwen2.5-coder:7b
+    GENAISCRIPT_DEFAULT_SMALL_MODEL: ollama:qwen2.5-coder:1.5b
+    GENAISCRIPT_DEFAULT_VISION_MODEL: ollama:llama3.2-vision:11b
 jobs:
     pr_commented:
         # must be PR and have a comment starting with /genai
@@ -17,6 +17,16 @@ jobs:
             contents: read
             pull-requests: write
         steps:
+            # only allow PRs from the same repository
+            - name: Check if PR is from the same repository
+              id: check_pr
+              uses: actions/github-script@v7
+              with:
+                  script: |
+                      const { owner, repo, number } = context.issue;
+                      const pr = await github.rest.pulls.get({ owner, repo, pull_number: number });
+                      if(pr.data.head.repo.full_name !== `${owner}/${repo}`)
+                        throw new Error("pull request is not from the same repository");
             #
             # Resolve the PR sha and ref
             #
