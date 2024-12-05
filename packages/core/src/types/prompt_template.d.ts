@@ -1010,24 +1010,34 @@ type JSONSchemaTypeName =
     | "array"
     | "null"
 
-type JSONSchemaType =
+type JSONSchemaSimpleType =
     | JSONSchemaString
     | JSONSchemaNumber
     | JSONSchemaBoolean
     | JSONSchemaObject
     | JSONSchemaArray
-    | null
 
-interface JSONSchemaString {
+type JSONSchemaType = JSONSchemaSimpleType | JSONSchemaAnyOf | null
+
+interface JSONSchemaAnyOf {
+    anyOf: JSONSchemaType[]
+}
+
+interface JSONSchemaDescripted {
+    /**
+     * A clear description of the property.
+     */
+    description?: string
+}
+
+interface JSONSchemaString extends JSONSchemaDescripted {
     type: "string"
     enum?: string[]
-    description?: string
     default?: string
 }
 
-interface JSONSchemaNumber {
+interface JSONSchemaNumber extends JSONSchemaDescripted {
     type: "number" | "integer"
-    description?: string
     default?: number
     minimum?: number
     exclusiveMinimum?: number
@@ -1035,16 +1045,14 @@ interface JSONSchemaNumber {
     exclusiveMaximum?: number
 }
 
-interface JSONSchemaBoolean {
+interface JSONSchemaBoolean extends JSONSchemaDescripted {
     type: "boolean"
-    description?: string
     default?: boolean
 }
 
-interface JSONSchemaObject {
+interface JSONSchemaObject extends JSONSchemaDescripted {
     $schema?: string
     type: "object"
-    description?: string
     properties?: {
         [key: string]: JSONSchemaType
     }
@@ -1054,10 +1062,9 @@ interface JSONSchemaObject {
     default?: object
 }
 
-interface JSONSchemaArray {
+interface JSONSchemaArray extends JSONSchemaDescripted {
     $schema?: string
     type: "array"
-    description?: string
     items?: JSONSchemaType
 
     default?: any[]

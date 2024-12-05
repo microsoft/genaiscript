@@ -25,6 +25,16 @@ describe("schema", () => {
                         type: "string",
                         description: "The URL of the city's Wikipedia page.",
                     },
+                    extra: {
+                        anyOf: [
+                            {
+                                type: "string",
+                            },
+                            {
+                                type: "number",
+                            }
+                        ]
+                    }
                 },
                 required: ["name", "population", "url"],
             },
@@ -42,6 +52,7 @@ describe("schema", () => {
                 "    population: number,\n" +
                 "    // The URL of the city's Wikipedia page.\n" +
                 "    url: string,\n" +
+                "    extra?: string | number,\n" +
                 "  }>"
         )
     }),

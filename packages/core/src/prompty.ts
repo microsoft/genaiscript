@@ -75,13 +75,16 @@ function promptyFrontmatterToMeta(frontmatter: PromptyFrontmatter): PromptArgs {
         configuration,
         parameters: modelParameters,
     } = model ?? {}
-    const parameters: Record<string, JSONSchemaType> = inputs ? Object.entries(
-        inputs
-    ).reduce<Record<string, JSONSchemaType>>((acc, [k, v]) => {
-        if (v.type === "list") acc[k] = { type: "array" }
-        else acc[k] = v
-        return acc
-    }, {}) : undefined
+    const parameters: Record<string, JSONSchemaSimpleType> = inputs
+        ? Object.entries(inputs).reduce<Record<string, JSONSchemaSimpleType>>(
+              (acc, [k, v]) => {
+                  if (v.type === "list") acc[k] = { type: "array" }
+                  else acc[k] = v
+                  return acc
+              },
+              {}
+          )
+        : undefined
     if (parameters && sample && typeof sample === "object")
         for (const p in sample) {
             const s = sample[p]
