@@ -63,7 +63,7 @@ export async function HTMLToMarkdown(
         const Turndown = (await import("turndown")).default // Import Turndown library for HTML to Markdown conversion
         const GFMPlugin: any = require("turndown-plugin-gfm")
         const turndown = new Turndown()
-        turndown.use(GFMPlugin) // Use GFM plugin for GitHub Flavored Markdown
+        turndown.use(GFMPlugin.gfm) // Use GFM plugin for GitHub Flavored Markdown
         const res = turndown.turndown(html) // Use Turndown library to convert HTML to Markdown
         return res
     } catch (e) {
