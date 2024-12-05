@@ -5,9 +5,7 @@ import { VSCodeHost } from "./vshost"
 import { applyEdits, toRange } from "./edit"
 import { Utils } from "vscode-uri"
 import { listFiles, saveAllTextDocuments } from "./fs"
-import { startLocalAI } from "./localai"
 import { hasOutputOrTraceOpened } from "./markdowndocumentprovider"
-import { pickLanguageModel } from "./lmaccess"
 import { parseAnnotations } from "../../core/src/annotations"
 import { Project } from "../../core/src/server/messages"
 import { JSONLineCache } from "../../core/src/cache"
@@ -21,7 +19,6 @@ import {
     TOOL_ID,
 } from "../../core/src/constants"
 import { isCancelError } from "../../core/src/error"
-import { resolveModelConnectionInfo } from "../../core/src/models"
 import { MarkdownTrace } from "../../core/src/trace"
 import { logInfo, groupBy } from "../../core/src/util"
 import { CORE_VERSION } from "../../core/src/version"
@@ -276,22 +273,10 @@ export class ExtensionState extends EventTarget {
 
         const { template, fragment, label } = options
         const { files } = fragment || {}
-        const { info, configuration: connectionToken } =
-            await resolveModelConnectionInfo(template, { token: true })
-        if (info.error) {
-            vscode.window.showErrorMessage(TOOL_NAME + " - " + info.error)
-            return undefined
-        }
         const infoCb = (partialResponse: { text: string }) => {
             r.response = partialResponse
             reqChange()
         }
-        if (!connectionToken) {
-            // we don't have a token so ask user if they want to use copilot
-            const lm = await pickLanguageModel(this, info.model)
-            if (!lm) return undefined
-        }
-        if (connectionToken?.type === "localai") await startLocalAI()
 
         // todo: send js source
         const { runId, request } = await this.host.server.client.startScript(

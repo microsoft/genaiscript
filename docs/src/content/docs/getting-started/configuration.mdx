@@ -1213,6 +1213,15 @@ OPENAI_API_TYPE=localai
 
 </Steps>
 
+To start LocalAI in docker, run the following command:
+
+```sh
+docker run -p 8080:8080 --name local-ai -ti localai/localai:latest-aio-cpu
+docker start local-ai
+docker stats
+echo "LocalAI is running at http://127.0.0.1:8080"
+```
+
 ## Llamafile
 
 [https://llamafile.ai/](https://llamafile.ai/) is a single file desktop application
