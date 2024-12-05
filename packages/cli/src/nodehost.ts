@@ -44,6 +44,7 @@ import {
     setRuntimeHost,
     ResponseStatus,
     AzureTokenResolver,
+    ModelConfigurations,
 } from "../../core/src/host"
 import { AbortSignalOptions, TraceOptions } from "../../core/src/trace"
 import { logError, logVerbose } from "../../core/src/util"
@@ -139,14 +140,11 @@ export class NodeHost implements RuntimeHost {
     readonly workspace = createFileSystem()
     readonly containers = new DockerManager()
     readonly browsers = new BrowserManager()
-    readonly defaultModelOptions = {
-        model: DEFAULT_MODEL,
-        smallModel: DEFAULT_SMALL_MODEL,
-        visionModel: DEFAULT_VISION_MODEL,
-        temperature: DEFAULT_TEMPERATURE,
-    }
-    readonly defaultEmbeddingsModelOptions = {
-        embeddingsModel: DEFAULT_EMBEDDINGS_MODEL,
+    readonly modelAliases: ModelConfigurations = {
+        large: { model: DEFAULT_MODEL },
+        small: { model: DEFAULT_SMALL_MODEL },
+        vision: { model: DEFAULT_VISION_MODEL },
+        embeddings: { model: DEFAULT_EMBEDDINGS_MODEL },
     }
     readonly userInputQueue = new PLimitPromiseQueue(1)
     readonly azureToken: AzureTokenResolver

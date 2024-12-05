@@ -72,19 +72,21 @@ export function findEnvVar(
 }
 
 export async function parseDefaultsFromEnv(env: Record<string, string>) {
+    // legacy
     if (env.GENAISCRIPT_DEFAULT_MODEL)
-        host.defaultModelOptions.model = env.GENAISCRIPT_DEFAULT_MODEL
-    if (env.GENAISCRIPT_DEFAULT_SMALL_MODEL)
-        host.defaultModelOptions.smallModel =
-            env.GENAISCRIPT_DEFAULT_SMALL_MODEL
-    if (env.GENAISCRIPT_DEFAULT_VISION_MODEL)
-        host.defaultModelOptions.visionModel =
-            env.GENAISCRIPT_DEFAULT_VISION_MODEL
+        host.modelAliases.large.model = env.GENAISCRIPT_DEFAULT_MODEL
+
+    const m = /^GENAISCRIPT_DEFAULT_(?<id>[A-Z0-9]+)_MODEL$/i
+    Object.keys(env)
+        .map((k) => m.exec(k)?.groups.id)
+        .filter((id) => !!id)
+        .forEach((id: string) => {
+            id = id.toLocaleLowerCase()
+            const c = host.modelAliases[id] || (host.modelAliases[id] = {})
+            c.model = env[`GENAISCRIPT_DEFAULT_${id}_MODEL`]
+        })
     const t = normalizeFloat(env.GENAISCRIPT_DEFAULT_TEMPERATURE)
-    if (!isNaN(t)) host.defaultModelOptions.temperature = t
-    if (env.GENAISCRIPT_DEFAULT_EMBEDDINGS_MODEL)
-        host.defaultEmbeddingsModelOptions.embeddingsModel =
-            env.GENAISCRIPT_DEFAULT_EMBEDDINGS_MODEL
+    if (!isNaN(t)) host.modelAliases.large.temperature = t
 }
 
 export async function parseTokenFromEnv(
@@ -92,7 +94,7 @@ export async function parseTokenFromEnv(
     modelId: string
 ): Promise<LanguageModelConfiguration> {
     const { provider, model, tag } = parseModelIdentifier(
-        modelId ?? host.defaultModelOptions.model
+        modelId ?? host.modelAliases.large.model
     )
     const TOKEN_SUFFIX = ["_API_KEY", "_API_TOKEN", "_TOKEN", "_KEY"]
     const BASE_SUFFIX = ["_API_BASE", "_API_ENDPOINT", "_BASE", "_ENDPOINT"]

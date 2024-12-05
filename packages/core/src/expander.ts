@@ -194,7 +194,7 @@ export async function expandTemplate(
         options.temperature ??
         normalizeFloat(env.vars["temperature"]) ??
         template.temperature ??
-        host.defaultModelOptions.temperature
+        host.modelAliases.large.temperature
     const topP =
         options.topP ?? normalizeFloat(env.vars["top_p"]) ?? template.topP
     const maxTokens =

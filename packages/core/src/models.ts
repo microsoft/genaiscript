@@ -106,23 +106,23 @@ export async function resolveModelConnectionInfo(
     if (m === SMALL_MODEL_ID) {
         m = undefined
         candidates ??= [
-            host.defaultModelOptions.smallModel,
+            host.modelAliases.small.model,
             ...DEFAULT_SMALL_MODEL_CANDIDATES,
         ]
     } else if (m === VISION_MODEL_ID) {
         m = undefined
         candidates ??= [
-            host.defaultModelOptions.visionModel,
+            host.modelAliases.vision.model,
             ...DEFAULT_VISION_MODEL_CANDIDATES,
         ]
     } else if (m === LARGE_MODEL_ID) {
         m = undefined
         candidates ??= [
-            host.defaultModelOptions.model,
+            host.modelAliases.large.model,
             ...DEFAULT_MODEL_CANDIDATES,
         ]
     }
-    candidates ??= [host.defaultModelOptions.model, ...DEFAULT_MODEL_CANDIDATES]
+    candidates ??= [host.modelAliases.large.model, ...DEFAULT_MODEL_CANDIDATES]
 
     const resolveModel = async (
         model: string,

@@ -191,15 +191,12 @@ interface ModelConnectionOptions {
     model?: ModelType
 
     /**
-     * Which LLM model to use for the "small" model.
-     *
-     * @default gpt-4
-     * @example gpt-4
+     * @deprecated use model aliases
      */
     smallModel?: ModelSmallType
 
     /**
-     * Which LLM to use for the "vision" model.
+     * @deprecated use model aliases
      */
     visionModel?: ModelVisionType
 }

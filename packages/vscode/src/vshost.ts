@@ -20,6 +20,7 @@ import {
     LanguageModelConfiguration,
     LogLevel,
     Host,
+    ModelConfigurations,
 } from "../../core/src/host"
 import { TraceOptions, AbortSignalOptions } from "../../core/src/trace"
 import { arrayify } from "../../core/src/util"
@@ -30,16 +31,12 @@ export class VSCodeHost extends EventTarget implements Host {
     userState: any = {}
     readonly path = createVSPath()
     readonly server: TerminalServerManager
-    readonly defaultModelOptions = {
-        model: DEFAULT_MODEL,
-        smallModel: DEFAULT_SMALL_MODEL,
-        visionModel: DEFAULT_VISION_MODEL,
-        temperature: DEFAULT_TEMPERATURE,
+    readonly modelAliases: ModelConfigurations = {
+        large: { model: DEFAULT_MODEL },
+        small: { model: DEFAULT_SMALL_MODEL },
+        vision: { model: DEFAULT_VISION_MODEL },
+        embeddings: { model: DEFAULT_EMBEDDINGS_MODEL },
     }
-    readonly defaultEmbeddingsModelOptions = {
-        embeddingsModel: DEFAULT_EMBEDDINGS_MODEL,
-    }
-
     constructor(readonly state: ExtensionState) {
         super()
         setHost(this)

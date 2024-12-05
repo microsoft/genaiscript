@@ -15,6 +15,7 @@ import {
     setRuntimeHost,
     RuntimeHost,
     AzureTokenResolver,
+    ModelConfigurations,
 } from "./host"
 import { TraceOptions } from "./trace"
 import {
@@ -70,15 +71,11 @@ export class TestHost implements RuntimeHost {
     azureToken: AzureTokenResolver = undefined
 
     // Default options for language models
-    readonly defaultModelOptions = {
-        model: DEFAULT_MODEL,
-        smallModel: DEFAULT_SMALL_MODEL,
-        visionModel: DEFAULT_VISION_MODEL,
-        temperature: DEFAULT_TEMPERATURE,
-    }
-    // Default options for embeddings models
-    readonly defaultEmbeddingsModelOptions = {
-        embeddingsModel: DEFAULT_EMBEDDINGS_MODEL,
+    readonly modelAliases: ModelConfigurations = {
+        large: { model: DEFAULT_MODEL },
+        small: { model: DEFAULT_SMALL_MODEL },
+        vision: { model: DEFAULT_VISION_MODEL },
+        embeddings: { model: DEFAULT_EMBEDDINGS_MODEL },
     }
 
     // Static method to set this class as the runtime host

@@ -108,14 +108,12 @@ export async function runPromptScriptTests(
         testDelay?: string
     }
 ): Promise<PromptScriptTestRunResponse> {
-    if (options.model) host.defaultModelOptions.model = options.model
-    if (options.smallModel)
-        host.defaultModelOptions.smallModel = options.smallModel
+    if (options.model) host.modelAliases.large.model = options.model
+    if (options.smallModel) host.modelAliases.small.model = options.smallModel
     if (options.visionModel)
-        host.defaultModelOptions.visionModel = options.visionModel
-
-    logVerbose(
-        `model: ${host.defaultModelOptions.model}, small model: ${host.defaultModelOptions.smallModel}, vision model: ${host.defaultModelOptions.visionModel}`
+        host.modelAliases.vision.model = options.visionModel
+    Object.entries(host.modelAliases).forEach(([key, host]) =>
+        logVerbose(` ${key}: ${host.model}`)
     )
 
     const scripts = await listTests({ ids, ...(options || {}) })
@@ -147,12 +145,12 @@ export async function runPromptScriptTests(
             : script.filename.replace(GENAI_ANY_REGEX, ".promptfoo.yaml")
         logInfo(`  ${fn}`)
         const { info: chatInfo } = await resolveModelConnectionInfo(script, {
-            model: host.defaultModelOptions.model,
+            model: host.modelAliases.large.model,
         })
         if (chatInfo.error) throw new Error(chatInfo.error)
         let { info: embeddingsInfo } = await resolveModelConnectionInfo(
             script,
-            { model: host.defaultEmbeddingsModelOptions.embeddingsModel }
+            { model: host.modelAliases.embeddings.model }
         )
         if (embeddingsInfo?.error) embeddingsInfo = undefined
         const config = generatePromptFooConfiguration(script, {

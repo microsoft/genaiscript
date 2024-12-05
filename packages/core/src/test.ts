@@ -94,14 +94,7 @@ export function generatePromptFooConfiguration(
     const cli = options?.cli
     const transform = "output.text"
 
-    const resolveModel = (m: string) =>
-        m === SMALL_MODEL_ID
-            ? host.defaultModelOptions.smallModel
-            : m === VISION_MODEL_ID
-              ? host.defaultModelOptions.visionModel
-              : m === LARGE_MODEL_ID
-                ? host.defaultModelOptions.model
-                : m
+    const resolveModel = (m: string) => host.modelAliases[m]?.model ?? m
 
     const testProvider = deleteUndefinedValues({
         text: resolveTestProvider(chatInfo, "chat"),
@@ -119,16 +112,14 @@ export function generatePromptFooConfiguration(
         // Map model options to providers
         providers: models
             .map(({ model, smallModel, visionModel, temperature, topP }) => ({
-                model: resolveModel(model) ?? host.defaultModelOptions.model,
+                model: resolveModel(model) ?? host.modelAliases.large.model,
                 smallModel:
-                    resolveModel(smallModel) ??
-                    host.defaultModelOptions.smallModel,
+                    resolveModel(smallModel) ?? host.modelAliases.small.model,
                 visionModel:
-                    resolveModel(visionModel) ??
-                    host.defaultModelOptions.visionModel,
+                    resolveModel(visionModel) ?? host.modelAliases.vision.model,
                 temperature: !isNaN(temperature)
                     ? temperature
-                    : host.defaultModelOptions.temperature,
+                    : host.modelAliases.temperature,
                 top_p: topP,
             }))
             .map(({ model, smallModel, visionModel, temperature, top_p }) => ({

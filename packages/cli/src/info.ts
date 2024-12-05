@@ -84,20 +84,20 @@ export async function envInfo(
 
 /**
  * Resolves connection information for script templates by deduplicating model options.
- * @param templates - Array of model connection options to resolve.
+ * @param scripts - Array of model connection options to resolve.
  * @param options - Configuration options, including whether to show tokens.
  * @returns A promise that resolves to an array of model connection information.
  */
 async function resolveScriptsConnectionInfo(
-    templates: ModelConnectionOptions[],
+    scripts: ModelConnectionOptions[],
     options?: { token?: boolean }
 ): Promise<ModelConnectionInfo[]> {
     const models: Record<string, ModelConnectionOptions> = {}
 
     // Deduplicate model connection options
-    for (const template of templates) {
+    for (const script of scripts) {
         const conn: ModelConnectionOptions = {
-            model: template.model ?? host.defaultModelOptions.model,
+            model: script.model ?? host.modelAliases.large.model,
         }
         const key = JSON.stringify(conn)
         if (!models[key]) models[key] = conn
