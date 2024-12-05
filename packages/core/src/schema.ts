@@ -19,26 +19,30 @@ export function isJSONSchema(obj: any) {
 
 export function JSONSchemaToFunctionParameters(schema: JSONSchemaType): string {
     if (!schema) return ""
-    else if (schema.type === "array")
-        return `args: (${JSONSchemaToFunctionParameters(schema.items)})[]`
-    else if (schema.type === "object") {
-        const required = schema.required || []
-        return Object.entries(schema.properties)
-            .sort(
-                (l, r) =>
-                    (required.includes(l[0]) ? -1 : 1) -
-                    (required.includes(r[0]) ? -1 : 1)
-            )
-            .map(
-                ([name, prop]) =>
-                    `${name}${required.includes(name) ? "" : "?"}: ${JSONSchemaToFunctionParameters(prop)}`
-            )
-            .join(", ")
-    } else if (schema.type === "string") return "string"
-    else if (schema.type === "boolean") return "boolean"
-    else if (schema.type === "number" || schema.type === "integer")
-        return "number"
-    else return "?"
+    else if ((schema as JSONSchemaAnyOf).anyOf) {
+    } else {
+        const single = schema as JSONSchemaSimpleType
+        if (single.type === "array")
+            return `args: (${JSONSchemaToFunctionParameters(single.items)})[]`
+        else if (single.type === "object") {
+            const required = single.required || []
+            return Object.entries(single.properties)
+                .sort(
+                    (l, r) =>
+                        (required.includes(l[0]) ? -1 : 1) -
+                        (required.includes(r[0]) ? -1 : 1)
+                )
+                .map(
+                    ([name, prop]) =>
+                        `${name}${required.includes(name) ? "" : "?"}: ${JSONSchemaToFunctionParameters(prop)}`
+                )
+                .join(", ")
+        } else if (single.type === "string") return "string"
+        else if (single.type === "boolean") return "boolean"
+        else if (single.type === "number" || single.type === "integer")
+            return "number"
+    }
+    return "?"
 }
 
 /**
@@ -55,7 +59,7 @@ export function JSONSchemaStringifyToTypeScript(
     let lines: string[] = [] // Array to accumulate lines of TypeScript code
     let indent = 0 // Manage indentation level
 
-    appendJsDoc(schema.description) // Add JSDoc for schema description
+    appendJsDoc((schema as JSONSchemaDescripted).description) // Add JSDoc for schema description
     append(
         `${options?.export ? "export " : ""}type ${typeName.replace(/\s+/g, "_")} =`
     )
@@ -84,33 +88,44 @@ export function JSONSchemaStringifyToTypeScript(
     // Convert a JSON Schema node to TypeScript
     function stringifyNode(node: JSONSchemaType): string {
         if (node === undefined) return "any"
-        else if (node.type === "array") {
-            stringifyArray(node)
-            return undefined
-        } else if (node.type === "object") {
-            stringifyObject(node)
-            return undefined
-        } else if (node.type === "string") return "string"
-        else if (node.type === "boolean") return "boolean"
-        else if (node.type === "number" || node.type === "integer")
-            return "number"
-        else return "unknown"
+        else if ((node as JSONSchemaAnyOf).anyOf) {
+            const n = node as JSONSchemaAnyOf
+            return n.anyOf
+                .map((x) => {
+                    const v = stringifyNode(x)
+                    return v ? `(${v})` : undefined
+                })
+                .filter((x) => x)
+                .join(" | ")
+        } else {
+            const n = node as JSONSchemaSimpleType
+            if (n.type === "array") {
+                stringifyArray(n)
+                return undefined
+            } else if (n.type === "object") {
+                stringifyObject(n)
+                return undefined
+            } else if (n.type === "string") return "string"
+            else if (n.type === "boolean") return "boolean"
+            else if (n.type === "number" || n.type === "integer")
+                return "number"
+        }
+        return "unknown"
     }
 
     // Extract documentation for a node
     function stringifyNodeDoc(node: JSONSchemaType): string {
-        const doc = [node.description]
-        switch (node.type) {
+        const n = node as JSONSchemaSimpleType
+        const doc = [n?.description]
+        switch (n.type) {
             case "number":
             case "integer": {
-                if (node.minimum !== undefined)
-                    doc.push(`minimum: ${node.minimum}`)
-                if (node.exclusiveMinimum !== undefined)
-                    doc.push(`exclusiveMinimum: ${node.exclusiveMinimum}`)
-                if (node.exclusiveMaximum !== undefined)
-                    doc.push(`exclusiveMaximum : ${node.exclusiveMaximum}`)
-                if (node.maximum !== undefined)
-                    doc.push(`maximum: ${node.maximum}`)
+                if (n.minimum !== undefined) doc.push(`minimum: ${n.minimum}`)
+                if (n.exclusiveMinimum !== undefined)
+                    doc.push(`exclusiveMinimum: ${n.exclusiveMinimum}`)
+                if (n.exclusiveMaximum !== undefined)
+                    doc.push(`exclusiveMaximum : ${n.exclusiveMaximum}`)
+                if (n.maximum !== undefined) doc.push(`maximum: ${n.maximum}`)
             }
         }
         return doc.filter((d) => d).join("\n")
@@ -292,19 +307,19 @@ export function toStrictJSONSchema(
 
     // Recursive function to make the schema strict
     function visit(node: JSONSchemaType): void {
-        const { type } = node
-        switch (type) {
+        const n = node as JSONSchemaSimpleType
+        switch (n.type) {
             case "object": {
-                if (node.additionalProperties)
+                if (n.additionalProperties)
                     throw new Error("additionalProperties: true not supported")
-                node.additionalProperties = false
-                node.required = node.required || []
-                for (const key in node.properties) {
+                n.additionalProperties = false
+                n.required = n.required || []
+                for (const key in n.properties) {
                     // https://platform.openai.com/docs/guides/structured-outputs/all-fields-must-be-required
-                    const child = node.properties[key]
+                    const child = n.properties[key] as JSONSchemaSimpleType
                     visit(child)
-                    if (!node.required.includes(key)) {
-                        node.required.push(key)
+                    if (!n.required.includes(key)) {
+                        n.required.push(key)
                         if (
                             ["string", "number", "boolean", "integer"].includes(
                                 child.type
@@ -317,7 +332,7 @@ export function toStrictJSONSchema(
                 break
             }
             case "array": {
-                visit(node.items)
+                visit(n.items)
                 break
             }
         }
