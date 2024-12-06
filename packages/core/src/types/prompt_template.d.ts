@@ -437,12 +437,17 @@ interface ContentSafetyOptions {
     contentSafety?: ContentSafetyProvider
 }
 
+/**
+ * Different ways to render a fence block.
+ */
+type FenceFormat = "markdown" | "xml" | "none"
+
 interface ModelTemplateOptions {
     /**
      * Formatting of code sections
      */
-    fenceFormat?: "markdown" | "xml"
-    
+    fenceFormat?: FenceFormat
+
     /**
      * Budget of tokens to apply the prompt flex renderer.
      */
@@ -871,6 +876,11 @@ interface LineNumberingOptions {
 }
 
 interface FenceOptions extends LineNumberingOptions {
+    /**
+     * Formatting of code sections
+     */
+    fenceFormat?: FenceFormat
+
     /**
      * Language of the fenced code block. Defaults to "markdown".
      */

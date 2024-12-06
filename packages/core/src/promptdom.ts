@@ -258,10 +258,17 @@ export function createDefDiff(
 // Function to render a definition node to a string.
 function renderDefNode(
     def: PromptDefNode,
-    fenceFormat: "markdown" | "xml" | "none"
+    modelFenceFormat: FenceFormat
 ): string {
-    const { name, resolved: file } = def
-    const { language, lineNumbers, schema, prediction } = def || {}
+    const {
+        name,
+        resolved: file,
+        language,
+        lineNumbers,
+        schema,
+        prediction,
+    } = def
+    let fenceFormat = def.fenceFormat || modelFenceFormat
 
     const norm = (s: string, lang: string) => {
         s = (s || "").replace(/\n*$/, "")

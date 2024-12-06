@@ -252,7 +252,7 @@ export function createChatTurnGenerationContext(
                 )
             }
 
-            // TODO: support clause
+            // TODO: support claude
             return name
         },
         defData: (name, data, defOptions) => {
