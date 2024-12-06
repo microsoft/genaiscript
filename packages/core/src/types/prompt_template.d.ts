@@ -1034,6 +1034,7 @@ interface JSONSchemaString extends JSONSchemaDescripted {
     type: "string"
     enum?: string[]
     default?: string
+    pattern?: string
 }
 
 interface JSONSchemaNumber extends JSONSchemaDescripted {
