@@ -20,7 +20,7 @@ Read more about [OpenAI Vision](https://platform.openai.com/docs/guides/vision/l
 
 Public URLs (that do not require authentication) will be passed directly to OpenAI.
 
-```js
+```js wrap
 defImages(
     "https://github.com/microsoft/genaiscript/blob/main/docs/public/images/logo.png?raw=true"
 )
@@ -35,7 +35,7 @@ and [Blob](https://developer.mozilla.org/en-US/docs/Web/API/Blob).
 
 This example takes a screenshot of bing.com and adds it to the images.
 
-```js
+```js wrap
 const page = await host.browse("https://bing.com")
 const screenshot = await page.screenshot() // returns a node.js Buffer
 defImages(screenshot)
@@ -54,7 +54,7 @@ defImages(img, { detail: "low" })
 
 You can crop a region of interest from the image.
 
-```js "crop: { x: 0, y: 0, w: 512, h: 512 }"
+```js "crop: { x: 0, y: 0, w: 512, h: 512 }" wrap
 defImages(img, { crop: { x: 0, y: 0, w: 512, h: 512 } })
 ```
 
@@ -62,7 +62,7 @@ defImages(img, { crop: { x: 0, y: 0, w: 512, h: 512 } })
 
 You can also automatically remove uniform color on the edges of the image.
 
-```js "autoCrop"
+```js "autoCrop" wrap
 defImages(img, { autoCrop: true })
 ```
 
@@ -70,7 +70,7 @@ defImages(img, { autoCrop: true })
 
 You can convert the image to greyscale.
 
-```js "greyscale"
+```js "greyscale" wrap
 defImages(img, { greyscale: true })
 ```
 
@@ -94,7 +94,7 @@ defImages(img, { scale: 0.5 })
 
 You can flip the image.
 
-```js "flip: { horizontal: true; vertical: true }"
+```js "flip: { horizontal: true; vertical: true }" wrap
 defImages(img, { flip: { horizontal: true; vertical: true } })
 ```
 

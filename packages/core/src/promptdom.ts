@@ -286,10 +286,10 @@ function renderDefNode(def: PromptDefNode): string {
         }
     }
     body = norm(body, dtype)
-    const diffFormat =
-        body.length > 500 && !prediction
-            ? " preferred_output_format=CHANGELOG"
-            : ""
+    const diffFormat = ""
+        //body.length > 500 && !prediction
+          //  ? " preferred_output_format=CHANGELOG"
+        //    : ""
 
     let res: string
     if (name && fenceFormat === "xml") {

@@ -18,7 +18,7 @@ The `env` global object contains properties that provide information about the s
 The `env.files` array contains all files within the execution context. The context is defined implicitly
 by the user based on:
 
--   `script` `files` option
+- `script` `files` option
 
 ```js
 script({
@@ -34,26 +34,26 @@ script({
 })
 ```
 
--   the UI location to start the tool
+- the UI location to start the tool
 
--   [CLI](/genaiscript/reference/cli) files arguments.
+- [CLI](/genaiscript/reference/cli) files arguments.
 
 The files are stored in `env.files` which can be injected in the prompt.
 
--   using `def`
+- using `def`
 
 ```js
 def("FILE", env.files)
 ```
 
--   filtered,
+- filtered,
 
 ```js
 def("DOCS", env.files, { endsWith: ".md" })
 def("CODE", env.files, { endsWith: ".py" })
 ```
 
--   directly in a `$` call
+- directly in a `$` call
 
 ```js
 $`Summarize ${env.files}.
@@ -81,20 +81,28 @@ Read more about [variables](/genaiscript/reference/scripts/variables).
 ## Definition (`def`)
 
 The `def("FILE", file)` function is a shorthand for generating a fenced variable output.
-The "meta-variable" (`FILE` in this example) name should be all uppercase (but can include
 
 ```js "def"
 def("FILE", file)
 ```
 
-approximately equivalent to:
+It renders approximately to
 
-````js
-$`FILE ${file.filename}:
-```
-${env.file.content}
+````markdown
+FILE:
+
+```file="filename"
+file content
 ```
 ````
+
+or if the model support XML tags (see [fence formats](/genaiscript/reference/scripts/fence-formats)):
+
+```markdown
+<FILE file="filename">
+file content
+</FILE>
+```
 
 The `def` function can also be used with an array of files, such as `env.files`.
 
@@ -126,13 +134,13 @@ $`Summarize ${f}.`
 
 Since a script may be executed on a full folder, it is often useful to filter the files based on
 
--   their extension
+- their extension
 
 ```js "endsWith: '.md'"
 def("FILE", env.files, { endsWith: ".md" })
 ```
 
--   or using a [glob](<https://en.wikipedia.org/wiki/Glob_(programming)>):
+- or using a [glob](<https://en.wikipedia.org/wiki/Glob_(programming)>):
 
 ```js "glob: '**/*.{md,mdx}'"
 def("FILE", files, { glob: "**/*.{md,mdx}" })
@@ -172,19 +180,19 @@ def("FILE", env.files, { maxTokens: 100 })
 The `def` function treats data files such as [CSV](/genaiscript/reference/scripts/csv) and [XLSX](/genaiscript/reference/scripts/xlsx) specially. It will automatically convert the data into a
 markdown table format to improve tokenization.
 
--   `sliceHead`, keep the top N rows
+- `sliceHead`, keep the top N rows
 
 ```js "sliceHead: 100"
 def("FILE", env.files, { sliceHead: 100 })
 ```
 
--   `sliceTail`, keep the last N rows
+- `sliceTail`, keep the last N rows
 
 ```js "sliceTail: 100"
 def("FILE", env.files, { sliceTail: 100 })
 ```
 
--   `sliceSample`, keep a random sample of N rows
+- `sliceSample`, keep a random sample of N rows
 
 ```js "sliceSample: 100"
 def("FILE", env.files, { sliceSample: 100 })
@@ -238,11 +246,11 @@ defData("DATA", csv, { format: "yaml" })
 
 The `defData` function also supports functions to slice the input rows and columns.
 
--   `headers`, list of column names to include
--   `sliceHead`, number of rows to include from the beginning
--   `sliceTail`, number of rows to include from the end
--   `sliceSample`, number of rows to pick at random
--   `distinct`, list of column names to deduplicate the data based on
+- `headers`, list of column names to include
+- `sliceHead`, number of rows to include from the beginning
+- `sliceTail`, number of rows to include from the end
+- `sliceSample`, number of rows to pick at random
+- `distinct`, list of column names to deduplicate the data based on
 
 ```js
 defData("DATA", data, {

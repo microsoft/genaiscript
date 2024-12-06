@@ -46,7 +46,7 @@ export function splitMarkdown(text: string | WorkspaceFile): {
         if (lines[end] === delimiter) break
         end++
     }
-    if (end >= lines.length) return { content: text }
+    if (end >= lines.length) return { frontmatter: text, content: "" }
     const frontmatter = lines.slice(1, end).join("\n")
     const content = lines.slice(end + 1).join("\n")
     return { frontmatter, content, endLine: end }
