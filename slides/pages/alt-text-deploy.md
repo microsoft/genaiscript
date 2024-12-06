@@ -12,7 +12,7 @@ layout: two-cols-header
 ```js
 script({
     title: "Image Alt Text generator",
-    model: "gpt-4o",
+    model: "vision",
 })
 
 const file = env.files[0]
