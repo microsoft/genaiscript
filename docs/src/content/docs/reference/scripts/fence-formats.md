@@ -10,12 +10,24 @@ keywords: fence format, LLM input, markdown, xml, GenAIScript
 
 
 GenAIScript supports various types of "fence" formats when rendering [def](/genaiscript/reference/scripts/content) function, since LLMs may behave differently depending on the format of the input text.
+**As of 1.82.0, the default format is to use XML tags.**
 
 - [Anthropic](https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/use-xml-tags)
 - [OpenAI](https://platform.openai.com/docs/guides/prompt-engineering#tactic-use-delimiters-to-clearly-indicate-distinct-parts-of-the-input)
 - [Google](https://cloud.google.com/vertex-ai/generative-ai/docs/learn/prompts/structure-prompts)
 
 The following `def` call will generate a fenced region with different syntax:
+
+- `xml`
+
+```js
+def("TEXT", ":)", { fenceFormat: "xml" })
+```
+```markdown
+<TEXT>
+:)
+</TEXT>
+```
 
 - `markdown`
 
@@ -27,17 +39,6 @@ TEXT:
 \`\`\`
 :)
 \`\`\`
-```
-
-- `xml`
-
-```js
-def("TEXT", ":)", { fenceFormat: "xml" })
-```
-```markdown
-<TEXT>
-:)
-</TEXT>
 ```
 
 - `none`
