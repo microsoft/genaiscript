@@ -3,7 +3,7 @@ script({
     model: "large",
     title: "system.diff test",
     files: "src/edits/fibs/fib.*",
-    system: ["system", "system.diff"],
+    system: ["system", "system.files", "system.diff"],
     tests: [
         {
             files: "src/edits/fibs/fib.*",
