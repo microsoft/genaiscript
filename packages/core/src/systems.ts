@@ -58,7 +58,7 @@ export function resolveSystems(
         // Add schema system if schema is used
         if (useSchema) systems.push("system.schema")
         // Add annotation system if annotations, warnings, or errors are found
-        if (/\W(annotation|warning|error)\W/i.test(jsSource))
+        if (/\W(annotations|warnings|errors)\W/i.test(jsSource))
             systems.push("system.annotations")
         // Add diagram system if diagrams or charts are found
         if (/\W(diagram|chart)\W/i.test(jsSource))
