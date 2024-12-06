@@ -674,6 +674,7 @@ export function createChatGenerationContext(
                     disposables: dps,
                 } = await renderPromptNode(genOptions.model, node, {
                     flexTokens: genOptions.flexTokens,
+                    fenceFormat: genOptions.fenceFormat,
                     trace: runTrace,
                 })
 

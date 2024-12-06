@@ -663,6 +663,7 @@ async function processChatMessage(
                 const { errors, messages: participantMessages } =
                     await renderPromptNode(options.model, node, {
                         flexTokens: options.flexTokens,
+                        fenceFormat: options.fenceFormat,
                         trace,
                     })
                 if (participantMessages?.length) {
@@ -737,7 +738,8 @@ export function mergeGenerationOptions(
             options?.model ??
             runtimeHost.modelAliases.large.model,
         temperature:
-            runOptions?.temperature ?? runtimeHost.modelAliases.large.temperature,
+            runOptions?.temperature ??
+            runtimeHost.modelAliases.large.temperature,
         embeddingsModel:
             runOptions?.embeddingsModel ??
             options?.embeddingsModel ??

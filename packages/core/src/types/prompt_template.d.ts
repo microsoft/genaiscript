@@ -203,7 +203,7 @@ interface ModelAliasesOptions {
     visionModel?: ModelVisionType
 }
 
-interface ModelOptions extends ModelConnectionOptions {
+interface ModelOptions extends ModelConnectionOptions, ModelTemplateOptions {
     /**
      * Temperature to use. Higher temperature means more hallucination/creativity.
      * Range 0.0-2.0.
@@ -278,11 +278,6 @@ interface ModelOptions extends ModelConnectionOptions {
      * @deprecated Use `cache` instead with a string
      */
     cacheName?: string
-
-    /**
-     * Budget of tokens to apply the prompt flex renderer.
-     */
-    flexTokens?: number
 
     /**
      * A list of model ids and their maximum number of concurrent requests.
@@ -440,6 +435,18 @@ interface PromptTest {
 
 interface ContentSafetyOptions {
     contentSafety?: ContentSafetyProvider
+}
+
+interface ModelTemplateOptions {
+    /**
+     * Formatting of code sections
+     */
+    fenceFormat?: "markdown" | "xml"
+    
+    /**
+     * Budget of tokens to apply the prompt flex renderer.
+     */
+    flexTokens?: number
 }
 
 interface PromptScript

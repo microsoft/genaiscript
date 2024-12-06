@@ -15,7 +15,17 @@ import {
 } from "./util"
 import { YAMLStringify } from "./yaml"
 import {
+    DEFAULT_FENCE_FORMAT,
     MARKDOWN_PROMPT_FENCE,
+    MODEL_PROVIDER_ALIBABA,
+    MODEL_PROVIDER_ANTHROPIC,
+    MODEL_PROVIDER_AZURE_OPENAI,
+    MODEL_PROVIDER_AZURE_SERVERLESS_MODELS,
+    MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI,
+    MODEL_PROVIDER_LLAMAFILE,
+    MODEL_PROVIDER_LMSTUDIO,
+    MODEL_PROVIDER_OLLAMA,
+    MODEL_PROVIDER_OPENAI,
     PROMPT_FENCE,
     PROMPTY_REGEX,
     SANITIZED_PROMPT_INJECTION,
@@ -246,16 +256,13 @@ export function createDefDiff(
 }
 
 // Function to render a definition node to a string.
-function renderDefNode(def: PromptDefNode): string {
+function renderDefNode(
+    def: PromptDefNode,
+    fenceFormat: "markdown" | "xml" | "none"
+): string {
     const { name, resolved: file } = def
     const { language, lineNumbers, schema, prediction } = def || {}
 
-    file.content = extractRange(file.content, def)
-
-    const fence =
-        language === "markdown" || language === "mdx"
-            ? MARKDOWN_PROMPT_FENCE
-            : PROMPT_FENCE
     const norm = (s: string, lang: string) => {
         s = (s || "").replace(/\n*$/, "")
         if (s && lineNumbers && !prediction)
@@ -264,39 +271,51 @@ function renderDefNode(def: PromptDefNode): string {
         return s
     }
 
-    let dfence =
-        /\.mdx?$/i.test(file.filename) || file.content?.includes(fence)
-            ? MARKDOWN_PROMPT_FENCE
-            : fence
+    file.content = extractRange(file.content, def)
     const dtype = language || /\.([^\.]+)$/i.exec(file.filename)?.[1] || ""
     let body = file.content
     if (/^(c|t)sv$/i.test(dtype)) {
         const parsed = !/^\s*|/.test(file.content) && CSVTryParse(file.content)
         if (parsed) {
             body = CSVToMarkdown(parsed)
-            dfence = ""
+            fenceFormat = "none"
         }
     }
     body = norm(body, dtype)
-    while (dfence && body.includes(dfence)) {
-        dfence += "`"
-    }
     const diffFormat =
         body.length > 500 && !prediction
-            ? " preferred_output_format=CHANGELOG "
+            ? " preferred_output_format=CHANGELOG"
             : ""
-    const res =
-        "\n" +
-        (name ? name + ":\n" : "") +
-        dfence +
-        dtype +
-        (file.filename ? ` file="${file.filename}"` : "") +
-        (schema ? ` schema=${schema}` : "") +
-        diffFormat +
-        "\n" +
-        body +
-        dfence +
-        "\n"
+
+    let res: string
+    if (name && fenceFormat === "xml") {
+        res = `\n<${name}${dtype ? ` lang="${dtype}"` : ""}${file.filename ? ` file="${file.filename}"` : ""}${schema ? ` schema=${schema}` : ""}${diffFormat}>\n${body}</${name}>\n`
+    } else {
+        const fence =
+            language === "markdown" || language === "mdx"
+                ? MARKDOWN_PROMPT_FENCE
+                : PROMPT_FENCE
+        let dfence =
+            /\.mdx?$/i.test(file.filename) || file.content?.includes(fence)
+                ? MARKDOWN_PROMPT_FENCE
+                : fence
+        if (fenceFormat === "none") dfence = ""
+        while (dfence && body.includes(dfence)) {
+            dfence += "`"
+        }
+        res =
+            "\n" +
+            (name ? name + ":\n" : "") +
+            dfence +
+            dtype +
+            (file.filename ? ` file="${file.filename}"` : "") +
+            (schema ? ` schema=${schema}` : "") +
+            diffFormat +
+            "\n" +
+            body +
+            dfence +
+            "\n"
+    }
 
     return res
 }
@@ -598,7 +617,7 @@ export interface PromptNodeRender {
  * @param mode
  * @param root
  */
-async function layoutPromptNode(mode: string, root: PromptNode) {
+async function layoutPromptNode(root: PromptNode) {
     let changed = false
     await visitNode(root, {
         node: (n) => {
@@ -614,14 +633,35 @@ async function layoutPromptNode(mode: string, root: PromptNode) {
     return changed
 }
 
+function resolveFenceFormat(modelid: string): "markdown" | "xml" {
+    const { provider, model } = parseModelIdentifier(modelid)
+    switch (provider) {
+        case MODEL_PROVIDER_OPENAI:
+        case MODEL_PROVIDER_AZURE_OPENAI:
+        case MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI:
+            return "markdown"
+        case MODEL_PROVIDER_OLLAMA:
+        case MODEL_PROVIDER_AZURE_SERVERLESS_MODELS:
+        case MODEL_PROVIDER_ANTHROPIC:
+        case MODEL_PROVIDER_LMSTUDIO:
+        case MODEL_PROVIDER_LLAMAFILE:
+        case MODEL_PROVIDER_ALIBABA:
+            return "xml"
+        default:
+            if (/llama/.test(model)) return "xml"
+            if (/gpt/.test(model)) return "markdown"
+    }
+    return DEFAULT_FENCE_FORMAT
+}
+
 // Function to resolve a prompt node.
 async function resolvePromptNode(
-    model: string,
+    modelId: string,
+    encoder: TokenEncoder,
     root: PromptNode,
-    options: TraceOptions
+    options: ModelTemplateOptions & TraceOptions
 ): Promise<{ errors: number }> {
-    const { trace } = options || {}
-    const { encode: encoder } = await resolveTokenEncoder(model)
+    const { trace, fenceFormat = resolveFenceFormat(modelId) } = options || {}
     let err = 0
     const names = new Set<string>()
     const uniqueName = (n_: string) => {
@@ -653,9 +693,11 @@ async function resolvePromptNode(
                 names.add(n.name)
                 const value = await n.value
                 n.resolved = value
-                const rendered = renderDefNode(n)
+                const rendered = renderDefNode(n, fenceFormat)
                 n.preview = rendered
                 n.tokens = estimateTokens(rendered, encoder)
+                if (!n.children) n.children = []
+                n.children.push(createTextNode(rendered))
             } catch (e) {
                 n.error = e
             }
@@ -830,12 +872,11 @@ async function resolveImportPrompty(
 
 // Function to handle truncation of prompt nodes based on token limits.
 async function truncatePromptNode(
-    model: string,
+    encoder: TokenEncoder,
     node: PromptNode,
     options?: TraceOptions
 ): Promise<boolean> {
     const { trace } = options || {}
-    const { encode: encoder } = await resolveTokenEncoder(model)
     let truncated = false
 
     const cap = (n: {
@@ -1050,19 +1091,18 @@ async function deduplicatePromptNode(trace: MarkdownTrace, root: PromptNode) {
 export async function renderPromptNode(
     modelId: string,
     node: PromptNode,
-    options?: { flexTokens?: number } & TraceOptions
+    options?: ModelTemplateOptions & TraceOptions
 ): Promise<PromptNodeRender> {
     const { trace, flexTokens } = options || {}
-    const { model } = parseModelIdentifier(modelId)
-    const { encode: encoder } = await resolveTokenEncoder(model)
+    const { encode: encoder } = await resolveTokenEncoder(modelId)
 
-    await resolvePromptNode(model, node, options)
+    await resolvePromptNode(modelId, encoder, node, options)
     await tracePromptNode(trace, node)
 
     if (await deduplicatePromptNode(trace, node))
         await tracePromptNode(trace, node, { label: "deduplicate" })
 
-    if (await layoutPromptNode(model, node))
+    if (await layoutPromptNode(node))
         await tracePromptNode(trace, node, { label: "layout" })
 
     if (flexTokens)
@@ -1071,7 +1111,7 @@ export async function renderPromptNode(
             flexTokens,
         })
 
-    const truncated = await truncatePromptNode(model, node, options)
+    const truncated = await truncatePromptNode(encoder, node, options)
     if (truncated) await tracePromptNode(trace, node, { label: "truncated" })
 
     const safety = await validateSafetyPromptNode(trace, node)
@@ -1107,7 +1147,6 @@ export async function renderPromptNode(
         def: async (n) => {
             const value = n.resolved
             if (value !== undefined) {
-                appendUser(renderDefNode(n))
                 if (n.prediction) {
                     if (prediction) n.error = "duplicate prediction"
                     else

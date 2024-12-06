@@ -54,6 +54,7 @@ export const HIGHLIGHT_LENGTH = 4000
 export const SMALL_MODEL_ID = "small"
 export const LARGE_MODEL_ID = "large"
 export const VISION_MODEL_ID = "vision"
+export const DEFAULT_FENCE_FORMAT = "markdown"
 export const DEFAULT_MODEL = "openai:gpt-4o"
 export const DEFAULT_MODEL_CANDIDATES = [
     "azure:gpt-4o",

@@ -49,13 +49,12 @@ export function resolveSystems(
         if (/\Wdefimages\W/i.test(jsSource))
             systems.push("system.safety_harmful_content")
         // Determine additional systems based on content of jsSource
-        if (/\Wchangelog\W/i.test(jsSource)) systems.push("system.changelog")
-        else if (/\Wfile\W/i.test(jsSource)) {
+        if (/\Wfile\W/i.test(jsSource)) {
             systems.push("system.files")
-            systems.push("system.changelog")
             // Add file schema system if schema is used
             if (useSchema) systems.push("system.files_schema")
         }
+        if (/\Wchangelog\W/i.test(jsSource)) systems.push("system.changelog")
         // Add schema system if schema is used
         if (useSchema) systems.push("system.schema")
         // Add annotation system if annotations, warnings, or errors are found

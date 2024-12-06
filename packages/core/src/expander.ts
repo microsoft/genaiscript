@@ -41,8 +41,9 @@ export async function callExpander(
     options: GenerationOptions
 ) {
     assert(!!options.model)
-    const { provider, model } = parseModelIdentifier(r.model ?? options.model)
-    const ctx = await createPromptContext(prj, vars, trace, options, model)
+    const modelId = r.model ?? options.model
+    const { provider } = parseModelIdentifier(modelId)
+    const ctx = await createPromptContext(prj, vars, trace, options, modelId)
 
     let status: GenerationStatus = undefined
     let statusText: string = undefined
@@ -90,8 +91,9 @@ export async function callExpander(
                 fileOutputs: fos,
                 prediction: pred,
                 disposables: mcps,
-            } = await renderPromptNode(model, node, {
+            } = await renderPromptNode(modelId, node, {
                 flexTokens: options.flexTokens,
+                fenceFormat: options.fenceFormat,
                 trace,
             })
             messages = msgs
@@ -213,6 +215,7 @@ export async function expandTemplate(
         normalizeInt(env.vars["flexTokens"]) ??
         normalizeInt(env.vars["flex_tokens"]) ??
         template.flexTokens
+    const fenceFormat = options.fenceFormat ?? template.fenceFormat
     let seed = options.seed ?? normalizeInt(env.vars["seed"]) ?? template.seed
     if (seed !== undefined) seed = seed >> 0
     let logprobs = options.logprobs || template.logprobs
@@ -237,6 +240,7 @@ export async function expandTemplate(
         topP,
         temperature,
         lineNumbers,
+        fenceFormat,
     })
 
     const { status, statusText, messages } = prompt
