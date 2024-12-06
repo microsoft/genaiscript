@@ -3,16 +3,18 @@ script({
     description: "Try to implement TODOs found in source code.",
     group: "samples",
     system: ["system", "system.files"],
-    temperature: 0,
-    model: "small",
+    model: "large",
+    files: "src/fib.ts",
     tests: {
         files: "src/fib.ts",
-        asserts: [{
-            type: "javascript",
-            transform: "output",
-            value: "Object.keys(output.fileEdits).length > 0"
-        }]
-    }
+        asserts: [
+            {
+                type: "javascript",
+                transform: "output",
+                value: "Object.keys(output.fileEdits).length > 0",
+            },
+        ],
+    },
 })
 
 def("CODE", env.files, { lineNumbers: true })

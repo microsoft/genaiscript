@@ -250,24 +250,25 @@ export async function runScript(
     if (GENAI_ANY_REGEX.test(scriptId)) toolFiles.push(scriptId)
 
     for (const arg of files) {
+        if (HTTPS_REGEX.test(arg)) {
+            resolvedFiles.add(arg)
+            continue
+        }
         const stats = await host.statFile(arg)
         if (!stats)
             return fail(`file not found: ${arg}`, FILES_NOT_FOUND_ERROR_CODE)
         if (stats.type !== "file") continue
-        if (HTTPS_REGEX.test(arg)) resolvedFiles.add(arg)
-        else {
-            const ffs = await host.findFiles(arg, {
-                applyGitIgnore: excludeGitIgnore,
-            })
-            if (!ffs?.length) {
-                return fail(
-                    `no files matching ${arg} under ${process.cwd()}`,
-                    FILES_NOT_FOUND_ERROR_CODE
-                )
-            }
-            for (const file of ffs) {
-                resolvedFiles.add(filePathOrUrlToWorkspaceFile(file))
-            }
+        const ffs = await host.findFiles(arg, {
+            applyGitIgnore: excludeGitIgnore,
+        })
+        if (!ffs?.length) {
+            return fail(
+                `no files matching ${arg} under ${process.cwd()}`,
+                FILES_NOT_FOUND_ERROR_CODE
+            )
+        }
+        for (const file of ffs) {
+            resolvedFiles.add(filePathOrUrlToWorkspaceFile(file))
         }
     }
 
