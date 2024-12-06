@@ -638,7 +638,7 @@ async function layoutPromptNode(root: PromptNode) {
     return changed
 }
 
-export function resolveFenceFormat(modelid: string): "markdown" | "xml" {
+export function resolveFenceFormat(modelid: string): FenceFormat {
     return DEFAULT_FENCE_FORMAT
 }
 

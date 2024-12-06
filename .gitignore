@@ -28,3 +28,4 @@ trapi.md
 genaiscript.config.yaml
 packages/core/*.temp.*
 *.vsix
+packages/sample/test.txt
