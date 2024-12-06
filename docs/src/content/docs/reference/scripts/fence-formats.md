@@ -1,13 +1,11 @@
 ---
 title: Fence Formats
 sidebar:
-  order: 90
+    order: 90
 description: Explore various fence formats supported by GenAIScript for optimal
-  LLM input text formatting.
+    LLM input text formatting.
 keywords: fence format, LLM input, markdown, xml, GenAIScript
-
 ---
-
 
 GenAIScript supports various types of "fence" formats when rendering [def](/genaiscript/reference/scripts/content) function, since LLMs may behave differently depending on the format of the input text.
 **As of 1.82.0, the default format is to use XML tags.**
@@ -23,6 +21,7 @@ The following `def` call will generate a fenced region with different syntax:
 ```js
 def("TEXT", ":)", { fenceFormat: "xml" })
 ```
+
 ```markdown
 <TEXT>
 :)
@@ -34,6 +33,7 @@ def("TEXT", ":)", { fenceFormat: "xml" })
 ```js
 def("TEXT", ":)", { fenceFormat: "markdown" })
 ```
+
 ```markdown
 TEXT:
 \`\`\`
@@ -46,6 +46,7 @@ TEXT:
 ```js
 def("TEXT", ":)", { fenceFormat: "none" })
 ```
+
 ```text
 TEXT:
 :)
@@ -72,4 +73,10 @@ or at the `def` level:
 
 ```js
 def("TEXT", ":)", { fenceFormat: "xml" })
+```
+
+or through the `--fence-format` flag on the cli:
+
+```sh
+npx --yes genaiscript run ... --fence-format xml
 ```

@@ -207,6 +207,7 @@ export async function runScript(
     const fallbackTools = !!options.fallbackTools
     const logprobs = options.logprobs
     const topLogprobs = normalizeInt(options.topLogprobs)
+    const fenceFormat = options.fenceFormat
 
     if (options.json || options.yaml) overrideStdoutWithStdErr()
     if (options.model) runtimeHost.modelAliases.large.model = options.model
@@ -390,6 +391,7 @@ export async function runScript(
             fallbackTools,
             logprobs,
             topLogprobs,
+            fenceFormat,
             cliInfo: {
                 files,
             },

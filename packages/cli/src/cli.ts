@@ -180,6 +180,13 @@ export async function cli() {
         .option("--cache", "enable LLM result cache")
         .option("-cn, --cache-name <name>", "custom cache file name")
         .option("-cs, --csv-separator <string>", "csv separator", "\t")
+        .addOption(
+            new Option("-ff, --fence-format <string>", "fence format").choices([
+                "xml",
+                "markdown",
+                "none",
+            ])
+        )
         .option("-ae, --apply-edits", "apply file edits")
         .option(
             "--vars <namevalue...>",

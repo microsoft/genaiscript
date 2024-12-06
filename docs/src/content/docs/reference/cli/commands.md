@@ -52,6 +52,7 @@ Options:
   --cache                                    enable LLM result cache
   -cn, --cache-name <name>                   custom cache file name
   -cs, --csv-separator <string>              csv separator (default: "\t")
+  -ff, --fence-format <string>               fence format (choices: "xml", "markdown", "none")
   -ae, --apply-edits                         apply file edits
   --vars <namevalue...>                      variables, as name=value, stored in env.vars. Use environment variables GENAISCRIPT_VAR_name=value to pass variable through the environment
   -rr, --run-retry <number>                  number of retries for the entire run
