@@ -1,8 +1,6 @@
 script({
     model: "small",
-    tests: {
-        keywords: "paris",
-    },
+    tests: {},
 })
 
 const res = await runPrompt((ctx) => {
@@ -13,6 +11,7 @@ const res = await runPrompt((ctx) => {
     })
 })
 console.log(`inline: ${res.text}`)
+if (!/paris/i.test(res.text)) throw new Error("should not include paris")
 
 importTemplate("src/templates/basic.prompty", {
     question: "what is the capital of france?",

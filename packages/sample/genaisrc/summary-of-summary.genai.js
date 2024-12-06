@@ -1,13 +1,13 @@
 script({
     model: "small",
-    title: "summary of summary - phi3",
-    files: ["src/rag/*.md"],
+    files: "src/rag/*",
     tests: {
-        files: ["src/rag/*.md"],
+        files: ["src/rag/*"],
         keywords: ["markdown", "lorem", "microsoft"],
     },
 })
 
+if (!env.files.length) throw new Error("No files found")
 // summarize each files individually
 for (const file of env.files) {
     const { text } = await runPrompt(
@@ -15,7 +15,7 @@ for (const file of env.files) {
             _.def("FILE", file)
             _.$`Extract keywords for the contents of FILE.`
         },
-        { model: "ollama:phi3", cache: "summary_phi3" }
+        { model: "small", cache: "summary_summary" }
     )
     def("FILE", { ...file, content: text })
 }

@@ -28,3 +28,6 @@ trapi.md
 genaiscript.config.yaml
 packages/core/*.temp.*
 *.vsix
+packages/sample/test.txt
+packages/sample/poems/*.txt
+packages/sample/src/rag/markdown.md.txt

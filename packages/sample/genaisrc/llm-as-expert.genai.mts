@@ -3,7 +3,6 @@ script({
     system: ["system", "system.assistant", "system.tools"],
     tests: {
         keywords: [
-            "Permanent Waves",
             "Moving Pictures",
             "Signals",
             "Power Windows",

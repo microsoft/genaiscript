@@ -203,7 +203,7 @@ interface ModelAliasesOptions {
     visionModel?: ModelVisionType
 }
 
-interface ModelOptions extends ModelConnectionOptions {
+interface ModelOptions extends ModelConnectionOptions, ModelTemplateOptions {
     /**
      * Temperature to use. Higher temperature means more hallucination/creativity.
      * Range 0.0-2.0.
@@ -278,11 +278,6 @@ interface ModelOptions extends ModelConnectionOptions {
      * @deprecated Use `cache` instead with a string
      */
     cacheName?: string
-
-    /**
-     * Budget of tokens to apply the prompt flex renderer.
-     */
-    flexTokens?: number
 
     /**
      * A list of model ids and their maximum number of concurrent requests.
@@ -440,6 +435,25 @@ interface PromptTest {
 
 interface ContentSafetyOptions {
     contentSafety?: ContentSafetyProvider
+}
+
+/**
+ * Different ways to render a fence block.
+ */
+type FenceFormat = "markdown" | "xml" | "none"
+
+interface FenceFormatOptions {
+    /**
+     * Formatting of code sections
+     */
+    fenceFormat?: FenceFormat
+}
+
+interface ModelTemplateOptions extends FenceFormatOptions {
+    /**
+     * Budget of tokens to apply the prompt flex renderer.
+     */
+    flexTokens?: number
 }
 
 interface PromptScript
@@ -863,7 +877,7 @@ interface LineNumberingOptions {
     lineNumbers?: boolean
 }
 
-interface FenceOptions extends LineNumberingOptions {
+interface FenceOptions extends LineNumberingOptions, FenceFormatOptions {
     /**
      * Language of the fenced code block. Defaults to "markdown".
      */
@@ -960,6 +974,7 @@ interface DefOptions
  */
 interface DefDiffOptions
     extends ContextExpansionOptions,
+        FenceFormatOptions,
         LineNumberingOptions {}
 
 interface DefImagesOptions {
@@ -2332,6 +2347,7 @@ interface DataFilter {
 
 interface DefDataOptions
     extends Omit<ContextExpansionOptions, "maxTokens">,
+        FenceFormatOptions,
         DataFilter {
     /**
      * Output format in the prompt. Defaults to Markdown table rendering.
@@ -2448,12 +2464,14 @@ interface PromptTemplateString {
     role(role: ChatMessageRole): PromptTemplateString
 }
 
+type ImportTemplateArgumentType =
+    | Awaitable<string | number | boolean>
+    | (() => Awaitable<string | number | boolean>)
+
 interface ChatTurnGenerationContext {
     importTemplate(
         files: string | string[],
-        arguments?: Record<
-            string | number | boolean | (() => string | number | boolean)
-        >,
+        arguments?: Record<string, ImportTemplateArgumentType>,
         options?: ImportTemplateOptions
     ): void
     writeText(body: Awaitable<string>, options?: WriteTextOptions): void

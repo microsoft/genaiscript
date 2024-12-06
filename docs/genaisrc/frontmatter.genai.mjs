@@ -43,10 +43,14 @@ For each FILE, re-generate the front matter content as the new file content.
 `
 
 // merge logic to integrate generated frontmatter fields
-defFileMerge(function frontmatter(fn, label, before, generated) {
+defFileOutput("**/*.{md,mdx}", "Updated markdown files")
+defFileMerge((fn, label, before, generated) => {
     if (!/\.mdx?$/i.test(fn)) return undefined
     const frontmatter = MD.frontmatter(generated)
-    if (!frontmatter) return before
+    if (!frontmatter) {
+        console.log(`invalid syntax for generated frontmatter`)
+        return before
+    }
 
     const { title, description, keywords, tags } = frontmatter
     const updated = MD.updateFrontmatter(before, {

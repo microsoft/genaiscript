@@ -1,5 +1,6 @@
 script({
     model: "openai:gpt-4o",
+    group: "openai",
     files: "src/greeter.ts",
     tests: {
         files: "src/greeter.ts",

@@ -4,6 +4,7 @@ script({
     group: "vision",
     maxTokens: 4000,
     system: [],
+    files: "src/robots.jpg",
     tests: {
         files: "src/robots.jpg",
         keywords: "robot",
@@ -17,11 +18,11 @@ for (const file of env.files) {
             _.defImages(file, { detail: "low" })
         },
         {
-            model: "openai:gpt-4o",
+            model: "vision",
             maxTokens: 4000,
         }
     )
     def("OBJECTS", res.text)
 }
 
-$`Summarize the objects in images.`
+$`Summarize the content of OBJECTS.`

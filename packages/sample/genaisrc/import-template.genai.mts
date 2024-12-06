@@ -1,11 +1,11 @@
 script({
     model: "small",
     tests: {
-        keywords: ["paris", "abracadabra"],
+        keywords: ["paris", "berlin"],
     },
 })
-const question = "What is the capital of France?"
+const question = "- What is the capital of France?"
 const hint = () => {
-    return "Also add 'abracadabra' to the answer."
+    return "- What is the capital of Germinay"
 }
-importTemplate("src/templates/basic.prompty", { question, hint })
+importTemplate("src/templates/basic.prompty", { question, hint, n: 5 })

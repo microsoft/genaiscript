@@ -25,9 +25,7 @@ declare function system(options: PromptSystemArgs): void
  */
 declare function importTemplate(
     files: string | string[],
-    arguments?: Record<
-        string | number | boolean | (() => string | number | boolean)
-    >,
+    arguments?: Record<string, ImportTemplateArgumentType>,
     options?: ImportTemplateOptions
 ): void
 

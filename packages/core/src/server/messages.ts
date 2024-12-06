@@ -100,6 +100,7 @@ export interface PromptScriptRunOptions {
     jsSource: string
     logprobs: boolean
     topLogprobs: number
+    fenceFormat: FenceFormat
 
     varsMap?: Record<string, string | boolean | number | object>
 }

@@ -58,7 +58,7 @@ For example, to denote a heading, you add a number sign before it (e.g., # Headi
                 chunkSize: 128,
                 chunkOverlap: 16,
                 model: "gpt-4o",
-                lineNumbers: true
+                lineNumbers: true,
             }
         )
         console.log(chunks)

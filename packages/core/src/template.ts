@@ -420,6 +420,7 @@ async function parsePromptTemplateCore(
             checker.checkRecord("modelConcurrency")
             checker.checkObjectArray("defTools")
             checker.checkBool("logprobs")
+            checker.checkString("fenceFormat", ["markdown", "xml"])
         })
         Object.assign(checker.script, obj)
         return checker.script

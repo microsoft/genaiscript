@@ -3,6 +3,7 @@
 
 import { start } from "repl"
 import { llmifyDiff, tryParseDiff } from "./diff"
+import { MIN_LINE_NUMBER_LENGTH } from "./constants"
 
 /**
  * Adds 1-based line numbers to each line of a given text.
@@ -22,8 +23,11 @@ export function addLineNumbers(
         if (diffed !== undefined) return diffed // Return processed text if diff handling was successful
     }
 
-    return text
-        .split("\n") // Split text into lines
+    // don't add line numbers for small files
+    const lines = text.split("\n") // Split text into lines
+    if (startLine === 1 && lines.length < MIN_LINE_NUMBER_LENGTH) return text
+
+    return lines
         .map((line, i) => `[${i + startLine}] ${line}`) // Add line numbers in the format "[line_number] "
         .join("\n") // Join lines back into a single string
 }

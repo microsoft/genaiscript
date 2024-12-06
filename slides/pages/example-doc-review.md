@@ -13,7 +13,7 @@ script({
     title: "explain-diagram",
     description: "Given an image of a diagram,
     explain what it contains",
-    model: "gpt-4o",
+    model: "vision",
 })
 
 defImages(env.files)

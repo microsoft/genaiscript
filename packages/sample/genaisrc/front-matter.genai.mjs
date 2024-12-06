@@ -9,6 +9,7 @@ script({
     model: "large",
 })
 
+defFileOutput("*.{md,mdx}", "Updated markdown files")
 defFileMerge(function frontmatter(fn, label, before, generated) {
     if (!/\.mdx?$/i.test(fn)) return undefined
     const after = YAML.parse(generated)
