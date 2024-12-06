@@ -639,23 +639,6 @@ async function layoutPromptNode(root: PromptNode) {
 }
 
 export function resolveFenceFormat(modelid: string): "markdown" | "xml" {
-    const { provider, model } = parseModelIdentifier(modelid)
-    switch (provider) {
-        case MODEL_PROVIDER_OPENAI:
-        case MODEL_PROVIDER_AZURE_OPENAI:
-        case MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI:
-            return "markdown"
-        case MODEL_PROVIDER_OLLAMA:
-        case MODEL_PROVIDER_AZURE_SERVERLESS_MODELS:
-        case MODEL_PROVIDER_ANTHROPIC:
-        case MODEL_PROVIDER_LMSTUDIO:
-        case MODEL_PROVIDER_LLAMAFILE:
-        case MODEL_PROVIDER_ALIBABA:
-            return "xml"
-        default:
-            if (/llama/.test(model)) return "xml"
-            if (/gpt/.test(model)) return "markdown"
-    }
     return DEFAULT_FENCE_FORMAT
 }
 
