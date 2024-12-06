@@ -442,12 +442,14 @@ interface ContentSafetyOptions {
  */
 type FenceFormat = "markdown" | "xml" | "none"
 
-interface ModelTemplateOptions {
+interface FenceFormatOptions {
     /**
      * Formatting of code sections
      */
     fenceFormat?: FenceFormat
+}
 
+interface ModelTemplateOptions extends FenceFormatOptions {
     /**
      * Budget of tokens to apply the prompt flex renderer.
      */
@@ -875,12 +877,7 @@ interface LineNumberingOptions {
     lineNumbers?: boolean
 }
 
-interface FenceOptions extends LineNumberingOptions {
-    /**
-     * Formatting of code sections
-     */
-    fenceFormat?: FenceFormat
-
+interface FenceOptions extends LineNumberingOptions, FenceFormatOptions {
     /**
      * Language of the fenced code block. Defaults to "markdown".
      */
@@ -977,6 +974,7 @@ interface DefOptions
  */
 interface DefDiffOptions
     extends ContextExpansionOptions,
+        FenceFormatOptions,
         LineNumberingOptions {}
 
 interface DefImagesOptions {
@@ -2349,6 +2347,7 @@ interface DataFilter {
 
 interface DefDataOptions
     extends Omit<ContextExpansionOptions, "maxTokens">,
+        FenceFormatOptions,
         DataFilter {
     /**
      * Output format in the prompt. Defaults to Markdown table rendering.

@@ -213,6 +213,13 @@ export function createTextNode(
     return { type: "text", value, ...(options || {}) }
 }
 
+export function toDefRefName(
+    name: string,
+    options: FenceFormatOptions
+): string {
+    return name && options?.fenceFormat === "xml" ? `<${name}>` : name
+}
+
 // Function to create a definition node.
 export function createDef(
     name: string,
@@ -256,19 +263,10 @@ export function createDefDiff(
 }
 
 // Function to render a definition node to a string.
-function renderDefNode(
-    def: PromptDefNode,
-    modelFenceFormat: FenceFormat
-): string {
-    const {
-        name,
-        resolved: file,
-        language,
-        lineNumbers,
-        schema,
-        prediction,
-    } = def
-    let fenceFormat = def.fenceFormat || modelFenceFormat
+function renderDefNode(def: PromptDefNode): string {
+    const { name, resolved, language, lineNumbers, schema, prediction } = def
+    const { filename, content = "" } = resolved
+    let fenceFormat = def.fenceFormat
 
     const norm = (s: string, lang: string) => {
         s = (s || "").replace(/\n*$/, "")
@@ -278,11 +276,10 @@ function renderDefNode(
         return s
     }
 
-    file.content = extractRange(file.content, def)
-    const dtype = language || /\.([^\.]+)$/i.exec(file.filename)?.[1] || ""
-    let body = file.content
+    const dtype = language || /\.([^\.]+)$/i.exec(filename)?.[1] || ""
+    let body = content
     if (/^(c|t)sv$/i.test(dtype)) {
-        const parsed = !/^\s*|/.test(file.content) && CSVTryParse(file.content)
+        const parsed = !/^\s*|/.test(content) && CSVTryParse(content)
         if (parsed) {
             body = CSVToMarkdown(parsed)
             fenceFormat = "none"
@@ -296,17 +293,18 @@ function renderDefNode(
 
     let res: string
     if (name && fenceFormat === "xml") {
-        res = `\n<${name}${dtype ? ` lang="${dtype}"` : ""}${file.filename ? ` file="${file.filename}"` : ""}${schema ? ` schema=${schema}` : ""}${diffFormat}>\n${body}</${name}>\n`
+        res = `\n<${name}${dtype ? ` lang="${dtype}"` : ""}${filename ? ` file="${filename}"` : ""}${schema ? ` schema=${schema}` : ""}${diffFormat}>\n${body}</${name}>\n`
+    } else if (fenceFormat === "none") {
+        res = `\n${name ? name + ":\n" : ""}${body}\n`
     } else {
         const fence =
             language === "markdown" || language === "mdx"
                 ? MARKDOWN_PROMPT_FENCE
                 : PROMPT_FENCE
         let dfence =
-            /\.mdx?$/i.test(file.filename) || file.content?.includes(fence)
+            /\.mdx?$/i.test(filename) || content?.includes(fence)
                 ? MARKDOWN_PROMPT_FENCE
                 : fence
-        if (fenceFormat === "none") dfence = ""
         while (dfence && body.includes(dfence)) {
             dfence += "`"
         }
@@ -315,7 +313,7 @@ function renderDefNode(
             (name ? name + ":\n" : "") +
             dfence +
             dtype +
-            (file.filename ? ` file="${file.filename}"` : "") +
+            (filename ? ` file="${filename}"` : "") +
             (schema ? ` schema=${schema}` : "") +
             diffFormat +
             "\n" +
@@ -640,7 +638,7 @@ async function layoutPromptNode(root: PromptNode) {
     return changed
 }
 
-function resolveFenceFormat(modelid: string): "markdown" | "xml" {
+export function resolveFenceFormat(modelid: string): "markdown" | "xml" {
     const { provider, model } = parseModelIdentifier(modelid)
     switch (provider) {
         case MODEL_PROVIDER_OPENAI:
@@ -663,12 +661,11 @@ function resolveFenceFormat(modelid: string): "markdown" | "xml" {
 
 // Function to resolve a prompt node.
 async function resolvePromptNode(
-    modelId: string,
     encoder: TokenEncoder,
     root: PromptNode,
-    options: ModelTemplateOptions & TraceOptions
+    options: TraceOptions
 ): Promise<{ errors: number }> {
-    const { trace, fenceFormat = resolveFenceFormat(modelId) } = options || {}
+    const { trace } = options || {}
     let err = 0
     const names = new Set<string>()
     const uniqueName = (n_: string) => {
@@ -700,11 +697,11 @@ async function resolvePromptNode(
                 names.add(n.name)
                 const value = await n.value
                 n.resolved = value
-                const rendered = renderDefNode(n, fenceFormat)
+                n.resolved.content = extractRange(n.resolved.content, n)
+                const rendered = renderDefNode(n)
                 n.preview = rendered
                 n.tokens = estimateTokens(rendered, encoder)
-                if (!n.children) n.children = []
-                n.children.push(createTextNode(rendered))
+                n.children = [createTextNode(rendered)]
             } catch (e) {
                 n.error = e
             }
@@ -809,7 +806,10 @@ async function resolvePromptNode(
                 if (fs.length === 0)
                     throw new Error(`No files found for import: ${files}`)
                 for (const f of fs) {
-                    await resolveFileContent(f, { ...(options || {}), trace })
+                    await resolveFileContent(f, {
+                        ...(options || {}),
+                        trace,
+                    })
                     if (PROMPTY_REGEX.test(f.filename))
                         await resolveImportPrompty(n, f, args, options)
                     else {
@@ -830,7 +830,9 @@ async function resolvePromptNode(
             try {
                 const v = await n.value
                 n.resolved = v
-                n.preview = `![${v.filename ?? "image"}](${v.url})`
+                n.preview = n.resolved
+                    ? `![${n.resolved.filename ?? "image"}](${n.resolved.url})`
+                    : undefined
             } catch (e) {
                 n.error = e
             }
@@ -919,12 +921,15 @@ async function truncatePromptNode(
             n.maxTokens !== undefined &&
             n.tokens > n.maxTokens
         ) {
-            n.resolved.content = n.preview = truncateTextToTokens(
+            n.resolved.content = truncateTextToTokens(
                 n.resolved.content,
                 n.maxTokens,
                 encoder
             )
             n.tokens = estimateTokens(n.resolved.content, encoder)
+            const rendered = renderDefNode(n)
+            n.preview = rendered
+            n.children = [createTextNode(rendered)]
             truncated = true
             trace.log(
                 `truncated def ${n.name} to ${n.tokens} tokens (max ${n.maxTokens})`
@@ -1103,7 +1108,7 @@ export async function renderPromptNode(
     const { trace, flexTokens } = options || {}
     const { encode: encoder } = await resolveTokenEncoder(modelId)
 
-    await resolvePromptNode(modelId, encoder, node, options)
+    await resolvePromptNode(encoder, node, options)
     await tracePromptNode(trace, node)
 
     if (await deduplicatePromptNode(trace, node))
@@ -1148,8 +1153,8 @@ export async function renderPromptNode(
             errors.push(n.error)
         },
         text: async (n) => {
-            const value = n.resolved
-            if (value != undefined) appendUser(value)
+            if (n.resolved !== undefined) appendUser(n.resolved)
+            else if (typeof n.value === "string") appendUser(n.value)
         },
         def: async (n) => {
             const value = n.resolved

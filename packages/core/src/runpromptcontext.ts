@@ -22,6 +22,8 @@ import {
     PromptImage,
     PromptPrediction,
     createMcpServer,
+    toDefRefName,
+    resolveFenceFormat,
 } from "./promptdom"
 import { MarkdownTrace } from "./trace"
 import { GenerationOptions } from "./generation"
@@ -79,6 +81,8 @@ export function createChatTurnGenerationContext(
     trace: MarkdownTrace
 ): ChatTurnGenerationContext & { node: PromptNode } {
     const node: PromptNode = { children: [] }
+    const fenceFormat = options.fenceFormat || resolveFenceFormat(options.model)
+    const lineNumbers = options.lineNumbers
 
     const console = Object.freeze<PromptGenerationConsole>({
         log: (...args: any[]) => {
@@ -170,7 +174,9 @@ export function createChatTurnGenerationContext(
         def: (name, body, defOptions) => {
             name = name ?? ""
             const doptions = { ...(defOptions || {}), trace }
-            doptions.lineNumbers = doptions.lineNumbers ?? options.lineNumbers
+            doptions.lineNumbers = doptions.lineNumbers ?? lineNumbers
+            doptions.fenceFormat = doptions.fenceFormat ?? fenceFormat
+
             // shortcuts
             if (body === undefined || body === null) {
                 if (!doptions.ignoreEmpty)
@@ -251,20 +257,29 @@ export function createChatTurnGenerationContext(
                     )
                 )
             }
-
-            // TODO: support claude
-            return name
+            return toDefRefName(name, doptions)
         },
         defData: (name, data, defOptions) => {
-            appendChild(node, createDefData(name, data, defOptions))
-            return name
+            name = name ?? ""
+            const doptions = { ...(defOptions || {}), trace }
+            doptions.fenceFormat = doptions.fenceFormat ?? fenceFormat
+
+            appendChild(node, createDefData(name, data, doptions))
+            return toDefRefName(name, doptions)
         },
         defDiff: (name, left, right, defDiffOptions) => {
-            appendChild(node, createDefDiff(name, left, right, defDiffOptions))
-            return name
+            name = name ?? ""
+            const doptions = { ...(defDiffOptions || {}), trace }
+            doptions.fenceFormat = doptions.fenceFormat ?? fenceFormat
+
+            appendChild(node, createDefDiff(name, left, right, doptions))
+            return toDefRefName(name, doptions)
         },
         fence(body, options?: DefOptions) {
-            ctx.def("", body, options)
+            const doptions = { ...(options || {}), trace }
+            doptions.fenceFormat = doptions.fenceFormat ?? fenceFormat
+
+            ctx.def("", body, doptions)
             return undefined
         },
         importTemplate: (template, data, options) => {
