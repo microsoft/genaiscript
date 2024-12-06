@@ -36,7 +36,6 @@ export function resolveSystems(
         // Default systems if no responseType is specified
         if (!script.responseType) {
             systems.push("system")
-            systems.push("system.assistant")
             systems.push("system.explanations")
             systems.push("system.safety_jailbreak")
             systems.push("system.safety_harmful_content")
