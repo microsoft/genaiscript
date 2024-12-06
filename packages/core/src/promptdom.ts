@@ -138,7 +138,7 @@ export interface PromptStringTemplateNode extends PromptNode {
 export interface PromptImportTemplate extends PromptNode {
     type: "importTemplate"
     files: string | string[] // Files to import
-    args?: Record<string, string | number | boolean> // Arguments for the template
+    args?: Record<string, ImportTemplateArgumentType> // Arguments for the template
     options?: ImportTemplateOptions // Additional options
 }
 
@@ -287,9 +287,9 @@ function renderDefNode(def: PromptDefNode): string {
     }
     body = norm(body, dtype)
     const diffFormat = ""
-        //body.length > 500 && !prediction
-          //  ? " preferred_output_format=CHANGELOG"
-        //    : ""
+    //body.length > 500 && !prediction
+    //  ? " preferred_output_format=CHANGELOG"
+    //    : ""
 
     let res: string
     if (name && fenceFormat === "xml") {
@@ -429,14 +429,14 @@ export function createFileOutput(output: FileOutput): FileOutputNode {
 // Function to create an import template node.
 export function createImportTemplate(
     files: string | string[],
-    args?: Record<string, string | number | boolean>,
+    args?: Record<string, ImportTemplateArgumentType>,
     options?: ImportTemplateOptions
 ): PromptImportTemplate {
     assert(!!files)
     return {
         type: "importTemplate",
         files,
-        args,
+        args: args || {},
         options,
     } satisfies PromptImportTemplate
 }
@@ -788,17 +788,25 @@ async function resolvePromptNode(
                 ).map((filename) => <WorkspaceFile>{ filename })
                 if (fs.length === 0)
                     throw new Error(`No files found for import: ${files}`)
+
+                const resolvedArgs: Record<string, string | number | boolean> =
+                    {}
+                for (const argkv of Object.entries(args || {})) {
+                    let [argk, argv] = argkv
+                    if (typeof argv === "function") argv = argv()
+                    resolvedArgs[argk] = await argv
+                }
                 for (const f of fs) {
                     await resolveFileContent(f, {
                         ...(options || {}),
                         trace,
                     })
                     if (PROMPTY_REGEX.test(f.filename))
-                        await resolveImportPrompty(n, f, args, options)
+                        await resolveImportPrompty(n, f, resolvedArgs, options)
                     else {
                         const rendered = await interpolateVariables(
                             f.content,
-                            args
+                            resolvedArgs
                         )
                         n.children.push(createTextNode(rendered))
                         n.preview += rendered + "\n"

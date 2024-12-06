@@ -27,7 +27,7 @@ tests:
     keywords: "paris"
 ---
 system:
-You are an AI assistant who helps people find information.
+You are an AI assistant who helps people find information. Answer all questions to the best of your ability.
 As the assistant, you answer questions briefly, succinctly. 
 
 {% if n > 0 %}

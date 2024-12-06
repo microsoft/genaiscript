@@ -2464,12 +2464,14 @@ interface PromptTemplateString {
     role(role: ChatMessageRole): PromptTemplateString
 }
 
+type ImportTemplateArgumentType =
+    | Awaitable<string | number | boolean>
+    | (() => Awaitable<string | number | boolean>)
+
 interface ChatTurnGenerationContext {
     importTemplate(
         files: string | string[],
-        arguments?: Record<
-            string | number | boolean | (() => string | number | boolean)
-        >,
+        arguments?: Record<string, ImportTemplateArgumentType>,
         options?: ImportTemplateOptions
     ): void
     writeText(body: Awaitable<string>, options?: WriteTextOptions): void
