@@ -427,6 +427,7 @@ async function listModels(
             ...getConfigHeaders(cfg),
             Accept: "application/json",
         },
+        retries: 0
     })
     if (res.status !== 200) return []
     const { data } = (await res.json()) as {

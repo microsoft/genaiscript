@@ -81,6 +81,7 @@ async function listModels(
     // Fetch the list of models from the remote API
     const res = await fetch(cfg.base.replace("/v1", "/api/tags"), {
         method: "GET",
+        retries: 0,
     })
     if (res.status !== 200) return []
     // Parse and format the response into LanguageModelInfo objects
