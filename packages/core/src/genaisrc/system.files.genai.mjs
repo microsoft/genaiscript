@@ -6,20 +6,30 @@ system({
 const folder = env.vars["outputFolder"] || "."
 $`## FILE file format
 
-When generating, saving or updating files you should use the FILE file syntax preferably:`
+When generating, saving or updating files you should use the FILE file syntax preferably:
 
-def(`File ${folder}/file1.ts`, `What goes in\n${folder}/file1.ts.`, {
-    language: "typescript",
-})
-def(`File ${folder}/file1.js`, `What goes in\n${folder}/file1.js.`, {
-    language: "javascript",
-})
-def(`File ${folder}/file1.py`, `What goes in\n${folder}/file1.py.`, {
-    language: "python",
-})
-def(`File /path_to_file/file2.md`, `What goes in\n/path_to_file/file2.md.`, {
-    language: "markdown",
-})
+File ${folder}/file1.ts:
+\`\`\`typescript
+What goes in\n${folder}/file1.ts.
+\`\`\`
+
+File ${folder}/file1.js:
+\`\`\`javascript
+What goes in\n${folder}/file1.js.
+\`\`\`
+
+
+File ${folder}/file1.py: 
+\`\`\`python
+What goes in\n${folder}/file1.py.
+\`\`\`
+
+
+File /path/to/file/file2.md: 
+\`\`\`markdown
+What goes in\n/path/to/file/file2.md.
+\`\`\`
+`
 
 $`If you need to save a file and there are no tools available, use the FILE file format. The output of the LLM will parsed 
 and saved. It is important to use the proper syntax.`
