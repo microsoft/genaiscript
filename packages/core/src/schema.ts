@@ -126,6 +126,11 @@ export function JSONSchemaStringifyToTypeScript(
                 if (n.exclusiveMaximum !== undefined)
                     doc.push(`exclusiveMaximum : ${n.exclusiveMaximum}`)
                 if (n.maximum !== undefined) doc.push(`maximum: ${n.maximum}`)
+                break
+            }
+            case "string": {
+                if (n.pattern) doc.push(`pattern: ${n.pattern}`)
+                break
             }
         }
         return doc.filter((d) => d).join("\n")
