@@ -6,11 +6,10 @@ script({
     },
 })
 
-def("START", env.files, { lineStart: 23 })
-def("END", env.files, { lineEnd: 27 })
+def("START", env.files, { lineStart: 29 })
+def("END", env.files, { lineEnd: 40 })
+def("RANGE", env.files, { lineStart: 29, lineEnd: 40 })
 
-def("RANGE", env.files, { lineStart: 23, lineEnd: 27 })
-
-$`Respond CORRECT1 if START start with "system:" otherwise INCORRECT`
-$`Respond CORRECT2 if END end with "user:" otherwise INCORRECT`
-$`Respond CORRECT3 if RANGE start with "system:" and end with "user:" otherwise INCORRECT`
+$`Respond CORRECT1 if START starts with "system:" otherwise INCORRECT
+Respond CORRECT2 if END ends with "user:" otherwise INCORRECT
+Respond CORRECT3 if RANGE starts with "system:" and end with "user:" otherwise INCORRECT`.role("system")
