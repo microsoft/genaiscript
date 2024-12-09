@@ -33,6 +33,6 @@ jobs:
               env:
                   ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
             - name: cache
-              run: yarn test:scripts summarize-cached --models anthropic:claude-3-5-sonnet-20240620 --out-trace $GITHUB_STEP_SUMMARY
+              run: yarn test:scripts summarize-cached --models anthropic:claude-3-5-sonnet-20240620
               env:
                   ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
