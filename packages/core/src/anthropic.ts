@@ -5,7 +5,7 @@ import { parseModelIdentifier } from "./models"
 import { NotSupportedError, serializeError } from "./error"
 import { estimateTokens } from "./tokens"
 import { resolveTokenEncoder } from "./encoders"
-import Anthropic from "@anthropic-ai/sdk"
+import type { Anthropic } from "@anthropic-ai/sdk"
 
 import {
     ChatCompletionResponse,
@@ -199,6 +199,7 @@ export const AnthropicChatCompletion: ChatCompletionHandler = async (
     const { model } = parseModelIdentifier(req.model)
     const { encode: encoder } = await resolveTokenEncoder(model)
 
+    const Anthropic = (await import("@anthropic-ai/sdk")).default
     const anthropic = new Anthropic({
         baseURL: cfg.base,
         apiKey: cfg.token,
