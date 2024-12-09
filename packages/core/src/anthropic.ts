@@ -246,6 +246,8 @@ export const AnthropicChatCompletion: ChatCompletionHandler = async (
     let usage: ChatCompletionResponse["usage"] | undefined
     const toolCalls: ChatCompletionToolCall[] = []
 
+    trace.appendContent("\n")
+
     try {
         const messagesApi = caching
             ? anthropic.beta.promptCaching.messages
