@@ -52,6 +52,10 @@ and will extract the `data.json` file automatically.
 
 Get started quickly by installing the [Visual Studio Code Extension](https://microsoft.github.io/genaiscript/getting-started/installation/) or using the [command line](https://microsoft.github.io/genaiscript/getting-started/installation).
 
+```sh
+npm install -g genaiscript
+```
+
 ---
 
 ## ✨ Features
