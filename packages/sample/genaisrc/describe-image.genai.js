@@ -15,7 +15,7 @@ script({
         },
         {
             files: "https://github.com/microsoft/genaiscript/blob/main/docs/public/images/logo.png?raw=true",
-            keywords: "yellow",
+            keywords: "logo",
         },
     ],
 })
