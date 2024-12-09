@@ -143,7 +143,7 @@ export async function runScriptWithExitCode(
                 host.path.basename(scriptId).replace(GENAI_ANYTS_REGEX, ""),
                 `${new Date().toISOString().replace(/[:.]/g, "-")}.trace.md`
             )
-        const res = await runScript(scriptId, files, { ...options, outTrace })
+        const res = await runScriptInternal(scriptId, files, { ...options, outTrace })
         exitCode = res.exitCode
         if (
             exitCode === SUCCESS_ERROR_CODE ||
@@ -162,7 +162,7 @@ export async function runScriptWithExitCode(
     process.exit(exitCode)
 }
 
-export async function runScript(
+export async function runScriptInternal(
     scriptId: string,
     files: string[],
     options: Partial<PromptScriptRunOptions> &

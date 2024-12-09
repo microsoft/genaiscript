@@ -1,0 +1,64 @@
+---
+title: Node.JS API
+sidebar:
+    order: 50
+---
+
+import { Tabs, TabItem } from "@astrojs/starlight/components"
+
+This page describes how to import and use the [cli](/genaiscript/reference/cli) as an API in your Node.JS application.
+
+Assuming you have have added the cli as a dependency in your project, you can import the cli as follows:
+
+<Tabs>
+  <TabItem value="npm" label="npm">
+
+```sh
+npm install -D genaiscript
+```
+
+</TabItem>
+
+  <TabItem value="yarn" label="yarn">
+
+```sh
+yarn add -D genaiscript
+```
+
+</TabItem>
+
+</Tabs>
+
+The API can be imported using imports from **"genaiscript/api"**.
+
+```javascript
+import { runScript } from "genaiscript/api"
+```
+
+The imported `api.mjs` wrapper is a tiny, zero dependency loader that
+spawns a [Node.JS worker thread](https://nodejs.org/api/worker_threads.html) to run GenAIScript.
+
+- No pollutation of the globals
+- No side effects on the process
+
+## `run`
+
+The `run` function wraps the [cli run](/genaiscript/reference/cli/run) command.
+
+```javascript
+import { run } from "genaiscript/api"
+
+const results = await run("summarize", ["myfile.txt"])
+```
+
+### Environment variables
+
+You can set the environment variables for the GenAIScript process by passing an object as the `env` field in the options. By default, the worker will inherit `process.env`.
+
+```javascript
+const results = await run("summarize", ["myfile.txt"], {
+    env: {
+        MY_ENV_VAR: "value",
+    },
+})
+```

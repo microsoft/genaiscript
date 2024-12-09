@@ -1,7 +1,7 @@
 import { WebSocketServer } from "ws"
 import { runPromptScriptTests } from "./test"
 import { PROMPTFOO_VERSION } from "./version"
-import { runScript } from "./run"
+import { runScriptInternal } from "./run"
 import { AbortSignalCancellationController } from "../../core/src/cancellation"
 import {
     SERVER_PORT,
@@ -304,7 +304,7 @@ export async function startServer(options: { port: string; apiKey?: string }) {
                             )
                         })
                         logVerbose(`run ${runId}: starting ${script}`)
-                        const runner = runScript(script, files, {
+                        const runner = runScriptInternal(script, files, {
                             ...options,
                             trace,
                             cancellationToken: canceller.token,

@@ -81,7 +81,7 @@ export const DEFAULT_SMALL_MODEL_CANDIDATES = [
     "azure_serverless:gpt-4o-mini",
     DEFAULT_SMALL_MODEL,
     "google:gemini-1.5-flash-002",
-    "anthropic:claude-instant-1",
+    "anthropic:claude-instant-1.2",
     "mistral:mistral-small-latest",
     "github:gpt-4o-mini",
     "client:gpt-4-mini",
