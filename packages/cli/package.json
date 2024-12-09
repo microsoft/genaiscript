@@ -6,6 +6,10 @@
     "bin": {
         "genaiscript": "built/genaiscript.cjs"
     },
+    "exports": {
+        ".": "./built/genaiscript.cjs",
+        "./package.json": "./package.json"
+    },
     "files": [
         "built/genaiscript.cjs"
     ],

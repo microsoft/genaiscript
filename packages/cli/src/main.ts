@@ -1,6 +1,3 @@
-// Main entry point for the CLI application
-
-// Import necessary modules and functions
 import { installGlobals } from "../../core/src/globals"
 import { cli } from "./cli"
 import { workerData } from "node:worker_threads"

@@ -13,8 +13,8 @@ import { logVerbose } from "../../core/src/util"
  */
 export async function runScript(
     scriptId: string,
-    files: string[],
-    options: Partial<PromptScriptRunOptions>
+    files?: string[],
+    options?: Partial<PromptScriptRunOptions>
 ): Promise<{
     exitCode: number
     result?: GenerationResult
