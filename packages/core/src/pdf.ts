@@ -7,11 +7,6 @@ import { serializeError } from "./error"
 import { logVerbose, logWarn } from "./util"
 import { PDF_SCALE } from "./constants"
 
-// Declare a global type for SVGGraphics as any
-declare global {
-    export type SVGGraphics = any
-}
-
 let standardFontDataUrl: string
 
 /**

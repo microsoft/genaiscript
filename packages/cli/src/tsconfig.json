@@ -3,7 +3,9 @@
     "compilerOptions": {
         "types": ["node"],
         "declarationDir": "../built/types",
-        "outDir": "../built"
+        "outDir": "../built",
+        "skipLibCheck": true,
+        "emitDeclarationOnly": true
     },
     "include": [".", "../../core/src/types/*.d.ts"]
 }

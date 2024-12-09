@@ -3,8 +3,10 @@ import { cli } from "./cli"
 import { workerData } from "node:worker_threads"
 import { worker } from "./worker"
 import { runScript } from "./api"
+import { PromptScriptRunOptions } from "../../core/src/server/messages"
+import { GenerationResult } from "../../core/src/generation"
 
-export { runScript }
+export { runScript, type PromptScriptRunOptions, type GenerationResult }
 
 // if this file is not the entry point, skip cli
 if (require.main === module) {
