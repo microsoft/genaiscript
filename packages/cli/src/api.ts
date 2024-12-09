@@ -1,5 +1,5 @@
-import { GenerationResult } from "../../core/src/generation"
-import { PromptScriptRunOptions } from "../../core/src/server/messages"
+import type { GenerationResult } from "../../core/src/generation"
+import type { PromptScriptRunOptions } from "../../core/src/server/messages"
 import { Worker } from "node:worker_threads"
 import { fileURLToPath } from "url"
 import { dirname, join } from "node:path"
@@ -27,6 +27,7 @@ export async function runScript(
         files: files || [],
         options,
     }
+
     const filename =
         typeof __filename === "undefined"
             ? join(dirname(fileURLToPath(import.meta.url)), "genaiscript.cjs")
