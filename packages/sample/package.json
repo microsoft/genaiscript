@@ -20,7 +20,7 @@
     "@agentic/weather": "^7.2.0",
     "@azure/identity": "^4.5.0",
     "@azure/storage-blob": "^12.26.0",
-    "@huggingface/transformers": "^3.1.1",
+    "@huggingface/transformers": "^3.1.2",
     "@modelcontextprotocol/sdk": "^1.0.3",
     "@tidyjs/tidy": "^2.5.2",
     "p-all": "^5.0.0",

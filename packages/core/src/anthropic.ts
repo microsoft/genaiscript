@@ -22,6 +22,7 @@ import {
 } from "./chattypes"
 
 import { logError } from "./util"
+import { resolveHttpProxyAgent } from "./proxy"
 
 const convertFinishReason = (
     stopReason: Anthropic.Message["stop_reason"]
@@ -199,10 +200,12 @@ export const AnthropicChatCompletion: ChatCompletionHandler = async (
     const { model } = parseModelIdentifier(req.model)
     const { encode: encoder } = await resolveTokenEncoder(model)
 
-    const Anthropic = (await import("@anthropic-ai/sdk")).default
+    const { default: Anthropic } = await import("@anthropic-ai/sdk")
+    const httpAgent = resolveHttpProxyAgent()
     const anthropic = new Anthropic({
         baseURL: cfg.base,
         apiKey: cfg.token,
+        httpAgent,
     })
 
     trace.itemValue(`url`, `[${anthropic.baseURL}](${anthropic.baseURL})`)
