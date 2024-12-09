@@ -141,9 +141,7 @@ export function createChatTurnGenerationContext(
         $: (strings, ...args) => {
             const current = createStringTemplateNode(strings, args)
             appendChild(node, current)
-            const res: PromptTemplateString = Object.freeze(<
-                PromptTemplateString
-            >{
+            const res: PromptTemplateString = Object.freeze({
                 priority: (priority) => {
                     current.priority = priority
                     return res
@@ -168,7 +166,11 @@ export function createChatTurnGenerationContext(
                     current.role = r
                     return res
                 },
-            })
+                cacheControl: (cc) => {
+                    current.ephemeral = cc === "ephemeral"
+                    return res
+                }
+            } satisfies PromptTemplateString)
             return res
         },
         def: (name, body, defOptions) => {

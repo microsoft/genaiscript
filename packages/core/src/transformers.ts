@@ -24,7 +24,7 @@ import { PLimitPromiseQueue } from "./concurrency"
 function progressBar(): ProgressCallback {
     const progress: Record<string, number> = {}
     return (cb: ProgressInfo) => {
-        switch (cb.status as string) {
+        switch (cb.status) {
             case "progress":
                 const p = progress[cb.file] || 0
                 const cp = Math.floor(cb.progress)
@@ -34,7 +34,7 @@ function progressBar(): ProgressCallback {
                 }
                 break
             case "ready": {
-                logVerbose(`model ${(cb as any).model} ready`)
+                logVerbose(`model ${cb.model} ready`)
                 logVerbose(``)
                 break
             }
