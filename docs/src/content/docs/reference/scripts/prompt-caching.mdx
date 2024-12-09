@@ -7,9 +7,6 @@ sidebar:
 Prompt caching is a feature that can reduce processing time and costs for repetitive prompts.
 It is supported by various LLM providers, but the implementation may vary.
 
-- OpenAI implements an automatic [cache prefix](https://openai.com/index/api-prompt-caching/).
-- Anthropic supports settting [cache breakpoints](https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching)
-
 ## `ephemeral`
 
 You can mark `def` section or `$` function with `cacheControl` set as `"ephemeral"` to enable prompt caching optimization. This essentially means that it
@@ -30,8 +27,14 @@ In most cases, the `ephemeral` hint is ignored by LLM providers. However, the fo
 ### OpenAI, Azure OpenAI
 
 [Prompt caching](https://platform.openai.com/docs/guides/prompt-caching) of the prompt prefix
-is automatically enabled by OpenAI.
+is automatically enabled by OpenAI. All ephemeral annotations are removed.
+
+- [OpenAI Documentation](https://openai.com/index/api-prompt-caching/).
 
 ### Anthropic
 
-- Anthropic: it is translated into a `'cache-control': { ... }` field in the message object
+The `ephemeral` annotation is converted into `'cache-control': { ... }` field in the message object.
+
+Note that prompt caching is still marked as beta and not supported in all models (specially the older ones).
+
+- [Anthropic Documentation](https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching)
