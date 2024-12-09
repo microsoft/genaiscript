@@ -347,5 +347,10 @@
     "mistral:mistral-nemo": {
         "price_per_million_input_tokens": 0.2,
         "price_per_million_output_tokens": 0.6
+    },
+    "anthropic:claude-3-5-sonnet-20240620": {
+        "price_per_million_input_tokens": 3,
+        "price_per_million_output_tokens": 15,
+        "input_cache_token_rebate": 0.1
     }
 }

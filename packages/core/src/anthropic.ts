@@ -47,14 +47,19 @@ const convertUsage = (
         | undefined
 ): ChatCompletionUsage | undefined => {
     if (!usage) return undefined
-    return {
+    const res = {
         prompt_tokens:
             usage.input_tokens +
             (usage.cache_creation_input_tokens || 0) +
             (usage.cache_read_input_tokens || 0),
         completion_tokens: usage.output_tokens,
         total_tokens: usage.input_tokens + usage.output_tokens,
-    } satisfies ChatCompletionUsage
+    } as ChatCompletionUsage
+    if (usage.cache_read_input_tokens)
+        res.prompt_tokens_details = {
+            cached_tokens: usage.cache_read_input_tokens,
+        }
+    return res
 }
 const adjustUsage = (
     usage: ChatCompletionUsage,
@@ -279,7 +284,10 @@ export const AnthropicChatCompletion: ChatCompletionHandler = async (
 
             switch (chunk.type) {
                 case "message_start":
-                    usage = convertUsage(chunk.message.usage)
+                    usage = convertUsage(
+                        chunk.message
+                            .usage as Anthropic.Beta.PromptCaching.Messages.PromptCachingBetaUsage
+                    )
                     break
 
                 case "content_block_start":
