@@ -42,11 +42,16 @@ const convertFinishReason = (
 }
 
 const convertUsage = (
-    usage: Anthropic.Usage | undefined
+    usage:
+        | Anthropic.Beta.PromptCaching.Messages.PromptCachingBetaUsage
+        | undefined
 ): ChatCompletionUsage | undefined => {
     if (!usage) return undefined
     return {
-        prompt_tokens: usage.input_tokens,
+        prompt_tokens:
+            usage.input_tokens +
+            (usage.cache_creation_input_tokens || 0) +
+            (usage.cache_read_input_tokens || 0),
         completion_tokens: usage.output_tokens,
         total_tokens: usage.input_tokens + usage.output_tokens,
     } satisfies ChatCompletionUsage
