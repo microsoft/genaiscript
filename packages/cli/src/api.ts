@@ -1,7 +1,6 @@
 import { GenerationResult } from "../../core/src/generation"
 import { PromptScriptRunOptions } from "../../core/src/server/messages"
 import { Worker } from "node:worker_threads"
-import { logVerbose } from "../../core/src/util"
 
 /**
  * Runs a GenAIScript script with the given files and options.
@@ -28,7 +27,7 @@ export async function runScript(
     }
     const worker = new Worker(__filename, { workerData, name: label })
     return new Promise((resolve, reject) => {
-        worker.on("online", () => logVerbose(`worker: online`))
+        worker.on("online", () => process.stderr.write(`worker: online\n`))
         worker.on("message", resolve)
         worker.on("error", reject)
     })
