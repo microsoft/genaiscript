@@ -1,0 +1,38 @@
+name: anthropic tests
+on:
+    workflow_dispatch:
+    pull_request:
+        paths:
+            - yarn.lock
+            - ".github/workflows/anthropic.yml"
+            - "packages/core/**/*"
+            - "packages/cli/**/*"
+            - "packages/samples/**/*"
+concurrency:
+    group: ${{ github.workflow }}-${{ github.ref }}-ollama
+    cancel-in-progress: true
+jobs:
+    tests:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  submodules: "recursive"
+                  fetch-depth: 0
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: "20"
+                  cache: yarn
+            - run: yarn install --frozen-lockfile
+            - name: typecheck
+              run: yarn typecheck
+            - name: compile
+              run: yarn compile
+            - name: poem
+              run: yarn run:script poem --model anthropic:claude-3-5-sonnet-20240620 --out-trace $GITHUB_STEP_SUMMARY
+              env:
+                  ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+            - name: cache
+              run: yarn test:scripts summarize-cached --model anthropic:claude-3-5-sonnet-20240620 --out-trace $GITHUB_STEP_SUMMARY
+              env:
+                  ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
