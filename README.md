@@ -271,13 +271,19 @@ Write me a poem
 
 ---
 
-### ⚙ Automate with CLI
+### ⚙ Automate with CLI or API
 
-Automate using the [CLI](https://microsoft.github.io/genaiscript/reference/cli), integrate reports in your CI/CD pipeline.
+Automate using the [CLI](https://microsoft.github.io/genaiscript/reference/cli) or [API](https://microsoft.github.io/genaiscript/reference/cli/api).
 
 ```bash
 npx genaiscript run tlaplus-linter "*.tla"
 ```
+
+```js
+import { run } from "genaiscript/api"
+
+const res = await run("tlaplus-linter", "*.tla")
+``` 
 
 ---
 
