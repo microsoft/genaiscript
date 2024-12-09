@@ -8,6 +8,7 @@
   },
   "exports": {
     ".": "./built/genaiscript.cjs",
+    "./api": "./built/api.mjs",
     "./package.json": "./package.json"
   },
   "files": [
