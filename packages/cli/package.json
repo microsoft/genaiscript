@@ -1,116 +1,116 @@
 {
-    "name": "genaiscript",
-    "version": "1.82.0",
-    "main": "built/genaiscript.cjs",
-    "type": "commonjs",
-    "bin": {
-        "genaiscript": "built/genaiscript.cjs"
-    },
-    "exports": {
-        ".": "./built/genaiscript.cjs",
-        "./package.json": "./package.json"
-    },
-    "files": [
-        "built/api.mjs",
-        "built/genaiscript.cjs"
-    ],
-    "publisher": "Microsoft",
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/microsoft/genaiscript.git"
-    },
-    "homepage": "https://microsoft.github.io/genaiscript",
-    "keywords": [
-        "genai",
-        "ai",
-        "agentic",
-        "agent",
-        "cli",
-        "prompt",
-        "llm",
-        "generative ai",
-        "gpt4",
-        "chatgpt",
-        "ollama",
-        "llamacpp",
-        "chatgpt"
-    ],
-    "description": "A CLI for GenAIScript, a generative AI scripting framework.",
-    "license": "MIT",
-    "dependencies": {
-        "@anthropic-ai/sdk": "^0.32.1",
-        "@azure/identity": "^4.5.0",
-        "@inquirer/prompts": "^7.2.0",
-        "@modelcontextprotocol/sdk": "^1.0.3",
-        "@octokit/plugin-paginate-rest": "^11.3.6",
-        "@octokit/plugin-retry": "^7.1.2",
-        "@octokit/plugin-throttling": "^9.3.2",
-        "@octokit/rest": "^21.0.2",
-        "dockerode": "^4.0.2",
-        "gpt-tokenizer": "^2.8.1",
-        "html-to-text": "^9.0.5",
-        "jimp": "^1.6.0",
-        "mammoth": "^1.8.0",
-        "mathjs": "^14.0.0",
-        "tabletojson": "^4.1.5",
-        "tsx": "^4.19.2",
-        "turndown": "^7.2.0",
-        "turndown-plugin-gfm": "^1.0.2",
-        "typescript": "5.7.2",
-        "vectra": "^0.9.0",
-        "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz"
-    },
-    "optionalDependencies": {
-        "@huggingface/transformers": "^3.1.2",
-        "@lvce-editor/ripgrep": "^1.5.0",
-        "pdfjs-dist": "4.9.155",
-        "playwright": "^1.49.0",
-        "skia-canvas": "^2.0.1",
-        "tree-sitter-wasms": "^0.1.11",
-        "web-tree-sitter": "0.22.2"
-    },
-    "engines": {
-        "node": ">=20.0.0"
-    },
-    "peerDependencies": {
-        "promptfoo": "0.100.3"
-    },
-    "devDependencies": {
-        "@types/diff": "^6.0.0",
-        "@types/dockerode": "^3.3.32",
-        "@types/fs-extra": "^11.0.4",
-        "@types/memorystream": "^0.3.4",
-        "@types/node": "^22.10.1",
-        "@types/papaparse": "^5.3.15",
-        "@types/prompts": "^2.4.9",
-        "@types/replace-ext": "^2.0.2",
-        "@types/ws": "^8.5.13",
-        "commander": "^12.1.0",
-        "diff": "^7.0.0",
-        "dotenv": "^16.4.7",
-        "es-toolkit": "^1.29.0",
-        "esbuild": "^0.24.0",
-        "execa": "^9.5.1",
-        "fs-extra": "^11.2.0",
-        "glob": "^11.0.0",
-        "memorystream": "^0.3.1",
-        "node-sarif-builder": "^3.2.0",
-        "octokit": "^4.0.2",
-        "openai": "^4.76.0",
-        "pretty-bytes": "^6.1.1",
-        "replace-ext": "^2.0.0",
-        "ws": "^8.18.0",
-        "zx": "^8.2.4"
-    },
-    "scripts": {
-        "compile": "esbuild src/api.ts --outfile=built/api.mjs && esbuild src/main.ts --metafile=./esbuild.meta.json --bundle --platform=node --target=node20 --outfile=built/genaiscript.cjs --external:tsx --external:esbuild --external:get-tsconfig --external:resolve-pkg-maps --external:dockerode --external:pdfjs-dist --external:web-tree-sitter --external:tree-sitter-wasms --external:promptfoo --external:typescript --external:@lvce-editor/ripgrep --external:gpt-3-encoder --external:mammoth --external:xlsx --external:mathjs --external:@azure/identity --external:gpt-tokenizer --external:playwright --external:@inquirer/prompts --external:jimp --external:turndown --external:turndown-plugin-gfm --external:vectra --external:tabletojson --external:html-to-text --external:@octokit/rest --external:@octokit/plugin-throttling --external:@octokit/plugin-retry --external:@octokit/plugin-paginate-rest --external:skia-canvas --external:@huggingface/transformers --external:@modelcontextprotocol/sdk --external:@anthropic-ai/sdk && node ../../scripts/patch-cli.mjs",
-        "compile-debug": "esbuild src/main.ts --sourcemap --metafile=./esbuild.meta.json --bundle --platform=node --target=node20 --outfile=built/genaiscript.cjs --external:tsx --external:esbuild --external:get-tsconfig --external:resolve-pkg-maps --external:dockerode --external:pdfjs-dist --external:web-tree-sitter --external:tree-sitter-wasms --external:promptfoo --external:typescript --external:@lvce-editor/ripgrep --external:gpt-3-encoder --external:mammoth --external:xlsx --external:mathjs --external:@azure/identity --external:gpt-tokenizer --external:playwright --external:@inquirer/prompts --external:jimp --external:turndown --external:turndown-plugin-gfm --external:vectra --external:tabletojson --external:html-to-text --external:@octokit/rest --external:@octokit/plugin-throttling --external:@octokit/plugin-retry --external:@octokit/plugin-paginate-rest --external:skia-canvas --external:@huggingface/transformers --external:@modelcontextprotocol/sdk --external:@anthropic-ai/sdk",
-        "postcompile": "node built/genaiscript.cjs info help > ../../docs/src/content/docs/reference/cli/commands.md",
-        "vis:treemap": "npx --yes esbuild-visualizer --metadata esbuild.meta.json --filename esbuild.treemap.html",
-        "vis:network": "npx --yes esbuild-visualizer --metadata esbuild.meta.json --filename esbuild.network.html --template network",
-        "go": "yarn compile && node built/genaiscript.cjs",
-        "test": "node --import tsx --test src/**.test.ts",
-        "typecheck": "tsc -p src",
-        "lint": "npx --yes publint"
-    }
+  "name": "genaiscript",
+  "version": "1.83.0",
+  "main": "built/genaiscript.cjs",
+  "type": "commonjs",
+  "bin": {
+    "genaiscript": "built/genaiscript.cjs"
+  },
+  "exports": {
+    ".": "./built/genaiscript.cjs",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "built/api.mjs",
+    "built/genaiscript.cjs"
+  ],
+  "publisher": "Microsoft",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/microsoft/genaiscript.git"
+  },
+  "homepage": "https://microsoft.github.io/genaiscript",
+  "keywords": [
+    "genai",
+    "ai",
+    "agentic",
+    "agent",
+    "cli",
+    "prompt",
+    "llm",
+    "generative ai",
+    "gpt4",
+    "chatgpt",
+    "ollama",
+    "llamacpp",
+    "chatgpt"
+  ],
+  "description": "A CLI for GenAIScript, a generative AI scripting framework.",
+  "license": "MIT",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.32.1",
+    "@azure/identity": "^4.5.0",
+    "@inquirer/prompts": "^7.2.0",
+    "@modelcontextprotocol/sdk": "^1.0.3",
+    "@octokit/plugin-paginate-rest": "^11.3.6",
+    "@octokit/plugin-retry": "^7.1.2",
+    "@octokit/plugin-throttling": "^9.3.2",
+    "@octokit/rest": "^21.0.2",
+    "dockerode": "^4.0.2",
+    "gpt-tokenizer": "^2.8.1",
+    "html-to-text": "^9.0.5",
+    "jimp": "^1.6.0",
+    "mammoth": "^1.8.0",
+    "mathjs": "^14.0.0",
+    "tabletojson": "^4.1.5",
+    "tsx": "^4.19.2",
+    "turndown": "^7.2.0",
+    "turndown-plugin-gfm": "^1.0.2",
+    "typescript": "5.7.2",
+    "vectra": "^0.9.0",
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz"
+  },
+  "optionalDependencies": {
+    "@huggingface/transformers": "^3.1.2",
+    "@lvce-editor/ripgrep": "^1.5.0",
+    "pdfjs-dist": "4.9.155",
+    "playwright": "^1.49.0",
+    "skia-canvas": "^2.0.1",
+    "tree-sitter-wasms": "^0.1.11",
+    "web-tree-sitter": "0.22.2"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "peerDependencies": {
+    "promptfoo": "0.100.3"
+  },
+  "devDependencies": {
+    "@types/diff": "^6.0.0",
+    "@types/dockerode": "^3.3.32",
+    "@types/fs-extra": "^11.0.4",
+    "@types/memorystream": "^0.3.4",
+    "@types/node": "^22.10.1",
+    "@types/papaparse": "^5.3.15",
+    "@types/prompts": "^2.4.9",
+    "@types/replace-ext": "^2.0.2",
+    "@types/ws": "^8.5.13",
+    "commander": "^12.1.0",
+    "diff": "^7.0.0",
+    "dotenv": "^16.4.7",
+    "es-toolkit": "^1.29.0",
+    "esbuild": "^0.24.0",
+    "execa": "^9.5.1",
+    "fs-extra": "^11.2.0",
+    "glob": "^11.0.0",
+    "memorystream": "^0.3.1",
+    "node-sarif-builder": "^3.2.0",
+    "octokit": "^4.0.2",
+    "openai": "^4.76.0",
+    "pretty-bytes": "^6.1.1",
+    "replace-ext": "^2.0.0",
+    "ws": "^8.18.0",
+    "zx": "^8.2.4"
+  },
+  "scripts": {
+    "compile": "esbuild src/api.ts --outfile=built/api.mjs && esbuild src/main.ts --metafile=./esbuild.meta.json --bundle --platform=node --target=node20 --outfile=built/genaiscript.cjs --external:tsx --external:esbuild --external:get-tsconfig --external:resolve-pkg-maps --external:dockerode --external:pdfjs-dist --external:web-tree-sitter --external:tree-sitter-wasms --external:promptfoo --external:typescript --external:@lvce-editor/ripgrep --external:gpt-3-encoder --external:mammoth --external:xlsx --external:mathjs --external:@azure/identity --external:gpt-tokenizer --external:playwright --external:@inquirer/prompts --external:jimp --external:turndown --external:turndown-plugin-gfm --external:vectra --external:tabletojson --external:html-to-text --external:@octokit/rest --external:@octokit/plugin-throttling --external:@octokit/plugin-retry --external:@octokit/plugin-paginate-rest --external:skia-canvas --external:@huggingface/transformers --external:@modelcontextprotocol/sdk --external:@anthropic-ai/sdk && node ../../scripts/patch-cli.mjs",
+    "compile-debug": "esbuild src/main.ts --sourcemap --metafile=./esbuild.meta.json --bundle --platform=node --target=node20 --outfile=built/genaiscript.cjs --external:tsx --external:esbuild --external:get-tsconfig --external:resolve-pkg-maps --external:dockerode --external:pdfjs-dist --external:web-tree-sitter --external:tree-sitter-wasms --external:promptfoo --external:typescript --external:@lvce-editor/ripgrep --external:gpt-3-encoder --external:mammoth --external:xlsx --external:mathjs --external:@azure/identity --external:gpt-tokenizer --external:playwright --external:@inquirer/prompts --external:jimp --external:turndown --external:turndown-plugin-gfm --external:vectra --external:tabletojson --external:html-to-text --external:@octokit/rest --external:@octokit/plugin-throttling --external:@octokit/plugin-retry --external:@octokit/plugin-paginate-rest --external:skia-canvas --external:@huggingface/transformers --external:@modelcontextprotocol/sdk --external:@anthropic-ai/sdk",
+    "postcompile": "node built/genaiscript.cjs info help > ../../docs/src/content/docs/reference/cli/commands.md",
+    "vis:treemap": "npx --yes esbuild-visualizer --metadata esbuild.meta.json --filename esbuild.treemap.html",
+    "vis:network": "npx --yes esbuild-visualizer --metadata esbuild.meta.json --filename esbuild.network.html --template network",
+    "go": "yarn compile && node built/genaiscript.cjs",
+    "test": "node --import tsx --test src/**.test.ts",
+    "typecheck": "tsc -p src",
+    "lint": "npx --yes publint"
+  }
 }
