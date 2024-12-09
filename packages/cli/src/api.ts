@@ -15,25 +15,27 @@ import { dirname, join } from "node:path"
 export async function run(
     scriptId: string,
     files?: string[],
-    options?: Partial<PromptScriptRunOptions>
+    options?: Partial<PromptScriptRunOptions> & {
+        env?: Record<string, string>
+    }
 ): Promise<{
     exitCode: number
     result?: GenerationResult
 }> {
-    const { label } = options || {}
+    const { env, ...rest } = options || {}
     const workerData = {
         type: "run",
         scriptId,
         files: files || [],
-        options,
+        options: rest,
     }
 
     const filename =
         typeof __filename === "undefined"
-            // ignore esbuild warning
-            ? join(dirname(fileURLToPath(import.meta.url)), "genaiscript.cjs")
+            ? // ignore esbuild warning
+              join(dirname(fileURLToPath(import.meta.url)), "genaiscript.cjs")
             : __filename
-    const worker = new Worker(filename, { workerData, name: label })
+    const worker = new Worker(filename, { workerData, name: options?.label })
     return new Promise((resolve, reject) => {
         worker.on("online", () => process.stderr.write(`worker: online\n`))
         worker.on("message", resolve)

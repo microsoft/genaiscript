@@ -29,13 +29,14 @@ yarn add -D genaiscript
 
 </Tabs>
 
-The API can be imported using imports (CommonJS is not supported) from **"genaiscript/api"**.
+The API can be imported using imports from **"genaiscript/api"**.
 
 ```javascript
 import { runScript } from "genaiscript/api"
 ```
 
-The imported API is a tiny-zero dependency wrapper that takes the arguments and spawns a [Node.JS worker thread](https://nodejs.org/api/worker_threads.html) to run GenAIScript.
+The imported `api.mjs` wrapper is a tiny, zero dependency loader that
+spawns a [Node.JS worker thread](https://nodejs.org/api/worker_threads.html) to run GenAIScript.
 
 - No pollutation of the globals
 - No side effects on the process
@@ -48,4 +49,16 @@ The `run` function wraps the [cli run](/genaiscript/reference/cli/run) command.
 import { run } from "genaiscript/api"
 
 const results = await run("summarize", ["myfile.txt"])
+```
+
+### Environment variables
+
+You can set the environment variables for the GenAIScript process by passing an object as the `env` field in the options. By default, the worker will inherit `process.env`.
+
+```javascript
+const results = await run("summarize", ["myfile.txt"], {
+    env: {
+        MY_ENV_VAR: "value",
+    },
+})
 ```
