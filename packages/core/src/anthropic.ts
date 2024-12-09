@@ -236,7 +236,10 @@ export const AnthropicChatCompletion: ChatCompletionHandler = async (
 
     trace.itemValue(`url`, `[${anthropic.baseURL}](${anthropic.baseURL})`)
     const messages = convertMessages(req.messages)
-    const caching = req.messages.some((m) => m.cacheControl === "ephemeral")
+    // https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching#how-to-implement-prompt-caching
+    const caching =
+        /sonnet|haiku|opus/i.test(model) &&
+        req.messages.some((m) => m.cacheControl === "ephemeral")
     trace.itemValue(`caching`, caching)
 
     let numTokens = 0
