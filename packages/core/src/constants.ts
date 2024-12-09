@@ -61,7 +61,7 @@ export const DEFAULT_MODEL_CANDIDATES = [
     "azure_serverless:gpt-4o",
     DEFAULT_MODEL,
     "google:gemini-1.5-pro-002",
-    "anthropic:claude-2",
+    "anthropic:claude-2.1",
     "mistral:mistral-large-latest",
     "github:gpt-4o",
     "client:gpt-4",
@@ -72,7 +72,7 @@ export const DEFAULT_VISION_MODEL_CANDIDATES = [
     "azure_serverless:gpt-4o",
     DEFAULT_MODEL,
     "google:gemini-1.5-pro-002",
-    "anthropic:claude-2",
+    "anthropic:claude-2.1",
     "github:gpt-4o",
 ]
 export const DEFAULT_SMALL_MODEL = "openai:gpt-4o-mini"

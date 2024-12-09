@@ -75,7 +75,8 @@ export interface PromptNode extends ContextExpansionOptions {
     error?: unknown // Error information if present
     tokens?: number // Token count for the node
     /**
-     * This text is likely to change within 5 to 10 minutes.
+     * Definte a prompt caching breakpoint.
+     * This prompt prefix (including this text) is cacheable for a short amount of time.
      */
     ephemeral?: boolean
 
@@ -478,7 +479,7 @@ export function createDefData(
     options?: DefDataOptions
 ) {
     if (data === undefined) return undefined
-    let { format, headers, priority } = options || {}
+    let { format, headers, priority, ephemeral } = options || {}
     if (
         !format &&
         Array.isArray(data) &&
@@ -512,7 +513,7 @@ ${trimNewlines(text)}
 ${trimNewlines(text)}
 `
     // TODO maxTokens does not work well with data
-    return createTextNode(value, { priority })
+    return createTextNode(value, { priority, ephemeral })
 }
 
 // Function to append a child node to a parent node.
@@ -614,28 +615,6 @@ export interface PromptNodeRender {
     fileOutputs: FileOutput[] // File outputs
     prediction: PromptPrediction // predicted output for the prompt
     disposables: AsyncDisposable[] // Disposables
-}
-
-/**
- * To optimize chat caching with openai, move defs to the back of the prompt
- * @see https://platform.openai.com/docs/guides/prompt-caching
- * @param mode
- * @param root
- */
-async function layoutPromptNode(root: PromptNode) {
-    let changed = false
-    await visitNode(root, {
-        node: (n) => {
-            // sort children
-            const before = n.children?.map((c) => c.preview)?.join("\n")
-            n.children?.sort(
-                (a, b) => (a.ephemeral ? 1 : -1) - (b.ephemeral ? 1 : -1)
-            )
-            const after = n.children?.map((c) => c.preview)?.join("\n")
-            changed = changed || before !== after
-        },
-    })
-    return changed
 }
 
 export function resolveFenceFormat(modelid: string): FenceFormat {
@@ -1105,9 +1084,6 @@ export async function renderPromptNode(
     if (await deduplicatePromptNode(trace, node))
         await tracePromptNode(trace, node, { label: "deduplicate" })
 
-    if (await layoutPromptNode(node))
-        await tracePromptNode(trace, node, { label: "layout" })
-
     if (flexTokens)
         await flexPromptNode(node, {
             ...options,
@@ -1121,11 +1097,14 @@ export async function renderPromptNode(
     if (safety) await tracePromptNode(trace, node, { label: "safety" })
 
     const messages: ChatCompletionMessageParam[] = []
-    const appendSystem = (content: string) =>
-        appendSystemMessage(messages, content)
-    const appendUser = (content: string) => appendUserMessage(messages, content)
-    const appendAssistant = (content: string) =>
-        appendAssistantMessage(messages, content)
+    const appendSystem = (content: string, options: { ephemeral?: boolean }) =>
+        appendSystemMessage(messages, content, options)
+    const appendUser = (content: string, options: { ephemeral?: boolean }) =>
+        appendUserMessage(messages, content, options)
+    const appendAssistant = (
+        content: string,
+        options: { ephemeral?: boolean }
+    ) => appendAssistantMessage(messages, content, options)
 
     const images: PromptImage[] = []
     const errors: unknown[] = []
@@ -1144,8 +1123,8 @@ export async function renderPromptNode(
             errors.push(n.error)
         },
         text: async (n) => {
-            if (n.resolved !== undefined) appendUser(n.resolved)
-            else if (typeof n.value === "string") appendUser(n.value)
+            if (n.resolved !== undefined) appendUser(n.resolved, n)
+            else if (typeof n.value === "string") appendUser(n.value, n)
         },
         def: async (n) => {
             const value = n.resolved
@@ -1162,19 +1141,19 @@ export async function renderPromptNode(
         },
         assistant: async (n) => {
             const value = await n.resolved
-            if (value != undefined) appendAssistant(value)
+            if (value != undefined) appendAssistant(value, n)
         },
         system: async (n) => {
             const value = await n.resolved
-            if (value != undefined) appendSystem(value)
+            if (value != undefined) appendSystem(value, n)
         },
         stringTemplate: async (n) => {
             const value = n.resolved
             const role = n.role || "user"
             if (value != undefined) {
-                if (role === "system") appendSystem(value)
-                else if (role === "assistant") appendAssistant(value)
-                else appendUser(value)
+                if (role === "system") appendSystem(value, n)
+                else if (role === "assistant") appendAssistant(value, n)
+                else appendUser(value, n)
             }
         },
         image: async (n) => {
@@ -1214,7 +1193,7 @@ export async function renderPromptNode(
 \`\`\`${format + "-schema"}
 ${trimNewlines(schemaText)}
 \`\`\``
-            appendUser(text)
+            appendUser(text, n)
             n.tokens = estimateTokens(text, encoder)
             if (trace && format !== "json")
                 trace.detailsFenced(

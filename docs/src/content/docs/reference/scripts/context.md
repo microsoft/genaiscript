@@ -200,12 +200,18 @@ def("FILE", env.files, { sliceSample: 100 })
 
 ### Prompt Caching
 
-You can specify `ephemeral: true` to enable prompt caching optimization. In particular, a `def` with `ephemeral` will be rendered at the back of the prompt
-to persist the [cache prefix](https://openai.com/index/api-prompt-caching/).
+You can use `cacheControl: "ephemeral"` to specify that the prompt can be cached
+for a short amount of time, and enable prompt caching optimization, which is supported (differently) by various LLM providers.
+
+```js "ephemeral: true"
+$`...`.cacheControl("ephemeral")
+```
 
 ```js "ephemeral: true"
 def("FILE", env.files, { ephemeral: true })
 ```
+
+Read more about [prompt caching](/genaiscript/reference/scripts/prompt-caching).
 
 ### Safety: Prompt Injection detection
 

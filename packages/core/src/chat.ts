@@ -343,9 +343,9 @@ ${fenceMD(content, " ")}
         appendUserMessage(
             messages,
             `- ${call.name}(${JSON.stringify(call.arguments || {})})
-\`\`\`\`\`
+<tool_result>
 ${toolResult.join("\n\n")}
-\`\`\`\`\`
+</tool_result>
 `
         )
     else
@@ -407,12 +407,12 @@ schema: ${f.args?.schema || ""},
 error: ${f.validation.schemaError}`
         )
         .join("\n\n")
-    const repairMsg = dedent`DATA_FORMAT_ISSUES:
-\`\`\`
+    const repairMsg =
+`<data_format_issues>
 ${repair}
-\`\`\`
+</data_format_issues>
                             
-Repair the DATA_FORMAT_ISSUES. THIS IS IMPORTANT.`
+Repair the <data_format_issues>. THIS IS IMPORTANT.`
     trace.fence(repairMsg, "markdown")
     messages.push({
         role: "user",
@@ -962,43 +962,68 @@ export function tracePromptResult(trace: MarkdownTrace, resp: RunPromptResult) {
 
 export function appendUserMessage(
     messages: ChatCompletionMessageParam[],
-    content: string
+    content: string,
+    options?: { ephemeral?: boolean }
 ) {
     if (!content) return
-    const last = messages.at(-1) as ChatCompletionUserMessageParam
-    if (last?.role === "user") last.content += "\n" + content
-    else
-        messages.push({
+    const { ephemeral } = options || {}
+    let last = messages.at(-1) as ChatCompletionUserMessageParam
+    if (
+        last?.role !== "user" ||
+        !!ephemeral !== (last?.cacheControl === "ephemeral")
+    ) {
+        last = {
             role: "user",
-            content,
-        } as ChatCompletionUserMessageParam)
+            content: "",
+        } satisfies ChatCompletionUserMessageParam
+        if (ephemeral) last.cacheControl = "ephemeral"
+        messages.push(last)
+    }
+    if (last.content) last.content += "\n" + content
+    else last.content = content
 }
 
 export function appendAssistantMessage(
     messages: ChatCompletionMessageParam[],
-    content: string
+    content: string,
+    options?: { ephemeral?: boolean }
 ) {
     if (!content) return
-    const last = messages.at(-1) as ChatCompletionAssistantMessageParam
-    if (last?.role === "assistant") last.content += "\n" + content
-    else
-        messages.push({
+    const { ephemeral } = options || {}
+    let last = messages.at(-1) as ChatCompletionAssistantMessageParam
+    if (
+        last?.role !== "assistant" ||
+        !!ephemeral !== (last?.cacheControl === "ephemeral")
+    ) {
+        last = {
             role: "assistant",
-            content,
-        } satisfies ChatCompletionAssistantMessageParam)
+            content: "",
+        } satisfies ChatCompletionAssistantMessageParam
+        if (ephemeral) last.cacheControl = "ephemeral"
+        messages.push(last)
+    }
+    if (last.content) last.content += "\n" + content
+    else last.content = content
 }
 
 export function appendSystemMessage(
     messages: ChatCompletionMessageParam[],
-    content: string
+    content: string,
+    options?: { ephemeral?: boolean }
 ) {
     if (!content) return
+    const { ephemeral } = options || {}
+
     let last = messages[0] as ChatCompletionSystemMessageParam
-    if (last?.role !== "system") {
+    if (
+        last?.role !== "system" ||
+        !!ephemeral !== (last?.cacheControl === "ephemeral")
+    ) {
         last = {
             role: "system",
             content: "",
         } as ChatCompletionSystemMessageParam
+        if (ephemeral) last.cacheControl = "ephemeral"
         messages.unshift(last)
     }
     if (last.content) last.content += SYSTEM_FENCE
@@ -1012,10 +1037,9 @@ export function addToolDefinitionsMessage(
     appendSystemMessage(
         messages,
         `
-TOOLS:
-\`\`\`yaml
+<tools>
 ${YAMLStringify(tools.map((t) => t.spec))}
-\`\`\`
+</tools>
 `
     )
 }

@@ -10,7 +10,7 @@ import OpenAI from "openai"
 /**
  * Interface representing a custom AI Chat Interface request.
  */
-export interface AICIRequest {
+export interface AICIRequest extends ChatCompletionMessageParamCacheControl {
     role: "aici" // The role for this type of request
     content?: string // Optional content of the request
     error?: unknown // Optional error information
@@ -44,19 +44,32 @@ export type ChatCompletionTokenLogprob = OpenAI.ChatCompletionTokenLogprob
 export type ChatCompletion = OpenAI.Chat.Completions.ChatCompletion
 export type ChatCompletionChoice = OpenAI.Chat.Completions.ChatCompletion.Choice
 
+export interface ChatCompletionMessageParamCacheControl {
+    cacheControl?: PromptCacheControlType
+}
+
 // Parameters for a system message in a chat completion
 export type ChatCompletionSystemMessageParam =
-    OpenAI.Chat.Completions.ChatCompletionSystemMessageParam
+    OpenAI.Chat.Completions.ChatCompletionSystemMessageParam &
+        ChatCompletionMessageParamCacheControl
 
 // Parameters for a tool message in a chat completion
 export type ChatCompletionToolMessageParam =
-    OpenAI.Chat.Completions.ChatCompletionToolMessageParam
+    OpenAI.Chat.Completions.ChatCompletionToolMessageParam &
+        ChatCompletionMessageParamCacheControl
+export type ChatCompletionFunctionMessageParam =
+    OpenAI.Chat.Completions.ChatCompletionFunctionMessageParam &
+        ChatCompletionMessageParamCacheControl
 
 /**
  * Type representing parameters for chat completion messages, including custom AICIRequest.
  */
 export type ChatCompletionMessageParam =
-    | OpenAI.Chat.Completions.ChatCompletionMessageParam
+    | ChatCompletionSystemMessageParam
+    | ChatCompletionUserMessageParam
+    | ChatCompletionAssistantMessageParam
+    | ChatCompletionToolMessageParam
+    | ChatCompletionFunctionMessageParam
     | AICIRequest
 
 /**
@@ -75,11 +88,13 @@ export type CreateChatCompletionRequest = Omit<
 
 // Parameters for an assistant message in a chat completion
 export type ChatCompletionAssistantMessageParam =
-    OpenAI.Chat.Completions.ChatCompletionAssistantMessageParam
+    OpenAI.Chat.Completions.ChatCompletionAssistantMessageParam &
+        ChatCompletionMessageParamCacheControl
 
 // Parameters for a user message in a chat completion
 export type ChatCompletionUserMessageParam =
-    OpenAI.Chat.Completions.ChatCompletionUserMessageParam
+    OpenAI.Chat.Completions.ChatCompletionUserMessageParam &
+        ChatCompletionMessageParamCacheControl
 
 // Image content part of a chat completion
 export type ChatCompletionContentPartImage =

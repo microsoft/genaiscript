@@ -148,7 +148,6 @@ type ModelType = OptionsOrString<
     | "anthropic:claude-3-sonnet-20240229"
     | "anthropic:claude-3-haiku-20240307"
     | "anthropic:claude-2.1"
-    | "anthropic:claude-2.0"
     | "anthropic:claude-instant-1.2"
     | "huggingface:microsoft/Phi-3-mini-4k-instruct"
     | "google:gemini-1.5-flash"
@@ -903,16 +902,19 @@ interface ContextExpansionOptions {
      * Specifies an maximum of estimated tokens for this entry; after which it will be truncated.
      */
     maxTokens?: number
+
     /*
      * Value that is conceptually similar to a zIndex (higher number == higher priority).
      * If a rendered prompt has more message tokens than can fit into the available context window, the prompt renderer prunes messages with the lowest priority from the ChatMessages result, preserving the order in which they were declared. This means your extension code can safely declare TSX components for potentially large pieces of context like conversation history and codebase context.
      */
     priority?: number
+
     /**
      * Controls the proportion of tokens allocated from the container's budget to this element.
      * It defaults to 1 on all elements.
      */
     flex?: number
+
     /**
      * This text is likely to change and will probably break the prefix cache.
      */
@@ -2431,6 +2433,8 @@ interface ImportTemplateOptions {
     allowExtraArguments?: boolean
 }
 
+type PromptCacheControlType = "ephemeral"
+
 interface PromptTemplateString {
     /**
      * Set a priority similar to CSS z-index
@@ -2462,6 +2466,12 @@ interface PromptTemplateString {
      * Updates the role of the message
      */
     role(role: ChatMessageRole): PromptTemplateString
+
+    /**
+     * Configure the cacheability of the prompt.
+     * @param value cache control type
+     */
+    cacheControl(value: PromptCacheControlType): PromptTemplateString
 }
 
 type ImportTemplateArgumentType =
