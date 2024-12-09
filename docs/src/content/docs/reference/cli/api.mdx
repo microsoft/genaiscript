@@ -40,12 +40,12 @@ The imported API is a tiny-zero dependency wrapper that takes the arguments and 
 - No pollutation of the globals
 - No side effects on the process
 
-## `runScript`
+## `run`
 
-The [run](/genaiscript/reference/cli/run) command can be imported as a function in your Node.JS application.
+The `run` function wraps the [cli run](/genaiscript/reference/cli/run) command.
 
 ```javascript
-import { runScript } from "genaiscript/api"
+import { run } from "genaiscript/api"
 
-const { exitCode, results } = await runScript("summarize", ["myfile.txt"])
+const { exitCode, results } = await run("summarize", ["myfile.txt"])
 ```

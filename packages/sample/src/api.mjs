@@ -1,7 +1,7 @@
 console.log(`loading cli`)
-const cli = await import("../../cli/built/genaiscript.cjs")
+const api = await import("../../cli/built/genaiscript.cjs")
 
-console.log(cli)
-const res = await cli.runScript("poem")
+console.log(api)
+const res = await api.run("poem")
 
 console.log(res)

@@ -12,7 +12,7 @@ import { dirname, join } from "node:path"
  * @param options
  * @returns
  */
-export async function runScript(
+export async function run(
     scriptId: string,
     files?: string[],
     options?: Partial<PromptScriptRunOptions>
@@ -30,6 +30,7 @@ export async function runScript(
 
     const filename =
         typeof __filename === "undefined"
+            // ignore esbuild warning
             ? join(dirname(fileURLToPath(import.meta.url)), "genaiscript.cjs")
             : __filename
     const worker = new Worker(filename, { workerData, name: label })

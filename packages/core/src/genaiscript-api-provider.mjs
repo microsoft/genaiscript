@@ -30,7 +30,7 @@ class GenAIScriptApiProvider {
             if (testVars && typeof testVars === "object")
                 options.vars = { ...(this.config.vars || []), ...testVars }
             const api = await import(cli ?? "genaiscript")
-            const res = await api.runScript(scriptId, files, options)
+            const res = await api.run(scriptId, files, options)
             logger.debug(res)
             return {
                 output: res.result,
