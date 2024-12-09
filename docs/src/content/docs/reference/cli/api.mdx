@@ -47,5 +47,5 @@ The `run` function wraps the [cli run](/genaiscript/reference/cli/run) command.
 ```javascript
 import { run } from "genaiscript/api"
 
-const { exitCode, results } = await run("summarize", ["myfile.txt"])
+const results = await run("summarize", ["myfile.txt"])
 ```

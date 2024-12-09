@@ -14,8 +14,8 @@ export async function worker() {
                 scriptId: string
                 files: string[]
             } & object
-            const res = await runScriptInternal(scriptId, files, options)
-            parentPort.postMessage(res)
+            const { result } = await runScriptInternal(scriptId, files, options)
+            parentPort.postMessage(result)
             break
         }
     }

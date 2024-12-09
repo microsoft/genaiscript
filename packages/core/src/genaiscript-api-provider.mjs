@@ -33,8 +33,8 @@ class GenAIScriptApiProvider {
             const res = await api.run(scriptId, files, options)
             logger.debug(res)
             return {
-                output: res.result,
-                error: res.result?.error,
+                output: res,
+                error: res?.error,
             }
         } catch (e) {
             logger.error(e)
