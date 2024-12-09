@@ -1,0 +1,51 @@
+---
+title: Node.JS API
+sidebar:
+    order: 50
+---
+
+import { Tabs, TabItem } from "@astrojs/starlight/components"
+
+This page describes how to import and use the [cli](/genaiscript/reference/cli) as an API in your Node.JS application.
+
+Assuming you have have added the cli as a dependency in your project, you can import the cli as follows:
+
+<Tabs>
+  <TabItem value="npm" label="npm">
+
+```sh
+npm install -D genaiscript
+```
+
+</TabItem>
+
+  <TabItem value="yarn" label="yarn">
+
+```sh
+yarn add -D genaiscript
+```
+
+</TabItem>
+
+</Tabs>
+
+The API can be imported using imports (CommonJS is not supported) from **"genaiscript/api"**.
+
+```javascript
+import { runScript } from "genaiscript/api"
+```
+
+The imported API is a tiny-zero dependency wrapper that takes the arguments and spawns a [Node.JS worker thread](https://nodejs.org/api/worker_threads.html) to run GenAIScript.
+
+- No pollutation of the globals
+- No side effects on the process
+
+## `runScript`
+
+The [run](/genaiscript/reference/cli/run) command can be imported as a function in your Node.JS application.
+
+```javascript
+import { runScript } from "genaiscript/api"
+
+const { exitCode, results } = await runScript("summarize", ["myfile.txt"])
+```
