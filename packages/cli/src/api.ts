@@ -32,8 +32,7 @@ export async function run(
 
     const filename =
         typeof __filename === "undefined"
-            ? // ignore esbuild warning
-              join(dirname(fileURLToPath(import.meta.url)), "genaiscript.cjs")
+            ? join(dirname(fileURLToPath(import.meta.url)), "genaiscript.cjs") // ignore esbuild warning
             : __filename
     const worker = new Worker(filename, { workerData, name: options?.label })
     return new Promise((resolve, reject) => {
