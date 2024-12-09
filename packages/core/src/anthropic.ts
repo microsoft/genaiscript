@@ -21,7 +21,7 @@ import {
     ChatCompletionToolMessageParam,
 } from "./chattypes"
 
-import { logError } from "./util"
+import { deleteUndefinedValues, logError } from "./util"
 import { resolveHttpProxyAgent } from "./proxy"
 
 const convertFinishReason = (
@@ -91,17 +91,27 @@ const convertSingleMessage = (
     return convertStandardMessage(msg)
 }
 
+function toCacheControl(msg: ChatCompletionMessageParam): {
+    type: "ephemeral"
+} {
+    return msg.cacheControl === "ephemeral" ? { type: "ephemeral" } : undefined
+}
+
 const convertToolCallMessage = (
     msg: ChatCompletionAssistantMessageParam
 ): Anthropic.Beta.PromptCaching.PromptCachingBetaMessageParam => {
     return {
         role: "assistant",
-        content: msg.tool_calls.map((tool) => ({
-            type: "tool_use",
-            id: tool.id,
-            input: JSON.parse(tool.function.arguments),
-            name: tool.function.name,
-        })),
+        content: msg.tool_calls.map(
+            (tool) =>
+                deleteUndefinedValues({
+                    type: "tool_use",
+                    id: tool.id,
+                    input: JSON.parse(tool.function.arguments),
+                    name: tool.function.name,
+                    cache_control: toCacheControl(msg),
+                }) satisfies Anthropic.Beta.PromptCaching.PromptCachingBetaToolUseBlockParam
+        ),
     }
 }
 
@@ -111,11 +121,12 @@ const convertToolResultMessage = (
     return {
         role: "user",
         content: [
-            {
+            deleteUndefinedValues({
                 type: "tool_result",
                 tool_use_id: msg.tool_call_id,
                 content: msg.content,
-            },
+                cache_control: toCacheControl(msg),
+            } satisfies Anthropic.Beta.PromptCaching.PromptCachingBetaToolResultBlockParam),
         ],
     }
 }
@@ -130,29 +141,44 @@ const convertStandardMessage = (
     if (Array.isArray(msg.content)) {
         return {
             role,
-            content: msg.content.map(
-                (
-                    block
-                ):
-                    | Anthropic.Messages.TextBlockParam
-                    | Anthropic.Messages.ImageBlockParam => {
+            content: msg.content
+                .map((block) => {
+                    const cache_control = toCacheControl(msg)
                     if (typeof block === "string") {
-                        return { type: "text", text: block }
+                        return {
+                            type: "text",
+                            text: block,
+                            cache_control,
+                        } satisfies Anthropic.Beta.PromptCaching.Messages.PromptCachingBetaTextBlockParam
                     } else if (block.type === "text") {
-                        return { type: "text", text: block.text }
+                        return {
+                            type: "text",
+                            text: block.text,
+                            cache_control,
+                        } satisfies Anthropic.Beta.PromptCaching.Messages.PromptCachingBetaTextBlockParam
                     } else if (block.type === "image_url") {
                         return convertImageUrlBlock(block)
                     }
                     // audio?
                     // Handle other types or return a default
-                    else return { type: "text", text: JSON.stringify(block) }
-                }
-            ),
+                    else
+                        return {
+                            type: "text",
+                            text: JSON.stringify(block),
+                        } satisfies Anthropic.Beta.PromptCaching.Messages.PromptCachingBetaTextBlockParam
+                })
+                .map(deleteUndefinedValues),
         }
     } else {
         return {
             role,
-            content: [{ type: "text", text: msg.content }],
+            content: [
+                deleteUndefinedValues({
+                    type: "text",
+                    text: msg.content,
+                    cache_control: toCacheControl(msg),
+                }) satisfies Anthropic.Beta.PromptCaching.Messages.PromptCachingBetaTextBlockParam,
+            ],
         }
     }
 }
@@ -210,6 +236,8 @@ export const AnthropicChatCompletion: ChatCompletionHandler = async (
 
     trace.itemValue(`url`, `[${anthropic.baseURL}](${anthropic.baseURL})`)
     const messages = convertMessages(req.messages)
+    const caching = req.messages.some((m) => m.cacheControl === "ephemeral")
+    trace.itemValue(`caching`, caching)
 
     let numTokens = 0
     let chatResp = ""
@@ -219,7 +247,10 @@ export const AnthropicChatCompletion: ChatCompletionHandler = async (
     const toolCalls: ChatCompletionToolCall[] = []
 
     try {
-        const stream = anthropic.beta.promptCaching.messages.stream({
+        const messagesApi = caching
+            ? anthropic.beta.promptCaching.messages
+            : anthropic.messages
+        const stream = messagesApi.stream({
             model,
             tools: convertTools(req.tools),
             messages,
