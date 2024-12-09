@@ -64,7 +64,7 @@ const adjustUsage = (
 
 const convertMessages = (
     messages: ChatCompletionMessageParam[]
-): Array<Anthropic.Messages.MessageParam> => {
+): Array<Anthropic.Beta.PromptCaching.PromptCachingBetaMessageParam> => {
     return messages.map(convertSingleMessage)
 }
 
@@ -93,7 +93,7 @@ const convertSingleMessage = (
 
 const convertToolCallMessage = (
     msg: ChatCompletionAssistantMessageParam
-): Anthropic.Messages.MessageParam => {
+): Anthropic.Beta.PromptCaching.PromptCachingBetaMessageParam => {
     return {
         role: "assistant",
         content: msg.tool_calls.map((tool) => ({
@@ -107,7 +107,7 @@ const convertToolCallMessage = (
 
 const convertToolResultMessage = (
     msg: ChatCompletionToolMessageParam
-): Anthropic.Messages.MessageParam => {
+): Anthropic.Beta.PromptCaching.PromptCachingBetaMessageParam => {
     return {
         role: "user",
         content: [
@@ -125,7 +125,7 @@ const convertStandardMessage = (
         | ChatCompletionSystemMessageParam
         | ChatCompletionAssistantMessageParam
         | ChatCompletionUserMessageParam
-): Anthropic.Messages.MessageParam => {
+): Anthropic.Beta.PromptCaching.PromptCachingBetaMessageParam => {
     const role = msg.role === "assistant" ? "assistant" : "user"
     if (Array.isArray(msg.content)) {
         return {
@@ -159,7 +159,7 @@ const convertStandardMessage = (
 
 const convertImageUrlBlock = (
     block: ChatCompletionContentPartImage
-): Anthropic.Messages.ImageBlockParam => {
+): Anthropic.Beta.PromptCaching.PromptCachingBetaImageBlockParam => {
     return {
         type: "image",
         source: {
@@ -219,14 +219,14 @@ export const AnthropicChatCompletion: ChatCompletionHandler = async (
     const toolCalls: ChatCompletionToolCall[] = []
 
     try {
-        const stream = anthropic.messages.stream({
+        const stream = anthropic.beta.promptCaching.messages.stream({
             model,
+            tools: convertTools(req.tools),
             messages,
             max_tokens: req.max_tokens || ANTHROPIC_MAX_TOKEN,
             temperature: req.temperature,
             top_p: req.top_p,
             stream: true,
-            tools: convertTools(req.tools),
             ...headers,
         })
 
