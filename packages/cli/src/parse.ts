@@ -146,7 +146,7 @@ export async function parseAnyToJSON(
         else if (YAML_REGEX.test(file)) data = YAMLParse(src)
         else if (XML_REGEX.test(file)) data = XMLParse(src)
         else if (MD_REGEX.test(file) || MDX_REGEX.test(file))
-            data = YAML.parse(splitMarkdown(src).frontmatter)
+            data = YAMLParse(splitMarkdown(src).frontmatter)
         else throw new Error("Unsupported file format")
     }
 
