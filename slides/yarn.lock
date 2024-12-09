@@ -3478,9 +3478,9 @@ jszip@^3.7.1:
     setimmediate "^1.0.5"
 
 katex@^0.16.11, katex@^0.16.9:
-  version "0.16.14"
-  resolved "https://registry.yarnpkg.com/katex/-/katex-0.16.14.tgz#888e230b82403425f3ddf1d26b34f7f894ce1a98"
-  integrity sha512-tnUUAL/S+f/w8KrRpCFcCW/msuIlBkOmVnTmvdEK6WCkx6uDPRj3d9SBAP+qB5x0MCeOyUbdbIMtT5cUJD8aRw==
+  version "0.16.15"
+  resolved "https://registry.yarnpkg.com/katex/-/katex-0.16.15.tgz#16b0d235aae8dfa3b2d5d63fd9874bfa394abfab"
+  integrity sha512-yE9YJIEAk2aZ+FL/G8r+UGw0CTUzEA8ZFy6E+8tc3spHUKq3qBnzCkI1CQwGoI9atJhVyFPEypQsTY7mJ1Pi9w==
   dependencies:
     commander "^8.3.0"
 

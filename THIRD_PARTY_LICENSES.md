@@ -3,7 +3,7 @@ https://www.npmjs.com/package/generate-license-file
 
 The following npm package may be included in this product:
 
- - pdfjs-dist@4.9.124
+ - pdfjs-dist@4.9.155
 
 This package contains the following license:
 

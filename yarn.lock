@@ -693,7 +693,7 @@
     "@inquirer/type" "^3.0.1"
     ansi-escapes "^4.3.2"
 
-"@inquirer/prompts@^7.1.0":
+"@inquirer/prompts@^7.2.0":
   version "7.2.0"
   resolved "https://registry.yarnpkg.com/@inquirer/prompts/-/prompts-7.2.0.tgz#15010df2257a243866480513d36f3e19c98d7fb1"
   integrity sha512-ZXYZ5oGVrb+hCzcglPeVerJ5SFwennmDOPfXq1WyeZIrPGySLbl4W6GaSsBFvu3WII36AOK5yB8RMIEEkBjf8w==
@@ -1041,7 +1041,7 @@
   resolved "https://registry.yarnpkg.com/@jridgewell/sourcemap-codec/-/sourcemap-codec-1.5.0.tgz#3188bcb273a414b0d215fd22a58540b989b9409a"
   integrity sha512-gv3ZRaISU3fjPAgNsriBRqGWQL6quFx04YMPW/zD8XMLsU32mhCCbfbO6KZFLjvYpCZ8zyDEgqsgf+PwPaM7GQ==
 
-"@lvce-editor/ripgrep@^1.4.0":
+"@lvce-editor/ripgrep@^1.5.0":
   version "1.5.0"
   resolved "https://registry.yarnpkg.com/@lvce-editor/ripgrep/-/ripgrep-1.5.0.tgz#ebc3648fa33a68e74dc977c6c6443878b47f5c27"
   integrity sha512-r6Iokwj9AjqDwZ413KtzaOQjgZ3CpvRtTPRRcxeZyTUH6BRXuClBSVuoOz7uQ3lEpN8QNFhLcYm6JxJrCRNf6Q==
@@ -3316,7 +3316,7 @@ gpt-3-encoder@1.1.4:
   resolved "https://registry.yarnpkg.com/gpt-3-encoder/-/gpt-3-encoder-1.1.4.tgz#d6cdaacf5824857e133b6065247c757fc7e4fa72"
   integrity sha512-fSQRePV+HUAhCn7+7HL7lNIXNm6eaFWFbNLOOGtmSJ0qJycyQvj60OvRlH7mee8xAMjBDNRdMXlMwjAbMTDjkg==
 
-gpt-tokenizer@^2.7.0:
+gpt-tokenizer@^2.8.1:
   version "2.8.1"
   resolved "https://registry.yarnpkg.com/gpt-tokenizer/-/gpt-tokenizer-2.8.1.tgz#505d5d05ed8db9871ad6f50adcbb87111654134c"
   integrity sha512-8+a9ojzqfgiF3TK4oivGYjlycD8g5igLt8NQw3ndOIgLVKSGJDhUDNAfYSbtyyuTkha3R/R9F8XrwC7/B5TKfQ==
@@ -4858,10 +4858,10 @@ path-type@^4.0.0:
   resolved "https://registry.yarnpkg.com/path-type/-/path-type-4.0.0.tgz#84ed01c0a7ba380afe09d90a8c180dcd9d03043b"
   integrity sha512-gDKb8aZMDeD/tZWs9P6+q0J9Mwkdl6xMV8TjnGP3qJVJ06bdMgkbBlLU8IdfOsIsFz2BW1rNVT3XuNEl8zPAvw==
 
-pdfjs-dist@4.9.124:
-  version "4.9.124"
-  resolved "https://registry.yarnpkg.com/pdfjs-dist/-/pdfjs-dist-4.9.124.tgz#e82b409c515247688b1f8b93cde28ef41d0f691c"
-  integrity sha512-yAoM7C+IYIG23dAZHE2KqtE5exEj067Ef6oblb+AHiqLwTJSQOMB+e8ftBA3pp1+6TyE4xeofoHcu9t7XaOE0g==
+pdfjs-dist@4.9.155:
+  version "4.9.155"
+  resolved "https://registry.yarnpkg.com/pdfjs-dist/-/pdfjs-dist-4.9.155.tgz#80c9fc7f5411a4cf00751cdea242ffd8b0f23a96"
+  integrity sha512-epRZn6DQQKCOEqbmFsxkiMBm1MHaNrnr6T4VBNP0bsDvdJdmrWcZbS5cgJXW68P0d3uJTlFhF6Wms2tlSgPYig==
   optionalDependencies:
     "@napi-rs/canvas" "^0.1.64"
 
@@ -5446,7 +5446,7 @@ simple-xml-to-json@^1.2.2:
   resolved "https://registry.yarnpkg.com/simple-xml-to-json/-/simple-xml-to-json-1.2.3.tgz#79c7188ff99ae209a267b70ee0db06b0e4597787"
   integrity sha512-kWJDCr9EWtZ+/EYYM5MareWj2cRnZGF93YDNpH4jQiHB+hBIZnfPFSQiVMzZOdk+zXWqTZ/9fTeQNu2DqeiudA==
 
-skia-canvas@^2.0.0:
+skia-canvas@^2.0.1:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/skia-canvas/-/skia-canvas-2.0.1.tgz#a9d317a32940d379137fb9ebdccdef2b90b22e09"
   integrity sha512-19uIv6uAywwU4iJSPD5TmRYTSfrdParx80c9T/1yuzTAEBvOfF7wWDllrE+LumetNooQhWsBJlnTvp8iOseGNQ==

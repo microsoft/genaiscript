@@ -12,9 +12,9 @@
     "url": "https://github.com/microsoft/genaiscript"
   },
   "optionalDependencies": {
-    "@lvce-editor/ripgrep": "^1.4.0",
-    "pdfjs-dist": "4.9.124",
-    "skia-canvas": "^2.0.0",
+    "@lvce-editor/ripgrep": "^1.5.0",
+    "pdfjs-dist": "4.9.155",
+    "skia-canvas": "^2.0.1",
     "web-tree-sitter": "0.22.2"
   },
   "devDependencies": {
@@ -51,7 +51,7 @@
     "fetch-retry": "^6.0.0",
     "fflate": "^0.8.2",
     "file-type": "19.1.1",
-    "gpt-tokenizer": "^2.7.0",
+    "gpt-tokenizer": "^2.8.1",
     "html-escaper": "^3.0.3",
     "html-to-text": "^9.0.5",
     "https-proxy-agent": "^7.0.6",
