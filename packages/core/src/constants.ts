@@ -57,7 +57,6 @@ export const VISION_MODEL_ID = "vision"
 export const DEFAULT_FENCE_FORMAT: FenceFormat = "xml"
 export const DEFAULT_MODEL = "openai:gpt-4o"
 export const DEFAULT_MODEL_CANDIDATES = [
-    "azure:gpt-4o",
     "azure_serverless:gpt-4o",
     DEFAULT_MODEL,
     "google:gemini-1.5-pro-latest",
@@ -68,7 +67,6 @@ export const DEFAULT_MODEL_CANDIDATES = [
 ]
 export const DEFAULT_VISION_MODEL = "openai:gpt-4o"
 export const DEFAULT_VISION_MODEL_CANDIDATES = [
-    "azure:gpt-4o",
     "azure_serverless:gpt-4o",
     DEFAULT_MODEL,
     "google:gemini-1.5-flash-latest",
@@ -77,7 +75,6 @@ export const DEFAULT_VISION_MODEL_CANDIDATES = [
 ]
 export const DEFAULT_SMALL_MODEL = "openai:gpt-4o-mini"
 export const DEFAULT_SMALL_MODEL_CANDIDATES = [
-    "azure:gpt-4o-mini",
     "azure_serverless:gpt-4o-mini",
     DEFAULT_SMALL_MODEL,
     "google:gemini-1.5-flash-latest",

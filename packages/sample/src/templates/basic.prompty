@@ -5,7 +5,7 @@ model:
     api: chat
     configuration:
         type: azure_openai
-        azure_deployment: gpt-4o
+        azure_deployment: gpt-4o_2024-08-06
     parameters:
         max_tokens: 128
         temperature: 0.2
