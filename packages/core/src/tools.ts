@@ -20,6 +20,9 @@ export function isToolsSupported(modelId: string): boolean | undefined {
 
     if (provider === MODEL_PROVIDER_TRANSFORMERS) return false
 
+    // https://discuss.ai.google.dev/t/multi-turn-tool-usage-with-gemini-openai/53202
+    if (provider === MODEL_PROVIDER_GOOGLE) return false
+
     const oai = {
         "o1-preview": false,
         "o1-mini": false,
