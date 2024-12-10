@@ -1,3 +1,4 @@
+/*
 import OpenAI from "openai"
 import "dotenv/config"
 
@@ -65,3 +66,4 @@ async function main() {
 }
 
 main()
+*/
