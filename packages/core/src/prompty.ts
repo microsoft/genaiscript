@@ -132,8 +132,11 @@ function promptyFrontmatterToMeta(frontmatter: PromptyFrontmatter): PromptArgs {
 
 export function promptyParse(filename: string, text: string): PromptyDocument {
     const { frontmatter = "", content = "" } = splitMarkdown(text)
-    if (!frontmatter) throw new Error("Prompty: Frontmatter required")
-    const fm = YAMLParse(frontmatter)
+    if (!frontmatter && /^\s+---/.test(frontmatter))
+        throw new Error(
+            "Prompty: Frontmatter has invalid whitespace before ---"
+        )
+    const fm = frontmatter ? YAMLParse(frontmatter) : {}
     const meta: PromptArgs = fm ? promptyFrontmatterToMeta(fm) : {}
     if (filename) meta.filename = filename
     const messages: ChatCompletionMessageParam[] = []
