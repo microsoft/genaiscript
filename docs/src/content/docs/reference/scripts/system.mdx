@@ -88,9 +88,7 @@ Base system prompt
 
 `````js wrap title="system"
 system({ title: "Base system prompt" })
-$`- You are concise. 
-- Answer in markdown.
-`
+$`- You are concise.`
 
 `````
 
@@ -2563,6 +2561,22 @@ defTool(
         return await host.exec("npm", ["test"], { cwd: args.path })
     }
 )
+
+`````
+
+
+### `system.output_markdown`
+
+Base system prompt
+
+
+
+
+
+`````js wrap title="system.output_markdown"
+system({ title: "Base system prompt" })
+$`## Markdown Output
+Respond in Markdown (GitHub Flavored Markdown also supported).`
 
 `````
 
