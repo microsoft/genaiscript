@@ -479,7 +479,9 @@ export function createDefData(
     options?: DefDataOptions
 ) {
     if (data === undefined) return undefined
-    let { format, headers, priority, ephemeral } = options || {}
+    let { format, headers, priority, cacheControl } = options || {}
+    cacheControl =
+        cacheControl ?? (options?.ephemeral ? "ephemeral" : undefined)
     if (
         !format &&
         Array.isArray(data) &&
@@ -513,7 +515,10 @@ ${trimNewlines(text)}
 ${trimNewlines(text)}
 `
     // TODO maxTokens does not work well with data
-    return createTextNode(value, { priority, ephemeral })
+    return createTextNode(value, {
+        priority,
+        ephemeral: cacheControl === "ephemeral",
+    })
 }
 
 // Function to append a child node to a parent node.

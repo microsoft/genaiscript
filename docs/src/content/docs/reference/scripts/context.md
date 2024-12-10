@@ -203,12 +203,12 @@ def("FILE", env.files, { sliceSample: 100 })
 You can use `cacheControl: "ephemeral"` to specify that the prompt can be cached
 for a short amount of time, and enable prompt caching optimization, which is supported (differently) by various LLM providers.
 
-```js "ephemeral: true"
+```js 'cacheControl("ephemeral")'
 $`...`.cacheControl("ephemeral")
 ```
 
-```js "ephemeral: true"
-def("FILE", env.files, { ephemeral: true })
+```js '"cacheControl: "ephemeral"'
+def("FILE", env.files, { cacheControl: "ephemeral" })
 ```
 
 Read more about [prompt caching](/genaiscript/reference/scripts/prompt-caching).

@@ -9,7 +9,7 @@ script({
     ],
 })
 
-def("FILE", env.files, { ephemeral: true })
+def("FILE", env.files, { cacheControl: "ephemeral" })
 
 $`
 Summarize all files in FILE in a single paragraph.

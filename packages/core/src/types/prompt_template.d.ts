@@ -897,6 +897,8 @@ interface FenceOptions extends LineNumberingOptions, FenceFormatOptions {
     schema?: string
 }
 
+type PromptCacheControlType = "ephemeral"
+
 interface ContextExpansionOptions {
     /**
      * Specifies an maximum of estimated tokens for this entry; after which it will be truncated.
@@ -916,9 +918,14 @@ interface ContextExpansionOptions {
     flex?: number
 
     /**
-     * This text is likely to change and will probably break the prefix cache.
+     * @deprecated use cacheControl instead
      */
     ephemeral?: boolean
+
+    /**
+     * Caching policy for this text. `ephemeral` means the prefix can be cached for a short amount of time.
+     */
+    cacheControl?: PromptCacheControlType
 }
 
 interface RangeOptions {

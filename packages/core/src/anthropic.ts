@@ -27,6 +27,7 @@ import {
     ChatCompletionRequestCacheKey,
     getChatCompletionCache,
 } from "./chatcache"
+import { traceFetchPost } from "./fetch"
 
 const convertFinishReason = (
     stopReason: Anthropic.Message["stop_reason"]
@@ -300,30 +301,31 @@ export const AnthropicChatCompletion: ChatCompletionHandler = async (
     let finishReason: ChatCompletionResponse["finishReason"]
     let usage: ChatCompletionResponse["usage"] | undefined
     const toolCalls: ChatCompletionToolCall[] = []
+    const tools = convertTools(req.tools)
 
+    const mreq = deleteUndefinedValues({
+        model,
+        tools,
+        messages,
+        max_tokens: req.max_tokens || ANTHROPIC_MAX_TOKEN,
+        temperature: req.temperature,
+        top_p: req.top_p,
+        stream: true,
+    })
+
+    trace.detailsFenced("✉️ body", mreq, "json")
     trace.appendContent("\n")
 
     try {
         const messagesApi = caching
             ? anthropic.beta.promptCaching.messages
             : anthropic.messages
-        const stream = messagesApi.stream({
-            model,
-            tools: convertTools(req.tools),
-            messages,
-            max_tokens: req.max_tokens || ANTHROPIC_MAX_TOKEN,
-            temperature: req.temperature,
-            top_p: req.top_p,
-            stream: true,
-            ...headers,
-        })
-
+        const stream = messagesApi.stream({ ...mreq, ...headers })
         for await (const chunk of stream) {
             if (cancellationToken?.isCancellationRequested) {
                 finishReason = "cancel"
                 break
             }
-
             switch (chunk.type) {
                 case "message_start":
                     usage = convertUsage(
