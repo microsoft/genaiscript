@@ -1,0 +1,1335 @@
+
+import { FileTree } from "@astrojs/starlight/components"
+import { Steps } from "@astrojs/starlight/components"
+import { Tabs, TabItem } from "@astrojs/starlight/components"
+import { Image } from "astro:assets"
+
+import lmSrc from "../../../assets/vscode-language-models.png"
+import lmAlt from "../../../assets/vscode-language-models.png.txt?raw"
+
+import lmSelectSrc from "../../../assets/vscode-language-models-select.png"
+import lmSelectAlt from "../../../assets/vscode-language-models-select.png.txt?raw"
+
+import oaiModelsSrc from "../../../assets/openai-model-names.png"
+import oaiModelsAlt from "../../../assets/openai-model-names.png.txt?raw"
+
+You will need to configure the LLM connection and authorization secrets.
+
+:::tip
+
+If you do not have access to an LLM, you can try [GitHub Models](#github), [GitHub Copilot Models](#github-copilot) or use a [local model](#local-models) for inferencing.
+
+:::
+
+## Model selection
+
+The model used by the script is configured through the `model` field in the `script` function.
+The model name is formatted as `provider:model-name`, where `provider` is the LLM provider
+and the `model-name` is provider specific.
+
+```js 'model: "openai:gpt-4o"'
+script({
+    model: "openai:gpt-4o",
+})
+```
+
+### Large, small, vision models
+
+You can also use the `small`, `large`, `vision` aliases to use the default configured small, large and vision-enabled models.
+Large models are typically in the OpenAI gpt-4 reasoning range and can be used for more complex tasks.
+Small models are in the OpenAI gpt-4o-mini range, and are useful for quick and simple tasks.
+
+```js 'model: "small"'
+script({ model: "small" })
+```
+
+```js 'model: "large"'
+script({ model: "large" })
+```
+
+The model can also be overridden from the [cli run command](/genaiscript/reference/cli/run#model)
+
+```sh
+genaiscript run ... --model largemodelid --small-model smallmodelid
+```
+
+or by adding the `GENAISCRIPT_LARGE_MODEL` and `GENAISCRIPT_SMALL_MODEL` environment variables.
+
+```txt title=".env"
+GENAISCRIPT_MODEL_LARGE="azure_serverless:..."
+GENAISCRIPT_MODEL_SMALL="azure_serverless:..."
+GENAISCRIPT_MODEL_VISION="azure_serverless:..."
+```
+
+### Model aliases
+
+In fact, you can define any alias for your model (only alphanumeric characters are allowed)
+through environment variables of the name `GENAISCRIPT_MODEL_ALIAS`
+where `ALIAS` is the alias you want to use.
+
+```txt title=".env"
+GENAISCRIPT_MODEL_TINY=...
+```
+
+Model aliases are always lowercased when used in the script.
+
+```js
+script({ model: "tiny" })
+```
+
+## `.env` file
+
+GenAIScript uses a `.env` file to load secrets and configuration information into the process environment variables.
+
+<Steps>
+
+<ol>
+
+<li>
+
+Create or update a `.gitignore` file in the root of your project and make it sure it includes `.env`.
+This ensures that you do not accidentally commit your secrets to your source control.
+
+```txt title=".gitignore" ".env"
+...
+.env
+```
+
+</li>
+
+<li>
+
+Create a `.env` file in the root of your project.
+
+<FileTree>
+
+- .gitignore
+- **.env**
+
+</FileTree>
+
+</li>
+
+<li>
+
+Update the `.env` file with the configuration information (see below).
+
+</li>
+
+</ol>
+
+</Steps>
+
+:::caution[Do Not Commit Secrets]
+
+The `.env` file should never be commited to your source control!
+If the `.gitignore` file is properly configured,
+the `.env` file will appear grayed out in Visual Studio Code.
+
+```txt title=".gitignore" ".env"
+...
+.env
+```
+
+:::
+
+### Custom .env file location
+
+You can specify a custom `.env` file location through the CLI or an environment variable.
+
+- by adding the `--env <file>` argument to the CLI.
+
+```sh "--env .env.local"
+npx genaiscript ... --env .env.local
+```
+
+- by setting the `GENAISCRIPT_ENV_FILE` environment variable.
+
+```sh
+GENAISCRIPT_ENV_FILE=".env.local" npx genaiscript ...
+```
+
+- by specifying the `.env` file location in a [configuration file](/genaiscript/reference/configuration-files).
+
+```yaml title="~/genaiscript.config.yaml"
+envFile: ~/.env.genaiscript
+```
+
+### No .env file
+
+If you do not want to use a `.env` file, make sure to populate the environment variables
+of the genaiscript process with the configuration values.
+
+Here are some common examples:
+
+- Using bash syntax
+
+```sh
+OPENAI_API_KEY="value" npx --yes genaiscript run ...
+```
+
+- GitHub Action configuration
+
+```yaml title=".github/workflows/genaiscript.yml"
+run: npx --yes genaiscript run ...
+env:
+    OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+```
+
+## OpenAI
+
+This provider, `openai`, is the OpenAI chat model provider.
+It uses the `OPENAI_API_...` environment variables.
+
+<Steps>
+
+<ol>
+
+<li>
+    Create a new secret key from the [OpenAI API Keys
+    portal](https://platform.openai.com/api-keys).
+</li>
+
+<li>
+
+Update the `.env` file with the secret key.
+
+```txt title=".env"
+OPENAI_API_KEY=sk_...
+```
+
+</li>
+
+<li>
+
+Find the model you want to use
+from the [OpenAI API Reference](https://platform.openai.com/docs/models/gpt-4o)
+or the [OpenAI Chat Playground](https://platform.openai.com/playground/chat).
+
+<Image src={oaiModelsSrc} alt={oaiModelsAlt} loading="lazy" />
+
+</li>
+
+<li>
+
+Set the `model` field in `script` to the model you want to use.
+
+```js 'model: "openai:gpt-4o"'
+script({
+    model: "openai:gpt-4o",
+    ...
+})
+```
+
+</li>
+
+</ol>
+
+</Steps>
+
+:::tip[Default Model Configuration]
+
+Use `GENAISCRIPT_MODEL_LARGE` and `GENAISCRIPT_MODEL_SMALL` in your `.env` file to set the default model and small model.
+
+```txt
+GENAISCRIPT_MODEL_LARGE=openai:gpt-4o
+GENAISCRIPT_MODEL_SMALL=openai:gpt-4o-mini
+```
+
+:::
+
+## GitHub Models <a id="github" href=""></a>
+
+The [GitHub Models](https://github.com/marketplace/models) provider, `github`, allows running models through the GitHub Marketplace.
+This provider is useful for prototyping and subject to [rate limits](https://docs.github.com/en/github-models/prototyping-with-ai-models#rate-limits)
+depending on your subscription.
+
+```js "github:"
+script({ model: "github:gpt-4" })
+```
+
+**If you are running from a [GitHub Codespace](https://github.com/features/codespaces), the token is already configured for you.**
+
+<Steps>
+
+<ol>
+
+<li>
+
+Create a [GitHub personal access token](https://github.com/settings/tokens/new).
+The token should not have any scopes or permissions.
+
+</li>
+
+<li>
+
+Update the `.env` file with the token.
+
+```txt title=".env"
+GITHUB_TOKEN=...
+```
+
+</li>
+
+</ol>
+
+</Steps>
+
+To configure a specific model,
+
+<Steps>
+
+<ol>
+
+<li>
+
+Open the [GitHub Marketplace](https://github.com/marketplace/models) and find the model you want to use.
+
+</li>
+
+<li>
+
+Copy the model name from the Javascript/Python samples
+
+```js "Phi-3-mini-4k-instruct"
+const modelName = "Phi-3-mini-4k-instruct"
+```
+
+to configure your script.
+
+```js "Phi-3-mini-4k-instruct"
+script({
+    model: "github:Phi-3-mini-4k-instruct",
+})
+```
+
+</li>
+
+</ol>
+
+</Steps>
+
+If you are already using `GITHUB_TOKEN` variable in your script and need a different one
+for GitHub Models, you can use the `GITHUB_MODELS_TOKEN` variable instead.
+
+### `o1-preview` and `o1-mini` models
+
+Currently these models do not support streaming and
+system prompts. GenAIScript handles this internally.
+
+```js "github:o1-mini"
+script({
+    model: "github:o1-mini",
+})
+```
+
+## Azure OpenAI <a id="azure" href=""></a>
+
+The [Azure OpenAI](https://learn.microsoft.com/en-us/azure/ai-services/openai/reference#chat-completions) provider, `azure` uses the `AZURE_OPENAI_...` environment variables.
+You can use a managed identity (recommended) or an API key to authenticate with the Azure OpenAI service.
+You can also use a service principal as documented in [automation](/genaiscript/getting-started/automating-scripts).
+
+```js "azure:"
+script({ model: "azure:deployment-id" })
+```
+
+:::tip
+
+If you are a Visual Studio Subscriber, you can [get free Azure credits](https://azure.microsoft.com/en-us/pricing/member-offers/credit-for-visual-studio-subscribers/)
+to try the Azure OpenAI service.
+
+:::
+
+### Managed Identity (Entra ID)
+
+<Steps>
+
+<ol>
+
+<li>
+
+Open your Azure OpenAI resource in the [Azure Portal](https://portal.azure.com)
+
+</li>
+<li>
+
+Navigate to **Access Control (IAM)**, then **View My Access**. Make sure your
+user or service principal has the **Cognitive Services OpenAI User/Contributor** role.
+If you get a `401` error, click on **Add**, **Add role assignment** and add the **Cognitive Services OpenAI User** role to your user.
+
+</li>
+<li>
+Navigate to **Resource Management**, then **Keys and Endpoint**.
+</li>
+<li>
+
+Update the `.env` file with the endpoint.
+
+```txt title=".env"
+AZURE_OPENAI_API_ENDPOINT=https://....openai.azure.com
+```
+
+:::note
+
+Make sure to remove any `AZURE_API_KEY`, `AZURE_OPENAI_API_KEY` entries from `.env` file.
+
+:::
+
+</li>
+
+<li>
+
+Navigate to **deployments** and make sure that you have your LLM deployed and copy the `deployment-id`, you will need it in the script.
+
+</li>
+
+<li>
+
+Open a terminal and **login** with [Azure CLI](https://learn.microsoft.com/en-us/javascript/api/overview/azure/identity-readme?view=azure-node-latest#authenticate-via-the-azure-cli).
+
+```sh
+az login
+```
+
+</li>
+
+<li>
+
+Update the `model` field in the `script` function to match the model deployment name in your Azure resource.
+
+```js 'model: "azure:deployment-id"'
+script({
+    model: "azure:deployment-id",
+    ...
+})
+```
+
+</li>
+
+</ol>
+
+</Steps>
+
+### Custom credentials
+
+In some situations, the default credentials chain lookup may not work.
+In that case, you can specify an additional environment variable `AZURE_OPENAI_API_CREDENTIALS`
+with the type of credential that should be used.
+
+```txt title=".env"
+AZURE_OPENAI_API_CREDENTIALS=cli
+```
+
+The types are mapped directly to their [@azure/identity](https://www.npmjs.com/package/@azure/identity) credential types:
+
+- `cli` - `AzureCliCredential`
+- `env` - `EnvironmentCredential`
+- `powershell` - `AzurePowerShellCredential`
+- `devcli` - `AzureDeveloperCliCredential`
+- `managedidentity` - `ManagedIdentityCredential`
+
+### Custom token scopes
+
+The default token scope for Azure OpenAI access is `https://cognitiveservices.azure.com/.default`.
+You can override this value using the `AZURE_OPENAI_TOKEN_SCOPES` environment variable.
+
+```txt title=".env"
+AZURE_OPENAI_TOKEN_SCOPES=...
+```
+
+### API Key
+
+<Steps>
+
+<ol>
+
+<li>
+
+Open your [Azure OpenAI resource](https://portal.azure.com) and navigate to **Resource Management**, then **Keys and Endpoint**.
+
+</li>
+
+<li>
+
+Update the `.env` file with the secret key (**Key 1** or **Key 2**) and the endpoint.
+
+```txt title=".env"
+AZURE_OPENAI_API_KEY=...
+AZURE_OPENAI_API_ENDPOINT=https://....openai.azure.com
+```
+
+</li>
+
+<li>
+
+The rest of the steps are the same: Find the deployment name and use it in your script, `model: "azure:deployment-id"`.
+
+</li>
+
+</ol>
+
+</Steps>
+
+## Azure AI Serverless Deployments <a id="azure_serverless" href=""></a>
+
+You can deploy "serverless" models through [Azure AI Studio](https://ai.azure.com/) and pay as you go per token.
+You can browse the [Azure AI model catalog](https://ai.azure.com/explore/models)
+and use the [serverless API](https://learn.microsoft.com/en-us/azure/ai-studio/how-to/deploy-models-serverless-availability) filter to see the available models.
+
+There are two types of serverless deployments that require different configurations: OpenAI models and all other models.
+The OpenAI models, like `gpt-4o`, are deployed to `.openai.azure.com` endpoints,
+while the Azure AI models, like `Meta-Llama-3.1-405B-Instruct` are deployed to `.models.ai.azure.com` endpoints.
+
+They are configured slightly differently.
+
+### Azure AI OpenAI
+
+The `azure_serverless` provider supports OpenAI models deployed through the Azure AI Studio serverless deployments.
+It supports both Entra ID and key-based authentication.
+
+```js "azure_serverless:"
+script({ model: "azure_serverless:deployment-id" })
+```
+
+#### Managed Identity (Entra ID)
+
+<Steps>
+
+<ol>
+
+<li>
+
+Open a terminal and **login** with [Azure CLI](https://learn.microsoft.com/en-us/javascript/api/overview/azure/identity-readme?view=azure-node-latest#authenticate-via-the-azure-cli).
+
+```sh
+az login
+```
+
+</li>
+
+<li>
+
+Open https://ai.azure.com/ and open the **Deployments** page.
+
+</li>
+
+<li>
+
+Deploy a **base model** from the catalog.
+You can use the `Deployment Options` -> `Serverless API` option to deploy a model as a serverless API.
+
+</li>
+
+<li>
+
+Deploy an OpenAI base model. This will also create a new Azure OpenAI resource in your subscription.
+
+</li>
+
+<li>
+
+Update the `.env` file with the deployment endpoint in the `AZURE_SERVERLESS_OPENAI_API_ENDPOINT` variable.
+
+```txt title=".env"
+AZURE_SERVERLESS_OPENAI_API_ENDPOINT=https://....openai.azure.com
+```
+
+</li>
+
+<li>
+
+Open your **Azure OpenAI** resource that was created by Azure AI in the [Azure Portal](https://portal.azure.com)
+
+</li>
+<li>
+
+Navigate to **Access Control (IAM)**, then **View My Access**. Make sure your
+user or service principal has the **Cognitive Services OpenAI User/Contributor** role.
+If you get a `401` error, click on **Add**, **Add role assignment** and add the **Cognitive Services OpenAI User** role to your user.
+
+</li>
+
+</ol>
+
+</Steps>
+
+#### API Key
+
+<Steps>
+
+<ol>
+
+<li>
+
+Open your [Azure OpenAI resource](https://portal.azure.com) and navigate to **Resource Management**, then **Keys and Endpoint**.
+
+</li>
+
+<li>
+
+Update the `.env` file with the endpoint and the secret key (**Key 1** or **Key 2**) and the endpoint.
+
+```txt title=".env"
+AZURE_SERVERLESS_OPENAI_API_ENDPOINT=https://....openai.azure.com
+AZURE_SERVERLESS_OPENAI_API_KEY=...
+```
+
+</li>
+
+</ol>
+
+</Steps>
+
+### Azure AI Models <a href="" id="azure_serverless_models" />
+
+The `azure_serverless_models` provider supports non-OpenAI models deployed through the Azure AI Studio serverless deployments.
+
+```js "azure_serverless_models:"
+script({ model: "azure_serverless_models:deployment-id" })
+```
+
+#### Managed Identity (Entra ID)
+
+<Steps>
+
+<ol>
+
+<li>
+
+Open your **Azure AI Project** resource in the [Azure Portal](https://portal.azure.com)
+
+</li>
+<li>
+
+Navigate to **Access Control (IAM)**, then **View My Access**. Make sure your
+user or service principal has the **Azure AI Developer** role.
+If you get a `401` error, click on **Add**, **Add role assignment** and add the **Azure AI Developer** role to your user.
+
+</li>
+
+<li>
+
+Configure the **Endpoint Target URL** as the `AZURE_SERVERLESS_MODELS_API_ENDPOINT`.
+
+```txt title=".env"
+AZURE_SERVERLESS_MODELS_API_ENDPOINT=https://...models.ai.azure.com
+```
+
+</li>
+
+<li>
+
+Navigate to **deployments** and make sure that you have your LLM deployed and copy the Deployment Info name, you will need it in the script.
+
+</li>
+
+<li>
+
+Update the `model` field in the `script` function to match the model deployment name in your Azure resource.
+
+```js 'model: "azure_serverless:deployment-info-name"'
+script({
+    model: "azure_serverless:deployment-info-name",
+    ...
+})
+```
+
+</li>
+
+</ol>
+
+</Steps>
+
+#### API Key
+
+<Steps>
+
+<ol>
+
+<li>
+
+Open https://ai.azure.com/ and open the **Deployments** page.
+
+</li>
+
+<li>
+
+Deploy a **base model** from the catalog.
+You can use the `Deployment Options` -> `Serverless API` option to deploy a model as a serverless API.
+
+</li>
+
+<li>
+
+Configure the **Endpoint Target URL** as the `AZURE_SERVERLESS_MODELS_API_ENDPOINT` variable and the key in
+`AZURE_SERVERLESS_MODELS_API_KEY` in the `.env` file\***\*.\*\***
+
+```txt title=".env"
+AZURE_SERVERLESS_MODELS_API_ENDPOINT=https://...models.ai.azure.com
+AZURE_SERVERLESS_MODELS_API_KEY=...
+```
+
+</li>
+
+<li>
+
+Find the deployment name and use it in your script, `model: "azure_serverless:deployment-id"`.
+
+</li>
+
+</ol>
+
+</Steps>
+
+#### Support for multiple inference deployements
+
+You can update the `AZURE_SERVERLESS_MODELS_API_KEY` with a list of `deploymentid=key` pairs to support multiple deployments (each deployment has a different key).
+
+```txt title=".env"
+AZURE_SERVERLESS_MODELS_API_KEY="
+model1=key1
+model2=key2
+model3=key3
+"
+```
+
+## Google AI <a href="" id="google" />
+
+The `google` provider allows you to use Google AI models. It gives you access
+
+:::note
+
+GenAIScript uses the [OpenAI compatibility](https://ai.google.dev/gemini-api/docs/openai) layer of Google AI,
+so some [limitations](https://ai.google.dev/gemini-api/docs/openai#current-limitations) apply.
+
+:::
+
+<Steps>
+
+<ol>
+
+<li>
+
+Open [Google AI Studio](https://aistudio.google.com/app/apikey) and create a new API key.
+
+</li>
+
+<li>
+
+Update the `.env` file with the API key.
+
+```txt title=".env"
+GOOGLE_API_KEY=...
+```
+
+</li>
+
+<li>
+
+Find the model identifier in the [Gemini documentation](https://ai.google.dev/gemini-api/docs/models/gemini)
+and use it in your script or cli with the `google` provider.
+
+```py "gemini-1.5-pro-002"
+...
+const model = genAI.getGenerativeModel({
+  model: "gemini-1.5-pro-002",
+});
+...
+```
+
+then use the model identifier in your script.
+
+```js "gemini-1.5-pro-002"
+script({ model: "google:gemini-1.5-pro-002" })
+```
+
+</li>
+
+</ol>
+
+</Steps>
+
+## GitHub Copilot Chat Models <a id="github-copilot" href=""></a>
+
+If you have access to **GitHub Copilot Chat in Visual Studio Code**,
+GenAIScript will be able to leverage those [language models](https://code.visualstudio.com/api/extension-guides/language-model) as well.
+
+This mode is useful to run your scripts without having a separate LLM provider or local LLMs. However, those models are not available from the command line
+and have additional limitations and rate limiting defined by the GitHub Copilot platform.
+
+There is no configuration needed as long as you have GitHub Copilot installed and configured in Visual Studio Code.
+You can force using this model by using `client:*` as a model name.
+
+<Steps>
+
+<ol>
+
+<li>
+
+Install [GitHub Copilot Chat](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot-chat) (emphasis on **Chat**)
+
+</li>
+
+<li>run your script</li>
+<li>
+
+Confirm that you are allowing GenAIScript to use the GitHub Copilot Chat models.
+
+</li>
+<li>
+select the best chat model that matches the one you have in your script
+
+<Image src={lmSelectSrc} alt={lmSelectAlt} loading="lazy" />
+
+(This step is skipped if you already have mappings in your settings)
+
+</li>
+
+</ol>
+
+</Steps>
+
+The mapping of GenAIScript model names to Visual Studio Models is stored in the settings.
+
+## Anthropic
+
+[Anthropic](https://www.anthropic.com/) is an AI research company that offers powerful language models, including the Claude series.
+
+```js "anthropic:"
+script({ model: "anthropic:claude-2.1" })
+```
+
+To use Anthropic models with GenAIScript, follow these steps:
+
+<Steps>
+
+<ol>
+
+<li>
+
+Sign up for an Anthropic account and obtain an API key from their [console](https://console.anthropic.com/).
+
+</li>
+
+<li>
+
+Add your Anthropic API key to the `.env` file:
+
+```txt title=".env"
+ANTHROPIC_API_KEY=sk-ant-api...
+```
+
+</li>
+
+<li>
+
+Find the model that best suits your needs by visiting the [Anthropic model documentation](https://docs.anthropic.com/en/docs/about-claude/models#model-names).
+
+</li>
+
+<li>
+
+Update your script to use the `model` you choose.
+
+```js
+script({
+    ...
+    model: "anthropic:claude-3-5-sonnet-20240620",
+})
+```
+
+</li>
+
+</ol>
+
+</Steps>
+
+## Hugging Face <a href="" id="huggingface" />
+
+The `huggingface` provider allows you to use [Hugging Face Models](https://huggingface.co/models?other=text-generation-inference) using [Text Generation Inference](https://huggingface.co/docs/text-generation-inference/index).
+
+```js "huggingface:"
+script({ model: "huggingface:microsoft/Phi-3-mini-4k-instruct" })
+```
+
+To use Hugging Face models with GenAIScript, follow these steps:
+
+<Steps>
+
+<ol>
+
+<li>
+
+Sign up for a [Hugging Face account](https://huggingface.co/) and obtain an API key from their [console](https://huggingface.co/settings/tokens).
+If you are creating a **Fined Grained** token, enable the **Make calls to the serverless inference API** option.
+
+</li>
+
+<li>
+
+Add your Hugging Face API key to the `.env` file:
+
+```txt title=".env"
+HUGGINGFACE_API_KEY=hf_...
+```
+
+</li>
+
+<li>
+
+Find the model that best suits your needs by visiting the [HuggingFace models](https://huggingface.co/models?other=text-generation-inference).
+
+</li>
+
+<li>
+
+Update your script to use the `model` you choose.
+
+```js
+script({
+    ...
+    model: "huggingface:microsoft/Phi-3-mini-4k-instruct",
+})
+```
+
+</li>
+
+</ol>
+
+</Steps>
+
+:::note
+
+Some models may require a Pro account.
+
+:::
+
+## Mistral AI <a href="" id="mistral" />
+
+The `mistral` provider allows you to use [Mistral AI Models](https://mistral.ai/technology/#models)
+using the [Mistral API](https://docs.mistral.ai/).
+
+```js "mistral:"
+script({ model: "mistral:mistral-large-latest" })
+```
+
+<Steps>
+
+<ol>
+
+<li>
+
+Sign up for a [Mistral AI account](https://mistral.ai/)
+and obtain an API key from their [console](https://console.mistral.ai/).
+
+</li>
+
+<li>
+
+Add your Mistral AI API key to the `.env` file:
+
+```txt title=".env"
+MISTRAL_API_KEY=...
+```
+
+</li>
+
+<li>
+
+Update your script to use the `model` you choose.
+
+```js
+script({
+    ...
+    model: "mistral:mistral-large-latest",
+})
+```
+
+</li>
+
+</ol>
+
+</Steps>
+
+## Alibaba Cloud <a href="" id="alibaba" />
+
+The `alibaba` provider access the [Alibaba Cloud](https://www.alibabacloud.com/) models.
+
+```js "alibaba:"
+script({
+    model: "alibaba:qwen-max",
+})
+```
+
+<Steps>
+
+<ol>
+
+<li>
+
+Sign up for a [Alibaba Cloud account](https://www.alibabacloud.com/help/en/model-studio/developer-reference/get-api-key) and obtain an API key from their [console](https://bailian.console.alibabacloud.com/).
+
+</li>
+
+<li>
+
+Add your Alibaba API key to the `.env` file:
+
+```txt title=".env"
+ALIBABA_API_KEY=sk_...
+```
+
+</li>
+
+<li>
+
+Find the model that best suits your needs by visiting the [Alibaba models](https://www.alibabacloud.com/help/en/model-studio/developer-reference/use-qwen-by-calling-api).
+
+</li>
+
+<li>
+
+Update your script to use the `model` you choose.
+
+```js
+script({
+    ...
+    model: "alibaba:qwen-max",
+})
+```
+
+</li>
+
+</ol>
+
+</Steps>
+
+:::note
+
+GenAIScript uses the [OpenAI compatibility](https://www.alibabacloud.com/help/en/model-studio/developer-reference/compatibility-of-openai-with-dashscope) layer
+to access Alibaba.
+
+:::
+
+## Ollama
+
+[Ollama](https://ollama.ai/) is a desktop application that lets you download and run models locally.
+
+Running tools locally may require additional GPU resources depending on the model you are using.
+
+Use the `ollama` provider to access Ollama models.
+
+:::note
+
+GenAIScript is currently using the OpenAI API compatibility layer of Ollama.
+
+:::
+
+<Steps>
+
+<ol>
+
+<li>
+
+Start the Ollama application or
+
+```sh
+ollama serve
+```
+
+</li>
+
+<li>
+
+Update your script to use the `ollama:phi3.5` model (or any [other model](https://ollama.com/library) or from [Hugging Face](https://huggingface.co/docs/hub/en/ollama)).
+
+```js "ollama:phi3.5"
+script({
+    ...,
+    model: "ollama:phi3.5",
+})
+```
+
+GenAIScript will automatically pull the model, which may take some time depending on the model size. The model is cached locally by Ollama.
+
+</li>
+
+<li>
+
+If Ollama runs on a server or a different computer or on a different port,
+you have to configure the `OLLAMA_HOST` environment variable to connect to a remote Ollama server.
+
+```txt title=".env"
+OLLAMA_HOST=https://<IP or domain>:<port>/ # server url
+OLLAMA_HOST=0.0.0.0:12345 # different port
+```
+
+</li>
+
+</ol>
+
+</Steps>
+
+You can specify the model size by adding the size to the model name, like `ollama:llama3.2:3b`.
+
+```js "ollama:llama3.2:3b"
+script({
+    ...,
+    model: "ollama:llama3.2:3b",
+})
+```
+
+## Ollama with Hugging Face models
+
+You can also use [GGUF models](https://huggingface.co/models?library=gguf) from [Hugging Face](https://huggingface.co/docs/hub/en/ollama).
+
+```js "hf.co/bartowski/Llama-3.2-1B-Instruct-GGUF"
+script({
+    ...,
+    model: "ollama:hf.co/bartowski/Llama-3.2-1B-Instruct-GGUF",
+})
+```
+
+### Ollama with Docker
+
+You can conviniately run Ollama in a Docker container.
+
+- start the [Ollama container](https://ollama.com/blog/ollama-is-now-available-as-an-official-docker-image)
+
+```sh
+docker run -d -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama
+```
+
+- stop and remove the Ollama containers
+
+```sh
+docker stop ollama && docker rm ollama
+```
+
+## LMStudio
+
+The `lmstudio` provider connects to the [LMStudio](https://lmstudio.ai/) headless server.
+and allows to run local LLMs.
+
+:::note
+
+LMStudio 0.3.5 beta 4 or later is required.
+
+:::
+
+<Steps>
+
+<ol>
+
+<li>
+
+Install [LMStudio](https://lmstudio.ai/download) (v0.3.5+)
+
+</li>
+
+<li>
+
+Open LMStudio,
+
+</li>
+
+<li>
+
+Open the [Model Catalog](https://lmstudio.ai/models),
+select your model and load it at least once so it is downloaded locally.
+
+</li>
+
+<li>
+
+Open the settings (Gearwheel icon) and enable **Enable Local LLM Service**.
+
+</li>
+
+<li>
+
+GenAIScript assumes the local server is at `http://localhost:1234/v1` by default.
+Add a `LMSTUDIO_API_BASE` environment variable to change the server URL.
+
+```txt title=".env"
+LMSTUDIO_API_BASE=http://localhost:2345/v1
+```
+
+</li>
+
+</ol>
+
+</Steps>
+
+Find the model **API identifier** in the dialog of loaded models then use that identifier in your script:
+
+```js '"lmstudio:llama-3.2-1b"'
+script({
+    model: "lmstudio:llama-3.2-1b-instruct",
+})
+```
+
+### LMStudio and Hugging Face Models
+
+Follow [this guide](https://huggingface.co/blog/yagilb/lms-hf) to load Hugging Face models into LMStudio.
+
+## LocalAI
+
+[LocalAI](https://localai.io/) act as a drop-in replacement REST API that’s compatible
+with OpenAI API specifications for local inferencing. It uses free Open Source models
+and it runs on CPUs.
+
+LocalAI acts as an OpenAI replacement, you can see the [model name mapping](https://localai.io/basics/container/#all-in-one-images)
+used in the container, like `gpt-4` is mapped to `phi-2`.
+
+<Steps>
+
+<ol>
+
+<li>
+
+Install Docker. See the [LocalAI documentation](https://localai.io/basics/getting_started/#prerequisites) for more information.
+
+</li>
+
+<li>
+
+Update the `.env` file and set the api type to `localai`.
+
+```txt title=".env" "localai"
+OPENAI_API_TYPE=localai
+```
+
+</li>
+
+</ol>
+
+</Steps>
+
+To start LocalAI in docker, run the following command:
+
+```sh
+docker run -p 8080:8080 --name local-ai -ti localai/localai:latest-aio-cpu
+docker start local-ai
+docker stats
+echo "LocalAI is running at http://127.0.0.1:8080"
+```
+
+## Llamafile
+
+[https://llamafile.ai/](https://llamafile.ai/) is a single file desktop application
+that allows you to run an LLM locally.
+
+The provider is `llamafile` and the model name is ignored.
+
+## Jan, LLaMA.cpp
+
+[Jan](https://jan.ai/),
+[LLaMA.cpp](https://github.com/ggerganov/llama.cpp/tree/master/examples/server)
+also allow running models locally or interfacing with other LLM vendors.
+
+<Steps>
+
+<ol>
+
+<li>
+
+Update the `.env` file with the local server information.
+
+```txt title=".env"
+OPENAI_API_BASE=http://localhost:...
+```
+
+</li>
+
+</ol>
+
+</Steps>
+
+## OpenRouter
+
+You can configure the OpenAI provider to use the [OpenRouter](https://openrouter.ai/docs/quick-start) service instead
+by setting the `OPENAI_API_BASE` to `https://openrouter.ai/api/v1`.
+You will also need an [api key](https://openrouter.ai/settings/keys).
+
+```txt title=".env"
+OPENAI_API_BASE=https://openrouter.ai/api/v1
+OPENAI_API_KEY=...
+```
+
+Then use the OpenRouter model name in your script:
+
+```js
+script({ model: "openai:openai/gpt-4o-mini" })
+```
+
+By default, GenAIScript will set the site URL and name to `GenAIScript` but you can override these settings with your own values:
+
+```txt title=".env"
+OPENROUTER_SITE_URL=... # populates HTTP-Referer header
+OPENROUTER_SITE_NAME=... # populate X-Title header
+```
+
+## Hugging Face Transformer.js <a href="" id="transformers" />
+
+This `transformers` provider runs models on device using [Hugging Face Transformers.js](https://huggingface.co/docs/transformers.js/index).
+
+The model syntax is `transformers:<repo>:<dtype>` where
+
+- `repo` is the model repository on Hugging Face,
+- [`dtype`](https://huggingface.co/docs/transformers.js/guides/dtypes) is the quantization type.
+
+```js "transformers:"
+script({
+    model: "transformers:onnx-community/Qwen2.5-Coder-0.5B-Instruct:q4",
+})
+```
+
+The default transformers device is `cpu`,
+but you can changing it using `HUGGINGFACE_TRANSFORMERS_DEVICE` environment variable.
+
+```txt title=".env"
+HUGGINGFACE_TRANSFORMERS_DEVICE=gpu
+```
+
+:::note
+
+This provider is experimental and may not work with all models.
+
+:::
+
+## Model specific environment variables
+
+You can provide different environment variables
+for each named model by using the `PROVIDER_MODEL_API_...` prefix or `PROVIDER_API_...` prefix.
+The model name is capitalized and
+all non-alphanumeric characters are converted to `_`.
+
+This allows to have various sources of LLM computations
+for different models. For example, to enable the `ollama:phi3`
+model running locally, while keeping the default `openai` model connection information.
+
+```txt title=".env"
+OLLAMA_PHI3_API_BASE=http://localhost:11434/v1
+```
+
+## Running behind a proxy
+
+You can set the `HTTP_PROXY` and/or `HTTPS_PROXY` environment variables to run GenAIScript behind a proxy.
+
+```txt title=".env"
+HTTP_PROXY=http://proxy.example.com:8080
+```
+
+## Checking your configuration
+
+You can check your configuration by running the `genaiscript info env` [command](/genaiscript/reference/cli).
+It will display the current configuration information parsed by GenAIScript.
+
+```sh
+genaiscript info env
+```
+
+## Next steps
+
+Write your [first script](/genaiscript/getting-started/your-first-genai-script).
