@@ -12,7 +12,7 @@ System prompts are scripts that are executed and injected before the main prompt
 -   system prompts must use the `system` instead of `script`
 -   system prompts are executed with the same environment as the main prompt
 
-```js title="system.zscot.genai.js" "system"
+```js title="system.zero_shot_cot.genai.js" "system"
 system({
     title: "Zero-shot Chain of Thought",
 })
@@ -22,10 +22,10 @@ $`Let's think step by step.`
 
 To use system prompts in script, populate the `system` field with script identifiers.
 
-```js title="myscript.genai.js" 'system: ["system.zscot"]'
+```js title="myscript.genai.js" 'system: ["system.zero_shot_cot"]'
 script({
     ...,
-    system: ["system.zscot"]
+    system: ["system.zero_shot_cot"]
 })
 $`Let's think step by step.`
 ```
@@ -72,6 +72,22 @@ script({ ...,
     },
 })
 ```
+
+## Automated System Prompts
+
+When unspecified, GenAIScript inspects the source code of the script
+to determine a reasonable set of system prompts ([source code](https://github.com/microsoft/genaiscript/blob/main/packages/core/src/systems.ts)).
+
+The default mix is
+
+- system
+- system.output_markdown
+- system.explanations
+- system.safety_jailbreak
+- system.safety_harmful_content
+- system.safety_protected_material
+
+On top of the default, injects other system scripts based on keyword matching.
 
 ## Builtin System Prompts
 
