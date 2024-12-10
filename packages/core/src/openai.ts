@@ -1,9 +1,15 @@
-import { deleteUndefinedValues, normalizeInt, trimTrailingSlash } from "./util"
+import {
+    deleteUndefinedValues,
+    logVerbose,
+    normalizeInt,
+    trimTrailingSlash,
+} from "./util"
 import { LanguageModelConfiguration, host } from "./host"
 import {
     AZURE_AI_INFERENCE_VERSION,
     AZURE_OPENAI_API_VERSION,
     MODEL_PROVIDER_OPENAI,
+    MODEL_PROVIDERS,
     OPENROUTER_API_CHAT_URL,
     OPENROUTER_SITE_NAME_HEADER,
     OPENROUTER_SITE_URL_HEADER,
@@ -89,8 +95,10 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
     } = options
     const { headers = {}, ...rest } = requestOptions || {}
     const { token, source, ...cfgNoToken } = cfg
-    const { model } = parseModelIdentifier(req.model)
+    const { provider, model } = parseModelIdentifier(req.model)
     const { encode: encoder } = await resolveTokenEncoder(model)
+
+    const features = MODEL_PROVIDERS.find(({ id }) => id === provider)
 
     const cache = !!cacheOrName || !!cacheName
     const cacheStore = getChatCompletionCache(
@@ -124,11 +132,24 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
 
     const postReq = structuredClone({
         ...req,
-        messages: req.messages.map(({ cacheControl, ...rest }) => ({ ...rest })),
+        messages: req.messages.map(({ cacheControl, ...rest }) => ({
+            ...rest,
+        })),
         stream: true,
         stream_options: { include_usage: true },
         model,
     } satisfies CreateChatCompletionRequest)
+
+    if (features?.seed === false) {
+        logVerbose(`seed: disabled, not supported by ${provider}`)
+        trace.itemValue(`seed`, `disabled`)
+        delete postReq.seed // some providers do not support seed
+    }
+    if (features?.logit_bias === false) {
+        logVerbose(`logit_bias: disabled, not supported by ${provider}`)
+        trace.itemValue(`logit_bias`, `disabled`)
+        delete postReq.logit_bias // some providers do not support logit_bias
+    }
 
     // stream_options fails in some cases
     if (model === "gpt-4-turbo-v" || /mistral/i.test(model)) {
@@ -428,7 +449,7 @@ async function listModels(
             ...getConfigHeaders(cfg),
             Accept: "application/json",
         },
-        retries: 0
+        retries: 0,
     })
     if (res.status !== 200) return []
     const { data } = (await res.json()) as {

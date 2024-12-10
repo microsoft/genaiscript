@@ -244,7 +244,13 @@ export const DOCS_WEB_SEARCH_BING_SEARCH_URL =
 export const DOCS_WEB_SEARCH_TAVILY_URL =
     "https://microsoft.github.io/genaiscript/reference/scripts/web-search/#tavily"
 
-export const MODEL_PROVIDERS = Object.freeze([
+export const MODEL_PROVIDERS: readonly {
+    id: string
+    detail: string
+    url: string
+    seed?: boolean
+    logit_bias?: boolean
+}[] = Object.freeze([
     {
         id: MODEL_PROVIDER_OPENAI,
         detail: "OpenAI or compatible",
@@ -279,6 +285,7 @@ export const MODEL_PROVIDERS = Object.freeze([
         id: MODEL_PROVIDER_GOOGLE,
         detail: "Google AI",
         url: DOCS_CONFIGURATION_GOOGLE_URL,
+        seed: false,
     },
     {
         id: MODEL_PROVIDER_HUGGINGFACE,
@@ -299,6 +306,7 @@ export const MODEL_PROVIDERS = Object.freeze([
         id: MODEL_PROVIDER_OLLAMA,
         detail: "Ollama local model",
         url: DOCS_CONFIGURATION_OLLAMA_URL,
+        logit_bias: false,
     },
     {
         id: MODEL_PROVIDER_LMSTUDIO,
