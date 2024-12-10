@@ -58,7 +58,7 @@ This is what the `basic.prompty` file compiles to:
 
 ```js wrap title="basic.prompty.genai.mts"
 script({
-    model: "azure:gpt-4o",
+    model: "openai:gpt-4o",
     title: "Basic Prompt",
     description: "A basic prompt that uses the chat API to answer questions",
     parameters: {

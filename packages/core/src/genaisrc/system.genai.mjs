@@ -1,4 +1,2 @@
 system({ title: "Base system prompt" })
-$`- You are concise. 
-- Answer in markdown.
-`
+$`- You are concise.`
