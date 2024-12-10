@@ -140,7 +140,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
         model,
     } satisfies CreateChatCompletionRequest)
 
-    if (postReq.seed && features?.seed === false) {
+    if (!isNaN(postReq.seed) && features?.seed === false) {
         logVerbose(`seed: disabled, not supported by ${provider}`)
         trace.itemValue(`seed`, `disabled`)
         delete postReq.seed // some providers do not support seed
