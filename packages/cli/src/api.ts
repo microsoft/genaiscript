@@ -16,28 +16,46 @@ export async function run(
     scriptId: string,
     files?: string[],
     options?: Partial<PromptScriptRunOptions> & {
+        /**
+         * Environment variables to use for the operation.
+         */
         env?: Record<string, string>
+        /**
+         * The signal to use for aborting the operation. Terminates the worker thread.
+         */
+        signal?: AbortSignal
     }
 ): Promise<{
     exitCode: number
     result?: GenerationResult
 }> {
-    const { env, ...rest } = options || {}
+    const { env, signal, ...rest } = options || {}
     const workerData = {
         type: "run",
         scriptId,
         files: files || [],
         options: rest,
     }
-
     const filename =
         typeof __filename === "undefined"
             ? join(dirname(fileURLToPath(import.meta.url)), "genaiscript.cjs") // ignore esbuild warning
             : __filename
-    const worker = new Worker(filename, { workerData, name: options?.label })
+    let worker = new Worker(filename, { workerData, name: options?.label })
     return new Promise((resolve, reject) => {
-        worker.on("online", () => process.stderr.write(`worker: online\n`))
-        worker.on("message", resolve)
-        worker.on("error", reject)
+        const abort = () => {
+            if (worker) {
+                reject(new Error("aborted")) // fail early
+                worker.terminate() // don't wait for the worker to finish
+            }
+        }
+        signal?.addEventListener("abort", abort)
+        worker.on("message", (res) => {
+            signal?.removeEventListener("abort", abort)
+            resolve(res)
+        })
+        worker.on("error", () => {
+            signal?.removeEventListener("abort", abort)
+            reject()
+        })
     })
 }
