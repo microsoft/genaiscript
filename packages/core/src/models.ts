@@ -13,7 +13,7 @@ import {
 import { errorMessage } from "./error"
 import { LanguageModelConfiguration, host, runtimeHost } from "./host"
 import { AbortSignalOptions, MarkdownTrace, TraceOptions } from "./trace"
-import { assert } from "./util"
+import { assert, logVerbose } from "./util"
 
 /**
  * model
@@ -127,8 +127,21 @@ export async function resolveModelConnectionInfo(
         ...DEFAULT_MODEL_CANDIDATES,
     ]
 
-    // apply model alias
-    m = runtimeHost.modelAliases[m]?.model || m
+    // recursively resolve model aliases
+    if (m) {
+        const seen = [m]
+        const modelAliases = runtimeHost.modelAliases
+        while (modelAliases[m]) {
+            const alias = modelAliases[m].model
+            if (seen.includes(alias))
+                throw new Error(
+                    `Circular model alias: ${alias}, seen ${[...seen].join(",")}`
+                )
+            m = alias
+            seen.push(m)
+        }
+        if (seen.length > 1) logVerbose(`model_aliases: ${seen.join(" -> ")}`)
+    }
 
     const resolveModel = async (
         model: string,

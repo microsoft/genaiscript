@@ -79,7 +79,7 @@ export async function createAzureToken(
 
     // Log the expiration time of the token
     logVerbose(
-        `azure token expires at ${new Date(res.expiresOnTimestamp).toLocaleString()}`
+        `azure: token expires at ${new Date(res.expiresOnTimestamp).toLocaleString()}`
     )
 
     return res
