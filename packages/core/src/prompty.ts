@@ -3,7 +3,7 @@ import {
     ChatCompletionMessageParam,
 } from "./chattypes"
 import { splitMarkdown } from "./frontmatter"
-import { YAMLTryParse } from "./yaml"
+import { YAMLParse } from "./yaml"
 import { deleteUndefinedValues } from "./util"
 import { JSON5Stringify } from "./json5"
 
@@ -132,7 +132,8 @@ function promptyFrontmatterToMeta(frontmatter: PromptyFrontmatter): PromptArgs {
 
 export function promptyParse(filename: string, text: string): PromptyDocument {
     const { frontmatter = "", content = "" } = splitMarkdown(text)
-    const fm = YAMLTryParse(frontmatter) ?? {}
+    if (!frontmatter) throw new Error("Prompty: Frontmatter required")
+    const fm = YAMLParse(frontmatter)
     const meta: PromptArgs = fm ? promptyFrontmatterToMeta(fm) : {}
     if (filename) meta.filename = filename
     const messages: ChatCompletionMessageParam[] = []
