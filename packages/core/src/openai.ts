@@ -140,12 +140,12 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
         model,
     } satisfies CreateChatCompletionRequest)
 
-    if (features?.seed === false) {
+    if (postReq.seed && features?.seed === false) {
         logVerbose(`seed: disabled, not supported by ${provider}`)
         trace.itemValue(`seed`, `disabled`)
         delete postReq.seed // some providers do not support seed
     }
-    if (features?.logit_bias === false) {
+    if (postReq.logit_bias && features?.logit_bias === false) {
         logVerbose(`logit_bias: disabled, not supported by ${provider}`)
         trace.itemValue(`logit_bias`, `disabled`)
         delete postReq.logit_bias // some providers do not support logit_bias
@@ -319,9 +319,10 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
             if (Array.isArray(delta?.tool_calls)) {
                 const { tool_calls } = delta
                 for (const call of tool_calls) {
+                    const index = call.index ?? toolCalls.length
                     const tc =
-                        toolCalls[call.index] ||
-                        (toolCalls[call.index] = {
+                        toolCalls[index] ||
+                        (toolCalls[index] = {
                             id: call.id,
                             name: call.function.name,
                             arguments: "",
@@ -342,10 +343,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
             })
         }
 
-        if (
-            finish_reason === "function_call" ||
-            finish_reason === "tool_calls"
-        ) {
+        if (finish_reason === "function_call" || toolCalls.length > 0) {
             finishReason = "tool_calls"
         } else {
             finishReason = finish_reason

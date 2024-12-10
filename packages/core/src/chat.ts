@@ -407,8 +407,7 @@ schema: ${f.args?.schema || ""},
 error: ${f.validation.schemaError}`
         )
         .join("\n\n")
-    const repairMsg =
-`<data_format_issues>
+    const repairMsg = `<data_format_issues>
 ${repair}
 </data_format_issues>
                             
@@ -868,7 +867,6 @@ export async function executeChatSession(
                         stream: true,
                         logprobs,
                         top_logprobs,
-                        messages,
                         tools: fallbackTools ? undefined : tools,
                         // https://platform.openai.com/docs/guides/predicted-outputs
                         prediction: prediction?.content
@@ -889,6 +887,7 @@ export async function executeChatSession(
                                         },
                                     }
                                   : undefined,
+                        messages,
                     })
                     if (/^o1/i.test(model)) {
                         req.max_completion_tokens = maxTokens
