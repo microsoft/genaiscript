@@ -1,5 +1,9 @@
 script({
-    system: ["system", "system.output_plaintext"]
+    model: "small",
+    system: ["system", "system.output_plaintext"],
+    tests: {
+        keywords: "carrots",
+    },
 })
 
-$`Generate a random recipe.`
+$`Generate a random recipe with carrots.`
