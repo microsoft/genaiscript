@@ -96,10 +96,10 @@ class ModelManager implements ModelService {
     ): Promise<ResponseStatus> {
         const { trace } = options || {}
         const { provider, model } = parseModelIdentifier(modelid)
-        if (provider === MODEL_PROVIDER_OLLAMA) {
-            if (this.pulled.includes(modelid)) return { ok: true }
+        if (this.pulled.includes(modelid)) return { ok: true }
 
-            if (!isQuiet) logVerbose(`ollama pull ${model}`)
+        if (provider === MODEL_PROVIDER_OLLAMA) {
+            logVerbose(`ollama: pull ${model}`)
             try {
                 const conn = await this.getModelToken(modelid)
                 const res = await fetch(`${conn.base}/api/pull`, {
@@ -120,8 +120,8 @@ class ModelManager implements ModelService {
                 if (res.ok) this.pulled.push(modelid)
                 return { ok: res.ok, status: res.status }
             } catch (e) {
-                logError(`failed to pull model ${model}`)
-                trace?.error("pull model failed", e)
+                logError(`ollama: failed to pull model ${model}`)
+                trace?.error("ollama: pull model failed", e)
                 return { ok: false, status: 500, error: serializeError(e) }
             }
         }

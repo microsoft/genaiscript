@@ -1,140 +1,12 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import * as vscode from "vscode"
 import { ExtensionState } from "./state"
-import {
-    MODEL_PROVIDER_OLLAMA,
-    MODEL_PROVIDER_LLAMAFILE,
-    MODEL_PROVIDER_AICI,
-    MODEL_PROVIDER_AZURE_OPENAI,
-    MODEL_PROVIDER_LITELLM,
-    MODEL_PROVIDER_OPENAI,
-    MODEL_PROVIDER_CLIENT,
-    MODEL_PROVIDER_GITHUB,
-    TOOL_NAME,
-    MODEL_PROVIDER_AZURE_SERVERLESS_MODELS,
-    MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI,
-    DOCS_CONFIGURATION_URL,
-    MODEL_PROVIDER_GOOGLE,
-    MODEL_PROVIDER_ALIBABA,
-    MODEL_PROVIDER_LMSTUDIO,
-} from "../../core/src/constants"
-import { OpenAIAPIType } from "../../core/src/host"
-import { parseModelIdentifier } from "../../core/src/models"
 import { ChatCompletionMessageParam } from "../../core/src/chattypes"
 import { LanguageModelChatRequest } from "../../core/src/server/client"
 import { ChatStart } from "../../core/src/server/messages"
 import { serializeError } from "../../core/src/error"
 import { logVerbose } from "../../core/src/util"
 import { renderMessageContent } from "../../core/src/chatrender"
-
-async function generateLanguageModelConfiguration(
-    state: ExtensionState,
-    modelId: string
-) {
-    const { provider } = parseModelIdentifier(modelId)
-    const supportedProviders = [
-        MODEL_PROVIDER_OLLAMA,
-        MODEL_PROVIDER_LLAMAFILE,
-        MODEL_PROVIDER_AICI,
-        MODEL_PROVIDER_AZURE_OPENAI,
-        MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI,
-        MODEL_PROVIDER_AZURE_SERVERLESS_MODELS,
-        MODEL_PROVIDER_LITELLM,
-        MODEL_PROVIDER_LMSTUDIO,
-        MODEL_PROVIDER_GOOGLE,
-        MODEL_PROVIDER_ALIBABA,
-    ]
-    if (supportedProviders.includes(provider)) {
-        return { provider }
-    }
-
-    const languageChatModels = await state.languageChatModels()
-    if (Object.keys(languageChatModels).length)
-        return { provider: MODEL_PROVIDER_CLIENT, model: "*" }
-
-    const items: (vscode.QuickPickItem & {
-        model?: string
-        provider?: string
-        apiType?: OpenAIAPIType
-    })[] = []
-    if (isLanguageModelsAvailable()) {
-        const models = await vscode.lm.selectChatModels()
-        if (models.length)
-            items.push({
-                label: "Visual Studio Language Chat Models",
-                detail: `Use a registered LLM such as GitHub Copilot.`,
-                model: "*",
-                provider: MODEL_PROVIDER_CLIENT,
-            })
-    }
-    items.push(
-        {
-            label: "OpenAI",
-            detail: `Use a personal OpenAI subscription.`,
-            provider: MODEL_PROVIDER_OPENAI,
-        },
-        {
-            label: "Azure OpenAI",
-            detail: `Use a Azure-hosted OpenAI subscription.`,
-            provider: MODEL_PROVIDER_AZURE_OPENAI,
-            apiType: "azure",
-        },
-        {
-            label: "Azure AI OpenAI (serverless deployment)",
-            detail: `Use a Azure OpenAI serverless model deployment through Azure AI Studio.`,
-            provider: MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI,
-            apiType: "azure_serverless",
-        },
-        {
-            label: "Azure AI Models (serverless deployment)",
-            detail: `Use a Azure serverless model deployment through Azure AI Studio.`,
-            provider: MODEL_PROVIDER_AZURE_SERVERLESS_MODELS,
-            apiType: "azure_serverless_models",
-        },
-        {
-            label: "GitHub Models",
-            detail: `Use a GitHub Models with a GitHub subscription.`,
-            provider: MODEL_PROVIDER_GITHUB,
-        },
-        {
-            label: "Alibaba Cloud",
-            detail: "Use Alibaba Cloud models.",
-            provider: MODEL_PROVIDER_ALIBABA,
-        },
-        {
-            label: "LocalAI",
-            description: "https://localai.io/",
-            detail: "Use local LLMs instead OpenAI. Requires LocalAI and Docker.",
-            provider: MODEL_PROVIDER_OPENAI,
-            apiType: "localai",
-        },
-        {
-            label: "Ollama",
-            description: "https://ollama.com/",
-            detail: "Run a open source LLMs locally. Requires Ollama",
-            provider: MODEL_PROVIDER_OLLAMA,
-        },
-        {
-            label: "AICI",
-            description: "http://github.com/microsoft/aici",
-            detail: "Generate AICI javascript prompts.",
-            provider: MODEL_PROVIDER_AICI,
-        }
-    )
-
-    const res: { model?: string; provider?: string; apiType?: OpenAIAPIType } =
-        await vscode.window.showQuickPick<
-            vscode.QuickPickItem & {
-                model?: string
-                provider?: string
-                apiType?: OpenAIAPIType
-            }
-        >(items, {
-            title: `Configure a Language Model for ${modelId}`,
-        })
-
-    return res
-}
 
 async function pickChatModel(
     state: ExtensionState,
@@ -163,26 +35,6 @@ async function pickChatModel(
         }
     }
     return chatModel
-}
-
-export async function pickLanguageModel(
-    state: ExtensionState,
-    modelId: string
-) {
-    const res = await generateLanguageModelConfiguration(state, modelId)
-    if (res === undefined) return undefined
-
-    if (res.model) return res.model
-    else {
-        const configure = "Configure..."
-        vscode.window.showWarningMessage(
-            `${TOOL_NAME} - model connection not configured.`,
-            configure
-        )
-        if (configure)
-            vscode.env.openExternal(vscode.Uri.parse(DOCS_CONFIGURATION_URL))
-        return undefined
-    }
 }
 
 export function isLanguageModelsAvailable() {
