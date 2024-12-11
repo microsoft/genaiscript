@@ -150,6 +150,11 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
         trace.itemValue(`logit_bias`, `disabled`)
         delete postReq.logit_bias // some providers do not support logit_bias
     }
+    if (!isNaN(postReq.top_p) && features?.top_p === false) {
+        logVerbose(`top_p: disabled, not supported by ${provider}`)
+        trace.itemValue(`top_p`, `disabled`)
+        delete postReq.top_p
+    }
 
     // stream_options fails in some cases
     if (model === "gpt-4-turbo-v" || /mistral/i.test(model)) {

@@ -247,6 +247,7 @@ export const MODEL_PROVIDERS: readonly {
     url: string
     seed?: boolean
     logit_bias?: boolean
+    top_p?: boolean
 }[] = Object.freeze([
     {
         id: MODEL_PROVIDER_OPENAI,
