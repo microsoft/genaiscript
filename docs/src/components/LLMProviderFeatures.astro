@@ -1,0 +1,56 @@
+---
+import LLMS from "../../../packages/core/src/llms.json"
+
+interface Props {
+    provider: string
+}
+const { provider } = Astro.props
+const info: Record<string, boolean> & { openaiCompatibility?: string } =
+    LLMS.providers.find(({ id }) => id === provider) as any
+if (!info) {
+    throw new Error(`Provider ${provider} not found`)
+}
+const features: Record<string, { name?: string; url?: string }> = {
+    seed: {
+        name: "Seed ignored",
+    },
+    topP: {
+        name: "top_p ignored",
+    },
+    logprobs: {
+        name: "logprobs (and top logprobs) ignored",
+    },
+    topLogrobs: {
+        name: "Top logprobs ignored",
+    },
+    tools: {
+        name: "Tools implemented as fallback tools automatically.",
+    },
+}
+const oai = info.openaiCompatibility
+const unsupported = Object.keys(info)
+    .sort()
+    .map((id) => ({ id, supported: info[id] }))
+    .filter(({ supported }) => supported === false)
+---
+
+{
+    oai || unsupported?.length > 0 ? (
+        <>
+            <h3>Limitations</h3>
+            <ul>
+                {!!oai && (
+                    <li>
+                        Uses <a href={oai}>OpenAI compatibility layer</a>
+                    </li>
+                )}
+                {Object.keys(features)
+                    .map((id) => ({ id, supported: info[id] }))
+                    .filter(({ supported }) => supported === false)
+                    .map(({ id }) => (
+                        <li>{features[id]?.name || id}</li>
+                    ))}
+            </ul>
+        </>
+    ) : null
+}

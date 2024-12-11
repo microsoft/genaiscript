@@ -13,24 +13,6 @@
                 "properties": {
                     "id": {
                         "type": "string",
-                        "enum": [
-                            "openai",
-                            "github",
-                            "azure",
-                            "azure_serverless",
-                            "azure_serverless_models",
-                            "anthropic",
-                            "googe",
-                            "huggingface",
-                            "transformers",
-                            "ollama",
-                            "mistal",
-                            "lmstudio",
-                            "jan",
-                            "alibaba",
-                            "llamafile",
-                            "litellm"
-                        ],
                         "description": "Identifier for the LLM provider"
                     },
                     "detail": {
@@ -60,6 +42,10 @@
                     "tools": {
                         "type": "boolean",
                         "description": "Indicates if tools are supported"
+                    },
+                    "openaiCompatibility": {
+                        "type": "string",
+                        "description": "Uses OpenAI API compatibility layer documentation URL"
                     }
                 },
                 "additionalProperties": false,

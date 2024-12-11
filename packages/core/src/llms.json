@@ -25,13 +25,16 @@
         },
         {
             "id": "anthropic",
-            "detail": "Anthropic models"
+            "detail": "Anthropic models",
+            "logprobs": false,
+            "topLogprobs": false
         },
         {
-            "id": "googe",
+            "id": "google",
             "detail": "Google AI",
             "seed": false,
-            "tools": false
+            "tools": false,
+            "openaiCompatibility": "https://ai.google.dev/gemini-api/docs/openai"
         },
         {
             "id": "huggingface",
@@ -48,7 +51,8 @@
         {
             "id": "ollama",
             "detail": "Ollama local model",
-            "logitBias": false
+            "logitBias": false,
+            "openaiCompatibility": "https://github.com/ollama/ollama/blob/main/docs/openai.md"
         },
         {
             "id": "lmstudio",
@@ -61,6 +65,7 @@
         {
             "id": "alibaba",
             "detail": "Alibaba models",
+            "openaiCompatibility": "https://www.alibabacloud.com/help/en/model-studio/developer-reference/compatibility-of-openai-with-dashscope",
             "tools": false
         },
         {

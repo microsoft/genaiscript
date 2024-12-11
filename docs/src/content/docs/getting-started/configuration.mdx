@@ -10,6 +10,7 @@ import { FileTree } from "@astrojs/starlight/components"
 import { Steps } from "@astrojs/starlight/components"
 import { Tabs, TabItem } from "@astrojs/starlight/components"
 import { Image } from "astro:assets"
+import LLMProviderFeatures from "../../../components/LLMProviderFeatures.astro"
 
 import lmSrc from "../../../assets/vscode-language-models.png"
 import lmAlt from "../../../assets/vscode-language-models.png.txt?raw"
@@ -245,6 +246,8 @@ GENAISCRIPT_MODEL_SMALL=openai:gpt-4o-mini
 
 :::
 
+<LLMProviderFeatures provider="openai" />
+
 ## GitHub Models <a id="github" href=""></a>
 
 The [GitHub Models](https://github.com/marketplace/models) provider, `github`, allows running models through the GitHub Marketplace.
@@ -329,6 +332,8 @@ script({
     model: "github:o1-mini",
 })
 ```
+
+<LLMProviderFeatures provider="github" />
 
 ## Azure OpenAI <a id="azure" href=""></a>
 
@@ -477,6 +482,8 @@ The rest of the steps are the same: Find the deployment name and use it in your 
 
 </Steps>
 
+<LLMProviderFeatures provider="azure" />
+
 ## Azure AI Serverless Deployments <a id="azure_serverless" href=""></a>
 
 You can deploy "serverless" models through [Azure AI Studio](https://ai.azure.com/) and pay as you go per token.
@@ -587,6 +594,8 @@ AZURE_SERVERLESS_OPENAI_API_KEY=...
 
 </Steps>
 
+<LLMProviderFeatures provider="azure_serverless" />
+
 ### Azure AI Models <a href="" id="azure_serverless_models" />
 
 The `azure_serverless_models` provider supports non-OpenAI models deployed through the Azure AI Studio serverless deployments.
@@ -680,7 +689,7 @@ AZURE_SERVERLESS_MODELS_API_KEY=...
 
 <li>
 
-Find the deployment name and use it in your script, `model: "azure_serverless:deployment-id"`.
+Find the deployment name and use it in your script, `model: "azure_serverless_models:deployment-id"`.
 
 </li>
 
@@ -699,6 +708,8 @@ model2=key2
 model3=key3
 "
 ```
+
+<LLMProviderFeatures provider="azure_serverless_models" />
 
 ## Google AI <a href="" id="google" />
 
@@ -759,6 +770,8 @@ script({ model: "google:gemini-1.5-pro-002" })
 </ol>
 
 </Steps>
+
+<LLMProviderFeatures provider="google" />
 
 ## GitHub Copilot Chat Models <a id="github-copilot" href=""></a>
 
@@ -855,6 +868,8 @@ script({
 
 </Steps>
 
+<LLMProviderFeatures provider="anthropic" />
+
 ## Hugging Face <a href="" id="huggingface" />
 
 The `huggingface` provider allows you to use [Hugging Face Models](https://huggingface.co/models?other=text-generation-inference) using [Text Generation Inference](https://huggingface.co/docs/text-generation-inference/index).
@@ -915,6 +930,8 @@ Some models may require a Pro account.
 
 :::
 
+<LLMProviderFeatures provider="huggingface" />
+
 ## Mistral AI <a href="" id="mistral" />
 
 The `mistral` provider allows you to use [Mistral AI Models](https://mistral.ai/technology/#models)
@@ -961,6 +978,9 @@ script({
 </ol>
 
 </Steps>
+
+<LLMProviderFeatures provider="mistal" />
+
 
 ## Alibaba Cloud <a href="" id="alibaba" />
 
@@ -1015,12 +1035,7 @@ script({
 
 </Steps>
 
-:::note
-
-GenAIScript uses the [OpenAI compatibility](https://www.alibabacloud.com/help/en/model-studio/developer-reference/compatibility-of-openai-with-dashscope) layer
-to access Alibaba.
-
-:::
+<LLMProviderFeatures provider="alibaba" />
 
 ## Ollama
 
@@ -1117,6 +1132,8 @@ docker run -d -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama
 docker stop ollama && docker rm ollama
 ```
 
+<LLMProviderFeatures provider="ollama" />
+
 ## LMStudio
 
 The `lmstudio` provider connects to the [LMStudio](https://lmstudio.ai/) headless server.
@@ -1184,6 +1201,8 @@ script({
 
 Follow [this guide](https://huggingface.co/blog/yagilb/lms-hf) to load Hugging Face models into LMStudio.
 
+<LLMProviderFeatures provider="lmstudio" />
+
 ## Jan
 
 The `jan` provider connects to the [Jan](https://jan.ai/) local server.
@@ -1223,6 +1242,8 @@ If you change the default server URL, you can set the `JAN_API_BASE` environment
 ```txt title=".env"
 JAN_API_BASE=http://localhost:1234/v1
 ```
+
+<LLMProviderFeatures provider="jan" />
 
 ## LocalAI
 
@@ -1347,6 +1368,9 @@ HUGGINGFACE_TRANSFORMERS_DEVICE=gpu
 This provider is experimental and may not work with all models.
 
 :::
+
+
+<LLMProviderFeatures provider="transformers" />
 
 ## Model specific environment variables
 
