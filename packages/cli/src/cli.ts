@@ -33,7 +33,7 @@ import {
     RUNTIME_ERROR_CODE,
     TOOL_ID,
     TOOL_NAME,
-    SERVER_PORT,
+    WSS_SERVER_PORT,
     OPENAI_MAX_RETRY_DELAY,
     OPENAI_RETRY_DEFAULT_DEFAULT,
     OPENAI_MAX_RETRY_COUNT,
@@ -313,7 +313,7 @@ export async function cli() {
         .description("Start a GenAIScript local server")
         .option(
             "-p, --port <number>",
-            `Specify the port number, default: ${SERVER_PORT}`
+            `Specify the port number, default: ${WSS_SERVER_PORT}`
         )
         .option("-k, --api-key <string>", "API key to authenticate requests")
         .action(startServer) // Action to start the server

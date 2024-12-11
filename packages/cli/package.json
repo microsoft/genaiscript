@@ -13,13 +13,15 @@
             "types": "./built/runtime.d.ts",
             "import": "./built/runtime.mjs"
         },
+        "./web": "./built/web.mjs",
         "./package.json": "./package.json"
     },
     "files": [
         "built/api.mjs",
         "built/runtime.mjs",
         "built/runtime.d.ts",
-        "built/genaiscript.cjs"
+        "built/genaiscript.cjs",
+        "built/web.mjs"
     ],
     "publisher": "Microsoft",
     "repository": {
@@ -107,6 +109,8 @@
         "openai": "^4.76.0",
         "pretty-bytes": "^6.1.1",
         "replace-ext": "^2.0.0",
+        "vanjs-core": "^1.5.2",
+        "vanjs-ui": "^0.11.5",
         "ws": "^8.18.0",
         "zx": "^8.2.4"
     },
@@ -114,6 +118,7 @@
         "compile:runtime": "tsc src/runtime.ts --skipLibCheck --outDir built --declaration --target es2020 --moduleResolution node && mv built/runtime.js built/runtime.mjs",
         "compile:api": "esbuild src/api.ts --outfile=built/api.mjs",
         "compile:cli": "esbuild src/main.ts --metafile=./esbuild.meta.json --bundle --platform=node --target=node20 --outfile=built/genaiscript.cjs --external:tsx --external:esbuild --external:get-tsconfig --external:resolve-pkg-maps --external:dockerode --external:pdfjs-dist --external:web-tree-sitter --external:tree-sitter-wasms --external:promptfoo --external:typescript --external:@lvce-editor/ripgrep --external:gpt-3-encoder --external:mammoth --external:xlsx --external:mathjs --external:@azure/identity --external:gpt-tokenizer --external:playwright --external:@inquirer/prompts --external:jimp --external:turndown --external:turndown-plugin-gfm --external:vectra --external:tabletojson --external:html-to-text --external:@octokit/rest --external:@octokit/plugin-throttling --external:@octokit/plugin-retry --external:@octokit/plugin-paginate-rest --external:skia-canvas --external:@huggingface/transformers --external:@modelcontextprotocol/sdk --external:@anthropic-ai/sdk --external:es-toolkit && node ../../scripts/patch-cli.mjs",
+        "compile:web": "esbuild src/web.mts --bundle --format=esm --platform=browser --target=esnext --outfile=built/web.mjs",
         "compile": "yarn compile:api && yarn compile:runtime && yarn compile:cli",
         "compile-debug": "esbuild src/main.ts --sourcemap --metafile=./esbuild.meta.json --bundle --platform=node --target=node20 --outfile=built/genaiscript.cjs --external:tsx --external:esbuild --external:get-tsconfig --external:resolve-pkg-maps --external:dockerode --external:pdfjs-dist --external:web-tree-sitter --external:tree-sitter-wasms --external:promptfoo --external:typescript --external:@lvce-editor/ripgrep --external:gpt-3-encoder --external:mammoth --external:xlsx --external:mathjs --external:@azure/identity --external:gpt-tokenizer --external:playwright --external:@inquirer/prompts --external:jimp --external:turndown --external:turndown-plugin-gfm --external:vectra --external:tabletojson --external:html-to-text --external:@octokit/rest --external:@octokit/plugin-throttling --external:@octokit/plugin-retry --external:@octokit/plugin-paginate-rest --external:skia-canvas --external:@huggingface/transformers --external:@modelcontextprotocol/sdk --external:@anthropic-ai/sdk --external:es-toolkit",
         "postcompile": "node built/genaiscript.cjs info help > ../../docs/src/content/docs/reference/cli/commands.md",

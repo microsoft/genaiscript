@@ -6171,6 +6171,18 @@ validate-npm-package-license@^3.0.1:
     spdx-correct "^3.0.0"
     spdx-expression-parse "^3.0.0"
 
+vanjs-core@^1.5.2:
+  version "1.5.2"
+  resolved "https://registry.yarnpkg.com/vanjs-core/-/vanjs-core-1.5.2.tgz#943b9614411563b0dcf80c536c749295bd79506b"
+  integrity sha512-z9MHAzxYbNFJ6MYP+4j9l9KMxDU3ryI65JjIfUbGQwF1paLfiuqtIiq9Ve1UGKLd774Z7mtdWzd+/FR785dKjQ==
+
+vanjs-ui@^0.11.5:
+  version "0.11.5"
+  resolved "https://registry.yarnpkg.com/vanjs-ui/-/vanjs-ui-0.11.5.tgz#f73372f9a6ba94763cf2e5e783fe6c523e71031b"
+  integrity sha512-yDFXi0hBZPG2VSQuTumUXSvGBU8gF6i08/yILCNtLDjo8I7QE1b7s1VyrF6nDy1F4IChypXKN7nV+9R+ZG7hVQ==
+  dependencies:
+    vanjs-core "^1.5.2"
+
 varstream@^0.3.2:
   version "0.3.2"
   resolved "https://registry.yarnpkg.com/varstream/-/varstream-0.3.2.tgz#18ac6494765f3ff1a35ad9a4be053bec188a5de1"

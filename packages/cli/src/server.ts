@@ -4,7 +4,7 @@ import { PROMPTFOO_VERSION } from "./version"
 import { runScriptInternal } from "./run"
 import { AbortSignalCancellationController } from "../../core/src/cancellation"
 import {
-    SERVER_PORT,
+    WSS_SERVER_PORT,
     TRACE_CHUNK,
     USER_CANCELLED_ERROR_CODE,
     UNHANDLED_ERROR_CODE,
@@ -52,7 +52,7 @@ import { buildProject } from "./build"
  */
 export async function startServer(options: { port: string; apiKey?: string }) {
     // Parse and set the server port, using a default if not specified.
-    const port = parseInt(options.port) || SERVER_PORT
+    const port = parseInt(options.port) || WSS_SERVER_PORT
     const wss = new WebSocketServer({ port })
 
     // Stores active script runs with their cancellation controllers and traces.
