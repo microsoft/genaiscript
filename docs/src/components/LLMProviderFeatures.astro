@@ -5,7 +5,7 @@ interface Props {
     provider: string
 }
 const { provider } = Astro.props
-const info: Record<string, boolean> & { openaiCompatibility?: string } =
+const info: Record<string, boolean> & { openaiCompatibility?: string, limitations?: boolean } =
     LLMS.providers.find(({ id }) => id === provider) as any
 if (!info) {
     throw new Error(`Provider ${provider} not found`)
@@ -27,21 +27,22 @@ const features: Record<string, { name?: string; url?: string }> = {
         name: "Tools implemented as fallback tools automatically.",
     },
 }
-const oai = info.openaiCompatibility
-const unsupported = Object.keys(info)
+const { openaiCompatibility, limitations, ...rest } = info
+const unsupported = Object.keys(rest)
     .sort()
     .map((id) => ({ id, supported: info[id] }))
     .filter(({ supported }) => supported === false)
 ---
 
 {
-    oai || unsupported?.length > 0 ? (
+    openaiCompatibility || limitations || unsupported?.length > 0 ? (
         <>
             <h3>Limitations</h3>
             <ul>
-                {!!oai && (
+                {!!limitations && <li>{limitations}</li>}
+                {!!openaiCompatibility && (
                     <li>
-                        Uses <a href={oai}>OpenAI compatibility layer</a>
+                        Uses <a href={openaiCompatibility}>OpenAI compatibility layer</a>
                     </li>
                 )}
                 {Object.keys(features)

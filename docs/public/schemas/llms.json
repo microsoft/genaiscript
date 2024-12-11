@@ -19,6 +19,10 @@
                         "type": "string",
                         "description": "Description of the LLM provider"
                     },
+                    "limitations": {
+                        "type": "string",
+                        "description": "General note about limitations"
+                    },
                     "logitBias": {
                         "type": "boolean",
                         "description": "Indicates if logit_bias is supported"

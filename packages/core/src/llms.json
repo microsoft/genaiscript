@@ -9,7 +9,8 @@
             "id": "github",
             "detail": "GitHub Models",
             "logprobs": false,
-            "topLogprobs": false
+            "topLogprobs": false,
+            "limitations": "Smaller context windows, and rate limiting"
         },
         {
             "id": "azure",
