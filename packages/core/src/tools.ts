@@ -1,12 +1,10 @@
 import {
-    MODEL_PROVIDER_ALIBABA,
     MODEL_PROVIDER_AZURE_OPENAI,
     MODEL_PROVIDER_AZURE_SERVERLESS_MODELS,
     MODEL_PROVIDER_GITHUB,
-    MODEL_PROVIDER_GOOGLE,
     MODEL_PROVIDER_OLLAMA,
     MODEL_PROVIDER_OPENAI,
-    MODEL_PROVIDER_TRANSFORMERS,
+    MODEL_PROVIDERS,
 } from "./constants"
 import { parseModelIdentifier } from "./models"
 
@@ -14,14 +12,10 @@ export function isToolsSupported(modelId: string): boolean | undefined {
     if (!modelId) return undefined
     const { provider, model } = parseModelIdentifier(modelId)
 
-    if (/^o1-(mini|preview)/.test(model)) {
-        return false
-    }
+    const info = MODEL_PROVIDERS.find(({ id }) => provider === id)
+    if (info?.tools === false) return false
 
-    if (provider === MODEL_PROVIDER_TRANSFORMERS) return false
-
-    // https://discuss.ai.google.dev/t/multi-turn-tool-usage-with-gemini-openai/53202
-    if (provider === MODEL_PROVIDER_GOOGLE) return false
+    if (/^o1-(mini|preview)/.test(model)) return false
 
     const oai = {
         "o1-preview": false,
@@ -49,14 +43,8 @@ export function isToolsSupported(modelId: string): boolean | undefined {
         [MODEL_PROVIDER_OPENAI]: oai,
         [MODEL_PROVIDER_AZURE_OPENAI]: oai,
         [MODEL_PROVIDER_AZURE_SERVERLESS_MODELS]: oai,
-        [MODEL_PROVIDER_GOOGLE]: {
-            // all supported
-        },
         [MODEL_PROVIDER_GITHUB]: {
             "Phi-3.5-mini-instruct": false,
-        },
-        [MODEL_PROVIDER_ALIBABA]: {
-            // all supported
         },
     }
 
