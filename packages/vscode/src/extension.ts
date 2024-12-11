@@ -63,37 +63,40 @@ export async function activate(context: ExtensionContext) {
         registerCommand("genaiscript.info.env", async () => {
             state.host.server.client.infoEnv()
         }),
-        registerCommand("genaiscript.openIssueReporter", async () => {
-            const issueBody: string[] = [
-                `## Describe the issue`,
-                `A clear and concise description of what the bug is.`,
-                ``,
-                `## To Reproduce`,
-                `Steps to reproduce the behavior`,
-                ``,
-                `## Expected behavior`,
-                `A clear and concise description of what you expected to happen.`,
-                ``,
-                `## Environment`,
-                ``,
-            ]
-            issueBody.push(`vscode: ${vscode.version}`)
-            issueBody.push(
-                `extension: ${context.extension?.packageJSON?.version || "?"}`
-            )
-            if (state.aiRequest?.trace) {
-                issueBody.push(`## Trace\n\n`)
-                issueBody.push(state.aiRequest?.trace?.content)
-                issueBody.push(`\n\n`)
-            }
-            await vscode.commands.executeCommand(
-                "workbench.action.openIssueReporter",
-                {
-                    extensionId: EXTENSION_ID,
-                    issueBody: issueBody.join("\n"),
+        registerCommand(
+            "genaiscript.openIssueReporter",
+            async (body: string[]) => {
+                const issueBody: string[] = body || [
+                    `## Describe the issue`,
+                    `A clear and concise description of what the bug is.`,
+                    ``,
+                    `## To Reproduce`,
+                    `Steps to reproduce the behavior`,
+                    ``,
+                    `## Expected behavior`,
+                    `A clear and concise description of what you expected to happen.`,
+                    ``,
+                ]
+                issueBody.push(
+                    `## Environment`,
+                    ``,
+                    `vscode: ${vscode.version}`,
+                    `extension: ${context.extension?.packageJSON?.version || "?"}`
+                )
+                if (state.aiRequest?.trace) {
+                    issueBody.push(`## Trace\n\n`)
+                    issueBody.push(state.aiRequest?.trace?.content)
+                    issueBody.push(`\n\n`)
                 }
-            )
-        })
+                await vscode.commands.executeCommand(
+                    "workbench.action.openIssueReporter",
+                    {
+                        extensionId: EXTENSION_ID,
+                        issueBody: issueBody.join("\n"),
+                    }
+                )
+            }
+        )
     )
 
     await state.activate()

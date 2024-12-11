@@ -76,15 +76,41 @@ export function activateFragmentCommands(state: ExtensionState) {
 
     const findScript = (filename: vscode.Uri) => {
         const fsPath = state.host.path.resolve(filename.fsPath)
-        return state.project.scripts
+        const allScripts = state.project.scripts
+        const script = allScripts
             .filter((p) => !!p.filename)
-            .find(
-                (p) =>
-                    state.host.path.resolve(
-                        state.host.projectFolder(),
-                        p.filename
-                    ) === fsPath
+            .find((p) =>
+                state.host.path.isAbsolute(p.filename)
+                    ? p.filename
+                    : state.host.path.resolve(
+                          state.host.projectFolder(),
+                          p.filename
+                      ) === fsPath
             )
+
+        if (!script) {
+            const reportIssue = "Report Issue"
+            vscode.window
+                .showErrorMessage(
+                    `Could not find a GenAiScript ${fsPath}. This is most likely a bug in GenAIScript.`,
+                    "Report Issue"
+                )
+                .then((cmd) => {
+                    if (cmd === reportIssue) {
+                        vscode.commands.executeCommand(
+                            "genaiscript.openIssueReporter",
+                            [
+                                `Could not find a GenAiScript issue`,
+                                `Requested script: ${fsPath}`,
+                                `Known scripts:`,
+                                ...allScripts.map((s) => s.filename),
+                            ]
+                        )
+                    }
+                })
+        }
+
+        return script
     }
 
     const pickTemplate = async (options?: {
@@ -152,11 +178,9 @@ export function activateFragmentCommands(state: ExtensionState) {
             fragment instanceof vscode.Uri &&
             GENAI_ANY_REGEX.test(fragment.path)
         ) {
-            template = findScript(fragment)
+            const file = fragment
+            template = findScript(file)
             if (!template) {
-                vscode.window.showErrorMessage(
-                    `Could not find a GenAiScript ${fragment.fsPath}. This is most likely a bug in GenAIScript.`
-                )
                 return
             }
             fragment = undefined
@@ -188,9 +212,6 @@ export function activateFragmentCommands(state: ExtensionState) {
         if (GENAI_ANY_REGEX.test(file.path)) {
             template = findScript(file)
             if (!template) {
-                vscode.window.showErrorMessage(
-                    `Could not find a GenAiScript ${file.fsPath}. This is most likely a bug in GenAIScript.`
-                )
                 return
             }
             files = vscode.window.visibleTextEditors
@@ -214,7 +235,7 @@ export function activateFragmentCommands(state: ExtensionState) {
             ),
         ]
         const configuration = cliPath
-            ? <vscode.DebugConfiguration>{
+            ? ((<vscode.DebugConfiguration>{
                   type: "node",
                   name: TOOL_NAME,
                   request: "launch",
@@ -223,7 +244,7 @@ export function activateFragmentCommands(state: ExtensionState) {
                   skipFiles: ["<node_internals>/**", dotGenaiscriptPath("**")],
 
                   args: [cliPath, ...args],
-              } satisfies vscode.DebugConfiguration
+              }) satisfies vscode.DebugConfiguration)
             : <vscode.DebugConfiguration>{
                   type: "node",
                   name: TOOL_NAME,
