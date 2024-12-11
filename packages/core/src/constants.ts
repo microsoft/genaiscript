@@ -154,6 +154,7 @@ export const ALIBABA_BASE =
     "https://dashscope-intl.aliyuncs.com/compatible-mode/v1"
 export const MISTRAL_API_BASE = "https://api.mistral.ai/v1"
 export const LMSTUDIO_API_BASE = "http://localhost:1234/v1"
+export const JAN_API_BASE = "http://localhost:1337/v1"
 
 export const PROMPTFOO_CACHE_PATH = ".genaiscript/cache/tests"
 export const PROMPTFOO_CONFIG_DIR = ".genaiscript/config/tests"
@@ -184,6 +185,7 @@ export const MODEL_PROVIDER_TRANSFORMERS = "transformers"
 export const MODEL_PROVIDER_ALIBABA = "alibaba"
 export const MODEL_PROVIDER_MISTRAL = "mistral"
 export const MODEL_PROVIDER_LMSTUDIO = "lmstudio"
+export const MODEL_PROVIDER_JAN = "jan"
 
 export const TRACE_FILE_PREVIEW_MAX_LENGTH = 240
 
@@ -210,6 +212,8 @@ export const DOCS_CONFIGURATION_OLLAMA_URL =
     "https://microsoft.github.io/genaiscript/getting-started/configuration/#ollama"
 export const DOCS_CONFIGURATION_LMSTUDIO_URL =
     "https://microsoft.github.io/genaiscript/getting-started/configuration/#lmstudio"
+export const DOCS_CONFIGURATION_JAN_URL =
+    "https://microsoft.github.io/genaiscript/getting-started/configuration/#jan"
 export const DOCS_CONFIGURATION_LLAMAFILE_URL =
     "https://microsoft.github.io/genaiscript/getting-started/configuration/#llamafile"
 export const DOCS_CONFIGURATION_LITELLM_URL =
@@ -323,6 +327,11 @@ export const MODEL_PROVIDERS = Object.freeze<
         id: MODEL_PROVIDER_LMSTUDIO,
         detail: "LM Studio local server",
         url: DOCS_CONFIGURATION_LMSTUDIO_URL,
+    },
+    {
+        id: MODEL_PROVIDER_LMSTUDIO,
+        detail: "Jan local server",
+        url: DOCS_CONFIGURATION_JAN_URL,
     },
     {
         id: MODEL_PROVIDER_ALIBABA,

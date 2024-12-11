@@ -32,8 +32,9 @@ import {
     MISTRAL_API_BASE,
     MODEL_PROVIDER_LMSTUDIO,
     LMSTUDIO_API_BASE,
+    MODEL_PROVIDER_JAN,
+    JAN_API_BASE,
 } from "./constants"
-import { fileExists, readText, writeText } from "./fs"
 import {
     OpenAIAPIType,
     host,
@@ -478,6 +479,19 @@ export async function parseTokenFromEnv(
             token: "lmstudio",
             type: "openai",
             source: "env: LMSTUDIO_API_...",
+        }
+    }
+
+    if (provider === MODEL_PROVIDER_JAN) {
+        const base = findEnvVar(env, "JAN", BASE_SUFFIX)?.value || JAN_API_BASE
+        if (!URL.canParse(base)) throw new Error(`${base} must be a valid URL`)
+        return {
+            provider,
+            model,
+            base,
+            token: "lmstudio",
+            type: "openai",
+            source: "env: JAN_API_...",
         }
     }
 
