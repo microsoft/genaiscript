@@ -5,7 +5,6 @@ import type {
     ImageContent,
     EmbeddedResource,
 } from "@modelcontextprotocol/sdk/types.js"
-import { YAMLStringify } from "./yaml"
 
 export async function startMcpServer(
     serverConfig: McpServerConfig,
