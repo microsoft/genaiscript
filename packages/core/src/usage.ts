@@ -10,23 +10,9 @@ import {
     CreateChatCompletionRequest,
 } from "./chattypes"
 import { MarkdownTrace } from "./trace"
-import { assert, logVerbose } from "./util"
-import pricings from "./pricing.json" // Interface to hold statistics related to the generation process
+import { logVerbose } from "./util"
 import { parseModelIdentifier } from "./models"
-import {
-    MODEL_PROVIDER_AICI,
-    MODEL_PROVIDER_ALIBABA,
-    MODEL_PROVIDER_ANTHROPIC,
-    MODEL_PROVIDER_AZURE_OPENAI,
-    MODEL_PROVIDER_AZURE_SERVERLESS_MODELS,
-    MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI,
-    MODEL_PROVIDER_GITHUB,
-    MODEL_PROVIDER_GOOGLE,
-    MODEL_PROVIDER_MISTRAL,
-    MODEL_PROVIDER_OPENAI,
-} from "./constants"
-
-assert(Object.keys(pricings).every((k) => k === k.toLowerCase()))
+import { MODEL_PRICINGS, MODEL_PROVIDER_AICI } from "./constants"
 
 /**
  * Estimates the cost of a chat completion based on the model and usage.
@@ -41,18 +27,8 @@ export function estimateCost(modelId: string, usage: ChatCompletionUsage) {
     const { completion_tokens, prompt_tokens } = usage
     let { provider, model } = parseModelIdentifier(modelId)
     if (provider === MODEL_PROVIDER_AICI) return undefined
-    else if (provider === MODEL_PROVIDER_GITHUB)
-        provider = MODEL_PROVIDER_OPENAI
     const m = `${provider}:${model}`.toLowerCase()
-    const costs: Record<
-        string,
-        {
-            price_per_million_input_tokens: number
-            price_per_million_output_tokens: number
-            input_cache_token_rebate?: number
-        }
-    > = pricings
-    const cost = costs[m]
+    const cost = MODEL_PRICINGS[m]
     if (!cost) return undefined
 
     const {
@@ -84,19 +60,10 @@ export function renderCost(value: number) {
           : `${value.toFixed(2)}$`
 }
 
-export function isCosteable(model: string) {
+export function isCosteable(model: string): boolean {
     const { provider } = parseModelIdentifier(model)
-    const costeableProviders = [
-        MODEL_PROVIDER_OPENAI,
-        MODEL_PROVIDER_AZURE_OPENAI,
-        MODEL_PROVIDER_AZURE_SERVERLESS_MODELS,
-        MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI,
-        MODEL_PROVIDER_ANTHROPIC,
-        MODEL_PROVIDER_GOOGLE,
-        MODEL_PROVIDER_ALIBABA,
-        MODEL_PROVIDER_MISTRAL,
-    ]
-    return costeableProviders.includes(provider)
+    const prefix = `${provider}:`
+    return Object.keys(MODEL_PRICINGS).some((k) => k.startsWith(prefix))
 }
 
 /**

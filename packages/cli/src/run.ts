@@ -143,7 +143,10 @@ export async function runScriptWithExitCode(
                 host.path.basename(scriptId).replace(GENAI_ANYTS_REGEX, ""),
                 `${new Date().toISOString().replace(/[:.]/g, "-")}.trace.md`
             )
-        const res = await runScriptInternal(scriptId, files, { ...options, outTrace })
+        const res = await runScriptInternal(scriptId, files, {
+            ...options,
+            outTrace,
+        })
         exitCode = res.exitCode
         if (
             exitCode === SUCCESS_ERROR_CODE ||
@@ -398,6 +401,7 @@ export async function runScriptInternal(
             stats,
         })
     } catch (err) {
+        stats.log()
         if (isCancelError(err))
             return fail("user cancelled", USER_CANCELLED_ERROR_CODE)
         logError(err)
@@ -406,6 +410,8 @@ export async function runScriptInternal(
 
     await aggregateResults(scriptId, outTrace, stats, result)
     await traceAgentMemory(trace)
+    stats.log()
+
     if (outAnnotations && result.annotations?.length) {
         if (isJSONLFilename(outAnnotations))
             await appendJSONL(outAnnotations, result.annotations)

@@ -1,3 +1,4 @@
+import CONFIGURATION_DATA from "./llms.json"
 export const CHANGE = "change"
 export const TRACE_CHUNK = "traceChunk"
 export const TRACE_DETAILS = "traceDetails"
@@ -226,76 +227,17 @@ export const MODEL_PROVIDERS = Object.freeze<
          */
         tools?: boolean
     }[]
->([
-    {
-        id: MODEL_PROVIDER_OPENAI,
-        detail: "OpenAI (or compatible)",
-    },
-    {
-        id: MODEL_PROVIDER_GITHUB,
-        detail: "GitHub Models",
-    },
-    {
-        id: MODEL_PROVIDER_AZURE_OPENAI,
-        detail: "Azure OpenAI deployment",
-    },
-    {
-        id: MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI,
-        detail: "Azure AI OpenAI (serverless deployments)",
-    },
-    {
-        id: MODEL_PROVIDER_AZURE_SERVERLESS_MODELS,
-        detail: "Azure AI Models (serverless deployments, not OpenAI)",
-    },
-    {
-        id: MODEL_PROVIDER_ANTHROPIC,
-        detail: "Anthropic models",
-    },
-    {
-        id: MODEL_PROVIDER_GOOGLE,
-        detail: "Google AI",
-        seed: false,
-        tools: false,
-    },
-    {
-        id: MODEL_PROVIDER_HUGGINGFACE,
-        detail: "Hugging Face models",
-    },
-    {
-        id: MODEL_PROVIDER_MISTRAL,
-        detail: "Mistral AI",
-    },
-    {
-        id: MODEL_PROVIDER_TRANSFORMERS,
-        detail: "Hugging Face Transformers",
-    },
-    {
-        id: MODEL_PROVIDER_OLLAMA,
-        detail: "Ollama local model",
-        logit_bias: false,
-    },
-    {
-        id: MODEL_PROVIDER_LMSTUDIO,
-        detail: "LM Studio local server",
-    },
-    {
-        id: MODEL_PROVIDER_LMSTUDIO,
-        detail: "Jan local server",
-    },
-    {
-        id: MODEL_PROVIDER_ALIBABA,
-        detail: "Alibaba models",
-        tools: false,
-    },
-    {
-        id: MODEL_PROVIDER_LLAMAFILE,
-        detail: "llamafile.ai local model",
-    },
-    {
-        id: MODEL_PROVIDER_LITELLM,
-        detail: "LiteLLM proxy",
-    },
-])
+>(CONFIGURATION_DATA.providers)
+export const MODEL_PRICINGS = Object.freeze<
+    Record<
+        string,
+        {
+            price_per_million_input_tokens: number
+            price_per_million_output_tokens: number
+            input_cache_token_rebate?: number
+        }
+    >
+>(CONFIGURATION_DATA.pricings)
 
 export const NEW_SCRIPT_TEMPLATE = `$\`Write a short poem in code.\`
 `

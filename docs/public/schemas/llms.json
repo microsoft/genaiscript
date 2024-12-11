@@ -1,0 +1,106 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "GenAIScript LLM Provider Configuration",
+    "type": "object",
+    "description": "Schema for LLMS configuration file",
+    "properties": {
+        "providers": {
+            "type": "array",
+            "description": "List of LLM providers",
+            "items": {
+                "type": "object",
+                "description": "Details of a single LLM provider",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "enum": [
+                            "openai",
+                            "github",
+                            "azure",
+                            "azure_serverless",
+                            "azure_serverless_models",
+                            "anthropic",
+                            "googe",
+                            "huggingface",
+                            "transformers",
+                            "ollama",
+                            "mistal",
+                            "lmstudio",
+                            "jan",
+                            "alibaba",
+                            "llamafile",
+                            "litellm"
+                        ],
+                        "description": "Identifier for the LLM provider"
+                    },
+                    "detail": {
+                        "type": "string",
+                        "description": "Description of the LLM provider"
+                    },
+                    "logprobs": {
+                        "type": "boolean",
+                        "description": "Indicates if log probabilities are supported"
+                    },
+                    "topLogprobs": {
+                        "type": "boolean",
+                        "description": "Indicates if top log probabilities are supported"
+                    },
+                    "seed": {
+                        "type": "boolean",
+                        "description": "Indicates if seeding is supported"
+                    },
+                    "tools": {
+                        "type": "boolean",
+                        "description": "Indicates if tools are supported"
+                    }
+                },
+                "required": ["id", "detail"]
+            }
+        }
+    },
+    "pricings": {
+        "type": "object",
+        "patternProperties": {
+            "^[a-zA-Z0-9:_-]+$": {
+                "type": "object",
+                "properties": {
+                    "price_per_million_input_tokens": {
+                        "type": "number"
+                    },
+                    "price_per_million_output_tokens": {
+                        "type": "number"
+                    },
+                    "input_cache_token_rebate": {
+                        "type": "number"
+                    },
+                    "tiers": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "context_size": {
+                                    "type": "integer"
+                                },
+                                "price_per_million_input_tokens": {
+                                    "type": "number"
+                                },
+                                "price_per_million_output_tokens": {
+                                    "type": "number"
+                                }
+                            },
+                            "required": [
+                                "price_per_million_input_tokens",
+                                "price_per_million_output_tokens"
+                            ]
+                        }
+                    }
+                },
+                "required": [
+                    "price_per_million_input_tokens",
+                    "price_per_million_output_tokens"
+                ]
+            }
+        }
+    },
+    "required": ["providers", "pricings"]
+}
