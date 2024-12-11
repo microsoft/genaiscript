@@ -198,42 +198,6 @@ export const GITHUB_MODELS_BASE = "https://models.inference.ai.azure.com"
 
 export const DOCS_CONFIGURATION_URL =
     "https://microsoft.github.io/genaiscript/getting-started/configuration/"
-export const DOCS_CONFIGURATION_OPENAI_URL =
-    "https://microsoft.github.io/genaiscript/getting-started/configuration/#openai"
-export const DOCS_CONFIGURATION_GITHUB_URL =
-    "https://microsoft.github.io/genaiscript/getting-started/configuration/#github"
-export const DOCS_CONFIGURATION_AZURE_OPENAI_URL =
-    "https://microsoft.github.io/genaiscript/getting-started/configuration/#azure"
-export const DOCS_CONFIGURATION_AZURE_OPENAI_SERVERLESS_URL =
-    "https://microsoft.github.io/genaiscript/getting-started/configuration/#azure_serverless"
-export const DOCS_CONFIGURATION_AZURE_MODELS_SERVERLESS_URL =
-    "https://microsoft.github.io/genaiscript/getting-started/configuration/#azure_serverless_models"
-export const DOCS_CONFIGURATION_OLLAMA_URL =
-    "https://microsoft.github.io/genaiscript/getting-started/configuration/#ollama"
-export const DOCS_CONFIGURATION_LMSTUDIO_URL =
-    "https://microsoft.github.io/genaiscript/getting-started/configuration/#lmstudio"
-export const DOCS_CONFIGURATION_JAN_URL =
-    "https://microsoft.github.io/genaiscript/getting-started/configuration/#jan"
-export const DOCS_CONFIGURATION_LLAMAFILE_URL =
-    "https://microsoft.github.io/genaiscript/getting-started/configuration/#llamafile"
-export const DOCS_CONFIGURATION_LITELLM_URL =
-    "https://microsoft.github.io/genaiscript/getting-started/configuration/#litellm"
-export const DOCS_CONFIGURATION_LOCALAI_URL =
-    "https://microsoft.github.io/genaiscript/getting-started/configuration/#localai"
-export const DOCS_CONFIGURATION_AICI_URL =
-    "https://microsoft.github.io/genaiscript/reference/scripts/aici/"
-export const DOCS_CONFIGURATION_ANTHROPIC_URL =
-    "https://microsoft.github.io/genaiscript/getting-started/configuration/#anthropic"
-export const DOCS_CONFIGURATION_GOOGLE_URL =
-    "https://microsoft.github.io/genaiscript/getting-started/configuration/#google"
-export const DOCS_CONFIGURATION_HUGGINGFACE_URL =
-    "https://microsoft.github.io/genaiscript/getting-started/configuration/#huggingface"
-export const DOCS_CONFIGURATION_HUGGINGFACE_TRANSFORMERS_URL =
-    "https://microsoft.github.io/genaiscript/getting-started/configuration/#transformers"
-export const DOCS_CONFIGURATION_ALIBABA_URL =
-    "https://microsoft.github.io/genaiscript/getting-started/configuration/#alibaba"
-export const DOCS_CONFIGURATION_MISTRAL_URL =
-    "https://microsoft.github.io/genaiscript/getting-started/configuration/#mistral"
 export const DOCS_CONFIGURATION_CONTENT_SAFETY_URL =
     "https://microsoft.github.io/genaiscript/reference/scripts/content-safety"
 export const DOCS_DEF_FILES_IS_EMPTY_URL =
@@ -249,7 +213,6 @@ export const MODEL_PROVIDERS = Object.freeze<
     {
         id: string
         detail: string
-        url: string
         /**
          * Supports seed
          */
@@ -266,88 +229,71 @@ export const MODEL_PROVIDERS = Object.freeze<
 >([
     {
         id: MODEL_PROVIDER_OPENAI,
-        detail: "OpenAI or compatible",
-        url: DOCS_CONFIGURATION_OPENAI_URL,
+        detail: "OpenAI (or compatible)",
     },
     {
         id: MODEL_PROVIDER_GITHUB,
         detail: "GitHub Models",
-        url: DOCS_CONFIGURATION_GITHUB_URL,
     },
     {
         id: MODEL_PROVIDER_AZURE_OPENAI,
         detail: "Azure OpenAI deployment",
-        url: DOCS_CONFIGURATION_AZURE_OPENAI_URL,
     },
     {
         id: MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI,
         detail: "Azure AI OpenAI (serverless deployments)",
-        url: DOCS_CONFIGURATION_AZURE_OPENAI_SERVERLESS_URL,
     },
     {
         id: MODEL_PROVIDER_AZURE_SERVERLESS_MODELS,
         detail: "Azure AI Models (serverless deployments, not OpenAI)",
-        url: DOCS_CONFIGURATION_AZURE_MODELS_SERVERLESS_URL,
     },
     {
         id: MODEL_PROVIDER_ANTHROPIC,
         detail: "Anthropic models",
-        url: DOCS_CONFIGURATION_ANTHROPIC_URL,
     },
     {
         id: MODEL_PROVIDER_GOOGLE,
         detail: "Google AI",
-        url: DOCS_CONFIGURATION_GOOGLE_URL,
         seed: false,
         tools: false,
     },
     {
         id: MODEL_PROVIDER_HUGGINGFACE,
         detail: "Hugging Face models",
-        url: DOCS_CONFIGURATION_HUGGINGFACE_URL,
     },
     {
         id: MODEL_PROVIDER_MISTRAL,
         detail: "Mistral AI",
-        url: DOCS_CONFIGURATION_MISTRAL_URL,
     },
     {
         id: MODEL_PROVIDER_TRANSFORMERS,
         detail: "Hugging Face Transformers",
-        url: DOCS_CONFIGURATION_HUGGINGFACE_TRANSFORMERS_URL,
-        tools: true,
     },
     {
         id: MODEL_PROVIDER_OLLAMA,
         detail: "Ollama local model",
-        url: DOCS_CONFIGURATION_OLLAMA_URL,
         logit_bias: false,
     },
     {
         id: MODEL_PROVIDER_LMSTUDIO,
         detail: "LM Studio local server",
-        url: DOCS_CONFIGURATION_LMSTUDIO_URL,
     },
     {
         id: MODEL_PROVIDER_LMSTUDIO,
         detail: "Jan local server",
-        url: DOCS_CONFIGURATION_JAN_URL,
     },
     {
         id: MODEL_PROVIDER_ALIBABA,
         detail: "Alibaba models",
-        url: DOCS_CONFIGURATION_ALIBABA_URL,
         tools: false,
     },
     {
         id: MODEL_PROVIDER_LLAMAFILE,
         detail: "llamafile.ai local model",
-        url: DOCS_CONFIGURATION_LLAMAFILE_URL,
     },
     {
         id: MODEL_PROVIDER_LITELLM,
         detail: "LiteLLM proxy",
-        url: DOCS_CONFIGURATION_LITELLM_URL,
     },
 ])
 
