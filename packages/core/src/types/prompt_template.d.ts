@@ -150,6 +150,7 @@ type ModelType = OptionsOrString<
     | "anthropic:claude-2.1"
     | "anthropic:claude-instant-1.2"
     | "huggingface:microsoft/Phi-3-mini-4k-instruct"
+    | "jan:llama3.2-3b-instruct"
     | "google:gemini-1.5-flash"
     | "google:gemini-1.5-flash-latest"
     | "google:gemini-1.5-flash-8b"

@@ -96,13 +96,16 @@ class ModelManager implements ModelService {
     ): Promise<ResponseStatus> {
         const { trace } = options || {}
         const { provider, model } = parseModelIdentifier(modelid)
-        if (provider === MODEL_PROVIDER_OLLAMA) {
-            if (this.pulled.includes(modelid)) return { ok: true }
+        if (this.pulled.includes(modelid)) return { ok: true }
 
-            if (!isQuiet) logVerbose(`ollama pull ${model}`)
+        if (provider === MODEL_PROVIDER_OLLAMA) {
+            logVerbose(`${provider}: pull ${model}`)
             try {
                 const conn = await this.getModelToken(modelid)
-                const res = await fetch(`${conn.base}/api/pull`, {
+
+                let res: Response
+                // OLLAMA
+                res = await fetch(`${conn.base}/api/pull`, {
                     method: "POST",
                     headers: {
                         "User-Agent": TOOL_ID,
@@ -115,13 +118,14 @@ class ModelManager implements ModelService {
                     ),
                 })
                 if (res.ok) {
-                    const resp = await res.json()
+                    const resj = await res.json()
+                    //logVerbose(JSON.stringify(resj, null, 2))
                 }
                 if (res.ok) this.pulled.push(modelid)
                 return { ok: res.ok, status: res.status }
             } catch (e) {
-                logError(`failed to pull model ${model}`)
-                trace?.error("pull model failed", e)
+                logError(`${provider}: failed to pull model ${model}`)
+                trace?.error(`${provider}: pull model failed`, e)
                 return { ok: false, status: 500, error: serializeError(e) }
             }
         }
