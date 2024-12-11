@@ -254,13 +254,11 @@ export class GenerationStats {
      * @param indent - The indentation used for logging.
      */
     private logTokens(indent: string) {
-        if (!this.resolvedModel) return
-
         const unknowns = new Set<string>()
         const c = this.cost()
         if (this.model && isNaN(c) && isCosteable(this.model))
             unknowns.add(this.model)
-        if (this.model || c) {
+        if (this.resolvedModel || c) {
             const au = this.accumulatedUsage()
             logVerbose(
                 `${indent}${this.label ? `${this.label} (${this.resolvedModel})` : this.resolvedModel}> ${au.total_tokens} tokens (${au.prompt_tokens} -> ${au.completion_tokens}) ${renderCost(c)}`

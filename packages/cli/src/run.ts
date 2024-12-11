@@ -410,7 +410,6 @@ export async function runScriptInternal(
 
     await aggregateResults(scriptId, outTrace, stats, result)
     await traceAgentMemory(trace)
-    stats.log()
 
     if (outAnnotations && result.annotations?.length) {
         if (isJSONLFilename(outAnnotations))
