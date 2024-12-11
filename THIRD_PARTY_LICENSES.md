@@ -1518,8 +1518,8 @@ Apache License
 
 The following npm packages may be included in this product:
 
- - playwright-core@1.49.0
- - playwright@1.49.0
+ - playwright-core@1.49.1
+ - playwright@1.49.1
 
 These packages each contain the following license:
 
@@ -1738,7 +1738,7 @@ available under the Apache 2.0 license (https://github.com/puppeteer/puppeteer/b
 
 The following npm package may be included in this product:
 
- - mathjs@14.0.0
+ - mathjs@14.0.1
 
 This package contains the following license:
 
@@ -1945,8 +1945,8 @@ The following npm packages may be included in this product:
  - @types/http-cache-semantics@4.0.4
  - @types/node-fetch@2.6.12
  - @types/node@16.9.1
- - @types/node@18.19.67
- - @types/node@22.10.1
+ - @types/node@18.19.68
+ - @types/node@22.10.2
  - @types/turndown@5.0.5
  - @types/yauzl@2.10.3
 
@@ -1978,7 +1978,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.82.0
+ - genaiscript-vscode@1.84.0
 
 This package contains the following license:
 
@@ -4979,31 +4979,11 @@ IN THE SOFTWARE.
 
 The following npm package may be included in this product:
 
- - buildcheck@0.0.6
-
-This package contains the following license:
-
-http://github.com/mscdex/buildcheck/raw/master/LICENSE
-
------------
-
-The following npm package may be included in this product:
-
  - ssh2@1.16.0
 
 This package contains the following license:
 
 http://github.com/mscdex/ssh2/raw/master/LICENSE
-
------------
-
-The following npm package may be included in this product:
-
- - cpu-features@0.0.10
-
-This package contains the following license:
-
-https://github.com/mscdex/cpu-features/raw/master/LICENSE
 
 -----------
 
@@ -5837,15 +5817,14 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - @esbuild/linux-x64@0.23.1
- - @napi-rs/canvas-linux-x64-gnu@0.1.65
- - @napi-rs/canvas-linux-x64-musl@0.1.65
+ - @esbuild/win32-x64@0.23.1
+ - @napi-rs/canvas-win32-x64-msvc@0.1.65
  - @tokenizer/token@0.3.0
  - agent-base@6.0.2
  - eastasianwidth@0.2.0
- - genaiscript-core-internal@1.82.0
- - genaiscript-sample@1.82.0
- - genaiscript@1.82.0
+ - genaiscript-core-internal@1.84.0
+ - genaiscript-sample@1.84.0
+ - genaiscript@1.84.0
  - https-proxy-agent@5.0.1
  - isarray@1.0.0
  - javascript-natural-sort@0.7.1
@@ -6443,7 +6422,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - zod@3.23.8
+ - zod@3.24.1
 
 This package contains the following license:
 
