@@ -214,18 +214,12 @@ export const MODEL_PROVIDERS = Object.freeze<
     {
         id: string
         detail: string
-        /**
-         * Supports seed
-         */
         seed?: boolean
-        /**
-         * Supports logit_bias (choices)
-         */
-        logit_bias?: boolean
-        /**
-         * Supports tools. Set to false to enable fallbackTools
-         */
+        logitBias?: boolean
         tools?: boolean
+        logprobs?: boolean
+        topLogprobs?: boolean
+        topP?: boolean
     }[]
 >(CONFIGURATION_DATA.providers)
 export const MODEL_PRICINGS = Object.freeze<

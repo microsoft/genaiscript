@@ -98,8 +98,6 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
     const { provider, model } = parseModelIdentifier(req.model)
     const { encode: encoder } = await resolveTokenEncoder(model)
 
-    const features = MODEL_PROVIDERS.find(({ id }) => id === provider)
-
     const cache = !!cacheOrName || !!cacheName
     const cacheStore = getChatCompletionCache(
         typeof cacheOrName === "string" ? cacheOrName : cacheName
@@ -139,22 +137,6 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
         stream_options: { include_usage: true },
         model,
     } satisfies CreateChatCompletionRequest)
-
-    if (!isNaN(postReq.seed) && features?.seed === false) {
-        logVerbose(`seed: disabled, not supported by ${provider}`)
-        trace.itemValue(`seed`, `disabled`)
-        delete postReq.seed // some providers do not support seed
-    }
-    if (postReq.logit_bias && features?.logit_bias === false) {
-        logVerbose(`logit_bias: disabled, not supported by ${provider}`)
-        trace.itemValue(`logit_bias`, `disabled`)
-        delete postReq.logit_bias // some providers do not support logit_bias
-    }
-    if (!isNaN(postReq.top_p) && features?.top_p === false) {
-        logVerbose(`top_p: disabled, not supported by ${provider}`)
-        trace.itemValue(`top_p`, `disabled`)
-        delete postReq.top_p
-    }
 
     // stream_options fails in some cases
     if (model === "gpt-4-turbo-v" || /mistral/i.test(model)) {

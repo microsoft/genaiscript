@@ -37,6 +37,7 @@ import {
     MAX_DATA_REPAIRS,
     MAX_TOOL_CALLS,
     MAX_TOOL_CONTENT_TOKENS,
+    MODEL_PROVIDERS,
     SYSTEM_FENCE,
 } from "./constants"
 import { parseAnnotations } from "./annotations"
@@ -44,7 +45,7 @@ import { errorMessage, isCancelError, serializeError } from "./error"
 import { estimateChatTokens } from "./chatencoder"
 import { createChatTurnGenerationContext } from "./runpromptcontext"
 import { dedent } from "./indent"
-import { traceLanguageModelConnection } from "./models"
+import { parseModelIdentifier, traceLanguageModelConnection } from "./models"
 import {
     ChatCompletionAssistantMessageParam,
     ChatCompletionContentPartImage,
@@ -834,7 +835,6 @@ export async function executeChatSession(
         while (true) {
             stats.turns++
             const tokens = estimateChatTokens(model, messages)
-            logVerbose(`prompting ${model} (~${tokens ?? "?"} tokens)\n`)
             if (messages)
                 trace.details(
                     `💬 messages (${messages.length})`,
@@ -857,7 +857,7 @@ export async function executeChatSession(
                         model,
                         choices
                     )
-                    req = deleteUndefinedValues({
+                    req = {
                         model,
                         temperature: temperature,
                         top_p: topP,
@@ -888,11 +888,11 @@ export async function executeChatSession(
                                     }
                                   : undefined,
                         messages,
-                    })
-                    if (/^o1/i.test(model)) {
-                        req.max_completion_tokens = maxTokens
-                        delete req.max_tokens
                     }
+                    updateChatFeatures(trace, req)
+                    logVerbose(
+                        `chat: sending ${messages.length} messages to ${model} (~${tokens ?? "?"} tokens)\n`
+                    )
                     resp = await completer(
                         req,
                         connectionToken,
@@ -939,6 +939,50 @@ export async function executeChatSession(
         stats.trace(trace)
         trace.endDetails()
     }
+}
+
+function updateChatFeatures(
+    trace: MarkdownTrace,
+    req: CreateChatCompletionRequest
+) {
+    const { provider, model } = parseModelIdentifier(req.model)
+    const features = MODEL_PROVIDERS.find(({ id }) => id === provider)
+
+    if (!isNaN(req.seed) && features?.seed === false) {
+        logVerbose(`seed: disabled, not supported by ${provider}`)
+        trace.itemValue(`seed`, `disabled`)
+        delete req.seed // some providers do not support seed
+    }
+    if (req.logit_bias && features?.logitBias === false) {
+        logVerbose(`logit_bias: disabled, not supported by ${provider}`)
+        trace.itemValue(`logit_bias`, `disabled`)
+        delete req.logit_bias // some providers do not support logit_bias
+    }
+    if (!isNaN(req.top_p) && features?.topP === false) {
+        logVerbose(`top_p: disabled, not supported by ${provider}`)
+        trace.itemValue(`top_p`, `disabled`)
+        delete req.top_p
+    }
+    if (req.logprobs && features?.logprobs === false) {
+        logVerbose(`logprobs: disabled, not supported by ${provider}`)
+        trace.itemValue(`logprobs`, `disabled`)
+        delete req.logprobs
+        delete req.top_logprobs
+    }
+    if (
+        req.top_logprobs &&
+        (features?.logprobs === false || features?.topLogprobs === false)
+    ) {
+        logVerbose(`top_logprobs: disabled, not supported by ${provider}`)
+        trace.itemValue(`top_logprobs`, `disabled`)
+        delete req.top_logprobs
+    }
+    if (/^o1/i.test(model) && !req.max_completion_tokens) {
+        req.max_completion_tokens = req.max_tokens
+        delete req.max_tokens
+    }
+
+    deleteUndefinedValues(req)
 }
 
 export function tracePromptResult(trace: MarkdownTrace, resp: RunPromptResult) {

@@ -37,6 +37,10 @@
                         "type": "string",
                         "description": "Description of the LLM provider"
                     },
+                    "logitBias": {
+                        "type": "boolean",
+                        "description": "Indicates if logit_bias is supported"
+                    },
                     "logprobs": {
                         "type": "boolean",
                         "description": "Indicates if log probabilities are supported"
@@ -44,6 +48,10 @@
                     "topLogprobs": {
                         "type": "boolean",
                         "description": "Indicates if top log probabilities are supported"
+                    },
+                    "topP": {
+                        "type": "boolean",
+                        "description": "Indicates if top_p is supported"
                     },
                     "seed": {
                         "type": "boolean",
@@ -54,15 +62,18 @@
                         "description": "Indicates if tools are supported"
                     }
                 },
+                "additionalProperties": false,
                 "required": ["id", "detail"]
             }
         }
     },
     "pricings": {
         "type": "object",
+        "additionalProperties": false,
         "patternProperties": {
             "^[a-zA-Z0-9:_-]+$": {
                 "type": "object",
+                "additionalProperties": false,
                 "properties": {
                     "price_per_million_input_tokens": {
                         "type": "number"

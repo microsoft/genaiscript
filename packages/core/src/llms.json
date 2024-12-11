@@ -8,7 +8,8 @@
         {
             "id": "github",
             "detail": "GitHub Models",
-            "logprobs": false
+            "logprobs": false,
+            "topLogprobs": false
         },
         {
             "id": "azure",
@@ -47,7 +48,7 @@
         {
             "id": "ollama",
             "detail": "Ollama local model",
-            "logit_bias": false
+            "logitBias": false
         },
         {
             "id": "lmstudio",
