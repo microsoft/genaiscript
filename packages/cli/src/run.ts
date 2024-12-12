@@ -230,9 +230,10 @@ export async function runScriptInternal(
     }
 
     logInfo(`genaiscript: ${scriptId}`)
-    Object.entries(runtimeHost.modelAliases).forEach(([key, value]) =>
-        logVerbose(` ${key}: ${value.model}`)
-    )
+    if (!isQuiet)
+        Object.entries(runtimeHost.modelAliases).forEach(([key, value]) =>
+            logVerbose(` ${key}: ${value.model}`)
+        )
 
     if (out) {
         if (removeOut) await emptyDir(out)
