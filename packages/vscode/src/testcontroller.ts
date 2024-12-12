@@ -51,8 +51,7 @@ export async function activateTestController(state: ExtensionState) {
         if (!state.project) await state.parseWorkspace()
         if (token?.isCancellationRequested) return
         const scripts =
-            state.project.scripts.filter((t) => arrayify(t.tests)?.length) ||
-            []
+            state.project.scripts.filter((t) => arrayify(t.tests)?.length) || []
         // refresh existing
         for (const script of scripts) {
             getOrCreateFile(script)
@@ -96,7 +95,8 @@ export async function activateTestController(state: ExtensionState) {
             }
 
             const serverUrl = await startTestViewer()
-            await state.host.server.client.init()
+            const client = await state.host.server.client()
+            await client.init()
             try {
                 for (const { script, test } of scripts) {
                     // check for cancellation
@@ -105,7 +105,7 @@ export async function activateTestController(state: ExtensionState) {
                         return
                     }
                     run.started(test)
-                    const res = await state.host.server.client.runTest(script)
+                    const res = await client.runTest(script)
                     for (const r of res.value || []) {
                         run.appendOutput(
                             `${r.ok ? EMOJI_SUCCESS : EMOJI_FAIL} ${r.script} ${errorMessage(r.error) || ""} ${serverUrl}/eval?evalId=${encodeURIComponent(r.value?.evalId)}`,

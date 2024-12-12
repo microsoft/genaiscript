@@ -61,7 +61,8 @@ export async function activate(context: ExtensionContext) {
             }
         }),
         registerCommand("genaiscript.info.env", async () => {
-            state.host.server.client.infoEnv()
+            const client = await state.host.server.client()
+            await client.infoEnv()
         }),
         registerCommand(
             "genaiscript.openIssueReporter",

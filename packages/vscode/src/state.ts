@@ -279,7 +279,8 @@ export class ExtensionState extends EventTarget {
         }
 
         // todo: send js source
-        const { runId, request } = await this.host.server.client.startScript(
+        const client = await this.host.server.client()
+        const { runId, request } = await client.startScript(
             template.id,
             files,
             {
@@ -344,7 +345,8 @@ export class ExtensionState extends EventTarget {
             a.computing = false
             if (a.controller && !a.controller?.signal?.aborted)
                 a.controller.abort?.("user cancelled")
-            this.host.server.client.cancel()
+            const client = await this.host.server.client({ doNotStart: true })
+            client?.cancel()
             this.dispatchChange()
             await delay(100)
         }
@@ -390,7 +392,8 @@ export class ExtensionState extends EventTarget {
                 await saveAllTextDocuments()
                 performance.mark(`project-start`)
                 performance.mark(`scan-tools`)
-                const newProject = await this.host.server.client.listScripts()
+                const client = await this.host.server.client()
+                const newProject = await client.listScripts()
                 await this.setProject(newProject)
                 this.setDiagnostics()
                 logMeasure(`project`, `project-start`, `project-end`)

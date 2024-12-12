@@ -9,26 +9,40 @@ import {
     TOOL_ID,
 } from "../../core/src/constants"
 import { ServerManager, host } from "../../core/src/host"
-import { logError, logInfo, logVerbose } from "../../core/src/util"
+import { assert, logError, logInfo, logVerbose } from "../../core/src/util"
 import { WebSocketClient } from "../../core/src/server/client"
 import { CORE_VERSION } from "../../core/src/version"
 import { createChatModelRunner } from "./lmaccess"
 import { semverParse, semverSatisfies } from "../../core/src/semver"
 import { resolveCli } from "./config"
 
+function findRandomOpenPort() {
+    return new Promise<number>((resolve, reject) => {
+        const server = require("net").createServer()
+        server.unref()
+        server.on("error", reject)
+        server.listen(0, () => {
+            const port = server.address().port
+            server.close(() => resolve(port))
+        })
+    })
+}
+
 export class TerminalServerManager implements ServerManager {
     private _terminal: vscode.Terminal
-    readonly client: WebSocketClient
+    private _port: number
+    private _startClientPromise: Promise<WebSocketClient>
+    private _client: WebSocketClient
 
     constructor(readonly state: ExtensionState) {
-        const { context, sessionApiKey } = state
+        const { context } = state
         const { subscriptions } = context
         subscriptions.push(this)
         subscriptions.push(
             vscode.window.onDidCloseTerminal((e) => {
                 if (e === this._terminal) {
                     try {
-                        this.client?.kill()
+                        this._client?.kill()
                     } catch (error) {
                         logError(error)
                     }
@@ -41,19 +55,32 @@ export class TerminalServerManager implements ServerManager {
                 if (e.affectsConfiguration(TOOL_ID + ".cli")) this.close()
             })
         )
+    }
 
-        const url = `http://localhost:${SERVER_PORT}?api-key=${encodeURIComponent(sessionApiKey)}`
+    async client(options?: { doNotStart?: boolean} ): Promise<WebSocketClient> {
+        if (this._client) return this._client
+        if (options?.doNotStart) return undefined
+        return (
+            this._startClientPromise ||
+            (this._startClientPromise = this.startClient())
+        )
+    }
+
+    private async startClient(): Promise<WebSocketClient> {
+        assert(!this._client)
+        this._port = await findRandomOpenPort()
+        const url = `http://localhost:${this._port}?api-key=${encodeURIComponent(this.state.sessionApiKey)}`
         logInfo(`client url: ${url}`)
-        this.client = new WebSocketClient(url)
-        this.client.chatRequest = createChatModelRunner(this.state)
-        this.client.addEventListener(OPEN, async () => {
+        this._client = new WebSocketClient(url)
+        this._client.chatRequest = createChatModelRunner(this.state)
+        this._client.addEventListener(OPEN, async () => {
             // client connected to a rogue server
             if (!this._terminal) {
                 logVerbose("found rogue server, closing...")
-                this.client?.kill()
+                this._client?.kill()
             } else {
                 // check version
-                const v = await this.client.version()
+                const v = await this._client.version()
                 const gv = semverParse(CORE_VERSION)
                 if (
                     !semverSatisfies(
@@ -67,19 +94,21 @@ export class TerminalServerManager implements ServerManager {
                     )
             }
         })
-        this.client.addEventListener(RECONNECT, () => {
+        this._client.addEventListener(RECONNECT, () => {
             // server process died somehow
-            if (this.client.connectedOnce) {
+            if (this._client.connectedOnce) {
                 this.closeTerminal()
-                if (this.client.pending) this.start()
+                if (this._client.pending) this.start()
             }
         })
+        this._startClientPromise = undefined
+        return this._client
     }
 
     async start() {
         if (this._terminal) return
 
-        this.client.reconnectAttempts = 0
+        this._client.reconnectAttempts = 0
         this._terminal = vscode.window.createTerminal({
             name: TOOL_NAME,
             cwd: host.projectFolder(),
@@ -90,8 +119,14 @@ export class TerminalServerManager implements ServerManager {
             },
         })
         const { cliPath, cliVersion } = await resolveCli()
-        if (cliPath) this._terminal.sendText(`node "${cliPath}" serve`)
-        else this._terminal.sendText(`npx --yes ${TOOL_ID}@${cliVersion} serve`)
+        if (cliPath)
+            this._terminal.sendText(
+                `node "${cliPath}" serve --port ${this._port}`
+            )
+        else
+            this._terminal.sendText(
+                `npx --yes ${TOOL_ID}@${cliVersion} serve --port ${this._port}`
+            )
         this._terminal.show()
     }
 
@@ -100,7 +135,7 @@ export class TerminalServerManager implements ServerManager {
     }
 
     async close() {
-        this.client?.kill()
+        this._client?.kill()
         this.closeTerminal()
     }
 
