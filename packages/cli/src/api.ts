@@ -13,8 +13,17 @@ import { dirname, join } from "node:path"
  * @returns
  */
 export async function run(
+    /**
+     * The script identifier or full file path.
+     */
     scriptId: string,
-    files?: string[],
+    /**
+     * List of file paths to run the script on, leave empty if not needed.
+     */
+    files?: string | string[],
+    /**
+     * GenAIScript generation options.
+     */
     options?: Partial<PromptScriptRunOptions> & {
         /**
          * Environment variables to use for the operation.
@@ -29,6 +38,8 @@ export async function run(
     exitCode: number
     result?: GenerationResult
 }> {
+    if (!scriptId) throw new Error("scriptId is required")
+
     const { env, signal, ...rest } = options || {}
     const workerData = {
         type: "run",
@@ -36,6 +47,7 @@ export async function run(
         files: files || [],
         options: rest,
     }
+    if (typeof files === "string") files = [files]
     const filename =
         typeof __filename === "undefined"
             ? join(dirname(fileURLToPath(import.meta.url)), "genaiscript.cjs") // ignore esbuild warning
