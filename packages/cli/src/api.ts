@@ -65,9 +65,9 @@ export async function run(
             signal?.removeEventListener("abort", abort)
             resolve(res)
         })
-        worker.on("error", () => {
+        worker.on("error", (reason) => {
             signal?.removeEventListener("abort", abort)
-            reject()
+            reject(reason)
         })
     })
 }
