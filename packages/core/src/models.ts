@@ -13,7 +13,7 @@ import {
 import { errorMessage } from "./error"
 import { LanguageModelConfiguration, host, runtimeHost } from "./host"
 import { AbortSignalOptions, MarkdownTrace, TraceOptions } from "./trace"
-import { assert, logVerbose } from "./util"
+import { arrayify, assert, logVerbose } from "./util"
 
 /**
  * model
@@ -61,10 +61,15 @@ export function traceLanguageModelConnection(
         topP,
         maxTokens,
         seed,
+        cache,
+        logprobs,
+        topLogprobs,
         cacheName,
         responseType,
         responseSchema,
+        fenceFormat,
     } = options
+    const choices = arrayify(options.choices)
     const { base, type, version, source, provider } = connectionToken
     trace.startDetails(`⚙️ configuration`)
     try {
@@ -78,10 +83,21 @@ export function traceLanguageModelConnection(
         trace.itemValue(`base`, base)
         trace.itemValue(`type`, type)
         trace.itemValue(`seed`, seed)
+        if (choices.length) trace.itemValue(`choices`, choices.join(","))
+        trace.itemValue(`logprobs`, logprobs)
+        trace.itemValue(`topLogprobs`, topLogprobs)
         trace.itemValue(`cache name`, cacheName)
+        trace.itemValue(`cache`, cache)
+        trace.itemValue(`fence format`, fenceFormat)
         trace.itemValue(`response type`, responseType)
         if (responseSchema)
             trace.detailsFenced(`📦 response schema`, responseSchema, "json")
+
+        trace.startDetails(`🔗 model aliases`)
+        Object.entries(runtimeHost.modelAliases).forEach(([key, value]) =>
+            trace.itemValue(key, value.model)
+        )
+        trace.endDetails()
     } finally {
         trace.endDetails()
     }

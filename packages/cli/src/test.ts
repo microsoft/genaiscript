@@ -44,7 +44,6 @@ import {
 import { generatePromptFooConfiguration } from "../../core/src/test"
 import { delay } from "es-toolkit"
 import {
-    ModelConnectionInfo,
     resolveModelConnectionInfo,
 } from "../../core/src/models"
 import { filterScripts } from "../../core/src/ast"
