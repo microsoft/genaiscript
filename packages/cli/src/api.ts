@@ -39,6 +39,11 @@ export async function run(
     result?: GenerationResult
 }> {
     if (!scriptId) throw new Error("scriptId is required")
+    if (typeof files === "string") files = [files]
+    if (typeof options?.vars === "object")
+        options.vars = Object.entries(options.vars).map(
+            ([key, value]) => `${key}=${value}`
+        )
 
     const { env, signal, ...rest } = options || {}
     const workerData = {
@@ -47,7 +52,6 @@ export async function run(
         files: files || [],
         options: rest,
     }
-    if (typeof files === "string") files = [files]
     const filename =
         typeof __filename === "undefined"
             ? join(dirname(fileURLToPath(import.meta.url)), "genaiscript.cjs") // ignore esbuild warning
