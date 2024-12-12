@@ -75,24 +75,28 @@ export function activateFragmentCommands(state: ExtensionState) {
     const { subscriptions } = context
 
     const findScript = (filename: vscode.Uri) => {
-        const fsPath = state.host.path.resolve(filename.fsPath)
-        const allScripts = state.project.scripts
-        const script = allScripts
+        const fp = state.host.path.resolve(filename.fsPath)
+        const scripts = state.project.scripts.filter((p) => !!p.filename)
+        const script = scripts
             .filter((p) => !!p.filename)
-            .find((p) =>
-                state.host.path.isAbsolute(p.filename)
+            .find((p) => {
+                const pf = state.host.path.isAbsolute(p.filename)
                     ? p.filename
                     : state.host.path.resolve(
                           state.host.projectFolder(),
                           p.filename
-                      ) === fsPath
-            )
+                      )
+                return pf === fp
+            })
 
         if (!script) {
+            state.output.appendLine(`requested script: ${fp}`)
+            scripts.forEach((s) => state.output.appendLine(`- ${s.filename}`))
+
             const reportIssue = "Report Issue"
             vscode.window
                 .showErrorMessage(
-                    `Could not find a GenAiScript ${fsPath}. This is most likely a bug in GenAIScript.`,
+                    `Could not find a GenAiScript ${fp}. This is most likely a bug in GenAIScript.`,
                     "Report Issue"
                 )
                 .then((cmd) => {
@@ -101,9 +105,9 @@ export function activateFragmentCommands(state: ExtensionState) {
                             "genaiscript.openIssueReporter",
                             [
                                 `Could not find a GenAiScript issue`,
-                                `Requested script: ${fsPath}`,
+                                `Requested script: ${fp}`,
                                 `Known scripts:`,
-                                ...allScripts.map((s) => s.filename),
+                                ...scripts.map((s) => s.filename),
                             ]
                         )
                     }
