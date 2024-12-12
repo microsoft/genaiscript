@@ -16,6 +16,8 @@ import {
     GENAI_ANY_REGEX,
     EMOJI_SUCCESS,
     EMOJI_FAIL,
+    TEST_RUNS_DIR_NAME,
+    PROMPTFOO_REMOTE_API_PORT,
 } from "../../core/src/constants"
 import { promptFooDriver } from "../../core/src/default_prompts"
 import { serializeError } from "../../core/src/error"
@@ -31,6 +33,7 @@ import {
     logVerbose,
     tagFilter,
     toStringList,
+    dotGenaiscriptPath,
 } from "../../core/src/util"
 import { YAMLStringify } from "../../core/src/yaml"
 import {
@@ -45,6 +48,7 @@ import {
     resolveModelConnectionInfo,
 } from "../../core/src/models"
 import { filterScripts } from "../../core/src/ast"
+import { link } from "../../core/src/markdown"
 
 /**
  * Parses model specifications from a string and returns a ModelOptions object.
@@ -127,16 +131,44 @@ export async function runPromptScriptTests(
 
     const cli = options.cli || resolve(__filename)
     const out = options.out || join(GENAISCRIPT_FOLDER, "tests")
-    const outSummary = options.outSummary
+    let outSummary = options.outSummary
         ? resolve(options.outSummary)
         : undefined
     const provider = join(out, "provider.mjs")
+    const port = PROMPTFOO_REMOTE_API_PORT
+    const serverUrl = `http://127.0.0.1:${port}`
     const testDelay = normalizeInt(options?.testDelay)
     logInfo(`writing tests to ${out}`)
 
     if (options?.removeOut) await emptyDir(out)
     await ensureDir(out)
     await writeFile(provider, promptFooDriver)
+
+    if (!outSummary) {
+        outSummary = dotGenaiscriptPath(
+            TEST_RUNS_DIR_NAME,
+            `${new Date().toISOString().replace(/[:.]/g, "-")}.trace.md`
+        )
+    }
+
+    await ensureDir(PROMPTFOO_CACHE_PATH)
+    await ensureDir(PROMPTFOO_CONFIG_DIR)
+    if (outSummary) {
+        await ensureDir(dirname(outSummary))
+        await appendFile(
+            outSummary,
+            `## GenAIScript Test Results
+
+- Run this command to launch the promptfoo test viewer.
+
+\`\`\`sh
+genaiscript test view
+\`\`\`
+
+`
+        )
+        logVerbose(`trace: ${outSummary}`)
+    }
 
     // Prepare test configurations for each script
     const configurations: { script: PromptScript; configuration: string }[] = []
@@ -165,18 +197,6 @@ export async function runPromptScriptTests(
         const yaml = YAMLStringify(config)
         await writeFile(fn, yaml)
         configurations.push({ script, configuration: fn })
-    }
-
-    await ensureDir(PROMPTFOO_CACHE_PATH)
-    await ensureDir(PROMPTFOO_CONFIG_DIR)
-    if (outSummary) {
-        await ensureDir(dirname(outSummary))
-        await appendFile(
-            outSummary,
-            `## GenAIScript Test Results
-
-`
-        )
     }
 
     const results: PromptScriptTestResult[] = []
@@ -221,11 +241,20 @@ export async function runPromptScriptTests(
             value = JSON5TryParse(await readFile(outJson, "utf8"))
 
         const ok = status === 0
-        if (outSummary)
+        if (outSummary) {
+            const url = value?.evalId
+                ? link(
+                      "result",
+                      `${serverUrl}/eval?evalId=${encodeURIComponent(value?.evalId)}`
+                  )
+                : ""
             await appendFile(
                 outSummary,
-                `- ${ok ? EMOJI_SUCCESS : EMOJI_FAIL} ${script.id}\n`
+                `- ${ok ? EMOJI_SUCCESS : EMOJI_FAIL} ${script.id} ${url}\n`
             )
+            if (error)
+                await appendFile(outSummary, `\`\`\`\n\n${error}\`\`\`\n\n`)
+        }
         results.push({
             status,
             ok,
@@ -240,6 +269,7 @@ export async function runPromptScriptTests(
         }
     }
 
+    if (outSummary) logVerbose(`trace: ${outSummary}`)
     const ok = results.every((r) => !!r.ok)
     return {
         ok,
