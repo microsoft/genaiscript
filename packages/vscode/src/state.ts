@@ -291,7 +291,7 @@ export class ExtensionState extends EventTarget {
                 partialCb,
                 label,
                 cache: cache ? template.cache : undefined,
-                varsMap: structuredClone(options.parameters),
+                vars: structuredClone(options.parameters),
             }
         )
         r.runId = runId

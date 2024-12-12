@@ -298,10 +298,9 @@ export async function runScriptInternal(
     const fragment: Fragment = {
         files: Array.from(resolvedFiles),
     }
-    const vars = structuralMerge(
-        options.varsMap || {},
-        parseOptionsVars(options.vars, process.env)
-    )
+    const vars = Array.isArray(options.vars)
+        ? parseOptionsVars(options.vars, process.env)
+        : structuredClone(options.vars || {})
     const stats = new GenerationStats("")
     try {
         if (options.label) trace.heading(2, options.label)

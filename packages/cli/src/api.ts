@@ -40,10 +40,6 @@ export async function run(
 }> {
     if (!scriptId) throw new Error("scriptId is required")
     if (typeof files === "string") files = [files]
-    if (typeof options?.vars === "object")
-        options.vars = Object.entries(options.vars).map(
-            ([key, value]) => `${key}=${value}`
-        )
 
     const { env, signal, ...rest } = options || {}
     const workerData = {
