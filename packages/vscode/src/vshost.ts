@@ -186,10 +186,8 @@ export class VSCodeHost extends EventTarget implements Host {
         modelId: string,
         options?: { token?: boolean } & AbortSignalOptions & TraceOptions
     ): Promise<LanguageModelConfiguration> {
-        const tok = await this.server.client.getLanguageModelConfiguration(
-            modelId,
-            options
-        )
+        const client = await this.server.client()
+        const tok = await client.getLanguageModelConfiguration(modelId, options)
         return tok
     }
 
@@ -200,12 +198,8 @@ export class VSCodeHost extends EventTarget implements Host {
         args: string[],
         options: ShellOptions
     ): Promise<ShellOutput> {
-        const res = await this.server.client.exec(
-            containerId,
-            command,
-            args,
-            options
-        )
+        const client = await this.server.client()
+        const res = await client.exec(containerId, command, args, options)
         return res.value
     }
 }

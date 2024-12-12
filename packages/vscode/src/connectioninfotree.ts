@@ -30,11 +30,11 @@ class ConnectionInfoTreeDataProvider
         element: ConnectionInfoTreeData
     ): Promise<vscode.TreeItem> {
         const item = new vscode.TreeItem(element.provider)
-        const res =
-            await this.state.host.server.client.getLanguageModelConfiguration(
-                element.provider + ":*",
-                { token: false }
-            )
+        const client = await this.state.host.server.client()
+        const res = await client.getLanguageModelConfiguration(
+            element.provider + ":*",
+            { token: false }
+        )
         if (res) {
             item.description = res.base || "?"
             item.tooltip = YAMLStringify(res)
