@@ -90,7 +90,7 @@ import {
 import { setModelAlias } from "../../core/src/connection"
 
 async function setupTraceWriting(trace: MarkdownTrace, filename: string) {
-    logVerbose(`trace: ${filename}`)
+    logVerbose(`  trace: ${filename}`)
     await ensureDir(dirname(filename))
     await writeFile(filename, "", { encoding: "utf-8" })
     trace.addEventListener(
