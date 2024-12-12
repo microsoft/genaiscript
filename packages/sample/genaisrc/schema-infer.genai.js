@@ -1,15 +1,19 @@
 script({
     title: "JSON schema inferer",
-    model: "gpt-3.5-turbo",
-    tests: [{
-        files: "src/penguins.csv",
-        keywords: "species"
-    }, {
-        files: "src/penguins.xlsx",
-        keywords: "species"
-    }]
+    model: "small",
+    files: "src/penguins.csv",
+    tests: [
+        {
+            files: "src/penguins.csv",
+            keywords: "species",
+        },
+        {
+            files: "src/penguins.xlsx",
+            keywords: "species",
+        },
+    ],
 })
-// use def to emit LLM variables 
+// use def to emit LLM variables
 // https://microsoft.github.io/genaiscript/reference/scripts/context/#definition-def
 const files = def("FILE", env.files, { sliceSample: 20 })
 
