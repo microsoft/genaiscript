@@ -3,6 +3,7 @@ import { ExtensionState } from "./state"
 import { CHANGE } from "../../core/src/constants"
 import { groupBy } from "../../core/src/util"
 import { templateGroup } from "../../core/src/ast"
+import { MarkdownStringify } from "../../core/src/markdown"
 
 type PromptTreeNode = string | PromptScript
 
@@ -30,6 +31,10 @@ class PromptTreeDataProvider
                 title,
                 description = "",
                 system = [],
+                text,
+                defTools,
+                jsSource,
+                ...rest
             } = element
             const ai = this.state.aiRequest
             const { computing, options, progress } = ai || {}
@@ -55,7 +60,8 @@ class PromptTreeDataProvider
 
 ${description}
 
-- filename: \`${filename ? vscode.workspace.asRelativePath(filename) : "builtin"}\`
+- filename: \`${filename || "builtin"}\`
+${MarkdownStringify(rest, { quoteValues: true })}
 `,
                 true
             )

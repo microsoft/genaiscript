@@ -59,7 +59,6 @@ export interface PromptScriptTestRunResponse extends ResponseStatus {
 }
 
 export interface PromptScriptRunOptions {
-    filesChunkSize: number
     excludedFiles: string[]
     excludeGitIgnore: boolean
     runRetry: string
@@ -95,14 +94,12 @@ export interface PromptScriptRunOptions {
     applyEdits: boolean
     failOnErrors: boolean
     removeOut: boolean
-    vars: string[]
+    vars: string[] | Record<string, string | boolean | number | object>
     fallbackTools: boolean
     jsSource: string
     logprobs: boolean
     topLogprobs: number
     fenceFormat: FenceFormat
-
-    varsMap?: Record<string, string | boolean | number | object>
 }
 
 export interface PromptScriptList extends RequestMessage {
