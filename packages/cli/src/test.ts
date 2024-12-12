@@ -253,7 +253,10 @@ genaiscript test view
                 `- ${ok ? EMOJI_SUCCESS : EMOJI_FAIL} ${script.id} ${url}\n`
             )
             if (error)
-                await appendFile(outSummary, `\`\`\`\n\n${error}\`\`\`\n\n`)
+                await appendFile(
+                    outSummary,
+                    `\n\n\`\`\`\n${JSON.stringify(error, null, 2)}\n\`\`\`\n\n`
+                )
         }
         results.push({
             status,
