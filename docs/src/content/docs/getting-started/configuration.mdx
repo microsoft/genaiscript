@@ -1099,7 +1099,7 @@ script({
 })
 ```
 
-## Ollama with Hugging Face models
+### Ollama with Hugging Face models
 
 You can also use [GGUF models](https://huggingface.co/models?library=gguf) from [Hugging Face](https://huggingface.co/docs/hub/en/ollama).
 
@@ -1116,15 +1116,22 @@ You can conviniately run Ollama in a Docker container.
 
 - start the [Ollama container](https://ollama.com/blog/ollama-is-now-available-as-an-official-docker-image)
 
-```sh
+```sh wrap
 docker run -d -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama
 ```
 
 - stop and remove the Ollama containers
 
-```sh
+```sh wrap
 docker stop ollama && docker rm ollama
 ```
+
+:::tip
+
+You can start the Ollama container in a [GitHub Codespace](https://github.com/features/codespaces)
+or a [GitHub Action](https://docs.github.com/en/actions)!
+
+:::
 
 <LLMProviderFeatures provider="ollama" />
 
