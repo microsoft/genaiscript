@@ -81,7 +81,7 @@
     "node": ">=20.0.0"
   },
   "peerDependencies": {
-    "promptfoo": "0.100.3"
+    "promptfoo": "0.100.6"
   },
   "devDependencies": {
     "@types/diff": "^6.0.0",

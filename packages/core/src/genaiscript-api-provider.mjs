@@ -20,8 +20,7 @@ class GenAIScriptApiProvider {
     async callApi(scriptId, context) {
         const { logger } = context
         try {
-            let files = context.vars.files // string or string[]
-            if (files && !Array.isArray(files)) files = [files] // ensure array
+            const files = context.vars.files // string or string[]
 
             const { cli, ...options } = structuredClone(this.config)
             options.runTries = 2
@@ -29,7 +28,7 @@ class GenAIScriptApiProvider {
             const testVars = context.vars.vars // {}
             if (testVars && typeof testVars === "object")
                 options.vars = { ...(this.config.vars || []), ...testVars }
-            const api = await import(cli ?? "genaiscript")
+            const api = await import(cli ?? "genaiscript/api")
             const res = await api.run(scriptId, files, options)
             logger.debug(res)
             return {
