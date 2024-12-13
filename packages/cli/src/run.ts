@@ -220,7 +220,7 @@ export async function runScriptInternal(
     for (const kv of options.modelAlias || []) {
         const aliases = parseKeyValuePair(kv)
         for (const [key, value] of Object.entries(aliases))
-            runtimeHost.setModelAlias(key, value)
+            runtimeHost.setModelAlias("cli", key, value)
     }
 
     const fail = (msg: string, exitCode: number, url?: string) => {

@@ -16,6 +16,7 @@ import {
     RuntimeHost,
     AzureTokenResolver,
     ModelConfigurations,
+    ModelConfiguration,
 } from "./host"
 import { TraceOptions } from "./trace"
 import {
@@ -83,6 +84,14 @@ export class TestHost implements RuntimeHost {
         setRuntimeHost(new TestHost())
     }
 
+    setModelAlias(
+        source: "cli" | "env" | "config",
+        id: string,
+        value: string | ModelConfiguration
+    ): void {
+        if (typeof value === "string") value = { model: value }
+        this.modelAliases[id] = value
+    }
     async readConfig() {
         return {}
     }

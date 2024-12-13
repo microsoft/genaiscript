@@ -37,7 +37,7 @@ script({
 
 ### Large, small, vision models
 
-You can also use the `small`, `large`, `vision` aliases to use the default configured small, large and vision-enabled models.
+You can also use the `small`, `large`, `vision` [model aliases](/genaiscript/reference/scripts/model-aliases) to use the default configured small, large and vision-enabled models.
 Large models are typically in the OpenAI gpt-4 reasoning range and can be used for more complex tasks.
 Small models are in the OpenAI gpt-4o-mini range, and are useful for quick and simple tasks.
 
@@ -49,13 +49,14 @@ script({ model: "small" })
 script({ model: "large" })
 ```
 
-The model can also be overridden from the [cli run command](/genaiscript/reference/cli/run#model)
+The model aliases can also be overridden from the [cli run command](/genaiscript/reference/cli/run#model), 
+or environment variables or configuration file. [Learn more about model aliases](/genaiscript/reference/scripts/model-aliases).
 
 ```sh
 genaiscript run ... --model largemodelid --small-model smallmodelid
 ```
 
-or by adding the `GENAISCRIPT_LARGE_MODEL` and `GENAISCRIPT_SMALL_MODEL` environment variables.
+or by adding the `GENAISCRIPT_MODEL_LARGE` and `GENAISCRIPT_MODEL_SMALL` environment variables.
 
 ```txt title=".env"
 GENAISCRIPT_MODEL_LARGE="azure_serverless:..."

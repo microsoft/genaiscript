@@ -1,6 +1,10 @@
 {
     "include": ["../../genaisrc/*.genai.mts"],
     "modelAliases": {
-        "llama3.2": "ollama:llama3.2:1b"
+        "llama32": "ollama:llama3.2:1b",
+        "llama32hot": {
+            "model": "ollama:llama3.2:1b",
+            "temperature": 2
+        }
     }
 }

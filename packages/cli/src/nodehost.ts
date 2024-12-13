@@ -145,11 +145,19 @@ export class NodeHost implements RuntimeHost {
     readonly workspace = createFileSystem()
     readonly containers = new DockerManager()
     readonly browsers = new BrowserManager()
-    readonly modelAliases: ModelConfigurations = {
-        large: { model: DEFAULT_MODEL },
-        small: { model: DEFAULT_SMALL_MODEL },
-        vision: { model: DEFAULT_VISION_MODEL },
-        embeddings: { model: DEFAULT_EMBEDDINGS_MODEL },
+    private readonly _modelAliases: Record<
+        "default" | "cli" | "env" | "config",
+        Omit<ModelConfigurations, "large" | "small" | "vision" | "embeddings">
+    > = {
+        default: {
+            large: { model: DEFAULT_MODEL },
+            small: { model: DEFAULT_SMALL_MODEL },
+            vision: { model: DEFAULT_VISION_MODEL },
+            embeddings: { model: DEFAULT_EMBEDDINGS_MODEL },
+        },
+        cli: {},
+        env: {},
+        config: {},
     }
     readonly userInputQueue = new PLimitPromiseQueue(1)
     readonly azureToken: AzureTokenResolver
@@ -169,10 +177,25 @@ export class NodeHost implements RuntimeHost {
         )
     }
 
-    setModelAlias(id: string, value: string | ModelConfiguration): void {
+    get modelAliases(): Readonly<ModelConfigurations> {
+        const res = {
+            ...this._modelAliases.default,
+            ...this._modelAliases.config,
+            ...this._modelAliases.env,
+            ...this._modelAliases.cli,
+        } as ModelConfigurations
+        return Object.freeze(res)
+    }
+
+    setModelAlias(
+        source: "cli" | "env" | "config",
+        id: string,
+        value: string | ModelConfiguration
+    ): void {
         id = id.toLowerCase()
         if (typeof value === "string") value = { model: value }
-        const c = this.modelAliases[id] || (this.modelAliases[id] = {})
+        const aliases = this._modelAliases[source]
+        const c = aliases[id] || (aliases[id] = {})
         c.model = value.model
         c.temperature = value.temperature
     }
@@ -193,7 +216,7 @@ export class NodeHost implements RuntimeHost {
         await parseDefaultsFromEnv(process.env)
         if (modelAliases)
             for (const kv of Object.entries(modelAliases))
-                this.setModelAlias(kv[0], kv[1])
+                this.setModelAlias("config", kv[0], kv[1])
         return config
     }
 

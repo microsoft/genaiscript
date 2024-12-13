@@ -79,13 +79,13 @@ export async function parseDefaultsFromEnv(env: Record<string, string>) {
         runtimeHost.modelAliases.large.model = env.GENAISCRIPT_DEFAULT_MODEL
 
     const rx =
-        /^GENAISCRIPT(_DEFAULT)?_((?<id>[A-Z0-9]+)_MODEL|MODEL_(?<id2>[A-Z0-9]+))$/i
+        /^GENAISCRIPT(_DEFAULT)?_((?<id>[A-Z0-9_\-]+)_MODEL|MODEL_(?<id2>[A-Z0-9_\-]+))$/i
     for (const kv of Object.entries(env)) {
         const [k, v] = kv
         const m = rx.exec(k)
         if (!m) continue
         const id = m.groups.id || m.groups.id2
-        runtimeHost.setModelAlias(id, v)
+        runtimeHost.setModelAlias("env", id, v)
     }
     const t = normalizeFloat(env.GENAISCRIPT_DEFAULT_TEMPERATURE)
     if (!isNaN(t)) runtimeHost.modelAliases.large.temperature = t

@@ -168,7 +168,7 @@ export interface RuntimeHost extends Host {
     azureToken: AzureTokenResolver
     modelAliases: Readonly<ModelConfigurations>
 
-    setModelAlias(id: string, value: string | ModelConfiguration): void
+    setModelAlias(source: "env" | "cli" | "config", id: string, value: string | ModelConfiguration): void
 
     readConfig(): Promise<HostConfiguration>
     readSecret(name: string): Promise<string | undefined>
