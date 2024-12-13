@@ -47,7 +47,7 @@ export class VSCodeHost extends EventTarget implements Host {
         return vscode.workspace.workspaceFolders[0]?.uri
     }
     projectFolder(): string {
-        return vscode.workspace.rootPath ?? "."
+        return this.projectUri?.fsPath ?? "."
     }
     installFolder(): string {
         return this.context.extensionUri.fsPath

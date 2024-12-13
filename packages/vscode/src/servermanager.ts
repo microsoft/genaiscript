@@ -57,7 +57,7 @@ export class TerminalServerManager implements ServerManager {
         )
     }
 
-    async client(options?: { doNotStart?: boolean} ): Promise<WebSocketClient> {
+    async client(options?: { doNotStart?: boolean }): Promise<WebSocketClient> {
         if (this._client) return this._client
         if (options?.doNotStart) return undefined
         return (
@@ -108,10 +108,14 @@ export class TerminalServerManager implements ServerManager {
     async start() {
         if (this._terminal) return
 
+        const cwd = host.projectFolder()
+        this.state.output.appendLine(
+            `starting server on port ${this._port} at ${cwd}`
+        )
         this._client.reconnectAttempts = 0
         this._terminal = vscode.window.createTerminal({
             name: TOOL_NAME,
-            cwd: host.projectFolder(),
+            cwd,
             isTransient: true,
             iconPath: new vscode.ThemeIcon(ICON_LOGO_NAME),
             env: {

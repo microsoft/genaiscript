@@ -74,45 +74,35 @@ export function activateFragmentCommands(state: ExtensionState) {
     const { context, host } = state
     const { subscriptions } = context
 
-    const scriptFile = (p: PromptScript) =>
-        state.host.path.isAbsolute(p.filename)
-            ? p.filename
-            : state.host.path.resolve(state.host.projectFolder(), p.filename)
-
     const findScript = (filename: vscode.Uri) => {
-        const fp = state.host.path.resolve(filename.fsPath)
+        const f = filename.toString()
         const scripts = state.project.scripts.filter((p) => !!p.filename)
         const script = scripts.find((p) => {
-            const sfp = scriptFile(p)
-            return sfp === fp
+            const sfp = host.toUri(p.filename)
+            return sfp.toString() === f
         })
 
         if (!script) {
-            state.output.appendLine(`fspath: ${filename.fsPath}`)
-            state.output.appendLine(`resolved: ${fp}`)
+            state.output.appendLine(`filename: ${filename}`)
             state.output.appendLine(
                 `projectfolder: ${state.host.projectFolder()}`
             )
-            scripts.forEach((s) =>
-                state.output.appendLine(`- ${s.filename}\n  ${scriptFile(s)}`)
-            )
+            scripts.forEach((s) => {
+                state.output.appendLine(`- ${s.filename}`)
+                state.output.appendLine(`  ${host.toUri(s.filename)}`)
+            })
 
             const reportIssue = "Report Issue"
             vscode.window
                 .showErrorMessage(
-                    `Could not find a GenAiScript ${fp}. This is most likely a bug in GenAIScript.`,
+                    `Could not find a GenAiScript ${filename}. This is most likely a bug in GenAIScript.`,
                     "Report Issue"
                 )
                 .then((cmd) => {
                     if (cmd === reportIssue) {
                         vscode.commands.executeCommand(
                             "genaiscript.openIssueReporter",
-                            [
-                                `Could not find a GenAiScript issue`,
-                                `Requested script: ${fp}`,
-                                `Known scripts:`,
-                                ...scripts.map((s) => s.filename),
-                            ]
+                            [`Could not find a GenAiScript issue`]
                         )
                     }
                 })
