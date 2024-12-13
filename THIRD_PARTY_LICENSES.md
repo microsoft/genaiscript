@@ -1954,13 +1954,13 @@ Apache License
 
 The following npm packages may be included in this product:
 
- - @aws-sdk/client-cognito-identity@3.709.0
- - @aws-sdk/client-sso-oidc@3.709.0
- - @aws-sdk/client-sso@3.709.0
- - @aws-sdk/client-sts@3.709.0
- - @aws-sdk/credential-provider-cognito-identity@3.709.0
+ - @aws-sdk/client-cognito-identity@3.712.0
+ - @aws-sdk/client-sso-oidc@3.712.0
+ - @aws-sdk/client-sso@3.712.0
+ - @aws-sdk/client-sts@3.712.0
+ - @aws-sdk/credential-provider-cognito-identity@3.712.0
  - @aws-sdk/util-user-agent-browser@3.709.0
- - @aws-sdk/util-user-agent-node@3.709.0
+ - @aws-sdk/util-user-agent-node@3.712.0
  - @smithy/eventstream-codec@2.2.0
  - @smithy/eventstream-codec@3.1.10
  - @smithy/middleware-retry@3.0.30
@@ -2182,7 +2182,7 @@ Apache License
 
 The following npm package may be included in this product:
 
- - @aws-sdk/client-bedrock-runtime@3.709.0
+ - @aws-sdk/client-bedrock-runtime@3.712.0
 
 This package contains the following license:
 
@@ -2861,7 +2861,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.84.8
+ - genaiscript-vscode@1.85.0
 
 This package contains the following license:
 
@@ -4162,9 +4162,9 @@ Apache License
 The following npm packages may be included in this product:
 
  - @aws-sdk/credential-provider-env@3.709.0
- - @aws-sdk/credential-provider-ini@3.709.0
- - @aws-sdk/credential-provider-node@3.709.0
- - @aws-sdk/credential-providers@3.709.0
+ - @aws-sdk/credential-provider-ini@3.712.0
+ - @aws-sdk/credential-provider-node@3.712.0
+ - @aws-sdk/credential-providers@3.712.0
  - @aws-sdk/region-config-resolver@3.709.0
  - @aws-sdk/token-providers@3.709.0
  - @aws-sdk/types@3.709.0
@@ -4417,7 +4417,7 @@ Apache License
 The following npm packages may be included in this product:
 
  - @aws-sdk/credential-provider-process@3.709.0
- - @aws-sdk/credential-provider-sso@3.709.0
+ - @aws-sdk/credential-provider-sso@3.712.0
  - @aws-sdk/credential-provider-web-identity@3.709.0
 
 These packages each contain the following license:
@@ -7027,31 +7027,11 @@ IN THE SOFTWARE.
 
 The following npm package may be included in this product:
 
- - buildcheck@0.0.6
-
-This package contains the following license:
-
-http://github.com/mscdex/buildcheck/raw/master/LICENSE
-
------------
-
-The following npm package may be included in this product:
-
  - ssh2@1.16.0
 
 This package contains the following license:
 
 http://github.com/mscdex/ssh2/raw/master/LICENSE
-
------------
-
-The following npm package may be included in this product:
-
- - cpu-features@0.0.10
-
-This package contains the following license:
-
-https://github.com/mscdex/cpu-features/raw/master/LICENSE
 
 -----------
 
@@ -7885,15 +7865,14 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - @esbuild/linux-x64@0.23.1
- - @napi-rs/canvas-linux-x64-gnu@0.1.65
- - @napi-rs/canvas-linux-x64-musl@0.1.65
+ - @esbuild/win32-x64@0.23.1
+ - @napi-rs/canvas-win32-x64-msvc@0.1.65
  - @tokenizer/token@0.3.0
  - agent-base@6.0.2
  - eastasianwidth@0.2.0
- - genaiscript-core-internal@1.84.8
- - genaiscript-sample@1.84.8
- - genaiscript@1.84.8
+ - genaiscript-core-internal@1.85.0
+ - genaiscript-sample@1.85.0
+ - genaiscript@1.85.0
  - https-proxy-agent@5.0.1
  - isarray@1.0.0
  - javascript-natural-sort@0.7.1
@@ -9100,7 +9079,7 @@ SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - @azure/msal-browser@3.27.0
+ - @azure/msal-browser@3.28.0
  - @azure/msal-common@14.16.0
 
 These packages each contain the following license:
@@ -9166,7 +9145,7 @@ The following npm packages may be included in this product:
  - temp-dir@3.0.0
  - tempy@3.1.0
  - type-fest@1.4.0
- - type-fest@4.30.0
+ - type-fest@4.30.1
  - unicorn-magic@0.3.0
  - unique-string@3.0.0
  - wrap-ansi@7.0.0

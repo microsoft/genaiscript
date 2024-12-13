@@ -25,7 +25,7 @@
     "@tidyjs/tidy": "^2.5.2",
     "p-all": "^5.0.0",
     "vectorstore": "^0.0.4",
-    "zod": "^3.23.8",
-    "zod-to-json-schema": "^3.23.5"
+    "zod": "^3.24.1",
+    "zod-to-json-schema": "^3.24.1"
   }
 }
