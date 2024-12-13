@@ -74,24 +74,26 @@ export function activateFragmentCommands(state: ExtensionState) {
     const { context, host } = state
     const { subscriptions } = context
 
+    const scriptFile = (p: PromptScript) =>
+        state.host.path.isAbsolute(p.filename)
+            ? p.filename
+            : state.host.path.resolve(state.host.projectFolder(), p.filename)
+
     const findScript = (filename: vscode.Uri) => {
         const fp = state.host.path.resolve(filename.fsPath)
         const scripts = state.project.scripts.filter((p) => !!p.filename)
         const script = scripts
             .filter((p) => !!p.filename)
             .find((p) => {
-                const pf = state.host.path.isAbsolute(p.filename)
-                    ? p.filename
-                    : state.host.path.resolve(
-                          state.host.projectFolder(),
-                          p.filename
-                      )
-                return pf === fp
+                const sfp = scriptFile(p)
+                return sfp === fp
             })
 
         if (!script) {
             state.output.appendLine(`requested script: ${fp}`)
-            scripts.forEach((s) => state.output.appendLine(`- ${s.filename}`))
+            scripts.forEach((s) =>
+                state.output.appendLine(`- ${s.filename}\n  ${scriptFile(s)}`)
+            )
 
             const reportIssue = "Report Issue"
             vscode.window
