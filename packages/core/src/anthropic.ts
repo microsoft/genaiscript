@@ -40,6 +40,7 @@ import { HttpsProxyAgent } from "https-proxy-agent"
 import { MarkdownTrace } from "./trace"
 import { createFetch, FetchType } from "./fetch"
 import { JSONLLMTryParse } from "./json5"
+import { groupBy } from "es-toolkit"
 
 const convertFinishReason = (
     stopReason: Anthropic.Message["stop_reason"]
@@ -91,13 +92,30 @@ const adjustUsage = (
 
 const convertMessages = (
     messages: ChatCompletionMessageParam[]
-): Array<Anthropic.Beta.PromptCaching.PromptCachingBetaMessageParam> => {
-    return messages.map(convertSingleMessage)
+): Anthropic.Beta.PromptCaching.PromptCachingBetaMessageParam[] => {
+    const res: Anthropic.Beta.PromptCaching.PromptCachingBetaMessageParam[] = []
+    for (const msg of messages.map(convertSingleMessage)) {
+        const last = res.at(-1)
+        if (last?.role !== msg.role) res.push(msg)
+        else {
+            if (typeof last.content === "string")
+                last.content = [
+                    {
+                        type: "text",
+                        text: last.content,
+                    },
+                ]
+            if (typeof msg.content === "string")
+                last.content.push({ type: "text", text: msg.content })
+            else last.content.push(...msg.content)
+        }
+    }
+    return res
 }
 
 const convertSingleMessage = (
     msg: ChatCompletionMessageParam
-): Anthropic.Messages.MessageParam => {
+): Anthropic.Beta.PromptCaching.PromptCachingBetaMessageParam => {
     const { role } = msg
     if (!role || role === "aici") {
         // Handle AICIRequest or other custom types
