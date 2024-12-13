@@ -1280,19 +1280,4 @@ ${fileOutputs.map((fo) => `   ${fo.pattern}: ${fo.description || "generated file
 `
         )
     }
-
-    // concat the content of system messages at the start of the messages into a single message
-    const endSystem = messages.findIndex(
-        (m) => m.role !== "system" || m.cacheControl
-    )
-    if (endSystem > 0) {
-        const systemContent = messages
-            .slice(0, endSystem)
-            .map((m) => m.content)
-            .join("\n")
-        messages.splice(0, endSystem, {
-            role: "system",
-            content: systemContent,
-        })
-    }
 }

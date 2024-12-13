@@ -39,6 +39,7 @@ import {
 import { HttpsProxyAgent } from "https-proxy-agent"
 import { MarkdownTrace } from "./trace"
 import { createFetch, FetchType } from "./fetch"
+import { JSONLLMTryParse } from "./json5"
 
 const convertFinishReason = (
     stopReason: Anthropic.Message["stop_reason"]
@@ -133,7 +134,7 @@ const convertToolCallMessage = (
                 deleteUndefinedValues({
                     type: "tool_use",
                     id: tool.id,
-                    input: JSON.parse(tool.function.arguments),
+                    input: JSONLLMTryParse(tool.function.arguments),
                     name: tool.function.name,
                     cache_control: toCacheControl(msg),
                 }) satisfies Anthropic.Beta.PromptCaching.PromptCachingBetaToolUseBlockParam

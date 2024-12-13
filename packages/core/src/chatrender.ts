@@ -8,7 +8,7 @@ import {
 } from "./chattypes"
 
 // Import utility functions for JSON5 parsing, markdown formatting, and YAML stringification.
-import { JSON5TryParse } from "./json5"
+import { JSONLLMTryParse } from "./json5"
 import { details, fenceMD } from "./markdown"
 import { YAMLStringify } from "./yaml"
 
@@ -185,7 +185,7 @@ export function renderMessagesToMarkdown(
  * @returns A formatted string in YAML or JSON.
  */
 function renderToolArguments(args: string) {
-    const js = JSON5TryParse(args)
+    const js = JSONLLMTryParse(args)
     // Convert arguments to YAML if possible, otherwise keep as JSON.
     if (js) return fenceMD(YAMLStringify(js), "yaml")
     else return fenceMD(args, "json")
