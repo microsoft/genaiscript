@@ -2,7 +2,7 @@
   "name": "docs",
   "type": "module",
   "private": true,
-  "version": "1.84.4",
+  "version": "1.84.5",
   "license": "MIT",
   "scripts": {
     "install:force": "rm yarn.lock && yarn install",
