@@ -30,7 +30,7 @@ import {
     ChatCompletionToolMessageParam,
 } from "./chattypes"
 
-import { deleteUndefinedValues, logError } from "./util"
+import { deleteUndefinedValues, logError, logVerbose } from "./util"
 import { resolveHttpProxyAgent } from "./proxy"
 import {
     ChatCompletionRequestCacheKey,
@@ -330,7 +330,6 @@ const completerFactory = (
 
         let numTokens = 0
         let chatResp = ""
-        let chunkContent = ""
         let finishReason: ChatCompletionResponse["finishReason"]
         let usage: ChatCompletionResponse["usage"] | undefined
         const toolCalls: ChatCompletionToolCall[] = []
@@ -356,6 +355,7 @@ const completerFactory = (
                     finishReason = "cancel"
                     break
                 }
+                let chunkContent = ""
                 switch (chunk.type) {
                     case "message_start":
                         usage = convertUsage(
@@ -391,7 +391,9 @@ const completerFactory = (
                                     chunk.delta.partial_json
                         }
                         break
-
+                    case "content_block_stop": {
+                        break
+                    }
                     case "message_delta":
                         if (chunk.delta.stop_reason) {
                             finishReason = convertFinishReason(
@@ -402,14 +404,18 @@ const completerFactory = (
                             usage = adjustUsage(usage, chunk.usage)
                         }
                         break
+                    case "message_stop": {
+                        break
+                    }
                 }
 
-                partialCb?.({
-                    responseSoFar: chatResp,
-                    tokensSoFar: numTokens,
-                    responseChunk: chunkContent,
-                    inner,
-                })
+                if (chunkContent)
+                    partialCb?.({
+                        responseSoFar: chatResp,
+                        tokensSoFar: numTokens,
+                        responseChunk: chunkContent,
+                        inner,
+                    })
             }
         } catch (e) {
             finishReason = "fail"

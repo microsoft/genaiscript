@@ -427,14 +427,13 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
 async function listModels(
     cfg: LanguageModelConfiguration
 ): Promise<LanguageModelInfo[]> {
-    const fetch = await createFetch({ retries: 1 })
+    const fetch = await createFetch({ retries: 0 })
     const res = await fetch(cfg.base + "/models", {
         method: "GET",
         headers: {
             ...getConfigHeaders(cfg),
             Accept: "application/json",
         },
-        retries: 0,
     })
     if (res.status !== 200) return []
     const { data } = (await res.json()) as {

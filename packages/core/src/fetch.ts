@@ -13,7 +13,10 @@ import { CancellationToken } from "./cancellation"
 import { readText } from "./fs"
 import { resolveHttpProxyAgent } from "./proxy"
 
-export type FetchType = typeof crossFetch
+export type FetchType = (
+    input: string | URL | globalThis.Request,
+    options?: FetchOptions & TraceOptions
+) => Promise<Response>
 
 /**
  * Creates a fetch function with retry logic.
