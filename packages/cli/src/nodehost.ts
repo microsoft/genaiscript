@@ -45,6 +45,7 @@ import {
     ResponseStatus,
     AzureTokenResolver,
     ModelConfigurations,
+    ModelConfiguration,
 } from "../../core/src/host"
 import { AbortSignalOptions, TraceOptions } from "../../core/src/trace"
 import { logError, logVerbose } from "../../core/src/util"
@@ -168,9 +169,17 @@ export class NodeHost implements RuntimeHost {
         )
     }
 
+    setModelAlias(id: string, value: string | ModelConfiguration): void {
+        id = id.toLowerCase()
+        if (typeof value === "string") value = { model: value }
+        const c = this.modelAliases[id] || (this.modelAliases[id] = {})
+        c.model = value.model
+        c.temperature = value.temperature
+    }
+
     async readConfig(): Promise<HostConfiguration> {
         const config = await resolveGlobalConfiguration(this.dotEnvPath)
-        const { envFile } = config
+        const { envFile, modelAliases } = config
         if (existsSync(envFile)) {
             if (resolve(envFile) !== resolve(DOT_ENV_FILENAME))
                 logVerbose(`.env: loading ${envFile}`)
@@ -182,6 +191,9 @@ export class NodeHost implements RuntimeHost {
             if (res.error) throw res.error
         }
         await parseDefaultsFromEnv(process.env)
+        if (modelAliases)
+            for (const kv of Object.entries(modelAliases))
+                this.setModelAlias(kv[0], kv[1])
         return config
     }
 

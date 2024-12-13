@@ -166,7 +166,9 @@ export interface RuntimeHost extends Host {
     models: ModelService
     workspace: Omit<WorkspaceFileSystem, "grep">
     azureToken: AzureTokenResolver
-    modelAliases: ModelConfigurations
+    modelAliases: Readonly<ModelConfigurations>
+
+    setModelAlias(id: string, value: string | ModelConfiguration): void
 
     readConfig(): Promise<HostConfiguration>
     readSecret(name: string): Promise<string | undefined>
