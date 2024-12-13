@@ -196,8 +196,9 @@ export class NodeHost implements RuntimeHost {
         if (typeof value === "string") value = { model: value }
         const aliases = this._modelAliases[source]
         const c = aliases[id] || (aliases[id] = {})
-        c.model = value.model
-        c.temperature = value.temperature
+        if (value.model !== undefined) (c as any).model = value.model
+        if (!isNaN(value.temperature))
+            (c as any).temperature = value.temperature
     }
 
     async readConfig(): Promise<HostConfiguration> {

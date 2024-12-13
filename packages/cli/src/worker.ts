@@ -10,10 +10,11 @@ export async function worker() {
     } & object
     switch (type) {
         case "run": {
-            const { scriptId, files, ...options } = data as {
+            const { scriptId, files, options } = data as {
                 scriptId: string
-                files: string[]
-            } & object
+                files: string[],
+                options: object
+            }
             const { result } = await runScriptInternal(scriptId, files, options)
             parentPort.postMessage(result)
             break

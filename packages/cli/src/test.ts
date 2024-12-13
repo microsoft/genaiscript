@@ -109,11 +109,11 @@ export async function runPromptScriptTests(
         testDelay?: string
     }
 ): Promise<PromptScriptTestRunResponse> {
-    if (options.model) runtimeHost.modelAliases.large.model = options.model
+    if (options.model) runtimeHost.setModelAlias("cli", "large", options.model)
     if (options.smallModel)
-        runtimeHost.modelAliases.small.model = options.smallModel
+        runtimeHost.setModelAlias("cli", "small", options.smallModel)
     if (options.visionModel)
-        runtimeHost.modelAliases.vision.model = options.visionModel
+    runtimeHost.setModelAlias("cli", "vision", options.visionModel)
     Object.entries(runtimeHost.modelAliases).forEach(([key, value]) =>
         logVerbose(` ${key}: ${value.model}`)
     )

@@ -212,11 +212,9 @@ export async function runScriptInternal(
     const fenceFormat = options.fenceFormat
 
     if (options.json || options.yaml) overrideStdoutWithStdErr()
-    if (options.model) runtimeHost.modelAliases.large.model = options.model
-    if (options.smallModel)
-        runtimeHost.modelAliases.small.model = options.smallModel
-    if (options.visionModel)
-        runtimeHost.modelAliases.vision.model = options.visionModel
+    if (options.model) runtimeHost.setModelAlias("cli", "large", options.model)
+    if (options.smallModel) runtimeHost.setModelAlias("cli", "small", options.smallModel)
+    if (options.visionModel) runtimeHost.setModelAlias("cli", "vision", options.visionModel)
     for (const kv of options.modelAlias || []) {
         const aliases = parseKeyValuePair(kv)
         for (const [key, value] of Object.entries(aliases))

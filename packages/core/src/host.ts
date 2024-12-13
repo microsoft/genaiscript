@@ -113,7 +113,7 @@ export interface AzureTokenResolver {
     ): Promise<AuthenticationToken>
 }
 
-export type ModelConfiguration = Pick<ModelOptions, "model" | "temperature">
+export type ModelConfiguration = Readonly<Pick<ModelOptions, "model" | "temperature">>
 
 export type ModelConfigurations = {
     large: ModelConfiguration
