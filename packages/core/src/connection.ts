@@ -34,6 +34,7 @@ import {
     LMSTUDIO_API_BASE,
     MODEL_PROVIDER_JAN,
     JAN_API_BASE,
+    MODEL_PROVIDER_ANTHROPIC_BEDROCK,
 } from "./constants"
 import {
     OpenAIAPIType,
@@ -332,6 +333,16 @@ export async function parseTokenFromEnv(
             base,
             version,
             source,
+        } satisfies LanguageModelConfiguration
+    }
+
+    if (provider === MODEL_PROVIDER_ANTHROPIC_BEDROCK) {
+        return {
+            provider,
+            model,
+            source: "AWS SDK",
+            base: undefined,
+            token: undefined,
         } satisfies LanguageModelConfiguration
     }
 
