@@ -1,4 +1,10 @@
 {
-    "$schema": "../../core/src/schemas/hostconfiguration.schema.json",
-    "include": ["../../genaisrc/*.genai.mts"]
+    "include": ["../../genaisrc/*.genai.mts"],
+    "modelAliases": {
+        "llama32": "ollama:llama3.2:1b",
+        "llama32hot": {
+            "model": "ollama:llama3.2:1b",
+            "temperature": 2
+        }
+    }
 }

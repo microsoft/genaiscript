@@ -45,6 +45,7 @@ import {
     ResponseStatus,
     AzureTokenResolver,
     ModelConfigurations,
+    ModelConfiguration,
 } from "../../core/src/host"
 import { AbortSignalOptions, TraceOptions } from "../../core/src/trace"
 import { logError, logVerbose } from "../../core/src/util"
@@ -144,11 +145,19 @@ export class NodeHost implements RuntimeHost {
     readonly workspace = createFileSystem()
     readonly containers = new DockerManager()
     readonly browsers = new BrowserManager()
-    readonly modelAliases: ModelConfigurations = {
-        large: { model: DEFAULT_MODEL },
-        small: { model: DEFAULT_SMALL_MODEL },
-        vision: { model: DEFAULT_VISION_MODEL },
-        embeddings: { model: DEFAULT_EMBEDDINGS_MODEL },
+    private readonly _modelAliases: Record<
+        "default" | "cli" | "env" | "config",
+        Omit<ModelConfigurations, "large" | "small" | "vision" | "embeddings">
+    > = {
+        default: {
+            large: { model: DEFAULT_MODEL },
+            small: { model: DEFAULT_SMALL_MODEL },
+            vision: { model: DEFAULT_VISION_MODEL },
+            embeddings: { model: DEFAULT_EMBEDDINGS_MODEL },
+        },
+        cli: {},
+        env: {},
+        config: {},
     }
     readonly userInputQueue = new PLimitPromiseQueue(1)
     readonly azureToken: AzureTokenResolver
@@ -168,9 +177,32 @@ export class NodeHost implements RuntimeHost {
         )
     }
 
+    get modelAliases(): Readonly<ModelConfigurations> {
+        const res = {
+            ...this._modelAliases.default,
+            ...this._modelAliases.config,
+            ...this._modelAliases.env,
+            ...this._modelAliases.cli,
+        } as ModelConfigurations
+        return Object.freeze(res)
+    }
+
+    setModelAlias(
+        source: "cli" | "env" | "config",
+        id: string,
+        value: string | ModelConfiguration
+    ): void {
+        id = id.toLowerCase()
+        if (typeof value === "string") value = { model: value }
+        const aliases = this._modelAliases[source]
+        const c = aliases[id] || (aliases[id] = {})
+        c.model = value.model
+        c.temperature = value.temperature
+    }
+
     async readConfig(): Promise<HostConfiguration> {
         const config = await resolveGlobalConfiguration(this.dotEnvPath)
-        const { envFile } = config
+        const { envFile, modelAliases } = config
         if (existsSync(envFile)) {
             if (resolve(envFile) !== resolve(DOT_ENV_FILENAME))
                 logVerbose(`.env: loading ${envFile}`)
@@ -182,6 +214,9 @@ export class NodeHost implements RuntimeHost {
             if (res.error) throw res.error
         }
         await parseDefaultsFromEnv(process.env)
+        if (modelAliases)
+            for (const kv of Object.entries(modelAliases))
+                this.setModelAlias("config", kv[0], kv[1])
         return config
     }
 

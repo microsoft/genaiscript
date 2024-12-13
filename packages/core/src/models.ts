@@ -13,7 +13,7 @@ import {
 import { errorMessage } from "./error"
 import { LanguageModelConfiguration, host, runtimeHost } from "./host"
 import { AbortSignalOptions, MarkdownTrace, TraceOptions } from "./trace"
-import { arrayify, assert, logVerbose } from "./util"
+import { arrayify, assert, logVerbose, toStringList } from "./util"
 
 /**
  * model
@@ -95,7 +95,15 @@ export function traceLanguageModelConnection(
 
         trace.startDetails(`🔗 model aliases`)
         Object.entries(runtimeHost.modelAliases).forEach(([key, value]) =>
-            trace.itemValue(key, value.model)
+            trace.itemValue(
+                key,
+                toStringList(
+                    value.model,
+                    isNaN(value.temperature)
+                        ? undefined
+                        : `temperature: ${value.temperature}`
+                )
+            )
         )
         trace.endDetails()
     } finally {
