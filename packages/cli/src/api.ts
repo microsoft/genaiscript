@@ -26,13 +26,9 @@ export async function run(
      */
     options?: Partial<PromptScriptRunOptions> & {
         /**
-         * Path to the .env file
-         */
-        dotEnvPath?: string
-        /**
          * Environment variables to use for the operation.
          */
-        env?: Record<string, string>
+        envVars?: Record<string, string>
         /**
          * The signal to use for aborting the operation. Terminates the worker thread.
          */
@@ -45,10 +41,9 @@ export async function run(
     if (!scriptId) throw new Error("scriptId is required")
     if (typeof files === "string") files = [files]
 
-    const { dotEnvPath, env, signal, ...rest } = options || {}
+    const { envVars, signal, ...rest } = options || {}
     const workerData = {
         type: "run",
-        dotEnvPath,
         scriptId,
         files: files || [],
         options: rest,
