@@ -1,5 +1,14 @@
-import { ChatCompletionHandler, LanguageModel, LanguageModelInfo } from "./chat"
-import { ANTHROPIC_MAX_TOKEN, MODEL_PROVIDER_ANTHROPIC } from "./constants"
+import {
+    ChatCompletionHandler,
+    LanguageModel,
+    LanguageModelInfo,
+    ListModelsFunction,
+} from "./chat"
+import {
+    ANTHROPIC_MAX_TOKEN,
+    MODEL_PROVIDER_ANTHROPIC,
+    MODEL_PROVIDER_ANTHROPIC_BEDROCK,
+} from "./constants"
 import { LanguageModelConfiguration } from "./host"
 import { parseModelIdentifier } from "./models"
 import { NotSupportedError, serializeError } from "./error"
@@ -27,7 +36,8 @@ import {
     ChatCompletionRequestCacheKey,
     getChatCompletionCache,
 } from "./chatcache"
-import { traceFetchPost } from "./fetch"
+import { HttpsProxyAgent } from "https-proxy-agent"
+import { MarkdownTrace } from "./trace"
 
 const convertFinishReason = (
     stopReason: Anthropic.Message["stop_reason"]
@@ -230,180 +240,187 @@ const convertTools = (
     )
 }
 
-export const AnthropicChatCompletion: ChatCompletionHandler = async (
-    req,
-    cfg,
-    options,
-    trace
+const completerFactory = (
+    resolver: (
+        trace: MarkdownTrace,
+        cfg: LanguageModelConfiguration,
+        httpAgent: HttpsProxyAgent<string>,
+        caching: boolean
+    ) => Promise<Anthropic.Messages | Anthropic.Beta.PromptCaching.Messages>
 ) => {
-    const {
-        requestOptions,
-        partialCb,
-        cancellationToken,
-        inner,
-        cacheName,
-        cache: cacheOrName,
-    } = options
-    const { headers } = requestOptions || {}
-    const { token, source, ...cfgNoToken } = cfg
-    const { model } = parseModelIdentifier(req.model)
-    const { encode: encoder } = await resolveTokenEncoder(model)
-
-    const cache = !!cacheOrName || !!cacheName
-    const cacheStore = getChatCompletionCache(
-        typeof cacheOrName === "string" ? cacheOrName : cacheName
-    )
-    const cachedKey = cache
-        ? <ChatCompletionRequestCacheKey>{
-              ...req,
-              ...cfgNoToken,
-              model: req.model,
-              temperature: req.temperature,
-              top_p: req.top_p,
-              max_tokens: req.max_tokens,
-              logit_bias: req.logit_bias,
-          }
-        : undefined
-    trace.itemValue(`caching`, cache)
-    trace.itemValue(`cache`, cacheStore?.name)
-    const { text: cached, finishReason: cachedFinishReason } =
-        (await cacheStore.get(cachedKey)) || {}
-    if (cached !== undefined) {
-        partialCb?.({
-            tokensSoFar: estimateTokens(cached, encoder),
-            responseSoFar: cached,
-            responseChunk: cached,
+    const completion: ChatCompletionHandler = async (
+        req,
+        cfg,
+        options,
+        trace
+    ) => {
+        const {
+            requestOptions,
+            partialCb,
+            cancellationToken,
             inner,
-        })
-        trace.itemValue(`cache hit`, await cacheStore.getKeySHA(cachedKey))
-        return { text: cached, finishReason: cachedFinishReason, cached: true }
-    }
+            cacheName,
+            cache: cacheOrName,
+        } = options
+        const { headers } = requestOptions || {}
+        const { token, source, ...cfgNoToken } = cfg
+        const { model } = parseModelIdentifier(req.model)
+        const { encode: encoder } = await resolveTokenEncoder(model)
 
-    const { default: Anthropic } = await import("@anthropic-ai/sdk")
-    const httpAgent = resolveHttpProxyAgent()
-    const anthropic = new Anthropic({
-        baseURL: cfg.base,
-        apiKey: cfg.token,
-        httpAgent,
-    })
-
-    trace.itemValue(`url`, `[${anthropic.baseURL}](${anthropic.baseURL})`)
-    const messages = convertMessages(req.messages)
-    // https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching#how-to-implement-prompt-caching
-    const caching =
-        /sonnet|haiku|opus/i.test(model) &&
-        req.messages.some((m) => m.cacheControl === "ephemeral")
-    trace.itemValue(`caching`, caching)
-
-    let numTokens = 0
-    let chatResp = ""
-    let chunkContent = ""
-    let finishReason: ChatCompletionResponse["finishReason"]
-    let usage: ChatCompletionResponse["usage"] | undefined
-    const toolCalls: ChatCompletionToolCall[] = []
-    const tools = convertTools(req.tools)
-
-    const mreq = deleteUndefinedValues({
-        model,
-        tools,
-        messages,
-        max_tokens: req.max_tokens || ANTHROPIC_MAX_TOKEN,
-        temperature: req.temperature,
-        top_p: req.top_p,
-        stream: true,
-    })
-
-    trace.detailsFenced("✉️ body", mreq, "json")
-    trace.appendContent("\n")
-
-    try {
-        const messagesApi = caching
-            ? anthropic.beta.promptCaching.messages
-            : anthropic.messages
-        const stream = messagesApi.stream({ ...mreq, ...headers })
-        for await (const chunk of stream) {
-            if (cancellationToken?.isCancellationRequested) {
-                finishReason = "cancel"
-                break
-            }
-            switch (chunk.type) {
-                case "message_start":
-                    usage = convertUsage(
-                        chunk.message
-                            .usage as Anthropic.Beta.PromptCaching.Messages.PromptCachingBetaUsage
-                    )
-                    break
-
-                case "content_block_start":
-                    if (chunk.content_block.type === "tool_use") {
-                        toolCalls[chunk.index] = {
-                            id: chunk.content_block.id,
-                            name: chunk.content_block.name,
-                            arguments: "",
-                        }
-                    }
-                    break
-
-                case "content_block_delta":
-                    switch (chunk.delta.type) {
-                        case "text_delta":
-                            chunkContent = chunk.delta.text
-                            numTokens += estimateTokens(chunkContent, encoder)
-                            chatResp += chunkContent
-                            trace.appendToken(chunkContent)
-                            break
-
-                        case "input_json_delta":
-                            toolCalls[chunk.index].arguments +=
-                                chunk.delta.partial_json
-                    }
-                    break
-
-                case "message_delta":
-                    if (chunk.delta.stop_reason) {
-                        finishReason = convertFinishReason(
-                            chunk.delta.stop_reason
-                        )
-                    }
-                    if (chunk.usage) {
-                        usage = adjustUsage(usage, chunk.usage)
-                    }
-                    break
-            }
-
+        const cache = !!cacheOrName || !!cacheName
+        const cacheStore = getChatCompletionCache(
+            typeof cacheOrName === "string" ? cacheOrName : cacheName
+        )
+        const cachedKey = cache
+            ? <ChatCompletionRequestCacheKey>{
+                  ...req,
+                  ...cfgNoToken,
+                  model: req.model,
+                  temperature: req.temperature,
+                  top_p: req.top_p,
+                  max_tokens: req.max_tokens,
+                  logit_bias: req.logit_bias,
+              }
+            : undefined
+        trace.itemValue(`caching`, cache)
+        trace.itemValue(`cache`, cacheStore?.name)
+        const { text: cached, finishReason: cachedFinishReason } =
+            (await cacheStore.get(cachedKey)) || {}
+        if (cached !== undefined) {
             partialCb?.({
-                responseSoFar: chatResp,
-                tokensSoFar: numTokens,
-                responseChunk: chunkContent,
+                tokensSoFar: estimateTokens(cached, encoder),
+                responseSoFar: cached,
+                responseChunk: cached,
                 inner,
             })
+            trace.itemValue(`cache hit`, await cacheStore.getKeySHA(cachedKey))
+            return {
+                text: cached,
+                finishReason: cachedFinishReason,
+                cached: true,
+            }
         }
-    } catch (e) {
-        finishReason = "fail"
-        logError(e)
-        trace.error("error while processing event", serializeError(e))
-    }
 
-    trace.appendContent("\n\n")
-    trace.itemValue(`🏁 finish reason`, finishReason)
-    if (usage) {
-        trace.itemValue(
-            `🪙 tokens`,
-            `${usage.total_tokens} total, ${usage.prompt_tokens} prompt, ${usage.completion_tokens} completion`
-        )
-    }
+        // https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching#how-to-implement-prompt-caching
+        const caching =
+            /sonnet|haiku|opus/i.test(model) &&
+            req.messages.some((m) => m.cacheControl === "ephemeral")
+        const httpAgent = resolveHttpProxyAgent()
+        const messagesApi = await resolver(trace, cfg, httpAgent, caching)
+        const messages = convertMessages(req.messages)
+        trace.itemValue(`caching`, caching)
 
-    if (finishReason === "stop")
-        await cacheStore.set(cachedKey, { text: chatResp, finishReason })
-    return {
-        text: chatResp,
-        finishReason,
-        usage,
-        toolCalls: toolCalls.filter((x) => x !== undefined),
-    } satisfies ChatCompletionResponse
+        let numTokens = 0
+        let chatResp = ""
+        let chunkContent = ""
+        let finishReason: ChatCompletionResponse["finishReason"]
+        let usage: ChatCompletionResponse["usage"] | undefined
+        const toolCalls: ChatCompletionToolCall[] = []
+        const tools = convertTools(req.tools)
+
+        const mreq = deleteUndefinedValues({
+            model,
+            tools,
+            messages,
+            max_tokens: req.max_tokens || ANTHROPIC_MAX_TOKEN,
+            temperature: req.temperature,
+            top_p: req.top_p,
+            stream: true,
+        })
+
+        trace.detailsFenced("✉️ body", mreq, "json")
+        trace.appendContent("\n")
+
+        try {
+            const stream = messagesApi.stream({ ...mreq, ...headers })
+            for await (const chunk of stream) {
+                if (cancellationToken?.isCancellationRequested) {
+                    finishReason = "cancel"
+                    break
+                }
+                switch (chunk.type) {
+                    case "message_start":
+                        usage = convertUsage(
+                            chunk.message
+                                .usage as Anthropic.Beta.PromptCaching.Messages.PromptCachingBetaUsage
+                        )
+                        break
+
+                    case "content_block_start":
+                        if (chunk.content_block.type === "tool_use") {
+                            toolCalls[chunk.index] = {
+                                id: chunk.content_block.id,
+                                name: chunk.content_block.name,
+                                arguments: "",
+                            }
+                        }
+                        break
+
+                    case "content_block_delta":
+                        switch (chunk.delta.type) {
+                            case "text_delta":
+                                chunkContent = chunk.delta.text
+                                numTokens += estimateTokens(
+                                    chunkContent,
+                                    encoder
+                                )
+                                chatResp += chunkContent
+                                trace.appendToken(chunkContent)
+                                break
+
+                            case "input_json_delta":
+                                toolCalls[chunk.index].arguments +=
+                                    chunk.delta.partial_json
+                        }
+                        break
+
+                    case "message_delta":
+                        if (chunk.delta.stop_reason) {
+                            finishReason = convertFinishReason(
+                                chunk.delta.stop_reason
+                            )
+                        }
+                        if (chunk.usage) {
+                            usage = adjustUsage(usage, chunk.usage)
+                        }
+                        break
+                }
+
+                partialCb?.({
+                    responseSoFar: chatResp,
+                    tokensSoFar: numTokens,
+                    responseChunk: chunkContent,
+                    inner,
+                })
+            }
+        } catch (e) {
+            finishReason = "fail"
+            logError(e)
+            trace.error("error while processing event", serializeError(e))
+        }
+
+        trace.appendContent("\n\n")
+        trace.itemValue(`🏁 finish reason`, finishReason)
+        if (usage) {
+            trace.itemValue(
+                `🪙 tokens`,
+                `${usage.total_tokens} total, ${usage.prompt_tokens} prompt, ${usage.completion_tokens} completion`
+            )
+        }
+
+        if (finishReason === "stop")
+            await cacheStore.set(cachedKey, { text: chatResp, finishReason })
+        return {
+            text: chatResp,
+            finishReason,
+            usage,
+            toolCalls: toolCalls.filter((x) => x !== undefined),
+        } satisfies ChatCompletionResponse
+    }
+    return completion
 }
 
-async function listModels(
+async function listAnthropicModels(
     _: LanguageModelConfiguration
 ): Promise<LanguageModelInfo[]> {
     // Anthropic doesn't expose an API to list models, so we return a static list
@@ -450,7 +467,32 @@ async function listModels(
 }
 
 export const AnthropicModel = Object.freeze<LanguageModel>({
-    completer: AnthropicChatCompletion,
+    completer: completerFactory(async (trace, cfg, httpAgent, caching) => {
+        const Anthropic = (await import("@anthropic-ai/sdk")).default
+        const anthropic = new Anthropic({
+            baseURL: cfg.base,
+            apiKey: cfg.token,
+            httpAgent,
+        })
+        trace.itemValue(`url`, `[${anthropic.baseURL}](${anthropic.baseURL})`)
+        const messagesApi = caching
+            ? anthropic.beta.promptCaching.messages
+            : anthropic.messages
+        return messagesApi
+    }),
     id: MODEL_PROVIDER_ANTHROPIC,
-    listModels,
+    listModels: listAnthropicModels,
+})
+
+export const AnthropicBedrockModel = Object.freeze<LanguageModel>({
+    completer: completerFactory(async (trace, cfg, httpAgent, caching) => {
+        const AnthropicBedrock = (await import("@anthropic-ai/bedrock-sdk"))
+            .AnthropicBedrock
+        const anthropic = new AnthropicBedrock()
+        trace.itemValue(`url`, `[${anthropic.baseURL}](${anthropic.baseURL})`)
+        const messagesApi = anthropic.messages
+        return messagesApi
+    }),
+    id: MODEL_PROVIDER_ANTHROPIC_BEDROCK,
+    listModels: listAnthropicModels,
 })

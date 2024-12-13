@@ -812,7 +812,7 @@ The mapping of GenAIScript model names to Visual Studio Models is stored in the 
 
 ## Anthropic
 
-[Anthropic](https://www.anthropic.com/) is an AI research company that offers powerful language models, including the Claude series.
+The `anthropic` provider access [Anthropic](https://www.anthropic.com/) models. Anthropic is an AI research company that offers powerful language models, including the Claude series.
 
 ```js "anthropic:"
 script({ model: "anthropic:claude-2.1" })
@@ -864,6 +864,23 @@ script({
 </Steps>
 
 <LLMProviderFeatures provider="anthropic" />
+
+## Anthropic Bedrock <a href="" id="anthropic_bedrock" />
+
+:::note
+
+Experimental feature
+
+:::
+
+The `anthropic_bedrock` provider accesses Anthropic models on Amazon Bedrock.
+
+GenAIScript currently assumes you have configured AWS credentials in a way that the [AWS Node SDK will recognise](https://docs.aws.amazon.com/sdk-for-javascript/v3/developer-guide/setting-credentials-node.html), typicaly a shared `~/.aws/credentials` file
+or `AWS_ACCESS_KEY_ID` & `AWS_SECRET_ACCESS_KEY` environment variables.
+
+```js "anthropic_bedrock:"
+script({ model: "anthropic_bedrock:anthropic.claude-3-sonnet-20240229-v1:0" })
+```
 
 ## Hugging Face <a href="" id="huggingface" />
 
