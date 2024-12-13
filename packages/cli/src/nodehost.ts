@@ -205,6 +205,9 @@ export class NodeHost implements RuntimeHost {
     async readConfig(): Promise<HostConfiguration> {
         const config = await resolveGlobalConfiguration(this.dotEnvPath)
         const { envFile, modelAliases } = config
+        if (modelAliases)
+            for (const kv of Object.entries(modelAliases))
+                this.setModelAlias("config", kv[0], kv[1])
         if (existsSync(envFile)) {
             if (resolve(envFile) !== resolve(DOT_ENV_FILENAME))
                 logVerbose(`.env: loading ${envFile}`)
@@ -216,9 +219,6 @@ export class NodeHost implements RuntimeHost {
             if (res.error) throw res.error
         }
         await parseDefaultsFromEnv(process.env)
-        if (modelAliases)
-            for (const kv of Object.entries(modelAliases))
-                this.setModelAlias("config", kv[0], kv[1])
         return config
     }
 
