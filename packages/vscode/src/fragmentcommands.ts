@@ -7,7 +7,12 @@ import { GENAI_ANY_REGEX, TOOL_ID, TOOL_NAME } from "../../core/src/constants"
 import { NotSupportedError } from "../../core/src/error"
 import { promptParameterTypeToJSONSchema } from "../../core/src/parameters"
 import { Fragment } from "../../core/src/generation"
-import { dotGenaiscriptPath, groupBy, logInfo } from "../../core/src/util"
+import {
+    dotGenaiscriptPath,
+    groupBy,
+    logInfo,
+    logVerbose,
+} from "../../core/src/util"
 import { resolveCli } from "./config"
 import { YAMLStringify } from "../../core/src/yaml"
 
@@ -75,23 +80,16 @@ export function activateFragmentCommands(state: ExtensionState) {
     const { subscriptions } = context
 
     const findScript = (filename: vscode.Uri) => {
-        const f = filename.toString()
+        const f = state.host.path.resolve(filename.fsPath)
+        logVerbose(`find ${f} in ${state.host.projectUri.fsPath}`)
         const scripts = state.project.scripts.filter((p) => !!p.filename)
         const script = scripts.find((p) => {
-            const sfp = host.toUri(p.filename)
-            return sfp.toString() === f
+            const sfp = state.host.path.resolve(host.toUri(p.filename).fsPath)
+            logVerbose(`${p.filename} => ${sfp} => ${sfp === f}`)
+            return sfp === f
         })
 
         if (!script) {
-            state.output.appendLine(`filename: ${filename}`)
-            state.output.appendLine(
-                `projectfolder: ${state.host.projectFolder()}`
-            )
-            scripts.forEach((s) => {
-                state.output.appendLine(`- ${s.filename}`)
-                state.output.appendLine(`  ${host.toUri(s.filename)}`)
-            })
-
             const reportIssue = "Report Issue"
             vscode.window
                 .showErrorMessage(

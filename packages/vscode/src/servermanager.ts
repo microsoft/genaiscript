@@ -109,7 +109,7 @@ export class TerminalServerManager implements ServerManager {
         if (this._terminal) return
 
         const cwd = host.projectFolder()
-        this.state.output.appendLine(
+        logVerbose(
             `starting server on port ${this._port} at ${cwd}`
         )
         this._client.reconnectAttempts = 0
