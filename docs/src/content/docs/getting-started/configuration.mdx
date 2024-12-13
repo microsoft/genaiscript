@@ -867,16 +867,9 @@ script({
 
 ## Anthropic Bedrock <a href="" id="anthropic_bedrock" />
 
-:::note
+The `anthropic_bedrock` provider accesses Anthropic models on Amazon Bedrock. You can find the model names in the [Anthropic model documentation](https://docs.anthropic.com/en/docs/about-claude/models#model-names).
 
-Experimental feature
-
-:::
-
-The `anthropic_bedrock` provider accesses Anthropic models on Amazon Bedrock.
-
-GenAIScript currently assumes you have configured AWS credentials in a way that the [AWS Node SDK will recognise](https://docs.aws.amazon.com/sdk-for-javascript/v3/developer-guide/setting-credentials-node.html), typicaly a shared `~/.aws/credentials` file
-or `AWS_ACCESS_KEY_ID` & `AWS_SECRET_ACCESS_KEY` environment variables.
+GenAIScript assumes that you have configured AWS credentials in a way that the [AWS Node SDK will recognise](https://docs.aws.amazon.com/sdk-for-javascript/v3/developer-guide/setting-credentials-node.html).
 
 ```js "anthropic_bedrock:"
 script({ model: "anthropic_bedrock:anthropic.claude-3-sonnet-20240229-v1:0" })
