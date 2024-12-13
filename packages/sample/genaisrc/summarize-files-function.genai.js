@@ -2,6 +2,7 @@ script({
     title: "summarize-files-function",
     tools: ["fs"],
     model: "small",
+    files: ["src/rag/*"],
     tests: {
         files: ["src/rag/*"],
         keywords: ["markdown", "lorem", "word"],

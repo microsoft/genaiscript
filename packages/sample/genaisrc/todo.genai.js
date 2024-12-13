@@ -19,8 +19,8 @@ script({
 
 def("CODE", env.files, { lineNumbers: true })
 
-$`In CODE, when you encounter a comment starting by "TODO", 
-generate code for the TODO comment in a DIFF format and use the information in SPEC.
-Remove implemented TODOs from CODE.
+$`In <CODE>, when you encounter a comment starting by "TODO", 
+generate code for the TODO comment.
+Remove implemented TODOs from <CODE>.
 Do not regenerate unmodified files.
 `
