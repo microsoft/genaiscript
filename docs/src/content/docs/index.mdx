@@ -136,12 +136,13 @@ defTool("weather", "live weather",
         { ... "sunny" }
 )
 ```
+
 or use [@agentic tools](/genaiscript/guides/agentic-tools/)
 
 ```js wrap
 import { WeatherClient } from "@agentic/weather"
 defTool(new WeatherClient())
-````
+```
 
 </Card>
 
@@ -149,12 +150,14 @@ defTool(new WeatherClient())
 
 Use [tools](https://modelcontextprotocol.io/docs/concepts/tools) exposed in [MCP Servers](/genaiscript/reference/scripts/mcp-tools)
 
-````js wrap
-defTool({ "memory": { 
-    command: "npx",
-    args: ["-y", "@modelcontextprotocol/server-memory"] 
-}})
-````
+```js wrap
+defTool({
+    memory: {
+        command: "npx",
+        args: ["-y", "@modelcontextprotocol/server-memory"],
+    },
+})
+```
 
 </Card>
 
@@ -338,9 +341,9 @@ script({ ..., model: "github:gpt-4o" })
 
 </Card>
 
-<Card title="Google, Anthropic, Alibaba, ..." icon="rocket">
+<Card title="Azure, Google, Anthropic, Amazon, Alibaba, ..." icon="rocket">
 
-Run models from [Google](https://aistudio.google.com/), [Anthropic](https://www.anthropic.com/), [Alibaba](https://www.alibaba.com/), and more.
+Run models from [Azure](https://ai.azure.com/), [Google](https://aistudio.google.com/), [Anthropic](https://www.anthropic.com/), [Alibaba](https://www.alibaba.com/), and more.
 See [Configuration](/genaiscript/getting-started/configuration/).
 
 ```js wrap

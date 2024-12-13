@@ -13,6 +13,11 @@ import { CancellationToken } from "./cancellation"
 import { readText } from "./fs"
 import { resolveHttpProxyAgent } from "./proxy"
 
+export type FetchType = (
+    input: string | URL | globalThis.Request,
+    options?: FetchOptions & TraceOptions
+) => Promise<Response>
+
 /**
  * Creates a fetch function with retry logic.
  *
@@ -31,7 +36,7 @@ export async function createFetch(
         maxDelay?: number // Maximum delay between retries
         cancellationToken?: CancellationToken // Token to cancel the fetch
     } & TraceOptions
-) {
+): Promise<FetchType> {
     const {
         retries = FETCH_RETRY_DEFAULT,
         retryOn = [429, 500, 504],

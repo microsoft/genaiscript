@@ -77,11 +77,10 @@ async function listModels(
     cfg: LanguageModelConfiguration
 ): Promise<LanguageModelInfo[]> {
     // Create a fetch instance to make HTTP requests
-    const fetch = await createFetch({ retries: 1 })
+    const fetch = await createFetch({ retries: 0 })
     // Fetch the list of models from the remote API
     const res = await fetch(cfg.base.replace("/v1", "/api/tags"), {
         method: "GET",
-        retries: 0,
     })
     if (res.status !== 200) return []
     // Parse and format the response into LanguageModelInfo objects

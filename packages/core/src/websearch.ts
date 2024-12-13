@@ -180,14 +180,13 @@ export async function tavilySearch(
         })
 
         // Create a fetch function for making the HTTP request.
-        const fetch = await createFetch({ trace })
+        const fetch = await createFetch({ trace, retryOn: [429] })
         const res = await fetch(endPoint, {
             method: "POST",
             headers: {
                 ["Content-Type"]: "application/json",
                 Accept: "application/json",
             },
-            retryOn: [429],
             body: JSON.stringify(body),
         })
 
