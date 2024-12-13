@@ -353,11 +353,36 @@
         },
         "google:gemini-1.5-flash": {
             "price_per_million_input_tokens": 0.075,
-            "price_per_million_output_tokens": 0.3
+            "price_per_million_output_tokens": 0.3,
+            "tiers": [
+                {
+                    "context_size": 128000,
+                    "price_per_million_input_tokens": 0.15,
+                    "price_per_million_output_tokens": 0.6
+                }
+            ]
+        },
+        "google:gemini-1.5-flash-latest": {
+            "price_per_million_input_tokens": 0.075,
+            "price_per_million_output_tokens": 0.3,
+            "tiers": [
+                {
+                    "context_size": 128000,
+                    "price_per_million_input_tokens": 0.15,
+                    "price_per_million_output_tokens": 0.6
+                }
+            ]
         },
         "google:gemini-1.5-flash-002": {
             "price_per_million_input_tokens": 0.075,
-            "price_per_million_output_tokens": 0.3
+            "price_per_million_output_tokens": 0.3,
+            "tiers": [
+                {
+                    "context_size": 128000,
+                    "price_per_million_input_tokens": 0.15,
+                    "price_per_million_output_tokens": 0.6
+                }
+            ]
         },
         "google:gemini-1.5-flash-8b": {
             "price_per_million_input_tokens": 0.0375,
@@ -370,7 +395,29 @@
                 }
             ]
         },
+        "google:gemini-1.5-flash-8b-latest": {
+            "price_per_million_input_tokens": 0.0375,
+            "price_per_million_output_tokens": 0.15,
+            "tiers": [
+                {
+                    "context_size": 128000,
+                    "price_per_million_input_tokens": 0.075,
+                    "price_per_million_output_tokens": 0.3
+                }
+            ]
+        },
         "google:gemini-1.5-pro": {
+            "price_per_million_input_tokens": 1.25,
+            "price_per_million_output_tokens": 5,
+            "tiers": [
+                {
+                    "context_size": 128000,
+                    "price_per_million_input_tokens": 2.5,
+                    "price_per_million_output_tokens": 10
+                }
+            ]
+        },
+        "google:gemini-1.5-pro-latest": {
             "price_per_million_input_tokens": 1.25,
             "price_per_million_output_tokens": 5,
             "tiers": [

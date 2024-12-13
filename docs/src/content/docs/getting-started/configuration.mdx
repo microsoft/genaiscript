@@ -49,7 +49,7 @@ script({ model: "small" })
 script({ model: "large" })
 ```
 
-The model aliases can also be overridden from the [cli run command](/genaiscript/reference/cli/run#model), 
+The model aliases can also be overridden from the [cli run command](/genaiscript/reference/cli/run#model),
 or environment variables or configuration file. [Learn more about model aliases](/genaiscript/reference/scripts/model-aliases).
 
 ```sh
@@ -749,15 +749,15 @@ and use it in your script or cli with the `google` provider.
 ```py "gemini-1.5-pro-002"
 ...
 const model = genAI.getGenerativeModel({
-  model: "gemini-1.5-pro-002",
+  model: "gemini-1.5-pro-latest",
 });
 ...
 ```
 
 then use the model identifier in your script.
 
-```js "gemini-1.5-pro-002"
-script({ model: "google:gemini-1.5-pro-002" })
+```js "gemini-1.5-pro-latest"
+script({ model: "google:gemini-1.5-pro-latest" })
 ```
 
 </li>
@@ -975,7 +975,6 @@ script({
 </Steps>
 
 <LLMProviderFeatures provider="mistal" />
-
 
 ## Alibaba Cloud <a href="" id="alibaba" />
 
@@ -1370,7 +1369,6 @@ HUGGINGFACE_TRANSFORMERS_DEVICE=gpu
 This provider is experimental and may not work with all models.
 
 :::
-
 
 <LLMProviderFeatures provider="transformers" />
 
