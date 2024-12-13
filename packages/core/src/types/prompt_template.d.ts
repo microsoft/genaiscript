@@ -149,6 +149,7 @@ type ModelType = OptionsOrString<
     | "anthropic:claude-3-haiku-20240307"
     | "anthropic:claude-2.1"
     | "anthropic:claude-instant-1.2"
+    | "anthropic_bedrock:anthropic.claude-3-sonnet-20240229-v1:0"
     | "huggingface:microsoft/Phi-3-mini-4k-instruct"
     | "jan:llama3.2-3b-instruct"
     | "google:gemini-2.0-flash-exp"
