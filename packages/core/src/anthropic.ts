@@ -38,6 +38,7 @@ import {
 } from "./chatcache"
 import { HttpsProxyAgent } from "https-proxy-agent"
 import { MarkdownTrace } from "./trace"
+import { createFetch, FetchType } from "./fetch"
 
 const convertFinishReason = (
     stopReason: Anthropic.Message["stop_reason"]
@@ -245,6 +246,7 @@ const completerFactory = (
         trace: MarkdownTrace,
         cfg: LanguageModelConfiguration,
         httpAgent: HttpsProxyAgent<string>,
+        fetch: FetchType,
         caching: boolean
     ) => Promise<Anthropic.Messages | Anthropic.Beta.PromptCaching.Messages>
 ) => {
@@ -261,6 +263,9 @@ const completerFactory = (
             inner,
             cacheName,
             cache: cacheOrName,
+            retry,
+            maxDelay,
+            retryDelay,
         } = options
         const { headers } = requestOptions || {}
         const { token, source, ...cfgNoToken } = cfg
@@ -301,12 +306,25 @@ const completerFactory = (
             }
         }
 
+        const fetch = await createFetch({
+            trace,
+            retries: retry,
+            retryDelay,
+            maxDelay,
+            cancellationToken,
+        })
         // https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching#how-to-implement-prompt-caching
         const caching =
             /sonnet|haiku|opus/i.test(model) &&
             req.messages.some((m) => m.cacheControl === "ephemeral")
         const httpAgent = resolveHttpProxyAgent()
-        const messagesApi = await resolver(trace, cfg, httpAgent, caching)
+        const messagesApi = await resolver(
+            trace,
+            cfg,
+            httpAgent,
+            fetch,
+            caching
+        )
         const messages = convertMessages(req.messages)
         trace.itemValue(`caching`, caching)
 
@@ -467,32 +485,49 @@ async function listAnthropicModels(
 }
 
 export const AnthropicModel = Object.freeze<LanguageModel>({
-    completer: completerFactory(async (trace, cfg, httpAgent, caching) => {
-        const Anthropic = (await import("@anthropic-ai/sdk")).default
-        const anthropic = new Anthropic({
-            baseURL: cfg.base,
-            apiKey: cfg.token,
-            httpAgent,
-        })
-        trace.itemValue(`url`, `[${anthropic.baseURL}](${anthropic.baseURL})`)
-        const messagesApi = caching
-            ? anthropic.beta.promptCaching.messages
-            : anthropic.messages
-        return messagesApi
-    }),
+    completer: completerFactory(
+        async (trace, cfg, httpAgent, fetch, caching) => {
+            const Anthropic = (await import("@anthropic-ai/sdk")).default
+            const anthropic = new Anthropic({
+                baseURL: cfg.base,
+                apiKey: cfg.token,
+                fetch,
+                httpAgent,
+            })
+            if (anthropic.baseURL)
+                trace.itemValue(
+                    `url`,
+                    `[${anthropic.baseURL}](${anthropic.baseURL})`
+                )
+            const messagesApi = caching
+                ? anthropic.beta.promptCaching.messages
+                : anthropic.messages
+            return messagesApi
+        }
+    ),
     id: MODEL_PROVIDER_ANTHROPIC,
     listModels: listAnthropicModels,
 })
 
 export const AnthropicBedrockModel = Object.freeze<LanguageModel>({
-    completer: completerFactory(async (trace, cfg, httpAgent, caching) => {
-        const AnthropicBedrock = (await import("@anthropic-ai/bedrock-sdk"))
-            .AnthropicBedrock
-        const anthropic = new AnthropicBedrock()
-        trace.itemValue(`url`, `[${anthropic.baseURL}](${anthropic.baseURL})`)
-        const messagesApi = anthropic.messages
-        return messagesApi
-    }),
+    completer: completerFactory(
+        async (trace, cfg, httpAgent, fetch, caching) => {
+            const AnthropicBedrock = (await import("@anthropic-ai/bedrock-sdk"))
+                .AnthropicBedrock
+            const anthropic = new AnthropicBedrock({
+                baseURL: cfg.base,
+                fetch,
+                httpAgent,
+            })
+            if (anthropic.baseURL)
+                trace.itemValue(
+                    `url`,
+                    `[${anthropic.baseURL}](${anthropic.baseURL})`
+                )
+            const messagesApi = anthropic.messages
+            return messagesApi
+        }
+    ),
     id: MODEL_PROVIDER_ANTHROPIC_BEDROCK,
     listModels: listAnthropicModels,
 })
