@@ -82,17 +82,16 @@ export function activateFragmentCommands(state: ExtensionState) {
     const findScript = (filename: vscode.Uri) => {
         const fp = state.host.path.resolve(filename.fsPath)
         const scripts = state.project.scripts.filter((p) => !!p.filename)
-        const script = scripts
-            .filter((p) => !!p.filename)
-            .find((p) => {
-                const sfp = scriptFile(p)
-                return sfp === fp
-            })
+        const script = scripts.find((p) => {
+            const sfp = scriptFile(p)
+            return sfp === fp
+        })
 
         if (!script) {
-            state.output.appendLine(`requested script: ${fp}`)
+            state.output.appendLine(`fspath: ${filename.fsPath}`)
+            state.output.appendLine(`resolved: ${fp}`)
             state.output.appendLine(
-                `project folder: ${state.host.projectFolder()}`
+                `projectfolder: ${state.host.projectFolder()}`
             )
             scripts.forEach((s) =>
                 state.output.appendLine(`- ${s.filename}\n  ${scriptFile(s)}`)
