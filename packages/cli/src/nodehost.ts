@@ -179,6 +179,7 @@ export class NodeHost implements RuntimeHost {
             small: { model: DEFAULT_SMALL_MODEL, source: "default" },
             vision: { model: DEFAULT_VISION_MODEL, source: "default" },
             embeddings: { model: DEFAULT_EMBEDDINGS_MODEL, source: "default" },
+            reasoning: { model: LARGE_MODEL_ID, source: "default" },
             agent: { model: LARGE_MODEL_ID, source: "default" },
             memory: { model: SMALL_MODEL_ID, source: "default" },
         },
