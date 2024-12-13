@@ -169,7 +169,7 @@ export function createChatTurnGenerationContext(
                 cacheControl: (cc) => {
                     current.ephemeral = cc === "ephemeral"
                     return res
-                }
+                },
             } satisfies PromptTemplateString)
             return res
         },
@@ -496,6 +496,7 @@ export function createChatGenerationContext(
                             })
                     },
                     {
+                        model: "agent",
                         label: agentLabel,
                         system: agentSystem,
                         tools: agentTools.map(({ id }) => id),

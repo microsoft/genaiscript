@@ -31,6 +31,8 @@ import {
     MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI,
     DOT_ENV_FILENAME,
     DEFAULT_VISION_MODEL,
+    LARGE_MODEL_ID,
+    SMALL_MODEL_ID,
 } from "../../core/src/constants"
 import { tryReadText } from "../../core/src/fs"
 import {
@@ -154,6 +156,8 @@ export class NodeHost implements RuntimeHost {
             small: { model: DEFAULT_SMALL_MODEL, source: "default" },
             vision: { model: DEFAULT_VISION_MODEL, source: "default" },
             embeddings: { model: DEFAULT_EMBEDDINGS_MODEL, source: "default" },
+            agent: { model: LARGE_MODEL_ID, source: "default" },
+            memory: { model: SMALL_MODEL_ID, source: "default" },
         },
         cli: {},
         env: {},

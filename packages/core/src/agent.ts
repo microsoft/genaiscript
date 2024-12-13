@@ -30,8 +30,8 @@ export async function agentQueryMemory(
             await defMemory(_)
         },
         {
-            model: "small",
-            system: ["system"],
+            model: "memory",
+            system: [],
             flexTokens: 20000,
             label: "agent memory query",
         }
