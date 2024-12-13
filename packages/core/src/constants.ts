@@ -328,3 +328,5 @@ export const IMAGE_DETAIL_LOW_WIDTH = 512
 export const IMAGE_DETAIL_LOW_HEIGHT = 512
 
 export const MIN_LINE_NUMBER_LENGTH = 10
+
+export const VSCODE_SERVER_MAX_RETRIES = 5

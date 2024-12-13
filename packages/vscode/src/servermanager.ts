@@ -7,6 +7,7 @@ import {
     TOOL_NAME,
     ICON_LOGO_NAME,
     TOOL_ID,
+    VSCODE_SERVER_MAX_RETRIES,
 } from "../../core/src/constants"
 import { ServerManager, host } from "../../core/src/host"
 import { assert, logError, logInfo, logVerbose } from "../../core/src/util"
@@ -30,6 +31,7 @@ function findRandomOpenPort() {
 
 export class TerminalServerManager implements ServerManager {
     private _terminal: vscode.Terminal
+    private _terminalStartAttempts = 0
     private _port: number
     private _startClientPromise: Promise<WebSocketClient>
     private _client: WebSocketClient
@@ -39,7 +41,7 @@ export class TerminalServerManager implements ServerManager {
         const { subscriptions } = context
         subscriptions.push(this)
         subscriptions.push(
-            vscode.window.onDidCloseTerminal((e) => {
+            vscode.window.onDidCloseTerminal(async (e) => {
                 if (e === this._terminal) {
                     try {
                         this._client?.kill()
@@ -47,6 +49,18 @@ export class TerminalServerManager implements ServerManager {
                         logError(error)
                     }
                     this._terminal = undefined
+
+                    if (
+                        this._terminalStartAttempts > VSCODE_SERVER_MAX_RETRIES
+                    ) {
+                        logInfo(
+                            "server start attempts exceeded, trying out new port"
+                        )
+                        // kill client to get new port
+                        await this._startClientPromise
+                        this._client?.kill()
+                        this._client = undefined
+                    }
                 }
             })
         )
@@ -71,34 +85,32 @@ export class TerminalServerManager implements ServerManager {
         this._port = await findRandomOpenPort()
         const url = `http://localhost:${this._port}?api-key=${encodeURIComponent(this.state.sessionApiKey)}`
         logInfo(`client url: ${url}`)
-        this._client = new WebSocketClient(url)
-        this._client.chatRequest = createChatModelRunner(this.state)
-        this._client.addEventListener(OPEN, async () => {
-            // client connected to a rogue server
-            if (!this._terminal) {
-                logVerbose("found rogue server, closing...")
-                this._client?.kill()
-            } else {
-                // check version
-                const v = await this._client.version()
-                const gv = semverParse(CORE_VERSION)
-                if (
-                    !semverSatisfies(
-                        v.version,
-                        ">=" + gv.major + "." + gv.minor
-                    )
+        const client = (this._client = new WebSocketClient(url))
+        client.chatRequest = createChatModelRunner(this.state)
+        client.addEventListener(OPEN, async () => {
+            if (client !== this._client) return
+            this._terminalStartAttempts = 0
+            // check version
+            const v = await this._client.version()
+            const gv = semverParse(CORE_VERSION)
+            if (!semverSatisfies(v.version, ">=" + gv.major + "." + gv.minor))
+                vscode.window.showWarningMessage(
+                    TOOL_ID +
+                        ` - genaiscript cli version (${v.version}) outdated, please update to ${CORE_VERSION}`
                 )
-                    vscode.window.showWarningMessage(
-                        TOOL_ID +
-                            ` - genaiscript cli version (${v.version}) outdated, please update to ${CORE_VERSION}`
-                    )
-            }
         })
-        this._client.addEventListener(RECONNECT, () => {
+        client.addEventListener(RECONNECT, () => {
             // server process died somehow
-            if (this._client.connectedOnce) {
+            if (client !== this._client) return
+            if (client.connectedOnce) {
+                const canReconnect =
+                    client.pending &&
+                    this._terminalStartAttempts < VSCODE_SERVER_MAX_RETRIES
                 this.closeTerminal()
-                if (this._client.pending) this.start()
+                if (canReconnect) {
+                    logInfo("restarting server...")
+                    this.start()
+                }
             }
         })
         this._startClientPromise = undefined
@@ -109,10 +121,9 @@ export class TerminalServerManager implements ServerManager {
         if (this._terminal) return
 
         const cwd = host.projectFolder()
-        logVerbose(
-            `starting server on port ${this._port} at ${cwd}`
-        )
+        logVerbose(`starting server on port ${this._port} at ${cwd}`)
         this._client.reconnectAttempts = 0
+        this._terminalStartAttempts++
         this._terminal = vscode.window.createTerminal({
             name: TOOL_NAME,
             cwd,
@@ -139,6 +150,7 @@ export class TerminalServerManager implements ServerManager {
     }
 
     async close() {
+        this._startClientPromise = undefined
         this._client?.kill()
         this.closeTerminal()
     }
