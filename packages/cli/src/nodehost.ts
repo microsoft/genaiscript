@@ -169,11 +169,8 @@ export class NodeHost implements RuntimeHost {
     }
 
     async readConfig(): Promise<HostConfiguration> {
-        return resolveGlobalConfiguration(this.dotEnvPath)
-    }
-
-    private async syncDotEnv() {
-        const { envFile } = await this.readConfig()
+        const config = await resolveGlobalConfiguration(this.dotEnvPath)
+        const { envFile } = config
         if (existsSync(envFile)) {
             if (resolve(envFile) !== resolve(DOT_ENV_FILENAME))
                 logVerbose(`.env: loading ${envFile}`)
@@ -184,13 +181,15 @@ export class NodeHost implements RuntimeHost {
             })
             if (res.error) throw res.error
         }
+        await parseDefaultsFromEnv(process.env)
+        return config
     }
 
     static async install(dotEnvPath: string) {
         const config = await resolveGlobalConfiguration(dotEnvPath)
         const h = new NodeHost(config)
         setRuntimeHost(h)
-        await h.parseDefaults()
+        await h.readConfig()
         return h
     }
 
@@ -198,10 +197,6 @@ export class NodeHost implements RuntimeHost {
         return process.env[name]
     }
 
-    private async parseDefaults() {
-        await this.syncDotEnv()
-        await parseDefaultsFromEnv(process.env)
-    }
     clientLanguageModel: LanguageModel
 
     async getLanguageModelConfiguration(

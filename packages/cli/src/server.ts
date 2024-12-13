@@ -265,6 +265,7 @@ export async function startServer(options: { port: string; apiKey?: string }) {
                         logVerbose(
                             `tests: run ${data.scripts?.join(", ") || "*"}`
                         )
+                        await runtimeHost.readConfig()
                         response = await runPromptScriptTests(data.scripts, {
                             ...(data.options || {}),
                             //cache: true,
@@ -304,6 +305,7 @@ export async function startServer(options: { port: string; apiKey?: string }) {
                             )
                         })
                         logVerbose(`run ${runId}: starting ${script}`)
+                        await runtimeHost.readConfig()
                         const runner = runScriptInternal(script, files, {
                             ...options,
                             trace,
