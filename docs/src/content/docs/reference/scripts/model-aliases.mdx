@@ -46,7 +46,7 @@ The following configuration are support in order importance (last one wins):
 
 - [configuration file](/genaiscript/reference/configuration-files) with the `modelAliases` field
 
-```json title="genaiscript.config.js"
+```json title="genaiscript.config.json"
 {
     "modelAliases": {
         "llama32": "ollama:llama3.2:1b"
@@ -59,6 +59,19 @@ The following configuration are support in order importance (last one wins):
 
 ```sh
 genaiscript run --model-alias llama32=ollama:llama3.2:1b
+```
+
+## Alias of aliases
+
+An model alias can reference another alias as long as cycles are not created.
+
+```json title="genaiscript.config.json"
+{
+    "modelAliases": {
+        "llama32": "ollama:llama3.2:1b",
+        "llama": "llama32"
+    }
+}
 ```
 
 ## Builtin aliases
