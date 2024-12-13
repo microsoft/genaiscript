@@ -98,10 +98,11 @@ export function traceLanguageModelConnection(
             trace.itemValue(
                 key,
                 toStringList(
-                    value.model,
+                    `\`${value.model}\``,
                     isNaN(value.temperature)
                         ? undefined
-                        : `temperature: ${value.temperature}`
+                        : `temperature: \`${value.temperature}\``,
+                    `source: \`${value.source}\``
                 )
             )
         )

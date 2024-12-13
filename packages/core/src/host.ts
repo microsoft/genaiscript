@@ -113,7 +113,11 @@ export interface AzureTokenResolver {
     ): Promise<AuthenticationToken>
 }
 
-export type ModelConfiguration = Readonly<Pick<ModelOptions, "model" | "temperature">>
+export type ModelConfiguration = Readonly<
+    Pick<ModelOptions, "model" | "temperature"> & {
+        source: "cli" | "env" | "config" | "default"
+    }
+>
 
 export type ModelConfigurations = {
     large: ModelConfiguration
@@ -168,7 +172,11 @@ export interface RuntimeHost extends Host {
     azureToken: AzureTokenResolver
     modelAliases: Readonly<ModelConfigurations>
 
-    setModelAlias(source: "env" | "cli" | "config", id: string, value: string | ModelConfiguration): void
+    setModelAlias(
+        source: "env" | "cli" | "config",
+        id: string,
+        value: string | Omit<ModelConfiguration, "source">
+    ): void
 
     readConfig(): Promise<HostConfiguration>
     readSecret(name: string): Promise<string | undefined>

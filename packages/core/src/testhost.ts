@@ -73,10 +73,10 @@ export class TestHost implements RuntimeHost {
 
     // Default options for language models
     readonly modelAliases: ModelConfigurations = {
-        large: { model: DEFAULT_MODEL },
-        small: { model: DEFAULT_SMALL_MODEL },
-        vision: { model: DEFAULT_VISION_MODEL },
-        embeddings: { model: DEFAULT_EMBEDDINGS_MODEL },
+        large: { model: DEFAULT_MODEL, source: "default" },
+        small: { model: DEFAULT_SMALL_MODEL, source: "default" },
+        vision: { model: DEFAULT_VISION_MODEL, source: "default" },
+        embeddings: { model: DEFAULT_EMBEDDINGS_MODEL, source: "default" },
     }
 
     // Static method to set this class as the runtime host
@@ -89,7 +89,7 @@ export class TestHost implements RuntimeHost {
         id: string,
         value: string | ModelConfiguration
     ): void {
-        if (typeof value === "string") value = { model: value }
+        if (typeof value === "string") value = { source, model: value }
         this.modelAliases[id] = value
     }
     async readConfig() {

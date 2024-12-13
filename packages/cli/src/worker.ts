@@ -3,16 +3,16 @@ import { runScriptInternal } from "./run"
 import { NodeHost } from "./nodehost"
 
 export async function worker() {
-    await NodeHost.install(undefined) // Install NodeHost with environment options
-
-    const { type, ...data } = workerData as {
+    const { type, dotEnvPath, ...data } = workerData as {
         type: string
+        dotEnvPath: string
     } & object
+    await NodeHost.install(dotEnvPath) // Install NodeHost with environment options
     switch (type) {
         case "run": {
             const { scriptId, files, options } = data as {
                 scriptId: string
-                files: string[],
+                files: string[]
                 options: object
             }
             const { result } = await runScriptInternal(scriptId, files, options)

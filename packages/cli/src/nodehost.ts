@@ -136,7 +136,7 @@ class ModelManager implements ModelService {
 }
 
 export class NodeHost implements RuntimeHost {
-    private readonly dotEnvPath: string
+    readonly dotEnvPath: string
     project: Project
     userState: any = {}
     models: ModelService
@@ -150,10 +150,10 @@ export class NodeHost implements RuntimeHost {
         Omit<ModelConfigurations, "large" | "small" | "vision" | "embeddings">
     > = {
         default: {
-            large: { model: DEFAULT_MODEL },
-            small: { model: DEFAULT_SMALL_MODEL },
-            vision: { model: DEFAULT_VISION_MODEL },
-            embeddings: { model: DEFAULT_EMBEDDINGS_MODEL },
+            large: { model: DEFAULT_MODEL, source: "default" },
+            small: { model: DEFAULT_SMALL_MODEL, source: "default" },
+            vision: { model: DEFAULT_VISION_MODEL, source: "default" },
+            embeddings: { model: DEFAULT_EMBEDDINGS_MODEL, source: "default" },
         },
         cli: {},
         env: {},
@@ -163,7 +163,8 @@ export class NodeHost implements RuntimeHost {
     readonly azureToken: AzureTokenResolver
     readonly azureServerlessToken: AzureTokenResolver
 
-    constructor(config: HostConfiguration) {
+    constructor(dotEnvPath: string) {
+        this.dotEnvPath = dotEnvPath
         this.models = new ModelManager(this)
         this.azureToken = createAzureTokenResolver(
             "Azure",
@@ -193,9 +194,9 @@ export class NodeHost implements RuntimeHost {
         value: string | ModelConfiguration
     ): void {
         id = id.toLowerCase()
-        if (typeof value === "string") value = { model: value }
+        if (typeof value === "string") value = { model: value, source }
         const aliases = this._modelAliases[source]
-        const c = aliases[id] || (aliases[id] = {})
+        const c = aliases[id] || (aliases[id] = { source })
         if (value.model !== undefined) (c as any).model = value.model
         if (!isNaN(value.temperature))
             (c as any).temperature = value.temperature
@@ -221,9 +222,8 @@ export class NodeHost implements RuntimeHost {
         return config
     }
 
-    static async install(dotEnvPath: string) {
-        const config = await resolveGlobalConfiguration(dotEnvPath)
-        const h = new NodeHost(config)
+    static async install(dotEnvPath?: string) {
+        const h = new NodeHost(dotEnvPath)
         setRuntimeHost(h)
         await h.readConfig()
         return h
