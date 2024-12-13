@@ -91,6 +91,9 @@ export function activateFragmentCommands(state: ExtensionState) {
 
         if (!script) {
             state.output.appendLine(`requested script: ${fp}`)
+            state.output.appendLine(
+                `project folder: ${state.host.projectFolder()}`
+            )
             scripts.forEach((s) =>
                 state.output.appendLine(`- ${s.filename}\n  ${scriptFile(s)}`)
             )
