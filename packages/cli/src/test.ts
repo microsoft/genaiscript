@@ -43,9 +43,7 @@ import {
 } from "../../core/src/server/messages"
 import { generatePromptFooConfiguration } from "../../core/src/test"
 import { delay } from "es-toolkit"
-import {
-    resolveModelConnectionInfo,
-} from "../../core/src/models"
+import { resolveModelConnectionInfo } from "../../core/src/models"
 import { filterScripts } from "../../core/src/ast"
 import { link } from "../../core/src/markdown"
 
@@ -251,11 +249,6 @@ genaiscript test view
                 outSummary,
                 `- ${ok ? EMOJI_SUCCESS : EMOJI_FAIL} ${script.id} ${url}\n`
             )
-            if (error)
-                await appendFile(
-                    outSummary,
-                    `\n\n\`\`\`\n${JSON.stringify(error, null, 2)}\n\`\`\`\n\n`
-                )
         }
         results.push({
             status,
