@@ -310,7 +310,7 @@ export async function scriptsTest(
 ) {
     const { status, value = [] } = await runPromptScriptTests(ids, options)
     const trace = new MarkdownTrace()
-    trace.log(
+    trace.appendContent(
         `tests: ${value.filter((r) => r.ok).length} success, ${value.filter((r) => !r.ok).length} failed`
     )
     for (const result of value) trace.resultItem(result.ok, result.script)
