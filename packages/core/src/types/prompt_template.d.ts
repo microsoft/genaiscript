@@ -219,7 +219,7 @@ interface ModelOptions extends ModelConnectionOptions, ModelTemplateOptions {
     /**
      * A list of keywords that should be found in the output.
      */
-    choices?: ElementOrArray<string>
+    choices?: ElementOrArray<string | { token: string | number; weight?: number }>
 
     /**
      * Returns the log probabilities of the each tokens. Not supported in all models.

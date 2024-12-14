@@ -748,7 +748,9 @@ export function mergeGenerationOptions(
 async function choicesToLogitBias(
     trace: MarkdownTrace,
     model: string,
-    choices: ElementOrArray<string>
+    choices: ElementOrArray<
+        string | { token: string | number; weight?: number }
+    >
 ) {
     choices = arrayify(choices)
     if (!choices?.length) return undefined
@@ -764,12 +766,13 @@ async function choicesToLogitBias(
     }
     const res = Object.fromEntries(
         choices.map((c) => {
-            const tokens = encode(c)
-            if (tokens.length !== 1)
+            const { token, weight } = typeof c === "string" ? { token: c } : c
+            const encoded = typeof token === "number" ? [token] : encode(token)
+            if (encoded.length !== 1)
                 trace.warn(
-                    `choice ${c} tokenizes to ${tokens.join(", ")} (expected one token)`
+                    `choice ${c} tokenizes to ${encoded.join(", ")} (expected one token)`
                 )
-            return [tokens[0], CHOICE_LOGIT_BIAS]
+            return [encoded[0], isNaN(weight) ? CHOICE_LOGIT_BIAS : weight]
         })
     )
     trace.itemValue("choices", choices.join(", "))

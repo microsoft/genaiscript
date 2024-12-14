@@ -1,5 +1,5 @@
 script({
-    choices: ["OK", "ERR"],
+    choices: ["OK", { token: "ERR", weight: 0.2 }],
 })
 // tests logit_bias
 const res = await runPrompt(

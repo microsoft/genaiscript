@@ -8,8 +8,8 @@ sidebar:
 
 You can specify a list of preferred words (choices) in the script metadata. It will increase the probability of the model generating the specified words.
 
--   Each word should match a single token for the desired model!
--   For some models, GenAIScript does not have a token encoder so it won't be able to compute the logit bias for the choices
+- Each word should match a single token for the desired model!
+- For some models, GenAIScript does not have a token encoder so it won't be able to compute the logit bias for the choices
 
 ```js
 script({
@@ -22,12 +22,33 @@ script({
 ERR
 ```
 
+## Custom weights
+
+You can tune the probability of each choice by providing a weight for each choice.
+The default weight is `5`.
+
+```js '{ token: "ERR", weight: 10 }'
+script({
+    choices: ["OK", { token: "ERR", weight: 10 }],
+})
+```
+
+## Pre-encoded tokens
+
+For models where GenAIScript does not have a token encoder, you can provide the pre-encoded tokens.
+
+```js
+script({
+    choices: [{ token: 12345, weight: 10 }],
+})
+```
+
 ## Logit Bias
 
 Internally, GenAIScript tokenizes the word and build the [logit_bias](https://help.openai.com/en/articles/5247780-using-logit-bias-to-alter-token-probability-with-the-openai-api) for each token.
 
--   choices: `OK`, `ERR`
--   logit bias: `{"5175":5,"5392":5}`
+- choices: `OK`, `ERR`
+- logit bias: `{"5175":5,"5392":5}`
 
 ## Logprobs
 
