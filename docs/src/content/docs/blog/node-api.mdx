@@ -6,6 +6,7 @@ authors:
 tags: ["sdk", "automation", "dev", "api"]
 description: Learn about the new API to call genaiscript for other typescript scripts.
 ---
+import { PackageManagers } from 'starlight-package-managers'
 
 A long standing feature request has been to run GenAIScript programmatically from other scripts. We are happy to announce that we have released a Node.JS API for GenAIScript. This API allows you to call GenAIScript from other TypeScript scripts (v1.83+).
 
@@ -15,9 +16,7 @@ A long standing feature request has been to run GenAIScript programmatically fro
 
 You'll want to add [genaiscript](https://www.npmjs.com/package/genaiscript) as a (dev) dependency to your project.
 
-```sh
-npm install -D genaiscript
-```
+<PackageManagers pkg="genaiscript" dev />
 
 ## The `run` API
 

@@ -2,6 +2,7 @@ import { defineConfig, passthroughImageService } from "astro/config"
 import starlight from "@astrojs/starlight"
 import starlightBlog from "starlight-blog"
 import rehypeMermaid from "rehype-mermaid"
+import starlightLinksValidator from "starlight-links-validator"
 
 // https://astro.build/config
 export default defineConfig({
@@ -39,6 +40,7 @@ export default defineConfig({
                         },
                     },
                 }),
+                //starlightLinksValidator(),
             ],
             components: {
                 Head: "./src/components/Head.astro",

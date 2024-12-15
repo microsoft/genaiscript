@@ -15,6 +15,8 @@ genaiscript:
     files: src/samples/markdown-small.txt
 ---
 
+import GenAIScriptCli from "../../../components/GenAIScriptCli.astro"
+
 GenAIScript is a scripting language that integrates LLMs into the scripting process using a simplified JavaScript syntax.
 Supported by our VS Code GenAIScript extension, it allows users to create, debug, and automate LLM-based scripts.
 
@@ -49,13 +51,11 @@ So the final JSON payload sent to the LLM server might look more like this:
 ```
 
 GenAIScripts can be executed from the [command line](/genaiscript/reference/cli) or run with a right-click context
-menu selection inside Visual Studio Code. Because a GenAIScript is just JavaScript, 
-the execution of a script follows the normal JavaScript evaluation rules. 
+menu selection inside Visual Studio Code. Because a GenAIScript is just JavaScript,
+the execution of a script follows the normal JavaScript evaluation rules.
 Once the script is executed, the generated messages are sent to the LLM server, and the response is processed by the GenAIScript runtime.
 
-```sh wrap
-npx --yes genaiscript run poem
-```
+<GenAIScriptCli args="run poem" />
 
 Here is an example output for this prompt (shortened) that got returned by OpenAI gpt-4o.
 
@@ -93,11 +93,13 @@ and we use `def` to include it in the prompt as a `prompt variable`. We then "re
 
 ````markdown wrap title="prompt"
 FILE:
+
 ```text file="some/relative/markdown.txt"
 What is Markdown?
 
 Markdown is a lightweight markup language that you can use to add formatting elements to plaintext text documents. Created by John Gruber in 2004, Markdown is now one of the world’s most popular markup languages.
 ```
+
 Summarize FILE in one sentence.
 ````
 
@@ -126,9 +128,7 @@ $`Summarize FILE in one sentence.`
 
 And now apply it to a bunch of files
 
-```sh
-npx --yes genaiscript run summarize **/*.md
-```
+<GenAIScriptCli args='run summarize "**/*.md"' />
 
 ## Processing outputs
 
@@ -148,6 +148,7 @@ the GenAIScript runtime interprets based on what the prompt requested from the m
 
 ````markdown wrap
 File src/samples/markdown-small.txt.summary:
+
 ```text
 Markdown is a lightweight markup language created by John Gruber in 2004, known for adding formatting elements to plaintext text documents.
 ```
@@ -180,21 +181,22 @@ $`
 `
 ```
 
-A possible trace looks like as follows. 
+A possible trace looks like as follows.
 
 <details style="margin-left: 1rem;"  open>
 <summary>Trace</summary>
 
-`````markdown
+````markdown
 - prompting github:gpt-4o
 - cat src/rag/markdown.md
 - prompting github:gpt-4o
 
 FILE ./markdown.md.txt:
+
 ```text
 Markdown is a lightweight ...
 ```
-`````
+````
 
 </details>
 
@@ -219,13 +221,13 @@ $`
 <details style="margin-left: 1rem;"  open>
 <summary>Trace</summary>
 
-`````markdown
+````markdown
 - prompting github:gpt-4o (~1569 tokens)
-- agent fs: read and summarize file src/rag/markdown.md in one sentence 
-  - prompt agent memory query with github:gpt-4o-mini: "NO_ANSWER"
-  - prompt agent fs with github:gpt-4o (~422 tokens)
-  - cat src/rag/markdown.md
-  - prompting github:gpt-4o (~635 tokens)
+- agent fs: read and summarize file src/rag/markdown.md in one sentence
+    - prompt agent memory query with github:gpt-4o-mini: "NO_ANSWER"
+    - prompt agent fs with github:gpt-4o (~422 tokens)
+    - cat src/rag/markdown.md
+    - prompting github:gpt-4o (~635 tokens)
 
 ```md
 The file "src/rag/markdown.md" explains that Markdown...
@@ -236,10 +238,12 @@ The file "src/rag/markdown.md" explains that Markdown...
 I'll save the summary to the file `markdown.md.txt`.
 
 FILE markdown.md.txt:
+
 ```
 The file "src/rag/markdown.md" explains that Markdown....
 ```
-`````
+````
+
 </details>
 
 ## Next steps
