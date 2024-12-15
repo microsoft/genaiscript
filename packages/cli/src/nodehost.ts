@@ -121,7 +121,7 @@ class ModelManager implements ModelService {
                     if (models.find((m) => m.model === model))
                         return { ok: true }
                     logVerbose(
-                        `${provider}: ${model} not found in\n${YAMLStringify(models.map((m) => m.model))}`
+                        `${provider}: ${model} not found in\n${models.map((m) => m.model).join(", ")}`
                     )
                 }
 
@@ -139,10 +139,6 @@ class ModelManager implements ModelService {
                         2
                     ),
                 })
-                if (resPull.ok) {
-                    const resj = await resPull.json()
-                    logVerbose(JSON.stringify(resj, null, 2))
-                }
                 if (resPull.ok) this.pulled.push(modelid)
                 else {
                     logError(`${provider}: failed to pull model ${model}`)
