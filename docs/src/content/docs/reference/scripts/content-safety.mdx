@@ -12,15 +12,15 @@ GenAIScript has multiple built-in safety features to protect the system from mal
 
 The following safety prompts are included by default when running a prompt, unless the system option is configured:
 
--   [system.safety_harmful_content](../system#systemsafety_harmful_content), safety prompt against Harmful Content: Hate and Fairness, Sexual, Violence, Self-Harm. See https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/safety-system-message-templates.
--   [system.safety_jailbreak](../system#systemsafety_jailbreak), safety script to ignore prompting instructions in code sections, which are created by the `def` function.
--   [system.safety_protected_material](../system#systemsafety_protected_material) safety prompt against Protected material. See https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/safety-system-message-templates
+-   [system.safety_harmful_content](/genaiscript/reference/script/system#systemsafety_harmful_content), safety prompt against Harmful Content: Hate and Fairness, Sexual, Violence, Self-Harm. See https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/safety-system-message-templates.
+-   [system.safety_jailbreak](/genaiscript/reference/script/system#systemsafety_jailbreak), safety script to ignore prompting instructions in code sections, which are created by the `def` function.
+-   [system.safety_protected_material](/genaiscript/reference/script/system#systemsafety_protected_material) safety prompt against Protected material. See https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/safety-system-message-templates
 
 Other system scripts can be added to the prompt by using the `system` option.
 
--   [system.safety_ungrounded_content_summarization](../system#systemsafety_ungrounded_content_summarization) safety prompt against ungrounded content in summarization
--   [system.safety_canary_word](../system#systemsafety_canary_word) safety prompt against prompt leaks.
--   [system.safety_validate_harmful_content](../system#systemsafety_validate_harmful_content) runs the `detectHarmfulContent` method to validate the output of the prompt.
+-   [system.safety_ungrounded_content_summarization](/genaiscript/reference/script/system#systemsafety_ungrounded_content_summarization) safety prompt against ungrounded content in summarization
+-   [system.safety_canary_word](/genaiscript/reference/script/system#systemsafety_canary_word) safety prompt against prompt leaks.
+-   [system.safety_validate_harmful_content](/genaiscript/reference/script/system#systemsafety_validate_harmful_content) runs the `detectHarmfulContent` method to validate the output of the prompt.
 
 ## Azure AI Content Safety services
 

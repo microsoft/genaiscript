@@ -25,6 +25,7 @@
     "astro": "^5.0.5",
     "rehype-mermaid": "^3.0.0",
     "starlight-blog": "^0.16.0",
+    "starlight-links-validator": "^0.13.4",
     "starlight-package-managers": "^0.8.1",
     "typescript": "5.7.2",
     "zx": "^8.2.4"
