@@ -5,29 +5,13 @@ sidebar:
 ---
 
 import { Tabs, TabItem } from "@astrojs/starlight/components"
+import { PackageManagers } from 'starlight-package-managers'
 
 This page describes how to import and use the [cli](/genaiscript/reference/cli) as an API in your Node.JS application.
 
 Assuming you have have added the cli as a dependency in your project, you can import the cli as follows:
 
-<Tabs>
-  <TabItem value="npm" label="npm">
-
-```sh
-npm install -D genaiscript
-```
-
-</TabItem>
-
-  <TabItem value="yarn" label="yarn">
-
-```sh
-yarn add -D genaiscript
-```
-
-</TabItem>
-
-</Tabs>
+<PackageManagers pkg="genaiscript" dev />
 
 The API can be imported using imports from **"genaiscript/api"**.
 

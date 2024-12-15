@@ -5,19 +5,15 @@ sidebar:
 description: Comprehensive guide to using the GenAIScript CLI for automating tasks with AI scripts in Node.js environments.
 keywords: GenAIScript CLI, Node.js automation, AI scripting, command line interface, JavaScript automation
 ---
-
 import { Steps } from "@astrojs/starlight/components"
 import { Tabs, TabItem } from "@astrojs/starlight/components"
 import DirectoryLinks from "../../../../components/DirectoryLinks.astro"
+import GenAIScriptCli from "../../../components/GenAIScriptCli.astro"
 
 The GenAIScript CLI **`genaiscript`** runs GenAIScript scripts
 outside of Visual Studio and in your [automation](/genaiscript/getting-starting/automating-scripts).
 
-```sh
-npx --yes genaiscript ...
-```
-
-where `--yes` skips the confirmation prompt to install the package.
+<GenAIScriptCli args="..." />
 
 ## Prerequisites
 
@@ -29,22 +25,7 @@ The CLI is a Node.JS package hosted on [npm](https://www.npmjs.com/package/genai
 
 - Install locally as a `devDependency` in your project.
 
-<Tabs>
-  <TabItem label="npm" icon="seti:npm">
-
-```sh
-npm install -D genaiscript
-```
-
-  </TabItem>
-  <TabItem label="yarn" >
-
-```sh
-yarn add -D genaiscript
-```
-
-  </TabItem>
-</Tabs>
+<PackageManagers pkg="genaiscript" dev frame="none" />
 
 - Install it globally.
 

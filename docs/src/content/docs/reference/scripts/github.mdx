@@ -4,6 +4,7 @@ description: Support for querying GitHub
 sidebar:
     order: 50
 ---
+import { PackageManagers } from 'starlight-package-managers'
 
 The `github` module provides several helper functions to query GitHub, along with the connection information for more advanced usage.
 
@@ -148,9 +149,7 @@ const { client }: { client: Octokit } = await github.api()
 
 Install octokit in your list of packages:
 
-```sh
-npm install -D octokit
-```
+<PackageManagers pkg="octokit" dev />
 
 ## Working on a different repository
 

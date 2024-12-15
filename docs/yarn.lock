@@ -4396,6 +4396,11 @@ starlight-blog@^0.16.0:
     marked-plaintify "^1.1.1"
     ultrahtml "^1.5.3"
 
+starlight-package-managers@^0.8.1:
+  version "0.8.1"
+  resolved "https://registry.yarnpkg.com/starlight-package-managers/-/starlight-package-managers-0.8.1.tgz#62c5327481f2f3856f70e1a54ea67dd8fdeb9755"
+  integrity sha512-a+zGIOdbN7B4T/VaszuvW8585Aau4LSU8HlVCmBCJJwxkrGAUC9lRya4y0md5tOAFyW/gfhUNJZM8qqyMNTe7Q==
+
 stream-replace-string@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/stream-replace-string/-/stream-replace-string-2.0.0.tgz#e49fd584bd1c633613e010bc73b9db49cb5024ad"
