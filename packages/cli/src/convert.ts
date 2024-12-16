@@ -113,6 +113,10 @@ export async function convertFiles(
                 fileTrace.error(undefined, error)
                 return
             }
+            if (result.status === "cancelled") {
+                logVerbose(`cancelled ${file.filename}`)
+                return
+            }
             // LLM canceled
             if (cancelWord && result?.text?.includes(cancelWord)) {
                 logVerbose(`cancel word detected, skipping ${file.filename}`)
