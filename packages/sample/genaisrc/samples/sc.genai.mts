@@ -11,10 +11,10 @@ script({
     temperature: 0.2,
     cache: "sc",
 })
-const files = def("FILES", env.files[0])
+const files = def("FILES", env.files[0], { })
 
-$`Analyze the spelling and grammar of the content of ${files}.
-If you find a spelling or grammar mistake, fix it. Use CHANGELOG file format for small changes.
+$`Fix the spelling and grammar of the content of ${files}. Return the full file with corrections
+If you find a spelling or grammar mistake, fix it. 
 If you do not find any mistakes, respond <NO> and nothing else.
 
 - only fix major errors

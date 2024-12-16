@@ -113,16 +113,38 @@ export async function convertFiles(
                 fileTrace.error(undefined, error)
                 return
             }
-            const fileEdit = Object.entries(result.fileEdits || {}).find(
-                ([fn]) => resolve(fn) === resolve(file.filename)
-            )?.[1]
-            const text =
-                fileEdit?.after ||
-                unfence(unfence(result.text, "markdown"), "md")
-            if (cancelWord && text?.includes(cancelWord)) {
+            // LLM canceled
+            if (cancelWord && result?.text?.includes(cancelWord)) {
                 logVerbose(`cancel word detected, skipping ${file.filename}`)
                 return
             }
+            logVerbose(Object.keys(result.fileEdits || {}).join("\n"))
+            // structured extraction
+            const fileEdit = Object.entries(result.fileEdits || {}).find(
+                ([fn]) => resolve(fn) === resolve(file.filename)
+            )?.[1]
+            const suffixext = suffix.replace(/.genai$/, "")
+            const fence = result.fences.find((f) => f.language === suffixext)
+            let text: string
+            if (fileEdit?.after) {
+                if (fileEdit.validation?.schemaError) {
+                    logError("schema validation error")
+                    logVerbose(fileEdit.validation.schemaError)
+                    fileTrace.error(undefined, fileEdit.validation.schemaError)
+                    return
+                }
+                text = fileEdit.after
+            }
+            if (!text && fence) {
+                if (fence.validation?.schemaError) {
+                    logError("schema validation error")
+                    logVerbose(fence.validation.schemaError)
+                    fileTrace.error(undefined, fence.validation.schemaError)
+                    return
+                }
+                text = fence.content
+            } else text = unfence(result.text, "markdown")
+
             // save file
             const existing = await tryReadText(outf)
             if (text && existing !== text) {
