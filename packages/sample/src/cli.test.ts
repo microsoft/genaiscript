@@ -38,7 +38,7 @@ describe("scripts", async () => {
         const res = await $`node ${cli} ${cmd} list`
         assert(
             res.stdout.includes(
-                "system.files, File generation, system, builtin, system"
+                "id: poem"
             )
         )
     })
