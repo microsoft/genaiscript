@@ -281,6 +281,7 @@ export async function cli() {
         )
         .option("-c, --cache", "enable LLM result cache")
         .option("-cn, --cache-name <name>", "custom cache file name")
+        .option("-cc, --concurrency <number>", "number of concurrent conversions")
         .action(convertFiles)
 
     // Define 'scripts' command group for script management tasks

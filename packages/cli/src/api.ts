@@ -34,10 +34,7 @@ export async function run(
          */
         signal?: AbortSignal
     }
-): Promise<{
-    exitCode: number
-    result?: GenerationResult
-}> {
+): Promise<GenerationResult> {
     if (!scriptId) throw new Error("scriptId is required")
     if (typeof files === "string") files = [files]
 

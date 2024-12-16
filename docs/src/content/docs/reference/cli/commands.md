@@ -159,6 +159,7 @@ Options:
                                      variable through the environment
   -c, --cache                        enable LLM result cache
   -cn, --cache-name <name>           custom cache file name
+  -cc, --concurrency <number>        number of concurrent conversions
   -h, --help                         display help for command
 ```
 

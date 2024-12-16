@@ -1,28 +1,31 @@
-import { filter } from "mathjs"
 import {
     FILES_NOT_FOUND_ERROR_CODE,
     GENAI_ANY_REGEX,
     GENAI_MD_EXT,
     HTTPS_REGEX,
 } from "../../core/src/constants"
-import {
-    filePathOrUrlToWorkspaceFile,
-    readText,
-    tryReadText,
-} from "../../core/src/fs"
+import { filePathOrUrlToWorkspaceFile, tryReadText } from "../../core/src/fs"
 import { host } from "../../core/src/host"
 import { MarkdownTrace, TraceOptions } from "../../core/src/trace"
-import { logError, logInfo, logVerbose, logWarn } from "../../core/src/util"
+import {
+    logError,
+    logInfo,
+    logVerbose,
+    normalizeInt,
+} from "../../core/src/util"
 import { buildProject } from "./build"
 import { run } from "./api"
 import { writeText } from "../../core/src/fs"
 import { PromptScriptRunOptions } from "./main"
+import { PLimitPromiseQueue } from "../../core/src/concurrency"
+import { createPatch } from "diff"
 
 export async function convertFiles(
     scriptId: string,
     fileGlobs: string[],
     options: Partial<PromptScriptRunOptions> & {
         suffix?: string
+        concurrency?: string
     } & TraceOptions
 ): Promise<void> {
     const {
@@ -30,6 +33,7 @@ export async function convertFiles(
         excludedFiles,
         excludeGitIgnore,
         suffix = GENAI_MD_EXT,
+        concurrency,
         ...restOptions
     } = options || {}
     const fail = (msg: string, exitCode: number, url?: string) => {
@@ -87,14 +91,14 @@ export async function convertFiles(
         (filename) => ({ filename }) as WorkspaceFile
     )
 
-    for (let filei = 0; filei < files.length; filei++) {
-        const file = files[filei]
+    const p = new PLimitPromiseQueue(normalizeInt(concurrency) || 1)
+    await p.mapAll(files, async (file) => {
         const outf = file.filename + suffix
-        logInfo(`${file.filename} (${filei + 1}/${files.length}) -> ${outf}`)
+        logInfo(`${file.filename} -> ${outf}`)
         const fileTrace = trace.startTraceDetails(file.filename)
         try {
             // apply AI transformation
-            const { result } = await run(script.filename, file.filename, {
+            const result = await run(script.filename, file.filename, {
                 label: file.filename,
                 ...restOptions,
             })
@@ -103,7 +107,15 @@ export async function convertFiles(
             // save file
             const existing = await tryReadText(outf)
             if (existing !== text) {
-                logVerbose(`writing ${outf}`)
+                const patch = createPatch(
+                    outf,
+                    existing || "",
+                    text || "",
+                    undefined,
+                    undefined,
+                    {}
+                )
+                logVerbose(patch)
                 await writeText(outf, text)
             }
         } catch (error) {
@@ -113,5 +125,5 @@ export async function convertFiles(
             logVerbose("")
             trace.endDetails()
         }
-    }
+    })
 }
