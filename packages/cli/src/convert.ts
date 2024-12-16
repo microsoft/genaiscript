@@ -123,9 +123,14 @@ export async function convertFiles(
             const fileEdit = Object.entries(result.fileEdits || {}).find(
                 ([fn]) => resolve(fn) === resolve(file.filename)
             )?.[1]
-            const suffixext = suffix.replace(/.genai$/, "")
+            //            if (!fileEdit) {
+            //              console.log({
+            //                filename: file.filename,
+            //              edits: result.fileEdits,
+            //        })
+            const suffixext = suffix.replace(/^.genai./i, ".")
             const fence = result.fences.find((f) => f.language === suffixext)
-            let text: string
+            let text: string = undefined
             if (fileEdit?.after) {
                 if (fileEdit.validation?.schemaError) {
                     logError("schema validation error")
@@ -135,7 +140,7 @@ export async function convertFiles(
                 }
                 text = fileEdit.after
             }
-            if (!text && fence) {
+            if (text === undefined && fence) {
                 if (fence.validation?.schemaError) {
                     logError("schema validation error")
                     logVerbose(fence.validation.schemaError)
@@ -143,7 +148,8 @@ export async function convertFiles(
                     return
                 }
                 text = fence.content
-            } else text = unfence(result.text, "markdown")
+            }
+            if (text === undefined) text = unfence(result.text, "markdown")
 
             // save file
             const existing = await tryReadText(outf)
