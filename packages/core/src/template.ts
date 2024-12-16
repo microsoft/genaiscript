@@ -76,7 +76,7 @@ class Checker<T extends PromptLike> {
         const idx = new RegExp("\\b" + key + "[\\s\"']*:").exec(this.js)
         const range = idx ? [idx.index, idx.index + key.length] : [0, 5]
         this.diagnostics.push({
-            filename: this.filename,
+            filename: this.script.filename,
             range: [this.toPosition(range[0]), this.toPosition(range[1])],
             severity: "error",
             message,
@@ -94,7 +94,6 @@ class Checker<T extends PromptLike> {
      */
     constructor(
         public script: T,
-        public filename: string,
         public diagnostics: Diagnostic[],
         public js: string,
         public jsobj: any
@@ -368,13 +367,13 @@ async function parsePromptTemplateCore(
         text: "<nothing yet>",
         jsSource: content,
     } as PromptScript
-    if (!filename.startsWith(BUILTIN_PREFIX)) r.filename = filename
+    if (!filename.startsWith(BUILTIN_PREFIX))
+        r.filename = host.path.resolve(filename)
 
     try {
         const meta = parsePromptScriptMeta(r.jsSource)
         const checker = new Checker<PromptScript>(
             r,
-            filename,
             prj.diagnostics,
             content,
             meta

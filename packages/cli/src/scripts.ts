@@ -16,6 +16,7 @@ import {
     filterScripts,
     ScriptFilterOptions,
 } from "../../core/src/ast"
+import { YAMLStringify } from "../../core/src/yaml"
 
 /**
  * Lists all the scripts in the project.
@@ -25,12 +26,15 @@ import {
 export async function listScripts(options?: ScriptFilterOptions) {
     const prj = await buildProject() // Build the project to get script templates
     const scripts = filterScripts(prj.scripts, options) // Filter scripts based on options
-    console.log("id, title, group, filename, system")
-    scripts.forEach((t) =>
-        console.log(
-            `${t.id}, ${t.title}, ${t.group || ""}, ${t.filename || "builtin"}, ${
-                t.isSystem ? "system" : "user"
-            }`
+    console.log(
+        YAMLStringify(
+            scripts.map(({ id, title, group, filename, system: isSystem }) => ({
+                id,
+                title,
+                group,
+                filename,
+                isSystem,
+            }))
         )
     )
 }
