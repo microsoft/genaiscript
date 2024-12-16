@@ -11,7 +11,7 @@ script({
     temperature: 0.2,
     cache: "sc",
 })
-const files = def("FILES", env.files[0], { })
+const files = def("FILES", env.files)
 
 $`Fix the spelling and grammar of the content of ${files}. Return the full file with corrections
 If you find a spelling or grammar mistake, fix it. 
