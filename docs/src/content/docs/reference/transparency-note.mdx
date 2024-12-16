@@ -114,41 +114,41 @@ written in another programming language might be used but the use cases
 are much more ambitious because the LLM can do much more than ordinary
 code. Here are some examples:
 
--   **Checking for potential inconsistencies in a collection of configuration files or other content.** Using the LLM, a GenAIScript
-    can inspect configuration files and leverage the LLM's understanding
-    of common configuration errors to detect and report them. Before
-    LLMs, professional developers would write tools, such as lint[^2],
-    which are complex programs that detect inconsistencies in the syntax
-    of their code files. With GenAIScript, checking tools can be written
-    for much richer scenarios (such as checking for inappropriate
-    variable names), and by individuals who are not professional
-    developers.
+- **Checking for potential inconsistencies in a collection of configuration files or other content.** Using the LLM, a GenAIScript
+  can inspect configuration files and leverage the LLM's understanding
+  of common configuration errors to detect and report them. Before
+  LLMs, professional developers would write tools, such as lint[^2],
+  which are complex programs that detect inconsistencies in the syntax
+  of their code files. With GenAIScript, checking tools can be written
+  for much richer scenarios (such as checking for inappropriate
+  variable names), and by individuals who are not professional
+  developers.
 
--   **Automating document translation:** Given documentation in a
-    repository written in one natural language, a GenAIScript can be
-    written to translate that documentation into another language. For a
-    specific example of why GenAIScript is important for this use,
-    consider the task of maintaining the localization of the
-    MakeCode[^3] documentation. MakeCode documentation has nearly 2M
-    files, which are typically markdown with a mix of code snippets.
-    Many documents are partially translated (at the paragraph level). To check the correctness of
-    document translations, there are
-    3500 registered volunteer translators for 35+ languages. One cannot
-    just apply Bing translate for this use case, as it typically destroys the code
-    snippets. With GenAIScript, we can have a script that goes through
-    every documentation file, pulls the current localized version and
-    assembles a prompt to ask the LLM to fill in the missing
-    translations, while leaving the existing ones alone. Because the LLM model we use has already been trained on
-    MakeCode examples and documentation it is aware of the syntax.
+- **Automating document translation:** Given documentation in a
+  repository written in one natural language, a GenAIScript can be
+  written to translate that documentation into another language. For a
+  specific example of why GenAIScript is important for this use,
+  consider the task of maintaining the localization of the
+  MakeCode[^3] documentation. MakeCode documentation has nearly 2M
+  files, which are typically markdown with a mix of code snippets.
+  Many documents are partially translated (at the paragraph level). To check the correctness of
+  document translations, there are
+  3500 registered volunteer translators for 35+ languages. One cannot
+  just apply Bing translate for this use case, as it typically destroys the code
+  snippets. With GenAIScript, we can have a script that goes through
+  every documentation file, pulls the current localized version and
+  assembles a prompt to ask the LLM to fill in the missing
+  translations, while leaving the existing ones alone. Because the LLM model we use has already been trained on
+  MakeCode examples and documentation it is aware of the syntax.
 
--   **Creating a short version of a longer white paper by summarizing each chapter.** LLMs are quite effective at summarizing documents. A
-    GenAIScript can be written to take each chapter of a long document
-    and summarize it in a section of a shorter document.
+- **Creating a short version of a longer white paper by summarizing each chapter.** LLMs are quite effective at summarizing documents. A
+  GenAIScript can be written to take each chapter of a long document
+  and summarize it in a section of a shorter document.
 
--   **Translating a monolog to a dialog.** Given a monolog from a video
-    transcript, a GenAIScript can be written to rewrite the monolog into
-    a dialog between two individuals (akin to sports announcers talking
-    to each other) to make the video more interesting and accessible.
+- **Translating a monolog to a dialog.** Given a monolog from a video
+  transcript, a GenAIScript can be written to rewrite the monolog into
+  a dialog between two individuals (akin to sports announcers talking
+  to each other) to make the video more interesting and accessible.
 
 #### Unintended uses
 
@@ -175,9 +175,9 @@ and use foundation models most responsibly. Here are resources to help
 understand and use best practices when employing foundations models
 for scripts and applications:
 
--   [Blog post on responsible AI features in AOAI that were presented at Ignite 2023](https://techcommunity.microsoft.com/t5/ai-azure-ai-services-blog/announcing-new-ai-safety-amp-responsible-ai-features-in-azure/ba-p/3983686)
--   [Transparency note for Azure OpenAI Service](https://learn.microsoft.com/en-us/legal/cognitive-services/openai/transparency-note?tabs=text)
--   [Microsoft Office of Responsible AI (ORA) Best Practices on using AOAI models](https://learn.microsoft.com/en-us/legal/cognitive-services/openai/overview)
+- [Blog post on responsible AI features in AOAI that were presented at Ignite 2023](https://techcommunity.microsoft.com/t5/ai-azure-ai-services-blog/announcing-new-ai-safety-amp-responsible-ai-features-in-azure/ba-p/3983686)
+- [Transparency note for Azure OpenAI Service](https://learn.microsoft.com/en-us/legal/cognitive-services/openai/transparency-note?tabs=text)
+- [Microsoft Office of Responsible AI (ORA) Best Practices on using AOAI models](https://learn.microsoft.com/en-us/legal/cognitive-services/openai/overview)
 
 We recommand to review the [Content Safety](/genaiscript/reference/scripts/content-safety) documentation for more information on how to guard against harmful content and jailbreaking.
 
@@ -227,8 +227,8 @@ Scripting (github.com)](https://github.com/microsoft/genaiscript/)
 
 ## Contact us
 
-Give us feedback on this document: <zorn@microsoft.com>,
-<jhalleux@microsoft.com>
+Give us feedback on this document: zorn@microsoft.com,
+jhalleux@microsoft.com
 
 ## About this document
 
@@ -249,9 +249,9 @@ recommendations and resources will be appropriate for every scenario,
 and conversely, these recommendations and resources may be insufficient
 for some scenarios.
 
--   Published: March 18, 2024
+- Published: March 18, 2024
 
--   Last updated: March 18, 2024
+- Last updated: March 18, 2024
 
 ---
 
@@ -261,6 +261,6 @@ for some scenarios.
 
 [^2]:
     [Lint (software) -
-    Wikipedia](<https://en.wikipedia.org/wiki/Lint_(software)>)
+    Wikipedia](https://en.wikipedia.org/wiki/Lint_(software))
 
-[^3]: <https://makecode.org/>
+[^3]: https://makecode.org/
