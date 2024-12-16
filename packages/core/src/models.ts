@@ -1,19 +1,13 @@
 import { uniq } from "es-toolkit"
 import {
-    DEFAULT_EMBEDDINGS_MODEL_CANDIDATES,
-    DEFAULT_MODEL_CANDIDATES,
-    DEFAULT_SMALL_MODEL_CANDIDATES,
-    DEFAULT_VISION_MODEL_CANDIDATES,
     LARGE_MODEL_ID,
     MODEL_PROVIDER_LLAMAFILE,
     MODEL_PROVIDER_OPENAI,
-    SMALL_MODEL_ID,
-    VISION_MODEL_ID,
 } from "./constants"
 import { errorMessage } from "./error"
 import { LanguageModelConfiguration, host, runtimeHost } from "./host"
 import { AbortSignalOptions, MarkdownTrace, TraceOptions } from "./trace"
-import { arrayify, assert, logVerbose, toStringList } from "./util"
+import { arrayify, assert, toStringList } from "./util"
 
 /**
  * model
@@ -117,7 +111,6 @@ export async function resolveModelConnectionInfo(
     options?: {
         model?: string
         token?: boolean
-        candidates?: string[]
     } & TraceOptions &
         AbortSignalOptions
 ): Promise<{
@@ -125,47 +118,25 @@ export async function resolveModelConnectionInfo(
     configuration?: LanguageModelConfiguration
 }> {
     const { trace, token: askToken, signal } = options || {}
-    const hint = options?.model || conn.model || ""
-    let candidates = options?.candidates
-    let m = hint
-    if (m === SMALL_MODEL_ID) {
-        m = undefined
-        candidates ??= [
-            runtimeHost.modelAliases.small.model,
-            ...DEFAULT_SMALL_MODEL_CANDIDATES,
-        ]
-    } else if (m === VISION_MODEL_ID) {
-        m = undefined
-        candidates ??= [
-            runtimeHost.modelAliases.vision.model,
-            ...DEFAULT_VISION_MODEL_CANDIDATES,
-        ]
-    } else if (m === LARGE_MODEL_ID) {
-        m = undefined
-        candidates ??= [
-            runtimeHost.modelAliases.large.model,
-            ...DEFAULT_MODEL_CANDIDATES,
-        ]
-    }
-    candidates ??= [
-        runtimeHost.modelAliases.large.model,
-        ...DEFAULT_MODEL_CANDIDATES,
-    ]
-
+    const { modelAliases } = runtimeHost
+    const hint = options?.model || conn.model
+    // supports candidate if no model hint or hint is a model alias
+    const supportsCandidates = !hint || !!modelAliases[hint]
+    let modelId = hint || LARGE_MODEL_ID
+    let candidates: string[]
     // recursively resolve model aliases
-    if (m) {
-        const seen = [m]
-        const modelAliases = runtimeHost.modelAliases
-        while (modelAliases[m]) {
-            const alias = modelAliases[m].model
-            if (seen.includes(alias))
+    {
+        const seen: string[] = []
+        while (modelAliases[modelId]) {
+            const { model: id, candidates: c } = modelAliases[modelId]
+            if (seen.includes(id))
                 throw new Error(
-                    `Circular model alias: ${alias}, seen ${[...seen].join(",")}`
+                    `Circular model alias: ${id}, seen ${[...seen].join(",")}`
                 )
-            m = alias
-            seen.push(m)
+            seen.push(modelId)
+            modelId = id
+            if (supportsCandidates) candidates = c
         }
-        if (seen.length > 1) logVerbose(`model_aliases: ${seen.join(" -> ")}`)
     }
 
     const resolveModel = async (
@@ -214,10 +185,14 @@ export async function resolveModelConnectionInfo(
         }
     }
 
-    if (m) {
-        return await resolveModel(m, { withToken: askToken, reportError: true })
+    if (!supportsCandidates) {
+        return await resolveModel(modelId, {
+            withToken: askToken,
+            reportError: true,
+        })
     } else {
-        for (const candidate of uniq(candidates).filter((c) => !!c)) {
+        candidates = uniq([modelId, ...(candidates || [])].filter((c) => !!c))
+        for (const candidate of candidates) {
             const res = await resolveModel(candidate, {
                 withToken: askToken,
                 reportError: false,

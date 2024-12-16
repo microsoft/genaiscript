@@ -21,9 +21,8 @@ import {
 import { TraceOptions } from "./trace"
 import {
     DEFAULT_EMBEDDINGS_MODEL,
-    DEFAULT_MODEL,
+    DEFAULT_LARGE_MODEL,
     DEFAULT_SMALL_MODEL,
-    DEFAULT_TEMPERATURE,
     DEFAULT_VISION_MODEL,
 } from "./constants"
 import {
@@ -38,7 +37,6 @@ import {
 } from "node:path"
 import { LanguageModel } from "./chat"
 import { NotSupportedError } from "./error"
-import { HostConfiguration } from "./hostconfiguration"
 import { Project } from "./server/messages"
 
 // Function to create a frozen object representing Node.js path methods
@@ -73,7 +71,7 @@ export class TestHost implements RuntimeHost {
 
     // Default options for language models
     readonly modelAliases: ModelConfigurations = {
-        large: { model: DEFAULT_MODEL, source: "default" },
+        large: { model: DEFAULT_LARGE_MODEL, source: "default" },
         small: { model: DEFAULT_SMALL_MODEL, source: "default" },
         vision: { model: DEFAULT_VISION_MODEL, source: "default" },
         embeddings: { model: DEFAULT_EMBEDDINGS_MODEL, source: "default" },

@@ -2,12 +2,7 @@
 // It includes functionality to find modified files, execute Git commands, and manage branches.
 
 import { uniq } from "es-toolkit"
-import {
-    DEFAULT_MODEL,
-    GIT_DIFF_MAX_TOKENS,
-    GIT_IGNORE_GENAI,
-    GIT_LOG_COUNT,
-} from "./constants"
+import { GIT_DIFF_MAX_TOKENS, GIT_IGNORE_GENAI } from "./constants"
 import { llmifyDiff } from "./diff"
 import { resolveFileContents } from "./file"
 import { readText } from "./fs"

@@ -16,7 +16,7 @@ import { YAMLParse, YAMLStringify } from "../../core/src/yaml"
 import { resolveTokenEncoder } from "../../core/src/encoders"
 import {
     CSV_REGEX,
-    DEFAULT_MODEL,
+    DEFAULT_LARGE_MODEL,
     INI_REGEX,
     JSON5_REGEX,
     MD_REGEX,
@@ -204,7 +204,7 @@ export async function parseTokens(
     filesGlobs: string[],
     options: { excludedFiles: string[]; model: string }
 ) {
-    const { model = DEFAULT_MODEL } = options || {}
+    const { model = DEFAULT_LARGE_MODEL } = options || {}
     const { encode: encoder } = await resolveTokenEncoder(model)
 
     const files = await expandFiles(filesGlobs, options?.excludedFiles)

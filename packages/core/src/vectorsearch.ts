@@ -197,10 +197,6 @@ export async function vectorSearch(
             },
             {
                 token: true,
-                candidates: [
-                    runtimeHost.modelAliases.embeddings.model,
-                    ...DEFAULT_EMBEDDINGS_MODEL_CANDIDATES,
-                ],
             }
         )
         if (info.error) throw new Error(info.error)

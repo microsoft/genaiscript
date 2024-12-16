@@ -5,7 +5,7 @@ import { lstat, readFile, unlink, writeFile } from "node:fs/promises"
 import { ensureDir, exists, existsSync, remove } from "fs-extra"
 import { resolve, dirname } from "node:path"
 import { glob } from "glob"
-import { debug, error, info, isQuiet, warn } from "./log"
+import { debug, error, info, warn } from "./log"
 import { execa } from "execa"
 import { join } from "node:path"
 import { createNodePath } from "./nodepath"
@@ -17,8 +17,7 @@ import {
     parseTokenFromEnv,
 } from "../../core/src/connection"
 import {
-    DEFAULT_MODEL,
-    DEFAULT_TEMPERATURE,
+    DEFAULT_LARGE_MODEL,
     MODEL_PROVIDER_AZURE_OPENAI,
     SHELL_EXEC_TIMEOUT,
     MODEL_PROVIDER_OLLAMA,
@@ -33,6 +32,14 @@ import {
     DEFAULT_VISION_MODEL,
     LARGE_MODEL_ID,
     SMALL_MODEL_ID,
+    DEFAULT_SMALL_MODEL_CANDIDATES,
+    DEFAULT_LARGE_MODEL_CANDIDATES,
+    DEFAULT_EMBEDDINGS_MODEL_CANDIDATES,
+    DEFAULT_VISION_MODEL_CANDIDATES,
+    DEFAULT_REASONING_MODEL,
+    DEFAULT_REASONING_SMALL_MODEL,
+    DEFAULT_REASONING_SMALL_MODEL_CANDIDATES,
+    DEFAULT_REASONING_MODEL_CANDIDATES,
 } from "../../core/src/constants"
 import { tryReadText } from "../../core/src/fs"
 import {
@@ -71,7 +78,6 @@ import {
 } from "../../core/src/azurecontentsafety"
 import { resolveGlobalConfiguration } from "../../core/src/config"
 import { HostConfiguration } from "../../core/src/hostconfiguration"
-import { YAMLStringify } from "../../core/src/yaml"
 
 class NodeServerManager implements ServerManager {
     async start(): Promise<void> {
@@ -171,11 +177,36 @@ export class NodeHost implements RuntimeHost {
         Omit<ModelConfigurations, "large" | "small" | "vision" | "embeddings">
     > = {
         default: {
-            large: { model: DEFAULT_MODEL, source: "default" },
-            small: { model: DEFAULT_SMALL_MODEL, source: "default" },
-            vision: { model: DEFAULT_VISION_MODEL, source: "default" },
-            embeddings: { model: DEFAULT_EMBEDDINGS_MODEL, source: "default" },
-            reasoning: { model: LARGE_MODEL_ID, source: "default" },
+            large: {
+                model: DEFAULT_LARGE_MODEL,
+                source: "default",
+                candidates: DEFAULT_LARGE_MODEL_CANDIDATES,
+            },
+            small: {
+                model: DEFAULT_SMALL_MODEL,
+                source: "default",
+                candidates: DEFAULT_SMALL_MODEL_CANDIDATES,
+            },
+            vision: {
+                model: DEFAULT_VISION_MODEL,
+                source: "default",
+                candidates: DEFAULT_VISION_MODEL_CANDIDATES,
+            },
+            embeddings: {
+                model: DEFAULT_EMBEDDINGS_MODEL,
+                source: "default",
+                candidates: DEFAULT_EMBEDDINGS_MODEL_CANDIDATES,
+            },
+            reasoning: {
+                model: DEFAULT_REASONING_MODEL,
+                source: "default",
+                candidates: DEFAULT_REASONING_MODEL_CANDIDATES,
+            },
+            ["reasoning-small"]: {
+                model: DEFAULT_REASONING_SMALL_MODEL,
+                source: "default",
+                candidates: DEFAULT_REASONING_SMALL_MODEL_CANDIDATES,
+            },
             agent: { model: LARGE_MODEL_ID, source: "default" },
             memory: { model: SMALL_MODEL_ID, source: "default" },
         },

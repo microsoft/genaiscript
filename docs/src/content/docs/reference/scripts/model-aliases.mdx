@@ -76,14 +76,16 @@ An model alias can reference another alias as long as cycles are not created.
 
 ## Builtin aliases
 
-By default, GenAIScript supports the following model aliases:
+By default, GenAIScript supports the following model aliases, and various candidates
+in different LLM providers.
 
 - `large`: `gpt-4o like` model
 - `small`: `gpt-4o-mini` model or similar. A smaller, cheaper faster model
 - `vision`: `gpt-4o-mini`. A model that can analyze images
+- `reasoning`: `o1` or `o1-preview`.
+- `reasoning-small`: `o1-mini`.
 
 The following aliases are also set so that you can override LLMs used by GenAIScript itself.
 
-- `reasoning`: `large`. In the future, `o1` like models.
 - `agent`: `large`. Model used by the Agent LLM.
 - `memory`: `small`. Moel used by the agent short term memory.
