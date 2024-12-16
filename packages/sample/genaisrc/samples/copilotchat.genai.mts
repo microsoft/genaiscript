@@ -21,8 +21,8 @@ script({
         "system.agent_github",
         "system.agent_interpreter",
         "system.agent_docs",
-        "system.agent_vision",
         "system.agent_web",
+        "system.vision_ask_image",
     ],
     group: "copilot", // Group categorization for the script
     parameters: {
