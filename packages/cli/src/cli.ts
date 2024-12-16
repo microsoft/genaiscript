@@ -255,8 +255,13 @@ export async function cli() {
         .arguments("<script> [files...]")
         .option(
             "-s, --suffix <string>",
-            "suffix for output files",
+            "suffix for converted files",
             GENAI_MD_EXT
+        )
+        .option("-rw, --rewrite", "rewrite input file with output")
+        .option(
+            "-cw, --cancel-word <string>",
+            "cancel word which allows the LLM to notify to ignore output"
         )
         .option("-ef, --excluded-files <string...>", "excluded files")
         .option(
@@ -281,7 +286,10 @@ export async function cli() {
         )
         .option("-c, --cache", "enable LLM result cache")
         .option("-cn, --cache-name <name>", "custom cache file name")
-        .option("-cc, --concurrency <number>", "number of concurrent conversions")
+        .option(
+            "-cc, --concurrency <number>",
+            "number of concurrent conversions"
+        )
         .action(convertFiles)
 
     // Define 'scripts' command group for script management tasks

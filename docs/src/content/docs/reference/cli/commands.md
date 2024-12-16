@@ -139,8 +139,11 @@ the GenAIScript and the LLM output is saved to a <filename>.genai.md (or custom
 suffix).
 
 Options:
-  -s, --suffix <string>              suffix for output files (default:
+  -s, --suffix <string>              suffix for converted files (default:
                                      ".genai.md")
+  -rw, --rewrite                     rewrite input file with output
+  -cw, --cancel-word <string>        cancel word which allows the LLM to notify
+                                     to ignore output
   -ef, --excluded-files <string...>  excluded files
   -egi, --exclude-git-ignore         exclude files that are ignored through the
                                      .gitignore file in the workspace root

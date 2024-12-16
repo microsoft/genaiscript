@@ -19,12 +19,15 @@ import { writeText } from "../../core/src/fs"
 import { PromptScriptRunOptions } from "./main"
 import { PLimitPromiseQueue } from "../../core/src/concurrency"
 import { createPatch } from "diff"
+import { unfence } from "../../core/src/fence"
 
 export async function convertFiles(
     scriptId: string,
     fileGlobs: string[],
     options: Partial<PromptScriptRunOptions> & {
         suffix?: string
+        rewrite?: boolean
+        cancelWord?: string
         concurrency?: string
     } & TraceOptions
 ): Promise<void> {
@@ -33,6 +36,8 @@ export async function convertFiles(
         excludedFiles,
         excludeGitIgnore,
         suffix = GENAI_MD_EXT,
+        rewrite,
+        cancelWord,
         concurrency,
         ...restOptions
     } = options || {}
@@ -74,7 +79,7 @@ export async function convertFiles(
             )
         }
         for (const file of ffs) {
-            if (file.toLocaleLowerCase().endsWith(suffix)) continue
+            if (!rewrite && file.toLocaleLowerCase().endsWith(suffix)) continue
             resolvedFiles.add(filePathOrUrlToWorkspaceFile(file))
         }
     }
@@ -93,7 +98,7 @@ export async function convertFiles(
 
     const p = new PLimitPromiseQueue(normalizeInt(concurrency) || 1)
     await p.mapAll(files, async (file) => {
-        const outf = file.filename + suffix
+        const outf = rewrite ? file.filename : file.filename + suffix
         logInfo(`${file.filename} -> ${outf}`)
         const fileTrace = trace.startTraceDetails(file.filename)
         try {
@@ -102,11 +107,25 @@ export async function convertFiles(
                 label: file.filename,
                 ...restOptions,
             })
-            const { text, error } = result || {}
-            if (error) throw error
+            const { error } = result || {}
+            if (error) {
+                logError(error)
+                fileTrace.error(undefined, error)
+                return
+            }
+            const fileEdit = Object.entries(result.fileEdits || {}).find(
+                ([fn]) => resolve(fn) === resolve(file.filename)
+            )?.[1]
+            const text =
+                fileEdit?.after ||
+                unfence(unfence(result.text, "markdown"), "md")
+            if (cancelWord && text?.includes(cancelWord)) {
+                logVerbose(`cancel word detected, skipping ${file.filename}`)
+                return
+            }
             // save file
             const existing = await tryReadText(outf)
-            if (existing !== text) {
+            if (text && existing !== text) {
                 const patch = createPatch(
                     outf,
                     existing || "",
