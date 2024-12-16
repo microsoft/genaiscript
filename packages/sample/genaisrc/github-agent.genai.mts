@@ -6,6 +6,7 @@ script({
         "agent_interpreter",
         "agent_docs",
     ],
+    model: "reasoning",
     parameters: {
         jobUrl: { type: "string" }, // URL of the job
         workflow: { type: "string" }, // Workflow name

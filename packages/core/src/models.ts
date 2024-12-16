@@ -191,7 +191,7 @@ export async function resolveModelConnectionInfo(
             reportError: true,
         })
     } else {
-        candidates = uniq([modelId, ...candidates].filter((c) => !!c))
+        candidates = uniq([modelId, ...(candidates || [])].filter((c) => !!c))
         for (const candidate of candidates) {
             const res = await resolveModel(candidate, {
                 withToken: askToken,
