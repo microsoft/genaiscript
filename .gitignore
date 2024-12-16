@@ -31,3 +31,4 @@ packages/core/*.temp.*
 packages/sample/test.txt
 packages/sample/poems/*.txt
 packages/sample/src/rag/markdown.md.txt
+*.genai.md

@@ -1,0 +1,117 @@
+import { filter } from "mathjs"
+import {
+    FILES_NOT_FOUND_ERROR_CODE,
+    GENAI_ANY_REGEX,
+    GENAI_MD_EXT,
+    HTTPS_REGEX,
+} from "../../core/src/constants"
+import {
+    filePathOrUrlToWorkspaceFile,
+    readText,
+    tryReadText,
+} from "../../core/src/fs"
+import { host } from "../../core/src/host"
+import { MarkdownTrace, TraceOptions } from "../../core/src/trace"
+import { logError, logInfo, logVerbose, logWarn } from "../../core/src/util"
+import { buildProject } from "./build"
+import { run } from "./api"
+import { writeText } from "../../core/src/fs"
+import { PromptScriptRunOptions } from "./main"
+
+export async function convertFiles(
+    scriptId: string,
+    fileGlobs: string[],
+    options: Partial<PromptScriptRunOptions> & {
+        suffix?: string
+    } & TraceOptions
+): Promise<void> {
+    const {
+        trace = new MarkdownTrace(),
+        excludedFiles,
+        excludeGitIgnore,
+        suffix = GENAI_MD_EXT,
+        ...restOptions
+    } = options || {}
+    const fail = (msg: string, exitCode: number, url?: string) => {
+        throw new Error(msg)
+    }
+    const { resolve } = host.path
+
+    const toolFiles: string[] = []
+    if (GENAI_ANY_REGEX.test(scriptId)) toolFiles.push(scriptId)
+    const prj = await buildProject({
+        toolFiles,
+    })
+    const script = prj.scripts.find(
+        (t) =>
+            t.id === scriptId ||
+            (t.filename &&
+                GENAI_ANY_REGEX.test(scriptId) &&
+                resolve(t.filename) === resolve(scriptId))
+    )
+    if (!script) throw new Error(`script ${scriptId} not found`)
+
+    // resolve files
+    const resolvedFiles = new Set<string>()
+    for (let arg of fileGlobs) {
+        if (HTTPS_REGEX.test(arg)) {
+            resolvedFiles.add(arg)
+            continue
+        }
+        const stats = await host.statFile(arg)
+        if (stats?.type === "directory") arg = host.path.join(arg, "**", "*")
+        const ffs = await host.findFiles(arg, {
+            applyGitIgnore: excludeGitIgnore,
+        })
+        if (!ffs?.length) {
+            return fail(
+                `no files matching ${arg} under ${process.cwd()}`,
+                FILES_NOT_FOUND_ERROR_CODE
+            )
+        }
+        for (const file of ffs) {
+            if (file.toLocaleLowerCase().endsWith(suffix)) continue
+            resolvedFiles.add(filePathOrUrlToWorkspaceFile(file))
+        }
+    }
+    if (excludedFiles?.length) {
+        for (const arg of excludedFiles) {
+            const ffs = await host.findFiles(arg)
+            for (const f of ffs)
+                resolvedFiles.delete(filePathOrUrlToWorkspaceFile(f))
+        }
+    }
+
+    // processing
+    const files = Array.from(resolvedFiles).map(
+        (filename) => ({ filename }) as WorkspaceFile
+    )
+
+    for (let filei = 0; filei < files.length; filei++) {
+        const file = files[filei]
+        const outf = file.filename + suffix
+        logInfo(`${file.filename} (${filei + 1}/${files.length}) -> ${outf}`)
+        const fileTrace = trace.startTraceDetails(file.filename)
+        try {
+            // apply AI transformation
+            const { result } = await run(script.filename, file.filename, {
+                label: file.filename,
+                ...restOptions,
+            })
+            const { text, error } = result || {}
+            if (error) throw error
+            // save file
+            const existing = await tryReadText(outf)
+            if (existing !== text) {
+                logVerbose(`writing ${outf}`)
+                await writeText(outf, text)
+            }
+        } catch (error) {
+            logError(error)
+            fileTrace.error(undefined, error)
+        } finally {
+            logVerbose("")
+            trace.endDetails()
+        }
+    }
+}
