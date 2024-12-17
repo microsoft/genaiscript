@@ -201,7 +201,7 @@ class AzureContentSafetyClient implements ContentSafety {
             process.env.AZURE_CONTENT_SAFETY_API_KEY
         let apiToken: string
         if (!apiKey) {
-            const token = await runtimeHost.azureToken.token(
+            const { token, error } = await runtimeHost.azureToken.token(
                 credentialsType,
                 options
             )
