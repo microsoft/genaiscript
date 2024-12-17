@@ -202,7 +202,7 @@ export class NodeHost implements RuntimeHost {
                 source: "default",
                 candidates: DEFAULT_REASONING_MODEL_CANDIDATES,
             },
-            ["reasoning-small"]: {
+            ["reasoning_small"]: {
                 model: DEFAULT_REASONING_SMALL_MODEL,
                 source: "default",
                 candidates: DEFAULT_REASONING_SMALL_MODEL_CANDIDATES,

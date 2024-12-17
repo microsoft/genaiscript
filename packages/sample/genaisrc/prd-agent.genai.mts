@@ -3,7 +3,7 @@ script({
     description: "Generate a pull request description from the git diff",
     tools: ["agent_fs", "agent_git"],
     temperature: 0.5,
-    model: "reasoning-small",
+    model: "reasoning_small",
 })
 
 $`You are an expert software developer and architect.

@@ -128,9 +128,9 @@
     zod "^3.23.8"
 
 "@astrojs/starlight@^0.30.1":
-  version "0.30.1"
-  resolved "https://registry.yarnpkg.com/@astrojs/starlight/-/starlight-0.30.1.tgz#39618843e93391bd1209cf3af838b13ae68add91"
-  integrity sha512-NHElruXD71rfPp0A1VPrpVv93VqhyLqJ7+fPc+PHluLsBsh3/Y9H0GPApjpJtxOOFvDNy0gNYvV2ZLjhc22WOg==
+  version "0.30.2"
+  resolved "https://registry.yarnpkg.com/@astrojs/starlight/-/starlight-0.30.2.tgz#42c53ed4f238c029118b2c0baff9edfe75e1c216"
+  integrity sha512-KUNnIhiBgX3hV2mUIqwv2R5b7tBFRVr68Wj0wEyN8E2x0MtAos7qRPytWha/WchAtpO1eIt6sqAT0KfTvBZt5g==
   dependencies:
     "@astrojs/mdx" "^4.0.1"
     "@astrojs/sitemap" "^3.1.6"
@@ -575,9 +575,9 @@
     "@expressive-code/core" "^0.38.3"
 
 "@fortawesome/fontawesome-free@^6.0.0":
-  version "6.7.1"
-  resolved "https://registry.yarnpkg.com/@fortawesome/fontawesome-free/-/fontawesome-free-6.7.1.tgz#160a48730d533ec77578ed0141661a8f0150a71d"
-  integrity sha512-ALIk/MOh5gYe1TG/ieS5mVUsk7VUIJTJKPMK9rFFqOgfp0Q3d5QiBXbcOMwUvs37fyZVCz46YjOE6IFeOAXCHA==
+  version "6.7.2"
+  resolved "https://registry.yarnpkg.com/@fortawesome/fontawesome-free/-/fontawesome-free-6.7.2.tgz#8249de9b7e22fcb3ceb5e66090c30a1d5492b81a"
+  integrity sha512-JUOtgFW6k9u4Y+xeIaEiLr3+cjoUPiAuLXoyKOJSia6Duzb7pq+A76P9ZdPDoAoxHdHzq6gE9/jKBGXlZT8FbA==
 
 "@iconify/types@^2.0.0":
   version "2.0.0"
@@ -1469,9 +1469,9 @@ astro-remote@^0.3.3:
     ultrahtml "^1.5.3"
 
 astro@^5.0.6:
-  version "5.0.6"
-  resolved "https://registry.yarnpkg.com/astro/-/astro-5.0.6.tgz#502c47b821ae77342e8bc38981d65638faf89037"
-  integrity sha512-bkvM56lLHPtdfjgej+swWMud/1HAM3Lc/yObeLL39Ry3UEsbARyzTYrorxWlr8SX7TtQZn9KDivU3KI8RnMVhA==
+  version "5.0.8"
+  resolved "https://registry.yarnpkg.com/astro/-/astro-5.0.8.tgz#f58799735edbdc7563abe6822df0c559fc58dfcd"
+  integrity sha512-nW4TmRCeG3t2iDmm91KPvYpYNljNfjeaneN4BX463DKAZ3MPmUn92aKefOXC0bjMHQ2Gamc8MIZ6sORS2EhyAQ==
   dependencies:
     "@astrojs/compiler" "^2.10.3"
     "@astrojs/internal-helpers" "0.4.2"
@@ -1644,9 +1644,9 @@ chevrotain@~11.0.3:
     lodash-es "4.17.21"
 
 chokidar@^4.0.1:
-  version "4.0.1"
-  resolved "https://registry.yarnpkg.com/chokidar/-/chokidar-4.0.1.tgz#4a6dff66798fb0f72a94f616abbd7e1a19f31d41"
-  integrity sha512-n8enUVCED/KVRQlab1hr3MVpcVMvxtZjmEa956u+4YijlmQED223XMSYj2tLuKvr4jcCTzNNMpQDUer72MMmzA==
+  version "4.0.2"
+  resolved "https://registry.yarnpkg.com/chokidar/-/chokidar-4.0.2.tgz#97b9562c9f59de559177f069eadf5dcc67d24798"
+  integrity sha512-/b57FK+bblSU+dfewfFe0rT1YjVDfOmeLQwCAuC+vwvgLkXboATqqmy+Ipux6JrF6L5joe5CBnFOw+gLWH6yKg==
   dependencies:
     readdirp "^4.0.1"
 
@@ -4550,9 +4550,9 @@ tslib@^2.4.0:
   integrity sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w==
 
 type-fest@^4.21.0:
-  version "4.30.1"
-  resolved "https://registry.yarnpkg.com/type-fest/-/type-fest-4.30.1.tgz#120b9e15177310ec4e9d5d6f187d86c0f4b55e0e"
-  integrity sha512-ojFL7eDMX2NF0xMbDwPZJ8sb7ckqtlAi1GsmgsFXvErT9kFTk1r0DuQKvrCh73M6D4nngeHJmvogF9OluXs7Hw==
+  version "4.30.2"
+  resolved "https://registry.yarnpkg.com/type-fest/-/type-fest-4.30.2.tgz#d94429edde1f7deacf554741650aab394197a4cc"
+  integrity sha512-UJShLPYi1aWqCdq9HycOL/gwsuqda1OISdBO3t8RlXQC4QvtuIz4b5FCfe2dQIWEpmlRExKmcTBfP1r9bhY7ig==
 
 typesafe-path@^0.2.2:
   version "0.2.2"

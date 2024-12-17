@@ -1954,13 +1954,13 @@ Apache License
 
 The following npm packages may be included in this product:
 
- - @aws-sdk/client-cognito-identity@3.712.0
- - @aws-sdk/client-sso-oidc@3.712.0
- - @aws-sdk/client-sso@3.712.0
- - @aws-sdk/client-sts@3.712.0
- - @aws-sdk/credential-provider-cognito-identity@3.712.0
- - @aws-sdk/util-user-agent-browser@3.709.0
- - @aws-sdk/util-user-agent-node@3.712.0
+ - @aws-sdk/client-cognito-identity@3.713.0
+ - @aws-sdk/client-sso-oidc@3.713.0
+ - @aws-sdk/client-sso@3.713.0
+ - @aws-sdk/client-sts@3.713.0
+ - @aws-sdk/credential-provider-cognito-identity@3.713.0
+ - @aws-sdk/util-user-agent-browser@3.713.0
+ - @aws-sdk/util-user-agent-node@3.713.0
  - @smithy/eventstream-codec@2.2.0
  - @smithy/eventstream-codec@3.1.10
  - @smithy/middleware-retry@3.0.30
@@ -2182,7 +2182,7 @@ Apache License
 
 The following npm package may be included in this product:
 
- - @aws-sdk/client-bedrock-runtime@3.712.0
+ - @aws-sdk/client-bedrock-runtime@3.713.0
 
 This package contains the following license:
 
@@ -2392,9 +2392,9 @@ Apache License
 
 The following npm packages may be included in this product:
 
- - @aws-sdk/middleware-host-header@3.709.0
- - @aws-sdk/middleware-recursion-detection@3.709.0
- - @aws-sdk/middleware-user-agent@3.709.0
+ - @aws-sdk/middleware-host-header@3.713.0
+ - @aws-sdk/middleware-recursion-detection@3.713.0
+ - @aws-sdk/middleware-user-agent@3.713.0
  - @smithy/core@2.5.5
  - @smithy/eventstream-serde-browser@3.0.14
  - @smithy/eventstream-serde-config-resolver@3.0.11
@@ -2861,7 +2861,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.85.0
+ - genaiscript-vscode@1.85.1
 
 This package contains the following license:
 
@@ -4161,14 +4161,14 @@ Apache License
 
 The following npm packages may be included in this product:
 
- - @aws-sdk/credential-provider-env@3.709.0
- - @aws-sdk/credential-provider-ini@3.712.0
- - @aws-sdk/credential-provider-node@3.712.0
- - @aws-sdk/credential-providers@3.712.0
- - @aws-sdk/region-config-resolver@3.709.0
- - @aws-sdk/token-providers@3.709.0
- - @aws-sdk/types@3.709.0
- - @aws-sdk/util-endpoints@3.709.0
+ - @aws-sdk/credential-provider-env@3.713.0
+ - @aws-sdk/credential-provider-ini@3.713.0
+ - @aws-sdk/credential-provider-node@3.713.0
+ - @aws-sdk/credential-providers@3.713.0
+ - @aws-sdk/region-config-resolver@3.713.0
+ - @aws-sdk/token-providers@3.713.0
+ - @aws-sdk/types@3.713.0
+ - @aws-sdk/util-endpoints@3.713.0
  - @aws-sdk/util-locate-window@3.693.0
  - @aws-sdk/util-utf8-browser@3.259.0
  - @smithy/abort-controller@2.2.0
@@ -4416,9 +4416,9 @@ Apache License
 
 The following npm packages may be included in this product:
 
- - @aws-sdk/credential-provider-process@3.709.0
- - @aws-sdk/credential-provider-sso@3.712.0
- - @aws-sdk/credential-provider-web-identity@3.709.0
+ - @aws-sdk/credential-provider-process@3.713.0
+ - @aws-sdk/credential-provider-sso@3.713.0
+ - @aws-sdk/credential-provider-web-identity@3.713.0
 
 These packages each contain the following license:
 
@@ -4628,7 +4628,7 @@ Apache License
 
 The following npm packages may be included in this product:
 
- - @aws-sdk/middleware-logger@3.709.0
+ - @aws-sdk/middleware-logger@3.713.0
  - @smithy/node-config-provider@2.3.0
  - @smithy/node-config-provider@3.1.12
  - @smithy/util-config-provider@3.0.0
@@ -5318,8 +5318,8 @@ END OF TERMS AND CONDITIONS
 
 The following npm packages may be included in this product:
 
- - @aws-sdk/core@3.709.0
- - @aws-sdk/credential-provider-http@3.709.0
+ - @aws-sdk/core@3.713.0
+ - @aws-sdk/credential-provider-http@3.713.0
 
 These packages each contain the following license:
 
@@ -7891,9 +7891,9 @@ The following npm packages may be included in this product:
  - @tokenizer/token@0.3.0
  - agent-base@6.0.2
  - eastasianwidth@0.2.0
- - genaiscript-core-internal@1.85.0
- - genaiscript-sample@1.85.0
- - genaiscript@1.85.0
+ - genaiscript-core-internal@1.85.1
+ - genaiscript-sample@1.85.1
+ - genaiscript@1.85.1
  - https-proxy-agent@5.0.1
  - isarray@1.0.0
  - javascript-natural-sort@0.7.1
@@ -9166,7 +9166,7 @@ The following npm packages may be included in this product:
  - temp-dir@3.0.0
  - tempy@3.1.0
  - type-fest@1.4.0
- - type-fest@4.30.1
+ - type-fest@4.30.2
  - unicorn-magic@0.3.0
  - unique-string@3.0.0
  - wrap-ansi@7.0.0
