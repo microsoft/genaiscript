@@ -258,12 +258,6 @@ export class GenerationStats {
         const c = this.cost()
         if (this.model && isNaN(c) && isCosteable(this.model))
             unknowns.add(this.model)
-        const au = this.accumulatedUsage()
-        if (au?.total_tokens > 0 && (this.resolvedModel || c)) {
-            logVerbose(
-                `${indent}${this.label ? `${this.label} (${this.resolvedModel})` : this.resolvedModel}> ${au.total_tokens} tokens (${au.prompt_tokens} -> ${au.completion_tokens}) ${renderCost(c)}`
-            )
-        }
         if (this.chatTurns.length > 1) {
             const chatTurns = this.chatTurns.slice(0, 10)
             for (const { messages, usage, model: turnModel } of chatTurns) {
@@ -277,7 +271,15 @@ export class GenerationStats {
             if (this.chatTurns.length > chatTurns.length)
                 logVerbose(`${indent}  ...`)
         }
-        for (const child of this.children) child.logTokens(indent + "  ")
+        const children = this.children.slice(0, 10)
+        for (const child of children) child.logTokens(indent + "  ")
+        if (this.children.length > children.length) logVerbose(`${indent}  ...`)
+        const au = this.accumulatedUsage()
+        if (au?.total_tokens > 0 && (this.resolvedModel || c)) {
+            logVerbose(
+                `${indent}${this.label ? `${this.label} (${this.resolvedModel})` : this.resolvedModel}> ${au.total_tokens} tokens (${au.prompt_tokens} -> ${au.completion_tokens}) ${renderCost(c)}`
+            )
+        }
         if (unknowns.size)
             logVerbose(`missing pricing for ${[...unknowns].join(", ")}`)
     }

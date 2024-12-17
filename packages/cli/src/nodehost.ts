@@ -294,7 +294,7 @@ export class NodeHost implements RuntimeHost {
         modelId: string,
         options?: { token?: boolean } & AbortSignalOptions & TraceOptions
     ): Promise<LanguageModelConfiguration> {
-        const { signal, token: askToken } = options || {}
+        const { token: askToken, trace } = options || {}
         const tok = await parseTokenFromEnv(process.env, modelId)
         if (!askToken && tok?.token) tok.token = "***"
         if (askToken && tok && !tok.token) {
@@ -302,26 +302,48 @@ export class NodeHost implements RuntimeHost {
                 tok.provider === MODEL_PROVIDER_AZURE_OPENAI ||
                 tok.provider === MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI
             ) {
-                const azureToken = await this.azureToken.token(
-                    tok.azureCredentialsType,
-                    options
-                )
-                if (!azureToken)
+                const { token: azureToken, error: azureTokenError } =
+                    await this.azureToken.token(
+                        tok.azureCredentialsType,
+                        options
+                    )
+                if (!azureToken) {
+                    if (azureTokenError) {
+                        logError(
+                            `Azure OpenAI token not available for ${modelId}`
+                        )
+                        logVerbose(azureTokenError.message)
+                        trace.error(
+                            `Azure OpenAI token not available for ${modelId}`,
+                            azureTokenError
+                        )
+                    }
                     throw new Error(
                         `Azure OpenAI token not available for ${modelId}`
                     )
+                }
                 tok.token = "Bearer " + azureToken.token
             } else if (
                 tok.provider === MODEL_PROVIDER_AZURE_SERVERLESS_MODELS
             ) {
-                const azureToken = await this.azureServerlessToken.token(
-                    tok.azureCredentialsType,
-                    options
-                )
-                if (!azureToken)
+                const { token: azureToken, error: azureTokenError } =
+                    await this.azureServerlessToken.token(
+                        tok.azureCredentialsType,
+                        options
+                    )
+                if (!azureToken) {
+                    if (azureTokenError) {
+                        logError(`Azure AI token not available for ${modelId}`)
+                        logVerbose(azureTokenError.message)
+                        trace.error(
+                            `Azure AI token not available for ${modelId}`,
+                            azureTokenError
+                        )
+                    }
                     throw new Error(
                         `Azure AI token not available for ${modelId}`
                     )
+                }
                 tok.token = "Bearer " + azureToken.token
             }
         }

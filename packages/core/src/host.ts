@@ -110,7 +110,7 @@ export interface AzureTokenResolver {
     token(
         credentialsType: AzureCredentialsType,
         options?: AbortSignalOptions
-    ): Promise<AuthenticationToken>
+    ): Promise<{ token?: AuthenticationToken; error?: SerializedError }>
 }
 
 export type ModelConfiguration = Readonly<

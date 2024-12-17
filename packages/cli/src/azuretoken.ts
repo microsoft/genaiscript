@@ -8,6 +8,7 @@ import {
 } from "../../core/src/host"
 import { logVerbose } from "../../core/src/util"
 import type { TokenCredential } from "@azure/identity"
+import { serializeError } from "../../core/src/error"
 
 /**
  * This module provides functions to handle Azure authentication tokens,
@@ -63,6 +64,7 @@ export async function createAzureToken(
             credential = new DefaultAzureCredential()
             break
     }
+
     // Obtain the Azure token using the DefaultAzureCredential
     const azureToken = await credential.getToken(scopes.slice(), {
         abortSignal,
@@ -87,7 +89,8 @@ export async function createAzureToken(
 
 class AzureTokenResolverImpl implements AzureTokenResolver {
     _token: AuthenticationToken
-    _resolver: Promise<AuthenticationToken>
+    _error: any
+    _resolver: Promise<{ token?: AuthenticationToken; error?: SerializedError }>
 
     constructor(
         public readonly name: string,
@@ -95,15 +98,20 @@ class AzureTokenResolverImpl implements AzureTokenResolver {
         public readonly scopes: readonly string[]
     ) {}
 
+    get error(): SerializedError {
+        return this._error
+    }
+
     async token(
         credentialsType: AzureCredentialsType,
         optoins?: { signal?: AbortSignal }
-    ): Promise<AuthenticationToken> {
+    ): Promise<{ token?: AuthenticationToken; error?: SerializedError }> {
         // cached
         const { signal } = optoins || {}
 
         if (isAzureTokenExpired(this._token)) this._token = undefined
-        if (this._token) return this._token
+        if (this._token || this._error)
+            return { token: this._token, error: this._error }
         if (!this._resolver) {
             const scope = await runtimeHost.readSecret(this.envName)
             const scopes = scope ? scope.split(",") : this.scopes
@@ -111,11 +119,19 @@ class AzureTokenResolverImpl implements AzureTokenResolver {
                 scopes,
                 credentialsType,
                 signal || new AbortController().signal
-            ).then((res) => {
-                this._token = res
-                this._resolver = undefined
-                return res
-            })
+            )
+                .then((res) => {
+                    this._token = res
+                    this._error = undefined
+                    this._resolver = undefined
+                    return { token: this._token, error: this._error }
+                })
+                .catch((err) => {
+                    this._resolver = undefined
+                    this._token = undefined
+                    this._error = serializeError(err)
+                    return { token: this._token, error: this._error }
+                })
         }
         return this._resolver
     }
