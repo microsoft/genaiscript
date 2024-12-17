@@ -3,6 +3,7 @@
 // Script for analyzing GitHub Action runs to determine the cause of a failure.
 script({
     title: "GitHub Action Investigator",
+    model: "reasoning",
     description:
         "Analyze GitHub Action runs to find the root cause of a failure",
     parameters: {

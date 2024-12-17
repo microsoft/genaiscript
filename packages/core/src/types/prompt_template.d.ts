@@ -122,6 +122,8 @@ type ModelType = OptionsOrString<
     | "large"
     | "small"
     | "vision"
+    | "reasoning"
+    | "reasoning_small"
     | "openai:gpt-4o"
     | "openai:gpt-4o-mini"
     | "openai:gpt-3.5-turbo"
@@ -219,7 +221,9 @@ interface ModelOptions extends ModelConnectionOptions, ModelTemplateOptions {
     /**
      * A list of keywords that should be found in the output.
      */
-    choices?: ElementOrArray<string | { token: string | number; weight?: number }>
+    choices?: ElementOrArray<
+        string | { token: string | number; weight?: number }
+    >
 
     /**
      * Returns the log probabilities of the each tokens. Not supported in all models.
