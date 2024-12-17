@@ -22,7 +22,7 @@ export async function writeText(fn: string, content: string) {
 
 export async function fileExists(fn: string) {
     try {
-        return await host.readFile(fn) !== undefined
+        return (await host.readFile(fn)) !== undefined
     } catch {
         return false
     }

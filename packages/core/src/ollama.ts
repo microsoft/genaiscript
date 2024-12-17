@@ -51,6 +51,7 @@ const OllamaCompletion: ChatCompletionHandler = async (
                     body: JSON.stringify({ name: model, stream: false }),
                 })
                 if (!res.ok) {
+                    trace.error(`ollama: failed to pull model ${model}`)
                     throw new Error(
                         `Failed to pull model ${model}: ${res.status} ${res.statusText}`
                     )

@@ -37,6 +37,7 @@ import {
     OPENAI_MAX_RETRY_DELAY,
     OPENAI_RETRY_DEFAULT_DEFAULT,
     OPENAI_MAX_RETRY_COUNT,
+    GENAI_MD_EXT,
 } from "../../core/src/constants" // Core constants
 import {
     errorMessage,
@@ -47,6 +48,7 @@ import {
 import { CORE_VERSION, GITHUB_REPO } from "../../core/src/version" // Core version and repository info
 import { logVerbose } from "../../core/src/util" // Utility logging
 import { semverSatisfies } from "../../core/src/semver" // Semantic version checking
+import { convertFiles } from "./convert"
 
 /**
  * Main function to initialize and run the CLI.
@@ -177,7 +179,7 @@ export async function cli() {
             "-em, --embeddings-model <string>",
             "embeddings model for the run"
         )
-        .option("--cache", "enable LLM result cache")
+        .option("-c, --cache", "enable LLM result cache")
         .option("-cn, --cache-name <name>", "custom cache file name")
         .option("-cs, --csv-separator <string>", "csv separator", "\t")
         .addOption(
@@ -245,6 +247,51 @@ export async function cli() {
         .description("Launch test viewer")
         .action(scriptTestsView) // Action to view the tests
 
+    program
+        .command("convert")
+        .description(
+            "Converts file through a GenAIScript. Each file is processed separately through the GenAIScript and the LLM output is saved to a <filename>.genai.md (or custom suffix)."
+        )
+        .arguments("<script> [files...]")
+        .option(
+            "-s, --suffix <string>",
+            "suffix for converted files",
+            GENAI_MD_EXT
+        )
+        .option("-rw, --rewrite", "rewrite input file with output")
+        .option(
+            "-cw, --cancel-word <string>",
+            "cancel word which allows the LLM to notify to ignore output"
+        )
+        .option("-ef, --excluded-files <string...>", "excluded files")
+        .option(
+            "-egi, --exclude-git-ignore",
+            "exclude files that are ignored through the .gitignore file in the workspace root"
+        )
+        .option("-m, --model <string>", "'large' model alias (default)")
+        .option("-sm, --small-model <string>", "'small' alias model")
+        .option("-vm, --vision-model <string>", "'vision' alias model")
+        .option("-ma, --model-alias <nameid...>", "model alias as name=modelid")
+        .option(
+            "-ft, --fallback-tools",
+            "Enable prompt-based tools instead of builtin LLM tool calling builtin tool calls"
+        )
+        .option(
+            "-o, --out <string>",
+            "output folder. Extra markdown fields for output and trace will also be generated"
+        )
+        .option(
+            "--vars <namevalue...>",
+            "variables, as name=value, stored in env.vars. Use environment variables GENAISCRIPT_VAR_name=value to pass variable through the environment"
+        )
+        .option("-c, --cache", "enable LLM result cache")
+        .option("-cn, --cache-name <name>", "custom cache file name")
+        .option(
+            "-cc, --concurrency <number>",
+            "number of concurrent conversions"
+        )
+        .action(convertFiles)
+
     // Define 'scripts' command group for script management tasks
     const scripts = program
         .command("scripts")
@@ -281,7 +328,7 @@ export async function cli() {
 
     // Define 'cache' command for cache management
     const cache = program.command("cache").description("Cache management")
-    const clear = cache
+    cache
         .command("clear")
         .description("Clear cache")
         .argument("[name]", "Name of the cache, tests")

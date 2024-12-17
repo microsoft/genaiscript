@@ -1,0 +1,83 @@
+---
+title: Convert
+description: Learn how to apply a script to many files and extract the output.
+sidebar:
+    order: 2
+keywords: CLI tool execution, genai script running, stdout streaming, file globing, environment configuration
+---
+
+Converts a set of files, separately, using a script.
+
+```bash
+npx genaiscript convert <script> "<files...>"
+```
+
+where `<script>` is the id or file path of the tool to run, and `<files...>` is the name of the spec file to run it on.
+Unlike `run` which works on all files at once, `convert` processes each file individually.
+
+## Files
+
+`convert` takes one or more [glob](<https://en.wikipedia.org/wiki/Glob_(programming)>) patterns to match files in the workspace.
+
+```bash sh
+npx genaiscript run <script> "**/*.md" "**/*.ts"
+```
+
+### --excluded-files &lt;files...&gt;
+
+Excludes the specified files from the file set.
+
+```sh "--excluded-files <excluded-files...>"
+npx genaiscript convert <script> <files> --excluded-files <excluded-files...>
+```
+
+### --exclude-git-ignore
+
+Exclude files ignored by the `.gitignore` file at the workspace root.
+
+```sh "--exclude-git-ignore"
+npx genaiscript convert <script> <files> --exclude-git-ignore
+```
+
+## Output
+
+The output of each file is saved to a new or existing file. You can control the logic to decide which part of the output to save where to save it.
+By default, a conversion result of a file `<filename>` is saved to a file `<filename>.genai.md`.
+
+### --suffix &lt;suffix&gt;
+
+The `--suffix` option allows you to specify a suffix to append to the output file name.
+
+```sh "--suffix .genai.txt"
+npx genaiscript convert <script> <files> --suffix .genai.txt
+```
+
+GenAIScript will "unfence" output in the markdown that match the suffix (after `.genai`) automatically. So if the LLM generates
+
+````markdown
+```txt
+:)
+```
+````
+
+The converted content in `<filename>.genai.txt` will be `:)`.
+
+### --rewrite
+
+This flag override `suffix` and tells GenAIScript to rewrite the original file with the converted content.
+
+```sh "--rewrite"
+npx genaiscript convert <script> <files> --rewrite
+```
+
+### --cancel-word &lt;word&gt;
+
+Specify the "ignore output, nothing to see here" keyword using the `-cw` flag.
+
+```sh '--cancel-word "<NO>"'
+npx genaiscript convert <script> <files> --cancel-word "<NO>"
+```
+
+## Read more
+
+The full list of options is available in the [CLI reference](/genaiscript/reference/cli/commands#convert).

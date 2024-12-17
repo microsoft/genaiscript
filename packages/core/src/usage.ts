@@ -258,8 +258,8 @@ export class GenerationStats {
         const c = this.cost()
         if (this.model && isNaN(c) && isCosteable(this.model))
             unknowns.add(this.model)
-        if (this.resolvedModel || c) {
-            const au = this.accumulatedUsage()
+        const au = this.accumulatedUsage()
+        if (au?.total_tokens > 0 && (this.resolvedModel || c)) {
             logVerbose(
                 `${indent}${this.label ? `${this.label} (${this.resolvedModel})` : this.resolvedModel}> ${au.total_tokens} tokens (${au.prompt_tokens} -> ${au.completion_tokens}) ${renderCost(c)}`
             )

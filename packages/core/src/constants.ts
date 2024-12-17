@@ -26,6 +26,7 @@ export const CLI_JS = TOOL_ID + ".cjs"
 export const GENAI_SRC = "genaisrc"
 export const GENAI_JS_EXT = ".genai.js"
 export const GENAI_MJS_EXT = ".genai.mjs"
+export const GENAI_MD_EXT = ".genai.md"
 export const GENAI_ANYJS_GLOB =
     "**/*{.genai.js,.genai.mjs,.genai.ts,.genai.mts,.prompty}"
 export const GENAI_ANY_REGEX = /\.(genai\.(ts|mts|mjs|js)|prompty)$/i

@@ -12,7 +12,7 @@ Runs a script on files and streams the LLM output to stdout or a folder from the
 npx genaiscript run <script> "<files...>"
 ```
 
-where `<script>` is the id or file path of the tool to run, and `[spec]` is the name of the spec file to run it on.
+where `<script>` is the id or file path of the tool to run, and `<files...>` is the name of the spec file to run it on.
 
 Files can also include [glob](<https://en.wikipedia.org/wiki/Glob_(programming)>) pattern.
 
@@ -25,12 +25,6 @@ If multiple files are specified, all files are included in `env.files`.
 ```sh
 npx genaiscript run <script> "src/*.bicep" "src/*.ts"
 ```
-
-## Credentials
-
-The LLM connection configuration is read from environment variables or from a `.env` file in the workspace root directory.
-
-See [configuration](/genaiscript/getting-started/configuration).
 
 ## Files
 

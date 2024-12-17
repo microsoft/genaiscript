@@ -49,7 +49,7 @@ Options:
   -mtc, --max-tool-calls <number>            maximum tool calls for the run
   -se, --seed <number>                       seed for the run
   -em, --embeddings-model <string>           embeddings model for the run
-  --cache                                    enable LLM result cache
+  -c, --cache                                enable LLM result cache
   -cn, --cache-name <name>                   custom cache file name
   -cs, --csv-separator <string>              csv separator (default: "\t")
   -ff, --fence-format <string>               fence format (choices: "xml", "markdown", "none")
@@ -127,6 +127,43 @@ Launch test viewer
 
 Options:
   -h, --help  display help for command
+```
+
+## `convert`
+
+```
+Usage: genaiscript convert [options] <script> [files...]
+
+Converts file through a GenAIScript. Each file is processed separately through
+the GenAIScript and the LLM output is saved to a <filename>.genai.md (or custom
+suffix).
+
+Options:
+  -s, --suffix <string>              suffix for converted files (default:
+                                     ".genai.md")
+  -rw, --rewrite                     rewrite input file with output
+  -cw, --cancel-word <string>        cancel word which allows the LLM to notify
+                                     to ignore output
+  -ef, --excluded-files <string...>  excluded files
+  -egi, --exclude-git-ignore         exclude files that are ignored through the
+                                     .gitignore file in the workspace root
+  -m, --model <string>               'large' model alias (default)
+  -sm, --small-model <string>        'small' alias model
+  -vm, --vision-model <string>       'vision' alias model
+  -ma, --model-alias <nameid...>     model alias as name=modelid
+  -ft, --fallback-tools              Enable prompt-based tools instead of
+                                     builtin LLM tool calling builtin tool
+                                     calls
+  -o, --out <string>                 output folder. Extra markdown fields for
+                                     output and trace will also be generated
+  --vars <namevalue...>              variables, as name=value, stored in
+                                     env.vars. Use environment variables
+                                     GENAISCRIPT_VAR_name=value to pass
+                                     variable through the environment
+  -c, --cache                        enable LLM result cache
+  -cn, --cache-name <name>           custom cache file name
+  -cc, --concurrency <number>        number of concurrent conversions
+  -h, --help                         display help for command
 ```
 
 ## `scripts`
