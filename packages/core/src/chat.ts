@@ -786,16 +786,16 @@ async function choicesToLogitBias(
     return res
 }
 
-function collapseChatMessages(messages: ChatCompletionMessageParam[]) {
-    /*
+export function collapseChatMessages(messages: ChatCompletionMessageParam[]) {
     // concat the content of system messages at the start of the messages into a single message
     const startSystem = messages.findIndex((m) => m.role === "system")
     if (startSystem > -1) {
-        const endSystem =
+        let endSystem =
             startSystem +
             messages
                 .slice(startSystem)
                 .findIndex((m) => m.role !== "system" || m.cacheControl)
+        if (endSystem < 0) endSystem = messages.length
         if (endSystem > startSystem + 1) {
             const systemContent = messages
                 .slice(startSystem, endSystem)
@@ -807,36 +807,6 @@ function collapseChatMessages(messages: ChatCompletionMessageParam[]) {
             })
         }
     }
-
-    // concat the user messages at the start into a single message
-    const startUser = messages.findIndex((m) => m.role === "user")
-    if (startUser > -1) {
-        const endUser =
-            startUser +
-            messages
-                .slice(startUser)
-                .findIndex((m) => m.role !== "user" || m.cacheControl)
-        if (endUser > startUser + 1) {
-            const msg: ChatCompletionUserMessageParam = {
-                role: "user",
-                content: messages
-                    .slice(startUser, endUser)
-                    .flatMap<ChatCompletionContentPart>((m) => {
-                        const mu = m as ChatCompletionUserMessageParam
-                        return typeof mu.content === "string"
-                            ? ([
-                                  {
-                                      type: "text",
-                                      text: mu.content,
-                                  } satisfies ChatCompletionContentPartText,
-                              ] satisfies ChatCompletionContentPart[])
-                            : mu.content
-                    }),
-            }
-            messages.splice(startUser, endUser - startUser, msg)
-        }
-    }
-    */
 }
 
 export async function executeChatSession(
