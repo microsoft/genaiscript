@@ -28,6 +28,9 @@ import { JSONLLMTryParse, JSONTryParse } from "../../core/src/json5"
 import { applyModelOptions } from "./modealias"
 import { ensureDotGenaiscriptPath, setupTraceWriting } from "./trace"
 import { tracePromptResult } from "../../core/src/chat"
+import { dirname, join } from "node:path"
+import { link } from "../../core/src/markdown"
+import { hash } from "../../core/src/crypto"
 
 export async function convertFiles(
     scriptId: string,
@@ -53,10 +56,12 @@ export async function convertFiles(
     const outTrace = dotGenaiscriptPath(
         CONVERTS_DIR_NAME,
         host.path.basename(scriptId).replace(GENAI_ANYTS_REGEX, ""),
-        `${new Date().toISOString().replace(/[:.]/g, "-")}.trace.md`
+        `${new Date().toISOString().replace(/[:.]/g, "-")}`,
+        `trace.md`
     )
     const trace = new MarkdownTrace()
     const outTraceFilename = await setupTraceWriting(trace, outTrace)
+    const outTraceDir = dirname(outTraceFilename)
 
     const fail = (msg: string, exitCode: number, url?: string) => {
         throw new Error(msg)
@@ -125,11 +130,18 @@ export async function convertFiles(
     await p.mapAll(files, async (file) => {
         const outf = rewrite ? file.filename : file.filename + suffix
         logInfo(`${file.filename} -> ${outf}`)
+        const fileOutTrace = join(
+            outTraceDir,
+            (await hash(file.filename, { length: 7 })) + ".md"
+        )
         const fileTrace = trace.startTraceDetails(file.filename)
+        trace.item(link("trace", fileOutTrace))
+        logVerbose(`trace: ${fileOutTrace}`)
         try {
             // apply AI transformation
             const result = await run(script.filename, file.filename, {
                 label: file.filename,
+                outTrace: fileOutTrace,
                 ...restOptions,
             })
             tracePromptResult(fileTrace, result)
