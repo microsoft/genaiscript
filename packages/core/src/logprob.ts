@@ -34,6 +34,12 @@ function logprobToPercent(value: number): number {
     return linearProbability
 }
 
+export function renderLogprob(logprob: number): string {
+    return isNaN(logprob)
+        ? `--`
+        : `${logprobToPercent(logprob)}% (${roundWithPrecision(logprob, 2)})`
+}
+
 export function logprobColor(
     logprob: Logprob,
     options?: { maxIntensity?: number; entropy?: boolean }
@@ -64,7 +70,7 @@ export function logprobToMarkdown(
     const c = rgbToCss(logprobColor(value, options))
     const title = options?.entropy
         ? roundWithPrecision(entropy, 2)
-        : `${logprobToPercent(logprob)}% (${roundWithPrecision(logprob, 2)})`
+        : renderLogprob(logprob)
     let text = HTMLEscape(token).replace(/</g, "&lt;").replace(/>/g, "&gt;")
     if (options?.eatSpaces) text = text.replace(/\n/g, " ")
     else text = text.replace(/ /g, "&nbsp;").replace(/\n/g, "<br/>")

@@ -8,4 +8,4 @@ const res = await runPrompt(
 )
 if (!res.text.includes("OK") && !res.text.includes("ERR"))
     throw new Error("Invalid response")
-$`Is this correct? 1+1=3. Answer with OK or ERR.`
+$`Is this correct? 1+1=2. Answer with OK or ERR.`
