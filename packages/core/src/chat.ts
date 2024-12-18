@@ -1029,6 +1029,10 @@ function updateChatFeatures(
         delete req.logprobs
         delete req.top_logprobs
     }
+    if (req.prediction && features?.prediction === false) {
+        logVerbose(`prediciont: disabled, not supported by ${provider}`)
+        delete req.prediction
+    }
     if (
         req.top_logprobs &&
         (features?.logprobs === false || features?.topLogprobs === false)

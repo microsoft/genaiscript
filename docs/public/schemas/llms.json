@@ -50,6 +50,10 @@
                     "openaiCompatibility": {
                         "type": "string",
                         "description": "Uses OpenAI API compatibility layer documentation URL"
+                    },
+                    "prediction": {
+                        "type": "boolean",
+                        "description": "Indicates if 'prediction' message are supported"
                     }
                 },
                 "additionalProperties": false,
