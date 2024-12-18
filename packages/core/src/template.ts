@@ -413,7 +413,7 @@ async function parsePromptTemplateCore(
             checker.checkString("cacheName")
             checker.checkString("filename")
             checker.checkString("contentSafety")
-            checker.checkStringArray("choices")
+            checker.checkAny("choices", (v) => v)
             checker.checkNumber("topLogprobs")
 
             checker.checkRecord("modelConcurrency")
