@@ -3,6 +3,7 @@ import {
     GENAI_ANY_REGEX,
     GENAI_MD_EXT,
     HTTPS_REGEX,
+    JSON5_REGEX,
 } from "../../core/src/constants"
 import { filePathOrUrlToWorkspaceFile, tryReadText } from "../../core/src/fs"
 import { host } from "../../core/src/host"
@@ -20,6 +21,7 @@ import { PromptScriptRunOptions } from "./main"
 import { PLimitPromiseQueue } from "../../core/src/concurrency"
 import { createPatch } from "diff"
 import { unfence } from "../../core/src/fence"
+import { JSONLLMTryParse, JSONTryParse } from "../../core/src/json5"
 
 export async function convertFiles(
     scriptId: string,
@@ -154,6 +156,19 @@ export async function convertFiles(
                 text = fence.content
             }
             if (text === undefined) text = unfence(result.text, "markdown")
+
+            // normalize JSON
+            if (JSON5_REGEX.test(outf) && text) {
+                // normalize data
+                let data = JSONTryParse(text)
+                if (data === undefined) {
+                    data = JSONLLMTryParse(text)
+                    if (data !== undefined) {
+                        logVerbose("repair json")
+                        text = JSON.stringify(text, null, 2)
+                    }
+                }
+            }
 
             // save file
             const existing = await tryReadText(outf)

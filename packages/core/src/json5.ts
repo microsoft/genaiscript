@@ -27,6 +27,19 @@ export function isJSONObjectOrArray(text: string) {
 }
 
 /**
+ * Attempts to parse text as JSON. Returns undefined if fails.
+ * @param text
+ * @returns
+ */
+export function JSONTryParse(text: string) {
+    try {
+        return JSON.parse(text)
+    } catch (e) {
+        return undefined
+    }
+}
+
+/**
  * Repairs a potentially broken JSON string using jsonrepair.
  * @param text - The JSON string to repair.
  * @returns The repaired JSON string.
