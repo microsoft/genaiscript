@@ -39,7 +39,6 @@ import { splitMarkdown } from "../../core/src/frontmatter"
 import { parseOptionsVars } from "./vars"
 import { XMLParse } from "../../core/src/xml"
 import { resolveFileContent } from "../../core/src/file"
-import path from "node:path"
 
 /**
  * This module provides various parsing utilities for different file types such
@@ -72,12 +71,12 @@ export async function parsePDF(
     const { images, out } = options
     const { content, pages } = await parsePdf(file, { renderAsImage: images })
     if (out) {
-        const fn = path.basename(file)
-        console.log(`writing ${path.join(out, fn + ".txt")}`)
-        await writeText(path.join(out, fn + ".txt"), content || "")
+        const fn = basename(file)
+        console.log(`writing ${join(out, fn + ".txt")}`)
+        await writeText(join(out, fn + ".txt"), content || "")
         for (const page of pages) {
             if (page.image) {
-                const n = path.join(out, fn + ".page" + page.index + ".png")
+                const n = join(out, fn + ".page" + page.index + ".png")
                 console.log(`writing ${n}`)
                 await writeFile(n, page.image)
             }

@@ -1,7 +1,7 @@
 import { ensureDir, exists } from "fs-extra"
 import { MarkdownTrace, TraceChunkEvent } from "../../core/src/trace"
 import { dotGenaiscriptPath, logVerbose } from "../../core/src/util"
-import { dirname } from "node:path"
+import { dirname, join } from "node:path"
 import { appendFileSync, writeFileSync } from "node:fs"
 import { TRACE_CHUNK, TRACE_DETAILS } from "../../core/src/constants"
 import { writeFile } from "node:fs/promises"
@@ -34,7 +34,7 @@ export async function ensureDotGenaiscriptPath() {
 
     await ensureDir(dir)
     await writeFile(
-        path.join(dir, ".gitattributes"),
+        join(dir, ".gitattributes"),
         `# avoid merge issues and ignore files in diffs
 *.json -diff merge=ours linguist-generated
 *.jsonl -diff merge=ours linguist-generated        
@@ -42,5 +42,5 @@ export async function ensureDotGenaiscriptPath() {
 `,
         { encoding: "utf-8" }
     )
-    await writeFile(path.join(dir, ".gitignore"), "*\n", { encoding: "utf-8" })
+    await writeFile(join(dir, ".gitignore"), "*\n", { encoding: "utf-8" })
 }
