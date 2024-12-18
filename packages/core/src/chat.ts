@@ -1049,8 +1049,11 @@ function updateChatFeatures(
     deleteUndefinedValues(req)
 }
 
-export function tracePromptResult(trace: MarkdownTrace, resp: RunPromptResult) {
-    const { json, text } = resp
+export function tracePromptResult(
+    trace: MarkdownTrace,
+    resp: { text?: string }
+) {
+    const { text } = resp
 
     // try to sniff the output type
     const language = JSON5TryParse(text)

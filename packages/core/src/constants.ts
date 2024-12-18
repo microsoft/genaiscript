@@ -177,6 +177,7 @@ export const PROMPTFOO_CONFIG_DIR = ".genaiscript/config/tests"
 export const PROMPTFOO_REMOTE_API_PORT = 15500
 
 export const RUNS_DIR_NAME = "runs"
+export const CONVERTS_DIR_NAME = "converts"
 export const TEST_RUNS_DIR_NAME = "test-runs"
 export const STATS_DIR_NAME = "stats"
 

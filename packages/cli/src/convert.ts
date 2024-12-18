@@ -1,6 +1,8 @@
 import {
+    CONVERTS_DIR_NAME,
     FILES_NOT_FOUND_ERROR_CODE,
     GENAI_ANY_REGEX,
+    GENAI_ANYTS_REGEX,
     GENAI_MD_EXT,
     HTTPS_REGEX,
     JSON5_REGEX,
@@ -9,6 +11,7 @@ import { filePathOrUrlToWorkspaceFile, tryReadText } from "../../core/src/fs"
 import { host } from "../../core/src/host"
 import { MarkdownTrace, TraceOptions } from "../../core/src/trace"
 import {
+    dotGenaiscriptPath,
     logError,
     logInfo,
     logVerbose,
@@ -22,6 +25,9 @@ import { PLimitPromiseQueue } from "../../core/src/concurrency"
 import { createPatch } from "diff"
 import { unfence } from "../../core/src/fence"
 import { JSONLLMTryParse, JSONTryParse } from "../../core/src/json5"
+import { applyModelOptions } from "./modealias"
+import { ensureDotGenaiscriptPath, setupTraceWriting } from "./trace"
+import { tracePromptResult } from "../../core/src/chat"
 
 export async function convertFiles(
     scriptId: string,
@@ -31,18 +37,27 @@ export async function convertFiles(
         rewrite?: boolean
         cancelWord?: string
         concurrency?: string
-    } & TraceOptions
+    }
 ): Promise<void> {
     const {
-        trace = new MarkdownTrace(),
         excludedFiles,
         excludeGitIgnore,
-        suffix = GENAI_MD_EXT,
         rewrite,
         cancelWord,
         concurrency,
         ...restOptions
     } = options || {}
+
+    await ensureDotGenaiscriptPath()
+    applyModelOptions(options)
+    const outTrace = dotGenaiscriptPath(
+        CONVERTS_DIR_NAME,
+        host.path.basename(scriptId).replace(GENAI_ANYTS_REGEX, ""),
+        `${new Date().toISOString().replace(/[:.]/g, "-")}.trace.md`
+    )
+    const trace = new MarkdownTrace()
+    const outTraceFilename = await setupTraceWriting(trace, outTrace)
+
     const fail = (msg: string, exitCode: number, url?: string) => {
         throw new Error(msg)
     }
@@ -60,7 +75,14 @@ export async function convertFiles(
                 GENAI_ANY_REGEX.test(scriptId) &&
                 resolve(t.filename) === resolve(scriptId))
     )
-    if (!script) throw new Error(`script ${scriptId} not found`)
+    if (!script) {
+        trace.error(`script ${scriptId} not found`)
+        throw new Error(`script ${scriptId} not found`)
+    }
+
+    const suffix = options?.suffix || `.genai.${script.id}.md`
+    trace.heading(2, `convert with ${script.id}`)
+    trace.itemValue(`suffix`, suffix)
 
     // resolve files
     const resolvedFiles = new Set<string>()
@@ -98,6 +120,7 @@ export async function convertFiles(
         (filename) => ({ filename }) as WorkspaceFile
     )
 
+    const results: Record<string, string> = {}
     const p = new PLimitPromiseQueue(normalizeInt(concurrency) || 1)
     await p.mapAll(files, async (file) => {
         const outf = rewrite ? file.filename : file.filename + suffix
@@ -109,6 +132,7 @@ export async function convertFiles(
                 label: file.filename,
                 ...restOptions,
             })
+            tracePromptResult(fileTrace, result)
             const { error } = result || {}
             if (error) {
                 logError(error)
@@ -117,11 +141,13 @@ export async function convertFiles(
             }
             if (result.status === "cancelled") {
                 logVerbose(`cancelled ${file.filename}`)
+                fileTrace.item(`cancelled`)
                 return
             }
             // LLM canceled
             if (cancelWord && result?.text?.includes(cancelWord)) {
                 logVerbose(`cancel word detected, skipping ${file.filename}`)
+                fileTrace.itemValue(`cancel word detected`, cancelWord)
                 return
             }
             logVerbose(Object.keys(result.fileEdits || {}).join("\n"))
@@ -173,23 +199,29 @@ export async function convertFiles(
             // save file
             const existing = await tryReadText(outf)
             if (text && existing !== text) {
-                const patch = createPatch(
-                    outf,
-                    existing || "",
-                    text || "",
-                    undefined,
-                    undefined,
-                    {}
-                )
-                logVerbose(patch)
+                if (rewrite) {
+                    const patch = createPatch(
+                        outf,
+                        existing || "",
+                        text || "",
+                        undefined,
+                        undefined,
+                        {}
+                    )
+                    logVerbose(patch)
+                }
                 await writeText(outf, text)
             }
+
+            results[file.filename] = text
         } catch (error) {
             logError(error)
             fileTrace.error(undefined, error)
         } finally {
             logVerbose("")
-            trace.endDetails()
+            fileTrace.endDetails()
         }
     })
+
+    logVerbose(`trace: ${outTraceFilename}`)
 }

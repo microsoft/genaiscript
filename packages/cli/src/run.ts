@@ -1,7 +1,7 @@
 import { capitalize } from "inflection"
-import path, { resolve, join, relative, dirname } from "node:path"
+import { resolve, join, relative } from "node:path"
 import { consoleColors, isQuiet, wrapColor, wrapRgbColor } from "./log"
-import { emptyDir, ensureDir, appendFileSync, exists } from "fs-extra"
+import { emptyDir, ensureDir, exists } from "fs-extra"
 import { convertDiagnosticsToSARIF } from "./sarif"
 import { buildProject } from "./build"
 import { diagnosticsToCSV } from "../../core/src/ast"
@@ -25,13 +25,11 @@ import {
     CLI_RUN_FILES_FOLDER,
     ANNOTATION_ERROR_CODE,
     GENAI_ANY_REGEX,
-    TRACE_CHUNK,
     UNRECOVERABLE_ERROR_CODES,
     SUCCESS_ERROR_CODE,
     RUNS_DIR_NAME,
     CONSOLE_COLOR_DEBUG,
     DOCS_CONFIGURATION_URL,
-    TRACE_DETAILS,
     STATS_DIR_NAME,
     GENAI_ANYTS_REGEX,
     CONSOLE_TOKEN_COLORS,
@@ -39,7 +37,6 @@ import {
 } from "../../core/src/constants"
 import { isCancelError, errorMessage } from "../../core/src/error"
 import { Fragment, GenerationResult } from "../../core/src/generation"
-import { parseKeyValuePair } from "../../core/src/fence"
 import { filePathOrUrlToWorkspaceFile, writeText } from "../../core/src/fs"
 import { host, runtimeHost } from "../../core/src/host"
 import { isJSONLFilename, appendJSONL } from "../../core/src/jsonl"
@@ -48,11 +45,7 @@ import {
     JSONSchemaStringifyToTypeScript,
     JSONSchemaStringify,
 } from "../../core/src/schema"
-import {
-    TraceOptions,
-    MarkdownTrace,
-    TraceChunkEvent,
-} from "../../core/src/trace"
+import { TraceOptions, MarkdownTrace } from "../../core/src/trace"
 import {
     normalizeFloat,
     normalizeInt,
@@ -73,7 +66,6 @@ import {
 } from "../../core/src/azuredevops"
 import { resolveTokenEncoder } from "../../core/src/encoders"
 import { writeFile } from "fs/promises"
-import { writeFileSync } from "node:fs"
 import { prettifyMarkdown } from "../../core/src/markdown"
 import { delay } from "es-toolkit"
 import { GenerationStats } from "../../core/src/usage"
@@ -81,48 +73,13 @@ import { traceAgentMemory } from "../../core/src/agent"
 import { appendFile } from "node:fs/promises"
 import { parseOptionsVars } from "./vars"
 import { logprobColor } from "../../core/src/logprob"
-import { structuralMerge } from "../../core/src/merge"
 import {
     overrideStdoutWithStdErr,
     stderr,
     stdout,
 } from "../../core/src/logging"
-
-async function setupTraceWriting(trace: MarkdownTrace, filename: string) {
-    logVerbose(`  trace: ${filename}`)
-    await ensureDir(dirname(filename))
-    await writeFile(filename, "", { encoding: "utf-8" })
-    trace.addEventListener(
-        TRACE_CHUNK,
-        (ev) => {
-            const tev = ev as TraceChunkEvent
-            appendFileSync(filename, tev.chunk, { encoding: "utf-8" })
-        },
-        false
-    )
-    trace.addEventListener(TRACE_DETAILS, (ev) => {
-        const content = trace.content
-        writeFileSync(filename, content, { encoding: "utf-8" })
-    })
-    return filename
-}
-
-async function ensureDotGenaiscriptPath() {
-    const dir = dotGenaiscriptPath(".")
-    if (await exists(dir)) return
-
-    await ensureDir(dir)
-    await writeFile(
-        path.join(dir, ".gitattributes"),
-        `# avoid merge issues and ignore files in diffs
-*.json -diff merge=ours linguist-generated
-*.jsonl -diff merge=ours linguist-generated        
-*.js -diff merge=ours linguist-generated
-`,
-        { encoding: "utf-8" }
-    )
-    await writeFile(path.join(dir, ".gitignore"), "*\n", { encoding: "utf-8" })
-}
+import { ensureDotGenaiscriptPath, setupTraceWriting } from "./trace"
+import { applyModelOptions } from "./modealias"
 
 export async function runScriptWithExitCode(
     scriptId: string,
@@ -212,14 +169,7 @@ export async function runScriptInternal(
     const fenceFormat = options.fenceFormat
 
     if (options.json || options.yaml) overrideStdoutWithStdErr()
-    if (options.model) runtimeHost.setModelAlias("cli", "large", options.model)
-    if (options.smallModel) runtimeHost.setModelAlias("cli", "small", options.smallModel)
-    if (options.visionModel) runtimeHost.setModelAlias("cli", "vision", options.visionModel)
-    for (const kv of options.modelAlias || []) {
-        const aliases = parseKeyValuePair(kv)
-        for (const [key, value] of Object.entries(aliases))
-            runtimeHost.setModelAlias("cli", key, value)
-    }
+    applyModelOptions(options)
 
     const fail = (msg: string, exitCode: number, url?: string) => {
         logError(url ? `${msg} (see ${url})` : msg)

@@ -103,7 +103,7 @@ export interface PromptScriptRunOptions {
 }
 
 export interface PromptScriptList extends RequestMessage {
-    type: "script.list"    
+    type: "script.list"
 }
 
 export interface promptScriptListResponse extends ResponseStatus {
