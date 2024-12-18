@@ -84,7 +84,7 @@ export interface GenerationResult extends GenerationOutput {
     /**
      * Statistics of the generation
      */
-    stats: {
+    stats?: {
         cost: number
     } & ChatCompletionUsage
 }

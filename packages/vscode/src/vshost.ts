@@ -12,10 +12,11 @@ import {
     LogLevel,
     Host,
 } from "../../core/src/host"
-import { TraceOptions, AbortSignalOptions } from "../../core/src/trace"
+import { TraceOptions } from "../../core/src/trace"
 import { arrayify } from "../../core/src/util"
 import { LanguageModel } from "../../core/src/chat"
 import { uniq } from "es-toolkit"
+import { CancellationOptions } from "../../core/src/cancellation"
 
 export class VSCodeHost extends EventTarget implements Host {
     userState: any = {}
@@ -184,7 +185,7 @@ export class VSCodeHost extends EventTarget implements Host {
     clientLanguageModel?: LanguageModel
     async getLanguageModelConfiguration(
         modelId: string,
-        options?: { token?: boolean } & AbortSignalOptions & TraceOptions
+        options?: { token?: boolean } & CancellationOptions & TraceOptions
     ): Promise<LanguageModelConfiguration> {
         const client = await this.server.client()
         const tok = await client.getLanguageModelConfiguration(modelId, options)

@@ -6,8 +6,9 @@ import {
 } from "./constants"
 import { errorMessage } from "./error"
 import { LanguageModelConfiguration, host, runtimeHost } from "./host"
-import { AbortSignalOptions, MarkdownTrace, TraceOptions } from "./trace"
+import { MarkdownTrace, TraceOptions } from "./trace"
 import { arrayify, assert, toStringList } from "./util"
+import { CancellationOptions } from "./cancellation"
 
 /**
  * model
@@ -112,12 +113,12 @@ export async function resolveModelConnectionInfo(
         model?: string
         token?: boolean
     } & TraceOptions &
-        AbortSignalOptions
+        CancellationOptions
 ): Promise<{
     info: ModelConnectionInfo
     configuration?: LanguageModelConfiguration
 }> {
-    const { trace, token: askToken, signal } = options || {}
+    const { trace, token: askToken, cancellationToken } = options || {}
     const { modelAliases } = runtimeHost
     const hint = options?.model || conn.model
     // supports candidate if no model hint or hint is a model alias
@@ -151,7 +152,7 @@ export async function resolveModelConnectionInfo(
                 model,
                 {
                     token: resolveOptions.withToken,
-                    signal,
+                    cancellationToken,
                     trace,
                 }
             )

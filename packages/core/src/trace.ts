@@ -356,7 +356,3 @@ ${this.toResultIcon(success, "")}${title}
 export interface TraceOptions {
     trace?: MarkdownTrace
 }
-
-export interface AbortSignalOptions {
-    signal?: AbortSignal
-}

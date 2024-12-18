@@ -1,5 +1,5 @@
 // cspell: disable
-import { MarkdownTrace } from "./trace"
+import { MarkdownTrace, TraceOptions } from "./trace"
 import { PromptImage, PromptPrediction, renderPromptNode } from "./promptdom"
 import { LanguageModelConfiguration, host, runtimeHost } from "./host"
 import { GenerationOptions } from "./generation"
@@ -128,10 +128,16 @@ export type ListModelsFunction = (
     cfg: LanguageModelConfiguration
 ) => Promise<LanguageModelInfo[]>
 
+export type PullModelFunction = (
+    modelId: string,
+    options: TraceOptions & CancellationOptions
+) => Promise<{ ok: boolean; error?: SerializedError }>
+
 export interface LanguageModel {
     id: string
     completer: ChatCompletionHandler
     listModels?: ListModelsFunction
+    pullModel?: PullModelFunction
 }
 
 async function runToolCalls(

@@ -204,7 +204,7 @@ export async function vectorSearch(
             throw new Error("No configuration found for vector search")
 
         // Pull the model
-        await runtimeHost.models.pullModel(info.model, { trace })
+        await runtimeHost.pullModel(info.model, { trace })
         const embeddings = new OpenAIEmbeddings(info, configuration, { trace })
 
         // Create a local document index

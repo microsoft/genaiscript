@@ -9,6 +9,11 @@ import {
 import { logVerbose } from "../../core/src/util"
 import type { TokenCredential } from "@azure/identity"
 import { serializeError } from "../../core/src/error"
+import {
+    CancellationOptions,
+    CancellationToken,
+    toSignal,
+} from "../../core/src/cancellation"
 
 /**
  * This module provides functions to handle Azure authentication tokens,
@@ -27,7 +32,7 @@ import { serializeError } from "../../core/src/error"
 export async function createAzureToken(
     scopes: readonly string[],
     credentialsType: AzureCredentialsType,
-    abortSignal: AbortSignal
+    cancellationToken?: CancellationToken
 ): Promise<AuthenticationToken> {
     // Dynamically import DefaultAzureCredential from the Azure SDK
     const {
@@ -66,6 +71,7 @@ export async function createAzureToken(
     }
 
     // Obtain the Azure token using the DefaultAzureCredential
+    const abortSignal = toSignal(cancellationToken)
     const azureToken = await credential.getToken(scopes.slice(), {
         abortSignal,
     })
@@ -104,10 +110,10 @@ class AzureTokenResolverImpl implements AzureTokenResolver {
 
     async token(
         credentialsType: AzureCredentialsType,
-        optoins?: { signal?: AbortSignal }
+        options?: CancellationOptions
     ): Promise<{ token?: AuthenticationToken; error?: SerializedError }> {
         // cached
-        const { signal } = optoins || {}
+        const { cancellationToken } = options || {}
 
         if (isAzureTokenExpired(this._token)) this._token = undefined
         if (this._token || this._error)
@@ -118,7 +124,7 @@ class AzureTokenResolverImpl implements AzureTokenResolver {
             this._resolver = createAzureToken(
                 scopes,
                 credentialsType,
-                signal || new AbortController().signal
+                cancellationToken
             )
                 .then((res) => {
                     this._token = res

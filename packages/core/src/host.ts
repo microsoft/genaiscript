@@ -1,7 +1,7 @@
-import { CancellationToken } from "./cancellation"
+import { CancellationOptions, CancellationToken } from "./cancellation"
 import { LanguageModel } from "./chat"
 import { Progress } from "./progress"
-import { AbortSignalOptions, MarkdownTrace, TraceOptions } from "./trace"
+import { MarkdownTrace, TraceOptions } from "./trace"
 import { Project } from "./server/messages"
 import { HostConfiguration } from "./hostconfiguration"
 
@@ -71,10 +71,6 @@ export interface RetrievalSearchResponse extends ResponseStatus {
     results: WorkspaceFileWithScore[]
 }
 
-export interface ModelService {
-    pullModel(model: string, options?: TraceOptions): Promise<ResponseStatus>
-}
-
 export interface RetrievalService {
     vectorSearch(
         text: string,
@@ -109,7 +105,7 @@ export function isAzureTokenExpired(token: AuthenticationToken) {
 export interface AzureTokenResolver {
     token(
         credentialsType: AzureCredentialsType,
-        options?: AbortSignalOptions
+        options?: CancellationOptions
     ): Promise<{ token?: AuthenticationToken; error?: SerializedError }>
 }
 
@@ -140,7 +136,7 @@ export interface Host {
 
     getLanguageModelConfiguration(
         modelId: string,
-        options?: { token?: boolean } & AbortSignalOptions & TraceOptions
+        options?: { token?: boolean } & CancellationOptions & TraceOptions
     ): Promise<LanguageModelConfiguration | undefined>
     log(level: LogLevel, msg: string): void
     clientLanguageModel?: LanguageModel
@@ -168,10 +164,11 @@ export interface Host {
 
 export interface RuntimeHost extends Host {
     project: Project
-    models: ModelService
     workspace: Omit<WorkspaceFileSystem, "grep">
     azureToken: AzureTokenResolver
     modelAliases: Readonly<ModelConfigurations>
+
+    pullModel(model: string, options?: TraceOptions): Promise<ResponseStatus>
 
     setModelAlias(
         source: "env" | "cli" | "config",

@@ -643,10 +643,9 @@ export function createChatGenerationContext(
                 label
             )
 
-            const { ok } = await runtimeHost.models.pullModel(
-                genOptions.model,
-                { trace: runTrace }
-            )
+            const { ok } = await runtimeHost.pullModel(genOptions.model, {
+                trace: runTrace,
+            })
             if (!ok) throw new Error(`failed to pull model ${genOptions.model}`)
 
             const runCtx = createChatGenerationContext(

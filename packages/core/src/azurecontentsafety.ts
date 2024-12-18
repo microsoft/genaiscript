@@ -1,5 +1,5 @@
 import { createFetch, traceFetchPost } from "./fetch"
-import { AbortSignalOptions, TraceOptions } from "./trace"
+import { TraceOptions } from "./trace"
 import { arrayify, chunkString, trimTrailingSlash } from "./util"
 import {
     AZURE_CONTENT_SAFETY_PROMPT_SHIELD_MAX_LENGTH,
@@ -29,7 +29,7 @@ class AzureContentSafetyClient implements ContentSafety {
         { route: string; body: object; options: object },
         object
     >
-    constructor(readonly options?: TraceOptions & AbortSignalOptions) {
+    constructor(readonly options?: TraceOptions & CancellationOptions) {
         this.cache = JSONLineCache.byName("azurecontentsafety")
     }
 
@@ -181,11 +181,8 @@ class AzureContentSafetyClient implements ContentSafety {
         }
     }
 
-    private async createClient(
-        route: string,
-        options?: { signal?: AbortSignal }
-    ) {
-        const { signal, trace } = this.options || {}
+    private async createClient(route: string, options?: CancellationOptions) {
+        const { trace } = this.options || {}
         const endpoint = trimTrailingSlash(
             process.env.AZURE_CONTENT_SAFETY_ENDPOINT ||
                 process.env.AZURE_CONTENT_SAFETY_API_ENDPOINT
@@ -233,7 +230,6 @@ class AzureContentSafetyClient implements ContentSafety {
                 method: "POST",
                 headers,
                 body: JSON.stringify(body),
-                signal,
             })
         }
         return fetcher
