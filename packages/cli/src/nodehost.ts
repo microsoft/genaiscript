@@ -20,8 +20,6 @@ import {
     DEFAULT_LARGE_MODEL,
     MODEL_PROVIDER_AZURE_OPENAI,
     SHELL_EXEC_TIMEOUT,
-    MODEL_PROVIDER_OLLAMA,
-    TOOL_ID,
     DEFAULT_EMBEDDINGS_MODEL,
     DEFAULT_SMALL_MODEL,
     AZURE_COGNITIVE_SERVICES_TOKEN_SCOPES,
@@ -44,7 +42,6 @@ import {
 import { tryReadText } from "../../core/src/fs"
 import {
     ServerManager,
-    ModelService,
     LanguageModelConfiguration,
     LogLevel,
     UTF8Decoder,
@@ -56,15 +53,11 @@ import {
     ModelConfigurations,
     ModelConfiguration,
 } from "../../core/src/host"
-import { AbortSignalOptions, TraceOptions } from "../../core/src/trace"
+import { TraceOptions } from "../../core/src/trace"
 import { logError, logVerbose } from "../../core/src/util"
 import { parseModelIdentifier } from "../../core/src/models"
 import { LanguageModel } from "../../core/src/chat"
-import {
-    errorMessage,
-    NotSupportedError,
-    serializeError,
-} from "../../core/src/error"
+import { errorMessage, NotSupportedError } from "../../core/src/error"
 import { BrowserManager } from "./playwright"
 import { shellConfirm, shellInput, shellSelect } from "./input"
 import { shellQuote } from "../../core/src/shell"
@@ -78,6 +71,8 @@ import {
 } from "../../core/src/azurecontentsafety"
 import { resolveGlobalConfiguration } from "../../core/src/config"
 import { HostConfiguration } from "../../core/src/hostconfiguration"
+import { resolveLanguageModel } from "../../core/src/lm"
+import { CancellationOptions } from "../../core/src/cancellation"
 
 class NodeServerManager implements ServerManager {
     async start(): Promise<void> {
@@ -88,85 +83,11 @@ class NodeServerManager implements ServerManager {
     }
 }
 
-class ModelManager implements ModelService {
-    private pulled: string[] = []
-
-    constructor(private readonly host: RuntimeHost) {}
-    private async getModelToken(modelId: string) {
-        const { provider } = parseModelIdentifier(modelId)
-        const conn = await this.host.getLanguageModelConfiguration(modelId)
-        if (provider === MODEL_PROVIDER_OLLAMA)
-            conn.base = conn.base.replace(/\/v1$/i, "")
-        return conn
-    }
-
-    async pullModel(
-        modelid: string,
-        options?: TraceOptions
-    ): Promise<ResponseStatus> {
-        const { trace } = options || {}
-        const { provider, model } = parseModelIdentifier(modelid)
-        if (this.pulled.includes(modelid)) return { ok: true }
-
-        if (provider === MODEL_PROVIDER_OLLAMA) {
-            try {
-                logVerbose(`${provider}: show ${model}`)
-                const conn = await this.getModelToken(modelid)
-
-                // test if model is present
-                const resTags = await fetch(`${conn.base}/api/tags`, {
-                    method: "GET",
-                    headers: {
-                        "User-Agent": TOOL_ID,
-                        "Content-Type": "application/json",
-                    },
-                })
-                if (resTags.ok) {
-                    const { models }: { models: { model: string }[] } =
-                        await resTags.json()
-                    if (models.find((m) => m.model === model))
-                        return { ok: true }
-                    logVerbose(
-                        `${provider}: ${model} not found in\n${models.map((m) => m.model).join(", ")}`
-                    )
-                }
-
-                // pull
-                logVerbose(`${provider}: pull ${model}`)
-                const resPull = await fetch(`${conn.base}/api/pull`, {
-                    method: "POST",
-                    headers: {
-                        "User-Agent": TOOL_ID,
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(
-                        { name: model, stream: false },
-                        null,
-                        2
-                    ),
-                })
-                if (resPull.ok) this.pulled.push(modelid)
-                else {
-                    logError(`${provider}: failed to pull model ${model}`)
-                    trace?.error(`${provider}: pull model ${model} failed`)
-                }
-                return { ok: resPull.ok, status: resPull.status }
-            } catch (e) {
-                logError(`${provider}: failed to pull model ${model}`)
-                trace?.error(`${provider}: pull model ${model} failed`, e)
-                return { ok: false, status: 500, error: serializeError(e) }
-            }
-        }
-
-        return { ok: true }
-    }
-}
-
 export class NodeHost implements RuntimeHost {
+    private pulledModels: string[] = []
     readonly dotEnvPath: string
     project: Project
     userState: any = {}
-    models: ModelService
     readonly path = createNodePath()
     readonly server = new NodeServerManager()
     readonly workspace = createFileSystem()
@@ -220,7 +141,6 @@ export class NodeHost implements RuntimeHost {
 
     constructor(dotEnvPath: string) {
         this.dotEnvPath = dotEnvPath
-        this.models = new ModelManager(this)
         this.azureToken = createAzureTokenResolver(
             "Azure",
             "AZURE_OPENAI_TOKEN_SCOPES",
@@ -255,6 +175,23 @@ export class NodeHost implements RuntimeHost {
         if (value.model !== undefined) (c as any).model = value.model
         if (!isNaN(value.temperature))
             (c as any).temperature = value.temperature
+    }
+
+    async pullModel(
+        modelid: string,
+        options?: TraceOptions & CancellationOptions
+    ): Promise<ResponseStatus> {
+        if (this.pulledModels.includes(modelid)) return { ok: true }
+
+        const { provider } = parseModelIdentifier(modelid)
+        const { pullModel } = await resolveLanguageModel(provider)
+        if (!pullModel) {
+            this.pulledModels.includes(modelid)
+            return { ok: true }
+        }
+        const res = await pullModel(modelid, options)
+        if (res.ok) this.pulledModels.push(modelid)
+        return res
     }
 
     async readConfig(): Promise<HostConfiguration> {
@@ -292,7 +229,7 @@ export class NodeHost implements RuntimeHost {
 
     async getLanguageModelConfiguration(
         modelId: string,
-        options?: { token?: boolean } & AbortSignalOptions & TraceOptions
+        options?: { token?: boolean } & CancellationOptions & TraceOptions
     ): Promise<LanguageModelConfiguration> {
         const { token: askToken, trace } = options || {}
         const tok = await parseTokenFromEnv(process.env, modelId)

@@ -9,7 +9,6 @@ import {
     PDF_MIME_TYPE,
     XLSX_MIME_TYPE,
 } from "./constants" // Constants for MIME types and prefixes
-import { diag } from "mathjs"
 import { Project } from "./server/messages"
 
 /**

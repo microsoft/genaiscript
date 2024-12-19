@@ -8,7 +8,7 @@ import { fromHex, logError, normalizeInt, utf8Decode } from "./util"
 import { AICI_CONTROLLER, TOOL_ID } from "./constants"
 import { LanguageModelConfiguration, host } from "./host"
 import { NotSupportedError, RequestError } from "./error"
-import { createFetch } from "./fetch"
+import { createFetch, iterateBody } from "./fetch"
 import { parseModelIdentifier } from "./models"
 import {
     AICIRequest,
@@ -313,19 +313,8 @@ const AICIChatCompletion: ChatCompletionHandler = async (
 
     try {
         trace.startFence("txt")
-        if (r.body.getReader) {
-            const reader = r.body.getReader()
-            while (!cancellationToken?.isCancellationRequested) {
-                const { done, value } = await reader.read()
-                if (done) break
-                doChunk(value)
-            }
-        } else {
-            for await (const value of r.body as any) {
-                if (cancellationToken?.isCancellationRequested) break
-                doChunk(value)
-            }
-        }
+        for await (const value of iterateBody(r, { cancellationToken }))
+            doChunk(value)
     } finally {
         trace.endFence()
     }
@@ -349,10 +338,7 @@ const AICIChatCompletion: ChatCompletionHandler = async (
      * Processes a chunk of data from the response.
      * @param value - The chunk of data to process.
      */
-    function doChunk(value: Uint8Array) {
-        // Decode and process the chunk of data
-        let chunk = decoder.decode(value, { stream: true })
-
+    function doChunk(chunk: string) {
         chunk = pref + chunk
         const ch0 = chatResp
         chunk = chunk.replace(/^data:\s*(.*)[\r\n]+/gm, (_, json) => {

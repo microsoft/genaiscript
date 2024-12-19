@@ -10,7 +10,8 @@
             "detail": "GitHub Models",
             "logprobs": false,
             "topLogprobs": false,
-            "limitations": "Smaller context windows, and rate limiting"
+            "limitations": "Smaller context windows, and rate limiting",
+            "prediction": false
         },
         {
             "id": "azure",
@@ -22,60 +23,72 @@
         },
         {
             "id": "azure_serverless_models",
-            "detail": "Azure AI Models (serverless deployments, not OpenAI)"
+            "detail": "Azure AI Models (serverless deployments, not OpenAI)",
+            "prediction": false
         },
         {
             "id": "anthropic",
             "detail": "Anthropic models",
             "logprobs": false,
-            "topLogprobs": false
+            "topLogprobs": false,
+            "prediction": false
         },
         {
             "id": "google",
             "detail": "Google AI",
             "seed": false,
             "tools": false,
-            "openaiCompatibility": "https://ai.google.dev/gemini-api/docs/openai"
+            "openaiCompatibility": "https://ai.google.dev/gemini-api/docs/openai",
+            "prediction": false
         },
         {
             "id": "huggingface",
-            "detail": "Hugging Face models"
+            "detail": "Hugging Face models",
+            "prediction": false
         },
         {
             "id": "mistal",
-            "detail": "Mistral AI"
+            "detail": "Mistral AI",
+            "prediction": false
         },
         {
             "id": "transformers",
-            "detail": "Hugging Face Transformers"
+            "detail": "Hugging Face Transformers",
+            "prediction": false
         },
         {
             "id": "ollama",
             "detail": "Ollama local model",
             "logitBias": false,
-            "openaiCompatibility": "https://github.com/ollama/ollama/blob/main/docs/openai.md"
+            "openaiCompatibility": "https://github.com/ollama/ollama/blob/main/docs/openai.md",
+            "prediction": false
         },
         {
             "id": "lmstudio",
-            "detail": "LM Studio local server"
+            "detail": "LM Studio local server",
+            "prediction": false
         },
         {
             "id": "jan",
-            "detail": "Jan local server"
+            "detail": "Jan local server",
+            "prediction": false
         },
         {
             "id": "alibaba",
             "detail": "Alibaba models",
             "openaiCompatibility": "https://www.alibabacloud.com/help/en/model-studio/developer-reference/compatibility-of-openai-with-dashscope",
-            "tools": false
+            "tools": false,
+            "prediction": false
         },
         {
             "id": "llamafile",
-            "detail": "llamafile.ai local model"
+            "detail": "llamafile.ai local model",
+            "prediction": false
         },
         {
             "id": "litellm",
-            "detail": "LiteLLM proxy"
+            "detail": "LiteLLM proxy",
+            "prediction": false
         }
     ],
     "pricings": {

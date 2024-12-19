@@ -1156,6 +1156,7 @@ interface RunPromptResult {
     edits?: Edits[]
     changelogs?: ChangeLog[]
     model?: ModelType
+    choices?: LogProb[]
     logprobs?: Logprob[]
     perplexity?: number
     uncertainty?: number

@@ -7,7 +7,6 @@ import { readFile, writeFile } from "fs/promises"
 import { ensureDir } from "fs-extra"
 import {
     LogLevel,
-    ModelService,
     LanguageModelConfiguration,
     ServerManager,
     UTF8Decoder,
@@ -17,6 +16,7 @@ import {
     AzureTokenResolver,
     ModelConfigurations,
     ModelConfiguration,
+    ResponseStatus,
 } from "./host"
 import { TraceOptions } from "./trace"
 import {
@@ -59,8 +59,6 @@ export class TestHost implements RuntimeHost {
     project: Project
     // State object to store user-specific data
     userState: any = {}
-    // Service to manage language models
-    models: ModelService
     // Server management service
     server: ServerManager
     // Instance of the path utility
@@ -80,6 +78,12 @@ export class TestHost implements RuntimeHost {
     // Static method to set this class as the runtime host
     static install() {
         setRuntimeHost(new TestHost())
+    }
+    async pullModel(
+        model: string,
+        options?: TraceOptions
+    ): Promise<ResponseStatus> {
+        return { ok: true }
     }
 
     setModelAlias(

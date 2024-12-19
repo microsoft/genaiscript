@@ -1,5 +1,5 @@
 // cspell: disable
-import { MarkdownTrace } from "./trace"
+import { MarkdownTrace, TraceOptions } from "./trace"
 import { PromptImage, PromptPrediction, renderPromptNode } from "./promptdom"
 import { LanguageModelConfiguration, host, runtimeHost } from "./host"
 import { GenerationOptions } from "./generation"
@@ -75,6 +75,7 @@ import {
     computePerplexity,
     computeStructuralUncertainty,
     logprobToMarkdown,
+    renderLogprob,
     serializeLogProb,
     topLogprobsToMarkdown,
 } from "./logprob"
@@ -128,10 +129,16 @@ export type ListModelsFunction = (
     cfg: LanguageModelConfiguration
 ) => Promise<LanguageModelInfo[]>
 
+export type PullModelFunction = (
+    modelId: string,
+    options: TraceOptions & CancellationOptions
+) => Promise<{ ok: boolean; error?: SerializedError }>
+
 export interface LanguageModel {
     id: string
     completer: ChatCompletionHandler
     listModels?: ListModelsFunction
+    pullModel?: PullModelFunction
 }
 
 async function runToolCalls(
@@ -506,6 +513,15 @@ async function structurifyChatSession(
 
     const perplexity = computePerplexity(logprobs)
     const uncertainty = computeStructuralUncertainty(logprobs)
+    const choices = arrayify(options?.choices)
+        .filter((choice) => typeof choice === "string")
+        .map(
+            (token) =>
+                logprobs?.find((lp) => lp.token === token) ??
+                ({ token, logprob: NaN } satisfies Logprob)
+        )
+    for (const choice of choices?.filter((c) => !isNaN(c.logprob)))
+        logVerbose(`choice: ${choice.token}, ${renderLogprob(choice.logprob)}`)
     if (logprobs?.length) {
         logVerbose(
             toStringList(
@@ -522,6 +538,14 @@ async function structurifyChatSession(
             trace.startDetails("📊 logprobs")
             trace.itemValue("perplexity", perplexity)
             trace.itemValue("uncertainty", uncertainty)
+            if (choices?.length) {
+                trace.item("choices (0%:red, 100%: blue)")
+                trace.appendContent("\n\n")
+                trace.appendContent(
+                    choices.map((lp) => logprobToMarkdown(lp)).join("\n")
+                )
+                trace.appendContent("\n\n")
+            }
             trace.item("logprobs (0%:red, 100%: blue)")
             trace.appendContent("\n\n")
             trace.appendContent(
@@ -562,6 +586,7 @@ async function structurifyChatSession(
         error,
         genVars,
         schemas,
+        choices,
         logprobs,
         perplexity,
         uncertainty,
@@ -595,6 +620,7 @@ async function processChatMessage(
         maxToolCalls = MAX_TOOL_CALLS,
         trace,
         cancellationToken,
+        choices,
     } = options
 
     stats.addUsage(req, resp)
@@ -751,7 +777,7 @@ async function choicesToLogitBias(
     choices: ElementOrArray<
         string | { token: string | number; weight?: number }
     >
-) {
+): Promise<Record<number, number>> {
     choices = arrayify(choices)
     if (!choices?.length) return undefined
     const { encode } =
@@ -759,12 +785,15 @@ async function choicesToLogitBias(
             disableFallback: true,
         })) || {}
     if (!encode) {
-        trace.error(
+        logWarn(
+            `unabled to compute logit bias, no token encoder found for ${model}`
+        )
+        trace.warn(
             `unabled to compute logit bias, no token encoder found for ${model}`
         )
         return undefined
     }
-    const res = Object.fromEntries(
+    const logit_bias: Record<number, number> = Object.fromEntries(
         choices.map((c) => {
             const { token, weight } = typeof c === "string" ? { token: c } : c
             const encoded = typeof token === "number" ? [token] : encode(token)
@@ -772,24 +801,27 @@ async function choicesToLogitBias(
                 trace.warn(
                     `choice ${c} tokenizes to ${encoded.join(", ")} (expected one token)`
                 )
-            return [encoded[0], isNaN(weight) ? CHOICE_LOGIT_BIAS : weight]
+            return [encoded[0], isNaN(weight) ? CHOICE_LOGIT_BIAS : weight] as [
+                number,
+                number,
+            ]
         })
     )
     trace.itemValue("choices", choices.join(", "))
-    trace.itemValue("logit bias", JSON.stringify(res))
-    return res
+    trace.itemValue("logit bias", JSON.stringify(logit_bias))
+    return logit_bias
 }
 
-function collapseChatMessages(messages: ChatCompletionMessageParam[]) {
-    /*
+export function collapseChatMessages(messages: ChatCompletionMessageParam[]) {
     // concat the content of system messages at the start of the messages into a single message
     const startSystem = messages.findIndex((m) => m.role === "system")
     if (startSystem > -1) {
-        const endSystem =
+        let endSystem =
             startSystem +
             messages
                 .slice(startSystem)
                 .findIndex((m) => m.role !== "system" || m.cacheControl)
+        if (endSystem < 0) endSystem = messages.length
         if (endSystem > startSystem + 1) {
             const systemContent = messages
                 .slice(startSystem, endSystem)
@@ -801,36 +833,6 @@ function collapseChatMessages(messages: ChatCompletionMessageParam[]) {
             })
         }
     }
-
-    // concat the user messages at the start into a single message
-    const startUser = messages.findIndex((m) => m.role === "user")
-    if (startUser > -1) {
-        const endUser =
-            startUser +
-            messages
-                .slice(startUser)
-                .findIndex((m) => m.role !== "user" || m.cacheControl)
-        if (endUser > startUser + 1) {
-            const msg: ChatCompletionUserMessageParam = {
-                role: "user",
-                content: messages
-                    .slice(startUser, endUser)
-                    .flatMap<ChatCompletionContentPart>((m) => {
-                        const mu = m as ChatCompletionUserMessageParam
-                        return typeof mu.content === "string"
-                            ? ([
-                                  {
-                                      type: "text",
-                                      text: mu.content,
-                                  } satisfies ChatCompletionContentPartText,
-                              ] satisfies ChatCompletionContentPart[])
-                            : mu.content
-                    }),
-            }
-            messages.splice(startUser, endUser - startUser, msg)
-        }
-    }
-    */
 }
 
 export async function executeChatSession(
@@ -1023,6 +1025,10 @@ function updateChatFeatures(
         delete req.logprobs
         delete req.top_logprobs
     }
+    if (req.prediction && features?.prediction === false) {
+        logVerbose(`prediciont: disabled, not supported by ${provider}`)
+        delete req.prediction
+    }
     if (
         req.top_logprobs &&
         (features?.logprobs === false || features?.topLogprobs === false)
@@ -1039,8 +1045,11 @@ function updateChatFeatures(
     deleteUndefinedValues(req)
 }
 
-export function tracePromptResult(trace: MarkdownTrace, resp: RunPromptResult) {
-    const { json, text } = resp
+export function tracePromptResult(
+    trace: MarkdownTrace,
+    resp: { text?: string }
+) {
+    const { text } = resp
 
     // try to sniff the output type
     const language = JSON5TryParse(text)

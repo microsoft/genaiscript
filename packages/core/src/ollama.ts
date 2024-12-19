@@ -1,71 +1,13 @@
 // Import necessary modules and types for handling chat completions and model management
-import { ChatCompletionHandler, LanguageModel, LanguageModelInfo } from "./chat"
-import {
-    MODEL_PROVIDER_OLLAMA,
-    OLLAMA_API_BASE,
-    OLLAMA_DEFAUT_PORT,
-} from "./constants"
-import { isRequestError } from "./error"
-import { createFetch } from "./fetch"
+import { LanguageModel, LanguageModelInfo, PullModelFunction } from "./chat"
+import { MODEL_PROVIDER_OLLAMA, TOOL_ID } from "./constants"
+import { serializeError } from "./error"
+import { createFetch, iterateBody } from "./fetch"
 import { parseModelIdentifier } from "./models"
 import { OpenAIChatCompletion } from "./openai"
 import { LanguageModelConfiguration } from "./host"
-import { URL } from "url"
-
-/**
- * Handles chat completion requests using the Ollama model.
- * Tries to complete the request using the OpenAIChatCompletion function.
- * If the model is not found locally, it attempts to pull the model from a remote source.
- *
- * @param req - The request object containing model information.
- * @param cfg - The configuration for the language model.
- * @param options - Additional options for the request.
- * @param trace - A trace object for logging purposes.
- * @returns The result of the chat completion.
- * @throws Will throw an error if the model cannot be pulled or any other request error occurs.
- */
-const OllamaCompletion: ChatCompletionHandler = async (
-    req,
-    cfg,
-    options,
-    trace
-) => {
-    try {
-        // Attempt to complete the request using OpenAIChatCompletion
-        return await OpenAIChatCompletion(req, cfg, options, trace)
-    } catch (e) {
-        if (isRequestError(e)) {
-            const { model } = parseModelIdentifier(req.model)
-            // If model is not found, try pulling it from the remote source
-            if (
-                e.status === 404 &&
-                e.body?.type === "api_error" &&
-                e.body?.message?.includes(`model '${model}' not found`)
-            ) {
-                trace.log(`model ${model} not found, trying to pull it`)
-
-                // Model not installed locally, initiate fetch to pull model
-                const fetch = await createFetch({ trace })
-                const res = await fetch(cfg.base.replace("/v1", "/api/pull"), {
-                    method: "POST",
-                    body: JSON.stringify({ name: model, stream: false }),
-                })
-                if (!res.ok) {
-                    trace.error(`ollama: failed to pull model ${model}`)
-                    throw new Error(
-                        `Failed to pull model ${model}: ${res.status} ${res.statusText}`
-                    )
-                }
-                trace.log(`model pulled`)
-                // Retry the completion request after pulling the model
-                return await OpenAIChatCompletion(req, cfg, options, trace)
-            }
-        }
-
-        // Rethrow any other errors encountered
-        throw e
-    }
-}
+import { host } from "./host"
+import { logError, logVerbose } from "./util"
 
 /**
  * Lists available models for the Ollama language model configuration.
@@ -105,9 +47,63 @@ async function listModels(
     )
 }
 
+const pullModel: PullModelFunction = async (modelId, options) => {
+    const { trace, cancellationToken } = options || {}
+    const { provider, model } = parseModelIdentifier(modelId)
+    const fetch = await createFetch({ retries: 0, ...options })
+    const conn = await host.getLanguageModelConfiguration(modelId, {
+        token: true,
+        cancellationToken,
+        trace,
+    })
+    conn.base = conn.base.replace(/\/v1$/i, "")
+    try {
+        // test if model is present
+        const resTags = await fetch(`${conn.base}/api/tags`, {
+            retries: 0,
+            method: "GET",
+            headers: {
+                "User-Agent": TOOL_ID,
+                "Content-Type": "application/json",
+            },
+        })
+        if (resTags.ok) {
+            const { models }: { models: { model: string }[] } =
+                await resTags.json()
+            if (models.find((m) => m.model === model)) return { ok: true }
+        }
+
+        // pull
+        logVerbose(`${provider}: pull ${model}`)
+        const resPull = await fetch(`${conn.base}/api/pull`, {
+            method: "POST",
+            headers: {
+                "User-Agent": TOOL_ID,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ model }),
+        })
+        if (!resPull.ok) {
+            logError(`${provider}: failed to pull model ${model}`)
+            logVerbose(resPull.statusText)
+            return { ok: false, status: resPull.status }
+        }
+        0
+        for await (const chunk of iterateBody(resPull, { cancellationToken }))
+            process.stderr.write(".")
+        process.stderr.write("\n")
+        return { ok: true }
+    } catch (e) {
+        logError(e)
+        trace.error(e)
+        return { ok: false, error: serializeError(e) }
+    }
+}
+
 // Define the Ollama model with its completion handler and model listing function
 export const OllamaModel = Object.freeze<LanguageModel>({
-    completer: OllamaCompletion,
     id: MODEL_PROVIDER_OLLAMA,
+    completer: OpenAIChatCompletion,
     listModels,
+    pullModel,
 })
