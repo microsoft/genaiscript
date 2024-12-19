@@ -108,6 +108,12 @@ class AzureTokenResolverImpl implements AzureTokenResolver {
         return this._error
     }
 
+    clear() {
+        this._token = undefined
+        this._error = undefined
+        this._resolver = undefined
+    }
+
     async token(
         credentialsType: AzureCredentialsType,
         options?: CancellationOptions
@@ -121,23 +127,25 @@ class AzureTokenResolverImpl implements AzureTokenResolver {
         if (!this._resolver) {
             const scope = await runtimeHost.readSecret(this.envName)
             const scopes = scope ? scope.split(",") : this.scopes
-            this._resolver = createAzureToken(
+            const resolver = (this._resolver = createAzureToken(
                 scopes,
                 credentialsType,
                 cancellationToken
             )
                 .then((res) => {
+                    if (this._resolver !== resolver) return undefined
                     this._token = res
                     this._error = undefined
                     this._resolver = undefined
                     return { token: this._token, error: this._error }
                 })
                 .catch((err) => {
+                    if (this._resolver !== resolver) return undefined
                     this._resolver = undefined
                     this._token = undefined
                     this._error = serializeError(err)
                     return { token: this._token, error: this._error }
-                })
+                }))
         }
         return this._resolver
     }

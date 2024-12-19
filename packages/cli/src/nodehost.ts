@@ -128,6 +128,7 @@ export class NodeHost implements RuntimeHost {
                 source: "default",
                 candidates: DEFAULT_REASONING_SMALL_MODEL_CANDIDATES,
             },
+            long: { model: LARGE_MODEL_ID, source: "default" },
             agent: { model: LARGE_MODEL_ID, source: "default" },
             memory: { model: SMALL_MODEL_ID, source: "default" },
         },
@@ -195,6 +196,9 @@ export class NodeHost implements RuntimeHost {
     }
 
     async readConfig(): Promise<HostConfiguration> {
+        this.azureToken.clear()
+        this.azureServerlessToken.clear()
+
         const config = await resolveGlobalConfiguration(this.dotEnvPath)
         const { envFile, modelAliases } = config
         if (modelAliases)
