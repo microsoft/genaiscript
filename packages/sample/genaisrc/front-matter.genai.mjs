@@ -4,8 +4,7 @@ script({
         "Update or generate SEO-optimized front matter for a markdown file.",
     group: "samples",
     system: ["system", "system.files"],
-    maxTokens: 2000,
-    temperature: 0,
+    temperature: 0.5,
     model: "large",
 })
 
