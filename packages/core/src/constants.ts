@@ -239,6 +239,7 @@ export const MODEL_PROVIDERS = Object.freeze<
         topLogprobs?: boolean
         topP?: boolean
         prediction?: boolean
+        bearerToken?: boolean
     }[]
 >(CONFIGURATION_DATA.providers)
 export const MODEL_PRICINGS = Object.freeze<

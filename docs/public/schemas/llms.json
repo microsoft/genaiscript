@@ -54,6 +54,10 @@
                     "prediction": {
                         "type": "boolean",
                         "description": "Indicates if 'prediction' message are supported"
+                    },
+                    "bearerToken": {
+                        "type": "boolean",
+                        "description": "Indicates if bearer token is supported"
                     }
                 },
                 "additionalProperties": false,

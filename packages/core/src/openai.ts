@@ -44,35 +44,31 @@ import { INITryParse } from "./ini"
 import { serializeChunkChoiceToLogProbs } from "./logprob"
 
 export function getConfigHeaders(cfg: LanguageModelConfiguration) {
+    const { provider } = parseModelIdentifier(cfg.model)
     let { token, type, base } = cfg
     if (type === "azure_serverless_models") {
         const keys = INITryParse(token)
         if (keys && Object.keys(keys).length > 1) token = keys[cfg.model]
     }
+    const features = MODEL_PROVIDERS.find(({ id }) => id === provider)
+    const useBearer = features?.bearerToken === true
     const isBearer = /^Bearer /i.test(cfg.token)
-    const res: Record<string, string> = {
-        // openai
-        Authorization: isBearer
-            ? token
-            : token &&
-                (type === "openai" ||
-                    type === "localai" ||
-                    type === "azure_serverless_models" ||
-                    base === OPENROUTER_API_CHAT_URL)
-              ? `Bearer ${token}`
-              : undefined,
-        // azure
-        "api-key":
-            token &&
-            !isBearer &&
-            (type === "azure" ||
-                type === "azure_serverless" ||
-                type === "alibaba")
-                ? token
-                : undefined,
+    const Authorization = isBearer
+        ? token
+        : token &&
+            (useBearer ||
+                type === "openai" ||
+                type === "localai" ||
+                type === "azure_serverless_models" ||
+                base === OPENROUTER_API_CHAT_URL)
+          ? `Bearer ${token}`
+          : undefined
+    const apiKey = Authorization ? undefined : token
+    const res: Record<string, string> = deleteUndefinedValues({
+        Authorization,
+        "api-key": apiKey,
         "User-Agent": TOOL_ID,
-    }
-    deleteUndefinedValues(res)
+    })
     return res
 }
 

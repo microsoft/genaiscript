@@ -3,7 +3,8 @@
     "providers": [
         {
             "id": "openai",
-            "detail": "OpenAI (or compatible)"
+            "detail": "OpenAI (or compatible)",
+            "bearerToken": true
         },
         {
             "id": "github",
@@ -11,20 +12,24 @@
             "logprobs": false,
             "topLogprobs": false,
             "limitations": "Smaller context windows, and rate limiting",
-            "prediction": false
+            "prediction": false,
+            "bearerToken": true
         },
         {
             "id": "azure",
-            "detail": "Azure OpenAI deployment"
+            "detail": "Azure OpenAI deployment",
+            "bearerToken": false
         },
         {
             "id": "azure_serverless",
-            "detail": "Azure AI OpenAI (serverless deployments)"
+            "detail": "Azure AI OpenAI (serverless deployments)",
+            "bearerToken": false
         },
         {
             "id": "azure_serverless_models",
             "detail": "Azure AI Models (serverless deployments, not OpenAI)",
-            "prediction": false
+            "prediction": false,
+            "bearerToken": true
         },
         {
             "id": "anthropic",
@@ -39,7 +44,8 @@
             "seed": false,
             "tools": false,
             "openaiCompatibility": "https://ai.google.dev/gemini-api/docs/openai",
-            "prediction": false
+            "prediction": false,
+            "bearerToken": true
         },
         {
             "id": "huggingface",
@@ -49,7 +55,8 @@
         {
             "id": "mistal",
             "detail": "Mistral AI",
-            "prediction": false
+            "prediction": false,
+            "bearerToken": true
         },
         {
             "id": "transformers",
@@ -78,7 +85,8 @@
             "detail": "Alibaba models",
             "openaiCompatibility": "https://www.alibabacloud.com/help/en/model-studio/developer-reference/compatibility-of-openai-with-dashscope",
             "tools": false,
-            "prediction": false
+            "prediction": false,
+            "bearerToken": true
         },
         {
             "id": "llamafile",
