@@ -42,9 +42,3 @@ jobs:
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   GITHUB_COMMIT_SHA: ${{ github.event.pull_request.head.sha}}
-            - name: Archive genai results
-              if: always()
-              uses: actions/upload-artifact@v4
-              with:
-                  name: genai-results
-                  path: ./temp/genai/**
