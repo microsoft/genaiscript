@@ -87,7 +87,7 @@ export async function createAzureToken(
 
     // Log the expiration time of the token
     logVerbose(
-        `azure: ${credentialsType || ""} token (${scopes.join(",")}) expires at ${new Date(res.expiresOnTimestamp).toLocaleString()}`
+        `azure: ${credentialsType || ""} token (${scopes.join(",")}) expires on ${new Date(res.expiresOnTimestamp).toUTCString()}`
     )
 
     return res
