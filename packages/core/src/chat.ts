@@ -1085,8 +1085,10 @@ export function appendUserMessage(
         if (ephemeral) last.cacheControl = "ephemeral"
         messages.push(last)
     }
-    if (last.content) last.content += "\n" + content
-    else last.content = content
+    if (last.content) {
+        if (typeof last.content === "string") last.content += "\n" + content
+        else last.content.push({ type: "text", text: content })
+    } else last.content = content
 }
 
 export function appendAssistantMessage(
@@ -1108,8 +1110,10 @@ export function appendAssistantMessage(
         if (ephemeral) last.cacheControl = "ephemeral"
         messages.push(last)
     }
-    if (last.content) last.content += "\n" + content
-    else last.content = content
+    if (last.content) {
+        if (typeof last.content === "string") last.content += "\n" + content
+        else last.content.push({ type: "text", text: content })
+    } else last.content = content
 }
 
 export function appendSystemMessage(
@@ -1132,8 +1136,11 @@ export function appendSystemMessage(
         if (ephemeral) last.cacheControl = "ephemeral"
         messages.unshift(last)
     }
-    if (last.content) last.content += SYSTEM_FENCE
-    last.content += content
+    if (last.content) {
+        if (typeof last.content === "string")
+            last.content += SYSTEM_FENCE + content
+        else last.content.push({ type: "text", text: content })
+    } else last.content = content
 }
 
 export function addToolDefinitionsMessage(
