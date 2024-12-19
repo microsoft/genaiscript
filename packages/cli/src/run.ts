@@ -85,6 +85,7 @@ import {
 import { ensureDotGenaiscriptPath, setupTraceWriting } from "./trace"
 import { applyModelOptions } from "./modealias"
 import { createCancellationController } from "./cancel"
+import { parsePromptScriptMeta } from "../../core/src/template"
 
 export async function runScriptWithExitCode(
     scriptId: string,
@@ -142,6 +143,7 @@ export async function runScriptInternal(
         }
 ): Promise<{ exitCode: number; result?: GenerationResult }> {
     const { trace = new MarkdownTrace(), infoCb, partialCb } = options || {}
+
     let result: GenerationResult
     const excludedFiles = options.excludedFiles
     const excludeGitIgnore = !!options.excludeGitIgnore
@@ -242,6 +244,7 @@ export async function runScriptInternal(
     if (jsSource)
         prj.scripts.push({
             id: scriptId,
+            ...parsePromptScriptMeta(jsSource),
             jsSource,
         })
     const script = prj.scripts.find(
