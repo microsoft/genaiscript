@@ -10,7 +10,7 @@ import {
     CreateChatCompletionRequest,
 } from "./chattypes"
 import { MarkdownTrace } from "./trace"
-import { logVerbose } from "./util"
+import { logVerbose, toStringList } from "./util"
 import { parseModelIdentifier } from "./models"
 import { MODEL_PRICINGS, MODEL_PROVIDER_AICI } from "./constants"
 
@@ -226,7 +226,12 @@ export class GenerationStats {
             try {
                 for (const { messages, usage } of this.chatTurns) {
                     trace.item(
-                        `${messages.length} messages, ${usage.total_tokens} tokens`
+                        toStringList(
+                            `${messages.length} messages`,
+                            usage.total_tokens
+                                ? `${usage.total_tokens} tokens`
+                                : undefined
+                        )
                     )
                 }
             } finally {
@@ -256,16 +261,28 @@ export class GenerationStats {
     private logTokens(indent: string) {
         const unknowns = new Set<string>()
         const c = this.cost()
+        const au = this.accumulatedUsage()
+        if (au?.total_tokens > 0 && (this.resolvedModel || c)) {
+            logVerbose(
+                `${indent}${this.label ? `${this.label} (${this.resolvedModel})` : this.resolvedModel}> ${au.total_tokens} tokens (${au.prompt_tokens} -> ${au.completion_tokens}) ${renderCost(c)}`
+            )
+        }
         if (this.model && isNaN(c) && isCosteable(this.model))
             unknowns.add(this.model)
         if (this.chatTurns.length > 1) {
             const chatTurns = this.chatTurns.slice(0, 10)
-            for (const { messages, usage, model: turnModel } of chatTurns) {
+            for (const {
+                messages,
+                usage,
+                model: turnModel,
+            } of chatTurns.filter(
+                ({ usage }) => usage.total_tokens !== undefined
+            )) {
                 const cost = estimateCost(this.model, usage)
                 if (cost === undefined && isCosteable(turnModel))
                     unknowns.add(this.model)
                 logVerbose(
-                    `${indent}  ${messages.length} messages, ${usage.total_tokens} tokens ${renderCost(cost)}`
+                    `${indent}  ${toStringList(`${messages.length} messages`, usage.total_tokens ? `${usage.total_tokens} tokens` : undefined, renderCost(cost))}`
                 )
             }
             if (this.chatTurns.length > chatTurns.length)
@@ -274,12 +291,6 @@ export class GenerationStats {
         const children = this.children.slice(0, 10)
         for (const child of children) child.logTokens(indent + "  ")
         if (this.children.length > children.length) logVerbose(`${indent}  ...`)
-        const au = this.accumulatedUsage()
-        if (au?.total_tokens > 0 && (this.resolvedModel || c)) {
-            logVerbose(
-                `${indent}${this.label ? `${this.label} (${this.resolvedModel})` : this.resolvedModel}> ${au.total_tokens} tokens (${au.prompt_tokens} -> ${au.completion_tokens}) ${renderCost(c)}`
-            )
-        }
         if (unknowns.size)
             logVerbose(`missing pricing for ${[...unknowns].join(", ")}`)
     }

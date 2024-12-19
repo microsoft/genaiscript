@@ -5,7 +5,7 @@ script({
 })
 defTool(
     "get_weather",
-    "Get the current weather in a given location",
+    "Get the real-time weather information at a given location or city",
     {
         type: "object",
         properties: {
@@ -13,14 +13,10 @@ defTool(
                 type: "string",
                 description: "The city and state, e.g. Chicago, IL",
             },
-            unit: {
-                type: "string",
-                enum: ["celsius", "fahrenheit"],
-            },
         },
         required: ["location"],
     },
-    ({ location, unit }) => {
+    ({ location }) => {
         return location === "Paris" ? "sunny" : "unknown"
     }
 )

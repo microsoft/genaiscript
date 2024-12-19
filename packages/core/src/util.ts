@@ -47,7 +47,9 @@ export function toArray<T>(a: ArrayLike<T>): T[] {
 }
 
 export function toStringList(...token: string[]) {
-    const md = token.filter((l) => l !== undefined && l !== null).join(", ")
+    const md = token
+        .filter((l) => l !== undefined && l !== null && l !== "")
+        .join(", ")
     return md
 }
 

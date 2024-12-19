@@ -299,20 +299,21 @@ export async function parseTokenFromEnv(
     }
 
     if (provider === MODEL_PROVIDER_GOOGLE) {
-        const token = env.GOOGLE_API_KEY
+        const token = env.GEMINI_API_KEY || env.GOOGLE_API_KEY
         if (!token) return undefined
         if (token === PLACEHOLDER_API_KEY)
-            throw new Error("GOOGLE_API_KEY not configured")
-        const base = env.GOOGLE_API_BASE || GOOGLE_API_BASE
+            throw new Error("GEMINI_API_KEY/GOOGLE_API_BASE not configured")
+        const base =
+            env.GEMINI_API_BASE || env.GOOGLE_API_BASE || GOOGLE_API_BASE
         if (base === PLACEHOLDER_API_BASE)
-            throw new Error("GOOGLE_API_BASE not configured")
+            throw new Error("GEMINI_API_KEY/GOOGLE_API_BASE not configured")
         return {
             provider,
             model,
             base,
             token,
             type: "openai",
-            source: "env: GOOGLE_API_...",
+            source: "env: GEMINI_API_...",
         } satisfies LanguageModelConfiguration
     }
 
