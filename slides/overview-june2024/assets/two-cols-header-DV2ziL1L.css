@@ -1,0 +1,1 @@
+.two-cols-header[data-v-d9d910a6]{display:grid;grid-template-columns:repeat(2,1fr);grid-template-rows:repeat(2,1fr)}.col-header[data-v-d9d910a6]{grid-area:1 / 1 / 2 / 3}.col-left[data-v-d9d910a6]{grid-area:2 / 1 / 3 / 2}.col-right[data-v-d9d910a6]{grid-area:2 / 2 / 3 / 3}.col-bottom[data-v-d9d910a6]{align-self:end;grid-area:3 / 1 / 3 / 3}
