@@ -1,4 +1,4 @@
-name: anthropic tests
+name: google tests
 on:
     workflow_dispatch:
     pull_request:
@@ -9,7 +9,7 @@ on:
             - "packages/cli/**/*"
             - "packages/samples/**/*"
 concurrency:
-    group: ${{ github.workflow }}-${{ github.ref }}-anthropic
+    group: ${{ github.workflow }}-${{ github.ref }}-google
     cancel-in-progress: true
 jobs:
     tests:
@@ -29,10 +29,6 @@ jobs:
             - name: compile
               run: yarn compile
             - name: poem
-              run: yarn run:script poem --model anthropic:claude-3-5-sonnet-20240620 --out-trace $GITHUB_STEP_SUMMARY
+              run: yarn run:script poem --model google:gemini-1.5-flash --out-trace $GITHUB_STEP_SUMMARY
               env:
-                  ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-            - name: cache
-              run: yarn run:script summarize-cached --model anthropic:claude-3-5-sonnet-20240620 --small-model anthropic:claude-3-5-sonnet-20240620
-              env:
-                  ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+                  GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
