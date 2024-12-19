@@ -2,13 +2,12 @@
 import { LanguageModel, LanguageModelInfo, PullModelFunction } from "./chat"
 import { MODEL_PROVIDER_OLLAMA, TOOL_ID } from "./constants"
 import { serializeError } from "./error"
-import { createFetch } from "./fetch"
+import { createFetch, iterateBody } from "./fetch"
 import { parseModelIdentifier } from "./models"
 import { OpenAIChatCompletion } from "./openai"
 import { LanguageModelConfiguration } from "./host"
 import { host } from "./host"
 import { logError, logVerbose } from "./util"
-import { checkCancelled } from "./cancellation"
 
 /**
  * Lists available models for the Ollama language model configuration.
@@ -77,35 +76,24 @@ const pullModel: PullModelFunction = async (modelId, options) => {
         // pull
         logVerbose(`${provider}: pull ${model}`)
         const resPull = await fetch(`${conn.base}/api/pull`, {
-            retries: 0,
             method: "POST",
             headers: {
                 "User-Agent": TOOL_ID,
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({ name: model, stream: true }, null, 2),
+            body: JSON.stringify({ model }),
         })
         if (!resPull.ok) {
             logError(`${provider}: failed to pull model ${model}`)
+            logVerbose(resPull.statusText)
             return { ok: false, status: resPull.status }
         }
-        const reader = resPull.body.getReader()
-        const decoder = host.createUTF8Decoder()
-        let done = false
-        while (!done) {
-            checkCancelled(cancellationToken)
-            const { value, done: readerDone } = await reader.read()
-            done = readerDone
-            if (value) {
-                const chunk = JSON.parse(
-                    decoder.decode(value, { stream: true })
-                )
-                process.stderr.write(".")
-            }
-        }
+        0
+        for await (const chunk of iterateBody(resPull, { cancellationToken }))
+            process.stderr.write(".")
         return { ok: true }
     } catch (e) {
-        logError(`${provider}: failed to pull model ${model}`)
+        logError(e)
         trace.error(e)
         return { ok: false, error: serializeError(e) }
     }

@@ -9,9 +9,10 @@ import {
 } from "./constants"
 import { errorMessage } from "./error"
 import { logVerbose, roundWithPrecision, toStringList } from "./util"
-import { CancellationToken } from "./cancellation"
+import { CancellationOptions, CancellationToken } from "./cancellation"
 import { readText } from "./fs"
 import { resolveHttpProxyAgent } from "./proxy"
+import { host } from "./host"
 
 export type FetchType = (
     input: string | URL | globalThis.Request,
@@ -231,4 +232,27 @@ export function statusToMessage(res?: {
         typeof status === "number" ? status + "" : undefined,
         statusText
     )
+}
+
+export async function* iterateBody(
+    r: Response,
+    options?: CancellationOptions
+): AsyncGenerator<string> {
+    const { cancellationToken } = options || {}
+    const decoder = host.createUTF8Decoder() // UTF-8 decoder for processing data
+    if (r.body.getReader) {
+        const reader = r.body.getReader()
+        while (!cancellationToken?.isCancellationRequested) {
+            const { done, value } = await reader.read()
+            if (done) break
+            const text = decoder.decode(value, { stream: true })
+            yield text
+        }
+    } else {
+        for await (const value of r.body as any) {
+            if (cancellationToken?.isCancellationRequested) break
+            const text = decoder.decode(value, { stream: true })
+            yield text
+        }
+    }
 }
