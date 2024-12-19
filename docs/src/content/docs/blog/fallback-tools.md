@@ -82,4 +82,4 @@ Let me know if you'd like to generate another random number!
 The fallback tool mode is automatically activated for known LLM models that don't support tools natively. The list is not complete
 so open an issue if you stumble upon a model that should have fallback tools enabled.
 
-It can also be activated manually (see [documentation](/genaiscript/reference/scripts/tools#fallback_tools)).
+It can also be activated manually (see [documentation](/genaiscript/reference/scripts/tools#fallbacktools)).

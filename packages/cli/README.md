@@ -205,7 +205,7 @@ const { files } = await retrieval.vectorSearch("cats", "**/*.md")
 
 ### 🐙 GitHub Models and GitHub Copilot
 
-Run models through [GitHub Models](https://microsoft.github.io/genaiscript/getting-started/configuration/#github-models) or [GitHub Copilot](https://microsoft.github.io/genaiscript/getting-started/configuration/#github-copilot-in-visual-studio-code).
+Run models through [GitHub Models](https://microsoft.github.io/genaiscript/getting-started/configuration#github) or [GitHub Copilot](https://microsoft.github.io/genaiscript/getting-started/configuration/#github-copilot-in-visual-studio-code).
 
 ```js
 script({ ..., model: "github:gpt-4o" })
@@ -215,7 +215,7 @@ script({ ..., model: "github:gpt-4o" })
 
 ### 💻 Local Models
 
-Run your scripts with [Open Source models](https://microsoft.github.io/genaiscript/getting-started/configuration/#local-models), like [Phi-3](https://azure.microsoft.com/en-us/blog/introducing-phi-3-redefining-whats-possible-with-slms/), using [Ollama](https://ollama.com/), [LocalAI](https://localai.io/).
+Run your scripts with [Open Source models](https://microsoft.github.io/genaiscript/getting-started/configuration/), like [Phi-3](https://azure.microsoft.com/en-us/blog/introducing-phi-3-redefining-whats-possible-with-slms/), using [Ollama](https://ollama.com/), [LocalAI](https://localai.io/).
 
 ```js
 script({ ..., model: "ollama:phi3" })
@@ -235,7 +235,7 @@ script({ tools: ["python_code_interpreter"] })
 
 ### 🐳 Containers
 
-Run code in Docker [containers](https://microsoft.github.io/genaiscript/reference/scripts/containers).
+Run code in Docker [containers](https://microsoft.github.io/genaiscript/reference/scripts/container).
 
 ```js
 const c = await host.container({ image: "python:alpine" })
@@ -287,7 +287,7 @@ npx genaiscript run tlaplus-linter "*.tla"
 import { run } from "genaiscript/api"
 
 const res = await run("tlaplus-linter", "*.tla")
-``` 
+```
 
 ---
 

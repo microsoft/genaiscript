@@ -9,16 +9,16 @@ const { directory } = Astro.props
 
 const pages = (
     await getCollection("docs", (entry) => entry.id.startsWith(directory + "/"))
-).filter(({ slug }) => slug !== directory)
+).filter(({ id }) => id !== directory)
 .sort((a, b) => (a.data.sidebar.order ?? 0) - (b.data.sidebar.order ?? 0))
 ---
 
 <CardGrid
     >{
-        pages.map(({ data, slug }) => (
+        pages.map(({ data, id }) => (
             <LinkCard
                 title={data.title}
-                href={"/genaiscript/" + slug}
+                href={"/genaiscript/" + id}
                 description={data.description}
             />
         ))

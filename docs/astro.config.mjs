@@ -40,7 +40,7 @@ export default defineConfig({
                         },
                     },
                 }),
-                //starlightLinksValidator(),
+                starlightLinksValidator(),
             ],
             components: {
                 Head: "./src/components/Head.astro",

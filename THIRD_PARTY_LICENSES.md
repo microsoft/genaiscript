@@ -1954,13 +1954,13 @@ Apache License
 
 The following npm packages may be included in this product:
 
- - @aws-sdk/client-cognito-identity@3.713.0
- - @aws-sdk/client-sso-oidc@3.713.0
- - @aws-sdk/client-sso@3.713.0
- - @aws-sdk/client-sts@3.713.0
- - @aws-sdk/credential-provider-cognito-identity@3.713.0
- - @aws-sdk/util-user-agent-browser@3.713.0
- - @aws-sdk/util-user-agent-node@3.713.0
+ - @aws-sdk/client-cognito-identity@3.714.0
+ - @aws-sdk/client-sso-oidc@3.714.0
+ - @aws-sdk/client-sso@3.714.0
+ - @aws-sdk/client-sts@3.714.0
+ - @aws-sdk/credential-provider-cognito-identity@3.714.0
+ - @aws-sdk/util-user-agent-browser@3.714.0
+ - @aws-sdk/util-user-agent-node@3.714.0
  - @smithy/eventstream-codec@2.2.0
  - @smithy/eventstream-codec@3.1.10
  - @smithy/middleware-retry@3.0.30
@@ -2182,7 +2182,7 @@ Apache License
 
 The following npm package may be included in this product:
 
- - @aws-sdk/client-bedrock-runtime@3.713.0
+ - @aws-sdk/client-bedrock-runtime@3.714.0
 
 This package contains the following license:
 
@@ -2392,9 +2392,9 @@ Apache License
 
 The following npm packages may be included in this product:
 
- - @aws-sdk/middleware-host-header@3.713.0
- - @aws-sdk/middleware-recursion-detection@3.713.0
- - @aws-sdk/middleware-user-agent@3.713.0
+ - @aws-sdk/middleware-host-header@3.714.0
+ - @aws-sdk/middleware-recursion-detection@3.714.0
+ - @aws-sdk/middleware-user-agent@3.714.0
  - @smithy/core@2.5.5
  - @smithy/eventstream-serde-browser@3.0.14
  - @smithy/eventstream-serde-config-resolver@3.0.11
@@ -2861,7 +2861,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.85.1
+ - genaiscript-vscode@1.86.0
 
 This package contains the following license:
 
@@ -4161,14 +4161,14 @@ Apache License
 
 The following npm packages may be included in this product:
 
- - @aws-sdk/credential-provider-env@3.713.0
- - @aws-sdk/credential-provider-ini@3.713.0
- - @aws-sdk/credential-provider-node@3.713.0
- - @aws-sdk/credential-providers@3.713.0
- - @aws-sdk/region-config-resolver@3.713.0
- - @aws-sdk/token-providers@3.713.0
- - @aws-sdk/types@3.713.0
- - @aws-sdk/util-endpoints@3.713.0
+ - @aws-sdk/credential-provider-env@3.714.0
+ - @aws-sdk/credential-provider-ini@3.714.0
+ - @aws-sdk/credential-provider-node@3.714.0
+ - @aws-sdk/credential-providers@3.715.0
+ - @aws-sdk/region-config-resolver@3.714.0
+ - @aws-sdk/token-providers@3.714.0
+ - @aws-sdk/types@3.714.0
+ - @aws-sdk/util-endpoints@3.714.0
  - @aws-sdk/util-locate-window@3.693.0
  - @aws-sdk/util-utf8-browser@3.259.0
  - @smithy/abort-controller@2.2.0
@@ -4416,9 +4416,9 @@ Apache License
 
 The following npm packages may be included in this product:
 
- - @aws-sdk/credential-provider-process@3.713.0
- - @aws-sdk/credential-provider-sso@3.713.0
- - @aws-sdk/credential-provider-web-identity@3.713.0
+ - @aws-sdk/credential-provider-process@3.714.0
+ - @aws-sdk/credential-provider-sso@3.714.0
+ - @aws-sdk/credential-provider-web-identity@3.714.0
 
 These packages each contain the following license:
 
@@ -4628,7 +4628,7 @@ Apache License
 
 The following npm packages may be included in this product:
 
- - @aws-sdk/middleware-logger@3.713.0
+ - @aws-sdk/middleware-logger@3.714.0
  - @smithy/node-config-provider@2.3.0
  - @smithy/node-config-provider@3.1.12
  - @smithy/util-config-provider@3.0.0
@@ -5318,8 +5318,8 @@ END OF TERMS AND CONDITIONS
 
 The following npm packages may be included in this product:
 
- - @aws-sdk/core@3.713.0
- - @aws-sdk/credential-provider-http@3.713.0
+ - @aws-sdk/core@3.714.0
+ - @aws-sdk/credential-provider-http@3.714.0
 
 These packages each contain the following license:
 
@@ -6862,8 +6862,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 The following npm packages may be included in this product:
 
- - @anthropic-ai/bedrock-sdk@0.11.2
- - @anthropic-ai/sdk@0.32.1
+ - @anthropic-ai/bedrock-sdk@0.12.0
+ - @anthropic-ai/sdk@0.33.1
 
 These packages each contain the following license:
 
@@ -7027,31 +7027,11 @@ IN THE SOFTWARE.
 
 The following npm package may be included in this product:
 
- - buildcheck@0.0.6
-
-This package contains the following license:
-
-http://github.com/mscdex/buildcheck/raw/master/LICENSE
-
------------
-
-The following npm package may be included in this product:
-
  - ssh2@1.16.0
 
 This package contains the following license:
 
 http://github.com/mscdex/ssh2/raw/master/LICENSE
-
------------
-
-The following npm package may be included in this product:
-
- - cpu-features@0.0.10
-
-This package contains the following license:
-
-https://github.com/mscdex/cpu-features/raw/master/LICENSE
 
 -----------
 
@@ -7885,15 +7865,14 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - @esbuild/linux-x64@0.23.1
- - @napi-rs/canvas-linux-x64-gnu@0.1.65
- - @napi-rs/canvas-linux-x64-musl@0.1.65
+ - @esbuild/win32-x64@0.23.1
+ - @napi-rs/canvas-win32-x64-msvc@0.1.65
  - @tokenizer/token@0.3.0
  - agent-base@6.0.2
  - eastasianwidth@0.2.0
- - genaiscript-core-internal@1.85.1
- - genaiscript-sample@1.85.1
- - genaiscript@1.85.1
+ - genaiscript-core-internal@1.86.0
+ - genaiscript-sample@1.86.0
+ - genaiscript@1.86.0
  - https-proxy-agent@5.0.1
  - isarray@1.0.0
  - javascript-natural-sort@0.7.1
@@ -8911,7 +8890,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - @modelcontextprotocol/sdk@1.0.3
+ - @modelcontextprotocol/sdk@1.0.4
 
 This package contains the following license:
 

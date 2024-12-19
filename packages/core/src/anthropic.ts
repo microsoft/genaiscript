@@ -40,7 +40,6 @@ import { HttpsProxyAgent } from "https-proxy-agent"
 import { MarkdownTrace } from "./trace"
 import { createFetch, FetchType } from "./fetch"
 import { JSONLLMTryParse } from "./json5"
-import { groupBy } from "es-toolkit"
 
 const convertFinishReason = (
     stopReason: Anthropic.Message["stop_reason"]
@@ -60,9 +59,7 @@ const convertFinishReason = (
 }
 
 const convertUsage = (
-    usage:
-        | Anthropic.Beta.PromptCaching.Messages.PromptCachingBetaUsage
-        | undefined
+    usage: Anthropic.Messages.Usage | undefined
 ): ChatCompletionUsage | undefined => {
     if (!usage) return undefined
     const res = {
@@ -92,8 +89,8 @@ const adjustUsage = (
 
 const convertMessages = (
     messages: ChatCompletionMessageParam[]
-): Anthropic.Beta.PromptCaching.PromptCachingBetaMessageParam[] => {
-    const res: Anthropic.Beta.PromptCaching.PromptCachingBetaMessageParam[] = []
+): Anthropic.MessageParam[] => {
+    const res: Anthropic.MessageParam[] = []
     for (const msg of messages.map(convertSingleMessage)) {
         const last = res.at(-1)
         if (last?.role !== msg.role) res.push(msg)
@@ -115,7 +112,7 @@ const convertMessages = (
 
 const convertSingleMessage = (
     msg: ChatCompletionMessageParam
-): Anthropic.Beta.PromptCaching.PromptCachingBetaMessageParam => {
+): Anthropic.MessageParam => {
     const { role } = msg
     if (!role || role === "aici") {
         // Handle AICIRequest or other custom types
@@ -144,7 +141,7 @@ function toCacheControl(msg: ChatCompletionMessageParam): {
 
 const convertToolCallMessage = (
     msg: ChatCompletionAssistantMessageParam
-): Anthropic.Beta.PromptCaching.PromptCachingBetaMessageParam => {
+): Anthropic.MessageParam => {
     return {
         role: "assistant",
         content: msg.tool_calls.map(
@@ -155,14 +152,14 @@ const convertToolCallMessage = (
                     input: JSONLLMTryParse(tool.function.arguments),
                     name: tool.function.name,
                     cache_control: toCacheControl(msg),
-                }) satisfies Anthropic.Beta.PromptCaching.PromptCachingBetaToolUseBlockParam
+                }) satisfies Anthropic.ToolUseBlockParam
         ),
     }
 }
 
 const convertToolResultMessage = (
     msg: ChatCompletionToolMessageParam
-): Anthropic.Beta.PromptCaching.PromptCachingBetaMessageParam => {
+): Anthropic.MessageParam => {
     return {
         role: "user",
         content: [
@@ -171,7 +168,7 @@ const convertToolResultMessage = (
                 tool_use_id: msg.tool_call_id,
                 content: msg.content,
                 cache_control: toCacheControl(msg),
-            } satisfies Anthropic.Beta.PromptCaching.PromptCachingBetaToolResultBlockParam),
+            } satisfies Anthropic.ToolResultBlockParam),
         ],
     }
 }
@@ -181,7 +178,7 @@ const convertStandardMessage = (
         | ChatCompletionSystemMessageParam
         | ChatCompletionAssistantMessageParam
         | ChatCompletionUserMessageParam
-): Anthropic.Beta.PromptCaching.PromptCachingBetaMessageParam => {
+): Anthropic.MessageParam => {
     const role = msg.role === "assistant" ? "assistant" : "user"
     if (Array.isArray(msg.content)) {
         return {
@@ -194,13 +191,13 @@ const convertStandardMessage = (
                             type: "text",
                             text: block,
                             cache_control,
-                        } satisfies Anthropic.Beta.PromptCaching.Messages.PromptCachingBetaTextBlockParam
+                        } satisfies Anthropic.TextBlockParam
                     } else if (block.type === "text") {
                         return {
                             type: "text",
                             text: block.text,
                             cache_control,
-                        } satisfies Anthropic.Beta.PromptCaching.Messages.PromptCachingBetaTextBlockParam
+                        } satisfies Anthropic.TextBlockParam
                     } else if (block.type === "image_url") {
                         return convertImageUrlBlock(block)
                     }
@@ -210,7 +207,7 @@ const convertStandardMessage = (
                         return {
                             type: "text",
                             text: JSON.stringify(block),
-                        } satisfies Anthropic.Beta.PromptCaching.Messages.PromptCachingBetaTextBlockParam
+                        } satisfies Anthropic.TextBlockParam
                 })
                 .map(deleteUndefinedValues),
         }
@@ -222,7 +219,7 @@ const convertStandardMessage = (
                     type: "text",
                     text: msg.content,
                     cache_control: toCacheControl(msg),
-                }) satisfies Anthropic.Beta.PromptCaching.Messages.PromptCachingBetaTextBlockParam,
+                }) satisfies Anthropic.TextBlockParam,
             ],
         }
     }
@@ -230,7 +227,7 @@ const convertStandardMessage = (
 
 const convertImageUrlBlock = (
     block: ChatCompletionContentPartImage
-): Anthropic.Beta.PromptCaching.PromptCachingBetaImageBlockParam => {
+): Anthropic.ImageBlockParam => {
     return {
         type: "image",
         source: {
@@ -265,9 +262,8 @@ const completerFactory = (
         trace: MarkdownTrace,
         cfg: LanguageModelConfiguration,
         httpAgent: HttpsProxyAgent<string>,
-        fetch: FetchType,
-        caching: boolean
-    ) => Promise<Anthropic.Messages | Anthropic.Beta.PromptCaching.Messages>
+        fetch: FetchType
+    ) => Promise<Omit<Anthropic.Messages, "batches" | "countTokens">>
 ) => {
     const completion: ChatCompletionHandler = async (
         req,
@@ -337,13 +333,7 @@ const completerFactory = (
             /sonnet|haiku|opus/i.test(model) &&
             req.messages.some((m) => m.cacheControl === "ephemeral")
         const httpAgent = resolveHttpProxyAgent()
-        const messagesApi = await resolver(
-            trace,
-            cfg,
-            httpAgent,
-            fetch,
-            caching
-        )
+        const messagesApi = await resolver(trace, cfg, httpAgent, fetch)
         const messages = convertMessages(req.messages)
         trace.itemValue(`caching`, caching)
 
@@ -378,8 +368,7 @@ const completerFactory = (
                 switch (chunk.type) {
                     case "message_start":
                         usage = convertUsage(
-                            chunk.message
-                                .usage as Anthropic.Beta.PromptCaching.Messages.PromptCachingBetaUsage
+                            chunk.message.usage as Anthropic.Usage
                         )
                         break
 
@@ -510,49 +499,42 @@ async function listAnthropicModels(
 }
 
 export const AnthropicModel = Object.freeze<LanguageModel>({
-    completer: completerFactory(
-        async (trace, cfg, httpAgent, fetch, caching) => {
-            const Anthropic = (await import("@anthropic-ai/sdk")).default
-            const anthropic = new Anthropic({
-                baseURL: cfg.base,
-                apiKey: cfg.token,
-                fetch,
-                httpAgent,
-            })
-            if (anthropic.baseURL)
-                trace.itemValue(
-                    `url`,
-                    `[${anthropic.baseURL}](${anthropic.baseURL})`
-                )
-            const messagesApi = caching
-                ? anthropic.beta.promptCaching.messages
-                : anthropic.messages
-            return messagesApi
-        }
-    ),
+    completer: completerFactory(async (trace, cfg, httpAgent, fetch) => {
+        const Anthropic = (await import("@anthropic-ai/sdk")).default
+        const anthropic = new Anthropic({
+            baseURL: cfg.base,
+            apiKey: cfg.token,
+            fetch,
+            httpAgent,
+        })
+        if (anthropic.baseURL)
+            trace.itemValue(
+                `url`,
+                `[${anthropic.baseURL}](${anthropic.baseURL})`
+            )
+        const messagesApi = anthropic.messages
+        return messagesApi
+    }),
     id: MODEL_PROVIDER_ANTHROPIC,
     listModels: listAnthropicModels,
 })
 
 export const AnthropicBedrockModel = Object.freeze<LanguageModel>({
-    completer: completerFactory(
-        async (trace, cfg, httpAgent, fetch, caching) => {
-            const AnthropicBedrock = (await import("@anthropic-ai/bedrock-sdk"))
-                .AnthropicBedrock
-            const anthropic = new AnthropicBedrock({
-                baseURL: cfg.base,
-                fetch,
-                httpAgent,
-            })
-            if (anthropic.baseURL)
-                trace.itemValue(
-                    `url`,
-                    `[${anthropic.baseURL}](${anthropic.baseURL})`
-                )
-            const messagesApi = anthropic.messages
-            return messagesApi
-        }
-    ),
+    completer: completerFactory(async (trace, cfg, httpAgent, fetch) => {
+        const AnthropicBedrock = (await import("@anthropic-ai/bedrock-sdk"))
+            .AnthropicBedrock
+        const anthropic = new AnthropicBedrock({
+            baseURL: cfg.base,
+            fetch,
+            httpAgent,
+        })
+        if (anthropic.baseURL)
+            trace.itemValue(
+                `url`,
+                `[${anthropic.baseURL}](${anthropic.baseURL})`
+            )
+        return anthropic.messages
+    }),
     id: MODEL_PROVIDER_ANTHROPIC_BEDROCK,
     listModels: listAnthropicModels,
 })

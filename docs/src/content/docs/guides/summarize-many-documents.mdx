@@ -3,10 +3,11 @@ title: Summarize Many Documents
 description: Learn how to run a GenAIScript over many documents
 keywords: Apply to all, multiple files
 sidebar:
-  order: 8
+    order: 8
 ---
-import { Steps } from '@astrojs/starlight/components';
-import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+import { Steps } from "@astrojs/starlight/components"
+import { Tabs, TabItem } from "@astrojs/starlight/components"
 
 Suppose I have a directory with multiple `.pdf` (or other) files and I want to run a GenAIScript over all of them.
 In this example, I'm generating a catchy tweet for each document and I want to save the tweet in another file.
@@ -27,7 +28,7 @@ script({ title: "gen-tweet" })
 def("FILE", env.files)
 
 $`Given the paper in FILE, write a 140 character summary of the paper 
-that makes the paper sound exciting and encourages readers to look at it.`      
+that makes the paper sound exciting and encourages readers to look at it.`
 ```
 
 </li><li>
@@ -41,7 +42,8 @@ Assuming we give the GenAIScript a paper describing GenAIScript, the Output will
 Discover GenAIScript: a revolutionary scripting language integrating AI to automate complex tasks, making coding accessible to all! #AI #CodingFuture
 ```
 
-Because we didn't tell the LLM to write the output to a file, it will by default go to standard out. 
+Because we didn't tell the LLM to write the output to a file, it will by default go to standard out.
+
 </li>
 </ol>
 
@@ -62,15 +64,15 @@ npx genaiscript run gen-tweet example1.pdf
 The output will be displayed in the terminal.
 </li><li>
 
-Now that we have the script working for a single file, we can use the command line to apply it to a list of 
-files.  Let's assume you start with a file `ex1.pdf` you want the output in a new file `ex1.tweet.md`.
-How you do this depends on the shell script you prefer. (See [batch processing...](/genaiscript/reference/cli/batch)).
+Now that we have the script working for a single file, we can use the command line to apply it to a list of
+files. Let's assume you start with a file `ex1.pdf` you want the output in a new file `ex1.tweet.md`.
+How you do this depends on the shell script you prefer.
 
 <Tabs>
   <TabItem label="bash">
 
 ```bash wrap frame="none"
-for file in *.pdf; do 
+for file in *.pdf; do
   newfile="${file%.pdf}.tweet.md"; # foo.pdf -> foo.tweet.md
   if [ ! -f "$newfile" ]; then # skip if already exists
     npx genaiscript run gen-tweet $file > $newfile
@@ -85,10 +87,11 @@ done
 Get-ChildItem -Filter *.pdf | ForEach-Object {
   $newName = $_.BaseName + ".tweet.md"
   if (-not (Test-Path $newName)) {
-    npx genaiscript run gen-tweet $_.FullName | Set-Content "$newName"  
+    npx genaiscript run gen-tweet $_.FullName | Set-Content "$newName"
   }
 }
 ```
+
 </TabItem>
 <TabItem label="Python (on Windows)">
 
@@ -99,10 +102,11 @@ for input_file in sys.argv[1:]:
     if not os.path.exists(output_file):
         with open(output_file, 'w') as outfile:
             result = subprocess.check_output(
-              ["npx", "genaiscript", "run", "gen-tweet", 
+              ["npx", "genaiscript", "run", "gen-tweet",
               input_file], universal_newlines=True)
             outfile.write(result)
 ```
+
 </TabItem>
 
 <TabItem label="JavaScript (node.js)">
@@ -112,12 +116,14 @@ for input_file in sys.argv[1:]:
 import "zx/globals"
 
 const files = await glob("*.pdf")
-for(const file of files) {
-  const out = file.replace(/\.pdf$/i, '.tweet.md') // foo.pdf -> foo.tweet.md
-  if (!await fs.exists(out)) // don't regenerate if it already exists
-    await $`npx --yes genaiscript run gen-tweet ${file} > ${out}`
+for (const file of files) {
+    const out = file.replace(/\.pdf$/i, ".tweet.md") // foo.pdf -> foo.tweet.md
+    if (!(await fs.exists(out)))
+        // don't regenerate if it already exists
+        await $`npx --yes genaiscript run gen-tweet ${file} > ${out}`
 }
 ```
+
 This script requires [zx](https://github.com/google/zx).
 
 </TabItem>

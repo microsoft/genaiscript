@@ -273,7 +273,7 @@ The quick brown fox jumps over the lazy dog.
 
 <Card title="File search" icon="document">
 
-Grep or fuzz search [files](/genaiscript/reference/script/files)
+Grep or fuzz search [files](/genaiscript/reference/scripts/files)
 
 ```js wrap
 const { files } = await workspace.grep(/[a-z][a-z0-9]+/, { globs: "*.md" })
@@ -293,7 +293,7 @@ const pages = await retreival.webSearch("what are the latest news about AI?")
 
 <Card title="Browser automation" icon="approve-check-circle">
 
-Browse and scrape the web with [Playwright](/genaiscript/reference/scripts/browse).
+Browse and scrape the web with [Playwright](/genaiscript/reference/scripts/browser).
 
 ```js
 const page = await host.browse("https://...")
@@ -332,8 +332,8 @@ const res = await safety.detectPromptInjection(env.vars.input)
 
 <Card title="GitHub Models and GitHub Copilot" icon="github">
 
-Run models through GitHub using [GitHub Models](/getting-started/configuration/#github-models)
-or [GitHub Copilot](/getting-started/configuration/#github-copilot-in-visual-studio-code).
+Run models through GitHub using [GitHub Models](/genaiscript/getting-started/configuration#github)
+or [GitHub Copilot](/genaiscript/getting-started/configuration/#github-copilot).
 
 ```js wrap
 script({ ..., model: "github:gpt-4o" })
@@ -354,7 +354,7 @@ script({ ..., model: "google:gemini-1.5-flash"})
 
 <Card title="Local Models" icon="laptop">
 
-Run your scripts with [Open Source models](/genaiscript/getting-started/configuration/#local-models),
+Run your scripts with [Open Source models](/genaiscript/getting-started/configuration/),
 like [Phi-3](https://azure.microsoft.com/en-us/blog/introducing-phi-3-redefining-whats-possible-with-slms/),
 using [Ollama](https://ollama.com/), [LocalAI](https://localai.io/)...
 
@@ -376,7 +376,7 @@ script({ tools: ["python_code_interpreter"] })
 
 <Card title="Containers" icon="seti:docker">
 
-Run code in Docker [containers](/genaiscript/reference/scripts/containers).
+Run code in Docker [containers](/genaiscript/reference/scripts/container).
 
 ```js wrap
 const c = await host.container({

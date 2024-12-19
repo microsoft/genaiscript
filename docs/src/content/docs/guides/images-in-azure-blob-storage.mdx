@@ -69,7 +69,7 @@ The `image` buffer can be passed in `defImages` to be used in the prompt.
 ```
 
 However since images can be "heavy", you will most likely have to use
-[inline prompts](/genaiscript/reference/prompts/inline-prompts) to split into smaller queries. (Note the use of `_.`)
+[inline prompts](/genaiscript/reference/scripts/inline-prompts) to split into smaller queries. (Note the use of `_.`)
 
 ```ts 'await runPrompt(_ =>' '_.'
 for await (const blob of containerClient.listBlobsFlat()) {

@@ -98,7 +98,7 @@ You can use `parsers.JSONL` to parse the JSONL files into an array of object (`a
 const res = parsers.JSONL(file)
 ```
 
-## [XML](./xml.md)
+## [XML](/genaiscript/reference/scripts/xml)
 
 The `parsers.XML` function parses for the [XML format](https://en.wikipedia.org/wiki/XML).
 
@@ -129,13 +129,13 @@ title: "Hello, World!"
 ...
 ```
 
-You can use the `parsers.frontmatter` or [MD](./md.md) to parse out the metadata into an object
+You can use the `parsers.frontmatter` or [MD](/genaiscript/reference/scripts/md) to parse out the metadata into an object
 
 ```js
 const meta = parsers.frontmatter(file)
 ```
 
-## [CSV](./csv.md)
+## [CSV](/genaiscript/reference/scripts/csv)
 
 The `parsers.CSV` function parses for the [CSV format](https://en.wikipedia.org/wiki/Comma-separated_values). If successful, the function returns an array of object where each object represents a row in the CSV file.
 
@@ -150,15 +150,15 @@ pass an array of header names in the options.
 const res = parsers.CSV("...", { delimiter: "\t", headers: ["name", "age"] })
 ```
 
-## [PDF](./pdf.md)
+## [PDF](/genaiscript/reference/scripts/pdf)
 
 The `parsers.PDF` function reads a PDF file and attempts to cleanly convert it into a text format. Read the [/genaiscript/reference/scripts/pdf](/genaiscript/reference/scripts/pdf) for more information.
 
-## [DOCX](./docx.md)
+## [DOCX](/genaiscript/reference/scripts/docx)
 
 The `parsers.DOCX` function reads a .docx file as raw text.
 
-## [INI](./ini.md)
+## [INI](/genaiscript/reference/scripts/ini)
 
 The `parsers.INI` parses [.ini](https://en.wikipedia.org/wiki/INI_file) files, typically
 used for configuration files. This format is similar to the `key=value` format.
@@ -167,7 +167,7 @@ used for configuration files. This format is similar to the `key=value` format.
 KEY=VALUE
 ```
 
-## [XLSX](./xlsx.md)
+## [XLSX](/genaiscript/reference/scripts/xlsx)
 
 The `parsers.XLSX` function reads a .xlsx file and returns an array of objects where each object represents a row in the spreadsheet.
 The first row is used as headers.

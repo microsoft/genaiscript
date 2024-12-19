@@ -74,7 +74,7 @@ The script uses [workspace.grep](/genaiscript/reference/scripts/files#grep) to f
 ## Generating alt text
 
 For each image URL found, we generate alt text using an [inline prompt](/genaiscript/reference/scripts/inline-prompts)
-and [defImages](/genaiscript/references/scripts/images).
+and [defImages](/genaiscript/reference/scripts/images).
 
 ```ts
 for (const file of files) {
@@ -154,10 +154,10 @@ to prevent accidentally generating harmful content.
 
 The following measures are taken to ensure the safety of the generated content.
 
--   This script includes system prompts to prevent prompt injection and harmful content generation.
+- This script includes system prompts to prevent prompt injection and harmful content generation.
     - [system.safety_jailbreak](/genaiscript/reference/scripts/system#systemsafety_jailbreak)
     - [system.safety_harmful_content](/genaiscript/reference/scripts/system#systemsafety_harmful_content)
--   The generated description is saved to a file at a specific path, which allows for a manual review before committing the changes.
+- The generated description is saved to a file at a specific path, which allows for a manual review before committing the changes.
 
 Additional measures to further enhance safety would be to run [a model with a safety filter](https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/content-filter?tabs=warning%2Cuser-prompt%2Cpython-new)
 or validate the message with a [content safety service](/genaiscript/reference/scripts/content-safety).

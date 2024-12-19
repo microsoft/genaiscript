@@ -7,7 +7,7 @@ description: Explore various fence formats supported by GenAIScript for optimal
 keywords: fence format, LLM input, markdown, xml, GenAIScript
 ---
 
-GenAIScript supports various types of "fence" formats when rendering [def](/genaiscript/reference/scripts/content) function, since LLMs may behave differently depending on the format of the input text.
+GenAIScript supports various types of "fence" formats when rendering [def](/genaiscript/reference/scripts/context) function, since LLMs may behave differently depending on the format of the input text.
 **As of 1.82.0, the default format is to use XML tags.**
 
 - [Anthropic](https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/use-xml-tags)

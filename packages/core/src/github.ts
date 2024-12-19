@@ -210,7 +210,7 @@ export function generatedByFooter(
     info: { runUrl?: string },
     code?: string
 ) {
-    return `\n\n> AI-generated content ${link(script.id, info.runUrl)}${code ? ` \`${code}\` ` : ""} may be incorrect\n\n`
+    return `\n\n> AI-generated content by ${link(script.id, info.runUrl)}${code ? ` \`${code}\` ` : ""} may be incorrect\n\n`
 }
 
 export function appendGeneratedComment(

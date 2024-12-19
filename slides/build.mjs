@@ -12,7 +12,7 @@ for (const slide of slides) {
     console.log(slide)
     const name = slide.replace(/(-|_)?slides(-|_)?/g, "").replace(/\.md$/, "") || "default"
 
-    summary.push(`- [${name}](/genaiscript/slides/${name}/)`)
+    summary.push(`- [${name}](https://microsoft.github.io/genaiscript/slides/${name}/)`)
     await $`slidev build ${slide} --base /genaiscript/slides/${name}/ --out ../docs/public/slides/${name}`
 }
 

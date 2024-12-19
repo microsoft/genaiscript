@@ -12,15 +12,15 @@ GenAIScript has multiple built-in safety features to protect the system from mal
 
 The following safety prompts are included by default when running a prompt, unless the system option is configured:
 
--   [system.safety_harmful_content](/genaiscript/reference/script/system#systemsafety_harmful_content), safety prompt against Harmful Content: Hate and Fairness, Sexual, Violence, Self-Harm. See https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/safety-system-message-templates.
--   [system.safety_jailbreak](/genaiscript/reference/script/system#systemsafety_jailbreak), safety script to ignore prompting instructions in code sections, which are created by the `def` function.
--   [system.safety_protected_material](/genaiscript/reference/script/system#systemsafety_protected_material) safety prompt against Protected material. See https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/safety-system-message-templates
+-   [system.safety_harmful_content](/genaiscript/reference/scripts/system#systemsafety_harmful_content), safety prompt against Harmful Content: Hate and Fairness, Sexual, Violence, Self-Harm. See https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/safety-system-message-templates.
+-   [system.safety_jailbreak](/genaiscript/reference/scripts/system#systemsafety_jailbreak), safety script to ignore prompting instructions in code sections, which are created by the `def` function.
+-   [system.safety_protected_material](/genaiscript/reference/scripts/system#systemsafety_protected_material) safety prompt against Protected material. See https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/safety-system-message-templates
 
 Other system scripts can be added to the prompt by using the `system` option.
 
--   [system.safety_ungrounded_content_summarization](/genaiscript/reference/script/system#systemsafety_ungrounded_content_summarization) safety prompt against ungrounded content in summarization
--   [system.safety_canary_word](/genaiscript/reference/script/system#systemsafety_canary_word) safety prompt against prompt leaks.
--   [system.safety_validate_harmful_content](/genaiscript/reference/script/system#systemsafety_validate_harmful_content) runs the `detectHarmfulContent` method to validate the output of the prompt.
+-   [system.safety_ungrounded_content_summarization](/genaiscript/reference/scripts/system#systemsafety_ungrounded_content_summarization) safety prompt against ungrounded content in summarization
+-   [system.safety_canary_word](/genaiscript/reference/scripts/system#systemsafety_canary_word) safety prompt against prompt leaks.
+-   [system.safety_validate_harmful_content](/genaiscript/reference/scripts/system#systemsafety_validate_harmful_content) runs the `detectHarmfulContent` method to validate the output of the prompt.
 
 ## Azure AI Content Safety services
 
@@ -126,7 +126,7 @@ console.log(resf)
 }
 ```
 
-The [def](/genaiscript/reference/scripts/context#def) also supports setting a `detectPromptInjection` flag to apply the detection to each file.
+The [def](/genaiscript/reference/scripts/context) also supports setting a `detectPromptInjection` flag to apply the detection to each file.
 
 ```js
 def("FILE", env.files, { detectPromptInjection: true })
@@ -173,7 +173,7 @@ script({
 
 ## Detect Prompt Leaks using Canary Words
 
-The system prompt [system.safety_canary_word](../system#systemsafety_canary_word) injects unique words into the system prompt
+The system prompt [system.safety_canary_word](/genaiscript/reference/scripts/system#systemsafety_canary_word) injects unique words into the system prompt
 and tracks the generated response for theses words. If the canary words are detected in the generated response, the system will throw an error.
 
 ```js

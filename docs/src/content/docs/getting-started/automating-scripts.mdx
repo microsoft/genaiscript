@@ -73,8 +73,8 @@ The secrets and variables should match the `.env` file in your local environment
 
 Use the [cli](/genaiscript/reference/cli/run/) to run the script in a GitHub Action.
 
--   Make sure to pass the secrets and variables to the script to give access to the LLM.
--   use the `--out <path>` flag to store the results in a directory so that you can upload them as an artifact.
+- Make sure to pass the secrets and variables to the script to give access to the LLM.
+- use the `--out <path>` flag to store the results in a directory so that you can upload them as an artifact.
 
 ```yaml
 - run: npx --yes genaiscript run <script> <...files> --out genairesults
@@ -97,7 +97,7 @@ Use the `out-trace` flag to output the trace to the summary file, `$GITHUB_STEP_
 
 ### Diff
 
-You can use `host.exec` to execute [git]() command to retrieve changes in the current branch.
+You can use `host.exec` to execute [git](https://git-scm.com/) command to retrieve changes in the current branch.
 
 ```js
 const { stdout: changes } = await host.exec("git", [

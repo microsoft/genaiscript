@@ -15,7 +15,7 @@ The file paths are rooted in the project workspace folder. In Visual Studio Code
 The variable `env.files` contains an array of files that have been
 selected by the user through the user interface or the command line.
 
-You can pass `env.files` directly in the [def](/genaiscript/reference/script/context)
+You can pass `env.files` directly in the [def](/genaiscript/reference/scripts/context)
 function and add additional filters to the files.
 
 ```js
