@@ -253,12 +253,8 @@ export async function cli() {
             "Converts file through a GenAIScript. Each file is processed separately through the GenAIScript and the LLM output is saved to a <filename>.genai.md (or custom suffix)."
         )
         .arguments("<script> [files...]")
-        .option(
-            "-s, --suffix <string>",
-            "suffix for converted files",
-            GENAI_MD_EXT
-        )
-        .option("-rw, --rewrite", "rewrite input file with output")
+        .option("-s, --suffix <string>", "suffix for converted files")
+        .option("-rw, --rewrite", "rewrite input file with output (overrides suffix)")
         .option(
             "-cw, --cancel-word <string>",
             "cancel word which allows the LLM to notify to ignore output"
