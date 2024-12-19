@@ -5,7 +5,11 @@ import { emptyDir, ensureDir, exists } from "fs-extra"
 import { convertDiagnosticsToSARIF } from "./sarif"
 import { buildProject } from "./build"
 import { diagnosticsToCSV } from "../../core/src/ast"
-import { CancellationOptions } from "../../core/src/cancellation"
+import {
+    AbortSignalCancellationController,
+    CancellationOptions,
+    toSignal,
+} from "../../core/src/cancellation"
 import { ChatCompletionsProgressReport } from "../../core/src/chattypes"
 import { runTemplate } from "../../core/src/promptrunner"
 import {
@@ -80,18 +84,21 @@ import {
 } from "../../core/src/logging"
 import { ensureDotGenaiscriptPath, setupTraceWriting } from "./trace"
 import { applyModelOptions } from "./modealias"
+import { createCancellationController } from "./cancel"
 
 export async function runScriptWithExitCode(
     scriptId: string,
     files: string[],
-    options: Partial<PromptScriptRunOptions> &
-        TraceOptions &
-        CancellationOptions
+    options: Partial<PromptScriptRunOptions> & TraceOptions
 ) {
     await ensureDotGenaiscriptPath()
+    const canceller = createCancellationController()
+    const cancellationToken = canceller.token
+
     const runRetry = Math.max(1, normalizeInt(options.runRetry) || 1)
     let exitCode = -1
     for (let r = 0; r < runRetry; ++r) {
+        if (cancellationToken.isCancellationRequested) break
         let outTrace = options.outTrace
         if (!outTrace)
             outTrace = dotGenaiscriptPath(
@@ -101,6 +108,7 @@ export async function runScriptWithExitCode(
             )
         const res = await runScriptInternal(scriptId, files, {
             ...options,
+            cancellationToken,
             outTrace,
         })
         exitCode = res.exitCode
@@ -118,6 +126,8 @@ export async function runScriptWithExitCode(
             await delay(delayMs)
         }
     }
+    if (cancellationToken.isCancellationRequested)
+        exitCode = USER_CANCELLED_ERROR_CODE
     process.exit(exitCode)
 }
 

@@ -31,6 +31,8 @@ import { tracePromptResult } from "../../core/src/chat"
 import { dirname, join } from "node:path"
 import { link } from "../../core/src/markdown"
 import { hash } from "../../core/src/crypto"
+import { createCancellationController } from "./cancel"
+import { toSignal } from "../../core/src/cancellation"
 
 export async function convertFiles(
     scriptId: string,
@@ -52,6 +54,9 @@ export async function convertFiles(
     } = options || {}
 
     await ensureDotGenaiscriptPath()
+    const canceller = createCancellationController()
+    const cancellationToken = canceller.token
+    const signal = toSignal(cancellationToken)
     applyModelOptions(options)
     const outTrace = dotGenaiscriptPath(
         CONVERTS_DIR_NAME,
@@ -128,6 +133,7 @@ export async function convertFiles(
     const results: Record<string, string> = {}
     const p = new PLimitPromiseQueue(normalizeInt(concurrency) || 1)
     await p.mapAll(files, async (file) => {
+        if (cancellationToken.isCancellationRequested) return
         const outf = rewrite ? file.filename : file.filename + suffix
         logInfo(`${file.filename} -> ${outf}`)
         const fileOutTrace = join(
@@ -142,6 +148,7 @@ export async function convertFiles(
             const result = await run(script.filename, file.filename, {
                 label: file.filename,
                 outTrace: fileOutTrace,
+                signal,
                 ...restOptions,
             })
             tracePromptResult(fileTrace, result)
