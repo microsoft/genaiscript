@@ -91,6 +91,7 @@ const pullModel: PullModelFunction = async (modelId, options) => {
         0
         for await (const chunk of iterateBody(resPull, { cancellationToken }))
             process.stderr.write(".")
+        process.stderr.write("\n")
         return { ok: true }
     } catch (e) {
         logError(e)
