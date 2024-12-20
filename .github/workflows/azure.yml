@@ -1,4 +1,4 @@
-name: google tests
+name: azure openai tests
 on:
     workflow_dispatch:
     release:
@@ -7,12 +7,12 @@ on:
     pull_request:
         paths:
             - yarn.lock
-            - ".github/workflows/google.yml"
+            - ".github/workflows/azure.yml"
             - "packages/core/**/*"
             - "packages/cli/**/*"
             - "packages/samples/**/*"
 concurrency:
-    group: ${{ github.workflow }}-${{ github.ref }}-google
+    group: ${{ github.workflow }}-${{ github.ref }}-azure
     cancel-in-progress: true
 jobs:
     tests:
@@ -32,6 +32,7 @@ jobs:
             - name: compile
               run: yarn compile
             - name: poem
-              run: yarn run:script poem --model google:gemini-1.5-flash --out-trace $GITHUB_STEP_SUMMARY
+              run: yarn run:script poem --model azure:gpt-4o -tlp 5 --out-trace $GITHUB_STEP_SUMMARY
               env:
-                  GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+                  AZURE_OPENAI_API_ENDPOINT: ${{ secrets.AZURE_OPENAI_API_ENDPOINT }}
+                  AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}

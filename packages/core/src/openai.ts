@@ -44,8 +44,7 @@ import { INITryParse } from "./ini"
 import { serializeChunkChoiceToLogProbs } from "./logprob"
 
 export function getConfigHeaders(cfg: LanguageModelConfiguration) {
-    const { provider } = parseModelIdentifier(cfg.model)
-    let { token, type, base } = cfg
+    let { token, type, base, provider } = cfg
     if (type === "azure_serverless_models") {
         const keys = INITryParse(token)
         if (keys && Object.keys(keys).length > 1) token = keys[cfg.model]

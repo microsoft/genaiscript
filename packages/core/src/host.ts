@@ -103,7 +103,6 @@ export function isAzureTokenExpired(token: AuthenticationToken) {
 }
 
 export interface AzureTokenResolver {
-    clear(): void
     token(
         credentialsType: AzureCredentialsType,
         options?: CancellationOptions
