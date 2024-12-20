@@ -68,10 +68,10 @@
             "prediction": false,
             "bearerToken": true,
             "aliases": {
-                "large": "gemini-1.5-pro-latest",
+                "large": "gemini-2.0-flash-exp",
                 "small": "gemini-1.5-flash-latest",
-                "vision": "gemini-1.5-pro-latest",
-                "reasoning": "gemini-2.0-flash-exp",
+                "vision": "gemini-2.0-flash-exp",
+                "reasoning": "gemini-2.0-flash-thinking-exp-1219",
                 "embeddings": "text-embedding-004"
             }
         },
@@ -81,7 +81,7 @@
             "prediction": false
         },
         {
-            "id": "mistal",
+            "id": "mistral",
             "detail": "Mistral AI",
             "prediction": false,
             "bearerToken": true,
@@ -89,6 +89,20 @@
                 "large": "mistral-large-latest",
                 "small": "mistral-small-latest",
                 "vision": "pixtral-large-latest"
+            }
+        },
+        {
+            "id": "alibaba",
+            "detail": "Alibaba models",
+            "openaiCompatibility": "https://www.alibabacloud.com/help/en/model-studio/developer-reference/compatibility-of-openai-with-dashscope",
+            "tools": false,
+            "prediction": false,
+            "bearerToken": true,
+            "aliases": {
+                "large": "qwen-max",
+                "small": "qwen-turbo",
+                "long": "qwen-plus",
+                "embeddings": "text-embedding-v3"
             }
         },
         {
@@ -104,16 +118,6 @@
                 "small": "gpt-4o-mini",
                 "vision": "gpt-4o",
                 "embeddings": "text-embedding-3-small",
-                "reasoning": "o1-preview",
-                "reasoning_small": "o1-mini"
-            }
-        },
-        {
-            "id": "client",
-            "detail": "GitHub Copilot Chat Modes",
-            "aliases": {
-                "large": "gpt-4o",
-                "small": "gpt-4o-mini",
                 "reasoning": "o1-preview",
                 "reasoning_small": "o1-mini"
             }
@@ -141,20 +145,6 @@
             "prediction": false
         },
         {
-            "id": "alibaba",
-            "detail": "Alibaba models",
-            "openaiCompatibility": "https://www.alibabacloud.com/help/en/model-studio/developer-reference/compatibility-of-openai-with-dashscope",
-            "tools": false,
-            "prediction": false,
-            "bearerToken": true,
-            "aliases": {
-                "large": "qwen-max",
-                "small": "qwen-turbo",
-                "long": "qwen-plus",
-                "embeddings": "text-embedding-v3"
-            }
-        },
-        {
             "id": "llamafile",
             "detail": "llamafile.ai local model",
             "prediction": false
@@ -163,6 +153,18 @@
             "id": "litellm",
             "detail": "LiteLLM proxy",
             "prediction": false
+        },
+        {
+            "id": "client",
+            "detail": "GitHub Copilot Chat Modes",
+            "tools": false,
+            "prediction": false,
+            "aliases": {
+                "large": "gpt-4o",
+                "small": "gpt-4o-mini",
+                "reasoning": "o1-preview",
+                "reasoning_small": "o1-mini"
+            }
         }
     ],
     "aliases": {
