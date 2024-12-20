@@ -6,12 +6,12 @@
             "detail": "OpenAI (or compatible)",
             "bearerToken": true,
             "aliases": {
-                "large": "openai:gpt-4o",
-                "small": "openai:gpt-4o-mini",
-                "vision": "openai:gpt-4o",
-                "embeddings": "openai:text-embedding-3-small",
-                "reasoning": "openai:o1",
-                "reasoning_small": "openai:o1-mini"
+                "large": "gpt-4o",
+                "small": "gpt-4o-mini",
+                "vision": "gpt-4o",
+                "embeddings": "text-embedding-3-small",
+                "reasoning": "o1",
+                "reasoning_small": "o1-mini"
             }
         },
         {
@@ -24,11 +24,11 @@
             "detail": "Azure AI OpenAI (serverless deployments)",
             "bearerToken": false,
             "aliases": {
-                "large": "azure_serverless:gpt-4o",
-                "small": "azure_serverless:gpt-4o-mini",
-                "vision": "azure_serverless:gpt-4o",
-                "reasoning": "azure_serverless:o1-preview",
-                "reasoning_small": "azure_serverless:o1-mini"
+                "large": "gpt-4o",
+                "small": "gpt-4o-mini",
+                "vision": "gpt-4o",
+                "reasoning": "o1",
+                "reasoning_small": "o1-mini"
             }
         },
         {
@@ -44,9 +44,19 @@
             "topLogprobs": false,
             "prediction": false,
             "aliases": {
-                "large": "anthropic:claude-2.1",
-                "small": "anthropic:claude-instant-1.2",
-                "vision": "anthropic:claude-2.1"
+                "large": "claude-3-5-sonnet-latest",
+                "small": "claude-3-5-haiku-latest"
+            }
+        },
+        {
+            "id": "anthropic_bedrock",
+            "detail": "Anthropic on AWS Bedrock models",
+            "logprobs": false,
+            "topLogprobs": false,
+            "prediction": false,
+            "aliases": {
+                "large": "anthropic.claude-3-5-sonnet-20241022-v2:0",
+                "small": "anthropic.claude-3-5-haiku-20241022-v1:0"
             }
         },
         {
@@ -58,9 +68,11 @@
             "prediction": false,
             "bearerToken": true,
             "aliases": {
-                "large": "google:gemini-1.5-pro-latest",
-                "small": "google:gemini-1.5-flash-latest",
-                "vision": "google:gemini-1.5-flash-latest"
+                "large": "gemini-1.5-pro-latest",
+                "small": "gemini-1.5-flash-latest",
+                "vision": "gemini-1.5-pro-latest",
+                "reasoning": "gemini-2.0-flash-exp",
+                "embeddings": "text-embedding-004"
             }
         },
         {
@@ -72,7 +84,12 @@
             "id": "mistal",
             "detail": "Mistral AI",
             "prediction": false,
-            "bearerToken": true
+            "bearerToken": true,
+            "aliases": {
+                "large": "mistral-large-latest",
+                "small": "mistral-small-latest",
+                "vision": "pixtral-large-latest"
+            }
         },
         {
             "id": "github",
@@ -83,20 +100,22 @@
             "prediction": false,
             "bearerToken": true,
             "aliases": {
-                "large": "github:gpt-4o",
-                "small": "github:gpt-4o-mini",
-                "vision": "github:gpt-4o",
-                "embeddings": "github:text-embedding-3-small",
-                "reasoning": "github:o1-preview",
-                "reasoning_small": "github:o1-mini"
+                "large": "gpt-4o",
+                "small": "gpt-4o-mini",
+                "vision": "gpt-4o",
+                "embeddings": "text-embedding-3-small",
+                "reasoning": "o1-preview",
+                "reasoning_small": "o1-mini"
             }
         },
         {
             "id": "client",
             "detail": "GitHub Copilot Chat Modes",
             "aliases": {
-                "large": "client:gpt-4o",
-                "small": "client:gpt-4o-mini"
+                "large": "gpt-4o",
+                "small": "gpt-4o-mini",
+                "reasoning": "o1-preview",
+                "reasoning_small": "o1-mini"
             }
         },
         {
@@ -127,7 +146,13 @@
             "openaiCompatibility": "https://www.alibabacloud.com/help/en/model-studio/developer-reference/compatibility-of-openai-with-dashscope",
             "tools": false,
             "prediction": false,
-            "bearerToken": true
+            "bearerToken": true,
+            "aliases": {
+                "large": "qwen-max",
+                "small": "qwen-turbo",
+                "long": "qwen-plus",
+                "embeddings": "text-embedding-v3"
+            }
         },
         {
             "id": "llamafile",
@@ -143,7 +168,8 @@
     "aliases": {
         "agent": "large",
         "long": "large",
-        "memory": "large"
+        "memory": "large",
+        "reasoning_small": "reasoning"
     },
     "pricings": {
         "openai:gpt-4o": {
@@ -545,6 +571,26 @@
         "anthropic:claude-3-5-sonnet-20240620": {
             "price_per_million_input_tokens": 3,
             "price_per_million_output_tokens": 15,
+            "input_cache_token_rebate": 0.1
+        },
+        "anthropic:claude-3-5-sonnet-20241022": {
+            "price_per_million_input_tokens": 3,
+            "price_per_million_output_tokens": 15,
+            "input_cache_token_rebate": 0.1
+        },
+        "anthropic:claude-3-5-sonnet-latest": {
+            "price_per_million_input_tokens": 3,
+            "price_per_million_output_tokens": 15,
+            "input_cache_token_rebate": 0.1
+        },
+        "anthropic:claude-3-5-haiku-20241022": {
+            "price_per_million_input_tokens": 0.8,
+            "price_per_million_output_tokens": 4,
+            "input_cache_token_rebate": 0.1
+        },
+        "anthropic:claude-3-5-haiku-latest": {
+            "price_per_million_input_tokens": 0.8,
+            "price_per_million_output_tokens": 4,
             "input_cache_token_rebate": 0.1
         }
     }

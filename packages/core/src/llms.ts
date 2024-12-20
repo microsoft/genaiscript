@@ -16,26 +16,20 @@ export function defaultModelConfigurations(): ModelConfigurations {
         ...(Object.fromEntries(
             aliases.map((alias) => [alias, readModelAlias(alias)])
         ) as ModelConfigurations),
-        ...Object.fromEntries(
-            Object.entries(LLMS.aliases).map((kv) => [
-                kv[0],
-                {
-                    model: kv[1],
-                    source: "default",
-                } satisfies ModelConfiguration,
-            ])
-        ),
     }
     return structuredClone(res)
 
     function readModelAlias(alias: string) {
         const candidates = Object.values(LLMS.providers)
-            .map(({ aliases }) => (aliases as Record<string, string>)?.[alias])
+            .map(({ id, aliases }) => {
+                const ref = (aliases as Record<string, string>)?.[alias]
+                return ref ? `${id}:${ref}` : undefined
+            })
             .filter((c) => !!c)
         return deleteEmptyValues({
             model: candidates[0],
-            source: "default",
             candidates,
+            source: "default",
         })
     }
 }
