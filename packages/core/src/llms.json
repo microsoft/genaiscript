@@ -64,6 +64,8 @@
             "detail": "Google AI",
             "seed": false,
             "tools": false,
+            "logprobs": false,
+            "topLogprobs": false,
             "openaiCompatibility": "https://ai.google.dev/gemini-api/docs/openai",
             "prediction": false,
             "bearerToken": true,
