@@ -7,8 +7,8 @@
  * @returns
  */
 async function judgeClassify(
-    task: Awaitable<string>,
-    result: Awaitable<string>,
+    task: Awaitable<string | WorkspaceFile>,
+    result: Awaitable<string | WorkspaceFile>,
     categories: Record<string, string>,
     options?: {
         logprobs?: boolean
