@@ -1052,18 +1052,20 @@ export function tracePromptResult(
     const { text } = resp || {}
 
     // try to sniff the output type
-    const language = JSON5TryParse(text)
-        ? "json"
-        : XMLTryParse(text)
-          ? "xml"
-          : /^(-|\*|#+|```)\s/im.test(text)
-            ? "markdown"
-            : "text"
-    trace.detailsFenced(`🔠 output`, text, language)
-    if (language === "markdown")
-        trace.appendContent(
-            "\n\n" + HTMLEscape(prettifyMarkdown(text)) + "\n\n"
-        )
+    if (text !== undefined) {
+        const language = JSON5TryParse(text)
+            ? "json"
+            : XMLTryParse(text)
+              ? "xml"
+              : /^(-|\*|#+|```)\s/im.test(text)
+                ? "markdown"
+                : "text"
+        trace.detailsFenced(`🔠 output`, text, language)
+        if (language === "markdown")
+            trace.appendContent(
+                "\n\n" + HTMLEscape(prettifyMarkdown(text)) + "\n\n"
+            )
+    }
 }
 
 export function appendUserMessage(
