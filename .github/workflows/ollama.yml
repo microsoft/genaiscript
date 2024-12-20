@@ -3,7 +3,7 @@ on:
     workflow_dispatch:
     release:
         types:
-            - created
+            - published
     pull_request:
         paths:
             - yarn.lock
