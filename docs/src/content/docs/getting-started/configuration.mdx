@@ -481,7 +481,7 @@ The rest of the steps are the same: Find the deployment name and use it in your 
 
 ## Azure AI Serverless Deployments <a id="azure_serverless" href=""></a>
 
-You can deploy "serverless" models through [Azure AI Studio](https://ai.azure.com/) and pay as you go per token.
+You can deploy "serverless" models through [Azure AI Foundry](https://ai.azure.com/) and pay as you go per token.
 You can browse the [Azure AI model catalog](https://ai.azure.com/explore/models)
 and use the [serverless API](https://learn.microsoft.com/en-us/azure/ai-studio/how-to/deploy-models-serverless-availability) filter to see the available models.
 
@@ -493,7 +493,7 @@ They are configured slightly differently.
 
 ### Azure AI OpenAI
 
-The `azure_serverless` provider supports OpenAI models deployed through the Azure AI Studio serverless deployments.
+The `azure_serverless` provider supports OpenAI models deployed through the Azure AI Foundry serverless deployments.
 It supports both Entra ID and key-based authentication.
 
 ```js "azure_serverless:"
@@ -593,7 +593,7 @@ AZURE_SERVERLESS_OPENAI_API_KEY=...
 
 ### Azure AI Models <a href="" id="azure_serverless_models" />
 
-The `azure_serverless_models` provider supports non-OpenAI models deployed through the Azure AI Studio serverless deployments.
+The `azure_serverless_models` provider supports non-OpenAI models deployed through the Azure AI Foundary serverless deployments.
 
 ```js "azure_serverless_models:"
 script({ model: "azure_serverless_models:deployment-id" })

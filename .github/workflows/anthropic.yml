@@ -1,6 +1,9 @@
 name: anthropic tests
 on:
     workflow_dispatch:
+    release:
+        types:
+            - published
     pull_request:
         paths:
             - yarn.lock

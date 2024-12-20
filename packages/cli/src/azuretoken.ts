@@ -87,7 +87,7 @@ export async function createAzureToken(
 
     // Log the expiration time of the token
     logVerbose(
-        `azure: ${credentialsType || ""} token (${scopes.join(",")}) expires at ${new Date(res.expiresOnTimestamp).toLocaleString()}`
+        `azure: ${credentialsType || ""} token (${scopes.join(",")}) expires on ${new Date(res.expiresOnTimestamp).toUTCString()}`
     )
 
     return res
@@ -108,12 +108,6 @@ class AzureTokenResolverImpl implements AzureTokenResolver {
         return this._error
     }
 
-    clear() {
-        this._token = undefined
-        this._error = undefined
-        this._resolver = undefined
-    }
-
     async token(
         credentialsType: AzureCredentialsType,
         options?: CancellationOptions
@@ -121,31 +115,33 @@ class AzureTokenResolverImpl implements AzureTokenResolver {
         // cached
         const { cancellationToken } = options || {}
 
-        if (isAzureTokenExpired(this._token)) this._token = undefined
+        if (isAzureTokenExpired(this._token)) {
+            logVerbose(`azure: ${this.name} token expired`)
+            this._token = undefined
+            this._error = undefined
+        }
         if (this._token || this._error)
             return { token: this._token, error: this._error }
         if (!this._resolver) {
             const scope = await runtimeHost.readSecret(this.envName)
             const scopes = scope ? scope.split(",") : this.scopes
-            const resolver = (this._resolver = createAzureToken(
+            this._resolver = createAzureToken(
                 scopes,
                 credentialsType,
                 cancellationToken
             )
                 .then((res) => {
-                    if (this._resolver !== resolver) return undefined
                     this._token = res
                     this._error = undefined
                     this._resolver = undefined
                     return { token: this._token, error: this._error }
                 })
                 .catch((err) => {
-                    if (this._resolver !== resolver) return undefined
                     this._resolver = undefined
                     this._token = undefined
                     this._error = serializeError(err)
                     return { token: this._token, error: this._error }
-                }))
+                })
         }
         return this._resolver
     }

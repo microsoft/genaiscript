@@ -196,9 +196,6 @@ export class NodeHost implements RuntimeHost {
     }
 
     async readConfig(): Promise<HostConfiguration> {
-        this.azureToken.clear()
-        this.azureServerlessToken.clear()
-
         const config = await resolveGlobalConfiguration(this.dotEnvPath)
         const { envFile, modelAliases } = config
         if (modelAliases)
