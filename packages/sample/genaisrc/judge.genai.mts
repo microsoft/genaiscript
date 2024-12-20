@@ -20,7 +20,7 @@ async function judgeClassify(
     const unknown = "unknown"
     const unknownText =
         "if you do not have enough information or certainty to categorize the result"
-+
+
     const choices = { ...categories, ...{ [unknown]: unknownText } }
     const res = await runPrompt(
         async (ctx) => {
@@ -54,7 +54,7 @@ async function judgeClassify(
     )
 
     // extract the classifiction
-   const category = Object.keys(choices)
+    const category = Object.keys(choices)
         .map((category) => ({
             category,
             l: res.text.lastIndexOf(category),
