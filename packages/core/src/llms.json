@@ -4,16 +4,15 @@
         {
             "id": "openai",
             "detail": "OpenAI (or compatible)",
-            "bearerToken": true
-        },
-        {
-            "id": "github",
-            "detail": "GitHub Models",
-            "logprobs": false,
-            "topLogprobs": false,
-            "limitations": "Smaller context windows, and rate limiting",
-            "prediction": false,
-            "bearerToken": true
+            "bearerToken": true,
+            "aliases": {
+                "large": "openai:gpt-4o",
+                "small": "openai:gpt-4o-mini",
+                "vision": "openai:gpt-4o",
+                "embeddings": "openai:text-embedding-3-small",
+                "reasoning": "openai:o1",
+                "reasoning_small": "openai:o1-mini"
+            }
         },
         {
             "id": "azure",
@@ -23,7 +22,14 @@
         {
             "id": "azure_serverless",
             "detail": "Azure AI OpenAI (serverless deployments)",
-            "bearerToken": false
+            "bearerToken": false,
+            "aliases": {
+                "large": "azure_serverless:gpt-4o",
+                "small": "azure_serverless:gpt-4o-mini",
+                "vision": "azure_serverless:gpt-4o",
+                "reasoning": "azure_serverless:o1-preview",
+                "reasoning_small": "azure_serverless:o1-mini"
+            }
         },
         {
             "id": "azure_serverless_models",
@@ -36,7 +42,12 @@
             "detail": "Anthropic models",
             "logprobs": false,
             "topLogprobs": false,
-            "prediction": false
+            "prediction": false,
+            "aliases": {
+                "large": "anthropic:claude-2.1",
+                "small": "anthropic:claude-instant-1.2",
+                "vision": "anthropic:claude-2.1"
+            }
         },
         {
             "id": "google",
@@ -45,7 +56,12 @@
             "tools": false,
             "openaiCompatibility": "https://ai.google.dev/gemini-api/docs/openai",
             "prediction": false,
-            "bearerToken": true
+            "bearerToken": true,
+            "aliases": {
+                "large": "google:gemini-1.5-pro-latest",
+                "small": "google:gemini-1.5-flash-latest",
+                "vision": "google:gemini-1.5-flash-latest"
+            }
         },
         {
             "id": "huggingface",
@@ -57,6 +73,31 @@
             "detail": "Mistral AI",
             "prediction": false,
             "bearerToken": true
+        },
+        {
+            "id": "github",
+            "detail": "GitHub Models",
+            "logprobs": false,
+            "topLogprobs": false,
+            "limitations": "Smaller context windows, and rate limiting",
+            "prediction": false,
+            "bearerToken": true,
+            "aliases": {
+                "large": "github:gpt-4o",
+                "small": "github:gpt-4o-mini",
+                "vision": "github:gpt-4o",
+                "embeddings": "github:text-embedding-3-small",
+                "reasoning": "github:o1-preview",
+                "reasoning_small": "github:o1-mini"
+            }
+        },
+        {
+            "id": "client",
+            "detail": "GitHub Copilot Chat Modes",
+            "aliases": {
+                "large": "client:gpt-4o",
+                "small": "client:gpt-4o-mini"
+            }
         },
         {
             "id": "transformers",
@@ -99,6 +140,11 @@
             "prediction": false
         }
     ],
+    "aliases": {
+        "agent": "large",
+        "long": "large",
+        "memory": "large"
+    },
     "pricings": {
         "openai:gpt-4o": {
             "price_per_million_input_tokens": 2.5,

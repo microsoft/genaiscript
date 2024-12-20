@@ -1,3 +1,78 @@
+{
+  "large": {
+    "model": "openai:gpt-4o",
+    "source": "default",
+    "candidates": [
+      "openai:gpt-4o",
+      "azure_serverless:gpt-4o",
+      "anthropic:claude-2.1",
+      "google:gemini-1.5-pro-latest",
+      "github:gpt-4o",
+      "client:gpt-4o"
+    ]
+  },
+  "small": {
+    "model": "openai:gpt-4o-mini",
+    "source": "default",
+    "candidates": [
+      "openai:gpt-4o-mini",
+      "azure_serverless:gpt-4o-mini",
+      "anthropic:claude-instant-1.2",
+      "google:gemini-1.5-flash-latest",
+      "github:gpt-4o-mini",
+      "client:gpt-4o-mini"
+    ]
+  },
+  "vision": {
+    "model": "openai:gpt-4o",
+    "source": "default",
+    "candidates": [
+      "openai:gpt-4o",
+      "azure_serverless:gpt-4o",
+      "anthropic:claude-2.1",
+      "google:gemini-1.5-flash-latest",
+      "github:gpt-4o"
+    ]
+  },
+  "embeddings": {
+    "model": "openai:text-embedding-3-small",
+    "source": "default",
+    "candidates": [
+      "openai:text-embedding-3-small",
+      "github:text-embedding-3-small"
+    ]
+  },
+  "reasoning": {
+    "model": "openai:o1",
+    "source": "default",
+    "candidates": [
+      "openai:o1",
+      "azure_serverless:o1-preview",
+      "github:o1-preview"
+    ]
+  },
+  "reasoning_small": {
+    "model": "openai:o1-mini",
+    "source": "default",
+    "candidates": [
+      "openai:o1-mini",
+      "azure_serverless:o1-mini",
+      "github:o1-mini"
+    ]
+  },
+  "agent": {
+    "model": "large",
+    "source": "default"
+  },
+  "long": {
+    "model": "large",
+    "source": "default"
+  },
+  "memory": {
+    "model": "large",
+    "source": "default"
+  }
+}
 ---
 title: Commands
 description: List of all CLI commands
