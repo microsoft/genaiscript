@@ -117,7 +117,10 @@ async function resolveScriptsConnectionInfo(
  * @param script - The specific script ID or filename to filter by (optional).
  * @param options - Configuration options, including whether to show tokens.
  */
-export async function modelInfo(script: string, options?: { token?: boolean }) {
+export async function scriptModelInfo(
+    script: string,
+    options?: { token?: boolean }
+) {
     const prj = await buildProject()
     const templates = prj.scripts.filter(
         (t) =>
@@ -127,4 +130,8 @@ export async function modelInfo(script: string, options?: { token?: boolean }) {
     )
     const info = await resolveScriptsConnectionInfo(templates, options)
     console.log(YAMLStringify(info))
+}
+
+export async function modelsInfo() {
+    console.log(YAML.stringify(runtimeHost.modelAliases))
 }

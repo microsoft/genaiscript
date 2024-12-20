@@ -20,12 +20,6 @@ import {
 } from "./host"
 import { TraceOptions } from "./trace"
 import {
-    DEFAULT_EMBEDDINGS_MODEL,
-    DEFAULT_LARGE_MODEL,
-    DEFAULT_SMALL_MODEL,
-    DEFAULT_VISION_MODEL,
-} from "./constants"
-import {
     dirname,
     extname,
     basename,
@@ -38,6 +32,7 @@ import {
 import { LanguageModel } from "./chat"
 import { NotSupportedError } from "./error"
 import { Project } from "./server/messages"
+import { defaultModelConfigurations } from "./llms"
 
 // Function to create a frozen object representing Node.js path methods
 // This object provides utility methods for path manipulations
@@ -68,12 +63,7 @@ export class TestHost implements RuntimeHost {
     azureToken: AzureTokenResolver = undefined
 
     // Default options for language models
-    readonly modelAliases: ModelConfigurations = {
-        large: { model: DEFAULT_LARGE_MODEL, source: "default" },
-        small: { model: DEFAULT_SMALL_MODEL, source: "default" },
-        vision: { model: DEFAULT_VISION_MODEL, source: "default" },
-        embeddings: { model: DEFAULT_EMBEDDINGS_MODEL, source: "default" },
-    }
+    readonly modelAliases: ModelConfigurations = defaultModelConfigurations()
 
     // Static method to set this class as the runtime host
     static install() {

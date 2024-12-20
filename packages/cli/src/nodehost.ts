@@ -62,7 +62,7 @@ import { resolveGlobalConfiguration } from "../../core/src/config"
 import { HostConfiguration } from "../../core/src/hostconfiguration"
 import { resolveLanguageModel } from "../../core/src/lm"
 import { CancellationOptions } from "../../core/src/cancellation"
-import LLMS from "../../../packages/core/src/llms.json"
+import { defaultModelConfigurations } from "../../core/src/llms"
 
 class NodeServerManager implements ServerManager {
     async start(): Promise<void> {
@@ -70,43 +70,6 @@ class NodeServerManager implements ServerManager {
     }
     async close(): Promise<void> {
         throw new Error("not implement")
-    }
-}
-
-function readModelAliases(): ModelConfigurations {
-    const aliases = [
-        LARGE_MODEL_ID,
-        SMALL_MODEL_ID,
-        VISION_MODEL_ID,
-        "embeddings",
-        "reasoning",
-        "reasoning_small",
-    ]
-    const res = {
-        ...(Object.fromEntries(
-            aliases.map((alias) => [alias, readModelAlias(alias)])
-        ) as ModelConfigurations),
-        ...Object.fromEntries(
-            Object.entries(LLMS.aliases).map((kv) => [
-                kv[0],
-                {
-                    model: kv[1],
-                    source: "default",
-                } satisfies ModelConfiguration,
-            ])
-        ),
-    }
-    return res
-
-    function readModelAlias(alias: string) {
-        const candidates = Object.values(LLMS.providers)
-            .map(({ aliases }) => (aliases as Record<string, string>)?.[alias])
-            .filter((c) => !!c)
-        return deleteEmptyValues({
-            model: candidates[0],
-            source: "default",
-            candidates,
-        })
     }
 }
 
@@ -124,7 +87,7 @@ export class NodeHost implements RuntimeHost {
         "default" | "cli" | "env" | "config",
         Omit<ModelConfigurations, "large" | "small" | "vision" | "embeddings">
     > = {
-        default: readModelAliases(),
+        default: defaultModelConfigurations(),
         cli: {},
         env: {},
         config: {},

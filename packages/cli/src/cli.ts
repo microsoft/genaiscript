@@ -24,7 +24,7 @@ import {
 } from "./parse" // Parsing functions
 import { compileScript, createScript, fixScripts, listScripts } from "./scripts" // Script utilities
 import { codeQuery } from "./codequery" // Code parsing and query execution
-import { envInfo, modelInfo, systemInfo } from "./info" // Information utilities
+import { envInfo, modelsInfo, scriptModelInfo, systemInfo } from "./info" // Information utilities
 import { scriptTestList, scriptTestsView, scriptsTest } from "./test" // Test functions
 import { cacheClear } from "./cache" // Cache management
 import "node:console" // Importing console for side effects
@@ -320,7 +320,11 @@ export async function cli() {
         .description("List model connection information for scripts")
         .argument("[script]", "Script id or file")
         .option("-t, --token", "show token")
-        .action(modelInfo) // Action to show model information
+        .action(scriptModelInfo) // Action to show model information
+
+    const models = program.command("models")
+        .description("List model information")
+        .action(modelsInfo)
 
     // Define 'cache' command for cache management
     const cache = program.command("cache").description("Cache management")
@@ -446,5 +450,6 @@ export async function cli() {
         .option("-e, --error", "show errors")
         .option("-m, --models", "show models if possible")
         .action(envInfo) // Action to show environment information
+    
     program.parse() // Parse command-line arguments
 }
