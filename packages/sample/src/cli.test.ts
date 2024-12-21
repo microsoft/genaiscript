@@ -36,11 +36,7 @@ describe("scripts", async () => {
     const cmd = "scripts"
     await test("list", async () => {
         const res = await $`node ${cli} ${cmd} list`
-        assert(
-            res.stdout.includes(
-                "id: poem"
-            )
-        )
+        assert(res.stdout.includes("id: poem"))
     })
     await test("create foobar", async () => {
         const res = await $`node ${cli} ${cmd} create foobar`
@@ -64,6 +60,9 @@ describe("cli", async () => {
     })
     test("env openai", async () => {
         await $`node ${cli} ${action} env openai`
+    })
+    test("models alias", async () => {
+        await $`node ${cli} ${action} models alias`
     })
 })
 describe("parse", async () => {

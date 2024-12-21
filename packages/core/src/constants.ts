@@ -57,56 +57,6 @@ export const SMALL_MODEL_ID = "small"
 export const LARGE_MODEL_ID = "large"
 export const VISION_MODEL_ID = "vision"
 export const DEFAULT_FENCE_FORMAT: FenceFormat = "xml"
-export const DEFAULT_LARGE_MODEL = "openai:gpt-4o"
-export const DEFAULT_LARGE_MODEL_CANDIDATES = [
-    "azure_serverless:gpt-4o",
-    DEFAULT_LARGE_MODEL,
-    "google:gemini-1.5-pro-latest",
-    "anthropic:claude-2.1",
-    "mistral:mistral-large-latest",
-    "github:gpt-4o",
-    "client:gpt-4",
-]
-export const DEFAULT_VISION_MODEL = "openai:gpt-4o"
-export const DEFAULT_VISION_MODEL_CANDIDATES = [
-    "azure_serverless:gpt-4o",
-    DEFAULT_VISION_MODEL,
-    "google:gemini-1.5-flash-latest",
-    "anthropic:claude-2.1",
-    "github:gpt-4o",
-]
-export const DEFAULT_SMALL_MODEL = "openai:gpt-4o-mini"
-export const DEFAULT_SMALL_MODEL_CANDIDATES = [
-    "azure_serverless:gpt-4o-mini",
-    DEFAULT_SMALL_MODEL,
-    "google:gemini-1.5-flash-latest",
-    "anthropic:claude-instant-1.2",
-    "mistral:mistral-small-latest",
-    "github:gpt-4o-mini",
-    "client:gpt-4-mini",
-]
-export const DEFAULT_EMBEDDINGS_MODEL_CANDIDATES = [
-    "azure:text-embedding-3-small",
-    "azure:text-embedding-2-small",
-    "openai:text-embedding-3-small",
-    "github:text-embedding-3-small",
-    "client:text-embedding-3-small",
-]
-export const DEFAULT_REASONING_SMALL_MODEL = "openai:o1-mini"
-export const DEFAULT_REASONING_SMALL_MODEL_CANDIDATES = [
-    "azure_serverless:o1-mini",
-    DEFAULT_REASONING_SMALL_MODEL,
-    "github:o1-mini",
-    "client:o1-mini",
-]
-export const DEFAULT_REASONING_MODEL = "openai:o1"
-export const DEFAULT_REASONING_MODEL_CANDIDATES = [
-    "azure_serverless:o1-preview",
-    DEFAULT_REASONING_MODEL,
-    "github:o1-preview",
-    "client:o1-preview",
-]
-export const DEFAULT_EMBEDDINGS_MODEL = "openai:text-embedding-ada-002"
 export const DEFAULT_TEMPERATURE = 0.8
 export const BUILTIN_PREFIX = "_builtin/"
 export const CACHE_LLMREQUEST_PREFIX = "genaiscript/cache/llm/"
@@ -240,6 +190,7 @@ export const MODEL_PROVIDERS = Object.freeze<
         topP?: boolean
         prediction?: boolean
         bearerToken?: boolean
+        aliases?: Record<string, string>
     }[]
 >(CONFIGURATION_DATA.providers)
 export const MODEL_PRICINGS = Object.freeze<

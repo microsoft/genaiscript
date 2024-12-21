@@ -46,6 +46,7 @@ import { delay } from "es-toolkit"
 import { resolveModelConnectionInfo } from "../../core/src/models"
 import { filterScripts } from "../../core/src/ast"
 import { link } from "../../core/src/markdown"
+import { applyModelOptions } from "./modelalias"
 
 /**
  * Parses model specifications from a string and returns a ModelOptions object.
@@ -109,14 +110,7 @@ export async function runPromptScriptTests(
         testDelay?: string
     }
 ): Promise<PromptScriptTestRunResponse> {
-    if (options.model) runtimeHost.setModelAlias("cli", "large", options.model)
-    if (options.smallModel)
-        runtimeHost.setModelAlias("cli", "small", options.smallModel)
-    if (options.visionModel)
-    runtimeHost.setModelAlias("cli", "vision", options.visionModel)
-    Object.entries(runtimeHost.modelAliases).forEach(([key, value]) =>
-        logVerbose(` ${key}: ${value.model}`)
-    )
+    applyModelOptions(options)
 
     const scripts = await listTests({ ids, ...(options || {}) })
     if (!scripts.length)

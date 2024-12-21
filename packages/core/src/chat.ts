@@ -785,7 +785,7 @@ async function choicesToLogitBias(
             disableFallback: true,
         })) || {}
     if (!encode) {
-        logWarn(
+        logVerbose(
             `unabled to compute logit bias, no token encoder found for ${model}`
         )
         trace.warn(
@@ -833,6 +833,14 @@ export function collapseChatMessages(messages: ChatCompletionMessageParam[]) {
             })
         }
     }
+
+    // remove emty text contents
+    messages
+        .filter((m) => m.role === "user")
+        .forEach((m) => {
+            if (typeof m.content !== "string")
+                m.content = m.content.filter((c) => c.type !== "text" || c.text)
+        })
 }
 
 export async function executeChatSession(
@@ -1052,18 +1060,20 @@ export function tracePromptResult(
     const { text } = resp || {}
 
     // try to sniff the output type
-    const language = JSON5TryParse(text)
-        ? "json"
-        : XMLTryParse(text)
-          ? "xml"
-          : /^(-|\*|#+|```)\s/im.test(text)
-            ? "markdown"
-            : "text"
-    trace.detailsFenced(`🔠 output`, text, language)
-    if (language === "markdown")
-        trace.appendContent(
-            "\n\n" + HTMLEscape(prettifyMarkdown(text)) + "\n\n"
-        )
+    if (text !== undefined) {
+        const language = JSON5TryParse(text)
+            ? "json"
+            : XMLTryParse(text)
+              ? "xml"
+              : /^(-|\*|#+|```)\s/im.test(text)
+                ? "markdown"
+                : "text"
+        trace.detailsFenced(`🔠 output`, text, language)
+        if (language === "markdown")
+            trace.appendContent(
+                "\n\n" + HTMLEscape(prettifyMarkdown(text)) + "\n\n"
+            )
+    }
 }
 
 export function appendUserMessage(

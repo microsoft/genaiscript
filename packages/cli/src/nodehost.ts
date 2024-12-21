@@ -17,27 +17,16 @@ import {
     parseTokenFromEnv,
 } from "../../core/src/connection"
 import {
-    DEFAULT_LARGE_MODEL,
     MODEL_PROVIDER_AZURE_OPENAI,
     SHELL_EXEC_TIMEOUT,
-    DEFAULT_EMBEDDINGS_MODEL,
-    DEFAULT_SMALL_MODEL,
     AZURE_COGNITIVE_SERVICES_TOKEN_SCOPES,
     MODEL_PROVIDER_AZURE_SERVERLESS_MODELS,
     AZURE_AI_INFERENCE_TOKEN_SCOPES,
     MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI,
     DOT_ENV_FILENAME,
-    DEFAULT_VISION_MODEL,
     LARGE_MODEL_ID,
     SMALL_MODEL_ID,
-    DEFAULT_SMALL_MODEL_CANDIDATES,
-    DEFAULT_LARGE_MODEL_CANDIDATES,
-    DEFAULT_EMBEDDINGS_MODEL_CANDIDATES,
-    DEFAULT_VISION_MODEL_CANDIDATES,
-    DEFAULT_REASONING_MODEL,
-    DEFAULT_REASONING_SMALL_MODEL,
-    DEFAULT_REASONING_SMALL_MODEL_CANDIDATES,
-    DEFAULT_REASONING_MODEL_CANDIDATES,
+    VISION_MODEL_ID,
 } from "../../core/src/constants"
 import { tryReadText } from "../../core/src/fs"
 import {
@@ -54,7 +43,7 @@ import {
     ModelConfiguration,
 } from "../../core/src/host"
 import { TraceOptions } from "../../core/src/trace"
-import { logError, logVerbose } from "../../core/src/util"
+import { deleteEmptyValues, logError, logVerbose } from "../../core/src/util"
 import { parseModelIdentifier } from "../../core/src/models"
 import { LanguageModel } from "../../core/src/chat"
 import { errorMessage, NotSupportedError } from "../../core/src/error"
@@ -73,6 +62,7 @@ import { resolveGlobalConfiguration } from "../../core/src/config"
 import { HostConfiguration } from "../../core/src/hostconfiguration"
 import { resolveLanguageModel } from "../../core/src/lm"
 import { CancellationOptions } from "../../core/src/cancellation"
+import { defaultModelConfigurations } from "../../core/src/llms"
 
 class NodeServerManager implements ServerManager {
     async start(): Promise<void> {
@@ -97,41 +87,7 @@ export class NodeHost implements RuntimeHost {
         "default" | "cli" | "env" | "config",
         Omit<ModelConfigurations, "large" | "small" | "vision" | "embeddings">
     > = {
-        default: {
-            large: {
-                model: DEFAULT_LARGE_MODEL,
-                source: "default",
-                candidates: DEFAULT_LARGE_MODEL_CANDIDATES,
-            },
-            small: {
-                model: DEFAULT_SMALL_MODEL,
-                source: "default",
-                candidates: DEFAULT_SMALL_MODEL_CANDIDATES,
-            },
-            vision: {
-                model: DEFAULT_VISION_MODEL,
-                source: "default",
-                candidates: DEFAULT_VISION_MODEL_CANDIDATES,
-            },
-            embeddings: {
-                model: DEFAULT_EMBEDDINGS_MODEL,
-                source: "default",
-                candidates: DEFAULT_EMBEDDINGS_MODEL_CANDIDATES,
-            },
-            reasoning: {
-                model: DEFAULT_REASONING_MODEL,
-                source: "default",
-                candidates: DEFAULT_REASONING_MODEL_CANDIDATES,
-            },
-            ["reasoning_small"]: {
-                model: DEFAULT_REASONING_SMALL_MODEL,
-                source: "default",
-                candidates: DEFAULT_REASONING_SMALL_MODEL_CANDIDATES,
-            },
-            long: { model: LARGE_MODEL_ID, source: "default" },
-            agent: { model: LARGE_MODEL_ID, source: "default" },
-            memory: { model: SMALL_MODEL_ID, source: "default" },
-        },
+        default: defaultModelConfigurations(),
         cli: {},
         env: {},
         config: {},

@@ -48,7 +48,7 @@
     "@anthropic-ai/bedrock-sdk": "^0.12.0",
     "@anthropic-ai/sdk": "^0.33.1",
     "@azure/identity": "^4.5.0",
-    "@inquirer/prompts": "^7.2.0",
+    "@inquirer/prompts": "^7.2.1",
     "@modelcontextprotocol/sdk": "^1.0.4",
     "@octokit/plugin-paginate-rest": "^11.3.6",
     "@octokit/plugin-retry": "^7.1.2",
@@ -70,7 +70,7 @@
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz"
   },
   "optionalDependencies": {
-    "@huggingface/transformers": "^3.2.0",
+    "@huggingface/transformers": "^3.2.1",
     "@lvce-editor/ripgrep": "^1.5.0",
     "pdfjs-dist": "4.9.155",
     "playwright": "^1.49.1",
@@ -98,7 +98,7 @@
     "diff": "^7.0.0",
     "dotenv": "^16.4.7",
     "es-toolkit": "^1.30.1",
-    "esbuild": "^0.24.0",
+    "esbuild": "^0.24.2",
     "execa": "^9.5.2",
     "fs-extra": "^11.2.0",
     "glob": "^11.0.0",

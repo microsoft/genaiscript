@@ -58,10 +58,61 @@
                     "bearerToken": {
                         "type": "boolean",
                         "description": "Indicates if bearer token is supported"
+                    },
+                    "aliases": {
+                        "type": "object",
+                        "description": "List of model aliases for the provider",
+                        "properties": {
+                            "large": {
+                                "type": "string",
+                                "description": "Alias for large model"
+                            },
+                            "small": {
+                                "type": "string",
+                                "description": "Alias for small model"
+                            },
+                            "vision": {
+                                "type": "string",
+                                "description": "Alias for vision model"
+                            },
+                            "reasoning": {
+                                "type": "string",
+                                "description": "Alias for reasoning model"
+                            },
+                            "reasoning_small": {
+                                "type": "string",
+                                "description": "Alias for reasoning small model"
+                            },
+                            "long": {
+                                "type": "string",
+                                "description": "Alias for long model"
+                            },
+                            "agent": {
+                                "type": "string",
+                                "description": "Alias for agent model"
+                            },
+                            "memory": {
+                                "type": "string",
+                                "description": "Alias for memory model"
+                            },
+                            "embeddings": {
+                                "type": "string",
+                                "description": "Alias for embeddings model"
+                            }
+                        }
                     }
                 },
                 "additionalProperties": false,
                 "required": ["id", "detail"]
+            }
+        }
+    },
+    "aliases": {
+        "type": "object",
+        "additionalProperties": true,
+        "patternProperties": {
+            "^[a-zA-Z0-9:_-]+$": {
+                "type": "string"
             }
         }
     },

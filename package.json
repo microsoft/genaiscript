@@ -89,9 +89,9 @@
         }
     },
     "devDependencies": {
-        "@inquirer/prompts": "^7.2.0",
+        "@inquirer/prompts": "^7.2.1",
         "glob": "^11.0.0",
-        "npm-check-updates": "^17.1.11",
+        "npm-check-updates": "^17.1.12",
         "prettier": "^3.4.2",
         "zx": "^8.2.4"
     }

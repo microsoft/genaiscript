@@ -1,8 +1,18 @@
-name: openai smoke tests
+name: huggingface tests
 on:
     workflow_dispatch:
+    release:
+        types:
+            - published
+    pull_request:
+        paths:
+            - yarn.lock
+            - ".github/workflows/huggingface.yml"
+            - "packages/core/**/*"
+            - "packages/cli/**/*"
+            - "packages/samples/**/*"
 concurrency:
-    group: ${{ github.workflow }}-${{ github.ref }}-openai
+    group: ${{ github.workflow }}-${{ github.ref }}-huggingface
     cancel-in-progress: true
 jobs:
     tests:
@@ -21,9 +31,7 @@ jobs:
               run: yarn typecheck
             - name: compile
               run: yarn compile
-            - name: run summarize
-              run: yarn test:summarize -p openai --out-trace $GITHUB_STEP_SUMMARY
+            - name: poem
+              run: yarn run:script poem -p huggingface --out-trace $GITHUB_STEP_SUMMARY
               env:
-                  OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-                  OPENAI_API_TYPE: ${{ secrets.OPENAI_API_TYPE }}
-                  OPENAI_API_BASE: ${{ secrets.OPENAI_API_BASE }}
+                  HUGGINGFACE_API_KEY: ${{ secrets.HUGGINGFACE_API_KEY }}

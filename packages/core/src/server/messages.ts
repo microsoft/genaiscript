@@ -88,6 +88,7 @@ export interface PromptScriptRunOptions {
     visionModel: string
     embeddingsModel: string
     modelAlias: string[]
+    provider: string
     csvSeparator: string
     cache: boolean | string
     cacheName: string

@@ -4,7 +4,7 @@
  */
 
 import { NodeHost } from "./nodehost" // Handles node environment setup
-import { Option, program } from "commander" // Command-line argument parsing library
+import { Command, Option, program } from "commander" // Command-line argument parsing library
 import { error, isQuiet, setConsoleColors, setQuiet } from "./log" // Logging utilities
 import { startServer } from "./server" // Function to start server
 import { NODE_MIN_VERSION, PROMPTFOO_VERSION } from "./version" // Version constants
@@ -24,7 +24,7 @@ import {
 } from "./parse" // Parsing functions
 import { compileScript, createScript, fixScripts, listScripts } from "./scripts" // Script utilities
 import { codeQuery } from "./codequery" // Code parsing and query execution
-import { envInfo, modelInfo, systemInfo } from "./info" // Information utilities
+import { envInfo, modelAliasesInfo, scriptModelInfo, systemInfo } from "./info" // Information utilities
 import { scriptTestList, scriptTestsView, scriptsTest } from "./test" // Test functions
 import { cacheClear } from "./cache" // Cache management
 import "node:console" // Importing console for side effects
@@ -37,7 +37,7 @@ import {
     OPENAI_MAX_RETRY_DELAY,
     OPENAI_RETRY_DEFAULT_DEFAULT,
     OPENAI_MAX_RETRY_COUNT,
-    GENAI_MD_EXT,
+    MODEL_PROVIDERS,
 } from "../../core/src/constants" // Core constants
 import {
     errorMessage,
@@ -94,14 +94,11 @@ export async function cli() {
     program.on("option:quiet", () => setQuiet(true))
 
     // Define 'run' command for executing scripts
-    program
+    const run = program
         .command("run")
         .description("Runs a GenAIScript against files.")
         .arguments("<script> [files...]")
-        .option("-m, --model <string>", "'large' model alias (default)")
-        .option("-sm, --small-model <string>", "'small' alias model")
-        .option("-vm, --vision-model <string>", "'vision' alias model")
-        .option("-ma, --model-alias <nameid...>", "model alias as name=modelid")
+    addModelOptions(run) // Add model options to the command
         .option("-lp, --logprobs", "enable reporting token probabilities")
         .option(
             "-tlp, --top-logprobs <number>",
@@ -203,15 +200,13 @@ export async function cli() {
     // Define 'test' command group for running tests
     const test = program.command("test")
 
-    test.command("run", { isDefault: true })
+    const testRun = test.command("run", { isDefault: true })
         .description("Runs the tests for scripts")
         .argument(
             "[script...]",
             "Script ids. If not provided, all scripts are tested"
         )
-        .option("-m, --model <string>", "model for the run")
-        .option("-sm, --small-model <string>", "small model for the run")
-        .option("-vm, --vision-model <string>", "'vision' alias model")
+    addModelOptions(testRun) // Add model options to the command
         .option(
             "--models <models...>",
             "models to test where mode is the key value pair list of m (model), s (small model), t (temperature), p (top-p)"
@@ -254,7 +249,10 @@ export async function cli() {
         )
         .arguments("<script> [files...]")
         .option("-s, --suffix <string>", "suffix for converted files")
-        .option("-rw, --rewrite", "rewrite input file with output (overrides suffix)")
+        .option(
+            "-rw, --rewrite",
+            "rewrite input file with output (overrides suffix)"
+        )
         .option(
             "-cw, --cancel-word <string>",
             "cancel word which allows the LLM to notify to ignore output"
@@ -320,7 +318,7 @@ export async function cli() {
         .description("List model connection information for scripts")
         .argument("[script]", "Script id or file")
         .option("-t, --token", "show token")
-        .action(modelInfo) // Action to show model information
+        .action(scriptModelInfo) // Action to show model information
 
     // Define 'cache' command for cache management
     const cache = program.command("cache").description("Cache management")
@@ -446,5 +444,32 @@ export async function cli() {
         .option("-e, --error", "show errors")
         .option("-m, --models", "show models if possible")
         .action(envInfo) // Action to show environment information
+    const models = info.command("models")
+    models
+        .command("alias")
+        .description("Show model alias mapping")
+        .action(modelAliasesInfo)
+
     program.parse() // Parse command-line arguments
+
+    function addModelOptions(command: Command) {
+        return command
+            .addOption(
+                new Option(
+                    "-p, --provider <string>",
+                    "Preferred LLM provider aliases"
+                ).choices(
+                    MODEL_PROVIDERS.filter(
+                        ({ id, aliases }) => id !== "client"
+                    ).map(({ id }) => id)
+                )
+            )
+            .option("-m, --model <string>", "'large' model alias (default)")
+            .option("-sm, --small-model <string>", "'small' alias model")
+            .option("-vm, --vision-model <string>", "'vision' alias model")
+            .option(
+                "-ma, --model-alias <nameid...>",
+                "model alias as name=modelid"
+            )
+    }
 }

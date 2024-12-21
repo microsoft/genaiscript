@@ -4,16 +4,15 @@
         {
             "id": "openai",
             "detail": "OpenAI (or compatible)",
-            "bearerToken": true
-        },
-        {
-            "id": "github",
-            "detail": "GitHub Models",
-            "logprobs": false,
-            "topLogprobs": false,
-            "limitations": "Smaller context windows, and rate limiting",
-            "prediction": false,
-            "bearerToken": true
+            "bearerToken": true,
+            "aliases": {
+                "large": "gpt-4o",
+                "small": "gpt-4o-mini",
+                "vision": "gpt-4o",
+                "embeddings": "text-embedding-3-small",
+                "reasoning": "o1",
+                "reasoning_small": "o1-mini"
+            }
         },
         {
             "id": "azure",
@@ -23,7 +22,14 @@
         {
             "id": "azure_serverless",
             "detail": "Azure AI OpenAI (serverless deployments)",
-            "bearerToken": false
+            "bearerToken": false,
+            "aliases": {
+                "large": "gpt-4o",
+                "small": "gpt-4o-mini",
+                "vision": "gpt-4o",
+                "reasoning": "o1",
+                "reasoning_small": "o1-mini"
+            }
         },
         {
             "id": "azure_serverless_models",
@@ -36,27 +42,96 @@
             "detail": "Anthropic models",
             "logprobs": false,
             "topLogprobs": false,
-            "prediction": false
+            "prediction": false,
+            "aliases": {
+                "large": "claude-3-5-sonnet-latest",
+                "small": "claude-3-5-haiku-latest",
+                "vision": "claude-3-5-sonnet-latest"
+            }
+        },
+        {
+            "id": "anthropic_bedrock",
+            "detail": "Anthropic on AWS Bedrock models",
+            "logprobs": false,
+            "topLogprobs": false,
+            "prediction": false,
+            "aliases": {
+                "large": "anthropic.claude-3-5-sonnet-20241022-v2:0",
+                "small": "anthropic.claude-3-5-haiku-20241022-v1:0"
+            }
         },
         {
             "id": "google",
             "detail": "Google AI",
             "seed": false,
             "tools": false,
+            "logprobs": false,
+            "topLogprobs": false,
             "openaiCompatibility": "https://ai.google.dev/gemini-api/docs/openai",
             "prediction": false,
-            "bearerToken": true
+            "bearerToken": true,
+            "aliases": {
+                "large": "gemini-2.0-flash-exp",
+                "small": "gemini-1.5-flash-latest",
+                "vision": "gemini-2.0-flash-exp",
+                "reasoning": "gemini-2.0-flash-thinking-exp-1219",
+                "embeddings": "text-embedding-004"
+            }
         },
         {
             "id": "huggingface",
             "detail": "Hugging Face models",
-            "prediction": false
+            "prediction": false,
+            "aliases": {
+                "large": "Qwen/Qwen2.5-72B-Instruct",
+                "small": "Qwen/Qwen2.5-Coder-32B-Instruct",
+                "vision": "meta-llama/Llama-3.2-11B-Vision-Instruct",
+                "embeddings": "nomic-ai/nomic-embed-text-v1.5",
+                "reasoning": "Qwen/QwQ-32B-Preview",
+                "reasoning_small": "Qwen/QwQ-32B-Preview"
+            }
         },
         {
-            "id": "mistal",
+            "id": "mistral",
             "detail": "Mistral AI",
             "prediction": false,
-            "bearerToken": true
+            "bearerToken": true,
+            "aliases": {
+                "large": "mistral-large-latest",
+                "small": "mistral-small-latest",
+                "vision": "pixtral-large-latest"
+            }
+        },
+        {
+            "id": "alibaba",
+            "detail": "Alibaba models",
+            "openaiCompatibility": "https://www.alibabacloud.com/help/en/model-studio/developer-reference/compatibility-of-openai-with-dashscope",
+            "tools": false,
+            "prediction": false,
+            "bearerToken": true,
+            "aliases": {
+                "large": "qwen-max",
+                "small": "qwen-turbo",
+                "long": "qwen-plus",
+                "embeddings": "text-embedding-v3"
+            }
+        },
+        {
+            "id": "github",
+            "detail": "GitHub Models",
+            "logprobs": false,
+            "topLogprobs": false,
+            "limitations": "Smaller context windows, and rate limiting",
+            "prediction": false,
+            "bearerToken": true,
+            "aliases": {
+                "large": "gpt-4o",
+                "small": "gpt-4o-mini",
+                "vision": "gpt-4o",
+                "embeddings": "text-embedding-3-small",
+                "reasoning": "o1-preview",
+                "reasoning_small": "o1-mini"
+            }
         },
         {
             "id": "transformers",
@@ -81,14 +156,6 @@
             "prediction": false
         },
         {
-            "id": "alibaba",
-            "detail": "Alibaba models",
-            "openaiCompatibility": "https://www.alibabacloud.com/help/en/model-studio/developer-reference/compatibility-of-openai-with-dashscope",
-            "tools": false,
-            "prediction": false,
-            "bearerToken": true
-        },
-        {
             "id": "llamafile",
             "detail": "llamafile.ai local model",
             "prediction": false
@@ -97,8 +164,26 @@
             "id": "litellm",
             "detail": "LiteLLM proxy",
             "prediction": false
+        },
+        {
+            "id": "client",
+            "detail": "GitHub Copilot Chat Modes",
+            "tools": false,
+            "prediction": false,
+            "aliases": {
+                "large": "gpt-4o",
+                "small": "gpt-4o-mini",
+                "reasoning": "o1-preview",
+                "reasoning_small": "o1-mini"
+            }
         }
     ],
+    "aliases": {
+        "agent": "large",
+        "long": "large",
+        "memory": "large",
+        "reasoning_small": "reasoning"
+    },
     "pricings": {
         "openai:gpt-4o": {
             "price_per_million_input_tokens": 2.5,
@@ -499,6 +584,26 @@
         "anthropic:claude-3-5-sonnet-20240620": {
             "price_per_million_input_tokens": 3,
             "price_per_million_output_tokens": 15,
+            "input_cache_token_rebate": 0.1
+        },
+        "anthropic:claude-3-5-sonnet-20241022": {
+            "price_per_million_input_tokens": 3,
+            "price_per_million_output_tokens": 15,
+            "input_cache_token_rebate": 0.1
+        },
+        "anthropic:claude-3-5-sonnet-latest": {
+            "price_per_million_input_tokens": 3,
+            "price_per_million_output_tokens": 15,
+            "input_cache_token_rebate": 0.1
+        },
+        "anthropic:claude-3-5-haiku-20241022": {
+            "price_per_million_input_tokens": 0.8,
+            "price_per_million_output_tokens": 4,
+            "input_cache_token_rebate": 0.1
+        },
+        "anthropic:claude-3-5-haiku-latest": {
+            "price_per_million_input_tokens": 0.8,
+            "price_per_million_output_tokens": 4,
             "input_cache_token_rebate": 0.1
         }
     }

@@ -8,7 +8,6 @@ import { resolveModelConnectionInfo } from "./models"
 import { runtimeHost, host } from "./host"
 import {
     AZURE_OPENAI_API_VERSION,
-    DEFAULT_EMBEDDINGS_MODEL_CANDIDATES,
     MODEL_PROVIDER_AZURE_OPENAI,
     MODEL_PROVIDER_AZURE_SERVERLESS_MODELS,
     MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI,
