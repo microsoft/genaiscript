@@ -190,7 +190,7 @@ The following npm packages may be included in this product:
 
  - @aws-crypto/sha256-browser@5.2.0
  - @aws-crypto/supports-web-crypto@5.2.0
- - @huggingface/transformers@3.2.0
+ - @huggingface/transformers@3.2.1
  - flatbuffers@1.12.0
  - long@5.2.3
 
@@ -1954,16 +1954,16 @@ Apache License
 
 The following npm packages may be included in this product:
 
- - @aws-sdk/client-cognito-identity@3.714.0
- - @aws-sdk/client-sso-oidc@3.714.0
- - @aws-sdk/client-sso@3.714.0
- - @aws-sdk/client-sts@3.714.0
- - @aws-sdk/credential-provider-cognito-identity@3.714.0
+ - @aws-sdk/client-cognito-identity@3.716.0
+ - @aws-sdk/client-sso-oidc@3.716.0
+ - @aws-sdk/client-sso@3.716.0
+ - @aws-sdk/client-sts@3.716.0
+ - @aws-sdk/credential-provider-cognito-identity@3.716.0
  - @aws-sdk/util-user-agent-browser@3.714.0
- - @aws-sdk/util-user-agent-node@3.714.0
+ - @aws-sdk/util-user-agent-node@3.716.0
  - @smithy/eventstream-codec@2.2.0
  - @smithy/eventstream-codec@3.1.10
- - @smithy/middleware-retry@3.0.30
+ - @smithy/middleware-retry@3.0.31
  - @smithy/querystring-builder@2.2.0
  - @smithy/querystring-builder@3.0.11
  - @smithy/querystring-parser@2.2.0
@@ -1971,8 +1971,8 @@ The following npm packages may be included in this product:
  - @smithy/service-error-classification@3.0.11
  - @smithy/url-parser@2.2.0
  - @smithy/url-parser@3.0.11
- - @smithy/util-defaults-mode-browser@3.0.30
- - @smithy/util-defaults-mode-node@3.0.30
+ - @smithy/util-defaults-mode-browser@3.0.31
+ - @smithy/util-defaults-mode-node@3.0.31
 
 These packages each contain the following license:
 
@@ -2182,7 +2182,7 @@ Apache License
 
 The following npm package may be included in this product:
 
- - @aws-sdk/client-bedrock-runtime@3.714.0
+ - @aws-sdk/client-bedrock-runtime@3.716.0
 
 This package contains the following license:
 
@@ -2394,7 +2394,7 @@ The following npm packages may be included in this product:
 
  - @aws-sdk/middleware-host-header@3.714.0
  - @aws-sdk/middleware-recursion-detection@3.714.0
- - @aws-sdk/middleware-user-agent@3.714.0
+ - @aws-sdk/middleware-user-agent@3.716.0
  - @smithy/core@2.5.5
  - @smithy/eventstream-serde-browser@3.0.14
  - @smithy/eventstream-serde-config-resolver@3.0.11
@@ -2408,7 +2408,7 @@ The following npm packages may be included in this product:
  - @smithy/protocol-http@3.3.0
  - @smithy/protocol-http@4.1.8
  - @smithy/smithy-client@2.5.1
- - @smithy/smithy-client@3.5.0
+ - @smithy/smithy-client@3.5.1
  - @smithy/types@2.12.0
  - @smithy/types@3.7.2
 
@@ -2861,7 +2861,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.86.0
+ - genaiscript-vscode@1.86.4
 
 This package contains the following license:
 
@@ -4161,10 +4161,10 @@ Apache License
 
 The following npm packages may be included in this product:
 
- - @aws-sdk/credential-provider-env@3.714.0
- - @aws-sdk/credential-provider-ini@3.714.0
- - @aws-sdk/credential-provider-node@3.714.0
- - @aws-sdk/credential-providers@3.715.0
+ - @aws-sdk/credential-provider-env@3.716.0
+ - @aws-sdk/credential-provider-ini@3.716.0
+ - @aws-sdk/credential-provider-node@3.716.0
+ - @aws-sdk/credential-providers@3.716.0
  - @aws-sdk/region-config-resolver@3.714.0
  - @aws-sdk/token-providers@3.714.0
  - @aws-sdk/types@3.714.0
@@ -4182,7 +4182,7 @@ The following npm packages may be included in this product:
  - @smithy/is-array-buffer@3.0.0
  - @smithy/middleware-content-length@3.0.13
  - @smithy/middleware-endpoint@2.5.1
- - @smithy/middleware-endpoint@3.2.5
+ - @smithy/middleware-endpoint@3.2.6
  - @smithy/middleware-stack@2.2.0
  - @smithy/middleware-stack@3.0.11
  - @smithy/node-http-handler@2.5.0
@@ -4416,9 +4416,9 @@ Apache License
 
 The following npm packages may be included in this product:
 
- - @aws-sdk/credential-provider-process@3.714.0
- - @aws-sdk/credential-provider-sso@3.714.0
- - @aws-sdk/credential-provider-web-identity@3.714.0
+ - @aws-sdk/credential-provider-process@3.716.0
+ - @aws-sdk/credential-provider-sso@3.716.0
+ - @aws-sdk/credential-provider-web-identity@3.716.0
 
 These packages each contain the following license:
 
@@ -5318,8 +5318,8 @@ END OF TERMS AND CONDITIONS
 
 The following npm packages may be included in this product:
 
- - @aws-sdk/core@3.714.0
- - @aws-sdk/credential-provider-http@3.714.0
+ - @aws-sdk/core@3.716.0
+ - @aws-sdk/credential-provider-http@3.716.0
 
 These packages each contain the following license:
 
@@ -6390,20 +6390,20 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - @inquirer/checkbox@4.0.3
- - @inquirer/confirm@5.1.0
- - @inquirer/core@10.1.1
- - @inquirer/editor@4.2.0
- - @inquirer/expand@4.0.3
- - @inquirer/figures@1.0.8
- - @inquirer/input@4.1.0
- - @inquirer/number@3.0.3
- - @inquirer/password@4.0.3
- - @inquirer/prompts@7.2.0
- - @inquirer/rawlist@4.0.3
- - @inquirer/search@3.0.3
- - @inquirer/select@4.0.3
- - @inquirer/type@3.0.1
+ - @inquirer/checkbox@4.0.4
+ - @inquirer/confirm@5.1.1
+ - @inquirer/core@10.1.2
+ - @inquirer/editor@4.2.1
+ - @inquirer/expand@4.0.4
+ - @inquirer/figures@1.0.9
+ - @inquirer/input@4.1.1
+ - @inquirer/number@3.0.4
+ - @inquirer/password@4.0.4
+ - @inquirer/prompts@7.2.1
+ - @inquirer/rawlist@4.0.4
+ - @inquirer/search@3.0.4
+ - @inquirer/select@4.0.4
+ - @inquirer/type@3.0.2
 
 These packages each contain the following license:
 
@@ -7891,9 +7891,9 @@ The following npm packages may be included in this product:
  - @tokenizer/token@0.3.0
  - agent-base@6.0.2
  - eastasianwidth@0.2.0
- - genaiscript-core-internal@1.86.0
- - genaiscript-sample@1.86.0
- - genaiscript@1.86.0
+ - genaiscript-core-internal@1.86.4
+ - genaiscript-sample@1.86.4
+ - genaiscript@1.86.4
  - https-proxy-agent@5.0.1
  - isarray@1.0.0
  - javascript-natural-sort@0.7.1
