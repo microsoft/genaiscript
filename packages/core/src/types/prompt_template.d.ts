@@ -2607,7 +2607,7 @@ type McpServersConfig = Record<string, Omit<McpServerConfig, "id" | "options">>
 interface ChatGenerationContext extends ChatTurnGenerationContext {
     defSchema(
         name: string,
-        schema: JSONSchema,
+        schema: JSONSchema | object,
         options?: DefSchemaOptions
     ): string
     defImages(

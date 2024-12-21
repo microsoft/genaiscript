@@ -239,7 +239,7 @@ declare function fetchText(
  */
 declare function defSchema(
     name: string,
-    schema: JSONSchema,
+    schema: JSONSchema | object,
     options?: DefSchemaOptions
 ): string
 
