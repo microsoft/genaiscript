@@ -362,13 +362,13 @@ export function createImageNode(
 // Function to create a schema node.
 export function createSchemaNode(
     name: string,
-    value: JSONSchema,
+    value: JSONSchema | ZodTypeLike,
     options?: DefSchemaOptions
 ): PromptSchemaNode {
     assert(!!name)
     assert(value !== undefined)
     // auto zod conversion
-    value = tryZodToJsonSchema(value) ?? value
+    value = tryZodToJsonSchema(value as ZodTypeLike) ?? (value as JSONSchema)
     return { type: "schema", name, value, options }
 }
 

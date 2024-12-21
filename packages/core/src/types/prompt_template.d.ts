@@ -2604,10 +2604,12 @@ interface McpServerConfig {
 
 type McpServersConfig = Record<string, Omit<McpServerConfig, "id" | "options">>
 
+type ZodTypeLike = { _def: any, safeParse: any, refine: any }
+
 interface ChatGenerationContext extends ChatTurnGenerationContext {
     defSchema(
         name: string,
-        schema: JSONSchema | object,
+        schema: JSONSchema | ZodTypeLike,
         options?: DefSchemaOptions
     ): string
     defImages(
