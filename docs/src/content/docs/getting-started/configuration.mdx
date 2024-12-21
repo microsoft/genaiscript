@@ -64,11 +64,15 @@ GENAISCRIPT_MODEL_SMALL="azure_serverless:..."
 GENAISCRIPT_MODEL_VISION="azure_serverless:..."
 ```
 
-You can also configure the default aliases for a given LLM provider by using the `--provider` argument in the CLI.
+You can also configure the default aliases for a given LLM provider by using the `provider` argument.
 The default are documented in this page and printed to the console output.
 
+```js
+script({ provicder: "openai" })
+```
+
 ```sh
-genaiscript run ... --provider anthropic
+genaiscript run ... --provider openai
 ```
 
 ### Model aliases

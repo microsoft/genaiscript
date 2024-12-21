@@ -383,6 +383,10 @@ async function parsePromptTemplateCore(
             checker.checkString("title")
             checker.checkString("description")
             checker.checkString("model")
+            checker.checkString("smallModel")
+            checker.checkString("visionModel")
+            checker.checkString("embeddingsModel")
+            checker.checkString("provider")
             checker.checkString("responseType")
             checker.checkJSONSchema("responseSchema")
 

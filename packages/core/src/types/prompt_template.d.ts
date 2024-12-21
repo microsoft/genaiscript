@@ -191,6 +191,25 @@ type ModelVisionType = OptionsOrString<
     "openai:gpt-4o" | "github:gpt-4o" | "azure:gpt-4o" | "azure:gpt-4o-mini"
 >
 
+type ModelProviderType =
+    | "openai"
+    | "azure"
+    | "azure_serverless"
+    | "azure_serverless_models"
+    | "anthropic"
+    | "anthropic_bedrock"
+    | "google"
+    | "huggingface"
+    | "mistral"
+    | "alibaba"
+    | "github"
+    | "transformers"
+    | "ollama"
+    | "lmstudio"
+    | "jan"
+    | "llamafile"
+    | "litellm"
+
 interface ModelConnectionOptions {
     /**
      * Which LLM model by default or for the `large` alias.
@@ -473,6 +492,11 @@ interface PromptScript
         EmbeddingsModelOptions,
         ContentSafetyOptions,
         ScriptRuntimeOptions {
+    /**
+     * Which provider to prefer when picking a model.
+     */
+    provider?: ModelProviderType
+
     /**
      * Additional template parameters that will populate `env.vars`
      */

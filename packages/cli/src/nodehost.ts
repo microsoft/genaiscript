@@ -84,12 +84,13 @@ export class NodeHost implements RuntimeHost {
     readonly containers = new DockerManager()
     readonly browsers = new BrowserManager()
     private readonly _modelAliases: Record<
-        "default" | "cli" | "env" | "config",
+        "default" | "cli" | "env" | "config" | "script",
         Omit<ModelConfigurations, "large" | "small" | "vision" | "embeddings">
     > = {
         default: defaultModelConfigurations(),
         cli: {},
         env: {},
+        script: {},
         config: {},
     }
     readonly userInputQueue = new PLimitPromiseQueue(1)
@@ -114,6 +115,7 @@ export class NodeHost implements RuntimeHost {
         const res = {
             ...this._modelAliases.default,
             ...this._modelAliases.config,
+            ...this._modelAliases.script,
             ...this._modelAliases.env,
             ...this._modelAliases.cli,
         } as ModelConfigurations
@@ -121,7 +123,7 @@ export class NodeHost implements RuntimeHost {
     }
 
     setModelAlias(
-        source: "cli" | "env" | "config",
+        source: "cli" | "env" | "config" | "script",
         id: string,
         value: string | ModelConfiguration
     ): void {

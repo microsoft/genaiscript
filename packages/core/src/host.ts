@@ -111,7 +111,7 @@ export interface AzureTokenResolver {
 
 export type ModelConfiguration = Readonly<
     Pick<ModelOptions, "model" | "temperature"> & {
-        source: "cli" | "env" | "config" | "default"
+        source: "cli" | "env" | "script" | "config" | "default"
         candidates?: string[]
     }
 >
@@ -171,7 +171,7 @@ export interface RuntimeHost extends Host {
     pullModel(model: string, options?: TraceOptions): Promise<ResponseStatus>
 
     setModelAlias(
-        source: "env" | "cli" | "config",
+        source: "env" | "cli" | "config" | "script",
         id: string,
         value: string | Omit<ModelConfiguration, "source">
     ): void

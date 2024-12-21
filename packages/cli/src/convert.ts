@@ -57,7 +57,7 @@ export async function convertFiles(
     const canceller = createCancellationController()
     const cancellationToken = canceller.token
     const signal = toSignal(cancellationToken)
-    applyModelOptions(options)
+    applyModelOptions(options, "cli")
     const outTrace = dotGenaiscriptPath(
         CONVERTS_DIR_NAME,
         host.path.basename(scriptId).replace(GENAI_ANYTS_REGEX, ""),

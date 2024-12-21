@@ -110,7 +110,7 @@ export async function runPromptScriptTests(
         testDelay?: string
     }
 ): Promise<PromptScriptTestRunResponse> {
-    applyModelOptions(options)
+    applyModelOptions(options, "cli")
 
     const scripts = await listTests({ ids, ...(options || {}) })
     if (!scripts.length)

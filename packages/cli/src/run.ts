@@ -83,7 +83,7 @@ import {
     stdout,
 } from "../../core/src/logging"
 import { ensureDotGenaiscriptPath, setupTraceWriting } from "./trace"
-import { applyModelOptions } from "./modelalias"
+import { applyModelOptions, logModelAliases } from "./modelalias"
 import { createCancellationController } from "./cancel"
 import { parsePromptScriptMeta } from "../../core/src/template"
 
@@ -181,7 +181,7 @@ export async function runScriptInternal(
     const fenceFormat = options.fenceFormat
 
     if (options.json || options.yaml) overrideStdoutWithStdErr()
-    applyModelOptions(options)
+    applyModelOptions(options, "cli")
 
     const fail = (msg: string, exitCode: number, url?: string) => {
         logError(url ? `${msg} (see ${url})` : msg)
@@ -264,6 +264,8 @@ export async function runScriptInternal(
     const stats = new GenerationStats("")
     try {
         if (options.label) trace.heading(2, options.label)
+        applyModelOptions(script, "script")
+        logModelAliases()
         const { info } = await resolveModelConnectionInfo(script, {
             trace,
             model: options.model,
