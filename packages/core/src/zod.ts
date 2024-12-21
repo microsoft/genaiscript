@@ -8,11 +8,11 @@ import { ZodType } from "zod"
  * @returns
  */
 export function tryZodToJsonSchema(z: object, options?: object): JSONSchema {
-    if (!z || !(z instanceof ZodType)) {
-        return undefined
-    }
+    if (!z) return undefined
+    // instanceof not working, test for some existing methoid
+    if (!(z as ZodType)._def) return undefined
     try {
-        const definitions = _zodToJsonSchema(z, {
+        const definitions = _zodToJsonSchema(z as ZodType, {
             name: "schema",
             target: "openAi",
             ...(options || {}),
