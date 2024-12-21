@@ -833,6 +833,14 @@ export function collapseChatMessages(messages: ChatCompletionMessageParam[]) {
             })
         }
     }
+
+    // remove emty text contents
+    messages
+        .filter((m) => m.role === "user")
+        .forEach((m) => {
+            if (typeof m.content !== "string")
+                m.content = m.content.filter((c) => c.type !== "text" || c.text)
+        })
 }
 
 export async function executeChatSession(
