@@ -50,11 +50,21 @@ Exclude files ignored by the `.gitignore` file at the workspace root.
 npx genaiscript run <script> <files> --exclude-git-ignore
 ```
 
+## Configuration
+
+### --model ...
+
+Configure the default or `large` model alias
+
+## --provider ...
+
+Loads a set of model aliases for the given LLM provider.
+
+### --vars name=value name2=value2 ...
+
+Populate values in the `env.vars` map that can be used when running the prompt.
+
 ## Output
-
-### --prompt
-
-Skips the LLM invocation and only prints the expanded system and user chat messages.
 
 ### --out &lt;file|directory&gt;
 
@@ -77,10 +87,6 @@ Output the entire response as JSON to the stdout.
 ### --yaml
 
 Output the entire response as YAML to the stdout.
-
-### --vars name=value name2=value2 ...
-
-Populate values in the `env.vars` map that can be used when running the prompt.
 
 ### --out-trace &lt;file&gt;
 
