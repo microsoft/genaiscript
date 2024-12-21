@@ -3,6 +3,7 @@
  */
 import { delay as _delay } from "es-toolkit"
 import { zodToJsonSchema as _zodToJsonSchema } from "zod-to-json-schema"
+import { z as zod } from "zod"
 
 /**
  * A helper function to delay the execution of the script
@@ -10,12 +11,17 @@ import { zodToJsonSchema as _zodToJsonSchema } from "zod-to-json-schema"
 export const delay: (ms: number) => Promise<void> = _delay
 
 /**
+ * Zod schema generator
+ */
+export const z = zod
+
+/**
  * Converts a Zod schema to a JSON schema
  * @param z
  * @param options
  * @returns
  */
-export function zodToJsonSchema(z: any, options?: object): any {
+export function zodToJsonSchema(z: zod.ZodType<any>, options?: object): any {
     const definitions = _zodToJsonSchema(z, {
         name: "schema",
         target: "openAi",

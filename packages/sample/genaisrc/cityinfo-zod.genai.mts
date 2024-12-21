@@ -5,8 +5,7 @@ script({
 // the data to analyze
 def("CITIES", env.files)
 
-import { z } from "zod"
-import { zodToJsonSchema } from "genaiscript/runtime"
+import { z, zodToJsonSchema } from "genaiscript/runtime"
 // create schema using zod
 const CitySchema = z.array(
     z.object({
