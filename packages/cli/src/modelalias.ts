@@ -40,7 +40,9 @@ export function applyModelOptions(
 export function logModelAliases() {
     const modelAlias = runtimeHost.modelAliases
     if (Object.values(modelAlias).some((m) => m.source !== "default"))
-        Object.entries(runtimeHost.modelAliases).forEach(([key, value]) =>
-            logVerbose(` ${key}: ${value.model} (${value.source})`)
-        )
+        Object.entries(runtimeHost.modelAliases)
+            .filter(([, value]) => value.source !== "default")
+            .forEach(([key, value]) =>
+                logVerbose(` ${key}: ${value.model} (${value.source})`)
+            )
 }
