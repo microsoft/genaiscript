@@ -100,7 +100,27 @@ File ./data.json:
 
 {/* genaiscript output end */}
 
+### Native zod support
 
+A [Zod](https://zod.dev/) type can be passed in `defSchema` and it will be automatically converted to JSON schema.
+The GenAIScript also exports the `z` object from Zod for convenience.
+
+```js
+// import from genaiscript
+import { z } from "genaiscript/runtime"
+// or directly from zod
+// import { z } from "zod"
+// create schema using zod
+const CitySchema = z.array(
+    z.object({
+        name: z.string(),
+        population: z.number(),
+        url: z.string(),
+    })
+)
+// JSON schema to constrain the output of the tool.
+const schema = defSchema("CITY_SCHEMA", CitySchema)
+```
 
 ### Prompt encoding
 
