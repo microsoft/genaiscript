@@ -1,12 +1,14 @@
 script({
     files: ["./src/cities.md"],
+    tests: {
+        files: ["./src/cities.md"],
+    },
 })
 
 // the data to analyze
 def("CITIES", env.files)
 
-import { z } from "zod"
-import { zodToJsonSchema } from "zod-to-json-schema"
+import { z } from "genaiscript/runtime"
 // create schema using zod
 const CitySchema = z.array(
     z.object({
@@ -16,9 +18,7 @@ const CitySchema = z.array(
     })
 )
 // JSON schema to constrain the output of the tool.
-const schema = defSchema("CITY_SCHEMA", zodToJsonSchema(CitySchema, "citySchema").definitions[
-    "citySchema"
-] as JSONSchemaArray)
+const schema = defSchema("CITY_SCHEMA", CitySchema)
 // the task`
 $`Answer with the information of the cities in the CITIES data set,
 compliant with ${schema}.`

@@ -239,7 +239,7 @@ declare function fetchText(
  */
 declare function defSchema(
     name: string,
-    schema: JSONSchema,
+    schema: JSONSchema | ZodTypeLike,
     options?: DefSchemaOptions
 ): string
 

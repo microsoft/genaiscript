@@ -24,7 +24,7 @@ $`Analyze FILE and
 
 -   📁 Scripts are [files](https://microsoft.github.io/genaiscript/reference/scripts/)! They can be versioned, shared, forked, ...
 
--   📊 Define, validate, repair data using [schemas](https://microsoft.github.io/genaiscript/reference/scripts/schemas).
+-   📊 Define, validate, repair data using [schemas](https://microsoft.github.io/genaiscript/reference/scripts/schemas). Zod support builtin.
 
 ```js wrap
 const data = defSchema("MY_DATA",

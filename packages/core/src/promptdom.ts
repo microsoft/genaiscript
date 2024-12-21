@@ -41,6 +41,7 @@ import { jinjaRenderChatMessage } from "./jinja"
 import { runtimeHost } from "./host"
 import { hash } from "./crypto"
 import { startMcpServer } from "./mcp"
+import { tryZodToJsonSchema } from "./zod"
 
 // Definition of the PromptNode interface which is an essential part of the code structure.
 export interface PromptNode extends ContextExpansionOptions {
@@ -361,11 +362,13 @@ export function createImageNode(
 // Function to create a schema node.
 export function createSchemaNode(
     name: string,
-    value: JSONSchema,
+    value: JSONSchema | ZodTypeLike,
     options?: DefSchemaOptions
 ): PromptSchemaNode {
     assert(!!name)
     assert(value !== undefined)
+    // auto zod conversion
+    value = tryZodToJsonSchema(value as ZodTypeLike) ?? (value as JSONSchema)
     return { type: "schema", name, value, options }
 }
 
