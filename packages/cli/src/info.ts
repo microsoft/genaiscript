@@ -132,6 +132,6 @@ export async function scriptModelInfo(
     console.log(YAMLStringify(info))
 }
 
-export async function modelsInfo() {
+export async function modelAliasesInfo() {
     console.log(YAML.stringify(runtimeHost.modelAliases))
 }

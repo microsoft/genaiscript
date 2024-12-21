@@ -190,6 +190,7 @@ export const MODEL_PROVIDERS = Object.freeze<
         topP?: boolean
         prediction?: boolean
         bearerToken?: boolean
+        aliases?: Record<string, string>
     }[]
 >(CONFIGURATION_DATA.providers)
 export const MODEL_PRICINGS = Object.freeze<

@@ -83,7 +83,7 @@ import {
     stdout,
 } from "../../core/src/logging"
 import { ensureDotGenaiscriptPath, setupTraceWriting } from "./trace"
-import { applyModelOptions } from "./modealias"
+import { applyModelOptions } from "./modelalias"
 import { createCancellationController } from "./cancel"
 import { parsePromptScriptMeta } from "../../core/src/template"
 

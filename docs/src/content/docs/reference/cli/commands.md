@@ -16,6 +16,7 @@ Usage: genaiscript run [options] <script> [files...]
 Runs a GenAIScript against files.
 
 Options:
+  -p, --provider <string>                    Preferred LLM provider aliases (choices: "openai", "azure", "azure_serverless", "azure_serverless_models", "anthropic", "anthropic_bedrock", "google", "huggingface", "mistral", "alibaba", "github", "transformers", "ollama", "lmstudio", "jan", "llamafile", "litellm")
   -m, --model <string>                       'large' model alias (default)
   -sm, --small-model <string>                'small' alias model
   -vm, --vision-model <string>               'vision' alias model
@@ -86,9 +87,18 @@ Arguments:
                                       are tested
 
 Options:
-  -m, --model <string>                model for the run
-  -sm, --small-model <string>         small model for the run
+  -p, --provider <string>             Preferred LLM provider aliases (choices:
+                                      "openai", "azure", "azure_serverless",
+                                      "azure_serverless_models", "anthropic",
+                                      "anthropic_bedrock", "google",
+                                      "huggingface", "mistral", "alibaba",
+                                      "github", "transformers", "ollama",
+                                      "lmstudio", "jan", "llamafile",
+                                      "litellm")
+  -m, --model <string>                'large' model alias (default)
+  -sm, --small-model <string>         'small' alias model
   -vm, --vision-model <string>        'vision' alias model
+  -ma, --model-alias <nameid...>      model alias as name=modelid
   --models <models...>                models to test where mode is the key
                                       value pair list of m (model), s (small
                                       model), t (temperature), p (top-p)

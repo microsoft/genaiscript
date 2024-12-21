@@ -80,7 +80,14 @@
         {
             "id": "huggingface",
             "detail": "Hugging Face models",
-            "prediction": false
+            "prediction": false,
+            "aliases": {
+                "large": "Qwen/Qwen2.5-72B-Instruct",
+                "small": "Qwen/Qwen2.5-Coder-32B-Instruct",
+                "vision": "Qwen/Qwen2-VL-7B-Instruct",
+                "reasoning": "Qwen/QwQ-32B-Preview",
+                "reasoning_small": "Qwen/QwQ-32B-Preview"
+            }
         },
         {
             "id": "mistral",
