@@ -1,4 +1,4 @@
-name: anthropic tests
+name: huggingface tests
 on:
     workflow_dispatch:
     release:
