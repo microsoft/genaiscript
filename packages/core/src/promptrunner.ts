@@ -113,7 +113,7 @@ export async function runTemplate(
     runtimeHost.project = prj
 
     try {
-        trace.heading(3, `🧠 running ${template.id} with model ${model ?? ""}`)
+        trace.heading(3, `🧠 ${template.id}`)
         if (cliInfo) traceCliArgs(trace, template, options)
 
         // Resolve expansion variables for the template

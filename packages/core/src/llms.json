@@ -85,8 +85,8 @@
             "aliases": {
                 "large": "Qwen/Qwen2.5-72B-Instruct",
                 "small": "Qwen/Qwen2.5-Coder-32B-Instruct",
-                "vision": "Qwen/Qwen2-VL-7B-Instruct",
-                "embeddings": "nomic-ai/nomic-embed-text-v1.5:",
+                "vision": "meta-llama/Llama-3.2-11B-Vision-Instruct",
+                "embeddings": "nomic-ai/nomic-embed-text-v1.5",
                 "reasoning": "Qwen/QwQ-32B-Preview",
                 "reasoning_small": "Qwen/QwQ-32B-Preview"
             }
