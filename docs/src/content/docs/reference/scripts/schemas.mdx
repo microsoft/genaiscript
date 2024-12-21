@@ -1,17 +1,16 @@
 ---
 title: Data Schemas
 sidebar:
-  order: 6
+    order: 6
 description: Learn how to define and use data schemas for structured output in
-  JSON/YAML with LLM, including validation and repair techniques.
+    JSON/YAML with LLM, including validation and repair techniques.
 keywords: data schemas, JSON schema, YAML validation, LLM structured output,
-  schema repair
+    schema repair
 genaiscript:
-  model: openai:gpt-3.5-turbo
-
+    model: openai:gpt-3.5-turbo
 ---
-import { Card } from '@astrojs/starlight/components';
 
+import { Card } from "@astrojs/starlight/components"
 
 It is possible to force the LLM to generate data that conforms to a specific schema.
 This technique works reasonably well and GenAIScript also provides automatic validation "just in case".
@@ -32,11 +31,17 @@ const schema = defSchema("CITY_SCHEMA", {
         description: "A city with population and elevation information.",
         properties: {
             name: { type: "string", description: "The name of the city." },
-            population: { type: "number", description: "The population of the city." },
-            url: { type: "string", description: "The URL of the city's Wikipedia page." }
+            population: {
+                type: "number",
+                description: "The population of the city.",
+            },
+            url: {
+                type: "string",
+                description: "The URL of the city's Wikipedia page.",
+            },
         },
-        required: ["name", "population", "url"]
-    }
+        required: ["name", "population", "url"],
+    },
 })
 
 $`Generate data using JSON compliant with ${schema}.`
@@ -47,9 +52,9 @@ $`Generate data using JSON compliant with ${schema}.`
 <details open>
 <summary>👤 user</summary>
 
-
 ````markdown wrap
 CITY_SCHEMA:
+
 ```typescript-schema
 // A list of cities with population and elevation information.
 type CITY_SCHEMA = Array<{
@@ -61,40 +66,38 @@ type CITY_SCHEMA = Array<{
     url: string,
   }>
 ```
+
 Generate data using JSON compliant with CITY_SCHEMA.
 ````
 
-
 </details>
-
 
 <details open>
 <summary>🤖 assistant</summary>
 
-
 ````markdown wrap
 File ./data.json:
+
 ```json schema=CITY_SCHEMA
 [
-  {
-    "name": "New York",
-    "population": 8398748,
-    "url": "https://en.wikipedia.org/wiki/New_York_City"
-  },
-  {
-    "name": "Los Angeles",
-    "population": 3990456,
-    "url": "https://en.wikipedia.org/wiki/Los_Angeles"
-  },
-  {
-    "name": "Chicago",
-    "population": 2705994,
-    "url": "https://en.wikipedia.org/wiki/Chicago"
-  }
+    {
+        "name": "New York",
+        "population": 8398748,
+        "url": "https://en.wikipedia.org/wiki/New_York_City"
+    },
+    {
+        "name": "Los Angeles",
+        "population": 3990456,
+        "url": "https://en.wikipedia.org/wiki/Los_Angeles"
+    },
+    {
+        "name": "Chicago",
+        "population": 2705994,
+        "url": "https://en.wikipedia.org/wiki/Chicago"
+    }
 ]
 ```
 ````
-
 
 </details>
 
@@ -131,12 +134,12 @@ from TypeChat, the schema is converted TypeScript types before being injected in
 // A list of cities with population and elevation information.
 type CITY_SCHEMA = Array<{
     // The name of the city.
-    name: string,
+    name: string
     // The population of the city.
-    population: number,
+    population: number
     // The URL of the city's Wikipedia page.
-    url: string,
-  }>
+    url: string
+}>
 ```
 
 You can change this behavior by using the `{ format: "json" }` option.
@@ -154,50 +157,46 @@ in the output folder as well.
 <details>
 <summary>schema CITY_SCHEMA</summary>
 
--   source:
+- source:
 
 ```json
 {
-  "type": "array",
-  "description": "A list of cities with population and elevation information.",
-  "items": {
-    "type": "object",
-    "description": "A city with population and elevation information.",
-    "properties": {
-      "name": {
-        "type": "string",
-        "description": "The name of the city."
-      },
-      "population": {
-        "type": "number",
-        "description": "The population of the city."
-      },
-      "url": {
-        "type": "string",
-        "description": "The URL of the city's Wikipedia page."
-      }
-    },
-    "required": [
-      "name",
-      "population",
-      "url"
-    ]
-  }
+    "type": "array",
+    "description": "A list of cities with population and elevation information.",
+    "items": {
+        "type": "object",
+        "description": "A city with population and elevation information.",
+        "properties": {
+            "name": {
+                "type": "string",
+                "description": "The name of the city."
+            },
+            "population": {
+                "type": "number",
+                "description": "The population of the city."
+            },
+            "url": {
+                "type": "string",
+                "description": "The URL of the city's Wikipedia page."
+            }
+        },
+        "required": ["name", "population", "url"]
+    }
 }
 ```
--   prompt (rendered as typescript):
+
+- prompt (rendered as typescript):
 
 ```ts
 // A list of cities with population and elevation information.
 type CITY_SCHEMA = Array<{
     // The name of the city.
-    name: string,
+    name: string
     // The population of the city.
-    population: number,
+    population: number
     // The URL of the city's Wikipedia page.
-    url: string,
-  }>
-  
+    url: string
+}>
 ```
 
 </details>
@@ -219,7 +218,7 @@ GenAIScript automatically validates the payload against the schema.
 
 :::tip
 
-Not all data formats are equal! Some data formats like JSON introduce ambiguity 
+Not all data formats are equal! Some data formats like JSON introduce ambiguity
 and can confuse the LLM.
 [Read more...](https://betterprogramming.pub/yaml-vs-json-which-is-more-efficient-for-language-models-5bc11dd0f6df).
 
@@ -227,7 +226,7 @@ and can confuse the LLM.
 
 ## Repair
 
-GenAIScript will automatically try to repair the data by issues additional messages 
+GenAIScript will automatically try to repair the data by issues additional messages
 back to the LLM with the parsing output.
 
 ## Runtime Validation
