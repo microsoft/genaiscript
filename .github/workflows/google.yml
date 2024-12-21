@@ -32,6 +32,6 @@ jobs:
             - name: compile
               run: yarn compile
             - name: poem
-              run: yarn run:script poem --model google:gemini-1.5-flash --out-trace $GITHUB_STEP_SUMMARY
+              run: yarn run:script poem -p google --out-trace $GITHUB_STEP_SUMMARY
               env:
                   GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}

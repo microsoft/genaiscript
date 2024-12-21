@@ -32,10 +32,6 @@ jobs:
             - name: compile
               run: yarn compile
             - name: poem
-              run: yarn run:script poem --model anthropic:claude-3-5-sonnet-20240620 --out-trace $GITHUB_STEP_SUMMARY
-              env:
-                  ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-            - name: cache
-              run: yarn run:script summarize-cached --model anthropic:claude-3-5-sonnet-20240620 --small-model anthropic:claude-3-5-sonnet-20240620
+              run: yarn run:script poem -p anthropic --out-trace $GITHUB_STEP_SUMMARY
               env:
                   ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
