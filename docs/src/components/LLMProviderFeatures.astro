@@ -5,8 +5,11 @@ interface Props {
     provider: string
 }
 const { provider } = Astro.props
-const info: Record<string, boolean> & { openaiCompatibility?: string, limitations?: boolean } =
-    LLMS.providers.find(({ id }) => id === provider) as any
+const info: Record<string, boolean> & {
+    openaiCompatibility?: string
+    limitations?: boolean
+    aliases?: Record<string, string>
+} = LLMS.providers.find(({ id }) => id === provider) as any
 if (!info) {
     throw new Error(`Provider ${provider} not found`)
 }
@@ -17,6 +20,9 @@ const features: Record<string, { name?: string; url?: string }> = {
     topP: {
         name: "top_p ignored",
     },
+    logitBias: {
+        name: "logit_bias ignored",
+    },
     logprobs: {
         name: "logprobs (and top logprobs) ignored",
     },
@@ -26,8 +32,11 @@ const features: Record<string, { name?: string; url?: string }> = {
     tools: {
         name: "Tools implemented as fallback tools automatically.",
     },
+    prediction: {
+        name: "Ignore prediction of output tokens",
+    },
 }
-const { openaiCompatibility, limitations, ...rest } = info
+const { openaiCompatibility, limitations, aliases, bearerToken, ...rest } = info
 const unsupported = Object.keys(rest)
     .sort()
     .map((id) => ({ id, supported: info[id] }))
@@ -35,22 +44,46 @@ const unsupported = Object.keys(rest)
 ---
 
 {
+    aliases && (
+        <>
+            <h3 id={provider + "-aliases"}>Aliases</h3>
+            <p>
+                The following model aliases are attempted by default in
+                GenAIScript.
+            </p>
+            <table>
+                <tr>
+                    <th>Alias</th>
+                    <th>Model identifier</th>
+                </tr>
+                {Object.entries(aliases).map(([key, value]) => (
+                    <tr>
+                        <td>{key}</td>
+                        <td>{value}</td>
+                    </tr>
+                ))}
+            </table>
+        </>
+    )
+}
+
+{
     openaiCompatibility || limitations || unsupported?.length > 0 ? (
         <>
-            <h3>Limitations</h3>
+            <h3 id={provider + "-limitations"}>Limitations</h3>
             <ul>
                 {!!limitations && <li>{limitations}</li>}
                 {!!openaiCompatibility && (
                     <li>
-                        Uses <a href={openaiCompatibility}>OpenAI compatibility layer</a>
+                        Uses{" "}
+                        <a href={openaiCompatibility}>
+                            OpenAI compatibility layer
+                        </a>
                     </li>
                 )}
-                {Object.keys(features)
-                    .map((id) => ({ id, supported: info[id] }))
-                    .filter(({ supported }) => supported === false)
-                    .map(({ id }) => (
-                        <li>{features[id]?.name || id}</li>
-                    ))}
+                {unsupported.map(({ id }) => (
+                    <li>{features[id]?.name || id}</li>
+                ))}
             </ul>
         </>
     ) : null
