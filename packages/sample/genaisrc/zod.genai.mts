@@ -1,5 +1,8 @@
 script({
     files: ["./src/cities.md"],
+    tests: {
+        files: ["./src/cities.md"],
+    },
 })
 
 // the data to analyze
