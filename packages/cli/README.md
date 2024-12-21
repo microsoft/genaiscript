@@ -94,7 +94,7 @@ $`Analyze FILE and extract data to JSON using the ${schema} schema.`
 
 ### 📋 Data Schemas
 
-Define, validate, and repair data using [schemas](https://microsoft.github.io/genaiscript/reference/scripts/schemas).
+Define, validate, and repair data using [schemas](https://microsoft.github.io/genaiscript/reference/scripts/schemas). Zod support builtin.
 
 ```js
 const data = defSchema("MY_DATA", { type: "array", items: { ... } })
