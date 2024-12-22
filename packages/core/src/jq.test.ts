@@ -42,4 +42,17 @@ describe("jq", () => {
         const result = jq(input, query)
         assert.deepStrictEqual(result, input)
     })
+    test("handles multiple queries correctly", () => {
+        const input = { name: "John", age: 30, address: { city: "New York" } }
+        const query = ".name, .address.city"
+        const result = jq(input, query)
+        assert.deepStrictEqual(result, ["John", "New York"])
+    })
+
+    test("handles multiple queries with arrays", () => {
+        const input = { people: [{ name: "John" }, { name: "Jane" }] }
+        const query = ".people[0].name, .people[1].name"
+        const result = jq(input, query)
+        assert.deepStrictEqual(result, ["John", "Jane"])
+    })
 })

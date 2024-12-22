@@ -8,6 +8,7 @@ export function jq(input: any, query: string): any {
     if (input === undefined) return input
 
     const pattern = _jq.compile(query)
-    const res = pattern.evaluate(input)[0]
+    const res = pattern.evaluate(input)
+    if (res.length === 1) return res[0]
     return res
 }
