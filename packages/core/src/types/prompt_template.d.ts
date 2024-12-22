@@ -1567,7 +1567,7 @@ interface Parsers {
      * @param text template text
      * @param data data to render
      */
-    mustache(text: string | WorkspaceFile, data: Record<string, any>): str
+    mustache(text: string | WorkspaceFile, data: Record<string, any>): string
     /**
      * Renders a jinja template
      */
