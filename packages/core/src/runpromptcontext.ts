@@ -33,7 +33,13 @@ import {
 } from "./parameters"
 import { consoleLogFormat, stdout } from "./logging"
 import { isGlobMatch } from "./glob"
-import { arrayify, logError, logVerbose, logWarn } from "./util"
+import {
+    arrayify,
+    deleteEmptyValues,
+    logError,
+    logVerbose,
+    logWarn,
+} from "./util"
 import { renderShellOutput } from "./chatrender"
 import { jinjaRender } from "./jinja"
 import { mustacheRender } from "./mustache"
@@ -503,7 +509,8 @@ export function createChatGenerationContext(
                         ...rest,
                     }
                 )
-                return res
+                if (res.error) throw res.error
+                return deleteEmptyValues(res)
             }
         )
     }
