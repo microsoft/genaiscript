@@ -2411,6 +2411,11 @@ interface DefDataOptions
      * Output format in the prompt. Defaults to Markdown table rendering.
      */
     format?: "json" | "yaml" | "csv"
+
+    /**
+     * jq query to filter the data
+     */
+    query?: string
 }
 
 interface DefSchemaOptions {
@@ -2560,7 +2565,7 @@ interface ChatTurnGenerationContext {
     ): string
     defData(
         name: string,
-        data: object[] | object,
+        data: Awaitable<object[] | object>,
         options?: DefDataOptions
     ): string
     defDiff<T extends string | WorkspaceFile>(

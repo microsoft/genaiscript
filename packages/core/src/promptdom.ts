@@ -42,6 +42,7 @@ import { runtimeHost } from "./host"
 import { hash } from "./crypto"
 import { startMcpServer } from "./mcp"
 import { tryZodToJsonSchema } from "./zod"
+import { jq } from "./jq"
 
 // Definition of the PromptNode interface which is an essential part of the code structure.
 export interface PromptNode extends ContextExpansionOptions {
@@ -57,6 +58,7 @@ export interface PromptNode extends ContextExpansionOptions {
         | "assistant"
         | "system"
         | "def"
+        | "defData"
         | "chatParticipant"
         | "fileOutput"
         | "importTemplate"
@@ -96,6 +98,13 @@ export interface PromptDefNode extends PromptNode, DefOptions {
     name: string // Name of the definition
     value: Awaitable<WorkspaceFile> // File associated with the definition
     resolved?: WorkspaceFile // Resolved file content
+}
+
+export interface PromptDefDataNode extends PromptNode, DefDataOptions {
+    type: "defData"
+    name: string // Name of the definition
+    value: Awaitable<object | object[]> // Data associated with the definition
+    resolved?: object | object[]
 }
 
 export interface PromptPrediction {
@@ -317,6 +326,48 @@ function renderDefNode(def: PromptDefNode): string {
     return res
 }
 
+function renderDefDataNode(n: PromptDefDataNode): string {
+    const { name, headers, priority, ephemeral, query } = n
+    let data = n.resolved
+    let format = n.format
+    const cacheControl = n.cacheControl ?? (ephemeral ? "ephemeral" : undefined)
+    if (
+        !format &&
+        Array.isArray(data) &&
+        data.length &&
+        (headers?.length || haveSameKeysAndSimpleValues(data))
+    )
+        format = "csv"
+    else if (!format) format = "yaml"
+
+    if (Array.isArray(data)) data = tidyData(data as object[], n)
+    if (query) data = jq(data, query)
+
+    let text: string
+    let lang: string
+    if (Array.isArray(data) && format === "csv") {
+        text = CSVToMarkdown(data)
+    } else if (format === "json") {
+        text = JSON.stringify(data)
+        lang = "json"
+    } else {
+        text = YAMLStringify(data)
+        lang = "yaml"
+    }
+
+    const value = lang
+        ? `${name}:
+\`\`\`${lang}
+${trimNewlines(text)}
+\`\`\`
+`
+        : `${name}:
+${trimNewlines(text)}
+`
+    // TODO maxTokens does not work well with data
+    return value
+}
+
 // Function to create an assistant node.
 export function createAssistantNode(
     value: Awaitable<string>,
@@ -468,50 +519,16 @@ function haveSameKeysAndSimpleValues(data: object[]): boolean {
 // Function to create a text node with data.
 export function createDefData(
     name: string,
-    data: object | object[],
+    value: Awaitable<object | object[]>,
     options?: DefDataOptions
-) {
-    if (data === undefined) return undefined
-    let { format, headers, priority, cacheControl } = options || {}
-    cacheControl =
-        cacheControl ?? (options?.ephemeral ? "ephemeral" : undefined)
-    if (
-        !format &&
-        Array.isArray(data) &&
-        data.length &&
-        (headers?.length || haveSameKeysAndSimpleValues(data))
-    )
-        format = "csv"
-    else if (!format) format = "yaml"
-
-    if (Array.isArray(data)) data = tidyData(data as object[], options)
-
-    let text: string
-    let lang: string
-    if (Array.isArray(data) && format === "csv") {
-        text = CSVToMarkdown(data)
-    } else if (format === "json") {
-        text = JSON.stringify(data)
-        lang = "json"
-    } else {
-        text = YAMLStringify(data)
-        lang = "yaml"
+): PromptDefDataNode {
+    if (value === undefined) return undefined
+    return {
+        type: "defData",
+        name,
+        value,
+        ...(options || {}),
     }
-
-    const value = lang
-        ? `${name}:
-\`\`\`${lang}
-${trimNewlines(text)}
-\`\`\`
-`
-        : `${name}:
-${trimNewlines(text)}
-`
-    // TODO maxTokens does not work well with data
-    return createTextNode(value, {
-        priority,
-        ephemeral: cacheControl === "ephemeral",
-    })
 }
 
 // Function to append a child node to a parent node.
@@ -529,6 +546,7 @@ export interface PromptNodeVisitor {
     afterNode?: (node: PromptNode) => Awaitable<void> // Post node visitor
     text?: (node: PromptTextNode) => Awaitable<void> // Text node visitor
     def?: (node: PromptDefNode) => Awaitable<void> // Definition node visitor
+    defData?: (node: PromptDefDataNode) => Awaitable<void> // Definition data node visitor
     image?: (node: PromptImageNode) => Awaitable<void> // Image node visitor
     schema?: (node: PromptSchemaNode) => Awaitable<void> // Schema node visitor
     tool?: (node: PromptToolNode) => Awaitable<void> // Function node visitor
@@ -552,6 +570,9 @@ export async function visitNode(node: PromptNode, visitor: PromptNodeVisitor) {
             break
         case "def":
             await visitor.def?.(node as PromptDefNode)
+            break
+        case "defData":
+            await visitor.defData?.(node as PromptDefDataNode)
             break
         case "image":
             await visitor.image?.(node as PromptImageNode)
@@ -659,6 +680,19 @@ async function resolvePromptNode(
                 n.resolved = value
                 n.resolved.content = extractRange(n.resolved.content, n)
                 const rendered = renderDefNode(n)
+                n.preview = rendered
+                n.tokens = estimateTokens(rendered, encoder)
+                n.children = [createTextNode(rendered)]
+            } catch (e) {
+                n.error = e
+            }
+        },
+        defData: async (n) => {
+            try {
+                names.add(n.name)
+                const value = await n.value
+                n.resolved = value
+                const rendered = renderDefDataNode(n)
                 n.preview = rendered
                 n.tokens = estimateTokens(rendered, encoder)
                 n.children = [createTextNode(rendered)]

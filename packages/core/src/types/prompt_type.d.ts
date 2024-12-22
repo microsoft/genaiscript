@@ -267,7 +267,7 @@ declare function defImages(
  */
 declare function defData(
     name: string,
-    data: object[] | object,
+    data: Awaitable<object[] | object>,
     options?: DefDataOptions
 ): string
 

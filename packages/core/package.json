@@ -61,6 +61,7 @@
     "inflection": "^3.0.0",
     "ini": "^5.0.0",
     "jimp": "^1.6.0",
+    "jqts": "^0.0.8",
     "json5": "^2.2.3",
     "jsonrepair": "^3.11.2",
     "magic-string": "^0.30.17",
