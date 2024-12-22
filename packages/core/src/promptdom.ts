@@ -1049,33 +1049,60 @@ async function validateSafetyPromptNode(
     root: PromptNode
 ) {
     let mod = false
+    let _contentSafety: ContentSafety
+
+    const resolveContentSafety = async () => {
+        if (!_contentSafety)
+            _contentSafety =
+                (await runtimeHost.contentSafety(undefined, {
+                    trace,
+                })) || {}
+        return _contentSafety.detectPromptInjection
+    }
+
     await visitNode(root, {
         def: async (n) => {
-            if (n.detectPromptInjection && n.resolved?.content) {
-                const { detectPromptInjection } =
-                    (await runtimeHost.contentSafety(undefined, {
-                        trace,
-                    })) || {}
-                if (
-                    (!detectPromptInjection &&
-                        n.detectPromptInjection === true) ||
-                    n.detectPromptInjection === "always"
-                )
-                    throw new Error("content safety service not available")
-                const { attackDetected } =
-                    (await detectPromptInjection?.(n.resolved)) || {}
-                if (attackDetected) {
-                    mod = true
-                    n.resolved = {
-                        filename: n.resolved.filename,
-                        content: SANITIZED_PROMPT_INJECTION,
-                    }
-                    n.preview = SANITIZED_PROMPT_INJECTION
-                    n.error = `safety: prompt injection detected`
-                    trace.error(
-                        `safety: prompt injection detected in ${n.resolved.filename}`
-                    )
+            if (!n.detectPromptInjection || !n.resolved?.content) return
+
+            const detectPromptInjection = await resolveContentSafety()
+            if (
+                (!detectPromptInjection && n.detectPromptInjection === true) ||
+                n.detectPromptInjection === "always"
+            )
+                throw new Error("content safety service not available")
+            const { attackDetected } =
+                (await detectPromptInjection?.(n.resolved)) || {}
+            if (attackDetected) {
+                mod = true
+                n.resolved = {
+                    filename: n.resolved.filename,
+                    content: SANITIZED_PROMPT_INJECTION,
                 }
+                n.preview = SANITIZED_PROMPT_INJECTION
+                n.children = []
+                n.error = `safety: prompt injection detected`
+                trace.error(
+                    `safety: prompt injection detected in ${n.resolved.filename}`
+                )
+            }
+        },
+        defData: async (n) => {
+            if (!n.detectPromptInjection || !n.preview) return
+
+            const detectPromptInjection = await resolveContentSafety()
+            if (
+                (!detectPromptInjection && n.detectPromptInjection === true) ||
+                n.detectPromptInjection === "always"
+            )
+                throw new Error("content safety service not available")
+            const { attackDetected } =
+                (await detectPromptInjection?.(n.preview)) || {}
+            if (attackDetected) {
+                mod = true
+                n.children = []
+                n.preview = SANITIZED_PROMPT_INJECTION
+                n.error = `safety: prompt injection detected`
+                trace.error(`safety: prompt injection detected in data`)
             }
         },
     })
@@ -1088,6 +1115,16 @@ async function deduplicatePromptNode(trace: MarkdownTrace, root: PromptNode) {
     const defs = new Set<string>()
     await visitNode(root, {
         def: async (n) => {
+            const key = await hash(n)
+            if (defs.has(key)) {
+                trace.log(`duplicate definition and content: ${n.name}`)
+                n.deleted = true
+                mod = true
+            } else {
+                defs.add(key)
+            }
+        },
+        defData: async (n) => {
             const key = await hash(n)
             if (defs.has(key)) {
                 trace.log(`duplicate definition and content: ${n.name}`)

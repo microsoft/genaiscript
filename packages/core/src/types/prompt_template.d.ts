@@ -2414,7 +2414,8 @@ interface DataFilter {
 interface DefDataOptions
     extends Omit<ContextExpansionOptions, "maxTokens">,
         FenceFormatOptions,
-        DataFilter {
+        DataFilter,
+        ContentSafetyOptions {
     /**
      * Output format in the prompt. Defaults to Markdown table rendering.
      */
