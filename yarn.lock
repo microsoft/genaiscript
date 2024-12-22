@@ -835,6 +835,11 @@
   resolved "https://registry.yarnpkg.com/@balena/dockerignore/-/dockerignore-1.0.2.tgz#9ffe4726915251e8eb69f44ef3547e0da2c03e0d"
   integrity sha512-wMue2Sy4GAVTk6Ic4tJVcnfdau+gx2EnG7S+uAEe+TWJFqE4YoWN4/H8MSLj4eYJKxGg26lZwboEniNiNwZQ6Q==
 
+"@elastic/micro-jq@^1.8.0":
+  version "1.8.0"
+  resolved "https://registry.yarnpkg.com/@elastic/micro-jq/-/micro-jq-1.8.0.tgz#7f8d5226568df7575c6a6a459f77d60c04ed1062"
+  integrity sha512-HMfLiglMgSEdedsaD4jqqxP4+uI26onwLlPbk9dzh6Mk6FYdwWkFHmHMb57VqlV+B/RpIDLJbZ1FjsEQDoANvw==
+
 "@emnapi/runtime@^1.2.0":
   version "1.3.1"
   resolved "https://registry.yarnpkg.com/@emnapi/runtime/-/runtime-1.3.1.tgz#0fcaa575afc31f455fd33534c19381cfce6c6f60"

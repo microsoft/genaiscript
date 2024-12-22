@@ -21,6 +21,7 @@
     "@anthropic-ai/bedrock-sdk": "^0.12.0",
     "@anthropic-ai/sdk": "^0.33.1",
     "@azure/identity": "^4.5.0",
+    "@elastic/micro-jq": "^1.8.0",
     "@huggingface/jinja": "^0.3.2",
     "@huggingface/transformers": "^3.2.1",
     "@modelcontextprotocol/sdk": "^1.0.4",
