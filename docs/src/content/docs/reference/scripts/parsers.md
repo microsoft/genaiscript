@@ -16,7 +16,7 @@ The `parsers.json5` function parses the JSON5 format.
 In general, parsing a JSON file as JSON5 does not cause harm, but it might be more forgiving
 to syntactic errors. In addition to JSON5, [JSON repair](https://www.npmjs.com/package/jsonrepair) is applied if the initial parse fails.
 
--   JSON5 example
+- JSON5 example
 
 ```json5
 {
@@ -272,8 +272,8 @@ const fences = parsers.fences("...")
 Parses error, warning annotations in various formats
 into a list of objects.
 
--   [GitHub Actions](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions)
--   [Azure DevOps Pipeline](https://learn.microsoft.com/en-us/azure/devops/pipelines/scripts/logging-commands?view=azure-devops&tabs=bash#example-log-a-warning-about-a-specific-place-in-a-file)
+- [GitHub Actions](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions)
+- [Azure DevOps Pipeline](https://learn.microsoft.com/en-us/azure/devops/pipelines/scripts/logging-commands?view=azure-devops&tabs=bash#example-log-a-warning-about-a-specific-place-in-a-file)
 -
 
 ```js
@@ -320,6 +320,14 @@ used with `defData`.
 
 ```js
 const d = parsers.tidyData(rows, { sliceSample: 100, sort: "name" })
+```
+
+## jq
+
+Apply a [jq](https://jqlang.github.io/jq/) query to a JSON object.
+
+```js
+const d = parsers.jq(rows, "map({ a })")
 ```
 
 ## hash
