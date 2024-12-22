@@ -433,7 +433,7 @@ const completerFactory = (
 
         trace.appendContent("\n\n")
         trace.itemValue(`🏁 finish reason`, finishReason)
-        if (usage) {
+        if (usage?.total_tokens) {
             trace.itemValue(
                 `🪙 tokens`,
                 `${usage.total_tokens} total, ${usage.prompt_tokens} prompt, ${usage.completion_tokens} completion`

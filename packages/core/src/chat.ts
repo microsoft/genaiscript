@@ -79,6 +79,7 @@ import {
     serializeLogProb,
     topLogprobsToMarkdown,
 } from "./logprob"
+import { uniq } from "es-toolkit"
 
 export function toChatCompletionUserMessage(
     expanded: string,
@@ -892,8 +893,15 @@ export async function executeChatSession(
 
     try {
         trace.startDetails(`🧠 llm chat`)
-        if (toolDefinitions?.length)
+        if (toolDefinitions?.length) {
             trace.detailsFenced(`🛠️ tools`, tools, "yaml")
+            const toolNames = toolDefinitions.map(({ spec }) => spec.name)
+            const duplicates = uniq(toolNames).filter(
+                (name, index) => toolNames.lastIndexOf(name) !== index
+            )
+            if (duplicates.length)
+                throw new Error(`duplicate tools: ${duplicates.join(", ")}`)
+        }
         let genVars: Record<string, string>
         while (true) {
             stats.turns++
