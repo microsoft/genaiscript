@@ -199,6 +199,11 @@ declare var MD: MD
 declare var JSONL: JSONL
 
 /**
+ * JSON5 parsing
+ */
+declare var JSON5: JSON5
+
+/**
  * AICI operations
  */
 declare var AICI: AICI
