@@ -1568,6 +1568,7 @@ interface Parsers {
      * @param data data to render
      */
     mustache(text: string | WorkspaceFile, data: Record<string, any>): string
+
     /**
      * Renders a jinja template
      */
@@ -1588,6 +1589,13 @@ interface Parsers {
      * @param options
      */
     tidyData(rows: object[], options?: DataFilter): object[]
+
+    /**
+     * Applies a jq query to the data
+     * @param data data object to filter
+     * @param query jq query
+     */
+    jq(data: any, query: string): any
 
     /**
      * Computes a sha1 that can be used for hashing purpose, not cryptographic.
