@@ -2184,6 +2184,20 @@ interface INI {
     stringify(value: any): string
 }
 
+interface JSON5 {
+    /**
+     * Parses a JSON/YAML/XML string to an object
+     * @param text
+     */
+    parse(text: string | WorkspaceFile): any
+
+    /**
+     * Renders an object to a JSON5-LLM friendly string
+     * @param value
+     */
+    stringify(value: any): string
+}
+
 interface CSVStringifyOptions {
     delimiter?: string
     header?: boolean
@@ -2604,7 +2618,7 @@ interface McpServerConfig {
 
 type McpServersConfig = Record<string, Omit<McpServerConfig, "id" | "options">>
 
-type ZodTypeLike = { _def: any, safeParse: any, refine: any }
+type ZodTypeLike = { _def: any; safeParse: any; refine: any }
 
 interface ChatGenerationContext extends ChatTurnGenerationContext {
     defSchema(

@@ -17,6 +17,7 @@ import { GitClient } from "./git"
 import { estimateTokens, truncateTextToTokens } from "./tokens"
 import { chunk, resolveTokenEncoder } from "./encoders"
 import { runtimeHost } from "./host"
+import { JSON5Stringify, JSON5TryParse } from "./json5"
 
 /**
  * This file defines global utilities and installs them into the global context.
@@ -84,6 +85,11 @@ export function installGlobals() {
     glb.JSONL = Object.freeze<JSONL>({
         parse: JSONLTryParse, // Parse JSONL string to objects
         stringify: JSONLStringify, // Convert objects to JSONL string
+    })
+
+    glb.JSON5 = Object.freeze<JSON5>({
+        parse: JSON5TryParse,
+        stringify: JSON5Stringify
     })
 
     // Freeze AICI utilities with a generation function

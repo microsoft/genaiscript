@@ -5,8 +5,7 @@ system({
     lineNumbers: true,
 })
 
-$`## Annotation Format
-
+$`## Annotations Format
 Use the following format to report **file annotations** (same as GitHub Actions workflow).
 
 ::(notice|warning|error) file=<filename>,line=<start line>,endLine=<end line>,code=<error_id>::<message>

@@ -71,10 +71,10 @@
             "prediction": false,
             "bearerToken": true,
             "aliases": {
-                "large": "gemini-2.0-flash-exp",
+                "large": "gemini-1.5-flash-latest",
                 "small": "gemini-1.5-flash-latest",
-                "vision": "gemini-2.0-flash-exp",
-                "long": "gemini-2.0-flash-exp",
+                "vision": "gemini-1.5-flash-latest",
+                "long": "gemini-1.5-flash-latest",
                 "reasoning": "gemini-2.0-flash-thinking-exp-1219",
                 "reasoning_small": "gemini-2.0-flash-thinking-exp-1219",
                 "embeddings": "text-embedding-004"

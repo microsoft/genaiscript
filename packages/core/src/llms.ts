@@ -1,3 +1,4 @@
+import { Model } from "@anthropic-ai/sdk/resources/index.mjs"
 import { LARGE_MODEL_ID, SMALL_MODEL_ID, VISION_MODEL_ID } from "./constants"
 import { ModelConfiguration, ModelConfigurations } from "./host"
 import LLMS from "./llms.json"
@@ -14,8 +15,19 @@ export function defaultModelConfigurations(): ModelConfigurations {
     ]
     const res = {
         ...(Object.fromEntries(
-            aliases.map((alias) => [alias, readModelAlias(alias)])
+            aliases.map<[string, ModelConfiguration]>((alias) => [
+                alias,
+                readModelAlias(alias),
+            ])
         ) as ModelConfigurations),
+        ...Object.fromEntries(
+            Object.entries(LLMS.aliases).map<[string, ModelConfiguration]>(
+                ([id, model]) => [
+                    id,
+                    { model, source: "default" } satisfies ModelConfiguration,
+                ]
+            )
+        ),
     }
     return structuredClone(res)
 
@@ -30,6 +42,6 @@ export function defaultModelConfigurations(): ModelConfigurations {
             model: candidates[0],
             candidates,
             source: "default",
-        })
+        } satisfies ModelConfiguration)
     }
 }

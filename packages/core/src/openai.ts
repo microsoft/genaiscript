@@ -399,7 +399,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
     trace.appendContent("\n\n")
     if (responseModel) trace.itemValue(`model`, responseModel)
     trace.itemValue(`🏁 finish reason`, finishReason)
-    if (usage) {
+    if (usage?.total_tokens) {
         trace.itemValue(
             `🪙 tokens`,
             `${usage.total_tokens} total, ${usage.prompt_tokens} prompt, ${usage.completion_tokens} completion`

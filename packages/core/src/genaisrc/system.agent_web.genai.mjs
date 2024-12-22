@@ -5,7 +5,7 @@ system({
 const model = env.vars.agentWebSearchModel
 
 defAgent(
-    "web-search",
+    "web",
     "search the web to accomplish tasks.",
     `Your are a helpful LLM agent that can use web search.
     Answer the question in QUERY.`,
