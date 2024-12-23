@@ -322,12 +322,14 @@ used with `defData`.
 const d = parsers.tidyData(rows, { sliceSample: 100, sort: "name" })
 ```
 
-## jq
+## GROQ
 
-Apply a [jq](https://jqlang.github.io/jq/) query to a JSON object.
+Apply a [GROQ](GROQEvaluate) query to a JSON object.
 
 ```js
-const d = parsers.jq(rows, "map({ a })")
+const d = parsers.GROQ(`*[completed == true && userId == 2]{
+  title
+}`, data)
 ```
 
 ## hash

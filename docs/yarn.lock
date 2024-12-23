@@ -4799,9 +4799,9 @@ sprintf-js@~1.0.2:
   integrity sha512-D9cPgkvLlV3t3IzL0D0YLvGA9Ahk4PcvVwUbN0dSGr1aP0Nrt4AEnTUbuGvquEC0mA64Gqt1fzirlRs5ibXx8g==
 
 starlight-blog@^0.16.0:
-  version "0.16.0"
-  resolved "https://registry.yarnpkg.com/starlight-blog/-/starlight-blog-0.16.0.tgz#7954997cb1119305f143b8d391cc8a098b7e09d2"
-  integrity sha512-gskN6cs12Rycya49DXnqK0q9FefNjbojA3QO5w+XugcRZDCcQ7fev8Zs0QDtLoHjibqRhFTrvhurlNe/0T2x+Q==
+  version "0.16.1"
+  resolved "https://registry.yarnpkg.com/starlight-blog/-/starlight-blog-0.16.1.tgz#fbf9da70c678c66e1629c8df1d02a478480cc17c"
+  integrity sha512-9WMpRZHhfgWjf2oQ1oUqGCJOUB3z+JohHrrQxVtzwm9GPAxNeu7/DAx6eQJf3moLbkdzCNP2VyrT2Molo62vRw==
   dependencies:
     "@astrojs/mdx" "^4.0.2"
     "@astrojs/rss" "^4.0.10"

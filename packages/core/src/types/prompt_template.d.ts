@@ -1591,11 +1591,12 @@ interface Parsers {
     tidyData(rows: object[], options?: DataFilter): object[]
 
     /**
-     * Applies a jq query to the data
+     * Applies a GROQ query to the data
      * @param data data object to filter
-     * @param query jq query
+     * @param query query
+     * @see https://groq.dev/
      */
-    jq(data: any, query: string): any
+    GROQ(query: string, data: any): any
 
     /**
      * Computes a sha1 that can be used for hashing purpose, not cryptographic.
@@ -2422,7 +2423,8 @@ interface DefDataOptions
     format?: "json" | "yaml" | "csv"
 
     /**
-     * jq query to filter the data
+     * GROQ query to filter the data
+     * @see https://groq.dev/
      */
     query?: string
 }

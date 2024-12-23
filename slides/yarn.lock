@@ -2002,21 +2002,21 @@
     vue-demi ">=0.14.8"
 
 "@vueuse/core@^12.0.0":
-  version "12.0.0"
-  resolved "https://registry.yarnpkg.com/@vueuse/core/-/core-12.0.0.tgz#9b07923ca24a6b5873bf614888c7d0f796cef7d2"
-  integrity sha512-C12RukhXiJCbx4MGhjmd/gH52TjJsc3G0E0kQj/kb19H3Nt6n1CA4DRWuTdWWcaFRdlTe0npWDS942mvacvNBw==
+  version "12.1.0"
+  resolved "https://registry.yarnpkg.com/@vueuse/core/-/core-12.1.0.tgz#9855946112c2762483577bfbf5f8fd7406e5bcf8"
+  integrity sha512-uoAhT3cnDtG/UuhgKxO6fXPCtW2F8axmKGaHWeHdV3YhsbSILxi2ATURbSkAmdQwgzI6jOpJarfVfGXCl78v5g==
   dependencies:
     "@types/web-bluetooth" "^0.0.20"
-    "@vueuse/metadata" "12.0.0"
-    "@vueuse/shared" "12.0.0"
+    "@vueuse/metadata" "12.1.0"
+    "@vueuse/shared" "12.1.0"
     vue "^3.5.13"
 
 "@vueuse/math@^12.0.0":
-  version "12.0.0"
-  resolved "https://registry.yarnpkg.com/@vueuse/math/-/math-12.0.0.tgz#c358124a2dcd5a96f3789a166ec882a1e1564754"
-  integrity sha512-Eqeqy2WyTJTdd6eAKYNLD4eK9IGKavX3hyRX9mI6VdNMcWQ7wH7M7Cd/vz95eS8Y/mkHumNJrzsWoLY+P2pOTQ==
+  version "12.1.0"
+  resolved "https://registry.yarnpkg.com/@vueuse/math/-/math-12.1.0.tgz#d2325f9342370ac6e8c6c71392ca90f2e73f1666"
+  integrity sha512-m0U36OZSebzNm1/HIZ5GHrZHtMi24dZRrBvsHqnhX5x7zBl8Gmm0On1GxOBZ3fmw+lmFcx/yc4oqgGl7HMYOZw==
   dependencies:
-    "@vueuse/shared" "12.0.0"
+    "@vueuse/shared" "12.1.0"
     vue "^3.5.13"
 
 "@vueuse/metadata@10.11.1":
@@ -2024,10 +2024,10 @@
   resolved "https://registry.yarnpkg.com/@vueuse/metadata/-/metadata-10.11.1.tgz#209db7bb5915aa172a87510b6de2ca01cadbd2a7"
   integrity sha512-IGa5FXd003Ug1qAZmyE8wF3sJ81xGLSqTqtQ6jaVfkeZ4i5kS2mwQF61yhVqojRnenVew5PldLyRgvdl4YYuSw==
 
-"@vueuse/metadata@12.0.0":
-  version "12.0.0"
-  resolved "https://registry.yarnpkg.com/@vueuse/metadata/-/metadata-12.0.0.tgz#ba6c279528fdb3c821825302f8a45c5ce327db01"
-  integrity sha512-Yzimd1D3sjxTDOlF05HekU5aSGdKjxhuhRFHA7gDWLn57PRbBIh+SF5NmjhJ0WRgF3my7T8LBucyxdFJjIfRJQ==
+"@vueuse/metadata@12.1.0":
+  version "12.1.0"
+  resolved "https://registry.yarnpkg.com/@vueuse/metadata/-/metadata-12.1.0.tgz#104504feebe8294a7fe6fcd0856b0efb9c159273"
+  integrity sha512-XxU3sYdOhqKLO+LbreHzMqklCjs/rdRQcZGtu/AHPTXb2No/GUBVFJr/JruUB1NPWG26F8mr+c55P4YG6nMzcQ==
 
 "@vueuse/motion@^2.2.6":
   version "2.2.6"
@@ -2050,10 +2050,10 @@
   dependencies:
     vue-demi ">=0.14.8"
 
-"@vueuse/shared@12.0.0":
-  version "12.0.0"
-  resolved "https://registry.yarnpkg.com/@vueuse/shared/-/shared-12.0.0.tgz#8d765a1c5038cc4ea29e9bbb622b2d4fd3365aef"
-  integrity sha512-3i6qtcq2PIio5i/vVYidkkcgvmTjCqrf26u+Fd4LhnbBmIT6FN8y6q/GJERp8lfcB9zVEfjdV0Br0443qZuJpw==
+"@vueuse/shared@12.1.0":
+  version "12.1.0"
+  resolved "https://registry.yarnpkg.com/@vueuse/shared/-/shared-12.1.0.tgz#0c5eaf955d23fa69853a3f20abc83f749e911ad4"
+  integrity sha512-tnuYb6Rp9dwMjsi/gukNeE+En3RFOfzrnVZX1vwbvq7+MbCkBNnXFvKgMGPlo1TQxgVd46D3NYwhBmM8Ioxd2A==
   dependencies:
     vue "^3.5.13"
 
@@ -2160,9 +2160,9 @@ bundle-name@^4.1.0:
     run-applescript "^7.0.0"
 
 bundle-require@^5.0.0:
-  version "5.0.0"
-  resolved "https://registry.yarnpkg.com/bundle-require/-/bundle-require-5.0.0.tgz#071521bdea6534495cf23e92a83f889f91729e93"
-  integrity sha512-GuziW3fSSmopcx4KRymQEJVbZUfqlCqcq7dvs6TYwKRZiegK/2buMxQTPs6MGlNv50wms1699qYO54R8XfRX4w==
+  version "5.1.0"
+  resolved "https://registry.yarnpkg.com/bundle-require/-/bundle-require-5.1.0.tgz#8db66f41950da3d77af1ef3322f4c3e04009faee"
+  integrity sha512-3WrrOuZiyaaZPWiEt4G3+IffISVC9HYlWueJEBWED4ZH4aIAC2PnkdnuRrR94M+w6yGWn4AglWtJtBI8YqvgoA==
   dependencies:
     load-tsconfig "^0.2.3"
 

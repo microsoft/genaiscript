@@ -42,7 +42,7 @@ import { runtimeHost } from "./host"
 import { hash } from "./crypto"
 import { startMcpServer } from "./mcp"
 import { tryZodToJsonSchema } from "./zod"
-import { jq } from "./jq"
+import { GROQEvaluate } from "./groq"
 
 // Definition of the PromptNode interface which is an essential part of the code structure.
 export interface PromptNode extends ContextExpansionOptions {
@@ -341,7 +341,7 @@ function renderDefDataNode(n: PromptDefDataNode): string {
     else if (!format) format = "yaml"
 
     if (Array.isArray(data)) data = tidyData(data as object[], n)
-    if (query) data = jq(data, query)
+    if (query) data = GROQEvaluate(query, data)
 
     let text: string
     let lang: string

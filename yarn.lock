@@ -4637,6 +4637,13 @@ graceful-fs@^4.1.6, graceful-fs@^4.2.0:
   resolved "https://registry.yarnpkg.com/graceful-fs/-/graceful-fs-4.2.11.tgz#4183e4e8bf08bb6e05bbb2f7d2e0c8f712ca40e3"
   integrity sha512-RbJ5/jmFcNNCcDV5o9eTnBLJ/HszWV0P73bc+Ff4nS/rJj+YaS6IGyiOL0VoBYX+l1Wrl3k63h/KrH+nhJ0XvQ==
 
+groq-js@^1.14.2:
+  version "1.14.2"
+  resolved "https://registry.yarnpkg.com/groq-js/-/groq-js-1.14.2.tgz#ff0ad0104ebdb13006bd158f311d1fad36fe3994"
+  integrity sha512-1CtOqgATOhmB6jRKL6zvojb2Vt8aP2y6m/7ZN4JlpFhyB/d8WRW3/kZgapIUHys6/Vrkk1oTbjjDbxNL8QxHSQ==
+  dependencies:
+    debug "^4.3.4"
+
 guid-typescript@^1.0.9:
   version "1.0.9"
   resolved "https://registry.yarnpkg.com/guid-typescript/-/guid-typescript-1.0.9.tgz#e35f77003535b0297ea08548f5ace6adb1480ddc"
@@ -5077,11 +5084,6 @@ jpeg-js@^0.4.4:
   version "0.4.4"
   resolved "https://registry.yarnpkg.com/jpeg-js/-/jpeg-js-0.4.4.tgz#a9f1c6f1f9f0fa80cdb3484ed9635054d28936aa"
   integrity sha512-WZzeDOEtTOBK4Mdsar0IqEU5sMr3vSV2RqkAIzUEV2BHnUfKGyswWFPFwK5EeDo93K3FohSHbLAjj0s1Wzd+dg==
-
-jqts@^0.0.8:
-  version "0.0.8"
-  resolved "https://registry.yarnpkg.com/jqts/-/jqts-0.0.8.tgz#f888b4e05f70e6ac1d06a426a42e852b15c7aec3"
-  integrity sha512-f4XuU3OWF+1e0o9ich5tzNr+EkDwinqHy6rtz9YfEYC1w6JHuSFfrjrseg//auXDExy2nhwrz6e2v6IPlxSodQ==
 
 js-tokens@^4.0.0:
   version "4.0.0"
