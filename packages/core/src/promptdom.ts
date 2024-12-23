@@ -326,7 +326,7 @@ function renderDefNode(def: PromptDefNode): string {
     return res
 }
 
-async function renderDefDataNode(n: PromptDefDataNode): string {
+async function renderDefDataNode(n: PromptDefDataNode): Promise<string> {
     const { name, headers, priority, ephemeral, query } = n
     let data = n.resolved
     let format = n.format
