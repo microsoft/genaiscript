@@ -330,7 +330,6 @@ async function renderDefDataNode(n: PromptDefDataNode): Promise<string> {
     const { name, headers, priority, ephemeral, query } = n
     let data = n.resolved
     let format = n.format
-    const cacheControl = n.cacheControl ?? (ephemeral ? "ephemeral" : undefined)
     if (
         !format &&
         Array.isArray(data) &&
@@ -356,11 +355,10 @@ async function renderDefDataNode(n: PromptDefDataNode): Promise<string> {
     }
 
     const value = lang
-        ? `${name}:
-\`\`\`${lang}
+        ? `<${name} format="${lang}">
 ${trimNewlines(text)}
-\`\`\`
-`
+<${name}>
+F`
         : `${name}:
 ${trimNewlines(text)}
 `
