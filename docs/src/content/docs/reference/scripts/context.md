@@ -257,6 +257,7 @@ The `defData` function also supports functions to slice the input rows and colum
 - `sliceTail`, number of rows to include from the end
 - `sliceSample`, number of rows to pick at random
 - `distinct`, list of column names to deduplicate the data based on
+- `query`, a [jq](https://jqlang.github.io/jq/) query to filter the data
 
 ```js
 defData("DATA", data, {

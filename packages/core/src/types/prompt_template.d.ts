@@ -1568,6 +1568,7 @@ interface Parsers {
      * @param data data to render
      */
     mustache(text: string | WorkspaceFile, data: Record<string, any>): string
+
     /**
      * Renders a jinja template
      */
@@ -1588,6 +1589,14 @@ interface Parsers {
      * @param options
      */
     tidyData(rows: object[], options?: DataFilter): object[]
+
+    /**
+     * Applies a GROQ query to the data
+     * @param data data object to filter
+     * @param query query
+     * @see https://groq.dev/
+     */
+    GROQ(query: string, data: any): Promise<any>
 
     /**
      * Computes a sha1 that can be used for hashing purpose, not cryptographic.
@@ -1675,6 +1684,14 @@ interface XML {
      * @param text
      */
     parse(text: string | WorkspaceFile, options?: XMLParseOptions): any
+}
+
+interface JSONSchemaUtilities {
+    /**
+     * Infers a JSON schema from an object
+     * @param obj 
+     */
+    infer(obj: any): JSONSchema
 }
 
 interface HTMLTableToJSONOptions {
@@ -2406,11 +2423,18 @@ interface DataFilter {
 interface DefDataOptions
     extends Omit<ContextExpansionOptions, "maxTokens">,
         FenceFormatOptions,
-        DataFilter {
+        DataFilter,
+        ContentSafetyOptions {
     /**
      * Output format in the prompt. Defaults to Markdown table rendering.
      */
     format?: "json" | "yaml" | "csv"
+
+    /**
+     * GROQ query to filter the data
+     * @see https://groq.dev/
+     */
+    query?: string
 }
 
 interface DefSchemaOptions {
@@ -2560,7 +2584,7 @@ interface ChatTurnGenerationContext {
     ): string
     defData(
         name: string,
-        data: object[] | object,
+        data: Awaitable<object[] | object>,
         options?: DefDataOptions
     ): string
     defDiff<T extends string | WorkspaceFile>(

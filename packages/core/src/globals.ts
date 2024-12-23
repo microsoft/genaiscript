@@ -18,6 +18,7 @@ import { estimateTokens, truncateTextToTokens } from "./tokens"
 import { chunk, resolveTokenEncoder } from "./encoders"
 import { runtimeHost } from "./host"
 import { JSON5Stringify, JSON5TryParse } from "./json5"
+import { JSONSchemaInfer } from "./schema"
 
 /**
  * This file defines global utilities and installs them into the global context.
@@ -89,7 +90,11 @@ export function installGlobals() {
 
     glb.JSON5 = Object.freeze<JSON5>({
         parse: JSON5TryParse,
-        stringify: JSON5Stringify
+        stringify: JSON5Stringify,
+    })
+
+    glb.JSONSchema = Object.freeze<JSONSchemaUtilities>({
+        infer: JSONSchemaInfer,
     })
 
     // Freeze AICI utilities with a generation function

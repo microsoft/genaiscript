@@ -204,6 +204,11 @@ declare var JSONL: JSONL
 declare var JSON5: JSON5
 
 /**
+ * JSON Schema utilities
+ */
+declare var JSONSchema: JSONSchemaUtilities
+
+/**
  * AICI operations
  */
 declare var AICI: AICI
@@ -267,7 +272,7 @@ declare function defImages(
  */
 declare function defData(
     name: string,
-    data: object[] | object,
+    data: Awaitable<object[] | object>,
     options?: DefDataOptions
 ): string
 

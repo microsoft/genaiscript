@@ -28,6 +28,7 @@ import { jinjaRender } from "./jinja"
 import { createDiff, llmifyDiff } from "./diff"
 import { tidyData } from "./tidy"
 import { hash } from "./crypto"
+import { GROQEvaluate } from "./groq"
 
 export async function createParsers(options: {
     trace: MarkdownTrace
@@ -122,5 +123,6 @@ export async function createParsers(options: {
         tidyData: (rows, options) => tidyData(rows, options),
         hash: async (text, options) => await hash(text, options),
         unfence: unfence,
+        GROQ: GROQEvaluate,
     })
 }

@@ -42,6 +42,7 @@ import { runtimeHost } from "./host"
 import { hash } from "./crypto"
 import { startMcpServer } from "./mcp"
 import { tryZodToJsonSchema } from "./zod"
+import { GROQEvaluate } from "./groq"
 
 // Definition of the PromptNode interface which is an essential part of the code structure.
 export interface PromptNode extends ContextExpansionOptions {
@@ -57,6 +58,7 @@ export interface PromptNode extends ContextExpansionOptions {
         | "assistant"
         | "system"
         | "def"
+        | "defData"
         | "chatParticipant"
         | "fileOutput"
         | "importTemplate"
@@ -96,6 +98,13 @@ export interface PromptDefNode extends PromptNode, DefOptions {
     name: string // Name of the definition
     value: Awaitable<WorkspaceFile> // File associated with the definition
     resolved?: WorkspaceFile // Resolved file content
+}
+
+export interface PromptDefDataNode extends PromptNode, DefDataOptions {
+    type: "defData"
+    name: string // Name of the definition
+    value: Awaitable<object | object[]> // Data associated with the definition
+    resolved?: object | object[]
 }
 
 export interface PromptPrediction {
@@ -317,6 +326,46 @@ function renderDefNode(def: PromptDefNode): string {
     return res
 }
 
+async function renderDefDataNode(n: PromptDefDataNode): Promise<string> {
+    const { name, headers, priority, ephemeral, query } = n
+    let data = n.resolved
+    let format = n.format
+    if (
+        !format &&
+        Array.isArray(data) &&
+        data.length &&
+        (headers?.length || haveSameKeysAndSimpleValues(data))
+    )
+        format = "csv"
+    else if (!format) format = "yaml"
+
+    if (Array.isArray(data)) data = tidyData(data as object[], n)
+    if (query) data = await GROQEvaluate(query, data)
+
+    let text: string
+    let lang: string
+    if (Array.isArray(data) && format === "csv") {
+        text = CSVToMarkdown(data)
+    } else if (format === "json") {
+        text = JSON.stringify(data)
+        lang = "json"
+    } else {
+        text = YAMLStringify(data)
+        lang = "yaml"
+    }
+
+    const value = lang
+        ? `<${name} format="${lang}">
+${trimNewlines(text)}
+<${name}>
+F`
+        : `${name}:
+${trimNewlines(text)}
+`
+    // TODO maxTokens does not work well with data
+    return value
+}
+
 // Function to create an assistant node.
 export function createAssistantNode(
     value: Awaitable<string>,
@@ -468,50 +517,16 @@ function haveSameKeysAndSimpleValues(data: object[]): boolean {
 // Function to create a text node with data.
 export function createDefData(
     name: string,
-    data: object | object[],
+    value: Awaitable<object | object[]>,
     options?: DefDataOptions
-) {
-    if (data === undefined) return undefined
-    let { format, headers, priority, cacheControl } = options || {}
-    cacheControl =
-        cacheControl ?? (options?.ephemeral ? "ephemeral" : undefined)
-    if (
-        !format &&
-        Array.isArray(data) &&
-        data.length &&
-        (headers?.length || haveSameKeysAndSimpleValues(data))
-    )
-        format = "csv"
-    else if (!format) format = "yaml"
-
-    if (Array.isArray(data)) data = tidyData(data as object[], options)
-
-    let text: string
-    let lang: string
-    if (Array.isArray(data) && format === "csv") {
-        text = CSVToMarkdown(data)
-    } else if (format === "json") {
-        text = JSON.stringify(data)
-        lang = "json"
-    } else {
-        text = YAMLStringify(data)
-        lang = "yaml"
+): PromptDefDataNode {
+    if (value === undefined) return undefined
+    return {
+        type: "defData",
+        name,
+        value,
+        ...(options || {}),
     }
-
-    const value = lang
-        ? `${name}:
-\`\`\`${lang}
-${trimNewlines(text)}
-\`\`\`
-`
-        : `${name}:
-${trimNewlines(text)}
-`
-    // TODO maxTokens does not work well with data
-    return createTextNode(value, {
-        priority,
-        ephemeral: cacheControl === "ephemeral",
-    })
 }
 
 // Function to append a child node to a parent node.
@@ -529,6 +544,7 @@ export interface PromptNodeVisitor {
     afterNode?: (node: PromptNode) => Awaitable<void> // Post node visitor
     text?: (node: PromptTextNode) => Awaitable<void> // Text node visitor
     def?: (node: PromptDefNode) => Awaitable<void> // Definition node visitor
+    defData?: (node: PromptDefDataNode) => Awaitable<void> // Definition data node visitor
     image?: (node: PromptImageNode) => Awaitable<void> // Image node visitor
     schema?: (node: PromptSchemaNode) => Awaitable<void> // Schema node visitor
     tool?: (node: PromptToolNode) => Awaitable<void> // Function node visitor
@@ -552,6 +568,9 @@ export async function visitNode(node: PromptNode, visitor: PromptNodeVisitor) {
             break
         case "def":
             await visitor.def?.(node as PromptDefNode)
+            break
+        case "defData":
+            await visitor.defData?.(node as PromptDefDataNode)
             break
         case "image":
             await visitor.image?.(node as PromptImageNode)
@@ -659,6 +678,19 @@ async function resolvePromptNode(
                 n.resolved = value
                 n.resolved.content = extractRange(n.resolved.content, n)
                 const rendered = renderDefNode(n)
+                n.preview = rendered
+                n.tokens = estimateTokens(rendered, encoder)
+                n.children = [createTextNode(rendered)]
+            } catch (e) {
+                n.error = e
+            }
+        },
+        defData: async (n) => {
+            try {
+                names.add(n.name)
+                const value = await n.value
+                n.resolved = value
+                const rendered = await renderDefDataNode(n)
                 n.preview = rendered
                 n.tokens = estimateTokens(rendered, encoder)
                 n.children = [createTextNode(rendered)]
@@ -1015,33 +1047,60 @@ async function validateSafetyPromptNode(
     root: PromptNode
 ) {
     let mod = false
+    let _contentSafety: ContentSafety
+
+    const resolveContentSafety = async () => {
+        if (!_contentSafety)
+            _contentSafety =
+                (await runtimeHost.contentSafety(undefined, {
+                    trace,
+                })) || {}
+        return _contentSafety.detectPromptInjection
+    }
+
     await visitNode(root, {
         def: async (n) => {
-            if (n.detectPromptInjection && n.resolved?.content) {
-                const { detectPromptInjection } =
-                    (await runtimeHost.contentSafety(undefined, {
-                        trace,
-                    })) || {}
-                if (
-                    (!detectPromptInjection &&
-                        n.detectPromptInjection === true) ||
-                    n.detectPromptInjection === "always"
-                )
-                    throw new Error("content safety service not available")
-                const { attackDetected } =
-                    (await detectPromptInjection?.(n.resolved)) || {}
-                if (attackDetected) {
-                    mod = true
-                    n.resolved = {
-                        filename: n.resolved.filename,
-                        content: SANITIZED_PROMPT_INJECTION,
-                    }
-                    n.preview = SANITIZED_PROMPT_INJECTION
-                    n.error = `safety: prompt injection detected`
-                    trace.error(
-                        `safety: prompt injection detected in ${n.resolved.filename}`
-                    )
+            if (!n.detectPromptInjection || !n.resolved?.content) return
+
+            const detectPromptInjection = await resolveContentSafety()
+            if (
+                (!detectPromptInjection && n.detectPromptInjection === true) ||
+                n.detectPromptInjection === "always"
+            )
+                throw new Error("content safety service not available")
+            const { attackDetected } =
+                (await detectPromptInjection?.(n.resolved)) || {}
+            if (attackDetected) {
+                mod = true
+                n.resolved = {
+                    filename: n.resolved.filename,
+                    content: SANITIZED_PROMPT_INJECTION,
                 }
+                n.preview = SANITIZED_PROMPT_INJECTION
+                n.children = []
+                n.error = `safety: prompt injection detected`
+                trace.error(
+                    `safety: prompt injection detected in ${n.resolved.filename}`
+                )
+            }
+        },
+        defData: async (n) => {
+            if (!n.detectPromptInjection || !n.preview) return
+
+            const detectPromptInjection = await resolveContentSafety()
+            if (
+                (!detectPromptInjection && n.detectPromptInjection === true) ||
+                n.detectPromptInjection === "always"
+            )
+                throw new Error("content safety service not available")
+            const { attackDetected } =
+                (await detectPromptInjection?.(n.preview)) || {}
+            if (attackDetected) {
+                mod = true
+                n.children = []
+                n.preview = SANITIZED_PROMPT_INJECTION
+                n.error = `safety: prompt injection detected`
+                trace.error(`safety: prompt injection detected in data`)
             }
         },
     })
@@ -1054,6 +1113,16 @@ async function deduplicatePromptNode(trace: MarkdownTrace, root: PromptNode) {
     const defs = new Set<string>()
     await visitNode(root, {
         def: async (n) => {
+            const key = await hash(n)
+            if (defs.has(key)) {
+                trace.log(`duplicate definition and content: ${n.name}`)
+                n.deleted = true
+                mod = true
+            } else {
+                defs.add(key)
+            }
+        },
+        defData: async (n) => {
             const key = await hash(n)
             if (defs.has(key)) {
                 trace.log(`duplicate definition and content: ${n.name}`)

@@ -5,6 +5,7 @@ import Ajv from "ajv"
 import { YAMLParse } from "./yaml"
 import { errorMessage } from "./error"
 import { promptParametersSchemaToJSONSchema } from "./parameters"
+import jsonToSchema from "json-schema-generator"
 
 /**
  * Check if an object is a JSON Schema
@@ -343,4 +344,9 @@ export function toStrictJSONSchema(
         }
     }
     return clone
+}
+
+export function JSONSchemaInfer(obj: any): JSONSchema {
+    const schema = jsonToSchema(obj)
+    return schema as JSONSchema
 }

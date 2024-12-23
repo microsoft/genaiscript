@@ -21,7 +21,8 @@ defData(
 $`
 E:
 ${[{ a: 7, b: 8 },
-    { a: 9, b: 10 },]}
+    { a: 9, b: 10 },]}`
+defData("F", [{ a: 1, b: 2 }, { a: 3, b: 4 }], { query: "map({a})"})
 
-Identify the data formats of A,B,C,D,E and return the format results as CSV with key value pairs variable,format.
+$`Identify the data formats of A,B,C,D,E,F and return the format results as CSV with key value pairs variable,format.
 `
