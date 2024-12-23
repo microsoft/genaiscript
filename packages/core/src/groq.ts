@@ -1,9 +1,9 @@
 import { parse, evaluate } from "groq-js"
 /**
- * Loads and applies JQ transformation to the input data
+ * Loads and applies GROQ transformation to the input data
  * @param input
  */
-export async function GROQEvaluate(query: string, dataset: any): any {
+export async function GROQEvaluate(query: string, dataset: any): Promise<any> {
     if (dataset === undefined) return dataset
 
     const tree = parse(query)
