@@ -324,7 +324,7 @@ const d = parsers.tidyData(rows, { sliceSample: 100, sort: "name" })
 
 ## GROQ
 
-Apply a [GROQ](GROQEvaluate) query to a JSON object.
+Apply a [GROQ](https://groq.dev/) query to a JSON object.
 
 ```js
 const d = parsers.GROQ(`*[completed == true && userId == 2]{
