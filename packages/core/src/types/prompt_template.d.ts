@@ -1596,7 +1596,7 @@ interface Parsers {
      * @param query query
      * @see https://groq.dev/
      */
-    GROQ(query: string, data: any): any
+    GROQ(query: string, data: any): Promise<any>
 
     /**
      * Computes a sha1 that can be used for hashing purpose, not cryptographic.

@@ -326,7 +326,7 @@ function renderDefNode(def: PromptDefNode): string {
     return res
 }
 
-function renderDefDataNode(n: PromptDefDataNode): string {
+async function renderDefDataNode(n: PromptDefDataNode): string {
     const { name, headers, priority, ephemeral, query } = n
     let data = n.resolved
     let format = n.format
@@ -341,7 +341,7 @@ function renderDefDataNode(n: PromptDefDataNode): string {
     else if (!format) format = "yaml"
 
     if (Array.isArray(data)) data = tidyData(data as object[], n)
-    if (query) data = GROQEvaluate(query, data)
+    if (query) data = await GROQEvaluate(query, data)
 
     let text: string
     let lang: string
@@ -692,7 +692,7 @@ async function resolvePromptNode(
                 names.add(n.name)
                 const value = await n.value
                 n.resolved = value
-                const rendered = renderDefDataNode(n)
+                const rendered = await renderDefDataNode(n)
                 n.preview = rendered
                 n.tokens = estimateTokens(rendered, encoder)
                 n.children = [createTextNode(rendered)]

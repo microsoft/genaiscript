@@ -1207,41 +1207,24 @@ const json = `[
 ]`
 const query = "filter to keep completed tasks and userid 2"
 
-let { text: jqq } = await runPrompt(
+const res = await runPrompt(
     (ctx) => {
-        ctx.$`Based on the example <JSON> snippet and the desired <QUERY>, write a jq program
+        ctx.$`## Task
+Based on the example <DATASET> snippet and the desired <QUERY>, write a GROQ program that executes the query.
 
-Return only the GROQ (https://groq.dev/) query to be executed as a raw string, no string delimiters
-wrapping it, no yapping, no markdown, no fenced code blocks, what you return
-will be passed to GROQ directly.
-For example, if the user asks: extract the name of the first person
-You return only: .people[0].name`.role("system")
+- Infer the JSON Schema of <DATASET> and use valid field names in the GROQ query
+- The dataset does not specify types, do NOT use '_type' filters
+- Explain the query step by step
+- Emit the GROQ query in a groq code fence section.
+
+`.role("system")
         ctx.def("QUERY", query)
-        ctx.def("JSON", json, { maxTokens: 500 })
+        ctx.def("DATASET", json, { maxTokens: 500 })
     },
-    { system: [] }
+    { system: ["system", "system.output_markdown", "system.assistant"] }
 )
 
-try {
-    const resjq = parsers.GROQ(jqq, JSON.parse(json))
-    assistant(resjq.text)
-} catch (e) {
-    console.error(e)
-    const rescheck = await runPrompt(
-        (ctx) => {
-            ctx.$`Repair the GROQ <QUERY> using the <ERROR> message below.
-Return only the GROQ program to be executed as a raw string, no string delimiters
-wrapping it, no yapping, no markdown, no fenced code blocks, what you return
-will be passed to GROQ directly.
-`.role("system")
-            ctx.def("QUERY", jqq)
-            ctx.def("ERROR", e.message)
-        },
-        { system: [] }
-    )
-    jqq = rescheck.text
-}
-
-const resjq = parsers.GROQ(jqq, JSON.parse(json))
-
-assistant(resjq.text)
+const GROQ = res.fences.find(f => f.language === "groq").content
+console.log(GROQ)
+const resjq = await parsers.GROQ(GROQ, JSON.parse(json))
+console.log(resjq)
