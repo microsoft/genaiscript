@@ -1686,6 +1686,14 @@ interface XML {
     parse(text: string | WorkspaceFile, options?: XMLParseOptions): any
 }
 
+interface JSONSchemaUtilities {
+    /**
+     * Infers a JSON schema from an object
+     * @param obj 
+     */
+    infer(obj: any): JSONSchema
+}
+
 interface HTMLTableToJSONOptions {
     useFirstRowForHeadings?: boolean
     headers?: HeaderRows

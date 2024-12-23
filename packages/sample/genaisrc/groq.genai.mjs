@@ -1206,25 +1206,28 @@ const json = `[
   }
 ]`
 const query = "filter to keep completed tasks and userid 2"
+const schema = JSONSchema.infer(JSON.parse(json))
 
 const res = await runPrompt(
     (ctx) => {
         ctx.$`## Task
-Based on the example <DATASET> snippet and the desired <QUERY>, write a GROQ program that executes the query.
+Based on the example <DATASET> snippet, and schema <DATASET_SCHEMA> and the desired <QUERY>, write a GROQ program that executes the query.
 
-- Infer the JSON Schema of <DATASET> and use valid field names in the GROQ query
 - The dataset does not specify types, do NOT use '_type' filters
+- The query must be compatible with the JSON Schema of <DATASET> is in <DATASET_SCHEMA>
+- The dataset is untyped, '_type' is not supported
 - Explain the query step by step
 - Emit the GROQ query in a groq code fence section.
 
 `.role("system")
         ctx.def("QUERY", query)
+        ctx.def("DATASET_SCHEMA", JSON.stringify(schema, null, 2), { language: "json" })
         ctx.def("DATASET", json, { maxTokens: 500 })
     },
     { system: ["system", "system.output_markdown", "system.assistant"] }
 )
 
-const GROQ = res.fences.find(f => f.language === "groq").content
+const GROQ = res.fences.find((f) => f.language === "groq").content
 console.log(GROQ)
 const resjq = await parsers.GROQ(GROQ, JSON.parse(json))
 console.log(resjq)
