@@ -93,18 +93,20 @@ export interface PromptTextNode extends PromptNode {
 }
 
 // Interface for a definition node, which includes options.
-export interface PromptDefNode extends PromptNode, DefOptions {
+export interface PromptDefNode extends PromptNode {
     type: "def"
     name: string // Name of the definition
     value: Awaitable<WorkspaceFile> // File associated with the definition
     resolved?: WorkspaceFile // Resolved file content
+    options: DefOptions
 }
 
-export interface PromptDefDataNode extends PromptNode, DefDataOptions {
+export interface PromptDefDataNode extends PromptNode {
     type: "defData"
     name: string // Name of the definition
     value: Awaitable<object | object[]> // Data associated with the definition
     resolved?: object | object[]
+    options: DefDataOptions
 }
 
 export interface PromptPrediction {
@@ -234,7 +236,7 @@ export function createDef(
         return res
     }
     const value = render()
-    return { type: "def", name, value, ...(options || {}) }
+    return { type: "def", name, value, options }
 }
 
 export function createDefDiff(
@@ -260,14 +262,15 @@ export function createDefDiff(
         return { filename: "", content: createDiff(l, r) }
     }
     const value = render()
-    return { type: "def", name, value, ...(options || {}) }
+    return { type: "def", name, value, options }
 }
 
 // Function to render a definition node to a string.
 function renderDefNode(def: PromptDefNode): string {
-    const { name, resolved, language, lineNumbers, schema, prediction } = def
+    const { name, resolved, options } = def
+    const { language, lineNumbers, schema, prediction } = options || {}
     const { filename, content = "" } = resolved
-    let fenceFormat = def.fenceFormat
+    let fenceFormat = options?.fenceFormat
 
     const norm = (s: string, lang: string) => {
         s = (s || "").replace(/\n*$/, "")
@@ -327,9 +330,10 @@ function renderDefNode(def: PromptDefNode): string {
 }
 
 async function renderDefDataNode(n: PromptDefDataNode): Promise<string> {
-    const { name, headers, priority, ephemeral, query } = n
+    const { name, options } = n
+    const { headers, priority, ephemeral, query } = options || {}
     let data = n.resolved
-    let format = n.format
+    let format = options?.format
     if (
         !format &&
         Array.isArray(data) &&
@@ -525,7 +529,7 @@ export function createDefData(
         type: "defData",
         name,
         value,
-        ...(options || {}),
+        options,
     }
 }
 
@@ -676,11 +680,11 @@ async function resolvePromptNode(
                 names.add(n.name)
                 const value = await n.value
                 n.resolved = value
-                n.resolved.content = extractRange(n.resolved.content, n)
+                n.resolved.content = extractRange(n.resolved.content, n.options)
                 const rendered = renderDefNode(n)
                 n.preview = rendered
                 n.tokens = estimateTokens(rendered, encoder)
-                n.children = [createTextNode(rendered)]
+                n.children = [createTextNode(rendered, n.options)]
             } catch (e) {
                 n.error = e
             }
@@ -693,7 +697,7 @@ async function resolvePromptNode(
                 const rendered = await renderDefDataNode(n)
                 n.preview = rendered
                 n.tokens = estimateTokens(rendered, encoder)
-                n.children = [createTextNode(rendered)]
+                n.children = [createTextNode(rendered, n.options)]
             } catch (e) {
                 n.error = e
             }
@@ -929,7 +933,7 @@ async function truncatePromptNode(
             n.tokens = estimateTokens(n.resolved.content, encoder)
             const rendered = renderDefNode(n)
             n.preview = rendered
-            n.children = [createTextNode(rendered)]
+            n.children = [createTextNode(rendered, n.options)]
             truncated = true
             trace.log(
                 `truncated def ${n.name} to ${n.tokens} tokens (max ${n.maxTokens})`
