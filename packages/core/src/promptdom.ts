@@ -67,11 +67,6 @@ export interface PromptNode extends ContextExpansionOptions {
     children?: PromptNode[] // Child nodes for hierarchical structure
     error?: unknown // Error information if present
     tokens?: number // Token count for the node
-    /**
-     * Definte a prompt caching breakpoint.
-     * This prompt prefix (including this text) is cacheable for a short amount of time.
-     */
-    ephemeral?: boolean
 
     /**
      * Rendered markdown preview of the node
@@ -93,18 +88,20 @@ export interface PromptTextNode extends PromptNode {
 }
 
 // Interface for a definition node, which includes options.
-export interface PromptDefNode extends PromptNode, DefOptions {
+export interface PromptDefNode extends PromptNode {
     type: "def"
     name: string // Name of the definition
     value: Awaitable<WorkspaceFile> // File associated with the definition
     resolved?: WorkspaceFile // Resolved file content
+    options: DefOptions
 }
 
-export interface PromptDefDataNode extends PromptNode, DefDataOptions {
+export interface PromptDefDataNode extends PromptNode {
     type: "defData"
     name: string // Name of the definition
     value: Awaitable<object | object[]> // Data associated with the definition
     resolved?: object | object[]
+    options: DefDataOptions
 }
 
 export interface PromptPrediction {
@@ -234,7 +231,7 @@ export function createDef(
         return res
     }
     const value = render()
-    return { type: "def", name, value, ...(options || {}) }
+    return { type: "def", name, value, options }
 }
 
 export function createDefDiff(
@@ -260,14 +257,15 @@ export function createDefDiff(
         return { filename: "", content: createDiff(l, r) }
     }
     const value = render()
-    return { type: "def", name, value, ...(options || {}) }
+    return { type: "def", name, value, options }
 }
 
 // Function to render a definition node to a string.
 function renderDefNode(def: PromptDefNode): string {
-    const { name, resolved, language, lineNumbers, schema, prediction } = def
+    const { name, resolved, options } = def
+    const { language, lineNumbers, schema, prediction } = options || {}
     const { filename, content = "" } = resolved
-    let fenceFormat = def.fenceFormat
+    let fenceFormat = options?.fenceFormat
 
     const norm = (s: string, lang: string) => {
         s = (s || "").replace(/\n*$/, "")
@@ -327,9 +325,10 @@ function renderDefNode(def: PromptDefNode): string {
 }
 
 async function renderDefDataNode(n: PromptDefDataNode): Promise<string> {
-    const { name, headers, priority, ephemeral, query } = n
+    const { name, options } = n
+    const { headers, priority, cacheControl, query } = options || {}
     let data = n.resolved
-    let format = n.format
+    let format = options?.format
     if (
         !format &&
         Array.isArray(data) &&
@@ -339,7 +338,7 @@ async function renderDefDataNode(n: PromptDefDataNode): Promise<string> {
         format = "csv"
     else if (!format) format = "yaml"
 
-    if (Array.isArray(data)) data = tidyData(data as object[], n)
+    if (Array.isArray(data)) data = tidyData(data as object[], n.options)
     if (query) data = await GROQEvaluate(query, data)
 
     let text: string
@@ -525,7 +524,7 @@ export function createDefData(
         type: "defData",
         name,
         value,
-        ...(options || {}),
+        options,
     }
 }
 
@@ -676,11 +675,11 @@ async function resolvePromptNode(
                 names.add(n.name)
                 const value = await n.value
                 n.resolved = value
-                n.resolved.content = extractRange(n.resolved.content, n)
+                n.resolved.content = extractRange(n.resolved.content, n.options)
                 const rendered = renderDefNode(n)
                 n.preview = rendered
                 n.tokens = estimateTokens(rendered, encoder)
-                n.children = [createTextNode(rendered)]
+                n.children = [createTextNode(rendered, n.options)]
             } catch (e) {
                 n.error = e
             }
@@ -693,7 +692,7 @@ async function resolvePromptNode(
                 const rendered = await renderDefDataNode(n)
                 n.preview = rendered
                 n.tokens = estimateTokens(rendered, encoder)
-                n.children = [createTextNode(rendered)]
+                n.children = [createTextNode(rendered, n.options)]
             } catch (e) {
                 n.error = e
             }
@@ -929,7 +928,7 @@ async function truncatePromptNode(
             n.tokens = estimateTokens(n.resolved.content, encoder)
             const rendered = renderDefNode(n)
             n.preview = rendered
-            n.children = [createTextNode(rendered)]
+            n.children = [createTextNode(rendered, n.options)]
             truncated = true
             trace.log(
                 `truncated def ${n.name} to ${n.tokens} tokens (max ${n.maxTokens})`
@@ -1060,16 +1059,17 @@ async function validateSafetyPromptNode(
 
     await visitNode(root, {
         def: async (n) => {
-            if (!n.detectPromptInjection || !n.resolved?.content) return
+            const { detectPromptInjection } = n.options || {}
+            if (!detectPromptInjection || !n.resolved?.content) return
 
-            const detectPromptInjection = await resolveContentSafety()
+            const detectPromptInjectionFn = await resolveContentSafety()
             if (
-                (!detectPromptInjection && n.detectPromptInjection === true) ||
-                n.detectPromptInjection === "always"
+                (!detectPromptInjectionFn && detectPromptInjection === true) ||
+                detectPromptInjection === "always"
             )
                 throw new Error("content safety service not available")
             const { attackDetected } =
-                (await detectPromptInjection?.(n.resolved)) || {}
+                (await detectPromptInjectionFn?.(n.resolved)) || {}
             if (attackDetected) {
                 mod = true
                 n.resolved = {
@@ -1085,16 +1085,17 @@ async function validateSafetyPromptNode(
             }
         },
         defData: async (n) => {
-            if (!n.detectPromptInjection || !n.preview) return
+            const { detectPromptInjection } = n.options || {}
+            if (!detectPromptInjection || !n.preview) return
 
-            const detectPromptInjection = await resolveContentSafety()
+            const detectPromptInjectionFn = await resolveContentSafety()
             if (
-                (!detectPromptInjection && n.detectPromptInjection === true) ||
-                n.detectPromptInjection === "always"
+                (!detectPromptInjectionFn && detectPromptInjection === true) ||
+                detectPromptInjection === "always"
             )
                 throw new Error("content safety service not available")
             const { attackDetected } =
-                (await detectPromptInjection?.(n.preview)) || {}
+                (await detectPromptInjectionFn?.(n.preview)) || {}
             if (attackDetected) {
                 mod = true
                 n.children = []
@@ -1164,13 +1165,13 @@ export async function renderPromptNode(
     if (safety) await tracePromptNode(trace, node, { label: "safety" })
 
     const messages: ChatCompletionMessageParam[] = []
-    const appendSystem = (content: string, options: { ephemeral?: boolean }) =>
+    const appendSystem = (content: string, options: ContextExpansionOptions) =>
         appendSystemMessage(messages, content, options)
-    const appendUser = (content: string, options: { ephemeral?: boolean }) =>
+    const appendUser = (content: string, options: ContextExpansionOptions) =>
         appendUserMessage(messages, content, options)
     const appendAssistant = (
         content: string,
-        options: { ephemeral?: boolean }
+        options: ContextExpansionOptions
     ) => appendAssistantMessage(messages, content, options)
 
     const images: PromptImage[] = []
@@ -1196,12 +1197,12 @@ export async function renderPromptNode(
         def: async (n) => {
             const value = n.resolved
             if (value !== undefined) {
-                if (n.prediction) {
+                if (n.options?.prediction) {
                     if (prediction) n.error = "duplicate prediction"
                     else
                         prediction = {
                             type: "content",
-                            content: extractRange(value.content, n),
+                            content: extractRange(value.content, n.options),
                         }
                 }
             }

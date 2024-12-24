@@ -173,7 +173,7 @@ export function createChatTurnGenerationContext(
                     return res
                 },
                 cacheControl: (cc) => {
-                    current.ephemeral = cc === "ephemeral"
+                    current.cacheControl = cc
                     return res
                 },
             } satisfies PromptTemplateString)

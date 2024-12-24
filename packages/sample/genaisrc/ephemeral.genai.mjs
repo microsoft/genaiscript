@@ -1,6 +1,7 @@
 script({
     title: "summarize all files with caching",
     files: "src/rag/markdown.md",
+    model: "small",
     tests: [
         {
             files: "src/rag/markdown.md",
