@@ -1087,20 +1087,17 @@ export function tracePromptResult(
 export function appendUserMessage(
     messages: ChatCompletionMessageParam[],
     content: string,
-    options?: { ephemeral?: boolean }
+    options?: ContextExpansionOptions
 ) {
     if (!content) return
-    const { ephemeral } = options || {}
+    const { cacheControl } = options || {}
     let last = messages.at(-1) as ChatCompletionUserMessageParam
-    if (
-        last?.role !== "user" ||
-        !!ephemeral !== (last?.cacheControl === "ephemeral")
-    ) {
+    if (last?.role !== "user" || options?.cacheControl !== last?.cacheControl) {
         last = {
             role: "user",
             content: "",
         } satisfies ChatCompletionUserMessageParam
-        if (ephemeral) last.cacheControl = "ephemeral"
+        if (cacheControl) last.cacheControl = cacheControl
         messages.push(last)
     }
     if (last.content) {
@@ -1112,20 +1109,20 @@ export function appendUserMessage(
 export function appendAssistantMessage(
     messages: ChatCompletionMessageParam[],
     content: string,
-    options?: { ephemeral?: boolean }
+    options?: ContextExpansionOptions
 ) {
     if (!content) return
-    const { ephemeral } = options || {}
+    const { cacheControl } = options || {}
     let last = messages.at(-1) as ChatCompletionAssistantMessageParam
     if (
         last?.role !== "assistant" ||
-        !!ephemeral !== (last?.cacheControl === "ephemeral")
+        options?.cacheControl !== last?.cacheControl
     ) {
         last = {
             role: "assistant",
             content: "",
         } satisfies ChatCompletionAssistantMessageParam
-        if (ephemeral) last.cacheControl = "ephemeral"
+        if (cacheControl) last.cacheControl = cacheControl
         messages.push(last)
     }
     if (last.content) {
@@ -1137,21 +1134,21 @@ export function appendAssistantMessage(
 export function appendSystemMessage(
     messages: ChatCompletionMessageParam[],
     content: string,
-    options?: { ephemeral?: boolean }
+    options?: ContextExpansionOptions
 ) {
     if (!content) return
-    const { ephemeral } = options || {}
+    const { cacheControl } = options || {}
 
     let last = messages[0] as ChatCompletionSystemMessageParam
     if (
         last?.role !== "system" ||
-        !!ephemeral !== (last?.cacheControl === "ephemeral")
+        options?.cacheControl !== last?.cacheControl
     ) {
         last = {
             role: "system",
             content: "",
         } as ChatCompletionSystemMessageParam
-        if (ephemeral) last.cacheControl = "ephemeral"
+        if (cacheControl) last.cacheControl = cacheControl
         messages.unshift(last)
     }
     if (last.content) {
