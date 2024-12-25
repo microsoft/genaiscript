@@ -333,7 +333,7 @@ function renderDefNode(def: PromptDefNode): string {
 async function renderDefDataNode(n: PromptDefDataNode): Promise<string> {
     const { name, headers, priority, cacheControl, query } = n
     let data = n.resolved
-    let format = n?.format
+    let format = n.format
     if (
         !format &&
         Array.isArray(data) &&
