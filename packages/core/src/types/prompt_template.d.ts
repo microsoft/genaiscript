@@ -952,11 +952,6 @@ interface ContextExpansionOptions {
     flex?: number
 
     /**
-     * @deprecated use cacheControl instead
-     */
-    ephemeral?: boolean
-
-    /**
      * Caching policy for this text. `ephemeral` means the prefix can be cached for a short amount of time.
      */
     cacheControl?: PromptCacheControlType

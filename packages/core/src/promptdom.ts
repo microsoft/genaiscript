@@ -67,11 +67,6 @@ export interface PromptNode extends ContextExpansionOptions {
     children?: PromptNode[] // Child nodes for hierarchical structure
     error?: unknown // Error information if present
     tokens?: number // Token count for the node
-    /**
-     * Definte a prompt caching breakpoint.
-     * This prompt prefix (including this text) is cacheable for a short amount of time.
-     */
-    ephemeral?: boolean
 
     /**
      * Rendered markdown preview of the node
@@ -237,6 +232,15 @@ export function createDef(
     return { type: "def", name, value, ...(options || {}) }
 }
 
+function cloneContextFields(n: PromptNode): Partial<PromptNode> {
+    const r = {} as Partial<PromptNode>    
+    r.maxTokens = n.maxTokens
+    r.priority = n.priority
+    r.flex = n.flex
+    r.cacheControl  = n.cacheControl
+    return r
+}
+
 export function createDefDiff(
     name: string,
     left: string | WorkspaceFile,
@@ -327,7 +331,7 @@ function renderDefNode(def: PromptDefNode): string {
 }
 
 async function renderDefDataNode(n: PromptDefDataNode): Promise<string> {
-    const { name, headers, priority, ephemeral, query } = n
+    const { name, headers, priority, cacheControl, query } = n
     let data = n.resolved
     let format = n.format
     if (
@@ -680,7 +684,7 @@ async function resolvePromptNode(
                 const rendered = renderDefNode(n)
                 n.preview = rendered
                 n.tokens = estimateTokens(rendered, encoder)
-                n.children = [createTextNode(rendered)]
+                n.children = [createTextNode(rendered, cloneContextFields(n))]
             } catch (e) {
                 n.error = e
             }
@@ -693,7 +697,7 @@ async function resolvePromptNode(
                 const rendered = await renderDefDataNode(n)
                 n.preview = rendered
                 n.tokens = estimateTokens(rendered, encoder)
-                n.children = [createTextNode(rendered)]
+                n.children = [createTextNode(rendered, cloneContextFields(n))]
             } catch (e) {
                 n.error = e
             }
@@ -929,7 +933,7 @@ async function truncatePromptNode(
             n.tokens = estimateTokens(n.resolved.content, encoder)
             const rendered = renderDefNode(n)
             n.preview = rendered
-            n.children = [createTextNode(rendered)]
+            n.children = [createTextNode(rendered, cloneContextFields(n))]
             truncated = true
             trace.log(
                 `truncated def ${n.name} to ${n.tokens} tokens (max ${n.maxTokens})`
@@ -1062,14 +1066,14 @@ async function validateSafetyPromptNode(
         def: async (n) => {
             if (!n.detectPromptInjection || !n.resolved?.content) return
 
-            const detectPromptInjection = await resolveContentSafety()
+            const detectPromptInjectionFn = await resolveContentSafety()
             if (
-                (!detectPromptInjection && n.detectPromptInjection === true) ||
+                (!detectPromptInjectionFn && n.detectPromptInjection === true) ||
                 n.detectPromptInjection === "always"
             )
                 throw new Error("content safety service not available")
             const { attackDetected } =
-                (await detectPromptInjection?.(n.resolved)) || {}
+                (await detectPromptInjectionFn?.(n.resolved)) || {}
             if (attackDetected) {
                 mod = true
                 n.resolved = {
@@ -1087,14 +1091,14 @@ async function validateSafetyPromptNode(
         defData: async (n) => {
             if (!n.detectPromptInjection || !n.preview) return
 
-            const detectPromptInjection = await resolveContentSafety()
+            const detectPromptInjectionFn = await resolveContentSafety()
             if (
-                (!detectPromptInjection && n.detectPromptInjection === true) ||
+                (!detectPromptInjectionFn && n.detectPromptInjection === true) ||
                 n.detectPromptInjection === "always"
             )
                 throw new Error("content safety service not available")
             const { attackDetected } =
-                (await detectPromptInjection?.(n.preview)) || {}
+                (await detectPromptInjectionFn?.(n.preview)) || {}
             if (attackDetected) {
                 mod = true
                 n.children = []
@@ -1164,13 +1168,13 @@ export async function renderPromptNode(
     if (safety) await tracePromptNode(trace, node, { label: "safety" })
 
     const messages: ChatCompletionMessageParam[] = []
-    const appendSystem = (content: string, options: { ephemeral?: boolean }) =>
+    const appendSystem = (content: string, options: ContextExpansionOptions) =>
         appendSystemMessage(messages, content, options)
-    const appendUser = (content: string, options: { ephemeral?: boolean }) =>
+    const appendUser = (content: string, options: ContextExpansionOptions) =>
         appendUserMessage(messages, content, options)
     const appendAssistant = (
         content: string,
-        options: { ephemeral?: boolean }
+        options: ContextExpansionOptions
     ) => appendAssistantMessage(messages, content, options)
 
     const images: PromptImage[] = []
