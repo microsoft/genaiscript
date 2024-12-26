@@ -7,12 +7,13 @@ import {
     MODEL_PROVIDER_ANTHROPIC,
     MODEL_PROVIDER_ANTHROPIC_BEDROCK,
     MODEL_PROVIDER_CLIENT,
+    MODEL_PROVIDER_JAN,
     MODEL_PROVIDER_OLLAMA,
     MODEL_PROVIDER_TRANSFORMERS,
 } from "./constants"
 import { host } from "./host"
 import { OllamaModel } from "./ollama"
-import { OpenAIModel } from "./openai"
+import { OpenAIModel, LocalOpenAICompatibleModel } from "./openai"
 import { TransformersModel } from "./transformers"
 
 export function resolveLanguageModel(provider: string): LanguageModel {
@@ -27,5 +28,9 @@ export function resolveLanguageModel(provider: string): LanguageModel {
     if (provider === MODEL_PROVIDER_ANTHROPIC_BEDROCK)
         return AnthropicBedrockModel
     if (provider === MODEL_PROVIDER_TRANSFORMERS) return TransformersModel
+
+    if (provider === MODEL_PROVIDER_JAN)
+        return LocalOpenAICompatibleModel(MODEL_PROVIDER_JAN)
+
     return OpenAIModel
 }

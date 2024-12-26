@@ -18,6 +18,7 @@ import {
     ModelConnectionInfo,
     resolveModelConnectionInfo,
 } from "../../core/src/models"
+import { deleteEmptyValues } from "../../core/src/util"
 import { CORE_VERSION } from "../../core/src/version"
 import { YAMLStringify } from "../../core/src/yaml"
 import { buildProject } from "./build"
@@ -59,6 +60,7 @@ export async function envInfo(
                 models?: LanguageModelInfo[]
             } = await parseTokenFromEnv(env, `${modelProvider.id}:*`)
             if (conn) {
+                console.log(modelProvider.id + " " + conn)
                 // Mask the token if the option is set
                 if (!token && conn.token) conn.token = "***"
                 if (models) {
@@ -68,7 +70,15 @@ export async function envInfo(
                         if (ms?.length) conn.models = ms
                     }
                 }
-                res.providers.push(conn)
+                res.providers.push(
+                    deleteEmptyValues({
+                        provider: conn.provider,
+                        source: conn.source,
+                        base: conn.base,
+                        type: conn.type,
+                        models: conn.models,
+                    })
+                )
             }
         } catch (e) {
             if (error)
