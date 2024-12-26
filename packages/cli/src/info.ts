@@ -60,7 +60,6 @@ export async function envInfo(
                 models?: LanguageModelInfo[]
             } = await parseTokenFromEnv(env, `${modelProvider.id}:*`)
             if (conn) {
-                console.log(modelProvider.id + " " + conn)
                 // Mask the token if the option is set
                 if (!token && conn.token) conn.token = "***"
                 if (models) {

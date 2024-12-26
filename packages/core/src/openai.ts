@@ -475,9 +475,9 @@ const pullModel: PullModelFunction = async (modelId, options) => {
             },
         })
         if (resTags.ok) {
-            const { models }: { models: { model: string }[] } =
+            const { data: models }: { data: { id: string }[] } =
                 await resTags.json()
-            if (models.find((m) => m.model === model)) return { ok: true }
+            if (models.find((m) => m.id === model)) return { ok: true }
         }
 
         // pull
