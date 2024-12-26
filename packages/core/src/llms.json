@@ -155,7 +155,8 @@
         {
             "id": "jan",
             "detail": "Jan local server",
-            "prediction": false
+            "prediction": false,
+            "top_p": false
         },
         {
             "id": "llamafile",

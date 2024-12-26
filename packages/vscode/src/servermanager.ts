@@ -83,7 +83,7 @@ export class TerminalServerManager implements ServerManager {
     private async startClient(): Promise<WebSocketClient> {
         assert(!this._client)
         this._port = await findRandomOpenPort()
-        const url = `http://localhost:${this._port}?api-key=${encodeURIComponent(this.state.sessionApiKey)}`
+        const url = `http://127.0.0.1:${this._port}?api-key=${encodeURIComponent(this.state.sessionApiKey)}`
         logInfo(`client url: ${url}`)
         const client = (this._client = new WebSocketClient(url))
         client.chatRequest = createChatModelRunner(this.state)
