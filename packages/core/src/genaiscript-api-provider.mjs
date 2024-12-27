@@ -1,3 +1,5 @@
+import { pathToFileURL } from "node:url"
+
 /**
  * GenAiScript PromptFoo Custom Provider
  *
@@ -22,12 +24,14 @@ class GenAIScriptApiProvider {
         try {
             const files = context.vars.files // string or string[]
 
-            const { cli, ...options } = structuredClone(this.config)
+            let { cli, ...options } = structuredClone(this.config)
             options.runTries = 2
 
             const testVars = context.vars.vars // {}
             if (testVars && typeof testVars === "object")
                 options.vars = { ...(this.config.vars || []), ...testVars }
+            if (process.platform === "win32" && !cli.startsWith("file://"))
+                cli = pathToFileURL(cli).href
             const api = await import(cli ?? "genaiscript/api")
             const res = await api.run(scriptId, files, options)
             logger.debug(res)
