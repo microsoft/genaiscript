@@ -6,7 +6,7 @@ import {
     isAzureTokenExpired,
     runtimeHost,
 } from "../../core/src/host"
-import { logVerbose } from "../../core/src/util"
+import { logError, logVerbose } from "../../core/src/util"
 import type { TokenCredential } from "@azure/identity"
 import { serializeError } from "../../core/src/error"
 import {
@@ -29,7 +29,7 @@ import {
  * Utilizes DefaultAzureCredential from the Azure Identity SDK to obtain the token.
  * Logs the expiration time of the token for debugging or informational purposes.
  */
-export async function createAzureToken(
+async function createAzureToken(
     scopes: readonly string[],
     credentialsType: AzureCredentialsType,
     cancellationToken?: CancellationToken
@@ -85,11 +85,6 @@ export async function createAzureToken(
             : Date.now() + AZURE_TOKEN_EXPIRATION,
     }
 
-    // Log the expiration time of the token
-    logVerbose(
-        `azure: ${credentialsType || ""} token (${scopes.join(",")}) expires on ${new Date(res.expiresOnTimestamp).toUTCString()}`
-    )
-
     return res
 }
 
@@ -112,17 +107,20 @@ class AzureTokenResolverImpl implements AzureTokenResolver {
         credentialsType: AzureCredentialsType,
         options?: CancellationOptions
     ): Promise<{ token?: AuthenticationToken; error?: SerializedError }> {
+        if (this._resolver) return this._resolver
+
         // cached
         const { cancellationToken } = options || {}
 
         if (isAzureTokenExpired(this._token)) {
-            logVerbose(`azure: ${this.name} token expired`)
+            logVerbose(`${this.name}: token expired`)
             this._token = undefined
             this._error = undefined
         }
         if (this._token || this._error)
             return { token: this._token, error: this._error }
         if (!this._resolver) {
+            logVerbose(`${this.name}: creating token`)
             const scope = await runtimeHost.readSecret(this.envName)
             const scopes = scope ? scope.split(",") : this.scopes
             this._resolver = createAzureToken(
@@ -134,9 +132,14 @@ class AzureTokenResolverImpl implements AzureTokenResolver {
                     this._token = res
                     this._error = undefined
                     this._resolver = undefined
+
+                    logVerbose(
+                        `${this.name}: ${credentialsType || ""} token (${scopes.join(",")}) expires on ${new Date(res.expiresOnTimestamp).toUTCString()}`
+                    )
                     return { token: this._token, error: this._error }
                 })
                 .catch((err) => {
+                    logError(err)
                     this._resolver = undefined
                     this._token = undefined
                     this._error = serializeError(err)
