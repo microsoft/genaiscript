@@ -504,7 +504,7 @@ const pullModel: PullModelFunction = async (modelId, options) => {
         return { ok: true }
     } catch (e) {
         logError(e)
-        trace.error(e)
+        trace?.error(e)
         return { ok: false, error: serializeError(e) }
     }
 }
