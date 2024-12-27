@@ -18,13 +18,15 @@
             "id": "azure",
             "detail": "Azure OpenAI deployment",
             "listModels": false,
-            "bearerToken": false
+            "bearerToken": false,
+            "prediction": false
         },
         {
             "id": "azure_serverless",
             "detail": "Azure AI OpenAI (serverless deployments)",
             "listModels": false,
             "bearerToken": false,
+            "prediction": false,
             "aliases": {
                 "large": "gpt-4o",
                 "small": "gpt-4o-mini",

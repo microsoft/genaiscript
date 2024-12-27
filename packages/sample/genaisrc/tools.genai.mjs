@@ -17,7 +17,7 @@ defTool(
         required: ["location"],
     },
     ({ location }) => {
-        return location === "Paris" ? "sunny" : "unknown"
+        return /paris/i.test(location) ? "sunny" : "unknown"
     }
 )
 
