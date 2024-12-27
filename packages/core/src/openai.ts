@@ -45,9 +45,10 @@ import {
     ChatCompletionTokenLogprob,
 } from "./chattypes"
 import { resolveTokenEncoder } from "./encoders"
-import { toSignal } from "./cancellation"
+import { CancellationOptions, toSignal } from "./cancellation"
 import { INITryParse } from "./ini"
 import { serializeChunkChoiceToLogProbs } from "./logprob"
+import { TraceOptions } from "./trace"
 
 export function getConfigHeaders(cfg: LanguageModelConfiguration) {
     let { token, type, base, provider } = cfg
@@ -426,9 +427,10 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
 }
 
 async function listModels(
-    cfg: LanguageModelConfiguration
+    cfg: LanguageModelConfiguration,
+    options: TraceOptions & CancellationOptions
 ): Promise<LanguageModelInfo[]> {
-    const fetch = await createFetch({ retries: 0 })
+    const fetch = await createFetch({ retries: 0, ...(options || {}) })
     const res = await fetch(cfg.base + "/models", {
         method: "GET",
         headers: {
@@ -507,17 +509,16 @@ const pullModel: PullModelFunction = async (modelId, options) => {
     }
 }
 
-export const OpenAIModel = Object.freeze<LanguageModel>({
-    completer: OpenAIChatCompletion,
-    id: MODEL_PROVIDER_OPENAI,
-    listModels,
-})
-
-export function LocalOpenAICompatibleModel(providerId: string) {
-    return Object.freeze<LanguageModel>({
-        completer: OpenAIChatCompletion,
-        id: providerId,
-        listModels,
-        pullModel,
-    })
+export function LocalOpenAICompatibleModel(
+    providerId: string,
+    options: { listModels?: boolean; pullModel?: boolean }
+) {
+    return Object.freeze<LanguageModel>(
+        deleteUndefinedValues({
+            completer: OpenAIChatCompletion,
+            id: providerId,
+            listModels: options?.listModels ? listModels : undefined,
+            pullModel: options?.pullModel ? pullModel : undefined,
+        })
+    )
 }

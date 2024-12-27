@@ -15,6 +15,8 @@ import {
     ChatCompletionContentPartText,
     ChatCompletionResponse,
 } from "./chattypes"
+import { TraceOptions } from "./trace"
+import { CancellationOptions } from "./cancellation"
 
 /**
  * Renders an AICI node into a string representation.
@@ -404,7 +406,10 @@ const AICIChatCompletion: ChatCompletionHandler = async (
  * @param cfg - The configuration for the language model.
  * @returns A list of language model information.
  */
-async function listModels(cfg: LanguageModelConfiguration) {
+async function listModels(
+    cfg: LanguageModelConfiguration,
+    options?: TraceOptions & CancellationOptions
+) {
     const { token, base, version } = cfg
     const url = `${base}/proxy/info`
     const fetch = await createFetch()

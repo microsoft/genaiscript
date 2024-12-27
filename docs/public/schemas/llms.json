@@ -47,6 +47,15 @@
                         "type": "boolean",
                         "description": "Indicates if tools are supported"
                     },
+                    "listModels": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Indicates if listing models is supported"
+                    },
+                    "pullModel": {
+                        "type": "boolean",
+                        "description": "Indicates if pulling models is supported"
+                    },
                     "openaiCompatibility": {
                         "type": "string",
                         "description": "Uses OpenAI API compatibility layer documentation URL"

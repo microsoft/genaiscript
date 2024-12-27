@@ -65,7 +65,7 @@ export async function envInfo(
                 if (models) {
                     const lm = await resolveLanguageModel(modelProvider.id)
                     if (lm.listModels) {
-                        const ms = await lm.listModels(conn)
+                        const ms = await lm.listModels(conn, {})
                         if (ms?.length) conn.models = ms
                     }
                 }

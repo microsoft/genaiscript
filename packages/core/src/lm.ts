@@ -10,10 +10,11 @@ import {
     MODEL_PROVIDER_JAN,
     MODEL_PROVIDER_OLLAMA,
     MODEL_PROVIDER_TRANSFORMERS,
+    MODEL_PROVIDERS,
 } from "./constants"
 import { host } from "./host"
 import { OllamaModel } from "./ollama"
-import { OpenAIModel, LocalOpenAICompatibleModel } from "./openai"
+import { LocalOpenAICompatibleModel } from "./openai"
 import { TransformersModel } from "./transformers"
 
 export function resolveLanguageModel(provider: string): LanguageModel {
@@ -29,8 +30,9 @@ export function resolveLanguageModel(provider: string): LanguageModel {
         return AnthropicBedrockModel
     if (provider === MODEL_PROVIDER_TRANSFORMERS) return TransformersModel
 
-    if (provider === MODEL_PROVIDER_JAN)
-        return LocalOpenAICompatibleModel(MODEL_PROVIDER_JAN)
-
-    return OpenAIModel
+    const features = MODEL_PROVIDERS.find((p) => p.id === provider)
+    return LocalOpenAICompatibleModel(provider, {
+        listModels: features?.listModels !== false,
+        pullModel: features?.pullModel,
+    })
 }

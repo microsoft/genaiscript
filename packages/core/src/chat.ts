@@ -127,7 +127,8 @@ export interface LanguageModelInfo {
 }
 
 export type ListModelsFunction = (
-    cfg: LanguageModelConfiguration
+    cfg: LanguageModelConfiguration,
+    options: TraceOptions & CancellationOptions
 ) => Promise<LanguageModelInfo[]>
 
 export type PullModelFunction = (
