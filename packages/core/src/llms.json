@@ -17,11 +17,13 @@
         {
             "id": "azure",
             "detail": "Azure OpenAI deployment",
+            "listModels": false,
             "bearerToken": false
         },
         {
             "id": "azure_serverless",
             "detail": "Azure AI OpenAI (serverless deployments)",
+            "listModels": false,
             "bearerToken": false,
             "aliases": {
                 "large": "gpt-4o",
@@ -34,6 +36,7 @@
         {
             "id": "azure_serverless_models",
             "detail": "Azure AI Models (serverless deployments, not OpenAI)",
+            "listModels": false,
             "prediction": false,
             "bearerToken": true
         },
@@ -43,6 +46,7 @@
             "logprobs": false,
             "topLogprobs": false,
             "prediction": false,
+            "listModels": false,
             "aliases": {
                 "large": "claude-3-5-sonnet-latest",
                 "small": "claude-3-5-haiku-latest",
@@ -70,6 +74,7 @@
             "openaiCompatibility": "https://ai.google.dev/gemini-api/docs/openai",
             "prediction": false,
             "bearerToken": true,
+            "listModels": false,
             "aliases": {
                 "large": "gemini-1.5-flash-latest",
                 "small": "gemini-1.5-flash-latest",
@@ -84,6 +89,7 @@
             "id": "huggingface",
             "detail": "Hugging Face models",
             "prediction": false,
+            "listModels": false,
             "aliases": {
                 "large": "Qwen/Qwen2.5-72B-Instruct",
                 "small": "Qwen/Qwen2.5-Coder-32B-Instruct",
@@ -110,6 +116,7 @@
             "openaiCompatibility": "https://www.alibabacloud.com/help/en/model-studio/developer-reference/compatibility-of-openai-with-dashscope",
             "tools": false,
             "prediction": false,
+            "listModels": false,
             "bearerToken": true,
             "aliases": {
                 "large": "qwen-max",
@@ -125,6 +132,7 @@
             "topLogprobs": false,
             "limitations": "Smaller context windows, and rate limiting",
             "prediction": false,
+            "listModels": false,
             "bearerToken": true,
             "aliases": {
                 "large": "gpt-4o",
@@ -145,6 +153,7 @@
             "detail": "Ollama local model",
             "logitBias": false,
             "openaiCompatibility": "https://github.com/ollama/ollama/blob/main/docs/openai.md",
+            "pullModel": true,
             "prediction": false
         },
         {
@@ -155,7 +164,9 @@
         {
             "id": "jan",
             "detail": "Jan local server",
-            "prediction": false
+            "prediction": false,
+            "listModels": true,
+            "top_p": false
         },
         {
             "id": "llamafile",

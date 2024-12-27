@@ -8,6 +8,8 @@ import { OpenAIChatCompletion } from "./openai"
 import { LanguageModelConfiguration } from "./host"
 import { host } from "./host"
 import { logError, logVerbose } from "./util"
+import { TraceOptions } from "./trace"
+import { CancellationOptions } from "./cancellation"
 
 /**
  * Lists available models for the Ollama language model configuration.
@@ -17,10 +19,11 @@ import { logError, logVerbose } from "./util"
  * @returns A promise that resolves to an array of LanguageModelInfo objects.
  */
 async function listModels(
-    cfg: LanguageModelConfiguration
+    cfg: LanguageModelConfiguration,
+    options: TraceOptions & CancellationOptions
 ): Promise<LanguageModelInfo[]> {
     // Create a fetch instance to make HTTP requests
-    const fetch = await createFetch({ retries: 0 })
+    const fetch = await createFetch({ retries: 0, ...options })
     // Fetch the list of models from the remote API
     const res = await fetch(cfg.base.replace("/v1", "/api/tags"), {
         method: "GET",

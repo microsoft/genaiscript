@@ -18,6 +18,7 @@ import {
     ModelConnectionInfo,
     resolveModelConnectionInfo,
 } from "../../core/src/models"
+import { deleteEmptyValues } from "../../core/src/util"
 import { CORE_VERSION } from "../../core/src/version"
 import { YAMLStringify } from "../../core/src/yaml"
 import { buildProject } from "./build"
@@ -64,11 +65,19 @@ export async function envInfo(
                 if (models) {
                     const lm = await resolveLanguageModel(modelProvider.id)
                     if (lm.listModels) {
-                        const ms = await lm.listModels(conn)
+                        const ms = await lm.listModels(conn, {})
                         if (ms?.length) conn.models = ms
                     }
                 }
-                res.providers.push(conn)
+                res.providers.push(
+                    deleteEmptyValues({
+                        provider: conn.provider,
+                        source: conn.source,
+                        base: conn.base,
+                        type: conn.type,
+                        models: conn.models,
+                    })
+                )
             }
         } catch (e) {
             if (error)

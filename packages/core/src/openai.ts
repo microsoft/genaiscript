@@ -1,5 +1,6 @@
 import {
     deleteUndefinedValues,
+    logError,
     logVerbose,
     normalizeInt,
     trimTrailingSlash,
@@ -18,9 +19,14 @@ import {
     TOOL_URL,
 } from "./constants"
 import { estimateTokens } from "./tokens"
-import { ChatCompletionHandler, LanguageModel, LanguageModelInfo } from "./chat"
+import {
+    ChatCompletionHandler,
+    LanguageModel,
+    LanguageModelInfo,
+    PullModelFunction,
+} from "./chat"
 import { RequestError, errorMessage, serializeError } from "./error"
-import { createFetch, traceFetchPost } from "./fetch"
+import { createFetch, iterateBody, traceFetchPost } from "./fetch"
 import { parseModelIdentifier } from "./models"
 import { JSON5TryParse } from "./json5"
 import {
@@ -39,9 +45,10 @@ import {
     ChatCompletionTokenLogprob,
 } from "./chattypes"
 import { resolveTokenEncoder } from "./encoders"
-import { toSignal } from "./cancellation"
+import { CancellationOptions, toSignal } from "./cancellation"
 import { INITryParse } from "./ini"
 import { serializeChunkChoiceToLogProbs } from "./logprob"
+import { TraceOptions } from "./trace"
 
 export function getConfigHeaders(cfg: LanguageModelConfiguration) {
     let { token, type, base, provider } = cfg
@@ -420,9 +427,10 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
 }
 
 async function listModels(
-    cfg: LanguageModelConfiguration
+    cfg: LanguageModelConfiguration,
+    options: TraceOptions & CancellationOptions
 ): Promise<LanguageModelInfo[]> {
-    const fetch = await createFetch({ retries: 0 })
+    const fetch = await createFetch({ retries: 0, ...(options || {}) })
     const res = await fetch(cfg.base + "/models", {
         method: "GET",
         headers: {
@@ -449,8 +457,68 @@ async function listModels(
     )
 }
 
-export const OpenAIModel = Object.freeze<LanguageModel>({
-    completer: OpenAIChatCompletion,
-    id: MODEL_PROVIDER_OPENAI,
-    listModels,
-})
+const pullModel: PullModelFunction = async (modelId, options) => {
+    const { trace, cancellationToken } = options || {}
+    const { provider, model } = parseModelIdentifier(modelId)
+    const fetch = await createFetch({ retries: 0, ...options })
+    const conn = await host.getLanguageModelConfiguration(modelId, {
+        token: true,
+        cancellationToken,
+        trace,
+    })
+    try {
+        // test if model is present
+        const resTags = await fetch(`${conn.base}/models`, {
+            retries: 0,
+            method: "GET",
+            headers: {
+                "User-Agent": TOOL_ID,
+                "Content-Type": "application/json",
+            },
+        })
+        if (resTags.ok) {
+            const { data: models }: { data: { id: string }[] } =
+                await resTags.json()
+            if (models.find((m) => m.id === model)) return { ok: true }
+        }
+
+        // pull
+        logVerbose(`${provider}: pull ${model}`)
+        const resPull = await fetch(`${conn.base}/models/pull`, {
+            method: "POST",
+            headers: {
+                "User-Agent": TOOL_ID,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ model }),
+        })
+        if (!resPull.ok) {
+            logError(`${provider}: failed to pull model ${model}`)
+            logVerbose(resPull.statusText)
+            return { ok: false, status: resPull.status }
+        }
+        0
+        for await (const chunk of iterateBody(resPull, { cancellationToken }))
+            process.stderr.write(".")
+        process.stderr.write("\n")
+        return { ok: true }
+    } catch (e) {
+        logError(e)
+        trace?.error(e)
+        return { ok: false, error: serializeError(e) }
+    }
+}
+
+export function LocalOpenAICompatibleModel(
+    providerId: string,
+    options: { listModels?: boolean; pullModel?: boolean }
+) {
+    return Object.freeze<LanguageModel>(
+        deleteUndefinedValues({
+            completer: OpenAIChatCompletion,
+            id: providerId,
+            listModels: options?.listModels ? listModels : undefined,
+            pullModel: options?.pullModel ? pullModel : undefined,
+        })
+    )
+}

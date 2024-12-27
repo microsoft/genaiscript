@@ -108,10 +108,13 @@ export const MARKDOWN_PROMPT_FENCE = "`````"
 
 export const OPENAI_API_BASE = "https://api.openai.com/v1"
 export const OLLAMA_DEFAUT_PORT = 11434
-export const OLLAMA_API_BASE = "http://localhost:11434/v1"
-export const LLAMAFILE_API_BASE = "http://localhost:8080/v1"
-export const LOCALAI_API_BASE = "http://localhost:8080/v1"
-export const LITELLM_API_BASE = "http://localhost:4000"
+export const OLLAMA_API_BASE = "http://127.0.0.1:11434/v1"
+export const LLAMAFILE_API_BASE = "http://127.0.0.1:8080/v1"
+export const LOCALAI_API_BASE = "http://127.0.0.1:8080/v1"
+export const LITELLM_API_BASE = "http://127.0.0.1:4000"
+export const LMSTUDIO_API_BASE = "http://127.0.0.1:1234/v1"
+export const JAN_API_BASE = "http://127.0.0.1:1337/v1"
+
 export const ANTHROPIC_API_BASE = "https://api.anthropic.com"
 export const HUGGINGFACE_API_BASE = "https://api-inference.huggingface.co/v1"
 export const GOOGLE_API_BASE =
@@ -119,8 +122,6 @@ export const GOOGLE_API_BASE =
 export const ALIBABA_BASE =
     "https://dashscope-intl.aliyuncs.com/compatible-mode/v1"
 export const MISTRAL_API_BASE = "https://api.mistral.ai/v1"
-export const LMSTUDIO_API_BASE = "http://localhost:1234/v1"
-export const JAN_API_BASE = "http://localhost:1337/v1"
 
 export const PROMPTFOO_CACHE_PATH = ".genaiscript/cache/tests"
 export const PROMPTFOO_CONFIG_DIR = ".genaiscript/config/tests"
@@ -190,6 +191,8 @@ export const MODEL_PROVIDERS = Object.freeze<
         topP?: boolean
         prediction?: boolean
         bearerToken?: boolean
+        listModels?: boolean
+        pullModel?: boolean
         aliases?: Record<string, string>
     }[]
 >(CONFIGURATION_DATA.providers)
