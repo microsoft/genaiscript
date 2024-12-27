@@ -190,7 +190,7 @@ The following npm packages may be included in this product:
 
  - @aws-crypto/sha256-browser@5.2.0
  - @aws-crypto/supports-web-crypto@5.2.0
- - @huggingface/transformers@3.2.1
+ - @huggingface/transformers@3.2.3
  - flatbuffers@1.12.0
  - long@5.2.3
 
@@ -1963,7 +1963,7 @@ The following npm packages may be included in this product:
  - @aws-sdk/util-user-agent-node@3.716.0
  - @smithy/eventstream-codec@2.2.0
  - @smithy/eventstream-codec@3.1.10
- - @smithy/middleware-retry@3.0.31
+ - @smithy/middleware-retry@3.0.32
  - @smithy/querystring-builder@2.2.0
  - @smithy/querystring-builder@3.0.11
  - @smithy/querystring-parser@2.2.0
@@ -1971,8 +1971,8 @@ The following npm packages may be included in this product:
  - @smithy/service-error-classification@3.0.11
  - @smithy/url-parser@2.2.0
  - @smithy/url-parser@3.0.11
- - @smithy/util-defaults-mode-browser@3.0.31
- - @smithy/util-defaults-mode-node@3.0.31
+ - @smithy/util-defaults-mode-browser@3.0.32
+ - @smithy/util-defaults-mode-node@3.0.32
 
 These packages each contain the following license:
 
@@ -2395,7 +2395,7 @@ The following npm packages may be included in this product:
  - @aws-sdk/middleware-host-header@3.714.0
  - @aws-sdk/middleware-recursion-detection@3.714.0
  - @aws-sdk/middleware-user-agent@3.716.0
- - @smithy/core@2.5.5
+ - @smithy/core@2.5.6
  - @smithy/eventstream-serde-browser@3.0.14
  - @smithy/eventstream-serde-config-resolver@3.0.11
  - @smithy/eventstream-serde-node@2.2.0
@@ -2408,7 +2408,7 @@ The following npm packages may be included in this product:
  - @smithy/protocol-http@3.3.0
  - @smithy/protocol-http@4.1.8
  - @smithy/smithy-client@2.5.1
- - @smithy/smithy-client@3.5.1
+ - @smithy/smithy-client@3.5.2
  - @smithy/types@2.12.0
  - @smithy/types@3.7.2
 
@@ -4182,11 +4182,11 @@ The following npm packages may be included in this product:
  - @smithy/is-array-buffer@3.0.0
  - @smithy/middleware-content-length@3.0.13
  - @smithy/middleware-endpoint@2.5.1
- - @smithy/middleware-endpoint@3.2.6
+ - @smithy/middleware-endpoint@3.2.7
  - @smithy/middleware-stack@2.2.0
  - @smithy/middleware-stack@3.0.11
  - @smithy/node-http-handler@2.5.0
- - @smithy/node-http-handler@3.3.2
+ - @smithy/node-http-handler@3.3.3
  - @smithy/property-provider@2.2.0
  - @smithy/property-provider@3.1.11
  - @smithy/shared-ini-file-loader@2.4.0
@@ -4202,7 +4202,7 @@ The following npm packages may be included in this product:
  - @smithy/util-hex-encoding@2.2.0
  - @smithy/util-hex-encoding@3.0.0
  - @smithy/util-stream@2.2.0
- - @smithy/util-stream@3.3.2
+ - @smithy/util-stream@3.3.3
  - @smithy/util-uri-escape@2.2.0
  - @smithy/util-uri-escape@3.0.0
  - @smithy/util-utf8@2.3.0
@@ -6439,7 +6439,7 @@ The following npm packages may be included in this product:
  - css-what@6.1.0
  - domelementtype@2.3.0
  - domhandler@5.0.3
- - domutils@3.1.0
+ - domutils@3.2.1
  - entities@4.5.0
  - nth-check@2.1.1
 
@@ -9190,7 +9190,7 @@ The following npm packages may be included in this product:
  - temp-dir@3.0.0
  - tempy@3.1.0
  - type-fest@1.4.0
- - type-fest@4.30.2
+ - type-fest@4.31.0
  - unicorn-magic@0.3.0
  - unique-string@3.0.0
  - wrap-ansi@7.0.0
