@@ -8,10 +8,9 @@ import {
     VSCodeCheckbox,
     VSCodeTextArea,
 } from "@vscode/webview-ui-toolkit/react"
-import { JSONSchemaFieldType } from "../types"
 
 interface FormFieldProps {
-    field: JSONSchemaFieldType
+    field: JSONSchemaSimpleType
     value: string | boolean | number
     onChange: (value: string | boolean | number) => void
 }
@@ -40,6 +39,7 @@ export const FormField: React.FC<FormFieldProps> = ({
                     </VSCodeDropdown>
                 )
             }
+            /*
             if (field.format === "textarea") {
                 return (
                     <VSCodeTextArea
@@ -50,7 +50,7 @@ export const FormField: React.FC<FormFieldProps> = ({
                         }}
                     />
                 )
-            }
+            }*/
             return (
                 <VSCodeTextField
                     value={value as string}
