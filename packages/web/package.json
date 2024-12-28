@@ -1,0 +1,25 @@
+{
+    "name": "genaiscript-web",
+    "version": "1.87.0",
+    "license": "MIT",
+    "scripts": {
+        "build": "node build.js",
+        "start": "npm run build && serve .",
+        "type-check": "tsc --noEmit",
+        "type-check:watch": "tsc --noEmit --watch"
+    },
+    "dependencies": {
+        "@vscode/webview-ui-toolkit": "^1.4.0",
+        "marked": "^15.0.4",
+        "react": "^18.2.0",
+        "react-dom": "^18.2.0"
+    },
+    "devDependencies": {
+        "@types/marked": "^6.0.0",
+        "@types/react": "^18.0.28",
+        "@types/react-dom": "^18.0.11",
+        "esbuild": "^0.24.2",
+        "serve": "^14.2.4",
+        "typescript": "^5.7.2"
+    }
+}

@@ -4543,7 +4543,7 @@ starlight-blog@^0.16.1:
     marked-plaintify "^1.1.1"
     ultrahtml "^1.5.3"
 
-starlight-links-validator@^0.14.0:
+starlight-links-validator@^0.14.1:
   version "0.14.1"
   resolved "https://registry.yarnpkg.com/starlight-links-validator/-/starlight-links-validator-0.14.1.tgz#4b865d5d0e8c433620caf7c27615e133161b0181"
   integrity sha512-qd5zMBezFhE3R/RBW2am58jVMK3ydcHs8TqOOBLimjn+iXqWV/ZkLlpcavoIOd//w72cX3L//lN4TA+a7vdaZg==

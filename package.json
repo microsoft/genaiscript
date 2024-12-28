@@ -20,9 +20,10 @@
         "compile-cli": "yarn --cwd packages/cli run compile",
         "compile": "yarn compile-ext && yarn compile-cli && yarn test:fix",
         "compile-debug": "yarn --cwd packages/cli run compile-debug",
+        "compile:web": "yarn --cwd packages/web run build",
         "go": "cd packages/cli && yarn go",
         "token": "cd packages/sample && yarn token",
-        "typecheck": "yarn --cwd packages/core run typecheck && yarn --cwd packages/vscode run typecheck && yarn --cwd packages/cli run typecheck",
+        "typecheck": "yarn --cwd packages/core run typecheck && yarn --cwd packages/vscode run typecheck && yarn --cwd packages/cli run typecheck && yarn --cwd packages/web run type-check",
         "lint": "yarn --cwd packages/cli run lint",
         "pretty": "prettier **.ts --write",
         "package": "cd packages/vscode && yarn package",
@@ -79,7 +80,8 @@
         "cli": "node packages/cli/built/genaiscript.cjs",
         "ollama": "yarn ollama:stop && yarn ollama:start",
         "ollama:start": "docker run -d -v ollama:/root/.ollama -p 11434:11434 --name ollama -e OLLAMA_FLASH_ATTENTION=1 -e OLLAMA_KV_CACHE_TYPE=q8_0 ollama/ollama",
-        "ollama:stop": "docker stop ollama && docker rm ollama"
+        "ollama:stop": "docker stop ollama && docker rm ollama",
+        "web:start": "yarn --cwd packages/web run start"
     },
     "release-it": {
         "github": {
