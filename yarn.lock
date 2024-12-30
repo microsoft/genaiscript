@@ -1102,10 +1102,10 @@
   resolved "https://registry.yarnpkg.com/@huggingface/jinja/-/jinja-0.3.2.tgz#c1967f0685c69657c2d3b169459f72d5c6acbdec"
   integrity sha512-F2FvuIc+w1blGsaqJI/OErRbWH6bVJDCBI8Rm5D86yZ2wlwrGERsfIaru7XUv9eYC3DMP3ixDRRtF0h6d8AZcQ==
 
-"@huggingface/transformers@^3.2.3":
-  version "3.2.3"
-  resolved "https://registry.yarnpkg.com/@huggingface/transformers/-/transformers-3.2.3.tgz#0dc39c62fdc6e21d7532ddb6408410e27bf6a217"
-  integrity sha512-o7QZphrCH3a3m0kF/MaSNv3DMDZCpTifdZ9k4Lwl2n9QhY8JIGOOtZDVa+Wv2cqKU6iJm1SiCqDdZpo8H20c8g==
+"@huggingface/transformers@^3.2.4":
+  version "3.2.4"
+  resolved "https://registry.yarnpkg.com/@huggingface/transformers/-/transformers-3.2.4.tgz#4e3f784e84b8def238067b17d4f53ecb32270cdc"
+  integrity sha512-XLXoC2lj72SXCftDh1ptmYwCrjDtky+WT7W51jZERU4jbKzEXz0qHC+vCZwGX+Q7nTFogdwIGU2SuaCG9XKBLA==
   dependencies:
     "@huggingface/jinja" "^0.3.2"
     onnxruntime-node "1.20.1"
@@ -1790,7 +1790,7 @@
     "@nodelib/fs.scandir" "2.1.5"
     fastq "^1.6.0"
 
-"@octokit/app@^15.0.0":
+"@octokit/app@^15.1.1":
   version "15.1.1"
   resolved "https://registry.yarnpkg.com/@octokit/app/-/app-15.1.1.tgz#bbbae2b209928c8ca038122ec85bff67045628c7"
   integrity sha512-fk8xrCSPTJGpyBdBNI+DcZ224dm0aApv4vi6X7/zTmANXlegKV2Td+dJ+fd7APPaPN7R+xttUsj2Fm+AFDSfMQ==
@@ -4952,10 +4952,10 @@ ignore@^5.2.0:
   resolved "https://registry.yarnpkg.com/ignore/-/ignore-5.3.2.tgz#3cd40e729f3643fd87cb04e50bf0eb722bc596f5"
   integrity sha512-hsBTNUqQTDwkWtcdYI2i06Y/nUBEsNEDJKjWdigLvegy8kDuJAS8uRlpkkcQpyEXL0Z/pjDy5HBmMjRCJ2gq+g==
 
-ignore@^6.0.2:
-  version "6.0.2"
-  resolved "https://registry.yarnpkg.com/ignore/-/ignore-6.0.2.tgz#77cccb72a55796af1b6d2f9eb14fa326d24f4283"
-  integrity sha512-InwqeHHN2XpumIkMvpl/DCJVrAHgCsG5+cn1XlnLWGwtZBm8QJfSusItfrwx81CTp5agNZqpKU2J/ccC5nGT4A==
+ignore@^7.0.0:
+  version "7.0.0"
+  resolved "https://registry.yarnpkg.com/ignore/-/ignore-7.0.0.tgz#52da780b009bd0845d1f9dd4d8ae6a7569ae73c4"
+  integrity sha512-lcX8PNQygAa22u/0BysEY8VhaFRzlOkvdlKczDPnJvrkJD1EuqzEky5VYYKM2iySIuaVIDv9N190DfSreSLw2A==
 
 image-q@^4.0.0:
   version "4.0.0"
@@ -5514,7 +5514,7 @@ long@^5.0.0, long@^5.2.3:
   resolved "https://registry.yarnpkg.com/long/-/long-5.2.3.tgz#a3ba97f3877cf1d778eccbcb048525ebb77499e1"
   integrity sha512-lcHwpNoggQTObv5apGNCTdJrO69eHOZMi4BNC+rTLER8iHAqGrUVeLh/irVIM7zTw2bOXA8T6uNPeujwOLg/2Q==
 
-lop@^0.4.1:
+lop@^0.4.2:
   version "0.4.2"
   resolved "https://registry.yarnpkg.com/lop/-/lop-0.4.2.tgz#c9c2f958a39b9da1c2f36ca9ad66891a9fe84640"
   integrity sha512-RefILVDQ4DKoRZsJ4Pj22TxE3omDO47yFpkIBoDKzkqPRISs5U1cnAdg/5583YPkWPaLIYHOKRMQSvjFsO26cw==
@@ -5559,10 +5559,10 @@ make-dir@^3.1.0:
   dependencies:
     semver "^6.0.0"
 
-mammoth@^1.8.0:
-  version "1.8.0"
-  resolved "https://registry.yarnpkg.com/mammoth/-/mammoth-1.8.0.tgz#d8f1b0d3a0355fda129270346e9dc853f223028f"
-  integrity sha512-pJNfxSk9IEGVpau+tsZFz22ofjUsl2mnA5eT8PjPs2n0BP+rhVte4Nez6FdgEuxv3IGI3afiV46ImKqTGDVlbA==
+mammoth@^1.9.0:
+  version "1.9.0"
+  resolved "https://registry.yarnpkg.com/mammoth/-/mammoth-1.9.0.tgz#71e34ca280735275788bfe95e653a058dcab4df2"
+  integrity sha512-F+0NxzankQV9XSUAuVKvkdQK0GbtGGuqVnND9aVf9VSeUA82LQa29GjLqYU6Eez8LHqSJG3eGiDW3224OKdpZg==
   dependencies:
     "@xmldom/xmldom" "^0.8.6"
     argparse "~1.0.3"
@@ -5570,7 +5570,7 @@ mammoth@^1.8.0:
     bluebird "~3.4.0"
     dingbat-to-unicode "^1.0.1"
     jszip "^3.7.1"
-    lop "^0.4.1"
+    lop "^0.4.2"
     path-is-absolute "^1.0.0"
     underscore "^1.13.1"
     xmlbuilder "^10.0.0"
@@ -6030,12 +6030,12 @@ object.assign@^4.1.4:
     has-symbols "^1.1.0"
     object-keys "^1.1.1"
 
-octokit@^4.0.2:
-  version "4.0.2"
-  resolved "https://registry.yarnpkg.com/octokit/-/octokit-4.0.2.tgz#775d68d363cdaec69d7b73d3dc82ae909d30f59b"
-  integrity sha512-wbqF4uc1YbcldtiBFfkSnquHtECEIpYD78YUXI6ri1Im5OO2NLo6ZVpRdbJpdnpZ05zMrVPssNiEo6JQtea+Qg==
+octokit@^4.0.3:
+  version "4.0.3"
+  resolved "https://registry.yarnpkg.com/octokit/-/octokit-4.0.3.tgz#30098459c4b2ad0d96d95f39968ca099c8e096df"
+  integrity sha512-kfqH80Yuuux4fLbZ4SvObjCvVu89U0eCh5+fulh6tr/hJkDYS1inXDGnNJDOp312GANMEhWWMLYmjQR8MvSSMQ==
   dependencies:
-    "@octokit/app" "^15.0.0"
+    "@octokit/app" "^15.1.1"
     "@octokit/core" "^6.0.0"
     "@octokit/oauth-app" "^7.0.0"
     "@octokit/plugin-paginate-graphql" "^5.0.0"
@@ -6044,7 +6044,7 @@ octokit@^4.0.2:
     "@octokit/plugin-retry" "^7.0.0"
     "@octokit/plugin-throttling" "^9.0.0"
     "@octokit/request-error" "^6.0.0"
-    "@octokit/types" "^13.0.0"
+    "@octokit/types" "^13.6.2"
 
 omggif@^1.0.10:
   version "1.0.10"
@@ -7998,6 +7998,7 @@ xdg-basedir@^5.1.0:
 
 "xlsx@https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz":
   version "0.20.2"
+  uid "0f64eeed3f1a46e64724620c3553f2dbd3cd2d7d"
   resolved "https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz#0f64eeed3f1a46e64724620c3553f2dbd3cd2d7d"
 
 xml-parse-from-string@^1.0.0:
