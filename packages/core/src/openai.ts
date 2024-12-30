@@ -247,7 +247,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
         try {
             responseBody = await r.text()
         } catch (e) {}
-        trace.detailsFenced(`response`, responseBody, "json")
+        trace.detailsFenced(`📬 response`, responseBody, "json")
         const { error, message } = JSON5TryParse(responseBody, {}) as {
             error: any
             message: string
@@ -283,7 +283,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
     const doChoices = (json: string, tokens: Logprob[]) => {
         const obj: ChatCompletionChunk | ChatCompletion = JSON.parse(json)
 
-        if (!postReq.stream) trace.detailsFenced(`response`, obj, "json")
+        if (!postReq.stream) trace.detailsFenced(`📬 response`, obj, "json")
 
         if (obj.usage) usage = obj.usage
         if (!responseModel && obj.model) responseModel = obj.model
@@ -323,8 +323,23 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
             }
         } else if ((choice as ChatCompletionChoice).message) {
             const { message } = choice as ChatCompletionChoice
-            chatResp = message.content
+            chatResp = message.content ?? undefined
             numTokens = usage?.total_tokens ?? estimateTokens(chatResp, encoder)
+            if (Array.isArray(message?.tool_calls)) {
+                const { tool_calls } = message
+                for (let calli = 0; calli < tool_calls.length; calli++) {
+                    const call = tool_calls[calli]
+                    const tc =
+                        toolCalls[calli] ||
+                        (toolCalls[calli] = {
+                            id: call.id,
+                            name: call.function.name,
+                            arguments: "",
+                        })
+                    if (call.function.arguments)
+                        tc.arguments += call.function.arguments
+                }
+            }
             partialCb?.({
                 responseSoFar: chatResp,
                 tokensSoFar: numTokens,

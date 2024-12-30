@@ -293,7 +293,7 @@ export async function runScriptInternal(
             },
             partialCb: (args) => {
                 const { responseChunk, responseTokens, inner } = args
-                if (responseChunk !== undefined) {
+                if (responseChunk !== undefined && responseChunk !== null) {
                     if (stream) {
                         if (responseTokens && consoleColors) {
                             const colors = inner
