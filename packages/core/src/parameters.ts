@@ -13,7 +13,7 @@ function isPromptParameterTypeRequired(t: PromptParameterType): boolean {
 }
 
 export function promptParameterTypeToJSONSchema(
-    t: PromptParameterType
+    t: PromptParameterType | [PromptParameterType]
 ):
     | JSONSchemaNumber
     | JSONSchemaString
@@ -72,7 +72,7 @@ export function promptParametersSchemaToJSONSchema(
         properties: {},
         required: [],
     }
-    for (const [k, v] of Object.entries(parameters)) {
+    for (const [k, v] of Object.entries(parameters as PromptParametersSchema)) {
         const t = promptParameterTypeToJSONSchema(v)
         const required = isPromptParameterTypeRequired(v)
         res.properties[k] = t
