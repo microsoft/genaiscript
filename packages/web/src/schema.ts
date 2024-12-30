@@ -1,5 +1,6 @@
 /// <reference path="../../core/src/types/prompt_template.d.ts" />
-export const sampleSchema: PromptParametersSchema = {
+export const sampleSchema: JSONSchemaObject = {
+    type: "object",
     properties: {
         title: {
             type: "string",

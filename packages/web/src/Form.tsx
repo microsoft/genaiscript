@@ -7,6 +7,8 @@ import {
     VscodeTextfield,
     VscodeCheckbox,
 } from "@vscode-elements/react-elements"
+import Markdown from "react-markdown"
+import remarkGfm from "remark-gfm"
 
 function FormField(props: {
     field: JSONSchemaSimpleType
@@ -65,9 +67,7 @@ function FormField(props: {
     }
 }
 
-export default function JSONForm(props: {
-    schema: JSONSchemaObject
-}) {
+export default function JSONForm(props: { schema: JSONSchemaObject }) {
     const { schema } = props
     const properties = (schema.properties || {}) as Record<
         string,
@@ -119,13 +119,7 @@ export default function JSONForm(props: {
 
             {markdown && (
                 <div className="markdown-output">
-                    <h2>Output:</h2>
-                    <div
-                        dangerouslySetInnerHTML={{
-                            __html: marked(markdown) as any,
-                        }}
-                        className="markdown-content"
-                    />
+                    <Markdown remarkPlugins={[remarkGfm]}>{markdown}</Markdown>
                 </div>
             )}
         </div>
