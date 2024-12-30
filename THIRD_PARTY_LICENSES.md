@@ -190,7 +190,7 @@ The following npm packages may be included in this product:
 
  - @aws-crypto/sha256-browser@5.2.0
  - @aws-crypto/supports-web-crypto@5.2.0
- - @huggingface/transformers@3.2.3
+ - @huggingface/transformers@3.2.4
  - flatbuffers@1.12.0
  - long@5.2.3
 
@@ -2861,7 +2861,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.86.4
+ - genaiscript-vscode@1.87.0
 
 This package contains the following license:
 
@@ -5868,7 +5868,7 @@ The following npm packages may be included in this product:
 
  - duck@0.1.12
  - lop@0.4.2
- - mammoth@1.8.0
+ - mammoth@1.9.0
  - option@0.2.4
 
 These packages each contain the following license:
@@ -7915,9 +7915,9 @@ The following npm packages may be included in this product:
  - @tokenizer/token@0.3.0
  - agent-base@6.0.2
  - eastasianwidth@0.2.0
- - genaiscript-core-internal@1.86.4
- - genaiscript-sample@1.86.4
- - genaiscript@1.86.4
+ - genaiscript-core-internal@1.87.0
+ - genaiscript-sample@1.87.0
+ - genaiscript@1.87.0
  - https-proxy-agent@5.0.1
  - isarray@1.0.0
  - javascript-natural-sort@0.7.1
