@@ -7,15 +7,13 @@ import {
     VscodeTextfield,
     VscodeCheckbox,
 } from "@vscode-elements/react-elements"
-import { marked } from "marked"
 
-interface FormFieldProps {
+function FormField(props: {
     field: JSONSchemaSimpleType
     value: string | boolean | number | object
     onChange: (value: string | boolean | number | object) => void
-}
-
-const FormField: React.FC<FormFieldProps> = ({ field, value, onChange }) => {
+}) {
+    const { field, value, onChange } = props
     switch (field.type) {
         case "string":
             if (field.enum) {
@@ -67,11 +65,10 @@ const FormField: React.FC<FormFieldProps> = ({ field, value, onChange }) => {
     }
 }
 
-interface JsonSchemaFormProps {
+export default function JSONForm(props: {
     schema: JSONSchemaObject
-}
-
-export const JsonSchemaForm: React.FC<JsonSchemaFormProps> = ({ schema }) => {
+}) {
+    const { schema } = props
     const properties = (schema.properties || {}) as Record<
         string,
         JSONSchemaSimpleType

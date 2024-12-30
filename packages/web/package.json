@@ -17,7 +17,6 @@
         "@vscode-elements/react-elements": "^0.8.0",
         "@vscode-elements/webview-playground": "^1.3.0",
         "esbuild": "^0.24.2",
-        "marked": "^15.0.4",
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
         "serve": "^14.2.4",

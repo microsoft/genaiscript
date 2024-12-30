@@ -59,7 +59,7 @@
     "gpt-tokenizer": "^2.8.1",
     "html-to-text": "^9.0.5",
     "jimp": "^1.6.0",
-    "mammoth": "^1.8.0",
+    "mammoth": "^1.9.0",
     "mathjs": "^14.0.1",
     "tabletojson": "^4.1.5",
     "tsx": "^4.19.2",
@@ -72,7 +72,7 @@
     "zod-to-json-schema": "^3.24.1"
   },
   "optionalDependencies": {
-    "@huggingface/transformers": "^3.2.3",
+    "@huggingface/transformers": "^3.2.4",
     "@lvce-editor/ripgrep": "^1.5.0",
     "pdfjs-dist": "4.9.155",
     "playwright": "^1.49.1",
@@ -106,7 +106,7 @@
     "glob": "^11.0.0",
     "memorystream": "^0.3.1",
     "node-sarif-builder": "^3.2.0",
-    "octokit": "^4.0.2",
+    "octokit": "^4.0.3",
     "openai": "^4.77.0",
     "pretty-bytes": "^6.1.1",
     "replace-ext": "^2.0.0",
