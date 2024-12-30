@@ -89,7 +89,8 @@ export default function JSONForm(props: { schema: JSONSchemaObject }) {
     const [formData, setFormData] = useState<PromptParameters>({})
     const [markdown, setMarkdown] = useState<string>("")
 
-    const handleSubmit = () => {
+    const handleSubmit = (e: React.EventHandler) => {
+        e.preventDefault()
         const markdownOutput = Object.entries(formData)
             .map(([key, value]) => `### ${key}\n${value}`)
             .join("\n\n")
@@ -108,26 +109,28 @@ export default function JSONForm(props: { schema: JSONSchemaObject }) {
 
     return (
         <>
-            <VscodeFormContainer>
-                {Object.entries(properties).map(([fieldName, field]) => (
-                    <VscodeFormGroup key={fieldName}>
-                        <VscodeLabel>{fieldName}</VscodeLabel>
-                        <FormField
-                            field={field}
-                            value={formData[fieldName]}
-                            onChange={(value) =>
-                                handleFieldChange(fieldName, value)
-                            }
-                        />
-                        {field?.description && (
-                            <VscodeFormHelper>
-                                {field.description}
-                            </VscodeFormHelper>
-                        )}
-                    </VscodeFormGroup>
-                ))}
-                <VscodeButton onClick={handleSubmit}>Generate Markdown</VscodeButton>
-            </VscodeFormContainer>
+            <form onSubmit={handleSubmit}>
+                <VscodeFormContainer>
+                    {Object.entries(properties).map(([fieldName, field]) => (
+                        <VscodeFormGroup key={fieldName}>
+                            <VscodeLabel>{fieldName}</VscodeLabel>
+                            <FormField
+                                field={field}
+                                value={formData[fieldName]}
+                                onChange={(value) =>
+                                    handleFieldChange(fieldName, value)
+                                }
+                            />
+                            {field?.description && (
+                                <VscodeFormHelper>
+                                    {field.description}
+                                </VscodeFormHelper>
+                            )}
+                        </VscodeFormGroup>
+                    ))}
+                    <VscodeButton type="submit">Generate Markdown</VscodeButton>
+                </VscodeFormContainer>
+            </form>
             <TraceView markdown={markdown} />
         </>
     )
