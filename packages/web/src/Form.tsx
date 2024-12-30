@@ -6,6 +6,10 @@ import {
     VscodeOption,
     VscodeTextfield,
     VscodeCheckbox,
+    VscodeFormContainer,
+    VscodeFormGroup,
+    VscodeFormHelper,
+    VscodeLabel,
 } from "@vscode-elements/react-elements"
 import Markdown from "react-markdown"
 import remarkGfm from "remark-gfm"
@@ -67,6 +71,15 @@ function FormField(props: {
     }
 }
 
+function TraceView(props: { markdown: string }) {
+    const { markdown } = props
+    return markdown ? (
+        <div className="markdown-output">
+            <Markdown remarkPlugins={[remarkGfm]}>{markdown}</Markdown>
+        </div>
+    ) : null
+}
+
 export default function JSONForm(props: { schema: JSONSchemaObject }) {
     const { schema } = props
     const properties = (schema.properties || {}) as Record<
@@ -76,8 +89,7 @@ export default function JSONForm(props: { schema: JSONSchemaObject }) {
     const [formData, setFormData] = useState<PromptParameters>({})
     const [markdown, setMarkdown] = useState<string>("")
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault()
+    const handleSubmit = () => {
         const markdownOutput = Object.entries(formData)
             .map(([key, value]) => `### ${key}\n${value}`)
             .join("\n\n")
@@ -95,11 +107,11 @@ export default function JSONForm(props: { schema: JSONSchemaObject }) {
     }
 
     return (
-        <div className="container">
-            <form onSubmit={handleSubmit}>
+        <>
+            <VscodeFormContainer>
                 {Object.entries(properties).map(([fieldName, field]) => (
-                    <div key={fieldName} className="field-container">
-                        <label>{fieldName}</label>
+                    <VscodeFormGroup key={fieldName}>
+                        <VscodeLabel>{fieldName}</VscodeLabel>
                         <FormField
                             field={field}
                             value={formData[fieldName]}
@@ -108,20 +120,15 @@ export default function JSONForm(props: { schema: JSONSchemaObject }) {
                             }
                         />
                         {field?.description && (
-                            <small className="description">
+                            <VscodeFormHelper>
                                 {field.description}
-                            </small>
+                            </VscodeFormHelper>
                         )}
-                    </div>
+                    </VscodeFormGroup>
                 ))}
-                <VscodeButton type="submit">Generate Markdown</VscodeButton>
-            </form>
-
-            {markdown && (
-                <div className="markdown-output">
-                    <Markdown remarkPlugins={[remarkGfm]}>{markdown}</Markdown>
-                </div>
-            )}
-        </div>
+                <VscodeButton onClick={handleSubmit}>Generate Markdown</VscodeButton>
+            </VscodeFormContainer>
+            <TraceView markdown={markdown} />
+        </>
     )
 }
