@@ -2,7 +2,6 @@
   // src/index.tsx
   import React from 'react';
   import { createRoot } from 'react-dom/client';
-  import JsonSchemaForm from './components/JSONSchemaForm';
   import { sampleSchema } from './schema';
   
   const rootElement = document.getElementById('root');
