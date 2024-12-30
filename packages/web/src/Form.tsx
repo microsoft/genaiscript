@@ -11,8 +11,8 @@ import { marked } from "marked"
 
 interface FormFieldProps {
     field: JSONSchemaSimpleType
-    value: string | boolean | number
-    onChange: (value: string | boolean | number) => void
+    value: string | boolean | number | object
+    onChange: (value: string | boolean | number | object) => void
 }
 
 const FormField: React.FC<FormFieldProps> = ({ field, value, onChange }) => {
@@ -72,7 +72,11 @@ interface JsonSchemaFormProps {
 }
 
 export const JsonSchemaForm: React.FC<JsonSchemaFormProps> = ({ schema }) => {
-    const [formData, setFormData] = useState<FormData>({})
+    const properties = (schema.properties || {}) as Record<
+        string,
+        JSONSchemaSimpleType
+    >
+    const [formData, setFormData] = useState<PromptParameters>({})
     const [markdown, setMarkdown] = useState<string>("")
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -85,7 +89,7 @@ export const JsonSchemaForm: React.FC<JsonSchemaFormProps> = ({ schema }) => {
 
     const handleFieldChange = (
         fieldName: string,
-        value: string | boolean | number
+        value: string | boolean | number | object
     ) => {
         setFormData((prev) => ({
             ...prev,
@@ -96,33 +100,33 @@ export const JsonSchemaForm: React.FC<JsonSchemaFormProps> = ({ schema }) => {
     return (
         <div className="container">
             <form onSubmit={handleSubmit}>
-                {Object.entries(schema.properties || {}).map(
-                    ([fieldName, field]) => (
-                        <div key={fieldName} className="field-container">
-                            <label>{fieldName}</label>
-                            <FormField
-                                field={field}
-                                value={formData[fieldName] || ""}
-                                onChange={(value) =>
-                                    handleFieldChange(fieldName, value)
-                                }
-                            />
-                            {field.description && (
-                                <small className="description">
-                                    {field.description}
-                                </small>
-                            )}
-                        </div>
-                    )
-                )}
-                <VSCodeButton type="submit">Generate Markdown</VSCodeButton>
+                {Object.entries(properties).map(([fieldName, field]) => (
+                    <div key={fieldName} className="field-container">
+                        <label>{fieldName}</label>
+                        <FormField
+                            field={field}
+                            value={formData[fieldName]}
+                            onChange={(value) =>
+                                handleFieldChange(fieldName, value)
+                            }
+                        />
+                        {field?.description && (
+                            <small className="description">
+                                {field.description}
+                            </small>
+                        )}
+                    </div>
+                ))}
+                <VscodeButton type="submit">Generate Markdown</VscodeButton>
             </form>
 
             {markdown && (
                 <div className="markdown-output">
                     <h2>Output:</h2>
                     <div
-                        dangerouslySetInnerHTML={{ __html: marked(markdown) }}
+                        dangerouslySetInnerHTML={{
+                            __html: marked(markdown) as any,
+                        }}
                         className="markdown-content"
                     />
                 </div>
