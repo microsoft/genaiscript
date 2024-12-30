@@ -1069,7 +1069,7 @@ export function tracePromptResult(
     const { text } = resp || {}
 
     // try to sniff the output type
-    if (text !== undefined) {
+    if (text) {
         const language = JSON5TryParse(text)
             ? "json"
             : XMLTryParse(text)
