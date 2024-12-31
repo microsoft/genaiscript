@@ -1,7 +1,6 @@
 // src/index.tsx
 import React from "react"
 import { createRoot } from "react-dom/client"
-import { sampleSchema } from "./schema"
 import App from "./App"
 
 import "@vscode-elements/webview-playground"

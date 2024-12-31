@@ -17,6 +17,7 @@ import {
     VscodeFormGroup,
     VscodeFormHelper,
     VscodeLabel,
+    VscodeProgressRing,
 } from "@vscode-elements/react-elements"
 import Markdown from "./Markdown"
 import type {
@@ -32,6 +33,16 @@ import { useSearchParams } from "./useSearchParam"
 const urlParams = new URLSearchParams(window.location.hash)
 const apiKey = urlParams.get("api-key")
 window.location.hash = ""
+
+const ws = new WebSocket(`/?api-key=${apiKey}`)
+ws.addEventListener(
+    "open",
+    () => {
+        console.log(`ws: connected`)
+    },
+    false
+)
+
 const fetchScripts = async (): Promise<Project> => {
     const res = await fetch(`/api/scripts`, {
         headers: {
@@ -60,18 +71,42 @@ function ApiProvider({ children }: { children: React.ReactNode }) {
     )
 }
 
+function useApi() {
+    const api = use(ApiContext)
+    if (!api) throw new Error("missing content")
+    return api
+}
+
+function useScripts() {
+    const api = useApi()
+    const project = use(api.project)
+    const scripts = (project?.scripts?.filter((s) => !s.isSystem) || []).sort(
+        (l, r) => l.id.localeCompare(r.id)
+    )
+    return scripts
+}
+
+function useScript() {
+    const scripts = useScripts()
+    const { scriptid } = useApi()
+    return scripts.find((s) => s.id === scriptid)
+}
+
 function JSONSchemaSimpleTypeFormField(props: {
     field: JSONSchemaSimpleType
     value: string | boolean | number | object
     onChange: (value: string | boolean | number | object) => void
 }) {
     const { field, value, onChange } = props
+    const required = field.default === undefined
+
     switch (field.type) {
         case "string":
             if (field.enum) {
                 return (
                     <VscodeSingleSelect
                         value={value as string}
+                        required={required}
                         onChange={(e) => {
                             const target = e.target as HTMLSelectElement
                             onChange(target.value)
@@ -88,6 +123,8 @@ function JSONSchemaSimpleTypeFormField(props: {
             return (
                 <VscodeTextfield
                     value={value as string}
+                    required={required}
+                    placeholder={field.default}
                     onChange={(e) => {
                         const target = e.target as HTMLInputElement
                         onChange(target.value)
@@ -98,6 +135,7 @@ function JSONSchemaSimpleTypeFormField(props: {
             return (
                 <VscodeCheckbox
                     checked={value as boolean}
+                    required={required}
                     onChange={(e) => {
                         const target = e.target as HTMLInputElement
                         onChange(target.checked)
@@ -108,6 +146,7 @@ function JSONSchemaSimpleTypeFormField(props: {
             return (
                 <VscodeTextfield
                     value={value as string}
+                    required={required}
                     onChange={(e) => {
                         const target = e.target as HTMLInputElement
                         onChange(target.value)
@@ -122,8 +161,57 @@ function TraceView(props: { markdown: string }) {
     return <Markdown>{markdown}</Markdown>
 }
 
-function ScriptPreview(props: { script: PromptScript | undefined }) {
-    const { script } = props
+function toStringList(...token: (string | undefined | null)[]) {
+    const md = token
+        .filter((l) => l !== undefined && l !== null && l !== "")
+        .join(", ")
+    return md
+}
+
+function ScriptFormHelper() {
+    const script = useScript()
+    return (
+        <VscodeFormHelper>
+            {script
+                ? toStringList(
+                      script.title,
+                      script.description,
+                      script.filename
+                  )
+                : `Select a GenAIScript to run`}
+        </VscodeFormHelper>
+    )
+}
+
+function ScriptSelect(props: {}) {
+    const scripts = useScripts()
+    const { scriptid, setScriptid } = useApi()
+
+    return (
+        <VscodeFormContainer>
+            <VscodeFormGroup>
+                <VscodeLabel>Script</VscodeLabel>
+                <VscodeSingleSelect
+                    value={scriptid || ""}
+                    onChange={(e) => {
+                        const target = e.target as HTMLSelectElement
+                        setScriptid(target.value)
+                    }}
+                >
+                    {scripts.map(({ id, title }) => (
+                        <VscodeOption value={id} description={title}>
+                            {id}
+                        </VscodeOption>
+                    ))}
+                </VscodeSingleSelect>
+                <ScriptFormHelper />
+            </VscodeFormGroup>
+        </VscodeFormContainer>
+    )
+}
+
+function ScriptPreview() {
+    const script = useScript()
     if (!script) return null
 
     const { jsSource, text, ...rest } = script
@@ -145,11 +233,11 @@ ${JSON.stringify(rest, null, 2)}
 }
 
 function PromptParametersForm(props: {
-    script: PromptScript | undefined
     value: PromptParameters
     onChange: React.Dispatch<React.SetStateAction<PromptParameters>>
 }) {
-    const { script, value, onChange } = props
+    const script = useScript()
+    const { value, onChange } = props
     if (!script?.parameters) return null
 
     const properties = useMemo(() => {
@@ -217,33 +305,8 @@ function WebApp() {
     return (
         <>
             <form onSubmit={handleSubmit}>
-                <VscodeFormContainer>
-                    <VscodeFormGroup>
-                        <VscodeLabel>Script</VscodeLabel>
-                        <VscodeSingleSelect
-                            value={scriptid || ""}
-                            onChange={(e) => {
-                                const target = e.target as HTMLSelectElement
-                                setScriptid(target.value)
-                            }}
-                        >
-                            {scripts.map(({ id, title }) => (
-                                <VscodeOption value={id} description={title}>
-                                    {id}
-                                </VscodeOption>
-                            ))}
-                        </VscodeSingleSelect>
-                        <VscodeFormHelper>
-                            Select a GenAIScript to run
-                        </VscodeFormHelper>
-                    </VscodeFormGroup>
-                </VscodeFormContainer>
-                <ScriptPreview script={script} />
-                <PromptParametersForm
-                    script={script}
-                    value={formData}
-                    onChange={setFormData}
-                />
+                <ScriptSelect />
+                <PromptParametersForm value={formData} onChange={setFormData} />
                 {script && (
                     <VscodeFormContainer>
                         <VscodeButton type="submit">
@@ -253,6 +316,7 @@ function WebApp() {
                 )}
             </form>
             <TraceView markdown={markdown} />
+            <ScriptPreview />
         </>
     )
 }
@@ -260,7 +324,7 @@ function WebApp() {
 export default function App() {
     return (
         <ApiProvider>
-            <Suspense fallback={<h1>Loading...</h1>}>
+            <Suspense fallback={<VscodeProgressRing />}>
                 <WebApp />
             </Suspense>
         </ApiProvider>
