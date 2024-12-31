@@ -125,6 +125,27 @@ export async function startServer(options: {
         return true
     }
 
+    const serverVersion = () =>
+        <ServerResponse>{
+            ok: true,
+            version: CORE_VERSION,
+            node: process.version,
+            platform: process.platform,
+            arch: process.arch,
+            pid: process.pid,
+        }
+
+    const scriptList = async () => {
+        logVerbose(`project: list scripts`)
+        const project = await buildProject()
+        logVerbose(`project: found ${project?.scripts?.length || 0} scripts`)
+        return <promptScriptListResponse>{
+            ok: true,
+            status: 0,
+            project,
+        }
+    }
+
     // Configures the client language model with a completer function.
     host.clientLanguageModel = Object.freeze<LanguageModel>({
         id: MODEL_PROVIDER_CLIENT,
@@ -210,14 +231,7 @@ export async function startServer(options: {
                     // Handle version request
                     case "server.version": {
                         logVerbose(`server: version ${CORE_VERSION}`)
-                        response = <ServerResponse>{
-                            ok: true,
-                            version: CORE_VERSION,
-                            node: process.version,
-                            platform: process.platform,
-                            arch: process.arch,
-                            pid: process.pid,
-                        }
+                        response = serverVersion()
                         break
                     }
                     // Handle environment request
@@ -257,16 +271,7 @@ export async function startServer(options: {
                         break
                     }
                     case "script.list": {
-                        logVerbose(`project: list scripts`)
-                        const project = await buildProject()
-                        logVerbose(
-                            `project: found ${project?.scripts?.length || 0} scripts`
-                        )
-                        response = <promptScriptListResponse>{
-                            ok: true,
-                            status: 0,
-                            project,
-                        }
+                        response = await scriptList()
                         break
                     }
                     // Handle test run request
@@ -417,29 +422,48 @@ export async function startServer(options: {
     })
 
     // Create an HTTP server to handle basic requests.
-    const httpServer = http.createServer((req, res) => {
-        if (req.url === "/") {
+    const httpServer = http.createServer(async (req, res) => {
+        const { url } = req
+        if (url === "/") {
             res.setHeader("Content-Type", "text/html")
             res.statusCode = 200
             const filePath = join(__dirname, "index.html")
             const stream = createReadStream(filePath)
             stream.pipe(res)
-        } else if (req.url === "/built/web.mjs") {
+        } else if (url === "/built/web.mjs") {
             res.setHeader("Content-Type", "application/javascript")
             res.statusCode = 200
             const filePath = join(__dirname, "web.mjs")
             const stream = createReadStream(filePath)
             stream.pipe(res)
-        } else if (req.url === "/favicon.svg") {
+        } else if (url === "/favicon.svg") {
             res.setHeader("Content-Type", "image/svg+xml")
             res.statusCode = 200
             const filePath = join(__dirname, "favicon.svg")
             const stream = createReadStream(filePath)
             stream.pipe(res)
         } else {
-            console.debug(`404: ${req.url}`)
-            res.statusCode = 404
-            res.end()
+            // api, validate apikey
+            if (!checkApiKey(req)) {
+                console.debug(`401: missing or invalid api-key`)
+                res.statusCode = 401
+                res.end()
+                return
+            }
+            let response: ResponseStatus
+            if (url === "/api/version") response = serverVersion()
+            else if (url === "/api/scripts") {
+                response = await scriptList()
+            }
+            if (response === undefined) {
+                console.debug(`404: ${url}`)
+                res.statusCode = 404
+                res.end()
+            } else {
+                res.statusCode = 200
+                res.setHeader("Content-Type", "application/json")
+                res.end(JSON.stringify(response))
+            }
         }
     })
     // Upgrade HTTP server to handle WebSocket connections on the /wss route.
