@@ -304,7 +304,13 @@ function JSONSchemaSimpleTypeFormField(props: {
 
 function TraceView() {
     const { trace } = useRunner()
-    return <Markdown>{trace}</Markdown>
+    return (
+        trace && (
+            <VscodeCollapsible title="Trace">
+                <Markdown>{trace}</Markdown>
+            </VscodeCollapsible>
+        )
+    )
 }
 
 function toStringList(...token: (string | undefined | null)[]) {
@@ -445,9 +451,9 @@ function WebApp() {
         <>
             <ScriptSelect />
             <PromptParametersForm />
-            <ScriptPreview />
             <RunnerProvider>
                 <RunButton />
+                <ScriptPreview />
                 <TraceView />
             </RunnerProvider>
         </>
