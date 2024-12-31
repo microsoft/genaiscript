@@ -6,9 +6,7 @@
     "scripts": {
         "compile": "node build.mjs",
         "watch": "node --watch --watch-path=./src build.mjs",
-        "server": "cd .. && node ./cli/built/genaiscript.cjs serve",
         "serve": "serve -n .",
-        "start": "npm run server & npm run watch & npm run serve",
         "typecheck": "tsc --noEmit"
     },
     "devDependencies": {
@@ -23,7 +21,6 @@
         "react-dom": "^18.2.0",
         "react-markdown": "^9.0.1",
         "remark-gfm": "^4.0.0",
-        "serve": "^14.2.4",
         "typescript": "^5.7.2"
     }
 }

@@ -4,12 +4,11 @@ import { PROMPTFOO_VERSION } from "./version"
 import { runScriptInternal } from "./run"
 import { AbortSignalCancellationController } from "../../core/src/cancellation"
 import {
-    WS_SERVER_PORT,
+    SERVER_PORT,
     TRACE_CHUNK,
     USER_CANCELLED_ERROR_CODE,
     UNHANDLED_ERROR_CODE,
     MODEL_PROVIDER_CLIENT,
-    HTTP_SERVER_PORT,
 } from "../../core/src/constants"
 import {
     isCancelError,
@@ -30,7 +29,6 @@ import {
     RequestMessages,
     PromptScriptProgressResponseEvent,
     PromptScriptEndResponseEvent,
-    ShellExecResponse,
     ChatStart,
     ChatChunk,
     ChatCancel,
@@ -46,6 +44,9 @@ import {
 } from "../../core/src/chattypes"
 import { randomHex } from "../../core/src/crypto"
 import { buildProject } from "./build"
+import * as http from "http"
+import { join } from "path"
+import { createReadStream } from "fs"
 
 /**
  * Starts a WebSocket server for handling chat and script execution.
@@ -57,10 +58,10 @@ export async function startServer(options: {
     apiKey?: string
 }) {
     // Parse and set the server port, using a default if not specified.
-    const wsPort = parseInt(options.port) || WS_SERVER_PORT
-    const httpPort = parseInt(options.httpPort) || HTTP_SERVER_PORT
-    const wss = new WebSocketServer({ port: wsPort })
+    const port = parseInt(options.port) || SERVER_PORT
     const apiKey = options.apiKey ?? process.env.GENAISCRIPT_API_KEY
+
+    const wss = new WebSocketServer({ noServer: true })
 
     // Stores active script runs with their cancellation controllers and traces.
     const runs: Record<
@@ -105,6 +106,23 @@ export async function startServer(options: {
             if (chunk.finishReason) delete chats[chunk.chatId]
             await handler(chunk)
         }
+    }
+
+    const checkApiKey = (req: http.IncomingMessage) => {
+        if (apiKey) {
+            const url = req.url.replace(/^[^\?]*\?/, "")
+            const search = new URLSearchParams(url)
+            const hash = search.get("api-key")
+            if (req.headers.authorization !== apiKey && hash !== apiKey) {
+                logError(`clients: connection unauthorized ${url}, ${hash}`)
+                logVerbose(`url:${req.url}`)
+                logVerbose(`api:${apiKey}`)
+                logVerbose(`auth:${req.headers.authorization}`)
+                logVerbose(`hash:${hash}`)
+                return false
+            }
+        }
+        return true
     }
 
     // Configures the client language model with a completer function.
@@ -176,22 +194,7 @@ export async function startServer(options: {
 
     // Manage new WebSocket connections.
     wss.on("connection", function connection(ws, req) {
-        if (apiKey) {
-            const url = req.url.replace(/^[^\?]*\?/, "")
-            const search = new URLSearchParams(url)
-            const hash = search.get("api-key")
-            if (req.headers.authorization !== apiKey && hash !== apiKey) {
-                logError(`clients: connection unauthorized ${url}, ${hash}`)
-                logVerbose(`url:${req.url}`)
-                logVerbose(`api:${apiKey}`)
-                logVerbose(`auth:${req.headers.authorization}`)
-                logVerbose(`hash:${hash}`)
-                ws.close(1008, "Unauthorized")
-                return
-            }
-        }
         logVerbose(`clients: connected (${wss.clients.size} clients)`)
-
         ws.on("error", console.error)
         ws.on("close", () =>
             logVerbose(`clients: closed (${wss.clients.size} clients)`)
@@ -394,33 +397,6 @@ export async function startServer(options: {
                         }
                         break
                     }
-                    // Handle shell execution request
-                    case "shell.exec": {
-                        const {
-                            command,
-                            args = [],
-                            options,
-                            containerId,
-                        } = data
-                        const { cwd } = options || {}
-                        const quoteify = (a: string) =>
-                            /\s/.test(a) ? `"${a}"` : a
-                        logVerbose(
-                            `${cwd ?? ""}>${quoteify(command)} ${args.map(quoteify).join(" ")}`
-                        )
-                        const value = await runtimeHost.exec(
-                            containerId,
-                            command,
-                            args,
-                            options
-                        )
-                        response = <ShellExecResponse>{
-                            value,
-                            ok: !value.failed,
-                            status: value.exitCode,
-                        }
-                        break
-                    }
                     // Handle chat chunk requests
                     case "chat.chunk": {
                         await handleChunk(data)
@@ -440,10 +416,49 @@ export async function startServer(options: {
         })
     })
 
-
-
-    console.log(
-        `GenAIScript server v${CORE_VERSION} started at http://127.0.0.1:${wsPort}/`
-    )
-    if (apiKey) console.debug(`apikey: ${apiKey.slice(0, 4) + "..."}`)
+    // Create an HTTP server to handle basic requests.
+    const httpServer = http.createServer((req, res) => {
+        if (req.url === "/") {
+            res.setHeader("Content-Type", "text/html")
+            res.statusCode = 200
+            const filePath = join(__dirname, "index.html")
+            const stream = createReadStream(filePath)
+            stream.pipe(res)
+        } else if (req.url === "/built/web.mjs") {
+            res.setHeader("Content-Type", "application/javascript")
+            res.statusCode = 200
+            const filePath = join(__dirname, "web.mjs")
+            const stream = createReadStream(filePath)
+            stream.pipe(res)
+        } else if (req.url === "/favicon.svg") {
+            res.setHeader("Content-Type", "image/svg+xml")
+            res.statusCode = 200
+            const filePath = join(__dirname, "favicon.svg")
+            const stream = createReadStream(filePath)
+            stream.pipe(res)
+        } else {
+            console.debug(`404: ${req.url}`)
+            res.statusCode = 404
+            res.end()
+        }
+    })
+    // Upgrade HTTP server to handle WebSocket connections on the /wss route.
+    httpServer.on("upgrade", (req, socket, head) => {
+        const pathname = new URL(req.url, `http://${req.headers.host}`).pathname
+        console.log({ upgrade: pathname })
+        if (pathname === "/" && checkApiKey(req)) {
+            wss.handleUpgrade(req, socket, head, (ws) => {
+                wss.emit("connection", ws, req)
+            })
+        }
+        // abort
+        socket.destroy()
+    })
+    // Start the HTTP server on the specified port.
+    httpServer.listen(port, () => {
+        console.log(
+            `GenAIScript server v${CORE_VERSION} at http://127.0.0.1:${port}/`
+        )
+        if (apiKey) console.debug(`apikey: ${apiKey.slice(0, 4) + "..."}`)
+    })
 }

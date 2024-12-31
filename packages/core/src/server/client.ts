@@ -18,8 +18,6 @@ import {
     PromptScriptTestRun,
     PromptScriptTestRunOptions,
     PromptScriptTestRunResponse,
-    ShellExecResponse,
-    ShellExec,
     PromptScriptRunOptions,
     PromptScriptStart,
     PromptScriptAbort,
@@ -347,22 +345,6 @@ export class WebSocketClient extends EventTarget {
         const res = await this.queue<PromptScriptTestRun>({
             type: "tests.run",
             scripts: script?.id ? [script?.id] : undefined,
-            options,
-        })
-        return res.response
-    }
-
-    async exec(
-        containerId: string,
-        command: string,
-        args: string[],
-        options: ShellOptions
-    ): Promise<ShellExecResponse> {
-        const res = await this.queue<ShellExec>({
-            type: "shell.exec",
-            containerId,
-            command,
-            args,
             options,
         })
         return res.response

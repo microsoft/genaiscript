@@ -19,7 +19,10 @@
     "built/api.mjs",
     "built/runtime.mjs",
     "built/runtime.d.ts",
-    "built/genaiscript.cjs"
+    "built/genaiscript.cjs",
+    "built/web.mjs",
+    "built/index.html",
+    "src/favicon.svg"
   ],
   "publisher": "Microsoft",
   "repository": {
@@ -125,6 +128,7 @@
     "go": "yarn compile && node built/genaiscript.cjs",
     "test": "node --import tsx --test src/**.test.ts",
     "typecheck": "tsc -p src",
-    "lint": "npx --yes publint"
+    "lint": "npx --yes publint",
+    "serve": "node --watch --watch-path=./src --watch-path=../core/src built/genaiscript.cjs serve"
   }
 }

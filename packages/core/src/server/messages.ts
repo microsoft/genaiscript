@@ -151,19 +151,6 @@ export interface PromptScriptProgressResponseEvent {
     inner?: boolean
 }
 
-export interface ShellExecResponse extends ResponseStatus {
-    value: ShellOutput
-}
-
-export interface ShellExec extends RequestMessage {
-    type: "shell.exec"
-    containerId?: string
-    command: string
-    args: string[]
-    options: ShellOptions
-    response?: ShellExecResponse
-}
-
 export interface LanguageModelConfigurationRequest extends RequestMessage {
     type: "model.configuration"
     model: string
@@ -205,7 +192,6 @@ export type RequestMessages =
     | ServerEnv
     | ServerVersion
     | PromptScriptTestRun
-    | ShellExec
     | PromptScriptStart
     | PromptScriptAbort
     | ChatChunk

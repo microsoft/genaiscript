@@ -16,7 +16,7 @@
         "az:login": "az login --scope api://trapi/.default",
         "install:playwright": "yarn install playwright --with-deps",
         "install:force": "rm yarn.lock && yarn install && yarn --cwd docs install:force && yarn --cwd slides install:force && yarn gen:licenses",
-        "compile-ext": "yarn --cwd packages/core run prompts:bundle && yarn --cwd packages/vscode run compile",
+        "compile-ext": "yarn --cwd packages/core run prompts:bundle && yarn --cwd packages/vscode run compile && yarn --cwd packages/web run compile",
         "compile-cli": "yarn --cwd packages/cli run compile",
         "compile": "yarn compile-ext && yarn compile-cli && yarn test:fix",
         "compile-debug": "yarn --cwd packages/cli run compile-debug",
@@ -56,7 +56,7 @@
         "cache:clear": "cd packages/sample/ && yarn cache:clear",
         "test:scripts": "cd packages/sample/ && yarn test:scripts",
         "test:scripts:view": "cd packages/sample/ && yarn test:scripts:view",
-        "serve": "node packages/cli/built/genaiscript.cjs serve",
+        "serve": "yarn --cwd packages/cli serve & yarn --cwd packages/web watch",
         "docs": "cd docs && ./node_modules/.bin/astro telemetry disable && ./node_modules/.bin/astro dev --host",
         "slides": "cd slides && yarn run dev",
         "build:slides": "yarn --cwd slides install --frozen-lockfile --prefer-offline && yarn --cwd slides build",
@@ -80,8 +80,7 @@
         "cli": "node packages/cli/built/genaiscript.cjs",
         "ollama": "yarn ollama:stop && yarn ollama:start",
         "ollama:start": "docker run -d -v ollama:/root/.ollama -p 11434:11434 --name ollama -e OLLAMA_FLASH_ATTENTION=1 -e OLLAMA_KV_CACHE_TYPE=q8_0 ollama/ollama",
-        "ollama:stop": "docker stop ollama && docker rm ollama",
-        "web:start": "yarn --cwd packages/web run start"
+        "ollama:stop": "docker stop ollama && docker rm ollama"
     },
     "release-it": {
         "github": {
