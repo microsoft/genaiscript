@@ -1,6 +1,8 @@
 // src/components/FormField.tsx
 import React, {
     createContext,
+    Dispatch,
+    SetStateAction,
     Suspense,
     use,
     useEffect,
@@ -59,14 +61,38 @@ const ApiContext = createContext<{
     project: Promise<Project | undefined>
     scriptid: string | undefined
     setScriptid: (id: string) => void
+    parameters: PromptParameters
+    setParameters: Dispatch<SetStateAction<PromptParameters>>
+    trace: string
+    setTrace: Dispatch<SetStateAction<string>>
+    run: () => void
 } | null>(null)
 
 function ApiProvider({ children }: { children: React.ReactNode }) {
     const [project, setProject] = useState<Promise<Project>>(fetchScripts())
     const [scriptid, setScriptid] = useState<string | undefined>(undefined)
+    const [parameters, setParameters] = useState<PromptParameters>({})
+    const [trace, setTrace] = useState<string>("")
+
+    useEffect(() => {
+        setParameters({})
+    }, [JSON.stringify(parameters), JSON.stringify(project)])
+
+    const run = () => {}
 
     return (
-        <ApiContext.Provider value={{ project, scriptid, setScriptid }}>
+        <ApiContext.Provider
+            value={{
+                project,
+                scriptid,
+                setScriptid,
+                parameters,
+                setParameters,
+                trace,
+                setTrace,
+                run,
+            }}
+        >
             {children}
         </ApiContext.Provider>
     )
@@ -95,7 +121,13 @@ function useScript() {
 
 function GenAIScriptLogo(props: { height: string }) {
     const { height } = props
-    return <img alt="GenAIScript logo" src="/favicon.svg" style={{ height, borderRadius: "2px" }} />
+    return (
+        <img
+            alt="GenAIScript logo"
+            src="/favicon.svg"
+            style={{ height, borderRadius: "2px" }}
+        />
+    )
 }
 
 function JSONSchemaSimpleTypeFormField(props: {
@@ -162,9 +194,9 @@ function JSONSchemaSimpleTypeFormField(props: {
     }
 }
 
-function TraceView(props: { markdown: string }) {
-    const { markdown } = props
-    return <Markdown>{markdown}</Markdown>
+function TraceView() {
+    const { trace } = useApi()
+    return <Markdown>{trace}</Markdown>
 }
 
 function toStringList(...token: (string | undefined | null)[]) {
@@ -234,14 +266,11 @@ ${JSON.stringify(rest, null, 2)}
     )
 }
 
-function PromptParametersForm(props: {
-    value: PromptParameters
-    onChange: React.Dispatch<React.SetStateAction<PromptParameters>>
-}) {
+function PromptParametersForm() {
     const script = useScript()
-    const { value, onChange } = props
     if (!script?.parameters) return null
 
+    const { parameters: value, setParameters: onChange } = useApi()
     const properties = useMemo(() => {
         const schema = promptParametersSchemaToJSONSchema(
             script.parameters
@@ -284,39 +313,34 @@ function PromptParametersForm(props: {
     )
 }
 
+function RunButton() {
+    const api = useApi()
+    const { scriptid, run } = api
+
+    return (
+        scriptid && (
+            <VscodeFormContainer>
+                <VscodeButton type="submit">Run</VscodeButton>
+            </VscodeFormContainer>
+        )
+    )
+}
+
 function WebApp() {
-    const api = use(ApiContext)
-    if (!api) throw new Error("missing content")
-
-    const project = use(api.project)
-    const scripts = project?.scripts?.filter((s) => !s.isSystem) || []
-    const { scriptid, setScriptid } = api
-    const script = scripts.find((s) => s.id === scriptid)
-
-    const [formData, setFormData] = useState<PromptParameters>({})
-    const [markdown, setMarkdown] = useState<string>("")
-
+    const { run } = useApi()
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault()
-        const markdownOutput = Object.entries(formData)
-            .map(([key, value]) => `### ${key}\n${value}`)
-            .join("\n\n")
-        setMarkdown(markdownOutput)
+        run()
     }
-
     return (
         <>
             <form onSubmit={handleSubmit}>
                 <ScriptSelect />
-                <PromptParametersForm value={formData} onChange={setFormData} />
+                <PromptParametersForm />
                 <ScriptPreview />
-                {script && (
-                    <VscodeFormContainer>
-                        <VscodeButton type="submit">Run</VscodeButton>
-                    </VscodeFormContainer>
-                )}
+                <RunButton />
             </form>
-            <TraceView markdown={markdown} />
+            <TraceView />
         </>
     )
 }
