@@ -5,9 +5,8 @@ import { NotSupportedError } from "./error"
 import {
     promptParameterTypeToJSONSchema,
     promptParametersSchemaToJSONSchema,
-    proxifyVars,
-    parametersToVars,
 } from "./parameters"
+import { parametersToVars, proxifyVars } from "./vars"
 
 describe("promptParameterTypeToJSONSchema", () => {
     test("string type", () => {

@@ -27,10 +27,7 @@ import {
 } from "./promptdom"
 import { MarkdownTrace } from "./trace"
 import { GenerationOptions } from "./generation"
-import {
-    parametersToVars,
-    promptParametersSchemaToJSONSchema,
-} from "./parameters"
+import { promptParametersSchemaToJSONSchema } from "./parameters"
 import { consoleLogFormat, stdout } from "./logging"
 import { isGlobMatch } from "./glob"
 import {
@@ -81,6 +78,7 @@ import { writeFileEdits } from "./fileedits"
 import { agentAddMemory, agentQueryMemory } from "./agent"
 import { YAMLStringify } from "./yaml"
 import { Project } from "./server/messages"
+import { parametersToVars } from "./vars"
 
 export function createChatTurnGenerationContext(
     options: GenerationOptions,

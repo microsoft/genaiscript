@@ -107,7 +107,7 @@ export interface PromptScriptList extends RequestMessage {
     type: "script.list"
 }
 
-export interface promptScriptListResponse extends ResponseStatus {
+export interface PromptScriptListResponse extends ResponseStatus {
     project: Project
 }
 

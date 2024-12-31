@@ -33,7 +33,7 @@ import {
     ChatChunk,
     ChatCancel,
     LanguageModelConfigurationResponse,
-    promptScriptListResponse,
+    PromptScriptListResponse,
 } from "../../core/src/server/messages"
 import { envInfo } from "./info"
 import { LanguageModel } from "../../core/src/chat"
@@ -47,6 +47,7 @@ import { buildProject } from "./build"
 import * as http from "http"
 import { join } from "path"
 import { createReadStream } from "fs"
+import { URL } from "url"
 
 /**
  * Starts a WebSocket server for handling chat and script execution.
@@ -109,20 +110,20 @@ export async function startServer(options: {
     }
 
     const checkApiKey = (req: http.IncomingMessage) => {
-        if (apiKey) {
-            const url = req.url.replace(/^[^\?]*\?/, "")
-            const search = new URLSearchParams(url)
-            const hash = search.get("api-key")
-            if (req.headers.authorization !== apiKey && hash !== apiKey) {
-                logError(`clients: connection unauthorized ${url}, ${hash}`)
-                logVerbose(`url:${req.url}`)
-                logVerbose(`api:${apiKey}`)
-                logVerbose(`auth:${req.headers.authorization}`)
-                logVerbose(`hash:${hash}`)
-                return false
-            }
-        }
-        return true
+        if (!apiKey) return true
+        if (req.headers.authorization !== apiKey) return true
+
+        const url = req.url.replace(/^[^\?]*\?/, "")
+        const search = new URLSearchParams(url)
+        const hash = search.get("api-key")
+        if (hash === apiKey) return true
+
+        logError(`clients: connection unauthorized ${url}, ${hash}`)
+        logVerbose(`url:${req.url}`)
+        logVerbose(`api:${apiKey}`)
+        logVerbose(`auth:${req.headers.authorization}`)
+        logVerbose(`hash:${hash}`)
+        return false
     }
 
     const serverVersion = () =>
@@ -139,7 +140,7 @@ export async function startServer(options: {
         logVerbose(`project: list scripts`)
         const project = await buildProject()
         logVerbose(`project: found ${project?.scripts?.length || 0} scripts`)
-        return <promptScriptListResponse>{
+        return <PromptScriptListResponse>{
             ok: true,
             status: 0,
             project,
@@ -424,19 +425,26 @@ export async function startServer(options: {
     // Create an HTTP server to handle basic requests.
     const httpServer = http.createServer(async (req, res) => {
         const { url } = req
-        if (url === "/") {
+        const route = url
+        if (route === "/") {
             res.setHeader("Content-Type", "text/html")
             res.statusCode = 200
             const filePath = join(__dirname, "index.html")
             const stream = createReadStream(filePath)
             stream.pipe(res)
-        } else if (url === "/built/web.mjs") {
+        } else if (route === "/built/web.mjs") {
             res.setHeader("Content-Type", "application/javascript")
             res.statusCode = 200
             const filePath = join(__dirname, "web.mjs")
             const stream = createReadStream(filePath)
             stream.pipe(res)
-        } else if (url === "/favicon.svg") {
+        } else if (route === "/built/web.mjs.map") {
+            res.setHeader("Content-Type", "text/json")
+            res.statusCode = 200
+            const filePath = join(__dirname, "web.mjs.map")
+            const stream = createReadStream(filePath)
+            stream.pipe(res)
+        } else if (route === "/favicon.svg") {
             res.setHeader("Content-Type", "image/svg+xml")
             res.statusCode = 200
             const filePath = join(__dirname, "favicon.svg")
@@ -451,8 +459,8 @@ export async function startServer(options: {
                 return
             }
             let response: ResponseStatus
-            if (url === "/api/version") response = serverVersion()
-            else if (url === "/api/scripts") {
+            if (route === "/api/version") response = serverVersion()
+            else if (route === "/api/scripts") {
                 response = await scriptList()
             }
             if (response === undefined) {
@@ -481,8 +489,7 @@ export async function startServer(options: {
     // Start the HTTP server on the specified port.
     httpServer.listen(port, () => {
         console.log(
-            `GenAIScript server v${CORE_VERSION} at http://127.0.0.1:${port}/`
+            `GenAIScript server v${CORE_VERSION} at http://127.0.0.1:${port}/${apiKey ? `#api-key:${encodeURIComponent(apiKey)}` : ""}`
         )
-        if (apiKey) console.debug(`apikey: ${apiKey.slice(0, 4) + "..."}`)
     })
 }
