@@ -14,7 +14,7 @@ import {
 import Markdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 
-function FormField(props: {
+function JSONSchemaSimpleTypeFormField(props: {
     field: JSONSchemaSimpleType
     value: string | boolean | number | object
     onChange: (value: string | boolean | number | object) => void
@@ -89,7 +89,7 @@ export default function JSONForm(props: { schema: JSONSchemaObject }) {
     const [formData, setFormData] = useState<PromptParameters>({})
     const [markdown, setMarkdown] = useState<string>("")
 
-    const handleSubmit = (e: React.EventHandler) => {
+    const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault()
         const markdownOutput = Object.entries(formData)
             .map(([key, value]) => `### ${key}\n${value}`)
@@ -114,7 +114,7 @@ export default function JSONForm(props: { schema: JSONSchemaObject }) {
                     {Object.entries(properties).map(([fieldName, field]) => (
                         <VscodeFormGroup key={fieldName}>
                             <VscodeLabel>{fieldName}</VscodeLabel>
-                            <FormField
+                            <JSONSchemaSimpleTypeFormField
                                 field={field}
                                 value={formData[fieldName]}
                                 onChange={(value) =>

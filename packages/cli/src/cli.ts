@@ -33,11 +33,12 @@ import {
     RUNTIME_ERROR_CODE,
     TOOL_ID,
     TOOL_NAME,
-    SERVER_PORT,
+    WS_SERVER_PORT,
     OPENAI_MAX_RETRY_DELAY,
     OPENAI_RETRY_DEFAULT_DEFAULT,
     OPENAI_MAX_RETRY_COUNT,
     MODEL_PROVIDERS,
+    HTTP_SERVER_PORT,
 } from "../../core/src/constants" // Core constants
 import {
     errorMessage,
@@ -200,7 +201,8 @@ export async function cli() {
     // Define 'test' command group for running tests
     const test = program.command("test")
 
-    const testRun = test.command("run", { isDefault: true })
+    const testRun = test
+        .command("run", { isDefault: true })
         .description("Runs the tests for scripts")
         .argument(
             "[script...]",
@@ -354,7 +356,11 @@ export async function cli() {
         .description("Start a GenAIScript local server")
         .option(
             "-p, --port <number>",
-            `Specify the port number, default: ${SERVER_PORT}`
+            `Specify the websocket port number, default: ${WS_SERVER_PORT}`
+        )
+        .option(
+            "-hp, --http-port <number>",
+            `Specify the http port number, default: ${HTTP_SERVER_PORT}`
         )
         .option("-k, --api-key <string>", "API key to authenticate requests")
         .action(startServer) // Action to start the server

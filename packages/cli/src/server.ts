@@ -4,11 +4,12 @@ import { PROMPTFOO_VERSION } from "./version"
 import { runScriptInternal } from "./run"
 import { AbortSignalCancellationController } from "../../core/src/cancellation"
 import {
-    SERVER_PORT,
+    WS_SERVER_PORT,
     TRACE_CHUNK,
     USER_CANCELLED_ERROR_CODE,
     UNHANDLED_ERROR_CODE,
     MODEL_PROVIDER_CLIENT,
+    HTTP_SERVER_PORT,
 } from "../../core/src/constants"
 import {
     isCancelError,
@@ -50,10 +51,16 @@ import { buildProject } from "./build"
  * Starts a WebSocket server for handling chat and script execution.
  * @param options - Configuration options including port and optional API key.
  */
-export async function startServer(options: { port: string; apiKey?: string }) {
+export async function startServer(options: {
+    port: string
+    httpPort?: string
+    apiKey?: string
+}) {
     // Parse and set the server port, using a default if not specified.
-    const port = parseInt(options.port) || SERVER_PORT
-    const wss = new WebSocketServer({ port })
+    const wsPort = parseInt(options.port) || WS_SERVER_PORT
+    const httpPort = parseInt(options.httpPort) || HTTP_SERVER_PORT
+    const wss = new WebSocketServer({ port: wsPort })
+    const apiKey = options.apiKey ?? process.env.GENAISCRIPT_API_KEY
 
     // Stores active script runs with their cancellation controllers and traces.
     const runs: Record<
@@ -169,7 +176,6 @@ export async function startServer(options: { port: string; apiKey?: string }) {
 
     // Manage new WebSocket connections.
     wss.on("connection", function connection(ws, req) {
-        const apiKey = options.apiKey ?? process.env.GENAISCRIPT_API_KEY
         if (apiKey) {
             const url = req.url.replace(/^[^\?]*\?/, "")
             const search = new URLSearchParams(url)
@@ -433,5 +439,11 @@ export async function startServer(options: { port: string; apiKey?: string }) {
             }
         })
     })
-    console.log(`GenAIScript server v${CORE_VERSION} started on port ${port}`)
+
+
+
+    console.log(
+        `GenAIScript server v${CORE_VERSION} started at http://127.0.0.1:${wsPort}/`
+    )
+    if (apiKey) console.debug(`apikey: ${apiKey.slice(0, 4) + "..."}`)
 }

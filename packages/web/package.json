@@ -4,10 +4,12 @@
     "license": "MIT",
     "private": true,
     "scripts": {
-        "build": "node build.js",
-        "start": "npm run build && serve .",
-        "type-check": "tsc --noEmit",
-        "type-check:watch": "tsc --noEmit --watch"
+        "compile": "node build.mjs",
+        "watch": "node --watch --watch-path=./src build.mjs",
+        "server": "cd .. && node ./cli/built/genaiscript.cjs serve",
+        "serve": "serve -n .",
+        "start": "npm run server & npm run watch & npm run serve",
+        "typecheck": "tsc --noEmit"
     },
     "devDependencies": {
         "@types/marked": "^6.0.0",
