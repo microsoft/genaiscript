@@ -126,18 +126,19 @@ const ApiContext = createContext<{
     setScriptid: (id: string) => void
     parameters: PromptParameters
     setParameters: Dispatch<SetStateAction<PromptParameters>>
+    options: ModelOptions
+    setOptions: Dispatch<SetStateAction<ModelOptions>>
 } | null>(null)
 
 function ApiProvider({ children }: { children: React.ReactNode }) {
     const [project, setProject] = useState<Promise<Project>>(fetchScripts())
     const [scriptid, setScriptid] = useState<string | undefined>(undefined)
     const [parameters, setParameters] = useState<PromptParameters>({})
-    const [options, setOptions] = useState<ModelConnectionOptions>({})
+    const [options, setOptions] = useState<ModelOptions>({})
 
-    console.log({ scriptid })
+    console.log({ api: scriptid })
     useEffect(() => {
         setParameters({})
-        setOptions({})
     }, [scriptid])
 
     return (
@@ -148,6 +149,8 @@ function ApiProvider({ children }: { children: React.ReactNode }) {
                 setScriptid,
                 parameters,
                 setParameters,
+                options,
+                setOptions,
             }}
         >
             {children}
@@ -238,6 +241,38 @@ function GenAIScriptLogo(props: { height: string }) {
     )
 }
 
+function JSONSchemaNumber(props: {
+    schema: JSONSchemaNumber
+    value: number
+    onChange: (value: number) => void
+}) {
+    const { schema, value, onChange } = props
+    const required = schema.default === undefined
+    const [valueText, setValueText] = useState(
+        isNaN(value) ? "" : String(value)
+    )
+
+    useEffect(() => {
+        const v =
+            schema.type === "number"
+                ? parseFloat(valueText)
+                : parseInt(valueText)
+        if (!isNaN(v) && v !== value) onChange(v)
+    }, [valueText])
+
+    return (
+        <VscodeTextfield
+            value={valueText}
+            required={required}
+            placeholder={schema.default + ""}
+            onChange={(e) => {
+                const target = e.target as HTMLInputElement
+                startTransition(() => setValueText(target.value))
+            }}
+        />
+    )
+}
+
 function JSONSchemaSimpleTypeFormField(props: {
     field: JSONSchemaSimpleType
     value: string | boolean | number | object
@@ -247,6 +282,15 @@ function JSONSchemaSimpleTypeFormField(props: {
     const required = field.default === undefined
 
     switch (field.type) {
+        case "number":
+        case "integer":
+            return (
+                <JSONSchemaNumber
+                    schema={field}
+                    value={Number(value)}
+                    onChange={onChange}
+                />
+            )
         case "string":
             if (field.enum) {
                 return (
@@ -300,6 +344,43 @@ function JSONSchemaSimpleTypeFormField(props: {
                 />
             )
     }
+}
+
+function JSONSchemaObjectForm(props: {
+    schema: JSONSchemaObject
+    value: any
+    onChange: Dispatch<SetStateAction<any>>
+}) {
+    const { schema, value, onChange } = props
+    const properties: Record<string, JSONSchemaSimpleType> =
+        schema.properties ?? ({} as any)
+
+    const handleFieldChange = (fieldName: string, value: any) => {
+        onChange((prev: any) => ({
+            ...prev,
+            [fieldName]: value,
+        }))
+    }
+
+    return (
+        <VscodeFormContainer>
+            {Object.entries(properties).map(([fieldName, field]) => (
+                <VscodeFormGroup key={fieldName}>
+                    <VscodeLabel>{fieldName}</VscodeLabel>
+                    <JSONSchemaSimpleTypeFormField
+                        field={field}
+                        value={value[fieldName]}
+                        onChange={(value) =>
+                            handleFieldChange(fieldName, value)
+                        }
+                    />
+                    {field?.description && (
+                        <VscodeFormHelper>{field.description}</VscodeFormHelper>
+                    )}
+                </VscodeFormGroup>
+            ))}
+        </VscodeFormContainer>
+    )
 }
 
 function TraceView() {
@@ -384,46 +465,47 @@ function PromptParametersForm() {
     const script = useScript()
     if (!script?.parameters) return null
 
-    const { parameters: value, setParameters: onChange } = useApi()
-    const properties = useMemo(() => {
-        const schema = promptParametersSchemaToJSONSchema(
-            script.parameters
-        ) as JSONSchemaObject
-        const properties = (schema?.properties || {}) as Record<
-            string,
-            JSONSchemaSimpleType
-        >
-        return properties
-    }, [script])
-
-    const handleFieldChange = (
-        fieldName: string,
-        value: string | boolean | number | object
-    ) => {
-        onChange((prev) => ({
-            ...prev,
-            [fieldName]: value,
-        }))
-    }
+    const { parameters, setParameters } = useApi()
+    const schema = useMemo(
+        () =>
+            promptParametersSchemaToJSONSchema(
+                script.parameters
+            ) as JSONSchemaObject,
+        [script]
+    )
 
     return (
-        <VscodeFormContainer>
-            {Object.entries(properties).map(([fieldName, field]) => (
-                <VscodeFormGroup key={fieldName}>
-                    <VscodeLabel>{fieldName}</VscodeLabel>
-                    <JSONSchemaSimpleTypeFormField
-                        field={field}
-                        value={value[fieldName]}
-                        onChange={(value) =>
-                            handleFieldChange(fieldName, value)
-                        }
-                    />
-                    {field?.description && (
-                        <VscodeFormHelper>{field.description}</VscodeFormHelper>
-                    )}
-                </VscodeFormGroup>
-            ))}
-        </VscodeFormContainer>
+        <JSONSchemaObjectForm
+            schema={schema}
+            value={parameters}
+            onChange={setParameters}
+        />
+    )
+}
+
+function ModelConnectionOptionsForm() {
+    const { scriptid, options, setOptions } = useApi()
+    if (!scriptid) return null
+
+    const schema: JSONSchemaObject = {
+        type: "object",
+        properties: {
+            temperature: {
+                type: "number",
+                minimum: 0,
+                maximum: 2,
+                default: 0.8,
+            },
+        },
+    }
+    return (
+        <VscodeCollapsible title="Options">
+            <JSONSchemaObjectForm
+                schema={schema}
+                value={options}
+                onChange={setOptions}
+            />
+        </VscodeCollapsible>
     )
 }
 
@@ -453,6 +535,7 @@ function WebApp() {
             <PromptParametersForm />
             <RunnerProvider>
                 <RunButton />
+                <ModelConnectionOptionsForm />
                 <ScriptPreview />
                 <TraceView />
             </RunnerProvider>
