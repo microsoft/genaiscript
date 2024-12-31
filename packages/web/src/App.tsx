@@ -122,40 +122,87 @@ function TraceView(props: { markdown: string }) {
     return <Markdown>{markdown}</Markdown>
 }
 
-function ScriptPreview(props: { script: PromptScript }) {
+function ScriptPreview(props: { script: PromptScript | undefined }) {
     const { script } = props
     if (!script) return null
 
-    const { jsSource, ...rest } = script
+    const { jsSource, text, ...rest } = script
     return (
         <Markdown>
-            `### ${script.id}- ${script.id}- ${script.filename}
+            {`### ${script.id}
+
+${script.description || ""}
+
+- ${script.filename}
+
 \`\`\`json 
 ${JSON.stringify(rest, null, 2)}
-\`\`\`
+\`\`\` 
 
-`
+`}
         </Markdown>
+    )
+}
+
+function PromptParametersForm(props: {
+    script: PromptScript | undefined
+    value: PromptParameters
+    onChange: React.Dispatch<React.SetStateAction<PromptParameters>>
+}) {
+    const { script, value, onChange } = props
+    if (!script?.parameters) return null
+
+    const properties = useMemo(() => {
+        const schema = promptParametersSchemaToJSONSchema(
+            script.parameters
+        ) as JSONSchemaObject
+        const properties = (schema?.properties || {}) as Record<
+            string,
+            JSONSchemaSimpleType
+        >
+        return properties
+    }, [script])
+
+    const handleFieldChange = (
+        fieldName: string,
+        value: string | boolean | number | object
+    ) => {
+        onChange((prev) => ({
+            ...prev,
+            [fieldName]: value,
+        }))
+    }
+
+    return (
+        <VscodeFormContainer>
+            {Object.entries(properties).map(([fieldName, field]) => (
+                <VscodeFormGroup key={fieldName}>
+                    <VscodeLabel>{fieldName}</VscodeLabel>
+                    <JSONSchemaSimpleTypeFormField
+                        field={field}
+                        value={value[fieldName]}
+                        onChange={(value) =>
+                            handleFieldChange(fieldName, value)
+                        }
+                    />
+                    {field?.description && (
+                        <VscodeFormHelper>{field.description}</VscodeFormHelper>
+                    )}
+                </VscodeFormGroup>
+            ))}
+        </VscodeFormContainer>
     )
 }
 
 function WebApp() {
     const api = use(ApiContext)
     if (!api) throw new Error("missing content")
+
     const project = use(api.project)
-    const scripts = project?.scripts?.filter(s => !s.isSystem) || []
+    const scripts = project?.scripts?.filter((s) => !s.isSystem) || []
     const { scriptid, setScriptid } = api
-    console.log({ scriptid })
     const script = scripts.find((s) => s.id === scriptid)
-    console.log({ script })
-    const schema = promptParametersSchemaToJSONSchema(
-        script?.parameters
-    ) as JSONSchemaObject
-    console.log({ schema })
-    const properties = (schema?.properties || {}) as Record<
-        string,
-        JSONSchemaSimpleType
-    >
+
     const [formData, setFormData] = useState<PromptParameters>({})
     const [markdown, setMarkdown] = useState<string>("")
 
@@ -165,16 +212,6 @@ function WebApp() {
             .map(([key, value]) => `### ${key}\n${value}`)
             .join("\n\n")
         setMarkdown(markdownOutput)
-    }
-
-    const handleFieldChange = (
-        fieldName: string,
-        value: string | boolean | number | object
-    ) => {
-        setFormData((prev) => ({
-            ...prev,
-            [fieldName]: value,
-        }))
     }
 
     return (
@@ -187,7 +224,6 @@ function WebApp() {
                             value={scriptid || ""}
                             onChange={(e) => {
                                 const target = e.target as HTMLSelectElement
-                                console.log(target.value)
                                 setScriptid(target.value)
                             }}
                         >
@@ -202,26 +238,12 @@ function WebApp() {
                         </VscodeFormHelper>
                     </VscodeFormGroup>
                 </VscodeFormContainer>
-                {script && <ScriptPreview script={script} />}
-                <VscodeFormContainer>
-                    {Object.entries(properties).map(([fieldName, field]) => (
-                        <VscodeFormGroup key={fieldName}>
-                            <VscodeLabel>{fieldName}</VscodeLabel>
-                            <JSONSchemaSimpleTypeFormField
-                                field={field}
-                                value={formData[fieldName]}
-                                onChange={(value) =>
-                                    handleFieldChange(fieldName, value)
-                                }
-                            />
-                            {field?.description && (
-                                <VscodeFormHelper>
-                                    {field.description}
-                                </VscodeFormHelper>
-                            )}
-                        </VscodeFormGroup>
-                    ))}
-                </VscodeFormContainer>
+                <ScriptPreview script={script} />
+                <PromptParametersForm
+                    script={script}
+                    value={formData}
+                    onChange={setFormData}
+                />
                 {script && (
                     <VscodeFormContainer>
                         <VscodeButton type="submit">

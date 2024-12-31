@@ -16,5 +16,6 @@ await build({
     },
 })
 await cp("./built/web.mjs", "../cli/built/web.mjs")
+await cp("./built/web.mjs.map", "../cli/built/web.mjs.map")
 await cp("./index.html", "../cli/built/index.html")
 await cp("./favicon.svg", "../cli/built/favicon.svg")
