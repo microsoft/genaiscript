@@ -18,6 +18,7 @@ import {
     VscodeFormHelper,
     VscodeLabel,
     VscodeProgressRing,
+    VscodeCollapsible,
 } from "@vscode-elements/react-elements"
 import Markdown from "./Markdown"
 import type {
@@ -173,11 +174,7 @@ function ScriptFormHelper() {
     return (
         <VscodeFormHelper>
             {script
-                ? toStringList(
-                      script.title,
-                      script.description,
-                      script.filename
-                  )
+                ? toStringList(script.title, script.description)
                 : `Select a GenAIScript to run`}
         </VscodeFormHelper>
     )
@@ -216,19 +213,17 @@ function ScriptPreview() {
 
     const { jsSource, text, ...rest } = script
     return (
-        <Markdown>
-            {`### ${script.id}
-
-${script.description || ""}
-
-- ${script.filename}
+        <VscodeCollapsible title="Details">
+            <Markdown>
+                {`- ${script.filename || "builtin"}
 
 \`\`\`json 
 ${JSON.stringify(rest, null, 2)}
 \`\`\` 
 
 `}
-        </Markdown>
+            </Markdown>
+        </VscodeCollapsible>
     )
 }
 
@@ -307,16 +302,16 @@ function WebApp() {
             <form onSubmit={handleSubmit}>
                 <ScriptSelect />
                 <PromptParametersForm value={formData} onChange={setFormData} />
+                <ScriptPreview />
                 {script && (
                     <VscodeFormContainer>
                         <VscodeButton type="submit">
-                            Generate Markdown
+                            Run
                         </VscodeButton>
                     </VscodeFormContainer>
                 )}
             </form>
             <TraceView markdown={markdown} />
-            <ScriptPreview />
         </>
     )
 }
