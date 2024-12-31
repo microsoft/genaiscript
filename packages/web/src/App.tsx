@@ -93,6 +93,11 @@ function useScript() {
     return scripts.find((s) => s.id === scriptid)
 }
 
+function GenAIScriptLogo(props: { height: string }) {
+    const { height } = props
+    return <img alt="GenAIScript logo" src="/favicon.svg" style={{ height, borderRadius: "2px" }} />
+}
+
 function JSONSchemaSimpleTypeFormField(props: {
     field: JSONSchemaSimpleType
     value: string | boolean | number | object
@@ -187,7 +192,9 @@ function ScriptSelect(props: {}) {
     return (
         <VscodeFormContainer>
             <VscodeFormGroup>
-                <VscodeLabel>Script</VscodeLabel>
+                <VscodeLabel style={{ padding: 0 }}>
+                    <GenAIScriptLogo height="2em" />
+                </VscodeLabel>
                 <VscodeSingleSelect
                     value={scriptid || ""}
                     onChange={(e) => {
@@ -305,9 +312,7 @@ function WebApp() {
                 <ScriptPreview />
                 {script && (
                     <VscodeFormContainer>
-                        <VscodeButton type="submit">
-                            Run
-                        </VscodeButton>
+                        <VscodeButton type="submit">Run</VscodeButton>
                     </VscodeFormContainer>
                 )}
             </form>
