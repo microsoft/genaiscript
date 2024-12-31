@@ -482,9 +482,7 @@ export async function startServer(options: {
             wss.handleUpgrade(req, socket, head, (ws) => {
                 wss.emit("connection", ws, req)
             })
-        }
-        // abort
-        socket.destroy()
+        } else socket.destroy()
     })
     // Start the HTTP server on the specified port.
     httpServer.listen(port, () => {

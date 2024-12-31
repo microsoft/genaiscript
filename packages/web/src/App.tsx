@@ -3,6 +3,7 @@ import React, {
     createContext,
     Dispatch,
     SetStateAction,
+    startTransition,
     Suspense,
     use,
     useEffect,
@@ -26,6 +27,10 @@ import Markdown from "./Markdown"
 import type {
     Project,
     PromptScriptListResponse,
+    PromptScriptProgressResponseEvent,
+    PromptScriptResponseEvents,
+    PromptScriptStart,
+    RequestMessage,
 } from "../../core/src/server/messages"
 import {
     promptParametersSchemaToJSONSchema,
@@ -36,15 +41,6 @@ import { useSearchParams } from "./useSearchParam"
 const urlParams = new URLSearchParams(window.location.hash)
 const apiKey = urlParams.get("api-key")
 window.location.hash = ""
-
-const ws = new WebSocket(`/?api-key=${apiKey}`)
-ws.addEventListener(
-    "open",
-    () => {
-        console.log(`ws: connected`)
-    },
-    false
-)
 
 const fetchScripts = async (): Promise<Project> => {
     const res = await fetch(`/api/scripts`, {
@@ -57,28 +53,92 @@ const fetchScripts = async (): Promise<Project> => {
     return j.project
 }
 
+class RunClient {
+    ws?: WebSocket
+    runId: string
+    constructor(
+        readonly script: string,
+        readonly files: string[],
+        readonly options: any,
+        readonly appendTrace: (delta: string) => void
+    ) {
+        this.runId = "" + Math.random()
+        this.ws = new WebSocket(`/?api-key=${apiKey}`)
+        this.ws.addEventListener(
+            "open",
+            () => {
+                console.log(`run ${this.runId}: open`)
+                const id = "" + Math.random()
+                const files: string[] = []
+
+                this.ws?.send(
+                    JSON.stringify({
+                        id,
+                        type: "script.start",
+                        runId: this.runId,
+                        script,
+                        files,
+                        options,
+                    } satisfies PromptScriptStart)
+                )
+                console.log({ ws: this.ws })
+            },
+            false
+        )
+        this.ws.addEventListener("message", (ev) => {
+            const data: PromptScriptResponseEvents = JSON.parse(ev.data)
+            switch (data.type) {
+                case "script.progress": {
+                    if (data.trace) this.appendTrace(data.trace)
+                    break
+                }
+            }
+        })
+        this.ws.addEventListener("error", (err) => {
+            console.log(`run ${this.runId}: error`)
+            console.error(err)
+        })
+        this.ws.addEventListener("close", (ev) => {
+            console.log(`run ${this.runId}: close, ${ev.reason}`)
+        })
+    }
+
+    close() {
+        console.trace(`client: close`)
+        const ws = this.ws
+        if (ws) {
+            this.ws = undefined
+            ws.send(
+                JSON.stringify({
+                    id: "" + Math.random(),
+                    type: "script.abort",
+                    runId: this.runId,
+                })
+            )
+            ws.close()
+        }
+    }
+}
+
 const ApiContext = createContext<{
     project: Promise<Project | undefined>
     scriptid: string | undefined
     setScriptid: (id: string) => void
     parameters: PromptParameters
     setParameters: Dispatch<SetStateAction<PromptParameters>>
-    trace: string
-    setTrace: Dispatch<SetStateAction<string>>
-    run: () => void
 } | null>(null)
 
 function ApiProvider({ children }: { children: React.ReactNode }) {
     const [project, setProject] = useState<Promise<Project>>(fetchScripts())
     const [scriptid, setScriptid] = useState<string | undefined>(undefined)
     const [parameters, setParameters] = useState<PromptParameters>({})
-    const [trace, setTrace] = useState<string>("")
+    const [options, setOptions] = useState<ModelConnectionOptions>({})
 
+    console.log({ scriptid })
     useEffect(() => {
         setParameters({})
-    }, [JSON.stringify(parameters), JSON.stringify(project)])
-
-    const run = () => {}
+        setOptions({})
+    }, [scriptid])
 
     return (
         <ApiContext.Provider
@@ -88,9 +148,6 @@ function ApiProvider({ children }: { children: React.ReactNode }) {
                 setScriptid,
                 parameters,
                 setParameters,
-                trace,
-                setTrace,
-                run,
             }}
         >
             {children}
@@ -102,6 +159,57 @@ function useApi() {
     const api = use(ApiContext)
     if (!api) throw new Error("missing content")
     return api
+}
+
+const RunnerContext = createContext<{
+    trace: string
+    setTrace: Dispatch<SetStateAction<string>>
+    run: () => void
+} | null>(null)
+
+function RunnerProvider({ children }: { children: React.ReactNode }) {
+    const { scriptid } = useApi()
+    const [runner, setRunner] = useState<RunClient | undefined>(undefined)
+    const [trace, setTrace] = useState<string>("")
+
+    console.log({ runner: runner?.runId })
+    useEffect(() => {
+        runner?.close()
+        setRunner(undefined)
+    }, [scriptid])
+
+    const appendTrace = (delta: string) => {
+        startTransition(() => {
+            setTrace((previous) => previous + delta)
+        })
+    }
+
+    const run = () => {
+        runner?.close()
+        if (!scriptid) return
+
+        console.log(`run: start`)
+        setTrace("")
+        setRunner(new RunClient(scriptid, [], {}, appendTrace))
+    }
+
+    return (
+        <RunnerContext.Provider
+            value={{
+                trace,
+                setTrace,
+                run,
+            }}
+        >
+            {children}
+        </RunnerContext.Provider>
+    )
+}
+
+function useRunner() {
+    const runner = use(RunnerContext)
+    if (!runner) throw new Error("runner context not configured")
+    return runner
 }
 
 function useScripts() {
@@ -195,7 +303,7 @@ function JSONSchemaSimpleTypeFormField(props: {
 }
 
 function TraceView() {
-    const { trace } = useApi()
+    const { trace } = useRunner()
     return <Markdown>{trace}</Markdown>
 }
 
@@ -314,33 +422,34 @@ function PromptParametersForm() {
 }
 
 function RunButton() {
-    const api = useApi()
-    const { scriptid, run } = api
+    const { scriptid } = useApi()
+    const { run } = useRunner()
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault()
+        run()
+    }
 
     return (
         scriptid && (
             <VscodeFormContainer>
-                <VscodeButton type="submit">Run</VscodeButton>
+                <VscodeButton type="submit" onClick={handleSubmit}>
+                    Run
+                </VscodeButton>
             </VscodeFormContainer>
         )
     )
 }
 
 function WebApp() {
-    const { run } = useApi()
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault()
-        run()
-    }
     return (
         <>
-            <form onSubmit={handleSubmit}>
-                <ScriptSelect />
-                <PromptParametersForm />
-                <ScriptPreview />
+            <ScriptSelect />
+            <PromptParametersForm />
+            <ScriptPreview />
+            <RunnerProvider>
                 <RunButton />
-            </form>
-            <TraceView />
+                <TraceView />
+            </RunnerProvider>
         </>
     )
 }
