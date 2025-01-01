@@ -426,8 +426,10 @@ export async function startServer(options: {
     const httpServer = http.createServer(async (req, res) => {
         const { url } = req
         const route = url
+        res.setHeader("Cache-Control", "no-store")
         if (route === "/") {
             res.setHeader("Content-Type", "text/html")
+            res.setHeader("Cache-Control", "no-store")
             res.statusCode = 200
             const filePath = join(__dirname, "index.html")
             const stream = createReadStream(filePath)
