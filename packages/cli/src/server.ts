@@ -479,7 +479,6 @@ export async function startServer(options: {
     // Upgrade HTTP server to handle WebSocket connections on the /wss route.
     httpServer.on("upgrade", (req, socket, head) => {
         const pathname = new URL(req.url, `http://${req.headers.host}`).pathname
-        console.log({ upgrade: pathname })
         if (pathname === "/" && checkApiKey(req)) {
             wss.handleUpgrade(req, socket, head, (ws) => {
                 wss.emit("connection", ws, req)
