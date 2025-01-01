@@ -92,6 +92,10 @@ class RunClient {
                     if (data.trace) this.appendTrace(data.trace)
                     break
                 }
+                default: {
+                    console.debug(data.type)
+                    break
+                }
             }
         })
         this.ws.addEventListener("error", (err) => {
@@ -247,6 +251,7 @@ function JSONSchemaNumber(props: {
     onChange: (value: number) => void
 }) {
     const { schema, value, onChange } = props
+    const { type, minimum, maximum } = schema
     const required = schema.default === undefined
     const [valueText, setValueText] = useState(
         isNaN(value) ? "" : String(value)
@@ -254,9 +259,7 @@ function JSONSchemaNumber(props: {
 
     useEffect(() => {
         const v =
-            schema.type === "number"
-                ? parseFloat(valueText)
-                : parseInt(valueText)
+            type === "number" ? parseFloat(valueText) : parseInt(valueText)
         if (!isNaN(v) && v !== value) onChange(v)
     }, [valueText])
 
@@ -265,6 +268,9 @@ function JSONSchemaNumber(props: {
             value={valueText}
             required={required}
             placeholder={schema.default + ""}
+            min={minimum}
+            max={maximum}
+            inputMode={type === "number" ? "decimal" : "numeric"}
             onChange={(e) => {
                 const target = e.target as HTMLInputElement
                 startTransition(() => setValueText(target.value))
@@ -492,9 +498,24 @@ function ModelConnectionOptionsForm() {
         properties: {
             temperature: {
                 type: "number",
+                description: "LLM temperature from 0 to 2",
                 minimum: 0,
                 maximum: 2,
                 default: 0.8,
+            },
+            logprobs: {
+                type: "boolean",
+                description:
+                    "Enable reporting log probabilities for each token",
+                default: false,
+            },
+            topLogprobs: {
+                type: "integer",
+                description:
+                    "Enables reporting log probabilities for alternate tokens",
+                minimum: 0,
+                maximum: 5,
+                default: 0,
             },
         },
     }
