@@ -36,7 +36,7 @@ import {
     promptParametersSchemaToJSONSchema,
     promptParameterTypeToJSONSchema,
 } from "../../core/src/parameters"
-import { useSearchParams } from "./useSearchParam"
+import LLMS from "../../core/src/llms.json"
 
 const urlParams = new URLSearchParams(window.location.hash)
 const apiKey = urlParams.get("api-key")
@@ -53,15 +53,21 @@ const fetchScripts = async (): Promise<Project> => {
     return j.project
 }
 
-class RunClient {
+class TraceEvent extends Event {
+    constructor(readonly trace: string) {
+        super("trace")
+    }
+}
+
+class RunClient extends EventTarget {
     ws?: WebSocket
     runId: string
     constructor(
         readonly script: string,
         readonly files: string[],
-        readonly options: any,
-        readonly appendTrace: (delta: string) => void
+        readonly options: any
     ) {
+        super()
         this.runId = "" + Math.random()
         this.ws = new WebSocket(`/?api-key=${apiKey}`)
         this.ws.addEventListener(
@@ -89,11 +95,13 @@ class RunClient {
             const data: PromptScriptResponseEvents = JSON.parse(ev.data)
             switch (data.type) {
                 case "script.progress": {
-                    if (data.trace) this.appendTrace(data.trace)
+                    if (data.trace)
+                        this.dispatchEvent(new TraceEvent(data.trace))
                     break
                 }
                 default: {
                     console.debug(data.type)
+                    this.dispatchEvent(new Event(data.type))
                     break
                 }
             }
@@ -172,6 +180,8 @@ const RunnerContext = createContext<{
     trace: string
     setTrace: Dispatch<SetStateAction<string>>
     run: () => void
+    cancel: () => void
+    state: "running" | undefined
 } | null>(null)
 
 function RunnerProvider({ children }: { children: React.ReactNode }) {
@@ -197,8 +207,23 @@ function RunnerProvider({ children }: { children: React.ReactNode }) {
 
         console.log(`run: start`)
         setTrace("")
-        setRunner(new RunClient(scriptid, [], {}, appendTrace))
+        const client = new RunClient(scriptid, [], {})
+        client.addEventListener(
+            "trace",
+            (ev) => {
+                appendTrace((ev as TraceEvent).trace)
+            },
+            false
+        )
+        client.addEventListener("script.end", () => setRunner(undefined))
+        setRunner(new RunClient(scriptid, [], {}))
     }
+    const cancel = () => {
+        runner?.close()
+        setRunner(undefined)
+    }
+
+    const state = runner ? "running" : undefined
 
     return (
         <RunnerContext.Provider
@@ -206,6 +231,8 @@ function RunnerProvider({ children }: { children: React.ReactNode }) {
                 trace,
                 setTrace,
                 run,
+                cancel,
+                state,
             }}
         >
             {children}
@@ -423,27 +450,29 @@ function ScriptSelect(props: {}) {
     const { scriptid, setScriptid } = useApi()
 
     return (
-        <VscodeFormContainer>
-            <VscodeFormGroup>
-                <VscodeLabel style={{ padding: 0 }}>
-                    <GenAIScriptLogo height="2em" />
-                </VscodeLabel>
-                <VscodeSingleSelect
-                    value={scriptid || ""}
-                    onChange={(e) => {
-                        const target = e.target as HTMLSelectElement
-                        setScriptid(target.value)
-                    }}
-                >
-                    {scripts.map(({ id, title }) => (
-                        <VscodeOption value={id} description={title}>
-                            {id}
-                        </VscodeOption>
-                    ))}
-                </VscodeSingleSelect>
-                <ScriptFormHelper />
-            </VscodeFormGroup>
-        </VscodeFormContainer>
+        <VscodeCollapsible open title="Script">
+            <VscodeFormContainer>
+                <VscodeFormGroup>
+                    <VscodeLabel style={{ padding: 0 }}>
+                        <GenAIScriptLogo height="2em" />
+                    </VscodeLabel>
+                    <VscodeSingleSelect
+                        value={scriptid || ""}
+                        onChange={(e) => {
+                            const target = e.target as HTMLSelectElement
+                            setScriptid(target.value)
+                        }}
+                    >
+                        {scripts.map(({ id, title }) => (
+                            <VscodeOption value={id} description={title}>
+                                {id}
+                            </VscodeOption>
+                        ))}
+                    </VscodeSingleSelect>
+                    <ScriptFormHelper />
+                </VscodeFormGroup>
+            </VscodeFormContainer>
+        </VscodeCollapsible>
     )
 }
 
@@ -490,12 +519,32 @@ function PromptParametersForm() {
 }
 
 function ModelConnectionOptionsForm() {
-    const { scriptid, options, setOptions } = useApi()
-    if (!scriptid) return null
+    const { options, setOptions } = useApi()
 
     const schema: JSONSchemaObject = {
         type: "object",
         properties: {
+            provider: {
+                type: "string",
+                description: "LLM provider",
+                enum: LLMS.providers.map((p) => p.id),
+                default: "openai",
+            },
+            model: {
+                type: "string",
+                description: "large model id",
+                default: "large",
+            },
+            smallModel: {
+                type: "string",
+                description: "small model id",
+                default: "small",
+            },
+            visionModel: {
+                type: "string",
+                description: "vision model id",
+                default: "vision",
+            },
             temperature: {
                 type: "number",
                 description: "LLM temperature from 0 to 2",
@@ -532,17 +581,18 @@ function ModelConnectionOptionsForm() {
 
 function RunButton() {
     const { scriptid } = useApi()
-    const { run } = useRunner()
+    const { run, cancel, state } = useRunner()
+    const action = state === "running" ? cancel : run
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault()
-        run()
+        action()
     }
 
     return (
         scriptid && (
             <VscodeFormContainer>
                 <VscodeButton type="submit" onClick={handleSubmit}>
-                    Run
+                    {state === "running" ? "Running..." : "Run"}
                 </VscodeButton>
             </VscodeFormContainer>
         )
@@ -554,9 +604,9 @@ function WebApp() {
         <>
             <ScriptSelect />
             <PromptParametersForm />
+            <ModelConnectionOptionsForm />
             <RunnerProvider>
                 <RunButton />
-                <ModelConnectionOptionsForm />
                 <ScriptPreview />
                 <TraceView />
             </RunnerProvider>
