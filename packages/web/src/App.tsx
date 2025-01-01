@@ -22,6 +22,9 @@ import {
     VscodeLabel,
     VscodeProgressRing,
     VscodeCollapsible,
+    VscodeTabs,
+    VscodeTabHeader,
+    VscodeTabPanel,
 } from "@vscode-elements/react-elements"
 import Markdown from "./Markdown"
 import type {
@@ -37,6 +40,7 @@ import {
     promptParameterTypeToJSONSchema,
 } from "../../core/src/parameters"
 import LLMS from "../../core/src/llms.json"
+import type { GenerationResult } from "../../core/src/generation"
 
 const urlParams = new URLSearchParams(window.location.hash)
 const apiKey = urlParams.get("api-key")
@@ -58,6 +62,11 @@ type TraceEvent = CustomEvent<{ trace: string }>
 class RunClient extends EventTarget {
     ws?: WebSocket
     runId: string
+    result: GenerationResult | undefined
+
+    static readonly TRACE_EVENT = "trace"
+    static readonly RESULT_EVENT = "result"
+
     constructor(
         readonly script: string,
         readonly files: string[],
@@ -83,7 +92,6 @@ class RunClient extends EventTarget {
                         options,
                     } satisfies PromptScriptStart)
                 )
-                console.log({ ws: this.ws })
             },
             false
         )
@@ -93,13 +101,19 @@ class RunClient extends EventTarget {
                 case "script.progress": {
                     if (data.trace)
                         this.dispatchEvent(
-                            new CustomEvent("trace", { detail: data })
+                            new CustomEvent(RunClient.TRACE_EVENT, {
+                                detail: data,
+                            })
                         )
                     break
                 }
-                default: {
-                    console.debug(data.type)
-                    this.dispatchEvent(new Event(data.type))
+                case "script.end": {
+                    this.result = data.result
+                    this.dispatchEvent(
+                        new CustomEvent(RunClient.RESULT_EVENT, {
+                            detail: data,
+                        })
+                    )
                     break
                 }
             }
@@ -141,12 +155,11 @@ const ApiContext = createContext<{
 } | null>(null)
 
 function ApiProvider({ children }: { children: React.ReactNode }) {
-    const [project, setProject] = useState<Promise<Project>>(fetchScripts())
+    const project = useMemo<Promise<Project>>(fetchScripts, [])
     const [scriptid, setScriptid] = useState<string | undefined>(undefined)
     const [parameters, setParameters] = useState<PromptParameters>({})
     const [options, setOptions] = useState<ModelOptions>({})
 
-    console.log({ api: scriptid })
     useEffect(() => {
         setParameters({})
     }, [scriptid])
@@ -184,7 +197,6 @@ const RunnerContext = createContext<{
 function RunnerProvider({ children }: { children: React.ReactNode }) {
     const { scriptid } = useApi()
     const [runner, setRunner] = useState<RunClient | undefined>(undefined)
-    const [trace, setTrace] = useState<string>("")
 
     console.log({ runner: runner?.runId })
     useEffect(() => {
@@ -197,9 +209,10 @@ function RunnerProvider({ children }: { children: React.ReactNode }) {
         if (!scriptid) return
 
         console.log(`run: start`)
-        setTrace("")
         const client = new RunClient(scriptid, [], {})
-        client.addEventListener("script.end", () => setRunner(undefined))
+        client.addEventListener(RunClient.RESULT_EVENT, () =>
+            setRunner(undefined)
+        )
         setRunner(new RunClient(scriptid, [], {}))
     }
     const cancel = () => {
@@ -410,15 +423,26 @@ function TraceView() {
         const handler = (evt: Event) =>
             appendTrace((evt as TraceEvent).detail.trace)
 
-        runner?.addEventListener("trace", handler, false)
-        return () => runner?.removeEventListener("trace", handler)
+        runner?.addEventListener(RunClient.TRACE_EVENT, handler, false)
+        return () => runner?.removeEventListener(RunClient.TRACE_EVENT, handler)
     }, [runner])
 
-    return (
-        <VscodeCollapsible open title="Trace">
-            <Markdown>{trace}</Markdown>
-        </VscodeCollapsible>
+    return <Markdown>{trace}</Markdown>
+}
+
+function OutputView() {
+    const { runner } = useRunner()
+    const [result, setResult] = useState<GenerationResult | undefined>(
+        undefined
     )
+    useEffect(() => {
+        const handler = (evt: Event) => setResult(runner?.result)
+        runner?.addEventListener(RunClient.RESULT_EVENT, handler, false)
+        return () =>
+            runner?.removeEventListener(RunClient.RESULT_EVENT, handler)
+    }, [runner])
+
+    return <Markdown>{result?.text || ""}</Markdown>
 }
 
 function toStringList(...token: (string | undefined | null)[]) {
@@ -593,7 +617,16 @@ function WebApp() {
     return (
         <>
             <RunForm />
-            <TraceView />
+            <VscodeTabs>
+                <VscodeTabHeader slot="header">Trace</VscodeTabHeader>
+                <VscodeTabPanel>
+                    <TraceView />
+                </VscodeTabPanel>
+                <VscodeTabHeader slot="header">Output</VscodeTabHeader>
+                <VscodeTabPanel>
+                    <OutputView />
+                </VscodeTabPanel>
+            </VscodeTabs>
         </>
     )
 }
