@@ -393,7 +393,7 @@ function TraceView() {
     const { trace } = useRunner()
     return (
         trace && (
-            <VscodeCollapsible title="Trace">
+            <VscodeCollapsible open title="Trace">
                 <Markdown>{trace}</Markdown>
             </VscodeCollapsible>
         )
