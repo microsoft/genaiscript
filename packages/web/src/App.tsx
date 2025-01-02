@@ -42,7 +42,6 @@ import type {
     ServerEnvResponse,
 } from "../../core/src/server/messages"
 import { promptParametersSchemaToJSONSchema } from "../../core/src/parameters"
-import LLMS from "../../core/src/llms.json"
 import {
     logprobToMarkdown,
     topLogprobsToMarkdown,
@@ -555,6 +554,22 @@ function JSONSchemaObjectForm(props: {
     )
 }
 
+function CounterBadge(props: { collection: any | undefined }) {
+    const { collection } = props
+    let count: string | undefined = undefined
+    if (Array.isArray(collection)) {
+        if (collection.length > 0) count = "" + collection.length
+    } else if (collection) count = "1"
+
+    return count ? (
+        <VscodeBadge variant="counter" slot="content-after">
+            {count}
+        </VscodeBadge>
+    ) : (
+        ""
+    )
+}
+
 function TraceTabPanel() {
     const { runner } = useRunner()
     const [trace, setTrace] = useState<string>("Run script to see trace.")
@@ -595,14 +610,8 @@ function ProblemsTabPanel() {
     return (
         <>
             <VscodeTabHeader slot="header">
-                Problems{" "}
-                {annotations.length > 0 ? (
-                    <VscodeBadge variant="counter" slot="content-after">
-                        {annotations.length}
-                    </VscodeBadge>
-                ) : (
-                    ""
-                )}
+                Problems
+                <CounterBadge collection={annotations} />
             </VscodeTabHeader>
             <VscodeTabPanel>
                 <Markdown>{annotationsMarkdown}</Markdown>
@@ -623,7 +632,10 @@ function OutputTabPanel() {
     //if (/^\s*\{/.test(text)) text = fenceMD(text, "json")
     return (
         <>
-            <VscodeTabHeader slot="header">Output</VscodeTabHeader>
+            <VscodeTabHeader slot="header">
+                Output
+                <CounterBadge collection={text} />
+            </VscodeTabHeader>
             <VscodeTabPanel>
                 <Markdown>{md}</Markdown>
             </VscodeTabPanel>
@@ -648,13 +660,7 @@ function FilesTabPanel() {
         <>
             <VscodeTabHeader slot="header">
                 Files
-                {files.length > 0 ? (
-                    <VscodeBadge variant="counter" slot="content-after">
-                        {files.length}
-                    </VscodeBadge>
-                ) : (
-                    ""
-                )}
+                <CounterBadge collection={files} />
             </VscodeTabHeader>
             <VscodeTabPanel>
                 {files.length > 0 && (
@@ -675,6 +681,75 @@ function FilesTabPanel() {
                             )}
                         </div>
                     </VscodeSplitLayout>
+                )}
+            </VscodeTabPanel>
+        </>
+    )
+}
+
+function DataTabPanel() {
+    const result = useResult()
+    const { frames = [] } = result || {}
+
+    return (
+        <>
+            <VscodeTabHeader slot="header">
+                Data
+                <CounterBadge collection={frames} />
+            </VscodeTabHeader>
+            <VscodeTabPanel>
+                {frames.map((frame, i) => (
+                    <Markdown key={i}>
+                        {`
+\`\`\`\`\`json
+${JSON.stringify(frame, null, 2)}}
+\`\`\`\`\`
+`}
+                    </Markdown>
+                ))}
+            </VscodeTabPanel>
+        </>
+    )
+}
+
+function JSONTabPanel() {
+    const result = useResult()
+    const { json } = result || {}
+    return (
+        <>
+            <VscodeTabHeader slot="header">
+                JSON
+                <CounterBadge collection={json} />
+            </VscodeTabHeader>
+            <VscodeTabPanel>
+                {json && (
+                    <Markdown>
+                        {`
+\`\`\`\`\`json
+${JSON.stringify(json, null, 2)}}
+\`\`\`\`\`
+`}
+                    </Markdown>
+                )}
+            </VscodeTabPanel>
+        </>
+    )
+}
+
+function RawTabPanel() {
+    const result = useResult()
+    return (
+        <>
+            <VscodeTabHeader slot="header">Raw</VscodeTabHeader>
+            <VscodeTabPanel>
+                {result && (
+                    <Markdown>
+                        {`
+\`\`\`\`\`json
+${JSON.stringify(result, null, 2)}}
+\`\`\`\`\`
+`}
+                    </Markdown>
                 )}
             </VscodeTabPanel>
         </>
@@ -896,6 +971,8 @@ function WebApp() {
                     <ProblemsTabPanel />
                     <OutputTabPanel />
                     <FilesTabPanel />
+                    <JSONTabPanel />
+                    <RawTabPanel />
                 </VscodeTabs>
             </VscodeCollapsible>
         </>
