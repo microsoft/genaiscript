@@ -6,6 +6,7 @@ import React, {
     startTransition,
     Suspense,
     use,
+    useCallback,
     useEffect,
     useMemo,
     useState,
@@ -160,9 +161,7 @@ function ApiProvider({ children }: { children: React.ReactNode }) {
     const [parameters, setParameters] = useState<PromptParameters>({})
     const [options, setOptions] = useState<ModelOptions>({})
 
-    useEffect(() => {
-        setParameters({})
-    }, [scriptid])
+    console.log({ scriptid, parameters, options })
 
     return (
         <ApiContext.Provider
@@ -208,12 +207,12 @@ function RunnerProvider({ children }: { children: React.ReactNode }) {
         runner?.close()
         if (!scriptid) return
 
-        console.log(`run: start`)
+        console.log(`run: start ${scriptid}`)
         const client = new RunClient(scriptid, [], {})
         client.addEventListener(RunClient.RESULT_EVENT, () =>
             setRunner(undefined)
         )
-        setRunner(new RunClient(scriptid, [], {}))
+        setRunner(client)
     }
     const cancel = () => {
         runner?.close()
@@ -255,6 +254,18 @@ function useScript() {
     const scripts = useScripts()
     const { scriptid } = useApi()
     return scripts.find((s) => s.id === scriptid)
+}
+
+function useEventListener(
+    target: EventTarget | undefined,
+    eventName: string,
+    handler: EventListener,
+    options?: boolean | AddEventListenerOptions
+) {
+    useEffect(() => {
+        target?.addEventListener(eventName, handler, options)
+        return () => target?.removeEventListener(eventName, handler, options)
+    }, [target, eventName, handler, JSON.stringify(options)])
 }
 
 function GenAIScriptLogo(props: { height: string }) {
@@ -415,18 +426,16 @@ function JSONSchemaObjectForm(props: {
 function TraceView() {
     const { runner } = useRunner()
     const [trace, setTrace] = useState<string>("")
-    useEffect(() => {
-        const appendTrace = (delta: string) =>
+    const appendTrace = useCallback(
+        (evt: Event) =>
             startTransition(() => {
-                setTrace((previous) => previous + delta)
-            })
-        const handler = (evt: Event) =>
-            appendTrace((evt as TraceEvent).detail.trace)
-
-        runner?.addEventListener(RunClient.TRACE_EVENT, handler, false)
-        return () => runner?.removeEventListener(RunClient.TRACE_EVENT, handler)
-    }, [runner])
-
+                setTrace(
+                    (previous) => previous + (evt as TraceEvent).detail.trace
+                )
+            }),
+        [runner]
+    )
+    useEventListener(runner, RunClient.TRACE_EVENT, appendTrace)
     return <Markdown>{trace}</Markdown>
 }
 
@@ -435,13 +444,8 @@ function OutputView() {
     const [result, setResult] = useState<GenerationResult | undefined>(
         undefined
     )
-    useEffect(() => {
-        const handler = (evt: Event) => setResult(runner?.result)
-        runner?.addEventListener(RunClient.RESULT_EVENT, handler, false)
-        return () =>
-            runner?.removeEventListener(RunClient.RESULT_EVENT, handler)
-    }, [runner])
-
+    const storeResult = useCallback(() => setResult(runner?.result), [runner])
+    useEventListener(runner, RunClient.RESULT_EVENT, storeResult)
     return <Markdown>{result?.text || ""}</Markdown>
 }
 
@@ -465,7 +469,7 @@ function ScriptFormHelper() {
 
 function ScriptSelect(props: {}) {
     const scripts = useScripts()
-    const { scriptid, setScriptid } = useApi()
+    const { scriptid, setScriptid, setParameters } = useApi()
 
     return (
         <VscodeFormContainer>
@@ -478,6 +482,7 @@ function ScriptSelect(props: {}) {
                     onChange={(e) => {
                         const target = e.target as HTMLSelectElement
                         setScriptid(target.value)
+                        setParameters({})
                     }}
                 >
                     {scripts.map(({ id, title }) => (
