@@ -894,7 +894,7 @@ export async function executeChatSession(
         : undefined
 
     try {
-        trace.startDetails(`🧠 llm chat`)
+        trace.startDetails(`🧠 llm chat`, { expanded: true })
         if (toolDefinitions?.length) {
             trace.detailsFenced(`🛠️ tools`, tools, "yaml")
             const toolNames = toolDefinitions.map(({ spec }) => spec.name)
@@ -1078,7 +1078,7 @@ export function tracePromptResult(
               : /^(-|\*|#+|```)\s/im.test(text)
                 ? "markdown"
                 : "text"
-        trace.detailsFenced(`🔠 output`, text, language)
+        trace.detailsFenced(`🔠 output`, text, language, { expanded: true })
         if (language === "markdown")
             trace.appendContent(
                 "\n\n" + HTMLEscape(prettifyMarkdown(text)) + "\n\n"
