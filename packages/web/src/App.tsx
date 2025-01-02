@@ -157,7 +157,9 @@ const ApiContext = createContext<{
     parameters: PromptParameters
     setParameters: (parameters: PromptParameters) => void
     options: ModelOptions
-    setOptions: (options: ModelConnectionOptions) => void
+    setOptions: (
+        f: (prev: ModelConnectionOptions) => ModelConnectionOptions
+    ) => void
 } | null>(null)
 
 function JSONTryParse<T>(s: string): T | undefined {
@@ -169,39 +171,51 @@ function JSONTryParse<T>(s: string): T | undefined {
     }
 }
 
-function useUrlSearchParams<T>(initialValues: T) {
+function useUrlSearchParams<T>(
+    initialValues: T,
+    fields: Record<
+        string,
+        JSONSchemaString | JSONSchemaNumber | JSONSchemaBoolean
+    >
+) {
     const [state, setState] = useState<T>(initialValues)
     useEffect(() => {
         const params = new URLSearchParams(window.location.search)
-        const newState: any = { ...state }
-        for (const key in initialValues) {
+        const newState: any = {}
+        Object.entries(fields).forEach(([key, field]) => {
+            const { type } = field
             const value = params.get(key)
-            if (value)
-                newState[key] = key === "scriptid" ? value : JSONTryParse(value)
-        }
-        console.log({ newState })
+            if (value !== undefined && value !== null) {
+                if (type === "string") newState[key] = value
+                else if (type === "boolean")
+                    newState[key] =
+                        value === "1" || value === "yes" || value === "true"
+                else if (type === "integer" || type === "number") {
+                    const parsed =
+                        type === "number" ? parseFloat(value) : parseInt(value)
+                    if (!isNaN(parsed)) newState[key] = parsed
+                }
+            }
+        })
         setState(newState)
     }, [])
     useEffect(() => {
         const params = new URLSearchParams()
         for (const key in state) {
+            const field = fields[key]
+            if (!field) continue
+
+            const { type } = field
             const value = state[key]
-            if (
-                value &&
-                (!Array.isArray(value) || value.length > 0) &&
-                (typeof value !== "object" || Object.keys(value).length > 0)
-            )
-                params.set(
-                    key,
-                    typeof value === "string"
-                        ? value
-                        : value !== undefined
-                          ? JSON.stringify(value)
-                          : undefined
-                )
-            else params.delete(key)
+            if (value === undefined || value === null) continue
+            if (type === "string") params.set(key, value as string)
+            else if (type === "boolean") {
+                if (!!value) params.set(key, "1")
+            } else if (type === "integer" || type === "number") {
+                const v = value as number
+                if (!isNaN(v)) params.set(key, v.toString())
+            }
         }
-        console.log({ state, params: params.toString() })
         window.history.pushState({}, "", `?${params.toString()}`)
     }, [state])
     return [state, setState] as const
@@ -209,17 +223,35 @@ function useUrlSearchParams<T>(initialValues: T) {
 
 function ApiProvider({ children }: { children: React.ReactNode }) {
     const project = useMemo<Promise<Project>>(fetchScripts, [])
-    const [state, setState] = useUrlSearchParams({
-        scriptid: "",
-    } as {
-        scriptid: string
-    })
-    const { scriptid } = state
+    const [state, setState] = useUrlSearchParams<
+        {
+            scriptid: string
+        } & ModelConnectionOptions
+    >(
+        {
+            scriptid: "",
+        },
+        {
+            scriptid: { type: "string" },
+            provider: { type: "string" },
+            model: { type: "string" },
+            smallModel: { type: "string" },
+            visionModel: { type: "string" },
+            temperature: { type: "number" },
+            logprobs: { type: "boolean" },
+            topLogprobs: { type: "integer" },
+        }
+    )
+    const { scriptid, ...options } = state
     const [files, setFiles] = useState<string[]>([])
     const [parameters, setParameters] = useState<PromptParameters>({})
-    const [options, setOptions] = useState<ModelConnectionOptions>({})
     const setScriptid = (id: string) =>
         setState((prev) => ({ ...prev, scriptid: id }))
+    const setOptions = (
+        f: (prev: ModelConnectionOptions) => ModelConnectionOptions
+    ) => {
+        setState((prev) => ({ ...prev, ...f(options) }))
+    }
 
     return (
         <ApiContext.Provider
