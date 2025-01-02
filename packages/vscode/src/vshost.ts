@@ -191,16 +191,4 @@ export class VSCodeHost extends EventTarget implements Host {
         const tok = await client.getLanguageModelConfiguration(modelId, options)
         return tok
     }
-
-    // executes a process
-    async exec(
-        containerId: string,
-        command: string,
-        args: string[],
-        options: ShellOptions
-    ): Promise<ShellOutput> {
-        const client = await this.server.client()
-        const res = await client.exec(containerId, command, args, options)
-        return res.value
-    }
 }
