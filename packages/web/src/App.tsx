@@ -27,6 +27,7 @@ import {
     VscodeTabHeader,
     VscodeTabPanel,
     VscodeBadge,
+    VscodeTextarea,
 } from "@vscode-elements/react-elements"
 import Markdown from "./Markdown"
 import type {
@@ -86,7 +87,6 @@ class RunClient extends EventTarget {
             () => {
                 console.log(`run ${this.runId}: open`)
                 const id = "" + Math.random()
-                const files: string[] = []
 
                 this.ws?.send(
                     JSON.stringify({
@@ -94,8 +94,8 @@ class RunClient extends EventTarget {
                         type: "script.start",
                         runId: this.runId,
                         script,
-                        files,
-                        options,
+                        files: this.files,
+                        options: this.options,
                     } satisfies PromptScriptStart)
                 )
             },
@@ -154,6 +154,8 @@ const ApiContext = createContext<{
     project: Promise<Project | undefined>
     scriptid: string | undefined
     setScriptid: (id: string) => void
+    files: string[]
+    setFiles: Dispatch<SetStateAction<string[]>>
     parameters: PromptParameters
     setParameters: Dispatch<SetStateAction<PromptParameters>>
     options: ModelOptions
@@ -163,6 +165,7 @@ const ApiContext = createContext<{
 function ApiProvider({ children }: { children: React.ReactNode }) {
     const project = useMemo<Promise<Project>>(fetchScripts, [])
     const [scriptid, setScriptid] = useState<string | undefined>(undefined)
+    const [files, setFiles] = useState<string[]>([])
     const [parameters, setParameters] = useState<PromptParameters>({})
     const [options, setOptions] = useState<ModelOptions>({})
 
@@ -174,6 +177,8 @@ function ApiProvider({ children }: { children: React.ReactNode }) {
                 project,
                 scriptid,
                 setScriptid,
+                files,
+                setFiles,
                 parameters,
                 setParameters,
                 options,
@@ -199,7 +204,7 @@ const RunnerContext = createContext<{
 } | null>(null)
 
 function RunnerProvider({ children }: { children: React.ReactNode }) {
-    const { scriptid } = useApi()
+    const { scriptid, files, options, parameters } = useApi()
     const [runner, setRunner] = useState<RunClient | undefined>(undefined)
 
     console.log({ runner: runner?.runId })
@@ -213,7 +218,10 @@ function RunnerProvider({ children }: { children: React.ReactNode }) {
         if (!scriptid) return
 
         console.log(`run: start ${scriptid}`)
-        const client = new RunClient(scriptid, [], {})
+        const client = new RunClient(scriptid, files.slice(0), {
+            parameters,
+            ...options,
+        })
         client.addEventListener(RunClient.RESULT_EVENT, () =>
             setRunner(undefined)
         )
@@ -500,9 +508,7 @@ function OutputTabPanel() {
     //if (/^\s*\{/.test(text)) text = fenceMD(text, "json")
     return (
         <>
-            <VscodeTabHeader slot="header">
-                Output
-            </VscodeTabHeader>
+            <VscodeTabHeader slot="header">Output</VscodeTabHeader>
             <VscodeTabPanel>
                 <Markdown>{md}</Markdown>
             </VscodeTabPanel>
@@ -528,32 +534,57 @@ function ScriptFormHelper() {
     )
 }
 
-function ScriptSelect(props: {}) {
+function FilesForm() {
+    const { files, setFiles } = useApi()
+    return (
+        <VscodeFormContainer>
+            <VscodeFormGroup>
+                <VscodeLabel>Files</VscodeLabel>
+                <VscodeTextarea
+                    value={files.join(", ")}
+                    onChange={(e) => {
+                        const target = e.target as HTMLInputElement
+                        startTransition(() => setFiles(target.value.split(",")))
+                    }}
+                />
+            </VscodeFormGroup>
+        </VscodeFormContainer>
+    )
+}
+
+function ScriptSelect() {
     const scripts = useScripts()
     const { scriptid, setScriptid, setParameters } = useApi()
 
     return (
+        <VscodeFormGroup>
+            <VscodeLabel style={{ padding: 0 }}>
+                <GenAIScriptLogo height="2em" />
+            </VscodeLabel>
+            <VscodeSingleSelect
+                value={scriptid || ""}
+                onChange={(e) => {
+                    const target = e.target as HTMLSelectElement
+                    setScriptid(target.value)
+                    setParameters({})
+                }}
+            >
+                {scripts.map(({ id, title }) => (
+                    <VscodeOption value={id} description={title}>
+                        {id}
+                    </VscodeOption>
+                ))}
+            </VscodeSingleSelect>
+            <ScriptFormHelper />
+        </VscodeFormGroup>
+    )
+}
+
+function ScriptForm(props: {}) {
+    return (
         <VscodeFormContainer>
-            <VscodeFormGroup>
-                <VscodeLabel style={{ padding: 0 }}>
-                    <GenAIScriptLogo height="2em" />
-                </VscodeLabel>
-                <VscodeSingleSelect
-                    value={scriptid || ""}
-                    onChange={(e) => {
-                        const target = e.target as HTMLSelectElement
-                        setScriptid(target.value)
-                        setParameters({})
-                    }}
-                >
-                    {scripts.map(({ id, title }) => (
-                        <VscodeOption value={id} description={title}>
-                            {id}
-                        </VscodeOption>
-                    ))}
-                </VscodeSingleSelect>
-                <ScriptFormHelper />
-            </VscodeFormGroup>
+            <ScriptSelect />
+            <FilesForm />
             <PromptParametersForm />
             <RunButton />
         </VscodeFormContainer>
@@ -673,7 +704,7 @@ function RunForm() {
 
     return (
         <form onSubmit={handleSubmit}>
-            <ScriptSelect />
+            <ScriptForm />
             <ModelConnectionOptionsForm />
         </form>
     )
