@@ -26,6 +26,7 @@ import {
     VscodeTabs,
     VscodeTabHeader,
     VscodeTabPanel,
+    VscodeBadge,
 } from "@vscode-elements/react-elements"
 import Markdown from "./Markdown"
 import type {
@@ -35,14 +36,17 @@ import type {
     PromptScriptResponseEvents,
     PromptScriptStart,
     RequestMessage,
-    GenerationResult
+    GenerationResult,
 } from "../../core/src/server/messages"
 import {
     promptParametersSchemaToJSONSchema,
     promptParameterTypeToJSONSchema,
 } from "../../core/src/parameters"
 import LLMS from "../../core/src/llms.json"
-import { logprobToMarkdown, topLogprobsToMarkdown } from "../../core/src/logprob"
+import {
+    logprobToMarkdown,
+    topLogprobsToMarkdown,
+} from "../../core/src/logprob"
 
 const urlParams = new URLSearchParams(window.location.hash)
 const apiKey = urlParams.get("api-key")
@@ -240,6 +244,17 @@ function useRunner() {
     const runner = use(RunnerContext)
     if (!runner) throw new Error("runner context not configured")
     return runner
+}
+
+function useResult() {
+    const { runner } = useRunner()
+    const [result, setResult] = useState<GenerationResult | undefined>(
+        undefined
+    )
+    useEffect(() => runner && setResult(undefined), [runner])
+    const storeResult = useCallback(() => setResult(runner?.result), [runner])
+    useEventListener(runner, RunClient.RESULT_EVENT, storeResult)
+    return result
 }
 
 function useScripts() {
@@ -441,27 +456,58 @@ function TraceView() {
     return <Markdown>{trace}</Markdown>
 }
 
-function OutputView() {
-    const { runner } = useRunner()
-    const [result, setResult] = useState<GenerationResult | undefined>(
-        undefined
-    )
-    useEffect(() => runner && setResult(undefined), [runner])
-    const storeResult = useCallback(() => setResult(runner?.result), [runner])
-    useEventListener(runner, RunClient.RESULT_EVENT, storeResult)
+function ProblemsTabPanel() {
+    const result = useResult()
+    const { annotations = [] } = result || {}
 
+    const renderAnnotation = (annotation: Diagnostic) => {
+        const { message, severity } = annotation
+        return `> [!${severity}]
+> ${message.split("\n").join("\n> ")}
+`
+    }
+
+    const annotationsMarkdown = annotations.map(renderAnnotation).join("\n")
+
+    return (
+        <>
+            <VscodeTabHeader slot="header">
+                Problems{" "}
+                {annotations.length > 0 ? (
+                    <VscodeBadge variant="counter" slot="content-after">
+                        annotations.length
+                    </VscodeBadge>
+                ) : (
+                    ""
+                )}
+            </VscodeTabHeader>
+            <VscodeTabPanel>
+                <Markdown>{annotationsMarkdown}</Markdown>
+            </VscodeTabPanel>
+        </>
+    )
+}
+
+function OutputTabPanel() {
+    const result = useResult()
     const { text, logprobs } = result || {}
     let md = text || ""
     if (logprobs?.length) {
         if (logprobs[0].topLogprobs?.length)
-            md = logprobs
-                .map((lp) => topLogprobsToMarkdown(lp))
-                .join("\n")
+            md = logprobs.map((lp) => topLogprobsToMarkdown(lp)).join("\n")
         else md = logprobs.map((lp) => logprobToMarkdown(lp)).join("\n")
     }
     //if (/^\s*\{/.test(text)) text = fenceMD(text, "json")
-
-    return <Markdown>{md}</Markdown>
+    return (
+        <>
+            <VscodeTabHeader slot="header">
+                Output
+            </VscodeTabHeader>
+            <VscodeTabPanel>
+                <Markdown>{md}</Markdown>
+            </VscodeTabPanel>
+        </>
+    )
 }
 
 function toStringList(...token: (string | undefined | null)[]) {
@@ -637,15 +683,13 @@ function WebApp() {
     return (
         <>
             <RunForm />
-            <VscodeTabs>
+            <VscodeTabs panel>
                 <VscodeTabHeader slot="header">Trace</VscodeTabHeader>
                 <VscodeTabPanel>
                     <TraceView />
                 </VscodeTabPanel>
-                <VscodeTabHeader slot="header">Output</VscodeTabHeader>
-                <VscodeTabPanel>
-                    <OutputView />
-                </VscodeTabPanel>
+                <ProblemsTabPanel />
+                <OutputTabPanel />
             </VscodeTabs>
         </>
     )
