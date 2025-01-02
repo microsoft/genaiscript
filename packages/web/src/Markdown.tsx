@@ -8,7 +8,7 @@ import clsx from "clsx"
 import { remarkAlert } from "remark-github-blockquote-alert"
 import rehypeMermaid from "rehype-mermaid"
 import remarkMath from "remark-math"
-import rehypeMathML from '@daiji256/rehype-mathml'
+import rehypeMathML from "@daiji256/rehype-mathml"
 
 export default function Markdown(props: { className?: string; children: any }) {
     const { className, children } = props

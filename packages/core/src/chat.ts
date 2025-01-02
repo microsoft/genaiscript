@@ -23,7 +23,6 @@ import {
     logInfo,
     logVerbose,
     logWarn,
-    roundWithPrecision,
     toStringList,
 } from "./util"
 import { extractFenced, findFirstDataFence, unfence } from "./fence"
@@ -80,6 +79,7 @@ import {
     topLogprobsToMarkdown,
 } from "./logprob"
 import { uniq } from "es-toolkit"
+import { renderWithPrecision } from "./precision"
 
 export function toChatCompletionUserMessage(
     expanded: string,
@@ -529,10 +529,10 @@ async function structurifyChatSession(
             toStringList(
                 `${logprobs.length} tokens`,
                 !isNaN(perplexity)
-                    ? `perplexity: ${roundWithPrecision(perplexity, 3)}`
+                    ? `perplexity: ${renderWithPrecision(perplexity, 3)}`
                     : undefined,
                 !isNaN(uncertainty)
-                    ? `uncertainty: ${roundWithPrecision(uncertainty, 3)}`
+                    ? `uncertainty: ${renderWithPrecision(uncertainty, 3)}`
                     : undefined
             )
         )

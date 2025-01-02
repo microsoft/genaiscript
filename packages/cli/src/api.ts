@@ -1,4 +1,4 @@
-import type { GenerationResult } from "../../core/src/generation"
+import type { GenerationResult } from "../../core/src/server/messages"
 import type { PromptScriptRunOptions } from "../../core/src/server/messages"
 import { Worker } from "node:worker_threads"
 import { fileURLToPath } from "url"

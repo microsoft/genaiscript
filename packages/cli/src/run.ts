@@ -40,7 +40,7 @@ import {
     CONSOLE_TOKEN_INNER_COLORS,
 } from "../../core/src/constants"
 import { isCancelError, errorMessage } from "../../core/src/error"
-import { Fragment, GenerationResult } from "../../core/src/generation"
+import { GenerationResult } from "../../core/src/server/messages"
 import { filePathOrUrlToWorkspaceFile, writeText } from "../../core/src/fs"
 import { host, runtimeHost } from "../../core/src/host"
 import { isJSONLFilename, appendJSONL } from "../../core/src/jsonl"
@@ -86,6 +86,7 @@ import { ensureDotGenaiscriptPath, setupTraceWriting } from "./trace"
 import { applyModelOptions, logModelAliases } from "./modelalias"
 import { createCancellationController } from "./cancel"
 import { parsePromptScriptMeta } from "../../core/src/template"
+import { Fragment } from "../../core/src/generation"
 
 export async function runScriptWithExitCode(
     scriptId: string,

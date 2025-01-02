@@ -13,8 +13,9 @@ import { YAMLStringify } from "./yaml"
 import { errorMessage, serializeError } from "./error"
 import prettyBytes from "pretty-bytes"
 import { host } from "./host"
-import { ellipse, renderWithPrecision, toStringList } from "./util"
+import { ellipse, toStringList } from "./util"
 import { estimateTokens } from "./tokens"
+import { renderWithPrecision } from "./precision"
 
 export class TraceChunkEvent extends Event {
     constructor(readonly chunk: string) {

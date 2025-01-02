@@ -2,7 +2,7 @@ import { ChatCompletionsProgressReport } from "../chattypes"
 import { CLIENT_RECONNECT_DELAY, OPEN, RECONNECT } from "../constants"
 import { randomHex } from "../crypto"
 import { errorMessage } from "../error"
-import { GenerationResult } from "../generation"
+import { GenerationResult } from "../server/messages"
 import {
     LanguageModelConfiguration,
     ResponseStatus,

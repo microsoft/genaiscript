@@ -35,13 +35,13 @@ import type {
     PromptScriptResponseEvents,
     PromptScriptStart,
     RequestMessage,
+    GenerationResult
 } from "../../core/src/server/messages"
 import {
     promptParametersSchemaToJSONSchema,
     promptParameterTypeToJSONSchema,
 } from "../../core/src/parameters"
 import LLMS from "../../core/src/llms.json"
-import type { GenerationResult } from "../../core/src/generation"
 import { logprobToMarkdown, topLogprobsToMarkdown } from "../../core/src/logprob"
 
 const urlParams = new URLSearchParams(window.location.hash)

@@ -3,8 +3,8 @@ import type {
     ChatCompletionChunkChoice,
     ChatCompletionTokenLogprob,
 } from "./chattypes"
-import { HTMLEscape } from "./html"
-import { roundWithPrecision } from "./util"
+import { escape } from "html-escaper"
+import { roundWithPrecision } from "./precision"
 
 export function serializeLogProb(content: ChatCompletionTokenLogprob): Logprob {
     const { token, logprob, top_logprobs } = content
@@ -70,7 +70,7 @@ export function logprobToMarkdown(
     const title = options?.entropy
         ? roundWithPrecision(entropy, 2)
         : renderLogprob(logprob)
-    let text = HTMLEscape(token).replace(/</g, "&lt;").replace(/>/g, "&gt;")
+    let text = escape(token).replace(/</g, "&lt;").replace(/>/g, "&gt;")
     if (options?.eatSpaces) text = text.replace(/\n/g, " ")
     else text = text.replace(/ /g, "&nbsp;").replace(/\n/g, "<br/>")
     return `<span class="logprobs" title="${title}" style="background: ${c}; color: white; white-space: pre; font-family: monospace;">${text}</span>`

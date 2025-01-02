@@ -8,11 +8,12 @@ import {
     FETCH_RETRY_MAX_DELAY_DEFAULT,
 } from "./constants"
 import { errorMessage } from "./error"
-import { logVerbose, roundWithPrecision, toStringList } from "./util"
+import { logVerbose, toStringList } from "./util"
 import { CancellationOptions, CancellationToken } from "./cancellation"
 import { readText } from "./fs"
 import { resolveHttpProxyAgent } from "./proxy"
 import { host } from "./host"
+import { renderWithPrecision } from "./precision"
 
 export type FetchType = (
     input: string | URL | globalThis.Request,
@@ -60,29 +61,26 @@ export async function createFetch(
     if (!retryOn?.length) return crossFetchWithProxy
 
     // Create a fetch function with retry logic
-    const fetchRetry = await wrapFetch(crossFetchWithProxy, {
+    const fetchRetry = wrapFetch(crossFetchWithProxy, {
         retryOn,
         retries,
         retryDelay: (attempt, error, response) => {
             const code: string = (error as any)?.code as string
-            if (
-                code === "ECONNRESET" ||
+            if (code === "ECONNRESET" ||
                 code === "ENOTFOUND" ||
-                cancellationToken?.isCancellationRequested
-            )
+                cancellationToken?.isCancellationRequested)
                 // Return undefined for fatal errors or cancellations to stop retries
                 return undefined
 
             const message = errorMessage(error)
             const status = statusToMessage(response)
-            const delay =
-                Math.min(
-                    maxDelay,
-                    Math.pow(FETCH_RETRY_GROWTH_FACTOR, attempt) * retryDelay
-                ) *
+            const delay = Math.min(
+                maxDelay,
+                Math.pow(FETCH_RETRY_GROWTH_FACTOR, attempt) * retryDelay
+            ) *
                 (1 + Math.random() / 20) // 5% jitter for delay randomization
             const msg = toStringList(
-                `retry #${attempt + 1} in ${roundWithPrecision(Math.floor(delay) / 1000, 1)}s`,
+                `retry #${attempt + 1} in ${renderWithPrecision(Math.floor(delay) / 1000, 1)}s`,
                 message,
                 status
             )
