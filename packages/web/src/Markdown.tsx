@@ -6,7 +6,6 @@ import rehypeRaw from "rehype-raw"
 import rehypeSanitize from "rehype-sanitize"
 import clsx from "clsx"
 import { remarkAlert } from "remark-github-blockquote-alert"
-import rehypeMermaid from "rehype-mermaid"
 import remarkMath from "remark-math"
 import rehypeMathML from "@daiji256/rehype-mathml"
 import { ErrorBoundary } from "react-error-boundary"
@@ -19,7 +18,6 @@ export default function Markdown(props: { className?: string; children: any }) {
                 <ReactMarkdown
                     rehypePlugins={[
                         rehypeRaw,
-                        rehypeMermaid,
                         rehypeMathML,
                         rehypeSanitize,
                     ]}
