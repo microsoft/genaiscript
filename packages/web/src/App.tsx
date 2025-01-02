@@ -42,6 +42,7 @@ import {
 } from "../../core/src/parameters"
 import LLMS from "../../core/src/llms.json"
 import type { GenerationResult } from "../../core/src/generation"
+import { logprobToMarkdown, topLogprobsToMarkdown } from "../../core/src/logprob"
 
 const urlParams = new URLSearchParams(window.location.hash)
 const apiKey = urlParams.get("api-key")
@@ -426,6 +427,7 @@ function JSONSchemaObjectForm(props: {
 function TraceView() {
     const { runner } = useRunner()
     const [trace, setTrace] = useState<string>("")
+    useEffect(() => runner && setTrace(""), [runner])
     const appendTrace = useCallback(
         (evt: Event) =>
             startTransition(() => {
@@ -444,9 +446,22 @@ function OutputView() {
     const [result, setResult] = useState<GenerationResult | undefined>(
         undefined
     )
+    useEffect(() => runner && setResult(undefined), [runner])
     const storeResult = useCallback(() => setResult(runner?.result), [runner])
     useEventListener(runner, RunClient.RESULT_EVENT, storeResult)
-    return <Markdown>{result?.text || ""}</Markdown>
+
+    const { text, logprobs } = result || {}
+    let md = text || ""
+    if (logprobs?.length) {
+        if (logprobs[0].topLogprobs?.length)
+            md = logprobs
+                .map((lp) => topLogprobsToMarkdown(lp))
+                .join("\n")
+        else md = logprobs.map((lp) => logprobToMarkdown(lp)).join("\n")
+    }
+    //if (/^\s*\{/.test(text)) text = fenceMD(text, "json")
+
+    return <Markdown>{md}</Markdown>
 }
 
 function toStringList(...token: (string | undefined | null)[]) {

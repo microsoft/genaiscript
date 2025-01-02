@@ -1,6 +1,5 @@
 // cspell: disable
-import { log } from "console"
-import {
+import type {
     ChatCompletionChunkChoice,
     ChatCompletionTokenLogprob,
 } from "./chattypes"
