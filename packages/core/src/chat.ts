@@ -80,7 +80,10 @@ import {
 } from "./logprob"
 import { uniq } from "es-toolkit"
 import { renderWithPrecision } from "./precision"
-import { LanguageModelConfiguration } from "./server/messages"
+import {
+    LanguageModelConfiguration,
+    LanguageModelInfo,
+} from "./server/messages"
 
 export function toChatCompletionUserMessage(
     expanded: string,
@@ -120,12 +123,6 @@ export type ChatCompletionHandler = (
     options: ChatCompletionsOptions & CancellationOptions,
     trace: MarkdownTrace
 ) => Promise<ChatCompletionResponse>
-
-export interface LanguageModelInfo {
-    id: string
-    details?: string
-    url?: string
-}
 
 export type ListModelsFunction = (
     cfg: LanguageModelConfiguration,

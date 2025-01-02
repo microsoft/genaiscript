@@ -1,7 +1,6 @@
 import {
     ChatCompletionHandler,
     LanguageModel,
-    LanguageModelInfo,
     ListModelsFunction,
 } from "./chat"
 import {
@@ -39,7 +38,10 @@ import { HttpsProxyAgent } from "https-proxy-agent"
 import { MarkdownTrace } from "./trace"
 import { createFetch, FetchType } from "./fetch"
 import { JSONLLMTryParse } from "./json5"
-import { LanguageModelConfiguration } from "./server/messages"
+import {
+    LanguageModelConfiguration,
+    LanguageModelInfo,
+} from "./server/messages"
 
 const convertFinishReason = (
     stopReason: Anthropic.Message["stop_reason"]

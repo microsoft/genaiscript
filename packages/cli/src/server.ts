@@ -15,11 +15,7 @@ import {
     errorMessage,
     serializeError,
 } from "../../core/src/error"
-import {
-    ServerResponse,
-    host,
-    runtimeHost,
-} from "../../core/src/host"
+import { ServerResponse, host, runtimeHost } from "../../core/src/host"
 import { MarkdownTrace, TraceChunkEvent } from "../../core/src/trace"
 import { logVerbose, logError, assert, chunkString } from "../../core/src/util"
 import { CORE_VERSION } from "../../core/src/version"
@@ -34,6 +30,7 @@ import {
     PromptScriptListResponse,
     ResponseStatus,
     LanguageModelConfiguration,
+    ServerEnvResponse,
 } from "../../core/src/server/messages"
 import { envInfo } from "./info"
 import { LanguageModel } from "../../core/src/chat"
@@ -48,6 +45,7 @@ import * as http from "http"
 import { join } from "path"
 import { createReadStream } from "fs"
 import { URL } from "url"
+import { resolveLanguageModelConfigurations } from "../../core/src/config"
 
 /**
  * Starts a WebSocket server for handling chat and script execution.
@@ -127,14 +125,23 @@ export async function startServer(options: {
     }
 
     const serverVersion = () =>
-        <ServerResponse>{
+        ({
             ok: true,
             version: CORE_VERSION,
             node: process.version,
             platform: process.platform,
             arch: process.arch,
             pid: process.pid,
-        }
+        }) satisfies ServerResponse
+
+    const serverEnv = async () =>
+        ({
+            ok: true,
+            providers: await resolveLanguageModelConfigurations(undefined, {
+                token: false,
+                error: true,
+            }),
+        }) satisfies ServerEnvResponse
 
     const scriptList = async () => {
         logVerbose(`project: list scripts`)
@@ -238,10 +245,7 @@ export async function startServer(options: {
                     // Handle environment request
                     case "server.env": {
                         logVerbose(`server: env`)
-                        envInfo(undefined)
-                        response = <ServerResponse>{
-                            ok: true,
-                        }
+                        response = await serverEnv()
                         break
                     }
                     // Handle server kill request
@@ -470,6 +474,8 @@ export async function startServer(options: {
             if (route === "/api/version") response = serverVersion()
             else if (route === "/api/scripts") {
                 response = await scriptList()
+            } else if (route === "/api/env") {
+                response = await serverEnv()
             }
             if (response === undefined) {
                 console.debug(`404: ${url}`)

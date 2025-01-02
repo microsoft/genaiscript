@@ -1,5 +1,5 @@
 // Import necessary modules and types for handling chat completions and model management
-import { LanguageModel, LanguageModelInfo, PullModelFunction } from "./chat"
+import { LanguageModel, PullModelFunction } from "./chat"
 import { MODEL_PROVIDER_OLLAMA, TOOL_ID } from "./constants"
 import { serializeError } from "./error"
 import { createFetch, iterateBody } from "./fetch"
@@ -9,7 +9,10 @@ import { host } from "./host"
 import { logError, logVerbose } from "./util"
 import { TraceOptions } from "./trace"
 import { CancellationOptions } from "./cancellation"
-import { LanguageModelConfiguration } from "./server/messages"
+import {
+    LanguageModelConfiguration,
+    LanguageModelInfo,
+} from "./server/messages"
 
 /**
  * Lists available models for the Ollama language model configuration.

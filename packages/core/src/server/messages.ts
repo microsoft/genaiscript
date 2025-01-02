@@ -1,4 +1,8 @@
-import type { ChatCompletionAssistantMessageParam, ChatCompletionMessageParam, ChatCompletionUsage } from "../chattypes"
+import type {
+    ChatCompletionAssistantMessageParam,
+    ChatCompletionMessageParam,
+    ChatCompletionUsage,
+} from "../chattypes"
 
 export interface ResponseStatus {
     ok: boolean
@@ -33,6 +37,18 @@ export interface LanguageModelConfiguration extends LanguageModelReference {
     azureCredentialsType?: AzureCredentialsType
 }
 
+export interface LanguageModelInfo {
+    id: string
+    details?: string
+    url?: string
+}
+
+export type ResolvedLanguageModelConfiguration =
+    Partial<LanguageModelConfiguration> & {
+        models?: LanguageModelInfo[]
+        error?: string
+    }
+
 /**
  * Represents a project containing templates and diagnostics.
  * Provides utility methods to manage templates and diagnose issues.
@@ -59,6 +75,10 @@ export interface ServerVersion extends RequestMessage {
 
 export interface ServerEnv extends RequestMessage {
     type: "server.env"
+}
+
+export interface ServerEnvResponse extends ResponseStatus {
+    providers: ResolvedLanguageModelConfiguration[]
 }
 
 export interface PromptScriptTestRunOptions

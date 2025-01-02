@@ -19,12 +19,7 @@ import {
     TOOL_URL,
 } from "./constants"
 import { estimateTokens } from "./tokens"
-import {
-    ChatCompletionHandler,
-    LanguageModel,
-    LanguageModelInfo,
-    PullModelFunction,
-} from "./chat"
+import { ChatCompletionHandler, LanguageModel, PullModelFunction } from "./chat"
 import { RequestError, errorMessage, serializeError } from "./error"
 import { createFetch, iterateBody, traceFetchPost } from "./fetch"
 import { parseModelIdentifier } from "./models"
@@ -49,7 +44,10 @@ import { CancellationOptions, toSignal } from "./cancellation"
 import { INITryParse } from "./ini"
 import { serializeChunkChoiceToLogProbs } from "./logprob"
 import { TraceOptions } from "./trace"
-import { LanguageModelConfiguration } from "./server/messages"
+import {
+    LanguageModelConfiguration,
+    LanguageModelInfo,
+} from "./server/messages"
 
 export function getConfigHeaders(cfg: LanguageModelConfiguration) {
     let { token, type, base, provider } = cfg

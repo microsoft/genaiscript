@@ -4,14 +4,11 @@
  * and resolving model connection info for specific scripts.
  */
 
-import { LanguageModelInfo } from "../../core/src/chat"
+import { resolveLanguageModelConfigurations } from "../../core/src/config"
 import { parseTokenFromEnv } from "../../core/src/connection"
 import { MODEL_PROVIDERS } from "../../core/src/constants"
 import { errorMessage } from "../../core/src/error"
-import {
-    host,
-    runtimeHost,
-} from "../../core/src/host"
+import { host, runtimeHost } from "../../core/src/host"
 import { resolveLanguageModel } from "../../core/src/lm"
 import {
     ModelConnectionInfo,
@@ -43,51 +40,10 @@ export async function envInfo(
     provider: string,
     options?: { token?: boolean; error?: boolean; models?: boolean }
 ) {
-    const { token, error, models } = options || {}
     const config = await runtimeHost.readConfig()
     const res: any = {}
     res[".env"] = config.envFile ?? ""
-    res.providers = []
-    const env = process.env
-
-    // Iterate through model providers, filtering if a specific provider is given
-    for (const modelProvider of MODEL_PROVIDERS.filter(
-        (mp) => !provider || mp.id === provider
-    )) {
-        try {
-            // Attempt to parse connection token from environment variables
-            const conn: LanguageModelConfiguration & {
-                models?: LanguageModelInfo[]
-            } = await parseTokenFromEnv(env, `${modelProvider.id}:*`)
-            if (conn) {
-                // Mask the token if the option is set
-                if (!token && conn.token) conn.token = "***"
-                if (models) {
-                    const lm = await resolveLanguageModel(modelProvider.id)
-                    if (lm.listModels) {
-                        const ms = await lm.listModels(conn, {})
-                        if (ms?.length) conn.models = ms
-                    }
-                }
-                res.providers.push(
-                    deleteEmptyValues({
-                        provider: conn.provider,
-                        source: conn.source,
-                        base: conn.base,
-                        type: conn.type,
-                        models: conn.models,
-                    })
-                )
-            }
-        } catch (e) {
-            if (error)
-                // Capture and store any errors encountered
-                res.providers.push({
-                    provider: modelProvider.id,
-                    error: errorMessage(e),
-                })
-        }
-    }
+    res.providers = await resolveLanguageModelConfigurations(provider, options)
     console.log(YAMLStringify(res))
 }
 

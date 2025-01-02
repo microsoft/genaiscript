@@ -38,6 +38,8 @@ import type {
     PromptScriptResponseEvents,
     PromptScriptStart,
     GenerationResult,
+    ResolvedLanguageModelConfiguration,
+    ServerEnvResponse,
 } from "../../core/src/server/messages"
 import { promptParametersSchemaToJSONSchema } from "../../core/src/parameters"
 import LLMS from "../../core/src/llms.json"
@@ -60,6 +62,16 @@ const fetchScripts = async (): Promise<Project> => {
     })
     const j: PromptScriptListResponse = await res.json()
     return j.project
+}
+const fetchEnv = async (): Promise<ResolvedLanguageModelConfiguration[]> => {
+    const res = await fetch(`/api/env`, {
+        headers: {
+            Accept: "application/json",
+            Authorization: apiKey || "",
+        },
+    })
+    const j: ServerEnvResponse = await res.json()
+    return j.providers
 }
 
 type TraceEvent = CustomEvent<{ trace: string }>
@@ -147,29 +159,6 @@ class RunClient extends EventTarget {
     }
 }
 
-const ApiContext = createContext<{
-    project: Promise<Project | undefined>
-    scriptid: string | undefined
-    setScriptid: (id: string) => void
-    files: string[]
-    setFiles: (files: string[]) => void
-    parameters: PromptParameters
-    setParameters: (parameters: PromptParameters) => void
-    options: ModelOptions
-    setOptions: (
-        f: (prev: ModelConnectionOptions) => ModelConnectionOptions
-    ) => void
-} | null>(null)
-
-function JSONTryParse<T>(s: string): T | undefined {
-    try {
-        if (s === undefined) return undefined
-        return JSON.parse(s) as T
-    } catch (e) {
-        return undefined
-    }
-}
-
 function useUrlSearchParams<T>(
     initialValues: T,
     fields: Record<
@@ -230,8 +219,29 @@ function useUrlSearchParams<T>(
     return [state, setState] as const
 }
 
+const ApiContext = createContext<{
+    project: Promise<Project | undefined>
+    providers: Promise<ResolvedLanguageModelConfiguration[] | undefined>
+
+    scriptid: string | undefined
+    setScriptid: (id: string) => void
+    files: string[]
+    setFiles: (files: string[]) => void
+    parameters: PromptParameters
+    setParameters: (parameters: PromptParameters) => void
+    options: ModelOptions
+    setOptions: (
+        f: (prev: ModelConnectionOptions) => ModelConnectionOptions
+    ) => void
+} | null>(null)
+
 function ApiProvider({ children }: { children: React.ReactNode }) {
     const project = useMemo<Promise<Project>>(fetchScripts, [])
+    const providers = useMemo<Promise<ResolvedLanguageModelConfiguration[]>>(
+        fetchEnv,
+        []
+    )
+
     const [state, setState] = useUrlSearchParams<
         {
             scriptid: string
@@ -273,6 +283,7 @@ function ApiProvider({ children }: { children: React.ReactNode }) {
         <ApiContext.Provider
             value={{
                 project,
+                providers,
                 scriptid,
                 setScriptid,
                 files,
@@ -544,7 +555,7 @@ function JSONSchemaObjectForm(props: {
     )
 }
 
-function TraceView() {
+function TraceTabPanel() {
     const { runner } = useRunner()
     const [trace, setTrace] = useState<string>("")
     useEffect(() => runner && setTrace(""), [runner])
@@ -558,7 +569,11 @@ function TraceView() {
         [runner]
     )
     useEventListener(runner, RunClient.TRACE_EVENT, appendTrace)
-    return <Markdown>{trace}</Markdown>
+    return (
+        <VscodeTabPanel>
+            <Markdown>{trace}</Markdown>
+        </VscodeTabPanel>
+    )
 }
 
 function ProblemsTabPanel() {
@@ -766,7 +781,8 @@ function PromptParametersForm() {
 }
 
 function ModelConnectionOptionsForm() {
-    const { options, setOptions } = useApi()
+    const { options, setOptions, providers: providersPromise } = useApi()
+    const providers = use(providersPromise)
 
     const schema: JSONSchemaObject = {
         type: "object",
@@ -774,9 +790,10 @@ function ModelConnectionOptionsForm() {
             provider: {
                 type: "string",
                 description: "LLM provider",
-                enum: LLMS.providers
-                    .sort((l, r) => l.id.localeCompare(r.id))
-                    .map((p) => p.id),
+                enum: providers
+                    .filter((p) => !p.error)
+                    .sort((l, r) => l.provider.localeCompare(r.provider))
+                    .map((p) => p.provider),
                 default: "openai",
             },
             model: {
@@ -870,9 +887,7 @@ function WebApp() {
             <RunForm />
             <VscodeTabs panel>
                 <VscodeTabHeader slot="header">Trace</VscodeTabHeader>
-                <VscodeTabPanel>
-                    <TraceView />
-                </VscodeTabPanel>
+                <TraceTabPanel />
                 <ProblemsTabPanel />
                 <OutputTabPanel />
                 <FilesTabPanel />
