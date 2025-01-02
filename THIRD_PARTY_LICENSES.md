@@ -1963,7 +1963,7 @@ The following npm packages may be included in this product:
  - @aws-sdk/util-user-agent-node@3.716.0
  - @smithy/eventstream-codec@2.2.0
  - @smithy/eventstream-codec@3.1.10
- - @smithy/middleware-retry@3.0.32
+ - @smithy/middleware-retry@3.0.33
  - @smithy/querystring-builder@2.2.0
  - @smithy/querystring-builder@3.0.11
  - @smithy/querystring-parser@2.2.0
@@ -1971,8 +1971,8 @@ The following npm packages may be included in this product:
  - @smithy/service-error-classification@3.0.11
  - @smithy/url-parser@2.2.0
  - @smithy/url-parser@3.0.11
- - @smithy/util-defaults-mode-browser@3.0.32
- - @smithy/util-defaults-mode-node@3.0.32
+ - @smithy/util-defaults-mode-browser@3.0.33
+ - @smithy/util-defaults-mode-node@3.0.33
 
 These packages each contain the following license:
 
@@ -2408,7 +2408,7 @@ The following npm packages may be included in this product:
  - @smithy/protocol-http@3.3.0
  - @smithy/protocol-http@4.1.8
  - @smithy/smithy-client@2.5.1
- - @smithy/smithy-client@3.5.2
+ - @smithy/smithy-client@3.6.0
  - @smithy/types@2.12.0
  - @smithy/types@3.7.2
 
@@ -2827,8 +2827,8 @@ The following npm packages may be included in this product:
  - @types/http-cache-semantics@4.0.4
  - @types/node-fetch@2.6.12
  - @types/node@16.9.1
- - @types/node@18.19.68
- - @types/node@22.10.2
+ - @types/node@18.19.69
+ - @types/node@22.10.4
  - @types/turndown@5.0.5
  - @types/uuid@9.0.8
  - @types/yauzl@2.10.3
@@ -10355,8 +10355,8 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - @octokit/endpoint@10.1.1
- - @octokit/graphql@8.1.1
+ - @octokit/endpoint@10.1.2
+ - @octokit/graphql@8.1.2
  - @octokit/plugin-throttling@9.3.2
  - @octokit/request@9.1.4
 
