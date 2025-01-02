@@ -885,6 +885,18 @@
   resolved "https://registry.yarnpkg.com/@chevrotain/utils/-/utils-11.0.3.tgz#e39999307b102cff3645ec4f5b3665f5297a2224"
   integrity sha512-YslZMgtJUyuMbZ+aKvfF3x1f5liK4mWNxghFRv7jqRR9C3R3fAOGTTKvxXDa2Y1s9zSbcpuO0cAxDYsc9SrXoQ==
 
+"@daiji256/rehype-mathml@^1.1.1":
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/@daiji256/rehype-mathml/-/rehype-mathml-1.1.1.tgz#9482331f02ce0ba5f54517276bef64abcd770d83"
+  integrity sha512-6g7ZSJgGtRWZEDkmTfe+/RN6ST5/40tule9p3kP5JiR1tDfGWWcPN+fu2zcB8zS18Cz/BNLRfNrUqt5RwfgKMA==
+  dependencies:
+    "@types/hast" "^3.0.0"
+    hast-util-from-html-isomorphic "^2.0.0"
+    hast-util-to-text "^4.0.0"
+    temml "^0.10.0"
+    unified "^11.0.0"
+    unist-util-visit-parents "^6.0.0"
+
 "@elastic/micro-jq@^1.8.0":
   version "1.8.0"
   resolved "https://registry.yarnpkg.com/@elastic/micro-jq/-/micro-jq-1.8.0.tgz#7f8d5226568df7575c6a6a459f77d60c04ed1062"
@@ -8905,19 +8917,6 @@ regexp.prototype.flags@^1.5.3:
     es-errors "^1.3.0"
     set-function-name "^2.0.2"
 
-rehype-katex@^7.0.1:
-  version "7.0.1"
-  resolved "https://registry.yarnpkg.com/rehype-katex/-/rehype-katex-7.0.1.tgz#832e6d7af2744a228981d1b0fe89483a9e7c93a1"
-  integrity sha512-OiM2wrZ/wuhKkigASodFoo8wimG3H12LWQaH8qSPVJn9apWKFSH3YOCtbKpBorTVw/eI7cuT21XBbvwEswbIOA==
-  dependencies:
-    "@types/hast" "^3.0.0"
-    "@types/katex" "^0.16.0"
-    hast-util-from-html-isomorphic "^2.0.0"
-    hast-util-to-text "^4.0.0"
-    katex "^0.16.0"
-    unist-util-visit-parents "^6.0.0"
-    vfile "^6.0.0"
-
 rehype-mermaid@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/rehype-mermaid/-/rehype-mermaid-3.0.0.tgz#e7e39dcfc2700dcd0c4f0bcf30840ff2180115aa"
@@ -9833,6 +9832,11 @@ tar@^7.0.1:
     minizlib "^3.0.1"
     mkdirp "^3.0.1"
     yallist "^5.0.0"
+
+temml@^0.10.0:
+  version "0.10.32"
+  resolved "https://registry.yarnpkg.com/temml/-/temml-0.10.32.tgz#1a5cba604185f835dd67ab9db4ffc3a7ec3f884f"
+  integrity sha512-CHggqY4DRQd5UWIsAc+DNN3+QKBLElbSTWxIduFzdlUv7nAXvEyHpa2PJ+7v2/wRkoFDmtDxSB486XHB07E1Ng==
 
 temp-dir@^3.0.0:
   version "3.0.0"

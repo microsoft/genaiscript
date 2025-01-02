@@ -22,6 +22,7 @@
         "built/genaiscript.cjs",
         "built/web.mjs",
         "built/index.html",
+        "built/markdown.css",
         "src/favicon.svg"
     ],
     "publisher": "Microsoft",

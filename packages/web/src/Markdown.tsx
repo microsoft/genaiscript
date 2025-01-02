@@ -7,19 +7,18 @@ import rehypeSanitize from "rehype-sanitize"
 import clsx from "clsx"
 import { remarkAlert } from "remark-github-blockquote-alert"
 import rehypeMermaid from "rehype-mermaid"
-import rehypeKatex from "rehype-katex"
 import remarkMath from "remark-math"
-import { details } from "../../core/src/markdown"
+import rehypeMathML from '@daiji256/rehype-mathml'
 
 export default function Markdown(props: { className?: string; children: any }) {
     const { className, children } = props
     return children ? (
-        <div className={clsx("markdown", className)}>
+        <div className={clsx("markdown-body", className)}>
             <ReactMarkdown
                 rehypePlugins={[
-                    rehypeMermaid,
-                    rehypeKatex,
                     rehypeRaw,
+                    rehypeMermaid,
+                    rehypeMathML,
                     rehypeSanitize,
                 ]}
                 remarkPlugins={[remarkMath, remarkGfm, remarkAlert]}

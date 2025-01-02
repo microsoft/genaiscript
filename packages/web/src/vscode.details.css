@@ -1,0 +1,6 @@
+.vscode-body details {
+    margin-left: 1rem;
+}
+.vscode-body details summary {
+    cursor: pointer;
+}

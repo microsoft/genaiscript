@@ -434,6 +434,12 @@ export async function startServer(options: {
             const filePath = join(__dirname, "index.html")
             const stream = createReadStream(filePath)
             stream.pipe(res)
+        } else if (route === "/built/markdown.css") {
+            res.setHeader("Content-Type", "text/css")
+            res.statusCode = 200
+            const filePath = join(__dirname, "markdown.css")
+            const stream = createReadStream(filePath)
+            stream.pipe(res)
         } else if (route === "/built/web.mjs") {
             res.setHeader("Content-Type", "application/javascript")
             res.statusCode = 200
