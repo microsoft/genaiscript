@@ -9,22 +9,25 @@ import { remarkAlert } from "remark-github-blockquote-alert"
 import rehypeMermaid from "rehype-mermaid"
 import remarkMath from "remark-math"
 import rehypeMathML from "@daiji256/rehype-mathml"
+import { ErrorBoundary } from "react-error-boundary"
 
 export default function Markdown(props: { className?: string; children: any }) {
     const { className, children } = props
     return children ? (
         <div className={clsx("markdown-body", className)}>
-            <ReactMarkdown
-                rehypePlugins={[
-                    rehypeRaw,
-                    rehypeMermaid,
-                    rehypeMathML,
-                    rehypeSanitize,
-                ]}
-                remarkPlugins={[remarkMath, remarkGfm, remarkAlert]}
-            >
-                {children}
-            </ReactMarkdown>
+            <ErrorBoundary fallback={<p>⚠️Something went wrong while rendering markdown.</p>}>
+                <ReactMarkdown
+                    rehypePlugins={[
+                        rehypeRaw,
+                        rehypeMermaid,
+                        rehypeMathML,
+                        rehypeSanitize,
+                    ]}
+                    remarkPlugins={[remarkMath, remarkGfm, remarkAlert]}
+                >
+                    {children}
+                </ReactMarkdown>
+            </ErrorBoundary>
         </div>
     ) : null
 }
