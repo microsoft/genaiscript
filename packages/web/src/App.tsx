@@ -83,7 +83,6 @@ class RunClient extends EventTarget {
         this.ws.addEventListener(
             "open",
             () => {
-                console.log(`run ${this.runId}: open`)
                 const id = "" + Math.random()
 
                 this.ws?.send(
@@ -175,7 +174,10 @@ function useUrlSearchParams<T>(
     initialValues: T,
     fields: Record<
         string,
-        JSONSchemaString | JSONSchemaNumber | JSONSchemaBoolean
+        | JSONSchemaString
+        | JSONSchemaNumber
+        | JSONSchemaBoolean
+        | JSONSchemaArray
     >
 ) {
     const [state, setState] = useState<T>(initialValues)
@@ -195,6 +197,9 @@ function useUrlSearchParams<T>(
                     const parsed =
                         type === "number" ? parseFloat(value) : parseInt(value)
                     if (!isNaN(parsed)) newState[key] = parsed
+                } else if (type === "array") {
+                    const parsed = value.split(",")
+                    if (parsed) newState[key] = parsed
                 }
             }
         })
@@ -215,6 +220,9 @@ function useUrlSearchParams<T>(
             } else if (type === "integer" || type === "number") {
                 const v = value as number
                 if (!isNaN(v)) params.set(key, v.toString())
+            } else if (type === "array") {
+                const v = (value as string[]).filter((s) => s !== "")
+                if (v.length) params.set(key, v.join(","))
             }
         }
         window.history.pushState({}, "", `?${params.toString()}`)
@@ -227,13 +235,16 @@ function ApiProvider({ children }: { children: React.ReactNode }) {
     const [state, setState] = useUrlSearchParams<
         {
             scriptid: string
+            files: string[]
         } & ModelConnectionOptions
     >(
         {
             scriptid: "",
+            files: [],
         },
         {
             scriptid: { type: "string" },
+            files: { type: "array", items: { type: "string" } },
             provider: { type: "string" },
             model: { type: "string" },
             smallModel: { type: "string" },
@@ -243,11 +254,12 @@ function ApiProvider({ children }: { children: React.ReactNode }) {
             topLogprobs: { type: "integer" },
         }
     )
-    const { scriptid, ...options } = state
-    const [files, setFiles] = useState<string[]>([])
+    const { scriptid, files, ...options } = state
     const [parameters, setParameters] = useState<PromptParameters>({})
     const setScriptid = (id: string) =>
         setState((prev) => ({ ...prev, scriptid: id }))
+    const setFiles = (files: string[]) =>
+        setState((prev) => ({ ...prev, files: files.slice() }))
     const setOptions = (
         f: (prev: ModelConnectionOptions) => ModelConnectionOptions
     ) => {
@@ -290,7 +302,6 @@ function RunnerProvider({ children }: { children: React.ReactNode }) {
     const { scriptid, files, options, parameters } = useApi()
     const [runner, setRunner] = useState<RunClient | undefined>(undefined)
 
-    console.log({ runner: runner?.runId })
     useEffect(() => {
         runner?.close()
         setRunner(undefined)

@@ -186,6 +186,7 @@ export async function runScriptInternal(
 
     const fail = (msg: string, exitCode: number, url?: string) => {
         logError(url ? `${msg} (see ${url})` : msg)
+        trace?.error(msg)
         return { exitCode, result }
     }
 
