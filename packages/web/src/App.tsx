@@ -160,13 +160,12 @@ const ApiContext = createContext<{
     setOptions: (options: ModelConnectionOptions) => void
 } | null>(null)
 
-function JSONSearchArg<T>(defaultValue: T): (s: string) => T {
-    return (s: string) => {
-        try {
-            return s === undefined ? defaultValue : (JSON.parse(s) as T)
-        } catch (e) {
-            return defaultValue
-        }
+function JSONTryParse<T>(s: string): T | undefined {
+    try {
+        if (s === undefined) return undefined
+        return JSON.parse(s) as T
+    } catch (e) {
+        return undefined
     }
 }
 
@@ -174,20 +173,36 @@ function useUrlSearchParams<T>(initialValues: T) {
     const [state, setState] = useState<T>(initialValues)
     useEffect(() => {
         const params = new URLSearchParams(window.location.search)
+        const newState: any = { ...state }
         for (const key in initialValues) {
             const value = params.get(key)
-            if (value) {
-                setState((prev) => ({ ...prev, [key]: value }))
-            }
+            if (value)
+                newState[key] = key === "scriptid" ? value : JSONTryParse(value)
         }
+        console.log({ newState })
+        setState(newState)
     }, [])
     useEffect(() => {
         const params = new URLSearchParams()
         for (const key in state) {
             const value = state[key]
-            if (value) params.set(key, value as string)
+            if (
+                value &&
+                (!Array.isArray(value) || value.length > 0) &&
+                (typeof value !== "object" || Object.keys(value).length > 0)
+            )
+                params.set(
+                    key,
+                    typeof value === "string"
+                        ? value
+                        : value !== undefined
+                          ? JSON.stringify(value)
+                          : undefined
+                )
+            else params.delete(key)
         }
-        window.history.replaceState({}, "", `?${params.toString()}`)
+        console.log({ state, params: params.toString() })
+        window.history.pushState({}, "", `?${params.toString()}`)
     }, [state])
     return [state, setState] as const
 }
@@ -217,17 +232,14 @@ function ApiProvider({ children }: { children: React.ReactNode }) {
         parameters: PromptParameters
         options: ModelOptions
     }
-    const setScriptid = (id: string) => {
-        const newState = { ...state, scriptid: id }
-        console.log({ state, id, newState })
-        setState(newState)
-    }
+    const setScriptid = (id: string) =>
+        setState((prev) => ({ ...prev, scriptid: id }))
     const setParameters = (parameters: PromptParameters) =>
-        setState({ ...state, parameters: JSON.stringify(parameters) })
+        setState((prev) => ({ ...prev, parameters }))
     const setFiles = (files: string[]) =>
-        setState({ ...state, files: JSON.stringify(files) })
+        setState((prev) => ({ ...prev, files }))
     const setOptions = (options: ModelConnectionOptions) =>
-        setState({ ...state, options: JSON.stringify(options) })
+        setState((prev) => ({ ...prev, options }))
 
     return (
         <ApiContext.Provider
@@ -660,7 +672,7 @@ function FilesForm() {
 
 function ScriptSelect() {
     const scripts = useScripts()
-    const { scriptid, setScriptid, setParameters } = useApi()
+    const { scriptid, setScriptid } = useApi()
 
     return (
         <VscodeFormGroup>
@@ -668,13 +680,12 @@ function ScriptSelect() {
                 <GenAIScriptLogo height="2em" />
             </VscodeLabel>
             <VscodeSingleSelect
-                value={scriptid || ""}
+                value={scriptid}
                 combobox
                 filter="fuzzy"
                 onChange={(e) => {
                     const target = e.target as HTMLSelectElement
                     setScriptid(target.value)
-                    setParameters({})
                 }}
             >
                 {scripts.map(({ id, title }) => (
