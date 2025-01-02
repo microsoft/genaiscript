@@ -557,7 +557,7 @@ function JSONSchemaObjectForm(props: {
 
 function TraceTabPanel() {
     const { runner } = useRunner()
-    const [trace, setTrace] = useState<string>("")
+    const [trace, setTrace] = useState<string>("Run script to see trace.")
     useEffect(() => runner && setTrace(""), [runner])
     const appendTrace = useCallback(
         (evt: Event) =>
@@ -570,9 +570,12 @@ function TraceTabPanel() {
     )
     useEventListener(runner, RunClient.TRACE_EVENT, appendTrace)
     return (
-        <VscodeTabPanel>
-            <Markdown>{trace}</Markdown>
-        </VscodeTabPanel>
+        <>
+            <VscodeTabHeader slot="header">Trace</VscodeTabHeader>
+            <VscodeTabPanel>
+                <Markdown>{trace}</Markdown>
+            </VscodeTabPanel>
+        </>
     )
 }
 
@@ -747,14 +750,16 @@ function ScriptSelect() {
     )
 }
 
-function ScriptForm(props: {}) {
+function ScriptForm() {
     return (
-        <VscodeFormContainer>
-            <ScriptSelect />
-            <FilesForm />
-            <PromptParametersForm />
-            <RunButton />
-        </VscodeFormContainer>
+        <VscodeCollapsible open title="Script">
+            <VscodeFormContainer>
+                <ScriptSelect />
+                <FilesForm />
+                <PromptParametersForm />
+                <RunButton />
+            </VscodeFormContainer>
+        </VscodeCollapsible>
     )
 }
 
@@ -835,7 +840,7 @@ function ModelConnectionOptionsForm() {
         },
     }
     return (
-        <VscodeCollapsible title="Options">
+        <VscodeCollapsible title="Model Options">
             <JSONSchemaObjectForm
                 schema={schema}
                 value={options}
@@ -885,13 +890,14 @@ function WebApp() {
     return (
         <>
             <RunForm />
-            <VscodeTabs panel>
-                <VscodeTabHeader slot="header">Trace</VscodeTabHeader>
-                <TraceTabPanel />
-                <ProblemsTabPanel />
-                <OutputTabPanel />
-                <FilesTabPanel />
-            </VscodeTabs>
+            <VscodeCollapsible open title="Results">
+                <VscodeTabs panel>
+                    <TraceTabPanel />
+                    <ProblemsTabPanel />
+                    <OutputTabPanel />
+                    <FilesTabPanel />
+                </VscodeTabs>
+            </VscodeCollapsible>
         </>
     )
 }
