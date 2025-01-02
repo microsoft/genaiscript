@@ -35,16 +35,11 @@ import Markdown from "./Markdown"
 import type {
     Project,
     PromptScriptListResponse,
-    PromptScriptProgressResponseEvent,
     PromptScriptResponseEvents,
     PromptScriptStart,
-    RequestMessage,
     GenerationResult,
 } from "../../core/src/server/messages"
-import {
-    promptParametersSchemaToJSONSchema,
-    promptParameterTypeToJSONSchema,
-} from "../../core/src/parameters"
+import { promptParametersSchemaToJSONSchema } from "../../core/src/parameters"
 import LLMS from "../../core/src/llms.json"
 import {
     logprobToMarkdown,
@@ -158,21 +153,81 @@ const ApiContext = createContext<{
     scriptid: string | undefined
     setScriptid: (id: string) => void
     files: string[]
-    setFiles: Dispatch<SetStateAction<string[]>>
+    setFiles: (files: string[]) => void
     parameters: PromptParameters
-    setParameters: Dispatch<SetStateAction<PromptParameters>>
+    setParameters: (parameters: PromptParameters) => void
     options: ModelOptions
-    setOptions: Dispatch<SetStateAction<ModelOptions>>
+    setOptions: (options: ModelConnectionOptions) => void
 } | null>(null)
+
+function JSONSearchArg<T>(defaultValue: T): (s: string) => T {
+    return (s: string) => {
+        try {
+            return s === undefined ? defaultValue : (JSON.parse(s) as T)
+        } catch (e) {
+            return defaultValue
+        }
+    }
+}
+
+function useUrlSearchParams<T>(initialValues: T) {
+    const [state, setState] = useState<T>(initialValues)
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search)
+        for (const key in initialValues) {
+            const value = params.get(key)
+            if (value) {
+                setState((prev) => ({ ...prev, [key]: value }))
+            }
+        }
+    }, [])
+    useEffect(() => {
+        const params = new URLSearchParams()
+        for (const key in state) {
+            const value = state[key]
+            if (value) params.set(key, value as string)
+        }
+        window.history.replaceState({}, "", `?${params.toString()}`)
+    }, [state])
+    return [state, setState] as const
+}
 
 function ApiProvider({ children }: { children: React.ReactNode }) {
     const project = useMemo<Promise<Project>>(fetchScripts, [])
-    const [scriptid, setScriptid] = useState<string | undefined>(undefined)
-    const [files, setFiles] = useState<string[]>([])
-    const [parameters, setParameters] = useState<PromptParameters>({})
-    const [options, setOptions] = useState<ModelOptions>({})
-
-    console.log({ scriptid, parameters, options })
+    const [state, setState] = useUrlSearchParams({
+        scriptid: "",
+        files: [],
+        parameters: {},
+        options: {},
+    } as {
+        scriptid: string
+        files: string[]
+        parameters: PromptParameters
+        options: ModelOptions
+    })
+    console.log({ state })
+    const {
+        scriptid,
+        files = [],
+        parameters = {},
+        options = {},
+    } = state as {
+        scriptid: string
+        files: string[]
+        parameters: PromptParameters
+        options: ModelOptions
+    }
+    const setScriptid = (id: string) => {
+        const newState = { ...state, scriptid: id }
+        console.log({ state, id, newState })
+        setState(newState)
+    }
+    const setParameters = (parameters: PromptParameters) =>
+        setState({ ...state, parameters: JSON.stringify(parameters) })
+    const setFiles = (files: string[]) =>
+        setState({ ...state, files: JSON.stringify(files) })
+    const setOptions = (options: ModelConnectionOptions) =>
+        setState({ ...state, options: JSON.stringify(options) })
 
     return (
         <ApiContext.Provider
@@ -522,6 +577,7 @@ function OutputTabPanel() {
 function FilesTabPanel() {
     const result = useResult()
     const { fileEdits = {} } = result || {}
+    const [selected, setSelected] = useState<string | undefined>(undefined)
     const files = Object.entries(fileEdits)
     const data: TreeItem[] = files.map(([file, edits]) => ({
         label: file,
@@ -529,7 +585,8 @@ function FilesTabPanel() {
         icons: true,
         description: edits.after,
     }))
-    
+    const selectedFile = fileEdits[selected]
+
     return (
         <>
             <VscodeTabHeader slot="header">
@@ -543,14 +600,23 @@ function FilesTabPanel() {
                 )}
             </VscodeTabHeader>
             <VscodeTabPanel>
-                <VscodeSplitLayout split="vertical">
-                    <div slot="start" className="split-layout-content">
-                        <VscodeTree data={data} />
-                    </div>
-                    <div slot="end" className="split-layout-content">
-                        <Markdown>text</Markdown>
-                    </div>
-                </VscodeSplitLayout>
+                {files.length > 0 && (
+                    <VscodeSplitLayout split="vertical">
+                        <div slot="start" className="split-layout-content">
+                            <VscodeTree
+                                onVscTreeSelect={(e) => {
+                                    setSelected(e.detail.value)
+                                }}
+                                data={data}
+                            />
+                        </div>
+                        <div slot="end" className="split-layout-content">
+                            {selectedFile && (
+                                <pre>{selectedFile?.after || ""}</pre>
+                            )}
+                        </div>
+                    </VscodeSplitLayout>
+                )}
             </VscodeTabPanel>
         </>
     )
@@ -575,7 +641,7 @@ function ScriptFormHelper() {
 }
 
 function FilesForm() {
-    const { files, setFiles } = useApi()
+    const { files = [], setFiles } = useApi()
     return (
         <VscodeFormContainer>
             <VscodeFormGroup>

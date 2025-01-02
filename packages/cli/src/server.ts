@@ -425,7 +425,7 @@ export async function startServer(options: {
     // Create an HTTP server to handle basic requests.
     const httpServer = http.createServer(async (req, res) => {
         const { url } = req
-        const route = url
+        const route = url?.replace(/\?.*$/, "")
         res.setHeader("Cache-Control", "no-store")
         if (route === "/") {
             res.setHeader("Content-Type", "text/html")
