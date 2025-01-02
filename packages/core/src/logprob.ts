@@ -25,16 +25,22 @@ export function serializeChunkChoiceToLogProbs(
     const { delta, logprobs } = choice
     if (logprobs?.content) return logprobs.content.map(serializeLogProb)
     else
-        return [{ token: delta.content, logprob: Number.NaN } satisfies Logprob]
+        return [
+            {
+                token: delta.content || "",
+                logprob: Number.NaN,
+            } satisfies Logprob,
+        ]
 }
 
 function logprobToPercent(value: number | undefined): number {
+    if (value === undefined) return NaN
     const linearProbability = roundWithPrecision(Math.exp(value) * 100, 2)
     return linearProbability
 }
 
 export function renderLogprob(logprob: number | undefined): string {
-    return isNaN(logprob)
+    return logprob === undefined || isNaN(logprob)
         ? `--`
         : `${logprobToPercent(logprob)}% (${roundWithPrecision(logprob, 2)})`
 }
@@ -46,7 +52,7 @@ export function logprobColor(
     const { maxIntensity = 210, entropy } = options || {}
     // Normalize log probability for a red to blue gradient range
     const alpha = entropy
-        ? 1 - logprob.entropy
+        ? 1 - (logprob.entropy || 0)
         : logprobToPercent(logprob.logprob) / 100
     const intensity = Math.round(maxIntensity * alpha)
     const red = maxIntensity - intensity // Higher logProb gives less red, more blue
@@ -80,19 +86,23 @@ export function topLogprobsToMarkdown(
     value: Logprob,
     options?: { maxIntensity?: number }
 ) {
-    const { token, topLogprobs } = value
+    const { token, topLogprobs = [] } = value
     const opts = { ...options, eatSpaces: true }
     return `<table class="toplogprobs" style="display: inline-block; padding: 0; margin: 0; border: solid 1px grey; border-radius: 0.2rem;">${topLogprobs.map((tp) => `<tr><td style="border: none; padding: 0;">${logprobToMarkdown(tp, opts)}</td></tr>`).join("")}</table>${/\n/.test(token) ? "<br/>" : ""}`
 }
 
-export function computePerplexity(logprobs: Logprob[] | undefined): number | undefined  {
+export function computePerplexity(
+    logprobs: Logprob[] | undefined
+): number | undefined {
     if (!logprobs?.length) return undefined
     const sum = logprobs.reduce((acc, { logprob }) => acc + logprob, 0)
     return Math.exp(-sum / logprobs.length)
 }
 
-function computeNormalizedEntropy(logprobs: Logprob[] | undefined): number | undefined {
-    if (logprobs?.length < 2) return undefined
+function computeNormalizedEntropy(
+    logprobs: Logprob[] | undefined
+): number | undefined {
+    if (!(logprobs?.length >= 2)) return undefined
 
     // Calculate entropy
     // https://www.watchful.io/blog/decoding-llm-uncertainties-for-better-predictability
@@ -111,11 +121,14 @@ function computeNormalizedEntropy(logprobs: Logprob[] | undefined): number | und
 }
 
 // https://www.watchful.io/blog/decoding-llm-uncertainties-for-better-predictability
-export function computeStructuralUncertainty(logprobs: Logprob[] | undefined): number {
+export function computeStructuralUncertainty(
+    logprobs: Logprob[] | undefined
+): number {
     if (!logprobs?.length) return undefined
     const vs = logprobs
+        .filter((lp) => lp.topLogprobs)
         .map((logprob) => computeNormalizedEntropy(logprob.topLogprobs))
-        .filter((v) => !isNaN(v))
+        .filter((v) => v !== undefined && !isNaN(v))
     if (!vs.length) return undefined
     return vs.reduce((acc, v) => acc + v, 0) / vs.length
 }
