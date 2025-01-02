@@ -28,6 +28,8 @@ import {
     VscodeTabPanel,
     VscodeBadge,
     VscodeTextarea,
+    VscodeTree,
+    VscodeSplitLayout,
 } from "@vscode-elements/react-elements"
 import Markdown from "./Markdown"
 import type {
@@ -48,6 +50,7 @@ import {
     logprobToMarkdown,
     topLogprobsToMarkdown,
 } from "../../core/src/logprob"
+import { TreeItem } from "@vscode-elements/elements/dist/vscode-tree/vscode-tree"
 
 const urlParams = new URLSearchParams(window.location.hash)
 const apiKey = urlParams.get("api-key")
@@ -483,7 +486,7 @@ function ProblemsTabPanel() {
                 Problems{" "}
                 {annotations.length > 0 ? (
                     <VscodeBadge variant="counter" slot="content-after">
-                        annotations.length
+                        {annotations.length}
                     </VscodeBadge>
                 ) : (
                     ""
@@ -511,6 +514,43 @@ function OutputTabPanel() {
             <VscodeTabHeader slot="header">Output</VscodeTabHeader>
             <VscodeTabPanel>
                 <Markdown>{md}</Markdown>
+            </VscodeTabPanel>
+        </>
+    )
+}
+
+function FilesTabPanel() {
+    const result = useResult()
+    const { fileEdits = {} } = result || {}
+    const files = Object.entries(fileEdits)
+    const data: TreeItem[] = files.map(([file, edits]) => ({
+        label: file,
+        value: file,
+        icons: true,
+        description: edits.after,
+    }))
+    
+    return (
+        <>
+            <VscodeTabHeader slot="header">
+                Files
+                {files.length > 0 ? (
+                    <VscodeBadge variant="counter" slot="content-after">
+                        {files.length}
+                    </VscodeBadge>
+                ) : (
+                    ""
+                )}
+            </VscodeTabHeader>
+            <VscodeTabPanel>
+                <VscodeSplitLayout split="vertical">
+                    <div slot="start" className="split-layout-content">
+                        <VscodeTree data={data} />
+                    </div>
+                    <div slot="end" className="split-layout-content">
+                        <Markdown>text</Markdown>
+                    </div>
+                </VscodeSplitLayout>
             </VscodeTabPanel>
         </>
     )
@@ -564,7 +604,7 @@ function ScriptSelect() {
             <VscodeSingleSelect
                 value={scriptid || ""}
                 combobox
-                filter="fuzzy"                
+                filter="fuzzy"
                 onChange={(e) => {
                     const target = e.target as HTMLSelectElement
                     setScriptid(target.value)
@@ -723,6 +763,7 @@ function WebApp() {
                 </VscodeTabPanel>
                 <ProblemsTabPanel />
                 <OutputTabPanel />
+                <FilesTabPanel />
             </VscodeTabs>
         </>
     )
