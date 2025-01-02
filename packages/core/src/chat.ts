@@ -1,7 +1,7 @@
 // cspell: disable
 import { MarkdownTrace, TraceOptions } from "./trace"
 import { PromptImage, PromptPrediction, renderPromptNode } from "./promptdom"
-import { LanguageModelConfiguration, host, runtimeHost } from "./host"
+import { host, runtimeHost } from "./host"
 import { GenerationOptions } from "./generation"
 import { dispose } from "./dispose"
 import {
@@ -23,7 +23,6 @@ import {
     logInfo,
     logVerbose,
     logWarn,
-    roundWithPrecision,
     toStringList,
 } from "./util"
 import { extractFenced, findFirstDataFence, unfence } from "./fence"
@@ -80,6 +79,11 @@ import {
     topLogprobsToMarkdown,
 } from "./logprob"
 import { uniq } from "es-toolkit"
+import { renderWithPrecision } from "./precision"
+import {
+    LanguageModelConfiguration,
+    LanguageModelInfo,
+} from "./server/messages"
 
 export function toChatCompletionUserMessage(
     expanded: string,
@@ -119,12 +123,6 @@ export type ChatCompletionHandler = (
     options: ChatCompletionsOptions & CancellationOptions,
     trace: MarkdownTrace
 ) => Promise<ChatCompletionResponse>
-
-export interface LanguageModelInfo {
-    id: string
-    details?: string
-    url?: string
-}
 
 export type ListModelsFunction = (
     cfg: LanguageModelConfiguration,
@@ -529,10 +527,10 @@ async function structurifyChatSession(
             toStringList(
                 `${logprobs.length} tokens`,
                 !isNaN(perplexity)
-                    ? `perplexity: ${roundWithPrecision(perplexity, 3)}`
+                    ? `perplexity: ${renderWithPrecision(perplexity, 3)}`
                     : undefined,
                 !isNaN(uncertainty)
-                    ? `uncertainty: ${roundWithPrecision(uncertainty, 3)}`
+                    ? `uncertainty: ${renderWithPrecision(uncertainty, 3)}`
                     : undefined
             )
         )
@@ -893,7 +891,7 @@ export async function executeChatSession(
         : undefined
 
     try {
-        trace.startDetails(`🧠 llm chat`)
+        trace.startDetails(`🧠 llm chat`, { expanded: true })
         if (toolDefinitions?.length) {
             trace.detailsFenced(`🛠️ tools`, tools, "yaml")
             const toolNames = toolDefinitions.map(({ spec }) => spec.name)
@@ -1077,7 +1075,7 @@ export function tracePromptResult(
               : /^(-|\*|#+|```)\s/im.test(text)
                 ? "markdown"
                 : "text"
-        trace.detailsFenced(`🔠 output`, text, language)
+        trace.detailsFenced(`🔠 output`, text, language, { expanded: true })
         if (language === "markdown")
             trace.appendContent(
                 "\n\n" + HTMLEscape(prettifyMarkdown(text)) + "\n\n"

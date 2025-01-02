@@ -27,10 +27,10 @@ import { parseModelIdentifier } from "./models"
 import { JSONSchemaStringifyToTypeScript, toStrictJSONSchema } from "./schema"
 import { host, runtimeHost } from "./host"
 import { resolveSystems } from "./systems"
-import { GenerationOptions, GenerationStatus } from "./generation"
+import { GenerationOptions } from "./generation"
 import { AICIRequest, ChatCompletionMessageParam } from "./chattypes"
 import { promptParametersSchemaToJSONSchema } from "./parameters"
-import { Project } from "./server/messages"
+import { GenerationStatus, Project } from "./server/messages"
 import { dispose } from "./dispose"
 
 export async function callExpander(

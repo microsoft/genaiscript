@@ -5,10 +5,11 @@ import {
     MODEL_PROVIDER_OPENAI,
 } from "./constants"
 import { errorMessage } from "./error"
-import { LanguageModelConfiguration, host, runtimeHost } from "./host"
+import { host, runtimeHost } from "./host"
 import { MarkdownTrace, TraceOptions } from "./trace"
 import { arrayify, assert, toStringList } from "./util"
 import { CancellationOptions } from "./cancellation"
+import { LanguageModelConfiguration } from "./server/messages"
 
 /**
  * model

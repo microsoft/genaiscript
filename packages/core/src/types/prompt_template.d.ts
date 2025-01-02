@@ -366,7 +366,7 @@ type PromptParameterType =
     | PromptJSONParameterType<JSONSchemaBoolean>
 type PromptParametersSchema = Record<
     string,
-    PromptParameterType | PromptParameterType[]
+    PromptParameterType | [PromptParameterType]
 >
 type PromptParameters = Record<string, string | number | boolean | object>
 
@@ -1685,7 +1685,7 @@ interface XML {
 interface JSONSchemaUtilities {
     /**
      * Infers a JSON schema from an object
-     * @param obj 
+     * @param obj
      */
     infer(obj: any): JSONSchema
 }

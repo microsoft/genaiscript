@@ -1,6 +1,53 @@
-import { ChatCompletionAssistantMessageParam } from "../chattypes"
-import { GenerationResult } from "../generation"
-import { LanguageModelConfiguration, ResponseStatus } from "../host"
+import type {
+    ChatCompletionAssistantMessageParam,
+    ChatCompletionMessageParam,
+    ChatCompletionUsage,
+} from "../chattypes"
+
+export interface ResponseStatus {
+    ok: boolean
+    error?: SerializedError
+    status?: number
+}
+
+export type OpenAIAPIType =
+    | "openai"
+    | "azure"
+    | "localai"
+    | "azure_serverless"
+    | "azure_serverless_models"
+    | "alibaba"
+
+export type AzureCredentialsType =
+    | "default"
+    | "cli"
+    | "env"
+    | "powershell"
+    | "devcli"
+    | "managedidentity"
+    | "workloadidentity"
+
+export interface LanguageModelConfiguration extends LanguageModelReference {
+    base: string
+    token: string
+    source?: string
+    type?: OpenAIAPIType
+    aici?: boolean
+    version?: string
+    azureCredentialsType?: AzureCredentialsType
+}
+
+export interface LanguageModelInfo {
+    id: string
+    details?: string
+    url?: string
+}
+
+export type ResolvedLanguageModelConfiguration =
+    Partial<LanguageModelConfiguration> & {
+        models?: LanguageModelInfo[]
+        error?: string
+    }
 
 /**
  * Represents a project containing templates and diagnostics.
@@ -28,6 +75,10 @@ export interface ServerVersion extends RequestMessage {
 
 export interface ServerEnv extends RequestMessage {
     type: "server.env"
+}
+
+export interface ServerEnvResponse extends ResponseStatus {
+    providers: ResolvedLanguageModelConfiguration[]
 }
 
 export interface PromptScriptTestRunOptions
@@ -107,7 +158,7 @@ export interface PromptScriptList extends RequestMessage {
     type: "script.list"
 }
 
-export interface promptScriptListResponse extends ResponseStatus {
+export interface PromptScriptListResponse extends ResponseStatus {
     project: Project
 }
 
@@ -121,6 +172,84 @@ export interface PromptScriptStart extends RequestMessage {
 
 export interface PromptScriptStartResponse extends ResponseStatus {
     runId: string
+}
+
+// Type representing possible statuses of generation
+export type GenerationStatus = "success" | "error" | "cancelled" | undefined
+
+// Interface for the result of a generation process
+export interface GenerationResult extends GenerationOutput {
+    /**
+     * The environment variables passed to the prompt
+     */
+    vars: Partial<ExpansionVariables>
+
+    /**
+     * Expanded prompt text composed of multiple messages
+     */
+    messages: ChatCompletionMessageParam[]
+
+    /**
+     * Edits to apply, if any
+     */
+    edits: Edits[]
+
+    /**
+     * Source annotations parsed as diagnostics
+     */
+    annotations: Diagnostic[]
+
+    /**
+     * Sections of the ChangeLog
+     */
+    changelogs: string[]
+
+    /**
+     * Error message or object, if any error occurred
+     */
+    error?: unknown
+
+    /**
+     * Status of the generation process (success, error, or cancelled)
+     */
+    status: GenerationStatus
+
+    /**
+     * Additional status information or message
+     */
+    statusText?: string
+
+    /**
+     * Completion status from the language model
+     */
+    finishReason?: string
+
+    /**
+     * Optional label for the run
+     */
+    label?: string
+
+    /**
+     * Version of the GenAIScript used
+     */
+    version: string
+
+    /**
+     * Logprobs if computed
+     */
+    logprobs?: Logprob[]
+
+    /**
+     * Statistics of the generation
+     */
+    perplexity?: number
+
+    /**
+     * Statistics of the generation
+     */
+    stats?: {
+        cost: number
+    } & ChatCompletionUsage
 }
 
 export interface PromptScriptEndResponseEvent {
@@ -149,19 +278,6 @@ export interface PromptScriptProgressResponseEvent {
     responseChunk?: string
     responseTokens?: Logprob[]
     inner?: boolean
-}
-
-export interface ShellExecResponse extends ResponseStatus {
-    value: ShellOutput
-}
-
-export interface ShellExec extends RequestMessage {
-    type: "shell.exec"
-    containerId?: string
-    command: string
-    args: string[]
-    options: ShellOptions
-    response?: ShellExecResponse
 }
 
 export interface LanguageModelConfigurationRequest extends RequestMessage {
@@ -205,7 +321,6 @@ export type RequestMessages =
     | ServerEnv
     | ServerVersion
     | PromptScriptTestRun
-    | ShellExec
     | PromptScriptStart
     | PromptScriptAbort
     | ChatChunk

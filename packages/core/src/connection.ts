@@ -36,14 +36,13 @@ import {
     JAN_API_BASE,
     MODEL_PROVIDER_ANTHROPIC_BEDROCK,
 } from "./constants"
-import {
-    OpenAIAPIType,
-    host,
-    LanguageModelConfiguration,
-    AzureCredentialsType,
-    runtimeHost,
-} from "./host"
+import { host, runtimeHost } from "./host"
 import { parseModelIdentifier } from "./models"
+import {
+    AzureCredentialsType,
+    LanguageModelConfiguration,
+    OpenAIAPIType,
+} from "./server/messages"
 import { normalizeFloat, trimTrailingSlash } from "./util"
 
 export function ollamaParseHostVariable(env: Record<string, string>) {

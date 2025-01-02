@@ -200,7 +200,8 @@ export async function cli() {
     // Define 'test' command group for running tests
     const test = program.command("test")
 
-    const testRun = test.command("run", { isDefault: true })
+    const testRun = test
+        .command("run", { isDefault: true })
         .description("Runs the tests for scripts")
         .argument(
             "[script...]",

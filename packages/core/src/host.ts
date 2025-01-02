@@ -2,7 +2,7 @@ import { CancellationOptions, CancellationToken } from "./cancellation"
 import { LanguageModel } from "./chat"
 import { Progress } from "./progress"
 import { MarkdownTrace, TraceOptions } from "./trace"
-import { Project } from "./server/messages"
+import { AzureCredentialsType, LanguageModelConfiguration, Project, ResponseStatus } from "./server/messages"
 import { HostConfiguration } from "./hostconfiguration"
 
 // this is typically an instance of TextDecoder
@@ -26,43 +26,10 @@ export enum LogLevel {
     Error = 4,
 }
 
-export type OpenAIAPIType =
-    | "openai"
-    | "azure"
-    | "localai"
-    | "azure_serverless"
-    | "azure_serverless_models"
-    | "alibaba"
-
-export type AzureCredentialsType =
-    | "default"
-    | "cli"
-    | "env"
-    | "powershell"
-    | "devcli"
-    | "managedidentity"
-    | "workloadidentity"
-
-export interface LanguageModelConfiguration extends LanguageModelReference {
-    base: string
-    token: string
-    source?: string
-    type?: OpenAIAPIType
-    aici?: boolean
-    version?: string
-    azureCredentialsType?: AzureCredentialsType
-}
-
 export interface RetrievalClientOptions {
     progress?: Progress
     token?: CancellationToken
     trace?: MarkdownTrace
-}
-
-export interface ResponseStatus {
-    ok: boolean
-    error?: SerializedError
-    status?: number
 }
 
 export interface RetrievalSearchOptions extends VectorSearchOptions {}

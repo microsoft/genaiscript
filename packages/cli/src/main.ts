@@ -4,7 +4,7 @@ import { workerData } from "node:worker_threads"
 import { worker } from "./worker"
 import { run } from "./api"
 import { PromptScriptRunOptions } from "../../core/src/server/messages"
-import { GenerationResult } from "../../core/src/generation"
+import { GenerationResult } from "../../core/src/server/messages"
 
 export { run, type PromptScriptRunOptions, type GenerationResult }
 

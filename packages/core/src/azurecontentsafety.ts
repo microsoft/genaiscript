@@ -5,10 +5,11 @@ import {
     AZURE_CONTENT_SAFETY_PROMPT_SHIELD_MAX_LENGTH,
     DOCS_CONFIGURATION_CONTENT_SAFETY_URL,
 } from "./constants"
-import { AzureCredentialsType, runtimeHost } from "./host"
+import { runtimeHost } from "./host"
 import { CancellationOptions } from "./cancellation"
 import { YAMLStringify } from "./yaml"
 import { JSONLineCache } from "./cache"
+import { AzureCredentialsType } from "./server/messages"
 
 interface AzureContentSafetyRequest {
     userPrompt?: string

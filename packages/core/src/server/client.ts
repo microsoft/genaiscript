@@ -2,10 +2,8 @@ import { ChatCompletionsProgressReport } from "../chattypes"
 import { CLIENT_RECONNECT_DELAY, OPEN, RECONNECT } from "../constants"
 import { randomHex } from "../crypto"
 import { errorMessage } from "../error"
-import { GenerationResult } from "../generation"
+import { GenerationResult, LanguageModelConfiguration, ResponseStatus } from "../server/messages"
 import {
-    LanguageModelConfiguration,
-    ResponseStatus,
     ServerResponse,
     host,
 } from "../host"
@@ -18,8 +16,6 @@ import {
     PromptScriptTestRun,
     PromptScriptTestRunOptions,
     PromptScriptTestRunResponse,
-    ShellExecResponse,
-    ShellExec,
     PromptScriptRunOptions,
     PromptScriptStart,
     PromptScriptAbort,
@@ -31,7 +27,7 @@ import {
     LanguageModelConfigurationRequest,
     Project,
     PromptScriptList,
-    promptScriptListResponse,
+    PromptScriptListResponse,
 } from "./messages"
 
 export type LanguageModelChatRequest = (
@@ -269,7 +265,7 @@ export class WebSocketClient extends EventTarget {
 
     async listScripts(): Promise<Project> {
         const res = await this.queue<PromptScriptList>({ type: "script.list" })
-        const project = (res.response as promptScriptListResponse)?.project
+        const project = (res.response as PromptScriptListResponse)?.project
         return project
     }
 
@@ -347,22 +343,6 @@ export class WebSocketClient extends EventTarget {
         const res = await this.queue<PromptScriptTestRun>({
             type: "tests.run",
             scripts: script?.id ? [script?.id] : undefined,
-            options,
-        })
-        return res.response
-    }
-
-    async exec(
-        containerId: string,
-        command: string,
-        args: string[],
-        options: ShellOptions
-    ): Promise<ShellExecResponse> {
-        const res = await this.queue<ShellExec>({
-            type: "shell.exec",
-            containerId,
-            command,
-            args,
             options,
         })
         return res.response
