@@ -961,11 +961,31 @@ function RunForm() {
     )
 }
 
+function CostDecoration() {
+    const result = useResult()
+    const { stats } = result || {}
+    return !!stats?.cost ? (
+        <VscodeBadge variant="counter" slot="decorations">
+            {renderCost(stats.cost)}
+        </VscodeBadge>
+    ) : null
+}
+
+function renderCost(value: number) {
+    if (!value) return ""
+    return value <= 0.01
+        ? `${(value * 100).toFixed(3)}¢`
+        : value <= 0.1
+          ? `${(value * 100).toFixed(2)}¢`
+          : `${value.toFixed(2)}$`
+}
+
 function WebApp() {
     return (
         <>
             <RunForm />
             <VscodeCollapsible open title="Results">
+                <CostDecoration />
                 <VscodeTabs panel>
                     <TraceTabPanel />
                     <ProblemsTabPanel />
