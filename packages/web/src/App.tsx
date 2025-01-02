@@ -563,6 +563,8 @@ function ScriptSelect() {
             </VscodeLabel>
             <VscodeSingleSelect
                 value={scriptid || ""}
+                combobox
+                filter="fuzzy"                
                 onChange={(e) => {
                     const target = e.target as HTMLSelectElement
                     setScriptid(target.value)
