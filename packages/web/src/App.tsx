@@ -211,35 +211,15 @@ function ApiProvider({ children }: { children: React.ReactNode }) {
     const project = useMemo<Promise<Project>>(fetchScripts, [])
     const [state, setState] = useUrlSearchParams({
         scriptid: "",
-        files: [],
-        parameters: {},
-        options: {},
     } as {
         scriptid: string
-        files: string[]
-        parameters: PromptParameters
-        options: ModelOptions
     })
-    console.log({ state })
-    const {
-        scriptid,
-        files = [],
-        parameters = {},
-        options = {},
-    } = state as {
-        scriptid: string
-        files: string[]
-        parameters: PromptParameters
-        options: ModelOptions
-    }
+    const { scriptid } = state
+    const [files, setFiles] = useState<string[]>([])
+    const [parameters, setParameters] = useState<PromptParameters>({})
+    const [options, setOptions] = useState<ModelConnectionOptions>({})
     const setScriptid = (id: string) =>
         setState((prev) => ({ ...prev, scriptid: id }))
-    const setParameters = (parameters: PromptParameters) =>
-        setState((prev) => ({ ...prev, parameters }))
-    const setFiles = (files: string[]) =>
-        setState((prev) => ({ ...prev, files }))
-    const setOptions = (options: ModelConnectionOptions) =>
-        setState((prev) => ({ ...prev, options }))
 
     return (
         <ApiContext.Provider
@@ -689,7 +669,11 @@ function ScriptSelect() {
                 }}
             >
                 {scripts.map(({ id, title }) => (
-                    <VscodeOption value={id} description={title}>
+                    <VscodeOption
+                        value={id}
+                        selected={scriptid === id}
+                        description={title}
+                    >
                         {id}
                     </VscodeOption>
                 ))}
@@ -741,7 +725,9 @@ function ModelConnectionOptionsForm() {
             provider: {
                 type: "string",
                 description: "LLM provider",
-                enum: LLMS.providers.map((p) => p.id),
+                enum: LLMS.providers
+                    .sort((l, r) => l.id.localeCompare(r.id))
+                    .map((p) => p.id),
                 default: "openai",
             },
             model: {
