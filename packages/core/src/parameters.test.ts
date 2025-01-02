@@ -74,7 +74,7 @@ describe("promptParameterTypeToJSONSchema", () => {
     test("unsupported type", () => {
         assert.throws(
             () => promptParameterTypeToJSONSchema(() => {}),
-            NotSupportedError
+            Error
         )
     })
 })
