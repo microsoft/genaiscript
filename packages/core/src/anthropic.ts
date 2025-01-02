@@ -9,7 +9,6 @@ import {
     MODEL_PROVIDER_ANTHROPIC,
     MODEL_PROVIDER_ANTHROPIC_BEDROCK,
 } from "./constants"
-import { LanguageModelConfiguration } from "./host"
 import { parseModelIdentifier } from "./models"
 import { NotSupportedError, serializeError } from "./error"
 import { estimateTokens } from "./tokens"
@@ -40,6 +39,7 @@ import { HttpsProxyAgent } from "https-proxy-agent"
 import { MarkdownTrace } from "./trace"
 import { createFetch, FetchType } from "./fetch"
 import { JSONLLMTryParse } from "./json5"
+import { LanguageModelConfiguration } from "./server/messages"
 
 const convertFinishReason = (
     stopReason: Anthropic.Message["stop_reason"]

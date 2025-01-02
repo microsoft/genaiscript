@@ -6,17 +6,13 @@ import { ExtensionState } from "./state"
 import { Utils } from "vscode-uri"
 import { checkFileExists, readFileText } from "./fs"
 import { filterGitIgnore } from "../../core/src/gitignore"
-import {
-    setHost,
-    LanguageModelConfiguration,
-    LogLevel,
-    Host,
-} from "../../core/src/host"
+import { setHost, LogLevel, Host } from "../../core/src/host"
 import { TraceOptions } from "../../core/src/trace"
 import { arrayify } from "../../core/src/util"
 import { LanguageModel } from "../../core/src/chat"
 import { uniq } from "es-toolkit"
 import { CancellationOptions } from "../../core/src/cancellation"
+import { LanguageModelConfiguration } from "../../core/src/server/messages"
 
 export class VSCodeHost extends EventTarget implements Host {
     userState: any = {}

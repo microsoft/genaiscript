@@ -1,12 +1,13 @@
 export function roundWithPrecision(
-    x: number,
+    x: number | undefined,
     digits: number,
     round = Math.round
 ): number {
+    if (x === undefined) return NaN
     digits = digits | 0
     // invalid digits input
     if (digits <= 0) return round(x)
-    if (x == 0) return 0
+    if (x === 0) return 0
     let r = 0
     while (r == 0 && digits < 21) {
         const d = Math.pow(10, digits++)
@@ -16,10 +17,11 @@ export function roundWithPrecision(
 }
 
 export function renderWithPrecision(
-    x: number,
+    x: number | undefined,
     digits: number,
     round = Math.round
 ): string {
+    if (x === undefined) return "?"
     const r = roundWithPrecision(x, digits, round)
     let rs = r.toLocaleString()
     if (digits > 0) {

@@ -64,11 +64,14 @@ export function promptParametersSchemaToJSONSchema(
     if (!parameters) return undefined
     if (isJSONSchema(parameters)) return parameters as JSONSchema
 
-    const res: JSONSchemaObject = {
+    const res: Required<
+        Pick<JSONSchemaObject, "type" | "properties" | "required">
+    > = {
         type: "object",
         properties: {},
         required: [],
     }
+
     for (const [k, v] of Object.entries(parameters as PromptParametersSchema)) {
         const t = promptParameterTypeToJSONSchema(v)
         const required = isPromptParameterTypeRequired(v)
@@ -76,5 +79,5 @@ export function promptParametersSchemaToJSONSchema(
         if (t.type !== "object" && t.type !== "array" && required)
             res.required.push(k)
     }
-    return res
+    return res satisfies JSONSchemaObject
 }

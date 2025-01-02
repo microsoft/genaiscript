@@ -1,7 +1,6 @@
 import { AZURE_TOKEN_EXPIRATION } from "../../core/src/constants"
 import {
     AuthenticationToken,
-    AzureCredentialsType,
     AzureTokenResolver,
     isAzureTokenExpired,
     runtimeHost,
@@ -14,6 +13,7 @@ import {
     CancellationToken,
     toSignal,
 } from "../../core/src/cancellation"
+import { AzureCredentialsType } from "../../core/src/server/messages"
 
 /**
  * This module provides functions to handle Azure authentication tokens,

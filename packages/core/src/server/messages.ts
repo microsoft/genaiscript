@@ -1,5 +1,37 @@
 import type { ChatCompletionAssistantMessageParam, ChatCompletionMessageParam, ChatCompletionUsage } from "../chattypes"
-import type { LanguageModelConfiguration, ResponseStatus } from "../host"
+
+export interface ResponseStatus {
+    ok: boolean
+    error?: SerializedError
+    status?: number
+}
+
+export type OpenAIAPIType =
+    | "openai"
+    | "azure"
+    | "localai"
+    | "azure_serverless"
+    | "azure_serverless_models"
+    | "alibaba"
+
+export type AzureCredentialsType =
+    | "default"
+    | "cli"
+    | "env"
+    | "powershell"
+    | "devcli"
+    | "managedidentity"
+    | "workloadidentity"
+
+export interface LanguageModelConfiguration extends LanguageModelReference {
+    base: string
+    token: string
+    source?: string
+    type?: OpenAIAPIType
+    aici?: boolean
+    version?: string
+    azureCredentialsType?: AzureCredentialsType
+}
 
 /**
  * Represents a project containing templates and diagnostics.

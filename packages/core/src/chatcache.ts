@@ -4,7 +4,7 @@ import {
     CreateChatCompletionRequest,
 } from "./chattypes"
 import { CHAT_CACHE } from "./constants"
-import { LanguageModelConfiguration } from "./host"
+import { LanguageModelConfiguration } from "./server/messages"
 
 // Define the type for a cache key, which combines chat completion request
 // with additional model options, excluding "token" and "source" from the language model configuration.

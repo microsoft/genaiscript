@@ -5,11 +5,11 @@ import { serializeError } from "./error"
 import { createFetch, iterateBody } from "./fetch"
 import { parseModelIdentifier } from "./models"
 import { OpenAIChatCompletion } from "./openai"
-import { LanguageModelConfiguration } from "./host"
 import { host } from "./host"
 import { logError, logVerbose } from "./util"
 import { TraceOptions } from "./trace"
 import { CancellationOptions } from "./cancellation"
+import { LanguageModelConfiguration } from "./server/messages"
 
 /**
  * Lists available models for the Ollama language model configuration.

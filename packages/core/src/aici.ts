@@ -6,7 +6,7 @@ import { ChatCompletionHandler, LanguageModel, LanguageModelInfo } from "./chat"
 import { PromptNode, visitNode } from "./promptdom"
 import { fromHex, logError, normalizeInt, utf8Decode } from "./util"
 import { AICI_CONTROLLER, TOOL_ID } from "./constants"
-import { LanguageModelConfiguration, host } from "./host"
+import { host } from "./host"
 import { NotSupportedError, RequestError } from "./error"
 import { createFetch, iterateBody } from "./fetch"
 import { parseModelIdentifier } from "./models"
@@ -17,6 +17,7 @@ import {
 } from "./chattypes"
 import { TraceOptions } from "./trace"
 import { CancellationOptions } from "./cancellation"
+import { LanguageModelConfiguration } from "./server/messages"
 
 /**
  * Renders an AICI node into a string representation.

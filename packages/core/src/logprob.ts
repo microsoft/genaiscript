@@ -28,12 +28,12 @@ export function serializeChunkChoiceToLogProbs(
         return [{ token: delta.content, logprob: Number.NaN } satisfies Logprob]
 }
 
-function logprobToPercent(value: number): number {
+function logprobToPercent(value: number | undefined): number {
     const linearProbability = roundWithPrecision(Math.exp(value) * 100, 2)
     return linearProbability
 }
 
-export function renderLogprob(logprob: number): string {
+export function renderLogprob(logprob: number | undefined): string {
     return isNaN(logprob)
         ? `--`
         : `${logprobToPercent(logprob)}% (${roundWithPrecision(logprob, 2)})`
@@ -85,13 +85,13 @@ export function topLogprobsToMarkdown(
     return `<table class="toplogprobs" style="display: inline-block; padding: 0; margin: 0; border: solid 1px grey; border-radius: 0.2rem;">${topLogprobs.map((tp) => `<tr><td style="border: none; padding: 0;">${logprobToMarkdown(tp, opts)}</td></tr>`).join("")}</table>${/\n/.test(token) ? "<br/>" : ""}`
 }
 
-export function computePerplexity(logprobs: Logprob[]): number {
+export function computePerplexity(logprobs: Logprob[] | undefined): number | undefined  {
     if (!logprobs?.length) return undefined
     const sum = logprobs.reduce((acc, { logprob }) => acc + logprob, 0)
     return Math.exp(-sum / logprobs.length)
 }
 
-function computeNormalizedEntropy(logprobs: Logprob[]): number {
+function computeNormalizedEntropy(logprobs: Logprob[] | undefined): number | undefined {
     if (logprobs?.length < 2) return undefined
 
     // Calculate entropy
@@ -111,7 +111,7 @@ function computeNormalizedEntropy(logprobs: Logprob[]): number {
 }
 
 // https://www.watchful.io/blog/decoding-llm-uncertainties-for-better-predictability
-export function computeStructuralUncertainty(logprobs: Logprob[]): number {
+export function computeStructuralUncertainty(logprobs: Logprob[] | undefined): number {
     if (!logprobs?.length) return undefined
     const vs = logprobs
         .map((logprob) => computeNormalizedEntropy(logprob.topLogprobs))

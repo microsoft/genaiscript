@@ -5,7 +5,7 @@ import {
     normalizeInt,
     trimTrailingSlash,
 } from "./util"
-import { LanguageModelConfiguration, host } from "./host"
+import { host } from "./host"
 import {
     AZURE_AI_INFERENCE_VERSION,
     AZURE_OPENAI_API_VERSION,
@@ -49,6 +49,7 @@ import { CancellationOptions, toSignal } from "./cancellation"
 import { INITryParse } from "./ini"
 import { serializeChunkChoiceToLogProbs } from "./logprob"
 import { TraceOptions } from "./trace"
+import { LanguageModelConfiguration } from "./server/messages"
 
 export function getConfigHeaders(cfg: LanguageModelConfiguration) {
     let { token, type, base, provider } = cfg

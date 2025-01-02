@@ -10,7 +10,6 @@ import { MODEL_PROVIDERS } from "../../core/src/constants"
 import { errorMessage } from "../../core/src/error"
 import {
     host,
-    LanguageModelConfiguration,
     runtimeHost,
 } from "../../core/src/host"
 import { resolveLanguageModel } from "../../core/src/lm"
@@ -18,6 +17,7 @@ import {
     ModelConnectionInfo,
     resolveModelConnectionInfo,
 } from "../../core/src/models"
+import { LanguageModelConfiguration } from "../../core/src/server/messages"
 import { deleteEmptyValues } from "../../core/src/util"
 import { CORE_VERSION } from "../../core/src/version"
 import { YAMLStringify } from "../../core/src/yaml"

@@ -1,7 +1,7 @@
 // cspell: disable
 import { MarkdownTrace, TraceOptions } from "./trace"
 import { PromptImage, PromptPrediction, renderPromptNode } from "./promptdom"
-import { LanguageModelConfiguration, host, runtimeHost } from "./host"
+import { host, runtimeHost } from "./host"
 import { GenerationOptions } from "./generation"
 import { dispose } from "./dispose"
 import {
@@ -80,6 +80,7 @@ import {
 } from "./logprob"
 import { uniq } from "es-toolkit"
 import { renderWithPrecision } from "./precision"
+import { LanguageModelConfiguration } from "./server/messages"
 
 export function toChatCompletionUserMessage(
     expanded: string,
