@@ -186,8 +186,9 @@ function useUrlSearchParams<T>(
             const { type } = field
             const value = params.get(key)
             if (value !== undefined && value !== null) {
-                if (type === "string") newState[key] = value
-                else if (type === "boolean")
+                if (type === "string") {
+                    if (value !== "") newState[key] = value
+                } else if (type === "boolean")
                     newState[key] =
                         value === "1" || value === "yes" || value === "true"
                 else if (type === "integer" || type === "number") {
@@ -603,11 +604,11 @@ function FilesTabPanel() {
     const { fileEdits = {} } = result || {}
     const [selected, setSelected] = useState<string | undefined>(undefined)
     const files = Object.entries(fileEdits)
+    const icons = true
     const data: TreeItem[] = files.map(([file, edits]) => ({
         label: file,
         value: file,
-        icons: true,
-        description: edits.after,
+        icons,
     }))
     const selectedFile = fileEdits[selected]
 
@@ -626,15 +627,17 @@ function FilesTabPanel() {
             <VscodeTabPanel>
                 {files.length > 0 && (
                     <VscodeSplitLayout split="vertical">
-                        <div slot="start" className="split-layout-content">
+                        <div slot="start">
                             <VscodeTree
+                                indentGuides
+                                arrows
                                 onVscTreeSelect={(e) => {
                                     setSelected(e.detail.value)
                                 }}
                                 data={data}
                             />
                         </div>
-                        <div slot="end" className="split-layout-content">
+                        <div slot="end">
                             {selectedFile && (
                                 <pre>{selectedFile?.after || ""}</pre>
                             )}
