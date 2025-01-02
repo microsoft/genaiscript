@@ -198,8 +198,8 @@ function useUrlSearchParams<T>(
                         type === "number" ? parseFloat(value) : parseInt(value)
                     if (!isNaN(parsed)) newState[key] = parsed
                 } else if (type === "array") {
-                    const parsed = value.split(",")
-                    if (parsed) newState[key] = parsed
+                    const parsed = value.split(",").filter((s) => s !== "")
+                    if (parsed.length > 0) newState[key] = parsed
                 }
             }
         })
@@ -259,7 +259,10 @@ function ApiProvider({ children }: { children: React.ReactNode }) {
     const setScriptid = (id: string) =>
         setState((prev) => ({ ...prev, scriptid: id }))
     const setFiles = (files: string[]) =>
-        setState((prev) => ({ ...prev, files: files.slice() }))
+        setState((prev) => ({
+            ...prev,
+            files: files.filter((s) => s !== "").slice(),
+        }))
     const setOptions = (
         f: (prev: ModelConnectionOptions) => ModelConnectionOptions
     ) => {
@@ -299,7 +302,7 @@ const RunnerContext = createContext<{
 } | null>(null)
 
 function RunnerProvider({ children }: { children: React.ReactNode }) {
-    const { scriptid, files, options, parameters } = useApi()
+    const { scriptid, files = [], options, parameters } = useApi()
     const [runner, setRunner] = useState<RunClient | undefined>(undefined)
 
     useEffect(() => {
@@ -311,7 +314,7 @@ function RunnerProvider({ children }: { children: React.ReactNode }) {
         runner?.close()
         if (!scriptid) return
 
-        console.log(`run: start ${scriptid}`)
+        console.log(`run: start ${scriptid}`, { files, parameters, options })
         const client = new RunClient(scriptid, files.slice(0), {
             parameters,
             ...options,
