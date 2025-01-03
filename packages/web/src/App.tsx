@@ -643,6 +643,44 @@ function OutputTabPanel() {
     )
 }
 
+function LogProbsTabPanel() {
+    const result = useResult()
+    const { options } = useApi()
+    const { logprobs } = result || {}
+    if (!options.logprobs) return null
+    const md = logprobs?.map((lp) => logprobToMarkdown(lp)).join("\n")
+    return (
+        <>
+            <VscodeTabHeader slot="header">
+                Perplexity
+                <CounterBadge collection={md} />
+            </VscodeTabHeader>
+            <VscodeTabPanel>
+                <Markdown>{md}</Markdown>
+            </VscodeTabPanel>
+        </>
+    )
+}
+
+function TopLogProbsTabPanel() {
+    const result = useResult()
+    const { options } = useApi()
+    const { logprobs } = result || {}
+    if (!options.logprobs || !(options.topLogprobs > 1)) return null
+    const md = logprobs?.map((lp) => topLogprobsToMarkdown(lp)).join("\n")
+    return (
+        <>
+            <VscodeTabHeader slot="header">
+                Entropy
+                <CounterBadge collection={md} />
+            </VscodeTabHeader>
+            <VscodeTabPanel>
+                <Markdown>{md}</Markdown>
+            </VscodeTabPanel>
+        </>
+    )
+}
+
 function FilesTabPanel() {
     const result = useResult()
     const { fileEdits = {} } = result || {}
@@ -990,6 +1028,8 @@ function WebApp() {
                     <TraceTabPanel />
                     <ProblemsTabPanel />
                     <OutputTabPanel />
+                    <LogProbsTabPanel />
+                    <TopLogProbsTabPanel />
                     <FilesTabPanel />
                     <JSONTabPanel />
                     <RawTabPanel />
