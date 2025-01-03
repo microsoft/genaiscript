@@ -113,8 +113,10 @@ export async function runTemplate(
     runtimeHost.project = prj
 
     try {
-        trace.heading(3, `🧠 ${template.id}`)
-        if (cliInfo) traceCliArgs(trace, template, options)
+        if (cliInfo) {
+            trace.heading(3, `🧠 ${template.id}`)
+            traceCliArgs(trace, template, options)
+        }
 
         // Resolve expansion variables for the template
         const vars = await resolveExpansionVars(

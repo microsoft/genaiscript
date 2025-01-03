@@ -30,6 +30,7 @@ import {
     VscodeTextarea,
     VscodeTree,
     VscodeSplitLayout,
+    VscodeMultiSelect,
 } from "@vscode-elements/react-elements"
 import Markdown from "./Markdown"
 import type {
@@ -47,6 +48,8 @@ import {
     topLogprobsToMarkdown,
 } from "../../core/src/logprob"
 import { TreeItem } from "@vscode-elements/elements/dist/vscode-tree/vscode-tree"
+import { FileWithPath, useDropzone } from "react-dropzone"
+import prettyBytes from "pretty-bytes"
 
 const urlParams = new URLSearchParams(window.location.hash)
 const apiKey = urlParams.get("api-key")
@@ -686,11 +689,10 @@ function FilesTabPanel() {
     const { fileEdits = {} } = result || {}
     const [selected, setSelected] = useState<string | undefined>(undefined)
     const files = Object.entries(fileEdits)
-    const icons = true
     const data: TreeItem[] = files.map(([file, edits]) => ({
         label: file,
         value: file,
-        icons,
+        icons: true,
     }))
     const selectedFile = fileEdits[selected]
 
@@ -812,15 +814,66 @@ function ScriptFormHelper() {
     )
 }
 
+function FilesDropZone() {
+    const { acceptedFiles, getRootProps, getInputProps } = useDropzone()
+
+    const [selected, setSelected] = useState<FileWithPath[]>([])
+
+    useEffect(() => setSelected(acceptedFiles.slice()), [acceptedFiles])
+
+    console.log({ selected })
+    return (
+        <>
+            <VscodeFormContainer>
+                <VscodeFormGroup>
+                    <VscodeLabel>Files</VscodeLabel>
+                    <VscodeMultiSelect
+                        onChange={(e) => {
+                            e.preventDefault()
+                            const target = e.target as HTMLSelectElement
+                            const value = target.value as string
+                            setSelected(
+                                acceptedFiles.filter((f) => f.path === value)
+                            )
+                        }}
+                    >
+                        {acceptedFiles.map((file) => (
+                            <VscodeOption
+                                key={file.path}
+                                value={file.path}
+                                selected
+                            >
+                                {file.name} ({prettyBytes(file.size)})
+                            </VscodeOption>
+                        ))}
+                    </VscodeMultiSelect>
+                </VscodeFormGroup>
+                <VscodeFormGroup
+                    style={{
+                        cursor: "pointer",
+                    }}
+                    {...getRootProps({ className: "dropzone" })}
+                >
+                    <input {...getInputProps()} />
+                    <VscodeFormHelper>
+                        Drag 'n' drop some files here, or click to select files
+                    </VscodeFormHelper>
+                </VscodeFormGroup>
+            </VscodeFormContainer>
+        </>
+    )
+}
+
 function FilesForm() {
     const { files = [], setFiles } = useApi()
     return (
         <VscodeCollapsible title="Files">
             <VscodeFormContainer>
                 <VscodeFormGroup>
-                    <VscodeLabel>Files</VscodeLabel>
+                    <VscodeLabel>Globs</VscodeLabel>
                     <VscodeTextarea
                         value={files.join(", ")}
+                        label="List of files glob patterns, one per line"
                         onChange={(e) => {
                             const target = e.target as HTMLInputElement
                             startTransition(() =>
@@ -830,6 +883,7 @@ function FilesForm() {
                     />
                 </VscodeFormGroup>
             </VscodeFormContainer>
+            <FilesDropZone />
         </VscodeCollapsible>
     )
 }

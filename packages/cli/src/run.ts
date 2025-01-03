@@ -112,6 +112,7 @@ export async function runScriptWithExitCode(
             ...options,
             cancellationToken,
             outTrace,
+            cli: true,
         })
         exitCode = res.exitCode
         if (
@@ -139,6 +140,7 @@ export async function runScriptInternal(
     options: Partial<PromptScriptRunOptions> &
         TraceOptions &
         CancellationOptions & {
+            cli?: boolean
             infoCb?: (partialResponse: { text: string }) => void
             partialCb?: (progress: ChatCompletionsProgressReport) => void
         }
@@ -355,9 +357,11 @@ export async function runScriptInternal(
             logprobs,
             topLogprobs,
             fenceFormat,
-            cliInfo: {
-                files,
-            },
+            cliInfo: options.cli
+                ? {
+                      files,
+                  }
+                : undefined,
             stats,
         })
     } catch (err) {
