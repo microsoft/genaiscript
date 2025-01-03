@@ -21,17 +21,14 @@ import {
 } from "../../core/src/constants"
 import { promptFooDriver } from "../../core/src/default_prompts"
 import { serializeError } from "../../core/src/error"
-import { parseKeyValuePairs } from "../../core/src/fence"
-import { host, runtimeHost } from "../../core/src/host"
+import { runtimeHost } from "../../core/src/host"
 import { JSON5TryParse } from "../../core/src/json5"
 import { MarkdownTrace } from "../../core/src/trace"
 import {
     normalizeFloat,
-    arrayify,
     normalizeInt,
     logInfo,
     logVerbose,
-    tagFilter,
     toStringList,
     dotGenaiscriptPath,
 } from "../../core/src/util"
@@ -45,7 +42,7 @@ import { generatePromptFooConfiguration } from "../../core/src/test"
 import { delay } from "es-toolkit"
 import { resolveModelConnectionInfo } from "../../core/src/models"
 import { filterScripts } from "../../core/src/ast"
-import { link } from "../../core/src/markdown"
+import { link } from "../../core/src/mkmd"
 import { applyModelOptions } from "./modelalias"
 
 /**

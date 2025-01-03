@@ -5,14 +5,7 @@ import { addLineNumbers, extractRange } from "./liner"
 import { JSONSchemaStringifyToTypeScript } from "./schema"
 import { estimateTokens, truncateTextToTokens } from "./tokens"
 import { MarkdownTrace, TraceOptions } from "./trace"
-import {
-    arrayify,
-    assert,
-    logError,
-    logWarn,
-    toStringList,
-    trimNewlines,
-} from "./util"
+import { arrayify, assert, logError, logWarn, toStringList } from "./util"
 import { YAMLStringify } from "./yaml"
 import {
     DEFAULT_FENCE_FORMAT,
@@ -43,6 +36,7 @@ import { hash } from "./crypto"
 import { startMcpServer } from "./mcp"
 import { tryZodToJsonSchema } from "./zod"
 import { GROQEvaluate } from "./groq"
+import { trimNewlines } from "./unwrappers"
 
 // Definition of the PromptNode interface which is an essential part of the code structure.
 export interface PromptNode extends ContextExpansionOptions {
@@ -233,11 +227,11 @@ export function createDef(
 }
 
 function cloneContextFields(n: PromptNode): Partial<PromptNode> {
-    const r = {} as Partial<PromptNode>    
+    const r = {} as Partial<PromptNode>
     r.maxTokens = n.maxTokens
     r.priority = n.priority
     r.flex = n.flex
-    r.cacheControl  = n.cacheControl
+    r.cacheControl = n.cacheControl
     return r
 }
 
@@ -1068,7 +1062,8 @@ async function validateSafetyPromptNode(
 
             const detectPromptInjectionFn = await resolveContentSafety()
             if (
-                (!detectPromptInjectionFn && n.detectPromptInjection === true) ||
+                (!detectPromptInjectionFn &&
+                    n.detectPromptInjection === true) ||
                 n.detectPromptInjection === "always"
             )
                 throw new Error("content safety service not available")
@@ -1093,7 +1088,8 @@ async function validateSafetyPromptNode(
 
             const detectPromptInjectionFn = await resolveContentSafety()
             if (
-                (!detectPromptInjectionFn && n.detectPromptInjection === true) ||
+                (!detectPromptInjectionFn &&
+                    n.detectPromptInjection === true) ||
                 n.detectPromptInjection === "always"
             )
                 throw new Error("content safety service not available")

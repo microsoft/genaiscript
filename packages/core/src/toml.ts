@@ -1,6 +1,6 @@
 import { parse } from "toml"
-import { unfence } from "./fence"
-import { filenameOrFileToContent } from "./fs"
+import { unfence } from "./unwrappers"
+import { filenameOrFileToContent } from "./unwrappers"
 
 export function TOMLParse(text: string | WorkspaceFile) {
     text = filenameOrFileToContent(text)

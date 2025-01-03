@@ -6,7 +6,7 @@ import { TraceOptions } from "./trace"
 import { stringify } from "csv-stringify/sync"
 import { arrayify } from "./util"
 import { chunk } from "es-toolkit"
-import { filenameOrFileToContent } from "./fs"
+import { filenameOrFileToContent } from "./unwrappers"
 
 /**
  * Parses a CSV string into an array of objects.

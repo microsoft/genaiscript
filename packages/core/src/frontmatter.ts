@@ -1,4 +1,4 @@
-import { filenameOrFileToContent } from "./fs"
+import { filenameOrFileToContent } from "./unwrappers"
 import { JSON5TryParse } from "./json5"
 import { TOMLTryParse } from "./toml"
 import { YAMLTryParse, YAMLStringify } from "./yaml"

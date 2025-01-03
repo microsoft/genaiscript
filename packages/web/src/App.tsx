@@ -50,6 +50,7 @@ import {
 import { TreeItem } from "@vscode-elements/elements/dist/vscode-tree/vscode-tree"
 import { FileWithPath, useDropzone } from "react-dropzone"
 import prettyBytes from "pretty-bytes"
+import { renderMessagesToMarkdown } from "../../core/src/chatrender"
 
 const urlParams = new URLSearchParams(window.location.hash)
 const apiKey = urlParams.get("api-key")
@@ -229,6 +230,8 @@ const ApiContext = createContext<{
     setScriptid: (id: string) => void
     files: string[]
     setFiles: (files: string[]) => void
+    importedFiles: FileWithPath[]
+    setImportedFiles: (files: FileWithPath[]) => void
     parameters: PromptParameters
     setParameters: (parameters: PromptParameters) => void
     options: ModelOptions
@@ -266,6 +269,7 @@ function ApiProvider({ children }: { children: React.ReactNode }) {
             topLogprobs: { type: "integer" },
         }
     )
+    const [importedFiles, setImportedFiles] = useState<FileWithPath[]>([])
     const { scriptid, files, ...options } = state
     const [parameters, setParameters] = useState<PromptParameters>({})
     const setScriptid = (id: string) =>
@@ -290,6 +294,8 @@ function ApiProvider({ children }: { children: React.ReactNode }) {
                 setScriptid,
                 files,
                 setFiles,
+                importedFiles,
+                setImportedFiles,
                 parameters,
                 setParameters,
                 options,
@@ -623,6 +629,27 @@ function ProblemsTabPanel() {
     )
 }
 
+function MessagesTabPanel() {
+    const result = useResult()
+    const { messages = [] } = result || {}
+    const md = renderMessagesToMarkdown(messages, {
+        system: true,
+        user: true,
+        assistant: true,
+    })
+    return (
+        <>
+            <VscodeTabHeader slot="header">
+                Chat
+                <CounterBadge collection={messages} />
+            </VscodeTabHeader>
+            <VscodeTabPanel>
+                <Markdown>{md}</Markdown>
+            </VscodeTabPanel>
+        </>
+    )
+}
+
 function OutputTabPanel() {
     const result = useResult()
     const { text, logprobs } = result || {}
@@ -632,7 +659,6 @@ function OutputTabPanel() {
             md = logprobs.map((lp) => topLogprobsToMarkdown(lp)).join("\n")
         else md = logprobs.map((lp) => logprobToMarkdown(lp)).join("\n")
     }
-    //if (/^\s*\{/.test(text)) text = fenceMD(text, "json")
     return (
         <>
             <VscodeTabHeader slot="header">
@@ -816,12 +842,10 @@ function ScriptFormHelper() {
 
 function FilesDropZone() {
     const { acceptedFiles, getRootProps, getInputProps } = useDropzone()
+    const { setImportedFiles } = useApi()
 
-    const [selected, setSelected] = useState<FileWithPath[]>([])
+    useEffect(() => setImportedFiles(acceptedFiles.slice()), [acceptedFiles])
 
-    useEffect(() => setSelected(acceptedFiles.slice()), [acceptedFiles])
-
-    console.log({ selected })
     return (
         <>
             <VscodeFormContainer>
@@ -832,7 +856,7 @@ function FilesDropZone() {
                             e.preventDefault()
                             const target = e.target as HTMLSelectElement
                             const value = target.value as string
-                            setSelected(
+                            setImportedFiles(
                                 acceptedFiles.filter((f) => f.path === value)
                             )
                         }}
@@ -865,26 +889,38 @@ function FilesDropZone() {
 }
 
 function FilesForm() {
-    const { files = [], setFiles } = useApi()
+    const { files, importedFiles } = useApi()
+
+    const n = (files?.length || 0) + (importedFiles?.length || 0)
     return (
         <VscodeCollapsible title="Files">
-            <VscodeFormContainer>
-                <VscodeFormGroup>
-                    <VscodeLabel>Globs</VscodeLabel>
-                    <VscodeTextarea
-                        value={files.join(", ")}
-                        label="List of files glob patterns, one per line"
-                        onChange={(e) => {
-                            const target = e.target as HTMLInputElement
-                            startTransition(() =>
-                                setFiles(target.value.split(","))
-                            )
-                        }}
-                    />
-                </VscodeFormGroup>
-            </VscodeFormContainer>
+            {n > 0 && (
+                <VscodeBadge variant="counter" slot="decorations">
+                    {n}
+                </VscodeBadge>
+            )}
+            <GlobsForm />
             <FilesDropZone />
         </VscodeCollapsible>
+    )
+}
+
+function GlobsForm() {
+    const { files = [], setFiles } = useApi()
+    return (
+        <VscodeFormContainer>
+            <VscodeFormGroup>
+                <VscodeLabel>Globs</VscodeLabel>
+                <VscodeTextarea
+                    value={files.join(", ")}
+                    label="List of files glob patterns, one per line"
+                    onChange={(e) => {
+                        const target = e.target as HTMLInputElement
+                        startTransition(() => setFiles(target.value.split(",")))
+                    }}
+                />
+            </VscodeFormGroup>
+        </VscodeFormContainer>
     )
 }
 
@@ -1095,6 +1131,7 @@ function WebApp() {
                 <VscodeTabs panel>
                     <TraceTabPanel />
                     <ProblemsTabPanel />
+                    <MessagesTabPanel />
                     <OutputTabPanel />
                     <LogProbsTabPanel />
                     <TopLogProbsTabPanel />

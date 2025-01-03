@@ -1,12 +1,6 @@
-// Import XMLParser from the fast-xml-parser package
 import { XMLParser } from "fast-xml-parser"
-
-// Import a utility function for logging errors
-import { logError } from "./util"
-
-// Import a function to remove certain markers from XML strings
-import { unfence } from "./fence"
-import { filenameOrFileToContent, filePathOrUrlToWorkspaceFile } from "./fs"
+import { unfence } from "./unwrappers"
+import { filenameOrFileToContent } from "./unwrappers"
 
 /**
  * Attempts to parse an XML string, returning a default value on failure.

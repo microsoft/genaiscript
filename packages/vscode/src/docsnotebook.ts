@@ -12,7 +12,7 @@ import {
 import { errorMessage } from "../../core/src/error"
 import { parseKeyValuePairs } from "../../core/src/fence"
 import { frontmatterTryParse } from "../../core/src/frontmatter"
-import { details } from "../../core/src/markdown"
+import { details } from "../../core/src/mkmd"
 import { parsePromptScriptMeta } from "../../core/src/template"
 import { arrayify, parseBoolean } from "../../core/src/util"
 import { YAMLTryParse, YAMLStringify } from "../../core/src/yaml"
@@ -200,13 +200,7 @@ function activateNotebookExecutor(state: ExtensionState) {
                         ]),
                         new vscode.NotebookCellOutput([
                             vscode.NotebookCellOutputItem.text(
-                                /*details(
-                                    "env.vars.output",
-                                    fenceMD(
-                                        YAMLStringify(clean(output)),
-                                        "yaml"
-                                    )
-                                ) + */ details("trace", trace.content),
+                                details("trace", trace.content),
                                 MARKDOWN_MIME_TYPE
                             ),
                         ]),

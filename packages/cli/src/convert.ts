@@ -3,7 +3,6 @@ import {
     FILES_NOT_FOUND_ERROR_CODE,
     GENAI_ANY_REGEX,
     GENAI_ANYTS_REGEX,
-    GENAI_MD_EXT,
     HTTPS_REGEX,
     JSON5_REGEX,
 } from "../../core/src/constants"
@@ -23,13 +22,13 @@ import { writeText } from "../../core/src/fs"
 import { PromptScriptRunOptions } from "./main"
 import { PLimitPromiseQueue } from "../../core/src/concurrency"
 import { createPatch } from "diff"
-import { unfence } from "../../core/src/fence"
+import { unfence } from "../../core/src/unwrappers"
 import { JSONLLMTryParse, JSONTryParse } from "../../core/src/json5"
 import { applyModelOptions } from "./modelalias"
 import { ensureDotGenaiscriptPath, setupTraceWriting } from "./trace"
 import { tracePromptResult } from "../../core/src/chat"
 import { dirname, join } from "node:path"
-import { link } from "../../core/src/markdown"
+import { link } from "../../core/src/mkmd"
 import { hash } from "../../core/src/crypto"
 import { createCancellationController } from "./cancel"
 import { toSignal } from "../../core/src/cancellation"

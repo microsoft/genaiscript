@@ -5,7 +5,7 @@
  */
 
 import { parse, stringify } from "yaml"
-import { filenameOrFileToContent } from "./fs"
+import { filenameOrFileToContent } from "./unwrappers"
 
 /**
  * Safely attempts to parse a YAML string into a JavaScript object.

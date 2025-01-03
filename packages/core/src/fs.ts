@@ -44,14 +44,6 @@ export async function writeJSON(fn: string, obj: any) {
     await writeText(fn, JSON.stringify(obj))
 }
 
-export function filenameOrFileToContent(
-    fileOrContent: string | WorkspaceFile
-): string {
-    return typeof fileOrContent === "string"
-        ? fileOrContent
-        : fileOrContent?.content
-}
-
 export async function expandFiles(files: string[], excludedFiles?: string[]) {
     const urls = files
         .filter((f) => HTTPS_REGEX.test(f))

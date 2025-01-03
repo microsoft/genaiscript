@@ -1,6 +1,7 @@
 import { describe, test } from "node:test"
 import assert from "node:assert/strict"
-import { extractFenced, unfence } from "./fence"
+import { extractFenced } from "./fence"
+import { unfence } from "./unwrappers"
 
 describe("fence", () => {
     test("unfence", () => {
@@ -14,27 +15,27 @@ import re
     })
 
     test("unfencenested", () => {
-      const source = `
+        const source = `
 \`\`\`\`\`md
 \`\`\`
 import re
 \`\`\`
 \`\`\`\`\`
 `
-      const fenced = unfence(source, "md")
-      assert.equal(fenced, "\`\`\`\nimport re\n\`\`\`")
-  })
+        const fenced = unfence(source, "md")
+        assert.equal(fenced, "\`\`\`\nimport re\n\`\`\`")
+    })
 
-  test("unbalanced", () => {
-    const source = `
+    test("unbalanced", () => {
+        const source = `
 \`\`\`\`\`md
 \`\`\`
 import re
 \`\`\`\`\`
 `
-    const fenced = unfence(source, "md")
-    assert.equal(fenced, "\`\`\`\nimport re")
-})
+        const fenced = unfence(source, "md")
+        assert.equal(fenced, "\`\`\`\nimport re")
+    })
 
     test("fence opt", () => {
         const source = `

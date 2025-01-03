@@ -7,7 +7,7 @@ import {
     TRACE_CHUNK,
     TRACE_DETAILS,
 } from "./constants"
-import { fenceMD, parseTraceTree, TraceTree } from "./markdown"
+import { parseTraceTree, TraceTree } from "./markdown"
 import { stringify as yamlStringify } from "yaml"
 import { YAMLStringify } from "./yaml"
 import { errorMessage, serializeError } from "./error"
@@ -16,6 +16,7 @@ import { host } from "./host"
 import { ellipse, toStringList } from "./util"
 import { estimateTokens } from "./tokens"
 import { renderWithPrecision } from "./precision"
+import { fenceMD } from "./mkmd"
 
 export class TraceChunkEvent extends Event {
     constructor(readonly chunk: string) {

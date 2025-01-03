@@ -8,8 +8,8 @@ import { parse, stringify } from "ini"
 import { logError } from "./util"
 
 // Import a custom function to clean up INI content by removing any fencing
-import { unfence } from "./fence"
-import { filenameOrFileToContent } from "./fs"
+import { unfence } from "./unwrappers"
+import { filenameOrFileToContent } from "./unwrappers"
 
 /**
  * Parses an INI formatted string after cleaning it up.

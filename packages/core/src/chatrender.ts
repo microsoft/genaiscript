@@ -1,5 +1,5 @@
 // Import statements for various message parameters used in chat rendering.
-import {
+import type {
     ChatCompletionAssistantMessageParam,
     ChatCompletionMessageParam,
     ChatCompletionSystemMessageParam,
@@ -9,9 +9,8 @@ import {
 
 // Import utility functions for JSON5 parsing, markdown formatting, and YAML stringification.
 import { JSONLLMTryParse } from "./json5"
-import { details, fenceMD } from "./markdown"
-import { YAMLStringify } from "./yaml"
-
+import { details, fenceMD } from "./mkmd"
+import { stringify as YAMLStringify } from "yaml"
 /**
  * Renders the output of a shell command.
  * @param output - The shell output containing exit code, stdout, and stderr.

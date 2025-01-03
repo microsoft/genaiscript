@@ -3,7 +3,7 @@
  * A changelog describes changes between original and modified code segments.
  */
 
-import { unfence } from "./fence"
+import { unfence } from "./unwrappers"
 
 // Represents a chunk of code with a start and end line and its content.
 export interface ChangeLogChunk {

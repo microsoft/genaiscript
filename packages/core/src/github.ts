@@ -10,7 +10,7 @@ import {
 } from "./constants"
 import { createFetch } from "./fetch"
 import { runtimeHost } from "./host"
-import { link, prettifyMarkdown } from "./markdown"
+import { prettifyMarkdown } from "./markdown"
 import { arrayify, assert, logError, logVerbose, normalizeInt } from "./util"
 import { shellRemoveAsciiColors } from "./shell"
 import { isGlobMatch } from "./glob"
@@ -19,6 +19,7 @@ import { concurrentLimit } from "./concurrency"
 import { createDiff, llmifyDiff } from "./diff"
 import { JSON5TryParse } from "./json5"
 import { resolve } from "node:path"
+import { link } from "./mkmd"
 
 export interface GithubConnectionInfo {
     token: string

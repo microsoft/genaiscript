@@ -13,10 +13,6 @@ export function chunkString(s: string, n: number) {
     return r
 }
 
-export function trimNewlines(s: string) {
-    return s?.replace(/^\n*/, "").replace(/\n*$/, "")
-}
-
 export function strcmp(a: string, b: string) {
     if (a == b) return 0
     if (a < b) return -1

@@ -25,7 +25,7 @@ import {
     logWarn,
     toStringList,
 } from "./util"
-import { extractFenced, findFirstDataFence, unfence } from "./fence"
+import { extractFenced, findFirstDataFence } from "./fence"
 import {
     toStrictJSONSchema,
     validateFencesWithSchema,
@@ -63,7 +63,7 @@ import {
     renderShellOutput,
 } from "./chatrender"
 import { promptParametersSchemaToJSONSchema } from "./parameters"
-import { fenceMD, prettifyMarkdown } from "./markdown"
+import { prettifyMarkdown } from "./markdown"
 import { YAMLStringify } from "./yaml"
 import { resolveTokenEncoder } from "./encoders"
 import { estimateTokens, truncateTextToTokens } from "./tokens"
@@ -84,6 +84,8 @@ import {
     LanguageModelConfiguration,
     LanguageModelInfo,
 } from "./server/messages"
+import { unfence } from "./unwrappers"
+import { fenceMD } from "./mkmd"
 
 export function toChatCompletionUserMessage(
     expanded: string,

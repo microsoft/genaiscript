@@ -14,7 +14,7 @@ import { parse, stringify } from "json5"
 import { jsonrepair } from "jsonrepair"
 
 // Importing unfence function to handle fenced code blocks.
-import { unfence } from "./fence"
+import { unfence } from "./unwrappers"
 
 /**
  * Checks if a given text is a JSON object or array.
