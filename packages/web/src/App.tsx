@@ -815,18 +815,22 @@ function ScriptFormHelper() {
 function FilesForm() {
     const { files = [], setFiles } = useApi()
     return (
-        <VscodeFormContainer>
-            <VscodeFormGroup>
-                <VscodeLabel>Files</VscodeLabel>
-                <VscodeTextarea
-                    value={files.join(", ")}
-                    onChange={(e) => {
-                        const target = e.target as HTMLInputElement
-                        startTransition(() => setFiles(target.value.split(",")))
-                    }}
-                />
-            </VscodeFormGroup>
-        </VscodeFormContainer>
+        <VscodeCollapsible title="Files">
+            <VscodeFormContainer>
+                <VscodeFormGroup>
+                    <VscodeLabel>Files</VscodeLabel>
+                    <VscodeTextarea
+                        value={files.join(", ")}
+                        onChange={(e) => {
+                            const target = e.target as HTMLInputElement
+                            startTransition(() =>
+                                setFiles(target.value.split(","))
+                            )
+                        }}
+                    />
+                </VscodeFormGroup>
+            </VscodeFormContainer>
+        </VscodeCollapsible>
     )
 }
 
@@ -868,8 +872,6 @@ function ScriptForm() {
         <VscodeCollapsible open title="Script">
             <VscodeFormContainer>
                 <ScriptSelect />
-                <FilesForm />
-                <PromptParametersForm />
                 <RunButton />
             </VscodeFormContainer>
         </VscodeCollapsible>
@@ -878,23 +880,33 @@ function ScriptForm() {
 
 function PromptParametersForm() {
     const script = useScript()
-    if (!script?.parameters) return null
 
     const { parameters, setParameters } = useApi()
     const schema = useMemo(
         () =>
-            promptParametersSchemaToJSONSchema(
-                script.parameters
-            ) as JSONSchemaObject,
+            script?.parameters
+                ? (promptParametersSchemaToJSONSchema(
+                      script.parameters
+                  ) as JSONSchemaObject)
+                : undefined,
         [script]
     )
-
+    const names = Object.keys(schema?.properties || {})
     return (
-        <JSONSchemaObjectForm
-            schema={schema}
-            value={parameters}
-            onChange={setParameters}
-        />
+        <VscodeCollapsible open title="Parameters">
+            {schema && (
+                <VscodeBadge variant="counter" slot="decorations">
+                    {names.length}
+                </VscodeBadge>
+            )}
+            {schema && (
+                <JSONSchemaObjectForm
+                    schema={schema}
+                    value={parameters}
+                    onChange={setParameters}
+                />
+            )}
+        </VscodeCollapsible>
     )
 }
 
@@ -994,6 +1006,8 @@ function RunForm() {
     return (
         <form onSubmit={handleSubmit}>
             <ScriptForm />
+            <FilesForm />
+            <PromptParametersForm />
             <ModelConnectionOptionsForm />
         </form>
     )
