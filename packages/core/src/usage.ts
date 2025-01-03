@@ -111,7 +111,7 @@ export class GenerationStats {
     }
 
     get resolvedModel() {
-        return this.chatTurns?.[0]?.model ?? this.model
+        return this.chatTurns?.[0]?.model || this.model
     }
 
     /**

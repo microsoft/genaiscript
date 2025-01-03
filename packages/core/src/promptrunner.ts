@@ -322,7 +322,7 @@ export async function runTemplate(
             perplexity: output.perplexity,
             stats: {
                 cost: options.stats.cost(),
-                ...options.stats.usage,
+                ...options.stats.accumulatedUsage(),
             },
         }
 

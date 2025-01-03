@@ -51,6 +51,8 @@ import { TreeItem } from "@vscode-elements/elements/dist/vscode-tree/vscode-tree
 import { FileWithPath, useDropzone } from "react-dropzone"
 import prettyBytes from "pretty-bytes"
 import { renderMessagesToMarkdown } from "../../core/src/chatrender"
+import { stringify as YAMLStringify } from "yaml"
+import { fenceMD } from "../../core/src/mkmd"
 
 const urlParams = new URLSearchParams(window.location.hash)
 const apiKey = urlParams.get("api-key")
@@ -650,6 +652,38 @@ function MessagesTabPanel() {
     )
 }
 
+function renderCost(value: number) {
+    if (!value) return ""
+    return value <= 0.01
+        ? `${(value * 100).toFixed(3)}¢`
+        : value <= 0.1
+          ? `${(value * 100).toFixed(2)}¢`
+          : `${value.toFixed(2)}$`
+}
+
+function StatsTabPanel() {
+    const result = useResult()
+    const { stats } = result || {}
+    const { cost, ...rest } = stats || {}
+
+    const md = stats ? YAMLStringify(rest) : ""
+    return (
+        <>
+            <VscodeTabHeader slot="header">
+                Stats
+                {!!cost && (
+                    <VscodeBadge variant="counter" slot="content-after">
+                        {renderCost(cost)}
+                    </VscodeBadge>
+                )}
+            </VscodeTabHeader>
+            <VscodeTabPanel>
+                <Markdown>{fenceMD(md, "yaml")}</Markdown>
+            </VscodeTabPanel>
+        </>
+    )
+}
+
 function OutputTabPanel() {
     const result = useResult()
     const { text, logprobs } = result || {}
@@ -1103,36 +1137,17 @@ function RunForm() {
     )
 }
 
-function CostDecoration() {
-    const result = useResult()
-    const { stats } = result || {}
-    return !!stats?.cost ? (
-        <VscodeBadge variant="counter" slot="decorations">
-            {renderCost(stats.cost)}
-        </VscodeBadge>
-    ) : null
-}
-
-function renderCost(value: number) {
-    if (!value) return ""
-    return value <= 0.01
-        ? `${(value * 100).toFixed(3)}¢`
-        : value <= 0.1
-          ? `${(value * 100).toFixed(2)}¢`
-          : `${value.toFixed(2)}$`
-}
-
 function WebApp() {
     return (
         <>
             <RunForm />
             <VscodeCollapsible open title="Results">
-                <CostDecoration />
                 <VscodeTabs panel>
                     <TraceTabPanel />
                     <ProblemsTabPanel />
                     <MessagesTabPanel />
                     <OutputTabPanel />
+                    <StatsTabPanel />
                     <LogProbsTabPanel />
                     <TopLogProbsTabPanel />
                     <FilesTabPanel />
