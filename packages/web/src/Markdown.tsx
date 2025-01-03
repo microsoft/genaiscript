@@ -9,6 +9,7 @@ import { remarkAlert } from "remark-github-blockquote-alert"
 import remarkMath from "remark-math"
 import rehypeMathML from "@daiji256/rehype-mathml"
 import { ErrorBoundary } from "react-error-boundary"
+import rehypeHighlight from "rehype-highlight"
 
 export default function Markdown(props: { className?: string; children: any }) {
     const { className, children } = props
@@ -20,6 +21,7 @@ export default function Markdown(props: { className?: string; children: any }) {
                         rehypeRaw,
                         rehypeMathML,
                         rehypeSanitize,
+                        rehypeHighlight,
                     ]}
                     remarkPlugins={[remarkMath, remarkGfm, remarkAlert]}
                 >

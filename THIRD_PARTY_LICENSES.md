@@ -1954,16 +1954,16 @@ Apache License
 
 The following npm packages may be included in this product:
 
- - @aws-sdk/client-cognito-identity@3.716.0
- - @aws-sdk/client-sso-oidc@3.716.0
- - @aws-sdk/client-sso@3.716.0
- - @aws-sdk/client-sts@3.716.0
- - @aws-sdk/credential-provider-cognito-identity@3.716.0
+ - @aws-sdk/client-cognito-identity@3.721.0
+ - @aws-sdk/client-sso-oidc@3.721.0
+ - @aws-sdk/client-sso@3.721.0
+ - @aws-sdk/client-sts@3.721.0
+ - @aws-sdk/credential-provider-cognito-identity@3.721.0
  - @aws-sdk/util-user-agent-browser@3.714.0
- - @aws-sdk/util-user-agent-node@3.716.0
+ - @aws-sdk/util-user-agent-node@3.721.0
  - @smithy/eventstream-codec@2.2.0
  - @smithy/eventstream-codec@3.1.10
- - @smithy/middleware-retry@3.0.33
+ - @smithy/middleware-retry@3.0.34
  - @smithy/querystring-builder@2.2.0
  - @smithy/querystring-builder@3.0.11
  - @smithy/querystring-parser@2.2.0
@@ -1971,8 +1971,8 @@ The following npm packages may be included in this product:
  - @smithy/service-error-classification@3.0.11
  - @smithy/url-parser@2.2.0
  - @smithy/url-parser@3.0.11
- - @smithy/util-defaults-mode-browser@3.0.33
- - @smithy/util-defaults-mode-node@3.0.33
+ - @smithy/util-defaults-mode-browser@3.0.34
+ - @smithy/util-defaults-mode-node@3.0.34
 
 These packages each contain the following license:
 
@@ -2182,7 +2182,7 @@ Apache License
 
 The following npm package may be included in this product:
 
- - @aws-sdk/client-bedrock-runtime@3.716.0
+ - @aws-sdk/client-bedrock-runtime@3.721.0
 
 This package contains the following license:
 
@@ -2394,8 +2394,8 @@ The following npm packages may be included in this product:
 
  - @aws-sdk/middleware-host-header@3.714.0
  - @aws-sdk/middleware-recursion-detection@3.714.0
- - @aws-sdk/middleware-user-agent@3.716.0
- - @smithy/core@2.5.6
+ - @aws-sdk/middleware-user-agent@3.721.0
+ - @smithy/core@2.5.7
  - @smithy/eventstream-serde-browser@3.0.14
  - @smithy/eventstream-serde-config-resolver@3.0.11
  - @smithy/eventstream-serde-node@2.2.0
@@ -2408,7 +2408,7 @@ The following npm packages may be included in this product:
  - @smithy/protocol-http@3.3.0
  - @smithy/protocol-http@4.1.8
  - @smithy/smithy-client@2.5.1
- - @smithy/smithy-client@3.6.0
+ - @smithy/smithy-client@3.7.0
  - @smithy/types@2.12.0
  - @smithy/types@3.7.2
 
@@ -4162,11 +4162,11 @@ Apache License
 The following npm packages may be included in this product:
 
  - @aws-sdk/credential-provider-env@3.716.0
- - @aws-sdk/credential-provider-ini@3.716.0
- - @aws-sdk/credential-provider-node@3.716.0
- - @aws-sdk/credential-providers@3.716.0
+ - @aws-sdk/credential-provider-ini@3.721.0
+ - @aws-sdk/credential-provider-node@3.721.0
+ - @aws-sdk/credential-providers@3.721.0
  - @aws-sdk/region-config-resolver@3.714.0
- - @aws-sdk/token-providers@3.714.0
+ - @aws-sdk/token-providers@3.721.0
  - @aws-sdk/types@3.714.0
  - @aws-sdk/util-endpoints@3.714.0
  - @aws-sdk/util-locate-window@3.693.0
@@ -4176,13 +4176,13 @@ The following npm packages may be included in this product:
  - @smithy/config-resolver@3.0.13
  - @smithy/credential-provider-imds@3.2.8
  - @smithy/fetch-http-handler@2.5.0
- - @smithy/fetch-http-handler@4.1.2
+ - @smithy/fetch-http-handler@4.1.3
  - @smithy/hash-node@3.0.11
  - @smithy/is-array-buffer@2.2.0
  - @smithy/is-array-buffer@3.0.0
  - @smithy/middleware-content-length@3.0.13
  - @smithy/middleware-endpoint@2.5.1
- - @smithy/middleware-endpoint@3.2.7
+ - @smithy/middleware-endpoint@3.2.8
  - @smithy/middleware-stack@2.2.0
  - @smithy/middleware-stack@3.0.11
  - @smithy/node-http-handler@2.5.0
@@ -4202,7 +4202,7 @@ The following npm packages may be included in this product:
  - @smithy/util-hex-encoding@2.2.0
  - @smithy/util-hex-encoding@3.0.0
  - @smithy/util-stream@2.2.0
- - @smithy/util-stream@3.3.3
+ - @smithy/util-stream@3.3.4
  - @smithy/util-uri-escape@2.2.0
  - @smithy/util-uri-escape@3.0.0
  - @smithy/util-utf8@2.3.0
@@ -4417,7 +4417,7 @@ Apache License
 The following npm packages may be included in this product:
 
  - @aws-sdk/credential-provider-process@3.716.0
- - @aws-sdk/credential-provider-sso@3.716.0
+ - @aws-sdk/credential-provider-sso@3.721.0
  - @aws-sdk/credential-provider-web-identity@3.716.0
 
 These packages each contain the following license:
