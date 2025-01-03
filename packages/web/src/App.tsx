@@ -875,7 +875,8 @@ function ScriptFormHelper() {
 }
 
 function FilesDropZone() {
-    const { acceptedFiles, getRootProps, getInputProps } = useDropzone()
+    const { acceptedFiles, isDragActive, getRootProps, getInputProps } =
+        useDropzone()
     const { setImportedFiles } = useApi()
 
     useEffect(() => setImportedFiles(acceptedFiles.slice()), [acceptedFiles])
@@ -914,7 +915,9 @@ function FilesDropZone() {
                 >
                     <input {...getInputProps()} />
                     <VscodeFormHelper>
-                        Drag 'n' drop some files here, or click to select files
+                        {isDragActive
+                            ? `Drop the files here ...`
+                            : `Drag 'n' drop some files here, or click to select files`}
                     </VscodeFormHelper>
                 </VscodeFormGroup>
             </VscodeFormContainer>
