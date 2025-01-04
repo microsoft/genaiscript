@@ -222,11 +222,17 @@ function PDFPagesToString(pages: PDFPage[]) {
  * @returns A promise resolving to the parsed pages and concatenated content
  */
 export async function parsePdf(
-    filename: string,
+    filenameOrBuffer: string | Uint8Array,
     options?: ParsePDFOptions & TraceOptions
 ): Promise<{ pages: PDFPage[]; content: string }> {
     const { filter } = options || {}
-    let { pages, ok } = await PDFTryParse(filename, undefined, options)
+    const filename =
+        typeof filenameOrBuffer === "string" ? filenameOrBuffer : undefined
+    const bytes =
+        typeof filenameOrBuffer === "string"
+            ? undefined
+            : (filenameOrBuffer as Uint8Array)
+    let { pages, ok } = await PDFTryParse(filename, bytes, options)
     if (!ok) return { pages: [], content: "" }
 
     // Apply filter if provided

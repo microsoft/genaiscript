@@ -428,35 +428,35 @@ export async function startServer(options: {
 
     // Create an HTTP server to handle basic requests.
     const httpServer = http.createServer(async (req, res) => {
-        const { url } = req
+        const { url, method } = req
         const route = url?.replace(/\?.*$/, "")
         res.setHeader("Cache-Control", "no-store")
-        if (route === "/") {
+        if (method === "GET" && route === "/") {
             res.setHeader("Content-Type", "text/html")
             res.setHeader("Cache-Control", "no-store")
             res.statusCode = 200
             const filePath = join(__dirname, "index.html")
             const stream = createReadStream(filePath)
             stream.pipe(res)
-        } else if (route === "/built/markdown.css") {
+        } else if (method === "GET" && route === "/built/markdown.css") {
             res.setHeader("Content-Type", "text/css")
             res.statusCode = 200
             const filePath = join(__dirname, "markdown.css")
             const stream = createReadStream(filePath)
             stream.pipe(res)
-        } else if (route === "/built/web.mjs") {
+        } else if (method === "GET" && route === "/built/web.mjs") {
             res.setHeader("Content-Type", "application/javascript")
             res.statusCode = 200
             const filePath = join(__dirname, "web.mjs")
             const stream = createReadStream(filePath)
             stream.pipe(res)
-        } else if (route === "/built/web.mjs.map") {
+        } else if (method === "GET" && route === "/built/web.mjs.map") {
             res.setHeader("Content-Type", "text/json")
             res.statusCode = 200
             const filePath = join(__dirname, "web.mjs.map")
             const stream = createReadStream(filePath)
             stream.pipe(res)
-        } else if (route === "/favicon.svg") {
+        } else if (method === "GET" && route === "/favicon.svg") {
             res.setHeader("Content-Type", "image/svg+xml")
             res.statusCode = 200
             const filePath = join(__dirname, "favicon.svg")
@@ -471,12 +471,14 @@ export async function startServer(options: {
                 return
             }
             let response: ResponseStatus
-            if (route === "/api/version") response = serverVersion()
-            else if (route === "/api/scripts") {
+            if (method === "GET" && route === "/api/version")
+                response = serverVersion()
+            else if (method === "GET" && route === "/api/scripts") {
                 response = await scriptList()
-            } else if (route === "/api/env") {
+            } else if (method === "GET" && route === "/api/env") {
                 response = await serverEnv()
             }
+
             if (response === undefined) {
                 console.debug(`404: ${url}`)
                 res.statusCode = 404

@@ -141,6 +141,7 @@ export async function runScriptInternal(
         TraceOptions &
         CancellationOptions & {
             cli?: boolean
+            workspaceFiles?: WorkspaceFile[]
             infoCb?: (partialResponse: { text: string }) => void
             partialCb?: (progress: ChatCompletionsProgressReport) => void
         }
@@ -148,6 +149,7 @@ export async function runScriptInternal(
     const { trace = new MarkdownTrace(), infoCb, partialCb } = options || {}
 
     let result: GenerationResult
+    const workspaceFiles = options.workspaceFiles
     const excludedFiles = options.excludedFiles
     const excludeGitIgnore = !!options.excludeGitIgnore
     const out = options.out
@@ -261,6 +263,7 @@ export async function runScriptInternal(
     if (!script) throw new Error(`script ${scriptId} not found`)
     const fragment: Fragment = {
         files: Array.from(resolvedFiles),
+        workspaceFiles,
     }
     const vars = Array.isArray(options.vars)
         ? parseOptionsVars(options.vars, process.env)

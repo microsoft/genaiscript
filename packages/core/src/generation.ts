@@ -11,6 +11,7 @@ import { GenerationStats } from "./usage"
 // Represents a code fragment with associated files
 export interface Fragment {
     files: string[] // Array of file paths or names
+    workspaceFiles?: WorkspaceFile[] // Array of workspace files
 }
 
 // Options for configuring the generation process, extending multiple other options

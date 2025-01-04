@@ -133,34 +133,6 @@ export function utf8Decode(buf: Uint8Array) {
     return host.createUTF8Decoder().decode(buf)
 }
 
-// this will take lower 8 bits from each character
-export function stringToUint8Array(input: string) {
-    const len = input.length
-    const res = new Uint8Array(len)
-    for (let i = 0; i < len; ++i) res[i] = input.charCodeAt(i) & 0xff
-    return res
-}
-
-export function uint8ArrayToString(input: ArrayLike<number>) {
-    const len = input.length
-    let res = ""
-    for (let i = 0; i < len; ++i) res += String.fromCharCode(input[i])
-    return res
-}
-
-declare var Buffer: any
-export function fromBase64(encoded: string): Uint8Array {
-    if (typeof Buffer == "function" && typeof Buffer.from == "function")
-        return new Uint8Array(Buffer.from(encoded, "base64"))
-    else return stringToUint8Array(atob(encoded))
-}
-
-export function toBase64(data: Uint8Array): string {
-    if (typeof Buffer == "function" && typeof Buffer.from == "function")
-        return Buffer.from(data).toString("base64")
-    else return btoa(uint8ArrayToString(data))
-}
-
 export function dotGenaiscriptPath(...segments: string[]) {
     return host.resolvePath(
         host.projectFolder(),

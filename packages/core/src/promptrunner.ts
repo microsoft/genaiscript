@@ -24,7 +24,7 @@ import { resolveLanguageModel } from "./lm"
  * @param project The project context.
  * @param trace The markdown trace for logging.
  * @param template The prompt script template.
- * @param frag The fragment containing files and metadata.
+ * @param fragment The fragment containing files and metadata.
  * @param vars The user-provided variables.
  * @returns An object containing resolved variables.
  */
@@ -32,15 +32,14 @@ async function resolveExpansionVars(
     project: Project,
     trace: MarkdownTrace,
     template: PromptScript,
-    frag: Fragment,
+    fragment: Fragment,
     vars: Record<string, string | number | boolean | object>
 ) {
     const root = runtimeHost.projectFolder()
 
     const files: WorkspaceFile[] = []
-    const fr = frag
     const templateFiles = arrayify(template.files)
-    const referenceFiles = fr.files.slice(0)
+    const referenceFiles = fragment.files.slice(0)
     const filenames = await expandFiles(
         referenceFiles?.length ? referenceFiles : templateFiles
     )
@@ -53,6 +52,14 @@ async function resolveExpansionVars(
         await resolveFileContent(file)
         files.push(file)
     }
+
+    if (fragment.workspaceFiles?.length)
+        for (const wf of fragment.workspaceFiles) {
+            if (!files.find((f) => f.filename === wf.filename)) {
+                await resolveFileContent(wf)
+                files.push(wf)
+            }
+        }
 
     // Parse and obtain attributes from prompt parameters
     const attrs = parsePromptParameters(project, template, vars)
