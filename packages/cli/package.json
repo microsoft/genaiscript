@@ -100,7 +100,7 @@
         "@types/prompts": "^2.4.9",
         "@types/replace-ext": "^2.0.2",
         "@types/ws": "^8.5.13",
-        "commander": "^13.0.0",
+        "commander": "^12.1.0",
         "diff": "^7.0.0",
         "dotenv": "^16.4.7",
         "es-toolkit": "^1.31.0",
