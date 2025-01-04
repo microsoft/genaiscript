@@ -3,7 +3,7 @@ https://www.npmjs.com/package/generate-license-file
 
 The following npm package may be included in this product:
 
- - pdfjs-dist@4.9.155
+ - pdfjs-dist@4.10.38
 
 This package contains the following license:
 
@@ -1098,9 +1098,11 @@ Apache License
 
 The following npm packages may be included in this product:
 
+ - @grpc/grpc-js@1.12.5
+ - @grpc/proto-loader@0.7.13
  - detect-libc@2.0.3
- - docker-modem@5.0.3
- - dockerode@4.0.2
+ - docker-modem@5.0.5
+ - dockerode@4.0.3
 
 These packages each contain the following license:
 
@@ -2828,7 +2830,7 @@ The following npm packages may be included in this product:
  - @types/node-fetch@2.6.12
  - @types/node@16.9.1
  - @types/node@18.19.69
- - @types/node@22.10.4
+ - @types/node@22.10.5
  - @types/turndown@5.0.5
  - @types/uuid@9.0.8
  - @types/yauzl@2.10.3
@@ -6909,6 +6911,7 @@ THE SOFTWARE.
 
 The following npm packages may be included in this product:
 
+ - lodash.camelcase@4.3.0
  - lodash.get@4.4.2
  - lodash.includes@4.3.0
  - lodash.isinteger@4.0.4
@@ -8756,6 +8759,36 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
+ - @js-sdsl/ordered-map@4.4.2
+
+This package contains the following license:
+
+MIT License
+
+Copyright (c) 2021 Zilong Yao
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+-----------
+
+The following npm package may be included in this product:
+
  - simple-xml-to-json@1.2.3
 
 This package contains the following license:
@@ -8906,7 +8939,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - fast-content-type-parse@2.0.0
+ - fast-content-type-parse@2.0.1
 
 This package contains the following license:
 
@@ -8969,7 +9002,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - @modelcontextprotocol/sdk@1.0.4
+ - @modelcontextprotocol/sdk@1.1.0
 
 This package contains the following license:
 
@@ -10410,7 +10443,7 @@ THE SOFTWARE.
 The following npm packages may be included in this product:
 
  - @octokit/auth-token@5.1.1
- - @octokit/core@6.1.2
+ - @octokit/core@6.1.3
  - @octokit/request-error@6.1.6
 
 These packages each contain the following license:
@@ -10627,6 +10660,7 @@ THE SOFTWARE.
 
 The following npm packages may be included in this product:
 
+ - uuid@10.0.0
  - uuid@8.3.2
  - uuid@9.0.1
 
