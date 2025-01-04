@@ -53,6 +53,8 @@ import prettyBytes from "pretty-bytes"
 import { renderMessagesToMarkdown } from "../../core/src/chatrender"
 import { stringify as YAMLStringify } from "yaml"
 import { fenceMD } from "../../core/src/mkmd"
+import { isBinaryMimeType } from "../../core/src/binary"
+import { toBase64 } from "../../core/src/base64"
 
 const urlParams = new URLSearchParams(window.location.hash)
 const apiKey = urlParams.get("api-key")
@@ -92,6 +94,7 @@ class RunClient extends EventTarget {
     constructor(
         readonly script: string,
         readonly files: string[],
+        readonly workspaceFiles: WorkspaceFile[],
         readonly options: any
     ) {
         super()
@@ -109,7 +112,10 @@ class RunClient extends EventTarget {
                         runId: this.runId,
                         script,
                         files: this.files,
-                        options: this.options,
+                        options: {
+                            ...(this.options || {}),
+                            workspaceFiles: this.workspaceFiles,
+                        },
                     } satisfies PromptScriptStart)
                 )
             },
@@ -323,7 +329,13 @@ const RunnerContext = createContext<{
 } | null>(null)
 
 function RunnerProvider({ children }: { children: React.ReactNode }) {
-    const { scriptid, files = [], options, parameters } = useApi()
+    const {
+        scriptid,
+        files = [],
+        importedFiles = [],
+        options,
+        parameters,
+    } = useApi()
     const [runner, setRunner] = useState<RunClient | undefined>(undefined)
 
     useEffect(() => {
@@ -331,12 +343,32 @@ function RunnerProvider({ children }: { children: React.ReactNode }) {
         setRunner(undefined)
     }, [scriptid])
 
-    const run = () => {
+    const run = async () => {
         runner?.close()
         if (!scriptid) return
 
-        console.log(`run: start ${scriptid}`, { files, parameters, options })
-        const client = new RunClient(scriptid, files.slice(0), {
+        console.log(`run: start ${scriptid}`, {
+            files,
+            importedFiles,
+            parameters,
+            options,
+        })
+        const workspaceFiles = await Promise.all(
+            importedFiles.map(async (f) => {
+                const binary = isBinaryMimeType(f.type)
+                const buffer = binary
+                    ? new Uint8Array(await f.arrayBuffer())
+                    : undefined
+                const content = buffer ? toBase64(buffer) : await f.text()
+                return {
+                    filename: f.path || f.relativePath,
+                    type: f.type,
+                    encoding: binary ? "base64" : undefined,
+                    content,
+                } satisfies WorkspaceFile
+            })
+        )
+        const client = new RunClient(scriptid, files.slice(0), workspaceFiles, {
             parameters,
             ...options,
         })
@@ -863,17 +895,6 @@ function toStringList(...token: (string | undefined | null)[]) {
     return md
 }
 
-function ScriptFormHelper() {
-    const script = useScript()
-    return (
-        <VscodeFormHelper>
-            {script
-                ? toStringList(script.title, script.description)
-                : `Select a GenAIScript to run`}
-        </VscodeFormHelper>
-    )
-}
-
 function FilesDropZone() {
     const { acceptedFiles, isDragActive, getRootProps, getInputProps } =
         useDropzone()
@@ -883,7 +904,7 @@ function FilesDropZone() {
 
     return (
         <>
-            <VscodeFormContainer>
+            {!!acceptedFiles?.length && (
                 <VscodeFormGroup>
                     <VscodeLabel>Files</VscodeLabel>
                     <VscodeMultiSelect
@@ -907,38 +928,21 @@ function FilesDropZone() {
                         ))}
                     </VscodeMultiSelect>
                 </VscodeFormGroup>
-                <VscodeFormGroup
-                    style={{
-                        cursor: "pointer",
-                    }}
-                    {...getRootProps({ className: "dropzone" })}
-                >
-                    <input {...getInputProps()} />
-                    <VscodeFormHelper>
-                        {isDragActive
-                            ? `Drop the files here ...`
-                            : `Drag 'n' drop some files here, or click to select files`}
-                    </VscodeFormHelper>
-                </VscodeFormGroup>
-            </VscodeFormContainer>
-        </>
-    )
-}
-
-function FilesForm() {
-    const { files, importedFiles } = useApi()
-
-    const n = (files?.length || 0) + (importedFiles?.length || 0)
-    return (
-        <VscodeCollapsible title="Files">
-            {n > 0 && (
-                <VscodeBadge variant="counter" slot="decorations">
-                    {n}
-                </VscodeBadge>
             )}
-            <GlobsForm />
-            <FilesDropZone />
-        </VscodeCollapsible>
+            <VscodeFormGroup
+                style={{
+                    cursor: "pointer",
+                }}
+                {...getRootProps({ className: "dropzone" })}
+            >
+                <input {...getInputProps()} />
+                <VscodeFormHelper>
+                    {isDragActive
+                        ? `Drop the files here ...`
+                        : `Drag 'n' drop some files here, or click to select files`}
+                </VscodeFormHelper>
+            </VscodeFormGroup>
+        </>
     )
 }
 
@@ -964,6 +968,7 @@ function GlobsForm() {
 function ScriptSelect() {
     const scripts = useScripts()
     const { scriptid, setScriptid } = useApi()
+    const script = useScript()
 
     return (
         <VscodeFormGroup>
@@ -989,7 +994,11 @@ function ScriptSelect() {
                     </VscodeOption>
                 ))}
             </VscodeSingleSelect>
-            <ScriptFormHelper />
+            {script && (
+                <VscodeFormHelper>
+                    {toStringList(script.title, script.description)}
+                </VscodeFormHelper>
+            )}
         </VscodeFormGroup>
     )
 }
@@ -999,6 +1008,7 @@ function ScriptForm() {
         <VscodeCollapsible open title="Script">
             <VscodeFormContainer>
                 <ScriptSelect />
+                <FilesDropZone />
                 <RunButton />
             </VscodeFormContainer>
         </VscodeCollapsible>
@@ -1133,7 +1143,6 @@ function RunForm() {
     return (
         <form onSubmit={handleSubmit}>
             <ScriptForm />
-            <FilesForm />
             <PromptParametersForm />
             <ModelConnectionOptionsForm />
         </form>

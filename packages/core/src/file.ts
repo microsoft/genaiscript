@@ -7,10 +7,10 @@
 import { DOCXTryParse } from "./docx"
 import { readText } from "./fs"
 import { lookupMime } from "./mime"
-import { isBinaryMimeType } from "./parser"
+import { isBinaryMimeType } from "./binary"
 import { createFetch } from "./fetch"
 import { fileTypeFromBuffer } from "file-type"
-import { toBase64 } from "./util"
+import { fromBase64, toBase64 } from "./base64"
 import { host } from "./host"
 import { TraceOptions } from "./trace"
 import { parsePdf } from "./pdf"
@@ -18,9 +18,12 @@ import { XLSXParse } from "./xlsx"
 import { CSVToMarkdown, CSVTryParse } from "./csv"
 import {
     CSV_REGEX,
+    DOCX_MIME_TYPE,
     DOCX_REGEX,
     HTTPS_REGEX,
+    PDF_MIME_TYPE,
     PDF_REGEX,
+    XLSX_MIME_TYPE,
     XLSX_REGEX,
 } from "./constants"
 import { UrlAdapter, defaultUrlAdapters } from "./urlAdapters"
@@ -37,8 +40,23 @@ export async function resolveFileContent(
     options?: TraceOptions
 ) {
     const { trace } = options || {}
-    const { filename } = file
 
+    // decode known files
+    if (file.encoding === "base64") {
+        const bytes = fromBase64(file.content)
+        if (file.type === PDF_MIME_TYPE) {
+            const { content } = await parsePdf(bytes, options)
+            delete file.encoding
+            file.content = content
+        } else if (file.type === XLSX_MIME_TYPE) {
+            const sheets = await XLSXParse(bytes)
+            delete file.encoding
+            file.content = JSON.stringify(sheets, null, 2)
+        }
+        return file
+    }
+
+    const { filename } = file
     // If file content is already available or filename is missing, return the file as is.
     if (file.content) return file
     if (!filename) return file
@@ -68,32 +86,43 @@ export async function resolveFileContent(
         trace?.itemValue(`status`, `${resp.status}, ${resp.statusText}`)
 
         // Set file content based on response and adapter type
-        if (resp.ok)
+        if (resp.ok) {
+            file.type = resp.headers.get("Content-Type")
             file.content =
                 adapter?.contentType === "application/json"
                     ? adapter.adapter(await resp.json())
                     : await resp.text()
+        }
     }
     // Handle PDF files
     else if (PDF_REGEX.test(filename)) {
         const { content } = await parsePdf(filename, options)
+        file.type = PDF_MIME_TYPE
         file.content = content
     }
     // Handle DOCX files
     else if (DOCX_REGEX.test(filename)) {
+        file.type = DOCX_MIME_TYPE
         file.content = await DOCXTryParse(filename, options)
     }
     // Handle XLSX files
     else if (XLSX_REGEX.test(filename)) {
         const bytes = await host.readFile(filename)
         const sheets = await XLSXParse(bytes)
+        file.type = XLSX_MIME_TYPE
         file.content = JSON.stringify(sheets, null, 2)
     }
     // Handle other file types
     else {
-        const mime = lookupMime(filename)
+        const mime = file.type || lookupMime(filename)
         const isBinary = isBinaryMimeType(mime)
+        file.type = mime
         if (!isBinary) file.content = await readText(filename)
+        else {
+            const bytes: Uint8Array = await host.readFile(filename)
+            file.encoding = "base64"
+            file.content = toBase64(bytes)
+        }
     }
 
     return file

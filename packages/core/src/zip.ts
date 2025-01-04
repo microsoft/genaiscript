@@ -1,8 +1,9 @@
 import { unzipSync } from "fflate"
 import { lookupMime } from "./mime"
-import { isBinaryMimeType } from "./parser"
+import { isBinaryMimeType } from "./binary"
 import { host } from "./host"
 import { isGlobMatch } from "./glob"
+import { toBase64 } from "./base64"
 
 export async function unzip(
     data: Uint8Array,
@@ -20,7 +21,11 @@ export async function unzip(
     return Object.entries(res).map(([filename, data]) => {
         const mime = lookupMime(filename)
         if (isBinaryMimeType(mime))
-            return <WorkspaceFile>{ filename } // TODO bytes support
+            return <WorkspaceFile>{
+                filename,
+                encoding: "base64",
+                content: toBase64(data),
+            } // bytes support
         else return <WorkspaceFile>{ filename, content: decoder.decode(data) }
     })
 }

@@ -29,6 +29,7 @@
     "@octokit/plugin-retry": "^7.1.2",
     "@octokit/plugin-throttling": "^9.3.2",
     "@octokit/rest": "^21.0.2",
+    "@smithy/util-base64": "^3.0.0",
     "@tidyjs/tidy": "^2.5.2",
     "@types/diff": "^6.0.0",
     "@types/html-escaper": "^3.0.2",

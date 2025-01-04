@@ -540,6 +540,16 @@ interface WorkspaceFile {
     filename: string
 
     /**
+     * Content mime-type if known
+     */
+    type?: string
+
+    /**
+     * Encoding of the content
+     */
+    encoding?: 'base64'
+
+    /**
      * Content of the file.
      */
     content?: string
