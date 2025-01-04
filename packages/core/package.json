@@ -13,7 +13,7 @@
   },
   "optionalDependencies": {
     "@lvce-editor/ripgrep": "^1.5.0",
-    "pdfjs-dist": "4.10.38",
+    "pdfjs-dist": "4.9.155",
     "skia-canvas": "^2.0.1",
     "web-tree-sitter": "0.22.2"
   },
@@ -54,7 +54,7 @@
     "fast-xml-parser": "^4.5.1",
     "fetch-retry": "^6.0.0",
     "fflate": "^0.8.2",
-    "file-type": "19.6.0",
+    "file-type": "19.1.1",
     "gpt-tokenizer": "^2.8.1",
     "groq-js": "^1.14.2",
     "html-escaper": "^3.0.3",

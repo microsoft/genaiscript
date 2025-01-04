@@ -78,7 +78,7 @@
     "optionalDependencies": {
         "@huggingface/transformers": "^3.2.4",
         "@lvce-editor/ripgrep": "^1.5.0",
-        "pdfjs-dist": "4.10.38",
+        "pdfjs-dist": "4.9.155",
         "playwright": "^1.49.1",
         "skia-canvas": "^2.0.1",
         "tree-sitter-wasms": "^0.1.11",
