@@ -904,31 +904,29 @@ function FilesDropZone() {
 
     return (
         <>
-            {!!acceptedFiles?.length && (
-                <VscodeFormGroup>
-                    <VscodeLabel>Files</VscodeLabel>
-                    <VscodeMultiSelect
-                        onChange={(e) => {
-                            e.preventDefault()
-                            const target = e.target as HTMLSelectElement
-                            const value = target.value as string
-                            setImportedFiles(
-                                acceptedFiles.filter((f) => f.path === value)
-                            )
-                        }}
-                    >
-                        {acceptedFiles.map((file) => (
-                            <VscodeOption
-                                key={file.path}
-                                value={file.path}
-                                selected
-                            >
-                                {file.name} ({prettyBytes(file.size)})
-                            </VscodeOption>
-                        ))}
-                    </VscodeMultiSelect>
-                </VscodeFormGroup>
-            )}
+            <VscodeFormGroup>
+                <VscodeLabel>Files</VscodeLabel>
+                <VscodeMultiSelect
+                    onChange={(e) => {
+                        e.preventDefault()
+                        const target = e.target as HTMLSelectElement
+                        const value = target.value as string
+                        setImportedFiles(
+                            acceptedFiles.filter((f) => f.path === value)
+                        )
+                    }}
+                >
+                    {acceptedFiles.map((file) => (
+                        <VscodeOption
+                            key={file.path}
+                            value={file.path}
+                            selected
+                        >
+                            {file.name} ({prettyBytes(file.size)})
+                        </VscodeOption>
+                    ))}
+                </VscodeMultiSelect>
+            </VscodeFormGroup>
             <VscodeFormGroup
                 style={{
                     cursor: "pointer",
@@ -977,6 +975,7 @@ function ScriptSelect() {
             </VscodeLabel>
             <VscodeSingleSelect
                 value={scriptid}
+                required={true}
                 combobox
                 filter="fuzzy"
                 onChange={(e) => {
