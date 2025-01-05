@@ -24,9 +24,6 @@ import {
     AZURE_AI_INFERENCE_TOKEN_SCOPES,
     MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI,
     DOT_ENV_FILENAME,
-    LARGE_MODEL_ID,
-    SMALL_MODEL_ID,
-    VISION_MODEL_ID,
 } from "../../core/src/constants"
 import { tryReadText } from "../../core/src/fs"
 import {
@@ -41,7 +38,7 @@ import {
     ModelConfiguration,
 } from "../../core/src/host"
 import { TraceOptions } from "../../core/src/trace"
-import { deleteEmptyValues, logError, logVerbose } from "../../core/src/util"
+import { logError, logVerbose } from "../../core/src/util"
 import { parseModelIdentifier } from "../../core/src/models"
 import { LanguageModel } from "../../core/src/chat"
 import { errorMessage, NotSupportedError } from "../../core/src/error"
@@ -50,7 +47,11 @@ import { shellConfirm, shellInput, shellSelect } from "./input"
 import { shellQuote } from "../../core/src/shell"
 import { uniq } from "es-toolkit"
 import { PLimitPromiseQueue } from "../../core/src/concurrency"
-import { LanguageModelConfiguration, Project, ResponseStatus } from "../../core/src/server/messages"
+import {
+    LanguageModelConfiguration,
+    Project,
+    ResponseStatus,
+} from "../../core/src/server/messages"
 import { createAzureTokenResolver } from "./azuretoken"
 import {
     createAzureContentSafetyClient,
@@ -396,15 +397,13 @@ export class NodeHost implements RuntimeHost {
         }
 
         const {
-            trace,
             label,
             cwd,
             timeout = SHELL_EXEC_TIMEOUT,
             stdin: input,
         } = options || {}
+        const trace = options?.trace?.startTraceDetails(label || command)
         try {
-            trace?.startDetails(label || command)
-
             // python3 on windows -> python
             if (command === "python3" && process.platform === "win32")
                 command = "python"

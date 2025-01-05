@@ -25,6 +25,7 @@ export class MemoryCache<K, V>
     implements WorkspaceFileCache<any, any>
 {
     protected _entries: Record<string, CacheEntry<K, V>>
+    private _pending: Record<string, Promise<V>>
 
     // Constructor is private to enforce the use of byName factory method
     protected constructor(public readonly name: string) {
@@ -53,6 +54,7 @@ export class MemoryCache<K, V>
     protected async initialize() {
         if (this._entries) return
         this._entries = {}
+        this._pending = {}
     }
 
     /**
@@ -102,6 +104,29 @@ export class MemoryCache<K, V>
         await this.initialize()
         const sha = await keySHA(key)
         return this._entries[sha]?.val
+    }
+
+    async getOrUpdate(
+        key: K,
+        updater: () => Promise<V>,
+        validator: (val: V) => boolean
+    ): Promise<{ key: string; value: V; cached?: boolean }> {
+        await this.initialize()
+        const sha = await keySHA(key)
+        if (this._entries[sha])
+            return { key: sha, value: this._entries[sha].val, cached: true }
+        if (this._pending[sha])
+            return { key: sha, value: await this._pending[sha], cached: true }
+
+        try {
+            const p = updater()
+            this._pending[sha] = p
+            const value = await p
+            if (validator(value)) await this.set(key, value)
+            return { key: sha, value, cached: false }
+        } finally {
+            delete this._pending[sha]
+        }
     }
 
     protected async appendEntry(entry: CacheEntry<K, V>) {}
@@ -177,7 +202,7 @@ export class JSONLineCache<K, V> extends MemoryCache<K, V> {
      */
     override async initialize() {
         if (this._entries) return
-        this._entries = {}
+        super.initialize()
         await host.createDirectory(this.folder()) // Ensure directory exists
         const content = await tryReadText(this.path())
         const objs: CacheEntry<K, V>[] = (await JSONLTryParse(content)) ?? []
@@ -201,7 +226,7 @@ export class JSONLineCache<K, V> extends MemoryCache<K, V> {
 }
 
 /**
- * Compute the SHA1 hash of a key for uniqueness.
+ * Compute the hash of a key for uniqueness.
  * Normalizes the key by converting it to a string and appending the core version.
  * @param key - The key to hash
  * @returns A promise resolving to the SHA256 hash string

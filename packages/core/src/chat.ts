@@ -86,6 +86,10 @@ import {
 } from "./server/messages"
 import { unfence } from "./unwrappers"
 import { fenceMD } from "./mkmd"
+import {
+    ChatCompletionRequestCacheKey,
+    getChatCompletionCache,
+} from "./chatcache"
 
 export function toChatCompletionUserMessage(
     expanded: string,
@@ -674,13 +678,16 @@ async function processChatMessage(
     if (chatParticipants?.length) {
         let needsNewTurn = false
         for (const participant of chatParticipants) {
+            const { generator, options: participantOptions } = participant || {}
+            const { label } = participantOptions || {}
+            const participantTrace = trace.startTraceDetails(
+                `🙋 participant ${label || ""}`
+            )
             try {
-                const { generator, options: participantOptions } =
-                    participant || {}
-                const { label } = participantOptions || {}
-                trace.startDetails(`🙋 participant ${label || ""}`)
-
-                const ctx = createChatTurnGenerationContext(options, trace)
+                const ctx = createChatTurnGenerationContext(
+                    options,
+                    participantTrace
+                )
                 await generator(ctx, structuredClone(messages))
                 const node = ctx.node
                 checkCancelled(cancellationToken)
@@ -689,7 +696,7 @@ async function processChatMessage(
                     await renderPromptNode(options.model, node, {
                         flexTokens: options.flexTokens,
                         fenceFormat: options.fenceFormat,
-                        trace,
+                        trace: participantTrace,
                     })
                 if (participantMessages?.length) {
                     if (
@@ -704,7 +711,7 @@ async function processChatMessage(
                         user: true,
                         assistant: true,
                     })
-                    trace.details(
+                    participantTrace.details(
                         `💬 messages (${participantMessages.length})`,
                         renderMessagesToMarkdown(participantMessages, {
                             user: true,
@@ -714,21 +721,22 @@ async function processChatMessage(
                     )
                     messages.push(...participantMessages)
                     needsNewTurn = true
-                } else trace.item("no message")
+                } else participantTrace.item("no message")
                 if (errors?.length) {
                     err = errors[0]
-                    for (const error of errors) trace.error(undefined, error)
+                    for (const error of errors)
+                        participantTrace.error(undefined, error)
                     needsNewTurn = false
                     break
                 }
             } catch (e) {
                 err = e
                 logError(e)
-                trace.error(`participant error`, e)
+                participantTrace.error(`participant error`, e)
                 needsNewTurn = false
                 break
             } finally {
-                trace?.endDetails()
+                participantTrace.endDetails()
             }
         }
         if (needsNewTurn) return undefined
@@ -873,8 +881,12 @@ export async function executeChatSession(
         fallbackTools,
         choices,
         topLogprobs,
+        cache: cacheOrName,
+        cacheName,
     } = genOptions
     assert(!!model, "model is required")
+
+    const { token, source, ...cfgNoToken } = connectionToken
     const top_logprobs = genOptions.topLogprobs > 0 ? topLogprobs : undefined
     const logprobs = genOptions.logprobs || top_logprobs > 0 ? true : undefined
     traceLanguageModelConnection(trace, genOptions, connectionToken)
@@ -891,11 +903,17 @@ export async function executeChatSession(
                   }
           )
         : undefined
+    const cache = !!cacheOrName || !!cacheName
+    const cacheStore = cache
+        ? getChatCompletionCache(
+              typeof cacheOrName === "string" ? cacheOrName : cacheName
+          )
+        : undefined
 
+    const chatTrace = trace.startTraceDetails(`🧠 llm chat`, { expanded: true })
     try {
-        trace.startDetails(`🧠 llm chat`, { expanded: true })
         if (toolDefinitions?.length) {
-            trace.detailsFenced(`🛠️ tools`, tools, "yaml")
+            chatTrace.detailsFenced(`🛠️ tools`, tools, "yaml")
             const toolNames = toolDefinitions.map(({ spec }) => spec.name)
             const duplicates = uniq(toolNames).filter(
                 (name, index) => toolNames.lastIndexOf(name) !== index
@@ -909,7 +927,7 @@ export async function executeChatSession(
             collapseChatMessages(messages)
             const tokens = estimateChatTokens(model, messages)
             if (messages)
-                trace.details(
+                chatTrace.details(
                     `💬 messages (${messages.length})`,
                     renderMessagesToMarkdown(messages, {
                         user: true,
@@ -923,10 +941,10 @@ export async function executeChatSession(
             let resp: ChatCompletionResponse
             try {
                 checkCancelled(cancellationToken)
+                const reqTrace = chatTrace.startTraceDetails(`📤 llm request`)
                 try {
-                    trace.startDetails(`📤 llm request`)
                     const logit_bias = await choicesToLogitBias(
-                        trace,
+                        reqTrace,
                         model,
                         choices
                     )
@@ -962,21 +980,50 @@ export async function executeChatSession(
                                   : undefined,
                         messages,
                     }
-                    updateChatFeatures(trace, req)
+                    updateChatFeatures(reqTrace, req)
                     logVerbose(
                         `chat: sending ${messages.length} messages to ${model} (~${tokens ?? "?"} tokens)\n`
                     )
-                    resp = await completer(
-                        req,
-                        connectionToken,
-                        genOptions,
-                        trace
-                    )
+
+                    const infer = async () =>
+                        await completer(
+                            req,
+                            connectionToken,
+                            genOptions,
+                            reqTrace
+                        )
+                    if (cacheStore) {
+                        const cachedKey = deleteUndefinedValues({
+                            ...req,
+                            ...cfgNoToken,
+                        }) satisfies ChatCompletionRequestCacheKey
+                        const validator = (value: ChatCompletionResponse) => {
+                            const ok = value?.finishReason === "stop"
+                            return ok
+                        }
+                        const cacheRes = await cacheStore.getOrUpdate(
+                            cachedKey,
+                            infer,
+                            validator
+                        )
+                        resp = cacheRes.value
+                        resp.cached = cacheRes.cached
+                        if (resp.cached) {
+                            reqTrace.itemValue("cache", cacheStore.name)
+                            reqTrace.itemValue("cache_key", cacheRes.key)
+                            logVerbose(
+                                `chat: cache hit (${cacheStore.name}/${cacheRes.key.slice(0, 7)})`
+                            )
+                        }
+                    } else {
+                        resp = await infer()
+                    }
+
                     if (resp.variables)
                         genVars = { ...(genVars || {}), ...resp.variables }
                 } finally {
                     logVerbose("\n")
-                    trace.endDetails()
+                    reqTrace.endDetails()
                 }
 
                 const output = await processChatMessage(
@@ -1008,9 +1055,9 @@ export async function executeChatSession(
             }
         }
     } finally {
-        await dispose(disposables, { trace })
-        stats.trace(trace)
-        trace.endDetails()
+        await dispose(disposables, { trace: chatTrace })
+        stats.trace(chatTrace)
+        chatTrace.endDetails()
     }
 }
 

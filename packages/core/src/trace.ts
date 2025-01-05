@@ -55,7 +55,7 @@ export class MarkdownTrace extends EventTarget implements ToolCallTrace {
             .join("")
     }
 
-    startTraceDetails(title: string) {
+    startTraceDetails(title: string, options?: { expanded?: boolean }) {
         const trace = new MarkdownTrace({ ...this.options })
         trace.addEventListener(TRACE_CHUNK, (ev) =>
             this.dispatchEvent(
@@ -65,7 +65,7 @@ export class MarkdownTrace extends EventTarget implements ToolCallTrace {
         trace.addEventListener(TRACE_DETAILS, () =>
             this.dispatchEvent(new Event(TRACE_DETAILS))
         )
-        trace.startDetails(title)
+        trace.startDetails(title, options)
         this._content.push(trace)
         return trace
     }

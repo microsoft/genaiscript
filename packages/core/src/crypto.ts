@@ -3,6 +3,7 @@ import { getRandomValues as cryptoGetRandomValues } from "crypto"
 
 // Importing the toHex function from the util module to convert byte arrays to hexadecimal strings
 import { concatBuffers, toHex, utf8Encode } from "./util"
+import { CORE_VERSION } from "./version"
 
 function getRandomValues(bytes: Uint8Array) {
     if (typeof self !== "undefined" && self.crypto) {
@@ -40,7 +41,7 @@ export function randomHex(size: number) {
 }
 
 export async function hash(value: any, options?: HashOptions) {
-    const { algorithm = "sha-1", length, ...rest } = options || {}
+    const { algorithm = "sha-256", version, length, ...rest } = options || {}
 
     const sep = utf8Encode("|")
     const h: Uint8Array[] = []
@@ -67,6 +68,10 @@ export async function hash(value: any, options?: HashOptions) {
                 await append(v[c])
             }
         else h.push(utf8Encode(JSON.stringify(v)))
+    }
+    if (version) {
+        await append(CORE_VERSION)
+        await append(sep)
     }
     await append(value)
     await append(sep)

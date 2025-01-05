@@ -30,10 +30,6 @@ import {
 
 import { deleteUndefinedValues, logError, logVerbose } from "./util"
 import { resolveHttpProxyAgent } from "./proxy"
-import {
-    ChatCompletionRequestCacheKey,
-    getChatCompletionCache,
-} from "./chatcache"
 import { HttpsProxyAgent } from "https-proxy-agent"
 import { MarkdownTrace } from "./trace"
 import { createFetch, FetchType } from "./fetch"
@@ -289,40 +285,6 @@ const completerFactory = (
         const { model } = parseModelIdentifier(req.model)
         const { encode: encoder } = await resolveTokenEncoder(model)
 
-        const cache = !!cacheOrName || !!cacheName
-        const cacheStore = getChatCompletionCache(
-            typeof cacheOrName === "string" ? cacheOrName : cacheName
-        )
-        const cachedKey = cache
-            ? <ChatCompletionRequestCacheKey>{
-                  ...req,
-                  ...cfgNoToken,
-                  model: req.model,
-                  temperature: req.temperature,
-                  top_p: req.top_p,
-                  max_tokens: req.max_tokens,
-                  logit_bias: req.logit_bias,
-              }
-            : undefined
-        trace.itemValue(`caching`, cache)
-        trace.itemValue(`cache`, cacheStore?.name)
-        const { text: cached, finishReason: cachedFinishReason } =
-            (await cacheStore.get(cachedKey)) || {}
-        if (cached !== undefined) {
-            partialCb?.({
-                tokensSoFar: estimateTokens(cached, encoder),
-                responseSoFar: cached,
-                responseChunk: cached,
-                inner,
-            })
-            trace.itemValue(`cache hit`, await cacheStore.getKeySHA(cachedKey))
-            return {
-                text: cached,
-                finishReason: cachedFinishReason,
-                cached: true,
-            }
-        }
-
         const fetch = await createFetch({
             trace,
             retries: retry,
@@ -441,9 +403,6 @@ const completerFactory = (
                 `${usage.total_tokens} total, ${usage.prompt_tokens} prompt, ${usage.completion_tokens} completion`
             )
         }
-
-        if (finishReason === "stop")
-            await cacheStore.set(cachedKey, { text: chatResp, finishReason })
         return {
             text: chatResp,
             finishReason,

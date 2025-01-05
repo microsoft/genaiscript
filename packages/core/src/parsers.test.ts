@@ -61,7 +61,7 @@ describe("parsers", async () => {
         )
         let i = 1
         for (const img of result.images) {
-          await writeFile(`./loremipsum.temp.${i++}.png`, img)
+            await writeFile(`./loremipsum.temp.${i++}.png`, img)
         }
         assert(result.file.content.includes("Lorem"))
     })
@@ -120,8 +120,8 @@ describe("parsers", async () => {
     test("hash", async () => {
         const result = await parsers.hash(
             { test: "test string", arr: [1, 2, "32"], v: new Uint8Array(123) },
-            { length: 20 }
+            { length: 20, version: false }
         )
-        assert.strictEqual(result, "2c34c8d7df7428c89c64") // Example hash value
+        assert.strictEqual(result, "889772de6ac65b917519") // Example hash value
     })
 })

@@ -8,7 +8,7 @@ import {
     fixPromptDefinitions,
     createScript as coreCreateScript,
 } from "../../core/src/scripts"
-import { logInfo, logVerbose } from "../../core/src/util"
+import { deleteEmptyValues, logInfo, logVerbose } from "../../core/src/util"
 import { runtimeHost } from "../../core/src/host"
 import { RUNTIME_ERROR_CODE } from "../../core/src/constants"
 import {
@@ -27,14 +27,18 @@ export async function listScripts(options?: ScriptFilterOptions) {
     const prj = await buildProject() // Build the project to get script templates
     const scripts = filterScripts(prj.scripts, options) // Filter scripts based on options
     console.log(
-        YAMLStringify(
-            scripts.map(({ id, title, group, filename, system: isSystem }) => ({
-                id,
-                title,
-                group,
-                filename,
-                isSystem,
-            }))
+        JSON.stringify(
+            scripts.map(({ id, title, group, filename, system: isSystem }) =>
+                deleteEmptyValues({
+                    id,
+                    title,
+                    group,
+                    filename,
+                    isSystem,
+                })
+            ),
+            null,
+            2
         )
     )
 }

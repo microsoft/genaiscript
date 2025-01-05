@@ -82,6 +82,7 @@ export class GenerationStats {
         messages: ChatCompletionMessageParam[]
         usage: ChatCompletionUsage
         model: string
+        cached: boolean
     }[] = []
 
     /**
@@ -305,31 +306,35 @@ export class GenerationStats {
         const {
             usage = { completion_tokens: 0, prompt_tokens: 0, total_tokens: 0 },
             model,
+            cached,
         } = resp
         const { messages } = req
 
-        this.usage.completion_tokens += usage.completion_tokens ?? 0
-        this.usage.prompt_tokens += usage.prompt_tokens ?? 0
-        this.usage.total_tokens += usage.total_tokens ?? 0
+        if (!cached) {
+            this.usage.completion_tokens += usage.completion_tokens ?? 0
+            this.usage.prompt_tokens += usage.prompt_tokens ?? 0
+            this.usage.total_tokens += usage.total_tokens ?? 0
 
-        this.usage.completion_tokens_details.audio_tokens +=
-            usage.completion_tokens_details?.audio_tokens ?? 0
-        this.usage.completion_tokens_details.reasoning_tokens +=
-            usage.completion_tokens_details?.reasoning_tokens ?? 0
-        this.usage.completion_tokens_details.audio_tokens +=
-            usage.prompt_tokens_details?.audio_tokens ?? 0
-        this.usage.completion_tokens_details.reasoning_tokens +=
-            usage.prompt_tokens_details?.cached_tokens ?? 0
-        this.usage.completion_tokens_details.accepted_prediction_tokens +=
-            usage.completion_tokens_details?.accepted_prediction_tokens ?? 0
-        this.usage.completion_tokens_details.rejected_prediction_tokens +=
-            usage.completion_tokens_details?.rejected_prediction_tokens ?? 0
+            this.usage.completion_tokens_details.audio_tokens +=
+                usage.completion_tokens_details?.audio_tokens ?? 0
+            this.usage.completion_tokens_details.reasoning_tokens +=
+                usage.completion_tokens_details?.reasoning_tokens ?? 0
+            this.usage.completion_tokens_details.audio_tokens +=
+                usage.prompt_tokens_details?.audio_tokens ?? 0
+            this.usage.completion_tokens_details.reasoning_tokens +=
+                usage.prompt_tokens_details?.cached_tokens ?? 0
+            this.usage.completion_tokens_details.accepted_prediction_tokens +=
+                usage.completion_tokens_details?.accepted_prediction_tokens ?? 0
+            this.usage.completion_tokens_details.rejected_prediction_tokens +=
+                usage.completion_tokens_details?.rejected_prediction_tokens ?? 0
+        }
 
         const { provider } = parseModelIdentifier(this.model)
         const chatTurn = {
             messages: structuredClone(messages),
             usage: structuredClone(usage),
             model: `${provider}:${model}`,
+            cached,
         }
         this.chatTurns.push(chatTurn)
     }

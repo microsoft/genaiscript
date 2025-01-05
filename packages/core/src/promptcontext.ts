@@ -112,20 +112,20 @@ export async function createPromptContext(
         webSearch: async (q, options) => {
             const { provider, count, ignoreMissingProvider } = options || {}
             // Conduct a web search and return the results
+            const webTrace = trace.startTraceDetails(
+                `🌐 web search <code>${HTMLEscape(q)}</code>`
+            )
             try {
-                trace.startDetails(
-                    `🌐 web search <code>${HTMLEscape(q)}</code>`
-                )
                 let files: WorkspaceFile[]
                 if (provider === "bing")
-                    files = await bingSearch(q, { trace, count })
+                    files = await bingSearch(q, { trace: webTrace, count })
                 else if (provider === "tavily")
-                    files = await tavilySearch(q, { trace, count })
+                    files = await tavilySearch(q, { trace: webTrace, count })
                 else {
                     for (const f of [bingSearch, tavilySearch]) {
                         files = await f(q, {
                             ignoreMissingApiKey: true,
-                            trace,
+                            trace: webTrace,
                             count,
                         })
                         if (files) break
@@ -133,17 +133,17 @@ export async function createPromptContext(
                 }
                 if (!files) {
                     if (ignoreMissingProvider) {
-                        trace.log(`no search provider configured`)
+                        webTrace.log(`no search provider configured`)
                         return undefined
                     }
                     throw new Error(
                         `No search provider configured. See ${DOCS_WEB_SEARCH_URL}.`
                     )
                 }
-                trace.files(files, { model, secrets: env.secrets })
+                webTrace.files(files, { model, secrets: env.secrets })
                 return files
             } finally {
-                trace.endDetails()
+                webTrace.endDetails()
             }
         },
         fuzzSearch: async (q, files_, searchOptions) => {

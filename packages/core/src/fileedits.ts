@@ -121,8 +121,8 @@ export async function computeFileEdits(
 
     // Apply user-defined output processors
     if (outputProcessors?.length) {
+        const outputTrace = trace.startTraceDetails("🖨️ output processors")
         try {
-            trace.startDetails("🖨️ output processors")
             for (const outputProcessor of outputProcessors) {
                 const {
                     text: newText,
@@ -141,7 +141,7 @@ export async function computeFileEdits(
 
                 if (newText !== undefined) {
                     text = newText
-                    trace.detailsFenced(`📝 text`, text)
+                    outputTrace.detailsFenced(`📝 text`, text)
                 }
 
                 if (files)
@@ -149,7 +149,7 @@ export async function computeFileEdits(
                         const fn = runtimeHost.path.isAbsolute(n)
                             ? n
                             : runtimeHost.resolvePath(projFolder, n)
-                        trace.detailsFenced(`📁 file ${fn}`, content)
+                        outputTrace.detailsFenced(`📁 file ${fn}`, content)
                         const fileEdit = await getFileEdit(fn)
                         fileEdit.after = content
                         fileEdit.validation = { pathValid: true }
@@ -158,9 +158,9 @@ export async function computeFileEdits(
             }
         } catch (e) {
             logError(e)
-            trace.error(`output processor failed`, e)
+            outputTrace.error(`output processor failed`, e)
         } finally {
-            trace.endDetails()
+            outputTrace.endDetails()
         }
     }
 
@@ -225,52 +225,55 @@ function validateFileOutputs(
 ) {
     if (fileOutputs?.length && Object.keys(fileEdits || {}).length) {
         trace.startDetails("🗂 file outputs")
-        for (const fileEditName of Object.keys(fileEdits)) {
-            const fe = fileEdits[fileEditName]
-            for (const fileOutput of fileOutputs) {
-                const { pattern, options } = fileOutput
-                if (isGlobMatch(fileEditName, pattern)) {
-                    try {
-                        trace.startDetails(`📁 ${fileEditName}`)
-                        trace.itemValue(`pattern`, pattern)
-                        const { schema: schemaId } = options || {}
-                        if (/\.(json|yaml)$/i.test(fileEditName)) {
-                            const { after } = fileEdits[fileEditName]
-                            const data = /\.json$/i.test(fileEditName)
-                                ? JSON5parse(after)
-                                : YAMLParse(after)
-                            trace.detailsFenced("📝 data", data)
-                            if (schemaId) {
-                                const schema = schemas[schemaId]
-                                if (!schema)
-                                    fe.validation = {
-                                        schemaError: `schema ${schemaId} not found`,
-                                    }
-                                else
-                                    fe.validation = validateJSONWithSchema(
-                                        data,
-                                        schema,
-                                        {
-                                            trace,
+        try {
+            for (const fileEditName of Object.keys(fileEdits)) {
+                const fe = fileEdits[fileEditName]
+                for (const fileOutput of fileOutputs) {
+                    const { pattern, options } = fileOutput
+                    if (isGlobMatch(fileEditName, pattern)) {
+                        try {
+                            trace.startDetails(`📁 ${fileEditName}`)
+                            trace.itemValue(`pattern`, pattern)
+                            const { schema: schemaId } = options || {}
+                            if (/\.(json|yaml)$/i.test(fileEditName)) {
+                                const { after } = fileEdits[fileEditName]
+                                const data = /\.json$/i.test(fileEditName)
+                                    ? JSON5parse(after)
+                                    : YAMLParse(after)
+                                trace.detailsFenced("📝 data", data)
+                                if (schemaId) {
+                                    const schema = schemas[schemaId]
+                                    if (!schema)
+                                        fe.validation = {
+                                            schemaError: `schema ${schemaId} not found`,
                                         }
-                                    )
+                                    else
+                                        fe.validation = validateJSONWithSchema(
+                                            data,
+                                            schema,
+                                            {
+                                                trace,
+                                            }
+                                        )
+                                }
+                            } else {
+                                fe.validation = { pathValid: true }
                             }
-                        } else {
-                            fe.validation = { pathValid: true }
+                        } catch (e) {
+                            trace.error(errorMessage(e))
+                            fe.validation = {
+                                schemaError: errorMessage(e),
+                            }
+                        } finally {
+                            trace.endDetails()
                         }
-                    } catch (e) {
-                        trace.error(errorMessage(e))
-                        fe.validation = {
-                            schemaError: errorMessage(e),
-                        }
-                    } finally {
-                        trace.endDetails()
+                        break
                     }
-                    break
                 }
             }
+        } finally {
+            trace.endDetails()
         }
-        trace.endDetails()
     }
 }
 
