@@ -15,10 +15,6 @@ import { deleteUndefinedValues, dotGenaiscriptPath, logVerbose } from "./util"
 import { parseModelIdentifier } from "./models"
 import prettyBytes from "pretty-bytes"
 import { hash } from "./crypto"
-import {
-    ChatCompletionRequestCacheKey,
-    getChatCompletionCache,
-} from "./chatcache"
 import { PLimitPromiseQueue } from "./concurrency"
 
 function progressBar(): ProgressCallback {
@@ -74,35 +70,6 @@ export const TransformersCompletion: ChatCompletionHandler = async (
 
     trace.itemValue("model", model)
 
-    const cache = !!cacheOrName || !!cacheName
-    const cacheStore = getChatCompletionCache(
-        typeof cacheOrName === "string" ? cacheOrName : cacheName
-    )
-    const cachedKey = cache
-        ? <ChatCompletionRequestCacheKey>{
-              ...req,
-              model: req.model,
-              temperature: req.temperature,
-              top_p: req.top_p,
-              max_tokens: req.max_tokens,
-              logit_bias: req.logit_bias,
-          }
-        : undefined
-    trace.itemValue(`caching`, cache)
-    trace.itemValue(`cache`, cacheStore?.name)
-    const { text: cached, finishReason: cachedFinishReason } =
-        (await cacheStore.get(cachedKey)) || {}
-    if (cached !== undefined) {
-        partialCb?.({
-            tokensSoFar: 0, // TODO
-            responseSoFar: cached,
-            responseChunk: cached,
-            inner,
-        })
-        trace.itemValue(`cache hit`, await cacheStore.getKeySHA(cachedKey))
-        return { text: cached, finishReason: cachedFinishReason, cached: true }
-    }
-
     const device =
         process.env.HUGGINGFACE_TRANSFORMERS_DEVICE ||
         process.env.TRANSFORMERS_DEVICE ||
@@ -134,7 +101,9 @@ export const TransformersCompletion: ChatCompletionHandler = async (
                 tokensSoFar,
                 responseSoFar: chatResp,
                 responseChunk: text,
-                responseTokens:  [{ token: text, logprob: Number.NaN } satisfies Logprob],
+                responseTokens: [
+                    { token: text, logprob: Number.NaN } satisfies Logprob,
+                ],
                 inner,
             })
         },
@@ -165,9 +134,6 @@ export const TransformersCompletion: ChatCompletionHandler = async (
     })
 
     const finishReason = "stop"
-    if (finishReason === "stop")
-        await cacheStore.set(cachedKey, { text, finishReason })
-
     return {
         text,
         finishReason: "stop",

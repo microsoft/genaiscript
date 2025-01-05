@@ -86,6 +86,10 @@ import {
 } from "./server/messages"
 import { unfence } from "./unwrappers"
 import { fenceMD } from "./mkmd"
+import {
+    ChatCompletionRequestCacheKey,
+    getChatCompletionCache,
+} from "./chatcache"
 
 export function toChatCompletionUserMessage(
     expanded: string,
@@ -873,8 +877,12 @@ export async function executeChatSession(
         fallbackTools,
         choices,
         topLogprobs,
+        cache: cacheOrName,
+        cacheName,
     } = genOptions
     assert(!!model, "model is required")
+
+    const { token, source, ...cfgNoToken } = connectionToken
     const top_logprobs = genOptions.topLogprobs > 0 ? topLogprobs : undefined
     const logprobs = genOptions.logprobs || top_logprobs > 0 ? true : undefined
     traceLanguageModelConnection(trace, genOptions, connectionToken)
@@ -891,6 +899,10 @@ export async function executeChatSession(
                   }
           )
         : undefined
+    const cache = !!cacheOrName || !!cacheName
+    const cacheStore = getChatCompletionCache(
+        typeof cacheOrName === "string" ? cacheOrName : cacheName
+    )
 
     try {
         trace.startDetails(`🧠 llm chat`, { expanded: true })
@@ -966,12 +978,27 @@ export async function executeChatSession(
                     logVerbose(
                         `chat: sending ${messages.length} messages to ${model} (~${tokens ?? "?"} tokens)\n`
                     )
-                    resp = await completer(
-                        req,
-                        connectionToken,
-                        genOptions,
-                        trace
-                    )
+
+                    const infer = async () =>
+                        await completer(req, connectionToken, genOptions, trace)
+                    if (cacheStore) {
+                        const cachedKey = {
+                            ...req,
+                            ...cfgNoToken,
+                        } satisfies ChatCompletionRequestCacheKey
+                        const validator = (value: ChatCompletionResponse) =>
+                            value?.finishReason === "stop"
+                        const cacheRes = await cacheStore.getOrUpdate(
+                            cachedKey,
+                            infer,
+                            validator
+                        )
+                        resp = cacheRes.value
+                        resp.cached = cacheRes.cached
+                    } else {
+                        resp = await infer()
+                    }
+
                     if (resp.variables)
                         genVars = { ...(genVars || {}), ...resp.variables }
                 } finally {

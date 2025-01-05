@@ -25,6 +25,7 @@ export class MemoryCache<K, V>
     implements WorkspaceFileCache<any, any>
 {
     protected _entries: Record<string, CacheEntry<K, V>>
+    private _pending: Record<string, Promise<V>>
 
     // Constructor is private to enforce the use of byName factory method
     protected constructor(public readonly name: string) {
@@ -53,6 +54,7 @@ export class MemoryCache<K, V>
     protected async initialize() {
         if (this._entries) return
         this._entries = {}
+        this._pending = {}
     }
 
     /**
@@ -102,6 +104,28 @@ export class MemoryCache<K, V>
         await this.initialize()
         const sha = await keySHA(key)
         return this._entries[sha]?.val
+    }
+
+    async getOrUpdate(
+        key: K,
+        updater: () => Promise<V>,
+        validator?: (val: V) => boolean
+    ): Promise<{ value: V; cached?: boolean }> {
+        await this.initialize()
+        const sha = await keySHA(key)
+        if (this._entries[sha])
+            return { value: this._entries[sha].val, cached: true }
+        if (this._pending[sha]) return { value: await this._pending[sha] }
+
+        try {
+            const p = updater()
+            this._pending[sha] = p
+            const value = await p
+            if (validator(value)) this.set(key, value)
+            return { value }
+        } finally {
+            delete this._pending[sha]
+        }
     }
 
     protected async appendEntry(entry: CacheEntry<K, V>) {}
