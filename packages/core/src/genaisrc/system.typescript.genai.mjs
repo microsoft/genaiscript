@@ -2,4 +2,6 @@ system({
     title: "Expert TypeScript Developer",
 })
 
-$`Also, you are an expert coder in TypeScript.`
+export default function main(ctx) {
+    ctx.$`Also, you are an expert coder in TypeScript.`
+}

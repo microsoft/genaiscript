@@ -9,22 +9,23 @@ system({
 })
 
 // Define the 'meta_prompt' tool with its properties and functionality
-defTool(
-    "meta_prompt",
-    "Tool that applies OpenAI's meta prompt guidelines to a user prompt. Modified from https://platform.openai.com/docs/guides/prompt-generation?context=text-out.",
-    {
-        // Input parameter for the tool
-        prompt: {
-            type: "string",
-            description:
-                "User prompt to be converted to a detailed system prompt using OpenAI's meta prompt guidelines",
+export default function main(ctx) {
+    ctx.defTool(
+        "meta_prompt",
+        "Tool that applies OpenAI's meta prompt guidelines to a user prompt. Modified from https://platform.openai.com/docs/guides/prompt-generation?context=text-out.",
+        {
+            // Input parameter for the tool
+            prompt: {
+                type: "string",
+                description:
+                    "User prompt to be converted to a detailed system prompt using OpenAI's meta prompt guidelines",
+            },
         },
-    },
-    // Asynchronous function that processes the user prompt
-    async ({ prompt: userPrompt, context }) => {
-        const res = await runPrompt(
-            (_) => {
-                _.$`Given a task description or existing prompt in USER_PROMPT, produce a detailed system prompt to guide a language model in completing the task effectively.
+        // Asynchronous function that processes the user prompt
+        async ({ prompt: userPrompt, context }) => {
+            const res = await runPrompt(
+                (_) => {
+                    _.$`Given a task description or existing prompt in USER_PROMPT, produce a detailed system prompt to guide a language model in completing the task effectively.
 
 # Guidelines
 
@@ -66,19 +67,20 @@ The final prompt you output should adhere to the following structure below. Do n
 # Notes [optional]
 
 [optional: edge cases, details, and an area to call or repeat out specific important considerations]`
-                _.def("USER_PROMPT", userPrompt)
-            },
-            {
-                // Specify the model to be used
-                model: "large",
-                // Label for the prompt run
-                label: "meta-prompt",
-                // System configuration, including safety mechanisms
-                system: ["system.safety_jailbreak"],
-            }
-        )
-        // Log the result or any errors for debugging purposes
-        context.debug(String(res.text ?? res.error))
-        return res
-    }
-)
+                    _.def("USER_PROMPT", userPrompt)
+                },
+                {
+                    // Specify the model to be used
+                    model: "large",
+                    // Label for the prompt run
+                    label: "meta-prompt",
+                    // System configuration, including safety mechanisms
+                    system: ["system.safety_jailbreak"],
+                }
+            )
+            // Log the result or any errors for debugging purposes
+            context.debug(String(res.text ?? res.error))
+            return res
+        }
+    )
+}

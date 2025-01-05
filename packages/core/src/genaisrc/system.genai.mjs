@@ -1,2 +1,4 @@
 system({ title: "Base system prompt" })
-$`- You are concise.`
+export default function main(ctx) {
+    ctx.$`- You are concise.`
+}

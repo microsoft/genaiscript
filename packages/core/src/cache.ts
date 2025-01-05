@@ -109,21 +109,21 @@ export class MemoryCache<K, V>
     async getOrUpdate(
         key: K,
         updater: () => Promise<V>,
-        validator?: (val: V) => boolean
+        validator: (val: V) => boolean
     ): Promise<{ key: string; value: V; cached?: boolean }> {
         await this.initialize()
         const sha = await keySHA(key)
         if (this._entries[sha])
             return { key: sha, value: this._entries[sha].val, cached: true }
         if (this._pending[sha])
-            return { key: sha, value: await this._pending[sha] }
+            return { key: sha, value: await this._pending[sha], cached: true }
 
         try {
             const p = updater()
             this._pending[sha] = p
             const value = await p
             if (validator(value)) await this.set(key, value)
-            return { key: sha, value }
+            return { key: sha, value, cached: false }
         } finally {
             delete this._pending[sha]
         }
@@ -226,7 +226,7 @@ export class JSONLineCache<K, V> extends MemoryCache<K, V> {
 }
 
 /**
- * Compute the SHA1 hash of a key for uniqueness.
+ * Compute the hash of a key for uniqueness.
  * Normalizes the key by converting it to a string and appending the core version.
  * @param key - The key to hash
  * @returns A promise resolving to the SHA256 hash string

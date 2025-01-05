@@ -36,4 +36,26 @@ describe("Cache", () => {
         assert.ok(sha)
         assert.strictEqual(typeof sha, "string")
     })
+    test("JSONLineCache getOrUpdate retrieves existing value", async () => {
+        const cache = JSONLineCache.byName<string, number>("testCache")
+        await cache.set("existingKey", 42)
+        const value = await cache.getOrUpdate(
+            "existingKey",
+            async () => 99,
+            () => true
+        )
+        assert.strictEqual(value.value, 42)
+    })
+
+    test("JSONLineCache getOrUpdate updates with new value if key does not exist", async () => {
+        const cache = JSONLineCache.byName<string, number>("testCache")
+        const value = await cache.getOrUpdate(
+            "newKey",
+            async () => 99,
+            () => true
+        )
+        assert.strictEqual(value.value, 99)
+        const cachedValue = await cache.get("newKey")
+        assert.strictEqual(cachedValue, 99)
+    })
 })

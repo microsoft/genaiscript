@@ -4,7 +4,8 @@ system({
         "Should be considered for scenarios such as summarization. See https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/safety-system-message-templates.",
 })
 
-$`## Summarization
+export default function main(ctx) {
+    ctx.$`## Summarization
 - A summary is considered grounded if **all** information in **every** sentence in the summary are **explicitly** mentioned in the document, **no** extra information is added and **no** inferred information is added.
 - Do **not** make speculations or assumptions about the intent of the author, sentiment of the document or purpose of the document.
 - Keep the tone of the document.
@@ -15,3 +16,4 @@ $`## Summarization
 - Do **not** assume or change dates and times.
 - Write a final summary of the document that is **grounded**, **coherent** and **not** assuming gender for the author unless **explicitly** mentioned in the document.
 `
+}

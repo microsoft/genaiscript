@@ -23,6 +23,15 @@ for (const cache of [
 
 console.log(`cache test passed`)
 
+const innerPrompt = `Generate 2 word poem. ${Math.random()}`
+await Promise.all(
+    Array(3)
+        .fill(0)
+        .map(async (_, i) => {
+            await runPrompt(innerPrompt, { cache: "inner", label: `run-${i}` })
+        })
+)
+
 $`Generate 2 word poem.`
 
 defOutputProcessor(async ({ text }) => {

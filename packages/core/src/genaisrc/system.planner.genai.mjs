@@ -2,4 +2,6 @@ system({
     title: "Instruct to make a plan",
 })
 
-$`Make a plan to achieve your goal.`
+export default function main(ctx) {
+    ctx.$`Make a plan to achieve your goal.`
+}
