@@ -344,6 +344,7 @@ Start a GenAIScript local server
 Options:
   -p, --port <number>     Specify the port number, default: 8003
   -k, --api-key <string>  API key to authenticate requests
+  -c, --cors              Enable CORS
   -h, --help              display help for command
 ```
 

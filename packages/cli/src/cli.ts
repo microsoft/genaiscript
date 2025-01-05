@@ -358,6 +358,7 @@ export async function cli() {
             `Specify the port number, default: ${SERVER_PORT}`
         )
         .option("-k, --api-key <string>", "API key to authenticate requests")
+        .option("-c, --cors", "Enable CORS")
         .action(startServer) // Action to start the server
 
     // Define 'parse' command group for parsing tasks

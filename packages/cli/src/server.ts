@@ -55,8 +55,10 @@ export async function startServer(options: {
     port: string
     httpPort?: string
     apiKey?: string
+    cors?: boolean
 }) {
     // Parse and set the server port, using a default if not specified.
+    const cors = !!options.cors
     const port = parseInt(options.port) || SERVER_PORT
     const apiKey = options.apiKey ?? process.env.GENAISCRIPT_API_KEY
 
@@ -430,6 +432,20 @@ export async function startServer(options: {
     const httpServer = http.createServer(async (req, res) => {
         const { url, method } = req
         const route = url?.replace(/\?.*$/, "")
+
+        if (method === "OPTIONS") {
+            if (!cors) {
+                res.end(405)
+            } else {
+                res.setHeader("Access-Control-Allow-Origin", "*")
+                res.setHeader("Access-Control-Allow-Methods", "OPTIONS, GET")
+                res.setHeader("Access-Control-Max-Age", 24 * 3600) // 1 day
+                res.setHeader("Access-Control-Allow-Headers", "content-type")
+                res.end(204)
+            }
+            return
+        }
+
         res.setHeader("Cache-Control", "no-store")
         if (method === "GET" && route === "/") {
             res.setHeader("Content-Type", "text/html")
