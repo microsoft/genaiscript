@@ -678,13 +678,16 @@ async function processChatMessage(
     if (chatParticipants?.length) {
         let needsNewTurn = false
         for (const participant of chatParticipants) {
+            const { generator, options: participantOptions } = participant || {}
+            const { label } = participantOptions || {}
+            const participantTrace = trace.startTraceDetails(
+                `🙋 participant ${label || ""}`
+            )
             try {
-                const { generator, options: participantOptions } =
-                    participant || {}
-                const { label } = participantOptions || {}
-                trace.startDetails(`🙋 participant ${label || ""}`)
-
-                const ctx = createChatTurnGenerationContext(options, trace)
+                const ctx = createChatTurnGenerationContext(
+                    options,
+                    participantTrace
+                )
                 await generator(ctx, structuredClone(messages))
                 const node = ctx.node
                 checkCancelled(cancellationToken)
@@ -693,7 +696,7 @@ async function processChatMessage(
                     await renderPromptNode(options.model, node, {
                         flexTokens: options.flexTokens,
                         fenceFormat: options.fenceFormat,
-                        trace,
+                        trace: participantTrace,
                     })
                 if (participantMessages?.length) {
                     if (
@@ -708,7 +711,7 @@ async function processChatMessage(
                         user: true,
                         assistant: true,
                     })
-                    trace.details(
+                    participantTrace.details(
                         `💬 messages (${participantMessages.length})`,
                         renderMessagesToMarkdown(participantMessages, {
                             user: true,
@@ -718,21 +721,22 @@ async function processChatMessage(
                     )
                     messages.push(...participantMessages)
                     needsNewTurn = true
-                } else trace.item("no message")
+                } else participantTrace.item("no message")
                 if (errors?.length) {
                     err = errors[0]
-                    for (const error of errors) trace.error(undefined, error)
+                    for (const error of errors)
+                        participantTrace.error(undefined, error)
                     needsNewTurn = false
                     break
                 }
             } catch (e) {
                 err = e
                 logError(e)
-                trace.error(`participant error`, e)
+                participantTrace.error(`participant error`, e)
                 needsNewTurn = false
                 break
             } finally {
-                trace?.endDetails()
+                participantTrace.endDetails()
             }
         }
         if (needsNewTurn) return undefined
