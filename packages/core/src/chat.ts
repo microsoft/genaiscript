@@ -900,9 +900,11 @@ export async function executeChatSession(
           )
         : undefined
     const cache = !!cacheOrName || !!cacheName
-    const cacheStore = getChatCompletionCache(
-        typeof cacheOrName === "string" ? cacheOrName : cacheName
-    )
+    const cacheStore = cache
+        ? getChatCompletionCache(
+              typeof cacheOrName === "string" ? cacheOrName : cacheName
+          )
+        : undefined
 
     const chatTrace = trace.startTraceDetails(`🧠 llm chat`, { expanded: true })
     try {
