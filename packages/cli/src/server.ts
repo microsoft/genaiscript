@@ -56,11 +56,13 @@ export async function startServer(options: {
     httpPort?: string
     apiKey?: string
     cors?: boolean
+    network?: boolean
 }) {
     // Parse and set the server port, using a default if not specified.
     const cors = !!options.cors
     const port = parseInt(options.port) || SERVER_PORT
     const apiKey = options.apiKey ?? process.env.GENAISCRIPT_API_KEY
+    const serverHost = options.network ? "0.0.0.0" : "127.0.0.1"
 
     const wss = new WebSocketServer({ noServer: true })
 
@@ -435,13 +437,19 @@ export async function startServer(options: {
 
         if (method === "OPTIONS") {
             if (!cors) {
-                res.end(405)
+                res.statusCode = 405
+                res.end()
             } else {
-                res.setHeader("Access-Control-Allow-Origin", "*")
+                const origin = process.env.GENAISCRIPT_CORS_ORIGIN || "*"
+                res.setHeader("Access-Control-Allow-Origin", origin)
                 res.setHeader("Access-Control-Allow-Methods", "OPTIONS, GET")
                 res.setHeader("Access-Control-Max-Age", 24 * 3600) // 1 day
-                res.setHeader("Access-Control-Allow-Headers", "content-type")
-                res.end(204)
+                res.setHeader(
+                    "Access-Control-Allow-Headers",
+                    "Content-Type, Authorization, Accept"
+                )
+                res.statusCode = 204
+                res.end()
             }
             return
         }
@@ -516,9 +524,9 @@ export async function startServer(options: {
         } else socket.destroy()
     })
     // Start the HTTP server on the specified port.
-    httpServer.listen(port, () => {
+    httpServer.listen(port, serverHost, () => {
         console.log(
-            `GenAIScript server v${CORE_VERSION} at http://127.0.0.1:${port}/${apiKey ? `#api-key:${encodeURIComponent(apiKey)}` : ""}`
+            `GenAIScript server v${CORE_VERSION} at http://${serverHost}:${port}/${apiKey ? `#api-key:${encodeURIComponent(apiKey)}` : ""}`
         )
     })
 }
