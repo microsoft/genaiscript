@@ -110,19 +110,20 @@ export class MemoryCache<K, V>
         key: K,
         updater: () => Promise<V>,
         validator?: (val: V) => boolean
-    ): Promise<{ value: V; cached?: boolean }> {
+    ): Promise<{ key: string; value: V; cached?: boolean }> {
         await this.initialize()
         const sha = await keySHA(key)
         if (this._entries[sha])
-            return { value: this._entries[sha].val, cached: true }
-        if (this._pending[sha]) return { value: await this._pending[sha] }
+            return { key: sha, value: this._entries[sha].val, cached: true }
+        if (this._pending[sha])
+            return { key: sha, value: await this._pending[sha] }
 
         try {
             const p = updater()
             this._pending[sha] = p
             const value = await p
-            if (validator(value)) this.set(key, value)
-            return { value }
+            if (validator(value)) await this.set(key, value)
+            return { key: sha, value }
         } finally {
             delete this._pending[sha]
         }
@@ -201,7 +202,7 @@ export class JSONLineCache<K, V> extends MemoryCache<K, V> {
      */
     override async initialize() {
         if (this._entries) return
-        this._entries = {}
+        super.initialize()
         await host.createDirectory(this.folder()) // Ensure directory exists
         const content = await tryReadText(this.path())
         const objs: CacheEntry<K, V>[] = (await JSONLTryParse(content)) ?? []

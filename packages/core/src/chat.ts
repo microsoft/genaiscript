@@ -982,12 +982,14 @@ export async function executeChatSession(
                     const infer = async () =>
                         await completer(req, connectionToken, genOptions, trace)
                     if (cacheStore) {
-                        const cachedKey = {
+                        const cachedKey = deleteUndefinedValues({
                             ...req,
                             ...cfgNoToken,
-                        } satisfies ChatCompletionRequestCacheKey
-                        const validator = (value: ChatCompletionResponse) =>
-                            value?.finishReason === "stop"
+                        }) satisfies ChatCompletionRequestCacheKey
+                        const validator = (value: ChatCompletionResponse) => {
+                            const ok = value?.finishReason === "stop"
+                            return ok
+                        }
                         const cacheRes = await cacheStore.getOrUpdate(
                             cachedKey,
                             infer,
@@ -995,6 +997,7 @@ export async function executeChatSession(
                         )
                         resp = cacheRes.value
                         resp.cached = cacheRes.cached
+                        trace.itemValue("cached", !!resp.cached)
                     } else {
                         resp = await infer()
                     }
