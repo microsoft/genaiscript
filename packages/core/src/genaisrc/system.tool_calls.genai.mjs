@@ -3,8 +3,7 @@ system({
 })
 // the list of tools is injected by genaiscript
 
-export default function main(ctx) {
-    ctx.$`## Tool support                 
+$`## Tool support                 
 
 You can call external tools to help generating the answer of the user questions.
 
@@ -55,4 +54,3 @@ weather: { "city": "Paris" } }
 { "city": "Berlin" } => "sunny"
 \`\`\`
 `
-}

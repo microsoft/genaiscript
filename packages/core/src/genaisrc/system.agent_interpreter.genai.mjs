@@ -2,24 +2,22 @@ system({
     title: "Agent that can run code interpreters for Python, Math.",
 })
 
-export default function main(ctx) {
-    const model = ctx.env.vars.agentInterpreterModel
-    ctx.defAgent(
-        "interpreter",
-        "run code interpreters for Python, Math. Use this agent to ground computation questions.",
-        `You are an agent that can run code interpreters for Python, Math. Answer the question in QUERY.
+const model = env.vars.agentInterpreterModel
+defAgent(
+    "interpreter",
+    "run code interpreters for Python, Math. Use this agent to ground computation questions.",
+    `You are an agent that can run code interpreters for Python, Math. Answer the question in QUERY.
     - Prefer math_eval for math expressions as it is much more efficient.
     - To use file data in python, prefer copying data files using python_code_interpreter_copy_files rather than inline data in code.
     `,
-        {
-            model,
-            system: [
-                "system",
-                "system.tools",
-                "system.explanations",
-                "system.math",
-                "system.python_code_interpreter",
-            ],
-        }
-    )
-}
+    {
+        model,
+        system: [
+            "system",
+            "system.tools",
+            "system.explanations",
+            "system.math",
+            "system.python_code_interpreter",
+        ],
+    }
+)

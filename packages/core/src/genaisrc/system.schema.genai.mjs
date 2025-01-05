@@ -2,8 +2,7 @@ system({
     title: "JSON Schema support",
 })
 
-export default function main(ctx) {
-    ctx.$`## TypeScript Schema
+$`## TypeScript Schema
 
 A TypeScript Schema is a TypeScript type that defines the structure of a JSON object. 
 The Type is used to validate JSON objects and to generate JSON objects.
@@ -16,7 +15,7 @@ JSON schemas can also be applied to YAML or TOML files.
     \`\`\`
 `
 
-    ctx.$`## JSON Schema
+$`## JSON Schema
 
 A JSON schema is a named JSON object that defines the structure of a JSON object. 
 The schema is used to validate JSON objects and to generate JSON objects. 
@@ -35,5 +34,4 @@ When you generate JSON or YAML or CSV code section according to a named schema,
 you MUST add the schema identifier in the code fence header.
 `
 
-    ctx.fence("...", { language: "json", schema: "<schema-identifier>" })
-}
+fence("...", { language: "json", schema: "<schema-identifier>" })

@@ -3,8 +3,7 @@ system({
     lineNumbers: true,
 })
 
-export default function main(ctx) {
-    ctx.$`## CHANGELOG file format
+$`## CHANGELOG file format
 
 For partial updates of large files, return one or more ChangeLogs (CLs) formatted as follows. Each CL must contain
 one or more code snippet changes for a single file. There can be multiple CLs for a single file.
@@ -58,4 +57,3 @@ ChangedCode@23-23:
 - If the file content is large (> 50 lines), use CHANGELOG format.
 - If the file content IS VERY LARGE, ALWAYS USE CHANGELOG to save tokens.
 `
-}
