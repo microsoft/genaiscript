@@ -36,7 +36,11 @@ describe("scripts", async () => {
     const cmd = "scripts"
     await test("list", async () => {
         const res = await $`node ${cli} ${cmd} list`
-        assert(res.stdout.includes("id: poem"))
+        const d = JSON.parse(res.stdout)
+        assert(d.find((s) => s.id === "poem"))
+        assert(d.find((s) => s.id === "system"))
+        assert(d.find((s) => s.id === "system.output_markdown"))
+        assert(!d.some((s) => s.system && s.filename))
     })
     await test("create foobar", async () => {
         const res = await $`node ${cli} ${cmd} create foobar`
