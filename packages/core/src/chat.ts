@@ -904,10 +904,10 @@ export async function executeChatSession(
         typeof cacheOrName === "string" ? cacheOrName : cacheName
     )
 
+    const chatTrace = trace.startTraceDetails(`🧠 llm chat`, { expanded: true })
     try {
-        trace.startDetails(`🧠 llm chat`, { expanded: true })
         if (toolDefinitions?.length) {
-            trace.detailsFenced(`🛠️ tools`, tools, "yaml")
+            chatTrace.detailsFenced(`🛠️ tools`, tools, "yaml")
             const toolNames = toolDefinitions.map(({ spec }) => spec.name)
             const duplicates = uniq(toolNames).filter(
                 (name, index) => toolNames.lastIndexOf(name) !== index
@@ -921,7 +921,7 @@ export async function executeChatSession(
             collapseChatMessages(messages)
             const tokens = estimateChatTokens(model, messages)
             if (messages)
-                trace.details(
+                chatTrace.details(
                     `💬 messages (${messages.length})`,
                     renderMessagesToMarkdown(messages, {
                         user: true,
@@ -935,10 +935,10 @@ export async function executeChatSession(
             let resp: ChatCompletionResponse
             try {
                 checkCancelled(cancellationToken)
+                const reqTrace = chatTrace.startTraceDetails(`📤 llm request`)
                 try {
-                    trace.startDetails(`📤 llm request`)
                     const logit_bias = await choicesToLogitBias(
-                        trace,
+                        reqTrace,
                         model,
                         choices
                     )
@@ -974,13 +974,18 @@ export async function executeChatSession(
                                   : undefined,
                         messages,
                     }
-                    updateChatFeatures(trace, req)
+                    updateChatFeatures(reqTrace, req)
                     logVerbose(
                         `chat: sending ${messages.length} messages to ${model} (~${tokens ?? "?"} tokens)\n`
                     )
 
                     const infer = async () =>
-                        await completer(req, connectionToken, genOptions, trace)
+                        await completer(
+                            req,
+                            connectionToken,
+                            genOptions,
+                            reqTrace
+                        )
                     if (cacheStore) {
                         const cachedKey = deleteUndefinedValues({
                             ...req,
@@ -997,7 +1002,13 @@ export async function executeChatSession(
                         )
                         resp = cacheRes.value
                         resp.cached = cacheRes.cached
-                        trace.itemValue("cached", !!resp.cached)
+                        if (resp.cached) {
+                            reqTrace.itemValue("cache", cacheStore.name)
+                            reqTrace.itemValue("cache_key", cacheRes.key)
+                            logVerbose(
+                                `chat: cache hit (${cacheStore.name}/${cacheRes.key.slice(0, 7)})`
+                            )
+                        }
                     } else {
                         resp = await infer()
                     }
@@ -1006,7 +1017,7 @@ export async function executeChatSession(
                         genVars = { ...(genVars || {}), ...resp.variables }
                 } finally {
                     logVerbose("\n")
-                    trace.endDetails()
+                    reqTrace.endDetails()
                 }
 
                 const output = await processChatMessage(
@@ -1038,9 +1049,9 @@ export async function executeChatSession(
             }
         }
     } finally {
-        await dispose(disposables, { trace })
-        stats.trace(trace)
-        trace.endDetails()
+        await dispose(disposables, { trace: chatTrace })
+        stats.trace(chatTrace)
+        chatTrace.endDetails()
     }
 }
 
