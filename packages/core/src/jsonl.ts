@@ -21,8 +21,8 @@ export function JSONLTryParse(
 ): any[] {
     if (!text) return []
     const res: any[] = []
-    for (const line of text.split("\n")) {
-        if (!line) continue
+    const lines = text.split("\n")
+    for (const line of lines.filter((l) => !!l.trim())) {
         const obj = JSON5TryParse(line, options)
         if (obj !== undefined && obj !== null) res.push(obj)
     }

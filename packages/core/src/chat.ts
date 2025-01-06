@@ -982,7 +982,7 @@ export async function executeChatSession(
                                   : undefined,
                         messages,
                     }
-                    updateChatFeatures(reqTrace, req)
+                    updateChatFeatures(reqTrace, model, req)
                     logVerbose(
                         `chat: sending ${messages.length} messages to ${model} (~${tokens ?? "?"} tokens)\n`
                     )
@@ -996,6 +996,7 @@ export async function executeChatSession(
                         )
                     if (cacheStore) {
                         const cachedKey = deleteUndefinedValues({
+                            modelid: model,
                             ...req,
                             ...cfgNoToken,
                         }) satisfies ChatCompletionRequestCacheKey
@@ -1010,12 +1011,12 @@ export async function executeChatSession(
                         )
                         resp = cacheRes.value
                         resp.cached = cacheRes.cached
+                        reqTrace.itemValue("cache", cacheStore.name)
+                        reqTrace.itemValue("cache_key", cacheRes.key)
+                        logVerbose(
+                            `chat: cache ${resp.cached ? "hit" : "miss"} (${cacheStore.name}/${cacheRes.key.slice(0, 7)})`
+                        )
                         if (resp.cached) {
-                            reqTrace.itemValue("cache", cacheStore.name)
-                            reqTrace.itemValue("cache_key", cacheRes.key)
-                            logVerbose(
-                                `chat: cache hit (${cacheStore.name}/${cacheRes.key.slice(0, 7)})`
-                            )
                             if (cacheRes.value.text)
                                 partialCb({
                                     responseSoFar: cacheRes.value.text,
@@ -1073,9 +1074,10 @@ export async function executeChatSession(
 
 function updateChatFeatures(
     trace: MarkdownTrace,
+    modelid: string,
     req: CreateChatCompletionRequest
 ) {
-    const { provider, model } = parseModelIdentifier(req.model)
+    const { provider, model } = parseModelIdentifier(modelid)
     const features = MODEL_PROVIDERS.find(({ id }) => id === provider)
 
     if (!isNaN(req.seed) && features?.seed === false) {

@@ -196,28 +196,39 @@ export class JSONLineCache<K, V> extends MemoryCache<K, V> {
         return host.resolvePath(this.folder(), "db.jsonl")
     }
 
+    private _initializePromise: Promise<void>
     /**
      * Initialize the cache by loading entries from the file.
      * Identifies duplicate entries and rewrites the file if necessary.
      */
     override async initialize() {
         if (this._entries) return
-        super.initialize()
-        await host.createDirectory(this.folder()) // Ensure directory exists
-        const content = await tryReadText(this.path())
-        const objs: CacheEntry<K, V>[] = (await JSONLTryParse(content)) ?? []
-        let numdup = 0 // Counter for duplicates
-        for (const obj of objs) {
-            if (this._entries[obj.sha]) numdup++ // Count duplicates
-            this._entries[obj.sha] = obj
-        }
-        if (2 * numdup > objs.length) {
-            // Rewrite file if too many duplicates
-            await writeJSONL(
-                this.path(),
-                objs.filter((o) => this._entries[o.sha] === o) // Preserve order
-            )
-        }
+        if (this._initializePromise) return await this._initializePromise
+
+        this._initializePromise = (async () => {
+            await host.createDirectory(this.folder()) // Ensure directory exists
+            const content = await tryReadText(this.path())
+            const entries: Record<string, CacheEntry<K, V>> = {}
+            const objs: CacheEntry<K, V>[] =
+                (await JSONLTryParse(content)) ?? []
+            let numdup = 0 // Counter for duplicates
+            for (const obj of objs) {
+                if (entries[obj.sha]) numdup++ // Count duplicates
+                entries[obj.sha] = obj
+            }
+            if (2 * numdup > objs.length) {
+                // Rewrite file if too many duplicates
+                await writeJSONL(
+                    this.path(),
+                    objs.filter((o) => entries[o.sha] === o) // Preserve order
+                )
+            }
+            // success
+            super.initialize()
+            this._entries = entries
+            this._initializePromise = undefined
+        })()
+        return this._initializePromise
     }
 
     override async appendEntry(ent: CacheEntry<K, V>) {
