@@ -883,6 +883,8 @@ export async function executeChatSession(
         topLogprobs,
         cache: cacheOrName,
         cacheName,
+        inner,
+        partialCb,
     } = genOptions
     assert(!!model, "model is required")
 
@@ -1014,6 +1016,14 @@ export async function executeChatSession(
                             logVerbose(
                                 `chat: cache hit (${cacheStore.name}/${cacheRes.key.slice(0, 7)})`
                             )
+                            if (cacheRes.value.text)
+                                partialCb({
+                                    responseSoFar: cacheRes.value.text,
+                                    tokensSoFar: 0,
+                                    responseChunk: cacheRes.value.text,
+                                    responseTokens: cacheRes.value.logprobs,
+                                    inner,
+                                })
                         }
                     } else {
                         resp = await infer()
