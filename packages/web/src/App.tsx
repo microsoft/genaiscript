@@ -495,6 +495,9 @@ function JSONSchemaSimpleTypeFormField(props: {
     const { field, value, onChange } = props
     const required = field.default === undefined
 
+    const rows = (s: string | undefined) =>
+        Math.max(3, s.split("\n").length ?? 0)
+
     switch (field.type) {
         case "number":
         case "integer":
@@ -505,11 +508,12 @@ function JSONSchemaSimpleTypeFormField(props: {
                     onChange={onChange}
                 />
             )
-        case "string":
+        case "string": {
+            const vs = (value as string) || ""
             if (field.enum) {
                 return (
                     <VscodeSingleSelect
-                        value={value as string}
+                        value={vs}
                         required={required}
                         onChange={(e) => {
                             const target = e.target as HTMLSelectElement
@@ -525,16 +529,24 @@ function JSONSchemaSimpleTypeFormField(props: {
                 )
             }
             return (
-                <VscodeTextfield
-                    value={value as string}
+                <VscodeTextarea
+                    style={{ height: "unset" }}
+                    value={vs}
                     required={required}
+                    rows={rows(vs)}
+                    spellCheck={false}
                     placeholder={field.default}
+                    onInput={(e) => {
+                        const target = e.target as HTMLTextAreaElement
+                        target.rows = rows(target.value)
+                    }}
                     onChange={(e) => {
                         const target = e.target as HTMLInputElement
                         onChange(target.value)
                     }}
                 />
             )
+        }
         case "boolean":
             return (
                 <VscodeCheckbox
@@ -549,6 +561,7 @@ function JSONSchemaSimpleTypeFormField(props: {
         default:
             return (
                 <VscodeTextfield
+                    spellCheck={false}
                     value={value as string}
                     required={required}
                     onChange={(e) => {
@@ -1008,13 +1021,30 @@ function ScriptForm() {
             <VscodeFormContainer>
                 <ScriptSelect />
                 <FilesDropZone />
+                <PromptParametersFields />
                 <RunButton />
             </VscodeFormContainer>
         </VscodeCollapsible>
     )
 }
 
-function PromptParametersForm() {
+function ScriptSourcesView() {
+    const script = useScript()
+    const { jsSource } = script || {}
+    return (
+        <VscodeCollapsible title="Source">
+            {jsSource ? (
+                <Markdown>
+                    {`\`\`\`\`\`\`js
+${jsSource.trim()}
+\`\`\`\`\`\``}
+                </Markdown>
+            ) : null}
+        </VscodeCollapsible>
+    )
+}
+
+function PromptParametersFields() {
     const script = useScript()
 
     const { parameters, setParameters } = useApi()
@@ -1028,22 +1058,13 @@ function PromptParametersForm() {
         [script]
     )
     const names = Object.keys(schema?.properties || {})
-    return (
-        <VscodeCollapsible open title="Parameters">
-            {schema && (
-                <VscodeBadge variant="counter" slot="decorations">
-                    {names.length}
-                </VscodeBadge>
-            )}
-            {schema && (
-                <JSONSchemaObjectForm
-                    schema={schema}
-                    value={parameters}
-                    onChange={setParameters}
-                />
-            )}
-        </VscodeCollapsible>
-    )
+    return schema ? (
+        <JSONSchemaObjectForm
+            schema={schema}
+            value={parameters}
+            onChange={setParameters}
+        />
+    ) : null
 }
 
 function ModelConnectionOptionsForm() {
@@ -1053,6 +1074,11 @@ function ModelConnectionOptionsForm() {
     const schema: JSONSchemaObject = {
         type: "object",
         properties: {
+            cache: {
+                type: "boolean",
+                description: `Enable cache for LLM requests`,
+                default: false,
+            },
             provider: {
                 type: "string",
                 description: "LLM provider",
@@ -1142,7 +1168,7 @@ function RunForm() {
     return (
         <form onSubmit={handleSubmit}>
             <ScriptForm />
-            <PromptParametersForm />
+            <ScriptSourcesView />
             <ModelConnectionOptionsForm />
         </form>
     )
