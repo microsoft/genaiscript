@@ -346,7 +346,8 @@ Options:
   -k, --api-key <string>  API key to authenticate requests
   -n, --network           Opens server on 0.0.0.0 to make it accessible on the
                           network
-  -c, --cors              Enable CORS
+  -c, --cors <string>     Enable CORS and sets the allowed origin. Use '*' to
+                          allow any origin.
   -h, --help              display help for command
 ```
 

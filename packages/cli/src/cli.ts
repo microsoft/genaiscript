@@ -362,7 +362,10 @@ export async function cli() {
             "-n, --network",
             "Opens server on 0.0.0.0 to make it accessible on the network"
         )
-        .option("-c, --cors", "Enable CORS")
+        .option(
+            "-c, --cors <string>",
+            "Enable CORS and sets the allowed origin. Use '*' to allow any origin."
+        )
         .action(startServer) // Action to start the server
 
     // Define 'parse' command group for parsing tasks

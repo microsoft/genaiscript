@@ -37,16 +37,22 @@ or
 GENAISCRIPT_API_KEY=my-api-key
 ```
 
-The API key can be set in the `Authorization` header of a request or in the URL query parameter `api-key`.
-
-- http://localhost:8003/?api-key=my-api-key
+The API key can be set in the `Authorization` header of a request or in the URL query parameter `api-key` (`http://localhost:8003/#api-key=my-api-key`)
 
 ## CORS
 
-You can enable [Cross Origin Shared Resource](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) by setting the `--cors` flag.
+You can enable [Cross Origin Shared Resource](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) by setting the `--cors` flag or setting the `GENAISCRIPT_CORS_ORIGIN` environment variable.
 
 ```bash
-npx genaiscript serve --cors
+npx genaiscript serve --cors contoso.com
 ```
 
-By default, the origin is set to `*`. You can specify the origin by setting the `GENAISCRIPT_CORS_ORIGIN` environment variable.
+## Network
+
+You can bind the server to `0.0.0.0` and make it accessible from the network by setting the `--network` flag.
+
+```bash
+npx genaiscript serve --network
+```
+
+We highly recommend setting the API key when running the server on the network.
