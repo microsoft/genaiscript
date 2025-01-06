@@ -32,3 +32,8 @@ for (const commit of log.slice(0, 10)) {
 
 const client = git.client(".")
 console.log({ log: await client.log() })
+
+const clone = await git.shallowClone("microsoft/genaiscript")
+const cachedClone = await git.shallowClone("microsoft/genaiscript")
+console.log({ clone, cachedClone })
+if (clone !== cachedClone) throw new Error("Clones should be cached")

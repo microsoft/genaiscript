@@ -1842,6 +1842,22 @@ interface Git {
     }): Promise<GitCommit[]>
 
     /**
+     * Create a shallow git clone
+     * @param repository URL of the remote repository
+     * @param options various clone options
+     * @returns the path to the cloned repository
+     */
+    async shallowClone(
+        repository: string,
+        options?: {
+            /**
+             * Brnach to clone
+             */
+            branch?: string
+        }
+    ): Promise<string>
+
+    /**
      * Open a git client on a different directory
      * @param cwd working directory
      */

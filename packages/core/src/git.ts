@@ -6,11 +6,13 @@ import { GIT_DIFF_MAX_TOKENS, GIT_IGNORE_GENAI } from "./constants"
 import { llmifyDiff } from "./diff"
 import { resolveFileContents } from "./file"
 import { readText } from "./fs"
-import { runtimeHost } from "./host"
+import { host, runtimeHost } from "./host"
 import { shellParse } from "./shell"
-import { arrayify } from "./util"
+import { arrayify, dotGenaiscriptPath } from "./util"
 import { estimateTokens, truncateTextToTokens } from "./tokens"
 import { resolveTokenEncoder } from "./encoders"
+import { underscore } from "inflection"
+import { existsSync } from "node:fs"
 
 /**
  * GitClient class provides an interface to interact with Git.
@@ -93,6 +95,7 @@ export class GitClient implements Git {
             Array.isArray(args) ? args : shellParse(args),
             opts
         )
+        if (res.exitCode !== 0) throw new Error(res.stderr)
         return res.stdout
     }
 
@@ -326,6 +329,54 @@ ${await this.diff({ ...options, nameOnly: true })}
 `
         }
         return res
+    }
+
+    /**
+     * Create a shallow git clone
+     * @param repository URL of the remote repository
+     * @param options various clone options
+     */
+    async shallowClone(
+        repository: string,
+        options?: {
+            /**
+             * Brnach to clone
+             */
+            branch?: string
+        }
+    ): Promise<string> {
+        let { branch, ...rest } = options || {}
+
+        // normalize short github url
+        if (/^\w+\/\w+$/.test(repository)) {
+            repository = `https://github.com/${repository}`
+        }
+        const url = new URL(repository)
+        const sha = (
+            await this.exec(["ls-remote", repository, branch || "HEAD"])
+        ).split(/\s+/)[0]
+        let directory = dotGenaiscriptPath(
+            "git",
+            url.pathname
+                .split(/\//g)
+                .filter((s) => !!s)
+                .join("-"),
+            branch || `HEAD`,
+            sha
+        )
+        if (branch) directory = host.path.join(directory, branch)
+        if (existsSync(directory)) return directory
+
+        const args = ["clone", "--depth=1"]
+        if (branch) args.push("--branch", branch)
+        Object.entries(rest).forEach(([k, v]) =>
+            args.push(
+                v === true ? `--${underscore(k)}` : `--${underscore(k)}=${v}`
+            )
+        )
+        args.push(repository, directory)
+        await this.exec(args)
+        return directory
     }
 
     client(cwd: string) {
