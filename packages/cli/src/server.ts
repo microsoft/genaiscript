@@ -46,6 +46,7 @@ import { join } from "path"
 import { createReadStream } from "fs"
 import { URL } from "url"
 import { resolveLanguageModelConfigurations } from "../../core/src/config"
+import { networkInterfaces } from "os"
 
 /**
  * Starts a WebSocket server for handling chat and script execution.
@@ -524,9 +525,21 @@ export async function startServer(options: {
         } else socket.destroy()
     })
     // Start the HTTP server on the specified port.
+    const serverhash = apiKey ? `#api-key:${encodeURIComponent(apiKey)}` : ""
     httpServer.listen(port, serverHost, () => {
-        console.log(
-            `GenAIScript server v${CORE_VERSION} at http://${serverHost}:${port}/${apiKey ? `#api-key:${encodeURIComponent(apiKey)}` : ""}`
-        )
+        console.log(`GenAIScript server v${CORE_VERSION}`)
+        console.log(`- http://${serverHost}:${port}/${serverhash}`)
+        if (options.network) {
+            const interfaces = networkInterfaces()
+            for (const ifaces of Object.values(interfaces)) {
+                for (const iface of ifaces) {
+                    if (iface.family === "IPv4" && !iface.internal) {
+                        console.log(
+                            `- http://${iface.address}:${port}/${serverhash}`
+                        )
+                    }
+                }
+            }
+        }
     })
 }
