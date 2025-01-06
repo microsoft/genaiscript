@@ -1756,6 +1756,11 @@ interface GitCommit {
 
 interface Git {
     /**
+     * Current working directory
+     */
+    cwd: string
+
+    /**
      * Resolves the default branch for this repository
      */
     defaultBranch(): Promise<string>
@@ -1855,7 +1860,7 @@ interface Git {
              */
             branch?: string
         }
-    ): Promise<string>
+    ): Promise<Git>
 
     /**
      * Open a git client on a different directory

@@ -344,7 +344,7 @@ ${await this.diff({ ...options, nameOnly: true })}
              */
             branch?: string
         }
-    ): Promise<string> {
+    ): Promise<GitClient> {
         let { branch, ...rest } = options || {}
 
         // normalize short github url
@@ -365,9 +365,9 @@ ${await this.diff({ ...options, nameOnly: true })}
             sha
         )
         if (branch) directory = host.path.join(directory, branch)
-        if (existsSync(directory)) return directory
+        if (existsSync(directory)) return new GitClient(directory)
 
-        const args = ["clone", "--depth=1"]
+        const args = ["clone", "--depth", "1"]
         if (branch) args.push("--branch", branch)
         Object.entries(rest).forEach(([k, v]) =>
             args.push(
@@ -376,7 +376,7 @@ ${await this.diff({ ...options, nameOnly: true })}
         )
         args.push(repository, directory)
         await this.exec(args)
-        return directory
+        return new GitClient(directory)
     }
 
     client(cwd: string) {
