@@ -1,0 +1,43 @@
+---
+title: Playground, o1 and DeepSeek
+description: The playground is a lightweight web interface to run GenAIScripts. 
+date: 2025-01-06
+tags: ["o1", "deepseek", "web"]
+canonical_url: https://microsoft.github.io/genaiscript/blog/playground
+authors:
+  - pelikhan
+---
+import { Image } from "astro:assets"
+import src from "../../../assets/playground.png"
+import alt from "../../../assets/playground.png.txt?raw"
+
+The newly 2025 release brings a number of new features and support for new models.
+
+## Playground
+
+
+The [Playground](/genaiscript/reference/playground) is a self-hosted web application that allows you to run GenAIScript scripts
+from a friendly user interface. It sits between the GenAIScript CLI
+and the GenAIScript Visual Studio Code integration.
+
+<Image src={src} alt={alt} />
+
+## o1
+
+GenAIScript supports the various flavors of the [OpenAI o1](https://openai.com/o1/) models (mini, preview, ...). It also adds support for tools.
+
+o1 is also available on [GitHub Models]!
+
+```js
+script({ model: "github:o1" })
+$`Prove that the sum of the angles of a triangle is 180 degrees.`
+```
+
+## DeepSeek
+
+GenAIScript supports [DeepSeek V3](https://www.deepseek.com/) through their OpenAI API.
+
+```js
+script({ model: "deepseek:deepseek-chat" })
+$`Prove that the sum of the angles of a triangle is 180 degrees.`
+```

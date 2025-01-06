@@ -528,14 +528,14 @@ export async function startServer(options: {
     const serverhash = apiKey ? `#api-key:${encodeURIComponent(apiKey)}` : ""
     httpServer.listen(port, serverHost, () => {
         console.log(`GenAIScript server v${CORE_VERSION}`)
-        console.log(`- http://${serverHost}:${port}/${serverhash}`)
+        console.log(`┃ Local http://${serverHost}:${port}/${serverhash}`)
         if (options.network) {
             const interfaces = networkInterfaces()
             for (const ifaces of Object.values(interfaces)) {
                 for (const iface of ifaces) {
                     if (iface.family === "IPv4" && !iface.internal) {
                         console.log(
-                            `- http://${iface.address}:${port}/${serverhash}`
+                            `┃ Network http://${iface.address}:${port}/${serverhash}`
                         )
                     }
                 }

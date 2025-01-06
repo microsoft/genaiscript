@@ -243,21 +243,35 @@
             "price_per_million_input_tokens": 0.15,
             "price_per_million_output_tokens": 0.6
         },
+        "openai:o1": {
+            "price_per_million_input_tokens": 15,
+            "price_per_million_output_tokens": 60,
+            "input_cache_token_rebate": 0.5
+        },
+        "openai:o1-2024-12-17": {
+            "price_per_million_input_tokens": 15,
+            "price_per_million_output_tokens": 60,
+            "input_cache_token_rebate": 0.5
+        },
         "openai:o1-preview": {
             "price_per_million_input_tokens": 15,
-            "price_per_million_output_tokens": 60
+            "price_per_million_output_tokens": 60,
+            "input_cache_token_rebate": 0.5
         },
         "openai:o1-preview-2024-09-12": {
             "price_per_million_input_tokens": 15,
-            "price_per_million_output_tokens": 60
+            "price_per_million_output_tokens": 60,
+            "input_cache_token_rebate": 0.5
         },
         "openai:o1-mini": {
             "price_per_million_input_tokens": 3,
-            "price_per_million_output_tokens": 12
+            "price_per_million_output_tokens": 12,
+            "input_cache_token_rebate": 0.5
         },
         "openai:o1-mini-2024-09-12": {
             "price_per_million_input_tokens": 3,
-            "price_per_million_output_tokens": 12
+            "price_per_million_output_tokens": 12,
+            "input_cache_token_rebate": 0.5
         },
         "openai:text-embedding-3-small": {
             "price_per_million_input_tokens": 0.02,
