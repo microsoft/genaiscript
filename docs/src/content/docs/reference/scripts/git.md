@@ -81,6 +81,18 @@ Since GenAIScript uses git, it already supports the `.gitignore` instructions. Y
 **/genaiscript.d.ts
 ```
 
+## Shallow clones
+
+You can create cached shallow clones of repositories to work on multiple repositories.
+The `shallowClone` method return a `git` client instance.
+
+The clones are created under the `.genaiscript/git/...` directory and are cached based
+on the `repository/branch/commit` information.
+
+```js
+const clone = await git.shallowClone("microsoft/genaiscript")
+```
+
 ## Git in other repositories
 
 Use `git.client` to open a git client on a different working directory. This allows you to run git commands on a different repository.
