@@ -192,7 +192,7 @@ env:
 
 ## OpenAI
 
-This provider, `openai`, is the OpenAI chat model provider.
+`openai` is the OpenAI chat model provider.
 It uses the `OPENAI_API_...` environment variables.
 
 <Steps>
@@ -1155,6 +1155,50 @@ or a [GitHub Action](https://docs.github.com/en/actions)!
 :::
 
 <LLMProviderFeatures provider="ollama" />
+
+
+## DeepSeek
+
+`deepseek` is the [DeepSeek](https://www.deepseek.com/) chat model provider.
+It uses the `DEEPSEEK_API_...` environment variables.
+
+<Steps>
+
+<ol>
+
+<li>
+    Create a new secret key from the [DeepSeek API Keys
+    portal](https://platform.deepseek.com/usage).
+</li>
+
+<li>
+
+Update the `.env` file with the secret key.
+
+```txt title=".env"
+DEEPSEEK_API_KEY=sk_...
+```
+
+</li>
+
+<li>
+
+Set the `model` field in `script` to `deepseek:deepseek:deepseek-chat` which is currently the only supported model.
+
+```js 'model: "deepseek:deepseek-chat"'
+script({
+    model: "deepseek:deepseek-chat",
+    ...
+})
+```
+
+</li>
+
+</ol>
+
+</Steps>
+
+<LLMProviderFeatures provider="deepseek" />
 
 ## LMStudio
 
