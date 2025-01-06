@@ -146,6 +146,17 @@
             }
         },
         {
+            "id": "deepseek",
+            "detail": "DeepSeek Models",
+            "base": "https://api.deepseek.com/v1",
+            "bearerToken": true,
+            "aliases": {
+                "large": "deepseek-chat",
+                "small": "deepseek-chat",
+                "vision": "deepseek-chat"
+            }
+        },
+        {
             "id": "transformers",
             "detail": "Hugging Face Transformers",
             "prediction": false
@@ -631,6 +642,11 @@
         "anthropic:claude-3-5-haiku-latest": {
             "price_per_million_input_tokens": 0.8,
             "price_per_million_output_tokens": 4,
+            "input_cache_token_rebate": 0.1
+        },
+        "deepseek:deepseek-chat": {
+            "price_per_million_input_tokens": 0.14,
+            "price_per_million_output_tokens": 0.28,
             "input_cache_token_rebate": 0.1
         }
     }

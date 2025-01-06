@@ -35,6 +35,8 @@ import {
     MODEL_PROVIDER_JAN,
     JAN_API_BASE,
     MODEL_PROVIDER_ANTHROPIC_BEDROCK,
+    MODEL_PROVIDER_DEEPSEEK,
+    DEEPSEEK_API_BASE,
 } from "./constants"
 import { host, runtimeHost } from "./host"
 import { parseModelIdentifier } from "./models"
@@ -412,6 +414,22 @@ export async function parseTokenFromEnv(
         } satisfies LanguageModelConfiguration
     }
 
+    if (provider === MODEL_PROVIDER_DEEPSEEK) {
+        const base =
+            findEnvVar(env, "DEEPSEEK", BASE_SUFFIX)?.value || DEEPSEEK_API_BASE
+        if (!URL.canParse(base)) throw new Error(`${base} must be a valid URL`)
+        const token = env.DEEPSEEK_API_KEY
+        if (!token) throw new Error("DEEPSEEK_API_KEY not configured")
+        return {
+            provider,
+            model,
+            base,
+            token,
+            type: "openai",
+            source: "env: DEEPSEEK_API_...",
+        }
+    }
+
     const prefixes = [
         tag ? `${provider}_${model}_${tag}` : undefined,
         provider ? `${provider}_${model}` : undefined,
@@ -493,7 +511,7 @@ export async function parseTokenFromEnv(
             provider,
             model,
             base,
-            token: "lmstudio",
+            token: "jan",
             type: "openai",
             source: "env: JAN_API_...",
         }

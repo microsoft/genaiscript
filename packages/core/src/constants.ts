@@ -122,6 +122,7 @@ export const GOOGLE_API_BASE =
 export const ALIBABA_BASE =
     "https://dashscope-intl.aliyuncs.com/compatible-mode/v1"
 export const MISTRAL_API_BASE = "https://api.mistral.ai/v1"
+export const DEEPSEEK_API_BASE = "https://api.deepseek.com/v1"
 
 export const PROMPTFOO_CACHE_PATH = ".genaiscript/cache/tests"
 export const PROMPTFOO_CONFIG_DIR = ".genaiscript/config/tests"
@@ -156,6 +157,7 @@ export const MODEL_PROVIDER_ALIBABA = "alibaba"
 export const MODEL_PROVIDER_MISTRAL = "mistral"
 export const MODEL_PROVIDER_LMSTUDIO = "lmstudio"
 export const MODEL_PROVIDER_JAN = "jan"
+export const MODEL_PROVIDER_DEEPSEEK = "deepseek"
 
 export const TRACE_FILE_PREVIEW_MAX_LENGTH = 240
 

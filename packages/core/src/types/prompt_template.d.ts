@@ -175,6 +175,7 @@ type ModelType = OptionsOrString<
     | "alibaba:qwen-plus"
     | "alibaba:qwen2-72b-instruct"
     | "alibaba:qwen2-57b-a14b-instruct"
+    | "deepseek:deepseek-chat"
     | "transformers:onnx-community/Qwen2.5-0.5B-Instruct:q4"
     | "transformers:HuggingFaceTB/SmolLM2-1.7B-Instruct:q4f16"
 >
