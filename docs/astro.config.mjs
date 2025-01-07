@@ -3,6 +3,7 @@ import starlight from "@astrojs/starlight"
 import starlightBlog from "starlight-blog"
 import rehypeMermaid from "rehype-mermaid"
 import starlightLinksValidator from "starlight-links-validator"
+import starlightVideos from 'starlight-videos'
 
 // https://astro.build/config
 export default defineConfig({
@@ -40,6 +41,7 @@ export default defineConfig({
                         },
                     },
                 }),
+                starlightVideos(),
                 starlightLinksValidator(),
             ],
             components: {
