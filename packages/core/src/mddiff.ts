@@ -11,7 +11,7 @@ export function markdownDiff(
 ) {
     const { lang, ...rest } = options || {}
 
-    if (!oldStr) return fenceMD(newStr, lang)
+    if (oldStr === undefined) return fenceMD(newStr, lang)
 
     const changes = diffLines(oldStr || "", newStr || "", rest)
     const source = changes

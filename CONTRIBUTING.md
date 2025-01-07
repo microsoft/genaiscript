@@ -79,6 +79,16 @@ or for samples
 yarn run:script:debug <scriptid> ...
 ```
 
+## Running playground
+
+To run the playground, use the following command:
+
+```sh
+yarn serve
+```
+
+It will start a local server and rebuild the react client on file changes. 
+
 ## Dependencies
 
 -   run `yarn install:force` to refresh the lock file

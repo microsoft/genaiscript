@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "compile": "node build.mjs",
-    "watch": "node --watch --watch-path=./src build.mjs",
+    "watch": "node --watch --watch-path=./src --watch-path=../core/src build.mjs",
     "serve": "serve -n .",
     "typecheck": "tsc --noEmit"
   },
