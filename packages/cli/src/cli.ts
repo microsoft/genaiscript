@@ -369,6 +369,10 @@ export async function cli() {
         .option("--remote <string>", "Remote repository URL to serve")
         .option("--remote-branch <string>", "Branch to serve from the remote")
         .option("--remote-force", "Force pull from remote repository")
+        .option(
+            "--remote-install",
+            "Install dependencies from remote repository"
+        )
         .action(startServer) // Action to start the server
 
     // Define 'parse' command group for parsing tasks

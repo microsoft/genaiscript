@@ -78,6 +78,7 @@
     "object-inspect": "^1.13.3",
     "openai": "^4.77.3",
     "p-limit": "^6.2.0",
+    "package-manager-detector": "^0.2.8",
     "parse-diff": "^0.11.1",
     "prettier": "^3.4.2",
     "pretty-bytes": "^6.1.1",
