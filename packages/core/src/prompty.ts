@@ -116,7 +116,7 @@ function promptyFrontmatterToMeta(frontmatter: PromptyFrontmatter): PromptArgs {
         description,
         files,
         tests,
-        unlisted,
+        unlisted: unlisted ? true : undefined,
         parameters,
         responseType: outputs
             ? "json_object"
