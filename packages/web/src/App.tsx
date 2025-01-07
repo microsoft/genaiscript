@@ -1032,9 +1032,10 @@ function ScriptForm() {
 
 function ScriptSourcesView() {
     const script = useScript()
-    const { jsSource, text } = script || {}
+    const { jsSource, text, filename } = script || {}
     return (
         <VscodeCollapsible title="Source">
+            {filename ? <Markdown>{`- ${filename}`}</Markdown> : null}
             {text ? (
                 <Markdown>{`\`\`\`\`\`\`
 ${text.trim()}

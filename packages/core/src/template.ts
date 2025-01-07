@@ -364,7 +364,6 @@ async function parsePromptTemplateCore(
         title: humanize(
             host.path.basename(filename).replace(GENAI_ANY_REGEX, "")
         ),
-        text: "<nothing yet>",
         jsSource: content,
     } as PromptScript
     if (!filename.startsWith(BUILTIN_PREFIX))

@@ -366,6 +366,8 @@ export async function cli() {
             "-c, --cors <string>",
             "Enable CORS and sets the allowed origin. Use '*' to allow any origin."
         )
+        .option("--remote <string>", "Remote repository URL to serve")
+        .option("--remote-branch <string>", "Branch to serve from the remote")
         .action(startServer) // Action to start the server
 
     // Define 'parse' command group for parsing tasks

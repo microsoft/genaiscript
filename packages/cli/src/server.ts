@@ -17,7 +17,13 @@ import {
 } from "../../core/src/error"
 import { ServerResponse, host, runtimeHost } from "../../core/src/host"
 import { MarkdownTrace, TraceChunkEvent } from "../../core/src/trace"
-import { logVerbose, logError, assert, chunkString } from "../../core/src/util"
+import {
+    logVerbose,
+    logError,
+    assert,
+    chunkString,
+    logInfo,
+} from "../../core/src/util"
 import { CORE_VERSION } from "../../core/src/version"
 import {
     RequestMessages,
@@ -47,6 +53,7 @@ import { createReadStream } from "fs"
 import { URL } from "url"
 import { resolveLanguageModelConfigurations } from "../../core/src/config"
 import { networkInterfaces } from "os"
+import { GitClient } from "../../core/src/git"
 
 /**
  * Starts a WebSocket server for handling chat and script execution.
@@ -58,12 +65,28 @@ export async function startServer(options: {
     apiKey?: string
     cors?: string
     network?: boolean
+    remote?: string
+    remoteBranch?: string
 }) {
     // Parse and set the server port, using a default if not specified.
     const corsOrigin = options.cors || process.env.GENAISCRIPT_CORS_ORIGIN
     const port = parseInt(options.port) || SERVER_PORT
     const apiKey = options.apiKey || process.env.GENAISCRIPT_API_KEY
     const serverHost = options.network ? "0.0.0.0" : "127.0.0.1"
+    const remote = options.remote
+
+    // store original working directory
+    const cwd = process.cwd()
+
+    if (remote) {
+        const git = new GitClient(".")
+        const res = await git.shallowClone(remote, {
+            branch: options.remoteBranch,
+        })
+        // change cwd to the clone repo
+        process.chdir(res.cwd)
+        logInfo(`remote clone: ${res.cwd}`)
+    }
 
     const wss = new WebSocketServer({ noServer: true })
 

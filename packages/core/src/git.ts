@@ -348,7 +348,8 @@ ${await this.diff({ ...options, nameOnly: true })}
         let { branch, ...rest } = options || {}
 
         // normalize short github url
-        if (/^\w+\/\w+$/.test(repository)) {
+        // check if the repository is in the form of `owner/repo`
+        if (/^(\w|-)+\/(\w|-)+$/.test(repository)) {
             repository = `https://github.com/${repository}`
         }
         const url = new URL(repository)
@@ -357,10 +358,7 @@ ${await this.diff({ ...options, nameOnly: true })}
         ).split(/\s+/)[0]
         let directory = dotGenaiscriptPath(
             "git",
-            url.pathname
-                .split(/\//g)
-                .filter((s) => !!s)
-                .join("-"),
+            ...url.pathname.split(/\//g).filter((s) => !!s),
             branch || `HEAD`,
             sha
         )
