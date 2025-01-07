@@ -268,6 +268,7 @@ function ApiProvider({ children }: { children: React.ReactNode }) {
         {
             scriptid: { type: "string" },
             files: { type: "array", items: { type: "string" } },
+            cache: { type: "boolean" },
             provider: { type: "string" },
             model: { type: "string" },
             smallModel: { type: "string" },
