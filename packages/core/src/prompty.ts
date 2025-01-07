@@ -62,7 +62,7 @@ function promptyFrontmatterToMeta(frontmatter: PromptyFrontmatter): PromptArgs {
     const {
         name,
         description,
-        tags,
+        tags = [],
         sample,
         inputs,
         outputs,
@@ -109,14 +109,14 @@ function promptyFrontmatterToMeta(frontmatter: PromptyFrontmatter): PromptArgs {
         modelName = `azure_serverless:${configuration.azure_endpoint}`
     } else if (configuration?.type === "openai")
         modelName = `openai:${configuration.type}`
-
+    const unlisted = tags.includes("unlisted")
     const meta = deleteUndefinedValues({
         model: modelName,
         title: name,
         description,
         files,
         tests,
-        //tags,
+        unlisted,
         parameters,
         responseType: outputs
             ? "json_object"
