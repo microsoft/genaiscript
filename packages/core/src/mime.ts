@@ -1,5 +1,5 @@
 // Import the 'lookup' function from the 'mime-types' library and rename it to 'mimeTypesLookup'
-import { lookup as mimeTypesLookup } from "mime-types"
+import mime from "mime"
 
 // Define constant MIME types for specific programming languages
 export const TYPESCRIPT_MIME_TYPE = "text/x-typescript"
@@ -32,5 +32,5 @@ export function lookupMime(filename: string) {
     if (/\.astro$/i.test(filename)) return "text/x-astro"
 
     // Default to lookup from 'mime-types' or return empty string
-    return mimeTypesLookup(filename) || ""
+    return mime.getType(filename) || ""
 }

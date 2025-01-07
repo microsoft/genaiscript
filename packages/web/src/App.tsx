@@ -55,6 +55,8 @@ import { stringify as YAMLStringify } from "yaml"
 import { fenceMD } from "../../core/src/mkmd"
 import { isBinaryMimeType } from "../../core/src/binary"
 import { toBase64 } from "../../core/src/base64"
+import { underscore } from "inflection"
+import { lookupMime } from "../../core/src/mime"
 
 const urlParams = new URLSearchParams(window.location.hash)
 const apiKey = urlParams.get("api-key")
@@ -593,7 +595,9 @@ function JSONSchemaObjectForm(props: {
         <VscodeFormContainer>
             {Object.entries(properties).map(([fieldName, field]) => (
                 <VscodeFormGroup key={fieldName}>
-                    <VscodeLabel>{fieldName}</VscodeLabel>
+                    <VscodeLabel>
+                        {underscore(fieldName).replaceAll("_", " ")}
+                    </VscodeLabel>
                     <JSONSchemaSimpleTypeFormField
                         field={field}
                         value={value[fieldName]}
@@ -908,9 +912,25 @@ function toStringList(...token: (string | undefined | null)[]) {
     return md
 }
 
+function acceptToAccept(accept: string | undefined) {
+    if (!accept) return undefined
+    const res: Record<string, string[]> = {}
+    const extensions = accept.split(",")
+    for (const ext of extensions) {
+        const mime = lookupMime(ext)
+        if (mime) {
+            const exts = res[mime] || (res[mime] = [])
+            if (!exts.includes(ext)) exts.push(ext)
+        }
+    }
+    return res
+}
+
 function FilesDropZone() {
+    const script = useScript()
+    const { accept } = script || {}
     const { acceptedFiles, isDragActive, getRootProps, getInputProps } =
-        useDropzone()
+        useDropzone({ multiple: true, accept: acceptToAccept(accept) })
     const { setImportedFiles } = useApi()
 
     useEffect(() => setImportedFiles(acceptedFiles.slice()), [acceptedFiles])

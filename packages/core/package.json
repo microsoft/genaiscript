@@ -71,7 +71,7 @@
     "mammoth": "^1.9.0",
     "mathjs": "^14.0.1",
     "merge-descriptors": "^2.0.0",
-    "mime-types": "^2.1.35",
+    "mime": "^4.0.6",
     "minimatch": "^10.0.1",
     "minisearch": "^7.1.1",
     "mustache": "^4.2.0",

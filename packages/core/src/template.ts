@@ -387,6 +387,7 @@ async function parsePromptTemplateCore(
             checker.checkString("embeddingsModel")
             checker.checkString("provider")
             checker.checkString("responseType")
+            checker.checkString("accept")
             checker.checkJSONSchema("responseSchema")
 
             checker.checkString("embeddingsModel")

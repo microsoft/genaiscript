@@ -261,6 +261,17 @@ export async function runScriptInternal(
                 resolve(t.filename) === resolve(scriptId))
     )
     if (!script) throw new Error(`script ${scriptId} not found`)
+
+    if (script.accept) {
+        const exts = script.accept
+            .split(",")
+            .map((s) => s.trim())
+            .filter((s) => !!s)
+        for (const rf of resolvedFiles) {
+            if (!exts.some((ext) => rf.endsWith(ext))) resolvedFiles.delete(rf)
+        }
+    }
+
     const fragment: Fragment = {
         files: Array.from(resolvedFiles),
         workspaceFiles,
