@@ -8,12 +8,7 @@ export const collections = {
     docs: defineCollection({
         loader: docsLoader(),
         schema: docsSchema({
-            extend: (context) => {
-                let schema = videosSchema
-                const blog = blogSchema(context)
-                if (blog) schema = schema.merge(blog)
-                return schema
-            },
+            extend: (context) => blogSchema(context).and(videosSchema),
         }),
     }),
 }
