@@ -56,6 +56,10 @@ export interface PromptyDocument {
     frontmatter: PromptyFrontmatter
     content: string
     messages: ChatCompletionMessageParam[]
+    /**
+     * Original markdown source of the document
+     */
+    text: string
 }
 
 function promptyFrontmatterToMeta(frontmatter: PromptyFrontmatter): PromptArgs {
@@ -168,10 +172,10 @@ export function promptyParse(filename: string, text: string): PromptyDocument {
         }
     }
     pushMessage()
-    return { meta, frontmatter: fm, content, messages }
+    return { meta, frontmatter: fm, content, messages, text }
 }
 
-export function promptyToGenAIScript(doc: PromptyDocument) {
+export function promptyToGenAIScript(doc: PromptyDocument): string {
     const { messages, meta } = doc
 
     const renderJinja = (content: string) =>

@@ -23,7 +23,7 @@
     "built/web.mjs",
     "built/index.html",
     "built/markdown.css",
-    "src/favicon.svg"
+    "built/favicon.svg"
   ],
   "publisher": "Microsoft",
   "repository": {

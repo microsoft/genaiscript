@@ -454,10 +454,14 @@ export async function parsePromptScript(
     content: string,
     prj: Project
 ) {
+    let text: string = undefined
     if (PROMPTY_REGEX.test(filename)) {
+        text = content
         const doc = await promptyParse(filename, content)
         content = await promptyToGenAIScript(doc)
     }
 
-    return await parsePromptTemplateCore(filename, content, prj)
+    const script = await parsePromptTemplateCore(filename, content, prj)
+    if (text) script.text = text
+    return script
 }

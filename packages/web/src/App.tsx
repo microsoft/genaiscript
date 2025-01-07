@@ -996,15 +996,17 @@ function ScriptSelect() {
                     setScriptid(target.value)
                 }}
             >
-                {scripts.map(({ id, title }) => (
-                    <VscodeOption
-                        value={id}
-                        selected={scriptid === id}
-                        description={title}
-                    >
-                        {id}
-                    </VscodeOption>
-                ))}
+                {scripts
+                    .filter((s) => !s.isSystem && !s.unlisted)
+                    .map(({ id, title }) => (
+                        <VscodeOption
+                            value={id}
+                            selected={scriptid === id}
+                            description={title}
+                        >
+                            {id}
+                        </VscodeOption>
+                    ))}
             </VscodeSingleSelect>
             {script && (
                 <VscodeFormHelper>
@@ -1030,9 +1032,14 @@ function ScriptForm() {
 
 function ScriptSourcesView() {
     const script = useScript()
-    const { jsSource } = script || {}
+    const { jsSource, text } = script || {}
     return (
         <VscodeCollapsible title="Source">
+            {text ? (
+                <Markdown>{`\`\`\`\`\`\`
+${text.trim()}
+\`\`\`\`\`\``}</Markdown>
+            ) : null}
             {jsSource ? (
                 <Markdown>
                     {`\`\`\`\`\`\`js
