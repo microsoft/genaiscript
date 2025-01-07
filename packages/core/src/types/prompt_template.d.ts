@@ -827,7 +827,7 @@ interface AgenticToolProviderCallback {
 type ChatParticipantHandler = (
     context: ChatTurnGenerationContext,
     messages: ChatCompletionMessageParam[]
-) => Awaitable<void>
+) => Awaitable<{ messages?: ChatCompletionMessageParam[] } | undefined | void>
 
 interface ChatParticipantOptions {
     label?: string
