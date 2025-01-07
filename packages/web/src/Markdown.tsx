@@ -15,7 +15,11 @@ export default function Markdown(props: { className?: string; children: any }) {
     const { className, children } = props
     return children ? (
         <div className={clsx("markdown-body", className)}>
-            <ErrorBoundary fallback={<p>⚠️Something went wrong while rendering markdown.</p>}>
+            <ErrorBoundary
+                fallback={
+                    <p>⚠️Something went wrong while rendering markdown.</p>
+                }
+            >
                 <ReactMarkdown
                     rehypePlugins={[
                         rehypeRaw,
