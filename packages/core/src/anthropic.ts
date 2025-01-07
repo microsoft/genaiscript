@@ -407,6 +407,7 @@ const completerFactory = (
             text: chatResp,
             finishReason,
             usage,
+            model,
             toolCalls: toolCalls.filter((x) => x !== undefined),
         } satisfies ChatCompletionResponse
     }
