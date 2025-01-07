@@ -7,6 +7,7 @@ import {
     MODEL_PROVIDER_ANTHROPIC,
     MODEL_PROVIDER_ANTHROPIC_BEDROCK,
     MODEL_PROVIDER_CLIENT,
+    MODEL_PROVIDER_GITHUB,
     MODEL_PROVIDER_OLLAMA,
     MODEL_PROVIDER_TRANSFORMERS,
     MODEL_PROVIDERS,
@@ -15,6 +16,7 @@ import { host } from "./host"
 import { OllamaModel } from "./ollama"
 import { LocalOpenAICompatibleModel } from "./openai"
 import { TransformersModel } from "./transformers"
+import { GitHubModel } from "./github"
 
 export function resolveLanguageModel(provider: string): LanguageModel {
     if (provider === MODEL_PROVIDER_CLIENT) {
@@ -22,6 +24,7 @@ export function resolveLanguageModel(provider: string): LanguageModel {
         if (!m) throw new Error("Client language model not available")
         return m
     }
+    if (provider === MODEL_PROVIDER_GITHUB) return GitHubModel
     if (provider === MODEL_PROVIDER_OLLAMA) return OllamaModel
     if (provider === MODEL_PROVIDER_AICI) return AICIModel
     if (provider === MODEL_PROVIDER_ANTHROPIC) return AnthropicModel
