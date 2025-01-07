@@ -350,6 +350,7 @@ Options:
                             allow any origin.
   --remote <string>         Remote repository URL to serve
   --remote-branch <string>  Branch to serve from the remote
+  --remote-force            Force pull from remote repository
   -h, --help                display help for command
 ```
 

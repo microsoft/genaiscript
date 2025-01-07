@@ -12,7 +12,16 @@ import { arrayify, dotGenaiscriptPath } from "./util"
 import { estimateTokens, truncateTextToTokens } from "./tokens"
 import { resolveTokenEncoder } from "./encoders"
 import { underscore } from "inflection"
-import { existsSync } from "node:fs"
+import { rm, lstat } from "node:fs/promises"
+
+async function checkDirectoryExists(directory: string): Promise<boolean> {
+    try {
+        const stats = await lstat(directory)
+        return stats.isDirectory()
+    } catch {
+        return false
+    }
+}
 
 /**
  * GitClient class provides an interface to interact with Git.
@@ -343,9 +352,14 @@ ${await this.diff({ ...options, nameOnly: true })}
              * Brnach to clone
              */
             branch?: string
+
+            /**
+             * Do not reuse previous clone
+             */
+            force?: boolean
         }
     ): Promise<GitClient> {
-        let { branch, ...rest } = options || {}
+        let { branch, force, ...rest } = options || {}
 
         // normalize short github url
         // check if the repository is in the form of `owner/repo`
@@ -363,8 +377,10 @@ ${await this.diff({ ...options, nameOnly: true })}
             sha
         )
         if (branch) directory = host.path.join(directory, branch)
-        if (existsSync(directory)) return new GitClient(directory)
-
+        if (await checkDirectoryExists(directory)) {
+            if (!force) return new GitClient(directory)
+            await rm(directory, { recursive: true, force: true })
+        }
         const args = ["clone", "--depth", "1"]
         if (branch) args.push("--branch", branch)
         Object.entries(rest).forEach(([k, v]) =>
