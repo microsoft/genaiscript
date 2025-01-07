@@ -30,14 +30,29 @@ export default function Markdown(props: { className?: string; children: any }) {
                                 tagNames: [
                                     ...defaultSchema.tagNames,
                                     "blockquote",
+                                    "svg",
+                                    "path",
                                 ],
                                 attributes: {
                                     ...defaultSchema.attributes,
-                                    blockquote: ["className"],
+                                    blockquote: [
+                                        ["className", /^markdown-./],
+                                        /^aria-./,
+                                    ],
+                                    p: [["className", /^markdown-./]],
+                                    svg: [
+                                        ["className", "octicon", /^markdown-./],
+                                        "viewBox",
+                                        "width",
+                                        "height",
+                                        /^aria-./,
+                                    ],
+                                    path: ["d", /^aria-./],
                                     code: [
                                         [
                                             "className",
                                             /^language-./,
+                                            /^aria-./,
                                             "math-inline",
                                             "math-display",
                                         ],
