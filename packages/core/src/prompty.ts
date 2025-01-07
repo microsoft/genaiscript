@@ -56,10 +56,6 @@ export interface PromptyDocument {
     frontmatter: PromptyFrontmatter
     content: string
     messages: ChatCompletionMessageParam[]
-    /**
-     * Original markdown source of the document
-     */
-    text: string
 }
 
 function promptyFrontmatterToMeta(frontmatter: PromptyFrontmatter): PromptArgs {
@@ -172,7 +168,7 @@ export function promptyParse(filename: string, text: string): PromptyDocument {
         }
     }
     pushMessage()
-    return { meta, frontmatter: fm, content, messages, text }
+    return { meta, frontmatter: fm, content, messages }
 }
 
 export function promptyToGenAIScript(doc: PromptyDocument): string {
