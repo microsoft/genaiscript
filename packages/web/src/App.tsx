@@ -57,6 +57,7 @@ import { lookupMime } from "../../core/src/mime"
 import dedent from "dedent"
 import { convertAnnotationsToMarkdown } from "../../core/src/annotations"
 import "remark-github-blockquote-alert/alert.css"
+import { markdownDiff } from "../../core/src/mddiff"
 
 const urlParams = new URLSearchParams(window.location.hash)
 const apiKey = urlParams.get("api-key")
@@ -814,17 +815,7 @@ function FilesTabPanel() {
                         ?.map(
                             ([filename, content], i) =>
                                 dedent`### ${filename}
-                    \`\`\`\`\`
-                    ${content.after}
-                    \`\`\`\`\`
-                    ${
-                        content.before
-                            ? dedent`- original
-                        \`\`\`\`\`
-                        ${content.before}
-                        \`\`\`\`\``
-                            : ""
-                    }
+                    ${markdownDiff(content.before, content.after, { lang: "txt" })}
                     ${content.validation?.pathValid ? `- output path validated` : ""}
                     ${
                         content.validation?.schema
