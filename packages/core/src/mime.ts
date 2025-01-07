@@ -24,6 +24,6 @@ export function lookupMime(filename: string) {
     if (/\.cs$/i.test(filename)) return CSHARP_MIME_TYPE
     if (/\.py$/i.test(filename)) return PYTHON_MIME_TYPE
     if (/\.astro$/i.test(filename)) return ASTRO_MIME_TYPE
-    if (/\.prompty$/i.test(filename)) return MARKDOWN_MIME_TYPE
+    if (/\.(md|prompty)$/i.test(filename)) return MARKDOWN_MIME_TYPE
     return mime.getType(filename) || ""
 }
