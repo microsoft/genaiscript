@@ -512,6 +512,11 @@ interface PromptScript
     files?: string | string[]
 
     /**
+     * A comma separated list of file extensions to accept.
+     */
+    accept?: string
+
+    /**
      * Extra variable values that can be used to configure system prompts.
      */
     vars?: Record<string, string>

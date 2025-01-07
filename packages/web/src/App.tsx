@@ -28,8 +28,6 @@ import {
     VscodeTabPanel,
     VscodeBadge,
     VscodeTextarea,
-    VscodeTree,
-    VscodeSplitLayout,
     VscodeMultiSelect,
 } from "@vscode-elements/react-elements"
 import Markdown from "./Markdown"
@@ -47,7 +45,6 @@ import {
     logprobToMarkdown,
     topLogprobsToMarkdown,
 } from "../../core/src/logprob"
-import { TreeItem } from "@vscode-elements/elements/dist/vscode-tree/vscode-tree"
 import { FileWithPath, useDropzone } from "react-dropzone"
 import prettyBytes from "pretty-bytes"
 import { renderMessagesToMarkdown } from "../../core/src/chatrender"
@@ -55,6 +52,9 @@ import { stringify as YAMLStringify } from "yaml"
 import { fenceMD } from "../../core/src/mkmd"
 import { isBinaryMimeType } from "../../core/src/binary"
 import { toBase64 } from "../../core/src/base64"
+import { underscore } from "inflection"
+import { lookupMime } from "../../core/src/mime"
+import dedent from "dedent"
 
 const urlParams = new URLSearchParams(window.location.hash)
 const apiKey = urlParams.get("api-key")
@@ -593,7 +593,9 @@ function JSONSchemaObjectForm(props: {
         <VscodeFormContainer>
             {Object.entries(properties).map(([fieldName, field]) => (
                 <VscodeFormGroup key={fieldName}>
-                    <VscodeLabel>{fieldName}</VscodeLabel>
+                    <VscodeLabel>
+                        {underscore(fieldName).replaceAll("_", " ")}
+                    </VscodeLabel>
                     <JSONSchemaSimpleTypeFormField
                         field={field}
                         value={value[fieldName]}
@@ -792,14 +794,7 @@ function TopLogProbsTabPanel() {
 function FilesTabPanel() {
     const result = useResult()
     const { fileEdits = {} } = result || {}
-    const [selected, setSelected] = useState<string | undefined>(undefined)
     const files = Object.entries(fileEdits)
-    const data: TreeItem[] = files.map(([file, edits]) => ({
-        label: file,
-        value: file,
-        icons: true,
-    }))
-    const selectedFile = fileEdits[selected]
 
     return (
         <>
@@ -808,25 +803,36 @@ function FilesTabPanel() {
                 <CounterBadge collection={files} />
             </VscodeTabHeader>
             <VscodeTabPanel>
-                {files.length > 0 && (
-                    <VscodeSplitLayout split="vertical">
-                        <div slot="start">
-                            <VscodeTree
-                                indentGuides
-                                arrows
-                                onVscTreeSelect={(e) => {
-                                    setSelected(e.detail.value)
-                                }}
-                                data={data}
-                            />
-                        </div>
-                        <div slot="end">
-                            {selectedFile && (
-                                <pre>{selectedFile?.after || ""}</pre>
-                            )}
-                        </div>
-                    </VscodeSplitLayout>
-                )}
+                <Markdown>
+                    {files
+                        ?.map(
+                            ([filename, content], i) =>
+                                dedent`### ${filename}
+                    \`\`\`\`\`
+                    ${content.after}
+                    \`\`\`\`\`
+                    ${
+                        content.before
+                            ? dedent`- original
+                        \`\`\`\`\`
+                        ${content.before}
+                        \`\`\`\`\``
+                            : ""
+                    }
+                    ${content.validation?.pathValid ? `- output path validated` : ""}
+                    ${
+                        content.validation?.schema
+                            ? dedent`- JSON schema
+                        \`\`\`json
+                        ${JSON.stringify(content.validation.schema, null, 2)}
+                        \`\`\``
+                            : ""
+                    }
+                    ${content.validation?.schemaError ? `- error: ${content.validation.schemaError}` : ""}
+                    `
+                        )
+                        .join("\n")}
+                </Markdown>
             </VscodeTabPanel>
         </>
     )
@@ -908,9 +914,25 @@ function toStringList(...token: (string | undefined | null)[]) {
     return md
 }
 
+function acceptToAccept(accept: string | undefined) {
+    if (!accept) return undefined
+    const res: Record<string, string[]> = {}
+    const extensions = accept.split(",")
+    for (const ext of extensions) {
+        const mime = lookupMime(ext)
+        if (mime) {
+            const exts = res[mime] || (res[mime] = [])
+            if (!exts.includes(ext)) exts.push(ext)
+        }
+    }
+    return res
+}
+
 function FilesDropZone() {
+    const script = useScript()
+    const { accept } = script || {}
     const { acceptedFiles, isDragActive, getRootProps, getInputProps } =
-        useDropzone()
+        useDropzone({ multiple: true, accept: acceptToAccept(accept) })
     const { setImportedFiles } = useApi()
 
     useEffect(() => setImportedFiles(acceptedFiles.slice()), [acceptedFiles])

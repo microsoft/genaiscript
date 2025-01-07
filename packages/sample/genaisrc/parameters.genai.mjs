@@ -1,4 +1,7 @@
 script({
+    accept: ".txt,.md,.pdf",
+    files: "src/*",
+    model: "small",
     parameters: {
         string: "abc",
         number: 123,
@@ -20,6 +23,7 @@ script({
         },
     },
     tests: {
+        files: "src/*",
         vars: {
             string: "abc",
             number: 123,
@@ -67,3 +71,7 @@ if (env.vars["booleanSchema"] !== true)
     throw new Error("booleanSchema parameter not set")
 if (env.vars["boolean-schema"] !== true)
     throw new Error("booleanSchema parameter not set")
+
+console.log({ files: env.files.map((f) => f.filename) })
+if (env.files.some((f) => f.filename.endsWith(".ts")))
+    throw new Error("accept not working")
