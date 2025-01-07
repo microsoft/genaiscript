@@ -55,6 +55,8 @@ import { toBase64 } from "../../core/src/base64"
 import { underscore } from "inflection"
 import { lookupMime } from "../../core/src/mime"
 import dedent from "dedent"
+import { convertAnnotationsToMarkdown } from "../../core/src/annotations"
+import "remark-github-blockquote-alert/alert.css"
 
 const urlParams = new URLSearchParams(window.location.hash)
 const apiKey = urlParams.get("api-key")
@@ -658,9 +660,9 @@ function ProblemsTabPanel() {
     const { annotations = [] } = result || {}
 
     const renderAnnotation = (annotation: Diagnostic) => {
-        const { message, severity } = annotation
+        const { message, severity, filename, code, range } = annotation
         return `> [!${severity}]
-> ${message.split("\n").join("\n> ")}
+> ${`${message} (${filename}#L${range?.[0]?.[0] || ""} ${code || ""})`.split("\n").join("\n> ")}
 `
     }
 
@@ -740,6 +742,9 @@ function OutputTabPanel() {
         if (logprobs[0].topLogprobs?.length)
             md = logprobs.map((lp) => topLogprobsToMarkdown(lp)).join("\n")
         else md = logprobs.map((lp) => logprobToMarkdown(lp)).join("\n")
+    } else {
+        md = convertAnnotationsToMarkdown(md)
+        console.log({ md })
     }
     return (
         <>

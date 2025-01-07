@@ -1,8 +1,6 @@
 import test, { beforeEach, describe } from "node:test"
 import {
     convertAnnotationsToItems,
-    convertAnnotationsToMarkdown,
-    eraseAnnotations,
     parseAnnotations,
 } from "./annotations"
 import assert from "assert/strict"
