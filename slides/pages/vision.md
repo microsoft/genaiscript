@@ -16,8 +16,8 @@ backgroundSize: 75%
 - JavaScript
 - genai runtime (PDF decoders, ...)
 - context size handling
-- structured output parsing
-- tools...
+- structured and unstructured output parsing
+- tools (as JS functions)
 
 </v-click>
 

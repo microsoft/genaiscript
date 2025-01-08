@@ -1,4 +1,4 @@
-```mermaid { scale: 0.6 }
+```mermaid { scale: 0.5 }
 stateDiagram
     context: files (text, PDF, DOCX, ...)
     script : user script (.genai.js)
@@ -13,7 +13,10 @@ stateDiagram
     api --> response
     api: LLM API
     api --> tools
-    tools --> api    
+    tools --> api
+    api --> validation
+    validation: Schema Validation, Data Repair
+    validation --> api
     prompt --> run_prompt
     run_prompt --> prompt : LLM (OpenAI Chat API)
     run_prompt: inner prompts

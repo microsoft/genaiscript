@@ -1,9 +1,9 @@
 
-# Context x Script = Prompt
+# Context x Script ⇨ Prompt
 
-- user starts script on files in VSCode/CLI
-- script generates prompt (user and system messages)
-- invocation of LLM API with messages + access token (from `.env` or environment variables).
+- user runs script on files in VSCode/CLI/Web
+- script generates chat messages (user and system messages)
+- invocation of LLM (typically OpenAI REST API or compatible) + tools cycle
 
 ```mermaid
 
@@ -15,7 +15,7 @@ stateDiagram
     prompt : prompt (system+user messages)
     api: OpenAI API
     system: system script (system.*.genai.js)
-    tools: custom tools
+    tools: tools (JS functions)
     context --> script
     note right of context : Users selects files in VSCode/CLI.
     script --> prompt
@@ -23,7 +23,10 @@ stateDiagram
     prompt --> api
     api --> tools
     tools --> api
+    api --> validation
+    validation: Schema Validation, Data Repair
+    validation --> api
     api --> response
-    note left of system: Teach LLM about micro-formats.
+    note left of system: micro text formats, tools, agents
     response: response (raw text)
 ```

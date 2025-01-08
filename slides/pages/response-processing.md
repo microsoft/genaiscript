@@ -14,9 +14,9 @@ stateDiagram
     files: files (workspace edits)
     data: data (JSON, YAML, CSV, ...)
     annotations: annotations (error, warning, ...)
-    note right of data: Schema validation\nData repair
-    note right of files: Full, diff\nRefactoring preview
-    note right of annotations: GitHub Actions,\nGitHub Security Alerts,\nVSCode diagnostics, ...
+    note right of data: Schema validation
+    note right of files: Full, diff, Refactoring preview
+    note right of annotations: GitHub Actions, GitHub Security Alerts, VSCode diagnostics, Azure DevOps, ...
     [*] --> response
     response --> files
     files --> data
