@@ -2962,7 +2962,10 @@ interface BrowseSessionOptions extends BrowserOptions, TimeoutOptions {
     /**
      * Enable recording video for all pages. Implies incognito mode.
      */
-    recordVideo?: boolean
+    recordVideo?: boolean | {
+        width: number
+        height: number
+    }
 }
 
 interface TimeoutOptions {

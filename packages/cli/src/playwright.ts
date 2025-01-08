@@ -18,6 +18,7 @@ import { PLAYWRIGHT_DEFAULT_BROWSER } from "../../core/src/constants"
 import { randomHex } from "../../core/src/crypto"
 import { ensureDotGenaiscriptPath } from "./trace"
 import { ensureDir } from "fs-extra"
+import { record } from "zod"
 
 /**
  * Manages browser instances using Playwright, including launching,
@@ -161,6 +162,8 @@ export class BrowserManager {
                 trace.itemValue(`video dir`, dir)
                 logVerbose(`browsing: recording videos to ${dir}`)
                 options.recordVideo = { dir }
+                if (typeof recordVideo === "object")
+                    options.recordVideo.size = recordVideo
             }
             const context = await browser.newContext(options)
             this._contexts.push(context)

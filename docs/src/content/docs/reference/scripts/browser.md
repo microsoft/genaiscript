@@ -55,7 +55,9 @@ This function launches a new browser instance and optionally navigates to a page
 const page = await host.browse(url)
 ```
 
-You can configure a number of options for the browser instance:
+## Incognito mode
+
+Setting `inconito: true` will create a isolated non-persistent browser context. Non-persistent browser contexts don't write any browsing data to disk.
 
 ```js
 const page = await host.browse(url, { incognito: true })
@@ -99,6 +101,24 @@ You can take a screenshot of the current page or a locator and use it with visio
 const screenshot = await page.screenshot() // returns a node.js Buffer
 defImages(screenshot)
 ```
+
+## Video recording
+
+Playwright can record a video of each page in the browser session. You can enable it by passing the `recordVideo` option.
+Recording video also implies `incognito` mode as it requires creating a new browsing context.
+
+```js
+const page = await host.browse(url, { recordVideo: true })
+```
+
+The video will be saved in a temporary directory under `.genaiscript/videos/<timestamp>/` once the page is closed.
+
+```js
+await page.close()
+const videoPath = await page.video().path()
+```
+
+The video file can be further processed using video tools.
 
 ## Interacting with Elements
 
