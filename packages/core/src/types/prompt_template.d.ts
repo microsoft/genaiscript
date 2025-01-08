@@ -146,6 +146,7 @@ type ModelType = OptionsOrString<
     | "ollama:qwen2.5-coder"
     | "ollama:llama3.2-vision"
     | "ollama:llama3.2"
+    | "ollama:phi4"
     | "ollama:phi3.5"
     | "anthropic:claude-3-5-sonnet-20240620"
     | "anthropic:claude-3-opus-20240229"

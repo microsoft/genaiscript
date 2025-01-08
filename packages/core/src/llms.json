@@ -148,7 +148,6 @@
         {
             "id": "deepseek",
             "detail": "DeepSeek Models",
-            "base": "https://api.deepseek.com/v1",
             "bearerToken": true,
             "aliases": {
                 "large": "deepseek-chat",
