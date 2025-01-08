@@ -58,6 +58,7 @@ import dedent from "dedent"
 import { convertAnnotationsToMarkdown } from "../../core/src/annotations"
 import "remark-github-blockquote-alert/alert.css"
 import { markdownDiff } from "../../core/src/mddiff"
+import { VscodeMultiSelect as VscodeMultiSelectElement } from "@vscode-elements/elements"
 
 const urlParams = new URLSearchParams(window.location.hash)
 const apiKey = urlParams.get("api-key")
@@ -233,6 +234,8 @@ function useUrlSearchParams<T>(
     return [state, setState] as const
 }
 
+type ImportedFile = FileWithPath & { selected?: boolean }
+
 const ApiContext = createContext<{
     project: Promise<Project | undefined>
     providers: Promise<ResolvedLanguageModelConfiguration[] | undefined>
@@ -241,8 +244,8 @@ const ApiContext = createContext<{
     setScriptid: (id: string) => void
     files: string[]
     setFiles: (files: string[]) => void
-    importedFiles: FileWithPath[]
-    setImportedFiles: (files: FileWithPath[]) => void
+    importedFiles: ImportedFile[]
+    setImportedFiles: (files: ImportedFile[]) => void
     parameters: PromptParameters
     setParameters: (parameters: PromptParameters) => void
     options: ModelOptions
@@ -281,7 +284,7 @@ function ApiProvider({ children }: { children: React.ReactNode }) {
             topLogprobs: { type: "integer" },
         }
     )
-    const [importedFiles, setImportedFiles] = useState<FileWithPath[]>([])
+    const [importedFiles, setImportedFiles] = useState<ImportedFile[]>([])
     const { scriptid, files, ...options } = state
     const [parameters, setParameters] = useState<PromptParameters>({})
     const setScriptid = (id: string) =>
@@ -358,19 +361,21 @@ function RunnerProvider({ children }: { children: React.ReactNode }) {
             options,
         })
         const workspaceFiles = await Promise.all(
-            importedFiles.map(async (f) => {
-                const binary = isBinaryMimeType(f.type)
-                const buffer = binary
-                    ? new Uint8Array(await f.arrayBuffer())
-                    : undefined
-                const content = buffer ? toBase64(buffer) : await f.text()
-                return {
-                    filename: f.path || f.relativePath,
-                    type: f.type,
-                    encoding: binary ? "base64" : undefined,
-                    content,
-                } satisfies WorkspaceFile
-            })
+            importedFiles
+                .filter(({ selected }) => selected)
+                .map(async (f) => {
+                    const binary = isBinaryMimeType(f.type)
+                    const buffer = binary
+                        ? new Uint8Array(await f.arrayBuffer())
+                        : undefined
+                    const content = buffer ? toBase64(buffer) : await f.text()
+                    return {
+                        filename: f.path || f.relativePath,
+                        type: f.type,
+                        encoding: binary ? "base64" : undefined,
+                        content,
+                    } satisfies WorkspaceFile
+                })
         )
         const client = new RunClient(scriptid, files.slice(0), workspaceFiles, {
             parameters,
@@ -745,7 +750,6 @@ function OutputTabPanel() {
         else md = logprobs.map((lp) => logprobToMarkdown(lp)).join("\n")
     } else {
         md = convertAnnotationsToMarkdown(md)
-        console.log({ md })
     }
     return (
         <>
@@ -930,9 +934,20 @@ function FilesDropZone() {
     const { accept } = script || {}
     const { acceptedFiles, isDragActive, getRootProps, getInputProps } =
         useDropzone({ multiple: true, accept: acceptToAccept(accept) })
-    const { setImportedFiles } = useApi()
+    const { importedFiles, setImportedFiles } = useApi()
 
-    useEffect(() => setImportedFiles(acceptedFiles.slice()), [acceptedFiles])
+    useEffect(() => {
+        const newImportedFiles = [...importedFiles]
+        if (acceptedFiles?.length) {
+            for (const f of acceptedFiles)
+                if (!newImportedFiles.find((nf) => nf.path === f.path)) {
+                    ;(f as ImportedFile).selected = true
+                    newImportedFiles.push(f)
+                }
+        }
+        if (newImportedFiles.length !== importedFiles.length)
+            setImportedFiles(newImportedFiles)
+    }, [importedFiles, acceptedFiles])
 
     return (
         <>
@@ -941,18 +956,20 @@ function FilesDropZone() {
                 <VscodeMultiSelect
                     onChange={(e) => {
                         e.preventDefault()
-                        const target = e.target as HTMLSelectElement
-                        const value = target.value as string
-                        setImportedFiles(
-                            acceptedFiles.filter((f) => f.path === value)
-                        )
+                        const target = e.target as VscodeMultiSelectElement
+                        const newImportedFiles = [...importedFiles]
+                        const selected = target.selectedIndexes
+                        for (let i = 0; i < newImportedFiles.length; i++) {
+                            newImportedFiles[i].selected = selected.includes(i)
+                        }
+                        setImportedFiles(newImportedFiles)
                     }}
                 >
-                    {acceptedFiles.map((file) => (
+                    {importedFiles.map((file) => (
                         <VscodeOption
                             key={file.path}
                             value={file.path}
-                            selected
+                            selected={file.selected}
                         >
                             {file.name} ({prettyBytes(file.size)})
                         </VscodeOption>
