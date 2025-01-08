@@ -1228,11 +1228,11 @@ function WebApp() {
                     <ProblemsTabPanel />
                     <MessagesTabPanel />
                     <OutputTabPanel />
-                    <StatsTabPanel />
                     <LogProbsTabPanel />
                     <TopLogProbsTabPanel />
                     <FilesTabPanel />
                     <JSONTabPanel />
+                    <StatsTabPanel />
                     <RawTabPanel />
                 </VscodeTabs>
             </VscodeCollapsible>
