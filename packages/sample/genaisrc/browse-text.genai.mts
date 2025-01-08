@@ -1,5 +1,5 @@
 script({
-    model: "gpt-3.5-turbo",
+    model: "small",
     group: "browser",
     parameters: {
         headless: {
@@ -9,7 +9,7 @@ script({
         },
     },
 })
-const { headless } = env.vars
+const { headless, recordVideo } = env.vars
 const page = await host.browse(
     "https://github.com/microsoft/genaiscript/blob/main/packages/sample/src/penguins.csv",
     { headless }
