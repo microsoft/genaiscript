@@ -1190,7 +1190,7 @@ function RunButton() {
         <VscodeFormGroup>
             <VscodeLabel></VscodeLabel>
             <VscodeButton disabled={disabled} type="submit">
-                {state === "running" ? "Running..." : "Run"}
+                {state === "running" ? "Abort" : "Run"}
             </VscodeButton>
             <VscodeFormHelper>
                 {Object.entries(options)
