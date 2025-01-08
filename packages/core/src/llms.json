@@ -167,7 +167,14 @@
             "logitBias": false,
             "openaiCompatibility": "https://github.com/ollama/ollama/blob/main/docs/openai.md",
             "pullModel": true,
-            "prediction": false
+            "prediction": false,
+            "aliases": {
+                "large": "llama3.3:70b",
+                "small": "llama3.2:3b",
+                "embeddings": "nomic-embed-text",
+                "vision": "llama3.2-vision:11b",
+                "reasoning": "qwq:32b"
+            }
         },
         {
             "id": "lmstudio",

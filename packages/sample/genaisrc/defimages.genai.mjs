@@ -1,6 +1,6 @@
 script({
     files: "src/robots.jpg",
-    model: "github:gpt-4o",
+    model: "vision",
 })
 defImages(env.files, { detail: "low", autoCrop: true })
 defImages(env.files, {

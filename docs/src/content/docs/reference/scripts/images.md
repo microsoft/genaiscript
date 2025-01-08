@@ -28,10 +28,10 @@ defImages(
 
 Local files are loaded and encoded as a data uri.
 
-## Buffer, Blob
+## Buffer, Blob, ReadableStream
 
-The `defImages` function also supports [Buffer](https://nodejs.org/api/buffer.html)
-and [Blob](https://developer.mozilla.org/en-US/docs/Web/API/Blob).
+The `defImages` function also supports [Buffer](https://nodejs.org/api/buffer.html), 
+[Blob](https://developer.mozilla.org/en-US/docs/Web/API/Blob), [ReadableStream](https://nodejs.org/api/stream.html).
 
 This example takes a screenshot of bing.com and adds it to the images.
 

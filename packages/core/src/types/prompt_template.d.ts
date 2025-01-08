@@ -2685,7 +2685,7 @@ interface ChatGenerationContext extends ChatTurnGenerationContext {
         options?: DefSchemaOptions
     ): string
     defImages(
-        files: ElementOrArray<string | WorkspaceFile | Buffer | Blob>,
+        files: ElementOrArray<string | WorkspaceFile | Buffer | Blob | ArrayBuffer | ReadableStream>,
         options?: DefImagesOptions
     ): void
     defTool(

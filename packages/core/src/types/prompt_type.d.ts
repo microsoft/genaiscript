@@ -259,7 +259,9 @@ declare function defSchema(
  * @param options
  */
 declare function defImages(
-    files: ElementOrArray<string | WorkspaceFile | Buffer | Blob>,
+    files: ElementOrArray<
+        string | WorkspaceFile | Buffer | Blob | ArrayBuffer | ReadableStream
+    >,
     options?: DefImagesOptions
 ): void
 

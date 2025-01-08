@@ -126,15 +126,16 @@ export function renderMessagesToMarkdown(
                     let content: string
                     if (typeof msg.content === "string")
                         content = fenceMD(msg.content, "markdown")
-                    else if (Array.isArray(msg.content))
+                    else if (Array.isArray(msg.content)) {
+                        content = ""
                         for (const part of msg.content) {
                             if (part.type === "text")
-                                content = fenceMD(part.text, "markdown")
+                                content += fenceMD(part.text, "markdown")
                             else if (part.type === "image_url")
-                                content = `![image](${part.image_url.url})`
-                            else content = fenceMD(YAMLStringify(part), "yaml")
+                                content += `\n![image](${part.image_url.url})`
+                            else content += fenceMD(YAMLStringify(part), "yaml")
                         }
-                    else content = fenceMD(YAMLStringify(msg), "yaml")
+                    } else content = fenceMD(YAMLStringify(msg), "yaml")
                     res.push(details(`👤 user`, content, user === true))
                     break
                 case "assistant":
