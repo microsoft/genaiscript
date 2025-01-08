@@ -207,7 +207,7 @@
     "aliases": {
         "agent": "large",
         "long": "large",
-        "memory": "large",
+        "memory": "small",
         "reasoning_small": "reasoning"
     },
     "pricings": {
