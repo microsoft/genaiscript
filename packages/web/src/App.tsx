@@ -28,8 +28,6 @@ import {
     VscodeTabPanel,
     VscodeBadge,
     VscodeTextarea,
-    VscodeTree,
-    VscodeSplitLayout,
     VscodeMultiSelect,
 } from "@vscode-elements/react-elements"
 import Markdown from "./Markdown"
@@ -47,7 +45,6 @@ import {
     logprobToMarkdown,
     topLogprobsToMarkdown,
 } from "../../core/src/logprob"
-import { TreeItem } from "@vscode-elements/elements/dist/vscode-tree/vscode-tree"
 import { FileWithPath, useDropzone } from "react-dropzone"
 import prettyBytes from "pretty-bytes"
 import { renderMessagesToMarkdown } from "../../core/src/chatrender"
@@ -55,6 +52,13 @@ import { stringify as YAMLStringify } from "yaml"
 import { fenceMD } from "../../core/src/mkmd"
 import { isBinaryMimeType } from "../../core/src/binary"
 import { toBase64 } from "../../core/src/base64"
+import { underscore } from "inflection"
+import { lookupMime } from "../../core/src/mime"
+import dedent from "dedent"
+import { convertAnnotationsToMarkdown } from "../../core/src/annotations"
+import "remark-github-blockquote-alert/alert.css"
+import { markdownDiff } from "../../core/src/mddiff"
+import { VscodeMultiSelect as VscodeMultiSelectElement } from "@vscode-elements/elements"
 
 const urlParams = new URLSearchParams(window.location.hash)
 const apiKey = urlParams.get("api-key")
@@ -230,6 +234,8 @@ function useUrlSearchParams<T>(
     return [state, setState] as const
 }
 
+type ImportedFile = FileWithPath & { selected?: boolean }
+
 const ApiContext = createContext<{
     project: Promise<Project | undefined>
     providers: Promise<ResolvedLanguageModelConfiguration[] | undefined>
@@ -238,8 +244,8 @@ const ApiContext = createContext<{
     setScriptid: (id: string) => void
     files: string[]
     setFiles: (files: string[]) => void
-    importedFiles: FileWithPath[]
-    setImportedFiles: (files: FileWithPath[]) => void
+    importedFiles: ImportedFile[]
+    setImportedFiles: (files: ImportedFile[]) => void
     parameters: PromptParameters
     setParameters: (parameters: PromptParameters) => void
     options: ModelOptions
@@ -268,6 +274,7 @@ function ApiProvider({ children }: { children: React.ReactNode }) {
         {
             scriptid: { type: "string" },
             files: { type: "array", items: { type: "string" } },
+            cache: { type: "boolean" },
             provider: { type: "string" },
             model: { type: "string" },
             smallModel: { type: "string" },
@@ -277,7 +284,7 @@ function ApiProvider({ children }: { children: React.ReactNode }) {
             topLogprobs: { type: "integer" },
         }
     )
-    const [importedFiles, setImportedFiles] = useState<FileWithPath[]>([])
+    const [importedFiles, setImportedFiles] = useState<ImportedFile[]>([])
     const { scriptid, files, ...options } = state
     const [parameters, setParameters] = useState<PromptParameters>({})
     const setScriptid = (id: string) =>
@@ -354,19 +361,21 @@ function RunnerProvider({ children }: { children: React.ReactNode }) {
             options,
         })
         const workspaceFiles = await Promise.all(
-            importedFiles.map(async (f) => {
-                const binary = isBinaryMimeType(f.type)
-                const buffer = binary
-                    ? new Uint8Array(await f.arrayBuffer())
-                    : undefined
-                const content = buffer ? toBase64(buffer) : await f.text()
-                return {
-                    filename: f.path || f.relativePath,
-                    type: f.type,
-                    encoding: binary ? "base64" : undefined,
-                    content,
-                } satisfies WorkspaceFile
-            })
+            importedFiles
+                .filter(({ selected }) => selected)
+                .map(async (f) => {
+                    const binary = isBinaryMimeType(f.type)
+                    const buffer = binary
+                        ? new Uint8Array(await f.arrayBuffer())
+                        : undefined
+                    const content = buffer ? toBase64(buffer) : await f.text()
+                    return {
+                        filename: f.path || f.relativePath,
+                        type: f.type,
+                        encoding: binary ? "base64" : undefined,
+                        content,
+                    } satisfies WorkspaceFile
+                })
         )
         const client = new RunClient(scriptid, files.slice(0), workspaceFiles, {
             parameters,
@@ -593,7 +602,9 @@ function JSONSchemaObjectForm(props: {
         <VscodeFormContainer>
             {Object.entries(properties).map(([fieldName, field]) => (
                 <VscodeFormGroup key={fieldName}>
-                    <VscodeLabel>{fieldName}</VscodeLabel>
+                    <VscodeLabel>
+                        {underscore(fieldName).replaceAll("_", " ")}
+                    </VscodeLabel>
                     <JSONSchemaSimpleTypeFormField
                         field={field}
                         value={value[fieldName]}
@@ -655,9 +666,9 @@ function ProblemsTabPanel() {
     const { annotations = [] } = result || {}
 
     const renderAnnotation = (annotation: Diagnostic) => {
-        const { message, severity } = annotation
+        const { message, severity, filename, code, range } = annotation
         return `> [!${severity}]
-> ${message.split("\n").join("\n> ")}
+> ${`${message} (${filename}#L${range?.[0]?.[0] || ""} ${code || ""})`.split("\n").join("\n> ")}
 `
     }
 
@@ -737,6 +748,8 @@ function OutputTabPanel() {
         if (logprobs[0].topLogprobs?.length)
             md = logprobs.map((lp) => topLogprobsToMarkdown(lp)).join("\n")
         else md = logprobs.map((lp) => logprobToMarkdown(lp)).join("\n")
+    } else {
+        md = convertAnnotationsToMarkdown(md)
     }
     return (
         <>
@@ -792,14 +805,7 @@ function TopLogProbsTabPanel() {
 function FilesTabPanel() {
     const result = useResult()
     const { fileEdits = {} } = result || {}
-    const [selected, setSelected] = useState<string | undefined>(undefined)
     const files = Object.entries(fileEdits)
-    const data: TreeItem[] = files.map(([file, edits]) => ({
-        label: file,
-        value: file,
-        icons: true,
-    }))
-    const selectedFile = fileEdits[selected]
 
     return (
         <>
@@ -808,25 +814,26 @@ function FilesTabPanel() {
                 <CounterBadge collection={files} />
             </VscodeTabHeader>
             <VscodeTabPanel>
-                {files.length > 0 && (
-                    <VscodeSplitLayout split="vertical">
-                        <div slot="start">
-                            <VscodeTree
-                                indentGuides
-                                arrows
-                                onVscTreeSelect={(e) => {
-                                    setSelected(e.detail.value)
-                                }}
-                                data={data}
-                            />
-                        </div>
-                        <div slot="end">
-                            {selectedFile && (
-                                <pre>{selectedFile?.after || ""}</pre>
-                            )}
-                        </div>
-                    </VscodeSplitLayout>
-                )}
+                <Markdown>
+                    {files
+                        ?.map(
+                            ([filename, content], i) =>
+                                dedent`### ${filename}
+                    ${markdownDiff(content.before, content.after, { lang: "txt" })}
+                    ${content.validation?.pathValid ? `- output path validated` : ""}
+                    ${
+                        content.validation?.schema
+                            ? dedent`- JSON schema
+                        \`\`\`json
+                        ${JSON.stringify(content.validation.schema, null, 2)}
+                        \`\`\``
+                            : ""
+                    }
+                    ${content.validation?.schemaError ? `- error: ${content.validation.schemaError}` : ""}
+                    `
+                        )
+                        .join("\n")}
+                </Markdown>
             </VscodeTabPanel>
         </>
     )
@@ -908,12 +915,39 @@ function toStringList(...token: (string | undefined | null)[]) {
     return md
 }
 
-function FilesDropZone() {
-    const { acceptedFiles, isDragActive, getRootProps, getInputProps } =
-        useDropzone()
-    const { setImportedFiles } = useApi()
+function acceptToAccept(accept: string | undefined) {
+    if (!accept) return undefined
+    const res: Record<string, string[]> = {}
+    const extensions = accept.split(",")
+    for (const ext of extensions) {
+        const mime = lookupMime(ext)
+        if (mime) {
+            const exts = res[mime] || (res[mime] = [])
+            if (!exts.includes(ext)) exts.push(ext)
+        }
+    }
+    return res
+}
 
-    useEffect(() => setImportedFiles(acceptedFiles.slice()), [acceptedFiles])
+function FilesDropZone() {
+    const script = useScript()
+    const { accept } = script || {}
+    const { acceptedFiles, isDragActive, getRootProps, getInputProps } =
+        useDropzone({ multiple: true, accept: acceptToAccept(accept) })
+    const { importedFiles, setImportedFiles } = useApi()
+
+    useEffect(() => {
+        const newImportedFiles = [...importedFiles]
+        if (acceptedFiles?.length) {
+            for (const f of acceptedFiles)
+                if (!newImportedFiles.find((nf) => nf.path === f.path)) {
+                    ;(f as ImportedFile).selected = true
+                    newImportedFiles.push(f)
+                }
+        }
+        if (newImportedFiles.length !== importedFiles.length)
+            setImportedFiles(newImportedFiles)
+    }, [importedFiles, acceptedFiles])
 
     return (
         <>
@@ -922,18 +956,20 @@ function FilesDropZone() {
                 <VscodeMultiSelect
                     onChange={(e) => {
                         e.preventDefault()
-                        const target = e.target as HTMLSelectElement
-                        const value = target.value as string
-                        setImportedFiles(
-                            acceptedFiles.filter((f) => f.path === value)
-                        )
+                        const target = e.target as VscodeMultiSelectElement
+                        const newImportedFiles = [...importedFiles]
+                        const selected = target.selectedIndexes
+                        for (let i = 0; i < newImportedFiles.length; i++) {
+                            newImportedFiles[i].selected = selected.includes(i)
+                        }
+                        setImportedFiles(newImportedFiles)
                     }}
                 >
-                    {acceptedFiles.map((file) => (
+                    {importedFiles.map((file) => (
                         <VscodeOption
                             key={file.path}
                             value={file.path}
-                            selected
+                            selected={file.selected}
                         >
                             {file.name} ({prettyBytes(file.size)})
                         </VscodeOption>
@@ -1192,11 +1228,11 @@ function WebApp() {
                     <ProblemsTabPanel />
                     <MessagesTabPanel />
                     <OutputTabPanel />
-                    <StatsTabPanel />
                     <LogProbsTabPanel />
                     <TopLogProbsTabPanel />
                     <FilesTabPanel />
                     <JSONTabPanel />
+                    <StatsTabPanel />
                     <RawTabPanel />
                 </VscodeTabs>
             </VscodeCollapsible>

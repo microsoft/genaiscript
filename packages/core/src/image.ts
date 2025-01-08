@@ -1,6 +1,6 @@
 // Import necessary functions and types from other modules
 import { IMAGE_DETAIL_LOW_HEIGHT, IMAGE_DETAIL_LOW_WIDTH } from "./constants"
-import { resolveFileDataUri } from "./file"
+import { resolveFileBytes } from "./file"
 import { TraceOptions } from "./trace"
 
 /**
@@ -11,7 +11,7 @@ import { TraceOptions } from "./trace"
  * @returns A promise that resolves to an image encoded as a data URI.
  */
 export async function imageEncodeForLLM(
-    url: string | Buffer | Blob,
+    url: string | Buffer | Blob | ReadableStream,
     options: DefImagesOptions & TraceOptions
 ) {
     // Dynamically import the Jimp library and its alignment enums
@@ -27,28 +27,15 @@ export async function imageEncodeForLLM(
         detail,
     } = options
 
-    // If the URL is a string, resolve it to a data URI
-    if (typeof url === "string") url = await resolveFileDataUri(url)
-
     // https://platform.openai.com/docs/guides/vision/calculating-costs#managing-images
-
-    // Return the URL if no image processing is required
-    if (
-        typeof url === "string" &&
-        !autoCrop &&
-        !greyscale &&
-        isNaN(scale) &&
-        isNaN(rotate) &&
-        isNaN(maxHeight) &&
-        isNaN(maxWidth) &&
-        !crop &&
-        !flip &&
-        detail !== "high"
-    )
-        return url
-
-    // Convert Blob to Buffer if necessary
-    if (url instanceof Blob) url = Buffer.from(await url.arrayBuffer())
+    // If the URL is a string, resolve it to a data URI
+    if (typeof url === "string")
+        url = Buffer.from(await resolveFileBytes(url, options))
+    else if (url instanceof Blob) url = Buffer.from(await url.arrayBuffer())
+    else if (url instanceof ReadableStream) {
+        const stream: ReadableStream = url
+        url = Buffer.from(await new Response(stream).arrayBuffer())
+    } else if (url instanceof ArrayBuffer) url = Buffer.from(url)
 
     // Read the image using Jimp
     const { Jimp, HorizontalAlign, VerticalAlign, ResizeStrategy } =
@@ -60,28 +47,28 @@ export async function imageEncodeForLLM(
         const y = Math.max(0, Math.min(height, crop.y ?? 0))
         const w = Math.max(1, Math.min(width - x, crop.w ?? width))
         const h = Math.max(1, Math.min(height - y, crop.h ?? height))
-        await img.crop({ x, y, w, h })
+        img.crop({ x, y, w, h })
     }
 
     // Auto-crop the image if required by options
-    if (autoCrop) await img.autocrop()
+    if (autoCrop) img.autocrop()
 
-    if (!isNaN(scale)) await img.scale(scale)
+    if (!isNaN(scale)) img.scale(scale)
 
-    if (!isNaN(rotate)) await img.rotate(rotate)
+    if (!isNaN(rotate)) img.rotate(rotate)
 
     // Contain the image within specified max dimensions if provided
     if (options.maxWidth ?? options.maxHeight) {
-        await img.contain({
+        img.contain({
             w: img.width > maxWidth ? maxWidth : img.width, // Determine target width
             h: img.height > maxHeight ? maxHeight : img.height, // Determine target height
             align: HorizontalAlign.CENTER | VerticalAlign.MIDDLE, // Center alignment
         })
     }
 
-    if (greyscale) await img.greyscale()
+    if (greyscale) img.greyscale()
 
-    if (flip) await img.flip(flip)
+    if (flip) img.flip(flip)
 
     // https://platform.openai.com/docs/guides/vision/low-or-high-fidelity-image-understanding#low-or-high-fidelity-image-understanding
     if (
@@ -89,7 +76,7 @@ export async function imageEncodeForLLM(
         (img.width > IMAGE_DETAIL_LOW_WIDTH ||
             img.height > IMAGE_DETAIL_LOW_HEIGHT)
     ) {
-        await img.contain({
+        img.contain({
             w: Math.min(img.width, IMAGE_DETAIL_LOW_WIDTH),
             h: Math.min(img.height, IMAGE_DETAIL_LOW_HEIGHT),
             align: HorizontalAlign.CENTER | VerticalAlign.MIDDLE,
@@ -103,7 +90,7 @@ export async function imageEncodeForLLM(
     const buf = await img.getBuffer(outputMime)
 
     // Convert the Buffer to a Base64 string
-    const b64 = await buf.toString("base64")
+    const b64 = buf.toString("base64")
 
     // Construct the data URI from the Base64 string
     const imageDataUri = `data:${outputMime};base64,${b64}`

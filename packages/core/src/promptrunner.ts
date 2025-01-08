@@ -40,8 +40,11 @@ async function resolveExpansionVars(
     const files: WorkspaceFile[] = []
     const templateFiles = arrayify(template.files)
     const referenceFiles = fragment.files.slice(0)
+    const workspaceFiles = fragment.workspaceFiles?.slice(0) || []
     const filenames = await expandFiles(
-        referenceFiles?.length ? referenceFiles : templateFiles
+        referenceFiles.length || workspaceFiles.length
+            ? referenceFiles
+            : templateFiles
     )
     for (let filename of filenames) {
         filename = relativePath(root, filename)
@@ -53,8 +56,8 @@ async function resolveExpansionVars(
         files.push(file)
     }
 
-    if (fragment.workspaceFiles?.length)
-        for (const wf of fragment.workspaceFiles) {
+    if (workspaceFiles.length)
+        for (const wf of workspaceFiles) {
             if (!files.find((f) => f.filename === wf.filename)) {
                 await resolveFileContent(wf)
                 files.push(wf)

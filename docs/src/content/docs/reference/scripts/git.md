@@ -93,6 +93,16 @@ on the `repository/branch/commit` information.
 const clone = await git.shallowClone("microsoft/genaiscript")
 ```
 
+You can provide options to force the cloning
+and/or running the `install` command after cloning.
+
+```js
+const clone = await git.shallowClone("microsoft/genaiscript", {
+    force: true,
+    install: true,
+})
+```
+
 ## Git in other repositories
 
 Use `git.client` to open a git client on a different working directory. This allows you to run git commands on a different repository.

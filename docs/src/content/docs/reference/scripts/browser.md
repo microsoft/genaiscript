@@ -55,11 +55,40 @@ This function launches a new browser instance and optionally navigates to a page
 const page = await host.browse(url)
 ```
 
-You can configure a number of options for the browser instance:
+### `incognito``
+
+Setting `incognito: true` will create a isolated non-persistent browser context. Non-persistent browser contexts don't write any browsing data to disk.
 
 ```js
 const page = await host.browse(url, { incognito: true })
 ```
+
+### `recordVideo`
+
+Playwright can record a video of each page in the browser session. You can enable it by passing the `recordVideo` option.
+Recording video also implies `incognito` mode as it requires creating a new browsing context.
+
+```js
+const page = await host.browse(url, { recordVideo: true })
+```
+
+By default, the video size will be 800x600 but you can change it by passing the sizes as the `recordVideo` option.
+
+```js
+const page = await host.browse(url, {
+    recordVideo: { width: 500, height: 500 },
+})
+```
+
+The video will be saved in a temporary directory under `.genaiscript/videos/<timestamp>/` once the page is closed.
+**You need to close the page before accessing the video file.**
+
+```js
+await page.close()
+const videoPath = await page.video().path()
+```
+
+The video file can be further processed using video tools.
 
 ## Locators
 
@@ -99,8 +128,6 @@ You can take a screenshot of the current page or a locator and use it with visio
 const screenshot = await page.screenshot() // returns a node.js Buffer
 defImages(screenshot)
 ```
-
-## Interacting with Elements
 
 ## (Advanced) Native Playwright APIs
 

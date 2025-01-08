@@ -13,6 +13,7 @@ import { estimateTokens, truncateTextToTokens } from "./tokens"
 import { resolveTokenEncoder } from "./encoders"
 import { underscore } from "inflection"
 import { rm, lstat } from "node:fs/promises"
+import { packageResolveInstall } from "./packagemanagers"
 
 async function checkDirectoryExists(directory: string): Promise<boolean> {
     try {
@@ -357,9 +358,14 @@ ${await this.diff({ ...options, nameOnly: true })}
              * Do not reuse previous clone
              */
             force?: boolean
+
+            /**
+             * Runs install command after cloning
+             */
+            install?: boolean
         }
     ): Promise<GitClient> {
-        let { branch, force, ...rest } = options || {}
+        let { branch, force, install, ...rest } = options || {}
 
         // normalize short github url
         // check if the repository is in the form of `owner/repo`
@@ -390,6 +396,17 @@ ${await this.diff({ ...options, nameOnly: true })}
         )
         args.push(repository, directory)
         await this.exec(args)
+
+        if (install) {
+            const { command, args } = await packageResolveInstall(directory)
+            if (command) {
+                const res = await runtimeHost.exec(undefined, command, args, {
+                    cwd: directory,
+                })
+                if (res.exitCode !== 0) throw new Error(res.stderr)
+            }
+        }
+
         return new GitClient(directory)
     }
 

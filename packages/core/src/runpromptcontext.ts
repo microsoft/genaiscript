@@ -524,7 +524,9 @@ export function createChatGenerationContext(
     }
 
     const defImages = (
-        files: ElementOrArray<string | WorkspaceFile | Buffer | Blob>,
+        files: ElementOrArray<
+            string | WorkspaceFile | Buffer | Blob | ReadableStream
+        >,
         defOptions?: DefImagesOptions
     ) => {
         const { detail } = defOptions || {}

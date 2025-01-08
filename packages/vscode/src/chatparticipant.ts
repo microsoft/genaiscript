@@ -10,11 +10,6 @@ import {
 } from "../../core/src/constants"
 import { Fragment } from "../../core/src/generation"
 import { convertAnnotationsToItems } from "../../core/src/annotations"
-import { dedent } from "../../core/src/indent"
-import {
-    ChatCompletionAssistantMessageParam,
-    ChatCompletionUserMessageParam,
-} from "../../core/src/chattypes"
 import { deleteUndefinedValues } from "../../core/src/util"
 import { templatesToQuickPickItems } from "./fragmentcommands"
 

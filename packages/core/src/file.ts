@@ -192,24 +192,35 @@ ${CSVToMarkdown(tidyData(rows, options))}
  * @param options - Optional TraceOptions for fetching.
  * @returns The Data URI string or undefined if the MIME type cannot be determined.
  */
-export async function resolveFileDataUri(
+export async function resolveFileBytes(
     filename: string,
     options?: TraceOptions
-) {
-    let bytes: Uint8Array
-
+): Promise<Uint8Array> {
     // Fetch file from URL
     if (/^https?:\/\//i.test(filename)) {
         const fetch = await createFetch(options)
         const resp = await fetch(filename)
         const buffer = await resp.arrayBuffer()
-        bytes = new Uint8Array(buffer)
+        return new Uint8Array(buffer)
     }
     // Read file from local storage
     else {
         const buf = await host.readFile(filename)
-        bytes = new Uint8Array(buf)
+        return new Uint8Array(buf)
     }
+}
+
+/**
+ * Converts a file into a Data URI format.
+ * @param filename - The file name or URL to convert.
+ * @param options - Optional TraceOptions for fetching.
+ * @returns The Data URI string or undefined if the MIME type cannot be determined.
+ */
+export async function resolveFileDataUri(
+    filename: string,
+    options?: TraceOptions
+) {
+    const bytes = await resolveFileBytes(filename, options)
 
     const mime = (await fileTypeFromBuffer(bytes))?.mime
     if (!mime) return undefined

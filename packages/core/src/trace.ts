@@ -17,6 +17,10 @@ import { ellipse, toStringList } from "./util"
 import { estimateTokens } from "./tokens"
 import { renderWithPrecision } from "./precision"
 import { fenceMD } from "./mkmd"
+import { HTMLEscape } from "./html"
+import { resolve } from "node:path"
+import { pathToFileURL } from "node:url"
+import { dedent } from "./indent"
 
 export class TraceChunkEvent extends Event {
     constructor(readonly chunk: string) {
@@ -120,6 +124,18 @@ ${this.toResultIcon(success, "")}${title}
             this.disableChangeDispatch--
             this.dispatchChange()
         }
+    }
+
+    video(name: string, filepath: string, alt?: string) {
+        const url = pathToFileURL(resolve(filepath))
+        this.appendContent(
+            dedent`
+            -   ${name}
+            
+            <video src="${url.href}" title="${HTMLEscape(name)}" aria-label="${HTMLEscape(alt || name)}" controls="true"></video>
+            
+            `
+        )
     }
 
     details(

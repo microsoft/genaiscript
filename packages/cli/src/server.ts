@@ -54,6 +54,7 @@ import { URL } from "url"
 import { resolveLanguageModelConfigurations } from "../../core/src/config"
 import { networkInterfaces } from "os"
 import { GitClient } from "../../core/src/git"
+import { exists } from "fs-extra"
 
 /**
  * Starts a WebSocket server for handling chat and script execution.
@@ -68,6 +69,7 @@ export async function startServer(options: {
     remote?: string
     remoteBranch?: string
     remoteForce?: boolean
+    remoteInstall?: boolean
 }) {
     // Parse and set the server port, using a default if not specified.
     const corsOrigin = options.cors || process.env.GENAISCRIPT_CORS_ORIGIN
@@ -84,6 +86,7 @@ export async function startServer(options: {
         const res = await git.shallowClone(remote, {
             branch: options.remoteBranch,
             force: options.remoteForce,
+            install: options.remoteInstall,
         })
         // change cwd to the clone repo
         process.chdir(res.cwd)
@@ -500,11 +503,16 @@ export async function startServer(options: {
             const stream = createReadStream(filePath)
             stream.pipe(res)
         } else if (method === "GET" && route === "/built/web.mjs.map") {
-            res.setHeader("Content-Type", "text/json")
-            res.statusCode = 200
             const filePath = join(__dirname, "web.mjs.map")
-            const stream = createReadStream(filePath)
-            stream.pipe(res)
+            if (await exists(filePath)) {
+                res.setHeader("Content-Type", "text/json")
+                res.statusCode = 200
+                const stream = createReadStream(filePath)
+                stream.pipe(res)
+            } else {
+                res.statusCode = 404
+                res.end()
+            }
         } else if (method === "GET" && route === "/favicon.svg") {
             res.setHeader("Content-Type", "image/svg+xml")
             res.statusCode = 200
