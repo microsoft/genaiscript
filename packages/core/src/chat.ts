@@ -688,9 +688,24 @@ async function processChatMessage(
                     options,
                     participantTrace
                 )
-                await generator(ctx, structuredClone(messages))
+                const { messages: newMessages } =
+                    (await generator(ctx, structuredClone(messages))) || {}
                 const node = ctx.node
                 checkCancelled(cancellationToken)
+
+                // update modified messages
+                if (newMessages?.length) {
+                    messages.splice(0, messages.length, ...newMessages)
+                    needsNewTurn = true
+                    participantTrace.details(
+                        `💬 new messages`,
+                        renderMessagesToMarkdown(messages, {
+                            user: true,
+                            assistant: true,
+                        })
+                    )
+                }
+
                 // expand template
                 const { errors, messages: participantMessages } =
                     await renderPromptNode(options.model, node, {
@@ -707,12 +722,8 @@ async function processChatMessage(
                         throw new Error(
                             "system messages not supported for chat participants"
                         )
-                    renderMessagesToMarkdown(participantMessages, {
-                        user: true,
-                        assistant: true,
-                    })
                     participantTrace.details(
-                        `💬 messages (${participantMessages.length})`,
+                        `💬 added messages (${participantMessages.length})`,
                         renderMessagesToMarkdown(participantMessages, {
                             user: true,
                             assistant: true,
