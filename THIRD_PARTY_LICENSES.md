@@ -2864,7 +2864,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.88.5
+ - genaiscript-vscode@1.89.0
 
 This package contains the following license:
 
@@ -6855,7 +6855,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 The following npm package may be included in this product:
 
- - @octokit/openapi-types@22.2.0
+ - @octokit/openapi-types@23.0.1
 
 This package contains the following license:
 
@@ -7925,10 +7925,10 @@ The following npm packages may be included in this product:
  - @tokenizer/token@0.3.0
  - agent-base@6.0.2
  - eastasianwidth@0.2.0
- - genaiscript-core-internal@1.88.5
- - genaiscript-sample@1.88.5
- - genaiscript-web@1.88.5
- - genaiscript@1.88.5
+ - genaiscript-core-internal@1.89.0
+ - genaiscript-sample@1.89.0
+ - genaiscript-web@1.89.0
+ - genaiscript@1.89.0
  - https-proxy-agent@5.0.1
  - isarray@1.0.0
  - javascript-natural-sort@0.7.1
@@ -9545,9 +9545,9 @@ SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - @octokit/plugin-paginate-rest@11.3.6
- - @octokit/plugin-rest-endpoint-methods@13.2.6
- - @octokit/types@13.6.2
+ - @octokit/plugin-paginate-rest@11.4.0
+ - @octokit/plugin-rest-endpoint-methods@13.3.0
+ - @octokit/types@13.7.0
 
 These packages each contain the following license:
 
@@ -10418,7 +10418,7 @@ The following npm packages may be included in this product:
 
  - @octokit/endpoint@10.1.2
  - @octokit/graphql@8.1.2
- - @octokit/plugin-throttling@9.3.3
+ - @octokit/plugin-throttling@9.4.0
  - @octokit/request@9.1.4
 
 These packages each contain the following license:
