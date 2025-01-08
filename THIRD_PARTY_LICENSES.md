@@ -2864,7 +2864,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.88.2
+ - genaiscript-vscode@1.88.5
 
 This package contains the following license:
 
@@ -7925,10 +7925,10 @@ The following npm packages may be included in this product:
  - @tokenizer/token@0.3.0
  - agent-base@6.0.2
  - eastasianwidth@0.2.0
- - genaiscript-core-internal@1.88.2
- - genaiscript-sample@1.88.2
- - genaiscript-web@1.88.2
- - genaiscript@1.88.2
+ - genaiscript-core-internal@1.88.5
+ - genaiscript-sample@1.88.5
+ - genaiscript-web@1.88.5
+ - genaiscript@1.88.5
  - https-proxy-agent@5.0.1
  - isarray@1.0.0
  - javascript-natural-sort@0.7.1
@@ -8316,7 +8316,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - @octokit/plugin-retry@7.1.2
+ - @octokit/plugin-retry@7.1.3
 
 This package contains the following license:
 
@@ -10418,7 +10418,7 @@ The following npm packages may be included in this product:
 
  - @octokit/endpoint@10.1.2
  - @octokit/graphql@8.1.2
- - @octokit/plugin-throttling@9.3.2
+ - @octokit/plugin-throttling@9.3.3
  - @octokit/request@9.1.4
 
 These packages each contain the following license:
