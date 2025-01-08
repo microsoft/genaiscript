@@ -150,6 +150,7 @@ export class NodeHost implements RuntimeHost {
         }
         const res = await pullModel(modelid, options)
         if (res.ok) this.pulledModels.push(modelid)
+        else if (res.error) logError(res.error)
         return res
     }
 
