@@ -5,20 +5,12 @@ import type {
     Page,
 } from "playwright"
 import { TraceOptions } from "../../core/src/trace"
-import {
-    deleteUndefinedValues,
-    dotGenaiscriptPath,
-    logError,
-    logVerbose,
-} from "../../core/src/util"
+import { dotGenaiscriptPath, logError, logVerbose } from "../../core/src/util"
 import { runtimeHost } from "../../core/src/host"
 import { PLAYWRIGHT_VERSION } from "./version"
 import { ellipseUri } from "../../core/src/url"
 import { PLAYWRIGHT_DEFAULT_BROWSER } from "../../core/src/constants"
-import { randomHex } from "../../core/src/crypto"
-import { ensureDotGenaiscriptPath } from "./trace"
 import { ensureDir } from "fs-extra"
-import { record } from "zod"
 
 /**
  * Manages browser instances using Playwright, including launching,
@@ -159,8 +151,7 @@ export class BrowserManager {
                     `${new Date().toISOString().replace(/[:.]/g, "-")}`
                 )
                 await ensureDir(dir)
-                trace.itemValue(`video dir`, dir)
-                logVerbose(`browsing: recording videos to ${dir}`)
+                trace?.itemValue(`video dir`, dir)
                 options.recordVideo = { dir }
                 if (typeof recordVideo === "object")
                     options.recordVideo.size = recordVideo
@@ -171,6 +162,13 @@ export class BrowserManager {
         } else {
             page = await browser.newPage(rest)
         }
+        page.on("close", async () => {
+            const video = page.video()
+            if (video) {
+                const p = await video.path()
+                if (p) trace?.video(`video recording of ${page.url()}`, p)
+            }
+        })
         this._pages.push(page)
 
         // Set page timeout if specified
