@@ -44,9 +44,14 @@ export async function hash(value: any, options?: HashOptions) {
     const { algorithm = "sha-256", version, length, ...rest } = options || {}
 
     const sep = utf8Encode("|")
+    const un = utf8Encode("undefined")
+    const nu = utf8Encode("null")
+
     const h: Uint8Array[] = []
     const append = async (v: any) => {
-        if (
+        if (v === null) h.push(nu)
+        else if (v === undefined) h.push(un)
+        else if (
             typeof v == "string" ||
             typeof v === "number" ||
             typeof v === "boolean"
@@ -58,6 +63,7 @@ export async function hash(value: any, options?: HashOptions) {
                 await append(c)
             }
         else if (v instanceof Buffer) h.push(new Uint8Array(v))
+        else if (v instanceof ArrayBuffer) h.push(new Uint8Array(v))
         else if (v instanceof Blob)
             h.push(new Uint8Array(await v.arrayBuffer()))
         else if (typeof v === "object")
@@ -67,6 +73,7 @@ export async function hash(value: any, options?: HashOptions) {
                 h.push(sep)
                 await append(v[c])
             }
+        else if (typeof v === "function") h.push(utf8Encode(v.toString()))
         else h.push(utf8Encode(JSON.stringify(v)))
     }
     if (version) {
