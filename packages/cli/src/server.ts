@@ -179,7 +179,10 @@ export async function startServer(options: {
     const scriptList = async () => {
         logVerbose(`project: list scripts`)
         const project = await buildProject()
-        logVerbose(`project: found ${project?.scripts?.length || 0} scripts`)
+        const scripts = project?.scripts || []
+        logVerbose(
+            `project: found ${scripts.filter((s) => !s.unlisted).length} scripts`
+        )
         return <PromptScriptListResponse>{
             ok: true,
             status: 0,
