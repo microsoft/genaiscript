@@ -1,10 +1,16 @@
-import type { Browser, Page } from "playwright"
+import type {
+    Browser,
+    BrowserContext,
+    BrowserContextOptions,
+    Page,
+} from "playwright"
 import { TraceOptions } from "../../core/src/trace"
-import { logError, logVerbose } from "../../core/src/util"
+import { dotGenaiscriptPath, logError, logVerbose } from "../../core/src/util"
 import { runtimeHost } from "../../core/src/host"
 import { PLAYWRIGHT_VERSION } from "./version"
 import { ellipseUri } from "../../core/src/url"
 import { PLAYWRIGHT_DEFAULT_BROWSER } from "../../core/src/constants"
+import { ensureDir } from "fs-extra"
 
 /**
  * Manages browser instances using Playwright, including launching,
@@ -13,6 +19,7 @@ import { PLAYWRIGHT_DEFAULT_BROWSER } from "../../core/src/constants"
  */
 export class BrowserManager {
     private _browsers: Browser[] = [] // Stores active browser instances
+    private _contexts: BrowserContext[] = [] // Stores active browser contexts
     private _pages: Page[] = [] // Stores active pages
 
     constructor() {}
@@ -77,9 +84,11 @@ export class BrowserManager {
      */
     async stopAndRemove() {
         const browsers = this._browsers.slice(0)
+        const contexts = this._contexts.slice(0)
         const pages = this._pages.slice(0)
 
         this._browsers = []
+        this._contexts = []
         this._pages = []
 
         // Close all active pages
@@ -89,6 +98,15 @@ export class BrowserManager {
                     logVerbose(`browsers: closing page`)
                     await page.close()
                 }
+            } catch (e) {
+                logError(e)
+            }
+        }
+
+        for (const context of contexts) {
+            try {
+                logVerbose(`browsers: closing context`)
+                await context.close()
             } catch (e) {
                 logError(e)
             }
@@ -117,19 +135,41 @@ export class BrowserManager {
         url: string,
         options?: BrowseSessionOptions & TraceOptions
     ): Promise<BrowserPage> {
-        const { trace, incognito, timeout, ...rest } = options || {}
+        const { trace, incognito, timeout, recordVideo, ...rest } =
+            options || {}
 
         logVerbose(`browsing ${ellipseUri(url)}`)
         const browser = await this.launchBrowser(options)
         let page: Page
 
         // Open a new page in incognito mode if specified
-        if (incognito) {
-            const context = await browser.newContext(rest)
+        if (incognito || recordVideo) {
+            const options = { ...rest } as BrowserContextOptions
+            if (recordVideo) {
+                const dir = dotGenaiscriptPath(
+                    "videos",
+                    `${new Date().toISOString().replace(/[:.]/g, "-")}`
+                )
+                await ensureDir(dir)
+                trace?.itemValue(`video dir`, dir)
+                options.recordVideo = { dir }
+                if (typeof recordVideo === "object")
+                    options.recordVideo.size = recordVideo
+            }
+            const context = await browser.newContext(options)
+            this._contexts.push(context)
             page = await context.newPage()
         } else {
             page = await browser.newPage(rest)
         }
+        page.on("close", async () => {
+            const video = page.video()
+            if (video) {
+                const p = await video.path()
+                if (p) trace?.video(`video recording of ${page.url()}`, p)
+            }
+        })
+        this._pages.push(page)
 
         // Set page timeout if specified
         if (timeout !== undefined) page.setDefaultTimeout(timeout)

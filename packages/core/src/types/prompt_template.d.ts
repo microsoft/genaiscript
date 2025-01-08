@@ -2958,6 +2958,14 @@ interface BrowseSessionOptions extends BrowserOptions, TimeoutOptions {
      * @link https://playwright.dev/docs/api/class-browser#browser-new-context-option-java-script-enabled
      */
     javaScriptEnabled?: boolean
+
+    /**
+     * Enable recording video for all pages. Implies incognito mode.
+     */
+    recordVideo?: boolean | {
+        width: number
+        height: number
+    }
 }
 
 interface TimeoutOptions {
@@ -3234,6 +3242,13 @@ interface BrowseResponse {
 
 interface BrowserJSHandle {}
 
+interface BrowserVideo {
+    /**
+     * Returns the video path once the page is closed.
+     */
+    path(): Promise<string>
+}
+
 /**
  * A playwright Page instance
  * @link https://playwright.dev/docs/api/class-page
@@ -3283,7 +3298,8 @@ interface BrowserPage extends BrowserLocatorSelector {
     locator(selector: string): BrowserLocator
 
     /**
-     * Closes the browser page, context and other resources
+     * Closes the browser page, context and other resources.
+     * If video recording is enabled, the video will be saved at this time.
      */
     close(): Promise<void>
 
@@ -3305,6 +3321,11 @@ interface BrowserPage extends BrowserLocatorSelector {
         selector: string,
         arg?: any
     ): Promise<BrowserJSHandle>
+
+    /**
+     * Video object associated with this page, if `recordVideo` option is enabled.
+     */
+    video(): BrowserVideo | null
 }
 
 interface ShellSelectOptions {}

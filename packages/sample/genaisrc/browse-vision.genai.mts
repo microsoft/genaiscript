@@ -24,7 +24,7 @@ const { error, fences } = await runPrompt(
         _.defImages(screenshot)
         _.$`Extract the text in the request image. Format the output as a CSV table. If you cannot find text in the image, return 'no data'.`
     },
-    { model: "openai:gpt-4o" }
+    { model: "large" }
 )
 if (error) throw error
 const csv = fences.find((f) => f.language == "csv")
