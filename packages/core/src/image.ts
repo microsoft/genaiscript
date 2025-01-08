@@ -43,7 +43,7 @@ export async function imageEncodeForLLM(
         isNaN(maxWidth) &&
         !crop &&
         !flip &&
-        detail !== "high"
+        detail !== "low"
     )
         return url
 
@@ -60,28 +60,28 @@ export async function imageEncodeForLLM(
         const y = Math.max(0, Math.min(height, crop.y ?? 0))
         const w = Math.max(1, Math.min(width - x, crop.w ?? width))
         const h = Math.max(1, Math.min(height - y, crop.h ?? height))
-        await img.crop({ x, y, w, h })
+        img.crop({ x, y, w, h })
     }
 
     // Auto-crop the image if required by options
-    if (autoCrop) await img.autocrop()
+    if (autoCrop) img.autocrop()
 
-    if (!isNaN(scale)) await img.scale(scale)
+    if (!isNaN(scale)) img.scale(scale)
 
-    if (!isNaN(rotate)) await img.rotate(rotate)
+    if (!isNaN(rotate)) img.rotate(rotate)
 
     // Contain the image within specified max dimensions if provided
     if (options.maxWidth ?? options.maxHeight) {
-        await img.contain({
+        img.contain({
             w: img.width > maxWidth ? maxWidth : img.width, // Determine target width
             h: img.height > maxHeight ? maxHeight : img.height, // Determine target height
             align: HorizontalAlign.CENTER | VerticalAlign.MIDDLE, // Center alignment
         })
     }
 
-    if (greyscale) await img.greyscale()
+    if (greyscale) img.greyscale()
 
-    if (flip) await img.flip(flip)
+    if (flip) img.flip(flip)
 
     // https://platform.openai.com/docs/guides/vision/low-or-high-fidelity-image-understanding#low-or-high-fidelity-image-understanding
     if (
@@ -89,7 +89,7 @@ export async function imageEncodeForLLM(
         (img.width > IMAGE_DETAIL_LOW_WIDTH ||
             img.height > IMAGE_DETAIL_LOW_HEIGHT)
     ) {
-        await img.contain({
+        img.contain({
             w: Math.min(img.width, IMAGE_DETAIL_LOW_WIDTH),
             h: Math.min(img.height, IMAGE_DETAIL_LOW_HEIGHT),
             align: HorizontalAlign.CENTER | VerticalAlign.MIDDLE,
@@ -103,7 +103,7 @@ export async function imageEncodeForLLM(
     const buf = await img.getBuffer(outputMime)
 
     // Convert the Buffer to a Base64 string
-    const b64 = await buf.toString("base64")
+    const b64 = buf.toString("base64")
 
     // Construct the data URI from the Base64 string
     const imageDataUri = `data:${outputMime};base64,${b64}`
