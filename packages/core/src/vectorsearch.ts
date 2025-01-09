@@ -20,6 +20,7 @@ import { LanguageModelConfiguration } from "./server/messages"
 import { getConfigHeaders } from "./openai"
 import { logVerbose, trimTrailingSlash } from "./util"
 import { TraceOptions } from "./trace"
+import { CancellationOptions } from "./cancellation"
 
 /**
  * Represents the cache key for embeddings.
@@ -169,7 +170,8 @@ class OpenAIEmbeddings implements EmbeddingsModel {
 export async function vectorSearch(
     query: string,
     files: WorkspaceFile[],
-    options: VectorSearchOptions & { folderPath: string } & TraceOptions
+    options: VectorSearchOptions & { folderPath: string } & TraceOptions &
+        CancellationOptions
 ): Promise<WorkspaceFileWithScore[]> {
     const {
         topK,
@@ -177,6 +179,7 @@ export async function vectorSearch(
         embeddingsModel = runtimeHost.modelAliases.embeddings.model,
         minScore = 0,
         trace,
+        cancellationToken,
     } = options
 
     trace?.startDetails(`🔍 embeddings`)
@@ -203,7 +206,7 @@ export async function vectorSearch(
             throw new Error("No configuration found for vector search")
 
         // Pull the model
-        await runtimeHost.pullModel(info.model, { trace })
+        await runtimeHost.pullModel(info.model, { trace, cancellationToken })
         const embeddings = new OpenAIEmbeddings(info, configuration, { trace })
 
         // Create a local document index

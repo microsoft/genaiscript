@@ -625,6 +625,65 @@ export function createChatGenerationContext(
         return p
     }
 
+    const transcribe = async (
+        file: BufferLike,
+        options?: TranscriptionOptions
+    ): Promise<TranscriptionResult> => {
+        const transcriptionTrace = trace.startTraceDetails("🎤 transcribe")
+        try {
+            const conn: ModelConnectionOptions = {
+                model: options?.model || "transcribe",
+            }
+            const { info, configuration } = await resolveModelConnectionInfo(
+                conn,
+                {
+                    trace: transcriptionTrace,
+                    cancellationToken,
+                    token: true,
+                }
+            )
+            if (info.error) throw new Error(info.error)
+            if (!configuration) throw new Error("model configuration not found")
+            checkCancelled(cancellationToken)
+            const { ok } = await runtimeHost.pullModel(conn.model, {
+                trace: transcriptionTrace,
+                cancellationToken,
+            })
+            if (!ok) throw new Error(`failed to pull model ${conn}`)
+            checkCancelled(cancellationToken)
+            const { transcribe } = await resolveLanguageModel(
+                configuration.provider
+            )
+            if (!transcribe)
+                throw new Error("model driver not found for " + info.model)
+            const res = await transcribe(
+                {
+                    file,
+                    language: options?.language,
+                    translate: options?.translate,
+                },
+                configuration,
+                {
+                    trace: transcriptionTrace,
+                    cancellationToken,
+                }
+            )
+            trace.fence(res.text, "markdown")
+            if (res.error) trace.error(errorMessage(res.error))
+            if (res.segments) trace.fence(res.segments, "yaml")
+            return res
+        } catch (e) {
+            logError(e)
+            transcriptionTrace.error(e)
+            return {
+                text: undefined,
+                error: serializeError(e),
+            } satisfies TranscriptionResult
+        } finally {
+            transcriptionTrace.endDetails()
+        }
+    }
+
     const runPrompt = async (
         generator: string | PromptGenerator,
         runOptions?: PromptGeneratorOptions
@@ -639,11 +698,15 @@ export function createChatGenerationContext(
             genOptions.fallbackTools = undefined
             genOptions.inner = true
             genOptions.trace = runTrace
-            const { info } = await resolveModelConnectionInfo(genOptions, {
-                trace,
-                token: true,
-            })
+            const { info, configuration } = await resolveModelConnectionInfo(
+                genOptions,
+                {
+                    trace: runTrace,
+                    token: true,
+                }
+            )
             if (info.error) throw new Error(info.error)
+            if (!configuration) throw new Error("model configuration not found")
             genOptions.model = info.model
             genOptions.stats = genOptions.stats.createChild(
                 genOptions.model,
@@ -652,6 +715,7 @@ export function createChatGenerationContext(
 
             const { ok } = await runtimeHost.pullModel(genOptions.model, {
                 trace: runTrace,
+                cancellationToken,
             })
             if (!ok) throw new Error(`failed to pull model ${genOptions.model}`)
 
@@ -700,6 +764,7 @@ export function createChatGenerationContext(
                     flexTokens: genOptions.flexTokens,
                     fenceFormat: genOptions.fenceFormat,
                     trace: runTrace,
+                    cancellationToken,
                 })
 
                 schemas = scs
@@ -796,22 +861,12 @@ export function createChatGenerationContext(
                 messages.push(toChatCompletionUserMessage("", images))
 
             finalizeMessages(messages, { fileOutputs })
-            const connection = await resolveModelConnectionInfo(genOptions, {
-                trace: runTrace,
-                token: true,
-            })
-            checkCancelled(cancellationToken)
-            if (!connection.configuration)
-                throw new Error(
-                    "missing model connection information for " +
-                        genOptions.model
-                )
             const { completer } = await resolveLanguageModel(
-                connection.configuration.provider
+                configuration.provider
             )
-            checkCancelled(cancellationToken)
             if (!completer)
-                throw new Error("model driver not found for " + connection.info)
+                throw new Error("model driver not found for " + info.model)
+            checkCancelled(cancellationToken)
 
             const modelConcurrency =
                 options.modelConcurrency?.[genOptions.model] ??
@@ -822,7 +877,7 @@ export function createChatGenerationContext(
             )
             const resp = await modelLimit(() =>
                 executeChatSession(
-                    connection.configuration,
+                    configuration,
                     cancellationToken,
                     messages,
                     tools,
@@ -875,6 +930,7 @@ export function createChatGenerationContext(
         defFileMerge,
         prompt,
         runPrompt,
+        transcribe,
     })
 
     return ctx

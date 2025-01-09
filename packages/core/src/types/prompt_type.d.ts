@@ -39,7 +39,7 @@ declare function writeText(
 ): void
 
 /**
- * Append given string to the prompt as an assistant mesage.
+ * Append given string to the prompt as an assistant message.
  */
 declare function assistant(
     text: Awaitable<string>,
@@ -259,9 +259,7 @@ declare function defSchema(
  * @param options
  */
 declare function defImages(
-    files: ElementOrArray<
-        string | WorkspaceFile | Buffer | Blob | ArrayBuffer | ReadableStream
-    >,
+    files: ElementOrArray<BufferLike>,
     options?: DefImagesOptions
 ): void
 
@@ -328,3 +326,13 @@ declare function defChatParticipant(
     participant: ChatParticipantHandler,
     options?: ChatParticipantOptions
 ): void
+
+/**
+ * Transcribes audio to text.
+ * @param audio An audio file to transcribe.
+ * @param options
+ */
+declare function transcribe(
+    audio: BufferLike,
+    options?: TranscriptionOptions
+): Promise<TranscriptionResult>

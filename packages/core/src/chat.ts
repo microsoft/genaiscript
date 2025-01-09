@@ -140,11 +140,22 @@ export type PullModelFunction = (
     options: TraceOptions & CancellationOptions
 ) => Promise<{ ok: boolean; error?: SerializedError }>
 
+export type CreateTranscriptionRequest = {
+    file: BufferLike
+} & TranscriptionOptions
+
+export type TranscribeFunction = (
+    req: CreateTranscriptionRequest,
+    cfg: LanguageModelConfiguration,
+    options: TraceOptions & CancellationOptions
+) => Promise<TranscriptionResult>
+
 export interface LanguageModel {
     id: string
     completer: ChatCompletionHandler
     listModels?: ListModelsFunction
     pullModel?: PullModelFunction
+    transcribe?: TranscribeFunction
 }
 
 async function runToolCalls(

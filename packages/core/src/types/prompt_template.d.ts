@@ -195,6 +195,8 @@ type ModelVisionType = OptionsOrString<
     "openai:gpt-4o" | "github:gpt-4o" | "azure:gpt-4o" | "azure:gpt-4o-mini"
 >
 
+type ModelTranscriptionType = OptionsOrString<"openai:whisper-1">
+
 type ModelProviderType =
     | "openai"
     | "azure"
@@ -2679,6 +2681,68 @@ type McpServersConfig = Record<string, Omit<McpServerConfig, "id" | "options">>
 
 type ZodTypeLike = { _def: any; safeParse: any; refine: any }
 
+type BufferLike = string | WorkspaceFile | Buffer | Blob | ArrayBuffer | ReadableStream
+
+interface TranscriptionOptions {
+    /**
+     * Model to use for transcription. By default uses the `transcribe` alias.
+     */
+    model?: TranscribeModelType
+
+    /**
+     * Translate to English.
+     */
+    translate?: boolean
+
+    /**
+     * Input language in iso-639-1 format.
+     * @see https://en.wikipedia.org/wiki/List_of_ISO_639_language_codes
+     */
+    language?: string
+
+    /**
+     * The sampling temperature, between 0 and 1. 
+     * Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic.
+     */
+    temperature?: number
+}
+
+interface TranscriptionResult {
+    /**
+     * Complete transcription text
+     */
+    text: string
+    /**
+     * Error if any
+     */
+    error?: SerializedError
+    /**
+     * Individual segments
+     */
+    segments?: {
+        /**
+         * The start time of the segment 
+         */
+        start: number
+        /**
+         * The transcribed text.
+         */
+        text: string
+        /**
+         * Seek offset of the segment
+         */
+        seek?: number
+        /**
+         * End time in seconds
+         */
+        end?: number
+        /**
+         * Temperature used for the generation of the segment
+         */
+        temperature?: number
+    }[]
+}
+
 interface ChatGenerationContext extends ChatTurnGenerationContext {
     defSchema(
         name: string,
@@ -2686,7 +2750,7 @@ interface ChatGenerationContext extends ChatTurnGenerationContext {
         options?: DefSchemaOptions
     ): string
     defImages(
-        files: ElementOrArray<string | WorkspaceFile | Buffer | Blob | ArrayBuffer | ReadableStream>,
+        files: ElementOrArray<BufferLike>,
         options?: DefImagesOptions
     ): void
     defTool(
@@ -2729,6 +2793,7 @@ interface ChatGenerationContext extends ChatTurnGenerationContext {
     ): RunPromptResultPromiseWithOptions
     defFileMerge(fn: FileMergeHandler): void
     defOutputProcessor(fn: PromptOutputProcessorHandler): void
+    transcribe(audio: BufferLike, options?: TranscriptionOptions): Promise<TranscriptionResult>
 }
 
 interface GenerationOutput {

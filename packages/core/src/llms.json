@@ -11,7 +11,8 @@
                 "vision": "gpt-4o",
                 "embeddings": "text-embedding-3-small",
                 "reasoning": "o1",
-                "reasoning_small": "o1-mini"
+                "reasoning_small": "o1-mini",
+                "transcribe": "whisper-1"
             }
         },
         {

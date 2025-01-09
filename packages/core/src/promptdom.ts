@@ -37,6 +37,7 @@ import { startMcpServer } from "./mcp"
 import { tryZodToJsonSchema } from "./zod"
 import { GROQEvaluate } from "./groq"
 import { trimNewlines } from "./unwrappers"
+import { CancellationOptions } from "./cancellation"
 
 // Definition of the PromptNode interface which is an essential part of the code structure.
 export interface PromptNode extends ContextExpansionOptions {
@@ -1140,7 +1141,7 @@ async function deduplicatePromptNode(trace: MarkdownTrace, root: PromptNode) {
 export async function renderPromptNode(
     modelId: string,
     node: PromptNode,
-    options?: ModelTemplateOptions & TraceOptions
+    options?: ModelTemplateOptions & TraceOptions & CancellationOptions
 ): Promise<PromptNodeRender> {
     const { trace, flexTokens } = options || {}
     const { encode: encoder } = await resolveTokenEncoder(modelId)
