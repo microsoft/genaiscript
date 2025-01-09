@@ -291,6 +291,35 @@ Options:
   -h, --help  display help for command
 ```
 
+## `audio`
+
+```
+Usage: genaiscript audio [options] [command]
+
+Audio tasks
+
+Options:
+  -h, --help        display help for command
+
+Commands:
+  transcode <file>  Transcode video/audio file
+  help [command]    display help for command
+```
+
+### `audio transcode`
+
+```
+Usage: genaiscript audio transcode [options] <file>
+
+Transcode video/audio file
+
+Arguments:
+  file        Audio or video file to transcode
+
+Options:
+  -h, --help  display help for command
+```
+
 ## `retrieval`
 
 ```

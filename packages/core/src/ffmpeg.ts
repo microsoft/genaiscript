@@ -2,13 +2,16 @@ import { fileTypeFromBuffer } from "file-type"
 import { PassThrough } from "stream"
 import { logError, logVerbose } from "./util"
 import { TraceOptions } from "./trace"
-import Ffmpeg from "fluent-ffmpeg"
 import { lookupMime } from "./mime"
 import { host } from "./host"
 
-async function importFfmpeg() {
-    const ffmpeg = await import("fluent-ffmpeg")
-    return ffmpeg.default
+async function ffmpeg() {
+    const m = await import("fluent-ffmpeg")
+    const cmd = m.default
+    return cmd()
+        .on("start", (commandLine) => logVerbose(commandLine))
+        .on("progress", () => process.stderr.write("."))
+        .on("stderr", (s) => logVerbose(s))
 }
 
 export async function convertToAudioBlob(
@@ -29,7 +32,6 @@ export async function convertToAudioBlob(
     return new Promise<Blob>(async (resolve, reject) => {
         const outputStream = new PassThrough()
         const chunks: Buffer[] = []
-
         outputStream.on("data", (chunk) => chunks.push(chunk))
         outputStream.on("end", async () => {
             const buffer = Buffer.concat(chunks)
@@ -41,14 +43,37 @@ export async function convertToAudioBlob(
             logError(e)
             reject(e)
         })
-        const ffmpeg = await importFfmpeg()
-        ffmpeg(file)
-            .on("start", (commandLine) => logVerbose(commandLine))
-            .on("progress", () => process.stderr.write("."))
-            .on("stderr", (s) => logVerbose(s))
+        const cmd = await ffmpeg()
+        cmd.input(file)
             .noVideo()
+            .input(file)
             .toFormat("wav")
             .on("error", reject)
             .pipe(outputStream, { end: true })
+    })
+}
+
+export async function renderVideoFrames(file: string, timestamps: number[]) {
+    const frames: Buffer[] = []
+    return new Promise<Buffer[]>(async (resolve, reject) => {
+        const cmd = await ffmpeg()
+        cmd.input(file)
+            .outputOptions([
+                "-f image2pipe",
+                "-pix_fmt rgb24",
+                "-vcodec rawvideo",
+                "-vf select='eq(pict_type,I)'",
+                `-ss ${timestamps.join(",")}`,
+            ])
+            .on("error", reject)
+            .on("end", () => resolve(frames))
+            .pipe(
+                new PassThrough({
+                    transform: (chunk, _, callback) => {
+                        frames.push(chunk)
+                        callback()
+                    },
+                })
+            )
     })
 }
