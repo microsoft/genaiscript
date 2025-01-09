@@ -32,6 +32,7 @@ jobs:
             - name: compile
               run: yarn compile
             - name: poem
+              continue-on-error: true
               run: yarn run:script poem -p google --out-trace $GITHUB_STEP_SUMMARY
               env:
                   GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
