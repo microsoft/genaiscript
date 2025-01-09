@@ -663,10 +663,9 @@ export function createChatGenerationContext(
             )
             if (!transcribe)
                 throw new Error("model driver not found for " + info.model)
-            const data = await resolveBufferLike(audio, {
+            const file = await convertToAudioBlob(audio, {
                 trace: transcriptionTrace,
             })
-            const file = await convertToAudioBlob(data)
             const update: () => Promise<TranscriptionResult> = async () => {
                 trace.itemValue(`model`, configuration.model)
                 trace.itemValue(`file size`, prettyBytes(file.size))

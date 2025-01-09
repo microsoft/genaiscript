@@ -333,6 +333,6 @@ declare function defChatParticipant(
  * @param options
  */
 declare function transcribe(
-    audio: BufferLike,
+    audio: string,
     options?: TranscriptionOptions
 ): Promise<TranscriptionResult>

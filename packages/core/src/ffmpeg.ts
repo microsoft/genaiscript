@@ -1,48 +1,53 @@
 import { fileTypeFromBuffer } from "file-type"
 import { PassThrough } from "stream"
 import { logError, logVerbose } from "./util"
+import { TraceOptions } from "./trace"
+import Ffmpeg from "fluent-ffmpeg"
+import { lookupMime } from "./mime"
+import { host } from "./host"
 
 async function importFfmpeg() {
     const ffmpeg = await import("fluent-ffmpeg")
     return ffmpeg.default
 }
 
-export async function convertToAudioBlob(data: Buffer): Promise<Blob> {
-    {
-        const mime = await fileTypeFromBuffer(data)
-        if (/^audio\//.test(mime?.mime))
-            return new Blob([data], { type: mime.mime })
+export async function convertToAudioBlob(
+    file: string,
+    options: { forceConversion?: boolean } & TraceOptions
+): Promise<Blob> {
+    const { forceConversion } = options
+    if (!forceConversion) {
+        const mime = lookupMime(file)
+        if (/^audio/.test(mime)) {
+            const buffer = await host.readFile(file)
+            return new Blob([buffer], { type: mime })
+        }
     }
 
     logVerbose(`ffmpeg: extracting audio from video...`)
+    // ffmpeg -i helloworld.mp4 -q:a 0 -map a output.mp3
     return new Promise<Blob>(async (resolve, reject) => {
-        const inputStream = new PassThrough()
-        inputStream.end(data)
-
         const outputStream = new PassThrough()
         const chunks: Buffer[] = []
 
-        outputStream.on("data", (chunk) => {
-            chunks.push(chunk)
-        })
+        outputStream.on("data", (chunk) => chunks.push(chunk))
         outputStream.on("end", async () => {
             const buffer = Buffer.concat(chunks)
+            if (!buffer.length) reject(new Error("conversion failed"))
             const mime = await fileTypeFromBuffer(buffer)
-            console.log(mime)
             resolve(new Blob([buffer], { type: mime.mime }))
         })
         outputStream.on("error", (e) => {
             logError(e)
             reject(e)
         })
-
         const ffmpeg = await importFfmpeg()
-        ffmpeg(inputStream, {
-            logger: console,
-        })
+        ffmpeg(file)
+            .on("start", (commandLine) => logVerbose(commandLine))
+            .on("progress", () => process.stderr.write("."))
+            .on("stderr", (s) => logVerbose(s))
             .noVideo()
             .toFormat("wav")
-            .audioBitrate("16k")
             .on("error", reject)
             .pipe(outputStream, { end: true })
     })

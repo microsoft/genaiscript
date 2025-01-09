@@ -2798,7 +2798,7 @@ interface ChatGenerationContext extends ChatTurnGenerationContext {
     ): RunPromptResultPromiseWithOptions
     defFileMerge(fn: FileMergeHandler): void
     defOutputProcessor(fn: PromptOutputProcessorHandler): void
-    transcribe(audio: BufferLike, options?: TranscriptionOptions): Promise<TranscriptionResult>
+    transcribe(audio: string, options?: TranscriptionOptions): Promise<TranscriptionResult>
 }
 
 interface GenerationOutput {
