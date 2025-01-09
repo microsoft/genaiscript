@@ -2705,6 +2705,11 @@ interface TranscriptionOptions {
      * Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic.
      */
     temperature?: number
+
+    /**
+     * If true, the transcription will be cached.
+     */
+    cache?: boolean | string
 }
 
 interface TranscriptionResult {

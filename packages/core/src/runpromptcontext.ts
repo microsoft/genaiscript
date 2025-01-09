@@ -59,6 +59,7 @@ import {
     TOKEN_NO_ANSWER,
     MODEL_PROVIDER_AICI,
     DOCS_DEF_FILES_IS_EMPTY_URL,
+    TRANSCRIPTION_MEMORY_CACHE_NAME,
 } from "./constants"
 import { renderAICI } from "./aici"
 import { resolveSystems, resolveTools } from "./systems"
@@ -82,6 +83,8 @@ import { parametersToVars } from "./vars"
 import { resolveBufferLike } from "./bufferlike"
 import { fileTypeFromBuffer } from "file-type"
 import prettyBytes from "pretty-bytes"
+import { JSONLineCache } from "./cache"
+import { string } from "mathjs"
 
 export function createChatTurnGenerationContext(
     options: GenerationOptions,
@@ -632,6 +635,7 @@ export function createChatGenerationContext(
         audio: BufferLike,
         options?: TranscriptionOptions
     ): Promise<TranscriptionResult> => {
+        const { cache, ...rest } = options || {}
         const transcriptionTrace = trace.startTraceDetails("🎤 transcribe")
         try {
             const conn: ModelConnectionOptions = {
@@ -663,23 +667,47 @@ export function createChatGenerationContext(
                 trace: transcriptionTrace,
             })
             const mimeType = await fileTypeFromBuffer(data)
-            const file = new Blob([data], { type: mimeType.mime })
-            trace.itemValue(`model`, configuration.model)
-            trace.itemValue(`file size`, prettyBytes(file.size))
-            trace.itemValue(`file type`, file.type)
-            const res = await transcribe(
-                {
-                    file,
-                    model: configuration.model,
-                    language: options?.language,
-                    translate: options?.translate,
-                },
-                configuration,
-                {
-                    trace: transcriptionTrace,
-                    cancellationToken,
-                }
+            const update: () => Promise<TranscriptionResult> = async () => {
+                const file = new Blob([data], { type: mimeType.mime })
+                trace.itemValue(`model`, configuration.model)
+                trace.itemValue(`file size`, prettyBytes(file.size))
+                trace.itemValue(`file type`, file.type)
+                const res = await transcribe(
+                    {
+                        file,
+                        model: configuration.model,
+                        language: options?.language,
+                        translate: options?.translate,
+                    },
+                    configuration,
+                    {
+                        trace: transcriptionTrace,
+                        cancellationToken,
+                    }
+                )
+                return res
+            }
+
+            let res: TranscriptionResult
+            const _cache = JSONLineCache.byName<
+                { data: Buffer; type: string } & TranscriptionOptions,
+                TranscriptionResult
+            >(
+                cache === true
+                    ? TRANSCRIPTION_MEMORY_CACHE_NAME
+                    : typeof cache === "string"
+                      ? cache
+                      : undefined
             )
+            if (cache) {
+                const hit = await _cache.getOrUpdate(
+                    { data, type: mimeType.mime, ...rest },
+                    update,
+                    (res) => !res.error
+                )
+                trace.itemValue(`cache ${hit.cached ? "hit" : "miss"}`, hit.key)
+                res = hit.value
+            } else res = await update()
             trace.fence(res.text, "markdown")
             if (res.error) trace.error(errorMessage(res.error))
             if (res.segments) trace.fence(res.segments, "yaml")
