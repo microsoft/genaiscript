@@ -13,7 +13,15 @@ GenAIScript supports transcription and translations from OpenAI like APIs.
 const { text } = await transcribe("path/to/audio.mp3")
 ```
 
-The `transcribe` function also supports streams, blobs, or buffers as an input.
+## File formats
+
+The transcription API will automatically use [ffmpeg](https://ffmpeg.org/)
+to convert videos to audio files.
+
+You need to install ffmpeg on your system. If the `FFMPEG_PATH` environment variable is set,
+GenAIScript will use it as the full path to the ffmpeg executable.
+Otherwise, it will attempt to call ffmpeg directly
+(so it should be in your PATH).
 
 ## model
 
