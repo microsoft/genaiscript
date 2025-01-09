@@ -79,6 +79,9 @@ import { agentAddMemory, agentQueryMemory } from "./agent"
 import { YAMLStringify } from "./yaml"
 import { Project } from "./server/messages"
 import { parametersToVars } from "./vars"
+import { resolveBufferLike } from "./bufferlike"
+import { fileTypeFromBuffer } from "file-type"
+import prettyBytes from "pretty-bytes"
 
 export function createChatTurnGenerationContext(
     options: GenerationOptions,
@@ -626,7 +629,7 @@ export function createChatGenerationContext(
     }
 
     const transcribe = async (
-        file: BufferLike,
+        audio: BufferLike,
         options?: TranscriptionOptions
     ): Promise<TranscriptionResult> => {
         const transcriptionTrace = trace.startTraceDetails("🎤 transcribe")
@@ -656,9 +659,18 @@ export function createChatGenerationContext(
             )
             if (!transcribe)
                 throw new Error("model driver not found for " + info.model)
+            const data = await resolveBufferLike(audio, {
+                trace: transcriptionTrace,
+            })
+            const mimeType = await fileTypeFromBuffer(data)
+            const file = new Blob([data], { type: mimeType.mime })
+            trace.itemValue(`model`, configuration.model)
+            trace.itemValue(`file size`, prettyBytes(file.size))
+            trace.itemValue(`file type`, file.type)
             const res = await transcribe(
                 {
                     file,
+                    model: configuration.model,
                     language: options?.language,
                     translate: options?.translate,
                 },

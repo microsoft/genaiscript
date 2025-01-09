@@ -5,6 +5,7 @@
             "id": "openai",
             "detail": "OpenAI (or compatible)",
             "bearerToken": true,
+            "transcribe": true,
             "aliases": {
                 "large": "gpt-4o",
                 "small": "gpt-4o-mini",

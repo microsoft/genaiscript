@@ -1,4 +1,5 @@
 // Import necessary functions and types from other modules
+import { resolveBufferLike } from "./bufferlike"
 import { IMAGE_DETAIL_LOW_HEIGHT, IMAGE_DETAIL_LOW_WIDTH } from "./constants"
 import { resolveFileBytes } from "./file"
 import { TraceOptions } from "./trace"
@@ -29,18 +30,11 @@ export async function imageEncodeForLLM(
 
     // https://platform.openai.com/docs/guides/vision/calculating-costs#managing-images
     // If the URL is a string, resolve it to a data URI
-    if (typeof url === "string")
-        url = Buffer.from(await resolveFileBytes(url, options))
-    else if (url instanceof Blob) url = Buffer.from(await url.arrayBuffer())
-    else if (url instanceof ReadableStream) {
-        const stream: ReadableStream = url
-        url = Buffer.from(await new Response(stream).arrayBuffer())
-    } else if (url instanceof ArrayBuffer) url = Buffer.from(url)
-
+    const buffer = await resolveBufferLike(url)
     // Read the image using Jimp
     const { Jimp, HorizontalAlign, VerticalAlign, ResizeStrategy } =
         await import("jimp")
-    const img = await Jimp.read(url)
+    const img = await Jimp.read(buffer)
     const { width, height } = img
     if (crop) {
         const x = Math.max(0, Math.min(width, crop.x ?? 0))

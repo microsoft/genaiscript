@@ -141,7 +141,8 @@ export type PullModelFunction = (
 ) => Promise<{ ok: boolean; error?: SerializedError }>
 
 export type CreateTranscriptionRequest = {
-    file: BufferLike
+    file: Blob
+    model: string
 } & TranscriptionOptions
 
 export type TranscribeFunction = (

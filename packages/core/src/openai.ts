@@ -19,7 +19,12 @@ import {
     TOOL_URL,
 } from "./constants"
 import { estimateTokens } from "./tokens"
-import { ChatCompletionHandler, LanguageModel, PullModelFunction } from "./chat"
+import {
+    ChatCompletionHandler,
+    CreateTranscriptionRequest,
+    LanguageModel,
+    PullModelFunction,
+} from "./chat"
 import { RequestError, errorMessage, serializeError } from "./error"
 import { createFetch, iterateBody, traceFetchPost } from "./fetch"
 import { parseModelIdentifier } from "./models"
@@ -44,6 +49,7 @@ import {
     LanguageModelConfiguration,
     LanguageModelInfo,
 } from "./server/messages"
+import prettyBytes from "pretty-bytes"
 
 export function getConfigHeaders(cfg: LanguageModelConfiguration) {
     let { token, type, base, provider } = cfg
@@ -82,8 +88,6 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
     const {
         requestOptions,
         partialCb,
-        cache: cacheOrName,
-        cacheName,
         retry,
         retryDelay,
         maxDelay,
@@ -91,8 +95,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
         inner,
     } = options
     const { headers = {}, ...rest } = requestOptions || {}
-    const { token, source, ...cfgNoToken } = cfg
-    const { provider, model } = parseModelIdentifier(req.model)
+    const { model } = parseModelIdentifier(req.model)
     const { encode: encoder } = await resolveTokenEncoder(model)
 
     const postReq = structuredClone({
@@ -477,7 +480,7 @@ const pullModel: PullModelFunction = async (modelId, options) => {
             return { ok: false, status: resPull.status }
         }
         0
-        for await (const chunk of iterateBody(resPull, { cancellationToken }))
+        for await (const {} of iterateBody(resPull, { cancellationToken }))
             process.stderr.write(".")
         process.stderr.write("\n")
         return { ok: true }
@@ -488,9 +491,47 @@ const pullModel: PullModelFunction = async (modelId, options) => {
     }
 }
 
+const transcribe = async (
+    req: CreateTranscriptionRequest,
+    cfg: LanguageModelConfiguration,
+    options: TraceOptions & CancellationOptions
+): Promise<TranscriptionResult> => {
+    const { trace } = options || {}
+    const fetch = await createFetch(options)
+    try {
+        logVerbose(`${cfg.provider}: transcribe with ${cfg.model}`)
+        const route = req.translate ? "translations" : "transcriptions"
+        const url = `${cfg.base}/audio/${route}`
+        trace.itemValue(`url`, `[${url}](${url})`)
+        const body = new FormData()
+        body.append("file", req.file)
+        body.append("model", req.model)
+        body.append("response_format", "verbose_json")
+        if (req.temperature)
+            body.append("temperature", req.temperature.toString())
+        if (req.language) body.append("language", req.language)
+
+        const res = await fetch(url, {
+            method: "POST",
+            headers: {
+                ...getConfigHeaders(cfg),
+                ContentType: "multipart/form-data",
+                Accept: "application/json",
+            },
+            body: body,
+        })
+        const j = await res.json()
+        return j
+    } catch (e) {
+        logError(e)
+        trace?.error(e)
+        return { text: undefined, error: serializeError(e) }
+    }
+}
+
 export function LocalOpenAICompatibleModel(
     providerId: string,
-    options: { listModels?: boolean; pullModel?: boolean }
+    options: { listModels?: boolean; pullModel?: boolean; transcribe?: boolean }
 ) {
     return Object.freeze<LanguageModel>(
         deleteUndefinedValues({
@@ -498,6 +539,7 @@ export function LocalOpenAICompatibleModel(
             id: providerId,
             listModels: options?.listModels ? listModels : undefined,
             pullModel: options?.pullModel ? pullModel : undefined,
+            transcribe: options?.transcribe ? transcribe : undefined,
         })
     )
 }

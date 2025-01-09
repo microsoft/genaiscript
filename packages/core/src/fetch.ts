@@ -1,4 +1,3 @@
-import crossFetch from "cross-fetch"
 import wrapFetch from "fetch-retry"
 import { MarkdownTrace, TraceOptions } from "./trace"
 import {
@@ -53,9 +52,8 @@ export async function createFetch(
 
     // We enrich crossFetch with the proxy.
     const crossFetchWithProxy: typeof fetch = agent
-        ? (url, options) =>
-              crossFetch(url, { ...(options || {}), agent } as any)
-        : crossFetch
+        ? (url, options) => global.fetch(url, { ...(options || {}), agent } as any)
+        : global.fetch
 
     // Return the default fetch if no retry status codes are specified
     if (!retryOn?.length) return crossFetchWithProxy
@@ -66,18 +64,21 @@ export async function createFetch(
         retries,
         retryDelay: (attempt, error, response) => {
             const code: string = (error as any)?.code as string
-            if (code === "ECONNRESET" ||
+            if (
+                code === "ECONNRESET" ||
                 code === "ENOTFOUND" ||
-                cancellationToken?.isCancellationRequested)
+                cancellationToken?.isCancellationRequested
+            )
                 // Return undefined for fatal errors or cancellations to stop retries
                 return undefined
 
             const message = errorMessage(error)
             const status = statusToMessage(response)
-            const delay = Math.min(
-                maxDelay,
-                Math.pow(FETCH_RETRY_GROWTH_FACTOR, attempt) * retryDelay
-            ) *
+            const delay =
+                Math.min(
+                    maxDelay,
+                    Math.pow(FETCH_RETRY_GROWTH_FACTOR, attempt) * retryDelay
+                ) *
                 (1 + Math.random() / 20) // 5% jitter for delay randomization
             const msg = toStringList(
                 `retry #${attempt + 1} in ${renderWithPrecision(Math.floor(delay) / 1000, 1)}s`,
