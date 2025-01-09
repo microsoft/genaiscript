@@ -56,6 +56,7 @@ export const HIGHLIGHT_LENGTH = 4000
 export const SMALL_MODEL_ID = "small"
 export const LARGE_MODEL_ID = "large"
 export const VISION_MODEL_ID = "vision"
+export const TRANSCRIPTION_MODEL_ID = "transcription"
 export const DEFAULT_FENCE_FORMAT: FenceFormat = "xml"
 export const DEFAULT_TEMPERATURE = 0.8
 export const BUILTIN_PREFIX = "_builtin/"
@@ -195,6 +196,7 @@ export const MODEL_PROVIDERS = Object.freeze<
         bearerToken?: boolean
         listModels?: boolean
         pullModel?: boolean
+        transcribe?: boolean
         aliases?: Record<string, string>
     }[]
 >(CONFIGURATION_DATA.providers)
@@ -286,6 +288,7 @@ export const GIT_LOG_COUNT = 10
 export const MAX_TOOL_CONTENT_TOKENS = 4000
 
 export const AGENT_MEMORY_CACHE_NAME = "agent_memory"
+export const TRANSCRIPTION_MEMORY_CACHE_NAME = "transcriptions"
 
 export const AZURE_CONTENT_SAFETY_PROMPT_SHIELD_MAX_LENGTH = 9000
 export const AZURE_CONTENT_SAFETY_PROMPT_SHIELD_MAX_DOCUMENTS = 9000

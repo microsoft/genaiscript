@@ -62,6 +62,7 @@ export async function hash(value: any, options?: HashOptions) {
                 h.push(sep)
                 await append(c)
             }
+        else if (v instanceof Uint8Array) h.push(v)
         else if (v instanceof Buffer) h.push(new Uint8Array(v))
         else if (v instanceof ArrayBuffer) h.push(new Uint8Array(v))
         else if (v instanceof Blob)

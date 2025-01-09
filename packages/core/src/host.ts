@@ -2,7 +2,12 @@ import { CancellationOptions, CancellationToken } from "./cancellation"
 import { LanguageModel } from "./chat"
 import { Progress } from "./progress"
 import { MarkdownTrace, TraceOptions } from "./trace"
-import { AzureCredentialsType, LanguageModelConfiguration, Project, ResponseStatus } from "./server/messages"
+import {
+    AzureCredentialsType,
+    LanguageModelConfiguration,
+    Project,
+    ResponseStatus,
+} from "./server/messages"
 import { HostConfiguration } from "./hostconfiguration"
 
 // this is typically an instance of TextDecoder
@@ -135,7 +140,10 @@ export interface RuntimeHost extends Host {
     azureToken: AzureTokenResolver
     modelAliases: Readonly<ModelConfigurations>
 
-    pullModel(model: string, options?: TraceOptions): Promise<ResponseStatus>
+    pullModel(
+        model: string,
+        options?: TraceOptions & CancellationOptions
+    ): Promise<ResponseStatus>
 
     setModelAlias(
         source: "env" | "cli" | "config" | "script",

@@ -178,6 +178,7 @@ export class JSONLineCache<K, V> extends MemoryCache<K, V> {
      * @returns An instance of JSONLineCache
      */
     static byName<K, V>(name: string): JSONLineCache<K, V> {
+        if (!name) return undefined
         name = name.replace(/[^a-z0-9_]/gi, "_") // Sanitize name
         const key = "workspacecache." + name
         if (host.userState[key]) return host.userState[key] // Return if exists

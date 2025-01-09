@@ -56,6 +56,10 @@
                         "type": "boolean",
                         "description": "Indicates if pulling models is supported"
                     },
+                    "transcribe": {
+                        "type": "boolean",
+                        "description": "Indicates if speech transcription is supported"
+                    },
                     "openaiCompatibility": {
                         "type": "string",
                         "description": "Uses OpenAI API compatibility layer documentation URL"
@@ -107,6 +111,10 @@
                             "embeddings": {
                                 "type": "string",
                                 "description": "Alias for embeddings model"
+                            },
+                            "transcription": {
+                                "type": "string",
+                                "description": "Alias for transcription model"
                             }
                         }
                     }

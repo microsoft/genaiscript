@@ -29,8 +29,13 @@ import {
 } from "node:path"
 import { LanguageModel } from "./chat"
 import { NotSupportedError } from "./error"
-import { LanguageModelConfiguration, Project, ResponseStatus } from "./server/messages"
+import {
+    LanguageModelConfiguration,
+    Project,
+    ResponseStatus,
+} from "./server/messages"
 import { defaultModelConfigurations } from "./llms"
+import { CancellationToken } from "./cancellation"
 
 // Function to create a frozen object representing Node.js path methods
 // This object provides utility methods for path manipulations
@@ -69,7 +74,7 @@ export class TestHost implements RuntimeHost {
     }
     async pullModel(
         model: string,
-        options?: TraceOptions
+        options?: TraceOptions & CancellationToken
     ): Promise<ResponseStatus> {
         return { ok: true }
     }

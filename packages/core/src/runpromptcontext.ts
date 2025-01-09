@@ -59,6 +59,8 @@ import {
     TOKEN_NO_ANSWER,
     MODEL_PROVIDER_AICI,
     DOCS_DEF_FILES_IS_EMPTY_URL,
+    TRANSCRIPTION_MEMORY_CACHE_NAME,
+    TRANSCRIPTION_MODEL_ID,
 } from "./constants"
 import { renderAICI } from "./aici"
 import { resolveSystems, resolveTools } from "./systems"
@@ -79,6 +81,11 @@ import { agentAddMemory, agentQueryMemory } from "./agent"
 import { YAMLStringify } from "./yaml"
 import { Project } from "./server/messages"
 import { parametersToVars } from "./vars"
+import { resolveBufferLike } from "./bufferlike"
+import { fileTypeFromBuffer } from "file-type"
+import prettyBytes from "pretty-bytes"
+import { JSONLineCache } from "./cache"
+import { convertToAudioBlob } from "./ffmpeg"
 
 export function createChatTurnGenerationContext(
     options: GenerationOptions,
@@ -625,6 +632,97 @@ export function createChatGenerationContext(
         return p
     }
 
+    const transcribe = async (
+        audio: string,
+        options?: TranscriptionOptions
+    ): Promise<TranscriptionResult> => {
+        const { cache, ...rest } = options || {}
+        const transcriptionTrace = trace.startTraceDetails("🎤 transcribe")
+        try {
+            const conn: ModelConnectionOptions = {
+                model: options?.model || TRANSCRIPTION_MODEL_ID,
+            }
+            const { info, configuration } = await resolveModelConnectionInfo(
+                conn,
+                {
+                    trace: transcriptionTrace,
+                    cancellationToken,
+                    token: true,
+                }
+            )
+            if (info.error) throw new Error(info.error)
+            if (!configuration) throw new Error("model configuration not found")
+            checkCancelled(cancellationToken)
+            const { ok } = await runtimeHost.pullModel(conn.model, {
+                trace: transcriptionTrace,
+                cancellationToken,
+            })
+            if (!ok) throw new Error(`failed to pull model ${conn}`)
+            checkCancelled(cancellationToken)
+            const { transcribe } = await resolveLanguageModel(
+                configuration.provider
+            )
+            if (!transcribe)
+                throw new Error("model driver not found for " + info.model)
+            const file = await convertToAudioBlob(audio, {
+                trace: transcriptionTrace,
+            })
+            const update: () => Promise<TranscriptionResult> = async () => {
+                trace.itemValue(`model`, configuration.model)
+                trace.itemValue(`file size`, prettyBytes(file.size))
+                trace.itemValue(`file type`, file.type)
+                const res = await transcribe(
+                    {
+                        file,
+                        model: configuration.model,
+                        language: options?.language,
+                        translate: options?.translate,
+                    },
+                    configuration,
+                    {
+                        trace: transcriptionTrace,
+                        cancellationToken,
+                    }
+                )
+                return res
+            }
+
+            let res: TranscriptionResult
+            const _cache = JSONLineCache.byName<
+                { file: Blob } & TranscriptionOptions,
+                TranscriptionResult
+            >(
+                cache === true
+                    ? TRANSCRIPTION_MEMORY_CACHE_NAME
+                    : typeof cache === "string"
+                      ? cache
+                      : undefined
+            )
+            if (cache) {
+                const hit = await _cache.getOrUpdate(
+                    { file, ...rest },
+                    update,
+                    (res) => !res.error
+                )
+                trace.itemValue(`cache ${hit.cached ? "hit" : "miss"}`, hit.key)
+                res = hit.value
+            } else res = await update()
+            trace.fence(res.text, "markdown")
+            if (res.error) trace.error(errorMessage(res.error))
+            if (res.segments) trace.fence(res.segments, "yaml")
+            return res
+        } catch (e) {
+            logError(e)
+            transcriptionTrace.error(e)
+            return {
+                text: undefined,
+                error: serializeError(e),
+            } satisfies TranscriptionResult
+        } finally {
+            transcriptionTrace.endDetails()
+        }
+    }
+
     const runPrompt = async (
         generator: string | PromptGenerator,
         runOptions?: PromptGeneratorOptions
@@ -639,11 +737,15 @@ export function createChatGenerationContext(
             genOptions.fallbackTools = undefined
             genOptions.inner = true
             genOptions.trace = runTrace
-            const { info } = await resolveModelConnectionInfo(genOptions, {
-                trace,
-                token: true,
-            })
+            const { info, configuration } = await resolveModelConnectionInfo(
+                genOptions,
+                {
+                    trace: runTrace,
+                    token: true,
+                }
+            )
             if (info.error) throw new Error(info.error)
+            if (!configuration) throw new Error("model configuration not found")
             genOptions.model = info.model
             genOptions.stats = genOptions.stats.createChild(
                 genOptions.model,
@@ -652,6 +754,7 @@ export function createChatGenerationContext(
 
             const { ok } = await runtimeHost.pullModel(genOptions.model, {
                 trace: runTrace,
+                cancellationToken,
             })
             if (!ok) throw new Error(`failed to pull model ${genOptions.model}`)
 
@@ -700,6 +803,7 @@ export function createChatGenerationContext(
                     flexTokens: genOptions.flexTokens,
                     fenceFormat: genOptions.fenceFormat,
                     trace: runTrace,
+                    cancellationToken,
                 })
 
                 schemas = scs
@@ -796,22 +900,12 @@ export function createChatGenerationContext(
                 messages.push(toChatCompletionUserMessage("", images))
 
             finalizeMessages(messages, { fileOutputs })
-            const connection = await resolveModelConnectionInfo(genOptions, {
-                trace: runTrace,
-                token: true,
-            })
-            checkCancelled(cancellationToken)
-            if (!connection.configuration)
-                throw new Error(
-                    "missing model connection information for " +
-                        genOptions.model
-                )
             const { completer } = await resolveLanguageModel(
-                connection.configuration.provider
+                configuration.provider
             )
-            checkCancelled(cancellationToken)
             if (!completer)
-                throw new Error("model driver not found for " + connection.info)
+                throw new Error("model driver not found for " + info.model)
+            checkCancelled(cancellationToken)
 
             const modelConcurrency =
                 options.modelConcurrency?.[genOptions.model] ??
@@ -822,7 +916,7 @@ export function createChatGenerationContext(
             )
             const resp = await modelLimit(() =>
                 executeChatSession(
-                    connection.configuration,
+                    configuration,
                     cancellationToken,
                     messages,
                     tools,
@@ -875,6 +969,7 @@ export function createChatGenerationContext(
         defFileMerge,
         prompt,
         runPrompt,
+        transcribe,
     })
 
     return ctx

@@ -1,0 +1,62 @@
+---
+title: Audio Transcription
+description: Describe how to transcribe an audio/video file
+sidebar:
+    order: 40
+---
+
+GenAIScript supports transcription and translations from OpenAI like APIs.
+
+- [ ] TODO: Add support for Huggign Face Transformers.js needed
+
+```js "transcribe"
+const { text } = await transcribe("path/to/audio.mp3")
+```
+
+## File formats
+
+The transcription API will automatically use [ffmpeg](https://ffmpeg.org/)
+to convert videos to audio files.
+
+You need to install ffmpeg on your system. If the `FFMPEG_PATH` environment variable is set,
+GenAIScript will use it as the full path to the ffmpeg executable.
+Otherwise, it will attempt to call ffmpeg directly
+(so it should be in your PATH).
+
+## model
+
+By default, the API uses the `transcription` [model alias](/genaiscript/reference/model-aliases) to transcribe the audio.
+You can also specify a different model alias using the `model` option.
+
+```js "openai:whisper-1"
+const { text } = await transcribe("...", { model: "openai:whisper-1" })
+```
+
+## Segments
+
+For models that support it, you can retreive the individual segments.
+
+```js "{ segments }"
+const { segments } = await transcribe("...")
+for (const segment of segments) {
+    const { start, text } = segment
+    console.log(`[${start}] ${text}`)
+}
+```
+
+## Translation
+
+Some models also support transcribing and translating to English in one pass. For this case,
+set the `translate: true` flag.
+
+```js "translate: true"
+const { text } = await transcribe("...", { translate: true })
+```
+
+## Cache
+
+You can cache the transcription results by setting the `cache` option to `true` (or a custom name).
+
+```js "cache: true"
+const { text } = await transcribe("...", { cache: true })
+```

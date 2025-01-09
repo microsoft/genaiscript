@@ -5,13 +5,15 @@
             "id": "openai",
             "detail": "OpenAI (or compatible)",
             "bearerToken": true,
+            "transcribe": true,
             "aliases": {
                 "large": "gpt-4o",
                 "small": "gpt-4o-mini",
                 "vision": "gpt-4o",
                 "embeddings": "text-embedding-3-small",
                 "reasoning": "o1",
-                "reasoning_small": "o1-mini"
+                "reasoning_small": "o1-mini",
+                "transcription": "whisper-1"
             }
         },
         {
