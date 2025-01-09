@@ -111,6 +111,10 @@
                             "embeddings": {
                                 "type": "string",
                                 "description": "Alias for embeddings model"
+                            },
+                            "transcription": {
+                                "type": "string",
+                                "description": "Alias for transcription model"
                             }
                         }
                     }

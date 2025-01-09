@@ -60,6 +60,7 @@ import {
     MODEL_PROVIDER_AICI,
     DOCS_DEF_FILES_IS_EMPTY_URL,
     TRANSCRIPTION_MEMORY_CACHE_NAME,
+    TRANSCRIPTION_MODEL_ID,
 } from "./constants"
 import { renderAICI } from "./aici"
 import { resolveSystems, resolveTools } from "./systems"
@@ -632,14 +633,14 @@ export function createChatGenerationContext(
     }
 
     const transcribe = async (
-        audio: BufferLike,
+        audio: string,
         options?: TranscriptionOptions
     ): Promise<TranscriptionResult> => {
         const { cache, ...rest } = options || {}
         const transcriptionTrace = trace.startTraceDetails("🎤 transcribe")
         try {
             const conn: ModelConnectionOptions = {
-                model: options?.model || "transcribe",
+                model: options?.model || TRANSCRIPTION_MODEL_ID,
             }
             const { info, configuration } = await resolveModelConnectionInfo(
                 conn,

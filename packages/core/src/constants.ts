@@ -56,6 +56,7 @@ export const HIGHLIGHT_LENGTH = 4000
 export const SMALL_MODEL_ID = "small"
 export const LARGE_MODEL_ID = "large"
 export const VISION_MODEL_ID = "vision"
+export const TRANSCRIPTION_MODEL_ID = "transcription"
 export const DEFAULT_FENCE_FORMAT: FenceFormat = "xml"
 export const DEFAULT_TEMPERATURE = 0.8
 export const BUILTIN_PREFIX = "_builtin/"

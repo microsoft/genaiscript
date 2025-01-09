@@ -13,7 +13,7 @@
                 "embeddings": "text-embedding-3-small",
                 "reasoning": "o1",
                 "reasoning_small": "o1-mini",
-                "transcribe": "whisper-1"
+                "transcription": "whisper-1"
             }
         },
         {
