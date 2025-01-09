@@ -11,3 +11,6 @@ for (const segment of res2.segments) {
     console.log(`[${start}] ${text}`)
 }
 console.log(res2)
+
+const resv = await transcribe("src/audio/helloworld.mp4")
+console.log(resv)

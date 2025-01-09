@@ -84,7 +84,7 @@ import { resolveBufferLike } from "./bufferlike"
 import { fileTypeFromBuffer } from "file-type"
 import prettyBytes from "pretty-bytes"
 import { JSONLineCache } from "./cache"
-import { string } from "mathjs"
+import { convertToAudioBlob } from "./ffmpeg"
 
 export function createChatTurnGenerationContext(
     options: GenerationOptions,
@@ -666,9 +666,8 @@ export function createChatGenerationContext(
             const data = await resolveBufferLike(audio, {
                 trace: transcriptionTrace,
             })
-            const mimeType = await fileTypeFromBuffer(data)
+            const file = await convertToAudioBlob(data)
             const update: () => Promise<TranscriptionResult> = async () => {
-                const file = new Blob([data], { type: mimeType.mime })
                 trace.itemValue(`model`, configuration.model)
                 trace.itemValue(`file size`, prettyBytes(file.size))
                 trace.itemValue(`file type`, file.type)
@@ -690,7 +689,7 @@ export function createChatGenerationContext(
 
             let res: TranscriptionResult
             const _cache = JSONLineCache.byName<
-                { data: Buffer; type: string } & TranscriptionOptions,
+                { file: Blob } & TranscriptionOptions,
                 TranscriptionResult
             >(
                 cache === true
@@ -701,7 +700,7 @@ export function createChatGenerationContext(
             )
             if (cache) {
                 const hit = await _cache.getOrUpdate(
-                    { data, type: mimeType.mime, ...rest },
+                    { file, ...rest },
                     update,
                     (res) => !res.error
                 )
