@@ -22,7 +22,7 @@ import {
     appendUserMessage,
 } from "./chat"
 import { errorMessage } from "./error"
-import { tidyData } from "./tidy"
+import { sliceData, tidyData } from "./tidy"
 import { dedent } from "./indent"
 import { ChatCompletionMessageParam } from "./chattypes"
 import { resolveTokenEncoder } from "./encoders"
@@ -339,6 +339,14 @@ async function renderDefDataNode(n: PromptDefDataNode): Promise<string> {
     else if (!format) format = "yaml"
 
     if (Array.isArray(data)) data = tidyData(data as object[], n)
+    else if (
+        typeof data === "object" &&
+        (n.sliceHead || n.sliceTail || n.sliceSample)
+    ) {
+        const entries = Object.entries(data)
+        const sliced = sliceData(entries, n)
+        data = Object.fromEntries(sliced)
+    }
     if (query) data = await GROQEvaluate(query, data)
 
     let text: string

@@ -253,9 +253,9 @@ defData("DATA", csv, { format: "yaml" })
 The `defData` function also supports functions to slice the input rows and columns.
 
 - `headers`, list of column names to include
-- `sliceHead`, number of rows to include from the beginning
-- `sliceTail`, number of rows to include from the end
-- `sliceSample`, number of rows to pick at random
+- `sliceHead`, number of rows or fields to include from the beginning
+- `sliceTail`, number of rows or fields to include from the end
+- `sliceSample`, number of rows or fields to pick at random
 - `distinct`, list of column names to deduplicate the data based on
 - `query`, a [jq](https://jqlang.github.io/jq/) query to filter the data
 
