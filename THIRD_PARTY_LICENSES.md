@@ -2864,7 +2864,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.89.0
+ - genaiscript-vscode@1.89.2
 
 This package contains the following license:
 
@@ -3379,6 +3379,24 @@ FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
 COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+-----------
+
+The following npm package may be included in this product:
+
+ - fluent-ffmpeg@2.1.3
+
+This package contains the following license:
+
+(The MIT License)
+
+Copyright (c) 2011-2015 The fluent-ffmpeg contributors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the 'Software'), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 -----------
 
@@ -7057,6 +7075,16 @@ http://github.com/mscdex/ssh2/raw/master/LICENSE
 
 The following npm package may be included in this product:
 
+ - async@0.2.10
+
+This package contains the following license:
+
+https://github.com/caolan/async/raw/master/LICENSE
+
+-----------
+
+The following npm package may be included in this product:
+
  - cpu-features@0.0.10
 
 This package contains the following license:
@@ -7925,10 +7953,10 @@ The following npm packages may be included in this product:
  - @tokenizer/token@0.3.0
  - agent-base@6.0.2
  - eastasianwidth@0.2.0
- - genaiscript-core-internal@1.89.0
- - genaiscript-sample@1.89.0
- - genaiscript-web@1.89.0
- - genaiscript@1.89.0
+ - genaiscript-core-internal@1.89.2
+ - genaiscript-sample@1.89.2
+ - genaiscript-web@1.89.2
+ - genaiscript@1.89.2
  - https-proxy-agent@5.0.1
  - isarray@1.0.0
  - javascript-natural-sort@0.7.1
@@ -10189,6 +10217,7 @@ The following npm packages may be included in this product:
  - semver@7.6.3
  - tar@6.2.1
  - tar@7.4.3
+ - which@1.3.1
  - which@2.0.2
  - wrappy@1.0.2
  - yallist@4.0.0
