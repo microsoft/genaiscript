@@ -25,28 +25,13 @@ for more.
 
 :::
 
-## Installation
-
-Following the [installation instructions](https://huggingface.co/docs/transformers.js/installation), 
-we add the [@huggingface/transformers](https://www.npmjs.com/package/@huggingface/transformers) to the current project.
-
-```bash
-npm install @huggingface/transformers
-```
-
-You can also install this library globally to be able to use on any project
-
-```bash "-g"
-npm install -g @huggingface/transformers
-```
-
 ## Import the pipeline
 
 The snippet below imports the Transformers.js library and loads the summarizer pipeline and model.
 You can specify a model name or let the library pick the latest and greatest.
 
 ```js
-import { pipeline } from "@huggingface/transformers"
+import { pipeline } from "genaiscript/runtime"
 const summarizer = await pipeline("summarization")
 ```
 
