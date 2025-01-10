@@ -20,6 +20,8 @@ We will build a script that generates the description using the transcript and v
 ## Transcript
 
 We use the `transcribe` function to generate the transcript. It will use the `transcription` model alias to compute a transcription.
+For OpenAI, it defaults to `openai:whisper-1`.
+
 Transcriptions are useful to reduce hallucations of LLMs when analyzing images and also provides
 good timestemp candidates to screenshot the video stream.
 
