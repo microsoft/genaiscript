@@ -86,6 +86,7 @@ import { JSONLineCache } from "./cache"
 import { videoExtractAudio } from "./ffmpeg"
 import { BufferToBlob } from "./bufferlike"
 import { host } from "./host"
+import { srtVttRender } from "./transcription"
 
 export function createChatTurnGenerationContext(
     options: GenerationOptions,
@@ -659,10 +660,10 @@ export function createChatGenerationContext(
             })
             if (!ok) throw new Error(`failed to pull model ${conn}`)
             checkCancelled(cancellationToken)
-            const { transcribe } = await resolveLanguageModel(
+            const { transcriber } = await resolveLanguageModel(
                 configuration.provider
             )
-            if (!transcribe)
+            if (!transcriber)
                 throw new Error("model driver not found for " + info.model)
             const audioFile = await videoExtractAudio(audio, {
                 trace: transcriptionTrace,
@@ -672,7 +673,7 @@ export function createChatGenerationContext(
                 trace.itemValue(`model`, configuration.model)
                 trace.itemValue(`file size`, prettyBytes(file.size))
                 trace.itemValue(`file type`, file.type)
-                const res = await transcribe(
+                const res = await transcriber(
                     {
                         file,
                         model: configuration.model,
@@ -685,6 +686,7 @@ export function createChatGenerationContext(
                         cancellationToken,
                     }
                 )
+                srtVttRender(res)
                 return res
             }
 

@@ -1,4 +1,6 @@
 const transcript = await transcribe("src/audio/helloworld.mp4")
+console.log(transcript.srt)
+console.log(transcript.vtt)
 console.log(JSON.stringify(transcript, null, 2))
 const segments = transcript.segments
 def("TRANSCRIPT", segments.map((s, i) => `${i + 1}: ${s.text}`).join("\n"), {

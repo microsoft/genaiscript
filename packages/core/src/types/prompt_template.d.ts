@@ -2757,6 +2757,17 @@ interface TranscriptionResult {
      * Error if any
      */
     error?: SerializedError
+
+    /**
+     * SubRip subtitle string from segments
+     */
+    srt?: string
+
+    /**
+     * WebVTT subtitle string from segments
+     */
+    vtt?: string
+
     /**
      * Individual segments
      */
