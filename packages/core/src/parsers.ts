@@ -29,7 +29,7 @@ import { createDiff, llmifyDiff } from "./diff"
 import { tidyData } from "./tidy"
 import { hash } from "./crypto"
 import { GROQEvaluate } from "./groq"
-import { extractAllFrames } from "./ffmpeg"
+import { videoExtractAudio, videoExtractFrames } from "./ffmpeg"
 
 export async function createParsers(options: {
     trace: MarkdownTrace
@@ -126,6 +126,7 @@ export async function createParsers(options: {
         unfence: unfence,
         GROQ: GROQEvaluate,
         videoFrames: async (file, options) =>
-            await extractAllFrames(file, { ...(options || {}), trace }),
+            await videoExtractFrames(file, { ...(options || {}), trace }),
+        videoAudio: async (file) => await videoExtractAudio(file, { trace }),
     })
 }

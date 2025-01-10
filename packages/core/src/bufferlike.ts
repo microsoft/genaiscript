@@ -1,5 +1,6 @@
 import { resolveFileBytes } from "./file"
 import { TraceOptions } from "./trace"
+import { fileTypeFromBuffer } from "file-type"
 
 export async function resolveBufferLike(
     bufferLike: BufferLike,
@@ -24,4 +25,11 @@ export async function resolveBufferLike(
             (bufferLike as WorkspaceFile).encoding || "utf-8"
         )
     throw new Error("Unsupported buffer-like object")
+}
+
+export async function BufferToBlob(buffer: Buffer) {
+    const mime = await fileTypeFromBuffer(buffer)
+    return new Blob([buffer], {
+        type: mime?.mime || "application/octet-stream",
+    })
 }

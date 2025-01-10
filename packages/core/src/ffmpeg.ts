@@ -23,23 +23,23 @@ async function ffmpeg(options?: TraceOptions) {
         })
 }
 
-export async function convertToAudioBlob(
+export async function videoExtractAudio(
     file: string,
     options: { forceConversion?: boolean } & TraceOptions
-): Promise<Blob> {
+): Promise<Buffer> {
     const { forceConversion } = options
     if (!forceConversion) {
         const mime = lookupMime(file)
         if (/^audio/.test(mime)) {
             const buffer = await host.readFile(file)
-            return new Blob([buffer], { type: mime })
+            return Buffer.from(buffer)
         }
     }
 
     // ffmpeg -i helloworld.mp4 -q:a 0 -map a output.mp3
     return ffmpegLimit(
         async () =>
-            new Promise<Blob>(async (resolve, reject) => {
+            new Promise<Buffer>(async (resolve, reject) => {
                 const outputStream = new PassThrough()
                 const chunks: Buffer[] = []
                 outputStream.on("data", (chunk) => chunks.push(chunk))
@@ -47,8 +47,7 @@ export async function convertToAudioBlob(
                     await ffmpeg(options) // keep this; it "unplugs" the output stream so that the error is not raised.
                     const buffer = Buffer.concat(chunks)
                     if (!buffer.length) reject(new Error("conversion failed"))
-                    const mime = await fileTypeFromBuffer(buffer)
-                    resolve(new Blob([buffer], { type: mime.mime }))
+                    resolve(buffer)
                 })
                 outputStream.on("error", (e) => {
                     logError(e)
@@ -65,7 +64,7 @@ export async function convertToAudioBlob(
     )
 }
 
-export async function extractAllFrames(
+export async function videoExtractFrames(
     videoPath: string,
     options: {
         timestamps?: number[]

@@ -1,15 +1,15 @@
 import { fileTypeFromBuffer } from "file-type"
 import { writeFile } from "node:fs/promises"
-import { convertToAudioBlob, extractAllFrames } from "../../core/src/ffmpeg"
 import { basename, dirname } from "node:path"
+import { videoExtractAudio, videoExtractFrames } from "../../core/src/ffmpeg"
 
 export async function extractAudio(file: string, options: { force: boolean }) {
     const { force } = options || {}
-    const res = await convertToAudioBlob(file, { forceConversion: force })
+    const res = await videoExtractAudio(file, { forceConversion: force })
 
     const fn = file + ".wav"
     console.log(`transcoded file to ${fn}`)
-    await writeFile(fn, Buffer.from(await res.arrayBuffer()))
+    await writeFile(fn, Buffer.from(res))
 }
 
 export async function extractVideoFrames(
@@ -23,7 +23,7 @@ export async function extractVideoFrames(
 ) {
     const { out, ...rest } = options || {}
     if (!rest.count && !rest.timestamps?.length) rest.count = 3
-    const frames = await extractAllFrames(file, {
+    const frames = await videoExtractFrames(file, {
         folder: out,
         ...rest,
     })
