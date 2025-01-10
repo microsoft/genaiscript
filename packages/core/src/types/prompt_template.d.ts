@@ -557,7 +557,7 @@ interface WorkspaceFile {
     /**
      * Encoding of the content
      */
-    encoding?: 'base64'
+    encoding?: "base64"
 
     /**
      * Content of the file.
@@ -1396,9 +1396,129 @@ interface Tokenizers {
 }
 
 interface HashOptions {
-    algorithm?: "sha-1" | "sha-256"
+    /**
+     * Algorithm used for hashing
+     */
+    algorithm?: "sha-256"
+    /**
+     * Trim hash to this number of character
+     */
     length?: number
+    /**
+     * Include genaiscript version in the hash
+     */
     version?: boolean
+    /**
+     * Optional salting of the hash
+     */
+    salt?: string
+    /**
+     * Read the content of workspace files object into the hash
+     */
+    readWorkspaceFiles?: boolean
+}
+
+interface VideoExtractFramesOptions {
+    timestamps?: number[] | string[]
+    count?: number
+    size?: string
+    transcript?: TranscriptionResult
+}
+
+interface VideoProbeResult {
+    streams: {
+        index: number
+        codec_name: string
+        codec_long_name: string
+        profile: string
+        codec_type: string
+        codec_tag_string: string
+        codec_tag: string
+        width?: number
+        height?: number
+        coded_width?: number
+        coded_height?: number
+        closed_captions?: number
+        film_grain?: number
+        has_b_frames?: number
+        sample_aspect_ratio?: string
+        display_aspect_ratio?: string
+        pix_fmt?: string
+        level?: number
+        color_range?: string
+        color_space?: string
+        color_transfer?: string
+        color_primaries?: string
+        chroma_location?: string
+        field_order?: string
+        refs?: number
+        is_avc?: string
+        nal_length_size?: number
+        id: string
+        r_frame_rate: string
+        avg_frame_rate: string
+        time_base: string
+        start_pts: number
+        start_time: number
+        duration_ts: number
+        duration: number
+        bit_rate: number
+        max_bit_rate: string
+        bits_per_raw_sample: number | string
+        nb_frames: number | string
+        nb_read_frames?: string
+        nb_read_packets?: string
+        extradata_size?: number
+        tags?: {
+            creation_time: string
+            language?: string
+            handler_name: string
+            vendor_id?: string
+            encoder?: string
+        }
+        disposition?: {
+            default: number
+            dub: number
+            original: number
+            comment: number
+            lyrics: number
+            karaoke: number
+            forced: number
+            hearing_impaired: number
+            visual_impaired: number
+            clean_effects: number
+            attached_pic: number
+            timed_thumbnails: number
+            captions: number
+            descriptions: number
+            metadata: number
+            dependent: number
+            still_image: number
+        }
+        sample_fmt?: string
+        sample_rate?: number
+        channels?: number
+        channel_layout?: string
+        bits_per_sample?: number | string
+    }[]
+    format: {
+        filename: string
+        nb_streams: number
+        nb_programs: number
+        format_name: string
+        format_long_name: string
+        start_time: number
+        duration: number
+        size: number
+        bit_rate: number
+        probe_score: number
+        tags: {
+            major_brand: string
+            minor_version: string
+            compatible_brands: string
+            creation_time: string
+        }
+    }
 }
 
 interface Parsers {
@@ -1626,6 +1746,28 @@ interface Parsers {
      * @param language
      */
     unfence(text: string, language: string): string
+
+    /**
+     * Extracts metadata information from a video file using ffprobe
+     * @param filename
+     */
+    videoProbe(filename: string | WorkspaceFile): Promise<VideoProbeResult>
+
+    /**
+     * Extracts frames from a video file
+     * @param videoPath
+     * @param options
+     */
+    videoFrames(
+        videoPath: string | WorkspaceFile,
+        options?: VideoExtractFramesOptions
+    ): Promise<string[]>
+
+    /**
+     * Extract the audio track from a video
+     * @param videoPath
+     */
+    videoAudio(videoPath: string | WorkspaceFile): Promise<string>
 }
 
 interface AICIGenOptions {
@@ -1860,7 +2002,7 @@ interface Git {
      * @param options various clone options
      * @returns the path to the cloned repository
      */
-    async shallowClone(
+    shallowClone(
         repository: string,
         options?: {
             /**
@@ -2681,7 +2823,13 @@ type McpServersConfig = Record<string, Omit<McpServerConfig, "id" | "options">>
 
 type ZodTypeLike = { _def: any; safeParse: any; refine: any }
 
-type BufferLike = string | WorkspaceFile | Buffer | Blob | ArrayBuffer | ReadableStream
+type BufferLike =
+    | string
+    | WorkspaceFile
+    | Buffer
+    | Blob
+    | ArrayBuffer
+    | ReadableStream
 
 interface TranscriptionOptions {
     /**
@@ -2701,7 +2849,7 @@ interface TranscriptionOptions {
     language?: string
 
     /**
-     * The sampling temperature, between 0 and 1. 
+     * The sampling temperature, between 0 and 1.
      * Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic.
      */
     temperature?: number
@@ -2721,12 +2869,23 @@ interface TranscriptionResult {
      * Error if any
      */
     error?: SerializedError
+
+    /**
+     * SubRip subtitle string from segments
+     */
+    srt?: string
+
+    /**
+     * WebVTT subtitle string from segments
+     */
+    vtt?: string
+
     /**
      * Individual segments
      */
     segments?: {
         /**
-         * The start time of the segment 
+         * The start time of the segment
          */
         start: number
         /**
@@ -2798,7 +2957,10 @@ interface ChatGenerationContext extends ChatTurnGenerationContext {
     ): RunPromptResultPromiseWithOptions
     defFileMerge(fn: FileMergeHandler): void
     defOutputProcessor(fn: PromptOutputProcessorHandler): void
-    transcribe(audio: string, options?: TranscriptionOptions): Promise<TranscriptionResult>
+    transcribe(
+        audio: string | WorkspaceFile,
+        options?: TranscriptionOptions
+    ): Promise<TranscriptionResult>
 }
 
 interface GenerationOutput {
@@ -3033,10 +3195,12 @@ interface BrowseSessionOptions extends BrowserOptions, TimeoutOptions {
     /**
      * Enable recording video for all pages. Implies incognito mode.
      */
-    recordVideo?: boolean | {
-        width: number
-        height: number
-    }
+    recordVideo?:
+        | boolean
+        | {
+              width: number
+              height: number
+          }
 }
 
 interface TimeoutOptions {

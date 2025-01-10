@@ -247,6 +247,38 @@ defData("ROWS", rows, { sliceHead: 100 })
 
 </Card>
 
+<Card title="Speech To Text" icon="seti:microphone">
+
+Automatically transcribe audio or videos using [OpenAI](https://openai.com/) or others.
+
+```js
+const transcript = await transcript("path/to/audio.mp3")
+const { srt, vtt, segments } = transcript
+```
+
+</Card>
+
+<Card title="Images" icon="seti:image">
+
+Include images in prompts, we'll crop/resize/resize then for you.
+
+```js
+defImages(images, { autoCrop: true, details: "low" })
+```
+
+</Card>
+
+<Card title="Videos" icon="seti:video">
+
+Extract frames from videos using timestamps or even transcripts.
+
+```js
+const frames = await parsers.videoFrames("...", { count: 10 })
+defImages(frames, { details: "low" })
+```
+
+</Card>
+
 <Card title="Generate Files" icon="document">
 
 Extract files and diff from the LLM output.

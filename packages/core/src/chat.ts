@@ -156,7 +156,7 @@ export interface LanguageModel {
     completer: ChatCompletionHandler
     listModels?: ListModelsFunction
     pullModel?: PullModelFunction
-    transcribe?: TranscribeFunction
+    transcriber?: TranscribeFunction
 }
 
 async function runToolCalls(

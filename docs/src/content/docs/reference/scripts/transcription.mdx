@@ -25,7 +25,7 @@ Otherwise, it will attempt to call ffmpeg directly
 
 ## model
 
-By default, the API uses the `transcription` [model alias](/genaiscript/reference/model-aliases) to transcribe the audio.
+By default, the API uses the `transcription` [model alias](/genaiscript/reference/scripts/model-aliases) to transcribe the audio.
 You can also specify a different model alias using the `model` option.
 
 ```js "openai:whisper-1"
@@ -42,6 +42,15 @@ for (const segment of segments) {
     const { start, text } = segment
     console.log(`[${start}] ${text}`)
 }
+```
+
+## SRT and VTT
+
+GenAIScript renders the segments to [SRT](https://en.wikipedia.org/wiki/SubRip) 
+and [WebVTT](https://developer.mozilla.org/en-US/docs/Web/API/WebVTT_API) formats as well.
+
+```js
+const { srt, vtt } = await transcribe("...")
 ```
 
 ## Translation

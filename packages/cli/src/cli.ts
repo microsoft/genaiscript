@@ -49,7 +49,7 @@ import { CORE_VERSION, GITHUB_REPO } from "../../core/src/version" // Core versi
 import { logVerbose } from "../../core/src/util" // Utility logging
 import { semverSatisfies } from "../../core/src/semver" // Semantic version checking
 import { convertFiles } from "./convert"
-import { transcodeFile } from "./audio"
+import { extractAudio, extractVideoFrames } from "./video"
 
 /**
  * Main function to initialize and run the CLI.
@@ -330,12 +330,20 @@ export async function cli() {
         .argument("[name]", "Name of the cache, tests")
         .action(cacheClear) // Action to clear cache
 
-    const audio = program.command("audio").description("Audio tasks")
+    const audio = program.command("video").description("Video tasks")
     audio
-        .command("transcode")
+        .command("extract-audio")
         .description("Transcode video/audio file")
         .argument("<file>", "Audio or video file to transcode")
-        .action(transcodeFile)
+        .action(extractAudio)
+    audio
+        .command("extract-frames")
+        .description("Extract video frames")
+        .argument("<file>", "Audio or video file to transcode")
+        .option("-c, --count <number>", "maximum number of frames to extract")
+        .option("-o, --out <string>", "output folder")
+        .option("-s, --size <string>", "size of the output frames wxh")
+        .action(extractVideoFrames)
 
     // Define 'retrieval' command group for RAG support
     const retrieval = program

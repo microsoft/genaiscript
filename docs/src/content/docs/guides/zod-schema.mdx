@@ -1,16 +1,15 @@
 ---
 title: Zod Schema
 sidebar:
-  order: 80
+    order: 80
 description: Learn how to define and convert TypeScript-first Zod schemas to JSON schema
 keywords: TypeScript, Zod schema, JSON schema, schema validation, type inference
-
 ---
 
-[zod](https://zod.dev/) is a TypeScript-first schema validation with static type inference. 
+[zod](https://zod.dev/) is a TypeScript-first schema validation with static type inference.
 
 ```ts
-import { z } from "zod"
+import { z } from "genaiscript/runtime"
 // city array schema
 const CitySchema = z.array(
     z.object({
@@ -21,20 +20,10 @@ const CitySchema = z.array(
 )
 ```
 
-[zod-to-json-schema](https://www.npmjs.com/package/zod-to-json-schema) is a library that converts zod schemas to JSON schema.
-
-```ts
-import { zodToJsonSchema } from "zod-to-json-schema"
-// convert to JSON schema
-const CitySchemaJSON = zodToJsonSchema(CitySchema, "citySchema").definitions[
-    "citySchema"
-] as JSONSchemaArray
-```
-
-The JSON schemas can be used in `defSchema` to constrain the output of the tool.
+The zod schemas can be used in `defSchema` to constrain the output of the tool.
 
 ```ts
 // JSON schema to constrain the output of the tool.
-const schema = defSchema("CITY_SCHEMA", CitySchemaJSON)
+const schema = defSchema("CITY_SCHEMA", CitySchema)
 ...
 ```

@@ -491,7 +491,7 @@ const pullModel: PullModelFunction = async (modelId, options) => {
     }
 }
 
-const transcribe = async (
+const transcriber = async (
     req: CreateTranscriptionRequest,
     cfg: LanguageModelConfiguration,
     options: TraceOptions & CancellationOptions
@@ -539,7 +539,7 @@ export function LocalOpenAICompatibleModel(
             id: providerId,
             listModels: options?.listModels ? listModels : undefined,
             pullModel: options?.pullModel ? pullModel : undefined,
-            transcribe: options?.transcribe ? transcribe : undefined,
+            transcriber: options?.transcribe ? transcriber : undefined,
         })
     )
 }

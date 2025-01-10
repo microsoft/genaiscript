@@ -323,14 +323,14 @@ export class NodeHost implements RuntimeHost {
             return undefined
         }
     }
-    async readFile(name: string): Promise<Uint8Array> {
+    async readFile(filepath: string): Promise<Uint8Array> {
         const wksrx = /^workspace:\/\//i
-        if (wksrx.test(name))
-            name = join(this.projectFolder(), name.replace(wksrx, ""))
+        if (wksrx.test(filepath))
+            filepath = join(this.projectFolder(), filepath.replace(wksrx, ""))
         // check if file exists
-        if (!(await exists(name))) return undefined
+        if (!(await exists(filepath))) return undefined
         // read file
-        const res = await readFile(name)
+        const res = await readFile(filepath)
         return res ? new Uint8Array(res) : new Uint8Array()
     }
     async findFiles(

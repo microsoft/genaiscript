@@ -81,11 +81,13 @@ import { agentAddMemory, agentQueryMemory } from "./agent"
 import { YAMLStringify } from "./yaml"
 import { Project } from "./server/messages"
 import { parametersToVars } from "./vars"
-import { resolveBufferLike } from "./bufferlike"
-import { fileTypeFromBuffer } from "file-type"
 import prettyBytes from "pretty-bytes"
 import { JSONLineCache } from "./cache"
-import { convertToAudioBlob } from "./ffmpeg"
+import { videoExtractAudio } from "./ffmpeg"
+import { BufferToBlob } from "./bufferlike"
+import { host } from "./host"
+import { srtVttRender } from "./transcription"
+import { filenameOrFileToFilename } from "./unwrappers"
 
 export function createChatTurnGenerationContext(
     options: GenerationOptions,
@@ -633,7 +635,7 @@ export function createChatGenerationContext(
     }
 
     const transcribe = async (
-        audio: string,
+        audio: string | WorkspaceFile,
         options?: TranscriptionOptions
     ): Promise<TranscriptionResult> => {
         const { cache, ...rest } = options || {}
@@ -659,19 +661,23 @@ export function createChatGenerationContext(
             })
             if (!ok) throw new Error(`failed to pull model ${conn}`)
             checkCancelled(cancellationToken)
-            const { transcribe } = await resolveLanguageModel(
+            const { transcriber } = await resolveLanguageModel(
                 configuration.provider
             )
-            if (!transcribe)
+            if (!transcriber)
                 throw new Error("model driver not found for " + info.model)
-            const file = await convertToAudioBlob(audio, {
-                trace: transcriptionTrace,
-            })
+            const audioFile = await videoExtractAudio(
+                filenameOrFileToFilename(audio),
+                {
+                    trace: transcriptionTrace,
+                }
+            )
+            const file = await BufferToBlob(await host.readFile(audioFile))
             const update: () => Promise<TranscriptionResult> = async () => {
                 trace.itemValue(`model`, configuration.model)
                 trace.itemValue(`file size`, prettyBytes(file.size))
                 trace.itemValue(`file type`, file.type)
-                const res = await transcribe(
+                const res = await transcriber(
                     {
                         file,
                         model: configuration.model,
@@ -684,6 +690,7 @@ export function createChatGenerationContext(
                         cancellationToken,
                     }
                 )
+                srtVttRender(res)
                 return res
             }
 

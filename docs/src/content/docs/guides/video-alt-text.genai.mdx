@@ -1,0 +1,70 @@
+---
+title: Video Alt Text
+sidebar:
+    order: 50
+description: Learn how to generate alt text for videos
+keywords: Video
+---
+
+import { Code } from "@astrojs/starlight/components"
+import src from "../../../../../packages/sample/genaisrc/video-alt-text.genai.mjs?raw"
+
+GenAIScript supports [speech transcription](/genaiscript/reference/scripts/transcription)
+and [video frame extraction](/genaiscript/reference/scripts/videos) which can be combined to analyze videos.
+
+## Video Alt Text
+
+The HTML video attribute does not have an `alt` attribute.. but you can still attach a accessible description using the `aria-label` attribute.
+We will build a script that generates the description using the transcript and video frames.
+
+## Transcript
+
+We use the `transcribe` function to generate the transcript. It will use the `transcription` model alias to compute a transcription.
+Transcriptions are useful to reduce hallucations of LLMs when analyzing images and also provides
+good timestemp candidates to screenshot the video stream.
+
+```js
+const file = env.files[0]
+const transcript = await transcribe(file) // OpenAI whisper
+```
+
+## Video Frames
+
+The next step is to use the transcript to screenshot the video stream. GenAIScript uses [ffmpeg](https://ffmpeg.org/) to render the frames
+so make sure you have it installed and configured.
+
+```js
+const frames = await parsers.videoFrames(file, {
+    transcript,
+})
+```
+
+## Context
+
+Both the transcript and the frames are added to the prompt context. Since some videos may be silent, we ignore empty transcripts.
+We also use low detail for the frames to improve performance.
+
+```js
+def("TRANSCRIPT", transcript?.srt, { ignoreEmpty: true }) // ignore silent videos
+defImages(frames, { detail: "low" }) // low detail for better performance
+```
+
+## Prompting it together
+
+Finally, we give the task to the LLM to generate the alt text.
+
+```js
+$`You are an expert in assistive technology.
+You will analyze the video and generate a description alt text for the video.
+`
+```
+
+Using this script, you can automatically generate high quality alt text for videos.
+
+```sh
+npx --yes genaiscript run video-alt-text path_to_video.mp4
+```
+
+## Full source
+
+<Code code={src} wrap={true} lang="js" title="video-alt-text.genai.mjs" />
