@@ -50,6 +50,14 @@ const frames = await parsers.videoFrames("...", { count: 10 })
 const frames = await parsers.videoFrames("...", { timestamps: ["0%", "50%"] })
 ```
 
+- specify the transcript computed by the [transcribe](/genaiscript/reference/script/transcription) function. GenAIScript
+  will extract a frame at the start of each segment.
+
+```js "timestamps"
+const transcript = await transcribe("...")
+const frames = await parsers.videoFrames("...", { transcript })
+```
+
 ## Extracting audio
 
 The `parsers.videoAudio` will extract the audio from a video file or url
