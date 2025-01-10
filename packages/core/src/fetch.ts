@@ -216,7 +216,7 @@ ${Object.entries(headers)
             cmd += `-F ${key}=${value instanceof File ? `... (${prettyBytes(value.size)})` : "" + value}\n`
         })
     } else
-        cmd += `-d 'JSON.stringify(body, null, 2).replace(/'/g, "'\\''")}'
+        cmd += `-d '${JSON.stringify(body, null, 2).replace(/'/g, "'\\''")}'
 `
     if (trace) trace.detailsFenced(`✉️ fetch`, cmd, "bash")
     else logVerbose(cmd)
