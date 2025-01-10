@@ -299,12 +299,12 @@ Usage: genaiscript video [options] [command]
 Video tasks
 
 Options:
-  -h, --help             display help for command
+  -h, --help                       display help for command
 
 Commands:
-  extract-audio <file>   Transcode video/audio file
-  extract-frames <file>  Extract video frames
-  help [command]         display help for command
+  extract-audio <file>             Transcode video/audio file
+  extract-frames [options] <file>  Extract video frames
+  help [command]                   display help for command
 ```
 
 ### `video extract-audio`
@@ -329,10 +329,13 @@ Usage: genaiscript video extract-frames [options] <file>
 Extract video frames
 
 Arguments:
-  file        Audio or video file to transcode
+  file                  Audio or video file to transcode
 
 Options:
-  -h, --help  display help for command
+  -c, --count <number>  maximum number of frames to extract
+  -o, --out <string>    output folder
+  -s, --size <string>   size of the output frames wxh
+  -h, --help            display help for command
 ```
 
 ## `retrieval`
