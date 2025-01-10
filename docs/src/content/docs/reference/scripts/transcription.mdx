@@ -44,6 +44,15 @@ for (const segment of segments) {
 }
 ```
 
+## SRT and VTT
+
+GenAIScript renders the segments to [SRT](https://en.wikipedia.org/wiki/SubRip) 
+and [WebVTT](https://developer.mozilla.org/en-US/docs/Web/API/WebVTT_API) formats as well.
+
+```js
+const { srt, vtt } = await transcribe("...")
+```
+
 ## Translation
 
 Some models also support transcribing and translating to English in one pass. For this case,

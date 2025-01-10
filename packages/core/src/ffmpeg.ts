@@ -138,7 +138,7 @@ export async function videoExtractAudio(
 export async function videoExtractFrames(
     filename: string,
     options: {
-        timestamps?: number[]
+        timestamps?: number[] | string[]
         filename?: string
         count?: number
         size?: string
