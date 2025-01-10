@@ -10,6 +10,7 @@ import {
     VIDEO_AUDIO_DIR_NAME,
     VIDEO_FRAMES_DIR_NAME,
     VIDEO_HASH_LENGTH,
+    VIDEO_PROBE_DIR_NAME,
 } from "./constants"
 import { writeFile, readFile } from "fs/promises"
 import { errorMessage, serializeError } from "./error"
@@ -22,9 +23,23 @@ async function ffmpeg(options?: TraceOptions) {
     return cmd({ logger: console, timeout: 1000000 })
 }
 
+async function computeHashFolder(
+    filename: string,
+    folderid: string,
+    options: { folder?: string } & TraceOptions
+) {
+    const { trace, ...rest } = options
+    const h = await hash([{ filename }, rest], {
+        readWorkspaceFiles: true,
+        version: true,
+        length: VIDEO_HASH_LENGTH,
+    })
+    options.folder = dotGenaiscriptPath("video", folderid, h)
+}
+
 export async function runFfmpeg<T>(
     renderer: (cmd: FfmpegCommand) => Awaitable<T>,
-    options?: TraceOptions & { folder?: string }
+    options: TraceOptions & { folder?: string }
 ): Promise<T> {
     const { trace, folder } = options
 
@@ -157,16 +172,22 @@ export async function videoExtractFrames(
         options
     )
 }
-async function computeHashFolder(
+
+export async function videoProbe(
     filename: string,
-    folderid: string,
-    options: { folder?: string } & TraceOptions
+    options?: { folder?: string } & TraceOptions
 ) {
-    const { trace, ...rest } = options
-    const h = await hash([{ filename }, rest], {
-        readWorkspaceFiles: true,
-        version: true,
-        length: VIDEO_HASH_LENGTH,
-    })
-    options.folder = dotGenaiscriptPath("video", folderid, h)
+    const { trace } = options
+    if (!options.folder)
+        await computeHashFolder(filename, VIDEO_PROBE_DIR_NAME, options)
+    return await runFfmpeg(
+        async (cmd) =>
+            new Promise((resolve, reject) => {
+                cmd.input(filename).ffprobe((err, data) => {
+                    if (err) reject(err)
+                    else resolve(data)
+                })
+            }),
+        options
+    )
 }
