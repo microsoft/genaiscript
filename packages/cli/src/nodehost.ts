@@ -330,7 +330,6 @@ export class NodeHost implements RuntimeHost {
         // check if file exists
         if (!(await exists(filepath))) return undefined
         // read file
-        console.log({ name: filepath })
         const res = await readFile(filepath)
         return res ? new Uint8Array(res) : new Uint8Array()
     }

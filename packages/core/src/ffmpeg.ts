@@ -9,15 +9,14 @@ import { randomHex } from "./crypto"
 import { join } from "path"
 import { ensureDir } from "fs-extra"
 
+const ffmpegLimit = pLimit(1)
+
 async function ffmpeg(options?: TraceOptions) {
     const m = await import("fluent-ffmpeg")
     const cmd = m.default
-    return cmd({ logger: console })
+    return cmd({ logger: console, timeout: 1000000 })
         .on("start", (commandLine) => {
             logVerbose(commandLine)
-        })
-        .on("progress", () => {
-            process.stderr.write(".")
         })
         .on("stderr", (s) => {
             logVerbose(s)
@@ -37,29 +36,33 @@ export async function convertToAudioBlob(
         }
     }
 
-    logVerbose(`ffmpeg: extracting audio from video...`)
     // ffmpeg -i helloworld.mp4 -q:a 0 -map a output.mp3
-    return new Promise<Blob>(async (resolve, reject) => {
-        const outputStream = new PassThrough()
-        const chunks: Buffer[] = []
-        outputStream.on("data", (chunk) => chunks.push(chunk))
-        outputStream.on("end", async () => {
-            const buffer = Buffer.concat(chunks)
-            if (!buffer.length) reject(new Error("conversion failed"))
-            const mime = await fileTypeFromBuffer(buffer)
-            resolve(new Blob([buffer], { type: mime.mime }))
-        })
-        outputStream.on("error", (e) => {
-            logError(e)
-            reject(e)
-        })
-        const cmd = await ffmpeg(options)
-        cmd.input(file)
-            .noVideo()
-            .input(file)
-            .toFormat("wav")
-            .pipe(outputStream, { end: true })
-    })
+    return ffmpegLimit(
+        async () =>
+            new Promise<Blob>(async (resolve, reject) => {
+                const outputStream = new PassThrough()
+                const chunks: Buffer[] = []
+                outputStream.on("data", (chunk) => chunks.push(chunk))
+                outputStream.on("end", async () => {
+                    await ffmpeg(options) // keep this; it "unplugs" the output stream so that the error is not raised.
+                    const buffer = Buffer.concat(chunks)
+                    if (!buffer.length) reject(new Error("conversion failed"))
+                    const mime = await fileTypeFromBuffer(buffer)
+                    resolve(new Blob([buffer], { type: mime.mime }))
+                })
+                outputStream.on("error", (e) => {
+                    logError(e)
+                    reject(e)
+                })
+
+                const cmd = await ffmpeg(options)
+                cmd.input(file)
+                    .noVideo()
+                    .input(file)
+                    .toFormat("wav")
+                    .pipe(outputStream)
+            })
+    )
 }
 
 export async function extractAllFrames(
@@ -77,20 +80,23 @@ export async function extractAllFrames(
     if (!options.folder)
         options.folder = dotGenaiscriptPath("frames", randomHex(7))
     await ensureDir(options.folder)
-    return new Promise(async (resolve, reject) => {
-        let filenames: string[]
-        const cmd = await ffmpeg(options)
-        cmd.input(videoPath)
-            .screenshots(options)
-            .on("error", (err: Error) => {
-                logError(err)
-                reject(err)
+    return ffmpegLimit(
+        () =>
+            new Promise(async (resolve, reject) => {
+                let filenames: string[]
+                const cmd = await ffmpeg(options)
+                cmd.input(videoPath)
+                    .screenshots(options)
+                    .on("error", (err: Error) => {
+                        logError(err)
+                        reject(err)
+                    })
+                    .on("filenames", (fns: string[]) => {
+                        filenames = fns.map((fn) => join(options.folder, fn))
+                    })
+                    .on("end", () => {
+                        resolve(filenames)
+                    })
             })
-            .on("filenames", (fns: string[]) => {
-                filenames = fns.map((fn) => join(options.folder, fn))
-            })
-            .on("end", () => {
-                resolve(filenames)
-            })
-    })
+    )
 }

@@ -14,3 +14,6 @@ console.log(res2)
 
 const resv = await transcribe("src/audio/helloworld.mp4")
 console.log(resv)
+
+const resv2 = await transcribe("src/audio/helloworld.mp4")
+console.log(resv2)
