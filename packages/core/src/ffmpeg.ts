@@ -53,13 +53,14 @@ export async function convertToAudioBlob(
     })
 }
 
-export async function extractAllFrames(videoPath: string): Promise<string[]> {
+export async function extractAllFrames(
+    videoPath: string,
+    options: { timestamps?: number[]; count?: number; folder: string }
+): Promise<string[]> {
     return new Promise(async (resolve, reject) => {
         const cmd = await ffmpeg()
         cmd.input(videoPath)
-            .screenshots({
-                timestamps: [0, 1, 2.1],
-            })
+            .screenshots(options)
             .on("error", (err: Error) => reject(err))
             .on("filenames", (filenames: string[]) => {
                 resolve(filenames)
