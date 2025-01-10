@@ -213,7 +213,7 @@ ${Object.entries(headers)
 `
     if (body instanceof FormData) {
         body.forEach((value, key) => {
-            cmd += `-F ${key}=${value instanceof File ? `... (${prettyBytes(value.size)}` : "" + value})\n`
+            cmd += `-F ${key}=${value instanceof File ? `... (${prettyBytes(value.size)})` : "" + value}\n`
         })
     } else
         cmd += `-d 'JSON.stringify(body, null, 2).replace(/'/g, "'\\''")}'

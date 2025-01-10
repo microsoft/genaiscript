@@ -9,10 +9,16 @@ While most LLMs do not support videos natively, they can be integrated in script
 and adding them as images to the prompt. This can be tedious and GenAIScript provides efficient helpers
 to streamline this process.
 
-## ffmpeg and ffprobe
+## Configuration
 
 The functionalities to render and analyze videos rely on [ffmpeg](https://ffmpeg.org/)
 and [ffprobe](https://ffmpeg.org/ffprobe.html).
+
+On Linux, you can try
+
+```sh
+sudo apt-get update && sudo apt-get install ffmpeg
+```
 
 Make sure these tools are installed locally and available in your PATH,
 or configure the `FFMPEG_PATH` / `FFPROBE_PATH` environment variables to point to the `ffmpeg`/`ffprobe` executable.
