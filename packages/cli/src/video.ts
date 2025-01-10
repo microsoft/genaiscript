@@ -15,21 +15,20 @@ export async function extractAudio(file: string, options: { force: boolean }) {
 export async function extractVideoFrames(
     file: string,
     options: {
+        timestamps?: number[]
         count?: number
         out?: string
         size?: string
     }
 ) {
     const { out, ...rest } = options || {}
-    const folder = out || dirname(file)
-    if (!rest.count) rest.count = 3
+    if (!rest.count && !rest.timestamps?.length) rest.count = 3
     const frames = await extractAllFrames(file, {
-        folder,
-        filename: `%b_%s.png`,
+        folder: out,
         ...rest,
     })
     for (let i = 0; i < frames.length; i++) {
         const fn = frames[i]
-        console.log(`extracted frame to ${fn}`)
+        console.log(`  ${fn}`)
     }
 }

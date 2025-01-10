@@ -1401,6 +1401,12 @@ interface HashOptions {
     version?: boolean
 }
 
+interface VideoExtractFramesOptions {
+        timestamps?: number[]
+        count?: number
+        size?: string
+}
+
 interface Parsers {
     /**
      * Parses text as a JSON5 payload
@@ -1626,6 +1632,13 @@ interface Parsers {
      * @param language
      */
     unfence(text: string, language: string): string
+
+    /**
+     * Extracts frames from a video file
+     * @param videoPath 
+     * @param options 
+     */
+    videoFrames(videoPath: string, options?: VideoExtractFramesOptions): Promise<string[]>
 }
 
 interface AICIGenOptions {
