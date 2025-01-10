@@ -1419,9 +1419,10 @@ interface HashOptions {
 }
 
 interface VideoExtractFramesOptions {
-    timestamps?: number[]
+    timestamps?: number[] | string[]
     count?: number
     size?: string
+    transcript?: TranscriptionResult
 }
 
 interface VideoProbeResult {
@@ -1467,15 +1468,15 @@ interface VideoProbeResult {
         nb_frames: number | string
         nb_read_frames?: string
         nb_read_packets?: string
-        extradata_size: number
-        tags: {
+        extradata_size?: number
+        tags?: {
             creation_time: string
             language?: string
             handler_name: string
             vendor_id?: string
             encoder?: string
         }
-        disposition: {
+        disposition?: {
             default: number
             dub: number
             original: number
@@ -1750,7 +1751,7 @@ interface Parsers {
      * Extracts metadata information from a video file using ffprobe
      * @param filename
      */
-    videoProbe(filename: string): Promise<VideoProbeResult>
+    videoProbe(filename: string | WorkspaceFile): Promise<VideoProbeResult>
 
     /**
      * Extracts frames from a video file
@@ -1758,7 +1759,7 @@ interface Parsers {
      * @param options
      */
     videoFrames(
-        videoPath: string,
+        videoPath: string | WorkspaceFile,
         options?: VideoExtractFramesOptions
     ): Promise<string[]>
 
@@ -1766,7 +1767,7 @@ interface Parsers {
      * Extract the audio track from a video
      * @param videoPath
      */
-    videoAudio(videoPath: string): Promise<string>
+    videoAudio(videoPath: string | WorkspaceFile): Promise<string>
 }
 
 interface AICIGenOptions {
@@ -2957,7 +2958,7 @@ interface ChatGenerationContext extends ChatTurnGenerationContext {
     defFileMerge(fn: FileMergeHandler): void
     defOutputProcessor(fn: PromptOutputProcessorHandler): void
     transcribe(
-        audio: string,
+        audio: string | WorkspaceFile,
         options?: TranscriptionOptions
     ): Promise<TranscriptionResult>
 }

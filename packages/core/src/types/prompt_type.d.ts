@@ -333,6 +333,6 @@ declare function defChatParticipant(
  * @param options
  */
 declare function transcribe(
-    audio: string,
+    audio: string | WorkspaceFile,
     options?: TranscriptionOptions
 ): Promise<TranscriptionResult>

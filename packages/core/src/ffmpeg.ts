@@ -142,20 +142,30 @@ export async function videoExtractFrames(
         filename?: string
         count?: number
         size?: string
+        transcript?: TranscriptionResult
         folder?: string
     } & TraceOptions
 ): Promise<string[]> {
-    if (!options.count && !options.timestamps) options.count = 3
-    if (!options.filename) options.filename = "%b_%i.png"
-    if (!options.folder)
-        await computeHashFolder(filename, VIDEO_FRAMES_DIR_NAME, options)
+    const { trace, transcript, ...screenshotsOptions } = options
+    if (!screenshotsOptions.filename) screenshotsOptions.filename = "%b_%i.png"
+    if (transcript?.segments?.length) {
+        screenshotsOptions.timestamps = transcript.segments.map((s) => s.start)
+    }
+    if (!screenshotsOptions.count && !screenshotsOptions.timestamps)
+        screenshotsOptions.count = 5
+    if (!screenshotsOptions.folder)
+        await computeHashFolder(
+            filename,
+            VIDEO_FRAMES_DIR_NAME,
+            screenshotsOptions
+        )
 
     return await runFfmpeg(
         async (cmd) =>
             new Promise(async (resolve, reject) => {
                 let filenames: string[]
                 cmd.input(filename)
-                    .screenshots(options)
+                    .screenshots(screenshotsOptions)
                     .on("error", (err: Error) => {
                         logError(err)
                         reject(err)
@@ -164,7 +174,7 @@ export async function videoExtractFrames(
                         "filenames",
                         (fns: string[]) =>
                             (filenames = fns.map((fn) =>
-                                join(options.folder, fn)
+                                join(screenshotsOptions.folder, fn)
                             ))
                     )
                     .on("end", async () => resolve(filenames))
@@ -176,16 +186,16 @@ export async function videoExtractFrames(
 export async function videoProbe(
     filename: string,
     options?: { folder?: string } & TraceOptions
-) {
+): Promise<VideoProbeResult> {
     const { trace } = options
     if (!options.folder)
         await computeHashFolder(filename, VIDEO_PROBE_DIR_NAME, options)
     return await runFfmpeg(
         async (cmd) =>
-            new Promise((resolve, reject) => {
+            new Promise<VideoProbeResult>((resolve, reject) => {
                 cmd.input(filename).ffprobe((err, data) => {
                     if (err) reject(err)
-                    else resolve(data)
+                    else resolve(data as any)
                 })
             }),
         options

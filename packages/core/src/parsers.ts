@@ -1,5 +1,9 @@
 import { CSVTryParse } from "./csv"
-import { filenameOrFileToContent, unfence } from "./unwrappers"
+import {
+    filenameOrFileToContent,
+    filenameOrFileToFilename,
+    unfence,
+} from "./unwrappers"
 import { JSON5TryParse } from "./json5"
 import { estimateTokens } from "./tokens"
 import { TOMLTryParse } from "./toml"
@@ -126,8 +130,13 @@ export async function createParsers(options: {
         unfence: unfence,
         GROQ: GROQEvaluate,
         videoFrames: async (file, options) =>
-            await videoExtractFrames(file, { ...(options || {}), trace }),
-        videoAudio: async (file) => await videoExtractAudio(file, { trace }),
-        videoProbe: async (file) => await videoProbe(file, { trace }),
+            await videoExtractFrames(filenameOrFileToFilename(file), {
+                ...(options || {}),
+                trace,
+            }),
+        videoAudio: async (file) =>
+            await videoExtractAudio(filenameOrFileToFilename(file), { trace }),
+        videoProbe: async (file) =>
+            await videoProbe(filenameOrFileToFilename(file), { trace }),
     })
 }

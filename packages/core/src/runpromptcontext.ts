@@ -87,6 +87,7 @@ import { videoExtractAudio } from "./ffmpeg"
 import { BufferToBlob } from "./bufferlike"
 import { host } from "./host"
 import { srtVttRender } from "./transcription"
+import { filenameOrFileToFilename } from "./unwrappers"
 
 export function createChatTurnGenerationContext(
     options: GenerationOptions,
@@ -634,7 +635,7 @@ export function createChatGenerationContext(
     }
 
     const transcribe = async (
-        audio: string,
+        audio: string | WorkspaceFile,
         options?: TranscriptionOptions
     ): Promise<TranscriptionResult> => {
         const { cache, ...rest } = options || {}
@@ -665,9 +666,12 @@ export function createChatGenerationContext(
             )
             if (!transcriber)
                 throw new Error("model driver not found for " + info.model)
-            const audioFile = await videoExtractAudio(audio, {
-                trace: transcriptionTrace,
-            })
+            const audioFile = await videoExtractAudio(
+                filenameOrFileToFilename(audio),
+                {
+                    trace: transcriptionTrace,
+                }
+            )
             const file = await BufferToBlob(await host.readFile(audioFile))
             const update: () => Promise<TranscriptionResult> = async () => {
                 trace.itemValue(`model`, configuration.model)

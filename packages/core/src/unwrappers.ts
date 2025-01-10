@@ -37,6 +37,14 @@ export function filenameOrFileToContent(
         : fileOrContent?.content
 }
 
+export function filenameOrFileToFilename(
+    fileOrContent: string | WorkspaceFile
+): string {
+    return typeof fileOrContent === "string"
+        ? fileOrContent
+        : fileOrContent?.filename
+}
+
 export function trimNewlines(s: string) {
     return s?.replace(/^\n*/, "").replace(/\n*$/, "")
 }
