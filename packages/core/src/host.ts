@@ -145,6 +145,7 @@ export interface RuntimeHost extends Host {
         options?: TraceOptions & CancellationOptions
     ): Promise<ResponseStatus>
 
+    clearModelAlias(source: "cli" | "env" | "config" | "script"): void
     setModelAlias(
         source: "env" | "cli" | "config" | "script",
         id: string,
