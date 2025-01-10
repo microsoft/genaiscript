@@ -50,7 +50,7 @@ const frames = await parsers.videoFrames("...", { count: 10 })
 const frames = await parsers.videoFrames("...", { timestamps: ["0%", "50%"] })
 ```
 
-- specify the transcript computed by the [transcribe](/genaiscript/reference/script/transcription) function. GenAIScript
+- specify the transcript computed by the [transcribe](/genaiscript/reference/scripts/transcription) function. GenAIScript
   will extract a frame at the start of each segment.
 
 ```js "timestamps"
@@ -68,7 +68,7 @@ const audio = await parsers.videoAudio("path_url_to_video")
 ```
 
 The conversion to audio happens automatically
-for videos when using [transcribe](/genaiscript/reference/script/transcription).
+for videos when using [transcribe](/genaiscript/reference/scripts/transcription).
 
 ## Probing videos
 
