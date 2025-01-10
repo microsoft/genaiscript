@@ -130,7 +130,8 @@ export class NodeHost implements RuntimeHost {
         if (typeof value === "string") value = { model: value, source }
         const aliases = this._modelAliases[source]
         const c = aliases[id] || (aliases[id] = { source })
-        if (value.model !== undefined && value.model !== id)
+        if (value === undefined || value.model === id) delete aliases[id]
+        else if (value.model !== undefined && value.model !== id)
             (c as any).model = value.model
         if (!isNaN(value.temperature))
             (c as any).temperature = value.temperature

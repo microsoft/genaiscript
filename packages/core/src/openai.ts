@@ -216,24 +216,17 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
             responseBody = await r.text()
         } catch (e) {}
         trace.detailsFenced(`📬 response`, responseBody, "json")
-        const { error, message } = JSON5TryParse(responseBody, {}) as {
-            error: any
-            message: string
-        }
-        if (message) trace.error(message)
-        if (error)
-            trace.error(undefined, <SerializedError>{
-                name: error.code,
-                code: error.status,
-                message: error.message,
-            })
+        const errors = JSON5TryParse(responseBody, {}) as
+            | {
+                  error: any
+                  message: string
+              }
+            | { error: { message: string } }[]
+        const error = Array.isArray(errors) ? errors[0]?.error : errors
         throw new RequestError(
             r.status,
-            message ??
-                (typeof error === "string" ? error : undefined) ??
-                error?.message ??
-                r.statusText,
-            error,
+            errorMessage(error) || r.statusText,
+            errors,
             responseBody,
             normalizeInt(r.headers.get("retry-after"))
         )

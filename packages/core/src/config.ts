@@ -46,13 +46,33 @@ export async function resolveGlobalConfiguration(
                         envFile: {
                             type: "string",
                         },
+                        include: {
+                            type: "array",
+                            items: {
+                                type: "string",
+                            },
+                        },
+                        modelAliases: {
+                            type: "object",
+                            additionalProperties: true,
+                        },
                     },
                 })
                 if (validation.schemaError)
                     throw new Error(
                         `Configuration error: ` + validation.schemaError
                     )
-                config = structuralMerge(config, parsed)
+                config = deleteEmptyValues({
+                    include: structuralMerge(
+                        config?.include || [],
+                        parsed?.include || []
+                    ),
+                    envFile: parsed?.envFile || config?.envFile,
+                    modelAliases: structuralMerge(
+                        config?.modelAliases || {},
+                        parsed?.modelAliases || {}
+                    ),
+                })
             }
         }
     }
@@ -71,7 +91,8 @@ export async function resolveGlobalConfiguration(
     } else {
         config.envFile = DOT_ENV_FILENAME
     }
-    config.envFile = resolve(config.envFile)
+    if (config.envFile) config.envFile = resolve(config.envFile)
+
     return config
 }
 
