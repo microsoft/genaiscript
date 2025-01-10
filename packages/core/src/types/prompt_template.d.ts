@@ -1661,7 +1661,7 @@ interface Parsers {
      * Extract the audio track from a video
      * @param videoPath 
      */
-    videoAudio(videoPath: string): Promise<Buffer>
+    videoAudio(videoPath: string): Promise<string>
 }
 
 interface AICIGenOptions {

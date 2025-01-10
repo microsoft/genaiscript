@@ -1,15 +1,9 @@
-import { fileTypeFromBuffer } from "file-type"
-import { writeFile } from "node:fs/promises"
-import { basename, dirname } from "node:path"
 import { videoExtractAudio, videoExtractFrames } from "../../core/src/ffmpeg"
 
 export async function extractAudio(file: string, options: { force: boolean }) {
     const { force } = options || {}
-    const res = await videoExtractAudio(file, { forceConversion: force })
-
-    const fn = file + ".wav"
+    const fn = await videoExtractAudio(file, { forceConversion: force })
     console.log(`transcoded file to ${fn}`)
-    await writeFile(fn, Buffer.from(res))
 }
 
 export async function extractVideoFrames(

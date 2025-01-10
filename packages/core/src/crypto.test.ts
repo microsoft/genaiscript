@@ -47,7 +47,7 @@ describe("hash function", () => {
 
     test("should generate a hash with a specified algorithm", async () => {
         const value = "test"
-        const hashedValue = await hash(value, { algorithm: "sha-1" })
+        const hashedValue = await hash(value, { algorithm: "sha-256" })
     })
 
     test("should generate a hash with a specified length", async () => {

@@ -27,7 +27,7 @@ export async function resolveBufferLike(
     throw new Error("Unsupported buffer-like object")
 }
 
-export async function BufferToBlob(buffer: Buffer) {
+export async function BufferToBlob(buffer: Buffer | Uint8Array) {
     const mime = await fileTypeFromBuffer(buffer)
     return new Blob([buffer], {
         type: mime?.mime || "application/octet-stream",

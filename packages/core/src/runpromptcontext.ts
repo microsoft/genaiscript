@@ -85,6 +85,7 @@ import prettyBytes from "pretty-bytes"
 import { JSONLineCache } from "./cache"
 import { videoExtractAudio } from "./ffmpeg"
 import { BufferToBlob } from "./bufferlike"
+import { host } from "./host"
 
 export function createChatTurnGenerationContext(
     options: GenerationOptions,
@@ -663,11 +664,10 @@ export function createChatGenerationContext(
             )
             if (!transcribe)
                 throw new Error("model driver not found for " + info.model)
-            const file = await BufferToBlob(
-                await videoExtractAudio(audio, {
-                    trace: transcriptionTrace,
-                })
-            )
+            const audioFile = await videoExtractAudio(audio, {
+                trace: transcriptionTrace,
+            })
+            const file = await BufferToBlob(await host.readFile(audioFile))
             const update: () => Promise<TranscriptionResult> = async () => {
                 trace.itemValue(`model`, configuration.model)
                 trace.itemValue(`file size`, prettyBytes(file.size))

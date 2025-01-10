@@ -1,15 +1,16 @@
-import { fileTypeFromBuffer } from "file-type"
-import { PassThrough } from "stream"
 import { dotGenaiscriptPath, logError, logVerbose } from "./util"
 import { TraceOptions } from "./trace"
 import { lookupMime } from "./mime"
-import { host } from "./host"
 import pLimit from "p-limit"
-import { join, extname } from "node:path"
+import { join, basename } from "node:path"
 import { ensureDir } from "fs-extra"
 import type { FfmpegCommand } from "fluent-ffmpeg"
 import { hash } from "./crypto"
-import { VIDEO_HASH_LENGTH } from "./constants"
+import {
+    VIDEO_AUDIO_DIR_NAME,
+    VIDEO_FRAMES_DIR_NAME,
+    VIDEO_HASH_LENGTH,
+} from "./constants"
 import { writeFile, readFile } from "fs/promises"
 import { errorMessage, serializeError } from "./error"
 
@@ -55,12 +56,11 @@ export async function runFfmpeg<T>(
             let log: string[] = []
             const writeLog = async () => {
                 const logFilename = join(folder, "log.txt")
+                logVerbose(`ffmpeg log: ${logFilename}`)
                 await writeFile(logFilename, log.join("\n"), {
                     encoding: "utf-8",
                 })
-                logVerbose(`ffmpeg log: ${logFilename}`)
             }
-
             cmd.on("stderr", (s) => log.push(s))
             cmd.on("end", writeLog)
             cmd.on("error", async (err) => {
@@ -70,70 +70,30 @@ export async function runFfmpeg<T>(
         }
 
         const res = await renderer(cmd)
-        if (resFilename)
+        if (resFilename) {
+            logVerbose(`ffmpeg: cache result at ${resFilename}`)
             await writeFile(resFilename, JSON.stringify(res, null, 2))
+        }
         return res
     })
 }
 
-export async function segmentVideo(
-    filename: string,
-    segmentTime: number,
-    options?: TraceOptions
-): Promise<string[]> {
-    const h = await hash([{ filename }, { segmentTime }], {
-        readWorkspaceFiles: true,
-        version: true,
-        length: VIDEO_HASH_LENGTH,
-    })
-    const outputFolder = dotGenaiscriptPath("video", "segments", h)
-    const ext = extname(filename)
-    await ensureDir(outputFolder)
-    return runFfmpeg(
-        async (cmd) =>
-            new Promise((resolve, reject) => {
-                const segments: string[] = []
-                cmd.input(filename)
-                    .outputOptions([
-                        `-f segment`,
-                        `-segment_time ${segmentTime}`,
-                        `-reset_timestamps 1`,
-                        `${outputFolder}/output%03d.${ext}`,
-                    ])
-                    .on("error", (err: Error) => {
-                        logError(err)
-                        reject(err)
-                    })
-                    .on("end", () => {
-                        resolve(segments)
-                    })
-                    .on("filenames", (fns: string[]) => {
-                        segments.push(
-                            ...fns.map((fn) => join(outputFolder, fn))
-                        )
-                    })
-                    .run()
-            })
-    )
-}
-
 export async function videoExtractAudio(
     filename: string,
-    options: { forceConversion?: boolean } & TraceOptions
-): Promise<Buffer> {
+    options: { forceConversion?: boolean; folder?: string } & TraceOptions
+): Promise<string> {
     const { trace, forceConversion } = options
     if (!forceConversion) {
         const mime = lookupMime(filename)
-        if (/^audio/.test(mime)) {
-            const buffer = await host.readFile(filename)
-            return Buffer.from(buffer)
-        }
+        if (/^audio/.test(mime)) return filename
     }
-
-    // ffmpeg -i helloworld.mp4 -q:a 0 -map a output.mp3
-    return runFfmpeg(
+    if (!options.folder)
+        await computeHashFolder(filename, VIDEO_AUDIO_DIR_NAME, options)
+    const output = join(options.folder, basename(filename) + ".wav")
+    return await runFfmpeg(
         async (cmd) =>
-            new Promise<Buffer>(async (resolve, reject) => {
+            new Promise<string>(async (resolve, reject) => {
+                /*
                 const outputStream = new PassThrough()
                 const chunks: Buffer[] = []
                 outputStream.on("data", (chunk) => chunks.push(chunk))
@@ -147,13 +107,16 @@ export async function videoExtractAudio(
                     logError(e)
                     reject(e)
                 })
+                */
+
                 cmd.input(filename)
                     .noVideo()
-                    .input(filename)
                     .toFormat("wav")
-                    .pipe(outputStream)
+                    .save(output)
+                    .on("end", () => resolve(output))
+                    .on("error", (err) => reject(err))
             }),
-        { trace }
+        options
     )
 }
 
@@ -169,17 +132,10 @@ export async function videoExtractFrames(
 ): Promise<string[]> {
     if (!options.count && !options.timestamps) options.count = 3
     if (!options.filename) options.filename = "%b_%i.png"
-    if (!options.folder) {
-        const { trace, ...rest } = options
-        const h = await hash([{ filename }, rest], {
-            readWorkspaceFiles: true,
-            version: true,
-            length: VIDEO_HASH_LENGTH,
-        })
-        options.folder = dotGenaiscriptPath("video", "frames", h)
-    }
+    if (!options.folder)
+        await computeHashFolder(filename, VIDEO_FRAMES_DIR_NAME, options)
 
-    return runFfmpeg(
+    return await runFfmpeg(
         async (cmd) =>
             new Promise(async (resolve, reject) => {
                 let filenames: string[]
@@ -200,4 +156,17 @@ export async function videoExtractFrames(
             }),
         options
     )
+}
+async function computeHashFolder(
+    filename: string,
+    folderid: string,
+    options: { folder?: string } & TraceOptions
+) {
+    const { trace, ...rest } = options
+    const h = await hash([{ filename }, rest], {
+        readWorkspaceFiles: true,
+        version: true,
+        length: VIDEO_HASH_LENGTH,
+    })
+    options.folder = dotGenaiscriptPath("video", folderid, h)
 }

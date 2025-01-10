@@ -1,5 +1,6 @@
-const res = await transcribe("src/audio/helloworld.mp4")
-const segments = res.segments
+const transcript = await transcribe("src/audio/helloworld.mp4")
+console.log(JSON.stringify(transcript, null, 2))
+const segments = transcript.segments
 def("TRANSCRIPT", segments.map((s, i) => `${i + 1}: ${s.text}`).join("\n"), {
     ignoreEmpty: true,
 })
