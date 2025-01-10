@@ -201,7 +201,6 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
             headers: fetchHeaders,
             body,
             method: "POST",
-            signal: toSignal(cancellationToken),
             ...(rest || {}),
         })
     } catch (e) {

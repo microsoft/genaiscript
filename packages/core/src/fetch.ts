@@ -13,6 +13,7 @@ import { readText } from "./fs"
 import { resolveHttpProxyAgent } from "./proxy"
 import { host } from "./host"
 import { renderWithPrecision } from "./precision"
+import crossFetch from "cross-fetch"
 
 export type FetchType = (
     input: string | URL | globalThis.Request,
@@ -52,8 +53,9 @@ export async function createFetch(
 
     // We enrich crossFetch with the proxy.
     const crossFetchWithProxy: typeof fetch = agent
-        ? (url, options) => global.fetch(url, { ...(options || {}), agent } as any)
-        : global.fetch
+        ? (url, options) =>
+              crossFetch(url, { ...(options || {}), agent } as any)
+        : crossFetch
 
     // Return the default fetch if no retry status codes are specified
     if (!retryOn?.length) return crossFetchWithProxy
