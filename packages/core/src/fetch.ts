@@ -14,6 +14,7 @@ import { resolveHttpProxyAgent } from "./proxy"
 import { host } from "./host"
 import { renderWithPrecision } from "./precision"
 import crossFetch from "cross-fetch"
+import prettyBytes from "pretty-bytes"
 
 export type FetchType = (
     input: string | URL | globalThis.Request,
@@ -187,7 +188,7 @@ export function traceFetchPost(
     trace: MarkdownTrace,
     url: string,
     headers: Record<string, string>,
-    body: any,
+    body: FormData | any,
     options?: { showAuthorization?: boolean }
 ) {
     if (!trace) return
@@ -204,12 +205,18 @@ export function traceFetchPost(
                         ? "Bearer ***" // Mask Bearer tokens
                         : "***") // Mask other authorization headers
             )
-    const cmd = `curl ${url} \\
+    let cmd = `curl ${url} \\
 --no-buffer \\
 ${Object.entries(headers)
     .map(([k, v]) => `-H "${k}: ${v}"`)
     .join(" \\\n")} \\
--d '${JSON.stringify(body, null, 2).replace(/'/g, "'\\''")}'
+`
+    if (body instanceof FormData) {
+        body.forEach((value, key) => {
+            cmd += `-F ${key}=${value instanceof File ? `... (${prettyBytes(value.size)}` : "" + value})\n`
+        })
+    } else
+        cmd += `-d 'JSON.stringify(body, null, 2).replace(/'/g, "'\\''")}'
 `
     if (trace) trace.detailsFenced(`✉️ fetch`, cmd, "bash")
     else logVerbose(cmd)

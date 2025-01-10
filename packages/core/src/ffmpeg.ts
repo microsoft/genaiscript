@@ -14,6 +14,8 @@ import {
 } from "./constants"
 import { writeFile, readFile } from "fs/promises"
 import { errorMessage, serializeError } from "./error"
+import { fromBase64 } from "./base64"
+import { fileTypeFromBuffer } from "file-type"
 
 const ffmpegLimit = pLimit(1)
 
@@ -24,17 +26,35 @@ async function ffmpeg(options?: TraceOptions) {
 }
 
 async function computeHashFolder(
-    filename: string,
+    filename: string | WorkspaceFile,
     folderid: string,
     options: { folder?: string } & TraceOptions
 ) {
     const { trace, ...rest } = options
-    const h = await hash([{ filename }, rest], {
-        readWorkspaceFiles: true,
-        version: true,
-        length: VIDEO_HASH_LENGTH,
-    })
+    const h = await hash(
+        [typeof filename === "string" ? { filename } : filename, rest],
+        {
+            readWorkspaceFiles: true,
+            version: true,
+            length: VIDEO_HASH_LENGTH,
+        }
+    )
     options.folder = dotGenaiscriptPath("video", folderid, h)
+}
+
+async function resolveInput(
+    filename: string | WorkspaceFile,
+    folder: string
+): Promise<string> {
+    if (typeof filename === "object") {
+        if (filename.content) {
+            const bytes = fromBase64(filename.content)
+            const mime = await fileTypeFromBuffer(bytes)
+            filename = join(folder, "input." + mime.ext)
+            await writeFile(filename, bytes)
+        } else filename = filename.filename
+    }
+    return filename
 }
 
 export async function runFfmpeg<T>(
@@ -94,17 +114,21 @@ export async function runFfmpeg<T>(
 }
 
 export async function videoExtractAudio(
-    filename: string,
+    filename: string | WorkspaceFile,
     options: { forceConversion?: boolean; folder?: string } & TraceOptions
 ): Promise<string> {
+    if (!filename) throw new Error("filename is required")
+
     const { trace, forceConversion } = options
-    if (!forceConversion) {
+    if (!forceConversion && typeof filename === "string") {
         const mime = lookupMime(filename)
         if (/^audio/.test(mime)) return filename
     }
     if (!options.folder)
         await computeHashFolder(filename, VIDEO_AUDIO_DIR_NAME, options)
-    const output = join(options.folder, basename(filename) + ".wav")
+    await ensureDir(options.folder)
+    const input = await resolveInput(filename, options.folder)
+    const output = join(options.folder, basename(input) + ".wav")
     return await runFfmpeg(
         async (cmd) =>
             new Promise<string>(async (resolve, reject) => {
@@ -124,7 +148,7 @@ export async function videoExtractAudio(
                 })
                 */
 
-                cmd.input(filename)
+                cmd.input(input)
                     .noVideo()
                     .toFormat("wav")
                     .save(output)
@@ -136,7 +160,7 @@ export async function videoExtractAudio(
 }
 
 export async function videoExtractFrames(
-    filename: string,
+    filename: string | WorkspaceFile,
     options: {
         timestamps?: number[] | string[]
         filename?: string
@@ -146,6 +170,8 @@ export async function videoExtractFrames(
         folder?: string
     } & TraceOptions
 ): Promise<string[]> {
+    if (!filename) throw new Error("filename is required")
+
     const { trace, transcript, ...screenshotsOptions } = options
     if (!screenshotsOptions.filename) screenshotsOptions.filename = "%b_%i.png"
     if (transcript?.segments?.length) {
@@ -159,12 +185,13 @@ export async function videoExtractFrames(
             VIDEO_FRAMES_DIR_NAME,
             screenshotsOptions
         )
-
+    await ensureDir(screenshotsOptions.folder)
+    const input = await resolveInput(filename, screenshotsOptions.folder)
     return await runFfmpeg(
         async (cmd) =>
             new Promise(async (resolve, reject) => {
                 let filenames: string[]
-                cmd.input(filename)
+                cmd.input(input)
                     .screenshots(screenshotsOptions)
                     .on("error", (err: Error) => {
                         logError(err)
@@ -184,16 +211,20 @@ export async function videoExtractFrames(
 }
 
 export async function videoProbe(
-    filename: string,
+    filename: string | WorkspaceFile,
     options?: { folder?: string } & TraceOptions
 ): Promise<VideoProbeResult> {
+    if (!filename) throw new Error("filename is required")
+
     const { trace } = options
     if (!options.folder)
         await computeHashFolder(filename, VIDEO_PROBE_DIR_NAME, options)
+    await ensureDir(options.folder)
+    const input = await resolveInput(filename, options.folder)
     return await runFfmpeg(
         async (cmd) =>
             new Promise<VideoProbeResult>((resolve, reject) => {
-                cmd.input(filename).ffprobe((err, data) => {
+                cmd.input(input).ffprobe((err, data) => {
                     if (err) reject(err)
                     else resolve(data as any)
                 })

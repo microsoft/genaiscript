@@ -9,7 +9,6 @@ import { host } from "./host"
 import {
     AZURE_AI_INFERENCE_VERSION,
     AZURE_OPENAI_API_VERSION,
-    MODEL_PROVIDER_OPENAI,
     MODEL_PROVIDERS,
     OPENROUTER_API_CHAT_URL,
     OPENROUTER_SITE_NAME_HEADER,
@@ -41,7 +40,7 @@ import {
     ChatCompletionTokenLogprob,
 } from "./chattypes"
 import { resolveTokenEncoder } from "./encoders"
-import { CancellationOptions, toSignal } from "./cancellation"
+import { CancellationOptions } from "./cancellation"
 import { INITryParse } from "./ini"
 import { serializeChunkChoiceToLogProbs } from "./logprob"
 import { TraceOptions } from "./trace"
@@ -49,7 +48,6 @@ import {
     LanguageModelConfiguration,
     LanguageModelInfo,
 } from "./server/messages"
-import prettyBytes from "pretty-bytes"
 
 export function getConfigHeaders(cfg: LanguageModelConfiguration) {
     let { token, type, base, provider } = cfg
@@ -503,7 +501,7 @@ const transcriber = async (
             body.append("temperature", req.temperature.toString())
         if (req.language) body.append("language", req.language)
 
-        const res = await fetch(url, {
+        const freq = {
             method: "POST",
             headers: {
                 ...getConfigHeaders(cfg),
@@ -511,7 +509,10 @@ const transcriber = async (
                 Accept: "application/json",
             },
             body: body,
-        })
+        }
+        traceFetchPost(trace, url, freq.headers, freq.body)
+        // TODO: switch back to cross-fetch in the future
+        const res = await global.fetch(url, freq as any)
         const j = await res.json()
         return j
     } catch (e) {
