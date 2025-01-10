@@ -291,27 +291,42 @@ Options:
   -h, --help  display help for command
 ```
 
-## `audio`
+## `video`
 
 ```
-Usage: genaiscript audio [options] [command]
+Usage: genaiscript video [options] [command]
 
-Audio tasks
+Video tasks
 
 Options:
-  -h, --help        display help for command
+  -h, --help             display help for command
 
 Commands:
-  transcode <file>  Transcode video/audio file
-  help [command]    display help for command
+  extract-audio <file>   Transcode video/audio file
+  extract-frames <file>  Extract video frames
+  help [command]         display help for command
 ```
 
-### `audio transcode`
+### `video extract-audio`
 
 ```
-Usage: genaiscript audio transcode [options] <file>
+Usage: genaiscript video extract-audio [options] <file>
 
 Transcode video/audio file
+
+Arguments:
+  file        Audio or video file to transcode
+
+Options:
+  -h, --help  display help for command
+```
+
+### `video extract-frames`
+
+```
+Usage: genaiscript video extract-frames [options] <file>
+
+Extract video frames
 
 Arguments:
   file        Audio or video file to transcode

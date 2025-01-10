@@ -1,9 +1,10 @@
 import { fileTypeFromBuffer } from "file-type"
-import { PassThrough } from "stream"
+import { PassThrough, pipeline } from "stream"
 import { logError, logVerbose } from "./util"
 import { TraceOptions } from "./trace"
 import { lookupMime } from "./mime"
 import { host } from "./host"
+import pLimit from "p-limit"
 
 async function ffmpeg() {
     const m = await import("fluent-ffmpeg")
@@ -48,32 +49,20 @@ export async function convertToAudioBlob(
             .noVideo()
             .input(file)
             .toFormat("wav")
-            .on("error", reject)
             .pipe(outputStream, { end: true })
     })
 }
 
-export async function renderVideoFrames(file: string, timestamps: number[]) {
-    const frames: Buffer[] = []
-    return new Promise<Buffer[]>(async (resolve, reject) => {
+export async function extractAllFrames(videoPath: string): Promise<string[]> {
+    return new Promise(async (resolve, reject) => {
         const cmd = await ffmpeg()
-        cmd.input(file)
-            .outputOptions([
-                "-f image2pipe",
-                "-pix_fmt rgb24",
-                "-vcodec rawvideo",
-                "-vf select='eq(pict_type,I)'",
-                `-ss ${timestamps.join(",")}`,
-            ])
-            .on("error", reject)
-            .on("end", () => resolve(frames))
-            .pipe(
-                new PassThrough({
-                    transform: (chunk, _, callback) => {
-                        frames.push(chunk)
-                        callback()
-                    },
-                })
-            )
+        cmd.input(videoPath)
+            .screenshots({
+                timestamps: [0, 1, 2.1],
+            })
+            .on("error", (err: Error) => reject(err))
+            .on("filenames", (filenames: string[]) => {
+                resolve(filenames)
+            })
     })
 }
