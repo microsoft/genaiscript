@@ -36,7 +36,7 @@ import { dispose } from "./dispose"
 export async function callExpander(
     prj: Project,
     r: PromptScript,
-    vars: ExpansionVariables,
+    vars: Partial<ExpansionVariables>,
     trace: MarkdownTrace,
     options: GenerationOptions
 ) {
@@ -151,7 +151,7 @@ export async function callExpander(
 function traceEnv(
     model: string,
     trace: MarkdownTrace,
-    env: ExpansionVariables
+    env: Partial<ExpansionVariables>
 ) {
     trace.startDetails("🏡 env")
     trace.files(env.files, {
@@ -179,7 +179,7 @@ export async function expandTemplate(
     prj: Project,
     template: PromptScript,
     options: GenerationOptions,
-    env: ExpansionVariables,
+    env: Partial<ExpansionVariables>,
     trace: MarkdownTrace
 ) {
     const model = options.model

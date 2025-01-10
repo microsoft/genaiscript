@@ -3,7 +3,7 @@
 // The context is essential for executing prompts within a project environment.
 
 import { host } from "./host"
-import { arrayify, dotGenaiscriptPath } from "./util"
+import { arrayify, assert, dotGenaiscriptPath } from "./util"
 import { runtimeHost } from "./host"
 import { MarkdownTrace } from "./trace"
 import { createParsers } from "./parsers"
@@ -40,14 +40,15 @@ import { fetch, fetchText } from "./fetch"
  */
 export async function createPromptContext(
     prj: Project,
-    ev: ExpansionVariables,
+    ev: Partial<ExpansionVariables>,
     trace: MarkdownTrace,
     options: GenerationOptions,
     model: string
 ) {
-    const { generator, vars, ...varsNoGenerator } = ev
+    const { generator, vars, output, ...varsNoGenerator } = ev
     // Clone variables to prevent modification of the original object
-    const env = { generator, vars, ...structuredClone(varsNoGenerator) }
+    const env = { generator, vars, output, ...structuredClone(varsNoGenerator) }
+    assert(!!output, "missing output")
     // Create parsers for the given trace and model
     const parsers = await createParsers({ trace, model })
     const path = runtimeHost.path
@@ -304,7 +305,7 @@ export async function createPromptContext(
     }
     env.generator = ctx
     env.vars = proxifyVars(env.vars)
-    ctx.env = Object.freeze(env)
+    ctx.env = Object.freeze<ExpansionVariables>(env as ExpansionVariables)
 
     return ctx
 }

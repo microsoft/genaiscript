@@ -597,10 +597,152 @@ interface ToolDefinition {
     parameters?: JSONSchema
 }
 
+/**
+ * Interface representing an output trace with various logging and tracing methods.
+ * Extends the `ToolCallTrace` interface.
+ */
+interface OutputTrace extends ToolCallTrace {
+    /**
+     * Logs a heading message at the specified level.
+     * @param level - The level of the heading.
+     * @param message - The heading message.
+     */
+    heading(level: number, message: string): void
+
+    /**
+     * Logs an image with an optional caption.
+     * @param url - The URL of the image.
+     * @param caption - The optional caption for the image.
+     */
+    image(url: string, caption?: string): void
+
+    /**
+     * Logs a result item with a boolean value and a message.
+     * @param value - The boolean value of the result item.
+     * @param message - The message for the result item.
+     */
+    resultItem(value: boolean, message: string): void
+
+    /**
+     * Starts a trace with details in markdown format.
+     * @param title - The title of the trace.
+     * @param options - Optional settings for the trace.
+     * @returns A `MarkdownTrace` instance.
+     */
+    startTraceDetails(
+        title: string,
+        options?: { expanded?: boolean }
+    ): MarkdownTrace
+
+    /**
+     * Appends content to the trace.
+     * @param value - The content to append.
+     */
+    appendContent(value: string): void
+
+    /**
+     * Starts a details section in the trace.
+     * @param title - The title of the details section.
+     * @param options - Optional settings for the details section.
+     */
+    startDetails(
+        title: string,
+        options?: { success?: boolean; expanded?: boolean }
+    ): void
+
+    /**
+     * Ends the current details section in the trace.
+     */
+    endDetails(): void
+
+    /**
+     * Logs a video with a name, file path, and optional alt text.
+     * @param name - The name of the video.
+     * @param filepath - The file path of the video.
+     * @param alt - The optional alt text for the video.
+     */
+    video(name: string, filepath: string, alt?: string): void
+
+    /**
+     * Logs a details section with a title and body.
+     * @param title - The title of the details section.
+     * @param body - The body content of the details section, can be a string or an object.
+     * @param options - Optional settings for the details section.
+     */
+    details(
+        title: string,
+        body: string | object,
+        options?: { success?: boolean; expanded?: boolean }
+    ): void
+
+    /**
+     * Logs a fenced details section with a title, body, and optional content type.
+     * @param title - The title of the details section.
+     * @param body - The body content of the details section, can be a string or an object.
+     * @param contentType - The optional content type of the body.
+     * @param options - Optional settings for the details section.
+     */
+    detailsFenced(
+        title: string,
+        body: string | object,
+        contentType?: string,
+        options?: { expanded?: boolean }
+    ): void
+
+    /**
+     * Logs an item with a name, value, and optional unit.
+     * @param name - The name of the item.
+     * @param value - The value of the item.
+     * @param unit - The optional unit of the value.
+     */
+    itemValue(name: string, value: any, unit?: string): void
+
+    /**
+     * Logs a warning message.
+     * @param msg - The warning message to log.
+     */
+    warn(msg: string): void
+
+    /**
+     * Logs a caution message.
+     * @param msg - The caution message to log.
+     */
+    caution(msg: string): void
+
+    /**
+     * Logs a note message.
+     * @param msg - The note message to log.
+     */
+    note(msg: string): void
+}
+
+/**
+ * Interface representing a tool call trace for logging various types of messages.
+ */
 interface ToolCallTrace {
+    /**
+     * Logs a general message.
+     * @param message - The message to log.
+     */
     log(message: string): void
+
+    /**
+     * Logs an item message.
+     * @param message - The item message to log.
+     */
     item(message: string): void
+
+    /**
+     * Logs a tip message.
+     * @param message - The tip message to log.
+     */
     tip(message: string): void
+
+    /**
+     * Logs a fenced message, optionally specifying the content type.
+     * @param message - The fenced message to log.
+     * @param contentType - The optional content type of the message.
+     */
     fence(message: string, contentType?: string): void
 }
 
@@ -895,6 +1037,11 @@ interface ExpansionVariables {
      * Root prompt generation context
      */
     generator: ChatGenerationContext
+
+    /**
+     * Output trace builder
+     */
+    output: OutputTrace
 
     /**
      * Metadata of the top-level prompt
