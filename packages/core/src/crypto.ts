@@ -3,6 +3,8 @@ import { getRandomValues as cryptoGetRandomValues } from "crypto"
 
 // Importing the toHex function from the util module to convert byte arrays to hexadecimal strings
 import { concatBuffers, toHex, utf8Encode } from "./util"
+import { createReadStream } from "fs"
+import { createHash } from "crypto"
 import { CORE_VERSION } from "./version"
 
 function getRandomValues(bytes: Uint8Array) {
@@ -41,7 +43,14 @@ export function randomHex(size: number) {
 }
 
 export async function hash(value: any, options?: HashOptions) {
-    const { algorithm = "sha-256", version, length, ...rest } = options || {}
+    const {
+        algorithm = "sha-256",
+        version,
+        length,
+        salt,
+        readWorkspaceFiles,
+        ...rest
+    } = options || {}
 
     const sep = utf8Encode("|")
     const un = utf8Encode("undefined")
@@ -67,16 +76,34 @@ export async function hash(value: any, options?: HashOptions) {
         else if (v instanceof ArrayBuffer) h.push(new Uint8Array(v))
         else if (v instanceof Blob)
             h.push(new Uint8Array(await v.arrayBuffer()))
-        else if (typeof v === "object")
+        else if (typeof v === "object") {
             for (const c of Object.keys(v).sort()) {
                 h.push(sep)
                 h.push(utf8Encode(c))
                 h.push(sep)
                 await append(v[c])
             }
-        else if (typeof v === "function") h.push(utf8Encode(v.toString()))
+            if (
+                readWorkspaceFiles &&
+                typeof v.filename === "string" &&
+                v.content === undefined &&
+                !/^https?:\/\//i.test(v.filename)
+            ) {
+                try {
+                    const h = await hashFile(v.filename)
+                    await append(sep)
+                    await append(h)
+                } catch {}
+            }
+        } else if (typeof v === "function") h.push(utf8Encode(v.toString()))
         else h.push(utf8Encode(JSON.stringify(v)))
     }
+
+    if (salt) {
+        await append(salt)
+        await append(sep)
+    }
+
     if (version) {
         await append(CORE_VERSION)
         await append(sep)
@@ -89,4 +116,29 @@ export async function hash(value: any, options?: HashOptions) {
     let res = toHex(new Uint8Array(buf))
     if (length) res = res.slice(0, length)
     return res
+}
+
+/**
+ * Streaming file hashing
+ */
+export async function hashFile(
+    filePath: string,
+    algorithm: string = "sha-256"
+): Promise<string> {
+    return new Promise((resolve, reject) => {
+        const hash = createHash(algorithm)
+        const stream = createReadStream(filePath)
+
+        stream.on("data", (chunk) => {
+            hash.update(chunk)
+        })
+
+        stream.on("end", () => {
+            resolve(hash.digest("hex"))
+        })
+
+        stream.on("error", (err) => {
+            reject(err)
+        })
+    })
 }

@@ -1396,9 +1396,26 @@ interface Tokenizers {
 }
 
 interface HashOptions {
-    algorithm?: "sha-1" | "sha-256"
+    /**
+     * Algorithm used for hashing
+     */
+    algorithm?: "sha-256"
+    /**
+     * Trim hash to this number of character
+     */
     length?: number
+    /**
+     * Include genaiscript version in the hash
+     */
     version?: boolean
+    /**
+     * Optional salting of the hash
+     */
+    salt?: string
+    /**
+     * Read the content of workspace files object into the hash
+     */
+    readWorkspaceFiles?: boolean
 }
 
 interface VideoExtractFramesOptions {
