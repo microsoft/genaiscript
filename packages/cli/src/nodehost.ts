@@ -391,7 +391,7 @@ export class NodeHost implements RuntimeHost {
         containerId: string,
         command: string,
         args: string[],
-        options: ShellOptions & TraceOptions
+        options: ShellOptions & TraceOptions & CancellationOptions
     ) {
         if (containerId) {
             const container = await this.containers.container(containerId)
@@ -402,6 +402,7 @@ export class NodeHost implements RuntimeHost {
             label,
             cwd,
             timeout = SHELL_EXEC_TIMEOUT,
+            cancellationToken,
             stdin: input,
         } = options || {}
         const trace = options?.trace?.startTraceDetails(label || command)
@@ -421,6 +422,7 @@ export class NodeHost implements RuntimeHost {
                 command,
                 args,
                 {
+                    cancellationToken,
                     cleanup: true,
                     input,
                     timeout,

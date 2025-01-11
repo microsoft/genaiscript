@@ -398,7 +398,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
     } satisfies ChatCompletionResponse
 }
 
-async function listModels(
+export async function OpenAIListModels(
     cfg: LanguageModelConfiguration,
     options: TraceOptions & CancellationOptions
 ): Promise<LanguageModelInfo[]> {
@@ -429,11 +429,11 @@ async function listModels(
     )
 }
 
-const transcriber = async (
+export async function OpenAITranscribe(
     req: CreateTranscriptionRequest,
     cfg: LanguageModelConfiguration,
     options: TraceOptions & CancellationOptions
-): Promise<TranscriptionResult> => {
+): Promise<TranscriptionResult> {
     const { trace } = options || {}
     const fetch = await createFetch(options)
     try {
@@ -478,8 +478,8 @@ export function LocalOpenAICompatibleModel(
         deleteUndefinedValues({
             completer: OpenAIChatCompletion,
             id: providerId,
-            listModels: options?.listModels ? listModels : undefined,
-            transcriber: options?.transcribe ? transcriber : undefined,
+            listModels: options?.listModels ? OpenAIListModels : undefined,
+            transcriber: options?.transcribe ? OpenAITranscribe : undefined,
         })
     )
 }

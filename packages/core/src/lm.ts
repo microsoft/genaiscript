@@ -8,6 +8,7 @@ import {
     MODEL_PROVIDER_ANTHROPIC_BEDROCK,
     MODEL_PROVIDER_CLIENT,
     MODEL_PROVIDER_GITHUB,
+    MODEL_PROVIDER_LMSTUDIO,
     MODEL_PROVIDER_OLLAMA,
     MODEL_PROVIDER_TRANSFORMERS,
     MODEL_PROVIDERS,
@@ -17,6 +18,7 @@ import { OllamaModel } from "./ollama"
 import { LocalOpenAICompatibleModel } from "./openai"
 import { TransformersModel } from "./transformers"
 import { GitHubModel } from "./github"
+import { LMStudioModel } from "./lmstudio"
 
 export function resolveLanguageModel(provider: string): LanguageModel {
     if (provider === MODEL_PROVIDER_CLIENT) {
@@ -31,6 +33,7 @@ export function resolveLanguageModel(provider: string): LanguageModel {
     if (provider === MODEL_PROVIDER_ANTHROPIC_BEDROCK)
         return AnthropicBedrockModel
     if (provider === MODEL_PROVIDER_TRANSFORMERS) return TransformersModel
+    if (provider === MODEL_PROVIDER_LMSTUDIO) return LMStudioModel
 
     const features = MODEL_PROVIDERS.find((p) => p.id === provider)
     return LocalOpenAICompatibleModel(provider, {

@@ -158,7 +158,7 @@ export interface RuntimeHost extends Host {
         containerId: string,
         command: string,
         args: string[],
-        options: ShellOptions & TraceOptions
+        options: ShellOptions & TraceOptions & CancellationOptions
     ): Promise<ShellOutput>
 
     /**
