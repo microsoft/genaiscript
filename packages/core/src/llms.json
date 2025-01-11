@@ -183,7 +183,8 @@
             "prediction": false,
             "aliases": {
                 "large": "phi-4",
-                "small": "llama-3.2-3b"
+                "small": "llama-3.2-3b-instruct",
+                "embeddings": "text-embedding-nomic-embed-text-v1.5"
             }
         },
         {
