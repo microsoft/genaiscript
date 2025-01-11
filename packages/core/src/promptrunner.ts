@@ -271,8 +271,11 @@ export async function runTemplate(
             changelogs,
             edits,
         } = chatResult
-        let { annotations } = chatResult
-        if (chatResult.text) output.appendContent(chatResult.text)
+        let { text, annotations } = chatResult
+        const userContent = output.content
+        if (userContent) {
+            text = userContent + "\n\n" + text
+        }
 
         // Reporting and tracing output
         if (fences?.length)
@@ -324,7 +327,7 @@ export async function runTemplate(
             annotations,
             changelogs,
             fileEdits,
-            text: output.content,
+            text,
             version,
             fences,
             frames,
