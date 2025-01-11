@@ -35,7 +35,6 @@ export function resolveLanguageModel(provider: string): LanguageModel {
     const features = MODEL_PROVIDERS.find((p) => p.id === provider)
     return LocalOpenAICompatibleModel(provider, {
         listModels: features?.listModels !== false,
-        pullModel: features?.pullModel,
-        transcribe: features?.transcribe
+        transcribe: features?.transcribe,
     })
 }
