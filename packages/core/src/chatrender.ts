@@ -190,3 +190,34 @@ function renderToolArguments(args: string) {
     if (js) return fenceMD(YAMLStringify(js), "yaml")
     else return fenceMD(args, "json")
 }
+
+export function collapseChatMessages(messages: ChatCompletionMessageParam[]) {
+    // concat the content of system messages at the start of the messages into a single message
+    const startSystem = messages.findIndex((m) => m.role === "system")
+    if (startSystem > -1) {
+        let endSystem =
+            startSystem +
+            messages
+                .slice(startSystem)
+                .findIndex((m) => m.role !== "system" || m.cacheControl)
+        if (endSystem < 0) endSystem = messages.length
+        if (endSystem > startSystem + 1) {
+            const systemContent = messages
+                .slice(startSystem, endSystem)
+                .map((m) => m.content)
+                .join("\n")
+            messages.splice(startSystem, endSystem - startSystem, {
+                role: "system",
+                content: systemContent,
+            })
+        }
+    }
+
+    // remove emty text contents
+    messages
+        .filter((m) => m.role === "user")
+        .forEach((m) => {
+            if (typeof m.content !== "string")
+                m.content = m.content.filter((c) => c.type !== "text" || c.text)
+        })
+}

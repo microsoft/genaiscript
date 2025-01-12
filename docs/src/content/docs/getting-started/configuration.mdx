@@ -1156,7 +1156,6 @@ or a [GitHub Action](https://docs.github.com/en/actions)!
 
 <LLMProviderFeatures provider="ollama" />
 
-
 ## DeepSeek
 
 `deepseek` is the [DeepSeek](https://www.deepseek.com/) chat model provider.
@@ -1204,12 +1203,6 @@ script({
 
 The `lmstudio` provider connects to the [LMStudio](https://lmstudio.ai/) headless server.
 and allows to run local LLMs.
-
-:::note
-
-LMStudio 0.3.5 beta 4 or later is required.
-
-:::
 
 <Steps>
 
@@ -1263,11 +1256,15 @@ script({
 })
 ```
 
+- GenAIScript uses the [LMStudio CLI](https://lmstudio.ai/docs/cli)
+to pull models on demand.
+- Specifiying the quantization is currently not supported.
+
+<LLMProviderFeatures provider="lmstudio" />
+
 ### LMStudio and Hugging Face Models
 
 Follow [this guide](https://huggingface.co/blog/yagilb/lms-hf) to load Hugging Face models into LMStudio.
-
-<LLMProviderFeatures provider="lmstudio" />
 
 ## Jan
 

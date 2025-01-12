@@ -398,7 +398,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
     } satisfies ChatCompletionResponse
 }
 
-async function listModels(
+export async function OpenAIListModels(
     cfg: LanguageModelConfiguration,
     options: TraceOptions & CancellationOptions
 ): Promise<LanguageModelInfo[]> {
@@ -429,63 +429,11 @@ async function listModels(
     )
 }
 
-const pullModel: PullModelFunction = async (modelId, options) => {
-    const { trace, cancellationToken } = options || {}
-    const { provider, model } = parseModelIdentifier(modelId)
-    const fetch = await createFetch({ retries: 0, ...options })
-    const conn = await host.getLanguageModelConfiguration(modelId, {
-        token: true,
-        cancellationToken,
-        trace,
-    })
-    try {
-        // test if model is present
-        const resTags = await fetch(`${conn.base}/models`, {
-            retries: 0,
-            method: "GET",
-            headers: {
-                "User-Agent": TOOL_ID,
-                "Content-Type": "application/json",
-            },
-        })
-        if (resTags.ok) {
-            const { data: models }: { data: { id: string }[] } =
-                await resTags.json()
-            if (models.find((m) => m.id === model)) return { ok: true }
-        }
-
-        // pull
-        logVerbose(`${provider}: pull ${model}`)
-        const resPull = await fetch(`${conn.base}/models/pull`, {
-            method: "POST",
-            headers: {
-                "User-Agent": TOOL_ID,
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ model }),
-        })
-        if (!resPull.ok) {
-            logError(`${provider}: failed to pull model ${model}`)
-            logVerbose(resPull.statusText)
-            return { ok: false, status: resPull.status }
-        }
-        0
-        for await (const {} of iterateBody(resPull, { cancellationToken }))
-            process.stderr.write(".")
-        process.stderr.write("\n")
-        return { ok: true }
-    } catch (e) {
-        logError(e)
-        trace?.error(e)
-        return { ok: false, error: serializeError(e) }
-    }
-}
-
-const transcriber = async (
+export async function OpenAITranscribe(
     req: CreateTranscriptionRequest,
     cfg: LanguageModelConfiguration,
     options: TraceOptions & CancellationOptions
-): Promise<TranscriptionResult> => {
+): Promise<TranscriptionResult> {
     const { trace } = options || {}
     const fetch = await createFetch(options)
     try {
@@ -524,15 +472,14 @@ const transcriber = async (
 
 export function LocalOpenAICompatibleModel(
     providerId: string,
-    options: { listModels?: boolean; pullModel?: boolean; transcribe?: boolean }
+    options: { listModels?: boolean; transcribe?: boolean }
 ) {
     return Object.freeze<LanguageModel>(
         deleteUndefinedValues({
             completer: OpenAIChatCompletion,
             id: providerId,
-            listModels: options?.listModels ? listModels : undefined,
-            pullModel: options?.pullModel ? pullModel : undefined,
-            transcriber: options?.transcribe ? transcriber : undefined,
+            listModels: options?.listModels ? OpenAIListModels : undefined,
+            transcriber: options?.transcribe ? OpenAITranscribe : undefined,
         })
     )
 }

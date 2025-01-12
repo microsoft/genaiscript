@@ -181,6 +181,7 @@
             "id": "lmstudio",
             "detail": "LM Studio local server",
             "prediction": false,
+            "pullModel": true,
             "aliases": {
                 "large": "phi-4",
                 "small": "llama-3.2-3b-instruct",
