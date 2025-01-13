@@ -127,8 +127,8 @@ export async function runTemplate(
 
     runtimeHost.project = prj
 
-    const output = new MarkdownTrace()
-    output.addEventListener(TRACE_CHUNK, (e) =>
+    const outputTrace = options.outputTrace || new MarkdownTrace()
+    outputTrace.addEventListener(TRACE_CHUNK, (e) =>
         logVerbose((e as TraceChunkEvent).chunk)
     )
     try {
@@ -143,7 +143,7 @@ export async function runTemplate(
             trace,
             template,
             fragment,
-            output,
+            outputTrace,
             options.vars
         )
         let {
@@ -178,7 +178,7 @@ export async function runTemplate(
                 vars,
                 label,
                 version,
-                text: output.content,
+                text: outputTrace.content,
                 edits: [],
                 annotations: [],
                 changelogs: [],
@@ -217,7 +217,7 @@ export async function runTemplate(
                 vars,
                 label,
                 version,
-                text: output.content,
+                text: outputTrace.content,
                 edits: [],
                 annotations: [],
                 changelogs: [],
@@ -277,11 +277,7 @@ export async function runTemplate(
             changelogs,
             edits,
         } = chatResult
-        let { text, annotations } = chatResult
-        const userContent = output.content
-        if (userContent) {
-            text = userContent + "\n\n" + text
-        }
+        let { annotations } = chatResult
 
         // Reporting and tracing output
         if (fences?.length)
@@ -333,7 +329,7 @@ export async function runTemplate(
             annotations,
             changelogs,
             fileEdits,
-            text,
+            text: outputTrace.content,
             version,
             fences,
             frames,

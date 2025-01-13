@@ -140,13 +140,19 @@ export async function runScriptInternal(
     options: Partial<PromptScriptRunOptions> &
         TraceOptions &
         CancellationOptions & {
+            outputTrace?: MarkdownTrace
             cli?: boolean
             workspaceFiles?: WorkspaceFile[]
             infoCb?: (partialResponse: { text: string }) => void
             partialCb?: (progress: ChatCompletionsProgressReport) => void
         }
 ): Promise<{ exitCode: number; result?: GenerationResult }> {
-    const { trace = new MarkdownTrace(), infoCb, partialCb } = options || {}
+    const {
+        trace = new MarkdownTrace(),
+        outputTrace = new MarkdownTrace(),
+        infoCb,
+        partialCb,
+    } = options || {}
 
     runtimeHost.clearModelAlias("script")
     let result: GenerationResult
@@ -368,6 +374,7 @@ export async function runScriptInternal(
             maxDelay,
             vars,
             trace,
+            outputTrace,
             fallbackTools,
             logprobs,
             topLogprobs,
