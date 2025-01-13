@@ -122,7 +122,7 @@ export class NodeHost implements RuntimeHost {
     }
 
     clearModelAlias(source: "cli" | "env" | "config" | "script") {
-        delete this._modelAliases[source]
+        this._modelAliases[source] = {}
     }
 
     setModelAlias(
