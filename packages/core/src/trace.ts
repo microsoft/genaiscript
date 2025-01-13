@@ -27,14 +27,16 @@ import { INIStringify } from "./ini"
 import { ChatCompletionsProgressReport } from "./chattypes"
 
 export class TraceChunkEvent extends Event {
-    constructor(readonly chunk: string) {
+    constructor(
+        readonly chunk: string,
+        readonly progress?: ChatCompletionsProgressReport
+    ) {
         super(TRACE_CHUNK)
     }
-}
 
-export class ChatProgressEvent extends Event {
-    constructor(readonly progress: ChatCompletionsProgressReport) {
-        super(CHAT_PROGRESS)
+    clone(): TraceChunkEvent {
+        const ev = new TraceChunkEvent(this.chunk, this.progress)
+        return ev
     }
 }
 
@@ -72,17 +74,10 @@ export class MarkdownTrace extends EventTarget implements OutputTrace {
     startTraceDetails(title: string, options?: { expanded?: boolean }) {
         const trace = new MarkdownTrace({ ...this.options })
         trace.addEventListener(TRACE_CHUNK, (ev) =>
-            this.dispatchEvent(
-                new TraceChunkEvent((ev as TraceChunkEvent).chunk)
-            )
+            this.dispatchEvent((ev as TraceChunkEvent).clone())
         )
         trace.addEventListener(TRACE_DETAILS, () =>
             this.dispatchEvent(new Event(TRACE_DETAILS))
-        )
-        trace.addEventListener(CHAT_PROGRESS, (ev) =>
-            this.dispatchEvent(
-                new ChatProgressEvent((ev as ChatProgressEvent).progress)
-            )
         )
         trace.startDetails(title, options)
         this._content.push(trace)
@@ -90,10 +85,16 @@ export class MarkdownTrace extends EventTarget implements OutputTrace {
     }
 
     chatProgress(progress: ChatCompletionsProgressReport) {
-        const { inner, responseChunk } = progress
-        if (!inner) this._content.push(responseChunk)
-        const ev = new ChatProgressEvent(progress)
-        this.dispatchEvent(ev)
+        const { inner, responseChunk: value } = progress
+        if (!value) return
+
+        if (!inner) {
+            this._content.push(value)
+            this._content.push(value)
+            this._tree = undefined
+            this.dispatchChange()
+        }
+        this.dispatchEvent(new TraceChunkEvent(value, progress))
     }
 
     appendContent(value: string) {
