@@ -1,6 +1,5 @@
 import {
     CHANGE,
-    CHAT_PROGRESS,
     EMOJI_FAIL,
     EMOJI_SUCCESS,
     EMOJI_UNDEFINED,
