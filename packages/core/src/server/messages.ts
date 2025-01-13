@@ -282,6 +282,13 @@ export interface PromptScriptProgressResponseEvent {
     inner?: boolean
 }
 
+export interface PromptScriptTraces extends RequestMessage {
+    type: "script.traces"
+    runId: string
+    trace?: string
+    output?: string
+}
+
 export interface LanguageModelConfigurationRequest extends RequestMessage {
     type: "model.configuration"
     model: string
@@ -333,6 +340,7 @@ export type RequestMessages =
     | PromptScriptTestRun
     | PromptScriptStart
     | PromptScriptAbort
+    | PromptScriptTraces
     | ChatChunk
     | LanguageModelConfigurationRequest
     | PromptScriptList

@@ -270,6 +270,16 @@ export async function startServer(options: {
                 for (const client of this.clients) client.send(cmsg)
             else ws?.send(cmsg)
         }
+        const sendProgress = (
+            runId: string,
+            payload: Omit<PromptScriptProgressResponseEvent, "type" | "runId">
+        ) => {
+            send({
+                type: "script.progress",
+                runId,
+                ...payload,
+            } satisfies PromptScriptProgressResponseEvent)
+        }
 
         // Handle incoming messages based on their type.
         ws.on("message", async (msg) => {
@@ -335,6 +345,26 @@ export async function startServer(options: {
                         })
                         break
                     }
+                    case "script.traces": {
+                        const { runId } = data
+                        const run = runs[runId]
+                        if (run) {
+                            const trace = run.trace.content
+                            const output = run.outputTrace.content
+                            chunkString(trace).forEach((c) =>
+                                sendProgress(runId, { trace: c })
+                            )
+                            chunkString(output).forEach((c) =>
+                                sendProgress(runId, { output: c })
+                            )
+                            response = {
+                                ok: true,
+                            }
+                        } else {
+                            response = { ok: false }
+                        }
+                        break
+                    }
                     // Handle script start request
                     case "script.start": {
                         // Cancel any active scripts
@@ -345,28 +375,16 @@ export async function startServer(options: {
                             new AbortSignalCancellationController()
                         const trace = new MarkdownTrace()
                         const outputTrace = new MarkdownTrace()
-                        const sendProgress = (
-                            payload: Omit<
-                                PromptScriptProgressResponseEvent,
-                                "type" | "runId"
-                            >
-                        ) => {
-                            send({
-                                type: "script.progress",
-                                runId,
-                                ...payload,
-                            } satisfies PromptScriptProgressResponseEvent)
-                        }
                         trace.addEventListener(TRACE_CHUNK, (ev) => {
                             const tev = ev as TraceChunkEvent
                             chunkString(tev.chunk, 2 << 14).forEach((c) =>
-                                sendProgress({ trace: c })
+                                sendProgress(runId, { trace: c })
                             )
                         })
                         outputTrace.addEventListener(TRACE_CHUNK, (ev) => {
                             const tev = ev as TraceChunkEvent
                             chunkString(tev.chunk, 2 << 14).forEach((c) =>
-                                sendProgress({ output: c })
+                                sendProgress(runId, { output: c })
                             )
                         })
                         logVerbose(`run ${runId}: starting ${script}`)
@@ -377,7 +395,7 @@ export async function startServer(options: {
                             outputTrace,
                             cancellationToken: canceller.token,
                             infoCb: ({ text }) => {
-                                sendProgress({ progress: text })
+                                sendProgress(runId, { progress: text })
                             },
                             partialCb: ({
                                 responseChunk,
@@ -385,7 +403,7 @@ export async function startServer(options: {
                                 tokensSoFar,
                                 responseTokens,
                             }) => {
-                                sendProgress({
+                                sendProgress(runId, {
                                     response: responseSoFar,
                                     responseChunk,
                                     tokens: tokensSoFar,

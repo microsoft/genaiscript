@@ -35,11 +35,11 @@ import type {
     Project,
     PromptScriptListResponse,
     PromptScriptResponseEvents,
-    PromptScriptStart,
     GenerationResult,
     ResolvedLanguageModelConfiguration,
     ServerEnvResponse,
     RequestMessages,
+    PromptScriptProgressResponseEvent,
 } from "../../core/src/server/messages"
 import { promptParametersSchemaToJSONSchema } from "../../core/src/parameters"
 import {
@@ -87,12 +87,9 @@ const fetchEnv = async (): Promise<ResolvedLanguageModelConfiguration[]> => {
     return j.providers
 }
 
-type TraceEvent = CustomEvent<{ trace?: string; output?: string }>
-
 class RunClient extends WebSocketClient {
     static readonly SCRIPT_START_EVENT = "scriptStart"
-    static readonly TRACE_EVENT = "trace"
-    static readonly OUTPUT_EVENT = "output"
+    static readonly PROGRESS_EVENT = "progress"
     static readonly SCRIPT_END_EVENT = "scriptEnd"
 
     constructor(url: string) {
@@ -105,18 +102,11 @@ class RunClient extends WebSocketClient {
                     | RequestMessages
                 switch (data.type) {
                     case "script.progress": {
-                        if (data.trace)
-                            this.dispatchEvent(
-                                new CustomEvent(RunClient.TRACE_EVENT, {
-                                    detail: data.trace,
-                                })
-                            )
-                        if (data.output)
-                            this.dispatchEvent(
-                                new CustomEvent(RunClient.OUTPUT_EVENT, {
-                                    detail: data.output,
-                                })
-                            )
+                        this.dispatchEvent(
+                            new CustomEvent(RunClient.PROGRESS_EVENT, {
+                                detail: data,
+                            })
+                        )
                         break
                     }
                     case "script.end": {
@@ -456,12 +446,14 @@ function useTrace() {
     useEffect(() => runId && setTrace(""), [runId])
     const appendTrace = useCallback(
         (evt: Event) => {
-            const trace = (evt as CustomEvent).detail
-            startTransition(() => setTrace((previous) => previous + trace))
+            const { runId: rid, trace } = (evt as CustomEvent)
+                .detail as PromptScriptProgressResponseEvent
+            if (rid === runId && trace)
+                startTransition(() => setTrace((previous) => previous + trace))
         },
         [runId]
     )
-    useEventListener(client, RunClient.TRACE_EVENT, appendTrace)
+    useEventListener(client, RunClient.PROGRESS_EVENT, appendTrace)
     return trace
 }
 
@@ -472,12 +464,16 @@ function useOutput() {
     useEffect(() => runId && setOutput(""), [runId])
     const appendTrace = useCallback(
         (evt: Event) => {
-            const output = (evt as CustomEvent).detail
-            startTransition(() => setOutput((previous) => previous + output))
+            const { runId: rid, output } = (evt as CustomEvent)
+                .detail as PromptScriptProgressResponseEvent
+            if (rid === runId && output)
+                startTransition(() =>
+                    setOutput((previous) => previous + output)
+                )
         },
         [runId]
     )
-    useEventListener(client, RunClient.OUTPUT_EVENT, appendTrace)
+    useEventListener(client, RunClient.PROGRESS_EVENT, appendTrace)
     return output
 }
 
