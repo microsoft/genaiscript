@@ -14,7 +14,7 @@ import {
 } from "./server/messages"
 import { parseTokenFromEnv } from "./connection"
 import { resolveLanguageModel } from "./lm"
-import { deleteEmptyValues } from "./util"
+import { deleteEmptyValues } from "./clone"
 import { errorMessage } from "./error"
 
 export async function resolveGlobalConfiguration(

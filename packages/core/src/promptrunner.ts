@@ -122,7 +122,8 @@ export async function runTemplate(
     assert(options !== undefined)
     assert(options.trace !== undefined)
     assert(options.outputTrace !== undefined)
-    const { label, cliInfo, trace, outputTrace, cancellationToken, model } = options
+    const { label, cliInfo, trace, outputTrace, cancellationToken, model } =
+        options
     const version = CORE_VERSION
     assert(model !== undefined)
 
@@ -135,7 +136,7 @@ export async function runTemplate(
         }
 
         // Resolve expansion variables for the template
-        const vars = await resolveExpansionVars(
+        const env = await resolveExpansionVars(
             prj,
             trace,
             template,
@@ -163,7 +164,8 @@ export async function runTemplate(
             logprobs,
             topLogprobs,
             disposables,
-        } = await expandTemplate(prj, template, options, vars)
+        } = await expandTemplate(prj, template, options, env)
+        const { output, generator, secrets, ...restEnv } = env
 
         // Handle failed expansion scenario
         if (status !== "success" || !messages.length) {
@@ -172,7 +174,7 @@ export async function runTemplate(
                 status: status as GenerationStatus,
                 statusText,
                 messages,
-                vars,
+                env: restEnv,
                 label,
                 version,
                 text: outputTrace.content,
@@ -211,7 +213,7 @@ export async function runTemplate(
                 status: "error",
                 statusText: "",
                 messages,
-                vars,
+                env: restEnv,
                 label,
                 version,
                 text: outputTrace.content,
@@ -321,7 +323,7 @@ export async function runTemplate(
             finishReason,
             error,
             messages,
-            vars,
+            env: restEnv,
             edits,
             annotations,
             changelogs,

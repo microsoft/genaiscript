@@ -23,10 +23,19 @@ import { pathToFileURL } from "node:url"
 import { dedent } from "./indent"
 import { CSVStringify, CSVToMarkdown } from "./csv"
 import { INIStringify } from "./ini"
+import { ChatCompletionsProgressReport } from "./chattypes"
 
 export class TraceChunkEvent extends Event {
-    constructor(readonly chunk: string) {
+    constructor(
+        readonly chunk: string,
+        readonly progress?: ChatCompletionsProgressReport
+    ) {
         super(TRACE_CHUNK)
+    }
+
+    clone(): TraceChunkEvent {
+        const ev = new TraceChunkEvent(this.chunk, this.progress)
+        return ev
     }
 }
 
@@ -64,9 +73,7 @@ export class MarkdownTrace extends EventTarget implements OutputTrace {
     startTraceDetails(title: string, options?: { expanded?: boolean }) {
         const trace = new MarkdownTrace({ ...this.options })
         trace.addEventListener(TRACE_CHUNK, (ev) =>
-            this.dispatchEvent(
-                new TraceChunkEvent((ev as TraceChunkEvent).chunk)
-            )
+            this.dispatchEvent((ev as TraceChunkEvent).clone())
         )
         trace.addEventListener(TRACE_DETAILS, () =>
             this.dispatchEvent(new Event(TRACE_DETAILS))
@@ -74,6 +81,18 @@ export class MarkdownTrace extends EventTarget implements OutputTrace {
         trace.startDetails(title, options)
         this._content.push(trace)
         return trace
+    }
+
+    chatProgress(progress: ChatCompletionsProgressReport) {
+        const { inner, responseChunk: value } = progress
+        if (!value) return
+
+        if (!inner) {
+            this._content.push(value)
+            this._tree = undefined
+            this.dispatchChange()
+        }
+        this.dispatchEvent(new TraceChunkEvent(value, progress))
     }
 
     appendContent(value: string) {

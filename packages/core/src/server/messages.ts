@@ -182,7 +182,7 @@ export interface GenerationResult extends GenerationOutput {
     /**
      * The environment variables passed to the prompt
      */
-    vars: Partial<ExpansionVariables>
+    env: Partial<ExpansionVariables>
 
     /**
      * Expanded prompt text composed of multiple messages

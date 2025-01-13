@@ -78,7 +78,7 @@ export interface AIRequest {
 
 export function snapshotAIRequest(r: AIRequest): AIRequestSnapshot {
     const { response, error, creationTime, trace } = r
-    const { vars, ...responseWithoutVars } = response || {}
+    const { env, ...responseWithoutVars } = response || {}
     const snapshot = structuredClone({
         creationTime,
         cacheTime: new Date().toISOString(),
