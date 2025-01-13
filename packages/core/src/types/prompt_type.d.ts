@@ -336,3 +336,10 @@ declare function transcribe(
     audio: string | WorkspaceFile,
     options?: TranscriptionOptions
 ): Promise<TranscriptionResult>
+
+/**
+ * Converts text to speech.
+ * @param text
+ * @param options
+ */
+declare function speak(text: string, options?: SpeakOptions): Promise<Buffer>
