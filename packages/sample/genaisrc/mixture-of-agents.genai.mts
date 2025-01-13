@@ -7,7 +7,6 @@ export async function mixtureOfAgents(
     const {
         agents = [
             { model: "openai:gpt-4o" },
-            { model: "openai:gpt-4" },
             { model: "openai:gpt-35-turbo" },
         ],
     } = options ?? {}

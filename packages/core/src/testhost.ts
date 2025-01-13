@@ -79,6 +79,9 @@ export class TestHost implements RuntimeHost {
         return { ok: true }
     }
 
+    clearModelAlias(source: "cli" | "env" | "config" | "script"): void {
+        ;(this.modelAliases as any)[source] = {}
+    }
     setModelAlias(
         source: "cli" | "env" | "config",
         id: string,

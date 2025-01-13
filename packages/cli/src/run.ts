@@ -148,6 +148,7 @@ export async function runScriptInternal(
 ): Promise<{ exitCode: number; result?: GenerationResult }> {
     const { trace = new MarkdownTrace(), infoCb, partialCb } = options || {}
 
+    runtimeHost.clearModelAlias("script")
     let result: GenerationResult
     const workspaceFiles = options.workspaceFiles
     const excludedFiles = options.excludedFiles

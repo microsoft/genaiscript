@@ -1224,10 +1224,10 @@ function WebApp() {
             <RunForm />
             <VscodeCollapsible open title="Results">
                 <VscodeTabs panel>
+                    <OutputTabPanel />
+                    <MessagesTabPanel />
                     <TraceTabPanel />
                     <ProblemsTabPanel />
-                    <MessagesTabPanel />
-                    <OutputTabPanel />
                     <LogProbsTabPanel />
                     <TopLogProbsTabPanel />
                     <FilesTabPanel />

@@ -151,7 +151,7 @@ export async function callExpander(
 function traceEnv(
     model: string,
     trace: MarkdownTrace,
-    env: ExpansionVariables
+    env: Partial<ExpansionVariables>
 ) {
     trace.startDetails("🏡 env")
     trace.files(env.files, {

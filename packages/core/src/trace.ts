@@ -28,7 +28,7 @@ export class TraceChunkEvent extends Event {
     }
 }
 
-export class MarkdownTrace extends EventTarget implements ToolCallTrace {
+export class MarkdownTrace extends EventTarget implements OutputTrace {
     readonly _errors: { message: string; error: SerializedError }[] = []
     private detailsDepth = 0
     private _content: (string | MarkdownTrace)[] = []

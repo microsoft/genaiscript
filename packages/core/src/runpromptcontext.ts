@@ -32,6 +32,7 @@ import { consoleLogFormat, stdout } from "./logging"
 import { isGlobMatch } from "./glob"
 import {
     arrayify,
+    assert,
     deleteEmptyValues,
     logError,
     logVerbose,
@@ -87,7 +88,6 @@ import { videoExtractAudio } from "./ffmpeg"
 import { BufferToBlob } from "./bufferlike"
 import { host } from "./host"
 import { srtVttRender } from "./transcription"
-import { filenameOrFileToFilename } from "./unwrappers"
 
 export function createChatTurnGenerationContext(
     options: GenerationOptions,
@@ -321,6 +321,7 @@ export function createChatGenerationContext(
 ): RunPromptContextNode {
     const { cancellationToken, infoCb } = options || {}
     const { prj, env } = projectOptions
+    assert(!!env.output, "output missing")
     const turnCtx = createChatTurnGenerationContext(options, trace)
     const node = turnCtx.node
 

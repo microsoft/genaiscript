@@ -200,6 +200,13 @@ It uses the `OPENAI_API_...` environment variables.
 <ol>
 
 <li>
+
+[Upgrade your account](https://platform.openai.com/settings/organization/billing/overview) to get access to the models.
+You will get 404s if you do not have a paying account.
+
+</li>
+
+<li>
     Create a new secret key from the [OpenAI API Keys
     portal](https://platform.openai.com/api-keys).
 </li>
@@ -261,7 +268,7 @@ This provider is useful for prototyping and subject to [rate limits](https://doc
 depending on your subscription.
 
 ```js "github:"
-script({ model: "github:gpt-4" })
+script({ model: "github:gpt-4o" })
 ```
 
 **If you are running from a [GitHub Codespace](https://github.com/features/codespaces), the token is already configured for you.**

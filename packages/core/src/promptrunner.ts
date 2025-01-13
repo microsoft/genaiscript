@@ -1,9 +1,9 @@
 // Import necessary modules and functions for handling chat sessions, templates, file management, etc.
 import { executeChatSession, tracePromptResult } from "./chat"
 import { GenerationStatus, Project } from "./server/messages"
-import { arrayify, assert, relativePath } from "./util"
+import { arrayify, assert, logInfo, logVerbose, relativePath } from "./util"
 import { runtimeHost } from "./host"
-import { MarkdownTrace } from "./trace"
+import { MarkdownTrace, TraceChunkEvent } from "./trace"
 import { CORE_VERSION } from "./version"
 import { expandFiles } from "./fs"
 import { CSVToMarkdown } from "./csv"
@@ -17,6 +17,7 @@ import { parsePromptParameters } from "./vars"
 import { resolveFileContent } from "./file"
 import { expandTemplate } from "./expander"
 import { resolveLanguageModel } from "./lm"
+import { TRACE_CHUNK } from "./constants"
 import { checkCancelled } from "./cancellation"
 
 // Asynchronously resolve expansion variables needed for a template
@@ -34,8 +35,9 @@ async function resolveExpansionVars(
     trace: MarkdownTrace,
     template: PromptScript,
     fragment: Fragment,
+    output: OutputTrace,
     vars: Record<string, string | number | boolean | object>
-) {
+): Promise<ExpansionVariables> {
     const root = runtimeHost.projectFolder()
 
     const files: WorkspaceFile[] = []
@@ -95,7 +97,9 @@ async function resolveExpansionVars(
         meta,
         vars: attrs,
         secrets,
-    } satisfies Partial<ExpansionVariables>
+        output,
+        generator: undefined,
+    } as ExpansionVariables
     return res
 }
 
@@ -123,6 +127,10 @@ export async function runTemplate(
 
     runtimeHost.project = prj
 
+    const output = new MarkdownTrace()
+    output.addEventListener(TRACE_CHUNK, (e) =>
+        logVerbose((e as TraceChunkEvent).chunk)
+    )
     try {
         if (cliInfo) {
             trace.heading(3, `🧠 ${template.id}`)
@@ -135,6 +143,7 @@ export async function runTemplate(
             trace,
             template,
             fragment,
+            output,
             options.vars
         )
         let {
@@ -157,13 +166,7 @@ export async function runTemplate(
             logprobs,
             topLogprobs,
             disposables,
-        } = await expandTemplate(
-            prj,
-            template,
-            options,
-            vars as ExpansionVariables,
-            trace
-        )
+        } = await expandTemplate(prj, template, options, vars, trace)
 
         // Handle failed expansion scenario
         if (status !== "success" || !messages.length) {
@@ -175,7 +178,7 @@ export async function runTemplate(
                 vars,
                 label,
                 version,
-                text: "",
+                text: output.content,
                 edits: [],
                 annotations: [],
                 changelogs: [],
@@ -214,7 +217,7 @@ export async function runTemplate(
                 vars,
                 label,
                 version,
-                text: "",
+                text: output.content,
                 edits: [],
                 annotations: [],
                 changelogs: [],
@@ -245,7 +248,7 @@ export async function runTemplate(
             topLogprobs,
             stats: options.stats.createChild(connection.info.model),
         }
-        const output = await executeChatSession(
+        const chatResult = await executeChatSession(
             connection.configuration,
             cancellationToken,
             messages,
@@ -260,7 +263,7 @@ export async function runTemplate(
             disposables,
             genOptions
         )
-        tracePromptResult(trace, output)
+        tracePromptResult(trace, chatResult)
 
         const {
             json,
@@ -273,8 +276,12 @@ export async function runTemplate(
             fileEdits,
             changelogs,
             edits,
-        } = output
-        let { text, annotations } = output
+        } = chatResult
+        let { text, annotations } = chatResult
+        const userContent = output.content
+        if (userContent) {
+            text = userContent + "\n\n" + text
+        }
 
         // Reporting and tracing output
         if (fences?.length)
@@ -333,8 +340,8 @@ export async function runTemplate(
             genVars,
             schemas,
             json,
-            logprobs: output.logprobs,
-            perplexity: output.perplexity,
+            logprobs: chatResult.logprobs,
+            perplexity: chatResult.perplexity,
             stats: {
                 cost: options.stats.cost(),
                 ...options.stats.accumulatedUsage(),
