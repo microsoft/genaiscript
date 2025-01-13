@@ -90,7 +90,6 @@ export class MarkdownTrace extends EventTarget implements OutputTrace {
 
         if (!inner) {
             this._content.push(value)
-            this._content.push(value)
             this._tree = undefined
             this.dispatchChange()
         }
