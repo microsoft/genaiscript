@@ -1059,7 +1059,7 @@ function ScriptSelect() {
             </VscodeSingleSelect>
             {script && (
                 <VscodeFormHelper>
-                    {toStringList(script.title, script.description)}
+                    {toStringList(script.title, script.description, script.filename)}
                 </VscodeFormHelper>
             )}
         </VscodeFormGroup>
