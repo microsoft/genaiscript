@@ -195,7 +195,6 @@ export const MODEL_PROVIDERS = Object.freeze<
         prediction?: boolean
         bearerToken?: boolean
         listModels?: boolean
-        pullModel?: boolean
         transcribe?: boolean
         aliases?: Record<string, string>
     }[]

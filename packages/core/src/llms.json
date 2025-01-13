@@ -165,7 +165,6 @@
             "detail": "Ollama local model",
             "logitBias": false,
             "openaiCompatibility": "https://github.com/ollama/ollama/blob/main/docs/openai.md",
-            "pullModel": true,
             "prediction": false,
             "aliases": {
                 "large": "phi4",
@@ -178,7 +177,6 @@
             "id": "lmstudio",
             "detail": "LM Studio local server",
             "prediction": false,
-            "pullModel": true,
             "aliases": {
                 "large": "phi-4",
                 "small": "llama-3.2-3b-instruct",
