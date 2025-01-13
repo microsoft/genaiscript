@@ -65,14 +65,6 @@ const urlParams = new URLSearchParams(window.location.hash)
 const apiKey = urlParams.get("api-key")
 window.location.hash = ""
 
-const client = new WebSocketClient("/?api-key=" + apiKey)
-client.addEventListener("connect", () => console.log(`client: connect`))
-client.addEventListener("open", () => console.log(`client: opened`))
-client.addEventListener("close", () => console.log(`client: closed`))
-client.addEventListener("message", (e) =>
-    console.log(`client: message`, (e as MessageEvent).data)
-)
-
 const fetchScripts = async (): Promise<Project> => {
     const res = await fetch(`/api/scripts`, {
         headers: {
@@ -96,70 +88,40 @@ const fetchEnv = async (): Promise<ResolvedLanguageModelConfiguration[]> => {
 
 type TraceEvent = CustomEvent<{ trace?: string; output?: string }>
 
-class RunClient extends EventTarget {
-    ws?: WebSocket
-    runId: string
-    result: GenerationResult | undefined
-
+class RunClient extends WebSocketClient {
     static readonly TRACE_EVENT = "trace"
     static readonly OUTPUT_EVENT = "output"
     static readonly RESULT_EVENT = "result"
 
-    constructor(
-        readonly script: string,
-        readonly files: string[],
-        readonly workspaceFiles: WorkspaceFile[],
-        readonly options: any
-    ) {
-        super()
-        this.runId = "" + Math.random()
-        this.ws = new WebSocket(`/?api-key=${apiKey}`)
-        this.ws.addEventListener(
-            "open",
-            () => {
-                const id = "" + Math.random()
-
-                this.ws?.send(
-                    JSON.stringify({
-                        id,
-                        type: "script.start",
-                        runId: this.runId,
-                        script,
-                        files: this.files,
-                        options: {
-                            ...(this.options || {}),
-                            workspaceFiles: this.workspaceFiles,
-                        },
-                    } satisfies PromptScriptStart)
-                )
-            },
-            false
-        )
-        this.ws.addEventListener(
+    constructor(url: string) {
+        super(url)
+        this.addEventListener(
             "message",
             (ev) => {
-                const data: PromptScriptResponseEvents = JSON.parse(ev.data)
+                const data = (ev as MessageEvent<any>)
+                    .data as PromptScriptResponseEvents
                 switch (data.type) {
                     case "script.progress": {
                         if (data.trace)
                             this.dispatchEvent(
                                 new CustomEvent(RunClient.TRACE_EVENT, {
-                                    detail: data,
+                                    detail: data.trace,
                                 })
                             )
                         if (data.output)
                             this.dispatchEvent(
                                 new CustomEvent(RunClient.OUTPUT_EVENT, {
-                                    detail: data,
+                                    detail: data.output,
                                 })
                             )
                         break
                     }
                     case "script.end": {
-                        this.result = cleanedClone(data.result)
+                        console.log(`script: end`, data.result)
+                        const result = cleanedClone(data.result)
                         this.dispatchEvent(
                             new CustomEvent(RunClient.RESULT_EVENT, {
-                                detail: data,
+                                detail: data.result,
                             })
                         )
                         break
@@ -168,37 +130,6 @@ class RunClient extends EventTarget {
             },
             false
         )
-        this.ws.addEventListener(
-            "error",
-            (err) => {
-                console.log(`run ${this.runId}: error`)
-                console.error(err)
-            },
-            false
-        )
-        this.ws.addEventListener(
-            "close",
-            (ev) => {
-                console.log(`run ${this.runId}: close, ${ev.reason}`)
-            },
-            false
-        )
-    }
-
-    close() {
-        console.trace(`client: close`)
-        const ws = this.ws
-        if (ws) {
-            this.ws = undefined
-            ws.send(
-                JSON.stringify({
-                    id: "" + Math.random(),
-                    type: "script.abort",
-                    runId: this.runId,
-                })
-            )
-            ws.close()
-        }
     }
 }
 
@@ -265,6 +196,7 @@ function useUrlSearchParams<T>(
 type ImportedFile = FileWithPath & { selected?: boolean }
 
 const ApiContext = createContext<{
+    client: RunClient
     project: Promise<Project | undefined>
     providers: Promise<ResolvedLanguageModelConfiguration[] | undefined>
 
@@ -283,6 +215,12 @@ const ApiContext = createContext<{
 } | null>(null)
 
 function ApiProvider({ children }: { children: React.ReactNode }) {
+    const client = useMemo(() => {
+        const client = new RunClient("/?api-key=" + apiKey)
+        client.addEventListener("error", (err) => console.error(err), false)
+        return client
+    }, [])
+
     const project = useMemo<Promise<Project>>(fetchScripts, [])
     const providers = useMemo<Promise<ResolvedLanguageModelConfiguration[]>>(
         fetchEnv,
@@ -334,6 +272,7 @@ function ApiProvider({ children }: { children: React.ReactNode }) {
     return (
         <ApiContext.Provider
             value={{
+                client,
                 project,
                 providers,
                 scriptid,
@@ -360,7 +299,8 @@ function useApi() {
 }
 
 const RunnerContext = createContext<{
-    runner: RunClient | undefined
+    runId: string | undefined
+    result: GenerationResult | undefined
     run: () => void
     cancel: () => void
     state: "running" | undefined
@@ -368,24 +308,35 @@ const RunnerContext = createContext<{
 
 function RunnerProvider({ children }: { children: React.ReactNode }) {
     const {
+        client,
         scriptid,
         files = [],
         importedFiles = [],
         options,
         parameters,
     } = useApi()
-    const [runner, setRunner] = useState<RunClient | undefined>(undefined)
+
+    const [runId, setRunId] = useState<string>(undefined)
+    const [result, setResult] = useState<GenerationResult>(undefined)
 
     useEffect(() => {
-        runner?.close()
-        setRunner(undefined)
+        client.abortScript(runId)
+        setRunId(undefined)
     }, [scriptid])
 
+    const end = useCallback((e: Event) => {
+        const ev = e as CustomEvent
+        setRunId(undefined)
+        setResult(ev.detail)
+    }, [])
+    useEventListener(client, RunClient.RESULT_EVENT, end, false)
+
     const run = async () => {
-        runner?.close()
         if (!scriptid) return
 
-        console.log(`run: start ${scriptid}`, {
+        const runId = ("" + Math.random()).slice(2)
+        console.log(`script: start ${scriptid}`, {
+            runId,
             files,
             importedFiles,
             parameters,
@@ -408,26 +359,26 @@ function RunnerProvider({ children }: { children: React.ReactNode }) {
                     } satisfies WorkspaceFile
                 })
         )
-        const client = new RunClient(scriptid, files.slice(0), workspaceFiles, {
-            parameters,
-            ...options,
+        client.startScript(runId, scriptid, files, {
+            ...(options || {}),
+            vars: parameters,
+            workspaceFiles,
         })
-        client.addEventListener(RunClient.RESULT_EVENT, () =>
-            setRunner(undefined)
-        )
-        setRunner(client)
-    }
-    const cancel = () => {
-        runner?.close()
-        setRunner(undefined)
+        setRunId(runId)
     }
 
-    const state = runner ? "running" : undefined
+    const cancel = () => {
+        client.abortScript(runId)
+        setRunId(undefined)
+    }
+
+    const state = runId ? "running" : undefined
 
     return (
         <RunnerContext.Provider
             value={{
-                runner,
+                runId,
+                result,
                 run,
                 cancel,
                 state,
@@ -444,14 +395,8 @@ function useRunner() {
     return runner
 }
 
-function useResult() {
-    const { runner } = useRunner()
-    const [result, setResult] = useState<GenerationResult | undefined>(
-        undefined
-    )
-    useEffect(() => runner && setResult(undefined), [runner])
-    const storeResult = useCallback(() => setResult(runner?.result), [runner])
-    useEventListener(runner, RunClient.RESULT_EVENT, storeResult)
+function useResult(): GenerationResult | undefined {
+    const { result } = useRunner()
     return result
 }
 
@@ -483,32 +428,34 @@ function useEventListener(
 }
 
 function useTrace() {
-    const { runner } = useRunner()
+    const { client } = useApi()
+    const { runId } = useRunner()
     const [trace, setTrace] = useState<string>("")
-    useEffect(() => runner && setTrace(""), [runner])
+    useEffect(() => runId && setTrace(""), [runId])
     const appendTrace = useCallback(
         (evt: Event) => {
-            const trace = (evt as TraceEvent).detail.trace
+            const trace = (evt as CustomEvent).detail
             startTransition(() => setTrace((previous) => previous + trace))
         },
-        [runner]
+        [runId]
     )
-    useEventListener(runner, RunClient.TRACE_EVENT, appendTrace)
+    useEventListener(client, RunClient.TRACE_EVENT, appendTrace)
     return trace
 }
 
 function useOutput() {
-    const { runner } = useRunner()
+    const { client } = useApi()
+    const { runId } = useRunner()
     const [output, setOutput] = useState<string>("")
-    useEffect(() => runner && setOutput(""), [runner])
+    useEffect(() => runId && setOutput(""), [runId])
     const appendTrace = useCallback(
         (evt: Event) => {
-            const output = (evt as TraceEvent).detail.output
+            const output = (evt as CustomEvent).detail
             startTransition(() => setOutput((previous) => previous + output))
         },
-        [runner]
+        [runId]
     )
-    useEventListener(runner, RunClient.OUTPUT_EVENT, appendTrace)
+    useEventListener(client, RunClient.OUTPUT_EVENT, appendTrace)
     return output
 }
 

@@ -12,9 +12,12 @@ import type {
     LanguageModelConfiguration,
     LanguageModelConfigurationRequest,
     Project,
+    PromptScriptAbort,
     PromptScriptList,
     PromptScriptListResponse,
     PromptScriptResponseEvents,
+    PromptScriptRunOptions,
+    PromptScriptStart,
     RequestMessage,
     ResponseStatus,
     ServerEnv,
@@ -55,32 +58,44 @@ export class WebSocketClient extends EventTarget {
 
     private connect(): void {
         this._ws = new WebSocket(this.url)
-        this._ws.addEventListener(OPEN, () => {
-            // clear counter
-            this.connectedOnce = true
-            this.reconnectAttempts = 0
-            // flush cached messages
-            let m: string
-            while (
-                this._ws?.readyState === WebSocket.OPEN &&
-                (m = this._pendingMessages.pop())
-            )
-                this._ws.send(m)
-            this.dispatchEvent(new Event(OPEN))
-        }, false)
-        this._ws.addEventListener(ERROR, (ev) => {
-            this.reconnect()
-        }, false)
-        this._ws.addEventListener(CLOSE, (ev: CloseEvent) => {
-            this.cancel(ev.reason)
-            this.dispatchEvent(
-                new CloseEvent(CLOSE, { code: ev.code, reason: ev.reason })
-            )
-            this.reconnect()
-        }, false)
-        this._ws.addEventListener(MESSAGE, <(event: MessageEvent<any>) => void>(
-            (async (e) => {
-                console.log(e)
+        this._ws.addEventListener(
+            OPEN,
+            () => {
+                // clear counter
+                this.connectedOnce = true
+                this.reconnectAttempts = 0
+                // flush cached messages
+                let m: string
+                while (
+                    this._ws?.readyState === WebSocket.OPEN &&
+                    (m = this._pendingMessages.pop())
+                )
+                    this._ws.send(m)
+                this.dispatchEvent(new Event(OPEN))
+            },
+            false
+        )
+        this._ws.addEventListener(
+            ERROR,
+            (ev) => {
+                this.reconnect()
+            },
+            false
+        )
+        this._ws.addEventListener(
+            CLOSE,
+            (ev: CloseEvent) => {
+                this.cancel(ev.reason)
+                this.dispatchEvent(
+                    new CloseEvent(CLOSE, { code: ev.code, reason: ev.reason })
+                )
+                this.reconnect()
+            },
+            false
+        )
+        this._ws.addEventListener(
+            MESSAGE,
+            <(event: MessageEvent<any>) => void>(async (e) => {
                 const event = e as MessageEvent<any>
                 const data = JSON.parse(event.data)
                 // handle responses
@@ -92,16 +107,16 @@ export class WebSocketClient extends EventTarget {
                     await awaiter.resolve(req)
                     return
                 }
-
                 // not a response
                 this.dispatchEvent(
                     new MessageEvent<PromptScriptResponseEvents | ChatEvents>(
                         MESSAGE,
-                        data
+                        { data }
                     )
                 )
-            })
-        ), false)
+            }),
+            false
+        )
         this.dispatchEvent(new Event(CONNECT))
     }
 
@@ -197,5 +212,29 @@ export class WebSocketClient extends EventTarget {
         const res = await this.queue<PromptScriptList>({ type: "script.list" })
         const project = (res.response as PromptScriptListResponse)?.project
         return project
+    }
+
+    async startScript(
+        runId: string,        
+        script: string,
+        files: string[],
+        options: Partial<PromptScriptRunOptions>
+    ) {
+        return this.queue<PromptScriptStart>({
+            type: "script.start",
+            runId,
+            script,
+            files,
+            options,
+        })
+    }
+
+    async abortScript(runId: string, reason?: string): Promise<ResponseStatus> {
+        const res = await this.queue<PromptScriptAbort>({
+            type: "script.abort",
+            runId,
+            reason,
+        })
+        return res.response
     }
 }

@@ -134,35 +134,7 @@ export class VsCodeClient extends WebSocketClient {
         })
     }
 
-    async getLanguageModelConfiguration(
-        modelId: string,
-        options?: { token?: boolean }
-    ): Promise<LanguageModelConfiguration | undefined> {
-        const res = await this.queue<LanguageModelConfigurationRequest>({
-            type: "model.configuration",
-            model: modelId,
-            token: options?.token,
-        })
-        return res.response?.ok ? res.response.info : undefined
-    }
-
-    async version(): Promise<ServerResponse> {
-        const res = await this.queue<ServerVersion>({ type: "server.version" })
-        return res.response as ServerResponse
-    }
-
-    async infoEnv(): Promise<ResponseStatus> {
-        const res = await this.queue<ServerEnv>({ type: "server.env" })
-        return res.response
-    }
-
-    async listScripts(): Promise<Project> {
-        const res = await this.queue<PromptScriptList>({ type: "script.list" })
-        const project = (res.response as PromptScriptListResponse)?.project
-        return project
-    }
-
-    async startScript(
+    async runScript(
         script: string,
         files: string[],
         options: Partial<PromptScriptRunOptions> & {
@@ -210,16 +182,6 @@ export class VsCodeClient extends WebSocketClient {
             )
         }
         return { runId, request: promise }
-    }
-
-    async abortScript(runId: string, reason?: string): Promise<ResponseStatus> {
-        delete this.runs[runId]
-        const res = await this.queue<PromptScriptAbort>({
-            type: "script.abort",
-            runId,
-            reason,
-        })
-        return res.response
     }
 
     abortScriptRuns(reason?: string) {

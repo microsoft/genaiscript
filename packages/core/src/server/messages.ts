@@ -128,12 +128,12 @@ export interface PromptScriptRunOptions {
     pullRequestReviews: boolean
     outData: string
     label: string
-    temperature: string
-    topP: string
-    seed: string
-    maxTokens: string
-    maxToolCalls: string
-    maxDataRepairs: string
+    temperature: string | number
+    topP: string | number
+    seed: string | number
+    maxTokens: string | number
+    maxToolCalls: string | number
+    maxDataRepairs: string | number
     model: string
     smallModel: string
     visionModel: string
@@ -152,6 +152,7 @@ export interface PromptScriptRunOptions {
     logprobs: boolean
     topLogprobs: number
     fenceFormat: FenceFormat
+    workspaceFiles?: WorkspaceFile[]
 }
 
 export interface PromptScriptList extends RequestMessage {
