@@ -138,19 +138,29 @@ export class NodeHost implements RuntimeHost {
     }
 
     async pullModel(
-        modelid: string,
+        cfg: LanguageModelConfiguration,
         options?: TraceOptions & CancellationOptions
     ): Promise<ResponseStatus> {
-        if (this.pulledModels.includes(modelid)) return { ok: true }
+        const { provider, model } = cfg
+        const modelId = `${provider}:${model}`
+        if (this.pulledModels.includes(modelId)) return { ok: true }
 
-        const { provider } = parseModelIdentifier(modelid)
-        const { pullModel } = await resolveLanguageModel(provider)
+        const { pullModel, listModels } = await resolveLanguageModel(provider)
         if (!pullModel) {
-            this.pulledModels.includes(modelid)
+            this.pulledModels.includes(modelId)
             return { ok: true }
         }
-        const res = await pullModel(modelid, options)
-        if (res.ok) this.pulledModels.push(modelid)
+
+        if (listModels) {
+            const models = await listModels(cfg, options)
+            if (models.find(({ id }) => id === model)) {
+                this.pulledModels.push(modelId)
+                return { ok: true }
+            }
+        }
+
+        const res = await pullModel(cfg, options)
+        if (res.ok) this.pulledModels.push(modelId)
         else if (res.error) logError(res.error)
         return res
     }

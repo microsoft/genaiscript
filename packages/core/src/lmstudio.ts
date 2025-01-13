@@ -6,15 +6,9 @@ import { OpenAIChatCompletion, OpenAIListModels } from "./openai"
 import { execa } from "execa"
 import { logVerbose, utf8Decode } from "./util"
 
-const pullModel: PullModelFunction = async (modelId, options) => {
-    const { trace, cancellationToken } = options || {}
-    const { provider, model } = parseModelIdentifier(modelId)
-    const conn = await host.getLanguageModelConfiguration(modelId, {
-        token: true,
-        cancellationToken,
-        trace,
-    })
-    const models = await OpenAIListModels(conn, options)
+const pullModel: PullModelFunction = async (cfg, options) => {
+    const model = cfg.model
+    const models = await OpenAIListModels(cfg, options)
     if (models.find((m) => m.id === model)) return { ok: true }
     logVerbose(`lms get ${model} --yes`)
     const res = await execa({ stdout: ["inherit"] })`lms get ${model} --yes`

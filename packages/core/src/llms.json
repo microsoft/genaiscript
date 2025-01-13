@@ -95,12 +95,10 @@
             "prediction": false,
             "listModels": false,
             "aliases": {
-                "large": "Qwen/Qwen2.5-72B-Instruct",
-                "small": "Qwen/Qwen2.5-Coder-32B-Instruct",
+                "large": "meta-llama/Llama-3.3-70B-Instruct",
+                "small": "microsoft/phi-4",
                 "vision": "meta-llama/Llama-3.2-11B-Vision-Instruct",
-                "embeddings": "nomic-ai/nomic-embed-text-v1.5",
-                "reasoning": "Qwen/QwQ-32B-Preview",
-                "reasoning_small": "Qwen/QwQ-32B-Preview"
+                "embeddings": "nomic-ai/nomic-embed-text-v1.5"
             }
         },
         {
@@ -167,21 +165,18 @@
             "detail": "Ollama local model",
             "logitBias": false,
             "openaiCompatibility": "https://github.com/ollama/ollama/blob/main/docs/openai.md",
-            "pullModel": true,
             "prediction": false,
             "aliases": {
-                "large": "phi4",
+                "large": "phi4:latest",
                 "small": "llama3.2:3b",
                 "embeddings": "nomic-embed-text",
-                "vision": "llama3.2-vision:11b",
-                "reasoning": "qwq:32b"
+                "vision": "llama3.2-vision:11b"
             }
         },
         {
             "id": "lmstudio",
             "detail": "LM Studio local server",
             "prediction": false,
-            "pullModel": true,
             "aliases": {
                 "large": "phi-4",
                 "small": "llama-3.2-3b-instruct",

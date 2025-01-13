@@ -73,7 +73,7 @@ export class TestHost implements RuntimeHost {
         setRuntimeHost(new TestHost())
     }
     async pullModel(
-        model: string,
+        cfg: LanguageModelConfiguration,
         options?: TraceOptions & CancellationToken
     ): Promise<ResponseStatus> {
         return { ok: true }
