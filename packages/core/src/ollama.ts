@@ -53,35 +53,15 @@ async function listModels(
     )
 }
 
-const pullModel: PullModelFunction = async (modelId, options) => {
+const pullModel: PullModelFunction = async (cfg, options) => {
     const { trace, cancellationToken } = options || {}
-    const { provider, model } = parseModelIdentifier(modelId)
+    const { provider, model } = parseModelIdentifier(cfg.model)
     const fetch = await createFetch({ retries: 0, ...options })
-    const conn = await host.getLanguageModelConfiguration(modelId, {
-        token: true,
-        cancellationToken,
-        trace,
-    })
-    conn.base = conn.base.replace(/\/v1$/i, "")
+    const base = cfg.base.replace(/\/v1$/i, "")
     try {
-        // test if model is present
-        const resTags = await fetch(`${conn.base}/api/tags`, {
-            retries: 0,
-            method: "GET",
-            headers: {
-                "User-Agent": TOOL_ID,
-                "Content-Type": "application/json",
-            },
-        })
-        if (resTags.ok) {
-            const { models }: { models: { model: string }[] } =
-                await resTags.json()
-            if (models.find((m) => m.model === model)) return { ok: true }
-        }
-
         // pull
         logVerbose(`${provider}: pull ${model}`)
-        const resPull = await fetch(`${conn.base}/api/pull`, {
+        const resPull = await fetch(`${base}/api/pull`, {
             method: "POST",
             headers: {
                 "User-Agent": TOOL_ID,
@@ -94,7 +74,6 @@ const pullModel: PullModelFunction = async (modelId, options) => {
             logVerbose(resPull.statusText)
             return { ok: false, status: resPull.status }
         }
-        0
         for await (const chunk of iterateBody(resPull, { cancellationToken }))
             process.stderr.write(".")
         process.stderr.write("\n")

@@ -137,7 +137,7 @@ export type ListModelsFunction = (
 ) => Promise<LanguageModelInfo[]>
 
 export type PullModelFunction = (
-    modelId: string,
+    cfg: LanguageModelConfiguration,
     options: TraceOptions & CancellationOptions
 ) => Promise<{ ok: boolean; error?: SerializedError }>
 

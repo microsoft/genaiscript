@@ -17,6 +17,7 @@ import { parsePromptParameters } from "./vars"
 import { resolveFileContent } from "./file"
 import { expandTemplate } from "./expander"
 import { resolveLanguageModel } from "./lm"
+import { checkCancelled } from "./cancellation"
 
 // Asynchronously resolve expansion variables needed for a template
 /**
@@ -186,7 +187,24 @@ export async function runTemplate(
             } satisfies GenerationResult
         }
 
-        const { ok } = await runtimeHost.pullModel(model, options)
+        // Resolve model connection information
+        const connection = await resolveModelConnectionInfo(
+            { model },
+            { trace, token: true }
+        )
+        if (connection.info.error)
+            throw new Error(errorMessage(connection.info.error))
+        if (!connection.configuration)
+            throw new RequestError(
+                403,
+                `LLM configuration missing for model ${model}`,
+                connection.info
+            )
+        checkCancelled(cancellationToken)
+        const { ok } = await runtimeHost.pullModel(
+            connection.configuration,
+            options
+        )
         if (!ok) {
             trace.renderErrors()
             return {
@@ -208,19 +226,6 @@ export async function runTemplate(
             } satisfies GenerationResult
         }
 
-        // Resolve model connection information
-        const connection = await resolveModelConnectionInfo(
-            { model },
-            { trace, token: true }
-        )
-        if (connection.info.error)
-            throw new Error(errorMessage(connection.info.error))
-        if (!connection.configuration)
-            throw new RequestError(
-                403,
-                `LLM configuration missing for model ${model}`,
-                connection.info
-            )
         const { completer } = await resolveLanguageModel(
             connection.configuration.provider
         )
