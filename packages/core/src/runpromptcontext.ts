@@ -30,14 +30,7 @@ import { GenerationOptions } from "./generation"
 import { promptParametersSchemaToJSONSchema } from "./parameters"
 import { consoleLogFormat, stdout } from "./logging"
 import { isGlobMatch } from "./glob"
-import {
-    arrayify,
-    assert,
-    deleteEmptyValues,
-    logError,
-    logVerbose,
-    logWarn,
-} from "./util"
+import { arrayify, assert, logError, logVerbose, logWarn } from "./util"
 import { renderShellOutput } from "./chatrender"
 import { jinjaRender } from "./jinja"
 import { mustacheRender } from "./mustache"
@@ -88,6 +81,7 @@ import { videoExtractAudio } from "./ffmpeg"
 import { BufferToBlob } from "./bufferlike"
 import { host } from "./host"
 import { srtVttRender } from "./transcription"
+import { deleteEmptyValues } from "./clone"
 
 export function createChatTurnGenerationContext(
     options: GenerationOptions,

@@ -55,10 +55,10 @@ import { toBase64 } from "../../core/src/base64"
 import { underscore } from "inflection"
 import { lookupMime } from "../../core/src/mime"
 import dedent from "dedent"
-import { convertAnnotationsToMarkdown } from "../../core/src/annotations"
 import "remark-github-blockquote-alert/alert.css"
 import { markdownDiff } from "../../core/src/mddiff"
 import { VscodeMultiSelect as VscodeMultiSelectElement } from "@vscode-elements/elements"
+import { cleanedClone } from "../../core/src/clone"
 
 const urlParams = new URLSearchParams(window.location.hash)
 const apiKey = urlParams.get("api-key")
@@ -145,7 +145,7 @@ class RunClient extends EventTarget {
                     break
                 }
                 case "script.end": {
-                    this.result = data.result
+                    this.result = cleanedClone(data.result)
                     this.dispatchEvent(
                         new CustomEvent(RunClient.RESULT_EVENT, {
                             detail: data,
@@ -1059,7 +1059,11 @@ function ScriptSelect() {
             </VscodeSingleSelect>
             {script && (
                 <VscodeFormHelper>
-                    {toStringList(script.title, script.description, script.filename)}
+                    {toStringList(
+                        script.title,
+                        script.description,
+                        script.filename
+                    )}
                 </VscodeFormHelper>
             )}
         </VscodeFormGroup>
