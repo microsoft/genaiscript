@@ -316,7 +316,7 @@ export function createChatGenerationContext(
     trace: MarkdownTrace,
     projectOptions: {
         prj: Project
-        env: Partial<ExpansionVariables>
+        env: ExpansionVariables
     }
 ): RunPromptContextNode {
     const { cancellationToken, infoCb } = options || {}

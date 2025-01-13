@@ -37,7 +37,7 @@ async function resolveExpansionVars(
     fragment: Fragment,
     output: OutputTrace,
     vars: Record<string, string | number | boolean | object>
-): Promise<Partial<ExpansionVariables>> {
+): Promise<ExpansionVariables> {
     const root = runtimeHost.projectFolder()
 
     const files: WorkspaceFile[] = []
@@ -98,7 +98,8 @@ async function resolveExpansionVars(
         vars: attrs,
         secrets,
         output,
-    } satisfies Partial<ExpansionVariables>
+        generator: undefined,
+    } as ExpansionVariables
     return res
 }
 

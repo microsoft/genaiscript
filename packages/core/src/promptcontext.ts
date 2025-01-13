@@ -40,7 +40,7 @@ import { fetch, fetchText } from "./fetch"
  */
 export async function createPromptContext(
     prj: Project,
-    ev: Partial<ExpansionVariables>,
+    ev: ExpansionVariables,
     trace: MarkdownTrace,
     options: GenerationOptions,
     model: string

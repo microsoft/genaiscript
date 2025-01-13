@@ -36,7 +36,7 @@ import { dispose } from "./dispose"
 export async function callExpander(
     prj: Project,
     r: PromptScript,
-    vars: Partial<ExpansionVariables>,
+    vars: ExpansionVariables,
     trace: MarkdownTrace,
     options: GenerationOptions
 ) {
@@ -179,7 +179,7 @@ export async function expandTemplate(
     prj: Project,
     template: PromptScript,
     options: GenerationOptions,
-    env: Partial<ExpansionVariables>,
+    env: ExpansionVariables,
     trace: MarkdownTrace
 ) {
     const model = options.model
