@@ -98,8 +98,8 @@ async function resolveExpansionVars(
         vars: attrs,
         secrets,
         output,
-        generator: undefined,
-    } as ExpansionVariables
+        generator: undefined as ChatGenerationContext,
+    } satisfies ExpansionVariables
     return res
 }
 
@@ -121,16 +121,13 @@ export async function runTemplate(
     assert(fragment !== undefined)
     assert(options !== undefined)
     assert(options.trace !== undefined)
-    const { label, cliInfo, trace, cancellationToken, model } = options
+    assert(options.outputTrace !== undefined)
+    const { label, cliInfo, trace, outputTrace, cancellationToken, model } = options
     const version = CORE_VERSION
     assert(model !== undefined)
 
     runtimeHost.project = prj
 
-    const outputTrace = options.outputTrace || new MarkdownTrace()
-    outputTrace.addEventListener(TRACE_CHUNK, (e) =>
-        logVerbose((e as TraceChunkEvent).chunk)
-    )
     try {
         if (cliInfo) {
             trace.heading(3, `🧠 ${template.id}`)
@@ -166,7 +163,7 @@ export async function runTemplate(
             logprobs,
             topLogprobs,
             disposables,
-        } = await expandTemplate(prj, template, options, vars, trace)
+        } = await expandTemplate(prj, template, options, vars)
 
         // Handle failed expansion scenario
         if (status !== "success" || !messages.length) {

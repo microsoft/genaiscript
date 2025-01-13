@@ -777,24 +777,6 @@ function StatsTabPanel() {
     )
 }
 
-function OutputTabPanel() {
-    const result = useResult()
-    const { text } = result || {}
-
-    const md = convertAnnotationsToMarkdown(text)
-    return (
-        <>
-            <VscodeTabHeader slot="header">
-                Output
-                <CounterBadge collection={text} />
-            </VscodeTabHeader>
-            <VscodeTabPanel>
-                <Markdown>{md}</Markdown>
-            </VscodeTabPanel>
-        </>
-    )
-}
-
 function LogProbsTabPanel() {
     const result = useResult()
     const { options } = useApi()
@@ -1255,10 +1237,9 @@ function WebApp() {
             <RunForm />
             <VscodeCollapsible open title="Results">
                 <VscodeTabs panel>
-                    <OutputTabPanel />
+                    <OutputTraceTabPanel />
                     <MessagesTabPanel />
                     <TraceTabPanel />
-                    <OutputTraceTabPanel />
                     <ProblemsTabPanel />
                     <LogProbsTabPanel />
                     <TopLogProbsTabPanel />

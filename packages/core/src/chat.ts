@@ -1012,10 +1012,6 @@ export async function executeChatSession(
                         )
                         if (resp.cached) {
                             if (cacheRes.value.text) {
-                                if (!inner)
-                                    outputTrace.appendContent(
-                                        cacheRes.value.text
-                                    )
                                 partialCb({
                                     responseSoFar: cacheRes.value.text,
                                     tokensSoFar: 0,

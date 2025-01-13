@@ -363,10 +363,9 @@ export async function startServer(options: {
                         })
                         outputTrace.addEventListener(TRACE_CHUNK, (ev) => {
                             const tev = ev as TraceChunkEvent
-                            chunkString(tev.chunk, 2 << 14).forEach((c) => {
-                                console.log(`send ` + c)
+                            chunkString(tev.chunk, 2 << 14).forEach((c) =>
                                 send({ output: c })
-                            })
+                            )
                         })
                         logVerbose(`run ${runId}: starting ${script}`)
                         await runtimeHost.readConfig()
