@@ -22,6 +22,7 @@ export function serializeError(
 export function errorMessage(e: any, defaultValue: string = "error"): string {
     if (e === undefined || e === null) return undefined
     if (typeof e.messsage === "string") return e.message
+    if (typeof e.error === "string") return e.error
     const ser = serializeError(e)
     return ser?.message ?? ser?.name ?? defaultValue
 }
