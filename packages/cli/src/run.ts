@@ -5,11 +5,7 @@ import { emptyDir, ensureDir, exists } from "fs-extra"
 import { convertDiagnosticsToSARIF } from "./sarif"
 import { buildProject } from "./build"
 import { diagnosticsToCSV } from "../../core/src/ast"
-import {
-    AbortSignalCancellationController,
-    CancellationOptions,
-    toSignal,
-} from "../../core/src/cancellation"
+import { CancellationOptions } from "../../core/src/cancellation"
 import { ChatCompletionsProgressReport } from "../../core/src/chattypes"
 import { runTemplate } from "../../core/src/promptrunner"
 import {
@@ -140,13 +136,23 @@ export async function runScriptInternal(
     options: Partial<PromptScriptRunOptions> &
         TraceOptions &
         CancellationOptions & {
+            outputTrace?: MarkdownTrace
             cli?: boolean
             workspaceFiles?: WorkspaceFile[]
             infoCb?: (partialResponse: { text: string }) => void
             partialCb?: (progress: ChatCompletionsProgressReport) => void
         }
 ): Promise<{ exitCode: number; result?: GenerationResult }> {
-    const { trace = new MarkdownTrace(), infoCb, partialCb } = options || {}
+    const {
+        trace = new MarkdownTrace(),
+        outputTrace = new MarkdownTrace(),
+        infoCb,
+        partialCb,
+    } = options || {}
+
+    //    outputTrace.addEventListener(TRACE_CHUNK, (e) =>
+    //      logVerbose((e as TraceChunkEvent).chunk)
+    //)
 
     runtimeHost.clearModelAlias("script")
     let result: GenerationResult
@@ -313,6 +319,7 @@ export async function runScriptInternal(
             partialCb: (args) => {
                 const { responseChunk, responseTokens, inner } = args
                 if (responseChunk !== undefined && responseChunk !== null) {
+                    if (!inner) outputTrace.appendContent(responseChunk)
                     if (stream) {
                         if (responseTokens && consoleColors) {
                             const colors = inner
@@ -368,6 +375,7 @@ export async function runScriptInternal(
             maxDelay,
             vars,
             trace,
+            outputTrace,
             fallbackTools,
             logprobs,
             topLogprobs,

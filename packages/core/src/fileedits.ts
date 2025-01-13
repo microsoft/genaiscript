@@ -121,7 +121,7 @@ export async function computeFileEdits(
 
     // Apply user-defined output processors
     if (outputProcessors?.length) {
-        const outputTrace = trace.startTraceDetails("🖨️ output processors")
+        const opTrace = trace.startTraceDetails("🖨️ output processors")
         try {
             for (const outputProcessor of outputProcessors) {
                 const {
@@ -141,7 +141,7 @@ export async function computeFileEdits(
 
                 if (newText !== undefined) {
                     text = newText
-                    outputTrace.detailsFenced(`📝 text`, text)
+                    opTrace.detailsFenced(`📝 text`, text)
                 }
 
                 if (files)
@@ -149,7 +149,7 @@ export async function computeFileEdits(
                         const fn = runtimeHost.path.isAbsolute(n)
                             ? n
                             : runtimeHost.resolvePath(projFolder, n)
-                        outputTrace.detailsFenced(`📁 file ${fn}`, content)
+                        opTrace.detailsFenced(`📁 file ${fn}`, content)
                         const fileEdit = await getFileEdit(fn)
                         fileEdit.after = content
                         fileEdit.validation = { pathValid: true }
@@ -158,9 +158,9 @@ export async function computeFileEdits(
             }
         } catch (e) {
             logError(e)
-            outputTrace.error(`output processor failed`, e)
+            opTrace.error(`output processor failed`, e)
         } finally {
-            outputTrace.endDetails()
+            opTrace.endDetails()
         }
     }
 

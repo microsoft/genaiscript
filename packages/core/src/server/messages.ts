@@ -270,6 +270,7 @@ export interface PromptScriptProgressResponseEvent {
     runId: string
 
     trace?: string
+    output?: string
 
     progress?: string
 

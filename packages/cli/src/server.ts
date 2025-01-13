@@ -101,6 +101,7 @@ export async function startServer(options: {
         {
             canceller: AbortSignalCancellationController
             trace: MarkdownTrace
+            outputTrace: MarkdownTrace
             runner: Promise<void>
         }
     > = {}
@@ -338,6 +339,7 @@ export async function startServer(options: {
                         const canceller =
                             new AbortSignalCancellationController()
                         const trace = new MarkdownTrace()
+                        const outputTrace = new MarkdownTrace()
                         const send = (
                             payload: Omit<
                                 PromptScriptProgressResponseEvent,
@@ -359,11 +361,18 @@ export async function startServer(options: {
                                 send({ trace: c })
                             )
                         })
+                        outputTrace.addEventListener(TRACE_CHUNK, (ev) => {
+                            const tev = ev as TraceChunkEvent
+                            chunkString(tev.chunk, 2 << 14).forEach((c) =>
+                                send({ output: c })
+                            )
+                        })
                         logVerbose(`run ${runId}: starting ${script}`)
                         await runtimeHost.readConfig()
                         const runner = runScriptInternal(script, files, {
                             ...options,
                             trace,
+                            outputTrace,
                             cancellationToken: canceller.token,
                             infoCb: ({ text }) => {
                                 send({ progress: text })
@@ -419,6 +428,7 @@ export async function startServer(options: {
                             runner,
                             canceller,
                             trace,
+                            outputTrace,
                         }
                         response = <ResponseStatus>{
                             ok: true,

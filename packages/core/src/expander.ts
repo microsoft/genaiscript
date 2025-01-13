@@ -179,10 +179,11 @@ export async function expandTemplate(
     prj: Project,
     template: PromptScript,
     options: GenerationOptions,
-    env: ExpansionVariables,
-    trace: MarkdownTrace
+    env: ExpansionVariables
 ) {
+    const trace = options.trace
     const model = options.model
+    assert(!!trace)
     assert(!!model)
     const cancellationToken = options.cancellationToken
     // update options

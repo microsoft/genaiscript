@@ -85,7 +85,7 @@ const fetchEnv = async (): Promise<ResolvedLanguageModelConfiguration[]> => {
     return j.providers
 }
 
-type TraceEvent = CustomEvent<{ trace: string }>
+type TraceEvent = CustomEvent<{ trace?: string; output?: string }>
 
 class RunClient extends EventTarget {
     ws?: WebSocket
@@ -93,6 +93,7 @@ class RunClient extends EventTarget {
     result: GenerationResult | undefined
 
     static readonly TRACE_EVENT = "trace"
+    static readonly OUTPUT_EVENT = "output"
     static readonly RESULT_EVENT = "result"
 
     constructor(
@@ -132,6 +133,12 @@ class RunClient extends EventTarget {
                     if (data.trace)
                         this.dispatchEvent(
                             new CustomEvent(RunClient.TRACE_EVENT, {
+                                detail: data,
+                            })
+                        )
+                    if (data.output)
+                        this.dispatchEvent(
+                            new CustomEvent(RunClient.OUTPUT_EVENT, {
                                 detail: data,
                             })
                         )
@@ -451,6 +458,36 @@ function useEventListener(
     }, [target, eventName, handler, JSON.stringify(options)])
 }
 
+function useTrace() {
+    const { runner } = useRunner()
+    const [trace, setTrace] = useState<string>("")
+    useEffect(() => runner && setTrace(""), [runner])
+    const appendTrace = useCallback(
+        (evt: Event) => {
+            const trace = (evt as TraceEvent).detail.trace
+            startTransition(() => setTrace((previous) => previous + trace))
+        },
+        [runner]
+    )
+    useEventListener(runner, RunClient.TRACE_EVENT, appendTrace)
+    return trace
+}
+
+function useOutput() {
+    const { runner } = useRunner()
+    const [output, setOutput] = useState<string>("")
+    useEffect(() => runner && setOutput(""), [runner])
+    const appendTrace = useCallback(
+        (evt: Event) => {
+            const output = (evt as TraceEvent).detail.output
+            startTransition(() => setOutput((previous) => previous + output))
+        },
+        [runner]
+    )
+    useEventListener(runner, RunClient.OUTPUT_EVENT, appendTrace)
+    return output
+}
+
 function GenAIScriptLogo(props: { height: string }) {
     const { height } = props
     return (
@@ -638,24 +675,24 @@ function CounterBadge(props: { collection: any | undefined }) {
 }
 
 function TraceTabPanel() {
-    const { runner } = useRunner()
-    const [trace, setTrace] = useState<string>("Run script to see trace.")
-    useEffect(() => runner && setTrace(""), [runner])
-    const appendTrace = useCallback(
-        (evt: Event) =>
-            startTransition(() => {
-                setTrace(
-                    (previous) => previous + (evt as TraceEvent).detail.trace
-                )
-            }),
-        [runner]
-    )
-    useEventListener(runner, RunClient.TRACE_EVENT, appendTrace)
+    const trace = useTrace()
     return (
         <>
             <VscodeTabHeader slot="header">Trace</VscodeTabHeader>
             <VscodeTabPanel>
                 <Markdown>{trace}</Markdown>
+            </VscodeTabPanel>
+        </>
+    )
+}
+
+function OutputTraceTabPanel() {
+    const output = useOutput()
+    return (
+        <>
+            <VscodeTabHeader slot="header">Output</VscodeTabHeader>
+            <VscodeTabPanel>
+                <Markdown>{output}</Markdown>
             </VscodeTabPanel>
         </>
     )
@@ -735,30 +772,6 @@ function StatsTabPanel() {
             </VscodeTabHeader>
             <VscodeTabPanel>
                 <Markdown>{fenceMD(md, "yaml")}</Markdown>
-            </VscodeTabPanel>
-        </>
-    )
-}
-
-function OutputTabPanel() {
-    const result = useResult()
-    const { text, logprobs } = result || {}
-    let md = text || ""
-    if (logprobs?.length) {
-        if (logprobs[0].topLogprobs?.length)
-            md = logprobs.map((lp) => topLogprobsToMarkdown(lp)).join("\n")
-        else md = logprobs.map((lp) => logprobToMarkdown(lp)).join("\n")
-    } else {
-        md = convertAnnotationsToMarkdown(md)
-    }
-    return (
-        <>
-            <VscodeTabHeader slot="header">
-                Output
-                <CounterBadge collection={text} />
-            </VscodeTabHeader>
-            <VscodeTabPanel>
-                <Markdown>{md}</Markdown>
             </VscodeTabPanel>
         </>
     )
@@ -1046,7 +1059,7 @@ function ScriptSelect() {
             </VscodeSingleSelect>
             {script && (
                 <VscodeFormHelper>
-                    {toStringList(script.title, script.description)}
+                    {toStringList(script.title, script.description, script.filename)}
                 </VscodeFormHelper>
             )}
         </VscodeFormGroup>
@@ -1224,7 +1237,7 @@ function WebApp() {
             <RunForm />
             <VscodeCollapsible open title="Results">
                 <VscodeTabs panel>
-                    <OutputTabPanel />
+                    <OutputTraceTabPanel />
                     <MessagesTabPanel />
                     <TraceTabPanel />
                     <ProblemsTabPanel />
