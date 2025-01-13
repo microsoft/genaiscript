@@ -144,7 +144,7 @@ export class NodeHost implements RuntimeHost {
         const modelid = cfg.model
         if (this.pulledModels.includes(modelid)) return { ok: true }
 
-        const { provider } = parseModelIdentifier(modelid)
+        const { provider, model } = parseModelIdentifier(modelid)
         const { pullModel, listModels } = await resolveLanguageModel(provider)
         if (!pullModel) {
             this.pulledModels.includes(modelid)
@@ -153,7 +153,6 @@ export class NodeHost implements RuntimeHost {
 
         if (listModels) {
             const models = await listModels(cfg, options)
-            const { model } = parseModelIdentifier(modelid)
             if (models.find(({ id }) => id === model)) {
                 this.pulledModels.push(modelid)
                 return { ok: true }
