@@ -75,6 +75,7 @@
         "genai:docify": "node packages/cli/built/genaiscript.cjs run docify",
         "gcm": "node packages/cli/built/genaiscript.cjs run gcm --model github:gpt-4o",
         "prd": "node packages/cli/built/genaiscript.cjs run prd -prd --model github:gpt-4o",
+        "prr": "node packages/cli/built/genaiscript.cjs run prr -prc --model github:gpt-4o",
         "genai": "node packages/cli/built/genaiscript.cjs run",
         "genai:convert": "node packages/cli/built/genaiscript.cjs convert",
         "genai:debug": "yarn compile-debug && node packages/cli/built/genaiscript.cjs run",

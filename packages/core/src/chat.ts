@@ -58,6 +58,7 @@ import {
     CreateChatCompletionRequest,
 } from "./chattypes"
 import {
+    collapseChatMessages,
     renderMessageContent,
     renderMessagesToMarkdown,
     renderShellOutput,
@@ -136,7 +137,7 @@ export type ListModelsFunction = (
 ) => Promise<LanguageModelInfo[]>
 
 export type PullModelFunction = (
-    modelId: string,
+    cfg: LanguageModelConfiguration,
     options: TraceOptions & CancellationOptions
 ) => Promise<{ ok: boolean; error?: SerializedError }>
 
@@ -843,37 +844,6 @@ async function choicesToLogitBias(
     trace.itemValue("choices", choices.join(", "))
     trace.itemValue("logit bias", JSON.stringify(logit_bias))
     return logit_bias
-}
-
-export function collapseChatMessages(messages: ChatCompletionMessageParam[]) {
-    // concat the content of system messages at the start of the messages into a single message
-    const startSystem = messages.findIndex((m) => m.role === "system")
-    if (startSystem > -1) {
-        let endSystem =
-            startSystem +
-            messages
-                .slice(startSystem)
-                .findIndex((m) => m.role !== "system" || m.cacheControl)
-        if (endSystem < 0) endSystem = messages.length
-        if (endSystem > startSystem + 1) {
-            const systemContent = messages
-                .slice(startSystem, endSystem)
-                .map((m) => m.content)
-                .join("\n")
-            messages.splice(startSystem, endSystem - startSystem, {
-                role: "system",
-                content: systemContent,
-            })
-        }
-    }
-
-    // remove emty text contents
-    messages
-        .filter((m) => m.role === "user")
-        .forEach((m) => {
-            if (typeof m.content !== "string")
-                m.content = m.content.filter((c) => c.type !== "text" || c.text)
-        })
 }
 
 export async function executeChatSession(

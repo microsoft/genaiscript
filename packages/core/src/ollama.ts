@@ -13,6 +13,7 @@ import {
     LanguageModelConfiguration,
     LanguageModelInfo,
 } from "./server/messages"
+import { JSONLTryParse } from "./jsonl"
 
 /**
  * Lists available models for the Ollama language model configuration.
@@ -53,39 +54,19 @@ async function listModels(
     )
 }
 
-const pullModel: PullModelFunction = async (modelId, options) => {
+const pullModel: PullModelFunction = async (cfg, options) => {
     const { trace, cancellationToken } = options || {}
-    const { provider, model } = parseModelIdentifier(modelId)
+    const { provider, model } = cfg
     const fetch = await createFetch({ retries: 0, ...options })
-    const conn = await host.getLanguageModelConfiguration(modelId, {
-        token: true,
-        cancellationToken,
-        trace,
-    })
-    conn.base = conn.base.replace(/\/v1$/i, "")
+    const base = cfg.base.replace(/\/v1$/i, "")
     try {
-        // test if model is present
-        const resTags = await fetch(`${conn.base}/api/tags`, {
-            retries: 0,
-            method: "GET",
-            headers: {
-                "User-Agent": TOOL_ID,
-                "Content-Type": "application/json",
-            },
-        })
-        if (resTags.ok) {
-            const { models }: { models: { model: string }[] } =
-                await resTags.json()
-            if (models.find((m) => m.model === model)) return { ok: true }
-        }
-
         // pull
         logVerbose(`${provider}: pull ${model}`)
-        const resPull = await fetch(`${conn.base}/api/pull`, {
+        const resPull = await fetch(`${base}/api/pull`, {
             method: "POST",
             headers: {
-                "User-Agent": TOOL_ID,
                 "Content-Type": "application/json",
+                "User-Agent": TOOL_ID,
             },
             body: JSON.stringify({ model }),
         })
@@ -94,10 +75,24 @@ const pullModel: PullModelFunction = async (modelId, options) => {
             logVerbose(resPull.statusText)
             return { ok: false, status: resPull.status }
         }
-        0
-        for await (const chunk of iterateBody(resPull, { cancellationToken }))
+        let lastStatus = ""
+        for await (const chunk of iterateBody(resPull, { cancellationToken })) {
+            const cs = JSONLTryParse(chunk) as {
+                status?: string
+                error?: string
+            }[]
+            for (const c of cs) {
+                if (c?.error) {
+                    return {
+                        ok: false,
+                        error: serializeError(c.error),
+                    }
+                }
+            }
             process.stderr.write(".")
+        }
         process.stderr.write("\n")
+        logVerbose(`${provider}: pulled ${model}`)
         return { ok: true }
     } catch (e) {
         logError(e)

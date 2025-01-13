@@ -656,7 +656,7 @@ export function createChatGenerationContext(
             if (info.error) throw new Error(info.error)
             if (!configuration) throw new Error("model configuration not found")
             checkCancelled(cancellationToken)
-            const { ok } = await runtimeHost.pullModel(conn.model, {
+            const { ok } = await runtimeHost.pullModel(configuration, {
                 trace: transcriptionTrace,
                 cancellationToken,
             })
@@ -756,8 +756,7 @@ export function createChatGenerationContext(
                 genOptions.model,
                 label
             )
-
-            const { ok } = await runtimeHost.pullModel(genOptions.model, {
+            const { ok } = await runtimeHost.pullModel(configuration, {
                 trace: runTrace,
                 cancellationToken,
             })

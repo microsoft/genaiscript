@@ -1,7 +1,7 @@
 import { describe, test } from "node:test"
 import assert from "node:assert/strict"
 import { ChatCompletionMessageParam } from "./chattypes"
-import { collapseChatMessages } from "./chat"
+import { collapseChatMessages } from "./chatrender"
 
 describe("chat", () => {
     describe("collapse", () => {
