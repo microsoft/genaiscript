@@ -389,6 +389,10 @@ export async function cli() {
             "--remote-install",
             "Install dependencies from remote repository"
         )
+        .option(
+            "--dispatch-progress",
+            "Dispatch progress events to all clients"
+        )
         .action(startServer) // Action to start the server
 
     // Define 'parse' command group for parsing tasks

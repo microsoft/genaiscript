@@ -10,11 +10,7 @@ import {
     UNHANDLED_ERROR_CODE,
     MODEL_PROVIDER_CLIENT,
 } from "../../core/src/constants"
-import {
-    isCancelError,
-    errorMessage,
-    serializeError,
-} from "../../core/src/error"
+import { isCancelError, serializeError } from "../../core/src/error"
 import { host, runtimeHost } from "../../core/src/host"
 import { MarkdownTrace, TraceChunkEvent } from "../../core/src/trace"
 import {
@@ -70,6 +66,7 @@ export async function startServer(options: {
     remoteBranch?: string
     remoteForce?: boolean
     remoteInstall?: boolean
+    dispatchProgress?: boolean
 }) {
     // Parse and set the server port, using a default if not specified.
     const corsOrigin = options.cors || process.env.GENAISCRIPT_CORS_ORIGIN
@@ -77,6 +74,7 @@ export async function startServer(options: {
     const apiKey = options.apiKey || process.env.GENAISCRIPT_API_KEY
     const serverHost = options.network ? "0.0.0.0" : "127.0.0.1"
     const remote = options.remote
+    const dispatchProgress = !!options.dispatchProgress
 
     // store original working directory
     const cwd = process.cwd()
@@ -266,6 +264,13 @@ export async function startServer(options: {
             logVerbose(`clients: closed (${wss.clients.size} clients)`)
         )
 
+        const send = (payload: object) => {
+            const cmsg = JSON.stringify(payload)
+            if (dispatchProgress)
+                for (const client of this.clients) client.send(cmsg)
+            else ws?.send(cmsg)
+        }
+
         // Handle incoming messages based on their type.
         ws.on("message", async (msg) => {
             const data = JSON.parse(msg.toString()) as RequestMessages
@@ -340,31 +345,28 @@ export async function startServer(options: {
                             new AbortSignalCancellationController()
                         const trace = new MarkdownTrace()
                         const outputTrace = new MarkdownTrace()
-                        const send = (
+                        const sendProgress = (
                             payload: Omit<
                                 PromptScriptProgressResponseEvent,
                                 "type" | "runId"
                             >
-                        ) =>
-                            ws?.send(
-                                JSON.stringify(<
-                                    PromptScriptProgressResponseEvent
-                                >{
-                                    type: "script.progress",
-                                    runId,
-                                    ...payload,
-                                })
-                            )
+                        ) => {
+                            send({
+                                type: "script.progress",
+                                runId,
+                                ...payload,
+                            } satisfies PromptScriptProgressResponseEvent)
+                        }
                         trace.addEventListener(TRACE_CHUNK, (ev) => {
                             const tev = ev as TraceChunkEvent
                             chunkString(tev.chunk, 2 << 14).forEach((c) =>
-                                send({ trace: c })
+                                sendProgress({ trace: c })
                             )
                         })
                         outputTrace.addEventListener(TRACE_CHUNK, (ev) => {
                             const tev = ev as TraceChunkEvent
                             chunkString(tev.chunk, 2 << 14).forEach((c) =>
-                                send({ output: c })
+                                sendProgress({ output: c })
                             )
                         })
                         logVerbose(`run ${runId}: starting ${script}`)
@@ -375,7 +377,7 @@ export async function startServer(options: {
                             outputTrace,
                             cancellationToken: canceller.token,
                             infoCb: ({ text }) => {
-                                send({ progress: text })
+                                sendProgress({ progress: text })
                             },
                             partialCb: ({
                                 responseChunk,
@@ -383,7 +385,7 @@ export async function startServer(options: {
                                 tokensSoFar,
                                 responseTokens,
                             }) => {
-                                send({
+                                sendProgress({
                                     response: responseSoFar,
                                     responseChunk,
                                     tokens: tokensSoFar,
@@ -396,33 +398,29 @@ export async function startServer(options: {
                                 logVerbose(
                                     `\nrun ${runId}: completed with ${exitCode}`
                                 )
-                                ws?.send(
-                                    JSON.stringify(<
-                                        PromptScriptEndResponseEvent
-                                    >{
-                                        type: "script.end",
-                                        runId,
-                                        exitCode,
-                                        result,
-                                    })
-                                )
+                                send({
+                                    type: "script.end",
+                                    runId,
+                                    exitCode,
+                                    result,
+                                } satisfies PromptScriptEndResponseEvent)
                             })
                             .catch((e) => {
                                 if (canceller.controller.signal.aborted) return
                                 if (!isCancelError(e)) trace.error(e)
                                 logError(`\nrun ${runId}: failed`)
                                 logError(e)
-                                ws?.send(
-                                    JSON.stringify(<
-                                        PromptScriptEndResponseEvent
-                                    >{
-                                        type: "script.end",
-                                        runId,
-                                        exitCode: isCancelError(e)
-                                            ? USER_CANCELLED_ERROR_CODE
-                                            : UNHANDLED_ERROR_CODE,
-                                    })
-                                )
+                                send({
+                                    type: "script.end",
+                                    runId,
+                                    result: {
+                                        status: "error",
+                                        error: serializeError(e),
+                                    },
+                                    exitCode: isCancelError(e)
+                                        ? USER_CANCELLED_ERROR_CODE
+                                        : UNHANDLED_ERROR_CODE,
+                                } satisfies PromptScriptEndResponseEvent)
                             })
                         runs[runId] = {
                             runner,
@@ -467,7 +465,7 @@ export async function startServer(options: {
             } finally {
                 assert(!!response)
                 if (response.error) logError(response.error)
-                ws.send(JSON.stringify({ id, response }))
+                send({ id, type, response })
             }
         })
     })

@@ -105,7 +105,6 @@ export class WebSocketClient extends EventTarget {
                 if (awaiter) {
                     delete this.awaiters[id]
                     await awaiter.resolve(req)
-                    return
                 }
                 // not a response
                 this.dispatchEvent(

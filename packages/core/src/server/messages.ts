@@ -257,7 +257,7 @@ export interface PromptScriptEndResponseEvent {
     type: "script.end"
     runId: string
     exitCode: number
-    result: GenerationResult
+    result: Partial<GenerationResult>
 }
 
 export interface PromptScriptAbort extends RequestMessage {

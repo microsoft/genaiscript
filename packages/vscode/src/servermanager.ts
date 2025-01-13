@@ -136,11 +136,11 @@ export class TerminalServerManager implements ServerManager {
         const { cliPath, cliVersion } = await resolveCli()
         if (cliPath)
             this._terminal.sendText(
-                `node "${cliPath}" serve --port ${this._port}`
+                `node "${cliPath}" serve --port ${this._port} --dispatch-progress`
             )
         else
             this._terminal.sendText(
-                `npx --yes ${TOOL_ID}@${cliVersion} serve --port ${this._port}`
+                `npx --yes ${TOOL_ID}@${cliVersion} serve --port ${this._port} --dispatch-progress`
             )
         this._terminal.show()
     }

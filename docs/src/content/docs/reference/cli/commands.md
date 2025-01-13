@@ -399,6 +399,7 @@ Options:
   --remote-branch <string>  Branch to serve from the remote
   --remote-force            Force pull from remote repository
   --remote-install          Install dependencies from remote repository
+  --dispatch-progress       Dispatch progress events to all clients
   -h, --help                display help for command
 ```
 

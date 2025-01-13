@@ -39,6 +39,7 @@ import type {
     GenerationResult,
     ResolvedLanguageModelConfiguration,
     ServerEnvResponse,
+    RequestMessages,
 } from "../../core/src/server/messages"
 import { promptParametersSchemaToJSONSchema } from "../../core/src/parameters"
 import {
@@ -89,17 +90,19 @@ const fetchEnv = async (): Promise<ResolvedLanguageModelConfiguration[]> => {
 type TraceEvent = CustomEvent<{ trace?: string; output?: string }>
 
 class RunClient extends WebSocketClient {
+    static readonly SCRIPT_START_EVENT = "scriptStart"
     static readonly TRACE_EVENT = "trace"
     static readonly OUTPUT_EVENT = "output"
-    static readonly RESULT_EVENT = "result"
+    static readonly SCRIPT_END_EVENT = "scriptEnd"
 
     constructor(url: string) {
         super(url)
         this.addEventListener(
             "message",
             (ev) => {
-                const data = (ev as MessageEvent<any>)
-                    .data as PromptScriptResponseEvents
+                const data = (ev as MessageEvent<any>).data as
+                    | PromptScriptResponseEvents
+                    | RequestMessages
                 switch (data.type) {
                     case "script.progress": {
                         if (data.trace)
@@ -120,11 +123,22 @@ class RunClient extends WebSocketClient {
                         console.log(`script: end`, data.result)
                         const result = cleanedClone(data.result)
                         this.dispatchEvent(
-                            new CustomEvent(RunClient.RESULT_EVENT, {
-                                detail: data.result,
+                            new CustomEvent(RunClient.SCRIPT_END_EVENT, {
+                                detail: result,
                             })
                         )
                         break
+                    }
+                    case "script.start":
+                        console.log(`script: started`, data)
+                        this.dispatchEvent(
+                            new CustomEvent(RunClient.SCRIPT_START_EVENT, {
+                                detail: data.response,
+                            })
+                        )
+                        break
+                    default: {
+                        console.log(data)
                     }
                 }
             },
@@ -324,16 +338,25 @@ function RunnerProvider({ children }: { children: React.ReactNode }) {
         setRunId(undefined)
     }, [scriptid])
 
+    const start = useCallback((e: Event) => {
+        const ev = e as CustomEvent
+        console.log(ev)
+        setRunId(ev.detail.runId)
+        setResult(undefined)
+    }, [])
+    useEventListener(client, RunClient.SCRIPT_START_EVENT, start, false)
+
     const end = useCallback((e: Event) => {
         const ev = e as CustomEvent
         setRunId(undefined)
         setResult(ev.detail)
     }, [])
-    useEventListener(client, RunClient.RESULT_EVENT, end, false)
+    useEventListener(client, RunClient.SCRIPT_END_EVENT, end, false)
 
     const run = async () => {
         if (!scriptid) return
 
+        setRunId(undefined)
         const runId = ("" + Math.random()).slice(2)
         console.log(`script: start ${scriptid}`, {
             runId,
@@ -364,7 +387,6 @@ function RunnerProvider({ children }: { children: React.ReactNode }) {
             vars: parameters,
             workspaceFiles,
         })
-        setRunId(runId)
     }
 
     const cancel = () => {
