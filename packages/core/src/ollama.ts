@@ -13,6 +13,7 @@ import {
     LanguageModelConfiguration,
     LanguageModelInfo,
 } from "./server/messages"
+import { JSONLTryParse } from "./jsonl"
 
 /**
  * Lists available models for the Ollama language model configuration.
@@ -55,7 +56,7 @@ async function listModels(
 
 const pullModel: PullModelFunction = async (cfg, options) => {
     const { trace, cancellationToken } = options || {}
-    const { provider, model } = parseModelIdentifier(cfg.model)
+    const { provider, model } = cfg
     const fetch = await createFetch({ retries: 0, ...options })
     const base = cfg.base.replace(/\/v1$/i, "")
     try {
@@ -64,8 +65,8 @@ const pullModel: PullModelFunction = async (cfg, options) => {
         const resPull = await fetch(`${base}/api/pull`, {
             method: "POST",
             headers: {
-                "User-Agent": TOOL_ID,
                 "Content-Type": "application/json",
+                "User-Agent": TOOL_ID,
             },
             body: JSON.stringify({ model }),
         })
@@ -74,9 +75,24 @@ const pullModel: PullModelFunction = async (cfg, options) => {
             logVerbose(resPull.statusText)
             return { ok: false, status: resPull.status }
         }
-        for await (const chunk of iterateBody(resPull, { cancellationToken }))
+        let lastStatus = ""
+        for await (const chunk of iterateBody(resPull, { cancellationToken })) {
+            const cs = JSONLTryParse(chunk) as {
+                status?: string
+                error?: string
+            }[]
+            for (const c of cs) {
+                if (c?.error) {
+                    return {
+                        ok: false,
+                        error: serializeError(c.error),
+                    }
+                }
+            }
             process.stderr.write(".")
+        }
         process.stderr.write("\n")
+        logVerbose(`${provider}: pulled ${model}`)
         return { ok: true }
     } catch (e) {
         logError(e)
