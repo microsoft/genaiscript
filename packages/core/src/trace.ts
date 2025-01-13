@@ -21,6 +21,8 @@ import { HTMLEscape } from "./html"
 import { resolve } from "node:path"
 import { pathToFileURL } from "node:url"
 import { dedent } from "./indent"
+import { CSVStringify, CSVToMarkdown } from "./csv"
+import { INIStringify } from "./ini"
 
 export class TraceChunkEvent extends Event {
     constructor(readonly chunk: string) {
@@ -138,6 +140,19 @@ ${this.toResultIcon(success, "")}${title}
         )
     }
 
+    file(file: WorkspaceFile) {
+        const { content, type, filename, encoding } = file
+        if (!content) {
+            this.itemValue(filename, "no content")
+        } else {
+            this.item(filename)
+            if (!encoding) {
+                const ext = host.path.extname(filename).slice(1)
+                this.fence(content, ext)
+            }
+        }
+    }
+
     details(
         title: string,
         body: string | object,
@@ -200,10 +215,19 @@ ${this.toResultIcon(success, "")}${title}
     fence(message: string | unknown, contentType?: string) {
         if (message === undefined || message === null || message === "") return
 
+        if (contentType === "md" && Array.isArray(message)) {
+            this.appendContent(CSVToMarkdown(message))
+            return
+        }
+
         let res: string
         if (typeof message !== "string") {
             if (contentType === "json") {
                 res = JSON.stringify(message, null, 2)
+            } else if (contentType === "ini") {
+                res = INIStringify(message)
+            } else if (contentType === "csv") {
+                res = CSVStringify(Array.isArray(message) ? message : [message])
             } else {
                 res = yamlStringify(message)
                 contentType = "yaml"

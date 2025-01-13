@@ -743,7 +743,7 @@ interface ToolCallTrace {
      * @param message - The fenced message to log.
      * @param contentType - The optional content type of the message.
      */
-    fence(message: string, contentType?: string): void
+    fence(message: string | unknown, contentType?: string): void
 }
 
 /**
