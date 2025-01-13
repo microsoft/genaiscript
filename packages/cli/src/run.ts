@@ -34,6 +34,8 @@ import {
     GENAI_ANYTS_REGEX,
     CONSOLE_TOKEN_COLORS,
     CONSOLE_TOKEN_INNER_COLORS,
+    CHAT_PROGRESS,
+    TRACE_CHUNK,
 } from "../../core/src/constants"
 import { isCancelError, errorMessage } from "../../core/src/error"
 import { GenerationResult } from "../../core/src/server/messages"
@@ -45,7 +47,12 @@ import {
     JSONSchemaStringifyToTypeScript,
     JSONSchemaStringify,
 } from "../../core/src/schema"
-import { TraceOptions, MarkdownTrace } from "../../core/src/trace"
+import {
+    TraceOptions,
+    MarkdownTrace,
+    ChatProgressEvent,
+    TraceChunkEvent,
+} from "../../core/src/trace"
 import {
     normalizeFloat,
     normalizeInt,
@@ -149,10 +156,6 @@ export async function runScriptInternal(
         infoCb,
         partialCb,
     } = options || {}
-
-    //    outputTrace.addEventListener(TRACE_CHUNK, (e) =>
-    //      logVerbose((e as TraceChunkEvent).chunk)
-    //)
 
     runtimeHost.clearModelAlias("script")
     let result: GenerationResult
@@ -279,6 +282,44 @@ export async function runScriptInternal(
         }
     }
 
+    let tokenColor = 0
+    outputTrace.addEventListener(CHAT_PROGRESS, (ev) => {
+        const args = (ev as ChatProgressEvent).progress
+        const { responseChunk, responseTokens, inner } = args
+        if (responseChunk !== undefined && responseChunk !== null) {
+            if (stream) {
+                if (responseTokens && consoleColors) {
+                    const colors = inner
+                        ? CONSOLE_TOKEN_INNER_COLORS
+                        : CONSOLE_TOKEN_COLORS
+                    for (const token of responseTokens) {
+                        if (!isNaN(token.logprob)) {
+                            const c = wrapRgbColor(
+                                logprobColor(token),
+                                token.token
+                            )
+                            stdout.write(c)
+                        } else {
+                            tokenColor = (tokenColor + 1) % colors.length
+                            const c = colors[tokenColor]
+                            stdout.write(wrapColor(c, token.token))
+                        }
+                    }
+                } else {
+                    if (!inner) stdout.write(responseChunk)
+                    else
+                        stderr.write(
+                            wrapColor(CONSOLE_COLOR_DEBUG, responseChunk)
+                        )
+                }
+            } else if (!isQuiet)
+                stderr.write(wrapColor(CONSOLE_COLOR_DEBUG, responseChunk))
+        }
+    })
+    outputTrace.addEventListener(TRACE_CHUNK, (ev) => {
+        logVerbose((ev as TraceChunkEvent).chunk)
+    })
+
     const fragment: Fragment = {
         files: Array.from(resolvedFiles),
         workspaceFiles,
@@ -306,7 +347,6 @@ export async function runScriptInternal(
         }
         trace.options.encoder = (await resolveTokenEncoder(info.model)).encode
 
-        let tokenColor = 0
         result = await runTemplate(prj, script, fragment, {
             inner: false,
             infoCb: (args) => {
@@ -317,43 +357,7 @@ export async function runScriptInternal(
                 }
             },
             partialCb: (args) => {
-                const { responseChunk, responseTokens, inner } = args
-                if (responseChunk !== undefined && responseChunk !== null) {
-                    if (!inner) outputTrace.appendContent(responseChunk)
-                    if (stream) {
-                        if (responseTokens && consoleColors) {
-                            const colors = inner
-                                ? CONSOLE_TOKEN_INNER_COLORS
-                                : CONSOLE_TOKEN_COLORS
-                            for (const token of responseTokens) {
-                                if (!isNaN(token.logprob)) {
-                                    const c = wrapRgbColor(
-                                        logprobColor(token),
-                                        token.token
-                                    )
-                                    stdout.write(c)
-                                } else {
-                                    tokenColor =
-                                        (tokenColor + 1) % colors.length
-                                    const c = colors[tokenColor]
-                                    stdout.write(wrapColor(c, token.token))
-                                }
-                            }
-                        } else {
-                            if (!inner) stdout.write(responseChunk)
-                            else
-                                stderr.write(
-                                    wrapColor(
-                                        CONSOLE_COLOR_DEBUG,
-                                        responseChunk
-                                    )
-                                )
-                        }
-                    } else if (!isQuiet)
-                        stderr.write(
-                            wrapColor(CONSOLE_COLOR_DEBUG, responseChunk)
-                        )
-                }
+                outputTrace.chatProgress(args)
                 partialCb?.(args)
             },
             label,

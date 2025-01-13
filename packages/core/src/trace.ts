@@ -1,5 +1,6 @@
 import {
     CHANGE,
+    CHAT_PROGRESS,
     EMOJI_FAIL,
     EMOJI_SUCCESS,
     EMOJI_UNDEFINED,
@@ -23,10 +24,17 @@ import { pathToFileURL } from "node:url"
 import { dedent } from "./indent"
 import { CSVStringify, CSVToMarkdown } from "./csv"
 import { INIStringify } from "./ini"
+import { ChatCompletionsProgressReport } from "./chattypes"
 
 export class TraceChunkEvent extends Event {
     constructor(readonly chunk: string) {
         super(TRACE_CHUNK)
+    }
+}
+
+export class ChatProgressEvent extends Event {
+    constructor(readonly progress: ChatCompletionsProgressReport) {
+        super(CHAT_PROGRESS)
     }
 }
 
@@ -71,9 +79,21 @@ export class MarkdownTrace extends EventTarget implements OutputTrace {
         trace.addEventListener(TRACE_DETAILS, () =>
             this.dispatchEvent(new Event(TRACE_DETAILS))
         )
+        trace.addEventListener(CHAT_PROGRESS, (ev) =>
+            this.dispatchEvent(
+                new ChatProgressEvent((ev as ChatProgressEvent).progress)
+            )
+        )
         trace.startDetails(title, options)
         this._content.push(trace)
         return trace
+    }
+
+    chatProgress(progress: ChatCompletionsProgressReport) {
+        const { inner, responseChunk } = progress
+        if (!inner) this._content.push(responseChunk)
+        const ev = new ChatProgressEvent(progress)
+        this.dispatchEvent(ev)
     }
 
     appendContent(value: string) {
