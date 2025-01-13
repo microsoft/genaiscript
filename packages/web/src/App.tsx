@@ -59,10 +59,19 @@ import "remark-github-blockquote-alert/alert.css"
 import { markdownDiff } from "../../core/src/mddiff"
 import { VscodeMultiSelect as VscodeMultiSelectElement } from "@vscode-elements/elements"
 import { cleanedClone } from "../../core/src/clone"
+import { WebSocketClient } from "../../core/src/server/wsclient"
 
 const urlParams = new URLSearchParams(window.location.hash)
 const apiKey = urlParams.get("api-key")
 window.location.hash = ""
+
+const client = new WebSocketClient("/?api-key=" + apiKey)
+client.addEventListener("connect", () => console.log(`client: connect`))
+client.addEventListener("open", () => console.log(`client: opened`))
+client.addEventListener("close", () => console.log(`client: closed`))
+client.addEventListener("message", (e) =>
+    console.log(`client: message`, (e as MessageEvent).data)
+)
 
 const fetchScripts = async (): Promise<Project> => {
     const res = await fetch(`/api/scripts`, {
@@ -126,42 +135,54 @@ class RunClient extends EventTarget {
             },
             false
         )
-        this.ws.addEventListener("message", (ev) => {
-            const data: PromptScriptResponseEvents = JSON.parse(ev.data)
-            switch (data.type) {
-                case "script.progress": {
-                    if (data.trace)
+        this.ws.addEventListener(
+            "message",
+            (ev) => {
+                const data: PromptScriptResponseEvents = JSON.parse(ev.data)
+                switch (data.type) {
+                    case "script.progress": {
+                        if (data.trace)
+                            this.dispatchEvent(
+                                new CustomEvent(RunClient.TRACE_EVENT, {
+                                    detail: data,
+                                })
+                            )
+                        if (data.output)
+                            this.dispatchEvent(
+                                new CustomEvent(RunClient.OUTPUT_EVENT, {
+                                    detail: data,
+                                })
+                            )
+                        break
+                    }
+                    case "script.end": {
+                        this.result = cleanedClone(data.result)
                         this.dispatchEvent(
-                            new CustomEvent(RunClient.TRACE_EVENT, {
+                            new CustomEvent(RunClient.RESULT_EVENT, {
                                 detail: data,
                             })
                         )
-                    if (data.output)
-                        this.dispatchEvent(
-                            new CustomEvent(RunClient.OUTPUT_EVENT, {
-                                detail: data,
-                            })
-                        )
-                    break
+                        break
+                    }
                 }
-                case "script.end": {
-                    this.result = cleanedClone(data.result)
-                    this.dispatchEvent(
-                        new CustomEvent(RunClient.RESULT_EVENT, {
-                            detail: data,
-                        })
-                    )
-                    break
-                }
-            }
-        })
-        this.ws.addEventListener("error", (err) => {
-            console.log(`run ${this.runId}: error`)
-            console.error(err)
-        })
-        this.ws.addEventListener("close", (ev) => {
-            console.log(`run ${this.runId}: close, ${ev.reason}`)
-        })
+            },
+            false
+        )
+        this.ws.addEventListener(
+            "error",
+            (err) => {
+                console.log(`run ${this.runId}: error`)
+                console.error(err)
+            },
+            false
+        )
+        this.ws.addEventListener(
+            "close",
+            (ev) => {
+                console.log(`run ${this.runId}: close, ${ev.reason}`)
+            },
+            false
+        )
     }
 
     close() {
@@ -306,6 +327,9 @@ function ApiProvider({ children }: { children: React.ReactNode }) {
     ) => {
         setState((prev) => ({ ...prev, ...f(options) }))
     }
+    useEffect(() => {
+        client.init()
+    }, [])
 
     return (
         <ApiContext.Provider

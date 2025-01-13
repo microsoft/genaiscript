@@ -292,6 +292,14 @@ export interface LanguageModelConfigurationResponse extends ResponseStatus {
     info?: LanguageModelConfiguration
 }
 
+export interface ServerResponse extends ResponseStatus {
+    version: string
+    node: string
+    platform: string
+    arch: string
+    pid: number
+}
+
 export interface ChatStart {
     type: "chat.start"
     chatId: string

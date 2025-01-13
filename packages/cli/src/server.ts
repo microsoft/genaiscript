@@ -15,7 +15,7 @@ import {
     errorMessage,
     serializeError,
 } from "../../core/src/error"
-import { ServerResponse, host, runtimeHost } from "../../core/src/host"
+import { host, runtimeHost } from "../../core/src/host"
 import { MarkdownTrace, TraceChunkEvent } from "../../core/src/trace"
 import {
     logVerbose,
@@ -37,8 +37,8 @@ import {
     ResponseStatus,
     LanguageModelConfiguration,
     ServerEnvResponse,
+    ServerResponse,
 } from "../../core/src/server/messages"
-import { envInfo } from "./info"
 import { LanguageModel } from "../../core/src/chat"
 import {
     ChatCompletionResponse,

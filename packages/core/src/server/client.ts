@@ -1,17 +1,10 @@
-import { ChatCompletionsProgressReport } from "../chattypes"
-import { CLIENT_RECONNECT_DELAY, OPEN, RECONNECT } from "../constants"
+import type { ChatCompletionsProgressReport } from "../chattypes"
+import { CLOSE, MESSAGE } from "../constants"
 import { randomHex } from "../crypto"
 import { errorMessage } from "../error"
-import { GenerationResult, LanguageModelConfiguration, ResponseStatus } from "../server/messages"
-import {
-    ServerResponse,
-    host,
-} from "../host"
 import { MarkdownTrace } from "../trace"
-import { assert, logError } from "../util"
-import {
-    RequestMessage,
-    RequestMessages,
+import { logError } from "../util"
+import type {
     ServerVersion,
     PromptScriptTestRun,
     PromptScriptTestRunOptions,
@@ -28,25 +21,19 @@ import {
     Project,
     PromptScriptList,
     PromptScriptListResponse,
+    GenerationResult,
+    LanguageModelConfiguration,
+    ResponseStatus,
+    ServerResponse,
 } from "./messages"
+import { WebSocketClient } from "./wsclient"
 
 export type LanguageModelChatRequest = (
     request: ChatStart,
     onChunk: (param: Omit<ChatChunk, "id" | "type" | "chatId">) => void
 ) => Promise<void>
 
-export class WebSocketClient extends EventTarget {
-    private awaiters: Record<
-        string,
-        { resolve: (data: any) => void; reject: (error: unknown) => void }
-    > = {}
-    private _nextId = 1
-    private _ws: WebSocket
-    private _pendingMessages: string[] = []
-    private _reconnectTimeout: ReturnType<typeof setTimeout> | undefined
-    connectedOnce = false
-    reconnectAttempts = 0
-
+export class VsCodeClient extends WebSocketClient {
     chatRequest: LanguageModelChatRequest
 
     private runs: Record<
@@ -66,7 +53,8 @@ export class WebSocketClient extends EventTarget {
     > = {}
 
     constructor(readonly url: string) {
-        super()
+        super(url)
+        this.configure()
     }
 
     private installPolyfill() {
@@ -80,67 +68,22 @@ export class WebSocketClient extends EventTarget {
         }
     }
 
-    async init(): Promise<void> {
-        if (this._ws) return Promise.resolve(undefined)
-        this.connect()
-        await host.server.start()
-    }
-
-    private reconnect() {
-        this.reconnectAttempts++
-        this.dispatchEvent(new Event(RECONNECT))
-        this._ws = undefined
-        clearTimeout(this._reconnectTimeout)
-        this._reconnectTimeout = setTimeout(() => {
-            this.connect()
-        }, CLIENT_RECONNECT_DELAY)
-    }
-
-    private connect(): void {
-        assert(!this._ws, "already connected")
+    private configure(): void {
         this.installPolyfill()
-
-        this._ws = new WebSocket(this.url)
-        this._ws.addEventListener("open", () => {
-            // clear counter
-            this.connectedOnce = true
-            this.reconnectAttempts = 0
-            // flush cached messages
-            let m: string
-            while (
-                this._ws?.readyState === WebSocket.OPEN &&
-                (m = this._pendingMessages.pop())
-            )
-                this._ws.send(m)
-            this.dispatchEvent(new Event(OPEN))
-        })
-        this._ws.addEventListener("error", (ev) => {
-            this.reconnect()
-        })
-        this._ws.addEventListener("close", (ev: CloseEvent) => {
-            this.cancel(ev.reason)
+        this.addEventListener(CLOSE, (e) => {
+            const ev = e as CloseEvent
             for (const [runId, run] of Object.entries(this.runs)) {
                 run.reject(ev.reason || "websocket closed")
                 delete this.runs[runId]
             }
-            this.reconnect()
         })
-        this._ws.addEventListener("message", <
-            (event: MessageEvent<any>) => void
-        >(async (event) => {
-            const data = JSON.parse(event.data)
-            // handle responses
-            const req: RequestMessages = data
-            const { id } = req
-            const awaiter = this.awaiters[id]
-            if (awaiter) {
-                delete this.awaiters[id]
-                await awaiter.resolve(req)
-                return
-            }
 
+        this.addEventListener(MESSAGE, async (e) => {
+            const event = e as MessageEvent<
+                PromptScriptResponseEvents | ChatEvents
+            >
             // handle run progress
-            const ev: PromptScriptResponseEvents = data
+            const ev = event.data as PromptScriptResponseEvents
             const { runId, type } = ev
             const run = this.runs[runId]
             if (run) {
@@ -169,7 +112,7 @@ export class WebSocketClient extends EventTarget {
                     }
                 }
             } else {
-                const cev: ChatEvents = data
+                const cev = event.data as ChatEvents
                 const { chatId, type } = cev
                 switch (type) {
                     case "chat.start": {
@@ -188,57 +131,7 @@ export class WebSocketClient extends EventTarget {
                     }
                 }
             }
-        }))
-    }
-
-    private queue<T extends RequestMessage>(msg: Omit<T, "id">): Promise<T> {
-        const id = this._nextId++ + ""
-        const mo: any = { ...msg, id }
-        // avoid pollution
-        delete mo.trace
-        if (mo.options) delete mo.options.trace
-        const m = JSON.stringify(mo)
-
-        this.init()
-        return new Promise<T>((resolve, reject) => {
-            this.awaiters[id] = {
-                resolve: (data) => resolve(data),
-                reject,
-            }
-            if (this._ws?.readyState === WebSocket.OPEN) {
-                this._ws.send(m)
-            } else this._pendingMessages.push(m)
         })
-    }
-
-    get pending() {
-        return this._pendingMessages?.length > 0
-    }
-
-    stop() {
-        this.reconnectAttempts = 0
-        if (this._reconnectTimeout) {
-            clearTimeout(this._reconnectTimeout)
-            this._reconnectTimeout = undefined
-        }
-        if (this._ws) {
-            const ws = this._ws
-            this._ws = undefined
-            if (ws.readyState !== WebSocket.CLOSED)
-                try {
-                    ws.close()
-                } finally {
-                }
-        }
-        this.cancel()
-    }
-
-    cancel(reason?: string) {
-        this.reconnectAttempts = 0
-        this._pendingMessages = []
-        const cancellers = Object.values(this.awaiters)
-        this.awaiters = {}
-        cancellers.forEach((a) => a.reject(reason || "cancelled"))
     }
 
     async getLanguageModelConfiguration(
@@ -346,21 +239,5 @@ export class WebSocketClient extends EventTarget {
             options,
         })
         return res.response
-    }
-
-    kill(): void {
-        if (
-            typeof WebSocket !== "undefined" &&
-            this._ws?.readyState === WebSocket.OPEN
-        )
-            this._ws.send(
-                JSON.stringify({ type: "server.kill", id: this._nextId++ + "" })
-            )
-        this.stop()
-    }
-
-    dispose(): any {
-        this.kill()
-        return undefined
     }
 }

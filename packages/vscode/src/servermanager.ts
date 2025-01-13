@@ -11,7 +11,7 @@ import {
 } from "../../core/src/constants"
 import { ServerManager, host } from "../../core/src/host"
 import { assert, logError, logInfo, logVerbose } from "../../core/src/util"
-import { WebSocketClient } from "../../core/src/server/client"
+import { VsCodeClient } from "../../core/src/server/client"
 import { CORE_VERSION } from "../../core/src/version"
 import { createChatModelRunner } from "./lmaccess"
 import { semverParse, semverSatisfies } from "../../core/src/semver"
@@ -33,8 +33,8 @@ export class TerminalServerManager implements ServerManager {
     private _terminal: vscode.Terminal
     private _terminalStartAttempts = 0
     private _port: number
-    private _startClientPromise: Promise<WebSocketClient>
-    private _client: WebSocketClient
+    private _startClientPromise: Promise<VsCodeClient>
+    private _client: VsCodeClient
 
     constructor(readonly state: ExtensionState) {
         const { context } = state
@@ -71,7 +71,7 @@ export class TerminalServerManager implements ServerManager {
         )
     }
 
-    async client(options?: { doNotStart?: boolean }): Promise<WebSocketClient> {
+    async client(options?: { doNotStart?: boolean }): Promise<VsCodeClient> {
         if (this._client) return this._client
         if (options?.doNotStart) return undefined
         return (
@@ -80,12 +80,12 @@ export class TerminalServerManager implements ServerManager {
         )
     }
 
-    private async startClient(): Promise<WebSocketClient> {
+    private async startClient(): Promise<VsCodeClient> {
         assert(!this._client)
         this._port = await findRandomOpenPort()
         const url = `http://127.0.0.1:${this._port}?api-key=${encodeURIComponent(this.state.sessionApiKey)}`
         logInfo(`client url: ${url}`)
-        const client = (this._client = new WebSocketClient(url))
+        const client = (this._client = new VsCodeClient(url))
         client.chatRequest = createChatModelRunner(this.state)
         client.addEventListener(OPEN, async () => {
             if (client !== this._client) return

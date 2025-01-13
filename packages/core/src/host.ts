@@ -51,14 +51,6 @@ export interface RetrievalService {
     ): Promise<RetrievalSearchResponse>
 }
 
-export interface ServerResponse extends ResponseStatus {
-    version: string
-    node: string
-    platform: string
-    arch: string
-    pid: number
-}
-
 export interface ServerManager {
     start(): Promise<void>
     close(): Promise<void>
