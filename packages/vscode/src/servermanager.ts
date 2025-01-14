@@ -11,7 +11,7 @@ import {
 } from "../../core/src/constants"
 import { ServerManager, host } from "../../core/src/host"
 import { assert, logError, logInfo, logVerbose } from "../../core/src/util"
-import { WebSocketClient } from "../../core/src/server/client"
+import { VsCodeClient } from "../../core/src/server/client"
 import { CORE_VERSION } from "../../core/src/version"
 import { createChatModelRunner } from "./lmaccess"
 import { semverParse, semverSatisfies } from "../../core/src/semver"
@@ -33,8 +33,8 @@ export class TerminalServerManager implements ServerManager {
     private _terminal: vscode.Terminal
     private _terminalStartAttempts = 0
     private _port: number
-    private _startClientPromise: Promise<WebSocketClient>
-    private _client: WebSocketClient
+    private _startClientPromise: Promise<VsCodeClient>
+    private _client: VsCodeClient
 
     constructor(readonly state: ExtensionState) {
         const { context } = state
@@ -71,7 +71,7 @@ export class TerminalServerManager implements ServerManager {
         )
     }
 
-    async client(options?: { doNotStart?: boolean }): Promise<WebSocketClient> {
+    async client(options?: { doNotStart?: boolean }): Promise<VsCodeClient> {
         if (this._client) return this._client
         if (options?.doNotStart) return undefined
         return (
@@ -80,12 +80,26 @@ export class TerminalServerManager implements ServerManager {
         )
     }
 
-    private async startClient(): Promise<WebSocketClient> {
+    get authority() {
+        assert(!!this._port)
+        return `http://127.0.0.1:${this._port}`
+    }
+
+    private get url() {
+        return `${this.authority}?api-key=${encodeURIComponent(this.state.sessionApiKey)}`
+    }
+
+    private async allocatePort() {
+        if (isNaN(this._port)) this._port = await findRandomOpenPort()
+        return this._port
+    }
+
+    private async startClient(): Promise<VsCodeClient> {
         assert(!this._client)
-        this._port = await findRandomOpenPort()
-        const url = `http://127.0.0.1:${this._port}?api-key=${encodeURIComponent(this.state.sessionApiKey)}`
+        await this.allocatePort()
+        const url = this.url
         logInfo(`client url: ${url}`)
-        const client = (this._client = new WebSocketClient(url))
+        const client = (this._client = new VsCodeClient(url))
         client.chatRequest = createChatModelRunner(this.state)
         client.addEventListener(OPEN, async () => {
             if (client !== this._client) return
@@ -113,6 +127,7 @@ export class TerminalServerManager implements ServerManager {
                 }
             }
         })
+        await this.start()
         this._startClientPromise = undefined
         return this._client
     }
@@ -121,8 +136,9 @@ export class TerminalServerManager implements ServerManager {
         if (this._terminal) return
 
         const cwd = host.projectFolder()
+        await this.allocatePort()
         logVerbose(`starting server on port ${this._port} at ${cwd}`)
-        this._client.reconnectAttempts = 0
+        if (this._client) this._client.reconnectAttempts = 0
         this._terminalStartAttempts++
         this._terminal = vscode.window.createTerminal({
             name: TOOL_NAME,
@@ -136,11 +152,11 @@ export class TerminalServerManager implements ServerManager {
         const { cliPath, cliVersion } = await resolveCli()
         if (cliPath)
             this._terminal.sendText(
-                `node "${cliPath}" serve --port ${this._port}`
+                `node "${cliPath}" serve --port ${this._port} --dispatch-progress --cors "*"`
             )
         else
             this._terminal.sendText(
-                `npx --yes ${TOOL_ID}@${cliVersion} serve --port ${this._port}`
+                `npx --yes ${TOOL_ID}@${cliVersion} serve --port ${this._port} --dispatch-progress --cors "*"`
             )
         this._terminal.show()
     }
@@ -157,7 +173,10 @@ export class TerminalServerManager implements ServerManager {
 
     private closeTerminal() {
         const t = this._terminal
+        this._port = undefined
         this._terminal = undefined
+        this._client = undefined
+        this._startClientPromise = undefined
         if (!this.state.diagnostics) t?.dispose()
     }
 

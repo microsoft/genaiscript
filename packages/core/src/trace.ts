@@ -21,10 +21,21 @@ import { HTMLEscape } from "./html"
 import { resolve } from "node:path"
 import { pathToFileURL } from "node:url"
 import { dedent } from "./indent"
+import { CSVStringify, CSVToMarkdown } from "./csv"
+import { INIStringify } from "./ini"
+import { ChatCompletionsProgressReport } from "./chattypes"
 
 export class TraceChunkEvent extends Event {
-    constructor(readonly chunk: string) {
+    constructor(
+        readonly chunk: string,
+        readonly progress?: ChatCompletionsProgressReport
+    ) {
         super(TRACE_CHUNK)
+    }
+
+    clone(): TraceChunkEvent {
+        const ev = new TraceChunkEvent(this.chunk, this.progress)
+        return ev
     }
 }
 
@@ -62,9 +73,7 @@ export class MarkdownTrace extends EventTarget implements OutputTrace {
     startTraceDetails(title: string, options?: { expanded?: boolean }) {
         const trace = new MarkdownTrace({ ...this.options })
         trace.addEventListener(TRACE_CHUNK, (ev) =>
-            this.dispatchEvent(
-                new TraceChunkEvent((ev as TraceChunkEvent).chunk)
-            )
+            this.dispatchEvent((ev as TraceChunkEvent).clone())
         )
         trace.addEventListener(TRACE_DETAILS, () =>
             this.dispatchEvent(new Event(TRACE_DETAILS))
@@ -72,6 +81,18 @@ export class MarkdownTrace extends EventTarget implements OutputTrace {
         trace.startDetails(title, options)
         this._content.push(trace)
         return trace
+    }
+
+    chatProgress(progress: ChatCompletionsProgressReport) {
+        const { inner, responseChunk: value } = progress
+        if (!value) return
+
+        if (!inner) {
+            this._content.push(value)
+            this._tree = undefined
+            this.dispatchChange()
+        }
+        this.dispatchEvent(new TraceChunkEvent(value, progress))
     }
 
     appendContent(value: string) {
@@ -138,6 +159,19 @@ ${this.toResultIcon(success, "")}${title}
         )
     }
 
+    file(file: WorkspaceFile) {
+        const { content, type, filename, encoding } = file
+        if (!content) {
+            this.itemValue(filename, "no content")
+        } else {
+            this.item(filename)
+            if (!encoding) {
+                const ext = host.path.extname(filename).slice(1)
+                this.fence(content, ext)
+            }
+        }
+    }
+
     details(
         title: string,
         body: string | object,
@@ -200,10 +234,19 @@ ${this.toResultIcon(success, "")}${title}
     fence(message: string | unknown, contentType?: string) {
         if (message === undefined || message === null || message === "") return
 
+        if (contentType === "md" && Array.isArray(message)) {
+            this.appendContent(CSVToMarkdown(message))
+            return
+        }
+
         let res: string
         if (typeof message !== "string") {
             if (contentType === "json") {
                 res = JSON.stringify(message, null, 2)
+            } else if (contentType === "ini") {
+                res = INIStringify(message)
+            } else if (contentType === "csv") {
+                res = CSVStringify(Array.isArray(message) ? message : [message])
             } else {
                 res = yamlStringify(message)
                 contentType = "yaml"

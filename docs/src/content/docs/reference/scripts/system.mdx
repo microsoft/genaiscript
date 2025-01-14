@@ -131,7 +131,7 @@ defAgent(
     async (ctx) => {
         ctx.$`Your are a helpful LLM agent that is an expert at Technical documentation. You can provide the best analyzis to any query about the documentation.
 
-        Analyze QUERY and respond with the requested information.
+        Analyze <QUERY> and respond with the requested information.
 
         ## Tools
 
@@ -181,7 +181,7 @@ defAgent(
     "fs",
     "query files to accomplish tasks",
     `Your are a helpful LLM agent that can query the file system.
-    Answer the question in QUERY.`,
+    Answer the question in <QUERY>.`,
     {
         model,
         tools: [
@@ -216,7 +216,7 @@ defAgent(
     "git",
     "query a repository using Git to accomplish tasks. Provide all the context information available to execute git queries.",
     `Your are a helpful LLM agent that can use the git tools to query the current repository.
-    Answer the question in QUERY.
+    Answer the question in <QUERY>.
     - The current repository is the same as github repository.
     - Prefer using diff to compare files rather than listing files. Listing files is only useful when you need to read the content of the files.
     `,
@@ -374,6 +374,38 @@ defAgent(
 `````
 
 
+### `system.agent_video`
+
+
+
+Agent that can work on video
+
+
+
+`````js wrap title="system.agent_video"
+system({
+    description: "Agent that can work on video",
+})
+
+defAgent(
+    "video",
+    "Analyze and process video files or urls.",
+    `Your are a helpful LLM agent that can analyze and process video or audio files or urls.
+    Answer the question in <QUERY>.`,
+    {
+        system: [
+            "system",
+            "system.tools",
+            "system.explanations",
+            "system.transcribe",
+            "system.video",
+        ],
+    }
+)
+
+`````
+
+
 ### `system.agent_web`
 
 Agent that can search the web.
@@ -393,7 +425,7 @@ defAgent(
     "web",
     "search the web to accomplish tasks.",
     `Your are a helpful LLM agent that can use web search.
-    Answer the question in QUERY.`,
+    Answer the question in <QUERY>.`,
     {
         model,
         system: [
@@ -3257,6 +3289,41 @@ $`Use tools if possible.
 `````
 
 
+### `system.transcribe`
+
+
+
+Video transcription tool
+
+-  tool `transcribe`: Generate a transcript from a audio/video file using a speech-to-text model.
+
+`````js wrap title="system.transcribe"
+system({
+    description: "Video transcription tool",
+})
+
+defTool(
+    "transcribe",
+    "Generate a transcript from a audio/video file using a speech-to-text model.",
+    {
+        filename: {
+            type: "string",
+            description: "Audio/video URL or workspace relative filepath",
+        },
+    },
+    async (args) => {
+        const { filename } = args
+        if (!filename) return "No filename provided"
+        const { text, srt } = await transcribe(filename, {
+            cache: "transcribe",
+        })
+        return srt || text
+    }
+)
+
+`````
+
+
 ### `system.typescript`
 
 Expert TypeScript Developer
@@ -3354,6 +3421,112 @@ defTool(
         const { context, message } = args
         context.log(`user input text: ${message}`)
         return await host.input(message)
+    }
+)
+
+`````
+
+
+### `system.video`
+
+
+
+Video manipulation tools
+
+-  tool `video_probe`: Probe a video file and returns the metadata information
+-  tool `video_extract_audio`: Extract audio from a video file into a .wav file. Returns the audio filename.
+-  tool `video_extract_frames`: Extract frames from a video file
+
+`````js wrap title="system.video"
+system({
+    description: "Video manipulation tools",
+})
+
+defTool(
+    "video_probe",
+    "Probe a video file and returns the metadata information",
+    {
+        type: "object",
+        properties: {
+            filename: {
+                type: "string",
+                description: "The video filename or URL to probe",
+            },
+        },
+        required: ["filename"],
+    },
+    async (args) => {
+        const { context, filename } = args
+        if (!filename) return "No filename or url provided"
+        context.log(`probing ${filename}`)
+        const info = await parsers.videoProbe(filename)
+        return YAML.stringify(info)
+    }
+)
+
+defTool(
+    "video_extract_audio",
+    "Extract audio from a video file into a .wav file. Returns the audio filename.",
+    {
+        type: "object",
+        properties: {
+            filename: {
+                type: "string",
+                description: "The video filename or URL to probe",
+            },
+        },
+        required: ["filename"],
+    },
+    async (args) => {
+        const { context, filename } = args
+        if (!filename) return "No filename or url provided"
+        context.log(`extracting audio from ${filename}`)
+        const audioFile = await parsers.videoAudio(filename)
+        return audioFile
+    }
+)
+
+defTool(
+    "video_extract_frames",
+    "Extract frames from a video file",
+    {
+        type: "object",
+        properties: {
+            filename: {
+                type: "string",
+                description: "The video filename or URL to probe",
+            },
+            count: {
+                type: "number",
+                description: "The number of frames to extract",
+                default: -1,
+            },
+            timestamps: {
+                type: "string",
+                description: "A comma separated-list of timestamps.",
+            },
+            transcription: {
+                type: "boolean",
+                description: "Extract frames at each transcription segment",
+            },
+        },
+        required: ["filename"],
+    },
+    async (args) => {
+        const { context, filename, transcription, timestamps, ...options } =
+            args
+        if (!filename) return "No filename or url provided"
+        context.log(`extracting frames from ${filename}`)
+
+        if (transcription) {
+            options.transcription = await transcribe(filename, {
+                cache: "transcribe",
+            })
+        }
+        if (timestamps)
+            options.timestamps = timestamps.split(",").filter((t) => !!t)
+        const videoFrames = await parsers.videoFrames(filename, options)
+        return videoFrames.join("\n")
     }
 )
 

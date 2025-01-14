@@ -8,7 +8,7 @@ defAgent(
     "fs",
     "query files to accomplish tasks",
     `Your are a helpful LLM agent that can query the file system.
-    Answer the question in QUERY.`,
+    Answer the question in <QUERY>.`,
     {
         model,
         tools: [

@@ -98,8 +98,8 @@ async function resolveExpansionVars(
         vars: attrs,
         secrets,
         output,
-        generator: undefined,
-    } as ExpansionVariables
+        generator: undefined as ChatGenerationContext,
+    } satisfies ExpansionVariables
     return res
 }
 
@@ -121,16 +121,14 @@ export async function runTemplate(
     assert(fragment !== undefined)
     assert(options !== undefined)
     assert(options.trace !== undefined)
-    const { label, cliInfo, trace, cancellationToken, model } = options
+    assert(options.outputTrace !== undefined)
+    const { label, cliInfo, trace, outputTrace, cancellationToken, model } =
+        options
     const version = CORE_VERSION
     assert(model !== undefined)
 
     runtimeHost.project = prj
 
-    const output = new MarkdownTrace()
-    output.addEventListener(TRACE_CHUNK, (e) =>
-        logVerbose((e as TraceChunkEvent).chunk)
-    )
     try {
         if (cliInfo) {
             trace.heading(3, `🧠 ${template.id}`)
@@ -138,12 +136,12 @@ export async function runTemplate(
         }
 
         // Resolve expansion variables for the template
-        const vars = await resolveExpansionVars(
+        const env = await resolveExpansionVars(
             prj,
             trace,
             template,
             fragment,
-            output,
+            outputTrace,
             options.vars
         )
         let {
@@ -166,7 +164,8 @@ export async function runTemplate(
             logprobs,
             topLogprobs,
             disposables,
-        } = await expandTemplate(prj, template, options, vars, trace)
+        } = await expandTemplate(prj, template, options, env)
+        const { output, generator, secrets, ...restEnv } = env
 
         // Handle failed expansion scenario
         if (status !== "success" || !messages.length) {
@@ -175,10 +174,10 @@ export async function runTemplate(
                 status: status as GenerationStatus,
                 statusText,
                 messages,
-                vars,
+                env: restEnv,
                 label,
                 version,
-                text: output.content,
+                text: outputTrace.content,
                 edits: [],
                 annotations: [],
                 changelogs: [],
@@ -214,10 +213,10 @@ export async function runTemplate(
                 status: "error",
                 statusText: "",
                 messages,
-                vars,
+                env: restEnv,
                 label,
                 version,
-                text: output.content,
+                text: outputTrace.content,
                 edits: [],
                 annotations: [],
                 changelogs: [],
@@ -277,11 +276,7 @@ export async function runTemplate(
             changelogs,
             edits,
         } = chatResult
-        let { text, annotations } = chatResult
-        const userContent = output.content
-        if (userContent) {
-            text = userContent + "\n\n" + text
-        }
+        let { annotations } = chatResult
 
         // Reporting and tracing output
         if (fences?.length)
@@ -328,12 +323,12 @@ export async function runTemplate(
             finishReason,
             error,
             messages,
-            vars,
+            env: restEnv,
             edits,
             annotations,
             changelogs,
             fileEdits,
-            text,
+            text: outputTrace.content,
             version,
             fences,
             frames,

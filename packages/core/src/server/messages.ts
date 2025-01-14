@@ -128,12 +128,12 @@ export interface PromptScriptRunOptions {
     pullRequestReviews: boolean
     outData: string
     label: string
-    temperature: string
-    topP: string
-    seed: string
-    maxTokens: string
-    maxToolCalls: string
-    maxDataRepairs: string
+    temperature: string | number
+    topP: string | number
+    seed: string | number
+    maxTokens: string | number
+    maxToolCalls: string | number
+    maxDataRepairs: string | number
     model: string
     smallModel: string
     visionModel: string
@@ -152,6 +152,7 @@ export interface PromptScriptRunOptions {
     logprobs: boolean
     topLogprobs: number
     fenceFormat: FenceFormat
+    workspaceFiles?: WorkspaceFile[]
 }
 
 export interface PromptScriptList extends RequestMessage {
@@ -182,7 +183,7 @@ export interface GenerationResult extends GenerationOutput {
     /**
      * The environment variables passed to the prompt
      */
-    vars: Partial<ExpansionVariables>
+    env: Partial<ExpansionVariables>
 
     /**
      * Expanded prompt text composed of multiple messages
@@ -256,7 +257,7 @@ export interface PromptScriptEndResponseEvent {
     type: "script.end"
     runId: string
     exitCode: number
-    result: GenerationResult
+    result: Partial<GenerationResult>
 }
 
 export interface PromptScriptAbort extends RequestMessage {
@@ -270,6 +271,7 @@ export interface PromptScriptProgressResponseEvent {
     runId: string
 
     trace?: string
+    output?: string
 
     progress?: string
 
@@ -289,6 +291,14 @@ export interface LanguageModelConfigurationRequest extends RequestMessage {
 
 export interface LanguageModelConfigurationResponse extends ResponseStatus {
     info?: LanguageModelConfiguration
+}
+
+export interface ServerResponse extends ResponseStatus {
+    version: string
+    node: string
+    platform: string
+    arch: string
+    pid: number
 }
 
 export interface ChatStart {

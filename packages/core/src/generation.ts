@@ -20,11 +20,12 @@ export interface GenerationOptions
         ModelOptions,
         EmbeddingsModelOptions,
         ContentSafetyOptions,
-        ScriptRuntimeOptions {
+        ScriptRuntimeOptions {    
     inner: boolean // Indicates if the process is an inner operation
     cancellationToken?: CancellationToken // Token to cancel the operation
     infoCb?: (partialResponse: { text: string }) => void // Callback for providing partial responses
     trace: MarkdownTrace // Trace information for debugging or logging
+    outputTrace?: MarkdownTrace
     maxCachedTemperature?: number // Maximum temperature for caching purposes
     maxCachedTopP?: number // Maximum top-p value for caching
     fallbackTools?: boolean // Disables model tools

@@ -10,12 +10,8 @@ import {
     UNHANDLED_ERROR_CODE,
     MODEL_PROVIDER_CLIENT,
 } from "../../core/src/constants"
-import {
-    isCancelError,
-    errorMessage,
-    serializeError,
-} from "../../core/src/error"
-import { ServerResponse, host, runtimeHost } from "../../core/src/host"
+import { isCancelError, serializeError } from "../../core/src/error"
+import { host, runtimeHost } from "../../core/src/host"
 import { MarkdownTrace, TraceChunkEvent } from "../../core/src/trace"
 import {
     logVerbose,
@@ -37,8 +33,8 @@ import {
     ResponseStatus,
     LanguageModelConfiguration,
     ServerEnvResponse,
+    ServerResponse,
 } from "../../core/src/server/messages"
-import { envInfo } from "./info"
 import { LanguageModel } from "../../core/src/chat"
 import {
     ChatCompletionResponse,
@@ -70,6 +66,7 @@ export async function startServer(options: {
     remoteBranch?: string
     remoteForce?: boolean
     remoteInstall?: boolean
+    dispatchProgress?: boolean
 }) {
     // Parse and set the server port, using a default if not specified.
     const corsOrigin = options.cors || process.env.GENAISCRIPT_CORS_ORIGIN
@@ -77,6 +74,7 @@ export async function startServer(options: {
     const apiKey = options.apiKey || process.env.GENAISCRIPT_API_KEY
     const serverHost = options.network ? "0.0.0.0" : "127.0.0.1"
     const remote = options.remote
+    const dispatchProgress = !!options.dispatchProgress
 
     // store original working directory
     const cwd = process.cwd()
@@ -101,6 +99,7 @@ export async function startServer(options: {
         {
             canceller: AbortSignalCancellationController
             trace: MarkdownTrace
+            outputTrace: MarkdownTrace
             runner: Promise<void>
         }
     > = {}
@@ -142,17 +141,19 @@ export async function startServer(options: {
 
     const checkApiKey = (req: http.IncomingMessage) => {
         if (!apiKey) return true
-        if (req.headers.authorization !== apiKey) return true
+
+        const { authorization } = req.headers
+        if (authorization === apiKey) return true
 
         const url = req.url.replace(/^[^\?]*\?/, "")
         const search = new URLSearchParams(url)
         const hash = search.get("api-key")
         if (hash === apiKey) return true
 
-        logError(`clients: connection unauthorized ${url}, ${hash}`)
-        logVerbose(`url:${req.url}`)
-        logVerbose(`api:${apiKey}`)
-        logVerbose(`auth:${req.headers.authorization}`)
+        logError(`clients: connection unauthorized ${url}`)
+        logVerbose(`url :${req.url}`)
+        logVerbose(`key :${apiKey}`)
+        logVerbose(`auth:${authorization}`)
         logVerbose(`hash:${hash}`)
         return false
     }
@@ -265,6 +266,45 @@ export async function startServer(options: {
             logVerbose(`clients: closed (${wss.clients.size} clients)`)
         )
 
+        const send = (payload: object) => {
+            const cmsg = JSON.stringify(payload)
+            if (dispatchProgress)
+                for (const client of this.clients) client.send(cmsg)
+            else ws?.send(cmsg)
+        }
+        const sendProgress = (
+            runId: string,
+            payload: Omit<PromptScriptProgressResponseEvent, "type" | "runId">
+        ) => {
+            send({
+                type: "script.progress",
+                runId,
+                ...payload,
+            } satisfies PromptScriptProgressResponseEvent)
+        }
+
+        // send traces of in-flight runs
+        for (const [runId, run] of Object.entries(runs)) {
+            chunkString(run.outputTrace.content).forEach((c) =>
+                ws.send(
+                    JSON.stringify({
+                        type: "script.progress",
+                        runId,
+                        trace: c,
+                    } satisfies PromptScriptProgressResponseEvent)
+                )
+            )
+            chunkString(run.trace.content).forEach((c) =>
+                ws.send(
+                    JSON.stringify({
+                        type: "script.progress",
+                        runId,
+                        trace: c,
+                    } satisfies PromptScriptProgressResponseEvent)
+                )
+            )
+        }
+
         // Handle incoming messages based on their type.
         ws.on("message", async (msg) => {
             const data = JSON.parse(msg.toString()) as RequestMessages
@@ -338,25 +378,17 @@ export async function startServer(options: {
                         const canceller =
                             new AbortSignalCancellationController()
                         const trace = new MarkdownTrace()
-                        const send = (
-                            payload: Omit<
-                                PromptScriptProgressResponseEvent,
-                                "type" | "runId"
-                            >
-                        ) =>
-                            ws?.send(
-                                JSON.stringify(<
-                                    PromptScriptProgressResponseEvent
-                                >{
-                                    type: "script.progress",
-                                    runId,
-                                    ...payload,
-                                })
-                            )
+                        const outputTrace = new MarkdownTrace()
                         trace.addEventListener(TRACE_CHUNK, (ev) => {
                             const tev = ev as TraceChunkEvent
                             chunkString(tev.chunk, 2 << 14).forEach((c) =>
-                                send({ trace: c })
+                                sendProgress(runId, { trace: c })
+                            )
+                        })
+                        outputTrace.addEventListener(TRACE_CHUNK, (ev) => {
+                            const tev = ev as TraceChunkEvent
+                            chunkString(tev.chunk, 2 << 14).forEach((c) =>
+                                sendProgress(runId, { output: c })
                             )
                         })
                         logVerbose(`run ${runId}: starting ${script}`)
@@ -364,9 +396,10 @@ export async function startServer(options: {
                         const runner = runScriptInternal(script, files, {
                             ...options,
                             trace,
+                            outputTrace,
                             cancellationToken: canceller.token,
                             infoCb: ({ text }) => {
-                                send({ progress: text })
+                                sendProgress(runId, { progress: text })
                             },
                             partialCb: ({
                                 responseChunk,
@@ -374,7 +407,7 @@ export async function startServer(options: {
                                 tokensSoFar,
                                 responseTokens,
                             }) => {
-                                send({
+                                sendProgress(runId, {
                                     response: responseSoFar,
                                     responseChunk,
                                     tokens: tokensSoFar,
@@ -387,38 +420,35 @@ export async function startServer(options: {
                                 logVerbose(
                                     `\nrun ${runId}: completed with ${exitCode}`
                                 )
-                                ws?.send(
-                                    JSON.stringify(<
-                                        PromptScriptEndResponseEvent
-                                    >{
-                                        type: "script.end",
-                                        runId,
-                                        exitCode,
-                                        result,
-                                    })
-                                )
+                                send({
+                                    type: "script.end",
+                                    runId,
+                                    exitCode,
+                                    result,
+                                } satisfies PromptScriptEndResponseEvent)
                             })
                             .catch((e) => {
                                 if (canceller.controller.signal.aborted) return
                                 if (!isCancelError(e)) trace.error(e)
                                 logError(`\nrun ${runId}: failed`)
                                 logError(e)
-                                ws?.send(
-                                    JSON.stringify(<
-                                        PromptScriptEndResponseEvent
-                                    >{
-                                        type: "script.end",
-                                        runId,
-                                        exitCode: isCancelError(e)
-                                            ? USER_CANCELLED_ERROR_CODE
-                                            : UNHANDLED_ERROR_CODE,
-                                    })
-                                )
+                                send({
+                                    type: "script.end",
+                                    runId,
+                                    result: {
+                                        status: "error",
+                                        error: serializeError(e),
+                                    },
+                                    exitCode: isCancelError(e)
+                                        ? USER_CANCELLED_ERROR_CODE
+                                        : UNHANDLED_ERROR_CODE,
+                                } satisfies PromptScriptEndResponseEvent)
                             })
                         runs[runId] = {
                             runner,
                             canceller,
                             trace,
+                            outputTrace,
                         }
                         response = <ResponseStatus>{
                             ok: true,
@@ -457,10 +487,20 @@ export async function startServer(options: {
             } finally {
                 assert(!!response)
                 if (response.error) logError(response.error)
-                ws.send(JSON.stringify({ id, response }))
+                send({ id, type, response })
             }
         })
     })
+
+    const setCORSHeaders = (res: http.ServerResponse) => {
+        res.setHeader("Access-Control-Allow-Origin", corsOrigin)
+        res.setHeader("Access-Control-Allow-Methods", "OPTIONS, GET")
+        res.setHeader("Access-Control-Max-Age", 24 * 3600) // 1 day
+        res.setHeader(
+            "Access-Control-Allow-Headers",
+            "Content-Type, Authorization, Accept"
+        )
+    }
 
     // Create an HTTP server to handle basic requests.
     const httpServer = http.createServer(async (req, res) => {
@@ -472,19 +512,14 @@ export async function startServer(options: {
                 res.statusCode = 405
                 res.end()
             } else {
-                res.setHeader("Access-Control-Allow-Origin", corsOrigin)
-                res.setHeader("Access-Control-Allow-Methods", "OPTIONS, GET")
-                res.setHeader("Access-Control-Max-Age", 24 * 3600) // 1 day
-                res.setHeader(
-                    "Access-Control-Allow-Headers",
-                    "Content-Type, Authorization, Accept"
-                )
+                setCORSHeaders(res)
                 res.statusCode = 204
                 res.end()
             }
             return
         }
 
+        if (corsOrigin) setCORSHeaders(res)
         res.setHeader("Cache-Control", "no-store")
         if (method === "GET" && route === "/") {
             res.setHeader("Content-Type", "text/html")
@@ -560,7 +595,7 @@ export async function startServer(options: {
         } else socket.destroy()
     })
     // Start the HTTP server on the specified port.
-    const serverhash = apiKey ? `#api-key:${encodeURIComponent(apiKey)}` : ""
+    const serverhash = apiKey ? `?api-key:${encodeURIComponent(apiKey)}` : ""
     httpServer.listen(port, serverHost, () => {
         console.log(`GenAIScript server v${CORE_VERSION}`)
         console.log(`┃ Local http://${serverHost}:${port}/${serverhash}`)

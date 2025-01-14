@@ -5,11 +5,7 @@ import { emptyDir, ensureDir, exists } from "fs-extra"
 import { convertDiagnosticsToSARIF } from "./sarif"
 import { buildProject } from "./build"
 import { diagnosticsToCSV } from "../../core/src/ast"
-import {
-    AbortSignalCancellationController,
-    CancellationOptions,
-    toSignal,
-} from "../../core/src/cancellation"
+import { CancellationOptions } from "../../core/src/cancellation"
 import { ChatCompletionsProgressReport } from "../../core/src/chattypes"
 import { runTemplate } from "../../core/src/promptrunner"
 import {
@@ -38,6 +34,7 @@ import {
     GENAI_ANYTS_REGEX,
     CONSOLE_TOKEN_COLORS,
     CONSOLE_TOKEN_INNER_COLORS,
+    TRACE_CHUNK,
 } from "../../core/src/constants"
 import { isCancelError, errorMessage } from "../../core/src/error"
 import { GenerationResult } from "../../core/src/server/messages"
@@ -49,7 +46,11 @@ import {
     JSONSchemaStringifyToTypeScript,
     JSONSchemaStringify,
 } from "../../core/src/schema"
-import { TraceOptions, MarkdownTrace } from "../../core/src/trace"
+import {
+    TraceOptions,
+    MarkdownTrace,
+    TraceChunkEvent,
+} from "../../core/src/trace"
 import {
     normalizeFloat,
     normalizeInt,
@@ -140,13 +141,18 @@ export async function runScriptInternal(
     options: Partial<PromptScriptRunOptions> &
         TraceOptions &
         CancellationOptions & {
+            outputTrace?: MarkdownTrace
             cli?: boolean
-            workspaceFiles?: WorkspaceFile[]
             infoCb?: (partialResponse: { text: string }) => void
             partialCb?: (progress: ChatCompletionsProgressReport) => void
         }
 ): Promise<{ exitCode: number; result?: GenerationResult }> {
-    const { trace = new MarkdownTrace(), infoCb, partialCb } = options || {}
+    const {
+        trace = new MarkdownTrace(),
+        outputTrace = new MarkdownTrace(),
+        infoCb,
+        partialCb,
+    } = options || {}
 
     runtimeHost.clearModelAlias("script")
     let result: GenerationResult
@@ -273,6 +279,45 @@ export async function runScriptInternal(
         }
     }
 
+    let tokenColor = 0
+    outputTrace.addEventListener(TRACE_CHUNK, (ev) => {
+        const { progress, chunk } = ev as TraceChunkEvent
+        if (progress) {
+            const { responseChunk, responseTokens, inner } = progress
+            if (responseChunk !== undefined && responseChunk !== null) {
+                if (stream) {
+                    if (responseTokens && consoleColors) {
+                        const colors = inner
+                            ? CONSOLE_TOKEN_INNER_COLORS
+                            : CONSOLE_TOKEN_COLORS
+                        for (const token of responseTokens) {
+                            if (!isNaN(token.logprob)) {
+                                const c = wrapRgbColor(
+                                    logprobColor(token),
+                                    token.token
+                                )
+                                stdout.write(c)
+                            } else {
+                                tokenColor = (tokenColor + 1) % colors.length
+                                const c = colors[tokenColor]
+                                stdout.write(wrapColor(c, token.token))
+                            }
+                        }
+                    } else {
+                        if (!inner) stdout.write(responseChunk)
+                        else
+                            stderr.write(
+                                wrapColor(CONSOLE_COLOR_DEBUG, responseChunk)
+                            )
+                    }
+                } else if (!isQuiet)
+                    stderr.write(wrapColor(CONSOLE_COLOR_DEBUG, responseChunk))
+            }
+        } else if (!isQuiet) {
+            stdout.write(chunk)
+        }
+    })
+
     const fragment: Fragment = {
         files: Array.from(resolvedFiles),
         workspaceFiles,
@@ -300,7 +345,6 @@ export async function runScriptInternal(
         }
         trace.options.encoder = (await resolveTokenEncoder(info.model)).encode
 
-        let tokenColor = 0
         result = await runTemplate(prj, script, fragment, {
             inner: false,
             infoCb: (args) => {
@@ -311,42 +355,7 @@ export async function runScriptInternal(
                 }
             },
             partialCb: (args) => {
-                const { responseChunk, responseTokens, inner } = args
-                if (responseChunk !== undefined && responseChunk !== null) {
-                    if (stream) {
-                        if (responseTokens && consoleColors) {
-                            const colors = inner
-                                ? CONSOLE_TOKEN_INNER_COLORS
-                                : CONSOLE_TOKEN_COLORS
-                            for (const token of responseTokens) {
-                                if (!isNaN(token.logprob)) {
-                                    const c = wrapRgbColor(
-                                        logprobColor(token),
-                                        token.token
-                                    )
-                                    stdout.write(c)
-                                } else {
-                                    tokenColor =
-                                        (tokenColor + 1) % colors.length
-                                    const c = colors[tokenColor]
-                                    stdout.write(wrapColor(c, token.token))
-                                }
-                            }
-                        } else {
-                            if (!inner) stdout.write(responseChunk)
-                            else
-                                stderr.write(
-                                    wrapColor(
-                                        CONSOLE_COLOR_DEBUG,
-                                        responseChunk
-                                    )
-                                )
-                        }
-                    } else if (!isQuiet)
-                        stderr.write(
-                            wrapColor(CONSOLE_COLOR_DEBUG, responseChunk)
-                        )
-                }
+                outputTrace.chatProgress(args)
                 partialCb?.(args)
             },
             label,
@@ -368,6 +377,7 @@ export async function runScriptInternal(
             maxDelay,
             vars,
             trace,
+            outputTrace,
             fallbackTools,
             logprobs,
             topLogprobs,

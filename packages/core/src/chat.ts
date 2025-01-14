@@ -877,6 +877,7 @@ export async function executeChatSession(
         cache: cacheOrName,
         cacheName,
         inner,
+        outputTrace,
         partialCb,
     } = genOptions
     assert(!!model, "model is required")
@@ -1010,7 +1011,7 @@ export async function executeChatSession(
                             `chat: cache ${resp.cached ? "hit" : "miss"} (${cacheStore.name}/${cacheRes.key.slice(0, 7)})`
                         )
                         if (resp.cached) {
-                            if (cacheRes.value.text)
+                            if (cacheRes.value.text) {
                                 partialCb({
                                     responseSoFar: cacheRes.value.text,
                                     tokensSoFar: 0,
@@ -1018,6 +1019,7 @@ export async function executeChatSession(
                                     responseTokens: cacheRes.value.logprobs,
                                     inner,
                                 })
+                            }
                         }
                     } else {
                         resp = await infer()

@@ -4,6 +4,10 @@ export const TRACE_CHUNK = "traceChunk"
 export const TRACE_DETAILS = "traceDetails"
 export const RECONNECT = "reconnect"
 export const OPEN = "open"
+export const CLOSE = "close"
+export const MESSAGE = "message"
+export const ERROR = "error"
+export const CONNECT = "connect"
 export const MAX_TOOL_CALLS = 10000
 
 // https://learn.microsoft.com/en-us/azure/ai-services/openai/reference

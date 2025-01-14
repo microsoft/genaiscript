@@ -11,7 +11,7 @@ defAgent(
     async (ctx) => {
         ctx.$`Your are a helpful LLM agent that is an expert at Technical documentation. You can provide the best analyzis to any query about the documentation.
 
-        Analyze QUERY and respond with the requested information.
+        Analyze <QUERY> and respond with the requested information.
 
         ## Tools
 

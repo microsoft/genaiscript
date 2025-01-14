@@ -8,7 +8,7 @@ import {
     fixPromptDefinitions,
     createScript as coreCreateScript,
 } from "../../core/src/scripts"
-import { deleteEmptyValues, logInfo, logVerbose } from "../../core/src/util"
+import { logInfo, logVerbose } from "../../core/src/util"
 import { runtimeHost } from "../../core/src/host"
 import { RUNTIME_ERROR_CODE } from "../../core/src/constants"
 import {
@@ -17,6 +17,7 @@ import {
     ScriptFilterOptions,
 } from "../../core/src/ast"
 import { YAMLStringify } from "../../core/src/yaml"
+import { deleteEmptyValues } from "../../core/src/clone"
 
 /**
  * Lists all the scripts in the project.

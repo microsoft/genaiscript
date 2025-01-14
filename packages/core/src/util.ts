@@ -4,7 +4,7 @@ import { LogLevel, host } from "./host"
 import { YAMLStringify } from "./yaml"
 
 // chunk string into chunks of size n
-export function chunkString(s: string, n: number) {
+export function chunkString(s: string, n: number = 2 << 14) {
     if (!s?.length) return []
     if (s.length < n) return [s]
 
@@ -60,21 +60,6 @@ export function parseBoolean(s: string) {
 export function deleteUndefinedValues<T extends Record<string, any>>(o: T): T {
     if (typeof o === "object")
         for (const k in o) if (o[k] === undefined) delete o[k]
-    return o
-}
-
-export function deleteEmptyValues<T extends Record<string, any>>(o: T): T {
-    if (typeof o === "object")
-        for (const k in o) {
-            const v = o[k]
-            if (
-                v === undefined ||
-                v === null ||
-                v === "" ||
-                (Array.isArray(v) && !v.length)
-            )
-                delete o[k]
-        }
     return o
 }
 
