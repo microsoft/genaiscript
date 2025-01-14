@@ -26,6 +26,7 @@ import {
     topLogprobsToMarkdown,
 } from "../../core/src/logprob"
 import { fenceMD } from "../../core/src/mkmd"
+import { createWebview } from "./webview"
 
 const SCHEME = "genaiscript"
 
@@ -231,11 +232,12 @@ export function activateMarkdownTextDocumentContentProvider(
                 REQUEST_TRACE_FILENAME
             )
         ),
-        registerCommand("genaiscript.request.open.output", () =>
-            vscode.commands.executeCommand(
+        registerCommand("genaiscript.request.open.output", () => {
+            createWebview(state)
+            return vscode.commands.executeCommand(
                 "genaiscript.request.open",
                 REQUEST_OUTPUT_FILENAME
             )
-        )
+        })
     )
 }

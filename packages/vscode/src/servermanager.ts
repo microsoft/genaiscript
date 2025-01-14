@@ -80,10 +80,24 @@ export class TerminalServerManager implements ServerManager {
         )
     }
 
+    get authority() {
+        assert(!!this._port)
+        return `http://127.0.0.1:${this._port}`
+    }
+
+    get url() {
+        return `${this.authority}#api-key=${encodeURIComponent(this.state.sessionApiKey)}`
+    }
+
+    private async allocatePort() {
+        if (isNaN(this._port)) this._port = await findRandomOpenPort()
+        return this._port
+    }
+
     private async startClient(): Promise<VsCodeClient> {
         assert(!this._client)
-        this._port = await findRandomOpenPort()
-        const url = `http://127.0.0.1:${this._port}?api-key=${encodeURIComponent(this.state.sessionApiKey)}`
+        await this.allocatePort()
+        const url = this.url
         logInfo(`client url: ${url}`)
         const client = (this._client = new VsCodeClient(url))
         client.chatRequest = createChatModelRunner(this.state)
@@ -113,6 +127,7 @@ export class TerminalServerManager implements ServerManager {
                 }
             }
         })
+        await this.start()
         this._startClientPromise = undefined
         return this._client
     }
@@ -121,8 +136,9 @@ export class TerminalServerManager implements ServerManager {
         if (this._terminal) return
 
         const cwd = host.projectFolder()
+        await this.allocatePort()
         logVerbose(`starting server on port ${this._port} at ${cwd}`)
-        this._client.reconnectAttempts = 0
+        if (this._client) this._client.reconnectAttempts = 0
         this._terminalStartAttempts++
         this._terminal = vscode.window.createTerminal({
             name: TOOL_NAME,
@@ -136,11 +152,11 @@ export class TerminalServerManager implements ServerManager {
         const { cliPath, cliVersion } = await resolveCli()
         if (cliPath)
             this._terminal.sendText(
-                `node "${cliPath}" serve --port ${this._port} --dispatch-progress`
+                `node "${cliPath}" serve --port ${this._port} --dispatch-progress --cors "*"`
             )
         else
             this._terminal.sendText(
-                `npx --yes ${TOOL_ID}@${cliVersion} serve --port ${this._port} --dispatch-progress`
+                `npx --yes ${TOOL_ID}@${cliVersion} serve --port ${this._port} --dispatch-progress --cors "*"`
             )
         this._terminal.show()
     }
@@ -157,7 +173,10 @@ export class TerminalServerManager implements ServerManager {
 
     private closeTerminal() {
         const t = this._terminal
+        this._port = undefined
         this._terminal = undefined
+        this._client = undefined
+        this._startClientPromise = undefined
         if (!this.state.diagnostics) t?.dispose()
     }
 

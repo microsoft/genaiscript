@@ -29,6 +29,7 @@ import {
     VscodeBadge,
     VscodeTextarea,
     VscodeMultiSelect,
+    VscodeScrollable,
 } from "@vscode-elements/react-elements"
 import Markdown from "./Markdown"
 import type {
@@ -39,7 +40,6 @@ import type {
     ResolvedLanguageModelConfiguration,
     ServerEnvResponse,
     RequestMessages,
-    PromptScriptProgressResponseEvent,
     PromptScriptStartResponse,
 } from "../../core/src/server/messages"
 import { promptParametersSchemaToJSONSchema } from "../../core/src/parameters"
@@ -57,7 +57,6 @@ import { toBase64 } from "../../core/src/base64"
 import { underscore } from "inflection"
 import { lookupMime } from "../../core/src/mime"
 import dedent from "dedent"
-import "remark-github-blockquote-alert/alert.css"
 import { markdownDiff } from "../../core/src/mddiff"
 import { VscodeMultiSelect as VscodeMultiSelectElement } from "@vscode-elements/elements"
 import { cleanedClone } from "../../core/src/clone"
@@ -65,9 +64,14 @@ import { WebSocketClient } from "../../core/src/server/wsclient"
 
 const urlParams = new URLSearchParams(window.location.search)
 const viewMode = urlParams.get("view") as "results" | undefined
+const hosted = urlParams.get("hosted") === "1"
 const hashParams = new URLSearchParams(window.location.hash)
-const apiKey = hashParams.get("api-key")
+const apiKey =
+    hashParams.get("api-key") ||
+    (self as { genaiscriptApiKey?: string }).genaiscriptApiKey
 window.location.hash = ""
+
+if (!hosted) import("@vscode-elements/webview-playground")
 
 const fetchScripts = async (): Promise<Project> => {
     const res = await fetch(`/api/scripts`, {
@@ -683,7 +687,11 @@ function CounterBadge(props: { collection: any | undefined }) {
 
 function TraceMarkdown() {
     const trace = useTrace()
-    return <Markdown>{trace}</Markdown>
+    return (
+        <VscodeScrollable>
+            <Markdown>{trace}</Markdown>
+        </VscodeScrollable>
+    )
 }
 
 function TraceTabPanel(props: { selected?: boolean }) {
@@ -700,7 +708,11 @@ function TraceTabPanel(props: { selected?: boolean }) {
 
 function OutputMarkdown() {
     const output = useOutput()
-    return <Markdown>{output}</Markdown>
+    return (
+        <VscodeScrollable>
+            <Markdown>{output}</Markdown>
+        </VscodeScrollable>
+    )
 }
 
 function OutputTraceTabPanel(props: { selected?: boolean }) {

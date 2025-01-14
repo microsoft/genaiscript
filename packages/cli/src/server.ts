@@ -490,6 +490,16 @@ export async function startServer(options: {
         })
     })
 
+    const setCORSHeaders = (res: http.ServerResponse) => {
+        res.setHeader("Access-Control-Allow-Origin", corsOrigin)
+        res.setHeader("Access-Control-Allow-Methods", "OPTIONS, GET")
+        res.setHeader("Access-Control-Max-Age", 24 * 3600) // 1 day
+        res.setHeader(
+            "Access-Control-Allow-Headers",
+            "Content-Type, Authorization, Accept"
+        )
+    }
+
     // Create an HTTP server to handle basic requests.
     const httpServer = http.createServer(async (req, res) => {
         const { url, method } = req
@@ -500,19 +510,14 @@ export async function startServer(options: {
                 res.statusCode = 405
                 res.end()
             } else {
-                res.setHeader("Access-Control-Allow-Origin", corsOrigin)
-                res.setHeader("Access-Control-Allow-Methods", "OPTIONS, GET")
-                res.setHeader("Access-Control-Max-Age", 24 * 3600) // 1 day
-                res.setHeader(
-                    "Access-Control-Allow-Headers",
-                    "Content-Type, Authorization, Accept"
-                )
+                setCORSHeaders(res)
                 res.statusCode = 204
                 res.end()
             }
             return
         }
 
+        if (corsOrigin) setCORSHeaders(res)
         res.setHeader("Cache-Control", "no-store")
         if (method === "GET" && route === "/") {
             res.setHeader("Content-Type", "text/html")
