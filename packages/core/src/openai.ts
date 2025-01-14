@@ -20,13 +20,13 @@ import {
 import { estimateTokens } from "./tokens"
 import {
     ChatCompletionHandler,
-    CreateSpeakRequest,
+    CreateSpeechRequest,
+    CreateSpeechResult,
     CreateTranscriptionRequest,
     LanguageModel,
-    PullModelFunction,
 } from "./chat"
 import { RequestError, errorMessage, serializeError } from "./error"
-import { createFetch, iterateBody, traceFetchPost } from "./fetch"
+import { createFetch, traceFetchPost } from "./fetch"
 import { parseModelIdentifier } from "./models"
 import { JSON5TryParse } from "./json5"
 import {
@@ -436,7 +436,6 @@ export async function OpenAITranscribe(
     options: TraceOptions & CancellationOptions
 ): Promise<TranscriptionResult> {
     const { trace } = options || {}
-    const fetch = await createFetch(options)
     try {
         logVerbose(`${cfg.provider}: transcribe with ${cfg.model}`)
         const route = req.translate ? "translations" : "transcriptions"
@@ -454,7 +453,7 @@ export async function OpenAITranscribe(
             method: "POST",
             headers: {
                 ...getConfigHeaders(cfg),
-                ContentType: "multipart/form-data",
+                "Content-Type": "multipart/form-data",
                 Accept: "application/json",
             },
             body: body,
@@ -462,8 +461,10 @@ export async function OpenAITranscribe(
         traceFetchPost(trace, url, freq.headers, freq.body)
         // TODO: switch back to cross-fetch in the future
         const res = await global.fetch(url, freq as any)
+        trace.itemValue(`status`, `${res.status} ${res.statusText}`)
         const j = await res.json()
-        return j
+        if (!res.ok) return { text: undefined, error: j?.error }
+        else return j
     } catch (e) {
         logError(e)
         trace?.error(e)
@@ -472,10 +473,47 @@ export async function OpenAITranscribe(
 }
 
 export async function OpenAISpeech(
-    req: CreateSpeakRequest,
+    req: CreateSpeechRequest,
     cfg: LanguageModelConfiguration,
     options: TraceOptions & CancellationOptions
-): Promise<Uint8Array> {}
+): Promise<CreateSpeechResult> {
+    const { model, input, voice = "alloy", ...rest } = req
+    const { trace } = options || {}
+    const fetch = await createFetch(options)
+    try {
+        logVerbose(`${cfg.provider}: speak with ${cfg.model}`)
+        const url = `${cfg.base}/audio/speech`
+        trace.itemValue(`url`, `[${url}](${url})`)
+        const body = {
+            model,
+            input,
+            voice,
+        }
+        const freq = {
+            method: "POST",
+            headers: {
+                ...getConfigHeaders(cfg),
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(body),
+        }
+        traceFetchPost(trace, url, freq.headers, body)
+        // TODO: switch back to cross-fetch in the future
+        const res = await fetch(url, freq as any)
+        trace.itemValue(`status`, `${res.status} ${res.statusText}`)
+        if (!res.ok)
+            return { audio: undefined, error: (await res.json())?.error }
+        const j = await res.arrayBuffer()
+        return { audio: new Uint8Array(j) } satisfies CreateSpeechResult
+    } catch (e) {
+        logError(e)
+        trace?.error(e)
+        return {
+            audio: undefined,
+            error: serializeError(e),
+        } satisfies CreateSpeechResult
+    }
+}
 
 export function LocalOpenAICompatibleModel(
     providerId: string,

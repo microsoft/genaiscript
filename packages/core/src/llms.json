@@ -14,7 +14,8 @@
                 "embeddings": "text-embedding-3-small",
                 "reasoning": "o1",
                 "reasoning_small": "o1-mini",
-                "transcription": "whisper-1"
+                "transcription": "whisper-1",
+                "speech": "tts-1"
             }
         },
         {
@@ -22,7 +23,9 @@
             "detail": "Azure OpenAI deployment",
             "listModels": false,
             "bearerToken": false,
-            "prediction": false
+            "prediction": false,
+            "transcribe": true,
+            "speech": true
         },
         {
             "id": "azure_serverless",
