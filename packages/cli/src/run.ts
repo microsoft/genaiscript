@@ -143,7 +143,6 @@ export async function runScriptInternal(
         CancellationOptions & {
             outputTrace?: MarkdownTrace
             cli?: boolean
-            workspaceFiles?: WorkspaceFile[]
             infoCb?: (partialResponse: { text: string }) => void
             partialCb?: (progress: ChatCompletionsProgressReport) => void
         }

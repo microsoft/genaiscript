@@ -29,16 +29,18 @@ import {
     VscodeBadge,
     VscodeTextarea,
     VscodeMultiSelect,
+    VscodeScrollable,
 } from "@vscode-elements/react-elements"
 import Markdown from "./Markdown"
 import type {
     Project,
     PromptScriptListResponse,
     PromptScriptResponseEvents,
-    PromptScriptStart,
     GenerationResult,
     ResolvedLanguageModelConfiguration,
     ServerEnvResponse,
+    RequestMessages,
+    PromptScriptStartResponse,
 } from "../../core/src/server/messages"
 import { promptParametersSchemaToJSONSchema } from "../../core/src/parameters"
 import {
@@ -55,17 +57,32 @@ import { toBase64 } from "../../core/src/base64"
 import { underscore } from "inflection"
 import { lookupMime } from "../../core/src/mime"
 import dedent from "dedent"
-import "remark-github-blockquote-alert/alert.css"
 import { markdownDiff } from "../../core/src/mddiff"
 import { VscodeMultiSelect as VscodeMultiSelectElement } from "@vscode-elements/elements"
 import { cleanedClone } from "../../core/src/clone"
+import { WebSocketClient } from "../../core/src/server/wsclient"
 
-const urlParams = new URLSearchParams(window.location.hash)
-const apiKey = urlParams.get("api-key")
+interface GenAIScriptViewOptions {
+    apiKey?: string
+    base?: string
+}
+
+const urlParams = new URLSearchParams(window.location.search)
+const config = (self as { genaiscript?: GenAIScriptViewOptions }).genaiscript
+const hosted = !!config
+const viewMode = (hosted ? "results" : urlParams.get("view")) as
+    | "results"
+    | undefined
+const hashParams = new URLSearchParams(window.location.hash)
+const base = config?.base || ""
+const apiKey = hashParams.get("api-key") || config?.apiKey
 window.location.hash = ""
+console.log({ base, apiKey, viewMode, hosted })
+
+if (!hosted) import("@vscode-elements/webview-playground")
 
 const fetchScripts = async (): Promise<Project> => {
-    const res = await fetch(`/api/scripts`, {
+    const res = await fetch(`${base}/api/scripts`, {
         headers: {
             Accept: "application/json",
             Authorization: apiKey || "",
@@ -75,7 +92,7 @@ const fetchScripts = async (): Promise<Project> => {
     return j.project
 }
 const fetchEnv = async (): Promise<ResolvedLanguageModelConfiguration[]> => {
-    const res = await fetch(`/api/env`, {
+    const res = await fetch(`${base}/api/env`, {
         headers: {
             Accept: "application/json",
             Authorization: apiKey || "",
@@ -85,98 +102,78 @@ const fetchEnv = async (): Promise<ResolvedLanguageModelConfiguration[]> => {
     return j.providers
 }
 
-type TraceEvent = CustomEvent<{ trace?: string; output?: string }>
-
-class RunClient extends EventTarget {
-    ws?: WebSocket
-    runId: string
-    result: GenerationResult | undefined
-
-    static readonly TRACE_EVENT = "trace"
-    static readonly OUTPUT_EVENT = "output"
+class RunClient extends WebSocketClient {
+    static readonly SCRIPT_START_EVENT = "scriptStart"
+    static readonly SCRIPT_END_EVENT = "scriptEnd"
+    static readonly PROGRESS_EVENT = "progress"
+    static readonly RUN_EVENT = "run"
     static readonly RESULT_EVENT = "result"
 
-    constructor(
-        readonly script: string,
-        readonly files: string[],
-        readonly workspaceFiles: WorkspaceFile[],
-        readonly options: any
-    ) {
-        super()
-        this.runId = "" + Math.random()
-        this.ws = new WebSocket(`/?api-key=${apiKey}`)
-        this.ws.addEventListener(
-            "open",
-            () => {
-                const id = "" + Math.random()
+    runId: string
+    trace: string = ""
+    output: string = ""
+    result: Partial<GenerationResult> = undefined
 
-                this.ws?.send(
-                    JSON.stringify({
-                        id,
-                        type: "script.start",
-                        runId: this.runId,
-                        script,
-                        files: this.files,
-                        options: {
-                            ...(this.options || {}),
-                            workspaceFiles: this.workspaceFiles,
-                        },
-                    } satisfies PromptScriptStart)
-                )
+    constructor(url: string) {
+        super(url)
+        this.addEventListener(
+            "message",
+            (ev) => {
+                const data = (ev as MessageEvent<any>).data as
+                    | PromptScriptResponseEvents
+                    | RequestMessages
+                switch (data.type) {
+                    case "script.progress": {
+                        this.updateRunId(data)
+                        if (data.trace) this.trace += data.trace
+                        if (data.output) this.output += data.output
+                        this.dispatchEvent(new Event(RunClient.PROGRESS_EVENT))
+                        break
+                    }
+                    case "script.end": {
+                        console.log(`script: end`, data.result)
+                        this.updateRunId(data)
+                        this.result = cleanedClone(data.result)
+                        this.dispatchEvent(
+                            new CustomEvent(RunClient.SCRIPT_END_EVENT, {
+                                detail: this.result,
+                            })
+                        )
+                        this.dispatchEvent(new Event(RunClient.RESULT_EVENT))
+                        break
+                    }
+                    case "script.start":
+                        console.log(`script: started`, data)
+                        this.updateRunId(
+                            data.response as PromptScriptStartResponse
+                        )
+                        this.dispatchEvent(
+                            new CustomEvent(RunClient.SCRIPT_START_EVENT, {
+                                detail: data.response,
+                            })
+                        )
+                        break
+                    default: {
+                        console.log(data)
+                    }
+                }
             },
             false
         )
-        this.ws.addEventListener("message", (ev) => {
-            const data: PromptScriptResponseEvents = JSON.parse(ev.data)
-            switch (data.type) {
-                case "script.progress": {
-                    if (data.trace)
-                        this.dispatchEvent(
-                            new CustomEvent(RunClient.TRACE_EVENT, {
-                                detail: data,
-                            })
-                        )
-                    if (data.output)
-                        this.dispatchEvent(
-                            new CustomEvent(RunClient.OUTPUT_EVENT, {
-                                detail: data,
-                            })
-                        )
-                    break
-                }
-                case "script.end": {
-                    this.result = cleanedClone(data.result)
-                    this.dispatchEvent(
-                        new CustomEvent(RunClient.RESULT_EVENT, {
-                            detail: data,
-                        })
-                    )
-                    break
-                }
-            }
-        })
-        this.ws.addEventListener("error", (err) => {
-            console.log(`run ${this.runId}: error`)
-            console.error(err)
-        })
-        this.ws.addEventListener("close", (ev) => {
-            console.log(`run ${this.runId}: close, ${ev.reason}`)
-        })
     }
 
-    close() {
-        console.trace(`client: close`)
-        const ws = this.ws
-        if (ws) {
-            this.ws = undefined
-            ws.send(
-                JSON.stringify({
-                    id: "" + Math.random(),
-                    type: "script.abort",
-                    runId: this.runId,
-                })
-            )
-            ws.close()
+    private updateRunId(data: { runId: string }) {
+        const { runId } = data
+        if (runId !== this.runId) {
+            console.log(`run updated`, { data })
+            this.runId = runId
+            if (this.runId) {
+                this.trace = ""
+                this.output = ""
+                this.result = undefined
+                this.dispatchEvent(new Event(RunClient.RESULT_EVENT))
+            }
+            this.dispatchEvent(new Event(RunClient.RUN_EVENT))
         }
     }
 }
@@ -217,7 +214,7 @@ function useUrlSearchParams<T>(
         setState(newState)
     }, [])
     useEffect(() => {
-        const params = new URLSearchParams()
+        const params = new URLSearchParams(urlParams)
         for (const key in state) {
             const field = fields[key]
             if (!field) continue
@@ -225,8 +222,9 @@ function useUrlSearchParams<T>(
             const { type } = field
             const value = state[key]
             if (value === undefined || value === null) continue
-            if (type === "string") params.set(key, value as string)
-            else if (type === "boolean") {
+            if (type === "string") {
+                if (value !== "") params.set(key, value as string)
+            } else if (type === "boolean") {
                 if (!!value) params.set(key, "1")
             } else if (type === "integer" || type === "number") {
                 const v = value as number
@@ -236,7 +234,10 @@ function useUrlSearchParams<T>(
                 if (v.length) params.set(key, v.join(","))
             }
         }
-        window.history.pushState({}, "", `?${params.toString()}`)
+
+        let url = ""
+        if (params.toString()) url += `?${params.toString()}`
+        window.history.pushState({}, "", url)
     }, [state])
     return [state, setState] as const
 }
@@ -244,6 +245,7 @@ function useUrlSearchParams<T>(
 type ImportedFile = FileWithPath & { selected?: boolean }
 
 const ApiContext = createContext<{
+    client: RunClient
     project: Promise<Project | undefined>
     providers: Promise<ResolvedLanguageModelConfiguration[] | undefined>
 
@@ -262,6 +264,14 @@ const ApiContext = createContext<{
 } | null>(null)
 
 function ApiProvider({ children }: { children: React.ReactNode }) {
+    const client = useMemo(() => {
+        const client = new RunClient(
+            `${base}/${apiKey ? `?api-key=${apiKey}` : ""}`
+        )
+        client.addEventListener("error", (err) => console.error(err), false)
+        return client
+    }, [])
+
     const project = useMemo<Promise<Project>>(fetchScripts, [])
     const providers = useMemo<Promise<ResolvedLanguageModelConfiguration[]>>(
         fetchEnv,
@@ -306,10 +316,14 @@ function ApiProvider({ children }: { children: React.ReactNode }) {
     ) => {
         setState((prev) => ({ ...prev, ...f(options) }))
     }
+    useEffect(() => {
+        client.init()
+    }, [])
 
     return (
         <ApiContext.Provider
             value={{
+                client,
                 project,
                 providers,
                 scriptid,
@@ -336,7 +350,7 @@ function useApi() {
 }
 
 const RunnerContext = createContext<{
-    runner: RunClient | undefined
+    runId: string | undefined
     run: () => void
     cancel: () => void
     state: "running" | undefined
@@ -344,24 +358,42 @@ const RunnerContext = createContext<{
 
 function RunnerProvider({ children }: { children: React.ReactNode }) {
     const {
+        client,
         scriptid,
         files = [],
         importedFiles = [],
         options,
         parameters,
     } = useApi()
-    const [runner, setRunner] = useState<RunClient | undefined>(undefined)
+
+    const [runId, setRunId] = useState<string>(client.runId)
 
     useEffect(() => {
-        runner?.close()
-        setRunner(undefined)
+        client.abortScript(runId)
+        setRunId(undefined)
     }, [scriptid])
 
+    const start = useCallback((e: Event) => {
+        const ev = e as CustomEvent
+        setRunId(ev.detail.runId)
+    }, [])
+    useEventListener(client, RunClient.SCRIPT_START_EVENT, start, false)
+
+    const runUpdate = useCallback((e: Event) => setRunId(client.runId), [runId])
+    useEventListener(client, RunClient.RUN_EVENT, runUpdate, false)
+
+    const end = useCallback((e: Event) => {
+        const ev = e as CustomEvent
+        setRunId(undefined)
+    }, [])
+    useEventListener(client, RunClient.SCRIPT_END_EVENT, end, false)
+
     const run = async () => {
-        runner?.close()
         if (!scriptid) return
 
-        console.log(`run: start ${scriptid}`, {
+        const runId = ("" + Math.random()).slice(2)
+        console.log(`script: start ${scriptid}`, {
+            runId,
             files,
             importedFiles,
             parameters,
@@ -384,26 +416,24 @@ function RunnerProvider({ children }: { children: React.ReactNode }) {
                     } satisfies WorkspaceFile
                 })
         )
-        const client = new RunClient(scriptid, files.slice(0), workspaceFiles, {
-            parameters,
-            ...options,
+        client.startScript(runId, scriptid, files, {
+            ...(options || {}),
+            vars: parameters,
+            workspaceFiles,
         })
-        client.addEventListener(RunClient.RESULT_EVENT, () =>
-            setRunner(undefined)
-        )
-        setRunner(client)
-    }
-    const cancel = () => {
-        runner?.close()
-        setRunner(undefined)
     }
 
-    const state = runner ? "running" : undefined
+    const cancel = () => {
+        client.abortScript(runId)
+        setRunId(undefined)
+    }
+
+    const state = runId ? "running" : undefined
 
     return (
         <RunnerContext.Provider
             value={{
-                runner,
+                runId,
                 run,
                 cancel,
                 state,
@@ -420,14 +450,11 @@ function useRunner() {
     return runner
 }
 
-function useResult() {
-    const { runner } = useRunner()
-    const [result, setResult] = useState<GenerationResult | undefined>(
-        undefined
-    )
-    useEffect(() => runner && setResult(undefined), [runner])
-    const storeResult = useCallback(() => setResult(runner?.result), [runner])
-    useEventListener(runner, RunClient.RESULT_EVENT, storeResult)
+function useResult(): Partial<GenerationResult> | undefined {
+    const { client } = useApi()
+    const [result, setResult] = useState(client.result)
+    const update = useCallback(() => setResult(client.result), [client])
+    useEventListener(client, RunClient.RESULT_EVENT, update)
     return result
 }
 
@@ -459,32 +486,26 @@ function useEventListener(
 }
 
 function useTrace() {
-    const { runner } = useRunner()
-    const [trace, setTrace] = useState<string>("")
-    useEffect(() => runner && setTrace(""), [runner])
+    const { client } = useApi()
+    const [trace, setTrace] = useState(client.trace)
     const appendTrace = useCallback(
-        (evt: Event) => {
-            const trace = (evt as TraceEvent).detail.trace
-            startTransition(() => setTrace((previous) => previous + trace))
-        },
-        [runner]
+        (evt: Event) =>
+            startTransition(() => setTrace((previous) => client.trace)),
+        []
     )
-    useEventListener(runner, RunClient.TRACE_EVENT, appendTrace)
+    useEventListener(client, RunClient.PROGRESS_EVENT, appendTrace)
     return trace
 }
 
 function useOutput() {
-    const { runner } = useRunner()
-    const [output, setOutput] = useState<string>("")
-    useEffect(() => runner && setOutput(""), [runner])
+    const { client } = useApi()
+    const [output, setOutput] = useState<string>(client.output)
     const appendTrace = useCallback(
-        (evt: Event) => {
-            const output = (evt as TraceEvent).detail.output
-            startTransition(() => setOutput((previous) => previous + output))
-        },
-        [runner]
+        (evt: Event) =>
+            startTransition(() => setOutput((previous) => client.output)),
+        []
     )
-    useEventListener(runner, RunClient.OUTPUT_EVENT, appendTrace)
+    useEventListener(client, RunClient.PROGRESS_EVENT, appendTrace)
     return output
 }
 
@@ -674,25 +695,43 @@ function CounterBadge(props: { collection: any | undefined }) {
     )
 }
 
-function TraceTabPanel() {
+function TraceMarkdown() {
     const trace = useTrace()
+    return (
+        <VscodeScrollable>
+            <Markdown>{trace}</Markdown>
+        </VscodeScrollable>
+    )
+}
+
+function TraceTabPanel(props: { selected?: boolean }) {
+    const { selected } = props
     return (
         <>
             <VscodeTabHeader slot="header">Trace</VscodeTabHeader>
             <VscodeTabPanel>
-                <Markdown>{trace}</Markdown>
+                {selected ? <TraceMarkdown /> : null}
             </VscodeTabPanel>
         </>
     )
 }
 
-function OutputTraceTabPanel() {
+function OutputMarkdown() {
     const output = useOutput()
+    return (
+        <VscodeScrollable>
+            <Markdown>{output}</Markdown>
+        </VscodeScrollable>
+    )
+}
+
+function OutputTraceTabPanel(props: { selected?: boolean }) {
+    const { selected } = props
     return (
         <>
             <VscodeTabHeader slot="header">Output</VscodeTabHeader>
             <VscodeTabPanel>
-                <Markdown>{output}</Markdown>
+                {selected ? <OutputMarkdown /> : null}
             </VscodeTabPanel>
         </>
     )
@@ -771,7 +810,7 @@ function StatsTabPanel() {
                 )}
             </VscodeTabHeader>
             <VscodeTabPanel>
-                <Markdown>{fenceMD(md, "yaml")}</Markdown>
+                {md ? <Markdown>{fenceMD(md, "yaml")}</Markdown> : null}
             </VscodeTabPanel>
         </>
     )
@@ -815,7 +854,7 @@ function TopLogProbsTabPanel() {
     )
 }
 
-function FilesTabPanel() {
+function FileEditsTabPanel() {
     const result = useResult()
     const { fileEdits = {} } = result || {}
     const files = Object.entries(fileEdits)
@@ -823,7 +862,7 @@ function FilesTabPanel() {
     return (
         <>
             <VscodeTabHeader slot="header">
-                Files
+                Edits
                 <CounterBadge collection={files} />
             </VscodeTabHeader>
             <VscodeTabPanel>
@@ -1235,26 +1274,41 @@ function RunForm() {
     )
 }
 
-function WebApp() {
+function ResultsTabs() {
+    const [selected, setSelected] = useState(0)
     return (
-        <>
-            <RunForm />
-            <VscodeCollapsible open title="Results">
-                <VscodeTabs panel>
-                    <OutputTraceTabPanel />
-                    <MessagesTabPanel />
-                    <TraceTabPanel />
-                    <ProblemsTabPanel />
-                    <LogProbsTabPanel />
-                    <TopLogProbsTabPanel />
-                    <FilesTabPanel />
-                    <JSONTabPanel />
-                    <StatsTabPanel />
-                    <RawTabPanel />
-                </VscodeTabs>
-            </VscodeCollapsible>
-        </>
+        <VscodeTabs
+            onVscTabsSelect={(e) => setSelected(e.detail.selectedIndex)}
+            panel
+        >
+            <OutputTraceTabPanel selected={selected === 0} />
+            <TraceTabPanel selected={selected === 1} />
+            <MessagesTabPanel />
+            <ProblemsTabPanel />
+            <LogProbsTabPanel />
+            <TopLogProbsTabPanel />
+            <FileEditsTabPanel />
+            <JSONTabPanel />
+            <StatsTabPanel />
+            <RawTabPanel />
+        </VscodeTabs>
     )
+}
+
+function WebApp() {
+    switch (viewMode) {
+        case "results":
+            return <ResultsTabs />
+        default:
+            return (
+                <>
+                    <RunForm />
+                    <VscodeCollapsible open title="Results">
+                        <ResultsTabs />
+                    </VscodeCollapsible>
+                </>
+            )
+    }
 }
 
 export default function App() {
