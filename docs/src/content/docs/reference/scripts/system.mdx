@@ -131,7 +131,7 @@ defAgent(
     async (ctx) => {
         ctx.$`Your are a helpful LLM agent that is an expert at Technical documentation. You can provide the best analyzis to any query about the documentation.
 
-        Analyze QUERY and respond with the requested information.
+        Analyze <QUERY> and respond with the requested information.
 
         ## Tools
 
@@ -181,7 +181,7 @@ defAgent(
     "fs",
     "query files to accomplish tasks",
     `Your are a helpful LLM agent that can query the file system.
-    Answer the question in QUERY.`,
+    Answer the question in <QUERY>.`,
     {
         model,
         tools: [
@@ -216,7 +216,7 @@ defAgent(
     "git",
     "query a repository using Git to accomplish tasks. Provide all the context information available to execute git queries.",
     `Your are a helpful LLM agent that can use the git tools to query the current repository.
-    Answer the question in QUERY.
+    Answer the question in <QUERY>.
     - The current repository is the same as github repository.
     - Prefer using diff to compare files rather than listing files. Listing files is only useful when you need to read the content of the files.
     `,
@@ -374,6 +374,38 @@ defAgent(
 `````
 
 
+### `system.agent_video`
+
+
+
+Agent that can work on video
+
+
+
+`````js wrap title="system.agent_video"
+system({
+    description: "Agent that can work on video",
+})
+
+defAgent(
+    "video",
+    "Analyze and process video files or urls.",
+    `Your are a helpful LLM agent that can analyze and process video or audio files or urls.
+    Answer the question in <QUERY>.`,
+    {
+        system: [
+            "system",
+            "system.tools",
+            "system.explanations",
+            "system.transcribe",
+            "system.video",
+        ],
+    }
+)
+
+`````
+
+
 ### `system.agent_web`
 
 Agent that can search the web.
@@ -393,7 +425,7 @@ defAgent(
     "web",
     "search the web to accomplish tasks.",
     `Your are a helpful LLM agent that can use web search.
-    Answer the question in QUERY.`,
+    Answer the question in <QUERY>.`,
     {
         model,
         system: [

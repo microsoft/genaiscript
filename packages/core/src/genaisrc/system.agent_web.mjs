@@ -8,7 +8,7 @@ defAgent(
     "web",
     "search the web to accomplish tasks.",
     `Your are a helpful LLM agent that can use web search.
-    Answer the question in QUERY.`,
+    Answer the question in <QUERY>.`,
     {
         model,
         system: [
