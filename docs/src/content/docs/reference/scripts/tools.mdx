@@ -72,6 +72,25 @@ to evaluate a math expression.
     title="math-agent.genai.mjs"
 />
 
+### Reusing tools in system scripts
+
+You can define tools in a system script and include them in your main script as any other system script or tool.
+
+```javascript title="system.random.genai.mjs"
+system({ description: "Random tools" })
+defTool("random", "Generate a random number", {}, () => Math.random())
+```
+
+- Make sure to use `system` instead of `script` in the system script.
+
+```javascript title="random-script.genai.mjs" 'tools: ["random"]'
+script({
+    title: "Random number",
+    tools: ["random"],
+})
+$`Generate a random number.
+```
+
 ## Model Context Protocol Tools
 
 [Model Context Provider](https://modelcontextprotocol.io/) (MCP) is an open protocol
