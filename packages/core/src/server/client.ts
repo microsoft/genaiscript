@@ -45,8 +45,8 @@ export class VsCodeClient extends WebSocketClient {
             trace: MarkdownTrace
             infoCb: (partialResponse: { text: string }) => void
             partialCb: (progress: ChatCompletionsProgressReport) => void
-            promise: Promise<GenerationResult>
-            resolve: (value: GenerationResult) => void
+            promise: Promise<Partial<GenerationResult>>
+            resolve: (value: Partial<GenerationResult>) => void
             reject: (reason?: any) => void
             signal: AbortSignal
         }
@@ -105,7 +105,7 @@ export class VsCodeClient extends WebSocketClient {
                         delete this.runs[runId]
                         if (run) {
                             const res = structuredClone(ev.result)
-                            if (res) run.infoCb(res)
+                            if (res?.text) run.infoCb(res as { text: string })
                             run.resolve(res)
                         }
                         break
@@ -147,9 +147,9 @@ export class VsCodeClient extends WebSocketClient {
     ) {
         const runId = randomHex(6)
         const { signal, infoCb, partialCb, trace, ...optionsRest } = options
-        let resolve: (value: GenerationResult) => void
+        let resolve: (value: Partial<GenerationResult>) => void
         let reject: (reason?: any) => void
-        const promise = new Promise<GenerationResult>((res, rej) => {
+        const promise = new Promise<Partial<GenerationResult>>((res, rej) => {
             resolve = res
             reject = rej
         })

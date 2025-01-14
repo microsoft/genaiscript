@@ -68,7 +68,7 @@ export interface AIRequest {
     controller: AbortController
     trace: MarkdownTrace
     runId?: string
-    request?: Promise<GenerationResult>
+    request?: Promise<Partial<GenerationResult>>
     response?: Partial<GenerationResult>
     computing?: boolean
     error?: any
@@ -177,7 +177,7 @@ export class ExtensionState extends EventTarget {
 
     async requestAI(
         options: AIRequestOptions
-    ): Promise<GenerationResult & { requestSha: string }> {
+    ): Promise<Partial<GenerationResult> & { requestSha: string }> {
         try {
             const req = await this.startAIRequest(options)
             if (!req) {
