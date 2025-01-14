@@ -61,6 +61,7 @@ export async function createPromptContext(
         readXML: (f, o) => runtimeHost.workspace.readXML(f, o),
         readCSV: (f, o) => runtimeHost.workspace.readCSV(f, o),
         readINI: (f, o) => runtimeHost.workspace.readINI(f, o),
+        readData: (f, o) => runtimeHost.workspace.readData(f, o),
         writeText: (f, c) => runtimeHost.workspace.writeText(f, c),
         cache: (n) => runtimeHost.workspace.cache(n),
         findFiles: async (pattern, options) => {

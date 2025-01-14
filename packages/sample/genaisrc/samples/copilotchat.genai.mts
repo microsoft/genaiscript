@@ -23,6 +23,7 @@ script({
         "system.agent_docs",
         "system.agent_web",
         "system.agent_video",
+        "system.agent_data",
         "system.vision_ask_image",
     ],
     group: "copilot", // Group categorization for the script

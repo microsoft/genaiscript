@@ -14,6 +14,8 @@ defAgent(
             "system.explanations",
             "system.transcribe",
             "system.video",
+            "system.safety_harmful_content",
+            "system.safety_protected_material",
         ],
     }
 )

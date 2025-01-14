@@ -35,6 +35,7 @@ import {
     assert,
     deleteUndefinedValues,
     dotGenaiscriptPath,
+    ellipse,
     logError,
     logVerbose,
     logWarn,
@@ -443,8 +444,10 @@ export function createChatGenerationContext(
             agentSystem,
             arrayify(tools)
         )
-        const agentDescription = dedent`Agent that uses an LLM to ${description}.\nAvailable tools: 
-        ${agentTools.map((t) => `- ${t.description}`).join("\n")}` // DO NOT LEAK TOOL ID HERE
+        const agentDescription = ellipse(
+            `Agent that uses an LLM to ${description}.\nAvailable tools:${agentTools.map((t) => `- ${t.description}`).join("\n")}`,
+            1020
+        ) // DO NOT LEAK TOOL ID HERE
 
         defTool(
             agentName,
