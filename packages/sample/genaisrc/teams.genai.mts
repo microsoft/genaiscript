@@ -1,6 +1,9 @@
 import { DefaultAzureCredential } from "@azure/identity"
 
-const { teamId, channelId } = /^https:\/\/teams.microsoft.com\/*.\/channel\/(?<channelId>.+)\/.*\?groupId=(?<teamId>([a-z0-9\-])+)$/.exec(env.vars.link).groups
+const { teamId, channelId } =
+    /^https:\/\/teams.microsoft.com\/*.\/channel\/(?<channelId>.+)\/.*\?groupId=(?<teamId>([a-z0-9\-])+)$/.exec(
+        env.vars.link
+    ).groups
 const message = "Hello from GenAIScript!"
 
 // Function to get Microsoft Graph API token using Managed Identity
@@ -13,6 +16,38 @@ async function getToken(): Promise<string> {
         throw new Error("Failed to retrieve access token.")
     }
     return tokenResponse.token
+}
+
+// Function to read messages from a Teams channel
+async function readMessages(
+    token: string,
+    teamId: string,
+    channelId: string
+): Promise<any> {
+    const url = `https://graph.microsoft.com/v1.0/teams/${teamId}/channels/${channelId}/messages`
+    const headers = {
+        Authorization: `Bearer ${token}`,
+    }
+
+    try {
+        const response = await fetch(url, {
+            method: "GET",
+            headers: headers,
+        })
+
+        if (!response.ok) {
+            throw new Error(
+                `Failed to read messages: ${response.status} ${response.statusText}`
+            )
+        }
+
+        const data = await response.json()
+        console.log("Messages retrieved successfully:", data)
+        return data
+    } catch (error) {
+        console.error("Error reading messages:", error)
+        return undefined
+    }
 }
 
 // Function to post a message in a Teams channel
@@ -54,4 +89,7 @@ async function postMessage(
 }
 
 const token = await getToken()
+
+const msgs = await readMessages(token, teamId, channelId)
+console.log(msgs)
 await postMessage(token, teamId, channelId, message)
