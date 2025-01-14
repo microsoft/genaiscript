@@ -3,7 +3,7 @@ system({
 })
 
 defTool(
-    "data_infer_schema",
+    "fs_infer_schema",
     "Infers the JSON schema of a file",
     {
         type: "object",
@@ -16,7 +16,8 @@ defTool(
         required: ["filename"],
     },
     async (args) => {
-        const { filename, data } = args
+        const { context, filename } = args
+        context.log(`infer schema of ${filename}`)
         const jsonData = await workspace.readData(filename)
         if (jsonData === undefined)
             return "Unabled to infer the schema from the data."

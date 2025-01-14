@@ -109,6 +109,43 @@ $`- You are concise, no yapping, no extra sentences, do not suggest to share tho
 `````
 
 
+### `system.agent_data`
+
+
+
+Agent that can query data in files
+
+
+
+`````js wrap title="system.agent_data"
+system({
+    description: "Agent that can query data in files",
+})
+
+defAgent(
+    "data",
+    "Infer the schema of data, query data from files",
+    `You are an expert data scientist that can answer questions about data in files.
+    Answer the question in <QUERY>.`,
+    {
+        system: [
+            "system",
+            "system.assistant",
+            "system.tools",
+            "system.python_code_interpreter",
+            "system.fs_find_files",
+            "system.fs_read_file",
+            "system.fs_infer_schema",
+            "system.fs_data_query",
+            "system.safety_harmful_content",
+            "system.safety_protected_material",
+        ],
+    }
+)
+
+`````
+
+
 ### `system.agent_docs`
 
 Agent that can query on the documentation.
@@ -399,6 +436,8 @@ defAgent(
             "system.explanations",
             "system.transcribe",
             "system.video",
+            "system.safety_harmful_content",
+            "system.safety_protected_material",
         ],
     }
 )
@@ -566,46 +605,6 @@ ChangedCode@23-23:
 - If the file content is large (> 50 lines), use CHANGELOG format.
 - If the file content IS VERY LARGE, ALWAYS USE CHANGELOG to save tokens.
 `
-
-`````
-
-
-### `system.data_infer_schema`
-
-
-
-Tools to infer the schema of a dataset or file
-
--  tool `data_infer_schema`: Infers the JSON schema of a file
-
-`````js wrap title="system.data_infer_schema"
-system({
-    description: "Tools to infer the schema of a dataset or file",
-})
-
-defTool(
-    "data_infer_schema",
-    "Infers the JSON schema of a file",
-    {
-        type: "object",
-        properties: {
-            filename: {
-                type: "string",
-                description: "The filename to infer the schema from",
-            },
-        },
-        required: ["filename"],
-    },
-    async (args) => {
-        const { filename, data } = args
-        const jsonData = await workspace.readData(filename)
-        if (jsonData === undefined)
-            return "Unabled to infer the schema from the data."
-
-        const schema = await JSONSchema.infer(jsonData)
-        return JSON.stringify(schema)
-    }
-)
 
 `````
 
@@ -903,6 +902,47 @@ defTool(
 `````
 
 
+### `system.fs_data_query`
+
+
+
+A tool that can query data in a file
+
+-  tool `fs_data_query`: Query data in a file using GROQ syntax
+
+`````js wrap title="system.fs_data_query"
+system({
+    description: "A tool that can query data in a file",
+})
+
+defTool(
+    "fs_data_query",
+    "Query data in a file using GROQ syntax",
+    {
+        type: "object",
+        properties: {
+            filename: {
+                type: "string",
+                description: "The filename to query data from",
+            },
+            query: {
+                type: "string",
+                description: "The GROQ query to run on the data",
+            },
+        },
+    },
+    async (args) => {
+        const { context, query, filename } = args
+        context.log(`query ${query} in ${filename}`)
+        const data = await workspace.readData(filename)
+        const res = await parsers.GROQ(query, data)
+        return res
+    }
+)
+
+`````
+
+
 ### `system.fs_diff_files`
 
 File Diff Files
@@ -1050,6 +1090,47 @@ defTool(
             context.log(filenames)
             return filenames
         }
+    }
+)
+
+`````
+
+
+### `system.fs_infer_schema`
+
+
+
+Tools to infer the schema of a dataset or file
+
+-  tool `fs_infer_schema`: Infers the JSON schema of a file
+
+`````js wrap title="system.fs_infer_schema"
+system({
+    description: "Tools to infer the schema of a dataset or file",
+})
+
+defTool(
+    "fs_infer_schema",
+    "Infers the JSON schema of a file",
+    {
+        type: "object",
+        properties: {
+            filename: {
+                type: "string",
+                description: "The filename to infer the schema from",
+            },
+        },
+        required: ["filename"],
+    },
+    async (args) => {
+        const { context, filename } = args
+        context.log(`infer schema of ${filename}`)
+        const jsonData = await workspace.readData(filename)
+        if (jsonData === undefined)
+            return "Unabled to infer the schema from the data."
+
+        const schema = await JSONSchema.infer(jsonData)
+        return JSON.stringify(schema)
     }
 )
 
