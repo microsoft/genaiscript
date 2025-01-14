@@ -62,19 +62,27 @@ import { VscodeMultiSelect as VscodeMultiSelectElement } from "@vscode-elements/
 import { cleanedClone } from "../../core/src/clone"
 import { WebSocketClient } from "../../core/src/server/wsclient"
 
+interface GenAIScriptViewOptions {
+    apiKey?: string
+    base?: string
+}
+
 const urlParams = new URLSearchParams(window.location.search)
-const viewMode = urlParams.get("view") as "results" | undefined
-const hosted = urlParams.get("hosted") === "1"
+const config = (self as { genaiscript?: GenAIScriptViewOptions }).genaiscript
+const hosted = !!config
+const viewMode = (hosted ? "results" : urlParams.get("view")) as
+    | "results"
+    | undefined
 const hashParams = new URLSearchParams(window.location.hash)
-const apiKey =
-    hashParams.get("api-key") ||
-    (self as { genaiscriptApiKey?: string }).genaiscriptApiKey
+const base = config?.base || ""
+const apiKey = hashParams.get("api-key") || config?.apiKey
 window.location.hash = ""
+console.log({ base, apiKey, viewMode, hosted })
 
 if (!hosted) import("@vscode-elements/webview-playground")
 
 const fetchScripts = async (): Promise<Project> => {
-    const res = await fetch(`/api/scripts`, {
+    const res = await fetch(`${base}/api/scripts`, {
         headers: {
             Accept: "application/json",
             Authorization: apiKey || "",
@@ -84,7 +92,7 @@ const fetchScripts = async (): Promise<Project> => {
     return j.project
 }
 const fetchEnv = async (): Promise<ResolvedLanguageModelConfiguration[]> => {
-    const res = await fetch(`/api/env`, {
+    const res = await fetch(`${base}/api/env`, {
         headers: {
             Accept: "application/json",
             Authorization: apiKey || "",
@@ -257,7 +265,9 @@ const ApiContext = createContext<{
 
 function ApiProvider({ children }: { children: React.ReactNode }) {
     const client = useMemo(() => {
-        const client = new RunClient(`/${apiKey ? `?api-key=${apiKey}` : ""}`)
+        const client = new RunClient(
+            `${base}/${apiKey ? `?api-key=${apiKey}` : ""}`
+        )
         client.addEventListener("error", (err) => console.error(err), false)
         return client
     }, [])

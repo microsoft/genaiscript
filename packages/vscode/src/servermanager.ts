@@ -85,8 +85,8 @@ export class TerminalServerManager implements ServerManager {
         return `http://127.0.0.1:${this._port}`
     }
 
-    get url() {
-        return `${this.authority}#api-key=${encodeURIComponent(this.state.sessionApiKey)}`
+    private get url() {
+        return `${this.authority}?api-key=${encodeURIComponent(this.state.sessionApiKey)}`
     }
 
     private async allocatePort() {

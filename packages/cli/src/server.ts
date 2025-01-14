@@ -141,17 +141,19 @@ export async function startServer(options: {
 
     const checkApiKey = (req: http.IncomingMessage) => {
         if (!apiKey) return true
-        if (req.headers.authorization !== apiKey) return true
+
+        const { authorization } = req.headers
+        if (authorization === apiKey) return true
 
         const url = req.url.replace(/^[^\?]*\?/, "")
         const search = new URLSearchParams(url)
         const hash = search.get("api-key")
         if (hash === apiKey) return true
 
-        logError(`clients: connection unauthorized ${url}, ${hash}`)
-        logVerbose(`url:${req.url}`)
-        logVerbose(`api:${apiKey}`)
-        logVerbose(`auth:${req.headers.authorization}`)
+        logError(`clients: connection unauthorized ${url}`)
+        logVerbose(`url :${req.url}`)
+        logVerbose(`key :${apiKey}`)
+        logVerbose(`auth:${authorization}`)
         logVerbose(`hash:${hash}`)
         return false
     }
@@ -593,7 +595,7 @@ export async function startServer(options: {
         } else socket.destroy()
     })
     // Start the HTTP server on the specified port.
-    const serverhash = apiKey ? `#api-key:${encodeURIComponent(apiKey)}` : ""
+    const serverhash = apiKey ? `?api-key:${encodeURIComponent(apiKey)}` : ""
     httpServer.listen(port, serverHost, () => {
         console.log(`GenAIScript server v${CORE_VERSION}`)
         console.log(`┃ Local http://${serverHost}:${port}/${serverhash}`)

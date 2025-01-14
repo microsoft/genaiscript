@@ -1,6 +1,4 @@
-.markdown-body {
-    margin: 1em;
-}
-.markdown-body pre code {
-    text-wrap: auto;
+body {
+    margin: 0 !important;
+    padding: 0 !important;
 }
