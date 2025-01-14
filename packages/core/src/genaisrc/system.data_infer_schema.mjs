@@ -18,6 +18,9 @@ defTool(
     async (args) => {
         const { filename, data } = args
         const jsonData = await workspace.readData(filename)
+        if (jsonData === undefined)
+            return "Unabled to infer the schema from the data."
+
         const schema = await JSONSchema.infer(jsonData)
         return JSON.stringify(schema)
     }

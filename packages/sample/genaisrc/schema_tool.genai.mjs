@@ -1,7 +1,7 @@
 script({
-    tools: ["data_schema_infer"],
-    files: ["src/jsonconfig.json"],
+    tools: ["data_infer_schema"],
+    files: ["src/sample.json"],
 })
 
 const file = env.files[0]
-$`Describe the data in ${file.filename}`
+$`Describe the data structure of ${file.filename}`
