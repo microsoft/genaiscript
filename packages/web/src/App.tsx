@@ -62,8 +62,10 @@ import { VscodeMultiSelect as VscodeMultiSelectElement } from "@vscode-elements/
 import { cleanedClone } from "../../core/src/clone"
 import { WebSocketClient } from "../../core/src/server/wsclient"
 
-const urlParams = new URLSearchParams(window.location.hash)
-const apiKey = urlParams.get("api-key")
+const urlParams = new URLSearchParams(window.location.search)
+const viewMode = urlParams.get("view") as "results" | undefined
+const hashParams = new URLSearchParams(window.location.hash)
+const apiKey = hashParams.get("api-key")
 window.location.hash = ""
 
 const fetchScripts = async (): Promise<Project> => {
@@ -92,6 +94,11 @@ class RunClient extends WebSocketClient {
     static readonly PROGRESS_EVENT = "progress"
     static readonly SCRIPT_END_EVENT = "scriptEnd"
 
+    private _runId: string
+    trace: string = ""
+    output: string = ""
+    result: Partial<GenerationResult> = undefined
+
     constructor(url: string) {
         super(url)
         this.addEventListener(
@@ -102,6 +109,9 @@ class RunClient extends WebSocketClient {
                     | RequestMessages
                 switch (data.type) {
                     case "script.progress": {
+                        this.updateRunId(data)
+                        if (data.trace) this.trace += data.trace
+                        if (data.output) this.output += data.output
                         this.dispatchEvent(
                             new CustomEvent(RunClient.PROGRESS_EVENT, {
                                 detail: data,
@@ -111,16 +121,18 @@ class RunClient extends WebSocketClient {
                     }
                     case "script.end": {
                         console.log(`script: end`, data.result)
-                        const result = cleanedClone(data.result)
+                        this.updateRunId(data)
+                        this.result = cleanedClone(data.result)
                         this.dispatchEvent(
                             new CustomEvent(RunClient.SCRIPT_END_EVENT, {
-                                detail: result,
+                                detail: this.result,
                             })
                         )
                         break
                     }
                     case "script.start":
                         console.log(`script: started`, data)
+                        this.updateRunId(data)
                         this.dispatchEvent(
                             new CustomEvent(RunClient.SCRIPT_START_EVENT, {
                                 detail: data.response,
@@ -134,6 +146,18 @@ class RunClient extends WebSocketClient {
             },
             false
         )
+    }
+
+    private updateRunId(data: { runId: string }) {
+        const { runId } = data
+        if (runId !== this._runId) {
+            this._runId = runId
+            if (this._runId) {
+                this.trace = ""
+                this.output = ""
+                this.result = undefined
+            }
+        }
     }
 }
 
@@ -173,7 +197,7 @@ function useUrlSearchParams<T>(
         setState(newState)
     }, [])
     useEffect(() => {
-        const params = new URLSearchParams()
+        const params = new URLSearchParams(urlParams)
         for (const key in state) {
             const field = fields[key]
             if (!field) continue
@@ -181,8 +205,9 @@ function useUrlSearchParams<T>(
             const { type } = field
             const value = state[key]
             if (value === undefined || value === null) continue
-            if (type === "string") params.set(key, value as string)
-            else if (type === "boolean") {
+            if (type === "string") {
+                if (value !== "") params.set(key, value as string)
+            } else if (type === "boolean") {
                 if (!!value) params.set(key, "1")
             } else if (type === "integer" || type === "number") {
                 const v = value as number
@@ -192,7 +217,10 @@ function useUrlSearchParams<T>(
                 if (v.length) params.set(key, v.join(","))
             }
         }
-        window.history.pushState({}, "", `?${params.toString()}`)
+
+        let url = ""
+        if (params.toString()) url += `?${params.toString()}`
+        window.history.pushState({}, "", url)
     }, [state])
     return [state, setState] as const
 }
@@ -220,7 +248,7 @@ const ApiContext = createContext<{
 
 function ApiProvider({ children }: { children: React.ReactNode }) {
     const client = useMemo(() => {
-        const client = new RunClient("/?api-key=" + apiKey)
+        const client = new RunClient(`/${apiKey ? `?api-key=${apiKey}` : ""}`)
         client.addEventListener("error", (err) => console.error(err), false)
         return client
     }, [])
@@ -330,11 +358,23 @@ function RunnerProvider({ children }: { children: React.ReactNode }) {
 
     const start = useCallback((e: Event) => {
         const ev = e as CustomEvent
-        console.log(ev)
         setRunId(ev.detail.runId)
         setResult(undefined)
     }, [])
     useEventListener(client, RunClient.SCRIPT_START_EVENT, start, false)
+
+    const progress = useCallback(
+        (e: Event) => {
+            const { runId: rid } = (e as CustomEvent)
+                .detail as PromptScriptProgressResponseEvent
+            if (rid && runId !== rid) {
+                setRunId(rid)
+                setResult(undefined)
+            }
+        },
+        [runId]
+    )
+    useEventListener(client, RunClient.PROGRESS_EVENT, progress, false)
 
     const end = useCallback((e: Event) => {
         const ev = e as CustomEvent
@@ -346,7 +386,6 @@ function RunnerProvider({ children }: { children: React.ReactNode }) {
     const run = async () => {
         if (!scriptid) return
 
-        setRunId(undefined)
         const runId = ("" + Math.random()).slice(2)
         console.log(`script: start ${scriptid}`, {
             runId,
@@ -441,17 +480,11 @@ function useEventListener(
 
 function useTrace() {
     const { client } = useApi()
-    const { runId } = useRunner()
-    const [trace, setTrace] = useState<string>("")
-    useEffect(() => runId && setTrace(""), [runId])
+    const [trace, setTrace] = useState("")
     const appendTrace = useCallback(
-        (evt: Event) => {
-            const { runId: rid, trace } = (evt as CustomEvent)
-                .detail as PromptScriptProgressResponseEvent
-            if (rid === runId && trace)
-                startTransition(() => setTrace((previous) => previous + trace))
-        },
-        [runId]
+        (evt: Event) =>
+            startTransition(() => setTrace((previous) => client.trace)),
+        []
     )
     useEventListener(client, RunClient.PROGRESS_EVENT, appendTrace)
     return trace
@@ -461,17 +494,10 @@ function useOutput() {
     const { client } = useApi()
     const { runId } = useRunner()
     const [output, setOutput] = useState<string>("")
-    useEffect(() => runId && setOutput(""), [runId])
     const appendTrace = useCallback(
-        (evt: Event) => {
-            const { runId: rid, output } = (evt as CustomEvent)
-                .detail as PromptScriptProgressResponseEvent
-            if (rid === runId && output)
-                startTransition(() =>
-                    setOutput((previous) => previous + output)
-                )
-        },
-        [runId]
+        (evt: Event) =>
+            startTransition(() => setOutput((previous) => client.output)),
+        []
     )
     useEventListener(client, RunClient.PROGRESS_EVENT, appendTrace)
     return output
@@ -1224,26 +1250,37 @@ function RunForm() {
     )
 }
 
-function WebApp() {
+function ResultsTabs() {
     return (
-        <>
-            <RunForm />
-            <VscodeCollapsible open title="Results">
-                <VscodeTabs panel>
-                    <OutputTraceTabPanel />
-                    <MessagesTabPanel />
-                    <TraceTabPanel />
-                    <ProblemsTabPanel />
-                    <LogProbsTabPanel />
-                    <TopLogProbsTabPanel />
-                    <FilesTabPanel />
-                    <JSONTabPanel />
-                    <StatsTabPanel />
-                    <RawTabPanel />
-                </VscodeTabs>
-            </VscodeCollapsible>
-        </>
+        <VscodeTabs panel>
+            <OutputTraceTabPanel />
+            <MessagesTabPanel />
+            <TraceTabPanel />
+            <ProblemsTabPanel />
+            <LogProbsTabPanel />
+            <TopLogProbsTabPanel />
+            <FilesTabPanel />
+            <JSONTabPanel />
+            <StatsTabPanel />
+            <RawTabPanel />
+        </VscodeTabs>
     )
+}
+
+function WebApp() {
+    switch (viewMode) {
+        case "results":
+            return <ResultsTabs />
+        default:
+            return (
+                <>
+                    <RunForm />
+                    <VscodeCollapsible open title="Results">
+                        <ResultsTabs />
+                    </VscodeCollapsible>
+                </>
+            )
+    }
 }
 
 export default function App() {

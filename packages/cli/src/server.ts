@@ -281,6 +281,28 @@ export async function startServer(options: {
             } satisfies PromptScriptProgressResponseEvent)
         }
 
+        // send traces of in-flight runs
+        for (const [runId, run] of Object.entries(runs)) {
+            chunkString(run.outputTrace.content).forEach((c) =>
+                ws.send(
+                    JSON.stringify({
+                        type: "script.progress",
+                        runId,
+                        trace: c,
+                    } satisfies PromptScriptProgressResponseEvent)
+                )
+            )
+            chunkString(run.trace.content).forEach((c) =>
+                ws.send(
+                    JSON.stringify({
+                        type: "script.progress",
+                        runId,
+                        trace: c,
+                    } satisfies PromptScriptProgressResponseEvent)
+                )
+            )
+        }
+
         // Handle incoming messages based on their type.
         ws.on("message", async (msg) => {
             const data = JSON.parse(msg.toString()) as RequestMessages
@@ -343,26 +365,6 @@ export async function startServer(options: {
                             verbose: true,
                             promptfooVersion: PROMPTFOO_VERSION,
                         })
-                        break
-                    }
-                    case "script.traces": {
-                        const { runId } = data
-                        const run = runs[runId]
-                        if (run) {
-                            const trace = run.trace.content
-                            const output = run.outputTrace.content
-                            chunkString(trace).forEach((c) =>
-                                sendProgress(runId, { trace: c })
-                            )
-                            chunkString(output).forEach((c) =>
-                                sendProgress(runId, { output: c })
-                            )
-                            response = {
-                                ok: true,
-                            }
-                        } else {
-                            response = { ok: false }
-                        }
                         break
                     }
                     // Handle script start request
