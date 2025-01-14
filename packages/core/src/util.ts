@@ -4,7 +4,7 @@ import { LogLevel, host } from "./host"
 import { YAMLStringify } from "./yaml"
 
 // chunk string into chunks of size n
-export function chunkString(s: string, n: number) {
+export function chunkString(s: string, n: number = 2 << 14) {
     if (!s?.length) return []
     if (s.length < n) return [s]
 
