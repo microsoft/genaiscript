@@ -152,12 +152,30 @@ export type TranscribeFunction = (
     options: TraceOptions & CancellationOptions
 ) => Promise<TranscriptionResult>
 
+export type CreateSpeechRequest = {
+    input: string
+    model: string
+    voice?: string
+}
+
+export type CreateSpeechResult = {
+    audio: Uint8Array
+    error?: SerializedError
+}
+
+export type SpeechFunction = (
+    req: CreateSpeechRequest,
+    cfg: LanguageModelConfiguration,
+    options: TraceOptions & CancellationOptions
+) => Promise<CreateSpeechResult>
+
 export interface LanguageModel {
     id: string
     completer: ChatCompletionHandler
     listModels?: ListModelsFunction
     pullModel?: PullModelFunction
     transcriber?: TranscribeFunction
+    speaker?: SpeechFunction
 }
 
 async function runToolCalls(

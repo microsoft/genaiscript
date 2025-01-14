@@ -60,6 +60,10 @@
                         "type": "boolean",
                         "description": "Indicates if speech transcription is supported"
                     },
+                    "speech": {
+                        "type": "boolean",
+                        "description": "Indicates if speech synthesis is supported"
+                    },
                     "openaiCompatibility": {
                         "type": "string",
                         "description": "Uses OpenAI API compatibility layer documentation URL"

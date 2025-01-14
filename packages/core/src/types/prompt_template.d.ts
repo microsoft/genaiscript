@@ -2978,11 +2978,13 @@ type BufferLike =
     | ArrayBuffer
     | ReadableStream
 
+type TranscriptionModelType = OptionsOrString<"openai:whisper-1">
+
 interface TranscriptionOptions {
     /**
      * Model to use for transcription. By default uses the `transcribe` alias.
      */
-    model?: TranscribeModelType
+    model?: TranscriptionModelType
 
     /**
      * Translate to English.
@@ -3054,6 +3056,46 @@ interface TranscriptionResult {
     }[]
 }
 
+type SpeechModelType = OptionsOrString<"openai:tts-1-hd" | "openai:tts-1">
+
+type SpeechVoiceType = OptionsOrString<
+    "alloy",
+    "ash",
+    "coral",
+    "echo",
+    "fable",
+    "onyx",
+    "nova",
+    "sage",
+    "shimmer"
+>
+
+interface SpeechOptions {
+    /**
+     * Speech to text model
+     */
+    model?: SpeechModelType
+    /**
+     * Voice to use (model-specific)
+     */
+    voice?: SpeechVoiceType
+    /**
+     * If true, the transcription will be cached.
+     */
+    cache?: boolean | string
+}
+
+interface SpeechResult {
+    /**
+     * Generate audio-buffer file
+     */
+    filename?: string
+    /**
+     * Error if any
+     */
+    error?: SerializedError
+}
+
 interface ChatGenerationContext extends ChatTurnGenerationContext {
     defSchema(
         name: string,
@@ -3108,6 +3150,7 @@ interface ChatGenerationContext extends ChatTurnGenerationContext {
         audio: string | WorkspaceFile,
         options?: TranscriptionOptions
     ): Promise<TranscriptionResult>
+    speak(text: string, options?: SpeechOptions): Promise<SpeechResult>
 }
 
 interface GenerationOutput {

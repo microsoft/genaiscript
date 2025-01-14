@@ -1,4 +1,3 @@
-import { Transform } from "stream"
 import { AICIModel } from "./aici"
 import { AnthropicBedrockModel, AnthropicModel } from "./anthropic"
 import { LanguageModel } from "./chat"
@@ -39,5 +38,6 @@ export function resolveLanguageModel(provider: string): LanguageModel {
     return LocalOpenAICompatibleModel(provider, {
         listModels: features?.listModels !== false,
         transcribe: features?.transcribe,
+        speech: features?.speech,
     })
 }

@@ -30,7 +30,15 @@ import { GenerationOptions } from "./generation"
 import { promptParametersSchemaToJSONSchema } from "./parameters"
 import { consoleLogFormat, stdout } from "./logging"
 import { isGlobMatch } from "./glob"
-import { arrayify, assert, logError, logVerbose, logWarn } from "./util"
+import {
+    arrayify,
+    assert,
+    deleteUndefinedValues,
+    dotGenaiscriptPath,
+    logError,
+    logVerbose,
+    logWarn,
+} from "./util"
 import { renderShellOutput } from "./chatrender"
 import { jinjaRender } from "./jinja"
 import { mustacheRender } from "./mustache"
@@ -39,6 +47,7 @@ import { delay, uniq } from "es-toolkit"
 import {
     addToolDefinitionsMessage,
     appendSystemMessage,
+    CreateSpeechRequest,
     executeChatSession,
     mergeGenerationOptions,
     toChatCompletionUserMessage,
@@ -55,6 +64,7 @@ import {
     DOCS_DEF_FILES_IS_EMPTY_URL,
     TRANSCRIPTION_MEMORY_CACHE_NAME,
     TRANSCRIPTION_MODEL_ID,
+    SPEECH_MODEL_ID,
 } from "./constants"
 import { renderAICI } from "./aici"
 import { resolveSystems, resolveTools } from "./systems"
@@ -82,6 +92,9 @@ import { BufferToBlob } from "./bufferlike"
 import { host } from "./host"
 import { srtVttRender } from "./transcription"
 import { deleteEmptyValues } from "./clone"
+import { hash } from "./crypto"
+import { fileTypeFromBuffer } from "file-type"
+import { writeFile } from "fs"
 
 export function createChatTurnGenerationContext(
     options: GenerationOptions,
@@ -660,15 +673,18 @@ export function createChatGenerationContext(
                 configuration.provider
             )
             if (!transcriber)
-                throw new Error("model driver not found for " + info.model)
+                throw new Error("audio transcribe not found for " + info.model)
             const audioFile = await videoExtractAudio(audio, {
                 trace: transcriptionTrace,
             })
             const file = await BufferToBlob(await host.readFile(audioFile))
             const update: () => Promise<TranscriptionResult> = async () => {
-                trace.itemValue(`model`, configuration.model)
-                trace.itemValue(`file size`, prettyBytes(file.size))
-                trace.itemValue(`file type`, file.type)
+                transcriptionTrace.itemValue(`model`, configuration.model)
+                transcriptionTrace.itemValue(
+                    `file size`,
+                    prettyBytes(file.size)
+                )
+                transcriptionTrace.itemValue(`file type`, file.type)
                 const res = await transcriber(
                     {
                         file,
@@ -703,12 +719,15 @@ export function createChatGenerationContext(
                     update,
                     (res) => !res.error
                 )
-                trace.itemValue(`cache ${hit.cached ? "hit" : "miss"}`, hit.key)
+                transcriptionTrace.itemValue(
+                    `cache ${hit.cached ? "hit" : "miss"}`,
+                    hit.key
+                )
                 res = hit.value
             } else res = await update()
-            trace.fence(res.text, "markdown")
-            if (res.error) trace.error(errorMessage(res.error))
-            if (res.segments) trace.fence(res.segments, "yaml")
+            transcriptionTrace.fence(res.text, "markdown")
+            if (res.error) transcriptionTrace.error(errorMessage(res.error))
+            if (res.segments) transcriptionTrace.fence(res.segments, "yaml")
             return res
         } catch (e) {
             logError(e)
@@ -719,6 +738,71 @@ export function createChatGenerationContext(
             } satisfies TranscriptionResult
         } finally {
             transcriptionTrace.endDetails()
+        }
+    }
+
+    const speak = async (
+        input: string,
+        options?: SpeechOptions
+    ): Promise<SpeechResult> => {
+        const { cache, voice, ...rest } = options || {}
+        const speechTrace = trace.startTraceDetails("🦜 speak")
+        try {
+            const conn: ModelConnectionOptions = {
+                model: options?.model || SPEECH_MODEL_ID,
+            }
+            const { info, configuration } = await resolveModelConnectionInfo(
+                conn,
+                {
+                    trace: speechTrace,
+                    cancellationToken,
+                    token: true,
+                }
+            )
+            if (info.error) throw new Error(info.error)
+            if (!configuration) throw new Error("model configuration not found")
+            checkCancelled(cancellationToken)
+            const { ok } = await runtimeHost.pullModel(configuration, {
+                trace: speechTrace,
+                cancellationToken,
+            })
+            if (!ok) throw new Error(`failed to pull model ${conn}`)
+            checkCancelled(cancellationToken)
+            const { speaker } = await resolveLanguageModel(
+                configuration.provider
+            )
+            if (!speaker)
+                throw new Error("speech converter not found for " + info.model)
+            speechTrace.itemValue(`model`, configuration.model)
+            const req = deleteUndefinedValues({
+                input,
+                model: configuration.model,
+                voice,
+            }) satisfies CreateSpeechRequest
+            const res = await speaker(req, configuration, {
+                trace: speechTrace,
+                cancellationToken,
+            })
+            if (res.error) {
+                speechTrace.error(errorMessage(res.error))
+                return { error: res.error } satisfies SpeechResult
+            }
+            const h = await hash(res.audio, { length: 20 })
+            const { ext } = (await fileTypeFromBuffer(res.audio)) || {}
+            const filename = dotGenaiscriptPath("speech", h + "." + ext)
+            await host.writeFile(filename, res.audio)
+            return {
+                filename,
+            } satisfies SpeechResult
+        } catch (e) {
+            logError(e)
+            speechTrace.error(e)
+            return {
+                filename: undefined,
+                error: serializeError(e),
+            } satisfies SpeechResult
+        } finally {
+            speechTrace.endDetails()
         }
     }
 
@@ -968,6 +1052,7 @@ export function createChatGenerationContext(
         prompt,
         runPrompt,
         transcribe,
+        speak,
     })
 
     return ctx
