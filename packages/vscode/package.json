@@ -380,6 +380,11 @@
                 "category": "GenAIScript"
             },
             {
+                "command": "genaiscript.request.open.view",
+                "title": "View request",
+                "category": "GenAIScript"
+            },
+            {
                 "command": "genaiscript.request.open.trace",
                 "title": "Open Trace",
                 "category": "GenAIScript"

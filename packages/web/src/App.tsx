@@ -134,12 +134,14 @@ class RunClient extends WebSocketClient {
                         console.log(`script: end`, data.result)
                         this.updateRunId(data)
                         this.result = cleanedClone(data.result)
+                        this.output = data.result.text
                         this.dispatchEvent(
                             new CustomEvent(RunClient.SCRIPT_END_EVENT, {
                                 detail: this.result,
                             })
                         )
                         this.dispatchEvent(new Event(RunClient.RESULT_EVENT))
+                        this.dispatchEvent(new Event(RunClient.PROGRESS_EVENT))
                         break
                     }
                     case "script.start":
@@ -1281,8 +1283,8 @@ function ResultsTabs() {
             onVscTabsSelect={(e) => setSelected(e.detail.selectedIndex)}
             panel
         >
-            <OutputTraceTabPanel selected={selected === 0} />
-            <TraceTabPanel selected={selected === 1} />
+            <TraceTabPanel selected={selected === 0} />
+            <OutputTraceTabPanel selected={selected === 1} />
             <MessagesTabPanel />
             <ProblemsTabPanel />
             <LogProbsTabPanel />

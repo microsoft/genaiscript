@@ -23,6 +23,7 @@ import { activateConnectionInfoTree } from "./connectioninfotree"
 import { activeTaskProvider } from "./taskprovider"
 import { activateSamplesCommands } from "./samplescommands"
 import { activateChatParticipant } from "./chatparticipant"
+import { activeWebview } from "./webview"
 
 export async function activate(context: ExtensionContext) {
     const state = new ExtensionState(context)
@@ -39,6 +40,7 @@ export async function activate(context: ExtensionContext) {
     activateDocsNotebook(state)
     activeTaskProvider(state)
     activateChatParticipant(state)
+    activeWebview(state)
 
     context.subscriptions.push(
         registerCommand("genaiscript.request.abort", async () => {

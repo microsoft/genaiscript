@@ -1,3 +1,3 @@
 modelAliases:
-    large: google:gemini-exp-1206
-    vision: google:gemini-exp-1206
+    gemini: google:gemini-exp-1206
+    video: google:gemini-exp-1206

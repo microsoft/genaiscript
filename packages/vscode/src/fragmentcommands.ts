@@ -260,6 +260,8 @@ export function activateFragmentCommands(state: ExtensionState) {
         )
     }
 
+
+
     subscriptions.push(
         registerCommand("genaiscript.fragment.prompt", fragmentPrompt),
         registerCommand("genaiscript.fragment.debug", fragmentDebug)

@@ -94,6 +94,9 @@ export async function startServer(options: {
     const wss = new WebSocketServer({ noServer: true })
 
     // Stores active script runs with their cancellation controllers and traces.
+    let lastRunResult: PromptScriptEndResponseEvent & {
+        trace: string
+    } = undefined
     const runs: Record<
         string,
         {
@@ -284,25 +287,38 @@ export async function startServer(options: {
         }
 
         // send traces of in-flight runs
-        for (const [runId, run] of Object.entries(runs)) {
-            chunkString(run.outputTrace.content).forEach((c) =>
+        const activeRuns = Object.entries(runs)
+        if (activeRuns.length) {
+            for (const [runId, run] of activeRuns) {
                 ws.send(
                     JSON.stringify({
                         type: "script.progress",
                         runId,
-                        trace: c,
+                        output: run.outputTrace.content,
                     } satisfies PromptScriptProgressResponseEvent)
                 )
-            )
-            chunkString(run.trace.content).forEach((c) =>
+                chunkString(run.trace.content).forEach((c) =>
+                    ws.send(
+                        JSON.stringify({
+                            type: "script.progress",
+                            runId,
+                            trace: c,
+                        } satisfies PromptScriptProgressResponseEvent)
+                    )
+                )
+            }
+        } else if (lastRunResult) {
+            const { trace, ...restResult } = lastRunResult
+            chunkString(trace).forEach((c) =>
                 ws.send(
                     JSON.stringify({
                         type: "script.progress",
-                        runId,
+                        runId: lastRunResult.runId,
                         trace: c,
                     } satisfies PromptScriptProgressResponseEvent)
                 )
             )
+            ws.send(JSON.stringify(restResult))
         }
 
         // Handle incoming messages based on their type.
@@ -420,12 +436,15 @@ export async function startServer(options: {
                                 logVerbose(
                                     `\nrun ${runId}: completed with ${exitCode}`
                                 )
-                                send({
-                                    type: "script.end",
-                                    runId,
-                                    exitCode,
-                                    result,
-                                } satisfies PromptScriptEndResponseEvent)
+                                send(
+                                    (lastRunResult = {
+                                        type: "script.end",
+                                        runId,
+                                        exitCode,
+                                        result,
+                                        trace: trace.content,
+                                    })
+                                )
                             })
                             .catch((e) => {
                                 if (canceller.controller.signal.aborted) return
