@@ -40,6 +40,7 @@ import type {
     ServerEnvResponse,
     RequestMessages,
     PromptScriptProgressResponseEvent,
+    PromptScriptStartResponse,
 } from "../../core/src/server/messages"
 import { promptParametersSchemaToJSONSchema } from "../../core/src/parameters"
 import {
@@ -109,7 +110,6 @@ class RunClient extends WebSocketClient {
                     | RequestMessages
                 switch (data.type) {
                     case "script.progress": {
-                        this.updateRunId(data)
                         if (data.trace) this.trace += data.trace
                         if (data.output) this.output += data.output
                         this.dispatchEvent(
@@ -132,7 +132,9 @@ class RunClient extends WebSocketClient {
                     }
                     case "script.start":
                         console.log(`script: started`, data)
-                        this.updateRunId(data)
+                        this.updateRunId(
+                            data.response as PromptScriptStartResponse
+                        )
                         this.dispatchEvent(
                             new CustomEvent(RunClient.SCRIPT_START_EVENT, {
                                 detail: data.response,
@@ -480,7 +482,7 @@ function useEventListener(
 
 function useTrace() {
     const { client } = useApi()
-    const [trace, setTrace] = useState("")
+    const [trace, setTrace] = useState(client.trace)
     const appendTrace = useCallback(
         (evt: Event) =>
             startTransition(() => setTrace((previous) => client.trace)),
@@ -492,8 +494,7 @@ function useTrace() {
 
 function useOutput() {
     const { client } = useApi()
-    const { runId } = useRunner()
-    const [output, setOutput] = useState<string>("")
+    const [output, setOutput] = useState<string>(client.output)
     const appendTrace = useCallback(
         (evt: Event) =>
             startTransition(() => setOutput((previous) => client.output)),
@@ -689,25 +690,35 @@ function CounterBadge(props: { collection: any | undefined }) {
     )
 }
 
-function TraceTabPanel() {
+function TraceMarkdown() {
     const trace = useTrace()
+    return <Markdown>{trace}</Markdown>
+}
+
+function TraceTabPanel(props: { selected?: boolean }) {
+    const { selected } = props
     return (
         <>
             <VscodeTabHeader slot="header">Trace</VscodeTabHeader>
             <VscodeTabPanel>
-                <Markdown>{trace}</Markdown>
+                {selected ? <TraceMarkdown /> : null}
             </VscodeTabPanel>
         </>
     )
 }
 
-function OutputTraceTabPanel() {
+function OutputMarkdown() {
     const output = useOutput()
+    return <Markdown>{output}</Markdown>
+}
+
+function OutputTraceTabPanel(props: { selected?: boolean }) {
+    const { selected } = props
     return (
         <>
             <VscodeTabHeader slot="header">Output</VscodeTabHeader>
             <VscodeTabPanel>
-                <Markdown>{output}</Markdown>
+                {selected ? <OutputMarkdown /> : null}
             </VscodeTabPanel>
         </>
     )
@@ -1251,11 +1262,15 @@ function RunForm() {
 }
 
 function ResultsTabs() {
+    const [selected, setSelected] = useState(0)
     return (
-        <VscodeTabs panel>
-            <OutputTraceTabPanel />
+        <VscodeTabs
+            onVscTabsSelect={(e) => setSelected(e.detail.selectedIndex)}
+            panel
+        >
+            <OutputTraceTabPanel selected={selected === 0} />
+            <TraceTabPanel selected={selected === 1} />
             <MessagesTabPanel />
-            <TraceTabPanel />
             <ProblemsTabPanel />
             <LogProbsTabPanel />
             <TopLogProbsTabPanel />
