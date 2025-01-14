@@ -232,8 +232,8 @@ export function activateMarkdownTextDocumentContentProvider(
                 REQUEST_TRACE_FILENAME
             )
         ),
-        registerCommand("genaiscript.request.open.output", () => {
-            createWebview(state)
+        registerCommand("genaiscript.request.open.output", async () => {
+            //await createWebview(state)
             return vscode.commands.executeCommand(
                 "genaiscript.request.open",
                 REQUEST_OUTPUT_FILENAME

@@ -160,7 +160,7 @@
 	line-height: 1.357em;
 }
 
-.markdown-body .wordWrap pre {
+.markdown-body pre {
 	white-space: pre-wrap;
 }
 

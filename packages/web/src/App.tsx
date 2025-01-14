@@ -810,7 +810,7 @@ function StatsTabPanel() {
                 )}
             </VscodeTabHeader>
             <VscodeTabPanel>
-                <Markdown>{fenceMD(md, "yaml")}</Markdown>
+                {md ? <Markdown>{fenceMD(md, "yaml")}</Markdown> : null}
             </VscodeTabPanel>
         </>
     )
