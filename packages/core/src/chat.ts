@@ -152,12 +152,24 @@ export type TranscribeFunction = (
     options: TraceOptions & CancellationOptions
 ) => Promise<TranscriptionResult>
 
+export type CreateSpeakRequest = {
+    file: Blob
+    model: string
+}
+
+export type SpeakFunction = (
+    req: CreateSpeakRequest,
+    cfg: LanguageModelConfiguration,
+    options: TraceOptions & CancellationOptions
+) => Promise<Uint8Array>
+
 export interface LanguageModel {
     id: string
     completer: ChatCompletionHandler
     listModels?: ListModelsFunction
     pullModel?: PullModelFunction
     transcriber?: TranscribeFunction
+    speak?: SpeakFunction
 }
 
 async function runToolCalls(

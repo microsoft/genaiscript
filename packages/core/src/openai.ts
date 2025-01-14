@@ -20,6 +20,7 @@ import {
 import { estimateTokens } from "./tokens"
 import {
     ChatCompletionHandler,
+    CreateSpeakRequest,
     CreateTranscriptionRequest,
     LanguageModel,
     PullModelFunction,
@@ -470,9 +471,15 @@ export async function OpenAITranscribe(
     }
 }
 
+export async function OpenAISpeech(
+    req: CreateSpeakRequest,
+    cfg: LanguageModelConfiguration,
+    options: TraceOptions & CancellationOptions
+): Promise<Uint8Array> {}
+
 export function LocalOpenAICompatibleModel(
     providerId: string,
-    options: { listModels?: boolean; transcribe?: boolean }
+    options: { listModels?: boolean; transcribe?: boolean; speech?: boolean }
 ) {
     return Object.freeze<LanguageModel>(
         deleteUndefinedValues({
@@ -480,6 +487,7 @@ export function LocalOpenAICompatibleModel(
             id: providerId,
             listModels: options?.listModels ? OpenAIListModels : undefined,
             transcriber: options?.transcribe ? OpenAITranscribe : undefined,
+            speaker: options?.speech ? OpenAISpeech : undefined,
         })
     )
 }

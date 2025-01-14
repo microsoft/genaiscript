@@ -200,6 +200,7 @@ export const MODEL_PROVIDERS = Object.freeze<
         bearerToken?: boolean
         listModels?: boolean
         transcribe?: boolean
+        speech?: boolean
         aliases?: Record<string, string>
     }[]
 >(CONFIGURATION_DATA.providers)

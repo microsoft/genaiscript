@@ -3058,6 +3058,10 @@ interface TranscriptionResult {
 
 type SpeechModelType = OptionsOrString<"openai:tts-1-hd" | "openai:tts-1">
 
+interface SpeechOptions {
+    model?: SpeechModelType
+}
+
 interface ChatGenerationContext extends ChatTurnGenerationContext {
     defSchema(
         name: string,
@@ -3112,7 +3116,7 @@ interface ChatGenerationContext extends ChatTurnGenerationContext {
         audio: string | WorkspaceFile,
         options?: TranscriptionOptions
     ): Promise<TranscriptionResult>
-    speak(text: string, options?: SpeechModelType): Promise<Uint8Array>
+    speak(text: string, options?: SpeechOptions): Promise<string>
 }
 
 interface GenerationOutput {

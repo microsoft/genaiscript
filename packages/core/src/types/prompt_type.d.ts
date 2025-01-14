@@ -342,4 +342,4 @@ declare function transcribe(
  * @param text
  * @param options
  */
-declare function speak(text: string, options?: SpeakOptions): Promise<Buffer>
+declare function speak(text: string, options?: SpeechOptions): Promise<string>

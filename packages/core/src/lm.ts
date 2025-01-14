@@ -39,5 +39,6 @@ export function resolveLanguageModel(provider: string): LanguageModel {
     return LocalOpenAICompatibleModel(provider, {
         listModels: features?.listModels !== false,
         transcribe: features?.transcribe,
+        speech: features?.speech,
     })
 }
