@@ -20,7 +20,7 @@ const srows = CSV.parse(
     C|3`,
     { delimiter: "|", headers: ["name", "value"] }
 )
-console.log({ srows })
+env.output.table(srows)
 if (
     JSON.stringify(srows) ===
     JSON.stringify([

@@ -617,6 +617,12 @@ interface OutputTrace extends ToolCallTrace {
     image(url: string, caption?: string): void
 
     /**
+     * Logs a markdown table
+     * @param rows
+     */
+    table(rows: object[]): void
+
+    /**
      * Logs a result item with a boolean value and a message.
      * @param value - The boolean value of the result item.
      * @param message - The message for the result item.
@@ -662,6 +668,14 @@ interface OutputTrace extends ToolCallTrace {
      * @param alt - The optional alt text for the video.
      */
     video(name: string, filepath: string, alt?: string): void
+
+    /**
+     * Logs an audio file
+     * @param name
+     * @param filepath
+     * @param alt
+     */
+    audio(name: string, filepath: string, alt?: string): void
 
     /**
      * Logs a details section with a title and body.

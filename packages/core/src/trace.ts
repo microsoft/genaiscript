@@ -113,6 +113,19 @@ export class MarkdownTrace extends EventTarget implements OutputTrace {
         )
     }
 
+    /**
+     * Logs a markdown table
+     * @param rows
+     */
+    table(
+        rows: object[],
+        options?: { headers?: ElementOrArray<string> }
+    ): void {
+        if (!rows?.length) return
+        const md = CSVToMarkdown(rows, options)
+        this.appendContent(`\n\n${md}\n\n`)
+    }
+
     startDetails(
         title: string,
         options?: { success?: boolean; expanded?: boolean }
@@ -154,6 +167,18 @@ ${this.toResultIcon(success, "")}${title}
             -   ${name}
             
             <video src="${url.href}" title="${HTMLEscape(name)}" aria-label="${HTMLEscape(alt || name)}" controls="true"></video>
+            
+            `
+        )
+    }
+
+    audio(name: string, filepath: string, alt?: string) {
+        const url = pathToFileURL(resolve(filepath))
+        this.appendContent(
+            dedent`
+            -   ${name}
+            
+            <audio src="${url.href}" title="${HTMLEscape(name)}" aria-label="${HTMLEscape(alt || name)}" controls="true"></audio>
             
             `
         )
