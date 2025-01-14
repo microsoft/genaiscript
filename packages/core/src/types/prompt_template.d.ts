@@ -934,6 +934,16 @@ interface WorkspaceFileSystem {
     ): Promise<any>
 
     /**
+     * Reads the content of a file and attempts to parse it as data.
+     * @param path
+     * @param options
+     */
+    readData(
+        path: string | Awaitable<WorkspaceFile>,
+        options?: CSVParseOptions & INIParseOptions & XMLParseOptions
+    ): Promise<any>
+
+    /**
      * Writes a file as text to the file system
      * @param path
      * @param content

@@ -1,9 +1,10 @@
 import { JSONLineCache } from "./cache"
 import { DOT_ENV_REGEX } from "./constants"
 import { CSVParse, CSVTryParse } from "./csv"
+import { dataTryParse } from "./data"
 import { NotSupportedError, errorMessage } from "./error"
-import { resolveFileContent } from "./file"
-import { readText, writeText } from "./fs"
+import { resolveFileContent, toWorkspaceFile } from "./file"
+import { filePathOrUrlToWorkspaceFile, readText, writeText } from "./fs"
 import { host } from "./host"
 import { INITryParse } from "./ini"
 import { JSON5parse, JSON5TryParse } from "./json5"
@@ -12,7 +13,7 @@ import { XMLParse, XMLTryParse } from "./xml"
 import { YAMLParse, YAMLTryParse } from "./yaml"
 
 export function createFileSystem(): Omit<WorkspaceFileSystem, "grep"> {
-    const fs: Omit<WorkspaceFileSystem, "grep"> = {
+    const fs = {
         findFiles: async (glob, options) => {
             const { readText } = options || {}
             const names = (
@@ -61,12 +62,16 @@ export function createFileSystem(): Omit<WorkspaceFileSystem, "grep"> {
             }
             return file
         },
-        readJSON: async (f: string | Awaitable<WorkspaceFile>) => {
+        readJSON: async (
+            f: string | Awaitable<WorkspaceFile>
+        ): Promise<any> => {
             const file = await fs.readText(f)
             const res = JSON5TryParse(file.content, undefined)
             return res
         },
-        readYAML: async (f: string | Awaitable<WorkspaceFile>) => {
+        readYAML: async (
+            f: string | Awaitable<WorkspaceFile>
+        ): Promise<any> => {
             const file = await fs.readText(f)
             const res = YAMLTryParse(file.content)
             return res
@@ -95,12 +100,19 @@ export function createFileSystem(): Omit<WorkspaceFileSystem, "grep"> {
             const res = INITryParse(file.content, options?.defaultValue)
             return res
         },
+        readData: async (
+            f: string | Awaitable<WorkspaceFile>
+        ): Promise<any> => {
+            const file = await f
+            const data = await dataTryParse(toWorkspaceFile(file))
+            return data
+        },
         cache: async (name: string) => {
             if (!name) throw new NotSupportedError("missing cache name")
             const res = JSONLineCache.byName<any, any>(name)
             return res
         },
-    }
+    } satisfies Omit<WorkspaceFileSystem, "grep">
     ;(fs as any).readFile = readText
     return Object.freeze(fs)
 }
