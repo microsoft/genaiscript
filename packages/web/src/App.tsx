@@ -92,10 +92,12 @@ const fetchEnv = async (): Promise<ResolvedLanguageModelConfiguration[]> => {
 
 class RunClient extends WebSocketClient {
     static readonly SCRIPT_START_EVENT = "scriptStart"
-    static readonly PROGRESS_EVENT = "progress"
     static readonly SCRIPT_END_EVENT = "scriptEnd"
+    static readonly PROGRESS_EVENT = "progress"
+    static readonly RUN_EVENT = "run"
+    static readonly RESULT_EVENT = "result"
 
-    private _runId: string
+    runId: string
     trace: string = ""
     output: string = ""
     result: Partial<GenerationResult> = undefined
@@ -110,13 +112,10 @@ class RunClient extends WebSocketClient {
                     | RequestMessages
                 switch (data.type) {
                     case "script.progress": {
+                        this.updateRunId(data)
                         if (data.trace) this.trace += data.trace
                         if (data.output) this.output += data.output
-                        this.dispatchEvent(
-                            new CustomEvent(RunClient.PROGRESS_EVENT, {
-                                detail: data,
-                            })
-                        )
+                        this.dispatchEvent(new Event(RunClient.PROGRESS_EVENT))
                         break
                     }
                     case "script.end": {
@@ -128,6 +127,7 @@ class RunClient extends WebSocketClient {
                                 detail: this.result,
                             })
                         )
+                        this.dispatchEvent(new Event(RunClient.RESULT_EVENT))
                         break
                     }
                     case "script.start":
@@ -152,13 +152,16 @@ class RunClient extends WebSocketClient {
 
     private updateRunId(data: { runId: string }) {
         const { runId } = data
-        if (runId !== this._runId) {
-            this._runId = runId
-            if (this._runId) {
+        if (runId !== this.runId) {
+            console.log(`run updated`, { data })
+            this.runId = runId
+            if (this.runId) {
                 this.trace = ""
                 this.output = ""
                 this.result = undefined
+                this.dispatchEvent(new Event(RunClient.RESULT_EVENT))
             }
+            this.dispatchEvent(new Event(RunClient.RUN_EVENT))
         }
     }
 }
@@ -334,7 +337,6 @@ function useApi() {
 
 const RunnerContext = createContext<{
     runId: string | undefined
-    result: GenerationResult | undefined
     run: () => void
     cancel: () => void
     state: "running" | undefined
@@ -350,8 +352,7 @@ function RunnerProvider({ children }: { children: React.ReactNode }) {
         parameters,
     } = useApi()
 
-    const [runId, setRunId] = useState<string>(undefined)
-    const [result, setResult] = useState<GenerationResult>(undefined)
+    const [runId, setRunId] = useState<string>(client.runId)
 
     useEffect(() => {
         client.abortScript(runId)
@@ -361,27 +362,15 @@ function RunnerProvider({ children }: { children: React.ReactNode }) {
     const start = useCallback((e: Event) => {
         const ev = e as CustomEvent
         setRunId(ev.detail.runId)
-        setResult(undefined)
     }, [])
     useEventListener(client, RunClient.SCRIPT_START_EVENT, start, false)
 
-    const progress = useCallback(
-        (e: Event) => {
-            const { runId: rid } = (e as CustomEvent)
-                .detail as PromptScriptProgressResponseEvent
-            if (rid && runId !== rid) {
-                setRunId(rid)
-                setResult(undefined)
-            }
-        },
-        [runId]
-    )
-    useEventListener(client, RunClient.PROGRESS_EVENT, progress, false)
+    const runUpdate = useCallback((e: Event) => setRunId(client.runId), [runId])
+    useEventListener(client, RunClient.RUN_EVENT, runUpdate, false)
 
     const end = useCallback((e: Event) => {
         const ev = e as CustomEvent
         setRunId(undefined)
-        setResult(ev.detail)
     }, [])
     useEventListener(client, RunClient.SCRIPT_END_EVENT, end, false)
 
@@ -431,7 +420,6 @@ function RunnerProvider({ children }: { children: React.ReactNode }) {
         <RunnerContext.Provider
             value={{
                 runId,
-                result,
                 run,
                 cancel,
                 state,
@@ -448,8 +436,11 @@ function useRunner() {
     return runner
 }
 
-function useResult(): GenerationResult | undefined {
-    const { result } = useRunner()
+function useResult(): Partial<GenerationResult> | undefined {
+    const { client } = useApi()
+    const [result, setResult] = useState(client.result)
+    const update = useCallback(() => setResult(client.result), [client])
+    useEventListener(client, RunClient.RESULT_EVENT, update)
     return result
 }
 
@@ -841,7 +832,7 @@ function TopLogProbsTabPanel() {
     )
 }
 
-function FilesTabPanel() {
+function FileEditsTabPanel() {
     const result = useResult()
     const { fileEdits = {} } = result || {}
     const files = Object.entries(fileEdits)
@@ -849,7 +840,7 @@ function FilesTabPanel() {
     return (
         <>
             <VscodeTabHeader slot="header">
-                Files
+                Edits
                 <CounterBadge collection={files} />
             </VscodeTabHeader>
             <VscodeTabPanel>
@@ -1274,7 +1265,7 @@ function ResultsTabs() {
             <ProblemsTabPanel />
             <LogProbsTabPanel />
             <TopLogProbsTabPanel />
-            <FilesTabPanel />
+            <FileEditsTabPanel />
             <JSONTabPanel />
             <StatsTabPanel />
             <RawTabPanel />
