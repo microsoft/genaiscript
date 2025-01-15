@@ -9,6 +9,12 @@ async function createWebview(state: ExtensionState): Promise<vscode.Webview> {
 
     const { authority } = host.server
 
+    const serverUri = await vscode.env.asExternalUri(
+        vscode.Uri.parse(`${authority}/`)
+    )
+    const faviconUri = await vscode.env.asExternalUri(
+        vscode.Uri.parse(`${authority}/favicon.svg`)
+    )
     const stylesheetUri = await vscode.env.asExternalUri(
         vscode.Uri.parse(`${authority}/built/markdown.css`)
     )
@@ -16,7 +22,7 @@ async function createWebview(state: ExtensionState): Promise<vscode.Webview> {
         vscode.Uri.parse(`${authority}/built/web.mjs`)
     )
 
-    const webview = vscode.window.createWebviewPanel(
+    const panel = vscode.window.createWebviewPanel(
         TOOL_ID,
         TOOL_NAME,
         vscode.ViewColumn.One,
@@ -26,14 +32,14 @@ async function createWebview(state: ExtensionState): Promise<vscode.Webview> {
             retainContextWhenHidden: true,
         }
     )
-    context.subscriptions.push(webview)
-    webview.webview.html = `<!doctype html>
+    context.subscriptions.push(panel)
+    panel.webview.html = `<!doctype html>
 <html lang="en">
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>GenAIScript Script Runner</title>
-        <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+        <link rel="icon" href="${faviconUri}" type="image/svg+xml" />
         <link href="${stylesheetUri}" rel="stylesheet">
         <script type="module">
             self.genaiscript = ${JSON.stringify({ apiKey: sessionApiKey, base: authority })};
@@ -45,7 +51,7 @@ async function createWebview(state: ExtensionState): Promise<vscode.Webview> {
     </body>
 </html>
 `
-    return webview.webview
+    return panel.webview
 }
 
 export function activeWebview(state: ExtensionState) {
