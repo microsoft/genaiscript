@@ -58,8 +58,8 @@ export class FFmepgClient implements Ffmpeg {
         input: string | WorkspaceFile,
         builder: (
             cmd: FfmpegCommandBuilder,
-            options?: { input: string; dir: string } & FFmpegCommandOptions
-        ) => Promise<{ output?: string }>,
+            options?: { input: string; dir: string }
+        ) => Awaitable<string>,
         options?: FFmpegCommandOptions
     ): Promise<string[]> {
         const res = await runFfmpeg(input, builder, options || {})
@@ -109,9 +109,9 @@ export class FFmepgClient implements Ffmpeg {
         const res = await this.run(
             filename,
             async (cmd, fopts) => {
-                const { input, dir } = fopts
+                const { input } = fopts
                 cmd.noVideo().toFormat("wav")
-                return { output: join(dir, basename(input) + ".wav") }
+                return basename(input) + ".wav"
             },
             { ...foptions, cache: "audio" }
         )
@@ -123,17 +123,12 @@ export class FFmepgClient implements Ffmpeg {
         const res = await runFfmpeg(
             filename,
             async (cmd) => {
-                const res = new Promise<{ data?: VideoProbeResult }>(
-                    (resolve, reject) => {
-                        cmd.ffprobe((err, data) => {
-                            if (err) reject(err)
-                            else
-                                resolve({
-                                    data: data as any as VideoProbeResult,
-                                })
-                        })
-                    }
-                )
+                const res = new Promise<VideoProbeResult>((resolve, reject) => {
+                    cmd.ffprobe((err, data) => {
+                        if (err) reject(err)
+                        else resolve(data as any as VideoProbeResult)
+                    })
+                })
                 const meta = await res
                 return meta
             },
@@ -148,15 +143,15 @@ async function runFfmpeg(
     renderer: (
         cmd: FfmpegCommand,
         options: { input: string; dir: string }
-    ) => Awaitable<{ output?: string; data?: any }>,
-    options: FFmpegCommandOptions
+    ) => Awaitable<string | object>,
+    options?: FFmpegCommandOptions
 ): Promise<{ filenames: string[]; data?: any }> {
     if (!filename) throw new Error("filename is required")
-    return ffmpegLimit(async () => {
-        // try cache hit
-        const folder = await computeHashFolder(filename, options)
-        const input = await resolveInput(filename, folder)
-        const resFilename = join(folder, "res.json")
+    const { cache } = options || {}
+    const folder = await computeHashFolder(filename, options)
+    const resFilename = join(folder, "res.json")
+    const readCache = async () => {
+        if (cache === false) return undefined
         try {
             const res = JSON.parse(
                 await readFile(resFilename, {
@@ -165,8 +160,25 @@ async function runFfmpeg(
             )
             logVerbose(`ffmpeg: cache hit at ${folder}`)
             return res
-        } catch {}
+        } catch {
+            return undefined
+        }
+    }
 
+    // try to hit cache before limit on ffmpeg
+    {
+        const cached = await readCache()
+        if (cached) return cached
+    }
+
+    return ffmpegLimit(async () => {
+        // try cache hit again
+        {
+            const cached = await readCache()
+            if (cached) return cached
+        }
+
+        const input = await resolveInput(filename, folder)
         await ensureDir(folder)
         const cmd = await ffmpegCommand({})
         // console logging
@@ -208,13 +220,17 @@ async function runFfmpeg(
             cmd.addListener("end", end)
             cmd.addListener("error", (err) => reject(err))
             try {
-                const rendered = await renderer(cmd, { input, dir: folder })
-                if (rendered?.output) {
-                    r.filenames.push(rendered?.output)
-                    cmd.output(rendered?.output)
+                let rendering = await renderer(cmd, {
+                    input,
+                    dir: folder,
+                })
+                if (typeof rendering === "string") {
+                    let output: string = join(folder, basename(rendering))
+                    r.filenames.push(output)
+                    cmd.output(output)
                     cmd.run()
-                } else if (rendered?.data) {
-                    r.data = rendered?.data
+                } else if (typeof rendering === "object") {
+                    r.data = rendering
                     cmd.removeListener("end", end)
                     resolve(r)
                 }
@@ -223,7 +239,7 @@ async function runFfmpeg(
             }
         })
 
-        logVerbose(`ffmpeg: cache result at ${resFilename}`)
+        logVerbose(`ffmpeg: result at ${resFilename}`)
         await writeFile(resFilename, JSON.stringify(res, null, 2))
         return res
     })

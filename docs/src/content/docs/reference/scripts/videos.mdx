@@ -78,12 +78,31 @@ const { duration } = info.streams[0]
 console.log(`video duration: ${duration} seconds`)
 ```
 
-## Extract ffmpeg options
+## Custom ffmpeg options
 
-You can further customize the `ffmpeg` configuration by passing a `builder` function that manipulates the `ffmpeg` command object.
+You can further customize the `ffmpeg` configuration
+by passing `outputOptions`.
 
-```js
+```js 'outputOptions: "-b:a 16k",'
 const audio = await ffmpeg.extractAudio("path_url_to_video", {
-    builder: (cmd) => cmd.audioBitrate("16k"),
+    outputOptions: "-b:a 16k",
 })
+```
+
+Or interact directly with the `ffmpeg` command builder
+(which is the native [fluent-ffmpeg](https://www.npmjs.com/package/fluent-ffmpeg) command builder).
+Note that in this case, you should also provide a cache "hash" to avoid re-rendering.
+
+```js wrap
+const custom = await ffmpeg.run(
+    "src/audio/helloworld.mp4",
+    (cmd) => {
+        cmd.noAudio()
+        cmd.keepDisplayAspectRatio()
+        cmd.autopad()
+        cmd.size(`200x200`)
+        return "out.mp4"
+    },
+    { cache: "kar-200x200" }
+)
 ```

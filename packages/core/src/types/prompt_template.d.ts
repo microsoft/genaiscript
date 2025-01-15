@@ -2172,6 +2172,9 @@ interface Git {
     client(cwd: string): Git
 }
 
+/**
+ * A ffmpeg command builder. This instance is the 'native' fluent-ffmpeg command builder.
+ */
 interface FfmpegCommandBuilder {
     setStartTime(startTime: number | string): FfmpegCommandBuilder
     setDuration(duration: number | string): FfmpegCommandBuilder
@@ -2185,8 +2188,21 @@ interface FfmpegCommandBuilder {
     audioFilters(
         filters: string | string[] | AudioVideoFilter[]
     ): FfmpegCommandBuilder
-    videoCodec(codec: string): FfmpegCommandBuilder
     toFormat(format: string): FfmpegCommandBuilder
+
+    videoCodec(codec: string): FfmpegCommandBuilder
+    videoBitrate(
+        bitrate: string | number,
+        constant?: boolean
+    ): FfmpegCommandBuilder
+    videoFilters(filters: string | string[]): FfmpegCommandBuilder
+    outputFps(fps: number): FfmpegCommandBuilder
+    frames(frames: number): FfmpegCommandBuilder
+    keepDisplayAspectRatio(): FfmpegCommandBuilder
+    size(size: string): FfmpegCommandBuilder
+    aspectRatio(aspect: string | number): FfmpegCommandBuilder
+    autopad(pad?: boolean, color?: string): FfmpegCommandBuilder
+
     inputOptions(...options: string[]): FfmpegCommandBuilder
     outputOptions(...options: string[]): FfmpegCommandBuilder
 }
@@ -2194,7 +2210,7 @@ interface FfmpegCommandBuilder {
 interface FFmpegCommandOptions {
     inputOptions?: ElementOrArray<string>
     outputOptions?: ElementOrArray<string>
-    cache?: string
+    cache?: false | string
 }
 
 interface VideoExtractAudioOptions extends FFmpegCommandOptions {
@@ -2232,14 +2248,14 @@ interface Ffmpeg {
     /**
      * Runs a ffmpeg command and returns the list of generated file names
      * @param input
-     * @param builder
+     * @param builder manipulates the ffmpeg command and returns the output name
      */
     run(
         input: string | WorkspaceFile,
         builder: (
             cmd: FfmpegCommandBuilder,
             options?: { input: string; dir: string }
-        ) => Promise<{ output?: string }>,
+        ) => Awaitable<string>,
         options?: FFmpegCommandOptions
     ): Promise<string[]>
 }

@@ -1,3 +1,6 @@
+script({
+    tools: "video_extract_frames",
+})
 const info = await ffmpeg.probe("src/audio/helloworld.mp4")
 console.log(JSON.stringify(info, null, 2))
 const { duration, width, height } = info.streams[0]
@@ -10,9 +13,22 @@ const more = await ffmpeg.extractFrames(
 )
 
 const audio = await ffmpeg.extractAudio("src/audio/helloworld.mp4", {
-    outputOptions: "-ar 16000",
+    outputOptions: "-b:a 16k",
 })
 console.log({ audio })
+
+const custom = await ffmpeg.run(
+    "src/audio/helloworld.mp4",
+    (cmd) => {
+        cmd.noAudio()
+        cmd.keepDisplayAspectRatio()
+        cmd.autopad()
+        cmd.size(`200x200`)
+        return "out.mp4"
+    },
+    { cache: false, outputOptions: ["-vf", "hue=s=0", "-vf", "format=gray"] }
+)
+console.log({ custom })
 
 defImages(frames)
 defImages(more)
