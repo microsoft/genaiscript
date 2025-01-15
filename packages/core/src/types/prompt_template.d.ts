@@ -2201,6 +2201,64 @@ interface Git {
     client(cwd: string): Git
 }
 
+interface FfmpegCommandBuilder {
+    setStartTime(startTime: number | string): FfmpegCommandBuilder
+    setDuration(duration: number | string): FfmpegCommandBuilder
+    noVideo(): FfmpegCommandBuilder
+    noAudio(): FfmpegCommandBuilder
+    toFormat(format: string): FfmpegCommandBuilder
+    inputOptions(...options: string[]): FfmpegCommandBuilder
+    outputOptions(...options: string[]): FfmpegCommandBuilder
+}
+
+interface Ffmpeg {
+    /**
+     * Extracts metadata information from a video file using ffprobe
+     * @param filename
+     */
+    probe(filename: string | WorkspaceFile): Promise<VideoProbeResult>
+
+    /**
+     * Extracts frames from a video file
+     * @param videoPath
+     * @param options
+     */
+    extractFrames(
+        videoPath: string | WorkspaceFile,
+        options?: VideoExtractFramesOptions
+    ): Promise<string[]>
+
+    /**
+     * Extract the audio track from a video
+     * @param videoPath
+     */
+    extractAudio(videoPath: string | WorkspaceFile): Promise<string>
+
+    /**
+     * Clips a segment of a video. Returns the clip file location
+     * @param videoPath
+     * @param start
+     * @param duration
+     */
+    clip(
+        videoPath: string | WorkspaceFile,
+        options: { start?: number | string; duration?: number | string }
+    ): Promise<string>
+
+    /**
+     * Runs a ffmpeg command and returns the list of generated file names
+     * @param input
+     * @param builder
+     */
+    run(
+        input: string,
+        builder: (
+            cmd: FfmpegCommandBuilder,
+            options?: { input: string }
+        ) => Promise<void>
+    ): Promise<string[]>
+}
+
 interface GitHubOptions {
     owner: string
     repo: string

@@ -20,7 +20,7 @@ import { fileTypeFromBuffer } from "file-type"
 
 const ffmpegLimit = pLimit(1)
 
-async function ffmpeg(options?: TraceOptions) {
+async function ffmpegCommand(options?: TraceOptions) {
     const m = await import("fluent-ffmpeg")
     const cmd = m.default
     return cmd({ logger: console, timeout: 1000000 })
@@ -29,9 +29,9 @@ async function ffmpeg(options?: TraceOptions) {
 async function computeHashFolder(
     filename: string | WorkspaceFile,
     folderid: string,
-    options: { folder?: string } & TraceOptions
+    options: TraceOptions & { cache?: string }
 ) {
-    const { trace, ...rest } = options
+    const { trace, cache, ...rest } = options
     const h = await hash(
         [typeof filename === "string" ? { filename } : filename, rest],
         {
@@ -40,7 +40,7 @@ async function computeHashFolder(
             length: VIDEO_HASH_LENGTH,
         }
     )
-    options.folder = dotGenaiscriptPath("video", folderid, h)
+    return dotGenaiscriptPath(cache || "ffmpeg", folderid, h)
 }
 
 async function resolveInput(
@@ -58,37 +58,45 @@ async function resolveInput(
     return filename
 }
 
-export async function runFfmpeg<T>(
-    renderer: (cmd: FfmpegCommand) => Awaitable<T>,
-    options: TraceOptions & { folder?: string }
-): Promise<T> {
-    const { trace, folder } = options
-
+export async function runFfmpeg(
+    filename: string | WorkspaceFile,
+    renderer: (
+        cmd: FfmpegCommand,
+        options: { input: string; folder: string; cache?: string }
+    ) => Awaitable<{ output?: string; data?: any }>,
+    options: TraceOptions & { cache?: string }
+): Promise<{ filenames: string[]; data?: any }> {
+    const { trace, cache } = options
+    if (!filename) throw new Error("filename is required")
     return ffmpegLimit(async () => {
-        const cmd = await ffmpeg({ trace })
-        cmd.on("start", (commandLine) => {
-            logVerbose(commandLine)
-        })
-        if (process.env.FFMPEG_DEBUG) cmd.on("stderr", (s) => logVerbose(s))
-
-        const resFilename = options.folder
-            ? join(options.folder, "res.json")
-            : undefined
         // try cache hit
-        if (resFilename) {
-            try {
-                const res = JSON.parse(
-                    await readFile(resFilename, {
-                        encoding: "utf-8",
-                    })
-                )
-                logVerbose(`video: cache hit at ${options.folder}`)
-                return res as T
-            } catch {}
+        const folder = await computeHashFolder(
+            filename,
+            cache || VIDEO_CLIPS_DIR_NAME,
+            options
+        )
+        const input = await resolveInput(filename, folder)
+        const resFilename = join(folder, "res.json")
+        try {
+            const res = JSON.parse(
+                await readFile(resFilename, {
+                    encoding: "utf-8",
+                })
+            )
+            logVerbose(`video: cache hit at ${folder}`)
+            return res
+        } catch {}
+
+        await ensureDir(folder)
+        const cmd = await ffmpegCommand({ trace })
+        // console logging
+        {
+            cmd.on("start", (commandLine) => logVerbose(commandLine))
+            if (process.env.FFMPEG_DEBUG) cmd.on("stderr", (s) => logVerbose(s))
         }
 
-        if (folder) {
-            await ensureDir(folder)
+        // setup logging
+        {
             let log: string[] = []
             const writeLog = async () => {
                 const logFilename = join(folder, "log.txt")
@@ -105,11 +113,28 @@ export async function runFfmpeg<T>(
             })
         }
 
-        const res = await renderer(cmd)
-        if (resFilename) {
-            logVerbose(`ffmpeg: cache result at ${resFilename}`)
-            await writeFile(resFilename, JSON.stringify(res, null, 2))
-        }
+        const res = await new Promise(async (resolve, reject) => {
+            const r: { filenames: string[]; data?: any } = { filenames: [] }
+            cmd.input(input)
+            cmd.on("filenames", (fns: string[]) => {
+                r.filenames.push(...fns.map((f) => join(folder, f)))
+            })
+            cmd.on("end", () => resolve(r))
+            cmd.on("error", (err) => reject(err))
+            try {
+                const rendered = await renderer(cmd, { input, folder })
+                if (rendered?.output) {
+                    r.filenames.push(rendered?.output)
+                    cmd.output(rendered?.output)
+                    cmd.run()
+                } else if (rendered?.data) r.data = rendered?.data
+            } catch (err) {
+                reject(err)
+            }
+        })
+
+        logVerbose(`ffmpeg: cache result at ${resFilename}`)
+        await writeFile(resFilename, JSON.stringify(res, null, 2))
         return res
     })
 }
@@ -119,31 +144,21 @@ export async function videoClip(
     options: {
         start?: number | number
         duration?: number | number
-        folder?: string
     } & TraceOptions
 ): Promise<string> {
-    if (!filename) throw new Error("filename is required")
-
-    const { start, duration } = options
-    if (!options.folder)
-        await computeHashFolder(filename, VIDEO_CLIPS_DIR_NAME, options)
-    await ensureDir(options.folder)
-    const input = await resolveInput(filename, options.folder)
-    const output = join(options.folder, basename(input))
-    return await runFfmpeg(
-        async (cmd) =>
-            new Promise<string>((resolve, reject) => {
-                cmd.input(input)
-                if (start) cmd.setStartTime(start)
-                if (duration) cmd.setDuration(duration)
-                cmd.output(output)
-                cmd.on("end", () => resolve(output)).on("error", (err) =>
-                    reject(err)
-                )
-                cmd.run()
-            }),
+    const res = await runFfmpeg(
+        filename,
+        async (cmd, fopts) => {
+            const { start, duration } = options
+            const { folder, input } = fopts
+            const output = join(folder, basename(input))
+            if (start) cmd.setStartTime(start)
+            if (duration) cmd.setDuration(duration)
+            return { output }
+        },
         options
     )
+    return res.filenames[0]
 }
 
 export async function videoExtractAudio(
@@ -152,44 +167,21 @@ export async function videoExtractAudio(
 ): Promise<string> {
     if (!filename) throw new Error("filename is required")
 
-    const { trace, forceConversion } = options
+    const { forceConversion } = options
     if (!forceConversion && typeof filename === "string") {
         const mime = lookupMime(filename)
         if (/^audio/.test(mime)) return filename
     }
-    if (!options.folder)
-        await computeHashFolder(filename, VIDEO_AUDIO_DIR_NAME, options)
-    await ensureDir(options.folder)
-    const input = await resolveInput(filename, options.folder)
-    const output = join(options.folder, basename(input) + ".wav")
-    return await runFfmpeg(
-        async (cmd) =>
-            new Promise<string>(async (resolve, reject) => {
-                /*
-                const outputStream = new PassThrough()
-                const chunks: Buffer[] = []
-                outputStream.on("data", (chunk) => chunks.push(chunk))
-                outputStream.on("end", async () => {
-                    await ffmpeg(options) // keep this; it "unplugs" the output stream so that the error is not raised.
-                    const buffer = Buffer.concat(chunks)
-                    if (!buffer.length) reject(new Error("conversion failed"))
-                    resolve(buffer)
-                })
-                outputStream.on("error", (e) => {
-                    logError(e)
-                    reject(e)
-                })
-                */
-
-                cmd.input(input)
-                    .noVideo()
-                    .toFormat("wav")
-                    .save(output)
-                    .on("end", () => resolve(output))
-                    .on("error", (err) => reject(err))
-            }),
-        options
+    const res = await runFfmpeg(
+        filename,
+        async (cmd, fopts) => {
+            const { input, folder } = fopts
+            cmd.noVideo().toFormat("wav")
+            return { output: join(folder, basename(input) + ".wav") }
+        },
+        { ...(options || {}), cache: VIDEO_AUDIO_DIR_NAME }
     )
+    return res.filenames[0]
 }
 
 export async function videoExtractFrames(
@@ -205,42 +197,20 @@ export async function videoExtractFrames(
 ): Promise<string[]> {
     if (!filename) throw new Error("filename is required")
 
-    const { trace, transcript, ...screenshotsOptions } = options
-    if (!screenshotsOptions.filename) screenshotsOptions.filename = "%b_%i.png"
-    if (transcript?.segments?.length) {
-        screenshotsOptions.timestamps = transcript.segments.map((s) => s.start)
-    }
-    if (!screenshotsOptions.count && !screenshotsOptions.timestamps)
-        screenshotsOptions.count = 5
-    if (!screenshotsOptions.folder)
-        await computeHashFolder(
-            filename,
-            VIDEO_FRAMES_DIR_NAME,
-            screenshotsOptions
-        )
-    await ensureDir(screenshotsOptions.folder)
-    const input = await resolveInput(filename, screenshotsOptions.folder)
-    return await runFfmpeg(
-        async (cmd) =>
-            new Promise(async (resolve, reject) => {
-                let filenames: string[]
-                cmd.input(input)
-                    .screenshots(screenshotsOptions)
-                    .on("error", (err: Error) => {
-                        logError(err)
-                        reject(err)
-                    })
-                    .on(
-                        "filenames",
-                        (fns: string[]) =>
-                            (filenames = fns.map((fn) =>
-                                join(screenshotsOptions.folder, fn)
-                            ))
-                    )
-                    .on("end", async () => resolve(filenames))
-            }),
+    const { trace, transcript, ...soptions } = options
+    if (!soptions.filename) soptions.filename = "%b_%i.png"
+    if (transcript?.segments?.length)
+        soptions.timestamps = transcript.segments.map((s) => s.start)
+    if (!soptions.count && !soptions.timestamps) soptions.count = 5
+    const res = await runFfmpeg(
+        filename,
+        async (cmd) => {
+            cmd.screenshots(soptions)
+            return undefined
+        },
         options
     )
+    return res.filenames
 }
 
 export async function videoProbe(
@@ -248,20 +218,17 @@ export async function videoProbe(
     options?: { folder?: string } & TraceOptions
 ): Promise<VideoProbeResult> {
     if (!filename) throw new Error("filename is required")
-
     const { trace } = options
-    if (!options.folder)
-        await computeHashFolder(filename, VIDEO_PROBE_DIR_NAME, options)
-    await ensureDir(options.folder)
-    const input = await resolveInput(filename, options.folder)
-    return await runFfmpeg(
-        async (cmd) =>
-            new Promise<VideoProbeResult>((resolve, reject) => {
-                cmd.input(input).ffprobe((err, data) => {
+    const res = await runFfmpeg(
+        filename,
+        (cmd, fopts) =>
+            new Promise<{ data?: VideoProbeResult }>((resolve, reject) => {
+                cmd.ffprobe((err, data) => {
                     if (err) reject(err)
-                    else resolve(data as any)
+                    resolve({ data: data as any as VideoProbeResult })
                 })
             }),
         options
     )
+    return res.data as VideoProbeResult
 }
