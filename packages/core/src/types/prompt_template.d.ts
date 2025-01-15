@@ -2210,7 +2210,7 @@ interface FfmpegCommandBuilder {
 interface FFmpegCommandOptions {
     inputOptions?: ElementOrArray<string>
     outputOptions?: ElementOrArray<string>
-    cache?: false | string
+    cache?: boolean | string
 }
 
 interface VideoExtractAudioOptions extends FFmpegCommandOptions {

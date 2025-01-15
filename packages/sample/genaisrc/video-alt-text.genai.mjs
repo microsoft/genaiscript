@@ -7,10 +7,11 @@ script({
         "system.safety_harmful_content",
         "system.safety_validate_harmful_content",
     ],
+    files: "src/audio/helloworld.mp4",
 })
 
 const file = env.files[0]
-const transcript = await transcribe(file) // OpenAI whisper
+const transcript = await transcribe(file, { cache: "alt-text" }) // OpenAI whisper
 const frames = await ffmpeg.extractFrames(file, {
     transcript,
 }) // ffmpeg to extract frames
