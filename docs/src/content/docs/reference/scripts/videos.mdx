@@ -9,7 +9,7 @@ While most LLMs do not support videos natively, they can be integrated in script
 and adding them as images to the prompt. This can be tedious and GenAIScript provides efficient helpers
 to streamline this process.
 
-## Configuration
+## ffmpeg configuration
 
 The functionalities to render and analyze videos rely on [ffmpeg](https://ffmpeg.org/)
 and [ffprobe](https://ffmpeg.org/ffprobe.html).
@@ -22,14 +22,6 @@ sudo apt-get update && sudo apt-get install ffmpeg
 
 Make sure these tools are installed locally and available in your PATH,
 or configure the `FFMPEG_PATH` / `FFPROBE_PATH` environment variables to point to the `ffmpeg`/`ffprobe` executable.
-
-### ffmpeg output caching
-
-Since video processing can be slow, GenAIScript caches the results in subfolders under `.genaiscript/videos/...`
-where the subfolder name is a hash from the video file content and the options used to render the video.
-This way, you can re-run the script without having to re-render the video.
-
-You can review the `ffmpeg` console log in the `log.txt` file in the cache folder.
 
 ## Extracting frames
 
@@ -84,4 +76,14 @@ You can extract metadata from a video file or url using `ffmpeg.probe`.
 const info = await ffmpeg.probe("path_url_to_video")
 const { duration } = info.streams[0]
 console.log(`video duration: ${duration} seconds`)
+```
+
+## Extract ffmpeg options
+
+You can further customize the `ffmpeg` configuration by passing a `builder` function that manipulates the `ffmpeg` command object.
+
+```js
+const audio = await ffmpeg.extractAudio("path_url_to_video", {
+    builder: (cmd) => cmd.audioBitrate("16k"),
+})
 ```

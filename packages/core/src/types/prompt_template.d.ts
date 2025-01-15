@@ -2174,6 +2174,13 @@ interface FfmpegCommandBuilder {
     noVideo(): FfmpegCommandBuilder
     noAudio(): FfmpegCommandBuilder
     audioCodec(codec: string): FfmpegCommandBuilder
+    audioBitrate(bitrate: string | number): FfmpegCommandBuilder
+    audioChannels(channels: number): FfmpegCommandBuilder
+    audioFrequency(freq: number): FfmpegCommandBuilder
+    audioQuality(quality: number): FfmpegCommandBuilder
+    audioFilters(
+        filters: string | string[] | AudioVideoFilter[]
+    ): FfmpegCommandBuilder
     videoCodec(codec: string): FfmpegCommandBuilder
     toFormat(format: string): FfmpegCommandBuilder
     inputOptions(...options: string[]): FfmpegCommandBuilder
@@ -2181,7 +2188,9 @@ interface FfmpegCommandBuilder {
 }
 
 interface FFmpegCommandOptions {
-    builder?: (cmd: FfmpegCommandBuilder) => Awaitable<void>
+    inputOptions?: ElementOrArray<string>
+    outputOptions?: ElementOrArray<string>
+    cache?: string
 }
 
 interface VideoExtractAudioOptions extends FFmpegCommandOptions {
@@ -2226,7 +2235,8 @@ interface Ffmpeg {
         builder: (
             cmd: FfmpegCommandBuilder,
             options?: { input: string; dir: string }
-        ) => Promise<{ output?: string }>
+        ) => Promise<{ output?: string }>,
+        options?: FFmpegCommandOptions
     ): Promise<string[]>
 }
 

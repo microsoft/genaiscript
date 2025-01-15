@@ -1,4 +1,4 @@
-import { dotGenaiscriptPath, logVerbose } from "./util"
+import { arrayify, dotGenaiscriptPath, logVerbose } from "./util"
 import { TraceOptions } from "./trace"
 import { lookupMime } from "./mime"
 import pLimit from "p-limit"
@@ -11,8 +11,6 @@ import { writeFile, readFile } from "fs/promises"
 import { errorMessage, serializeError } from "./error"
 import { fromBase64 } from "./base64"
 import { fileTypeFromBuffer } from "file-type"
-import { log } from "node:console"
-import { CORE_VERSION } from "./version"
 
 const ffmpegLimit = pLimit(1)
 
@@ -24,9 +22,9 @@ async function ffmpegCommand(options?: { timeout?: number }) {
 
 async function computeHashFolder(
     filename: string | WorkspaceFile,
-    options: TraceOptions & { cache?: string }
+    options: TraceOptions & FFmpegCommandOptions
 ) {
-    const { trace, cache, ...rest } = options
+    const { trace, ...rest } = options
     const h = await hash(
         [typeof filename === "string" ? { filename } : filename, rest],
         {
@@ -54,19 +52,17 @@ async function resolveInput(
 }
 
 export class FFmepgClient implements Ffmpeg {
-    readonly options: any
-    constructor() {
-        this.options = {}
-    }
+    constructor() {}
 
     async run(
         input: string | WorkspaceFile,
         builder: (
             cmd: FfmpegCommandBuilder,
-            options?: { input: string; dir: string }
-        ) => Promise<{ output?: string }>
+            options?: { input: string; dir: string } & FFmpegCommandOptions
+        ) => Promise<{ output?: string }>,
+        options?: FFmpegCommandOptions
     ): Promise<string[]> {
-        const res = await runFfmpeg(input, builder, { ...this.options })
+        const res = await runFfmpeg(input, builder, options || {})
         return res.filenames
     }
 
@@ -76,22 +72,25 @@ export class FFmepgClient implements Ffmpeg {
     ): Promise<string[]> {
         if (!filename) throw new Error("filename is required")
 
-        const { transcript, builder, ...soptions } = options || {}
+        const { transcript, ...soptions } = options || {}
         if (transcript?.segments?.length)
             soptions.timestamps = transcript.segments.map((s) => s.start)
         if (!soptions.count && !soptions.timestamps) soptions.count = 5
 
-        const res = await this.run(filename, async (cmd, fopts) => {
-            const { dir } = fopts
-            await builder?.(cmd)
-            const c = cmd as FfmpegCommand
-            c.screenshots({
-                filename: "%b_%i.png",
-                ...soptions,
-                folder: dir,
-            })
-            return undefined
-        })
+        const res = await this.run(
+            filename,
+            async (cmd, fopts) => {
+                const { dir } = fopts
+                const c = cmd as FfmpegCommand
+                c.screenshots({
+                    ...soptions,
+                    filename: "%b_%i.png",
+                    folder: dir,
+                })
+                return undefined
+            },
+            { ...soptions, cache: "frames" }
+        )
         logVerbose(`ffmpeg: extracted ${res.length} frames`)
         return res
     }
@@ -102,17 +101,20 @@ export class FFmepgClient implements Ffmpeg {
     ): Promise<string> {
         if (!filename) throw new Error("filename is required")
 
-        const { builder, forceConversion } = options
+        const { forceConversion, ...foptions } = options
         if (!forceConversion && typeof filename === "string") {
             const mime = lookupMime(filename)
             if (/^audio/.test(mime)) return filename
         }
-        const res = await this.run(filename, async (cmd, fopts) => {
-            const { input, dir } = fopts
-            await builder?.(cmd)
-            cmd.noVideo().toFormat("wav")
-            return { output: join(dir, basename(input) + ".wav") }
-        })
+        const res = await this.run(
+            filename,
+            async (cmd, fopts) => {
+                const { input, dir } = fopts
+                cmd.noVideo().toFormat("wav")
+                return { output: join(dir, basename(input) + ".wav") }
+            },
+            { ...foptions, cache: "audio" }
+        )
         return res[0]
     }
 
@@ -135,7 +137,7 @@ export class FFmepgClient implements Ffmpeg {
                 const meta = await res
                 return meta
             },
-            this.options
+            { cache: "probe" }
         )
         return res.data as VideoProbeResult
     }
@@ -147,7 +149,7 @@ async function runFfmpeg(
         cmd: FfmpegCommand,
         options: { input: string; dir: string }
     ) => Awaitable<{ output?: string; data?: any }>,
-    options: {}
+    options: FFmpegCommandOptions
 ): Promise<{ filenames: string[]; data?: any }> {
     if (!filename) throw new Error("filename is required")
     return ffmpegLimit(async () => {
@@ -196,6 +198,10 @@ async function runFfmpeg(
             const end = () => resolve(r)
 
             cmd.input(input)
+            if (options.inputOptions)
+                cmd.inputOptions(...arrayify(options.inputOptions))
+            if (options.outputOptions)
+                cmd.outputOption(...arrayify(options.outputOptions))
             cmd.addListener("filenames", (fns: string[]) => {
                 r.filenames.push(...fns.map((f) => join(folder, f)))
             })
