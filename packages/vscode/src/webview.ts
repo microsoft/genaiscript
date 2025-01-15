@@ -8,6 +8,14 @@ async function createWebview(state: ExtensionState): Promise<vscode.Webview> {
     await host.server.client()
 
     const { authority } = host.server
+
+    const stylesheetUri = await vscode.env.asExternalUri(
+        vscode.Uri.parse(`${authority}/built/markdown.css`)
+    )
+    const scriptUri = await vscode.env.asExternalUri(
+        vscode.Uri.parse(`${authority}/built/web.mjs`)
+    )
+
     const webview = vscode.window.createWebviewPanel(
         TOOL_ID,
         TOOL_NAME,
@@ -26,14 +34,14 @@ async function createWebview(state: ExtensionState): Promise<vscode.Webview> {
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>GenAIScript Script Runner</title>
         <link rel="icon" href="favicon.svg" type="image/svg+xml" />
-        <link href="${authority}/built/markdown.css" rel="stylesheet">
+        <link href="${stylesheetUri}" rel="stylesheet">
         <script type="module">
             self.genaiscript = ${JSON.stringify({ apiKey: sessionApiKey, base: authority })};
         </script>
     </head>
     <body>
         <div id="root" class="vscode-body"></div>
-        <script type="module" src="${authority}/built/web.mjs"></script>
+        <script type="module" src="${scriptUri}"></script>
     </body>
 </html>
 `
