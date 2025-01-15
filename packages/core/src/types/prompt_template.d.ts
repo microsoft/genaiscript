@@ -873,6 +873,15 @@ interface INIParseOptions {
     defaultValue?: any
 }
 
+interface FindFilesOptions {
+    /** Glob patterns to ignore */
+    ignore?: ElementOrArray<string>
+    /**
+     * Set to false to skip read text content. True by default
+     */
+    readText?: boolean
+}
+
 interface WorkspaceFileSystem {
     /**
      * Searches for files using the glob pattern and returns a list of files.
@@ -881,12 +890,7 @@ interface WorkspaceFileSystem {
      */
     findFiles(
         glob: string,
-        options?: {
-            /**
-             * Set to false to skip read text content. True by default
-             */
-            readText?: boolean
-        }
+        options?: FindFilesOptions
     ): Promise<WorkspaceFile[]>
 
     /**

@@ -1,36 +1,35 @@
 import { JSONLineCache } from "./cache"
 import { DOT_ENV_REGEX } from "./constants"
-import { CSVParse, CSVTryParse } from "./csv"
+import { CSVTryParse } from "./csv"
 import { dataTryParse } from "./data"
 import { NotSupportedError, errorMessage } from "./error"
 import { resolveFileContent, toWorkspaceFile } from "./file"
-import { filePathOrUrlToWorkspaceFile, readText, writeText } from "./fs"
+import { readText, writeText } from "./fs"
 import { host } from "./host"
 import { INITryParse } from "./ini"
-import { JSON5parse, JSON5TryParse } from "./json5"
-import { logVerbose } from "./util"
-import { XMLParse, XMLTryParse } from "./xml"
-import { YAMLParse, YAMLTryParse } from "./yaml"
+import { JSON5TryParse } from "./json5"
+import { arrayify, logVerbose } from "./util"
+import { XMLTryParse } from "./xml"
+import { YAMLTryParse } from "./yaml"
 
 export function createFileSystem(): Omit<WorkspaceFileSystem, "grep"> {
     const fs = {
-        findFiles: async (glob, options) => {
-            const { readText } = options || {}
+        findFiles: async (glob: string, options: FindFilesOptions) => {
+            const { readText, ignore } = options || {}
             const names = (
                 await host.findFiles(glob, {
-                    ignore: ["**/.env"],
+                    ignore: ["**/.env", ...arrayify(ignore)],
                     applyGitIgnore: true,
                 })
             ).filter((f) => !DOT_ENV_REGEX.test(f))
             const files: WorkspaceFile[] = []
-            for (const name of names) {
-                const file =
+            for (const filename of names) {
+                const file: WorkspaceFile =
                     readText === false
-                        ? <WorkspaceFile>{
-                              filename: name,
-                              content: undefined,
+                        ? {
+                              filename,
                           }
-                        : await fs.readText(name)
+                        : await fs.readText(filename)
                 files.push(file)
             }
             return files
