@@ -315,5 +315,6 @@ export const VSCODE_SERVER_MAX_RETRIES = 5
 
 export const VIDEO_HASH_LENGTH = 12
 export const VIDEO_FRAMES_DIR_NAME = "frames"
+export const VIDEO_CLIPS_DIR_NAME = "clips"
 export const VIDEO_AUDIO_DIR_NAME = "audio"
 export const VIDEO_PROBE_DIR_NAME = "probe"

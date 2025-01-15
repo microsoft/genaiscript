@@ -1939,6 +1939,17 @@ interface Parsers {
      * @param videoPath
      */
     videoAudio(videoPath: string | WorkspaceFile): Promise<string>
+
+    /**
+     * Clips a segment of a video. Returns the clip file location
+     * @param videoPath
+     * @param start
+     * @param duration
+     */
+    videoClip(
+        videoPath: string | WorkspaceFile,
+        options: { start?: number | string; duration?: number | string }
+    ): Promise<string>
 }
 
 interface AICIGenOptions {

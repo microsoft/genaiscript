@@ -8,6 +8,7 @@ import type { FfmpegCommand } from "fluent-ffmpeg"
 import { hash } from "./crypto"
 import {
     VIDEO_AUDIO_DIR_NAME,
+    VIDEO_CLIPS_DIR_NAME,
     VIDEO_FRAMES_DIR_NAME,
     VIDEO_HASH_LENGTH,
     VIDEO_PROBE_DIR_NAME,
@@ -111,6 +112,38 @@ export async function runFfmpeg<T>(
         }
         return res
     })
+}
+
+export async function videoClip(
+    filename: string | WorkspaceFile,
+    options: {
+        start?: number | number
+        duration?: number | number
+        folder?: string
+    } & TraceOptions
+): Promise<string> {
+    if (!filename) throw new Error("filename is required")
+
+    const { start, duration } = options
+    if (!options.folder)
+        await computeHashFolder(filename, VIDEO_CLIPS_DIR_NAME, options)
+    await ensureDir(options.folder)
+    const input = await resolveInput(filename, options.folder)
+    const output = join(options.folder, basename(input))
+    return await runFfmpeg(
+        async (cmd) =>
+            new Promise<string>((resolve, reject) => {
+                cmd.input(input)
+                if (start) cmd.setStartTime(start)
+                if (duration) cmd.setDuration(duration)
+                cmd.output(output)
+                cmd.on("end", () => resolve(output)).on("error", (err) =>
+                    reject(err)
+                )
+                cmd.run()
+            }),
+        options
+    )
 }
 
 export async function videoExtractAudio(
