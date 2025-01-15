@@ -209,3 +209,7 @@
 .markdown-body .vscode-dark td {
 	border-color: rgba(255, 255, 255, 0.18);
 }
+
+.markdown-body pre code.language-mermaid {
+	font-family: 'trebuchet ms', verdana, arial;
+}

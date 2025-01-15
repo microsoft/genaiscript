@@ -1,5 +1,5 @@
 // src/components/FormField.tsx
-import React from "react"
+import React, { use, useEffect, useMemo, useRef } from "react"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 import rehypeRaw from "rehype-raw"
@@ -11,6 +11,7 @@ import remarkMath from "remark-math"
 import rehypeMathML from "@daiji256/rehype-mathml"
 import { ErrorBoundary } from "react-error-boundary"
 import rehypeHighlight from "rehype-highlight"
+import Mermaid from "./Mermaid"
 
 export default function Markdown(props: { className?: string; children: any }) {
     const { className, children } = props
@@ -22,6 +23,18 @@ export default function Markdown(props: { className?: string; children: any }) {
                 }
             >
                 <ReactMarkdown
+                    components={{
+                        code({ node, className, children, ...props }) {
+                            if (className?.includes("language-mermaid")) {
+                                return <Mermaid value={String(children)} />
+                            }
+                            return (
+                                <code className={className} {...props}>
+                                    {children}
+                                </code>
+                            )
+                        },
+                    }}
                     rehypePlugins={[
                         rehypeRaw,
                         [
