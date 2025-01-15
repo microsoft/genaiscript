@@ -9,7 +9,7 @@ While most LLMs do not support videos natively, they can be integrated in script
 and adding them as images to the prompt. This can be tedious and GenAIScript provides efficient helpers
 to streamline this process.
 
-## Configuration
+## ffmpeg configuration
 
 The functionalities to render and analyze videos rely on [ffmpeg](https://ffmpeg.org/)
 and [ffprobe](https://ffmpeg.org/ffprobe.html).
@@ -23,37 +23,29 @@ sudo apt-get update && sudo apt-get install ffmpeg
 Make sure these tools are installed locally and available in your PATH,
 or configure the `FFMPEG_PATH` / `FFPROBE_PATH` environment variables to point to the `ffmpeg`/`ffprobe` executable.
 
-### ffmpeg output caching
-
-Since video processing can be slow, GenAIScript caches the results in subfolders under `.genaiscript/videos/...`
-where the subfolder name is a hash from the video file content and the options used to render the video.
-This way, you can re-run the script without having to re-render the video.
-
-You can review the `ffmpeg` console log in the `log.txt` file in the cache folder.
-
 ## Extracting frames
 
 As mentionned above, multi-modal LLMs typically support images as a sequence
 of frames (or screenshots).
 
-The `parsers.videoFrames` will render frames from a video file or url
+The `ffmpeg.extractFrames` will render frames from a video file or url
 and return them as an array of file paths. You can use the result with `defImages` directly.
 
 ```js
-const frames = await parsers.videoFrames("path_url_to_video")
+const frames = await ffmpeg.extractFrames("path_url_to_video")
 def("FRAMES", frames)
 ```
 
 - specify a number of frames using `count`
 
 ```js "count: 10"
-const frames = await parsers.videoFrames("...", { count: 10 })
+const frames = await ffmpeg.extractFrames("...", { count: 10 })
 ```
 
 - specify timestamps in seconds or percentages of the video duration using `timestamps` (or `times`)
 
 ```js "timestamps"
-const frames = await parsers.videoFrames("...", { timestamps: ["0%", "50%"] })
+const frames = await ffmpeg.extractFrames("...", { timestamps: ["0%", "50%"] })
 ```
 
 - specify the transcript computed by the [transcribe](/genaiscript/reference/scripts/transcription) function. GenAIScript
@@ -61,16 +53,16 @@ const frames = await parsers.videoFrames("...", { timestamps: ["0%", "50%"] })
 
 ```js "timestamps"
 const transcript = await transcribe("...")
-const frames = await parsers.videoFrames("...", { transcript })
+const frames = await ffmpeg.extractFrames("...", { transcript })
 ```
 
 ## Extracting audio
 
-The `parsers.videoAudio` will extract the audio from a video file or url
+The `ffmpeg.extractAudio` will extract the audio from a video file or url
 as a `.wav` file.
 
 ```js
-const audio = await parsers.videoAudio("path_url_to_video")
+const audio = await ffmpeg.extractAudio("path_url_to_video")
 ```
 
 The conversion to audio happens automatically
@@ -78,10 +70,20 @@ for videos when using [transcribe](/genaiscript/reference/scripts/transcription)
 
 ## Probing videos
 
-You can extract metadata from a video file or url using `parsers.videoProbe`.
+You can extract metadata from a video file or url using `ffmpeg.probe`.
 
 ```js
-const info = await parsers.videoProbe("path_url_to_video")
+const info = await ffmpeg.probe("path_url_to_video")
 const { duration } = info.streams[0]
 console.log(`video duration: ${duration} seconds`)
+```
+
+## Extract ffmpeg options
+
+You can further customize the `ffmpeg` configuration by passing a `builder` function that manipulates the `ffmpeg` command object.
+
+```js
+const audio = await ffmpeg.extractAudio("path_url_to_video", {
+    builder: (cmd) => cmd.audioBitrate("16k"),
+})
 ```

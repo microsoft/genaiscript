@@ -6,7 +6,7 @@ def("TRANSCRIPT", transcript.srt, {
     language: "srt",
     ignoreEmpty: true,
 })
-const frames = await parsers.videoFrames("src/audio/helloworld.mp4", {
+const frames = await ffmpeg.extractFrames("src/audio/helloworld.mp4", {
     transcript,
 })
 defImages(frames)

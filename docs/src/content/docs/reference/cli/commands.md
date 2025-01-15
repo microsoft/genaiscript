@@ -333,7 +333,6 @@ Arguments:
 
 Options:
   -c, --count <number>  maximum number of frames to extract
-  -o, --out <string>    output folder
   -s, --size <string>   size of the output frames wxh
   -h, --help            display help for command
 ```

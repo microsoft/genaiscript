@@ -19,7 +19,7 @@ defTool(
         const { context, filename } = args
         if (!filename) return "No filename or url provided"
         context.log(`probing ${filename}`)
-        const info = await parsers.videoProbe(filename)
+        const info = await ffmpeg.probe(filename)
         return YAML.stringify(info)
     }
 )
@@ -41,7 +41,7 @@ defTool(
         const { context, filename } = args
         if (!filename) return "No filename or url provided"
         context.log(`extracting audio from ${filename}`)
-        const audioFile = await parsers.videoAudio(filename)
+        const audioFile = await ffmpeg.extractAudio(filename)
         return audioFile
     }
 )
@@ -85,7 +85,7 @@ defTool(
         }
         if (timestamps)
             options.timestamps = timestamps.split(",").filter((t) => !!t)
-        const videoFrames = await parsers.videoFrames(filename, options)
+        const videoFrames = await ffmpeg.extractFrames(filename, options)
         return videoFrames.join("\n")
     }
 )

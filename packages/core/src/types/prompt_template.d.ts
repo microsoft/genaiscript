@@ -1593,7 +1593,7 @@ interface HashOptions {
     readWorkspaceFiles?: boolean
 }
 
-interface VideoExtractFramesOptions {
+interface VideoExtractFramesOptions extends FFmpegCommandOptions {
     timestamps?: number[] | string[]
     count?: number
     size?: string
@@ -1921,28 +1921,6 @@ interface Parsers {
      * @param language
      */
     unfence(text: string, language: string): string
-
-    /**
-     * Extracts metadata information from a video file using ffprobe
-     * @param filename
-     */
-    videoProbe(filename: string | WorkspaceFile): Promise<VideoProbeResult>
-
-    /**
-     * Extracts frames from a video file
-     * @param videoPath
-     * @param options
-     */
-    videoFrames(
-        videoPath: string | WorkspaceFile,
-        options?: VideoExtractFramesOptions
-    ): Promise<string[]>
-
-    /**
-     * Extract the audio track from a video
-     * @param videoPath
-     */
-    videoAudio(videoPath: string | WorkspaceFile): Promise<string>
 }
 
 interface AICIGenOptions {
@@ -2192,6 +2170,78 @@ interface Git {
      * @param cwd working directory
      */
     client(cwd: string): Git
+}
+
+interface FfmpegCommandBuilder {
+    setStartTime(startTime: number | string): FfmpegCommandBuilder
+    setDuration(duration: number | string): FfmpegCommandBuilder
+    noVideo(): FfmpegCommandBuilder
+    noAudio(): FfmpegCommandBuilder
+    audioCodec(codec: string): FfmpegCommandBuilder
+    audioBitrate(bitrate: string | number): FfmpegCommandBuilder
+    audioChannels(channels: number): FfmpegCommandBuilder
+    audioFrequency(freq: number): FfmpegCommandBuilder
+    audioQuality(quality: number): FfmpegCommandBuilder
+    audioFilters(
+        filters: string | string[] | AudioVideoFilter[]
+    ): FfmpegCommandBuilder
+    videoCodec(codec: string): FfmpegCommandBuilder
+    toFormat(format: string): FfmpegCommandBuilder
+    inputOptions(...options: string[]): FfmpegCommandBuilder
+    outputOptions(...options: string[]): FfmpegCommandBuilder
+}
+
+interface FFmpegCommandOptions {
+    inputOptions?: ElementOrArray<string>
+    outputOptions?: ElementOrArray<string>
+    cache?: string
+}
+
+interface VideoExtractAudioOptions extends FFmpegCommandOptions {
+    forceConversion?: boolean
+}
+
+interface Ffmpeg {
+    /**
+     * Extracts metadata information from a video file using ffprobe
+     * @param filename
+     */
+    probe(
+        file: string | WorkspaceFile,
+        options?: FFmpegCommandOptions
+    ): Promise<VideoProbeResult>
+
+    /**
+     * Extracts frames from a video file
+     * @param options
+     */
+    extractFrames(
+        file: string | WorkspaceFile,
+        options?: VideoExtractFramesOptions
+    ): Promise<string[]>
+
+    /**
+     * Extract the audio track from a video
+     * @param videoPath
+     */
+    extractAudio(
+        file: string | WorkspaceFile,
+        options?: VideoExtractAudioOptions
+    ): Promise<string>
+
+    /**
+     * Runs a ffmpeg command and returns the list of generated file names
+     * @param input
+     * @param builder
+     */
+    run(
+        input: string | WorkspaceFile,
+        builder: (
+            cmd: FfmpegCommandBuilder,
+            options?: { input: string; dir: string }
+        ) => Promise<{ output?: string }>,
+        options?: FFmpegCommandOptions
+    ): Promise<string[]>
 }
 
 interface GitHubOptions {
