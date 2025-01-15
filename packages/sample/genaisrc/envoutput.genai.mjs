@@ -4,6 +4,7 @@ output.heading(3, "hello world")
 
 $`Write a poem`
 
+output.fence(`let x = "abc"`, "js")
 output.itemValue("item", "value")
 output.fence("This is a fence")
 output.fence(

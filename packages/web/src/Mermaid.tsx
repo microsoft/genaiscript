@@ -26,7 +26,7 @@ function MermaidInternal(props: { value: string }) {
     useEffect(() => {
         if (ref.current) {
             mermaid.initialize({ theme })
-            mermaid.run({ nodes: [ref.current] })
+            mermaid.run({ nodes: [ref.current], suppressErrors: true })
         }
     }, [value, theme])
     if (!value) return null
