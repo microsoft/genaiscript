@@ -101,7 +101,7 @@ export class FFmepgClient implements Ffmpeg {
     ): Promise<string> {
         if (!filename) throw new Error("filename is required")
 
-        const { forceConversion, ...foptions } = options
+        const { forceConversion, ...foptions } = options || {}
         if (!forceConversion && typeof filename === "string") {
             const mime = lookupMime(filename)
             if (/^audio/.test(mime)) return filename
@@ -178,8 +178,8 @@ async function runFfmpeg(
             if (cached) return cached
         }
 
-        const input = await resolveInput(filename, folder)
         await ensureDir(folder)
+        const input = await resolveInput(filename, folder)
         const cmd = await ffmpegCommand({})
         // console logging
         {

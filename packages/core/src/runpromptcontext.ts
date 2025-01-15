@@ -678,7 +678,9 @@ export function createChatGenerationContext(
             if (!transcriber)
                 throw new Error("audio transcribe not found for " + info.model)
             const ffmpeg = new FFmepgClient()
-            const audioFile = await ffmpeg.extractAudio(audio)
+            const audioFile = await ffmpeg.extractAudio(audio, {
+                cache,
+            })
             const file = await BufferToBlob(await host.readFile(audioFile))
             const update: () => Promise<TranscriptionResult> = async () => {
                 transcriptionTrace.itemValue(`model`, configuration.model)
