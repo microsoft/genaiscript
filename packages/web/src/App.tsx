@@ -69,9 +69,13 @@ interface GenAIScriptViewOptions {
     apiKey?: string
     base?: string
 }
+interface GenAIScriptHost {
+    genaiscript?: GenAIScriptViewOptions
+}
 
 const urlParams = new URLSearchParams(window.location.search)
-const config = (self as { genaiscript?: GenAIScriptViewOptions }).genaiscript
+const config = (self as GenAIScriptHost).genaiscript
+delete (self as GenAIScriptHost).genaiscript
 const hosted = !!config
 const viewMode = (hosted ? "results" : urlParams.get("view")) as
     | "results"
@@ -80,7 +84,6 @@ const hashParams = new URLSearchParams(window.location.hash)
 const base = config?.base || ""
 const apiKey = hashParams.get("api-key") || config?.apiKey
 window.location.hash = ""
-console.log({ base, apiKey, viewMode, hosted })
 
 if (!hosted) import("@vscode-elements/webview-playground")
 
@@ -138,7 +141,6 @@ class RunClient extends WebSocketClient {
                         break
                     }
                     case "script.end": {
-                        console.log(`script: end`, data.result)
                         this.updateRunId(data)
                         this.result = cleanedClone(data.result)
                         this.output = data.result.text
@@ -152,7 +154,6 @@ class RunClient extends WebSocketClient {
                         break
                     }
                     case "script.start":
-                        console.log(`script: started`, data)
                         this.updateRunId(
                             data.response as PromptScriptStartResponse
                         )
@@ -174,7 +175,6 @@ class RunClient extends WebSocketClient {
     private updateRunId(data: { runId: string }) {
         const { runId } = data
         if (runId !== this.runId) {
-            console.log(`run updated`, { data })
             this.runId = runId
             if (this.runId) {
                 this.trace = ""
@@ -404,13 +404,6 @@ function RunnerProvider({ children }: { children: React.ReactNode }) {
         if (!scriptid) return
 
         const runId = ("" + Math.random()).slice(2)
-        console.log(`script: start ${scriptid}`, {
-            runId,
-            files,
-            importedFiles,
-            parameters,
-            options,
-        })
         const workspaceFiles = await Promise.all(
             importedFiles
                 .filter(({ selected }) => selected)
@@ -1080,7 +1073,11 @@ function RemoteInfo() {
     return (
         <VscodeFormGroup>
             <VscodeLabel>Remote</VscodeLabel>
-            <VscodeTextfield readonly={true} disabled={true} value={value}></VscodeTextfield>
+            <VscodeTextfield
+                readonly={true}
+                disabled={true}
+                value={value}
+            ></VscodeTextfield>
             <VscodeFormHelper>
                 Running GenAIScript on a clone of this repository.
             </VscodeFormHelper>
