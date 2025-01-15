@@ -2864,7 +2864,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.90.1
+ - genaiscript-vscode@1.91.2
 
 This package contains the following license:
 
@@ -7953,10 +7953,10 @@ The following npm packages may be included in this product:
  - @tokenizer/token@0.3.0
  - agent-base@6.0.2
  - eastasianwidth@0.2.0
- - genaiscript-core-internal@1.90.1
- - genaiscript-sample@1.90.1
- - genaiscript-web@1.90.1
- - genaiscript@1.90.1
+ - genaiscript-core-internal@1.91.2
+ - genaiscript-sample@1.91.2
+ - genaiscript-web@1.91.2
+ - genaiscript@1.91.2
  - https-proxy-agent@5.0.1
  - isarray@1.0.0
  - javascript-natural-sort@0.7.1
