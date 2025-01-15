@@ -341,7 +341,6 @@ export async function cli() {
         .description("Extract video frames")
         .argument("<file>", "Audio or video file to transcode")
         .option("-c, --count <number>", "maximum number of frames to extract")
-        .option("-o, --out <string>", "output folder")
         .option("-s, --size <string>", "size of the output frames wxh")
         .action(extractVideoFrames)
 

@@ -36,24 +36,24 @@ You can review the `ffmpeg` console log in the `log.txt` file in the cache folde
 As mentionned above, multi-modal LLMs typically support images as a sequence
 of frames (or screenshots).
 
-The `parsers.videoFrames` will render frames from a video file or url
+The `ffmpeg.extractFrames` will render frames from a video file or url
 and return them as an array of file paths. You can use the result with `defImages` directly.
 
 ```js
-const frames = await parsers.videoFrames("path_url_to_video")
+const frames = await ffmpeg.extractFrames("path_url_to_video")
 def("FRAMES", frames)
 ```
 
 - specify a number of frames using `count`
 
 ```js "count: 10"
-const frames = await parsers.videoFrames("...", { count: 10 })
+const frames = await ffmpeg.extractFrames("...", { count: 10 })
 ```
 
 - specify timestamps in seconds or percentages of the video duration using `timestamps` (or `times`)
 
 ```js "timestamps"
-const frames = await parsers.videoFrames("...", { timestamps: ["0%", "50%"] })
+const frames = await ffmpeg.extractFrames("...", { timestamps: ["0%", "50%"] })
 ```
 
 - specify the transcript computed by the [transcribe](/genaiscript/reference/scripts/transcription) function. GenAIScript
@@ -61,16 +61,16 @@ const frames = await parsers.videoFrames("...", { timestamps: ["0%", "50%"] })
 
 ```js "timestamps"
 const transcript = await transcribe("...")
-const frames = await parsers.videoFrames("...", { transcript })
+const frames = await ffmpeg.extractFrames("...", { transcript })
 ```
 
 ## Extracting audio
 
-The `parsers.videoAudio` will extract the audio from a video file or url
+The `ffmpeg.extractAudio` will extract the audio from a video file or url
 as a `.wav` file.
 
 ```js
-const audio = await parsers.videoAudio("path_url_to_video")
+const audio = await ffmpeg.extractAudio("path_url_to_video")
 ```
 
 The conversion to audio happens automatically
@@ -78,10 +78,10 @@ for videos when using [transcribe](/genaiscript/reference/scripts/transcription)
 
 ## Probing videos
 
-You can extract metadata from a video file or url using `parsers.videoProbe`.
+You can extract metadata from a video file or url using `ffmpeg.probe`.
 
 ```js
-const info = await parsers.videoProbe("path_url_to_video")
+const info = await ffmpeg.probe("path_url_to_video")
 const { duration } = info.streams[0]
 console.log(`video duration: ${duration} seconds`)
 ```

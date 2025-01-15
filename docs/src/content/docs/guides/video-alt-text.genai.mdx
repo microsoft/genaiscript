@@ -36,7 +36,7 @@ The next step is to use the transcript to screenshot the video stream. GenAIScri
 so make sure you have it installed and configured.
 
 ```js
-const frames = await parsers.videoFrames(file, {
+const frames = await ffmpeg.extractFrames(file, {
     transcript,
 })
 ```

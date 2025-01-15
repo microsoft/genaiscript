@@ -273,7 +273,7 @@ defImages(images, { autoCrop: true, details: "low" })
 Extract frames from videos using timestamps or even transcripts.
 
 ```js
-const frames = await parsers.videoFrames("...", { count: 10 })
+const frames = await ffmpeg.extractFrames("...", { count: 10 })
 defImages(frames, { details: "low" })
 ```
 

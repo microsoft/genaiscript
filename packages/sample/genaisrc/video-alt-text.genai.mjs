@@ -11,7 +11,7 @@ script({
 
 const file = env.files[0]
 const transcript = await transcribe(file) // OpenAI whisper
-const frames = await parsers.videoFrames(file, {
+const frames = await ffmpeg.extractFrames(file, {
     transcript,
 }) // ffmpeg to extract frames
 

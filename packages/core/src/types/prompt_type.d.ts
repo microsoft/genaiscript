@@ -229,6 +229,11 @@ declare var github: GitHub
 declare var git: Git
 
 /**
+ * Access to ffmpeg operations
+ */
+declare var ffmpeg: Ffmpeg
+
+/**
  * Computation around tokens
  */
 declare var tokenizers: Tokenizers
@@ -342,4 +347,7 @@ declare function transcribe(
  * @param text
  * @param options
  */
-declare function speak(text: string, options?: SpeechOptions): Promise<SpeechResult>
+declare function speak(
+    text: string,
+    options?: SpeechOptions
+): Promise<SpeechResult>

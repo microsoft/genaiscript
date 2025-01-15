@@ -88,7 +88,7 @@ import { Project } from "./server/messages"
 import { parametersToVars } from "./vars"
 import prettyBytes from "pretty-bytes"
 import { JSONLineCache } from "./cache"
-import { videoExtractAudio } from "./ffmpeg"
+import { FFmepgClient } from "./ffmpeg"
 import { BufferToBlob } from "./bufferlike"
 import { host } from "./host"
 import { srtVttRender } from "./transcription"
@@ -677,9 +677,8 @@ export function createChatGenerationContext(
             )
             if (!transcriber)
                 throw new Error("audio transcribe not found for " + info.model)
-            const audioFile = await videoExtractAudio(audio, {
-                trace: transcriptionTrace,
-            })
+            const ffmpeg = new FFmepgClient()
+            const audioFile = await ffmpeg.extractAudio(audio)
             const file = await BufferToBlob(await host.readFile(audioFile))
             const update: () => Promise<TranscriptionResult> = async () => {
                 transcriptionTrace.itemValue(`model`, configuration.model)

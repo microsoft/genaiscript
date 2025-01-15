@@ -1589,7 +1589,7 @@ interface HashOptions {
     readWorkspaceFiles?: boolean
 }
 
-interface VideoExtractFramesOptions {
+interface VideoExtractFramesOptions extends FFmpegCommandOptions {
     timestamps?: number[] | string[]
     count?: number
     size?: string
@@ -1917,39 +1917,6 @@ interface Parsers {
      * @param language
      */
     unfence(text: string, language: string): string
-
-    /**
-     * Extracts metadata information from a video file using ffprobe
-     * @param filename
-     */
-    videoProbe(filename: string | WorkspaceFile): Promise<VideoProbeResult>
-
-    /**
-     * Extracts frames from a video file
-     * @param videoPath
-     * @param options
-     */
-    videoFrames(
-        videoPath: string | WorkspaceFile,
-        options?: VideoExtractFramesOptions
-    ): Promise<string[]>
-
-    /**
-     * Extract the audio track from a video
-     * @param videoPath
-     */
-    videoAudio(videoPath: string | WorkspaceFile): Promise<string>
-
-    /**
-     * Clips a segment of a video. Returns the clip file location
-     * @param videoPath
-     * @param start
-     * @param duration
-     */
-    videoClip(
-        videoPath: string | WorkspaceFile,
-        options: { start?: number | string; duration?: number | string }
-    ): Promise<string>
 }
 
 interface AICIGenOptions {
@@ -2206,9 +2173,19 @@ interface FfmpegCommandBuilder {
     setDuration(duration: number | string): FfmpegCommandBuilder
     noVideo(): FfmpegCommandBuilder
     noAudio(): FfmpegCommandBuilder
+    audioCodec(codec: string): FfmpegCommandBuilder
+    videoCodec(codec: string): FfmpegCommandBuilder
     toFormat(format: string): FfmpegCommandBuilder
     inputOptions(...options: string[]): FfmpegCommandBuilder
     outputOptions(...options: string[]): FfmpegCommandBuilder
+}
+
+interface FFmpegCommandOptions {
+    builder?: (cmd: FfmpegCommandBuilder) => Awaitable<void>
+}
+
+interface VideoExtractAudioOptions extends FFmpegCommandOptions {
+    forceConversion?: boolean
 }
 
 interface Ffmpeg {
@@ -2216,15 +2193,17 @@ interface Ffmpeg {
      * Extracts metadata information from a video file using ffprobe
      * @param filename
      */
-    probe(filename: string | WorkspaceFile): Promise<VideoProbeResult>
+    probe(
+        file: string | WorkspaceFile,
+        options?: FFmpegCommandOptions
+    ): Promise<VideoProbeResult>
 
     /**
      * Extracts frames from a video file
-     * @param videoPath
      * @param options
      */
     extractFrames(
-        videoPath: string | WorkspaceFile,
+        file: string | WorkspaceFile,
         options?: VideoExtractFramesOptions
     ): Promise<string[]>
 
@@ -2232,17 +2211,9 @@ interface Ffmpeg {
      * Extract the audio track from a video
      * @param videoPath
      */
-    extractAudio(videoPath: string | WorkspaceFile): Promise<string>
-
-    /**
-     * Clips a segment of a video. Returns the clip file location
-     * @param videoPath
-     * @param start
-     * @param duration
-     */
-    clip(
-        videoPath: string | WorkspaceFile,
-        options: { start?: number | string; duration?: number | string }
+    extractAudio(
+        file: string | WorkspaceFile,
+        options?: VideoExtractAudioOptions
     ): Promise<string>
 
     /**
@@ -2251,11 +2222,11 @@ interface Ffmpeg {
      * @param builder
      */
     run(
-        input: string,
+        input: string | WorkspaceFile,
         builder: (
             cmd: FfmpegCommandBuilder,
-            options?: { input: string }
-        ) => Promise<void>
+            options?: { input: string; dir: string }
+        ) => Promise<{ output?: string }>
     ): Promise<string[]>
 }
 
