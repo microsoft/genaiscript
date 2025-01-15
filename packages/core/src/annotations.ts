@@ -89,11 +89,27 @@ export function convertAnnotationsToItems(text: string) {
         (t, rx) =>
             t.replace(rx, (s, ...args) => {
                 const groups = args.at(-1)
-                const { file, line, severity, code, message } = groups
-                return `- ${SEV_EMOJI_MAP[severity?.toLowerCase()] ?? "info"} ${message} (\`${file}#L${line}\`)`
+                const { file, line, endLine, severity, code, message } = groups
+                const d: Diagnostic = {
+                    severity: SEV_MAP[severity?.toLowerCase()] ?? "info",
+                    filename: file,
+                    range: [
+                        [parseInt(line) - 1, 0], // Start of range, 0-based index
+                        [parseInt(endLine) - 1, Number.MAX_VALUE], // End of range, max value for columns
+                    ],
+                    code,
+                    message,
+                }
+                return convertAnnotationToItem(d)
             }),
         text
     )
+}
+
+export function convertAnnotationToItem(d: Diagnostic) {
+    const { severity, message, filename, code, range } = d
+    const line = range?.[0]?.[0]
+    return `- ${SEV_EMOJI_MAP[severity?.toLowerCase()] ?? "info"} ${message} ${filename ? `(\`${filename}${line ? `#L${line}` : ""}\`)` : ""}`
 }
 
 /**

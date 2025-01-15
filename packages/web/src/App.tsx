@@ -61,6 +61,10 @@ import { markdownDiff } from "../../core/src/mddiff"
 import { VscodeMultiSelect as VscodeMultiSelectElement } from "@vscode-elements/elements"
 import { cleanedClone } from "../../core/src/clone"
 import { WebSocketClient } from "../../core/src/server/wsclient"
+import {
+    convertAnnotationsToMarkdown,
+    convertAnnotationToItem,
+} from "../../core/src/annotations"
 
 interface GenAIScriptViewOptions {
     apiKey?: string
@@ -720,9 +724,10 @@ function TraceTabPanel(props: { selected?: boolean }) {
 
 function OutputMarkdown() {
     const output = useOutput()
+    const md = convertAnnotationsToMarkdown(output)
     return (
         <VscodeScrollable>
-            <Markdown>{output}</Markdown>
+            <Markdown>{md}</Markdown>
         </VscodeScrollable>
     )
 }
@@ -742,15 +747,9 @@ function OutputTraceTabPanel(props: { selected?: boolean }) {
 function ProblemsTabPanel() {
     const result = useResult()
     const { annotations = [] } = result || {}
-
-    const renderAnnotation = (annotation: Diagnostic) => {
-        const { message, severity, filename, code, range } = annotation
-        return `> [!${severity}]
-> ${`${message} (${filename}#L${range?.[0]?.[0] || ""} ${code || ""})`.split("\n").join("\n> ")}
-`
-    }
-
-    const annotationsMarkdown = annotations.map(renderAnnotation).join("\n")
+    const annotationsMarkdown = annotations
+        .map(convertAnnotationToItem)
+        .join("\n")
 
     return (
         <>
