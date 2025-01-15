@@ -190,7 +190,7 @@ The following npm packages may be included in this product:
 
  - @aws-crypto/sha256-browser@5.2.0
  - @aws-crypto/supports-web-crypto@5.2.0
- - @huggingface/transformers@3.2.4
+ - @huggingface/transformers@3.3.1
  - flatbuffers@1.12.0
  - long@5.2.4
 
@@ -1956,16 +1956,16 @@ Apache License
 
 The following npm packages may be included in this product:
 
- - @aws-sdk/client-cognito-identity@3.726.1
+ - @aws-sdk/client-cognito-identity@3.729.0
  - @aws-sdk/client-sso-oidc@3.726.0
  - @aws-sdk/client-sso@3.726.0
  - @aws-sdk/client-sts@3.726.1
- - @aws-sdk/credential-provider-cognito-identity@3.726.1
+ - @aws-sdk/credential-provider-cognito-identity@3.729.0
  - @aws-sdk/util-user-agent-browser@3.723.0
  - @aws-sdk/util-user-agent-node@3.726.0
  - @smithy/eventstream-codec@2.2.0
  - @smithy/eventstream-codec@4.0.1
- - @smithy/middleware-retry@4.0.1
+ - @smithy/middleware-retry@4.0.3
  - @smithy/querystring-builder@2.2.0
  - @smithy/querystring-builder@4.0.1
  - @smithy/querystring-parser@2.2.0
@@ -1973,8 +1973,8 @@ The following npm packages may be included in this product:
  - @smithy/service-error-classification@4.0.1
  - @smithy/url-parser@2.2.0
  - @smithy/url-parser@4.0.1
- - @smithy/util-defaults-mode-browser@4.0.1
- - @smithy/util-defaults-mode-node@4.0.1
+ - @smithy/util-defaults-mode-browser@4.0.3
+ - @smithy/util-defaults-mode-node@4.0.3
 
 These packages each contain the following license:
 
@@ -2397,7 +2397,7 @@ The following npm packages may be included in this product:
  - @aws-sdk/middleware-host-header@3.723.0
  - @aws-sdk/middleware-recursion-detection@3.723.0
  - @aws-sdk/middleware-user-agent@3.726.0
- - @smithy/core@3.1.0
+ - @smithy/core@3.1.1
  - @smithy/eventstream-serde-browser@4.0.1
  - @smithy/eventstream-serde-config-resolver@4.0.1
  - @smithy/eventstream-serde-node@2.2.0
@@ -2410,7 +2410,7 @@ The following npm packages may be included in this product:
  - @smithy/protocol-http@3.3.0
  - @smithy/protocol-http@5.0.1
  - @smithy/smithy-client@2.5.1
- - @smithy/smithy-client@4.1.0
+ - @smithy/smithy-client@4.1.2
  - @smithy/types@2.12.0
  - @smithy/types@3.7.2
  - @smithy/types@4.1.0
@@ -2831,7 +2831,7 @@ The following npm packages may be included in this product:
  - @types/node-fetch@2.6.12
  - @types/node@16.9.1
  - @types/node@18.19.70
- - @types/node@22.10.5
+ - @types/node@22.10.6
  - @types/turndown@5.0.5
  - @types/uuid@9.0.8
  - @types/yauzl@2.10.3
@@ -2864,7 +2864,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.91.2
+ - genaiscript-vscode@1.92.1
 
 This package contains the following license:
 
@@ -2934,13 +2934,13 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - fs-extra@11.2.0
+ - fs-extra@11.3.0
 
 This package contains the following license:
 
 (The MIT License)
 
-Copyright (c) 2011-2017 JP Richardson
+Copyright (c) 2011-2024 JP Richardson
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files
 (the 'Software'), to deal in the Software without restriction, including without limitation the rights to use, copy, modify,
@@ -4185,7 +4185,7 @@ The following npm packages may be included in this product:
  - @aws-sdk/credential-provider-env@3.723.0
  - @aws-sdk/credential-provider-ini@3.726.0
  - @aws-sdk/credential-provider-node@3.726.0
- - @aws-sdk/credential-providers@3.726.1
+ - @aws-sdk/credential-providers@3.729.0
  - @aws-sdk/region-config-resolver@3.723.0
  - @aws-sdk/token-providers@3.723.0
  - @aws-sdk/types@3.723.0
@@ -4204,11 +4204,11 @@ The following npm packages may be included in this product:
  - @smithy/is-array-buffer@4.0.0
  - @smithy/middleware-content-length@4.0.1
  - @smithy/middleware-endpoint@2.5.1
- - @smithy/middleware-endpoint@4.0.1
+ - @smithy/middleware-endpoint@4.0.2
  - @smithy/middleware-stack@2.2.0
  - @smithy/middleware-stack@4.0.1
  - @smithy/node-http-handler@2.5.0
- - @smithy/node-http-handler@4.0.1
+ - @smithy/node-http-handler@4.0.2
  - @smithy/property-provider@2.2.0
  - @smithy/property-provider@4.0.1
  - @smithy/shared-ini-file-loader@2.4.0
@@ -4226,7 +4226,7 @@ The following npm packages may be included in this product:
  - @smithy/util-hex-encoding@3.0.0
  - @smithy/util-hex-encoding@4.0.0
  - @smithy/util-stream@2.2.0
- - @smithy/util-stream@4.0.1
+ - @smithy/util-stream@4.0.2
  - @smithy/util-uri-escape@2.2.0
  - @smithy/util-uri-escape@3.0.0
  - @smithy/util-uri-escape@4.0.0
@@ -6417,24 +6417,54 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - @inquirer/checkbox@4.0.4
- - @inquirer/confirm@5.1.1
- - @inquirer/core@10.1.2
- - @inquirer/editor@4.2.1
- - @inquirer/expand@4.0.4
  - @inquirer/figures@1.0.9
- - @inquirer/input@4.1.1
- - @inquirer/number@3.0.4
- - @inquirer/password@4.0.4
- - @inquirer/prompts@7.2.1
- - @inquirer/rawlist@4.0.4
- - @inquirer/search@3.0.4
- - @inquirer/select@4.0.4
  - @inquirer/type@3.0.2
 
 These packages each contain the following license:
 
 Copyright (c) 2023 Simon Boudrias
+
+Permission is hereby granted, free of charge, to any person
+obtaining a copy of this software and associated documentation
+files (the "Software"), to deal in the Software without
+restriction, including without limitation the rights to use,
+copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the
+Software is furnished to do so, subject to the following
+conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE.
+
+-----------
+
+The following npm packages may be included in this product:
+
+ - @inquirer/checkbox@4.0.6
+ - @inquirer/confirm@5.1.3
+ - @inquirer/core@10.1.4
+ - @inquirer/editor@4.2.3
+ - @inquirer/expand@4.0.6
+ - @inquirer/input@4.1.3
+ - @inquirer/number@3.0.6
+ - @inquirer/password@4.0.6
+ - @inquirer/prompts@7.2.3
+ - @inquirer/rawlist@4.0.6
+ - @inquirer/search@3.0.6
+ - @inquirer/select@4.0.6
+
+These packages each contain the following license:
+
+Copyright (c) 2025 Simon Boudrias
 
 Permission is hereby granted, free of charge, to any person
 obtaining a copy of this software and associated documentation
@@ -7055,16 +7085,6 @@ IN THE SOFTWARE.
 
 The following npm package may be included in this product:
 
- - buildcheck@0.0.6
-
-This package contains the following license:
-
-http://github.com/mscdex/buildcheck/raw/master/LICENSE
-
------------
-
-The following npm package may be included in this product:
-
  - ssh2@1.16.0
 
 This package contains the following license:
@@ -7080,16 +7100,6 @@ The following npm package may be included in this product:
 This package contains the following license:
 
 https://github.com/caolan/async/raw/master/LICENSE
-
------------
-
-The following npm package may be included in this product:
-
- - cpu-features@0.0.10
-
-This package contains the following license:
-
-https://github.com/mscdex/cpu-features/raw/master/LICENSE
 
 -----------
 
@@ -7947,25 +7957,24 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - @esbuild/linux-x64@0.23.1
- - @napi-rs/canvas-linux-x64-gnu@0.1.65
- - @napi-rs/canvas-linux-x64-musl@0.1.65
+ - @esbuild/win32-x64@0.23.1
+ - @napi-rs/canvas-win32-x64-msvc@0.1.65
  - @tokenizer/token@0.3.0
  - agent-base@6.0.2
  - eastasianwidth@0.2.0
- - genaiscript-core-internal@1.91.2
- - genaiscript-sample@1.91.2
- - genaiscript-web@1.91.2
- - genaiscript@1.91.2
+ - genaiscript-core-internal@1.92.1
+ - genaiscript-sample@1.92.1
+ - genaiscript-web@1.92.1
+ - genaiscript@1.92.1
  - https-proxy-agent@5.0.1
  - isarray@1.0.0
  - javascript-natural-sort@0.7.1
  - keyv@4.5.4
  - omggif@1.0.10
  - onnxruntime-common@1.20.1
- - onnxruntime-common@1.21.0-dev.20241205-6ed77cc374
+ - onnxruntime-common@1.21.0-dev.20241212-1f88284f96
  - onnxruntime-node@1.20.1
- - onnxruntime-web@1.21.0-dev.20241205-d27fecd3d3
+ - onnxruntime-web@1.21.0-dev.20250114-228dd16893
  - parse-bmfont-ascii@1.0.6
  - readable-web-to-node-stream@3.0.2
  - seedrandom@3.0.5
@@ -9226,7 +9235,7 @@ SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - @azure/msal-browser@3.28.0
+ - @azure/msal-browser@3.28.1
  - @azure/msal-common@14.16.0
 
 These packages each contain the following license:
