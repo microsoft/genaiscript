@@ -19,6 +19,7 @@ import {
     assert,
     chunkString,
     logInfo,
+    deleteUndefinedValues,
 } from "../../core/src/util"
 import { CORE_VERSION } from "../../core/src/version"
 import {
@@ -172,12 +173,18 @@ export async function startServer(options: {
         }) satisfies ServerResponse
 
     const serverEnv = async () =>
-        ({
+        deleteUndefinedValues({
             ok: true,
             providers: await resolveLanguageModelConfigurations(undefined, {
                 token: false,
                 error: true,
             }),
+            remote: remote
+                ? {
+                      url: remote,
+                      branch: options.remoteBranch,
+                  }
+                : undefined,
         }) satisfies ServerEnvResponse
 
     const scriptList = async () => {

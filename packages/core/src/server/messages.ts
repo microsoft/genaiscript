@@ -79,6 +79,10 @@ export interface ServerEnv extends RequestMessage {
 
 export interface ServerEnvResponse extends ResponseStatus {
     providers: ResolvedLanguageModelConfiguration[]
+    remote?: {
+        url: string
+        branch?: string
+    }
 }
 
 export interface PromptScriptTestRunOptions

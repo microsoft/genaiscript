@@ -37,7 +37,6 @@ import type {
     PromptScriptListResponse,
     PromptScriptResponseEvents,
     GenerationResult,
-    ResolvedLanguageModelConfiguration,
     ServerEnvResponse,
     RequestMessages,
     PromptScriptStartResponse,
@@ -92,18 +91,22 @@ const fetchScripts = async (): Promise<Project> => {
             Authorization: apiKey || "",
         },
     })
+    if (!res.ok) throw new Error(await res.json())
+
     const j: PromptScriptListResponse = await res.json()
     return j.project
 }
-const fetchEnv = async (): Promise<ResolvedLanguageModelConfiguration[]> => {
+const fetchEnv = async (): Promise<ServerEnvResponse> => {
     const res = await fetch(`${base}/api/env`, {
         headers: {
             Accept: "application/json",
             Authorization: apiKey || "",
         },
     })
+    if (!res.ok) throw new Error(await res.json())
+
     const j: ServerEnvResponse = await res.json()
-    return j.providers
+    return j
 }
 
 class RunClient extends WebSocketClient {
@@ -253,7 +256,7 @@ type ImportedFile = FileWithPath & { selected?: boolean }
 const ApiContext = createContext<{
     client: RunClient
     project: Promise<Project | undefined>
-    providers: Promise<ResolvedLanguageModelConfiguration[] | undefined>
+    env: Promise<ServerEnvResponse | undefined>
 
     scriptid: string | undefined
     setScriptid: (id: string) => void
@@ -279,10 +282,7 @@ function ApiProvider({ children }: { children: React.ReactNode }) {
     }, [])
 
     const project = useMemo<Promise<Project>>(fetchScripts, [])
-    const providers = useMemo<Promise<ResolvedLanguageModelConfiguration[]>>(
-        fetchEnv,
-        []
-    )
+    const env = useMemo<Promise<ServerEnvResponse>>(fetchEnv, [])
 
     const [state, setState] = useUrlSearchParams<
         {
@@ -331,7 +331,7 @@ function ApiProvider({ children }: { children: React.ReactNode }) {
             value={{
                 client,
                 project,
-                providers,
+                env,
                 scriptid,
                 setScriptid,
                 files,
@@ -353,6 +353,12 @@ function useApi() {
     const api = use(ApiContext)
     if (!api) throw new Error("missing content")
     return api
+}
+
+function useEnv() {
+    const { env: envPromise } = useApi()
+    const env = use(envPromise)
+    return env
 }
 
 const RunnerContext = createContext<{
@@ -1065,6 +1071,23 @@ function GlobsForm() {
     )
 }
 
+function RemoteInfo() {
+    const { remote } = useEnv() || {}
+    if (!remote?.url) return null
+
+    const { url, branch } = remote
+    const value = `${url}#${branch}`
+    return (
+        <VscodeFormGroup>
+            <VscodeLabel>Remote</VscodeLabel>
+            <VscodeTextfield readonly={true} disabled={true} value={value}></VscodeTextfield>
+            <VscodeFormHelper>
+                Running GenAIScript on a clone of this repository.
+            </VscodeFormHelper>
+        </VscodeFormGroup>
+    )
+}
+
 function ScriptSelect() {
     const scripts = useScripts()
     const { scriptid, setScriptid } = useApi()
@@ -1114,6 +1137,7 @@ function ScriptForm() {
     return (
         <VscodeCollapsible open title="Script">
             <VscodeFormContainer>
+                <RemoteInfo />
                 <ScriptSelect />
                 <FilesDropZone />
                 <PromptParametersFields />
@@ -1169,8 +1193,9 @@ function PromptParametersFields() {
 }
 
 function ModelConnectionOptionsForm() {
-    const { options, setOptions, providers: providersPromise } = useApi()
-    const providers = use(providersPromise)
+    const { options, setOptions } = useApi()
+    const env = useEnv()
+    const { providers } = env || {}
 
     const schema: JSONSchemaObject = {
         type: "object",
