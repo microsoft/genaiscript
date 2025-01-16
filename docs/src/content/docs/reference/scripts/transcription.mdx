@@ -7,16 +7,14 @@ sidebar:
 
 GenAIScript supports transcription and translations from OpenAI like APIs.
 
-- [ ] TODO: Add support for Huggign Face Transformers.js needed
-
 ```js "transcribe"
-const { text } = await transcribe("path/to/audio.mp3")
+const { text } = await transcribe("video.mp4")
 ```
 
 ## File formats
 
 The transcription API will automatically use [ffmpeg](https://ffmpeg.org/)
-to convert videos to audio files.
+to convert videos to audio files ([opus in a ogg container](https://community.openai.com/t/whisper-api-increase-file-limit-25-mb/566754)).
 
 You need to install ffmpeg on your system. If the `FFMPEG_PATH` environment variable is set,
 GenAIScript will use it as the full path to the ffmpeg executable.
@@ -46,7 +44,7 @@ for (const segment of segments) {
 
 ## SRT and VTT
 
-GenAIScript renders the segments to [SRT](https://en.wikipedia.org/wiki/SubRip) 
+GenAIScript renders the segments to [SRT](https://en.wikipedia.org/wiki/SubRip)
 and [WebVTT](https://developer.mozilla.org/en-US/docs/Web/API/WebVTT_API) formats as well.
 
 ```js
