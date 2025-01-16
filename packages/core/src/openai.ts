@@ -49,7 +49,7 @@ import {
     LanguageModelConfiguration,
     LanguageModelInfo,
 } from "./server/messages"
-import { FormData } from 'formdata-polyfill/esm.min.js'
+import prettyBytes from "pretty-bytes"
 
 export function getConfigHeaders(cfg: LanguageModelConfiguration) {
     let { token, type, base, provider } = cfg
@@ -437,7 +437,6 @@ export async function OpenAITranscribe(
     options: TraceOptions & CancellationOptions
 ): Promise<TranscriptionResult> {
     const { trace } = options || {}
-    const fetch = await createFetch(options)
     try {
         logVerbose(`${cfg.provider}: transcribe with ${cfg.model}`)
         const route = req.translate ? "translations" : "transcriptions"
@@ -450,12 +449,13 @@ export async function OpenAITranscribe(
             body.append("temperature", req.temperature.toString())
         if (req.language) body.append("language", req.language)
         body.append("file", req.file)
+        logVerbose(`transcript: ${prettyBytes(req.file.size)}`)
 
         const freq = {
             method: "POST",
             headers: {
                 ...getConfigHeaders(cfg),
-                "Content-Type": "multipart/form-data",
+                ContentType: "multipart/form-data",
                 Accept: "application/json",
             },
             body: body,
