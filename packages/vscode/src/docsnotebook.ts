@@ -98,7 +98,7 @@ function activateNotebookExecutor(state: ExtensionState) {
 
         const firstCell = notebook.cellAt(0)
         const frontMatterText = firstCell?.document?.getText()
-        const frontmatter =
+        const { genaiscript: frontmatter } =
             frontmatterTryParse(frontMatterText)?.value ??
             YAMLTryParse(frontMatterText) ??
             {}
