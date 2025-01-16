@@ -302,9 +302,24 @@ Options:
   -h, --help                       display help for command
 
 Commands:
+  probe <file>                     Probes metadata from a video/audio file
   extract-audio [options] <file>   Transcode video/audio file
   extract-frames [options] <file>  Extract video frames
   help [command]                   display help for command
+```
+
+### `video probe`
+
+```
+Usage: genaiscript video probe [options] <file>
+
+Probes metadata from a video/audio file
+
+Arguments:
+  file        Audio or video file to inspect
+
+Options:
+  -h, --help  display help for command
 ```
 
 ### `video extract-audio`

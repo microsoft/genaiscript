@@ -6,7 +6,6 @@ export async function extractAudio(
 ) {
     const { force, transcription } = options || {}
     const ffmpeg = new FFmepgClient()
-    
     const fn = await ffmpeg.extractAudio(file, {
         transcription,
         forceConversion: force,
@@ -30,6 +29,11 @@ export async function extractVideoFrames(
     })
     for (let i = 0; i < frames.length; i++) {
         const fn = frames[i]
-        console.log(`  ${fn}`)
+        console.log(`${fn}`)
     }
+}
+
+export async function probeVideo(file: string) {
+    const res = await ffmpeg.probe(file)
+    console.log(JSON.stringify(res, null, 2))
 }

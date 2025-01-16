@@ -49,7 +49,7 @@ import { CORE_VERSION, GITHUB_REPO } from "../../core/src/version" // Core versi
 import { logVerbose } from "../../core/src/util" // Utility logging
 import { semverSatisfies } from "../../core/src/semver" // Semantic version checking
 import { convertFiles } from "./convert"
-import { extractAudio, extractVideoFrames } from "./video"
+import { extractAudio, extractVideoFrames, probeVideo } from "./video"
 
 /**
  * Main function to initialize and run the CLI.
@@ -331,6 +331,12 @@ export async function cli() {
         .action(cacheClear) // Action to clear cache
 
     const video = program.command("video").description("Video tasks")
+    video
+        .command("probe")
+        .description("Probes metadata from a video/audio file")
+        .argument("<file>", "Audio or video file to inspect")
+        .action(probeVideo)
+
     video
         .command("extract-audio")
         .description("Transcode video/audio file")

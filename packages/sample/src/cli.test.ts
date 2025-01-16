@@ -137,7 +137,21 @@ describe("video", () => {
     test("extract-audio", async () => {
         const action = "extract-audio"
         const res =
-            await $`node ${cli} ${cmd} ${action} src/audio/*.mp4`.nothrow()
+            await $`node ${cli} ${cmd} ${action} src/audio/helloworld.mp4`.nothrow()
+        assert(!res.exitCode)
+    })
+
+    test("extract-frames", async () => {
+        const action = "extract-frames"
+        const res =
+            await $`node ${cli} ${cmd} ${action} src/audio/helloworld.mp4`.nothrow()
+        assert(!res.exitCode)
+    })
+
+    test("probe", async () => {
+        const action = "probe"
+        const res =
+            await $`node ${cli} ${cmd} ${action} src/audio/helloworld.mp4`.nothrow()
         assert(!res.exitCode)
     })
 })
