@@ -205,6 +205,14 @@
             "prediction": false
         },
         {
+            "id": "whisperasr",
+            "detail": "Whisper ASR Webservice",
+            "url": "https://github.com/ahmetoner/whisper-asr-webservice",
+            "aliases": {
+                "transcription": "default"
+            }
+        },
+        {
             "id": "client",
             "detail": "GitHub Copilot Chat Modes",
             "tools": false,

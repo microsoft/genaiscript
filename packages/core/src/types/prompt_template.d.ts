@@ -195,7 +195,9 @@ type ModelVisionType = OptionsOrString<
     "openai:gpt-4o" | "github:gpt-4o" | "azure:gpt-4o" | "azure:gpt-4o-mini"
 >
 
-type ModelTranscriptionType = OptionsOrString<"openai:whisper-1">
+type ModelTranscriptionType = OptionsOrString<
+    "openai:whisper-1" | "whisperasr:default"
+>
 
 type ModelProviderType = OptionsOrString<
     | "openai"

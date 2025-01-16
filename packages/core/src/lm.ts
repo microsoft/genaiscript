@@ -11,6 +11,7 @@ import {
     MODEL_PROVIDER_OLLAMA,
     MODEL_PROVIDER_TRANSFORMERS,
     MODEL_PROVIDERS,
+    MODEL_WHISPERASR_PROVIDER,
 } from "./constants"
 import { host } from "./host"
 import { OllamaModel } from "./ollama"
@@ -18,6 +19,7 @@ import { LocalOpenAICompatibleModel } from "./openai"
 import { TransformersModel } from "./transformers"
 import { GitHubModel } from "./github"
 import { LMStudioModel } from "./lmstudio"
+import { WhiserAsrModel } from "./whisperasr"
 
 export function resolveLanguageModel(provider: string): LanguageModel {
     if (provider === MODEL_PROVIDER_CLIENT) {
@@ -33,6 +35,7 @@ export function resolveLanguageModel(provider: string): LanguageModel {
         return AnthropicBedrockModel
     if (provider === MODEL_PROVIDER_TRANSFORMERS) return TransformersModel
     if (provider === MODEL_PROVIDER_LMSTUDIO) return LMStudioModel
+    if (provider === MODEL_WHISPERASR_PROVIDER) return WhiserAsrModel
 
     const features = MODEL_PROVIDERS.find((p) => p.id === provider)
     return LocalOpenAICompatibleModel(provider, {

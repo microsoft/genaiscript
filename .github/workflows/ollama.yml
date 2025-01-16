@@ -31,13 +31,21 @@ jobs:
               run: yarn typecheck
             - name: compile
               run: yarn compile
+            - name: install ffmpeg
+              run: yarn ffmpeg:install
             - name: start ollama
               run: yarn ollama:start
+            - name: start whisper
+              run: yarn whisper:start
             - name: run summarize-ollama-phi3
               run: yarn test:summarize --model ollama:llama3.2:1b --out ./temp/summarize-ollama-phi3
               env:
                   OLLAMA_HOST: "http://localhost:11434"
             - name: run convert-ollama-phi3
               run: yarn cli convert summarize --model ollama:llama3.2:1b "packages/sample/src/rag/*.md" --cache-name sum
+              env:
+                  OLLAMA_HOST: "http://localhost:11434"
+            - name: run transcribe
+              run: yarn run:script video-transcript --model ollama:llama3.2:1b --out ./temp/summarize-ollama-phi3
               env:
                   OLLAMA_HOST: "http://localhost:11434"

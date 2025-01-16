@@ -1264,7 +1264,7 @@ script({
 ```
 
 - GenAIScript uses the [LMStudio CLI](https://lmstudio.ai/docs/cli)
-to pull models on demand.
+  to pull models on demand.
 - Specifiying the quantization is currently not supported.
 
 <LLMProviderFeatures provider="lmstudio" />
@@ -1440,6 +1440,21 @@ This provider is experimental and may not work with all models.
 :::
 
 <LLMProviderFeatures provider="transformers" />
+
+## Whisper ASR WebServices <a href="" id="whisperasr"></a>
+
+This `whisperasr` provider allows to configure a [transcription](/genaiscript/reference/scripts/transcription)
+task to use the [Whisper ASR WebService project](https://ahmetoner.com/whisper-asr-webservice/).
+
+This whisper service can run locally or in a docker container (see [documentation](https://ahmetoner.com/whisper-asr-webservice/)).
+
+```js 'model: "whisperasr:default"'
+const transcript = await transcribe("video.mp4", {
+    model: "whisperasr:default",
+})
+```
+
+You can also override the `transcription` model alias to change the default model used by `transcribe`.
 
 ## Model specific environment variables
 
