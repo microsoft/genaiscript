@@ -11,13 +11,23 @@ import { writeFile, readFile } from "fs/promises"
 import { errorMessage, serializeError } from "./error"
 import { fromBase64 } from "./base64"
 import { fileTypeFromBuffer } from "file-type"
-import { stat } from "node:fs/promises"
+import { appendFile, stat } from "node:fs/promises"
 import prettyBytes from "pretty-bytes"
 import { filenameOrFileToFilename } from "./unwrappers"
 import { Stats } from "node:fs"
-import { changeext } from "./fs"
+import { roundWithPrecision } from "./precision"
 
 const ffmpegLimit = pLimit(1)
+
+type FFmpegCommandRenderer = (
+    cmd: FfmpegCommand,
+    options: { input: string; dir: string }
+) => Awaitable<string | object>
+
+interface FFmpegCommandResult {
+    filenames: string[]
+    data: any[]
+}
 
 async function ffmpegCommand(options?: { timeout?: number }) {
     const m = await import("fluent-ffmpeg")
@@ -90,28 +100,52 @@ export class FFmepgClient implements Ffmpeg {
     ): Promise<string[]> {
         if (!filename) throw new Error("filename is required")
 
-        const { transcript, ...soptions } = options || {}
-        if (transcript?.segments?.length)
-            soptions.timestamps = transcript.segments.map((s) => s.start)
-        if (!soptions.count && !soptions.timestamps) soptions.count = 5
+        const {
+            transcript,
+            count,
+            cache = "frames",
+            ...soptions
+        } = options || {}
 
-        const res = await this.run(
-            filename,
-            async (cmd, fopts) => {
-                const { dir } = fopts
-                const c = cmd as FfmpegCommand
-                c.outputOptions("-threads", "1")
-                c.screenshots({
-                    ...soptions,
-                    filename: "%b_%i.png",
-                    folder: dir,
-                })
-                return undefined
-            },
-            { ...soptions, cache: "frames" }
+        // infer timestamps
+        if (transcript?.segments?.length && !soptions.timestamps?.length)
+            soptions.timestamps = transcript.segments.map((s) => s.start)
+        if (count && !soptions.timestamps?.length) {
+            const info = await this.probeVideo(filename)
+            const duration = Number(info.duration)
+            if (count === 1) soptions.timestamps = [0]
+            else
+                soptions.timestamps = Array(count)
+                    .fill(0)
+                    .map((_, i) =>
+                        roundWithPrecision(
+                            Math.min(
+                                (i * duration) / (count - 1),
+                                duration - 0.1
+                            ),
+                            3
+                        )
+                    )
+        }
+        if (!soptions.timestamps?.length) soptions.timestamps = [0]
+
+        const renderers = soptions.timestamps.map(
+            (ts) =>
+                ((cmd, options) => {
+                    cmd.seekInput(ts)
+                    cmd.frames(1)
+                    return `frame-${String(ts).replace(":", "-").replace(".", "_")}.jpg`
+                }) as FFmpegCommandRenderer
         )
-        logVerbose(`ffmpeg: extracted ${res.length} frames`)
-        return res
+
+        await logFile(filename, "input")
+        const { filenames } = await runFfmpeg(filename, renderers, {
+            ...soptions,
+            cache,
+        })
+        logVerbose(`ffmpeg: extracted ${filenames.length} frames`)
+        for (const filename of filenames) await logFile(filename, "output")
+        return filenames
     }
 
     async extractAudio(
@@ -169,18 +203,34 @@ export class FFmepgClient implements Ffmpeg {
             },
             { cache: "probe" }
         )
-        return res.data as VideoProbeResult
+        return res.data[0] as VideoProbeResult
+    }
+
+    async probeVideo(filename: string | WorkspaceFile) {
+        const meta = await this.probe(filename)
+        const vstream = meta.streams.reduce((biggest, stream) => {
+            if (
+                stream.codec_type === "video" &&
+                stream.width &&
+                stream.height &&
+                (!biggest ||
+                    stream.width * stream.height >
+                        biggest.width * biggest.height)
+            ) {
+                return stream
+            } else {
+                return biggest
+            }
+        })
+        return vstream
     }
 }
 
 async function runFfmpeg(
     filename: string | WorkspaceFile,
-    renderer: (
-        cmd: FfmpegCommand,
-        options: { input: string; dir: string }
-    ) => Awaitable<string | object>,
+    renderer: FFmpegCommandRenderer | FFmpegCommandRenderer[],
     options?: FFmpegCommandOptions
-): Promise<{ filenames: string[]; data?: any }> {
+): Promise<FFmpegCommandResult> {
     if (!filename) throw new Error("filename is required")
     const { cache } = options || {}
     const folder = await computeHashFolder(filename, options)
@@ -215,67 +265,87 @@ async function runFfmpeg(
 
         await ensureDir(folder)
         const input = await resolveInput(filename, folder)
-        const cmd = await ffmpegCommand({})
-        // console logging
-        {
-            cmd.on("start", (commandLine) => logVerbose(commandLine))
-            if (process.env.FFMPEG_DEBUG) cmd.on("stderr", (s) => logVerbose(s))
+
+        const res: FFmpegCommandResult = { filenames: [], data: [] }
+        const renderers = arrayify(renderer)
+        for (const renderer of renderers) {
+            const cmd = await ffmpegCommand({})
+            logCommand(folder, cmd)
+            const rres = await runFfmpegCommandUncached(
+                cmd,
+                input,
+                options,
+                folder,
+                renderer
+            )
+            if (rres.filenames?.length) res.filenames.push(...rres.filenames)
+            if (rres.data?.length) res.data.push(...rres.data)
         }
-
-        // setup logging
-        {
-            let log: string[] = []
-            const writeLog = async () => {
-                const logFilename = join(folder, "log.txt")
-                logVerbose(`ffmpeg log: ${logFilename}`)
-                await writeFile(logFilename, log.join("\n"), {
-                    encoding: "utf-8",
-                })
-            }
-            cmd.on("stderr", (s) => log.push(s))
-            cmd.on("end", writeLog)
-            cmd.on("error", async (err) => {
-                log.push(`error: ${errorMessage(err)}\n${serializeError(err)}`)
-                await writeLog()
-            })
-        }
-
-        const res = await new Promise(async (resolve, reject) => {
-            const r: { filenames: string[]; data?: any } = { filenames: [] }
-            const end = () => resolve(r)
-
-            cmd.input(input)
-            if (options.inputOptions)
-                cmd.inputOptions(...arrayify(options.inputOptions))
-            if (options.outputOptions)
-                cmd.outputOption(...arrayify(options.outputOptions))
-            cmd.addListener("filenames", (fns: string[]) => {
-                r.filenames.push(...fns.map((f) => join(folder, f)))
-            })
-            cmd.addListener("end", end)
-            cmd.addListener("error", (err) => reject(err))
-            try {
-                let rendering = await renderer(cmd, {
-                    input,
-                    dir: folder,
-                })
-                if (typeof rendering === "string") {
-                    let output: string = join(folder, basename(rendering))
-                    r.filenames.push(output)
-                    cmd.output(output)
-                    cmd.run()
-                } else if (typeof rendering === "object") {
-                    r.data = rendering
-                    cmd.removeListener("end", end)
-                    resolve(r)
-                }
-            } catch (err) {
-                reject(err)
-            }
-        })
-
-        logVerbose(`ffmpeg: result at ${resFilename}`)
         await writeFile(resFilename, JSON.stringify(res, null, 2))
         return res
+    })
+}
+async function runFfmpegCommandUncached(
+    cmd: FfmpegCommand,
+    input: string,
+    options: FFmpegCommandOptions,
+    folder: string,
+    renderer: FFmpegCommandRenderer
+): Promise<FFmpegCommandResult> {
+    return await new Promise(async (resolve, reject) => {
+        const r: FFmpegCommandResult = { filenames: [], data: [] }
+        const end = () => resolve(r)
+
+        cmd.input(input)
+        if (options.size) cmd.size(options.size)
+        if (options.inputOptions)
+            cmd.inputOptions(...arrayify(options.inputOptions))
+        if (options.outputOptions)
+            cmd.outputOption(...arrayify(options.outputOptions))
+        cmd.addListener("filenames", (fns: string[]) => {
+            r.filenames.push(...fns.map((f) => join(folder, f)))
+        })
+        cmd.addListener("end", end)
+        cmd.addListener("error", (err) => reject(err))
+        try {
+            const rendering = await renderer(cmd, {
+                input,
+                dir: folder,
+            })
+            if (typeof rendering === "string") {
+                let output: string = join(folder, basename(rendering))
+                r.filenames.push(output)
+                cmd.output(output)
+                cmd.run()
+            } else if (typeof rendering === "object") {
+                r.data.push(rendering)
+                cmd.removeListener("end", end)
+                resolve(r)
+            }
+        } catch (err) {
+            reject(err)
+        }
+    })
+}
+
+function logCommand(folder: string, cmd: FfmpegCommand) {
+    // console logging
+    cmd.on("start", (commandLine) => logVerbose(commandLine))
+    if (process.env.FFMPEG_DEBUG) cmd.on("stderr", (s) => logVerbose(s))
+
+    // log to file
+    const log: string[] = []
+    const writeLog = async () => {
+        const logFilename = join(folder, "log.txt")
+        logVerbose(`ffmpeg log: ${logFilename}`)
+        await appendFile(logFilename, log.join("\n"), {
+            encoding: "utf-8",
+        })
+    }
+    cmd.on("stderr", (s) => log.push(s))
+    cmd.on("end", writeLog)
+    cmd.on("error", async (err) => {
+        log.push(`error: ${errorMessage(err)}\n${serializeError(err)}`)
+        await writeLog()
     })
 }

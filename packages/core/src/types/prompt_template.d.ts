@@ -1593,13 +1593,6 @@ interface HashOptions {
     readWorkspaceFiles?: boolean
 }
 
-interface VideoExtractFramesOptions extends FFmpegCommandOptions {
-    timestamps?: number[] | string[]
-    count?: number
-    size?: string
-    transcript?: TranscriptionResult
-}
-
 interface VideoProbeResult {
     streams: {
         index: number
@@ -2176,8 +2169,8 @@ interface Git {
  * A ffmpeg command builder. This instance is the 'native' fluent-ffmpeg command builder.
  */
 interface FfmpegCommandBuilder {
-    setStartTime(startTime: number | string): FfmpegCommandBuilder
-    setDuration(duration: number | string): FfmpegCommandBuilder
+    seekInput(startTime: number | string): FfmpegCommandBuilder
+    duration(duration: number | string): FfmpegCommandBuilder
     noVideo(): FfmpegCommandBuilder
     noAudio(): FfmpegCommandBuilder
     audioCodec(codec: string): FfmpegCommandBuilder
@@ -2211,6 +2204,19 @@ interface FFmpegCommandOptions {
     inputOptions?: ElementOrArray<string>
     outputOptions?: ElementOrArray<string>
     cache?: boolean | string
+    /**
+     * For video conversion, output size as `wxh`
+     */
+    size?: string
+}
+
+interface VideoExtractFramesOptions extends FFmpegCommandOptions {
+    /**
+     * A set of seconds or timestamps (`[[hh:]mm:]ss[.xxx]`)
+     */
+    timestamps?: number[] | string[]
+    count?: number
+    transcript?: TranscriptionResult
 }
 
 interface VideoExtractAudioOptions extends FFmpegCommandOptions {
