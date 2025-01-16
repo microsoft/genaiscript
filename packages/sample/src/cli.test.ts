@@ -131,3 +131,13 @@ describe("retrieval", () => {
         })
     })
 })
+
+describe("video", () => {
+    const cmd = "video"
+    describe("extract-audio", async () => {
+        const action = "extract-audio"
+        const res =
+            await $`node ${cli} ${cmd} ${action} src/audio/*.mp4`.nothrow()
+        assert(!res.exitCode)
+    })
+})

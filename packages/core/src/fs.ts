@@ -3,6 +3,11 @@ import { host } from "./host"
 import { utf8Decode, utf8Encode } from "./util"
 import { uniq } from "es-toolkit"
 
+export function changeext(filename: string, newext: string) {
+    if (!newext.startsWith(".")) newext = "." + newext
+    return filename.replace(/\.[^.]+$/, newext)
+}
+
 export async function readText(fn: string) {
     const curr = await host.readFile(fn)
     return utf8Decode(curr)

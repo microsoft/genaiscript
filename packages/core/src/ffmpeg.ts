@@ -11,6 +11,11 @@ import { writeFile, readFile } from "fs/promises"
 import { errorMessage, serializeError } from "./error"
 import { fromBase64 } from "./base64"
 import { fileTypeFromBuffer } from "file-type"
+import { stat } from "node:fs/promises"
+import prettyBytes from "pretty-bytes"
+import { filenameOrFileToFilename } from "./unwrappers"
+import { Stats } from "node:fs"
+import { changeext } from "./fs"
 
 const ffmpegLimit = pLimit(1)
 
@@ -51,6 +56,17 @@ async function resolveInput(
     return filename
 }
 
+async function logFile(filename: string | WorkspaceFile, action: string) {
+    filename = filenameOrFileToFilename(filename)
+    let stats: Stats
+    try {
+        stats = await stat(filename)
+    } catch {}
+    logVerbose(
+        `ffmpeg: ${action} ${filename} (${stats ? prettyBytes(stats.size) : "0"})`
+    )
+}
+
 export class FFmepgClient implements Ffmpeg {
     constructor() {}
 
@@ -62,8 +78,10 @@ export class FFmepgClient implements Ffmpeg {
         ) => Awaitable<string>,
         options?: FFmpegCommandOptions
     ): Promise<string[]> {
-        const res = await runFfmpeg(input, builder, options || {})
-        return res.filenames
+        await logFile(input, "input")
+        const { filenames } = await runFfmpeg(input, builder, options || {})
+        for (const filename of filenames) await logFile(filename, "output")
+        return filenames
     }
 
     async extractFrames(
@@ -103,8 +121,12 @@ export class FFmepgClient implements Ffmpeg {
         if (!filename) throw new Error("filename is required")
 
         const { forceConversion, ...foptions } = options || {}
-        const { mono } = foptions
-        if (!forceConversion && !mono && typeof filename === "string") {
+        const { transcription } = foptions
+        if (
+            !forceConversion &&
+            !transcription &&
+            typeof filename === "string"
+        ) {
             const mime = lookupMime(filename)
             if (/^audio/.test(mime)) return filename
         }
@@ -113,11 +135,15 @@ export class FFmepgClient implements Ffmpeg {
             async (cmd, fopts) => {
                 const { input } = fopts
                 cmd.noVideo()
-                if (mono) cmd.audioChannels(1)
+                if (transcription) {
+                    cmd.audioCodec("libmp3lame")
+                    cmd.audioChannels(1)
+                    cmd.audioFrequency(16000)
+                }
                 cmd.toFormat("mp3")
-                return basename(input) + ".mp3"
+                return changeext(basename(input), ".mp3")
             },
-            { ...foptions, cache: "audio-mp3" }
+            { ...foptions, cache: foptions.cache || "audio-mp3" }
         )
         return res[0]
     }

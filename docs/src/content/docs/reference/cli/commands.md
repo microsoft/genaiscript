@@ -315,11 +315,11 @@ Usage: genaiscript video extract-audio [options] <file>
 Transcode video/audio file
 
 Arguments:
-  file        Audio or video file to transcode
+  file                 Audio or video file to transcode
 
 Options:
-  -m, --mono  Convert to mono audio
-  -h, --help  display help for command
+  -t, --transcription  Convert audio for speech-to-text
+  -h, --help           display help for command
 ```
 
 ### `video extract-frames`
