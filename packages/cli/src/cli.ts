@@ -347,6 +347,7 @@ export async function cli() {
         .command("extract-frames")
         .description("Extract video frames")
         .argument("<file>", "Audio or video file to transcode")
+        .option("-k, --keyframes", "Extract only keyframes (intra frames)")
         .option("-c, --count <number>", "maximum number of frames to extract")
         .option("-s, --size <string>", "size of the output frames wxh")
         .option("-f, --format <string>", "Image file format")

@@ -2216,8 +2216,21 @@ interface VideoExtractFramesOptions extends FFmpegCommandOptions {
      * A set of seconds or timestamps (`[[hh:]mm:]ss[.xxx]`)
      */
     timestamps?: number[] | string[]
+    /**
+     * Number of frames to extract
+     */
     count?: number
+    /**
+     * Extract frames on the start of each transcript segment
+     */
     transcript?: TranscriptionResult
+    /**
+     * Extract Intra frames (keyframes)
+     */
+    keyframes?: boolean
+    /**
+     * Output of the extracted frames
+     */
     format?: OptionsOrString<"jpeg" | "png">
 }
 

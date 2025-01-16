@@ -31,6 +31,8 @@ of frames (or screenshots).
 The `ffmpeg.extractFrames` will render frames from a video file or url
 and return them as an array of file paths. You can use the result with `defImages` directly.
 
+- by default, extract keyframes (intra-frames)
+
 ```js
 const frames = await ffmpeg.extractFrames("path_url_to_video")
 def("FRAMES", frames)
