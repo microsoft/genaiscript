@@ -20,10 +20,11 @@ export async function extractVideoFrames(
         count?: number
         size?: string
         format?: string
+        keyframes?: boolean
+        sceneThreshold?: number
     }
 ) {
     const { ...rest } = options || {}
-    if (!rest.count && !rest.timestamps?.length) rest.count = 3
     const ffmpeg = new FFmepgClient()
     const frames = await ffmpeg.extractFrames(file, {
         ...rest,

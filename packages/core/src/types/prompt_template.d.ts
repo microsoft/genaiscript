@@ -2218,8 +2218,26 @@ interface VideoExtractFramesOptions extends FFmpegCommandOptions {
      * A set of seconds or timestamps (`[[hh:]mm:]ss[.xxx]`)
      */
     timestamps?: number[] | string[]
+    /**
+     * Number of frames to extract
+     */
     count?: number
+    /**
+     * Extract frames on the start of each transcript segment
+     */
     transcript?: TranscriptionResult
+    /**
+     * Extract Intra frames (keyframes). This is a efficient and fast decoding.
+     */
+    keyframes?: boolean
+    /**
+     * Picks frames that exceed scene threshold (between 0 and 1), typically between 0.2, and 0.5.
+     * This is computationally intensive.
+     */
+    sceneThreshold?: number
+    /**
+     * Output of the extracted frames
+     */
     format?: OptionsOrString<"jpeg" | "png">
 }
 

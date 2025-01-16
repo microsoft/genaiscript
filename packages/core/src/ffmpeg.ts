@@ -11,13 +11,14 @@ import { writeFile, readFile } from "fs/promises"
 import { errorMessage, serializeError } from "./error"
 import { fromBase64 } from "./base64"
 import { fileTypeFromBuffer } from "file-type"
-import { appendFile, stat } from "node:fs/promises"
+import { appendFile, readdir, stat } from "node:fs/promises"
 import prettyBytes from "pretty-bytes"
 import { filenameOrFileToFilename } from "./unwrappers"
 import { Stats } from "node:fs"
 import { roundWithPrecision } from "./precision"
 
 const ffmpegLimit = pLimit(1)
+const WILD_CARD = "%06d"
 
 type FFmpegCommandRenderer = (
     cmd: FfmpegCommand,
@@ -48,7 +49,7 @@ async function computeHashFolder(
             length: VIDEO_HASH_LENGTH,
         }
     )
-    return dotGenaiscriptPath("ffmpeg", h)
+    return dotGenaiscriptPath("cache", "ffmpeg", h)
 }
 
 async function resolveInput(
@@ -109,40 +110,70 @@ export class FFmepgClient implements Ffmpeg {
         const format = options?.format || "jpg"
         const size = options?.size
 
-        // infer timestamps
-        if (transcript?.segments?.length && !soptions.timestamps?.length)
-            soptions.timestamps = transcript.segments.map((s) => s.start)
-        if (count && !soptions.timestamps?.length) {
-            const info = await this.probeVideo(filename)
-            const duration = Number(info.duration)
-            if (count === 1) soptions.timestamps = [0]
-            else
-                soptions.timestamps = Array(count)
-                    .fill(0)
-                    .map((_, i) =>
-                        roundWithPrecision(
-                            Math.min(
-                                (i * duration) / (count - 1),
-                                duration - 0.1
-                            ),
-                            3
-                        )
-                    )
+        const applyOptions = (cmd: FfmpegCommand) => {
+            if (size) {
+                cmd.size(size)
+                cmd.autopad()
+            }
         }
-        if (!soptions.timestamps?.length) soptions.timestamps = [0]
 
-        const renderers = soptions.timestamps.map(
-            (ts) =>
-                ((cmd, options) => {
-                    cmd.seekInput(ts)
-                    cmd.frames(1)
-                    if (size) {
-                        cmd.size(size)
-                        cmd.autopad()
-                    }
-                    return `frame-${String(ts).replace(":", "-").replace(".", "_")}.${format}`
-                }) as FFmpegCommandRenderer
-        )
+        const renderers: FFmpegCommandRenderer[] = []
+        if (
+            soptions.keyframes ||
+            (!count &&
+                !soptions.timestamps?.length &&
+                !(soptions.sceneThreshold > 0))
+        ) {
+            renderers.push((cmd) => {
+                cmd.videoFilter("select='eq(pict_type,I)'")
+                cmd.outputOptions("-fps_mode vfr")
+                cmd.outputOptions("-frame_pts 1")
+                applyOptions(cmd)
+                return `keyframe_*.${format}`
+            })
+        } else if (soptions.sceneThreshold > 0) {
+            renderers.push((cmd) => {
+                cmd.videoFilter(
+                    `select='gt(scene,${soptions.sceneThreshold})',showinfo`
+                )
+                cmd.outputOptions("-fps_mode passthrough")
+                cmd.outputOptions("-frame_pts 1")
+                applyOptions(cmd)
+                return `scenes_*.${format}`
+            })
+        } else {
+            if (transcript?.segments?.length && !soptions.timestamps?.length)
+                soptions.timestamps = transcript.segments.map((s) => s.start)
+            if (count && !soptions.timestamps?.length) {
+                const info = await this.probeVideo(filename)
+                const duration = Number(info.duration)
+                if (count === 1) soptions.timestamps = [0]
+                else
+                    soptions.timestamps = Array(count)
+                        .fill(0)
+                        .map((_, i) =>
+                            roundWithPrecision(
+                                Math.min(
+                                    (i * duration) / (count - 1),
+                                    duration - 0.1
+                                ),
+                                3
+                            )
+                        )
+            }
+            if (!soptions.timestamps?.length) soptions.timestamps = [0]
+            renderers.push(
+                ...soptions.timestamps.map(
+                    (ts) =>
+                        ((cmd) => {
+                            cmd.seekInput(ts)
+                            cmd.frames(1)
+                            applyOptions(cmd)
+                            return `frame-${String(ts).replace(":", "-").replace(".", "_")}.${format}`
+                        }) as FFmpegCommandRenderer
+                )
+            )
+        }
 
         await logFile(filename, "input")
         const { filenames } = await runFfmpeg(filename, renderers, {
@@ -302,6 +333,7 @@ async function runFfmpegCommandUncached(
         const r: FFmpegCommandResult = { filenames: [], data: [] }
         const end = () => resolve(r)
 
+        let output: string
         cmd.input(input)
         if (options.size) cmd.size(options.size)
         if (options.inputOptions)
@@ -311,7 +343,20 @@ async function runFfmpegCommandUncached(
         cmd.addListener("filenames", (fns: string[]) => {
             r.filenames.push(...fns.map((f) => join(folder, f)))
         })
-        cmd.addListener("end", end)
+        cmd.addListener("codeData", (data) => {
+            logVerbose(`ffmpeg: input audio ${data.audio}, video ${data.video}`)
+        })
+        cmd.addListener("end", async () => {
+            if (output?.includes(WILD_CARD)) {
+                const [prefix, suffix] = output.split(WILD_CARD, 2)
+                const files = await readdir(folder)
+                const gen = files.filter(
+                    (f) => f.startsWith(prefix) && f.endsWith(suffix)
+                )
+                r.filenames.push(...gen.map((f) => join(folder, f)))
+            }
+            end()
+        })
         cmd.addListener("error", (err) => reject(err))
         try {
             const rendering = await renderer(cmd, {
@@ -319,10 +364,11 @@ async function runFfmpegCommandUncached(
                 dir: folder,
             })
             if (typeof rendering === "string") {
-                let output: string = join(folder, basename(rendering))
-                r.filenames.push(output)
-                cmd.output(output)
+                output = rendering.replace(/\*/g, WILD_CARD)
+                const fo = join(folder, basename(output))
+                cmd.output(fo)
                 cmd.run()
+                if (!output.includes(WILD_CARD)) r.filenames.push(fo)
             } else if (typeof rendering === "object") {
                 r.data.push(rendering)
                 cmd.removeListener("end", end)
