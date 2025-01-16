@@ -19,6 +19,7 @@ export async function extractVideoFrames(
         timestamps?: number[]
         count?: number
         size?: string
+        format?: string
     }
 ) {
     const { ...rest } = options || {}

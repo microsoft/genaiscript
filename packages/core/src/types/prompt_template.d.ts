@@ -2217,6 +2217,7 @@ interface VideoExtractFramesOptions extends FFmpegCommandOptions {
     timestamps?: number[] | string[]
     count?: number
     transcript?: TranscriptionResult
+    format?: OptionsOrString<"jpeg" | "png">
 }
 
 interface VideoExtractAudioOptions extends FFmpegCommandOptions {

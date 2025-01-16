@@ -106,6 +106,8 @@ export class FFmepgClient implements Ffmpeg {
             cache = "frames",
             ...soptions
         } = options || {}
+        const format = options?.format || "jpg"
+        const size = options?.size
 
         // infer timestamps
         if (transcript?.segments?.length && !soptions.timestamps?.length)
@@ -134,7 +136,11 @@ export class FFmepgClient implements Ffmpeg {
                 ((cmd, options) => {
                     cmd.seekInput(ts)
                     cmd.frames(1)
-                    return `frame-${String(ts).replace(":", "-").replace(".", "_")}.jpg`
+                    if (size) {
+                        cmd.size(size)
+                        cmd.autopad()
+                    }
+                    return `frame-${String(ts).replace(":", "-").replace(".", "_")}.${format}`
                 }) as FFmpegCommandRenderer
         )
 
