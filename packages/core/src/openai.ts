@@ -455,7 +455,6 @@ export async function OpenAITranscribe(
             method: "POST",
             headers: {
                 ...getConfigHeaders(cfg),
-                ContentType: "multipart/form-data",
                 Accept: "application/json",
             },
             body: body,
