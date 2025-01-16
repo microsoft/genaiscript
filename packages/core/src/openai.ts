@@ -438,7 +438,7 @@ export async function OpenAITranscribe(
 ): Promise<TranscriptionResult> {
     const { trace } = options || {}
     try {
-        logVerbose(`${cfg.provider}: transcribe with ${cfg.model}`)
+        logVerbose(`${cfg.provider}: transcribe ${prettyBytes(req.file.size)} with ${cfg.model}`)
         const route = req.translate ? "translations" : "transcriptions"
         const url = `${cfg.base}/audio/${route}`
         trace.itemValue(`url`, `[${url}](${url})`)
@@ -449,7 +449,6 @@ export async function OpenAITranscribe(
             body.append("temperature", req.temperature.toString())
         if (req.language) body.append("language", req.language)
         body.append("file", req.file)
-        logVerbose(`transcript: ${prettyBytes(req.file.size)}`)
 
         const freq = {
             method: "POST",
