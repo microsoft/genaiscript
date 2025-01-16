@@ -102,14 +102,8 @@ function activateNotebookExecutor(state: ExtensionState) {
             frontmatterTryParse(frontMatterText)?.value ??
             YAMLTryParse(frontMatterText) ??
             {}
-        const {
-            model,
-            smallModel,
-            visionModel,
-            provider,
-            files,
-            vars,
-        }: NotebookFrontMatter = frontmatter || {}
+        const { files, vars, ...runOptions }: NotebookFrontMatter =
+            frontmatter || {}
 
         for (const cell of cells) {
             if (executionId !== currentExecutionId) return
@@ -129,10 +123,6 @@ function activateNotebookExecutor(state: ExtensionState) {
                     continue
                 }
                 const meta = parsePromptScriptMeta(jsSource)
-                if (model) meta.model = model
-                if (smallModel) meta.smallModel = smallModel
-                if (visionModel) meta.visionModel = visionModel
-                if (provider) meta.provider = provider
                 const template: PromptScript = {
                     ...meta,
                     id: "notebook-cell-" + cell.index,
@@ -149,6 +139,7 @@ function activateNotebookExecutor(state: ExtensionState) {
                     fragment,
                     mode: "notebook",
                     jsSource,
+                    runOptions,
                 })
                 const res = state.aiRequest?.response
                 if (!res) throw new Error("No GenAI result")

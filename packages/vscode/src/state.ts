@@ -7,7 +7,7 @@ import { Utils } from "vscode-uri"
 import { listFiles, saveAllTextDocuments } from "./fs"
 import { hasOutputOrTraceOpened } from "./markdowndocumentprovider"
 import { parseAnnotations } from "../../core/src/annotations"
-import { Project } from "../../core/src/server/messages"
+import { Project, PromptScriptRunOptions } from "../../core/src/server/messages"
 import { JSONLineCache } from "../../core/src/cache"
 import { ChatCompletionsProgressReport } from "../../core/src/chattypes"
 import { fixPromptDefinitions } from "../../core/src/scripts"
@@ -40,6 +40,7 @@ export interface AIRequestOptions {
     parameters: PromptParameters
     mode?: "notebook" | "chat"
     jsSource?: string
+    runOptions?: Partial<PromptScriptRunOptions>
 }
 
 export class FragmentsEvent extends Event {
@@ -223,6 +224,7 @@ export class ExtensionState extends EventTarget {
                         template: options.template,
                         parameters: options.parameters,
                         mode: options.mode,
+                        runOptions: options.runOptions,
                     },
                     { version: true }
                 ),
@@ -272,7 +274,7 @@ export class ExtensionState extends EventTarget {
         trace.addEventListener(CHANGE, reqChange)
         reqChange()
 
-        const { template, fragment, label } = options
+        const { template, fragment, label, runOptions } = options
         const { files } = fragment || {}
         const infoCb = (partialResponse: { text: string }) => {
             r.response = partialResponse
@@ -282,6 +284,7 @@ export class ExtensionState extends EventTarget {
         // todo: send js source
         const client = await this.host.server.client()
         const { runId, request } = await client.runScript(template.id, files, {
+            ...(runOptions || {}),
             jsSource: options.jsSource,
             signal,
             trace,
