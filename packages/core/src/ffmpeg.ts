@@ -155,7 +155,7 @@ export class FFmepgClient implements Ffmpeg {
         if (!filename) throw new Error("filename is required")
 
         const { forceConversion, ...foptions } = options || {}
-        const { transcription } = foptions
+        const { transcription = true } = foptions
         if (
             !forceConversion &&
             !transcription &&
