@@ -63,7 +63,7 @@ import {
     TOKEN_NO_ANSWER,
     MODEL_PROVIDER_AICI,
     DOCS_DEF_FILES_IS_EMPTY_URL,
-    TRANSCRIPTION_MEMORY_CACHE_NAME,
+    TRANSCRIPTION_CACHE_NAME,
     TRANSCRIPTION_MODEL_ID,
     SPEECH_MODEL_ID,
 } from "./constants"
@@ -713,7 +713,7 @@ export function createChatGenerationContext(
                 TranscriptionResult
             >(
                 cache === true
-                    ? TRANSCRIPTION_MEMORY_CACHE_NAME
+                    ? TRANSCRIPTION_CACHE_NAME
                     : typeof cache === "string"
                       ? cache
                       : undefined
