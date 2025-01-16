@@ -330,14 +330,14 @@ export async function cli() {
         .argument("[name]", "Name of the cache, tests")
         .action(cacheClear) // Action to clear cache
 
-    const audio = program.command("video").description("Video tasks")
-    audio
+    const video = program.command("video").description("Video tasks")
+    video
         .command("extract-audio")
         .description("Transcode video/audio file")
         .argument("<file>", "Audio or video file to transcode")
         .option("-t, --transcription", "Convert audio for speech-to-text")
         .action(extractAudio)
-    audio
+    video
         .command("extract-frames")
         .description("Extract video frames")
         .argument("<file>", "Audio or video file to transcode")

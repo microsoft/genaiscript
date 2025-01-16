@@ -679,7 +679,7 @@ export function createChatGenerationContext(
                 throw new Error("audio transcribe not found for " + info.model)
             const ffmpeg = new FFmepgClient()
             const audioFile = await ffmpeg.extractAudio(audio, {
-                mono: true,
+                transcription: true,
                 cache,
             })
             const file = await BufferToBlob(await host.readFile(audioFile))

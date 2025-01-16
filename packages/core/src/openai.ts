@@ -49,6 +49,7 @@ import {
     LanguageModelConfiguration,
     LanguageModelInfo,
 } from "./server/messages"
+import { FormData } from 'formdata-polyfill/esm.min.js'
 
 export function getConfigHeaders(cfg: LanguageModelConfiguration) {
     let { token, type, base, provider } = cfg
@@ -436,18 +437,19 @@ export async function OpenAITranscribe(
     options: TraceOptions & CancellationOptions
 ): Promise<TranscriptionResult> {
     const { trace } = options || {}
+    const fetch = await createFetch(options)
     try {
         logVerbose(`${cfg.provider}: transcribe with ${cfg.model}`)
         const route = req.translate ? "translations" : "transcriptions"
         const url = `${cfg.base}/audio/${route}`
         trace.itemValue(`url`, `[${url}](${url})`)
         const body = new FormData()
-        body.append("file", req.file)
         body.append("model", req.model)
         body.append("response_format", "verbose_json")
         if (req.temperature)
             body.append("temperature", req.temperature.toString())
         if (req.language) body.append("language", req.language)
+        body.append("file", req.file)
 
         const freq = {
             method: "POST",
