@@ -2227,11 +2227,12 @@ interface VideoExtractFramesOptions extends FFmpegCommandOptions {
      */
     transcript?: TranscriptionResult
     /**
-     * Extract Intra frames (keyframes)
+     * Extract Intra frames (keyframes). This is a efficient and fast decoding.
      */
     keyframes?: boolean
     /**
-     * Picks frames that exceed scene threshold, typically between 0.2, and 0.5
+     * Picks frames that exceed scene threshold (between 0 and 1), typically between 0.2, and 0.5.
+     * This is computationally intensive.
      */
     sceneThreshold?: number
     /**

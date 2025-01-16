@@ -18,7 +18,7 @@ import { Stats } from "node:fs"
 import { roundWithPrecision } from "./precision"
 
 const ffmpegLimit = pLimit(1)
-const WILD_CARD = "%04d"
+const WILD_CARD = "%06d"
 
 type FFmpegCommandRenderer = (
     cmd: FfmpegCommand,
@@ -137,6 +137,7 @@ export class FFmepgClient implements Ffmpeg {
                     `select='gt(scene,${soptions.sceneThreshold})',showinfo`
                 )
                 cmd.outputOptions("-fps_mode passthrough")
+                cmd.outputOptions("-frame_pts 1")
                 applyOptions(cmd)
                 return `scenes_*.${format}`
             })
@@ -363,7 +364,7 @@ async function runFfmpegCommandUncached(
                 dir: folder,
             })
             if (typeof rendering === "string") {
-                output = rendering.replace("*", WILD_CARD)
+                output = rendering.replace(/\*/g, WILD_CARD)
                 const fo = join(folder, basename(output))
                 cmd.output(fo)
                 cmd.run()
