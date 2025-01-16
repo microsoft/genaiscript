@@ -197,7 +197,7 @@ type ModelVisionType = OptionsOrString<
 
 type ModelTranscriptionType = OptionsOrString<"openai:whisper-1">
 
-type ModelProviderType =
+type ModelProviderType = OptionsOrString<
     | "openai"
     | "azure"
     | "azure_serverless"
@@ -215,6 +215,7 @@ type ModelProviderType =
     | "jan"
     | "llamafile"
     | "litellm"
+>
 
 interface ModelConnectionOptions {
     /**
@@ -2225,7 +2226,7 @@ interface VideoExtractAudioOptions extends FFmpegCommandOptions {
      * Optimize for speech-to-text transcription. Default is true.
      */
     transcription?: boolean
-    
+
     forceConversion?: boolean
 }
 

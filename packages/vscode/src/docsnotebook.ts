@@ -61,6 +61,15 @@ export async function activateDocsNotebook(state: ExtensionState) {
     activateNotebookExecutor(state)
 }
 
+interface NotebookFrontMatter {
+    model?: string
+    smallModel?: string
+    visionModel?: string
+    provider?: ModelProviderType
+    vars?: Record<string, any>
+    files?: string | string[]
+}
+
 function activateNotebookExecutor(state: ExtensionState) {
     const { context } = state
     const { subscriptions } = context
@@ -89,19 +98,18 @@ function activateNotebookExecutor(state: ExtensionState) {
 
         const firstCell = notebook.cellAt(0)
         const frontMatterText = firstCell?.document?.getText()
-        const { genaiscript: frontmatter = {} } =
+        const frontmatter =
             frontmatterTryParse(frontMatterText)?.value ??
             YAMLTryParse(frontMatterText) ??
             {}
         const {
             model,
+            smallModel,
+            visionModel,
+            provider,
             files,
             vars,
-        }: {
-            model?: string
-            vars?: Record<string, any>
-            files?: string | string[]
-        } = frontmatter || {}
+        }: NotebookFrontMatter = frontmatter || {}
 
         for (const cell of cells) {
             if (executionId !== currentExecutionId) return
@@ -122,6 +130,9 @@ function activateNotebookExecutor(state: ExtensionState) {
                 }
                 const meta = parsePromptScriptMeta(jsSource)
                 if (model) meta.model = model
+                if (smallModel) meta.smallModel = smallModel
+                if (visionModel) meta.visionModel = visionModel
+                if (provider) meta.provider = provider
                 const template: PromptScript = {
                     ...meta,
                     id: "notebook-cell-" + cell.index,
