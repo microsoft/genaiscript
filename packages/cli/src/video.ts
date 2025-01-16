@@ -21,6 +21,7 @@ export async function extractVideoFrames(
         size?: string
         format?: string
         keyframes?: boolean
+        sceneThreshold?: number
     }
 ) {
     const { ...rest } = options || {}

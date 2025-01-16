@@ -345,14 +345,15 @@ Usage: genaiscript video extract-frames [options] <file>
 Extract video frames
 
 Arguments:
-  file                   Audio or video file to transcode
+  file                             Audio or video file to transcode
 
 Options:
-  -k, --keyframes        Extract only keyframes (intra frames)
-  -c, --count <number>   maximum number of frames to extract
-  -s, --size <string>    size of the output frames wxh
-  -f, --format <string>  Image file format
-  -h, --help             display help for command
+  -k, --keyframes                  Extract only keyframes (intra frames)
+  -st, --scene-threshold <number>  Extract frames with a minimum threshold
+  -c, --count <number>             maximum number of frames to extract
+  -s, --size <string>              size of the output frames wxh
+  -f, --format <string>            Image file format
+  -h, --help                       display help for command
 ```
 
 ## `retrieval`

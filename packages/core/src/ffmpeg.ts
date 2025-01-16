@@ -18,6 +18,7 @@ import { Stats } from "node:fs"
 import { roundWithPrecision } from "./precision"
 
 const ffmpegLimit = pLimit(1)
+const WILD_CARD = "%04d"
 
 type FFmpegCommandRenderer = (
     cmd: FfmpegCommand,
@@ -109,17 +110,35 @@ export class FFmepgClient implements Ffmpeg {
         const format = options?.format || "jpg"
         const size = options?.size
 
+        const applyOptions = (cmd: FfmpegCommand) => {
+            if (size) {
+                cmd.size(size)
+                cmd.autopad()
+            }
+        }
+
         const renderers: FFmpegCommandRenderer[] = []
-        if (soptions.keyframes || (!count && !soptions.timestamps?.length)) {
+        if (
+            soptions.keyframes ||
+            (!count &&
+                !soptions.timestamps?.length &&
+                !(soptions.sceneThreshold > 0))
+        ) {
             renderers.push((cmd) => {
-                if (size) {
-                    cmd.size(size)
-                    cmd.autopad()
-                }
                 cmd.videoFilter("select='eq(pict_type,I)'")
-                cmd.outputOptions("-vsync vfr")
+                cmd.outputOptions("-fps_mode vfr")
                 cmd.outputOptions("-frame_pts 1")
-                return `keyframe_%03d.${format}`
+                applyOptions(cmd)
+                return `keyframe_*.${format}`
+            })
+        } else if (soptions.sceneThreshold > 0) {
+            renderers.push((cmd) => {
+                cmd.videoFilter(
+                    `select='gt(scene,${soptions.sceneThreshold})',showinfo`
+                )
+                cmd.outputOptions("-fps_mode passthrough")
+                applyOptions(cmd)
+                return `scenes_*.${format}`
             })
         } else {
             if (transcript?.segments?.length && !soptions.timestamps?.length)
@@ -148,10 +167,7 @@ export class FFmepgClient implements Ffmpeg {
                         ((cmd) => {
                             cmd.seekInput(ts)
                             cmd.frames(1)
-                            if (size) {
-                                cmd.size(size)
-                                cmd.autopad()
-                            }
+                            applyOptions(cmd)
                             return `frame-${String(ts).replace(":", "-").replace(".", "_")}.${format}`
                         }) as FFmpegCommandRenderer
                 )
@@ -316,8 +332,6 @@ async function runFfmpegCommandUncached(
         const r: FFmpegCommandResult = { filenames: [], data: [] }
         const end = () => resolve(r)
 
-        const WILD_CARD = "%03d"
-
         let output: string
         cmd.input(input)
         if (options.size) cmd.size(options.size)
@@ -328,6 +342,9 @@ async function runFfmpegCommandUncached(
         cmd.addListener("filenames", (fns: string[]) => {
             r.filenames.push(...fns.map((f) => join(folder, f)))
         })
+        cmd.addListener("codeData", (data) => {
+            logVerbose(`ffmpeg: input audio ${data.audio}, video ${data.video}`)
+        })
         cmd.addListener("end", async () => {
             if (output?.includes(WILD_CARD)) {
                 const [prefix, suffix] = output.split(WILD_CARD, 2)
@@ -336,7 +353,6 @@ async function runFfmpegCommandUncached(
                     (f) => f.startsWith(prefix) && f.endsWith(suffix)
                 )
                 r.filenames.push(...gen.map((f) => join(folder, f)))
-                console.log({ prefix, suffix, files, gen })
             }
             end()
         })
@@ -347,11 +363,11 @@ async function runFfmpegCommandUncached(
                 dir: folder,
             })
             if (typeof rendering === "string") {
-                output = rendering
-                const fo = join(folder, basename(rendering))
+                output = rendering.replace("*", WILD_CARD)
+                const fo = join(folder, basename(output))
                 cmd.output(fo)
                 cmd.run()
-                if (!rendering.includes(WILD_CARD)) r.filenames.push(fo)
+                if (!output.includes(WILD_CARD)) r.filenames.push(fo)
             } else if (typeof rendering === "object") {
                 r.data.push(rendering)
                 cmd.removeListener("end", end)

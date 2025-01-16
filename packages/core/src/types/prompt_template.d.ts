@@ -2229,6 +2229,10 @@ interface VideoExtractFramesOptions extends FFmpegCommandOptions {
      */
     keyframes?: boolean
     /**
+     * Picks frames that exceed scene threshold, typically between 0.2, and 0.5
+     */
+    sceneThreshold?: number
+    /**
      * Output of the extracted frames
      */
     format?: OptionsOrString<"jpeg" | "png">
