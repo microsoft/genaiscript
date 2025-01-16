@@ -37,6 +37,8 @@ import {
     MODEL_PROVIDER_ANTHROPIC_BEDROCK,
     MODEL_PROVIDER_DEEPSEEK,
     DEEPSEEK_API_BASE,
+    MODEL_WHISPERASR_PROVIDER,
+    WHISPERASR_API_BASE,
 } from "./constants"
 import { host, runtimeHost } from "./host"
 import { parseModelIdentifier } from "./models"
@@ -427,6 +429,20 @@ export async function parseTokenFromEnv(
             token,
             type: "openai",
             source: "env: DEEPSEEK_API_...",
+        }
+    }
+
+    if (provider === MODEL_WHISPERASR_PROVIDER) {
+        const base =
+            findEnvVar(env, "WHISPERASR", BASE_SUFFIX)?.value ||
+            WHISPERASR_API_BASE
+        if (!URL.canParse(base)) throw new Error(`${base} must be a valid URL`)
+        return {
+            provider,
+            model,
+            base,
+            token: undefined,
+            source: "env: WHISPERASR_API_...",
         }
     }
 

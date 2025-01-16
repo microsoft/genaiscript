@@ -171,7 +171,7 @@ export type SpeechFunction = (
 
 export interface LanguageModel {
     id: string
-    completer: ChatCompletionHandler
+    completer?: ChatCompletionHandler
     listModels?: ListModelsFunction
     pullModel?: PullModelFunction
     transcriber?: TranscribeFunction
