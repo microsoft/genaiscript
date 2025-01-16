@@ -11,10 +11,10 @@ GenAIScript supports transcription and translations from OpenAI like APIs.
 const { text } = await transcribe("video.mp4")
 ```
 
-## File formats
+## Configuration
 
 The transcription API will automatically use [ffmpeg](https://ffmpeg.org/)
-to convert videos to audio files ([opus in a ogg container](https://community.openai.com/t/whisper-api-increase-file-limit-25-mb/566754)).
+to convert videos to audio files ([opus codec in a ogg container](https://community.openai.com/t/whisper-api-increase-file-limit-25-mb/566754)).
 
 You need to install ffmpeg on your system. If the `FFMPEG_PATH` environment variable is set,
 GenAIScript will use it as the full path to the ffmpeg executable.
@@ -26,9 +26,16 @@ Otherwise, it will attempt to call ffmpeg directly
 By default, the API uses the `transcription` [model alias](/genaiscript/reference/scripts/model-aliases) to transcribe the audio.
 You can also specify a different model alias using the `model` option.
 
-```js "openai:whisper-1"
+```js "openai:whisper-1" wrap
 const { text } = await transcribe("...", { model: "openai:whisper-1" })
 ```
+
+:::tip
+
+You can use [Whisper ASR Webservice](/genaiscript/getting-started/configuration/#whisperasr) to run Whisper locally
+or in a docker container.
+
+:::
 
 ## Segments
 
@@ -57,7 +64,7 @@ Some models also support transcribing and translating to English in one pass. Fo
 set the `translate: true` flag.
 
 ```js "translate: true"
-const { text } = await transcribe("...", { translate: true })
+const { srt } = await transcribe("...", { translate: true })
 ```
 
 ## Cache
@@ -65,5 +72,11 @@ const { text } = await transcribe("...", { translate: true })
 You can cache the transcription results by setting the `cache` option to `true` (or a custom name).
 
 ```js "cache: true"
-const { text } = await transcribe("...", { cache: true })
+const { srt } = await transcribe("...", { cache: true })
+```
+
+or a custom salt
+
+```js
+const { srt } = await transcribe("...", { cache: "whisper" })
 ```

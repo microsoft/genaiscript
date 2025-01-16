@@ -15,6 +15,10 @@
                         "type": "string",
                         "description": "Identifier for the LLM provider"
                     },
+                    "url": {
+                        "type": "string",
+                        "description": "Home page for the provider"
+                    },
                     "detail": {
                         "type": "string",
                         "description": "Description of the LLM provider"
