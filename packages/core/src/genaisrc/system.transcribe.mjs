@@ -14,9 +14,10 @@ defTool(
     async (args) => {
         const { filename } = args
         if (!filename) return "No filename provided"
-        const { text, srt } = await transcribe(filename, {
+        const { text, srt, error } = await transcribe(filename, {
             cache: "transcribe",
         })
-        return srt || text
+        if (error) throw new Error(error.message)
+        return srt || text || "no response"
     }
 )

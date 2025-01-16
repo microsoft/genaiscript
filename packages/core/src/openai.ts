@@ -49,6 +49,7 @@ import {
     LanguageModelConfiguration,
     LanguageModelInfo,
 } from "./server/messages"
+import prettyBytes from "pretty-bytes"
 
 export function getConfigHeaders(cfg: LanguageModelConfiguration) {
     let { token, type, base, provider } = cfg
@@ -437,23 +438,26 @@ export async function OpenAITranscribe(
 ): Promise<TranscriptionResult> {
     const { trace } = options || {}
     try {
-        logVerbose(`${cfg.provider}: transcribe with ${cfg.model}`)
+        logVerbose(
+            `${cfg.provider}: transcribe ${req.file.type} ${prettyBytes(req.file.size)} with ${cfg.model}`
+        )
         const route = req.translate ? "translations" : "transcriptions"
         const url = `${cfg.base}/audio/${route}`
         trace.itemValue(`url`, `[${url}](${url})`)
+        trace.itemValue(`size`, req.file.size)
+        trace.itemValue(`mime`, req.file.type)
         const body = new FormData()
-        body.append("file", req.file)
         body.append("model", req.model)
         body.append("response_format", "verbose_json")
         if (req.temperature)
             body.append("temperature", req.temperature.toString())
         if (req.language) body.append("language", req.language)
+        body.append("file", req.file)
 
         const freq = {
             method: "POST",
             headers: {
                 ...getConfigHeaders(cfg),
-                "Content-Type": "multipart/form-data",
                 Accept: "application/json",
             },
             body: body,

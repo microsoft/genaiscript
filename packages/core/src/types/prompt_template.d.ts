@@ -2214,6 +2214,10 @@ interface FFmpegCommandOptions {
 }
 
 interface VideoExtractAudioOptions extends FFmpegCommandOptions {
+    /**
+     * Optimize for speech-to-text transcription.
+     */
+    transcription?: boolean
     forceConversion?: boolean
 }
 

@@ -113,7 +113,6 @@ class AzureTokenResolverImpl implements AzureTokenResolver {
         const { cancellationToken } = options || {}
 
         if (isAzureTokenExpired(this._token)) {
-            logVerbose(`${this.name}: token expired`)
             this._token = undefined
             this._error = undefined
         }

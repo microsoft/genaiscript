@@ -63,7 +63,7 @@ import {
     TOKEN_NO_ANSWER,
     MODEL_PROVIDER_AICI,
     DOCS_DEF_FILES_IS_EMPTY_URL,
-    TRANSCRIPTION_MEMORY_CACHE_NAME,
+    TRANSCRIPTION_CACHE_NAME,
     TRANSCRIPTION_MODEL_ID,
     SPEECH_MODEL_ID,
 } from "./constants"
@@ -679,9 +679,10 @@ export function createChatGenerationContext(
                 throw new Error("audio transcribe not found for " + info.model)
             const ffmpeg = new FFmepgClient()
             const audioFile = await ffmpeg.extractAudio(audio, {
+                transcription: true,
                 cache,
             })
-            const file = await BufferToBlob(await host.readFile(audioFile))
+            const file = await BufferToBlob(await host.readFile(audioFile), "audio/ogg")
             const update: () => Promise<TranscriptionResult> = async () => {
                 transcriptionTrace.itemValue(`model`, configuration.model)
                 transcriptionTrace.itemValue(
@@ -712,7 +713,7 @@ export function createChatGenerationContext(
                 TranscriptionResult
             >(
                 cache === true
-                    ? TRANSCRIPTION_MEMORY_CACHE_NAME
+                    ? TRANSCRIPTION_CACHE_NAME
                     : typeof cache === "string"
                       ? cache
                       : undefined

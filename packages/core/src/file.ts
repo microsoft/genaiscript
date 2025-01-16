@@ -119,9 +119,12 @@ export async function resolveFileContent(
         file.type = mime
         if (!isBinary) file.content = await readText(filename)
         else {
-            const bytes: Uint8Array = await host.readFile(filename)
-            file.encoding = "base64"
-            file.content = toBase64(bytes)
+            const info = await host.statFile(filename)
+            if (info.size < 1000000) {
+                const bytes: Uint8Array = await host.readFile(filename)
+                file.encoding = "base64"
+                file.content = toBase64(bytes)
+            }
         }
     }
 

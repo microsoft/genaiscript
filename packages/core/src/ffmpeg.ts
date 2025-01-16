@@ -6,11 +6,16 @@ import { join, basename } from "node:path"
 import { ensureDir } from "fs-extra"
 import type { FfmpegCommand } from "fluent-ffmpeg"
 import { hash } from "./crypto"
-import { VIDEO_CLIPS_DIR_NAME, VIDEO_HASH_LENGTH } from "./constants"
+import { VIDEO_HASH_LENGTH } from "./constants"
 import { writeFile, readFile } from "fs/promises"
 import { errorMessage, serializeError } from "./error"
 import { fromBase64 } from "./base64"
 import { fileTypeFromBuffer } from "file-type"
+import { stat } from "node:fs/promises"
+import prettyBytes from "pretty-bytes"
+import { filenameOrFileToFilename } from "./unwrappers"
+import { Stats } from "node:fs"
+import { changeext } from "./fs"
 
 const ffmpegLimit = pLimit(1)
 
@@ -41,7 +46,7 @@ async function resolveInput(
     folder: string
 ): Promise<string> {
     if (typeof filename === "object") {
-        if (filename.content) {
+        if (filename.content && filename.encoding === "base64") {
             const bytes = fromBase64(filename.content)
             const mime = await fileTypeFromBuffer(bytes)
             filename = join(folder, "input." + mime.ext)
@@ -49,6 +54,17 @@ async function resolveInput(
         } else filename = filename.filename
     }
     return filename
+}
+
+async function logFile(filename: string | WorkspaceFile, action: string) {
+    filename = filenameOrFileToFilename(filename)
+    let stats: Stats
+    try {
+        stats = await stat(filename)
+    } catch {}
+    logVerbose(
+        `ffmpeg: ${action} ${filename} (${stats ? prettyBytes(stats.size) : "0"})`
+    )
 }
 
 export class FFmepgClient implements Ffmpeg {
@@ -62,8 +78,10 @@ export class FFmepgClient implements Ffmpeg {
         ) => Awaitable<string>,
         options?: FFmpegCommandOptions
     ): Promise<string[]> {
-        const res = await runFfmpeg(input, builder, options || {})
-        return res.filenames
+        await logFile(input, "input")
+        const { filenames } = await runFfmpeg(input, builder, options || {})
+        for (const filename of filenames) await logFile(filename, "output")
+        return filenames
     }
 
     async extractFrames(
@@ -82,6 +100,7 @@ export class FFmepgClient implements Ffmpeg {
             async (cmd, fopts) => {
                 const { dir } = fopts
                 const c = cmd as FfmpegCommand
+                c.outputOptions("-threads", "1")
                 c.screenshots({
                     ...soptions,
                     filename: "%b_%i.png",
@@ -102,18 +121,34 @@ export class FFmepgClient implements Ffmpeg {
         if (!filename) throw new Error("filename is required")
 
         const { forceConversion, ...foptions } = options || {}
-        if (!forceConversion && typeof filename === "string") {
+        const { transcription } = foptions
+        if (
+            !forceConversion &&
+            !transcription &&
+            typeof filename === "string"
+        ) {
             const mime = lookupMime(filename)
             if (/^audio/.test(mime)) return filename
         }
         const res = await this.run(
             filename,
             async (cmd, fopts) => {
-                const { input } = fopts
-                cmd.noVideo().toFormat("wav")
-                return basename(input) + ".wav"
+                cmd.noVideo()
+                if (transcription) {
+                    // https://community.openai.com/t/whisper-api-increase-file-limit-25-mb/566754
+                    cmd.audioCodec("libopus")
+                    cmd.audioChannels(1)
+                    cmd.audioBitrate("12k")
+                    cmd.outputOptions("-map_metadata -1")
+                    cmd.outputOptions("-application voip")
+                    cmd.toFormat("ogg")
+                    return "audio.ogg"
+                } else {
+                    cmd.toFormat("mp3")
+                    return "audio.mp3"
+                }
             },
-            { ...foptions, cache: "audio" }
+            { ...foptions, cache: foptions.cache || "audio-voip" }
         )
         return res[0]
     }
