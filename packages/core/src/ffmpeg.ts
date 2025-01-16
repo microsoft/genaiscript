@@ -133,17 +133,22 @@ export class FFmepgClient implements Ffmpeg {
         const res = await this.run(
             filename,
             async (cmd, fopts) => {
-                const { input } = fopts
                 cmd.noVideo()
                 if (transcription) {
-                    cmd.audioCodec("libmp3lame")
+                    // https://community.openai.com/t/whisper-api-increase-file-limit-25-mb/566754
+                    cmd.audioCodec("libopus")
                     cmd.audioChannels(1)
-                    cmd.audioFrequency(16000)
+                    cmd.audioBitrate("12k")
+                    cmd.outputOptions("-map_metadata -1")
+                    cmd.outputOptions("-application voip")
+                    cmd.toFormat("ogg")
+                    return "audio.ogg"
+                } else {
+                    cmd.toFormat("mp3")
+                    return "audio.mp3"
                 }
-                cmd.toFormat("mp3")
-                return changeext(basename(input), ".mp3")
             },
-            { ...foptions, cache: foptions.cache || "audio-mp3" }
+            { ...foptions, cache: foptions.cache || "audio-voip" }
         )
         return res[0]
     }

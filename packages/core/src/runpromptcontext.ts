@@ -682,7 +682,7 @@ export function createChatGenerationContext(
                 transcription: true,
                 cache,
             })
-            const file = await BufferToBlob(await host.readFile(audioFile))
+            const file = await BufferToBlob(await host.readFile(audioFile), "audio/ogg")
             const update: () => Promise<TranscriptionResult> = async () => {
                 transcriptionTrace.itemValue(`model`, configuration.model)
                 transcriptionTrace.itemValue(

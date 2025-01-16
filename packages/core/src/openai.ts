@@ -438,10 +438,14 @@ export async function OpenAITranscribe(
 ): Promise<TranscriptionResult> {
     const { trace } = options || {}
     try {
-        logVerbose(`${cfg.provider}: transcribe ${prettyBytes(req.file.size)} with ${cfg.model}`)
+        logVerbose(
+            `${cfg.provider}: transcribe ${req.file.type} ${prettyBytes(req.file.size)} with ${cfg.model}`
+        )
         const route = req.translate ? "translations" : "transcriptions"
         const url = `${cfg.base}/audio/${route}`
         trace.itemValue(`url`, `[${url}](${url})`)
+        trace.itemValue(`size`, req.file.size)
+        trace.itemValue(`mime`, req.file.type)
         const body = new FormData()
         body.append("model", req.model)
         body.append("response_format", "verbose_json")
