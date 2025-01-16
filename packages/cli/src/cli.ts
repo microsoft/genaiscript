@@ -335,6 +335,7 @@ export async function cli() {
         .command("extract-audio")
         .description("Transcode video/audio file")
         .argument("<file>", "Audio or video file to transcode")
+        .option("-m, --mono", "Convert to mono audio")
         .action(extractAudio)
     audio
         .command("extract-frames")

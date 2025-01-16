@@ -2214,6 +2214,7 @@ interface FFmpegCommandOptions {
 }
 
 interface VideoExtractAudioOptions extends FFmpegCommandOptions {
+    mono?: boolean
     forceConversion?: boolean
 }
 

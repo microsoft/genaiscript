@@ -6,7 +6,7 @@ import { join, basename } from "node:path"
 import { ensureDir } from "fs-extra"
 import type { FfmpegCommand } from "fluent-ffmpeg"
 import { hash } from "./crypto"
-import { VIDEO_CLIPS_DIR_NAME, VIDEO_HASH_LENGTH } from "./constants"
+import { VIDEO_HASH_LENGTH } from "./constants"
 import { writeFile, readFile } from "fs/promises"
 import { errorMessage, serializeError } from "./error"
 import { fromBase64 } from "./base64"
@@ -41,7 +41,7 @@ async function resolveInput(
     folder: string
 ): Promise<string> {
     if (typeof filename === "object") {
-        if (filename.content) {
+        if (filename.content && filename.encoding === "base64") {
             const bytes = fromBase64(filename.content)
             const mime = await fileTypeFromBuffer(bytes)
             filename = join(folder, "input." + mime.ext)
@@ -82,6 +82,7 @@ export class FFmepgClient implements Ffmpeg {
             async (cmd, fopts) => {
                 const { dir } = fopts
                 const c = cmd as FfmpegCommand
+                c.outputOptions("-threads", "1")
                 c.screenshots({
                     ...soptions,
                     filename: "%b_%i.png",
@@ -102,7 +103,8 @@ export class FFmepgClient implements Ffmpeg {
         if (!filename) throw new Error("filename is required")
 
         const { forceConversion, ...foptions } = options || {}
-        if (!forceConversion && typeof filename === "string") {
+        const { mono } = foptions
+        if (!forceConversion && !mono && typeof filename === "string") {
             const mime = lookupMime(filename)
             if (/^audio/.test(mime)) return filename
         }
@@ -110,10 +112,12 @@ export class FFmepgClient implements Ffmpeg {
             filename,
             async (cmd, fopts) => {
                 const { input } = fopts
-                cmd.noVideo().toFormat("wav")
-                return basename(input) + ".wav"
+                cmd.noVideo()
+                if (mono) cmd.audioChannels(1)
+                cmd.toFormat("mp3")
+                return basename(input) + ".mp3"
             },
-            { ...foptions, cache: "audio" }
+            { ...foptions, cache: "audio-mp3" }
         )
         return res[0]
     }

@@ -1,9 +1,9 @@
 import { FFmepgClient } from "../../core/src/ffmpeg"
 
-export async function extractAudio(file: string, options: { force: boolean }) {
-    const { force } = options || {}
+export async function extractAudio(file: string, options: { force: boolean, mono: boolean }) {
+    const { force, mono } = options || {}
     const ffmpeg = new FFmepgClient()
-    const fn = await ffmpeg.extractAudio(file, { forceConversion: force })
+    const fn = await ffmpeg.extractAudio(file, { mono, forceConversion: force })
     console.log(`transcoded file to ${fn}`)
 }
 
