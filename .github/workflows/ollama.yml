@@ -31,6 +31,8 @@ jobs:
               run: yarn typecheck
             - name: compile
               run: yarn compile
+            - name: install ffmpeg
+              run: yarn ffmpeg:install
             - name: start ollama
               run: yarn ollama:start
             - name: start whisper

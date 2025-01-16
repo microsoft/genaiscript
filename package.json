@@ -81,6 +81,7 @@
         "genai:debug": "yarn compile-debug && node packages/cli/built/genaiscript.cjs run",
         "upgrade:deps": "zx scripts/upgrade-deps.mjs",
         "cli": "node packages/cli/built/genaiscript.cjs",
+        "ffmpeg:install": "sudo apt-get update && sudo apt-get install ffmpeg -y",
         "ollama": "yarn ollama:stop && yarn ollama:start",
         "ollama:start": "docker run -d -v ollama:/root/.ollama -p 11434:11434 --name ollama -e OLLAMA_FLASH_ATTENTION=1 -e OLLAMA_KV_CACHE_TYPE=q8_0 ollama/ollama",
         "ollama:stop": "docker stop ollama && docker rm ollama",
