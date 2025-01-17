@@ -19,7 +19,6 @@ import {
     assert,
     chunkString,
     logInfo,
-    deleteUndefinedValues,
 } from "../../core/src/util"
 import { CORE_VERSION } from "../../core/src/version"
 import {
@@ -52,6 +51,7 @@ import { resolveLanguageModelConfigurations } from "../../core/src/config"
 import { networkInterfaces } from "os"
 import { GitClient } from "../../core/src/git"
 import { exists } from "fs-extra"
+import { deleteUndefinedValues } from "../../core/src/cleaners"
 
 /**
  * Starts a WebSocket server for handling chat and script execution.

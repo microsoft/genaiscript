@@ -28,7 +28,7 @@ import {
     ChatCompletionToolMessageParam,
 } from "./chattypes"
 
-import { deleteUndefinedValues, logError, logVerbose } from "./util"
+import { logError, logVerbose } from "./util"
 import { resolveHttpProxyAgent } from "./proxy"
 import { HttpsProxyAgent } from "https-proxy-agent"
 import { MarkdownTrace } from "./trace"
@@ -38,6 +38,7 @@ import {
     LanguageModelConfiguration,
     LanguageModelInfo,
 } from "./server/messages"
+import { deleteUndefinedValues } from "./cleaners"
 
 const convertFinishReason = (
     stopReason: Anthropic.Message["stop_reason"]

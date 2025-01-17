@@ -11,11 +11,12 @@ import type {
 } from "@huggingface/transformers"
 import { NotSupportedError } from "./error"
 import { ChatCompletionMessageParam, ChatCompletionResponse } from "./chattypes"
-import { deleteUndefinedValues, dotGenaiscriptPath, logVerbose } from "./util"
+import { dotGenaiscriptPath, logVerbose } from "./util"
 import { parseModelIdentifier } from "./models"
 import prettyBytes from "pretty-bytes"
 import { hash } from "./crypto"
 import { PLimitPromiseQueue } from "./concurrency"
+import { deleteUndefinedValues } from "./cleaners"
 
 function progressBar(): ProgressCallback {
     const progress: Record<string, number> = {}

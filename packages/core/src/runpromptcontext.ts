@@ -33,7 +33,6 @@ import { isGlobMatch } from "./glob"
 import {
     arrayify,
     assert,
-    deleteUndefinedValues,
     dotGenaiscriptPath,
     ellipse,
     logError,
@@ -92,10 +91,11 @@ import { FFmepgClient } from "./ffmpeg"
 import { BufferToBlob } from "./bufferlike"
 import { host } from "./host"
 import { srtVttRender } from "./transcription"
-import { deleteEmptyValues } from "./clone"
+import { deleteEmptyValues } from "./cleaners"
 import { hash } from "./crypto"
 import { fileTypeFromBuffer } from "file-type"
 import { writeFile } from "fs"
+import { deleteUndefinedValues } from "./cleaners"
 
 export function createChatTurnGenerationContext(
     options: GenerationOptions,
@@ -682,7 +682,10 @@ export function createChatGenerationContext(
                 transcription: true,
                 cache,
             })
-            const file = await BufferToBlob(await host.readFile(audioFile), "audio/ogg")
+            const file = await BufferToBlob(
+                await host.readFile(audioFile),
+                "audio/ogg"
+            )
             const update: () => Promise<TranscriptionResult> = async () => {
                 transcriptionTrace.itemValue(`model`, configuration.model)
                 transcriptionTrace.itemValue(

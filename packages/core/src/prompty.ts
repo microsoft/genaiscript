@@ -4,7 +4,7 @@ import {
 } from "./chattypes"
 import { splitMarkdown } from "./frontmatter"
 import { YAMLParse } from "./yaml"
-import { deleteUndefinedValues } from "./util"
+import { deleteUndefinedValues } from "./cleaners"
 import { JSON5Stringify } from "./json5"
 
 export interface PromptyFrontmatter {

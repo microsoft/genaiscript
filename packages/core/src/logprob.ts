@@ -5,7 +5,7 @@ import type {
 } from "./chattypes"
 import { escape } from "html-escaper"
 import { roundWithPrecision } from "./precision"
-import { deleteUndefinedValues } from "./util"
+import { deleteUndefinedValues } from "./cleaners"
 
 export function serializeLogProb(content: ChatCompletionTokenLogprob): Logprob {
     const { token, logprob, top_logprobs } = content

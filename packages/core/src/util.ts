@@ -57,12 +57,6 @@ export function parseBoolean(s: string) {
           : undefined
 }
 
-export function deleteUndefinedValues<T extends Record<string, any>>(o: T): T {
-    if (typeof o === "object")
-        for (const k in o) if (o[k] === undefined) delete o[k]
-    return o
-}
-
 export function collapseEmptyLines(text: string) {
     return text?.replace(/(\r?\n){2,}/g, "\n\n")
 }

@@ -17,7 +17,7 @@ import {
     ScriptFilterOptions,
 } from "../../core/src/ast"
 import { YAMLStringify } from "../../core/src/yaml"
-import { deleteEmptyValues } from "../../core/src/clone"
+import { deleteEmptyValues } from "../../core/src/cleaners"
 
 /**
  * Lists all the scripts in the project.

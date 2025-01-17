@@ -18,7 +18,6 @@ import {
 import {
     arrayify,
     assert,
-    deleteUndefinedValues,
     logError,
     logInfo,
     logVerbose,
@@ -91,6 +90,7 @@ import {
     ChatCompletionRequestCacheKey,
     getChatCompletionCache,
 } from "./chatcache"
+import { deleteUndefinedValues } from "./cleaners"
 
 export function toChatCompletionUserMessage(
     expanded: string,

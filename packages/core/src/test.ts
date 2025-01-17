@@ -8,9 +8,10 @@ import {
     SMALL_MODEL_ID,
     VISION_MODEL_ID,
 } from "./constants"
-import { arrayify, deleteUndefinedValues } from "./util"
+import { arrayify } from "./util"
 import { host, runtimeHost } from "./host"
 import { ModelConnectionInfo, parseModelIdentifier } from "./models"
+import { deleteUndefinedValues } from "./cleaners"
 
 /**
  * Convert GenAIScript connection info into prompt foo configuration

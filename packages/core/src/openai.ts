@@ -1,10 +1,4 @@
-import {
-    deleteUndefinedValues,
-    logError,
-    logVerbose,
-    normalizeInt,
-    trimTrailingSlash,
-} from "./util"
+import { logError, logVerbose, normalizeInt, trimTrailingSlash } from "./util"
 import { host } from "./host"
 import {
     AZURE_AI_INFERENCE_VERSION,
@@ -50,6 +44,7 @@ import {
     LanguageModelInfo,
 } from "./server/messages"
 import prettyBytes from "pretty-bytes"
+import { deleteUndefinedValues } from "./cleaners"
 
 export function getConfigHeaders(cfg: LanguageModelConfiguration) {
     let { token, type, base, provider } = cfg
