@@ -24,7 +24,7 @@ script({
         "system.agent_web",
         "system.agent_video",
         "system.agent_data",
-        "system.vision_ask_image",
+        "system.vision_ask_images",
     ],
     group: "copilot", // Group categorization for the script
     parameters: {

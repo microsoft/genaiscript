@@ -50,7 +50,7 @@ defTool(
             },
             {
                 model: "vision",
-                cache: "vision_ask_image",
+                cache: "vision_ask_images",
                 system: [
                     "system",
                     "system.assistant",
