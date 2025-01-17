@@ -21,7 +21,7 @@ export { delay, uniq, uniqBy, z, pipeline, chunk, groupBy }
  * @param options prompt options, additional instructions, custom prompt contexst
  */
 export async function classify<L extends Record<string, string>>(
-    text: string,
+    text: string | PromptGenerator,
     labels: L,
     options?: {
         instructions?: string
@@ -40,6 +40,7 @@ export async function classify<L extends Record<string, string>>(
         k.trim().toLowerCase(),
         v,
     ])
+    if (!entries.length) throw Error("classify must have at least one label")
     const choices = entries.map(([k]) => k)
     const allChoices = uniq<keyof typeof labels | "other">([
         ...choices,
@@ -47,7 +48,7 @@ export async function classify<L extends Record<string, string>>(
     ])
     const ctx = options?.ctx || env.generator
     const res = await ctx.runPrompt(
-        (_) => {
+        async (_) => {
             _.$`## Expert Classifier
 You are a specialized text classification system. 
 Your task is to carefully read and classify any input text or image into one
@@ -63,7 +64,8 @@ ${entries.map(([id, descr]) => `- Label '${id}': ${descr}`).join("\n")}
 Provide a short justification for your choice 
 and output the label as your last word. 
 `
-            _.def("DATA", text)
+            if (typeof text === "string") _.def("DATA", text)
+            else await text(_)
             if (options?.instructions) {
                 _.$`## Additional instructions
 
