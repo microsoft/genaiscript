@@ -9,12 +9,15 @@ import {
 import { errorMessage } from "./error"
 import { logVerbose, toStringList } from "./util"
 import { CancellationOptions, CancellationToken } from "./cancellation"
-import { readText } from "./fs"
 import { resolveHttpProxyAgent } from "./proxy"
 import { host } from "./host"
 import { renderWithPrecision } from "./precision"
 import crossFetch from "cross-fetch"
 import prettyBytes from "pretty-bytes"
+import { fileTypeFromBuffer } from "file-type"
+import { isBinaryMimeType } from "./binary"
+import { toBase64 } from "./base64"
+import { deleteUndefinedValues } from "./cleaners"
 
 export type FetchType = (
     input: string | URL | globalThis.Request,
@@ -137,7 +140,7 @@ export async function fetchText(
     const url = urlOrFile.filename
     let ok = false
     let status = 404
-    let text: string
+    let bytes: Uint8Array
     if (/^https?:\/\//i.test(url)) {
         const f = await createFetch({
             retries,
@@ -149,25 +152,39 @@ export async function fetchText(
         const resp = await f(url, rest)
         ok = resp.ok
         status = resp.status
-        if (ok) text = await resp.text()
+        if (ok) bytes = new Uint8Array(await resp.arrayBuffer())
     } else {
         try {
-            text = await readText("workspace://" + url)
-            ok = true
+            bytes = await host.readFile(url)
         } catch (e) {
             logVerbose(e)
             ok = false
             status = 404
         }
     }
-    const file: WorkspaceFile = {
-        filename: urlOrFile.filename,
-        content: text,
+
+    let content: string
+    let encoding: "base64"
+    let type: string
+    const mime = await fileTypeFromBuffer(bytes)
+    if (isBinaryMimeType(mime?.mime)) {
+        encoding = "base64"
+        content = toBase64(bytes)
+    } else {
+        content = host.createUTF8Decoder().decode(bytes)
     }
+    ok = true
+    const file: WorkspaceFile = deleteUndefinedValues({
+        filename: urlOrFile.filename,
+        encoding,
+        type,
+        content,
+    })
     return {
         ok,
         status,
-        text,
+        text: content,
+        bytes,
         file,
     }
 }

@@ -28,13 +28,13 @@ or configure the `FFMPEG_PATH` / `FFPROBE_PATH` environment variables to point t
 As mentionned above, multi-modal LLMs typically support images as a sequence
 of frames (or screenshots).
 
-The `ffmpeg.extractFrames` will render frames from a video file or url
+The `ffmpeg.extractFrames` will render frames from a video file
 and return them as an array of file paths. You can use the result with `defImages` directly.
 
 - by default, extract keyframes (intra-frames)
 
 ```js
-const frames = await ffmpeg.extractFrames("path_url_to_video")
+const frames = await ffmpeg.extractFrames("path_to_video")
 def("FRAMES", frames)
 ```
 
@@ -66,11 +66,11 @@ const transcript = await transcribe("...", { sceneThreshold: 0.3 })
 
 ## Extracting audio
 
-The `ffmpeg.extractAudio` will extract the audio from a video file or url
+The `ffmpeg.extractAudio` will extract the audio from a video file
 as a `.wav` file.
 
 ```js
-const audio = await ffmpeg.extractAudio("path_url_to_video")
+const audio = await ffmpeg.extractAudio("path_to_video")
 ```
 
 The conversion to audio happens automatically
@@ -78,10 +78,10 @@ for videos when using [transcribe](/genaiscript/reference/scripts/transcription)
 
 ## Probing videos
 
-You can extract metadata from a video file or url using `ffmpeg.probe`.
+You can extract metadata from a video file using `ffmpeg.probe`.
 
 ```js
-const info = await ffmpeg.probe("path_url_to_video")
+const info = await ffmpeg.probe("path_to_video")
 const { duration } = info.streams[0]
 console.log(`video duration: ${duration} seconds`)
 ```
@@ -92,7 +92,7 @@ You can further customize the `ffmpeg` configuration
 by passing `outputOptions`.
 
 ```js 'outputOptions: "-b:a 16k",'
-const audio = await ffmpeg.extractAudio("path_url_to_video", {
+const audio = await ffmpeg.extractAudio("path_to_video", {
     outputOptions: "-b:a 16k",
 })
 ```

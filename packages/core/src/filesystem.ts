@@ -1,3 +1,4 @@
+import { stat } from "fs/promises"
 import { JSONLineCache } from "./cache"
 import { DOT_ENV_REGEX } from "./constants"
 import { CSVTryParse } from "./csv"
@@ -110,6 +111,17 @@ export function createFileSystem(): Omit<WorkspaceFileSystem, "grep"> {
             if (!name) throw new NotSupportedError("missing cache name")
             const res = JSONLineCache.byName<any, any>(name)
             return res
+        },
+        stat: async (filename: string) => {
+            try {
+                const res = await stat(filename)
+                return {
+                    size: res.size,
+                    mode: res.mode,
+                }
+            } catch {
+                return undefined
+            }
         },
     } satisfies Omit<WorkspaceFileSystem, "grep">
     ;(fs as any).readFile = readText

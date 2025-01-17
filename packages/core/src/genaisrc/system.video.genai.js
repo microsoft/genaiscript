@@ -10,14 +10,16 @@ defTool(
         properties: {
             filename: {
                 type: "string",
-                description: "The video filename or URL to probe",
+                description: "The video filename to probe",
             },
         },
         required: ["filename"],
     },
     async (args) => {
         const { context, filename } = args
-        if (!filename) return "No filename or url provided"
+        if (!filename) return "No filename provided"
+        if (!(await workspace.stat(filename)))
+            return `File ${filename} does not exist.`
         context.log(`probing ${filename}`)
         const info = await ffmpeg.probe(filename)
         return YAML.stringify(info)
@@ -26,20 +28,22 @@ defTool(
 
 defTool(
     "video_extract_audio",
-    "Extract audio from a video file into a .wav file. Returns the audio filename.",
+    "Extract audio from a video file into an audio file. Returns the audio filename.",
     {
         type: "object",
         properties: {
             filename: {
                 type: "string",
-                description: "The video filename or URL to probe",
+                description: "The video filename to probe",
             },
         },
         required: ["filename"],
     },
     async (args) => {
         const { context, filename } = args
-        if (!filename) return "No filename or url provided"
+        if (!filename) return "No filename provided"
+        if (!(await workspace.stat(filename)))
+            return `File ${filename} does not exist.`
         context.log(`extracting audio from ${filename}`)
         const audioFile = await ffmpeg.extractAudio(filename)
         return audioFile
@@ -54,7 +58,7 @@ defTool(
         properties: {
             filename: {
                 type: "string",
-                description: "The video filename or URL to probe",
+                description: "The video filename to probe",
             },
             keyframes: {
                 type: "boolean",
@@ -83,7 +87,9 @@ defTool(
     },
     async (args) => {
         const { context, filename, transcription, ...options } = args
-        if (!filename) return "No filename or url provided"
+        if (!filename) return "No filename provided"
+        if (!(await workspace.stat(filename)))
+            return `File ${filename} does not exist.`
         context.log(`extracting frames from ${filename}`)
 
         if (transcription) {
