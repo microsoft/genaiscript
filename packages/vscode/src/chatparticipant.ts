@@ -10,7 +10,7 @@ import {
 } from "../../core/src/constants"
 import { Fragment } from "../../core/src/generation"
 import { convertAnnotationsToItems } from "../../core/src/annotations"
-import { deleteUndefinedValues } from "../../core/src/util"
+import { deleteUndefinedValues } from "../../core/src/cleaners"
 import { templatesToQuickPickItems } from "./fragmentcommands"
 
 export async function activateChatParticipant(state: ExtensionState) {

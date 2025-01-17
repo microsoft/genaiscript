@@ -229,7 +229,8 @@
         "agent": "large",
         "long": "large",
         "memory": "small",
-        "reasoning_small": "reasoning"
+        "reasoning_small": "reasoning",
+        "classify": "small"
     },
     "pricings": {
         "github:gpt-4o-2024-11-20": {

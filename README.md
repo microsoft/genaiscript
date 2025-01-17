@@ -140,6 +140,20 @@ const { files } = await workspace.grep(/[a-z][a-z0-9]+/, { globs: "*.md" })
 
 ---
 
+## Classify
+
+Classify text, images or a mix of all.
+
+```js
+const joke = await classify(
+    "Why did the chicken cross the roard? To fry in the sun.",
+    {
+        yes: "funny",
+        no: "not funny",
+    }
+)
+```
+
 ### LLM Tools
 
 Register JavaScript functions as [tools](https://microsoft.github.io/genaiscript/reference/scripts/tools)
@@ -233,6 +247,19 @@ const res = await c.exec("python --version")
 
 ---
 
+### Video processing
+
+Transcribe and screenshot your videos so that you can feed them efficiently in your LLMs requests.
+
+```js
+// transcribe
+const transcript = await transcript("path/to/audio.mp3")
+// screenshots at segments
+const frames = await ffmpeg.extractFrames("path_url_to_video", { transcript })
+def("TRANSCRIPT", transcript)
+def("FRAMES", frames)
+```
+
 ### 🧩 LLM Composition
 
 [Run LLMs](https://microsoft.github.io/genaiscript/reference/scripts/inline-prompts/) to build your LLM prompts.
@@ -276,7 +303,7 @@ npx genaiscript run tlaplus-linter "*.tla"
 import { run } from "genaiscript/api"
 
 const res = await run("tlaplus-linter", "*.tla")
-``` 
+```
 
 ---
 

@@ -17,10 +17,8 @@ jobs:
                   node-version: "20"
                   cache: yarn
             - run: yarn install --frozen-lockfile
-            - name: typecheck
-              run: yarn typecheck
             - name: compile
-              run: yarn compile
+              run: yarn compile:action
             - name: run summarize
               run: yarn test:summarize -p openai --out-trace $GITHUB_STEP_SUMMARY
               env:

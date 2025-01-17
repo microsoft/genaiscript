@@ -249,7 +249,8 @@ defData("ROWS", rows, { sliceHead: 100 })
 
 <Card title="Speech To Text" icon="seti:microphone">
 
-Automatically transcribe audio or videos using [OpenAI](https://openai.com/) or others.
+Automatically transcribe audio or videos using [OpenAI](/genaiscript/getting-started/configuration#openai)
+or [others](/genaiscript/getting-started/configuration#whisperasr).
 
 ```js
 const transcript = await transcript("path/to/audio.mp3")
@@ -435,6 +436,22 @@ for (const file of env.files) {
 }
 // use summary
 $`Summarize all the summaries.`
+```
+
+</Card>
+
+<Card title="Classify" icon="heart">
+
+Classify text, images or a mix of all.
+
+```js
+const joke = await classify(
+    "Why did the chicken cross the roard? To fry in the sun.",
+    {
+        yes: "funny",
+        no: "not funny",
+    }
+)
 ```
 
 </Card>

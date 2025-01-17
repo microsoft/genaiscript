@@ -18,7 +18,6 @@ import {
 import {
     arrayify,
     assert,
-    deleteUndefinedValues,
     logError,
     logInfo,
     logVerbose,
@@ -91,6 +90,7 @@ import {
     ChatCompletionRequestCacheKey,
     getChatCompletionCache,
 } from "./chatcache"
+import { deleteUndefinedValues } from "./cleaners"
 
 export function toChatCompletionUserMessage(
     expanded: string,
@@ -550,11 +550,12 @@ async function structurifyChatSession(
 
     const perplexity = computePerplexity(logprobs)
     const uncertainty = computeStructuralUncertainty(logprobs)
+    const revlogprobs = logprobs?.slice(0)?.reverse()
     const choices = arrayify(options?.choices)
         .filter((choice) => typeof choice === "string")
         .map(
             (token) =>
-                logprobs?.find((lp) => lp.token === token) ??
+                revlogprobs?.find((lp) => lp.token === token) ??
                 ({ token, logprob: NaN } satisfies Logprob)
         )
     for (const choice of choices?.filter((c) => !isNaN(c.logprob)))
@@ -837,11 +838,11 @@ async function choicesToLogitBias(
             disableFallback: true,
         })) || {}
     if (!encode) {
-        logVerbose(
-            `unabled to compute logit bias, no token encoder found for ${model}`
+        logWarn(
+            `unable to compute logit bias, no token encoder found for ${model}`
         )
         trace.warn(
-            `unabled to compute logit bias, no token encoder found for ${model}`
+            `unable to compute logit bias, no token encoder found for ${model}`
         )
         return undefined
     }
@@ -849,10 +850,14 @@ async function choicesToLogitBias(
         choices.map((c) => {
             const { token, weight } = typeof c === "string" ? { token: c } : c
             const encoded = typeof token === "number" ? [token] : encode(token)
-            if (encoded.length !== 1)
+            if (encoded.length !== 1) {
+                logWarn(
+                    `choice ${c} tokenizes to ${encoded.join(", ")} (expected one token)`
+                )
                 trace.warn(
                     `choice ${c} tokenizes to ${encoded.join(", ")} (expected one token)`
                 )
+            }
             return [encoded[0], isNaN(weight) ? CHOICE_LOGIT_BIAS : weight] as [
                 number,
                 number,

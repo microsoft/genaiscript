@@ -1,3 +1,4 @@
+import { deleteUndefinedValues } from "./cleaners"
 import {
     BING_SEARCH_ENDPOINT,
     DOCS_WEB_SEARCH_BING_SEARCH_URL,
@@ -7,7 +8,7 @@ import {
 import { createFetch } from "./fetch"
 import { runtimeHost } from "./host"
 import { MarkdownTrace, TraceOptions } from "./trace"
-import { deleteUndefinedValues, logVerbose } from "./util"
+import { logVerbose } from "./util"
 
 /**
  * Converts an object into a URL search parameters string.

@@ -1347,9 +1347,25 @@ interface DataFrame {
 }
 
 interface Logprob {
+    /**
+     * Token text
+     */
     token: string
+    /**
+     * Log probably of the generated token
+     */
     logprob: number
+    /**
+     * Logprob value converted to %
+     */
+    probPercent?: number
+    /**
+     * Normalized entropy
+     */
     entropy?: number
+    /**
+     * Other top tokens considered by the LLM
+     */
     topLogprobs?: { token: string; logprob: number }[]
 }
 

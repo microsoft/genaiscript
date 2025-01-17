@@ -24,6 +24,7 @@
         "go": "cd packages/cli && yarn go",
         "token": "cd packages/sample && yarn token",
         "typecheck": "yarn --cwd packages/core run typecheck && yarn --cwd packages/vscode run typecheck && yarn --cwd packages/cli run typecheck && yarn --cwd packages/web run typecheck",
+        "compile:action": "yarn compile && yarn typecheck",
         "lint": "yarn --cwd packages/cli run lint",
         "pretty": "prettier **.ts --write",
         "package": "cd packages/vscode && yarn package",
