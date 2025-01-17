@@ -29,6 +29,16 @@ const { label } = await classify(
 - The prompt encourages the LLM to explain its choices **before** returning the label.
 - The label tokens are boosted using logit-bias to improve the reliability of the classification.
 
+:::note
+
+`classify` is provided as part of the runtime (slightly different way to package GenAIScript functionalities) and needs to be imported using this code...
+
+```js
+import { classify } from "genaiscript/runtime"
+```
+
+:::
+
 ### Images
 
 You can pass a function that takes a prompt context
