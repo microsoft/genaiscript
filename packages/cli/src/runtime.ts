@@ -24,9 +24,9 @@ export const pipeline = _pipeline
 
 /**
  * Classify prompt
- * @param text
- * @param labels
- * @param options
+ * @param text text to classify
+ * @param labels map from label to description. the label should be a single token
+ * @param options prompt options, additional instructions, custom prompt contexst
  */
 export async function classify(
     text: string,
