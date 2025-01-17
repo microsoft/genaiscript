@@ -1,6 +1,6 @@
 import { classify } from "genaiscript/runtime"
 
-const { label, logprob, logprobs } = await classify(
+const res = await classify(
     "The app crashes when I try to upload a file.",
     {
         bug: "a software defect",
@@ -9,4 +9,4 @@ const { label, logprob, logprobs } = await classify(
     }
 )
 
-console.log({ label, logprob, logprobs })
+console.log(res)

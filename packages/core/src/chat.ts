@@ -550,11 +550,12 @@ async function structurifyChatSession(
 
     const perplexity = computePerplexity(logprobs)
     const uncertainty = computeStructuralUncertainty(logprobs)
+    const revlogprobs = logprobs?.slice(0)?.reverse()
     const choices = arrayify(options?.choices)
         .filter((choice) => typeof choice === "string")
         .map(
             (token) =>
-                logprobs?.find((lp) => lp.token === token) ??
+                revlogprobs?.find((lp) => lp.token === token) ??
                 ({ token, logprob: NaN } satisfies Logprob)
         )
     for (const choice of choices?.filter((c) => !isNaN(c.logprob)))

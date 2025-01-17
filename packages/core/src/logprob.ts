@@ -5,18 +5,20 @@ import type {
 } from "./chattypes"
 import { escape } from "html-escaper"
 import { roundWithPrecision } from "./precision"
+import { deleteUndefinedValues } from "./util"
 
 export function serializeLogProb(content: ChatCompletionTokenLogprob): Logprob {
     const { token, logprob, top_logprobs } = content
-    return {
+    return deleteUndefinedValues({
         token,
         logprob,
         topLogprobs: top_logprobs?.map((tp) => ({
             token: tp.token,
             logprob: tp.logprob,
         })),
+        probPercent: logprobToPercent(logprob),
         entropy: computeNormalizedEntropy(top_logprobs),
-    } satisfies Logprob
+    }) satisfies Logprob
 }
 
 export function serializeChunkChoiceToLogProbs(

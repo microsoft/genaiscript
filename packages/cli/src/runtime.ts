@@ -4,12 +4,12 @@
 /**
  * GenAIScript supporting runtime
  */
-import { delay, uniq, uniqBy } from "es-toolkit"
+import { delay, uniq, uniqBy, chunk, groupBy } from "es-toolkit"
 import { z } from "zod"
 import { pipeline } from "@huggingface/transformers"
 
 // symbols exported as is
-export { delay, uniq, uniqBy, z, pipeline }
+export { delay, uniq, uniqBy, z, pipeline, chunk, groupBy }
 
 /**
  * Classify prompt
@@ -31,6 +31,7 @@ export async function classify<L extends Record<string, string>>(
     label: keyof typeof labels | "other"
     entropy?: number
     logprob?: number
+    probPercent?: number
     answer: string
     logprobs?: Record<keyof typeof labels | "other", Logprob>
 }> {
@@ -108,6 +109,7 @@ and output the label as your last word.
         label,
         entropy: logprob?.entropy,
         logprob: logprob?.logprob,
+        probPercent: logprob?.probPercent,
         answer,
         logprobs,
     }
