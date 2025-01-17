@@ -11,10 +11,10 @@ async function main() {
     const promptMap = {}
     const prompts = readdirSync(dir)
     for (const prompt of prompts) {
-        if (!/\.mjs$/.test(prompt)) continue
+        if (!/\.genai\.js$/.test(prompt)) continue
         const text = readFileSync(`${dir}/${prompt}`, "utf-8")
         if (/^system\./.test(prompt)) {
-            const id = prompt.replace(/\.m?js$/i, "")
+            const id = prompt.replace(/\.genai\.m?js$/i, "")
             if (promptMap[id]) throw new Error(`duplicate prompt ${id}`)
             promptMap[id] = text
         }
