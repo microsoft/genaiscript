@@ -24,6 +24,9 @@ export const pipeline = _pipeline
 
 /**
  * Classify prompt
+ *
+ * Inspired by https://github.dev/prefecthq/marvin
+ *
  * @param text text to classify
  * @param labels map from label to description. the label should be a single token
  * @param options prompt options, additional instructions, custom prompt contexst
@@ -34,7 +37,7 @@ export async function classify(
     options?: {
         instructions?: string
         ctx?: ChatGenerationContext
-    } & Omit<PromptGeneratorOptions, "choices" | "system">
+    } & Omit<PromptGeneratorOptions, "choices">
 ) {
     const { instructions, ...rest } = options || {}
     const entries = Object.entries(labels).map(([k, v]) => [
@@ -47,15 +50,14 @@ export async function classify(
         (_) => {
             _.$`## Expert Classifier
 You are a specialized text classification system. 
-Your task is to carefully read and classify any input text into one (or more) 
+Your task is to carefully read and classify any input text or image into one
 of the predefined labels below. 
-For each label, you will find a short description. 
-Use these descriptions to guide your decision. 
+For each label, you will find a short description. Use these descriptions to guide your decision. 
 `.role("system")
             _.$`## Labels
 You must classify the data as one of the following labels. 
-${entries.map(([id, descr]) => `- Label ${id}: ${descr}`).join("\n")}
-- Label other: This label is used when the text does not fit any of the available labels.
+${entries.map(([id, descr]) => `- Label '${id}': ${descr}`).join("\n")}
+- Label 'other': This label is used when the text does not fit any of the available labels.
 
 ## Output
 Provide a short justification for your choice 
@@ -70,6 +72,7 @@ and output the label as your last word.
             }
         },
         {
+            model: "classify",
             choices: [...choices, "other"],
             label: `classify ${choices.join(", ")}`,
             system: [
