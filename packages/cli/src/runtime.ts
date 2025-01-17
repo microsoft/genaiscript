@@ -4,24 +4,12 @@
 /**
  * GenAIScript supporting runtime
  */
-import { delay as _delay } from "es-toolkit"
-import { z as _z } from "zod"
-import { pipeline as _pipeline } from "@huggingface/transformers"
+import { delay, uniq, uniqBy } from "es-toolkit"
+import { z } from "zod"
+import { pipeline } from "@huggingface/transformers"
 
-/**
- * A helper function to delay the execution of the script
- */
-export const delay: (ms: number) => Promise<void> = _delay
-
-/**
- * Zod schema generator
- */
-export const z = _z
-
-/**
- * HuggingFace transformers.js pipeline apis.
- */
-export const pipeline = _pipeline
+// symbols exported as is
+export { delay, uniq, uniqBy, z, pipeline }
 
 /**
  * Classify prompt
@@ -39,13 +27,23 @@ export async function classify<L extends Record<string, string>>(
         instructions?: string
         ctx?: ChatGenerationContext
     } & Omit<PromptGeneratorOptions, "choices">
-): Promise<{ label: keyof typeof labels | "other"; answer: string }> {
+): Promise<{
+    label: keyof typeof labels | "other"
+    entropy?: number
+    logprob?: number
+    answer: string
+    logprobs?: Record<keyof typeof labels | "other", Logprob>
+}> {
     const { instructions, ...rest } = options || {}
     const entries = Object.entries(labels).map(([k, v]) => [
         k.trim().toLowerCase(),
         v,
     ])
     const choices = entries.map(([k]) => k)
+    const allChoices = uniq<keyof typeof labels | "other">([
+        ...choices,
+        "other",
+    ])
     const ctx = options?.ctx || env.generator
     const res = await ctx.runPrompt(
         (_) => {
@@ -77,6 +75,8 @@ and output the label as your last word.
             choices: [...choices, "other"],
             label: `classify ${choices.join(", ")}`,
             cache: "classify",
+            logprobs: true,
+            topLogprobs: Math.min(3, choices.length),
             system: [
                 "system.output_plaintext",
                 "system.safety_jailbreak",
@@ -95,6 +95,20 @@ and output the label as your last word.
         else return previ
     }, 0)
     const label = entries[labeli][0]
+    const logprobs = res.choices
+        ? (Object.fromEntries(
+              res.choices
+                  .map((c, i) => [allChoices[i], c])
+                  .filter(([k, v]) => !isNaN(v?.logprob))
+          ) as Record<keyof typeof labels | "other", Logprob>)
+        : undefined
+    const logprob = logprobs?.[label]
 
-    return { label, answer }
+    return {
+        label,
+        entropy: logprob?.entropy,
+        logprob: logprob?.logprob,
+        answer,
+        logprobs,
+    }
 }
