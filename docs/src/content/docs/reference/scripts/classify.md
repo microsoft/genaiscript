@@ -52,11 +52,24 @@ Each label id should be a single word that encodes into a single token. This all
 A `other` label can be automatically added to the list
 of label to give an escape route for the LLM when it is not able to classify the text.
 
-```js
+```js "other: true"
 const res = await classify(
     "...",
     { ... },
     { other: true }
+)
+```
+
+## Explanations
+
+By default, the classification prompt is tuned to return a token (`maxToken: 1`) as the label.
+You can enable emitting a justification before returning the label.
+
+```js "explanation: true"
+const res = await classify(
+    "...",
+    { ... },
+    { explanation: true }
 )
 ```
 

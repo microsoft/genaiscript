@@ -16,6 +16,13 @@ export type ClassifyOptions = {
      * Inject a 'other' label
      */
     other?: boolean
+    /**
+     * Explain answers before returning token
+     */
+    explanations?: boolean
+    /**
+     * Options runPrompt context
+     */
     ctx?: ChatGenerationContext
 } & Omit<PromptGeneratorOptions, "choices">
 
@@ -40,7 +47,7 @@ export async function classify<L extends Record<string, string>>(
     answer: string
     logprobs?: Record<keyof typeof labels | "other", Logprob>
 }> {
-    const { other, ...rest } = options || {}
+    const { other, explanations, ...rest } = options || {}
 
     const entries = Object.entries({
         ...labels,
@@ -71,8 +78,8 @@ You must classify the data as one of the following labels.
 ${entries.map(([id, descr]) => `- Label '${id}': ${descr}`).join("\n")}
 
 ## Output
-Provide a single sentence justification for your choice.
-and output the label as a single word on the last line. Do not emit "Label".
+${explanations ? "Provide a single short sentence justification for your choice." : ""}
+Output the label as a single word on the last line (do not emit "Label").
 
 `
             _.fence(
@@ -83,7 +90,7 @@ DATA:
 Why did the chicken cross the road? Because moo.
 
 Output:
-It's a classic joke but the ending does not relate to the start of the joke.
+${explanations ? "It's a classic joke but the ending does not relate to the start of the joke." : ""}
 no
 
 `,
@@ -98,6 +105,7 @@ no
             label: `classify ${choices.join(", ")}`,
             logprobs: true,
             topLogprobs: Math.min(3, choices.length),
+            maxTokens: explanations ? 100 : 1,
             system: [
                 "system.output_plaintext",
                 "system.safety_jailbreak",

@@ -17,7 +17,8 @@ const joke = await classify(
     {
         yes: "funny",
         no: "not funny",
-    }
+    },
+    { explanations: true }
 )
 
 console.log(joke)
