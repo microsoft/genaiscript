@@ -41,3 +41,7 @@ The `classify` function uses the `classify` [model alias](/genaiscript/reference
 You can modify this alias or specify another model in the options.
 
 The `options` are passed internally to the [inline prompt](/genaiscript/reference/scripts/inline-prompt) and can be used to modify the behavior of the LLM.
+
+## Acknolegments
+
+This function is inspired from the classification in [Marvin](https://www.askmarvin.ai/docs/text/classification/).
