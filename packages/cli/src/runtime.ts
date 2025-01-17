@@ -1,4 +1,3 @@
-/// <reference path="../../core/src/types/prompt_template.d.ts" />
 /// <reference path="../../core/src/types/prompt_type.d.ts" />
 
 /**
