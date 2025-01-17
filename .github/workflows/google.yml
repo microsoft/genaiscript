@@ -27,10 +27,8 @@ jobs:
                   node-version: "20"
                   cache: yarn
             - run: yarn install --frozen-lockfile
-            - name: typecheck
-              run: yarn typecheck
             - name: compile
-              run: yarn compile
+              run: yarn compile:action
             - name: poem
               run: yarn run:script poem -p google --out-trace $GITHUB_STEP_SUMMARY
               env:

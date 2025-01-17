@@ -28,10 +28,8 @@ jobs:
                   node-version: "20"
                   cache: yarn
             - run: yarn install --frozen-lockfile
-            - name: typecheck
-              run: yarn typecheck
             - name: compile
-              run: yarn compile
+              run: yarn compile:action
             - name: start ollama
               run: yarn ollama:start
             - name: git stuff

@@ -20,10 +20,8 @@ jobs:
                   node-version: "20"
                   cache: yarn
             - run: yarn install --frozen-lockfile
-            - name: typecheck
-              run: yarn typecheck
             - name: compile
-              run: yarn compile
+              run: yarn compile:action
             - name: download ollama docker
               run: yarn ollama:start
             - name: run test within scripts

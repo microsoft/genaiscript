@@ -22,10 +22,8 @@ jobs:
                   cache: yarn
             - run: sudo apt-get update && sudo apt-get install ffmpeg
             - run: yarn install --frozen-lockfile --prefer-offline
-            - name: typecheck
-              run: yarn typecheck
             - name: compile
-              run: yarn compile
+              run: yarn compile:action
             - name: lint
               run: yarn lint
             - name: package vscode
