@@ -1,3 +1,6 @@
+script({
+    files: "src/robots.jpg",
+})
 import { classify } from "genaiscript/runtime"
 
 const qa = await classify(
@@ -24,7 +27,7 @@ const joke = await classify(
 console.log(joke)
 
 const robots = await classify(
-    (_) => _.defImages("src/robots.jpg"),
+    (_) => _.defImages(env.files),
     {
         object: "Depicts objects, machines, robots, toys, ...",
         animal: "Animals, pets, monsters",
