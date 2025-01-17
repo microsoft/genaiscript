@@ -84,7 +84,7 @@ const res = await classify("...", {
 })
 ```
 
-The `options` are passed internally to the [inline prompt](/genaiscript/reference/scripts/inline-prompt) and can be used to modify the behavior of the LLM.
+The `options` are passed internally to the [inline prompt](/genaiscript/reference/scripts/reference/inline-prompts) and can be used to modify the behavior of the LLM.
 
 ## Assessing classification quality
 
