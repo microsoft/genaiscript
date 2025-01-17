@@ -17,7 +17,7 @@ defTool(
         const { text, srt, error } = await transcribe(filename, {
             cache: "transcribe",
         })
-        if (error) throw new Error(error.message)
+        if (error) return error.message
         return srt || text || "no response"
     }
 )
