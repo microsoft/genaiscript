@@ -1446,12 +1446,16 @@ This provider is experimental and may not work with all models.
 This `whisperasr` provider allows to configure a [transcription](/genaiscript/reference/scripts/transcription)
 task to use the [Whisper ASR WebService project](https://ahmetoner.com/whisper-asr-webservice/).
 
-This whisper service can run locally or in a docker container (see [documentation](https://ahmetoner.com/whisper-asr-webservice/)).
-
 ```js 'model: "whisperasr:default"'
 const transcript = await transcribe("video.mp4", {
     model: "whisperasr:default",
 })
+```
+
+This whisper service can run locally or in a docker container (see [documentation](https://ahmetoner.com/whisper-asr-webservice/)).
+
+```sh title="CPU"
+docker run -d -p 9000:9000 -e ASR_MODEL=base -e ASR_ENGINE=openai_whisper onerahmet/openai-whisper-asr-webservice:latest
 ```
 
 You can also override the `transcription` model alias to change the default model used by `transcribe`.
