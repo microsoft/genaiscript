@@ -14,6 +14,7 @@ defAgent(
             "system.explanations",
             "system.transcribe",
             "system.video",
+            "system.fs_find_files",
             "system.safety_harmful_content",
             "system.safety_protected_material",
         ],

@@ -56,6 +56,15 @@ defTool(
                 type: "string",
                 description: "The video filename or URL to probe",
             },
+            keyframes: {
+                type: "boolean",
+                description: "Extract keyframes only",
+            },
+            sceneThreshold: {
+                type: "number",
+                description: "The scene threshold to use",
+                default: 0.3,
+            },
             count: {
                 type: "number",
                 description: "The number of frames to extract",
@@ -73,8 +82,7 @@ defTool(
         required: ["filename"],
     },
     async (args) => {
-        const { context, filename, transcription, timestamps, ...options } =
-            args
+        const { context, filename, transcription, ...options } = args
         if (!filename) return "No filename or url provided"
         context.log(`extracting frames from ${filename}`)
 
@@ -83,8 +91,10 @@ defTool(
                 cache: "transcribe",
             })
         }
-        if (timestamps)
-            options.timestamps = timestamps.split(",").filter((t) => !!t)
+        if (typeof options.timestamps === "string")
+            options.timestamps = options.timestamps
+                .split(",")
+                .filter((t) => !!t)
         const videoFrames = await ffmpeg.extractFrames(filename, options)
         return videoFrames.join("\n")
     }
