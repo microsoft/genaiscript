@@ -31,14 +31,14 @@ export const pipeline = _pipeline
  * @param labels map from label to description. the label should be a single token
  * @param options prompt options, additional instructions, custom prompt contexst
  */
-export async function classify(
+export async function classify<L extends Record<string, string>>(
     text: string,
-    labels: Record<string, string>,
+    labels: L,
     options?: {
         instructions?: string
         ctx?: ChatGenerationContext
     } & Omit<PromptGeneratorOptions, "choices">
-) {
+): Promise<{ label: keyof typeof labels | "other"; answer: string }> {
     const { instructions, ...rest } = options || {}
     const entries = Object.entries(labels).map(([k, v]) => [
         k.trim().toLowerCase(),
@@ -75,6 +75,7 @@ and output the label as your last word.
             model: "classify",
             choices: [...choices, "other"],
             label: `classify ${choices.join(", ")}`,
+            cache: "classify",
             system: [
                 "system.output_plaintext",
                 "system.safety_jailbreak",
@@ -92,6 +93,7 @@ and output the label as your last word.
         if (indexes[i] > indexes[previ]) return i
         else return previ
     }, 0)
-    const label = entries[labeli]
-    return label[0]
+    const label = entries[labeli][0]
+
+    return { label, answer }
 }
