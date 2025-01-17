@@ -1,18 +1,23 @@
 system({
     title: "Vision Ask Image",
     description:
-        "Register tool that uses vision model to run a query on an image",
+        "Register tool that uses vision model to run a query on images",
 })
 
 defTool(
-    "vision_ask_image",
-    "Use vision model to run a query on an image",
+    "vision_ask_images",
+    "Use vision model to run a query on multiple images",
     {
         type: "object",
         properties: {
-            image: {
+            images: {
                 type: "string",
-                description: "Image URL or workspace relative filepath",
+                description:
+                    "Images URL or workspace relative filepaths. One image per line.",
+            },
+            extra: {
+                type: "string",
+                description: "Additional context information about the images",
             },
             query: {
                 type: "string",
@@ -26,16 +31,21 @@ defTool(
         required: ["image", "query"],
     },
     async (args) => {
-        const { image, query, hd } = args
+        const { context, images, extra, query, hd } = args
+        const imgs = images.split(/\r?\n/g).filter((f) => !!f)
+        context.debug(imgs.join("\n"))
         const res = await runPrompt(
             (_) => {
-                _.defImages(image, {
+                _.defImages(imgs, {
                     autoCrop: true,
                     detail: hd ? "high" : "low",
                     maxWidth: hd ? 1024 : 512,
                     maxHeight: hd ? 1024 : 512,
                 })
-                _.$`Answer this query about the images:`
+                if (extra) _.def("EXTRA_CONTEXT", extra)
+                _.$`Answer the <Query> about the images.`
+                if (extra)
+                    $`Use the extra context provided in <EXTRA_CONTEXT> to help you.`
                 _.def("QUERY", query)
             },
             {
