@@ -49,9 +49,16 @@ Each label id should be a single word that encodes into a single token. This all
 
 ### `other` label
 
-A `other` label is automatically added to the list
-of label to give an escape route for the LLM when
-it is not able to classify the text.
+A `other` label can be automatically added to the list
+of label to give an escape route for the LLM when it is not able to classify the text.
+
+```js
+const res = await classify(
+    "...",
+    { ... },
+    { other: true }
+)
+```
 
 ## Model and other options
 

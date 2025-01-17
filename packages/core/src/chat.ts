@@ -838,11 +838,11 @@ async function choicesToLogitBias(
             disableFallback: true,
         })) || {}
     if (!encode) {
-        logVerbose(
-            `unabled to compute logit bias, no token encoder found for ${model}`
+        logWarn(
+            `unable to compute logit bias, no token encoder found for ${model}`
         )
         trace.warn(
-            `unabled to compute logit bias, no token encoder found for ${model}`
+            `unable to compute logit bias, no token encoder found for ${model}`
         )
         return undefined
     }
@@ -850,10 +850,14 @@ async function choicesToLogitBias(
         choices.map((c) => {
             const { token, weight } = typeof c === "string" ? { token: c } : c
             const encoded = typeof token === "number" ? [token] : encode(token)
-            if (encoded.length !== 1)
+            if (encoded.length !== 1) {
+                logWarn(
+                    `choice ${c} tokenizes to ${encoded.join(", ")} (expected one token)`
+                )
                 trace.warn(
                     `choice ${c} tokenizes to ${encoded.join(", ")} (expected one token)`
                 )
+            }
             return [encoded[0], isNaN(weight) ? CHOICE_LOGIT_BIAS : weight] as [
                 number,
                 number,

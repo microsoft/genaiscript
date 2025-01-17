@@ -11,6 +11,14 @@ import { pipeline } from "@huggingface/transformers"
 // symbols exported as is
 export { delay, uniq, uniqBy, z, pipeline, chunk, groupBy }
 
+export type ClassifyOptions = {
+    /**
+     * Inject a 'other' label
+     */
+    other?: boolean
+    ctx?: ChatGenerationContext
+} & Omit<PromptGeneratorOptions, "choices">
+
 /**
  * Classify prompt
  *
@@ -23,10 +31,7 @@ export { delay, uniq, uniqBy, z, pipeline, chunk, groupBy }
 export async function classify<L extends Record<string, string>>(
     text: string | PromptGenerator,
     labels: L,
-    options?: {
-        instructions?: string
-        ctx?: ChatGenerationContext
-    } & Omit<PromptGeneratorOptions, "choices">
+    options?: ClassifyOptions
 ): Promise<{
     label: keyof typeof labels | "other"
     entropy?: number
@@ -35,18 +40,24 @@ export async function classify<L extends Record<string, string>>(
     answer: string
     logprobs?: Record<keyof typeof labels | "other", Logprob>
 }> {
-    const { instructions, ...rest } = options || {}
-    const entries = Object.entries(labels).map(([k, v]) => [
-        k.trim().toLowerCase(),
-        v,
-    ])
-    if (!entries.length) throw Error("classify must have at least one label")
+    const { other, ...rest } = options || {}
+
+    const entries = Object.entries({
+        ...labels,
+        ...(other
+            ? {
+                  other: "This label is used when the text does not fit any of the available labels.",
+              }
+            : {}),
+    }).map(([k, v]) => [k.trim().toLowerCase(), v])
+
+    if (entries.length < 2)
+        throw Error("classify must have at least two label (including other)")
+
     const choices = entries.map(([k]) => k)
-    const allChoices = uniq<keyof typeof labels | "other">([
-        ...choices,
-        "other",
-    ])
+    const allChoices = uniq<keyof typeof labels | "other">(choices)
     const ctx = options?.ctx || env.generator
+
     const res = await ctx.runPrompt(
         async (_) => {
             _.$`## Expert Classifier
@@ -58,26 +69,33 @@ For each label, you will find a short description. Use these descriptions to gui
             _.$`## Labels
 You must classify the data as one of the following labels. 
 ${entries.map(([id, descr]) => `- Label '${id}': ${descr}`).join("\n")}
-- Label 'other': This label is used when the text does not fit any of the available labels.
 
 ## Output
-Provide a short justification for your choice 
-and output the label as your last word. 
+Provide a single sentence justification for your choice.
+and output the label as a single word on the last line. Do not emit "Label".
+
 `
+            _.fence(
+                `- Label 'yes': funny
+- Label 'no': not funny
+
+DATA:
+Why did the chicken cross the road? Because moo.
+
+Output:
+It's a classic joke but the ending does not relate to the start of the joke.
+no
+
+`,
+                { language: "example" }
+            )
             if (typeof text === "string") _.def("DATA", text)
             else await text(_)
-            if (options?.instructions) {
-                _.$`## Additional instructions
-
-                ${instructions}                
-                `
-            }
         },
         {
             model: "classify",
-            choices: [...choices, "other"],
+            choices: choices,
             label: `classify ${choices.join(", ")}`,
-            cache: "classify",
             logprobs: true,
             topLogprobs: Math.min(3, choices.length),
             system: [
