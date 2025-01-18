@@ -166,7 +166,6 @@ export async function gradioConnect(space: string) {
         options?: GradioSubmitOptions
     ): ReturnType<typeof GradioSubmit> => {
         const { endpoint = "/predict", payload = undefined } = options || {}
-        console.log({ endpoint, payload })
         const submission = app.submit(endpoint, payload)
         return submission
     }
@@ -184,20 +183,21 @@ export type GradioClient = Awaited<ReturnType<typeof gradioConnect>>
 export function defGradioTool(
     name: string,
     description: string,
-    parameters: PromptParametersSchema | JSONSchema,
+    parameters: PromptParametersSchema | JSONSchemaObject,
     space: string,
+    payloader: (args: Record<string, any>) => unknown[],
     renderer: (data: unknown[]) => Awaitable<ToolCallOutput>,
     options?: Pick<GradioSubmitOptions, "endpoint">
 ) {
     let appPromise: Promise<GradioClient>
     defTool(name, description, parameters, async (args) => {
-        const { context, query } = args
+        const { context, ...rest } = args
         if (!appPromise) appPromise = gradioConnect(space)
         const app = await appPromise
-        const api = await app.view_api()
+        const payload = await payloader(rest)
         const req = {
             ...(options || {}),
-            payload: [query],
+            payload,
         }
         for await (const status of app.submit(req)) {
             if (status.type === "data") {
