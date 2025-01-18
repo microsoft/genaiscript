@@ -187,7 +187,7 @@ export async function gradioConnect(
     const { duplicate } = options || {}
     const hf_token: `hf_${string}` = (process.env.HF_TOKEN ||
         process.env.HUGGINGFACE_TOKEN) as any
-    const { Client } = await import("@gradio/client")
+    const { Client, handle_file } = await import("@gradio/client")
     let app
     if (duplicate)
         app = await Client.duplicate(space, {
@@ -204,11 +204,40 @@ export async function gradioConnect(
                 console.debug(`gradio ${space}: ${status?.message || ""}`)
             },
         })
+
+    const handleFile = (v: unknown) => {
+        if (v instanceof File || v instanceof Blob || v instanceof Buffer)
+            return handle_file(v)
+        const f = v as WorkspaceFile
+        if (typeof f === "object" && f?.filename) {
+            const { filename, content, encoding } = f
+            if (!content) return handle_file((v as WorkspaceFile).filename)
+            else {
+                const bytes = Buffer.from(content, encoding || "utf8")
+                return handle_file(bytes)
+            }
+        }
+        return v
+    }
+
+    const handleFiles = (payload: unknown[] | Record<string, unknown>) => {
+        const result: Record<string, any> = {}
+        if (Array.isArray(payload)) {
+            for (let i = 0; i < payload.length; ++i)
+                payload[i] = handleFile(payload[i])
+        } else {
+            for (const [key, value] of Object.entries(payload))
+                result[key] = handleFile(value)
+        }
+        return result
+    }
+
     const submit = (
         options?: GradioSubmitOptions
     ): ReturnType<typeof GradioSubmit> => {
         const { endpoint = "/predict", payload = undefined } = options || {}
-        const submission = app.submit(endpoint, payload)
+        const payloadWithFiles = handleFiles(payload)
+        const submission = app.submit(endpoint, payloadWithFiles)
         return submission
     }
     const config = app.config
@@ -230,7 +259,7 @@ export function defGradioTool(
     payloader: (
         args: Record<string, any>,
         endpointInfo?: GradioEndpointInfo
-    ) => Awaitable<unknown[]>,
+    ) => Awaitable<unknown[] | Record<string, unknown>>,
     renderer: (data: unknown[]) => Awaitable<ToolCallOutput>,
     options?: GradioClientOptions & Pick<GradioSubmitOptions, "endpoint">
 ) {
