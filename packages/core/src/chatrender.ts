@@ -133,6 +133,8 @@ export function renderMessagesToMarkdown(
                                 content += fenceMD(part.text, "markdown")
                             else if (part.type === "image_url")
                                 content += `\n![image](${part.image_url.url})`
+                            else if (part.type === "input_audio")
+                                content += `\n🔊 [audio](${part.input_audio})`
                             else content += fenceMD(YAMLStringify(part), "yaml")
                         }
                     } else content = fenceMD(YAMLStringify(msg), "yaml")

@@ -149,11 +149,6 @@ export function parseTraceTree(text: string): TraceTree {
 export function renderTraceTree(node: TraceNode): string {
     if (!node) return ""
     if (typeof node === "string") {
-        // Extract fenced markdown content
-        if (/^\s*\`\`\`markdown/.test(node) && /\`\`\`\s*$/.test(node)) {
-            const fences = extractFenced(node)
-            if (fences?.length === 1) return fences[0].content
-        }
         return node
     } else if (node.type === "item") return `- ${node.label}: ${node.value}`
     else if (node.type === "details")
