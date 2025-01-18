@@ -5,27 +5,27 @@ script({
 import { defGradioTool, gradioConnect } from "genaiscript/runtime"
 const put = env.vars.prompt || "A rabbit is wearing a space suit"
 
-try {
-    const prompter = await gradioConnect("microsoft/Promptist")
-    const predictions = await prompter.predict({
+/*try {
+    const app = await gradioConnect("microsoft/Promptist")
+    const predictions = await app.predict({
         payload: [put],
     })
     const newPrompt = predictions[0]
     console.log({ newPrompt })
 } catch (e) {
     console.error(e)
-}
+}*/
 
 try {
-    const captioner = await gradioConnect("hysts/ViTPose-transformers")
-    const predictions = await captioner.predict({
-        endpoint: "/process_image",
-        payload: { image: env.files[0] },
+    const app = await gradioConnect("pharmapsychotic/CLIP-Interrogator")
+    console.log(app.api)
+    const predictions = await app.predict({
+        endpoint: 0,
+        payload: [env.files[0]],
     })
-    const caption = predictions?.[0]
-    console.log({ caption })
+    console.log({ predictions })
 } catch (e) {
-    console.error(e)
+    console.log(e)
 }
 
 // see https://github.com/freddyaboulton/gradio-tools

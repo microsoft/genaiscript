@@ -144,7 +144,7 @@ no
 }
 
 export interface GradioSubmitOptions {
-    endpoint?: string
+    endpoint?: string | number
     payload?: unknown[] | Record<string, unknown> | undefined
 }
 
@@ -173,6 +173,21 @@ export interface GradioApiInfo {
 export interface GradioClientOptions {
     duplicate?: boolean
     private?: boolean
+    timeout?: number
+    hardware?:
+        | "cpu-basic"
+        | "cpu-upgrade"
+        | "cpu-xl"
+        | "t4-small"
+        | "t4-medium"
+        | "a10g-small"
+        | "a10g-large"
+        | "a10g-largex2"
+        | "a10g-largex4"
+        | "a100-large"
+        | "zero-a10g"
+        | "h100"
+        | "h100x8"
 }
 
 /**
@@ -193,6 +208,8 @@ export async function gradioConnect(
         app = await Client.duplicate(space, {
             hf_token,
             private: options?.private,
+            timeout: options?.timeout,
+            hardware: options?.hardware,
             status_callback: (status) => {
                 console.debug(`gradio ${space}: ${status?.message || ""}`)
             },
