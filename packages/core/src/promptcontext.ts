@@ -74,6 +74,7 @@ export async function createPromptContext(
             })
             return res
         },
+        stat: (filename) => runtimeHost.workspace.stat(filename),
         grep: async (
             query,
             grepOptions: string | WorkspaceGrepOptions,

@@ -885,6 +885,14 @@ interface FindFilesOptions {
     readText?: boolean
 }
 
+interface FileStats {
+    /**
+     * Size of the file in bytes
+     */
+    size: number
+    mode: number
+}
+
 interface WorkspaceFileSystem {
     /**
      * Searches for files using the glob pattern and returns a list of files.
@@ -910,6 +918,12 @@ interface WorkspaceFileSystem {
         glob: string,
         options?: Omit<WorkspaceGrepOptions, "path" | "glob">
     ): Promise<WorkspaceGrepResult>
+
+    /**
+     * Reads metadata information about the file. Returns undefined if the file does not exist.
+     * @param filename
+     */
+    stat(filename: string): Promise<FileStats>
 
     /**
      * Reads the content of a file as text
