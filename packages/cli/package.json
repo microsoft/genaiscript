@@ -52,6 +52,7 @@
     "@anthropic-ai/bedrock-sdk": "^0.12.0",
     "@anthropic-ai/sdk": "^0.33.1",
     "@azure/identity": "^4.5.0",
+    "@gradio/client": "^1.10.0",
     "@inquirer/prompts": "^7.2.1",
     "@modelcontextprotocol/sdk": "^1.1.0",
     "@octokit/plugin-paginate-rest": "^11.3.6",

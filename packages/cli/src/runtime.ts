@@ -6,6 +6,7 @@
 import { delay, uniq, uniqBy, chunk, groupBy } from "es-toolkit"
 import { z } from "zod"
 import { pipeline } from "@huggingface/transformers"
+import type { submit as GradioSubmit } from "@gradio/client"
 
 // symbols exported as is
 export { delay, uniq, uniqBy, z, pipeline, chunk, groupBy }
@@ -140,4 +141,70 @@ no
         answer,
         logprobs,
     }
+}
+
+export interface GradioSubmitOptions {
+    endpoint?: string
+    payload?: unknown[] | Record<string, unknown> | undefined
+}
+/**
+ * Opens a client connection to a gradio space on Hugging Face
+ * @param space user/name space
+ * @returns a promise to the client
+ */
+export async function gradioConnect(space: string) {
+    const hf_token: `hf_${string}` = (process.env.HF_TOKEN ||
+        process.env.HUGGINGFACE_TOKEN) as any
+    const { Client } = await import("@gradio/client")
+    const app = await Client.connect(space, {
+        hf_token,
+        status_callback: (status) => {
+            console.debug(`gradio ${space}: ${status?.message || ""}`)
+        },
+    })
+    const submit = (
+        options?: GradioSubmitOptions
+    ): ReturnType<typeof GradioSubmit> => {
+        const { endpoint = "/predict", payload = undefined } = options || {}
+        console.log({ endpoint, payload })
+        const submission = app.submit(endpoint, payload)
+        return submission
+    }
+    const config = app.config
+    const view_api = () => app.view_api()
+
+    return {
+        config,
+        submit,
+        view_api,
+    }
+}
+export type GradioClient = Awaited<ReturnType<typeof gradioConnect>>
+
+export function defGradioTool(
+    name: string,
+    description: string,
+    parameters: PromptParametersSchema | JSONSchema,
+    space: string,
+    renderer: (data: unknown[]) => Awaitable<ToolCallOutput>,
+    options?: Pick<GradioSubmitOptions, "endpoint">
+) {
+    let appPromise: Promise<GradioClient>
+    defTool(name, description, parameters, async (args) => {
+        const { context, query } = args
+        if (!appPromise) appPromise = gradioConnect(space)
+        const app = await appPromise
+        const api = await app.view_api()
+        const req = {
+            ...(options || {}),
+            payload: [query],
+        }
+        for await (const status of app.submit(req)) {
+            if (status.type === "data") {
+                const data = status.data
+                return await renderer(data)
+            }
+        }
+        return undefined
+    })
 }

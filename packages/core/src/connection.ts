@@ -47,7 +47,7 @@ import {
     LanguageModelConfiguration,
     OpenAIAPIType,
 } from "./server/messages"
-import { normalizeFloat, trimTrailingSlash } from "./util"
+import { arrayify, normalizeFloat, trimTrailingSlash } from "./util"
 
 export function ollamaParseHostVariable(env: Record<string, string>) {
     const s = (
@@ -65,15 +65,18 @@ export function ollamaParseHostVariable(env: Record<string, string>) {
 
 export function findEnvVar(
     env: Record<string, string>,
-    prefix: string,
+    prefixes: string | string[],
     names: string[]
 ): { name: string; value: string } {
-    for (const name of names) {
-        const pname = prefix + name
-        const value =
-            env[pname] || env[pname.toLowerCase()] || env[pname.toUpperCase()]
-        if (value !== undefined) return { name: pname, value }
-    }
+    for (const prefix of arrayify(prefixes))
+        for (const name of names) {
+            const pname = prefix + name
+            const value =
+                env[pname] ||
+                env[pname.toLowerCase()] ||
+                env[pname.toUpperCase()]
+            if (value !== undefined) return { name: pname, value }
+        }
     return undefined
 }
 
@@ -400,12 +403,12 @@ export async function parseTokenFromEnv(
     }
 
     if (provider === MODEL_PROVIDER_HUGGINGFACE) {
-        const prefix = "HUGGINGFACE"
+        const prefix = ["HUGGINGFACE", "HF"]
         const token = findEnvVar(env, prefix, TOKEN_SUFFIX)
         const base =
             findEnvVar(env, prefix, BASE_SUFFIX)?.value || HUGGINGFACE_API_BASE
         if (!URL.canParse(base)) throw new Error(`${base} must be a valid URL`)
-        if (!token?.value) throw new Error("HUGGINGFACE_API_KEY missing")
+        if (!token?.value) throw new Error("HuggingFace token missing")
         return {
             base,
             token: token?.value,
