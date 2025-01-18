@@ -170,21 +170,40 @@ export interface GradioApiInfo {
     unnamed_endpoints: Record<string, GradioEndpointInfo>
 }
 
+export interface GradioClientOptions {
+    duplicate?: boolean
+    private?: boolean
+}
+
 /**
  * Opens a client connection to a gradio space on Hugging Face
  * @param space user/name space
  * @returns a promise to the client
  */
-export async function gradioConnect(space: string) {
+export async function gradioConnect(
+    space: string,
+    options?: GradioClientOptions
+) {
+    const { duplicate } = options || {}
     const hf_token: `hf_${string}` = (process.env.HF_TOKEN ||
         process.env.HUGGINGFACE_TOKEN) as any
     const { Client } = await import("@gradio/client")
-    const app = await Client.connect(space, {
-        hf_token,
-        status_callback: (status) => {
-            console.debug(`gradio ${space}: ${status?.message || ""}`)
-        },
-    })
+    let app
+    if (duplicate)
+        app = await Client.duplicate(space, {
+            hf_token,
+            private: options?.private,
+            status_callback: (status) => {
+                console.debug(`gradio ${space}: ${status?.message || ""}`)
+            },
+        })
+    else
+        app = await Client.connect(space, {
+            hf_token,
+            status_callback: (status) => {
+                console.debug(`gradio ${space}: ${status?.message || ""}`)
+            },
+        })
     const submit = (
         options?: GradioSubmitOptions
     ): ReturnType<typeof GradioSubmit> => {
@@ -210,18 +229,25 @@ export function defGradioTool(
     space: string,
     payloader: (args: Record<string, any>) => unknown[],
     renderer: (data: unknown[]) => Awaitable<ToolCallOutput>,
-    options?: Pick<GradioSubmitOptions, "endpoint">
+    options?: GradioClientOptions & Pick<GradioSubmitOptions, "endpoint">
 ) {
+    const { endpoint, ...restOptions } = options || {}
     let appPromise: Promise<GradioClient>
-    defTool(name, description, parameters, async (args) => {
-        const { context, ...rest } = args
-        if (!appPromise) appPromise = gradioConnect(space)
+
+    const connect = async () => {
+        if (!appPromise) appPromise = gradioConnect(space, restOptions)
         const app = await appPromise
-        const payload = await payloader(rest)
+        return app
+    }
+
+    defTool(name, description, parameters, async (args) => {
+        const { context, ...restArgs } = args
+        const payload = await payloader(restArgs)
         const req = {
-            ...(options || {}),
+            endpoint,
             payload,
         }
+        const app = await connect()
         for await (const status of app.submit(req)) {
             if (status.type === "data") {
                 const data = status.data
