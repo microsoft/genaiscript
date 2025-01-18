@@ -147,6 +147,29 @@ export interface GradioSubmitOptions {
     endpoint?: string
     payload?: unknown[] | Record<string, unknown> | undefined
 }
+
+export interface GradioApiData {
+    label: string
+    parameter_name: string
+    parameter_default?: any
+    parameter_has_default?: boolean
+    type: string
+    description: string
+    component: string
+    example_input?: any
+    serializer: string
+    python_type: { type: string; description: string }
+}
+export interface GradioEndpointInfo {
+    parameters: GradioApiData[]
+    returns: GradioApiData[]
+}
+
+export interface GradioApiInfo {
+    named_endpoints: Record<string, GradioEndpointInfo>
+    unnamed_endpoints: Record<string, GradioEndpointInfo>
+}
+
 /**
  * Opens a client connection to a gradio space on Hugging Face
  * @param space user/name space
@@ -175,7 +198,7 @@ export async function gradioConnect(space: string) {
     return {
         config,
         submit,
-        view_api,
+        view_api: () => app.view_api() as Promise<GradioApiInfo>,
     }
 }
 export type GradioClient = Awaited<ReturnType<typeof gradioConnect>>
