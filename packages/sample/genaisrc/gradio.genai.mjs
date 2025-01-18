@@ -3,14 +3,30 @@ script({
 })
 
 import { defGradioTool, gradioConnect } from "genaiscript/runtime"
+const put = env.vars.prompt || "A rabbit is wearing a space suit"
 
-const captioner = await gradioConnect("hysts/ViTPose-transformers")
-console.log(await captioner.api.named_endpoints)
-const caption = await captioner.run({
-    endpoint: "/process_image",
-    payload: { image: env.files[0] },
-})
-console.log(caption)
+try {
+    const prompter = await gradioConnect("microsoft/Promptist")
+    const predictions = await prompter.predict({
+        payload: [put],
+    })
+    const newPrompt = predictions[0]
+    console.log({ newPrompt })
+} catch (e) {
+    console.error(e)
+}
+
+try {
+    const captioner = await gradioConnect("hysts/ViTPose-transformers")
+    const predictions = await captioner.predict({
+        endpoint: "/process_image",
+        payload: { image: env.files[0] },
+    })
+    const caption = predictions?.[0]
+    console.log({ caption })
+} catch (e) {
+    console.error(e)
+}
 
 // see https://github.com/freddyaboulton/gradio-tools
 defGradioTool(
@@ -24,9 +40,11 @@ defGradioTool(
         //console.debug(info)
         return [query]
     },
-    (data) => data?.[0]
+    (data) => {
+        console.log(data)
+        return data?.[0]
+    }
 )
 
-const put = env.vars.prompt || "A rabbit is wearing a space suit"
 def("PROMPT", put)
 $`Improve the <PROMPT> for a Stable Diffusion model.`

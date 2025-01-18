@@ -206,13 +206,16 @@ export async function gradioConnect(
         })
 
     const handleFile = (v: unknown) => {
+        if (!v) return v
         if (v instanceof File || v instanceof Blob || v instanceof Buffer)
             return handle_file(v)
         const f = v as WorkspaceFile
         if (typeof f === "object" && f?.filename) {
             const { filename, content, encoding } = f
-            if (!content) return handle_file((v as WorkspaceFile).filename)
-            else {
+            if (!content) {
+                const f = handle_file((v as WorkspaceFile).filename)
+                return f
+            } else {
                 const bytes = Buffer.from(content, encoding || "utf8")
                 return handle_file(bytes)
             }
@@ -221,6 +224,7 @@ export async function gradioConnect(
     }
 
     const handleFiles = (payload: unknown[] | Record<string, unknown>) => {
+        if (!payload) return payload
         if (Array.isArray(payload)) {
             const result = []
             for (let i = 0; i < payload.length; ++i)
@@ -245,23 +249,18 @@ export async function gradioConnect(
     const config = app.config
     const api: GradioApiInfo = await app.view_api()
 
-    const run = async (options?: GradioSubmitOptions): Promise<unknown[]> => {
-        for await (const status of submit(options)) {
-            if (status.type === "data") {
-                const data = status.data
-                return data
-            } else {
-                console.debug(`gradio ${space}: ${status.type}`)
-            }
-        }
-        return undefined
+    const predict = async (options?: GradioSubmitOptions): Promise<unknown> => {
+        const { endpoint = "/predict", payload = undefined } = options || {}
+        const payloadWithFiles = handleFiles(payload)
+        const res = await app.predict(endpoint, payloadWithFiles)
+        return res.data
     }
 
     return {
         config,
         submit,
         handleFile,
-        run,
+        predict,
         api,
     }
 }
@@ -276,7 +275,7 @@ export function defGradioTool(
         args: Record<string, any>,
         endpointInfo?: GradioEndpointInfo
     ) => Awaitable<unknown[] | Record<string, unknown>>,
-    renderer: (data: unknown[]) => Awaitable<ToolCallOutput>,
+    renderer: (data: unknown) => Awaitable<ToolCallOutput>,
     options?: GradioClientOptions & Pick<GradioSubmitOptions, "endpoint">
 ) {
     const { endpoint = "/predict", ...restOptions } = options || {}
@@ -296,7 +295,7 @@ export function defGradioTool(
             endpoint,
             payload,
         }
-        const data = await app.run(req)
+        const data = await app.predict(req)
         return await renderer(data)
     })
 }
