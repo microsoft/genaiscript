@@ -246,6 +246,7 @@ export async function gradioConnect(
     return {
         config,
         submit,
+        handleFile,
         view_api: () => app.view_api() as Promise<GradioApiInfo>,
     }
 }
