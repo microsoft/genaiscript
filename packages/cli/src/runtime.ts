@@ -227,27 +227,38 @@ export function defGradioTool(
     description: string,
     parameters: PromptParametersSchema | JSONSchemaObject,
     space: string,
-    payloader: (args: Record<string, any>) => unknown[],
+    payloader: (
+        args: Record<string, any>,
+        endpointInfo?: GradioEndpointInfo
+    ) => Awaitable<unknown[]>,
     renderer: (data: unknown[]) => Awaitable<ToolCallOutput>,
     options?: GradioClientOptions & Pick<GradioSubmitOptions, "endpoint">
 ) {
-    const { endpoint, ...restOptions } = options || {}
-    let appPromise: Promise<GradioClient>
+    const { endpoint = "/predict", ...restOptions } = options || {}
+    let appPromise: Promise<{ app: GradioClient; api: GradioApiInfo }>
 
     const connect = async () => {
-        if (!appPromise) appPromise = gradioConnect(space, restOptions)
-        const app = await appPromise
-        return app
+        if (!appPromise)
+            appPromise = (async () => {
+                const app: GradioClient = await gradioConnect(
+                    space,
+                    restOptions
+                )
+                const api: GradioApiInfo = await app.view_api()
+                return { app, api }
+            })()
+        return appPromise
     }
 
     defTool(name, description, parameters, async (args) => {
         const { context, ...restArgs } = args
-        const payload = await payloader(restArgs)
+        const { app, api } = await connect()
+        const info = api.named_endpoints[endpoint]
+        const payload = await payloader(restArgs, info)
         const req = {
             endpoint,
             payload,
         }
-        const app = await connect()
         for await (const status of app.submit(req)) {
             if (status.type === "data") {
                 const data = status.data
