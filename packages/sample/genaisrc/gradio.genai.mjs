@@ -1,4 +1,16 @@
-import { defGradioTool } from "genaiscript/runtime"
+script({
+    files: "src/robots.jpg",
+})
+
+import { defGradioTool, gradioConnect } from "genaiscript/runtime"
+
+const captioner = await gradioConnect("hysts/ViTPose-transformers")
+console.log(await captioner.api.named_endpoints)
+const caption = await captioner.run({
+    endpoint: "/process_image",
+    payload: { image: env.files[0] },
+})
+console.log(caption)
 
 // see https://github.com/freddyaboulton/gradio-tools
 defGradioTool(
@@ -12,7 +24,7 @@ defGradioTool(
         //console.debug(info)
         return [query]
     },
-    (data) => JSON.stringify(data)
+    (data) => data?.[0]
 )
 
 const put = env.vars.prompt || "A rabbit is wearing a space suit"

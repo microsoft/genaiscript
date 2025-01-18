@@ -221,15 +221,17 @@ export async function gradioConnect(
     }
 
     const handleFiles = (payload: unknown[] | Record<string, unknown>) => {
-        const result: Record<string, any> = {}
         if (Array.isArray(payload)) {
+            const result = []
             for (let i = 0; i < payload.length; ++i)
-                payload[i] = handleFile(payload[i])
+                result.push(handleFile(payload[i]))
+            return result
         } else {
+            const result: Record<string, any> = {}
             for (const [key, value] of Object.entries(payload))
                 result[key] = handleFile(value)
+            return result
         }
-        return result
     }
 
     const submit = (
@@ -241,13 +243,26 @@ export async function gradioConnect(
         return submission
     }
     const config = app.config
-    const view_api = () => app.view_api()
+    const api: GradioApiInfo = await app.view_api()
+
+    const run = async (options?: GradioSubmitOptions): Promise<unknown[]> => {
+        for await (const status of submit(options)) {
+            if (status.type === "data") {
+                const data = status.data
+                return data
+            } else {
+                console.debug(`gradio ${space}: ${status.type}`)
+            }
+        }
+        return undefined
+    }
 
     return {
         config,
         submit,
         handleFile,
-        view_api: () => app.view_api() as Promise<GradioApiInfo>,
+        run,
+        api,
     }
 }
 export type GradioClient = Awaited<ReturnType<typeof gradioConnect>>
@@ -265,36 +280,23 @@ export function defGradioTool(
     options?: GradioClientOptions & Pick<GradioSubmitOptions, "endpoint">
 ) {
     const { endpoint = "/predict", ...restOptions } = options || {}
-    let appPromise: Promise<{ app: GradioClient; api: GradioApiInfo }>
+    let appPromise: Promise<GradioClient>
 
     const connect = async () => {
-        if (!appPromise)
-            appPromise = (async () => {
-                const app: GradioClient = await gradioConnect(
-                    space,
-                    restOptions
-                )
-                const api: GradioApiInfo = await app.view_api()
-                return { app, api }
-            })()
+        if (!appPromise) appPromise = gradioConnect(space, restOptions)
         return appPromise
     }
 
     defTool(name, description, parameters, async (args) => {
         const { context, ...restArgs } = args
-        const { app, api } = await connect()
-        const info = api.named_endpoints[endpoint]
+        const app = await connect()
+        const info = app.api.named_endpoints[endpoint]
         const payload = await payloader(restArgs, info)
         const req = {
             endpoint,
             payload,
         }
-        for await (const status of app.submit(req)) {
-            if (status.type === "data") {
-                const data = status.data
-                return await renderer(data)
-            }
-        }
-        return undefined
+        const data = await app.run(req)
+        return await renderer(data)
     })
 }
