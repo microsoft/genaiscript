@@ -191,6 +191,7 @@ export interface GradioClientOptions {
 }
 
 /**
+ * **Experimental**
  * Opens a client connection to a gradio space on Hugging Face
  * @param space user/name space
  * @returns a promise to the client
@@ -270,6 +271,7 @@ export async function gradioConnect(
         const { endpoint = "/predict", payload = undefined } = options || {}
         const payloadWithFiles = handleFiles(payload)
         const res = await app.predict(endpoint, payloadWithFiles)
+        console.log(JSON.stringify({ res }, null, 0))
         return res.data
     }
 
@@ -283,6 +285,10 @@ export async function gradioConnect(
 }
 export type GradioClient = Awaited<ReturnType<typeof gradioConnect>>
 
+/**
+ * **Experimental**
+ * Defines a gradio tool
+ */
 export function defGradioTool(
     name: string,
     description: string,

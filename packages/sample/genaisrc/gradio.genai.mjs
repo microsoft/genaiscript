@@ -17,17 +17,18 @@ const put = env.vars.prompt || "A rabbit is wearing a space suit"
 }*/
 
 try {
-    const app = await gradioConnect("pharmapsychotic/CLIP-Interrogator")
-    console.log(app.api)
+    const app = await gradioConnect("hysts/ViTPose-transformers")
+    console.log(JSON.stringify(app.api, null, 2))
     const predictions = await app.predict({
-        endpoint: 0,
-        payload: [env.files[0]],
+        endpoint: "/process_image",
+        payload: { image: env.files[0] },
     })
     console.log({ predictions })
 } catch (e) {
-    console.log(e)
+    console.log({ e })
 }
 
+throw new Error()
 // see https://github.com/freddyaboulton/gradio-tools
 defGradioTool(
     "promptist",
