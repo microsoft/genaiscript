@@ -13,6 +13,10 @@
       "types": "./built/runtime.d.ts",
       "import": "./built/runtime.mjs"
     },
+    "./globals": {
+      "types": "./built/globals.d.ts",
+      "import": "./built/globals.mjs"      
+    },
     "./package.json": "./package.json"
   },
   "files": [
@@ -124,6 +128,7 @@
     "compile:runtime": "yarn compile:runtime:declarations && yarn compile:runtime:code && mv built/runtime.js built/runtime.mjs",
     "compile:api": "esbuild src/api.ts --outfile=built/api.mjs",
     "compile:cli": "esbuild src/main.ts --metafile=./esbuild.meta.json --bundle --platform=node --target=node20 --outfile=built/genaiscript.cjs --external:tsx --external:esbuild --external:get-tsconfig --external:resolve-pkg-maps --external:dockerode --external:pdfjs-dist --external:web-tree-sitter --external:tree-sitter-wasms --external:promptfoo --external:typescript --external:@lvce-editor/ripgrep --external:gpt-3-encoder --external:mammoth --external:xlsx --external:mathjs --external:@azure/identity --external:gpt-tokenizer --external:playwright --external:@inquirer/prompts --external:jimp --external:turndown --external:turndown-plugin-gfm --external:vectra --external:tabletojson --external:html-to-text --external:@octokit/rest --external:@octokit/plugin-throttling --external:@octokit/plugin-retry --external:@octokit/plugin-paginate-rest --external:skia-canvas --external:@huggingface/transformers --external:@modelcontextprotocol/sdk --external:@anthropic-ai/sdk --external:@anthropic-ai/bedrock-sdk --external:es-toolkit --external:zod --external:zod-to-json-schema --external:fluent-ffmpeg && node ../../scripts/patch-cli.mjs",
+    "compile:types": "cp ../core/src/genaisrc/genaiscript.d.ts built/genaiscript.d.ts",
     "compile": "yarn compile:api && yarn compile:runtime && yarn compile:cli",
     "compile-debug": "esbuild src/main.ts --sourcemap --metafile=./esbuild.meta.json --bundle --platform=node --target=node20 --outfile=built/genaiscript.cjs --external:tsx --external:esbuild --external:get-tsconfig --external:resolve-pkg-maps --external:dockerode --external:pdfjs-dist --external:web-tree-sitter --external:tree-sitter-wasms --external:promptfoo --external:typescript --external:@lvce-editor/ripgrep --external:gpt-3-encoder --external:mammoth --external:xlsx --external:mathjs --external:@azure/identity --external:gpt-tokenizer --external:playwright --external:@inquirer/prompts --external:jimp --external:turndown --external:turndown-plugin-gfm --external:vectra --external:tabletojson --external:html-to-text --external:@octokit/rest --external:@octokit/plugin-throttling --external:@octokit/plugin-retry --external:@octokit/plugin-paginate-rest --external:skia-canvas --external:@huggingface/transformers --external:@modelcontextprotocol/sdk --external:@anthropic-ai/sdk --external:@anthropic-ai/bedrock-sdk --external:es-toolkit --external:zod --external:zod-to-json-schema --external:fluent-ffmpeg",
     "postcompile": "node built/genaiscript.cjs info help > ../../docs/src/content/docs/reference/cli/commands.md",
