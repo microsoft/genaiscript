@@ -1,4 +1,4 @@
-import type { PromptGenerator} from "genaiscript/globals"
+import "genaiscript/globals"
 
 /**
  * GenAIScript supporting runtime
