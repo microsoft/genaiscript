@@ -1,5 +1,6 @@
 const { readdirSync, readFileSync, writeFileSync } = require("fs")
 const { parse } = require("json5")
+const { ensureDir } = require("fs-extra")
 
 async function main() {
     const dir = "./src/genaisrc"
@@ -25,6 +26,17 @@ async function main() {
         "./src/genaiscript-api-provider.mjs",
         "utf-8"
     )
+    const genaiscriptdts = [
+        "./src/types/prompt_template.d.ts",
+        "./src/types/prompt_type.d.ts",
+    ]
+        .map((fn) => readFileSync(fn, { encoding: "utf-8" }))
+        .map((src) =>
+            src.replace(/^\/\/\/\s+<reference\s+path="[^"]+"\s*\/>\s*$/gm, "")
+        )
+        .join("")
+    await ensureDir("../cli/built")
+    writeFileSync("../cli/built/globals.d.ts", genaiscriptdts, "utf-8")
     const promptDefs = {
         "jsconfig.json": JSON.stringify(
             {
@@ -61,18 +73,7 @@ async function main() {
             null,
             4
         ),
-        "genaiscript.d.ts": [
-            "./src/types/prompt_template.d.ts",
-            "./src/types/prompt_type.d.ts",
-        ]
-            .map((fn) => readFileSync(fn, { encoding: "utf-8" }))
-            .map((src) =>
-                src.replace(
-                    /^\/\/\/\s+<reference\s+path="[^"]+"\s*\/>\s*$/gm,
-                    ""
-                )
-            )
-            .join(""),
+        "genaiscript.d.ts": genaiscriptdts,
     }
 
     // listing list of supported wasm languages
