@@ -1,4 +1,3 @@
-import { readFile } from "fs/promises"
 import {
     XLSX_REGEX,
     CSV_REGEX,
@@ -9,19 +8,21 @@ import {
     XML_REGEX,
     MD_REGEX,
     MDX_REGEX,
+    JSONL_REGEX,
 } from "./constants"
-import { CSVParse, CSVTryParse } from "./csv"
+import { CSVTryParse } from "./csv"
 import { splitMarkdown } from "./frontmatter"
-import { INIParse, INITryParse } from "./ini"
-import { JSON5parse } from "./json5"
-import { TOMLParse } from "./toml"
+import { INITryParse } from "./ini"
+import { JSON5TryParse } from "./json5"
+import { TOMLTryParse } from "./toml"
 import { XLSXParse } from "./xlsx"
-import { XMLParse } from "./xml"
-import { YAMLParse } from "./yaml"
+import { XMLTryParse } from "./xml"
+import { YAMLTryParse } from "./yaml"
 import { resolveFileContent } from "./file"
 import { TraceOptions } from "./trace"
 import { host } from "./host"
 import { fromBase64 } from "./base64"
+import { JSONLTryParse } from "./jsonl"
 
 export async function dataTryParse(
     file: WorkspaceFile,
@@ -40,13 +41,14 @@ export async function dataTryParse(
     else {
         if (CSV_REGEX.test(filename)) data = CSVTryParse(content, options)
         else if (INI_REGEX.test(filename)) data = INITryParse(content, options)
-        else if (TOML_REGEX.test(filename)) data = TOMLParse(content)
+        else if (TOML_REGEX.test(filename)) data = TOMLTryParse(content)
         else if (JSON5_REGEX.test(filename))
-            data = JSON5parse(content, { repair: true })
-        else if (YAML_REGEX.test(filename)) data = YAMLParse(content)
-        else if (XML_REGEX.test(filename)) data = XMLParse(content, options)
+            data = JSON5TryParse(content, { repair: true })
+        else if (YAML_REGEX.test(filename)) data = YAMLTryParse(content)
+        else if (XML_REGEX.test(filename)) data = XMLTryParse(content, options)
+        else if (JSONL_REGEX.test(filename)) data = JSONLTryParse(content)
         else if (MD_REGEX.test(filename) || MDX_REGEX.test(filename))
-            data = YAMLParse(splitMarkdown(content).frontmatter)
+            data = YAMLTryParse(splitMarkdown(content).frontmatter)
         else {
             return undefined // unknown
         }

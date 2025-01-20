@@ -50,6 +50,7 @@ export const MDX_REGEX = /\.mdx$/i
 export const MJS_REGEX = /\.mjs$/i
 export const JS_REGEX = /\.js$/i
 export const JSON5_REGEX = /\.json5?$/i
+export const JSONL_REGEX = /\.jsonl$/i
 export const PROMPTY_REGEX = /\.prompty$/i
 export const TOOL_NAME = "GenAIScript"
 export const SERVER_PORT = 8003
