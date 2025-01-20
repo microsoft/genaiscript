@@ -1101,8 +1101,8 @@ The following npm packages may be included in this product:
  - @grpc/grpc-js@1.12.5
  - @grpc/proto-loader@0.7.13
  - detect-libc@2.0.3
- - docker-modem@5.0.5
- - dockerode@4.0.3
+ - docker-modem@5.0.6
+ - dockerode@4.0.4
 
 These packages each contain the following license:
 
@@ -1956,13 +1956,11 @@ Apache License
 
 The following npm packages may be included in this product:
 
- - @aws-sdk/client-cognito-identity@3.729.0
- - @aws-sdk/client-sso-oidc@3.726.0
- - @aws-sdk/client-sso@3.726.0
- - @aws-sdk/client-sts@3.726.1
- - @aws-sdk/credential-provider-cognito-identity@3.729.0
- - @aws-sdk/util-user-agent-browser@3.723.0
- - @aws-sdk/util-user-agent-node@3.726.0
+ - @aws-sdk/client-cognito-identity@3.731.1
+ - @aws-sdk/client-sso@3.731.0
+ - @aws-sdk/credential-provider-cognito-identity@3.731.1
+ - @aws-sdk/util-user-agent-browser@3.731.0
+ - @aws-sdk/util-user-agent-node@3.731.0
  - @smithy/eventstream-codec@2.2.0
  - @smithy/eventstream-codec@4.0.1
  - @smithy/middleware-retry@4.0.3
@@ -2184,7 +2182,7 @@ Apache License
 
 The following npm package may be included in this product:
 
- - @aws-sdk/client-bedrock-runtime@3.726.1
+ - @aws-sdk/client-bedrock-runtime@3.731.1
 
 This package contains the following license:
 
@@ -2394,9 +2392,9 @@ Apache License
 
 The following npm packages may be included in this product:
 
- - @aws-sdk/middleware-host-header@3.723.0
- - @aws-sdk/middleware-recursion-detection@3.723.0
- - @aws-sdk/middleware-user-agent@3.726.0
+ - @aws-sdk/middleware-host-header@3.731.0
+ - @aws-sdk/middleware-recursion-detection@3.731.0
+ - @aws-sdk/middleware-user-agent@3.731.0
  - @smithy/core@3.1.1
  - @smithy/eventstream-serde-browser@4.0.1
  - @smithy/eventstream-serde-config-resolver@4.0.1
@@ -2830,8 +2828,8 @@ The following npm packages may be included in this product:
  - @types/http-cache-semantics@4.0.4
  - @types/node-fetch@2.6.12
  - @types/node@16.9.1
- - @types/node@18.19.70
- - @types/node@22.10.6
+ - @types/node@18.19.71
+ - @types/node@22.10.7
  - @types/turndown@5.0.5
  - @types/uuid@9.0.8
  - @types/yauzl@2.10.3
@@ -2864,7 +2862,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.92.1
+ - genaiscript-vscode@1.93.0
 
 This package contains the following license:
 
@@ -4182,14 +4180,14 @@ Apache License
 
 The following npm packages may be included in this product:
 
- - @aws-sdk/credential-provider-env@3.723.0
- - @aws-sdk/credential-provider-ini@3.726.0
- - @aws-sdk/credential-provider-node@3.726.0
- - @aws-sdk/credential-providers@3.729.0
- - @aws-sdk/region-config-resolver@3.723.0
- - @aws-sdk/token-providers@3.723.0
- - @aws-sdk/types@3.723.0
- - @aws-sdk/util-endpoints@3.726.0
+ - @aws-sdk/credential-provider-env@3.731.0
+ - @aws-sdk/credential-provider-ini@3.731.1
+ - @aws-sdk/credential-provider-node@3.731.1
+ - @aws-sdk/credential-providers@3.731.1
+ - @aws-sdk/region-config-resolver@3.731.0
+ - @aws-sdk/token-providers@3.731.1
+ - @aws-sdk/types@3.731.0
+ - @aws-sdk/util-endpoints@3.731.0
  - @aws-sdk/util-locate-window@3.723.0
  - @aws-sdk/util-utf8-browser@3.259.0
  - @smithy/abort-controller@2.2.0
@@ -4442,9 +4440,9 @@ Apache License
 
 The following npm packages may be included in this product:
 
- - @aws-sdk/credential-provider-process@3.723.0
- - @aws-sdk/credential-provider-sso@3.726.0
- - @aws-sdk/credential-provider-web-identity@3.723.0
+ - @aws-sdk/credential-provider-process@3.731.0
+ - @aws-sdk/credential-provider-sso@3.731.1
+ - @aws-sdk/credential-provider-web-identity@3.731.1
 
 These packages each contain the following license:
 
@@ -4654,7 +4652,7 @@ Apache License
 
 The following npm packages may be included in this product:
 
- - @aws-sdk/middleware-logger@3.723.0
+ - @aws-sdk/middleware-logger@3.731.0
  - @smithy/node-config-provider@2.3.0
  - @smithy/node-config-provider@4.0.1
  - @smithy/util-config-provider@4.0.0
@@ -5281,7 +5279,7 @@ third-party archives.
 
 The following npm package may be included in this product:
 
- - typescript@5.7.2
+ - typescript@5.7.3
 
 This package contains the following license:
 
@@ -5345,8 +5343,9 @@ END OF TERMS AND CONDITIONS
 
 The following npm packages may be included in this product:
 
- - @aws-sdk/core@3.723.0
- - @aws-sdk/credential-provider-http@3.723.0
+ - @aws-sdk/core@3.731.0
+ - @aws-sdk/credential-provider-http@3.731.0
+ - @aws-sdk/nested-clients@3.731.1
 
 These packages each contain the following license:
 
@@ -7983,10 +7982,10 @@ The following npm packages may be included in this product:
  - @tokenizer/token@0.3.0
  - agent-base@6.0.2
  - eastasianwidth@0.2.0
- - genaiscript-core-internal@1.92.1
- - genaiscript-sample@1.92.1
- - genaiscript-web@1.92.1
- - genaiscript@1.92.1
+ - genaiscript-core-internal@1.93.0
+ - genaiscript-sample@1.93.0
+ - genaiscript-web@1.93.0
+ - genaiscript@1.93.0
  - https-proxy-agent@5.0.1
  - isarray@1.0.0
  - javascript-natural-sort@0.7.1
@@ -9067,7 +9066,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - @modelcontextprotocol/sdk@1.1.1
+ - @modelcontextprotocol/sdk@1.3.0
 
 This package contains the following license:
 
@@ -9158,7 +9157,7 @@ SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - get-tsconfig@4.8.1
+ - get-tsconfig@4.9.0
  - resolve-pkg-maps@1.0.0
 
 These packages each contain the following license:
@@ -9226,7 +9225,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 The following npm packages may be included in this product:
 
  - undici-types@6.20.0
- - undici@6.21.0
+ - undici@6.21.1
 
 These packages each contain the following license:
 
@@ -9256,8 +9255,9 @@ SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - @azure/msal-browser@3.28.1
+ - @azure/msal-browser@4.0.1
  - @azure/msal-common@14.16.0
+ - @azure/msal-common@15.0.1
 
 These packages each contain the following license:
 
@@ -9322,7 +9322,7 @@ The following npm packages may be included in this product:
  - temp-dir@3.0.0
  - tempy@3.1.0
  - type-fest@1.4.0
- - type-fest@4.32.0
+ - type-fest@4.33.0
  - unicorn-magic@0.3.0
  - unique-string@3.0.0
  - wrap-ansi@7.0.0
@@ -10478,7 +10478,7 @@ The following npm packages may be included in this product:
  - @octokit/endpoint@10.1.2
  - @octokit/graphql@8.1.2
  - @octokit/plugin-throttling@9.4.0
- - @octokit/request@9.1.4
+ - @octokit/request@9.2.0
 
 These packages each contain the following license:
 
@@ -11614,7 +11614,7 @@ The following npm packages may be included in this product:
  - @azure/core-rest-pipeline@1.18.2
  - @azure/core-tracing@1.2.0
  - @azure/core-util@1.11.0
- - @azure/identity@4.5.0
+ - @azure/identity@4.6.0
  - @azure/logger@1.1.4
 
 These packages each contain the following license:
