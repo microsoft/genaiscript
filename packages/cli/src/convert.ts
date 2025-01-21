@@ -5,6 +5,7 @@ import {
     GENAI_ANYTS_REGEX,
     HTTPS_REGEX,
     JSON5_REGEX,
+    TRACE_FILENAME,
 } from "../../core/src/constants"
 import { filePathOrUrlToWorkspaceFile, tryReadText } from "../../core/src/fs"
 import { host } from "../../core/src/host"
@@ -29,9 +30,20 @@ import { ensureDotGenaiscriptPath, setupTraceWriting } from "./trace"
 import { tracePromptResult } from "../../core/src/chat"
 import { dirname, join } from "node:path"
 import { link } from "../../core/src/mkmd"
-import { hash } from "../../core/src/crypto"
+import { hash, randomHex } from "../../core/src/crypto"
 import { createCancellationController } from "./cancel"
 import { toSignal } from "../../core/src/cancellation"
+
+function getConvertDir(scriptId: string) {
+    const runId =
+        new Date().toISOString().replace(/[:.]/g, "-") + "-" + randomHex(6)
+    const out = dotGenaiscriptPath(
+        CONVERTS_DIR_NAME,
+        host.path.basename(scriptId).replace(GENAI_ANYTS_REGEX, ""),
+        runId
+    )
+    return out
+}
 
 export async function convertFiles(
     scriptId: string,
@@ -57,14 +69,13 @@ export async function convertFiles(
     const cancellationToken = canceller.token
     const signal = toSignal(cancellationToken)
     applyModelOptions(options, "cli")
-    const outTrace = dotGenaiscriptPath(
-        CONVERTS_DIR_NAME,
-        host.path.basename(scriptId).replace(GENAI_ANYTS_REGEX, ""),
-        `${new Date().toISOString().replace(/[:.]/g, "-")}`,
-        `trace.md`
+    const convertDir = getConvertDir(scriptId)
+    const convertTrace = new MarkdownTrace()
+    const outTraceFilename = await setupTraceWriting(
+        convertTrace,
+        "trace",
+        join(convertDir, TRACE_FILENAME)
     )
-    const trace = new MarkdownTrace()
-    const outTraceFilename = await setupTraceWriting(trace, outTrace)
     const outTraceDir = dirname(outTraceFilename)
 
     const fail = (msg: string, exitCode: number, url?: string) => {
@@ -85,13 +96,13 @@ export async function convertFiles(
                 resolve(t.filename) === resolve(scriptId))
     )
     if (!script) {
-        trace.error(`script ${scriptId} not found`)
+        convertTrace.error(`script ${scriptId} not found`)
         throw new Error(`script ${scriptId} not found`)
     }
 
     const suffix = options?.suffix || `.genai.${script.id}.md`
-    trace.heading(2, `convert with ${script.id}`)
-    trace.itemValue(`suffix`, suffix)
+    convertTrace.heading(2, `convert with ${script.id}`)
+    convertTrace.itemValue(`suffix`, suffix)
 
     // resolve files
     const resolvedFiles = new Set<string>()
@@ -139,8 +150,8 @@ export async function convertFiles(
             outTraceDir,
             (await hash(file.filename, { length: 7 })) + ".md"
         )
-        const fileTrace = trace.startTraceDetails(file.filename)
-        trace.item(link("trace", fileOutTrace))
+        const fileTrace = convertTrace.startTraceDetails(file.filename)
+        convertTrace.item(link("trace", fileOutTrace))
         logVerbose(`trace: ${fileOutTrace}`)
         try {
             // apply AI transformation
