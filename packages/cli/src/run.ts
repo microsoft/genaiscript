@@ -59,6 +59,7 @@ import {
     dotGenaiscriptPath,
     logInfo,
     logWarn,
+    assert,
 } from "../../core/src/util"
 import { YAMLStringify } from "../../core/src/yaml"
 import { PromptScriptRunOptions } from "../../core/src/server/messages"
@@ -88,6 +89,18 @@ import { applyModelOptions, logModelAliases } from "./modelalias"
 import { createCancellationController } from "./cancel"
 import { parsePromptScriptMeta } from "../../core/src/template"
 import { Fragment } from "../../core/src/generation"
+import { randomHex } from "../../core/src/crypto"
+
+function getRunDir(scriptId: string) {
+    const runId =
+        new Date().toISOString().replace(/[:.]/g, "-") + "-" + randomHex(6)
+    const out = dotGenaiscriptPath(
+        RUNS_DIR_NAME,
+        host.path.basename(scriptId).replace(GENAI_ANYTS_REGEX, ""),
+        runId
+    )
+    return out
+}
 
 export async function runScriptWithExitCode(
     scriptId: string,
@@ -102,17 +115,10 @@ export async function runScriptWithExitCode(
     let exitCode = -1
     for (let r = 0; r < runRetry; ++r) {
         if (cancellationToken.isCancellationRequested) break
-        let outTrace = options.outTrace
-        if (!outTrace)
-            outTrace = dotGenaiscriptPath(
-                RUNS_DIR_NAME,
-                host.path.basename(scriptId).replace(GENAI_ANYTS_REGEX, ""),
-                `${new Date().toISOString().replace(/[:.]/g, "-")}.trace.md`
-            )
+
         const res = await runScriptInternal(scriptId, files, {
             ...options,
             cancellationToken,
-            outTrace,
             cli: true,
         })
         exitCode = res.exitCode
@@ -159,7 +165,7 @@ export async function runScriptInternal(
     const workspaceFiles = options.workspaceFiles
     const excludedFiles = options.excludedFiles
     const excludeGitIgnore = !!options.excludeGitIgnore
-    const out = options.out
+    const out = options.out || getRunDir(scriptId)
     const stream = !options.json && !options.yaml && !out
     const retry = normalizeInt(options.retry) || 8
     const retryDelay = normalizeInt(options.retryDelay) || 15000
@@ -192,6 +198,8 @@ export async function runScriptInternal(
     const topLogprobs = normalizeInt(options.topLogprobs)
     const fenceFormat = options.fenceFormat
 
+    assert(!!out)
+
     if (options.json || options.yaml) overrideStdoutWithStdErr()
     applyModelOptions(options, "cli")
 
@@ -202,19 +210,19 @@ export async function runScriptInternal(
     }
 
     logInfo(`genaiscript: ${scriptId}`)
+    logVerbose(`  out: ${out}`)
 
-    if (out) {
-        if (removeOut) await emptyDir(out)
-        await ensureDir(out)
-    }
+    // manage out folder
+    if (removeOut) await emptyDir(out)
+    await ensureDir(out)
+
     let outTraceFilename
-    if (outTrace && !/^false$/i.test(outTrace) && trace)
+    if (outTrace && !/^false$/i.test(outTrace))
         outTraceFilename = await setupTraceWriting(trace, outTrace)
-    if (out && trace) {
-        const ofn = join(out, "res.trace.md")
-        if (ofn !== outTrace) {
-            outTraceFilename = await setupTraceWriting(trace, ofn)
-        }
+
+    const ofn = join(out, "trace.md")
+    outTraceFilename = await setupTraceWriting(trace, ofn)
+    if (ofn !== outTrace) {
     }
 
     const toolFiles: string[] = []

@@ -1043,6 +1043,11 @@ interface ExpansionVariables {
     dir: string
 
     /**
+     * Directory where output files (trace, output) are created
+     */
+    runDir: string
+
+    /**
      * List of linked files parsed in context
      */
     files: WorkspaceFile[]
