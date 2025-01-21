@@ -35,6 +35,8 @@ import {
     CONSOLE_TOKEN_COLORS,
     CONSOLE_TOKEN_INNER_COLORS,
     TRACE_CHUNK,
+    OUTPUT_FILENAME,
+    TRACE_FILENAME,
 } from "../../core/src/constants"
 import { isCancelError, errorMessage } from "../../core/src/error"
 import { GenerationResult } from "../../core/src/server/messages"
@@ -210,20 +212,24 @@ export async function runScriptInternal(
     }
 
     logInfo(`genaiscript: ${scriptId}`)
-    logVerbose(`  out: ${runDir}`)
+    logVerbose(`   out: ${runDir}`)
 
     // manage out folder
     if (removeOut) await emptyDir(runDir)
     await ensureDir(runDir)
 
-    let outTraceFilename
+    const outTraceFilename = await setupTraceWriting(
+        trace,
+        " trace",
+        join(runDir, TRACE_FILENAME)
+    )
+    const outputFilename = await setupTraceWriting(
+        outputTrace,
+        "output",
+        join(runDir, OUTPUT_FILENAME)
+    )
     if (outTrace && !/^false$/i.test(outTrace))
-        outTraceFilename = await setupTraceWriting(trace, outTrace)
-
-    const ofn = join(runDir, "trace.md")
-    outTraceFilename = await setupTraceWriting(trace, ofn)
-    if (ofn !== outTrace) {
-    }
+        await setupTraceWriting(trace, " trace", outTrace)
 
     const toolFiles: string[] = []
     const resolvedFiles = new Set<string>()
@@ -435,75 +441,69 @@ export async function runScriptInternal(
     const promptjson = result.messages?.length
         ? JSON.stringify(result.messages, null, 2)
         : undefined
-    if (runDir) {
-        const jsonf = join(runDir, `res.json`)
-        const yamlf = join(runDir, `res.yaml`)
+    const jsonf = join(runDir, `res.json`)
+    const yamlf = join(runDir, `res.yaml`)
 
-        const mkfn = (ext: string) => jsonf.replace(/\.json$/i, ext)
-        const promptf = mkfn(".prompt.json")
-        const outputf = mkfn(".output.md")
-        const outputjson = mkfn(".output.json")
-        const outputyaml = mkfn(".output.yaml")
-        const annotationf = result.annotations?.length
-            ? mkfn(".annotations.csv")
-            : undefined
-        const sariff = result.annotations?.length ? mkfn(".sarif") : undefined
-        const changelogf = result.changelogs?.length
-            ? mkfn(".changelog.txt")
-            : undefined
-        await writeText(jsonf, JSON.stringify(result, null, 2))
-        await writeText(yamlf, YAMLStringify(result))
-        if (promptjson) await writeText(promptf, promptjson)
-        if (result.json) {
-            await writeText(outputjson, JSON.stringify(result.json, null, 2))
-            await writeText(outputyaml, YAMLStringify(result.json))
-        }
-        if (result.text) await writeText(outputf, result.text)
-        if (result.schemas) {
-            for (const [sname, schema] of Object.entries(result.schemas)) {
-                await writeText(
-                    join(runDir, `${sname.toLocaleLowerCase()}.schema.ts`),
-                    JSONSchemaStringifyToTypeScript(schema, {
-                        typeName: capitalize(sname),
-                        export: true,
-                    })
-                )
-                await writeText(
-                    join(runDir, `${sname.toLocaleLowerCase()}.schema.json`),
-                    JSONSchemaStringify(schema)
-                )
-            }
-        }
-        if (annotationf) {
+    const mkfn = (ext: string) => jsonf.replace(/\.json$/i, ext)
+    const promptf = mkfn(".prompt.json")
+    const outputjson = mkfn(".output.json")
+    const outputyaml = mkfn(".output.yaml")
+    const annotationf = result.annotations?.length
+        ? mkfn(".annotations.csv")
+        : undefined
+    const sariff = result.annotations?.length ? mkfn(".sarif") : undefined
+    const changelogf = result.changelogs?.length
+        ? mkfn(".changelog.txt")
+        : undefined
+    await writeText(jsonf, JSON.stringify(result, null, 2))
+    await writeText(yamlf, YAMLStringify(result))
+    if (promptjson) await writeText(promptf, promptjson)
+    if (result.json) {
+        await writeText(outputjson, JSON.stringify(result.json, null, 2))
+        await writeText(outputyaml, YAMLStringify(result.json))
+    }
+    if (result.schemas) {
+        for (const [sname, schema] of Object.entries(result.schemas)) {
             await writeText(
-                annotationf,
-                `severity, filename, start, end, message\n` +
-                    result.annotations
-                        .map(
-                            ({ severity, filename, range, message }) =>
-                                `${severity}, ${filename}, ${range[0][0]}, ${range[1][0]}, ${message} `
-                        )
-                        .join("\n")
+                join(runDir, `${sname.toLocaleLowerCase()}.schema.ts`),
+                JSONSchemaStringifyToTypeScript(schema, {
+                    typeName: capitalize(sname),
+                    export: true,
+                })
+            )
+            await writeText(
+                join(runDir, `${sname.toLocaleLowerCase()}.schema.json`),
+                JSONSchemaStringify(schema)
             )
         }
-        if (sariff)
+    }
+    if (annotationf) {
+        await writeText(
+            annotationf,
+            `severity, filename, start, end, message\n` +
+                result.annotations
+                    .map(
+                        ({ severity, filename, range, message }) =>
+                            `${severity}, ${filename}, ${range[0][0]}, ${range[1][0]}, ${message} `
+                    )
+                    .join("\n")
+        )
+    }
+    if (sariff)
+        await writeText(
+            sariff,
+            convertDiagnosticsToSARIF(script, result.annotations)
+        )
+    if (changelogf && result.changelogs?.length)
+        await writeText(changelogf, result.changelogs.join("\n"))
+    for (const [filename, edits] of Object.entries(result.fileEdits || {})) {
+        const rel = relative(process.cwd(), filename)
+        const isAbsolutePath = resolve(rel) === rel
+        if (!isAbsolutePath)
             await writeText(
-                sariff,
-                convertDiagnosticsToSARIF(script, result.annotations)
+                join(runDir, CLI_RUN_FILES_FOLDER, rel),
+                edits.after
             )
-        if (changelogf && result.changelogs?.length)
-            await writeText(changelogf, result.changelogs.join("\n"))
-        for (const [filename, edits] of Object.entries(
-            result.fileEdits || {}
-        )) {
-            const rel = relative(process.cwd(), filename)
-            const isAbsolutePath = resolve(rel) === rel
-            if (!isAbsolutePath)
-                await writeText(
-                    join(runDir, CLI_RUN_FILES_FOLDER, rel),
-                    edits.after
-                )
-        }
     }
 
     if (options.json && result !== undefined)
@@ -603,7 +603,9 @@ export async function runScriptInternal(
         logWarn(`genaiscript: ${result.status}`)
     else logError(`genaiscript: ${result.status}`)
     stats.log()
-    if (outTraceFilename) logVerbose(`  trace: ${outTraceFilename}`)
+    logVerbose(`     out: ${runDir}`)
+    logVerbose(`   trace: ${outTraceFilename}`)
+    logVerbose(`  output: ${outputFilename}`)
 
     if (result.status !== "success" && result.status !== "cancelled") {
         const msg =

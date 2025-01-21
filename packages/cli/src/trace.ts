@@ -8,9 +8,10 @@ import { writeFile } from "node:fs/promises"
 
 export async function setupTraceWriting(
     trace: MarkdownTrace,
+    name: string,
     filename: string
 ) {
-    logVerbose(`trace: ${filename}`)
+    logVerbose(`${name}: ${filename}`)
     await ensureDir(dirname(filename))
     await writeFile(filename, "", { encoding: "utf-8" })
     trace.addEventListener(
