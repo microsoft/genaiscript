@@ -165,8 +165,8 @@ export async function runScriptInternal(
     const workspaceFiles = options.workspaceFiles
     const excludedFiles = options.excludedFiles
     const excludeGitIgnore = !!options.excludeGitIgnore
-    const out = options.out || getRunDir(scriptId)
-    const stream = !options.json && !options.yaml && !out
+    const runDir = options.out || getRunDir(scriptId)
+    const stream = !options.json && !options.yaml && !runDir
     const retry = normalizeInt(options.retry) || 8
     const retryDelay = normalizeInt(options.retryDelay) || 15000
     const maxDelay = normalizeInt(options.maxDelay) || 180000
@@ -198,7 +198,7 @@ export async function runScriptInternal(
     const topLogprobs = normalizeInt(options.topLogprobs)
     const fenceFormat = options.fenceFormat
 
-    assert(!!out)
+    assert(!!runDir)
 
     if (options.json || options.yaml) overrideStdoutWithStdErr()
     applyModelOptions(options, "cli")
@@ -210,17 +210,17 @@ export async function runScriptInternal(
     }
 
     logInfo(`genaiscript: ${scriptId}`)
-    logVerbose(`  out: ${out}`)
+    logVerbose(`  out: ${runDir}`)
 
     // manage out folder
-    if (removeOut) await emptyDir(out)
-    await ensureDir(out)
+    if (removeOut) await emptyDir(runDir)
+    await ensureDir(runDir)
 
     let outTraceFilename
     if (outTrace && !/^false$/i.test(outTrace))
         outTraceFilename = await setupTraceWriting(trace, outTrace)
 
-    const ofn = join(out, "trace.md")
+    const ofn = join(runDir, "trace.md")
     outTraceFilename = await setupTraceWriting(trace, ofn)
     if (ofn !== outTrace) {
     }
@@ -390,6 +390,7 @@ export async function runScriptInternal(
             logprobs,
             topLogprobs,
             fenceFormat,
+            runDir,
             cliInfo: options.cli
                 ? {
                       files,
@@ -434,9 +435,9 @@ export async function runScriptInternal(
     const promptjson = result.messages?.length
         ? JSON.stringify(result.messages, null, 2)
         : undefined
-    if (out) {
-        const jsonf = join(out, `res.json`)
-        const yamlf = join(out, `res.yaml`)
+    if (runDir) {
+        const jsonf = join(runDir, `res.json`)
+        const yamlf = join(runDir, `res.yaml`)
 
         const mkfn = (ext: string) => jsonf.replace(/\.json$/i, ext)
         const promptf = mkfn(".prompt.json")
@@ -461,14 +462,14 @@ export async function runScriptInternal(
         if (result.schemas) {
             for (const [sname, schema] of Object.entries(result.schemas)) {
                 await writeText(
-                    join(out, `${sname.toLocaleLowerCase()}.schema.ts`),
+                    join(runDir, `${sname.toLocaleLowerCase()}.schema.ts`),
                     JSONSchemaStringifyToTypeScript(schema, {
                         typeName: capitalize(sname),
                         export: true,
                     })
                 )
                 await writeText(
-                    join(out, `${sname.toLocaleLowerCase()}.schema.json`),
+                    join(runDir, `${sname.toLocaleLowerCase()}.schema.json`),
                     JSONSchemaStringify(schema)
                 )
             }
@@ -499,7 +500,7 @@ export async function runScriptInternal(
             const isAbsolutePath = resolve(rel) === rel
             if (!isAbsolutePath)
                 await writeText(
-                    join(out, CLI_RUN_FILES_FOLDER, rel),
+                    join(runDir, CLI_RUN_FILES_FOLDER, rel),
                     edits.after
                 )
         }

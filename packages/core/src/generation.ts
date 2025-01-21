@@ -22,6 +22,7 @@ export interface GenerationOptions
         ContentSafetyOptions,
         ScriptRuntimeOptions {    
     inner: boolean // Indicates if the process is an inner operation
+    runDir?: string
     cancellationToken?: CancellationToken // Token to cancel the operation
     infoCb?: (partialResponse: { text: string }) => void // Callback for providing partial responses
     trace: MarkdownTrace // Trace information for debugging or logging

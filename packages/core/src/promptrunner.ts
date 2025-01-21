@@ -1,9 +1,9 @@
 // Import necessary modules and functions for handling chat sessions, templates, file management, etc.
 import { executeChatSession, tracePromptResult } from "./chat"
 import { GenerationStatus, Project } from "./server/messages"
-import { arrayify, assert, logInfo, logVerbose, relativePath } from "./util"
+import { arrayify, assert, relativePath } from "./util"
 import { runtimeHost } from "./host"
-import { MarkdownTrace, TraceChunkEvent } from "./trace"
+import { MarkdownTrace } from "./trace"
 import { CORE_VERSION } from "./version"
 import { expandFiles } from "./fs"
 import { CSVToMarkdown } from "./csv"
@@ -17,7 +17,6 @@ import { parsePromptParameters } from "./vars"
 import { resolveFileContent } from "./file"
 import { expandTemplate } from "./expander"
 import { resolveLanguageModel } from "./lm"
-import { TRACE_CHUNK } from "./constants"
 import { checkCancelled } from "./cancellation"
 
 // Asynchronously resolve expansion variables needed for a template
@@ -36,9 +35,13 @@ async function resolveExpansionVars(
     template: PromptScript,
     fragment: Fragment,
     output: OutputTrace,
-    vars: Record<string, string | number | boolean | object>
+    options: GenerationOptions
 ): Promise<ExpansionVariables> {
+    const { vars, runDir } = options
     const root = runtimeHost.projectFolder()
+
+    assert(!!vars)
+    assert(!!runDir)
 
     const files: WorkspaceFile[] = []
     const templateFiles = arrayify(template.files)
@@ -99,6 +102,7 @@ async function resolveExpansionVars(
         secrets,
         output,
         generator: undefined as ChatGenerationContext,
+        runDir,
     } satisfies ExpansionVariables
     return res
 }
@@ -142,7 +146,7 @@ export async function runTemplate(
             template,
             fragment,
             outputTrace,
-            options.vars
+            options
         )
         let {
             messages,
