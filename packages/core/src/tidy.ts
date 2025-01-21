@@ -11,7 +11,7 @@ import {
 } from "@tidyjs/tidy"
 import { arrayify } from "./util"
 
-export function sliceData(rows: any[], options: DataFilter = {}) {
+export function sliceData(rows: any[], options: ArrayFilter = {}) {
     if (!rows) return rows
 
     // Check if a random sample of rows is to be sliced and apply sampling

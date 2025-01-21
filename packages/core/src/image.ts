@@ -1,8 +1,10 @@
 // Import necessary functions and types from other modules
+import prettyBytes from "pretty-bytes"
 import { resolveBufferLike } from "./bufferlike"
 import { IMAGE_DETAIL_LOW_HEIGHT, IMAGE_DETAIL_LOW_WIDTH } from "./constants"
 import { resolveFileBytes } from "./file"
 import { TraceOptions } from "./trace"
+import { logVerbose } from "./util"
 
 /**
  * Asynchronously encodes an image for use in LLMs (Language Learning Models).
@@ -31,6 +33,7 @@ export async function imageEncodeForLLM(
     // https://platform.openai.com/docs/guides/vision/calculating-costs#managing-images
     // If the URL is a string, resolve it to a data URI
     const buffer = await resolveBufferLike(url)
+    logVerbose(`image: encoding ${prettyBytes(buffer.length)} image`)
     // Read the image using Jimp
     const { Jimp, HorizontalAlign, VerticalAlign, ResizeStrategy } =
         await import("jimp")

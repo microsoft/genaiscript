@@ -96,6 +96,7 @@ import { hash } from "./crypto"
 import { fileTypeFromBuffer } from "file-type"
 import { writeFile } from "fs"
 import { deleteUndefinedValues } from "./cleaners"
+import { sliceData } from "./tidy"
 
 export function createChatTurnGenerationContext(
     options: GenerationOptions,
@@ -550,9 +551,10 @@ export function createChatGenerationContext(
         defOptions?: DefImagesOptions
     ) => {
         const { detail } = defOptions || {}
-        if (Array.isArray(files))
-            files.forEach((file) => defImages(file, defOptions))
-        else if (
+        if (Array.isArray(files)) {
+            const sliced = sliceData(files, defOptions)
+            sliced.forEach((file) => defImages(file, defOptions))
+        } else if (
             typeof files === "string" ||
             files instanceof Blob ||
             files instanceof Buffer
