@@ -235,6 +235,10 @@ export class ExtensionState extends EventTarget {
         return { key, sha: await this._aiRequestCache.getKeySHA(key) }
     }
 
+    dispatchAIRequestChange() {
+        this.dispatchEvent(new Event(AI_REQUEST_CHANGE))
+    }
+
     private async startAIRequest(
         options: AIRequestOptions
     ): Promise<AIRequest> {
@@ -255,7 +259,7 @@ export class ExtensionState extends EventTarget {
         }
         const reqChange = () => {
             if (this._aiRequest === r) {
-                this.dispatchEvent(new Event(AI_REQUEST_CHANGE))
+                this.dispatchAIRequestChange()
                 this.setDiagnostics()
                 this.dispatchChange()
             }
@@ -334,7 +338,7 @@ export class ExtensionState extends EventTarget {
     private set aiRequest(r: AIRequest) {
         if (this._aiRequest !== r) {
             this._aiRequest = r
-            this.dispatchEvent(new Event(AI_REQUEST_CHANGE))
+            this.dispatchAIRequestChange()
             this.dispatchChange()
         }
     }
