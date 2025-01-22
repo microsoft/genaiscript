@@ -63,6 +63,7 @@
     "html-to-text": "^9.0.5",
     "https-proxy-agent": "^7.0.6",
     "ignore": "^7.0.3",
+    "image-size": "^1.2.0",
     "inflection": "^3.0.2",
     "ini": "^5.0.0",
     "jimp": "^1.6.0",

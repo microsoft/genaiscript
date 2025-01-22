@@ -1,7 +1,12 @@
 // Import necessary functions and types from other modules
 import prettyBytes from "pretty-bytes"
 import { resolveBufferLike } from "./bufferlike"
-import { IMAGE_DETAIL_LOW_HEIGHT, IMAGE_DETAIL_LOW_WIDTH } from "./constants"
+import {
+    IMAGE_DETAIL_HIGH_HEIGHT,
+    IMAGE_DETAIL_HIGH_WIDTH,
+    IMAGE_DETAIL_LOW_HEIGHT,
+    IMAGE_DETAIL_LOW_WIDTH,
+} from "./constants"
 import { TraceOptions } from "./trace"
 import { logVerbose } from "./util"
 
@@ -77,6 +82,15 @@ export async function imageEncodeForLLM(
             h: Math.min(img.height, IMAGE_DETAIL_LOW_HEIGHT),
             align: HorizontalAlign.CENTER | VerticalAlign.MIDDLE,
         })
+    } else if (
+        img.width > IMAGE_DETAIL_HIGH_WIDTH ||
+        img.height > IMAGE_DETAIL_HIGH_HEIGHT
+    ) {
+        img.contain({
+            w: Math.min(img.width, IMAGE_DETAIL_HIGH_WIDTH),
+            h: Math.min(img.height, IMAGE_DETAIL_HIGH_HEIGHT),
+            align: HorizontalAlign.CENTER | VerticalAlign.MIDDLE,
+        })
     }
 
     // Determine the output MIME type, defaulting to image/jpeg
@@ -92,5 +106,11 @@ export async function imageEncodeForLLM(
     const imageDataUri = `data:${outputMime};base64,${b64}`
 
     // Return the encoded image data URI
-    return imageDataUri
+    return {
+        width: img.width,
+        height: img.height,
+        type: outputMime,
+        url: imageDataUri,
+        detail,
+    }
 }

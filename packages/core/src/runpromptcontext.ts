@@ -564,14 +564,11 @@ export function createChatGenerationContext(
                 node,
                 createImageNode(
                     (async () => {
-                        const url = await imageEncodeForLLM(img, {
+                        const encoded = await imageEncodeForLLM(img, {
                             ...defOptions,
                             trace,
                         })
-                        return {
-                            url,
-                            detail,
-                        }
+                        return encoded
                     })()
                 )
             )
@@ -581,14 +578,13 @@ export function createChatGenerationContext(
                 node,
                 createImageNode(
                     (async () => {
-                        const url = await imageEncodeForLLM(file.filename, {
+                        const encoded = await imageEncodeForLLM(file.filename, {
                             ...defOptions,
                             trace,
                         })
                         return {
-                            url,
                             filename: file.filename,
-                            detail,
+                            ...encoded,
                         }
                     })()
                 )

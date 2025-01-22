@@ -8,6 +8,14 @@ import {
 import { encodeChat } from "gpt-tokenizer"
 import { logVerbose } from "./util"
 import { parseModelIdentifier } from "./models"
+import { resolveFileBytes } from "./file"
+import { imageSize } from "image-size"
+import {
+    IMAGE_DETAIL_HIGH_TILE_SIZE,
+    IMAGE_DETAIL_HIGH_WIDTH,
+    IMAGE_DETAIL_LONG_SIDE_LIMIT,
+    IMAGE_DETAIL_SHORT_SIDE_LIMIT,
+} from "./constants"
 
 /**
  * Estimates the number of tokens in chat messages for a given model.
@@ -18,28 +26,57 @@ import { parseModelIdentifier } from "./models"
  * @param tools - Optional array of tools used in chat completion.
  * @returns The estimated number of tokens or 0 if no valid messages are found.
  */
-export function estimateChatTokens(
+export async function estimateChatTokens(
     modelId: string,
     messages: ChatCompletionMessageParam[],
     tools?: ChatCompletionTool[]
-): number {
+): Promise<number> {
     // Return 0 if no messages are provided
     if (!messages?.length) return 0
     try {
         const model = resolveChatModelId(modelId)
         // Check if any message content includes image URLs.
         // If found, return undefined as images are not supported for token encoding.
-        if (
-            messages.find(
-                (msg) =>
-                    msg.content !== "string" &&
-                    Array.isArray(msg.content) &&
-                    (msg.content as ChatCompletionContentPart[])?.find(
-                        (part) => part.type === "image_url"
-                    )
-            )
+        const images = messages.flatMap((msg) =>
+            msg.content !== "string" && Array.isArray(msg.content)
+                ? (msg.content as ChatCompletionContentPart[])?.filter(
+                      (part) => part.type === "image_url"
+                  )
+                : []
         )
-            return undefined
+        let imageTokens = 0
+        for (const image of images) {
+            imageTokens += 85
+            if (image.image_url?.detail !== "low") {
+                // compute size
+                const bytes = await resolveFileBytes(image.image_url.url)
+                const { width, height } = imageSize(bytes)
+                const longSide = Math.max(width, height)
+                const scaleFactor1 =
+                    longSide > IMAGE_DETAIL_LONG_SIDE_LIMIT
+                        ? longSide / IMAGE_DETAIL_LONG_SIDE_LIMIT
+                        : 1
+
+                const shortSide = Math.min(width, height)
+                const scaleFactor2 =
+                    shortSide / scaleFactor1 > IMAGE_DETAIL_SHORT_SIDE_LIMIT
+                        ? shortSide /
+                          scaleFactor1 /
+                          IMAGE_DETAIL_SHORT_SIDE_LIMIT
+                        : 1
+
+                const scaleFactor = scaleFactor1 * scaleFactor2
+
+                const scaledWidth = Math.floor(width / scaleFactor)
+                const scaledHeight = Math.floor(height / scaleFactor)
+
+                const tilesCount =
+                    Math.ceil(scaledWidth / IMAGE_DETAIL_HIGH_TILE_SIZE) *
+                    Math.ceil(scaledHeight / IMAGE_DETAIL_HIGH_TILE_SIZE)
+
+                imageTokens += 170 * tilesCount
+            }
+        }
 
         // Transform the messages into a format suitable for the token encoder
         const chat: {
@@ -82,7 +119,7 @@ export function estimateChatTokens(
         // Encode the chat messages and count the number of tokens
         const chatTokens = encodeChat(chat, model).length | 0
 
-        return chatTokens // Bitwise OR with 0 ensures integer return
+        return imageTokens + chatTokens // Bitwise OR with 0 ensures integer return
     } catch (e) {
         // Log any errors encountered during processing
         logVerbose(e)

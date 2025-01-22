@@ -310,8 +310,14 @@ export const CHOICE_LOGIT_BIAS = 5
 export const SANITIZED_PROMPT_INJECTION =
     "...prompt injection detected, content removed..."
 
+// https://platform.openai.com/docs/guides/vision/calculating-costs#managing-images
 export const IMAGE_DETAIL_LOW_WIDTH = 512
 export const IMAGE_DETAIL_LOW_HEIGHT = 512
+export const IMAGE_DETAIL_HIGH_TILE_SIZE = 512
+export const IMAGE_DETAIL_HIGH_WIDTH = 2048
+export const IMAGE_DETAIL_HIGH_HEIGHT = 2048
+export const IMAGE_DETAIL_LONG_SIDE_LIMIT = 2000
+export const IMAGE_DETAIL_SHORT_SIDE_LIMIT = 768
 
 export const MIN_LINE_NUMBER_LENGTH = 10
 
