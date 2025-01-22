@@ -1,40 +1,35 @@
 script({
     files: "src/video/introduction.mkv",
+    cache: "video-blogifier",
+    temperature: 1.5,
+    parameters: {
+        instructions: {
+            type: "string",
+            description: "additional instructions for the model",
+        },
+    },
 })
 
-const videoFile = env.files[0]
+const { files, vars } = env
+const { instructions } = vars
+
+const videoFile = files[0]
 if (!videoFile) throw new Error("No video file found")
-
-async function fetchTrendingKeywords() {
-    const maxResults = 20
-    const response = await fetch(
-        `https://www.googleapis.com/youtube/v3/videos?part=snippet&chart=mostPopular&regionCode=US&maxResults=${20}&key=${process.env.YOUTUBE_API_KEY}`
-    )
-    if (!response.ok) throw new Error(await response.text())
-    const data: any = await response.json()
-    const keywords = data.items.flatMap((item) => item.snippet.tags || [])
-    const res = Array.from(new Set(keywords))
-    return res
-}
-
-// google trands
-const trends = await fetchTrendingKeywords()
 
 const transcript = await transcribe(videoFile, {
     model: "openai:whisper-1",
     cache: "transcription",
 })
-env.output.fence(transcript.srt, "srt")
-const srt = transcript.srt.replace(/genii\s*script/gi, "GenAIScript")
+// patching the transcript
+const srt = transcript.srt//.replace(/genii\s*script/gi, "GenAIScript")
+// extracting fames
 const frames = await ffmpeg.extractFrames(videoFile, { transcript })
 
-
-def("YOUTUBE_MOST_POPULAR_KEYWORDS", trends.join("\n"))
+// prompting
 def("TRANSCRIPT", srt, { language: "srt" })
 defImages(frames, { detail: "low", sliceSample: 25 })
-
 $`You are an expert YouTube creator.
-  
+      
 Your task is to analyze the video <TRANSCRIPT> and screenshot images (taken at some transcript segment).
 Generate a title and description for the video on YouTube.
 
@@ -42,14 +37,27 @@ Generate a title and description for the video on YouTube.
 - make the title engaging and designed to attract viewers
 - Respond in a text format compatible with the YouTube description format.
 - extract a list of key moments in the video and add them to the description
+- generate a list of hashtags related to the video content and add them to the description
+${instructions || ""}
 
-## Example
+## Format
 
-\`\`\`title
-the video title
-\`\`\`
+Respond using markdown + frontmatter.
 
-\`\`\`description
-the video description
+### Example
+
+\`\`\`markdown
+---
+title: the video title
+---
+Descriptive paragraph
+
+### Key Moments
+
+- [00:00] Key moment 1
+- [01:00] Key moment 2
+...
+
+#hashtags #hashtags2
 \`\`\`
 `
