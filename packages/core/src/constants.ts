@@ -322,3 +322,6 @@ export const VIDEO_FRAMES_DIR_NAME = "frames"
 export const VIDEO_CLIPS_DIR_NAME = "clips"
 export const VIDEO_AUDIO_DIR_NAME = "audio"
 export const VIDEO_PROBE_DIR_NAME = "probe"
+
+export const TRACE_MAX_FILE_SIZE = 128 * 1024 // 100kb
+export const TRACE_MAX_IMAGE_SIZE = 64 * 1024 // 10kb
