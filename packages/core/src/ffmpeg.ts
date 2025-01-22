@@ -132,15 +132,22 @@ export class FFmepgClient implements Ffmpeg {
                 return `keyframe_*.${format}`
             })
         } else if (soptions.sceneThreshold > 0) {
-            renderers.push((cmd) => {
-                cmd.videoFilter(
-                    `select='gt(scene,${soptions.sceneThreshold})',showinfo`
-                )
-                cmd.outputOptions("-fps_mode passthrough")
-                cmd.outputOptions("-frame_pts 1")
-                applyOptions(cmd)
-                return `scenes_*.${format}`
-            })
+            renderers.push(
+                ((cmd) => {
+                    cmd.frames(1)
+                    applyOptions(cmd)
+                    return `scenes_000000.${format}`
+                }) satisfies FFmpegCommandRenderer,
+                ((cmd) => {
+                    cmd.videoFilter(
+                        `select='gt(scene,${soptions.sceneThreshold})',showinfo`
+                    )
+                    cmd.outputOptions("-fps_mode passthrough")
+                    cmd.outputOptions("-frame_pts 1")
+                    applyOptions(cmd)
+                    return `scenes_*.${format}`
+                }) satisfies FFmpegCommandRenderer
+            )
         } else {
             if (transcript?.segments?.length && !soptions.timestamps?.length)
                 soptions.timestamps = transcript.segments.map((s) => s.start)
@@ -170,7 +177,7 @@ export class FFmepgClient implements Ffmpeg {
                             cmd.frames(1)
                             applyOptions(cmd)
                             return `frame-${String(ts).replace(":", "-").replace(".", "_")}.${format}`
-                        }) as FFmpegCommandRenderer
+                        }) satisfies FFmpegCommandRenderer
                 )
             )
         }

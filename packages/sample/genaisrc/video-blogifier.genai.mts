@@ -21,7 +21,7 @@ const transcript = await transcribe(videoFile, {
     cache: "transcription",
 })
 // screnshot images
-const frames = await ffmpeg.extractFrames(videoFile, { sceneThreshold: 0.1 })
+const frames = await ffmpeg.extractFrames(videoFile, { sceneThreshold: 0.15 })
 // prompting
 
 def("TRANSCRIPT", transcript.srt, { language: "srt" })
