@@ -60,10 +60,8 @@ import { markdownDiff } from "../../core/src/mddiff"
 import { VscodeMultiSelect as VscodeMultiSelectElement } from "@vscode-elements/elements"
 import { cleanedClone } from "../../core/src/clone"
 import { WebSocketClient } from "../../core/src/server/wsclient"
-import {
-    convertAnnotationsToMarkdown,
-    convertAnnotationToItem,
-} from "../../core/src/annotations"
+import { convertAnnotationToItem } from "../../core/src/annotations"
+import MarkdownWithPreview from "./MarkdownWithPreview"
 
 interface GenAIScriptViewOptions {
     apiKey?: string
@@ -723,10 +721,9 @@ function TraceTabPanel(props: { selected?: boolean }) {
 
 function OutputMarkdown() {
     const output = useOutput()
-    const md = convertAnnotationsToMarkdown(output)
     return (
         <VscodeScrollable>
-            <Markdown>{md}</Markdown>
+            <MarkdownWithPreview>{output}</MarkdownWithPreview>
         </VscodeScrollable>
     )
 }
