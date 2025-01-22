@@ -899,10 +899,8 @@ export async function executeChatSession(
         fallbackTools,
         choices,
         topLogprobs,
-        cache: cacheOrName,
-        cacheName,
+        cache,
         inner,
-        outputTrace,
         partialCb,
     } = genOptions
     assert(!!model, "model is required")
@@ -924,13 +922,9 @@ export async function executeChatSession(
                   }
           )
         : undefined
-    const cache = !!cacheOrName || !!cacheName
-    const cacheStore = cache
-        ? getChatCompletionCache(
-              typeof cacheOrName === "string" ? cacheOrName : cacheName
-          )
+    const cacheStore = !!cache
+        ? getChatCompletionCache(typeof cache === "string" ? cache : "chat")
         : undefined
-
     const chatTrace = trace.startTraceDetails(`🧠 llm chat`, { expanded: true })
     try {
         if (toolDefinitions?.length) {

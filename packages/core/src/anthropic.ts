@@ -275,14 +275,11 @@ const completerFactory = (
             partialCb,
             cancellationToken,
             inner,
-            cacheName,
-            cache: cacheOrName,
             retry,
             maxDelay,
             retryDelay,
         } = options
         const { headers } = requestOptions || {}
-        const { token, source, ...cfgNoToken } = cfg
         const { model } = parseModelIdentifier(req.model)
         const { encode: encoder } = await resolveTokenEncoder(model)
 

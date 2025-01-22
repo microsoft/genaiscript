@@ -168,6 +168,7 @@ export async function runTemplate(
             logprobs,
             topLogprobs,
             disposables,
+            cache,
         } = await expandTemplate(prj, template, options, env)
         const { output, generator, secrets, ...restEnv } = env
 
@@ -239,6 +240,7 @@ export async function runTemplate(
         // Execute chat session with the resolved configuration
         const genOptions: GenerationOptions = {
             ...options,
+            cache,
             choices: template.choices,
             responseType,
             responseSchema,

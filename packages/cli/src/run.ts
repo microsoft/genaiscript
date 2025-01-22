@@ -188,11 +188,10 @@ export async function runScriptInternal(
     const maxTokens = normalizeInt(options.maxTokens)
     const maxToolCalls = normalizeInt(options.maxToolCalls)
     const maxDataRepairs = normalizeInt(options.maxDataRepairs)
-    const cache = !!options.cache
+    const cache = options.cacheName ?? options.cache
     const applyEdits = !!options.applyEdits
     const csvSeparator = options.csvSeparator || "\t"
     const removeOut = options.removeOut
-    const cacheName = options.cacheName
     const cancellationToken = options.cancellationToken
     const jsSource = options.jsSource
     const fallbackTools = !!options.fallbackTools
@@ -373,7 +372,6 @@ export async function runScriptInternal(
             },
             label,
             cache,
-            cacheName,
             temperature,
             topP,
             seed,

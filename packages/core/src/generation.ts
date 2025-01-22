@@ -1,10 +1,6 @@
 // Import necessary modules and interfaces
 import type { CancellationToken } from "./cancellation"
-import type {
-    ChatCompletionMessageParam,
-    ChatCompletionsOptions,
-    ChatCompletionUsage,
-} from "./chattypes"
+import type { ChatCompletionsOptions } from "./chattypes"
 import { MarkdownTrace } from "./trace"
 import { GenerationStats } from "./usage"
 
@@ -20,7 +16,7 @@ export interface GenerationOptions
         ModelOptions,
         EmbeddingsModelOptions,
         ContentSafetyOptions,
-        ScriptRuntimeOptions {    
+        ScriptRuntimeOptions {
     inner: boolean // Indicates if the process is an inner operation
     runDir?: string
     cancellationToken?: CancellationToken // Token to cancel the operation

@@ -21,11 +21,11 @@ const transcript = await transcribe(videoFile, {
     cache: "transcription",
 })
 // screnshot images
-const frames = await ffmpeg.extractFrames(videoFile, { transcript })
+const frames = await ffmpeg.extractFrames(videoFile, { sceneThreshold: 0.1 })
 // prompting
 
 def("TRANSCRIPT", transcript.srt, { language: "srt" })
-defImages(frames, { detail: "low", sliceSample: 25 })
+defImages(frames, { detail: "low" })
 $`You are an expert YouTube creator.
       
 Your task is to analyze the video <TRANSCRIPT> and screenshot images (taken at some transcript segment).

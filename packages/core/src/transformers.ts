@@ -66,7 +66,7 @@ export const TransformersCompletion: ChatCompletionHandler = async (
     trace
 ) => {
     const { messages, temperature, top_p, max_tokens } = req
-    const { partialCb, inner, cache: cacheOrName, cacheName } = options
+    const { partialCb, inner } = options
     const { model, tag, family } = parseModelIdentifier(req.model)
 
     trace.itemValue("model", model)

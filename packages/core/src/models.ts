@@ -60,7 +60,6 @@ export function traceLanguageModelConnection(
         cache,
         logprobs,
         topLogprobs,
-        cacheName,
         responseType,
         responseSchema,
         fenceFormat,
@@ -82,7 +81,6 @@ export function traceLanguageModelConnection(
         if (choices.length) trace.itemValue(`choices`, choices.join(","))
         trace.itemValue(`logprobs`, logprobs)
         trace.itemValue(`topLogprobs`, topLogprobs)
-        trace.itemValue(`cache name`, cacheName)
         trace.itemValue(`cache`, cache)
         trace.itemValue(`fence format`, fenceFormat)
         trace.itemValue(`response type`, responseType)

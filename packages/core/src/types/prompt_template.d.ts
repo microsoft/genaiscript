@@ -311,12 +311,6 @@ interface ModelOptions extends ModelConnectionOptions, ModelTemplateOptions {
     cache?: boolean | string
 
     /**
-     * Custom cache name. If not set, the default cache is used.
-     * @deprecated Use `cache` instead with a string
-     */
-    cacheName?: string
-
-    /**
      * A list of model ids and their maximum number of concurrent requests.
      */
     modelConcurrency?: Record<string, number>
