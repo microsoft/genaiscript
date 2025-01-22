@@ -124,6 +124,7 @@ export interface PromptScriptRunOptions {
     json: boolean
     yaml: boolean
     outTrace: string
+    outOutput: string
     outAnnotations: string
     outChangelogs: string
     pullRequest: string

@@ -173,6 +173,7 @@ export async function runScriptInternal(
     const retryDelay = normalizeInt(options.retryDelay) || 15000
     const maxDelay = normalizeInt(options.maxDelay) || 180000
     const outTrace = options.outTrace
+    const outOutput = options.outOutput
     const outAnnotations = options.outAnnotations
     const failOnErrors = options.failOnErrors
     const outChangelogs = options.outChangelogs
@@ -228,7 +229,8 @@ export async function runScriptInternal(
     )
     if (outTrace && !/^false$/i.test(outTrace))
         await setupTraceWriting(trace, " trace", outTrace)
-
+    if (outOutput && !/^false$/i.test(outOutput))
+        await setupTraceWriting(outputTrace, " output", outTrace)
     const toolFiles: string[] = []
     const resolvedFiles = new Set<string>()
 

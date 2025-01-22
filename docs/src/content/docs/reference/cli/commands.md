@@ -29,6 +29,7 @@ Options:
   -o, --out <string>                         output folder. Extra markdown fields for output and trace will also be generated
   -rmo, --remove-out                         remove output folder if it exists
   -ot, --out-trace <string>                  output file for trace
+  -oo, --out-output <string>                 output file for output
   -od, --out-data <string>                   output file for data (.jsonl/ndjson will be aggregated). JSON schema information and validation will be included if available.
   -oa, --out-annotations <string>            output file for annotations (.csv will be rendered as csv, .jsonl/ndjson will be aggregated)
   -ocl, --out-changelog <string>             output file for changelogs

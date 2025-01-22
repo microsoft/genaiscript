@@ -120,6 +120,7 @@ export async function cli() {
         )
         .option("-rmo, --remove-out", "remove output folder if it exists")
         .option("-ot, --out-trace <string>", "output file for trace")
+        .option("-oo, --out-output <string>", "output file for output")
         .option(
             "-od, --out-data <string>",
             "output file for data (.jsonl/ndjson will be aggregated). JSON schema information and validation will be included if available."
