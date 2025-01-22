@@ -1,6 +1,7 @@
 script({
     files: "src/video/introduction.mkv",
     cache: "video-blogifier",
+    tools: "agent",
     temperature: 1,
     parameters: {
         instructions: {
@@ -24,7 +25,7 @@ const transcript = await transcribe(videoFile, {
 const frames = await ffmpeg.extractFrames(videoFile, { sceneThreshold: 0.15 })
 // prompting
 
-def("TRANSCRIPT", transcript.srt, { language: "srt" })
+def("TRANSCRIPT", transcript.srt.replace(/geni+\s*script/i, "GenAIScript"), { language: "srt" })
 defImages(frames, { detail: "low" })
 $`You are an expert YouTube creator.
       
@@ -35,6 +36,9 @@ Generate a title and description for the video on YouTube that maximizes engagem
 - extract a list of key moments in the video and add them to the description
 - generate a list of hashtags related to the video content and add them to the description
 - respond using markdown + frontmatter.
+- "geniscript" (or variants) should be "GenAIScript"
+- Mention GenAIScript in the title
+- Extract the list of topics discussed by the video and resolve 3 documentation links using the agent_doc.
 
 ${instructions || ""}
 
