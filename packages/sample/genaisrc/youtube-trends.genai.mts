@@ -1,4 +1,4 @@
-import { classify } from "genaiscript/runtime"
+/*import { classify } from "genaiscript/runtime"
 
 script({
     files: "src/video/introduction.mkv",
@@ -37,3 +37,4 @@ const trends = await fetchTrendingKeywords()
 output.detailsFenced(`youtube trends`, trends)
 const { label: activeKeywords } = await classify(res.text, trends)
 output.detailsFenced(`matching trend`, activeKeywords)
+*/
