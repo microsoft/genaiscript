@@ -168,7 +168,7 @@ export async function runScriptInternal(
     const excludedFiles = options.excludedFiles
     const excludeGitIgnore = !!options.excludeGitIgnore
     const runDir = options.out || getRunDir(scriptId)
-    const stream = !options.json && !options.yaml && !runDir
+    const stream = !options.json && !options.yaml
     const retry = normalizeInt(options.retry) || 8
     const retryDelay = normalizeInt(options.retryDelay) || 15000
     const maxDelay = normalizeInt(options.maxDelay) || 180000
@@ -212,7 +212,6 @@ export async function runScriptInternal(
     }
 
     logInfo(`genaiscript: ${scriptId}`)
-    logVerbose(`   out: ${runDir}`)
 
     // manage out folder
     if (removeOut) await emptyDir(runDir)
