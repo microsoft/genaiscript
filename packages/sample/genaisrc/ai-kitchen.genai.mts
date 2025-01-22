@@ -1,3 +1,16 @@
+/**
+ * In order to run this script, you will need the following:
+ *
+ * - ffmpeg installed on your system
+ * - a valid (Azure) OpenAI API key with whister enabled -- or a local whisper server running
+ * - the usual LLM configuration
+ *
+ * Invoke the cli with the following command:
+ *
+ * ```
+ * genaiscript run ai-kitchen <videofile> --vars "guest=<guest name>" --vars "instructions=<additional instructions>"
+ * ```
+ */
 script({
     files: "src/video/ai_kitchen.local.mp4",
     cache: "ai-kitchen",
