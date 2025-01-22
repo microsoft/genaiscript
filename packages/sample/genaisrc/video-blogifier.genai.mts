@@ -1,7 +1,7 @@
 script({
     files: "src/video/introduction.mkv",
     cache: "video-blogifier",
-    temperature: 1.5,
+    temperature: 1,
     parameters: {
         instructions: {
             type: "string",
@@ -12,37 +12,31 @@ script({
 
 const { files, vars } = env
 const { instructions } = vars
-
 const videoFile = files[0]
 if (!videoFile) throw new Error("No video file found")
 
+// speech to text
 const transcript = await transcribe(videoFile, {
     model: "openai:whisper-1",
     cache: "transcription",
 })
-// patching the transcript
-const srt = transcript.srt//.replace(/genii\s*script/gi, "GenAIScript")
-// extracting fames
+// screnshot images
 const frames = await ffmpeg.extractFrames(videoFile, { transcript })
-
 // prompting
-def("TRANSCRIPT", srt, { language: "srt" })
+
+def("TRANSCRIPT", transcript.srt, { language: "srt" })
 defImages(frames, { detail: "low", sliceSample: 25 })
 $`You are an expert YouTube creator.
       
 Your task is to analyze the video <TRANSCRIPT> and screenshot images (taken at some transcript segment).
-Generate a title and description for the video on YouTube.
+Generate a title and description for the video on YouTube that maximizes engagement on YouTube.
 
-- use code fenced section
-- make the title engaging and designed to attract viewers
-- Respond in a text format compatible with the YouTube description format.
+- Use a text format compatible with the YouTube description format.
 - extract a list of key moments in the video and add them to the description
 - generate a list of hashtags related to the video content and add them to the description
+- respond using markdown + frontmatter.
+
 ${instructions || ""}
-
-## Format
-
-Respond using markdown + frontmatter.
 
 ### Example
 
@@ -58,6 +52,6 @@ Descriptive paragraph
 - [01:00] Key moment 2
 ...
 
-#hashtags #hashtags2
+#hashtags #hashtags2 ... 
 \`\`\`
 `
