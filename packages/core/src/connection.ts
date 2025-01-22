@@ -197,10 +197,6 @@ export async function parseTokenFromEnv(
         if (!URL.canParse(base))
             throw new Error("AZURE_OPENAI_API_ENDPOINT must be a valid URL")
         const version = env.AZURE_OPENAI_API_VERSION || env.AZURE_API_VERSION
-        if (version && version !== AZURE_OPENAI_API_VERSION)
-            throw new Error(
-                `AZURE_OPENAI_API_VERSION must be '${AZURE_OPENAI_API_VERSION}'`
-            )
         const azureCredentialsType =
             env.AZURE_OPENAI_API_CREDENTIALS?.toLowerCase().trim() as AzureCredentialsType
         return {
@@ -243,11 +239,6 @@ export async function parseTokenFromEnv(
             env.AZURE_SERVERLESS_OPENAI_VERSION
         const azureCredentialsType =
             env.AZURE_SERVERLESS_OPENAI_API_CREDENTIALS?.toLowerCase().trim() as AzureCredentialsType
-
-        if (version && version !== AZURE_OPENAI_API_VERSION)
-            throw new Error(
-                `AZURE_SERVERLESS_OPENAI_API_VERSION must be '${AZURE_OPENAI_API_VERSION}'`
-            )
         return {
             provider,
             model,

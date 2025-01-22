@@ -190,7 +190,7 @@ The following npm packages may be included in this product:
 
  - @aws-crypto/sha256-browser@5.2.0
  - @aws-crypto/supports-web-crypto@5.2.0
- - @huggingface/transformers@3.3.1
+ - @huggingface/transformers@3.3.2
  - flatbuffers@1.12.0
  - long@5.2.4
 
@@ -2862,7 +2862,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.93.0
+ - genaiscript-vscode@1.94.0
 
 This package contains the following license:
 
@@ -4183,7 +4183,7 @@ The following npm packages may be included in this product:
  - @aws-sdk/credential-provider-env@3.731.0
  - @aws-sdk/credential-provider-ini@3.731.1
  - @aws-sdk/credential-provider-node@3.731.1
- - @aws-sdk/credential-providers@3.731.1
+ - @aws-sdk/credential-providers@3.733.0
  - @aws-sdk/region-config-resolver@3.731.0
  - @aws-sdk/token-providers@3.731.1
  - @aws-sdk/types@3.731.0
@@ -6920,6 +6920,7 @@ The following npm packages may be included in this product:
 
  - @anthropic-ai/bedrock-sdk@0.12.0
  - @anthropic-ai/sdk@0.33.1
+ - @anthropic-ai/sdk@0.35.0
 
 These packages each contain the following license:
 
@@ -7982,10 +7983,10 @@ The following npm packages may be included in this product:
  - @tokenizer/token@0.3.0
  - agent-base@6.0.2
  - eastasianwidth@0.2.0
- - genaiscript-core-internal@1.93.0
- - genaiscript-sample@1.93.0
- - genaiscript-web@1.93.0
- - genaiscript@1.93.0
+ - genaiscript-core-internal@1.94.0
+ - genaiscript-sample@1.94.0
+ - genaiscript-web@1.94.0
+ - genaiscript@1.94.0
  - https-proxy-agent@5.0.1
  - isarray@1.0.0
  - javascript-natural-sort@0.7.1
@@ -9066,7 +9067,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - @modelcontextprotocol/sdk@1.3.0
+ - @modelcontextprotocol/sdk@1.3.2
 
 This package contains the following license:
 
@@ -9157,7 +9158,7 @@ SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - get-tsconfig@4.9.0
+ - get-tsconfig@4.10.0
  - resolve-pkg-maps@1.0.0
 
 These packages each contain the following license:
