@@ -5,8 +5,8 @@
 
 import { convertAnnotationsToMarkdown } from "./annotations"
 import { randomHex } from "./crypto"
-import { extractFenced } from "./fence"
 import { details, fenceMD } from "./mkmd"
+import { convertThinkToMarkdown } from "./think"
 
 /**
  * Prettifies markdown content by converting annotations and cleaning excessive newlines.
@@ -16,6 +16,7 @@ import { details, fenceMD } from "./mkmd"
 export function prettifyMarkdown(md: string) {
     let res = md
     res = convertAnnotationsToMarkdown(res) // Convert annotations to markdown format
+    res = convertThinkToMarkdown(res)
     res = cleanMarkdown(res) // Clean up excessive newlines
     return res
 }
@@ -25,7 +26,7 @@ export function prettifyMarkdown(md: string) {
  * @param res - The string to be cleaned.
  * @returns The cleaned string.
  */
-export function cleanMarkdown(res: string): string {
+function cleanMarkdown(res: string): string {
     return res?.replace(/(\r?\n){3,}/g, "\n\n")
 }
 
