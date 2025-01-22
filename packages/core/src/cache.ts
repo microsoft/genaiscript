@@ -3,7 +3,6 @@ import { appendJSONL, JSONLTryParse, writeJSONL } from "./jsonl"
 import { host } from "./host"
 import { dotGenaiscriptPath } from "./util"
 import { CHANGE } from "./constants"
-import { CORE_VERSION } from "./version"
 import { tryReadText } from "./fs"
 import { hash } from "./crypto"
 

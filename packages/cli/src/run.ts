@@ -603,7 +603,6 @@ export async function runScriptInternal(
         logWarn(`genaiscript: ${result.status}`)
     else logError(`genaiscript: ${result.status}`)
     stats.log()
-    logVerbose(`     out: ${runDir}`)
     logVerbose(`   trace: ${outTraceFilename}`)
     logVerbose(`  output: ${outputFilename}`)
 
