@@ -53,16 +53,11 @@ export function getConfigHeaders(cfg: LanguageModelConfiguration) {
         if (keys && Object.keys(keys).length > 1) token = keys[cfg.model]
     }
     const features = MODEL_PROVIDERS.find(({ id }) => id === provider)
-    const useBearer = features?.bearerToken === true
+    const useBearer = features?.bearerToken !== false
     const isBearer = /^Bearer /i.test(cfg.token)
     const Authorization = isBearer
         ? token
-        : token &&
-            (useBearer ||
-                type === "openai" ||
-                type === "localai" ||
-                type === "azure_serverless_models" ||
-                base === OPENROUTER_API_CHAT_URL)
+        : token && (useBearer || base === OPENROUTER_API_CHAT_URL)
           ? `Bearer ${token}`
           : undefined
     const apiKey = Authorization ? undefined : token

@@ -170,6 +170,7 @@
             "logitBias": false,
             "openaiCompatibility": "https://github.com/ollama/ollama/blob/main/docs/openai.md",
             "prediction": false,
+            "bearerToken": true,
             "aliases": {
                 "large": "phi4:latest",
                 "small": "llama3.2:3b",
@@ -181,6 +182,7 @@
             "id": "lmstudio",
             "detail": "LM Studio local server",
             "prediction": false,
+            "bearerToken": true,
             "aliases": {
                 "large": "phi-4",
                 "small": "llama-3.2-3b-instruct",
