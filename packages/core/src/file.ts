@@ -199,8 +199,13 @@ export async function resolveFileBytes(
     filename: string,
     options?: TraceOptions
 ): Promise<Uint8Array> {
+    if (/^data:/i.test(filename)) {
+        const matches = filename.match(/^data:[^;]+;base64,(.*)$/i)
+        if (!matches) throw new Error("Invalid data URI format")
+        return fromBase64(matches[1])
+    }
     // Fetch file from URL or data-uri
-    if (/^https?:\/\//i.test(filename) || /^data:/i.test(filename)) {
+    if (/^https?:\/\//i.test(filename)) {
         const fetch = await createFetch(options)
         const resp = await fetch(filename)
         const buffer = await resp.arrayBuffer()
