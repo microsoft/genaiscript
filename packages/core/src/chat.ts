@@ -732,6 +732,7 @@ async function processChatMessage(
                     participantTrace.details(
                         `💬 new messages`,
                         renderMessagesToMarkdown(messages, {
+                            textLang: "text",
                             user: true,
                             assistant: true,
                         })
@@ -757,6 +758,7 @@ async function processChatMessage(
                     participantTrace.details(
                         `💬 added messages (${participantMessages.length})`,
                         renderMessagesToMarkdown(participantMessages, {
+                            textLang: "text",
                             user: true,
                             assistant: true,
                         }),
@@ -897,10 +899,8 @@ export async function executeChatSession(
         fallbackTools,
         choices,
         topLogprobs,
-        cache: cacheOrName,
-        cacheName,
+        cache,
         inner,
-        outputTrace,
         partialCb,
     } = genOptions
     assert(!!model, "model is required")
@@ -922,13 +922,9 @@ export async function executeChatSession(
                   }
           )
         : undefined
-    const cache = !!cacheOrName || !!cacheName
-    const cacheStore = cache
-        ? getChatCompletionCache(
-              typeof cacheOrName === "string" ? cacheOrName : cacheName
-          )
+    const cacheStore = !!cache
+        ? getChatCompletionCache(typeof cache === "string" ? cache : "chat")
         : undefined
-
     const chatTrace = trace.startTraceDetails(`🧠 llm chat`, { expanded: true })
     try {
         if (toolDefinitions?.length) {
@@ -944,11 +940,12 @@ export async function executeChatSession(
         while (true) {
             stats.turns++
             collapseChatMessages(messages)
-            const tokens = estimateChatTokens(model, messages)
+            const tokens = await estimateChatTokens(model, messages)
             if (messages)
                 chatTrace.details(
                     `💬 messages (${messages.length})`,
                     renderMessagesToMarkdown(messages, {
+                        textLang: "text",
                         user: true,
                         assistant: true,
                     }),

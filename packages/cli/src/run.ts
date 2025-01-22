@@ -168,7 +168,7 @@ export async function runScriptInternal(
     const excludedFiles = options.excludedFiles
     const excludeGitIgnore = !!options.excludeGitIgnore
     const runDir = options.out || getRunDir(scriptId)
-    const stream = !options.json && !options.yaml && !runDir
+    const stream = !options.json && !options.yaml
     const retry = normalizeInt(options.retry) || 8
     const retryDelay = normalizeInt(options.retryDelay) || 15000
     const maxDelay = normalizeInt(options.maxDelay) || 180000
@@ -188,11 +188,10 @@ export async function runScriptInternal(
     const maxTokens = normalizeInt(options.maxTokens)
     const maxToolCalls = normalizeInt(options.maxToolCalls)
     const maxDataRepairs = normalizeInt(options.maxDataRepairs)
-    const cache = !!options.cache
+    const cache = options.cacheName ?? options.cache
     const applyEdits = !!options.applyEdits
     const csvSeparator = options.csvSeparator || "\t"
     const removeOut = options.removeOut
-    const cacheName = options.cacheName
     const cancellationToken = options.cancellationToken
     const jsSource = options.jsSource
     const fallbackTools = !!options.fallbackTools
@@ -212,7 +211,6 @@ export async function runScriptInternal(
     }
 
     logInfo(`genaiscript: ${scriptId}`)
-    logVerbose(`   out: ${runDir}`)
 
     // manage out folder
     if (removeOut) await emptyDir(runDir)
@@ -374,7 +372,6 @@ export async function runScriptInternal(
             },
             label,
             cache,
-            cacheName,
             temperature,
             topP,
             seed,
@@ -603,7 +600,6 @@ export async function runScriptInternal(
         logWarn(`genaiscript: ${result.status}`)
     else logError(`genaiscript: ${result.status}`)
     stats.log()
-    logVerbose(`     out: ${runDir}`)
     logVerbose(`   trace: ${outTraceFilename}`)
     logVerbose(`  output: ${outputFilename}`)
 

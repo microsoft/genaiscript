@@ -156,7 +156,6 @@ export interface ChatCompletionsOptions {
     maxCachedTemperature?: number // Max temperature for caching responses
     maxCachedTopP?: number // Max top-p for caching responses
     cache?: boolean | string // Cache setting or cache name
-    cacheName?: string // Name of the cache to use
     retry?: number // Number of retries for failed requests
     retryDelay?: number // Delay between retries
     maxDelay?: number // Maximum delay for retry attempts

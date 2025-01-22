@@ -95,12 +95,12 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
 
     const postReq = structuredClone({
         ...req,
-        messages: req.messages.map(({ cacheControl, ...rest }) => ({
-            ...rest,
-        })),
         stream: true,
         stream_options: { include_usage: true },
         model,
+        messages: req.messages.map(({ cacheControl, ...rest }) => ({
+            ...rest,
+        })),
     } satisfies CreateChatCompletionRequest)
 
     // stream_options fails in some cases
@@ -118,15 +118,6 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
             }
         }
     }
-    if (
-        postReq.messages.find(
-            (msg) =>
-                msg.role === "user" &&
-                typeof msg.content !== "string" &&
-                msg.content.some((c) => c.type === "image_url")
-        )
-    )
-        delete postReq.stream_options // crash on usage computation
 
     let url = ""
     const toolCalls: ChatCompletionToolCall[] = []

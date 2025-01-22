@@ -311,12 +311,6 @@ interface ModelOptions extends ModelConnectionOptions, ModelTemplateOptions {
     cache?: boolean | string
 
     /**
-     * Custom cache name. If not set, the default cache is used.
-     * @deprecated Use `cache` instead with a string
-     */
-    cacheName?: string
-
-    /**
      * A list of model ids and their maximum number of concurrent requests.
      */
     modelConcurrency?: Record<string, number>
@@ -1270,6 +1264,18 @@ interface DefImagesOptions {
      * Flips the image horizontally and/or vertically.
      */
     flip?: { horizontal?: boolean; vertical?: boolean }
+    /**
+     * Selects the first N elements from the data
+     */
+    sliceHead?: number
+    /**
+     * Selects the last N elements from the data
+     */
+    sliceTail?: number
+    /**
+     * Selects the a random sample of N items in the collection.
+     */
+    sliceSample?: number
 }
 
 type JSONSchemaTypeName =
@@ -2879,12 +2885,7 @@ interface Retrieval {
     ): Promise<WorkspaceFile[]>
 }
 
-interface DataFilter {
-    /**
-     * The keys to select from the object.
-     * If a key is prefixed with -, it will be removed from the object.
-     */
-    headers?: ElementOrArray<string>
+interface ArrayFilter {
     /**
      * Selects the first N elements from the data
      */
@@ -2897,11 +2898,18 @@ interface DataFilter {
      * Selects the a random sample of N items in the collection.
      */
     sliceSample?: number
+}
+
+interface DataFilter extends ArrayFilter {
+    /**
+     * The keys to select from the object.
+     * If a key is prefixed with -, it will be removed from the object.
+     */
+    headers?: ElementOrArray<string>
     /**
      * Removes items with duplicate values for the specified keys.
      */
     distinct?: ElementOrArray<string>
-
     /**
      * Sorts the data by the specified key(s)
      */

@@ -138,6 +138,9 @@ export interface PromptImage {
     url: string // URL of the image
     filename?: string // Optional filename
     detail?: "low" | "high" // Image detail level
+    width?: number // Width of the image
+    height?: number // Height of the image
+    type?: string // MIME type of the image
 }
 
 // Interface for an image node.

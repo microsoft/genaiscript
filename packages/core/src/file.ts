@@ -199,8 +199,8 @@ export async function resolveFileBytes(
     filename: string,
     options?: TraceOptions
 ): Promise<Uint8Array> {
-    // Fetch file from URL
-    if (/^https?:\/\//i.test(filename)) {
+    // Fetch file from URL or data-uri
+    if (/^https?:\/\//i.test(filename) || /^data:/i.test(filename)) {
         const fetch = await createFetch(options)
         const resp = await fetch(filename)
         const buffer = await resp.arrayBuffer()

@@ -83,6 +83,7 @@ export function renderMessageContent(
 export function renderMessagesToMarkdown(
     messages: ChatCompletionMessageParam[],
     options?: {
+        textLang?: "markdown" | "text"
         system?: boolean
         user?: boolean
         assistant?: boolean
@@ -90,6 +91,7 @@ export function renderMessagesToMarkdown(
 ) {
     // Set default options for filtering message roles.
     const {
+        textLang = "markdown",
         system = undefined, // Include system messages unless explicitly set to false.
         user = undefined, // Include user messages unless explicitly set to false.
         assistant = true, // Include assistant messages by default.
@@ -117,7 +119,7 @@ export function renderMessagesToMarkdown(
                     res.push(
                         details(
                             "📙 system",
-                            fenceMD(renderMessageContent(msg), "markdown"),
+                            fenceMD(renderMessageContent(msg), textLang),
                             false
                         )
                     )
@@ -125,12 +127,12 @@ export function renderMessagesToMarkdown(
                 case "user":
                     let content: string
                     if (typeof msg.content === "string")
-                        content = fenceMD(msg.content, "markdown")
+                        content = fenceMD(msg.content, textLang)
                     else if (Array.isArray(msg.content)) {
                         content = ""
                         for (const part of msg.content) {
                             if (part.type === "text")
-                                content += fenceMD(part.text, "markdown")
+                                content += fenceMD(part.text, textLang)
                             else if (part.type === "image_url")
                                 content += `\n![image](${part.image_url.url})`
                             else if (part.type === "input_audio")
@@ -145,7 +147,7 @@ export function renderMessagesToMarkdown(
                         details(
                             `🤖 assistant ${msg.name ? msg.name : ""}`,
                             [
-                                fenceMD(renderMessageContent(msg), "markdown"),
+                                fenceMD(renderMessageContent(msg), textLang),
                                 ...(msg.tool_calls?.map((tc) =>
                                     details(
                                         `📠 tool call <code>${tc.function.name}</code> (<code>${tc.id}</code>)`,
@@ -162,7 +164,7 @@ export function renderMessagesToMarkdown(
                     )
                     break
                 case "aici":
-                    res.push(details(`AICI`, fenceMD(msg.content, "markdown")))
+                    res.push(details(`AICI`, fenceMD(msg.content, textLang)))
                     break
                 case "tool":
                     res.push(

@@ -6,6 +6,8 @@ import {
     TOOL_ID,
     TRACE_CHUNK,
     TRACE_DETAILS,
+    TRACE_MAX_FILE_SIZE,
+    TRACE_MAX_IMAGE_SIZE,
 } from "./constants"
 import { parseTraceTree, TraceTree } from "./markdown"
 import { stringify as yamlStringify } from "yaml"
@@ -185,15 +187,13 @@ ${this.toResultIcon(success, "")}${title}
     }
 
     file(file: WorkspaceFile) {
-        const { content, type, filename, encoding } = file
+        const { content, filename } = file
         if (!content) {
             this.itemValue(filename, "no content")
         } else {
             this.item(filename)
-            if (!encoding) {
-                const ext = host.path.extname(filename).slice(1)
-                this.fence(content, ext)
-            }
+            const ext = host.path.extname(filename).slice(1)
+            this.fence(ellipse(content, TRACE_MAX_FILE_SIZE), ext)
         }
     }
 
@@ -288,8 +288,10 @@ ${this.toResultIcon(success, "")}${title}
         this.appendContent(`${"#".repeat(level)} ${message}\n\n`)
     }
 
-    image(url: string, caption?: string) {
-        this.appendContent(`\n![${caption || url}](${url})\n`)
+    async image(url: string, caption: string) {
+        if (/^https?:\/\//.test(url) || url.length < TRACE_MAX_IMAGE_SIZE)
+            return this.appendContent(`\n![${caption || "image"}](${url})\n`)
+        else return this.appendContent(`\n${caption} (too large...)\n`)
     }
 
     private toResultIcon(value: boolean, missing: string) {

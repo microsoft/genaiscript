@@ -217,6 +217,7 @@ export async function expandTemplate(
         normalizeInt(env.vars["flex_tokens"]) ??
         template.flexTokens
     const fenceFormat = options.fenceFormat ?? template.fenceFormat
+    const cache = options.cache ?? template.cache
     let seed = options.seed ?? normalizeInt(env.vars["seed"]) ?? template.seed
     if (seed !== undefined) seed = seed >> 0
     let logprobs = options.logprobs || template.logprobs
@@ -390,6 +391,7 @@ ${schemaTs}
     trace.endDetails()
 
     return {
+        cache,
         messages,
         images,
         schemas,
