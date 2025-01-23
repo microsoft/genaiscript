@@ -290,8 +290,10 @@ ${this.toResultIcon(success, "")}${title}
 
     async image(url: string, caption: string) {
         if (/^https?:\/\//.test(url) || url.length < TRACE_MAX_IMAGE_SIZE)
-            return this.appendContent(`\n![${caption || "image"}](${url})\n`)
-        else return this.appendContent(`\n${caption} (too large...)\n`)
+            return this.appendContent(
+                `\n\n![${caption || "image"}](${url})\n\n`
+            )
+        else return this.appendContent(`\n\n${caption} (too large...)\n\n`)
     }
 
     private toResultIcon(value: boolean, missing: string) {

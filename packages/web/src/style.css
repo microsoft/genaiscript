@@ -2,3 +2,17 @@ body {
     margin: 0 !important;
     padding: 0 !important;
 }
+
+div.snippet {
+    position: relative;
+}
+div.snippet .button {
+    position: absolute;
+    top: 0;
+    right: 0;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+div.snippet:hover .button {
+    opacity: 1;
+}
