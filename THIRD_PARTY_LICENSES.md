@@ -2828,7 +2828,7 @@ The following npm packages may be included in this product:
  - @types/http-cache-semantics@4.0.4
  - @types/node-fetch@2.6.12
  - @types/node@16.9.1
- - @types/node@18.19.71
+ - @types/node@18.19.72
  - @types/node@22.10.7
  - @types/turndown@5.0.5
  - @types/uuid@9.0.8
@@ -2862,7 +2862,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.94.0
+ - genaiscript-vscode@1.94.1
 
 This package contains the following license:
 
@@ -6919,7 +6919,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 The following npm packages may be included in this product:
 
  - @anthropic-ai/bedrock-sdk@0.12.0
- - @anthropic-ai/sdk@0.33.1
  - @anthropic-ai/sdk@0.35.0
 
 These packages each contain the following license:
@@ -7983,10 +7982,10 @@ The following npm packages may be included in this product:
  - @tokenizer/token@0.3.0
  - agent-base@6.0.2
  - eastasianwidth@0.2.0
- - genaiscript-core-internal@1.94.0
- - genaiscript-sample@1.94.0
- - genaiscript-web@1.94.0
- - genaiscript@1.94.0
+ - genaiscript-core-internal@1.94.1
+ - genaiscript-sample@1.94.1
+ - genaiscript-web@1.94.1
+ - genaiscript@1.94.1
  - https-proxy-agent@5.0.1
  - isarray@1.0.0
  - javascript-natural-sort@0.7.1
@@ -9256,9 +9255,9 @@ SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - @azure/msal-browser@4.0.1
+ - @azure/msal-browser@4.0.2
  - @azure/msal-common@14.16.0
- - @azure/msal-common@15.0.1
+ - @azure/msal-common@15.0.2
 
 These packages each contain the following license:
 

@@ -63,23 +63,10 @@
     "@smithy/types" "^2.3.4"
     "@smithy/util-base64" "^2.0.0"
 
-"@anthropic-ai/sdk@^0":
+"@anthropic-ai/sdk@^0", "@anthropic-ai/sdk@^0.35.0":
   version "0.35.0"
   resolved "https://registry.yarnpkg.com/@anthropic-ai/sdk/-/sdk-0.35.0.tgz#8ab7e6fffd6ec2ca63a55003609e448871f90738"
   integrity sha512-JxVuNIRLjcXZbDW/rJa3vSIoYB5c0wgIQUPsjueeqli9OJyCJpInj0UlvKSSk6R2oCYyg0y2M0H8n8Wyt0l1IA==
-  dependencies:
-    "@types/node" "^18.11.18"
-    "@types/node-fetch" "^2.6.4"
-    abort-controller "^3.0.0"
-    agentkeepalive "^4.2.1"
-    form-data-encoder "1.7.2"
-    formdata-node "^4.3.2"
-    node-fetch "^2.6.7"
-
-"@anthropic-ai/sdk@^0.33.1":
-  version "0.33.1"
-  resolved "https://registry.yarnpkg.com/@anthropic-ai/sdk/-/sdk-0.33.1.tgz#83be59ad8cbd6634f48155b0aa4b7287cfba1b8a"
-  integrity sha512-VrlbxiAdVRGuKP2UQlCnsShDHJKWepzvfRCkZMpU+oaUdKLpOfmylLMRojGrAgebV+kDtPjewCVP0laHXg+vsA==
   dependencies:
     "@types/node" "^18.11.18"
     "@types/node-fetch" "^2.6.4"
@@ -747,21 +734,21 @@
     tslib "^2.6.2"
 
 "@azure/msal-browser@^4.0.1":
-  version "4.0.1"
-  resolved "https://registry.yarnpkg.com/@azure/msal-browser/-/msal-browser-4.0.1.tgz#60dc84a803c13c6293df7b642fea0b09efe83276"
-  integrity sha512-jqiwVJPArnEOUhmc+dvo481OP8b2PMcsu3EtGtxt7sxmKgFtdQyGDCndj+2me62JVG/HEgArEgKyMA7L0aNhdA==
+  version "4.0.2"
+  resolved "https://registry.yarnpkg.com/@azure/msal-browser/-/msal-browser-4.0.2.tgz#d58b9ec71756b0e7d0cd46941f486d5fb377d092"
+  integrity sha512-bq6PasUpJgBSOSMeSlh8gXh4LZGgAaPoJFNcu5u0zxwueh+I8NpMb9oxlCfS/8CJHyXUhTUAMLSnvThemNdyQw==
   dependencies:
-    "@azure/msal-common" "15.0.1"
+    "@azure/msal-common" "15.0.2"
 
 "@azure/msal-common@14.16.0":
   version "14.16.0"
   resolved "https://registry.yarnpkg.com/@azure/msal-common/-/msal-common-14.16.0.tgz#f3470fcaec788dbe50859952cd499340bda23d7a"
   integrity sha512-1KOZj9IpcDSwpNiQNjt0jDYZpQvNZay7QAEi/5DLubay40iGYtLzya/jbjRPLyOTZhEKyL1MzPuw2HqBCjceYA==
 
-"@azure/msal-common@15.0.1":
-  version "15.0.1"
-  resolved "https://registry.yarnpkg.com/@azure/msal-common/-/msal-common-15.0.1.tgz#e9c019f74f475ecd21de679192cba331e54b1156"
-  integrity sha512-JELxEK3Pnc4Rq8u+mI9u6o37auSpSOPCB7jaq7QziOAKi9WliWEmZZORCFHPbwf2xKitpHBXTz/0uerj17NsSQ==
+"@azure/msal-common@15.0.2":
+  version "15.0.2"
+  resolved "https://registry.yarnpkg.com/@azure/msal-common/-/msal-common-15.0.2.tgz#3fb52d7300a83abd03271534171cd1f3dc4399e7"
+  integrity sha512-RQHmI5vOMYLNSO0ER7d/O9TojWWEn4m0YtWbL8mZthkKGQI7ALn5ONHUVTUSxSVYwGYdHGNrwiHAzQhboqwZzQ==
 
 "@azure/msal-node@^2.15.0":
   version "2.16.2"
@@ -1156,7 +1143,7 @@
   resolved "https://registry.yarnpkg.com/@huggingface/jinja/-/jinja-0.3.2.tgz#c1967f0685c69657c2d3b169459f72d5c6acbdec"
   integrity sha512-F2FvuIc+w1blGsaqJI/OErRbWH6bVJDCBI8Rm5D86yZ2wlwrGERsfIaru7XUv9eYC3DMP3ixDRRtF0h6d8AZcQ==
 
-"@huggingface/transformers@^3.3.1":
+"@huggingface/transformers@^3.3.2":
   version "3.3.2"
   resolved "https://registry.yarnpkg.com/@huggingface/transformers/-/transformers-3.3.2.tgz#f2ec46f31c62d4dbcec4a614791db2db5f429700"
   integrity sha512-KewnlOEeB3LcgvS416rTsLiah98V7sP1STmE584wA2qlymHLjp0QXihAKNA37XQ8y19thK7VjUqHYWSAUg9isg==
@@ -1796,7 +1783,7 @@
   resolved "https://registry.yarnpkg.com/@mixmark-io/domino/-/domino-2.2.0.tgz#4e8ec69bf1afeb7a14f0628b7e2c0f35bdb336c3"
   integrity sha512-Y28PR25bHXUg88kCV7nivXrP2Nj2RueZ3/l/jdx6J9f8J4nsEGcgX0Qe6lt7Pa+J79+kPiJU3LguR6O/6zrLOw==
 
-"@modelcontextprotocol/sdk@^1.3.0":
+"@modelcontextprotocol/sdk@^1.3.2":
   version "1.3.2"
   resolved "https://registry.yarnpkg.com/@modelcontextprotocol/sdk/-/sdk-1.3.2.tgz#056b32f96a0b15bbfbb8dc555db5af35f6039aa2"
   integrity sha512-Go+Iv/QTilhOxZppH2IuX+RaR9a4mjg/+PX17imoKqbb7mvYMN2dgjASL6PhKj07tRR4F8VM3ScPPlBenZ+gIw==
@@ -3343,7 +3330,7 @@
     "@types/node" "*"
     form-data "^4.0.0"
 
-"@types/node@*", "@types/node@>=13.7.0", "@types/node@>=20", "@types/node@^22.10.5":
+"@types/node@*", "@types/node@>=13.7.0", "@types/node@>=20", "@types/node@^22.10.7":
   version "22.10.7"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-22.10.7.tgz#14a1ca33fd0ebdd9d63593ed8d3fbc882a6d28d7"
   integrity sha512-V09KvXxFiutGp6B7XkpaDXlNadZxrzajcY50EuoLIpQ6WWYCSvf19lVIazzfIzQvhUN2HjX12spLojTnhuKlGg==
@@ -3356,9 +3343,9 @@
   integrity sha512-QpLcX9ZSsq3YYUUnD3nFDY8H7wctAhQj/TFKL8Ya8v5fMm3CFXxo8zStsLAl780ltoYoo1WvKUVGBQK+1ifr7g==
 
 "@types/node@^18.11.18":
-  version "18.19.71"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-18.19.71.tgz#96d4f0a0be735ead6c8998c62a4b2c0012a5d09a"
-  integrity sha512-evXpcgtZm8FY4jqBSN8+DmOTcVkkvTmAayeo4Wf3m1xAruyVGzGuDh/Fb/WWX2yLItUiho42ozyJjB0dw//Tkw==
+  version "18.19.72"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-18.19.72.tgz#37d5cfb4061aa7ff386cf212d9da8ef7c182b5cd"
+  integrity sha512-AZAJfFv5UDB7y5J4fs49/waT0VaM6X0pvTMRL3JQClHPCh2bpkFLNhKpewvOVFPEUNqBdykzvhcMCxyiqB2oew==
   dependencies:
     undici-types "~5.26.4"
 
@@ -10946,7 +10933,6 @@ xdg-basedir@^5.1.0:
 
 "xlsx@https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz":
   version "0.20.2"
-  uid "0f64eeed3f1a46e64724620c3553f2dbd3cd2d7d"
   resolved "https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz#0f64eeed3f1a46e64724620c3553f2dbd3cd2d7d"
 
 xml-parse-from-string@^1.0.0:

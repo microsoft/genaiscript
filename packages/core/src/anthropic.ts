@@ -28,7 +28,7 @@ import {
     ChatCompletionToolMessageParam,
 } from "./chattypes"
 
-import { logError, logVerbose } from "./util"
+import { logError } from "./util"
 import { resolveHttpProxyAgent } from "./proxy"
 import { HttpsProxyAgent } from "https-proxy-agent"
 import { MarkdownTrace } from "./trace"
