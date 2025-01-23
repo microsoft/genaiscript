@@ -85,23 +85,21 @@ export function commandButtons(state: ExtensionState) {
     const trace = "Trace"
     const cmds: { label: string; description?: string; cmd: string }[] = []
     if (computing) cmds.push({ label: abort, cmd: "genaiscript.request.abort" })
-    if (request) {
-        cmds.push({
-            label: view,
-            description: "View GenAIScript request.",
-            cmd: "genaiscript.request.open.view",
-        })
-        cmds.push({
-            label: output,
-            description: "Preview AI response.",
-            cmd: "genaiscript.request.open.output",
-        })
-        cmds.push({
-            label: trace,
-            description: "Inspect script execution and LLM response.",
-            cmd: "genaiscript.request.open.trace",
-        })
-    }
+    cmds.push({
+        label: view,
+        description: "View GenAIScript request.",
+        cmd: "genaiscript.request.open.view",
+    })
+    cmds.push({
+        label: output,
+        description: "Preview AI response.",
+        cmd: "genaiscript.request.open.output",
+    })
+    cmds.push({
+        label: trace,
+        description: "Inspect script execution and LLM response.",
+        cmd: "genaiscript.request.open.trace",
+    })
 
     return cmds
 }
