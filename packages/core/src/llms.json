@@ -162,7 +162,8 @@
         {
             "id": "transformers",
             "detail": "Hugging Face Transformers",
-            "prediction": false
+            "prediction": false,
+            "tokenless": true
         },
         {
             "id": "ollama",
@@ -171,6 +172,7 @@
             "openaiCompatibility": "https://github.com/ollama/ollama/blob/main/docs/openai.md",
             "prediction": false,
             "bearerToken": true,
+            "tokenless": true,
             "aliases": {
                 "embeddings": "nomic-embed-text"
             }
@@ -180,6 +182,7 @@
             "detail": "LM Studio local server",
             "prediction": false,
             "bearerToken": true,
+            "tokenless": true,
             "aliases": {
                 "embeddings": "text-embedding-nomic-embed-text-v1.5"
             }
@@ -189,22 +192,26 @@
             "detail": "Jan local server",
             "prediction": false,
             "listModels": true,
+            "tokenless": true,
             "topP": false
         },
         {
             "id": "llamafile",
             "detail": "llamafile.ai local model",
-            "prediction": false
+            "prediction": false,
+            "tokenless": true
         },
         {
             "id": "litellm",
             "detail": "LiteLLM proxy",
-            "prediction": false
+            "prediction": false,
+            "tokenless": true
         },
         {
             "id": "whisperasr",
             "detail": "Whisper ASR Webservice",
             "url": "https://github.com/ahmetoner/whisper-asr-webservice",
+            "tokenless": true,
             "aliases": {
                 "transcription": "default"
             }
@@ -214,6 +221,7 @@
             "detail": "GitHub Copilot Chat Modes",
             "tools": false,
             "prediction": false,
+            "tokenless": true,
             "aliases": {
                 "large": "gpt-4o",
                 "small": "gpt-4o-mini",

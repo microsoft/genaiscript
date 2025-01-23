@@ -270,8 +270,11 @@ export class NodeHost implements RuntimeHost {
         }
         if (tok && (!tok.token || tok.token === tok.provider)) {
             const { listModels } = await resolveLanguageModel(tok.provider)
-            const { ok, error } = await listModels(tok, options)
-            if (!ok) throw new Error(`${tok.provider}: ${errorMessage(error)}`)
+            if (listModels) {
+                const { ok, error } = await listModels(tok, options)
+                if (!ok)
+                    throw new Error(`${tok.provider}: ${errorMessage(error)}`)
+            }
         }
         if (!tok) {
             if (!modelId)

@@ -80,6 +80,10 @@
                         "type": "boolean",
                         "description": "Indicates if bearer token is supported"
                     },
+                    "tokenless": {
+                        "type": "boolean",
+                        "description": "Indicates if connection without token is allowed"
+                    },
                     "aliases": {
                         "type": "object",
                         "description": "List of model aliases for the provider",
