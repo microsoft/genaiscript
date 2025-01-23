@@ -98,8 +98,15 @@ export class TerminalServerManager implements ServerManager {
         assert(!this._client)
         await this.allocatePort()
         const url = this.url
+        const authority = (
+            await vscode.env.asExternalUri(vscode.Uri.parse(this.authority))
+        ).toString()
+        const externalUrl =
+            authority +
+            `#api-key=${encodeURIComponent(this.state.sessionApiKey)}`
         logInfo(`client url: ${url}`)
-        const client = (this._client = new VsCodeClient(url))
+        logVerbose(`client external url: ${externalUrl}`)
+        const client = (this._client = new VsCodeClient(url, externalUrl))
         client.chatRequest = createChatModelRunner(this.state)
         client.addEventListener(OPEN, async () => {
             if (client !== this._client) return
