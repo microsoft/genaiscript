@@ -145,6 +145,7 @@ export class NodeHost implements RuntimeHost {
         cfg: LanguageModelConfiguration,
         options?: TraceOptions & CancellationOptions
     ): Promise<ResponseStatus> {
+        const { trace } = options
         const { provider, model } = cfg
         const modelId = `${provider}:${model}`
         if (this.pulledModels.includes(modelId)) return { ok: true }
@@ -159,6 +160,7 @@ export class NodeHost implements RuntimeHost {
             const { ok, status, error, models } = await listModels(cfg, options)
             if (!ok) {
                 logError(`${provider}: ${errorMessage(error)}`)
+                trace?.error(`${provider}: ${errorMessage(error)}`, error)
                 return { ok, status, error }
             }
             if (models.find(({ id }) => id === model)) {
@@ -169,7 +171,10 @@ export class NodeHost implements RuntimeHost {
 
         const res = await pullModel(cfg, options)
         if (res.ok) this.pulledModels.push(modelId)
-        else if (res.error) logError(`${provider}: ${errorMessage(res.error)}`)
+        else if (res.error) {
+            logError(`${provider}: ${errorMessage(res.error)}`)
+            trace?.error(`${provider}: ${errorMessage(error)}`, error)
+        }
         return res
     }
 
@@ -262,6 +267,11 @@ export class NodeHost implements RuntimeHost {
                 }
                 tok.token = "Bearer " + azureToken.token
             }
+        }
+        if (tok && (!tok.token || tok.token === tok.provider)) {
+            const { listModels } = await resolveLanguageModel(tok.provider)
+            const { ok, error } = await listModels(tok, options)
+            if (!ok) throw new Error(`${tok.provider}: ${errorMessage(error)}`)
         }
         if (!tok) {
             if (!modelId)
