@@ -52,7 +52,7 @@ export class VsCodeClient extends WebSocketClient {
         }
     > = {}
 
-    constructor(readonly url: string) {
+    constructor(readonly url: string, readonly externalUrl: string) {
         super(url)
         this.configure()
     }
