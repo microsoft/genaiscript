@@ -59,3 +59,4 @@ sequenceDiagram
     `,
     "mermaid"
 )
+output.image("https://github.com/microsoft/genaiscript/blob/main/docs/public/images/favicon.png?raw=true", "icon")
