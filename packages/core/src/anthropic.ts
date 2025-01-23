@@ -412,9 +412,9 @@ const completerFactory = (
     return completion
 }
 
-async function listAnthropicModels(
+const listAnthropicModels: ListModelsFunction = async (
     _: LanguageModelConfiguration
-): Promise<LanguageModelInfo[]> {
+) => {
     // Anthropic doesn't expose an API to list models, so we return a static list
     // based on the Model type defined in the Anthropic SDK
     const models: Array<{ id: Anthropic.Model; details: string }> = [
@@ -455,7 +455,10 @@ async function listAnthropicModels(
         },
     ]
 
-    return models.map(({ id, details }) => ({ id, details }))
+    return {
+        ok: true,
+        models: models.slice(0),
+    }
 }
 
 export const AnthropicModel = Object.freeze<LanguageModel>({

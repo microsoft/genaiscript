@@ -120,23 +120,30 @@ export async function resolveLanguageModelConfigurations(
             } = await parseTokenFromEnv(env, `${modelProvider.id}:*`)
             if (conn) {
                 // Mask the token if the option is set
+                let listError = ""
                 if (!token && conn.token) conn.token = "***"
                 if (models) {
                     const lm = await resolveLanguageModel(modelProvider.id)
                     if (lm.listModels) {
-                        const ms = await lm.listModels(conn, {})
-                        if (ms?.length) conn.models = ms
+                        const models = await lm.listModels(conn, {})
+                        if (models.ok) conn.models = models.models
+                        else
+                            listError =
+                                errorMessage(listError) ||
+                                "failed to llist models"
                     }
                 }
-                res.push(
-                    deleteEmptyValues({
-                        provider: conn.provider,
-                        source: conn.source,
-                        base: conn.base,
-                        type: conn.type,
-                        models: conn.models,
-                    })
-                )
+                if (!listError || error)
+                    res.push(
+                        deleteEmptyValues({
+                            provider: conn.provider,
+                            source: conn.source,
+                            base: conn.base,
+                            type: conn.type,
+                            models: conn.models,
+                            error: listError,
+                        })
+                    )
             }
         } catch (e) {
             if (error)

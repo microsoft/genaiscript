@@ -7,7 +7,7 @@ import {
 import { errorMessage } from "./error"
 import { host, runtimeHost } from "./host"
 import { MarkdownTrace, TraceOptions } from "./trace"
-import { arrayify, assert, toStringList } from "./util"
+import { arrayify, assert, logVerbose, toStringList } from "./util"
 import { CancellationOptions } from "./cancellation"
 import { LanguageModelConfiguration } from "./server/messages"
 
@@ -191,8 +191,10 @@ export async function resolveModelConnectionInfo(
             reportError: true,
         })
     } else {
+        logVerbose(`connection: resolving model ${modelId}`)
         candidates = uniq([modelId, ...(candidates || [])].filter((c) => !!c))
         for (const candidate of candidates) {
+            logVerbose(`  resolving ${candidate}`)
             const res = await resolveModel(candidate, {
                 withToken: askToken,
                 reportError: false,

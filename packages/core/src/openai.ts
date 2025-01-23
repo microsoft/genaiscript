@@ -18,6 +18,7 @@ import {
     CreateSpeechResult,
     CreateTranscriptionRequest,
     LanguageModel,
+    ListModelsFunction,
 } from "./chat"
 import { RequestError, errorMessage, serializeError } from "./error"
 import { createFetch, traceFetchPost } from "./fetch"
@@ -381,35 +382,39 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
     } satisfies ChatCompletionResponse
 }
 
-export async function OpenAIListModels(
-    cfg: LanguageModelConfiguration,
-    options: TraceOptions & CancellationOptions
-): Promise<LanguageModelInfo[]> {
-    const fetch = await createFetch({ retries: 0, ...(options || {}) })
-    const res = await fetch(cfg.base + "/models", {
-        method: "GET",
-        headers: {
-            ...getConfigHeaders(cfg),
-            Accept: "application/json",
-        },
-    })
-    if (res.status !== 200) return []
-    const { data } = (await res.json()) as {
-        object: "list"
-        data: {
-            id: string
-            object: "model"
-            created: number
-            owned_by: string
-        }[]
+export const OpenAIListModels: ListModelsFunction = async (cfg, options) => {
+    try {
+        const fetch = await createFetch({ retries: 0, ...(options || {}) })
+        const res = await fetch(cfg.base + "/models", {
+            method: "GET",
+            headers: {
+                ...getConfigHeaders(cfg),
+                Accept: "application/json",
+            },
+        })
+        if (res.status !== 200) return { ok: false, status: res.status, error: serializeError(res.statusText) }
+        const { data } = (await res.json()) as {
+            object: "list"
+            data: {
+                id: string
+                object: "model"
+                created: number
+                owned_by: string
+            }[]
+        }
+        return {
+            ok: true,
+            models: data.map(
+                (m) =>
+                    ({
+                        id: m.id,
+                        details: `${m.id}, ${m.owned_by}`,
+                    }) satisfies LanguageModelInfo
+            ),
+        }
+    } catch (e) {
+        return { ok: false, error: serializeError(e) }
     }
-    return data.map(
-        (m) =>
-            <LanguageModelInfo>{
-                id: m.id,
-                details: `${m.id}, ${m.owned_by}`,
-            }
-    )
 }
 
 export async function OpenAITranscribe(

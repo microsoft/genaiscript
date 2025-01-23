@@ -23,6 +23,7 @@ import { link } from "./mkmd"
 import { LanguageModelInfo } from "./server/messages"
 import { LanguageModel, ListModelsFunction } from "./chat"
 import { OpenAIChatCompletion } from "./openai"
+import { errorMessage, serializeError } from "./error"
 
 export interface GithubConnectionInfo {
     token: string
@@ -459,40 +460,50 @@ interface GitHubMarketplaceModel {
 
 const listModels: ListModelsFunction = async (cfg, options) => {
     const fetch = await createFetch({ retries: 0, ...options })
-    const modelsRes = await fetch(
-        "https://api.catalog.azureml.ms/asset-gallery/v1.0/models",
-        {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                filters: [
-                    {
-                        field: "freePlayground",
-                        values: ["true"],
-                        operator: "eq",
-                    },
-                    { field: "labels", values: ["latest"], operator: "eq" },
-                ],
-                order: [{ field: "displayName", direction: "Asc" }],
-            }),
-        }
-    )
-    if (!modelsRes.ok) {
-        throw new Error("Failed to fetch models from the model catalog")
-    }
+    try {
+        const modelsRes = await fetch(
+            "https://api.catalog.azureml.ms/asset-gallery/v1.0/models",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    filters: [
+                        {
+                            field: "freePlayground",
+                            values: ["true"],
+                            operator: "eq",
+                        },
+                        { field: "labels", values: ["latest"], operator: "eq" },
+                    ],
+                    order: [{ field: "displayName", direction: "Asc" }],
+                }),
+            }
+        )
+        if (!modelsRes.ok)
+            return {
+                ok: false,
+                status: modelsRes.status,
+                error: serializeError(modelsRes.statusText),
+            }
 
-    const models = (await modelsRes.json())
-        .summaries as GitHubMarketplaceModel[]
-    return models.map(
-        (m) =>
-            ({
-                id: m.name,
-                details: m.summary,
-                url: `https://github.com/marketplace/models/${m.registryName}/${m.name}`,
-            }) satisfies LanguageModelInfo
-    )
+        const models = (await modelsRes.json())
+            .summaries as GitHubMarketplaceModel[]
+        return {
+            ok: true,
+            models: models.map(
+                (m) =>
+                    ({
+                        id: m.name,
+                        details: m.summary,
+                        url: `https://github.com/marketplace/models/${m.registryName}/${m.name}`,
+                    }) satisfies LanguageModelInfo
+            ),
+        }
+    } catch (e) {
+        return { ok: false, error: serializeError(e) }
+    }
 }
 
 export const GitHubModel = Object.freeze<LanguageModel>({

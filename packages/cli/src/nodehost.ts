@@ -145,6 +145,7 @@ export class NodeHost implements RuntimeHost {
         cfg: LanguageModelConfiguration,
         options?: TraceOptions & CancellationOptions
     ): Promise<ResponseStatus> {
+        const { trace } = options
         const { provider, model } = cfg
         const modelId = `${provider}:${model}`
         if (this.pulledModels.includes(modelId)) return { ok: true }
@@ -156,7 +157,12 @@ export class NodeHost implements RuntimeHost {
         }
 
         if (listModels) {
-            const models = await listModels(cfg, options)
+            const { ok, status, error, models } = await listModels(cfg, options)
+            if (!ok) {
+                logError(`${provider}: ${errorMessage(error)}`)
+                trace?.error(`${provider}: ${errorMessage(error)}`, error)
+                return { ok, status, error }
+            }
             if (models.find(({ id }) => id === model)) {
                 this.pulledModels.push(modelId)
                 return { ok: true }
@@ -165,7 +171,10 @@ export class NodeHost implements RuntimeHost {
 
         const res = await pullModel(cfg, options)
         if (res.ok) this.pulledModels.push(modelId)
-        else if (res.error) logError(res.error)
+        else if (res.error) {
+            logError(`${provider}: ${errorMessage(res.error)}`)
+            trace?.error(`${provider}: ${errorMessage(error)}`, error)
+        }
         return res
     }
 
@@ -259,6 +268,14 @@ export class NodeHost implements RuntimeHost {
                 tok.token = "Bearer " + azureToken.token
             }
         }
+        if (tok && (!tok.token || tok.token === tok.provider)) {
+            const { listModels } = await resolveLanguageModel(tok.provider)
+            if (listModels) {
+                const { ok, error } = await listModels(tok, options)
+                if (!ok)
+                    throw new Error(`${tok.provider}: ${errorMessage(error)}`)
+            }
+        }
         if (!tok) {
             if (!modelId)
                 throw new Error(
@@ -273,13 +290,6 @@ export class NodeHost implements RuntimeHost {
                 )
             else if (provider === MODEL_PROVIDER_AZURE_SERVERLESS_MODELS)
                 throw new Error(`Azure AI Models not configured for ${modelId}`)
-        }
-        if (!tok && this.clientLanguageModel) {
-            return <LanguageModelConfiguration>{
-                model: modelId,
-                provider: this.clientLanguageModel.id,
-                source: "client",
-            }
         }
 
         return tok

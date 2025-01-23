@@ -2,12 +2,16 @@
 // Provides functionalities for rendering AICI scripts and handling chat completions within the application.
 // It includes various utilities, constants, and error handling specific to the AICI model.
 
-import { ChatCompletionHandler, LanguageModel } from "./chat"
+import {
+    ChatCompletionHandler,
+    LanguageModel,
+    ListModelsFunction,
+} from "./chat"
 import { PromptNode, visitNode } from "./promptdom"
 import { fromHex, logError, normalizeInt, utf8Decode } from "./util"
 import { AICI_CONTROLLER, TOOL_ID } from "./constants"
 import { host } from "./host"
-import { NotSupportedError, RequestError } from "./error"
+import { NotSupportedError, RequestError, serializeError } from "./error"
 import { createFetch, iterateBody } from "./fetch"
 import { parseModelIdentifier } from "./models"
 import {
@@ -410,31 +414,35 @@ const AICIChatCompletion: ChatCompletionHandler = async (
  * @param cfg - The configuration for the language model.
  * @returns A list of language model information.
  */
-async function listModels(
-    cfg: LanguageModelConfiguration,
-    options?: TraceOptions & CancellationOptions
-) {
-    const { token, base, version } = cfg
-    const url = `${base}/proxy/info`
-    const fetch = await createFetch()
-    const res = await fetch(url, {
-        method: "GET",
-        headers: {
-            "api-key": token,
-            "User-Agent": TOOL_ID,
-            Accept: "application/json",
-        },
-    })
-    if (res.status !== 200) return []
-    const body = (await res.json()) as {
-        prefixes: string[]
+const listModels: ListModelsFunction = async (cfg, options) => {
+    try {
+        const { token, base } = cfg
+        const url = `${base}/proxy/info`
+        const fetch = await createFetch()
+        const res = await fetch(url, {
+            method: "GET",
+            headers: {
+                "api-key": token,
+                "User-Agent": TOOL_ID,
+                Accept: "application/json",
+            },
+        })
+        if (res.status !== 200) return { ok: false, status: res.status }
+        const body = (await res.json()) as {
+            prefixes: string[]
+        }
+        return {
+            ok: true,
+            models: body.prefixes.map(
+                (tag) =>
+                    <LanguageModelInfo>{
+                        id: tag.replace(/^\//, ""),
+                    }
+            ),
+        }
+    } catch (e) {
+        return { ok: false, error: serializeError(e) }
     }
-    return body.prefixes.map(
-        (tag) =>
-            <LanguageModelInfo>{
-                id: tag.replace(/^\//, ""),
-            }
-    )
 }
 
 /**
