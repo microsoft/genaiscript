@@ -98,6 +98,7 @@
             "detail": "Hugging Face models",
             "prediction": false,
             "listModels": false,
+            "openaiCompatibility": "https://huggingface.github.io/text-generation-inference/",
             "aliases": {
                 "large": "meta-llama/Llama-3.3-70B-Instruct",
                 "small": "microsoft/phi-4",
