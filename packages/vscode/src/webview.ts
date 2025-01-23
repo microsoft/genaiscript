@@ -3,24 +3,14 @@ import { TOOL_ID, TOOL_NAME } from "../../core/src/constants"
 import { ExtensionState } from "./state"
 import { registerCommand } from "./commands"
 import { Utils } from "vscode-uri"
-import { deleteUndefinedValues } from "../../core/src/cleaners"
 import { assert } from "../../core/src/util"
+import { randomHex } from "../../core/src/crypto"
 
-function getNonce() {
-    let text = ""
-    const possible =
-        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
-    for (let i = 0; i < 32; i++) {
-        text += possible.charAt(Math.floor(Math.random() * possible.length))
-    }
-    return text
-}
-
-async function createWebview(
+export async function createWebview(
     state: ExtensionState
 ): Promise<vscode.WebviewPanel> {
     const { host, sessionApiKey, context } = state
-    const { externalUrl } = await host.server.client()
+    const { url, externalUrl, cspUrl } = await host.server.client()
 
     const panel = vscode.window.createWebviewPanel(
         TOOL_ID,
@@ -34,7 +24,7 @@ async function createWebview(
     )
     context.subscriptions.push(panel)
     const cspSource = panel.webview.cspSource
-    const nonce = getNonce()
+    const nonce = randomHex(48)
 
     let html: string
     const web = vscode.env.uiKind === vscode.UIKind.Web
@@ -46,10 +36,11 @@ async function createWebview(
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GenAIScript View Holder</title>
-    <meta
-        http-equiv="Content-Security-Policy"
-        content="default-src 'none'; frame-src ${externalUrl} ${cspSource} https:; img-src ${externalUrl} ${cspSource} https:; script-src ${externalUrl} ${cspSource} 'nonce-${nonce}'; style-src ${externalUrl} ${cspSource} 'nonce-${nonce}';"
-        />
+    <meta http-equiv="Content-Security-Policy" content="
+        default-src 'none'; 
+        frame-src ${cspUrl};"
+        style-src 'self' 'nonce-${nonce}';
+    />
     <style nonce="${nonce}">    
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; }
         iframe { width: 100%; height: 100%; border: none; }
@@ -65,26 +56,37 @@ async function createWebview(
         const faviconUri = Utils.joinPath(authorityUri, "favicon.svg")
         const stylesheetUri = Utils.joinPath(authorityUri, "built/markdown.css")
         const scriptUri = Utils.joinPath(authorityUri, "built/web.mjs")
+        const wsCspUrl = vscode.Uri.parse(cspUrl)
+            .with({ scheme: "ws" })
+            .toString()
+        // lock down CSP
+        const csp = `
+            default-src 'none'; 
+            frame-src ${cspUrl} ${cspSource} https:; 
+            img-src ${cspUrl} ${cspSource} https:;
+            media-src ${cspUrl} ${cspSource} https:;
+            connect-src ${cspUrl} ${wsCspUrl};
+            script-src ${cspUrl} ${cspSource} 'nonce-${nonce}'; 
+            style-src 'unsafe-inline' ${cspUrl} ${cspSource};
+        `
         html = `<!doctype html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>GenAIScript Script Runner</title>
-        <meta
-            http-equiv="Content-Security-Policy"
-            content="default-src 'none'; frame-src ${externalUrl} ${cspSource} https:; img-src ${externalUrl} ${cspSource} https:; script-src ${externalUrl} ${cspSource} 'nonce-${nonce}'; style-src ${externalUrl} ${cspSource} 'nonce-${nonce}';"
-            />
-        <link rel="icon" href="${faviconUri}" type="image/svg+xml" />
-        <link href="${stylesheetUri}" rel="stylesheet">
-        <script type="module" nonce="${nonce}">
-            self.genaiscript = ${JSON.stringify(deleteUndefinedValues({ apiKey: sessionApiKey, base: authority }))};
-        </script>
-    </head>
-    <body>
-        <div id="root" class="vscode-body"></div>
-        <script type="module" src="${scriptUri}" nonce="${nonce}"></script>
-    </body>
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GenAIScript Script Runner</title>
+    <meta http-equiv="Content-Security-Policy" content="${csp}" />
+    <link rel="icon" href="${faviconUri}" type="image/svg+xml" />
+    <link href="${stylesheetUri}" rel="stylesheet">
+    <script nonce="${nonce}">
+        window.litNonce = ${JSON.stringify(nonce)};
+        window.genaiscript = ${JSON.stringify({ apiKey: sessionApiKey, base: authority })};
+    </script>
+</head>
+<body>
+    <div id="root" class="vscode-body"></div>
+    <script type="module" src="${scriptUri}" nonce="${nonce}"></script>
+</body>
 </html>
 `
     }
@@ -96,13 +98,9 @@ async function createWebview(
 export function activeWebview(state: ExtensionState) {
     const { context } = state
     const { subscriptions } = context
-    let panel: vscode.WebviewPanel
     subscriptions.push(
         registerCommand("genaiscript.request.open.view", async () => {
-            if (!panel) {
-                panel = await createWebview(state)
-                panel.onDidDispose(() => (panel = undefined))
-            } else panel.reveal()
+            await state.showWebview()
         })
     )
 }
