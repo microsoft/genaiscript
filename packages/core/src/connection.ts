@@ -538,7 +538,7 @@ export async function parseTokenFromEnv(
         }
     }
 
-    if (provider === MODEL_PROVIDER_CLIENT && host.clientLanguageModel) {
+    if (provider === MODEL_PROVIDER_CLIENT && runtimeHost.clientLanguageModel) {
         return {
             provider,
             model,

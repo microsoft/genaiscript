@@ -202,7 +202,7 @@ export async function startServer(options: {
     }
 
     // Configures the client language model with a completer function.
-    host.clientLanguageModel = Object.freeze<LanguageModel>({
+    runtimeHost.clientLanguageModel = Object.freeze<LanguageModel>({
         id: MODEL_PROVIDER_CLIENT,
         completer: async (
             req: CreateChatCompletionRequest,
