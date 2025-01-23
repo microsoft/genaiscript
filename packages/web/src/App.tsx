@@ -1301,8 +1301,8 @@ function ResultsTabs() {
             onVscTabsSelect={(e) => setSelected(e.detail.selectedIndex)}
             panel
         >
-            <TraceTabPanel selected={selected === 0} />
-            <OutputTraceTabPanel selected={selected === 1} />
+            <OutputTraceTabPanel selected={selected === 0} />
+            <TraceTabPanel selected={selected === 1} />
             <MessagesTabPanel />
             <ProblemsTabPanel />
             <LogProbsTabPanel />
