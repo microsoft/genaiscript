@@ -1,6 +1,6 @@
 {
     "name": "genaiscript-workspace",
-    "version": "1.94.2",
+    "version": "1.95.0",
     "license": "MIT",
     "private": true,
     "workspaces": {
