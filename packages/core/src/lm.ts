@@ -13,7 +13,7 @@ import {
     MODEL_PROVIDERS,
     MODEL_WHISPERASR_PROVIDER,
 } from "./constants"
-import { host } from "./host"
+import { runtimeHost } from "./host"
 import { OllamaModel } from "./ollama"
 import { LocalOpenAICompatibleModel } from "./openai"
 import { TransformersModel } from "./transformers"
@@ -23,7 +23,7 @@ import { WhiserAsrModel } from "./whisperasr"
 
 export function resolveLanguageModel(provider: string): LanguageModel {
     if (provider === MODEL_PROVIDER_CLIENT) {
-        const m = host.clientLanguageModel
+        const m = runtimeHost.clientLanguageModel
         if (!m) throw new Error("Client language model not available")
         return m
     }

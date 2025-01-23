@@ -103,7 +103,6 @@ export interface Host {
         options?: { token?: boolean } & CancellationOptions & TraceOptions
     ): Promise<LanguageModelConfiguration | undefined>
     log(level: LogLevel, msg: string): void
-    clientLanguageModel?: LanguageModel
 
     // fs
     statFile(name: string): Promise<{
@@ -131,6 +130,7 @@ export interface RuntimeHost extends Host {
     workspace: Omit<WorkspaceFileSystem, "grep">
     azureToken: AzureTokenResolver
     modelAliases: Readonly<ModelConfigurations>
+    clientLanguageModel?: LanguageModel
 
     pullModel(
         cfg: LanguageModelConfiguration,
