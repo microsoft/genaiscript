@@ -6,7 +6,6 @@ import { Utils } from "vscode-uri"
 import { deleteUndefinedValues } from "../../core/src/cleaners"
 import { assert } from "../../core/src/util"
 
-
 function getNonce() {
     let text = ""
     const possible =
@@ -17,7 +16,9 @@ function getNonce() {
     return text
 }
 
-async function createWebview(state: ExtensionState): Promise<vscode.Webview> {
+async function createWebview(
+    state: ExtensionState
+): Promise<vscode.WebviewPanel> {
     const { host, sessionApiKey, context } = state
     const { externalUrl } = await host.server.client()
 
@@ -47,7 +48,7 @@ async function createWebview(state: ExtensionState): Promise<vscode.Webview> {
     <title>GenAIScript View Holder</title>
     <meta
         http-equiv="Content-Security-Policy"
-        content="default-src 'none'; frame-src ${externalUrl} ${cspSource} https:; img-src ${externalUrl} ${cspSource} https:; script-src ${externalUrl} ${cspSource} 'nonce-${nonce}'; style-src ${externalUrl } ${cspSource} 'nonce-${nonce}';"
+        content="default-src 'none'; frame-src ${externalUrl} ${cspSource} https:; img-src ${externalUrl} ${cspSource} https:; script-src ${externalUrl} ${cspSource} 'nonce-${nonce}'; style-src ${externalUrl} ${cspSource} 'nonce-${nonce}';"
         />
     <style nonce="${nonce}">    
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; }
@@ -72,7 +73,7 @@ async function createWebview(state: ExtensionState): Promise<vscode.Webview> {
         <title>GenAIScript Script Runner</title>
         <meta
             http-equiv="Content-Security-Policy"
-            content="default-src 'none'; frame-src ${externalUrl} ${cspSource} https:; img-src ${externalUrl} ${cspSource} https:; script-src ${externalUrl} ${cspSource} 'nonce-${nonce}'; style-src ${externalUrl } ${cspSource} 'nonce-${nonce}';"
+            content="default-src 'none'; frame-src ${externalUrl} ${cspSource} https:; img-src ${externalUrl} ${cspSource} https:; script-src ${externalUrl} ${cspSource} 'nonce-${nonce}'; style-src ${externalUrl} ${cspSource} 'nonce-${nonce}';"
             />
         <link rel="icon" href="${faviconUri}" type="image/svg+xml" />
         <link href="${stylesheetUri}" rel="stylesheet">
@@ -89,15 +90,19 @@ async function createWebview(state: ExtensionState): Promise<vscode.Webview> {
     }
 
     panel.webview.html = html
-    return panel.webview
+    return panel
 }
 
 export function activeWebview(state: ExtensionState) {
     const { context } = state
     const { subscriptions } = context
+    let panel: vscode.WebviewPanel
     subscriptions.push(
         registerCommand("genaiscript.request.open.view", async () => {
-            await createWebview(state)
+            if (!panel) {
+                panel = await createWebview(state)
+                panel.onDidDispose(() => (panel = undefined))
+            } else panel.reveal()
         })
     )
 }
