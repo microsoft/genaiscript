@@ -288,13 +288,6 @@ export class NodeHost implements RuntimeHost {
             else if (provider === MODEL_PROVIDER_AZURE_SERVERLESS_MODELS)
                 throw new Error(`Azure AI Models not configured for ${modelId}`)
         }
-        if (!tok && this.clientLanguageModel) {
-            return <LanguageModelConfiguration>{
-                model: modelId,
-                provider: this.clientLanguageModel.id,
-                source: "client",
-            }
-        }
 
         return tok
     }
