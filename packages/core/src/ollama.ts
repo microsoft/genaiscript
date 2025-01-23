@@ -1,18 +1,11 @@
 // Import necessary modules and types for handling chat completions and model management
-import { LanguageModel, PullModelFunction } from "./chat"
+import { LanguageModel, ListModelsFunction, PullModelFunction } from "./chat"
 import { MODEL_PROVIDER_OLLAMA, TOOL_ID } from "./constants"
 import { serializeError } from "./error"
 import { createFetch, iterateBody } from "./fetch"
-import { parseModelIdentifier } from "./models"
 import { OpenAIChatCompletion } from "./openai"
-import { host } from "./host"
 import { logError, logVerbose } from "./util"
-import { TraceOptions } from "./trace"
-import { CancellationOptions } from "./cancellation"
-import {
-    LanguageModelConfiguration,
-    LanguageModelInfo,
-} from "./server/messages"
+import { LanguageModelInfo } from "./server/messages"
 import { JSONLTryParse } from "./jsonl"
 
 /**
@@ -22,36 +15,41 @@ import { JSONLTryParse } from "./jsonl"
  * @param cfg - The configuration for the language model.
  * @returns A promise that resolves to an array of LanguageModelInfo objects.
  */
-async function listModels(
-    cfg: LanguageModelConfiguration,
-    options: TraceOptions & CancellationOptions
-): Promise<LanguageModelInfo[]> {
-    // Create a fetch instance to make HTTP requests
-    const fetch = await createFetch({ retries: 0, ...options })
-    // Fetch the list of models from the remote API
-    const res = await fetch(cfg.base.replace("/v1", "/api/tags"), {
-        method: "GET",
-    })
-    if (res.status !== 200) return []
-    // Parse and format the response into LanguageModelInfo objects
-    const { models } = (await res.json()) as {
-        models: {
-            name: string
-            size: number
-            details: {
-                parameter_size: string
-                family: string
-            }
-        }[]
+const listModels: ListModelsFunction = async (cfg, options) => {
+    try {
+        // Create a fetch instance to make HTTP requests
+        const fetch = await createFetch({ retries: 0, ...options })
+        // Fetch the list of models from the remote API
+        const res = await fetch(cfg.base.replace("/v1", "/api/tags"), {
+            method: "GET",
+        })
+        if (res.status !== 200)
+            return { ok: false, status: res.status, error: res.statusText }
+        // Parse and format the response into LanguageModelInfo objects
+        const { models } = (await res.json()) as {
+            models: {
+                name: string
+                size: number
+                details: {
+                    parameter_size: string
+                    family: string
+                }
+            }[]
+        }
+        return {
+            ok: true,
+            models: models.map(
+                (m) =>
+                    ({
+                        id: m.name,
+                        details: `${m.name}, ${m.details.parameter_size}`,
+                        url: `https://ollama.com/library/${m.name}`,
+                    }) satisfies LanguageModelInfo
+            ),
+        }
+    } catch (e) {
+        return { ok: false, error: serializeError(e) }
     }
-    return models.map(
-        (m) =>
-            <LanguageModelInfo>{
-                id: m.name,
-                details: `${m.name}, ${m.details.parameter_size}`,
-                url: `https://ollama.com/library/${m.name}`,
-            }
-    )
 }
 
 const pullModel: PullModelFunction = async (cfg, options) => {

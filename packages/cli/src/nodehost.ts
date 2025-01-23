@@ -156,7 +156,11 @@ export class NodeHost implements RuntimeHost {
         }
 
         if (listModels) {
-            const models = await listModels(cfg, options)
+            const { ok, status, error, models } = await listModels(cfg, options)
+            if (!ok) {
+                logError(`${provider}: ${errorMessage(error)}`)
+                return { ok, status, error }
+            }
             if (models.find(({ id }) => id === model)) {
                 this.pulledModels.push(modelId)
                 return { ok: true }
@@ -165,7 +169,7 @@ export class NodeHost implements RuntimeHost {
 
         const res = await pullModel(cfg, options)
         if (res.ok) this.pulledModels.push(modelId)
-        else if (res.error) logError(res.error)
+        else if (res.error) logError(`${provider}: ${errorMessage(res.error)}`)
         return res
     }
 

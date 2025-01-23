@@ -83,6 +83,7 @@ import { renderWithPrecision } from "./precision"
 import {
     LanguageModelConfiguration,
     LanguageModelInfo,
+    ResponseStatus,
 } from "./server/messages"
 import { unfence } from "./unwrappers"
 import { fenceMD } from "./mkmd"
@@ -134,12 +135,14 @@ export type ChatCompletionHandler = (
 export type ListModelsFunction = (
     cfg: LanguageModelConfiguration,
     options: TraceOptions & CancellationOptions
-) => Promise<LanguageModelInfo[]>
+) => Promise<ResponseStatus & {
+    models?: LanguageModelInfo[]
+}>
 
 export type PullModelFunction = (
     cfg: LanguageModelConfiguration,
     options: TraceOptions & CancellationOptions
-) => Promise<{ ok: boolean; error?: SerializedError }>
+) => Promise<ResponseStatus>
 
 export type CreateTranscriptionRequest = {
     file: Blob

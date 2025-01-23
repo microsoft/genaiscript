@@ -383,7 +383,7 @@ export async function parseTokenFromEnv(
     if (provider === MODEL_PROVIDER_OLLAMA) {
         const host = ollamaParseHostVariable(env)
         const base = cleanApiBase(host)
-        return {
+        const cfg = {
             provider,
             model,
             base,
@@ -391,6 +391,7 @@ export async function parseTokenFromEnv(
             type: "openai",
             source: "env: OLLAMA_HOST",
         } satisfies LanguageModelConfiguration
+        return cfg
     }
 
     if (provider === MODEL_PROVIDER_HUGGINGFACE) {

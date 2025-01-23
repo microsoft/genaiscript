@@ -196,6 +196,7 @@ export async function resolveModelConnectionInfo(
             const res = await resolveModel(candidate, {
                 withToken: askToken,
                 reportError: false,
+                
             })
             if (!res.info.error && res.info.token) return res
         }
