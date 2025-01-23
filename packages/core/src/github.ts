@@ -485,7 +485,7 @@ const listModels: ListModelsFunction = async (cfg, options) => {
             return {
                 ok: false,
                 status: modelsRes.status,
-                error: modelsRes.statusText,
+                error: serializeError(modelsRes.statusText),
             }
 
         const models = (await modelsRes.json())

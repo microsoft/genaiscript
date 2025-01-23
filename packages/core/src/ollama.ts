@@ -24,7 +24,11 @@ const listModels: ListModelsFunction = async (cfg, options) => {
             method: "GET",
         })
         if (res.status !== 200)
-            return { ok: false, status: res.status, error: res.statusText }
+            return {
+                ok: false,
+                status: res.status,
+                error: serializeError(res.statusText),
+            }
         // Parse and format the response into LanguageModelInfo objects
         const { models } = (await res.json()) as {
             models: {
