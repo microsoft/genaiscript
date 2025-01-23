@@ -24,7 +24,7 @@ export async function createWebview(
     )
     context.subscriptions.push(panel)
     const cspSource = panel.webview.cspSource
-    const nonce = randomHex(48)
+    const nonce = randomHex(32)
 
     let html: string
     const web = vscode.env.uiKind === vscode.UIKind.Web
@@ -38,10 +38,10 @@ export async function createWebview(
     <title>GenAIScript View Holder</title>
     <meta http-equiv="Content-Security-Policy" content="
         default-src 'none'; 
-        frame-src ${cspUrl};"
-        style-src 'self' 'nonce-${nonce}';
-    />
-    <style nonce="${nonce}">    
+        frame-src ${cspUrl} ${cspSource} https://*.github.dev/ https://github.dev/;
+        style-src ${cspUrl} ${cspSource} https://*.github.dev/ https://github.dev/ 'nonce-${nonce}';
+    " />
+    <style nonce="${nonce}">
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; }
         iframe { width: 100%; height: 100%; border: none; }
     </style>
