@@ -16,6 +16,7 @@ import { CORE_VERSION } from "../../core/src/version"
 import { createChatModelRunner } from "./lmaccess"
 import { semverParse, semverSatisfies } from "../../core/src/semver"
 import { resolveCli } from "./config"
+import { deleteUndefinedValues } from "../../core/src/cleaners"
 
 function findRandomOpenPort() {
     return new Promise<number>((resolve, reject) => {
@@ -86,7 +87,9 @@ export class TerminalServerManager implements ServerManager {
     }
 
     private get url() {
-        return `${this.authority}?api-key=${encodeURIComponent(this.state.sessionApiKey)}`
+        return this.state.sessionApiKey
+            ? `${this.authority}?api-key=${encodeURIComponent(this.state.sessionApiKey)}`
+            : this.authority
     }
 
     private async allocatePort() {
@@ -103,7 +106,9 @@ export class TerminalServerManager implements ServerManager {
         ).toString()
         const externalUrl =
             authority +
-            `#api-key=${encodeURIComponent(this.state.sessionApiKey)}`
+            (this.state.sessionApiKey
+                ? `#api-key=${encodeURIComponent(this.state.sessionApiKey)}`
+                : "")
         logInfo(`client url: ${url}`)
         logVerbose(`client external url: ${externalUrl}`)
         const client = (this._client = new VsCodeClient(url, externalUrl))
@@ -152,9 +157,9 @@ export class TerminalServerManager implements ServerManager {
             cwd,
             isTransient: true,
             iconPath: new vscode.ThemeIcon(ICON_LOGO_NAME),
-            env: {
+            env: deleteUndefinedValues({
                 GENAISCRIPT_API_KEY: this.state.sessionApiKey,
-            },
+            }),
         })
         const { cliPath, cliVersion } = await resolveCli()
         if (cliPath)
