@@ -199,7 +199,10 @@ export async function resolveModelConnectionInfo(
                 withToken: askToken,
                 reportError: false,
             })
-            if (!res.info.error && res.info.token) return res
+            if (!res.info.error && res.info.token) {
+                logVerbose(`  resolved ${candidate}`)
+                return res
+            }
         }
         return {
             info: {
