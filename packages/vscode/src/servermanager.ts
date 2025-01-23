@@ -111,7 +111,11 @@ export class TerminalServerManager implements ServerManager {
                 : "")
         logInfo(`client url: ${url}`)
         logVerbose(`client external url: ${externalUrl}`)
-        const client = (this._client = new VsCodeClient(url, externalUrl))
+        const client = (this._client = new VsCodeClient(
+            url,
+            externalUrl,
+            authority
+        ))
         client.chatRequest = createChatModelRunner(this.state)
         client.addEventListener(OPEN, async () => {
             if (client !== this._client) return
