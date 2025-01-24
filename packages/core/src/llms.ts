@@ -1,4 +1,3 @@
-import { Model } from "@anthropic-ai/sdk/resources/index.mjs"
 import { LARGE_MODEL_ID, SMALL_MODEL_ID, VISION_MODEL_ID } from "./constants"
 import { ModelConfiguration, ModelConfigurations } from "./host"
 import LLMS from "./llms.json"
