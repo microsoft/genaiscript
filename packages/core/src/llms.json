@@ -218,7 +218,7 @@
             }
         },
         {
-            "id": "vscode",
+            "id": "github_copilot_chat",
             "detail": "GitHub Copilot Chat Models",
             "tools": false,
             "prediction": false,
