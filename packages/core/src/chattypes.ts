@@ -100,6 +100,9 @@ export type ChatCompletionUserMessageParam =
 export type ChatCompletionContentPartImage =
     OpenAI.Chat.Completions.ChatCompletionContentPartImage
 
+export type ChatCompletionContentPartInputAudio =
+    OpenAI.Chat.Completions.ChatCompletionContentPartInputAudio
+
 // Parameters for creating embeddings
 export type EmbeddingCreateParams = OpenAI.Embeddings.EmbeddingCreateParams
 

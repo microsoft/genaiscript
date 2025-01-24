@@ -10,6 +10,7 @@ import {
 } from "./constants"
 import {
     finalizeMessages,
+    PromptAudio,
     PromptImage,
     PromptPrediction,
     renderPromptNode,
@@ -50,6 +51,7 @@ export async function callExpander(
     let logs = ""
     let messages: ChatCompletionMessageParam[] = []
     let images: PromptImage[] = []
+    let audios: PromptAudio[] = []
     let schemas: Record<string, JSONSchema> = {}
     let functions: ToolCallback[] = []
     let fileMerges: FileMergeHandler[] = []
@@ -82,6 +84,7 @@ export async function callExpander(
             const {
                 messages: msgs,
                 images: imgs,
+                audios: auds,
                 errors,
                 schemas: schs,
                 functions: fns,
@@ -98,6 +101,7 @@ export async function callExpander(
             })
             messages = msgs
             images = imgs
+            audios = auds
             schemas = schs
             functions = fns
             fileMerges = fms
@@ -136,6 +140,7 @@ export async function callExpander(
         statusText,
         messages,
         images,
+        audios,
         schemas,
         functions: Object.freeze(functions),
         fileMerges,
@@ -247,6 +252,7 @@ export async function expandTemplate(
 
     const { status, statusText, messages } = prompt
     const images = prompt.images.slice(0)
+    const audios = prompt.audios.slice(0)
     const schemas = structuredClone(prompt.schemas)
     const tools = prompt.functions.slice(0)
     const fileMerges = prompt.fileMerges.slice(0)
@@ -279,8 +285,8 @@ export async function expandTemplate(
         }
     }
 
-    if (prompt.images?.length)
-        messages.push(toChatCompletionUserMessage("", prompt.images))
+    if (images?.length || audios?.length)
+        messages.push(toChatCompletionUserMessage("", images, audios))
     if (prompt.aici) messages.push(prompt.aici)
 
     const addSystemMessage = (content: string) => {
@@ -314,6 +320,7 @@ export async function expandTemplate(
             const sysr = await callExpander(prj, system, env, trace, options)
 
             if (sysr.images) images.push(...sysr.images)
+            if (sysr.audios) audios.push(...sysr.audios)
             if (sysr.schemas) Object.assign(schemas, sysr.schemas)
             if (sysr.functions) tools.push(...sysr.functions)
             if (sysr.fileMerges) fileMerges.push(...sysr.fileMerges)
@@ -394,6 +401,7 @@ ${schemaTs}
         cache,
         messages,
         images,
+        audios,
         schemas,
         tools,
         status: <GenerationStatus>status,

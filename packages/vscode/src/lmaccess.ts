@@ -55,6 +55,11 @@ function messagesToChatMessages(messages: ChatCompletionMessageParam[]) {
                     m.content.some((c) => c.type === "image_url")
                 )
                     throw new Error("Vision model not supported")
+                if (
+                    Array.isArray(m.content) &&
+                    m.content.some((c) => c.type === "input_audio")
+                )
+                    throw new Error("Ayudiuo model not supported")
                 return vscode.LanguageModelChatMessage.User(
                     renderMessageContent(m),
                     "genaiscript"

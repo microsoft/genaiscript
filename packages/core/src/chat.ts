@@ -1,6 +1,11 @@
 // cspell: disable
 import { MarkdownTrace, TraceOptions } from "./trace"
-import { PromptImage, PromptPrediction, renderPromptNode } from "./promptdom"
+import {
+    PromptAudio,
+    PromptImage,
+    PromptPrediction,
+    renderPromptNode,
+} from "./promptdom"
 import { host, runtimeHost } from "./host"
 import { GenerationOptions } from "./generation"
 import { dispose } from "./dispose"
@@ -46,6 +51,7 @@ import { parseModelIdentifier, traceLanguageModelConnection } from "./models"
 import {
     ChatCompletionAssistantMessageParam,
     ChatCompletionContentPartImage,
+    ChatCompletionContentPartInputAudio,
     ChatCompletionMessageParam,
     ChatCompletionResponse,
     ChatCompletionsOptions,
@@ -95,9 +101,11 @@ import { deleteUndefinedValues } from "./cleaners"
 
 export function toChatCompletionUserMessage(
     expanded: string,
-    images?: PromptImage[]
+    images?: PromptImage[],
+    audios?: PromptAudio[]
 ): ChatCompletionUserMessageParam {
     const imgs = images?.filter(({ url }) => url) || []
+    const auds = audios?.filter(({ data }) => data) || []
     if (imgs.length)
         return <ChatCompletionUserMessageParam>{
             role: "user",
@@ -108,13 +116,23 @@ export function toChatCompletionUserMessage(
                 },
                 ...imgs.map(
                     ({ url, detail }) =>
-                        <ChatCompletionContentPartImage>{
+                        ({
                             type: "image_url",
                             image_url: {
                                 url,
                                 detail,
                             },
-                        }
+                        }) satisfies ChatCompletionContentPartImage
+                ),
+                ...auds.map(
+                    ({ data, format }) =>
+                        ({
+                            type: "input_audio",
+                            input_audio: {
+                                data,
+                                format,
+                            },
+                        }) satisfies ChatCompletionContentPartInputAudio
                 ),
             ],
         }
@@ -135,9 +153,11 @@ export type ChatCompletionHandler = (
 export type ListModelsFunction = (
     cfg: LanguageModelConfiguration,
     options: TraceOptions & CancellationOptions
-) => Promise<ResponseStatus & {
-    models?: LanguageModelInfo[]
-}>
+) => Promise<
+    ResponseStatus & {
+        models?: LanguageModelInfo[]
+    }
+>
 
 export type PullModelFunction = (
     cfg: LanguageModelConfiguration,
