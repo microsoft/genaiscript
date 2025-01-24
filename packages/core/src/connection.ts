@@ -9,7 +9,7 @@ import {
     MODEL_PROVIDER_ANTHROPIC,
     MODEL_PROVIDER_AZURE_OPENAI,
     MODEL_PROVIDER_AZURE_SERVERLESS_MODELS,
-    MODEL_PROVIDER_CLIENT,
+    MODEL_PROVIDER_GITHUB_COPILOT_CHAT,
     MODEL_PROVIDER_GITHUB,
     MODEL_PROVIDER_LITELLM,
     MODEL_PROVIDER_LLAMAFILE,
@@ -538,12 +538,15 @@ export async function parseTokenFromEnv(
         }
     }
 
-    if (provider === MODEL_PROVIDER_CLIENT && runtimeHost.clientLanguageModel) {
+    if (
+        provider === MODEL_PROVIDER_GITHUB_COPILOT_CHAT &&
+        runtimeHost.clientLanguageModel
+    ) {
         return {
             provider,
             model,
             base: undefined,
-            token: "client",
+            token: MODEL_PROVIDER_GITHUB_COPILOT_CHAT,
         }
     }
 

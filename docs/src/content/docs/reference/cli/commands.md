@@ -16,7 +16,7 @@ Usage: genaiscript run [options] <script> [files...]
 Runs a GenAIScript against files.
 
 Options:
-  -p, --provider <string>                    Preferred LLM provider aliases (choices: "openai", "azure", "azure_serverless", "azure_serverless_models", "anthropic", "anthropic_bedrock", "google", "huggingface", "mistral", "alibaba", "github", "deepseek", "transformers", "ollama", "lmstudio", "jan", "llamafile", "litellm", "whisperasr")
+  -p, --provider <string>                    Preferred LLM provider aliases (choices: "openai", "azure", "azure_serverless", "azure_serverless_models", "anthropic", "anthropic_bedrock", "google", "huggingface", "mistral", "alibaba", "github", "deepseek", "transformers", "ollama", "lmstudio", "jan", "llamafile", "litellm", "whisperasr", "vscode")
   -m, --model <string>                       'large' model alias (default)
   -sm, --small-model <string>                'small' alias model
   -vm, --vision-model <string>               'vision' alias model
@@ -95,7 +95,7 @@ Options:
                                       "huggingface", "mistral", "alibaba",
                                       "github", "deepseek", "transformers",
                                       "ollama", "lmstudio", "jan", "llamafile",
-                                      "litellm", "whisperasr")
+                                      "litellm", "whisperasr", "vscode")
   -m, --model <string>                'large' model alias (default)
   -sm, --small-model <string>         'small' alias model
   -vm, --vision-model <string>        'vision' alias model
