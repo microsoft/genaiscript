@@ -10,6 +10,7 @@ import { FileTree } from "@astrojs/starlight/components"
 import { Steps } from "@astrojs/starlight/components"
 import { Tabs, TabItem } from "@astrojs/starlight/components"
 import { Image } from "astro:assets"
+import { YouTube } from "astro-embed"
 import LLMProviderFeatures from "../../../components/LLMProviderFeatures.astro"
 
 import lmSrc from "../../../assets/vscode-language-models.png"
@@ -272,6 +273,8 @@ script({ model: "github:gpt-4o" })
 ```
 
 **If you are running from a [GitHub Codespace](https://github.com/features/codespaces), the token is already configured for you.**
+
+<YouTube id="Wya3MQRIbmE" posterQuality="high" />
 
 <Steps>
 
@@ -594,7 +597,6 @@ The resources created by Azure AI Foundry are not visible by default in the Azur
 To make them visible, open [All resources](https://portal.azure.com/#browse/all), click **Manage view**
 and select **Show hidden types**.
 
-
 :::
 
 <Steps>
@@ -837,6 +839,8 @@ and have additional limitations and rate limiting defined by the GitHub Copilot 
 
 There is no configuration needed as long as you have GitHub Copilot installed and configured in Visual Studio Code.
 You can force using this model by using `github_copilot_chat:*` as a model name.
+
+<YouTube id="LRrVMiZgWJg" posterQuality="high" />
 
 <Steps>
 
