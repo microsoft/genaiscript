@@ -85,8 +85,14 @@ async function githubGetPullRequestNumber() {
             label: "resolve current pull request number",
         }
     )
+    if (res.failed) {
+        logVerbose(res.stderr)
+        return undefined
+    }
     const resj = JSON5TryParse(res.stdout) as { number: number }
-    return resj?.number
+    const id = resj?.number
+    logVerbose(`pull request number: ${isNaN(id) ? "not found" : id}`)
+    return id
 }
 
 export async function githubParseEnv(
@@ -104,23 +110,26 @@ export async function githubParseEnv(
         }
         if (!isNaN(options?.issue)) res.issue = options.issue
         if (!res.owner || !res.repo || !res.repository) {
-            const { name: repo, owner } = JSON.parse(
-                (
-                    await runtimeHost.exec(
-                        undefined,
-                        "gh",
-                        ["repo", "view", "--json", "url,name,owner"],
-                        {}
-                    )
-                ).stdout
+            const repoInfo = await runtimeHost.exec(
+                undefined,
+                "gh",
+                ["repo", "view", "--json", "url,name,owner"],
+                {}
             )
-            res.repo = repo
-            res.owner = owner.login
-            res.repository = res.owner + "/" + res.repo
+            if (repoInfo.failed) {
+                logVerbose(repoInfo.stderr)
+            } else if (!repoInfo.failed) {
+                const { name: repo, owner } = JSON.parse(repoInfo.stdout)
+                res.repo = repo
+                res.owner = owner.login
+                res.repository = res.owner + "/" + res.repo
+            }
         }
         if (isNaN(res.issue) && options?.resolveIssue)
             res.issue = await githubGetPullRequestNumber()
-    } catch (e) {}
+    } catch (e) {
+        logVerbose(errorMessage(e))
+    }
     return Object.freeze(res)
 }
 
