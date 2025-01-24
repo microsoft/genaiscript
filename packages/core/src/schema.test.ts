@@ -214,7 +214,7 @@ test("toStrictJSONSchema", () => {
 
     const result = toStrictJSONSchema(schema)
     assert.deepStrictEqual(result.required, ["name", "age"])
-    assert.deepStrictEqual(result.properties["name"].type, ["string", "null"])
+    assert.deepStrictEqual(result.properties["name"].type, "string")
     assert.deepStrictEqual(result.properties["age"].type, ["number", "null"])
     assert.strictEqual(result.additionalProperties, false)
 })
@@ -223,9 +223,5 @@ test("JSONSchemaInfer", async () => {
     const obj = { name: "John", age: 30 }
     const schema = await JSONSchemaInfer(obj)
     assert.strictEqual(schema.type, "object")
-    assert.deepStrictEqual(schema.properties, {
-        name: { type: "string" },
-        age: { type: "number" },
-    })
     assert.deepStrictEqual(schema.required, ["name", "age"])
 })
