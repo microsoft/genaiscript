@@ -406,7 +406,7 @@ export async function parseTokenFromEnv(
             token: token?.value,
             provider,
             model,
-            type: "openai",
+            type: "huggingface",
             source: "env: HUGGINGFACE_API_...",
         } satisfies LanguageModelConfiguration
     }

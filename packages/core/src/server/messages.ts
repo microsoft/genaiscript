@@ -17,6 +17,7 @@ export type OpenAIAPIType =
     | "azure_serverless"
     | "azure_serverless_models"
     | "alibaba"
+    | "huggingface"
 
 export type AzureCredentialsType =
     | "default"

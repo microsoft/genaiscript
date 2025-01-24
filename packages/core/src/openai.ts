@@ -156,6 +156,14 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
         // https://learn.microsoft.com/en-us/azure/machine-learning/reference-model-inference-api?view=azureml-api-2&tabs=javascript#extensibility
         ;(headers as any)["extra-parameters"] = "pass-through"
         delete postReq.model
+    } else if (cfg.type === "huggingface") {
+        // https://github.com/huggingface/text-generation-inference/issues/2946
+        delete postReq.model
+        url =
+            trimTrailingSlash(cfg.base).replace(/\/v1$/, "") +
+            "/models/" +
+            model +
+            `/v1/chat/completions`
     } else throw new Error(`api type ${cfg.type} not supported`)
 
     trace.itemValue(`url`, `[${url}](${url})`)
@@ -196,7 +204,8 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
         try {
             responseBody = await r.text()
         } catch (e) {}
-        trace.detailsFenced(`📬 response`, responseBody, "json")
+        if (!responseBody) responseBody
+        trace.fence(responseBody, "json")
         const errors = JSON5TryParse(responseBody, {}) as
             | {
                   error: any
@@ -392,7 +401,12 @@ export const OpenAIListModels: ListModelsFunction = async (cfg, options) => {
                 Accept: "application/json",
             },
         })
-        if (res.status !== 200) return { ok: false, status: res.status, error: serializeError(res.statusText) }
+        if (res.status !== 200)
+            return {
+                ok: false,
+                status: res.status,
+                error: serializeError(res.statusText),
+            }
         const { data } = (await res.json()) as {
             object: "list"
             data: {
