@@ -34,10 +34,7 @@ import { HttpsProxyAgent } from "https-proxy-agent"
 import { MarkdownTrace } from "./trace"
 import { createFetch, FetchType } from "./fetch"
 import { JSONLLMTryParse } from "./json5"
-import {
-    LanguageModelConfiguration,
-    LanguageModelInfo,
-} from "./server/messages"
+import { LanguageModelConfiguration } from "./server/messages"
 import { deleteUndefinedValues } from "./cleaners"
 
 const convertFinishReason = (

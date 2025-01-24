@@ -1206,7 +1206,7 @@ const json = `[
   }
 ]`
 const query = "filter to keep completed tasks and userid 2"
-const schema = JSONSchema.infer(JSON.parse(json))
+const schema = await JSONSchema.infer(JSON.parse(json))
 
 const res = await runPrompt(
     (ctx) => {
