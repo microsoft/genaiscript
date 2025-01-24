@@ -1,14 +1,5 @@
 {
-    "cSpell.words": [
-        "frontmatter",
-        "genaiscript",
-        "openai",
-        "outputfilename"
-    ],
+    "cSpell.words": ["frontmatter", "genaiscript", "openai", "outputfilename"],
     "genaiscript.cli.path": "../cli/built/genaiscript.cjs",
-    "genaiscript.languageChatModels": {
-        "client:gpt-4": "gpt-4",
-        "client:gpt-4o": "gpt-4o",
-        "client:*": "github.copilot-chat/2/gpt-4"
-    }
+    "genaiscript.languageChatModels": {}
 }

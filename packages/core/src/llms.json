@@ -218,8 +218,8 @@
             }
         },
         {
-            "id": "client",
-            "detail": "GitHub Copilot Chat Modes",
+            "id": "github_copilot_chat",
+            "detail": "GitHub Copilot Chat Models",
             "tools": false,
             "prediction": false,
             "tokenless": true,

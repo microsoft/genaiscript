@@ -8,7 +8,7 @@ import {
     TRACE_CHUNK,
     USER_CANCELLED_ERROR_CODE,
     UNHANDLED_ERROR_CODE,
-    MODEL_PROVIDER_CLIENT,
+    MODEL_PROVIDER_GITHUB_COPILOT_CHAT,
 } from "../../core/src/constants"
 import { isCancelError, serializeError } from "../../core/src/error"
 import { host, runtimeHost } from "../../core/src/host"
@@ -203,7 +203,7 @@ export async function startServer(options: {
 
     // Configures the client language model with a completer function.
     runtimeHost.clientLanguageModel = Object.freeze<LanguageModel>({
-        id: MODEL_PROVIDER_CLIENT,
+        id: MODEL_PROVIDER_GITHUB_COPILOT_CHAT,
         completer: async (
             req: CreateChatCompletionRequest,
             connection: LanguageModelConfiguration,
@@ -212,7 +212,8 @@ export async function startServer(options: {
         ): Promise<ChatCompletionResponse> => {
             const { messages, model } = req
             const { partialCb, inner } = options
-            if (!wss.clients?.size) throw new Error("no llm clients connected")
+            if (!wss.clients?.size)
+                throw new Error("GitHub Copilot Chat Models not connected")
 
             return new Promise<ChatCompletionResponse>((resolve, reject) => {
                 let responseSoFar: string = ""
