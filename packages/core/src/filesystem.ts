@@ -9,9 +9,10 @@ import { readText, writeText } from "./fs"
 import { host } from "./host"
 import { INITryParse } from "./ini"
 import { JSON5TryParse } from "./json5"
-import { arrayify, logVerbose } from "./util"
+import { arrayify, dotGenaiscriptPath, logVerbose } from "./util"
 import { XMLTryParse } from "./xml"
 import { YAMLTryParse } from "./yaml"
+import { fileWriteCached } from "./filecache"
 
 export function createFileSystem(): Omit<WorkspaceFileSystem, "grep"> {
     const fs = {
@@ -110,6 +111,11 @@ export function createFileSystem(): Omit<WorkspaceFileSystem, "grep"> {
         cache: async (name: string) => {
             if (!name) throw new NotSupportedError("missing cache name")
             const res = JSONLineCache.byName<any, any>(name)
+            return res
+        },
+        writeCached: async (bufferOrFile) => {
+            const dir = dotGenaiscriptPath("cache", "files")
+            const res = await fileWriteCached(bufferOrFile, dir)
             return res
         },
         stat: async (filename: string) => {

@@ -984,6 +984,12 @@ interface WorkspaceFileSystem {
     writeText(path: string, content: string): Promise<void>
 
     /**
+     * Caches a buffer to file and returns the unique file name
+     * @param bytes
+     */
+    writeCached(bytes: BufferLike): Promise<string>
+
+    /**
      * Opens a file-backed key-value cache for the given cache name.
      * The cache is persisted across runs of the script. Entries are dropped when the cache grows too large.
      * @param cacheName

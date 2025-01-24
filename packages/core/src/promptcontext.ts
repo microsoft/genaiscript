@@ -63,6 +63,7 @@ export async function createPromptContext(
         readINI: (f, o) => runtimeHost.workspace.readINI(f, o),
         readData: (f, o) => runtimeHost.workspace.readData(f, o),
         writeText: (f, c) => runtimeHost.workspace.writeText(f, c),
+        writeCached: (f) => runtimeHost.workspace.writeCached(f),
         cache: (n) => runtimeHost.workspace.cache(n),
         findFiles: async (pattern, options) => {
             // Log and find files matching the given pattern
