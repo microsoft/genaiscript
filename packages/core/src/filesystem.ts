@@ -14,7 +14,10 @@ import { XMLTryParse } from "./xml"
 import { YAMLTryParse } from "./yaml"
 import { fileWriteCached } from "./filecache"
 
-export function createFileSystem(): Omit<WorkspaceFileSystem, "grep"> {
+export function createFileSystem(): Omit<
+    WorkspaceFileSystem,
+    "grep" | "writeCached"
+> {
     const fs = {
         findFiles: async (glob: string, options: FindFilesOptions) => {
             const { readText, ignore } = options || {}
@@ -113,11 +116,6 @@ export function createFileSystem(): Omit<WorkspaceFileSystem, "grep"> {
             const res = JSONLineCache.byName<any, any>(name)
             return res
         },
-        writeCached: async (bufferOrFile) => {
-            const dir = dotGenaiscriptPath("cache", "files")
-            const res = await fileWriteCached(bufferOrFile, dir)
-            return res
-        },
         stat: async (filename: string) => {
             try {
                 const res = await stat(filename)
@@ -129,7 +127,7 @@ export function createFileSystem(): Omit<WorkspaceFileSystem, "grep"> {
                 return undefined
             }
         },
-    } satisfies Omit<WorkspaceFileSystem, "grep">
+    } satisfies Omit<WorkspaceFileSystem, "grep" | "writeCached">
     ;(fs as any).readFile = readText
     return Object.freeze(fs)
 }

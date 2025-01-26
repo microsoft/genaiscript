@@ -987,7 +987,10 @@ interface WorkspaceFileSystem {
      * Caches a buffer to file and returns the unique file name
      * @param bytes
      */
-    writeCached(bytes: BufferLike): Promise<string>
+    writeCached(
+        bytes: BufferLike,
+        options?: { scope?: "workspace" | "run" }
+    ): Promise<string>
 
     /**
      * Opens a file-backed key-value cache for the given cache name.
