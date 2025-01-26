@@ -15,7 +15,7 @@ import { YAMLStringify } from "./yaml"
 import { errorMessage, serializeError } from "./error"
 import prettyBytes from "pretty-bytes"
 import { host } from "./host"
-import { dotGenaiscriptPath, ellipse, toStringList } from "./util"
+import { ellipse, toStringList } from "./util"
 import { estimateTokens } from "./tokens"
 import { renderWithPrecision } from "./precision"
 import { fenceMD } from "./mkmd"
@@ -43,7 +43,7 @@ export class TraceChunkEvent extends Event {
 }
 
 export class MarkdownTrace extends EventTarget implements OutputTrace {
-    filesDir: string = dotGenaiscriptPath("cache", "files")
+    filesDir: string
     readonly _errors: { message: string; error: SerializedError }[] = []
     private detailsDepth = 0
     private _content: (string | MarkdownTrace)[] = []
