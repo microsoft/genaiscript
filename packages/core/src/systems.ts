@@ -4,9 +4,9 @@
 
 import { uniq } from "es-toolkit"
 import { arrayify } from "./util"
-import { GenerationOptions } from "./generation"
+import type { GenerationOptions } from "./generation"
 import { isToolsSupported } from "./tools"
-import { Project } from "./server/messages"
+import type { Project } from "./server/messages"
 
 /**
  * Function to resolve and return a list of systems based on the provided script and project.

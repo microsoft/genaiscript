@@ -1,5 +1,6 @@
 import { normalizeFloat, normalizeInt, normalizeVarKey } from "./cleaners"
 import type { Project } from "./server/messages"
+import { resolveSystems } from "./systems"
 
 function isJSONSchema(obj: any) {
     if (typeof obj === "object" && obj.type === "object") return true
@@ -99,7 +100,7 @@ export function parsePromptParameters(
         ...(script.parameters || {}),
     }
     for (const system of resolveSystems(prj, script)
-        .map((s) => prj?.scripts?.find((t) => t.id == s.id))
+        .map((sid) => prj?.scripts?.find((t) => t.id == sid))
         .filter((t) => t?.parameters)) {
         Object.entries(system.parameters).forEach(([k, v]) => {
             parameters[`${system.id}.${k}`] = v

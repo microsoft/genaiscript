@@ -1,7 +1,8 @@
+import { normalizeInt } from "../../core/src/cleaners"
 import { resolveFileContents } from "../../core/src/file"
 import { expandFiles } from "../../core/src/fs"
 import { fuzzSearch } from "../../core/src/fuzzsearch"
-import { dotGenaiscriptPath, normalizeInt } from "../../core/src/util"
+import { dotGenaiscriptPath } from "../../core/src/util"
 import { vectorSearch } from "../../core/src/vectorsearch"
 import { YAMLStringify } from "../../core/src/yaml"
 
