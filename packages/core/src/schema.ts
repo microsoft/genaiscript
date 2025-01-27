@@ -1,4 +1,5 @@
 // Import necessary modules and functions
+/// <reference path="./json-schema-generator.d.ts" />
 import { JSON5parse } from "./json5"
 import { MarkdownTrace } from "./trace"
 import Ajv from "ajv"
@@ -345,9 +346,10 @@ export function toStrictJSONSchema(
     return clone
 }
 
-
 export async function JSONSchemaInfer(obj: any): Promise<JSONSchema> {
-    const { default: jsonToSchema } = await import("json-schema-generator")
+    const { default: jsonToSchema } = await import(
+        "@stoplight/json-schema-generator"
+    )
     const schema = jsonToSchema(obj)
     return schema as JSONSchema
 }
