@@ -22,7 +22,7 @@ export async function resolveTokenEncoder(
     const { model } = parseModelIdentifier(modelId)
     const module = model.toLowerCase() // Assign model to module for dynamic import path
 
-    const { modelEncodings } = runtimeHost.config
+    const { modelEncodings } = runtimeHost?.config || {}
     const encoding = modelEncodings?.[modelId] || module
 
     const encoderOptions = {
