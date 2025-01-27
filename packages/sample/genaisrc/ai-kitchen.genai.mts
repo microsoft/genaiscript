@@ -50,6 +50,7 @@ const listPage = await host.browse(
     "https://learn.microsoft.com/en-us/shows/mr-maedas-cozy-ai-kitchen/",
     { incognito: true }
 )
+await delay(2000)
 const hrefs = uniq(
     await listPage
         .locator(
@@ -61,7 +62,7 @@ const hrefs = uniq(
 )
 // load the first 10
 const articles = []
-for (const href of hrefs.slice(0, 10)) {
+for (const href of hrefs.slice(0, 8)) {
     await listPage.goto(href)
     console.debug(`scrapping ${href}`)
     const title = await listPage
@@ -80,7 +81,7 @@ const transcript = await transcribe(videoFile, {
 })
 // screnshot images
 const frames = await ffmpeg.extractFrames(videoFile, {
-    sceneThreshold: 0.15,
+    sceneThreshold: 0.3,
     cache: "ai-kitchen",
 })
 

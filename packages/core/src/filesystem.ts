@@ -12,7 +12,6 @@ import { JSON5TryParse } from "./json5"
 import { arrayify, dotGenaiscriptPath, logVerbose } from "./util"
 import { XMLTryParse } from "./xml"
 import { YAMLTryParse } from "./yaml"
-import { fileWriteCached } from "./filecache"
 
 export function createFileSystem(): Omit<
     WorkspaceFileSystem,
