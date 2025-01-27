@@ -59,6 +59,10 @@ export async function resolveGlobalConfiguration(
                         config?.modelAliases || {},
                         parsed?.modelAliases || {}
                     ),
+                    modelEncodings: structuralMerge(
+                        config?.modelEncodings || {},
+                        parsed?.modelEncodings || {}
+                    ),
                 })
             }
         }

@@ -144,7 +144,18 @@ export interface RuntimeHost extends Host {
         value: string | Omit<ModelConfiguration, "source">
     ): void
 
+    /**
+     * Reloads the configuration
+     */
     readConfig(): Promise<HostConfiguration>
+    /**
+     * Gets the current loaded configuration
+     */
+    get config(): HostConfiguration
+    /**
+     * Reads a secret
+     * @param name
+     */
     readSecret(name: string): Promise<string | undefined>
     // executes a process
     exec(

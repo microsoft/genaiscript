@@ -38,7 +38,7 @@ import {
     ModelConfiguration,
 } from "../../core/src/host"
 import { TraceOptions } from "../../core/src/trace"
-import { logError, logVerbose } from "../../core/src/util"
+import { assert, logError, logVerbose } from "../../core/src/util"
 import { parseModelIdentifier } from "../../core/src/models"
 import { LanguageModel } from "../../core/src/chat"
 import { errorMessage, NotSupportedError } from "../../core/src/error"
@@ -92,6 +92,7 @@ export class NodeHost implements RuntimeHost {
         script: {},
         config: {},
     }
+    private _config: HostConfiguration
     readonly userInputQueue = new PLimitPromiseQueue(1)
     readonly azureToken: AzureTokenResolver
     readonly azureServerlessToken: AzureTokenResolver
@@ -195,7 +196,12 @@ export class NodeHost implements RuntimeHost {
             if (res.error) throw res.error
         }
         await parseDefaultsFromEnv(process.env)
-        return config
+        return (this._config = config)
+    }
+
+    get config() {
+        assert(!!this._config, "Host configuration not loaded")
+        return this._config
     }
 
     static async install(dotEnvPath?: string) {
