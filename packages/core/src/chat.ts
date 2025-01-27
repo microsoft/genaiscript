@@ -135,9 +135,11 @@ export type ChatCompletionHandler = (
 export type ListModelsFunction = (
     cfg: LanguageModelConfiguration,
     options: TraceOptions & CancellationOptions
-) => Promise<ResponseStatus & {
-    models?: LanguageModelInfo[]
-}>
+) => Promise<
+    ResponseStatus & {
+        models?: LanguageModelInfo[]
+    }
+>
 
 export type PullModelFunction = (
     cfg: LanguageModelConfiguration,
@@ -1026,6 +1028,7 @@ export async function executeChatSession(
                             infer,
                             validator
                         )
+                        logVerbose("\n")
                         resp = cacheRes.value
                         resp.cached = cacheRes.cached
                         reqTrace.itemValue("cache", cacheStore.name)

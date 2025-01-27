@@ -869,12 +869,12 @@ async function resolveImportPrompty(
         else throw new Error(msg)
     }
     if (parameters) {
-        const missing = Object.keys(parameters).find(
+        const missings = Object.keys(parameters).filter(
             (p) => args[p] === undefined
         )
-        if (missing)
+        if (missings.length > 0)
             throw new Error(
-                `Missing input argument for '${missing[0]}' in ${f.filename}`
+                `Missing input argument for '${missings.join(", ")}' in ${f.filename}`
             )
     }
 
