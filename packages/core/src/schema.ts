@@ -349,6 +349,6 @@ export async function JSONSchemaInfer(obj: any): Promise<JSONSchema> {
     const { default: jsonToSchema } = await import(
         "@stoplight/json-schema-generator"
     )
-    const schema = jsonToSchema(obj)    console.log({ obj, jsonToSchema, schema })
+    const schema = jsonToSchema(obj)
     return schema as JSONSchema
 }
