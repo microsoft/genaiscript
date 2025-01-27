@@ -3731,6 +3731,11 @@ interface BrowserLocatorSelector {
  */
 interface BrowserLocator extends BrowserLocatorSelector {
     /**
+     * When the locator points to a list of elements, this returns an array of locators, pointing to their respective elements.
+     * locator.all() does not wait for elements to match the locator, and instead immediately returns whatever is present in the page.
+     */
+    all(): Promise<BrowserLocator[]>
+    /**
      * Click an element
      * @link https://playwright.dev/docs/api/class-locator#locator-click
      */
