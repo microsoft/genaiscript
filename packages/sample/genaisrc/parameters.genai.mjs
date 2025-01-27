@@ -2,6 +2,7 @@ script({
     accept: ".txt,.md,.pdf",
     files: "src/*",
     model: "small",
+    tools: "agent_fs",
     parameters: {
         string: "abc",
         number: 123,

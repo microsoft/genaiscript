@@ -1,9 +1,10 @@
 import { resolveScript } from "./ast"
 import { resolveSystems } from "./systems"
-import { logError, normalizeFloat, normalizeInt } from "./util"
+import { logError } from "./util"
 import { YAMLStringify } from "./yaml"
 import { Project } from "./server/messages"
 import { promptParameterTypeToJSONSchema } from "./parameters"
+import { normalizeFloat, normalizeInt, normalizeVarKey } from "./cleaners"
 
 export function parsePromptParameters(
     prj: Project,
@@ -103,10 +104,6 @@ export function proxifyVars(res: PromptParameters) {
         },
     })
     return varsProxy
-}
-
-function normalizeVarKey(key: string) {
-    return key.toLowerCase().replace(/[^a-z0-9\.]/g, "")
 }
 
 export function parametersToVars(parameters: PromptParameters): string[] {

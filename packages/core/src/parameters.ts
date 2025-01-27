@@ -1,3 +1,6 @@
+import { normalizeFloat, normalizeInt, normalizeVarKey } from "./cleaners"
+import type { Project } from "./server/messages"
+
 function isJSONSchema(obj: any) {
     if (typeof obj === "object" && obj.type === "object") return true
     if (typeof obj === "object" && obj.type === "array") return true
@@ -80,4 +83,68 @@ export function promptParametersSchemaToJSONSchema(
             res.required.push(k)
     }
     return res satisfies JSONSchemaObject
+}
+
+export function promptScriptParametersSchema(script: PromptScript) {}
+
+export function parsePromptParameters(
+    prj: Project,
+    script: PromptScript,
+    optionsVars: Record<string, string | number | boolean | object>
+): PromptParameters {
+    const res: PromptParameters = {}
+
+    // create the mega parameter structure
+    const parameters: PromptParameters = {
+        ...(script.parameters || {}),
+    }
+    for (const system of resolveSystems(prj, script)
+        .map((s) => prj?.scripts?.find((t) => t.id == s.id))
+        .filter((t) => t?.parameters)) {
+        Object.entries(system.parameters).forEach(([k, v]) => {
+            parameters[`${system.id}.${k}`] = v
+        })
+    }
+
+    // apply defaults
+    for (const key in parameters || {}) {
+        const p = parameters[key] as any
+        if (p.default !== undefined) res[key] = structuredClone(p.default)
+        else {
+            const t = promptParameterTypeToJSONSchema(p)
+            if (t.default !== undefined) res[key] = structuredClone(t.default)
+        }
+    }
+
+    const vars = {
+        ...(script.vars || {}),
+        ...(optionsVars || {}),
+    }
+    // override with user parameters
+    for (const key in vars) {
+        const p = parameters[key]
+        if (!p) {
+            res[key] = vars[key]
+            continue
+        }
+
+        const t = promptParameterTypeToJSONSchema(p)
+        if (t?.type === "number") res[key] = normalizeFloat(vars[key])
+        else if (t?.type === "integer") res[key] = normalizeInt(vars[key])
+        else if (t?.type === "boolean")
+            res[key] = /^\s*(y|yes|true|ok)\s*$/i.test(vars[key] + "")
+        else if (t?.type === "string") res[key] = vars[key]
+    }
+
+    // clone res to all lower case
+    for (const key of Object.keys(res)) {
+        const nkey = normalizeVarKey(key)
+        if (nkey !== key) {
+            if (res[nkey] !== undefined)
+                throw new Error(`duplicate parameter ${key} (${nkey})`)
+            res[nkey] = res[key]
+            delete res[key]
+        }
+    }
+    return Object.freeze(res)
 }

@@ -1,5 +1,5 @@
 import { resolveScript } from "./ast"
-import { assert, normalizeFloat, normalizeInt } from "./util"
+import { assert } from "./util"
 import { MarkdownTrace } from "./trace"
 import { errorMessage, isCancelError, NotSupportedError } from "./error"
 import {
@@ -32,6 +32,7 @@ import { AICIRequest, ChatCompletionMessageParam } from "./chattypes"
 import { promptParametersSchemaToJSONSchema } from "./parameters"
 import { GenerationStatus, Project } from "./server/messages"
 import { dispose } from "./dispose"
+import { normalizeFloat, normalizeInt } from "./cleaners"
 
 export async function callExpander(
     prj: Project,

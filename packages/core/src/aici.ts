@@ -8,7 +8,7 @@ import {
     ListModelsFunction,
 } from "./chat"
 import { PromptNode, visitNode } from "./promptdom"
-import { fromHex, logError, normalizeInt, utf8Decode } from "./util"
+import { fromHex, logError, utf8Decode } from "./util"
 import { AICI_CONTROLLER, TOOL_ID } from "./constants"
 import { host } from "./host"
 import { NotSupportedError, RequestError, serializeError } from "./error"
@@ -25,6 +25,7 @@ import {
     LanguageModelConfiguration,
     LanguageModelInfo,
 } from "./server/messages"
+import { normalizeInt } from "./cleaners"
 
 /**
  * Renders an AICI node into a string representation.
