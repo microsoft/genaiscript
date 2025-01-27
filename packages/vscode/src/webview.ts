@@ -67,7 +67,7 @@ export async function createWebview(
             media-src ${cspUrl} ${cspSource} https:;
             connect-src ${cspUrl} ${wsCspUrl};
             script-src ${cspUrl} ${cspSource} 'nonce-${nonce}'; 
-            style-src 'unsafe-inline' ${cspUrl} ${cspSource};
+            style-src ${cspUrl} ${cspSource} 'nonce-${nonce}';
         `
         html = `<!doctype html>
 <html lang="en">
