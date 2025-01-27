@@ -81,7 +81,7 @@ const transcript = await transcribe(videoFile, {
 })
 // screnshot images
 const frames = await ffmpeg.extractFrames(videoFile, {
-    sceneThreshold: 0.3,
+    sceneThreshold: 0.4,
     cache: "ai-kitchen",
 })
 
