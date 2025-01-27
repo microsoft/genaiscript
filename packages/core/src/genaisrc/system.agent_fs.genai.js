@@ -11,7 +11,7 @@ system({
     },
 })
 
-const model = env.vars.agentFsModel
+const model = env.vars["system.agent_fs.model"]
 
 defAgent(
     "fs",
