@@ -5,9 +5,11 @@
     "description": "Schema for GenAIScript configuration file",
     "properties": {
         "envFile": {
-            "type": "string"
+            "type": "string",
+            "description": "Path to a .env file to load environment variables from"
         },
         "include": {
+            "description": "List of files to include in the project",
             "type": "array",
             "items": {
                 "type": "string"
@@ -15,7 +17,32 @@
         },
         "modelAliases": {
             "type": "object",
-            "additionalProperties": true
+            "patternProperties": {
+                "^[a-zA-Z0-9_]+$": {
+                    "oneOf": [
+                        {
+                            "type": "string",
+                            "description": "Model identifier (provider:model:tag)"
+                        },
+                        {
+                            "type": "object",
+                            "properties": {
+                                "model": {
+                                    "type": "string",
+                                    "description": "Model identifier (provider:model:tag)"
+                                },
+                                "temperature": {
+                                    "type": "number",
+                                    "description": "Temperature to use for the model"
+                                }
+                            },
+                            "required": ["model"]
+                        }
+                    ]
+                }
+            },
+            "additionalProperties": true,
+            "description": "Aliases for model identifiers (provider:model:tag)"
         }
     }
 }
