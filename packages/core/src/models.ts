@@ -106,6 +106,7 @@ export function traceLanguageModelConnection(
     }
 }
 
+const resolvedModels = new Set<string>()
 export async function resolveModelConnectionInfo(
     conn: ModelConnectionOptions,
     options?: {
@@ -191,16 +192,18 @@ export async function resolveModelConnectionInfo(
             reportError: true,
         })
     } else {
-        logVerbose(`connection: resolving model ${modelId}`)
+        const logg = !resolvedModels.has(modelId)
+        resolvedModels.add(modelId)
+        if (logg) logVerbose(`connection: resolving model ${modelId}`)
         candidates = uniq([modelId, ...(candidates || [])].filter((c) => !!c))
         for (const candidate of candidates) {
-            logVerbose(`  resolving ${candidate}`)
+            if (logg) logVerbose(`  resolving ${candidate}`)
             const res = await resolveModel(candidate, {
                 withToken: askToken,
                 reportError: false,
             })
             if (!res.info.error && res.info.token) {
-                logVerbose(`  resolved ${candidate}`)
+                if (logg) logVerbose(`  resolved ${candidate}`)
                 return res
             }
         }
