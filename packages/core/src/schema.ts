@@ -345,9 +345,10 @@ export function toStrictJSONSchema(
     return clone
 }
 
-
 export async function JSONSchemaInfer(obj: any): Promise<JSONSchema> {
-    const { default: jsonToSchema } = await import("json-schema-generator")
-    const schema = jsonToSchema(obj)
+    const { default: jsonToSchema } = await import(
+        "@stoplight/json-schema-generator"
+    )
+    const schema = jsonToSchema(obj)    console.log({ obj, jsonToSchema, schema })
     return schema as JSONSchema
 }
