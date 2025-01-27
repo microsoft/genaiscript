@@ -29,6 +29,7 @@ import { resolveModelConnectionInfo } from "./models"
 import { DOCS_WEB_SEARCH_URL } from "./constants"
 import { fetch, fetchText } from "./fetch"
 import { fileWriteCached } from "./filecache"
+import { join } from "node:path"
 
 /**
  * Creates a prompt context for the given project, variables, trace, options, and model.
@@ -69,7 +70,9 @@ export async function createPromptContext(
         writeCached: async (f, options) => {
             const { scope } = options || {}
             const dir =
-                scope === "run" ? runDir : dotGenaiscriptPath("cache", "files")
+                scope === "run"
+                    ? join(runDir, "files")
+                    : dotGenaiscriptPath("cache", "files")
             return await fileWriteCached(f, dir)
         },
         cache: (n) => runtimeHost.workspace.cache(n),

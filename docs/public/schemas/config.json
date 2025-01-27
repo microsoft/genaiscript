@@ -1,0 +1,21 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "GenAIScript Configuration",
+    "type": "object",
+    "description": "Schema for GenAIScript configuration file",
+    "properties": {
+        "envFile": {
+            "type": "string"
+        },
+        "include": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        },
+        "modelAliases": {
+            "type": "object",
+            "additionalProperties": true
+        }
+    }
+}
