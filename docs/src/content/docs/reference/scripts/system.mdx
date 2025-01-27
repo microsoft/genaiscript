@@ -157,10 +157,23 @@ Agent that can query on the documentation.
 `````js wrap title="system.agent_docs"
 system({
     title: "Agent that can query on the documentation.",
+    parameters: {
+        dir: {
+            type: "string",
+            description: "The documentation root folder",
+            required: false,
+        },
+        samples: {
+            type: "string",
+            description: "The code samples root folder",
+            required: false,
+        },
+    },
 })
 
-const docsRoot = env.vars.docsRoot || "docs"
-const samplesRoot = env.vars.samplesRoot || "packages/sample/genaisrc/"
+const docsRoot = env.vars["system.agent_docs.dir"] || "docs"
+const samplesRoot =
+    env.vars["system.agent_docs.samples"] || "packages/sample/genaisrc/"
 
 defAgent(
     "docs",
@@ -210,18 +223,7 @@ Agent that can find, search or read files to accomplish tasks
 `````js wrap title="system.agent_fs"
 system({
     title: "Agent that can find, search or read files to accomplish tasks",
-    parameters: {
-        type: "object",
-        properties: {
-            model: {
-                type: "string",
-                description: "The model to use",
-            },
-        },
-    },
 })
-
-const model = env.vars["system.agent_fs.model"]
 
 defAgent(
     "fs",
@@ -229,7 +231,6 @@ defAgent(
     `Your are a helpful LLM agent that can query the file system.
     Answer the question in <QUERY>.`,
     {
-        model,
         tools: [
             "fs_find_files",
             "fs_read_file",
@@ -256,8 +257,6 @@ system({
     title: "Agent that can query Git to accomplish tasks.",
 })
 
-const model = env.vars.agentGitModel
-
 defAgent(
     "git",
     "query a repository using Git to accomplish tasks. Provide all the context information available to execute git queries.",
@@ -267,7 +266,6 @@ defAgent(
     - Prefer using diff to compare files rather than listing files. Listing files is only useful when you need to read the content of the files.
     `,
     {
-        model,
         system: [
             "system.git_info",
             "system.github_info",
@@ -293,8 +291,6 @@ system({
     title: "Agent that can query GitHub to accomplish tasks.",
 })
 
-const model = env.vars.agentGithubModel
-
 defAgent(
     "github",
     "query GitHub to accomplish tasks",
@@ -304,7 +300,6 @@ defAgent(
     - do NOT return full job logs, they are too large and will fill the response buffer.
     `,
     {
-        model,
         system: [
             "system.tools",
             "system.explanations",
@@ -333,7 +328,6 @@ system({
     title: "Agent that can run code interpreters for Python, Math.",
 })
 
-const model = env.vars.agentInterpreterModel
 defAgent(
     "interpreter",
     "run code interpreters for Python, Math. Use this agent to ground computation questions.",
@@ -342,7 +336,6 @@ defAgent(
     - To use file data in python, prefer copying data files using python_code_interpreter_copy_files rather than inline data in code.
     `,
     {
-        model,
         system: [
             "system",
             "system.tools",
@@ -374,7 +367,7 @@ defAgent(
     "generates a plan to solve a task",
     `Generate a detailed plan as a list of tasks so that a smaller LLM can use agents to execute the plan.`,
     {
-        model: "github:o1-preview",
+        model: "reasoning",
         system: [
             "system.assistant",
             "system.planner",
@@ -400,7 +393,6 @@ system({
     title: "Agent that can asks questions to the user.",
 })
 
-const model = env.vars.agentInterpreterModel
 defAgent(
     "user_input",
     "ask user for input to confirm, select or answer the question in the query. The message should be very clear and provide all the context.",
@@ -412,7 +404,6 @@ defAgent(
     - do NOT try to interpret the meaning of the question, let the user answer.
     - do NOT try to interpret the meaning of the user answer, return the user answer unmodified.`,
     {
-        model,
         tools: ["user_input"],
     }
 )
@@ -477,15 +468,12 @@ system({
     title: "Agent that can search the web.",
 })
 
-const model = env.vars.agentWebSearchModel
-
 defAgent(
     "web",
     "search the web to accomplish tasks.",
     `Your are a helpful LLM agent that can use web search.
     Answer the question in <QUERY>.`,
     {
-        model,
         system: [
             "system.safety_jailbreak",
             "system.safety_harmful_content",
@@ -2108,8 +2096,6 @@ system({
     title: "Tools to help with documentation tasks",
 })
 
-const model = env.vars.mdSummaryModel || "small"
-
 defTool(
     "md_find_files",
     "Get the file structure of the documentation markdown/MDX files. Retursn filename, title, description for each match. Use pattern to specify a regular expression to search for in the file content.",
@@ -2783,15 +2769,24 @@ Python Dockerized code execution for data analysis
 `````js wrap title="system.python_code_interpreter"
 system({
     title: "Python Dockerized code execution for data analysis",
+    parameters: {
+        image: {
+            type: "string",
+            description: "Docker image to use for python code execution",
+            required: false,
+        },
+        packages: {
+            type: "string",
+            description:
+                "Python packages to install in the container (comma separated)",
+        },
+    },
 })
 
-const image = env.vars.pythonImage ?? "python:3.12"
-const packages = [
-    "numpy===2.1.3",
-    "pandas===2.2.3",
-    "scipy===1.14.1",
-    "matplotlib===3.9.2",
-]
+const image = env.vars["system.python_code_interpreter.image"] ?? "python:3.12"
+const packages = env.vars["system.python_code_interpreter.packages"]?.split(
+    /\s*,\s*/g
+) || ["numpy===2.1.3", "pandas===2.2.3", "scipy===1.14.1", "matplotlib===3.9.2"]
 
 const getContainer = async () =>
     await host.container({
@@ -2965,8 +2960,6 @@ system({
         "Function to do a search using embeddings vector similarity distance.",
 })
 
-const embeddingsModel = env.vars.embeddingsModel || undefined
-
 defTool(
     "retrieval_vector_search",
     "Search files using embeddings and similarity distance.",
@@ -2993,8 +2986,7 @@ defTool(
         const { files, q } = args
         const res = await retrieval.vectorSearch(
             q,
-            files.map((filename) => ({ filename })),
-            { embeddingsModel }
+            files.map((filename) => ({ filename }))
         )
         return YAML.stringify(res.map(({ filename }) => filename))
     }

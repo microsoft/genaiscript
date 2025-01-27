@@ -2,7 +2,6 @@ system({
     title: "Agent that can run code interpreters for Python, Math.",
 })
 
-const model = env.vars.agentInterpreterModel
 defAgent(
     "interpreter",
     "run code interpreters for Python, Math. Use this agent to ground computation questions.",
@@ -11,7 +10,6 @@ defAgent(
     - To use file data in python, prefer copying data files using python_code_interpreter_copy_files rather than inline data in code.
     `,
     {
-        model,
         system: [
             "system",
             "system.tools",

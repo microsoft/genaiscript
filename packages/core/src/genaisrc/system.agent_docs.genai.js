@@ -1,9 +1,22 @@
 system({
     title: "Agent that can query on the documentation.",
+    parameters: {
+        dir: {
+            type: "string",
+            description: "The documentation root folder",
+            required: false,
+        },
+        samples: {
+            type: "string",
+            description: "The code samples root folder",
+            required: false,
+        },
+    },
 })
 
-const docsRoot = env.vars.docsRoot || "docs"
-const samplesRoot = env.vars.samplesRoot || "packages/sample/genaisrc/"
+const docsRoot = env.vars["system.agent_docs.dir"] || "docs"
+const samplesRoot =
+    env.vars["system.agent_docs.samples"] || "packages/sample/genaisrc/"
 
 defAgent(
     "docs",

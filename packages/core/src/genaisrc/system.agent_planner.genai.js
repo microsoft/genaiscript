@@ -7,7 +7,7 @@ defAgent(
     "generates a plan to solve a task",
     `Generate a detailed plan as a list of tasks so that a smaller LLM can use agents to execute the plan.`,
     {
-        model: "github:o1-preview",
+        model: "reasoning",
         system: [
             "system.assistant",
             "system.planner",

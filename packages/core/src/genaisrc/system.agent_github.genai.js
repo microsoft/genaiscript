@@ -2,8 +2,6 @@ system({
     title: "Agent that can query GitHub to accomplish tasks.",
 })
 
-const model = env.vars.agentGithubModel
-
 defAgent(
     "github",
     "query GitHub to accomplish tasks",
@@ -13,7 +11,6 @@ defAgent(
     - do NOT return full job logs, they are too large and will fill the response buffer.
     `,
     {
-        model,
         system: [
             "system.tools",
             "system.explanations",

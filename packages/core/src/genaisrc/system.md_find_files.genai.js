@@ -2,8 +2,6 @@ system({
     title: "Tools to help with documentation tasks",
 })
 
-const model = env.vars.mdSummaryModel || "small"
-
 defTool(
     "md_find_files",
     "Get the file structure of the documentation markdown/MDX files. Retursn filename, title, description for each match. Use pattern to specify a regular expression to search for in the file content.",
