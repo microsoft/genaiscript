@@ -60,7 +60,7 @@ defTool(
                     {
                         label: `summarize ${filename}`,
                         cache: "md_find_files_summary",
-                        model,
+                        model: "summarize",
                     }
                 )
                 file.summary = summary
