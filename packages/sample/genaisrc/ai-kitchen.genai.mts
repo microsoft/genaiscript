@@ -1,3 +1,5 @@
+import { delay, uniq } from "genaiscript/runtime"
+
 /**
  * In order to run this script, you will need the following:
  *
@@ -43,6 +45,34 @@ const hashtags = [
     "Microsoft Copilot",
 ]
 
+// get some shows description
+const listPage = await host.browse(
+    "https://learn.microsoft.com/en-us/shows/mr-maedas-cozy-ai-kitchen/",
+    { incognito: true }
+)
+const hrefs = uniq(
+    await listPage
+        .locator(
+            "a[href^='/en-us/shows/mr-maedas-cozy-ai-kitchen/']:not([href='/en-us/shows/mr-maedas-cozy-ai-kitchen/'])"
+        )
+        .all()
+        .then((ps) => Promise.all(ps.map((p) => p.getAttribute("href"))))
+        .then((ps) => ps.map((p) => "https://learn.microsoft.com" + p))
+)
+// load the first 10
+const articles = []
+for (const href of hrefs.slice(0, 10)) {
+    await listPage.goto(href)
+    console.debug(`scrapping ${href}`)
+    const title = await listPage
+        .locator('meta[property="og:title"]')
+        .getAttribute("content")
+    const description = await listPage
+        .locator('meta[property="og:description"]')
+        .getAttribute("content")
+    if (title && description) articles.push({ title, description })
+}
+
 // speech to text
 const transcript = await transcribe(videoFile, {
     model: "openai:whisper-1",
@@ -76,10 +106,9 @@ ${instructions || ""}
 ### Example
 
 \`\`\`markdown
----
-title: Mr. Maeda's Cozy AI Kitchen - <the video title>
----
-Descriptive paragraph
+# Mr. Maeda's Cozy AI Kitchen - <the video title>
+
+<descriptive paragraph>
 
 ### Chapters
 
@@ -94,4 +123,8 @@ Descriptive paragraph
 
 #hashtags #hashtags2 ... 
 \`\`\`
+
+## Previous shows
+
+${articles.map((a) => `# ${a.title}\n\n${a.description}`).join("\n\n")}
 `
