@@ -3,13 +3,9 @@ import { logVerbose, strcmp } from "./util" // String comparison function
 import { defaultPrompts } from "./default_prompts" // Default prompt data
 import { parsePromptScript } from "./template" // Function to parse scripts
 import { readText } from "./fs" // Function to read text from a file
-import {
-    BUILTIN_PREFIX,
-    DOCX_MIME_TYPE,
-    PDF_MIME_TYPE,
-    XLSX_MIME_TYPE,
-} from "./constants" // Constants for MIME types and prefixes
+import { BUILTIN_PREFIX } from "./constants" // Constants for MIME types and prefixes
 import { Project } from "./server/messages"
+import { resolveSystems } from "./systems"
 
 /**
  * Converts a string to a character position represented as [row, column].
@@ -67,6 +63,11 @@ export async function parseProject(options: { scriptFiles: string[] }) {
 
     // Sort templates by the generated key
     prj.scripts.sort((a, b) => strcmp(templKey(a), templKey(b)))
+
+    // compute systems
+    prj.scripts
+        .filter((s) => !s.isSystem)
+        .forEach((s) => (s.resolvedSystem = resolveSystems(prj, s)))
 
     return prj // Return the fully parsed project
 }
