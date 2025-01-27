@@ -22,6 +22,9 @@ export async function resolveTokenEncoder(
     const { model } = parseModelIdentifier(modelId)
     const module = model.toLowerCase() // Assign model to module for dynamic import path
 
+    const { modelEncodings } = runtimeHost?.config || {}
+    const encoding = modelEncodings?.[modelId] || module
+
     const encoderOptions = {
         disallowedSpecial: new Set<string>(),
     } satisfies EncodeOptions
@@ -31,7 +34,7 @@ export async function resolveTokenEncoder(
             encode,
             decode,
             default: api,
-        } = await import(`gpt-tokenizer/model/${module}`)
+        } = await import(`gpt-tokenizer/model/${encoding}`)
         assert(!!encode)
         const { modelName } = api
         const size =

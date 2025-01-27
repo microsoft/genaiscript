@@ -16,16 +16,17 @@ GenAIScript supports local and global configuration files to allow reusing commo
 }
 ```
 
-
 ## File resolution
 
 GenAIScript will scan for the following configuration files
 and merge their content into the final configuration.
 
--   `~/genaiscript.config.yaml`
--   `~/genaiscript.config.json`
--   `./genaiscript.config.yaml`
--   `./genaiscript.config.json`
+- `~/genaiscript.config.yaml`
+- `~/genaiscript.config.json`
+- `./genaiscript.config.yaml`
+- `./genaiscript.config.json`
+
+The JSON files support the [JSON5](https://json5.org/) format (including comments, trailing commas, etc...).
 
 ## Schema
 
@@ -45,4 +46,32 @@ Combined with a global configuration file, this allows to share script for a num
 ```yaml title="genaiscript.config.yaml"
 include:
     - "globalpath/*.genai.mjs"
+```
+
+## `modelAliases` property
+
+The `modelAliases` property allows you to provide aliases for model names.
+
+```js
+{
+    "modelAliases": {
+        "llama32": "ollama:llama3.2:1b",
+        "llama32hot": {
+            "model": "ollama:llama3.2:1b",
+            "temperature": 2
+        }
+    }
+}
+```
+
+## `modelEncodings` property
+
+The `modelEncodings` property allows you to provide the encoding for the model.
+
+```js
+{
+    "modelEncodings": {
+        "azure:gpt__4o_random_name": "gpt-4o"
+    }
+}
 ```

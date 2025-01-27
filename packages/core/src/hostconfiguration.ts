@@ -18,4 +18,9 @@ export interface HostConfiguration {
      * Configures a list of known aliases. Overriden by environment variables and CLI arguments
      */
     modelAliases?: Record<string, string | ModelConfiguration>
+
+    /**
+     * Model identifier to encoding mapping
+     */
+    modelEncodings?: Record<string, string>
 }

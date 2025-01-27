@@ -94,6 +94,10 @@ export class TestHost implements RuntimeHost {
         return {}
     }
 
+    get config() {
+        return {}
+    }
+
     contentSafety(
         id?: "azure",
         options?: TraceOptions

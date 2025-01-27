@@ -12,13 +12,35 @@
             "description": "List of files to include in the project",
             "type": "array",
             "items": {
-                "type": "string"
+                "type": "string",
+                "description": "Path to a file or a glob pattern to include in the project"
             }
+        },
+        "modelEncodings": {
+            "type": "object",
+            "patternProperties": {
+                "^[a-zA-Z0-9_:]+$": {
+                    "type": "string",
+                    "description": "Encoding identifier",
+                    "enum": [
+                        "o1",
+                        "gpt-4o",
+                        "gpt-3.5-turbo",
+                        "text-davinci-003",
+                        "o200k_base",
+                        "cl100k_base",
+                        "p50k_base",
+                        "r50k_base"
+                    ]
+                }
+            },
+            "additionalProperties": true,
+            "description": "Equivalent encoders for model identifiers"
         },
         "modelAliases": {
             "type": "object",
             "patternProperties": {
-                "^[a-zA-Z0-9_]+$": {
+                "^[a-zA-Z0-9_:]+$": {
                     "oneOf": [
                         {
                             "type": "string",

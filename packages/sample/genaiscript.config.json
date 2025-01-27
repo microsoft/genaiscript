@@ -7,5 +7,8 @@
             "model": "ollama:llama3.2:1b",
             "temperature": 2
         }
+    },
+    "modelEncodings": {
+        "azure:gpt__4o_random_name": "gpt-4o"
     }
 }
