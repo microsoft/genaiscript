@@ -1,4 +1,5 @@
 // Import necessary modules and functions
+/// <reference path="./json-schema-generator.d.ts" />
 import { JSON5parse } from "./json5"
 import { MarkdownTrace } from "./trace"
 import Ajv from "ajv"
