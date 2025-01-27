@@ -16,6 +16,13 @@ const audio = await ffmpeg.extractAudio("src/audio/helloworld.mp4", {
     outputOptions: "-b:a 16k",
 })
 console.log({ audio })
+const cached = await workspace.writeCached("src/audio/helloworld.mp4", {
+    scope: "run",
+})
+const cached2 = await workspace.writeCached("src/audio/helloworld.mp4", {
+    scope: "run",
+})
+console.log({ cached, cached2 })
 
 const custom = await ffmpeg.run(
     "src/audio/helloworld.mp4",

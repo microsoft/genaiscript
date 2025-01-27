@@ -26,6 +26,7 @@ import { dedent } from "./indent"
 import { CSVStringify, CSVToMarkdown } from "./csv"
 import { INIStringify } from "./ini"
 import { ChatCompletionsProgressReport } from "./chattypes"
+import { fileWriteCached } from "./filecache"
 
 export class TraceChunkEvent extends Event {
     constructor(
@@ -42,6 +43,7 @@ export class TraceChunkEvent extends Event {
 }
 
 export class MarkdownTrace extends EventTarget implements OutputTrace {
+    filesDir: string
     readonly _errors: { message: string; error: SerializedError }[] = []
     private detailsDepth = 0
     private _content: (string | MarkdownTrace)[] = []
@@ -289,11 +291,14 @@ ${this.toResultIcon(success, "")}${title}
     }
 
     async image(url: string, caption: string) {
-        if (/^https?:\/\//.test(url) || url.length < TRACE_MAX_IMAGE_SIZE)
+        if (/^https?:\/\//.test(url))
             return this.appendContent(
                 `\n\n![${caption || "image"}](${url})\n\n`
             )
-        else return this.appendContent(`\n\n${caption} (too large...)\n\n`)
+        else {
+            const fn = await fileWriteCached(url, this.filesDir)
+            return this.appendContent(`\n\n![${caption || "image"}](${fn})\n\n`)
+        }
     }
 
     private toResultIcon(value: boolean, missing: string) {

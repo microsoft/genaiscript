@@ -28,6 +28,8 @@ import { hash } from "./crypto"
 import { resolveModelConnectionInfo } from "./models"
 import { DOCS_WEB_SEARCH_URL } from "./constants"
 import { fetch, fetchText } from "./fetch"
+import { fileWriteCached } from "./filecache"
+import { join } from "node:path"
 
 /**
  * Creates a prompt context for the given project, variables, trace, options, and model.
@@ -52,6 +54,8 @@ export async function createPromptContext(
     // Create parsers for the given trace and model
     const parsers = await createParsers({ trace, model })
     const path = runtimeHost.path
+    const runDir = ev.runDir
+    assert(!!runDir, "missing run directory")
 
     // Define the workspace file system operations
     const workspace: WorkspaceFileSystem = {
@@ -63,6 +67,14 @@ export async function createPromptContext(
         readINI: (f, o) => runtimeHost.workspace.readINI(f, o),
         readData: (f, o) => runtimeHost.workspace.readData(f, o),
         writeText: (f, c) => runtimeHost.workspace.writeText(f, c),
+        writeCached: async (f, options) => {
+            const { scope } = options || {}
+            const dir =
+                scope === "run"
+                    ? join(runDir, "files")
+                    : dotGenaiscriptPath("cache", "files")
+            return await fileWriteCached(f, dir)
+        },
         cache: (n) => runtimeHost.workspace.cache(n),
         findFiles: async (pattern, options) => {
             // Log and find files matching the given pattern

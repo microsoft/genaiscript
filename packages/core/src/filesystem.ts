@@ -9,11 +9,15 @@ import { readText, writeText } from "./fs"
 import { host } from "./host"
 import { INITryParse } from "./ini"
 import { JSON5TryParse } from "./json5"
-import { arrayify, logVerbose } from "./util"
+import { arrayify, dotGenaiscriptPath, logVerbose } from "./util"
 import { XMLTryParse } from "./xml"
 import { YAMLTryParse } from "./yaml"
+import { fileWriteCached } from "./filecache"
 
-export function createFileSystem(): Omit<WorkspaceFileSystem, "grep"> {
+export function createFileSystem(): Omit<
+    WorkspaceFileSystem,
+    "grep" | "writeCached"
+> {
     const fs = {
         findFiles: async (glob: string, options: FindFilesOptions) => {
             const { readText, ignore } = options || {}
@@ -123,7 +127,7 @@ export function createFileSystem(): Omit<WorkspaceFileSystem, "grep"> {
                 return undefined
             }
         },
-    } satisfies Omit<WorkspaceFileSystem, "grep">
+    } satisfies Omit<WorkspaceFileSystem, "grep" | "writeCached">
     ;(fs as any).readFile = readText
     return Object.freeze(fs)
 }

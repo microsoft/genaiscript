@@ -16,6 +16,7 @@ import { parseTokenFromEnv } from "./connection"
 import { resolveLanguageModel } from "./lm"
 import { deleteEmptyValues } from "./cleaners"
 import { errorMessage } from "./error"
+import schema from "../../../docs/public/schemas/config.json"
 
 export async function resolveGlobalConfiguration(
     dotEnvPath?: string
@@ -40,24 +41,10 @@ export async function resolveGlobalConfiguration(
                     throw new Error(
                         `Configuration error: failed to parse ${filename}`
                     )
-                const validation = validateJSONWithSchema(parsed, {
-                    type: "object",
-                    properties: {
-                        envFile: {
-                            type: "string",
-                        },
-                        include: {
-                            type: "array",
-                            items: {
-                                type: "string",
-                            },
-                        },
-                        modelAliases: {
-                            type: "object",
-                            additionalProperties: true,
-                        },
-                    },
-                })
+                const validation = validateJSONWithSchema(
+                    parsed,
+                    schema as JSONSchema
+                )
                 if (validation.schemaError)
                     throw new Error(
                         `Configuration error: ` + validation.schemaError
