@@ -18,6 +18,7 @@ import {
     CreateSpeechResult,
     CreateTranscriptionRequest,
     LanguageModel,
+    ListModelsFunction,
 } from "./chat"
 import { RequestError, errorMessage, serializeError } from "./error"
 import { createFetch, traceFetchPost } from "./fetch"
@@ -53,16 +54,11 @@ export function getConfigHeaders(cfg: LanguageModelConfiguration) {
         if (keys && Object.keys(keys).length > 1) token = keys[cfg.model]
     }
     const features = MODEL_PROVIDERS.find(({ id }) => id === provider)
-    const useBearer = features?.bearerToken === true
+    const useBearer = features?.bearerToken !== false
     const isBearer = /^Bearer /i.test(cfg.token)
     const Authorization = isBearer
         ? token
-        : token &&
-            (useBearer ||
-                type === "openai" ||
-                type === "localai" ||
-                type === "azure_serverless_models" ||
-                base === OPENROUTER_API_CHAT_URL)
+        : token && (useBearer || base === OPENROUTER_API_CHAT_URL)
           ? `Bearer ${token}`
           : undefined
     const apiKey = Authorization ? undefined : token
@@ -160,6 +156,14 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
         // https://learn.microsoft.com/en-us/azure/machine-learning/reference-model-inference-api?view=azureml-api-2&tabs=javascript#extensibility
         ;(headers as any)["extra-parameters"] = "pass-through"
         delete postReq.model
+    } else if (cfg.type === "huggingface") {
+        // https://github.com/huggingface/text-generation-inference/issues/2946
+        delete postReq.model
+        url =
+            trimTrailingSlash(cfg.base).replace(/\/v1$/, "") +
+            "/models/" +
+            model +
+            `/v1/chat/completions`
     } else throw new Error(`api type ${cfg.type} not supported`)
 
     trace.itemValue(`url`, `[${url}](${url})`)
@@ -200,7 +204,8 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
         try {
             responseBody = await r.text()
         } catch (e) {}
-        trace.detailsFenced(`📬 response`, responseBody, "json")
+        if (!responseBody) responseBody
+        trace.fence(responseBody, "json")
         const errors = JSON5TryParse(responseBody, {}) as
             | {
                   error: any
@@ -386,35 +391,44 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
     } satisfies ChatCompletionResponse
 }
 
-export async function OpenAIListModels(
-    cfg: LanguageModelConfiguration,
-    options: TraceOptions & CancellationOptions
-): Promise<LanguageModelInfo[]> {
-    const fetch = await createFetch({ retries: 0, ...(options || {}) })
-    const res = await fetch(cfg.base + "/models", {
-        method: "GET",
-        headers: {
-            ...getConfigHeaders(cfg),
-            Accept: "application/json",
-        },
-    })
-    if (res.status !== 200) return []
-    const { data } = (await res.json()) as {
-        object: "list"
-        data: {
-            id: string
-            object: "model"
-            created: number
-            owned_by: string
-        }[]
-    }
-    return data.map(
-        (m) =>
-            <LanguageModelInfo>{
-                id: m.id,
-                details: `${m.id}, ${m.owned_by}`,
+export const OpenAIListModels: ListModelsFunction = async (cfg, options) => {
+    try {
+        const fetch = await createFetch({ retries: 0, ...(options || {}) })
+        const res = await fetch(cfg.base + "/models", {
+            method: "GET",
+            headers: {
+                ...getConfigHeaders(cfg),
+                Accept: "application/json",
+            },
+        })
+        if (res.status !== 200)
+            return {
+                ok: false,
+                status: res.status,
+                error: serializeError(res.statusText),
             }
-    )
+        const { data } = (await res.json()) as {
+            object: "list"
+            data: {
+                id: string
+                object: "model"
+                created: number
+                owned_by: string
+            }[]
+        }
+        return {
+            ok: true,
+            models: data.map(
+                (m) =>
+                    ({
+                        id: m.id,
+                        details: `${m.id}, ${m.owned_by}`,
+                    }) satisfies LanguageModelInfo
+            ),
+        }
+    } catch (e) {
+        return { ok: false, error: serializeError(e) }
+    }
 }
 
 export async function OpenAITranscribe(

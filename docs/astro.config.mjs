@@ -48,6 +48,7 @@ export default defineConfig({
             },
             social: {
                 github: "https://github.com/microsoft/genaiscript",
+                youtube: "https://www.youtube.com/@pelihalleux"
             },
             editLink: {
                 baseUrl:

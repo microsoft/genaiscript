@@ -92,29 +92,40 @@ Output the entire response as YAML to the stdout.
 
 Save the markdown trace to the specified file.
 
-```sh
+```sh wrap
 npx genaiscript run <script> <files> --out-trace &lt;file&gt;
 ```
 
 In a GitHub Actions workflow, you can use this feature to save the trace as a step summary (`GITHUB_STEP_SUMMARY`):
 
-```yaml
+```yaml title=".github/workflows/genaiscript.yml" wrap
 - name: Run GenAIScript tool on spec
   run: |
       genaiscript run <script> <files> --out-trace $GITHUB_STEP_SUMMARY
+```
+
+In Azure Dev Ops, you can use the [task.uploadSummary](https://learn.microsoft.com/en-us/azure/devops/pipelines/scripts/logging-commands?view=azure-devops&tabs=bash#uploadsummary-add-some-markdown-content-to-the-build-summary)
+in your pipeline to upload the trace as a summary.
+
+```yaml title="genaiscript.pipeline.yml" "##vso[task.uploadsummary]" wrap
+- script: npx --yes genaiscript run poem --out-trace $(System.DefaultWorkingDirectory)/trace.md
+  displayName: "Run GenAIScript tool"
+  continueOnError: true
+- script: echo "##vso[task.uploadsummary]$(System.DefaultWorkingDirectory)/trace.md"
+  displayName: "append readme to pipeline report"
 ```
 
 ### --out-annotations &lt;file&gt;
 
 Emit annotations in the specified file as a JSON array, JSON Lines, [SARIF](https://sarifweb.azurewebsites.net/) or a CSV file if the file ends with `.csv`.
 
-```sh
+```sh wrap
 npx genaiscript run <script> <files> --out-annotations diags.csv
 ```
 
 Use JSON lines (`.jsonl`) to aggregate annotations from multiple runs in a single file.
 
-```sh
+```sh wrap
 npx genaiscript run <script> <files> --out-annotations diags.jsonl
 ```
 
@@ -143,14 +154,14 @@ The CLI can update a pull request/issue description and comments when running in
 
 Update your workflow configuration to include the following:
 
--   add the `pull-requests: write` permission to the workflow/step
+- add the `pull-requests: write` permission to the workflow/step
 
 ```yaml
 permissions:
     pull-requests: write
 ```
 
--   set the `GITHUB_TOKEN` secret in the `env` when running the cli
+- set the `GITHUB_TOKEN` secret in the `env` when running the cli
 
 ```yaml
     - run: npx --yes genaiscript run ... -prc --out-trace $GITHUB_STEP_SUMMARY
@@ -161,8 +172,8 @@ permissions:
 
 ### Azure DevOps configuration
 
--   add `<your projectname> Build Service` in the **Collaborator** role to the repository
--   pass secrets to scripts, including `System.AccessToken`
+- add `<your projectname> Build Service` in the **Collaborator** role to the repository
+- pass secrets to scripts, including `System.AccessToken`
 
 ```yaml
 - script: npx genaiscript run ... -prd

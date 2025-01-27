@@ -178,7 +178,6 @@ export class VSCodeHost extends EventTarget implements Host {
         await vscode.workspace.fs.delete(uri, { recursive: true })
     }
 
-    clientLanguageModel?: LanguageModel
     async getLanguageModelConfiguration(
         modelId: string,
         options?: { token?: boolean } & CancellationOptions & TraceOptions

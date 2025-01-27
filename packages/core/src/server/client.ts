@@ -52,7 +52,11 @@ export class VsCodeClient extends WebSocketClient {
         }
     > = {}
 
-    constructor(readonly url: string) {
+    constructor(
+        readonly url: string,
+        readonly externalUrl: string,
+        readonly cspUrl: string
+    ) {
         super(url)
         this.configure()
     }
@@ -118,7 +122,7 @@ export class VsCodeClient extends WebSocketClient {
                     case "chat.start": {
                         if (!this.chatRequest)
                             throw new Error(
-                                "client language model not supported"
+                                "GitHub Copilot Chat Models not supported"
                             )
                         await this.chatRequest(cev, (chunk) => {
                             this.queue<ChatChunk>({

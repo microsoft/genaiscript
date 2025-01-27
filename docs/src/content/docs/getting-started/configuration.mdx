@@ -10,6 +10,7 @@ import { FileTree } from "@astrojs/starlight/components"
 import { Steps } from "@astrojs/starlight/components"
 import { Tabs, TabItem } from "@astrojs/starlight/components"
 import { Image } from "astro:assets"
+import { YouTube } from "astro-embed"
 import LLMProviderFeatures from "../../../components/LLMProviderFeatures.astro"
 
 import lmSrc from "../../../assets/vscode-language-models.png"
@@ -273,6 +274,8 @@ script({ model: "github:gpt-4o" })
 
 **If you are running from a [GitHub Codespace](https://github.com/features/codespaces), the token is already configured for you.**
 
+<YouTube id="Wya3MQRIbmE" posterQuality="high" />
+
 <Steps>
 
 <ol>
@@ -509,7 +512,7 @@ while the Azure AI models, like `Meta-Llama-3.1-405B-Instruct` are deployed to `
 
 They are configured slightly differently.
 
-### Azure AI OpenAI
+### Azure AI OpenAI Serverless
 
 The `azure_serverless` provider supports OpenAI models deployed through the Azure AI Foundry serverless deployments.
 It supports both Entra ID and key-based authentication.
@@ -518,21 +521,17 @@ It supports both Entra ID and key-based authentication.
 script({ model: "azure_serverless:deployment-id" })
 ```
 
+:::note
+
+This kind of deployment is different from the **Azure OpenAI** deployments (`azure` provider).
+
+:::
+
 #### Managed Identity (Entra ID)
 
 <Steps>
 
 <ol>
-
-<li>
-
-Open a terminal and **login** with [Azure CLI](https://learn.microsoft.com/en-us/javascript/api/overview/azure/identity-readme?view=azure-node-latest#authenticate-via-the-azure-cli).
-
-```sh
-az login
-```
-
-</li>
 
 <li>
 
@@ -549,7 +548,8 @@ You can use the `Deployment Options` -> `Serverless API` option to deploy a mode
 
 <li>
 
-Deploy an OpenAI base model. This will also create a new Azure OpenAI resource in your subscription.
+Deploy an OpenAI base model.
+This will also create a new Azure OpenAI resource in your subscription (which may be invisible to you, more later).
 
 </li>
 
@@ -565,14 +565,57 @@ AZURE_SERVERLESS_OPENAI_API_ENDPOINT=https://....openai.azure.com
 
 <li>
 
-Open your **Azure OpenAI** resource that was created by Azure AI in the [Azure Portal](https://portal.azure.com)
+Go back to the **Overview** tab in your Azure AI Foundry project and
+click on **Open in Management center**.
 
 </li>
+
+<li>
+
+Click on the **Azure OpenAI Service** resource, then click on the **Resource** external link which will take you back to the (underlying) Azure OpenAI service
+in Azure Portal.
+
+</li>
+
 <li>
 
 Navigate to **Access Control (IAM)**, then **View My Access**. Make sure your
 user or service principal has the **Cognitive Services OpenAI User/Contributor** role.
 If you get a `401` error, click on **Add**, **Add role assignment** and add the **Cognitive Services OpenAI User** role to your user.
+
+</li>
+
+</ol>
+
+</Steps>
+
+At this point, you are ready to login with the Azure CLI and use the managed identity.
+
+:::note
+
+The resources created by Azure AI Foundry are not visible by default in the Azure Portal.
+To make them visible, open [All resources](https://portal.azure.com/#browse/all), click **Manage view**
+and select **Show hidden types**.
+
+:::
+
+<Steps>
+
+<ol>
+
+<li>
+
+Install the [Azure CLI](https://learn.microsoft.com/en-us/javascript/api/overview/azure/identity-readme?view=azure-node-latest#authenticate-via-the-azure-cli).
+
+</li>
+
+<li>
+
+Open a terminal and login
+
+```sh
+az login
+```
 
 </li>
 
@@ -795,7 +838,9 @@ This mode is useful to run your scripts without having a separate LLM provider o
 and have additional limitations and rate limiting defined by the GitHub Copilot platform.
 
 There is no configuration needed as long as you have GitHub Copilot installed and configured in Visual Studio Code.
-You can force using this model by using `client:*` as a model name.
+You can force using this model by using `github_copilot_chat:*` as a model name.
+
+<YouTube id="LRrVMiZgWJg" posterQuality="high" />
 
 <Steps>
 

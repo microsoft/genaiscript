@@ -38,6 +38,7 @@ import {
     OPENAI_RETRY_DEFAULT_DEFAULT,
     OPENAI_MAX_RETRY_COUNT,
     MODEL_PROVIDERS,
+    MODEL_PROVIDER_GITHUB_COPILOT_CHAT,
 } from "../../core/src/constants" // Core constants
 import {
     errorMessage,
@@ -509,7 +510,7 @@ export async function cli() {
                     "Preferred LLM provider aliases"
                 ).choices(
                     MODEL_PROVIDERS.filter(
-                        ({ id, aliases }) => id !== "client"
+                        ({ id }) => id !== MODEL_PROVIDER_GITHUB_COPILOT_CHAT
                     ).map(({ id }) => id)
                 )
             )

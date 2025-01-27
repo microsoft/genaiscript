@@ -2043,7 +2043,7 @@ interface JSONSchemaUtilities {
      * Infers a JSON schema from an object
      * @param obj
      */
-    infer(obj: any): JSONSchema
+    infer(obj: any): Promise<JSONSchema>
 }
 
 interface HTMLTableToJSONOptions {

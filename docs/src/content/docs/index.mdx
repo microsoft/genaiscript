@@ -19,6 +19,7 @@ hero:
 import { Image } from "astro:assets"
 import { Card, CardGrid } from "@astrojs/starlight/components"
 import { FileTree } from "@astrojs/starlight/components"
+import { YouTube } from "astro-embed"
 import AudioPlayer from "../../components/AudioPlayer.astro"
 import DirectoryLinks from "../../components/DirectoryLinks.astro"
 import { Content as BuiltinAgents } from "../../components/BuiltinAgents.mdx"
@@ -65,6 +66,10 @@ $`Analyze DATA and extract data in JSON in data.json.`
 
 The `def` function includes the content of the file, and optimizes it if necessary for the target LLM. GenAIScript script also parses the LLM output
 and will extract the `data.json` file automatically.
+
+<center>
+    <YouTube id="https://youtu.be/ENunZe--7j0" posterQuality="high" />
+</center>
 
 ## Next steps
 
@@ -371,6 +376,8 @@ or [GitHub Copilot](/genaiscript/getting-started/configuration/#github-copilot).
 ```js wrap
 script({ ..., model: "github:gpt-4o" })
 ```
+
+<YouTube id="https://youtube.com/Wya3MQRIbmE/" />
 
 </Card>
 

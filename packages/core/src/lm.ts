@@ -5,7 +5,7 @@ import {
     MODEL_PROVIDER_AICI,
     MODEL_PROVIDER_ANTHROPIC,
     MODEL_PROVIDER_ANTHROPIC_BEDROCK,
-    MODEL_PROVIDER_CLIENT,
+    MODEL_PROVIDER_GITHUB_COPILOT_CHAT,
     MODEL_PROVIDER_GITHUB,
     MODEL_PROVIDER_LMSTUDIO,
     MODEL_PROVIDER_OLLAMA,
@@ -13,7 +13,7 @@ import {
     MODEL_PROVIDERS,
     MODEL_WHISPERASR_PROVIDER,
 } from "./constants"
-import { host } from "./host"
+import { runtimeHost } from "./host"
 import { OllamaModel } from "./ollama"
 import { LocalOpenAICompatibleModel } from "./openai"
 import { TransformersModel } from "./transformers"
@@ -22,9 +22,9 @@ import { LMStudioModel } from "./lmstudio"
 import { WhiserAsrModel } from "./whisperasr"
 
 export function resolveLanguageModel(provider: string): LanguageModel {
-    if (provider === MODEL_PROVIDER_CLIENT) {
-        const m = host.clientLanguageModel
-        if (!m) throw new Error("Client language model not available")
+    if (provider === MODEL_PROVIDER_GITHUB_COPILOT_CHAT) {
+        const m = runtimeHost.clientLanguageModel
+        if (!m) throw new Error("Github Copilot Chat Models not available")
         return m
     }
     if (provider === MODEL_PROVIDER_GITHUB) return GitHubModel

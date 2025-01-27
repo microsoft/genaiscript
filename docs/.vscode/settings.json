@@ -15,6 +15,6 @@
         "/src/content/docs/**/*": "/src/assets/"
     },
     "genaiscript.languageChatModels": {
-        "client:gpt-4": "github.copilot-chat/2/gpt-4"
+        "github_copilot_chat:gpt-4": "github.copilot-chat/2/gpt-4"
     }
 }

@@ -157,7 +157,7 @@ export const MODEL_PROVIDER_OLLAMA = "ollama"
 export const MODEL_PROVIDER_LLAMAFILE = "llamafile"
 export const MODEL_PROVIDER_LITELLM = "litellm"
 export const MODEL_PROVIDER_AICI = "aici"
-export const MODEL_PROVIDER_CLIENT = "client"
+export const MODEL_PROVIDER_GITHUB_COPILOT_CHAT = "github_copilot_chat"
 export const MODEL_PROVIDER_ANTHROPIC = "anthropic"
 export const MODEL_PROVIDER_ANTHROPIC_BEDROCK = "anthropic_bedrock"
 export const MODEL_PROVIDER_HUGGINGFACE = "huggingface"
@@ -206,6 +206,7 @@ export const MODEL_PROVIDERS = Object.freeze<
         listModels?: boolean
         transcribe?: boolean
         speech?: boolean
+        tokenless?: boolean
         aliases?: Record<string, string>
     }[]
 >(CONFIGURATION_DATA.providers)

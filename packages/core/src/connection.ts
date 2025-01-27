@@ -9,7 +9,7 @@ import {
     MODEL_PROVIDER_ANTHROPIC,
     MODEL_PROVIDER_AZURE_OPENAI,
     MODEL_PROVIDER_AZURE_SERVERLESS_MODELS,
-    MODEL_PROVIDER_CLIENT,
+    MODEL_PROVIDER_GITHUB_COPILOT_CHAT,
     MODEL_PROVIDER_GITHUB,
     MODEL_PROVIDER_LITELLM,
     MODEL_PROVIDER_LLAMAFILE,
@@ -197,10 +197,6 @@ export async function parseTokenFromEnv(
         if (!URL.canParse(base))
             throw new Error("AZURE_OPENAI_API_ENDPOINT must be a valid URL")
         const version = env.AZURE_OPENAI_API_VERSION || env.AZURE_API_VERSION
-        if (version && version !== AZURE_OPENAI_API_VERSION)
-            throw new Error(
-                `AZURE_OPENAI_API_VERSION must be '${AZURE_OPENAI_API_VERSION}'`
-            )
         const azureCredentialsType =
             env.AZURE_OPENAI_API_CREDENTIALS?.toLowerCase().trim() as AzureCredentialsType
         return {
@@ -243,11 +239,6 @@ export async function parseTokenFromEnv(
             env.AZURE_SERVERLESS_OPENAI_VERSION
         const azureCredentialsType =
             env.AZURE_SERVERLESS_OPENAI_API_CREDENTIALS?.toLowerCase().trim() as AzureCredentialsType
-
-        if (version && version !== AZURE_OPENAI_API_VERSION)
-            throw new Error(
-                `AZURE_SERVERLESS_OPENAI_API_VERSION must be '${AZURE_OPENAI_API_VERSION}'`
-            )
         return {
             provider,
             model,
@@ -415,7 +406,7 @@ export async function parseTokenFromEnv(
             token: token?.value,
             provider,
             model,
-            type: "openai",
+            type: "huggingface",
             source: "env: HUGGINGFACE_API_...",
         } satisfies LanguageModelConfiguration
     }
@@ -547,12 +538,15 @@ export async function parseTokenFromEnv(
         }
     }
 
-    if (provider === MODEL_PROVIDER_CLIENT && host.clientLanguageModel) {
+    if (
+        provider === MODEL_PROVIDER_GITHUB_COPILOT_CHAT &&
+        runtimeHost.clientLanguageModel
+    ) {
         return {
             provider,
             model,
             base: undefined,
-            token: "client",
+            token: MODEL_PROVIDER_GITHUB_COPILOT_CHAT,
         }
     }
 

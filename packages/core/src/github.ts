@@ -23,6 +23,7 @@ import { link } from "./mkmd"
 import { LanguageModelInfo } from "./server/messages"
 import { LanguageModel, ListModelsFunction } from "./chat"
 import { OpenAIChatCompletion } from "./openai"
+import { errorMessage, serializeError } from "./error"
 
 export interface GithubConnectionInfo {
     token: string
@@ -84,8 +85,14 @@ async function githubGetPullRequestNumber() {
             label: "resolve current pull request number",
         }
     )
+    if (res.failed) {
+        logVerbose(res.stderr)
+        return undefined
+    }
     const resj = JSON5TryParse(res.stdout) as { number: number }
-    return resj?.number
+    const id = resj?.number
+    logVerbose(`pull request number: ${isNaN(id) ? "not found" : id}`)
+    return id
 }
 
 export async function githubParseEnv(
@@ -103,23 +110,26 @@ export async function githubParseEnv(
         }
         if (!isNaN(options?.issue)) res.issue = options.issue
         if (!res.owner || !res.repo || !res.repository) {
-            const { name: repo, owner } = JSON.parse(
-                (
-                    await runtimeHost.exec(
-                        undefined,
-                        "gh",
-                        ["repo", "view", "--json", "url,name,owner"],
-                        {}
-                    )
-                ).stdout
+            const repoInfo = await runtimeHost.exec(
+                undefined,
+                "gh",
+                ["repo", "view", "--json", "url,name,owner"],
+                {}
             )
-            res.repo = repo
-            res.owner = owner.login
-            res.repository = res.owner + "/" + res.repo
+            if (repoInfo.failed) {
+                logVerbose(repoInfo.stderr)
+            } else if (!repoInfo.failed) {
+                const { name: repo, owner } = JSON.parse(repoInfo.stdout)
+                res.repo = repo
+                res.owner = owner.login
+                res.repository = res.owner + "/" + res.repo
+            }
         }
         if (isNaN(res.issue) && options?.resolveIssue)
             res.issue = await githubGetPullRequestNumber()
-    } catch (e) {}
+    } catch (e) {
+        logVerbose(errorMessage(e))
+    }
     return Object.freeze(res)
 }
 
@@ -459,40 +469,50 @@ interface GitHubMarketplaceModel {
 
 const listModels: ListModelsFunction = async (cfg, options) => {
     const fetch = await createFetch({ retries: 0, ...options })
-    const modelsRes = await fetch(
-        "https://api.catalog.azureml.ms/asset-gallery/v1.0/models",
-        {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                filters: [
-                    {
-                        field: "freePlayground",
-                        values: ["true"],
-                        operator: "eq",
-                    },
-                    { field: "labels", values: ["latest"], operator: "eq" },
-                ],
-                order: [{ field: "displayName", direction: "Asc" }],
-            }),
-        }
-    )
-    if (!modelsRes.ok) {
-        throw new Error("Failed to fetch models from the model catalog")
-    }
+    try {
+        const modelsRes = await fetch(
+            "https://api.catalog.azureml.ms/asset-gallery/v1.0/models",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    filters: [
+                        {
+                            field: "freePlayground",
+                            values: ["true"],
+                            operator: "eq",
+                        },
+                        { field: "labels", values: ["latest"], operator: "eq" },
+                    ],
+                    order: [{ field: "displayName", direction: "Asc" }],
+                }),
+            }
+        )
+        if (!modelsRes.ok)
+            return {
+                ok: false,
+                status: modelsRes.status,
+                error: serializeError(modelsRes.statusText),
+            }
 
-    const models = (await modelsRes.json())
-        .summaries as GitHubMarketplaceModel[]
-    return models.map(
-        (m) =>
-            ({
-                id: m.name,
-                details: m.summary,
-                url: `https://github.com/marketplace/models/${m.registryName}/${m.name}`,
-            }) satisfies LanguageModelInfo
-    )
+        const models = (await modelsRes.json())
+            .summaries as GitHubMarketplaceModel[]
+        return {
+            ok: true,
+            models: models.map(
+                (m) =>
+                    ({
+                        id: m.name,
+                        details: m.summary,
+                        url: `https://github.com/marketplace/models/${m.registryName}/${m.name}`,
+                    }) satisfies LanguageModelInfo
+            ),
+        }
+    } catch (e) {
+        return { ok: false, error: serializeError(e) }
+    }
 }
 
 export const GitHubModel = Object.freeze<LanguageModel>({

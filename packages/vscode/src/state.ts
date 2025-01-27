@@ -26,6 +26,7 @@ import { GenerationResult } from "../../core/src/server/messages"
 import { hash, randomHex } from "../../core/src/crypto"
 import { delay } from "es-toolkit"
 import { Fragment } from "../../core/src/generation"
+import { createWebview } from "./webview"
 
 export const FRAGMENTS_CHANGE = "fragmentsChange"
 export const AI_REQUEST_CHANGE = "aiRequestChange"
@@ -101,14 +102,18 @@ export class ExtensionState extends EventTarget {
         AIRequestSnapshot
     > = undefined
     readonly output: vscode.LogOutputChannel
-    readonly sessionApiKey = randomHex(32)
+    readonly sessionApiKey: string
+    private panel: vscode.WebviewPanel
 
     constructor(public readonly context: ExtensionContext) {
         super()
+        this.sessionApiKey =
+            vscode.env.uiKind === vscode.UIKind.Web ? undefined : randomHex(32)
         this.output = vscode.window.createOutputChannel(TOOL_NAME, {
             log: true,
         })
-        this.output.info(`session api key: ${this.sessionApiKey}`)
+        if (this.sessionApiKey)
+            this.output.info(`session api key: ${this.sessionApiKey}`)
         this.host = new VSCodeHost(this)
         this.host.addEventListener(CHANGE, this.dispatchChange.bind(this))
         const { subscriptions } = context
@@ -132,6 +137,14 @@ export class ExtensionState extends EventTarget {
                 subscriptions
             )
         )
+    }
+
+    async showWebview(options?: { reveal?: boolean }) {
+        const { reveal } = options || {}
+        if (!this.panel) {
+            this.panel = await createWebview(this)
+            this.panel.onDidDispose(() => (this.panel = undefined))
+        } else if (reveal) this.panel.reveal()
     }
 
     async updateLanguageChatModels(model: string, chatModel: string) {
@@ -189,14 +202,8 @@ export class ExtensionState extends EventTarget {
             const { edits, text, status } = res || {}
 
             if (!options.mode) {
-                if (status === "error")
-                    vscode.commands.executeCommand(
-                        "genaiscript.request.open.trace"
-                    )
-                else if (!hasOutputOrTraceOpened() && text)
-                    vscode.commands.executeCommand(
-                        "genaiscript.request.open.output"
-                    )
+                if (status === "error") this.showWebview({ reveal: true })
+                else if (text) this.showWebview({ reveal: false })
             }
 
             const { key, sha } = await this.snapshotAIRequestKey(req)
@@ -305,8 +312,7 @@ export class ExtensionState extends EventTarget {
             vscode.commands.executeCommand(
                 "workbench.view.extension.genaiscript"
             )
-        if (!options.mode && !hasOutputOrTraceOpened())
-            vscode.commands.executeCommand("genaiscript.request.open.output")
+        if (!options.mode) this.showWebview({ reveal: false })
         r.request
             .then((resp) => {
                 r.response = resp

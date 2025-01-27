@@ -51,16 +51,10 @@ export async function activate(context: ExtensionContext) {
         }),
         registerCommand("genaiscript.request.status", async () => {
             const cmds = commandButtons(state)
-            if (!cmds.length)
-                await vscode.window.showInformationMessage(
-                    `${TOOL_NAME} - no request.`
-                )
-            else {
-                const res = await vscode.window.showQuickPick(cmds, {
-                    canPickMany: false,
-                })
-                if (res) vscode.commands.executeCommand(res.cmd)
-            }
+            const res = await vscode.window.showQuickPick(cmds, {
+                canPickMany: false,
+            })
+            if (res) vscode.commands.executeCommand(res.cmd)
         }),
         registerCommand("genaiscript.info.env", async () => {
             const client = await state.host.server.client()
