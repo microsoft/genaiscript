@@ -6,9 +6,16 @@ sidebar:
 ---
 
 import { Code } from "@astrojs/starlight/components"
-import hostConfigurationSource from "../../../../../packages/core/src/hostconfiguration.ts?raw"
+import schema from "../../../../public/schemas/config.json?raw"
 
 GenAIScript supports local and global configuration files to allow reusing common configuration settings and secrets across multiple scripts.
+
+```json title="genaiscript.config.json"
+{
+    "$schema": "https://microsoft.github.io/genaiscript/schemas/config.json"
+}
+```
+
 
 ## File resolution
 
@@ -20,11 +27,11 @@ and merge their content into the final configuration.
 -   `./genaiscript.config.yaml`
 -   `./genaiscript.config.json`
 
-## File format
+## Schema
 
-The configuration file format is the following:
+The configuration schema is at https://microsoft.github.io/genaiscript/schemas/config.json .
 
-<Code code={hostConfigurationSource} wrap={true} lang="ts" />
+<Code code={schema} wrap={true} lang="json" />
 
 ## `envFile` property
 
