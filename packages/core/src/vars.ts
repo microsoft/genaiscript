@@ -3,8 +3,33 @@ import { resolveSystems } from "./systems"
 import { logError } from "./util"
 import { YAMLStringify } from "./yaml"
 import { Project } from "./server/messages"
-import { promptParameterTypeToJSONSchema } from "./parameters"
+import {
+    promptParametersSchemaToJSONSchema,
+    promptParameterTypeToJSONSchema,
+} from "./parameters"
 import { normalizeFloat, normalizeInt, normalizeVarKey } from "./cleaners"
+
+export function resolveScriptParametersSchema(
+    prj: Project,
+    script: PromptScript
+): JSONSchemaObject {
+    const res: JSONSchemaObject = {
+        type: "object",
+        properties: {},
+    }
+    const schema = promptParametersSchemaToJSONSchema(script.parameters)
+    res.properties["script"] = schema
+    for (const system of resolveSystems(prj, script)
+        .map((s) => resolveScript(prj, s))
+        .filter((t) => t?.parameters)) {
+        Object.entries(system.parameters).forEach(([k, v]) => {
+            res.properties[system.id] = promptParametersSchemaToJSONSchema(
+                system.parameters
+            )
+        })
+    }
+    return res
+}
 
 export function parsePromptParameters(
     prj: Project,

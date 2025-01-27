@@ -6,6 +6,7 @@ import { readText } from "./fs" // Function to read text from a file
 import { BUILTIN_PREFIX } from "./constants" // Constants for MIME types and prefixes
 import { Project } from "./server/messages"
 import { resolveSystems } from "./systems"
+import { resolveScriptParametersSchema } from "./vars"
 
 /**
  * Converts a string to a character position represented as [row, column].
@@ -67,7 +68,10 @@ export async function parseProject(options: { scriptFiles: string[] }) {
     // compute systems
     prj.scripts
         .filter((s) => !s.isSystem)
-        .forEach((s) => (s.resolvedSystem = resolveSystems(prj, s)))
+        .forEach((s) => {
+            s.resolvedSystem = resolveSystems(prj, s)
+            s.inputSchema = resolveScriptParametersSchema(prj, s)
+        })
 
     return prj // Return the fully parsed project
 }

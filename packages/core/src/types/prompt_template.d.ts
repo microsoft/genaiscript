@@ -82,6 +82,11 @@ interface PromptLike extends PromptDefinition, PromptToolsDefinition {
      * Resolved system ids
      */
     resolvedSystem?: string[]
+
+    /**
+     * Infered input schema for parameters
+     */
+    inputSchema?: JSONSchemaObject
 }
 
 type SystemPromptId = OptionsOrString<string>
