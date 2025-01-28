@@ -42,7 +42,6 @@ import type {
     PromptScriptStartResponse,
     PromptScriptEndResponseEvent,
 } from "../../core/src/server/messages"
-import { promptParametersSchemaToJSONSchema } from "../../core/src/parameters"
 import {
     logprobToMarkdown,
     topLogprobsToMarkdown,
