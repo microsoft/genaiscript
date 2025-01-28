@@ -7,7 +7,7 @@ sidebar:
 ---
 
 Images can be added to the prompt for models that support this feature (like `gpt-4o`).
-Use the `defImages` function to declare the images. Supported images will vary
+Use the **`defImages`** function to declare the images. Supported images will vary
 with models but typically include `PNG`, `JPEG`, `WEBP`, and `GIF`. Both local files and URLs are supported.
 
 ```js

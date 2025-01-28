@@ -9,6 +9,7 @@ import {
 } from "./constants"
 import { TraceOptions } from "./trace"
 import { logVerbose } from "./util"
+import { deleteUndefinedValues } from "./cleaners"
 
 /**
  * Asynchronously encodes an image for use in LLMs (Language Learning Models).
@@ -37,10 +38,24 @@ export async function imageEncodeForLLM(
     // https://platform.openai.com/docs/guides/vision/calculating-costs#managing-images
     // If the URL is a string, resolve it to a data URI
     const buffer = await resolveBufferLike(url)
-    logVerbose(`image: encoding ${prettyBytes(buffer.length)}`)
+    logVerbose(
+        `image: encoding ${prettyBytes(buffer.length)} with ${JSON.stringify(
+            deleteUndefinedValues({
+                autoCrop,
+                maxHeight,
+                maxWidth,
+                scale,
+                rotate,
+                greyscale,
+                crop,
+                flip,
+                detail,
+            })
+        )}`
+    )
+
     // Read the image using Jimp
-    const { Jimp, HorizontalAlign, VerticalAlign, ResizeStrategy } =
-        await import("jimp")
+    const { Jimp, HorizontalAlign, VerticalAlign } = await import("jimp")
     const img = await Jimp.read(buffer)
     const { width, height } = img
     if (crop) {
@@ -94,7 +109,7 @@ export async function imageEncodeForLLM(
     }
 
     // Determine the output MIME type, defaulting to image/jpeg
-    const outputMime = img.mime ?? ("image/jpeg" as any)
+    const outputMime = img.mime || ("image/jpeg" as any)
 
     // Convert the processed image to a Buffer
     const buf = await img.getBuffer(outputMime)

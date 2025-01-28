@@ -6,3 +6,10 @@ export function convertThinkToMarkdown(md: string) {
     })
     return md
 }
+
+export function unthink(md: string) {
+    if (!md) return md
+
+    md = md.replace(/<think>(.*?)($|<\/think>)/gis, "")
+    return md
+}

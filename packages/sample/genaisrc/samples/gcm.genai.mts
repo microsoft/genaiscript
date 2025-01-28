@@ -101,7 +101,7 @@ do {
         message = res.text
     }
 
-    message = message?.trim()
+    message = parsers.unthink(message?.trim())
     if (!message) {
         console.log(
             "No commit message generated, did you configure the LLM model?"

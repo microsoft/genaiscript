@@ -63,8 +63,8 @@ export async function createWebview(
         const csp = `
             default-src 'none'; 
             frame-src ${cspUrl} ${cspSource} https:; 
-            img-src ${cspUrl} ${cspSource} https:;
-            media-src ${cspUrl} ${cspSource} https:;
+            img-src ${cspUrl} ${cspSource} https: data:;
+            media-src ${cspUrl} ${cspSource} https: data:;
             connect-src ${cspUrl} ${wsCspUrl};
             script-src ${cspUrl} ${cspSource} 'nonce-${nonce}'; 
             style-src ${cspUrl} ${cspSource} 'nonce-${nonce}';

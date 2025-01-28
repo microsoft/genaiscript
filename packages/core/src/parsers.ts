@@ -33,6 +33,7 @@ import { createDiff, llmifyDiff } from "./diff"
 import { tidyData } from "./tidy"
 import { hash } from "./crypto"
 import { GROQEvaluate } from "./groq"
+import { unthink } from "./think"
 
 export async function createParsers(options: {
     trace: MarkdownTrace
@@ -128,5 +129,6 @@ export async function createParsers(options: {
         hash: async (text, options) => await hash(text, options),
         unfence: unfence,
         GROQ: GROQEvaluate,
+        unthink: unthink,
     })
 }

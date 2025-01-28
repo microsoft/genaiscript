@@ -13,7 +13,7 @@ export async function activeTaskProvider(state: ExtensionState) {
             try {
                 if (!state.project) return []
 
-                const { cliPath, cliVersion } = await resolveCli()
+                const { cliPath, cliVersion } = await resolveCli(state)
                 const exec = shellQuote([cliPath || `npx`])
                 const exeArgs = cliPath
                     ? []

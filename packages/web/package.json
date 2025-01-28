@@ -1,6 +1,6 @@
 {
   "name": "genaiscript-web",
-  "version": "1.95.3",
+  "version": "1.96.0",
   "license": "MIT",
   "private": true,
   "scripts": {
@@ -12,11 +12,11 @@
   "devDependencies": {
     "@daiji256/rehype-mathml": "^1.1.1",
     "@types/marked": "^6.0.0",
-    "@types/react": "^19.0.7",
+    "@types/react": "^19.0.8",
     "@types/react-dom": "^19.0.3",
     "@vscode-elements/elements": "1.11.1-pre.0",
     "@vscode-elements/react-elements": "^0.8.0",
-    "@vscode-elements/webview-playground": "^1.3.0",
+    "@vscode-elements/webview-playground": "^1.4.0",
     "clsx": "^2.1.1",
     "esbuild": "^0.24.2",
     "mermaid": "^11.4.1",

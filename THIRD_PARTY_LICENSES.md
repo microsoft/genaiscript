@@ -1963,7 +1963,7 @@ The following npm packages may be included in this product:
  - @aws-sdk/util-user-agent-node@3.734.0
  - @smithy/eventstream-codec@2.2.0
  - @smithy/eventstream-codec@4.0.1
- - @smithy/middleware-retry@4.0.3
+ - @smithy/middleware-retry@4.0.4
  - @smithy/querystring-builder@2.2.0
  - @smithy/querystring-builder@4.0.1
  - @smithy/querystring-parser@2.2.0
@@ -1971,8 +1971,8 @@ The following npm packages may be included in this product:
  - @smithy/service-error-classification@4.0.1
  - @smithy/url-parser@2.2.0
  - @smithy/url-parser@4.0.1
- - @smithy/util-defaults-mode-browser@4.0.3
- - @smithy/util-defaults-mode-node@4.0.3
+ - @smithy/util-defaults-mode-browser@4.0.4
+ - @smithy/util-defaults-mode-node@4.0.4
 
 These packages each contain the following license:
 
@@ -2395,7 +2395,7 @@ The following npm packages may be included in this product:
  - @aws-sdk/middleware-host-header@3.734.0
  - @aws-sdk/middleware-recursion-detection@3.734.0
  - @aws-sdk/middleware-user-agent@3.734.0
- - @smithy/core@3.1.1
+ - @smithy/core@3.1.2
  - @smithy/eventstream-serde-browser@4.0.1
  - @smithy/eventstream-serde-config-resolver@4.0.1
  - @smithy/eventstream-serde-node@2.2.0
@@ -2404,11 +2404,11 @@ The following npm packages may be included in this product:
  - @smithy/eventstream-serde-universal@4.0.1
  - @smithy/invalid-dependency@4.0.1
  - @smithy/middleware-serde@2.3.0
- - @smithy/middleware-serde@4.0.1
+ - @smithy/middleware-serde@4.0.2
  - @smithy/protocol-http@3.3.0
  - @smithy/protocol-http@5.0.1
  - @smithy/smithy-client@2.5.1
- - @smithy/smithy-client@4.1.2
+ - @smithy/smithy-client@4.1.3
  - @smithy/types@2.12.0
  - @smithy/types@3.7.2
  - @smithy/types@4.1.0
@@ -2829,7 +2829,7 @@ The following npm packages may be included in this product:
  - @types/node-fetch@2.6.12
  - @types/node@16.9.1
  - @types/node@18.19.74
- - @types/node@22.10.10
+ - @types/node@22.12.0
  - @types/turndown@5.0.5
  - @types/uuid@9.0.8
  - @types/yauzl@2.10.3
@@ -2862,7 +2862,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.95.1
+ - genaiscript-vscode@1.95.3
 
 This package contains the following license:
 
@@ -4202,7 +4202,7 @@ The following npm packages may be included in this product:
  - @smithy/is-array-buffer@4.0.0
  - @smithy/middleware-content-length@4.0.1
  - @smithy/middleware-endpoint@2.5.1
- - @smithy/middleware-endpoint@4.0.2
+ - @smithy/middleware-endpoint@4.0.3
  - @smithy/middleware-stack@2.2.0
  - @smithy/middleware-stack@4.0.1
  - @smithy/node-http-handler@2.5.0
@@ -6980,7 +6980,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 The following npm packages may be included in this product:
 
  - @anthropic-ai/bedrock-sdk@0.12.4
- - @anthropic-ai/sdk@0.36.2
+ - @anthropic-ai/sdk@0.36.3
 
 These packages each contain the following license:
 
@@ -8044,10 +8044,10 @@ The following npm packages may be included in this product:
  - @tokenizer/token@0.3.0
  - agent-base@6.0.2
  - eastasianwidth@0.2.0
- - genaiscript-core-internal@1.95.1
- - genaiscript-sample@1.95.1
- - genaiscript-web@1.95.1
- - genaiscript@1.95.1
+ - genaiscript-core-internal@1.95.3
+ - genaiscript-sample@1.95.3
+ - genaiscript-web@1.95.3
+ - genaiscript@1.95.3
  - get-port@1.0.0
  - https-proxy-agent@5.0.1
  - isarray@1.0.0
@@ -8677,7 +8677,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - skia-canvas@2.0.1
+ - skia-canvas@2.0.2
 
 This package contains the following license:
 
@@ -10665,7 +10665,7 @@ THE SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - @octokit/auth-token@5.1.1
+ - @octokit/auth-token@5.1.2
  - @octokit/core@6.1.3
  - @octokit/request-error@6.1.6
 
@@ -10697,7 +10697,7 @@ THE SOFTWARE.
 
 The following npm package may be included in this product:
 
- - eventsource@3.0.2
+ - eventsource@3.0.5
 
 This package contains the following license:
 

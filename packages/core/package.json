@@ -1,6 +1,6 @@
 {
   "name": "genaiscript-core-internal",
-  "version": "1.95.3",
+  "version": "1.96.0",
   "main": "src/index.ts",
   "license": "MIT",
   "private": true,
@@ -14,12 +14,12 @@
   "optionalDependencies": {
     "@lvce-editor/ripgrep": "^1.5.0",
     "pdfjs-dist": "4.9.155",
-    "skia-canvas": "^2.0.1",
+    "skia-canvas": "^2.0.2",
     "web-tree-sitter": "0.22.2"
   },
   "devDependencies": {
     "@anthropic-ai/bedrock-sdk": "^0.12.4",
-    "@anthropic-ai/sdk": "^0.36.2",
+    "@anthropic-ai/sdk": "^0.36.3",
     "@azure/identity": "^4.6.0",
     "@elastic/micro-jq": "^1.8.0",
     "@huggingface/jinja": "^0.3.2",
@@ -40,7 +40,7 @@
     "@types/ini": "^4.1.1",
     "@types/mime-types": "^2.1.4",
     "@types/mustache": "^4.2.5",
-    "@types/node": "^22.10.7",
+    "@types/node": "^22.12.0",
     "@types/object-inspect": "^1.13.0",
     "@types/semver": "^7.5.8",
     "@types/shell-quote": "^1.7.5",

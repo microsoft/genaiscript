@@ -1,6 +1,6 @@
 {
   "name": "genaiscript",
-  "version": "1.95.3",
+  "version": "1.96.0",
   "main": "built/genaiscript.cjs",
   "type": "commonjs",
   "bin": {
@@ -50,7 +50,7 @@
   "license": "MIT",
   "dependencies": {
     "@anthropic-ai/bedrock-sdk": "^0.12.4",
-    "@anthropic-ai/sdk": "^0.36.2",
+    "@anthropic-ai/sdk": "^0.36.3",
     "@azure/identity": "^4.6.0",
     "@inquirer/prompts": "^7.2.3",
     "@modelcontextprotocol/sdk": "^1.4.1",
@@ -82,7 +82,7 @@
     "@lvce-editor/ripgrep": "^1.5.0",
     "pdfjs-dist": "4.9.155",
     "playwright": "^1.50.0",
-    "skia-canvas": "^2.0.1",
+    "skia-canvas": "^2.0.2",
     "tree-sitter-wasms": "^0.1.11",
     "web-tree-sitter": "0.22.2"
   },
@@ -97,7 +97,7 @@
     "@types/dockerode": "^3.3.32",
     "@types/fs-extra": "^11.0.4",
     "@types/memorystream": "^0.3.4",
-    "@types/node": "^22.10.7",
+    "@types/node": "^22.12.0",
     "@types/papaparse": "^5.3.15",
     "@types/prompts": "^2.4.9",
     "@types/replace-ext": "^2.0.2",

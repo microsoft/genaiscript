@@ -327,9 +327,12 @@ const d = parsers.tidyData(rows, { sliceSample: 100, sort: "name" })
 Apply a [GROQ](https://groq.dev/) query to a JSON object.
 
 ```js
-const d = parsers.GROQ(`*[completed == true && userId == 2]{
+const d = parsers.GROQ(
+    `*[completed == true && userId == 2]{
   title
-}`, data)
+}`,
+    data
+)
 ```
 
 ## hash
@@ -341,6 +344,21 @@ const h = parsers.hash({ obj, other }, { length: 12 })
 ```
 
 By default, uses `sha-1`, but `sha-256` can also be used. The hash packing logic may change between versions of genaiscript.
+
+## unthink
+
+Some models return their internal reasonings inside `<think>` tags.
+
+```markdown
+<think>This is my reasoning...</think>
+Yes
+```
+
+The `unthink` function removes the `<think>` tags.
+
+```js
+const text = parsers.unthink(res.text)
+```
 
 ## Command line
 
