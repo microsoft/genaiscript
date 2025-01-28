@@ -1193,7 +1193,7 @@ function PromptParametersFields() {
 
     const { parameters, setParameters } = useApi()
     const { inputSchema } = script || {}
-    if (!Object.keys(inputSchema.properties || {}).length) return null
+    if (!Object.keys(inputSchema?.properties || {}).length) return null
 
     const scriptParameters = inputSchema.properties[
         "script"
