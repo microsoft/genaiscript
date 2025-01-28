@@ -1,6 +1,5 @@
 import { describe, test } from "node:test"
 import assert from "node:assert"
-import { NotSupportedError } from "./error"
 
 import {
     promptParameterTypeToJSONSchema,

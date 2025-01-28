@@ -18,7 +18,7 @@ import { logVerbose } from "./util"
  * @returns A promise that resolves to an image encoded as a data URI.
  */
 export async function imageEncodeForLLM(
-    url: string | Buffer | Blob | ReadableStream,
+    url: BufferLike,
     options: DefImagesOptions & TraceOptions
 ) {
     // Dynamically import the Jimp library and its alignment enums

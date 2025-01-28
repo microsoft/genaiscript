@@ -185,23 +185,26 @@ Usage: genaiscript scripts|script [options] [command]
 Utility tasks for scripts
 
 Options:
-  -h, --help                display help for command
+  -h, --help                  display help for command
 
 Commands:
-  list [options]            List all available scripts in workspace
-  create <name>             Create a new script
-  fix                       fix all definition files
-  compile [folders...]      Compile all scripts in workspace
-  model [options] [script]  List model connection information for scripts
-  help [command]            display help for command
+  list [options] [script...]  List all available scripts in workspace
+  create <name>               Create a new script
+  fix                         fix all definition files
+  compile [folders...]        Compile all scripts in workspace
+  model [options] [script]    List model connection information for scripts
+  help [command]              display help for command
 ```
 
 ### `scripts list`
 
 ```
-Usage: genaiscript scripts list [options]
+Usage: genaiscript scripts list [options] [script...]
 
 List all available scripts in workspace
+
+Arguments:
+  script                    Script ids
 
 Options:
   -g, --groups <groups...>  groups to include or exclude. Use :! prefix to

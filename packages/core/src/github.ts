@@ -12,7 +12,7 @@ import {
 import { createFetch } from "./fetch"
 import { runtimeHost } from "./host"
 import { prettifyMarkdown } from "./markdown"
-import { arrayify, assert, logError, logVerbose, normalizeInt } from "./util"
+import { arrayify, assert, logError, logVerbose } from "./util"
 import { shellRemoveAsciiColors } from "./shell"
 import { isGlobMatch } from "./glob"
 import { fetchText } from "./fetch"
@@ -24,6 +24,7 @@ import { LanguageModelInfo } from "./server/messages"
 import { LanguageModel, ListModelsFunction } from "./chat"
 import { OpenAIChatCompletion } from "./openai"
 import { errorMessage, serializeError } from "./error"
+import { normalizeInt } from "./cleaners"
 
 export interface GithubConnectionInfo {
     token: string

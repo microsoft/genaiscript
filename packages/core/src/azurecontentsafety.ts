@@ -1,6 +1,6 @@
 import { createFetch, traceFetchPost } from "./fetch"
 import { TraceOptions } from "./trace"
-import { arrayify, chunkString, trimTrailingSlash } from "./util"
+import { arrayify, chunkString } from "./util"
 import {
     AZURE_CONTENT_SAFETY_PROMPT_SHIELD_MAX_LENGTH,
     DOCS_CONFIGURATION_CONTENT_SAFETY_URL,
@@ -10,6 +10,7 @@ import { CancellationOptions } from "./cancellation"
 import { YAMLStringify } from "./yaml"
 import { JSONLineCache } from "./cache"
 import { AzureCredentialsType } from "./server/messages"
+import { trimTrailingSlash } from "./cleaners"
 
 interface AzureContentSafetyRequest {
     userPrompt?: string

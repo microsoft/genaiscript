@@ -25,8 +25,6 @@ import { runtimeHost } from "../../core/src/host"
 import { JSON5TryParse } from "../../core/src/json5"
 import { MarkdownTrace } from "../../core/src/trace"
 import {
-    normalizeFloat,
-    normalizeInt,
     logInfo,
     logVerbose,
     toStringList,
@@ -44,6 +42,7 @@ import { resolveModelConnectionInfo } from "../../core/src/models"
 import { filterScripts } from "../../core/src/ast"
 import { link } from "../../core/src/mkmd"
 import { applyModelOptions } from "./modelalias"
+import { normalizeFloat, normalizeInt } from "../../core/src/cleaners"
 
 /**
  * Parses model specifications from a string and returns a ModelOptions object.
