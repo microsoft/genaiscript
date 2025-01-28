@@ -14,7 +14,7 @@
     "@types/marked": "^6.0.0",
     "@types/react": "^19.0.8",
     "@types/react-dom": "^19.0.3",
-    "@vscode-elements/elements": "^1.11.0",
+    "@vscode-elements/elements": "1.11.1-pre.0",
     "@vscode-elements/webview-playground": "^1.4.0",
     "clsx": "^2.1.1",
     "esbuild": "^0.24.2",

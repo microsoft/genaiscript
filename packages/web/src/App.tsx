@@ -83,6 +83,7 @@ const viewMode = (hosted ? "results" : urlParams.get("view")) as
 const hashParams = new URLSearchParams(window.location.hash.slice(1))
 const base = config?.base || ""
 const apiKey = hashParams.get("api-key") || config?.apiKey || ""
+const nonce = (window as any as { litNonce?: string }).litNonce
 window.location.hash = ""
 
 if (!hosted) import("@vscode-elements/webview-playground")
@@ -730,7 +731,7 @@ function CounterBadge(props: { collection: any | undefined }) {
 function TraceMarkdown() {
     const trace = useTrace()
     return (
-        <vscode-scrollable>
+        <vscode-scrollable nonce={nonce}>
             <Markdown>{trace}</Markdown>
         </vscode-scrollable>
     )
@@ -751,7 +752,7 @@ function TraceTabPanel(props: { selected?: boolean }) {
 function OutputMarkdown() {
     const output = useOutput()
     return (
-        <vscode-scrollable>
+        <vscode-scrollable nonce={nonce}>
             <MarkdownWithPreview>{output}</MarkdownWithPreview>
         </vscode-scrollable>
     )
@@ -1154,7 +1155,7 @@ function ScriptSelect() {
 
 function ScriptForm() {
     return (
-        <vscode-collapsible open title="Script">
+        <vscode-collapsible open title="Script" nonce={nonce}>
             <vscode-form-container>
                 <RemoteInfo />
                 <ScriptSelect />
@@ -1170,7 +1171,7 @@ function ScriptSourcesView() {
     const script = useScript()
     const { jsSource, text, filename } = script || {}
     return (
-        <vscode-collapsible title="Source">
+        <vscode-collapsible title="Source" nonce={nonce}>
             {filename ? <Markdown>{`- ${filename}`}</Markdown> : null}
             {text ? (
                 <Markdown>{`\`\`\`\`\`\`
@@ -1205,7 +1206,7 @@ function PromptParametersFields() {
     return (
         <>
             {scriptParameters && (
-                <vscode-collapsible title="Parameters" open>
+                <vscode-collapsible title="Parameters" open nonce={nonce}>
                     <JSONSchemaObjectForm
                         schema={scriptParameters}
                         value={parameters}
@@ -1215,7 +1216,7 @@ function PromptParametersFields() {
                 </vscode-collapsible>
             )}
             {!!systemParameters.length && (
-                <vscode-collapsible title="System Parameters">
+                <vscode-collapsible title="System Parameters" nonce={nonce}>
                     {Object.entries(inputSchema.properties)
                         .filter(([k]) => k !== "script")
                         .map(([key, fieldSchema]) => {

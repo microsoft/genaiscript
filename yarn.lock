@@ -3469,10 +3469,10 @@
   resolved "https://registry.yarnpkg.com/@ungap/structured-clone/-/structured-clone-1.3.0.tgz#d06bbb384ebcf6c505fde1c3d0ed4ddffe0aaff8"
   integrity sha512-WmoN8qaIAo7WTYWbAZuG8PYEhn5fkz7dZrqTBZ7dtt//lL2Gwms1IcnQ5yHqjDfX8Ft5j4YzDM23f87zBfDe9g==
 
-"@vscode-elements/elements@^1.11.0":
-  version "1.11.0"
-  resolved "https://registry.yarnpkg.com/@vscode-elements/elements/-/elements-1.11.0.tgz#72573d11863d3d309c0b442f6783090827e88e70"
-  integrity sha512-vC1QDaelqERypHinavJbe4Bl4/g66CVJWKFWFXZyp1seBvTxkgscayDTiE//H95V8b75BgLPDAS1y3pbSIKXag==
+"@vscode-elements/elements@1.11.1-pre.0":
+  version "1.11.1-pre.0"
+  resolved "https://registry.yarnpkg.com/@vscode-elements/elements/-/elements-1.11.1-pre.0.tgz#1d02e1fcf84b31f5c55e8ad9e20368f352d1ce37"
+  integrity sha512-bGnEYtl8I2oZz8d0wdSQpC8rxTIk8mo3Vcwd/y5AKrnU7TXVXOCsj2IpTL/psR9iSJ86h2xTq+p76klOgAuPYw==
   dependencies:
     lit "^3.2.1"
 
