@@ -291,6 +291,17 @@ export async function startServer(options: {
                 for (const client of this.clients) client.send(cmsg)
             else ws?.send(cmsg)
         }
+        const sendLastRunResult = () => {
+            if (!lastRunResult) return
+            if (JSON.stringify(lastRunResult).length < WS_MAX_FRAME_LENGTH)
+                send(lastRunResult)
+            else
+                send({
+                    type: "script.end",
+                    runId: lastRunResult.runId,
+                    exitCode: lastRunResult.exitCode,
+                } satisfies PromptScriptEndResponseEvent)
+        }
         const sendProgress = (
             runId: string,
             payload: Omit<PromptScriptProgressResponseEvent, "type" | "runId">
@@ -325,17 +336,7 @@ export async function startServer(options: {
                 )
             }
         } else if (lastRunResult) {
-            const { trace, ...restResult } = lastRunResult
-            chunkString(trace, WS_MAX_FRAME_LENGTH).forEach((c) =>
-                ws.send(
-                    toPayload({
-                        type: "script.progress",
-                        runId: lastRunResult.runId,
-                        trace: c,
-                    } satisfies PromptScriptProgressResponseEvent)
-                )
-            )
-            ws.send(toPayload(restResult))
+            sendLastRunResult()
         }
 
         // Handle incoming messages based on their type.
@@ -460,17 +461,7 @@ export async function startServer(options: {
                                     result,
                                     trace: trace.content,
                                 }
-                                if (
-                                    JSON.stringify(lastRunResult).length <
-                                    WS_MAX_FRAME_LENGTH
-                                )
-                                    send(lastRunResult)
-                                else
-                                    send({
-                                        type: "script.end",
-                                        runId,
-                                        exitCode,
-                                    })
+                                sendLastRunResult()
                             })
                             .catch((e) => {
                                 if (canceller.controller.signal.aborted) return
