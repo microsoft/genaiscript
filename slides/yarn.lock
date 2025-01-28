@@ -4132,9 +4132,9 @@ normalize-url@^8.0.0:
   integrity sha512-IO9QvjUMWxPQQhs60oOu10CRkWCiZzSUkzbXGGV9pviYl1fXYcvkzQ5jV9z8Y6un8ARoVRl4EtC6v6jNqbaJ/w==
 
 nypm@^0.5.1:
-  version "0.5.1"
-  resolved "https://registry.yarnpkg.com/nypm/-/nypm-0.5.1.tgz#860c3273ca0e718eefdfd5bf65011a0e508b1191"
-  integrity sha512-irxlzb8A2mxHHRvVHkCpuVLEg7VLeONGf0JAMruajlvpL7OHULVd6ii3Yg5qS0o8cEZdPDGZOC1XPx242nNeUA==
+  version "0.5.2"
+  resolved "https://registry.yarnpkg.com/nypm/-/nypm-0.5.2.tgz#6aa4d009ec159ad0c5ba63219690a88ecfe22b43"
+  integrity sha512-AHzvnyUJYSrrphPhRWWZNcoZfArGNp3Vrc4pm/ZurO74tYNTgAPrEyBQEKy+qioqmWlPXwvMZCG2wOaHlPG0Pw==
   dependencies:
     citty "^0.1.6"
     consola "^3.4.0"
