@@ -1737,11 +1737,6 @@
   resolved "https://registry.yarnpkg.com/@lit-labs/ssr-dom-shim/-/ssr-dom-shim-1.3.0.tgz#a28799c463177d1a0b0e5cefdc173da5ac859eb4"
   integrity sha512-nQIWonJ6eFAvUUrSlwyHDm/aE8PBDu5kRpL0vHMg6K8fK3Diq1xdPjTnsJSwxABhaZ+5eBi1btQB5ShUTKo4nQ==
 
-"@lit/react@^1.0.6":
-  version "1.0.7"
-  resolved "https://registry.yarnpkg.com/@lit/react/-/react-1.0.7.tgz#2ffb7f7b6955a53b7eb53f3557e0dda91d7420ff"
-  integrity sha512-cencnwwLXQKiKxjfFzSgZRngcWJzUDZi/04E0fSaF86wZgchMdvTyu+lE36DrUfvuus3bH8+xLPrhM1cTjwpzw==
-
 "@lit/reactive-element@^2.0.4":
   version "2.0.4"
   resolved "https://registry.yarnpkg.com/@lit/reactive-element/-/reactive-element-2.0.4.tgz#8f2ed950a848016383894a26180ff06c56ae001b"
@@ -3474,20 +3469,12 @@
   resolved "https://registry.yarnpkg.com/@ungap/structured-clone/-/structured-clone-1.3.0.tgz#d06bbb384ebcf6c505fde1c3d0ed4ddffe0aaff8"
   integrity sha512-WmoN8qaIAo7WTYWbAZuG8PYEhn5fkz7dZrqTBZ7dtt//lL2Gwms1IcnQ5yHqjDfX8Ft5j4YzDM23f87zBfDe9g==
 
-"@vscode-elements/elements@^1.11.0", "@vscode-elements/elements@^1.8.0":
+"@vscode-elements/elements@^1.11.0":
   version "1.11.0"
   resolved "https://registry.yarnpkg.com/@vscode-elements/elements/-/elements-1.11.0.tgz#72573d11863d3d309c0b442f6783090827e88e70"
   integrity sha512-vC1QDaelqERypHinavJbe4Bl4/g66CVJWKFWFXZyp1seBvTxkgscayDTiE//H95V8b75BgLPDAS1y3pbSIKXag==
   dependencies:
     lit "^3.2.1"
-
-"@vscode-elements/react-elements@^0.8.0":
-  version "0.8.0"
-  resolved "https://registry.yarnpkg.com/@vscode-elements/react-elements/-/react-elements-0.8.0.tgz#3d93d36af94738d404a8b1c8d58de1394f823cf0"
-  integrity sha512-lSOynIyoUsRYuLEKRokKu1UL58GTXwixM5zjmQDLbs5WoDbdHZTr6YQKcqV7kcd2UBzN8hdclKMsnliuxYESpw==
-  dependencies:
-    "@lit/react" "^1.0.6"
-    "@vscode-elements/elements" "^1.8.0"
 
 "@vscode-elements/webview-playground@^1.4.0":
   version "1.4.0"

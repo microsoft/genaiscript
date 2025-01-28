@@ -1,4 +1,5 @@
 /// <reference path="../../core/src/types/prompt_template.d.ts" />
+/// <reference path="./vscode-elements.d.ts" />
 import React, {
     createContext,
     Dispatch,
@@ -11,26 +12,26 @@ import React, {
     useMemo,
     useState,
 } from "react"
-import {
-    VscodeButton,
-    VscodeSingleSelect,
-    VscodeOption,
-    VscodeTextfield,
-    VscodeCheckbox,
-    VscodeFormContainer,
-    VscodeFormGroup,
-    VscodeFormHelper,
-    VscodeLabel,
-    VscodeProgressRing,
-    VscodeCollapsible,
-    VscodeTabs,
-    VscodeTabHeader,
-    VscodeTabPanel,
-    VscodeBadge,
-    VscodeTextarea,
-    VscodeMultiSelect,
-    VscodeScrollable,
-} from "@vscode-elements/react-elements"
+
+import "@vscode-elements/elements/dist/vscode-button"
+import "@vscode-elements/elements/dist/vscode-single-select"
+import "@vscode-elements/elements/dist/vscode-option"
+import "@vscode-elements/elements/dist/vscode-textfield"
+import "@vscode-elements/elements/dist/vscode-checkbox"
+import "@vscode-elements/elements/dist/vscode-form-container"
+import "@vscode-elements/elements/dist/vscode-form-group"
+import "@vscode-elements/elements/dist/vscode-form-helper"
+import "@vscode-elements/elements/dist/vscode-label"
+import "@vscode-elements/elements/dist/vscode-progress-ring"
+import "@vscode-elements/elements/dist/vscode-collapsible"
+import "@vscode-elements/elements/dist/vscode-tabs"
+import "@vscode-elements/elements/dist/vscode-tab-header"
+import "@vscode-elements/elements/dist/vscode-tab-panel"
+import "@vscode-elements/elements/dist/vscode-badge"
+import "@vscode-elements/elements/dist/vscode-textarea"
+import "@vscode-elements/elements/dist/vscode-multi-select"
+import "@vscode-elements/elements/dist/vscode-scrollable"
+
 import Markdown from "./Markdown"
 import type {
     Project,
@@ -57,11 +58,12 @@ import { underscore } from "inflection"
 import { lookupMime } from "../../core/src/mime"
 import dedent from "dedent"
 import { markdownDiff } from "../../core/src/mddiff"
-import { VscodeMultiSelect as VscodeMultiSelectElement } from "@vscode-elements/elements"
 import { cleanedClone } from "../../core/src/clone"
 import { WebSocketClient } from "../../core/src/server/wsclient"
 import { convertAnnotationToItem } from "../../core/src/annotations"
 import MarkdownWithPreview from "./MarkdownWithPreview"
+import { VscodeMultiSelect } from "@vscode-elements/elements/dist/vscode-multi-select/vscode-multi-select"
+import { VscTabsSelectEvent } from "@vscode-elements/elements/dist/vscode-tabs/vscode-tabs"
 
 interface GenAIScriptViewOptions {
     apiKey?: string
@@ -562,7 +564,7 @@ function JSONSchemaNumber(props: {
     }, [valueText])
 
     return (
-        <VscodeTextfield
+        <vscode-textfield
             value={valueText}
             required={required}
             placeholder={schema.default + ""}
@@ -602,7 +604,7 @@ function JSONSchemaSimpleTypeFormField(props: {
             const vs = (value as string) || ""
             if (field.enum) {
                 return (
-                    <VscodeSingleSelect
+                    <vscode-single-select
                         value={vs}
                         required={required}
                         onChange={(e) => {
@@ -611,15 +613,15 @@ function JSONSchemaSimpleTypeFormField(props: {
                         }}
                     >
                         {field.enum.map((option) => (
-                            <VscodeOption key={option} value={option}>
+                            <vscode-option key={option} value={option}>
                                 {option}
-                            </VscodeOption>
+                            </vscode-option>
                         ))}
-                    </VscodeSingleSelect>
+                    </vscode-single-select>
                 )
             }
             return (
-                <VscodeTextarea
+                <vscode-textarea
                     style={{ height: "unset" }}
                     value={vs}
                     required={required}
@@ -639,7 +641,7 @@ function JSONSchemaSimpleTypeFormField(props: {
         }
         case "boolean":
             return (
-                <VscodeCheckbox
+                <vscode-checkbox
                     checked={value as boolean}
                     required={required}
                     onChange={(e) => {
@@ -650,7 +652,7 @@ function JSONSchemaSimpleTypeFormField(props: {
             )
         default:
             return (
-                <VscodeTextfield
+                <vscode-textfield
                     spellCheck={false}
                     value={value as string}
                     required={required}
@@ -681,15 +683,15 @@ function JSONSchemaObjectForm(props: {
     }
 
     return (
-        <VscodeFormContainer>
+        <vscode-form-container>
             {Object.entries(properties).map(([fieldName, field]) => (
-                <VscodeFormGroup key={fieldPrefix + fieldName}>
-                    <VscodeLabel>
+                <vscode-form-group key={fieldPrefix + fieldName}>
+                    <vscode-label>
                         {underscore(fieldPrefix + fieldName).replaceAll(
                             /[_\.]/g,
                             " "
                         )}
-                    </VscodeLabel>
+                    </vscode-label>
                     <JSONSchemaSimpleTypeFormField
                         field={field}
                         value={value[fieldPrefix + fieldName]}
@@ -699,11 +701,13 @@ function JSONSchemaObjectForm(props: {
                         }
                     />
                     {field?.description && (
-                        <VscodeFormHelper>{field.description}</VscodeFormHelper>
+                        <vscode-form-helper>
+                            {field.description}
+                        </vscode-form-helper>
                     )}
-                </VscodeFormGroup>
+                </vscode-form-group>
             ))}
-        </VscodeFormContainer>
+        </vscode-form-container>
     )
 }
 
@@ -715,9 +719,9 @@ function CounterBadge(props: { collection: any | undefined }) {
     } else if (collection) count = "1"
 
     return count ? (
-        <VscodeBadge variant="counter" slot="content-after">
+        <vscode-badge variant="counter" slot="content-after">
             {count}
-        </VscodeBadge>
+        </vscode-badge>
     ) : (
         ""
     )
@@ -726,9 +730,9 @@ function CounterBadge(props: { collection: any | undefined }) {
 function TraceMarkdown() {
     const trace = useTrace()
     return (
-        <VscodeScrollable>
+        <vscode-scrollable>
             <Markdown>{trace}</Markdown>
-        </VscodeScrollable>
+        </vscode-scrollable>
     )
 }
 
@@ -736,10 +740,10 @@ function TraceTabPanel(props: { selected?: boolean }) {
     const { selected } = props
     return (
         <>
-            <VscodeTabHeader slot="header">Trace</VscodeTabHeader>
-            <VscodeTabPanel>
+            <vscode-tab-header slot="header">Trace</vscode-tab-header>
+            <vscode-tab-panel>
                 {selected ? <TraceMarkdown /> : null}
-            </VscodeTabPanel>
+            </vscode-tab-panel>
         </>
     )
 }
@@ -747,9 +751,9 @@ function TraceTabPanel(props: { selected?: boolean }) {
 function OutputMarkdown() {
     const output = useOutput()
     return (
-        <VscodeScrollable>
+        <vscode-scrollable>
             <MarkdownWithPreview>{output}</MarkdownWithPreview>
-        </VscodeScrollable>
+        </vscode-scrollable>
     )
 }
 
@@ -757,10 +761,10 @@ function OutputTraceTabPanel(props: { selected?: boolean }) {
     const { selected } = props
     return (
         <>
-            <VscodeTabHeader slot="header">Output</VscodeTabHeader>
-            <VscodeTabPanel>
+            <vscode-tab-header slot="header">Output</vscode-tab-header>
+            <vscode-tab-panel>
                 {selected ? <OutputMarkdown /> : null}
-            </VscodeTabPanel>
+            </vscode-tab-panel>
         </>
     )
 }
@@ -774,13 +778,13 @@ function ProblemsTabPanel() {
 
     return (
         <>
-            <VscodeTabHeader slot="header">
+            <vscode-tab-header slot="header">
                 Problems
                 <CounterBadge collection={annotations} />
-            </VscodeTabHeader>
-            <VscodeTabPanel>
+            </vscode-tab-header>
+            <vscode-tab-panel>
                 <Markdown>{annotationsMarkdown}</Markdown>
-            </VscodeTabPanel>
+            </vscode-tab-panel>
         </>
     )
 }
@@ -795,13 +799,13 @@ function MessagesTabPanel() {
     })
     return (
         <>
-            <VscodeTabHeader slot="header">
+            <vscode-tab-header slot="header">
                 Chat
                 <CounterBadge collection={messages} />
-            </VscodeTabHeader>
-            <VscodeTabPanel>
+            </vscode-tab-header>
+            <vscode-tab-panel>
                 <Markdown>{md}</Markdown>
-            </VscodeTabPanel>
+            </vscode-tab-panel>
         </>
     )
 }
@@ -823,17 +827,17 @@ function StatsTabPanel() {
     const md = stats ? YAMLStringify(rest) : ""
     return (
         <>
-            <VscodeTabHeader slot="header">
+            <vscode-tab-header slot="header">
                 Stats
                 {!!cost && (
-                    <VscodeBadge variant="counter" slot="content-after">
+                    <vscode-badge variant="counter" slot="content-after">
                         {renderCost(cost)}
-                    </VscodeBadge>
+                    </vscode-badge>
                 )}
-            </VscodeTabHeader>
-            <VscodeTabPanel>
+            </vscode-tab-header>
+            <vscode-tab-panel>
                 {md ? <Markdown>{fenceMD(md, "yaml")}</Markdown> : null}
-            </VscodeTabPanel>
+            </vscode-tab-panel>
         </>
     )
 }
@@ -846,13 +850,13 @@ function LogProbsTabPanel() {
     const md = logprobs?.map((lp) => logprobToMarkdown(lp)).join("\n")
     return (
         <>
-            <VscodeTabHeader slot="header">
+            <vscode-tab-header slot="header">
                 Perplexity
                 <CounterBadge collection={md} />
-            </VscodeTabHeader>
-            <VscodeTabPanel>
+            </vscode-tab-header>
+            <vscode-tab-panel>
                 <Markdown>{md}</Markdown>
-            </VscodeTabPanel>
+            </vscode-tab-panel>
         </>
     )
 }
@@ -865,13 +869,13 @@ function TopLogProbsTabPanel() {
     const md = logprobs?.map((lp) => topLogprobsToMarkdown(lp)).join("\n")
     return (
         <>
-            <VscodeTabHeader slot="header">
+            <vscode-tab-header slot="header">
                 Entropy
                 <CounterBadge collection={md} />
-            </VscodeTabHeader>
-            <VscodeTabPanel>
+            </vscode-tab-header>
+            <vscode-tab-panel>
                 <Markdown>{md}</Markdown>
-            </VscodeTabPanel>
+            </vscode-tab-panel>
         </>
     )
 }
@@ -883,11 +887,11 @@ function FileEditsTabPanel() {
 
     return (
         <>
-            <VscodeTabHeader slot="header">
+            <vscode-tab-header slot="header">
                 Edits
                 <CounterBadge collection={files} />
-            </VscodeTabHeader>
-            <VscodeTabPanel>
+            </vscode-tab-header>
+            <vscode-tab-panel>
                 <Markdown>
                     {files
                         ?.map(
@@ -908,7 +912,7 @@ function FileEditsTabPanel() {
                         )
                         .join("\n")}
                 </Markdown>
-            </VscodeTabPanel>
+            </vscode-tab-panel>
         </>
     )
 }
@@ -919,11 +923,11 @@ function DataTabPanel() {
 
     return (
         <>
-            <VscodeTabHeader slot="header">
+            <vscode-tab-header slot="header">
                 Data
                 <CounterBadge collection={frames} />
-            </VscodeTabHeader>
-            <VscodeTabPanel>
+            </vscode-tab-header>
+            <vscode-tab-panel>
                 {frames.map((frame, i) => (
                     <Markdown key={i}>
                         {`
@@ -933,7 +937,7 @@ ${JSON.stringify(frame, null, 2)}}
 `}
                     </Markdown>
                 ))}
-            </VscodeTabPanel>
+            </vscode-tab-panel>
         </>
     )
 }
@@ -943,11 +947,11 @@ function JSONTabPanel() {
     const { json } = result || {}
     return (
         <>
-            <VscodeTabHeader slot="header">
+            <vscode-tab-header slot="header">
                 JSON
                 <CounterBadge collection={json} />
-            </VscodeTabHeader>
-            <VscodeTabPanel>
+            </vscode-tab-header>
+            <vscode-tab-panel>
                 {json && (
                     <Markdown>
                         {`
@@ -957,7 +961,7 @@ ${JSON.stringify(json, null, 2)}}
 `}
                     </Markdown>
                 )}
-            </VscodeTabPanel>
+            </vscode-tab-panel>
         </>
     )
 }
@@ -966,8 +970,8 @@ function RawTabPanel() {
     const result = useResult()
     return (
         <>
-            <VscodeTabHeader slot="header">Raw</VscodeTabHeader>
-            <VscodeTabPanel>
+            <vscode-tab-header slot="header">Raw</vscode-tab-header>
+            <vscode-tab-panel>
                 {result && (
                     <Markdown>
                         {`
@@ -977,7 +981,7 @@ ${JSON.stringify(result, null, 2)}}
 `}
                     </Markdown>
                 )}
-            </VscodeTabPanel>
+            </vscode-tab-panel>
         </>
     )
 }
@@ -1025,12 +1029,12 @@ function FilesDropZone() {
 
     return (
         <>
-            <VscodeFormGroup>
-                <VscodeLabel>Files</VscodeLabel>
-                <VscodeMultiSelect
+            <vscode-form-group>
+                <vscode-label>Files</vscode-label>
+                <vscode-multi-select
                     onChange={(e) => {
                         e.preventDefault()
-                        const target = e.target as VscodeMultiSelectElement
+                        const target = e.target as VscodeMultiSelect
                         const newImportedFiles = [...importedFiles]
                         const selected = target.selectedIndexes
                         for (let i = 0; i < newImportedFiles.length; i++) {
@@ -1040,29 +1044,29 @@ function FilesDropZone() {
                     }}
                 >
                     {importedFiles.map((file) => (
-                        <VscodeOption
+                        <vscode-option
                             key={file.path}
                             value={file.path}
                             selected={file.selected}
                         >
                             {file.name} ({prettyBytes(file.size)})
-                        </VscodeOption>
+                        </vscode-option>
                     ))}
-                </VscodeMultiSelect>
-            </VscodeFormGroup>
-            <VscodeFormGroup
+                </vscode-multi-select>
+            </vscode-form-group>
+            <vscode-form-group
                 style={{
                     cursor: "pointer",
                 }}
                 {...getRootProps({ className: "dropzone" })}
             >
                 <input {...getInputProps()} />
-                <VscodeFormHelper>
+                <vscode-form-helper>
                     {isDragActive
                         ? `Drop the files here ...`
                         : `Drag 'n' drop some files here, or click to select files`}
-                </VscodeFormHelper>
-            </VscodeFormGroup>
+                </vscode-form-helper>
+            </vscode-form-group>
         </>
     )
 }
@@ -1070,10 +1074,10 @@ function FilesDropZone() {
 function GlobsForm() {
     const { files = [], setFiles } = useApi()
     return (
-        <VscodeFormContainer>
-            <VscodeFormGroup>
-                <VscodeLabel>Globs</VscodeLabel>
-                <VscodeTextarea
+        <vscode-form-container>
+            <vscode-form-group>
+                <vscode-label>Globs</vscode-label>
+                <vscode-textarea
                     value={files.join(", ")}
                     label="List of files glob patterns, one per line"
                     onChange={(e) => {
@@ -1081,8 +1085,8 @@ function GlobsForm() {
                         startTransition(() => setFiles(target.value.split(",")))
                     }}
                 />
-            </VscodeFormGroup>
-        </VscodeFormContainer>
+            </vscode-form-group>
+        </vscode-form-container>
     )
 }
 
@@ -1093,17 +1097,13 @@ function RemoteInfo() {
     const { url, branch } = remote
     const value = `${url}#${branch}`
     return (
-        <VscodeFormGroup>
-            <VscodeLabel>Remote</VscodeLabel>
-            <VscodeTextfield
-                readonly={true}
-                disabled={true}
-                value={value}
-            ></VscodeTextfield>
-            <VscodeFormHelper>
+        <vscode-form-group>
+            <vscode-label>Remote</vscode-label>
+            <vscode-textfield readonly={true} disabled={true} value={value} />
+            <vscode-form-helper>
                 Running GenAIScript on a clone of this repository.
-            </VscodeFormHelper>
-        </VscodeFormGroup>
+            </vscode-form-helper>
+        </vscode-form-group>
     )
 }
 
@@ -1113,16 +1113,16 @@ function ScriptSelect() {
     const script = useScript()
 
     return (
-        <VscodeFormGroup>
-            <VscodeLabel style={{ padding: 0 }}>
+        <vscode-form-group>
+            <vscode-label style={{ padding: 0 }}>
                 <GenAIScriptLogo height="2em" />
-            </VscodeLabel>
-            <VscodeSingleSelect
+            </vscode-label>
+            <vscode-single-select
                 value={scriptid}
                 required={true}
                 combobox
                 filter="fuzzy"
-                onChange={(e) => {
+                onvsc-change={(e: Event) => {
                     const target = e.target as HTMLSelectElement
                     setScriptid(target.value)
                 }}
@@ -1130,39 +1130,39 @@ function ScriptSelect() {
                 {scripts
                     .filter((s) => !s.isSystem && !s.unlisted)
                     .map(({ id, title }) => (
-                        <VscodeOption
+                        <vscode-option
                             value={id}
                             selected={scriptid === id}
                             description={title}
                         >
                             {id}
-                        </VscodeOption>
+                        </vscode-option>
                     ))}
-            </VscodeSingleSelect>
+            </vscode-single-select>
             {script && (
-                <VscodeFormHelper>
+                <vscode-form-helper>
                     {toStringList(
                         script.title,
                         script.description,
                         script.filename
                     )}
-                </VscodeFormHelper>
+                </vscode-form-helper>
             )}
-        </VscodeFormGroup>
+        </vscode-form-group>
     )
 }
 
 function ScriptForm() {
     return (
-        <VscodeCollapsible open title="Script">
-            <VscodeFormContainer>
+        <vscode-collapsible open title="Script">
+            <vscode-form-container>
                 <RemoteInfo />
                 <ScriptSelect />
                 <FilesDropZone />
                 <PromptParametersFields />
                 <RunButton />
-            </VscodeFormContainer>
-        </VscodeCollapsible>
+            </vscode-form-container>
+        </vscode-collapsible>
     )
 }
 
@@ -1170,7 +1170,7 @@ function ScriptSourcesView() {
     const script = useScript()
     const { jsSource, text, filename } = script || {}
     return (
-        <VscodeCollapsible title="Source">
+        <vscode-collapsible title="Source">
             {filename ? <Markdown>{`- ${filename}`}</Markdown> : null}
             {text ? (
                 <Markdown>{`\`\`\`\`\`\`
@@ -1184,7 +1184,7 @@ ${jsSource.trim()}
 \`\`\`\`\`\``}
                 </Markdown>
             ) : null}
-        </VscodeCollapsible>
+        </vscode-collapsible>
     )
 }
 
@@ -1205,17 +1205,17 @@ function PromptParametersFields() {
     return (
         <>
             {scriptParameters && (
-                <VscodeCollapsible title="Parameters" open>
+                <vscode-collapsible title="Parameters" open>
                     <JSONSchemaObjectForm
                         schema={scriptParameters}
                         value={parameters}
                         fieldPrefix={""}
                         onChange={setParameters}
                     />
-                </VscodeCollapsible>
+                </vscode-collapsible>
             )}
             {!!systemParameters.length && (
-                <VscodeCollapsible title="System Parameters">
+                <vscode-collapsible title="System Parameters">
                     {Object.entries(inputSchema.properties)
                         .filter(([k]) => k !== "script")
                         .map(([key, fieldSchema]) => {
@@ -1228,7 +1228,7 @@ function PromptParametersFields() {
                                 />
                             )
                         })}
-                </VscodeCollapsible>
+                </vscode-collapsible>
             )}
         </>
     )
@@ -1295,14 +1295,14 @@ function ModelConnectionOptionsForm() {
         },
     }
     return (
-        <VscodeCollapsible title="Model Options">
+        <vscode-collapsible title="Model Options">
             <JSONSchemaObjectForm
                 schema={schema}
                 value={options}
                 fieldPrefix=""
                 onChange={setOptions}
             />
-        </VscodeCollapsible>
+        </vscode-collapsible>
     )
 }
 
@@ -1312,17 +1312,17 @@ function RunButton() {
     const disabled = !scriptid
 
     return (
-        <VscodeFormGroup>
-            <VscodeLabel></VscodeLabel>
-            <VscodeButton disabled={disabled} type="submit">
+        <vscode-form-group>
+            <vscode-label></vscode-label>
+            <vscode-button disabled={disabled} type="submit">
                 {state === "running" ? "Abort" : "Run"}
-            </VscodeButton>
-            <VscodeFormHelper>
+            </vscode-button>
+            <vscode-form-helper>
                 {Object.entries(options)
                     .map(([key, value]) => `${key}: ${value}`)
                     .join(", ")}
-            </VscodeFormHelper>
-        </VscodeFormGroup>
+            </vscode-form-helper>
+        </vscode-form-group>
     )
 }
 
@@ -1346,8 +1346,10 @@ function RunForm() {
 function ResultsTabs() {
     const [selected, setSelected] = useState(0)
     return (
-        <VscodeTabs
-            onVscTabsSelect={(e) => setSelected(e.detail.selectedIndex)}
+        <vscode-tabs
+            onvsc-tabs-select={(e: VscTabsSelectEvent) =>
+                setSelected(e.detail.selectedIndex)
+            }
             panel
         >
             <OutputTraceTabPanel selected={selected === 0} />
@@ -1360,7 +1362,7 @@ function ResultsTabs() {
             <JSONTabPanel />
             <StatsTabPanel />
             <RawTabPanel />
-        </VscodeTabs>
+        </vscode-tabs>
     )
 }
 
@@ -1372,9 +1374,9 @@ function WebApp() {
             return (
                 <>
                     <RunForm />
-                    <VscodeCollapsible open title="Results">
+                    <vscode-collapsible open title="Results">
                         <ResultsTabs />
-                    </VscodeCollapsible>
+                    </vscode-collapsible>
                 </>
             )
     }
@@ -1384,7 +1386,7 @@ export default function App() {
     return (
         <ApiProvider>
             <RunnerProvider>
-                <Suspense fallback={<VscodeProgressRing />}>
+                <Suspense fallback={<vscode-progress-ring />}>
                     <WebApp />
                 </Suspense>
             </RunnerProvider>

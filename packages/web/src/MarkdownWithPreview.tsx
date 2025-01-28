@@ -1,13 +1,13 @@
-import {
-    VscodeTabHeader,
-    VscodeTabPanel,
-    VscodeTabs,
-} from "@vscode-elements/react-elements"
 import React from "react"
 import { fenceMD } from "../../core/src/mkmd"
 import Markdown from "./Markdown"
 import { convertThinkToMarkdown } from "../../core/src/think"
 import { convertAnnotationsToMarkdown } from "../../core/src/annotations"
+
+import "@vscode-elements/elements/dist/vscode-tabs"
+import "@vscode-elements/elements/dist/vscode-tab-header"
+import "@vscode-elements/elements/dist/vscode-tab-panel"
+
 
 export default function MarkdownWithPreview(props: {
     className?: string
@@ -23,15 +23,15 @@ export default function MarkdownWithPreview(props: {
     )
 
     return (
-        <VscodeTabs>
-            <VscodeTabHeader slot="header">Preview</VscodeTabHeader>
-            <VscodeTabPanel>
+        <vscode-tabs>
+            <vscode-tab-header slot="header">Preview</vscode-tab-header>
+            <vscode-tab-panel>
                 <Markdown className={className}>{md}</Markdown>
-            </VscodeTabPanel>
-            <VscodeTabHeader slot="header">Source</VscodeTabHeader>
-            <VscodeTabPanel>
+            </vscode-tab-panel>
+            <vscode-tab-header slot="header">Source</vscode-tab-header>
+            <vscode-tab-panel>
                 <Markdown>{fenceMD(children, "markdown")}</Markdown>
-            </VscodeTabPanel>
-        </VscodeTabs>
+            </vscode-tab-panel>
+        </vscode-tabs>
     )
 }
