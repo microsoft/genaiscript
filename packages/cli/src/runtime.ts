@@ -10,6 +10,13 @@ import { pipeline } from "@huggingface/transformers"
 // symbols exported as is
 export { delay, uniq, uniqBy, z, pipeline, chunk, groupBy }
 
+/**
+ * Options for classifying data.
+ * 
+ * @property {boolean} [other] - Inject a 'other' label.
+ * @property {boolean} [explanations] - Explain answers before returning token.
+ * @property {ChatGenerationContext} [ctx] - Options runPrompt context.
+ */
 export type ClassifyOptions = {
     /**
      * Inject a 'other' label
@@ -140,4 +147,30 @@ no
         answer,
         logprobs,
     }
+}
+
+
+/**
+ * Enhances the provided context by repeating a set of instructions a specified number of times.
+ *
+ * @param options - Configuration options for the function.
+ * @param options.ctx - The chat generation context to be used. If not provided, defaults to `env.generator`.
+ * @param options.repeat - The number of times to repeat the instructions. Defaults to 1.
+ * @param options.instructions - The instructions to be executed in each round. Defaults to "Make it better!".
+ */
+export function makeItBetter(options?: {
+    ctx?: ChatGenerationContext
+    repeat?: number
+    instructions?: string
+}) {
+    const { repeat = 1, instructions = "Make it better!" } = options || {}
+    const ctx = options?.ctx || env.generator
+
+    let round = 0
+    ctx.defChatParticipant((cctx) => {
+        if (round++ < repeat) {
+            cctx.console.log(`make it better (round ${round})`)
+            cctx.$`${instructions}`
+        }
+    })
 }
