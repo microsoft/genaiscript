@@ -1268,9 +1268,9 @@
     "@types/unist" "*"
 
 "@types/node@*", "@types/node@>=20":
-  version "22.10.10"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-22.10.10.tgz#85fe89f8bf459dc57dfef1689bd5b52ad1af07e6"
-  integrity sha512-X47y/mPNzxviAGY5TcYPtYL8JsY3kAq2n8fMmKoRCxq/c4v4pyGNCzM2R6+M5/umG4ZfHuT+sgqDYqWc9rJ6ww==
+  version "22.12.0"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-22.12.0.tgz#bf8af3b2af0837b5a62a368756ff2b705ae0048c"
+  integrity sha512-Fll2FZ1riMjNmlmJOdAyY5pUbkftXslB5DgEzlIuNaiWhXd00FhWxVC/r4yV/4wBb9JfImTu+jiSvXTkJ7F/gA==
   dependencies:
     undici-types "~6.20.0"
 
@@ -1520,9 +1520,9 @@ astro-remote@^0.3.3:
     ultrahtml "^1.5.3"
 
 astro@^5.1.9:
-  version "5.1.9"
-  resolved "https://registry.yarnpkg.com/astro/-/astro-5.1.9.tgz#e81a88906646325dc1c96c8fde65e63c507a70c9"
-  integrity sha512-QB3MH7Ul3gEvmHXEfvPkGpTZyyB/TBKQbm0kTHpo0BTEB7BvaY+wrcWiGEJBVDpVdEAKY9fM3zrJ0c7hZSXVlw==
+  version "5.1.10"
+  resolved "https://registry.yarnpkg.com/astro/-/astro-5.1.10.tgz#6c06a4d6b0bf39012159fa63ac9b42aca275cdcb"
+  integrity sha512-qFu4jC7BRlhwHgk9Pa1sTQWw60zYWlriNTt6bMGMKkPxCd4Dd84fGn+NjbrJ/JeKwF7YXX0gY1saDF/RS6TMVA==
   dependencies:
     "@astrojs/compiler" "^2.10.3"
     "@astrojs/internal-helpers" "0.4.2"

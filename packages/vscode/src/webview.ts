@@ -80,6 +80,7 @@ export async function createWebview(
     <link href="${stylesheetUri}" rel="stylesheet">
     <script nonce="${nonce}">
         window.litNonce = ${JSON.stringify(nonce)};
+        window.vscodeWebviewPlaygroundNonce = ${JSON.stringify(nonce)};
         window.genaiscript = ${JSON.stringify({ apiKey: sessionApiKey, base: authority })};
     </script>
 </head>
