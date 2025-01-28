@@ -40,8 +40,8 @@ import type {
     ServerEnvResponse,
     RequestMessages,
     PromptScriptStartResponse,
+    PromptScriptEndResponseEvent,
 } from "../../core/src/server/messages"
-import { promptParametersSchemaToJSONSchema } from "../../core/src/parameters"
 import {
     logprobToMarkdown,
     topLogprobsToMarkdown,
@@ -109,6 +109,20 @@ const fetchEnv = async (): Promise<ServerEnvResponse> => {
     const j: ServerEnvResponse = await res.json()
     return j
 }
+const fetchRun = async (
+    runId: string
+): Promise<PromptScriptEndResponseEvent> => {
+    const res = await fetch(`${base}/api/runs/${runId}`, {
+        headers: {
+            Accept: "application/json",
+            Authorization: apiKey || "",
+        },
+    })
+    if (!res.ok) throw new Error(await res.json())
+
+    const j: PromptScriptEndResponseEvent = await res.json()
+    return j
+}
 
 class RunClient extends WebSocketClient {
     static readonly SCRIPT_START_EVENT = "scriptStart"
@@ -126,7 +140,7 @@ class RunClient extends WebSocketClient {
         super(url)
         this.addEventListener(
             "message",
-            (ev) => {
+            async (ev) => {
                 const data = (ev as MessageEvent<any>).data as
                     | PromptScriptResponseEvents
                     | RequestMessages
@@ -140,8 +154,14 @@ class RunClient extends WebSocketClient {
                     }
                     case "script.end": {
                         this.updateRunId(data)
-                        this.result = cleanedClone(data.result)
-                        this.output = data.result.text
+                        if (data.result) {
+                            this.result = cleanedClone(data.result)
+                        } else {
+                            const e = await fetchRun(data.runId)
+                            this.result = cleanedClone(e.result)
+                            this.trace = e.trace || ""
+                        }
+                        this.output = this.result?.text || ""
                         this.dispatchEvent(
                             new CustomEvent(RunClient.SCRIPT_END_EVENT, {
                                 detail: this.result,
@@ -1173,7 +1193,7 @@ function PromptParametersFields() {
 
     const { parameters, setParameters } = useApi()
     const { inputSchema } = script || {}
-    if (!Object.keys(inputSchema.properties || {}).length) return null
+    if (!Object.keys(inputSchema?.properties || {}).length) return null
 
     const scriptParameters = inputSchema.properties[
         "script"

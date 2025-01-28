@@ -1028,7 +1028,7 @@ async function tracePromptNode(
         node: (n) => {
             const error = errorMessage(n.error)
             let title = toStringList(
-                n.type || `🌳 prompt tree ${options?.label || ""}`,
+                n.type || `🌳 promptdom ${options?.label || ""}`,
                 n.priority ? `#${n.priority}` : undefined
             )
             const value = toStringList(

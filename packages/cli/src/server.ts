@@ -9,6 +9,7 @@ import {
     USER_CANCELLED_ERROR_CODE,
     UNHANDLED_ERROR_CODE,
     MODEL_PROVIDER_GITHUB_COPILOT_CHAT,
+    WS_MAX_FRAME_LENGTH,
 } from "../../core/src/constants"
 import { isCancelError, serializeError } from "../../core/src/error"
 import { host, runtimeHost } from "../../core/src/host"
@@ -95,9 +96,7 @@ export async function startServer(options: {
     const wss = new WebSocketServer({ noServer: true })
 
     // Stores active script runs with their cancellation controllers and traces.
-    let lastRunResult: PromptScriptEndResponseEvent & {
-        trace: string
-    } = undefined
+    let lastRunResult: PromptScriptEndResponseEvent = undefined
     const runs: Record<
         string,
         {
@@ -111,6 +110,14 @@ export async function startServer(options: {
     // Stores active chat handlers.
     const chats: Record<string, (chunk: ChatChunk) => Promise<void>> = {}
 
+    const toPayload = (payload: object) => {
+        const msg = JSON.stringify(payload)
+        if (msg.length > WS_MAX_FRAME_LENGTH) {
+            throw new Error("Message too large")
+        }
+        return msg
+    }
+
     // Cancels all active runs and chats.
     const cancelAll = () => {
         for (const [runId, run] of Object.entries(runs)) {
@@ -122,7 +129,7 @@ export async function startServer(options: {
             logVerbose(`abort chat ${chat}`)
             for (const ws of wss.clients) {
                 ws.send(
-                    JSON.stringify(<ChatCancel>{
+                    toPayload(<ChatCancel>{
                         type: "chat.cancel",
                         chatId,
                     })
@@ -250,14 +257,15 @@ export async function startServer(options: {
                 }
 
                 // Send request to LLM clients.
-                const msg = JSON.stringify(<ChatStart>{
-                    type: "chat.start",
-                    chatId,
-                    model,
-                    messages,
-                })
                 for (const ws of wss.clients) {
-                    ws.send(msg)
+                    ws.send(
+                        toPayload(<ChatStart>{
+                            type: "chat.start",
+                            chatId,
+                            model,
+                            messages,
+                        })
+                    )
                     break
                 }
             })
@@ -278,10 +286,21 @@ export async function startServer(options: {
         )
 
         const send = (payload: object) => {
-            const cmsg = JSON.stringify(payload)
+            const cmsg = toPayload(payload)
             if (dispatchProgress)
                 for (const client of this.clients) client.send(cmsg)
             else ws?.send(cmsg)
+        }
+        const sendLastRunResult = () => {
+            if (!lastRunResult) return
+            if (JSON.stringify(lastRunResult).length < WS_MAX_FRAME_LENGTH)
+                send(lastRunResult)
+            else
+                send({
+                    type: "script.end",
+                    runId: lastRunResult.runId,
+                    exitCode: lastRunResult.exitCode,
+                } satisfies PromptScriptEndResponseEvent)
         }
         const sendProgress = (
             runId: string,
@@ -299,34 +318,25 @@ export async function startServer(options: {
         if (activeRuns.length) {
             for (const [runId, run] of activeRuns) {
                 ws.send(
-                    JSON.stringify({
+                    toPayload({
                         type: "script.progress",
                         runId,
                         output: run.outputTrace.content,
                     } satisfies PromptScriptProgressResponseEvent)
                 )
-                chunkString(run.trace.content).forEach((c) =>
-                    ws.send(
-                        JSON.stringify({
-                            type: "script.progress",
-                            runId,
-                            trace: c,
-                        } satisfies PromptScriptProgressResponseEvent)
-                    )
+                chunkString(run.trace.content, WS_MAX_FRAME_LENGTH).forEach(
+                    (c) =>
+                        ws.send(
+                            toPayload({
+                                type: "script.progress",
+                                runId,
+                                trace: c,
+                            } satisfies PromptScriptProgressResponseEvent)
+                        )
                 )
             }
         } else if (lastRunResult) {
-            const { trace, ...restResult } = lastRunResult
-            chunkString(trace).forEach((c) =>
-                ws.send(
-                    JSON.stringify({
-                        type: "script.progress",
-                        runId: lastRunResult.runId,
-                        trace: c,
-                    } satisfies PromptScriptProgressResponseEvent)
-                )
-            )
-            ws.send(JSON.stringify(restResult))
+            sendLastRunResult()
         }
 
         // Handle incoming messages based on their type.
@@ -405,14 +415,14 @@ export async function startServer(options: {
                         const outputTrace = new MarkdownTrace()
                         trace.addEventListener(TRACE_CHUNK, (ev) => {
                             const tev = ev as TraceChunkEvent
-                            chunkString(tev.chunk, 2 << 14).forEach((c) =>
-                                sendProgress(runId, { trace: c })
+                            chunkString(tev.chunk, WS_MAX_FRAME_LENGTH).forEach(
+                                (c) => sendProgress(runId, { trace: c })
                             )
                         })
                         outputTrace.addEventListener(TRACE_CHUNK, (ev) => {
                             const tev = ev as TraceChunkEvent
-                            chunkString(tev.chunk, 2 << 14).forEach((c) =>
-                                sendProgress(runId, { output: c })
+                            chunkString(tev.chunk, WS_MAX_FRAME_LENGTH).forEach(
+                                (c) => sendProgress(runId, { output: c })
                             )
                         })
                         logVerbose(`run ${runId}: starting ${script}`)
@@ -444,15 +454,14 @@ export async function startServer(options: {
                                 logVerbose(
                                     `\nrun ${runId}: completed with ${exitCode}`
                                 )
-                                send(
-                                    (lastRunResult = {
-                                        type: "script.end",
-                                        runId,
-                                        exitCode,
-                                        result,
-                                        trace: trace.content,
-                                    })
-                                )
+                                lastRunResult = {
+                                    type: "script.end",
+                                    runId,
+                                    exitCode,
+                                    result,
+                                    trace: trace.content,
+                                }
+                                sendLastRunResult()
                             })
                             .catch((e) => {
                                 if (canceller.controller.signal.aborted) return
@@ -599,6 +608,15 @@ export async function startServer(options: {
                 response = await scriptList()
             } else if (method === "GET" && route === "/api/env") {
                 response = await serverEnv()
+            } else if (
+                method === "GET" &&
+                lastRunResult &&
+                route === `/api/runs/${lastRunResult.runId}`
+            ) {
+                response = {
+                    ok: true,
+                    ...lastRunResult,
+                }
             }
 
             if (response === undefined) {
