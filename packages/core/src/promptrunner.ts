@@ -62,13 +62,12 @@ async function resolveExpansionVars(
         files.push(file)
     }
 
-    if (workspaceFiles.length)
-        for (const wf of workspaceFiles) {
-            if (!files.find((f) => f.filename === wf.filename)) {
-                await resolveFileContent(wf)
-                files.push(wf)
-            }
+    for (const wf of workspaceFiles) {
+        if (!files.find((f) => f.filename === wf.filename)) {
+            await resolveFileContent(wf)
+            files.push(wf)
         }
+    }
 
     // Parse and obtain attributes from prompt parameters
     const attrs = parsePromptParameters(project, template, vars)
