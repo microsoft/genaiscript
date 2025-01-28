@@ -1981,6 +1981,12 @@ interface Parsers {
      * @param language
      */
     unfence(text: string, language: string): string
+
+    /**
+     * Erase <think>...</think> tags
+     * @param text 
+     */
+    unthink(text: string): string
 }
 
 interface AICIGenOptions {
