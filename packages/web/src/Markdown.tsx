@@ -13,6 +13,37 @@ import { ErrorBoundary } from "react-error-boundary"
 import rehypeHighlight from "rehype-highlight"
 import Code from "./Code"
 
+const genaiscriptSchema = Object.freeze({
+    ...defaultSchema,
+    tagNames: [...defaultSchema.tagNames, "blockquote", "svg", "path"],
+    protocols: {
+        ...defaultSchema.protocols,
+        src: ["http", "https", "data"],
+    },
+    attributes: {
+        ...defaultSchema.attributes,
+        blockquote: [["className", /^markdown-./], /^aria-./],
+        p: [["className", /^markdown-./]],
+        svg: [
+            ["className", "octicon", /^markdown-./],
+            "viewBox",
+            "width",
+            "height",
+            /^aria-./,
+        ],
+        path: ["d", /^aria-./],
+        code: [
+            [
+                "className",
+                /^language-./,
+                /^aria-./,
+                "math-inline",
+                "math-display",
+            ],
+        ],
+    },
+})
+
 export default function Markdown(props: { className?: string; children: any }) {
     const { className, children } = props
     return children ? (
@@ -28,45 +59,13 @@ export default function Markdown(props: { className?: string; children: any }) {
                             return <Code {...props}>{children}</Code>
                         },
                     }}
+                    urlTransform={url => {
+                        console.log(url)
+                        return url
+                    }}
                     rehypePlugins={[
                         rehypeRaw,
-                        [
-                            rehypeSanitize,
-                            {
-                                ...defaultSchema,
-                                tagNames: [
-                                    ...defaultSchema.tagNames,
-                                    "blockquote",
-                                    "svg",
-                                    "path",
-                                ],
-                                attributes: {
-                                    ...defaultSchema.attributes,
-                                    blockquote: [
-                                        ["className", /^markdown-./],
-                                        /^aria-./,
-                                    ],
-                                    p: [["className", /^markdown-./]],
-                                    svg: [
-                                        ["className", "octicon", /^markdown-./],
-                                        "viewBox",
-                                        "width",
-                                        "height",
-                                        /^aria-./,
-                                    ],
-                                    path: ["d", /^aria-./],
-                                    code: [
-                                        [
-                                            "className",
-                                            /^language-./,
-                                            /^aria-./,
-                                            "math-inline",
-                                            "math-display",
-                                        ],
-                                    ],
-                                },
-                            },
-                        ],
+                        [rehypeSanitize, genaiscriptSchema],
                         rehypeMathML,
                         [rehypeHighlight, { ignoreMissing: true }],
                     ]}
