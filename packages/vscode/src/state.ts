@@ -310,10 +310,10 @@ export class ExtensionState extends EventTarget {
         })
         r.runId = runId
         r.request = request
-        if (options.mode !== "chat")
-            vscode.commands.executeCommand(
-                "workbench.view.extension.genaiscript"
-            )
+//        if (options.mode !== "chat")
+//            vscode.commands.executeCommand(
+//                "workbench.view.extension.genaiscript"
+//            )
         if (!options.mode) this.showWebview({ reveal: false })
         r.request
             .then((resp) => {
