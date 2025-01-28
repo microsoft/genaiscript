@@ -10,7 +10,7 @@ export async function createWebview(
     state: ExtensionState
 ): Promise<vscode.WebviewPanel> {
     const { host, sessionApiKey, context } = state
-    const { url, externalUrl, cspUrl } = await host.server.client()
+    const { externalUrl, cspUrl } = await host.server.client()
 
     const panel = vscode.window.createWebviewPanel(
         TOOL_ID,
