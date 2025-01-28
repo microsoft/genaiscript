@@ -5,26 +5,16 @@ import { errorMessage } from "../error"
 import { MarkdownTrace } from "../trace"
 import { logError } from "../util"
 import type {
-    ServerVersion,
     PromptScriptTestRun,
     PromptScriptTestRunOptions,
     PromptScriptTestRunResponse,
     PromptScriptRunOptions,
     PromptScriptStart,
-    PromptScriptAbort,
     PromptScriptResponseEvents,
-    ServerEnv,
     ChatEvents,
     ChatChunk,
     ChatStart,
-    LanguageModelConfigurationRequest,
-    Project,
-    PromptScriptList,
-    PromptScriptListResponse,
     GenerationResult,
-    LanguageModelConfiguration,
-    ResponseStatus,
-    ServerResponse,
 } from "./messages"
 import { WebSocketClient } from "./wsclient"
 
@@ -75,9 +65,9 @@ export class VsCodeClient extends WebSocketClient {
     private configure(): void {
         this.installPolyfill()
         this.addEventListener(CLOSE, (e) => {
-            const ev = e as CloseEvent
+            const reason = (e as any).reason || "websocket closed"
             for (const [runId, run] of Object.entries(this.runs)) {
-                run.reject(ev.reason || "websocket closed")
+                run.reject(reason)
                 delete this.runs[runId]
             }
         })

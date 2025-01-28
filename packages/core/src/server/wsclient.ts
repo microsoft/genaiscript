@@ -84,11 +84,11 @@ export class WebSocketClient extends EventTarget {
         )
         this._ws.addEventListener(
             CLOSE,
-            (ev: CloseEvent) => {
-                this.cancel(ev.reason)
-                this.dispatchEvent(
-                    new CloseEvent(CLOSE, { code: ev.code, reason: ev.reason })
-                )
+            // CloseEvent not defined in electron
+            (ev: Event) => {
+                const reason = (ev as any).reason || "websocket closed"
+                this.cancel(reason)
+                this.dispatchEvent(new Event(CLOSE))
                 this.reconnect()
             },
             false

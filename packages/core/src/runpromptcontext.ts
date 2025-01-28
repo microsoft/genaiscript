@@ -578,7 +578,7 @@ export function createChatGenerationContext(
                 node,
                 createImageNode(
                     (async () => {
-                        const encoded = await imageEncodeForLLM(file.filename, {
+                        const encoded = await imageEncodeForLLM(file, {
                             ...defOptions,
                             trace,
                         })
