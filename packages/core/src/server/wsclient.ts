@@ -7,6 +7,7 @@ import {
     OPEN,
     RECONNECT,
 } from "../constants"
+import { logError, logVerbose } from "../util"
 import type {
     ChatEvents,
     LanguageModelConfiguration,
@@ -84,11 +85,12 @@ export class WebSocketClient extends EventTarget {
         )
         this._ws.addEventListener(
             CLOSE,
-            (ev: CloseEvent) => {
-                this.cancel(ev.reason)
-                this.dispatchEvent(
-                    new CloseEvent(CLOSE, { code: ev.code, reason: ev.reason })
-                )
+            // CloseEvent not defined in electron
+            (ev: Event) => {
+                const reason = (ev as any).reason || "websocket closed"
+                logError(`websocket closed: ${reason}`)
+                this.cancel(reason)
+                this.dispatchEvent(new Event(CLOSE))
                 this.reconnect()
             },
             false

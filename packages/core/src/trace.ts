@@ -290,14 +290,15 @@ ${this.toResultIcon(success, "")}${title}
     }
 
     async image(url: string, caption: string) {
-        if (/^https?:\/\//.test(url) || /^data:image\//.test(url))
+        if (
+            /^https?:\/\//.test(url) ||
+            (/^data:image\//.test(url) && url.length < TRACE_MAX_IMAGE_SIZE)
+        )
             return this.appendContent(
                 `\n\n![${caption || "image"}](${url})\n\n`
             )
         else {
-            return this.appendContent(
-                `\n\n![${caption || "image"}](${url})\n\n`
-            )
+            return this.appendContent(`\n\n- image\n\n`)
         }
     }
 
