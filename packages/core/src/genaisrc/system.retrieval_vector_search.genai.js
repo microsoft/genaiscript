@@ -4,8 +4,6 @@ system({
         "Function to do a search using embeddings vector similarity distance.",
 })
 
-const embeddingsModel = env.vars.embeddingsModel || undefined
-
 defTool(
     "retrieval_vector_search",
     "Search files using embeddings and similarity distance.",
@@ -32,8 +30,7 @@ defTool(
         const { files, q } = args
         const res = await retrieval.vectorSearch(
             q,
-            files.map((filename) => ({ filename })),
-            { embeddingsModel }
+            files.map((filename) => ({ filename }))
         )
         return YAML.stringify(res.map(({ filename }) => filename))
     }

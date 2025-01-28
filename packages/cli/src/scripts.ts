@@ -24,19 +24,24 @@ import { deleteEmptyValues } from "../../core/src/cleaners"
  * Displays id, title, group, filename, and system status.
  * Generates this list by first building the project.
  */
-export async function listScripts(options?: ScriptFilterOptions) {
+export async function listScripts(
+    ids: string[],
+    options?: ScriptFilterOptions
+) {
     const prj = await buildProject() // Build the project to get script templates
-    const scripts = filterScripts(prj.scripts, options) // Filter scripts based on options
+    const scripts = filterScripts(prj.scripts, { ids, ...(options || {}) }) // Filter scripts based on options
     console.log(
         JSON.stringify(
-            scripts.map(({ id, title, group, filename, system: isSystem }) =>
-                deleteEmptyValues({
-                    id,
-                    title,
-                    group,
-                    filename,
-                    isSystem,
-                })
+            scripts.map(
+                ({ id, title, group, filename, inputSchema, isSystem }) =>
+                    deleteEmptyValues({
+                        id,
+                        title,
+                        group,
+                        filename,
+                        inputSchema,
+                        isSystem,
+                    })
             ),
             null,
             2

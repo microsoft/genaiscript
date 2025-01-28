@@ -2,6 +2,7 @@ script({
     accept: ".txt,.md,.pdf",
     files: "src/*",
     model: "small",
+    tools: "agent_fs",
     parameters: {
         string: "abc",
         number: 123,
@@ -75,3 +76,5 @@ if (env.vars["boolean-schema"] !== true)
 console.log({ files: env.files.map((f) => f.filename) })
 if (env.files.some((f) => f.filename.endsWith(".ts")))
     throw new Error("accept not working")
+
+$`say hi`

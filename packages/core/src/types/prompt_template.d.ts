@@ -68,15 +68,25 @@ interface PromptLike extends PromptDefinition, PromptToolsDefinition {
     filename?: string
 
     /**
-     * The text of the prompt JS source code.
-     */
-    jsSource: string
-
-    /**
      * The actual text of the prompt template.
      * Only used for system prompts.
      */
     text?: string
+
+    /**
+     * The text of the prompt JS source code.
+     */
+    jsSource?: string
+
+    /**
+     * Resolved system ids
+     */
+    resolvedSystem?: string[]
+
+    /**
+     * Infered input schema for parameters
+     */
+    inputSchema?: JSONSchemaObject
 }
 
 type SystemPromptId = OptionsOrString<string>
@@ -1108,7 +1118,7 @@ interface ExpansionVariables {
 
 type MakeOptional<T, P extends keyof T> = Partial<Pick<T, P>> & Omit<T, P>
 
-type PromptArgs = Omit<PromptScript, "text" | "id" | "jsSource" | "defTools">
+type PromptArgs = Omit<PromptScript, "text" | "id" | "jsSource" | "defTools" | "resolvedSystem">
 
 type PromptSystemArgs = Omit<
     PromptArgs,

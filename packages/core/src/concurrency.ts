@@ -1,6 +1,6 @@
 import pLimit, { LimitFunction } from "p-limit"
 import { runtimeHost } from "./host"
-import { normalizeInt } from "./util"
+import { normalizeInt } from "./cleaners"
 import { PROMISE_QUEUE_CONCURRENCY_DEFAULT } from "./constants"
 
 export type ConcurrentLimitFunction = LimitFunction

@@ -15,7 +15,6 @@ import {
     logError,
     logInfo,
     logVerbose,
-    normalizeInt,
 } from "../../core/src/util"
 import { buildProject } from "./build"
 import { run } from "./api"
@@ -33,6 +32,7 @@ import { link } from "../../core/src/mkmd"
 import { hash, randomHex } from "../../core/src/crypto"
 import { createCancellationController } from "./cancel"
 import { toSignal } from "../../core/src/cancellation"
+import { normalizeInt } from "../../core/src/cleaners"
 
 function getConvertDir(scriptId: string) {
     const runId =

@@ -1,14 +1,23 @@
 system({
     title: "Python Dockerized code execution for data analysis",
+    parameters: {
+        image: {
+            type: "string",
+            description: "Docker image to use for python code execution",
+            required: false,
+        },
+        packages: {
+            type: "string",
+            description:
+                "Python packages to install in the container (comma separated)",
+        },
+    },
 })
 
-const image = env.vars.pythonImage ?? "python:3.12"
-const packages = [
-    "numpy===2.1.3",
-    "pandas===2.2.3",
-    "scipy===1.14.1",
-    "matplotlib===3.9.2",
-]
+const image = env.vars["system.python_code_interpreter.image"] ?? "python:3.12"
+const packages = env.vars["system.python_code_interpreter.packages"]?.split(
+    /\s*,\s*/g
+) || ["numpy===2.1.3", "pandas===2.2.3", "scipy===1.14.1", "matplotlib===3.9.2"]
 
 const getContainer = async () =>
     await host.container({
