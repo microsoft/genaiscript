@@ -222,7 +222,7 @@ export function activateFragmentCommands(state: ExtensionState) {
             files = [file]
         }
 
-        const { cliPath, cliVersion } = await resolveCli()
+        const { cliPath, cliVersion } = await resolveCli(state)
         const args = [
             "run",
             vscode.workspace.asRelativePath(template.filename),
