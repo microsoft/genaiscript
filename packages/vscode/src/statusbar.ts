@@ -29,7 +29,7 @@ export function activateStatusBar(state: ExtensionState) {
         const md = new vscode.MarkdownString(
             toMarkdownString(
                 server.started
-                    ? `server: [${server.authority}](${server.url})`
+                    ? `server: [${server.authority}](${server.browserUrl})`
                     : "server: off",
                 fragment?.files?.[0],
                 template

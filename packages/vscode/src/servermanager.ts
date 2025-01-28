@@ -101,6 +101,12 @@ export class TerminalServerManager
             : this.authority
     }
 
+    get browserUrl() {
+        return this.state.sessionApiKey
+            ? `${this.authority}#api-key=${encodeURIComponent(this.state.sessionApiKey)}`
+            : this.authority
+    }
+
     private async allocatePort() {
         if (isNaN(this._port)) this._port = await findRandomOpenPort()
         return this._port
@@ -163,7 +169,7 @@ export class TerminalServerManager
 
         const config = this.state.getConfiguration()
         const diagnostics = this.state.diagnostics
-        const hideFromUser = diagnostics || !!config.get("hideServerTerminal")
+        const hideFromUser = !diagnostics && !!config.get("hideServerTerminal")
         const cwd = host.projectFolder()
         await this.allocatePort()
         logVerbose(`starting server on port ${this._port} at ${cwd}`)

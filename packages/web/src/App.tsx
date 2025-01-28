@@ -78,9 +78,9 @@ const hosted = !!config
 const viewMode = (hosted ? "results" : urlParams.get("view")) as
     | "results"
     | undefined
-const hashParams = new URLSearchParams(window.location.hash)
+const hashParams = new URLSearchParams(window.location.hash.slice(1))
 const base = config?.base || ""
-const apiKey = hashParams.get("api-key") || config?.apiKey
+const apiKey = hashParams.get("api-key") || config?.apiKey || ""
 window.location.hash = ""
 
 if (!hosted) import("@vscode-elements/webview-playground")
@@ -89,7 +89,7 @@ const fetchScripts = async (): Promise<Project> => {
     const res = await fetch(`${base}/api/scripts`, {
         headers: {
             Accept: "application/json",
-            Authorization: apiKey || "",
+            Authorization: apiKey,
         },
     })
     if (!res.ok) throw new Error(await res.json())
@@ -101,7 +101,7 @@ const fetchEnv = async (): Promise<ServerEnvResponse> => {
     const res = await fetch(`${base}/api/env`, {
         headers: {
             Accept: "application/json",
-            Authorization: apiKey || "",
+            Authorization: apiKey,
         },
     })
     if (!res.ok) throw new Error(await res.json())
@@ -115,7 +115,7 @@ const fetchRun = async (
     const res = await fetch(`${base}/api/runs/${runId}`, {
         headers: {
             Accept: "application/json",
-            Authorization: apiKey || "",
+            Authorization: apiKey,
         },
     })
     if (!res.ok) throw new Error(await res.json())

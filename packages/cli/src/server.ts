@@ -113,7 +113,9 @@ export async function startServer(options: {
     const toPayload = (payload: object) => {
         const msg = JSON.stringify(payload)
         if (msg.length > WS_MAX_FRAME_LENGTH) {
-            throw new Error("Message too large")
+            throw new Error(
+                `server: message too large (${msg.length} > ${WS_MAX_FRAME_LENGTH})`
+            )
         }
         return msg
     }
@@ -257,15 +259,14 @@ export async function startServer(options: {
                 }
 
                 // Send request to LLM clients.
+                const payload = toPayload(<ChatStart>{
+                    type: "chat.start",
+                    chatId,
+                    model,
+                    messages,
+                })
                 for (const ws of wss.clients) {
-                    ws.send(
-                        toPayload(<ChatStart>{
-                            type: "chat.start",
-                            chatId,
-                            model,
-                            messages,
-                        })
-                    )
+                    ws.send(payload)
                     break
                 }
             })
@@ -324,7 +325,7 @@ export async function startServer(options: {
                         output: run.outputTrace.content,
                     } satisfies PromptScriptProgressResponseEvent)
                 )
-                chunkString(run.trace.content, WS_MAX_FRAME_LENGTH).forEach(
+                chunkString(run.trace.content, WS_MAX_FRAME_LENGTH - 200).forEach(
                     (c) =>
                         ws.send(
                             toPayload({
@@ -415,13 +416,13 @@ export async function startServer(options: {
                         const outputTrace = new MarkdownTrace()
                         trace.addEventListener(TRACE_CHUNK, (ev) => {
                             const tev = ev as TraceChunkEvent
-                            chunkString(tev.chunk, WS_MAX_FRAME_LENGTH).forEach(
+                            chunkString(tev.chunk, WS_MAX_FRAME_LENGTH - 200).forEach(
                                 (c) => sendProgress(runId, { trace: c })
                             )
                         })
                         outputTrace.addEventListener(TRACE_CHUNK, (ev) => {
                             const tev = ev as TraceChunkEvent
-                            chunkString(tev.chunk, WS_MAX_FRAME_LENGTH).forEach(
+                            chunkString(tev.chunk, WS_MAX_FRAME_LENGTH - 200).forEach(
                                 (c) => sendProgress(runId, { output: c })
                             )
                         })
