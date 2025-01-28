@@ -8,6 +8,7 @@ import {
     ICON_LOGO_NAME,
     TOOL_ID,
     VSCODE_SERVER_MAX_RETRIES,
+    CHANGE,
 } from "../../core/src/constants"
 import { ServerManager, host } from "../../core/src/host"
 import { assert, logError, logInfo, logVerbose } from "../../core/src/util"
@@ -30,7 +31,10 @@ function findRandomOpenPort() {
     })
 }
 
-export class TerminalServerManager implements ServerManager {
+export class TerminalServerManager
+    extends EventTarget
+    implements ServerManager
+{
     private _terminal: vscode.Terminal
     private _terminalStartAttempts = 0
     private _port: number
@@ -38,6 +42,7 @@ export class TerminalServerManager implements ServerManager {
     private _client: VsCodeClient
 
     constructor(readonly state: ExtensionState) {
+        super()
         const { context } = state
         const { subscriptions } = context
         subscriptions.push(this)
@@ -72,6 +77,10 @@ export class TerminalServerManager implements ServerManager {
         )
     }
 
+    private dispatchChange() {
+        this.dispatchEvent(new Event(CHANGE))
+    }
+
     async client(options?: { doNotStart?: boolean }): Promise<VsCodeClient> {
         if (this._client) return this._client
         if (options?.doNotStart) return undefined
@@ -86,7 +95,7 @@ export class TerminalServerManager implements ServerManager {
         return `http://127.0.0.1:${this._port}`
     }
 
-    private get url() {
+    get url() {
         return this.state.sessionApiKey
             ? `${this.authority}?api-key=${encodeURIComponent(this.state.sessionApiKey)}`
             : this.authority
@@ -145,12 +154,16 @@ export class TerminalServerManager implements ServerManager {
         })
         await this.start()
         this._startClientPromise = undefined
+        this.dispatchChange()
         return this._client
     }
 
     async start() {
         if (this._terminal) return
 
+        const config = this.state.getConfiguration()
+        const diagnostics = this.state.diagnostics
+        const hideFromUser = diagnostics || !!config.get("hideServerTerminal")
         const cwd = host.projectFolder()
         await this.allocatePort()
         logVerbose(`starting server on port ${this._port} at ${cwd}`)
@@ -164,8 +177,9 @@ export class TerminalServerManager implements ServerManager {
             env: deleteUndefinedValues({
                 GENAISCRIPT_API_KEY: this.state.sessionApiKey,
             }),
+            hideFromUser,
         })
-        const { cliPath, cliVersion } = await resolveCli()
+        const { cliPath, cliVersion } = await resolveCli(this.state)
         if (cliPath)
             this._terminal.sendText(
                 `node "${cliPath}" serve --port ${this._port} --dispatch-progress --cors "*"`
@@ -174,7 +188,8 @@ export class TerminalServerManager implements ServerManager {
             this._terminal.sendText(
                 `npx --yes ${TOOL_ID}@${cliVersion} serve --port ${this._port} --dispatch-progress --cors "*"`
             )
-        this._terminal.show()
+        if (!hideFromUser) this._terminal.show()
+        this.dispatchChange()
     }
 
     get started() {
@@ -194,6 +209,7 @@ export class TerminalServerManager implements ServerManager {
         this._client = undefined
         this._startClientPromise = undefined
         if (!this.state.diagnostics) t?.dispose()
+        this.dispatchChange()
     }
 
     dispose(): any {

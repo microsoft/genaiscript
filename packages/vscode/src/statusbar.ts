@@ -13,7 +13,8 @@ export function activateStatusBar(state: ExtensionState) {
     )
     statusBarItem.command = "genaiscript.request.status"
     const updateStatusBar = async () => {
-        const { parsing, aiRequest, languageChatModels } = state
+        const { parsing, aiRequest, languageChatModels, host } = state
+        const { server } = host
         const { computing, progress, options } = aiRequest || {}
         const { template, fragment } = options || {}
         const { tokensSoFar } = progress || {}
@@ -27,6 +28,9 @@ export function activateStatusBar(state: ExtensionState) {
 
         const md = new vscode.MarkdownString(
             toMarkdownString(
+                server.started
+                    ? `server: [${server.authority}](${server.url})`
+                    : "server: off",
                 fragment?.files?.[0],
                 template
                     ? `-  tool: ${template.title} (${template.id})`
@@ -42,6 +46,7 @@ export function activateStatusBar(state: ExtensionState) {
     }
 
     state.addEventListener(CHANGE, updateStatusBar)
+    state.host.server.addEventListener(CHANGE, updateStatusBar)
 
     updateStatusBar()
     context.subscriptions.push(statusBarItem)

@@ -147,23 +147,25 @@ export class ExtensionState extends EventTarget {
         } else if (reveal) this.panel.reveal()
     }
 
+    getConfiguration() {
+        const config = vscode.workspace.getConfiguration(TOOL_ID)
+        return config
+    }
+
     async updateLanguageChatModels(model: string, chatModel: string) {
         const res = await this.languageChatModels()
         if (res[model] !== chatModel) {
             if (chatModel === undefined) delete res[model]
             else res[model] = chatModel
-            const config = vscode.workspace.getConfiguration(TOOL_ID)
+            const config = this.getConfiguration()
             await config.update("languageChatModels", res)
         }
     }
 
     async languageChatModels() {
-        const config = vscode.workspace.getConfiguration(TOOL_ID)
+        const config = this.getConfiguration()
         const res =
-            ((await config.get("languageChatModels")) as Record<
-                string,
-                string
-            >) || {}
+            (config.get("languageChatModels") as Record<string, string>) || {}
         return res
     }
 
@@ -250,8 +252,8 @@ export class ExtensionState extends EventTarget {
         options: AIRequestOptions
     ): Promise<AIRequest> {
         const controller = new AbortController()
-        const config = vscode.workspace.getConfiguration(TOOL_ID)
-        const cache = config.get("cache") as boolean
+        const config = this.getConfiguration()
+        const cache = !!config.get("cache")
         const signal = controller.signal
         const trace = new MarkdownTrace()
 
@@ -336,9 +338,7 @@ export class ExtensionState extends EventTarget {
     }
 
     get diagnostics() {
-        const diagnostics = !!vscode.workspace
-            .getConfiguration(TOOL_ID)
-            .get("diagnostics")
+        const diagnostics = !!this.getConfiguration().get("diagnostics")
         return diagnostics
     }
 

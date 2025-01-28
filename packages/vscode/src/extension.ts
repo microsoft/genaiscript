@@ -43,6 +43,9 @@ export async function activate(context: ExtensionContext) {
     activeWebview(state)
 
     context.subscriptions.push(
+        registerCommand("genaiscript.server.stop", async () => {
+            await state.host.server.close()
+        }),
         registerCommand("genaiscript.request.abort", async () => {
             await state.cancelAiRequest()
             await vscode.window.showInformationMessage(

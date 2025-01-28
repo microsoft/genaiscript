@@ -297,6 +297,11 @@
             {
                 "title": "GenAIScript",
                 "properties": {
+                    "genaiscript.hideServerTerminal": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Hide server terminal from user."
+                    },
                     "genaiscript.languageChatModels": {
                         "type": "object",
                         "description": "Mapping from GenAIScript model (openai:gpt-4) to Visual Studio Code Language Chat Model (github...)"
@@ -323,6 +328,12 @@
             }
         ],
         "commands": [
+            {
+                "command": "genaiscript.server.stop",
+                "title": "Stop GenAIScript server",
+                "category": "GenAIScript",
+                "icon": "$(close)"
+            },
             {
                 "command": "genaiscript.notebook.create",
                 "title": "Create GenAIScript Mardown Notebook",
