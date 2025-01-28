@@ -1,3 +1,4 @@
+import { normalizeFloat, trimTrailingSlash } from "./cleaners"
 import {
     ANTHROPIC_API_BASE,
     AZURE_AI_INFERENCE_VERSION,
@@ -47,7 +48,7 @@ import {
     LanguageModelConfiguration,
     OpenAIAPIType,
 } from "./server/messages"
-import { arrayify, normalizeFloat, trimTrailingSlash } from "./util"
+import { arrayify } from "./util"
 
 export function ollamaParseHostVariable(env: Record<string, string>) {
     const s = (

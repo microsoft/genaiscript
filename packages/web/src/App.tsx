@@ -560,10 +560,10 @@ function JSONSchemaNumber(props: {
 function JSONSchemaSimpleTypeFormField(props: {
     field: JSONSchemaSimpleType
     value: string | boolean | number | object
+    required?: boolean
     onChange: (value: string | boolean | number | object) => void
 }) {
-    const { field, value, onChange } = props
-    const required = field.default === undefined
+    const { field, required, value, onChange } = props
 
     const rows = (s: string | undefined) =>
         Math.max(3, s.split("\n").length ?? 0)
@@ -647,8 +647,9 @@ function JSONSchemaObjectForm(props: {
     schema: JSONSchemaObject
     value: any
     onChange: Dispatch<SetStateAction<any>>
+    fieldPrefix: string
 }) {
-    const { schema, value, onChange } = props
+    const { schema, value, onChange, fieldPrefix } = props
     const properties: Record<string, JSONSchemaSimpleType> =
         schema.properties ?? ({} as any)
 
@@ -662,15 +663,19 @@ function JSONSchemaObjectForm(props: {
     return (
         <VscodeFormContainer>
             {Object.entries(properties).map(([fieldName, field]) => (
-                <VscodeFormGroup key={fieldName}>
+                <VscodeFormGroup key={fieldPrefix + fieldName}>
                     <VscodeLabel>
-                        {underscore(fieldName).replaceAll("_", " ")}
+                        {underscore(fieldPrefix + fieldName).replaceAll(
+                            /[_\.]/g,
+                            " "
+                        )}
                     </VscodeLabel>
                     <JSONSchemaSimpleTypeFormField
                         field={field}
-                        value={value[fieldName]}
+                        value={value[fieldPrefix + fieldName]}
+                        required={schema.required?.includes(fieldName)}
                         onChange={(value) =>
-                            handleFieldChange(fieldName, value)
+                            handleFieldChange(fieldPrefix + fieldName, value)
                         }
                     />
                     {field?.description && (
@@ -1167,23 +1172,46 @@ function PromptParametersFields() {
     const script = useScript()
 
     const { parameters, setParameters } = useApi()
-    const schema = useMemo(
-        () =>
-            script?.parameters
-                ? (promptParametersSchemaToJSONSchema(
-                      script.parameters
-                  ) as JSONSchemaObject)
-                : undefined,
-        [script]
+    const { inputSchema } = script || {}
+    if (!Object.keys(inputSchema.properties || {}).length) return null
+
+    const scriptParameters = inputSchema.properties[
+        "script"
+    ] as JSONSchemaObject
+    const systemParameters = Object.entries(inputSchema.properties).filter(
+        ([k]) => k !== "script"
     )
-    const names = Object.keys(schema?.properties || {})
-    return schema ? (
-        <JSONSchemaObjectForm
-            schema={schema}
-            value={parameters}
-            onChange={setParameters}
-        />
-    ) : null
+
+    return (
+        <>
+            {scriptParameters && (
+                <VscodeCollapsible title="Parameters" open>
+                    <JSONSchemaObjectForm
+                        schema={scriptParameters}
+                        value={parameters}
+                        fieldPrefix={""}
+                        onChange={setParameters}
+                    />
+                </VscodeCollapsible>
+            )}
+            {!!systemParameters.length && (
+                <VscodeCollapsible title="System Parameters">
+                    {Object.entries(inputSchema.properties)
+                        .filter(([k]) => k !== "script")
+                        .map(([key, fieldSchema]) => {
+                            return (
+                                <JSONSchemaObjectForm
+                                    schema={fieldSchema as JSONSchemaObject}
+                                    value={parameters}
+                                    fieldPrefix={`${key}.`}
+                                    onChange={setParameters}
+                                />
+                            )
+                        })}
+                </VscodeCollapsible>
+            )}
+        </>
+    )
 }
 
 function ModelConnectionOptionsForm() {
@@ -1251,6 +1279,7 @@ function ModelConnectionOptionsForm() {
             <JSONSchemaObjectForm
                 schema={schema}
                 value={options}
+                fieldPrefix=""
                 onChange={setOptions}
             />
         </VscodeCollapsible>

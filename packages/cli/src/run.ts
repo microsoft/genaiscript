@@ -54,8 +54,6 @@ import {
     TraceChunkEvent,
 } from "../../core/src/trace"
 import {
-    normalizeFloat,
-    normalizeInt,
     logVerbose,
     logError,
     dotGenaiscriptPath,
@@ -92,6 +90,7 @@ import { createCancellationController } from "./cancel"
 import { parsePromptScriptMeta } from "../../core/src/template"
 import { Fragment } from "../../core/src/generation"
 import { randomHex } from "../../core/src/crypto"
+import { normalizeFloat, normalizeInt } from "../../core/src/cleaners"
 
 function getRunDir(scriptId: string) {
     const runId =

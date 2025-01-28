@@ -2,7 +2,6 @@ system({
     title: "Agent that can asks questions to the user.",
 })
 
-const model = env.vars.agentInterpreterModel
 defAgent(
     "user_input",
     "ask user for input to confirm, select or answer the question in the query. The message should be very clear and provide all the context.",
@@ -14,7 +13,6 @@ defAgent(
     - do NOT try to interpret the meaning of the question, let the user answer.
     - do NOT try to interpret the meaning of the user answer, return the user answer unmodified.`,
     {
-        model,
         tools: ["user_input"],
     }
 )

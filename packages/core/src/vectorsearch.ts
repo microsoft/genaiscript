@@ -18,9 +18,10 @@ import { JSONLineCache } from "./cache"
 import { EmbeddingCreateParams, EmbeddingCreateResponse } from "./chattypes"
 import { LanguageModelConfiguration } from "./server/messages"
 import { getConfigHeaders } from "./openai"
-import { logVerbose, trimTrailingSlash } from "./util"
+import { logVerbose } from "./util"
 import { TraceOptions } from "./trace"
 import { CancellationOptions } from "./cancellation"
+import { trimTrailingSlash } from "./cleaners"
 
 /**
  * Represents the cache key for embeddings.
