@@ -53,6 +53,7 @@ import { networkInterfaces } from "os"
 import { GitClient } from "../../core/src/git"
 import { exists } from "fs-extra"
 import { deleteUndefinedValues } from "../../core/src/cleaners"
+import { readFile } from "fs/promises"
 
 /**
  * Starts a WebSocket server for handling chat and script execution.
@@ -325,15 +326,17 @@ export async function startServer(options: {
                         output: run.outputTrace.content,
                     } satisfies PromptScriptProgressResponseEvent)
                 )
-                chunkString(run.trace.content, WS_MAX_FRAME_LENGTH - 200).forEach(
-                    (c) =>
-                        ws.send(
-                            toPayload({
-                                type: "script.progress",
-                                runId,
-                                trace: c,
-                            } satisfies PromptScriptProgressResponseEvent)
-                        )
+                chunkString(
+                    run.trace.content,
+                    WS_MAX_FRAME_LENGTH - 200
+                ).forEach((c) =>
+                    ws.send(
+                        toPayload({
+                            type: "script.progress",
+                            runId,
+                            trace: c,
+                        } satisfies PromptScriptProgressResponseEvent)
+                    )
                 )
             }
         } else if (lastRunResult) {
@@ -416,15 +419,17 @@ export async function startServer(options: {
                         const outputTrace = new MarkdownTrace()
                         trace.addEventListener(TRACE_CHUNK, (ev) => {
                             const tev = ev as TraceChunkEvent
-                            chunkString(tev.chunk, WS_MAX_FRAME_LENGTH - 200).forEach(
-                                (c) => sendProgress(runId, { trace: c })
-                            )
+                            chunkString(
+                                tev.chunk,
+                                WS_MAX_FRAME_LENGTH - 200
+                            ).forEach((c) => sendProgress(runId, { trace: c }))
                         })
                         outputTrace.addEventListener(TRACE_CHUNK, (ev) => {
                             const tev = ev as TraceChunkEvent
-                            chunkString(tev.chunk, WS_MAX_FRAME_LENGTH - 200).forEach(
-                                (c) => sendProgress(runId, { output: c })
-                            )
+                            chunkString(
+                                tev.chunk,
+                                WS_MAX_FRAME_LENGTH - 200
+                            ).forEach((c) => sendProgress(runId, { output: c }))
                         })
                         logVerbose(`run ${runId}: starting ${script}`)
                         await runtimeHost.readConfig()
@@ -562,9 +567,31 @@ export async function startServer(options: {
             res.setHeader("Content-Type", "text/html")
             res.setHeader("Cache-Control", "no-store")
             res.statusCode = 200
+
+            const cspUrl = new URL(`http://${req.headers.host}`).origin
+            const wsCspUrl = new URL(`ws://${req.headers.host}`).origin
+            const nonce = randomHex(32)
+            const csp = `<meta http-equiv="Content-Security-Policy" content="
+    default-src 'none'; 
+    frame-src ${cspUrl} https:; 
+    img-src ${cspUrl} https: data:;
+    media-src ${cspUrl} https: data:;
+    connect-src ${cspUrl} ${wsCspUrl};
+    script-src ${cspUrl} 'nonce-${nonce}'; 
+    style-src 'unsafe-inline' ${cspUrl};
+"/>
+<script nonce=${nonce}>
+window.litNonce = ${JSON.stringify(nonce)};
+window.vscodeWebviewPlaygroundNonce = ${JSON.stringify(nonce)};
+</script>
+        `
+
             const filePath = join(__dirname, "index.html")
-            const stream = createReadStream(filePath)
-            stream.pipe(res)
+            const html = (await readFile(filePath, { encoding: "utf8" }))
+                .replace("<!--csp-->", csp)
+            res.write(html)
+            res.statusCode = 200
+            res.end()
         } else if (method === "GET" && route === "/built/markdown.css") {
             res.setHeader("Content-Type", "text/css")
             res.statusCode = 200

@@ -1,6 +1,7 @@
 import React, { useState } from "react"
 import Mermaid from "./Mermaid"
-import { VscodeButton } from "@vscode-elements/react-elements"
+
+import "@vscode-elements/elements/dist/vscode-button"
 
 function CodeRender(props: { className?: string; children: any }) {
     const { className, children, ...restProps } = props
@@ -31,14 +32,14 @@ export default function Code(props: { className?: string; children: any }) {
             <CodeRender className={className} {...restProps}>
                 {children}
             </CodeRender>
-            <VscodeButton
+            <vscode-button
                 className="button"
                 aria-label="Copy"
                 secondary
                 onClick={handleCopy}
             >
                 {copied ? "Copied!" : "Copy"}
-            </VscodeButton>
+            </vscode-button>
         </div>
     )
 }
