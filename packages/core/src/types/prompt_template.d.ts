@@ -147,6 +147,8 @@ type ModelType = OptionsOrString<
     | "github:o1-preview"
     | "github:AI21-Jamba-1.5-Large"
     | "github:AI21-Jamba-1-5-Mini"
+    | "github:DeepSeek-R1"
+    | "github:Phi-4"
     | "azure:gpt-4o"
     | "azure:gpt-4o-mini"
     | "ollama:marco-o1"
@@ -1118,7 +1120,10 @@ interface ExpansionVariables {
 
 type MakeOptional<T, P extends keyof T> = Partial<Pick<T, P>> & Omit<T, P>
 
-type PromptArgs = Omit<PromptScript, "text" | "id" | "jsSource" | "defTools" | "resolvedSystem">
+type PromptArgs = Omit<
+    PromptScript,
+    "text" | "id" | "jsSource" | "defTools" | "resolvedSystem"
+>
 
 type PromptSystemArgs = Omit<
     PromptArgs,
@@ -1984,7 +1989,7 @@ interface Parsers {
 
     /**
      * Erase <think>...</think> tags
-     * @param text 
+     * @param text
      */
     unthink(text: string): string
 }
