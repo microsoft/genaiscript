@@ -429,7 +429,8 @@ async function applyRepairs(
     if (
         responseType === "json" ||
         responseType === "json_object" ||
-        responseType === "json_schema"
+        responseType === "json_schema" ||
+        (responseSchema && !responseType)
     ) {
         data = JSONLLMTryParse(content)
         if (data === undefined) {
@@ -561,33 +562,13 @@ async function structurifyChatSession(
 
     const fences = extractFenced(text)
     let json: any
-    if (responseType === "json_schema") {
-        try {
-            json = JSON5parse(text, { repair: true })
-        } catch (e) {
-            logError("response json_schema parsing failed")
-            trace.error("response json_schema parsing failed", e)
-        }
-    } else if (responseType === "json_object") {
-        try {
-            json = JSON5parse(text, { repair: true })
-            if (responseSchema) {
-                const schema =
-                    promptParametersSchemaToJSONSchema(responseSchema)
-                const res = validateJSONWithSchema(json, schema, {
-                    trace,
-                })
-                if (res.schemaError) {
-                    trace.fence(schema, "json")
-                    trace?.warn(
-                        `response schema validation failed, ${errorMessage(res.schemaError)}`
-                    )
-                }
-            }
-        } catch (e) {
-            logError("response json_object parsing failed")
-            trace.error("response json_object parsing failed", e)
-        }
+    if (
+        responseType === "json" ||
+        responseType === "json_object" ||
+        responseType === "json_schema" ||
+        (responseSchema && !responseType)
+    ) {
+        json = JSONLLMTryParse(text)
     } else if (responseType === "yaml") {
         json = YAMLTryParse(text)
     } else {
@@ -595,6 +576,20 @@ async function structurifyChatSession(
             ? JSONLLMTryParse(text)
             : findFirstDataFence(fences)
     }
+
+    if (responseSchema) {
+        const schema = promptParametersSchemaToJSONSchema(responseSchema)
+        const res = validateJSONWithSchema(json, schema, {
+            trace,
+        })
+        if (res.schemaError) {
+            trace.fence(schema, "json")
+            trace?.warn(
+                `response schema validation failed, ${errorMessage(res.schemaError)}`
+            )
+        }
+    }
+
     const frames: DataFrame[] = []
 
     // validate schemas in fences
