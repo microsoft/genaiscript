@@ -12,7 +12,7 @@ export { delay, uniq, uniqBy, z, pipeline, chunk, groupBy }
 
 /**
  * Options for classifying data.
- * 
+ *
  * @property {boolean} [other] - Inject a 'other' label.
  * @property {boolean} [explanations] - Explain answers before returning token.
  * @property {ChatGenerationContext} [ctx] - Options runPrompt context.
@@ -35,14 +35,14 @@ export type ClassifyOptions = {
 /**
  * Classify prompt
  *
- * Inspired by https://github.dev/prefecthq/marvin
+ * Inspired by https://github.com/prefecthq/marvin
  *
  * @param text text to classify
  * @param labels map from label to description. the label should be a single token
  * @param options prompt options, additional instructions, custom prompt contexst
  */
 export async function classify<L extends Record<string, string>>(
-    text: string | PromptGenerator,
+    text: StringLike | PromptGenerator,
     labels: L,
     options?: ClassifyOptions
 ): Promise<{
@@ -102,8 +102,8 @@ no
 `,
                 { language: "example" }
             )
-            if (typeof text === "string") _.def("DATA", text)
-            else await text(_)
+            if (typeof text === "function") await text(_)
+            else _.def("DATA", text)
         },
         {
             model: "classify",
@@ -149,7 +149,6 @@ no
     }
 }
 
-
 /**
  * Enhances the provided context by repeating a set of instructions a specified number of times.
  *
@@ -173,4 +172,59 @@ export function makeItBetter(options?: {
             cctx.$`${instructions}`
         }
     })
+}
+
+/**
+ * Cast text to data using a JSON schema.
+ * Inspired by https://github.com/prefecthq/marvin
+ * @param data
+ * @param itemSchema
+ * @param options
+ * @returns
+ */
+export async function cast(
+    data: StringLike | PromptGenerator,
+    itemSchema: JSONSchema,
+    options?: PromptGeneratorOptions & {
+        multiple?: boolean
+        instructions?: string | PromptGenerator
+        ctx?: ChatGenerationContext
+    }
+): Promise<{ data?: unknown; error?: string; text: string }> {
+    const {
+        ctx = env.generator,
+        multiple,
+        instructions,
+        label = `cast text to schema`,
+        ...rest
+    } = options || {}
+    const responseSchema = multiple
+        ? ({
+              type: "array",
+              items: itemSchema,
+          } satisfies JSONSchemaArray)
+        : itemSchema
+    const res = await ctx.runPrompt(
+        async (_) => {
+            if (typeof data === "function") await data(_)
+            else _.def("SOURCE", data)
+            _.defSchema("SCHEMA", responseSchema, { format: "json" })
+            _.$`You are an expert data converter specializing in transforming unstructured text source into structured data.
+            Convert the contents of <SOURCE> to JSON using schema <SCHEMA>.
+            - Treat images as <SOURCE> and convert them to JSON.
+            - Make sure the returned data matches the schema in <SCHEMA>.`
+            if (typeof instructions === "string") _.$`${instructions}`
+            else if (typeof instructions === "function") await instructions(_)
+        },
+        {
+            responseType: "json",
+            responseSchema,
+            ...rest,
+            label,
+        }
+    )
+    const text = parsers.unfence(parsers.unthink(res.text), "json")
+    return res.json
+        ? { text, data: res.json }
+        : { text, error: res.error?.message }
 }

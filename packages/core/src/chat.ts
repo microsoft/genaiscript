@@ -64,7 +64,7 @@ import {
 } from "./chatrender"
 import { promptParametersSchemaToJSONSchema } from "./parameters"
 import { prettifyMarkdown } from "./markdown"
-import { YAMLStringify } from "./yaml"
+import { YAMLParse, YAMLStringify, YAMLTryParse } from "./yaml"
 import { resolveTokenEncoder } from "./encoders"
 import { estimateTokens, truncateTextToTokens } from "./tokens"
 import { computeFileEdits } from "./fileedits"
@@ -92,6 +92,7 @@ import {
     getChatCompletionCache,
 } from "./chatcache"
 import { deleteUndefinedValues } from "./cleaners"
+import { unthink } from "./think"
 
 export function toChatCompletionUserMessage(
     expanded: string,
@@ -411,6 +412,7 @@ async function applyRepairs(
     const {
         stats,
         trace,
+        responseType,
         responseSchema,
         maxDataRepairs = MAX_DATA_REPAIRS,
         infoCb,
@@ -418,18 +420,52 @@ async function applyRepairs(
     const lastMessage = messages[messages.length - 1]
     if (lastMessage.role !== "assistant" || lastMessage.refusal) return false
 
-    const content = renderMessageContent(lastMessage)
+    const content = assistantText(messages, responseType, responseSchema)
     const fences = extractFenced(content)
     validateFencesWithSchema(fences, schemas, { trace })
     const invalids = fences.filter((f) => f?.validation?.schemaError)
 
+    let data: any
+    if (
+        responseType === "json" ||
+        responseType === "json_object" ||
+        responseType === "json_schema" ||
+        (responseSchema && !responseType)
+    ) {
+        data = JSONLLMTryParse(content)
+        if (data === undefined) {
+            try {
+                data = JSON.parse(content)
+            } catch (e) {
+                invalids.push({
+                    label: "response must be valid JSON",
+                    content,
+                    validation: { schemaError: errorMessage(e) },
+                })
+            }
+        }
+    } else if (responseType === "yaml") {
+        data = YAMLTryParse(content)
+        if (data === undefined) {
+            try {
+                data = YAMLParse(content)
+            } catch (e) {
+                invalids.push({
+                    label: "response must be valid YAML",
+                    content,
+                    validation: { schemaError: errorMessage(e) },
+                })
+            }
+        }
+    }
+
     if (responseSchema) {
-        const value = JSONLLMTryParse(content)
+        const value = data ?? JSONLLMTryParse(content)
         const schema = promptParametersSchemaToJSONSchema(responseSchema)
         const res = validateJSONWithSchema(value, schema, { trace })
         if (res.schemaError)
             invalids.push({
-                label: "",
+                label: "response must match schema",
                 content,
                 validation: res,
             })
@@ -447,18 +483,23 @@ async function applyRepairs(
     // let's get to work
     trace.startDetails("🔧 data repairs")
     const repair = invalids
-        .map(
-            (f) =>
-                `data: ${f.label || ""}
-schema: ${f.args?.schema || ""},
-error: ${f.validation.schemaError}`
+        .map((f) =>
+            toStringList(
+                f.label,
+                f.args?.schema ? `schema: ${f.args?.schema || ""}` : undefined,
+                f.validation.schemaError
+                    ? `error: ${f.validation.schemaError}`
+                    : undefined
+            )
         )
         .join("\n\n")
-    const repairMsg = `<data_format_issues>
+    const repairMsg = `Repair the data format issues listed in <data_format_issues> section below.
+<data_format_issues>
 ${repair}
 </data_format_issues>
                             
-Repair the <data_format_issues>. THIS IS IMPORTANT.`
+`
+    logVerbose(repair)
     trace.fence(repairMsg, "markdown")
     messages.push({
         role: "user",
@@ -476,7 +517,8 @@ Repair the <data_format_issues>. THIS IS IMPORTANT.`
 
 function assistantText(
     messages: ChatCompletionMessageParam[],
-    responseType?: PromptTemplateResponseType
+    responseType?: PromptTemplateResponseType,
+    responseSchema?: PromptParametersSchema | JSONSchema
 ) {
     let text = ""
     for (let i = messages.length - 1; i >= 0; i--) {
@@ -485,9 +527,12 @@ function assistantText(
         text = msg.content + text
     }
 
-    if (responseType === undefined) {
+    text = unthink(text)
+    if ((!responseType && !responseSchema) || responseType === "markdown")
         text = unfence(text, "(markdown|md)")
-    }
+    else if (responseType === "yaml") text = unfence(text, "(yaml|yml)")
+    else if (/^json/.test(responseType)) text = unfence(text, "(json|json5)")
+    else if (responseType === "text") text = unfence(text, "(text|txt)")
 
     return text
 }
@@ -508,7 +553,7 @@ async function structurifyChatSession(
 ): Promise<RunPromptResult> {
     const { trace, responseType, responseSchema } = options
     const { resp, err } = others || {}
-    const text = assistantText(messages, responseType)
+    const text = assistantText(messages, responseType, responseSchema)
     const annotations = parseAnnotations(text)
     const finishReason = isCancelError(err)
         ? "cancel"
@@ -517,36 +562,34 @@ async function structurifyChatSession(
 
     const fences = extractFenced(text)
     let json: any
-    if (responseType === "json_schema") {
-        try {
-            json = JSON.parse(text)
-        } catch (e) {
-            trace.error("response json_schema parsing failed", e)
-        }
-    } else if (responseType === "json_object") {
-        try {
-            json = JSON5parse(text, { repair: true })
-            if (responseSchema) {
-                const schema =
-                    promptParametersSchemaToJSONSchema(responseSchema)
-                const res = validateJSONWithSchema(json, schema, {
-                    trace,
-                })
-                if (res.schemaError) {
-                    trace.fence(schema, "json")
-                    trace?.warn(
-                        `response schema validation failed, ${errorMessage(res.schemaError)}`
-                    )
-                }
-            }
-        } catch (e) {
-            trace.error("response json_object parsing failed", e)
-        }
+    if (
+        responseType === "json" ||
+        responseType === "json_object" ||
+        responseType === "json_schema" ||
+        (responseSchema && !responseType)
+    ) {
+        json = JSONLLMTryParse(text)
+    } else if (responseType === "yaml") {
+        json = YAMLTryParse(text)
     } else {
         json = isJSONObjectOrArray(text)
             ? JSONLLMTryParse(text)
             : findFirstDataFence(fences)
     }
+
+    if (responseSchema) {
+        const schema = promptParametersSchemaToJSONSchema(responseSchema)
+        const res = validateJSONWithSchema(json, schema, {
+            trace,
+        })
+        if (res.schemaError) {
+            trace.fence(schema, "json")
+            trace?.warn(
+                `response schema validation failed, ${errorMessage(res.schemaError)}`
+            )
+        }
+    }
+
     const frames: DataFrame[] = []
 
     // validate schemas in fences
