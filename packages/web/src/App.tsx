@@ -80,6 +80,7 @@ const hosted = !!config
 const viewMode = (hosted ? "results" : urlParams.get("view")) as
     | "results"
     | undefined
+const diagnostics = urlParams.get("diagnostics") === "1"
 const hashParams = new URLSearchParams(window.location.hash.slice(1))
 const base = config?.base || ""
 const apiKey = hashParams.get("api-key") || config?.apiKey || ""
@@ -921,6 +922,7 @@ function FileEditsTabPanel() {
 function DataTabPanel() {
     const result = useResult()
     const { frames = [] } = result || {}
+    if (frames.length === 0) return null
 
     return (
         <>
@@ -933,7 +935,7 @@ function DataTabPanel() {
                     <Markdown key={i}>
                         {`
 \`\`\`\`\`json
-${JSON.stringify(frame, null, 2)}}
+${JSON.stringify(frame, null, 2)}
 \`\`\`\`\`
 `}
                     </Markdown>
@@ -946,10 +948,11 @@ ${JSON.stringify(frame, null, 2)}}
 function JSONTabPanel() {
     const result = useResult()
     const { json } = result || {}
+    if (json === undefined) return null
     return (
         <>
             <vscode-tab-header slot="header">
-                JSON
+                Structured Output
                 <CounterBadge collection={json} />
             </vscode-tab-header>
             <vscode-tab-panel>
@@ -957,7 +960,7 @@ function JSONTabPanel() {
                     <Markdown>
                         {`
 \`\`\`\`\`json
-${JSON.stringify(json, null, 2)}}
+${JSON.stringify(json, null, 2)}
 \`\`\`\`\`
 `}
                     </Markdown>
@@ -977,7 +980,7 @@ function RawTabPanel() {
                     <Markdown>
                         {`
 \`\`\`\`\`json
-${JSON.stringify(result, null, 2)}}
+${JSON.stringify(result, null, 2)}
 \`\`\`\`\`
 `}
                     </Markdown>
@@ -1360,9 +1363,10 @@ function ResultsTabs() {
             <LogProbsTabPanel />
             <TopLogProbsTabPanel />
             <FileEditsTabPanel />
+            <DataTabPanel />
             <JSONTabPanel />
             <StatsTabPanel />
-            <RawTabPanel />
+            {diagnostics ? <RawTabPanel /> : undefined}
         </vscode-tabs>
     )
 }
