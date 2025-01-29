@@ -60,7 +60,6 @@ export default function Markdown(props: { className?: string; children: any }) {
                         },
                     }}
                     urlTransform={url => {
-                        console.log(url)
                         return url
                     }}
                     rehypePlugins={[

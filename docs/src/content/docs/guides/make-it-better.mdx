@@ -1,0 +1,54 @@
+---
+title: "Make It Better"
+sidebar:
+    order: 100
+---
+
+Surprising results happen when you repeatidely ask the LLM to "make it better" (see [blog post](https://minimaxir.com/2025/01/write-better-code/)).
+
+In this sample, we use the `makeItBetter` function from the `genaiscript/runtime`
+to acheive exaclty that: asking the LLM to make it better for a few rounds.
+
+## Code Explanation
+
+Let's walk through the script line by line:
+
+```js
+import { makeItBetter } from "genaiscript/runtime"
+```
+
+This line imports the `makeItBetter` function from the GenAIScript runtime. This function is used to improve code by repeating a set of instructions multiple times.
+
+```js
+def("CODE", env.files)
+```
+
+This line defines a constant named "CODE" that represents the files in the environment. It essentially sets up the context for the code that needs improvement.
+
+```js
+$`Analyze and improve the code.`
+```
+
+This line is a prompt for the AI model. It instructs the system to analyze and enhance the code. The `$` is used to denote that this is a special instruction, not a regular code command.
+
+```js
+makeItBetter({ repeat: 2 })
+```
+
+This line calls the `makeItBetter` function with an option to repeat the improvement process twice. It registers a [chat participant](/genaiscript/reference/scripts/chat-participants)
+that injects messages in the chat conversation loop.
+
+The `makeItBetter` rouhgly looks like this. It registers a callback function that gets called
+on every chat turn.
+
+```js
+export function makeItBetter(options?: { repeat: ... }) {
+    let round = 0
+    defChatParticipant((cctx) => {
+        if (round++ < repeat) {
+            cctx.console.log(`make it better (round ${round})`)
+            cctx.$`make it better`
+        }
+    })
+}
+```
