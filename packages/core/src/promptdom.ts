@@ -1377,25 +1377,24 @@ ${fileOutputs.map((fo) => `   ${fo.pattern}: ${fo.description || "generated file
     if (responseSchema && !responseType && responseType !== "json_schema")
         responseType = "json"
     if (responseType) trace.itemValue(`response type`, responseType)
-    if (responseSchema)
+    if (responseSchema) {
         trace.detailsFenced("📜 response schema", responseSchema)
-
-    if (responseType === "json_schema") {
-        if (!responseSchema)
-            throw new Error(`responseSchema is required for json_schema`)
-        const typeName = "Output"
-        const schemaTs = JSONSchemaStringifyToTypeScript(responseSchema, {
-            typeName,
-        })
-        appendSystemMessage(
-            messages,
-            `You are a service that translates user requests 
-into JSON objects of type "${typeName}" 
+        if (responseType !== "json_schema") {
+            const typeName = "Output"
+            const schemaTs = JSONSchemaStringifyToTypeScript(responseSchema, {
+                typeName,
+            })
+            appendSystemMessage(
+                messages,
+                `## Output Schema
+You are a service that translates user requests 
+into ${responseType === "yaml" ? "YAML" : "JSON"} objects of type "${typeName}" 
 according to the following TypeScript definitions:
 <${typeName}>
 ${schemaTs}
 </${typeName}>`
-        )
+            )
+        }
     }
 
     return {
