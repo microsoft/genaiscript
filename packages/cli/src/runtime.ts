@@ -186,21 +186,18 @@ export async function cast(
     data: StringLike | PromptGenerator,
     itemSchema: JSONSchema,
     options?: PromptGeneratorOptions & {
-        repairs?: number
         multiple?: boolean
         instructions?: string | PromptGenerator
         ctx?: ChatGenerationContext
     }
 ): Promise<{ data?: unknown; error?: string; text: string }> {
     const {
-        repairs = 1,
         ctx = env.generator,
         multiple,
         instructions,
         label = `cast text to schema`,
         ...rest
     } = options || {}
-    let repair = 0
     const responseSchema = multiple
         ? ({
               type: "array",
@@ -210,18 +207,18 @@ export async function cast(
     const res = await ctx.runPrompt(
         async (_) => {
             if (typeof data === "function") await data(_)
-            else _.def("DATA", data)
+            else _.def("SOURCE", data)
             _.defSchema("SCHEMA", responseSchema, { format: "json" })
-            _.$`You are an expert data converter specializing in transforming unknown data formats into structured data.
-            Convert the contents of <DATA> to JSON using schema <SCHEMA>.
-            - Treat images as <DATA> and convert them to JSON.
+            _.$`You are an expert data converter specializing in transforming unstructured text source into structured data.
+            Convert the contents of <SOURCE> to JSON using schema <SCHEMA>.
+            - Treat images as <SOURCE> and convert them to JSON.
             - Make sure the returned data matches the schema in <SCHEMA>.`
             if (typeof instructions === "string") _.$`${instructions}`
             else if (typeof instructions === "function") await instructions(_)
         },
         {
             responseType: "json",
-            responseSchema: responseSchema,
+            responseSchema,
             ...rest,
             label,
         }
