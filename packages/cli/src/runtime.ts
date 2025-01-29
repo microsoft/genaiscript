@@ -186,18 +186,21 @@ export async function cast(
     data: StringLike,
     itemSchema: JSONSchema,
     options?: PromptGeneratorOptions & {
+        repairs?: number
         multiple?: boolean
         instructions?: string | PromptGenerator
         ctx?: ChatGenerationContext
     }
 ): Promise<unknown> {
     const {
+        repairs = 1,
         ctx = env.generator,
         multiple,
         instructions,
         label = `cast text to schema`,
         ...rest
     } = options || {}
+    let repair = 0
     const responseSchema = multiple
         ? ({
               type: "array",
@@ -208,17 +211,41 @@ export async function cast(
         async (_) => {
             _.def("DATA", data)
             _.defSchema("SCHEMA", responseSchema)
-            _.$`You are an expert data converter specializing in transforming unknown data formats into structured JSON Schema.
-            Convert the contents of <DATA> to JSON using JSON schema in <SCHEMA>.
-            Do not respond with anything else.`
+            _.$`You are an expert data converter specializing in transforming unknown data formats into structured data.
+            Convert the contents of <DATA> to JSON using data schema in <SCHEMA>.
+            - Make sure the returned data validates the schema in <SCHEMA>.`
             if (typeof instructions === "string") _.$`${instructions}`
             else if (typeof instructions === "function") await instructions(_)
+
+            _.defChatParticipant((cctx, messsages) => {
+                if (repair++ >= repairs) return
+
+                const last = messsages[messsages.length - 1]
+                if (last.role === "assistant") {
+                    const parsed = parsers.JSONLLM(last.content)
+                    if (parsed === undefined) {
+                        cctx.console.warn(`json: parse error`)
+                        cctx.$`Fix the JSON syntax.`
+                    } else {
+                        const validation = parsers.validateJSON(
+                            responseSchema,
+                            parsed
+                        )
+                        if (validation.schemaError) {
+                            cctx.console.warn(
+                                `schema validation error: ${validation.schemaError}`
+                            )
+                            cctx.$`The data does not match the schema, see <SCHEMA_ERROR>.`
+                            cctx.def("SCHEMA_ERROR", validation.schemaError)
+                        }
+                    }
+                }
+            })
         },
         {
+            responseType: "json",
             ...rest,
             label,
-            system: ["system.output_plaintext"],
-            //  responseSchema,
         }
     )
     return res.json

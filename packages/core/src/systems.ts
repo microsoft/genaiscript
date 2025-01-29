@@ -22,25 +22,30 @@ export function resolveSystems(
     resolvedTools?: ToolCallback[],
     options?: GenerationOptions
 ): string[] {
-    const { jsSource } = script
+    const { jsSource, responseType, responseSchema } = script
     // Initialize systems array from script.system, converting to array if necessary using arrayify utility
     let systems = arrayify(script.system)
     const excludedSystem = arrayify(script.excludedSystem)
     const tools = arrayify(script.tools)
+    const dataMode =
+        responseSchema ||
+        (responseType && responseType !== "markdown" && responseType !== "text")
 
     // If no system is defined in the script, determine systems based on jsSource
     if (script.system === undefined) {
+        // safety
+        systems.push("system.safety_jailbreak")
+        systems.push("system.safety_harmful_content")
+        systems.push("system.safety_protected_material")
+
         // Check for schema definition in jsSource using regex
         const useSchema = /\Wdefschema\W/i.test(jsSource)
 
         // Default systems if no responseType is specified
-        if (!script.responseType) {
+        if (!dataMode) {
             systems.push("system")
-            systems.push("system.output_markdown")
             systems.push("system.explanations")
-            systems.push("system.safety_jailbreak")
-            systems.push("system.safety_harmful_content")
-            systems.push("system.safety_protected_material")
+            if (!responseType) systems.push("system.output_markdown")
         }
 
         // Add planner system if any tool starts with "agent"
@@ -67,6 +72,25 @@ export function resolveSystems(
         if (/\W(git)\W/i.test(jsSource)) systems.push("system.git_info")
         // Add GitHub information system if GitHub is found
         if (/\W(github)\W/i.test(jsSource)) systems.push("system.github_info")
+    }
+
+    // output format
+    switch (responseType) {
+        case "markdown":
+            systems.push("system.output_markdown")
+            break
+        case "text":
+            systems.push("system.output_plaintext")
+            break
+        case "json":
+        case "json_object":
+            systems.push("system.output_json")
+            break
+        case "yaml":
+            systems.push("system.output_yaml")
+            break
+        case "json_schema":
+            break // nothing needed
     }
 
     // Include tools-related systems if specified in the script

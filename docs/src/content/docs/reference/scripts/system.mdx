@@ -2686,6 +2686,22 @@ defTool(
 `````
 
 
+### `system.output_json`
+
+JSON output
+
+
+
+
+
+`````js wrap title="system.output_json"
+system({ title: "JSON output"})
+$`## JSON output
+Respond in JSON. No yapping, no markdown, no code fences, no XML tags, no string delimiters wrapping it.
+`
+`````
+
+
 ### `system.output_markdown`
 
 Base system prompt
@@ -2715,6 +2731,23 @@ system({ title: "Plain text output" })
 $`## Plain Text Output
 Respond in plain text. No yapping, no markdown, no code fences, no XML tags, no string delimiters
 wrapping it.
+`
+
+`````
+
+
+### `system.output_yaml`
+
+YAML output
+
+
+
+
+
+`````js wrap title="system.output_yaml"
+system({ title: "YAML output" })
+$`## YAML output
+Respond in YAML. Use valid yaml syntax for fields and arrays! No yapping, no markdown, no code fences, no XML tags, no string delimiters wrapping it.
 `
 
 `````

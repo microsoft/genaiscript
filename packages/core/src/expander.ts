@@ -383,7 +383,7 @@ ${schemaTs}
     } else if (responseType === "json_schema") {
         if (!responseSchema)
             throw new Error(`responseSchema is required for json_schema`)
-        // try conversion
+        // try conversionm handled somewhere else
         toStrictJSONSchema(responseSchema)
     }
 

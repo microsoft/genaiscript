@@ -64,7 +64,7 @@ import {
 } from "./chatrender"
 import { promptParametersSchemaToJSONSchema } from "./parameters"
 import { prettifyMarkdown } from "./markdown"
-import { YAMLStringify } from "./yaml"
+import { YAMLStringify, YAMLTryParse } from "./yaml"
 import { resolveTokenEncoder } from "./encoders"
 import { estimateTokens, truncateTextToTokens } from "./tokens"
 import { computeFileEdits } from "./fileedits"
@@ -486,11 +486,11 @@ function assistantText(
         text = msg.content + text
     }
 
-    if (responseType === undefined) {
-        text = unfence(text, "(markdown|md)")
-    }
+    if (responseType === undefined) text = unfence(text, "(markdown|md)")
+    else if (responseType === "yaml") text = unfence(text, "(yaml|yml)")
+    else if (responseType) text = unfence(text, "(json|json5)")
 
-    return text
+    return unthink(text)
 }
 
 async function structurifyChatSession(
@@ -520,8 +520,9 @@ async function structurifyChatSession(
     let json: any
     if (responseType === "json_schema") {
         try {
-            json = JSON.parse(text)
+            json = JSON5parse(text, { repair: true })
         } catch (e) {
+            logError("response json_schema parsing failed")
             trace.error("response json_schema parsing failed", e)
         }
     } else if (responseType === "json_object") {
@@ -541,8 +542,11 @@ async function structurifyChatSession(
                 }
             }
         } catch (e) {
+            logError("response json_object parsing failed")
             trace.error("response json_object parsing failed", e)
         }
+    } else if (responseType === "yaml") {
+        json = YAMLTryParse(text)
     } else {
         json = isJSONObjectOrArray(text)
             ? JSONLLMTryParse(text)
