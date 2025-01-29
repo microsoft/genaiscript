@@ -178,37 +178,47 @@ export function makeItBetter(options?: {
  * Cast text to data using a JSON schema.
  * Inspired by https://github.com/prefecthq/marvin
  * @param data
- * @param responseSchema
+ * @param itemSchema
  * @param options
  * @returns
  */
 export async function cast(
     data: StringLike,
-    responseSchema: JSONSchemaObject,
+    itemSchema: JSONSchema,
     options?: PromptGeneratorOptions & {
+        multiple?: boolean
         instructions?: string | PromptGenerator
         ctx?: ChatGenerationContext
     }
 ): Promise<unknown> {
     const {
         ctx = env.generator,
+        multiple,
         instructions,
         label = `cast text to schema`,
         ...rest
     } = options || {}
+    const responseSchema = multiple
+        ? ({
+              type: "array",
+              items: itemSchema,
+          } satisfies JSONSchemaArray)
+        : itemSchema
     const res = await ctx.runPrompt(
         async (_) => {
             _.def("DATA", data)
             _.defSchema("SCHEMA", responseSchema)
-            _.$`Format the contents of <DATA> in JSON using JSON schema in <SCHEMA>.
+            _.$`You are an expert data converter specializing in transforming unknown data formats into structured JSON Schema.
+            Convert the contents of <DATA> to JSON using JSON schema in <SCHEMA>.
             Do not respond with anything else.`
             if (typeof instructions === "string") _.$`${instructions}`
             else if (typeof instructions === "function") await instructions(_)
         },
         {
             ...rest,
+            label,
             system: ["system.output_plaintext"],
-            responseSchema,
+            //  responseSchema,
         }
     )
     return res.json
