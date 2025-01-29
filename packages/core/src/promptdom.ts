@@ -13,6 +13,7 @@ import {
     PROMPT_FENCE,
     PROMPTY_REGEX,
     SANITIZED_PROMPT_INJECTION,
+    SCHEMA_DEFAULT_FORMAT,
     TEMPLATE_ARG_DATA_SLICE_SAMPLE,
     TEMPLATE_ARG_FILE_MAX_TOKENS,
 } from "./constants"
@@ -1254,7 +1255,7 @@ export async function renderPromptNode(
             if (schemas[schemaName])
                 trace.error("duplicate schema name: " + schemaName)
             schemas[schemaName] = schema
-            const { format = "typescript" } = options || {}
+            const { format = SCHEMA_DEFAULT_FORMAT } = options || {}
             let schemaText: string
             switch (format) {
                 case "json":
@@ -1371,13 +1372,10 @@ ${fileOutputs.map((fo) => `   ${fo.pattern}: ${fo.description || "generated file
 
     const responseSchema = promptParametersSchemaToJSONSchema(
         options.responseSchema
-    )
-    if (responseSchema)
-        trace.detailsFenced("📜 response schema", responseSchema)
+    ) as JSONSchemaObject
     let responseType = options.responseType
     if (responseSchema && responseType !== "json_schema")
         responseType = "json_object"
-
     if (responseType) trace.itemValue(`response type`, responseType)
     if (responseSchema)
         trace.detailsFenced("📜 response schema", responseSchema)

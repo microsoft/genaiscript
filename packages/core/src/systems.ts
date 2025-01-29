@@ -84,14 +84,14 @@ export function resolveSystems(
             break
         case "json":
         case "json_object":
+        case "json_schema":
             systems.push("system.output_json")
             break
         case "yaml":
             systems.push("system.output_yaml")
             break
-        case "json_schema":
-            break // nothing needed
     }
+    if (responseSchema && !responseType) systems.push("system.output_json")
 
     // Include tools-related systems if specified in the script
     if (tools.length) {

@@ -299,7 +299,7 @@ interface ModelOptions extends ModelConnectionOptions, ModelTemplateOptions {
     /**
      * JSON object schema for the output. Enables the `json_object` output mode by default.
      */
-    responseSchema?: PromptParametersSchema | JSONSchemaObject
+    responseSchema?: PromptParametersSchema | JSONSchema
 
     /**
      * “Top_p” or nucleus sampling is a setting that decides how many possible words to consider.
