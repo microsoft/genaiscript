@@ -60,7 +60,7 @@ export function promptParameterTypeToJSONSchema(
 
 export function promptParametersSchemaToJSONSchema(
     parameters: PromptParametersSchema | JSONSchema | undefined
-) {
+): JSONSchema | undefined {
     if (!parameters) return undefined
     if (isJSONSchema(parameters)) return parameters as JSONSchema
 

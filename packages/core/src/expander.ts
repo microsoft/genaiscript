@@ -360,34 +360,12 @@ export async function expandTemplate(
         options.fallbackTools = true
     }
 
-    const responseSchema = promptParametersSchemaToJSONSchema(
-        template.responseSchema
-    ) as JSONSchemaObject
-    if (responseSchema)
-        trace.detailsFenced("📜 response schema", responseSchema)
-    let responseType = template.responseType
-    if (responseSchema && responseType !== "json_schema") {
-        responseType = "json_object"
-        const typeName = "Output"
-        const schemaTs = JSONSchemaStringifyToTypeScript(responseSchema, {
-            typeName,
-        })
-        addSystemMessage(`You are a service that translates user requests 
-into JSON objects of type "${typeName}" 
-according to the following TypeScript definitions:
-\`\`\`ts
-${schemaTs}
-\`\`\``)
-    } else if (responseType === "json_object") {
-        addSystemMessage("Answer using JSON.")
-    } else if (responseType === "json_schema") {
-        if (!responseSchema)
-            throw new Error(`responseSchema is required for json_schema`)
-        // try conversion
-        toStrictJSONSchema(responseSchema)
-    }
-
-    finalizeMessages(messages, { fileOutputs })
+    const { responseType, responseSchema } = finalizeMessages(messages, {
+        responseType: template.responseType,
+        responseSchema: template.responseSchema,
+        fileOutputs,
+        trace,
+    })
 
     trace.endDetails()
 

@@ -2,7 +2,7 @@
 import { CSVToMarkdown, CSVTryParse } from "./csv"
 import { renderFileContent, resolveFileContent } from "./file"
 import { addLineNumbers, extractRange } from "./liner"
-import { JSONSchemaStringifyToTypeScript } from "./schema"
+import { JSONSchemaStringifyToTypeScript, toStrictJSONSchema } from "./schema"
 import { estimateTokens, truncateTextToTokens } from "./tokens"
 import { MarkdownTrace, TraceOptions } from "./trace"
 import { arrayify, assert, logError, logWarn, toStringList } from "./util"
@@ -13,6 +13,7 @@ import {
     PROMPT_FENCE,
     PROMPTY_REGEX,
     SANITIZED_PROMPT_INJECTION,
+    SCHEMA_DEFAULT_FORMAT,
     TEMPLATE_ARG_DATA_SLICE_SAMPLE,
     TEMPLATE_ARG_FILE_MAX_TOKENS,
 } from "./constants"
@@ -38,6 +39,7 @@ import { tryZodToJsonSchema } from "./zod"
 import { GROQEvaluate } from "./groq"
 import { trimNewlines } from "./unwrappers"
 import { CancellationOptions } from "./cancellation"
+import { promptParametersSchemaToJSONSchema } from "./parameters"
 
 // Definition of the PromptNode interface which is an essential part of the code structure.
 export interface PromptNode extends ContextExpansionOptions {
@@ -365,10 +367,10 @@ async function renderDefDataNode(n: PromptDefDataNode): Promise<string> {
     }
 
     const value = lang
-        ? `<${name} format="${lang}">
+        ? `<${name} lang="${lang}">
 ${trimNewlines(text)}
 <${name}>
-F`
+`
         : `${name}:
 ${trimNewlines(text)}
 `
@@ -1253,7 +1255,7 @@ export async function renderPromptNode(
             if (schemas[schemaName])
                 trace.error("duplicate schema name: " + schemaName)
             schemas[schemaName] = schema
-            const { format = "typescript" } = options || {}
+            const { format = SCHEMA_DEFAULT_FORMAT } = options || {}
             let schemaText: string
             switch (format) {
                 case "json":
@@ -1268,10 +1270,9 @@ export async function renderPromptNode(
                     })
                     break
             }
-            const text = `${schemaName}:
-\`\`\`${format + "-schema"}
+            const text = `<${schemaName} lang="${format}">
 ${trimNewlines(schemaText)}
-\`\`\``
+</${schemaName}>`
             appendUser(text, n)
             n.tokens = estimateTokens(text, encoder)
             if (trace && format !== "json")
@@ -1349,9 +1350,13 @@ ${trimNewlines(schemaText)}
 
 export function finalizeMessages(
     messages: ChatCompletionMessageParam[],
-    options?: { fileOutputs?: FileOutput[] }
+    options?: {
+        responseType?: PromptTemplateResponseType
+        responseSchema?: PromptParametersSchema | JSONSchema | undefined
+        fileOutputs?: FileOutput[]
+    } & TraceOptions
 ) {
-    const { fileOutputs } = options || {}
+    const { fileOutputs, trace } = options || {}
     if (fileOutputs?.length > 0) {
         appendSystemMessage(
             messages,
@@ -1363,5 +1368,38 @@ When generating files, use the following rules which are formatted as "file glob
 ${fileOutputs.map((fo) => `   ${fo.pattern}: ${fo.description || "generated file"}`)}
 `
         )
+    }
+
+    const responseSchema = promptParametersSchemaToJSONSchema(
+        options.responseSchema
+    ) as JSONSchemaObject
+    let responseType = options.responseType
+    if (responseSchema && !responseType && responseType !== "json_schema")
+        responseType = "json"
+    if (responseType) trace.itemValue(`response type`, responseType)
+    if (responseSchema)
+        trace.detailsFenced("📜 response schema", responseSchema)
+
+    if (responseType === "json_schema") {
+        if (!responseSchema)
+            throw new Error(`responseSchema is required for json_schema`)
+        const typeName = "Output"
+        const schemaTs = JSONSchemaStringifyToTypeScript(responseSchema, {
+            typeName,
+        })
+        appendSystemMessage(
+            messages,
+            `You are a service that translates user requests 
+into JSON objects of type "${typeName}" 
+according to the following TypeScript definitions:
+<${typeName}>
+${schemaTs}
+</${typeName}>`
+        )
+    }
+
+    return {
+        responseType,
+        responseSchema,
     }
 }

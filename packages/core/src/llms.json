@@ -237,7 +237,8 @@
         "memory": "small",
         "reasoning_small": "reasoning",
         "classify": "small",
-        "summarize": "small"
+        "summarize": "small",
+        "cast": "small"
     },
     "pricings": {
         "github:gpt-4o-2024-11-20": {

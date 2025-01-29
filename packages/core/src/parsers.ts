@@ -4,7 +4,7 @@ import {
     filenameOrFileToFilename,
     unfence,
 } from "./unwrappers"
-import { JSON5TryParse } from "./json5"
+import { JSON5TryParse, JSONLLMTryParse } from "./json5"
 import { estimateTokens } from "./tokens"
 import { TOMLTryParse } from "./toml"
 import { MarkdownTrace } from "./trace"
@@ -44,6 +44,7 @@ export async function createParsers(options: {
     return Object.freeze<Parsers>({
         JSON5: (text, options) =>
             JSON5TryParse(filenameOrFileToContent(text), options?.defaultValue),
+        JSONLLM: (text) => JSONLLMTryParse(text),
         JSONL: (text) => JSONLTryParse(filenameOrFileToContent(text)),
         YAML: (text, options) =>
             YAMLTryParse(filenameOrFileToContent(text), options?.defaultValue),

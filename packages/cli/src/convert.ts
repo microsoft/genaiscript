@@ -6,6 +6,7 @@ import {
     HTTPS_REGEX,
     JSON5_REGEX,
     TRACE_FILENAME,
+    YAML_REGEX,
 } from "../../core/src/constants"
 import { filePathOrUrlToWorkspaceFile, tryReadText } from "../../core/src/fs"
 import { host } from "../../core/src/host"
@@ -33,6 +34,7 @@ import { hash, randomHex } from "../../core/src/crypto"
 import { createCancellationController } from "./cancel"
 import { toSignal } from "../../core/src/cancellation"
 import { normalizeInt } from "../../core/src/cleaners"
+import { YAMLStringify } from "../../core/src/yaml"
 
 function getConvertDir(scriptId: string) {
     const runId =
@@ -99,8 +101,16 @@ export async function convertFiles(
         convertTrace.error(`script ${scriptId} not found`)
         throw new Error(`script ${scriptId} not found`)
     }
-
-    const suffix = options?.suffix || `.genai.${script.id}.md`
+    const { responseType, responseSchema } = script
+    const ext =
+        responseType === "yaml"
+            ? ".yaml"
+            : responseType === "text"
+              ? ".txt"
+              : /^json/.test(responseType) || responseSchema
+                ? ".json"
+                : ".md"
+    const suffix = options?.suffix || `.genai.${script.id}${ext}`
     convertTrace.heading(2, `convert with ${script.id}`)
     convertTrace.itemValue(`suffix`, suffix)
 
@@ -162,7 +172,7 @@ export async function convertFiles(
                 ...restOptions,
             })
             tracePromptResult(fileTrace, result)
-            const { error } = result || {}
+            const { error, json } = result || {}
             if (error) {
                 logError(error)
                 fileTrace.error(undefined, error)
@@ -213,17 +223,8 @@ export async function convertFiles(
             if (text === undefined) text = unfence(result.text, "markdown")
 
             // normalize JSON
-            if (JSON5_REGEX.test(outf) && text) {
-                // normalize data
-                let data = JSONTryParse(text)
-                if (data === undefined) {
-                    data = JSONLLMTryParse(text)
-                    if (data !== undefined) {
-                        logVerbose("repair json")
-                        text = JSON.stringify(text, null, 2)
-                    }
-                }
-            }
+            if (JSON5_REGEX.test(outf)) text = JSON.stringify(json, null, 2)
+            else if (YAML_REGEX.test(outf)) text = YAMLStringify(json)
 
             // save file
             const existing = await tryReadText(outf)
