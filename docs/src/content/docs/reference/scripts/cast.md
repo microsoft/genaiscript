@@ -1,40 +1,42 @@
 ---
-title: "Classify"
-description: "Use the classify helpers for your classification tasks"
+title: "Cast"
+description: "Use the cast helper to convert text to structured data"
 sidebar:
     order: 80
 ---
 
-The `classify` function in GenAIScript allows you to categorize inputs based on a machine learning model.
-It provides a simple interface to leverage the power of LLMs for classification tasks.
+The `cast` function in GenAIScript allows you to convert text or images to structured data.
+It provides a simple interface to leverage the power of LLMs for extracting data from unstructured text and images.
 
 ## Usage
 
-`classify` is defined in the runtime and needs to be imported. It takes the text to classify, a set of labels (and options for the LLM)
-and returns the label provided by the LLM.
+`cast` is defined in the runtime and needs to be imported. It takes the unstructure text (or files), a JSON schema
+and returns the extract data (or error).
 
 ```js
-import { classify } from "genaiscript/runtime"
+import { cast } from "genaiscript/runtime"
 
-const { label } = await classify(
-    "The app crashes when I try to upload a file.",
+const { data } = await cast(
+    "The quick brown fox jumps over the lazy dog.; jumps",
     {
-        bug: "a software defect",
-        feat: "a feature request",
-        qa: "an inquiry about how to use the software",
+        type: "object",
+        properties: {
+            partOfSpeech: { type: "string" },
+        },
+    },
+    {
+        instructions: `You will be presented with a sentence and a word contained
+in that sentence. You have to determine the part of speech for a given word`,
     }
 )
 ```
 
-- The prompt encourages the LLM to explain its choices **before** returning the label.
-- The label tokens are boosted using logit-bias to improve the reliability of the classification.
-
 :::note
 
-`classify` is provided as part of the runtime (slightly different way to package GenAIScript functionalities) and needs to be imported using this code...
+`cast` is provided as part of the runtime (slightly different way to package GenAIScript functionalities) and needs to be imported using this code...
 
 ```js
-import { classify } from "genaiscript/runtime"
+import { cast } from "genaiscript/runtime"
 ```
 
 :::
@@ -46,7 +48,7 @@ and build the `DATA` variable programmatically.
 This allows you to select files, images and other GenAIScript options.
 
 ```js
-const res = await classify(_ => {
+const res = await cast(_ => {
     _.defImages('DATA', img)
 }, ...)
 ```
@@ -116,4 +118,4 @@ You can disable `logprobs` by setting `logprobs: false` in the options. You can 
 
 ## Acknowlegments
 
-This function is inspired from the classification in [Marvin](https://www.askmarvin.ai/docs/text/classification/).
+This function is inspired from [Marvin](https://www.askmarvin.ai/docs/text/transformation/).

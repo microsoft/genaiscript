@@ -121,7 +121,7 @@ export function JSONLLMTryParse(s: string): any {
     if (s === undefined || s === null) return s
     if (s === "") return {}
     // Removes any fencing and then tries to parse the string.
-    const cleaned = unthink(unfence(s, "json"))
+    const cleaned = unfence(unthink(s), "json")
     return JSON5TryParse(cleaned)
 }
 

@@ -42,7 +42,7 @@ export type ClassifyOptions = {
  * @param options prompt options, additional instructions, custom prompt contexst
  */
 export async function classify<L extends Record<string, string>>(
-    text: string | PromptGenerator,
+    text: StringLike | PromptGenerator,
     labels: L,
     options?: ClassifyOptions
 ): Promise<{
@@ -102,8 +102,8 @@ no
 `,
                 { language: "example" }
             )
-            if (typeof text === "string") _.def("DATA", text)
-            else await text(_)
+            if (typeof text === "function") await text(_)
+            else _.def("DATA", text)
         },
         {
             model: "classify",
@@ -183,7 +183,7 @@ export function makeItBetter(options?: {
  * @returns
  */
 export async function cast(
-    data: StringLike,
+    data: StringLike | PromptGenerator,
     itemSchema: JSONSchema,
     options?: PromptGeneratorOptions & {
         repairs?: number
@@ -191,7 +191,7 @@ export async function cast(
         instructions?: string | PromptGenerator
         ctx?: ChatGenerationContext
     }
-): Promise<unknown> {
+): Promise<{ data?: unknown; error?: string; text: string }> {
     const {
         repairs = 1,
         ctx = env.generator,
@@ -209,10 +209,12 @@ export async function cast(
         : itemSchema
     const res = await ctx.runPrompt(
         async (_) => {
-            _.def("DATA", data)
+            if (typeof data === "function") await data(_)
+            else _.def("DATA", data)
             _.defSchema("SCHEMA", responseSchema)
             _.$`You are an expert data converter specializing in transforming unknown data formats into structured data.
             Convert the contents of <DATA> to JSON using data schema in <SCHEMA>.
+            - Treat images as <DATA> and convert them to JSON.
             - Make sure the returned data validates the schema in <SCHEMA>.`
             if (typeof instructions === "string") _.$`${instructions}`
             else if (typeof instructions === "function") await instructions(_)
@@ -248,5 +250,8 @@ export async function cast(
             label,
         }
     )
+    const text = parsers.unfence(parsers.unthink(res.text), "json")
     return res.json
+        ? { text, data: res.json }
+        : { text, error: res.error?.message }
 }
