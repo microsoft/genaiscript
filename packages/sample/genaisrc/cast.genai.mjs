@@ -40,7 +40,7 @@ Wh-pronoun, WP$: Possessive wh-pronoun, WRB: Wh-adverb`,
 console.log(ress)
 
 const { data: res2 } = await cast(
-    env.files,
+    env.files.filter(({ filename }) => !filename.endsWith(".jpg")),
     {
         type: "object",
         properties: {

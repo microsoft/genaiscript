@@ -987,7 +987,15 @@ export function createChatGenerationContext(
             if (images?.length)
                 messages.push(toChatCompletionUserMessage("", images))
 
-            finalizeMessages(messages, { fileOutputs })
+            const { responseType, responseSchema } = finalizeMessages(
+                messages,
+                {
+                    responseType: runOptions?.responseType,
+                    responseSchema: runOptions?.responseSchema,
+                    fileOutputs,
+                    trace,
+                }
+            )
             const { completer } = await resolveLanguageModel(
                 configuration.provider
             )
