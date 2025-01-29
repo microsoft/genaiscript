@@ -420,7 +420,7 @@ async function applyRepairs(
     const lastMessage = messages[messages.length - 1]
     if (lastMessage.role !== "assistant" || lastMessage.refusal) return false
 
-    const content = assistantText(messages)
+    const content = assistantText(messages, responseType, responseSchema)
     const fences = extractFenced(content)
     validateFencesWithSchema(fences, schemas, { trace })
     const invalids = fences.filter((f) => f?.validation?.schemaError)
@@ -485,11 +485,9 @@ async function applyRepairs(
         .map((f) =>
             toStringList(
                 f.label,
-                f.args?.schema
-                    ? `  - schema: ${f.args?.schema || ""}`
-                    : undefined,
+                f.args?.schema ? `schema: ${f.args?.schema || ""}` : undefined,
                 f.validation.schemaError
-                    ? `- error: ${f.validation.schemaError}`
+                    ? `error: ${f.validation.schemaError}`
                     : undefined
             )
         )
@@ -500,6 +498,7 @@ ${repair}
 </data_format_issues>
                             
 `
+    logVerbose(repair)
     trace.fence(repairMsg, "markdown")
     messages.push({
         role: "user",
@@ -517,7 +516,8 @@ ${repair}
 
 function assistantText(
     messages: ChatCompletionMessageParam[],
-    responseType?: PromptTemplateResponseType
+    responseType?: PromptTemplateResponseType,
+    responseSchema?: PromptParametersSchema | JSONSchema
 ) {
     let text = ""
     for (let i = messages.length - 1; i >= 0; i--) {
@@ -526,11 +526,14 @@ function assistantText(
         text = msg.content + text
     }
 
-    if (responseType === undefined) text = unfence(text, "(markdown|md)")
+    text = unthink(text)
+    if ((!responseType && !responseSchema) || responseType === "markdown")
+        text = unfence(text, "(markdown|md)")
     else if (responseType === "yaml") text = unfence(text, "(yaml|yml)")
-    else if (responseType) text = unfence(text, "(json|json5)")
+    else if (/^json/.test(responseType)) text = unfence(text, "(json|json5)")
+    else if (responseType === "text") text = unfence(text, "(text|txt)")
 
-    return unthink(text)
+    return text
 }
 
 async function structurifyChatSession(
@@ -549,7 +552,7 @@ async function structurifyChatSession(
 ): Promise<RunPromptResult> {
     const { trace, responseType, responseSchema } = options
     const { resp, err } = others || {}
-    const text = assistantText(messages, responseType)
+    const text = assistantText(messages, responseType, responseSchema)
     const annotations = parseAnnotations(text)
     const finishReason = isCancelError(err)
         ? "cancel"
