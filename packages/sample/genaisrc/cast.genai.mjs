@@ -67,7 +67,7 @@ const { data: res2 } = await cast(
 console.log(res2)
 
 const images = env.files.filter(({ filename }) => filename.endsWith(".jpg"))
-await cast((_) => defImages(images), {
+await cast((_) => _.defImages(images), {
     type: "object",
     properties: {
         keywords: {
