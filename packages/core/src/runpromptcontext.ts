@@ -938,6 +938,8 @@ export function createChatGenerationContext(
                         )
                         if (sysr.images?.length)
                             throw new NotSupportedError("images")
+                        if (sysr.audios?.length)
+                            throw new NotSupportedError("audios")
                         if (sysr.schemas) Object.assign(schemas, sysr.schemas)
                         if (sysr.functions) tools.push(...sysr.functions)
                         if (sysr.fileMerges?.length)

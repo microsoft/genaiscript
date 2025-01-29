@@ -45,6 +45,7 @@ export interface PromptNode extends ContextExpansionOptions {
     type?:
         | "text"
         | "image"
+        | "audio"
         | "schema"
         | "tool"
         | "fileMerge"
@@ -148,6 +149,18 @@ export interface PromptImageNode extends PromptNode {
     type: "image"
     value: Awaitable<PromptImage> // Image information
     resolved?: PromptImage // Resolved image information
+}
+
+export interface PromptAudio {
+    filename?: string
+    data: string
+    format: "mp3" | "wav"
+}
+
+export interface PromptAudioNode extends PromptNode {
+    type: "audio"
+    value: Awaitable<PromptAudio> // Image information
+    resolved?: PromptAudio // Resolved image information
 }
 
 // Interface for a schema node.
@@ -418,6 +431,15 @@ export function createImageNode(
     return { type: "image", value, ...(options || {}) }
 }
 
+// Function to create an image node.
+export function createAudioNode(
+    value: Awaitable<PromptAudio>,
+    options?: ContextExpansionOptions
+): PromptAudioNode {
+    assert(value !== undefined)
+    return { type: "audio", value, ...(options || {}) }
+}
+
 // Function to create a schema node.
 export function createSchemaNode(
     name: string,
@@ -556,6 +578,7 @@ export interface PromptNodeVisitor {
     def?: (node: PromptDefNode) => Awaitable<void> // Definition node visitor
     defData?: (node: PromptDefDataNode) => Awaitable<void> // Definition data node visitor
     image?: (node: PromptImageNode) => Awaitable<void> // Image node visitor
+    audio?: (node: PromptAudioNode) => Awaitable<void> // Audio node visitor
     schema?: (node: PromptSchemaNode) => Awaitable<void> // Schema node visitor
     tool?: (node: PromptToolNode) => Awaitable<void> // Function node visitor
     fileMerge?: (node: PromptFileMergeNode) => Awaitable<void> // File merge node visitor
@@ -584,6 +607,9 @@ export async function visitNode(node: PromptNode, visitor: PromptNodeVisitor) {
             break
         case "image":
             await visitor.image?.(node as PromptImageNode)
+            break
+        case "audio":
+            await visitor.audio?.(node as PromptAudioNode)
             break
         case "schema":
             await visitor.schema?.(node as PromptSchemaNode)
@@ -632,6 +658,7 @@ export async function visitNode(node: PromptNode, visitor: PromptNodeVisitor) {
 // Interface for representing a rendered prompt node.
 export interface PromptNodeRender {
     images: PromptImage[] // Images included in the prompt
+    audios: PromptAudio[]
     errors: unknown[] // Errors encountered during rendering
     schemas: Record<string, JSONSchema> // Schemas included in the prompt
     functions: ToolCallback[] // Functions included in the prompt
@@ -843,6 +870,15 @@ async function resolvePromptNode(
                 n.preview = n.resolved
                     ? `![${n.resolved.filename ?? "image"}](${n.resolved.url})`
                     : undefined
+            } catch (e) {
+                n.error = e
+            }
+        },
+        audio: async (n) => {
+            try {
+                const v = await n.value
+                n.resolved = v
+                n.preview = n.resolved ? `<audio />` : undefined
             } catch (e) {
                 n.error = e
             }
@@ -1186,6 +1222,7 @@ export async function renderPromptNode(
     ) => appendAssistantMessage(messages, content, options)
 
     const images: PromptImage[] = []
+    const audios: PromptAudio[] = []
     const errors: unknown[] = []
     const schemas: Record<string, JSONSchema> = {}
     const tools: ToolCallback[] = []
@@ -1244,6 +1281,16 @@ export async function renderPromptNode(
                         `📷 image: ${value.detail || ""} ${value.filename || value.url.slice(0, 64) + "..."}`
                     )
                     trace.image(value.url, value.filename)
+                    trace.endDetails()
+                }
+            }
+        },
+        audio: async (n) => {
+            const value = n.resolved
+            if (value?.data) {
+                audios.push(value)
+                if (trace) {
+                    trace.startDetails(`🎤 audio ${value.filename || ""}`)
                     trace.endDetails()
                 }
             }
@@ -1333,6 +1380,7 @@ ${trimNewlines(schemaText)}
 
     const res = Object.freeze<PromptNodeRender>({
         images,
+        audios,
         schemas,
         functions: tools,
         fileMerges,
