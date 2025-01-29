@@ -375,9 +375,9 @@ export async function expandTemplate(
         addSystemMessage(`You are a service that translates user requests 
 into JSON objects of type "${typeName}" 
 according to the following TypeScript definitions:
-\`\`\`ts
+<${typeName}>
 ${schemaTs}
-\`\`\``)
+</${typeName}>`)
     } else if (responseType === "json_object") {
         addSystemMessage("Answer using JSON.")
     } else if (responseType === "json_schema") {

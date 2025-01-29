@@ -12,7 +12,7 @@ export { delay, uniq, uniqBy, z, pipeline, chunk, groupBy }
 
 /**
  * Options for classifying data.
- * 
+ *
  * @property {boolean} [other] - Inject a 'other' label.
  * @property {boolean} [explanations] - Explain answers before returning token.
  * @property {ChatGenerationContext} [ctx] - Options runPrompt context.
@@ -35,7 +35,7 @@ export type ClassifyOptions = {
 /**
  * Classify prompt
  *
- * Inspired by https://github.dev/prefecthq/marvin
+ * Inspired by https://github.com/prefecthq/marvin
  *
  * @param text text to classify
  * @param labels map from label to description. the label should be a single token
@@ -149,7 +149,6 @@ no
     }
 }
 
-
 /**
  * Enhances the provided context by repeating a set of instructions a specified number of times.
  *
@@ -173,4 +172,44 @@ export function makeItBetter(options?: {
             cctx.$`${instructions}`
         }
     })
+}
+
+/**
+ * Cast text to data using a JSON schema.
+ * Inspired by https://github.com/prefecthq/marvin
+ * @param data
+ * @param responseSchema
+ * @param options
+ * @returns
+ */
+export async function cast(
+    data: StringLike,
+    responseSchema: JSONSchemaObject,
+    options?: PromptGeneratorOptions & {
+        instructions?: string | PromptGenerator
+        ctx?: ChatGenerationContext
+    }
+): Promise<unknown> {
+    const {
+        ctx = env.generator,
+        instructions,
+        label = `cast text to schema`,
+        ...rest
+    } = options || {}
+    const res = await ctx.runPrompt(
+        async (_) => {
+            _.def("DATA", data)
+            _.defSchema("SCHEMA", responseSchema)
+            _.$`Format the contents of <DATA> in JSON using JSON schema in <SCHEMA>.
+            Do not respond with anything else.`
+            if (typeof instructions === "string") _.$`${instructions}`
+            else if (typeof instructions === "function") await instructions(_)
+        },
+        {
+            ...rest,
+            system: ["system.output_plaintext"],
+            responseSchema,
+        }
+    )
+    return res.json
 }

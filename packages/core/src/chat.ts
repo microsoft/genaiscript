@@ -92,6 +92,7 @@ import {
     getChatCompletionCache,
 } from "./chatcache"
 import { deleteUndefinedValues } from "./cleaners"
+import { unthink } from "./think"
 
 export function toChatCompletionUserMessage(
     expanded: string,

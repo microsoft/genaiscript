@@ -1268,10 +1268,9 @@ export async function renderPromptNode(
                     })
                     break
             }
-            const text = `${schemaName}:
-\`\`\`${format + "-schema"}
+            const text = `<${schemaName} format="${format}">
 ${trimNewlines(schemaText)}
-\`\`\``
+</${schemaName}>`
             appendUser(text, n)
             n.tokens = estimateTokens(text, encoder)
             if (trace && format !== "json")
