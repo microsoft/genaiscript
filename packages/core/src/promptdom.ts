@@ -2,7 +2,7 @@
 import { CSVToMarkdown, CSVTryParse } from "./csv"
 import { renderFileContent, resolveFileContent } from "./file"
 import { addLineNumbers, extractRange } from "./liner"
-import { JSONSchemaStringifyToTypeScript, toStrictJSONSchema } from "./schema"
+import { JSONSchemaStringifyToTypeScript } from "./schema"
 import { estimateTokens, truncateTextToTokens } from "./tokens"
 import { MarkdownTrace, TraceOptions } from "./trace"
 import { arrayify, assert, logError, logWarn, toStringList } from "./util"
