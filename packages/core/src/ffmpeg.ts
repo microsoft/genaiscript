@@ -16,6 +16,7 @@ import prettyBytes from "pretty-bytes"
 import { filenameOrFileToFilename } from "./unwrappers"
 import { Stats } from "node:fs"
 import { roundWithPrecision } from "./precision"
+import { parseTimestamps } from "./transcription"
 
 const ffmpegLimit = pLimit(1)
 const WILD_CARD = "%06d"
@@ -149,7 +150,13 @@ export class FFmepgClient implements Ffmpeg {
                 }) satisfies FFmpegCommandRenderer
             )
         } else {
-            if (transcript?.segments?.length && !soptions.timestamps?.length)
+            if (typeof transcript === "string")
+                soptions.timestamps = parseTimestamps(transcript)
+            else if (
+                typeof transcript === "object" &&
+                transcript?.segments?.length &&
+                !soptions.timestamps?.length
+            )
                 soptions.timestamps = transcript.segments.map((s) => s.start)
             if (count && !soptions.timestamps?.length) {
                 const info = await this.probeVideo(filename)

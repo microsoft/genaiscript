@@ -2320,7 +2320,7 @@ interface VideoExtractFramesOptions extends FFmpegCommandOptions {
     /**
      * Extract frames on the start of each transcript segment
      */
-    transcript?: TranscriptionResult
+    transcript?: TranscriptionResult | string
     /**
      * Extract Intra frames (keyframes). This is a efficient and fast decoding.
      */
