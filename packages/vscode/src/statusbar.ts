@@ -15,12 +15,16 @@ export function activateStatusBar(state: ExtensionState) {
     const updateStatusBar = async () => {
         const { parsing, aiRequest, languageChatModels, host } = state
         const { server } = host
+        const { status } = server
         const { computing, progress, options } = aiRequest || {}
         const { template, fragment } = options || {}
         const { tokensSoFar } = progress || {}
         statusBarItem.text = toStringList(
             `${
-                parsing || (computing && !tokensSoFar)
+                parsing ||
+                status === "starting" ||
+                status === "stopping" ||
+                (computing && !tokensSoFar)
                     ? `$(loading~spin)`
                     : `$(${ICON_LOGO_NAME})`
             }${tokensSoFar ? ` ${tokensSoFar} tokens` : ""}`
@@ -28,9 +32,9 @@ export function activateStatusBar(state: ExtensionState) {
 
         const md = new vscode.MarkdownString(
             toMarkdownString(
-                server.started
+                status === "running"
                     ? `server: [${server.authority}](${server.browserUrl})`
-                    : "server: off",
+                    : `server: ${status}`,
                 fragment?.files?.[0],
                 template
                     ? `-  tool: ${template.title} (${template.id})`
