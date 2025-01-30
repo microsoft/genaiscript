@@ -11,14 +11,7 @@ import { TraceOptions } from "./trace"
 import { logVerbose } from "./util"
 import { deleteUndefinedValues } from "./cleaners"
 
-/**
- * Asynchronously encodes an image for use in LLMs (Language Learning Models).
- *
- * @param url - The source of the image, which can be a URL string, Buffer, or Blob.
- * @param options - Configuration options that include image definitions and trace options.
- * @returns A promise that resolves to an image encoded as a data URI.
- */
-export async function imageEncodeForLLM(
+async function prepare(
     url: BufferLike,
     options: DefImagesOptions & TraceOptions
 ) {
@@ -107,17 +100,23 @@ export async function imageEncodeForLLM(
             align: HorizontalAlign.CENTER | VerticalAlign.MIDDLE,
         })
     }
+    return img
+}
 
+async function encode(
+    img: {
+        mime?: string
+        width: number
+        height: number
+        getBuffer(mime: string): Promise<Buffer>
+    },
+    options: DefImagesOptions & TraceOptions
+) {
     // Determine the output MIME type, defaulting to image/jpeg
-    const outputMime = img.mime || ("image/jpeg" as any)
-
-    // Convert the processed image to a Buffer
+    const { detail } = options
+    const outputMime = img.mime || ("image/png" as any)
     const buf = await img.getBuffer(outputMime)
-
-    // Convert the Buffer to a Base64 string
     const b64 = buf.toString("base64")
-
-    // Construct the data URI from the Base64 string
     const imageDataUri = `data:${outputMime};base64,${b64}`
 
     // Return the encoded image data URI
@@ -128,4 +127,45 @@ export async function imageEncodeForLLM(
         url: imageDataUri,
         detail,
     }
+}
+
+/**
+ * Asynchronously encodes an image for use in LLMs (Language Learning Models).
+ *
+ * @param url - The source of the image, which can be a URL string, Buffer, or Blob.
+ * @param options - Configuration options that include image definitions and trace options.
+ * @returns A promise that resolves to an image encoded as a data URI.
+ */
+export async function imageEncodeForLLM(
+    url: BufferLike,
+    options: DefImagesOptions & TraceOptions
+) {
+    const img = await prepare(url, options)
+    return await encode(img, options)
+}
+
+export async function imageTileEncodeForLLM(
+    urls: BufferLike[],
+    options: DefImagesOptions & TraceOptions
+) {
+    const imgs = await Promise.all(urls.map((url) => prepare(url, options)))
+
+    const imgw = imgs.reduce((acc, img) => Math.max(acc, img.width), 0)
+    const imgh = imgs.reduce((acc, img) => Math.max(acc, img.height), 0)
+    const nrows = Math.ceil(Math.sqrt(imgs.length))
+    const ncols = Math.ceil(imgs.length / nrows)
+    const width = ncols * imgw
+    const height = nrows * imgh
+
+    const { Jimp } = await import("jimp")
+    const canvas = new Jimp({ width, height })
+
+    for (let i = 0; i < imgs.length; i++) {
+        const ri = Math.floor(i / ncols)
+        const ci = i % ncols
+
+        canvas.blit({ bitmap: imgs[i].bitmap, x: ci * imgw, y: ri * imgh })
+    }
+
+    return encode(canvas, options)
 }
