@@ -1,12 +1,16 @@
 ---
-title: Structured Output
+title: Structured Outputs
 sidebar:
     order: 12.1
 description: Utilize structured output in GenAIScript to generate JSON data with schema validation for precise and reliable data structuring.
 keywords: structured output, JSON schema, GenAIScript, data validation, reliable data
 ---
+import { YouTube } from "astro-embed"
+
 
 GenAIScript supports the generation of structured outputs with automatic data repairs. It can leverage built-in schema validation from LLM providers or executes it own validation as needed.
+
+<YouTube id="https://youtube.com/U6mWnZOCalo/" />
 
 The structured output are configured through two flags: `responseType`, which controls the data format, and `responseSchema` which controls the data structure.
 
@@ -83,7 +87,7 @@ Note that there are [several restrictions](https://platform.openai.com/docs/guid
 - `additionalProperties: true` is not supported.
 - all optional fields (e.g. not in `required`) will be returned and might be `null`
 
-## Schema validation
+## Response Schema
 
 You can specify a [schema](/genaiscript/reference/scripts/schemas) through `responseSchema` which will automatically turn on the structured output mode. The output will be validated against the schema, and GenAIScript will attempt to repair the output if it is not valid. The script will fail if the output does not match the schema.
 
