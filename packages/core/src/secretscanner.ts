@@ -1,7 +1,5 @@
-import { i } from "mathjs"
 import { runtimeHost } from "./host"
 import { TraceOptions } from "./trace"
-import { kMaxLength } from "buffer"
 
 const cachedSecretScanners: Record<string, RegExp> = {}
 
@@ -12,10 +10,11 @@ export function redactSecrets(text: string, options?: TraceOptions) {
     const found: Record<string, number> = {}
     const res = Object.entries(secretPatterns).reduce(
         (acc, [name, pattern]) => {
+            if (!pattern) return acc // null, undefined, or empty string
             const regex: RegExp =
                 cachedSecretScanners[pattern] ??
                 (cachedSecretScanners[pattern] = new RegExp(pattern, "g"))
-            return acc.replace(regex, (m) => {
+            return acc.replace(regex, () => {
                 found[name] = (found[name] ?? 0) + 1
                 n++
                 return `<secret type="${name}" />`
