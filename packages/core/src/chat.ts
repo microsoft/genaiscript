@@ -94,36 +94,17 @@ import {
 import { deleteUndefinedValues } from "./cleaners"
 import { unthink } from "./think"
 
-export function toChatCompletionUserMessage(
-    expanded: string,
-    images?: PromptImage[]
-): ChatCompletionUserMessageParam {
-    const imgs = images?.filter(({ url }) => url) || []
-    if (imgs.length)
-        return <ChatCompletionUserMessageParam>{
-            role: "user",
-            content: [
-                {
-                    type: "text",
-                    text: expanded,
-                },
-                ...imgs.map(
-                    ({ url, detail }) =>
-                        <ChatCompletionContentPartImage>{
-                            type: "image_url",
-                            image_url: {
-                                url,
-                                detail,
-                            },
-                        }
-                ),
-            ],
-        }
-    else
-        return <ChatCompletionUserMessageParam>{
-            role: "user",
-            content: expanded,
-        }
+function toChatCompletionImage(
+    image: PromptImage
+): ChatCompletionContentPartImage {
+    const { url, detail } = image
+    return {
+        type: "image_url",
+        image_url: {
+            url,
+            detail,
+        },
+    }
 }
 
 export type ChatCompletionHandler = (
@@ -1210,7 +1191,7 @@ export function tracePromptResult(
 
 export function appendUserMessage(
     messages: ChatCompletionMessageParam[],
-    content: string,
+    content: string | PromptImage,
     options?: ContextExpansionOptions
 ) {
     if (!content) return
@@ -1224,10 +1205,19 @@ export function appendUserMessage(
         if (cacheControl) last.cacheControl = cacheControl
         messages.push(last)
     }
-    if (last.content) {
-        if (typeof last.content === "string") last.content += "\n" + content
-        else last.content.push({ type: "text", text: content })
-    } else last.content = content
+    if (typeof content === "string") {
+        if (last.content) {
+            if (typeof last.content === "string") last.content += "\n" + content
+            else last.content.push({ type: "text", text: content })
+        } else last.content = content
+    } else {
+        // add image
+        if (typeof last.content === "string")
+            last.content = last.content
+                ? [{ type: "text", text: last.content }]
+                : []
+        last.content.push(toChatCompletionImage(content))
+    }
 }
 
 export function appendAssistantMessage(

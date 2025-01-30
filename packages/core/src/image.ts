@@ -11,14 +11,7 @@ import { TraceOptions } from "./trace"
 import { logVerbose } from "./util"
 import { deleteUndefinedValues } from "./cleaners"
 
-/**
- * Asynchronously encodes an image for use in LLMs (Language Learning Models).
- *
- * @param url - The source of the image, which can be a URL string, Buffer, or Blob.
- * @param options - Configuration options that include image definitions and trace options.
- * @returns A promise that resolves to an image encoded as a data URI.
- */
-export async function imageEncodeForLLM(
+async function prepare(
     url: BufferLike,
     options: DefImagesOptions & TraceOptions
 ) {
@@ -97,27 +90,50 @@ export async function imageEncodeForLLM(
             h: Math.min(img.height, IMAGE_DETAIL_LOW_HEIGHT),
             align: HorizontalAlign.CENTER | VerticalAlign.MIDDLE,
         })
-    } else if (
-        img.width > IMAGE_DETAIL_HIGH_WIDTH ||
-        img.height > IMAGE_DETAIL_HIGH_HEIGHT
-    ) {
-        img.contain({
-            w: Math.min(img.width, IMAGE_DETAIL_HIGH_WIDTH),
-            h: Math.min(img.height, IMAGE_DETAIL_HIGH_HEIGHT),
-            align: HorizontalAlign.CENTER | VerticalAlign.MIDDLE,
-        })
     }
 
+    contain(
+        img,
+        IMAGE_DETAIL_HIGH_WIDTH,
+        IMAGE_DETAIL_HIGH_HEIGHT,
+        HorizontalAlign.CENTER | VerticalAlign.MIDDLE
+    )
+    return img
+}
+
+function contain(
+    img: {
+        width: number
+        height: number
+        contain: (arg0: { w: number; h: number; align: number }) => void
+    },
+    width: number,
+    height: number,
+    align: number
+) {
+    if (img.width > width || img.height > height) {
+        img.contain({
+            w: Math.min(img.width, width),
+            h: Math.min(img.height, height),
+            align,
+        })
+    }
+}
+
+async function encode(
+    img: {
+        mime?: string
+        width: number
+        height: number
+        getBuffer(mime: string): Promise<Buffer>
+    },
+    options: DefImagesOptions & TraceOptions
+) {
     // Determine the output MIME type, defaulting to image/jpeg
+    const { detail } = options
     const outputMime = img.mime || ("image/jpeg" as any)
-
-    // Convert the processed image to a Buffer
     const buf = await img.getBuffer(outputMime)
-
-    // Convert the Buffer to a Base64 string
     const b64 = buf.toString("base64")
-
-    // Construct the data URI from the Base64 string
     const imageDataUri = `data:${outputMime};base64,${b64}`
 
     // Return the encoded image data URI
@@ -128,4 +144,53 @@ export async function imageEncodeForLLM(
         url: imageDataUri,
         detail,
     }
+}
+
+/**
+ * Asynchronously encodes an image for use in LLMs (Language Learning Models).
+ *
+ * @param url - The source of the image, which can be a URL string, Buffer, or Blob.
+ * @param options - Configuration options that include image definitions and trace options.
+ * @returns A promise that resolves to an image encoded as a data URI.
+ */
+export async function imageEncodeForLLM(
+    url: BufferLike,
+    options: DefImagesOptions & TraceOptions
+) {
+    const img = await prepare(url, options)
+    return await encode(img, options)
+}
+
+export async function imageTileEncodeForLLM(
+    urls: BufferLike[],
+    options: DefImagesOptions & TraceOptions
+) {
+    const imgs = await Promise.all(urls.map((url) => prepare(url, options)))
+
+    const imgw = imgs.reduce((acc, img) => Math.max(acc, img.width), 0)
+    const imgh = imgs.reduce((acc, img) => Math.max(acc, img.height), 0)
+    const ncols = Math.ceil(Math.sqrt(imgs.length))
+    const nrows = Math.ceil(imgs.length / ncols)
+    const width = ncols * imgw
+    const height = nrows * imgh
+
+    const { Jimp, HorizontalAlign, VerticalAlign } = await import("jimp")
+    const canvas = new Jimp({ width, height })
+
+    for (let i = 0; i < imgs.length; i++) {
+        const ci = Math.floor(i / nrows)
+        const ri = i % nrows
+        const x = ci * imgw
+        const y = ri * imgh
+        canvas.composite(imgs[i], x, y)
+    }
+
+    contain(
+        canvas,
+        IMAGE_DETAIL_HIGH_WIDTH,
+        IMAGE_DETAIL_HIGH_HEIGHT,
+        HorizontalAlign.CENTER | VerticalAlign.MIDDLE
+    )
+
+    return await encode(canvas, { ...options, detail: undefined })
 }

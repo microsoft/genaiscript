@@ -47,3 +47,15 @@ export function srtVttRender(transcription: TranscriptionResult) {
         return time
     }
 }
+
+export function parseTimestamps(transcription: string) {
+    let ts: string[] = []
+    transcription?.replace(
+        /\[((\d{2}:)?\d{2}:\d{2}(.\d{3})?)\]/g,
+        (match, p1) => {
+            ts.push(p1)
+            return ""
+        }
+    )
+    return ts
+}

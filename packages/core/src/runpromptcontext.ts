@@ -42,7 +42,7 @@ import {
 import { renderShellOutput } from "./chatrender"
 import { jinjaRender } from "./jinja"
 import { mustacheRender } from "./mustache"
-import { imageEncodeForLLM } from "./image"
+import { imageEncodeForLLM, imageTileEncodeForLLM } from "./image"
 import { delay, uniq } from "es-toolkit"
 import {
     addToolDefinitionsMessage,
@@ -50,7 +50,6 @@ import {
     CreateSpeechRequest,
     executeChatSession,
     mergeGenerationOptions,
-    toChatCompletionUserMessage,
     tracePromptResult,
 } from "./chat"
 import { checkCancelled } from "./cancellation"
@@ -94,7 +93,6 @@ import { srtVttRender } from "./transcription"
 import { deleteEmptyValues } from "./cleaners"
 import { hash } from "./crypto"
 import { fileTypeFromBuffer } from "file-type"
-import { writeFile } from "fs"
 import { deleteUndefinedValues } from "./cleaners"
 import { sliceData } from "./tidy"
 
@@ -550,10 +548,24 @@ export function createChatGenerationContext(
         >,
         defOptions?: DefImagesOptions
     ) => {
-        const { detail } = defOptions || {}
         if (Array.isArray(files)) {
             const sliced = sliceData(files, defOptions)
-            sliced.forEach((file) => defImages(file, defOptions))
+            if (!defOptions?.tiled)
+                sliced.forEach((file) => defImages(file, defOptions))
+            else {
+                appendChild(
+                    node,
+                    createImageNode(
+                        (async () => {
+                            const encoded = await imageTileEncodeForLLM(files, {
+                                ...defOptions,
+                                trace,
+                            })
+                            return encoded
+                        })()
+                    )
+                )
+            }
         } else if (
             typeof files === "string" ||
             files instanceof Blob ||
@@ -984,8 +996,6 @@ export function createChatGenerationContext(
                 addToolDefinitionsMessage(messages, tools)
                 genOptions.fallbackTools = true
             }
-            if (images?.length)
-                messages.push(toChatCompletionUserMessage("", images))
 
             const { responseType, responseSchema } = finalizeMessages(
                 messages,

@@ -8,7 +8,6 @@ import "@vscode-elements/elements/dist/vscode-tabs"
 import "@vscode-elements/elements/dist/vscode-tab-header"
 import "@vscode-elements/elements/dist/vscode-tab-panel"
 
-
 export default function MarkdownWithPreview(props: {
     className?: string
     children: any
@@ -24,13 +23,13 @@ export default function MarkdownWithPreview(props: {
 
     return (
         <vscode-tabs>
+            <vscode-tab-header slot="header">Markdown</vscode-tab-header>
+            <vscode-tab-panel>
+                <Markdown>{fenceMD(children, "markdown")}</Markdown>
+            </vscode-tab-panel>
             <vscode-tab-header slot="header">Preview</vscode-tab-header>
             <vscode-tab-panel>
                 <Markdown className={className}>{md}</Markdown>
-            </vscode-tab-panel>
-            <vscode-tab-header slot="header">Source</vscode-tab-header>
-            <vscode-tab-panel>
-                <Markdown>{fenceMD(children, "markdown")}</Markdown>
             </vscode-tab-panel>
         </vscode-tabs>
     )

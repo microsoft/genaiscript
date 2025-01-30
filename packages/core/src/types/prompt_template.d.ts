@@ -1314,6 +1314,10 @@ interface DefImagesOptions {
      * Selects the a random sample of N items in the collection.
      */
     sliceSample?: number
+    /**
+     * Renders all images in a single tiled image
+     */
+    tiled?: boolean
 }
 
 type JSONSchemaTypeName =
@@ -2316,7 +2320,7 @@ interface VideoExtractFramesOptions extends FFmpegCommandOptions {
     /**
      * Extract frames on the start of each transcript segment
      */
-    transcript?: TranscriptionResult
+    transcript?: TranscriptionResult | string
     /**
      * Extract Intra frames (keyframes). This is a efficient and fast decoding.
      */

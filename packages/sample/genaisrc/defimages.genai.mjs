@@ -3,6 +3,7 @@ script({
     model: "vision",
 })
 defImages(env.files, { detail: "low", autoCrop: true })
+$`give keywords describing for each image`
 defImages(env.files, {
     autoCrop: true,
     greyscale: true,
@@ -12,4 +13,3 @@ defImages(env.files, {
     crop: { x: 0, y: 0, w: 400, h: 400 },
     flip: { horizontal: true },
 })
-$`give keywords describing for each image`

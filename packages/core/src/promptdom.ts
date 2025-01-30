@@ -2,7 +2,7 @@
 import { CSVToMarkdown, CSVTryParse } from "./csv"
 import { renderFileContent, resolveFileContent } from "./file"
 import { addLineNumbers, extractRange } from "./liner"
-import { JSONSchemaStringifyToTypeScript, toStrictJSONSchema } from "./schema"
+import { JSONSchemaStringifyToTypeScript } from "./schema"
 import { estimateTokens, truncateTextToTokens } from "./tokens"
 import { MarkdownTrace, TraceOptions } from "./trace"
 import { arrayify, assert, logError, logWarn, toStringList } from "./util"
@@ -1180,8 +1180,10 @@ export async function renderPromptNode(
     const messages: ChatCompletionMessageParam[] = []
     const appendSystem = (content: string, options: ContextExpansionOptions) =>
         appendSystemMessage(messages, content, options)
-    const appendUser = (content: string, options: ContextExpansionOptions) =>
-        appendUserMessage(messages, content, options)
+    const appendUser = (
+        content: string | PromptImage,
+        options: ContextExpansionOptions
+    ) => appendUserMessage(messages, content, options)
     const appendAssistant = (
         content: string,
         options: ContextExpansionOptions
@@ -1241,6 +1243,7 @@ export async function renderPromptNode(
             const value = n.resolved
             if (value?.url) {
                 images.push(value)
+                appendUser(value, n)
                 if (trace) {
                     trace.startDetails(
                         `📷 image: ${value.detail || ""} ${value.filename || value.url.slice(0, 64) + "..."}`
@@ -1377,25 +1380,24 @@ ${fileOutputs.map((fo) => `   ${fo.pattern}: ${fo.description || "generated file
     if (responseSchema && !responseType && responseType !== "json_schema")
         responseType = "json"
     if (responseType) trace.itemValue(`response type`, responseType)
-    if (responseSchema)
+    if (responseSchema) {
         trace.detailsFenced("📜 response schema", responseSchema)
-
-    if (responseType === "json_schema") {
-        if (!responseSchema)
-            throw new Error(`responseSchema is required for json_schema`)
-        const typeName = "Output"
-        const schemaTs = JSONSchemaStringifyToTypeScript(responseSchema, {
-            typeName,
-        })
-        appendSystemMessage(
-            messages,
-            `You are a service that translates user requests 
-into JSON objects of type "${typeName}" 
+        if (responseType !== "json_schema") {
+            const typeName = "Output"
+            const schemaTs = JSONSchemaStringifyToTypeScript(responseSchema, {
+                typeName,
+            })
+            appendSystemMessage(
+                messages,
+                `## Output Schema
+You are a service that translates user requests 
+into ${responseType === "yaml" ? "YAML" : "JSON"} objects of type "${typeName}" 
 according to the following TypeScript definitions:
 <${typeName}>
 ${schemaTs}
 </${typeName}>`
-        )
+            )
+        }
     }
 
     return {
