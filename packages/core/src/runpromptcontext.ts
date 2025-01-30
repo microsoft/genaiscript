@@ -42,7 +42,7 @@ import {
 import { renderShellOutput } from "./chatrender"
 import { jinjaRender } from "./jinja"
 import { mustacheRender } from "./mustache"
-import { imageEncodeForLLM } from "./image"
+import { imageEncodeForLLM, imageTileEncodeForLLM } from "./image"
 import { delay, uniq } from "es-toolkit"
 import {
     addToolDefinitionsMessage,
@@ -548,10 +548,24 @@ export function createChatGenerationContext(
         >,
         defOptions?: DefImagesOptions
     ) => {
-        const { detail } = defOptions || {}
         if (Array.isArray(files)) {
             const sliced = sliceData(files, defOptions)
-            sliced.forEach((file) => defImages(file, defOptions))
+            if (!defOptions?.tiled)
+                sliced.forEach((file) => defImages(file, defOptions))
+            else {
+                appendChild(
+                    node,
+                    createImageNode(
+                        (async () => {
+                            const encoded = await imageTileEncodeForLLM(files, {
+                                ...defOptions,
+                                trace,
+                            })
+                            return encoded
+                        })()
+                    )
+                )
+            }
         } else if (
             typeof files === "string" ||
             files instanceof Blob ||
