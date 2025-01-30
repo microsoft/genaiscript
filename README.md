@@ -291,6 +291,10 @@ Write me a poem
 
 ---
 
+### Pluggable Secret Scanning
+
+Scan your chats for secrets using [secret scanning](/genaiscript/reference/scripts/secret-scanning).
+
 ### ⚙ Automate with CLI or API
 
 Automate using the [CLI](https://microsoft.github.io/genaiscript/reference/cli) or [API](https://microsoft.github.io/genaiscript/reference/cli/api).
