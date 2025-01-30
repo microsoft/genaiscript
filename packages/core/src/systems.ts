@@ -18,11 +18,13 @@ import type { Project } from "./server/messages"
  */
 export function resolveSystems(
     prj: Project,
-    script: PromptSystemOptions & ModelOptions & { jsSource?: string },
+    script: PromptSystemOptions &
+        ModelOptions &
+        ContentSafetyOptions & { jsSource?: string },
     resolvedTools?: ToolCallback[],
     options?: GenerationOptions
 ): string[] {
-    const { jsSource, responseType, responseSchema } = script
+    const { jsSource, responseType, responseSchema, safetySystem } = script
     // Initialize systems array from script.system, converting to array if necessary using arrayify utility
     let systems = arrayify(script.system)
     const excludedSystem = arrayify(script.excludedSystem)
@@ -30,14 +32,16 @@ export function resolveSystems(
     const dataMode =
         responseSchema ||
         (responseType && responseType !== "markdown" && responseType !== "text")
+    const safeties = [
+        "system.safety_jailbreak",
+        "system.safety_harmful_content",
+        "system.safety_protected_material",
+    ]
 
     // If no system is defined in the script, determine systems based on jsSource
     if (script.system === undefined) {
         // safety
-        systems.push("system.safety_jailbreak")
-        systems.push("system.safety_harmful_content")
-        systems.push("system.safety_protected_material")
-
+        if (safetySystem !== false) systems.push(...safeties)
         // Check for schema definition in jsSource using regex
         const useSchema = /\Wdefschema\W/i.test(jsSource)
 
@@ -73,6 +77,9 @@ export function resolveSystems(
         // Add GitHub information system if GitHub is found
         if (/\W(github)\W/i.test(jsSource)) systems.push("system.github_info")
     }
+
+    // insert safety first
+    if (safetySystem === "all") systems.unshift(...safeties)
 
     // output format
     switch (responseType) {

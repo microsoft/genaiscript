@@ -1,0 +1,7 @@
+{
+    "$schema": "../../../docs/public/schemas/config.json",
+    "secretPatterns": {
+        "OpenAI": "sk-[a-zA-Z0-9]{24}",
+        "HuggingFace": "hf_[a-zA-Z0-9]{24}"
+    }
+}

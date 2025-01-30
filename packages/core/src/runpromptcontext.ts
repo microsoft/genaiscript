@@ -997,11 +997,10 @@ export function createChatGenerationContext(
                 genOptions.fallbackTools = true
             }
 
-            const { responseType, responseSchema } = finalizeMessages(
+            finalizeMessages(
                 messages,
                 {
-                    responseType: runOptions?.responseType,
-                    responseSchema: runOptions?.responseSchema,
+                    ...(runOptions || {}),
                     fileOutputs,
                     trace,
                 }

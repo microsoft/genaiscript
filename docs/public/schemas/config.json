@@ -40,7 +40,7 @@
         "modelAliases": {
             "type": "object",
             "patternProperties": {
-                "^[a-zA-Z0-9_:]+$": {
+                "^[a-zA-Z0-9_]+$": {
                     "oneOf": [
                         {
                             "type": "string",
@@ -64,7 +64,18 @@
                 }
             },
             "additionalProperties": true,
-            "description": "Aliases for model identifiers (provider:model:tag)"
+            "description": "Aliases for model identifiers (name)"
+        },
+        "secretPatterns": {
+            "type": "object",
+            "patternProperties": {
+                "^[a-zA-Z0-9_:\\-\\. ]+$": {
+                    "type": "string",
+                    "description": "Secret regex"
+                }
+            },
+            "additionalProperties": true,
+            "description": "Secret scanners to use for scanning chat messages"
         }
     }
 }

@@ -17,6 +17,7 @@ import { resolveLanguageModel } from "./lm"
 import { deleteEmptyValues } from "./cleaners"
 import { errorMessage } from "./error"
 import schema from "../../../docs/public/schemas/config.json"
+import defaultConfig from "./config.json"
 
 export async function resolveGlobalConfiguration(
     dotEnvPath?: string
@@ -27,7 +28,8 @@ export async function resolveGlobalConfiguration(
     const exts = ["yml", "yaml", "json"]
 
     // import and merge global local files
-    let config: HostConfiguration = {}
+    let config: HostConfiguration = structuredClone(defaultConfig)
+    delete (config as any)["$schema"]
     for (const dir of dirs) {
         for (const ext of exts) {
             const filename = resolve(`${dir}/${TOOL_ID}.config.${ext}`)
@@ -62,6 +64,10 @@ export async function resolveGlobalConfiguration(
                     modelEncodings: structuralMerge(
                         config?.modelEncodings || {},
                         parsed?.modelEncodings || {}
+                    ),
+                    secretScanners: structuralMerge(
+                        config?.secretScanners || {},
+                        parsed?.secretScanners || {}
                     ),
                 })
             }
