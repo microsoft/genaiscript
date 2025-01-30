@@ -24,7 +24,7 @@ export function resolveSystems(
     resolvedTools?: ToolCallback[],
     options?: GenerationOptions
 ): string[] {
-    const { jsSource, responseType, responseSchema, safetySystem } = script
+    const { jsSource, responseType, responseSchema, systemSafety } = script
     // Initialize systems array from script.system, converting to array if necessary using arrayify utility
     let systems = arrayify(script.system)
     const excludedSystem = arrayify(script.excludedSystem)
@@ -41,7 +41,7 @@ export function resolveSystems(
     // If no system is defined in the script, determine systems based on jsSource
     if (script.system === undefined) {
         // safety
-        if (safetySystem !== false) systems.push(...safeties)
+        if (systemSafety !== false) systems.push(...safeties)
         // Check for schema definition in jsSource using regex
         const useSchema = /\Wdefschema\W/i.test(jsSource)
 
@@ -79,7 +79,7 @@ export function resolveSystems(
     }
 
     // insert safety first
-    if (safetySystem === "default") systems.unshift(...safeties)
+    if (systemSafety === "default") systems.unshift(...safeties)
 
     // output format
     switch (responseType) {

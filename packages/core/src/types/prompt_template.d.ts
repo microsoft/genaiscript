@@ -1240,7 +1240,7 @@ interface ContentSafetyOptions {
     /**
      * Policy to inject builtin system prompts. See to `false` prevent automatically injecting.
      */
-    safetySystem?: "default" | boolean
+    systemSafety?: "default" | boolean
 
     /**
      * Policy to disable secret scanning when communicating with the LLM.

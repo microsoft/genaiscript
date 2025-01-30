@@ -25,6 +25,7 @@ import { splitMarkdown } from "../../core/src/frontmatter"
 import { parseOptionsVars } from "./vars"
 import { dataTryParse } from "../../core/src/data"
 import { resolveFileContent } from "../../core/src/file"
+import { redactSecrets } from "../../core/src/secretscanner"
 
 /**
  * This module provides various parsing utilities for different file types such
@@ -214,4 +215,21 @@ export async function prompty2genaiscript(
         const script: string = promptyToGenAIScript(doc)
         await writeText(gf, script)
     }
+}
+
+export async function parseSecrets(files: string[]) {
+    const fs = await expandFiles(files)
+    let n = 0
+    for (const f of fs) {
+        const content = await readText(f)
+        const { found } = redactSecrets(content)
+        const entries = Object.entries(found)
+        if (entries.length) {
+            n++
+            console.log(
+                `${f}: ${entries.map(([k, v]) => `${k} (${v})`).join(", ")}`
+            )
+        }
+    }
+    if (n > 0) console.warn(`found secrets in ${n} of ${fs.length} files`)
 }

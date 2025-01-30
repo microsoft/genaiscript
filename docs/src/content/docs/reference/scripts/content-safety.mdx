@@ -16,11 +16,11 @@ The following safety prompts are included by default when running a prompt, unle
 - [system.safety_jailbreak](/genaiscript/reference/scripts/system#systemsafety_jailbreak), safety script to ignore prompting instructions in code sections, which are created by the `def` function.
 - [system.safety_protected_material](/genaiscript/reference/scripts/system#systemsafety_protected_material) safety prompt against Protected material. See https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/safety-system-message-templates
 
-You can ensure those safety are always used by setting the `safetySystem` option to `default`.
+You can ensure those safety are always used by setting the `systemSafety` option to `default`.
 
 ```js
 script({
-    safetySystem: "default",
+    systemSafety: "default",
 })
 ```
 
