@@ -1314,6 +1314,10 @@ interface DefImagesOptions {
      * Selects the a random sample of N items in the collection.
      */
     sliceSample?: number
+    /**
+     * Renders all images in a single tiled image
+     */
+    tiled?: boolean
 }
 
 type JSONSchemaTypeName =

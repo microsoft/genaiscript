@@ -114,7 +114,7 @@ async function encode(
 ) {
     // Determine the output MIME type, defaulting to image/jpeg
     const { detail } = options
-    const outputMime = img.mime || ("image/png" as any)
+    const outputMime = img.mime || ("image/jpeg" as any)
     const buf = await img.getBuffer(outputMime)
     const b64 = buf.toString("base64")
     const imageDataUri = `data:${outputMime};base64,${b64}`
@@ -152,8 +152,8 @@ export async function imageTileEncodeForLLM(
 
     const imgw = imgs.reduce((acc, img) => Math.max(acc, img.width), 0)
     const imgh = imgs.reduce((acc, img) => Math.max(acc, img.height), 0)
-    const nrows = Math.ceil(Math.sqrt(imgs.length))
-    const ncols = Math.ceil(imgs.length / nrows)
+    const ncols = Math.ceil(Math.sqrt(imgs.length))
+    const nrows = Math.ceil(imgs.length / ncols)
     const width = ncols * imgw
     const height = nrows * imgh
 
@@ -161,11 +161,12 @@ export async function imageTileEncodeForLLM(
     const canvas = new Jimp({ width, height })
 
     for (let i = 0; i < imgs.length; i++) {
-        const ri = Math.floor(i / ncols)
-        const ci = i % ncols
-
-        canvas.blit({ bitmap: imgs[i].bitmap, x: ci * imgw, y: ri * imgh })
+        const ci = Math.floor(i / nrows)
+        const ri = i % nrows
+        const x = ci * imgw
+        const y = ri * imgh
+        canvas.composite(imgs[i], x, y)
     }
 
-    return encode(canvas, options)
+    return encode(canvas, { ...options, detail: undefined })
 }
