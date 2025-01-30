@@ -20,16 +20,13 @@ import { renderAICI } from "./aici"
 import {
     addToolDefinitionsMessage,
     appendSystemMessage,
-    toChatCompletionUserMessage,
 } from "./chat"
 import { importPrompt } from "./importprompt"
 import { parseModelIdentifier } from "./models"
-import { JSONSchemaStringifyToTypeScript, toStrictJSONSchema } from "./schema"
-import { host, runtimeHost } from "./host"
+import { runtimeHost } from "./host"
 import { resolveSystems } from "./systems"
 import { GenerationOptions } from "./generation"
 import { AICIRequest, ChatCompletionMessageParam } from "./chattypes"
-import { promptParametersSchemaToJSONSchema } from "./parameters"
 import { GenerationStatus, Project } from "./server/messages"
 import { dispose } from "./dispose"
 import { normalizeFloat, normalizeInt } from "./cleaners"
@@ -279,9 +276,6 @@ export async function expandTemplate(
             messages,
         }
     }
-
-    if (prompt.images?.length)
-        messages.push(toChatCompletionUserMessage("", prompt.images))
     if (prompt.aici) messages.push(prompt.aici)
 
     const addSystemMessage = (content: string) => {

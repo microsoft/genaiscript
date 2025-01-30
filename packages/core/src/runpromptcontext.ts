@@ -50,7 +50,6 @@ import {
     CreateSpeechRequest,
     executeChatSession,
     mergeGenerationOptions,
-    toChatCompletionUserMessage,
     tracePromptResult,
 } from "./chat"
 import { checkCancelled } from "./cancellation"
@@ -94,7 +93,6 @@ import { srtVttRender } from "./transcription"
 import { deleteEmptyValues } from "./cleaners"
 import { hash } from "./crypto"
 import { fileTypeFromBuffer } from "file-type"
-import { writeFile } from "fs"
 import { deleteUndefinedValues } from "./cleaners"
 import { sliceData } from "./tidy"
 
@@ -984,8 +982,6 @@ export function createChatGenerationContext(
                 addToolDefinitionsMessage(messages, tools)
                 genOptions.fallbackTools = true
             }
-            if (images?.length)
-                messages.push(toChatCompletionUserMessage("", images))
 
             const { responseType, responseSchema } = finalizeMessages(
                 messages,
