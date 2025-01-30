@@ -486,6 +486,21 @@ importTemplate("poem.prompty", { something: "code " })
 
 </Card>
 
+<Card title="Pluggable Secret Scanning" icon="seti:license">
+
+Scan your chats for secrets using [secret scanning](/genaiscript/reference/scripts/secret-scanning).
+
+```json title="genaiscript.config.json"
+{
+    "secretPatterns": {
+        ...,
+        "OpenAI API Key": "sk-[A-Za-z0-9]{32,48}"
+    }
+}
+```
+
+</Card>
+
 <Card title="Automate with CLI" icon="github">
 
 Automate using the [CLI](/genaiscript/reference/cli),
