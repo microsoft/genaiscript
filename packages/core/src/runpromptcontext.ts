@@ -50,7 +50,6 @@ import {
     CreateSpeechRequest,
     executeChatSession,
     mergeGenerationOptions,
-    toChatCompletionUserMessage,
     tracePromptResult,
 } from "./chat"
 import { checkCancelled } from "./cancellation"
@@ -984,8 +983,6 @@ export function createChatGenerationContext(
                 addToolDefinitionsMessage(messages, tools)
                 genOptions.fallbackTools = true
             }
-            if (images?.length)
-                messages.push(toChatCompletionUserMessage("", images))
 
             const { responseType, responseSchema } = finalizeMessages(
                 messages,

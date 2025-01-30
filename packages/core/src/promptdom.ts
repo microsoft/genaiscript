@@ -1180,8 +1180,10 @@ export async function renderPromptNode(
     const messages: ChatCompletionMessageParam[] = []
     const appendSystem = (content: string, options: ContextExpansionOptions) =>
         appendSystemMessage(messages, content, options)
-    const appendUser = (content: string, options: ContextExpansionOptions) =>
-        appendUserMessage(messages, content, options)
+    const appendUser = (
+        content: string | PromptImage,
+        options: ContextExpansionOptions
+    ) => appendUserMessage(messages, content, options)
     const appendAssistant = (
         content: string,
         options: ContextExpansionOptions
@@ -1241,6 +1243,7 @@ export async function renderPromptNode(
             const value = n.resolved
             if (value?.url) {
                 images.push(value)
+                appendUser(value, n)
                 if (trace) {
                     trace.startDetails(
                         `📷 image: ${value.detail || ""} ${value.filename || value.url.slice(0, 64) + "..."}`
