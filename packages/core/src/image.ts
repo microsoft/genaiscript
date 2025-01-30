@@ -90,17 +90,34 @@ async function prepare(
             h: Math.min(img.height, IMAGE_DETAIL_LOW_HEIGHT),
             align: HorizontalAlign.CENTER | VerticalAlign.MIDDLE,
         })
-    } else if (
-        img.width > IMAGE_DETAIL_HIGH_WIDTH ||
-        img.height > IMAGE_DETAIL_HIGH_HEIGHT
-    ) {
+    }
+
+    contain(
+        img,
+        IMAGE_DETAIL_HIGH_WIDTH,
+        IMAGE_DETAIL_HIGH_HEIGHT,
+        HorizontalAlign.CENTER | VerticalAlign.MIDDLE
+    )
+    return img
+}
+
+function contain(
+    img: {
+        width: number
+        height: number
+        contain: (arg0: { w: number; h: number; align: number }) => void
+    },
+    width: number,
+    height: number,
+    align: number
+) {
+    if (img.width > width || img.height > height) {
         img.contain({
-            w: Math.min(img.width, IMAGE_DETAIL_HIGH_WIDTH),
-            h: Math.min(img.height, IMAGE_DETAIL_HIGH_HEIGHT),
-            align: HorizontalAlign.CENTER | VerticalAlign.MIDDLE,
+            w: Math.min(img.width, width),
+            h: Math.min(img.height, height),
+            align,
         })
     }
-    return img
 }
 
 async function encode(
@@ -157,7 +174,7 @@ export async function imageTileEncodeForLLM(
     const width = ncols * imgw
     const height = nrows * imgh
 
-    const { Jimp } = await import("jimp")
+    const { Jimp, HorizontalAlign, VerticalAlign } = await import("jimp")
     const canvas = new Jimp({ width, height })
 
     for (let i = 0; i < imgs.length; i++) {
@@ -168,5 +185,12 @@ export async function imageTileEncodeForLLM(
         canvas.composite(imgs[i], x, y)
     }
 
-    return encode(canvas, { ...options, detail: undefined })
+    contain(
+        canvas,
+        IMAGE_DETAIL_HIGH_WIDTH,
+        IMAGE_DETAIL_HIGH_HEIGHT,
+        HorizontalAlign.CENTER | VerticalAlign.MIDDLE
+    )
+
+    return await encode(canvas, { ...options, detail: undefined })
 }
