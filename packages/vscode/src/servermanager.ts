@@ -194,7 +194,7 @@ export class TerminalServerManager
             this._terminal.sendText(
                 `npx --yes ${TOOL_ID}@${cliVersion} serve --port ${this._port} --dispatch-progress --cors "*"`
             )
-        if (!hideFromUser) this._terminal.show()
+        if (!hideFromUser) this._terminal.show(true)
         this.dispatchChange()
     }
 
@@ -206,6 +206,10 @@ export class TerminalServerManager
         this._startClientPromise = undefined
         this._client?.kill()
         this.closeTerminal()
+    }
+
+    show(preserveFocus?: boolean) {
+        this._terminal?.show(preserveFocus)
     }
 
     private closeTerminal() {

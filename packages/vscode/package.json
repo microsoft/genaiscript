@@ -335,6 +335,12 @@
                 "icon": "$(close)"
             },
             {
+                "command": "genaiscript.server.show",
+                "title": "Show GenAIScript server",
+                "category": "GenAIScript",
+                "icon": "$(terminal)"
+            },
+            {
                 "command": "genaiscript.notebook.create",
                 "title": "Create GenAIScript Mardown Notebook",
                 "category": "GenAIScript"
