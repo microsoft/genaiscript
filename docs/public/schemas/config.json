@@ -70,7 +70,7 @@
             "type": "object",
             "patternProperties": {
                 "^[a-zA-Z0-9_:\\-\\. ]+$": {
-                    "type": "string",
+                    "type": ["string", "null"],
                     "description": "Secret regex"
                 }
             },
