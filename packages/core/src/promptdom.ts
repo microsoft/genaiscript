@@ -1405,8 +1405,10 @@ ${schemaTs}
         // this is a bit brutal, but we don't want to miss secrets
         // hidden in fields
         const secrets = redactSecrets(JSON.stringify(messages), { trace })
-        if (Object.keys(secrets.found).length)
-            messages.splice(0, messages.length, ...JSON.parse(secrets.text))
+        if (Object.keys(secrets.found).length) {
+            const newMessage = JSON.parse(secrets.text)
+            messages.splice(0, messages.length, ...newMessage)
+        }
     }
 
     return {
