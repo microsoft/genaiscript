@@ -452,6 +452,7 @@ Commands:
   jsonl2json                   Converts JSONL files to a JSON file
   prompty [options] <file...>  Converts .prompty files to genaiscript
   jinja2 [options] <file>      Renders Jinj2 or prompty template
+  secrets <file...>            Applies secret scanning and redaction to files
 ```
 
 ### `parse data`
@@ -576,6 +577,20 @@ Arguments:
 Options:
   --vars <namevalue...>  variables, as name=value passed to the template
   -h, --help             display help for command
+```
+
+### `parse secrets`
+
+```
+Usage: genaiscript parse secrets [options] <file...>
+
+Applies secret scanning and redaction to files
+
+Arguments:
+  file        input files
+
+Options:
+  -h, --help  display help for command
 ```
 
 ## `info`

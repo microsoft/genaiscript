@@ -41,6 +41,17 @@ export class TerminalServerManager
     private _startClientPromise: Promise<VsCodeClient>
     private _client: VsCodeClient
 
+    private _status: "stopped" | "stopping" | "starting" | "running" = "stopped"
+    get status() {
+        return this._status
+    }
+    private set status(value: "stopped" | "stopping" | "starting" | "running") {
+        if (this._status !== value) {
+            this._status = value
+            this.dispatchChange()
+        }
+    }
+
     constructor(readonly state: ExtensionState) {
         super()
         const { context } = state
@@ -160,13 +171,14 @@ export class TerminalServerManager
         })
         await this.start()
         this._startClientPromise = undefined
-        this.dispatchChange()
+        this.status = "running"
         return this._client
     }
 
     async start() {
         if (this._terminal) return
 
+        this.status = "starting"
         const config = this.state.getConfiguration()
         const diagnostics = this.state.diagnostics
         const hideFromUser = !diagnostics && !!config.get("hideServerTerminal")
@@ -194,18 +206,22 @@ export class TerminalServerManager
             this._terminal.sendText(
                 `npx --yes ${TOOL_ID}@${cliVersion} serve --port ${this._port} --dispatch-progress --cors "*"`
             )
-        if (!hideFromUser) this._terminal.show()
-        this.dispatchChange()
-    }
-
-    get started() {
-        return !!this._terminal
+        if (!hideFromUser) this._terminal.show(true)
     }
 
     async close() {
-        this._startClientPromise = undefined
-        this._client?.kill()
-        this.closeTerminal()
+        try {
+            this.status = "stopping"
+            this._startClientPromise = undefined
+            this._client?.kill()
+            this.closeTerminal()
+        } finally {
+            this.status = "stopped"
+        }
+    }
+
+    show(preserveFocus?: boolean) {
+        this._terminal?.show(preserveFocus)
     }
 
     private closeTerminal() {
@@ -215,7 +231,6 @@ export class TerminalServerManager
         this._client = undefined
         this._startClientPromise = undefined
         if (!this.state.diagnostics) t?.dispose()
-        this.dispatchChange()
     }
 
     dispose(): any {

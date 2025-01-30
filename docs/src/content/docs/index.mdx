@@ -360,7 +360,7 @@ to validate [content safety](/genaiscript/reference/scripts/content-safety).
 
 ```js wrap
 script({ ...,
-    system: ["system.safety_harmful_content", ...],
+    systemSafety: "default",
     contentSafety: "azure" // use azure content safety
 })
 
@@ -482,6 +482,21 @@ user:
 
 ```js wrap
 importTemplate("poem.prompty", { something: "code " })
+```
+
+</Card>
+
+<Card title="Pluggable Secret Scanning" icon="seti:license">
+
+Scan your chats for secrets using [secret scanning](/genaiscript/reference/scripts/secret-scanning).
+
+```json title="genaiscript.config.json"
+{
+    "secretPatterns": {
+        ...,
+        "OpenAI API Key": "sk-[A-Za-z0-9]{32,48}"
+    }
+}
 ```
 
 </Card>

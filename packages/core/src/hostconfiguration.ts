@@ -23,4 +23,9 @@ export interface HostConfiguration {
      * Model identifier to encoding mapping
      */
     modelEncodings?: Record<string, string>
+
+    /**
+     * A map of secret name and their respective regex pattern
+     */
+    secretPatterns?: Record<string, string>
 }

@@ -19,6 +19,7 @@ import {
     parseHTMLToText,
     parseJinja2,
     parsePDF,
+    parseSecrets,
     parseTokens,
     prompty2genaiscript,
 } from "./parse" // Parsing functions
@@ -479,6 +480,11 @@ export async function cli() {
             "variables, as name=value passed to the template"
         )
         .action(parseJinja2)
+    parser
+        .command("secrets")
+        .description("Applies secret scanning and redaction to files")
+        .argument("<file...>", "input files")
+        .action(parseSecrets)
 
     // Define 'info' command group for utility information tasks
     const info = program.command("info").description("Utility tasks")

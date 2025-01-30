@@ -17,7 +17,8 @@ script({
     files: "src/video/ai_kitchen.local.mp4",
     cache: "ai-kitchen",
     temperature: 1.1,
-    system: ["system.output_markdown"],
+    responseType: "markdown",
+    systemSafety: false,
     parameters: {
         guest: {
             type: "string",

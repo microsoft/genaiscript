@@ -40,6 +40,7 @@ import { GROQEvaluate } from "./groq"
 import { trimNewlines } from "./unwrappers"
 import { CancellationOptions } from "./cancellation"
 import { promptParametersSchemaToJSONSchema } from "./parameters"
+import { redactSecrets } from "./secretscanner"
 
 // Definition of the PromptNode interface which is an essential part of the code structure.
 export interface PromptNode extends ContextExpansionOptions {
@@ -1353,13 +1354,13 @@ ${trimNewlines(schemaText)}
 
 export function finalizeMessages(
     messages: ChatCompletionMessageParam[],
-    options?: {
-        responseType?: PromptTemplateResponseType
-        responseSchema?: PromptParametersSchema | JSONSchema | undefined
+    options: {
         fileOutputs?: FileOutput[]
-    } & TraceOptions
+    } & ModelOptions &
+        TraceOptions &
+        ContentSafetyOptions
 ) {
-    const { fileOutputs, trace } = options || {}
+    const { fileOutputs, trace, secretScanning } = options || {}
     if (fileOutputs?.length > 0) {
         appendSystemMessage(
             messages,
@@ -1397,6 +1398,16 @@ according to the following TypeScript definitions:
 ${schemaTs}
 </${typeName}>`
             )
+        }
+    }
+
+    if (secretScanning !== false) {
+        // this is a bit brutal, but we don't want to miss secrets
+        // hidden in fields
+        const secrets = redactSecrets(JSON.stringify(messages), { trace })
+        if (Object.keys(secrets.found).length) {
+            const newMessage = JSON.parse(secrets.text)
+            messages.splice(0, messages.length, ...newMessage)
         }
     }
 

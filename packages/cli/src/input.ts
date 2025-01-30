@@ -17,6 +17,7 @@ export async function shellSelect(
     choices: string[],
     options?: ShellSelectOptions
 ): Promise<string> {
+    const { select } = await import("@inquirer/prompts")
     const res = await select<string>({
         ...(options || {}), // Spread operator to include any optional configurations
         message, // The message/question to display
@@ -35,6 +36,7 @@ export async function shellInput(
     message: string,
     options?: ShellInputOptions
 ): Promise<string> {
+    const { input } = await import("@inquirer/prompts")
     const res = await input({
         ...(options || {}), // Include optional configurations if any
         message, // The message to display to the user
@@ -52,6 +54,7 @@ export async function shellConfirm(
     message: string,
     options?: ShellConfirmOptions
 ): Promise<boolean> {
+    const { confirm } = await import("@inquirer/prompts")
     const res = await confirm({
         ...(options || {}), // Include optional configurations if any
         message, // The message to display, usually a yes/no question

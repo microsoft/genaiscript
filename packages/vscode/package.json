@@ -7,7 +7,7 @@
     },
     "displayName": "GenAIScript Insiders",
     "description": "Generative AI Scripting.",
-    "version": "1.97.1",
+    "version": "1.97.2",
     "icon": "icon.png",
     "engines": {
         "vscode": "^1.95.0"
@@ -333,6 +333,12 @@
                 "title": "Stop GenAIScript server",
                 "category": "GenAIScript",
                 "icon": "$(close)"
+            },
+            {
+                "command": "genaiscript.server.show",
+                "title": "Show GenAIScript server",
+                "category": "GenAIScript",
+                "icon": "$(terminal)"
             },
             {
                 "command": "genaiscript.notebook.create",

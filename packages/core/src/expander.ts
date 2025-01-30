@@ -17,10 +17,7 @@ import {
 import { createPromptContext } from "./promptcontext"
 import { evalPrompt } from "./evalprompt"
 import { renderAICI } from "./aici"
-import {
-    addToolDefinitionsMessage,
-    appendSystemMessage,
-} from "./chat"
+import { addToolDefinitionsMessage, appendSystemMessage } from "./chat"
 import { importPrompt } from "./importprompt"
 import { parseModelIdentifier } from "./models"
 import { runtimeHost } from "./host"
@@ -355,8 +352,7 @@ export async function expandTemplate(
     }
 
     const { responseType, responseSchema } = finalizeMessages(messages, {
-        responseType: template.responseType,
-        responseSchema: template.responseSchema,
+        ...template,
         fileOutputs,
         trace,
     })

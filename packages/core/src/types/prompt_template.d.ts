@@ -1236,6 +1236,17 @@ interface ContentSafetyOptions {
      * to prevent prompt injection.
      */
     detectPromptInjection?: "always" | "available" | boolean
+
+    /**
+     * Policy to inject builtin system prompts. See to `false` prevent automatically injecting.
+     */
+    systemSafety?: "default" | boolean
+
+    /**
+     * Policy to disable secret scanning when communicating with the LLM.
+     * Set to `false` to disable.
+     */
+    secretScanning?: boolean
 }
 
 interface DefOptions
