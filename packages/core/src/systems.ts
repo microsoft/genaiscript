@@ -79,7 +79,7 @@ export function resolveSystems(
     }
 
     // insert safety first
-    if (safetySystem === "all") systems.unshift(...safeties)
+    if (safetySystem === "default") systems.unshift(...safeties)
 
     // output format
     switch (responseType) {

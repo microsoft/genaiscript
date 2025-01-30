@@ -35,7 +35,7 @@ export async function resolveGlobalConfiguration(
             const filename = resolve(`${dir}/${TOOL_ID}.config.${ext}`)
             if (existsSync(filename)) {
                 const fileContent = readFileSync(filename, "utf8")
-                const parsed =
+                const parsed: HostConfiguration =
                     ext === "yml" || ext === "yaml"
                         ? YAMLTryParse(fileContent)
                         : JSON5TryParse(fileContent)
@@ -66,8 +66,8 @@ export async function resolveGlobalConfiguration(
                         parsed?.modelEncodings || {}
                     ),
                     secretScanners: structuralMerge(
-                        config?.secretScanners || {},
-                        parsed?.secretScanners || {}
+                        config?.secretPatterns || {},
+                        parsed?.secretPatterns || {}
                     ),
                 })
             }
