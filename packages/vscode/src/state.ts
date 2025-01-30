@@ -314,7 +314,7 @@ export class ExtensionState extends EventTarget {
 //            vscode.commands.executeCommand(
 //                "workbench.view.extension.genaiscript"
 //            )
-        if (!options.mode) this.showWebview({ reveal: false })
+        if (!options.mode) this.showWebview({ reveal: true })
         r.request
             .then((resp) => {
                 r.response = resp

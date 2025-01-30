@@ -774,6 +774,8 @@ function OutputTraceTabPanel(props: { selected?: boolean }) {
 function ProblemsTabPanel() {
     const result = useResult()
     const { annotations = [] } = result || {}
+    if (annotations.length === 0) return null
+
     const annotationsMarkdown = annotations
         .map(convertAnnotationToItem)
         .join("\n")
@@ -885,7 +887,9 @@ function TopLogProbsTabPanel() {
 function FileEditsTabPanel() {
     const result = useResult()
     const { fileEdits = {} } = result || {}
+
     const files = Object.entries(fileEdits)
+    if (files.length === 0) return null
 
     return (
         <>
