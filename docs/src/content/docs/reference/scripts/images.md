@@ -30,7 +30,7 @@ Local files are loaded and encoded as a data uri.
 
 ## Buffer, Blob, ReadableStream
 
-The `defImages` function also supports [Buffer](https://nodejs.org/api/buffer.html), 
+The `defImages` function also supports [Buffer](https://nodejs.org/api/buffer.html),
 [Blob](https://developer.mozilla.org/en-US/docs/Web/API/Blob), [ReadableStream](https://nodejs.org/api/stream.html).
 
 This example takes a screenshot of bing.com and adds it to the images.
@@ -107,4 +107,15 @@ the image to fit into the constraints.
 defImages(img, { maxWidth: 800 })
 // and / or
 defImages(img, { maxHeight: 800 })
+```
+
+## Tiling
+
+When you specify the `tiled: true` option, all the images will
+be tiled in a single image, after all the transformations are applied.
+
+The resulting image will be further resized to fit into the maximum image size constraints.
+
+```js "tiled: true"
+defImages(env.files, { details: "low", tiled: true })
 ```
