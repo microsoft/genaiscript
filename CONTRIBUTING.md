@@ -18,14 +18,14 @@ You can open this repo in GitHub CodeSpace/Docker to get the build environment n
 
 [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://github.com/codespaces/new?hide_repo_select=true&ref=main&repo=679784368)
 
--   Go to https://github.com/microsoft/genaiscript
--   Click on **Code**
--   Select Create new Codespace
+- Go to https://github.com/microsoft/genaiscript
+- Click on **Code**
+- Select Create new Codespace
 
 ### Manual setup
 
--   Install [Node.JS LTS](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
--   Run yarn
+- Install [Node.JS LTS](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
+- Run yarn
 
 ```sh
 yarn install --frozen-lockfile --prefer-offline
@@ -47,7 +47,7 @@ yarn typecheck
 
 or start a debug session in VSCode.
 
--   Start the **Run - sample** Debugger to launch the sample project in debugging mode
+- Start the **Run - sample** Debugger to launch the sample project in debugging mode
 
 ## Running local scripts
 
@@ -79,7 +79,15 @@ or for samples
 yarn run:script:debug <scriptid> ...
 ```
 
-## Running playground
+## Web viewer
+
+The web application (React 19) is meant to run both as a Visual Studio Code panel and a standalone viewer (**playground**). For testing purposes, standalone is the easiest.
+
+- React 19, currently very little dependeices
+- react-markdown + a few plugins to run the markdown
+- [vscode-elements](https://vscode-elements.github.io/) is the design system we use as it mimics the vscode look and feel.
+
+### Running playground
 
 To run the playground, use the following command:
 
@@ -87,12 +95,13 @@ To run the playground, use the following command:
 yarn serve
 ```
 
-It will start a local server and rebuild the react client on file changes. 
+It will start a local server and rebuild the react client on file changes. **It will not rebuild/restart the server on changes.**
+There is **no** hot reload, you need to refresh the browser. If some state should be serialized, we should start adding it to the hash.
 
 ## Dependencies
 
--   run `yarn install:force` to refresh the lock file
--   run `yarn gen:licenses` to refresh the 3rd party licenses
+- run `yarn install:force` to refresh the lock file
+- run `yarn gen:licenses` to refresh the 3rd party licenses
 
 ## Docs
 
@@ -109,19 +118,19 @@ https://github.com/microsoft/genaiscript/actions/workflows/docs.yml .
 
 All files `slides/*slides.md` will be compiled and deployed on build.
 
--   run `slides` to launch the slide show (add the file name or it will default to `slides.md`)
+- run `slides` to launch the slide show (add the file name or it will default to `slides.md`)
 
 ```sh
 yarn slides [slides file name]
 ```
 
--   visit http://localhost:3030
+- visit http://localhost:3030
 
 Learn more about Slidev on [documentations](https://sli.dev/). For diagrams, leverage [mermaid](https://sli.dev/guide/syntax#diagrams) or use draw.io, tldraw.
 
-## GenAI Script
+## GenAIScripts
 
--   Commit with aut-generated message
+- Commit with aut-generated message
 
 ```sh
 yarn gcm
@@ -158,19 +167,19 @@ yarn docs
 
 If you are lacking a OpenAI API token, you can use [LocalAI](https://localai.io/basics/getting_started/) to simulate OpenAI access.
 
--   Create a new Codespace and make sure to create a larger image,
--   launch `localai` to download and start the localai docker image.
+- Create a new Codespace and make sure to create a larger image,
+- launch `localai` to download and start the localai docker image.
 
 ```
 yarn run localai
 ```
 
--   Launch the localai web ui at [http://localhost:8080](http://localhost:8080)
--   create `.env` file with
+- Launch the localai web ui at [http://localhost:8080](http://localhost:8080)
+- create `.env` file with
 
 ```dot
 # OPENAI_API_KEY=... not needed
 OPENAI_API_BASE=http://localhost:8080/v1
 ```
 
--   start the debugger and voila!
+- start the debugger and voila!
