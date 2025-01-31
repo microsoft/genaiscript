@@ -137,6 +137,7 @@ export interface ChatCompletionToolCall {
  */
 export interface ChatCompletionResponse {
     text?: string // Optional text response
+    reasoning?: string // Optional reasoning content
     cached?: boolean // Indicates if the response was cached
     variables?: Record<string, string> // Optional variables associated with the response
     toolCalls?: ChatCompletionToolCall[] // List of tool calls made during the response

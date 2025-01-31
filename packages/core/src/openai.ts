@@ -399,15 +399,16 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
         )
     }
 
-    return {
+    return deleteUndefinedValues({
         text: chatResp,
+        reasoning: reasoningChatResp,
         toolCalls,
         finishReason,
         usage,
         error,
         model: responseModel,
         logprobs: lbs,
-    } satisfies ChatCompletionResponse
+    }) satisfies ChatCompletionResponse
 }
 
 export const OpenAIListModels: ListModelsFunction = async (cfg, options) => {

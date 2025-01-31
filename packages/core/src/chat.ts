@@ -670,19 +670,20 @@ async function structurifyChatSession(
 }
 
 function parseAssistantMessage(
-    text: string
+    resp: ChatCompletionResponse
 ): ChatCompletionAssistantMessageParam {
-    let reasoning_content: string
-    const content = text
-        .replace(THINK_REGEX, (_, m) => {
-            reasoning_content = m
+    let { text, reasoning } = resp
+    text = text
+        ?.replace(THINK_REGEX, (_, m) => {
+            reasoning = (reasoning || "") + m
             return ""
         })
         .trimStart()
+    if (!text && !reasoning) return undefined
     return deleteUndefinedValues({
         role: "assistant",
-        content,
-        reasoning_content,
+        content: text,
+        reasoning_content: reasoning,
     })
 }
 
@@ -708,13 +709,15 @@ async function processChatMessage(
     } = options
 
     stats.addUsage(req, resp)
-    if (resp.text) messages.push(parseAssistantMessage(resp.text))
+    const assisantMessage = parseAssistantMessage(resp)
+    if (assisantMessage) messages.push(assisantMessage)
 
-    if (options.fallbackTools && resp.text && tools.length) {
+    const assistantContent = assisantMessage?.content as string
+    if (options.fallbackTools && assistantContent && tools.length) {
         resp.toolCalls = []
         // parse tool call
-        const toolCallFences = extractFenced(resp.text).filter((f) =>
-            /^tool_calls?$/.test(f.language)
+        const toolCallFences = extractFenced(assistantContent).filter(
+            (f) => /^tool_calls?$/.test(f.language)
         )
         for (const toolCallFence of toolCallFences) {
             for (const toolCall of toolCallFence.content.split("\n")) {
