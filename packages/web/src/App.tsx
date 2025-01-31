@@ -611,8 +611,8 @@ function JSONSchemaSimpleTypeFormField(props: {
                 return (
                     <vscode-single-select
                         value={vs}
-                        required={required}
-                        onChange={(e) => {
+                        required={required}                        
+                        onSelect={(e) => {
                             const target = e.target as HTMLSelectElement
                             onChange(target.value)
                         }}
@@ -636,9 +636,6 @@ function JSONSchemaSimpleTypeFormField(props: {
                     onInput={(e) => {
                         const target = e.target as HTMLTextAreaElement
                         target.rows = rows(target.value)
-                    }}
-                    onChange={(e) => {
-                        const target = e.target as HTMLInputElement
                         onChange(target.value)
                     }}
                 />
@@ -661,7 +658,7 @@ function JSONSchemaSimpleTypeFormField(props: {
                     spellCheck={false}
                     value={value as string}
                     required={required}
-                    onChange={(e) => {
+                    onInput={(e) => {
                         const target = e.target as HTMLInputElement
                         onChange(target.value)
                     }}
@@ -1146,25 +1143,6 @@ function FilesDropZone() {
                 </vscode-form-helper>
             </vscode-form-group>
         </>
-    )
-}
-
-function GlobsForm() {
-    const { files = [], setFiles } = useApi()
-    return (
-        <vscode-form-container>
-            <vscode-form-group>
-                <vscode-label>Globs</vscode-label>
-                <vscode-textarea
-                    value={files.join(", ")}
-                    label="List of files glob patterns, one per line"
-                    onChange={(e) => {
-                        const target = e.target as HTMLInputElement
-                        startTransition(() => setFiles(target.value.split(",")))
-                    }}
-                />
-            </vscode-form-group>
-        </vscode-form-container>
     )
 }
 

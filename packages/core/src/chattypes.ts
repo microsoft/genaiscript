@@ -160,10 +160,10 @@ export const ModelError = OpenAI.APIError
 export interface ChatCompletionsProgressReport {
     tokensSoFar: number // Number of tokens processed so far
     responseSoFar: string // Partial response generated so far
-    reasoningSoFar: string // Partial reasoning content generated so far
     responseChunk: string // Current chunk of response being processed
     responseTokens?: Logprob[] // Tokens in the current response chunk
     reasoningTokens?: Logprob[] // Tokens in the current reasoning content
+    reasoningSoFar?: string // Partial reasoning content generated so far
     inner: boolean // Indicates if this is an inner report
 }
 

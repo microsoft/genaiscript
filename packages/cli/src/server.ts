@@ -245,7 +245,6 @@ export async function startServer(options: {
                     partialCb?.({
                         tokensSoFar,
                         responseSoFar,
-                        reasoningSoFar: "",
                         responseChunk: chunk.chunk,
                         inner,
                     })

@@ -105,7 +105,6 @@ export const TransformersCompletion: ChatCompletionHandler = async (
                 responseTokens: [
                     { token: text, logprob: Number.NaN } satisfies Logprob,
                 ],
-                reasoningSoFar: "",
                 inner,
             })
         },
@@ -131,7 +130,6 @@ export const TransformersCompletion: ChatCompletionHandler = async (
     partialCb?.({
         responseSoFar: text,
         responseChunk: text,
-        reasoningSoFar: "",
         tokensSoFar: tokenizer(chatResp),
         inner,
     })
