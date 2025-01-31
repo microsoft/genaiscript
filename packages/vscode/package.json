@@ -455,13 +455,13 @@
         "@types/vscode": "^1.95.0",
         "@vscode/vsce": "^3.2.1",
         "assert": "^2.1.0",
-        "es-toolkit": "^1.31.0",
+        "es-toolkit": "^1.32.0",
         "markdown-it-github-alerts": "^0.3.0",
         "process": "^0.11.10",
         "typescript": "5.7.3",
         "vscode-uri": "^3.0.8",
         "webfont": "^11.2.26",
         "websocket-polyfill": "0.0.3",
-        "zx": "^8.3.0"
+        "zx": "^8.3.1"
     }
 }

@@ -88,7 +88,7 @@ async function tryImportCanvas() {
     if (CanvasFactory.createCanvas) return CanvasFactory.createCanvas
 
     try {
-        const { Canvas } = await import("skia-canvas")
+        const { Canvas, ImageData } = await import("skia-canvas")
         const createCanvas = (w: number, h: number) => new Canvas(w, h)
         CanvasFactory.createCanvas = createCanvas
         return createCanvas
@@ -199,6 +199,7 @@ async function PDFTryParse(
         }
         return { ok: true, pages }
     } catch (error) {
+        logVerbose(error)
         trace?.error(`reading pdf`, error) // Log error if tracing is enabled
         return { ok: false, error: serializeError(error) }
     }
