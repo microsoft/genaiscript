@@ -4,7 +4,7 @@ export function convertThinkToMarkdown(md: string) {
     if (!md) return md
 
     md = md.replace(THINK_REGEX, (_, text, end) => {
-        return `<details><summary>🤔 think${end === "</think>" ? "" : "ing..."}</summary>${text}</details>`
+        return `\n<details><summary>🤔 think${end === "</think>" ? "" : "ing..."}</summary>${text}</details>\n`
     })
     return md
 }
