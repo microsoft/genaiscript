@@ -86,10 +86,15 @@ export type CreateChatCompletionRequest = Omit<
     messages: ChatCompletionMessageParam[]
 }
 
+export interface ChatCompletionMessageReasoningAssistantParam {
+    reasoning_content?: string
+}
+
 // Parameters for an assistant message in a chat completion
 export type ChatCompletionAssistantMessageParam =
     OpenAI.Chat.Completions.ChatCompletionAssistantMessageParam &
-        ChatCompletionMessageParamCacheControl
+        ChatCompletionMessageParamCacheControl &
+        ChatCompletionMessageReasoningAssistantParam
 
 // Parameters for a user message in a chat completion
 export type ChatCompletionUserMessageParam =

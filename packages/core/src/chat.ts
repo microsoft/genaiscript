@@ -37,6 +37,7 @@ import {
     MAX_TOOL_CONTENT_TOKENS,
     MODEL_PROVIDERS,
     SYSTEM_FENCE,
+    THINK_REGEX,
 } from "./constants"
 import { parseAnnotations } from "./annotations"
 import { errorMessage, isCancelError, serializeError } from "./error"
@@ -58,7 +59,6 @@ import {
 } from "./chattypes"
 import {
     collapseChatMessages,
-    renderMessageContent,
     renderMessagesToMarkdown,
     renderShellOutput,
 } from "./chatrender"
@@ -92,7 +92,7 @@ import {
     getChatCompletionCache,
 } from "./chatcache"
 import { deleteUndefinedValues } from "./cleaners"
-import { unthink } from "./think"
+import { assertUnthinked, unthink } from "./think"
 
 function toChatCompletionImage(
     image: PromptImage
@@ -508,7 +508,7 @@ function assistantText(
         text = msg.content + text
     }
 
-    text = unthink(text)
+    assertUnthinked(text)
     if ((!responseType && !responseSchema) || responseType === "markdown")
         text = unfence(text, "(markdown|md)")
     else if (responseType === "yaml") text = unfence(text, "(yaml|yml)")
@@ -669,6 +669,23 @@ async function structurifyChatSession(
     return res
 }
 
+function parseAssistantMessage(
+    text: string
+): ChatCompletionAssistantMessageParam {
+    let reasoning_content: string
+    const content = text
+        .replace(THINK_REGEX, (_, m) => {
+            reasoning_content = m
+            return ""
+        })
+        .trimStart()
+    return deleteUndefinedValues({
+        role: "assistant",
+        content,
+        reasoning_content,
+    })
+}
+
 async function processChatMessage(
     req: CreateChatCompletionRequest,
     resp: ChatCompletionResponse,
@@ -691,12 +708,7 @@ async function processChatMessage(
     } = options
 
     stats.addUsage(req, resp)
-
-    if (resp.text)
-        messages.push({
-            role: "assistant",
-            content: resp.text,
-        })
+    if (resp.text) messages.push(parseAssistantMessage(resp.text))
 
     if (options.fallbackTools && resp.text && tools.length) {
         resp.toolCalls = []

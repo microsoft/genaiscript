@@ -147,6 +147,15 @@ export function renderMessagesToMarkdown(
                         details(
                             `🤖 assistant ${msg.name ? msg.name : ""}`,
                             [
+                                msg.reasoning_content
+                                    ? details(
+                                          "🤔 reasoning",
+                                          fenceMD(
+                                              msg.reasoning_content,
+                                              "markdown"
+                                          )
+                                      )
+                                    : undefined,
                                 fenceMD(renderMessageContent(msg), textLang),
                                 ...(msg.tool_calls?.map((tc) =>
                                     details(

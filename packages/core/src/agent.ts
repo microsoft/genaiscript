@@ -3,7 +3,7 @@ import { AGENT_MEMORY_CACHE_NAME, TOKEN_NO_ANSWER } from "./constants"
 import { errorMessage } from "./error"
 import { HTMLEscape } from "./html"
 import { prettifyMarkdown } from "./markdown"
-import { unthink } from "./think"
+import { assertUnthinked, unthink } from "./think"
 import { MarkdownTrace } from "./trace"
 import { logVerbose } from "./util"
 
@@ -49,7 +49,7 @@ export async function agentAddMemory(
     text: string,
     trace: MarkdownTrace
 ) {
-    text = unthink(text)
+    assertUnthinked(text)
     const cache = MemoryCache.byName<
         { agent: string; query: string },
         {

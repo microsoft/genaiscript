@@ -223,7 +223,7 @@ export async function cast(
             label,
         }
     )
-    const text = parsers.unfence(parsers.unthink(res.text), "json")
+    const text = parsers.unfence(res.text, "json")
     return res.json
         ? { text, data: res.json }
         : { text, error: res.error?.message }
