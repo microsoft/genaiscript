@@ -38,16 +38,24 @@ export type ChatCompletionTool = OpenAI.Chat.Completions.ChatCompletionTool
 // Chunk of a chat completion response
 export type ChatCompletionChunk = OpenAI.Chat.Completions.ChatCompletionChunk
 export type ChatCompletionChunkChoice =
-    OpenAI.Chat.Completions.ChatCompletionChunk.Choice
+    OpenAI.Chat.Completions.ChatCompletionChunk.Choice & {
+        delta?: ChatCompletionMessageReasoningContentParam
+    }
+
 export type ChatCompletionTokenLogprob = OpenAI.ChatCompletionTokenLogprob
 
 export type ChatCompletion = OpenAI.Chat.Completions.ChatCompletion
-export type ChatCompletionChoice = OpenAI.Chat.Completions.ChatCompletion.Choice
+export type ChatCompletionChoice =
+    OpenAI.Chat.Completions.ChatCompletion.Choice & {
+        message: ChatCompletionMessage
+    }
 
 export interface ChatCompletionMessageParamCacheControl {
     cacheControl?: PromptCacheControlType
 }
-
+export type ChatCompletionMessage =
+    OpenAI.Chat.Completions.ChatCompletionMessage &
+        ChatCompletionMessageReasoningContentParam
 // Parameters for a system message in a chat completion
 export type ChatCompletionSystemMessageParam =
     OpenAI.Chat.Completions.ChatCompletionSystemMessageParam &
@@ -86,7 +94,7 @@ export type CreateChatCompletionRequest = Omit<
     messages: ChatCompletionMessageParam[]
 }
 
-export interface ChatCompletionMessageReasoningAssistantParam {
+export interface ChatCompletionMessageReasoningContentParam {
     reasoning_content?: string
 }
 
@@ -94,7 +102,11 @@ export interface ChatCompletionMessageReasoningAssistantParam {
 export type ChatCompletionAssistantMessageParam =
     OpenAI.Chat.Completions.ChatCompletionAssistantMessageParam &
         ChatCompletionMessageParamCacheControl &
-        ChatCompletionMessageReasoningAssistantParam
+        ChatCompletionMessageReasoningContentParam
+
+export type ChatCompletionChunkChoiceChoiceDelta =
+    OpenAI.Chat.Completions.ChatCompletionChunk.Choice.Delta &
+        ChatCompletionMessageReasoningContentParam
 
 // Parameters for a user message in a chat completion
 export type ChatCompletionUserMessageParam =

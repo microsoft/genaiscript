@@ -229,6 +229,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
     let done = false
     let finishReason: ChatCompletionResponse["finishReason"] = undefined
     let chatResp = ""
+    let reasoningChatResp = ""
     let pref = ""
     let usage: ChatCompletionUsage
     let error: SerializedError
@@ -261,6 +262,19 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
                 )
                 trace.appendToken(delta.content)
             }
+            if (
+                typeof delta?.reasoning_content === "string" &&
+                delta.reasoning_content !== ""
+            ) {
+                numTokens += estimateTokens(delta.reasoning_content, encoder)
+                reasoningChatResp += delta.reasoning_content
+                tokens.push(
+                    ...serializeChunkChoiceToLogProbs(
+                        choice as ChatCompletionChunkChoice
+                    )
+                )
+                trace.appendToken(delta.reasoning_content)
+            }
             if (Array.isArray(delta?.tool_calls)) {
                 const { tool_calls } = delta
                 for (const call of tool_calls) {
@@ -278,7 +292,8 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
             }
         } else if ((choice as ChatCompletionChoice).message) {
             const { message } = choice as ChatCompletionChoice
-            chatResp = message.content ?? undefined
+            chatResp = message.content
+            reasoningChatResp = message.reasoning_content
             numTokens = usage?.total_tokens ?? estimateTokens(chatResp, encoder)
             if (Array.isArray(message?.tool_calls)) {
                 const { tool_calls } = message
