@@ -47,7 +47,6 @@ import {
     logprobColor,
     renderLogprob,
     rgbToCss,
-    topLogprobsToMarkdown,
 } from "../../core/src/logprob"
 import { FileWithPath, useDropzone } from "react-dropzone"
 import prettyBytes from "pretty-bytes"

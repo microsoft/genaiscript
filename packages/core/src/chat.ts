@@ -93,7 +93,7 @@ import {
     getChatCompletionCache,
 } from "./chatcache"
 import { deleteUndefinedValues } from "./cleaners"
-import { assertUnthinked, unthink } from "./think"
+import { unthink } from "./think"
 
 function toChatCompletionImage(
     image: PromptImage
