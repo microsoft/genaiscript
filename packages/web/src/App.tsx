@@ -141,6 +141,7 @@ class RunClient extends WebSocketClient {
     runId: string
     trace: string = ""
     output: string = ""
+    reasoning: string = ""
     result: Partial<GenerationResult> = undefined
 
     constructor(url: string) {
@@ -156,6 +157,7 @@ class RunClient extends WebSocketClient {
                         this.updateRunId(data)
                         if (data.trace) this.trace += data.trace
                         if (data.output) this.output += data.output
+                        if (data.reasoning) this.reasoning += data.reasoning
                         this.dispatchEvent(new Event(RunClient.PROGRESS_EVENT))
                         break
                     }
@@ -169,6 +171,7 @@ class RunClient extends WebSocketClient {
                             this.trace = e.trace || ""
                         }
                         this.output = this.result?.text || ""
+                        this.reasoning = this.result?.reasoning || ""
                         this.dispatchEvent(
                             new CustomEvent(RunClient.SCRIPT_END_EVENT, {
                                 detail: this.result,
@@ -529,14 +532,26 @@ function useTrace() {
 
 function useOutput() {
     const { client } = useApi()
-    const [output, setOutput] = useState<string>(client.output)
+    const [value, setValue] = useState<string>(client.output)
     const appendTrace = useCallback(
         (evt: Event) =>
-            startTransition(() => setOutput((previous) => client.output)),
+            startTransition(() => setValue((previous) => client.output)),
         []
     )
     useEventListener(client, RunClient.PROGRESS_EVENT, appendTrace)
-    return output
+    return value
+}
+
+function useReasoning() {
+    const { client } = useApi()
+    const [value, setValue] = useState<string>(client.reasoning)
+    const appendTrace = useCallback(
+        (evt: Event) =>
+            startTransition(() => setValue((previous) => client.reasoning)),
+        []
+    )
+    useEventListener(client, RunClient.PROGRESS_EVENT, appendTrace)
+    return value
 }
 
 function GenAIScriptLogo(props: { height: string }) {
@@ -611,7 +626,7 @@ function JSONSchemaSimpleTypeFormField(props: {
                 return (
                     <vscode-single-select
                         value={vs}
-                        required={required}                        
+                        required={required}
                         onSelect={(e) => {
                             const target = e.target as HTMLSelectElement
                             onChange(target.value)
@@ -776,11 +791,25 @@ function TraceTabPanel(props: { selected?: boolean }) {
     )
 }
 
+function ReasoningTabPanel() {
+    const reasoning = useReasoning()
+    if (!reasoning) return null
+    return (
+        <>
+            <vscode-tab-header slot="header">Reasoning</vscode-tab-header>
+            <vscode-tab-panel>
+                <Markdown>{fenceMD(reasoning, "markdown")}</Markdown>
+            </vscode-tab-panel>
+        </>
+    )
+}
+
 function OutputMarkdown() {
     const output = useOutput()
     return (
         <vscode-scrollable>
             <vscode-tabs>
+                <ReasoningTabPanel />
                 <MarkdownPreviewTabs>{output}</MarkdownPreviewTabs>
                 <LogProbsTabPanel />
                 <TopLogProbsTabPanel />
@@ -926,7 +955,11 @@ function TopLogProbsTabPanel() {
         <>
             <vscode-tab-header slot="header">
                 Toplogprobs
-                <ValueBadge value={uncertainty} title="uncertainty" precision={3} />
+                <ValueBadge
+                    value={uncertainty}
+                    title="uncertainty"
+                    precision={3}
+                />
             </vscode-tab-header>
             <vscode-tab-panel>
                 <div className={"markdown-body"}>
