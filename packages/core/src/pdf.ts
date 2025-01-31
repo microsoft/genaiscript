@@ -6,6 +6,7 @@ import os from "os"
 import { serializeError } from "./error"
 import { logVerbose, logWarn } from "./util"
 import { PDF_SCALE } from "./constants"
+import { resolveGlobal } from "./globals"
 
 let standardFontDataUrl: string
 
@@ -88,8 +89,12 @@ async function tryImportCanvas() {
     if (CanvasFactory.createCanvas) return CanvasFactory.createCanvas
 
     try {
-        const { Canvas, ImageData } = await import("skia-canvas")
-        const createCanvas = (w: number, h: number) => new Canvas(w, h)
+        const skia = await import("skia-canvas")
+        const createCanvas = (w: number, h: number) => new skia.Canvas(w, h)
+        const glob = resolveGlobal()
+        glob.ImageData ??= skia.ImageData
+        glob.Path2D ??= skia.Path2D
+        glob.Canvas ??= skia.Canvas
         CanvasFactory.createCanvas = createCanvas
         return createCanvas
     } catch (error) {
