@@ -1,4 +1,5 @@
 // cspell: disable
+/// <reference path="./html-escaper.d.ts" />
 import type {
     ChatCompletionChunkChoice,
     ChatCompletionTokenLogprob,
