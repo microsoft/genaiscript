@@ -80,7 +80,7 @@ export function traceLanguageModelConnection(
         trace.itemValue(`seed`, seed)
         if (choices.length) trace.itemValue(`choices`, choices.join(","))
         trace.itemValue(`logprobs`, logprobs)
-        trace.itemValue(`topLogprobs`, topLogprobs)
+        if (topLogprobs) trace.itemValue(`topLogprobs`, topLogprobs)
         trace.itemValue(`cache`, cache)
         trace.itemValue(`fence format`, fenceFormat)
         trace.itemValue(`response type`, responseType)
