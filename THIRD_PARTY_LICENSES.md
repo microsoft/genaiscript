@@ -3,7 +3,7 @@ https://www.npmjs.com/package/generate-license-file
 
 The following npm package may be included in this product:
 
- - pdfjs-dist@4.9.155
+ - pdfjs-dist@4.10.38
 
 This package contains the following license:
 
@@ -1522,8 +1522,8 @@ Apache License
 
 The following npm packages may be included in this product:
 
- - playwright-core@1.50.0
- - playwright@1.50.0
+ - playwright-core@1.50.1
+ - playwright@1.50.1
 
 These packages each contain the following license:
 
@@ -1956,9 +1956,9 @@ Apache License
 
 The following npm packages may be included in this product:
 
- - @aws-sdk/client-cognito-identity@3.734.0
+ - @aws-sdk/client-cognito-identity@3.738.0
  - @aws-sdk/client-sso@3.734.0
- - @aws-sdk/credential-provider-cognito-identity@3.734.0
+ - @aws-sdk/credential-provider-cognito-identity@3.738.0
  - @aws-sdk/util-user-agent-browser@3.734.0
  - @aws-sdk/util-user-agent-node@3.734.0
  - @smithy/eventstream-codec@2.2.0
@@ -2182,7 +2182,7 @@ Apache License
 
 The following npm package may be included in this product:
 
- - @aws-sdk/client-bedrock-runtime@3.734.0
+ - @aws-sdk/client-bedrock-runtime@3.738.0
 
 This package contains the following license:
 
@@ -2621,7 +2621,7 @@ Apache License
 
 The following npm package may be included in this product:
 
- - mathjs@14.1.0
+ - mathjs@14.2.0
 
 This package contains the following license:
 
@@ -2829,7 +2829,7 @@ The following npm packages may be included in this product:
  - @types/node-fetch@2.6.12
  - @types/node@16.9.1
  - @types/node@18.19.74
- - @types/node@22.12.0
+ - @types/node@22.13.0
  - @types/turndown@5.0.5
  - @types/uuid@9.0.8
  - @types/yauzl@2.10.3
@@ -2862,7 +2862,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.96.1
+ - genaiscript-vscode@1.97.2
 
 This package contains the following license:
 
@@ -4182,8 +4182,8 @@ The following npm packages may be included in this product:
 
  - @aws-sdk/credential-provider-env@3.734.0
  - @aws-sdk/credential-provider-ini@3.734.0
- - @aws-sdk/credential-provider-node@3.734.0
- - @aws-sdk/credential-providers@3.734.0
+ - @aws-sdk/credential-provider-node@3.738.0
+ - @aws-sdk/credential-providers@3.738.0
  - @aws-sdk/region-config-resolver@3.734.0
  - @aws-sdk/token-providers@3.734.0
  - @aws-sdk/types@3.734.0
@@ -6447,50 +6447,20 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - @inquirer/figures@1.0.9
- - @inquirer/type@3.0.2
-
-These packages each contain the following license:
-
-Copyright (c) 2023 Simon Boudrias
-
-Permission is hereby granted, free of charge, to any person
-obtaining a copy of this software and associated documentation
-files (the "Software"), to deal in the Software without
-restriction, including without limitation the rights to use,
-copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the
-Software is furnished to do so, subject to the following
-conditions:
-
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
-OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
-HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-OTHER DEALINGS IN THE SOFTWARE.
-
------------
-
-The following npm packages may be included in this product:
-
- - @inquirer/checkbox@4.0.6
- - @inquirer/confirm@5.1.3
- - @inquirer/core@10.1.4
- - @inquirer/editor@4.2.3
- - @inquirer/expand@4.0.6
- - @inquirer/input@4.1.3
- - @inquirer/number@3.0.6
- - @inquirer/password@4.0.6
- - @inquirer/prompts@7.2.3
- - @inquirer/rawlist@4.0.6
- - @inquirer/search@3.0.6
- - @inquirer/select@4.0.6
+ - @inquirer/checkbox@4.0.7
+ - @inquirer/confirm@5.1.4
+ - @inquirer/core@10.1.5
+ - @inquirer/editor@4.2.4
+ - @inquirer/expand@4.0.7
+ - @inquirer/figures@1.0.10
+ - @inquirer/input@4.1.4
+ - @inquirer/number@3.0.7
+ - @inquirer/password@4.0.7
+ - @inquirer/prompts@7.2.4
+ - @inquirer/rawlist@4.0.7
+ - @inquirer/search@3.0.7
+ - @inquirer/select@4.0.7
+ - @inquirer/type@3.0.3
 
 These packages each contain the following license:
 
@@ -8044,10 +8014,10 @@ The following npm packages may be included in this product:
  - @tokenizer/token@0.3.0
  - agent-base@6.0.2
  - eastasianwidth@0.2.0
- - genaiscript-core-internal@1.96.1
- - genaiscript-sample@1.96.1
- - genaiscript-web@1.96.1
- - genaiscript@1.96.1
+ - genaiscript-core-internal@1.97.2
+ - genaiscript-sample@1.97.2
+ - genaiscript-web@1.97.2
+ - genaiscript@1.97.2
  - get-port@1.0.0
  - https-proxy-agent@5.0.1
  - isarray@1.0.0
@@ -9037,7 +9007,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - @huggingface/jinja@0.3.2
+ - @huggingface/jinja@0.3.3
 
 This package contains the following license:
 
@@ -9729,7 +9699,7 @@ The following npm packages may be included in this product:
 
  - @octokit/plugin-paginate-rest@11.4.0
  - @octokit/plugin-rest-endpoint-methods@13.3.0
- - @octokit/types@13.7.0
+ - @octokit/types@13.8.0
 
 These packages each contain the following license:
 
@@ -10368,7 +10338,7 @@ The following npm packages may be included in this product:
  - once@1.4.0
  - rimraf@3.0.2
  - semver@6.3.1
- - semver@7.6.3
+ - semver@7.7.0
  - tar@6.2.1
  - tar@7.4.3
  - which@1.3.1
