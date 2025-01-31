@@ -44,7 +44,9 @@ import type {
     PromptScriptEndResponseEvent,
 } from "../../core/src/server/messages"
 import {
-    logprobToMarkdown,
+    logprobColor,
+    renderLogprob,
+    rgbToCss,
     topLogprobsToMarkdown,
 } from "../../core/src/logprob"
 import { FileWithPath, useDropzone } from "react-dropzone"
@@ -61,9 +63,10 @@ import { markdownDiff } from "../../core/src/mddiff"
 import { cleanedClone } from "../../core/src/clone"
 import { WebSocketClient } from "../../core/src/server/wsclient"
 import { convertAnnotationToItem } from "../../core/src/annotations"
-import MarkdownWithPreview from "./MarkdownWithPreview"
 import { VscodeMultiSelect } from "@vscode-elements/elements/dist/vscode-multi-select/vscode-multi-select"
 import { VscTabsSelectEvent } from "@vscode-elements/elements/dist/vscode-tabs/vscode-tabs"
+import MarkdownPreviewTabs from "./MarkdownPreviewTabs"
+import { roundWithPrecision } from "../../core/src/precision"
 
 interface GenAIScriptViewOptions {
     apiKey?: string
@@ -713,6 +716,32 @@ function JSONSchemaObjectForm(props: {
     )
 }
 
+function ValueBadge(props: {
+    value: any
+    precision?: number
+    title?: string
+    render?: (value: any) => string
+}) {
+    const { value, title, render, precision } = props
+    if (
+        value === undefined ||
+        value === null ||
+        (typeof value === "number" && isNaN(value)) ||
+        value === ""
+    )
+        return null
+    const s = render
+        ? render(value)
+        : precision
+          ? roundWithPrecision(value, precision)
+          : "" + value
+    return (
+        <vscode-badge title={title} variant="counter" slot="content-after">
+            {s}
+        </vscode-badge>
+    )
+}
+
 function CounterBadge(props: { collection: any | undefined }) {
     const { collection } = props
     let count: string | undefined = undefined
@@ -754,7 +783,11 @@ function OutputMarkdown() {
     const output = useOutput()
     return (
         <vscode-scrollable nonce={nonce}>
-            <MarkdownWithPreview>{output}</MarkdownWithPreview>
+            <vscode-tabs>
+                <MarkdownPreviewTabs>{output}</MarkdownPreviewTabs>
+                <LogProbsTabPanel />
+                <TopLogProbsTabPanel />
+            </vscode-tabs>
         </vscode-scrollable>
     )
 }
@@ -833,11 +866,7 @@ function StatsTabPanel() {
         <>
             <vscode-tab-header slot="header">
                 Stats
-                {!!cost && (
-                    <vscode-badge variant="counter" slot="content-after">
-                        {renderCost(cost)}
-                    </vscode-badge>
-                )}
+                <ValueBadge value={cost} render={renderCost} />
             </vscode-tab-header>
             <vscode-tab-panel>
                 {md ? <Markdown>{fenceMD(md, "yaml")}</Markdown> : null}
@@ -846,20 +875,42 @@ function StatsTabPanel() {
     )
 }
 
+function LogProb(props: {
+    value: Logprob
+    entropy?: boolean
+    maxIntensity?: number
+    eatSpaces?: boolean
+}) {
+    const { value, maxIntensity } = props
+    const { token, logprob, entropy } = value
+    const c = rgbToCss(logprobColor(value, props))
+    const title = props.entropy
+        ? "" + roundWithPrecision(entropy, 2)
+        : renderLogprob(logprob)
+    let text = token
+    return (
+        <span className="logprobs" title={title} style={{ background: c }}>
+            {text}
+        </span>
+    )
+}
+
 function LogProbsTabPanel() {
     const result = useResult()
-    const { options } = useApi()
-    const { logprobs } = result || {}
-    if (!options.logprobs) return null
-    const md = logprobs?.map((lp) => logprobToMarkdown(lp)).join("\n")
+    const { logprobs, perplexity } = result || {}
+    if (!logprobs?.length) return null
     return (
         <>
             <vscode-tab-header slot="header">
-                Perplexity
-                <CounterBadge collection={md} />
+                Logprobs
+                <ValueBadge title="perplexity" value={perplexity} precision={3} />
             </vscode-tab-header>
             <vscode-tab-panel>
-                <Markdown>{md}</Markdown>
+                <div className={"markdown-body"}>
+                    {logprobs.map((lp, i) => (
+                        <LogProb key={i} value={lp} />
+                    ))}
+                </div>
             </vscode-tab-panel>
         </>
     )
@@ -869,13 +920,12 @@ function TopLogProbsTabPanel() {
     const result = useResult()
     const { options } = useApi()
     const { logprobs } = result || {}
-    if (!options.logprobs || !(options.topLogprobs > 1)) return null
     const md = logprobs?.map((lp) => topLogprobsToMarkdown(lp)).join("\n")
+    if (!md) return null
     return (
         <>
             <vscode-tab-header slot="header">
-                Entropy
-                <CounterBadge collection={md} />
+                Entropy (TopLogProbs)
             </vscode-tab-header>
             <vscode-tab-panel>
                 <Markdown>{md}</Markdown>
@@ -1364,8 +1414,6 @@ function ResultsTabs() {
             <TraceTabPanel selected={selected === 1} />
             <MessagesTabPanel />
             <ProblemsTabPanel />
-            <LogProbsTabPanel />
-            <TopLogProbsTabPanel />
             <FileEditsTabPanel />
             <DataTabPanel />
             <JSONTabPanel />

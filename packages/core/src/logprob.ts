@@ -63,7 +63,7 @@ export function logprobColor(
     return (red << 16) | (green << 8) | (blue << 0)
 }
 
-function rgbToCss(value: number): string {
+export function rgbToCss(value: number): string {
     return isNaN(value)
         ? `#fff`
         : `rgb(${(value >> 16) & 0xff}, ${(value >> 8) & 0xff}, ${value & 0xff})`

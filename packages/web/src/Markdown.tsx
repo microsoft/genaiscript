@@ -57,11 +57,12 @@ export default function Markdown(props: { className?: string; children: any }) {
                     components={{
                         code({ node, className, children, ...props }) {
                             console.log(node, className)
-                            if (!/hljs/.test(className)) return <code {...props}>{children}</code>
+                            if (!/hljs/.test(className))
+                                return <code {...props}>{children}</code>
                             else return <Code {...props}>{children}</Code>
                         },
                     }}
-                    urlTransform={url => {
+                    urlTransform={(url) => {
                         return url
                     }}
                     rehypePlugins={[

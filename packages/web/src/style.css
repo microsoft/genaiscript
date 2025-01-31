@@ -16,3 +16,18 @@ div.snippet .button {
 div.snippet:hover .button {
     opacity: 1;
 }
+span.logprobs {
+    color: white;
+    white-space: pre;
+    font-family: monospace;
+}
+table.toplogprobs {
+    display: inline-block;
+    padding: 0;
+    margin: 0;
+    border: solid 1px grey;
+    border-radius: 0.2rem;
+}
+table.toplogprobs td {
+    border: none; padding: 0;
+}
