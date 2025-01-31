@@ -20,6 +20,9 @@ span.logprobs {
     color: white;
     white-space: pre;
     font-family: monospace;
+    margin-right: 0.2rem;
+    border-radius: 0.2rem;  
+    cursor: pointer;  
 }
 table.toplogprobs {
     display: inline-block;
@@ -27,6 +30,10 @@ table.toplogprobs {
     margin: 0;
     border: solid 1px grey;
     border-radius: 0.2rem;
+}
+table.toplogprobs span.logprobs {
+    display: block;
+    margin-bottom: 0.2rem;
 }
 table.toplogprobs td {
     border: none; padding: 0;

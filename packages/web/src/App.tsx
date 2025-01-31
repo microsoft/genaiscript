@@ -576,7 +576,7 @@ function JSONSchemaNumber(props: {
             min={minimum}
             max={maximum}
             inputMode={type === "number" ? "decimal" : "numeric"}
-            onChange={(e) => {
+            onInput={(e) => {
                 const target = e.target as HTMLInputElement
                 startTransition(() => setValueText(target.value))
             }}
@@ -761,7 +761,7 @@ function CounterBadge(props: { collection: any | undefined }) {
 function TraceMarkdown() {
     const trace = useTrace()
     return (
-        <vscode-scrollable nonce={nonce}>
+        <vscode-scrollable>
             <Markdown>{trace}</Markdown>
         </vscode-scrollable>
     )
@@ -782,7 +782,7 @@ function TraceTabPanel(props: { selected?: boolean }) {
 function OutputMarkdown() {
     const output = useOutput()
     return (
-        <vscode-scrollable nonce={nonce}>
+        <vscode-scrollable>
             <vscode-tabs>
                 <MarkdownPreviewTabs>{output}</MarkdownPreviewTabs>
                 <LogProbsTabPanel />
@@ -877,17 +877,18 @@ function StatsTabPanel() {
 
 function LogProb(props: {
     value: Logprob
-    entropy?: boolean
     maxIntensity?: number
     eatSpaces?: boolean
+    entropy?: boolean
 }) {
-    const { value, maxIntensity } = props
-    const { token, logprob, entropy } = value
-    const c = rgbToCss(logprobColor(value, props))
-    const title = props.entropy
-        ? "" + roundWithPrecision(entropy, 2)
+    const { value, maxIntensity, entropy, eatSpaces } = props
+    const { token, logprob } = value
+    const c = rgbToCss(logprobColor(value, { entropy, maxIntensity }))
+    const title = entropy
+        ? "" + roundWithPrecision(value.entropy, 2)
         : renderLogprob(logprob)
     let text = token
+    if (eatSpaces) text = text.replace(/\n/g, " ")
     return (
         <span className="logprobs" title={title} style={{ background: c }}>
             {text}
@@ -897,19 +898,22 @@ function LogProb(props: {
 
 function LogProbsTabPanel() {
     const result = useResult()
+    const { options } = useApi()
     const { logprobs, perplexity } = result || {}
-    if (!logprobs?.length) return null
+    if (!options.logprobs) return null
     return (
         <>
             <vscode-tab-header slot="header">
                 Logprobs
-                <ValueBadge title="perplexity" value={perplexity} precision={3} />
+                <ValueBadge
+                    title="perplexity"
+                    value={perplexity}
+                    precision={3}
+                />
             </vscode-tab-header>
             <vscode-tab-panel>
                 <div className={"markdown-body"}>
-                    {logprobs.map((lp, i) => (
-                        <LogProb key={i} value={lp} />
-                    ))}
+                    {logprobs?.map((lp, i) => <LogProb key={i} value={lp} />)}
                 </div>
             </vscode-tab-panel>
         </>
@@ -919,16 +923,32 @@ function LogProbsTabPanel() {
 function TopLogProbsTabPanel() {
     const result = useResult()
     const { options } = useApi()
-    const { logprobs } = result || {}
-    const md = logprobs?.map((lp) => topLogprobsToMarkdown(lp)).join("\n")
-    if (!md) return null
+    if (!options.logprobs || !options.topLogprobs) return null
+    const { logprobs, uncertainty } = result || {}
     return (
         <>
             <vscode-tab-header slot="header">
-                Entropy (TopLogProbs)
+                Toplogprobs
+                <ValueBadge value={uncertainty} title="uncertainty" precision={3} />
             </vscode-tab-header>
             <vscode-tab-panel>
-                <Markdown>{md}</Markdown>
+                <div className={"markdown-body"}>
+                    {logprobs?.map((lp, i) => (
+                        <table key={i} className="toplogprobs">
+                            <tr>
+                                <td>
+                                    {lp.topLogprobs?.map((tlp, j) => (
+                                        <LogProb
+                                            key={j}
+                                            value={tlp}
+                                            eatSpaces={true}
+                                        />
+                                    ))}
+                                </td>
+                            </tr>
+                        </table>
+                    ))}
+                </div>
             </vscode-tab-panel>
         </>
     )
@@ -1212,7 +1232,7 @@ function ScriptSelect() {
 
 function ScriptForm() {
     return (
-        <vscode-collapsible open title="Script" nonce={nonce}>
+        <vscode-collapsible open title="Script">
             <vscode-form-container>
                 <RemoteInfo />
                 <ScriptSelect />
@@ -1228,7 +1248,7 @@ function ScriptSourcesView() {
     const script = useScript()
     const { jsSource, text, filename } = script || {}
     return (
-        <vscode-collapsible title="Source" nonce={nonce}>
+        <vscode-collapsible title="Source">
             {filename ? <Markdown>{`- ${filename}`}</Markdown> : null}
             {text ? (
                 <Markdown>{`\`\`\`\`\`\`
@@ -1263,7 +1283,7 @@ function PromptParametersFields() {
     return (
         <>
             {scriptParameters && (
-                <vscode-collapsible title="Parameters" open nonce={nonce}>
+                <vscode-collapsible title="Parameters" open>
                     <JSONSchemaObjectForm
                         schema={scriptParameters}
                         value={parameters}
@@ -1273,7 +1293,7 @@ function PromptParametersFields() {
                 </vscode-collapsible>
             )}
             {!!systemParameters.length && (
-                <vscode-collapsible title="System Parameters" nonce={nonce}>
+                <vscode-collapsible title="System Parameters">
                     {Object.entries(inputSchema.properties)
                         .filter(([k]) => k !== "script")
                         .map(([key, fieldSchema]) => {

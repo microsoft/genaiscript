@@ -342,6 +342,7 @@ export async function runTemplate(
             json,
             logprobs: chatResult.logprobs,
             perplexity: chatResult.perplexity,
+            uncertainty: chatResult.uncertainty,
             stats: {
                 cost: options.stats.cost(),
                 ...options.stats.accumulatedUsage(),

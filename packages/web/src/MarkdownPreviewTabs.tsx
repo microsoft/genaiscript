@@ -12,14 +12,9 @@ export default function MarkdownWithPreviewTabs(props: {
     children: any
 }) {
     const { className, children } = props
-    const childrenAsString = typeof children === "string" ? children : ""
-    if (!childrenAsString)
-        return <Markdown className={className}>{children}</Markdown>
-
     const md = convertThinkToMarkdown(
-        convertAnnotationsToMarkdown(childrenAsString)
+        convertAnnotationsToMarkdown(children as string)
     )
-
     return (
         <>
             <vscode-tab-header slot="header">Markdown</vscode-tab-header>

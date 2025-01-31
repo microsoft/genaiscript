@@ -251,6 +251,8 @@ export interface GenerationResult extends GenerationOutput {
      */
     perplexity?: number
 
+    uncertainty?: number
+
     /**
      * Statistics of the generation
      */
