@@ -299,7 +299,7 @@ function renderDefNode(def: PromptDefNode): string {
 
     let res: string
     if (name && fenceFormat === "xml") {
-        res = `\n<${name}${dtype ? ` lang="${dtype}"` : ""}${filename ? ` file="${filename}"` : ""}${schema ? ` schema=${schema}` : ""}${diffFormat}>\n${body}<${name}>\n`
+        res = `\n<${name}${dtype ? ` lang="${dtype}"` : ""}${filename ? ` file="${filename}"` : ""}${schema ? ` schema=${schema}` : ""}${diffFormat}>\n${body}</${name}>\n`
     } else if (fenceFormat === "none") {
         res = `\n${name ? name + ":\n" : ""}${body}\n`
     } else {

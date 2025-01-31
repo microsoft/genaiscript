@@ -3212,6 +3212,7 @@ type BufferLike =
     | Buffer
     | Blob
     | ArrayBuffer
+    | Uint8Array
     | ReadableStream
 
 type TranscriptionModelType = OptionsOrString<"openai:whisper-1">
