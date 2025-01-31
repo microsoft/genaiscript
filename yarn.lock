@@ -3227,7 +3227,7 @@
   dependencies:
     "@types/unist" "*"
 
-"@types/html-escaper@^3.0.2":
+"@types/html-escaper@3.0.3":
   version "3.0.3"
   resolved "https://registry.yarnpkg.com/@types/html-escaper/-/html-escaper-3.0.3.tgz#d6a38de40aa575636b2d9131f625a728efa19b01"
   integrity sha512-nGFINiojbz41NZRuL1dHww4T7ZNFC+Vk46R/wsBmbfUitsovLDqJ8HwCrwCyiWud2GDgH22deYokbkktLYEaeQ==
@@ -6051,7 +6051,7 @@ hosted-git-info@^4.0.1, hosted-git-info@^4.0.2:
   dependencies:
     lru-cache "^6.0.0"
 
-html-escaper@^3.0.3:
+html-escaper@3.0.3:
   version "3.0.3"
   resolved "https://registry.yarnpkg.com/html-escaper/-/html-escaper-3.0.3.tgz#4d336674652beb1dcbc29ef6b6ba7f6be6fdfed6"
   integrity sha512-RuMffC89BOWQoY0WKGpIhn5gX3iI54O6nRA0yC124NYVtzjmFWBIiFd8M0x+ZdX0P9R4lADg1mgP8C7PxGOWuQ==
