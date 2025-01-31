@@ -400,6 +400,7 @@ const AICIChatCompletion: ChatCompletionHandler = async (
         if (progress != "") {
             partialCb?.({
                 responseSoFar: chatResp,
+                reasoningSoFar: "",
                 tokensSoFar: numTokens,
                 responseChunk: progress,
                 inner,

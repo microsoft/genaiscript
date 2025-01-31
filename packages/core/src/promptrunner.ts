@@ -18,6 +18,8 @@ import { resolveFileContent } from "./file"
 import { expandTemplate } from "./expander"
 import { resolveLanguageModel } from "./lm"
 import { checkCancelled } from "./cancellation"
+import { lastAssistantReasoning } from "./chatrender"
+import { unthink } from "./think"
 
 // Asynchronously resolve expansion variables needed for a template
 /**
@@ -134,7 +136,7 @@ export async function runTemplate(
 
     try {
         if (cliInfo) {
-            trace.heading(3, `🧠 ${template.id}`)
+            trace.heading(3, `🤖 ${template.id}`)
             traceCliArgs(trace, template, options)
         }
 
@@ -181,7 +183,8 @@ export async function runTemplate(
                 env: restEnv,
                 label,
                 version,
-                text: outputTrace.content,
+                text: unthink(outputTrace.content),
+                reasoning: lastAssistantReasoning(messages),
                 edits: [],
                 annotations: [],
                 changelogs: [],
@@ -220,7 +223,8 @@ export async function runTemplate(
                 env: restEnv,
                 label,
                 version,
-                text: outputTrace.content,
+                text: unthink(outputTrace.content),
+                reasoning: lastAssistantReasoning(messages),
                 edits: [],
                 annotations: [],
                 changelogs: [],
@@ -333,7 +337,8 @@ export async function runTemplate(
             annotations,
             changelogs,
             fileEdits,
-            text: outputTrace.content,
+            text: unthink(outputTrace.content),
+            reasoning: lastAssistantReasoning(messages),
             version,
             fences,
             frames,

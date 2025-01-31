@@ -236,7 +236,11 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
     let responseModel: string
     let lbs: ChatCompletionTokenLogprob[] = []
 
-    const doChoices = (json: string, tokens: Logprob[]) => {
+    const doChoices = (
+        json: string,
+        tokens: Logprob[],
+        reasoningTokens: Logprob[]
+    ) => {
         const obj: ChatCompletionChunk | ChatCompletion = JSON.parse(json)
 
         if (!postReq.stream) trace.detailsFenced(`📬 response`, obj, "json")
@@ -268,7 +272,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
             ) {
                 numTokens += estimateTokens(delta.reasoning_content, encoder)
                 reasoningChatResp += delta.reasoning_content
-                tokens.push(
+                reasoningTokens.push(
                     ...serializeChunkChoiceToLogProbs(
                         choice as ChatCompletionChunkChoice
                     )
@@ -310,12 +314,15 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
                         tc.arguments += call.function.arguments
                 }
             }
-            partialCb?.({
-                responseSoFar: chatResp,
-                tokensSoFar: numTokens,
-                responseChunk: chatResp,
-                inner,
-            })
+            partialCb?.(
+                deleteUndefinedValues({
+                    responseSoFar: chatResp,
+                    reasoningSoFar: reasoningChatResp,
+                    tokensSoFar: numTokens,
+                    responseChunk: chatResp,
+                    inner,
+                })
+            )
         }
 
         if (finish_reason === "function_call" || toolCalls.length > 0) {
@@ -328,12 +335,13 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
     trace.appendContent("\n\n")
     if (!postReq.stream) {
         const responseBody = await r.text()
-        doChoices(responseBody, [])
+        doChoices(responseBody, [], [])
     } else {
         const decoder = host.createUTF8Decoder()
         const doChunk = (value: Uint8Array) => {
             // Massage and parse the chunk of data
-            let tokens: Logprob[] = []
+            const tokens: Logprob[] = []
+            const reasoningTokens: Logprob[] = []
             let chunk = decoder.decode(value, { stream: true })
 
             chunk = pref + chunk
@@ -344,7 +352,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
                     return ""
                 }
                 try {
-                    doChoices(json, tokens)
+                    doChoices(json, tokens, reasoningTokens)
                 } catch (e) {
                     trace.error(`error processing chunk`, e)
                 }
@@ -354,13 +362,17 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
             const progress = chatResp.slice(ch0.length)
             if (progress != "") {
                 // logVerbose(`... ${progress.length} chars`);
-                partialCb?.({
-                    responseSoFar: chatResp,
-                    tokensSoFar: numTokens,
-                    responseChunk: progress,
-                    responseTokens: tokens,
-                    inner,
-                })
+                partialCb?.(
+                    deleteUndefinedValues({
+                        responseSoFar: chatResp,
+                        reasoningSoFar: reasoningChatResp,
+                        tokensSoFar: numTokens,
+                        responseChunk: progress,
+                        responseTokens: tokens,
+                        reasoningTokens,
+                        inner,
+                    })
+                )
             }
             pref = chunk
         }

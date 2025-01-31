@@ -59,6 +59,7 @@ import {
 } from "./chattypes"
 import {
     collapseChatMessages,
+    lastAssistantReasoning,
     renderMessagesToMarkdown,
     renderShellOutput,
 } from "./chatrender"
@@ -508,7 +509,7 @@ function assistantText(
         text = msg.content + text
     }
 
-    assertUnthinked(text)
+    text = unthink(text)
     if ((!responseType && !responseSchema) || responseType === "markdown")
         text = unfence(text, "(markdown|md)")
     else if (responseType === "yaml") text = unfence(text, "(yaml|yml)")
@@ -642,9 +643,11 @@ async function structurifyChatSession(
         }
     }
 
+    const reasoning = lastAssistantReasoning(messages)
     const res: RunPromptResult = deleteUndefinedValues({
         messages,
         text,
+        reasoning,
         annotations,
         finishReason,
         fences,
@@ -716,8 +719,8 @@ async function processChatMessage(
     if (options.fallbackTools && assistantContent && tools.length) {
         resp.toolCalls = []
         // parse tool call
-        const toolCallFences = extractFenced(assistantContent).filter(
-            (f) => /^tool_calls?$/.test(f.language)
+        const toolCallFences = extractFenced(assistantContent).filter((f) =>
+            /^tool_calls?$/.test(f.language)
         )
         for (const toolCallFence of toolCallFences) {
             for (const toolCall of toolCallFence.content.split("\n")) {
@@ -969,7 +972,7 @@ export async function executeChatSession(
     const cacheStore = !!cache
         ? getChatCompletionCache(typeof cache === "string" ? cache : "chat")
         : undefined
-    const chatTrace = trace.startTraceDetails(`🧠 llm chat`, { expanded: true })
+    const chatTrace = trace.startTraceDetails(`💬 llm chat`, { expanded: true })
     try {
         if (toolDefinitions?.length) {
             chatTrace.detailsFenced(`🛠️ tools`, tools, "yaml")
@@ -1077,13 +1080,17 @@ export async function executeChatSession(
                         )
                         if (resp.cached) {
                             if (cacheRes.value.text) {
-                                partialCb({
-                                    responseSoFar: cacheRes.value.text,
-                                    tokensSoFar: 0,
-                                    responseChunk: cacheRes.value.text,
-                                    responseTokens: cacheRes.value.logprobs,
-                                    inner,
-                                })
+                                partialCb(
+                                    deleteUndefinedValues({
+                                        responseSoFar: cacheRes.value.text,
+                                        tokensSoFar: 0,
+                                        responseChunk: cacheRes.value.text,
+                                        responseTokens: cacheRes.value.logprobs,
+                                        reasoningSoFar:
+                                            cacheRes.value.reasoning,
+                                        inner,
+                                    })
+                                )
                             }
                         }
                     } else {
@@ -1183,10 +1190,11 @@ function updateChatFeatures(
 
 export function tracePromptResult(
     trace: MarkdownTrace,
-    resp: { text?: string }
+    resp: { text?: string; reasoning?: string }
 ) {
-    const { text } = resp || {}
+    const { text, reasoning } = resp || {}
 
+    if (reasoning) trace.detailsFenced(`🤔 reasoning`, reasoning, "markdown")
     // try to sniff the output type
     if (text) {
         const language = JSON5TryParse(text)

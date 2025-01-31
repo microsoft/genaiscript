@@ -54,6 +54,7 @@ import { GitClient } from "../../core/src/git"
 import { exists } from "fs-extra"
 import { deleteUndefinedValues } from "../../core/src/cleaners"
 import { readFile } from "fs/promises"
+import { unthink } from "../../core/src/think"
 
 /**
  * Starts a WebSocket server for handling chat and script execution.
@@ -244,6 +245,7 @@ export async function startServer(options: {
                     partialCb?.({
                         tokensSoFar,
                         responseSoFar,
+                        reasoningSoFar: "",
                         responseChunk: chunk.chunk,
                         inner,
                     })
@@ -323,7 +325,7 @@ export async function startServer(options: {
                     toPayload({
                         type: "script.progress",
                         runId,
-                        output: run.outputTrace.content,
+                        output: unthink(run.outputTrace.content),
                     } satisfies PromptScriptProgressResponseEvent)
                 )
                 chunkString(
@@ -444,11 +446,13 @@ export async function startServer(options: {
                             partialCb: ({
                                 responseChunk,
                                 responseSoFar,
+                                reasoningSoFar,
                                 tokensSoFar,
                                 responseTokens,
                             }) => {
                                 sendProgress(runId, {
                                     response: responseSoFar,
+                                    reasoning: reasoningSoFar,
                                     responseChunk,
                                     tokens: tokensSoFar,
                                     responseTokens,
@@ -587,8 +591,9 @@ window.vscodeWebviewPlaygroundNonce = ${JSON.stringify(nonce)};
         `
 
             const filePath = join(__dirname, "index.html")
-            const html = (await readFile(filePath, { encoding: "utf8" }))
-                .replace("<!--csp-->", csp)
+            const html = (
+                await readFile(filePath, { encoding: "utf8" })
+            ).replace("<!--csp-->", csp)
             res.write(html)
             res.statusCode = 200
             res.end()

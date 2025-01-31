@@ -74,6 +74,11 @@ export function renderMessageContent(
     return undefined
 }
 
+export function lastAssistantReasoning(messages: ChatCompletionMessageParam[]) {
+    const last = messages.at(-1)
+    return last?.role === "assistant" && last.reasoning_content
+}
+
 /**
  * Converts a list of chat messages to a markdown string.
  * @param messages - Array of chat messages.

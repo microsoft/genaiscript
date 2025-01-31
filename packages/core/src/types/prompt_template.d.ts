@@ -1450,6 +1450,7 @@ interface Logprob {
 interface RunPromptResult {
     messages: ChatCompletionMessageParam[]
     text: string
+    reasoning?: string
     annotations?: Diagnostic[]
     fences?: Fenced[]
     frames?: DataFrame[]
@@ -3398,6 +3399,11 @@ interface GenerationOutput {
      * LLM output.
      */
     text: string
+
+    /**
+     * Reasoning produced by model
+     */
+    reasoning?: string
 
     /**
      * Parsed fence sections
