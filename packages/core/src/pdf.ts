@@ -187,7 +187,7 @@ async function PDFTryParse(
             pages.push(p)
 
             if (createCanvas) {
-                const viewport = page.getViewport({ scale: PDF_SCALE })
+                const viewport = page.getViewport({ scale })
                 const canvas = await createCanvas(
                     viewport.width,
                     viewport.height
