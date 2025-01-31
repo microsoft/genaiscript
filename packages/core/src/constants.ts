@@ -336,3 +336,4 @@ export const TRACE_MAX_IMAGE_SIZE = 64 * 1024 // 10kb
 export const WS_MAX_FRAME_LENGTH = 1000000
 
 export const SCHEMA_DEFAULT_FORMAT = "json"
+export const THINK_REGEX = /<think>(.*?)($|<\/think>)/gis

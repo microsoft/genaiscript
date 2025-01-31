@@ -1,7 +1,9 @@
+import { THINK_REGEX } from "./constants"
+
 export function convertThinkToMarkdown(md: string) {
     if (!md) return md
 
-    md = md.replace(/<think>(.*?)($|<\/think>)/gis, (_, text, end) => {
+    md = md.replace(THINK_REGEX, (_, text, end) => {
         return `<details><summary>🤔 think${end === "</think>" ? "" : "ing..."}</summary>${text}</details>`
     })
     return md
@@ -10,6 +12,6 @@ export function convertThinkToMarkdown(md: string) {
 export function unthink(md: string) {
     if (!md) return md
 
-    md = md.replace(/<think>(.*?)($|<\/think>)/gis, "")
+    md = md.replace(THINK_REGEX, "")
     return md
 }

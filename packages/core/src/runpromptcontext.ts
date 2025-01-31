@@ -39,7 +39,7 @@ import {
     logVerbose,
     logWarn,
 } from "./util"
-import { renderShellOutput } from "./chatrender"
+import { lastAssistantReasoning, renderShellOutput } from "./chatrender"
 import { jinjaRender } from "./jinja"
 import { mustacheRender } from "./mustache"
 import { imageEncodeForLLM, imageTileEncodeForLLM } from "./image"
@@ -1050,6 +1050,7 @@ export function createChatGenerationContext(
             return {
                 messages,
                 text: "",
+                reasoning: lastAssistantReasoning(messages),
                 finishReason: isCancelError(e) ? "cancel" : "fail",
                 error: serializeError(e),
             }

@@ -74,6 +74,11 @@ export function renderMessageContent(
     return undefined
 }
 
+export function lastAssistantReasoning(messages: ChatCompletionMessageParam[]) {
+    const last = messages.at(-1)
+    return last?.role === "assistant" && last.reasoning_content
+}
+
 /**
  * Converts a list of chat messages to a markdown string.
  * @param messages - Array of chat messages.
@@ -147,6 +152,15 @@ export function renderMessagesToMarkdown(
                         details(
                             `🤖 assistant ${msg.name ? msg.name : ""}`,
                             [
+                                msg.reasoning_content
+                                    ? details(
+                                          "🤔 reasoning",
+                                          fenceMD(
+                                              msg.reasoning_content,
+                                              "markdown"
+                                          )
+                                      )
+                                    : undefined,
                                 fenceMD(renderMessageContent(msg), textLang),
                                 ...(msg.tool_calls?.map((tc) =>
                                     details(

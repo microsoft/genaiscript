@@ -89,6 +89,7 @@ export class VsCodeClient extends WebSocketClient {
                             run.partialCb({
                                 responseChunk: ev.responseChunk,
                                 responseSoFar: ev.response,
+                                reasoningSoFar: ev.reasoning,
                                 tokensSoFar: ev.tokens,
                                 inner: ev.inner,
                             })

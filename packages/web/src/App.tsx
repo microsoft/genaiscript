@@ -44,8 +44,9 @@ import type {
     PromptScriptEndResponseEvent,
 } from "../../core/src/server/messages"
 import {
-    logprobToMarkdown,
-    topLogprobsToMarkdown,
+    logprobColor,
+    renderLogprob,
+    rgbToCss,
 } from "../../core/src/logprob"
 import { FileWithPath, useDropzone } from "react-dropzone"
 import prettyBytes from "pretty-bytes"
@@ -61,9 +62,10 @@ import { markdownDiff } from "../../core/src/mddiff"
 import { cleanedClone } from "../../core/src/clone"
 import { WebSocketClient } from "../../core/src/server/wsclient"
 import { convertAnnotationToItem } from "../../core/src/annotations"
-import MarkdownWithPreview from "./MarkdownWithPreview"
 import { VscodeMultiSelect } from "@vscode-elements/elements/dist/vscode-multi-select/vscode-multi-select"
 import { VscTabsSelectEvent } from "@vscode-elements/elements/dist/vscode-tabs/vscode-tabs"
+import MarkdownPreviewTabs from "./MarkdownPreviewTabs"
+import { roundWithPrecision } from "../../core/src/precision"
 
 interface GenAIScriptViewOptions {
     apiKey?: string
@@ -138,6 +140,7 @@ class RunClient extends WebSocketClient {
     runId: string
     trace: string = ""
     output: string = ""
+    reasoning: string = ""
     result: Partial<GenerationResult> = undefined
 
     constructor(url: string) {
@@ -153,6 +156,7 @@ class RunClient extends WebSocketClient {
                         this.updateRunId(data)
                         if (data.trace) this.trace += data.trace
                         if (data.output) this.output += data.output
+                        if (data.reasoning) this.reasoning += data.reasoning
                         this.dispatchEvent(new Event(RunClient.PROGRESS_EVENT))
                         break
                     }
@@ -166,6 +170,7 @@ class RunClient extends WebSocketClient {
                             this.trace = e.trace || ""
                         }
                         this.output = this.result?.text || ""
+                        this.reasoning = this.result?.reasoning || ""
                         this.dispatchEvent(
                             new CustomEvent(RunClient.SCRIPT_END_EVENT, {
                                 detail: this.result,
@@ -526,14 +531,26 @@ function useTrace() {
 
 function useOutput() {
     const { client } = useApi()
-    const [output, setOutput] = useState<string>(client.output)
+    const [value, setValue] = useState<string>(client.output)
     const appendTrace = useCallback(
         (evt: Event) =>
-            startTransition(() => setOutput((previous) => client.output)),
+            startTransition(() => setValue((previous) => client.output)),
         []
     )
     useEventListener(client, RunClient.PROGRESS_EVENT, appendTrace)
-    return output
+    return value
+}
+
+function useReasoning() {
+    const { client } = useApi()
+    const [value, setValue] = useState<string>(client.reasoning)
+    const appendTrace = useCallback(
+        (evt: Event) =>
+            startTransition(() => setValue((previous) => client.reasoning)),
+        []
+    )
+    useEventListener(client, RunClient.PROGRESS_EVENT, appendTrace)
+    return value
 }
 
 function GenAIScriptLogo(props: { height: string }) {
@@ -573,7 +590,7 @@ function JSONSchemaNumber(props: {
             min={minimum}
             max={maximum}
             inputMode={type === "number" ? "decimal" : "numeric"}
-            onChange={(e) => {
+            onInput={(e) => {
                 const target = e.target as HTMLInputElement
                 startTransition(() => setValueText(target.value))
             }}
@@ -609,7 +626,7 @@ function JSONSchemaSimpleTypeFormField(props: {
                     <vscode-single-select
                         value={vs}
                         required={required}
-                        onChange={(e) => {
+                        onSelect={(e) => {
                             const target = e.target as HTMLSelectElement
                             onChange(target.value)
                         }}
@@ -633,9 +650,6 @@ function JSONSchemaSimpleTypeFormField(props: {
                     onInput={(e) => {
                         const target = e.target as HTMLTextAreaElement
                         target.rows = rows(target.value)
-                    }}
-                    onChange={(e) => {
-                        const target = e.target as HTMLInputElement
                         onChange(target.value)
                     }}
                 />
@@ -658,7 +672,7 @@ function JSONSchemaSimpleTypeFormField(props: {
                     spellCheck={false}
                     value={value as string}
                     required={required}
-                    onChange={(e) => {
+                    onInput={(e) => {
                         const target = e.target as HTMLInputElement
                         onChange(target.value)
                     }}
@@ -713,6 +727,32 @@ function JSONSchemaObjectForm(props: {
     )
 }
 
+function ValueBadge(props: {
+    value: any
+    precision?: number
+    title?: string
+    render?: (value: any) => string
+}) {
+    const { value, title, render, precision } = props
+    if (
+        value === undefined ||
+        value === null ||
+        (typeof value === "number" && isNaN(value)) ||
+        value === ""
+    )
+        return null
+    const s = render
+        ? render(value)
+        : precision
+          ? roundWithPrecision(value, precision)
+          : "" + value
+    return (
+        <vscode-badge title={title} variant="counter" slot="content-after">
+            {s}
+        </vscode-badge>
+    )
+}
+
 function CounterBadge(props: { collection: any | undefined }) {
     const { collection } = props
     let count: string | undefined = undefined
@@ -732,7 +772,7 @@ function CounterBadge(props: { collection: any | undefined }) {
 function TraceMarkdown() {
     const trace = useTrace()
     return (
-        <vscode-scrollable nonce={nonce}>
+        <vscode-scrollable>
             <Markdown>{trace}</Markdown>
         </vscode-scrollable>
     )
@@ -750,11 +790,29 @@ function TraceTabPanel(props: { selected?: boolean }) {
     )
 }
 
+function ReasoningTabPanel() {
+    const reasoning = useReasoning()
+    if (!reasoning) return null
+    return (
+        <>
+            <vscode-tab-header slot="header">Reasoning</vscode-tab-header>
+            <vscode-tab-panel>
+                <Markdown>{fenceMD(reasoning, "markdown")}</Markdown>
+            </vscode-tab-panel>
+        </>
+    )
+}
+
 function OutputMarkdown() {
     const output = useOutput()
     return (
-        <vscode-scrollable nonce={nonce}>
-            <MarkdownWithPreview>{output}</MarkdownWithPreview>
+        <vscode-scrollable>
+            <vscode-tabs>
+                <ReasoningTabPanel />
+                <MarkdownPreviewTabs>{output}</MarkdownPreviewTabs>
+                <LogProbsTabPanel />
+                <TopLogProbsTabPanel />
+            </vscode-tabs>
         </vscode-scrollable>
     )
 }
@@ -833,11 +891,7 @@ function StatsTabPanel() {
         <>
             <vscode-tab-header slot="header">
                 Stats
-                {!!cost && (
-                    <vscode-badge variant="counter" slot="content-after">
-                        {renderCost(cost)}
-                    </vscode-badge>
-                )}
+                <ValueBadge value={cost} render={renderCost} />
             </vscode-tab-header>
             <vscode-tab-panel>
                 {md ? <Markdown>{fenceMD(md, "yaml")}</Markdown> : null}
@@ -846,20 +900,46 @@ function StatsTabPanel() {
     )
 }
 
+function LogProb(props: {
+    value: Logprob
+    maxIntensity?: number
+    eatSpaces?: boolean
+    entropy?: boolean
+}) {
+    const { value, maxIntensity, entropy, eatSpaces } = props
+    const { token, logprob } = value
+    const c = rgbToCss(logprobColor(value, { entropy, maxIntensity }))
+    const title = entropy
+        ? "" + roundWithPrecision(value.entropy, 2)
+        : renderLogprob(logprob)
+    let text = token
+    if (eatSpaces) text = text.replace(/\n/g, " ")
+    return (
+        <span className="logprobs" title={title} style={{ background: c }}>
+            {text}
+        </span>
+    )
+}
+
 function LogProbsTabPanel() {
     const result = useResult()
     const { options } = useApi()
-    const { logprobs } = result || {}
+    const { logprobs, perplexity } = result || {}
     if (!options.logprobs) return null
-    const md = logprobs?.map((lp) => logprobToMarkdown(lp)).join("\n")
     return (
         <>
             <vscode-tab-header slot="header">
-                Perplexity
-                <CounterBadge collection={md} />
+                Logprobs
+                <ValueBadge
+                    title="perplexity"
+                    value={perplexity}
+                    precision={3}
+                />
             </vscode-tab-header>
             <vscode-tab-panel>
-                <Markdown>{md}</Markdown>
+                <div className={"markdown-body"}>
+                    {logprobs?.map((lp, i) => <LogProb key={i} value={lp} />)}
+                </div>
             </vscode-tab-panel>
         </>
     )
@@ -868,17 +948,36 @@ function LogProbsTabPanel() {
 function TopLogProbsTabPanel() {
     const result = useResult()
     const { options } = useApi()
-    const { logprobs } = result || {}
-    if (!options.logprobs || !(options.topLogprobs > 1)) return null
-    const md = logprobs?.map((lp) => topLogprobsToMarkdown(lp)).join("\n")
+    if (!options.logprobs || !options.topLogprobs) return null
+    const { logprobs, uncertainty } = result || {}
     return (
         <>
             <vscode-tab-header slot="header">
-                Entropy
-                <CounterBadge collection={md} />
+                Toplogprobs
+                <ValueBadge
+                    value={uncertainty}
+                    title="uncertainty"
+                    precision={3}
+                />
             </vscode-tab-header>
             <vscode-tab-panel>
-                <Markdown>{md}</Markdown>
+                <div className={"markdown-body"}>
+                    {logprobs?.map((lp, i) => (
+                        <table key={i} className="toplogprobs">
+                            <tr>
+                                <td>
+                                    {lp.topLogprobs?.map((tlp, j) => (
+                                        <LogProb
+                                            key={j}
+                                            value={tlp}
+                                            eatSpaces={true}
+                                        />
+                                    ))}
+                                </td>
+                            </tr>
+                        </table>
+                    ))}
+                </div>
             </vscode-tab-panel>
         </>
     )
@@ -1079,25 +1178,6 @@ function FilesDropZone() {
     )
 }
 
-function GlobsForm() {
-    const { files = [], setFiles } = useApi()
-    return (
-        <vscode-form-container>
-            <vscode-form-group>
-                <vscode-label>Globs</vscode-label>
-                <vscode-textarea
-                    value={files.join(", ")}
-                    label="List of files glob patterns, one per line"
-                    onChange={(e) => {
-                        const target = e.target as HTMLInputElement
-                        startTransition(() => setFiles(target.value.split(",")))
-                    }}
-                />
-            </vscode-form-group>
-        </vscode-form-container>
-    )
-}
-
 function RemoteInfo() {
     const { remote } = useEnv() || {}
     if (!remote?.url) return null
@@ -1162,7 +1242,7 @@ function ScriptSelect() {
 
 function ScriptForm() {
     return (
-        <vscode-collapsible open title="Script" nonce={nonce}>
+        <vscode-collapsible open title="Script">
             <vscode-form-container>
                 <RemoteInfo />
                 <ScriptSelect />
@@ -1178,7 +1258,7 @@ function ScriptSourcesView() {
     const script = useScript()
     const { jsSource, text, filename } = script || {}
     return (
-        <vscode-collapsible title="Source" nonce={nonce}>
+        <vscode-collapsible title="Source">
             {filename ? <Markdown>{`- ${filename}`}</Markdown> : null}
             {text ? (
                 <Markdown>{`\`\`\`\`\`\`
@@ -1213,7 +1293,7 @@ function PromptParametersFields() {
     return (
         <>
             {scriptParameters && (
-                <vscode-collapsible title="Parameters" open nonce={nonce}>
+                <vscode-collapsible title="Parameters" open>
                     <JSONSchemaObjectForm
                         schema={scriptParameters}
                         value={parameters}
@@ -1223,7 +1303,7 @@ function PromptParametersFields() {
                 </vscode-collapsible>
             )}
             {!!systemParameters.length && (
-                <vscode-collapsible title="System Parameters" nonce={nonce}>
+                <vscode-collapsible title="System Parameters">
                     {Object.entries(inputSchema.properties)
                         .filter(([k]) => k !== "script")
                         .map(([key, fieldSchema]) => {
@@ -1364,8 +1444,6 @@ function ResultsTabs() {
             <TraceTabPanel selected={selected === 1} />
             <MessagesTabPanel />
             <ProblemsTabPanel />
-            <LogProbsTabPanel />
-            <TopLogProbsTabPanel />
             <FileEditsTabPanel />
             <DataTabPanel />
             <JSONTabPanel />

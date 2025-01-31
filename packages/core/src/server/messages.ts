@@ -252,6 +252,11 @@ export interface GenerationResult extends GenerationOutput {
     perplexity?: number
 
     /**
+     * Structural uncertainty
+     */
+    uncertainty?: number
+
+    /**
      * Statistics of the generation
      */
     stats?: {
@@ -283,9 +288,15 @@ export interface PromptScriptProgressResponseEvent {
     progress?: string
 
     tokens?: number
+
     response?: string
     responseChunk?: string
     responseTokens?: Logprob[]
+
+    reasoning?: string
+    reasoningChunk?: string
+    reasoningTokens?: Logprob[]
+
     inner?: boolean
 }
 
