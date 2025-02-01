@@ -7,15 +7,19 @@ import { ChatStart } from "../../core/src/server/messages"
 import { serializeError } from "../../core/src/error"
 import { logVerbose } from "../../core/src/util"
 import { renderMessageContent } from "../../core/src/chatrender"
+import { parseModelIdentifier } from "../../core/src/models"
 
 async function pickChatModel(
     state: ExtensionState,
-    model: string
+    modelId: string
 ): Promise<vscode.LanguageModelChat> {
     const chatModels = await vscode.lm.selectChatModels()
     const languageChatModels = await state.languageChatModels()
+    const { model } = parseModelIdentifier(modelId)
     const chatModelId = languageChatModels[model]
-    let chatModel = chatModelId && chatModels.find((m) => m.id === chatModelId)
+    let chatModel =
+        chatModels.find((m) => m.id === model) ||
+        (chatModelId && chatModels.find((m) => m.id === chatModelId))
     if (!chatModel) {
         const items: (vscode.QuickPickItem & {
             chatModel?: vscode.LanguageModelChat

@@ -240,6 +240,8 @@ type ModelProviderType = OptionsOrString<
     | "jan"
     | "llamafile"
     | "litellm"
+    | "github_copilot_chat"
+    | "deepseek"
 >
 
 interface ModelConnectionOptions {
