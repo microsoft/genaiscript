@@ -6,7 +6,7 @@ describe("convertThinkToMarkdown", () => {
     test("should convert <think> tags to <details> tags", () => {
         const input = "<think>This is \na test</think>"
         const expected =
-            "<details><summary>🤔 think</summary>This is \na test</details>"
+            "\n<details><summary>🤔 think</summary>This is \na test</details>\n"
         const result = convertThinkToMarkdown(input)
         assert.equal(result, expected)
     })
@@ -14,7 +14,7 @@ describe("convertThinkToMarkdown", () => {
     test("should handle multiple <think> tags", () => {
         const input = "<think>First</think> and <think>Second</think>"
         const expected =
-            "<details><summary>🤔 think</summary>First</details> and <details><summary>🤔 think</summary>Second</details>"
+            "\n<details><summary>🤔 think</summary>First</details>\n and \n<details><summary>🤔 think</summary>Second</details>\n"
         const result = convertThinkToMarkdown(input)
         assert.equal(result, expected)
     })
@@ -22,7 +22,7 @@ describe("convertThinkToMarkdown", () => {
     test("should handle <think> tags without closing tags", () => {
         const input = "<think>This is a test"
         const expected =
-            "<details><summary>🤔 thinking...</summary>This is a test</details>"
+            "\n<details><summary>🤔 thinking...</summary>This is a test</details>\n"
         const result = convertThinkToMarkdown(input)
         assert.equal(result, expected)
     })

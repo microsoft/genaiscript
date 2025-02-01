@@ -913,7 +913,12 @@ async function choicesToLogitBias(
             ]
         })
     )
-    trace.itemValue("choices", choices.join(", "))
+    trace.itemValue(
+        "choices",
+        choices
+            .map((c) => (typeof c === "string" ? c : JSON.stringify(c)))
+            .join(", ")
+    )
     trace.itemValue("logit bias", JSON.stringify(logit_bias))
     return logit_bias
 }
