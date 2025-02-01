@@ -17,7 +17,7 @@ export default function MarkdownWithPreviewTabs(props: {
     )
     return (
         <>
-            <vscode-tab-header slot="header">Markdown</vscode-tab-header>
+            <vscode-tab-header slot="header">Text</vscode-tab-header>
             <vscode-tab-panel>
                 <Markdown>{fenceMD(children, "markdown")}</Markdown>
             </vscode-tab-panel>
