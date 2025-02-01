@@ -622,11 +622,12 @@ function JSONSchemaSimpleTypeFormField(props: {
                     <vscode-single-select
                         value={vs}
                         required={required}
-                        onSelect={(e) => {
+                        onvsc-change={(e: Event) => {
                             const target = e.target as HTMLSelectElement
                             onChange(target.value)
                         }}
                     >
+                        <vscode-option key="empty" value=""></vscode-option>
                         {field.enum.map((option) => (
                             <vscode-option key={option} value={option}>
                                 {option}
