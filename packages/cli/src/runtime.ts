@@ -238,49 +238,45 @@ export async function cast(
 export async function markdownifyPdf(
     file: WorkspaceFile,
     options?: PromptGeneratorOptions &
-        ParsePDFOptions & {
+        Omit<ParsePDFOptions, "renderAsImage"> & {
             ctx?: ChatGenerationContext
         }
 ) {
     const {
         ctx = env.generator,
         label = `markdownify PDF`,
-        renderAsImage = true,
         cache = "mdpdf",
         ...rest
     } = options || {}
 
     // extract text and render pages as images
     const { pages, images = [] } = await parsers.PDF(file, {
-        renderAsImage,
         ...rest,
+        renderAsImage: true,
     })
-    console.log(`pages: ${pages.length}`)
     const markdowns: string[] = []
-
     for (let i = 0; i < pages.length; ++i) {
         const page = pages[i]
         const image = images[i]
         // mix of text and vision
         const res = await ctx.runPrompt(
             (_) => {
-                const previousPages = markdowns.slice(-3).join("\n\n")
-                const nextPage = pages[i + 1]
+                const previousPages = markdowns.slice(-2).join("\n\n")
                 if (previousPages.length) _.def("PREVIOUS_PAGES", previousPages)
                 if (page) _.def("PAGE", page)
-                if (nextPage) _.def("NEXT_PAGE", nextPage)
                 if (image)
                     _.defImages(image, { autoCrop: true, greyscale: true })
                 _.$`Your task is to analyze the given image and extract textual content in markdown format.`
 
-                $`- We used pdfjs-dist to extract the text of ${[page ? "the current page in <PAGE>" : undefined, previousPages.length ? "the previous pages in <PREVIOUS_PAGES>" : undefined, nextPage ? "NEXT_PAGE" : undefined].filter((v) => v).join(", ")}.`
-                $`- Ensure markdown text formatting for the extracted text is applied properly by analyzing the image.
+                $`- We used pdfjs-dist to extract the text of the current page in <PAGE>, the already converted text from the previous pages is in <PREVIOUS_PAGES>.
+                - Ensure markdown text formatting for the extracted text is applied properly by analyzing the image.
                 - Do not change any content in the original extracted text while applying markdown formatting and do not repeat the extracted text.
                 - Preserve markdown text formatting if present such as horizontal lines, header levels, footers, bullet points, links/urls, or other markdown elements.
                 - Extract source code snippets in code fences.
                 - Do not omit any textual content from the markdown formatted extracted text.
                 - Do not generate page breaks
-                - Do not include any additional explanations or comments in the markdown formatted extracted text.`
+                - Do not include any additional explanations or comments in the markdown formatted extracted text.
+                `
                 if (image)
                     $`- For images, generate a short alt-text description.`
             },
@@ -298,7 +294,8 @@ export async function markdownifyPdf(
                 ],
             }
         )
-        markdowns.push(res.text || res.error?.message || "")
+        if (res.error) throw new Error(res.error?.message)
+        markdowns.push(res.text)
     }
 
     return { pages, images, markdowns }
