@@ -1252,8 +1252,12 @@ function ScriptSelect() {
 }
 
 function ScriptForm() {
+    const script = useScript()
     return (
         <vscode-collapsible open title="Script">
+            {script && (
+                <vscode-badge slot="decorations">{script.id}</vscode-badge>
+            )}
             <vscode-form-container>
                 <RemoteInfo />
                 <ScriptSelect />
