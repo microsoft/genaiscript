@@ -345,6 +345,7 @@ export async function runTemplate(
             genVars,
             schemas,
             json,
+            choices: chatResult.choices,
             logprobs: chatResult.logprobs,
             perplexity: chatResult.perplexity,
             uncertainty: chatResult.uncertainty,

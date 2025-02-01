@@ -214,7 +214,7 @@ export interface GenerationResult extends GenerationOutput {
     /**
      * Error message or object, if any error occurred
      */
-    error?: unknown
+    error?: SerializedError
 
     /**
      * Status of the generation process (success, error, or cancelled)
@@ -240,6 +240,11 @@ export interface GenerationResult extends GenerationOutput {
      * Version of the GenAIScript used
      */
     version: string
+
+    /**
+     * Log probs of the choices
+     */
+    choices?: Logprob[]
 
     /**
      * Logprobs if computed

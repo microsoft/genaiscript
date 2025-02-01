@@ -43,11 +43,7 @@ import type {
     PromptScriptStartResponse,
     PromptScriptEndResponseEvent,
 } from "../../core/src/server/messages"
-import {
-    logprobColor,
-    renderLogprob,
-    rgbToCss,
-} from "../../core/src/logprob"
+import { logprobColor, renderLogprob, rgbToCss } from "../../core/src/logprob"
 import { FileWithPath, useDropzone } from "react-dropzone"
 import prettyBytes from "pretty-bytes"
 import { renderMessagesToMarkdown } from "../../core/src/chatrender"
@@ -829,6 +825,21 @@ function OutputTraceTabPanel(props: { selected?: boolean }) {
     )
 }
 
+function ErrorTabPanel() {
+    const result = useResult()
+    const { error } = result || {}
+    if (!error) return null
+    return (
+        <>
+            <vscode-tab-header slot="header">Errors</vscode-tab-header>
+            <vscode-tab-panel>
+                <Markdown>{fenceMD(error?.message, "markdown")}</Markdown>
+                <Markdown>{fenceMD(error?.stack, "txt")}</Markdown>
+            </vscode-tab-panel>
+        </>
+    )
+}
+
 function ProblemsTabPanel() {
     const result = useResult()
     const { annotations = [] } = result || {}
@@ -929,7 +940,7 @@ function LogProbsTabPanel() {
     return (
         <>
             <vscode-tab-header slot="header">
-                Logprobs
+                Perplexity
                 <ValueBadge
                     title="perplexity"
                     value={perplexity}
@@ -953,7 +964,7 @@ function TopLogProbsTabPanel() {
     return (
         <>
             <vscode-tab-header slot="header">
-                Toplogprobs
+                Uncertainty
                 <ValueBadge
                     value={uncertainty}
                     title="uncertainty"
@@ -1448,6 +1459,7 @@ function ResultsTabs() {
             <DataTabPanel />
             <JSONTabPanel />
             <StatsTabPanel />
+            <ErrorTabPanel />
             {diagnostics ? <RawTabPanel /> : undefined}
         </vscode-tabs>
     )
