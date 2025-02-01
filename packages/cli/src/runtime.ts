@@ -230,10 +230,10 @@ export async function cast(
 }
 
 /**
- * 
- * @param file 
- * @param options 
- * @returns 
+ *
+ * @param file
+ * @param options
+ * @returns
  */
 export async function markdownifyPdf(
     file: WorkspaceFile,
@@ -264,20 +264,30 @@ export async function markdownifyPdf(
         // mix of text and vision
         const res = await ctx.runPrompt(
             (_) => {
-                if (i > 0) _.def("PREVIOUS_PAGE", pages[i - 1])
-                _.def("PAGE", page)
-                if (i + 1 < pages.length) _.def("NEXT_PAGE", pages[i + 1])
+                const previousPages = markdowns.slice(-3).join("\n\n")
+                const nextPage = pages[i + 1]
+                if (previousPages.length) _.def("PREVIOUS_PAGES", previousPages)
+                if (page) _.def("PAGE", page)
+                if (nextPage) _.def("NEXT_PAGE", nextPage)
                 if (image)
                     _.defImages(image, { autoCrop: true, greyscale: true })
-                _.$`You are an expert in reading and extracting markdown from a PDF image stored in the attached images.
-                Your task is to convert the attached image to markdown.
-                - We used pdfjs-dist to extract the text of the current page in PAGE, the previous page in PREVIOUS_PAGE and the next page in NEXT_PAGE.
-                - For images, generate a short alt-text description.`
+                _.$`Your task is to analyze the given image and extract textual content in markdown format.`
+
+                $`- We used pdfjs-dist to extract the text of ${[page ? "the current page in <PAGE>" : undefined, previousPages.length ? "the previous pages in <PREVIOUS_PAGES>" : undefined, nextPage ? "NEXT_PAGE" : undefined].filter((v) => v).join(", ")}.`
+                $`- Ensure markdown text formatting for the extracted text is applied properly by analyzing the image.
+                - Do not change any content in the original extracted text while applying markdown formatting and do not repeat the extracted text.
+                - Preserve markdown text formatting if present such as horizontal lines, header levels, footers, bullet points, links/urls, or other markdown elements.
+                - Extract source code snippets in code fences.
+                - Do not omit any textual content from the markdown formatted extracted text.
+                - Do not generate page breaks
+                - Do not include any additional explanations or comments in the markdown formatted extracted text.`
+                if (image)
+                    $`- For images, generate a short alt-text description.`
             },
             {
                 ...rest,
-                model: "small",
-                label: `page ${i + 1}`,
+                model: "vision",
+                label: `markdownify pdf page ${i + 1}`,
                 cache,
                 responseType: "markdown",
                 system: [
