@@ -228,3 +228,68 @@ export async function cast(
         ? { text, data: res.json }
         : { text, error: res.error?.message }
 }
+
+/**
+ * 
+ * @param file 
+ * @param options 
+ * @returns 
+ */
+export async function markdownifyPdf(
+    file: WorkspaceFile,
+    options?: PromptGeneratorOptions &
+        ParsePDFOptions & {
+            ctx?: ChatGenerationContext
+        }
+) {
+    const {
+        ctx = env.generator,
+        label = `markdownify PDF`,
+        renderAsImage = true,
+        cache = "mdpdf",
+        ...rest
+    } = options || {}
+
+    // extract text and render pages as images
+    const { pages, images = [] } = await parsers.PDF(file, {
+        renderAsImage,
+        ...rest,
+    })
+    console.log(`pages: ${pages.length}`)
+    const markdowns: string[] = []
+
+    for (let i = 0; i < pages.length; ++i) {
+        const page = pages[i]
+        const image = images[i]
+        // mix of text and vision
+        const res = await ctx.runPrompt(
+            (_) => {
+                if (i > 0) _.def("PREVIOUS_PAGE", pages[i - 1])
+                _.def("PAGE", page)
+                if (i + 1 < pages.length) _.def("NEXT_PAGE", pages[i + 1])
+                if (image)
+                    _.defImages(image, { autoCrop: true, greyscale: true })
+                _.$`You are an expert in reading and extracting markdown from a PDF image stored in the attached images.
+                Your task is to convert the attached image to markdown.
+                - We used pdfjs-dist to extract the text of the current page in PAGE, the previous page in PREVIOUS_PAGE and the next page in NEXT_PAGE.
+                - For images, generate a short alt-text description.`
+            },
+            {
+                ...rest,
+                model: "small",
+                label: `page ${i + 1}`,
+                cache,
+                responseType: "markdown",
+                system: [
+                    "system",
+                    "system.assistant",
+                    "system.safety_jailbreak",
+                    "system.safety_harmful_content",
+                ],
+            }
+        )
+        markdowns.push(res.text || res.error?.message || "")
+    }
+
+    return { pages, images, markdowns }
+}
