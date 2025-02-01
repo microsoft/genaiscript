@@ -10,6 +10,7 @@ import { MarkdownTrace, TraceOptions } from "./trace"
 import { arrayify, assert, logVerbose, toStringList } from "./util"
 import { CancellationOptions } from "./cancellation"
 import { LanguageModelConfiguration } from "./server/messages"
+import { roundWithPrecision } from "./precision"
 
 /**
  * model
@@ -78,7 +79,17 @@ export function traceLanguageModelConnection(
         trace.itemValue(`base`, base)
         trace.itemValue(`type`, type)
         trace.itemValue(`seed`, seed)
-        if (choices.length) trace.itemValue(`choices`, choices.join(","))
+        if (choices.length)
+            trace.itemValue(
+                `choices`,
+                choices
+                    .map((c) =>
+                        typeof c === "string"
+                            ? c
+                            : `${c.token} - ${roundWithPrecision(c.weight, 2)}`
+                    )
+                    .join(",")
+            )
         trace.itemValue(`logprobs`, logprobs)
         if (topLogprobs) trace.itemValue(`topLogprobs`, topLogprobs)
         trace.itemValue(`cache`, cache)
