@@ -55,6 +55,7 @@ export function traceLanguageModelConnection(
     const {
         model,
         temperature,
+        reasoningEffort,
         topP,
         maxTokens,
         seed,
@@ -74,6 +75,7 @@ export function traceLanguageModelConnection(
         trace.itemValue(`source`, source)
         trace.itemValue(`provider`, provider)
         trace.itemValue(`temperature`, temperature)
+        trace.itemValue(`reasoningEffort`, reasoningEffort)
         trace.itemValue(`topP`, topP)
         trace.itemValue(`maxTokens`, maxTokens)
         trace.itemValue(`base`, base)

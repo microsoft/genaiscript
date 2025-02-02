@@ -135,6 +135,7 @@ export interface PromptScriptRunOptions {
     outData: string
     label: string
     temperature: string | number
+    reasoningEffort: "high" | "low" | "medium"
     topP: string | number
     seed: string | number
     maxTokens: string | number

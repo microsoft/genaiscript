@@ -865,6 +865,9 @@ export function mergeGenerationOptions(
         temperature:
             runOptions?.temperature ??
             runtimeHost.modelAliases.large.temperature,
+        reasoningEffort:
+            runOptions?.reasoningEffort ??
+            runtimeHost.modelAliases.large.reasoningEffort,
         embeddingsModel:
             runOptions?.embeddingsModel ??
             options?.embeddingsModel ??
@@ -942,6 +945,7 @@ export async function executeChatSession(
         trace,
         model,
         temperature,
+        reasoningEffort,
         topP,
         maxTokens,
         seed,
@@ -1018,7 +1022,8 @@ export async function executeChatSession(
                     )
                     req = {
                         model,
-                        temperature: temperature,
+                        temperature,
+                        reasoning_effort: reasoningEffort,
                         top_p: topP,
                         max_tokens: maxTokens,
                         logit_bias,

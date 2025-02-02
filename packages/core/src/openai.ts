@@ -3,6 +3,7 @@ import { host } from "./host"
 import {
     AZURE_AI_INFERENCE_VERSION,
     AZURE_OPENAI_API_VERSION,
+    MODEL_PROVIDER_OPENAI_HOSTS,
     MODEL_PROVIDERS,
     OPENROUTER_API_CHAT_URL,
     OPENROUTER_SITE_NAME_HEADER,
@@ -34,6 +35,7 @@ import {
     ChatCompletionChoice,
     CreateChatCompletionRequest,
     ChatCompletionTokenLogprob,
+    ChatCompletionReasoningEffort,
 } from "./chattypes"
 import { resolveTokenEncoder } from "./encoders"
 import { CancellationOptions } from "./cancellation"
@@ -90,7 +92,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
         inner,
     } = options
     const { headers = {}, ...rest } = requestOptions || {}
-    const { model } = parseModelIdentifier(req.model)
+    const { provider, model } = parseModelIdentifier(req.model)
     const { encode: encoder } = await resolveTokenEncoder(model)
 
     const postReq = structuredClone({
@@ -108,21 +110,23 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
         delete postReq.stream_options
     }
 
-    if (/^o1/i.test(model)) {
-        const preview = /^o1-(preview|mini)/i.test(model)
-        delete postReq.temperature
-        delete postReq.stream
-        delete postReq.stream_options
-        for (const msg of postReq.messages) {
-            if (msg.role === "system") {
-                ;(msg as any).role = preview ? "user" : "developer"
+    if (MODEL_PROVIDER_OPENAI_HOSTS.includes(provider)) {
+        if (/^o1/i.test(model)) {
+            const preview = /^o1-(preview|mini)/i.test(model)
+            delete postReq.temperature
+            delete postReq.stream
+            delete postReq.stream_options
+            for (const msg of postReq.messages) {
+                if (msg.role === "system") {
+                    ;(msg as any).role = preview ? "user" : "developer"
+                }
             }
-        }
-    } else if (/^o3/i.test(model)) {
-        delete postReq.temperature
-        for (const msg of postReq.messages) {
-            if (msg.role === "system") {
-                ;(msg as any).role = "developer"
+        } else if (/^o3/i.test(model)) {
+            delete postReq.temperature
+            for (const msg of postReq.messages) {
+                if (msg.role === "system") {
+                    ;(msg as any).role = "developer"
+                }
             }
         }
     }

@@ -140,6 +140,8 @@ export class NodeHost implements RuntimeHost {
             (c as any).model = value.model
         if (!isNaN(value.temperature))
             (c as any).temperature = value.temperature
+        if (value.reasoningEffort)
+            (c as any).reasoningEffort = value.reasoningEffort
     }
 
     async pullModel(
