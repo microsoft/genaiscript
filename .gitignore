@@ -33,3 +33,7 @@ packages/sample/poems/*.txt
 packages/sample/src/rag/markdown.md.txt
 *.genai.md
 packages/sample/src/rag/*.genai.*.json
+*v8.log
+*.cpuprofile
+*.heapprofile
+*.heapsnapshot
