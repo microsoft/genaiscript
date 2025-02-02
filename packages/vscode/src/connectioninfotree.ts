@@ -2,18 +2,22 @@ import * as vscode from "vscode"
 import { ExtensionState } from "./state"
 import { YAMLStringify } from "../../core/src/yaml"
 import {
+    LanguageModelInfo,
     ResolvedLanguageModelConfiguration,
     ServerEnvResponse,
 } from "../../core/src/server/messages"
 
+interface ConnectionInfoTreeData {
+    provider?: ResolvedLanguageModelConfiguration
+    model?: LanguageModelInfo
+}
+
 class ConnectionInfoTreeDataProvider
-    implements vscode.TreeDataProvider<ResolvedLanguageModelConfiguration>
+    implements vscode.TreeDataProvider<ConnectionInfoTreeData>
 {
     private _info: ServerEnvResponse | undefined
 
-    constructor(readonly state: ExtensionState) {
-        this.fetchConnections()
-    }
+    constructor(readonly state: ExtensionState) {}
 
     private async fetchConnections() {
         const client = await this.state.host.server.client()
@@ -22,52 +26,69 @@ class ConnectionInfoTreeDataProvider
     }
 
     async getTreeItem(
-        element: ResolvedLanguageModelConfiguration
+        element: ConnectionInfoTreeData
     ): Promise<vscode.TreeItem> {
-        const item = new vscode.TreeItem(element.provider)
-        item.collapsibleState = vscode.TreeItemCollapsibleState.None
-        item.description = element.base || ""
-        item.tooltip = YAMLStringify(element.source)
-        item.command = <vscode.Command>{
-            command: "vscode.open",
-            arguments: [
-                this.state.host.toUri(
-                    "https://microsoft.github.io/genaiscript/getting-started/configuration/#" +
-                        element.provider
-                ),
-            ],
+        if (element.provider) {
+            const { provider, source, base, models } = element.provider
+            const item = new vscode.TreeItem(provider)
+            item.collapsibleState = models?.length
+                ? vscode.TreeItemCollapsibleState.Collapsed
+                : vscode.TreeItemCollapsibleState.None
+            item.description = base || ""
+            item.tooltip = YAMLStringify(source)
+            item.command = <vscode.Command>{
+                command: "simpleBrowser.show",
+                arguments: [
+                    this.state.host.toUri(
+                        "https://microsoft.github.io/genaiscript/getting-started/configuration/#" +
+                            provider
+                    ),
+                ],
+            }
+            return item
+        } else if (element.model) {
+            const { id, details, url } = element.model
+            const item = new vscode.TreeItem(id)
+            item.description = details
+            if (url)
+                item.command = <vscode.Command>{
+                    command: "vscode.open",
+                    arguments: [this.state.host.toUri(url)],
+                }
+            return item
         }
-        return item
+        return undefined
     }
 
     getChildren(
-        element?: ResolvedLanguageModelConfiguration
-    ): vscode.ProviderResult<ResolvedLanguageModelConfiguration[]> {
-        const providers = this._info?.providers || []
-        providers.sort((a, b) => (a.token ? 1 : 0) - (b.token ? 1 : 0))
-        if (!element) return providers
+        element?: ConnectionInfoTreeData
+    ): vscode.ProviderResult<ConnectionInfoTreeData[]> {
+        if (!this._info) {
+            this.fetchConnections()
+            return []
+        }
+
+        if (!element) {
+            const providers = this._info?.providers || []
+            providers.sort((a, b) => (a.error ? 1 : 0) - (b.error ? 1 : 0))
+            return providers.map((provider) => ({ provider }))
+        }
+        if (element.provider)
+            return element.provider.models?.map((model) => ({ model })) || []
         return undefined
     }
 
     private _onDidChangeTreeData: vscode.EventEmitter<
-        | void
-        | ResolvedLanguageModelConfiguration
-        | ResolvedLanguageModelConfiguration[]
+        void | ConnectionInfoTreeData | ConnectionInfoTreeData[]
     > = new vscode.EventEmitter<
-        | void
-        | ResolvedLanguageModelConfiguration
-        | ResolvedLanguageModelConfiguration[]
+        void | ConnectionInfoTreeData | ConnectionInfoTreeData[]
     >()
     readonly onDidChangeTreeData: vscode.Event<
-        | void
-        | ResolvedLanguageModelConfiguration
-        | ResolvedLanguageModelConfiguration[]
+        void | ConnectionInfoTreeData | ConnectionInfoTreeData[]
     > = this._onDidChangeTreeData.event
 
     refresh(
-        treeItem?:
-            | ResolvedLanguageModelConfiguration
-            | ResolvedLanguageModelConfiguration[]
+        treeItem?: ConnectionInfoTreeData | ConnectionInfoTreeData[]
     ): void {
         this._onDidChangeTreeData.fire(treeItem)
     }

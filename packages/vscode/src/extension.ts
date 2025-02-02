@@ -21,7 +21,6 @@ import type MarkdownIt from "markdown-it"
 import MarkdownItGitHubAlerts from "markdown-it-github-alerts"
 import { activateConnectionInfoTree } from "./connectioninfotree"
 import { activeTaskProvider } from "./taskprovider"
-import { activateSamplesCommands } from "./samplescommands"
 import { activateChatParticipant } from "./chatparticipant"
 import { activeWebview } from "./webview"
 
@@ -29,7 +28,6 @@ export async function activate(context: ExtensionContext) {
     const state = new ExtensionState(context)
     activatePromptCommands(state)
     activateFragmentCommands(state)
-    activateSamplesCommands(state)
     activateMarkdownTextDocumentContentProvider(state)
     activatePromptTreeDataProvider(state)
     activateConnectionInfoTree(state)
@@ -61,10 +59,6 @@ export async function activate(context: ExtensionContext) {
                 canPickMany: false,
             })
             if (res) vscode.commands.executeCommand(res.cmd)
-        }),
-        registerCommand("genaiscript.info.env", async () => {
-            const client = await state.host.server.client()
-            await client.infoEnv()
         }),
         registerCommand(
             "genaiscript.openIssueReporter",

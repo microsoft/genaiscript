@@ -189,7 +189,9 @@ export async function startServer(options: {
             providers: await resolveLanguageModelConfigurations(undefined, {
                 token: false,
                 error: true,
+                models: true,
             }),
+            modelAliases: runtimeHost.modelAliases,
             remote: remote
                 ? {
                       url: remote,
