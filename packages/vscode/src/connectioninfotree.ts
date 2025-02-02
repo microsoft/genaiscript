@@ -72,13 +72,6 @@ class ConnectionInfoTreeDataProvider
 
         if (!element) {
             const providers = this._info?.providers || []
-            providers.sort(
-                (a, b) =>
-                    (a.error ? 100 : -100) +
-                    (a.models?.length ? 1 : 0) -
-                    (b.error ? 100 : -100) -
-                    (b.models?.length ? 1 : 0)
-            )
             return providers.map((provider) => ({ provider }))
         }
         if (element.provider)
