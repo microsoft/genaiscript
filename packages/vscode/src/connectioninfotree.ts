@@ -28,14 +28,26 @@ class ConnectionInfoTreeDataProvider
     async getTreeItem(
         element: ConnectionInfoTreeData
     ): Promise<vscode.TreeItem> {
-        if (element.provider) {
+        if (element.model) {
+            const { id, details, url } = element.model
+            const item = new vscode.TreeItem(id)
+            const tt: vscode.MarkdownString = (item.tooltip =
+                new vscode.MarkdownString(
+                    `${details}
+
+${url || ""}
+`
+                ))
+            tt.isTrusted = true
+            return item
+        } else if (element.provider) {
             const { provider, source, base, models } = element.provider
             const item = new vscode.TreeItem(provider)
             item.collapsibleState = models?.length
                 ? vscode.TreeItemCollapsibleState.Collapsed
                 : vscode.TreeItemCollapsibleState.None
             item.description = base || ""
-            item.tooltip = YAMLStringify(source)
+            item.tooltip = YAMLStringify(element.provider)
             item.command = <vscode.Command>{
                 command: "simpleBrowser.show",
                 arguments: [
@@ -45,16 +57,6 @@ class ConnectionInfoTreeDataProvider
                     ),
                 ],
             }
-            return item
-        } else if (element.model) {
-            const { id, details, url } = element.model
-            const item = new vscode.TreeItem(id)
-            item.description = details
-            if (url)
-                item.command = <vscode.Command>{
-                    command: "vscode.open",
-                    arguments: [this.state.host.toUri(url)],
-                }
             return item
         }
         return undefined
@@ -74,7 +76,12 @@ class ConnectionInfoTreeDataProvider
             return providers.map((provider) => ({ provider }))
         }
         if (element.provider)
-            return element.provider.models?.map((model) => ({ model })) || []
+            return (
+                element.provider.models?.map((model) => ({
+                    provider: element.provider,
+                    model,
+                })) || []
+            )
         return undefined
     }
 
