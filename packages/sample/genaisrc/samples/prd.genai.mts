@@ -22,10 +22,17 @@ const changes = await git.diff({
 })
 console.log(changes)
 
+def("GIT_DIFF", changes, {
+    maxTokens: 30000,
+    detectPromptInjection: "available",
+})
+
 // task
 $`## Task
 
-Describe a high level summary of the changes in GIT_DIFF in a way that a software engineer will understand.
+You are an expert code reviewer with great English technical writing skills.
+
+Your task is to generate a high level summary of the changes in <GIT_DIFF> for a pull request in a way that a software engineer will understand.
 This description will be used as the pull request description.
 
 ## Instructions
@@ -35,7 +42,6 @@ This description will be used as the pull request description.
 - use bullet points to list the changes
 - use emojis to make the description more engaging
 - focus on the most important changes
+- do not try to fix issues, only describe the changes
 - ignore comments about imports (like added, remove, changed, etc.)
 `
-
-def("GIT_DIFF", changes, { maxTokens: 30000, detectPromptInjection: "available" })
