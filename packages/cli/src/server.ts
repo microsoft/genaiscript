@@ -584,6 +584,7 @@ export async function startServer(options: {
     connect-src ${cspUrl} ${wsCspUrl};
     script-src ${cspUrl} 'nonce-${nonce}'; 
     style-src 'unsafe-inline' ${cspUrl};
+    font-src ${cspUrl};
 "/>
 <script nonce=${nonce}>
 window.litNonce = ${JSON.stringify(nonce)};
@@ -602,6 +603,18 @@ window.vscodeWebviewPlaygroundNonce = ${JSON.stringify(nonce)};
             res.setHeader("Content-Type", "text/css")
             res.statusCode = 200
             const filePath = join(__dirname, "markdown.css")
+            const stream = createReadStream(filePath)
+            stream.pipe(res)
+        } else if (method === "GET" && route === "/built/codicon.css") {
+            res.setHeader("Content-Type", "text/css")
+            res.statusCode = 200
+            const filePath = join(__dirname, "codicon.css")
+            const stream = createReadStream(filePath)
+            stream.pipe(res)
+        } else if (method === "GET" && route === "/built/codicon.ttf") {
+            res.setHeader("Content-Type", "font/ttf")
+            res.statusCode = 200
+            const filePath = join(__dirname, "codicon.ttf")
             const stream = createReadStream(filePath)
             stream.pipe(res)
         } else if (method === "GET" && route === "/built/web.mjs") {

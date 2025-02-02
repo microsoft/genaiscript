@@ -1418,7 +1418,11 @@ function RunButton() {
     return (
         <vscode-form-group>
             <vscode-label></vscode-label>
-            <vscode-button disabled={disabled} type="submit">
+            <vscode-button
+                icon={state === "running" ? "stop-circle" : "play"}
+                disabled={disabled}
+                type="submit"
+            >
                 {state === "running" ? "Abort" : "Run"}
             </vscode-button>
             <vscode-form-helper>

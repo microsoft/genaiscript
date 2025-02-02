@@ -434,7 +434,7 @@
     "devDependencies": {
         "@types/markdown-it": "^14.1.2",
         "@types/vscode": "^1.95.0",
-        "@vscode/vsce": "^3.2.1",
+        "@vscode/vsce": "^3.2.2",
         "assert": "^2.1.0",
         "es-toolkit": "^1.32.0",
         "markdown-it-github-alerts": "^0.3.0",
@@ -443,6 +443,6 @@
         "vscode-uri": "^3.0.8",
         "webfont": "^11.2.26",
         "websocket-polyfill": "0.0.3",
-        "zx": "^8.3.1"
+        "zx": "^8.3.2"
     }
 }
