@@ -7,6 +7,7 @@ script({
         "system.assistant",
         "system.fs_find_files",
         "system.fs_read_file",
+        "system.english"
     ],
     parameters: {
         defaultBranch: {
