@@ -456,7 +456,7 @@ export const OpenAIListModels: ListModelsFunction = async (cfg, options) => {
             return {
                 ok: false,
                 status: res.status,
-                error: serializeError(res.statusText),
+                error: serializeError(await res.json()),
             }
         const { data } = (await res.json()) as {
             object: "list"

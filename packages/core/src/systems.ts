@@ -114,15 +114,25 @@ export function resolveSystems(
         .filter((s) => !!s)
         .filter((s) => !excludedSystem.includes(s))
 
-    const fallbackTools =
-        isToolsSupported(options?.model) === false || options?.fallbackTools
-    if (fallbackTools && (tools.length || resolvedTools?.length))
-        systems.push("system.tool_calls")
-
     // Return a unique list of non-empty systems
     // Filters out duplicates and empty entries using unique utility
     const res = uniq(systems)
     return res
+}
+
+export function addFallbackToolSystems(
+    systems: string[],
+    tools: ToolCallback[],
+    options?: ModelOptions,
+    genOptions?: GenerationOptions
+) {
+    if (!tools?.length || systems.includes("system.tool_calls")) return false
+
+    const fallbackTools =
+        isToolsSupported(options?.model || genOptions?.model) === false ||
+        genOptions?.fallbackTools
+    if (fallbackTools) systems.push("system.tool_calls")
+    return fallbackTools
 }
 
 /**

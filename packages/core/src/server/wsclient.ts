@@ -21,6 +21,7 @@ import type {
     RequestMessage,
     ResponseStatus,
     ServerEnv,
+    ServerEnvResponse,
     ServerResponse,
     ServerVersion,
 } from "./messages"
@@ -202,9 +203,9 @@ export class WebSocketClient extends EventTarget {
         return res.response as ServerResponse
     }
 
-    async infoEnv(): Promise<ResponseStatus> {
+    async infoEnv(): Promise<ServerEnvResponse> {
         const res = await this.queue<ServerEnv>({ type: "server.env" })
-        return res.response
+        return res.response as ServerEnvResponse
     }
 
     async listScripts(): Promise<Project> {

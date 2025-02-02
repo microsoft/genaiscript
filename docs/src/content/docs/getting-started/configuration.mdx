@@ -833,7 +833,7 @@ script({ model: "google:gemini-1.5-pro-latest" })
 
 <LLMProviderFeatures provider="google" />
 
-## GitHub Copilot Chat Models <a id="github-copilot" href=""></a>
+## GitHub Copilot Chat Models <a id="github_copilot_chat" href=""></a>
 
 If you have access to **GitHub Copilot Chat in Visual Studio Code**,
 GenAIScript will be able to leverage those [language models](https://code.visualstudio.com/api/extension-guides/language-model) as well.
@@ -1256,7 +1256,7 @@ script({
 
 <LLMProviderFeatures provider="deepseek" />
 
-## LMStudio
+## LM Studio <a href="" id="lmstudio" />
 
 The `lmstudio` provider connects to the [LMStudio](https://lmstudio.ai/) headless server.
 and allows to run local LLMs.
@@ -1319,7 +1319,7 @@ script({
 
 <LLMProviderFeatures provider="lmstudio" />
 
-### LMStudio and Hugging Face Models
+### LM Studio and Hugging Face Models
 
 Follow [this guide](https://huggingface.co/blog/yagilb/lms-hf) to load Hugging Face models into LMStudio.
 
@@ -1459,6 +1459,16 @@ By default, GenAIScript will set the site URL and name to `GenAIScript` but you 
 ```txt title=".env"
 OPENROUTER_SITE_URL=... # populates HTTP-Referer header
 OPENROUTER_SITE_NAME=... # populate X-Title header
+```
+
+## LiteLLM
+
+The [LiteLLM](https://docs.litellm.ai/) proxy gateway provides a OpenAI compatible API for running models locally.
+Configure the `LITELLM_...` keys to set the key and optionally the base url.
+
+```txt title=".env"
+LITELLM_API_KEY="..."
+#LITELLM_API_BASE="..."
 ```
 
 ## Hugging Face Transformer.js <a href="" id="transformers" />

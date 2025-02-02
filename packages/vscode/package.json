@@ -256,10 +256,6 @@
                 {
                     "command": "genaiscript.request.status",
                     "when": "false"
-                },
-                {
-                    "command": "genaiscript.samples.download",
-                    "when": "false"
                 }
             ],
             "view/title": [
@@ -414,21 +410,6 @@
             {
                 "command": "genaiscript.request.status",
                 "title": "Show information message about OpenAI request status",
-                "category": "GenAIScript"
-            },
-            {
-                "command": "genaiscript.openIssueReporter",
-                "title": "Report Issue...",
-                "category": "GenAIScript"
-            },
-            {
-                "command": "genaiscript.info.env",
-                "title": "Configuration information...",
-                "category": "GenAIScript"
-            },
-            {
-                "command": "genaiscript.samples.download",
-                "title": "Download sample...",
                 "category": "GenAIScript"
             }
         ]

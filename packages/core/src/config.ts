@@ -18,6 +18,7 @@ import { deleteEmptyValues } from "./cleaners"
 import { errorMessage } from "./error"
 import schema from "../../../docs/public/schemas/config.json"
 import defaultConfig from "./config.json"
+import { CancellationOptions } from "./cancellation"
 
 export async function resolveGlobalConfiguration(
     dotEnvPath?: string
@@ -100,7 +101,11 @@ export async function resolveGlobalConfiguration(
  */
 export async function resolveLanguageModelConfigurations(
     provider: string,
-    options?: { token?: boolean; error?: boolean; models?: boolean }
+    options?: {
+        token?: boolean
+        error?: boolean
+        models?: boolean
+    } & CancellationOptions
 ): Promise<ResolvedLanguageModelConfiguration[]> {
     const { token, error, models } = options || {}
     const res: ResolvedLanguageModelConfiguration[] = []
@@ -118,19 +123,19 @@ export async function resolveLanguageModelConfigurations(
             if (conn) {
                 // Mask the token if the option is set
                 let listError = ""
-                if (!token && conn.token) conn.token = "***"
                 if (models) {
                     const lm = await resolveLanguageModel(modelProvider.id)
                     if (lm.listModels) {
-                        const models = await lm.listModels(conn, {})
+                        const models = await lm.listModels(conn, options)
                         if (models.ok) conn.models = models.models
                         else
                             listError =
-                                errorMessage(listError) ||
-                                "failed to llist models"
+                                errorMessage(models.error) ||
+                                "failed to list models"
                     }
                 }
-                if (!listError || error)
+                if (!token && conn.token) conn.token = "***"
+                if (!listError || error || provider)
                     res.push(
                         deleteEmptyValues({
                             provider: conn.provider,
@@ -143,7 +148,7 @@ export async function resolveLanguageModelConfigurations(
                     )
             }
         } catch (e) {
-            if (error)
+            if (error || provider)
                 // Capture and store any errors encountered
                 res.push({
                     provider: modelProvider.id,

@@ -21,7 +21,7 @@ import { addToolDefinitionsMessage, appendSystemMessage } from "./chat"
 import { importPrompt } from "./importprompt"
 import { parseModelIdentifier } from "./models"
 import { runtimeHost } from "./host"
-import { resolveSystems } from "./systems"
+import { addFallbackToolSystems, resolveSystems } from "./systems"
 import { GenerationOptions } from "./generation"
 import {
     AICIRequest,
@@ -356,7 +356,7 @@ export async function expandTemplate(
         trace.endDetails()
     }
 
-    if (systems.includes("system.tool_calls")) {
+    if (addFallbackToolSystems(systems, tools, template, options)) {
         addToolDefinitionsMessage(messages, tools)
         options.fallbackTools = true
     }

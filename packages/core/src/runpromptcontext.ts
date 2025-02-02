@@ -66,7 +66,7 @@ import {
     SPEECH_MODEL_ID,
 } from "./constants"
 import { renderAICI } from "./aici"
-import { resolveSystems, resolveTools } from "./systems"
+import { addFallbackToolSystems, resolveSystems, resolveTools } from "./systems"
 import { callExpander } from "./expander"
 import {
     errorMessage,
@@ -992,19 +992,24 @@ export function createChatGenerationContext(
                 } finally {
                     runTrace.endDetails()
                 }
-            if (systemScripts.includes("system.tool_calls")) {
+
+            if (
+                addFallbackToolSystems(
+                    systemScripts,
+                    tools,
+                    runOptions,
+                    genOptions
+                )
+            ) {
                 addToolDefinitionsMessage(messages, tools)
                 genOptions.fallbackTools = true
             }
 
-            finalizeMessages(
-                messages,
-                {
-                    ...(runOptions || {}),
-                    fileOutputs,
-                    trace,
-                }
-            )
+            finalizeMessages(messages, {
+                ...(runOptions || {}),
+                fileOutputs,
+                trace,
+            })
             const { completer } = await resolveLanguageModel(
                 configuration.provider
             )

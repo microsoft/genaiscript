@@ -195,7 +195,7 @@ export async function runScriptInternal(
     const removeOut = options.removeOut
     const cancellationToken = options.cancellationToken
     const jsSource = options.jsSource
-    const fallbackTools = !!options.fallbackTools
+    const fallbackTools = options.fallbackTools
     const logprobs = options.logprobs
     const topLogprobs = normalizeInt(options.topLogprobs)
     const fenceFormat = options.fenceFormat
