@@ -107,6 +107,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
     if (model === "gpt-4-turbo-v" || /mistral/i.test(model)) {
         delete postReq.stream_options
     }
+
     if (/^o1/i.test(model)) {
         const preview = /^o1-(preview|mini)/i.test(model)
         delete postReq.temperature
@@ -115,6 +116,13 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
         for (const msg of postReq.messages) {
             if (msg.role === "system") {
                 ;(msg as any).role = preview ? "user" : "developer"
+            }
+        }
+    } else if (/^o3/i.test(model)) {
+        delete postReq.temperature
+        for (const msg of postReq.messages) {
+            if (msg.role === "system") {
+                ;(msg as any).role = "developer"
             }
         }
     }
@@ -216,6 +224,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
                   message: string
               }
             | { error: { message: string } }[]
+            | { error: { message: string } }
         const error = Array.isArray(errors) ? errors[0]?.error : errors
         throw new RequestError(
             r.status,
