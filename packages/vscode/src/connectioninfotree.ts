@@ -6,6 +6,7 @@ import {
     ResolvedLanguageModelConfiguration,
     ServerEnvResponse,
 } from "../../core/src/server/messages"
+import { deleteUndefinedValues } from "../../core/src/cleaners"
 
 interface ConnectionInfoTreeData {
     provider?: ResolvedLanguageModelConfiguration
@@ -31,44 +32,42 @@ class ConnectionInfoTreeDataProvider
         if (element.model) {
             const { id, details, url } = element.model
             const item = new vscode.TreeItem(id)
-            if (url) {
-                const tt: vscode.MarkdownString = (item.tooltip =
-                    new vscode.MarkdownString(`${details}
+            const tt: vscode.MarkdownString = (item.tooltip =
+                new vscode.MarkdownString(`\`${element.provider.provider}:${id}\`
 
-[${url}](${url})
+${details}
+
+${url ? `[${url}](${url})` : ""}
 `))
-                tt.isTrusted = true
-            } else item.tooltip = details
+            tt.isTrusted = true
             return item
         } else if (element.provider) {
-            const { provider, base, models } = element.provider
+            const { provider, base, models, error, ...rest } = element.provider
             const item = new vscode.TreeItem(provider)
             item.collapsibleState = models?.length
                 ? vscode.TreeItemCollapsibleState.Collapsed
                 : vscode.TreeItemCollapsibleState.None
             item.description = base || ""
-            item.tooltip = YAMLStringify(element.provider)
+            const docsUrl =
+                "https://microsoft.github.io/genaiscript/getting-started/configuration/#" +
+                provider
+            if (error) item.iconPath = new vscode.ThemeIcon("error")
+            item.tooltip = YAMLStringify(
+                deleteUndefinedValues({ error, ...rest })
+            )
             item.command = <vscode.Command>{
                 command: "simpleBrowser.show",
-                arguments: [
-                    this.state.host.toUri(
-                        "https://microsoft.github.io/genaiscript/getting-started/configuration/#" +
-                            provider
-                    ),
-                ],
+                arguments: [this.state.host.toUri(docsUrl)],
             }
             return item
         }
         return undefined
     }
 
-    getChildren(
+    async getChildren(
         element?: ConnectionInfoTreeData
-    ): vscode.ProviderResult<ConnectionInfoTreeData[]> {
-        if (!this._info) {
-            this.fetchConnections()
-            return []
-        }
+    ): Promise<ConnectionInfoTreeData[]> {
+        if (!this._info) await this.fetchConnections()
 
         if (!element) {
             const providers = this._info?.providers || []
