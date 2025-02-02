@@ -23,6 +23,8 @@ export function errorMessage(e: any, defaultValue: string = "error"): string {
     if (e === undefined || e === null) return undefined
     if (typeof e.messsage === "string") return e.message
     if (typeof e.error === "string") return e.error
+    if (typeof e.error === "object" && typeof e.error.message === "string")
+        return e.error.message
     const ser = serializeError(e)
     return ser?.message ?? ser?.name ?? defaultValue
 }
