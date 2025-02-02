@@ -20,10 +20,6 @@ class ConnectionInfoTreeDataProvider
                 this.refresh()
             })
         )
-        const watcher = vscode.workspace.createFileSystemWatcher("./.env")
-        watcher.onDidChange(() => this.refresh())
-        watcher.onDidDelete(() => this.refresh())
-        subscriptions.push(watcher)
     }
 
     async getTreeItem(
@@ -36,15 +32,22 @@ class ConnectionInfoTreeDataProvider
             { token: false }
         )
         if (res) {
-            item.description = res.base || "?"
+            item.iconPath = "check"
+            item.description = res.base || ""
             item.tooltip = YAMLStringify(res)
             item.command = <vscode.Command>{
                 command: "vscode.open",
-                arguments: [this.state.host.toUri("./.env")],
+                arguments: [
+                    this.state.host.toUri(
+                        "https://microsoft.github.io/genaiscript/getting-started/configuration/#" +
+                            element.provider
+                    ),
+                ],
             }
         }
         return item
     }
+
     getChildren(
         element?: ConnectionInfoTreeData
     ): vscode.ProviderResult<ConnectionInfoTreeData[]> {
