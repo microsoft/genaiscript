@@ -14,6 +14,12 @@ on:
 concurrency:
     group: ${{ github.workflow }}-${{ github.ref }}-ollama
     cancel-in-progress: true
+env:
+    GENAISCRIPT_DEFAULT_REASONING_MODEL: ${{ vars.GENAISCRIPT_DEFAULT_REASONING_MODEL }}
+    GENAISCRIPT_DEFAULT_REASONING_SMALL_MODEL: ${{ vars.GENAISCRIPT_DEFAULT_REASONING_SMALL_MODEL }}
+    GENAISCRIPT_DEFAULT_MODEL: ${{ vars.GENAISCRIPT_DEFAULT_MODEL }}
+    GENAISCRIPT_DEFAULT_SMALL_MODEL: ${{ vars.GENAISCRIPT_DEFAULT_SMALL_MODEL }}
+    GENAISCRIPT_DEFAULT_VISION_MODEL: ${{ vars.GENAISCRIPT_DEFAULT_VISION_MODEL }}
 jobs:
     tests:
         runs-on: ubuntu-latest
