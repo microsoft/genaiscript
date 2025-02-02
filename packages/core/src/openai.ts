@@ -111,9 +111,16 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
     }
 
     if (MODEL_PROVIDER_OPENAI_HOSTS.includes(provider)) {
-        if (/^o1/i.test(model)) {
-            const preview = /^o1-(preview|mini)/i.test(model)
+        if (/^o(1|3)/.test(model)) {
             delete postReq.temperature
+            if (postReq.max_tokens) {
+                postReq.max_completion_tokens = postReq.max_tokens
+                delete postReq.max_tokens
+            }
+        }
+
+        if (/^o1/.test(model)) {
+            const preview = /^o1-(preview|mini)/i.test(model)
             delete postReq.stream
             delete postReq.stream_options
             for (const msg of postReq.messages) {
@@ -122,7 +129,6 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
                 }
             }
         } else if (/^o3/i.test(model)) {
-            delete postReq.temperature
             for (const msg of postReq.messages) {
                 if (msg.role === "system") {
                     ;(msg as any).role = "developer"

@@ -1,0 +1,38 @@
+---
+title: o1, o3 models
+description: Specific information about OpenAI reasoning models.
+sidebar:
+    order: 100
+---
+
+The OpenAI reasoning models, the `o1, o3` models, are models that are optimized for reasoning tasks.
+
+```js
+script({
+    model: "openai:o1",
+})
+```
+
+- You can experiement with these models on Github Models as well but the context window is quite small.
+
+```js
+script({
+    model: "github:o3-mini",
+})
+```
+
+## Reasoning effort
+
+The reasoning effort parameter can be set to `low`, `medium`, or `high`.
+
+```js 'reasoningEffort: "high"'
+script({
+    model: "openai:o3-mini"
+    reasoningEffort: "high"
+})
+```
+
+## Limitations
+
+- `o1-preview`, `o1-mini` do not support streaming
+- `o1` models do not support tool calling so GenAIScript uses [fallback tools](/genaiscript/reference/scripts/tools).
