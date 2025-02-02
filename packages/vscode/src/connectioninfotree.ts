@@ -31,10 +31,17 @@ class ConnectionInfoTreeDataProvider
         if (element.model) {
             const { id, details, url } = element.model
             const item = new vscode.TreeItem(id)
-            item.tooltip = details
+            if (url) {
+                const tt: vscode.MarkdownString = (item.tooltip =
+                    new vscode.MarkdownString(`${details}
+
+[${url}](${url})
+`))
+                tt.isTrusted = true
+            } else item.tooltip = details
             return item
         } else if (element.provider) {
-            const { provider, source, base, models } = element.provider
+            const { provider, base, models } = element.provider
             const item = new vscode.TreeItem(provider)
             item.collapsibleState = models?.length
                 ? vscode.TreeItemCollapsibleState.Collapsed
@@ -65,7 +72,13 @@ class ConnectionInfoTreeDataProvider
 
         if (!element) {
             const providers = this._info?.providers || []
-            providers.sort((a, b) => (a.error ? 1 : 0) - (b.error ? 1 : 0))
+            providers.sort(
+                (a, b) =>
+                    (a.error ? 100 : -100) +
+                    (a.models?.length ? 1 : 0) -
+                    (b.error ? 100 : -100) -
+                    (b.models?.length ? 1 : 0)
+            )
             return providers.map((provider) => ({ provider }))
         }
         if (element.provider)
