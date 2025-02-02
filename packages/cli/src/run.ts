@@ -183,6 +183,7 @@ export async function runScriptInternal(
     const outData = options.outData
     const label = options.label
     const temperature = normalizeFloat(options.temperature)
+    const reasoningEffort = options.reasoningEffort
     const topP = normalizeFloat(options.topP)
     const seed = normalizeFloat(options.seed)
     const maxTokens = normalizeInt(options.maxTokens)
@@ -374,6 +375,7 @@ export async function runScriptInternal(
             label,
             cache,
             temperature,
+            reasoningEffort,
             topP,
             seed,
             cancellationToken,

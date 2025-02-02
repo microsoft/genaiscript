@@ -17,6 +17,8 @@ export interface AICIRequest extends ChatCompletionMessageParamCacheControl {
     functionName: string // Name of the function being requested
 }
 
+export type ChatCompletionReasoningEffort = OpenAI.ChatCompletionReasoningEffort
+
 // Aliases for OpenAI chat completion types
 export type ChatCompletionUsage = OpenAI.Completions.CompletionUsage
 export type ChatCompletionUsageCompletionTokensDetails =

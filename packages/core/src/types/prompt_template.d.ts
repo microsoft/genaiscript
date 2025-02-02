@@ -279,6 +279,11 @@ interface ModelOptions extends ModelConnectionOptions, ModelTemplateOptions {
     temperature?: number
 
     /**
+     * Some reasoning model support a reasoning effort parameter.
+     */
+    reasoningEffort?: "high" | "medium" | "low"
+
+    /**
      * A list of keywords that should be found in the output.
      */
     choices?: ElementOrArray<

@@ -10,7 +10,7 @@ export function generateCliArguments(
     options: GenerationOptions,
     command: "run" | "batch"
 ) {
-    const { model, temperature, topP, seed, cliInfo } = options
+    const { model, temperature, reasoningEffort, topP, seed, cliInfo } = options
     const { files = [] } = cliInfo || {}
 
     const cli = [
@@ -26,6 +26,7 @@ export function generateCliArguments(
     if (!isNaN(temperature)) cli.push(`--temperature`, temperature + "")
     if (!isNaN(topP)) cli.push(`--top-p`, topP + "")
     if (!isNaN(seed)) cli.push("--seed", seed + "")
+    if (reasoningEffort) cli.push("--reasoning-effort", reasoningEffort)
 
     return cli.join(" ")
 }

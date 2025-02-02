@@ -21,6 +21,7 @@ Options:
   -sm, --small-model <string>                'small' alias model
   -vm, --vision-model <string>               'vision' alias model
   -ma, --model-alias <nameid...>             model alias as name=modelid
+  -re, --reasoning-effort <string>           Reasoning effort for o* models (choices: "high", "medium", "low")
   -lp, --logprobs                            enable reporting token probabilities
   -tlp, --top-logprobs <number>              number of top logprobs (1 to 5)
   -ef, --excluded-files <string...>          excluded files
@@ -100,6 +101,8 @@ Options:
   -sm, --small-model <string>         'small' alias model
   -vm, --vision-model <string>        'vision' alias model
   -ma, --model-alias <nameid...>      model alias as name=modelid
+  -re, --reasoning-effort <string>    Reasoning effort for o* models (choices:
+                                      "high", "medium", "low")
   --models <models...>                models to test where mode is the key
                                       value pair list of m (model), s (small
                                       model), t (temperature), p (top-p)

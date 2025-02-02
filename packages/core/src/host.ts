@@ -74,7 +74,7 @@ export interface AzureTokenResolver {
 }
 
 export type ModelConfiguration = Readonly<
-    Pick<ModelOptions, "model" | "temperature"> & {
+    Pick<ModelOptions, "model" | "temperature" | "reasoningEffort"> & {
         source: "cli" | "env" | "script" | "config" | "default"
         candidates?: string[]
     }
