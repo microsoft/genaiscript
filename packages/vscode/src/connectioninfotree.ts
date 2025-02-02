@@ -31,14 +31,7 @@ class ConnectionInfoTreeDataProvider
         if (element.model) {
             const { id, details, url } = element.model
             const item = new vscode.TreeItem(id)
-            const tt: vscode.MarkdownString = (item.tooltip =
-                new vscode.MarkdownString(
-                    `${details}
-
-${url || ""}
-`
-                ))
-            tt.isTrusted = true
+            item.tooltip = details
             return item
         } else if (element.provider) {
             const { provider, source, base, models } = element.provider

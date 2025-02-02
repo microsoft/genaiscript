@@ -7,6 +7,7 @@
             "bearerToken": true,
             "transcribe": true,
             "speech": true,
+            "listModels": true,
             "aliases": {
                 "large": "gpt-4o",
                 "small": "gpt-4o-mini",
