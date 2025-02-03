@@ -245,7 +245,9 @@ export async function markdownifyPdf(
     const {
         ctx = env.generator,
         label = `markdownify PDF`,
-        cache = "mdpdf",
+        model = "vision",
+        responseType = "markdown",
+        systemSafety = true,
         ...rest
     } = options || {}
 
@@ -266,15 +268,23 @@ export async function markdownifyPdf(
                 if (page) _.def("PAGE", page)
                 if (image)
                     _.defImages(image, { autoCrop: true, greyscale: true })
-                _.$`Your task is to analyze the given image and extract textual content in markdown format.`
+                _.$`You are an expert at converting PDFs to markdown.
+                
+                ## Task
+                Your task is to analyze the image and extract textual content in markdown format.
 
-                $`- We used pdfjs-dist to extract the text of the current page in <PAGE>, the already converted text from the previous pages is in <PREVIOUS_PAGES>.
+                The image is a screenshot of the current page in the PDF document.
+                We used pdfjs-dist to extract the text of the current page in <PAGE>, use it to help with the conversion.
+                The text from the previous pages is in <PREVIOUS_PAGES>, use it to ensure consistency in the conversion.
+
+                ## Instructions
                 - Ensure markdown text formatting for the extracted text is applied properly by analyzing the image.
                 - Do not change any content in the original extracted text while applying markdown formatting and do not repeat the extracted text.
                 - Preserve markdown text formatting if present such as horizontal lines, header levels, footers, bullet points, links/urls, or other markdown elements.
                 - Extract source code snippets in code fences.
                 - Do not omit any textual content from the markdown formatted extracted text.
                 - Do not generate page breaks
+                - Do not repeat the <PREVIOUS_PAGES> content.
                 - Do not include any additional explanations or comments in the markdown formatted extracted text.
                 `
                 if (image)
@@ -282,16 +292,10 @@ export async function markdownifyPdf(
             },
             {
                 ...rest,
-                model: "vision",
-                label: `markdownify pdf page ${i + 1}`,
-                cache,
-                responseType: "markdown",
-                system: [
-                    "system",
-                    "system.assistant",
-                    "system.safety_jailbreak",
-                    "system.safety_harmful_content",
-                ],
+                model,
+                label: `${label}: page ${i + 1}`,
+                responseType,
+                system: ["system", "system.assistant"],
             }
         )
         if (res.error) throw new Error(res.error?.message)

@@ -168,6 +168,7 @@ async function PDFTryParse(
 
         // Iterate through each page and extract text content
         for (let i = 0; i < numPages; i++) {
+            logVerbose(`pdf: extracting page ${i + 1}`)
             const page = await doc.getPage(1 + i) // 1-indexed
             const content = await page.getTextContent()
             const items: TextItem[] = content.items.filter(
