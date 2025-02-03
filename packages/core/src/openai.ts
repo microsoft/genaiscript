@@ -113,6 +113,12 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
     if (MODEL_PROVIDER_OPENAI_HOSTS.includes(provider)) {
         if (/^o(1|3)/.test(model)) {
             delete postReq.temperature
+            delete postReq.top_p
+            delete postReq.presence_penalty
+            delete postReq.frequency_penalty
+            delete postReq.logprobs
+            delete postReq.top_logprobs
+            delete postReq.logit_bias
             if (postReq.max_tokens) {
                 postReq.max_completion_tokens = postReq.max_tokens
                 delete postReq.max_tokens
