@@ -230,6 +230,10 @@ export async function expandTemplate(
         template.topLogprobs || 0
     )
 
+    // finalize options
+    env.meta.model = model
+    Object.freeze(env.meta)
+
     trace.startDetails("💾 script")
 
     traceEnv(model, trace, env)

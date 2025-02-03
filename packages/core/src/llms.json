@@ -12,6 +12,7 @@
                 "large": "gpt-4o",
                 "small": "gpt-4o-mini",
                 "vision": "gpt-4o",
+                "vision_small": "gpt-4o-mini",
                 "embeddings": "text-embedding-3-small",
                 "reasoning": "o1",
                 "reasoning_small": "o1-mini",
@@ -38,6 +39,7 @@
                 "large": "gpt-4o",
                 "small": "gpt-4o-mini",
                 "vision": "gpt-4o",
+                "vision_small": "gpt-4o-mini",
                 "reasoning": "o1",
                 "reasoning_small": "o1-mini"
             }
@@ -236,10 +238,10 @@
         "agent": "large",
         "long": "large",
         "memory": "small",
-        "reasoning_small": "reasoning",
         "classify": "small",
         "summarize": "small",
-        "cast": "small"
+        "cast": "small",
+        "ocr": "vision_small"
     },
     "pricings": {
         "github:gpt-4o-2024-11-20": {

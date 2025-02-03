@@ -2862,7 +2862,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.97.3
+ - genaiscript-vscode@1.98.0
 
 This package contains the following license:
 
@@ -6447,20 +6447,20 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - @inquirer/checkbox@4.0.7
- - @inquirer/confirm@5.1.4
- - @inquirer/core@10.1.5
- - @inquirer/editor@4.2.4
- - @inquirer/expand@4.0.7
+ - @inquirer/checkbox@4.1.1
+ - @inquirer/confirm@5.1.5
+ - @inquirer/core@10.1.6
+ - @inquirer/editor@4.2.6
+ - @inquirer/expand@4.0.8
  - @inquirer/figures@1.0.10
- - @inquirer/input@4.1.4
- - @inquirer/number@3.0.7
- - @inquirer/password@4.0.7
- - @inquirer/prompts@7.2.4
- - @inquirer/rawlist@4.0.7
- - @inquirer/search@3.0.7
- - @inquirer/select@4.0.7
- - @inquirer/type@3.0.3
+ - @inquirer/input@4.1.5
+ - @inquirer/number@3.0.8
+ - @inquirer/password@4.0.8
+ - @inquirer/prompts@7.3.1
+ - @inquirer/rawlist@4.0.8
+ - @inquirer/search@3.0.8
+ - @inquirer/select@4.0.8
+ - @inquirer/type@3.0.4
 
 These packages each contain the following license:
 
@@ -8009,15 +8009,15 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 The following npm packages may be included in this product:
 
  - @esbuild/linux-x64@0.23.1
- - @napi-rs/canvas-linux-x64-gnu@0.1.65
- - @napi-rs/canvas-linux-x64-musl@0.1.65
+ - @napi-rs/canvas-linux-x64-gnu@0.1.66
+ - @napi-rs/canvas-linux-x64-musl@0.1.66
  - @tokenizer/token@0.3.0
  - agent-base@6.0.2
  - eastasianwidth@0.2.0
- - genaiscript-core-internal@1.97.3
- - genaiscript-sample@1.97.3
- - genaiscript-web@1.97.3
- - genaiscript@1.97.3
+ - genaiscript-core-internal@1.98.0
+ - genaiscript-sample@1.98.0
+ - genaiscript-web@1.98.0
+ - genaiscript@1.98.0
  - get-port@1.0.0
  - https-proxy-agent@5.0.1
  - isarray@1.0.0
@@ -8737,7 +8737,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - @napi-rs/canvas@0.1.65
+ - @napi-rs/canvas@0.1.66
 
 This package contains the following license:
 
@@ -9037,7 +9037,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - @lvce-editor/ripgrep@1.5.0
+ - @lvce-editor/ripgrep@1.6.0
 
 This package contains the following license:
 
@@ -10603,7 +10603,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 The following npm packages may be included in this product:
 
  - @octokit/endpoint@10.1.2
- - @octokit/graphql@8.1.2
+ - @octokit/graphql@8.2.0
  - @octokit/plugin-throttling@9.4.0
  - @octokit/request@9.2.0
 

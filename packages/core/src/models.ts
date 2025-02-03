@@ -5,7 +5,7 @@ import {
     MODEL_PROVIDER_OPENAI,
 } from "./constants"
 import { errorMessage } from "./error"
-import { host, runtimeHost } from "./host"
+import { host, ModelConfiguration, runtimeHost } from "./host"
 import { MarkdownTrace, TraceOptions } from "./trace"
 import { arrayify, assert, logVerbose, toStringList } from "./util"
 import { CancellationOptions } from "./cancellation"
@@ -119,6 +119,22 @@ export function traceLanguageModelConnection(
     }
 }
 
+export function resolveModelAlias(model: string): ModelConfiguration {
+    const { modelAliases } = runtimeHost
+    const seen: string[] = []
+    let res: ModelConfiguration = { model, source: "script" }
+    while (modelAliases[res.model]) {
+        let next = modelAliases[res.model]
+        if (seen.includes(next.model))
+            throw new Error(
+                `Circular model alias: ${next.model}, seen ${[...seen].join(",")}`
+            )
+        seen.push(next.model)
+        res = next
+    }
+    return res
+}
+
 const resolvedModels = new Set<string>()
 export async function resolveModelConnectionInfo(
     conn: ModelConnectionOptions,
@@ -136,22 +152,9 @@ export async function resolveModelConnectionInfo(
     const hint = options?.model || conn.model
     // supports candidate if no model hint or hint is a model alias
     const supportsCandidates = !hint || !!modelAliases[hint]
-    let modelId = hint || LARGE_MODEL_ID
-    let candidates: string[]
-    // recursively resolve model aliases
-    {
-        const seen: string[] = []
-        while (modelAliases[modelId]) {
-            const { model: id, candidates: c } = modelAliases[modelId]
-            if (seen.includes(id))
-                throw new Error(
-                    `Circular model alias: ${id}, seen ${[...seen].join(",")}`
-                )
-            seen.push(modelId)
-            modelId = id
-            if (supportsCandidates) candidates = c
-        }
-    }
+    const resolved = resolveModelAlias(hint || LARGE_MODEL_ID)
+    const modelId = resolved.model
+    let candidates = supportsCandidates ? resolved.candidates : undefined
 
     const resolveModel = async (
         model: string,

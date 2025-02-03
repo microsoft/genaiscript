@@ -1136,7 +1136,7 @@ interface ExpansionVariables {
     output: OutputTrace
 
     /**
-     * Metadata of the top-level prompt
+     * Resolved metadata
      */
     meta: PromptDefinition & ModelConnectionOptions
 }

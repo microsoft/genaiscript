@@ -85,16 +85,14 @@ async function resolveExpansionVars(
     }
 
     // Create and return an object containing resolved variables
-    const meta: PromptDefinition & ModelConnectionOptions = Object.freeze(
-        structuredClone({
-            id: template.id,
-            title: template.title,
-            description: template.description,
-            group: template.group,
-            model: template.model,
-            defTools: template.defTools,
-        })
-    )
+    const meta: PromptDefinition & ModelConnectionOptions = structuredClone({
+        id: template.id,
+        title: template.title,
+        description: template.description,
+        group: template.group,
+        model: template.model,
+        defTools: template.defTools,
+    }) // frozen later
     const res = {
         dir: ".",
         files,
