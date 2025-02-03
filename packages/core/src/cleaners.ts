@@ -19,7 +19,6 @@ export function deleteEmptyValues<T extends Record<string, any>>(o: T): T {
     return o
 }
 
-
 export function normalizeString(s: string | number | boolean | object): string {
     if (typeof s === "string") return s
     else if (typeof s === "number") return s.toLocaleString()

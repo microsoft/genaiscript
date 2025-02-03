@@ -1058,13 +1058,15 @@ export async function executeChatSession(
                         `chat: sending ${messages.length} messages to ${model} (~${tokens ?? "?"} tokens)\n`
                     )
 
-                    const infer = async () =>
-                        await completer(
+                    const infer = async () => {
+                        logVerbose(`\n`)
+                        return await completer(
                             req,
                             connectionToken,
                             genOptions,
                             reqTrace
                         )
+                    }
                     if (cacheStore) {
                         const cachedKey = deleteUndefinedValues({
                             modelid: model,

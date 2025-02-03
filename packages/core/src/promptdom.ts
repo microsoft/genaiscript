@@ -1274,7 +1274,7 @@ export async function renderPromptNode(
                     })
                     break
             }
-            const text = `<${schemaName} lang="${format}">
+            const text = `<${schemaName} lang="${format}-schema">
 ${trimNewlines(schemaText)}
 </${schemaName}>`
             appendUser(text, n)

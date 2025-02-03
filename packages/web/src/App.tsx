@@ -727,7 +727,7 @@ function JSONSchemaObjectForm(props: {
 function ValueBadge(props: {
     value: any
     precision?: number
-    title?: string
+    title: string
     render?: (value: any) => string
 }) {
     const { value, title, render, precision } = props
@@ -743,6 +743,7 @@ function ValueBadge(props: {
         : precision
           ? roundWithPrecision(value, precision)
           : "" + value
+    if (s === "") return null
     return (
         <vscode-badge title={title} variant="counter" slot="content-after">
             {s}
@@ -750,7 +751,7 @@ function ValueBadge(props: {
     )
 }
 
-function CounterBadge(props: { collection: any | undefined }) {
+function CounterBadge(props: { collection: any | undefined; title: string }) {
     const { collection } = props
     let count: string | undefined = undefined
     if (Array.isArray(collection)) {
@@ -815,11 +816,25 @@ function OutputMarkdown() {
     )
 }
 
+function ChoicesBadge() {
+    const { choices } = useResult() || {}
+    if (!choices?.length) return null
+
+    return (
+        <vscode-badge title="choice" variant="default" slot="content-after">
+            {choices.map((c) => c.token).join(", ")}
+        </vscode-badge>
+    )
+}
+
 function OutputTraceTabPanel(props: { selected?: boolean }) {
     const { selected } = props
     return (
         <>
-            <vscode-tab-header slot="header">Output</vscode-tab-header>
+            <vscode-tab-header slot="header">
+                Output
+                <ChoicesBadge />
+            </vscode-tab-header>
             <vscode-tab-panel>
                 {selected ? <OutputMarkdown /> : null}
             </vscode-tab-panel>
@@ -855,7 +870,10 @@ function ProblemsTabPanel() {
         <>
             <vscode-tab-header slot="header">
                 Problems
-                <CounterBadge collection={annotations} />
+                <CounterBadge
+                    title="number of errors, warnings found"
+                    collection={annotations}
+                />
             </vscode-tab-header>
             <vscode-tab-panel>
                 <Markdown>{annotationsMarkdown}</Markdown>
@@ -876,7 +894,10 @@ function MessagesTabPanel() {
         <>
             <vscode-tab-header slot="header">
                 Chat
-                <CounterBadge collection={messages} />
+                <CounterBadge
+                    title="number of messages in chat"
+                    collection={messages}
+                />
             </vscode-tab-header>
             <vscode-tab-panel>
                 <Markdown>{md}</Markdown>
@@ -894,20 +915,44 @@ function renderCost(value: number) {
           : `${value.toFixed(2)}$`
 }
 
+function StatsBadge() {
+    const result = useResult() || {}
+    const { stats } = result || {}
+    if (!stats) return null
+    const { cost, prompt_tokens, completion_tokens } = stats
+    if (!cost && !completion_tokens) return null
+    const s = [
+        prompt_tokens ? `${prompt_tokens}↑` : undefined,
+        completion_tokens ? `${completion_tokens}↓` : undefined,
+        renderCost(cost),
+    ]
+        .filter((l) => !!l)
+        .join(" ")
+    return (
+        <vscode-badge title={`usage`} variant="counter" slot="content-after">
+            {s}
+        </vscode-badge>
+    )
+}
+
 function StatsTabPanel() {
     const result = useResult()
     const { stats } = result || {}
     const { cost, ...rest } = stats || {}
 
-    const md = stats ? YAMLStringify(rest) : ""
+    const md = stats
+        ? YAMLStringify(rest)
+              .replace(/_/g, " ")
+              .replace(/^(\s*)([a-z])/gm, (m, s, l) => `${s}- ${l}`)
+        : ""
     return (
         <>
             <vscode-tab-header slot="header">
-                Stats
-                <ValueBadge value={cost} render={renderCost} />
+                Usage
+                <StatsBadge />
             </vscode-tab-header>
             <vscode-tab-panel>
-                {md ? <Markdown>{fenceMD(md, "yaml")}</Markdown> : null}
+                {md ? <Markdown>{md}</Markdown> : null}
             </vscode-tab-panel>
         </>
     )
@@ -1032,7 +1077,10 @@ function FileEditsTabPanel() {
         <>
             <vscode-tab-header slot="header">
                 Edits
-                <CounterBadge collection={files} />
+                <CounterBadge
+                    title="number of edited files"
+                    collection={files}
+                />
             </vscode-tab-header>
             <vscode-tab-panel>
                 <Markdown>
@@ -1060,41 +1108,18 @@ function FileEditsTabPanel() {
     )
 }
 
-function DataTabPanel() {
-    const result = useResult()
-    const { frames = [] } = result || {}
-    if (frames.length === 0) return null
-
-    return (
-        <>
-            <vscode-tab-header slot="header">
-                Data
-                <CounterBadge collection={frames} />
-            </vscode-tab-header>
-            <vscode-tab-panel>
-                {frames.map((frame, i) => (
-                    <Markdown key={i}>
-                        {`
-\`\`\`\`\`json
-${JSON.stringify(frame, null, 2)}
-\`\`\`\`\`
-`}
-                    </Markdown>
-                ))}
-            </vscode-tab-panel>
-        </>
-    )
-}
-
 function JSONTabPanel() {
     const result = useResult()
-    const { json } = result || {}
-    if (json === undefined) return null
+    const { json, frames = [] } = result || {}
+    if (json === undefined && !frames?.length) return null
     return (
         <>
             <vscode-tab-header slot="header">
                 Structured Output
-                <CounterBadge collection={json} />
+                <CounterBadge
+                    title="number of generated JSON objects"
+                    collection={json}
+                />
             </vscode-tab-header>
             <vscode-tab-panel>
                 {json && (
@@ -1106,6 +1131,15 @@ ${JSON.stringify(json, null, 2)}
 `}
                     </Markdown>
                 )}
+                {frames.map((frame, i) => (
+                    <Markdown key={i}>
+                        {`
+\`\`\`\`\`json
+${JSON.stringify(frame, null, 2)}
+\`\`\`\`\`
+`}
+                    </Markdown>
+                ))}
             </vscode-tab-panel>
         </>
     )
@@ -1491,7 +1525,6 @@ function ResultsTabs() {
             <MessagesTabPanel />
             <ProblemsTabPanel />
             <FileEditsTabPanel />
-            <DataTabPanel />
             <JSONTabPanel />
             <StatsTabPanel />
             <ErrorTabPanel />
