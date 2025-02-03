@@ -1,6 +1,6 @@
 {
   "name": "genaiscript",
-  "version": "1.97.3",
+  "version": "1.98.0",
   "main": "built/genaiscript.cjs",
   "type": "commonjs",
   "bin": {
@@ -23,6 +23,8 @@
     "built/web.mjs",
     "built/index.html",
     "built/markdown.css",
+    "built/codicon.css",
+    "built/codicon.ttf",
     "built/favicon.svg"
   ],
   "publisher": "Microsoft",
@@ -81,7 +83,7 @@
     "@huggingface/transformers": "^3.3.2",
     "@lvce-editor/ripgrep": "^1.5.0",
     "pdfjs-dist": "4.10.38",
-    "playwright": "^1.50.0",
+    "playwright": "^1.50.1",
     "skia-canvas": "^2.0.2",
     "tree-sitter-wasms": "^0.1.11",
     "web-tree-sitter": "0.22.2"
@@ -117,7 +119,7 @@
     "pretty-bytes": "^6.1.1",
     "replace-ext": "^2.0.0",
     "ws": "^8.18.0",
-    "zx": "^8.3.1"
+    "zx": "^8.3.2"
   },
   "scripts": {
     "compile:runtime:declarations": "tsc src/runtime.ts --skipLibCheck --outDir built --declaration --target es2020 --moduleResolution node --module esnext --emitDeclarationOnly",

@@ -208,7 +208,7 @@ const { files } = await retrieval.vectorSearch("cats", "**/*.md")
 
 ### 🐙 GitHub Models and GitHub Copilot
 
-Run models through [GitHub Models](https://microsoft.github.io/genaiscript/getting-started/configuration#github) or [GitHub Copilot](https://microsoft.github.io/genaiscript/getting-started/configuration/#github-copilot).
+Run models through [GitHub Models](https://microsoft.github.io/genaiscript/getting-started/configuration#github) or [GitHub Copilot](https://microsoft.github.io/genaiscript/getting-started/configuration/#github_copilot_chat).
 
 ```js
 script({ ..., model: "github:gpt-4o" })

@@ -7,7 +7,7 @@
     },
     "displayName": "GenAIScript Insiders",
     "description": "Generative AI Scripting.",
-    "version": "1.97.3",
+    "version": "1.98.0",
     "icon": "icon.png",
     "engines": {
         "vscode": "^1.95.0"
@@ -256,10 +256,6 @@
                 {
                     "command": "genaiscript.request.status",
                     "when": "false"
-                },
-                {
-                    "command": "genaiscript.samples.download",
-                    "when": "false"
                 }
             ],
             "view/title": [
@@ -415,21 +411,6 @@
                 "command": "genaiscript.request.status",
                 "title": "Show information message about OpenAI request status",
                 "category": "GenAIScript"
-            },
-            {
-                "command": "genaiscript.openIssueReporter",
-                "title": "Report Issue...",
-                "category": "GenAIScript"
-            },
-            {
-                "command": "genaiscript.info.env",
-                "title": "Configuration information...",
-                "category": "GenAIScript"
-            },
-            {
-                "command": "genaiscript.samples.download",
-                "title": "Download sample...",
-                "category": "GenAIScript"
             }
         ]
     },
@@ -453,7 +434,7 @@
     "devDependencies": {
         "@types/markdown-it": "^14.1.2",
         "@types/vscode": "^1.95.0",
-        "@vscode/vsce": "^3.2.1",
+        "@vscode/vsce": "^3.2.2",
         "assert": "^2.1.0",
         "es-toolkit": "^1.32.0",
         "markdown-it-github-alerts": "^0.3.0",
@@ -462,6 +443,6 @@
         "vscode-uri": "^3.0.8",
         "webfont": "^11.2.26",
         "websocket-polyfill": "0.0.3",
-        "zx": "^8.3.1"
+        "zx": "^8.3.2"
     }
 }

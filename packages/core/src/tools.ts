@@ -10,12 +10,12 @@ import { parseModelIdentifier } from "./models"
 
 export function isToolsSupported(modelId: string): boolean | undefined {
     if (!modelId) return undefined
-    const { provider, model } = parseModelIdentifier(modelId)
+    const { provider, family } = parseModelIdentifier(modelId)
 
     const info = MODEL_PROVIDERS.find(({ id }) => provider === id)
     if (info?.tools === false) return false
 
-    if (/^o1-(mini|preview)/.test(model)) return false
+    if (/^o1-(mini|preview)/.test(family)) return false
 
     const oai = {
         "o1-preview": false,
@@ -39,6 +39,7 @@ export function isToolsSupported(modelId: string): boolean | undefined {
             ["llama2"]: false,
             ["codellama"]: false,
             ["phi"]: false,
+            ["deepseek-r1"]: false,
         },
         [MODEL_PROVIDER_OPENAI]: oai,
         [MODEL_PROVIDER_AZURE_OPENAI]: oai,
@@ -48,5 +49,6 @@ export function isToolsSupported(modelId: string): boolean | undefined {
         },
     }
 
-    return data[provider]?.[model]
+    const res = data[provider]?.[family]
+    return res
 }

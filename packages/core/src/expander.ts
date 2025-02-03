@@ -21,9 +21,13 @@ import { addToolDefinitionsMessage, appendSystemMessage } from "./chat"
 import { importPrompt } from "./importprompt"
 import { parseModelIdentifier } from "./models"
 import { runtimeHost } from "./host"
-import { resolveSystems } from "./systems"
+import { addFallbackToolSystems, resolveSystems } from "./systems"
 import { GenerationOptions } from "./generation"
-import { AICIRequest, ChatCompletionMessageParam } from "./chattypes"
+import {
+    AICIRequest,
+    ChatCompletionMessageParam,
+    ChatCompletionReasoningEffort,
+} from "./chattypes"
 import { GenerationStatus, Project } from "./server/messages"
 import { dispose } from "./dispose"
 import { normalizeFloat, normalizeInt } from "./cleaners"
@@ -193,6 +197,11 @@ export async function expandTemplate(
         normalizeFloat(env.vars["temperature"]) ??
         template.temperature ??
         runtimeHost.modelAliases.large.temperature
+    const reasoningEffort: ChatCompletionReasoningEffort =
+        options.reasoningEffort ??
+        env.vars["reasoning_effort"] ??
+        template.reasoningEffort ??
+        runtimeHost.modelAliases.large.reasoningEffort
     const topP =
         options.topP ?? normalizeFloat(env.vars["top_p"]) ?? template.topP
     const maxTokens =
@@ -236,6 +245,7 @@ export async function expandTemplate(
         seed,
         topP,
         temperature,
+        reasoningEffort,
         lineNumbers,
         fenceFormat,
     })
@@ -346,7 +356,7 @@ export async function expandTemplate(
         trace.endDetails()
     }
 
-    if (systems.includes("system.tool_calls")) {
+    if (addFallbackToolSystems(systems, tools, template, options)) {
         addToolDefinitionsMessage(messages, tools)
         options.fallbackTools = true
     }
@@ -369,6 +379,7 @@ export async function expandTemplate(
         statusText: statusText,
         model,
         temperature,
+        reasoningEffort,
         topP,
         maxTokens,
         maxToolCalls,

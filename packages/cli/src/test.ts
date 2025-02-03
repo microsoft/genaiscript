@@ -43,6 +43,7 @@ import { filterScripts } from "../../core/src/ast"
 import { link } from "../../core/src/mkmd"
 import { applyModelOptions } from "./modelalias"
 import { normalizeFloat, normalizeInt } from "../../core/src/cleaners"
+import { ChatCompletionReasoningEffort } from "../../core/src/chattypes"
 
 /**
  * Parses model specifications from a string and returns a ModelOptions object.
@@ -67,6 +68,7 @@ function parseModelSpec(m: string): ModelOptions & ModelAliasesOptions {
             visionModel: values["v"],
             temperature: normalizeFloat(values["t"]),
             topP: normalizeFloat(values["p"]),
+            reasoningEffort: values["r"] as ChatCompletionReasoningEffort,
         }
     else return { model: m }
 }

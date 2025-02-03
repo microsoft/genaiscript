@@ -3,6 +3,7 @@ import { host } from "./host"
 import {
     AZURE_AI_INFERENCE_VERSION,
     AZURE_OPENAI_API_VERSION,
+    MODEL_PROVIDER_OPENAI_HOSTS,
     MODEL_PROVIDERS,
     OPENROUTER_API_CHAT_URL,
     OPENROUTER_SITE_NAME_HEADER,
@@ -34,6 +35,7 @@ import {
     ChatCompletionChoice,
     CreateChatCompletionRequest,
     ChatCompletionTokenLogprob,
+    ChatCompletionReasoningEffort,
 } from "./chattypes"
 import { resolveTokenEncoder } from "./encoders"
 import { CancellationOptions } from "./cancellation"
@@ -90,7 +92,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
         inner,
     } = options
     const { headers = {}, ...rest } = requestOptions || {}
-    const { model } = parseModelIdentifier(req.model)
+    const { provider, model } = parseModelIdentifier(req.model)
     const { encode: encoder } = await resolveTokenEncoder(model)
 
     const postReq = structuredClone({
@@ -107,14 +109,30 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
     if (model === "gpt-4-turbo-v" || /mistral/i.test(model)) {
         delete postReq.stream_options
     }
-    if (/^o1/i.test(model)) {
-        const preview = /^o1-(preview|mini)/i.test(model)
-        delete postReq.temperature
-        delete postReq.stream
-        delete postReq.stream_options
-        for (const msg of postReq.messages) {
-            if (msg.role === "system") {
-                ;(msg as any).role = preview ? "user" : "developer"
+
+    if (MODEL_PROVIDER_OPENAI_HOSTS.includes(provider)) {
+        if (/^o(1|3)/.test(model)) {
+            delete postReq.temperature
+            if (postReq.max_tokens) {
+                postReq.max_completion_tokens = postReq.max_tokens
+                delete postReq.max_tokens
+            }
+        }
+
+        if (/^o1/.test(model)) {
+            const preview = /^o1-(preview|mini)/i.test(model)
+            delete postReq.stream
+            delete postReq.stream_options
+            for (const msg of postReq.messages) {
+                if (msg.role === "system") {
+                    ;(msg as any).role = preview ? "user" : "developer"
+                }
+            }
+        } else if (/^o3/i.test(model)) {
+            for (const msg of postReq.messages) {
+                if (msg.role === "system") {
+                    ;(msg as any).role = "developer"
+                }
             }
         }
     }
@@ -216,6 +234,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
                   message: string
               }
             | { error: { message: string } }[]
+            | { error: { message: string } }
         const error = Array.isArray(errors) ? errors[0]?.error : errors
         throw new RequestError(
             r.status,
@@ -437,7 +456,7 @@ export const OpenAIListModels: ListModelsFunction = async (cfg, options) => {
             return {
                 ok: false,
                 status: res.status,
-                error: serializeError(res.statusText),
+                error: serializeError(await res.json()),
             }
         const { data } = (await res.json()) as {
             object: "list"

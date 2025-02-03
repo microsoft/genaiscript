@@ -528,5 +528,11 @@ export async function cli() {
                 "-ma, --model-alias <nameid...>",
                 "model alias as name=modelid"
             )
+            .addOption(
+                new Option(
+                    "-re, --reasoning-effort <string>",
+                    "Reasoning effort for o* models"
+                ).choices(["high", "medium", "low"])
+            )
     }
 }

@@ -1,11 +1,11 @@
 {
   "name": "genaiscript-web",
-  "version": "1.97.3",
+  "version": "1.98.0",
   "license": "MIT",
   "private": true,
   "scripts": {
     "compile": "node build.mjs",
-    "watch": "node --watch --watch-path=./src --watch-path=../core/src build.mjs",
+    "watch": "node --watch --watch-path=./src --watch-path=../core/src build.mjs --dispatch-progress",
     "serve": "serve -n .",
     "typecheck": "tsc --noEmit"
   },
@@ -16,6 +16,7 @@
     "@types/react-dom": "^19.0.3",
     "@vscode-elements/elements": "1.11.1-pre.0",
     "@vscode-elements/webview-playground": "^1.4.0",
+    "@vscode/codicons": "^0.0.36",
     "clsx": "^2.1.1",
     "esbuild": "^0.24.2",
     "html-escaper": "3.0.3",

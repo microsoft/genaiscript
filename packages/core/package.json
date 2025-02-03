@@ -1,6 +1,6 @@
 {
   "name": "genaiscript-core-internal",
-  "version": "1.97.3",
+  "version": "1.98.0",
   "main": "src/index.ts",
   "license": "MIT",
   "private": true,
@@ -22,7 +22,7 @@
     "@anthropic-ai/sdk": "^0.36.3",
     "@azure/identity": "^4.6.0",
     "@elastic/micro-jq": "^1.8.0",
-    "@huggingface/jinja": "^0.3.2",
+    "@huggingface/jinja": "^0.3.3",
     "@huggingface/transformers": "^3.3.2",
     "@modelcontextprotocol/sdk": "^1.4.1",
     "@octokit/plugin-paginate-rest": "^11.3.6",

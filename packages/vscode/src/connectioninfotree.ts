@@ -1,54 +1,85 @@
 import * as vscode from "vscode"
 import { ExtensionState } from "./state"
-import { MODEL_PROVIDERS } from "../../core/src/constants"
 import { YAMLStringify } from "../../core/src/yaml"
-import { OpenAIAPIType } from "../../core/src/server/messages"
+import {
+    LanguageModelInfo,
+    ResolvedLanguageModelConfiguration,
+    ServerEnvResponse,
+} from "../../core/src/server/messages"
+import { deleteUndefinedValues } from "../../core/src/cleaners"
 
-class ConnectionInfoTreeData {
-    provider: string
-    apiType?: OpenAIAPIType
+interface ConnectionInfoTreeData {
+    provider?: ResolvedLanguageModelConfiguration
+    model?: LanguageModelInfo
 }
 
 class ConnectionInfoTreeDataProvider
     implements vscode.TreeDataProvider<ConnectionInfoTreeData>
 {
-    constructor(readonly state: ExtensionState) {
-        const { context } = state
-        const { subscriptions } = context
-        subscriptions.push(
-            vscode.workspace.onDidChangeConfiguration(() => {
-                this.refresh()
-            })
-        )
-        const watcher = vscode.workspace.createFileSystemWatcher("./.env")
-        watcher.onDidChange(() => this.refresh())
-        watcher.onDidDelete(() => this.refresh())
-        subscriptions.push(watcher)
+    private _info: ServerEnvResponse | undefined
+
+    constructor(readonly state: ExtensionState) {}
+
+    private async fetchConnections() {
+        const client = await this.state.host.server.client()
+        this._info = await client.infoEnv()
+        this.refresh()
     }
 
     async getTreeItem(
         element: ConnectionInfoTreeData
     ): Promise<vscode.TreeItem> {
-        const item = new vscode.TreeItem(element.provider)
-        const client = await this.state.host.server.client()
-        const res = await client.getLanguageModelConfiguration(
-            element.provider + ":*",
-            { token: false }
-        )
-        if (res) {
-            item.description = res.base || "?"
-            item.tooltip = YAMLStringify(res)
+        if (element.model) {
+            const { id, details, url } = element.model
+            const item = new vscode.TreeItem(id)
+            const tt: vscode.MarkdownString = (item.tooltip =
+                new vscode.MarkdownString(`\`${element.provider.provider}:${id}\`
+
+${details}
+
+${url ? `[${url}](${url})` : ""}
+`))
+            tt.isTrusted = true
+            return item
+        } else if (element.provider) {
+            const { provider, base, models, error, ...rest } = element.provider
+            const item = new vscode.TreeItem(provider)
+            item.collapsibleState = models?.length
+                ? vscode.TreeItemCollapsibleState.Collapsed
+                : vscode.TreeItemCollapsibleState.None
+            item.description = base || ""
+            const docsUrl =
+                "https://microsoft.github.io/genaiscript/getting-started/configuration/#" +
+                provider
+            if (error) item.iconPath = new vscode.ThemeIcon("error")
+            item.tooltip = YAMLStringify(
+                deleteUndefinedValues({ error, ...rest })
+            )
             item.command = <vscode.Command>{
-                command: "vscode.open",
-                arguments: [this.state.host.toUri("./.env")],
+                command: "simpleBrowser.show",
+                arguments: [this.state.host.toUri(docsUrl)],
             }
+            return item
         }
-        return item
+        return undefined
     }
-    getChildren(
+
+    async getChildren(
         element?: ConnectionInfoTreeData
-    ): vscode.ProviderResult<ConnectionInfoTreeData[]> {
-        if (!element) return MODEL_PROVIDERS.map(({ id }) => ({ provider: id }))
+    ): Promise<ConnectionInfoTreeData[]> {
+        if (!this._info) await this.fetchConnections()
+
+        if (!element) {
+            const providers = this._info?.providers || []
+            return providers.map((provider) => ({ provider }))
+        }
+        if (element.provider)
+            return (
+                element.provider.models?.map((model) => ({
+                    provider: element.provider,
+                    model,
+                })) || []
+            )
         return undefined
     }
 
