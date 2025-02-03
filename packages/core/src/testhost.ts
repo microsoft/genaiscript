@@ -152,7 +152,7 @@ export class TestHost implements RuntimeHost {
 
     // Placeholder for logging functionality
     log(level: LogLevel, msg: string): void {
-        throw new Error("Method not implemented.")
+        console.log(`${level}: ${msg}`)
     }
 
     // Method to read a file and return its content as a Uint8Array
