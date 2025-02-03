@@ -8,6 +8,7 @@ export function defaultModelConfigurations(): ModelConfigurations {
         LARGE_MODEL_ID,
         SMALL_MODEL_ID,
         VISION_MODEL_ID,
+        "vision_small",
         "embeddings",
         "reasoning",
         "reasoning_small",

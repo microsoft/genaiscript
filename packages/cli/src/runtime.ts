@@ -239,15 +239,17 @@ export async function markdownifyPdf(
     file: WorkspaceFile,
     options?: PromptGeneratorOptions &
         Omit<ParsePDFOptions, "renderAsImage"> & {
+            instructions?: string | PromptGenerator
             ctx?: ChatGenerationContext
         }
 ) {
     const {
         ctx = env.generator,
         label = `markdownify PDF`,
-        model = "vision",
+        model = "ocr",
         responseType = "markdown",
         systemSafety = true,
+        instructions,
         ...rest
     } = options || {}
 
@@ -262,7 +264,7 @@ export async function markdownifyPdf(
         const image = images[i]
         // mix of text and vision
         const res = await ctx.runPrompt(
-            (_) => {
+            async (_) => {
                 const previousPages = markdowns.slice(-2).join("\n\n")
                 if (previousPages.length) _.def("PREVIOUS_PAGES", previousPages)
                 if (page) _.def("PAGE", page)
@@ -289,6 +291,9 @@ export async function markdownifyPdf(
                 `
                 if (image)
                     $`- For images, generate a short alt-text description.`
+                if (typeof instructions === "string") _.$`${instructions}`
+                else if (typeof instructions === "function")
+                    await instructions(_)
             },
             {
                 ...rest,

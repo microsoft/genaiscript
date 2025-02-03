@@ -4,15 +4,18 @@
  * and resolving model connection info for specific scripts.
  */
 
+import { re } from "mathjs"
 import { resolveLanguageModelConfigurations } from "../../core/src/config"
 import { host, runtimeHost } from "../../core/src/host"
 import {
     ModelConnectionInfo,
+    resolveModelAlias,
     resolveModelConnectionInfo,
 } from "../../core/src/models"
 import { CORE_VERSION } from "../../core/src/version"
 import { YAMLStringify } from "../../core/src/yaml"
 import { buildProject } from "./build"
+import { kMaxLength } from "buffer"
 
 /**
  * Outputs basic system information including node version, platform, architecture, and process ID.
@@ -92,5 +95,14 @@ export async function scriptModelInfo(
 }
 
 export async function modelAliasesInfo() {
-    console.log(YAML.stringify(runtimeHost.modelAliases))
+    const res = Object.fromEntries(
+        Object.entries(runtimeHost.modelAliases).map(([k, v]) => [
+            k,
+            {
+                ...v,
+                resolved: resolveModelAlias(k).model,
+            },
+        ])
+    )
+    console.log(YAMLStringify(res))
 }
