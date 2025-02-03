@@ -286,7 +286,7 @@ ${this.toResultIcon(success, "")}${title}
     }
 
     heading(level: number, message: string) {
-        this.appendContent(`${"#".repeat(level)} ${message}\n\n`)
+        this.appendContent(`\n\n${"#".repeat(level)} ${message}\n\n`)
     }
 
     async image(url: string, caption: string) {
