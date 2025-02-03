@@ -222,6 +222,7 @@ export async function expandTemplate(
         template.flexTokens
     const fenceFormat = options.fenceFormat ?? template.fenceFormat
     const cache = options.cache ?? template.cache
+    const fallbackTools = options.fallbackTools ?? template.fallbackTools
     let seed = options.seed ?? normalizeInt(env.vars["seed"]) ?? template.seed
     if (seed !== undefined) seed = seed >> 0
     let logprobs = options.logprobs || template.logprobs
@@ -252,6 +253,7 @@ export async function expandTemplate(
         reasoningEffort,
         lineNumbers,
         fenceFormat,
+        fallbackTools,
     })
 
     const { status, statusText, messages } = prompt
@@ -295,6 +297,12 @@ export async function expandTemplate(
     }
 
     const systems = resolveSystems(prj, template, tools, options)
+
+    if (addFallbackToolSystems(systems, tools, model, fallbackTools)) {
+        addToolDefinitionsMessage(messages, tools)
+        options.fallbackTools = true
+    }
+
     if (systems.length)
         if (messages[0].role === "system")
             // there's already a system message. add empty before
@@ -360,11 +368,6 @@ export async function expandTemplate(
         trace.endDetails()
     }
 
-    if (addFallbackToolSystems(systems, tools, template, options)) {
-        addToolDefinitionsMessage(messages, tools)
-        options.fallbackTools = true
-    }
-
     const { responseType, responseSchema } = finalizeMessages(messages, {
         ...template,
         fileOutputs,
@@ -388,6 +391,7 @@ export async function expandTemplate(
         maxTokens,
         maxToolCalls,
         seed,
+        fallbackTools,
         responseType,
         responseSchema,
         fileMerges,

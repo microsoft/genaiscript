@@ -1314,9 +1314,9 @@ export function addToolDefinitionsMessage(
     appendSystemMessage(
         messages,
         `
-<tools>
+<TOOLS>
 ${YAMLStringify(tools.map((t) => t.spec))}
-</tools>
+</TOOLS>
 `
     )
 }

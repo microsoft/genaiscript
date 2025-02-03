@@ -123,16 +123,14 @@ export function resolveSystems(
 export function addFallbackToolSystems(
     systems: string[],
     tools: ToolCallback[],
-    options?: ModelOptions,
-    genOptions?: GenerationOptions
+    model: string,
+    fallbackTools: boolean
 ) {
     if (!tools?.length || systems.includes("system.tool_calls")) return false
 
-    const fallbackTools =
-        isToolsSupported(options?.model || genOptions?.model) === false ||
-        genOptions?.fallbackTools
-    if (fallbackTools) systems.push("system.tool_calls")
-    return fallbackTools
+    const use = isToolsSupported(model) === false || fallbackTools
+    if (use) systems.push("system.tool_calls")
+    return use
 }
 
 /**

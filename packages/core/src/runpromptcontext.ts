@@ -997,8 +997,8 @@ export function createChatGenerationContext(
                 addFallbackToolSystems(
                     systemScripts,
                     tools,
-                    runOptions,
-                    genOptions
+                    runOptions.model || genOptions.model,
+                    runOptions.fallbackTools || genOptions.fallbackTools
                 )
             ) {
                 addToolDefinitionsMessage(messages, tools)

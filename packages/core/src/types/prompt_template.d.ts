@@ -177,6 +177,7 @@ type ModelType = OptionsOrString<
     | "ollama:deepseek-r1:7b"
     | "ollama:olmo2:7b"
     | "ollama:command-r7b:7b"
+    | "ollama:smollm2:135m"
     | "anthropic:claude-3-5-sonnet-20240620"
     | "anthropic:claude-3-opus-20240229"
     | "anthropic:claude-3-sonnet-20240229"
@@ -299,6 +300,11 @@ interface ModelOptions extends ModelConnectionOptions, ModelTemplateOptions {
      * Number of alternate token logprobs to generate, up to 5. Enables logprobs.
      */
     topLogprobs?: number
+
+    /**
+     * Specify the fallback tool support
+     */
+    fallbackTools?: boolean
 
     /**
      * Specifies the type of output. Default is plain text.
