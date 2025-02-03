@@ -7,6 +7,7 @@ import {
     ServerEnvResponse,
 } from "../../core/src/server/messages"
 import { deleteUndefinedValues } from "../../core/src/cleaners"
+import { registerCommand } from "./commands"
 
 interface ConnectionInfoTreeData {
     provider?: ResolvedLanguageModelConfiguration
@@ -18,7 +19,16 @@ class ConnectionInfoTreeDataProvider
 {
     private _info: ServerEnvResponse | undefined
 
-    constructor(readonly state: ExtensionState) {}
+    constructor(readonly state: ExtensionState) {
+        const { context } = state
+        const { subscriptions } = context
+
+        subscriptions.push(
+            registerCommand("genaiscript.connections.refresh", async () => {
+                await this.fetchConnections()
+            })
+        )
+    }
 
     private async fetchConnections() {
         const client = await this.state.host.server.client()

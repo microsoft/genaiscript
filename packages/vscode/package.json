@@ -256,12 +256,21 @@
                 {
                     "command": "genaiscript.request.status",
                     "when": "false"
+                },
+                {
+                    "command": "genaiscript.connections.refresh",
+                    "when": "false"
                 }
             ],
             "view/title": [
                 {
                     "command": "genaiscript.request.abort",
                     "when": "view == genaiscript.trace",
+                    "group": "navigation"
+                },
+                {
+                    "command": "genaiscript.connections.refresh",
+                    "when": "view == genaiscript.connections",
                     "group": "navigation"
                 },
                 {
@@ -411,6 +420,12 @@
                 "command": "genaiscript.request.status",
                 "title": "Show information message about OpenAI request status",
                 "category": "GenAIScript"
+            },
+            {
+                "command": "genaiscript.connections.refresh",
+                "title": "Refresh",
+                "category": "GenAIScript",
+                "icon": "$(refresh)"
             }
         ]
     },
