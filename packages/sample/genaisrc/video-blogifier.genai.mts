@@ -36,7 +36,7 @@ Generate a title and description for the video on YouTube that maximizes engagem
 - extract a list of key moments in the video and add them to the description
 - generate a list of hashtags related to the video content and add them to the description
 - respond using markdown + frontmatter.
-- "geniscript" (or variants) should be "GenAIScript"
+- "geniscript", "Janii iScript" (or variants) should be "GenAIScript"
 - Mention GenAIScript in the title
 - Extract the list of topics discussed by the video and resolve 3 documentation links using the agent_doc.
 

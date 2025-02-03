@@ -10,12 +10,15 @@ import { Code } from "@astrojs/starlight/components"
 import { Content as BuiltinTools } from "../../../../components/BuiltinTools.mdx"
 import weatherScriptSource from "../../../../../../packages/sample/genaisrc/weather.genai.js?raw"
 import mathScriptSource from "../../../../../../packages/sample/genaisrc/math-agent.genai.mjs?raw"
+import { YouTube } from "astro-embed"
 
 You can register **tools** (also known as **functions**) that the LLM may decide to call as part of assembling the answer.
 See [OpenAI functions](https://platform.openai.com/docs/guides/function-calling), [Ollama tools](https://ollama.com/blog/tool-support),
 or [Anthropic tool use](https://docs.anthropic.com/en/docs/build-with-claude/tool-use).
 
 Not all LLM models support tools, in those cases, GenAIScript also support a fallback mechanism to implement tool call through system prompts (see [Fallback Tools](#fallbacktools)).
+
+<YouTube id="https://www.youtube.com/watch?v=E2oBlNK69-c" posterQuality="high" />
 
 ## `defTool`
 
