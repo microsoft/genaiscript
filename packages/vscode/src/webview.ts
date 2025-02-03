@@ -55,7 +55,6 @@ export async function createWebview(
         )
         const faviconUri = Utils.joinPath(authorityUri, "favicon.svg")
         const stylesheetUri = Utils.joinPath(authorityUri, "built/markdown.css")
-        const codiconUri = Utils.joinPath(authorityUri, "built/codicon.css")
         const scriptUri = Utils.joinPath(authorityUri, "built/web.mjs")
         const wsCspUrl = vscode.Uri.parse(cspUrl)
             .with({ scheme: "ws" })
