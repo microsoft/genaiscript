@@ -945,9 +945,8 @@ function LogProb(props: {
 
 function LogProbsTabPanel() {
     const result = useResult()
-    const { options } = useApi()
     const { logprobs, perplexity } = result || {}
-    if (!options.logprobs) return null
+    if (!logprobs?.length) return null
     return (
         <>
             <vscode-tab-header slot="header">
@@ -969,9 +968,8 @@ function LogProbsTabPanel() {
 
 function EntropyTabPanel() {
     const result = useResult()
-    const { options } = useApi()
     const { logprobs } = result || {}
-    if (!options.logprobs || options.topLogprobs < 2) return null
+    if (!logprobs?.length) return null
     return (
         <>
             <vscode-tab-header slot="header">Entropy</vscode-tab-header>
@@ -988,9 +986,8 @@ function EntropyTabPanel() {
 
 function TopLogProbsTabPanel() {
     const result = useResult()
-    const { options } = useApi()
-    if (!options.logprobs || options.topLogprobs < 2) return null
     const { logprobs, uncertainty } = result || {}
+    if (!logprobs?.length) return null
     return (
         <>
             <vscode-tab-header slot="header">
