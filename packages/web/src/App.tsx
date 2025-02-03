@@ -808,6 +808,7 @@ function OutputMarkdown() {
                 <ReasoningTabPanel />
                 <MarkdownPreviewTabs>{output}</MarkdownPreviewTabs>
                 <LogProbsTabPanel />
+                <EntropyTabPanel />
                 <TopLogProbsTabPanel />
             </vscode-tabs>
         </vscode-scrollable>
@@ -919,11 +920,20 @@ function LogProb(props: {
     entropy?: boolean
 }) {
     const { value, maxIntensity, entropy, eatSpaces } = props
-    const { token, logprob } = value
+    const { token, logprob, topLogprobs } = value
     const c = rgbToCss(logprobColor(value, { entropy, maxIntensity }))
-    const title = entropy
-        ? "" + roundWithPrecision(value.entropy, 2)
-        : renderLogprob(logprob)
+    const title = [
+        renderLogprob(logprob),
+        isNaN(value.entropy)
+            ? undefined
+            : `entropy: ${roundWithPrecision(value.entropy, 2)}`,
+        topLogprobs?.length
+            ? `top logprobs:\n${topLogprobs.map((t) => `-  ${t.token}: ${renderLogprob(t.logprob)}`).join("\n")}`
+            : undefined,
+    ]
+        .filter((t) => !!t)
+        .join("\n")
+
     let text = token
     if (eatSpaces) text = text.replace(/\n/g, " ")
     return (
@@ -957,10 +967,29 @@ function LogProbsTabPanel() {
     )
 }
 
+function EntropyTabPanel() {
+    const result = useResult()
+    const { options } = useApi()
+    const { logprobs } = result || {}
+    if (!options.logprobs || options.topLogprobs < 2) return null
+    return (
+        <>
+            <vscode-tab-header slot="header">Entropy</vscode-tab-header>
+            <vscode-tab-panel>
+                <div className={"markdown-body"}>
+                    {logprobs?.map((lp, i) => (
+                        <LogProb key={i} value={lp} entropy={true} />
+                    ))}
+                </div>
+            </vscode-tab-panel>
+        </>
+    )
+}
+
 function TopLogProbsTabPanel() {
     const result = useResult()
     const { options } = useApi()
-    if (!options.logprobs || !options.topLogprobs) return null
+    if (!options.logprobs || options.topLogprobs < 2) return null
     const { logprobs, uncertainty } = result || {}
     return (
         <>
