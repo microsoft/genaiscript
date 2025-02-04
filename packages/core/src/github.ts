@@ -757,6 +757,20 @@ export class GitHubClient implements GitHub {
         return res
     }
 
+    async listReleases(
+        options?: GitHubPaginationOptions
+    ): Promise<GitHubRelease[]> {
+        const { client, owner, repo } = await this.api()
+        const { count = GITHUB_REST_PAGE_DEFAULT, ...rest } = options ?? {}
+        const ite = client.paginate.iterator(client.rest.repos.listReleases, {
+            owner,
+            repo,
+            ...rest,
+        })
+        const res = await paginatorToArray(ite, count, (i) => i.data)
+        return res
+    }
+
     async listWorkflowRuns(
         workflowIdOrFilename: string | number,
         options?: {

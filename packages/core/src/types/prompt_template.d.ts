@@ -1029,8 +1029,8 @@ interface WorkspaceFileSystem {
 
     /**
      * Copies a file between two paths
-     * @param source 
-     * @param destination 
+     * @param source
+     * @param destination
      */
     copyFile(source: string, destination: string): Promise<void>
 
@@ -2132,9 +2132,7 @@ interface JSONSchemaUtilities {
      * Converts a parameters schema to a JSON schema
      * @param parameters
      */
-    fromParameters(
-        parameters: PromptParametersSchema | undefined
-    ): JSONSchema
+    fromParameters(parameters: PromptParametersSchema | undefined): JSONSchema
 }
 
 interface HTMLTableToJSONOptions {
@@ -2583,6 +2581,17 @@ interface GitHubUser {
     login: string
 }
 
+interface GitHubRelease {
+    id: number
+    tag_name: string
+    name: string
+    draft?: boolean
+    prerelease?: boolean
+    html_url: string
+    published_at: string
+    body?: string
+}
+
 interface GitHub {
     /**
      * Gets connection information for octokit
@@ -2732,6 +2741,12 @@ interface GitHub {
      * Lists tags in a GitHub repository
      */
     listRepositoryLanguages(): Promise<Record<string, number>>
+
+    /**
+     * List latest releases in a GitHub repository
+     * @param options
+     */
+    listReleases(options?: GitHubPaginationOptions): Promise<GitHubRelease[]>
 
     /**
      * Lists tags in a GitHub repository
