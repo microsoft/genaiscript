@@ -12,6 +12,11 @@ const more = await ffmpeg.extractFrames(
     "https://github.com/microsoft/jacdac-docs/raw/refs/heads/main/static/videos/addbutton.webm"
 )
 
+const jdframes = await ffmpeg.extractFrames("src/video/addjacdac.webm", {
+    sceneThreshold: 50,
+})
+console.log({ jdframes1: jdframes.length })
+
 const audio = await ffmpeg.extractAudio("src/audio/helloworld.mp4", {
     outputOptions: "-b:a 16k",
 })
@@ -35,7 +40,7 @@ if (Math.abs(clipProbe.format.duration - 4) > 0.2)
 const clip2 = await ffmpeg.extractClip("src/video/addjacdac.webm", {
     start: 6,
     end: 10,
-    size: "220x?"
+    size: "220x?",
 })
 const clip2Probe = await ffmpeg.probe(clip2)
 console.log({ clip2Probe })
