@@ -6,6 +6,7 @@
 import { delay, uniq, uniqBy, chunk, groupBy } from "es-toolkit"
 import { z } from "zod"
 import { pipeline } from "@huggingface/transformers"
+import { readFile } from "fs/promises"
 
 // symbols exported as is
 export { delay, uniq, uniqBy, z, pipeline, chunk, groupBy }
@@ -308,4 +309,145 @@ export async function markdownifyPdf(
     }
 
     return { pages, images, markdowns }
+}
+
+function parseTeamsChannelUrl(url: string) {
+    const m =
+        /^https:\/\/teams.microsoft.com\/*.\/channel\/(?<channelId>.+)\/.*\?groupId=(?<teamId>([a-z0-9\-])+)$/.exec(
+            url
+        )
+    if (!m) throw new Error("Invalid Teams channel URL")
+    const { teamId, channelId } = m.groups
+    return { teamId, channelId }
+}
+
+let _azureToken: string
+async function azureGetToken(): Promise<string> {
+    if (!_azureToken) { // TODO: refresh?
+        const { DefaultAzureCredential } = await import("@azure/identity")
+        const credential = new DefaultAzureCredential()
+        const tokenResponse = await credential.getToken(
+            "https://graph.microsoft.com/.default"
+        )
+        if (!tokenResponse) throw new Error("Failed to retrieve access token.")
+        _azureToken = tokenResponse.token
+    }
+    return _azureToken
+}
+
+export interface MicrosoftTeamsEntity {
+    webUrl: string
+    name: string
+}
+
+/**
+ * Uploads a file to the files storage of a Microsoft Teams channel.
+ * @param channelUrl
+ * @param folder
+ * @param filename
+ * @returns
+ */
+export async function microsoftTeamsUploadFile(
+    channelUrl: string,
+    folder: string,
+    filename: string
+) {
+    const { teamId, channelId } = parseTeamsChannelUrl(channelUrl)
+    const token = await azureGetToken()
+
+    // resolve channel folder name
+    const file = await readFile(filename)
+    const folder = "folder"
+    const url = `https://graph.microsoft.com/v1.0/groups/${teamId}/drive/root:/${folder}/${path.basename(
+        filename
+    )}:/content`
+    const res = await fetch(url, {
+        method: "PUT",
+        headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/octet-stream",
+        },
+        body: file,
+    })
+    if (!res.ok) {
+        console.debug(await res.text())
+        throw new Error(
+            `Failed to upload file: ${res.status} ${res.statusText}`
+        )
+    }
+    const j = (await res.json()) as MicrosoftTeamsEntity
+    return j
+}
+
+export async function teamsPostMessage(
+    channelUrl: string,
+    subject: string,
+    message: string,
+    videoFilename: string
+): Promise<void> {
+    const token = await azureGetToken()
+
+    const body = {
+        body: {
+            contentType: "html",
+            content: message,
+        },
+        subject,
+        attachments: [],
+    }
+
+    if (videoFilename) {
+        console.debug(`Uploading video ${videoFilename}...`)
+        const videoRes = await microsoftTeamsUploadFile(channelUrl, videoFilename)
+        console.log(videoRes)
+        const guid = crypto.randomUUID()
+        body.body.content += "\n" + `<attachment id=\"${guid}\"></attachment>`
+        body.attachments = [
+            {
+                id: guid,
+                contentType: "reference",
+                contentUrl: videoRes.webUrl,
+                name: videoRes.name,
+                thumbnailUrl: null,
+            },
+        ]
+    }
+
+    const url = `https://graph.microsoft.com/v1.0/teams/${teamId}/channels/${channelId}/messages`
+    const response = await fetch(url, {
+        method: "POST",
+        headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+    })
+
+    if (!response.ok) {
+        const err: any = await response.text()
+        console.debug(err)
+        throw new Error(
+            `Failed to post message: ${response.status} ${response.statusText}`
+        )
+    }
+
+    {
+        const data: any = await response.json()
+        const { webUrl } = data
+        console.log(`message created at ${webUrl}`)
+        console.debug(data)
+        return data
+    }
+}
+
+const segments = await workspace.readJSON(env.files[0])
+for (const segment of segments) {
+    const { id, summary, video } = segment
+
+    const lines = summary.split(/\n/g)
+    const subject = lines[0]
+    const message = lines.slice(1).join("\n<br/>").trim()
+
+    console.log(`Uploading ${id} to Teams...`)
+    await teamsPostMessage(subject, message, video)
 }
