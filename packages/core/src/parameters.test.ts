@@ -30,7 +30,7 @@ describe("promptParameterTypeToJSONSchema", () => {
 
     test("number type", () => {
         const result = promptParameterTypeToJSONSchema(42)
-        assert.deepStrictEqual(result, { type: "number", default: 42 })
+        assert.deepStrictEqual(result, { type: "integer", default: 42 })
     })
 
     test("boolean type", () => {
@@ -42,7 +42,7 @@ describe("promptParameterTypeToJSONSchema", () => {
         const result = promptParameterTypeToJSONSchema([42])
         assert.deepStrictEqual(result, {
             type: "array",
-            items: { type: "number", default: 42 },
+            items: { type: "integer", default: 42 },
         })
     })
 
@@ -99,7 +99,16 @@ describe("promptParametersSchemaToJSONSchema", () => {
         const result = promptParametersSchemaToJSONSchema(parameters)
         assert.deepStrictEqual(result, {
             type: "object",
-            properties: { key: { type: "number", default: 123 } },
+            properties: { key: { type: "integer", default: 123 } },
+            required: [],
+        })
+    })
+    test("12.3", () => {
+        const parameters = { key: 12.3 }
+        const result = promptParametersSchemaToJSONSchema(parameters)
+        assert.deepStrictEqual(result, {
+            type: "object",
+            properties: { key: { type: "number", default: 12.3 } },
             required: [],
         })
     })

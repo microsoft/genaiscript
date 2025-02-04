@@ -30,7 +30,6 @@
     "@octokit/plugin-throttling": "^9.3.2",
     "@octokit/rest": "^21.0.2",
     "@smithy/util-base64": "^4.0.0",
-    "@stoplight/json-schema-generator": "^1.0.2",
     "@tidyjs/tidy": "^2.5.2",
     "@types/diff": "^6.0.0",
     "@types/fluent-ffmpeg": "^2.1.27",

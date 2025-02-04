@@ -1,0 +1,119 @@
+---
+title: Parameters Schema
+description: Parameters schema are used to define signatures of scripts, tools.
+sidebar:
+    order: 50
+---
+
+This page describes the way parameter signatures are defined in GenAIScripts.
+Various entities in GenAIScript can be parameterized and the `PromptParametersSchema`
+provides a flexible way to define the schema of parameters with a mixture of builtin type inference.
+
+```js "parameters"
+// parameters of a script
+script({
+    parameters: {
+        city: "",
+        year: NaN,
+    },
+})
+// parameters of a tool
+defTool("...", "...", { city: "", year: NaN }, ...)
+```
+
+Internally, GenAIScript converts a `parameters` object (`PromptParametersSchema`) to a JSON Schema (`JSONSchema`) for various purposes.
+For example, the OpenAI tools API uses JSONSchema to define the signature of tools.
+
+`JSONSchema` is more expressive but also more verbose to author and
+can be cumbersome to author manually for simple use cases.
+
+```js '{ city: "" }'
+defTool("weather", "current weather", { city: "" }, ...)
+```
+
+## Syntax
+
+The following transformation rules are applied to convert the parameter data into
+a JSONSchema:
+
+- if the value is an object and has a `type` property, treat it as a JSONSchema object already (and convert nested objects)
+
+```txt
+{ type: "string" } => { type: "string" }
+```
+
+- if the value is a string, convert to `{ type: "string" }`. If the string is '""', it will be required; otherwise the value serves as `default`.
+
+```txt
+"" => { type: "string" }
+"San Francisco" => { type: "string", default: "San Francisco" }
+```
+
+- if the value is a number, convert to `{ type: "number" }`. If the number is `NaN`, it will be required.
+
+```txt
+NaN => { type: "number" }
+42 => { type: "number", default: 42 }
+```
+
+- if the value is a boolean, convert to `{ type: "boolean" }`. There is no encoding for a required boolean yet.
+
+```txt
+true => { type: "boolean", default: true }
+```
+
+- if the value is an array, the type is of the items is inferred from the first array element.
+
+```txt
+[""] => { type: "array", items: { type: "string" } }
+```
+
+- if the value is an object, convert into a `type: 'object'` schema. Fields with `""` or `NaN` values are required.
+
+```txt
+{ city: "" } => { 
+    type: "object", 
+    properties: { city: { type: "string" } }, 
+    required: ["city"] 
+}
+{ price: 42 } => { 
+    type: "object", 
+    properties: { price: { type: "number", default: 42 } }, 
+    required: [] 
+}
+```
+
+## Scripts and system Scripts
+
+The `parameters` of a `script` entry is used to populate the `env.vars` entries. The parameters schema
+is used by Visual Studio Code when launching the script, in the [playground](/genaiscript/reference/playground)
+to populate the form fields.
+
+- the top-level script parameters name are used as-is in `env.vars`
+
+```js
+script({
+    parameters: {
+        city: "",
+        year: NaN,
+    },
+})
+const city = env.vars.city // city is a string
+const year = env.vars.year // year is a number
+```
+
+- the `parameters` of a [system script](/genaiscript/reference/scripts/system-scripts)
+  are prepended with the system script id.
+
+```js title="system-something.genai.js"
+system({
+    parameters: {
+        value: "",
+    },
+})
+const value = env.vars["system-something.value"]
+```
+
+## Runtime inference
+
+You can run the conversion helper by using the `JSONSchema.infer` function.

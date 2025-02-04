@@ -18,12 +18,17 @@ or [Anthropic tool use](https://docs.anthropic.com/en/docs/build-with-claude/too
 
 Not all LLM models support tools, in those cases, GenAIScript also support a fallback mechanism to implement tool call through system prompts (see [Fallback Tools](#fallbacktools)).
 
-<YouTube id="https://www.youtube.com/watch?v=E2oBlNK69-c" posterQuality="high" />
+<YouTube
+    id="https://www.youtube.com/watch?v=E2oBlNK69-c"
+    posterQuality="high"
+/>
 
 ## `defTool`
 
 `defTool` is used to define a tool that can be called by the LLM.
 It takes a JSON schema to define the input and expects a string output.
+The parameters are defined using the [parameters schema](/genaiscript/reference/scripts/parameters).
+
 
 **The LLM decides to call this tool on its own!**
 
@@ -32,14 +37,7 @@ defTool(
     "current_weather",
     "get the current weather",
     {
-        type: "object",
-        properties: {
-            location: {
-                type: "string",
-                description: "The city and state, e.g. San Francisco, CA",
-            },
-        },
-        required: ["location"],
+        city: "",
     },
     (args) => {
         const { location } = args
