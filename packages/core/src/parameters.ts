@@ -1,3 +1,5 @@
+import { deleteUndefinedValues } from "./cleaners"
+
 function isJSONSchema(obj: any) {
     if (typeof obj === "object" && obj.type === "object") return true
     if (typeof obj === "object" && obj.type === "array") return true
@@ -6,6 +8,8 @@ function isJSONSchema(obj: any) {
 
 function isPromptParameterTypeRequired(t: PromptParameterType): boolean {
     const ta = t as any
+    if (typeof t === "string" && t === "") return true
+    if (typeof t === "number" && isNaN(t)) return true
     return !!ta?.required
 }
 
@@ -18,9 +22,12 @@ export function promptParameterTypeToJSONSchema(
     | JSONSchemaObject
     | JSONSchemaArray {
     if (typeof t === "string")
-        return { type: "string", default: t } satisfies JSONSchemaString
+        return deleteUndefinedValues({
+            type: "string",
+            default: t === "" ? undefined : t,
+        }) satisfies JSONSchemaString
     else if (typeof t === "number")
-        return { type: "number", default: t } satisfies JSONSchemaNumber
+        return deleteUndefinedValues({ type: "number", default: isNaN(t) ? undefined : t }) satisfies JSONSchemaNumber
     else if (typeof t === "boolean")
         return { type: "boolean", default: t } satisfies JSONSchemaBoolean
     else if (Array.isArray(t))
@@ -81,4 +88,3 @@ export function promptParametersSchemaToJSONSchema(
     }
     return res satisfies JSONSchemaObject
 }
-

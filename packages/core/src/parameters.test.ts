@@ -71,21 +71,45 @@ describe("promptParameterTypeToJSONSchema", () => {
     })
 
     test("unsupported type", () => {
-        assert.throws(
-            () => promptParameterTypeToJSONSchema(() => {}),
-            Error
-        )
+        assert.throws(() => promptParameterTypeToJSONSchema(() => {}), Error)
     })
 })
 
 describe("promptParametersSchemaToJSONSchema", () => {
-    test("convert parameters schema to JSON schema", () => {
+    test("'value'", () => {
         const parameters = { key: "value" }
         const result = promptParametersSchemaToJSONSchema(parameters)
         assert.deepStrictEqual(result, {
             type: "object",
             properties: { key: { type: "string", default: "value" } },
             required: [],
+        })
+    })
+    test("''", () => {
+        const parameters = { key: "" }
+        const result = promptParametersSchemaToJSONSchema(parameters)
+        assert.deepStrictEqual(result, {
+            type: "object",
+            properties: { key: { type: "string" } },
+            required: ["key"],
+        })
+    })
+    test("123", () => {
+        const parameters = { key: 123 }
+        const result = promptParametersSchemaToJSONSchema(parameters)
+        assert.deepStrictEqual(result, {
+            type: "object",
+            properties: { key: { type: "number", default: 123 } },
+            required: [],
+        })
+    })
+    test("NaN", () => {
+        const parameters = { key: NaN }
+        const result = promptParametersSchemaToJSONSchema(parameters)
+        assert.deepStrictEqual(result, {
+            type: "object",
+            properties: { key: { type: "number", } },
+            required: ["key"],
         })
     })
 })
