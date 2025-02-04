@@ -20,6 +20,7 @@ import { runtimeHost } from "./host"
 import { JSON5Stringify, JSON5TryParse } from "./json5"
 import { JSONSchemaInfer } from "./schema"
 import { FFmepgClient } from "./ffmpeg"
+import { promptParametersSchemaToJSONSchema } from "./parameters"
 
 /**
  * This file defines global utilities and installs them into the global context.
@@ -96,6 +97,7 @@ export function installGlobals() {
 
     glb.JSONSchema = Object.freeze<JSONSchemaUtilities>({
         infer: JSONSchemaInfer,
+        fromParameters: promptParametersSchemaToJSONSchema
     })
 
     // Freeze AICI utilities with a generation function

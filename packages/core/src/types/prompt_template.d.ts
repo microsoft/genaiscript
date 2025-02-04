@@ -1028,6 +1028,13 @@ interface WorkspaceFileSystem {
     ): Promise<string>
 
     /**
+     * Copies a file between two paths
+     * @param source 
+     * @param destination 
+     */
+    copyFile(source: string, destination: string): Promise<void>
+
+    /**
      * Opens a file-backed key-value cache for the given cache name.
      * The cache is persisted across runs of the script. Entries are dropped when the cache grows too large.
      * @param cacheName
@@ -2117,8 +2124,17 @@ interface JSONSchemaUtilities {
     /**
      * Infers a JSON schema from an object
      * @param obj
+     * @deprecated Use `fromParameters` instead
      */
     infer(obj: any): Promise<JSONSchema>
+
+    /**
+     * Converts a parameters schema to a JSON schema
+     * @param parameters
+     */
+    fromParameters(
+        parameters: PromptParametersSchema | undefined
+    ): JSONSchema
 }
 
 interface HTMLTableToJSONOptions {

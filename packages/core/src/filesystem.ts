@@ -1,4 +1,4 @@
-import { stat } from "fs/promises"
+import { copyFile, stat } from "fs/promises"
 import { JSONLineCache } from "./cache"
 import { DOT_ENV_REGEX } from "./constants"
 import { CSVTryParse } from "./csv"
@@ -125,6 +125,11 @@ export function createFileSystem(): Omit<
             } catch {
                 return undefined
             }
+        },
+        copyFile: async (src: string, dest: string) => {
+            if (DOT_ENV_REGEX.test(src) || DOT_ENV_REGEX.test(dest))
+                throw new Error("copying .env not allowed")
+            await copyFile(src, dest)
         },
     } satisfies Omit<WorkspaceFileSystem, "grep" | "writeCached">
     ;(fs as any).readFile = readText

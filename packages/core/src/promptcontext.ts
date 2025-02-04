@@ -75,6 +75,7 @@ export async function createPromptContext(
                     : dotGenaiscriptPath("cache", "files")
             return await fileWriteCached(f, dir)
         },
+        copyFile: (src, dest) => runtimeHost.workspace.copyFile(src, dest),
         cache: (n) => runtimeHost.workspace.cache(n),
         findFiles: async (pattern, options) => {
             // Log and find files matching the given pattern
