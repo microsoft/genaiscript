@@ -39,15 +39,16 @@ async function ffmpegCommand(options?: { timeout?: number }) {
 
 async function computeHashFolder(
     filename: string | WorkspaceFile,
-    options: TraceOptions & FFmpegCommandOptions
+    options: TraceOptions & FFmpegCommandOptions & { salt?: any }
 ) {
-    const { trace, ...rest } = options
+    const { trace, salt, ...rest } = options
     const h = await hash(
         [typeof filename === "string" ? { filename } : filename, rest],
         {
             readWorkspaceFiles: true,
             version: true,
             length: VIDEO_HASH_LENGTH,
+            salt,
         }
     )
     return dotGenaiscriptPath("cache", "ffmpeg", h)
@@ -88,7 +89,7 @@ export class FFmepgClient implements Ffmpeg {
             cmd: FfmpegCommandBuilder,
             options?: { input: string; dir: string }
         ) => Awaitable<string>,
-        options?: FFmpegCommandOptions
+        options?: FFmpegCommandOptions & { salt?: any }
     ): Promise<string[]> {
         await logFile(input, "input")
         const { filenames } = await runFfmpeg(input, builder, options || {})
@@ -193,6 +194,12 @@ export class FFmepgClient implements Ffmpeg {
         const { filenames } = await runFfmpeg(filename, renderers, {
             ...soptions,
             cache,
+            salt: {
+                transcript,
+                count,
+                format,
+                size,
+            },
         })
         logVerbose(`ffmpeg: extracted ${filenames.length} frames`)
         for (const filename of filenames) await logFile(filename, "output")
@@ -233,7 +240,42 @@ export class FFmepgClient implements Ffmpeg {
                     return "audio.mp3"
                 }
             },
-            { ...foptions, cache: foptions.cache || "audio-voip" }
+            {
+                ...foptions,
+                cache: foptions.cache || "audio-voip",
+                salt: {
+                    transcription,
+                },
+            }
+        )
+        return res[0]
+    }
+
+    async extractClip(
+        filename: string | WorkspaceFile,
+        options: VideoExtractClipOptions
+    ): Promise<string> {
+        if (!filename) throw new Error("filename is required")
+
+        const { start, duration, end, ...rest } = options || {}
+        const res = await this.run(
+            filename,
+            async (cmd) => {
+                cmd.seekInput(start)
+                if (duration !== undefined) cmd.duration(duration)
+                if (end !== undefined) cmd.inputOptions(`-to ${end}`)
+                if (!options?.size)
+                    cmd.outputOptions("-c copy")
+                return `clip-${start}-${duration || end}.mp4`
+            },
+            {
+                ...rest,
+                salt: {
+                    start,
+                    duration,
+                    end,
+                },
+            }
         )
         return res[0]
     }
@@ -280,7 +322,7 @@ export class FFmepgClient implements Ffmpeg {
 async function runFfmpeg(
     filename: string | WorkspaceFile,
     renderer: FFmpegCommandRenderer | FFmpegCommandRenderer[],
-    options?: FFmpegCommandOptions
+    options?: FFmpegCommandOptions & { salt?: any }
 ): Promise<FFmpegCommandResult> {
     if (!filename) throw new Error("filename is required")
     const { cache } = options || {}

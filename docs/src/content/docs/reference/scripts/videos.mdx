@@ -78,6 +78,24 @@ const audio = await ffmpeg.extractAudio("path_to_video")
 The conversion to audio happens automatically
 for videos when using [transcribe](/genaiscript/reference/scripts/transcription).
 
+## Extracting clips
+
+You can extract a clip from a video file using `ffmpeg.extractClip`.
+
+```js
+const clip = await ffmpeg.extractClip("path_to_video", {
+    start: "00:00:10",
+    duration: 5,
+})
+```
+
+:::note
+
+This operation is quite fast as it does not require any reencoding. You can specify
+the output size but this will be much slower as it will require re-encoding.
+
+:::
+
 ## Probing videos
 
 You can extract metadata from a video file using `ffmpeg.probe`.
