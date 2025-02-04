@@ -2361,6 +2361,23 @@ interface VideoExtractFramesOptions extends FFmpegCommandOptions {
     format?: OptionsOrString<"jpeg" | "png">
 }
 
+interface VideoExtractClipOptions extends FFmpegCommandOptions {
+    /**
+     * Start time of the clip in seconds or timestamp (`[[hh:]mm:]ss[.xxx]`)
+     */
+    start: number | string
+    /**
+     * Duration of the clip in seconds or timestamp (`[[hh:]mm:]ss[.xxx]`).
+     * You can also specify `end`.
+     */
+    duration?: number | string
+    /**
+     * End time of the clip in seconds or timestamp (`[[hh:]mm:]ss[.xxx]`).
+     * You can also specify `duration`.
+     */
+    end?: number | string
+}
+
 interface VideoExtractAudioOptions extends FFmpegCommandOptions {
     /**
      * Optimize for speech-to-text transcription. Default is true.
@@ -2388,6 +2405,14 @@ interface Ffmpeg {
         file: string | WorkspaceFile,
         options?: VideoExtractFramesOptions
     ): Promise<string[]>
+
+    /**
+     * Extracts a clip from a video. Returns the generated video file path.
+     */
+    extractClip(
+        file: string | WorkspaceFile,
+        options: VideoExtractClipOptions
+    ): Promise<string>
 
     /**
      * Extract the audio track from a video

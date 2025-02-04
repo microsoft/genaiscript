@@ -51,6 +51,46 @@ defTool(
 )
 
 defTool(
+    "video_extract_clip",
+    "Extract a clip from from a video file. Returns the video filename.",
+    {
+        type: "object",
+        properties: {
+            filename: {
+                type: "string",
+                description: "The video filename to probe",
+            },
+            start: {
+                type: ["number", "string"],
+                description: "The start time in seconds or HH:MM:SS",
+            },
+            duration: {
+                type: ["number", "string"],
+                description: "The duration in seconds",
+            },
+            end: {
+                type: ["number", "string"],
+                description: "The end time in seconds or HH:MM:SS",
+            },
+        },
+        required: ["filename", "start"],
+    },
+    async (args) => {
+        const { context, filename, start, end, duration } = args
+        if (!filename) return "No filename provided"
+        if (!(await workspace.stat(filename)))
+            return `File ${filename} does not exist.`
+        context.log(`extracting clip from ${filename}`)
+        const audioFile = await ffmpeg.extractClip(filename, {
+            start,
+            end,
+            duration,
+        })
+        return audioFile
+    }
+)
+
+defTool(
     "video_extract_frames",
     "Extract frames from a video file",
     {

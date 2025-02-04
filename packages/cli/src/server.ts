@@ -298,7 +298,7 @@ export async function startServer(options: {
         }
         const sendLastRunResult = () => {
             if (!lastRunResult) return
-            if (JSON.stringify(lastRunResult).length < WS_MAX_FRAME_LENGTH)
+            if (JSON.stringify(lastRunResult).length < WS_MAX_FRAME_LENGTH - 200)
                 send(lastRunResult)
             else
                 send({
