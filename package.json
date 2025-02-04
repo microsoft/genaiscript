@@ -1,6 +1,6 @@
 {
     "name": "genaiscript-workspace",
-    "version": "1.98.1",
+    "version": "1.99.0",
     "license": "MIT",
     "private": true,
     "workspaces": {
@@ -100,7 +100,7 @@
         }
     },
     "devDependencies": {
-        "@inquirer/prompts": "^7.2.4",
+        "@inquirer/prompts": "^7.3.1",
         "glob": "^11.0.1",
         "npm-check-updates": "^17.1.14",
         "npm-run-all": "^4.1.5",
