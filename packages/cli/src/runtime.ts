@@ -324,6 +324,7 @@ function parseTeamsChannelUrl(url: string) {
 let _azureToken: string
 async function azureGetToken(): Promise<string> {
     if (!_azureToken) {
+        console.debug(`Azure: retreiving token...`)
         const { DefaultAzureCredential } = await import("@azure/identity")
         const credential = new DefaultAzureCredential()
         const tokenResponse = await credential.getToken(
@@ -342,17 +343,18 @@ export interface MicrosoftTeamsEntity {
 
 /**
  * Uploads a file to the files storage of a Microsoft Teams channel.
- * @param channelUrl
- * @param folder
+ * @param channelUrl Shared channel link in the format https://teams.microsoft.com/l/channel/<channelId>/<channelName>?groupId=<teamId>
  * @param filename
  * @returns
  */
-export async function microsoftTeamsUploadFile(
+async function microsoftTeamsChannelUploadFile(
+    token: string,
     channelUrl: string,
     filename: string
-) {
+): Promise<MicrosoftTeamsEntity> {
+    console.debug(`Uploading ${filename}...`)
+
     const { teamId, channelId } = parseTeamsChannelUrl(channelUrl)
-    const token = await azureGetToken()
     const Authorization = `Bearer ${token}`
 
     const channelInfoUrl = `https://graph.microsoft.com/v1.0/teams/${teamId}/channels/${channelId}`
@@ -367,7 +369,6 @@ export async function microsoftTeamsUploadFile(
         )
     }
     const channelInfo = await channelInfoRes.json()
-    console.log(channelInfo)
     const folder = channelInfo.displayName
 
     // resolve channel folder name
@@ -392,13 +393,17 @@ export async function microsoftTeamsUploadFile(
     const j = (await res.json()) as MicrosoftTeamsEntity
     return j
 }
-/*
-export async function teamsPostMessage(
+
+export async function microsoftTeamsChannelPostMessage(
     channelUrl: string,
     subject: string,
     message: string,
-    videoFilename: string
-): Promise<void> {
+    options?: {
+        files?: string[]
+    }
+): Promise<MicrosoftTeamsEntity> {
+    const { files = [] } = options || {}
+    const { teamId, channelId } = parseTeamsChannelUrl(channelUrl)
     const token = await azureGetToken()
 
     const body = {
@@ -407,24 +412,23 @@ export async function teamsPostMessage(
             content: message,
         },
         subject,
-        attachments: [],
+        attachments: [] as any[],
     }
 
-    if (videoFilename) {
-        console.debug(`Uploading video ${videoFilename}...`)
-        const videoRes = await microsoftTeamsUploadFile(
+    for (const file of files) {
+        const fres = await microsoftTeamsChannelUploadFile(
+            token,
             channelUrl,
-            videoFilename
+            file
         )
-        console.log(videoRes)
         const guid = crypto.randomUUID()
         body.body.content += "\n" + `<attachment id=\"${guid}\"></attachment>`
         body.attachments = [
             {
                 id: guid,
                 contentType: "reference",
-                contentUrl: videoRes.webUrl,
-                name: videoRes.name,
+                contentUrl: fres.webUrl,
+                name: fres.name,
                 thumbnailUrl: null,
             },
         ]
@@ -451,10 +455,7 @@ export async function teamsPostMessage(
     {
         const data: any = await response.json()
         const { webUrl } = data
-        console.log(`message created at ${webUrl}`)
-        console.debug(data)
+        console.debug(`message created at ${webUrl}`)
         return data
     }
 }
-
-*/
