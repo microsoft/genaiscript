@@ -62,6 +62,7 @@ import { HostConfiguration } from "../../core/src/hostconfiguration"
 import { resolveLanguageModel } from "../../core/src/lm"
 import { CancellationOptions } from "../../core/src/cancellation"
 import { defaultModelConfigurations } from "../../core/src/llms"
+import { createPythonRuntime } from "../../core/src/pyodide"
 
 class NodeServerManager implements ServerManager {
     async start(): Promise<void> {
@@ -417,6 +418,15 @@ export class NodeHost implements RuntimeHost {
         options?: BrowseSessionOptions & TraceOptions
     ): Promise<BrowserPage> {
         return this.browsers.browse(url, options)
+    }
+
+    /**
+     * Instantiates a python evaluation environment
+     */
+    python(
+        options?: PythonRuntimeOptions & TraceOptions
+    ): Promise<PythonRuntime> {
+        return createPythonRuntime(options)
     }
 
     async exec(

@@ -1098,7 +1098,7 @@ Apache License
 
 The following npm packages may be included in this product:
 
- - @grpc/grpc-js@1.12.5
+ - @grpc/grpc-js@1.12.6
  - @grpc/proto-loader@0.7.13
  - detect-libc@2.0.3
  - docker-modem@5.0.6
@@ -1956,9 +1956,9 @@ Apache License
 
 The following npm packages may be included in this product:
 
- - @aws-sdk/client-cognito-identity@3.741.0
+ - @aws-sdk/client-cognito-identity@3.742.0
  - @aws-sdk/client-sso@3.734.0
- - @aws-sdk/credential-provider-cognito-identity@3.741.0
+ - @aws-sdk/credential-provider-cognito-identity@3.742.0
  - @aws-sdk/util-user-agent-browser@3.734.0
  - @aws-sdk/util-user-agent-node@3.734.0
  - @smithy/eventstream-codec@2.2.0
@@ -2862,7 +2862,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.98.1
+ - genaiscript-vscode@1.99.0
 
 This package contains the following license:
 
@@ -4214,7 +4214,7 @@ The following npm packages may be included in this product:
  - @aws-sdk/credential-provider-env@3.734.0
  - @aws-sdk/credential-provider-ini@3.741.0
  - @aws-sdk/credential-provider-node@3.741.0
- - @aws-sdk/credential-providers@3.741.0
+ - @aws-sdk/credential-providers@3.742.0
  - @aws-sdk/region-config-resolver@3.734.0
  - @aws-sdk/token-providers@3.734.0
  - @aws-sdk/types@3.734.0
@@ -5377,6 +5377,7 @@ The following npm packages may be included in this product:
  - @aws-sdk/core@3.734.0
  - @aws-sdk/credential-provider-http@3.734.0
  - @aws-sdk/nested-clients@3.734.0
+ - pyodide@0.27.2
 
 These packages each contain the following license:
 
@@ -5545,6 +5546,36 @@ IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR
 ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, 
 TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+-----------
+
+The following npm packages may be included in this product:
+
+ - bufferutil@4.0.9
+ - ws@8.18.0
+
+These packages each contain the following license:
+
+Copyright (c) 2011 Einar Otto Stangvik <einaros@gmail.com>
+Copyright (c) 2013 Arnout Kazemier and contributors
+Copyright (c) 2016 Luigi Pinca and contributors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+the Software, and to permit persons to whom the Software is furnished to do so,
+subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 -----------
 
@@ -8015,10 +8046,10 @@ The following npm packages may be included in this product:
  - @tokenizer/token@0.3.0
  - agent-base@6.0.2
  - eastasianwidth@0.2.0
- - genaiscript-core-internal@1.98.1
- - genaiscript-sample@1.98.1
- - genaiscript-web@1.98.1
- - genaiscript@1.98.1
+ - genaiscript-core-internal@1.99.0
+ - genaiscript-sample@1.99.0
+ - genaiscript-web@1.99.0
+ - genaiscript@1.99.0
  - get-port@1.0.0
  - https-proxy-agent@5.0.1
  - isarray@1.0.0
@@ -9349,9 +9380,9 @@ SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - @azure/msal-browser@4.1.0
+ - @azure/msal-browser@4.2.0
  - @azure/msal-common@14.16.0
- - @azure/msal-common@15.1.0
+ - @azure/msal-common@15.1.1
 
 These packages each contain the following license:
 
@@ -11539,6 +11570,36 @@ THE SOFTWARE.
 
 The following npm package may be included in this product:
 
+ - node-gyp-build@4.8.4
+
+This package contains the following license:
+
+The MIT License (MIT)
+
+Copyright (c) 2017 Mathias Buus
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
+-----------
+
+The following npm package may be included in this product:
+
  - tiny-emitter@2.1.0
 
 This package contains the following license:
@@ -12336,6 +12397,45 @@ Code generated by the command line utilities is owned by the owner
 of the input file used when generating it. This code is not
 standalone and requires a support library to be linked with it. This
 support library is itself covered by the above license.
+
+-----------
+
+The following npm package may be included in this product:
+
+ - utf-8-validate@5.0.10
+
+This package contains the following license:
+
+This project is licensed for use as follows:
+
+"""
+Copyright (c) 2011 Einar Otto Stangvik <einaros@gmail.com> (http://2x.io)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+the Software, and to permit persons to whom the Software is furnished to do so,
+subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+"""
+
+This license applies to parts originating from
+https://www.cl.cam.ac.uk/~mgk25/ucs/utf8_check.c:
+
+"""
+Markus Kuhn <http://www.cl.cam.ac.uk/~mgk25/> -- 2005-03-30
+License: http://www.cl.cam.ac.uk/~mgk25/short-license.html
+"""
 
 -----------
 

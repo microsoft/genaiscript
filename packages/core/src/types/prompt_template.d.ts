@@ -4241,6 +4241,24 @@ type FetchOptions = RequestInit & {
 
 type FetchTextOptions = Omit<FetchOptions, "body" | "signal" | "window">
 
+interface PythonRuntimeOptions {
+    cache?: string
+}
+
+interface PythonRuntime {
+    /**
+     * Runs python code and returns the result
+     * @param code python code
+     */
+    run(code: string): Promise<any>
+
+    /**
+     * Imports a package using micropip
+     * @param pkg name and version
+     */
+    import(pkg: string): Promise<void>
+}
+
 interface PromptHost
     extends ShellHost,
         UserInterfaceHost,
@@ -4287,6 +4305,11 @@ interface PromptHost
      * Create a new promise queue to run async functions with limited concurrency
      */
     promiseQueue(concurrency: number): PromiseQueue
+
+    /**
+     * Instantiates a python evaluation environment powered by pyodide (https://pyodide.org/)
+     */
+    python(options?: PythonRuntimeOptions): Promise<PythonRuntime>
 }
 
 interface ContainerHost extends ShellHost {

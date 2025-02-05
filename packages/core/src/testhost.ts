@@ -209,6 +209,13 @@ export class TestHost implements RuntimeHost {
         throw new Error("Method not implemented.")
     }
 
+    /**
+     * Instantiates a python evaluation environment
+     */
+    python(options?: PythonRuntimeOptions): Promise<PythonRuntime> {
+        throw new Error("python")
+    }
+
     // Async method to remove containers
     async removeContainers(): Promise<void> {}
 
