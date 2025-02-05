@@ -7,6 +7,26 @@ import { HTMLEscape } from "./html"
 import { TraceOptions } from "./trace"
 import { logError, logVerbose } from "./util"
 
+export function convertMarkdownToTeamsHTML(markdown: string) {
+    // using regexes, convert headers, lists, links, bold, italic, code, and quotes
+    let subject: string
+    let html = markdown
+        .replace(/^# (.*$)/gim, (m, t) => {
+            subject = t
+            return ""
+        })
+        .replace(/^#### (.*$)/gim, "<h3>$1</h3>")
+        .replace(/^### (.*$)/gim, "<h2>$1</h2>")
+        .replace(/^## (.*$)/gim, "<h1>$1</h1>")
+        .replace(/^\> (.*$)/gim, "<blockquote>$1</blockquote>\n")
+        .replace(/\*\*(.*)\*\*/gim, "<bold>$1</bold>")
+        .replace(/\*(.*)\*/gim, "<emph>$1</emph>")
+        .replace(/`(.*?)`/gim, "<code>$1</code>")
+        .replace(/~~(.*?)~~/gim, "<strike>$1</strike>")
+        .replace(/^- (.*$)/gim, "<br/>- $1")
+    return { content: html.trim(), subject }
+}
+
 function parseTeamsChannelUrl(url: string) {
     const m =
         /^https:\/\/teams.microsoft.com\/[^\/]{1,32}\/channel\/(?<channelId>.+)\/.*\?groupId=(?<teamId>([a-z0-9\-])+)$/.exec(
@@ -84,7 +104,6 @@ async function microsoftTeamsChannelUploadFile(
 
 export async function microsoftTeamsChannelPostMessage(
     channelUrl: string,
-    subject: string,
     message: string,
     options?: {
         script: PromptScript
@@ -105,11 +124,12 @@ export async function microsoftTeamsChannelPostMessage(
     }
 
     // convert message to html
+    const { content, subject } = convertMarkdownToTeamsHTML(message)
 
     const body = deleteUndefinedValues({
         body: {
             contentType: "html",
-            content: message,
+            content,
         },
         subject,
         attachments: [] as any[],
