@@ -26,6 +26,16 @@ Each Pyodide instance has a `run` method that can be used to run Python code.
 const result = await py.run(`print('Hello, World!')`)
 ```
 
+## Globals
+
+You can read and write global variables in the Pyodide environment.
+
+```javascript
+py.globals.set("x", 42)
+const x = py.globals.get("x")
+await py.run(`print(x)`)
+```
+
 ## Workspace file system
 
 The current workspace file system is mounted on the `/workspace` directory in the Pyodide environment.
