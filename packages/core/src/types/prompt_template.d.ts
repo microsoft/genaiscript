@@ -4243,6 +4243,10 @@ type FetchTextOptions = Omit<FetchOptions, "body" | "signal" | "window">
 
 interface PythonRuntimeOptions {
     cache?: string
+    /**
+     * Access to workspace file system 
+     */
+    workspaceFs?: boolean
 }
 
 interface PythonRuntime {

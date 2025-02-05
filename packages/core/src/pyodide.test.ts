@@ -1,27 +1,34 @@
 import { describe, test, before } from "node:test"
 import assert from "node:assert/strict"
-import { createPythonRuntime, PythonRuntime } from "./pyodide"
+import { createPythonRuntime } from "./pyodide"
 import { TestHost } from "./testhost"
 
-describe("PyodideRuntime", () => {
+describe("PyodideRuntime", async () => {
     let runtime: PythonRuntime
 
     before(async () => {
         TestHost.install()
-        runtime = await createPythonRuntime()
+        runtime = await createPythonRuntime({ workspaceFs: true })
     })
-
-    test("should run Python code and return result", async () => {
+    await test("should list current files from Python", async () => {
+        const result = await runtime.run(`
+import os
+os.listdir('/mnt')
+`)
+        console.log({ result })
+        assert(Array.isArray(result))
+    })
+    await test("should run Python code and return result", async () => {
         const result = await runtime.run("print('Hello, World!')")
         assert.equal(result, undefined) // Since print returns None in Python
     })
-    test("should return Python version", async () => {
+    await test("should return Python version", async () => {
         const result = await runtime.run("import sys; sys.version")
         assert(result)
         assert(typeof result === "string")
         assert(result.includes("3."))
     })
-    test("should handle Python exceptions", async () => {
+    await test("should handle Python exceptions", async () => {
         try {
             await runtime.run("raise ValueError('Test error')")
             assert.fail("Expected an error to be thrown")
@@ -30,12 +37,13 @@ describe("PyodideRuntime", () => {
             assert(error.message.includes("ValueError: Test error"))
         }
     })
-    test("should install and use snowballstemmer", async () => {
+    await test("should install and use snowballstemmer", async () => {
         await runtime.import("snowballstemmer")
         const result = await runtime.run(`
             import snowballstemmer
             stemmer = snowballstemmer.stemmer('english')
             stemmer.stemWords(['running', 'jumps', 'easily'])
         `)
+        assert(Array.isArray(result))
     })
 })
