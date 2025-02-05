@@ -13,12 +13,12 @@ class PyProxy implements PythonProxy {
     ) {}
 
     get<T>(name: string): T {
-        return toJs(this.proxy[name])
+        return toJs(this.proxy.get(name))
     }
 
     set<T>(name: string, value: T) {
         const p = this.runtime.toPy(value)
-        this.proxy[name] = p
+        this.proxy.set(name, p)
     }
 }
 
