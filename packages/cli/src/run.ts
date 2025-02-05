@@ -532,17 +532,12 @@ export async function runScriptInternal(
             process.env.GENAISCRIPT_TEAMS_CHANNEL_URL ||
             process.env.TEAMS_CHANNEL_URL
         if (channelURL) {
-            await microsoftTeamsChannelPostMessage(
-                channelURL,
-                undefined,
-                result.text,
-                {
-                    script,
-                    info: ghInfo,
-                    cancellationToken,
-                    trace,
-                }
-            )
+            await microsoftTeamsChannelPostMessage(channelURL, result.text, {
+                script,
+                info: ghInfo,
+                cancellationToken,
+                trace,
+            })
         }
     }
 
