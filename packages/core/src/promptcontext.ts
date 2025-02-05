@@ -302,6 +302,8 @@ export async function createPromptContext(
             await runtimeHost.contentSafety(id || options?.contentSafety, {
                 trace,
             }),
+        python: async (options) =>
+            await runtimeHost.python({ trace, ...(options || {}) }),
     })
 
     // Freeze project options to prevent modification

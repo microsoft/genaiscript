@@ -4241,6 +4241,15 @@ type FetchOptions = RequestInit & {
 
 type FetchTextOptions = Omit<FetchOptions, "body" | "signal" | "window">
 
+interface PythonRuntimeOptions {
+    cache?: string
+}
+
+interface PythonRuntime {
+    run(code: string): Promise<any>
+    import(pkg: string): Promise<void>
+}
+
 interface PromptHost
     extends ShellHost,
         UserInterfaceHost,
@@ -4287,6 +4296,11 @@ interface PromptHost
      * Create a new promise queue to run async functions with limited concurrency
      */
     promiseQueue(concurrency: number): PromiseQueue
+
+    /**
+     * Instantiates a python evaluation environment
+     */
+    python(options?: PythonRuntimeOptions): Promise<PythonRuntime>
 }
 
 interface ContainerHost extends ShellHost {

@@ -172,6 +172,13 @@ export interface RuntimeHost extends Host {
     container(options: ContainerOptions & TraceOptions): Promise<ContainerHost>
 
     /**
+     * Instantiates a python evaluation environment
+     */
+    python(
+        options?: PythonRuntimeOptions & TraceOptions
+    ): Promise<PythonRuntime>
+
+    /**
      * Launches a browser page
      * @param url
      * @param options

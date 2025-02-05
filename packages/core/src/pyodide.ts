@@ -5,11 +5,6 @@ import { hash } from "./crypto"
 import { deleteUndefinedValues } from "./cleaners"
 import { dedent } from "./indent"
 
-export interface PythonRuntime {
-    run(code: string): Promise<any>
-    import(pkg: string): Promise<void>
-}
-
 class PyodideRuntime implements PythonRuntime {
     private runtime: PyodideInterface
     private micropip: { install: (packageName: string) => Promise<void> }
@@ -28,17 +23,18 @@ class PyodideRuntime implements PythonRuntime {
 
     async run(code: string): Promise<any> {
         const d = dedent(code)
-        const res = this.runtime.runPython(d)
+        const res = await this.runtime.runPythonAsync(d)
         const r = typeof res?.toJs === "function" ? res.toJs() : res
         return res
     }
 }
 
 export async function createPythonRuntime(
-    options?: {} & TraceOptions
+    options?: PythonRuntimeOptions & TraceOptions
 ): Promise<PythonRuntime> {
+    const { cache } = options ?? {}
     const { loadPyodide, version } = await import("pyodide")
-    const sha = await hash({ version: true, pyodide: version })
+    const sha = await hash({ cache, version: true, pyodide: version })
     const pyodide = await loadPyodide(
         deleteUndefinedValues({
             packageCacheDir: dotGenaiscriptPath("cache", "python", sha),
