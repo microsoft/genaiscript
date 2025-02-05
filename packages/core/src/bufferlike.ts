@@ -18,12 +18,12 @@ export async function resolveBufferLike(
     else if (bufferLike instanceof Uint8Array) return Buffer.from(bufferLike)
     else if (
         typeof bufferLike === "object" &&
-        (bufferLike as WorkspaceFile).content
-    )
+        (bufferLike as WorkspaceFile).filename
+    ) {
         return Buffer.from(
-            (bufferLike as WorkspaceFile).content,
-            (bufferLike as WorkspaceFile).encoding || "utf-8"
+            await resolveFileBytes(bufferLike as WorkspaceFile, options)
         )
+    }
     console.log(bufferLike)
     throw new Error("Unsupported buffer-like object")
 }

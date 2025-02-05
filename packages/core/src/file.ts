@@ -21,6 +21,7 @@ import {
     DOCX_MIME_TYPE,
     DOCX_REGEX,
     HTTPS_REGEX,
+    MAX_FILE_CONTENT_SIZE,
     PDF_MIME_TYPE,
     PDF_REGEX,
     XLSX_MIME_TYPE,
@@ -37,9 +38,9 @@ import { tidyData } from "./tidy"
  */
 export async function resolveFileContent(
     file: WorkspaceFile,
-    options?: TraceOptions
+    options?: TraceOptions & { maxFileSize?: number }
 ) {
-    const { trace } = options || {}
+    const { trace, maxFileSize = MAX_FILE_CONTENT_SIZE } = options || {}
 
     // decode known files
     if (file.encoding === "base64") {
@@ -120,7 +121,7 @@ export async function resolveFileContent(
         if (!isBinary) file.content = await readText(filename)
         else {
             const info = await host.statFile(filename)
-            if (info.size < 1000000) {
+            if (!maxFileSize || info.size < maxFileSize) {
                 const bytes: Uint8Array = await host.readFile(filename)
                 file.encoding = "base64"
                 file.content = toBase64(bytes)
@@ -200,8 +201,10 @@ export async function resolveFileBytes(
     options?: TraceOptions
 ): Promise<Uint8Array> {
     if (typeof filename === "object") {
-        if (filename.encoding === "base64" && filename.content)
-            return fromBase64(filename.content)
+        if (filename.encoding && filename.content)
+            return new Uint8Array(
+                Buffer.from(filename.content, filename.encoding)
+            )
         filename = filename.filename
     }
 
