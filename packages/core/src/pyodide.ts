@@ -44,13 +44,7 @@ export async function createPythonRuntime(
         })
     )
     if (workspaceFs) {
-        const mountDir = "/mnt"
-        await pyodide.FS.mkdirTree(mountDir)
-        await pyodide.FS.mount(
-            pyodide.FS.filesystems.NODEFS,
-            { root: process.cwd() },
-            mountDir
-        )
+        await pyodide.mountNodeFS("/workspace", process.cwd())
     }
     return new PyodideRuntime(version, pyodide)
 }

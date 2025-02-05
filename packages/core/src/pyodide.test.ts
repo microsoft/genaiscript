@@ -13,7 +13,7 @@ describe("PyodideRuntime", async () => {
     await test("should list current files from Python", async () => {
         const result = await runtime.run(`
 import os
-os.listdir('/mnt')
+os.listdir('/workspace')
 `)
         console.log({ result })
         assert(Array.isArray(result))
