@@ -205,15 +205,13 @@ export async function microsoftTeamsChannelPostMessage(
         )
         const guid = crypto.randomUUID()
         body.body.content += "\n" + `<attachment id=\"${guid}\"></attachment>`
-        body.attachments = [
-            {
-                id: guid,
-                contentType: "reference",
-                contentUrl: fres.webUrl,
-                name: fres.name,
-                thumbnailUrl: null,
-            },
-        ]
+        body.attachments.push({
+            id: guid,
+            contentType: "reference",
+            contentUrl: fres.webUrl,
+            name: fres.name,
+            thumbnailUrl: null,
+        })
     }
 
     // finalize message
