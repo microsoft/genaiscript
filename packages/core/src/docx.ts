@@ -1,5 +1,6 @@
 import { host } from "./host"
 import { TraceOptions } from "./trace"
+import { logError } from "./util"
 
 /**
  * parses docx, require mammoth to be installed
@@ -9,7 +10,7 @@ import { TraceOptions } from "./trace"
  */
 export async function DOCXTryParse(
     file: string,
-    options?: TraceOptions & { format: "html" | "text" }
+    options?: TraceOptions & { format?: "html" | "text" }
 ): Promise<string> {
     const { trace, format = "text" } = options || {}
     try {
@@ -25,6 +26,7 @@ export async function DOCXTryParse(
             return results.value
         }
     } catch (error) {
+        logError(error)
         trace?.error(`reading docx`, error)
         return undefined
     }
