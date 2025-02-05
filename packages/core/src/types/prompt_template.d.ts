@@ -1872,7 +1872,7 @@ interface Parsers {
      */
     DOCX(
         content: string | WorkspaceFile,
-        options?: { format: "text" | "html" }
+        options?: { format: "markdown" | "text" | "html" }
     ): Promise<{ file: WorkspaceFile } | undefined>
 
     /**

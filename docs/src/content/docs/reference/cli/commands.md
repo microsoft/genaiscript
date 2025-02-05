@@ -504,7 +504,7 @@ Usage: genaiscript parse docx [options] <file>
 Parse a DOCX into texts
 
 Options:
-  -f, --format <string>  output format (choices: "html", "text")
+  -f, --format <string>  output format (choices: "markdown", "html", "text")
   -h, --help             display help for command
 ```
 

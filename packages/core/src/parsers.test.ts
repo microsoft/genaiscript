@@ -66,6 +66,15 @@ describe("parsers", async () => {
         assert(result.file.content.includes("Lorem"))
     })
 
+    await test("DOCX - markdown", async () => {
+        const result = await parsers.DOCX(
+            {
+                filename: "../sample/src/rag/Document.docx",
+            },
+            { format: "markdown" }
+        )
+        assert(result.file.content.includes("Microsoft"))
+    })
     await test("DOCX - html", async () => {
         const result = await parsers.DOCX(
             {
