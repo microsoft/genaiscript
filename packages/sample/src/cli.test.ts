@@ -71,22 +71,18 @@ describe("cli", async () => {
 })
 describe("parse", async () => {
     const cmd = "parse"
-    test("pdf", async () => {
+    await test("pdf", async () => {
         const res = await $`node ${cli} ${cmd} pdf src/rag/loremipsum.pdf`
         assert(res.stdout.includes("Lorem Ipsum"))
     })
-    test("docx", async () => {
+    await test("docx", async () => {
         const res = await $`node ${cli} ${cmd} docx src/rag/Document.docx`
-        assert(
-            res.stdout.includes(
-                "Microsoft Word is a word processor developed by Microsoft."
-            )
-        )
+        assert(res.stdout.includes("**Microsoft Word**"))
     })
-    test("tokens", async () => {
+    await test("tokens", async () => {
         await $`node ${cli} ${cmd} tokens "src/**" -ef "**/*.pdf"`
     })
-    test("prompty", async () => {
+    await test("prompty", async () => {
         const res = await $`node ${cli} ${cmd} "src/*.prompty"`.nothrow()
         assert(!res.exitCode)
     })

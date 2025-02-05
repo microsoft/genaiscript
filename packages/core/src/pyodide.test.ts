@@ -46,4 +46,20 @@ os.listdir('/workspace')
         `)
         assert(Array.isArray(result))
     })
+    await test("should set and get global variables", async () => {
+        await runtime.run("x = 42")
+        const result = runtime.globals.get<number>("x")
+        assert.equal(result, 42)
+    })
+
+    await test("should update global variables", async () => {
+        runtime.globals.set("y", 100)
+        const result = await runtime.run("y")
+        assert.equal(result, 100)
+    })
+
+    await test("should handle non-existent global variables", async () => {
+        const result = runtime.globals.get("non_existent_var")
+        assert.equal(result, undefined)
+    })
 })
