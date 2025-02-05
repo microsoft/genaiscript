@@ -83,6 +83,7 @@ async function microsoftTeamsChannelUploadFile(
 
     // resolve channel folder name
     const file = await runtimeHost.readFile(filename)
+    if (!file) throw new Error(`${filename} not found`)
     const url = `https://graph.microsoft.com/v1.0/groups/${teamId}/drive/root:/${folder}/${path.basename(
         filename
     )}:/content`
@@ -229,6 +230,6 @@ class MicrosoftTeamsChannelClient implements MessageChannelClient {
 export function createMicrosoftTeamsChannelClient(
     url: string
 ): MessageChannelClient {
-    if (parseTeamsChannelUrl(url)) throw new Error("Invalid Teams channel URL")
+    if (!parseTeamsChannelUrl(url)) throw new Error("Invalid Teams channel URL")
     return new MicrosoftTeamsChannelClient(url)
 }
