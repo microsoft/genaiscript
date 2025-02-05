@@ -66,6 +66,34 @@ describe("parsers", async () => {
         assert(result.file.content.includes("Lorem"))
     })
 
+    await test("DOCX - markdown", async () => {
+        const result = await parsers.DOCX(
+            {
+                filename: "../sample/src/rag/Document.docx",
+            },
+            { format: "markdown" }
+        )
+        assert(result.file.content.includes("Microsoft"))
+    })
+    await test("DOCX - html", async () => {
+        const result = await parsers.DOCX(
+            {
+                filename: "../sample/src/rag/Document.docx",
+            },
+            { format: "html" }
+        )
+        assert(result.file.content.includes("Microsoft"))
+    })
+    await test("DOCX - text", async () => {
+        const result = await parsers.DOCX(
+            {
+                filename: "../sample/src/rag/Document.docx",
+            },
+            { format: "text" }
+        )
+        assert(result.file.content.includes("Microsoft"))
+    })
+
     test("CSV", () => {
         const result = parsers.CSV("key,value\n1,2")
         assert.deepStrictEqual(result, [{ key: "1", value: "2" }])

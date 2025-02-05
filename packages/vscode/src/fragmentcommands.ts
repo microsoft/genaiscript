@@ -52,18 +52,25 @@ async function showPromptParametersQuickPicks(
                 parameters[param] = value.label === "yes"
                 break
             }
+            case "integer":
             case "number": {
+                const parse = schema.type === "integer" ? parseInt : parseFloat
                 const value = await vscode.window.showInputBox({
-                    title: `Enter value for ${param}`,
+                    title: `Enter ${schema.type} value for ${param}`,
                     value: schema.default?.toLocaleString(),
                     prompt: schema.description,
-                    validateInput: (v) =>
-                        isNaN(parseFloat(v))
-                            ? "Enter a valid number"
-                            : undefined,
+                    validateInput: (v) => {
+                        v = v.trim()
+                        const x = parse(v)
+                        const msg =
+                            isNaN(x) || String(x) !== v
+                                ? `Enter a valid, finite ${schema.type}`
+                                : null
+                        return msg
+                    },
                 })
                 if (value === undefined) return undefined
-                parameters[param] = parseFloat(value)
+                parameters[param] = parse(value)
                 break
             }
             default:
@@ -259,8 +266,6 @@ export function activateFragmentCommands(state: ExtensionState) {
             configuration
         )
     }
-
-
 
     subscriptions.push(
         registerCommand("genaiscript.fragment.prompt", fragmentPrompt),

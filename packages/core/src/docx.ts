@@ -1,5 +1,7 @@
 import { host } from "./host"
+import { HTMLToMarkdown } from "./html"
 import { TraceOptions } from "./trace"
+import { logError } from "./util"
 
 /**
  * parses docx, require mammoth to be installed
@@ -9,17 +11,28 @@ import { TraceOptions } from "./trace"
  */
 export async function DOCXTryParse(
     file: string,
-    options?: TraceOptions
+    options?: TraceOptions & { format?: "markdown" | "html" | "text" }
 ): Promise<string> {
-    const { trace } = options || {}
+    const { trace, format = "markdown" } = options || {}
     try {
-        const { extractRawText } = await import("mammoth")
+        const { extractRawText, convertToHtml } = await import("mammoth")
         const path = !/^\//.test(file)
             ? host.path.join(host.projectFolder(), file)
             : file
-        const results = await extractRawText({ path })
-        return results.value
+        if (format === "html" || format === "markdown") {
+            const results = await convertToHtml({ path })
+            if (format === "markdown")
+                return HTMLToMarkdown(results.value, {
+                    trace,
+                    disableGfm: true,
+                })
+            return results.value
+        } else {
+            const results = await extractRawText({ path })
+            return results.value
+        }
     } catch (error) {
+        logError(error)
         trace?.error(`reading docx`, error)
         return undefined
     }
