@@ -12,7 +12,7 @@ import { JSON5TryParse } from "./json5"
 import { arrayify, dotGenaiscriptPath, logVerbose } from "./util"
 import { XMLTryParse } from "./xml"
 import { YAMLTryParse } from "./yaml"
-import { basename } from "path"
+import { basename, dirname } from "path"
 import { ensureDir } from "fs-extra"
 
 export function createFileSystem(): Omit<
@@ -131,7 +131,7 @@ export function createFileSystem(): Omit<
         copyFile: async (src: string, dest: string) => {
             if (DOT_ENV_REGEX.test(src) || DOT_ENV_REGEX.test(dest))
                 throw new Error("copying .env not allowed")
-            await ensureDir(basename(dest))
+            await ensureDir(dirname(dest))
             await copyFile(src, dest)
         },
     } satisfies Omit<WorkspaceFileSystem, "grep" | "writeCached">
