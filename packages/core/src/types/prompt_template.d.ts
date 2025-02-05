@@ -4246,7 +4246,16 @@ interface PythonRuntimeOptions {
 }
 
 interface PythonRuntime {
+    /**
+     * Runs python code and returns the result
+     * @param code python code
+     */
     run(code: string): Promise<any>
+
+    /**
+     * Imports a package using micropip
+     * @param pkg name and version
+     */
     import(pkg: string): Promise<void>
 }
 
