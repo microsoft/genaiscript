@@ -8,7 +8,7 @@ describe("PyodideRuntime", async () => {
 
     before(async () => {
         TestHost.install()
-        runtime = await createPythonRuntime({ workspaceFs: true })
+        runtime = await createPythonRuntime()
     })
     await test("should list current files from Python", async () => {
         const result = await runtime.run(`

@@ -32,7 +32,7 @@ class PyodideRuntime implements PythonRuntime {
 export async function createPythonRuntime(
     options?: PythonRuntimeOptions & TraceOptions
 ): Promise<PythonRuntime> {
-    const { cache, workspaceFs } = options ?? {}
+    const { cache } = options ?? {}
     const { loadPyodide, version } = await import("pyodide")
     const sha = await hash({ cache, version: true, pyodide: version })
     const pyodide = await loadPyodide(
@@ -43,8 +43,6 @@ export async function createPythonRuntime(
             checkAPIVersion: true,
         })
     )
-    if (workspaceFs) {
-        await pyodide.mountNodeFS("/workspace", process.cwd())
-    }
+    await pyodide.mountNodeFS("/workspace", process.cwd())
     return new PyodideRuntime(version, pyodide)
 }
