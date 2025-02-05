@@ -4337,6 +4337,13 @@ interface PromptHost
     teamsChannel(shareUrl: string): Promise<MessageChannelClient>
 }
 
+interface WorkspaceFileWithDescription extends WorkspaceFile {
+    /**
+     * File description used for videos.
+     */
+    description?: string
+}
+
 /**
  * A client to a messaging channel
  */
@@ -4350,7 +4357,7 @@ interface MessageChannelClient {
         /**
          * File attachments that will be added in the channel folder
          */
-        files?: string[],
+        files?: (string | WorkspaceFileWithDescription)[],
         /**
          * Sets to false to remove AI generated disclaimer
          */

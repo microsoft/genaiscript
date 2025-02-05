@@ -196,9 +196,15 @@ ${CSVToMarkdown(tidyData(rows, options))}
  * @returns The Data URI string or undefined if the MIME type cannot be determined.
  */
 export async function resolveFileBytes(
-    filename: string,
+    filename: string | WorkspaceFile,
     options?: TraceOptions
 ): Promise<Uint8Array> {
+    if (typeof filename === "object") {
+        if (filename.encoding === "base64" && filename.content)
+            return fromBase64(filename.content)
+        filename = filename.filename
+    }
+
     if (/^data:/i.test(filename)) {
         const matches = filename.match(/^data:[^;]+;base64,(.*)$/i)
         if (!matches) throw new Error("Invalid data URI format")

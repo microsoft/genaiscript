@@ -3,8 +3,26 @@ const teams = await host.teamsChannel(
 )
 await teams.postMessage(
     `# Hello world
-This message was sent from genaiscript`,
+This **message** _was_ sent from __genaiscript__.
+
+## YES!
+`,
     {
-        files: ["src/rag/markdown.md"],
+        files: [
+            "src/rag/markdown.md",
+            {
+                filename: "src/audio/helloworld.mp4",
+                description: `# This is the title!
+                
+**Awesome** _video_!
+
+- __really epic__!
+
+## See also
+
+Other videos.
+`,
+            },
+        ],
     }
 )
