@@ -10,6 +10,7 @@ import { dedent } from "./indent"
 import { TOOL_ID } from "./constants"
 import { filenameOrFileToFilename } from "./unwrappers"
 import { resolveFileBytes } from "./file"
+import { basename } from "node:path"
 
 export function convertMarkdownToTeamsHTML(markdown: string) {
     // using regexes, convert headers, lists, links, bold, italic, code, and quotes
@@ -97,7 +98,7 @@ async function microsoftTeamsChannelUploadFile(
     const content = await resolveFileBytes(file, options)
     if (!file) throw new Error(`${filename} not found`)
     const folder = options?.folder || TOOL_ID
-    const itemUrl = `https://graph.microsoft.com/v1.0/groups/${teamId}/drive/root:/${root}/${folder}/${path.basename(
+    const itemUrl = `https://graph.microsoft.com/v1.0/groups/${teamId}/drive/root:/${root}/${folder}/${basename(
         filename
     )}`
     const contentUrl = `${itemUrl}:/content`
