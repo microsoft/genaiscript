@@ -4298,7 +4298,7 @@ interface PromptHost
     promiseQueue(concurrency: number): PromiseQueue
 
     /**
-     * Instantiates a python evaluation environment
+     * Instantiates a python evaluation environment powered by pyodide (https://pyodide.org/)
      */
     python(options?: PythonRuntimeOptions): Promise<PythonRuntime>
 }
