@@ -6,12 +6,12 @@ import { deleteUndefinedValues } from "./cleaners"
 import { dedent } from "./indent"
 
 class PyodideRuntime implements PythonRuntime {
-    private runtime: PyodideInterface
     private micropip: { install: (packageName: string) => Promise<void> }
 
-    constructor(pyodide: PyodideInterface) {
-        this.runtime = pyodide
-    }
+    constructor(
+        public readonly version: string,
+        public readonly runtime: PyodideInterface
+    ) {}
 
     async import(pkg: string) {
         if (!this.micropip) {
@@ -40,7 +40,8 @@ export async function createPythonRuntime(
             packageCacheDir: dotGenaiscriptPath("cache", "python", sha),
             stdout: (msg: string) => process.stderr.write(msg),
             stderr: (msg: string) => process.stderr.write(msg),
+            checkAPIVersion: true,
         })
     )
-    return new PyodideRuntime(pyodide)
+    return new PyodideRuntime(version, pyodide)
 }
