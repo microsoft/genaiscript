@@ -1871,7 +1871,8 @@ interface Parsers {
      * @param content
      */
     DOCX(
-        content: string | WorkspaceFile
+        content: string | WorkspaceFile,
+        options?: { format: "text" | "html" }
     ): Promise<{ file: WorkspaceFile } | undefined>
 
     /**

@@ -445,6 +445,7 @@ export async function cli() {
     parser
         .command("docx <file>")
         .description("Parse a DOCX into texts")
+        .addOption(new Option("-f, --format <string>", "output format").choices(["html", "text"]))
         .action(parseDOCX) // Action to parse DOCX files
     parser
         .command("html-to-text <file>")

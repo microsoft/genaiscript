@@ -9,16 +9,21 @@ import { TraceOptions } from "./trace"
  */
 export async function DOCXTryParse(
     file: string,
-    options?: TraceOptions
+    options?: TraceOptions & { format: "html" | "text" }
 ): Promise<string> {
-    const { trace } = options || {}
+    const { trace, format = "text" } = options || {}
     try {
-        const { extractRawText } = await import("mammoth")
+        const { extractRawText, convertToHtml } = await import("mammoth")
         const path = !/^\//.test(file)
             ? host.path.join(host.projectFolder(), file)
             : file
-        const results = await extractRawText({ path })
-        return results.value
+        if (format === "html") {
+            const results = await convertToHtml({ path })
+            return results.value
+        } else {
+            const results = await extractRawText({ path })
+            return results.value
+        }
     } catch (error) {
         trace?.error(`reading docx`, error)
         return undefined

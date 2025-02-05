@@ -77,9 +77,12 @@ export async function parsePDF(
  * Parses the contents of a DOCX file and logs the text.
  * @param file - The DOCX file to parse.
  */
-export async function parseDOCX(file: string) {
+export async function parseDOCX(
+    file: string,
+    options: { format: "text" | "html" }
+) {
     // Uses DOCXTryParse to extract text from the DOCX file
-    const text: string = await DOCXTryParse(file)
+    const text: string = await DOCXTryParse(file, options)
     console.log(text)
 }
 

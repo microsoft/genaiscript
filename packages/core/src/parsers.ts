@@ -83,9 +83,9 @@ export async function createParsers(options: {
                 ...(options || {}),
                 trace,
             }),
-        DOCX: async (file) => {
+        DOCX: async (file, options) => {
             const filename = typeof file === "string" ? file : file.filename
-            const res = await DOCXTryParse(filenameOrFileToContent(file))
+            const res = await DOCXTryParse(filename, options)
             return {
                 file: res
                     ? <WorkspaceFile>{ filename, content: res }

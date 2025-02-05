@@ -447,7 +447,7 @@ Commands:
                                formats
   fence <language> <file>      Extracts a code fenced regions of the given type
   pdf [options] <file>         Parse a PDF into text and images
-  docx <file>                  Parse a DOCX into texts
+  docx [options] <file>        Parse a DOCX into texts
   html-to-text <file>          Parse an HTML file into text
   code <file> [query]          Parse code using tree sitter and executes a
                                query
@@ -504,7 +504,8 @@ Usage: genaiscript parse docx [options] <file>
 Parse a DOCX into texts
 
 Options:
-  -h, --help  display help for command
+  -f, --format <string>  output format (choices: "html", "text")
+  -h, --help             display help for command
 ```
 
 ### `parse html-to-text`
