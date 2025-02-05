@@ -132,6 +132,7 @@ export interface PromptScriptRunOptions {
     pullRequestComment: string | boolean
     pullRequestDescription: string | boolean
     pullRequestReviews: boolean
+    teamsMessage: boolean
     outData: string
     label: string
     temperature: string | number

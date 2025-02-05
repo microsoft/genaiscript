@@ -97,6 +97,7 @@ export class NodeHost implements RuntimeHost {
     readonly userInputQueue = new PLimitPromiseQueue(1)
     readonly azureToken: AzureTokenResolver
     readonly azureServerlessToken: AzureTokenResolver
+    readonly microsoftGraphToken: AzureTokenResolver
 
     constructor(dotEnvPath: string) {
         this.dotEnvPath = dotEnvPath
@@ -109,6 +110,11 @@ export class NodeHost implements RuntimeHost {
             "Azure AI Serverless",
             "AZURE_SERVERLESS_OPENAI_TOKEN_SCOPES",
             AZURE_AI_INFERENCE_TOKEN_SCOPES
+        )
+        this.microsoftGraphToken = createAzureTokenResolver(
+            "Microsoft Graph",
+            "MICROSOFT_GRAPH_TOKEN_SCOPES",
+            ["https://graph.microsoft.com/.default"]
         )
     }
 

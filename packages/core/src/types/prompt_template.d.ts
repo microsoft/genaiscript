@@ -4329,6 +4329,40 @@ interface PromptHost
      * Instantiates a python evaluation environment powered by pyodide (https://pyodide.org/)
      */
     python(options?: PythonRuntimeOptions): Promise<PythonRuntime>
+
+    /**
+     * Gets a client to a Microsoft Teams channel from a share link URL. Uses Azure CLI login.
+     * @param url 
+     */
+    teamsChannel(shareUrl: string): Promise<MessageChannelClient>
+}
+
+interface WorkspaceFileWithDescription extends WorkspaceFile {
+    /**
+     * File description used for videos.
+     */
+    description?: string
+}
+
+/**
+ * A client to a messaging channel
+ */
+interface MessageChannelClient {
+    /**
+     * Posts a message with attachments to the channel
+     * @param message 
+     * @param options 
+     */
+    async postMessage(message: string, options?: {
+        /**
+         * File attachments that will be added in the channel folder
+         */
+        files?: (string | WorkspaceFileWithDescription)[],
+        /**
+         * Sets to false to remove AI generated disclaimer
+         */
+        disclaimer?: boolean | string
+    }): Promise<string>
 }
 
 interface ContainerHost extends ShellHost {

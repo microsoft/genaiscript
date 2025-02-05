@@ -30,6 +30,7 @@ import { DOCS_WEB_SEARCH_URL } from "./constants"
 import { fetch, fetchText } from "./fetch"
 import { fileWriteCached } from "./filecache"
 import { join } from "node:path"
+import { createMicrosoftTeamsChannelClient } from "./teams"
 
 /**
  * Creates a prompt context for the given project, variables, trace, options, and model.
@@ -304,6 +305,7 @@ export async function createPromptContext(
             }),
         python: async (options) =>
             await runtimeHost.python({ trace, ...(options || {}) }),
+        teamsChannel: async (url) => createMicrosoftTeamsChannelClient(url),
     })
 
     // Freeze project options to prevent modification

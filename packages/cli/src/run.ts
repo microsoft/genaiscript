@@ -91,6 +91,7 @@ import { parsePromptScriptMeta } from "../../core/src/template"
 import { Fragment } from "../../core/src/generation"
 import { randomHex } from "../../core/src/crypto"
 import { normalizeFloat, normalizeInt } from "../../core/src/cleaners"
+import { microsoftTeamsChannelPostMessage } from "../../core/src/teams"
 
 function getRunDir(scriptId: string) {
     const runId =
@@ -180,6 +181,7 @@ export async function runScriptInternal(
     const pullRequestComment = options.pullRequestComment
     const pullRequestDescription = options.pullRequestDescription
     const pullRequestReviews = options.pullRequestReviews
+    const teamsMessage = options.teamsMessage
     const outData = options.outData
     const label = options.label
     const temperature = normalizeFloat(options.temperature)
@@ -523,6 +525,21 @@ export async function runScriptInternal(
         return _ghInfo
     }
     let adoInfo: AzureDevOpsEnv = undefined
+
+    if (teamsMessage && result.text) {
+        const ghInfo = await resolveGitHubInfo()
+        const channelURL =
+            process.env.GENAISCRIPT_TEAMS_CHANNEL_URL ||
+            process.env.TEAMS_CHANNEL_URL
+        if (channelURL) {
+            await microsoftTeamsChannelPostMessage(channelURL, result.text, {
+                script,
+                info: ghInfo,
+                cancellationToken,
+                trace,
+            })
+        }
+    }
 
     if (pullRequestReviews && result.annotations?.length) {
         // github action or repo

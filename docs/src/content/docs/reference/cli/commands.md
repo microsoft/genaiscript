@@ -38,6 +38,7 @@ Options:
   -prc, --pull-request-comment [string]      create comment on a pull request with a unique id (defaults to script id)
   -prd, --pull-request-description [string]  create comment on a pull request description with a unique id (defaults to script id)
   -prr, --pull-request-reviews               create pull request reviews from annotations
+  -tm, --teams-message                       Posts a message to the teams channel
   -j, --json                                 emit full JSON response to output
   -y, --yaml                                 emit full YAML response to output
   -fe, --fail-on-errors                      fails on detected annotation error

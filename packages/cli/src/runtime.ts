@@ -6,6 +6,7 @@
 import { delay, uniq, uniqBy, chunk, groupBy } from "es-toolkit"
 import { z } from "zod"
 import { pipeline } from "@huggingface/transformers"
+import { readFile } from "fs/promises"
 
 // symbols exported as is
 export { delay, uniq, uniqBy, z, pipeline, chunk, groupBy }
