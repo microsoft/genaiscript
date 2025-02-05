@@ -6,6 +6,7 @@ import { runtimeHost } from "./host"
 import { HTMLEscape } from "./html"
 import { TraceOptions } from "./trace"
 import { logError, logVerbose } from "./util"
+import { dedent } from "./indent"
 
 export function convertMarkdownToTeamsHTML(markdown: string) {
     // using regexes, convert headers, lists, links, bold, italic, code, and quotes
@@ -43,7 +44,9 @@ export interface MicrosoftTeamsEntity {
 }
 
 function generatedByFooter(script: PromptScript, info: { runUrl?: string }) {
-    return `\n<blockquote>AI-generated message by ${info.runUrl ? `<a href="${HTMLEscape(info.runUrl)}">${HTMLEscape(script.id)}</a>` : HTMLEscape(script.id)} may be incorrect</blockquote>\n`
+    if (!script)
+        return `\n<blockquote>AI-generated message may be incorrect</blockquote>\n`
+    return `\n<blockquote>AI-generated message by ${info?.runUrl ? `<a href="${HTMLEscape(info.runUrl)}">${HTMLEscape(script.id)}</a>` : HTMLEscape(script.id)} may be incorrect</blockquote>\n`
 }
 
 /**
@@ -106,15 +109,16 @@ export async function microsoftTeamsChannelPostMessage(
     channelUrl: string,
     message: string,
     options?: {
-        script: PromptScript
-        info: { runUrl?: string }
+        script?: PromptScript
+        info?: { runUrl?: string }
         files?: string[]
+        disclaimer?: boolean | string
     } & TraceOptions &
         CancellationOptions
 ): Promise<MicrosoftTeamsEntity> {
     logVerbose(`teams: posting message to ${channelUrl}`)
 
-    const { files = [] } = options || {}
+    const { files = [], disclaimer } = options || {}
     const { teamId, channelId } = parseTeamsChannelUrl(channelUrl)
     const authToken = await runtimeHost.microsoftGraphToken.token("default")
     const token = authToken?.token?.token
@@ -156,7 +160,11 @@ export async function microsoftTeamsChannelPostMessage(
     }
 
     // finalize message
-    body.body.content += generatedByFooter(options?.script, options?.info)
+    if (disclaimer !== false)
+        body.body.content +=
+            typeof disclaimer === "string"
+                ? `\n<blockquote>${HTMLEscape(disclaimer)}</blockquote>\n`
+                : generatedByFooter(options?.script, options?.info)
 
     const url = `https://graph.microsoft.com/v1.0/teams/${teamId}/channels/${channelId}/messages`
     const fetch = await createFetch(options)
@@ -179,4 +187,48 @@ export async function microsoftTeamsChannelPostMessage(
     const { webUrl } = data
     logVerbose(`teams: message created at ${webUrl}`)
     return data
+}
+
+class MicrosoftTeamsChannelClient implements MessageChannelClient {
+    constructor(readonly channelUrl: string) {}
+    /**
+     * Posts a message with attachments to the channel
+     * @param message
+     * @param options
+     */
+    async postMessage(
+        message: string,
+        options?: {
+            /**
+             * File attachments that will be added in the channel folder
+             */
+            files?: string[]
+            /**
+             * Sets to false to remove AI generated disclaimer
+             */
+            disclaimer?: boolean | string
+        }
+    ): Promise<string> {
+        const { files, disclaimer } = options || {}
+        const res = await microsoftTeamsChannelPostMessage(
+            this.channelUrl,
+            dedent(message),
+            {
+                files,
+                disclaimer,
+            }
+        )
+        return res.webUrl
+    }
+
+    toString() {
+        return this.channelUrl
+    }
+}
+
+export function createMicrosoftTeamsChannelClient(
+    url: string
+): MessageChannelClient {
+    if (parseTeamsChannelUrl(url)) throw new Error("Invalid Teams channel URL")
+    return new MicrosoftTeamsChannelClient(url)
 }
