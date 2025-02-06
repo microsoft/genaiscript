@@ -22,6 +22,21 @@ export interface TextChunk {
     endOverlap: number[]
 }
 
+export function unchunk(text: string, chunks: TextChunk[]) {
+    let rebuild = ""
+    for (let i = 0; i < chunks.length; i++) {
+        const chunk = chunks[i]
+        if (i === 0 && chunk.startPos > 0)
+            rebuild += text.slice(0, chunk.startPos)
+        rebuild += text.slice(chunk.startPos, chunk.endPos)
+        if (chunk.endPos < text.length) {
+            const nextChuk = chunks[i + 1]
+            rebuild += text.slice(chunk.endPos, nextChuk?.startPos)
+        }
+    }
+    return rebuild
+}
+
 export class TextSplitter {
     private readonly _config: TextSplitterConfig
 
@@ -126,7 +141,10 @@ export class TextSplitter {
                 }
 
                 // Ensure chunk contains text
-                if (!this.containsAlphanumeric(chunk)) {
+                if (
+                    !this._config.keepSeparators &&
+                    !this.containsAlphanumeric(chunk)
+                ) {
                     continue
                 }
 

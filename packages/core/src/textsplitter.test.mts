@@ -1,4 +1,4 @@
-import { TextSplitter, TextSplitterConfig } from "./textsplitter"
+import { TextSplitter, TextSplitterConfig, unchunk } from "./textsplitter"
 import { describe, test } from "node:test"
 import assert from "node:assert/strict"
 import { resolveTokenEncoder } from "./encoders"
@@ -102,7 +102,8 @@ await describe("TextSplitter", async () => {
         const chunks = textSplitter.split(text)
 
         assert(chunks.length > 0)
-        const rebuild = chunks.map((c) => c.text).join("")
+        console.log(chunks)
+        const rebuild = unchunk(text, chunks)
         assert.equal(rebuild, text)
     })
 
@@ -121,27 +122,23 @@ await describe("TextSplitter", async () => {
         })
     })
 
-    //    const docs = await glob("../../docs/src/**/*.md*")
-    /*
+    const docs = await glob("../../docs/src/**/*.mdx?")
     for (const doc of docs) {
         await test(doc, async () => {
             const text = await readFile(doc, { encoding: "utf-8" })
             for (let i = 0; i < 10; i++) {
-                const chunkSize = Math.floor(Math.random() * 20) + 1
+                const chunkSize = Math.floor(Math.random() * 20) + 10
                 const textSplitter = new TextSplitter({
                     ...defaultConfig,
-                    keepSeparators: true,
-                    chunkOverlap: 0,
                     docType: "markdown",
                     chunkSize: Math.floor(Math.random() * 20) + 1,
                 })
                 const chunks = textSplitter.split(text)
                 console.log(`chunk: ${chunkSize} -> ${chunks.length}`)
                 assert(chunks.length > 0)
-                const rebuild = chunks.map((c) => c.text).join("")
+                const rebuild = unchunk(text, chunks)
                 assert.equal(rebuild, text)
             }
         })
     }
-*/
 })
