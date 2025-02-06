@@ -72,26 +72,24 @@ async function prepare(
 
     // Contain the image within specified max dimensions if provided
     if (options.maxWidth ?? options.maxHeight) {
-        img.contain({
-            w: img.width > maxWidth ? maxWidth : img.width, // Determine target width
-            h: img.height > maxHeight ? maxHeight : img.height, // Determine target height
-            align: HorizontalAlign.CENTER | VerticalAlign.MIDDLE, // Center alignment
-        })
+        contain(
+            img,
+            img.width > maxWidth ? maxWidth : img.width,
+            img.height > maxHeight ? maxHeight : img.height,
+            HorizontalAlign.CENTER | VerticalAlign.MIDDLE
+        )
     }
 
     if (greyscale) img.greyscale()
 
     // https://platform.openai.com/docs/guides/vision/low-or-high-fidelity-image-understanding#low-or-high-fidelity-image-understanding
-    if (
-        detail === "low" &&
-        (img.width > IMAGE_DETAIL_LOW_WIDTH ||
-            img.height > IMAGE_DETAIL_LOW_HEIGHT)
-    ) {
-        img.contain({
-            w: Math.min(img.width, IMAGE_DETAIL_LOW_WIDTH),
-            h: Math.min(img.height, IMAGE_DETAIL_LOW_HEIGHT),
-            align: HorizontalAlign.CENTER | VerticalAlign.MIDDLE,
-        })
+    if (detail === "low") {
+        contain(
+            img,
+            Math.min(img.width, IMAGE_DETAIL_LOW_WIDTH),
+            Math.min(img.height, IMAGE_DETAIL_LOW_HEIGHT),
+            HorizontalAlign.CENTER | VerticalAlign.MIDDLE
+        )
     } else
         contain(
             img,
