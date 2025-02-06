@@ -45,6 +45,7 @@ export async function resolveFileContent(
     // decode known files
     if (file.encoding === "base64") {
         const bytes = fromBase64(file.content)
+        file.size = bytes.length
         if (file.type === PDF_MIME_TYPE) {
             const { content } = await parsePdf(bytes, options)
             delete file.encoding
@@ -125,6 +126,7 @@ export async function resolveFileContent(
                 const bytes: Uint8Array = await host.readFile(filename)
                 file.encoding = "base64"
                 file.content = toBase64(bytes)
+                file.size = bytes.length
             }
         }
     }

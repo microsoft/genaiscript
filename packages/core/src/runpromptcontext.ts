@@ -548,7 +548,15 @@ export function createChatGenerationContext(
         >,
         defOptions?: DefImagesOptions
     ) => {
+        if (files === undefined || files === null) {
+            if (defOptions?.ignoreEmpty) return
+            throw new Error("no images provided")
+        }
         if (Array.isArray(files)) {
+            if (!files.length) {
+                if (defOptions?.ignoreEmpty) return
+                throw new Error("no images provided")
+            }
             const sliced = sliceData(files, defOptions)
             if (!defOptions?.tiled)
                 sliced.forEach((file) => defImages(file, defOptions))
@@ -557,6 +565,7 @@ export function createChatGenerationContext(
                     node,
                     createImageNode(
                         (async () => {
+                            if (!files.length) return undefined
                             const encoded = await imageTileEncodeForLLM(files, {
                                 ...defOptions,
                                 trace,

@@ -10,6 +10,7 @@ import {
 import { TraceOptions } from "./trace"
 import { logVerbose } from "./util"
 import { deleteUndefinedValues } from "./cleaners"
+import pLimit from "p-limit"
 
 async function prepare(
     url: BufferLike,
@@ -32,7 +33,7 @@ async function prepare(
     // If the URL is a string, resolve it to a data URI
     const buffer = await resolveBufferLike(url)
     logVerbose(
-        `image: encoding ${prettyBytes(buffer.length)} with ${JSON.stringify(
+        `image: encoding ${prettyBytes(buffer.length)} with ${Object.entries(
             deleteUndefinedValues({
                 autoCrop,
                 maxHeight,
@@ -44,7 +45,9 @@ async function prepare(
                 flip,
                 detail,
             })
-        )}`
+        )
+            .map(([k, v]) => `${k}=${JSON.stringify(v)}`)
+            .join(", ")}`
     )
 
     // Read the image using Jimp
@@ -66,38 +69,35 @@ async function prepare(
 
     if (!isNaN(rotate)) img.rotate(rotate)
 
+    if (flip) img.flip(flip)
+
     // Contain the image within specified max dimensions if provided
     if (options.maxWidth ?? options.maxHeight) {
-        img.contain({
-            w: img.width > maxWidth ? maxWidth : img.width, // Determine target width
-            h: img.height > maxHeight ? maxHeight : img.height, // Determine target height
-            align: HorizontalAlign.CENTER | VerticalAlign.MIDDLE, // Center alignment
-        })
+        contain(
+            img,
+            img.width > maxWidth ? maxWidth : img.width,
+            img.height > maxHeight ? maxHeight : img.height,
+            HorizontalAlign.CENTER | VerticalAlign.MIDDLE
+        )
     }
 
     if (greyscale) img.greyscale()
 
-    if (flip) img.flip(flip)
-
     // https://platform.openai.com/docs/guides/vision/low-or-high-fidelity-image-understanding#low-or-high-fidelity-image-understanding
-    if (
-        detail === "low" &&
-        (img.width > IMAGE_DETAIL_LOW_WIDTH ||
-            img.height > IMAGE_DETAIL_LOW_HEIGHT)
-    ) {
-        img.contain({
-            w: Math.min(img.width, IMAGE_DETAIL_LOW_WIDTH),
-            h: Math.min(img.height, IMAGE_DETAIL_LOW_HEIGHT),
-            align: HorizontalAlign.CENTER | VerticalAlign.MIDDLE,
-        })
-    }
-
-    contain(
-        img,
-        IMAGE_DETAIL_HIGH_WIDTH,
-        IMAGE_DETAIL_HIGH_HEIGHT,
-        HorizontalAlign.CENTER | VerticalAlign.MIDDLE
-    )
+    if (detail === "low") {
+        contain(
+            img,
+            Math.min(img.width, IMAGE_DETAIL_LOW_WIDTH),
+            Math.min(img.height, IMAGE_DETAIL_LOW_HEIGHT),
+            HorizontalAlign.CENTER | VerticalAlign.MIDDLE
+        )
+    } else
+        contain(
+            img,
+            IMAGE_DETAIL_HIGH_WIDTH,
+            IMAGE_DETAIL_HIGH_HEIGHT,
+            HorizontalAlign.CENTER | VerticalAlign.MIDDLE
+        )
     return img
 }
 
@@ -165,8 +165,15 @@ export async function imageTileEncodeForLLM(
     urls: BufferLike[],
     options: DefImagesOptions & TraceOptions
 ) {
-    const imgs = await Promise.all(urls.map((url) => prepare(url, options)))
+    if (urls.length === 0)
+        throw new Error("image: no images provided for tiling")
 
+    const limit = pLimit(4)
+    const imgs = await Promise.all(
+        urls.map((url) => limit(() => prepare(url, options)))
+    )
+
+    logVerbose(`image: tiling ${imgs.length} images`)
     const imgw = imgs.reduce((acc, img) => Math.max(acc, img.width), 0)
     const imgh = imgs.reduce((acc, img) => Math.max(acc, img.height), 0)
     const ncols = Math.ceil(Math.sqrt(imgs.length))

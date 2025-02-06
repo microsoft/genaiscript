@@ -599,6 +599,11 @@ interface WorkspaceFile {
      * Content of the file.
      */
     content?: string
+
+    /**
+     * Size in bytes if known
+     */
+    size?: number
 }
 
 interface WorkspaceFileWithScore extends WorkspaceFile {
@@ -1349,6 +1354,11 @@ interface DefImagesOptions {
      * Renders all images in a single tiled image
      */
     tiled?: boolean
+
+    /**
+     * By default, throws an error if no images are passed.
+     */
+    ignoreEmpty?: boolean
 }
 
 type JSONSchemaTypeName =
