@@ -165,6 +165,9 @@ export async function imageTileEncodeForLLM(
     urls: BufferLike[],
     options: DefImagesOptions & TraceOptions
 ) {
+    if (urls.length === 0)
+        throw new Error("image: no images provided for tiling")
+
     const limit = pLimit(4)
     const imgs = await Promise.all(
         urls.map((url) => limit(() => prepare(url, options)))
