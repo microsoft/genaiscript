@@ -10,7 +10,6 @@ import {
 import { TraceOptions } from "./trace"
 import { logVerbose } from "./util"
 import { deleteUndefinedValues } from "./cleaners"
-import { MarkdownStringify } from "./markdown"
 
 async function prepare(
     url: BufferLike,
@@ -33,7 +32,7 @@ async function prepare(
     // If the URL is a string, resolve it to a data URI
     const buffer = await resolveBufferLike(url)
     logVerbose(
-        `image: encoding ${prettyBytes(buffer.length)} with ${MarkdownStringify(
+        `image: encoding ${prettyBytes(buffer.length)} with ${Object.entries(
             deleteUndefinedValues({
                 autoCrop,
                 maxHeight,
@@ -45,7 +44,9 @@ async function prepare(
                 flip,
                 detail,
             })
-        ).replace(/\n/g, ", ")}`
+        )
+            .map(([k, v]) => `${k}=${JSON.stringify(v)}`)
+            .join(", ")}`
     )
 
     // Read the image using Jimp
@@ -67,6 +68,8 @@ async function prepare(
 
     if (!isNaN(rotate)) img.rotate(rotate)
 
+    if (flip) img.flip(flip)
+
     // Contain the image within specified max dimensions if provided
     if (options.maxWidth ?? options.maxHeight) {
         img.contain({
@@ -77,8 +80,6 @@ async function prepare(
     }
 
     if (greyscale) img.greyscale()
-
-    if (flip) img.flip(flip)
 
     // https://platform.openai.com/docs/guides/vision/low-or-high-fidelity-image-understanding#low-or-high-fidelity-image-understanding
     if (
@@ -91,14 +92,13 @@ async function prepare(
             h: Math.min(img.height, IMAGE_DETAIL_LOW_HEIGHT),
             align: HorizontalAlign.CENTER | VerticalAlign.MIDDLE,
         })
-    }
-
-    contain(
-        img,
-        IMAGE_DETAIL_HIGH_WIDTH,
-        IMAGE_DETAIL_HIGH_HEIGHT,
-        HorizontalAlign.CENTER | VerticalAlign.MIDDLE
-    )
+    } else
+        contain(
+            img,
+            IMAGE_DETAIL_HIGH_WIDTH,
+            IMAGE_DETAIL_HIGH_HEIGHT,
+            HorizontalAlign.CENTER | VerticalAlign.MIDDLE
+        )
     return img
 }
 

@@ -599,6 +599,11 @@ interface WorkspaceFile {
      * Content of the file.
      */
     content?: string
+
+    /**
+     * Size in bytes if known
+     */
+    size?: number
 }
 
 interface WorkspaceFileWithScore extends WorkspaceFile {

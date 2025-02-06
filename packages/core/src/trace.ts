@@ -413,18 +413,29 @@ ${this.toResultIcon(success, "")}${title}
                 if (title) this.startDetails(title)
                 const encoder = host.createUTF8Encoder()
                 for (const file of files) {
-                    const content = file.content ?? ""
-                    const buf = encoder.encode(content)
-                    const size = prettyBytes(buf.length)
                     const score = !isNaN(file.score)
                         ? `score: ${renderWithPrecision(file.score || 0, 2)}`
                         : undefined
-                    const tokens =
-                        model && this.options?.encoder
-                            ? `${estimateTokens(content, this.options.encoder)} t`
-                            : undefined
+                    let size: string
+                    let content: string
+                    let tokens: string
+                    if (file.encoding) {
+                        size = prettyBytes(
+                            file.size ??
+                                Buffer.from(file.content, file.encoding).length
+                        )
+                    } else {
+                        content = file.content ?? ""
+                        size = prettyBytes(
+                            file.size ?? encoder.encode(content).length
+                        )
+                        tokens =
+                            model && this.options?.encoder
+                                ? `${estimateTokens(content, this.options.encoder)} t`
+                                : undefined
+                    }
                     const suffix = toStringList(tokens, size, score)
-                    if (maxLength > 0) {
+                    if (content && maxLength > 0) {
                         let preview = ellipse(content, maxLength).replace(
                             /\b[A-Za-z0-9\-_]{20,40}\b/g,
                             (m) => m.slice(0, 10) + "***"
