@@ -1,6 +1,6 @@
 script({
     model: "transformers:onnx-community/Qwen2.5-Coder-0.5B-Instruct:q4",
-    tests: {},
+    maxTokens: 100,
 })
 
 const res = await runPrompt(
@@ -8,6 +8,7 @@ const res = await runPrompt(
         ctx.$`Write a poem in python.`
     },
     {
+        maxTokens: 100,
         model: "transformers:onnx-community/Qwen2.5-Coder-0.5B-Instruct:q4",
     }
 )
@@ -17,6 +18,7 @@ const res2 = await runPrompt(
     },
     {
         cache: "trfs",
+        maxTokens: 100,
         model: "transformers:onnx-community/Qwen2.5-Coder-0.5B-Instruct:q4",
     }
 )
