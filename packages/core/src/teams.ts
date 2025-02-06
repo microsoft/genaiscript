@@ -17,7 +17,7 @@ export function convertMarkdownToTeamsHTML(markdown: string) {
     let subject: string
     let html =
         "<div>" +
-        markdown
+        (markdown || "")
             .replace(/^# (.*$)/gim, (m, t) => {
                 subject = t
                 return ""
@@ -120,14 +120,7 @@ async function microsoftTeamsChannelUploadFile(
     const j = (await res.json()) as MicrosoftTeamsEntity
     logVerbose(`teams: uploaded ${filename} to ${j.webUrl}`)
 
-    if (description) {
-        const resg = await fetch(itemUrl, {
-            method: "GET",
-            headers: {
-                Authorization,
-                "Content-Type": "application/json",
-            },
-        })
+    if (disclaimer || description) {
         const html = convertMarkdownToTeamsHTML(description)
         if (disclaimer) html.content += disclaimer
 
