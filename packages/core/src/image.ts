@@ -11,13 +11,15 @@ import { TraceOptions } from "./trace"
 import { logVerbose } from "./util"
 import { deleteUndefinedValues } from "./cleaners"
 import pLimit from "p-limit"
+import { CancellationOptions, checkCancelled } from "./cancellation"
 
 async function prepare(
     url: BufferLike,
-    options: DefImagesOptions & TraceOptions
+    options: DefImagesOptions & TraceOptions & CancellationOptions
 ) {
     // Dynamically import the Jimp library and its alignment enums
     let {
+        cancellationToken,
         autoCrop,
         maxHeight,
         maxWidth,
@@ -28,6 +30,7 @@ async function prepare(
         flip,
         detail,
     } = options
+    checkCancelled(cancellationToken)
 
     // https://platform.openai.com/docs/guides/vision/calculating-costs#managing-images
     // If the URL is a string, resolve it to a data URI
@@ -50,6 +53,7 @@ async function prepare(
             .join(", ")}`
     )
 
+    checkCancelled(cancellationToken)
     // Read the image using Jimp
     const { Jimp, HorizontalAlign, VerticalAlign } = await import("jimp")
     const img = await Jimp.read(buffer)
@@ -82,6 +86,8 @@ async function prepare(
     }
 
     if (greyscale) img.greyscale()
+
+    checkCancelled(cancellationToken)
 
     // https://platform.openai.com/docs/guides/vision/low-or-high-fidelity-image-understanding#low-or-high-fidelity-image-understanding
     if (detail === "low") {
@@ -155,7 +161,7 @@ async function encode(
  */
 export async function imageEncodeForLLM(
     url: BufferLike,
-    options: DefImagesOptions & TraceOptions
+    options: DefImagesOptions & TraceOptions & CancellationOptions
 ) {
     const img = await prepare(url, options)
     return await encode(img, options)
@@ -163,15 +169,17 @@ export async function imageEncodeForLLM(
 
 export async function imageTileEncodeForLLM(
     urls: BufferLike[],
-    options: DefImagesOptions & TraceOptions
+    options: DefImagesOptions & TraceOptions & CancellationOptions
 ) {
     if (urls.length === 0)
         throw new Error("image: no images provided for tiling")
 
+    const { cancellationToken } = options
     const limit = pLimit(4)
     const imgs = await Promise.all(
         urls.map((url) => limit(() => prepare(url, options)))
     )
+    checkCancelled(cancellationToken)
 
     logVerbose(`image: tiling ${imgs.length} images`)
     const imgw = imgs.reduce((acc, img) => Math.max(acc, img.width), 0)
