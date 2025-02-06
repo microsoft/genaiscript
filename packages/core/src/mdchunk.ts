@@ -43,9 +43,9 @@ export async function chunkMarkdown(
     for (let i = 0; i < sections.length; i++) {
         const sectionTokens = sectionTokenCount(sections[i], estimateTokens)
 
-        // Handle big single section immediately
         if (sectionTokens > maxTokens) {
-            // Push it as its own chunk
+            
+
             if (tempChunk.length) {
                 chunks.push(buildChunk(tempChunk))
                 tempChunk = []

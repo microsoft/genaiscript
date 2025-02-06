@@ -21,6 +21,8 @@ import { JSON5Stringify, JSON5TryParse } from "./json5"
 import { JSONSchemaInfer } from "./schema"
 import { FFmepgClient } from "./ffmpeg"
 import { promptParametersSchemaToJSONSchema } from "./parameters"
+import { resolveFileContent } from "./file"
+import { chunkMarkdown } from "./mdchunk"
 
 /**
  * This file defines global utilities and installs them into the global context.
@@ -82,6 +84,20 @@ export function installGlobals() {
         content: (text) => splitMarkdown(text)?.content, // Extract content from markdown
         updateFrontmatter: (text, frontmatter, format): string =>
             updateFrontmatter(text, frontmatter, { format }), // Update frontmatter in markdown
+        chunk: async (filename, options) => {
+            const file = typeof filename === "string" ? { filename } : filename
+            await resolveFileContent(file)
+            const encoding = await resolveTokenEncoder(
+                options?.model || runtimeHost.modelAliases.large.model,
+                { disableFallback: false }
+            )
+            const res = chunkMarkdown(
+                file.content,
+                (text) => encoding.encode(text).length,
+                options?.maxTokens
+            )
+            return res
+        },
     })
 
     // Freeze JSONL utilities
@@ -97,7 +113,7 @@ export function installGlobals() {
 
     glb.JSONSchema = Object.freeze<JSONSchemaUtilities>({
         infer: JSONSchemaInfer,
-        fromParameters: promptParametersSchemaToJSONSchema
+        fromParameters: promptParametersSchemaToJSONSchema,
     })
 
     // Freeze AICI utilities with a generation function
