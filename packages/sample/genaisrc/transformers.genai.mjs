@@ -1,5 +1,6 @@
 script({
     model: "transformers:onnx-community/Qwen2.5-Coder-0.5B-Instruct:q4",
+    tests: {},
 })
 
 const res = await runPrompt(

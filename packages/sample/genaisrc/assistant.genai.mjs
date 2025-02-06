@@ -5,4 +5,5 @@ script({
     },
 })
 $`Say something.`
-assistant("Hello, world!")
+$`hello`.role("assistant")
+assistant("world!")

@@ -60,7 +60,6 @@ MODEL: "Chinese: '山'. English summary: 'The mountain is beautiful in spring.'"
 - If conflicting modifiers appear, address whichever has higher priority (p=5 > p=2).
 - If no clear resolution, ask the user for clarification.`.role("system")
 
-
 $`
 # Blog post generation with SEO optimization
 ↹ topic"AI in Healthcare" @industry_context
