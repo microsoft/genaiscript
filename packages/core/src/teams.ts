@@ -118,6 +118,8 @@ async function microsoftTeamsChannelUploadFile(
         )
     }
     const j = (await res.json()) as MicrosoftTeamsEntity
+    logVerbose(`teams: uploaded ${filename} to ${j.webUrl}`)
+
     if (description) {
         const resg = await fetch(itemUrl, {
             method: "GET",
@@ -281,6 +283,10 @@ class MicrosoftTeamsChannelClient implements MessageChannelClient {
 export function createMicrosoftTeamsChannelClient(
     url: string
 ): MessageChannelClient {
+    if (!url)
+        url =
+            process.env.GENAISCRIPT_TEAMS_CHANNEL_URL ||
+            process.env.GENAISCRIPT_TEAMS_URL
     if (!parseTeamsChannelUrl(url)) throw new Error("Invalid Teams channel URL")
     return new MicrosoftTeamsChannelClient(url)
 }

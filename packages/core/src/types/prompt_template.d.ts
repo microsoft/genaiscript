@@ -4331,10 +4331,12 @@ interface PromptHost
     python(options?: PythonRuntimeOptions): Promise<PythonRuntime>
 
     /**
-     * Gets a client to a Microsoft Teams channel from a share link URL. Uses Azure CLI login.
+     * Gets a client to a Microsoft Teams channel from a share link URL;
+     * uses `GENAISCRIPT_TEAMS_CHANNEL_URL` environment variable if `shareUrl` is not provided.
+     * Uses Azure CLI login for authentication.
      * @param url 
      */
-    teamsChannel(shareUrl: string): Promise<MessageChannelClient>
+    teamsChannel(shareUrl?: string): Promise<MessageChannelClient>
 }
 
 interface WorkspaceFileWithDescription extends WorkspaceFile {
