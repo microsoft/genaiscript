@@ -18,10 +18,11 @@ const diff = await git.diff({
 if (!diff) cancel("no staged changes")
 
 // Display the diff of staged changes in the console
-console.log(diff)
+console.debug(diff)
 
 // chunk if case of massive diff
 const chunks = await tokenizers.chunk(diff, { chunkSize: 10000 })
+console.log(chunks)
 if (chunks.length > 1)
     console.log(`staged changes chunked into ${chunks.length} parts`)
 

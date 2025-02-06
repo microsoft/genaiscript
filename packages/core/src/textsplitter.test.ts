@@ -4,13 +4,20 @@ import assert from "node:assert/strict"
 import { resolveTokenEncoder } from "./encoders"
 import { glob } from "glob"
 import { readFile } from "fs/promises"
+import { text } from "node:stream/consumers"
 
-await describe("TextSplitter", async () => {
+describe("TextSplitter", async () => {
     const defaultConfig: Partial<TextSplitterConfig> = {
         chunkSize: 10,
         chunkOverlap: 2,
         tokenizer: await resolveTokenEncoder("gpt-4o"),
     }
+
+    test("TextSplitter split undefined", () => {
+        const textSplitter = new TextSplitter(defaultConfig)
+        const chunks = textSplitter.split(undefined)
+        assert.equal(chunks.length, 0)
+    })
 
     test("TextSplitter should split text into chunks based on default separators", () => {
         const textSplitter = new TextSplitter(defaultConfig)
@@ -130,7 +137,7 @@ await describe("TextSplitter", async () => {
                 const chunkSize = Math.floor(Math.random() * 20) + 10
                 const textSplitter = new TextSplitter({
                     ...defaultConfig,
-                    docType: "markdown",
+                    docType: i % 2 ? "markdown" : undefined,
                     chunkSize: Math.floor(Math.random() * 20) + 1,
                 })
                 const chunks = textSplitter.split(text)

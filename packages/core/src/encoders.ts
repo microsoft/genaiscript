@@ -75,10 +75,7 @@ export async function chunk(
     let filename: string
     let content: string
     if (typeof f === "string") {
-        file = {
-            filename: undefined,
-            content: f,
-        }
+        content = f
     } else if (typeof f === "object") {
         await resolveFileContent(f)
         if (f.encoding) return [] // binary file bail out

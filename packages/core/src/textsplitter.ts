@@ -1,9 +1,6 @@
 // forked from https://raw.githubusercontent.com/Stevenic/vectra/refs/heads/main/src/TextSplitter.ts
 // removed tokenizer dependency
 
-const ALPHANUMERIC_CHARS =
-    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-
 export interface TextSplitterConfig {
     separators: string[]
     keepSeparators: boolean
@@ -40,7 +37,7 @@ export function unchunk(text: string, chunks: TextChunk[]) {
 export class TextSplitter {
     private readonly _config: TextSplitterConfig
 
-    public constructor(config?: Partial<TextSplitterConfig>) {
+    constructor(config?: Partial<TextSplitterConfig>) {
         this._config = Object.assign(
             {
                 keepSeparators: false,
@@ -68,6 +65,8 @@ export class TextSplitter {
     }
 
     public split(text: string): TextChunk[] {
+        if (!text) return []
+        
         // Get basic chunks
         const chunks = this.recursiveSplit(text, this._config.separators, 0)
 
@@ -220,12 +219,7 @@ export class TextSplitter {
     }
 
     private containsAlphanumeric(text: string): boolean {
-        for (let i = 0; i < text.length; i++) {
-            if (ALPHANUMERIC_CHARS.includes(text[i])) {
-                return true
-            }
-        }
-        return false
+        return /[a-z0-9]/i.test(text)
     }
 
     private splitBySpaces(text: string): string[] {
