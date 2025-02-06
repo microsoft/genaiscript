@@ -113,7 +113,7 @@ Options:
   -td, --test-delay <string>          delay between tests in seconds
   --cache                             enable LLM result cache
   -v, --verbose                       verbose output
-  -pv, --promptfoo-version [version]  promptfoo version, default is 0.103.1
+  -pv, --promptfoo-version [version]  promptfoo version, default is 0.104.0
   -os, --out-summary <file>           append output summary in file
   -g, --groups <groups...>            groups to include or exclude. Use :!
                                       prefix to exclude
