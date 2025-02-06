@@ -10,6 +10,7 @@ import {
 import { TraceOptions } from "./trace"
 import { logVerbose } from "./util"
 import { deleteUndefinedValues } from "./cleaners"
+import { MarkdownStringify } from "./markdown"
 
 async function prepare(
     url: BufferLike,
@@ -32,7 +33,7 @@ async function prepare(
     // If the URL is a string, resolve it to a data URI
     const buffer = await resolveBufferLike(url)
     logVerbose(
-        `image: encoding ${prettyBytes(buffer.length)} with ${JSON.stringify(
+        `image: encoding ${prettyBytes(buffer.length)} with ${MarkdownStringify(
             deleteUndefinedValues({
                 autoCrop,
                 maxHeight,
@@ -44,7 +45,7 @@ async function prepare(
                 flip,
                 detail,
             })
-        )}`
+        ).replace(/\n/g, ", ")}`
     )
 
     // Read the image using Jimp
@@ -165,6 +166,7 @@ export async function imageTileEncodeForLLM(
     urls: BufferLike[],
     options: DefImagesOptions & TraceOptions
 ) {
+    logVerbose(`image: tiling ${urls.length} images`)
     const imgs = await Promise.all(urls.map((url) => prepare(url, options)))
 
     const imgw = imgs.reduce((acc, img) => Math.max(acc, img.width), 0)
