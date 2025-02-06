@@ -100,7 +100,7 @@
     "typecheck": "tsc -p src",
     "prompts:bundle": "node bundleprompts.js",
     "pretypecheck": "yarn prompts:bundle",
-    "test": "node --import tsx --test src/**.test.ts"
+    "test": "node --import tsx --test src/**.test.*ts"
   },
   "dependencies": {
     "@types/diff": "^6.0.0",
