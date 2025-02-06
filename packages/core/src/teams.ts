@@ -11,13 +11,16 @@ import { TOOL_ID } from "./constants"
 import { filenameOrFileToFilename } from "./unwrappers"
 import { resolveFileBytes } from "./file"
 import { basename } from "node:path"
+import { frontmatterTryParse, splitMarkdown } from "./frontmatter"
 
 export function convertMarkdownToTeamsHTML(markdown: string) {
     // using regexes, convert headers, lists, links, bold, italic, code, and quotes
-    let subject: string
-    let html =
+    const { content, frontmatter } = splitMarkdown(markdown || "")
+    const fm = frontmatterTryParse(frontmatter)
+    let subject = fm?.value?.title as string
+    const html =
         "<div>" +
-        (markdown || "")
+        (content || "")
             .replace(/^# (.*$)/gim, (m, t) => {
                 subject = t
                 return ""
@@ -237,7 +240,18 @@ export async function microsoftTeamsChannelPostMessage(
 }
 
 class MicrosoftTeamsChannelClient implements MessageChannelClient {
-    constructor(readonly channelUrl: string) {}
+    constructor(public readonly channelUrl: string) {}
+
+    get teamId() {
+        const { teamId } = parseTeamsChannelUrl(this.channelUrl)
+        return teamId
+    }
+
+    get channelId() {
+        const { channelId } = parseTeamsChannelUrl(this.channelUrl)
+        return channelId
+    }
+
     /**
      * Posts a message with attachments to the channel
      * @param message
