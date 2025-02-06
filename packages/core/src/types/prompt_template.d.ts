@@ -138,7 +138,9 @@ type PromptTemplateResponseType =
 type ModelType = OptionsOrString<
     | "large"
     | "small"
+    | "long"
     | "vision"
+    | "vision_small"
     | "reasoning"
     | "reasoning_small"
     | "openai:gpt-4o"
