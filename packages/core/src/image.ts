@@ -10,6 +10,7 @@ import {
 import { TraceOptions } from "./trace"
 import { logVerbose } from "./util"
 import { deleteUndefinedValues } from "./cleaners"
+import pLimit from "p-limit"
 
 async function prepare(
     url: BufferLike,
@@ -164,9 +165,12 @@ export async function imageTileEncodeForLLM(
     urls: BufferLike[],
     options: DefImagesOptions & TraceOptions
 ) {
-    logVerbose(`image: tiling ${urls.length} images`)
-    const imgs = await Promise.all(urls.map((url) => prepare(url, options)))
+    const limit = pLimit(4)
+    const imgs = await Promise.all(
+        urls.map((url) => limit(() => prepare(url, options)))
+    )
 
+    logVerbose(`image: tiling ${imgs.length} images`)
     const imgw = imgs.reduce((acc, img) => Math.max(acc, img.width), 0)
     const imgh = imgs.reduce((acc, img) => Math.max(acc, img.height), 0)
     const ncols = Math.ceil(Math.sqrt(imgs.length))
