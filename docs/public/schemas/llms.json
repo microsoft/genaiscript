@@ -129,6 +129,28 @@
                                 "description": "Alias for transcription model"
                             }
                         }
+                    },
+                    "env": {
+                        "type": "object",
+                        "description": "Environment variables for the provider",
+                        "additionalProperties": {
+                            "^[a-zA-Z0-9:_-]+$": {
+                                "type": "object",
+                                "properties": {
+                                    "description": {
+                                        "type": "string"
+                                    },
+                                    "required": {
+                                        "type": "boolean",
+                                        "description": "Indicates if the variable is required"
+                                    },
+                                    "secret": {
+                                        "type": "boolean",
+                                        "description": "Indicates if the variable is a secret"
+                                    }
+                                }
+                            }
+                        }
                     }
                 },
                 "additionalProperties": false,

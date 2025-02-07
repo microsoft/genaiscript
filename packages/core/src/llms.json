@@ -18,6 +18,16 @@
                 "reasoning_small": "o1-mini",
                 "transcription": "whisper-1",
                 "speech": "tts-1"
+            },
+            "env": {
+                "OPENAI_API_KEY": {
+                    "description": "OpenAI API key",
+                    "required": true,
+                    "secret": true
+                },
+                "OPENAI_API_BASE": {
+                    "description": "OpenAI API base URL"
+                }
             }
         },
         {

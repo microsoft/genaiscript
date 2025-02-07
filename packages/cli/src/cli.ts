@@ -52,6 +52,7 @@ import { logVerbose } from "../../core/src/util" // Utility logging
 import { semverSatisfies } from "../../core/src/semver" // Semantic version checking
 import { convertFiles } from "./convert"
 import { extractAudio, extractVideoFrames, probeVideo } from "./video"
+import { configure } from "./configure"
 
 /**
  * Main function to initialize and run the CLI.
@@ -95,6 +96,10 @@ export async function cli() {
     // Set options for color and verbosity
     program.on("option:no-colors", () => setConsoleColors(false))
     program.on("option:quiet", () => setQuiet(true))
+
+    program.command("configure")
+        .description("Interactive help to configure providers")
+        .action(configure)
 
     // Define 'run' command for executing scripts
     const run = program
