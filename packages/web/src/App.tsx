@@ -731,10 +731,10 @@ function JSONSchemaObjectForm(props: {
             {Object.entries(properties).map(([fieldName, field]) => (
                 <vscode-form-group key={fieldPrefix + fieldName}>
                     <vscode-label>
-                        {underscore(fieldPrefix + fieldName).replaceAll(
-                            /[_\.]/g,
-                            " "
-                        )}
+                        {underscore(
+                            (fieldPrefix ? `${fieldPrefix} / ` : fieldPrefix) +
+                                (field.title || fieldName)
+                        ).replaceAll(/[_\.]/g, " ")}
                     </vscode-label>
                     <JSONSchemaSimpleTypeFormField
                         field={field}

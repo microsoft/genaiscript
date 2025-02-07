@@ -11,6 +11,7 @@ script({
         stringSchema: {
             type: "string",
             default: "efg",
+            title: "a string bound by a schema",
             description: "A string parameter with a description",
         },
         numberSchema: {

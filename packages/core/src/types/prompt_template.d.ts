@@ -1387,6 +1387,10 @@ interface JSONSchemaAnyOf {
 
 interface JSONSchemaDescripted {
     /**
+     * A short description of the property
+     */
+    title?: string
+    /**
      * A clear description of the property.
      */
     description?: string

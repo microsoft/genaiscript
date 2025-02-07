@@ -59,7 +59,8 @@ export function JSONSchemaStringifyToTypeScript(
     let lines: string[] = [] // Array to accumulate lines of TypeScript code
     let indent = 0 // Manage indentation level
 
-    appendJsDoc((schema as JSONSchemaDescripted).description) // Add JSDoc for schema description
+    const descripted = schema as JSONSchemaDescripted
+    appendJsDoc(descripted.title, descripted.description) // Add JSDoc for schema description
     append(
         `${options?.export ? "export " : ""}type ${typeName.replace(/\s+/g, "_")} =`
     )
@@ -76,7 +77,8 @@ export function JSONSchemaStringifyToTypeScript(
     }
 
     // Append JSDoc comments
-    function appendJsDoc(text: string) {
+    function appendJsDoc(...parts: string[]) {
+        const text = parts?.filter((d) => d).join("\n")
         if (!text) return
         if (text.indexOf("\n") > -1)
             append(
@@ -116,7 +118,7 @@ export function JSONSchemaStringifyToTypeScript(
     // Extract documentation for a node
     function stringifyNodeDoc(node: JSONSchemaType): string {
         const n = node as JSONSchemaSimpleType
-        const doc = [n?.description]
+        const doc = [n?.title, n?.description]
         switch (n.type) {
             case "number":
             case "integer": {

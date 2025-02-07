@@ -1,1 +1,12 @@
-["Markdown", "language", "John Gruber", "formatting", "WYSIWYG", "syntax", "plaintext", "text editor"]
+[
+  "Markdown",
+  "lightweight markup language",
+  "John Gruber",
+  "2004",
+  "plain text",
+  "WYSIWYG editor",
+  "syntax",
+  "heading",
+  "bold text",
+  "Visual Studio Code"
+]
