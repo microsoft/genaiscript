@@ -4,24 +4,6 @@ body {
     padding: 0 !important;
 }
 
-html.browser,
-html.browser > body {
-    display: flex;
-    justify-content: center; /* Centers horizontally */
-}
-
-html.browser div.container {
-    width: 100%; /* Full width */
-    min-height: 100vh; /* Full height on mobile */
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start; /* Keeps natural vertical flow */
-    padding: 1rem;
-    box-sizing: border-box;
-    max-width: min(100vw, 110ch);
-    min-width: min(100vw, 110ch);
-}
-
 div.snippet {
     position: relative;
 }

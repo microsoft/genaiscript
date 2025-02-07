@@ -834,6 +834,7 @@ function ReasoningTabPanel() {
 
 function OutputMarkdown() {
     const output = useOutput()
+    if (!output) return null
     return (
         <vscode-scrollable>
             <vscode-tabs>
