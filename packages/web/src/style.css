@@ -25,14 +25,18 @@ html.browser div.container {
 div.snippet {
     position: relative;
 }
-div.snippet .button {
+div.snippet .buttons {
     position: absolute;
     top: 0;
-    right: 0;
+    right: 0;   
     opacity: 0;
     transition: opacity 0.3s ease;
 }
-div.snippet:hover .button {
+div.snippet .buttons vscode-button {
+    margin-left: 0.2rem;
+    cursor: pointer;
+}
+div.snippet:hover .buttons {
     opacity: 1;
 }
 span.logprobs {
