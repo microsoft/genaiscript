@@ -1577,6 +1577,11 @@ function Configuration() {
 
     return (
         <vscode-collapsible title="Configuration">
+            <vscode-label>
+                <a href="https://microsoft.github.io/genaiscript/getting-started/configuration/">
+                    Configuration documentation
+                </a>
+            </vscode-label>
             <vscode-tree indent-guides indent={8} ref={ref} />
         </vscode-collapsible>
     )
