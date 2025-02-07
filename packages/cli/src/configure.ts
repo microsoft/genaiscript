@@ -18,6 +18,8 @@ export async function configure() {
     })
     if (!provider) return
 
+    console.debug(`- docs: https://microsoft.github.io/genaiscript/getting-started/configuration#${provider.id}`)
+
     while (true) {
         const { error, ...rest } =
             (
