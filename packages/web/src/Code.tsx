@@ -35,10 +35,11 @@ export default function Code(props: { className?: string; children: any }) {
             <vscode-button
                 className="button"
                 aria-label="Copy"
+                icon="copy"
                 secondary
                 onClick={handleCopy}
             >
-                {copied ? "Copied!" : "Copy"}
+                {copied ? "Copied!" : ""}
             </vscode-button>
         </div>
     )

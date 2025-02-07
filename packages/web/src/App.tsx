@@ -384,6 +384,37 @@ function useEnv() {
     return env
 }
 
+function useProject() {
+    const api = useApi()
+    const project = use(api.project)
+    return project
+}
+
+function useScripts() {
+    const project = useProject()
+    const scripts = (project?.scripts?.filter((s) => !s.isSystem) || []).sort(
+        (l, r) => l.id.localeCompare(r.id)
+    )
+    return scripts
+}
+
+function useScript() {
+    const scripts = useScripts()
+    const { scriptid } = useApi()
+
+    return scripts.find((s) => s.id === scriptid)
+}
+
+function useSyncProjectScript() {
+    const { scriptid, setScriptid } = useApi()
+    const scripts = useScripts()
+    useEffect(() => {
+        if (!scriptid && scripts.length > 0) setScriptid(scripts[0].id)
+        else if (scriptid && !scripts.find((s) => s.id === scriptid))
+            setScriptid(scripts[0]?.id)
+    }, [scripts, scriptid])
+}
+
 const RunnerContext = createContext<{
     runId: string | undefined
     run: () => void
@@ -484,21 +515,6 @@ function useResult(): Partial<GenerationResult> | undefined {
     const update = useCallback(() => setResult(client.result), [client])
     useEventListener(client, RunClient.RESULT_EVENT, update)
     return result
-}
-
-function useScripts() {
-    const api = useApi()
-    const project = use(api.project)
-    const scripts = (project?.scripts?.filter((s) => !s.isSystem) || []).sort(
-        (l, r) => l.id.localeCompare(r.id)
-    )
-    return scripts
-}
-
-function useScript() {
-    const scripts = useScripts()
-    const { scriptid } = useApi()
-    return scripts.find((s) => s.id === scriptid)
 }
 
 function useEventListener(
@@ -1267,10 +1283,23 @@ function RemoteInfo() {
     )
 }
 
+function ScriptDescription() {
+    const script = useScript()
+    if (!script) return null
+    const { title, description, filename } = script
+
+    return (
+        <vscode-form-helper>
+            {title ? <b>{title}</b> : null}
+            {description ? <p>{description}</p> : null}
+        </vscode-form-helper>
+    )
+}
+
 function ScriptSelect() {
     const scripts = useScripts()
     const { scriptid, setScriptid } = useApi()
-    const script = useScript()
+    const { filename } = useScript() || {}
 
     return (
         <vscode-form-group>
@@ -1278,14 +1307,15 @@ function ScriptSelect() {
                 <GenAIScriptLogo height="2em" />
             </vscode-label>
             <vscode-single-select
+                id="script-selector"
                 value={scriptid}
-                required={true}
                 combobox
                 filter="fuzzy"
                 onvsc-change={(e: Event) => {
                     const target = e.target as HTMLSelectElement
                     setScriptid(target.value)
                 }}
+                title={filename}
             >
                 {scripts
                     .filter((s) => !s.isSystem && !s.unlisted)
@@ -1299,15 +1329,7 @@ function ScriptSelect() {
                         </vscode-option>
                     ))}
             </vscode-single-select>
-            {script && (
-                <vscode-form-helper>
-                    {toStringList(
-                        script.title,
-                        script.description,
-                        script.filename
-                    )}
-                </vscode-form-helper>
-            )}
+            <ScriptDescription />
         </vscode-form-group>
     )
 }
@@ -1334,8 +1356,7 @@ function ScriptSourcesView() {
     const script = useScript()
     const { jsSource, text, filename } = script || {}
     return (
-        <vscode-collapsible title="Source">
-            {filename ? <Markdown>{`- ${filename}`}</Markdown> : null}
+        <vscode-collapsible title="Script Source">
             {text ? (
                 <Markdown>{`\`\`\`\`\`\`
 ${text.trim()}
@@ -1348,6 +1369,7 @@ ${jsSource.trim()}
 \`\`\`\`\`\``}
                 </Markdown>
             ) : null}
+            {filename ? <Markdown>{`- ${filename}`}</Markdown> : null}
         </vscode-collapsible>
     )
 }
@@ -1534,6 +1556,7 @@ function ResultsTabs() {
 }
 
 function WebApp() {
+    useSyncProjectScript()
     switch (viewMode) {
         case "results":
             return <ResultsTabs />
@@ -1553,7 +1576,7 @@ export default function App() {
     return (
         <ApiProvider>
             <RunnerProvider>
-                <Suspense fallback={<vscode-progress-ring />}>
+                <Suspense>
                     <WebApp />
                 </Suspense>
             </RunnerProvider>
