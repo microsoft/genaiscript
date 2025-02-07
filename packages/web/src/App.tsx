@@ -945,9 +945,24 @@ function StatsBadge() {
         .filter((l) => !!l)
         .join(" ")
     return (
-        <vscode-badge title={`usage`} variant="counter" slot="content-after">
-            {s}
-        </vscode-badge>
+        <>
+            {[
+                prompt_tokens ? `${prompt_tokens}↑` : undefined,
+                completion_tokens ? `${completion_tokens}↓` : undefined,
+                renderCost(cost),
+            ]
+                .filter((l) => !!l)
+                .map((s, i) => (
+                    <vscode-badge
+                        key={i}
+                        title={`usage`}
+                        variant="counter"
+                        slot="content-after"
+                    >
+                        {s}
+                    </vscode-badge>
+                ))}
+        </>
     )
 }
 

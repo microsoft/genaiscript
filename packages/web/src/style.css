@@ -1,6 +1,25 @@
 body {
+    height: 100%;
     margin: 0 !important;
     padding: 0 !important;
+}
+
+html.browser,
+html.browser > body {
+    display: flex;
+    justify-content: center; /* Centers horizontally */
+}
+
+html.browser div.container {
+    width: 100%; /* Full width */
+    min-height: 100vh; /* Full height on mobile */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; /* Keeps natural vertical flow */
+    padding: 1rem;
+    box-sizing: border-box;
+    max-width: min(100vw, 110ch);
+    min-width: min(100vw, 110ch);
 }
 
 div.snippet {
@@ -21,8 +40,8 @@ span.logprobs {
     white-space: pre;
     font-family: monospace;
     margin-right: 0.2rem;
-    border-radius: 0.2rem;  
-    cursor: pointer;  
+    border-radius: 0.2rem;
+    cursor: pointer;
 }
 table.toplogprobs {
     display: inline-block;
@@ -36,7 +55,8 @@ table.toplogprobs span.logprobs {
     margin-bottom: 0.2rem;
 }
 table.toplogprobs td {
-    border: none; padding: 0;
+    border: none;
+    padding: 0;
 }
 .centered {
     position: absolute;
