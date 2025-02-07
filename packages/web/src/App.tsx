@@ -44,6 +44,7 @@ import type {
     RequestMessages,
     PromptScriptStartResponse,
     PromptScriptEndResponseEvent,
+    LogMessageEvent,
 } from "../../core/src/server/messages"
 import { logprobColor, renderLogprob, rgbToCss } from "../../core/src/logprob"
 import { FileWithPath, useDropzone } from "react-dropzone"
@@ -155,7 +156,13 @@ class RunClient extends WebSocketClient {
                 const data = (ev as MessageEvent<any>).data as
                     | PromptScriptResponseEvents
                     | RequestMessages
+                    | LogMessageEvent
                 switch (data.type) {
+                    case "log": {
+                        const fn = console[data.level]
+                        fn?.(data.message)
+                        break
+                    }
                     case "script.progress": {
                         this.updateRunId(data)
                         if (data.trace) this.trace += data.trace

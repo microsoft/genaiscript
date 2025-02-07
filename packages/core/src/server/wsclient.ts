@@ -11,6 +11,7 @@ import type {
     ChatEvents,
     LanguageModelConfiguration,
     LanguageModelConfigurationRequest,
+    LogMessageEvent,
     Project,
     PromptScriptAbort,
     PromptScriptList,
@@ -109,10 +110,11 @@ export class WebSocketClient extends EventTarget {
                 }
                 // not a response
                 this.dispatchEvent(
-                    new MessageEvent<PromptScriptResponseEvents | ChatEvents>(
-                        MESSAGE,
-                        { data }
-                    )
+                    new MessageEvent<
+                        | PromptScriptResponseEvents
+                        | ChatEvents
+                        | LogMessageEvent
+                    >(MESSAGE, { data })
                 )
             }),
             false

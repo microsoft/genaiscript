@@ -28,7 +28,6 @@ import {
 import { tryReadText } from "../../core/src/fs"
 import {
     ServerManager,
-    LogLevel,
     UTF8Decoder,
     UTF8Encoder,
     RuntimeHost,
@@ -36,6 +35,7 @@ import {
     AzureTokenResolver,
     ModelConfigurations,
     ModelConfiguration,
+    LogEvent,
 } from "../../core/src/host"
 import { TraceOptions } from "../../core/src/trace"
 import { assert, logError, logVerbose } from "../../core/src/util"
@@ -49,6 +49,7 @@ import { uniq } from "es-toolkit"
 import { PLimitPromiseQueue } from "../../core/src/concurrency"
 import {
     LanguageModelConfiguration,
+    LogLevel,
     Project,
     ResponseStatus,
 } from "../../core/src/server/messages"
@@ -73,7 +74,7 @@ class NodeServerManager implements ServerManager {
     }
 }
 
-export class NodeHost implements RuntimeHost {
+export class NodeHost extends EventTarget implements RuntimeHost {
     private pulledModels: string[] = []
     readonly dotEnvPath: string
     project: Project
@@ -100,6 +101,7 @@ export class NodeHost implements RuntimeHost {
     readonly microsoftGraphToken: AzureTokenResolver
 
     constructor(dotEnvPath: string) {
+        super()
         this.dotEnvPath = dotEnvPath
         this.azureToken = createAzureTokenResolver(
             "Azure",
@@ -312,17 +314,18 @@ export class NodeHost implements RuntimeHost {
 
     log(level: LogLevel, msg: string): void {
         if (msg === undefined) return
+        this.dispatchEvent(new LogEvent(level, msg))
         switch (level) {
-            case LogLevel.Error:
+            case "error":
                 error(msg)
                 break
-            case LogLevel.Warn:
+            case "warn":
                 warn(msg)
                 break
-            case LogLevel.Verbose:
+            case "debug":
                 debug(msg)
                 break
-            case LogLevel.Info:
+            case "info":
             default:
                 info(msg)
                 break

@@ -10,9 +10,10 @@ import {
     UNHANDLED_ERROR_CODE,
     MODEL_PROVIDER_GITHUB_COPILOT_CHAT,
     WS_MAX_FRAME_LENGTH,
+    LOG,
 } from "../../core/src/constants"
 import { isCancelError, serializeError } from "../../core/src/error"
-import { host, runtimeHost } from "../../core/src/host"
+import { host, LogEvent, runtimeHost } from "../../core/src/host"
 import { MarkdownTrace, TraceChunkEvent } from "../../core/src/trace"
 import {
     logVerbose,
@@ -55,6 +56,7 @@ import { exists } from "fs-extra"
 import { deleteUndefinedValues } from "../../core/src/cleaners"
 import { readFile } from "fs/promises"
 import { unthink } from "../../core/src/think"
+import { NodeHost } from "./nodehost"
 
 /**
  * Starts a WebSocket server for handling chat and script execution.
@@ -282,6 +284,17 @@ export async function startServer(options: {
         cancelAll()
     })
 
+    // send loggign messages
+    ;(runtimeHost as NodeHost).addEventListener(LOG, (ev) => {
+        const lev = ev as LogEvent
+        const payload = toPayload({
+            type: "log",
+            level: lev.level,
+            message: lev.message,
+        })
+        for (const client of wss.clients) client.send(payload)
+    })
+
     // Manage new WebSocket connections.
     wss.on("connection", function connection(ws, req) {
         logVerbose(`clients: connected (${wss.clients.size} clients)`)
@@ -293,12 +306,15 @@ export async function startServer(options: {
         const send = (payload: object) => {
             const cmsg = toPayload(payload)
             if (dispatchProgress)
-                for (const client of this.clients) client.send(cmsg)
+                for (const client of wss.clients) client.send(cmsg)
             else ws?.send(cmsg)
         }
         const sendLastRunResult = () => {
             if (!lastRunResult) return
-            if (JSON.stringify(lastRunResult).length < WS_MAX_FRAME_LENGTH - 200)
+            if (
+                JSON.stringify(lastRunResult).length <
+                WS_MAX_FRAME_LENGTH - 200
+            )
                 send(lastRunResult)
             else
                 send({

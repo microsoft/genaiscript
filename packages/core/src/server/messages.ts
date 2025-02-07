@@ -351,6 +351,14 @@ export interface ChatChunk extends RequestMessage {
     error?: SerializedError
 }
 
+export type LogLevel = "debug" | "info" | "warn" | "error"
+
+export interface LogMessageEvent {
+    type: "log"
+    message: string
+    level: LogLevel
+}
+
 export type RequestMessages =
     | ServerKill
     | ServerEnv
