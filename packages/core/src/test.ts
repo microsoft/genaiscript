@@ -1,17 +1,20 @@
 // Import necessary utilities and constants
 import {
+    CSV_REGEX,
     HTTPS_REGEX,
-    LARGE_MODEL_ID,
+    JSON5_REGEX,
     MODEL_PROVIDER_AZURE_OPENAI,
     MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI,
     MODEL_PROVIDER_GITHUB,
-    SMALL_MODEL_ID,
-    VISION_MODEL_ID,
 } from "./constants"
 import { arrayify } from "./util"
-import { host, runtimeHost } from "./host"
+import { runtimeHost } from "./host"
 import { ModelConnectionInfo, parseModelIdentifier } from "./models"
 import { deleteUndefinedValues } from "./cleaners"
+import testSchema from "../../../docs/public/schemas/tests.json"
+import { validateJSONWithSchema } from "./schema"
+import { TraceOptions } from "./trace"
+import { CancellationOptions } from "./cancellation"
 
 /**
  * Convert GenAIScript connection info into prompt foo configuration
@@ -62,7 +65,7 @@ function resolveTestProvider(
  * @param options - Optional configuration settings such as provider, testProvider, outputs, etc.
  * @returns A configuration object for PromptFoo.
  */
-export function generatePromptFooConfiguration(
+export async function generatePromptFooConfiguration(
     script: PromptScript,
     options: {
         chatInfo: ModelConnectionInfo & ModelAliasesOptions
@@ -71,16 +74,45 @@ export function generatePromptFooConfiguration(
         out?: string
         cli?: string
         models?: (ModelOptions & ModelAliasesOptions)[]
-    }
+    } & TraceOptions &
+        CancellationOptions
 ) {
     // Destructure options with default values
     const {
         provider = "provider.mjs",
         chatInfo,
         embeddingsInfo,
+        trace,
     } = options || {}
-    const { description, title, tests = [], id } = script
+    const { description, title, id } = script
     const models = options?.models || []
+
+    const testsAndFiles = arrayify(script.tests)
+    const tests: PromptTest[] = []
+    for (const testOrFile of testsAndFiles) {
+        if (Array.isArray(testOrFile)) tests.push(...testOrFile)
+        else if (typeof testOrFile === "object") tests.push(testOrFile)
+        else if (typeof testOrFile === "string") {
+            if (CSV_REGEX.test(testOrFile)) {
+                const data = await runtimeHost.workspace.readCSV(testOrFile, {
+                    repair: false,
+                })
+                throw new Error("CSV test files are not supported yet")
+            } else {
+                const data = arrayify(
+                    await runtimeHost.workspace.readData(testOrFile)
+                ) as PromptTest[]
+                tests.push(...data)
+            }
+        }
+    }
+
+    for (const test of tests) {
+        const v = validateJSONWithSchema(test, testSchema as JSONSchema, {
+            trace,
+        })
+        if (v.schemaError) throw new Error(v.schemaError)
+    }
 
     // Ensure at least one model exists
     if (!models.length) {

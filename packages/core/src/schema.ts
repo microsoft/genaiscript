@@ -199,7 +199,9 @@ export function validateJSONWithSchema(
         }
 
     try {
-        const ajv = new Ajv()
+        const ajv = new Ajv({
+            allowUnionTypes: true,
+        })
         const validate = ajv.compile(schema)
         const valid = validate(object)
         if (!valid) {
