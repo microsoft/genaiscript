@@ -10,6 +10,7 @@ import React, {
     useCallback,
     useEffect,
     useMemo,
+    useRef,
     useState,
 } from "react"
 
@@ -31,6 +32,7 @@ import "@vscode-elements/elements/dist/vscode-badge"
 import "@vscode-elements/elements/dist/vscode-textarea"
 import "@vscode-elements/elements/dist/vscode-multi-select"
 import "@vscode-elements/elements/dist/vscode-scrollable"
+import "@vscode-elements/elements/dist/vscode-tree"
 
 import Markdown from "./Markdown"
 import type {
@@ -62,6 +64,12 @@ import { VscodeMultiSelect } from "@vscode-elements/elements/dist/vscode-multi-s
 import { VscTabsSelectEvent } from "@vscode-elements/elements/dist/vscode-tabs/vscode-tabs"
 import MarkdownPreviewTabs from "./MarkdownPreviewTabs"
 import { roundWithPrecision } from "../../core/src/precision"
+import {
+    TreeItem,
+    VscodeTree,
+} from "@vscode-elements/elements/dist/vscode-tree/vscode-tree"
+import CONFIGURATION from "../../core/src/llms.json"
+import { MODEL_PROVIDER_GITHUB_COPILOT_CHAT } from "../../core/src/constants"
 
 interface GenAIScriptViewOptions {
     apiKey?: string
@@ -1507,6 +1515,73 @@ function ModelConnectionOptionsForm() {
     )
 }
 
+function Configuration() {
+    const env = useEnv()
+    const { providers } = env || {}
+    if (!providers?.length) return null
+
+    const ref = useRef<VscodeTree | null>(null)
+    useEffect(() => {
+        if (!ref.current) return
+        if (!providers) ref.current.data = []
+        else {
+            const icons = {
+                leaf: "robot",
+                branch: "chevron-right",
+                open: "chevron-down",
+            }
+            const missingIcons = {
+                branch: "circle-large",
+                leaf: "circle-large",
+                open: "chevron-down",
+            }
+            const errorIcons = {
+                branch: "error",
+                leaf: "error",
+                open: "chevron-down",
+            }
+            const PROVIDERS = CONFIGURATION.providers
+            const data: TreeItem[] = PROVIDERS.filter(
+                ({ id }) => id !== MODEL_PROVIDER_GITHUB_COPILOT_CHAT
+            )
+                .map((def) => ({
+                    ...(providers.find((p) => p.provider === def.id) || {}),
+                    detail: def.detail,
+                    provider: def.id,
+                    url: def.url,
+                    missing: !providers.find((p) => p.provider === def.id),
+                }))
+                .map(
+                    (r) =>
+                        ({
+                            icons: r.error
+                                ? errorIcons
+                                : r.missing
+                                  ? missingIcons
+                                  : icons,
+                            label: r.provider,
+                            description: r.error ?? r.base,
+                            tooltip: r.detail,
+                            subItems: r.models?.map(
+                                ({ id, url }) =>
+                                    ({
+                                        label: id,
+                                        description: url,
+                                    }) satisfies TreeItem
+                            ),
+                        }) satisfies TreeItem
+                )
+            ref.current.data = data
+        }
+    }, [providers])
+
+    return (
+        <vscode-collapsible title="Configuration">
+            <vscode-tree indent-guides indent={8} ref={ref} />
+        </vscode-collapsible>
+    )
+}
+
 function RunButton() {
     const { scriptid, options } = useApi()
     const { state } = useRunner()
@@ -1544,6 +1619,7 @@ function RunForm() {
             <ScriptForm />
             <ScriptSourcesView />
             <ModelConnectionOptionsForm />
+            <Configuration />
         </form>
     )
 }

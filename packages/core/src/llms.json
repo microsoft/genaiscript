@@ -27,7 +27,18 @@
             "bearerToken": false,
             "prediction": false,
             "transcribe": true,
-            "speech": true
+            "speech": true,
+            "aliases": {
+                "large": "gpt-4o",
+                "small": "gpt-4o-mini",
+                "vision": "gpt-4o",
+                "vision_small": "gpt-4o-mini",
+                "embeddings": "text-embedding-3-small",
+                "reasoning": "o1",
+                "reasoning_small": "o1-mini",
+                "transcription": "whisper-1",
+                "speech": "tts-1"
+            }
         },
         {
             "id": "azure_serverless",

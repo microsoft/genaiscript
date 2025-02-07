@@ -2,7 +2,12 @@ import { homedir } from "os"
 import { existsSync, readFileSync } from "fs"
 import { YAMLTryParse } from "./yaml"
 import { JSON5TryParse } from "./json5"
-import { DOT_ENV_FILENAME, MODEL_PROVIDERS, TOOL_ID } from "./constants"
+import {
+    DOT_ENV_FILENAME,
+    MODEL_PROVIDER_GITHUB_COPILOT_CHAT,
+    MODEL_PROVIDERS,
+    TOOL_ID,
+} from "./constants"
 import { resolve } from "path"
 import { validateJSONWithSchema } from "./schema"
 import { HostConfiguration } from "./hostconfiguration"
@@ -19,6 +24,7 @@ import { errorMessage } from "./error"
 import schema from "../../../docs/public/schemas/config.json"
 import defaultConfig from "./config.json"
 import { CancellationOptions } from "./cancellation"
+import { runtimeHost } from "./host"
 
 export async function resolveGlobalConfiguration(
     dotEnvPath?: string
