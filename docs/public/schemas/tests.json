@@ -1,0 +1,110 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "PromptTest",
+    "type": "array",
+    "items": {
+        "type": "object",
+        "properties": {
+            "name": {
+                "type": "string",
+                "description": "Short name of the test"
+            },
+            "description": {
+                "type": "string",
+                "description": "Description of the test"
+            },
+            "files": {
+                "oneOf": [
+                    {
+                        "type": "string"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "description": "List of files to apply the test to"
+            },
+            "vars": {
+                "type": "object",
+                "additionalProperties": {
+                    "type": ["string", "boolean", "number"]
+                },
+                "description": "Extra set of variables for this scenario"
+            },
+            "rubrics": {
+                "oneOf": [
+                    {
+                        "type": "string"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "description": "LLM output matches a given rubric"
+            },
+            "facts": {
+                "oneOf": [
+                    {
+                        "type": "string"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "description": "LLM output adheres to the given facts"
+            },
+            "keywords": {
+                "oneOf": [
+                    {
+                        "type": "string"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "description": "Required keywords in the LLM output"
+            },
+            "forbidden": {
+                "oneOf": [
+                    {
+                        "type": "string"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "description": "Disallowed keywords in the LLM output"
+            },
+            "asserts": {
+                "oneOf": [
+                    {
+                        "type": "object"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "object"
+                        }
+                    }
+                ],
+                "description": "Additional deterministic assertions"
+            }
+        },
+        "additionalProperties": false
+    }
+}
