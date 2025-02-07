@@ -32,12 +32,12 @@ div.snippet .buttons {
     opacity: 0;
     transition: opacity 0.3s ease;
 }
-div.snippet .buttons vscode-button {
-    margin-left: 0.2rem;
-    cursor: pointer;
-}
 div.snippet:hover .buttons {
     opacity: 1;
+}
+.buttons vscode-button {
+    margin-left: 0.2rem;
+    cursor: pointer;
 }
 span.logprobs {
     color: white;

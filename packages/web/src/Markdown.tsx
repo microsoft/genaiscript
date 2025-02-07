@@ -12,6 +12,7 @@ import rehypeMathML from "@daiji256/rehype-mathml"
 import { ErrorBoundary } from "react-error-boundary"
 import rehypeHighlight from "rehype-highlight"
 import Code from "./Code"
+import CopySaveButtons from "./Buttons"
 
 const genaiscriptSchema = Object.freeze({
     ...defaultSchema,
@@ -46,8 +47,12 @@ const genaiscriptSchema = Object.freeze({
     },
 })
 
-export default function Markdown(props: { className?: string; children: any }) {
-    const { className, children } = props
+export default function Markdown(props: {
+    className?: string
+    children: any
+    copySaveButtons?: boolean
+}) {
+    const { className, children, copySaveButtons } = props
     return children ? (
         <div className={clsx("markdown-body", className)}>
             <ErrorBoundary
@@ -81,6 +86,9 @@ export default function Markdown(props: { className?: string; children: any }) {
                     {children}
                 </ReactMarkdown>
             </ErrorBoundary>
+            {copySaveButtons ? (
+                <CopySaveButtons text={String(children)} />
+            ) : null}
         </div>
     ) : null
 }

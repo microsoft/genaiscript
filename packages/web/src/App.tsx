@@ -931,7 +931,7 @@ function MessagesTabPanel() {
                 />
             </vscode-tab-header>
             <vscode-tab-panel>
-                <Markdown>{md}</Markdown>
+                <Markdown copySaveButtons={true}>{md}</Markdown>
             </vscode-tab-panel>
         </>
     )
@@ -952,13 +952,6 @@ function StatsBadge() {
     if (!stats) return null
     const { cost, prompt_tokens, completion_tokens } = stats
     if (!cost && !completion_tokens) return null
-    const s = [
-        prompt_tokens ? `${prompt_tokens}↑` : undefined,
-        completion_tokens ? `${completion_tokens}↓` : undefined,
-        renderCost(cost),
-    ]
-        .filter((l) => !!l)
-        .join(" ")
     return (
         <>
             {[

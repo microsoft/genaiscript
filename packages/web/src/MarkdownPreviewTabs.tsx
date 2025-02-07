@@ -15,15 +15,24 @@ export default function MarkdownWithPreviewTabs(props: {
     const md = convertThinkToMarkdown(
         convertAnnotationsToMarkdown(children as string)
     )
+    const text = String(children)
     return (
         <>
             <vscode-tab-header slot="header">Text</vscode-tab-header>
             <vscode-tab-panel>
-                <Markdown>{fenceMD(children, "markdown")}</Markdown>
+                {children ? (
+                    <Markdown copySaveButtons={true}>
+                        {fenceMD(text, "markdown")}
+                    </Markdown>
+                ) : null}
             </vscode-tab-panel>
             <vscode-tab-header slot="header">Preview</vscode-tab-header>
             <vscode-tab-panel>
-                <Markdown className={className}>{md}</Markdown>
+                {md ? (
+                    <Markdown copySaveButtons={true} className={className}>
+                        {md}
+                    </Markdown>
+                ) : null}
             </vscode-tab-panel>
         </>
     )
