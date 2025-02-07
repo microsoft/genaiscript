@@ -565,7 +565,7 @@ interface PromptScript
     /**
      * Tests to validate this script.
      */
-    tests?: PromptTest | PromptTest[]
+    tests?: string | PromptTest | (string | PromptTest)[]
 
     /**
      * Don't show it to the user in lists. Template `system.*` are automatically unlisted.

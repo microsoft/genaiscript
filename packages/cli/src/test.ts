@@ -175,7 +175,7 @@ genaiscript test view
             { model: runtimeHost.modelAliases.embeddings.model }
         )
         if (embeddingsInfo?.error) embeddingsInfo = undefined
-        const config = generatePromptFooConfiguration(script, {
+        const config = await generatePromptFooConfiguration(script, {
             out,
             cli,
             models: options.models?.map(parseModelSpec),
