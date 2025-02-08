@@ -16,7 +16,14 @@ Usage: genaiscript configure [options]
 Interactive help to configure providers
 
 Options:
-  -h, --help  display help for command
+  -p, --provider <string>  Preferred LLM provider aliases (choices: "openai",
+                           "azure", "azure_serverless",
+                           "azure_serverless_models", "anthropic",
+                           "anthropic_bedrock", "google", "huggingface",
+                           "mistral", "alibaba", "github", "deepseek",
+                           "transformers", "ollama", "lmstudio", "jan",
+                           "llamafile", "litellm", "whisperasr")
+  -h, --help               display help for command
 ```
 
 ## `run`

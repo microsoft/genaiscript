@@ -7,16 +7,18 @@ import { writeFile } from "fs/promises"
 import { runtimeHost } from "../../core/src/host"
 import { deleteUndefinedValues } from "../../core/src/cleaners"
 
-export async function configure() {
+export async function configure(options: { provider?: string }) {
     while (true) {
-        const provider = await select({
-            message: "Select a LLM provider to configure",
-            choices: MODEL_PROVIDERS.map((provider) => ({
-                name: provider.id,
-                value: provider,
-                description: provider.detail,
-            })),
-        })
+        const provider = options?.provider
+            ? MODEL_PROVIDERS.find(({ id }) => options.provider === id)
+            : await select({
+                  message: "Select a LLM provider to configure",
+                  choices: MODEL_PROVIDERS.map((provider) => ({
+                      name: provider.id,
+                      value: provider,
+                      description: provider.detail,
+                  })),
+              })
         if (!provider) break
 
         console.log(`configurating ${provider.id} (${provider.detail})`)
@@ -34,11 +36,17 @@ export async function configure() {
                 })
             )?.[0]
             if (conn) {
-                const { error, ...rest } = conn
+                const { error, models, ...rest } = conn
                 console.log("")
                 console.debug(
                     YAML.stringify(
-                        deleteUndefinedValues({ configuration: rest, error })
+                        deleteUndefinedValues({
+                            configuration: deleteUndefinedValues({
+                                ...rest,
+                                models: models?.length ?? undefined,
+                            }),
+                            error,
+                        })
                     )
                 )
             } else {
