@@ -3,60 +3,103 @@ import { MODEL_PROVIDERS } from "../../core/src/constants"
 import { resolveLanguageModelConfigurations } from "../../core/src/config"
 import { parse } from "dotenv"
 import { readFile } from "fs/promises"
+import { writeFile } from "fs/promises"
+import { runtimeHost } from "../../core/src/host"
+import { deleteUndefinedValues } from "../../core/src/cleaners"
 
 export async function configure() {
-    const envFile = ".env"
-    const env = parse(await readFile(envFile, "utf-8"))
-
-    const provider = await select({
-        message: "Select a LLM provider to configure",
-        choices: MODEL_PROVIDERS.map((provider) => ({
-            name: provider.id,
-            value: provider,
-            description: provider.detail,
-        })),
-    })
-    if (!provider) return
-
-    console.debug(`- docs: https://microsoft.github.io/genaiscript/getting-started/configuration#${provider.id}`)
-
     while (true) {
-        const { error, ...rest } =
-            (
+        const provider = await select({
+            message: "Select a LLM provider to configure",
+            choices: MODEL_PROVIDERS.map((provider) => ({
+                name: provider.id,
+                value: provider,
+                description: provider.detail,
+            })),
+        })
+        if (!provider) break
+
+        console.debug(
+            `- docs: https://microsoft.github.io/genaiscript/getting-started/configuration#${provider.id}`
+        )
+        while (true) {
+            console.log(`trying to load configuration...`)
+            const config = await runtimeHost.readConfig()
+            const env = parse(await readFile(config.envFile, "utf-8"))
+            const conn = (
                 await resolveLanguageModelConfigurations(provider.id, {
                     token: false,
                     error: true,
                     models: true,
                 })
-            )?.[0] || {}
-        console.debug(YAML.stringify(rest))
-        if (error) console.warn(error)
-        if (!provider.env) break
-        for (const ev of Object.entries(provider.env)) {
-            const [name, info] = ev
-            let value = env[name]
-            if (value) {
-                const edit = await confirm({
-                    message: `found a value for ${name}, do you want to edit?`,
-                })
-                if (!edit) continue
-            }
-            if (info.secret) {
-                value = await input({
-                    message: `enter a value for ${name}`,
-                    default: value,
-                    required: info.required,
-                })
+            )?.[0]
+            if (conn) {
+                const { error, ...rest } = conn
+                console.log("")
+                console.debug(
+                    YAML.stringify(
+                        deleteUndefinedValues({ configuration: rest, error })
+                    )
+                )
             } else {
-                value = await password({
-                    message: `enter a value for ${name}`,
-                })
+                console.warn(`no configuration found`)
             }
-            if (value === "" || value) {
-                env[name] = value
-                process.env[name] = value
-                // patch .env file
+            if (!provider.env) {
+                console.log(
+                    `sorry, this provider is not yet configurable through the cli`
+                )
+                break
+            }
+            if (!conn?.error) {
+                const edit = await confirm({
+                    message: `do you want to edit the configuration?`,
+                })
+                if (!edit) break
+            }
+            for (const ev of Object.entries(provider.env)) {
+                const [name, info] = ev
+                let value = env[name]
+                if (value) {
+                    const edit = await confirm({
+                        message: `found a value for ${name}, do you want to edit?`,
+                    })
+                    if (!edit) continue
+                }
+                if (info.secret) {
+                    value = await password({
+                        message: `enter a value for ${name}`,
+                    })
+                } else {
+                    value = await input({
+                        message: `enter a value for ${name}`,
+                        default: value,
+                        required: info.required,
+                    })
+                }
+                if (value === "") continue
+
+                await patchEnvFile(config.envFile, name, value)
             }
         }
     }
+}
+
+async function patchEnvFile(filePath: string, key: string, value: string) {
+    const fileContent = await readFile(filePath, "utf-8")
+    const lines = fileContent.split("\n")
+    let found = false
+
+    const updatedLines = lines.map((line) => {
+        if (line.startsWith(`${key}=`)) {
+            found = true
+            return `${key}=${value}`
+        }
+        return line
+    })
+
+    if (!found) {
+        updatedLines.push(`${key}=${value}`)
+    }
+
+    await writeFile(filePath, updatedLines.join("\n"), "utf-8")
 }
