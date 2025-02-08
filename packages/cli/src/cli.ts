@@ -52,6 +52,7 @@ import { logVerbose } from "../../core/src/util" // Utility logging
 import { semverSatisfies } from "../../core/src/semver" // Semantic version checking
 import { convertFiles } from "./convert"
 import { extractAudio, extractVideoFrames, probeVideo } from "./video"
+import { configure } from "./configure"
 
 /**
  * Main function to initialize and run the CLI.
@@ -95,6 +96,21 @@ export async function cli() {
     // Set options for color and verbosity
     program.on("option:no-colors", () => setConsoleColors(false))
     program.on("option:quiet", () => setQuiet(true))
+
+    program
+        .command("configure")
+        .description("Interactive help to configure providers")
+        .addOption(
+            new Option(
+                "-p, --provider <string>",
+                "Preferred LLM provider aliases"
+            ).choices(
+                MODEL_PROVIDERS.filter(
+                    ({ id }) => id !== MODEL_PROVIDER_GITHUB_COPILOT_CHAT
+                ).map(({ id }) => id)
+            )
+        )
+        .action(configure)
 
     // Define 'run' command for executing scripts
     const run = program
@@ -145,10 +161,7 @@ export async function cli() {
             "-prr, --pull-request-reviews",
             "create pull request reviews from annotations"
         )
-        .option(
-            "-tm, --teams-message",
-            "Posts a message to the teams channel"
-        )
+        .option("-tm, --teams-message", "Posts a message to the teams channel")
         .option("-j, --json", "emit full JSON response to output")
         .option("-y, --yaml", "emit full YAML response to output")
         .option(`-fe, --fail-on-errors`, `fails on detected annotation error`)

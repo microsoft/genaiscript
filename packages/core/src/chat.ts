@@ -1078,6 +1078,8 @@ export async function executeChatSession(
                         const cachedKey = deleteUndefinedValues({
                             modelid: model,
                             ...req,
+                            responseType,
+                            responseSchema,
                             ...cfgNoToken,
                         }) satisfies ChatCompletionRequestCacheKey
                         const validator = (value: ChatCompletionResponse) => {

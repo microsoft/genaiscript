@@ -216,6 +216,15 @@ export const MODEL_PROVIDERS = Object.freeze<
         speech?: boolean
         tokenless?: boolean
         aliases?: Record<string, string>
+        env?: Record<
+            string,
+            {
+                description?: string
+                secret?: boolean
+                required?: boolean
+                format?: string
+            }
+        >
     }[]
 >(CONFIGURATION_DATA.providers)
 export const MODEL_PRICINGS = Object.freeze<
