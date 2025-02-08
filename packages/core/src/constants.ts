@@ -356,3 +356,4 @@ export const SCHEMA_DEFAULT_FORMAT = "json"
 export const THINK_REGEX = /<think>(.*?)($|<\/think>)/gis
 
 export const MAX_FILE_CONTENT_SIZE = 1024 * 1024 * 2 // 2MB
+export const TEST_CSV_ENTRY_SEPARATOR = /[;|\n]/g

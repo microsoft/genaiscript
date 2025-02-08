@@ -1,3 +1,3 @@
 script({
-    tests: "src/testfile.json",
+    tests: ["src/testfile.json", "src/testfile.csv"],
 })

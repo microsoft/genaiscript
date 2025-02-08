@@ -6,8 +6,9 @@ import {
     MODEL_PROVIDER_AZURE_OPENAI,
     MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI,
     MODEL_PROVIDER_GITHUB,
+    TEST_CSV_ENTRY_SEPARATOR,
 } from "./constants"
-import { arrayify } from "./util"
+import { arrayify, logWarn } from "./util"
 import { runtimeHost } from "./host"
 import { ModelConnectionInfo, parseModelIdentifier } from "./models"
 import { deleteUndefinedValues } from "./cleaners"
@@ -94,10 +95,59 @@ export async function generatePromptFooConfiguration(
         else if (typeof testOrFile === "object") tests.push(testOrFile)
         else if (typeof testOrFile === "string") {
             if (CSV_REGEX.test(testOrFile)) {
-                const data = await runtimeHost.workspace.readCSV(testOrFile, {
-                    repair: false,
-                })
-                throw new Error("CSV test files are not supported yet")
+                const data: any[] = await runtimeHost.workspace.readCSV(
+                    testOrFile,
+                    {
+                        repair: false,
+                    }
+                )
+                if (!data.length) {
+                    logWarn(`no data in ${testOrFile}`)
+                    continue
+                }
+                const headers = Object.keys(data[0])
+                if (!headers.length) {
+                    logWarn(`no headers in ${testOrFile}`)
+                    continue
+                }
+                for (const row of data) {
+                    const test: PromptTest = {
+                        files: [],
+                        workspaceFiles: [],
+                        vars: {},
+                        asserts: [],
+                    }
+                    for (let i = 0; i < headers.length; ++i) {
+                        const header = headers[i]
+                        const s = String(row[header])
+                        if (!s) continue
+                        switch (header) {
+                            case "name":
+                            case "description":
+                                test[header] = s?.trim()
+                                break
+                            case "keywords":
+                            case "forbidden":
+                            case "rubrics":
+                            case "facts":
+                                test[header] = s.split(TEST_CSV_ENTRY_SEPARATOR)
+                                break
+                            case "file":
+                                ;(test.files as string[]).push(s)
+                                break
+                            case "content":
+                                ;(test.workspaceFiles as WorkspaceFile[]).push({
+                                    filename: "",
+                                    content: s,
+                                })
+                                break
+                            default:
+                                test.vars[header] = row[header]
+                                break
+                        }
+                    }
+                    tests.push(test)
+                }
             } else {
                 const data = arrayify(
                     await runtimeHost.workspace.readData(testOrFile)
