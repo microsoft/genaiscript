@@ -25,8 +25,30 @@ scripts({
     rubrics: "is a report with a list of issues",
     facts: `The report says that the input string
       should be validated before use.`,
-  }]
+  }, { ... }],
 })
+```
+
+### External test files
+
+You can also specify the filename of external test files, in JSON, YAML or CSV formats.
+
+```js title="proofreader.genai.js" wrap "tests"
+scripts({
+  ...,
+  tests: ["tests.json", "more-tests.csv"],
+})
+```
+
+The JSON and YAML files assume that files to be a list of `PromptTest` objects and you can validate these files
+using the JSON schema at [https://microsoft.github.io/genaiscript/schemas/tests.json](https://microsoft.github.io/genaiscript/schemas/tests.json).
+
+The CSV files assume that the first row is the header and the columns are mostly the properties of the `PromptTest` object.
+The `file` column should be a filename, the `content` column is the content of a virutal file.
+
+```csv title="tests.csv"
+content,rubrics,facts
+"const x = 1;",is a report with a list of issues,The report says that the input string should be validated before use.
 ```
 
 ### `files`
@@ -96,9 +118,9 @@ a OpenAI or Azure OpenAI configuration with a `gpt-4` model in the `.env` file.
 Other assertions on
 [promptfoo assertions and metrics](https://promptfoo.dev/docs/configuration/expected-outputs/).
 
--   `icontains` (`not-icontains"`) output contains substring case insensitive
--   `equals` (`not-equals`) output equals string
--   `starts-with` (`not-starts-with`) output starts with string
+- `icontains` (`not-icontains"`) output contains substring case insensitive
+- `equals` (`not-equals`) output equals string
+- `starts-with` (`not-starts-with`) output starts with string
 
 ```js title="proofreader.genai.js" wrap "asserts"
 scripts({
@@ -114,9 +136,9 @@ scripts({
 })
 ```
 
--   `contains-all` (`not-contains-all`) output contains all substrings
--   `contains-any` (`not-contains-any`) output contains any substring
--   `icontains-all` (`not-icontains-all`) output contains all substring case insensitive
+- `contains-all` (`not-contains-all`) output contains all substrings
+- `contains-any` (`not-contains-any`) output contains any substring
+- `icontains-all` (`not-icontains-all`) output contains all substring case insensitive
 
 ```js title="proofreader.genai.js" wrap "asserts"
 scripts({
@@ -158,10 +180,10 @@ and execute promptfoo on it.
 
 ### Visual Studio Code
 
--   Open the script to test
--   Right click in the editor and select **Run GenAIScript Tests** in the context menu
--   The [promptfoo web view](https://promptfoo.dev/docs/usage/web-ui/) will automatically
-    open and refresh with the test results.
+- Open the script to test
+- Right click in the editor and select **Run GenAIScript Tests** in the context menu
+- The [promptfoo web view](https://promptfoo.dev/docs/usage/web-ui/) will automatically
+  open and refresh with the test results.
 
 ### Command line
 
