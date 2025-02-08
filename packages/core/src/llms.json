@@ -48,6 +48,19 @@
                 "reasoning_small": "o1-mini",
                 "transcription": "whisper-1",
                 "speech": "tts-1"
+            },
+            "env": {
+                "AZURE_OPENAI_API_KEY": {
+                    "description": "Azure OpenAI API key",
+                    "secret": true
+                },
+                "AZURE_OPENAI_API_ENDPOINT": {
+                    "description": "Azure OpenAI endpoint",
+                    "required": true
+                },
+                "AZURE_OPENAI_API_CREDENTIALS": {
+                    "description": "Azure OpenAI API credentials type"
+                }
             }
         },
         {
@@ -63,6 +76,23 @@
                 "vision_small": "gpt-4o-mini",
                 "reasoning": "o1",
                 "reasoning_small": "o1-mini"
+            },
+            "env": {
+                "AZURE_SERVERLESS_OPENAI_API_KEY": {
+                    "description": "Azure Serverless OpenAI API key",
+                    "required": true,
+                    "secret": true
+                },
+                "AZURE_SERVERLESS_OPENAI_ENDPOINT": {
+                    "description": "Azure Serverless OpenAI endpoint",
+                    "required": true
+                },
+                "AZURE_SERVERLESS_OPENAI_API_VERSION": {
+                    "description": "Azure Serverless OpenAI API version"
+                },
+                "AZURE_SERVERLESS_OPENAI_API_CREDENTIALS": {
+                    "description": "Azure Serverless OpenAI API credentials type"
+                }
             }
         },
         {
@@ -70,7 +100,21 @@
             "detail": "Azure AI Models (serverless deployments, not OpenAI)",
             "listModels": false,
             "prediction": false,
-            "bearerToken": true
+            "bearerToken": true,
+            "env": {
+                "AZURE_SERVERLESS_MODELS_API_KEY": {
+                    "description": "Azure Serverless Models API key",
+                    "required": true,
+                    "secret": true
+                },
+                "AZURE_SERVERLESS_MODELS_ENDPOINT": {
+                    "description": "Azure Serverless Models endpoint",
+                    "required": true
+                },
+                "AZURE_SERVERLESS_MODELS_API_VERSION": {
+                    "description": "Azure Serverless Models API version"
+                }
+            }
         },
         {
             "id": "anthropic",
@@ -83,6 +127,19 @@
                 "large": "claude-3-5-sonnet-latest",
                 "small": "claude-3-5-haiku-latest",
                 "vision": "claude-3-5-sonnet-latest"
+            },
+            "env": {
+                "ANTHROPIC_API_KEY": {
+                    "description": "Anthropic API key",
+                    "required": true,
+                    "secret": true
+                },
+                "ANTHROPIC_API_BASE": {
+                    "description": "Anthropic API base URL"
+                },
+                "ANTHROPIC_API_VERSION": {
+                    "description": "Anthropic API version"
+                }
             }
         },
         {
@@ -94,7 +151,8 @@
             "aliases": {
                 "large": "anthropic.claude-3-5-sonnet-20241022-v2:0",
                 "small": "anthropic.claude-3-5-haiku-20241022-v1:0"
-            }
+            },
+            "env": {}
         },
         {
             "id": "google",
@@ -115,6 +173,17 @@
                 "reasoning": "gemini-2.0-flash-thinking-exp-1219",
                 "reasoning_small": "gemini-2.0-flash-thinking-exp-1219",
                 "embeddings": "text-embedding-004"
+            },
+            "env": {
+                "GEMINI_API_KEY": {
+                    "description": "Google Gemini API key",
+                    "required": true,
+                    "secret": true
+                },
+                "GEMINI_API_BASE": {
+                    "description": "Google Gemini API base URL",
+                    "format": "url"
+                }
             }
         },
         {
@@ -128,6 +197,17 @@
                 "small": "microsoft/phi-4",
                 "vision": "meta-llama/Llama-3.2-11B-Vision-Instruct",
                 "embeddings": "nomic-ai/nomic-embed-text-v1.5"
+            },
+            "env": {
+                "HUGGINGFACE_API_KEY": {
+                    "description": "Hugging Face API key",
+                    "required": true,
+                    "secret": true
+                },
+                "HUGGINGFACE_API_BASE": {
+                    "description": "Hugging Face API base URL",
+                    "format": "url"
+                }
             }
         },
         {
@@ -139,6 +219,17 @@
                 "large": "mistral-large-latest",
                 "small": "mistral-small-latest",
                 "vision": "pixtral-large-latest"
+            },
+            "env": {
+                "MISTRAL_API_KEY": {
+                    "description": "Mistral API key",
+                    "required": true,
+                    "secret": true
+                },
+                "MISTRAL_API_BASE": {
+                    "description": "Mistral API base URL",
+                    "format": "url"
+                }
             }
         },
         {
@@ -154,6 +245,17 @@
                 "small": "qwen-turbo",
                 "long": "qwen-plus",
                 "embeddings": "text-embedding-v3"
+            },
+            "env": {
+                "ALIBABA_API_KEY": {
+                    "description": "Alibaba API key",
+                    "required": true,
+                    "secret": true
+                },
+                "ALIBABA_API_BASE": {
+                    "description": "Alibaba API base URL",
+                    "format": "url"
+                }
             }
         },
         {
@@ -172,6 +274,13 @@
                 "embeddings": "text-embedding-3-small",
                 "reasoning": "o1-preview",
                 "reasoning_small": "o1-mini"
+            },
+            "env": {
+                "GITHUB_TOKEN": {
+                    "description": "GitHub token",
+                    "required": true,
+                    "secret": true
+                }
             }
         },
         {
@@ -182,13 +291,25 @@
                 "large": "deepseek-chat",
                 "small": "deepseek-chat",
                 "vision": "deepseek-chat"
+            },
+            "env": {
+                "DEEPSEEK_API_KEY": {
+                    "description": "DeepSeek API key",
+                    "required": true,
+                    "secret": true
+                },
+                "DEEPSEEK_API_BASE": {
+                    "description": "DeepSeek API base URL",
+                    "format": "url"
+                }
             }
         },
         {
             "id": "transformers",
             "detail": "Hugging Face Transformers",
             "prediction": false,
-            "tokenless": true
+            "tokenless": true,
+            "env": {}
         },
         {
             "id": "ollama",
@@ -200,6 +321,12 @@
             "tokenless": true,
             "aliases": {
                 "embeddings": "nomic-embed-text"
+            },
+            "env": {
+                "OLLAMA_HOST": {
+                    "description": "Ollama host",
+                    "format": "url"
+                }
             }
         },
         {
@@ -210,6 +337,12 @@
             "tokenless": true,
             "aliases": {
                 "embeddings": "text-embedding-nomic-embed-text-v1.5"
+            },
+            "env": {
+                "LMSTUDIO_API_BASE": {
+                    "description": "LM Studio API base URL",
+                    "format": "url"
+                }
             }
         },
         {
@@ -218,19 +351,37 @@
             "prediction": false,
             "listModels": true,
             "tokenless": true,
-            "topP": false
+            "topP": false,
+            "env": {
+                "JAN_API_BASE": {
+                    "description": "Jan API base URL",
+                    "format": "url"
+                }
+            }
         },
         {
             "id": "llamafile",
             "detail": "llamafile.ai local model",
             "prediction": false,
-            "tokenless": true
+            "tokenless": true,
+            "env": {
+                "LLAMAFILE_API_BASE": {
+                    "description": "Llamafile API base URL",
+                    "format": "url"
+                }
+            }
         },
         {
             "id": "litellm",
             "detail": "LiteLLM proxy",
             "prediction": false,
-            "tokenless": true
+            "tokenless": true,
+            "env": {
+                "LITELLM_API_BASE": {
+                    "description": "LiteLLM API base URL",
+                    "format": "url"
+                }
+            }
         },
         {
             "id": "whisperasr",
@@ -239,6 +390,12 @@
             "tokenless": true,
             "aliases": {
                 "transcription": "default"
+            },
+            "env": {
+                "WHISPERASR_API_BASE": {
+                    "description": "Whisper ASR API base URL",
+                    "format": "url"
+                }
             }
         },
         {
@@ -252,7 +409,8 @@
                 "small": "gpt-4o-mini",
                 "reasoning": "o1-preview",
                 "reasoning_small": "o1-mini"
-            }
+            },
+            "env": {}
         }
     ],
     "aliases": {

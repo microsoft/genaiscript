@@ -222,6 +222,7 @@ export const MODEL_PROVIDERS = Object.freeze<
                 description?: string
                 secret?: boolean
                 required?: boolean
+                format?: string
             }
         >
     }[]

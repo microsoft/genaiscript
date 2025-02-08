@@ -147,6 +147,11 @@
                                     "secret": {
                                         "type": "boolean",
                                         "description": "Indicates if the variable is a secret"
+                                    },
+                                    "format": {
+                                        "type": "string",
+                                        "description": "Format of the variable",
+                                        "enum": ["url"]
                                     }
                                 }
                             }

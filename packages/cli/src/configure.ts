@@ -6,6 +6,7 @@ import { readFile } from "fs/promises"
 import { writeFile } from "fs/promises"
 import { runtimeHost } from "../../core/src/host"
 import { deleteUndefinedValues } from "../../core/src/cleaners"
+import { logInfo, logVerbose, logWarn } from "../../core/src/util"
 
 export async function configure(options: { provider?: string }) {
     while (true) {
@@ -21,13 +22,15 @@ export async function configure(options: { provider?: string }) {
               })
         if (!provider) break
 
-        console.log(`configurating ${provider.id} (${provider.detail})`)
-        console.debug(
+        logInfo(`configurating ${provider.id} (${provider.detail})`)
+        logVerbose(
             `- docs: https://microsoft.github.io/genaiscript/getting-started/configuration#${provider.id}`
         )
         while (true) {
             const config = await runtimeHost.readConfig()
-            const env = parse(await readFile(config.envFile, "utf-8"))
+            logVerbose(`- env file: ${config.envFile}`)
+            const envText = await readFile(config.envFile, "utf-8")
+            const env = parse(envText)
             const conn = (
                 await resolveLanguageModelConfigurations(provider.id, {
                     token: false,
@@ -37,36 +40,44 @@ export async function configure(options: { provider?: string }) {
             )?.[0]
             if (conn) {
                 const { error, models, ...rest } = conn
-                console.log("")
-                console.debug(
+                logInfo("")
+                logInfo(
                     YAML.stringify(
                         deleteUndefinedValues({
                             configuration: deleteUndefinedValues({
                                 ...rest,
                                 models: models?.length ?? undefined,
                             }),
-                            error,
                         })
                     )
                 )
+                if (error) logWarn(`error: ${error}`)
+                else logInfo(`configured!`)
             } else {
-                console.warn(`no configuration found`)
+                logWarn(`no configuration found`)
             }
             if (!provider.env) {
-                console.log(
+                logInfo(
                     `sorry, this provider is not yet configurable through the cli`
                 )
                 break
             }
+            const envVars = Object.entries(provider.env)
+            if (!envVars.length) {
+                logInfo(`this provider does not have configuration flags`)
+                break
+            }
+
             if (!conn?.error) {
                 const edit = await confirm({
                     message: `do you want to edit the configuration?`,
                 })
                 if (!edit) break
             }
-            for (const ev of Object.entries(provider.env)) {
+            for (const ev of envVars) {
                 const [name, info] = ev
-                let value = env[name]
+                const oldValue = env[name]
+                let value = oldValue
                 if (value) {
                     const edit = await confirm({
                         message: `found a value for ${name}, do you want to edit?`,
@@ -76,23 +87,36 @@ export async function configure(options: { provider?: string }) {
                 if (info.secret) {
                     value = await password({
                         message: `enter a value for ${name}`,
+                        mask: false,
                     })
                 } else {
                     value = await input({
-                        message: `enter a value for ${name}`,
+                        message: `enter a value for ${name} (optional, leave empty to skip)`,
                         default: value,
                         required: info.required,
+                        theme: {
+                            validationFailureMode: "keep",
+                        },
+                        validate: (v) => {
+                            console.log(v)
+                            if (info.format === "url") {
+                                if (v && !URL.canParse(v)) return "invalid url"
+                            }
+                            return true
+                        },
                     })
                 }
                 if (value === "") continue
-
-                await patchEnvFile(config.envFile, name, value)
+                if (value !== oldValue)
+                    await patchEnvFile(config.envFile, name, value)
             }
         }
     }
 }
 
 async function patchEnvFile(filePath: string, key: string, value: string) {
+    logVerbose(`patching ${filePath}, ${key}`)
+
     const fileContent = await readFile(filePath, "utf-8")
     const lines = fileContent.split("\n")
     let found = false
