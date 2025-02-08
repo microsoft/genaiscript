@@ -6,7 +6,23 @@
 script({
     title: "git commit message",
     description: "Generate a commit message for all staged changes",
+    parameters: {
+        chunkSize: {
+            type: "number",
+            default: 10000,
+            description: "Maximum number of tokens per chunk",
+        },
+        maxChunks: {
+            type: "number",
+            default: 4,
+            description:
+                "Safeguard against huge commits. Askes confirmation to the user before running more than maxChunks chunks",
+        },
+    },
 })
+const { chunkSize, maxChunks } = env.vars
+
+console.debug(`config: ${JSON.stringify({ chunkSize, maxChunks })}`)
 
 // Check for staged changes and stage all changes if none are staged
 const diff = await git.diff({
@@ -21,9 +37,16 @@ if (!diff) cancel("no staged changes")
 console.debug(diff)
 
 // chunk if case of massive diff
-const chunks = await tokenizers.chunk(diff, { chunkSize: 10000 })
-if (chunks.length > 1)
+const chunks = await tokenizers.chunk(diff, { chunkSize })
+if (chunks.length > 1) {
     console.log(`staged changes chunked into ${chunks.length} parts`)
+    if (chunks.length > maxChunks) {
+        const res = await host.confirm(
+            `This is a big diff with ${chunks.length} chunks, do you want to proceed?`
+        )
+        if (!res) cancel("user cancelled")
+    }
+}
 
 let choice
 let message
