@@ -19,11 +19,11 @@ export async function configure() {
         })
         if (!provider) break
 
+        console.log(`configurating ${provider.id} (${provider.detail})`)
         console.debug(
             `- docs: https://microsoft.github.io/genaiscript/getting-started/configuration#${provider.id}`
         )
         while (true) {
-            console.log(`trying to load configuration...`)
             const config = await runtimeHost.readConfig()
             const env = parse(await readFile(config.envFile, "utf-8"))
             const conn = (
