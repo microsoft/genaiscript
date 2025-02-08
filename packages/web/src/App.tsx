@@ -1275,8 +1275,9 @@ function FilesDropZone() {
                 </vscode-multi-select>
             </vscode-form-group>
             <vscode-form-group
+                className="dropzone"
                 style={{
-                    cursor: "pointer",
+                    ...(isDragActive ? { outline: "2px dashed #333" } : {}),
                 }}
                 {...getRootProps({ className: "dropzone" })}
             >
@@ -1284,7 +1285,7 @@ function FilesDropZone() {
                 <vscode-form-helper>
                     {isDragActive
                         ? `Drop the files here ...`
-                        : `Drag 'n' drop some files here, or click to select files`}
+                        : `Drag 'n' drop some files here, or click to select files ${accept ? `(${accept})` : ""}`}
                 </vscode-form-helper>
             </vscode-form-group>
         </>
