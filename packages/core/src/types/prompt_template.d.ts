@@ -2274,6 +2274,9 @@ interface Git {
         paths?: ElementOrArray<string>
         excludedPaths?: ElementOrArray<string>
         unified?: number
+        algorithm?: "patience" | "minimal" | "histogram" | "myers"
+        ignoreSpaceChange?: boolean
+        extras?: string[]        
         /**
          * Modifies the diff to be in a more LLM friendly format
          */
