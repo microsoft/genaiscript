@@ -507,6 +507,11 @@ interface PromptTest {
      * Additional deterministic assertions.
      */
     asserts?: PromptAssertion | PromptAssertion[]
+
+    /**
+     * Determines what kind of output is sent back to the test engine. Default is "text".
+     */
+    format?: "text" | "json"
 }
 
 interface ContentSafetyOptions {
