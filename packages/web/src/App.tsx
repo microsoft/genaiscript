@@ -487,6 +487,7 @@ function RunnerProvider({ children }: { children: React.ReactNode }) {
                         type: f.type,
                         encoding: binary ? "base64" : undefined,
                         content,
+                        size: f.size,
                     } satisfies WorkspaceFile
                 })
         )
