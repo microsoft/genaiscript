@@ -219,16 +219,22 @@ export async function runScriptInternal(
     if (removeOut) await emptyDir(runDir)
     await ensureDir(runDir)
 
-    const outTraceFilename = await setupTraceWriting(
-        trace,
-        " trace",
-        join(runDir, TRACE_FILENAME)
-    )
-    const outputFilename = await setupTraceWriting(
-        outputTrace,
-        "output",
-        join(runDir, OUTPUT_FILENAME)
-    )
+    const outTraceFilename =
+        options.runTrace === false
+            ? undefined
+            : await setupTraceWriting(
+                  trace,
+                  "trace",
+                  join(runDir, TRACE_FILENAME)
+              )
+    const outputFilename =
+        options.runTrace === false
+            ? undefined
+            : await setupTraceWriting(
+                  outputTrace,
+                  "output",
+                  join(runDir, OUTPUT_FILENAME)
+              )
     if (outTrace && !/^false$/i.test(outTrace))
         await setupTraceWriting(trace, " trace", outTrace)
     if (outOutput && !/^false$/i.test(outOutput))
@@ -620,8 +626,8 @@ export async function runScriptInternal(
         logWarn(`genaiscript: ${result.status}`)
     else logError(`genaiscript: ${result.status}`)
     stats.log()
-    logVerbose(`   trace: ${outTraceFilename}`)
-    logVerbose(`  output: ${outputFilename}`)
+    if (outTraceFilename) logVerbose(`   trace: ${outTraceFilename}`)
+    if (outputFilename) logVerbose(`  output: ${outputFilename}`)
 
     if (result.status !== "success" && result.status !== "cancelled") {
         const msg =

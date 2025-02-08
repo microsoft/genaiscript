@@ -44,6 +44,10 @@ import { link } from "../../core/src/mkmd"
 import { applyModelOptions } from "./modelalias"
 import { normalizeFloat, normalizeInt } from "../../core/src/cleaners"
 import { ChatCompletionReasoningEffort } from "../../core/src/chattypes"
+import {
+    CancellationOptions,
+    checkCancelled,
+} from "../../core/src/cancellation"
 
 /**
  * Parses model specifications from a string and returns a ModelOptions object.
@@ -106,10 +110,10 @@ export async function runPromptScriptTests(
         promptfooVersion?: string
         outSummary?: string
         testDelay?: string
-    }
+    } & CancellationOptions
 ): Promise<PromptScriptTestRunResponse> {
     applyModelOptions(options, "cli")
-
+    const { cancellationToken } = options || {}
     const scripts = await listTests({ ids, ...(options || {}) })
     if (!scripts.length)
         return {
@@ -162,6 +166,7 @@ genaiscript test view
     // Prepare test configurations for each script
     const configurations: { script: PromptScript; configuration: string }[] = []
     for (const script of scripts) {
+        checkCancelled(cancellationToken)
         const fn = out
             ? join(out, `${script.id}.promptfoo.yaml`)
             : script.filename.replace(GENAI_ANY_REGEX, ".promptfoo.yaml")
@@ -191,6 +196,7 @@ genaiscript test view
     const results: PromptScriptTestResult[] = []
     // Execute each configuration and gather results
     for (const config of configurations) {
+        checkCancelled(cancellationToken)
         const { script, configuration } = config
         const outJson = configuration.replace(/\.yaml$/, ".res.json")
         const cmd = "npx"

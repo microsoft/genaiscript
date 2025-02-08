@@ -161,6 +161,7 @@ export interface PromptScriptRunOptions {
     topLogprobs: number
     fenceFormat: FenceFormat
     workspaceFiles?: WorkspaceFile[]
+    runTrace: boolean
 }
 
 export interface PromptScriptList extends RequestMessage {

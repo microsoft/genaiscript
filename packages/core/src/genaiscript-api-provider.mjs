@@ -27,6 +27,7 @@ class GenAIScriptApiProvider {
 
             let { cli, ...options } = structuredClone(this.config)
             options.runTries = 2
+            options.runTrace = false
 
             const testVars = context.vars.vars // {}
             if (testVars && typeof testVars === "object")

@@ -216,6 +216,7 @@ export async function cli() {
             "-rr, --run-retry <number>",
             "number of retries for the entire run"
         )
+        .option("--no-run-trace", "disable automatic trace generation")
         .action(runScriptWithExitCode) // Action to execute the script with exit code
 
     // Define 'test' command group for running tests

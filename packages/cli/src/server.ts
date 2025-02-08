@@ -422,6 +422,7 @@ export async function startServer(options: {
                             ...(data.options || {}),
                             //cache: true,
                             verbose: true,
+                            cancellationToken: canceller.token,
                             promptfooVersion: PROMPTFOO_VERSION,
                         })
                         break
@@ -456,6 +457,7 @@ export async function startServer(options: {
                             ...options,
                             trace,
                             outputTrace,
+                            runTrace: false,
                             cancellationToken: canceller.token,
                             infoCb: ({ text }) => {
                                 sendProgress(runId, { progress: text })
