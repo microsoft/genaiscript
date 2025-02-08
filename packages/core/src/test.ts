@@ -11,7 +11,7 @@ import {
 import { arrayify, logWarn } from "./util"
 import { runtimeHost } from "./host"
 import { ModelConnectionInfo, parseModelIdentifier } from "./models"
-import { deleteUndefinedValues } from "./cleaners"
+import { deleteEmptyValues, deleteUndefinedValues } from "./cleaners"
 import testSchema from "../../../docs/public/schemas/tests.json"
 import { validateJSONWithSchema } from "./schema"
 import { TraceOptions } from "./trace"
@@ -175,7 +175,6 @@ export async function generatePromptFooConfiguration(
     }
 
     const cli = options?.cli
-    const transform = "output.text"
 
     const resolveModel = (m: string) => runtimeHost.modelAliases[m]?.model ?? m
 
@@ -186,6 +185,14 @@ export async function generatePromptFooConfiguration(
     const defaultTest = deleteUndefinedValues({
         options: deleteUndefinedValues({ provider: testProvider }),
     })
+    const testTransforms = {
+        text: "output.text",
+        json: undefined as string,
+    }
+    const assertTransforms = {
+        text: undefined as string,
+        json: "output.text",
+    }
 
     // Create configuration object
     const res = {
@@ -238,42 +245,49 @@ export async function generatePromptFooConfiguration(
                 vars,
                 rubrics,
                 facts,
+                format = "text",
                 keywords = [],
                 forbidden = [],
                 asserts = [],
-            }) => ({
-                description,
-                vars: deleteUndefinedValues({
-                    files,
-                    vars,
-                }),
-                assert: [
-                    ...arrayify(keywords).map((kv) => ({
-                        type: "icontains", // Check if output contains keyword
-                        value: kv,
-                        transform,
-                    })),
-                    ...arrayify(forbidden).map((kv) => ({
-                        type: "not-icontains", // Check if output does not contain forbidden keyword
-                        value: kv,
-                        transform,
-                    })),
-                    ...arrayify(rubrics).map((value) => ({
-                        type: "llm-rubric", // Use LLM rubric for evaluation
-                        value,
-                        transform,
-                    })),
-                    ...arrayify(facts).map((value) => ({
-                        type: "factuality", // Check factuality of output
-                        value,
-                        transform,
-                    })),
-                    ...arrayify(asserts).map((assert) => ({
-                        ...assert,
-                        transform: assert.transform || transform, // Default transform
-                    })),
-                ].filter((a) => !!a), // Filter out any undefined assertions
-            })
+            }) =>
+                deleteEmptyValues({
+                    description,
+                    vars: deleteEmptyValues({
+                        files,
+                        workspaceFiles,
+                        vars,
+                    }),
+                    options: {
+                        transform: testTransforms[format],
+                    },
+                    assert: [
+                        ...arrayify(keywords).map((kv) => ({
+                            type: "icontains", // Check if output contains keyword
+                            value: kv,
+                            transform: assertTransforms[format],
+                        })),
+                        ...arrayify(forbidden).map((kv) => ({
+                            type: "not-icontains", // Check if output does not contain forbidden keyword
+                            value: kv,
+                            transform: assertTransforms[format],
+                        })),
+                        ...arrayify(rubrics).map((value) => ({
+                            type: "llm-rubric", // Use LLM rubric for evaluation
+                            value,
+                            transform: assertTransforms[format],
+                        })),
+                        ...arrayify(facts).map((value) => ({
+                            type: "factuality", // Check factuality of output
+                            value,
+                            transform: assertTransforms[format],
+                        })),
+                        ...arrayify(asserts).map((assert) => ({
+                            ...assert,
+                            transform:
+                                assert.transform || assertTransforms[format], // Default transform
+                        })),
+                    ].filter((a) => !!a), // Filter out any undefined assertions
+                })
         ),
     }
 

@@ -156,13 +156,15 @@ scripts({
 
 #### transform
 
-By default, the `asserts` are executed on the raw LLM output.
-However, you can use a javascript expression to select a part of the output to test.
+By default, GenAIScript extracts the `text` field from the output before sending it to PromptFoo.
+You can disable this mode by setting `format: "json"`; then the the `asserts` are executed on the raw LLM output.
+You can use a javascript expression to select a part of the output to test.
 
 ```js title="proofreader.genai.js" wrap "transform"
 scripts({
     tests: {
         files: "src/will-trigger.cancel.txt",
+        format: "json",
         asserts: {
             type: "equals",
             value: "cancelled",
