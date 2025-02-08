@@ -25,6 +25,52 @@
             ],
             "description": "List of files to apply the test to"
         },
+        "workspaceFiles": {
+            "oneOf": [
+                {
+                    "type": "object",
+                    "properties": {
+                        "filename": {
+                            "type": "string"
+                        },
+                        "content": {
+                            "type": "string"
+                        },
+                        "encoding": {
+                            "type": "string",
+                            "enum": ["base64"]
+                        },
+                        "size": {
+                            "type": "integer"
+                        }
+                    },
+                    "required": ["content"]
+                },
+                {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "filename": {
+                                "type": "string"
+                            },
+                            "content": {
+                                "type": "string"
+                            },
+                            "encoding": {
+                                "type": "string",
+                                "enum": ["base64"]
+                            },
+                            "size": {
+                                "type": "integer"
+                            }
+                        },
+                        "required": ["content"]
+                    }
+                }
+            ],
+            "description": "List of files to apply the test to"
+        },
         "vars": {
             "type": "object",
             "additionalProperties": {

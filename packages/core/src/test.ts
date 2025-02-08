@@ -184,6 +184,7 @@ export async function generatePromptFooConfiguration(
             ({
                 description,
                 files,
+                workspaceFiles,
                 vars,
                 rubrics,
                 facts,

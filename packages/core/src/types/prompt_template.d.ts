@@ -480,6 +480,10 @@ interface PromptTest {
      */
     files?: string | string[]
     /**
+     * List of in-memory files to apply the test to.
+     */
+    workspaceFiles?: WorkspaceFile | WorkspaceFile[]
+    /**
      * Extra set of variables for this scenario
      */
     vars?: Record<string, string | boolean | number>
