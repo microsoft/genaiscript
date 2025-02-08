@@ -7,6 +7,8 @@ import {
     MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI,
     MODEL_PROVIDER_GITHUB,
     TEST_CSV_ENTRY_SEPARATOR,
+    XML_REGEX,
+    YAML_REGEX,
 } from "./constants"
 import { arrayify, logWarn } from "./util"
 import { runtimeHost } from "./host"
@@ -148,11 +150,21 @@ export async function generatePromptFooConfiguration(
                     }
                     tests.push(test)
                 }
-            } else {
+            } else if (
+                JSON5_REGEX.test(testOrFile) ||
+                YAML_REGEX.test(testOrFile) ||
+                XML_REGEX.test(testOrFile)
+            ) {
                 const data = arrayify(
                     await runtimeHost.workspace.readData(testOrFile)
-                ) as PromptTest[]
-                tests.push(...data)
+                ) as (string | PromptTest)[]
+                for (const row of data) {
+                    if (typeof row === "string")
+                        tests.push({
+                            workspaceFiles: { filename: "", content: row },
+                        } satisfies PromptTest)
+                    else if (typeof row === "object") tests.push(row)
+                }
             }
         }
     }
