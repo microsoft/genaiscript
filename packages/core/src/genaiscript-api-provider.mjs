@@ -34,7 +34,7 @@ class GenAIScriptApiProvider {
             let { cli, ...options } = structuredClone(this.config)
             options.runTries = 2
             options.runTrace = false
-            options.lobProbs = true
+            options.lobprobs = true
 
             const testVars = context.vars.vars // {}
             if (testVars && typeof testVars === "object")
@@ -47,31 +47,18 @@ class GenAIScriptApiProvider {
                     : [workspaceFiles]
             const api = await import(cli ?? "genaiscript/api")
             const res = await api.run(scriptId, files, options)
-            logger.debug(res)
+            //logger.debug(res)
             const { error, stats, logprobs, finishReason } = res || {}
             const cost = stats?.cost
-            const logProbs = logprobs?.map((lp) => options.logprob)
+            const logProbs = logprobs?.length
+                ? logprobs.map((lp) => lp.logprob)
+                : undefined
             const isRefusal =
                 finishReason === "refusal" || finishReason === "content_filter"
 
             /*
-            https://www.promptfoo.dev/docs/configuration/reference/#providerresponse
-            interface ProviderResponse {
-  error?: string;
-  output?: string | object;
-  tokenUsage?: Partial<{
-    total: number;
-    prompt: number;
-    completion: number;
-    cached?: number;
-  }>;
-  cached?: boolean;
-  cost?: number; // required for cost assertion
-  logProbs?: number[]; // required for perplexity assertion
-  isRefusal?: boolean; // the provider has explicitly refused to generate a response
-  guardrails?: GuardrailResponse;
-}
-  */
+                https://www.promptfoo.dev/docs/configuration/reference/#providerresponse
+            */
             const pres = deleteUndefinedValues({
                 error,
                 cost,
