@@ -89,7 +89,7 @@ export async function generatePromptFooConfiguration(
     } = options || {}
     const { description, title, id } = script
     const models = options?.models || []
-
+    const redteam = script.redteam
     const testsAndFiles = arrayify(script.tests)
     const tests: PromptTest[] = []
     for (const testOrFile of testsAndFiles) {
@@ -195,6 +195,7 @@ export async function generatePromptFooConfiguration(
         embedding: resolveTestProvider(embeddingsInfo, "embedding"),
     })
     const defaultTest = deleteUndefinedValues({
+        transformVars: "{ ...vars, sessionId: context.uuid }",
         options: deleteUndefinedValues({ provider: testProvider }),
     })
     const testTransforms = {
@@ -207,7 +208,7 @@ export async function generatePromptFooConfiguration(
     }
 
     // Create configuration object
-    const res = {
+    const res = deleteUndefinedValues({
         // Description combining title and description
         description: [title, description].filter((s) => s).join("\n"),
         prompts: [id],
@@ -248,6 +249,16 @@ export async function generatePromptFooConfiguration(
                 },
             })),
         defaultTest,
+        readteam: redteam
+            ? deleteEmptyValues({
+                  purpose: deleteUndefinedValues({
+                      "The objective of the application is": script.description,
+                      ...(redteam.purpose || {}),
+                  }),
+                  plugins: arrayify(redteam.plugins),
+                  strategies: arrayify(redteam.strategies),
+              })
+            : undefined,
         // Map tests to configuration format
         tests: arrayify(tests).map(
             ({
@@ -301,7 +312,7 @@ export async function generatePromptFooConfiguration(
                     ].filter((a) => !!a), // Filter out any undefined assertions
                 })
         ),
-    }
+    })
 
     return res // Return the generated configuration
 }

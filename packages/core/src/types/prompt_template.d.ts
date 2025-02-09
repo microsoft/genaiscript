@@ -577,6 +577,21 @@ interface PromptScript
     tests?: string | PromptTest | (string | PromptTest)[]
 
     /**
+     * LLM vulnerability checks
+     */
+    redteam?: {
+        purpose?: Record<OptionsOrString<"The objective of the application is">, string>
+        /**
+         * Red team plugin list
+         */
+        plugins?: ElementOrArray<OptionsOrString<"harmful"| "pii"|"toxicity"|"bias" | "misinformation"|"illegal-activity">>
+        /**
+         * Adversary prompt generation strategies
+         */
+        strategies?: ElementOrArray<OptionsOrString<"base64" | "prompt-injection">>
+   }
+
+    /**
      * Don't show it to the user in lists. Template `system.*` are automatically unlisted.
      */
     unlisted?: boolean
