@@ -1,5 +1,11 @@
 import { pathToFileURL } from "node:url"
 
+function deleteUndefinedValues(o) {
+    if (typeof o === "object" && !Array.isArray(o))
+        for (const k in o) if (o[k] === undefined) delete o[k]
+    return o
+}
+
 /**
  * GenAiScript PromptFoo Custom Provider
  *
@@ -28,6 +34,7 @@ class GenAIScriptApiProvider {
             let { cli, ...options } = structuredClone(this.config)
             options.runTries = 2
             options.runTrace = false
+            options.lobProbs = true
 
             const testVars = context.vars.vars // {}
             if (testVars && typeof testVars === "object")
@@ -41,10 +48,46 @@ class GenAIScriptApiProvider {
             const api = await import(cli ?? "genaiscript/api")
             const res = await api.run(scriptId, files, options)
             logger.debug(res)
-            return {
+            const { error, stats, logprobs, finishReason } = res || {}
+            const cost = stats?.cost
+            const logProbs = logprobs?.map((lp) => options.logprob)
+            const isRefusal =
+                finishReason === "refusal" || finishReason === "content_filter"
+
+            /*
+            https://www.promptfoo.dev/docs/configuration/reference/#providerresponse
+            interface ProviderResponse {
+  error?: string;
+  output?: string | object;
+  tokenUsage?: Partial<{
+    total: number;
+    prompt: number;
+    completion: number;
+    cached?: number;
+  }>;
+  cached?: boolean;
+  cost?: number; // required for cost assertion
+  logProbs?: number[]; // required for perplexity assertion
+  isRefusal?: boolean; // the provider has explicitly refused to generate a response
+  guardrails?: GuardrailResponse;
+}
+  */
+            const pres = deleteUndefinedValues({
+                error,
+                cost,
+                tokenUsage: stats
+                    ? deleteUndefinedValues({
+                          total: stats.total_tokens,
+                          prompt: stats.prompt_tokens,
+                          completion: stats.completion_tokens,
+                          cached: stats.prompt_tokens_details?.cached_tokens,
+                      })
+                    : undefined,
+                logProbs,
+                isRefusal,
                 output: res,
-                error: res?.error,
-            }
+            })
+            return pres
         } catch (e) {
             logger.error(e)
             return {
