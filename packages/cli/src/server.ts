@@ -422,7 +422,6 @@ export async function startServer(options: {
                             ...(data.options || {}),
                             //cache: true,
                             verbose: true,
-                            cancellationToken: canceller.token,
                             promptfooVersion: PROMPTFOO_VERSION,
                         })
                         break
