@@ -87,6 +87,19 @@ true => { type: "boolean", default: true }
 }
 ```
 
+## UI cues
+
+Some additional, non-standard properties are used to provide additional information to the UI:
+
+- `uiType` `textarea` to indicate that the field should be rendered as a textarea.
+
+```json
+{
+    "type": "string",
+    "uiType": "textarea"
+}
+```
+
 ## Scripts and system Scripts
 
 The `parameters` of a `script` entry is used to populate the `env.vars` entries. The parameters schema
