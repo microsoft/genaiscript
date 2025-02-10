@@ -251,6 +251,7 @@ export async function generatePromptFooConfiguration(
         defaultTest,
         readteam: redteam
             ? deleteEmptyValues({
+                  numTests: redteam.numTests || 5,
                   purpose: deleteUndefinedValues({
                       "The objective of the application is": script.description,
                       ...(redteam.purpose || {}),

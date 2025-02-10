@@ -580,16 +580,78 @@ interface PromptScript
      * LLM vulnerability checks
      */
     redteam?: {
-        purpose?: Record<OptionsOrString<"The objective of the application is">, string>
+        /**
+         * Default number of inputs to generate for each plugin.
+         * The total number of tests will be `(numTests * plugins.length * (1 + strategies.length) * languages.length)`
+         * Languages.length is 1 by default, but is added when the multilingual strategy is used.
+         */
+        numTests?: number
+
+        /**
+         * The objective of the application
+         */
+        purpose?: Record<
+            OptionsOrString<"The objective of the application is">,
+            string
+        >
+
         /**
          * Red team plugin list
          */
-        plugins?: ElementOrArray<OptionsOrString<"harmful"| "pii"|"toxicity"|"bias" | "misinformation"|"illegal-activity">>
+        plugins?: ElementOrArray<
+            OptionsOrString<
+                | "contracts"
+                | "excessive-agency"
+                | "hallucination"
+                | "harmful:chemical-biological-weapons"
+                | "harmful:child-exploitation"
+                | "harmful:copyright-violations"
+                | "harmful:cybercrime"
+                | "harmful:cybercrime:malicious-code"
+                | "harmful:graphic-content"
+                | "harmful:harassment-bullying"
+                | "harmful:hate"
+                | "harmful:illegal-activities"
+                | "harmful:illegal-drugs"
+                | "harmful:illegal-drugs:meth"
+                | "harmful:indiscriminate-weapons"
+                | "harmful:insults"
+                | "harmful:intellectual-property"
+                | "harmful:misinformation-disinformation"
+                | "harmful:non-violent-crime"
+                | "harmful:privacy"
+                | "harmful:profanity"
+                | "harmful:radicalization"
+                | "harmful:self-harm"
+                | "harmful:sex-crime"
+                | "harmful:sexual-content"
+                | "harmful:specialized-advice"
+                | "harmful:unsafe-practices"
+                | "harmful:violent-crime"
+                | "harmful:weapons:ied"
+                | "hijacking"
+                | "pii:api-db"
+                | "pii:direct"
+                | "pii:session"
+                | "pii:social"
+                | "politics"
+            >
+        >
+
         /**
          * Adversary prompt generation strategies
          */
-        strategies?: ElementOrArray<OptionsOrString<"base64" | "prompt-injection">>
-   }
+        strategies?: ElementOrArray<
+            OptionsOrString<
+                | "basic"
+                | "jailbreak"
+                | "jailbreak:composite"
+                | "base64"
+                | "jailbreak"
+                | "prompt-injection"
+            >
+        >
+    }
 
     /**
      * Don't show it to the user in lists. Template `system.*` are automatically unlisted.
@@ -2300,7 +2362,7 @@ interface Git {
         unified?: number
         algorithm?: "patience" | "minimal" | "histogram" | "myers"
         ignoreSpaceChange?: boolean
-        extras?: string[]        
+        extras?: string[]
         /**
          * Modifies the diff to be in a more LLM friendly format
          */
@@ -4377,7 +4439,7 @@ interface PromptHost
      * Gets a client to a Microsoft Teams channel from a share link URL;
      * uses `GENAISCRIPT_TEAMS_CHANNEL_URL` environment variable if `shareUrl` is not provided.
      * Uses Azure CLI login for authentication.
-     * @param url 
+     * @param url
      */
     teamsChannel(shareUrl?: string): Promise<MessageChannelClient>
 }
@@ -4395,19 +4457,22 @@ interface WorkspaceFileWithDescription extends WorkspaceFile {
 interface MessageChannelClient {
     /**
      * Posts a message with attachments to the channel
-     * @param message 
-     * @param options 
+     * @param message
+     * @param options
      */
-    async postMessage(message: string, options?: {
-        /**
-         * File attachments that will be added in the channel folder
-         */
-        files?: (string | WorkspaceFileWithDescription)[],
-        /**
-         * Sets to false to remove AI generated disclaimer
-         */
-        disclaimer?: boolean | string
-    }): Promise<string>
+    postMessage(
+        message: string,
+        options?: {
+            /**
+             * File attachments that will be added in the channel folder
+             */
+            files?: (string | WorkspaceFileWithDescription)[]
+            /**
+             * Sets to false to remove AI generated disclaimer
+             */
+            disclaimer?: boolean | string
+        }
+    ): Promise<string>
 }
 
 interface ContainerHost extends ShellHost {
