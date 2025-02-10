@@ -15,14 +15,14 @@ function extractTextFromChildren(children: any): string {
     }, "") as string
 }
 
-function CopyButton(props: { children: any }) {
-    const { children } = props
+function CopyButton(props: { children: any; text?: string }) {
+    const { children, text } = props
     const [copied, setCopied] = useState(false)
 
     const handleCopy = async () => {
         try {
-            const text = extractTextFromChildren(children) // TODO: keep upstream text somewhere?
-            await navigator.clipboard.writeText(text)
+            const res = text || extractTextFromChildren(children) // TODO: keep upstream text somewhere?
+            await navigator.clipboard.writeText(res)
             setCopied(true)
             setTimeout(() => setCopied(false), 2000)
         } catch (err) {}
@@ -41,14 +41,18 @@ function CopyButton(props: { children: any }) {
     )
 }
 
-function SaveButton(props: { filename?: string; children: any }) {
-    const { children, filename } = props
+function SaveButton(props: {
+    filename?: string
+    children: any
+    text?: string
+}) {
+    const { children, text, filename } = props
     const [saved, setSaved] = useState(false)
 
     const handleSave = async () => {
         try {
-            const text = extractTextFromChildren(children) // TODO: keep upstream text somewhere?
-            const blob = new Blob([text], { type: "text/plain" })
+            const res = text || extractTextFromChildren(children) // TODO: keep upstream text somewhere?
+            const blob = new Blob([res], { type: "text/plain" })
             let url: string
             let a: HTMLAnchorElement
             try {
@@ -83,9 +87,10 @@ function SaveButton(props: { filename?: string; children: any }) {
 export default function CopySaveButtons(props: {
     children: any
     filename?: string
+    text?: string
 }) {
-    const { children } = props
-    if (!children?.length) return null
+    const { children, text } = props
+    if (!children?.length && !text) return null
     return (
         <div className="buttons">
             <CopyButton {...props} />

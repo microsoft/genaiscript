@@ -823,7 +823,9 @@ function TraceMarkdown() {
     const trace = useTrace()
     return (
         <vscode-scrollable>
-            <Markdown>{trace}</Markdown>
+            <Markdown text={trace} filename="trace.md">
+                {trace}
+            </Markdown>
         </vscode-scrollable>
     )
 }
@@ -847,7 +849,7 @@ function ReasoningTabPanel() {
         <>
             <vscode-tab-header slot="header">Reasoning</vscode-tab-header>
             <vscode-tab-panel>
-                <Markdown>{fenceMD(reasoning, "markdown")}</Markdown>
+                <MarkdownPreviewTabs text={reasoning} filename="reasoning.md" />
             </vscode-tab-panel>
         </>
     )
@@ -860,7 +862,7 @@ function OutputMarkdown() {
         <vscode-scrollable>
             <vscode-tabs>
                 <ReasoningTabPanel />
-                <MarkdownPreviewTabs>{output}</MarkdownPreviewTabs>
+                <MarkdownPreviewTabs filename="output.md" text={output} />
                 <LogProbsTabPanel />
                 <EntropyTabPanel />
                 <TopLogProbsTabPanel />
@@ -1184,7 +1186,10 @@ function JSONTabPanel() {
             </vscode-tab-header>
             <vscode-tab-panel>
                 {json && (
-                    <Markdown>
+                    <Markdown
+                        filename="output.json"
+                        text={JSON.stringify(json, null, 2)}
+                    >
                         {`
 \`\`\`\`\`json
 ${JSON.stringify(json, null, 2)}
@@ -1193,7 +1198,11 @@ ${JSON.stringify(json, null, 2)}
                     </Markdown>
                 )}
                 {frames.map((frame, i) => (
-                    <Markdown key={i}>
+                    <Markdown
+                        key={i}
+                        filename="data.json"
+                        text={JSON.stringify(frame, null, 2)}
+                    >
                         {`
 \`\`\`\`\`json
 ${JSON.stringify(frame, null, 2)}
@@ -1404,12 +1413,12 @@ function ScriptSourcesView() {
     return (
         <vscode-collapsible title="Script Source">
             {text ? (
-                <Markdown>{`\`\`\`\`\`\`
+                <Markdown text={text}>{`\`\`\`\`\`\`
 ${text.trim()}
 \`\`\`\`\`\``}</Markdown>
             ) : null}
             {jsSource ? (
-                <Markdown>
+                <Markdown text={jsSource}>
                     {`\`\`\`\`\`\`js
 ${jsSource.trim()}
 \`\`\`\`\`\``}
