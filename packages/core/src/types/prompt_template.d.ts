@@ -588,12 +588,24 @@ interface PromptScript
         numTests?: number
 
         /**
-         * The objective of the application
+         * The Purpose property is used to guide the attack generation process. It should be as clear and specific as possible.
+         * Include the following information:
+         * Who the user is and their relationship to the company
+         * What data the user has access to
+         * What data the user does not have access to
+         * What actions the user can perform
+         * What actions the user cannot perform
+         * What systems the agent has access to
          */
         purpose?: Record<
             OptionsOrString<"The objective of the application is">,
             string
         >
+
+        /**
+         * List of languages to target. Default is English.
+         */
+        languages?: ElementOrArray<string>
 
         /**
          * Red team plugin list

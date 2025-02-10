@@ -20,6 +20,7 @@ import testSchema from "../../../docs/public/schemas/tests.json"
 import { validateJSONWithSchema } from "./schema"
 import { TraceOptions } from "./trace"
 import { CancellationOptions } from "./cancellation"
+import { uniq } from "es-toolkit"
 
 /**
  * Convert GenAIScript connection info into prompt foo configuration
@@ -268,8 +269,9 @@ export async function generatePromptFooConfiguration(
                   injectVar: "fileContent",
                   numTests: redteam.numTests || 5,
                   purpose: redteam.purpose || description || title || id,
-                  plugins: arrayify(redteam.plugins),
-                  strategies: arrayify(redteam.strategies),
+                  plugins: uniq(arrayify(redteam.plugins)),
+                  strategies: uniq(arrayify(redteam.strategies)),
+                  languages: uniq(arrayify(redteam.languages)),
               })
             : undefined,
         // Map tests to configuration format
