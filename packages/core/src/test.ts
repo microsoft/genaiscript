@@ -279,7 +279,7 @@ export async function generatePromptFooConfiguration(
                     vars: deleteEmptyValues({
                         files,
                         workspaceFiles,
-                        vars,
+                        vars: Object.keys(vars || {}).length ? vars : undefined,
                     }),
                     options: {
                         transform: testTransforms[format],
