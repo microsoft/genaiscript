@@ -85,7 +85,7 @@ Options:
 ## `test`
 
 ```
-Usage: genaiscript test [options] [command]
+Usage: genaiscript test|eval [options] [command]
 
 Options:
   -h, --help                 display help for command

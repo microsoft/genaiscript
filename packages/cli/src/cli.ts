@@ -220,7 +220,7 @@ export async function cli() {
         .action(runScriptWithExitCode) // Action to execute the script with exit code
 
     // Define 'test' command group for running tests
-    const test = program.command("test")
+    const test = program.command("test").alias("eval")
 
     const testRun = test
         .command("run", { isDefault: true })
