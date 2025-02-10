@@ -21,6 +21,7 @@ import {
     assert,
     chunkString,
     logInfo,
+    logWarn,
 } from "../../core/src/util"
 import { CORE_VERSION } from "../../core/src/version"
 import {
@@ -57,6 +58,7 @@ import { deleteUndefinedValues } from "../../core/src/cleaners"
 import { readFile } from "fs/promises"
 import { unthink } from "../../core/src/think"
 import { NodeHost } from "./nodehost"
+import { findRandomOpenPort, isPortInUse } from "../../core/src/net"
 
 /**
  * Starts a WebSocket server for handling chat and script execution.
@@ -76,12 +78,18 @@ export async function startServer(options: {
 }) {
     // Parse and set the server port, using a default if not specified.
     const corsOrigin = options.cors || process.env.GENAISCRIPT_CORS_ORIGIN
-    const port = parseInt(options.port) || SERVER_PORT
     const apiKey = options.apiKey || process.env.GENAISCRIPT_API_KEY
     const serverHost = options.network ? "0.0.0.0" : "127.0.0.1"
     const remote = options.remote
     const dispatchProgress = !!options.dispatchProgress
 
+    let port = parseInt(options.port) || SERVER_PORT
+    if (await isPortInUse(port)) {
+        if (options.port) throw new Error(`port ${port} in use`)
+        const oldPort = port
+        port = await findRandomOpenPort()
+        logWarn(`port ${oldPort} in use, using port ${port}`)
+    }
     // store original working directory
     const cwd = process.cwd()
 
