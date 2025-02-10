@@ -30,6 +30,7 @@ class GenAIScriptApiProvider {
         try {
             const files = context.vars.files // string or string[]
             const workspaceFiles = context.vars.workspaceFiles // WorkspaceFile or WorkspaceFile[]
+            const fileContent = context.vars.fileContent // string
 
             let { cli, ...options } = structuredClone(this.config)
             options.runTries = 2
@@ -45,6 +46,13 @@ class GenAIScriptApiProvider {
                 options.workspaceFiles = Array.isArray(workspaceFiles)
                     ? workspaceFiles
                     : [workspaceFiles]
+            if (fileContent) {
+                if (!options.workspaceFiles) options.workspaceFiles = []
+                options.workspaceFiles.push({
+                    filename: "",
+                    content: fileContent,
+                })
+            }
             const api = await import(cli ?? "genaiscript/api")
             const res = await api.run(scriptId, files, options)
             //logger.debug(res)
