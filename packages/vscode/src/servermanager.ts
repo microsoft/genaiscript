@@ -1,7 +1,6 @@
 import * as vscode from "vscode"
 import { ExtensionState } from "./state"
 import {
-    SERVER_PORT,
     RECONNECT,
     OPEN,
     TOOL_NAME,
@@ -18,18 +17,7 @@ import { createChatModelRunner } from "./lmaccess"
 import { semverParse, semverSatisfies } from "../../core/src/semver"
 import { resolveCli } from "./config"
 import { deleteUndefinedValues } from "../../core/src/cleaners"
-
-function findRandomOpenPort() {
-    return new Promise<number>((resolve, reject) => {
-        const server = require("net").createServer()
-        server.unref()
-        server.on("error", reject)
-        server.listen(0, () => {
-            const port = server.address().port
-            server.close(() => resolve(port))
-        })
-    })
-}
+import { findRandomOpenPort } from "../../core/src/net"
 
 export class TerminalServerManager
     extends EventTarget
