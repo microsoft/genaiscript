@@ -318,6 +318,10 @@ export function toStrictJSONSchema(
     function visit(node: JSONSchemaType): void {
         const n = node as JSONSchemaSimpleType
         switch (n.type) {
+            case "string": {
+                delete n.uiType
+                break
+            }
             case "object": {
                 if (n.additionalProperties)
                     throw new Error("additionalProperties: true not supported")

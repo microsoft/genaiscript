@@ -13,6 +13,7 @@ script({
             default: "efg",
             title: "a string bound by a schema",
             description: "A string parameter with a description",
+            uiType: "textarea"
         },
         numberSchema: {
             type: "number",

@@ -668,21 +668,41 @@ function JSONSchemaSimpleTypeFormField(props: {
                     </vscode-single-select>
                 )
             }
-            return (
-                <vscode-textarea
-                    style={{ height: "unset" }}
-                    value={vs}
-                    required={required}
-                    rows={rows(vs)}
-                    spellCheck={false}
-                    placeholder={field.default}
-                    onInput={(e) => {
-                        const target = e.target as HTMLTextAreaElement
-                        target.rows = rows(target.value)
-                        onChange(target.value)
-                    }}
-                />
-            )
+            if (field.uiType === "textarea")
+                return (
+                    <vscode-textarea
+                        style={{
+                            height: "unset",
+                            minWidth: "65rem",
+                            maxWidth: "100vw",
+                            minHeight: "16rem",
+                        }}
+                        value={vs}
+                        required={required}
+                        rows={rows(vs)}
+                        spellCheck={true}
+                        placeholder={field.default}
+                        onInput={(e) => {
+                            const target = e.target as HTMLTextAreaElement
+                            target.rows = rows(target.value)
+                            onChange(target.value)
+                        }}
+                    />
+                )
+            else
+                return (
+                    <vscode-textfield
+                        value={vs}
+                        required={required}
+                        spellCheck={false}
+                        placeholder={field.default}
+                        onInput={(e) => {
+                            const target = e.target as HTMLTextAreaElement
+                            target.rows = rows(target.value)
+                            onChange(target.value)
+                        }}
+                    />
+                )
         }
         case "boolean":
             return (
@@ -728,7 +748,7 @@ function JSONSchemaObjectForm(props: {
     }
 
     return (
-        <vscode-form-container>
+        <>
             {Object.entries(properties).map(([fieldName, field]) => (
                 <vscode-form-group key={fieldPrefix + fieldName}>
                     <vscode-label>
@@ -752,7 +772,7 @@ function JSONSchemaObjectForm(props: {
                     )}
                 </vscode-form-group>
             ))}
-        </vscode-form-container>
+        </>
     )
 }
 
@@ -1367,13 +1387,13 @@ function ScriptForm() {
             {script && (
                 <vscode-badge slot="decorations">{script.id}</vscode-badge>
             )}
-            <vscode-form-container>
+            <>
                 <RemoteInfo />
                 <ScriptSelect />
                 <FilesDropZone />
                 <PromptParametersFields />
                 <RunButton />
-            </vscode-form-container>
+            </>
         </vscode-collapsible>
     )
 }
