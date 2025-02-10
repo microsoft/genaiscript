@@ -249,13 +249,20 @@ export async function generatePromptFooConfiguration(
                 },
             })),
         defaultTest,
-        readteam: redteam
+        target: redteam
+            ? {
+                  id: provider,
+              }
+            : undefined,
+        redteam: redteam
             ? deleteEmptyValues({
+                  injectVar: "fileContent",
                   numTests: redteam.numTests || 5,
-                  purpose: deleteUndefinedValues({
-                      "The objective of the application is": script.description,
-                      ...(redteam.purpose || {}),
-                  }),
+                  purpose:
+                      redteam.purpose ||
+                      script.description ||
+                      script.title ||
+                      script.id,
                   plugins: arrayify(redteam.plugins),
                   strategies: arrayify(redteam.strategies),
               })

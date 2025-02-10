@@ -14,7 +14,7 @@ function deleteUndefinedValues(o) {
  */
 class GenAIScriptApiProvider {
     constructor(options) {
-        this.config = options.config
+        this.config = options.config || {}
         this.providerId =
             options.id ||
             `genaiscript/${this.config.model || "large"}/${this.config.smallModel || "small"}/${this.config.visionModel || "vision"}`
@@ -25,7 +25,7 @@ class GenAIScriptApiProvider {
         return this.providerId
     }
 
-    async callApi(scriptId, context, options) {
+    async callApi(scriptId, context, callOptions) {
         const { logger } = context
         try {
             const files = context.vars.files // string or string[]
@@ -35,7 +35,7 @@ class GenAIScriptApiProvider {
             let { cli, ...options } = structuredClone(this.config)
             options.runTries = 2
             options.runTrace = false
-            options.lobprobs = !!options?.includeLogProbs
+            options.lobprobs = !!callOptions?.includeLogProbs
 
             const testVars = context.vars.vars // {}
             if (testVars && typeof testVars === "object")
