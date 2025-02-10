@@ -187,6 +187,14 @@ export async function generatePromptFooConfiguration(
     }
 
     const cli = options?.cli
+    const testTransforms = {
+        text: "output.text",
+        json: undefined as string,
+    }
+    const assertTransforms = {
+        text: undefined as string,
+        json: "output.text",
+    }
 
     const resolveModel = (m: string) => runtimeHost.modelAliases[m]?.model ?? m
 
@@ -196,16 +204,11 @@ export async function generatePromptFooConfiguration(
     })
     const defaultTest = deleteUndefinedValues({
         transformVars: "{ ...vars, sessionId: context.uuid }",
-        options: deleteUndefinedValues({ provider: testProvider }),
+        options: deleteUndefinedValues({
+            transform: testTransforms["text"],
+            provider: testProvider,
+        }),
     })
-    const testTransforms = {
-        text: "output.text",
-        json: undefined as string,
-    }
-    const assertTransforms = {
-        text: undefined as string,
-        json: "output.text",
-    }
 
     // Create configuration object
     const res = deleteUndefinedValues({
@@ -252,17 +255,14 @@ export async function generatePromptFooConfiguration(
         target: redteam
             ? {
                   id: provider,
+                  label: title,
               }
             : undefined,
         redteam: redteam
             ? deleteEmptyValues({
                   injectVar: "fileContent",
                   numTests: redteam.numTests || 5,
-                  purpose:
-                      redteam.purpose ||
-                      script.description ||
-                      script.title ||
-                      script.id,
+                  purpose: redteam.purpose || description || title || id,
                   plugins: arrayify(redteam.plugins),
                   strategies: arrayify(redteam.strategies),
               })
