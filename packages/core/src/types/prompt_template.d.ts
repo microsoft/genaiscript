@@ -1262,6 +1262,7 @@ type PromptSystemArgs = Omit<
     | "responseSchema"
     | "files"
     | "modelConcurrency"
+    | "redteam"
 >
 
 type StringLike = string | WorkspaceFile | WorkspaceFile[]

@@ -80,6 +80,7 @@ export async function generatePromptFooConfiguration(
         provider?: string
         out?: string
         cli?: string
+        redteam?: boolean
         models?: (ModelOptions & ModelAliasesOptions)[]
     } & TraceOptions &
         CancellationOptions
@@ -93,7 +94,7 @@ export async function generatePromptFooConfiguration(
     } = options || {}
     const { description, title, id } = script
     const models = options?.models || []
-    const redteam = script.redteam
+    const redteam = options?.redteam ? script.redteam : undefined
     const testsAndFiles = arrayify(script.tests)
     const tests: PromptTest[] = []
     for (const testOrFile of testsAndFiles) {
