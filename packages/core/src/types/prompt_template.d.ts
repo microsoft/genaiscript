@@ -514,6 +514,111 @@ interface PromptTest {
     format?: "text" | "json"
 }
 
+/**
+ * Configure promptfoo redteam plugins
+ */
+interface PromptRedteam {
+    /**
+     * The `purpose` property is used to guide the attack generation process. It should be as clear and specific as possible.
+     * Include the following information:
+     * - Who the user is and their relationship to the company
+     * - What data the user has access to
+     * - What data the user does not have access to
+     * - What actions the user can perform
+     * - What actions the user cannot perform
+     * - What systems the agent has access to
+     * @link https://www.promptfoo.dev/docs/red-team/troubleshooting/attack-generation/
+     */
+    purpose: string
+
+    /**
+     * Redteam identifer used for reporting purposes
+     */
+    label?: string
+
+    /**
+     * Default number of inputs to generate for each plugin.
+     * The total number of tests will be `(numTests * plugins.length * (1 + strategies.length) * languages.length)`
+     * Languages.length is 1 by default, but is added when the multilingual strategy is used.
+     */
+    numTests?: number
+
+    /**
+     * List of languages to target. Default is English.
+     */
+    language?: string
+
+    /**
+     * Red team plugin list
+     * @link https://www.promptfoo.dev/docs/red-team/owasp-llm-top-10/
+     */
+    plugins?: ElementOrArray<
+        OptionsOrString<
+            | "default"
+            | "nist:ai:measure"
+            | "owasp:llm"
+            | "owasp:api"
+            | "mitre:atlas"
+            | "owasp:llm:01"
+            | "owasp:llm:02"
+            | "owasp:llm:04"
+            | "owasp:llm:06"
+            | "owasp:llm:09"
+            | "contracts"
+            | "divergent-repetition"
+            | "excessive-agency"
+            | "hallucination"
+            | "harmful:chemical-biological-weapons"
+            | "harmful:child-exploitation"
+            | "harmful:copyright-violations"
+            | "harmful:cybercrime"
+            | "harmful:cybercrime:malicious-code"
+            | "harmful:graphic-content"
+            | "harmful:harassment-bullying"
+            | "harmful:hate"
+            | "harmful:illegal-activities"
+            | "harmful:illegal-drugs"
+            | "harmful:illegal-drugs:meth"
+            | "harmful:indiscriminate-weapons"
+            | "harmful:insults"
+            | "harmful:intellectual-property"
+            | "harmful:misinformation-disinformation"
+            | "harmful:non-violent-crime"
+            | "harmful:privacy"
+            | "harmful:profanity"
+            | "harmful:radicalization"
+            | "harmful:self-harm"
+            | "harmful:sex-crime"
+            | "harmful:sexual-content"
+            | "harmful:specialized-advice"
+            | "harmful:unsafe-practices"
+            | "harmful:violent-crime"
+            | "harmful:weapons:ied"
+            | "hijacking"
+            | "pii:api-db"
+            | "pii:direct"
+            | "pii:session"
+            | "pii:social"
+            | "politics"
+        >
+    >
+
+    /**
+     * Adversary prompt generation strategies
+     */
+    strategies?: ElementOrArray<
+        OptionsOrString<
+            | "default"
+            | "basic"
+            | "jailbreak"
+            | "jailbreak:composite"
+            | "base64"
+            | "jailbreak"
+            | "prompt-injection"
+        >
+    >
+}
+
 interface ContentSafetyOptions {
     contentSafety?: ContentSafetyProvider
 }
@@ -559,7 +664,7 @@ interface PromptScript
      * A file path or list of file paths or globs.
      * The content of these files will be by the files selected in the UI by the user or the cli arguments.
      */
-    files?: string | string[]
+    files?: ElementOrArray<string>
 
     /**
      * A comma separated list of file extensions to accept.
@@ -574,120 +679,13 @@ interface PromptScript
     /**
      * Tests to validate this script.
      */
-    tests?: string | PromptTest | (string | PromptTest)[]
+    tests?: ElementOrArray<string | PromptTest>
 
     /**
      * LLM vulnerability checks
      */
-    redteam?: {
-        /**
-         * Default number of inputs to generate for each plugin.
-         * The total number of tests will be `(numTests * plugins.length * (1 + strategies.length) * languages.length)`
-         * Languages.length is 1 by default, but is added when the multilingual strategy is used.
-         */
-        numTests?: number
-
-        /**
-         * The Purpose property is used to guide the attack generation process. It should be as clear and specific as possible.
-         * Include the following information:
-         * Who the user is and their relationship to the company
-         * What data the user has access to
-         * What data the user does not have access to
-         * What actions the user can perform
-         * What actions the user cannot perform
-         * What systems the agent has access to
-         */
-        purpose?: Record<
-            OptionsOrString<"The objective of the application is">,
-            string
-        >
-
-        /**
-         * List of languages to target. Default is English.
-         */
-        languages?: ElementOrArray<string>
-
-        /**
-         * Red team plugin list
-         */
-        plugins?: ElementOrArray<
-            OptionsOrString<
-                | "default"
-                | "nist:ai:measure"
-                | "owasp:llm"
-                | "owasp:api"
-                | "mitre:atlas"
-                | "owasp:llm:01"
-                | "owasp:llm:02"
-                | "owasp:llm:04"
-                | "owasp:llm:06"
-                | "owasp:llm:09"
-                | "contracts"
-                | "divergent-repetition"
-                | "excessive-agency"
-                | "hallucination"
-                | "harmful:chemical-biological-weapons"
-                | "harmful:child-exploitation"
-                | "harmful:copyright-violations"
-                | "harmful:cybercrime"
-                | "harmful:cybercrime:malicious-code"
-                | "harmful:graphic-content"
-                | "harmful:harassment-bullying"
-                | "harmful:hate"
-                | "harmful:illegal-activities"
-                | "harmful:illegal-drugs"
-                | "harmful:illegal-drugs:meth"
-                | "harmful:indiscriminate-weapons"
-                | "harmful:insults"
-                | "harmful:intellectual-property"
-                | "harmful:misinformation-disinformation"
-                | "harmful:non-violent-crime"
-                | "harmful:privacy"
-                | "harmful:profanity"
-                | "harmful:radicalization"
-                | "harmful:self-harm"
-                | "harmful:sex-crime"
-                | "harmful:sexual-content"
-                | "harmful:specialized-advice"
-                | "harmful:unsafe-practices"
-                | "harmful:violent-crime"
-                | "harmful:weapons:ied"
-                | "hijacking"
-                | "pii:api-db"
-                | "pii:direct"
-                | "pii:session"
-                | "pii:social"
-                | "politics"
-            >
-        >
-
-        /**
-         * Adversary prompt generation strategies
-         */
-        strategies?: ElementOrArray<
-            OptionsOrString<
-                | "default"
-                | "basic"
-                | "jailbreak"
-                | "jailbreak:composite"
-                | "base64"
-                | "jailbreak"
-                | "prompt-injection"
-            >
-        >
-    }
-
-    /**
-     * Don't show it to the user in lists. Template `system.*` are automatically unlisted.
-     */
-    unlisted?: boolean
-
-    /**
-     * Set if this is a system prompt.
-     */
-    isSystem?: boolean
+    redteam?: PromptRedteam
 }
-
 /**
  * Represent a workspace file and optional content.
  */

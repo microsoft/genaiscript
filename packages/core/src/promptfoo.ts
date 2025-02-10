@@ -8,6 +8,7 @@ import {
     MODEL_PROVIDER_GITHUB,
     MODEL_PROVIDER_OPENAI,
     OPENAI_API_BASE,
+    PROMPTFOO_REDTEAM_NUM_TESTS,
     TEST_CSV_ENTRY_SEPARATOR,
     XML_REGEX,
     YAML_REGEX,
@@ -95,7 +96,9 @@ export async function generatePromptFooConfiguration(
     } = options || {}
     const { description, title, id } = script
     const models = options?.models || []
-    const redteam = options?.redteam ? script.redteam : undefined
+    const redteam: Partial<PromptRedteam> = options?.redteam
+        ? script.redteam || {}
+        : undefined
     const testsAndFiles = arrayify(script.tests)
     const tests: PromptTest[] = []
     for (const testOrFile of testsAndFiles) {
@@ -261,17 +264,17 @@ export async function generatePromptFooConfiguration(
         target: redteam
             ? {
                   id: provider,
-                  label: title,
+                  label: redteam.label || title || id,
               }
             : undefined,
         redteam: redteam
             ? deleteEmptyValues({
                   injectVar: "fileContent",
-                  numTests: redteam.numTests || 5,
+                  numTests: redteam.numTests || PROMPTFOO_REDTEAM_NUM_TESTS,
                   purpose: redteam.purpose || description || title || id,
                   plugins: uniq(arrayify(redteam.plugins)),
                   strategies: uniq(arrayify(redteam.strategies)),
-                  languages: uniq(arrayify(redteam.languages)),
+                  language: redteam.language,
               })
             : undefined,
         // Map tests to configuration format

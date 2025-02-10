@@ -36,7 +36,7 @@ import {
     PromptScriptTestRunResponse,
     PromptScriptTestResult,
 } from "../../core/src/server/messages"
-import { generatePromptFooConfiguration } from "../../core/src/test"
+import { generatePromptFooConfiguration } from "../../core/src/promptfoo"
 import { delay } from "es-toolkit"
 import { resolveModelConnectionInfo } from "../../core/src/models"
 import { filterScripts } from "../../core/src/ast"
