@@ -19,7 +19,7 @@ import { ModelConnectionInfo, parseModelIdentifier } from "./models"
 import { deleteEmptyValues, deleteUndefinedValues } from "./cleaners"
 import testSchema from "../../../docs/public/schemas/tests.json"
 import { validateJSONWithSchema } from "./schema"
-import { TraceOptions } from "./trace"
+import { MarkdownTrace, TraceOptions } from "./trace"
 import { CancellationOptions } from "./cancellation"
 import { uniq } from "es-toolkit"
 import { dedent } from "./indent"
@@ -68,6 +68,24 @@ function resolveTestProvider(
     }
 }
 
+function renderPurpose(script: PromptScript): string {
+    const { description, title, id, redteam, jsSource } = script
+    const { purpose } = redteam || {}
+    const trace = new MarkdownTrace()
+    if (purpose) {
+        trace.heading(2, "Purpose")
+        trace.appendContent(purpose)
+    }
+    trace.heading(2, "Prompt details")
+    trace.appendContent(
+        `The prompt is written using GenAIScript (https://microsoft.github.io/genaiscript), a JavaScript-based DSL for creating AI prompts. The generated prompt will be injected in the 'env.files' variable.`
+    )
+    trace.itemValue(`title`, title)
+    trace.itemValue(`description`, description)
+    if (jsSource) trace.fence(jsSource, "js")
+    return trace.content
+}
+
 /**
  * Generates a configuration object for PromptFoo using a given script and options.
  *
@@ -101,6 +119,7 @@ export async function generatePromptFooConfiguration(
     const redteam: Partial<PromptRedteam> = options?.redteam
         ? script.redteam || {}
         : undefined
+    const purpose = redteam ? renderPurpose(script) : undefined
     const testsAndFiles = arrayify(script.tests)
     const tests: PromptTest[] = []
     for (const testOrFile of testsAndFiles) {
@@ -271,11 +290,9 @@ export async function generatePromptFooConfiguration(
             : undefined,
         redteam: redteam
             ? deleteEmptyValues({
+                  purpose,
                   injectVar: "fileContent",
                   numTests: redteam.numTests || PROMPTFOO_REDTEAM_NUM_TESTS,
-                  purpose: dedent(
-                      redteam.purpose || description || title || id
-                  ),
                   plugins: uniq(arrayify(redteam.plugins)),
                   strategies: uniq(arrayify(redteam.strategies)),
                   language: redteam.language,

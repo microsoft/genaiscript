@@ -685,6 +685,16 @@ interface PromptScript
      * LLM vulnerability checks
      */
     redteam?: PromptRedteam
+
+    /**
+     * Don't show it to the user in lists. Template `system.*` are automatically unlisted.
+     */
+    unlisted?: boolean
+
+    /**
+     * Set if this is a system prompt.
+     */
+    isSystem?: boolean
 }
 /**
  * Represent a workspace file and optional content.
