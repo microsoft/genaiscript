@@ -1,14 +1,27 @@
 import React, { useState } from "react"
-import Mermaid from "./Mermaid"
 
 import "@vscode-elements/elements/dist/vscode-button"
 
-export function CopyButton(props: { text: string }) {
-    const { text } = props
+function extractTextFromChildren(children: any): string {
+    if (!children) return ""
+
+    return React.Children.toArray(children).reduce((text, child) => {
+        if (typeof child === "string") {
+            return text + child
+        } else if (React.isValidElement(child)) {
+            return text + extractTextFromChildren((child.props as any).children)
+        }
+        return text
+    }, "") as string
+}
+
+function CopyButton(props: { children: any }) {
+    const { children } = props
     const [copied, setCopied] = useState(false)
 
     const handleCopy = async () => {
         try {
+            const text = extractTextFromChildren(children) // TODO: keep upstream text somewhere?
             await navigator.clipboard.writeText(text)
             setCopied(true)
             setTimeout(() => setCopied(false), 2000)
@@ -28,12 +41,13 @@ export function CopyButton(props: { text: string }) {
     )
 }
 
-export function SaveButton(props: { name?: string; text: string }) {
-    const { text, name } = props
+function SaveButton(props: { filename?: string; children: any }) {
+    const { children, filename } = props
     const [saved, setSaved] = useState(false)
 
     const handleSave = async () => {
         try {
+            const text = extractTextFromChildren(children) // TODO: keep upstream text somewhere?
             const blob = new Blob([text], { type: "text/plain" })
             let url: string
             let a: HTMLAnchorElement
@@ -41,7 +55,7 @@ export function SaveButton(props: { name?: string; text: string }) {
                 url = URL.createObjectURL(blob)
                 a = document.createElement("a")
                 a.href = url
-                a.download = name || "code.txt"
+                a.download = filename || "code.txt"
                 document.body.appendChild(a)
                 a.click()
             } finally {
@@ -67,11 +81,11 @@ export function SaveButton(props: { name?: string; text: string }) {
 }
 
 export default function CopySaveButtons(props: {
-    text: string
-    name?: string
+    children: any
+    filename?: string
 }) {
-    const { text } = props
-    if (!text) return null
+    const { children } = props
+    if (!children?.length) return null
     return (
         <div className="buttons">
             <CopyButton {...props} />

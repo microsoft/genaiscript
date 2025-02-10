@@ -51,8 +51,9 @@ export default function Markdown(props: {
     className?: string
     children: any
     copySaveButtons?: boolean
+    filename?: string
 }) {
-    const { className, children, copySaveButtons } = props
+    const { className, filename, children, copySaveButtons } = props
     return children ? (
         <div className={clsx("markdown-body", className)}>
             <ErrorBoundary
@@ -87,7 +88,9 @@ export default function Markdown(props: {
                 </ReactMarkdown>
             </ErrorBoundary>
             {copySaveButtons ? (
-                <CopySaveButtons text={String(children)} />
+                <CopySaveButtons filename={filename}>
+                    {children}
+                </CopySaveButtons>
             ) : null}
         </div>
     ) : null

@@ -13,16 +13,18 @@ function CodeRender(props: { className?: string; children: any }) {
     )
 }
 
-export default function Code(props: { className?: string; children: any }) {
-    const { className, children, ...restProps } = props
-    const text = String(children)
-
+export default function Code(props: {
+    className?: string
+    filename?: string
+    children: any
+}) {
+    const { className, filename, children, ...restProps } = props
     return (
         <div className="snippet">
             <CodeRender className={className} {...restProps}>
                 {children}
             </CodeRender>
-            <CopySaveButtons text={text} />
+            <CopySaveButtons filename={filename}>{children}</CopySaveButtons>
         </div>
     )
 }
