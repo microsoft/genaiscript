@@ -190,9 +190,9 @@ The following npm packages may be included in this product:
 
  - @aws-crypto/sha256-browser@5.2.0
  - @aws-crypto/supports-web-crypto@5.2.0
- - @huggingface/transformers@3.3.2
- - flatbuffers@1.12.0
- - long@5.2.4
+ - @huggingface/transformers@3.3.3
+ - flatbuffers@25.1.24
+ - long@5.3.0
 
 These packages each contain the following license:
 
@@ -1956,11 +1956,11 @@ Apache License
 
 The following npm packages may be included in this product:
 
- - @aws-sdk/client-cognito-identity@3.742.0
- - @aws-sdk/client-sso@3.734.0
- - @aws-sdk/credential-provider-cognito-identity@3.742.0
+ - @aws-sdk/client-cognito-identity@3.744.0
+ - @aws-sdk/client-sso@3.744.0
+ - @aws-sdk/credential-provider-cognito-identity@3.744.0
  - @aws-sdk/util-user-agent-browser@3.734.0
- - @aws-sdk/util-user-agent-node@3.734.0
+ - @aws-sdk/util-user-agent-node@3.744.0
  - @smithy/eventstream-codec@2.2.0
  - @smithy/eventstream-codec@4.0.1
  - @smithy/middleware-retry@4.0.4
@@ -2182,7 +2182,7 @@ Apache License
 
 The following npm package may be included in this product:
 
- - @aws-sdk/client-bedrock-runtime@3.741.0
+ - @aws-sdk/client-bedrock-runtime@3.744.0
 
 This package contains the following license:
 
@@ -2394,7 +2394,7 @@ The following npm packages may be included in this product:
 
  - @aws-sdk/middleware-host-header@3.734.0
  - @aws-sdk/middleware-recursion-detection@3.734.0
- - @aws-sdk/middleware-user-agent@3.734.0
+ - @aws-sdk/middleware-user-agent@3.744.0
  - @smithy/core@3.1.2
  - @smithy/eventstream-serde-browser@4.0.1
  - @smithy/eventstream-serde-config-resolver@4.0.1
@@ -2862,7 +2862,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.101.1
+ - genaiscript-vscode@1.102.0
 
 This package contains the following license:
 
@@ -4211,14 +4211,14 @@ Apache License
 
 The following npm packages may be included in this product:
 
- - @aws-sdk/credential-provider-env@3.734.0
- - @aws-sdk/credential-provider-ini@3.741.0
- - @aws-sdk/credential-provider-node@3.741.0
- - @aws-sdk/credential-providers@3.742.0
+ - @aws-sdk/credential-provider-env@3.744.0
+ - @aws-sdk/credential-provider-ini@3.744.0
+ - @aws-sdk/credential-provider-node@3.744.0
+ - @aws-sdk/credential-providers@3.744.0
  - @aws-sdk/region-config-resolver@3.734.0
- - @aws-sdk/token-providers@3.734.0
+ - @aws-sdk/token-providers@3.744.0
  - @aws-sdk/types@3.734.0
- - @aws-sdk/util-endpoints@3.734.0
+ - @aws-sdk/util-endpoints@3.743.0
  - @aws-sdk/util-locate-window@3.723.0
  - @aws-sdk/util-utf8-browser@3.259.0
  - @smithy/abort-controller@2.2.0
@@ -4471,9 +4471,9 @@ Apache License
 
 The following npm packages may be included in this product:
 
- - @aws-sdk/credential-provider-process@3.734.0
- - @aws-sdk/credential-provider-sso@3.734.0
- - @aws-sdk/credential-provider-web-identity@3.734.0
+ - @aws-sdk/credential-provider-process@3.744.0
+ - @aws-sdk/credential-provider-sso@3.744.0
+ - @aws-sdk/credential-provider-web-identity@3.744.0
 
 These packages each contain the following license:
 
@@ -5374,9 +5374,9 @@ END OF TERMS AND CONDITIONS
 
 The following npm packages may be included in this product:
 
- - @aws-sdk/core@3.734.0
- - @aws-sdk/credential-provider-http@3.734.0
- - @aws-sdk/nested-clients@3.734.0
+ - @aws-sdk/core@3.744.0
+ - @aws-sdk/credential-provider-http@3.744.0
+ - @aws-sdk/nested-clients@3.744.0
  - pyodide@0.27.2
 
 These packages each contain the following license:
@@ -6544,6 +6544,36 @@ Redistributions in binary form must reproduce the above copyright notice, this l
 
 THIS IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS,
 EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+-----------
+
+The following npm package may be included in this product:
+
+ - @azure/core-rest-pipeline@1.19.0
+
+This package contains the following license:
+
+Copyright (c) Microsoft Corporation.
+
+MIT License
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 
 -----------
 
@@ -8009,24 +8039,24 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 The following npm packages may be included in this product:
 
  - @esbuild/linux-x64@0.23.1
- - @napi-rs/canvas-linux-x64-gnu@0.1.66
- - @napi-rs/canvas-linux-x64-musl@0.1.66
+ - @napi-rs/canvas-linux-x64-gnu@0.1.67
+ - @napi-rs/canvas-linux-x64-musl@0.1.67
  - @tokenizer/token@0.3.0
  - agent-base@6.0.2
  - eastasianwidth@0.2.0
- - genaiscript-core-internal@1.101.1
- - genaiscript-sample@1.101.1
- - genaiscript-web@1.101.1
- - genaiscript@1.101.1
+ - genaiscript-core-internal@1.102.0
+ - genaiscript-sample@1.102.0
+ - genaiscript-web@1.102.0
+ - genaiscript@1.102.0
  - https-proxy-agent@5.0.1
  - isarray@1.0.0
  - javascript-natural-sort@0.7.1
  - keyv@4.5.4
  - omggif@1.0.10
  - onnxruntime-common@1.20.1
- - onnxruntime-common@1.21.0-dev.20241212-1f88284f96
+ - onnxruntime-common@1.21.0-dev.20250206-d981b153d3
  - onnxruntime-node@1.20.1
- - onnxruntime-web@1.21.0-dev.20250114-228dd16893
+ - onnxruntime-web@1.21.0-dev.20250206-d981b153d3
  - parse-bmfont-ascii@1.0.6
  - readable-web-to-node-stream@3.0.3
  - seedrandom@3.0.5
@@ -8705,7 +8735,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - @napi-rs/canvas@0.1.66
+ - @napi-rs/canvas@0.1.67
 
 This package contains the following license:
 
@@ -9361,7 +9391,7 @@ The following npm packages may be included in this product:
  - file-type@16.5.4
  - get-stream@5.2.0
  - get-stream@9.0.1
- - got@14.4.5
+ - got@14.4.6
  - is-docker@2.2.1
  - is-plain-obj@4.1.0
  - is-stream@3.0.0
@@ -9384,7 +9414,7 @@ The following npm packages may be included in this product:
  - temp-dir@3.0.0
  - tempy@3.1.0
  - type-fest@1.4.0
- - type-fest@4.33.0
+ - type-fest@4.34.1
  - unicorn-magic@0.3.0
  - unique-string@3.0.0
  - wrap-ansi@7.0.0
@@ -9666,7 +9696,7 @@ SOFTWARE.
 The following npm packages may be included in this product:
 
  - @octokit/plugin-paginate-rest@11.4.0
- - @octokit/plugin-rest-endpoint-methods@13.3.0
+ - @octokit/plugin-rest-endpoint-methods@13.3.1
  - @octokit/types@13.8.0
 
 These packages each contain the following license:
@@ -11735,7 +11765,6 @@ The following npm packages may be included in this product:
  - @azure/abort-controller@2.1.2
  - @azure/core-auth@1.9.0
  - @azure/core-client@1.9.2
- - @azure/core-rest-pipeline@1.18.2
  - @azure/core-tracing@1.2.0
  - @azure/core-util@1.11.0
  - @azure/identity@4.6.0

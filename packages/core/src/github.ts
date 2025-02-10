@@ -83,7 +83,7 @@ async function githubGetPullRequestNumber() {
         "gh",
         ["pr", "view", "--json", "number"],
         {
-            label: "resolve current pull request number",
+            label: "github: resolve current pull request number",
         }
     )
     if (res.failed) {
@@ -92,7 +92,7 @@ async function githubGetPullRequestNumber() {
     }
     const resj = JSON5TryParse(res.stdout) as { number: number }
     const id = resj?.number
-    logVerbose(`pull request number: ${isNaN(id) ? "not found" : id}`)
+    logVerbose(`github: pull request number: ${isNaN(id) ? "not found" : id}`)
     return id
 }
 
@@ -397,16 +397,16 @@ export async function githubCreatePullRequestReviews(
 
     if (!annotations?.length) return true
     if (!issue) {
-        logError("missing pull request number")
+        logError("github: missing pull request number")
         return false
     }
     if (!commitSha) {
-        logError("missing commit sha")
+        logError("github: missing commit sha")
         return false
     }
     const token = await runtimeHost.readSecret(GITHUB_TOKEN)
     if (!token) {
-        logError("missing github token")
+        logError("github: missing token")
         return false
     }
 

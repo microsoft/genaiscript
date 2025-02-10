@@ -92,6 +92,7 @@ import { Fragment } from "../../core/src/generation"
 import { randomHex } from "../../core/src/crypto"
 import { normalizeFloat, normalizeInt } from "../../core/src/cleaners"
 import { microsoftTeamsChannelPostMessage } from "../../core/src/teams"
+import { confirmOrSkipInCI } from "./ci"
 
 function getRunDir(scriptId: string) {
     const runId =
@@ -537,13 +538,22 @@ export async function runScriptInternal(
         const channelURL =
             process.env.GENAISCRIPT_TEAMS_CHANNEL_URL ||
             process.env.TEAMS_CHANNEL_URL
-        if (channelURL) {
-            await microsoftTeamsChannelPostMessage(channelURL, result.text, {
-                script,
-                info: ghInfo,
-                cancellationToken,
-                trace,
-            })
+        if (
+            channelURL &&
+            (await confirmOrSkipInCI("Would you like to post to Teams?", {
+                preview: result.text,
+            }))
+        ) {
+            await microsoftTeamsChannelPostMessage(
+                channelURL,
+                prettifyMarkdown(result.text),
+                {
+                    script,
+                    info: ghInfo,
+                    cancellationToken,
+                    trace,
+                }
+            )
         }
     }
 
@@ -562,7 +572,16 @@ export async function runScriptInternal(
     if (pullRequestComment && result.text) {
         // github action or repo
         const ghInfo = await resolveGitHubInfo()
-        if (ghInfo.repository && ghInfo.issue) {
+        if (
+            ghInfo.repository &&
+            ghInfo.issue &&
+            (await confirmOrSkipInCI(
+                "Would you like to add a pull request comment?",
+                {
+                    preview: result.text,
+                }
+            ))
+        ) {
             await githubCreateIssueComment(
                 script,
                 ghInfo,
@@ -573,7 +592,15 @@ export async function runScriptInternal(
             )
         } else {
             adoInfo = adoInfo ?? (await azureDevOpsParseEnv(process.env))
-            if (adoInfo.collectionUri) {
+            if (
+                adoInfo.collectionUri &&
+                (await confirmOrSkipInCI(
+                    "Would you like to add a pull request comment?",
+                    {
+                        preview: result.text,
+                    }
+                ))
+            ) {
                 await azureDevOpsCreateIssueComment(
                     script,
                     adoInfo,
@@ -592,7 +619,16 @@ export async function runScriptInternal(
     if (pullRequestDescription && result.text) {
         // github action or repo
         const ghInfo = await resolveGitHubInfo()
-        if (ghInfo.repository && ghInfo.issue) {
+        if (
+            ghInfo.repository &&
+            ghInfo.issue &&
+            (await confirmOrSkipInCI(
+                "Would you like to update the pull request description?",
+                {
+                    preview: result.text,
+                }
+            ))
+        ) {
             await githubUpdatePullRequestDescription(
                 script,
                 ghInfo,
@@ -604,7 +640,15 @@ export async function runScriptInternal(
         } else {
             // azure devops pipeline
             adoInfo = adoInfo ?? (await azureDevOpsParseEnv(process.env))
-            if (adoInfo.collectionUri) {
+            if (
+                adoInfo.collectionUri &&
+                (await confirmOrSkipInCI(
+                    "Would you like to update the pull request description?",
+                    {
+                        preview: result.text,
+                    }
+                ))
+            ) {
                 await azureDevOpsUpdatePullRequestDescription(
                     script,
                     adoInfo,
