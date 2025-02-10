@@ -14,14 +14,16 @@ export function CopyButton(props: { text: string }) {
             setTimeout(() => setCopied(false), 2000)
         } catch (err) {}
     }
+    const title = copied ? "Copied!" : "Copy"
     return (
         <vscode-button
             aria-label="Copy"
             icon="copy"
             secondary
             onClick={handleCopy}
+            title={title}
         >
-            {copied ? "Copied!" : "Copy"}
+            {title}
         </vscode-button>
     )
 }
@@ -50,14 +52,16 @@ export function SaveButton(props: { name?: string; text: string }) {
             setTimeout(() => setSaved(false), 2000)
         } catch (err) {}
     }
+    const title = saved ? "Saved!" : "Save"
     return (
         <vscode-button
             aria-label="Save to file"
             icon="save"
             secondary
             onClick={handleSave}
+            title={title}
         >
-            {saved ? "Saved!" : "Save"}
+            {title}
         </vscode-button>
     )
 }

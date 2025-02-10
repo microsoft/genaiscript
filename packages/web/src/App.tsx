@@ -1595,6 +1595,7 @@ function RunButton() {
     const { state } = useRunner()
     const disabled = !scriptid
 
+    const title = state === "running" ? "Abort" : "Run"
     return (
         <vscode-form-group>
             <vscode-label></vscode-label>
@@ -1602,8 +1603,9 @@ function RunButton() {
                 icon={state === "running" ? "stop-circle" : "play"}
                 disabled={disabled}
                 type="submit"
+                title={title}
             >
-                {state === "running" ? "Abort" : "Run"}
+                {title}
             </vscode-button>
             <vscode-form-helper>
                 {Object.entries(options)
