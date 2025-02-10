@@ -13,6 +13,7 @@
       "types": "./built/runtime.d.ts",
       "import": "./built/runtime.mjs"
     },
+    "./promptfoo": "./built/promptfoo.mjs",
     "./package.json": "./package.json"
   },
   "files": [

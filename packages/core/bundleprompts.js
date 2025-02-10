@@ -25,6 +25,7 @@ async function main() {
         "./src/genaiscript-api-provider.mjs",
         "utf-8"
     )
+    writeFileSync("../cli/built/promptfoo.mjs", promptFooDriver, "utf-8")
     const promptDefs = {
         "jsconfig.json": JSON.stringify(
             {
