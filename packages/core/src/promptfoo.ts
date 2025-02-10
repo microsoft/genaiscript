@@ -22,6 +22,7 @@ import { validateJSONWithSchema } from "./schema"
 import { TraceOptions } from "./trace"
 import { CancellationOptions } from "./cancellation"
 import { uniq } from "es-toolkit"
+import { dedent } from "./indent"
 
 /**
  * Convert GenAIScript connection info into prompt foo configuration
@@ -94,7 +95,8 @@ export async function generatePromptFooConfiguration(
         embeddingsInfo,
         trace,
     } = options || {}
-    const { description, title, id } = script
+    const { title, id } = script
+    const description = dedent(script.description)
     const models = options?.models || []
     const redteam: Partial<PromptRedteam> = options?.redteam
         ? script.redteam || {}
@@ -271,7 +273,9 @@ export async function generatePromptFooConfiguration(
             ? deleteEmptyValues({
                   injectVar: "fileContent",
                   numTests: redteam.numTests || PROMPTFOO_REDTEAM_NUM_TESTS,
-                  purpose: redteam.purpose || description || title || id,
+                  purpose: dedent(
+                      redteam.purpose || description || title || id
+                  ),
                   plugins: uniq(arrayify(redteam.plugins)),
                   strategies: uniq(arrayify(redteam.strategies)),
                   language: redteam.language,
