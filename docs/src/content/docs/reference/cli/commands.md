@@ -148,7 +148,7 @@ Usage: genaiscript test list [options]
 List available tests in workspace
 
 Options:
-  --redteam                 run red team tests
+  --redteam                 list red team tests
   -g, --groups <groups...>  groups to include or exclude. Use :! prefix to
                             exclude
   -h, --help                display help for command

@@ -18,6 +18,7 @@ import {
     EMOJI_FAIL,
     TEST_RUNS_DIR_NAME,
     PROMPTFOO_REMOTE_API_PORT,
+    PROMPTFOO_TEST_MAX_CONCURRENCY,
 } from "../../core/src/constants"
 import { promptFooDriver } from "../../core/src/default_prompts"
 import { serializeError } from "../../core/src/error"
@@ -196,6 +197,7 @@ npx --yes genaiscript@${CORE_VERSION} test view
         configurations.push({ script, configuration: fn })
     }
 
+    const promptFooVersion = options.promptfooVersion || PROMPTFOO_VERSION
     const results: PromptScriptTestResult[] = []
     // Execute each configuration and gather results
     for (const config of configurations) {
@@ -205,12 +207,12 @@ npx --yes genaiscript@${CORE_VERSION} test view
         const cmd = "npx"
         const args = [
             "--yes",
-            `promptfoo@${options.promptfooVersion || PROMPTFOO_VERSION}`,
+            `promptfoo@${promptFooVersion}`,
             "eval",
             "--config",
             configuration,
             "--max-concurrency",
-            "1",
+            String(PROMPTFOO_TEST_MAX_CONCURRENCY),
             "--no-progress-bar",
         ]
         if (options.cache) args.push("--cache")
