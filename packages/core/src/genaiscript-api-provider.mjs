@@ -25,7 +25,7 @@ class GenAIScriptApiProvider {
         return this.providerId
     }
 
-    async callApi(scriptId, context) {
+    async callApi(scriptId, context, options) {
         const { logger } = context
         try {
             const files = context.vars.files // string or string[]
@@ -34,7 +34,7 @@ class GenAIScriptApiProvider {
             let { cli, ...options } = structuredClone(this.config)
             options.runTries = 2
             options.runTrace = false
-            options.lobprobs = true
+            options.lobprobs = !!options?.includeLogProbs
 
             const testVars = context.vars.vars // {}
             if (testVars && typeof testVars === "object")
