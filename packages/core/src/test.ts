@@ -6,6 +6,8 @@ import {
     MODEL_PROVIDER_AZURE_OPENAI,
     MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI,
     MODEL_PROVIDER_GITHUB,
+    MODEL_PROVIDER_OPENAI,
+    OPENAI_API_BASE,
     TEST_CSV_ENTRY_SEPARATOR,
     XML_REGEX,
     YAML_REGEX,
@@ -50,7 +52,9 @@ function resolveTestProvider(
             return {
                 id: provider + ":" + model,
             }
-        // openai
+        case MODEL_PROVIDER_OPENAI:
+            if (base === OPENAI_API_BASE) return { id: info.model }
+            return { id: info.model, config: { apiHost } }
         default:
             return {
                 id: provider + ":" + modelType + ":" + model,
