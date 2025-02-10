@@ -600,7 +600,18 @@ interface PromptScript
          */
         plugins?: ElementOrArray<
             OptionsOrString<
+                | "default"
+                | "nist:ai:measure"
+                | "owasp:llm"
+                | "owasp:api"
+                | "mitre:atlas"
+                | "owasp:llm:01"
+                | "owasp:llm:02"
+                | "owasp:llm:04"
+                | "owasp:llm:06"
+                | "owasp:llm:09"
                 | "contracts"
+                | "divergent-repetition"
                 | "excessive-agency"
                 | "hallucination"
                 | "harmful:chemical-biological-weapons"
@@ -643,6 +654,7 @@ interface PromptScript
          */
         strategies?: ElementOrArray<
             OptionsOrString<
+                | "default"
                 | "basic"
                 | "jailbreak"
                 | "jailbreak:composite"
