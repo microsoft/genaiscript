@@ -205,16 +205,15 @@ npx --yes genaiscript@${CORE_VERSION} test view
         const { script, configuration } = config
         const outJson = configuration.replace(/\.yaml$/, ".res.json")
         const cmd = "npx"
-        const args = [
-            "--yes",
-            `promptfoo@${promptFooVersion}`,
-            "eval",
+        const args = ["--yes", `promptfoo@${promptFooVersion}`]
+        if (redteam) args.push("redteam", "run", "--force")
+        else args.push("eval", "--no-progress-bar")
+        args.push(
             "--config",
             configuration,
             "--max-concurrency",
-            String(PROMPTFOO_TEST_MAX_CONCURRENCY),
-            "--no-progress-bar",
-        ]
+            String(PROMPTFOO_TEST_MAX_CONCURRENCY)
+        )
         if (options.cache) args.push("--cache")
         if (options.verbose) args.push("--verbose")
         args.push("--output", outJson)
