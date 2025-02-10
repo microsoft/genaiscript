@@ -104,6 +104,7 @@
     "@types/prompts": "^2.4.9",
     "@types/replace-ext": "^2.0.2",
     "@types/ws": "^8.5.14",
+    "ci-info": "^4.1.0",
     "commander": "^12.1.0",
     "diff": "^7.0.0",
     "dotenv": "^16.4.7",

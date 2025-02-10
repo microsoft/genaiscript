@@ -6,6 +6,9 @@ import {
     MODEL_PROVIDER_AZURE_OPENAI,
     MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI,
     MODEL_PROVIDER_GITHUB,
+    MODEL_PROVIDER_OPENAI,
+    OPENAI_API_BASE,
+    PROMPTFOO_REDTEAM_NUM_TESTS,
     TEST_CSV_ENTRY_SEPARATOR,
     XML_REGEX,
     YAML_REGEX,
@@ -16,8 +19,10 @@ import { ModelConnectionInfo, parseModelIdentifier } from "./models"
 import { deleteEmptyValues, deleteUndefinedValues } from "./cleaners"
 import testSchema from "../../../docs/public/schemas/tests.json"
 import { validateJSONWithSchema } from "./schema"
-import { TraceOptions } from "./trace"
+import { MarkdownTrace, TraceOptions } from "./trace"
 import { CancellationOptions } from "./cancellation"
+import { uniq } from "es-toolkit"
+import { dedent } from "./indent"
 
 /**
  * Convert GenAIScript connection info into prompt foo configuration
@@ -50,7 +55,9 @@ function resolveTestProvider(
             return {
                 id: provider + ":" + model,
             }
-        // openai
+        case MODEL_PROVIDER_OPENAI:
+            if (base === OPENAI_API_BASE) return { id: info.model }
+            return { id: info.model, config: { apiHost } }
         default:
             return {
                 id: provider + ":" + modelType + ":" + model,
@@ -59,6 +66,24 @@ function resolveTestProvider(
                 },
             }
     }
+}
+
+function renderPurpose(script: PromptScript): string {
+    const { description, title, id, redteam, jsSource } = script
+    const { purpose } = redteam || {}
+    const trace = new MarkdownTrace()
+    if (purpose) {
+        trace.heading(2, "Purpose")
+        trace.appendContent(purpose)
+    }
+    trace.heading(2, "Prompt details")
+    trace.appendContent(
+        `The prompt is written using GenAIScript (https://microsoft.github.io/genaiscript), a JavaScript-based DSL for creating AI prompts. The generated prompt will be injected in the 'env.files' variable.`
+    )
+    trace.itemValue(`title`, title)
+    trace.itemValue(`description`, description)
+    if (jsSource) trace.fence(jsSource, "js")
+    return trace.content
 }
 
 /**
@@ -76,6 +101,7 @@ export async function generatePromptFooConfiguration(
         provider?: string
         out?: string
         cli?: string
+        redteam?: boolean
         models?: (ModelOptions & ModelAliasesOptions)[]
     } & TraceOptions &
         CancellationOptions
@@ -87,9 +113,13 @@ export async function generatePromptFooConfiguration(
         embeddingsInfo,
         trace,
     } = options || {}
-    const { description, title, id } = script
+    const { title, id } = script
+    const description = dedent(script.description)
     const models = options?.models || []
-
+    const redteam: Partial<PromptRedteam> = options?.redteam
+        ? script.redteam || {}
+        : undefined
+    const purpose = redteam ? renderPurpose(script) : undefined
     const testsAndFiles = arrayify(script.tests)
     const tests: PromptTest[] = []
     for (const testOrFile of testsAndFiles) {
@@ -187,16 +217,6 @@ export async function generatePromptFooConfiguration(
     }
 
     const cli = options?.cli
-
-    const resolveModel = (m: string) => runtimeHost.modelAliases[m]?.model ?? m
-
-    const testProvider = deleteUndefinedValues({
-        text: resolveTestProvider(chatInfo, "chat"),
-        embedding: resolveTestProvider(embeddingsInfo, "embedding"),
-    })
-    const defaultTest = deleteUndefinedValues({
-        options: deleteUndefinedValues({ provider: testProvider }),
-    })
     const testTransforms = {
         text: "output.text",
         json: undefined as string,
@@ -206,8 +226,22 @@ export async function generatePromptFooConfiguration(
         json: "output.text",
     }
 
+    const resolveModel = (m: string) => runtimeHost.modelAliases[m]?.model ?? m
+
+    const testProvider = deleteUndefinedValues({
+        text: resolveTestProvider(chatInfo, "chat"),
+        embedding: resolveTestProvider(embeddingsInfo, "embedding"),
+    })
+    const defaultTest = deleteUndefinedValues({
+        transformVars: "{ ...vars, sessionId: context.uuid }",
+        options: deleteUndefinedValues({
+            transform: testTransforms["text"],
+            provider: testProvider,
+        }),
+    })
+
     // Create configuration object
-    const res = {
+    const res = deleteUndefinedValues({
         // Description combining title and description
         description: [title, description].filter((s) => s).join("\n"),
         prompts: [id],
@@ -248,6 +282,22 @@ export async function generatePromptFooConfiguration(
                 },
             })),
         defaultTest,
+        target: redteam
+            ? {
+                  id: provider,
+                  label: redteam.label || title || id,
+              }
+            : undefined,
+        redteam: redteam
+            ? deleteEmptyValues({
+                  purpose,
+                  injectVar: "fileContent",
+                  numTests: redteam.numTests || PROMPTFOO_REDTEAM_NUM_TESTS,
+                  plugins: uniq(arrayify(redteam.plugins)),
+                  strategies: uniq(arrayify(redteam.strategies)),
+                  language: redteam.language,
+              })
+            : undefined,
         // Map tests to configuration format
         tests: arrayify(tests).map(
             ({
@@ -267,7 +317,7 @@ export async function generatePromptFooConfiguration(
                     vars: deleteEmptyValues({
                         files,
                         workspaceFiles,
-                        vars,
+                        vars: Object.keys(vars || {}).length ? vars : undefined,
                     }),
                     options: {
                         transform: testTransforms[format],
@@ -301,7 +351,7 @@ export async function generatePromptFooConfiguration(
                     ].filter((a) => !!a), // Filter out any undefined assertions
                 })
         ),
-    }
+    })
 
     return res // Return the generated configuration
 }

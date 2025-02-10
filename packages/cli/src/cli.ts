@@ -220,7 +220,7 @@ export async function cli() {
         .action(runScriptWithExitCode) // Action to execute the script with exit code
 
     // Define 'test' command group for running tests
-    const test = program.command("test")
+    const test = program.command("test").alias("eval")
 
     const testRun = test
         .command("run", { isDefault: true })
@@ -229,6 +229,7 @@ export async function cli() {
             "[script...]",
             "Script ids. If not provided, all scripts are tested"
         )
+        .option("--redteam", "run red team tests")
     addModelOptions(testRun) // Add model options to the command
         .option(
             "--models <models...>",
@@ -254,11 +255,12 @@ export async function cli() {
     // List available tests
     test.command("list")
         .description("List available tests in workspace")
-        .action(scriptTestList) // Action to list the tests
+        .option("--redteam", "list red team tests")
         .option(
             "-g, --groups <groups...>",
             "groups to include or exclude. Use :! prefix to exclude"
         )
+        .action(scriptTestList) // Action to list the tests
 
     // Launch test viewer
     test.command("view")

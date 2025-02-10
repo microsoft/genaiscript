@@ -71,6 +71,7 @@ export class MarkdownTrace extends EventTarget implements OutputTrace {
         return this._content
             .map((c) => (typeof c === "string" ? c : c.content))
             .join("")
+            .replace(/(\r?\n){3,}/g, "\n\n")
     }
 
     startTraceDetails(title: string, options?: { expanded?: boolean }) {

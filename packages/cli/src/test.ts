@@ -18,6 +18,7 @@ import {
     EMOJI_FAIL,
     TEST_RUNS_DIR_NAME,
     PROMPTFOO_REMOTE_API_PORT,
+    PROMPTFOO_TEST_MAX_CONCURRENCY,
 } from "../../core/src/constants"
 import { promptFooDriver } from "../../core/src/default_prompts"
 import { serializeError } from "../../core/src/error"
@@ -36,7 +37,7 @@ import {
     PromptScriptTestRunResponse,
     PromptScriptTestResult,
 } from "../../core/src/server/messages"
-import { generatePromptFooConfiguration } from "../../core/src/test"
+import { generatePromptFooConfiguration } from "../../core/src/promptfoo"
 import { delay } from "es-toolkit"
 import { resolveModelConnectionInfo } from "../../core/src/models"
 import { filterScripts } from "../../core/src/ast"
@@ -48,6 +49,7 @@ import {
     CancellationOptions,
     checkCancelled,
 } from "../../core/src/cancellation"
+import { CORE_VERSION } from "../../core/src/version"
 
 /**
  * Parses model specifications from a string and returns a ModelOptions object.
@@ -107,13 +109,14 @@ export async function runPromptScriptTests(
         cache?: boolean
         verbose?: boolean
         write?: boolean
+        redteam?: boolean
         promptfooVersion?: string
         outSummary?: string
         testDelay?: string
     } & CancellationOptions
 ): Promise<PromptScriptTestRunResponse> {
     applyModelOptions(options, "cli")
-    const { cancellationToken } = options || {}
+    const { cancellationToken, redteam } = options || {}
     const scripts = await listTests({ ids, ...(options || {}) })
     if (!scripts.length)
         return {
@@ -155,7 +158,7 @@ export async function runPromptScriptTests(
 - Run this command to launch the promptfoo test viewer.
 
 \`\`\`sh
-genaiscript test view
+npx --yes genaiscript@${CORE_VERSION} test view
 \`\`\`
 
 `
@@ -187,12 +190,14 @@ genaiscript test view
             provider: "provider.mjs",
             chatInfo,
             embeddingsInfo,
+            redteam,
         })
         const yaml = YAMLStringify(config)
         await writeFile(fn, yaml)
         configurations.push({ script, configuration: fn })
     }
 
+    const promptFooVersion = options.promptfooVersion || PROMPTFOO_VERSION
     const results: PromptScriptTestResult[] = []
     // Execute each configuration and gather results
     for (const config of configurations) {
@@ -200,16 +205,15 @@ genaiscript test view
         const { script, configuration } = config
         const outJson = configuration.replace(/\.yaml$/, ".res.json")
         const cmd = "npx"
-        const args = [
-            "--yes",
-            `promptfoo@${options.promptfooVersion || PROMPTFOO_VERSION}`,
-            "eval",
+        const args = ["--yes", `promptfoo@${promptFooVersion}`]
+        if (redteam) args.push("redteam", "run", "--force")
+        else args.push("eval", "--no-progress-bar")
+        args.push(
             "--config",
             configuration,
             "--max-concurrency",
-            "1",
-            "--no-progress-bar",
-        ]
+            String(PROMPTFOO_TEST_MAX_CONCURRENCY)
+        )
         if (options.cache) args.push("--cache")
         if (options.verbose) args.push("--verbose")
         args.push("--output", outJson)
@@ -277,11 +281,16 @@ genaiscript test view
  * @param options - Options to filter the test scripts by IDs or groups.
  * @returns A Promise resolving to an array of filtered scripts.
  */
-async function listTests(options: { ids?: string[]; groups?: string[] }) {
+async function listTests(options: {
+    ids?: string[]
+    groups?: string[]
+    redteam?: boolean
+}) {
     const prj = await buildProject()
     const scripts = filterScripts(prj.scripts, {
         ...(options || {}),
-        test: true,
+        test: options.redteam ? undefined : true,
+        redteam: options.redteam,
     })
     return scripts
 }
@@ -300,6 +309,7 @@ export async function scriptsTest(
         cache?: boolean
         verbose?: boolean
         write?: boolean
+        redteam?: boolean
         promptfooVersion?: string
         outSummary?: string
         testDelay?: string
@@ -320,7 +330,10 @@ export async function scriptsTest(
  * Lists available test scripts, printing their IDs and filenames.
  * @param options - Options to filter the scripts by groups.
  */
-export async function scriptTestList(options: { groups?: string[] }) {
+export async function scriptTestList(options: {
+    groups?: string[]
+    redteam?: boolean
+}) {
     const scripts = await listTests(options)
     console.log(scripts.map((s) => toStringList(s.id, s.filename)).join("\n"))
 }

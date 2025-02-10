@@ -7,4 +7,14 @@ export function indent(text: string, indentation: string) {
         .join("\n")
 }
 
-export const dedent = tsDedent
+/**
+ * Unindents a string
+ */
+export function dedent(
+    templ: TemplateStringsArray | string,
+    ...values: unknown[]
+): string {
+    if (templ === undefined) return undefined
+    if (templ === null) return null
+    return tsDedent(templ, ...values)
+}
