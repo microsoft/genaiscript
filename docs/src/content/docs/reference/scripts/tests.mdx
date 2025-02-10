@@ -1,16 +1,17 @@
 ---
-title: Tests
+title: Tests / Evals
 sidebar:
     order: 11
 description: Learn how to execute and evaluate LLM output quality with promptfoo, a tool designed for testing language model outputs.
 keywords: promptfoo, LLM testing, output quality, language model evaluation, script tests
 ---
 
-It is possible to define tests for the LLM scripts, to evaluate the output quality of the LLM
+It is possible to define tests/tests for the LLM scripts, to evaluate the output quality of the LLM
 over time and model types.
 
-The tests are executed by [promptfoo](https://promptfoo.dev/), a tool
-for evaluating LLM output quality.
+The tests are executed by [promptfoo](https://promptfoo.dev/), a tool for evaluating LLM output quality.
+
+You can also find AI vulnerabilities, such as bias, toxicity, and factuality issues, using the [redteam](/genaiscript/reference/scripts/redteam) feature.
 
 ## Defining tests
 
@@ -44,7 +45,7 @@ The JSON and YAML files assume that files to be a list of `PromptTest` objects a
 using the JSON schema at [https://microsoft.github.io/genaiscript/schemas/tests.json](https://microsoft.github.io/genaiscript/schemas/tests.json).
 
 The CSV files assume that the first row is the header and the columns are mostly the properties of the `PromptTest` object.
-The `file` column should be a filename, the `content` column is the content of a virutal file.
+The `file` column should be a filename, the `fileContent` column is the content of a virutal file.
 
 ```csv title="tests.csv"
 content,rubrics,facts

@@ -1,0 +1,63 @@
+---
+title: Red Team
+sidebar:
+    order: 11.1
+---
+
+LLM red teaming is a way to find vulnerabilities in AI systems before they're deployed by using simulated adversarial inputs.
+GenAIScript provides a builtin support for [PromptFoo Red Team](https://www.promptfoo.dev/docs/red-team/).
+
+## Adding Red Teaming to scripts
+
+Add `redteam` to the `script` function to enable red teaming.
+
+```js
+script({
+    redteam: {
+        purpose: "You are a malicious user.",
+    },
+})
+def("FILE", env.files)
+$`Extract keywords from <FILE>`
+```
+
+The `purpose` property is used to guide the attack generation process. It should be as clear and specific as possible.
+Include the following information:
+
+- Who the user is and their relationship to the company
+- What data the user has access to
+- What data the user does not have access to
+- What actions the user can perform
+- What actions the user cannot perform
+- What systems the agent has access to
+
+## Plugins
+
+[Plugins](https://www.promptfoo.dev/docs/red-team/plugins/) are Promptfoo's modular system for testing a variety of risks and vulnerabilities in LLM models and LLM-powered applications.
+If not specified, GenAIScript will let PromptFoo use the `default` set of plugins.
+
+This example loads the [OWASP Top 10 for Large Language Model](https://www.promptfoo.dev/docs/red-team/owasp-llm-top-10/) plugins.
+
+```js
+script({
+    redteam: {
+        plugins: "owasp:llm",
+    },
+})
+```
+
+## Strategies
+
+[Strategies](https://www.promptfoo.dev/docs/red-team/strategies/) are attack techniques that systematically probe LLM applications for vulnerabilities.
+While plugins generate adversarial inputs, strategies determine how these inputs are delivered to maximize attack success rates.
+
+## configuration
+
+There are limitations in which provider is supported to run the Red Team process (which requires LLM access).
+
+- The grader requires OpenAI or Azure OpenAI provider.
+
+## See also
+
+- [Configuration](https://www.promptfoo.dev/docs/red-team/configuration/)
+- [Troubleshooting](https://www.promptfoo.dev/docs/red-team/troubleshooting/attack-generation/)

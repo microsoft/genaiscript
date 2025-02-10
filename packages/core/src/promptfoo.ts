@@ -167,7 +167,7 @@ export async function generatePromptFooConfiguration(
                             case "file":
                                 ;(test.files as string[]).push(s)
                                 break
-                            case "content":
+                            case "fileContent":
                                 ;(test.workspaceFiles as WorkspaceFile[]).push({
                                     filename: "",
                                     content: s,
