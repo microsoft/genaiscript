@@ -316,32 +316,41 @@ export async function markdownifyPdf(
  * @param pattern - The glob pattern or directory path to list files from.
  * @returns A tree structure representing the files.
  */
-export async function renderFileTree(
+export async function fileTree(
     glob: string,
     options?: WorkspaceGrepOptions & {
         query?: string | RegExp
-        frontmatter?: (fm: Record<string, unknown>) => Awaitable<string>
-        preview?: (filename: string, stats: FileStats) => Awaitable<string>
+        size?: boolean
+        ignore?: ElementOrArray<string>
+        frontmatter?: OptionsOrString<
+            "title" | "description" | "keywords" | "tags"
+        >[]
+        preview?: (file: WorkspaceFile, stats: FileStats) => Awaitable<unknown>
     }
 ): Promise<string> {
-    const { frontmatter, preview, query, ...rest } = options || {}
+    const { frontmatter, preview, query, size, ignore, ...rest } = options || {}
+    const readText = !!(frontmatter || preview)
+    // TODO
     const files = query
-        ? (await workspace.grep(query, glob, { ...rest, readText: false }))
-              .files
-        : await workspace.findFiles(glob, { readText: false })
-    const tree = await buildTree(files.map(({ filename }) => filename))
+        ? (await workspace.grep(query, glob, { ...rest, readText })).files
+        : await workspace.findFiles(glob, {
+              ignore,
+              readText,
+          })
+    const tree = await buildTree(files)
     return renderTree(tree)
 
     type TreeNode = {
         filename: string
         children?: TreeNode[]
         stats: FileStats
-        metadata: string[]
+        metadata: string
     }
-    async function buildTree(filenames: string[]): Promise<TreeNode[]> {
+    async function buildTree(files: WorkspaceFile[]): Promise<TreeNode[]> {
         const root: TreeNode[] = []
 
-        for (const filename of filenames) {
+        for (const file of files) {
+            const { filename } = file
             const parts = filename.split(/[/\\]/)
             let currentLevel = root
             for (let index = 0; index < parts.length; index++) {
@@ -349,19 +358,27 @@ export async function renderFileTree(
                 let node = currentLevel.find((n) => n.filename === part)
                 if (!node) {
                     const stats = await workspace.stat(filename)
-                    let metadata: string[] = []
-                    if (frontmatter && /\.mdx?$/.test(filename)) {
-                        const value = parsers.frontmatter(filename) || {}
-                        if (value) {
-                            metadata.push(await frontmatter(value))
-                        }
+                    let metadata: unknown[] = []
+                    if (frontmatter && /\.mdx?$/i.test(filename)) {
+                        const fm = parsers.frontmatter(file) || {}
+                        if (fm)
+                            metadata.push(
+                                ...frontmatter
+                                    .map((field) => [field, fm[field]])
+                                    .filter(([_, v]) => v !== undefined)
+                                    .map(
+                                        ([k, v]) => `${k}: ${JSON.stringify(v)}`
+                                    )
+                            )
                     }
-                    if (preview) metadata.push(await preview(filename, stats))
+                    if (preview) metadata.push(await preview(file, stats))
                     node = {
                         filename: part,
                         metadata: metadata
-                            .filter((f) => !!f)
-                            .map((s) => s.replace(/\n/g, " ")),
+                            .filter((f) => f !== undefined)
+                            .map((s) => String(s))
+                            .map((s) => s.replace(/\n/g, " "))
+                            .join(", "),
                         stats,
                     }
                     currentLevel.push(node)
@@ -382,11 +399,19 @@ export async function renderFileTree(
         return nodes
             .map((node, index) => {
                 const isLast = index === nodes.length - 1
-                const newPrefix = prefix + (isLast ? "    " : "│   ")
-                const children = node.children
+                const newPrefix = prefix + (isLast ? "  " : "│ ")
+                const children = node.children?.length
                     ? renderTree(node.children, newPrefix)
                     : ""
-                return `${prefix}${isLast ? "└── " : "├── "}${node.filename} ${Math.ceil(node.stats.size / 1000)}kb ${node.metadata.join(",")}\n${children}`
+                const meta = [
+                    size
+                        ? `${Math.ceil(node.stats.size / 1000)}kb `
+                        : undefined,
+                    node.metadata,
+                ]
+                    .filter((s) => !!s)
+                    .join(", ")
+                return `${prefix}${isLast ? "└ " : "├ "}${node.filename}${meta ? ` - ${meta}` : ""}\n${children}`
             })
             .join("")
     }
