@@ -672,12 +672,7 @@ function JSONSchemaSimpleTypeFormField(props: {
             if (field.uiType === "textarea")
                 return (
                     <vscode-textarea
-                        style={{
-                            height: "unset",
-                            minWidth: "65rem",
-                            maxWidth: "100vw",
-                            minHeight: "16rem",
-                        }}
+                        className="vscode-form-wide"
                         value={vs}
                         required={required}
                         rows={rows(vs)}
