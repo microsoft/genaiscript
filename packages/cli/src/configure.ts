@@ -110,6 +110,7 @@ $\`Write a one-word poem in code.\`
                     })
                     if (!edit) continue
                 }
+                if (info.description) logVerbose(`${name}: ${info.description}`)
                 if (info.secret) {
                     value = await password({
                         message: `enter a value for ${name}`,
@@ -126,7 +127,7 @@ $\`Write a one-word poem in code.\`
                     })
                 } else {
                     value = await input({
-                        message: `enter a value for ${name} (optional, leave empty to skip)`,
+                        message: `enter a value for ${name}`,
                         default: value,
                         required: info.required,
                         theme: {

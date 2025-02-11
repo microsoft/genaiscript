@@ -43,16 +43,16 @@
             "aliases": {},
             "env": {
                 "AZURE_OPENAI_API_ENDPOINT": {
-                    "description": "Azure OpenAI endpoint",
+                    "description": "Azure OpenAI endpoint. In the Azure Portal, open your Azure OpenAI resource, Keys and Endpoints, copy Endpoint.",
                     "required": true,
                     "format": "url"
                 },
                 "AZURE_OPENAI_API_KEY": {
-                    "description": "Azure OpenAI API key",
+                    "description": "Azure OpenAI API key. **You do NOT need this if you are using Microsoft Entra ID.",
                     "secret": true
                 },
                 "AZURE_OPENAI_API_CREDENTIALS": {
-                    "description": "Azure OpenAI API credentials type",
+                    "description": "Azure OpenAI API credentials type. Leave as 'default' unless you have a special Azure setup.",
                     "enum": [
                         "default",
                         "cli",
