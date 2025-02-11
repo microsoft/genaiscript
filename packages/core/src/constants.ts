@@ -243,6 +243,8 @@ export const MODEL_PRICINGS = Object.freeze<
 export const NEW_SCRIPT_TEMPLATE = `$\`Write a short poem in code.\`
 `
 export const PDF_SCALE = 4
+export const PDF_HASH_LENGTH = 12
+
 export const PDF_MIME_TYPE = "application/pdf"
 export const DOCX_MIME_TYPE =
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
@@ -359,3 +361,5 @@ export const THINK_REGEX = /<think>(.*?)($|<\/think>)/gis
 
 export const MAX_FILE_CONTENT_SIZE = 1024 * 1024 * 2 // 2MB
 export const TEST_CSV_ENTRY_SEPARATOR = /[;|\n]/g
+
+export const INVALID_FILENAME_REGEX = /[<>:"/\\|?*\x00-\x1F]+/g

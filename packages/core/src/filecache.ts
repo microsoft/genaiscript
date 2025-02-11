@@ -7,8 +7,8 @@ import { stat, writeFile } from "fs/promises"
 import { ensureDir } from "fs-extra"
 
 export async function fileWriteCached(
-    bufferLike: BufferLike,
     dir: string,
+    bufferLike: BufferLike,
     options?: TraceOptions
 ): Promise<string> {
     const bytes = await resolveBufferLike(bufferLike, options)

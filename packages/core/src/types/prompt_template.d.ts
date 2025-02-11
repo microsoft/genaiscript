@@ -1702,10 +1702,22 @@ interface XMLParseOptions {
 }
 
 interface ParsePDFOptions {
+    /**
+     * Disable removing trailing spaces in text
+     */
     disableCleanup?: boolean
+    /**
+     * Render each page as an image
+     */
     renderAsImage?: boolean
+    /**
+     * Zoom scaling with rendering pages and figures
+     */
     scale?: number
-    filter?: (pageIndex: number, text?: string) => boolean
+    /**
+     * Disable caching with cache: false
+     */
+    cache?: boolean
 }
 
 interface HTMLToTextOptions {
@@ -1943,6 +1955,19 @@ interface VideoProbeResult {
     }
 }
 
+interface PDFPageImage extends WorkspaceFile {
+    id: string
+    width: number
+    height: number
+}
+
+interface PDFPage {
+    index: number
+    content: string
+    image?: string
+    figures?: PDFPageImage[]
+}
+
 interface Parsers {
     /**
      * Parses text as a JSON5 payload
@@ -1999,7 +2024,26 @@ interface Parsers {
         content: string | WorkspaceFile,
         options?: ParsePDFOptions
     ): Promise<
-        { file: WorkspaceFile; pages: string[]; images?: Buffer[] } | undefined
+        | {
+              /**
+               * Reconstructed text content from page content
+               */
+              file: WorkspaceFile
+              /**
+               * Page text content
+               */
+              pages: string[]
+              /**
+               * Rendered pages as images if `renderAsImage` is set
+               */
+              images?: string[]
+
+              /**
+               * Parse PDF content
+               */
+              data: PDFPage[]
+          }
+        | undefined
     >
 
     /**

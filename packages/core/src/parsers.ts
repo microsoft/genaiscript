@@ -93,7 +93,7 @@ export async function createParsers(options: {
             }
         },
         PDF: async (file, options) => {
-            if (!file) return { file: undefined, pages: [] }
+            if (!file) return { file: undefined, pages: [], data: [] }
             const opts = {
                 ...(options || {}),
                 trace,
@@ -107,6 +107,7 @@ export async function createParsers(options: {
                 },
                 pages: pages?.map((p) => p.content),
                 images: pages?.map((p) => p.image),
+                data: pages,
             }
         },
         code: async (file, query) => {
