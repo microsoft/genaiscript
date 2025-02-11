@@ -317,14 +317,18 @@ export async function markdownifyPdf(
  * @returns A tree structure representing the files.
  */
 export async function renderFileTree(
-    pattern: string,
-    options?: {
+    glob: string,
+    options?: WorkspaceGrepOptions & {
+        query?: string | RegExp
         frontmatter?: (fm: Record<string, unknown>) => Awaitable<string>
         preview?: (filename: string, stats: FileStats) => Awaitable<string>
     }
 ): Promise<string> {
-    const { frontmatter, preview } = options || {}
-    const files = await workspace.findFiles(pattern)
+    const { frontmatter, preview, query, ...rest } = options || {}
+    const files = query
+        ? (await workspace.grep(query, glob, { ...rest, readText: false }))
+              .files
+        : await workspace.findFiles(glob, { readText: false })
     const tree = await buildTree(files.map(({ filename }) => filename))
     return renderTree(tree)
 
