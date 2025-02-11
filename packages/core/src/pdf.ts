@@ -125,6 +125,12 @@ function installPromiseWithResolversShim() {
         })
 }
 
+const ImageKind = {
+    GRAYSCALE_1BPP: 1,
+    RGB_24BPP: 2,
+    RGBA_32BPP: 3,
+}
+
 /**
  * Parses PDF files using pdfjs-dist.
  * @param fileOrUrl - The file path or URL of the PDF
@@ -149,7 +155,6 @@ async function PDFTryParse(
         const pdfjs = await tryImportPdfjs(options)
         const createCanvas = await tryImportCanvas()
         const { getDocument } = pdfjs
-        // Read data from file or use provided content
         const data = content || (await host.readFile(fileOrUrl))
         const loader = await getDocument({
             data,
@@ -222,16 +227,39 @@ async function PDFTryParse(
                             isUint8ClampedArray(img?.data) ||
                             isUint8Array(img?.data)
                         ) {
-                            const { width, height, data: _data } = img
+                            const {
+                                width,
+                                height,
+                                data: _data,
+                                kind,
+                                ...rest
+                            } = img
                             const imageData = new ImageData(width, height)
                             for (let y = 0; y < height; y++) {
                                 for (let x = 0; x < width; x++) {
-                                    const srcIdx = y * width + x
                                     const dstIdx = (y * width + x) * 4
-                                    imageData.data[dstIdx + 2] = _data[srcIdx] // B
-                                    imageData.data[dstIdx + 1] = _data[srcIdx] // G
-                                    imageData.data[dstIdx + 0] = _data[srcIdx] // R
                                     imageData.data[dstIdx + 3] = 255 // A
+                                    if (kind === ImageKind.GRAYSCALE_1BPP) {
+                                        const srcIdx = y * width + x
+                                        imageData.data[dstIdx + 0] =
+                                            _data[srcIdx] // B
+                                        imageData.data[dstIdx + 1] =
+                                            _data[srcIdx] // G
+                                        imageData.data[dstIdx + 2] =
+                                            _data[srcIdx] // R
+                                    } else {
+                                        const srcIdx =
+                                            (y * width + x) *
+                                            (kind === ImageKind.RGBA_32BPP
+                                                ? 4
+                                                : 3)
+                                        imageData.data[dstIdx + 0] =
+                                            _data[srcIdx] // B
+                                        imageData.data[dstIdx + 1] =
+                                            _data[srcIdx + 1] // G
+                                        imageData.data[dstIdx + 2] =
+                                            _data[srcIdx + 2] // R
+                                    }
                                 }
                             }
                             const canvas = await createCanvas(width, height)
