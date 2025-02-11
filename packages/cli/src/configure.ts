@@ -85,13 +85,13 @@ export async function configure(options: { provider?: string }) {
     system: [],
     systemSafety: false,
 })
-$\`Generate a single random emoji.\`
+$\`Write a one-word poem in code.\`
 `,
                         provider: provider.id,
                         runTrace: false,
                     })
                     process.stderr.write("\n")
-                    if (res.error) logWarn(`chat error: ${res.error}`)
+                    if (!res || res.error) logWarn(`chat error!`)
                     else logInfo(`chat successful!`)
                 }
 
@@ -114,6 +114,15 @@ $\`Generate a single random emoji.\`
                     value = await password({
                         message: `enter a value for ${name}`,
                         mask: false,
+                    })
+                } else if (info.enum) {
+                    value = await select({
+                        message: `select a value for ${name}`,
+                        default: value,
+                        choices: info.enum.map((v) => ({
+                            name: v,
+                            value: v,
+                        })),
                     })
                 } else {
                     value = await input({

@@ -40,28 +40,28 @@
             "prediction": false,
             "transcribe": true,
             "speech": true,
-            "aliases": {
-                "large": "gpt-4o",
-                "small": "gpt-4o-mini",
-                "vision": "gpt-4o",
-                "vision_small": "gpt-4o-mini",
-                "embeddings": "text-embedding-3-small",
-                "reasoning": "o1",
-                "reasoning_small": "o1-mini",
-                "transcription": "whisper-1",
-                "speech": "tts-1"
-            },
+            "aliases": {},
             "env": {
                 "AZURE_OPENAI_API_ENDPOINT": {
                     "description": "Azure OpenAI endpoint",
-                    "required": true
+                    "required": true,
+                    "format": "url"
                 },
                 "AZURE_OPENAI_API_KEY": {
                     "description": "Azure OpenAI API key",
                     "secret": true
                 },
                 "AZURE_OPENAI_API_CREDENTIALS": {
-                    "description": "Azure OpenAI API credentials type"
+                    "description": "Azure OpenAI API credentials type",
+                    "enum": [
+                        "default",
+                        "cli",
+                        "env",
+                        "powershell",
+                        "devcli",
+                        "managedidentity",
+                        "workloadidentity"
+                    ]
                 }
             }
         },

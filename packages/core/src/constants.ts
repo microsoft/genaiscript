@@ -226,6 +226,7 @@ export const MODEL_PROVIDERS = Object.freeze<
                 secret?: boolean
                 required?: boolean
                 format?: string
+                enum?: string[]
             }
         >
     }[]

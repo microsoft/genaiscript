@@ -152,6 +152,13 @@
                                         "type": "string",
                                         "description": "Format of the variable",
                                         "enum": ["url"]
+                                    },
+                                    "enum": {
+                                        "type": "array",
+                                        "description": "List of allowed values",
+                                        "items": {
+                                            "type": "string"
+                                        }
                                     }
                                 }
                             }
