@@ -48,12 +48,13 @@ export async function createPromptContext(
     options: GenerationOptions,
     model: string
 ) {
+    const { cancellationToken } = options
     const { generator, vars, output, ...varsNoGenerator } = ev
     // Clone variables to prevent modification of the original object
     const env = { generator, vars, output, ...structuredClone(varsNoGenerator) }
     assert(!!output, "missing output")
     // Create parsers for the given trace and model
-    const parsers = await createParsers({ trace, model })
+    const parsers = await createParsers({ trace, cancellationToken, model })
     const path = runtimeHost.path
     const runDir = ev.runDir
     assert(!!runDir, "missing run directory")

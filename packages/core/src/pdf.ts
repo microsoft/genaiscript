@@ -13,6 +13,8 @@ import { join } from "path"
 import { readFile, writeFile } from "fs/promises"
 import { ensureDir } from "fs-extra"
 import { YAMLStringify } from "./yaml"
+import { deleteUndefinedValues } from "./cleaners"
+import { CancellationOptions, checkCancelled } from "./cancellation"
 
 let standardFontDataUrl: string
 
@@ -163,9 +165,10 @@ async function computeHashFolder(
 async function PDFTryParse(
     fileOrUrl: string,
     content?: Uint8Array,
-    options?: ParsePDFOptions & TraceOptions
+    options?: ParsePDFOptions & TraceOptions & CancellationOptions
 ) {
     const {
+        cancellationToken,
         disableCleanup,
         trace,
         renderAsImage,
@@ -205,6 +208,7 @@ async function PDFTryParse(
     try {
         const pdfjs = await tryImportPdfjs(options)
         const createCanvas = await tryImportCanvas()
+        checkCancelled(cancellationToken)
         const { getDocument } = pdfjs
         const data = content || (await host.readFile(fileOrUrl))
         const loader = await getDocument({
@@ -215,11 +219,21 @@ async function PDFTryParse(
             CanvasFactory: createCanvas ? CanvasFactory : undefined,
         })
         const doc = await loader.promise
+        const pdfMetadata = await doc.getMetadata()
+        const metadata = pdfMetadata
+            ? deleteUndefinedValues({
+                  info: deleteUndefinedValues({
+                      ...(pdfMetadata.info || {}),
+                  }),
+              })
+            : undefined
+
         const numPages = doc.numPages
         const pages: PDFPage[] = []
 
         // Iterate through each page and extract text content
         for (let i = 0; i < numPages; i++) {
+            checkCancelled(cancellationToken)
             const page = await doc.getPage(1 + i) // 1-indexed
             const content = await page.getTextContent()
             const items: TextItem[] = content.items.filter(
@@ -265,6 +279,7 @@ async function PDFTryParse(
                 if (fn === pdfjs.OPS.paintImageXObject && args) {
                     const imageObj = args[0]
                     if (imageObj) {
+                        checkCancelled(cancellationToken)
                         const img = await new Promise<any>(
                             (resolve, reject) => {
                                 if (page.commonObjs.has(imageObj))
@@ -295,7 +310,12 @@ async function PDFTryParse(
             )
         }
 
-        const res = { ok: true, pages, content: PDFPagesToString(pages) }
+        const res = deleteUndefinedValues({
+            ok: true,
+            metadata,
+            pages,
+            content: PDFPagesToString(pages),
+        })
         await writeFile(join(folder, "content.txt"), res.content)
         await writeFile(resFilename, JSON.stringify(res))
         return res
@@ -390,18 +410,25 @@ function PDFPagesToString(pages: PDFPage[]) {
  */
 export async function parsePdf(
     filenameOrBuffer: string | Uint8Array,
-    options?: ParsePDFOptions & TraceOptions
-): Promise<{ pages: PDFPage[]; content: string }> {
+    options?: ParsePDFOptions & TraceOptions & CancellationOptions
+): Promise<{
+    pages: PDFPage[]
+    content: string
+    metadata?: Record<string, any>
+}> {
     const filename =
         typeof filenameOrBuffer === "string" ? filenameOrBuffer : undefined
     const bytes =
         typeof filenameOrBuffer === "string"
             ? undefined
             : (filenameOrBuffer as Uint8Array)
-    let { pages, ok } = await PDFTryParse(filename, bytes, options)
+    const { pages, ok, metadata, content } = await PDFTryParse(
+        filename,
+        bytes,
+        options
+    )
     if (!ok) return { pages: [], content: "" }
-    const content = PDFPagesToString(pages)
-    return { pages, content }
+    return { pages, content, metadata }
 }
 
 /**
