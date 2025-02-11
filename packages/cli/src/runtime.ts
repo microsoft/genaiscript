@@ -6,7 +6,6 @@
 import { delay, uniq, uniqBy, chunk, groupBy } from "es-toolkit"
 import { z } from "zod"
 import { pipeline } from "@huggingface/transformers"
-import { readFile } from "fs/promises"
 
 // symbols exported as is
 export { delay, uniq, uniqBy, z, pipeline, chunk, groupBy }
@@ -309,4 +308,60 @@ export async function markdownifyPdf(
     }
 
     return { pages, images, markdowns }
+}
+
+/**
+ * Generates a tree structure of files from a given glob pattern or directory path.
+ *
+ * @param pattern - The glob pattern or directory path to list files from.
+ * @returns A tree structure representing the files.
+ */
+export async function renderFileTree(pattern: string): Promise<string> {
+    const files = await workspace.findFiles(pattern)
+    const tree = await buildTree(files.map(({ filename }) => filename))
+    return renderTree(tree)
+
+    type TreeNode = {
+        filename: string
+        children?: TreeNode[]
+        stats: FileStats
+    }
+    async function buildTree(filenames: string[]): Promise<TreeNode[]> {
+        const root: TreeNode[] = []
+
+        for (const filename of filenames) {
+            const parts = filename.split(/[/\\]/)
+            let currentLevel = root
+            for (let index = 0; index < parts.length; index++) {
+                const part = parts[index]
+                let node = currentLevel.find((n) => n.filename === part)
+                if (!node) {
+                    const stats = await workspace.stat(filename)
+                    node = { filename: part, stats }
+                    currentLevel.push(node)
+                }
+                if (index < parts.length - 1) {
+                    if (!node.children) {
+                        node.children = []
+                    }
+                    currentLevel = node.children
+                }
+            }
+        }
+
+        return root
+    }
+
+    function renderTree(nodes: TreeNode[], prefix = ""): string {
+        return nodes
+            .map((node, index) => {
+                const isLast = index === nodes.length - 1
+                const newPrefix = prefix + (isLast ? "    " : "│   ")
+                const children = node.children
+                    ? renderTree(node.children, newPrefix)
+                    : ""
+                return `${prefix}${isLast ? "└── " : "├── "}${node.filename} ${Math.ceil(node.stats.size / 1000)}kb\n${children}`
+            })
+            .join("")
+    }
 }
