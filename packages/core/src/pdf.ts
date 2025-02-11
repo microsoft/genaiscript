@@ -125,13 +125,6 @@ function installPromiseWithResolversShim() {
         })
 }
 
-export interface PDFPage {
-    index: number
-    content: string
-    image?: Buffer
-    figures?: Buffer[]
-}
-
 /**
  * Parses PDF files using pdfjs-dist.
  * @param fileOrUrl - The file path or URL of the PDF
@@ -154,7 +147,7 @@ async function PDFTryParse(
 
     try {
         const pdfjs = await tryImportPdfjs(options)
-        const createCanvas = renderAsImage ? await tryImportCanvas() : undefined
+        const createCanvas = await tryImportCanvas()
         const { getDocument } = pdfjs
         // Read data from file or use provided content
         const data = content || (await host.readFile(fileOrUrl))
@@ -229,7 +222,23 @@ async function PDFTryParse(
                             isUint8ClampedArray(img?.data) ||
                             isUint8Array(img?.data)
                         ) {
-                            figures.push(Buffer.from(img.data))
+                            const { width, height, data: _data } = img
+                            const imageData = new ImageData(width, height)
+                            for (let y = 0; y < height; y++) {
+                                for (let x = 0; x < width; x++) {
+                                    const srcIdx = y * width + x
+                                    const dstIdx = (y * width + x) * 4
+                                    imageData.data[dstIdx + 2] = _data[srcIdx] // B
+                                    imageData.data[dstIdx + 1] = _data[srcIdx] // G
+                                    imageData.data[dstIdx + 0] = _data[srcIdx] // R
+                                    imageData.data[dstIdx + 3] = 255 // A
+                                }
+                            }
+                            const canvas = await createCanvas(width, height)
+                            const ctx = canvas.getContext("2d")
+                            ctx.putImageData(imageData, 0, 0)
+                            const buffer = canvas.toBufferSync("png")
+                            figures.push(buffer)
                         }
                     }
                 }

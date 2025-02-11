@@ -1716,9 +1716,9 @@ interface ParsePDFOptions {
     scale?: number
     /**
      * Page filtering
-     * @param pageIndex 
-     * @param text 
-     * @returns 
+     * @param pageIndex
+     * @param text
+     * @returns
      */
     filter?: (pageIndex: number, text?: string) => boolean
 }
@@ -1958,6 +1958,13 @@ interface VideoProbeResult {
     }
 }
 
+interface PDFPage {
+    index: number
+    content: string
+    image?: Buffer
+    figures?: Buffer[]
+}
+
 interface Parsers {
     /**
      * Parses text as a JSON5 payload
@@ -2014,7 +2021,25 @@ interface Parsers {
         content: string | WorkspaceFile,
         options?: ParsePDFOptions
     ): Promise<
-        { file: WorkspaceFile; pages: string[]; images?: Buffer[] } | undefined
+        | {
+              /**
+               * Reconstructed text content from page content
+               */
+              file: WorkspaceFile
+              /**
+               * Page text content
+               */
+              pages: string[]
+              /**
+               * Rendered pages as images if `renderAsImage` is set
+               */
+              images?: Buffer[]
+              /**
+               * Parse PDF content
+               */
+              data: PDFPage[]
+          }
+        | undefined
     >
 
     /**
