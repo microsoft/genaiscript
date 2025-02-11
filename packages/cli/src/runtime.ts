@@ -2,16 +2,20 @@
 
 /**
  * GenAIScript supporting runtime
+ * This module provides core functionality for text classification, data transformation,
+ * PDF processing, and file system operations in the GenAIScript environment.
  */
 import { delay, uniq, uniqBy, chunk, groupBy } from "es-toolkit"
 import { z } from "zod"
 import { pipeline } from "@huggingface/transformers"
 
-// symbols exported as is
+/**
+ * Utility functions exported for general use
+ */
 export { delay, uniq, uniqBy, z, pipeline, chunk, groupBy }
 
 /**
- * Options for classifying data.
+ * Options for classifying data using AI models.
  *
  * @property {boolean} [other] - Inject a 'other' label.
  * @property {boolean} [explanations] - Explain answers before returning token.
@@ -19,27 +23,28 @@ export { delay, uniq, uniqBy, z, pipeline, chunk, groupBy }
  */
 export type ClassifyOptions = {
     /**
-     * Inject a 'other' label
+     * When true, adds an 'other' category to handle cases that don't match defined labels
      */
     other?: boolean
     /**
-     * Explain answers before returning token
+     * When true, provides explanatory text before the classification result
      */
     explanations?: boolean
     /**
-     * Options runPrompt context
+     * Context for running the classification prompt
      */
     ctx?: ChatGenerationContext
 } & Omit<PromptGeneratorOptions, "choices">
 
 /**
- * Classify prompt
- *
+ * Classifies input text into predefined categories using AI
  * Inspired by https://github.com/prefecthq/marvin
- *
- * @param text text to classify
- * @param labels map from label to description. the label should be a single token
- * @param options prompt options, additional instructions, custom prompt contexst
+ * 
+ * @param text - Text content to classify or a prompt generator function
+ * @param labels - Object mapping label names to their descriptions
+ * @param options - Configuration options for classification
+ * @returns Classification result containing the chosen label and confidence metrics
+ * @throws Error if fewer than two labels are provided
  */
 export async function classify<L extends Record<string, string>>(
     text: StringLike | PromptGenerator,
@@ -150,12 +155,12 @@ no
 }
 
 /**
- * Enhances the provided context by repeating a set of instructions a specified number of times.
- *
- * @param options - Configuration options for the function.
- * @param options.ctx - The chat generation context to be used. If not provided, defaults to `env.generator`.
- * @param options.repeat - The number of times to repeat the instructions. Defaults to 1.
- * @param options.instructions - The instructions to be executed in each round. Defaults to "Make it better!".
+ * Enhances content generation by applying iterative improvements
+ * 
+ * @param options - Configuration for the improvement process
+ * @param options.ctx - Chat generation context to use
+ * @param options.repeat - Number of improvement iterations to perform
+ * @param options.instructions - Custom instructions for improvement
  */
 export function makeItBetter(options?: {
     ctx?: ChatGenerationContext
@@ -175,12 +180,13 @@ export function makeItBetter(options?: {
 }
 
 /**
- * Cast text to data using a JSON schema.
+ * Converts unstructured text or data into structured JSON format
  * Inspired by https://github.com/prefecthq/marvin
- * @param data
- * @param itemSchema
- * @param options
- * @returns
+ * 
+ * @param data - Input text or prompt generator to convert
+ * @param itemSchema - JSON schema defining the target data structure
+ * @param options - Configuration options for the conversion
+ * @returns Object containing the converted data or error information
  */
 export async function cast(
     data: StringLike | PromptGenerator,
@@ -230,10 +236,11 @@ export async function cast(
 }
 
 /**
- *
- * @param file
- * @param options
- * @returns
+ * Converts a PDF file to markdown format with intelligent formatting preservation
+ * 
+ * @param file - PDF file to convert
+ * @param options - Configuration options for PDF processing and markdown conversion
+ * @returns Object containing original pages, rendered images, and markdown content
  */
 export async function markdownifyPdf(
     file: WorkspaceFile,
@@ -311,10 +318,16 @@ export async function markdownifyPdf(
 }
 
 /**
- * Generates a tree structure of files from a given glob pattern or directory path.
- *
- * @param pattern - The glob pattern or directory path to list files from.
- * @returns A tree structure representing the files.
+ * Creates a tree representation of files in the workspace
+ * 
+ * @param glob - Glob pattern to match files
+ * @param options - Configuration options for tree generation
+ * @param options.query - Optional search query to filter files
+ * @param options.size - Include file sizes in output
+ * @param options.ignore - Patterns to exclude from results
+ * @param options.frontmatter - Frontmatter fields to extract from markdown
+ * @param options.preview - Custom function to generate file previews
+ * @returns Formatted string representing the file tree
  */
 export async function fileTree(
     glob: string,
