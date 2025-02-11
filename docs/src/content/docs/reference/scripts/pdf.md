@@ -36,14 +36,21 @@ pages.slice(0, 2).forEach((page, i) => {
 })
 ```
 
-## Rendering to images
+## Images and figures
+
+GenAIScript automatically extracts bitmap images from PDFs and stores them in the data array. You can use these images to generate prompts. The image are encoded as PNG and may be large.
+
+```js
+const { data } = await parsers.PDF(env.files[0])
+```
+
+## Rendering pages to images
 
 Add the `renderAsImage` option to also reach each page to a PNG image (as a buffer). This buffer can be used with a vision model to perform
 an OCR operation.
 
 ```js wrap
-const { images } = await parsers.PDF(env.files[0], 
-  { renderAsImage: true })
+const { images } = await parsers.PDF(env.files[0], { renderAsImage: true })
 ```
 
 ## PDFs are messy
