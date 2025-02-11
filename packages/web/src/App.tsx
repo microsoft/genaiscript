@@ -1346,7 +1346,7 @@ function ScriptDescription() {
     return (
         <vscode-form-helper>
             {title ? <b>{title}</b> : null}
-            {description ? <p>{description}</p> : null}
+            {description ? <Markdown className="no-margins">{description}</Markdown> : null}
         </vscode-form-helper>
     )
 }

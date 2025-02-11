@@ -10,7 +10,7 @@ div.snippet {
 div.snippet .buttons {
     position: absolute;
     top: 0;
-    right: 0;   
+    right: 0;
     opacity: 0;
     transition: opacity 0.3s ease;
 }
@@ -52,4 +52,11 @@ table.toplogprobs td {
 }
 .dropzone {
     cursor: pointer;
+}
+.no-margins {
+    margin: 0 !important;
+}
+
+.vscode-body .markdown-body {
+    font-size: var(--vscode-font-size);
 }

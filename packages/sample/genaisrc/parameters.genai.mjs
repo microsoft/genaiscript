@@ -3,6 +3,11 @@ script({
     files: "src/*",
     model: "small",
     tools: "agent_fs",
+    description: `This is markdown.
+    
+- item
+## heading
+`,
     parameters: {
         string: "abc",
         number: 12.3,
@@ -13,7 +18,7 @@ script({
             default: "efg",
             title: "a string bound by a schema",
             description: "A string parameter with a description",
-            uiType: "textarea"
+            uiType: "textarea",
         },
         numberSchema: {
             type: "number",
