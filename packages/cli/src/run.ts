@@ -295,7 +295,7 @@ export async function runScriptInternal(
     if (script.accept) {
         const exts = script.accept
             .split(",")
-            .map((s) => s.trim())
+            .map((s) => s.trim().replace(/^\*\./, "."))
             .filter((s) => !!s)
         for (const rf of resolvedFiles) {
             if (!exts.some((ext) => rf.endsWith(ext))) resolvedFiles.delete(rf)

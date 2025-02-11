@@ -1,6 +1,7 @@
 script({
     model: "small",
     files: "src/pdf/makecode.pdf",
+    accept: ".pdf"
 })
 
 const { images } = await parsers.PDF(env.files[0], {
