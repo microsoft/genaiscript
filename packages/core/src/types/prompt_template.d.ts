@@ -1703,7 +1703,7 @@ interface XMLParseOptions {
 
 interface ParsePDFOptions {
     /**
-     * Keep intermediate files around
+     * Disable removing trailing spaces in text
      */
     disableCleanup?: boolean
     /**
@@ -1715,12 +1715,9 @@ interface ParsePDFOptions {
      */
     scale?: number
     /**
-     * Page filtering
-     * @param pageIndex
-     * @param text
-     * @returns
+     * Disable caching with cache: false
      */
-    filter?: (pageIndex: number, text?: string) => boolean
+    cache?: boolean
 }
 
 interface HTMLToTextOptions {
@@ -1958,11 +1955,17 @@ interface VideoProbeResult {
     }
 }
 
+interface PDFPageImage extends WorkspaceFile {
+    id: string
+    width: number
+    height: number
+}
+
 interface PDFPage {
     index: number
     content: string
-    image?: Buffer
-    figures?: Buffer[]
+    image?: string
+    figures?: PDFPageImage[]
 }
 
 interface Parsers {
@@ -2033,7 +2036,8 @@ interface Parsers {
               /**
                * Rendered pages as images if `renderAsImage` is set
                */
-              images?: Buffer[]
+              images?: string[]
+
               /**
                * Parse PDF content
                */

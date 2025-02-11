@@ -1,10 +1,10 @@
 script({
+    model: "small",
     files: "src/pdf/makecode.pdf",
 })
 
-const { data } = await parsers.PDF(env.files[0])
-
-def("PDF", env.files[0])
+const { file, data } = await parsers.PDF(env.files[0])
+def("PDF", file)
 defImages(
     data.flatMap(({ figures }) => figures || []),
     {
