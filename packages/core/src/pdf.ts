@@ -101,6 +101,7 @@ async function tryImportCanvas() {
         glob.ImageData ??= skia.ImageData
         glob.Path2D ??= skia.Path2D
         glob.Canvas ??= skia.Canvas
+        glob.DOMMatrix ??= skia.DOMMatrix
         CanvasFactory.createCanvas = createCanvas
         return createCanvas
     } catch (error) {
@@ -266,11 +267,16 @@ async function PDFTryParse(
                     if (imageObj) {
                         const img = await new Promise<any>(
                             (resolve, reject) => {
-                                page.objs.get(imageObj, (r: any) => {
-                                    resolve(r)
-                                })
+                                if (page.commonObjs.has(imageObj))
+                                    resolve(page.commonObjs.get(imageObj))
+                                else if (page.objs.has(imageObj)) {
+                                    page.objs.get(imageObj, (r: any) => {
+                                        resolve(r)
+                                    })
+                                } else resolve(undefined)
                             }
                         )
+                        if (!img) continue
                         const fig = await decodeImage(
                             p.index,
                             img,
@@ -294,13 +300,12 @@ async function PDFTryParse(
         await writeFile(resFilename, JSON.stringify(res))
         return res
     } catch (error) {
+        logVerbose(error)
         {
             // try cache hit
             const cached = await readCache()
             if (cached) return cached
         }
-
-        logVerbose(error)
         trace?.error(`reading pdf`, error) // Log error if tracing is enabled
         await writeFile(
             join(folder, "error.txt"),
