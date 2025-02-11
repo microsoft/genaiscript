@@ -138,17 +138,15 @@ enum ImageKind {
 
 async function computeHashFolder(
     filename: string | WorkspaceFile,
-    options: TraceOptions &
-        ParsePDFOptions & { salt?: any; content?: Uint8Array }
+    options: TraceOptions & ParsePDFOptions & { content?: Uint8Array }
 ) {
-    const { trace, salt, content, ...rest } = options
+    const { trace, content, ...rest } = options
     const h = await hash(
         [typeof filename === "string" ? { filename } : filename, content, rest],
         {
             readWorkspaceFiles: true,
             version: true,
             length: PDF_HASH_LENGTH,
-            salt,
         }
     )
     return dotGenaiscriptPath("cache", "pdf", h)
@@ -238,7 +236,7 @@ async function PDFTryParse(
                 content: lines.join("\n"),
             }
 
-            await writeFile(join(folder, `page-${p.index}.txt`), p.content)
+            await writeFile(join(folder, `page_${p.index}.txt`), p.content)
             pages.push(p)
 
             if (createCanvas && renderAsImage) {
@@ -254,7 +252,7 @@ async function PDFTryParse(
                 })
                 await render.promise
                 const buffer = canvas.toBufferSync("png")
-                p.image = join(folder, `page-${i + 1}.png`)
+                p.image = join(folder, `page_${i + 1}.png`)
                 await writeFile(p.image, buffer)
             }
 
