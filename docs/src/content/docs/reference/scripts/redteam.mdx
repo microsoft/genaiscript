@@ -51,11 +51,13 @@ script({
 [Strategies](https://www.promptfoo.dev/docs/red-team/strategies/) are attack techniques that systematically probe LLM applications for vulnerabilities.
 While plugins generate adversarial inputs, strategies determine how these inputs are delivered to maximize attack success rates.
 
-## configuration
+## Configuration
 
 There are limitations in which provider is supported to run the Red Team process (which requires LLM access).
 
 - The grader requires OpenAI or Azure OpenAI provider.
+- By default, the [remote generation](https://www.promptfoo.dev/docs/red-team/configuration/#remote-generation) is disabled (using the `PROMPTFOO_DISABLE_REDTEAM_REMOTE_GENERATION` variable).
+  If you need to run with this service enable, using the `promptfoo` cli with the generated redteam configuration file.
 
 ## See also
 
