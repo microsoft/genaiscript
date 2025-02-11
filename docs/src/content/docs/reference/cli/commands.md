@@ -18,11 +18,11 @@ Interactive help to configure providers
 Options:
   -p, --provider <string>  Preferred LLM provider aliases (choices: "openai",
                            "azure", "azure_serverless",
-                           "azure_serverless_models", "anthropic",
-                           "anthropic_bedrock", "google", "huggingface",
-                           "mistral", "alibaba", "github", "deepseek",
-                           "transformers", "ollama", "lmstudio", "jan",
-                           "llamafile", "litellm", "whisperasr")
+                           "azure_serverless_models", "github", "ollama",
+                           "anthropic", "anthropic_bedrock", "google",
+                           "huggingface", "mistral", "alibaba", "deepseek",
+                           "transformers", "lmstudio", "jan", "llamafile",
+                           "litellm", "whisperasr")
   -h, --help               display help for command
 ```
 
@@ -34,7 +34,7 @@ Usage: genaiscript run [options] <script> [files...]
 Runs a GenAIScript against files.
 
 Options:
-  -p, --provider <string>                    Preferred LLM provider aliases (choices: "openai", "azure", "azure_serverless", "azure_serverless_models", "anthropic", "anthropic_bedrock", "google", "huggingface", "mistral", "alibaba", "github", "deepseek", "transformers", "ollama", "lmstudio", "jan", "llamafile", "litellm", "whisperasr")
+  -p, --provider <string>                    Preferred LLM provider aliases (choices: "openai", "azure", "azure_serverless", "azure_serverless_models", "github", "ollama", "anthropic", "anthropic_bedrock", "google", "huggingface", "mistral", "alibaba", "deepseek", "transformers", "lmstudio", "jan", "llamafile", "litellm", "whisperasr")
   -m, --model <string>                       'large' model alias (default)
   -sm, --small-model <string>                'small' alias model
   -vm, --vision-model <string>               'vision' alias model
@@ -112,12 +112,13 @@ Options:
   --redteam                           run red team tests
   -p, --provider <string>             Preferred LLM provider aliases (choices:
                                       "openai", "azure", "azure_serverless",
-                                      "azure_serverless_models", "anthropic",
+                                      "azure_serverless_models", "github",
+                                      "ollama", "anthropic",
                                       "anthropic_bedrock", "google",
                                       "huggingface", "mistral", "alibaba",
-                                      "github", "deepseek", "transformers",
-                                      "ollama", "lmstudio", "jan", "llamafile",
-                                      "litellm", "whisperasr")
+                                      "deepseek", "transformers", "lmstudio",
+                                      "jan", "llamafile", "litellm",
+                                      "whisperasr")
   -m, --model <string>                'large' model alias (default)
   -sm, --small-model <string>         'small' alias model
   -vm, --vision-model <string>        'vision' alias model
