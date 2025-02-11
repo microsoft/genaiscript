@@ -6,9 +6,6 @@
 import { delay, uniq, uniqBy, chunk, groupBy } from "es-toolkit"
 import { z } from "zod"
 import { pipeline } from "@huggingface/transformers"
-import { MD_REGEX } from "../../core/src/constants"
-import { MDX_REGEX } from "../../core/src/constants"
-import { frontmatterTryParse } from "../../core/src/frontmatter"
 
 // symbols exported as is
 export { delay, uniq, uniqBy, z, pipeline, chunk, groupBy }
@@ -322,10 +319,11 @@ export async function markdownifyPdf(
 export async function renderFileTree(
     pattern: string,
     options?: {
-        frontmatter?: (fm: Record<string, unknown>) => string
+        frontmatter?: (fm: Record<string, unknown>) => Awaitable<string>
+        preview?: (filename: string, stats: FileStats) => Awaitable<string>
     }
 ): Promise<string> {
-    const { frontmatter } = options || {}
+    const { frontmatter, preview } = options || {}
     const files = await workspace.findFiles(pattern)
     const tree = await buildTree(files.map(({ filename }) => filename))
     return renderTree(tree)
@@ -334,7 +332,7 @@ export async function renderFileTree(
         filename: string
         children?: TreeNode[]
         stats: FileStats
-        description?: string
+        metadata: string[]
     }
     async function buildTree(filenames: string[]): Promise<TreeNode[]> {
         const root: TreeNode[] = []
@@ -347,19 +345,21 @@ export async function renderFileTree(
                 let node = currentLevel.find((n) => n.filename === part)
                 if (!node) {
                     const stats = await workspace.stat(filename)
-                    let description: string
-                    if (
-                        frontmatter &&
-                        (MD_REGEX.test(filename) || MDX_REGEX.test(filename))
-                    ) {
+                    let metadata: string[] = []
+                    if (frontmatter && /\.mdx?$/.test(filename)) {
                         const value = parsers.frontmatter(filename) || {}
-                        if (value)
-                            description = frontmatter(value)?.replace(
-                                /\n/g,
-                                " "
-                            )
+                        if (value) {
+                            metadata.push(await frontmatter(value))
+                        }
                     }
-                    node = { filename: part, stats }
+                    if (preview) metadata.push(await preview(filename, stats))
+                    node = {
+                        filename: part,
+                        metadata: metadata
+                            .filter((f) => !!f)
+                            .map((s) => s.replace(/\n/g, " ")),
+                        stats,
+                    }
                     currentLevel.push(node)
                 }
                 if (index < parts.length - 1) {
@@ -382,7 +382,7 @@ export async function renderFileTree(
                 const children = node.children
                     ? renderTree(node.children, newPrefix)
                     : ""
-                return `${prefix}${isLast ? "└── " : "├── "}${node.filename} ${Math.ceil(node.stats.size / 1000)}kb ${node.description || ""}\n${children}`
+                return `${prefix}${isLast ? "└── " : "├── "}${node.filename} ${Math.ceil(node.stats.size / 1000)}kb ${node.metadata.join(",")}\n${children}`
             })
             .join("")
     }
