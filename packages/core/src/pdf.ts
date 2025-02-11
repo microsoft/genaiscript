@@ -7,6 +7,7 @@ import { serializeError } from "./error"
 import { logVerbose, logWarn } from "./util"
 import { PDF_SCALE } from "./constants"
 import { resolveGlobal } from "./globals"
+import { isUint8Array, isUint8ClampedArray } from "util/types"
 
 let standardFontDataUrl: string
 
@@ -128,6 +129,7 @@ export interface PDFPage {
     index: number
     content: string
     image?: Buffer
+    figures?: Buffer[]
 }
 
 /**
@@ -146,6 +148,7 @@ async function PDFTryParse(
         disableCleanup,
         trace,
         renderAsImage,
+        filter,
         scale = PDF_SCALE,
     } = options || {}
 
@@ -187,9 +190,11 @@ async function PDFTryParse(
                 index: i + 1,
                 content: lines.join("\n"),
             }
+            if (filter && !filter(p.index, p.content)) continue
+
             pages.push(p)
 
-            if (createCanvas) {
+            if (createCanvas && renderAsImage) {
                 const viewport = page.getViewport({ scale })
                 const canvas = await createCanvas(
                     viewport.width,
@@ -204,6 +209,32 @@ async function PDFTryParse(
                 const buffer = canvas.toBufferSync("png")
                 p.image = buffer
             }
+
+            const opList = await page.getOperatorList()
+            const figures: Buffer[] = []
+            for (let j = 0; j < opList.fnArray.length; j++) {
+                const fn = opList.fnArray[j]
+                const args = opList.argsArray[j]
+                if (fn === pdfjs.OPS.paintImageXObject && args) {
+                    const imageObj = args[0]
+                    if (imageObj) {
+                        const img = await new Promise<any>(
+                            (resolve, reject) => {
+                                page.objs.get(imageObj, (r: any) => {
+                                    resolve(r)
+                                })
+                            }
+                        )
+                        if (
+                            isUint8ClampedArray(img?.data) ||
+                            isUint8Array(img?.data)
+                        ) {
+                            figures.push(Buffer.from(img.data))
+                        }
+                    }
+                }
+            }
+            if (figures.length) p.figures = figures
         }
         return { ok: true, pages }
     } catch (error) {
@@ -234,7 +265,6 @@ export async function parsePdf(
     filenameOrBuffer: string | Uint8Array,
     options?: ParsePDFOptions & TraceOptions
 ): Promise<{ pages: PDFPage[]; content: string }> {
-    const { filter } = options || {}
     const filename =
         typeof filenameOrBuffer === "string" ? filenameOrBuffer : undefined
     const bytes =
@@ -243,10 +273,6 @@ export async function parsePdf(
             : (filenameOrBuffer as Uint8Array)
     let { pages, ok } = await PDFTryParse(filename, bytes, options)
     if (!ok) return { pages: [], content: "" }
-
-    // Apply filter if provided
-    if (filter)
-        pages = pages.filter((page, index) => filter(index, page.content))
     const content = PDFPagesToString(pages)
     return { pages, content }
 }

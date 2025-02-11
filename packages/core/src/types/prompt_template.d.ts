@@ -1702,9 +1702,24 @@ interface XMLParseOptions {
 }
 
 interface ParsePDFOptions {
+    /**
+     * Keep intermediate files around
+     */
     disableCleanup?: boolean
+    /**
+     * Render each page as an image
+     */
     renderAsImage?: boolean
+    /**
+     * Zoom scaling with rendering pages and figures
+     */
     scale?: number
+    /**
+     * Page filtering
+     * @param pageIndex 
+     * @param text 
+     * @returns 
+     */
     filter?: (pageIndex: number, text?: string) => boolean
 }
 
