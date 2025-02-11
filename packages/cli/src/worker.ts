@@ -1,6 +1,7 @@
 import { workerData, parentPort } from "node:worker_threads"
 import { runScriptInternal } from "./run"
 import { NodeHost } from "./nodehost"
+import { delay } from "es-toolkit"
 
 export async function worker() {
     const { type, ...data } = workerData as {
@@ -20,6 +21,7 @@ export async function worker() {
                 options: object
             }
             const { result } = await runScriptInternal(scriptId, files, options)
+            await delay(0) // flush streams
             parentPort.postMessage(result)
             break
         }

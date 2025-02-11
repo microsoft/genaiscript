@@ -1,5 +1,8 @@
 import { select, input, confirm, password } from "@inquirer/prompts"
-import { MODEL_PROVIDERS } from "../../core/src/constants"
+import {
+    MODEL_PROVIDER_GITHUB_COPILOT_CHAT,
+    MODEL_PROVIDERS,
+} from "../../core/src/constants"
 import { resolveLanguageModelConfigurations } from "../../core/src/config"
 import { parse } from "dotenv"
 import { readFile } from "fs/promises"
@@ -7,6 +10,7 @@ import { writeFile } from "fs/promises"
 import { runtimeHost } from "../../core/src/host"
 import { deleteUndefinedValues } from "../../core/src/cleaners"
 import { logInfo, logVerbose, logWarn } from "../../core/src/util"
+import { run } from "./api"
 
 export async function configure(options: { provider?: string }) {
     while (true) {
@@ -14,10 +18,12 @@ export async function configure(options: { provider?: string }) {
             ? MODEL_PROVIDERS.find(({ id }) => options.provider === id)
             : await select({
                   message: "Select a LLM provider to configure",
-                  choices: MODEL_PROVIDERS.map((provider) => ({
-                      name: provider.id,
+                  choices: MODEL_PROVIDERS.filter(
+                      (p) => p.id !== MODEL_PROVIDER_GITHUB_COPILOT_CHAT
+                  ).map((provider) => ({
+                      name: provider.detail,
                       value: provider,
-                      description: provider.detail,
+                      description: `'${provider.id}': https://microsoft.github.io/genaiscript/getting-started/configuration#${provider.id}`,
                   })),
               })
         if (!provider) break
@@ -52,7 +58,7 @@ export async function configure(options: { provider?: string }) {
                     )
                 )
                 if (error) logWarn(`error: ${error}`)
-                else logInfo(`configured!`)
+                else logInfo(`configuration found!`)
             } else {
                 logWarn(`no configuration found`)
             }
@@ -69,6 +75,26 @@ export async function configure(options: { provider?: string }) {
             }
 
             if (!conn?.error) {
+                const test = await confirm({
+                    message: `do you want to test the configuration?`,
+                })
+                if (test) {
+                    const res = await run("configuration-tester", [], {
+                        jsSource: `script({
+    unlisted: true,
+    system: [],
+    systemSafety: false,
+})
+$\`Generate a single random emoji.\`
+`,
+                        provider: provider.id,
+                        runTrace: false,
+                    })
+                    process.stderr.write("\n")
+                    if (res.error) logWarn(`chat error: ${res.error}`)
+                    else logInfo(`chat successful!`)
+                }
+
                 const edit = await confirm({
                     message: `do you want to edit the configuration?`,
                 })

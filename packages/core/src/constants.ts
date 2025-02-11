@@ -205,6 +205,7 @@ export const MODEL_PROVIDERS = Object.freeze<
     {
         id: string
         detail: string
+        url?: string
         seed?: boolean
         logitBias?: boolean
         tools?: boolean

@@ -4,6 +4,7 @@
         {
             "id": "openai",
             "detail": "OpenAI (or compatible)",
+            "url": "https://platform.openai.com/docs/models",
             "bearerToken": true,
             "transcribe": true,
             "speech": true,
@@ -33,6 +34,7 @@
         {
             "id": "azure",
             "detail": "Azure OpenAI deployment",
+            "url": "https://azure.microsoft.com/en-us/products/ai-services/openai-service",
             "listModels": false,
             "bearerToken": false,
             "prediction": false,
@@ -50,13 +52,13 @@
                 "speech": "tts-1"
             },
             "env": {
-                "AZURE_OPENAI_API_KEY": {
-                    "description": "Azure OpenAI API key",
-                    "secret": true
-                },
                 "AZURE_OPENAI_API_ENDPOINT": {
                     "description": "Azure OpenAI endpoint",
                     "required": true
+                },
+                "AZURE_OPENAI_API_KEY": {
+                    "description": "Azure OpenAI API key",
+                    "secret": true
                 },
                 "AZURE_OPENAI_API_CREDENTIALS": {
                     "description": "Azure OpenAI API credentials type"
@@ -66,6 +68,7 @@
         {
             "id": "azure_serverless",
             "detail": "Azure AI OpenAI (serverless deployments)",
+            "url": "https://ai.azure.com/",
             "listModels": false,
             "bearerToken": false,
             "prediction": false,
@@ -98,6 +101,7 @@
         {
             "id": "azure_serverless_models",
             "detail": "Azure AI Models (serverless deployments, not OpenAI)",
+            "url": "https://ai.azure.com/",
             "listModels": false,
             "prediction": false,
             "bearerToken": true,
@@ -119,6 +123,7 @@
         {
             "id": "anthropic",
             "detail": "Anthropic models",
+            "url": "https://docs.anthropic.com/en/docs/about-claude/models",
             "logprobs": false,
             "topLogprobs": false,
             "prediction": false,
@@ -145,6 +150,7 @@
         {
             "id": "anthropic_bedrock",
             "detail": "Anthropic on AWS Bedrock models",
+            "url": "https://support.anthropic.com/en/articles/7996918-what-is-amazon-bedrock",
             "logprobs": false,
             "topLogprobs": false,
             "prediction": false,
@@ -157,6 +163,7 @@
         {
             "id": "google",
             "detail": "Google AI",
+            "url": "https://gemini.google.com/app",
             "seed": false,
             "tools": false,
             "logprobs": false,
@@ -189,6 +196,7 @@
         {
             "id": "huggingface",
             "detail": "Hugging Face models",
+            "url": "https://huggingface.co/docs/api-inference/index",
             "prediction": false,
             "listModels": false,
             "openaiCompatibility": "https://huggingface.github.io/text-generation-inference/",
@@ -213,6 +221,7 @@
         {
             "id": "mistral",
             "detail": "Mistral AI",
+            "url": "https://mistral.ai/",
             "prediction": false,
             "bearerToken": true,
             "aliases": {
@@ -235,6 +244,7 @@
         {
             "id": "alibaba",
             "detail": "Alibaba models",
+            "url": "https://www.alibabacloud.com/",
             "openaiCompatibility": "https://www.alibabacloud.com/help/en/model-studio/developer-reference/compatibility-of-openai-with-dashscope",
             "tools": false,
             "prediction": false,
@@ -261,6 +271,7 @@
         {
             "id": "github",
             "detail": "GitHub Models",
+            "url": "https://github.com/marketplace/models-github",
             "logprobs": false,
             "topLogprobs": false,
             "limitations": "Smaller context windows, and rate limiting",
