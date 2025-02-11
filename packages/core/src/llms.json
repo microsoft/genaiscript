@@ -121,6 +121,51 @@
             }
         },
         {
+            "id": "github",
+            "detail": "GitHub Models",
+            "url": "https://github.com/marketplace/models-github",
+            "logprobs": false,
+            "topLogprobs": false,
+            "limitations": "Smaller context windows, and rate limiting",
+            "prediction": false,
+            "listModels": false,
+            "bearerToken": true,
+            "aliases": {
+                "large": "gpt-4o",
+                "small": "gpt-4o-mini",
+                "vision": "gpt-4o",
+                "embeddings": "text-embedding-3-small",
+                "reasoning": "o1-preview",
+                "reasoning_small": "o1-mini"
+            },
+            "env": {
+                "GITHUB_TOKEN": {
+                    "description": "GitHub token",
+                    "required": true,
+                    "secret": true
+                }
+            }
+        },
+        {
+            "id": "ollama",
+            "detail": "Ollama local model",
+            "url": "https://ollama.ai/",
+            "logitBias": false,
+            "openaiCompatibility": "https://github.com/ollama/ollama/blob/main/docs/openai.md",
+            "prediction": false,
+            "bearerToken": true,
+            "tokenless": true,
+            "aliases": {
+                "embeddings": "nomic-embed-text"
+            },
+            "env": {
+                "OLLAMA_HOST": {
+                    "description": "Ollama host",
+                    "format": "url"
+                }
+            }
+        },
+        {
             "id": "anthropic",
             "detail": "Anthropic models",
             "url": "https://docs.anthropic.com/en/docs/about-claude/models",
@@ -269,32 +314,6 @@
             }
         },
         {
-            "id": "github",
-            "detail": "GitHub Models",
-            "url": "https://github.com/marketplace/models-github",
-            "logprobs": false,
-            "topLogprobs": false,
-            "limitations": "Smaller context windows, and rate limiting",
-            "prediction": false,
-            "listModels": false,
-            "bearerToken": true,
-            "aliases": {
-                "large": "gpt-4o",
-                "small": "gpt-4o-mini",
-                "vision": "gpt-4o",
-                "embeddings": "text-embedding-3-small",
-                "reasoning": "o1-preview",
-                "reasoning_small": "o1-mini"
-            },
-            "env": {
-                "GITHUB_TOKEN": {
-                    "description": "GitHub token",
-                    "required": true,
-                    "secret": true
-                }
-            }
-        },
-        {
             "id": "deepseek",
             "detail": "DeepSeek Models",
             "bearerToken": true,
@@ -318,31 +337,16 @@
         {
             "id": "transformers",
             "detail": "Hugging Face Transformers",
+            "url": "https://huggingface.co/docs/transformers.js/index",
             "prediction": false,
             "tokenless": true,
             "env": {}
         },
-        {
-            "id": "ollama",
-            "detail": "Ollama local model",
-            "logitBias": false,
-            "openaiCompatibility": "https://github.com/ollama/ollama/blob/main/docs/openai.md",
-            "prediction": false,
-            "bearerToken": true,
-            "tokenless": true,
-            "aliases": {
-                "embeddings": "nomic-embed-text"
-            },
-            "env": {
-                "OLLAMA_HOST": {
-                    "description": "Ollama host",
-                    "format": "url"
-                }
-            }
-        },
+
         {
             "id": "lmstudio",
             "detail": "LM Studio local server",
+            "url": "https://lmstudio.ai/",
             "prediction": false,
             "bearerToken": true,
             "tokenless": true,
@@ -359,6 +363,7 @@
         {
             "id": "jan",
             "detail": "Jan local server",
+            "url": "https://jan.ai/",
             "prediction": false,
             "listModels": true,
             "tokenless": true,
