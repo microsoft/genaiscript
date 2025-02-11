@@ -6,6 +6,9 @@
 import { delay, uniq, uniqBy, chunk, groupBy } from "es-toolkit"
 import { z } from "zod"
 import { pipeline } from "@huggingface/transformers"
+import { MD_REGEX } from "../../core/src/constants"
+import { MDX_REGEX } from "../../core/src/constants"
+import { frontmatterTryParse } from "../../core/src/frontmatter"
 
 // symbols exported as is
 export { delay, uniq, uniqBy, z, pipeline, chunk, groupBy }
@@ -316,7 +319,13 @@ export async function markdownifyPdf(
  * @param pattern - The glob pattern or directory path to list files from.
  * @returns A tree structure representing the files.
  */
-export async function renderFileTree(pattern: string): Promise<string> {
+export async function renderFileTree(
+    pattern: string,
+    options?: {
+        frontmatter?: (fm: Record<string, unknown>) => string
+    }
+): Promise<string> {
+    const { frontmatter } = options || {}
     const files = await workspace.findFiles(pattern)
     const tree = await buildTree(files.map(({ filename }) => filename))
     return renderTree(tree)
@@ -325,6 +334,7 @@ export async function renderFileTree(pattern: string): Promise<string> {
         filename: string
         children?: TreeNode[]
         stats: FileStats
+        description?: string
     }
     async function buildTree(filenames: string[]): Promise<TreeNode[]> {
         const root: TreeNode[] = []
@@ -337,6 +347,18 @@ export async function renderFileTree(pattern: string): Promise<string> {
                 let node = currentLevel.find((n) => n.filename === part)
                 if (!node) {
                     const stats = await workspace.stat(filename)
+                    let description: string
+                    if (
+                        frontmatter &&
+                        (MD_REGEX.test(filename) || MDX_REGEX.test(filename))
+                    ) {
+                        const value = parsers.frontmatter(filename) || {}
+                        if (value)
+                            description = frontmatter(value)?.replace(
+                                /\n/g,
+                                " "
+                            )
+                    }
                     node = { filename: part, stats }
                     currentLevel.push(node)
                 }
@@ -360,7 +382,7 @@ export async function renderFileTree(pattern: string): Promise<string> {
                 const children = node.children
                     ? renderTree(node.children, newPrefix)
                     : ""
-                return `${prefix}${isLast ? "└── " : "├── "}${node.filename} ${Math.ceil(node.stats.size / 1000)}kb\n${children}`
+                return `${prefix}${isLast ? "└── " : "├── "}${node.filename} ${Math.ceil(node.stats.size / 1000)}kb ${node.description || ""}\n${children}`
             })
             .join("")
     }
