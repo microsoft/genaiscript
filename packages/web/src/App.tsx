@@ -654,6 +654,7 @@ function JSONSchemaSimpleTypeFormField(props: {
                     <vscode-single-select
                         value={vs}
                         required={required}
+                        combobox
                         onvsc-change={(e: Event) => {
                             const target = e.target as HTMLSelectElement
                             onChange(target.value)
@@ -1346,7 +1347,9 @@ function ScriptDescription() {
     return (
         <vscode-form-helper>
             {title ? <b>{title}</b> : null}
-            {description ? <Markdown className="no-margins">{description}</Markdown> : null}
+            {description ? (
+                <Markdown className="no-margins">{description}</Markdown>
+            ) : null}
         </vscode-form-helper>
     )
 }
@@ -1479,6 +1482,10 @@ function ModelConnectionOptionsForm() {
     const { options, setOptions } = useApi()
     const env = useEnv()
     const { providers } = env || {}
+    const models =
+        providers?.flatMap(
+            (p) => p.models?.map((m) => `${p.provider}:${m.id}`) || []
+        ) || []
 
     const schema: JSONSchemaObject = {
         type: "object",
@@ -1488,29 +1495,24 @@ function ModelConnectionOptionsForm() {
                 description: `Enable cache for LLM requests`,
                 default: false,
             },
-            provider: {
-                type: "string",
-                description: "LLM provider",
-                enum: providers
-                    .filter((p) => !p.error)
-                    .sort((l, r) => l.provider.localeCompare(r.provider))
-                    .map((p) => p.provider),
-                default: "openai",
-            },
             model: {
                 type: "string",
-                description: "large model id",
+                description:
+                    "'large' model identifier; this is the default model when no model is configured in the script.",
                 default: "large",
+                enum: models,
             },
             smallModel: {
                 type: "string",
-                description: "small model id",
+                description: "'small' model identifier",
                 default: "small",
+                enum: models,
             },
             visionModel: {
                 type: "string",
-                description: "vision model id",
+                description: "'vision' model identifier",
                 default: "vision",
+                enum: models,
             },
             temperature: {
                 type: "number",
