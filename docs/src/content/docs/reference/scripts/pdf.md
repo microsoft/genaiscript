@@ -53,6 +53,8 @@ an OCR operation.
 const { images } = await parsers.PDF(env.files[0], { renderAsImage: true })
 ```
 
+You can control the quality of the rendered image using the `scale` parameter (default is 3).
+
 ## PDFs are messy
 
 The PDF format was never really meant to allow for clean text extraction. The `parsers.PDF` function uses the `pdf-parse` package to extract text from PDFs. This package is not perfect and may fail to extract text from some PDFs. If you have access to the original document, it is recommended to use a more text-friendly format such as markdown or plain text.
