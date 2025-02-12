@@ -160,27 +160,33 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
         }
     } else if (cfg.type === "azure") {
         delete postReq.model
+        const version = cfg.version || AZURE_OPENAI_API_VERSION
+        trace.itemValue(`version`, version)
         url =
             trimTrailingSlash(cfg.base) +
             "/" +
             model.replace(/\./g, "") +
-            `/chat/completions?api-version=${AZURE_OPENAI_API_VERSION}`
+            `/chat/completions?api-version=${version}`
     } else if (cfg.type === "azure_serverless_models") {
+        const version = cfg.version || AZURE_AI_INFERENCE_VERSION
+        trace.itemValue(`version`, version)
         url =
             trimTrailingSlash(cfg.base).replace(
                 /^https?:\/\/(?<deployment>[^\.]+)\.(?<region>[^\.]+)\.models\.ai\.azure\.com/i,
                 (m, deployment, region) =>
                     `https://${postReq.model}.${region}.models.ai.azure.com`
-            ) + `/chat/completions?api-version=${AZURE_AI_INFERENCE_VERSION}`
+            ) + `/chat/completions?api-version=${version}`
         ;(headers as any)["extra-parameters"] = "pass-through"
         delete postReq.model
         delete postReq.stream_options
     } else if (cfg.type === "azure_serverless") {
+        const version = cfg.version || AZURE_AI_INFERENCE_VERSION
+        trace.itemValue(`version`, version)
         url =
             trimTrailingSlash(cfg.base) +
             "/" +
             model.replace(/\./g, "") +
-            `/chat/completions?api-version=${AZURE_AI_INFERENCE_VERSION}`
+            `/chat/completions?api-version=${version}`
         // https://learn.microsoft.com/en-us/azure/machine-learning/reference-model-inference-api?view=azureml-api-2&tabs=javascript#extensibility
         ;(headers as any)["extra-parameters"] = "pass-through"
         delete postReq.model

@@ -523,6 +523,20 @@ You can override this value using the `AZURE_OPENAI_TOKEN_SCOPES` environment va
 AZURE_OPENAI_TOKEN_SCOPES=...
 ```
 
+### API Version
+
+GenAIScript maintains a default API version to access Azure OpenAI. You can override this value using the `AZURE_OPENAI_API_VERSION` environment variable.
+
+```txt title=".env"
+AZURE_OPENAI_API_VERSION=2025-01-01-preview
+```
+
+You can also override the API version on a per-deployment basis by settings the `AZURE_OPENAI_API_VERSION_<deployment-id>` environment variable (where deployment-id is capitalized).
+
+```txt title=".env"
+AZURE_OPENAI_API_VERSION_GPT-4O=2025-01-01-preview
+```
+
 ### API Key
 
 <Steps>
