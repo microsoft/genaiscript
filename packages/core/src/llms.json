@@ -51,6 +51,12 @@
                     "description": "Azure OpenAI API key. **You do NOT need this if you are using Microsoft Entra ID.",
                     "secret": true
                 },
+                "AZURE_OPENAI_SUBSCRIPTION_ID": {
+                    "description": "Azure OpenAI subscription ID to list available deployments (Microsoft Entra only)."
+                },
+                "AZURE_OPENAI_API_VERSION": {
+                    "description": "Azure OpenAI API version."
+                },
                 "AZURE_OPENAI_API_CREDENTIALS": {
                     "description": "Azure OpenAI API credentials type. Leave as 'default' unless you have a special Azure setup.",
                     "enum": [

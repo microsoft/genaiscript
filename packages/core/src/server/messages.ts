@@ -42,6 +42,11 @@ export interface LanguageModelInfo {
     id: string
     details?: string
     url?: string
+    version?: string
+    /**
+     * Base model name
+     */
+    family?: string
 }
 
 export type ResolvedLanguageModelConfiguration =

@@ -12,6 +12,7 @@ import {
     MODEL_PROVIDER_TRANSFORMERS,
     MODEL_PROVIDERS,
     MODEL_WHISPERASR_PROVIDER,
+    MODEL_PROVIDER_AZURE_OPENAI,
 } from "./constants"
 import { runtimeHost } from "./host"
 import { OllamaModel } from "./ollama"
@@ -20,6 +21,7 @@ import { TransformersModel } from "./transformers"
 import { GitHubModel } from "./github"
 import { LMStudioModel } from "./lmstudio"
 import { WhiserAsrModel } from "./whisperasr"
+import { AzureOpenAIModel } from "./azureopenai"
 
 export function resolveLanguageModel(provider: string): LanguageModel {
     if (provider === MODEL_PROVIDER_GITHUB_COPILOT_CHAT) {
@@ -27,6 +29,7 @@ export function resolveLanguageModel(provider: string): LanguageModel {
         if (!m) throw new Error("Github Copilot Chat Models not available")
         return m
     }
+    if (provider === MODEL_PROVIDER_AZURE_OPENAI) return AzureOpenAIModel
     if (provider === MODEL_PROVIDER_GITHUB) return GitHubModel
     if (provider === MODEL_PROVIDER_OLLAMA) return OllamaModel
     if (provider === MODEL_PROVIDER_AICI) return AICIModel

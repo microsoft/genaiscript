@@ -25,7 +25,13 @@ import {
 } from "./parse" // Parsing functions
 import { compileScript, createScript, fixScripts, listScripts } from "./scripts" // Script utilities
 import { codeQuery } from "./codequery" // Code parsing and query execution
-import { envInfo, modelAliasesInfo, scriptModelInfo, systemInfo } from "./info" // Information utilities
+import {
+    envInfo,
+    modelAliasesInfo,
+    modelList,
+    scriptModelInfo,
+    systemInfo,
+} from "./info" // Information utilities
 import { scriptTestList, scriptTestsView, scriptsTest } from "./test" // Test functions
 import { cacheClear } from "./cache" // Cache management
 import "node:console" // Importing console for side effects
@@ -528,7 +534,12 @@ export async function cli() {
         .option("-e, --error", "show errors")
         .option("-m, --models", "show models if possible")
         .action(envInfo) // Action to show environment information
-    const models = info.command("models")
+    const models = program.command("models")
+    models
+        .command("list", { isDefault: true })
+        .description("List all available models")
+        .arguments("[provider]")
+        .action(modelList)
     models
         .command("alias")
         .description("Show model alias mapping")

@@ -119,7 +119,6 @@ class AzureTokenResolverImpl implements AzureTokenResolver {
         if (this._token || this._error)
             return { token: this._token, error: this._error }
         if (!this._resolver) {
-            logVerbose(`${this.name}: creating token`)
             const scope = await runtimeHost.readSecret(this.envName)
             const scopes = scope ? scope.split(",") : this.scopes
             this._resolver = createAzureToken(

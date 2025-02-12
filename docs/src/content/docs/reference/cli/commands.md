@@ -634,7 +634,6 @@ Commands:
   help                      Show help for all commands
   system                    Show system information
   env [options] [provider]  Show .env information
-  models
 ```
 
 ### `info help`
@@ -673,23 +672,35 @@ Options:
   -h, --help    display help for command
 ```
 
-### `info models`
+## `models`
 
 ```
-Usage: genaiscript info models [options] [command]
+Usage: genaiscript models [options] [command]
 
 Options:
-  -h, --help      display help for command
+  -h, --help       display help for command
 
 Commands:
-  alias           Show model alias mapping
-  help [command]  display help for command
+  list [provider]  List all available models
+  alias            Show model alias mapping
+  help [command]   display help for command
 ```
 
-#### `models alias`
+### `models list`
 
 ```
-Usage: genaiscript info models alias [options]
+Usage: genaiscript models list [options] [provider]
+
+List all available models
+
+Options:
+  -h, --help  display help for command
+```
+
+### `models alias`
+
+```
+Usage: genaiscript models alias [options]
 
 Show model alias mapping
 

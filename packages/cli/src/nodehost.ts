@@ -24,6 +24,7 @@ import {
     AZURE_AI_INFERENCE_TOKEN_SCOPES,
     MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI,
     DOT_ENV_FILENAME,
+    AZURE_MANAGEMENT_TOKEN_SCOPES,
 } from "../../core/src/constants"
 import { tryReadText } from "../../core/src/fs"
 import {
@@ -53,7 +54,7 @@ import {
     Project,
     ResponseStatus,
 } from "../../core/src/server/messages"
-import { createAzureTokenResolver } from "./azuretoken"
+import { createAzureTokenResolver } from "../../core/src/azuretoken"
 import {
     createAzureContentSafetyClient,
     isAzureContentSafetyClientConfigured,
@@ -98,13 +99,14 @@ export class NodeHost extends EventTarget implements RuntimeHost {
     readonly userInputQueue = new PLimitPromiseQueue(1)
     readonly azureToken: AzureTokenResolver
     readonly azureServerlessToken: AzureTokenResolver
+    readonly azureManagementToken: AzureTokenResolver
     readonly microsoftGraphToken: AzureTokenResolver
 
     constructor(dotEnvPath: string) {
         super()
         this.dotEnvPath = dotEnvPath
         this.azureToken = createAzureTokenResolver(
-            "Azure",
+            "Azure OpenAI",
             "AZURE_OPENAI_TOKEN_SCOPES",
             AZURE_COGNITIVE_SERVICES_TOKEN_SCOPES
         )
@@ -112,6 +114,11 @@ export class NodeHost extends EventTarget implements RuntimeHost {
             "Azure AI Serverless",
             "AZURE_SERVERLESS_OPENAI_TOKEN_SCOPES",
             AZURE_AI_INFERENCE_TOKEN_SCOPES
+        )
+        this.azureManagementToken = createAzureTokenResolver(
+            "Azure Management",
+            "AZURE_MANAGEMENT_TOKEN_SCOPES",
+            AZURE_MANAGEMENT_TOKEN_SCOPES
         )
         this.microsoftGraphToken = createAzureTokenResolver(
             "Microsoft Graph",

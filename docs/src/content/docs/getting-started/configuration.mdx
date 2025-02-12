@@ -450,6 +450,52 @@ script({
 
 </Steps>
 
+### Listing models
+
+In order to allow GenAIScript to list deployments in your Azure OpenAI service,
+you need to provide the Subscription ID **and you need to use Microsoft Entra!**.
+
+<Steps>
+
+<ol>
+
+<li>
+
+Open the Azure OpenAI resource in the [Azure Portal](https://portal.azure.com), open the **Overview** tab and copy the **Subscription ID**.
+
+</li>
+
+<li>
+
+Update the `.env` file with the subscription id.
+
+```txt title=".env"
+AZURE_OPENAI_SUBSCRIPTION_ID="..."
+```
+
+</li>
+
+<li>
+
+Test your configuration by running
+
+```sh
+npx genaiscript models azure
+```
+
+:::note
+
+This feature will probably not work with `AZURE_OPENAI_API_KEY`
+as the token does not have the proper scope to query the list of deployments.
+
+:::
+
+</li>
+
+</ol>
+
+</Steps>
+
 ### Custom credentials
 
 In some situations, the default credentials chain lookup may not work.

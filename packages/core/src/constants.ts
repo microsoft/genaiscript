@@ -15,12 +15,16 @@ export const MAX_TOOL_CALLS = 10000
 // https://github.com/Azure/azure-rest-api-specs/blob/main/specification/cognitiveservices/data-plane/AzureOpenAI/inference/stable/2024-02-01/inference.yaml
 // https://learn.microsoft.com/en-us/azure/ai-services/openai/api-version-deprecation
 export const AZURE_OPENAI_API_VERSION = "2024-06-01"
+export const AZURE_MANAGEMENT_API_VERSION = "2024-10-01"
 export const AZURE_COGNITIVE_SERVICES_TOKEN_SCOPES = Object.freeze([
     "https://cognitiveservices.azure.com/.default",
 ])
 export const AZURE_AI_INFERENCE_VERSION = "2024-08-01-preview"
 export const AZURE_AI_INFERENCE_TOKEN_SCOPES = Object.freeze([
     "https://ml.azure.com/.default",
+])
+export const AZURE_MANAGEMENT_TOKEN_SCOPES = Object.freeze([
+    "https://management.azure.com/.default",
 ])
 export const AZURE_TOKEN_EXPIRATION = 59 * 60_000 // 59 minutes
 

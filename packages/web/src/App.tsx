@@ -772,6 +772,14 @@ function JSONSchemaObjectForm(props: {
     )
 }
 
+function AIDisclaimer() {
+    return (
+        <span className="ai-disclaimer">
+            🤖 AI-generated, check for mistakes
+        </span>
+    )
+}
+
 function ValueBadge(props: {
     value: any
     precision?: number
@@ -1663,22 +1671,25 @@ function RunForm() {
 function ResultsTabs() {
     const [selected, setSelected] = useState(0)
     return (
-        <vscode-tabs
-            onvsc-tabs-select={(e: VscTabsSelectEvent) =>
-                setSelected(e.detail.selectedIndex)
-            }
-            panel
-        >
-            <OutputTraceTabPanel selected={selected === 0} />
-            <TraceTabPanel selected={selected === 1} />
-            <MessagesTabPanel />
-            <ProblemsTabPanel />
-            <FileEditsTabPanel />
-            <JSONTabPanel />
-            <StatsTabPanel />
-            <ErrorTabPanel />
-            {diagnostics ? <RawTabPanel /> : undefined}
-        </vscode-tabs>
+        <>
+            <AIDisclaimer />
+            <vscode-tabs
+                onvsc-tabs-select={(e: VscTabsSelectEvent) =>
+                    setSelected(e.detail.selectedIndex)
+                }
+                panel
+            >
+                <OutputTraceTabPanel selected={selected === 0} />
+                <TraceTabPanel selected={selected === 1} />
+                <MessagesTabPanel />
+                <ProblemsTabPanel />
+                <FileEditsTabPanel />
+                <JSONTabPanel />
+                <StatsTabPanel />
+                <ErrorTabPanel />
+                {diagnostics ? <RawTabPanel /> : undefined}
+            </vscode-tabs>
+        </>
     )
 }
 
