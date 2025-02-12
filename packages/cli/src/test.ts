@@ -316,7 +316,6 @@ npx --yes genaiscript@${CORE_VERSION} test view
         await appendFile(
             outSummary,
             [
-                headersToMarkdownTableHead(headers),
                 objectToMarkdownTableRow(
                     {
                         status: results.filter((r) => r.ok).length,

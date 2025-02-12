@@ -16,8 +16,7 @@ const listModels: ListModelsFunction = async (cfg, options) => {
         let resourceGroupName = process.env.AZURE_OPENAI_RESOURCE_GROUP
         const accountName = /^https:\/\/([^\.]+)\./.exec(base)[1]
 
-        if (!subscriptionId || !accountName)
-            throw new Error("Missing subscriptionId, or accountName")
+        if (!subscriptionId || !accountName) return { ok: true, models: [] }
         const token = await runtimeHost.azureManagementToken.token(
             "default",
             options
