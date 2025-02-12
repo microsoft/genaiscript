@@ -15,7 +15,8 @@ describe(`chunkMarkdown`, async () => {
     test(`handles empty markdown string`, async () => {
         const markdown = ``
         const result = await chunkMarkdown(markdown, estimateTokens)
-        assert.strictEqual(result.join("\n"), markdown)
+        assert.strictEqual(result.map((r) => r.content).join("\n"), markdown)
+
         assert.deepStrictEqual(result, [])
     })
 
@@ -23,8 +24,12 @@ describe(`chunkMarkdown`, async () => {
         const markdown = `# Heading 1
 Content under heading 1`
         const result = await chunkMarkdown(markdown, estimateTokens, 10)
-        assert.strictEqual(result.join("\n"), markdown)
-        assert.deepStrictEqual(result, [`# Heading 1\nContent under heading 1`])
+        assert.strictEqual(result.map((r) => r.content).join("\n"), markdown)
+
+        assert.deepStrictEqual(
+            result.map((r) => r.content),
+            [`# Heading 1\nContent under heading 1`]
+        )
     })
 
     test(`chunks markdown with multiple headings`, async () => {
@@ -35,15 +40,19 @@ Content under heading 1.2
 ## Heading 2
 Content under heading 2`
         const result = await chunkMarkdown(markdown, estimateTokens, 10)
-        assert.strictEqual(result.join("\n"), markdown)
-        assert.deepStrictEqual(result, [
-            `# Heading 1
+        assert.strictEqual(result.map((r) => r.content).join("\n"), markdown)
+
+        assert.deepStrictEqual(
+            result.map((r) => r.content),
+            [
+                `# Heading 1
 Content under heading 1
 Content under heading 1.1
 Content under heading 1.2`,
-            `## Heading 2
+                `## Heading 2
 Content under heading 2`,
-        ])
+            ]
+        )
     })
 
     test(`chunks markdown with nested headings`, async () => {
@@ -54,15 +63,19 @@ Content under heading 2 abracadabra
 ### Heading 3
 Content under heading 3 abracadabra`
         const result = await chunkMarkdown(markdown, estimateTokens, 5)
-        assert.strictEqual(result.join("\n"), markdown)
-        assert.deepStrictEqual(result, [
-            `# Heading 1
+        assert.strictEqual(result.map((r) => r.content).join("\n"), markdown)
+
+        assert.deepStrictEqual(
+            result.map((r) => r.content),
+            [
+                `# Heading 1
 Content under heading 1 abracadabra`,
-            `## Heading 2
+                `## Heading 2
 Content under heading 2 abracadabra`,
-            `### Heading 3
+                `### Heading 3
 Content under heading 3 abracadabra`,
-        ])
+            ]
+        )
     })
 
     test(`chunks markdown with large content`, async () => {
@@ -72,7 +85,8 @@ Content under heading 3 abracadabra`,
             `\n## Heading 2\n` +
             `Content `.repeat(100)
         const result = await chunkMarkdown(markdown, estimateTokens, 50)
-        assert.strictEqual(result.join("\n"), markdown)
+        assert.strictEqual(result.map((r) => r.content).join("\n"), markdown)
+
         assert(result.length > 1)
     })
 
@@ -84,12 +98,16 @@ Content under heading 2
 ### Heading 3
 Content under heading 3`
         const result = await chunkMarkdown(markdown, estimateTokens, 5)
-        assert.strictEqual(result.join("\n"), markdown)
-        assert.deepStrictEqual(result, [
-            `# Heading 1\nContent under heading 1`,
-            `## Heading 2\nContent under heading 2`,
-            `### Heading 3\nContent under heading 3`,
-        ])
+        assert.strictEqual(result.map((r) => r.content).join("\n"), markdown)
+
+        assert.deepStrictEqual(
+            result.map((r) => r.content),
+            [
+                `# Heading 1\nContent under heading 1`,
+                `## Heading 2\nContent under heading 2`,
+                `### Heading 3\nContent under heading 3`,
+            ]
+        )
     })
 
     test(`chunks markdown with large sections`, async () => {
@@ -132,7 +150,10 @@ There are many variations of passages of Lorem Ipsum available, but the majority
                 maxTokens
             )
             console.log(`${maxTokens} => ${result.length}`)
-            assert.strictEqual(result.join("\n"), markdown)
+            assert.strictEqual(
+                result.map((r) => r.content).join("\n"),
+                markdown
+            )
         }
     })
 
@@ -149,7 +170,10 @@ There are many variations of passages of Lorem Ipsum available, but the majority
                     maxTokens
                 )
                 // console.log(`${maxTokens} => ${result.length}`)
-                assert.strictEqual(result.join("\n"), markdown)
+                assert.strictEqual(
+                    result.map((r) => r.content).join("\n"),
+                    markdown
+                )
             }
         })
     }
@@ -164,7 +188,10 @@ There are many variations of passages of Lorem Ipsum available, but the majority
         assert(markdown)
         for (let i = 0; i < 12; ++i) {
             const result = await chunkMarkdown(markdown, estimateTokens, 1 << i)
-            assert.strictEqual(result.join("\n"), markdown)
+            assert.strictEqual(
+                result.map((r) => r.content).join("\n"),
+                markdown
+            )
         }
     })
 })

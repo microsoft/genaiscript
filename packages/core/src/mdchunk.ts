@@ -1,3 +1,5 @@
+import { filenameOrFileToFilename } from "./unwrappers"
+
 /**
  * Chunks markdown according to headings, and maintains subtrees together.
  * It will be deafeated by code section that contain markdown themselves.
@@ -7,14 +9,16 @@
  * @returns
  */
 export async function chunkMarkdown(
-    markdown: string,
+    markdown: string | WorkspaceFile,
     estimateTokens: (text: string) => number,
     maxTokens = 4096
-): Promise<string[]> {
+): Promise<TextChunk[]> {
     if (!markdown) return []
 
     type Section = { heading: string; lines: string[]; level: number }
 
+    const filename = filenameOrFileToFilename(markdown)
+    if (typeof markdown !== "string") markdown = markdown.content
     const lines = markdown.split(/\r?\n/g)
 
     const sections: Section[] = []
@@ -44,8 +48,6 @@ export async function chunkMarkdown(
         const sectionTokens = sectionTokenCount(sections[i], estimateTokens)
 
         if (sectionTokens > maxTokens) {
-            
-
             if (tempChunk.length) {
                 chunks.push(buildChunk(tempChunk))
                 tempChunk = []
@@ -88,7 +90,18 @@ export async function chunkMarkdown(
         }
     }
     if (tempChunk.length) chunks.push(buildChunk(tempChunk))
-    return chunks
+
+    // convert into text chunk
+    let currentLine = 0
+    return chunks.map(
+        (chunk) =>
+            ({
+                filename,
+                lineStart: currentLine,
+                lineEnd: (currentLine += chunk.split(/\r?\n/g).length),
+                content: chunk,
+            }) satisfies TextChunk
+    )
 
     function sectionTokenCount(
         section: { lines: string[] },

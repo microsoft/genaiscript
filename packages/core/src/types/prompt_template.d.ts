@@ -2988,10 +2988,13 @@ interface MD {
 
     /**
      * Attempts to chunk markdown in text section in a way that does not splitting the heading structure.
-     * @param text 
-     * @param options 
+     * @param text
+     * @param options
      */
-    chunk(text: string | WorkspaceFile, options?: { maxTokens?: number, model?: string }): Promise<string[]>
+    chunk(
+        text: string | WorkspaceFile,
+        options?: { maxTokens?: number; model?: string }
+    ): Promise<TextChunk[]>
 }
 
 interface JSONL {
