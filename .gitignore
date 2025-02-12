@@ -37,3 +37,6 @@ packages/sample/src/rag/*.genai.*.json
 *.cpuprofile
 *.heapprofile
 *.heapsnapshot
+packages/sample/src/xpai/*.json
+packages/sample/src/xpai/*.csv
+packages/sample/src/mlads/*

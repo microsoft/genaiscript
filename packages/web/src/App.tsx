@@ -10,6 +10,7 @@ import React, {
     useCallback,
     useEffect,
     useMemo,
+    useRef,
     useState,
 } from "react"
 
@@ -31,6 +32,7 @@ import "@vscode-elements/elements/dist/vscode-badge"
 import "@vscode-elements/elements/dist/vscode-textarea"
 import "@vscode-elements/elements/dist/vscode-multi-select"
 import "@vscode-elements/elements/dist/vscode-scrollable"
+import "@vscode-elements/elements/dist/vscode-tree"
 
 import Markdown from "./Markdown"
 import type {
@@ -42,6 +44,7 @@ import type {
     RequestMessages,
     PromptScriptStartResponse,
     PromptScriptEndResponseEvent,
+    LogMessageEvent,
 } from "../../core/src/server/messages"
 import { logprobColor, renderLogprob, rgbToCss } from "../../core/src/logprob"
 import { FileWithPath, useDropzone } from "react-dropzone"
@@ -62,6 +65,12 @@ import { VscodeMultiSelect } from "@vscode-elements/elements/dist/vscode-multi-s
 import { VscTabsSelectEvent } from "@vscode-elements/elements/dist/vscode-tabs/vscode-tabs"
 import MarkdownPreviewTabs from "./MarkdownPreviewTabs"
 import { roundWithPrecision } from "../../core/src/precision"
+import {
+    TreeItem,
+    VscodeTree,
+} from "@vscode-elements/elements/dist/vscode-tree/vscode-tree"
+import CONFIGURATION from "../../core/src/llms.json"
+import { MODEL_PROVIDER_GITHUB_COPILOT_CHAT } from "../../core/src/constants"
 
 interface GenAIScriptViewOptions {
     apiKey?: string
@@ -147,7 +156,13 @@ class RunClient extends WebSocketClient {
                 const data = (ev as MessageEvent<any>).data as
                     | PromptScriptResponseEvents
                     | RequestMessages
+                    | LogMessageEvent
                 switch (data.type) {
+                    case "log": {
+                        const fn = console[data.level]
+                        fn?.(data.message)
+                        break
+                    }
                     case "script.progress": {
                         this.updateRunId(data)
                         if (data.trace) this.trace += data.trace
@@ -384,6 +399,37 @@ function useEnv() {
     return env
 }
 
+function useProject() {
+    const api = useApi()
+    const project = use(api.project)
+    return project
+}
+
+function useScripts() {
+    const project = useProject()
+    const scripts = (project?.scripts?.filter((s) => !s.isSystem) || []).sort(
+        (l, r) => l.id.localeCompare(r.id)
+    )
+    return scripts
+}
+
+function useScript() {
+    const scripts = useScripts()
+    const { scriptid } = useApi()
+
+    return scripts.find((s) => s.id === scriptid)
+}
+
+function useSyncProjectScript() {
+    const { scriptid, setScriptid } = useApi()
+    const scripts = useScripts()
+    useEffect(() => {
+        if (!scriptid && scripts.length > 0) setScriptid(scripts[0].id)
+        else if (scriptid && !scripts.find((s) => s.id === scriptid))
+            setScriptid(scripts[0]?.id)
+    }, [scripts, scriptid])
+}
+
 const RunnerContext = createContext<{
     runId: string | undefined
     run: () => void
@@ -441,6 +487,7 @@ function RunnerProvider({ children }: { children: React.ReactNode }) {
                         type: f.type,
                         encoding: binary ? "base64" : undefined,
                         content,
+                        size: f.size,
                     } satisfies WorkspaceFile
                 })
         )
@@ -484,21 +531,6 @@ function useResult(): Partial<GenerationResult> | undefined {
     const update = useCallback(() => setResult(client.result), [client])
     useEventListener(client, RunClient.RESULT_EVENT, update)
     return result
-}
-
-function useScripts() {
-    const api = useApi()
-    const project = use(api.project)
-    const scripts = (project?.scripts?.filter((s) => !s.isSystem) || []).sort(
-        (l, r) => l.id.localeCompare(r.id)
-    )
-    return scripts
-}
-
-function useScript() {
-    const scripts = useScripts()
-    const { scriptid } = useApi()
-    return scripts.find((s) => s.id === scriptid)
 }
 
 function useEventListener(
@@ -622,6 +654,7 @@ function JSONSchemaSimpleTypeFormField(props: {
                     <vscode-single-select
                         value={vs}
                         required={required}
+                        combobox
                         onvsc-change={(e: Event) => {
                             const target = e.target as HTMLSelectElement
                             onChange(target.value)
@@ -636,21 +669,36 @@ function JSONSchemaSimpleTypeFormField(props: {
                     </vscode-single-select>
                 )
             }
-            return (
-                <vscode-textarea
-                    style={{ height: "unset" }}
-                    value={vs}
-                    required={required}
-                    rows={rows(vs)}
-                    spellCheck={false}
-                    placeholder={field.default}
-                    onInput={(e) => {
-                        const target = e.target as HTMLTextAreaElement
-                        target.rows = rows(target.value)
-                        onChange(target.value)
-                    }}
-                />
-            )
+            if (field.uiType === "textarea")
+                return (
+                    <vscode-textarea
+                        className="vscode-form-wide"
+                        value={vs}
+                        required={required}
+                        rows={rows(vs)}
+                        spellCheck={true}
+                        placeholder={field.default}
+                        onInput={(e) => {
+                            const target = e.target as HTMLTextAreaElement
+                            target.rows = rows(target.value)
+                            onChange(target.value)
+                        }}
+                    />
+                )
+            else
+                return (
+                    <vscode-textfield
+                        value={vs}
+                        required={required}
+                        spellCheck={false}
+                        placeholder={field.default}
+                        onInput={(e) => {
+                            const target = e.target as HTMLTextAreaElement
+                            target.rows = rows(target.value)
+                            onChange(target.value)
+                        }}
+                    />
+                )
         }
         case "boolean":
             return (
@@ -696,14 +744,14 @@ function JSONSchemaObjectForm(props: {
     }
 
     return (
-        <vscode-form-container>
+        <>
             {Object.entries(properties).map(([fieldName, field]) => (
                 <vscode-form-group key={fieldPrefix + fieldName}>
                     <vscode-label>
-                        {underscore(fieldPrefix + fieldName).replaceAll(
-                            /[_\.]/g,
-                            " "
-                        )}
+                        {underscore(
+                            (fieldPrefix ? `${fieldPrefix} / ` : fieldPrefix) +
+                                (field.title || fieldName)
+                        ).replaceAll(/[_\.]/g, " ")}
                     </vscode-label>
                     <JSONSchemaSimpleTypeFormField
                         field={field}
@@ -720,7 +768,15 @@ function JSONSchemaObjectForm(props: {
                     )}
                 </vscode-form-group>
             ))}
-        </vscode-form-container>
+        </>
+    )
+}
+
+function AIDisclaimer() {
+    return (
+        <span className="ai-disclaimer">
+            🤖 AI-generated, check for mistakes
+        </span>
     )
 }
 
@@ -771,7 +827,9 @@ function TraceMarkdown() {
     const trace = useTrace()
     return (
         <vscode-scrollable>
-            <Markdown>{trace}</Markdown>
+            <Markdown text={trace} filename="trace.md">
+                {trace}
+            </Markdown>
         </vscode-scrollable>
     )
 }
@@ -795,7 +853,7 @@ function ReasoningTabPanel() {
         <>
             <vscode-tab-header slot="header">Reasoning</vscode-tab-header>
             <vscode-tab-panel>
-                <Markdown>{fenceMD(reasoning, "markdown")}</Markdown>
+                <MarkdownPreviewTabs text={reasoning} filename="reasoning.md" />
             </vscode-tab-panel>
         </>
     )
@@ -803,11 +861,12 @@ function ReasoningTabPanel() {
 
 function OutputMarkdown() {
     const output = useOutput()
+    if (!output) return null
     return (
         <vscode-scrollable>
             <vscode-tabs>
                 <ReasoningTabPanel />
-                <MarkdownPreviewTabs>{output}</MarkdownPreviewTabs>
+                <MarkdownPreviewTabs filename="output.md" text={output} />
                 <LogProbsTabPanel />
                 <EntropyTabPanel />
                 <TopLogProbsTabPanel />
@@ -900,7 +959,7 @@ function MessagesTabPanel() {
                 />
             </vscode-tab-header>
             <vscode-tab-panel>
-                <Markdown>{md}</Markdown>
+                <Markdown copySaveButtons={true}>{md}</Markdown>
             </vscode-tab-panel>
         </>
     )
@@ -921,17 +980,25 @@ function StatsBadge() {
     if (!stats) return null
     const { cost, prompt_tokens, completion_tokens } = stats
     if (!cost && !completion_tokens) return null
-    const s = [
-        prompt_tokens ? `${prompt_tokens}↑` : undefined,
-        completion_tokens ? `${completion_tokens}↓` : undefined,
-        renderCost(cost),
-    ]
-        .filter((l) => !!l)
-        .join(" ")
     return (
-        <vscode-badge title={`usage`} variant="counter" slot="content-after">
-            {s}
-        </vscode-badge>
+        <>
+            {[
+                prompt_tokens ? `${prompt_tokens}↑` : undefined,
+                completion_tokens ? `${completion_tokens}↓` : undefined,
+                renderCost(cost),
+            ]
+                .filter((l) => !!l)
+                .map((s, i) => (
+                    <vscode-badge
+                        key={i}
+                        title={`usage`}
+                        variant="counter"
+                        slot="content-after"
+                    >
+                        {s}
+                    </vscode-badge>
+                ))}
+        </>
     )
 }
 
@@ -1123,7 +1190,10 @@ function JSONTabPanel() {
             </vscode-tab-header>
             <vscode-tab-panel>
                 {json && (
-                    <Markdown>
+                    <Markdown
+                        filename="output.json"
+                        text={JSON.stringify(json, null, 2)}
+                    >
                         {`
 \`\`\`\`\`json
 ${JSON.stringify(json, null, 2)}
@@ -1132,7 +1202,11 @@ ${JSON.stringify(json, null, 2)}
                     </Markdown>
                 )}
                 {frames.map((frame, i) => (
-                    <Markdown key={i}>
+                    <Markdown
+                        key={i}
+                        filename="data.json"
+                        text={JSON.stringify(frame, null, 2)}
+                    >
                         {`
 \`\`\`\`\`json
 ${JSON.stringify(frame, null, 2)}
@@ -1234,8 +1308,9 @@ function FilesDropZone() {
                 </vscode-multi-select>
             </vscode-form-group>
             <vscode-form-group
+                className="dropzone"
                 style={{
-                    cursor: "pointer",
+                    ...(isDragActive ? { outline: "2px dashed #333" } : {}),
                 }}
                 {...getRootProps({ className: "dropzone" })}
             >
@@ -1243,7 +1318,7 @@ function FilesDropZone() {
                 <vscode-form-helper>
                     {isDragActive
                         ? `Drop the files here ...`
-                        : `Drag 'n' drop some files here, or click to select files`}
+                        : `Drag 'n' drop some files here, or click to select files ${accept ? `(${accept})` : ""}`}
                 </vscode-form-helper>
             </vscode-form-group>
         </>
@@ -1267,10 +1342,25 @@ function RemoteInfo() {
     )
 }
 
+function ScriptDescription() {
+    const script = useScript()
+    if (!script) return null
+    const { title, description, filename } = script
+
+    return (
+        <vscode-form-helper>
+            {title ? <b>{title}</b> : null}
+            {description ? (
+                <Markdown className="no-margins">{description}</Markdown>
+            ) : null}
+        </vscode-form-helper>
+    )
+}
+
 function ScriptSelect() {
     const scripts = useScripts()
     const { scriptid, setScriptid } = useApi()
-    const script = useScript()
+    const { filename } = useScript() || {}
 
     return (
         <vscode-form-group>
@@ -1278,14 +1368,15 @@ function ScriptSelect() {
                 <GenAIScriptLogo height="2em" />
             </vscode-label>
             <vscode-single-select
+                id="script-selector"
                 value={scriptid}
-                required={true}
                 combobox
                 filter="fuzzy"
                 onvsc-change={(e: Event) => {
                     const target = e.target as HTMLSelectElement
                     setScriptid(target.value)
                 }}
+                title={filename}
             >
                 {scripts
                     .filter((s) => !s.isSystem && !s.unlisted)
@@ -1299,15 +1390,7 @@ function ScriptSelect() {
                         </vscode-option>
                     ))}
             </vscode-single-select>
-            {script && (
-                <vscode-form-helper>
-                    {toStringList(
-                        script.title,
-                        script.description,
-                        script.filename
-                    )}
-                </vscode-form-helper>
-            )}
+            <ScriptDescription />
         </vscode-form-group>
     )
 }
@@ -1319,13 +1402,13 @@ function ScriptForm() {
             {script && (
                 <vscode-badge slot="decorations">{script.id}</vscode-badge>
             )}
-            <vscode-form-container>
+            <>
                 <RemoteInfo />
                 <ScriptSelect />
                 <FilesDropZone />
                 <PromptParametersFields />
                 <RunButton />
-            </vscode-form-container>
+            </>
         </vscode-collapsible>
     )
 }
@@ -1334,20 +1417,20 @@ function ScriptSourcesView() {
     const script = useScript()
     const { jsSource, text, filename } = script || {}
     return (
-        <vscode-collapsible title="Source">
-            {filename ? <Markdown>{`- ${filename}`}</Markdown> : null}
+        <vscode-collapsible title="Script Source">
             {text ? (
-                <Markdown>{`\`\`\`\`\`\`
+                <Markdown text={text}>{`\`\`\`\`\`\`
 ${text.trim()}
 \`\`\`\`\`\``}</Markdown>
             ) : null}
             {jsSource ? (
-                <Markdown>
+                <Markdown text={jsSource}>
                     {`\`\`\`\`\`\`js
 ${jsSource.trim()}
 \`\`\`\`\`\``}
                 </Markdown>
             ) : null}
+            {filename ? <Markdown>{`- ${filename}`}</Markdown> : null}
         </vscode-collapsible>
     )
 }
@@ -1402,6 +1485,10 @@ function ModelConnectionOptionsForm() {
     const { options, setOptions } = useApi()
     const env = useEnv()
     const { providers } = env || {}
+    const models =
+        providers?.flatMap(
+            (p) => p.models?.map((m) => `${p.provider}:${m.id}`) || []
+        ) || []
 
     const schema: JSONSchemaObject = {
         type: "object",
@@ -1411,29 +1498,24 @@ function ModelConnectionOptionsForm() {
                 description: `Enable cache for LLM requests`,
                 default: false,
             },
-            provider: {
-                type: "string",
-                description: "LLM provider",
-                enum: providers
-                    .filter((p) => !p.error)
-                    .sort((l, r) => l.provider.localeCompare(r.provider))
-                    .map((p) => p.provider),
-                default: "openai",
-            },
             model: {
                 type: "string",
-                description: "large model id",
+                description:
+                    "'large' model identifier; this is the default model when no model is configured in the script.",
                 default: "large",
+                enum: models,
             },
             smallModel: {
                 type: "string",
-                description: "small model id",
+                description: "'small' model identifier",
                 default: "small",
+                enum: models,
             },
             visionModel: {
                 type: "string",
-                description: "vision model id",
+                description: "'vision' model identifier",
                 default: "vision",
+                enum: models,
             },
             temperature: {
                 type: "number",
@@ -1470,11 +1552,84 @@ function ModelConnectionOptionsForm() {
     )
 }
 
+function Configuration() {
+    const env = useEnv()
+    const { providers } = env || {}
+    if (!providers?.length) return null
+
+    const ref = useRef<VscodeTree | null>(null)
+    useEffect(() => {
+        if (!ref.current) return
+        if (!providers) ref.current.data = []
+        else {
+            const icons = {
+                leaf: "robot",
+                branch: "chevron-right",
+                open: "chevron-down",
+            }
+            const missingIcons = {
+                branch: "circle-large",
+                leaf: "circle-large",
+                open: "chevron-down",
+            }
+            const errorIcons = {
+                branch: "error",
+                leaf: "error",
+                open: "chevron-down",
+            }
+            const PROVIDERS = CONFIGURATION.providers
+            const data: TreeItem[] = PROVIDERS.filter(
+                ({ id }) => id !== MODEL_PROVIDER_GITHUB_COPILOT_CHAT
+            )
+                .map((def) => ({
+                    ...(providers.find((p) => p.provider === def.id) || {}),
+                    detail: def.detail,
+                    provider: def.id,
+                    url: def.url,
+                    missing: !providers.find((p) => p.provider === def.id),
+                }))
+                .map(
+                    (r) =>
+                        ({
+                            icons: r.error
+                                ? errorIcons
+                                : r.missing
+                                  ? missingIcons
+                                  : icons,
+                            label: r.provider,
+                            description: r.error ?? r.base,
+                            tooltip: r.detail,
+                            subItems: r.models?.map(
+                                ({ id, url }) =>
+                                    ({
+                                        label: id,
+                                        description: url,
+                                    }) satisfies TreeItem
+                            ),
+                        }) satisfies TreeItem
+                )
+            ref.current.data = data
+        }
+    }, [providers])
+
+    return (
+        <vscode-collapsible title="Configuration">
+            <vscode-label>
+                <a href="https://microsoft.github.io/genaiscript/getting-started/configuration/">
+                    Configuration documentation
+                </a>
+            </vscode-label>
+            <vscode-tree indent-guides indent={8} ref={ref} />
+        </vscode-collapsible>
+    )
+}
+
 function RunButton() {
     const { scriptid, options } = useApi()
     const { state } = useRunner()
     const disabled = !scriptid
 
+    const title = state === "running" ? "Abort" : "Run"
     return (
         <vscode-form-group>
             <vscode-label></vscode-label>
@@ -1482,8 +1637,9 @@ function RunButton() {
                 icon={state === "running" ? "stop-circle" : "play"}
                 disabled={disabled}
                 type="submit"
+                title={title}
             >
-                {state === "running" ? "Abort" : "Run"}
+                {title}
             </vscode-button>
             <vscode-form-helper>
                 {Object.entries(options)
@@ -1507,6 +1663,7 @@ function RunForm() {
             <ScriptForm />
             <ScriptSourcesView />
             <ModelConnectionOptionsForm />
+            <Configuration />
         </form>
     )
 }
@@ -1514,26 +1671,30 @@ function RunForm() {
 function ResultsTabs() {
     const [selected, setSelected] = useState(0)
     return (
-        <vscode-tabs
-            onvsc-tabs-select={(e: VscTabsSelectEvent) =>
-                setSelected(e.detail.selectedIndex)
-            }
-            panel
-        >
-            <OutputTraceTabPanel selected={selected === 0} />
-            <TraceTabPanel selected={selected === 1} />
-            <MessagesTabPanel />
-            <ProblemsTabPanel />
-            <FileEditsTabPanel />
-            <JSONTabPanel />
-            <StatsTabPanel />
-            <ErrorTabPanel />
-            {diagnostics ? <RawTabPanel /> : undefined}
-        </vscode-tabs>
+        <>
+            <AIDisclaimer />
+            <vscode-tabs
+                onvsc-tabs-select={(e: VscTabsSelectEvent) =>
+                    setSelected(e.detail.selectedIndex)
+                }
+                panel
+            >
+                <OutputTraceTabPanel selected={selected === 0} />
+                <TraceTabPanel selected={selected === 1} />
+                <MessagesTabPanel />
+                <ProblemsTabPanel />
+                <FileEditsTabPanel />
+                <JSONTabPanel />
+                <StatsTabPanel />
+                <ErrorTabPanel />
+                {diagnostics ? <RawTabPanel /> : undefined}
+            </vscode-tabs>
+        </>
     )
 }
 
 function WebApp() {
+    useSyncProjectScript()
     switch (viewMode) {
         case "results":
             return <ResultsTabs />
@@ -1553,7 +1714,7 @@ export default function App() {
     return (
         <ApiProvider>
             <RunnerProvider>
-                <Suspense fallback={<vscode-progress-ring />}>
+                <Suspense>
                     <WebApp />
                 </Suspense>
             </RunnerProvider>

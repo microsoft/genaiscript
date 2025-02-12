@@ -1,6 +1,9 @@
 script({
     tools: ["agent_video"],
     files: "src/audio/helloworld.mp4",
+    tests: {
+        files: "src/audio/helloworld.mp4",
+    },
 })
 
 const file = env.files[0]

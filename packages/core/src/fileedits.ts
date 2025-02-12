@@ -1,5 +1,5 @@
 import { applyChangeLog, parseChangeLogs } from "./changelog"
-import { CSVToMarkdown } from "./csv"
+import { dataToMarkdownTable } from "./csv"
 import { applyLLMDiff, applyLLMPatch, createDiff, parseLLMDiffs } from "./diff"
 import { errorMessage } from "./error"
 import { unquote } from "./unwrappers"
@@ -197,7 +197,7 @@ export async function computeFileEdits(
     if (edits.length)
         trace.details(
             "✏️ edits",
-            CSVToMarkdown(edits, {
+            dataToMarkdownTable(edits, {
                 headers: ["type", "filename", "message", "validated"],
             })
         )

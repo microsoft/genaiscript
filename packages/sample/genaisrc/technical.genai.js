@@ -4,6 +4,10 @@ script({
     group: "documentation",
     system: ["system.files", "system.technical"],
     temperature: 0,
+    files: "src/rag/markdown.md",
+    tests: {
+        files: "src/rag/markdown.md",
+    },
 })
 
 def("FILE", env.files)

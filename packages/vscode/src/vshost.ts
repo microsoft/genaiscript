@@ -6,13 +6,15 @@ import { ExtensionState } from "./state"
 import { Utils } from "vscode-uri"
 import { checkFileExists, readFileText } from "./fs"
 import { filterGitIgnore } from "../../core/src/gitignore"
-import { setHost, LogLevel, Host } from "../../core/src/host"
+import { setHost, Host } from "../../core/src/host"
 import { TraceOptions } from "../../core/src/trace"
 import { arrayify } from "../../core/src/util"
-import { LanguageModel } from "../../core/src/chat"
 import { uniq } from "es-toolkit"
 import { CancellationOptions } from "../../core/src/cancellation"
-import { LanguageModelConfiguration } from "../../core/src/server/messages"
+import {
+    LanguageModelConfiguration,
+    LogLevel,
+} from "../../core/src/server/messages"
 
 export class VSCodeHost extends EventTarget implements Host {
     userState: any = {}
@@ -70,13 +72,13 @@ export class VSCodeHost extends EventTarget implements Host {
     log(level: LogLevel, msg: string): void {
         const output = this.state.output
         switch (level) {
-            case LogLevel.Error:
+            case "error":
                 output.error(msg)
                 break
-            case LogLevel.Warn:
+            case "warn":
                 output.warn(msg)
                 break
-            case LogLevel.Verbose:
+            case "debug":
                 output.debug(msg)
                 break
             default:

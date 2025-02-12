@@ -8,6 +8,7 @@ script({
         "system.safety_validate_harmful_content",
     ],
     files: "src/audio/helloworld.mp4",
+    model: "vision",
 })
 
 const file = env.files[0]

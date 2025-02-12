@@ -10,9 +10,10 @@ import {
     UNHANDLED_ERROR_CODE,
     MODEL_PROVIDER_GITHUB_COPILOT_CHAT,
     WS_MAX_FRAME_LENGTH,
+    LOG,
 } from "../../core/src/constants"
 import { isCancelError, serializeError } from "../../core/src/error"
-import { host, runtimeHost } from "../../core/src/host"
+import { host, LogEvent, runtimeHost } from "../../core/src/host"
 import { MarkdownTrace, TraceChunkEvent } from "../../core/src/trace"
 import {
     logVerbose,
@@ -20,6 +21,7 @@ import {
     assert,
     chunkString,
     logInfo,
+    logWarn,
 } from "../../core/src/util"
 import { CORE_VERSION } from "../../core/src/version"
 import {
@@ -55,6 +57,8 @@ import { exists } from "fs-extra"
 import { deleteUndefinedValues } from "../../core/src/cleaners"
 import { readFile } from "fs/promises"
 import { unthink } from "../../core/src/think"
+import { NodeHost } from "./nodehost"
+import { findRandomOpenPort, isPortInUse } from "../../core/src/net"
 
 /**
  * Starts a WebSocket server for handling chat and script execution.
@@ -74,12 +78,18 @@ export async function startServer(options: {
 }) {
     // Parse and set the server port, using a default if not specified.
     const corsOrigin = options.cors || process.env.GENAISCRIPT_CORS_ORIGIN
-    const port = parseInt(options.port) || SERVER_PORT
     const apiKey = options.apiKey || process.env.GENAISCRIPT_API_KEY
     const serverHost = options.network ? "0.0.0.0" : "127.0.0.1"
     const remote = options.remote
     const dispatchProgress = !!options.dispatchProgress
 
+    let port = parseInt(options.port) || SERVER_PORT
+    if (await isPortInUse(port)) {
+        if (options.port) throw new Error(`port ${port} in use`)
+        const oldPort = port
+        port = await findRandomOpenPort()
+        logWarn(`port ${oldPort} in use, using port ${port}`)
+    }
     // store original working directory
     const cwd = process.cwd()
 
@@ -282,6 +292,17 @@ export async function startServer(options: {
         cancelAll()
     })
 
+    // send loggign messages
+    ;(runtimeHost as NodeHost).addEventListener(LOG, (ev) => {
+        const lev = ev as LogEvent
+        const payload = toPayload({
+            type: "log",
+            level: lev.level,
+            message: lev.message,
+        })
+        for (const client of wss.clients) client.send(payload)
+    })
+
     // Manage new WebSocket connections.
     wss.on("connection", function connection(ws, req) {
         logVerbose(`clients: connected (${wss.clients.size} clients)`)
@@ -293,12 +314,15 @@ export async function startServer(options: {
         const send = (payload: object) => {
             const cmsg = toPayload(payload)
             if (dispatchProgress)
-                for (const client of this.clients) client.send(cmsg)
+                for (const client of wss.clients) client.send(cmsg)
             else ws?.send(cmsg)
         }
         const sendLastRunResult = () => {
             if (!lastRunResult) return
-            if (JSON.stringify(lastRunResult).length < WS_MAX_FRAME_LENGTH - 200)
+            if (
+                JSON.stringify(lastRunResult).length <
+                WS_MAX_FRAME_LENGTH - 200
+            )
                 send(lastRunResult)
             else
                 send({
@@ -440,6 +464,7 @@ export async function startServer(options: {
                             ...options,
                             trace,
                             outputTrace,
+                            runTrace: false,
                             cancellationToken: canceller.token,
                             infoCb: ({ text }) => {
                                 sendProgress(runId, { progress: text })

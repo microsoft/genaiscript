@@ -8,18 +8,23 @@ export const CLOSE = "close"
 export const MESSAGE = "message"
 export const ERROR = "error"
 export const CONNECT = "connect"
+export const LOG = "log"
 export const MAX_TOOL_CALLS = 10000
 
 // https://learn.microsoft.com/en-us/azure/ai-services/openai/reference
 // https://github.com/Azure/azure-rest-api-specs/blob/main/specification/cognitiveservices/data-plane/AzureOpenAI/inference/stable/2024-02-01/inference.yaml
 // https://learn.microsoft.com/en-us/azure/ai-services/openai/api-version-deprecation
-export const AZURE_OPENAI_API_VERSION = "2024-06-01"
+export const AZURE_OPENAI_API_VERSION = "2025-01-01-preview"
+export const AZURE_MANAGEMENT_API_VERSION = "2024-10-01"
 export const AZURE_COGNITIVE_SERVICES_TOKEN_SCOPES = Object.freeze([
     "https://cognitiveservices.azure.com/.default",
 ])
 export const AZURE_AI_INFERENCE_VERSION = "2024-08-01-preview"
 export const AZURE_AI_INFERENCE_TOKEN_SCOPES = Object.freeze([
     "https://ml.azure.com/.default",
+])
+export const AZURE_MANAGEMENT_TOKEN_SCOPES = Object.freeze([
+    "https://management.azure.com/.default",
 ])
 export const AZURE_TOKEN_EXPIRATION = 59 * 60_000 // 59 minutes
 
@@ -134,6 +139,8 @@ export const WHISPERASR_API_BASE = "http://localhost:9000"
 export const PROMPTFOO_CACHE_PATH = ".genaiscript/cache/tests"
 export const PROMPTFOO_CONFIG_DIR = ".genaiscript/config/tests"
 export const PROMPTFOO_REMOTE_API_PORT = 15500
+export const PROMPTFOO_REDTEAM_NUM_TESTS = 5
+export const PROMPTFOO_TEST_MAX_CONCURRENCY = 1
 
 export const RUNS_DIR_NAME = "runs"
 export const CONVERTS_DIR_NAME = "converts"
@@ -202,6 +209,7 @@ export const MODEL_PROVIDERS = Object.freeze<
     {
         id: string
         detail: string
+        url?: string
         seed?: boolean
         logitBias?: boolean
         tools?: boolean
@@ -215,6 +223,16 @@ export const MODEL_PROVIDERS = Object.freeze<
         speech?: boolean
         tokenless?: boolean
         aliases?: Record<string, string>
+        env?: Record<
+            string,
+            {
+                description?: string
+                secret?: boolean
+                required?: boolean
+                format?: string
+                enum?: string[]
+            }
+        >
     }[]
 >(CONFIGURATION_DATA.providers)
 export const MODEL_PRICINGS = Object.freeze<
@@ -231,6 +249,8 @@ export const MODEL_PRICINGS = Object.freeze<
 export const NEW_SCRIPT_TEMPLATE = `$\`Write a short poem in code.\`
 `
 export const PDF_SCALE = 4
+export const PDF_HASH_LENGTH = 12
+
 export const PDF_MIME_TYPE = "application/pdf"
 export const DOCX_MIME_TYPE =
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
@@ -346,3 +366,6 @@ export const SCHEMA_DEFAULT_FORMAT = "json"
 export const THINK_REGEX = /<think>(.*?)($|<\/think>)/gis
 
 export const MAX_FILE_CONTENT_SIZE = 1024 * 1024 * 2 // 2MB
+export const TEST_CSV_ENTRY_SEPARATOR = /[;|\n]/g
+
+export const INVALID_FILENAME_REGEX = /[<>:"/\\|?*\x00-\x1F]+/g

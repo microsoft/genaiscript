@@ -9,21 +9,39 @@ import "@vscode-elements/elements/dist/vscode-tab-panel"
 
 export default function MarkdownWithPreviewTabs(props: {
     className?: string
-    children: any
+    filename?: string
+    text?: string
 }) {
-    const { className, children } = props
+    const { className, filename, text } = props
     const md = convertThinkToMarkdown(
-        convertAnnotationsToMarkdown(children as string)
+        convertAnnotationsToMarkdown(text as string)
     )
     return (
         <>
             <vscode-tab-header slot="header">Text</vscode-tab-header>
             <vscode-tab-panel>
-                <Markdown>{fenceMD(children, "markdown")}</Markdown>
+                {text ? (
+                    <Markdown
+                        copySaveButtons={true}
+                        filename={filename}
+                        text={text}
+                    >
+                        {fenceMD(text, "markdown")}
+                    </Markdown>
+                ) : null}
             </vscode-tab-panel>
             <vscode-tab-header slot="header">Preview</vscode-tab-header>
             <vscode-tab-panel>
-                <Markdown className={className}>{md}</Markdown>
+                {md ? (
+                    <Markdown
+                        copySaveButtons={true}
+                        filename={filename}
+                        text={text}
+                        className={className}
+                    >
+                        {md}
+                    </Markdown>
+                ) : null}
             </vscode-tab-panel>
         </>
     )

@@ -1,4 +1,5 @@
 body {
+    height: 100%;
     margin: 0 !important;
     padding: 0 !important;
 }
@@ -6,23 +7,27 @@ body {
 div.snippet {
     position: relative;
 }
-div.snippet .button {
+div.snippet .buttons {
     position: absolute;
     top: 0;
     right: 0;
     opacity: 0;
     transition: opacity 0.3s ease;
 }
-div.snippet:hover .button {
+div.snippet:hover .buttons {
     opacity: 1;
+}
+.buttons vscode-button {
+    margin-left: 0.2rem;
+    cursor: pointer;
 }
 span.logprobs {
     color: white;
     white-space: pre;
     font-family: monospace;
     margin-right: 0.2rem;
-    border-radius: 0.2rem;  
-    cursor: pointer;  
+    border-radius: 0.2rem;
+    cursor: pointer;
 }
 table.toplogprobs {
     display: inline-block;
@@ -36,11 +41,37 @@ table.toplogprobs span.logprobs {
     margin-bottom: 0.2rem;
 }
 table.toplogprobs td {
-    border: none; padding: 0;
+    border: none;
+    padding: 0;
 }
 .centered {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+}
+.dropzone {
+    cursor: pointer;
+}
+.no-margins {
+    margin: 0 !important;
+}
+
+.vscode-body .markdown-body {
+    font-size: var(--vscode-font-size);
+}
+
+.vscode-form-wide {
+    height: unset;
+    min-width: min(100vw - 1.5rem, 65rem);
+    max-width: 100vw;
+    min-height: 16rem;
+    margin-left: 0.5rem;
+}
+
+.vscode-body span.ai-disclaimer {
+    font-size: 80%;
+    margin: 1rem;
+    opacity: 0.8;
+    font-family: var(--vscode-font-family);
 }

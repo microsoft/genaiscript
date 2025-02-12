@@ -18,6 +18,7 @@ import {
     EMOJI_FAIL,
     TEST_RUNS_DIR_NAME,
     PROMPTFOO_REMOTE_API_PORT,
+    PROMPTFOO_TEST_MAX_CONCURRENCY,
 } from "../../core/src/constants"
 import { promptFooDriver } from "../../core/src/default_prompts"
 import { serializeError } from "../../core/src/error"
@@ -36,7 +37,7 @@ import {
     PromptScriptTestRunResponse,
     PromptScriptTestResult,
 } from "../../core/src/server/messages"
-import { generatePromptFooConfiguration } from "../../core/src/test"
+import { generatePromptFooConfiguration } from "../../core/src/promptfoo"
 import { delay } from "es-toolkit"
 import { resolveModelConnectionInfo } from "../../core/src/models"
 import { filterScripts } from "../../core/src/ast"
@@ -44,6 +45,17 @@ import { link } from "../../core/src/mkmd"
 import { applyModelOptions } from "./modelalias"
 import { normalizeFloat, normalizeInt } from "../../core/src/cleaners"
 import { ChatCompletionReasoningEffort } from "../../core/src/chattypes"
+import {
+    CancellationOptions,
+    checkCancelled,
+} from "../../core/src/cancellation"
+import { CORE_VERSION } from "../../core/src/version"
+import {
+    headersToMarkdownTableHead,
+    headersToMarkdownTableSeperator,
+    objectToMarkdownTableRow,
+} from "../../core/src/csv"
+import { roundWithPrecision } from "../../core/src/precision"
 
 /**
  * Parses model specifications from a string and returns a ModelOptions object.
@@ -83,8 +95,10 @@ function createEnv() {
         ...process.env,
         PROMPTFOO_CACHE_PATH: env.PROMPTFOO_CACHE_PATH ?? PROMPTFOO_CACHE_PATH,
         PROMPTFOO_CONFIG_DIR: env.PROMPTFOO_CONFIG_DIR ?? PROMPTFOO_CONFIG_DIR,
-        PROMPTFOO_DISABLE_TELEMETRY: env.PROMPTFOO_DISABLE_TELEMETRY ?? "1",
-        PROMPTFOO_DISABLE_UPDATE: env.PROMPTFOO_DISABLE_UPDATE ?? "1",
+        PROMPTFOO_DISABLE_TELEMETRY: env.PROMPTFOO_DISABLE_TELEMETRY ?? "true",
+        PROMPTFOO_DISABLE_UPDATE: env.PROMPTFOO_DISABLE_UPDATE ?? "true",
+        PROMPTFOO_DISABLE_REDTEAM_REMOTE_GENERATION:
+            env.PROMPTFOO_DISABLE_REDTEAM_REMOTE_GENERATION ?? "true",
     }
 }
 
@@ -103,13 +117,14 @@ export async function runPromptScriptTests(
         cache?: boolean
         verbose?: boolean
         write?: boolean
+        redteam?: boolean
         promptfooVersion?: string
         outSummary?: string
         testDelay?: string
-    }
+    } & CancellationOptions
 ): Promise<PromptScriptTestRunResponse> {
     applyModelOptions(options, "cli")
-
+    const { cancellationToken, redteam } = options || {}
     const scripts = await listTests({ ids, ...(options || {}) })
     if (!scripts.length)
         return {
@@ -127,6 +142,7 @@ export async function runPromptScriptTests(
     const port = PROMPTFOO_REMOTE_API_PORT
     const serverUrl = `http://127.0.0.1:${port}`
     const testDelay = normalizeInt(options?.testDelay)
+    const runStart = new Date()
     logInfo(`writing tests to ${out}`)
 
     if (options?.removeOut) await emptyDir(out)
@@ -148,10 +164,11 @@ export async function runPromptScriptTests(
             outSummary,
             `## GenAIScript Test Results
 
+- start: ${runStart.toISOString()}
 - Run this command to launch the promptfoo test viewer.
 
 \`\`\`sh
-genaiscript test view
+npx --yes genaiscript@${CORE_VERSION} test view
 \`\`\`
 
 `
@@ -162,10 +179,10 @@ genaiscript test view
     // Prepare test configurations for each script
     const configurations: { script: PromptScript; configuration: string }[] = []
     for (const script of scripts) {
+        checkCancelled(cancellationToken)
         const fn = out
             ? join(out, `${script.id}.promptfoo.yaml`)
             : script.filename.replace(GENAI_ANY_REGEX, ".promptfoo.yaml")
-        logInfo(`  ${fn}`)
         const { info: chatInfo } = await resolveModelConnectionInfo(script, {
             model: runtimeHost.modelAliases.large.model,
         })
@@ -175,35 +192,64 @@ genaiscript test view
             { model: runtimeHost.modelAliases.embeddings.model }
         )
         if (embeddingsInfo?.error) embeddingsInfo = undefined
-        const config = generatePromptFooConfiguration(script, {
+        const config = await generatePromptFooConfiguration(script, {
             out,
             cli,
             models: options.models?.map(parseModelSpec),
             provider: "provider.mjs",
             chatInfo,
             embeddingsInfo,
+            redteam,
         })
         const yaml = YAMLStringify(config)
         await writeFile(fn, yaml)
         configurations.push({ script, configuration: fn })
     }
 
+    let stats = {
+        prompt: 0,
+        completion: 0,
+        total: 0,
+    }
+    const headers = [
+        "status",
+        "script",
+        "prompt",
+        "completion",
+        "total",
+        "duration",
+        "url",
+    ]
+    if (outSummary) {
+        await appendFile(
+            outSummary,
+            [
+                headersToMarkdownTableHead(headers),
+                headersToMarkdownTableSeperator(headers),
+            ].join("")
+        )
+    }
+    const promptFooVersion = options.promptfooVersion || PROMPTFOO_VERSION
     const results: PromptScriptTestResult[] = []
     // Execute each configuration and gather results
     for (const config of configurations) {
+        checkCancelled(cancellationToken)
         const { script, configuration } = config
+        logInfo(
+            `test ${script.id} (${results.length + 1}/${configurations.length}) - ${configuration}`
+        )
+        const testStart = new Date()
         const outJson = configuration.replace(/\.yaml$/, ".res.json")
         const cmd = "npx"
-        const args = [
-            "--yes",
-            `promptfoo@${options.promptfooVersion || PROMPTFOO_VERSION}`,
-            "eval",
+        const args = ["--yes", `promptfoo@${promptFooVersion}`]
+        if (redteam) args.push("redteam", "run", "--force")
+        else args.push("eval", "--no-progress-bar")
+        args.push(
             "--config",
             configuration,
             "--max-concurrency",
-            "1",
-            "--no-progress-bar",
-        ]
+            String(PROMPTFOO_TEST_MAX_CONCURRENCY)
+        )
         if (options.cache) args.push("--cache")
         if (options.verbose) args.push("--verbose")
         args.push("--output", outJson)
@@ -218,7 +264,7 @@ genaiscript test view
         })
         let status: number
         let error: SerializedError
-        let value: any = undefined
+        let value: PromptScriptTestResult["value"] = undefined
         try {
             const res = await exec
             status = res.exitCode
@@ -228,18 +274,35 @@ genaiscript test view
         }
         if (await exists(outJson))
             value = JSON5TryParse(await readFile(outJson, "utf8"))
-
         const ok = status === 0
+        stats.prompt += value?.results?.stats?.tokenUsage?.prompt || 0
+        stats.completion += value?.results?.stats?.tokenUsage?.completion || 0
+        stats.total += value?.results?.stats?.tokenUsage?.total || 0
+        const testEnd = new Date()
         if (outSummary) {
             const url = value?.evalId
-                ? link(
+                ? " " +
+                  link(
                       "result",
                       `${serverUrl}/eval?evalId=${encodeURIComponent(value?.evalId)}`
-                  )
+                  ) +
+                  " "
                 : ""
+            const row = {
+                status: ok ? EMOJI_SUCCESS : EMOJI_FAIL,
+                script: script.id,
+                prompt: value?.results?.stats?.tokenUsage?.prompt,
+                completion: value?.results?.stats?.tokenUsage?.completion,
+                total: value?.results?.stats?.tokenUsage?.total,
+                duration: roundWithPrecision(
+                    (testEnd.getTime() - testStart.getTime()) / 1000,
+                    1
+                ),
+                url,
+            }
             await appendFile(
                 outSummary,
-                `- ${ok ? EMOJI_SUCCESS : EMOJI_FAIL} ${script.id} ${url}\n`
+                objectToMarkdownTableRow(row, headers, { skipEscape: true })
             )
         }
         results.push({
@@ -255,7 +318,31 @@ genaiscript test view
             await delay(testDelay * 1000)
         }
     }
+    const runEnd = new Date()
 
+    if (outSummary) {
+        await appendFile(
+            outSummary,
+            [
+                objectToMarkdownTableRow(
+                    {
+                        status: results.filter((r) => r.ok).length,
+                        prompt: stats.prompt,
+                        completion: stats.completion,
+                        total: stats.total,
+                        duration: roundWithPrecision(
+                            (runEnd.getTime() - runStart.getTime()) / 1000,
+                            1
+                        ),
+                    },
+                    headers,
+                    { skipEscape: true }
+                ),
+                "\n\n",
+                `- end: ${runEnd.toISOString()}\n`,
+            ].join("")
+        )
+    }
     if (outSummary) logVerbose(`trace: ${outSummary}`)
     const ok = results.every((r) => !!r.ok)
     return {
@@ -271,11 +358,16 @@ genaiscript test view
  * @param options - Options to filter the test scripts by IDs or groups.
  * @returns A Promise resolving to an array of filtered scripts.
  */
-async function listTests(options: { ids?: string[]; groups?: string[] }) {
+async function listTests(options: {
+    ids?: string[]
+    groups?: string[]
+    redteam?: boolean
+}) {
     const prj = await buildProject()
     const scripts = filterScripts(prj.scripts, {
         ...(options || {}),
-        test: true,
+        test: options.redteam ? undefined : true,
+        redteam: options.redteam,
     })
     return scripts
 }
@@ -294,6 +386,7 @@ export async function scriptsTest(
         cache?: boolean
         verbose?: boolean
         write?: boolean
+        redteam?: boolean
         promptfooVersion?: string
         outSummary?: string
         testDelay?: string
@@ -303,9 +396,10 @@ export async function scriptsTest(
     const { status, value = [] } = await runPromptScriptTests(ids, options)
     const trace = new MarkdownTrace()
     trace.appendContent(
-        `tests: ${value.filter((r) => r.ok).length} success, ${value.filter((r) => !r.ok).length} failed`
+        `\n\ntests: ${value.filter((r) => r.ok).length} success, ${value.filter((r) => !r.ok).length} failed\n\n`
     )
     for (const result of value) trace.resultItem(result.ok, result.script)
+    console.log("")
     console.log(trace.content)
     process.exit(status)
 }
@@ -314,7 +408,10 @@ export async function scriptsTest(
  * Lists available test scripts, printing their IDs and filenames.
  * @param options - Options to filter the scripts by groups.
  */
-export async function scriptTestList(options: { groups?: string[] }) {
+export async function scriptTestList(options: {
+    groups?: string[]
+    redteam?: boolean
+}) {
     const scripts = await listTests(options)
     console.log(scripts.map((s) => toStringList(s.id, s.filename)).join("\n"))
 }

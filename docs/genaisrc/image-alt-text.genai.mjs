@@ -1,7 +1,7 @@
 script({
     title: "Image Alt Text generator",
     description: "Generate alt text for images",
-    model: "large",
+    model: "vision",
     group: "docs",
     maxTokens: 4000,
     temperature: 0,

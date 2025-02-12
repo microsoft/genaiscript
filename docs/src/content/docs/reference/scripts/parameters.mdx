@@ -4,6 +4,7 @@ description: Parameters schema are used to define signatures of scripts, tools.
 sidebar:
     order: 50
 ---
+
 import { YouTube } from "astro-embed"
 
 This page describes the way parameter signatures are defined in GenAIScripts.
@@ -32,7 +33,7 @@ can be cumbersome to author manually for simple use cases.
 defTool("weather", "current weather", { city: "" }, ...)
 ```
 
-<YouTube id="https://youtu.be/96iPImE4c2o" />
+<YouTube id="https://youtu.be/96iPImE4c2o" posterQuality="high" />
 
 ## Syntax
 
@@ -74,15 +75,28 @@ true => { type: "boolean", default: true }
 - if the value is an object, convert into a `type: 'object'` schema. Fields with `""` or `NaN` values are required.
 
 ```txt
-{ city: "" } => { 
-    type: "object", 
-    properties: { city: { type: "string" } }, 
-    required: ["city"] 
+{ city: "" } => {
+    type: "object",
+    properties: { city: { type: "string" } },
+    required: ["city"]
 }
-{ price: 42 } => { 
-    type: "object", 
-    properties: { price: { type: "number", default: 42 } }, 
-    required: [] 
+{ price: 42 } => {
+    type: "object",
+    properties: { price: { type: "number", default: 42 } },
+    required: []
+}
+```
+
+## UI cues
+
+Some additional, non-standard properties are used to provide additional information to the UI:
+
+- `uiType` `textarea` to indicate that the field should be rendered as a textarea.
+
+```json
+{
+    "type": "string",
+    "uiType": "textarea"
 }
 ```
 

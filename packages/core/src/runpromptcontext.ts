@@ -334,6 +334,7 @@ export function createChatGenerationContext(
 
     // Default output processor for the prompt
     const defOutputProcessor = (fn: PromptOutputProcessorHandler) => {
+        checkCancelled(cancellationToken)
         if (fn) appendChild(node, createOutputProcessor(fn))
     }
 
@@ -349,6 +350,7 @@ export function createChatGenerationContext(
         fn?: ChatFunctionHandler,
         defOptions?: DefToolOptions
     ) => void = (name, description, parameters, fn, defOptions) => {
+        checkCancelled(cancellationToken)
         if (name === undefined || name === null)
             throw new Error("tool name is missing")
 
@@ -421,6 +423,7 @@ export function createChatGenerationContext(
         ) => Promise<void>,
         options?: DefAgentOptions
     ): void => {
+        checkCancelled(cancellationToken)
         const { tools, system, disableMemory, disableMemoryQuery, ...rest } =
             options || {}
         const memory = !disableMemory
@@ -463,6 +466,7 @@ export function createChatGenerationContext(
             },
             async (args) => {
                 // the LLM automatically adds extract arguments to the context
+                checkCancelled(cancellationToken)
                 const { context, ...rest } = args
                 const { query, ...argsNoQuery } = rest
                 infoCb?.({
@@ -537,6 +541,7 @@ export function createChatGenerationContext(
         schema: JSONSchema,
         defOptions?: DefSchemaOptions
     ) => {
+        checkCancelled(cancellationToken)
         appendChild(node, createSchemaNode(name, schema, defOptions))
 
         return name
@@ -548,7 +553,16 @@ export function createChatGenerationContext(
         >,
         defOptions?: DefImagesOptions
     ) => {
+        checkCancelled(cancellationToken)
+        if (files === undefined || files === null) {
+            if (defOptions?.ignoreEmpty) return
+            throw new Error("no images provided")
+        }
         if (Array.isArray(files)) {
+            if (!files.length) {
+                if (defOptions?.ignoreEmpty) return
+                throw new Error("no images provided")
+            }
             const sliced = sliceData(files, defOptions)
             if (!defOptions?.tiled)
                 sliced.forEach((file) => defImages(file, defOptions))
@@ -557,8 +571,10 @@ export function createChatGenerationContext(
                     node,
                     createImageNode(
                         (async () => {
+                            if (!files.length) return undefined
                             const encoded = await imageTileEncodeForLLM(files, {
                                 ...defOptions,
+                                cancellationToken,
                                 trace,
                             })
                             return encoded
@@ -578,6 +594,7 @@ export function createChatGenerationContext(
                     (async () => {
                         const encoded = await imageEncodeForLLM(img, {
                             ...defOptions,
+                            cancellationToken,
                             trace,
                         })
                         return encoded
@@ -592,6 +609,7 @@ export function createChatGenerationContext(
                     (async () => {
                         const encoded = await imageEncodeForLLM(file, {
                             ...defOptions,
+                            cancellationToken,
                             trace,
                         })
                         return {
@@ -608,6 +626,7 @@ export function createChatGenerationContext(
         generator: ChatParticipantHandler,
         options?: ChatParticipantOptions
     ) => {
+        checkCancelled(cancellationToken)
         if (generator)
             appendChild(node, createChatParticipant({ generator, options }))
     }
@@ -617,6 +636,7 @@ export function createChatGenerationContext(
         description: string,
         options?: FileOutputOptions
     ): void => {
+        checkCancelled(cancellationToken)
         if (pattern)
             appendChild(
                 node,
@@ -634,6 +654,7 @@ export function createChatGenerationContext(
         strings: TemplateStringsArray,
         ...args: any[]
     ): RunPromptResultPromiseWithOptions => {
+        checkCancelled(cancellationToken)
         const options: PromptGeneratorOptions = {}
         const p: RunPromptResultPromiseWithOptions =
             new Promise<RunPromptResult>(async (resolve, reject) => {
@@ -659,6 +680,7 @@ export function createChatGenerationContext(
         audio: string | WorkspaceFile,
         options?: TranscriptionOptions
     ): Promise<TranscriptionResult> => {
+        checkCancelled(cancellationToken)
         const { cache, ...rest } = options || {}
         const transcriptionTrace = trace.startTraceDetails("🎤 transcribe")
         try {
@@ -763,6 +785,7 @@ export function createChatGenerationContext(
         input: string,
         options?: SpeechOptions
     ): Promise<SpeechResult> => {
+        checkCancelled(cancellationToken)
         const { cache, voice, ...rest } = options || {}
         const speechTrace = trace.startTraceDetails("🦜 speak")
         try {
@@ -824,10 +847,16 @@ export function createChatGenerationContext(
         }
     }
 
+    const defFileMerge = (fn: FileMergeHandler) => {
+        checkCancelled(cancellationToken)
+        appendChild(node, createFileMerge(fn))
+    }
+
     const runPrompt = async (
         generator: string | PromptGenerator,
         runOptions?: PromptGeneratorOptions
     ): Promise<RunPromptResult> => {
+        checkCancelled(cancellationToken)
         const { label, applyEdits, throwOnError } = runOptions || {}
         const runTrace = trace.startTraceDetails(`🎁 run prompt ${label || ""}`)
         let messages: ChatCompletionMessageParam[] = []
@@ -1062,10 +1091,6 @@ export function createChatGenerationContext(
         } finally {
             runTrace.endDetails()
         }
-    }
-
-    const defFileMerge = (fn: FileMergeHandler) => {
-        appendChild(node, createFileMerge(fn))
     }
 
     const ctx: RunPromptContextNode = Object.freeze<RunPromptContextNode>({

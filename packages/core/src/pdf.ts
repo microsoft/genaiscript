@@ -4,9 +4,17 @@ import { host } from "./host"
 import { TraceOptions } from "./trace"
 import os from "os"
 import { serializeError } from "./error"
-import { logVerbose, logWarn } from "./util"
-import { PDF_SCALE } from "./constants"
+import { dotGenaiscriptPath, logVerbose, logWarn } from "./util"
+import { INVALID_FILENAME_REGEX, PDF_HASH_LENGTH, PDF_SCALE } from "./constants"
 import { resolveGlobal } from "./globals"
+import { isUint8Array, isUint8ClampedArray } from "util/types"
+import { hash } from "./crypto"
+import { join } from "path"
+import { readFile, writeFile } from "fs/promises"
+import { ensureDir } from "fs-extra"
+import { YAMLStringify } from "./yaml"
+import { deleteUndefinedValues } from "./cleaners"
+import { CancellationOptions, checkCancelled } from "./cancellation"
 
 let standardFontDataUrl: string
 
@@ -95,6 +103,7 @@ async function tryImportCanvas() {
         glob.ImageData ??= skia.ImageData
         glob.Path2D ??= skia.Path2D
         glob.Canvas ??= skia.Canvas
+        glob.DOMMatrix ??= skia.DOMMatrix
         CanvasFactory.createCanvas = createCanvas
         return createCanvas
     } catch (error) {
@@ -124,10 +133,26 @@ function installPromiseWithResolversShim() {
         })
 }
 
-export interface PDFPage {
-    index: number
-    content: string
-    image?: Buffer
+enum ImageKind {
+    GRAYSCALE_1BPP = 1,
+    RGB_24BPP = 2,
+    RGBA_32BPP = 3,
+}
+
+async function computeHashFolder(
+    filename: string | WorkspaceFile,
+    options: TraceOptions & ParsePDFOptions & { content?: Uint8Array }
+) {
+    const { trace, content, ...rest } = options
+    const h = await hash(
+        [typeof filename === "string" ? { filename } : filename, content, rest],
+        {
+            readWorkspaceFiles: true,
+            version: true,
+            length: PDF_HASH_LENGTH,
+        }
+    )
+    return dotGenaiscriptPath("cache", "pdf", h)
 }
 
 /**
@@ -140,20 +165,51 @@ export interface PDFPage {
 async function PDFTryParse(
     fileOrUrl: string,
     content?: Uint8Array,
-    options?: ParsePDFOptions & TraceOptions
+    options?: ParsePDFOptions & TraceOptions & CancellationOptions
 ) {
     const {
+        cancellationToken,
         disableCleanup,
         trace,
         renderAsImage,
         scale = PDF_SCALE,
+        cache,
     } = options || {}
 
+    const folder = await computeHashFolder(fileOrUrl, {
+        content,
+        ...(options || {}),
+    })
+    const resFilename = join(folder, "res.json")
+    const readCache = async () => {
+        if (cache === false) return undefined
+        try {
+            const res = JSON.parse(
+                await readFile(resFilename, {
+                    encoding: "utf-8",
+                })
+            )
+            logVerbose(`pdf: cache hit at ${folder}`)
+            return res
+        } catch {
+            return undefined
+        }
+    }
+
+    {
+        // try cache hit
+        const cached = await readCache()
+        if (cached) return cached
+    }
+
+    logVerbose(`pdf: decoding ${fileOrUrl || ""} in ${folder}`)
+    trace?.itemValue(`pdf: decoding ${fileOrUrl || ""}`, folder)
+    await ensureDir(folder)
     try {
         const pdfjs = await tryImportPdfjs(options)
-        const createCanvas = renderAsImage ? await tryImportCanvas() : undefined
+        const createCanvas = await tryImportCanvas()
+        checkCancelled(cancellationToken)
         const { getDocument } = pdfjs
-        // Read data from file or use provided content
         const data = content || (await host.readFile(fileOrUrl))
         const loader = await getDocument({
             data,
@@ -163,12 +219,21 @@ async function PDFTryParse(
             CanvasFactory: createCanvas ? CanvasFactory : undefined,
         })
         const doc = await loader.promise
+        const pdfMetadata = await doc.getMetadata()
+        const metadata = pdfMetadata
+            ? deleteUndefinedValues({
+                  info: deleteUndefinedValues({
+                      ...(pdfMetadata.info || {}),
+                  }),
+              })
+            : undefined
+
         const numPages = doc.numPages
         const pages: PDFPage[] = []
 
         // Iterate through each page and extract text content
         for (let i = 0; i < numPages; i++) {
-            logVerbose(`pdf: extracting page ${i + 1}`)
+            checkCancelled(cancellationToken)
             const page = await doc.getPage(1 + i) // 1-indexed
             const content = await page.getTextContent()
             const items: TextItem[] = content.items.filter(
@@ -185,9 +250,11 @@ async function PDFTryParse(
                 index: i + 1,
                 content: lines.join("\n"),
             }
+
+            await writeFile(join(folder, `page_${p.index}.txt`), p.content)
             pages.push(p)
 
-            if (createCanvas) {
+            if (createCanvas && renderAsImage) {
                 const viewport = page.getViewport({ scale })
                 const canvas = await createCanvas(
                     viewport.width,
@@ -200,14 +267,127 @@ async function PDFTryParse(
                 })
                 await render.promise
                 const buffer = canvas.toBufferSync("png")
-                p.image = buffer
+                p.image = join(folder, `page_${i + 1}.png`)
+                await writeFile(p.image, buffer)
             }
+
+            const opList = await page.getOperatorList()
+            const figures: PDFPageImage[] = []
+            for (let j = 0; j < opList.fnArray.length; j++) {
+                const fn = opList.fnArray[j]
+                const args = opList.argsArray[j]
+                if (fn === pdfjs.OPS.paintImageXObject && args) {
+                    const imageObj = args[0]
+                    if (imageObj) {
+                        checkCancelled(cancellationToken)
+                        const img = await new Promise<any>(
+                            (resolve, reject) => {
+                                if (page.commonObjs.has(imageObj))
+                                    resolve(page.commonObjs.get(imageObj))
+                                else if (page.objs.has(imageObj)) {
+                                    page.objs.get(imageObj, (r: any) => {
+                                        resolve(r)
+                                    })
+                                } else resolve(undefined)
+                            }
+                        )
+                        if (!img) continue
+                        const fig = await decodeImage(
+                            p.index,
+                            img,
+                            createCanvas,
+                            imageObj,
+                            folder
+                        )
+                        if (fig) figures.push(fig)
+                    }
+                }
+            }
+            p.figures = figures
+
+            logVerbose(
+                `pdf: extracted ${fileOrUrl || ""} page ${i + 1} / ${numPages}, ${p.figures.length ? `${p.figures.length} figures` : ""}`
+            )
         }
-        return { ok: true, pages }
+
+        const res = deleteUndefinedValues({
+            ok: true,
+            metadata,
+            pages,
+            content: PDFPagesToString(pages),
+        })
+        await writeFile(join(folder, "content.txt"), res.content)
+        await writeFile(resFilename, JSON.stringify(res))
+        return res
     } catch (error) {
         logVerbose(error)
+        {
+            // try cache hit
+            const cached = await readCache()
+            if (cached) return cached
+        }
         trace?.error(`reading pdf`, error) // Log error if tracing is enabled
+        await writeFile(
+            join(folder, "error.txt"),
+            YAMLStringify(serializeError(error))
+        )
         return { ok: false, error: serializeError(error) }
+    }
+
+    async function decodeImage(
+        pageIndex: number,
+        img: {
+            data: Uint8Array | Uint8ClampedArray
+            width: number
+            height: number
+            kind: ImageKind
+        },
+        createCanvas: (w: number, h: number) => any,
+        imageObj: any,
+        folder: string
+    ) {
+        if (!isUint8ClampedArray(img?.data) && !isUint8Array(img?.data))
+            return undefined
+
+        const { width, height, data: _data, kind } = img
+        const imageData = new ImageData(width, height)
+        for (let y = 0; y < height; y++) {
+            for (let x = 0; x < width; x++) {
+                const dstIdx = (y * width + x) * 4
+                imageData.data[dstIdx + 3] = 255 // A
+                if (kind === ImageKind.GRAYSCALE_1BPP) {
+                    const srcIdx = y * width + x
+                    imageData.data[dstIdx + 0] = _data[srcIdx] // B
+                    imageData.data[dstIdx + 1] = _data[srcIdx] // G
+                    imageData.data[dstIdx + 2] = _data[srcIdx] // R
+                } else {
+                    const srcIdx =
+                        (y * width + x) *
+                        (kind === ImageKind.RGBA_32BPP ? 4 : 3)
+                    imageData.data[dstIdx + 0] = _data[srcIdx] // B
+                    imageData.data[dstIdx + 1] = _data[srcIdx + 1] // G
+                    imageData.data[dstIdx + 2] = _data[srcIdx + 2] // R
+                }
+            }
+        }
+        const canvas = await createCanvas(width, height)
+        const ctx = canvas.getContext("2d")
+        ctx.putImageData(imageData, 0, 0)
+        const buffer = canvas.toBufferSync("png")
+        const fn = join(
+            folder,
+            `page-${pageIndex}-${imageObj.replace(INVALID_FILENAME_REGEX, "")}.png`
+        )
+        await writeFile(fn, buffer)
+
+        return {
+            id: imageObj,
+            width,
+            height,
+            type: "image/png",
+            size: buffer.length,
+            filename: fn,
+        } satisfies PDFPageImage
     }
 }
 
@@ -230,23 +410,25 @@ function PDFPagesToString(pages: PDFPage[]) {
  */
 export async function parsePdf(
     filenameOrBuffer: string | Uint8Array,
-    options?: ParsePDFOptions & TraceOptions
-): Promise<{ pages: PDFPage[]; content: string }> {
-    const { filter } = options || {}
+    options?: ParsePDFOptions & TraceOptions & CancellationOptions
+): Promise<{
+    pages: PDFPage[]
+    content: string
+    metadata?: Record<string, any>
+}> {
     const filename =
         typeof filenameOrBuffer === "string" ? filenameOrBuffer : undefined
     const bytes =
         typeof filenameOrBuffer === "string"
             ? undefined
             : (filenameOrBuffer as Uint8Array)
-    let { pages, ok } = await PDFTryParse(filename, bytes, options)
+    const { pages, ok, metadata, content } = await PDFTryParse(
+        filename,
+        bytes,
+        options
+    )
     if (!ok) return { pages: [], content: "" }
-
-    // Apply filter if provided
-    if (filter)
-        pages = pages.filter((page, index) => filter(index, page.content))
-    const content = PDFPagesToString(pages)
-    return { pages, content }
+    return { pages, content, metadata }
 }
 
 /**

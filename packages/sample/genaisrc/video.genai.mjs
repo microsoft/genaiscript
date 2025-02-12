@@ -1,5 +1,7 @@
 script({
     tools: "video_extract_frames",
+    tests: {},
+    model: "vision",
 })
 const info = await ffmpeg.probe("src/audio/helloworld.mp4")
 console.log(JSON.stringify(info, null, 2))

@@ -281,6 +281,8 @@ export class GitClient implements Git {
         unified?: number
         nameOnly?: boolean
         llmify?: boolean
+        algorithm?: "patience" | "minimal" | "histogram" | "myers"
+        extras?: string[]
         /**
          * Maximum of tokens before returning a name-only diff
          */
@@ -297,12 +299,16 @@ export class GitClient implements Git {
             nameOnly,
             maxTokensFullDiff = GIT_DIFF_MAX_TOKENS,
             llmify,
+            algorithm = "minimal",
+            extras,
         } = options || {}
         const args = ["diff"]
         if (staged) args.push("--staged")
         args.push("--ignore-all-space")
         if (unified > 0) args.push(`--unified=${unified}`)
         if (nameOnly) args.push("--name-only")
+        if (algorithm) args.push(`--diff-algorithm=${algorithm}`)
+        if (extras?.length) args.push(...extras)
         if (base && !head) args.push(base)
         else if (head && !base) args.push(`${head}^..${head}`)
         else if (base && head) args.push(`${base}..${head}`)

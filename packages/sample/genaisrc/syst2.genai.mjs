@@ -1,9 +1,11 @@
 script({
+    model: "small",
     tests: {
-        keywords: ["Hello", "World"]
-    }
+        keywords: ["Hello", "World"],
+    },
 })
-$`Print Hello.`.role("system")
-$`Print world.`.role("system")
+$`##Task
+Print "Hello" in the response.`.role("system")
+$`Print "world" in the response.`.role("system")
 
-$`Do what you have to`
+$`Do what you have been told.`

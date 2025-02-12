@@ -1,13 +1,9 @@
 import { CSVTryParse } from "./csv"
-import {
-    filenameOrFileToContent,
-    filenameOrFileToFilename,
-    unfence,
-} from "./unwrappers"
+import { filenameOrFileToContent, unfence } from "./unwrappers"
 import { JSON5TryParse, JSONLLMTryParse } from "./json5"
 import { estimateTokens } from "./tokens"
 import { TOMLTryParse } from "./toml"
-import { MarkdownTrace } from "./trace"
+import { TraceOptions } from "./trace"
 import { YAMLTryParse } from "./yaml"
 import { DOCXTryParse } from "./docx"
 import { frontmatterTryParse } from "./frontmatter"
@@ -34,12 +30,15 @@ import { tidyData } from "./tidy"
 import { hash } from "./crypto"
 import { GROQEvaluate } from "./groq"
 import { unthink } from "./think"
+import { CancellationOptions } from "./cancellation"
 
-export async function createParsers(options: {
-    trace: MarkdownTrace
-    model: string
-}): Promise<Parsers> {
-    const { trace, model } = options
+export async function createParsers(
+    options: {
+        model: string
+    } & TraceOptions &
+        CancellationOptions
+): Promise<Parsers> {
+    const { trace, model, cancellationToken } = options
     const { encode: encoder } = await resolveTokenEncoder(model)
     return Object.freeze<Parsers>({
         JSON5: (text, options) =>
@@ -93,10 +92,11 @@ export async function createParsers(options: {
             }
         },
         PDF: async (file, options) => {
-            if (!file) return { file: undefined, pages: [] }
+            if (!file) return { file: undefined, pages: [], data: [] }
             const opts = {
                 ...(options || {}),
                 trace,
+                cancellationToken,
             }
             const filename = typeof file === "string" ? file : file.filename
             const { pages, content } = (await parsePdf(filename, opts)) || {}
@@ -107,6 +107,7 @@ export async function createParsers(options: {
                 },
                 pages: pages?.map((p) => p.content),
                 images: pages?.map((p) => p.image),
+                data: pages,
             }
         },
         code: async (file, query) => {

@@ -1,6 +1,6 @@
 {
   "name": "genaiscript",
-  "version": "1.101.1",
+  "version": "1.104.0",
   "main": "built/genaiscript.cjs",
   "type": "commonjs",
   "bin": {
@@ -67,7 +67,7 @@
     "html-to-text": "^9.0.5",
     "jimp": "^1.6.0",
     "mammoth": "^1.9.0",
-    "mathjs": "^14.2.0",
+    "mathjs": "^14.2.1",
     "pyodide": "^0.27.2",
     "tabletojson": "^4.1.5",
     "tsx": "^4.19.2",
@@ -80,7 +80,7 @@
     "zod-to-json-schema": "^3.24.1"
   },
   "optionalDependencies": {
-    "@huggingface/transformers": "^3.3.2",
+    "@huggingface/transformers": "^3.3.3",
     "@lvce-editor/ripgrep": "^1.6.0",
     "pdfjs-dist": "4.10.38",
     "playwright": "^1.50.1",
@@ -92,30 +92,31 @@
     "node": ">=20.0.0"
   },
   "peerDependencies": {
-    "promptfoo": "0.103.1"
+    "promptfoo": "0.104.0"
   },
   "devDependencies": {
     "@types/diff": "^6.0.0",
-    "@types/dockerode": "^3.3.32",
+    "@types/dockerode": "^3.3.34",
     "@types/fs-extra": "^11.0.4",
     "@types/memorystream": "^0.3.4",
     "@types/node": "^22.13.1",
     "@types/papaparse": "^5.3.15",
     "@types/prompts": "^2.4.9",
     "@types/replace-ext": "^2.0.2",
-    "@types/ws": "^8.5.13",
+    "@types/ws": "^8.5.14",
+    "ci-info": "^4.1.0",
     "commander": "^12.1.0",
     "diff": "^7.0.0",
     "dotenv": "^16.4.7",
     "es-toolkit": "^1.32.0",
-    "esbuild": "^0.24.2",
+    "esbuild": "^0.25.0",
     "execa": "^9.5.2",
     "fs-extra": "^11.3.0",
     "glob": "^11.0.1",
     "memorystream": "^0.3.1",
     "node-sarif-builder": "^3.2.0",
-    "octokit": "^4.1.0",
-    "openai": "^4.82.0",
+    "octokit": "^4.1.1",
+    "openai": "^4.83.0",
     "pretty-bytes": "^6.1.1",
     "replace-ext": "^2.0.0",
     "ws": "^8.18.0",

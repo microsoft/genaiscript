@@ -42,6 +42,11 @@ export interface LanguageModelInfo {
     id: string
     details?: string
     url?: string
+    version?: string
+    /**
+     * Base model name
+     */
+    family?: string
 }
 
 export type ResolvedLanguageModelConfiguration =
@@ -107,7 +112,22 @@ export interface PromptScriptTestRun extends RequestMessage {
 
 export interface PromptScriptTestResult extends ResponseStatus {
     script: string
-    value?: { evalId: string } /** OutputFile */
+    value?: {
+        evalId: string
+        results: {
+            stats?: {
+                successes: number
+                failures: number
+                errors: number
+                tokenUsage?: {
+                    cached?: number
+                    completion?: number
+                    prompt?: number
+                    total?: number
+                }
+            }
+        }
+    }
 }
 
 export interface PromptScriptTestRunResponse extends ResponseStatus {
@@ -161,6 +181,7 @@ export interface PromptScriptRunOptions {
     topLogprobs: number
     fenceFormat: FenceFormat
     workspaceFiles?: WorkspaceFile[]
+    runTrace: boolean
 }
 
 export interface PromptScriptList extends RequestMessage {
@@ -349,6 +370,14 @@ export interface ChatChunk extends RequestMessage {
     chunk?: string
     tokens?: number
     error?: SerializedError
+}
+
+export type LogLevel = "debug" | "info" | "warn" | "error"
+
+export interface LogMessageEvent {
+    type: "log"
+    message: string
+    level: LogLevel
 }
 
 export type RequestMessages =

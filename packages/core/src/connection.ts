@@ -197,7 +197,10 @@ export async function parseTokenFromEnv(
         base = cleanAzureBase(base)
         if (!URL.canParse(base))
             throw new Error("AZURE_OPENAI_API_ENDPOINT must be a valid URL")
-        const version = env.AZURE_OPENAI_API_VERSION || env.AZURE_API_VERSION
+        const version =
+            env[`AZURE_OPENA_API_VERSION_${model.toLocaleUpperCase()}`] ||
+            env.AZURE_OPENAI_API_VERSION ||
+            env.AZURE_API_VERSION
         const azureCredentialsType =
             env.AZURE_OPENAI_API_CREDENTIALS?.toLowerCase().trim() as AzureCredentialsType
         return {

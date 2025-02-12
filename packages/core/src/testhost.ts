@@ -6,7 +6,6 @@
 import { readFile, writeFile } from "fs/promises"
 import { ensureDir } from "fs-extra"
 import {
-    LogLevel,
     ServerManager,
     UTF8Decoder,
     UTF8Encoder,
@@ -31,6 +30,7 @@ import { LanguageModel } from "./chat"
 import { NotSupportedError } from "./error"
 import {
     LanguageModelConfiguration,
+    LogLevel,
     Project,
     ResponseStatus,
 } from "./server/messages"
@@ -63,9 +63,6 @@ export class TestHost implements RuntimeHost {
     path: Path = createNodePath()
     // File system for workspace
     workspace: WorkspaceFileSystem
-    azureToken: AzureTokenResolver = undefined
-    azureServerlessToken: AzureTokenResolver = undefined
-    microsoftGraphToken: AzureTokenResolver = undefined
 
     // Default options for language models
     readonly modelAliases: ModelConfigurations = defaultModelConfigurations()
@@ -154,7 +151,7 @@ export class TestHost implements RuntimeHost {
 
     // Placeholder for logging functionality
     log(level: LogLevel, msg: string): void {
-        console.log(`${level}: ${msg}`)
+        console[level](msg)
     }
 
     // Method to read a file and return its content as a Uint8Array

@@ -6,6 +6,7 @@ import { addLineNumbers, indexToLineNumber } from "./liner"
 import { resolveFileContent } from "./file"
 import type { EncodeOptions } from "gpt-tokenizer/GptEncoding"
 import { assert } from "./util"
+import { TextSplitter } from "./textsplitter"
 
 /**
  * Resolves the appropriate token encoder based on the given model ID.
@@ -74,10 +75,10 @@ export async function chunk(
     let filename: string
     let content: string
     if (typeof f === "string") {
-        filename = undefined
         content = f
     } else if (typeof f === "object") {
         await resolveFileContent(f)
+        if (f.encoding) return [] // binary file bail out
         filename = f.filename
         content = f.content
     } else return []
@@ -94,7 +95,6 @@ export async function chunk(
         ?.toLowerCase()
         ?.replace(/^\./, "")
     const tokenizer = await resolveTokenEncoder(model)
-    const { TextSplitter } = await import("vectra/lib/TextSplitter")
     const ts = new TextSplitter({
         ...rest,
         docType,

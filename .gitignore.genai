@@ -6,3 +6,5 @@ package.json
 package-lock.json
 yarn.lock
 **/package.lock
+docs/dist/
+docs/distasw/

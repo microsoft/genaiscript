@@ -1,6 +1,6 @@
 import { GENAISCRIPT_FOLDER, HTTPS_REGEX } from "./constants"
 import { isCancelError, serializeError } from "./error"
-import { LogLevel, host } from "./host"
+import { host } from "./host"
 import { YAMLStringify } from "./yaml"
 
 // chunk string into chunks of size n
@@ -134,29 +134,29 @@ export function relativePath(root: string, fn: string) {
 }
 
 export function logInfo(msg: string) {
-    host.log(LogLevel.Info, msg)
+    host.log("info", msg)
 }
 
 export function logVerbose(msg: string) {
-    host.log(LogLevel.Verbose, msg)
+    host.log("debug", msg)
 }
 
 export function logWarn(msg: string) {
-    host.log(LogLevel.Warn, msg)
+    host.log("warn", msg)
 }
 
 export function logError(msg: string | Error | SerializedError) {
     const err = serializeError(msg)
     const { message, name, stack, ...e } = err || {}
     if (isCancelError(err)) {
-        host.log(LogLevel.Warn, message || "cancelled")
+        host.log("warn", message || "cancelled")
         return
     }
-    host.log(LogLevel.Error, message ?? name ?? "error")
-    if (stack) host.log(LogLevel.Verbose, stack)
+    host.log("error", message ?? name ?? "error")
+    if (stack) host.log("debug", stack)
     if (Object.keys(e).length) {
         const se = YAMLStringify(e)
-        host.log(LogLevel.Verbose, se)
+        host.log("debug", se)
     }
 }
 

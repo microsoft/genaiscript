@@ -89,15 +89,17 @@ export interface ScriptFilterOptions {
     ids?: string[]
     groups?: string[]
     test?: boolean
+    redteam?: boolean
 }
 
 export function filterScripts(
     scripts: PromptScript[],
     options: ScriptFilterOptions
 ) {
-    const { ids, groups, test } = options || {}
+    const { ids, groups, test, redteam } = options || {}
     return scripts
         .filter((t) => !test || arrayify(t.tests)?.length)
+        .filter((t) => !redteam || t.redteam)
         .filter((t) => !ids?.length || ids.includes(t.id))
         .filter((t) => tagFilter(groups, t.group))
 }

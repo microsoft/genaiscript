@@ -138,7 +138,9 @@ type PromptTemplateResponseType =
 type ModelType = OptionsOrString<
     | "large"
     | "small"
+    | "long"
     | "vision"
+    | "vision_small"
     | "reasoning"
     | "reasoning_small"
     | "openai:gpt-4o"
@@ -478,6 +480,10 @@ interface PromptTest {
      */
     files?: string | string[]
     /**
+     * List of in-memory files to apply the test to.
+     */
+    workspaceFiles?: WorkspaceFile | WorkspaceFile[]
+    /**
      * Extra set of variables for this scenario
      */
     vars?: Record<string, string | boolean | number>
@@ -501,6 +507,116 @@ interface PromptTest {
      * Additional deterministic assertions.
      */
     asserts?: PromptAssertion | PromptAssertion[]
+
+    /**
+     * Determines what kind of output is sent back to the test engine. Default is "text".
+     */
+    format?: "text" | "json"
+}
+
+/**
+ * Configure promptfoo redteam plugins
+ */
+interface PromptRedteam {
+    /**
+     * The `purpose` property is used to guide the attack generation process. It should be as clear and specific as possible.
+     * Include the following information:
+     * - Who the user is and their relationship to the company
+     * - What data the user has access to
+     * - What data the user does not have access to
+     * - What actions the user can perform
+     * - What actions the user cannot perform
+     * - What systems the agent has access to
+     * @link https://www.promptfoo.dev/docs/red-team/troubleshooting/attack-generation/
+     */
+    purpose: string
+
+    /**
+     * Redteam identifer used for reporting purposes
+     */
+    label?: string
+
+    /**
+     * Default number of inputs to generate for each plugin.
+     * The total number of tests will be `(numTests * plugins.length * (1 + strategies.length) * languages.length)`
+     * Languages.length is 1 by default, but is added when the multilingual strategy is used.
+     */
+    numTests?: number
+
+    /**
+     * List of languages to target. Default is English.
+     */
+    language?: string
+
+    /**
+     * Red team plugin list
+     * @link https://www.promptfoo.dev/docs/red-team/owasp-llm-top-10/
+     */
+    plugins?: ElementOrArray<
+        OptionsOrString<
+            | "default"
+            | "nist:ai:measure"
+            | "owasp:llm"
+            | "owasp:api"
+            | "mitre:atlas"
+            | "owasp:llm:01"
+            | "owasp:llm:02"
+            | "owasp:llm:04"
+            | "owasp:llm:06"
+            | "owasp:llm:09"
+            | "contracts"
+            | "divergent-repetition"
+            | "excessive-agency"
+            | "hallucination"
+            | "harmful:chemical-biological-weapons"
+            | "harmful:child-exploitation"
+            | "harmful:copyright-violations"
+            | "harmful:cybercrime"
+            | "harmful:cybercrime:malicious-code"
+            | "harmful:graphic-content"
+            | "harmful:harassment-bullying"
+            | "harmful:hate"
+            | "harmful:illegal-activities"
+            | "harmful:illegal-drugs"
+            | "harmful:illegal-drugs:meth"
+            | "harmful:indiscriminate-weapons"
+            | "harmful:insults"
+            | "harmful:intellectual-property"
+            | "harmful:misinformation-disinformation"
+            | "harmful:non-violent-crime"
+            | "harmful:privacy"
+            | "harmful:profanity"
+            | "harmful:radicalization"
+            | "harmful:self-harm"
+            | "harmful:sex-crime"
+            | "harmful:sexual-content"
+            | "harmful:specialized-advice"
+            | "harmful:unsafe-practices"
+            | "harmful:violent-crime"
+            | "harmful:weapons:ied"
+            | "hijacking"
+            | "pii:api-db"
+            | "pii:direct"
+            | "pii:session"
+            | "pii:social"
+            | "politics"
+        >
+    >
+
+    /**
+     * Adversary prompt generation strategies
+     */
+    strategies?: ElementOrArray<
+        OptionsOrString<
+            | "default"
+            | "basic"
+            | "jailbreak"
+            | "jailbreak:composite"
+            | "base64"
+            | "jailbreak"
+            | "prompt-injection"
+        >
+    >
 }
 
 interface ContentSafetyOptions {
@@ -548,7 +664,7 @@ interface PromptScript
      * A file path or list of file paths or globs.
      * The content of these files will be by the files selected in the UI by the user or the cli arguments.
      */
-    files?: string | string[]
+    files?: ElementOrArray<string>
 
     /**
      * A comma separated list of file extensions to accept.
@@ -563,7 +679,12 @@ interface PromptScript
     /**
      * Tests to validate this script.
      */
-    tests?: PromptTest | PromptTest[]
+    tests?: ElementOrArray<string | PromptTest>
+
+    /**
+     * LLM vulnerability checks
+     */
+    redteam?: PromptRedteam
 
     /**
      * Don't show it to the user in lists. Template `system.*` are automatically unlisted.
@@ -575,7 +696,6 @@ interface PromptScript
      */
     isSystem?: boolean
 }
-
 /**
  * Represent a workspace file and optional content.
  */
@@ -599,6 +719,11 @@ interface WorkspaceFile {
      * Content of the file.
      */
     content?: string
+
+    /**
+     * Size in bytes if known
+     */
+    size?: number
 }
 
 interface WorkspaceFileWithScore extends WorkspaceFile {
@@ -1169,6 +1294,7 @@ type PromptSystemArgs = Omit<
     | "responseSchema"
     | "files"
     | "modelConcurrency"
+    | "redteam"
 >
 
 type StringLike = string | WorkspaceFile | WorkspaceFile[]
@@ -1349,6 +1475,11 @@ interface DefImagesOptions {
      * Renders all images in a single tiled image
      */
     tiled?: boolean
+
+    /**
+     * By default, throws an error if no images are passed.
+     */
+    ignoreEmpty?: boolean
 }
 
 type JSONSchemaTypeName =
@@ -1375,6 +1506,10 @@ interface JSONSchemaAnyOf {
 
 interface JSONSchemaDescripted {
     /**
+     * A short description of the property
+     */
+    title?: string
+    /**
      * A clear description of the property.
      */
     description?: string
@@ -1382,6 +1517,7 @@ interface JSONSchemaDescripted {
 
 interface JSONSchemaString extends JSONSchemaDescripted {
     type: "string"
+    uiType?: "textarea"
     enum?: string[]
     default?: string
     pattern?: string
@@ -1566,10 +1702,22 @@ interface XMLParseOptions {
 }
 
 interface ParsePDFOptions {
+    /**
+     * Disable removing trailing spaces in text
+     */
     disableCleanup?: boolean
+    /**
+     * Render each page as an image
+     */
     renderAsImage?: boolean
+    /**
+     * Zoom scaling with rendering pages and figures
+     */
     scale?: number
-    filter?: (pageIndex: number, text?: string) => boolean
+    /**
+     * Disable caching with cache: false
+     */
+    cache?: boolean
 }
 
 interface HTMLToTextOptions {
@@ -1807,6 +1955,19 @@ interface VideoProbeResult {
     }
 }
 
+interface PDFPageImage extends WorkspaceFile {
+    id: string
+    width: number
+    height: number
+}
+
+interface PDFPage {
+    index: number
+    content: string
+    image?: string
+    figures?: PDFPageImage[]
+}
+
 interface Parsers {
     /**
      * Parses text as a JSON5 payload
@@ -1863,7 +2024,26 @@ interface Parsers {
         content: string | WorkspaceFile,
         options?: ParsePDFOptions
     ): Promise<
-        { file: WorkspaceFile; pages: string[]; images?: Buffer[] } | undefined
+        | {
+              /**
+               * Reconstructed text content from page content
+               */
+              file: WorkspaceFile
+              /**
+               * Page text content
+               */
+              pages: string[]
+              /**
+               * Rendered pages as images if `renderAsImage` is set
+               */
+              images?: string[]
+
+              /**
+               * Parse PDF content
+               */
+              data: PDFPage[]
+          }
+        | undefined
     >
 
     /**
@@ -2258,6 +2438,9 @@ interface Git {
         paths?: ElementOrArray<string>
         excludedPaths?: ElementOrArray<string>
         unified?: number
+        algorithm?: "patience" | "minimal" | "histogram" | "myers"
+        ignoreSpaceChange?: boolean
+        extras?: string[]
         /**
          * Modifies the diff to be in a more LLM friendly format
          */
@@ -4341,7 +4524,7 @@ interface PromptHost
      * Gets a client to a Microsoft Teams channel from a share link URL;
      * uses `GENAISCRIPT_TEAMS_CHANNEL_URL` environment variable if `shareUrl` is not provided.
      * Uses Azure CLI login for authentication.
-     * @param url 
+     * @param url
      */
     teamsChannel(shareUrl?: string): Promise<MessageChannelClient>
 }
@@ -4359,19 +4542,22 @@ interface WorkspaceFileWithDescription extends WorkspaceFile {
 interface MessageChannelClient {
     /**
      * Posts a message with attachments to the channel
-     * @param message 
-     * @param options 
+     * @param message
+     * @param options
      */
-    async postMessage(message: string, options?: {
-        /**
-         * File attachments that will be added in the channel folder
-         */
-        files?: (string | WorkspaceFileWithDescription)[],
-        /**
-         * Sets to false to remove AI generated disclaimer
-         */
-        disclaimer?: boolean | string
-    }): Promise<string>
+    postMessage(
+        message: string,
+        options?: {
+            /**
+             * File attachments that will be added in the channel folder
+             */
+            files?: (string | WorkspaceFileWithDescription)[]
+            /**
+             * Sets to false to remove AI generated disclaimer
+             */
+            disclaimer?: boolean | string
+        }
+    ): Promise<string>
 }
 
 interface ContainerHost extends ShellHost {

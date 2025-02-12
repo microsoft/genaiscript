@@ -5,10 +5,22 @@ import { MarkdownTrace, TraceOptions } from "./trace"
 import {
     AzureCredentialsType,
     LanguageModelConfiguration,
+    LogLevel,
     Project,
     ResponseStatus,
 } from "./server/messages"
 import { HostConfiguration } from "./hostconfiguration"
+import { LOG } from "./constants"
+
+export class LogEvent extends Event {
+    static Name = "log"
+    constructor(
+        public readonly level: LogLevel,
+        public readonly message: string
+    ) {
+        super(LOG)
+    }
+}
 
 // this is typically an instance of TextDecoder
 export interface UTF8Decoder {
@@ -22,13 +34,6 @@ export interface UTF8Decoder {
 
 export interface UTF8Encoder {
     encode(input: string): Uint8Array
-}
-
-export enum LogLevel {
-    Verbose = 1,
-    Info = 2,
-    Warn = 3,
-    Error = 4,
 }
 
 export interface RetrievalClientOptions {
@@ -129,9 +134,10 @@ export interface RuntimeHost extends Host {
     project: Project
     workspace: Omit<WorkspaceFileSystem, "grep" | "writeCached">
 
-    azureToken: AzureTokenResolver
-    azureServerlessToken: AzureTokenResolver
-    microsoftGraphToken: AzureTokenResolver
+    azureToken?: AzureTokenResolver
+    azureServerlessToken?: AzureTokenResolver
+    azureManagementToken?: AzureTokenResolver
+    microsoftGraphToken?: AzureTokenResolver
 
     modelAliases: Readonly<ModelConfigurations>
     clientLanguageModel?: LanguageModel

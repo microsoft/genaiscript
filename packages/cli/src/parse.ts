@@ -17,7 +17,7 @@ import { resolveTokenEncoder } from "../../core/src/encoders"
 import { MD_REGEX, PROMPTY_REGEX } from "../../core/src/constants"
 import { promptyParse, promptyToGenAIScript } from "../../core/src/prompty"
 import { basename, join } from "node:path"
-import { CSVStringify, CSVToMarkdown } from "../../core/src/csv"
+import { CSVStringify, dataToMarkdownTable } from "../../core/src/csv"
 import { INIStringify } from "../../core/src/ini"
 import { JSON5Stringify } from "../../core/src/json5"
 import { jinjaRender } from "../../core/src/jinja"
@@ -138,7 +138,7 @@ export async function parseAnyToJSON(
             break
         case "md":
         case "markdown":
-            out = CSVToMarkdown(data)
+            out = dataToMarkdownTable(data)
             break
         case "json5":
             out = JSON5Stringify(data, null, 2)

@@ -506,7 +506,14 @@ function assistantText(
     for (let i = messages.length - 1; i >= 0; i--) {
         const msg = messages[i]
         if (msg.role !== "assistant") break
-        text = msg.content + text
+        if (typeof msg.content === "string") text = msg.content + text
+        else {
+            for (const part of msg.content) {
+                if (part.type === "text") text = part.text + text
+                else if (part.type === "refusal")
+                    text = `refusal: ${part.refusal}\n` + text
+            }
+        }
     }
 
     text = unthink(text)
@@ -1071,6 +1078,8 @@ export async function executeChatSession(
                         const cachedKey = deleteUndefinedValues({
                             modelid: model,
                             ...req,
+                            responseType,
+                            responseSchema,
                             ...cfgNoToken,
                         }) satisfies ChatCompletionRequestCacheKey
                         const validator = (value: ChatCompletionResponse) => {
