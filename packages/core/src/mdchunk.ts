@@ -18,7 +18,11 @@ export async function chunkMarkdown(
     type Section = { heading: string; lines: string[]; level: number }
 
     const filename = filenameOrFileToFilename(markdown)
-    if (typeof markdown !== "string") markdown = markdown.content
+    if (typeof markdown === "object") {
+        if (markdown.encoding === "base64")
+            throw new Error("base64 encoding not supported")
+        markdown = markdown.content
+    }
     const lines = markdown.split(/\r?\n/g)
 
     const sections: Section[] = []
