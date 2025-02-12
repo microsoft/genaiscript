@@ -23,7 +23,7 @@ import { HTMLEscape } from "./html"
 import { resolve } from "node:path"
 import { pathToFileURL } from "node:url"
 import { dedent } from "./indent"
-import { CSVStringify, CSVToMarkdown } from "./csv"
+import { CSVStringify, dataToMarkdownTable } from "./csv"
 import { INIStringify } from "./ini"
 import { ChatCompletionsProgressReport } from "./chattypes"
 
@@ -126,7 +126,7 @@ export class MarkdownTrace extends EventTarget implements OutputTrace {
         options?: { headers?: ElementOrArray<string> }
     ): void {
         if (!rows?.length) return
-        const md = CSVToMarkdown(rows, options)
+        const md = dataToMarkdownTable(rows, options)
         this.appendContent(`\n\n${md}\n\n`)
     }
 
@@ -262,7 +262,7 @@ ${this.toResultIcon(success, "")}${title}
         if (message === undefined || message === null || message === "") return
 
         if (contentType === "md" && Array.isArray(message)) {
-            this.appendContent(CSVToMarkdown(message))
+            this.appendContent(dataToMarkdownTable(message))
             return
         }
 

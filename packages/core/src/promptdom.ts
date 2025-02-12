@@ -1,5 +1,5 @@
 // Importing various utility functions and constants from different modules.
-import { CSVToMarkdown, CSVTryParse } from "./csv"
+import { dataToMarkdownTable, CSVTryParse } from "./csv"
 import { renderFileContent, resolveFileContent } from "./file"
 import { addLineNumbers, extractRange } from "./liner"
 import { JSONSchemaStringifyToTypeScript } from "./schema"
@@ -287,7 +287,7 @@ function renderDefNode(def: PromptDefNode): string {
     if (/^(c|t)sv$/i.test(dtype)) {
         const parsed = !/^\s*|/.test(content) && CSVTryParse(content)
         if (parsed) {
-            body = CSVToMarkdown(parsed)
+            body = dataToMarkdownTable(parsed)
             fenceFormat = "none"
         }
     }
@@ -358,7 +358,7 @@ async function renderDefDataNode(n: PromptDefDataNode): Promise<string> {
     let text: string
     let lang: string
     if (Array.isArray(data) && format === "csv") {
-        text = CSVToMarkdown(data)
+        text = dataToMarkdownTable(data)
     } else if (format === "json") {
         text = JSON.stringify(data)
         lang = "json"

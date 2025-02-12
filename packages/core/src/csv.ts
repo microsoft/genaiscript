@@ -102,7 +102,7 @@ export function CSVStringify(csv: object[], options?: CSVStringifyOptions) {
  * @param options.headers - Array of headers for the table columns.
  * @returns A string representing the CSV data in Markdown table format.
  */
-export function CSVToMarkdown(
+export function dataToMarkdownTable(
     csv: object[],
     options?: { headers?: ElementOrArray<string> }
 ) {
@@ -111,26 +111,42 @@ export function CSVToMarkdown(
     const headers = arrayify(options?.headers)
     if (headers.length === 0) headers.push(...Object.keys(csv[0])) // Use object keys as headers if not provided
     const res: string[] = [
-        `|${headers.join("|")}|`, // Create Markdown header row
-        `|${headers.map(() => "-").join("|")}|`, // Create Markdown separator row
-        ...csv.map(
-            (row) =>
-                `|${headers
-                    .map((key) => {
-                        const v = (row as any)[key]
-                        const s = v === undefined || v === null ? "" : String(v)
-                        // Escape special Markdown characters and format cell content
-                        return s
-                            .replace(/\s+$/, "") // Trim trailing whitespace
-                            .replace(/[\\`*_{}[\]()#+\-.!]/g, (m) => "\\" + m) // Escape special characters
-                            .replace(/</g, "lt;") // Replace '<' with its HTML entity
-                            .replace(/>/g, "gt;") // Replace '>' with its HTML entity
-                            .replace(/\r?\n/g, "<br>") // Replace newlines with <br>
-                    })
-                    .join("|")}|` // Join columns with '|'
-        ),
+        headersToMarkdownTableHead(headers), // Create Markdown separator row
+        headersToMarkdownTableSeperator(headers),
+        ...csv.map((row) => objectToMarkdownTableRow(row, headers)),
     ]
-    return res.join("\n") // Join rows with newline
+    return res.join("") // Join rows with newline
+}
+
+export function headersToMarkdownTableSeperator(headers: string[]) {
+    return `|${headers.map(() => "-").join("|")}|\n`
+}
+
+export function headersToMarkdownTableHead(headers: string[]) {
+    return `|${headers.join("|")}|\n`
+}
+
+export function objectToMarkdownTableRow(
+    row: object,
+    headers: string[],
+    options?: { skipEscape?: boolean }
+) {
+    const { skipEscape } = options || {}
+    return `|${headers
+        .map((key) => {
+            const v = (row as any)[key]
+            let s = v === undefined || v === null ? "" : String(v)
+            // Escape special Markdown characters and format cell content
+            s = s
+                .replace(/\s+$/, "") // Trim trailing whitespace
+                .replace(/</g, "lt;") // Replace '<' with its HTML entity
+                .replace(/>/g, "gt;") // Replace '>' with its HTML entity
+                .replace(/\r?\n/g, "<br>") // Replace newlines with <br>
+            if (!skipEscape)
+                s = s.replace(/[\\`*_{}[\]()#+\-.!]/g, (m) => "\\" + m) // Escape special characters
+            return s
+        })
+        .join("|")}|\n` // Join columns with '|'
 }
 
 /**

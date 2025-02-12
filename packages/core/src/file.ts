@@ -15,7 +15,7 @@ import { host } from "./host"
 import { TraceOptions } from "./trace"
 import { parsePdf } from "./pdf"
 import { XLSXParse } from "./xlsx"
-import { CSVToMarkdown, CSVTryParse } from "./csv"
+import { dataToMarkdownTable, CSVTryParse } from "./csv"
 import {
     CSV_REGEX,
     DOCX_MIME_TYPE,
@@ -172,7 +172,7 @@ export async function renderFileContent(
         let csv = CSVTryParse(content, options)
         if (csv) {
             csv = tidyData(csv, options)
-            return { filename, content: CSVToMarkdown(csv, options) }
+            return { filename, content: dataToMarkdownTable(csv, options) }
         }
     }
     // Render XLSX content
@@ -182,11 +182,11 @@ export async function renderFileContent(
             ? sheets
                   .map(
                       ({ name, rows }) => `## ${name}
-${CSVToMarkdown(tidyData(rows, options))}
+${dataToMarkdownTable(tidyData(rows, options))}
 `
                   )
                   .join("\n")
-            : CSVToMarkdown(tidyData(sheets[0].rows, options))
+            : dataToMarkdownTable(tidyData(sheets[0].rows, options))
         return { filename, content: trimmed }
     }
     return { ...file }

@@ -50,6 +50,11 @@ import {
     checkCancelled,
 } from "../../core/src/cancellation"
 import { CORE_VERSION } from "../../core/src/version"
+import {
+    headersToMarkdownTableHead,
+    headersToMarkdownTableSeperator,
+    objectToMarkdownTableRow,
+} from "../../core/src/csv"
 
 /**
  * Parses model specifications from a string and returns a ModelOptions object.
@@ -199,6 +204,21 @@ npx --yes genaiscript@${CORE_VERSION} test view
         configurations.push({ script, configuration: fn })
     }
 
+    let stats = {
+        prompt: 0,
+        completion: 0,
+        total: 0,
+    }
+    const headers = ["status", "script", "prompt", "completion", "total", "url"]
+    if (outSummary) {
+        await appendFile(
+            outSummary,
+            [
+                headersToMarkdownTableHead(headers),
+                headersToMarkdownTableSeperator(headers),
+            ].join("")
+        )
+    }
     const promptFooVersion = options.promptfooVersion || PROMPTFOO_VERSION
     const results: PromptScriptTestResult[] = []
     // Execute each configuration and gather results
@@ -230,7 +250,7 @@ npx --yes genaiscript@${CORE_VERSION} test view
         })
         let status: number
         let error: SerializedError
-        let value: any = undefined
+        let value: PromptScriptTestResult["value"] = undefined
         try {
             const res = await exec
             status = res.exitCode
@@ -240,18 +260,42 @@ npx --yes genaiscript@${CORE_VERSION} test view
         }
         if (await exists(outJson))
             value = JSON5TryParse(await readFile(outJson, "utf8"))
-
         const ok = status === 0
+        stats.prompt += value?.results?.stats?.tokenUsage?.prompt || 0
+        stats.completion += value?.results?.stats?.tokenUsage?.completion || 0
+        stats.total += value?.results?.stats?.tokenUsage?.total || 0
         if (outSummary) {
             const url = value?.evalId
-                ? link(
+                ? " " +
+                  link(
                       "result",
                       `${serverUrl}/eval?evalId=${encodeURIComponent(value?.evalId)}`
-                  )
+                  ) +
+                  " "
                 : ""
+            const row = {
+                status: ok ? EMOJI_SUCCESS : EMOJI_FAIL,
+                script: script.id,
+                prompt: value?.results?.stats?.tokenUsage?.prompt,
+                completion: value?.results?.stats?.tokenUsage?.completion,
+                total: value?.results?.stats?.tokenUsage?.total,
+                url,
+            }
             await appendFile(
                 outSummary,
-                `- ${ok ? EMOJI_SUCCESS : EMOJI_FAIL} ${script.id} ${url}\n`
+                objectToMarkdownTableRow(
+                    {
+                        status: ok ? EMOJI_SUCCESS : EMOJI_FAIL,
+                        script: script.id,
+                        prompt: value?.results?.stats?.tokenUsage?.prompt,
+                        completion:
+                            value?.results?.stats?.tokenUsage?.completion,
+                        total: value?.results?.stats?.tokenUsage?.total,
+                        url,
+                    },
+                    headers,
+                    { skipEscape: true }
+                )
             )
         }
         results.push({
@@ -268,6 +312,25 @@ npx --yes genaiscript@${CORE_VERSION} test view
         }
     }
 
+    if (outSummary) {
+        await appendFile(
+            outSummary,
+            [
+                headersToMarkdownTableHead(headers),
+                objectToMarkdownTableRow(
+                    {
+                        status: results.filter((r) => r.ok).length,
+                        prompt: stats.prompt,
+                        completion: stats.completion,
+                        total: stats.total,
+                    },
+                    headers,
+                    { skipEscape: true }
+                ),
+                "\n\n",
+            ].join("")
+        )
+    }
     if (outSummary) logVerbose(`trace: ${outSummary}`)
     const ok = results.every((r) => !!r.ok)
     return {

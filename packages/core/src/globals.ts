@@ -1,6 +1,6 @@
 // Import various parsing and stringifying utilities
 import { YAMLParse, YAMLStringify } from "./yaml"
-import { CSVParse, CSVToMarkdown, CSVStringify, CSVChunk } from "./csv"
+import { CSVParse, dataToMarkdownTable, CSVStringify, CSVChunk } from "./csv"
 import { INIParse, INIStringify } from "./ini"
 import { XMLParse } from "./xml"
 import {
@@ -60,7 +60,7 @@ export function installGlobals() {
     glb.CSV = Object.freeze<CSV>({
         parse: CSVParse, // Parse CSV string to objects
         stringify: CSVStringify, // Convert objects to CSV string
-        markdownify: CSVToMarkdown, // Convert CSV to Markdown format
+        markdownify: dataToMarkdownTable, // Convert CSV to Markdown format
         chunk: CSVChunk,
     })
 

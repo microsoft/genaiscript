@@ -112,7 +112,22 @@ export interface PromptScriptTestRun extends RequestMessage {
 
 export interface PromptScriptTestResult extends ResponseStatus {
     script: string
-    value?: { evalId: string } /** OutputFile */
+    value?: {
+        evalId: string
+        results: {
+            stats?: {
+                successes: number
+                failures: number
+                errors: number
+                tokenUsage?: {
+                    cached?: number
+                    completion?: number
+                    prompt?: number
+                    total?: number
+                }
+            }
+        }
+    }
 }
 
 export interface PromptScriptTestRunResponse extends ResponseStatus {

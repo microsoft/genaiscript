@@ -6,7 +6,7 @@ import { runtimeHost } from "./host"
 import { MarkdownTrace } from "./trace"
 import { CORE_VERSION } from "./version"
 import { expandFiles } from "./fs"
-import { CSVToMarkdown } from "./csv"
+import { dataToMarkdownTable } from "./csv"
 import { Fragment, GenerationOptions } from "./generation"
 import { traceCliArgs } from "./clihelp"
 import { GenerationResult } from "./server/messages"
@@ -299,7 +299,7 @@ export async function runTemplate(
         if (annotations?.length)
             trace.details(
                 "⚠️ annotations",
-                CSVToMarkdown(
+                dataToMarkdownTable(
                     annotations.map((a) => ({
                         ...a,
                         line: a.range?.[0]?.[0],
