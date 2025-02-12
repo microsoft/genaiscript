@@ -68,3 +68,10 @@ table.toplogprobs td {
     min-height: 16rem;
     margin-left: 0.5rem;
 }
+
+.vscode-body span.ai-disclaimer {
+    font-size: 80%;
+    margin: 1rem;
+    opacity: 0.8;
+    font-family: var(--vscode-font-family);
+}
