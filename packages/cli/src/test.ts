@@ -141,6 +141,7 @@ export async function runPromptScriptTests(
     const port = PROMPTFOO_REMOTE_API_PORT
     const serverUrl = `http://127.0.0.1:${port}`
     const testDelay = normalizeInt(options?.testDelay)
+    const runStart = new Date()
     logInfo(`writing tests to ${out}`)
 
     if (options?.removeOut) await emptyDir(out)
@@ -162,6 +163,7 @@ export async function runPromptScriptTests(
             outSummary,
             `## GenAIScript Test Results
 
+- start: ${runStart.toISOString()}
 - Run this command to launch the promptfoo test viewer.
 
 \`\`\`sh
@@ -180,7 +182,6 @@ npx --yes genaiscript@${CORE_VERSION} test view
         const fn = out
             ? join(out, `${script.id}.promptfoo.yaml`)
             : script.filename.replace(GENAI_ANY_REGEX, ".promptfoo.yaml")
-        logInfo(`  ${fn}`)
         const { info: chatInfo } = await resolveModelConnectionInfo(script, {
             model: runtimeHost.modelAliases.large.model,
         })
@@ -209,7 +210,15 @@ npx --yes genaiscript@${CORE_VERSION} test view
         completion: 0,
         total: 0,
     }
-    const headers = ["status", "script", "prompt", "completion", "total", "url"]
+    const headers = [
+        "status",
+        "script",
+        "prompt",
+        "completion",
+        "total",
+        "duration",
+        "url",
+    ]
     if (outSummary) {
         await appendFile(
             outSummary,
@@ -225,6 +234,10 @@ npx --yes genaiscript@${CORE_VERSION} test view
     for (const config of configurations) {
         checkCancelled(cancellationToken)
         const { script, configuration } = config
+        logInfo(
+            `test ${script.id} (${results.length + 1}/${configurations.length}) - ${configuration}`
+        )
+        const testStart = new Date()
         const outJson = configuration.replace(/\.yaml$/, ".res.json")
         const cmd = "npx"
         const args = ["--yes", `promptfoo@${promptFooVersion}`]
@@ -264,6 +277,7 @@ npx --yes genaiscript@${CORE_VERSION} test view
         stats.prompt += value?.results?.stats?.tokenUsage?.prompt || 0
         stats.completion += value?.results?.stats?.tokenUsage?.completion || 0
         stats.total += value?.results?.stats?.tokenUsage?.total || 0
+        const testEnd = new Date()
         if (outSummary) {
             const url = value?.evalId
                 ? " " +
@@ -279,23 +293,12 @@ npx --yes genaiscript@${CORE_VERSION} test view
                 prompt: value?.results?.stats?.tokenUsage?.prompt,
                 completion: value?.results?.stats?.tokenUsage?.completion,
                 total: value?.results?.stats?.tokenUsage?.total,
+                duration: (testEnd.getTime() - testStart.getTime()) / 1000,
                 url,
             }
             await appendFile(
                 outSummary,
-                objectToMarkdownTableRow(
-                    {
-                        status: ok ? EMOJI_SUCCESS : EMOJI_FAIL,
-                        script: script.id,
-                        prompt: value?.results?.stats?.tokenUsage?.prompt,
-                        completion:
-                            value?.results?.stats?.tokenUsage?.completion,
-                        total: value?.results?.stats?.tokenUsage?.total,
-                        url,
-                    },
-                    headers,
-                    { skipEscape: true }
-                )
+                objectToMarkdownTableRow(row, headers, { skipEscape: true })
             )
         }
         results.push({
@@ -311,17 +314,22 @@ npx --yes genaiscript@${CORE_VERSION} test view
             await delay(testDelay * 1000)
         }
     }
+    const runEnd = new Date()
 
     if (outSummary) {
         await appendFile(
             outSummary,
             [
+                `\n\n`,
+                `- end: ${runEnd.toISOString()}`,
                 objectToMarkdownTableRow(
                     {
                         status: results.filter((r) => r.ok).length,
                         prompt: stats.prompt,
                         completion: stats.completion,
                         total: stats.total,
+                        duration:
+                            (runEnd.getTime() - runStart.getTime()) / 1000,
                     },
                     headers,
                     { skipEscape: true }
@@ -383,7 +391,7 @@ export async function scriptsTest(
     const { status, value = [] } = await runPromptScriptTests(ids, options)
     const trace = new MarkdownTrace()
     trace.appendContent(
-        `tests: ${value.filter((r) => r.ok).length} success, ${value.filter((r) => !r.ok).length} failed`
+        `\n\ntests: ${value.filter((r) => r.ok).length} success, ${value.filter((r) => !r.ok).length} failed`
     )
     for (const result of value) trace.resultItem(result.ok, result.script)
     console.log(trace.content)

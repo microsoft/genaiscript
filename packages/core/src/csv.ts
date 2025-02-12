@@ -144,7 +144,7 @@ export function objectToMarkdownTableRow(
                 .replace(/\r?\n/g, "<br>") // Replace newlines with <br>
             if (!skipEscape)
                 s = s.replace(/[\\`*_{}[\]()#+\-.!]/g, (m) => "\\" + m) // Escape special characters
-            return s
+            return s || " "
         })
         .join("|")}|\n` // Join columns with '|'
 }

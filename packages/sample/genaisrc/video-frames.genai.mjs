@@ -1,4 +1,5 @@
 script({
+    model: "vision_small",
     tools: "video_extract_frames",
     files: "src/audio/helloworld.mp4",
     tests: {
