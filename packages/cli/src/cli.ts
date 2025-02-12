@@ -539,7 +539,6 @@ export async function cli() {
         .command("list", { isDefault: true })
         .description("List all available models")
         .arguments("[provider]")
-        .option("-e, --error", "show errors")
         .action(modelList)
     models
         .command("alias")

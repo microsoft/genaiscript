@@ -120,11 +120,14 @@ export async function modelList(
     const providers = await resolveLanguageModelConfigurations(provider, {
         ...(options || {}),
         models: true,
+        error: true,
     })
     console.log(
         YAMLStringify(
             deleteUndefinedValues(
-                Object.fromEntries(providers.map((p) => [p.provider, p.models]))
+                Object.fromEntries(
+                    providers.map((p) => [p.provider, p.error || p.models])
+                )
             )
         )
     )
