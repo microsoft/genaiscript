@@ -1,13 +1,11 @@
 import { LanguageModel, ListModelsFunction } from "./chat"
 import {
     AZURE_MANAGEMENT_API_VERSION,
-    AZURE_MANAGEMENT_TOKEN_SCOPES,
     MODEL_PROVIDER_AZURE_OPENAI,
 } from "./constants"
 import { errorMessage, serializeError } from "./error"
 import { createFetch } from "./fetch"
 import { OpenAIChatCompletion } from "./openai"
-import { createAzureTokenResolver } from "./azuretoken"
 import { runtimeHost } from "./host"
 
 const listModels: ListModelsFunction = async (cfg, options) => {
