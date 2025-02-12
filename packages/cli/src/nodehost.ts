@@ -53,7 +53,7 @@ import {
     Project,
     ResponseStatus,
 } from "../../core/src/server/messages"
-import { createAzureTokenResolver } from "./azuretoken"
+import { createAzureTokenResolver } from "../../core/src/azuretoken"
 import {
     createAzureContentSafetyClient,
     isAzureContentSafetyClientConfigured,
@@ -104,7 +104,7 @@ export class NodeHost extends EventTarget implements RuntimeHost {
         super()
         this.dotEnvPath = dotEnvPath
         this.azureToken = createAzureTokenResolver(
-            "Azure",
+            "Azure OpenAI",
             "AZURE_OPENAI_TOKEN_SCOPES",
             AZURE_COGNITIVE_SERVICES_TOKEN_SCOPES
         )
