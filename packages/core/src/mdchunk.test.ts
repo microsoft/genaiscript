@@ -142,12 +142,13 @@ There are many variations of passages of Lorem Ipsum available, but the majority
             const markdown = await readFile(doc, { encoding: "utf-8" })
             assert(markdown)
             for (let i = 0; i < 12; ++i) {
+                const maxTokens = 1 << i
                 const result = await chunkMarkdown(
                     markdown,
                     estimateTokens,
-                    1 << i
+                    maxTokens
                 )
-                //console.log(`${1 << i} => ${result.length}`)
+                // console.log(`${maxTokens} => ${result.length}`)
                 assert.strictEqual(result.join("\n"), markdown)
             }
         })
@@ -163,7 +164,6 @@ There are many variations of passages of Lorem Ipsum available, but the majority
         assert(markdown)
         for (let i = 0; i < 12; ++i) {
             const result = await chunkMarkdown(markdown, estimateTokens, 1 << i)
-            //console.log(`${1 << i} => ${result.length}`)
             assert.strictEqual(result.join("\n"), markdown)
         }
     })
