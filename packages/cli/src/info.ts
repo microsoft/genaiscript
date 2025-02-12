@@ -15,7 +15,7 @@ import {
 import { CORE_VERSION } from "../../core/src/version"
 import { YAMLStringify } from "../../core/src/yaml"
 import { buildProject } from "./build"
-import { kMaxLength } from "buffer"
+import { deleteUndefinedValues } from "../../core/src/cleaners"
 
 /**
  * Outputs basic system information including node version, platform, architecture, and process ID.
@@ -105,4 +105,27 @@ export async function modelAliasesInfo() {
         ])
     )
     console.log(YAMLStringify(res))
+}
+
+/**
+ * Outputs environment information for model providers.
+ * @param provider - The specific provider to filter by (optional).
+ * @param options - Configuration options, including whether to show tokens.
+ */
+export async function modelList(
+    provider: string,
+    options?: { error?: boolean }
+) {
+    await runtimeHost.readConfig()
+    const providers = await resolveLanguageModelConfigurations(provider, {
+        ...(options || {}),
+        models: true,
+    })
+    console.log(
+        YAMLStringify(
+            deleteUndefinedValues(
+                Object.fromEntries(providers.map((p) => [p.provider, p.models]))
+            )
+        )
+    )
 }
