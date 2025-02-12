@@ -1,11 +1,16 @@
 import { chunkMarkdown } from "./mdchunk"
-import { describe, test } from "node:test"
+import { beforeEach, describe, test } from "node:test"
 import assert from "node:assert"
 import { glob } from "glob"
 import { readFile } from "node:fs/promises"
+import { DOCXTryParse } from "./docx"
+import { TestHost } from "./testhost"
 
 describe(`chunkMarkdown`, async () => {
     const estimateTokens = (text: string) => text.split(/\s+/).length
+    beforeEach(() => {
+        TestHost.install()
+    })
 
     test(`handles empty markdown string`, async () => {
         const markdown = ``
@@ -131,10 +136,11 @@ There are many variations of passages of Lorem Ipsum available, but the majority
         }
     })
 
-    const docs = await glob("../../docs/src/**/*.md")
+    const docs = await glob("../../docs/src/content/**/*.md*")
     for (const doc of docs) {
-        test(`chunks markdown from ${doc}`, async () => {
+        await test(`docs: chunks markdown from ${doc}`, async () => {
             const markdown = await readFile(doc, { encoding: "utf-8" })
+            assert(markdown)
             for (let i = 0; i < 12; ++i) {
                 const result = await chunkMarkdown(
                     markdown,
@@ -146,4 +152,19 @@ There are many variations of passages of Lorem Ipsum available, but the majority
             }
         })
     }
+
+    await test(`word: chunks markdown from docx`, async () => {
+        const markdown = await DOCXTryParse(
+            "../../packages/sample/src/rag/Document.docx",
+            {
+                format: "markdown",
+            }
+        )
+        assert(markdown)
+        for (let i = 0; i < 12; ++i) {
+            const result = await chunkMarkdown(markdown, estimateTokens, 1 << i)
+            //console.log(`${1 << i} => ${result.length}`)
+            assert.strictEqual(result.join("\n"), markdown)
+        }
+    })
 })
