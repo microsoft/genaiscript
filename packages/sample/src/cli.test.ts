@@ -65,8 +65,14 @@ describe("cli", async () => {
     test("env openai", async () => {
         await $`node ${cli} ${action} env openai`
     })
+})
+describe("cli", async () => {
+    const action = "models"
+    test("models", async () => {
+        await $`node ${cli} ${action}`
+    })
     test("models alias", async () => {
-        await $`node ${cli} ${action} models alias`
+        await $`node ${cli} ${action} alias`
     })
 })
 describe("parse", async () => {
