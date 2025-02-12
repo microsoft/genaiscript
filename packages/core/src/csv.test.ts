@@ -73,13 +73,11 @@ describe("CSVToMarkdown", () => {
             { name: "Jane", age: "25" },
         ]
         const result = dataToMarkdownTable(csv)
-        const expected = `
-|name|age|
+        const expected = `|name|age|
 |-|-|
 |John|30|
 |Jane|25|
 `
-            .trim()
             .replace(/[\t ]+/g, " ")
         assert.equal(result, expected)
     })
@@ -90,13 +88,11 @@ describe("CSVToMarkdown", () => {
             { name: "Jane", age: "25" },
         ]
         const result = dataToMarkdownTable(csv, { headers: ["age", "name"] })
-        const expected = `
-|age|name|
+        const expected = `|age|name|
 |-|-|
 |30|John|
 |25|Jane|
 `
-            .trim()
             .replace(/[\t ]+/g, " ")
         assert.equal(result, expected)
     })
