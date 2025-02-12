@@ -17,9 +17,7 @@ const listModels: ListModelsFunction = async (cfg, options) => {
         const accountName = /^https:\/\/([^\.]+)\./.exec(base)[1]
 
         if (!subscriptionId || !accountName)
-            throw new Error(
-                "Missing subscriptionId, resourceGroupName, or accountName"
-            )
+            throw new Error("Missing subscriptionId, or accountName")
         const token = await runtimeHost.azureManagementToken.token(
             "default",
             options
