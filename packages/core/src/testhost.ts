@@ -63,9 +63,6 @@ export class TestHost implements RuntimeHost {
     path: Path = createNodePath()
     // File system for workspace
     workspace: WorkspaceFileSystem
-    azureToken: AzureTokenResolver = undefined
-    azureServerlessToken: AzureTokenResolver = undefined
-    microsoftGraphToken: AzureTokenResolver = undefined
 
     // Default options for language models
     readonly modelAliases: ModelConfigurations = defaultModelConfigurations()
