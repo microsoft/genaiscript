@@ -55,6 +55,7 @@ import {
     headersToMarkdownTableSeperator,
     objectToMarkdownTableRow,
 } from "../../core/src/csv"
+import { roundWithPrecision } from "../../core/src/precision"
 
 /**
  * Parses model specifications from a string and returns a ModelOptions object.
@@ -293,7 +294,10 @@ npx --yes genaiscript@${CORE_VERSION} test view
                 prompt: value?.results?.stats?.tokenUsage?.prompt,
                 completion: value?.results?.stats?.tokenUsage?.completion,
                 total: value?.results?.stats?.tokenUsage?.total,
-                duration: (testEnd.getTime() - testStart.getTime()) / 1000,
+                duration: roundWithPrecision(
+                    (testEnd.getTime() - testStart.getTime()) / 1000,
+                    1
+                ),
                 url,
             }
             await appendFile(
@@ -320,21 +324,22 @@ npx --yes genaiscript@${CORE_VERSION} test view
         await appendFile(
             outSummary,
             [
-                `\n\n`,
-                `- end: ${runEnd.toISOString()}`,
                 objectToMarkdownTableRow(
                     {
                         status: results.filter((r) => r.ok).length,
                         prompt: stats.prompt,
                         completion: stats.completion,
                         total: stats.total,
-                        duration:
+                        duration: roundWithPrecision(
                             (runEnd.getTime() - runStart.getTime()) / 1000,
+                            1
+                        ),
                     },
                     headers,
                     { skipEscape: true }
                 ),
                 "\n\n",
+                `- end: ${runEnd.toISOString()}\n`,
             ].join("")
         )
     }
@@ -391,9 +396,10 @@ export async function scriptsTest(
     const { status, value = [] } = await runPromptScriptTests(ids, options)
     const trace = new MarkdownTrace()
     trace.appendContent(
-        `\n\ntests: ${value.filter((r) => r.ok).length} success, ${value.filter((r) => !r.ok).length} failed`
+        `\n\ntests: ${value.filter((r) => r.ok).length} success, ${value.filter((r) => !r.ok).length} failed\n\n`
     )
     for (const result of value) trace.resultItem(result.ok, result.script)
+    console.log("")
     console.log(trace.content)
     process.exit(status)
 }
