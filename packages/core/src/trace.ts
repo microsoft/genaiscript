@@ -260,7 +260,7 @@ ${this.toResultIcon(success, "")}${title}
 
     fence(message: string | unknown, contentType?: string) {
         if (message === undefined || message === null || message === "") return
-
+        if (contentType === "markdown") contentType = "md"
         if (contentType === "md" && Array.isArray(message)) {
             this.appendContent(dataToMarkdownTable(message))
             return
