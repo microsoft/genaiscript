@@ -171,7 +171,7 @@ class RunClient extends WebSocketClient {
                     case "script.progress": {
                         this.updateRunId(data)
                         if (data.trace) this.trace += data.trace
-                        if (data.output) this.output += data.output
+                        if (data.output && !data.inner) this.output += data.output
                         if (data.reasoning) this.reasoning += data.reasoning
                         this.dispatchEvent(new Event(RunClient.PROGRESS_EVENT))
                         break

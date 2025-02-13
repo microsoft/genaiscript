@@ -11,6 +11,7 @@ import {
     MODEL_PROVIDER_GITHUB_COPILOT_CHAT,
     WS_MAX_FRAME_LENGTH,
     LOG,
+    WS_MAX_FRAME_CHUNK_LENGTH,
 } from "../../core/src/constants"
 import { isCancelError, serializeError } from "../../core/src/error"
 import { host, LogEvent, runtimeHost } from "../../core/src/host"
@@ -346,16 +347,21 @@ export async function startServer(options: {
         const activeRuns = Object.entries(runs)
         if (activeRuns.length) {
             for (const [runId, run] of activeRuns) {
-                ws.send(
-                    toPayload({
-                        type: "script.progress",
-                        runId,
-                        output: unthink(run.outputTrace.content),
-                    } satisfies PromptScriptProgressResponseEvent)
+                chunkString(
+                    unthink(run.outputTrace.content),
+                    WS_MAX_FRAME_CHUNK_LENGTH
+                ).forEach((c) =>
+                    ws.send(
+                        toPayload({
+                            type: "script.progress",
+                            runId,
+                            output: c,
+                        } satisfies PromptScriptProgressResponseEvent)
+                    )
                 )
                 chunkString(
                     run.trace.content,
-                    WS_MAX_FRAME_LENGTH - 200
+                    WS_MAX_FRAME_CHUNK_LENGTH
                 ).forEach((c) =>
                     ws.send(
                         toPayload({
@@ -448,14 +454,14 @@ export async function startServer(options: {
                             const tev = ev as TraceChunkEvent
                             chunkString(
                                 tev.chunk,
-                                WS_MAX_FRAME_LENGTH - 200
+                                WS_MAX_FRAME_CHUNK_LENGTH
                             ).forEach((c) => sendProgress(runId, { trace: c }))
                         })
                         outputTrace.addEventListener(TRACE_CHUNK, (ev) => {
                             const tev = ev as TraceChunkEvent
                             chunkString(
                                 tev.chunk,
-                                WS_MAX_FRAME_LENGTH - 200
+                                WS_MAX_FRAME_CHUNK_LENGTH
                             ).forEach((c) => sendProgress(runId, { output: c }))
                         })
                         logVerbose(`run ${runId}: starting ${script}`)
