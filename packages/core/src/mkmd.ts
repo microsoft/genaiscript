@@ -1,5 +1,13 @@
 import { trimNewlines } from "./unwrappers"
 
+const contentTypes: Record<string, string> = {
+    markdown: "md",
+    prompty: "md",
+    javascript: "js",
+    typescript: "ts",
+    yml: "yaml",
+}
+
 /**
  * Wraps text in a markdown code fence, handling nested fences by extending the fence.
  * @param t - The text to be wrapped in a code fence.
@@ -8,7 +16,7 @@ import { trimNewlines } from "./unwrappers"
  */
 export function fenceMD(t: string, contentType?: string) {
     if (t === undefined) return undefined
-    if (!contentType) contentType = "markdown"
+    contentType = contentTypes[contentType] || contentType
     let f = "```"
     while (t.includes(f) && f.length < 8) f += "`" // Extend fence if necessary
     return `\n${f}${contentType}\n${trimNewlines(t)}\n${f}\n`
