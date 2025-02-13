@@ -28,19 +28,6 @@ export default function MarkdownWithPreviewTabs(props: {
     )
     return (
         <>
-            <vscode-tab-header slot="header">Text</vscode-tab-header>
-            <vscode-tab-panel>
-                {text ? (
-                    <Markdown
-                        aiDisclaimer={true}
-                        copySaveButtons={true}
-                        filename={filename}
-                        text={cleaned}
-                    >
-                        {fenceMD(cleaned, "markdown")}
-                    </Markdown>
-                ) : null}
-            </vscode-tab-panel>
             <vscode-tab-header slot="header">Preview</vscode-tab-header>
             <vscode-tab-panel>
                 {md ? (
@@ -52,6 +39,19 @@ export default function MarkdownWithPreviewTabs(props: {
                         className={className}
                     >
                         {md}
+                    </Markdown>
+                ) : null}
+            </vscode-tab-panel>
+            <vscode-tab-header slot="header">Text</vscode-tab-header>
+            <vscode-tab-panel>
+                {text ? (
+                    <Markdown
+                        aiDisclaimer={true}
+                        copySaveButtons={true}
+                        filename={filename}
+                        text={cleaned}
+                    >
+                        {fenceMD(cleaned, "markdown")}
                     </Markdown>
                 ) : null}
             </vscode-tab-panel>
