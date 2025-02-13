@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useMemo } from "react"
 import { fenceMD } from "../../core/src/mkmd"
 import Markdown from "./Markdown"
 import { convertThinkToMarkdown } from "../../core/src/think"
@@ -13,8 +13,9 @@ export default function MarkdownWithPreviewTabs(props: {
     text?: string
 }) {
     const { className, filename, text } = props
-    const md = convertThinkToMarkdown(
-        convertAnnotationsToMarkdown(text as string)
+    const md = useMemo(
+        () => convertThinkToMarkdown(convertAnnotationsToMarkdown(text)),
+        [text]
     )
     return (
         <>

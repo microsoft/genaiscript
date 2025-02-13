@@ -914,7 +914,6 @@ function ChoicesBadge() {
 
 function OutputTraceTabPanel(props: { selected?: boolean }) {
     const { selected } = props
-    const output = useOutput()
     return (
         <>
             <vscode-tab-header slot="header">
