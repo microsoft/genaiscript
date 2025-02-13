@@ -1,4 +1,4 @@
-import { fileTypeFromBuffer } from "file-type"
+import { fileTypeFromBuffer } from "./filetype"
 import { resolveBufferLike } from "./bufferlike"
 import { hash } from "./crypto"
 import { TraceOptions } from "./trace"

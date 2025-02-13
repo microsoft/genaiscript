@@ -1,6 +1,6 @@
 import { resolveFileBytes } from "./file"
 import { TraceOptions } from "./trace"
-import { fileTypeFromBuffer } from "file-type"
+import { fileTypeFromBuffer } from "./filetype"
 
 export async function resolveBufferLike(
     bufferLike: BufferLike,

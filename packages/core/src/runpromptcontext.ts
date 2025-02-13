@@ -92,7 +92,7 @@ import { host } from "./host"
 import { srtVttRender } from "./transcription"
 import { deleteEmptyValues } from "./cleaners"
 import { hash } from "./crypto"
-import { fileTypeFromBuffer } from "file-type"
+import { fileTypeFromBuffer } from "./filetype"
 import { deleteUndefinedValues } from "./cleaners"
 import { sliceData } from "./tidy"
 

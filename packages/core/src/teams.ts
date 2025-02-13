@@ -1,4 +1,4 @@
-import { fileTypeFromBuffer } from "file-type"
+import { fileTypeFromBuffer } from "./filetype"
 import { CancellationOptions } from "./cancellation"
 import { deleteUndefinedValues } from "./cleaners"
 import { createFetch } from "./fetch"
