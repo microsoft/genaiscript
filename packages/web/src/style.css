@@ -72,6 +72,7 @@ table.toplogprobs td {
 .vscode-body span.ai-disclaimer {
     font-size: 80%;
     margin: 1rem;
+    margin-bottom: 1rem;
     opacity: 0.8;
     font-family: var(--vscode-font-family);
 }

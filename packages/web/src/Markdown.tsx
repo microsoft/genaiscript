@@ -66,8 +66,8 @@ export default function Markdown(props: {
                     components={{
                         code({ node, className, children, ...props }) {
                             if (!/hljs/.test(className))
-                                return <code {...props}>{children}</code>
-                            else return <Code {...props}>{children}</Code>
+                                return <code className={className} {...props}>{children}</code>
+                            else return <Code className={className} {...props}>{children}</Code>
                         },
                     }}
                     urlTransform={(url) => {

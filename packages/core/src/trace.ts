@@ -273,7 +273,10 @@ ${this.toResultIcon(success, "")}${title}
             } else if (contentType === "ini") {
                 res = INIStringify(message)
             } else if (contentType === "csv") {
-                res = CSVStringify(Array.isArray(message) ? message : [message])
+                res = CSVStringify(
+                    Array.isArray(message) ? message : [message],
+                    { header: true }
+                )
             } else {
                 res = yamlStringify(message)
                 contentType = "yaml"

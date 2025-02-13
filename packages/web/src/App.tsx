@@ -313,9 +313,11 @@ const ApiContext = createContext<{
     setOptions: (
         f: (prev: ModelConnectionOptions) => ModelConnectionOptions
     ) => void
+    refresh: () => void
 } | null>(null)
 
 function ApiProvider({ children }: { children: React.ReactNode }) {
+    const [refreshId, setRefreshId] = useState(0)
     const client = useMemo(() => {
         const client = new RunClient(
             `${base}/${apiKey ? `?api-key=${apiKey}` : ""}`
@@ -324,8 +326,10 @@ function ApiProvider({ children }: { children: React.ReactNode }) {
         return client
     }, [])
 
-    const project = useMemo<Promise<Project>>(fetchScripts, [])
-    const env = useMemo<Promise<ServerEnvResponse>>(fetchEnv, [])
+    const project = useMemo<Promise<Project>>(fetchScripts, [refreshId])
+    const env = useMemo<Promise<ServerEnvResponse>>(fetchEnv, [refreshId])
+
+    const refresh = () => setRefreshId((prev) => prev + 1)
 
     const [state, setState] = useUrlSearchParams<
         {
@@ -385,6 +389,7 @@ function ApiProvider({ children }: { children: React.ReactNode }) {
                 setParameters,
                 options,
                 setOptions,
+                refresh,
             }}
         >
             {children}
@@ -1380,9 +1385,25 @@ function ScriptDescription() {
     )
 }
 
+function RefreshButton() {
+    const { refresh } = useApi()
+
+    return (
+        <vscode-icon
+            name="refresh"
+            aria-role="button"
+            action-icon
+            title="refresh"
+            aria-label="refresh the scripts"
+            onClick={refresh}
+            slot="actions"
+        />
+    )
+}
+
 function ScriptSelect() {
     const scripts = useScripts()
-    const { scriptid, setScriptid } = useApi()
+    const { scriptid, setScriptid, refresh } = useApi()
     const { filename } = useScript() || {}
 
     return (
@@ -1425,13 +1446,12 @@ function ScriptForm() {
             {script && (
                 <vscode-badge slot="decorations">{script.id}</vscode-badge>
             )}
-            <>
-                <RemoteInfo />
-                <ScriptSelect />
-                <FilesDropZone />
-                <PromptParametersFields />
-                <RunButton />
-            </>
+            <RefreshButton />
+            <RemoteInfo />
+            <ScriptSelect />
+            <FilesDropZone />
+            <PromptParametersFields />
+            <RunButton />
         </vscode-collapsible>
     )
 }
