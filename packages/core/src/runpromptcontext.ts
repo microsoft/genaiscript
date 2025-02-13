@@ -1037,7 +1037,7 @@ export function createChatGenerationContext(
             finalizeMessages(messages, {
                 ...(runOptions || {}),
                 fileOutputs,
-                trace,
+                trace: runTrace,
             })
             const { completer } = await resolveLanguageModel(
                 configuration.provider
