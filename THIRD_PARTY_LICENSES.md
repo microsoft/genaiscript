@@ -191,7 +191,7 @@ The following npm packages may be included in this product:
  - @aws-crypto/sha256-browser@5.2.0
  - @aws-crypto/supports-web-crypto@5.2.0
  - @huggingface/transformers@3.3.3
- - flatbuffers@25.1.24
+ - flatbuffers@25.2.10
  - long@5.3.0
 
 These packages each contain the following license:
@@ -2829,7 +2829,7 @@ The following npm packages may be included in this product:
  - @types/node-fetch@2.6.12
  - @types/node@16.9.1
  - @types/node@18.19.75
- - @types/node@22.13.1
+ - @types/node@22.13.2
  - @types/turndown@5.0.5
  - @types/uuid@9.0.8
  - @types/yauzl@2.10.3
@@ -2862,7 +2862,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.103.0
+ - genaiscript-vscode@1.104.0
 
 This package contains the following license:
 
@@ -3513,7 +3513,7 @@ software or this license, under any kind of legal claim.***
 The following npm packages may be included in this product:
 
  - jackspeak@3.4.3
- - jackspeak@4.0.2
+ - jackspeak@4.0.3
 
 These packages each contain the following license:
 
@@ -8044,10 +8044,10 @@ The following npm packages may be included in this product:
  - @tokenizer/token@0.3.0
  - agent-base@6.0.2
  - eastasianwidth@0.2.0
- - genaiscript-core-internal@1.103.0
- - genaiscript-sample@1.103.0
- - genaiscript-web@1.103.0
- - genaiscript@1.103.0
+ - genaiscript-core-internal@1.104.0
+ - genaiscript-sample@1.104.0
+ - genaiscript-web@1.104.0
+ - genaiscript@1.104.0
  - https-proxy-agent@5.0.1
  - isarray@1.0.0
  - javascript-natural-sort@0.7.1
@@ -8675,7 +8675,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - zod@3.24.1
+ - zod@3.24.2
 
 This package contains the following license:
 
@@ -9128,7 +9128,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - @modelcontextprotocol/sdk@1.4.1
+ - @modelcontextprotocol/sdk@1.5.0
 
 This package contains the following license:
 
@@ -9347,7 +9347,7 @@ SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - @azure/msal-browser@4.2.0
+ - @azure/msal-browser@4.2.1
  - @azure/msal-common@14.16.0
  - @azure/msal-common@15.1.1
 

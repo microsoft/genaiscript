@@ -21,11 +21,11 @@
     "@azure/identity": "^4.6.0",
     "@azure/storage-blob": "^12.26.0",
     "@huggingface/transformers": "^3.3.3",
-    "@modelcontextprotocol/sdk": "^1.4.1",
+    "@modelcontextprotocol/sdk": "^1.5.0",
     "@tidyjs/tidy": "^2.5.2",
     "p-all": "^5.0.0",
     "vectorstore": "^0.0.4",
-    "zod": "^3.24.1",
+    "zod": "^3.24.2",
     "zod-to-json-schema": "^3.24.1"
   }
 }

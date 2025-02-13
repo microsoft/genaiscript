@@ -69,6 +69,7 @@ export async function createWebview(
             connect-src ${cspUrl} ${wsCspUrl};
             script-src ${cspUrl} ${cspSource} 'nonce-${nonce}'; 
             style-src 'unsafe-inline' ${cspUrl} ${cspSource};
+            font-src ${cspUrl} ${cspSource};
         `
         html = `<!doctype html>
 <html lang="en">
@@ -78,7 +79,7 @@ export async function createWebview(
     <title>GenAIScript Script Runner</title>
     <meta http-equiv="Content-Security-Policy" content="${csp}" />
     <link rel="icon" href="${faviconUri}" type="image/svg+xml" />
-    <link href="${stylesheetUri}" rel="stylesheet">
+    <link href="${stylesheetUri}" rel="stylesheet" />
     <link href="${codeiconsUri}" rel="stylesheet" id="vscode-codicon-stylesheet" />
     <script nonce="${nonce}">
         window.litNonce = ${JSON.stringify(nonce)};
