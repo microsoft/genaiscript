@@ -974,6 +974,7 @@ function ProblemsTabPanel() {
 function MessagesTabPanel() {
     const result = useResult()
     const { messages = [] } = result || {}
+    if (!messages.length) return null
     const md = renderMessagesToMarkdown(messages, {
         system: true,
         user: true,
@@ -1046,6 +1047,7 @@ function StatsBadge() {
 function StatsTabPanel() {
     const result = useResult()
     const { stats } = result || {}
+    if (!stats) return null
     const { cost, ...rest } = stats || {}
 
     const md = stats
@@ -1401,14 +1403,21 @@ function ScriptDescription() {
 function RefreshButton() {
     const { refresh } = useApi()
 
+    const handleClick = (e: React.UIEvent) => {
+        e.preventDefault()
+        refresh()
+    }
+
     return (
         <vscode-icon
+            tabIndex={0}
             name="refresh"
             aria-role="button"
             action-icon
             title="refresh"
             aria-label="refresh the scripts"
-            onClick={refresh}
+            onClick={handleClick}
+            onKeyDown={handleClick}
             slot="actions"
         />
     )
