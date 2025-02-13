@@ -55,6 +55,7 @@ export async function createWebview(
         )
         const faviconUri = Utils.joinPath(authorityUri, "favicon.svg")
         const stylesheetUri = Utils.joinPath(authorityUri, "built/markdown.css")
+        const codeiconsUri = Utils.joinPath(authorityUri, "built/codicon.css")
         const scriptUri = Utils.joinPath(authorityUri, "built/web.mjs")
         const wsCspUrl = vscode.Uri.parse(cspUrl)
             .with({ scheme: "ws" })
@@ -78,6 +79,7 @@ export async function createWebview(
     <meta http-equiv="Content-Security-Policy" content="${csp}" />
     <link rel="icon" href="${faviconUri}" type="image/svg+xml" />
     <link href="${stylesheetUri}" rel="stylesheet">
+    <link href="${codeiconsUri}" rel="stylesheet" id="vscode-codicon-stylesheet" />
     <script nonce="${nonce}">
         window.litNonce = ${JSON.stringify(nonce)};
         window.genaiscript = ${JSON.stringify({ apiKey: sessionApiKey, base: authority })};

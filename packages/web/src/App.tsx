@@ -90,10 +90,15 @@ const viewMode = (hosted ? "results" : urlParams.get("view")) as
 const diagnostics = urlParams.get("diagnostics") === "1"
 const hashParams = new URLSearchParams(window.location.hash.slice(1))
 const base = config?.base || ""
-const apiKey = hashParams.get("api-key") || config?.apiKey || ""
-const nonce = (window as any as { litNonce?: string }).litNonce
+const apiKeyName = "genaiscript.apikey"
+const apiKey =
+    hashParams.get("api-key") ||
+    config?.apiKey ||
+    localStorage.getItem(apiKeyName) ||
+    ""
 window.location.hash = ""
-
+if (hashParams.get("api-key"))
+    localStorage.setItem(apiKeyName, hashParams.get("api-key"))
 if (!hosted) import("@vscode-elements/webview-playground")
 
 const fetchScripts = async (): Promise<Project> => {
@@ -407,9 +412,9 @@ function useProject() {
 
 function useScripts() {
     const project = useProject()
-    const scripts = (project?.scripts?.filter((s) => !s.isSystem) || []).sort(
-        (l, r) => l.id.localeCompare(r.id)
-    )
+    const scripts = (
+        project?.scripts?.filter((s) => !s.isSystem && !s.unlisted) || []
+    ).sort((l, r) => l.id.localeCompare(r.id))
     return scripts
 }
 
@@ -875,6 +880,22 @@ function OutputMarkdown() {
     )
 }
 
+function RunningPlaceholder() {
+    const output = useOutput()
+    const { state } = useRunner()
+    if (output) return <AIDisclaimer />
+    if (state !== "running") return null
+
+    return (
+        <vscode-icon
+            style={{ margin: "1rem" }}
+            name="loading"
+            spin
+            spin-duration="1"
+        />
+    )
+}
+
 function ChoicesBadge() {
     const { choices } = useResult() || {}
     if (!choices?.length) return null
@@ -888,6 +909,7 @@ function ChoicesBadge() {
 
 function OutputTraceTabPanel(props: { selected?: boolean }) {
     const { selected } = props
+    const output = useOutput()
     return (
         <>
             <vscode-tab-header slot="header">
@@ -896,6 +918,7 @@ function OutputTraceTabPanel(props: { selected?: boolean }) {
             </vscode-tab-header>
             <vscode-tab-panel>
                 {selected ? <OutputMarkdown /> : null}
+                <RunningPlaceholder />
             </vscode-tab-panel>
         </>
     )
@@ -1672,7 +1695,6 @@ function ResultsTabs() {
     const [selected, setSelected] = useState(0)
     return (
         <>
-            <AIDisclaimer />
             <vscode-tabs
                 onvsc-tabs-select={(e: VscTabsSelectEvent) =>
                     setSelected(e.detail.selectedIndex)
