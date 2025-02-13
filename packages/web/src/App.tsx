@@ -70,7 +70,11 @@ import {
     VscodeTree,
 } from "@vscode-elements/elements/dist/vscode-tree/vscode-tree"
 import CONFIGURATION from "../../core/src/llms.json"
-import { MODEL_PROVIDER_GITHUB_COPILOT_CHAT } from "../../core/src/constants"
+import {
+    MODEL_PROVIDER_GITHUB_COPILOT_CHAT,
+    MESSAGE,
+    QUEUE_SCRIPT_START,
+} from "../../core/src/constants"
 
 interface GenAIScriptViewOptions {
     apiKey?: string
@@ -155,8 +159,11 @@ class RunClient extends WebSocketClient {
 
     constructor(url: string) {
         super(url)
+        this.addEventListener(QUEUE_SCRIPT_START, () => {
+            this.updateRunId({ runId: "" })
+        })
         this.addEventListener(
-            "message",
+            MESSAGE,
             async (ev) => {
                 const data = (ev as MessageEvent<any>).data as
                     | PromptScriptResponseEvents
@@ -171,7 +178,8 @@ class RunClient extends WebSocketClient {
                     case "script.progress": {
                         this.updateRunId(data)
                         if (data.trace) this.trace += data.trace
-                        if (data.output && !data.inner) this.output += data.output
+                        if (data.output && !data.inner)
+                            this.output += data.output
                         if (data.reasoning) this.reasoning += data.reasoning
                         this.dispatchEvent(new Event(RunClient.PROGRESS_EVENT))
                         break

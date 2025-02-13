@@ -5,6 +5,7 @@ import {
     ERROR,
     MESSAGE,
     OPEN,
+    QUEUE_SCRIPT_START,
     RECONNECT,
 } from "../constants"
 import type {
@@ -222,6 +223,7 @@ export class WebSocketClient extends EventTarget {
         files: string[],
         options: Partial<PromptScriptRunOptions>
     ) {
+        this.dispatchEvent(new Event(QUEUE_SCRIPT_START))
         return this.queue<PromptScriptStart>({
             type: "script.start",
             runId,

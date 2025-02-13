@@ -9,6 +9,7 @@ export const MESSAGE = "message"
 export const ERROR = "error"
 export const CONNECT = "connect"
 export const LOG = "log"
+export const QUEUE_SCRIPT_START = "queueScriptStart"
 export const MAX_TOOL_CALLS = 10000
 
 // https://learn.microsoft.com/en-us/azure/ai-services/openai/reference
