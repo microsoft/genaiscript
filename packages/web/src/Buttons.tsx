@@ -1,6 +1,7 @@
 import React, { useState } from "react"
 
 import "@vscode-elements/elements/dist/vscode-button"
+import AIDisclaimer from "./AIDisplaimer"
 
 function extractTextFromChildren(children: any): string {
     if (!children) return ""
@@ -88,13 +89,15 @@ export default function CopySaveButtons(props: {
     children: any
     filename?: string
     text?: string
+    aiDisclaimer?: boolean
 }) {
-    const { children, text } = props
+    const { children, text, aiDisclaimer } = props
     if (!children?.length && !text) return null
     return (
         <div className="buttons">
             <CopyButton {...props} />
             <SaveButton {...props} />
+            {aiDisclaimer ? <AIDisclaimer /> : null}
         </div>
     )
 }

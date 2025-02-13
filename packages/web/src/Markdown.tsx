@@ -48,13 +48,21 @@ const genaiscriptSchema = Object.freeze({
 })
 
 export default function Markdown(props: {
+    aiDisclaimer?: boolean
     className?: string
     children: any
     copySaveButtons?: boolean
     filename?: string
     text?: string
 }) {
-    const { className, filename, text, children, copySaveButtons } = props
+    const {
+        className,
+        aiDisclaimer,
+        filename,
+        text,
+        children,
+        copySaveButtons,
+    } = props
     return children ? (
         <div className={clsx("markdown-body", className)}>
             <ErrorBoundary
@@ -66,8 +74,17 @@ export default function Markdown(props: {
                     components={{
                         code({ node, className, children, ...props }) {
                             if (!/hljs/.test(className))
-                                return <code className={className} {...props}>{children}</code>
-                            else return <Code className={className} {...props}>{children}</Code>
+                                return (
+                                    <code className={className} {...props}>
+                                        {children}
+                                    </code>
+                                )
+                            else
+                                return (
+                                    <Code className={className} {...props}>
+                                        {children}
+                                    </Code>
+                                )
                         },
                     }}
                     urlTransform={(url) => {
@@ -89,7 +106,11 @@ export default function Markdown(props: {
                 </ReactMarkdown>
             </ErrorBoundary>
             {copySaveButtons ? (
-                <CopySaveButtons filename={filename} text={text}>
+                <CopySaveButtons
+                    aiDisclaimer={aiDisclaimer}
+                    filename={filename}
+                    text={text}
+                >
                     {children}
                 </CopySaveButtons>
             ) : null}

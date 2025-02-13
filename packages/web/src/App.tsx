@@ -792,14 +792,6 @@ function JSONSchemaObjectForm(props: {
     )
 }
 
-function AIDisclaimer() {
-    return (
-        <span className="ai-disclaimer">
-            🤖 AI-generated, check for mistakes
-        </span>
-    )
-}
-
 function ValueBadge(props: {
     value: any
     precision?: number
@@ -889,7 +881,11 @@ function OutputMarkdown() {
         <vscode-scrollable>
             <vscode-tabs>
                 <ReasoningTabPanel />
-                <MarkdownPreviewTabs filename="output.md" text={output} />
+                <MarkdownPreviewTabs
+                    aiDisclaimer={true}
+                    filename="output.md"
+                    text={output}
+                />
                 <LogProbsTabPanel />
                 <EntropyTabPanel />
                 <TopLogProbsTabPanel />
@@ -899,9 +895,7 @@ function OutputMarkdown() {
 }
 
 function RunningPlaceholder() {
-    const output = useOutput()
     const { state } = useRunner()
-    if (output) return <AIDisclaimer />
     if (state !== "running") return null
 
     return (

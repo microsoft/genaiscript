@@ -21,6 +21,9 @@ div.snippet:hover .buttons {
     margin-left: 0.2rem;
     cursor: pointer;
 }
+.buttons .ai-disclaimer {
+    vertical-align: top;
+}
 span.logprobs {
     color: white;
     white-space: pre;

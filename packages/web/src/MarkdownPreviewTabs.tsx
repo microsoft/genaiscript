@@ -12,6 +12,7 @@ function cleanMarkdown(res: string): string {
 }
 
 export default function MarkdownWithPreviewTabs(props: {
+    aiDisclaimer?: boolean
     className?: string
     filename?: string
     text?: string
@@ -19,7 +20,10 @@ export default function MarkdownWithPreviewTabs(props: {
     const { className, filename, text } = props
     const cleaned = useMemo(() => cleanMarkdown(text), [text])
     const md = useMemo(
-        () => cleanMarkdown(convertThinkToMarkdown(convertAnnotationsToMarkdown(cleaned))),
+        () =>
+            cleanMarkdown(
+                convertThinkToMarkdown(convertAnnotationsToMarkdown(cleaned))
+            ),
         [cleaned]
     )
     return (
@@ -28,6 +32,7 @@ export default function MarkdownWithPreviewTabs(props: {
             <vscode-tab-panel>
                 {text ? (
                     <Markdown
+                        aiDisclaimer={true}
                         copySaveButtons={true}
                         filename={filename}
                         text={cleaned}
@@ -40,6 +45,7 @@ export default function MarkdownWithPreviewTabs(props: {
             <vscode-tab-panel>
                 {md ? (
                     <Markdown
+                        aiDisclaimer={true}
                         copySaveButtons={true}
                         filename={filename}
                         text={cleaned}
