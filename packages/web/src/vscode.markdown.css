@@ -99,15 +99,11 @@
 	font-size: 2em;
 	margin-top: 0;
 	padding-bottom: 0.3em;
-	border-bottom-width: 1px;
-	border-bottom-style: solid;
 }
 
 .markdown-body h2 {
 	font-size: 1.5em;
 	padding-bottom: 0.3em;
-	border-bottom-width: 1px;
-	border-bottom-style: solid;
 }
 
 .markdown-body h3 {

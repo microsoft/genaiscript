@@ -7,15 +7,20 @@ import { convertAnnotationsToMarkdown } from "../../core/src/annotations"
 import "@vscode-elements/elements/dist/vscode-tab-header"
 import "@vscode-elements/elements/dist/vscode-tab-panel"
 
+function cleanMarkdown(res: string): string {
+    return res?.replace(/(\r?\n){3,}/g, "\n\n")
+}
+
 export default function MarkdownWithPreviewTabs(props: {
     className?: string
     filename?: string
     text?: string
 }) {
     const { className, filename, text } = props
+    const cleaned = useMemo(() => cleanMarkdown(text), [text])
     const md = useMemo(
-        () => convertThinkToMarkdown(convertAnnotationsToMarkdown(text)),
-        [text]
+        () => cleanMarkdown(convertThinkToMarkdown(convertAnnotationsToMarkdown(cleaned))),
+        [cleaned]
     )
     return (
         <>
@@ -25,9 +30,9 @@ export default function MarkdownWithPreviewTabs(props: {
                     <Markdown
                         copySaveButtons={true}
                         filename={filename}
-                        text={text}
+                        text={cleaned}
                     >
-                        {fenceMD(text, "markdown")}
+                        {fenceMD(cleaned, "markdown")}
                     </Markdown>
                 ) : null}
             </vscode-tab-panel>
@@ -37,7 +42,7 @@ export default function MarkdownWithPreviewTabs(props: {
                     <Markdown
                         copySaveButtons={true}
                         filename={filename}
-                        text={text}
+                        text={cleaned}
                         className={className}
                     >
                         {md}

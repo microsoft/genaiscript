@@ -1,6 +1,6 @@
 const { output } = env
 
-output.heading(3, "hello world")
+for (let i = 1; i <= 6; i++) output.heading(i, "heading " + i)
 
 $`Write a poem`
 
@@ -59,4 +59,7 @@ sequenceDiagram
     `,
     "mermaid"
 )
-output.image("https://github.com/microsoft/genaiscript/blob/main/docs/public/images/favicon.png?raw=true", "icon")
+output.image(
+    "https://github.com/microsoft/genaiscript/blob/main/docs/public/images/favicon.png?raw=true",
+    "icon"
+)

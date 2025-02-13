@@ -11,7 +11,7 @@ export function fenceMD(t: string, contentType?: string) {
     if (!contentType) contentType = "markdown"
     let f = "```"
     while (t.includes(f) && f.length < 8) f += "`" // Extend fence if necessary
-    return `\n${f}${contentType} wrap\n${trimNewlines(t)}\n${f}\n`
+    return `\n${f}${contentType}\n${trimNewlines(t)}\n${f}\n`
 }
 
 /**
