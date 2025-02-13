@@ -216,7 +216,7 @@ const { captures } = await parsers.code(file)
 const { captures } = await parsers.code(file, "(interface_declaration) @i")
 ```
 
-The `tags` query is a built-in alias for the [tree-sitter `tags` query](https://tree-sitter.github.io/tree-sitter/code-navigation-systems) that is made available in most tree-sitter libraries.
+The `tags` query is a built-in alias for the [tree-sitter `tags` query](https://tree-sitter.github.io/tree-sitter/4-code-navigation.html#tagging-and-captures) that is made available in most tree-sitter libraries.
 
 ````js
 const { captures } = await parsers.code(file, 'tags')
