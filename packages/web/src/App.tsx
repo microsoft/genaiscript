@@ -87,7 +87,7 @@ const hosted = !!config
 const viewMode = (hosted ? "results" : urlParams.get("view")) as
     | "results"
     | undefined
-const diagnostics = urlParams.get("diagnostics") === "1"
+const diagnostics = urlParams.get("dbg") === "1"
 const hashParams = new URLSearchParams(window.location.hash.slice(1))
 const base = config?.base || ""
 const apiKeyName = "genaiscript.apikey"
@@ -848,7 +848,10 @@ function TraceTabPanel(props: { selected?: boolean }) {
     const { selected } = props
     return (
         <>
-            <vscode-tab-header slot="header">Trace</vscode-tab-header>
+            <vscode-tab-header slot="header">
+                Trace
+                <ErrorStatusBadge />
+            </vscode-tab-header>
             <vscode-tab-panel>
                 {selected ? <TraceMarkdown /> : null}
             </vscode-tab-panel>
@@ -1001,6 +1004,17 @@ function renderCost(value: number) {
           : `${value.toFixed(2)}$`
 }
 
+function ErrorStatusBadge() {
+    const result = useResult()
+    const { status } = result || {}
+    if (!status || status === "success") return null
+    return (
+        <vscode-badge title="error" variant="counter" slot="content-after">
+            !
+        </vscode-badge>
+    )
+}
+
 function StatsBadge() {
     const result = useResult() || {}
     const { stats } = result || {}
@@ -1018,7 +1032,7 @@ function StatsBadge() {
                 .map((s, i) => (
                     <vscode-badge
                         key={i}
-                        title={`usage`}
+                        title="usage"
                         variant="counter"
                         slot="content-after"
                     >
