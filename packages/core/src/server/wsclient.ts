@@ -233,7 +233,7 @@ export class WebSocketClient extends EventTarget {
         })
     }
 
-    async abortScript(runId: string, reason?: string): Promise<ResponseStatus> {
+    async abortScript(runId: string, reason: string): Promise<ResponseStatus> {
         if (!runId) return { ok: true }
         const res = await this.queue<PromptScriptAbort>({
             type: "script.abort",

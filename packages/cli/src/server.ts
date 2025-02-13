@@ -550,7 +550,7 @@ export async function startServer(options: {
                     // Handle script abort request
                     case "script.abort": {
                         const { runId, reason } = data
-                        logVerbose(`run ${runId}: abort`)
+                        logVerbose(`run ${runId}: abort (${reason})`)
                         const run = runs[runId]
                         if (run) {
                             delete runs[runId]

@@ -469,11 +469,6 @@ function RunnerProvider({ children }: { children: React.ReactNode }) {
 
     const [runId, setRunId] = useState<string>(client.runId)
 
-    useEffect(() => {
-        client.abortScript(runId)
-        setRunId(undefined)
-    }, [scriptid])
-
     const start = useCallback((e: Event) => {
         const ev = e as CustomEvent
         setRunId(ev.detail.runId)
@@ -519,7 +514,7 @@ function RunnerProvider({ children }: { children: React.ReactNode }) {
     }
 
     const cancel = () => {
-        client.abortScript(runId)
+        client.abortScript(runId, "ui cancel")
         setRunId(undefined)
     }
 
