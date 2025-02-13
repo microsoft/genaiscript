@@ -95,7 +95,9 @@ export async function treeSitterQuery(
         trace?.itemValue(`language`, language)
         trace?.itemValue(`wasm`, wasm)
 
-        if (query === TREE_SITTER_QUERIES_TAGS) query = resolveTags(language)
+        if (query === TREE_SITTER_QUERIES_TAGS) {
+            query = resolveTags(language)
+        }
 
         const parser = await createParser(wasm)
         // test query

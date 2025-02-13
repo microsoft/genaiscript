@@ -16,9 +16,11 @@ export function consoleLogFormat(...args: any[]) {
         switch (typeof a) {
             case "bigint":
             case "number":
-            case "string":
             case "boolean":
             case "undefined":
+                line += a
+                break
+            case "string":
                 line += a
                 break
             case "symbol":
@@ -26,7 +28,11 @@ export function consoleLogFormat(...args: any[]) {
                 break
             case "object":
             case "function":
-                line += inspect(a, { indent: 2, maxStringLength: 2048 })
+                line += inspect(a, {
+                    indent: 2,
+                    depth: 4,
+                    maxStringLength: 2048,
+                })
                 break
         }
     }
