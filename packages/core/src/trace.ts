@@ -258,7 +258,10 @@ ${this.toResultIcon(success, "")}${title}
         this.appendContent("\n````\n")
     }
 
-    fence(message: string | unknown, contentType?: string) {
+    fence(
+        message: string | unknown,
+        contentType?: OptionsOrString<"md" | "json" | "csv" | "yaml" | "ini">
+    ) {
         if (message === undefined || message === null || message === "") return
         if (contentType === "markdown") contentType = "md"
         if (contentType === "md" && Array.isArray(message)) {
