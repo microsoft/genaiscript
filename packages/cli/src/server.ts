@@ -455,14 +455,24 @@ export async function startServer(options: {
                             chunkString(
                                 tev.chunk,
                                 WS_MAX_FRAME_CHUNK_LENGTH
-                            ).forEach((c) => sendProgress(runId, { trace: c }))
+                            ).forEach((c) =>
+                                sendProgress(runId, {
+                                    trace: c,
+                                    inner: tev.inner,
+                                })
+                            )
                         })
                         outputTrace.addEventListener(TRACE_CHUNK, (ev) => {
                             const tev = ev as TraceChunkEvent
                             chunkString(
                                 tev.chunk,
                                 WS_MAX_FRAME_CHUNK_LENGTH
-                            ).forEach((c) => sendProgress(runId, { output: c }))
+                            ).forEach((c) =>
+                                sendProgress(runId, {
+                                    output: c,
+                                    inner: tev.inner,
+                                })
+                            )
                         })
                         logVerbose(`run ${runId}: starting ${script}`)
                         await runtimeHost.readConfig()
@@ -481,6 +491,7 @@ export async function startServer(options: {
                                 reasoningSoFar,
                                 tokensSoFar,
                                 responseTokens,
+                                inner,
                             }) => {
                                 sendProgress(runId, {
                                     response: responseSoFar,
@@ -488,6 +499,7 @@ export async function startServer(options: {
                                     responseChunk,
                                     tokens: tokensSoFar,
                                     responseTokens,
+                                    inner,
                                 })
                             },
                         })

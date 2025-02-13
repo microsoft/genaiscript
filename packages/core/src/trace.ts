@@ -30,13 +30,14 @@ import { ChatCompletionsProgressReport } from "./chattypes"
 export class TraceChunkEvent extends Event {
     constructor(
         readonly chunk: string,
+        readonly inner: boolean,
         readonly progress?: ChatCompletionsProgressReport
     ) {
         super(TRACE_CHUNK)
     }
 
     clone(): TraceChunkEvent {
-        const ev = new TraceChunkEvent(this.chunk, this.progress)
+        const ev = new TraceChunkEvent(this.chunk, this.inner, this.progress)
         return ev
     }
 }
@@ -96,7 +97,7 @@ export class MarkdownTrace extends EventTarget implements OutputTrace {
             this._tree = undefined
             this.dispatchChange()
         }
-        this.dispatchEvent(new TraceChunkEvent(value, progress))
+        this.dispatchEvent(new TraceChunkEvent(value, inner, progress))
     }
 
     appendContent(value: string) {
@@ -104,7 +105,7 @@ export class MarkdownTrace extends EventTarget implements OutputTrace {
             this._content.push(value)
             this._tree = undefined
             this.dispatchChange()
-            this.dispatchEvent(new TraceChunkEvent(value))
+            this.dispatchEvent(new TraceChunkEvent(value, false))
         }
     }
 
