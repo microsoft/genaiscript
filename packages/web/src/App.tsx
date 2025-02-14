@@ -13,6 +13,7 @@ import React, {
     useRef,
     useState,
 } from "react"
+import { throttle } from "es-toolkit"
 
 import "@vscode-elements/elements/dist/vscode-button"
 import "@vscode-elements/elements/dist/vscode-single-select"
@@ -77,6 +78,7 @@ import {
     MODEL_PROVIDER_GITHUB_COPILOT_CHAT,
     MESSAGE,
     QUEUE_SCRIPT_START,
+    CHANGE,
 } from "../../core/src/constants"
 import {
     parseTraceTree,
@@ -166,6 +168,14 @@ class RunClient extends WebSocketClient {
     reasoning: string = ""
     result: Partial<GenerationResult> = undefined
 
+    private progressEventThrottled = throttle(
+        this.dispatchProgressEvent.bind(this),
+        2000,
+        {
+            edges: ["leading"],
+        }
+    )
+
     constructor(url: string) {
         super(url)
         this.addEventListener(QUEUE_SCRIPT_START, () => {
@@ -191,7 +201,7 @@ class RunClient extends WebSocketClient {
                             this.output += data.output
                         }
                         if (data.reasoning) this.reasoning += data.reasoning
-                        this.dispatchEvent(new Event(RunClient.PROGRESS_EVENT))
+                        this.progressEventThrottled()
                         break
                     }
                     case "script.end": {
@@ -211,7 +221,7 @@ class RunClient extends WebSocketClient {
                             })
                         )
                         this.dispatchEvent(new Event(RunClient.RESULT_EVENT))
-                        this.dispatchEvent(new Event(RunClient.PROGRESS_EVENT))
+                        this.dispatchProgressEvent()
                         break
                     }
                     case "script.start":
@@ -231,6 +241,10 @@ class RunClient extends WebSocketClient {
             },
             false
         )
+    }
+
+    private dispatchProgressEvent() {
+        this.dispatchEvent(new Event(RunClient.PROGRESS_EVENT))
     }
 
     private updateRunId(data: { runId: string }) {
@@ -456,6 +470,18 @@ function useSyncProjectScript() {
         else if (scriptid && !scripts.find((s) => s.id === scriptid))
             setScriptid(scripts[0]?.id)
     }, [scripts, scriptid])
+}
+
+function useClientReadyState() {
+    const { client } = useApi()
+    const [state, setState] = useState(client?.readyState)
+    useEffect(() => {
+        if (!client) return undefined
+        const update = () => startTransition(() => setState(client.readyState))
+        client.addEventListener(CHANGE, update, false)
+        return () => client.removeEventListener(CHANGE, update)
+    }, [client])
+    return state
 }
 
 const RunnerContext = createContext<{
@@ -1746,6 +1772,16 @@ function ProviderConfigurationTabPanel() {
     )
 }
 
+function ClientReadyStateLabel() {
+    const readyState = useClientReadyState()
+    if (readyState === "open") return null
+    return (
+        <vscode-label title={`server connection status: ${readyState}`}>
+            {readyState}
+        </vscode-label>
+    )
+}
+
 function RunButton() {
     const { scriptid, options } = useApi()
     const { state } = useRunner()
@@ -1754,7 +1790,7 @@ function RunButton() {
     const title = state === "running" ? "Abort" : "Run"
     return (
         <vscode-form-group>
-            <vscode-label></vscode-label>
+            <ClientReadyStateLabel />
             <vscode-button
                 icon={state === "running" ? "stop-circle" : "play"}
                 disabled={disabled}
