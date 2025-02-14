@@ -50,6 +50,8 @@ export async function writeJSON(fn: string, obj: any) {
 }
 
 export async function expandFiles(files: string[], excludedFiles?: string[]) {
+    if (!files.length) return []
+
     const urls = files
         .filter((f) => HTTPS_REGEX.test(f))
         .filter((f) => !excludedFiles?.includes(f))
@@ -58,6 +60,26 @@ export async function expandFiles(files: string[], excludedFiles?: string[]) {
         { ignore: excludedFiles?.filter((f) => !HTTPS_REGEX.test(f)) }
     )
     return uniq([...urls, ...others])
+}
+
+export async function expandFileOrWorkspaceFiles(
+    files: (string | WorkspaceFile)[]
+): Promise<WorkspaceFile[]> {
+    const filesPaths = await expandFiles(
+        files.filter((f) => typeof f === "string")
+    )
+    const workspaceFiles = files.filter(
+        (f) => typeof f === "object"
+    ) as WorkspaceFile[]
+    return [
+        ...filesPaths.map(
+            (filename) =>
+                ({
+                    filename,
+                }) satisfies WorkspaceFile
+        ),
+        ...workspaceFiles,
+    ]
 }
 
 export function filePathOrUrlToWorkspaceFile(f: string) {

@@ -24,7 +24,7 @@ declare function system(options: PromptSystemArgs): void
  * @param arguments
  */
 declare function importTemplate(
-    files: string | string[],
+    files: ElementOrArray<string | WorkspaceFile>,
     arguments?: Record<string, ImportTemplateArgumentType>,
     options?: ImportTemplateOptions
 ): void
