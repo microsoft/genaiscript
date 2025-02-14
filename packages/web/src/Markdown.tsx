@@ -1,5 +1,5 @@
 // src/components/FormField.tsx
-import React from "react"
+import React, { useEffect, useRef, useState } from "react"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 import rehypeRaw from "rehype-raw"
@@ -63,57 +63,86 @@ export default function Markdown(props: {
         children,
         copySaveButtons,
     } = props
-    return children ? (
-        <div className={clsx("markdown-body", className)}>
-            <ErrorBoundary
-                fallback={
-                    <p>⚠️Something went wrong while rendering markdown.</p>
+
+    const [isVisible, setIsVisible] = useState(false)
+    const ref = useRef<HTMLDivElement>(null)
+
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                if (entry.isIntersecting) {
+                    console.log("Markdown is visible")
+                    setIsVisible(true)
+                    observer.unobserve(ref.current)
                 }
-            >
-                <ReactMarkdown
-                    components={{
-                        code({ node, className, children, ...props }) {
-                            if (!/hljs/.test(className))
-                                return (
-                                    <code className={className} {...props}>
-                                        {children}
-                                    </code>
-                                )
-                            else
-                                return (
-                                    <Code className={className} {...props}>
-                                        {children}
-                                    </Code>
-                                )
-                        },
-                    }}
-                    urlTransform={(url) => {
-                        return url
-                    }}
-                    rehypePlugins={[
-                        rehypeRaw,
-                        [rehypeSanitize, genaiscriptSchema],
-                        rehypeMathML,
-                        [rehypeHighlight, { ignoreMissing: true }],
-                    ]}
-                    remarkPlugins={[
-                        remarkMath,
-                        remarkGfm,
-                        [remarkAlert, { tagName: "blockquote" }],
-                    ]}
+            },
+            {
+                rootMargin: "0px",
+                threshold: 0.1,
+            }
+        )
+        if (ref.current) observer.observe(ref.current)
+        return () => {
+            if (ref.current) {
+                observer.unobserve(ref.current)
+            }
+        }
+    }, [])
+
+    console.log(`markdown render`)
+    return (
+        <div ref={ref} className={clsx("markdown-body", className)}>
+            {isVisible && children ? (
+                <ErrorBoundary
+                    fallback={
+                        <p>⚠️Something went wrong while rendering markdown.</p>
+                    }
                 >
-                    {children}
-                </ReactMarkdown>
-            </ErrorBoundary>
-            {copySaveButtons ? (
-                <CopySaveButtons
-                    aiDisclaimer={aiDisclaimer}
-                    filename={filename}
-                    text={text}
-                >
-                    {children}
-                </CopySaveButtons>
+                    <ReactMarkdown
+                        components={{
+                            code({ node, className, children, ...props }) {
+                                if (!/hljs/.test(className))
+                                    return (
+                                        <code className={className} {...props}>
+                                            {children}
+                                        </code>
+                                    )
+                                else
+                                    return (
+                                        <Code className={className} {...props}>
+                                            {children}
+                                        </Code>
+                                    )
+                            },
+                        }}
+                        urlTransform={(url) => {
+                            return url
+                        }}
+                        rehypePlugins={[
+                            rehypeRaw,
+                            [rehypeSanitize, genaiscriptSchema],
+                            rehypeMathML,
+                            [rehypeHighlight, { ignoreMissing: true }],
+                        ]}
+                        remarkPlugins={[
+                            remarkMath,
+                            remarkGfm,
+                            [remarkAlert, { tagName: "blockquote" }],
+                        ]}
+                    >
+                        {children}
+                    </ReactMarkdown>
+                    {copySaveButtons ? (
+                        <CopySaveButtons
+                            aiDisclaimer={aiDisclaimer}
+                            filename={filename}
+                            text={text}
+                        >
+                            {children}
+                        </CopySaveButtons>
+                    ) : null}
+                </ErrorBoundary>
             ) : null}
         </div>
-    ) : null
+    )
 }
