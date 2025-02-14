@@ -2,7 +2,7 @@ import * as vscode from "vscode"
 import { ExtensionState } from "./state"
 import { infoUri } from "./markdowndocumentprovider"
 import { CHANGE, TRACE_NODE_PREFIX } from "../../core/src/constants"
-import { TraceNode } from "../../core/src/markdown"
+import { TraceNode } from "../../core/src/traceparser"
 
 function unmarkdown(text: string) {
     return text

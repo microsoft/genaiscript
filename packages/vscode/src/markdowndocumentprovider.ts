@@ -20,12 +20,13 @@ import {
 } from "../../core/src/constants"
 import { defaultPrompts } from "../../core/src/default_prompts"
 import { extractFenced, renderFencedVariables } from "../../core/src/fence"
-import { renderTraceTree, prettifyMarkdown } from "../../core/src/markdown"
+import { prettifyMarkdown } from "../../core/src/markdown"
 import {
     logprobToMarkdown,
     topLogprobsToMarkdown,
 } from "../../core/src/logprob"
 import { fenceMD } from "../../core/src/mkmd"
+import { renderTraceTree } from "../../core/src/traceparser"
 
 const SCHEME = "genaiscript"
 
