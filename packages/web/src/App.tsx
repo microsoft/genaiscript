@@ -179,7 +179,6 @@ class RunClient extends WebSocketClient {
                         this.updateRunId(data)
                         if (data.trace) this.trace += data.trace
                         if (data.output && !data.inner) {
-                            console.log(data)
                             this.output += data.output
                         }
                         if (data.reasoning) this.reasoning += data.reasoning

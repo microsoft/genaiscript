@@ -71,7 +71,6 @@ export default function Markdown(props: {
         const observer = new IntersectionObserver(
             ([entry]) => {
                 if (entry.isIntersecting) {
-                    console.log("Markdown is visible")
                     setIsVisible(true)
                     observer.unobserve(ref.current)
                 }
@@ -89,7 +88,6 @@ export default function Markdown(props: {
         }
     }, [])
 
-    console.log(`markdown render`)
     return (
         <div ref={ref} className={clsx("markdown-body", className)}>
             {isVisible && children ? (
