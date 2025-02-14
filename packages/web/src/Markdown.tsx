@@ -13,6 +13,7 @@ import { ErrorBoundary } from "react-error-boundary"
 import rehypeHighlight from "rehype-highlight"
 import Code from "./Code"
 import CopySaveButtons from "./Buttons"
+import LazyDetails from "./LazyDetails"
 
 const genaiscriptSchema = Object.freeze({
     ...defaultSchema,
@@ -71,7 +72,6 @@ export default function Markdown(props: {
         const observer = new IntersectionObserver(
             ([entry]) => {
                 if (entry.isIntersecting) {
-                    console.log("Markdown is visible")
                     setIsVisible(true)
                     observer.unobserve(ref.current)
                 }
@@ -89,7 +89,6 @@ export default function Markdown(props: {
         }
     }, [])
 
-    console.log(`markdown render`)
     return (
         <div ref={ref} className={clsx("markdown-body", className)}>
             {isVisible && children ? (
@@ -100,6 +99,14 @@ export default function Markdown(props: {
                 >
                     <ReactMarkdown
                         components={{
+                            details({ children, ...props }) {
+                                console.log(props)
+                                return (
+                                    <LazyDetails {...props}>
+                                        {children}
+                                    </LazyDetails>
+                                )
+                            },
                             code({ node, className, children, ...props }) {
                                 if (!/hljs/.test(className))
                                     return (
