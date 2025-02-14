@@ -206,7 +206,7 @@ class RunClient extends WebSocketClient {
                         if (data.responseChunk) {
                             this.stderr += data.responseChunk
                             const lines = this.stderr.split("\n")
-                            for(const line of lines.slice(0, lines.length - 1))
+                            for (const line of lines.slice(0, lines.length - 1))
                                 console.debug(line)
                             this.stderr = lines.at(-1)
                         }
@@ -906,9 +906,9 @@ function TraceTreeMarkdown() {
     const [node, setNode] = useState<TraceNode | undefined>(undefined)
     const tree = useMemo(() => parseTraceTree(trace), [trace])
     const data = useMemo(() => {
-        const res = traceTreeToTreeItem(tree.root)
-        res.open = true
-        return res.subItems
+        const newData = traceTreeToTreeItem(tree.root)
+        newData.open = true
+        return newData.subItems
     }, [tree])
     const treeRef = useRef(null)
     const handleSelect = (e: VscTreeSelectEvent) => {
