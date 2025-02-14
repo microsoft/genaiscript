@@ -176,11 +176,13 @@ class RunClient extends WebSocketClient {
         }
     )
 
+    private stderr = ""
     constructor(url: string) {
         super(url)
         this.addEventListener(QUEUE_SCRIPT_START, () => {
             this.updateRunId({ runId: "" })
         })
+        this.stderr = ""
         this.addEventListener(
             MESSAGE,
             async (ev) => {
@@ -201,6 +203,13 @@ class RunClient extends WebSocketClient {
                             this.output += data.output
                         }
                         if (data.reasoning) this.reasoning += data.reasoning
+                        if (data.responseChunk) {
+                            this.stderr += data.responseChunk
+                            const lines = this.stderr.split("\n")
+                            for(const line of lines.slice(0, lines.length - 1))
+                                console.debug(line)
+                            this.stderr = lines.at(-1)
+                        }
                         this.progressEventThrottled()
                         break
                     }
@@ -255,6 +264,7 @@ class RunClient extends WebSocketClient {
                 this.trace = ""
                 this.output = ""
                 this.result = undefined
+                this.stderr = ""
                 this.dispatchEvent(new Event(RunClient.RESULT_EVENT))
             }
             this.dispatchEvent(new Event(RunClient.RUN_EVENT))
