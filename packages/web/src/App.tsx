@@ -33,6 +33,7 @@ import "@vscode-elements/elements/dist/vscode-textarea"
 import "@vscode-elements/elements/dist/vscode-multi-select"
 import "@vscode-elements/elements/dist/vscode-scrollable"
 import "@vscode-elements/elements/dist/vscode-tree"
+import "@vscode-elements/elements/dist/vscode-split-layout"
 
 import Markdown from "./Markdown"
 import type {
@@ -67,7 +68,9 @@ import MarkdownPreviewTabs from "./MarkdownPreviewTabs"
 import { roundWithPrecision } from "../../core/src/precision"
 import {
     TreeItem,
+    TreeItemIconConfig,
     VscodeTree,
+    VscTreeSelectEvent,
 } from "@vscode-elements/elements/dist/vscode-tree/vscode-tree"
 import CONFIGURATION from "../../core/src/llms.json"
 import {
@@ -75,6 +78,12 @@ import {
     MESSAGE,
     QUEUE_SCRIPT_START,
 } from "../../core/src/constants"
+import {
+    parseTraceTree,
+    renderTraceTree,
+    TraceNode,
+} from "../../core/src/traceparser"
+import { unmarkdown } from "../../core/src/cleaners"
 
 interface GenAIScriptViewOptions {
     apiKey?: string
@@ -829,13 +838,70 @@ function CounterBadge(props: { collection: any | undefined; title: string }) {
     )
 }
 
+const parseTreeIcons: TreeItemIconConfig = {
+    leaf: "none",
+    branch: "chevron-right",
+    open: "chevron-down",
+}
+
+function traceTreeToTreeItem(node: TraceNode): TreeItem {
+    if (typeof node === "string") return undefined
+    switch (node.type) {
+        case "details":
+            return {
+                label: unmarkdown(node.label),
+                value: node.id,
+                icons: parseTreeIcons,
+                subItems: node.content
+                    ?.map(traceTreeToTreeItem)
+                    ?.filter((s) => s),
+            }
+        case "item":
+            return {
+                label: unmarkdown(node.label),
+                value: node.id,
+                description: node.value,
+            }
+    }
+}
+
 function TraceMarkdown() {
     const trace = useTrace()
+    const [node, setNode] = useState<TraceNode | undefined>(undefined)
+    const tree = useMemo(() => parseTraceTree(trace), [trace])
+    const data = useMemo(() => {
+        const res = traceTreeToTreeItem(tree.root)
+        res.open = true
+        return res.subItems
+    }, [tree])
+    const treeRef = useRef(null)
+    const handleSelect = (e: VscTreeSelectEvent) => {
+        const { value } = e.detail
+        if (!value) return
+        const selected = tree.nodes[value]
+        setNode((curr) => selected)
+    }
+    const preview = useMemo(() => {
+        if (!node) return undefined
+        if (typeof node === "object" && node?.type === "details")
+            return node.content.map(renderTraceTree).join("\n")
+        return renderTraceTree(node)
+    }, [node])
     return (
         <vscode-scrollable>
-            <Markdown text={trace} filename="trace.md">
-                {trace}
-            </Markdown>
+            <vscode-split-layout fixed-pane="start">
+                <div slot="start">
+                    <vscode-tree
+                        data={data}
+                        ref={treeRef}
+                        indentGuides={true}
+                        onvsc-tree-select={handleSelect}
+                    />
+                </div>
+                <div slot="end">
+                    {preview ? <Markdown>{preview}</Markdown> : null}
+                </div>
+            </vscode-split-layout>
         </vscode-scrollable>
     )
 }
