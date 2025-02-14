@@ -2828,8 +2828,8 @@ The following npm packages may be included in this product:
  - @types/http-cache-semantics@4.0.4
  - @types/node-fetch@2.6.12
  - @types/node@16.9.1
- - @types/node@18.19.75
- - @types/node@22.13.2
+ - @types/node@18.19.76
+ - @types/node@22.13.4
  - @types/turndown@5.0.5
  - @types/uuid@9.0.8
  - @types/yauzl@2.10.3
@@ -2862,7 +2862,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.104.0
+ - genaiscript-vscode@1.104.2
 
 This package contains the following license:
 
@@ -8044,10 +8044,10 @@ The following npm packages may be included in this product:
  - @tokenizer/token@0.3.0
  - agent-base@6.0.2
  - eastasianwidth@0.2.0
- - genaiscript-core-internal@1.104.0
- - genaiscript-sample@1.104.0
- - genaiscript-web@1.104.0
- - genaiscript@1.104.0
+ - genaiscript-core-internal@1.104.2
+ - genaiscript-sample@1.104.2
+ - genaiscript-web@1.104.2
+ - genaiscript@1.104.2
  - https-proxy-agent@5.0.1
  - isarray@1.0.0
  - javascript-natural-sort@0.7.1
@@ -9695,7 +9695,7 @@ SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - @octokit/plugin-paginate-rest@11.4.0
+ - @octokit/plugin-paginate-rest@11.4.2
  - @octokit/plugin-rest-endpoint-methods@13.3.1
  - @octokit/types@13.8.0
 
@@ -10568,10 +10568,10 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - @octokit/endpoint@10.1.2
+ - @octokit/endpoint@10.1.3
  - @octokit/graphql@8.2.0
  - @octokit/plugin-throttling@9.4.0
- - @octokit/request@9.2.0
+ - @octokit/request@9.2.1
 
 These packages each contain the following license:
 
@@ -10602,8 +10602,8 @@ THE SOFTWARE.
 The following npm packages may be included in this product:
 
  - @octokit/auth-token@5.1.2
- - @octokit/core@6.1.3
- - @octokit/request-error@6.1.6
+ - @octokit/core@6.1.4
+ - @octokit/request-error@6.1.7
 
 These packages each contain the following license:
 

@@ -84,7 +84,8 @@ export class VsCodeClient extends WebSocketClient {
                 switch (type) {
                     case "script.progress": {
                         if (ev.trace) run.trace.appendContent(ev.trace)
-                        if (ev.progress && !ev.inner) run.infoCb({ text: ev.progress })
+                        if (ev.progress && !ev.inner)
+                            run.infoCb({ text: ev.progress })
                         if (ev.response || ev.tokens !== undefined)
                             run.partialCb({
                                 responseChunk: ev.responseChunk,
@@ -160,8 +161,8 @@ export class VsCodeClient extends WebSocketClient {
             reject,
             signal,
         }
-        signal?.addEventListener("abort", () => {
-            this.abortScript(runId)
+        signal?.addEventListener("abort", (ev) => {
+            this.abortScript(runId, "user aborted")
         })
         const res = await this.queue<PromptScriptStart>({
             type: "script.start",
@@ -179,7 +180,7 @@ export class VsCodeClient extends WebSocketClient {
         return { runId, request: promise }
     }
 
-    abortScriptRuns(reason?: string) {
+    abortScriptRuns(reason: string) {
         for (const runId of Object.keys(this.runs)) {
             this.abortScript(runId, reason)
             delete this.runs[runId]
