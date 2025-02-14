@@ -58,8 +58,9 @@ export function parseTraceTree(
                 id: `${i}-${hash}`,
                 label: "",
                 content: [],
-                open: startDetails[1].includes("open"),
             }
+            if (startDetails[1].includes("open")) current.open = true
+
             parent.content.push(current)
             stack.push(current)
             nodes[current.id] = current
