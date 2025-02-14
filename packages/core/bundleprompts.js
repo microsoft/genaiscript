@@ -56,7 +56,7 @@ async function main() {
                     noEmit: true,
                     allowImportingTsExtensions: true,
                 },
-                include: ["*.mjs", "*.mts", "./genaiscript.d.ts"],
+                include: ["*.mjs", "*.mts", "src/*.mts", "./genaiscript.d.ts"],
             },
             null,
             4
