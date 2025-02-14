@@ -884,8 +884,8 @@ function TraceMarkdown() {
     const preview = useMemo(() => {
         if (!node) return undefined
         if (typeof node === "object" && node?.type === "details")
-            return node.content.map(renderTraceTree).join("\n")
-        return renderTraceTree(node)
+            return node.content.map((n) => renderTraceTree(n, 2)).join("\n")
+        return renderTraceTree(node, 2)
     }, [node])
     return (
         <vscode-scrollable>

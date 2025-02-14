@@ -117,12 +117,19 @@ export function parseTraceTree(text: string): TraceTree {
  * @param node - The trace node to render.
  * @returns A string representing the markdown of the node.
  */
-export function renderTraceTree(node: TraceNode): string {
+export function renderTraceTree(node: TraceNode, level: number): string {
     if (!node) return ""
     if (typeof node === "string") {
         return node
     } else if (node.type === "item") return `- ${node.label}: ${node.value}`
     else if (node.type === "details")
-        return details(node.label, node.content.map(renderTraceTree).join("\n"))
+        if (level > 0)
+            return details(
+                node.label,
+                node.content
+                    .map((n) => renderTraceTree(n, level - 1))
+                    .join("\n")
+            )
+        else return `- ${node.label}`
     else return ""
 }

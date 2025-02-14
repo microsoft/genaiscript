@@ -66,8 +66,8 @@ class MarkdownTextDocumentContentProvider
         const tree = this.state.aiRequest?.trace?.tree
         const node = tree?.nodes[id]
         if (typeof node === "object" && node?.type === "details")
-            return node.content.map(renderTraceTree).join("\n")
-        return renderTraceTree(node)
+            return node.content.map((n) => renderTraceTree(n, 3)).join("\n")
+        return renderTraceTree(node, 3)
     }
 
     async provideTextDocumentContent(
