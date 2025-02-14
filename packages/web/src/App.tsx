@@ -1387,8 +1387,7 @@ function RemoteInfo() {
 function ScriptDescription() {
     const script = useScript()
     if (!script) return null
-    const { title, description, filename } = script
-
+    const { title, description } = script
     return (
         <vscode-form-helper>
             {title ? <b>{title}</b> : null}
@@ -1462,37 +1461,12 @@ function ScriptForm() {
     const script = useScript()
     return (
         <vscode-collapsible open title="Script">
-            {script && (
-                <vscode-badge slot="decorations">{script.id}</vscode-badge>
-            )}
             <RefreshButton />
             <RemoteInfo />
             <ScriptSelect />
             <FilesDropZone />
             <PromptParametersFields />
             <RunButton />
-        </vscode-collapsible>
-    )
-}
-
-function ScriptSourcesView() {
-    const script = useScript()
-    const { jsSource, text, filename } = script || {}
-    return (
-        <vscode-collapsible title="Script Source">
-            {text ? (
-                <Markdown text={text}>{`\`\`\`\`\`\`
-${text.trim()}
-\`\`\`\`\`\``}</Markdown>
-            ) : null}
-            {jsSource ? (
-                <Markdown text={jsSource}>
-                    {`\`\`\`\`\`\`js
-${jsSource.trim()}
-\`\`\`\`\`\``}
-                </Markdown>
-            ) : null}
-            {filename ? <Markdown>{`- ${filename}`}</Markdown> : null}
         </vscode-collapsible>
     )
 }
@@ -1543,7 +1517,7 @@ function PromptParametersFields() {
     )
 }
 
-function ModelConnectionOptionsForm() {
+function ModelConfigurationTabPanel() {
     const { options, setOptions } = useApi()
     const env = useEnv()
     const { providers } = env || {}
@@ -1603,18 +1577,32 @@ function ModelConnectionOptionsForm() {
         },
     }
     return (
-        <vscode-collapsible title="Model Options">
-            <JSONSchemaObjectForm
-                schema={schema}
-                value={options}
-                fieldPrefix=""
-                onChange={setOptions}
-            />
+        <>
+            <vscode-tab-header slot="header">Model</vscode-tab-header>
+            <vscode-tab-panel>
+                <JSONSchemaObjectForm
+                    schema={schema}
+                    value={options}
+                    fieldPrefix=""
+                    onChange={setOptions}
+                />
+            </vscode-tab-panel>
+        </>
+    )
+}
+
+function ConfigurationTabPanel() {
+    return (
+        <vscode-collapsible title="Configuration">
+            <vscode-tabs panel>
+                <ModelConfigurationTabPanel />
+                <ProviderConfigurationTabPanel />
+            </vscode-tabs>
         </vscode-collapsible>
     )
 }
 
-function Configuration() {
+function ProviderConfigurationTabPanel() {
     const env = useEnv()
     const { providers } = env || {}
     if (!providers?.length) return null
@@ -1675,14 +1663,17 @@ function Configuration() {
     }, [providers])
 
     return (
-        <vscode-collapsible title="Configuration">
-            <vscode-label>
-                <a href="https://microsoft.github.io/genaiscript/getting-started/configuration/">
-                    Configuration documentation
-                </a>
-            </vscode-label>
-            <vscode-tree indent-guides indent={8} ref={ref} />
-        </vscode-collapsible>
+        <>
+            <vscode-tab-header slot="header">LLM Providers</vscode-tab-header>
+            <vscode-tab-panel>
+                <vscode-tree indent-guides indent={8} ref={ref} />
+                <vscode-label>
+                    <a href="https://microsoft.github.io/genaiscript/getting-started/configuration/">
+                        Configuration documentation
+                    </a>
+                </vscode-label>
+            </vscode-tab-panel>
+        </>
     )
 }
 
@@ -1723,9 +1714,7 @@ function RunForm() {
     return (
         <form onSubmit={handleSubmit}>
             <ScriptForm />
-            <ScriptSourcesView />
-            <ModelConnectionOptionsForm />
-            <Configuration />
+            <ConfigurationTabPanel />
         </form>
     )
 }
