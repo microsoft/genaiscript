@@ -38,7 +38,7 @@ export class WebSocketClient extends EventTarget {
     private _ws: WebSocket
     private _pendingMessages: string[] = []
     private _reconnectTimeout: ReturnType<typeof setTimeout> | undefined
-    private _error: Error | undefined
+    private _error: unknown | undefined
     connectedOnce = false
     reconnectAttempts = 0
 
@@ -59,6 +59,10 @@ export class WebSocketClient extends EventTarget {
         const states = ["connecting", "open", "closing", "closed", "error"]
         if (this._error) return "error"
         return (states[this._ws?.readyState] as any) || "closed"
+    }
+
+    get error() {
+        return this._error
     }
 
     private reconnect() {
