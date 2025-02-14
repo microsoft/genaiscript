@@ -14,6 +14,7 @@ export interface DetailsNode {
     type: "details"
     label: string // Label for the details node
     content: TraceNode[] // Array of trace nodes contained
+    open?: boolean // Optional flag to indicate if the details node is open
 }
 
 // Type representing possible trace nodes which can be strings, details nodes, or item nodes
@@ -30,7 +31,11 @@ export interface TraceTree {
  * @param text - The text representing the trace tree.
  * @returns The parsed TraceTree structure.
  */
-export function parseTraceTree(text: string): TraceTree {
+export function parseTraceTree(
+    text: string,
+    options?: { parseItems?: boolean }
+): TraceTree {
+    const { parseItems } = options || {}
     const nodes: Record<string, TraceNode> = {}
     const stack: DetailsNode[] = [
         { type: "details", label: "root", content: [] }, // Initialize root node
@@ -45,7 +50,7 @@ export function parseTraceTree(text: string): TraceTree {
             hash |= 0
         }
         // Detect start of a details block
-        const startDetails = /^\s*<details[^>]*>\s*$/m.exec(line)
+        const startDetails = /^\s*<details([^>]*)>\s*$/m.exec(line)
         if (startDetails) {
             const parent = stack.at(-1)
             const current: DetailsNode = {
@@ -53,6 +58,7 @@ export function parseTraceTree(text: string): TraceTree {
                 id: `${i}-${hash}`,
                 label: "",
                 content: [],
+                open: startDetails[1].includes("open"),
             }
             parent.content.push(current)
             stack.push(current)
@@ -86,18 +92,21 @@ export function parseTraceTree(text: string): TraceTree {
             i = j
             continue
         }
-        // Detect item node
-        const item = /^\s*-\s+([^:]+): (.+)$/m.exec(lines[i])
-        if (item) {
-            const current = stack.at(-1)
-            current.content.push({
-                type: "item",
-                id: ("" + Math.random()).slice(2),
-                label: item[1],
-                value: item[2],
-            })
-            nodes[current.id] = current
-            continue
+
+        if (parseItems) {
+            // Detect item node
+            const item = /^\s*-\s+([^:]+): (.+)$/m.exec(lines[i])
+            if (item) {
+                const current = stack.at(-1)
+                current.content.push({
+                    type: "item",
+                    id: ("" + Math.random()).slice(2),
+                    label: item[1],
+                    value: item[2],
+                })
+                nodes[current.id] = current
+                continue
+            }
         }
 
         const contents = stack.at(-1).content

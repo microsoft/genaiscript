@@ -64,7 +64,8 @@ export class MarkdownTrace extends EventTarget implements OutputTrace {
     }
 
     get tree() {
-        if (!this._tree) this._tree = parseTraceTree(this.content)
+        if (!this._tree)
+            this._tree = parseTraceTree(this.content, { parseItems: true })
         return this._tree
     }
 

@@ -909,11 +909,6 @@ function TraceTreeMarkdown() {
     )
 }
 
-function TraceMarkdown() {
-    const trace = useTrace()
-    return <Markdown>{trace}</Markdown>
-}
-
 function TraceTabPanel(props: { selected?: boolean }) {
     const { selected } = props
     const trace = useTrace()
@@ -924,7 +919,6 @@ function TraceTabPanel(props: { selected?: boolean }) {
                 <ErrorStatusBadge />
             </vscode-tab-header>
             <vscode-tab-panel>
-                {selected ? <TraceMarkdown /> : null}
                 {selected ? <TraceTreeMarkdown /> : null}
             </vscode-tab-panel>
         </>
