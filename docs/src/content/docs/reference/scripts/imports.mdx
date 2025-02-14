@@ -30,7 +30,8 @@ console.log(stringify(res))
 
 ## JavaScript imports
 
-You can also import other local **JavaScript** files (using static or dynamic imports).
+You can also import other local **JavaScript** module files (using static or dynamic imports).
+**Use `.mjs` extension for module JavaScript files.**
 
 ```js title="summarizer.mjs"
 export function summarize(files) {
@@ -55,13 +56,21 @@ summarize(env.generator, env.files)
 
 ## TypeScript imports
 
-[TypeScript module files](/genaiscript/reference/scripts/typescript) (`.mts`) can be imported using **dynamic** import only.
+You can import [TypeScript module files](/genaiscript/reference/scripts/typescript) (`.mts`).
+**Use `.mts` extension for module TypeScript files.**
 
 ```js title="summarizer.mts"
 export function summarize(files: string[]) {
     def("FILE", files)
     $`Summarize each file. Be concise.`
 }
+```
+
+- static import (`import ... from ...`)
+
+```js
+import { summarize } from "./summarizer.mts"
+summarize(env.generator, env.files)
 ```
 
 - dynamic import (`async import(...)`)
