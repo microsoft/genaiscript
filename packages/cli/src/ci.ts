@@ -19,7 +19,7 @@ export async function confirmOrSkipInCI(
     }
     const res = await confirm({
         message,
-        default: false,
+        default: true,
     })
     if (res) confirmed.push(message)
     return res

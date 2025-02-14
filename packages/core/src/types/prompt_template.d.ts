@@ -3385,7 +3385,7 @@ type ImportTemplateArgumentType =
 
 interface ChatTurnGenerationContext {
     importTemplate(
-        files: string | string[],
+        files: ElementOrArray<string | WorkspaceFile>,
         arguments?: Record<string, ImportTemplateArgumentType>,
         options?: ImportTemplateOptions
     ): void

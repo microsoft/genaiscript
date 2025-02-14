@@ -27,7 +27,7 @@ import { sliceData, tidyData } from "./tidy"
 import { dedent } from "./indent"
 import { ChatCompletionMessageParam } from "./chattypes"
 import { resolveTokenEncoder } from "./encoders"
-import { expandFiles } from "./fs"
+import { expandFileOrWorkspaceFiles } from "./fs"
 import { interpolateVariables } from "./mustache"
 import { createDiff } from "./diff"
 import { promptyParse } from "./prompty"
@@ -131,7 +131,7 @@ export interface PromptStringTemplateNode extends PromptNode {
 // Interface for an import template node.
 export interface PromptImportTemplate extends PromptNode {
     type: "importTemplate"
-    files: string | string[] // Files to import
+    files: ElementOrArray<string | WorkspaceFile> // Files to import
     args?: Record<string, ImportTemplateArgumentType> // Arguments for the template
     options?: ImportTemplateOptions // Additional options
 }
@@ -484,7 +484,7 @@ export function createFileOutput(output: FileOutput): FileOutputNode {
 
 // Function to create an import template node.
 export function createImportTemplate(
-    files: string | string[],
+    files: ElementOrArray<string | WorkspaceFile>,
     args?: Record<string, ImportTemplateArgumentType>,
     options?: ImportTemplateOptions
 ): PromptImportTemplate {
@@ -805,9 +805,9 @@ async function resolvePromptNode(
                 const { files, args, options } = n
                 n.children = []
                 n.preview = ""
-                const fs = await (
-                    await expandFiles(arrayify(files))
-                ).map((filename) => <WorkspaceFile>{ filename })
+                const fs: WorkspaceFile[] = await expandFileOrWorkspaceFiles(
+                    arrayify(files)
+                )
                 if (fs.length === 0)
                     throw new Error(`No files found for import: ${files}`)
 
