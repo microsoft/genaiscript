@@ -865,7 +865,7 @@ function traceTreeToTreeItem(node: TraceNode): TreeItem {
     }
 }
 
-function TraceMarkdown() {
+function TraceTreeMarkdown() {
     const trace = useTrace()
     const [node, setNode] = useState<TraceNode | undefined>(undefined)
     const tree = useMemo(() => parseTraceTree(trace), [trace])
@@ -889,7 +889,10 @@ function TraceMarkdown() {
     }, [node])
     return (
         <vscode-scrollable>
-            <vscode-split-layout fixed-pane="start">
+            <vscode-split-layout
+                initial-handle-position="20%"
+                fixed-pane="start"
+            >
                 <div slot="start">
                     <vscode-tree
                         data={data}
@@ -906,8 +909,14 @@ function TraceMarkdown() {
     )
 }
 
+function TraceMarkdown() {
+    const trace = useTrace()
+    return <Markdown>{trace}</Markdown>
+}
+
 function TraceTabPanel(props: { selected?: boolean }) {
     const { selected } = props
+    const trace = useTrace()
     return (
         <>
             <vscode-tab-header slot="header">
@@ -916,6 +925,7 @@ function TraceTabPanel(props: { selected?: boolean }) {
             </vscode-tab-header>
             <vscode-tab-panel>
                 {selected ? <TraceMarkdown /> : null}
+                {selected ? <TraceTreeMarkdown /> : null}
             </vscode-tab-panel>
         </>
     )

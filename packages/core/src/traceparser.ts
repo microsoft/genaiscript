@@ -123,13 +123,13 @@ export function renderTraceTree(node: TraceNode, level: number): string {
         return node
     } else if (node.type === "item") return `- ${node.label}: ${node.value}`
     else if (node.type === "details")
-        if (level > 0)
-            return details(
-                node.label,
-                node.content
-                    .map((n) => renderTraceTree(n, level - 1))
-                    .join("\n")
-            )
-        else return `- ${node.label}`
+        return details(
+            node.label,
+            level > 0
+                ? node.content
+                      .map((n) => renderTraceTree(n, level - 1))
+                      .join("\n")
+                : "..."
+        )
     else return ""
 }
