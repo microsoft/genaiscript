@@ -1411,10 +1411,8 @@ function RefreshButton() {
         <vscode-icon
             tabIndex={0}
             name="refresh"
-            aria-role="button"
             action-icon
-            title="refresh"
-            aria-label="refresh the scripts"
+            label="refresh the scripts"
             onClick={handleClick}
             onKeyDown={handleClick}
             slot="actions"
