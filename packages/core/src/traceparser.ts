@@ -33,9 +33,9 @@ export interface TraceTree {
  */
 export function parseTraceTree(
     text: string,
-    options?: { parseItems?: boolean }
+    options?: { parseItems?: boolean; openeds?: Set<string> }
 ): TraceTree {
-    const { parseItems } = options || {}
+    const { parseItems, openeds } = options || {}
     const nodes: Record<string, TraceNode> = {}
     const stack: DetailsNode[] = [
         { type: "details", label: "root", content: [] }, // Initialize root node
@@ -59,7 +59,9 @@ export function parseTraceTree(
                 label: "",
                 content: [],
             }
-            if (startDetails[1].includes("open")) current.open = true
+            if (openeds) {
+                if (openeds.has(current.id)) current.open = true
+            } else if (startDetails[1].includes("open")) current.open = true
 
             parent.content.push(current)
             stack.push(current)

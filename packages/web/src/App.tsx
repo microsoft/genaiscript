@@ -81,6 +81,7 @@ import {
     CHANGE,
 } from "../../core/src/constants"
 import {
+    DetailsNode,
     parseTraceTree,
     renderTraceTree,
     TraceNode,
@@ -888,6 +889,7 @@ function traceTreeToTreeItem(node: TraceNode): TreeItem {
                 label: unmarkdown(node.label),
                 value: node.id,
                 icons: parseTreeIcons,
+                open: node.open,
                 subItems: node.content
                     ?.map(traceTreeToTreeItem)
                     ?.filter((s) => s),
@@ -904,7 +906,23 @@ function traceTreeToTreeItem(node: TraceNode): TreeItem {
 function TraceTreeMarkdown() {
     const trace = useTrace()
     const [node, setNode] = useState<TraceNode | undefined>(undefined)
-    const tree = useMemo(() => parseTraceTree(trace), [trace])
+    const openeds = useRef(new Set<string>())
+    const tree = useMemo(() => {
+        console.log(Array.from(openeds.current.values()).join(", "))
+        const res = parseTraceTree(trace, {
+            parseItems: false,
+            openeds: openeds.current,
+        })
+        openeds.current = new Set<string>(
+            Object.values(res.nodes)
+                .filter(
+                    (n) =>
+                        typeof n !== "string" && n.type === "details" && n.open
+                )
+                .map((n) => (n as DetailsNode).id)
+        )
+        return res
+    }, [trace])
     const data = useMemo(() => {
         const newData = traceTreeToTreeItem(tree.root)
         newData.open = true
@@ -912,10 +930,12 @@ function TraceTreeMarkdown() {
     }, [tree])
     const treeRef = useRef(null)
     const handleSelect = (e: VscTreeSelectEvent) => {
-        const { value } = e.detail
+        const { value, open } = e.detail
+        if (open) openeds.current.add(value)
+        else openeds.current.delete(value)
         if (!value) return
         const selected = tree.nodes[value]
-        setNode((curr) => selected)
+        setNode(() => selected)
     }
     const preview = useMemo(() => {
         if (!node) return undefined
