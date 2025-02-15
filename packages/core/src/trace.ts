@@ -9,7 +9,6 @@ import {
     TRACE_MAX_FILE_SIZE,
     TRACE_MAX_IMAGE_SIZE,
 } from "./constants"
-import { parseTraceTree, TraceTree } from "./markdown"
 import { stringify as yamlStringify } from "yaml"
 import { YAMLStringify } from "./yaml"
 import { errorMessage, serializeError } from "./error"
@@ -26,6 +25,7 @@ import { dedent } from "./indent"
 import { CSVStringify, dataToMarkdownTable } from "./csv"
 import { INIStringify } from "./ini"
 import { ChatCompletionsProgressReport } from "./chattypes"
+import { parseTraceTree, TraceTree } from "./traceparser"
 
 export class TraceChunkEvent extends Event {
     constructor(
@@ -64,7 +64,8 @@ export class MarkdownTrace extends EventTarget implements OutputTrace {
     }
 
     get tree() {
-        if (!this._tree) this._tree = parseTraceTree(this.content)
+        if (!this._tree)
+            this._tree = parseTraceTree(this.content, { parseItems: true })
         return this._tree
     }
 

@@ -21,8 +21,14 @@ await cp("./built/web.mjs", "../cli/built/web.mjs")
 await cp("./built/web.mjs.map", "../cli/built/web.mjs.map")
 await cp("./index.html", "../cli/built/index.html")
 await cp("./favicon.svg", "../cli/built/favicon.svg")
-await cp("../../node_modules/@vscode/codicons/dist/codicon.ttf", "../cli/built/codicon.ttf")
-await cp("../../node_modules/@vscode/codicons/dist/codicon.css", "../cli/built/codicon.css")
+await cp(
+    "../../node_modules/@vscode/codicons/dist/codicon.ttf",
+    "../cli/built/codicon.ttf"
+)
+await cp(
+    "../../node_modules/@vscode/codicons/dist/codicon.css",
+    "../cli/built/codicon.css"
+)
 
 const cssDir = "./src"
 const outputCssFile = "../cli/built/markdown.css"

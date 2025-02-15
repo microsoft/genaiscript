@@ -1,4 +1,5 @@
 import {
+    CHANGE,
     CLIENT_RECONNECT_DELAY,
     CLOSE,
     CONNECT,
@@ -37,6 +38,7 @@ export class WebSocketClient extends EventTarget {
     private _ws: WebSocket
     private _pendingMessages: string[] = []
     private _reconnectTimeout: ReturnType<typeof setTimeout> | undefined
+    private _error: unknown | undefined
     connectedOnce = false
     reconnectAttempts = 0
 
@@ -44,9 +46,23 @@ export class WebSocketClient extends EventTarget {
         super()
     }
 
+    private dispatchChange() {
+        this.dispatchEvent(new Event(CHANGE))
+    }
+
     async init(): Promise<void> {
         if (this._ws) return Promise.resolve(undefined)
         this.connect()
+    }
+
+    get readyState(): "connecting" | "open" | "closing" | "closed" | "error" {
+        const states = ["connecting", "open", "closing", "closed", "error"]
+        if (this._error) return "error"
+        return (states[this._ws?.readyState] as any) || "closed"
+    }
+
+    get error() {
+        return this._error
     }
 
     private reconnect() {
@@ -55,11 +71,17 @@ export class WebSocketClient extends EventTarget {
         this._ws = undefined
         clearTimeout(this._reconnectTimeout)
         this._reconnectTimeout = setTimeout(() => {
-            this.connect()
+            try {
+                this.connect()
+            } catch (e) {
+                this._error = e
+                this.dispatchChange()
+            }
         }, CLIENT_RECONNECT_DELAY)
     }
 
     private connect(): void {
+        this._error = undefined
         this._ws = new WebSocket(this.url)
         this._ws.addEventListener(
             OPEN,
@@ -75,6 +97,7 @@ export class WebSocketClient extends EventTarget {
                 )
                     this._ws.send(m)
                 this.dispatchEvent(new Event(OPEN))
+                this.dispatchChange()
             },
             false
         )
@@ -82,6 +105,7 @@ export class WebSocketClient extends EventTarget {
             ERROR,
             (ev) => {
                 this.reconnect()
+                this.dispatchChange()
             },
             false
         )
@@ -92,6 +116,7 @@ export class WebSocketClient extends EventTarget {
                 const reason = (ev as any).reason || "websocket closed"
                 this.cancel(reason)
                 this.dispatchEvent(new Event(CLOSE))
+                this.dispatchChange()
                 this.reconnect()
             },
             false

@@ -2,13 +2,8 @@ import * as vscode from "vscode"
 import { ExtensionState } from "./state"
 import { infoUri } from "./markdowndocumentprovider"
 import { CHANGE, TRACE_NODE_PREFIX } from "../../core/src/constants"
-import { TraceNode } from "../../core/src/markdown"
-
-function unmarkdown(text: string) {
-    return text
-        ?.replace(/\[([^\]]+)\]\([^)]+\)/g, (m, n) => n)
-        ?.replace(/<\/?([^>]+)>/g, "")
-}
+import { TraceNode } from "../../core/src/traceparser"
+import { unmarkdown } from "../../core/src/cleaners"
 
 class TraceTreeDataProvider implements vscode.TreeDataProvider<TraceNode> {
     private previewTreeItems: Record<string, vscode.TreeItem> = {}

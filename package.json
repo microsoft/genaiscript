@@ -60,7 +60,7 @@
         "test:scripts:view": "cd packages/sample/ && yarn test:scripts:view",
         "serve:cli": "node --watch --watch-path=packages/cli/built packages/cli/built/genaiscript.cjs serve --dispatch-progress",
         "serve:web": "yarn --cwd packages/web watch",
-        "serve": "run-p serve:*",
+        "serve": "yarn compile-cli && run-p serve:*",
         "docs": "cd docs && ./node_modules/.bin/astro telemetry disable && ./node_modules/.bin/astro dev --host",
         "slides": "cd slides && yarn run dev",
         "build:slides": "yarn --cwd slides install --frozen-lockfile --prefer-offline && yarn --cwd slides build",

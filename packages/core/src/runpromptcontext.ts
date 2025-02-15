@@ -1011,7 +1011,7 @@ export function createChatGenerationContext(
                         }
                         genOptions.logprobs =
                             genOptions.logprobs || system.logprobs
-                        runTrace.detailsFenced("js", system.jsSource, "js")
+                        runTrace.detailsFenced("💻 script source", system.jsSource, "js")
                         runTrace.endDetails()
                         if (sysr.status !== "success")
                             throw new Error(

@@ -239,7 +239,7 @@ export async function expandTemplate(
     traceEnv(model, trace, env)
 
     trace.startDetails("🧬 prompt")
-    trace.detailsFenced("📓 script source", template.jsSource, "js")
+    trace.detailsFenced("💻 script source", template.jsSource, "js")
 
     const prompt = await callExpander(prj, template, env, trace, {
         ...options,
@@ -344,7 +344,7 @@ export async function expandTemplate(
             }
             logprobs = logprobs || system.logprobs
             topLogprobs = Math.max(topLogprobs, system.topLogprobs || 0)
-            trace.detailsFenced("js", system.jsSource, "js")
+            trace.detailsFenced("💻 script source", system.jsSource, "js")
             trace.endDetails()
 
             if (sysr.status !== "success") {

@@ -20,12 +20,13 @@ import {
 } from "../../core/src/constants"
 import { defaultPrompts } from "../../core/src/default_prompts"
 import { extractFenced, renderFencedVariables } from "../../core/src/fence"
-import { renderTraceTree, prettifyMarkdown } from "../../core/src/markdown"
+import { prettifyMarkdown } from "../../core/src/markdown"
 import {
     logprobToMarkdown,
     topLogprobsToMarkdown,
 } from "../../core/src/logprob"
 import { fenceMD } from "../../core/src/mkmd"
+import { renderTraceTree } from "../../core/src/traceparser"
 
 const SCHEME = "genaiscript"
 
@@ -65,8 +66,8 @@ class MarkdownTextDocumentContentProvider
         const tree = this.state.aiRequest?.trace?.tree
         const node = tree?.nodes[id]
         if (typeof node === "object" && node?.type === "details")
-            return node.content.map(renderTraceTree).join("\n")
-        return renderTraceTree(node)
+            return node.content.map((n) => renderTraceTree(n, 3)).join("\n")
+        return renderTraceTree(node, 3)
     }
 
     async provideTextDocumentContent(

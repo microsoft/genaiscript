@@ -13,6 +13,7 @@ import React, {
     useRef,
     useState,
 } from "react"
+import { throttle } from "es-toolkit"
 
 import "@vscode-elements/elements/dist/vscode-button"
 import "@vscode-elements/elements/dist/vscode-single-select"
@@ -33,6 +34,7 @@ import "@vscode-elements/elements/dist/vscode-textarea"
 import "@vscode-elements/elements/dist/vscode-multi-select"
 import "@vscode-elements/elements/dist/vscode-scrollable"
 import "@vscode-elements/elements/dist/vscode-tree"
+import "@vscode-elements/elements/dist/vscode-split-layout"
 
 import Markdown from "./Markdown"
 import type {
@@ -67,14 +69,24 @@ import MarkdownPreviewTabs from "./MarkdownPreviewTabs"
 import { roundWithPrecision } from "../../core/src/precision"
 import {
     TreeItem,
+    TreeItemIconConfig,
     VscodeTree,
+    VscTreeSelectEvent,
 } from "@vscode-elements/elements/dist/vscode-tree/vscode-tree"
 import CONFIGURATION from "../../core/src/llms.json"
 import {
     MODEL_PROVIDER_GITHUB_COPILOT_CHAT,
     MESSAGE,
     QUEUE_SCRIPT_START,
+    CHANGE,
 } from "../../core/src/constants"
+import {
+    DetailsNode,
+    parseTraceTree,
+    renderTraceTree,
+    TraceNode,
+} from "../../core/src/traceparser"
+import { unmarkdown } from "../../core/src/cleaners"
 
 interface GenAIScriptViewOptions {
     apiKey?: string
@@ -157,11 +169,21 @@ class RunClient extends WebSocketClient {
     reasoning: string = ""
     result: Partial<GenerationResult> = undefined
 
+    private progressEventThrottled = throttle(
+        this.dispatchProgressEvent.bind(this),
+        2000,
+        {
+            edges: ["leading"],
+        }
+    )
+
+    private stderr = ""
     constructor(url: string) {
         super(url)
         this.addEventListener(QUEUE_SCRIPT_START, () => {
             this.updateRunId({ runId: "" })
         })
+        this.stderr = ""
         this.addEventListener(
             MESSAGE,
             async (ev) => {
@@ -182,7 +204,14 @@ class RunClient extends WebSocketClient {
                             this.output += data.output
                         }
                         if (data.reasoning) this.reasoning += data.reasoning
-                        this.dispatchEvent(new Event(RunClient.PROGRESS_EVENT))
+                        if (data.responseChunk) {
+                            this.stderr += data.responseChunk
+                            const lines = this.stderr.split("\n")
+                            for (const line of lines.slice(0, lines.length - 1))
+                                console.debug(line)
+                            this.stderr = lines.at(-1)
+                        }
+                        this.progressEventThrottled()
                         break
                     }
                     case "script.end": {
@@ -202,7 +231,7 @@ class RunClient extends WebSocketClient {
                             })
                         )
                         this.dispatchEvent(new Event(RunClient.RESULT_EVENT))
-                        this.dispatchEvent(new Event(RunClient.PROGRESS_EVENT))
+                        this.dispatchProgressEvent()
                         break
                     }
                     case "script.start":
@@ -224,6 +253,10 @@ class RunClient extends WebSocketClient {
         )
     }
 
+    private dispatchProgressEvent() {
+        this.dispatchEvent(new Event(RunClient.PROGRESS_EVENT))
+    }
+
     private updateRunId(data: { runId: string }) {
         const { runId } = data
         if (runId !== this.runId) {
@@ -232,6 +265,7 @@ class RunClient extends WebSocketClient {
                 this.trace = ""
                 this.output = ""
                 this.result = undefined
+                this.stderr = ""
                 this.dispatchEvent(new Event(RunClient.RESULT_EVENT))
             }
             this.dispatchEvent(new Event(RunClient.RUN_EVENT))
@@ -447,6 +481,18 @@ function useSyncProjectScript() {
         else if (scriptid && !scripts.find((s) => s.id === scriptid))
             setScriptid(scripts[0]?.id)
     }, [scripts, scriptid])
+}
+
+function useClientReadyState() {
+    const { client } = useApi()
+    const [state, setState] = useState(client?.readyState)
+    useEffect(() => {
+        if (!client) return undefined
+        const update = () => startTransition(() => setState(client.readyState))
+        client.addEventListener(CHANGE, update, false)
+        return () => client.removeEventListener(CHANGE, update)
+    }, [client])
+    return state
 }
 
 const RunnerContext = createContext<{
@@ -829,13 +875,92 @@ function CounterBadge(props: { collection: any | undefined; title: string }) {
     )
 }
 
-function TraceMarkdown() {
+const parseTreeIcons: TreeItemIconConfig = {
+    leaf: "none",
+    branch: "chevron-right",
+    open: "chevron-down",
+}
+
+function traceTreeToTreeItem(node: TraceNode): TreeItem {
+    if (typeof node === "string") return undefined
+    switch (node.type) {
+        case "details":
+            return {
+                label: unmarkdown(node.label),
+                value: node.id,
+                icons: parseTreeIcons,
+                open: node.open,
+                subItems: node.content
+                    ?.map(traceTreeToTreeItem)
+                    ?.filter((s) => s),
+            }
+        case "item":
+            return {
+                label: unmarkdown(node.label),
+                value: node.id,
+                description: node.value,
+            }
+    }
+}
+
+function TraceTreeMarkdown() {
     const trace = useTrace()
+    const [node, setNode] = useState<TraceNode | undefined>(undefined)
+    const openeds = useRef(new Set<string>())
+    const tree = useMemo(() => {
+        console.log(Array.from(openeds.current.values()).join(", "))
+        const res = parseTraceTree(trace, {
+            parseItems: false,
+            openeds: openeds.current,
+        })
+        openeds.current = new Set<string>(
+            Object.values(res.nodes)
+                .filter(
+                    (n) =>
+                        typeof n !== "string" && n.type === "details" && n.open
+                )
+                .map((n) => (n as DetailsNode).id)
+        )
+        return res
+    }, [trace])
+    const data = useMemo(() => {
+        const newData = traceTreeToTreeItem(tree.root)
+        newData.open = true
+        return newData.subItems
+    }, [tree])
+    const treeRef = useRef(null)
+    const handleSelect = (e: VscTreeSelectEvent) => {
+        const { value, open } = e.detail
+        if (open) openeds.current.add(value)
+        else openeds.current.delete(value)
+        if (!value) return
+        const selected = tree.nodes[value]
+        setNode(() => selected)
+    }
+    const preview = useMemo(() => {
+        if (!node) return undefined
+        if (typeof node === "object" && node?.type === "details")
+            return node.content.map((n) => renderTraceTree(n, 2)).join("\n")
+        return renderTraceTree(node, 2)
+    }, [node])
     return (
         <vscode-scrollable>
-            <Markdown text={trace} filename="trace.md">
-                {trace}
-            </Markdown>
+            <vscode-split-layout
+                initial-handle-position="20%"
+                fixed-pane="start"
+            >
+                <div slot="start">
+                    <vscode-tree
+                        data={data}
+                        ref={treeRef}
+                        indentGuides={true}
+                        onvsc-tree-select={handleSelect}
+                    />
+                </div>
+                <div slot="end">
+                    {preview ? <Markdown>{preview}</Markdown> : null}
+                </div>
+            </vscode-split-layout>
         </vscode-scrollable>
     )
 }
@@ -849,7 +974,7 @@ function TraceTabPanel(props: { selected?: boolean }) {
                 <ErrorStatusBadge />
             </vscode-tab-header>
             <vscode-tab-panel>
-                {selected ? <TraceMarkdown /> : null}
+                {selected ? <TraceTreeMarkdown /> : null}
             </vscode-tab-panel>
         </>
     )
@@ -1676,6 +1801,16 @@ function ProviderConfigurationTabPanel() {
     )
 }
 
+function ClientReadyStateLabel() {
+    const readyState = useClientReadyState()
+    if (readyState === "open") return null
+    return (
+        <vscode-label title={`server connection status: ${readyState}`}>
+            {readyState}
+        </vscode-label>
+    )
+}
+
 function RunButton() {
     const { scriptid, options } = useApi()
     const { state } = useRunner()
@@ -1684,7 +1819,7 @@ function RunButton() {
     const title = state === "running" ? "Abort" : "Run"
     return (
         <vscode-form-group>
-            <vscode-label></vscode-label>
+            <ClientReadyStateLabel />
             <vscode-button
                 icon={state === "running" ? "stop-circle" : "play"}
                 disabled={disabled}

@@ -54,3 +54,9 @@ export function trimTrailingSlash(s: string) {
 export function normalizeVarKey(key: string) {
     return key.toLowerCase().replace(/[^a-z0-9\.]/g, "")
 }
+
+export function unmarkdown(text: string) {
+    return text
+        ?.replace(/\[([^\]]+)\]\([^)]+\)/g, (m, n) => n)
+        ?.replace(/<\/?([^>]+)>/g, "")
+}

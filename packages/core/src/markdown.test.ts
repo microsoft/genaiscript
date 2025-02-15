@@ -1,6 +1,7 @@
 import { describe, test } from "node:test"
-import { parseTraceTree, MarkdownStringify } from "./markdown"
+import { MarkdownStringify } from "./markdown"
 import assert from "node:assert/strict"
+import { parseTraceTree } from "./traceparser"
 
 describe("trace tree", () => {
     test("empty", () => {
@@ -14,7 +15,10 @@ describe("trace tree", () => {
     })
     test("stringify", () => {
         assert.strictEqual(MarkdownStringify({ a: 1 }), "\n- a: 1")
-        assert.strictEqual(MarkdownStringify({ a: 1, b: 2 }), "\n- a: 1\n- b: 2")
+        assert.strictEqual(
+            MarkdownStringify({ a: 1, b: 2 }),
+            "\n- a: 1\n- b: 2"
+        )
     })
     test("flat", () => {
         const { root: res } = parseTraceTree(`
