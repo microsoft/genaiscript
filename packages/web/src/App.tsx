@@ -926,7 +926,7 @@ function TraceTreeMarkdown() {
     const data = useMemo(() => {
         const newData = traceTreeToTreeItem(tree.root)
         newData.open = true
-        return newData.subItems
+        return [newData]
     }, [tree])
     const treeRef = useRef(null)
     const handleSelect = (e: VscTreeSelectEvent) => {

@@ -38,8 +38,9 @@ export function parseTraceTree(
     const { parseItems, openeds } = options || {}
     const nodes: Record<string, TraceNode> = {}
     const stack: DetailsNode[] = [
-        { type: "details", label: "root", content: [] }, // Initialize root node
+        { type: "details", label: "trace", id: "root", content: [] }, // Initialize root node
     ]
+    nodes[stack[0].id] = stack[0]
     let hash = 0
     const lines = (text || "").split("\n")
     for (let i = 0; i < lines.length; ++i) {
