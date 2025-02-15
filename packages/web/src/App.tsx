@@ -87,6 +87,7 @@ import {
     TraceNode,
 } from "../../core/src/traceparser"
 import { unmarkdown } from "../../core/src/cleaners"
+import { ErrorBoundary } from "react-error-boundary"
 
 interface GenAIScriptViewOptions {
     apiKey?: string
@@ -908,7 +909,6 @@ function TraceTreeMarkdown() {
     const [node, setNode] = useState<TraceNode | undefined>(undefined)
     const openeds = useRef(new Set<string>())
     const tree = useMemo(() => {
-        console.log(Array.from(openeds.current.values()).join(", "))
         const res = parseTraceTree(trace, {
             parseItems: false,
             openeds: openeds.current,
@@ -974,7 +974,13 @@ function TraceTabPanel(props: { selected?: boolean }) {
                 <ErrorStatusBadge />
             </vscode-tab-header>
             <vscode-tab-panel>
-                {selected ? <TraceTreeMarkdown /> : null}
+                <ErrorBoundary
+                    fallback={
+                        <p>⚠️Something went wrong while rendering trace.</p>
+                    }
+                >
+                    {selected ? <TraceTreeMarkdown /> : null}
+                </ErrorBoundary>
             </vscode-tab-panel>
         </>
     )
