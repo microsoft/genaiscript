@@ -84,6 +84,7 @@ export function commandButtons(state: ExtensionState) {
     const output = "Output"
     const trace = "Trace"
     const show = "Show"
+    const start = "Start"
     const stop = "Stop"
     const cmds: { label: string; description?: string; cmd: string }[] = []
     if (computing) cmds.push({ label: abort, cmd: "genaiscript.request.abort" })
@@ -112,6 +113,12 @@ export function commandButtons(state: ExtensionState) {
             label: stop,
             description: "Stop GenAIScript server",
             cmd: "genaiscript.server.stop",
+        })
+    } else {
+        cmds.push({
+            label: start,
+            description: "Start GenAIScript server",
+            cmd: "genaiscript.server.start",
         })
     }
 

@@ -345,6 +345,12 @@
                 "icon": "$(close)"
             },
             {
+                "command": "genaiscript.server.start",
+                "title": "Start GenAIScript server",
+                "category": "GenAIScript",
+                "icon": "$(server-process)"
+            },
+            {
                 "command": "genaiscript.server.show",
                 "title": "Show GenAIScript server",
                 "category": "GenAIScript",

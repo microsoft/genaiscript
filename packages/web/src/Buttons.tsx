@@ -1,7 +1,7 @@
 import React, { useState } from "react"
 
 import "@vscode-elements/elements/dist/vscode-button"
-import AIDisclaimer from "./AIDisplaimer"
+import AIDisclaimer from "./AIDisclaimer"
 
 function extractTextFromChildren(children: any): string {
     if (!children) return ""

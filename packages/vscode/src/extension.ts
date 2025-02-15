@@ -41,6 +41,9 @@ export async function activate(context: ExtensionContext) {
     activeWebview(state)
 
     context.subscriptions.push(
+        registerCommand("genaiscript.server.start", async () => {
+            await state.host.server.start()
+        }),
         registerCommand("genaiscript.server.stop", async () => {
             await state.host.server.close()
         }),
