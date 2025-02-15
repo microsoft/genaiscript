@@ -72,6 +72,30 @@ npx --yes genaiscript ...
 npx --yes genaiscript@^1.16.0 ...
 ```
 
+- Install the CLI globally using `npm`.
+
+```sh "-g"
+npm install -g genaiscript
+```
+
+then run the CLI
+
+```sh
+genaiscript ...
+```
+
+- Install the CLI locally using `npm`.
+
+```sh
+npm install --save-dev genaiscript
+```
+
+then run the CLI
+
+```sh
+npx genaiscript ...
+```
+
 ## Configuration
 
 The CLI will load the [secrets](/genaiscript/getting-started/configuration) from the environment variables or a `./.env` file.

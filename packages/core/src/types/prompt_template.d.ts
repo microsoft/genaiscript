@@ -281,6 +281,11 @@ interface ModelOptions extends ModelConnectionOptions, ModelTemplateOptions {
     temperature?: number
 
     /**
+     * Enables fallback tools mode
+     */
+    fallbackTools?: boolean
+
+    /**
      * Some reasoning model support a reasoning effort parameter.
      */
     reasoningEffort?: "high" | "medium" | "low"

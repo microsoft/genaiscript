@@ -120,7 +120,7 @@ for (const file of files) {
     const out = file.replace(/\.pdf$/i, ".tweet.md") // foo.pdf -> foo.tweet.md
     if (!(await fs.exists(out)))
         // don't regenerate if it already exists
-        await $`npx --yes genaiscript run gen-tweet ${file} > ${out}`
+        await $`genaiscript run gen-tweet ${file} > ${out}`
 }
 ```
 

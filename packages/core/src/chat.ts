@@ -872,6 +872,9 @@ export function mergeGenerationOptions(
         temperature:
             runOptions?.temperature ??
             runtimeHost.modelAliases.large.temperature,
+        fallbackTools:
+            runOptions?.fallbackTools ??
+            runtimeHost.modelAliases.large.fallbackTools,
         reasoningEffort:
             runOptions?.reasoningEffort ??
             runtimeHost.modelAliases.large.reasoningEffort,

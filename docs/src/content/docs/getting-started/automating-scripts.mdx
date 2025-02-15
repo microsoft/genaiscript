@@ -19,7 +19,7 @@ Once you have a script that you are happy with, you can automate it using the [c
 The basic usage of the CLI is to [run](/genaiscript/reference/cli/run/) a script with a tool name and a list of files.
 
 ```sh wrap
-npx --yes genaiscript run <script> <...files>
+genaiscript run <script> <...files>
 ```
 
 The CLI will use the secrets in the `.env` file, populate `env.files` with `<...files>`, run the script
@@ -41,7 +41,7 @@ The CLI will return a non-zero exit code if the script fails, which can be used 
 Add the `--apply-edits` flag to the CLI to automatically write the file edits.
 
 ```sh wrap "--apply-edits"
-npx --yes genaiscript run <script> <...files> --apply-edits
+genaiscript run <script> <...files> --apply-edits
 ```
 
 :::caution
@@ -77,7 +77,7 @@ Use the [cli](/genaiscript/reference/cli/run/) to run the script in a GitHub Act
 - use the `--out <path>` flag to store the results in a directory so that you can upload them as an artifact.
 
 ```yaml
-- run: npx --yes genaiscript run <script> <...files> --out genairesults
+- run: genaiscript run <script> <...files> --out genairesults
   env:
       # variables
       OPENAI_API_TYPE: ${{ env.OPENAI_API_TYPE }}
@@ -92,7 +92,7 @@ Use the `out-trace` flag to output the trace to the summary file, `$GITHUB_STEP_
 (see [example](https://github.com/microsoft/genaiscript/actions/runs/9370477073#summary-25797526178)).
 
 ```yaml "--out-trace $GITHUB_STEP_SUMMARY"
-- run: npx --yes genaiscript run ... --out-trace $GITHUB_STEP_SUMMARY
+- run: genaiscript run ... --out-trace $GITHUB_STEP_SUMMARY
 ```
 
 ### Diff
@@ -212,7 +212,7 @@ Update each step that invokes the [cli](/genaiscript/reference/cli) to include t
 
 ```yaml
 - name: run genai script
-  run: npx --yes genaiscript run ...
+  run: genaiscript run ...
   env:
       AZURE_OPENAI_API_ENDPOINT: ${{ env.AZURE_OPENAI_API_ENDPOINT }}
 ```
@@ -236,7 +236,7 @@ and the `GITHUB_TOKEN` secret must be passed to the script.
 permissions:
     pull-requests: write
 ...
-    - run: npx --yes genaiscript run ...
+    - run: genaiscript run ...
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         ...
@@ -248,7 +248,7 @@ The `--pull-request-description` inserts the LLM output into the pull request se
 The command takes an optional string argument to uniquely identify this comment, it is used to update the comment (default is the script id).
 
 ```yaml "--pull-request-description"
-- run: npx --yes genaiscript run --pull-request-description
+- run: genaiscript run --pull-request-description
 ```
 
 If you want to run this script when the pull request is ready for review, use the [`ready_for_review`](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#pull_request), `opened`, `reopened` events.
@@ -272,7 +272,7 @@ The `--pull-request-comment` adds the LLM output as a comment to the pull reques
 The optional argument is an identifier for the comment (default is the script id) so that only one comment appears for the id.
 
 ```yaml "--pull-request-comment"
-- run: npx --yes genaiscript run --pull-request-comment
+- run: genaiscript run --pull-request-comment
   env: ...
 ```
 
@@ -282,7 +282,7 @@ Use the `--pull-request-reviews` to convert [annotations](/genaiscript/reference
 **to the last commit** on the pull request (see [example](https://github.com/microsoft/genaiscript/pull/504#pullrequestreview-2093960791)).
 
 ```yaml "--pull-request-reviews"
-- run: npx --yes genaiscript run --pull-request-reviews
+- run: genaiscript run --pull-request-reviews
   env: ...
 ```
 

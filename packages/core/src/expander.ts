@@ -197,6 +197,10 @@ export async function expandTemplate(
         normalizeFloat(env.vars["temperature"]) ??
         template.temperature ??
         runtimeHost.modelAliases.large.temperature
+    options.fallbackTools =
+        options.fallbackTools ??
+        template.fallbackTools ??
+        runtimeHost.modelAliases.large.fallbackTools
     const reasoningEffort: ChatCompletionReasoningEffort =
         options.reasoningEffort ??
         env.vars["reasoning_effort"] ??
@@ -300,6 +304,9 @@ export async function expandTemplate(
             // there's already a system message. add empty before
             messages.unshift({ role: "system", content: "" })
 
+    if (addFallbackToolSystems(systems, tools, template, options))
+        options.fallbackTools = true
+
     try {
         trace.startDetails("👾 systems")
         for (let i = 0; i < systems.length; ++i) {
@@ -360,10 +367,7 @@ export async function expandTemplate(
         trace.endDetails()
     }
 
-    if (addFallbackToolSystems(systems, tools, template, options)) {
-        addToolDefinitionsMessage(messages, tools)
-        options.fallbackTools = true
-    }
+    if (options.fallbackTools) addToolDefinitionsMessage(messages, tools)
 
     const { responseType, responseSchema } = finalizeMessages(messages, {
         ...template,

@@ -958,6 +958,16 @@ export function createChatGenerationContext(
                 tools,
                 genOptions
             )
+            if (
+                addFallbackToolSystems(
+                    systemScripts,
+                    tools,
+                    runOptions,
+                    genOptions
+                )
+            )
+                genOptions.fallbackTools = true
+
             if (systemScripts.length)
                 try {
                     runTrace.startDetails("👾 systems")
@@ -1011,7 +1021,11 @@ export function createChatGenerationContext(
                         }
                         genOptions.logprobs =
                             genOptions.logprobs || system.logprobs
-                        runTrace.detailsFenced("💻 script source", system.jsSource, "js")
+                        runTrace.detailsFenced(
+                            "💻 script source",
+                            system.jsSource,
+                            "js"
+                        )
                         runTrace.endDetails()
                         if (sysr.status !== "success")
                             throw new Error(
@@ -1022,17 +1036,8 @@ export function createChatGenerationContext(
                     runTrace.endDetails()
                 }
 
-            if (
-                addFallbackToolSystems(
-                    systemScripts,
-                    tools,
-                    runOptions,
-                    genOptions
-                )
-            ) {
+            if (genOptions.fallbackTools)
                 addToolDefinitionsMessage(messages, tools)
-                genOptions.fallbackTools = true
-            }
 
             finalizeMessages(messages, {
                 ...(runOptions || {}),

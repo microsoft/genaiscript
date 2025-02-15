@@ -56,6 +56,7 @@ export function traceLanguageModelConnection(
         model,
         temperature,
         reasoningEffort,
+        fallbackTools,
         topP,
         maxTokens,
         seed,
@@ -76,6 +77,7 @@ export function traceLanguageModelConnection(
         trace.itemValue(`provider`, provider)
         trace.itemValue(`temperature`, temperature)
         trace.itemValue(`reasoningEffort`, reasoningEffort)
+        trace.itemValue(`fallbackTools`, fallbackTools)
         trace.itemValue(`topP`, topP)
         trace.itemValue(`maxTokens`, maxTokens)
         trace.itemValue(`base`, base)

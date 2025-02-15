@@ -158,6 +158,7 @@ export class NodeHost extends EventTarget implements RuntimeHost {
             (c as any).temperature = value.temperature
         if (value.reasoningEffort)
             (c as any).reasoningEffort = value.reasoningEffort
+        if (value.fallbackTools) (c as any).fallbackTools = value.fallbackTools
     }
 
     async pullModel(

@@ -15,7 +15,7 @@ is run from the extension.
 By default, the extension uses [npx](https://www.npmjs.com/package/npx) and the current extension version to run the GenAIScript CLI.
 
 ```sh
-npx --yes genaiscript@[extension_version] serve
+genaiscript@[extension_version] serve
 ```
 
 ## Path

@@ -30,5 +30,5 @@ As a result of this change, you can now access the GenAIScript view outside of V
 Launch the [serve](/genaiscript/reference/cli/serve) command from the [cli](/genaiscript/reference/cli) to start the server and follow the instructions to open the view in your browser.
 
 ```sh
-npx --yes genaiscript serve
+genaiscript serve
 ```

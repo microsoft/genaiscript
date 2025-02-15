@@ -366,5 +366,5 @@ Use the [parse](/genaiscript/reference/cli/commands#parse) command from the CLI 
 
 ```sh
 # convert any known data format to JSON
-npx --yes genaiscript parse data mydata.csv
+genaiscript parse data mydata.csv
 ```

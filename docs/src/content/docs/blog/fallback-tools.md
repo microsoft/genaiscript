@@ -49,7 +49,7 @@ defTool("random", "Generate a random number", {}, () => Math.random())
 $`Generate a random number between 0 and 1.`
 ```
 
--   o1-mini trace (using GitHub Models)
+- o1-mini trace (using GitHub Models)
 
 ````txt
 prompting github:o1-mini (~490 tokens)
@@ -61,7 +61,7 @@ prompting github:o1-mini (~532 tokens)
 Your random number between 0 and 1 is **0.7792901036554349**.
 ````
 
--   gemma2 model (using Ollama)
+- gemma2 model (using Ollama)
 
 ````txt
 prompting ollama:gemma2 (~716 tokens)
@@ -82,4 +82,16 @@ Let me know if you'd like to generate another random number!
 The fallback tool mode is automatically activated for known LLM models that don't support tools natively. The list is not complete
 so open an issue if you stumble upon a model that should have fallback tools enabled.
 
-It can also be activated manually (see [documentation](/genaiscript/reference/scripts/tools#fallbacktools)).
+It can be activated manually by setting the `fallbackTools` option to `true` in the script configuration.
+
+```js
+script({
+    fallbackTools: true,
+})
+```
+
+or by setting the `--fallback-tools` flag in the CLI.
+
+```sh
+genaiscript run --fallback-tools ...
+```

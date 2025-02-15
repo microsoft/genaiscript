@@ -130,6 +130,7 @@ export function addFallbackToolSystems(
 
     const fallbackTools =
         isToolsSupported(options?.model || genOptions?.model) === false ||
+        options?.fallbackTools ||
         genOptions?.fallbackTools
     if (fallbackTools) systems.push("system.tool_calls")
     return fallbackTools

@@ -186,6 +186,7 @@ export async function runScriptInternal(
     const outData = options.outData
     const label = options.label
     const temperature = normalizeFloat(options.temperature)
+    const fallbackTools = options.fallbackTools
     const reasoningEffort = options.reasoningEffort
     const topP = normalizeFloat(options.topP)
     const seed = normalizeFloat(options.seed)
@@ -198,7 +199,6 @@ export async function runScriptInternal(
     const removeOut = options.removeOut
     const cancellationToken = options.cancellationToken
     const jsSource = options.jsSource
-    const fallbackTools = options.fallbackTools
     const logprobs = options.logprobs
     const topLogprobs = normalizeInt(options.topLogprobs)
     const fenceFormat = options.fenceFormat
