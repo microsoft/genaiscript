@@ -9,7 +9,7 @@ describe("trace tree", () => {
         delete res.id
         assert.deepStrictEqual(res, {
             type: "details",
-            label: "root",
+            label: "trace",
             content: [""],
         })
     })
@@ -29,7 +29,7 @@ flat tree
         delete res.id
         assert.deepStrictEqual(res, {
             type: "details",
-            label: "root",
+            label: "trace",
             content: [
                 `
 flat tree
@@ -53,7 +53,7 @@ flat tree
         delete (res.content[1] as any).id
         assert.deepStrictEqual(res, {
             type: "details",
-            label: "root",
+            label: "trace",
             content: [
                 `
 flat tree`,
@@ -79,7 +79,7 @@ flat tree
         delete (res.content[1] as any).id
         assert.deepStrictEqual(res, {
             type: "details",
-            label: "root",
+            label: "trace",
             content: [
                 `
 flat tree`,
@@ -111,7 +111,7 @@ flat tree
         delete (res.content[1] as any).content[0].id
         assert.deepStrictEqual(res, {
             type: "details",
-            label: "root",
+            label: "trace",
             content: [
                 `
 flat tree`,
