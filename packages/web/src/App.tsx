@@ -967,7 +967,6 @@ function TraceTreeMarkdown() {
 
 function TraceTabPanel(props: { selected?: boolean }) {
     const { selected } = props
-    const trace = useTrace()
     return (
         <>
             <vscode-tab-header slot="header">
