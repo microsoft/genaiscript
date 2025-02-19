@@ -51,8 +51,8 @@ defTool(
         if (!res?.length) return "No files found."
 
         let suffix = ""
-        if (res.length > findFilesCount) {
-            res = res.slice(0, findFilesCount)
+        if (res.length > count) {
+            res = res.slice(0, count)
             suffix =
                 "\n<too many files found. Showing first 100. Use 'count' to specify how many and/or use 'pattern' to do a grep search>"
         }
