@@ -2,6 +2,7 @@ import React, { useState } from "react"
 
 import "@vscode-elements/elements/dist/vscode-button"
 import AIDisclaimer from "./AIDisclaimer"
+import { hosted } from "./configuration"
 
 function extractTextFromChildren(children: any): string {
     if (!children) return ""
@@ -96,7 +97,7 @@ export default function CopySaveButtons(props: {
     return (
         <div className="buttons">
             <CopyButton {...props} />
-            <SaveButton {...props} />
+            {!hosted ? <SaveButton {...props} /> : null}
             {aiDisclaimer ? <AIDisclaimer /> : null}
         </div>
     )
