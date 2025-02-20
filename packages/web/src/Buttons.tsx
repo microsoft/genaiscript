@@ -30,6 +30,7 @@ function CopyButton(props: { children: any; text?: string }) {
         } catch (err) {}
     }
     const title = copied ? "Copied!" : "Copy"
+    const buttonText = copied ? "Copied!" : ""
     return (
         <vscode-button
             aria-label="Copy"
@@ -38,7 +39,7 @@ function CopyButton(props: { children: any; text?: string }) {
             onClick={handleCopy}
             title={title}
         >
-            {title}
+            {buttonText}
         </vscode-button>
     )
 }
@@ -80,9 +81,7 @@ function SaveButton(props: {
             secondary
             onClick={handleSave}
             title={title}
-        >
-            {title}
-        </vscode-button>
+        />
     )
 }
 

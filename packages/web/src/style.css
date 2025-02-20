@@ -3,7 +3,10 @@ body {
     margin: 0 !important;
     padding: 0 !important;
 }
-
+.markdown-body pre div.snippet code.hljs {
+    display: block;
+    white-space: pre-wrap;
+}
 div.snippet {
     position: relative;
 }
