@@ -11,7 +11,7 @@ export function unfence(text: string, language: string) {
     const mstart = startRx.exec(text)
     if (mstart) {
         const n = mstart[1].length
-        const endRx = new RegExp(`\r?\n\`{${n},}[\r\n\s]*$`, "i")
+        const endRx = new RegExp(`\r?\n\`{${n},${n}}[\r\n\s]*$`, "i")
         const mend = endRx.exec(text)
         if (mend) return text.slice(mstart.index + mstart[0].length, mend.index)
     }

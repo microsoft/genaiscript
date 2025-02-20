@@ -11,7 +11,7 @@ export function TOMLParse(text: string | WorkspaceFile) {
     // Parse the cleaned TOML string using the `parse` function
     // If parsing succeeds, return the parsed object
     const res = parse(cleaned)
-    return res
+    return structuredClone(res)
 }
 
 // Function to safely parse TOML formatted text
