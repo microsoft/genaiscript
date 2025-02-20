@@ -7,8 +7,8 @@ interface GenAIScriptHost {
 }
 
 const urlParams = new URLSearchParams(window.location.search)
-const config = (self as GenAIScriptHost).genaiscript
-delete (self as GenAIScriptHost).genaiscript
+const config = (self as GenAIScriptHost)?.genaiscript
+if (config) delete (self as GenAIScriptHost).genaiscript
 const hosted = !!config
 const viewMode = (hosted ? "results" : urlParams.get("view")) as
     | "results"
