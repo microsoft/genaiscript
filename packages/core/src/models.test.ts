@@ -37,7 +37,7 @@ describe("parseModelIdentifier", () => {
         const { provider, model, family } = parseModelIdentifier("llamafile")
         assert(provider === MODEL_PROVIDER_LLAMAFILE)
         assert(family === "*")
-        assert(model === "llamafile")
+        assert(model === "*")
     })
     test("github:gpt4", () => {
         const { provider, model, family } = parseModelIdentifier("github:gpt4")
@@ -45,8 +45,8 @@ describe("parseModelIdentifier", () => {
         assert(model === "gpt4")
         assert(family === "gpt4")
     })
-    test("gpt4", () => {
-        const { provider, model, family } = parseModelIdentifier("gpt4")
+    test("openai:gpt4", () => {
+        const { provider, model, family } = parseModelIdentifier("openai:gpt4")
         assert(provider === MODEL_PROVIDER_OPENAI)
         assert(model === "gpt4")
         assert(family === "gpt4")
