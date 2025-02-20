@@ -1,9 +1,5 @@
 import { uniq } from "es-toolkit"
-import {
-    LARGE_MODEL_ID,
-    MODEL_PROVIDER_LLAMAFILE,
-    MODEL_PROVIDER_OPENAI,
-} from "./constants"
+import { LARGE_MODEL_ID } from "./constants"
 import { errorMessage } from "./error"
 import { host, ModelConfiguration, runtimeHost } from "./host"
 import { MarkdownTrace, TraceOptions } from "./trace"
@@ -24,7 +20,6 @@ export function parseModelIdentifier(id: string): {
     tag?: string
 } {
     assert(!!id)
-    id = id.replace("-35-", "-3.5-")
     const parts = id.split(":")
     if (parts.length >= 3)
         return {
@@ -35,9 +30,7 @@ export function parseModelIdentifier(id: string): {
         }
     else if (parts.length === 2)
         return { provider: parts[0], family: parts[1], model: parts[1] }
-    else if (id === MODEL_PROVIDER_LLAMAFILE)
-        return { provider: MODEL_PROVIDER_LLAMAFILE, family: "*", model: id }
-    else return { provider: MODEL_PROVIDER_OPENAI, family: id, model: id }
+    else return { provider: id, family: "*", model: "*" }
 }
 
 export interface ModelConnectionInfo

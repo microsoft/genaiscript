@@ -38,8 +38,9 @@ import {
     MODEL_PROVIDER_ANTHROPIC_BEDROCK,
     MODEL_PROVIDER_DEEPSEEK,
     DEEPSEEK_API_BASE,
-    MODEL_WHISPERASR_PROVIDER,
+    MODEL_PROVIDER_WHISPERASR,
     WHISPERASR_API_BASE,
+    MODEL_PROVIDER_ECHO,
 } from "./constants"
 import { host, runtimeHost } from "./host"
 import { parseModelIdentifier } from "./models"
@@ -431,7 +432,7 @@ export async function parseTokenFromEnv(
         }
     }
 
-    if (provider === MODEL_WHISPERASR_PROVIDER) {
+    if (provider === MODEL_PROVIDER_WHISPERASR) {
         const base =
             findEnvVar(env, "WHISPERASR", BASE_SUFFIX)?.value ||
             WHISPERASR_API_BASE
@@ -551,6 +552,15 @@ export async function parseTokenFromEnv(
             model,
             base: undefined,
             token: MODEL_PROVIDER_GITHUB_COPILOT_CHAT,
+        }
+    }
+
+    if (provider === MODEL_PROVIDER_ECHO) {
+        return {
+            provider,
+            model,
+            base: undefined,
+            token: "echo",
         }
     }
 

@@ -60,3 +60,10 @@ export function unmarkdown(text: string) {
         ?.replace(/\[([^\]]+)\]\([^)]+\)/g, (m, n) => n)
         ?.replace(/<\/?([^>]+)>/g, "")
 }
+
+/**
+ * Collapse 3+ lines to 1
+ */
+export function collapseNewlines(res: string): string {
+    return res?.replace(/(\r?\n){3,}/g, "\n\n")
+}

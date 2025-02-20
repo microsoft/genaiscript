@@ -111,9 +111,9 @@ export async function cli() {
                 "-p, --provider <string>",
                 "Preferred LLM provider aliases"
             ).choices(
-                MODEL_PROVIDERS.filter(
-                    ({ id }) => id !== MODEL_PROVIDER_GITHUB_COPILOT_CHAT
-                ).map(({ id }) => id)
+                MODEL_PROVIDERS.filter(({ hidden }) => !hidden).map(
+                    ({ id }) => id
+                )
             )
         )
         .action(configure)
@@ -554,9 +554,9 @@ export async function cli() {
                     "-p, --provider <string>",
                     "Preferred LLM provider aliases"
                 ).choices(
-                    MODEL_PROVIDERS.filter(
-                        ({ id }) => id !== MODEL_PROVIDER_GITHUB_COPILOT_CHAT
-                    ).map(({ id }) => id)
+                    MODEL_PROVIDERS.filter(({ hidden }) => !hidden).map(
+                        ({ id }) => id
+                    )
                 )
             )
             .option("-m, --model <string>", "'large' model alias (default)")

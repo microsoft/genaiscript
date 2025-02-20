@@ -6,6 +6,7 @@ import type {
     ChatCompletionToolMessageParam,
     ChatCompletionUserMessageParam,
 } from "./chattypes"
+import { collapseNewlines } from "./cleaners"
 
 // Import utility functions for JSON5 parsing, markdown formatting, and YAML stringification.
 import { JSONLLMTryParse } from "./json5"
@@ -194,7 +195,7 @@ export function renderMessagesToMarkdown(
             }
         })
     // Join the result array into a single markdown string.
-    return res.filter((s) => s !== undefined).join("\n")
+    return collapseNewlines(res.filter((s) => s !== undefined).join("\n"))
 }
 
 /**

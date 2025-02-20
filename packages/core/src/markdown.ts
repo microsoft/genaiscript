@@ -4,6 +4,7 @@
 // and working with trace trees.
 
 import { convertAnnotationsToMarkdown } from "./annotations"
+import { collapseNewlines } from "./cleaners"
 import { fenceMD } from "./mkmd"
 import { convertThinkToMarkdown } from "./think"
 
@@ -16,17 +17,8 @@ export function prettifyMarkdown(md: string) {
     let res = md
     res = convertAnnotationsToMarkdown(res) // Convert annotations to markdown format
     res = convertThinkToMarkdown(res)
-    res = cleanMarkdown(res) // Clean up excessive newlines
+    res = collapseNewlines(res) // Clean up excessive newlines
     return res
-}
-
-/**
- * Cleans markdown by reducing multiple consecutive newlines to two.
- * @param res - The string to be cleaned.
- * @returns The cleaned string.
- */
-function cleanMarkdown(res: string): string {
-    return res?.replace(/(\r?\n){3,}/g, "\n\n")
 }
 
 /**
