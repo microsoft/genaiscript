@@ -122,13 +122,13 @@ const year = env.vars.year // year is a number
 - the `parameters` of a [system script](/genaiscript/reference/scripts/system)
   are prepended with the system script id.
 
-```js title="system-something.genai.js"
+```js title="system.something.genai.js"
 system({
     parameters: {
         value: "",
     },
 })
-const value = env.vars["system-something.value"]
+const value = env.vars["system.something.value"]
 ```
 
 ## Runtime inference
