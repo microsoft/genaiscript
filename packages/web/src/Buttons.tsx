@@ -2,6 +2,7 @@ import React, { useState } from "react"
 
 import "@vscode-elements/elements/dist/vscode-button"
 import AIDisclaimer from "./AIDisclaimer"
+import { hosted } from "./configuration"
 
 function extractTextFromChildren(children: any): string {
     if (!children) return ""
@@ -29,6 +30,7 @@ function CopyButton(props: { children: any; text?: string }) {
         } catch (err) {}
     }
     const title = copied ? "Copied!" : "Copy"
+    const buttonText = copied ? "Copied!" : ""
     return (
         <vscode-button
             aria-label="Copy"
@@ -37,7 +39,7 @@ function CopyButton(props: { children: any; text?: string }) {
             onClick={handleCopy}
             title={title}
         >
-            {title}
+            {buttonText}
         </vscode-button>
     )
 }
@@ -79,9 +81,7 @@ function SaveButton(props: {
             secondary
             onClick={handleSave}
             title={title}
-        >
-            {title}
-        </vscode-button>
+        />
     )
 }
 
@@ -96,7 +96,7 @@ export default function CopySaveButtons(props: {
     return (
         <div className="buttons">
             <CopyButton {...props} />
-            <SaveButton {...props} />
+            {!hosted ? <SaveButton {...props} /> : null}
             {aiDisclaimer ? <AIDisclaimer /> : null}
         </div>
     )

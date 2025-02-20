@@ -192,7 +192,7 @@ The following npm packages may be included in this product:
  - @aws-crypto/supports-web-crypto@5.2.0
  - @huggingface/transformers@3.3.3
  - flatbuffers@25.2.10
- - long@5.3.0
+ - long@5.3.1
 
 These packages each contain the following license:
 
@@ -1956,11 +1956,11 @@ Apache License
 
 The following npm packages may be included in this product:
 
- - @aws-sdk/client-cognito-identity@3.749.0
- - @aws-sdk/client-sso@3.749.0
- - @aws-sdk/credential-provider-cognito-identity@3.749.0
+ - @aws-sdk/client-cognito-identity@3.750.0
+ - @aws-sdk/client-sso@3.750.0
+ - @aws-sdk/credential-provider-cognito-identity@3.750.0
  - @aws-sdk/util-user-agent-browser@3.734.0
- - @aws-sdk/util-user-agent-node@3.749.0
+ - @aws-sdk/util-user-agent-node@3.750.0
  - @smithy/eventstream-codec@2.2.0
  - @smithy/eventstream-codec@4.0.1
  - @smithy/middleware-retry@4.0.6
@@ -2182,7 +2182,7 @@ Apache License
 
 The following npm package may be included in this product:
 
- - @aws-sdk/client-bedrock-runtime@3.749.0
+ - @aws-sdk/client-bedrock-runtime@3.751.0
 
 This package contains the following license:
 
@@ -2394,7 +2394,7 @@ The following npm packages may be included in this product:
 
  - @aws-sdk/middleware-host-header@3.734.0
  - @aws-sdk/middleware-recursion-detection@3.734.0
- - @aws-sdk/middleware-user-agent@3.749.0
+ - @aws-sdk/middleware-user-agent@3.750.0
  - @smithy/core@3.1.4
  - @smithy/eventstream-serde-browser@4.0.1
  - @smithy/eventstream-serde-config-resolver@4.0.1
@@ -2862,7 +2862,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.104.3
+ - genaiscript-vscode@1.104.5
 
 This package contains the following license:
 
@@ -4211,12 +4211,12 @@ Apache License
 
 The following npm packages may be included in this product:
 
- - @aws-sdk/credential-provider-env@3.749.0
- - @aws-sdk/credential-provider-ini@3.749.0
- - @aws-sdk/credential-provider-node@3.749.0
- - @aws-sdk/credential-providers@3.749.0
+ - @aws-sdk/credential-provider-env@3.750.0
+ - @aws-sdk/credential-provider-ini@3.750.0
+ - @aws-sdk/credential-provider-node@3.750.0
+ - @aws-sdk/credential-providers@3.750.0
  - @aws-sdk/region-config-resolver@3.734.0
- - @aws-sdk/token-providers@3.749.0
+ - @aws-sdk/token-providers@3.750.0
  - @aws-sdk/types@3.734.0
  - @aws-sdk/util-endpoints@3.743.0
  - @aws-sdk/util-locate-window@3.723.0
@@ -4471,9 +4471,9 @@ Apache License
 
 The following npm packages may be included in this product:
 
- - @aws-sdk/credential-provider-process@3.749.0
- - @aws-sdk/credential-provider-sso@3.749.0
- - @aws-sdk/credential-provider-web-identity@3.749.0
+ - @aws-sdk/credential-provider-process@3.750.0
+ - @aws-sdk/credential-provider-sso@3.750.0
+ - @aws-sdk/credential-provider-web-identity@3.750.0
 
 These packages each contain the following license:
 
@@ -5374,9 +5374,9 @@ END OF TERMS AND CONDITIONS
 
 The following npm packages may be included in this product:
 
- - @aws-sdk/core@3.749.0
- - @aws-sdk/credential-provider-http@3.749.0
- - @aws-sdk/nested-clients@3.749.0
+ - @aws-sdk/core@3.750.0
+ - @aws-sdk/credential-provider-http@3.750.0
+ - @aws-sdk/nested-clients@3.750.0
  - pyodide@0.27.2
 
 These packages each contain the following license:
@@ -6506,19 +6506,19 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - @inquirer/checkbox@4.1.1
- - @inquirer/confirm@5.1.5
- - @inquirer/core@10.1.6
- - @inquirer/editor@4.2.6
- - @inquirer/expand@4.0.8
+ - @inquirer/checkbox@4.1.2
+ - @inquirer/confirm@5.1.6
+ - @inquirer/core@10.1.7
+ - @inquirer/editor@4.2.7
+ - @inquirer/expand@4.0.9
  - @inquirer/figures@1.0.10
- - @inquirer/input@4.1.5
- - @inquirer/number@3.0.8
- - @inquirer/password@4.0.8
- - @inquirer/prompts@7.3.1
- - @inquirer/rawlist@4.0.8
- - @inquirer/search@3.0.8
- - @inquirer/select@4.0.8
+ - @inquirer/input@4.1.6
+ - @inquirer/number@3.0.9
+ - @inquirer/password@4.0.9
+ - @inquirer/prompts@7.3.2
+ - @inquirer/rawlist@4.0.9
+ - @inquirer/search@3.0.9
+ - @inquirer/select@4.0.9
  - @inquirer/type@3.0.4
 
 These packages each contain the following license:
@@ -6575,11 +6575,12 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 -----------
 
-The following npm package may be included in this product:
+The following npm packages may be included in this product:
 
  - @azure/core-rest-pipeline@1.19.0
+ - @azure/identity@4.7.0
 
-This package contains the following license:
+These packages each contain the following license:
 
 Copyright (c) Microsoft Corporation.
 
@@ -8066,16 +8067,16 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - @esbuild/linux-x64@0.23.1
+ - @esbuild/linux-x64@0.25.0
  - @napi-rs/canvas-linux-x64-gnu@0.1.67
  - @napi-rs/canvas-linux-x64-musl@0.1.67
  - @tokenizer/token@0.3.0
  - agent-base@6.0.2
  - eastasianwidth@0.2.0
- - genaiscript-core-internal@1.104.3
- - genaiscript-sample@1.104.3
- - genaiscript-web@1.104.3
- - genaiscript@1.104.3
+ - genaiscript-core-internal@1.104.5
+ - genaiscript-sample@1.104.5
+ - genaiscript-web@1.104.5
+ - genaiscript@1.104.5
  - https-proxy-agent@5.0.1
  - isarray@1.0.0
  - javascript-natural-sort@0.7.1
@@ -8086,7 +8087,7 @@ The following npm packages may be included in this product:
  - onnxruntime-node@1.20.1
  - onnxruntime-web@1.21.0-dev.20250206-d981b153d3
  - parse-bmfont-ascii@1.0.6
- - readable-web-to-node-stream@3.0.3
+ - readable-web-to-node-stream@3.0.4
  - seedrandom@3.0.5
  - string-split-by@1.0.0
  - tr46@0.0.3
@@ -8763,7 +8764,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - esbuild@0.23.1
+ - esbuild@0.25.0
 
 This package contains the following license:
 
@@ -8853,7 +8854,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - @azure/msal-node@2.16.2
+ - @azure/msal-node@3.2.3
 
 This package contains the following license:
 
@@ -9491,7 +9492,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - tsx@4.19.2
+ - tsx@4.19.3
 
 This package contains the following license:
 
@@ -9649,9 +9650,8 @@ SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - @azure/msal-browser@4.2.1
- - @azure/msal-common@14.16.0
- - @azure/msal-common@15.1.1
+ - @azure/msal-browser@4.4.0
+ - @azure/msal-common@15.2.0
 
 These packages each contain the following license:
 
@@ -9686,37 +9686,44 @@ The following npm packages may be included in this product:
  - ansi-escapes@4.3.2
  - ansi-regex@6.1.0
  - ansi-styles@6.2.1
+ - bundle-name@4.1.0
  - crypto-random-string@4.0.0
  - decompress-response@6.0.0
+ - default-browser-id@5.0.0
+ - default-browser@5.2.1
+ - define-lazy-prop@3.0.0
  - execa@9.5.2
  - figures@6.1.0
  - file-type@16.5.4
  - get-stream@5.2.0
  - get-stream@9.0.1
  - got@14.4.6
- - is-docker@2.2.1
+ - is-docker@3.0.0
+ - is-inside-container@1.0.0
  - is-plain-obj@4.1.0
  - is-stream@3.0.0
  - is-stream@4.0.1
  - is-unicode-supported@2.1.0
+ - is-wsl@3.1.0
  - lowercase-keys@3.0.0
  - mimic-response@3.1.0
  - mimic-response@4.0.0
  - normalize-url@8.0.1
  - npm-run-path@6.0.0
- - open@8.4.2
+ - open@10.1.0
  - p-cancelable@4.0.1
  - parse-ms@4.0.0
  - path-exists@5.0.0
  - path-key@4.0.0
  - pretty-ms@9.2.0
+ - run-applescript@7.0.0
  - string-width@5.1.2
  - strip-ansi@7.1.0
  - strip-final-newline@4.0.0
  - temp-dir@3.0.0
  - tempy@3.1.0
  - type-fest@1.4.0
- - type-fest@4.34.1
+ - type-fest@4.35.0
  - unicorn-magic@0.3.0
  - unique-string@3.0.0
  - wrap-ansi@7.0.0
@@ -9782,10 +9789,8 @@ The following npm packages may be included in this product:
  - ansi-styles@3.2.1
  - ansi-styles@4.3.0
  - chalk@2.4.2
- - define-lazy-prop@2.0.0
  - has-flag@3.0.0
  - is-fullwidth-code-point@3.0.0
- - is-wsl@2.2.0
  - make-dir@3.1.0
  - path-key@3.1.1
  - quick-lru@5.1.1
@@ -12069,7 +12074,6 @@ The following npm packages may be included in this product:
  - @azure/core-client@1.9.2
  - @azure/core-tracing@1.2.0
  - @azure/core-util@1.11.0
- - @azure/identity@4.6.0
  - @azure/logger@1.1.4
 
 These packages each contain the following license:

@@ -88,35 +88,7 @@ import {
 } from "../../core/src/traceparser"
 import { unmarkdown } from "../../core/src/cleaners"
 import { ErrorBoundary } from "react-error-boundary"
-
-interface GenAIScriptViewOptions {
-    apiKey?: string
-    base?: string
-}
-interface GenAIScriptHost {
-    genaiscript?: GenAIScriptViewOptions
-}
-
-const urlParams = new URLSearchParams(window.location.search)
-const config = (self as GenAIScriptHost).genaiscript
-delete (self as GenAIScriptHost).genaiscript
-const hosted = !!config
-const viewMode = (hosted ? "results" : urlParams.get("view")) as
-    | "results"
-    | undefined
-const diagnostics = urlParams.get("dbg") === "1"
-const hashParams = new URLSearchParams(window.location.hash.slice(1))
-const base = config?.base || ""
-const apiKeyName = "genaiscript.apikey"
-const apiKey =
-    hashParams.get("api-key") ||
-    config?.apiKey ||
-    localStorage.getItem(apiKeyName) ||
-    ""
-window.location.hash = ""
-if (hashParams.get("api-key"))
-    localStorage.setItem(apiKeyName, hashParams.get("api-key"))
-if (!hosted) import("@vscode-elements/webview-playground")
+import { apiKey, base, diagnostics, urlParams, viewMode } from "./configuration"
 
 const fetchScripts = async (): Promise<Project> => {
     const res = await fetch(`${base}/api/scripts`, {
@@ -1669,19 +1641,19 @@ function ModelConfigurationTabPanel() {
                 description:
                     "'large' model identifier; this is the default model when no model is configured in the script.",
                 default: "large",
-                enum: models,
+                //enum: models,
             },
             smallModel: {
                 type: "string",
                 description: "'small' model identifier",
                 default: "small",
-                enum: models,
+                //enum: models,
             },
             visionModel: {
                 type: "string",
                 description: "'vision' model identifier",
                 default: "vision",
-                enum: models,
+                //enum: models,
             },
             temperature: {
                 type: "number",
