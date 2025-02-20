@@ -1641,19 +1641,19 @@ function ModelConfigurationTabPanel() {
                 description:
                     "'large' model identifier; this is the default model when no model is configured in the script.",
                 default: "large",
-                enum: models,
+                //enum: models,
             },
             smallModel: {
                 type: "string",
                 description: "'small' model identifier",
                 default: "small",
-                enum: models,
+                //enum: models,
             },
             visionModel: {
                 type: "string",
                 description: "'vision' model identifier",
                 default: "vision",
-                enum: models,
+                //enum: models,
             },
             temperature: {
                 type: "number",
