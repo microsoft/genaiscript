@@ -1,5 +1,9 @@
 import { MemoryCache } from "./cache"
-import { AGENT_MEMORY_CACHE_NAME, TOKEN_NO_ANSWER } from "./constants"
+import {
+    AGENT_MEMORY_CACHE_NAME,
+    AGENT_MEMORY_FLEX_TOKENS,
+    TOKEN_NO_ANSWER,
+} from "./constants"
 import { errorMessage } from "./error"
 import { HTMLEscape } from "./html"
 import { prettifyMarkdown } from "./markdown"
@@ -19,9 +23,9 @@ export async function agentQueryMemory(
     // always pre-query memory with cheap model
     const res = await ctx.runPrompt(
         async (_) => {
-            _.$`Return the contextual information useful to answer QUERY from the content in  MEMORY.
+            _.$`Return the contextual information useful to answer <QUERY> from the content in <MEMORY>.
             - Use MEMORY as the only source of information.
-            - If you cannot find relevant information to answer QUERY, return ${TOKEN_NO_ANSWER}. DO NOT INVENT INFORMATION.
+            - If you cannot find relevant information to answer <QUERY>, return ${TOKEN_NO_ANSWER}. DO NOT INVENT INFORMATION.
             - Be concise. Keep it short. The output is used by another LLM.
             - Provide important details like identifiers and names.`.role(
                 "system"
@@ -32,7 +36,7 @@ export async function agentQueryMemory(
         {
             model: "memory",
             system: [],
-            flexTokens: 20000,
+            flexTokens: AGENT_MEMORY_FLEX_TOKENS,
             label: "agent memory query",
         }
     )

@@ -89,7 +89,7 @@ import {
     applyModelOptions,
     applyScriptModelAliases,
     logModelAliases,
-} from "./modelalias"
+} from "../../core/src/modelalias"
 import { createCancellationController } from "./cancel"
 import { parsePromptScriptMeta } from "../../core/src/template"
 import { Fragment } from "../../core/src/generation"

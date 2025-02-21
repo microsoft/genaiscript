@@ -2,7 +2,7 @@ import { MODEL_PROVIDERS } from "../../core/src/constants"
 import { parseKeyValuePair } from "../../core/src/fence"
 import { runtimeHost } from "../../core/src/host"
 import { logVerbose } from "../../core/src/util"
-import { PromptScriptRunOptions } from "./main"
+import { PromptScriptRunOptions } from "./server/messages"
 
 export function applyModelProviderAliases(
     id: string,
@@ -45,12 +45,12 @@ export function applyScriptModelAliases(script: PromptScript) {
         })
 }
 
-export function logModelAliases() {
-    const modelAlias = runtimeHost.modelAliases
-    if (Object.values(modelAlias).some((m) => m.source !== "default"))
-        Object.entries(runtimeHost.modelAliases)
-            .filter(([, value]) => value.source !== "default")
-            .forEach(([key, value]) =>
-                logVerbose(` ${key}: ${value.model} (${value.source})`)
-            )
+export function logModelAliases(options?: { all?: boolean }) {
+    const { all } = options || {}
+    let aliases = Object.entries(runtimeHost.modelAliases)
+    if (!all)
+        aliases = aliases.filter(([, value]) => value.source !== "default")
+    aliases.forEach(([key, value]) =>
+        logVerbose(` ${key}: ${value.model} (${value.source})`)
+    )
 }

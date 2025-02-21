@@ -7,6 +7,7 @@ import { arrayify, assert, logVerbose, toStringList } from "./util"
 import { CancellationOptions } from "./cancellation"
 import { LanguageModelConfiguration } from "./server/messages"
 import { roundWithPrecision } from "./precision"
+import { logModelAliases } from "./modelalias"
 
 /**
  * model
@@ -117,7 +118,10 @@ export function traceLanguageModelConnection(
 export function resolveModelAlias(model: string): ModelConfiguration {
     const { modelAliases } = runtimeHost
     const seen: string[] = []
-    let res: ModelConfiguration = { model, source: "script" }
+    let res: ModelConfiguration = {
+        model: model || LARGE_MODEL_ID,
+        source: "script",
+    }
     while (modelAliases[res.model]) {
         let next = modelAliases[res.model]
         if (seen.includes(next.model))
@@ -147,7 +151,7 @@ export async function resolveModelConnectionInfo(
     const hint = options?.model || conn.model
     // supports candidate if no model hint or hint is a model alias
     const supportsCandidates = !hint || !!modelAliases[hint]
-    const resolved = resolveModelAlias(hint || LARGE_MODEL_ID)
+    const resolved = resolveModelAlias(hint)
     const modelId = resolved.model
     let candidates = supportsCandidates ? resolved.candidates : undefined
 
@@ -205,8 +209,9 @@ export async function resolveModelConnectionInfo(
     } else {
         const logg = !resolvedModels.has(modelId)
         resolvedModels.add(modelId)
-        if (logg) logVerbose(`connection: resolving model ${modelId}`)
         candidates = uniq([modelId, ...(candidates || [])].filter((c) => !!c))
+        if (logg)
+            logVerbose(`connection: resolving model ${hint || "(unspecified)"}`)
         for (const candidate of candidates) {
             if (logg) logVerbose(`  resolving ${candidate}`)
             const res = await resolveModel(candidate, {
@@ -218,11 +223,13 @@ export async function resolveModelConnectionInfo(
                 return res
             }
         }
+
+        logModelAliases({ all: true })
         return {
             info: {
                 model: "?",
                 error: hint
-                    ? `No LLM provider configured for ${hint}`
+                    ? `No LLM provider configured for '${hint}'`
                     : "No LLM provider configured",
             },
         }
