@@ -13,6 +13,10 @@ script({
         number: 12.3,
         integer: 123,
         boolean: true,
+        stringsEnum: {
+            type: "string",
+            enum: ["aaa", "bbbb", "bbb"],
+        },
         stringSchema: {
             type: "string",
             default: "efg",
