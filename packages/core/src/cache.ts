@@ -39,14 +39,15 @@ export class MemoryCache<K, V>
      */
     static byName<K, V>(
         name: string,
-        options?: { lookupOnly?: boolean }
+        options?: { userState?: Record<string, any>; lookupOnly?: boolean }
     ): MemoryCache<K, V> {
         name = name.replace(/[^a-z0-9_]/gi, "_") // Sanitize name
         const key = "memorycache." + name
-        if (host.userState[key]) return host.userState[key] // Return if exists
+        const userState = options?.userState || host.userState
+        if (userState[key]) return userState[key] // Return if exists
         if (options?.lookupOnly) return undefined
         const r = new MemoryCache<K, V>(name)
-        host.userState[key] = r
+        userState[key] = r
         return r
     }
 

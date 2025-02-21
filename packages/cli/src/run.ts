@@ -353,6 +353,7 @@ export async function runScriptInternal(
         ? parseOptionsVars(options.vars, process.env)
         : structuredClone(options.vars || {})
     const stats = new GenerationStats("")
+    const userState: Record<string, any> = {}
     try {
         if (options.label) trace.heading(2, options.label)
         applyScriptModelAliases(script)
@@ -416,6 +417,7 @@ export async function runScriptInternal(
                   }
                 : undefined,
             stats,
+            userState,
         })
     } catch (err) {
         stats.log()
@@ -426,7 +428,7 @@ export async function runScriptInternal(
     }
 
     await aggregateResults(scriptId, outTrace, stats, result)
-    await traceAgentMemory(trace)
+    await traceAgentMemory({ userState, trace })
 
     if (outAnnotations && result.annotations?.length) {
         if (isJSONLFilename(outAnnotations))
