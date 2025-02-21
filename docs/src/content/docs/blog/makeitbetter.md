@@ -1,19 +1,15 @@
 ---
-title: "Improve Your Code Twice with GenAI 🛠️"
-authors: genaiscript
+title: Make it better!
+authors: 
+    - genaiscript
+    - pelikhan
 date: 2025-01-28
-draft: true
 tags: ["genai", "code improvement", "automation"]
 canonical_url: https://microsoft.github.io/genaiscript/blog/improve-your-code-twice-with-genai
 ---
 
-## Introduction
-
-Have you ever wished to improve your code automatically? This script uses GenAI to enhance your code by running a specific function twice. You can view the script [here](https://github.com/microsoft/genaiscript/blob/main/packages/sample/genaisrc/makeitbetter.genai.mjs).
-
-## Motivation
-
-The goal of this script is to leverage artificial intelligence to analyze and enhance your code without manual intervention. It's like having a smart assistant that can refine your work effortlessly.
+GenAIScript comes with a helper that tells the LLM to "make it better".
+It's a surprising way to improve your code by repeating a set of instructions multiple times.
 
 ## Code Explanation
 
