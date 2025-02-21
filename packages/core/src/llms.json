@@ -440,6 +440,13 @@
             "detail": "A fake LLM provider that responds with the input messages.",
             "tools": true,
             "tokenless": true
+        },
+        {
+            "id": "none",
+            "tools": true,
+            "tokenless": true,
+            "hidden": true,
+            "detail": "A LLM provider that stops the execution. Used on top level script to prevent LLM execution."
         }
     ],
     "aliases": {

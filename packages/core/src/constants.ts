@@ -177,6 +177,7 @@ export const MODEL_PROVIDER_JAN = "jan"
 export const MODEL_PROVIDER_DEEPSEEK = "deepseek"
 export const MODEL_PROVIDER_WHISPERASR = "whisperasr"
 export const MODEL_PROVIDER_ECHO = "echo"
+export const MODEL_PROVIDER_NONE = "none"
 
 export const MODEL_PROVIDER_OPENAI_HOSTS = Object.freeze([
     MODEL_PROVIDER_OPENAI,

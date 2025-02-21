@@ -2,7 +2,6 @@ import { LanguageModel } from "./chat"
 import { renderMessagesToMarkdown } from "./chatrender"
 import { deleteEmptyValues } from "./cleaners"
 import { MODEL_PROVIDER_ECHO } from "./constants"
-import { logVerbose } from "./util"
 
 export const EchoModel = Object.freeze<LanguageModel>({
     id: MODEL_PROVIDER_ECHO,

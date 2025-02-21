@@ -1590,12 +1590,24 @@ You can also override the `transcription` model alias to change the default mode
 
 ## Echo
 
-This is a dry run LLM provider that returns the messages without calling any LLM.
+The `echo` provider is a dry run LLM provider that returns the messages without calling any LLM.
 It is most useful for debugging when you want to see the result LLM request without sending it.
 
 ```js 'model: "echo"'
 script({
     model: "echo",
+})
+```
+
+Echo replies with the chat messages as markdown and JSON, which can be helpful for debugging.
+
+## None
+
+The `none` provider prevents the execution of LLM. It is typically used on a top-level script that exclusively uses inline prompts.
+
+```js 'model: "none"'
+script({
+    model: "none",
 })
 ```
 

@@ -41,6 +41,7 @@ import {
     MODEL_PROVIDER_WHISPERASR,
     WHISPERASR_API_BASE,
     MODEL_PROVIDER_ECHO,
+    MODEL_PROVIDER_NONE,
 } from "./constants"
 import { host, runtimeHost } from "./host"
 import { parseModelIdentifier } from "./models"
@@ -555,12 +556,12 @@ export async function parseTokenFromEnv(
         }
     }
 
-    if (provider === MODEL_PROVIDER_ECHO) {
+    if (provider === MODEL_PROVIDER_ECHO || provider === MODEL_PROVIDER_NONE) {
         return {
             provider,
             model,
             base: undefined,
-            token: "echo",
+            token: provider,
         }
     }
 
