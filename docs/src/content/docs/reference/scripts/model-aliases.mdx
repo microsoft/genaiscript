@@ -24,7 +24,7 @@ script({
 ```
 
 Model aliases can be defined as environment varialbles (through the `.env` file),
-in a configuration file or through the [cli](/genaiscript/reference/cli/run).
+in a configuration file, through the [cli](/genaiscript/reference/cli/run) or in the `script` function.
 
 This `.env` file defines a `llama32` alias for the `ollama:llama3.2:1b` model.
 
@@ -61,6 +61,17 @@ The following configuration are support in order importance (last one wins):
 genaiscript run --model-alias llama32=ollama:llama3.2:1b
 ```
 
+- in the `script`function
+
+```js
+script({
+    model: "llama32",
+    modelAliases: {
+        llama32: "ollama:llama3.2:1b",
+    },
+})
+```
+
 ## Alias of aliases
 
 An model alias can reference another alias as long as cycles are not created.
@@ -95,4 +106,3 @@ The default aliases for a given provider can be loaded using the `provider` opti
 ```sh
 genaiscript run --provider anthropic
 ```
-

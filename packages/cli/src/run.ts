@@ -85,7 +85,11 @@ import {
     stdout,
 } from "../../core/src/logging"
 import { ensureDotGenaiscriptPath, setupTraceWriting } from "./trace"
-import { applyModelOptions, logModelAliases } from "./modelalias"
+import {
+    applyModelOptions,
+    applyScriptModelAliases,
+    logModelAliases,
+} from "./modelalias"
 import { createCancellationController } from "./cancel"
 import { parsePromptScriptMeta } from "../../core/src/template"
 import { Fragment } from "../../core/src/generation"
@@ -351,7 +355,7 @@ export async function runScriptInternal(
     const stats = new GenerationStats("")
     try {
         if (options.label) trace.heading(2, options.label)
-        applyModelOptions(script, "script")
+        applyScriptModelAliases(script)
         logModelAliases()
         const { info } = await resolveModelConnectionInfo(script, {
             trace,
