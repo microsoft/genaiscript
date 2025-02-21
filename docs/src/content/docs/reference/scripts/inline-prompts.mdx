@@ -89,6 +89,17 @@ If you need more control over concurrent queues,
 you can try the [p-all](https://www.npmjs.com/package/p-all),
 [p-limit](https://www.npmjs.com/package/p-limit) or similar libraries.
 
+## Inline-only scripts
+
+If your scripts ends up calling into inline prompts and never generate the main prompt, you can configure it to use the `none` LLM provider.
+This will prevent GenAIScript from trying to resolve the connection information and also throw an error if you ever try to generate prompts in the main execution.
+
+```js
+script({
+    model: "none",
+})
+```
+
 ## Example: Summary of file summaries using Phi-3
 
 The snippet below uses [Phi-3](https://azure.microsoft.com/en-us/blog/introducing-phi-3-redefining-whats-possible-with-slms/)
