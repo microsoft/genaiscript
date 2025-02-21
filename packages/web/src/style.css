@@ -72,7 +72,6 @@ table.toplogprobs td {
     min-width: min(100vw - 1.5rem, 65rem);
     max-width: 100vw;
     min-height: 16rem;
-    margin-left: 0.5rem;
 }
 
 .vscode-body span.ai-disclaimer {
