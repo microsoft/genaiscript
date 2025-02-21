@@ -5,18 +5,20 @@ import {
     TOKEN_NO_ANSWER,
 } from "./constants"
 import { errorMessage } from "./error"
+import { GenerationOptions } from "./generation"
 import { HTMLEscape } from "./html"
 import { prettifyMarkdown } from "./markdown"
-import { MarkdownTrace } from "./trace"
+import { MarkdownTrace, TraceOptions } from "./trace"
 import { logVerbose } from "./util"
 
 export async function agentQueryMemory(
     ctx: ChatGenerationContext,
-    query: string
+    query: string,
+    options: Pick<GenerationOptions, "userState"> & Required<TraceOptions>
 ) {
     if (!query) return undefined
 
-    const memories = await loadMemories()
+    const memories = await loadMemories(options)
     if (!memories?.length) return undefined
 
     let memoryAnswer: string | undefined
@@ -50,8 +52,9 @@ export async function agentAddMemory(
     agent: string,
     query: string,
     text: string,
-    trace: MarkdownTrace
+    options: Pick<GenerationOptions, "userState"> & Required<TraceOptions>
 ) {
+    const { trace } = options || {}
     const cache = MemoryCache.byName<
         { agent: string; query: string },
         {
@@ -73,7 +76,7 @@ export async function agentAddMemory(
     )
 }
 
-async function loadMemories() {
+async function loadMemories(options: Pick<GenerationOptions, "userState">) {
     const cache = MemoryCache.byName<
         { agent: string; query: string },
         {
@@ -81,13 +84,19 @@ async function loadMemories() {
             query: string
             answer: string
         }
-    >(AGENT_MEMORY_CACHE_NAME, { lookupOnly: true })
+    >(AGENT_MEMORY_CACHE_NAME, {
+        lookupOnly: true,
+        userState: options.userState,
+    })
     const memories = await cache?.values()
     return memories
 }
 
-export async function traceAgentMemory(trace: MarkdownTrace) {
-    const memories = await loadMemories()
+export async function traceAgentMemory(
+    options: Pick<GenerationOptions, "userState"> & Required<TraceOptions>
+) {
+    const { trace } = options || {}
+    const memories = await loadMemories(options)
     if (memories) {
         try {
             trace.startDetails("🧠 agent memory")

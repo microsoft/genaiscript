@@ -32,4 +32,5 @@ export interface GenerationOptions
     }
     vars?: PromptParameters // Variables for prompt customization
     stats: GenerationStats // Statistics of the generation
+    userState: Record<string, any>
 }

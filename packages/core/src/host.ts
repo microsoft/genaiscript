@@ -96,7 +96,7 @@ export type ModelConfigurations = {
 } & Record<string, ModelConfiguration>
 
 export interface Host {
-    userState: any
+    userState: Record<string, any>
     server: ServerManager
     path: Path
 

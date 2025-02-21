@@ -326,7 +326,7 @@ export function createChatGenerationContext(
         env: ExpansionVariables
     }
 ): RunPromptContextNode {
-    const { cancellationToken, infoCb } = options || {}
+    const { cancellationToken, infoCb, userState } = options || {}
     const { prj, env } = projectOptions
     assert(!!env.output, "output missing")
     const turnCtx = createChatTurnGenerationContext(options, trace)
@@ -481,7 +481,8 @@ export function createChatGenerationContext(
                         query +
                             (hasExtraArgs
                                 ? `\n${YAMLStringify(argsNoQuery)}`
-                                : "")
+                                : ""),
+                        { userState, trace }
                     )
 
                 const res = await ctx.runPrompt(
@@ -519,7 +520,7 @@ export function createChatGenerationContext(
                                         agentName,
                                         query,
                                         text,
-                                        trace
+                                        { userState, trace }
                                     )
                             })
                     },
