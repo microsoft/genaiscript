@@ -18,7 +18,6 @@ describe("html", () => {
         `
         const expected = [{ "Header 1": "Value 1", "Header 2": "Value 2" }]
         const result = (await HTMLTablesToJSON(html))[0]
-        console.log(JSON.stringify(result, null, 2))
         assert.deepStrictEqual(result, expected)
     })
     test("converts HTML to text", async () => {

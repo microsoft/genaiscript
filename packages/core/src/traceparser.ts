@@ -72,7 +72,8 @@ export function parseTraceTree(
         // Detect end of a details block
         const endDetails = /^\s*<\/details>\s*$/m.exec(lines[i])
         if (endDetails) {
-            stack.pop()
+            // don't pop last element
+            if (stack.length > 1) stack.pop()
             continue
         }
         // Detect summary tag and set current label

@@ -149,7 +149,7 @@ There are many variations of passages of Lorem Ipsum available, but the majority
                 estimateTokens,
                 maxTokens
             )
-            console.log(`${maxTokens} => ${result.length}`)
+            //console.log(`${maxTokens} => ${result.length}`)
             assert.strictEqual(
                 result.map((r) => r.content).join("\n"),
                 markdown

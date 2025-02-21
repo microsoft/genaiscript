@@ -15,7 +15,6 @@ describe("PyodideRuntime", async () => {
 import os
 os.listdir('/workspace')
 `)
-        console.log({ result })
         assert(Array.isArray(result))
     })
     await test("should run Python code and return result", async () => {
