@@ -175,7 +175,8 @@ export const MODEL_PROVIDER_MISTRAL = "mistral"
 export const MODEL_PROVIDER_LMSTUDIO = "lmstudio"
 export const MODEL_PROVIDER_JAN = "jan"
 export const MODEL_PROVIDER_DEEPSEEK = "deepseek"
-export const MODEL_WHISPERASR_PROVIDER = "whisperasr"
+export const MODEL_PROVIDER_WHISPERASR = "whisperasr"
+export const MODEL_PROVIDER_ECHO = "echo"
 
 export const MODEL_PROVIDER_OPENAI_HOSTS = Object.freeze([
     MODEL_PROVIDER_OPENAI,
@@ -223,6 +224,7 @@ export const MODEL_PROVIDERS = Object.freeze<
         transcribe?: boolean
         speech?: boolean
         tokenless?: boolean
+        hidden?: boolean
         aliases?: Record<string, string>
         env?: Record<
             string,

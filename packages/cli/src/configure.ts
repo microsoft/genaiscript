@@ -18,13 +18,13 @@ export async function configure(options: { provider?: string }) {
             ? MODEL_PROVIDERS.find(({ id }) => options.provider === id)
             : await select({
                   message: "Select a LLM provider to configure",
-                  choices: MODEL_PROVIDERS.filter(
-                      (p) => p.id !== MODEL_PROVIDER_GITHUB_COPILOT_CHAT
-                  ).map((provider) => ({
-                      name: provider.detail,
-                      value: provider,
-                      description: `'${provider.id}': https://microsoft.github.io/genaiscript/getting-started/configuration#${provider.id}`,
-                  })),
+                  choices: MODEL_PROVIDERS.filter(({ hidden }) => !hidden).map(
+                      (provider) => ({
+                          name: provider.detail,
+                          value: provider,
+                          description: `'${provider.id}': https://microsoft.github.io/genaiscript/getting-started/configuration#${provider.id}`,
+                      })
+                  ),
               })
         if (!provider) break
 

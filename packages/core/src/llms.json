@@ -423,6 +423,7 @@
         {
             "id": "github_copilot_chat",
             "detail": "GitHub Copilot Chat Models",
+            "hidden": true,
             "tools": false,
             "prediction": false,
             "tokenless": true,
@@ -433,6 +434,12 @@
                 "reasoning_small": "o1-mini"
             },
             "env": {}
+        },
+        {
+            "id": "echo",
+            "detail": "A fake LLM provider that responds with the input messages.",
+            "tools": true,
+            "tokenless": true
         }
     ],
     "aliases": {

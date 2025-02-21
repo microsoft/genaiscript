@@ -23,6 +23,10 @@
                         "type": "string",
                         "description": "Description of the LLM provider"
                     },
+                    "hidden": {
+                        "type": "boolean",
+                        "description": "Indicates if the provider is hidden"
+                    },
                     "limitations": {
                         "type": "string",
                         "description": "General note about limitations"

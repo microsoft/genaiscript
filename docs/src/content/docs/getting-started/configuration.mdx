@@ -1588,6 +1588,17 @@ docker run -d -p 9000:9000 -e ASR_MODEL=base -e ASR_ENGINE=openai_whisper onerah
 
 You can also override the `transcription` model alias to change the default model used by `transcribe`.
 
+## Echo
+
+This is a dry run LLM provider that returns the messages without calling any LLM.
+It is most useful for debugging when you want to see the result LLM request without sending it.
+
+```js 'model: "echo"'
+script({
+    model: "echo",
+})
+```
+
 ## Model specific environment variables
 
 You can provide different environment variables

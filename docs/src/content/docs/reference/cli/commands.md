@@ -22,7 +22,7 @@ Options:
                            "anthropic", "anthropic_bedrock", "google",
                            "huggingface", "mistral", "alibaba", "deepseek",
                            "transformers", "lmstudio", "jan", "llamafile",
-                           "litellm", "whisperasr")
+                           "litellm", "whisperasr", "echo")
   -h, --help               display help for command
 ```
 
@@ -34,7 +34,7 @@ Usage: genaiscript run [options] <script> [files...]
 Runs a GenAIScript against files.
 
 Options:
-  -p, --provider <string>                    Preferred LLM provider aliases (choices: "openai", "azure", "azure_serverless", "azure_serverless_models", "github", "ollama", "anthropic", "anthropic_bedrock", "google", "huggingface", "mistral", "alibaba", "deepseek", "transformers", "lmstudio", "jan", "llamafile", "litellm", "whisperasr")
+  -p, --provider <string>                    Preferred LLM provider aliases (choices: "openai", "azure", "azure_serverless", "azure_serverless_models", "github", "ollama", "anthropic", "anthropic_bedrock", "google", "huggingface", "mistral", "alibaba", "deepseek", "transformers", "lmstudio", "jan", "llamafile", "litellm", "whisperasr", "echo")
   -m, --model <string>                       'large' model alias (default)
   -sm, --small-model <string>                'small' alias model
   -vm, --vision-model <string>               'vision' alias model
@@ -118,7 +118,7 @@ Options:
                                       "huggingface", "mistral", "alibaba",
                                       "deepseek", "transformers", "lmstudio",
                                       "jan", "llamafile", "litellm",
-                                      "whisperasr")
+                                      "whisperasr", "echo")
   -m, --model <string>                'large' model alias (default)
   -sm, --small-model <string>         'small' alias model
   -vm, --vision-model <string>        'vision' alias model

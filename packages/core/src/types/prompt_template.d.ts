@@ -211,6 +211,7 @@ type ModelType = OptionsOrString<
     | "deepseek:deepseek-chat"
     | "transformers:onnx-community/Qwen2.5-0.5B-Instruct:q4"
     | "transformers:HuggingFaceTB/SmolLM2-1.7B-Instruct:q4f16"
+    | "echo"
 >
 
 type ModelSmallType = OptionsOrString<
@@ -250,6 +251,8 @@ type ModelProviderType = OptionsOrString<
     | "litellm"
     | "github_copilot_chat"
     | "deepseek"
+    | "whisperasr"
+    | "echo"
 >
 
 interface ModelConnectionOptions {

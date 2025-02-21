@@ -5,27 +5,27 @@ import { dedent } from "./indent"
 
 describe("resolveTokenEncoder", () => {
     test("gpt-3.5-turbo", async () => {
-        const encoder = await resolveTokenEncoder("gpt-3.5-turbo")
+        const encoder = await resolveTokenEncoder("openai:gpt-3.5-turbo")
         const result = encoder.encode("test line")
         assert.deepEqual(result, [1985, 1584])
     })
     test("gpt-4", async () => {
-        const encoder = await resolveTokenEncoder("gpt-4")
+        const encoder = await resolveTokenEncoder("openai:gpt-4")
         const result = encoder.encode("test line")
         assert.deepEqual(result, [1985, 1584])
     })
     test("gpt-4o", async () => {
-        const encoder = await resolveTokenEncoder("gpt-4o")
+        const encoder = await resolveTokenEncoder("openai:gpt-4o")
         const result = encoder.encode("test line")
         assert.deepEqual(result, [3190, 2543])
     })
     test("gpt-4o-mini", async () => {
-        const encoder = await resolveTokenEncoder("gpt-4o-mini")
+        const encoder = await resolveTokenEncoder("openai:gpt-4o-mini")
         const result = encoder.encode("test line")
         assert.deepEqual(result, [3190, 2543])
     })
     test("gpt-4o forbidden", async () => {
-        const encoder = await resolveTokenEncoder("gpt-4o")
+        const encoder = await resolveTokenEncoder("openai:gpt-4o")
         const result = encoder.encode("<|im_end|>")
         assert.deepEqual(result, [27, 91, 321, 13707, 91, 29])
     })
@@ -57,7 +57,7 @@ For example, to denote a heading, you add a number sign before it (e.g., # Headi
             {
                 chunkSize: 128,
                 chunkOverlap: 16,
-                model: "gpt-4o",
+                model: "openai:gpt-4o",
                 lineNumbers: true,
             }
         )
