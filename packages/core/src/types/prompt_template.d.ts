@@ -273,6 +273,11 @@ interface ModelAliasesOptions {
      * Configure the `vision` model alias.
      */
     visionModel?: ModelVisionType
+
+    /**
+     * A list of model aliases to use.
+     */
+    modelAliases?: Record<string, string>
 }
 
 interface ModelOptions extends ModelConnectionOptions, ModelTemplateOptions {

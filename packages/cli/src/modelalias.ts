@@ -37,6 +37,14 @@ export function applyModelOptions(
     }
 }
 
+export function applyScriptModelAliases(script: PromptScript) {
+    applyModelOptions(script, "script")
+    if (script.modelAliases)
+        Object.entries(script.modelAliases).forEach(([name, alias]) => {
+            runtimeHost.setModelAlias("script", name, alias)
+        })
+}
+
 export function logModelAliases() {
     const modelAlias = runtimeHost.modelAliases
     if (Object.values(modelAlias).some((m) => m.source !== "default"))
