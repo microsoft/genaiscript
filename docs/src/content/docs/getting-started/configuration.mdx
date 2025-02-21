@@ -1611,6 +1611,27 @@ script({
 })
 ```
 
+## Custom Provider (OpenAI compatible)
+
+You can use a custom provider that is compatible with the [OpenAI text generation API](https://platform.openai.com/docs/guides/text-generation).
+This is useful for running LLMs on a local server or a different cloud provider.
+
+For example, to define a `ollizard` provider, you need to set the `OLLIARD_API_BASE` environment variable to the custom provider URL,
+and `OLLIZARD_API_KEY` if needed.
+
+```txt title=".env"
+OLLIZARD_API_BASE=http://localhost:1234/v1
+#OLLIZARD_API_KEY=...
+```
+
+Then you can use this provider like any other provider.
+
+```js 'model: "ollizard'
+script({
+    model: "ollizard:llama3.2:1b",
+})
+```
+
 ## Model specific environment variables
 
 You can provide different environment variables
