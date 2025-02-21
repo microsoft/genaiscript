@@ -329,6 +329,7 @@ export const GIT_LOG_COUNT = 10
 export const MAX_TOOL_CONTENT_TOKENS = 4000
 
 export const AGENT_MEMORY_CACHE_NAME = "agent_memory"
+export const AGENT_MEMORY_FLEX_TOKENS = 20000
 export const TRANSCRIPTION_CACHE_NAME = "transcriptions"
 
 export const AZURE_CONTENT_SAFETY_PROMPT_SHIELD_MAX_LENGTH = 9000

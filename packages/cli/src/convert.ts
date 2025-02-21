@@ -10,7 +10,7 @@ import {
 } from "../../core/src/constants"
 import { filePathOrUrlToWorkspaceFile, tryReadText } from "../../core/src/fs"
 import { host } from "../../core/src/host"
-import { MarkdownTrace, TraceOptions } from "../../core/src/trace"
+import { MarkdownTrace } from "../../core/src/trace"
 import {
     dotGenaiscriptPath,
     logError,
@@ -24,8 +24,7 @@ import { PromptScriptRunOptions } from "./main"
 import { PLimitPromiseQueue } from "../../core/src/concurrency"
 import { createPatch } from "diff"
 import { unfence } from "../../core/src/unwrappers"
-import { JSONLLMTryParse, JSONTryParse } from "../../core/src/json5"
-import { applyModelOptions } from "./modelalias"
+import { applyModelOptions } from "../../core/src/modelalias"
 import { ensureDotGenaiscriptPath, setupTraceWriting } from "./trace"
 import { tracePromptResult } from "../../core/src/chat"
 import { dirname, join } from "node:path"

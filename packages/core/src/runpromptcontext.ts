@@ -478,9 +478,10 @@ export function createChatGenerationContext(
                 if (memory && query && !disableMemoryQuery)
                     memoryAnswer = await agentQueryMemory(
                         ctx,
-                        query + hasExtraArgs
-                            ? `\n${YAMLStringify(argsNoQuery)}`
-                            : ""
+                        query +
+                            (hasExtraArgs
+                                ? `\n${YAMLStringify(argsNoQuery)}`
+                                : "")
                     )
 
                 const res = await ctx.runPrompt(

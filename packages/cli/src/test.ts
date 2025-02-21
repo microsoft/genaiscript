@@ -42,7 +42,7 @@ import { delay } from "es-toolkit"
 import { resolveModelConnectionInfo } from "../../core/src/models"
 import { filterScripts } from "../../core/src/ast"
 import { link } from "../../core/src/mkmd"
-import { applyModelOptions } from "./modelalias"
+import { applyModelOptions } from "../../core/src/modelalias"
 import { normalizeFloat, normalizeInt } from "../../core/src/cleaners"
 import { ChatCompletionReasoningEffort } from "../../core/src/chattypes"
 import {
