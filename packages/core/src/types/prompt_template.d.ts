@@ -212,6 +212,7 @@ type ModelType = OptionsOrString<
     | "transformers:onnx-community/Qwen2.5-0.5B-Instruct:q4"
     | "transformers:HuggingFaceTB/SmolLM2-1.7B-Instruct:q4f16"
     | "echo"
+    | "none"
 >
 
 type ModelSmallType = OptionsOrString<
