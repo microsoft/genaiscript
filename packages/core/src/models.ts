@@ -211,9 +211,8 @@ export async function resolveModelConnectionInfo(
         resolvedModels.add(modelId)
         candidates = uniq([modelId, ...(candidates || [])].filter((c) => !!c))
         if (logg)
-            logVerbose(`connection: resolving model ${hint || "(unspecified)"}`)
+            logVerbose(`connection: resolving ${hint || "(unspecified)"}`)
         for (const candidate of candidates) {
-            if (logg) logVerbose(`  resolving ${candidate}`)
             const res = await resolveModel(candidate, {
                 withToken: askToken,
                 reportError: false,
@@ -224,6 +223,7 @@ export async function resolveModelConnectionInfo(
             }
         }
 
+        logVerbose(`candidates: ${candidates.join(", ")}`)
         logModelAliases({ all: true })
         return {
             info: {
