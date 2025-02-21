@@ -47,7 +47,9 @@ flowchart LR
 
 ## Agent vs Tools
 
-Note that in this simple example, you could also decide to flatten this tree and give access to the git tools to the main LLM and skip the agent.
+An "agent" is a tool that queries an LLM, equipped with other tools, to accomplish tasks. It is a higher-level abstraction that can be used to group multiple tools together.
+In some scenarios, you might decide to remove that abstraction and skip the agent by "giving" the tools to the calling LLM.
+In this simple example, you could also decide to flatten this tree and give access to the git tools to the main LLM and skip the agent.
 
 ```mermaid
 flowchart LR
@@ -139,8 +141,8 @@ defAgent(
 )
 ```
 
--   the agent id will become the tool id `agent_<id>`
--   the description of the agent will automatically be augmented with information about the available tools
+- the agent id will become the tool id `agent_<id>`
+- the description of the agent will automatically be augmented with information about the available tools
 
 <BuiltinAgents />
 
@@ -193,8 +195,8 @@ defTool(
 
 Inside callback, we use `runPrompt` to run an LLM query.
 
--   the prompt takes the query argument and tells the LLM how to handle it.
--   note the use of `ctx.` for nested prompts
+- the prompt takes the query argument and tells the LLM how to handle it.
+- note the use of `ctx.` for nested prompts
 
 ```js wrap
         const res = await runPrompt(
