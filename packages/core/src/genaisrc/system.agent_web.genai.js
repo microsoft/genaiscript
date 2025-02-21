@@ -6,7 +6,9 @@ defAgent(
     "web",
     "search the web to accomplish tasks.",
     `Your are a helpful LLM agent that can use web search.
-    Answer the question in <QUERY>.`,
+    Search the web and answer the question in <QUERY>.
+    - Expand <QUERY> into an optimized search query for better results.
+    - Answer exclusively with live information from the web.`,
     {
         system: [
             "system.safety_jailbreak",

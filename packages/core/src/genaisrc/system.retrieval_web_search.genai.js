@@ -26,7 +26,8 @@ defTool(
             count,
             ignoreMissingProvider: true,
         })
-        if (!webPages) return "error: no web search provider configured"
+        if (!webPages)
+            return "error: no web search provider configured (https://microsoft.github.io/genaiscript/reference/scripts/web-search/)"
         return YAML.stringify(
             webPages.map((f) => ({
                 url: f.filename,
