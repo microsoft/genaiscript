@@ -26,7 +26,7 @@ export function srtVttRender(transcription: TranscriptionResult) {
 
     function formatSRTTime(seconds: number): string {
         const date = new Date(0)
-        date.setSeconds(seconds)
+        date.setMilliseconds(seconds * 1000)
         const hours = String(date.getUTCHours()).padStart(2, "0")
         const minutes = String(date.getUTCMinutes()).padStart(2, "0")
         const secondsPart = String(date.getUTCSeconds()).padStart(2, "0")
@@ -37,7 +37,7 @@ export function srtVttRender(transcription: TranscriptionResult) {
 
     function formatVRTTime(seconds: number): string {
         const date = new Date(0)
-        date.setSeconds(seconds)
+        date.setMilliseconds(seconds * 1000)
         const hours = String(date.getUTCHours()).padStart(2, "0")
         const minutes = String(date.getUTCMinutes()).padStart(2, "0")
         const secondsPart = String(date.getUTCSeconds()).padStart(2, "0")

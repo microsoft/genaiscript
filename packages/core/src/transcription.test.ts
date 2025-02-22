@@ -12,6 +12,7 @@ describe("srtVttRender", () => {
             ],
         } satisfies TranscriptionResult
         const result = srtVttRender(transcription)
+        console.log(result)
         assert(
             result.srt.includes(
                 "1\n00:00:00,000 --> 00:00:01,500\nHello world\n"
