@@ -12,8 +12,7 @@ $`## Step 1
 For each file in ${code}, 
 generate a plan to test the source code in each file
 
-- generate self-contained tests as much as possible by inlining all necessary values
-- if needed, use input test files from packages/sample/src/rag/*
+- use test files from packages/sample/src/rag/*
 - only generate tests for files in ${code}
 - update the existing test files (<code filename>.test.ts). keep old tests if possible.
 
