@@ -36,7 +36,11 @@ defTool(
         if (!matches?.length) return "No files found."
         const q = await host.promiseQueue(5)
         const files = await q.mapAll(matches, async ({ filename, content }) => {
-            const file = {
+            const file: WorkspaceFile & {
+                title?: string
+                description?: string
+                summary?: string
+            } = {
                 filename,
             }
             try {

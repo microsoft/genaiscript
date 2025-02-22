@@ -60,7 +60,7 @@ defTool(
         if (frontmatter) {
             const files = []
             for (const { filename } of res) {
-                const file = {
+                const file: WorkspaceFile & { frontmatter?: string } = {
                     filename,
                 }
                 files.push(file)
