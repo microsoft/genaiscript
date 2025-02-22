@@ -69,7 +69,7 @@ export async function parseProject(options: { scriptFiles: string[] }) {
         } // Skip if no template is parsed
         if (scripts[tmpl.id]) {
             logWarn(`duplicate script ${tmpl.id} (${f})`)
-            logVerbose(`  already defined in ${scripts[tmpl.id]}`)
+            logVerbose(`  already defined in ${scripts[tmpl.id].filename}`)
             continue
         }
         prj.scripts.push(tmpl) // Add t

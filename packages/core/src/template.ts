@@ -4,13 +4,15 @@
  * data types and formats.
  */
 
-import { BUILTIN_SCRIPT_PREFIX, GENAI_ANY_REGEX, PROMPTY_REGEX } from "./constants"
+import {
+    BUILTIN_SCRIPT_PREFIX,
+    GENAI_ANY_REGEX,
+    PROMPTY_REGEX,
+} from "./constants"
 import { host } from "./host"
 import { JSON5TryParse } from "./json5"
 import { humanize } from "inflection"
 import { promptyParse, promptyToGenAIScript } from "./prompty"
-import { fileURLToPath } from "node:url"
-import { dirname, join } from "node:path"
 
 /**
  * Extracts a template ID from the given filename by removing specific extensions
@@ -83,15 +85,7 @@ async function parsePromptTemplateCore(filename: string, content: string) {
         ),
         jsSource: content,
     } as PromptScript
-    if (filename.startsWith(BUILTIN_SCRIPT_PREFIX)) {
-        const genaisrcDir = join(
-            dirname(dirname(__filename ?? fileURLToPath(import.meta.url))),
-            "genaisrc"
-        ) // ignore esbuild warning
-        const id = filename.slice(BUILTIN_SCRIPT_PREFIX.length)
-        r.filename = host.path.join(genaisrcDir, id)
-        console.log(r)
-    } else {
+    if (!filename.startsWith(BUILTIN_SCRIPT_PREFIX)) {
         r.filename = host.path.resolve(filename)
     }
     const meta = parsePromptScriptMeta(r.jsSource)
