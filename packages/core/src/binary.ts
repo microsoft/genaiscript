@@ -1,4 +1,3 @@
-import { DOCX_MIME_TYPE, PDF_MIME_TYPE, XLSX_MIME_TYPE } from "./constants"
 
 /**
  * Determines if a given MIME type is binary.
