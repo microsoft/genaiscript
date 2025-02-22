@@ -2,7 +2,7 @@ const { readdirSync, readFileSync, writeFileSync } = require("fs")
 const { parse } = require("json5")
 
 async function main() {
-    const dir = "./src/genaisrc"
+    const dir = "../cli/genaisrc"
     const fp = "./src/default_prompts.ts"
     const fmp = "../../docs/src/content/docs/reference/scripts/system.mdx"
     const fnp = "../../docs/src/components/BuiltinTools.mdx"
@@ -11,7 +11,7 @@ async function main() {
     const promptMap = {}
     const prompts = readdirSync(dir)
     for (const prompt of prompts) {
-        if (!/\.genai\.js$/.test(prompt)) continue
+        if (!/\.genai\.m?js$/.test(prompt)) continue
         const text = readFileSync(`${dir}/${prompt}`, "utf-8")
         if (/^system\./.test(prompt)) {
             const id = prompt.replace(/\.genai\.m?js$/i, "")
