@@ -31,7 +31,9 @@ export async function fuzzSearch(
     })
 
     // Add all files with content to the MiniSearch index
-    await miniSearch.addAllAsync(files.filter((f) => !!f.content))
+    await miniSearch.addAllAsync(
+        files.filter((f) => !f.encoding && !!f.content)
+    )
 
     // Perform search using the provided query
     let results = miniSearch.search(query)
