@@ -36,6 +36,9 @@ ${fence('import test, { beforeEach, describe } from "node:test"', { language: "j
 - do NOT generate negative test cases
 - do NOT generate trace instance
 - do NOT use tools in generated code
+- do NOT leave TODOs, implement all code
+- use 'test' function, not 'it' function
+- use 'describe' function to group tests
 
 ## Step 3 
 
