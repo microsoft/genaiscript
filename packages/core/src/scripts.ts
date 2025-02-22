@@ -33,14 +33,13 @@ export async function fixPromptDefinitions(project: Project) {
         const { dirname, ts, js } = folder
         {
             const fn = host.path.join(dirname, ".gitignore")
-            const current = await tryReadText(fn)
-            const content = dedent`# auto-generated
-            genaiscript.d.ts
+            const current = (await tryReadText(fn)) || ""
+            const content = dedent`genaiscript.d.ts
             tsconfig.json
             jsconfig.json`
-            if (current !== content) {
+            if (current?.includes(content)) {
                 logVerbose(`updating ${fn}`)
-                await writeText(fn, content)
+                await writeText(fn, current + "\n#GenAIScript\n" + content)
             }
         }
         for (let [defName, defContent] of Object.entries(promptDefinitions)) {
