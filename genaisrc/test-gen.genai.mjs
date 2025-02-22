@@ -56,12 +56,21 @@ defTool(
     "run_test",
     "run test code with node:test",
     {
-        filename: "full path to the test file",
-        source: "source of the test file",
+        type: "object",
+        properties: {
+            filename: {
+                type: "string",
+                description: "full path to the test file",
+            },
+            source: { type: "string", description: "source of the test file" },
+        },
+        required: ["filename", "source"],
     },
     async (args) => {
         const { filename, source } = args
-        if (source) await workspace.writeText(filename, source)
+        if (!filename) return "error: missing 'filename' parameter"
+        if (!source) return "error: missing 'source' parameter"
+        await workspace.writeText(filename, source)
         console.debug(`running test code ${filename}`)
         return host.exec(`node`, ["--import", "tsx", "--test", filename])
     }
