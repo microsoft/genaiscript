@@ -1,12 +1,15 @@
 // Importing utility functions and constants from other files
 import { logVerbose, strcmp } from "./util" // String comparison function
-import { defaultPrompts } from "./default_prompts" // Default prompt data
 import { parsePromptScript } from "./template" // Function to parse scripts
 import { readText } from "./fs" // Function to read text from a file
-import { BUILTIN_PREFIX } from "./constants" // Constants for MIME types and prefixes
+import { GENAI_ANYTS_REGEX } from "./constants" // Constants for MIME types and prefixes
 import { Project } from "./server/messages"
 import { resolveSystems } from "./systems"
 import { resolveScriptParametersSchema } from "./vars"
+import { dirname, join } from "node:path"
+import { fileURLToPath } from "node:url"
+import { readdir } from "node:fs/promises"
+import { uniq } from "es-toolkit"
 
 /**
  * Converts a string to a character position represented as [row, column].
@@ -30,25 +33,23 @@ export async function parseProject(options: { scriptFiles: string[] }) {
     const prj: Project = {
         scripts: [],
         diagnostics: [],
-    } // Initialize a new project instance
-
-    // Clone the default prompts
-    const deflPr: Record<string, string> = Object.assign({}, defaultPrompts)
-
+    }
+    const genaisrcDir = join(
+        dirname(dirname(__filename ?? fileURLToPath(import.meta.url))),
+        "genaisrc"
+    ) // ignore esbuild warning
+    const systemPrompts = await (
+        await readdir(genaisrcDir)
+    ).filter((f) => GENAI_ANYTS_REGEX.test(f))
+    console.log(systemPrompts)
     // Process each script file, parsing its content and updating the project
-    for (const f of scriptFiles) {
-        const tmpl = await parsePromptScript(f, await readText(f), prj)
+    for (const f of uniq([...scriptFiles, ...systemPrompts])) {
+        const tmpl = await parsePromptScript(f, await readText(f))
         if (!tmpl) {
             logVerbose(`skipping invalid script file: ${f}`)
             continue
         } // Skip if no template is parsed
-        delete deflPr[tmpl.id] // Remove the parsed template from defaults
         prj.scripts.push(tmpl) // Add to project templates
-    }
-
-    // Add remaining default prompts to the project
-    for (const [id, v] of Object.entries(deflPr)) {
-        prj.scripts.push(await parsePromptScript(BUILTIN_PREFIX + id, v, prj))
     }
 
     /**

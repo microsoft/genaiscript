@@ -26,7 +26,7 @@
     "built/codicon.css",
     "built/codicon.ttf",
     "built/favicon.svg",
-    "genaisrc/*.genai.mjs"
+    "genaisrc/*.genai.mts"
   ],
   "publisher": "Microsoft",
   "repository": {
