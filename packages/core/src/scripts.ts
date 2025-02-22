@@ -37,7 +37,7 @@ export async function fixPromptDefinitions(project: Project) {
             const content = dedent`genaiscript.d.ts
             tsconfig.json
             jsconfig.json`
-            if (current?.includes(content)) {
+            if (!current.includes(content)) {
                 logVerbose(`updating ${fn}`)
                 await writeText(fn, current + "\n#GenAIScript\n" + content)
             }

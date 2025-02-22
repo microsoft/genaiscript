@@ -1,15 +1,14 @@
 // Importing utility functions and constants from other files
-import { logVerbose, strcmp } from "./util" // String comparison function
+import { logWarn, strcmp } from "./util" // String comparison function
 import { parsePromptScript } from "./template" // Function to parse scripts
 import { readText } from "./fs" // Function to read text from a file
-import { GENAI_ANYTS_REGEX } from "./constants" // Constants for MIME types and prefixes
+import { BUILTIN_PREFIX, GENAI_ANYTS_REGEX } from "./constants" // Constants for MIME types and prefixes
 import { Project } from "./server/messages"
 import { resolveSystems } from "./systems"
 import { resolveScriptParametersSchema } from "./vars"
 import { dirname, join } from "node:path"
 import { fileURLToPath } from "node:url"
 import { readdir } from "node:fs/promises"
-import { uniq } from "es-toolkit"
 
 /**
  * Converts a string to a character position represented as [row, column].
@@ -41,15 +40,31 @@ export async function parseProject(options: { scriptFiles: string[] }) {
     const systemPrompts = await (
         await readdir(genaisrcDir)
     ).filter((f) => GENAI_ANYTS_REGEX.test(f))
-    const promptFiles = uniq([...scriptFiles, ...systemPrompts])
     // Process each script file, parsing its content and updating the project
-    for (const f of promptFiles) {
+    const ids = new Set<string>()
+    for (const f of scriptFiles) {
         const tmpl = await parsePromptScript(f, await readText(f))
         if (!tmpl) {
-            logVerbose(`skipping invalid script file: ${f}`)
+            logWarn(`skipping invalid script ${f}`)
             continue
         } // Skip if no template is parsed
         prj.scripts.push(tmpl) // Add to project templates
+        ids.add(tmpl.id)
+    }
+    for (const f of systemPrompts) {
+        const tmpl = await parsePromptScript(
+            join(genaisrcDir, f),
+            await readText(f)
+        )
+        if (!tmpl) {
+            logWarn(`skipping invalid system scruipt: ${f}`)
+            continue
+        } // Skip if no template is parsed
+        if (!ids.has(tmpl.id)) {
+            tmpl.filename = BUILTIN_PREFIX + f
+            prj.scripts.push(tmpl) // Add to project templates
+            ids.add(tmpl.id)
+        }
     }
 
     /**
