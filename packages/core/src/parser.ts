@@ -41,9 +41,9 @@ export async function parseProject(options: { scriptFiles: string[] }) {
     const systemPrompts = await (
         await readdir(genaisrcDir)
     ).filter((f) => GENAI_ANYTS_REGEX.test(f))
-    console.log(systemPrompts)
+    const promptFiles = uniq([...scriptFiles, ...systemPrompts])
     // Process each script file, parsing its content and updating the project
-    for (const f of uniq([...scriptFiles, ...systemPrompts])) {
+    for (const f of promptFiles) {
         const tmpl = await parsePromptScript(f, await readText(f))
         if (!tmpl) {
             logVerbose(`skipping invalid script file: ${f}`)
