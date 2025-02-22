@@ -621,13 +621,13 @@ export async function startServer(options: {
             const nonce = randomHex(32)
             const csp = `<meta http-equiv="Content-Security-Policy" content="
     default-src 'none'; 
-    frame-src ${cspUrl} https:; 
-    img-src ${cspUrl} https: data:;
-    media-src ${cspUrl} https: data:;
-    connect-src ${cspUrl} ${wsCspUrl};
-    script-src ${cspUrl} 'nonce-${nonce}'; 
-    style-src 'unsafe-inline' ${cspUrl};
-    font-src ${cspUrl};
+    frame-src ${cspUrl} https://*.github.dev/ https://github.dev/ https:; 
+    img-src ${cspUrl} https://*.github.dev/ https://github.dev/ https: data:;
+    media-src ${cspUrl} https://*.github.dev/ https://github.dev/ https: data:;
+    connect-src ${cspUrl} ${wsCspUrl} https://*.github.dev/ wss://*.github.dev/ https://github.dev/;
+    script-src ${cspUrl} https://*.github.dev/ https://github.dev/ 'nonce-${nonce}'; 
+    style-src 'unsafe-inline' ${cspUrl} https://*.github.dev/ https://github.dev/;
+    font-src ${cspUrl} https://*.github.dev/ https://github.dev/;
 "/>
 <script nonce=${nonce}>
 window.litNonce = ${JSON.stringify(nonce)};

@@ -55,7 +55,7 @@ export async function createWebview(
         )
         const faviconUri = Utils.joinPath(authorityUri, "favicon.svg")
         const stylesheetUri = Utils.joinPath(authorityUri, "built/markdown.css")
-        const codeiconsUri = Utils.joinPath(authorityUri, "built/codicon.css")
+        const codeIconsUri = Utils.joinPath(authorityUri, "built/codicon.css")
         const scriptUri = Utils.joinPath(authorityUri, "built/web.mjs")
         const wsCspUrl = vscode.Uri.parse(cspUrl)
             .with({ scheme: "ws" })
@@ -66,10 +66,10 @@ export async function createWebview(
             frame-src ${cspUrl} ${cspSource} https:; 
             img-src ${cspUrl} ${cspSource} https: data:;
             media-src ${cspUrl} ${cspSource} https: data:;
-            connect-src ${cspUrl} ${wsCspUrl};
-            script-src ${cspUrl} ${cspSource} 'nonce-${nonce}'; 
-            style-src 'unsafe-inline' ${cspUrl} ${cspSource};
-            font-src ${cspUrl} ${cspSource};
+            connect-src ${cspUrl} ${wsCspUrl} https://*.github.dev/ wss://*.github.dev/ https://github.dev/;
+            script-src ${cspUrl} ${cspSource} https://*.github.dev/ https://github.dev/ 'nonce-${nonce}'; 
+            style-src 'unsafe-inline' ${cspUrl} ${cspSource} https://*.github.dev/ https://github.dev/;
+            font-src ${cspUrl} ${cspSource} https://*.github.dev/ https://github.dev/;
         `
         html = `<!doctype html>
 <html lang="en">
@@ -80,7 +80,7 @@ export async function createWebview(
     <meta http-equiv="Content-Security-Policy" content="${csp}" />
     <link rel="icon" href="${faviconUri}" type="image/svg+xml" />
     <link href="${stylesheetUri}" rel="stylesheet" />
-    <link href="${codeiconsUri}" rel="stylesheet" id="vscode-codicon-stylesheet" />
+    <link href="${codeIconsUri}" rel="stylesheet" id="vscode-codicon-stylesheet" />
     <script nonce="${nonce}">
         window.litNonce = ${JSON.stringify(nonce)};
         window.genaiscript = ${JSON.stringify({ apiKey: sessionApiKey, base: authority })};
