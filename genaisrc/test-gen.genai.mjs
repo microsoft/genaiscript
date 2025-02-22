@@ -39,6 +39,8 @@ ${fence('import test, { beforeEach, describe } from "node:test"', { language: "j
 - do NOT leave TODOs, implement all code
 - use 'test' function, not 'it' function
 - use 'describe' function to group tests
+- when initializing a variable, provide a type annotation
+- do NOT use 'any' type
 
 ## Step 3 
 
@@ -47,7 +49,21 @@ Validate and fix test sources.
 Call the 'run_test' tool to execute the generated test code and fix the test code to make tests pass.
 
 - this is important.
+- if the test fails because of missing 'host' or 'runtimeHost' add 
+TestHost.install() in the beforeEach block
+
 `
+fence(
+    `import { beforeEach } from "node:test";
+import { TestHost } from "./testhost"
+...
+describe(..., () => {
+    beforeEach(async () => {
+        TestHost.install()
+    })
+    ...
+`
+)
 
 defFileOutput(
     env.files.map(
