@@ -31,7 +31,7 @@ jobs:
         ## https://github.com/actions/setup-node
         uses: actions/setup-node@v4
         with:
-            node-version: "20"
+            node-version: "22"
 
       - name: Run GenAIscript on the TLA+ specs that are added in this pull request.
         ## Identify git diff: $(git diff --name-only HEAD^ | grep '.tla')

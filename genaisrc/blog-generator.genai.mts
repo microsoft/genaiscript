@@ -93,7 +93,7 @@ let snippet: string | Fenced
         
         Use these files to help you generate a topic for the blog post.
  
-        - the code will be executed in node.js v20 by the GenAIScript CLI
+        - the code will be executed in node.js v22 by the GenAIScript CLI
         - the genaiscript type definition: genaisrc/genaiscript.d.ts. Assume that all globals are ambient. Do not import or require genaiscript module.
         - the genaiscript samples: packages/sample/src/*.genai.*
         - the documentation is in markdown and has frontmatter: docs/src/content/docs/**/*.md*

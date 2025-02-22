@@ -1,5 +1,5 @@
 # Build
-FROM node:20-alpine as build
+FROM node:22-alpine as build
 
 WORKDIR /app
 COPY . /app
@@ -12,7 +12,7 @@ RUN apk update --no-cache && \
 
 
 # Prod
-FROM node:20-alpine
+FROM node:22-alpine
 
 # Copy the necessary files from the build stage
 COPY --from=build /app/packages/cli/built /app/packages/cli/built

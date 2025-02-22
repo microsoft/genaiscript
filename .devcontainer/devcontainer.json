@@ -1,5 +1,5 @@
 {
-    "image": "mcr.microsoft.com/devcontainers/javascript-node:20",
+    "image": "mcr.microsoft.com/devcontainers/javascript-node:22",
     "postCreateCommand": "yarn install --frozen-lockfile --prefer-offline && yarn install:playwright",
     "customizations": {
         "vscode": {

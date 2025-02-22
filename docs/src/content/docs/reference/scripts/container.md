@@ -34,7 +34,7 @@ const container = await host.container()
 By default, the container uses the [python:alpine](https://hub.docker.com/_/python/) image, which provides a minimal python environment. You can change the image using the `image` option.
 
 ```js 'image: "python:3"'
-const container = await host.container({ image: "node:20" })
+const container = await host.container({ image: "node:22" })
 ```
 
 ### Building images

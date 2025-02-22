@@ -89,7 +89,7 @@
     "web-tree-sitter": "0.22.2"
   },
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=22.0.0"
   },
   "peerDependencies": {
     "promptfoo": "0.104.0"
