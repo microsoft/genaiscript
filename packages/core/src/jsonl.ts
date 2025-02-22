@@ -30,12 +30,12 @@ export function JSONLTryParse(
 }
 
 export function JSONLStringify(objs: any[]) {
+    if (!objs?.length) return ""
     const acc: string[] = []
-    if (objs?.length)
-        for (const o of objs.filter((o) => o !== undefined && o !== null)) {
-            const s = JSON.stringify(o)
-            acc.push(s)
-        }
+    for (const o of objs.filter((o) => o !== undefined && o !== null)) {
+        const s = JSON.stringify(o)
+        acc.push(s)
+    }
     return acc.join("\n") + "\n"
 }
 

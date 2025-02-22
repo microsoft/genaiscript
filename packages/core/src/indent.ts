@@ -1,6 +1,7 @@
 import tsDedent from "ts-dedent"
 
 export function indent(text: string, indentation: string) {
+    if (text === undefined || text === null || text === "") return text
     return text
         ?.split(/\r?\n/g)
         .map((line) => indentation + line)
