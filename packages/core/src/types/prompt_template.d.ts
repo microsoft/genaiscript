@@ -3845,7 +3845,7 @@ interface ShellOutput {
     stdout?: string
     stderr?: string
     exitCode: number
-    failed: boolean
+    failed?: boolean
 }
 
 interface BrowserOptions {
