@@ -915,25 +915,27 @@ function TraceTreeMarkdown() {
             return node.content.map((n) => renderTraceTree(n, 2)).join("\n")
         return renderTraceTree(node, 2)
     }, [node])
+
     return (
-        <vscode-scrollable>
-            <vscode-split-layout
-                initial-handle-position="20%"
-                fixed-pane="start"
-            >
-                <div slot="start">
+        <vscode-split-layout
+         className="trace-split-panel"
+         initial-handle-position="20%" fixed-pane="start">
+            <div slot="start">
+                <vscode-scrollable>
                     <vscode-tree
                         data={data}
                         ref={treeRef}
                         indentGuides={true}
                         onvsc-tree-select={handleSelect}
                     />
-                </div>
-                <div slot="end">
+                </vscode-scrollable>
+            </div>
+            <div slot="end">
+                <vscode-scrollable>
                     {preview ? <Markdown>{preview}</Markdown> : null}
-                </div>
-            </vscode-split-layout>
-        </vscode-scrollable>
+                </vscode-scrollable>
+            </div>
+        </vscode-split-layout>
     )
 }
 
@@ -975,19 +977,17 @@ function OutputMarkdown() {
     const output = useOutput()
     if (!output) return null
     return (
-        <vscode-scrollable>
-            <vscode-tabs>
-                <ReasoningTabPanel />
-                <MarkdownPreviewTabs
-                    aiDisclaimer={true}
-                    filename="output.md"
-                    text={output}
-                />
-                <LogProbsTabPanel />
-                <EntropyTabPanel />
-                <TopLogProbsTabPanel />
-            </vscode-tabs>
-        </vscode-scrollable>
+        <vscode-tabs>
+            <ReasoningTabPanel />
+            <MarkdownPreviewTabs
+                aiDisclaimer={true}
+                filename="output.md"
+                text={output}
+            />
+            <LogProbsTabPanel />
+            <EntropyTabPanel />
+            <TopLogProbsTabPanel />
+        </vscode-tabs>
     )
 }
 
@@ -1016,7 +1016,7 @@ function ChoicesBadge() {
     )
 }
 
-function OutputTraceTabPanel(props: { selected?: boolean }) {
+function OutputTabPanel(props: { selected?: boolean }) {
     const { selected } = props
     return (
         <>
@@ -1841,7 +1841,7 @@ function ResultsTabs() {
                 }
                 panel
             >
-                <OutputTraceTabPanel selected={selected === 0} />
+                <OutputTabPanel selected={selected === 0} />
                 <TraceTabPanel selected={selected === 1} />
                 <MessagesTabPanel />
                 <ProblemsTabPanel />

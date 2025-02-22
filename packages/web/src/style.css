@@ -81,3 +81,10 @@ table.toplogprobs td {
     opacity: 0.8;
     font-family: var(--vscode-font-family);
 }
+
+vscode-split-layout.trace-split-panel {
+    height: 80vh;
+}
+vscode-split-layout.trace-split-panel vscode-scrollable {
+    height: 80vh;
+}
