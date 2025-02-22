@@ -13,12 +13,8 @@ import {
     TRACE_NODE_PREFIX,
     CACHE_LLMREQUEST_PREFIX,
     CACHE_AIREQUEST_TRACE_PREFIX,
-    BUILTIN_PREFIX,
-    GENAI_ANY_REGEX,
     CACHE_AIREQUEST_TEXT_PREFIX,
-    GENAI_MJS_EXT,
 } from "../../core/src/constants"
-import { defaultPrompts } from "../../core/src/default_prompts"
 import { extractFenced, renderFencedVariables } from "../../core/src/fence"
 import { prettifyMarkdown } from "../../core/src/markdown"
 import {
@@ -131,12 +127,6 @@ ${prettifyMarkdown(md)}
                 .replace(/\.md$/, "")
             return this.previewAIRequest(sha, "text")
         }
-        if (uri.path.startsWith(BUILTIN_PREFIX)) {
-            const id = uri.path
-                .slice(BUILTIN_PREFIX.length)
-                .replace(GENAI_ANY_REGEX, "")
-            return defaultPrompts[id] ?? `No such builtin prompt: ${id}`
-        }
         return ""
     }
 
@@ -205,13 +195,6 @@ ${val}
 
 export function infoUri(path: string) {
     return vscode.Uri.from({ scheme: SCHEME, path })
-}
-
-export function builtinPromptUri(id: string) {
-    return vscode.Uri.from({
-        scheme: SCHEME,
-        path: BUILTIN_PREFIX + id + GENAI_MJS_EXT,
-    })
 }
 
 export function activateMarkdownTextDocumentContentProvider(

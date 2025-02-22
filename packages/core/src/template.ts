@@ -4,7 +4,7 @@
  * data types and formats.
  */
 
-import { BUILTIN_PREFIX, GENAI_ANY_REGEX, PROMPTY_REGEX } from "./constants"
+import { BUILTIN_SCRIPT_PREFIX, GENAI_ANY_REGEX, PROMPTY_REGEX } from "./constants"
 import { host } from "./host"
 import { JSON5TryParse } from "./json5"
 import { humanize } from "inflection"
@@ -83,12 +83,12 @@ async function parsePromptTemplateCore(filename: string, content: string) {
         ),
         jsSource: content,
     } as PromptScript
-    if (filename.startsWith(BUILTIN_PREFIX)) {
+    if (filename.startsWith(BUILTIN_SCRIPT_PREFIX)) {
         const genaisrcDir = join(
             dirname(dirname(__filename ?? fileURLToPath(import.meta.url))),
             "genaisrc"
         ) // ignore esbuild warning
-        const id = filename.slice(BUILTIN_PREFIX.length)
+        const id = filename.slice(BUILTIN_SCRIPT_PREFIX.length)
         r.filename = host.path.join(genaisrcDir, id)
         console.log(r)
     } else {
