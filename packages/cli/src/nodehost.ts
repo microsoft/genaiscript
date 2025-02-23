@@ -65,6 +65,7 @@ import { resolveLanguageModel } from "../../core/src/lm"
 import { CancellationOptions } from "../../core/src/cancellation"
 import { defaultModelConfigurations } from "../../core/src/llms"
 import { createPythonRuntime } from "../../core/src/pyodide"
+import { ci } from "./ci"
 
 class NodeServerManager implements ServerManager {
     async start(): Promise<void> {
@@ -533,7 +534,11 @@ export class NodeHost extends EventTarget implements RuntimeHost {
      * @param message question to ask
      * @param options options to select from
      */
-    async select(message: string, options: string[]): Promise<string> {
+    async select(
+        message: string,
+        options: string[]
+    ): Promise<string | undefined> {
+        if (ci.isCI) return undefined
         return await this.userInputQueue.add(() =>
             shellSelect(message, options)
         )
@@ -543,7 +548,8 @@ export class NodeHost extends EventTarget implements RuntimeHost {
      * Asks the user to input a text
      * @param message message to ask
      */
-    async input(message: string): Promise<string> {
+    async input(message: string): Promise<string | undefined> {
+        if (ci.isCI) return undefined
         return await this.userInputQueue.add(() => shellInput(message))
     }
 
@@ -551,7 +557,8 @@ export class NodeHost extends EventTarget implements RuntimeHost {
      * Asks the user to confirm a message
      * @param message message to ask
      */
-    async confirm(message: string): Promise<boolean> {
+    async confirm(message: string): Promise<boolean | undefined> {
+        if (ci.isCI) return undefined
         return await this.userInputQueue.add(() => shellConfirm(message))
     }
 }
