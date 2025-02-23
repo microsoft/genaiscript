@@ -101,7 +101,7 @@ export function resolveSystems(
     if (responseSchema && !responseType) systems.push("system.output_json")
 
     // Include tools-related systems if specified in the script
-    if (tools.length) {
+    if (tools.length || resolvedTools?.length) {
         systems.push("system.tools")
         // Resolve and add each tool's systems based on its definition in the project
         tools.forEach((tool) =>

@@ -1,12 +1,15 @@
 // Importing utility functions and constants from other files
-import { logVerbose, strcmp } from "./util" // String comparison function
-import { defaultPrompts } from "./default_prompts" // Default prompt data
+import { logVerbose, logWarn, strcmp } from "./util" // String comparison function
 import { parsePromptScript } from "./template" // Function to parse scripts
 import { readText } from "./fs" // Function to read text from a file
-import { BUILTIN_PREFIX } from "./constants" // Constants for MIME types and prefixes
+import { GENAI_ANYTS_REGEX } from "./constants" // Constants for MIME types and prefixes
 import { Project } from "./server/messages"
 import { resolveSystems } from "./systems"
 import { resolveScriptParametersSchema } from "./vars"
+import { dirname, join, resolve } from "node:path"
+import { fileURLToPath } from "node:url"
+import { readdir } from "node:fs/promises"
+import { uniq } from "es-toolkit"
 
 /**
  * Converts a string to a character position represented as [row, column].
@@ -30,25 +33,44 @@ export async function parseProject(options: { scriptFiles: string[] }) {
     const prj: Project = {
         scripts: [],
         diagnostics: [],
-    } // Initialize a new project instance
-
-    // Clone the default prompts
-    const deflPr: Record<string, string> = Object.assign({}, defaultPrompts)
-
+    }
+    const genaisrcDir = resolve(
+        join(
+            dirname(dirname(__filename ?? fileURLToPath(import.meta.url))),
+            "genaisrc"
+        )
+    ) // ignore esbuild warning
+    const systemPrompts = await (
+        await readdir(genaisrcDir)
+    ).filter((f) => GENAI_ANYTS_REGEX.test(f))
     // Process each script file, parsing its content and updating the project
-    for (const f of scriptFiles) {
-        const tmpl = await parsePromptScript(f, await readText(f), prj)
+    const scripts: Record<string, PromptScript> = {}
+    for (const fn of systemPrompts) {
+        const f = join(genaisrcDir, fn)
+        const tmpl = await parsePromptScript(f, await readText(f))
         if (!tmpl) {
-            logVerbose(`skipping invalid script file: ${f}`)
+            logWarn(`skipping invalid system script: ${fn}`)
             continue
         } // Skip if no template is parsed
-        delete deflPr[tmpl.id] // Remove the parsed template from defaults
         prj.scripts.push(tmpl) // Add to project templates
+        scripts[tmpl.id] = tmpl
     }
 
-    // Add remaining default prompts to the project
-    for (const [id, v] of Object.entries(deflPr)) {
-        prj.scripts.push(await parsePromptScript(BUILTIN_PREFIX + id, v, prj))
+    for (const f of uniq(scriptFiles).filter(
+        (f) => resolve(dirname(f)) !== genaisrcDir
+    )) {
+        const tmpl = await parsePromptScript(f, await readText(f))
+        if (!tmpl) {
+            logWarn(`skipping invalid script ${f}`)
+            continue
+        } // Skip if no template is parsed
+        if (scripts[tmpl.id]) {
+            logWarn(`duplicate script '${tmpl.id}' (${f})`)
+            logVerbose(`  already defined in ${scripts[tmpl.id].filename}`)
+            continue
+        }
+        prj.scripts.push(tmpl) // Add t
+        scripts[tmpl.id] = tmpl
     }
 
     /**

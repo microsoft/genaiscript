@@ -1,6 +1,5 @@
 import * as vscode from "vscode"
 import { ExtensionState } from "./state"
-import { builtinPromptUri } from "./markdowndocumentprovider"
 import { templatesToQuickPickItems } from "./fragmentcommands"
 import { registerCommand } from "./commands"
 import { createScript } from "../../core/src/scripts"
@@ -67,9 +66,7 @@ export function activatePromptCommands(state: ExtensionState) {
         registerCommand(
             "genaiscript.prompt.navigate",
             async (prompt: PromptScript) => {
-                const uri = prompt.filename
-                    ? host.toUri(prompt.filename)
-                    : builtinPromptUri(prompt.id)
+                const uri = host.toUri(prompt.filename)
                 await vscode.window.showTextDocument(uri)
             }
         )

@@ -4,13 +4,10 @@
  * data types and formats.
  */
 
-import { Project } from "./server/messages"
-import { BUILTIN_PREFIX, GENAI_ANY_REGEX, PROMPTY_REGEX } from "./constants"
-import { errorMessage } from "./error"
+import { GENAI_ANY_REGEX, PROMPTY_REGEX } from "./constants"
 import { host } from "./host"
 import { JSON5TryParse } from "./json5"
 import { humanize } from "inflection"
-import { validateSchema } from "./schema"
 import { promptyParse, promptyToGenAIScript } from "./prompty"
 
 /**
@@ -76,11 +73,7 @@ function parsePromptScriptTools(jsSource: string) {
  * @param finalizer - Finalizer function to perform additional validation.
  * @returns The parsed PromptScript or undefined in case of errors.
  */
-async function parsePromptTemplateCore(
-    filename: string,
-    content: string,
-    prj: Project
-) {
+async function parsePromptTemplateCore(filename: string, content: string) {
     const r = {
         id: templateIdFromFileName(filename),
         title: humanize(
@@ -88,8 +81,7 @@ async function parsePromptTemplateCore(
         ),
         jsSource: content,
     } as PromptScript
-    if (!filename.startsWith(BUILTIN_PREFIX))
-        r.filename = host.path.resolve(filename)
+    r.filename = host.path.resolve(filename)
     const meta = parsePromptScriptMeta(r.jsSource)
     Object.assign(r, meta)
     return r
@@ -103,11 +95,7 @@ async function parsePromptTemplateCore(
  * @param prj - The Project instance containing diagnostics.
  * @returns The parsed PromptScript or undefined in case of errors.
  */
-export async function parsePromptScript(
-    filename: string,
-    content: string,
-    prj: Project
-) {
+export async function parsePromptScript(filename: string, content: string) {
     let text: string = undefined
     if (PROMPTY_REGEX.test(filename)) {
         text = content
@@ -115,7 +103,7 @@ export async function parsePromptScript(
         content = await promptyToGenAIScript(doc)
     }
 
-    const script = await parsePromptTemplateCore(filename, content, prj)
+    const script = await parsePromptTemplateCore(filename, content)
     if (text) script.text = text
     return script
 }
