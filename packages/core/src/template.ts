@@ -4,11 +4,7 @@
  * data types and formats.
  */
 
-import {
-    BUILTIN_SCRIPT_PREFIX,
-    GENAI_ANY_REGEX,
-    PROMPTY_REGEX,
-} from "./constants"
+import { GENAI_ANY_REGEX, PROMPTY_REGEX } from "./constants"
 import { host } from "./host"
 import { JSON5TryParse } from "./json5"
 import { humanize } from "inflection"
@@ -85,9 +81,7 @@ async function parsePromptTemplateCore(filename: string, content: string) {
         ),
         jsSource: content,
     } as PromptScript
-    if (!filename.startsWith(BUILTIN_SCRIPT_PREFIX)) {
-        r.filename = host.path.resolve(filename)
-    }
+    r.filename = host.path.resolve(filename)
     const meta = parsePromptScriptMeta(r.jsSource)
     Object.assign(r, meta)
     return r

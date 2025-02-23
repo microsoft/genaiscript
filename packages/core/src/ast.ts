@@ -1,7 +1,6 @@
 /// <reference path="./types/prompt_template.d.ts" />
 // Import necessary regular expressions for file type detection and host utilities
 import {
-    BUILTIN_SCRIPT_PREFIX,
     GENAI_ANYJS_REGEX,
     GENAI_ANYTS_REGEX,
     PROMPTY_REGEX,
@@ -70,7 +69,6 @@ export function collectFolders(prj: Project) {
         (t) => t.filename && !PROMPTY_REGEX.test(t.filename)
     )) {
         const dirname = host.path.dirname(t.filename) // Get directory name from the filename
-        if ((dirname + "/").startsWith(BUILTIN_SCRIPT_PREFIX)) continue
         const folder = folders[dirname] || (folders[dirname] = { dirname })
         folder.js = folder.js || GENAI_ANYJS_REGEX.test(t.filename) // Check for presence of JS files
         folder.ts = folder.ts || GENAI_ANYTS_REGEX.test(t.filename) // Check for presence of TS files

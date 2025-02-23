@@ -2,7 +2,7 @@
 import { logVerbose, logWarn, strcmp } from "./util" // String comparison function
 import { parsePromptScript } from "./template" // Function to parse scripts
 import { readText } from "./fs" // Function to read text from a file
-import { BUILTIN_SCRIPT_PREFIX, GENAI_ANYTS_REGEX } from "./constants" // Constants for MIME types and prefixes
+import { GENAI_ANYTS_REGEX } from "./constants" // Constants for MIME types and prefixes
 import { Project } from "./server/messages"
 import { resolveSystems } from "./systems"
 import { resolveScriptParametersSchema } from "./vars"
@@ -47,12 +47,9 @@ export async function parseProject(options: { scriptFiles: string[] }) {
     const scripts: Record<string, PromptScript> = {}
     for (const fn of systemPrompts) {
         const f = join(genaisrcDir, fn)
-        const tmpl = await parsePromptScript(
-            BUILTIN_SCRIPT_PREFIX + fn,
-            await readText(f)
-        )
+        const tmpl = await parsePromptScript(f, await readText(f))
         if (!tmpl) {
-            logWarn(`skipping invalid system scruipt: ${fn}`)
+            logWarn(`skipping invalid system script: ${fn}`)
             continue
         } // Skip if no template is parsed
         prj.scripts.push(tmpl) // Add to project templates
