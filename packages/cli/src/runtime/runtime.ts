@@ -1,4 +1,4 @@
-/// <reference path="../../core/src/types/prompt_type.d.ts" />
+/// <reference path="../../../core/src/types/prompt_type.d.ts" />
 
 /**
  * GenAIScript supporting runtime
