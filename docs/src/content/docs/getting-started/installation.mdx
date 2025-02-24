@@ -119,8 +119,8 @@ in your repository and using the manual installation steps.
 GenAIScript launches a node server in the default terminal. If the default terminal is not configured
 or does not support node.js, you may need to update it in your user/workspace settings.
 
--   Open command palette `Ctrl+Shift+P` and search for `Terminal: Select Default Profile`.
--   Select the terminal profile like **Git Bash**
+- Open command palette `Ctrl+Shift+P` and search for `Terminal: Select Default Profile`.
+- Select the terminal profile like **Git Bash**
 
 ### Manual Installation (Advanced)
 
@@ -141,12 +141,12 @@ Download the `genaiscript.vsix` into your project root folder
 
 <FileTree>
 
--   ...
--   .genaiscript/ folder created by the extension to store supporting files
-    -   cache/ various cache files
-    -   retrieval/ retrieval database caches
-    -   ... supporting files
--   **genaiscript.vsix**
+- ...
+- .genaiscript/ folder created by the extension to store supporting files
+    - cache/ various cache files
+    - retrieval/ retrieval database caches
+    - ... supporting files
+- **genaiscript.vsix**
 
 </FileTree>
 
@@ -180,32 +180,13 @@ from any terminal.
 npx genaiscript run my-script some/path/*.pdf
 ```
 
-`npx` will automatically install and cache the CLI. You can also add it as a `devDependency` to your project.
+`npx` will automatically install and cache the CLI. 
 
-```sh
-npm install -D genaiscript
-```
+:::tip
 
-:::note
-
-While most examples in the documentation assume you are using the Visual Studio Code extension,
-the command line tool lets you use GenAiScript from any editor as well.
+**npx can be slow**. Learn how to install locally in the [cli reference](/genaiscript/reference/cli/).
 
 :::
-
-:::note
-
-Some optional packages used by the CLI do not support an installation behind an HTTP proxy, which is very common in an enterprise setting.
-
-If your work environment requires going through a proxy, you should use `npm install --omit=optional` to have optional packages fail gracefully during the installation.
-
-:::
-
-:::note
-
-If your work environment requires going through a proxy, you can set one of the following environment variables (`HTTP_PROXY`, `HTTPS_PROXY`, `http_proxy` or `https_proxy`) to have the CLI use a proxy, e.g. `HTTP_PROXY=http://proxy.acme.com:3128`.
-:::
-
 
 ## Next steps
 

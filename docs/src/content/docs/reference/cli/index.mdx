@@ -72,29 +72,42 @@ npx --yes genaiscript ...
 npx --yes genaiscript@^1.16.0 ...
 ```
 
-- Install the CLI globally using `npm`.
+## Helper scripts
 
-```sh "-g"
-npm install -g genaiscript
+To make sure that the TypeScript definition files are written and updated,
+you can add the following scripts to your `package.json`.
+
+```json title="package.json"
+{
+    "scripts": {
+        "postinstall": "genaiscript scripts fix",
+        "postupdate": "genaiscript scripts fix",
+        "genaiscript": "genaiscript"
+    }
+}
 ```
 
-then run the CLI
+The `genaiscript` is also a shorthand script that makes it easier to invoke the CLI
+using `npm run`:
 
 ```sh
-genaiscript ...
+npm run genaiscript ...
 ```
 
-- Install the CLI locally using `npm`.
+### Working behind a Proxy
 
-```sh
-npm install --save-dev genaiscript
-```
+Some optional packages used by the CLI do not support an installation behind an HTTP proxy,
+which is very common in an enterprise setting.
 
-then run the CLI
+If your work environment requires going through a proxy,
+you should use `npm install --omit=optional`
+to have optional packages fail gracefully during the installation.
 
-```sh
-npx genaiscript ...
-```
+If your work environment requires going through a proxy,
+you can set one of the following environment variables
+(`HTTP_PROXY`, `HTTPS_PROXY`, `http_proxy` or `https_proxy`) to have the CLI use a proxy,
+e.g. `HTTP_PROXY=http://proxy.acme.com:3128`.
+
 
 ## Configuration
 
