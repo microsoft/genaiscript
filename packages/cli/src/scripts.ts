@@ -16,8 +16,8 @@ import {
     filterScripts,
     ScriptFilterOptions,
 } from "../../core/src/ast"
-import { YAMLStringify } from "../../core/src/yaml"
 import { deleteEmptyValues } from "../../core/src/cleaners"
+import { dirname } from "node:path"
 
 /**
  * Lists all the scripts in the project.
@@ -55,11 +55,15 @@ export async function listScripts(
  * Calls core function to create a script and copies prompt definitions.
  * Compiles all scripts immediately after creation.
  */
-export async function createScript(name: string) {
+export async function createScript(
+    name: string,
+    options: { typescript: boolean }
+) {
+    const { typescript } = options
     const t = coreCreateScript(name) // Call core function to create a script
-    const pr = await copyPrompt(t, { fork: true, name }) // Copy prompt definitions
+    const pr = await copyPrompt(t, { fork: true, name, typescript }) // Copy prompt definitions
     console.log(`created script at ${pr}`) // Notify the location of the created script
-    await compileScript([]) // Compile all scripts immediately after creation
+    await compileScript([dirname(pr)]) // Compile all scripts immediately after creation
 }
 
 /**

@@ -65,12 +65,51 @@ script({
 ...
 ```
 
+### Tasks
+
+The GenAIScript extension exposes each script as a [Task](https://code.visualstudio.com/docs/editor/tasks) automatically.
+
+The task launches the [cli](/genaiscript/reference/cli) and runs the selected script and pass the path to the current opened editor.
+
+- Open the command palette `Ctrl+Shift+P` and search "Tasks: Run Task"
+- Select the `genaiscript` task provider
+- Select the script you want to run
+
+:::note
+
+When running a script as a task, the result will not be visible in the GenAIScript trace window.
+
+:::
+
+### Analyze results
+
+By default, GenAIScript opens the output preview which shows a rendered view
+of the LLM output (assuming the LLM produces markdown).
+
+The GenAIScript view provides an overview of the trace of the latest run.
+
+You can also use the **Trace** to review the each transformation
+step of the script execution.
+
+- Click on the GenAIScript status bar icon to various options to
+  investigate results.
+
+![A code editor displaying a JSON array with city data, including names, populations, and Wikipedia URLs. A toolbar at the top shows options like "Retry," "Output," and "Trace." The bottom right corner indicates "150 tokens."](../../../assets/vscode-statusbar-trace.png)
+
 ## Command Line
 
 Start by creating a script using the [command line](/genaiscript/reference/cli).
 
+- JavaScript
+
 ```sh
 npx genaiscript scripts create proofreader
+```
+
+- TypeScript "--typescript"
+
+```sh
+npx genaiscript scripts create proofreader --typescript
 ```
 
 The `scripts create` command also drops a TypeScript definition file (`genaiscript.d.ts` and `tsconfig.json`) to enable type checking and auto-completion
@@ -105,33 +144,13 @@ npm install -g genaiscript
 
 :::
 
-## Tasks
+You can start a [playground](/genaiscript/reference/cli/playground)
+to interactively run scripts through a similar web interface
+as the Visual Studio Code extension.
 
-The GenAIScript extension exposes each script as a [Task](https://code.visualstudio.com/docs/editor/tasks) automatically.
-
-The task launches the [cli](/genaiscript/reference/cli) and runs the selected script and pass the path to the current opened editor.
-
-- Open the command palette `Ctrl+Shift+P` and search "Tasks: Run Task"
-- Select the `genaiscript` task provider
-- Select the script you want to run
-
-:::note
-
-When running a script as a task, the result will not be visible in the GenAIScript trace window.
-
-:::
-
-## Analyze results
-
-By default, GenAIScript opens the output preview which shows a rendered view of the LLM output (assuming the LLM produces markdown).
-
-The GenAIScript view provides an overview of the trace of the latest run.
-
-You can also use the **Trace** to review the each transformation step of the script execution.
-
-- Click on the GenAIScript status bar icon and select **Trace**
-
-![A code editor displaying a JSON array with city data, including names, populations, and Wikipedia URLs. A toolbar at the top shows options like "Retry," "Output," and "Trace." The bottom right corner indicates "150 tokens."](../../../assets/vscode-statusbar-trace.png)
+```sh
+npx genaiscript serve
+```
 
 ## Next steps
 
