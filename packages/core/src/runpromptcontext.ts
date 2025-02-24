@@ -954,12 +954,7 @@ export function createChatGenerationContext(
                 }
             }
 
-            const systemScripts = resolveSystems(
-                prj,
-                runOptions ?? {},
-                tools,
-                genOptions
-            )
+            const systemScripts = resolveSystems(prj, runOptions ?? {}, tools)
             if (
                 addFallbackToolSystems(
                     systemScripts,
@@ -982,6 +977,11 @@ export function createChatGenerationContext(
                                 `system template ${systemId} not found`
                             )
                         runTrace.startDetails(`👾 ${system.id}`)
+                        if (systemId.parameters)
+                            runTrace.detailsFenced(
+                                `parameters`,
+                                YAMLStringify(systemId.parameters)
+                            )
                         const sysr = await callExpander(
                             prj,
                             system,

@@ -21,9 +21,8 @@ export function resolveSystems(
     script: PromptSystemOptions &
         ModelOptions &
         ContentSafetyOptions & { jsSource?: string },
-    resolvedTools?: ToolCallback[],
-    options?: GenerationOptions
-): string[] {
+    resolvedTools?: ToolCallback[]
+): SystemPromptInstance[] {
     const { jsSource, responseType, responseSchema, systemSafety } = script
     // Initialize systems array from script.system, converting to array if necessary using arrayify utility
     let systems = arrayify(script.system)
@@ -117,22 +116,30 @@ export function resolveSystems(
     // Return a unique list of non-empty systems
     // Filters out duplicates and empty entries using unique utility
     const res = uniq(systems)
-    return res
+
+    // now compute system instances
+    const systemInstances: SystemPromptInstance[] = [
+        ...res.map((id) => ({ id })),
+        ...arrayify(script.systemInstances),
+    ]
+
+    return systemInstances
 }
 
 export function addFallbackToolSystems(
-    systems: string[],
+    systems: SystemPromptInstance[],
     tools: ToolCallback[],
     options?: ModelOptions,
     genOptions?: GenerationOptions
 ) {
-    if (!tools?.length || systems.includes("system.tool_calls")) return false
+    if (!tools?.length || systems.find(({ id }) => id === "system.tool_calls"))
+        return false
 
     const fallbackTools =
         isToolsSupported(options?.model || genOptions?.model) === false ||
         options?.fallbackTools ||
         genOptions?.fallbackTools
-    if (fallbackTools) systems.push("system.tool_calls")
+    if (fallbackTools) systems.push({ id: "system.tool_calls" })
     return fallbackTools
 }
 

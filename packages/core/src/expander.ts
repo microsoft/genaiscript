@@ -189,7 +189,7 @@ export async function expandTemplate(
     const lineNumbers =
         options.lineNumbers ??
         template.lineNumbers ??
-        resolveSystems(prj, template, undefined, options)
+        resolveSystems(prj, template, undefined)
             .map((s) => resolveScript(prj, s))
             .some((t) => t?.lineNumbers)
     const temperature =
@@ -298,7 +298,7 @@ export async function expandTemplate(
         trace.fence(content, "markdown")
     }
 
-    const systems = resolveSystems(prj, template, tools, options)
+    const systems = await resolveSystems(prj, template, tools)
     if (systems.length)
         if (messages[0].role === "system")
             // there's already a system message. add empty before

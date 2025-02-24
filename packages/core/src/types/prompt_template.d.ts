@@ -81,7 +81,7 @@ interface PromptLike extends PromptDefinition, PromptToolsDefinition {
     /**
      * Resolved system ids
      */
-    resolvedSystem?: string[]
+    resolvedSystem?: SystemPromptInstance[]
 
     /**
      * Infered input schema for parameters
@@ -90,6 +90,11 @@ interface PromptLike extends PromptDefinition, PromptToolsDefinition {
 }
 
 type SystemPromptId = OptionsOrString<string>
+
+type SystemPromptInstance = {
+    id: SystemPromptId
+    parameters?: Record<string, string | number | boolean>
+}
 
 type SystemToolId = OptionsOrString<string>
 
@@ -402,6 +407,11 @@ interface PromptSystemOptions {
      * List of system to exclude from the prompt.
      */
     excludedSystem?: ElementOrArray<SystemPromptId>
+
+    /**
+     * Additional system prompts with custom parameters or variables.
+     */
+    systemInstances?: ElementOrArray<SystemPromptInstance>
 }
 
 interface ScriptRuntimeOptions extends LineNumberingOptions {
