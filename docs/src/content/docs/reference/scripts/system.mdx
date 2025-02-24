@@ -1358,7 +1358,16 @@ Tools to query a git repository.
 system({
     title: "git diff",
     description: "Tools to query a git repository.",
+    parameters: {
+        cwd: {
+            type: "string",
+            description: "Current working directory",
+        },
+    },
 })
+
+const cwd = env.vars["system.git_diff.cwd"]
+const client = cwd ? git.client(cwd) : git
 
 defTool(
     "git_diff",
@@ -1403,7 +1412,7 @@ defTool(
     },
     async (args) => {
         const { context, ...rest } = args
-        const res = await git.diff({
+        const res = await client.diff({
             llmify: true,
             ...rest,
         })
@@ -1426,12 +1435,23 @@ Git repository information
 `````js wrap title="system.git_info"
 system({
     title: "Git repository information",
+    parameters: {
+        cwd: {
+            type: "string",
+            description: "Current working directory",
+        },
+    },
 })
 
-const branch = await git.branch()
-const defaultBranch = await git.defaultBranch()
+const cwd = env.vars["system.git_info.cwd"]
+console.log({ cwd })
+const client = cwd ? git.client(cwd) : git
 
-$`git: The current branch is ${branch} and the default branch is ${defaultBranch}.`
+const branch = await client.branch()
+const defaultBranch = await client.defaultBranch()
+
+$`## Git
+The current branch is ${branch} and the default branch is ${defaultBranch} ${cwd ? `in ${cwd}` : ""}.`
 
 `````
 

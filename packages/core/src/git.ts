@@ -8,7 +8,7 @@ import { resolveFileContents } from "./file"
 import { readText } from "./fs"
 import { host, runtimeHost } from "./host"
 import { shellParse } from "./shell"
-import { arrayify, dotGenaiscriptPath } from "./util"
+import { arrayify, dotGenaiscriptPath, logVerbose } from "./util"
 import { estimateTokens, truncateTextToTokens } from "./tokens"
 import { resolveTokenEncoder } from "./encoders"
 import { underscore } from "inflection"
@@ -389,6 +389,7 @@ ${await this.diff({ ...options, nameOnly: true })}
             sha
         )
         if (branch) directory = host.path.join(directory, branch)
+        logVerbose(`git: shallow cloning ${repository} to ${directory}`)
         if (await checkDirectoryExists(directory)) {
             if (!force) return new GitClient(directory)
             await rm(directory, { recursive: true, force: true })

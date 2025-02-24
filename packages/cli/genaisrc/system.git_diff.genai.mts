@@ -1,7 +1,16 @@
 system({
     title: "git diff",
     description: "Tools to query a git repository.",
+    parameters: {
+        cwd: {
+            type: "string",
+            description: "Current working directory",
+        },
+    },
 })
+
+const cwd = env.vars["system.git_diff.cwd"]
+const client = cwd ? git.client(cwd) : git
 
 defTool(
     "git_diff",
@@ -46,7 +55,7 @@ defTool(
     },
     async (args) => {
         const { context, ...rest } = args
-        const res = await git.diff({
+        const res = await client.diff({
             llmify: true,
             ...rest,
         })
