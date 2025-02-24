@@ -216,7 +216,8 @@ Options:
 Commands:
   list [options] [script...]  List all available scripts in workspace
   create <name>               Create a new script
-  fix                         fix all definition files
+  fix [options]               Write TypeScript definition files in the script
+                              folder to enable type checking.
   compile [folders...]        Compile all scripts in workspace
   model [options] [script]    List model connection information for scripts
   help [command]              display help for command
@@ -257,10 +258,11 @@ Options:
 ```
 Usage: genaiscript scripts fix [options]
 
-fix all definition files
+Write TypeScript definition files in the script folder to enable type checking.
 
 Options:
-  -h, --help  display help for command
+  -t, --typescript  Generate TypeScript file (.genai.mts)
+  -h, --help        display help for command
 ```
 
 ### `scripts compile`

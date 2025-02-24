@@ -2,7 +2,7 @@
 // including constructing file paths and handling copy operations,
 // with optional forking functionality.
 
-import { GENAI_MJS_EXT, GENAI_SRC } from "./constants" // Import constants for file extensions and source directory
+import { GENAI_MJS_EXT, GENAI_MTS_EXT, GENAI_SRC } from "./constants" // Import constants for file extensions and source directory
 import { host } from "./host" // Import host module for file operations
 import { fileExists, writeText } from "./fs" // Import file system utilities
 
@@ -14,10 +14,12 @@ import { fileExists, writeText } from "./fs" // Import file system utilities
  * @param id - Identifier for the prompt script
  * @returns The file path as a string
  */
-function promptPath(id: string) {
+function promptPath(id: string, options?: { typescript?: boolean }) {
+    const { typescript } = options || {}
     const prompts = host.resolvePath(host.projectFolder(), GENAI_SRC) // Resolve base prompt directory
     if (id === null) return prompts // Return base path if id is not provided
-    return host.resolvePath(prompts, id + GENAI_MJS_EXT) // Construct full path if id is provided
+    const ext = typescript ? GENAI_MTS_EXT : GENAI_MJS_EXT
+    return host.resolvePath(prompts, id + ext) // Construct full path if id is provided
 }
 
 /**
@@ -33,7 +35,7 @@ function promptPath(id: string) {
  */
 export async function copyPrompt(
     t: PromptScript,
-    options: { fork: boolean; name?: string }
+    options: { fork: boolean; name?: string; typescript?: boolean }
 ) {
     // Ensure the prompt directory exists
     await host.createDirectory(promptPath(null))
@@ -46,7 +48,7 @@ export async function copyPrompt(
     if (options.fork && (await fileExists(fn))) {
         let suff = 2
         for (;;) {
-            fn = promptPath(n + "_" + suff) // Construct new name with suffix
+            fn = promptPath(n + "_" + suff, options) // Construct new name with suffix
             if (await fileExists(fn)) {
                 // Check if file already exists
                 suff++

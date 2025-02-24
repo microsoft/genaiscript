@@ -338,7 +338,10 @@ export async function cli() {
         .action(createScript) // Action to create a script
     scripts
         .command("fix")
-        .description("fix all definition files")
+        .description(
+            "Write TypeScript definition files in the script folder to enable type checking."
+        )
+        .option("-t, --typescript", "Generate TypeScript file (.genai.mts)")
         .action(fixScripts) // Action to fix scripts
     scripts
         .command("compile")
