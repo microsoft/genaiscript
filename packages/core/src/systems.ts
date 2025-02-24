@@ -25,7 +25,11 @@ export function resolveSystems(
 ): SystemPromptInstance[] {
     const { jsSource, responseType, responseSchema, systemSafety } = script
     // Initialize systems array from script.system, converting to array if necessary using arrayify utility
-    let systems = arrayify(script.system)
+    let systems = arrayify(script.system).filter((s) => typeof s === "string")
+    const systemInstances = arrayify(script.system).filter(
+        (s) => typeof s === "object"
+    )
+
     const excludedSystem = arrayify(script.excludedSystem)
     const tools = arrayify(script.tools)
     const dataMode =
@@ -115,12 +119,12 @@ export function resolveSystems(
 
     // Return a unique list of non-empty systems
     // Filters out duplicates and empty entries using unique utility
-    const res = uniq(systems)
+    systems = uniq(systems)
 
     // now compute system instances
-    const systemInstances: SystemPromptInstance[] = [
-        ...res.map((id) => ({ id })),
-        ...arrayify(script.systemInstances),
+    const res: SystemPromptInstance[] = [
+        ...systems.map((id) => ({ id })),
+        ...systemInstances,
     ]
 
     return systemInstances

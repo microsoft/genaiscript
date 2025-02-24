@@ -396,7 +396,7 @@ interface PromptSystemOptions {
     /**
      * List of system script ids used by the prompt.
      */
-    system?: ElementOrArray<SystemPromptId>
+    system?: ElementOrArray<SystemPromptId | SystemPromptInstance>
 
     /**
      * List of tools used by the prompt.
@@ -407,11 +407,6 @@ interface PromptSystemOptions {
      * List of system to exclude from the prompt.
      */
     excludedSystem?: ElementOrArray<SystemPromptId>
-
-    /**
-     * Additional system prompts with custom parameters or variables.
-     */
-    systemInstances?: ElementOrArray<SystemPromptInstance>
 }
 
 interface ScriptRuntimeOptions extends LineNumberingOptions {
