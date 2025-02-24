@@ -291,10 +291,10 @@
   resolved "https://registry.yarnpkg.com/@chevrotain/utils/-/utils-11.0.3.tgz#e39999307b102cff3645ec4f5b3665f5297a2224"
   integrity sha512-YslZMgtJUyuMbZ+aKvfF3x1f5liK4mWNxghFRv7jqRR9C3R3fAOGTTKvxXDa2Y1s9zSbcpuO0cAxDYsc9SrXoQ==
 
-"@drauu/core@0.4.2":
-  version "0.4.2"
-  resolved "https://registry.yarnpkg.com/@drauu/core/-/core-0.4.2.tgz#874f441c3d8a3e673c79eabce02aeaff9824e3b9"
-  integrity sha512-kb2DdE8E+5CHESd9887yYFqa1MBSWQeu64qS9/oW70yLSXJS+XCt/QWBcSRzY2mWd6TVugyuq/wRnTNOx5c1/g==
+"@drauu/core@0.4.3":
+  version "0.4.3"
+  resolved "https://registry.yarnpkg.com/@drauu/core/-/core-0.4.3.tgz#2c050ea021b3ee643ff4200e64bbf251507bc316"
+  integrity sha512-MmFKN0DEIS+78wtfag7DiQDuE7eSpHRt4tYh0m8bEUnxbH1v2pieQ6Ir+1WZ3Xxkkf5L5tmDfeYQtCSwUz1Hyg==
 
 "@esbuild/aix-ppc64@0.24.2":
   version "0.24.2"
@@ -826,10 +826,10 @@
   resolved "https://registry.yarnpkg.com/@sindresorhus/merge-streams/-/merge-streams-2.3.0.tgz#719df7fb41766bc143369eaa0dd56d8dc87c9958"
   integrity sha512-LtoMMhxAlorcGhmFYI+LhPgbPZCkgP6ra1YL604EeF6U98pLlQ3iWIGMdWSC+vWmPBWBNgmDBAhnAobLROJmwg==
 
-"@slidev/cli@^51.1.0":
-  version "51.2.2"
-  resolved "https://registry.yarnpkg.com/@slidev/cli/-/cli-51.2.2.tgz#eee874fed68690d81a7d9d1b3f2ebde3b66e05ea"
-  integrity sha512-OT26CoNYAW+UKA7JS/r7yBTSpPTN5dnYUoDuyzHkLI2yFyY4ioeOl/zGq4KBNiEBijo5dkAp4h/KWzXrY2QFPA==
+"@slidev/cli@^51.3.0":
+  version "51.3.0"
+  resolved "https://registry.yarnpkg.com/@slidev/cli/-/cli-51.3.0.tgz#a5df674046ede2afe75e4424ddf3a2f5184a563b"
+  integrity sha512-OPwQihkIqnYvVB1faykesz1QGQD5areOmcEaTmy59djhD5yfCqQEHfh08nXkaDaz9cpo5mhtfLxy8MpZgX1R9g==
   dependencies:
     "@antfu/ni" "^23.3.1"
     "@antfu/utils" "^9.1.0"
@@ -840,14 +840,14 @@
     "@shikijs/markdown-it" "^3.0.0"
     "@shikijs/twoslash" "^3.0.0"
     "@shikijs/vitepress-twoslash" "^3.0.0"
-    "@slidev/client" "51.2.2"
-    "@slidev/parser" "51.2.2"
-    "@slidev/types" "51.2.2"
+    "@slidev/client" "51.3.0"
+    "@slidev/parser" "51.3.0"
+    "@slidev/types" "51.3.0"
     "@unocss/extractor-mdc" "^66.0.0"
     "@unocss/reset" "^66.0.0"
     "@vitejs/plugin-vue" "^5.2.1"
     "@vitejs/plugin-vue-jsx" "^4.1.1"
-    ansis "^3.15.0"
+    ansis "^3.16.0"
     chokidar "^4.0.3"
     cli-progress "^3.12.0"
     connect "^3.7.0"
@@ -892,7 +892,7 @@
     untun "^0.1.3"
     uqr "^0.1.2"
     vite "^6.1.1"
-    vite-plugin-inspect "^10.2.1"
+    vite-plugin-inspect "^11.0.0"
     vite-plugin-remote-assets "^1.0.0"
     vite-plugin-static-copy "^2.2.0"
     vite-plugin-vue-server-ref "^1.0.0"
@@ -901,10 +901,10 @@
     yaml "^2.7.0"
     yargs "^17.7.2"
 
-"@slidev/client@51.2.2":
-  version "51.2.2"
-  resolved "https://registry.yarnpkg.com/@slidev/client/-/client-51.2.2.tgz#1279d309bd2ba78ed261a84af6f62a95324421f8"
-  integrity sha512-h7eMYH4MrmHXfr80VKCdTCcgXyN/eL/ydJOylz+IEcUYYbu8Aeu0hdvT/OCUgboesIKuV5p3kEPeXf/qhEMepw==
+"@slidev/client@51.3.0":
+  version "51.3.0"
+  resolved "https://registry.yarnpkg.com/@slidev/client/-/client-51.3.0.tgz#8d175cd683ed01c9a68afe2f11acb9b6a4e4e288"
+  integrity sha512-HQa0KroWt+uebv/Gpue8Gt6/EyMemQr5Lo24dqWdYbfgLGWBMS7d5ZwiwU2e5jnZ0E4XHBtcyg7bRv35/KmuyQ==
   dependencies:
     "@antfu/utils" "^9.1.0"
     "@iconify-json/carbon" "^1.2.7"
@@ -913,9 +913,9 @@
     "@shikijs/engine-javascript" "^3.0.0"
     "@shikijs/monaco" "^3.0.0"
     "@shikijs/vitepress-twoslash" "^3.0.0"
-    "@slidev/parser" "51.2.2"
+    "@slidev/parser" "51.3.0"
     "@slidev/rough-notation" "^0.1.0"
-    "@slidev/types" "51.2.2"
+    "@slidev/types" "51.3.0"
     "@typescript/ata" "^0.9.7"
     "@unhead/vue" "^1.11.19"
     "@unocss/reset" "^66.0.0"
@@ -932,7 +932,7 @@
     monaco-editor "0.51.0"
     nanotar "^0.2.0"
     pptxgenjs "^3.12.0"
-    prettier "^3.5.1"
+    prettier "^3.5.2"
     recordrtc "^5.6.2"
     shiki "^3.0.0"
     shiki-magic-move "^1.0.1"
@@ -942,13 +942,13 @@
     vue-router "^4.5.0"
     yaml "^2.7.0"
 
-"@slidev/parser@51.2.2":
-  version "51.2.2"
-  resolved "https://registry.yarnpkg.com/@slidev/parser/-/parser-51.2.2.tgz#b28b31e673c2b581fa64983e0baf7aeadc34c6ae"
-  integrity sha512-pW9Fb0QQIo8ExKBiNzN7XX7lav6ZD1Dq+hVYzHn7fk51gxsl9fJKidIpzY1Gi4H3O6fkssWrxMO15IUPgYSw9w==
+"@slidev/parser@51.3.0":
+  version "51.3.0"
+  resolved "https://registry.yarnpkg.com/@slidev/parser/-/parser-51.3.0.tgz#b24304d82ba13cb0efb6daad9e3f1d4ecb2ec857"
+  integrity sha512-9w2O+NQiCSe5n3UZdAc2EEWUf0CZqVgbWQSUFVSuv31QgeGECLeSKamWNbnekc2z67rZ0jvxco1llQ6w444ATA==
   dependencies:
     "@antfu/utils" "^9.1.0"
-    "@slidev/types" "51.2.2"
+    "@slidev/types" "51.3.0"
     yaml "^2.7.0"
 
 "@slidev/rough-notation@^0.1.0":
@@ -967,10 +967,10 @@
     codemirror-theme-vars "^0.1.2"
     prism-theme-vars "^0.2.4"
 
-"@slidev/types@51.2.2":
-  version "51.2.2"
-  resolved "https://registry.yarnpkg.com/@slidev/types/-/types-51.2.2.tgz#f11d8816d2e62fb94228131cb22c0df645366050"
-  integrity sha512-T82catc2Ucz7n13EZLgQwYGMF8flvv7Fen3XupaqfRFMlj4AEgxCX7amEWRMPa5dgOJCmPVK7FILg7U/z3zZjA==
+"@slidev/types@51.3.0":
+  version "51.3.0"
+  resolved "https://registry.yarnpkg.com/@slidev/types/-/types-51.3.0.tgz#7d0c7d94823b9613634b0c2bee838dbfdf6fe258"
+  integrity sha512-iJfX2a1pSGaS2D9boX/YmPJGd2AGmeB5OAzaGqT39bu21ghrfWkg0N9EDIFOAtGGbVQWib7Cgix5Zi+rsZpbxQ==
   dependencies:
     "@antfu/utils" "^9.1.0"
     "@shikijs/markdown-it" "^3.0.0"
@@ -983,7 +983,7 @@
     unocss "^66.0.0"
     unplugin-icons "^22.1.0"
     unplugin-vue-markdown "^28.3.1"
-    vite-plugin-inspect "^10.2.1"
+    vite-plugin-inspect "^11.0.0"
     vite-plugin-remote-assets "^1.0.0"
     vite-plugin-static-copy "^2.2.0"
     vite-plugin-vue-server-ref "^1.0.0"
@@ -1827,7 +1827,7 @@ ansi-styles@^4.0.0:
   dependencies:
     color-convert "^2.0.1"
 
-ansis@^3.14.0, ansis@^3.15.0:
+ansis@^3.16.0:
   version "3.16.0"
   resolved "https://registry.yarnpkg.com/ansis/-/ansis-3.16.0.tgz#5e365fd173133756a01199c77fc9146bb22fb5eb"
   integrity sha512-sU7d/tfZiYrsIAXbdL/CNZld5bCkruzwT5KmqmadCJYxuLxHAOBjidxD5+iLmN/6xEfjcQq1l7OpsiCBlc4LzA==
@@ -1861,6 +1861,11 @@ binary-extensions@^2.0.0:
   version "2.3.0"
   resolved "https://registry.yarnpkg.com/binary-extensions/-/binary-extensions-2.3.0.tgz#f6e14a97858d327252200242d4ccfe522c445522"
   integrity sha512-Ceh+7ox5qe7LJuLHoY0feh3pHuUDHAcRUeyL2VYghZwfpkNIy/+8Ocg0a3UuSoYzavmylwuLWQOf3hl0jjMMIw==
+
+birpc@^2.0.19:
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/birpc/-/birpc-2.2.0.tgz#91670e498ee3ff5739072ecabb5e17b6e564c01a"
+  integrity sha512-1/22obknhoj56PcE+pZPp6AbWDdY55M81/ofpPW3Ltlp9Eh4zoFFLswvZmNpRTb790CY5tsNfgbYeNOqIARJfQ==
 
 brace-expansion@^2.0.1:
   version "2.0.1"
@@ -2589,11 +2594,11 @@ dotenv@^16.4.7:
   integrity sha512-47qPchRCykZC03FhkYAhrvwU4xDBFIj1QPqaarj6mdM/hgUzfPHcpkHJOn3mJAufFeeAxAzeGsr5X0M4k6fLZQ==
 
 drauu@^0.4.2:
-  version "0.4.2"
-  resolved "https://registry.yarnpkg.com/drauu/-/drauu-0.4.2.tgz#9ddeda1a206c7556f687a13ffacb31b6cb6dc026"
-  integrity sha512-wujr8c13hxnpmC/8wh1Ck9+bq9q3svUWBvVxoQUiwNVE4RaeSHbGxfZURwbnoc+5MSKyJyr4mZeUF0bza8MiZQ==
+  version "0.4.3"
+  resolved "https://registry.yarnpkg.com/drauu/-/drauu-0.4.3.tgz#683e8e0bb57a72bce06b9ee3fc1daf28d4e99931"
+  integrity sha512-3pk6ZdfgElrEW+L4C03Xtrr7VVdSmcWlBb8cUj+WUWree2hEN8IE9fxRBL9HYG5gr8hAEXFNB0X263Um1WlYwA==
   dependencies:
-    "@drauu/core" "0.4.2"
+    "@drauu/core" "0.4.3"
 
 duplexer@^0.1.2:
   version "0.1.2"
@@ -4068,10 +4073,10 @@ pptxgenjs@^3.12.0:
     image-size "^1.0.0"
     jszip "^3.7.1"
 
-prettier@^3.5.1:
-  version "3.5.1"
-  resolved "https://registry.yarnpkg.com/prettier/-/prettier-3.5.1.tgz#22fac9d0b18c0b92055ac8fb619ac1c7bef02fb7"
-  integrity sha512-hPpFQvHwL3Qv5AdRvBFMhnKo4tYxp0ReXiPn2bxkiohEX6mBeBwEpBSQTkD458RaaDKQMYSp4hX4UtfUTA5wDw==
+prettier@^3.5.2:
+  version "3.5.2"
+  resolved "https://registry.yarnpkg.com/prettier/-/prettier-3.5.2.tgz#d066c6053200da0234bf8fa1ef45168abed8b914"
+  integrity sha512-lc6npv5PH7hVqozBR7lkBNOGXV9vMwROAPlumdBkX0wTbbzPu/U1hk5yL8p2pt4Xoc+2mkT8t/sow2YrV/M5qg==
 
 prism-theme-vars@^0.2.4:
   version "0.2.5"
@@ -4700,7 +4705,7 @@ unplugin-icons@^22.1.0:
     local-pkg "^1.0.0"
     unplugin "^2.2.0"
 
-unplugin-utils@^0.2.4:
+unplugin-utils@^0.2.0, unplugin-utils@^0.2.4:
   version "0.2.4"
   resolved "https://registry.yarnpkg.com/unplugin-utils/-/unplugin-utils-0.2.4.tgz#56e4029a6906645a10644f8befc404b06d5d24d0"
   integrity sha512-8U/MtpkPkkk3Atewj1+RcKIjb5WBimZ/WSLhhR3w6SsIj8XJuKTacSP8g+2JhfSGw0Cb125Y+2zA/IzJZDVbhA==
@@ -4811,16 +4816,33 @@ vfile@^6.0.0:
     "@types/unist" "^3.0.0"
     vfile-message "^4.0.0"
 
-vite-plugin-inspect@^10.2.1:
-  version "10.2.1"
-  resolved "https://registry.yarnpkg.com/vite-plugin-inspect/-/vite-plugin-inspect-10.2.1.tgz#8e7f6236d1369c347a5286344e512539198d9597"
-  integrity sha512-SO3kz3J4yUCNb/cndtIf1mGSJitnbmxjDSRUr0srqfHf06ry9i9ujHQFU7ZUarlf9HFqXW14VyC70fFojP/fKg==
+vite-dev-rpc@^1.0.7:
+  version "1.0.7"
+  resolved "https://registry.yarnpkg.com/vite-dev-rpc/-/vite-dev-rpc-1.0.7.tgz#e81567c4e5b7e7d8074af56a2120bd0ea61cbdb7"
+  integrity sha512-FxSTEofDbUi2XXujCA+hdzCDkXFG1PXktMjSk1efq9Qb5lOYaaM9zNSvKvPPF7645Bak79kSp1PTooMW2wktcA==
   dependencies:
-    ansis "^3.14.0"
+    birpc "^2.0.19"
+    vite-hot-client "^2.0.4"
+
+vite-hot-client@^2.0.4:
+  version "2.0.4"
+  resolved "https://registry.yarnpkg.com/vite-hot-client/-/vite-hot-client-2.0.4.tgz#db383e0337c758fbabf14dad26f9a1bcb9e9e175"
+  integrity sha512-W9LOGAyGMrbGArYJN4LBCdOC5+Zwh7dHvOHC0KmGKkJhsOzaKbpo/jEjpPKVHIW0/jBWj8RZG0NUxfgA8BxgAg==
+
+vite-plugin-inspect@^11.0.0:
+  version "11.0.0"
+  resolved "https://registry.yarnpkg.com/vite-plugin-inspect/-/vite-plugin-inspect-11.0.0.tgz#7417875e1e17e066847392e018031d47b48ca987"
+  integrity sha512-Q0RDNcMs1mbI2yGRwOzSapnnA6NFO0j88+Vb8pJX0iYMw34WczwKJi3JgheItDhbWRq/CLUR0cs+ajZpcUaIFQ==
+  dependencies:
+    ansis "^3.16.0"
     debug "^4.4.0"
     error-stack-parser-es "^1.0.5"
+    ohash "^2.0.4"
     open "^10.1.0"
-    sirv "^3.0.0"
+    perfect-debounce "^1.0.0"
+    sirv "^3.0.1"
+    unplugin-utils "^0.2.0"
+    vite-dev-rpc "^1.0.7"
 
 vite-plugin-remote-assets@^1.0.0:
   version "1.0.0"
