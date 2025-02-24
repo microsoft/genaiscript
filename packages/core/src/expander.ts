@@ -298,7 +298,7 @@ export async function expandTemplate(
         trace.fence(content, "markdown")
     }
 
-    const systems = await resolveSystems(prj, template, tools)
+    const systems = resolveSystems(prj, template, tools)
     if (systems.length)
         if (messages[0].role === "system")
             // there's already a system message. add empty before
@@ -324,6 +324,7 @@ export async function expandTemplate(
                 throw new Error(`system template ${systems[i]} not found`)
 
             trace.startDetails(`👾 ${system.id}`)
+            TODO
             const sysr = await callExpander(prj, system, env, trace, options)
 
             if (sysr.images) images.push(...sysr.images)
