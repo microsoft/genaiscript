@@ -1442,9 +1442,9 @@ system({
         },
     },
 })
+console.log({ vars: env.vars })
 
 const cwd = env.vars["system.git_info.cwd"]
-console.log({ cwd })
 const client = cwd ? git.client(cwd) : git
 
 const branch = await client.branch()

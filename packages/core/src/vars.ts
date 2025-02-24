@@ -153,6 +153,9 @@ export function mergeEnvVarsWithSystem(
         ])
     )
     const newVars = { ...envVars, ...parameterVars, ...(vars || {}) }
+
+    console.log({ parameters, vars, parameterVars, envVars, newVars })
+
     return { vars: newVars, ...rest }
 }
 
