@@ -335,13 +335,13 @@ export async function cli() {
         .command("create")
         .description("Create a new script")
         .argument("<name>", "Name of the script")
+        .option("-t, --typescript", "Generate TypeScript file (.genai.mts)")
         .action(createScript) // Action to create a script
     scripts
         .command("fix")
         .description(
             "Write TypeScript definition files in the script folder to enable type checking."
         )
-        .option("-t, --typescript", "Generate TypeScript file (.genai.mts)")
         .action(fixScripts) // Action to fix scripts
     scripts
         .command("compile")
