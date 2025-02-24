@@ -23,8 +23,8 @@ In Visual Studio Code, the location where you start running a script determines 
 
 ### Single file
 
--   Right click on a file in the Explorer and select **Run GenAIScript...**.
--   Or right click in a file editor and select **Run GenAIScript...**.
+- Right click on a file in the Explorer and select **Run GenAIScript...**.
+- Or right click in a file editor and select **Run GenAIScript...**.
 
 The `env.files` array will contain a single element with the selected file.
 
@@ -32,7 +32,7 @@ The `env.files` array will contain a single element with the selected file.
 
 ### Folder
 
--   Right click on a folder in the Explorer and select **Run GenAIScript...**s.
+- Right click on a folder in the Explorer and select **Run GenAIScript...**s.
 
 The `env.files` array will contain all nested files under that folder.
 
@@ -67,11 +67,43 @@ script({
 
 ## Command Line
 
+Start by creating a script using the [command line](/genaiscript/reference/cli).
+
+```sh
+npx genaiscript scripts create proofreader
+```
+
+The `scripts create` command also drops a TypeScript definition file (`genaiscript.d.ts` and `tsconfig.json`) to enable type checking and auto-completion
+in your editor. If you need to regenerate the TypeScript definition file, use the `scripts fix`
+
+```sh
+npx genaiscript scripts fix
+```
+
 Use the [run](/genaiscript/reference/cli/run) command to execute a script from the command line.
 
 ```sh
 npx genaiscript run proofreader path/to/files*.md
 ```
+
+:::tip
+
+If you plan to use the [command line](/genaiscript/reference/cli) extensively,
+it's probably best to install it locally as `npx` startup time can be slow.
+
+- as a development dependency
+
+```sh
+npm install -D genaiscript
+```
+
+- as a global package
+
+```sh
+npm install -g genaiscript
+```
+
+:::
 
 ## Tasks
 
@@ -79,9 +111,9 @@ The GenAIScript extension exposes each script as a [Task](https://code.visualstu
 
 The task launches the [cli](/genaiscript/reference/cli) and runs the selected script and pass the path to the current opened editor.
 
--   Open the command palette `Ctrl+Shift+P` and search "Tasks: Run Task"
--   Select the `genaiscript` task provider
--   Select the script you want to run
+- Open the command palette `Ctrl+Shift+P` and search "Tasks: Run Task"
+- Select the `genaiscript` task provider
+- Select the script you want to run
 
 :::note
 
@@ -97,7 +129,7 @@ The GenAIScript view provides an overview of the trace of the latest run.
 
 You can also use the **Trace** to review the each transformation step of the script execution.
 
--   Click on the GenAIScript status bar icon and select **Trace**
+- Click on the GenAIScript status bar icon and select **Trace**
 
 ![A code editor displaying a JSON array with city data, including names, populations, and Wikipedia URLs. A toolbar at the top shows options like "Retry," "Output," and "Trace." The bottom right corner indicates "150 tokens."](../../../assets/vscode-statusbar-trace.png)
 
