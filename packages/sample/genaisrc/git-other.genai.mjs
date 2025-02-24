@@ -12,3 +12,4 @@ const { text } = await runPrompt(`What is the current git repo and branch?`, {
 })
 
 console.log(text)
+if (!text.includes("gh-page")) throw new Error("Expected gh-pages branch")

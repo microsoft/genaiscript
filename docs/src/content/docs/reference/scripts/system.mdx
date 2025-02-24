@@ -1442,16 +1442,20 @@ system({
         },
     },
 })
-console.log({ vars: env.vars })
 
-const cwd = env.vars["system.git_info.cwd"]
-const client = cwd ? git.client(cwd) : git
+export default async function GitInfo(ctx: PromptContext) {
+    const { env } = ctx
+    const { vars } = env
 
-const branch = await client.branch()
-const defaultBranch = await client.defaultBranch()
+    const cwd = vars["system.git_info.cwd"]
+    const client = cwd ? git.client(cwd) : git
 
-$`## Git
+    const branch = await client.branch()
+    const defaultBranch = await client.defaultBranch()
+
+    $`## Git
 The current branch is ${branch} and the default branch is ${defaultBranch} ${cwd ? `in ${cwd}` : ""}.`
+}
 
 `````
 

@@ -101,40 +101,45 @@ export function parsePromptParameters(
 }
 
 export function proxifyEnvVars(res: PromptParameters) {
-    const varsProxy: PromptParameters = new Proxy(res, {
-        get(target: PromptParameters, prop: string) {
-            if ((prop as any) === Object.prototype.toString)
-                return YAMLStringify(
-                    Object.fromEntries(
-                        Object.entries(res).map(([k, v]) => [
-                            normalizeVarKey(k),
-                            v,
-                        ])
+    const varsProxy: PromptParameters = new Proxy(
+        Object.fromEntries(
+            Object.entries(res).map(([k, v]) => [normalizeVarKey(k), v])
+        ),
+        {
+            get(target: PromptParameters, prop: string) {
+                if ((prop as any) === Object.prototype.toString)
+                    return YAMLStringify(
+                        Object.fromEntries(
+                            Object.entries(res).map(([k, v]) => [
+                                normalizeVarKey(k),
+                                v,
+                            ])
+                        )
                     )
+                if (typeof prop === "string")
+                    return target[normalizeVarKey(prop)]
+                return undefined
+            },
+            ownKeys(target: PromptParameters) {
+                return Reflect.ownKeys(target).map((k) =>
+                    normalizeVarKey(k as string)
                 )
-            return typeof prop === "string"
-                ? target[normalizeVarKey(prop)]
-                : undefined
-        },
-        ownKeys(target: PromptParameters) {
-            return Reflect.ownKeys(target).map((k) =>
-                normalizeVarKey(k as string)
-            )
-        },
-        getOwnPropertyDescriptor(target: PromptParameters, prop: string) {
-            const normalizedKey = normalizeVarKey(prop)
-            const value = target[normalizedKey]
-            if (value !== undefined) {
-                return {
-                    enumerable: true,
-                    configurable: false,
-                    writable: false,
-                    value,
+            },
+            getOwnPropertyDescriptor(target: PromptParameters, prop: string) {
+                const normalizedKey = normalizeVarKey(prop)
+                const value = target[normalizedKey]
+                if (value !== undefined) {
+                    return {
+                        enumerable: true,
+                        configurable: true,
+                        writable: false,
+                        value,
+                    }
                 }
-            }
-            return undefined
-        },
-    })
+                return undefined
+            },
+        }
+    )
     return varsProxy
 }
 
@@ -153,8 +158,6 @@ export function mergeEnvVarsWithSystem(
         ])
     )
     const newVars = { ...envVars, ...parameterVars, ...(vars || {}) }
-
-    console.log({ parameters, vars, parameterVars, envVars, newVars })
 
     return { vars: newVars, ...rest }
 }
