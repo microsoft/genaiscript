@@ -31,18 +31,19 @@ import {
 import { GenerationStatus, Project } from "./server/messages"
 import { dispose } from "./dispose"
 import { normalizeFloat, normalizeInt } from "./cleaners"
+import { mergeEnvVarsWithSystem } from "./vars"
 
 export async function callExpander(
     prj: Project,
     r: PromptScript,
-    vars: ExpansionVariables,
+    ev: ExpansionVariables,
     trace: MarkdownTrace,
     options: GenerationOptions
 ) {
     assert(!!options.model)
     const modelId = r.model ?? options.model
+    const ctx = await createPromptContext(prj, ev, trace, options, modelId)
     const { provider } = parseModelIdentifier(modelId)
-    const ctx = await createPromptContext(prj, vars, trace, options, modelId)
 
     let status: GenerationStatus = undefined
     let statusText: string = undefined
@@ -324,8 +325,13 @@ export async function expandTemplate(
                 throw new Error(`system template ${systems[i]} not found`)
 
             trace.startDetails(`👾 ${system.id}`)
-            TODO
-            const sysr = await callExpander(prj, system, env, trace, options)
+            const sysr = await callExpander(
+                prj,
+                system,
+                mergeEnvVarsWithSystem(env, system),
+                trace,
+                options
+            )
 
             if (sysr.images) images.push(...sysr.images)
             if (sysr.schemas) Object.assign(schemas, sysr.schemas)

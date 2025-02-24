@@ -93,7 +93,8 @@ type SystemPromptId = OptionsOrString<string>
 
 type SystemPromptInstance = {
     id: SystemPromptId
-    parameters?: Record<string, string | number | boolean>
+    parameters?: Record<string, string | boolean | number | object | any>
+    vars?: Record<string, string | boolean | number | object | any>
 }
 
 type SystemToolId = OptionsOrString<string>

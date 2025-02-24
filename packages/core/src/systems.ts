@@ -127,7 +127,7 @@ export function resolveSystems(
         ...systemInstances,
     ]
 
-    return systemInstances
+    return res
 }
 
 export function addFallbackToolSystems(

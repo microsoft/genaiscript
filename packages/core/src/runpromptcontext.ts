@@ -83,7 +83,7 @@ import { writeFileEdits } from "./fileedits"
 import { agentAddMemory, agentQueryMemory } from "./agent"
 import { YAMLStringify } from "./yaml"
 import { Project } from "./server/messages"
-import { parametersToVars } from "./vars"
+import { mergeEnvVarsWithSystem, parametersToVars } from "./vars"
 import prettyBytes from "pretty-bytes"
 import { JSONLineCache } from "./cache"
 import { FFmepgClient } from "./ffmpeg"
@@ -982,11 +982,10 @@ export function createChatGenerationContext(
                                 `parameters`,
                                 YAMLStringify(systemId.parameters)
                             )
-                        TODO
                         const sysr = await callExpander(
                             prj,
                             system,
-                            env,
+                            mergeEnvVarsWithSystem(env, systemId),
                             runTrace,
                             genOptions
                         )

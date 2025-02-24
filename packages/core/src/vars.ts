@@ -31,6 +31,13 @@ export function resolveScriptParametersSchema(
     return res
 }
 
+export function systemParameterToVarName(
+    system: SystemPromptInstance,
+    name: string
+) {
+    return `${system.id}.${name}`
+}
+
 export function parsePromptParameters(
     prj: Project,
     script: PromptScript,
@@ -46,7 +53,7 @@ export function parsePromptParameters(
         .map((s) => resolveScript(prj, s))
         .filter((t) => t?.parameters)) {
         Object.entries(system.parameters).forEach(([k, v]) => {
-            parameters[`${system.id}.${k}`] = v
+            parameters[systemParameterToVarName(system, k)] = v
         })
     }
 
@@ -93,7 +100,7 @@ export function parsePromptParameters(
     return Object.freeze(res)
 }
 
-export function proxifyVars(res: PromptParameters) {
+export function proxifyEnvVars(res: PromptParameters) {
     const varsProxy: PromptParameters = new Proxy(res, {
         get(target: PromptParameters, prop: string) {
             if ((prop as any) === Object.prototype.toString)
@@ -129,6 +136,24 @@ export function proxifyVars(res: PromptParameters) {
         },
     })
     return varsProxy
+}
+
+export function mergeEnvVarsWithSystem(
+    ev: ExpansionVariables,
+    system: SystemPromptInstance
+): ExpansionVariables {
+    const { parameters, vars } = system
+    if (!parameters && !vars) return ev
+
+    const { vars: envVars, ...rest } = ev
+    const parameterVars = Object.fromEntries(
+        Object.entries(parameters || {}).map(([k, v]) => [
+            systemParameterToVarName(system, k),
+            v,
+        ])
+    )
+    const newVars = { ...envVars, ...parameterVars, ...(vars || {}) }
+    return { vars: newVars, ...rest }
 }
 
 export function parametersToVars(parameters: PromptParameters): string[] {
