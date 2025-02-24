@@ -103,9 +103,11 @@
     "test": "node --import tsx --test src/**.test.*ts"
   },
   "dependencies": {
+    "@secretlint/node": "^9.2.0",
     "@types/diff": "^6.0.0",
     "@types/turndown": "^5.0.5",
     "pyodide": "^0.27.2",
+    "secretlint": "^9.2.0",
     "turndown": "^7.2.0",
     "turndown-plugin-gfm": "^1.0.2"
   }

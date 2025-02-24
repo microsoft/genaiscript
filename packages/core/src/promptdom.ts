@@ -1352,7 +1352,7 @@ ${trimNewlines(schemaText)}
     return res
 }
 
-export function finalizeMessages(
+export async function finalizeMessages(
     messages: ChatCompletionMessageParam[],
     options: {
         fileOutputs?: FileOutput[]
@@ -1404,7 +1404,7 @@ ${schemaTs}
     if (secretScanning !== false) {
         // this is a bit brutal, but we don't want to miss secrets
         // hidden in fields
-        const secrets = redactSecrets(JSON.stringify(messages), { trace })
+        const secrets = await redactSecrets(JSON.stringify(messages), { trace })
         if (Object.keys(secrets.found).length) {
             const newMessage = JSON.parse(secrets.text)
             messages.splice(0, messages.length, ...newMessage)

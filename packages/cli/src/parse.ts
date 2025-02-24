@@ -225,7 +225,7 @@ export async function parseSecrets(files: string[]) {
     let n = 0
     for (const f of fs) {
         const content = await readText(f)
-        const { found } = redactSecrets(content)
+        const { found } = await redactSecrets(content)
         const entries = Object.entries(found)
         if (entries.length) {
             n++

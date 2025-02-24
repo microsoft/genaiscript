@@ -369,7 +369,7 @@ export async function expandTemplate(
 
     if (options.fallbackTools) addToolDefinitionsMessage(messages, tools)
 
-    const { responseType, responseSchema } = finalizeMessages(messages, {
+    const { responseType, responseSchema } = await finalizeMessages(messages, {
         ...template,
         fileOutputs,
         trace,

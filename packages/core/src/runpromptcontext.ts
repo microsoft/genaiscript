@@ -1041,7 +1041,7 @@ export function createChatGenerationContext(
             if (genOptions.fallbackTools)
                 addToolDefinitionsMessage(messages, tools)
 
-            finalizeMessages(messages, {
+            await finalizeMessages(messages, {
                 ...(runOptions || {}),
                 fileOutputs,
                 trace: runTrace,
