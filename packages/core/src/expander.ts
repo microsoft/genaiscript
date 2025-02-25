@@ -320,15 +320,16 @@ export async function expandTemplate(
                 }
             }
 
-            const system = resolveScript(prj, systems[i])
+            const systemId = systems[i]
+            const system = resolveScript(prj, systemId)
             if (!system)
-                throw new Error(`system template ${systems[i]} not found`)
+                throw new Error(`system template ${systemId.id} not found`)
 
             trace.startDetails(`👾 ${system.id}`)
             const sysr = await callExpander(
                 prj,
                 system,
-                mergeEnvVarsWithSystem(env, system),
+                mergeEnvVarsWithSystem(env, systemId),
                 trace,
                 options
             )

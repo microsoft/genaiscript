@@ -424,13 +424,19 @@ export function createChatGenerationContext(
         options?: DefAgentOptions
     ): void => {
         checkCancelled(cancellationToken)
-        const { tools, system, disableMemory, disableMemoryQuery, ...rest } =
-            options || {}
+        const {
+            nameSuffix,
+            tools,
+            system,
+            disableMemory,
+            disableMemoryQuery,
+            ...rest
+        } = options || {}
         const memory = !disableMemory
 
         name = name.replace(/^agent_/i, "")
-        const agentName = `agent_${name}`
-        const agentLabel = `agent ${name}`
+        const agentName = `agent_${name}${nameSuffix ? "_" + nameSuffix : ""}`
+        const agentLabel = `agent ${name}${nameSuffix ? " " + nameSuffix : ""}`
 
         const agentSystem = uniq([
             "system.assistant",
@@ -467,8 +473,8 @@ export function createChatGenerationContext(
             async (args) => {
                 // the LLM automatically adds extract arguments to the context
                 checkCancelled(cancellationToken)
-                const { context, ...rest } = args
-                const { query, ...argsNoQuery } = rest
+                const { context, ...argsRest } = args
+                const { query, ...argsNoQuery } = argsRest
                 infoCb?.({
                     text: `${agentLabel}: ${query} ${parametersToVars(argsNoQuery)}`,
                 })
@@ -974,7 +980,7 @@ export function createChatGenerationContext(
                         const system = resolveScript(prj, systemId)
                         if (!system)
                             throw new Error(
-                                `system template ${systemId} not found`
+                                `system template ${systemId.id} not found`
                             )
                         runTrace.startDetails(`👾 ${system.id}`)
                         if (systemId.parameters)

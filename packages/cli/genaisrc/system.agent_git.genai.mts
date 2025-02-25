@@ -6,6 +6,16 @@ system({
             description: "Current working directory",
             required: false,
         },
+        repo: {
+            type: "string",
+            description: "Repository URL or GitHub slug",
+            required: false,
+        },
+        branch: {
+            type: "string",
+            description: "Branch to checkout",
+            required: false,
+        },
         variant: {
             type: "string",
             description: "Suffix to append to the agent name",
@@ -14,11 +24,20 @@ system({
     },
 })
 
-export default function defAgentGit(ctx: PromptContext) {
+export default async function defAgentGit(ctx: PromptContext) {
     const { env, defAgent } = ctx
     const { vars } = env
-    const cwd = vars["system.agent_git.cwd"]
+    let cwd = vars["system.agent_git.cwd"]
+    const repo = vars["system.agent_git.repo"]
+    const branch = vars["system.agent_git.branch"]
     const variant = vars["system.agent_git.variant"]
+
+    console.log({ cwd, repo })
+    if (!cwd && repo) {
+        const client = await git.shallowClone(repo, { branch })
+        cwd = client.cwd
+        await client.exec(["fetch", "--all"])
+    }
 
     defAgent(
         "git",
@@ -31,8 +50,8 @@ export default function defAgentGit(ctx: PromptContext) {
         {
             nameSuffix: variant,
             system: [
-                { id: "system.git_info", parameters: { cwd } },
                 "system.github_info",
+                { id: "system.git_info", parameters: { cwd } },
                 { id: "system.git", parameters: { cwd } },
                 { id: "system.git_diff", parameters: { cwd } },
             ],

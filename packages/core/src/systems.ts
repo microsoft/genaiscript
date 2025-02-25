@@ -175,12 +175,16 @@ function resolveSystemFromTools(prj: Project, tool: string): string[] {
  */
 export function resolveTools(
     prj: Project,
-    systems: string[],
+    systems: (string | SystemPromptInstance)[],
     tools: string[]
 ): { id: string; description: string }[] {
     const { scripts: scripts } = prj
     const toolScripts = uniq([
-        ...systems.map((sid) => scripts.find((s) => s.id === sid)),
+        ...systems.map((sys) =>
+            scripts.find((s) =>
+                typeof sys === "string" ? s.id === sys : false
+            )
+        ),
         ...tools.map((tid) =>
             scripts.find((s) => s.defTools?.find((t) => t.id.startsWith(tid)))
         ),
