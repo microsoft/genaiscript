@@ -92,14 +92,14 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
         inner,
     } = options
     const { headers = {}, ...rest } = requestOptions || {}
-    const { provider, family, tag } = parseModelIdentifier(req.model)
+    const { provider, model, family, tag } = parseModelIdentifier(req.model)
     const { encode: encoder } = await resolveTokenEncoder(family)
 
     const postReq = structuredClone({
         ...req,
         stream: true,
         stream_options: { include_usage: true },
-        model: family,
+        model,
         messages: req.messages.map(({ cacheControl, ...rest }) => ({
             ...rest,
         })),
@@ -126,8 +126,10 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
             if (
                 !postReq.reasoning_effort &&
                 ["high", "medium", "low"].includes(tag)
-            )
+            ) {
+                postReq.model = family
                 postReq.reasoning_effort = tag as ChatCompletionReasoningEffort
+            }
         }
 
         if (/^o1/.test(family)) {
