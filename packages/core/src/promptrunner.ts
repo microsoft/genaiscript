@@ -190,7 +190,6 @@ export async function runTemplate(
                 fileEdits: {},
                 fences: [],
                 frames: [],
-                genVars: {},
                 schemas: {},
             } satisfies GenerationResult
         }
@@ -230,7 +229,6 @@ export async function runTemplate(
                 fileEdits: {},
                 fences: [],
                 frames: [],
-                genVars: {},
                 schemas: {},
             } satisfies GenerationResult
         }
@@ -277,7 +275,6 @@ export async function runTemplate(
             json,
             fences,
             frames,
-            genVars = {},
             error,
             finishReason,
             usages,
@@ -342,7 +339,6 @@ export async function runTemplate(
             version,
             fences,
             frames,
-            genVars,
             schemas,
             json,
             choices: chatResult.choices,

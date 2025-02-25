@@ -529,7 +529,6 @@ function assistantText(
 async function structurifyChatSession(
     messages: ChatCompletionMessageParam[],
     schemas: Record<string, JSONSchema>,
-    genVars: Record<string, string>,
     fileOutputs: FileOutput[],
     outputProcessors: PromptOutputProcessorHandler[],
     fileMerges: FileMergeHandler[],
@@ -661,7 +660,6 @@ async function structurifyChatSession(
         frames,
         json,
         error,
-        genVars,
         schemas,
         choices,
         logprobs,
@@ -701,7 +699,6 @@ async function processChatMessage(
     tools: ToolCallback[],
     chatParticipants: ChatParticipant[],
     schemas: Record<string, JSONSchema>,
-    genVars: Record<string, string>,
     fileOutputs: FileOutput[],
     outputProcessors: PromptOutputProcessorHandler[],
     fileMerges: FileMergeHandler[],
@@ -842,7 +839,6 @@ async function processChatMessage(
     return structurifyChatSession(
         messages,
         schemas,
-        genVars,
         fileOutputs,
         outputProcessors,
         fileMerges,
@@ -999,7 +995,6 @@ export async function executeChatSession(
             if (duplicates.length)
                 throw new Error(`duplicate tools: ${duplicates.join(", ")}`)
         }
-        let genVars: Record<string, string>
         while (true) {
             stats.turns++
             collapseChatMessages(messages)
@@ -1117,9 +1112,6 @@ export async function executeChatSession(
                     } else {
                         resp = await infer()
                     }
-
-                    if (resp.variables)
-                        genVars = { ...(genVars || {}), ...resp.variables }
                 } finally {
                     logVerbose("\n")
                     reqTrace.endDetails()
@@ -1132,7 +1124,6 @@ export async function executeChatSession(
                     toolDefinitions,
                     chatParticipants,
                     schemas,
-                    genVars,
                     fileOutputs,
                     outputProcessors,
                     fileMerges,
@@ -1143,7 +1134,6 @@ export async function executeChatSession(
                 return structurifyChatSession(
                     messages,
                     schemas,
-                    genVars,
                     fileOutputs,
                     outputProcessors,
                     fileMerges,

@@ -153,7 +153,6 @@ function chatMessagesToTranformerMessages(
     return messages.map((msg) => {
         switch (msg.role) {
             case "function":
-            case "aici":
             case "tool":
                 throw new NotSupportedError(`role ${msg.role} not supported`)
             default:

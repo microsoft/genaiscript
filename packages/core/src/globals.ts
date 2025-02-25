@@ -116,18 +116,6 @@ export function installGlobals() {
         fromParameters: promptParametersSchemaToJSONSchema,
     })
 
-    // Freeze AICI utilities with a generation function
-    glb.AICI = Object.freeze<AICI>({
-        gen: (options: AICIGenOptions) => {
-            // Validate options
-            return {
-                type: "aici", // Type of generation
-                name: "gen", // Name of the generation function
-                options, // Options for generation
-            }
-        },
-    })
-
     // Freeze HTML utilities
     glb.HTML = Object.freeze<HTML>({
         convertTablesToJSON: HTMLTablesToJSON, // Convert HTML tables to JSON

@@ -6,7 +6,6 @@
 &nbsp;
 - AI Controller 
     -
-    - Example AICI (Microsoft)
     - Controls LLM generation 1 token at a time
     - Enables constraints like JSON format or return a substring of input
     

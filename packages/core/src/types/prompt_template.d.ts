@@ -1641,7 +1641,6 @@ interface RunPromptResult {
     frames?: DataFrame[]
     json?: any
     error?: SerializedError
-    genVars?: Record<string, string>
     schemas?: Record<string, JSONSchema>
     finishReason:
         | "stop"
@@ -2254,60 +2253,6 @@ interface Parsers {
      * @param text
      */
     unthink(text: string): string
-}
-
-interface AICIGenOptions {
-    /**
-     * Make sure the generated text is one of the options.
-     */
-    options?: string[]
-    /**
-     * Make sure the generated text matches given regular expression.
-     */
-    regex?: string | RegExp
-    /**
-     * Make sure the generated text matches given yacc-like grammar.
-     */
-    yacc?: string
-    /**
-     * Make sure the generated text is a substring of the given string.
-     */
-    substring?: string
-    /**
-     * Used together with `substring` - treat the substring as ending the substring
-     * (typically '"' or similar).
-     */
-    substringEnd?: string
-    /**
-     * Store result of the generation (as bytes) into a shared variable.
-     */
-    storeVar?: string
-    /**
-     * Stop generation when the string is generated (the result includes the string and any following bytes (from the same token)).
-     */
-    stopAt?: string
-    /**
-     * Stop generation when the given number of tokens have been generated.
-     */
-    maxTokens?: number
-}
-
-interface AICINode {
-    type: "aici"
-    name: "gen"
-}
-
-interface AICIGenNode extends AICINode {
-    name: "gen"
-    options: AICIGenOptions
-}
-
-interface AICI {
-    /**
-     * Generate a string that matches given constraints.
-     * If the tokens do not map cleanly into strings, it will contain Unicode replacement characters.
-     */
-    gen(options: AICIGenOptions): AICIGenNode
 }
 
 interface YAML {
@@ -3739,11 +3684,6 @@ interface GenerationOutput {
      * A map of file updates
      */
     fileEdits: Record<string, FileUpdate>
-
-    /**
-     * Generated variables, typically from AICI.gen
-     */
-    genVars: Record<string, string>
 
     /**
      * Generated annotations
