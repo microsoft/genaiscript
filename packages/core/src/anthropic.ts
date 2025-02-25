@@ -5,6 +5,7 @@ import {
 } from "./chat"
 import {
     ANTHROPIC_MAX_TOKEN,
+    ANTHROPIC_REASONING_EFFORTS,
     MODEL_PROVIDER_ANTHROPIC,
     MODEL_PROVIDER_ANTHROPIC_BEDROCK,
 } from "./constants"
@@ -344,9 +345,8 @@ const completerFactory = (
         let temperature = req.temperature
         let top_p = req.top_p
         let thinking: Anthropic.ThinkingConfigParam = undefined
-        const budget_tokens = { low: 2048, medium: 8096, high: 16192 }[
-            req.reasoning_effort || tag
-        ]
+        const budget_tokens =
+            ANTHROPIC_REASONING_EFFORTS[req.reasoning_effort || tag]
         let max_tokens = req.max_tokens
         if (budget_tokens && (!max_tokens || max_tokens < budget_tokens))
             max_tokens = budget_tokens + ANTHROPIC_MAX_TOKEN

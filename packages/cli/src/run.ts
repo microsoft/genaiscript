@@ -322,7 +322,15 @@ export async function runScriptInternal(
                 reasoningOutput = true
                 stderr.write(wrapColor(CONSOLE_COLOR_REASONING, reasoningChunk))
             }
-            if (responseChunk !== undefined && responseChunk !== null) {
+            if (
+                responseChunk !== undefined &&
+                responseChunk !== null &&
+                responseChunk !== ""
+            ) {
+                if (reasoningOutput) {
+                    stderr.write("\n")
+                    reasoningOutput = false
+                }
                 if (stream) {
                     if (responseTokens && consoleColors) {
                         const colors = inner
@@ -344,24 +352,25 @@ export async function runScriptInternal(
                     } else {
                         if (!inner) stdout.write(responseChunk)
                         else {
-                            if (reasoningOutput) {
-                                stderr.write("\n")
-                                reasoningOutput = false
-                            }
                             stderr.write(
                                 wrapColor(CONSOLE_COLOR_DEBUG, responseChunk)
                             )
                         }
                     }
                 } else if (!isQuiet) {
-                    if (reasoningOutput) {
-                        stderr.write("\n")
-                        reasoningOutput = false
-                    }
                     stderr.write(wrapColor(CONSOLE_COLOR_DEBUG, responseChunk))
                 }
             }
-        } else if (!isQuiet) {
+        } else if (
+            !isQuiet &&
+            chunk !== undefined &&
+            chunk !== null &&
+            chunk !== ""
+        ) {
+            if (reasoningOutput) {
+                stderr.write("\n")
+                reasoningOutput = false
+            }
             stdout.write(chunk)
         }
     })

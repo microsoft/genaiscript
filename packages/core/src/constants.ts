@@ -376,3 +376,9 @@ export const MAX_FILE_CONTENT_SIZE = 1024 * 1024 * 2 // 2MB
 export const TEST_CSV_ENTRY_SEPARATOR = /[;|\n]/g
 
 export const INVALID_FILENAME_REGEX = /[<>:"/\\|?*\x00-\x1F]+/g
+
+export const ANTHROPIC_REASONING_EFFORTS: Record<string, number> = {
+    low: 2048,
+    medium: 4096,
+    high: 16384,
+}
