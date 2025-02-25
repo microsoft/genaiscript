@@ -3458,9 +3458,14 @@ interface DefToolOptions {
     maxTokens?: number
 
     /**
-     * Suffix to add the tool name identifier;
+     * Suffix to identify the variant instantiation of the tool
      */
-    nameSuffix?: string
+    variant?: string
+
+    /**
+     * Updated description for the variant
+     */
+    variantDescription?: string
 }
 
 interface DefAgentOptions

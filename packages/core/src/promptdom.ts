@@ -1289,14 +1289,14 @@ ${trimNewlines(schemaText)}
         },
         tool: (n) => {
             const { description, parameters, impl: fn, options } = n
-            const { nameSuffix } = options || {}
+            const { variant, variantDescription } = options || {}
             const name = escapeToolName(
-                nameSuffix ? `${n.name}_${nameSuffix}` : n.name
+                variant ? `${n.name}_${variant}` : n.name
             )
             tools.push({
                 spec: {
                     name,
-                    description,
+                    description: variantDescription || description,
                     parameters,
                 },
                 impl: fn,

@@ -7,11 +7,6 @@ system({
             description: "Current working directory",
             required: false,
         },
-        variant: {
-            type: "string",
-            description: "Suffix to append to the tool name",
-            required: false,
-        },
     },
 })
 
@@ -19,7 +14,6 @@ export default async function (ctx: PromptContext) {
     const { env, defTool } = ctx
     const { vars } = env
     const cwd = vars["system.git_diff.cwd"]
-    const nameSuffix = vars["system.git_diff.variant"]
     const client = cwd ? git.client(cwd) : git
 
     defTool(
@@ -73,7 +67,6 @@ export default async function (ctx: PromptContext) {
             return res
         },
         {
-            nameSuffix,
             maxTokens: 20000,
         }
     )

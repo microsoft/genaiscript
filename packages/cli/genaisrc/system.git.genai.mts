@@ -7,11 +7,6 @@ system({
             description: "Current working directory",
             required: false,
         },
-        variant: {
-            type: "string",
-            description: "Suffix to append to the tool name",
-            required: false,
-        },
     },
 })
 
@@ -19,7 +14,6 @@ export default async function (ctx: PromptContext) {
     const { env, defTool } = ctx
     const { vars } = env
     const cwd = vars["system.git.cwd"]
-    const nameSuffix = vars["system.git.variant"]
     const client = cwd ? git.client(cwd) : git
 
     defTool(
@@ -28,8 +22,7 @@ export default async function (ctx: PromptContext) {
         {},
         async () => {
             return await client.defaultBranch()
-        },
-        { nameSuffix }
+        }
     )
 
     defTool(
@@ -38,8 +31,7 @@ export default async function (ctx: PromptContext) {
         {},
         async () => {
             return await client.branch()
-        },
-        { nameSuffix }
+        }
     )
 
     defTool(
@@ -48,8 +40,7 @@ export default async function (ctx: PromptContext) {
         {},
         async () => {
             return await client.exec("branch")
-        },
-        { nameSuffix }
+        }
     )
 
     defTool(
@@ -129,8 +120,7 @@ export default async function (ctx: PromptContext) {
                 .join("\n")
             context.debug(res)
             return res
-        },
-        { nameSuffix }
+        }
     )
 
     defTool(
@@ -142,13 +132,7 @@ export default async function (ctx: PromptContext) {
         }
     )
 
-    defTool(
-        "git_last_tag",
-        "Gets the last tag using client.",
-        {},
-        async () => {
-            return await client.lastTag()
-        },
-        { nameSuffix }
-    )
+    defTool("git_last_tag", "Gets the last tag using client.", {}, async () => {
+        return await client.lastTag()
+    })
 }

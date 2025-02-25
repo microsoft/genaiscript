@@ -425,7 +425,7 @@ export function createChatGenerationContext(
     ): void => {
         checkCancelled(cancellationToken)
         const {
-            nameSuffix,
+            variant,
             tools,
             system,
             disableMemory,
@@ -435,8 +435,8 @@ export function createChatGenerationContext(
         const memory = !disableMemory
 
         name = name.replace(/^agent_/i, "")
-        const agentName = `agent_${name}${nameSuffix ? "_" + nameSuffix : ""}`
-        const agentLabel = `agent ${name}${nameSuffix ? " " + nameSuffix : ""}`
+        const agentName = `agent_${name}${variant ? "_" + variant : ""}`
+        const agentLabel = `agent ${name}${variant ? " " + variant : ""}`
 
         const agentSystem = uniq([
             "system.assistant",
