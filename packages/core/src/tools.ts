@@ -8,6 +8,13 @@ import {
 } from "./constants"
 import { parseModelIdentifier } from "./models"
 
+export function escapeToolName(name: string) {
+    return name
+        .replace(/[^a-zA-Z0-9_-]/g, "_")
+        .replace("-", "_")
+        .replace(/_{2,}/g, "_")
+}
+
 export function isToolsSupported(modelId: string): boolean | undefined {
     if (!modelId) return undefined
     const { provider, family } = parseModelIdentifier(modelId)

@@ -41,6 +41,7 @@ import { trimNewlines } from "./unwrappers"
 import { CancellationOptions } from "./cancellation"
 import { promptParametersSchemaToJSONSchema } from "./parameters"
 import { redactSecrets } from "./secretscanner"
+import { escapeToolName } from "./tools"
 
 // Definition of the PromptNode interface which is an essential part of the code structure.
 export interface PromptNode extends ContextExpansionOptions {
@@ -446,14 +447,14 @@ export function createToolNode(
     assert(!!description)
     assert(parameters !== undefined)
     assert(impl !== undefined)
-    return <PromptToolNode>{
+    return {
         type: "tool",
         name,
         description: dedent(description),
         parameters,
         impl,
         options,
-    }
+    } satisfies PromptToolNode
 }
 
 // Function to create a file merge node.
@@ -1287,7 +1288,11 @@ ${trimNewlines(schemaText)}
                 )
         },
         tool: (n) => {
-            const { name, description, parameters, impl: fn, options } = n
+            const { description, parameters, impl: fn, options } = n
+            const { nameSuffix } = options || {}
+            const name = escapeToolName(
+                nameSuffix ? `${n.name}_${nameSuffix}` : n.name
+            )
             tools.push({
                 spec: {
                     name,

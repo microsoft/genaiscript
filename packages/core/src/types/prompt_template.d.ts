@@ -3456,6 +3456,11 @@ interface DefToolOptions {
      * Maximum number of tokens per tool content response
      */
     maxTokens?: number
+
+    /**
+     * Suffix to add the tool name identifier;
+     */
+    nameSuffix?: string
 }
 
 interface DefAgentOptions extends Omit<PromptGeneratorOptions, "label"> {

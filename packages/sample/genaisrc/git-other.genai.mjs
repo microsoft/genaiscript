@@ -7,7 +7,10 @@ console.log(`git: ${cwd}`)
 
 const { text } = await runPrompt(`What is the current git repo and branch?`, {
     model: "small",
-    system: [{ id: "system.git_info", parameters: { cwd } }],
+    system: [
+        { id: "system.git_info", parameters: { cwd } },
+        { id: "system.git_diff", parameters: { cwd, variant: "gh-pages" } },
+    ],
     label: "git info",
 })
 
