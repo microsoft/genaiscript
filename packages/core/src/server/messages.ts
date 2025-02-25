@@ -14,6 +14,7 @@ export type OpenAIAPIType =
     | "openai"
     | "azure"
     | "localai"
+    | "azure_ai_inference"
     | "azure_serverless"
     | "azure_serverless_models"
     | "alibaba"

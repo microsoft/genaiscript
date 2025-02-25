@@ -177,6 +177,12 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
             "/" +
             family.replace(/\./g, "") +
             `/chat/completions?api-version=${version}`
+    } else if (cfg.type === "azure_ai_inference") {
+        const version = cfg.version
+        trace.itemValue(`version`, version)
+        url = trimTrailingSlash(cfg.base) + `/chat/completions`
+        if (version) url += `?api-version=${version}`
+        ;(headers as any)["extra-parameters"] = "pass-through"
     } else if (cfg.type === "azure_serverless_models") {
         const version = cfg.version || AZURE_AI_INFERENCE_VERSION
         trace.itemValue(`version`, version)

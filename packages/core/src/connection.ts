@@ -42,6 +42,7 @@ import {
     WHISPERASR_API_BASE,
     MODEL_PROVIDER_ECHO,
     MODEL_PROVIDER_NONE,
+    MODEL_PROVIDER_AZURE_AI_INFERENCE,
 } from "./constants"
 import { host, runtimeHost } from "./host"
 import { parseModelIdentifier } from "./models"
@@ -259,6 +260,40 @@ export async function parseTokenFromEnv(
         } satisfies LanguageModelConfiguration
     }
 
+    if (provider === MODEL_PROVIDER_AZURE_AI_INFERENCE) {
+        // https://github.com/Azure/azure-sdk-for-js/tree/@azure-rest/ai-inference_1.0.0-beta.2/sdk/ai/ai-inference-rest
+        const tokenVar = "AZURE_AI_INFERENCE_API_KEY"
+        const token = env[tokenVar]?.trim()
+        let base = trimTrailingSlash(
+            env.AZURE_AI_INFERENCE_ENDPOINT ||
+                env.AZURE_AI_INFERENCE_API_ENDPOINT
+        )
+        if (!token && !base) return undefined
+        if (token === PLACEHOLDER_API_KEY)
+            throw new Error("AZURE_AI_INFERENCE_API_KEY not configured")
+        if (!base) throw new Error("AZURE_AI_INFERENCE_API_ENDPOINT missing")
+        if (base === PLACEHOLDER_API_BASE)
+            throw new Error("AZURE_AI_INFERENCE_API_ENDPOINT not configured")
+        base = trimTrailingSlash(base)
+        if (!URL.canParse(base))
+            throw new Error(
+                "AZURE_AI_INFERENCE_API_ENDPOINT must be a valid URL"
+            )
+        const version =
+            env.AZURE_AI_INFERENCE_API_VERSION || env.AZURE_AI_INFERENCE_VERSION
+        return {
+            provider,
+            model,
+            base,
+            token,
+            type: "azure_ai_inference",
+            source: token
+                ? "env: AZURE_AI_INFERENCE_API_..."
+                : "env: AZURE_AI_INFERENCE_API_... + Entra ID",
+            version,
+        } satisfies LanguageModelConfiguration
+    }
+
     if (provider === MODEL_PROVIDER_AZURE_SERVERLESS_MODELS) {
         // https://github.com/Azure/azure-sdk-for-js/tree/@azure-rest/ai-inference_1.0.0-beta.2/sdk/ai/ai-inference-rest
         const tokenVar = "AZURE_SERVERLESS_MODELS_API_KEY"
@@ -284,10 +319,6 @@ export async function parseTokenFromEnv(
         const version =
             env.AZURE_SERVERLESS_MODELS_API_VERSION ||
             env.AZURE_SERVERLESS_MODELS_VERSION
-        if (version && version !== AZURE_AI_INFERENCE_VERSION)
-            throw new Error(
-                `AZURE_SERVERLESS_MODELS_API_VERSION must be '${AZURE_AI_INFERENCE_VERSION}'`
-            )
         return {
             provider,
             model,
