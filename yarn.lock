@@ -3045,7 +3045,7 @@
     "@types/node" "*"
     "@types/ssh2" "*"
 
-"@types/dockerode@^3.3.34":
+"@types/dockerode@^3.3.35":
   version "3.3.35"
   resolved "https://registry.yarnpkg.com/@types/dockerode/-/dockerode-3.3.35.tgz#d78c844a246f8717e3bcf2cc134a976bfa630b10"
   integrity sha512-P+DCMASlsH+QaKkDpekKrP5pLls767PPs+/LrlVbKnEnY5tMpEUa2C6U4gRsdFZengOqxdCIqy16R22Q3pLB6Q==
@@ -5431,10 +5431,10 @@ file-type@^16.0.0:
     strtok3 "^6.2.4"
     token-types "^4.1.1"
 
-file-type@^20.1.0:
-  version "20.2.0"
-  resolved "https://registry.yarnpkg.com/file-type/-/file-type-20.2.0.tgz#9c38b599031d99e466fb72d9523d637d16873a6c"
-  integrity sha512-dpL887ofyFe5oaJEjrNvMmKpw39fQlRkbVPoyHSFw+ikEApK9f5SZTGWn0l29Q/hP08dSSWQjXrnNZB0b1yFcA==
+file-type@^20.3.0:
+  version "20.3.0"
+  resolved "https://registry.yarnpkg.com/file-type/-/file-type-20.3.0.tgz#8cb2e83dbea979bddb22ff53d4de4bebed736a66"
+  integrity sha512-7eYG8OCoBNNf7179DmAUA6HyXYfJO8CQnZkgusRIDKCHQBbYU5rqJC0k2yr0c+C22v4bFfKL+DKuOPSU78uuTA==
   dependencies:
     "@tokenizer/inflate" "^0.2.6"
     strtok3 "^10.2.0"
@@ -5983,9 +5983,9 @@ hast-util-sanitize@^5.0.0:
     unist-util-position "^5.0.0"
 
 hast-util-to-jsx-runtime@^2.0.0:
-  version "2.3.4"
-  resolved "https://registry.yarnpkg.com/hast-util-to-jsx-runtime/-/hast-util-to-jsx-runtime-2.3.4.tgz#3d2e382b03d01686292bf7ce6b3601b6d58f7894"
-  integrity sha512-2GSifZSlBD35z6/+sp+btB333wHFPck/rrlKZMc9IOUJk6anHuQuqC/oNI80Pj717wo8JCPdXjjasVqQu3UH8Q==
+  version "2.3.5"
+  resolved "https://registry.yarnpkg.com/hast-util-to-jsx-runtime/-/hast-util-to-jsx-runtime-2.3.5.tgz#dd22fedd1aa87b44ed1ce68f3d15e30d6c7cb781"
+  integrity sha512-gHD+HoFxOMmmXLuq9f2dZDMQHVcplCVpMfBNRpJsF03yyLZvJGzsFORe8orVuYDX9k2w0VH0uF8oryFd1whqKQ==
   dependencies:
     "@types/estree" "^1.0.0"
     "@types/hast" "^3.0.0"
@@ -8892,7 +8892,7 @@ react-dom@^19.0.0:
   dependencies:
     scheduler "^0.25.0"
 
-react-dropzone@^14.3.6:
+react-dropzone@^14.3.8:
   version "14.3.8"
   resolved "https://registry.yarnpkg.com/react-dropzone/-/react-dropzone-14.3.8.tgz#a7eab118f8a452fe3f8b162d64454e81ba830582"
   integrity sha512-sBgODnq+lcA4P296DY4wacOZz3JFpD99fp+hb//iBO2HHnyeZU3FwWyXJ6salNpqQdsZrgMrotuko/BdJMV8Ug==
@@ -10854,7 +10854,7 @@ wrappy@1:
   resolved "https://registry.yarnpkg.com/wrappy/-/wrappy-1.0.2.tgz#b5243d8f3ec1aa35f1364605bc0d1036e30ab69f"
   integrity sha512-l4Sp/DRseor9wL6EvV2+TuQn63dMkPjZ/sp9XkghTEbV9KlPS1xUsZ3u7/IQO4wxtcFB4bgpQPRcR3QCvezPcQ==
 
-ws@^8.18.0, ws@^8.5.0:
+ws@^8.18.1, ws@^8.5.0:
   version "8.18.1"
   resolved "https://registry.yarnpkg.com/ws/-/ws-8.18.1.tgz#ea131d3784e1dfdff91adb0a4a116b127515e3cb"
   integrity sha512-RKW2aJZMXeMxVpnZ6bck+RswznaxmzdULiBr6KY7XkTnW8uvt0iT9H5DkHUChXrc+uurzwa0rVI16n/Xzjdz1w==

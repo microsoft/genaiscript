@@ -3892,9 +3892,9 @@ ohash@^1.1.4:
   integrity sha512-FlDryZAahJmEF3VR3w1KogSEdWX3WhA5GPakFx4J81kEAiHyLMpdLLElS8n8dfNadMgAne/MywcvmogzscVt4g==
 
 ohash@^2.0.4:
-  version "2.0.4"
-  resolved "https://registry.yarnpkg.com/ohash/-/ohash-2.0.4.tgz#ca6be3cc32fac3bfa0147f3c4fefa36a4a067825"
-  integrity sha512-ac+SFwzhdHb0hp48/dbR7Jta39qfbuj7t3hApd9uyHS8bisHTfVzSEvjOVgV0L3zG7VR2/7JjkSGimP75D+hOQ==
+  version "2.0.5"
+  resolved "https://registry.yarnpkg.com/ohash/-/ohash-2.0.5.tgz#656fb31771124bcb903d7b675dd35cd711ea1bac"
+  integrity sha512-3k3APZwRRPYyohdIDmPTpe5i0AY5lm7gvu/Oip7tZrTaEGfSlKX+7kXUoWLd9sHX0GDRVwVvlW18yEcD7qS1zw==
 
 on-finished@~2.3.0:
   version "2.3.0"
