@@ -33,6 +33,8 @@ export type ChatCompletionContentPartText =
 // General content part of a chat completion
 export type ChatCompletionContentPart =
     OpenAI.Chat.Completions.ChatCompletionContentPart
+export type ChatCompletionContentPartRefusal =
+    OpenAI.Chat.Completions.ChatCompletionContentPartRefusal
 
 // Tool used in a chat completion
 export type ChatCompletionTool = OpenAI.Chat.Completions.ChatCompletionTool
@@ -98,6 +100,7 @@ export type CreateChatCompletionRequest = Omit<
 
 export interface ChatCompletionMessageReasoningContentParam {
     reasoning_content?: string
+    signature?: string
 }
 
 // Parameters for an assistant message in a chat completion
@@ -140,6 +143,7 @@ export interface ChatCompletionToolCall {
 export interface ChatCompletionResponse {
     text?: string // Optional text response
     reasoning?: string // Optional reasoning content
+    signature?: string // cryptographic signature of the response
     cached?: boolean // Indicates if the response was cached
     variables?: Record<string, string> // Optional variables associated with the response
     toolCalls?: ChatCompletionToolCall[] // List of tool calls made during the response
@@ -166,6 +170,7 @@ export interface ChatCompletionsProgressReport {
     responseTokens?: Logprob[] // Tokens in the current response chunk
     reasoningTokens?: Logprob[] // Tokens in the current reasoning content
     reasoningSoFar?: string // Partial reasoning content generated so far
+    reasoningChunk?: string // Current chunk of reasoning content being processed
     inner: boolean // Indicates if this is an inner report
 }
 

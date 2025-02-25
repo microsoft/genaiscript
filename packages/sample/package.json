@@ -15,13 +15,13 @@
     "test:scripts:view": "node ../cli/built/genaiscript.cjs test view"
   },
   "devDependencies": {
-    "@agentic/calculator": "^7.3.1",
-    "@agentic/core": "^7.3.1",
-    "@agentic/weather": "^7.3.1",
+    "@agentic/calculator": "^7.3.3",
+    "@agentic/core": "^7.3.3",
+    "@agentic/weather": "^7.3.3",
     "@azure/identity": "^4.7.0",
     "@azure/storage-blob": "^12.26.0",
     "@huggingface/transformers": "^3.3.3",
-    "@modelcontextprotocol/sdk": "^1.5.0",
+    "@modelcontextprotocol/sdk": "^1.6.0",
     "@tidyjs/tidy": "^2.5.2",
     "p-all": "^5.0.0",
     "vectorstore": "^0.0.4",

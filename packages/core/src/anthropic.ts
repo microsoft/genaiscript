@@ -5,6 +5,7 @@ import {
 } from "./chat"
 import {
     ANTHROPIC_MAX_TOKEN,
+    ANTHROPIC_REASONING_EFFORTS,
     MODEL_PROVIDER_ANTHROPIC,
     MODEL_PROVIDER_ANTHROPIC_BEDROCK,
 } from "./constants"
@@ -26,6 +27,9 @@ import {
     ChatCompletionContentPartImage,
     ChatCompletionSystemMessageParam,
     ChatCompletionToolMessageParam,
+    ChatCompletionContentPart,
+    ChatCompletionContentPartRefusal,
+    ChatCompletionsProgressReport,
 } from "./chattypes"
 
 import { logError } from "./util"
@@ -83,11 +87,26 @@ const adjustUsage = (
     }
 }
 
+function findLastIndex<T>(
+    values: T[],
+    predicate: (value: T) => boolean,
+    startIndex?: number
+): number {
+    const start = startIndex ?? values.length - 1
+    for (let i = start; i >= 0; i--) {
+        if (predicate(values[i])) return i
+    }
+    return -1
+}
+
 const convertMessages = (
-    messages: ChatCompletionMessageParam[]
+    messages: ChatCompletionMessageParam[],
+    emitThinking: boolean
 ): Anthropic.MessageParam[] => {
     const res: Anthropic.MessageParam[] = []
-    for (const msg of messages.map(convertSingleMessage)) {
+    for (let i = 0; i < messages.length; ++i) {
+        const message = messages[i]
+        const msg = convertSingleMessage(message, emitThinking)
         const last = res.at(-1)
         if (last?.role !== msg.role) res.push(msg)
         else {
@@ -107,7 +126,8 @@ const convertMessages = (
 }
 
 const convertSingleMessage = (
-    msg: ChatCompletionMessageParam
+    msg: ChatCompletionMessageParam,
+    emitThinking: boolean
 ): Anthropic.MessageParam => {
     const { role } = msg
     if (!role || role === "aici") {
@@ -116,11 +136,8 @@ const convertSingleMessage = (
             role: "user",
             content: [{ type: "text", text: JSON.stringify(msg) }],
         }
-    } else if (msg.role === "assistant" && Array.isArray(msg.tool_calls)) {
-        return convertToolCallMessage({
-            ...msg,
-            tool_calls: msg.tool_calls,
-        })
+    } else if (msg.role === "assistant") {
+        return convertAssistantMessage(msg, emitThinking)
     } else if (role === "tool") {
         return convertToolResultMessage(msg)
     } else if (role === "function")
@@ -135,21 +152,32 @@ function toCacheControl(msg: ChatCompletionMessageParam): {
     return msg.cacheControl === "ephemeral" ? { type: "ephemeral" } : undefined
 }
 
-const convertToolCallMessage = (
-    msg: ChatCompletionAssistantMessageParam
+const convertAssistantMessage = (
+    msg: ChatCompletionAssistantMessageParam,
+    emitThinking: boolean
 ): Anthropic.MessageParam => {
     return {
         role: "assistant",
-        content: msg.tool_calls.map(
-            (tool) =>
-                deleteUndefinedValues({
-                    type: "tool_use",
-                    id: tool.id,
-                    input: JSONLLMTryParse(tool.function.arguments),
-                    name: tool.function.name,
-                    cache_control: toCacheControl(msg),
-                }) satisfies Anthropic.ToolUseBlockParam
-        ),
+        content: [
+            msg.reasoning_content && emitThinking
+                ? ({
+                      type: "thinking",
+                      thinking: msg.reasoning_content,
+                      signature: msg.signature,
+                  } satisfies Anthropic.ThinkingBlockParam)
+                : undefined,
+            ...((convertStandardMessage(msg)?.content || []) as any),
+            ...(msg.tool_calls || []).map(
+                (tool) =>
+                    deleteUndefinedValues({
+                        type: "tool_use",
+                        id: tool.id,
+                        input: JSONLLMTryParse(tool.function.arguments),
+                        name: tool.function.name,
+                        cache_control: toCacheControl(msg),
+                    }) satisfies Anthropic.ToolUseBlockParam
+            ),
+        ].filter((x) => !!x),
     }
 }
 
@@ -169,6 +197,35 @@ const convertToolResultMessage = (
     }
 }
 
+const convertBlockParam = (
+    block: ChatCompletionContentPart | ChatCompletionContentPartRefusal,
+    cache_control?: { type: "ephemeral" }
+) => {
+    if (typeof block === "string") {
+        return {
+            type: "text",
+            text: block,
+            cache_control,
+        } satisfies Anthropic.TextBlockParam
+    } else if (block.type === "text") {
+        if (!block.text) return undefined
+        return {
+            type: "text",
+            text: block.text,
+            cache_control,
+        } satisfies Anthropic.TextBlockParam
+    } else if (block.type === "image_url") {
+        return convertImageUrlBlock(block)
+    }
+    // audio?
+    // Handle other types or return a default
+    else
+        return {
+            type: "text",
+            text: JSON.stringify(block),
+        } satisfies Anthropic.TextBlockParam
+}
+
 const convertStandardMessage = (
     msg:
         | ChatCompletionSystemMessageParam
@@ -176,39 +233,18 @@ const convertStandardMessage = (
         | ChatCompletionUserMessageParam
 ): Anthropic.MessageParam => {
     const role = msg.role === "assistant" ? "assistant" : "user"
+    let res: Anthropic.MessageParam
     if (Array.isArray(msg.content)) {
-        return {
+        const cache_control = toCacheControl(msg)
+        res = {
             role,
             content: msg.content
-                .map((block) => {
-                    const cache_control = toCacheControl(msg)
-                    if (typeof block === "string") {
-                        return {
-                            type: "text",
-                            text: block,
-                            cache_control,
-                        } satisfies Anthropic.TextBlockParam
-                    } else if (block.type === "text") {
-                        return {
-                            type: "text",
-                            text: block.text,
-                            cache_control,
-                        } satisfies Anthropic.TextBlockParam
-                    } else if (block.type === "image_url") {
-                        return convertImageUrlBlock(block)
-                    }
-                    // audio?
-                    // Handle other types or return a default
-                    else
-                        return {
-                            type: "text",
-                            text: JSON.stringify(block),
-                        } satisfies Anthropic.TextBlockParam
-                })
+                .map((block) => convertBlockParam(block, cache_control))
+                .filter((t) => !!t)
                 .map(deleteUndefinedValues),
         }
-    } else {
-        return {
+    } else if (typeof msg.content === "string") {
+        res = {
             role,
             content: [
                 deleteUndefinedValues({
@@ -219,6 +255,8 @@ const convertStandardMessage = (
             ],
         }
     }
+
+    return res
 }
 
 const convertImageUrlBlock = (
@@ -277,7 +315,7 @@ const completerFactory = (
             retryDelay,
         } = options
         const { headers } = requestOptions || {}
-        const { model } = parseModelIdentifier(req.model)
+        const { family: model, tag } = parseModelIdentifier(req.model)
         const { encode: encoder } = await resolveTokenEncoder(model)
 
         const fetch = await createFetch({
@@ -293,23 +331,43 @@ const completerFactory = (
             req.messages.some((m) => m.cacheControl === "ephemeral")
         const httpAgent = resolveHttpProxyAgent()
         const messagesApi = await resolver(trace, cfg, httpAgent, fetch)
-        const messages = convertMessages(req.messages)
         trace.itemValue(`caching`, caching)
 
         let numTokens = 0
         let chatResp = ""
+        let reasoningChatResp = ""
+        let signature = ""
         let finishReason: ChatCompletionResponse["finishReason"]
         let usage: ChatCompletionResponse["usage"] | undefined
         const toolCalls: ChatCompletionToolCall[] = []
         const tools = convertTools(req.tools)
 
+        let temperature = req.temperature
+        let top_p = req.top_p
+        let thinking: Anthropic.ThinkingConfigParam = undefined
+        const budget_tokens =
+            ANTHROPIC_REASONING_EFFORTS[req.reasoning_effort || tag]
+        let max_tokens = req.max_tokens
+        if (budget_tokens && (!max_tokens || max_tokens < budget_tokens))
+            max_tokens = budget_tokens + ANTHROPIC_MAX_TOKEN
+        max_tokens = max_tokens || ANTHROPIC_MAX_TOKEN
+        if (budget_tokens) {
+            temperature = undefined
+            top_p = undefined
+            thinking = {
+                type: "enabled",
+                budget_tokens,
+            }
+        }
+        const messages = convertMessages(req.messages, !!thinking)
         const mreq = deleteUndefinedValues({
             model,
             tools,
             messages,
-            max_tokens: req.max_tokens || ANTHROPIC_MAX_TOKEN,
-            temperature: req.temperature,
-            top_p: req.top_p,
+            max_tokens,
+            temperature,
+            top_p,
+            thinking,
             stream: true,
         })
 
@@ -324,6 +382,7 @@ const completerFactory = (
                     break
                 }
                 let chunkContent = ""
+                let reasoningContent = ""
                 switch (chunk.type) {
                     case "message_start":
                         usage = convertUsage(
@@ -343,6 +402,15 @@ const completerFactory = (
 
                     case "content_block_delta":
                         switch (chunk.delta.type) {
+                            case "signature_delta":
+                                signature = chunk.delta.signature
+                                break
+                            case "thinking_delta":
+                                reasoningContent = chunk.delta.thinking
+                                trace.appendToken(reasoningContent)
+                                reasoningChatResp += reasoningContent
+                                trace.appendToken(chunkContent)
+                                break
                             case "text_delta":
                                 chunkContent = chunk.delta.text
                                 numTokens += estimateTokens(
@@ -376,13 +444,17 @@ const completerFactory = (
                     }
                 }
 
-                if (chunkContent)
-                    partialCb?.({
+                if (chunkContent || reasoningContent) {
+                    const progress = deleteUndefinedValues({
                         responseSoFar: chatResp,
+                        reasoningSoFar: reasoningContent,
                         tokensSoFar: numTokens,
                         responseChunk: chunkContent,
+                        reasoningChunk: reasoningContent,
                         inner,
-                    })
+                    } satisfies ChatCompletionsProgressReport)
+                    partialCb?.(progress)
+                }
             }
         } catch (e) {
             finishReason = "fail"
@@ -400,6 +472,8 @@ const completerFactory = (
         }
         return {
             text: chatResp,
+            reasoning: reasoningChatResp,
+            signature,
             finishReason,
             usage,
             model,
@@ -416,9 +490,13 @@ const listAnthropicModels: ListModelsFunction = async (
     // based on the Model type defined in the Anthropic SDK
     const models: Array<{ id: Anthropic.Model; details: string }> = [
         {
-            id: "claude-3-5-sonnet-20240620",
+            id: "claude-3-7-sonnet-20250219",
             details:
-                "Latest Claude 3 Sonnet model with improved capabilities and knowledge cutoff in June 2024.",
+                "Highest level of intelligence and capability with toggleable extended thinking.",
+        },
+        {
+            id: "claude-3-5-sonnet-20240620",
+            details: "High level of intelligence and capability",
         },
         {
             id: "claude-3-opus-20240229",
