@@ -35,6 +35,7 @@ import {
     ChatCompletionChoice,
     CreateChatCompletionRequest,
     ChatCompletionTokenLogprob,
+    ChatCompletionReasoningEffort,
 } from "./chattypes"
 import { resolveTokenEncoder } from "./encoders"
 import { CancellationOptions } from "./cancellation"
@@ -91,26 +92,26 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
         inner,
     } = options
     const { headers = {}, ...rest } = requestOptions || {}
-    const { provider, model } = parseModelIdentifier(req.model)
-    const { encode: encoder } = await resolveTokenEncoder(model)
+    const { provider, family, tag } = parseModelIdentifier(req.model)
+    const { encode: encoder } = await resolveTokenEncoder(family)
 
     const postReq = structuredClone({
         ...req,
         stream: true,
         stream_options: { include_usage: true },
-        model,
+        model: family,
         messages: req.messages.map(({ cacheControl, ...rest }) => ({
             ...rest,
         })),
     } satisfies CreateChatCompletionRequest)
 
     // stream_options fails in some cases
-    if (model === "gpt-4-turbo-v" || /mistral/i.test(model)) {
+    if (family === "gpt-4-turbo-v" || /mistral/i.test(family)) {
         delete postReq.stream_options
     }
 
     if (MODEL_PROVIDER_OPENAI_HOSTS.includes(provider)) {
-        if (/^o(1|3)/.test(model)) {
+        if (/^o(1|3)/.test(family)) {
             delete postReq.temperature
             delete postReq.top_p
             delete postReq.presence_penalty
@@ -122,10 +123,15 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
                 postReq.max_completion_tokens = postReq.max_tokens
                 delete postReq.max_tokens
             }
+            if (
+                !postReq.reasoning_effort &&
+                ["high", "medium", "low"].includes(tag)
+            )
+                postReq.reasoning_effort = tag as ChatCompletionReasoningEffort
         }
 
-        if (/^o1/.test(model)) {
-            const preview = /^o1-(preview|mini)/i.test(model)
+        if (/^o1/.test(family)) {
+            const preview = /^o1-(preview|mini)/i.test(family)
             delete postReq.stream
             delete postReq.stream_options
             for (const msg of postReq.messages) {
@@ -133,7 +139,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
                     ;(msg as any).role = preview ? "user" : "developer"
                 }
             }
-        } else if (/^o3/i.test(model)) {
+        } else if (/^o3/i.test(family)) {
             for (const msg of postReq.messages) {
                 if (msg.role === "system") {
                     ;(msg as any).role = "developer"
@@ -164,7 +170,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
         url =
             trimTrailingSlash(cfg.base) +
             "/" +
-            model.replace(/\./g, "") +
+            family.replace(/\./g, "") +
             `/chat/completions?api-version=${version}`
     } else if (cfg.type === "azure_serverless_models") {
         const version = cfg.version || AZURE_AI_INFERENCE_VERSION
@@ -184,7 +190,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
         url =
             trimTrailingSlash(cfg.base) +
             "/" +
-            model.replace(/\./g, "") +
+            family.replace(/\./g, "") +
             `/chat/completions?api-version=${version}`
         // https://learn.microsoft.com/en-us/azure/machine-learning/reference-model-inference-api?view=azureml-api-2&tabs=javascript#extensibility
         ;(headers as any)["extra-parameters"] = "pass-through"
@@ -195,7 +201,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
         url =
             trimTrailingSlash(cfg.base).replace(/\/v1$/, "") +
             "/models/" +
-            model +
+            family +
             `/v1/chat/completions`
     } else throw new Error(`api type ${cfg.type} not supported`)
 

@@ -49,10 +49,20 @@ GenAIScript automatically extracts the thinking/reasoning content of the LLM res
 
 The reasoning effort parameter can be set to `low`, `medium`, or `high`.
 
+- configured with the `reasoningEffort` parameter
+
 ```js 'reasoningEffort: "high"'
 script({
     model: "openai:o3-mini"
     reasoningEffort: "high"
+})
+```
+
+- as a tag to the model name
+
+```js 'openai:o3-mini:high'
+script({
+    model: "openai:o3-mini:high",
 })
 ```
 
@@ -69,4 +79,5 @@ For Anthropic Sonnet 3.7, the reasoning efforts are mapped to the following `bud
 
 ## Advice on prompting
 
-OpenAI provides an extensive [advice on prompting](https://platform.openai.com/docs/guides/reasoning#advice-on-prompting) reasoning models.
+OpenAI provides an extensive [advice on prompting](https://platform.openai.com/docs/guides/reasoning#advice-on-prompting)
+reasoning models.
