@@ -84,10 +84,16 @@ const adjustUsage = (
 }
 
 const convertMessages = (
-    messages: ChatCompletionMessageParam[]
+    messages: ChatCompletionMessageParam[],
+    emitThinking: boolean
 ): Anthropic.MessageParam[] => {
     const res: Anthropic.MessageParam[] = []
-    for (const msg of messages.map(convertSingleMessage)) {
+    for (let i = 0; i < messages.length; ++i) {
+        const message = messages[i]
+        const msg = convertSingleMessage(
+            message,
+            emitThinking && i === messages.length - 1
+        )
         const last = res.at(-1)
         if (last?.role !== msg.role) res.push(msg)
         else {
@@ -107,7 +113,8 @@ const convertMessages = (
 }
 
 const convertSingleMessage = (
-    msg: ChatCompletionMessageParam
+    msg: ChatCompletionMessageParam,
+    emitThinking: boolean
 ): Anthropic.MessageParam => {
     const { role } = msg
     if (!role || role === "aici") {
@@ -126,7 +133,7 @@ const convertSingleMessage = (
     } else if (role === "function")
         throw new NotSupportedError("function message not supported")
 
-    return convertStandardMessage(msg)
+    return convertStandardMessage(msg, emitThinking)
 }
 
 function toCacheControl(msg: ChatCompletionMessageParam): {
@@ -173,11 +180,13 @@ const convertStandardMessage = (
     msg:
         | ChatCompletionSystemMessageParam
         | ChatCompletionAssistantMessageParam
-        | ChatCompletionUserMessageParam
+        | ChatCompletionUserMessageParam,
+    emitThinking: boolean
 ): Anthropic.MessageParam => {
     const role = msg.role === "assistant" ? "assistant" : "user"
+    let res: Anthropic.MessageParam
     if (Array.isArray(msg.content)) {
-        return {
+        res = {
             role,
             content: msg.content
                 .map((block) => {
@@ -208,7 +217,7 @@ const convertStandardMessage = (
                 .map(deleteUndefinedValues),
         }
     } else {
-        return {
+        res = {
             role,
             content: [
                 deleteUndefinedValues({
@@ -219,6 +228,8 @@ const convertStandardMessage = (
             ],
         }
     }
+
+    return res
 }
 
 const convertImageUrlBlock = (
@@ -293,7 +304,6 @@ const completerFactory = (
             req.messages.some((m) => m.cacheControl === "ephemeral")
         const httpAgent = resolveHttpProxyAgent()
         const messagesApi = await resolver(trace, cfg, httpAgent, fetch)
-        const messages = convertMessages(req.messages)
         trace.itemValue(`caching`, caching)
 
         let numTokens = 0
@@ -332,6 +342,7 @@ const completerFactory = (
                 ],
             })*/
         }
+        const messages = convertMessages(req.messages, !!thinking)
         const mreq = deleteUndefinedValues({
             model,
             tools,
