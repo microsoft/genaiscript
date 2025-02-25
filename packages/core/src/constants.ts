@@ -292,6 +292,7 @@ export const VSCODE_CONFIG_CLI_PATH = "cli.path"
 
 export const CONSOLE_COLOR_INFO = 32
 export const CONSOLE_COLOR_DEBUG = 90
+export const CONSOLE_COLOR_REASONING = 90
 export const CONSOLE_COLOR_WARNING = 95
 export const CONSOLE_COLOR_ERROR = 91
 export const CONSOLE_TOKEN_COLORS = [90, 37]

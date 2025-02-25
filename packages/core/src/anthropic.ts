@@ -28,6 +28,7 @@ import {
     ChatCompletionToolMessageParam,
     ChatCompletionContentPart,
     ChatCompletionContentPartRefusal,
+    ChatCompletionsProgressReport,
 } from "./chattypes"
 
 import { logError } from "./util"
@@ -443,17 +444,17 @@ const completerFactory = (
                     }
                 }
 
-                if (chunkContent || reasoningContent)
-                    partialCb?.(
-                        deleteUndefinedValues({
-                            responseSoFar: chatResp,
-                            reasoningSoFar: reasoningContent,
-                            tokensSoFar: numTokens,
-                            responseChunk: chunkContent,
-                            reasoningChunk: reasoningContent,
-                            inner,
-                        })
-                    )
+                if (chunkContent || reasoningContent) {
+                    const progress = deleteUndefinedValues({
+                        responseSoFar: chatResp,
+                        reasoningSoFar: reasoningContent,
+                        tokensSoFar: numTokens,
+                        responseChunk: chunkContent,
+                        reasoningChunk: reasoningContent,
+                        inner,
+                    } satisfies ChatCompletionsProgressReport)
+                    partialCb?.(progress)
+                }
             }
         } catch (e) {
             finishReason = "fail"

@@ -170,6 +170,7 @@ export interface ChatCompletionsProgressReport {
     responseTokens?: Logprob[] // Tokens in the current response chunk
     reasoningTokens?: Logprob[] // Tokens in the current reasoning content
     reasoningSoFar?: string // Partial reasoning content generated so far
+    reasoningChunk?: string // Current chunk of reasoning content being processed
     inner: boolean // Indicates if this is an inner report
 }
 

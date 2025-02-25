@@ -90,15 +90,15 @@ export class MarkdownTrace extends EventTarget implements OutputTrace {
     }
 
     chatProgress(progress: ChatCompletionsProgressReport) {
-        const { inner, responseChunk: value } = progress
-        if (!value) return
+        const { inner, responseChunk, reasoningChunk } = progress
+        if (!responseChunk && !reasoningChunk) return
 
-        if (!inner) {
-            this._content.push(value)
+        if (!inner && responseChunk) {
+            this._content.push(responseChunk)
             this._tree = undefined
             this.dispatchChange()
         }
-        this.dispatchEvent(new TraceChunkEvent(value, inner, progress))
+        this.dispatchEvent(new TraceChunkEvent(responseChunk, inner, progress))
     }
 
     appendContent(value: string) {

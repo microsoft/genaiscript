@@ -37,6 +37,7 @@ import {
     TRACE_CHUNK,
     OUTPUT_FILENAME,
     TRACE_FILENAME,
+    CONSOLE_COLOR_REASONING,
 } from "../../core/src/constants"
 import { isCancelError, errorMessage } from "../../core/src/error"
 import { GenerationResult } from "../../core/src/server/messages"
@@ -307,10 +308,20 @@ export async function runScriptInternal(
     }
 
     let tokenColor = 0
+    let reasoningOutput = false
     outputTrace.addEventListener(TRACE_CHUNK, (ev) => {
         const { progress, chunk } = ev as TraceChunkEvent
         if (progress) {
-            const { responseChunk, responseTokens, inner } = progress
+            const { responseChunk, responseTokens, inner, reasoningChunk } =
+                progress
+            if (
+                !isQuiet &&
+                reasoningChunk !== undefined &&
+                reasoningChunk !== null
+            ) {
+                reasoningOutput = true
+                stderr.write(wrapColor(CONSOLE_COLOR_REASONING, reasoningChunk))
+            }
             if (responseChunk !== undefined && responseChunk !== null) {
                 if (stream) {
                     if (responseTokens && consoleColors) {
@@ -332,13 +343,23 @@ export async function runScriptInternal(
                         }
                     } else {
                         if (!inner) stdout.write(responseChunk)
-                        else
+                        else {
+                            if (reasoningOutput) {
+                                stderr.write("\n")
+                                reasoningOutput = false
+                            }
                             stderr.write(
                                 wrapColor(CONSOLE_COLOR_DEBUG, responseChunk)
                             )
+                        }
                     }
-                } else if (!isQuiet)
+                } else if (!isQuiet) {
+                    if (reasoningOutput) {
+                        stderr.write("\n")
+                        reasoningOutput = false
+                    }
                     stderr.write(wrapColor(CONSOLE_COLOR_DEBUG, responseChunk))
+                }
             }
         } else if (!isQuiet) {
             stdout.write(chunk)
