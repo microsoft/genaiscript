@@ -3463,7 +3463,9 @@ interface DefToolOptions {
     nameSuffix?: string
 }
 
-interface DefAgentOptions extends Omit<PromptGeneratorOptions, "label"> {
+interface DefAgentOptions
+    extends Omit<PromptGeneratorOptions, "label">,
+        DefToolOptions {
     /**
      * Excludes agent conversation from agent memory
      */

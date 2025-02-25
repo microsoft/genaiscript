@@ -16,11 +16,11 @@ system({
 })
 
 export default async function (ctx: PromptContext) {
-    const { env } = ctx
+    const { env, defTool } = ctx
     const { vars } = env
     const cwd = vars["system.git_diff.cwd"]
+    const nameSuffix = vars["system.git_diff.variant"]
     const client = cwd ? git.client(cwd) : git
-    const variant = vars["system.git_diff.variant"]
 
     defTool(
         "git_diff",
@@ -73,7 +73,7 @@ export default async function (ctx: PromptContext) {
             return res
         },
         {
-            nameSuffix: variant,
+            nameSuffix,
             maxTokens: 20000,
         }
     )

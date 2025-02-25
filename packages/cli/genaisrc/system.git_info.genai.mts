@@ -9,7 +9,7 @@ system({
 })
 
 export default async function GitInfo(ctx: PromptContext) {
-    const { env } = ctx
+    const { env, $ } = ctx
     const { vars } = env
 
     const cwd = vars["system.git_info.cwd"]
