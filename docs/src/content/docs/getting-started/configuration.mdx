@@ -578,7 +578,7 @@ Azure AI Foundry provdies access to serverless and deployed models, both for Ope
 that are supported in GenAIScript:
 
 - without any deployment, using the [Azure AI Model Inference](#azure_ai_inference) provider,
-- with deployment for OpenAI models, using the [Azure AI OpenAI Serverless](#azure_serverless_openai) provider,
+- with deployment for OpenAI models, using the [Azure AI OpenAI Serverless](#azure_serverless) provider,
 - with deployments for non-OpenAI models, use the [Azure AI Serverless Models](#azure_serverless_models) provider.
 
 You can deploy "serverless" models through [Azure AI Foundry](https://ai.azure.com/) and pay as you go per token.
@@ -684,7 +684,7 @@ script({ model: "azure_ai_inference:model-id" })
 
 </Steps>
 
-### Azure AI OpenAI Serverless
+### Azure AI OpenAI Serverless <a href="" id="azure_serverless" />
 
 The `azure_serverless` provider supports OpenAI models deployed through the Azure AI Foundry serverless deployments.
 It supports both Entra ID and key-based authentication.
