@@ -2493,9 +2493,24 @@ interface Git {
         repository: string,
         options?: {
             /**
-             * Brnach to clone
+             * Branch to clone
              */
             branch?: string
+
+            /**
+             * Do not reuse previous clone
+             */
+            force?: boolean
+
+            /**
+             * Runs install command after cloning
+             */
+            install?: boolean
+
+            /**
+             * Number of commits to fetch
+             */
+            depth?: number
         }
     ): Promise<Git>
 

@@ -32,9 +32,8 @@ export default async function defAgentGit(ctx: PromptContext) {
     const branch = vars["system.agent_git.branch"]
     const variant = vars["system.agent_git.variant"]
 
-    console.log({ cwd, repo })
     if (!cwd && repo) {
-        const client = await git.shallowClone(repo, { branch })
+        const client = await git.shallowClone(repo, { branch, depth: 50 })
         cwd = client.cwd
         await client.exec(["fetch", "--all"])
     }
