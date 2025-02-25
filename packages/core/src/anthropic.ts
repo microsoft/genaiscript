@@ -298,6 +298,7 @@ const completerFactory = (
 
         let numTokens = 0
         let chatResp = ""
+        let reasoningChatResp = ""
         let finishReason: ChatCompletionResponse["finishReason"]
         let usage: ChatCompletionResponse["usage"] | undefined
         const toolCalls: ChatCompletionToolCall[] = []
@@ -324,6 +325,7 @@ const completerFactory = (
                     break
                 }
                 let chunkContent = ""
+                let reasoningContent = ""
                 switch (chunk.type) {
                     case "message_start":
                         usage = convertUsage(
@@ -343,6 +345,11 @@ const completerFactory = (
 
                     case "content_block_delta":
                         switch (chunk.delta.type) {
+                            case "thinking_delta":
+                                reasoningContent = chunk.delta.thinking
+                                trace.appendToken(reasoningContent)
+                                reasoningChatResp += reasoningContent
+                                break
                             case "text_delta":
                                 chunkContent = chunk.delta.text
                                 numTokens += estimateTokens(
@@ -376,13 +383,17 @@ const completerFactory = (
                     }
                 }
 
-                if (chunkContent)
-                    partialCb?.({
-                        responseSoFar: chatResp,
-                        tokensSoFar: numTokens,
-                        responseChunk: chunkContent,
-                        inner,
-                    })
+                if (chunkContent || reasoningContent)
+                    partialCb?.(
+                        deleteUndefinedValues({
+                            responseSoFar: chatResp,
+                            reasoningSoFar: reasoningContent,
+                            tokensSoFar: numTokens,
+                            responseChunk: chunkContent,
+                            reasoningChunk: reasoningContent,
+                            inner,
+                        })
+                    )
             }
         } catch (e) {
             finishReason = "fail"
@@ -400,6 +411,7 @@ const completerFactory = (
         }
         return {
             text: chatResp,
+            reasoning: reasoningChatResp,
             finishReason,
             usage,
             model,
@@ -416,9 +428,13 @@ const listAnthropicModels: ListModelsFunction = async (
     // based on the Model type defined in the Anthropic SDK
     const models: Array<{ id: Anthropic.Model; details: string }> = [
         {
-            id: "claude-3-5-sonnet-20240620",
+            id: "claude-3-7-sonnet-20250219",
             details:
-                "Latest Claude 3 Sonnet model with improved capabilities and knowledge cutoff in June 2024.",
+                "Highest level of intelligence and capability with toggleable extended thinking.",
+        },
+        {
+            id: "claude-3-5-sonnet-20240620",
+            details: "High level of intelligence and capability",
         },
         {
             id: "claude-3-opus-20240229",

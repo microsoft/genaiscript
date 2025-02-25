@@ -191,6 +191,7 @@ type ModelType = OptionsOrString<
     | "anthropic:claude-3-haiku-20240307"
     | "anthropic:claude-2.1"
     | "anthropic:claude-instant-1.2"
+    | "anthropic_bedrock:anthropic.claude-3-7-sonnet-20250219-v1:0"
     | "anthropic_bedrock:anthropic.claude-3-opus-20240229-v1:0"
     | "anthropic_bedrock:anthropic.claude-3-sonnet-20240229-v1:0"
     | "anthropic_bedrock:anthropic.claude-3-haiku-20240307-v1:0"
