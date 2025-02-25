@@ -72,6 +72,9 @@ export function wrapColor(n: number | string, message: string) {
     else return message
 }
 
+//for (let i = 0; i < 255; ++i)
+//    process.stderr.write(wrapColor(`38;5;${i}`, `38;5;${i}\n`))
+
 export function wrapRgbColor(rgb: number, text: string): string {
     if (!consoleColors) return text
     const r = (rgb >> 16) & 0xff
