@@ -182,7 +182,8 @@
             "aliases": {
                 "large": "claude-3-5-sonnet-latest",
                 "small": "claude-3-5-haiku-latest",
-                "vision": "claude-3-5-sonnet-latest"
+                "vision": "claude-3-5-sonnet-latest",
+                "reasoning": "claude-3-7-sonnet-latest:high"
             },
             "env": {
                 "ANTHROPIC_API_KEY": {

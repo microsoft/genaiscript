@@ -35,7 +35,6 @@ import {
     ChatCompletionChoice,
     CreateChatCompletionRequest,
     ChatCompletionTokenLogprob,
-    ChatCompletionReasoningEffort,
 } from "./chattypes"
 import { resolveTokenEncoder } from "./encoders"
 import { CancellationOptions } from "./cancellation"

@@ -302,7 +302,8 @@ interface ModelOptions extends ModelConnectionOptions, ModelTemplateOptions {
     fallbackTools?: boolean
 
     /**
-     * Some reasoning model support a reasoning effort parameter.
+     * OpenAI o* reasoning models support a reasoning effort parameter.
+     * For Clause, these are mapped to thinking budget tokens
      */
     reasoningEffort?: "high" | "medium" | "low"
 

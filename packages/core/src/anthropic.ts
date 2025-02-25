@@ -277,7 +277,7 @@ const completerFactory = (
             retryDelay,
         } = options
         const { headers } = requestOptions || {}
-        const { model } = parseModelIdentifier(req.model)
+        const { family: model, tag } = parseModelIdentifier(req.model)
         const { encode: encoder } = await resolveTokenEncoder(model)
 
         const fetch = await createFetch({
@@ -304,13 +304,42 @@ const completerFactory = (
         const toolCalls: ChatCompletionToolCall[] = []
         const tools = convertTools(req.tools)
 
+        let temperature = req.temperature
+        let top_p = req.top_p
+        let thinking: Anthropic.ThinkingConfigParam = undefined
+        const budget_tokens = { low: 2048, medium: 8096, high: 16192 }[
+            req.reasoning_effort || tag
+        ]
+        let max_tokens = req.max_tokens
+        if (budget_tokens && (!max_tokens || max_tokens < budget_tokens))
+            max_tokens = budget_tokens + ANTHROPIC_MAX_TOKEN
+        max_tokens = max_tokens || ANTHROPIC_MAX_TOKEN
+        if (budget_tokens) {
+            temperature = undefined
+            top_p = undefined
+            thinking = {
+                type: "enabled",
+                budget_tokens,
+            }
+            /*messages.push({
+                role: "assistant",
+                content: [
+                    {
+                        type: "thinking",
+                        thinking: "",
+                        signature: "",
+                    } satisfies Anthropic.ThinkingBlockParam,
+                ],
+            })*/
+        }
         const mreq = deleteUndefinedValues({
             model,
             tools,
             messages,
-            max_tokens: req.max_tokens || ANTHROPIC_MAX_TOKEN,
-            temperature: req.temperature,
-            top_p: req.top_p,
+            max_tokens,
+            temperature,
+            top_p,
+            thinking,
             stream: true,
         })
 
@@ -349,6 +378,7 @@ const completerFactory = (
                                 reasoningContent = chunk.delta.thinking
                                 trace.appendToken(reasoningContent)
                                 reasoningChatResp += reasoningContent
+                                trace.appendToken(chunkContent)
                                 break
                             case "text_delta":
                                 chunkContent = chunk.delta.text
