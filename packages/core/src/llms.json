@@ -72,6 +72,41 @@
             }
         },
         {
+            "id": "azure_ai_inference",
+            "detail": "Azure AI Inference",
+            "url": "https://learn.microsoft.com/en-us/azure/ai-foundry/model-inference/overview",
+            "listModels": false,
+            "bearerToken": false,
+            "prediction": false,
+            "logprobs": false,
+            "topLogprobs": false,
+            "aliases": {
+                "large": "gpt-4o",
+                "small": "gpt-4o-mini",
+                "vision": "gpt-4o",
+                "vision_small": "gpt-4o-mini",
+                "reasoning": "o1",
+                "reasoning_small": "o1-mini"
+            },
+            "env": {
+                "AZURE_AI_INFERENCE_API_KEY": {
+                    "description": "Azure AI Inference key",
+                    "required": true,
+                    "secret": true
+                },
+                "AZURE_AI_INFERENCE_API_ENDPOINT": {
+                    "description": "Azure Serverless OpenAI endpoint",
+                    "required": true
+                },
+                "AZURE_AI_INFERENCE_API_VERSION": {
+                    "description": "Azure Serverless OpenAI API version"
+                },
+                "AZURE_AI_INFERENCE_API_CREDENTIALS": {
+                    "description": "Azure Serverless OpenAI API credentials type"
+                }
+            }
+        },
+        {
             "id": "azure_serverless",
             "detail": "Azure AI OpenAI (serverless deployments)",
             "url": "https://ai.azure.com/",

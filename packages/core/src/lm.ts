@@ -15,6 +15,7 @@ import {
     MODEL_PROVIDER_AZURE_OPENAI,
     MODEL_PROVIDER_ECHO,
     MODEL_PROVIDER_NONE,
+    MODEL_PROVIDER_AZURE_AI_INFERENCE,
 } from "./constants"
 import { runtimeHost } from "./host"
 import { OllamaModel } from "./ollama"
@@ -26,6 +27,7 @@ import { WhiserAsrModel } from "./whisperasr"
 import { AzureOpenAIModel } from "./azureopenai"
 import { EchoModel } from "./echomodel"
 import { NoneModel } from "./nonemodel"
+import { AzureAIInferenceModel } from "./azureaiinference"
 
 export function resolveLanguageModel(provider: string): LanguageModel {
     if (provider === MODEL_PROVIDER_GITHUB_COPILOT_CHAT) {
@@ -34,6 +36,8 @@ export function resolveLanguageModel(provider: string): LanguageModel {
         return m
     }
     if (provider === MODEL_PROVIDER_AZURE_OPENAI) return AzureOpenAIModel
+    if (provider === MODEL_PROVIDER_AZURE_AI_INFERENCE)
+        return AzureAIInferenceModel
     if (provider === MODEL_PROVIDER_GITHUB) return GitHubModel
     if (provider === MODEL_PROVIDER_OLLAMA) return OllamaModel
     if (provider === MODEL_PROVIDER_AICI) return AICIModel

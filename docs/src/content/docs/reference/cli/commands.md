@@ -17,7 +17,7 @@ Interactive help to configure providers
 
 Options:
   -p, --provider <string>  Preferred LLM provider aliases (choices: "openai",
-                           "azure", "azure_serverless",
+                           "azure", "azure_ai_inference", "azure_serverless",
                            "azure_serverless_models", "github", "ollama",
                            "anthropic", "anthropic_bedrock", "google",
                            "huggingface", "mistral", "alibaba", "deepseek",
@@ -34,7 +34,7 @@ Usage: genaiscript run [options] <script> [files...]
 Runs a GenAIScript against files.
 
 Options:
-  -p, --provider <string>                    Preferred LLM provider aliases (choices: "openai", "azure", "azure_serverless", "azure_serverless_models", "github", "ollama", "anthropic", "anthropic_bedrock", "google", "huggingface", "mistral", "alibaba", "deepseek", "transformers", "lmstudio", "jan", "llamafile", "litellm", "whisperasr", "echo")
+  -p, --provider <string>                    Preferred LLM provider aliases (choices: "openai", "azure", "azure_ai_inference", "azure_serverless", "azure_serverless_models", "github", "ollama", "anthropic", "anthropic_bedrock", "google", "huggingface", "mistral", "alibaba", "deepseek", "transformers", "lmstudio", "jan", "llamafile", "litellm", "whisperasr", "echo")
   -m, --model <string>                       'large' model alias (default)
   -sm, --small-model <string>                'small' alias model
   -vm, --vision-model <string>               'vision' alias model
@@ -111,7 +111,8 @@ Arguments:
 Options:
   --redteam                           run red team tests
   -p, --provider <string>             Preferred LLM provider aliases (choices:
-                                      "openai", "azure", "azure_serverless",
+                                      "openai", "azure", "azure_ai_inference",
+                                      "azure_serverless",
                                       "azure_serverless_models", "github",
                                       "ollama", "anthropic",
                                       "anthropic_bedrock", "google",

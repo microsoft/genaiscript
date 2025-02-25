@@ -138,7 +138,7 @@ export interface RuntimeHost extends Host {
     workspace: Omit<WorkspaceFileSystem, "grep" | "writeCached">
 
     azureToken?: AzureTokenResolver
-    azureServerlessToken?: AzureTokenResolver
+    azureAIInferenceToken?: AzureTokenResolver
     azureManagementToken?: AzureTokenResolver
     microsoftGraphToken?: AzureTokenResolver
 
