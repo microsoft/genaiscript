@@ -574,6 +574,13 @@ The rest of the steps are the same: Find the deployment name and use it in your 
 
 ## Azure AI Foundry <a id="azure_serverless" href=""></a>
 
+Azure AI Foundry provdies access to serverless and deployed models, both for OpenAI and other providers. There are multiple ways to access those servers
+that are supported in GenAIScript:
+
+- without any deployment, using the [Azure AI Model Inference](#azure_ai_inference) provider,
+- with deployment for OpenAI models, using the [Azure AI OpenAI Serverless](#azure_serverless_openai) provider,
+- with deployments for non-OpenAI models, use the [Azure AI Serverless Models](#azure_serverless_models) provider.
+
 You can deploy "serverless" models through [Azure AI Foundry](https://ai.azure.com/) and pay as you go per token.
 You can browse the [Azure AI Foundary model catalog](https://ai.azure.com/explore/models)
 and use the [serverless API](https://learn.microsoft.com/en-us/azure/ai-studio/how-to/deploy-models-serverless-availability) filter to see the available models.
@@ -584,7 +591,103 @@ while the Azure AI models, like `Meta-Llama-3.1-405B-Instruct` are deployed to `
 
 They are configured slightly differently.
 
-### Azure AI Foundry OpenAI Serverless
+### Azure AI Inference <a href="" id="azure_ai_inference" />
+
+The [Azure AI Inference](https://learn.microsoft.com/en-us/azure/ai-foundry/model-inference/reference/reference-model-inference-api?tabs=javascript)
+provides a single endpoint to access a number of LLMs. This is a great way to experiment as you do not need to create deployments to access models.
+It supports both Entra ID and key-based authentication.
+
+```js "azure_ai_inference:"
+script({ model: "azure_ai_inference:gpt-4o" })
+```
+
+#### Managed Identity (Entra ID)
+
+<Steps>
+
+<ol>
+
+<li>
+
+Open https://ai.azure.com/, open your project and go the **Management center**.
+
+</li>
+<li>
+
+Open the **Users** tab
+
+</li>
+<li>
+
+Add your user or service principal to the **Azure AI Developer** role.
+
+</li>
+
+<li>
+
+Configure the **Endpoint Target URL** as the `AZURE_AI_INFERENCE_API_ENDPOINT`.
+
+```txt title=".env"
+AZURE_AI_INFERENCE_API_ENDPOINT=https://<resource-name>.services.ai.azure.com/models
+```
+
+</li>
+
+<li>
+
+Find the model name in the model catalog with the **Deployment options = Serverless API** filter and use it in your script,
+`model: "azure_id_inference:model-id"`.
+
+```js
+script({ model: "azure_ai_inference:model-id" })
+```
+
+</li>
+
+</ol>
+
+</Steps>
+
+#### API Key
+
+<Steps>
+
+<ol>
+
+<li>
+
+Open https://ai.azure.com/, open your project and go the **Overview** page.
+
+</li>
+
+<li>
+
+Configure the **Endpoint Target URL** as the `AZURE_AI_INFERENCE_API_ENDPOINT` variable and the key in
+`AZURE_AI_INFERENCE_API_KEY` in the `.env` file\***\*.\*\***
+
+```txt title=".env"
+AZURE_AI_INFERENCE_API_ENDPOINT=https://<resourcename>.services.ai.azure.com/models
+AZURE_AI_INFERENCE_API_KEY=...
+```
+
+</li>
+
+<li>
+
+Find the model name in the model catalog with the **Deployment options = Serverless API** filter and use it in your script,
+`model: "azure_id_inference:model-id"`.
+
+```js
+script({ model: "azure_ai_inference:model-id" })
+```
+
+</li>
+
+</ol>
+
+</Steps>
+
+### Azure AI OpenAI Serverless
 
 The `azure_serverless` provider supports OpenAI models deployed through the Azure AI Foundry serverless deployments.
 It supports both Entra ID and key-based authentication.
@@ -607,7 +710,7 @@ This kind of deployment is different from the **Azure OpenAI** deployments (`azu
 
 <li>
 
-Open https://ai.azure.com/ and open the **Deployments** page.
+Open https://ai.azure.com/, open your project and go the **Deployments** page.
 
 </li>
 
@@ -724,7 +827,7 @@ AZURE_SERVERLESS_OPENAI_API_KEY=...
 
 <LLMProviderFeatures provider="azure_serverless" />
 
-### Azure AI Models <a href="" id="azure_serverless_models" />
+### Azure AI Serverless Models <a href="" id="azure_serverless_models" />
 
 The `azure_serverless_models` provider supports non-OpenAI models, such as DeepSeek R1, deployed through the Azure AI Foundary serverless deployments.
 
