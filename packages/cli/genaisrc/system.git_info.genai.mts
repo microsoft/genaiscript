@@ -1,8 +1,23 @@
 system({
     title: "Git repository information",
+    parameters: {
+        cwd: {
+            type: "string",
+            description: "Current working directory",
+        },
+    },
 })
 
-const branch = await git.branch()
-const defaultBranch = await git.defaultBranch()
+export default async function GitInfo(ctx: PromptContext) {
+    const { env, $ } = ctx
+    const { vars } = env
 
-$`git: The current branch is ${branch} and the default branch is ${defaultBranch}.`
+    const cwd = vars["system.git_info.cwd"]
+    const client = cwd ? git.client(cwd) : git
+
+    const branch = await client.branch()
+    const defaultBranch = await client.defaultBranch()
+
+    $`## Git
+The current branch is ${branch} and the default branch is ${defaultBranch} ${cwd ? `in ${cwd}` : ""}.`
+}

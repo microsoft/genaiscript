@@ -22,7 +22,7 @@ import { shellParse } from "./shell"
 import { PLimitPromiseQueue } from "./concurrency"
 import { NotSupportedError } from "./error"
 import { MemoryCache } from "./cache"
-import { proxifyVars } from "./vars"
+import { proxifyEnvVars } from "./vars"
 import { HTMLEscape } from "./html"
 import { hash } from "./crypto"
 import { resolveModelConnectionInfo } from "./models"
@@ -324,7 +324,7 @@ export async function createPromptContext(
         host: promptHost,
     }
     env.generator = ctx
-    env.vars = proxifyVars(env.vars)
+    env.vars = proxifyEnvVars(env.vars)
     ctx.env = Object.freeze<ExpansionVariables>(env as ExpansionVariables)
 
     return ctx

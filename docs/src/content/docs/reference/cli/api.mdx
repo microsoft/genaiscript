@@ -15,7 +15,7 @@ Assuming you have have added the cli as a dependency in your project, you can im
 
 The API can be imported using imports from **"genaiscript/api"**.
 
-```javascript
+```js wrap
 import { run } from "genaiscript/api"
 ```
 
@@ -29,7 +29,7 @@ spawns a [Node.JS worker thread](https://nodejs.org/api/worker_threads.html) to 
 
 The `run` function wraps the [cli run](/genaiscript/reference/cli/run) command.
 
-```javascript
+```js wrap
 import { run } from "genaiscript/api"
 
 const results = await run("summarize", ["myfile.txt"])
@@ -39,7 +39,7 @@ const results = await run("summarize", ["myfile.txt"])
 
 You can set the environment variables for the GenAIScript process by passing an object as the `env` field in the options. By default, the worker will inherit `process.env`.
 
-```javascript
+```js wrap
 const results = await run("summarize", ["myfile.txt"], {
     env: {
         MY_ENV_VAR: "value",

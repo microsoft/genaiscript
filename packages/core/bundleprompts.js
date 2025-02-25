@@ -193,6 +193,19 @@ script({ ...,
 })
 \`\`\`
 
+- override the parameter value in instance of the system script
+
+\`\`\`js
+script({ ...,
+    system: [
+        "system", 
+        { 
+            id: "system.fs_read_summary", 
+            parameters: { model: "ollama:phi3" },            
+         }],
+})
+\`\`\`
+
 ## Automated System Prompts
 
 When unspecified, GenAIScript inspects the source code of the script

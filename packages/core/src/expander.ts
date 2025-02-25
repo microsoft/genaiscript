@@ -31,18 +31,19 @@ import {
 import { GenerationStatus, Project } from "./server/messages"
 import { dispose } from "./dispose"
 import { normalizeFloat, normalizeInt } from "./cleaners"
+import { mergeEnvVarsWithSystem } from "./vars"
 
 export async function callExpander(
     prj: Project,
     r: PromptScript,
-    vars: ExpansionVariables,
+    ev: ExpansionVariables,
     trace: MarkdownTrace,
     options: GenerationOptions
 ) {
     assert(!!options.model)
     const modelId = r.model ?? options.model
+    const ctx = await createPromptContext(prj, ev, trace, options, modelId)
     const { provider } = parseModelIdentifier(modelId)
-    const ctx = await createPromptContext(prj, vars, trace, options, modelId)
 
     let status: GenerationStatus = undefined
     let statusText: string = undefined
@@ -189,7 +190,7 @@ export async function expandTemplate(
     const lineNumbers =
         options.lineNumbers ??
         template.lineNumbers ??
-        resolveSystems(prj, template, undefined, options)
+        resolveSystems(prj, template, undefined)
             .map((s) => resolveScript(prj, s))
             .some((t) => t?.lineNumbers)
     const temperature =
@@ -298,7 +299,7 @@ export async function expandTemplate(
         trace.fence(content, "markdown")
     }
 
-    const systems = resolveSystems(prj, template, tools, options)
+    const systems = resolveSystems(prj, template, tools)
     if (systems.length)
         if (messages[0].role === "system")
             // there's already a system message. add empty before
@@ -319,12 +320,19 @@ export async function expandTemplate(
                 }
             }
 
-            const system = resolveScript(prj, systems[i])
+            const systemId = systems[i]
+            const system = resolveScript(prj, systemId)
             if (!system)
-                throw new Error(`system template ${systems[i]} not found`)
+                throw new Error(`system template ${systemId.id} not found`)
 
             trace.startDetails(`👾 ${system.id}`)
-            const sysr = await callExpander(prj, system, env, trace, options)
+            const sysr = await callExpander(
+                prj,
+                system,
+                mergeEnvVarsWithSystem(env, systemId),
+                trace,
+                options
+            )
 
             if (sysr.images) images.push(...sysr.images)
             if (sysr.schemas) Object.assign(schemas, sysr.schemas)

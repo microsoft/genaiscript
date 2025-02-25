@@ -16,13 +16,13 @@ GenAIScript provides a convinience layer to start pyodide python runtimes.
 
 The `host.python` starts an instance of Pyodide.
 
-```javascript
+```js wrap
 const py = await host.python()
 ```
 
 Each Pyodide instance has a `run` method that can be used to run Python code.
 
-```javascript
+```js wrap
 const result = await py.run(`print('Hello, World!')`)
 ```
 
@@ -30,7 +30,7 @@ const result = await py.run(`print('Hello, World!')`)
 
 You can read and write global variables in the Pyodide environment.
 
-```javascript
+```js wrap
 py.globals.set("x", 42)
 const x = py.globals.get("x")
 await py.run(`print(x)`)
@@ -40,7 +40,7 @@ await py.run(`print(x)`)
 
 The current workspace file system is mounted on the `/workspace` directory in the Pyodide environment.
 
-```javascript
+```js wrap
 const result = await runtime.run(`
 import os
 os.listdir('/workspace')

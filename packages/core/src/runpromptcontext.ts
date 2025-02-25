@@ -83,7 +83,7 @@ import { writeFileEdits } from "./fileedits"
 import { agentAddMemory, agentQueryMemory } from "./agent"
 import { YAMLStringify } from "./yaml"
 import { Project } from "./server/messages"
-import { parametersToVars } from "./vars"
+import { mergeEnvVarsWithSystem, parametersToVars } from "./vars"
 import prettyBytes from "pretty-bytes"
 import { JSONLineCache } from "./cache"
 import { FFmepgClient } from "./ffmpeg"
@@ -424,13 +424,19 @@ export function createChatGenerationContext(
         options?: DefAgentOptions
     ): void => {
         checkCancelled(cancellationToken)
-        const { tools, system, disableMemory, disableMemoryQuery, ...rest } =
-            options || {}
+        const {
+            variant,
+            tools,
+            system,
+            disableMemory,
+            disableMemoryQuery,
+            ...rest
+        } = options || {}
         const memory = !disableMemory
 
         name = name.replace(/^agent_/i, "")
-        const agentName = `agent_${name}`
-        const agentLabel = `agent ${name}`
+        const agentName = `agent_${name}${variant ? "_" + variant : ""}`
+        const agentLabel = `agent ${name}${variant ? " " + variant : ""}`
 
         const agentSystem = uniq([
             "system.assistant",
@@ -467,8 +473,8 @@ export function createChatGenerationContext(
             async (args) => {
                 // the LLM automatically adds extract arguments to the context
                 checkCancelled(cancellationToken)
-                const { context, ...rest } = args
-                const { query, ...argsNoQuery } = rest
+                const { context, ...argsRest } = args
+                const { query, ...argsNoQuery } = argsRest
                 infoCb?.({
                     text: `${agentLabel}: ${query} ${parametersToVars(argsNoQuery)}`,
                 })
@@ -954,12 +960,7 @@ export function createChatGenerationContext(
                 }
             }
 
-            const systemScripts = resolveSystems(
-                prj,
-                runOptions ?? {},
-                tools,
-                genOptions
-            )
+            const systemScripts = resolveSystems(prj, runOptions ?? {}, tools)
             if (
                 addFallbackToolSystems(
                     systemScripts,
@@ -979,13 +980,18 @@ export function createChatGenerationContext(
                         const system = resolveScript(prj, systemId)
                         if (!system)
                             throw new Error(
-                                `system template ${systemId} not found`
+                                `system template ${systemId.id} not found`
                             )
                         runTrace.startDetails(`👾 ${system.id}`)
+                        if (systemId.parameters)
+                            runTrace.detailsFenced(
+                                `parameters`,
+                                YAMLStringify(systemId.parameters)
+                            )
                         const sysr = await callExpander(
                             prj,
                             system,
-                            env,
+                            mergeEnvVarsWithSystem(env, systemId),
                             runTrace,
                             genOptions
                         )

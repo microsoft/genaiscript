@@ -5,7 +5,7 @@ import {
     promptParameterTypeToJSONSchema,
     promptParametersSchemaToJSONSchema,
 } from "./parameters"
-import { parametersToVars, proxifyVars } from "./vars"
+import { parametersToVars, proxifyEnvVars } from "./vars"
 
 describe("promptParameterTypeToJSONSchema", () => {
     test("string type", () => {
@@ -126,7 +126,7 @@ describe("promptParametersSchemaToJSONSchema", () => {
 describe("proxifyVars", () => {
     test("proxify variables", () => {
         const res = { key: "value" }
-        const proxy = proxifyVars(res)
+        const proxy = proxifyEnvVars(res)
         assert.strictEqual(proxy.key, "value")
     })
 })

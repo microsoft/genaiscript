@@ -81,8 +81,8 @@ export function collectFolders(prj: Project) {
  * @param id - The ID of the template to retrieve.
  * @returns The matching PromptScript or undefined if no match is found.
  */
-export function resolveScript(prj: Project, id: string) {
-    return prj?.scripts?.find((t) => t.id == id) // Find and return the template with the matching ID
+export function resolveScript(prj: Project, system: SystemPromptInstance) {
+    return prj?.scripts?.find((t) => t.id == system.id) // Find and return the template with the matching ID
 }
 
 export interface ScriptFilterOptions {

@@ -73,6 +73,19 @@ script({ ...,
 })
 ```
 
+- override the parameter value in instance of the system script
+
+```js
+script({ ...,
+    system: [
+        "system", 
+        { 
+            id: "system.fs_read_summary", 
+            parameters: { model: "ollama:phi3" },            
+         }],
+})
+```
+
 ## Automated System Prompts
 
 When unspecified, GenAIScript inspects the source code of the script
@@ -254,25 +267,69 @@ Agent that can query Git to accomplish tasks.
 `````js wrap title="system.agent_git"
 system({
     title: "Agent that can query Git to accomplish tasks.",
+    parameters: {
+        cwd: {
+            type: "string",
+            description: "Current working directory",
+            required: false,
+        },
+        repo: {
+            type: "string",
+            description: "Repository URL or GitHub slug",
+            required: false,
+        },
+        branch: {
+            type: "string",
+            description: "Branch to checkout",
+            required: false,
+        },
+        variant: {
+            type: "string",
+            description: "Suffix to append to the agent name",
+            required: false,
+        },
+    },
 })
 
-defAgent(
-    "git",
-    "query a repository using Git to accomplish tasks. Provide all the context information available to execute git queries.",
-    `Your are a helpful LLM agent that can use the git tools to query the current repository.
+export default async function defAgentGit(ctx: PromptContext) {
+    const { env, defAgent } = ctx
+    const { vars } = env
+    let cwd = vars["system.agent_git.cwd"]
+    const repo = vars["system.agent_git.repo"]
+    const branch = vars["system.agent_git.branch"]
+    const variant = vars["system.agent_git.variant"]
+
+    if (!cwd && repo) {
+        const client = await git.shallowClone(repo, {
+            branch,
+            depth: 50,
+            force: true,
+        })
+        cwd = client.cwd
+    }
+
+    defAgent(
+        "git",
+        "query the current repository using Git to accomplish tasks. Provide all the context information available to execute git queries.",
+        `Your are a helpful LLM agent that can use the git tools to query the current repository.
     Answer the question in <QUERY>.
     - The current repository is the same as github repository.
     - Prefer using diff to compare files rather than listing files. Listing files is only useful when you need to read the content of the files.
     `,
-    {
-        system: [
-            "system.git_info",
-            "system.github_info",
-            "system.git",
-            "system.git_diff",
-        ],
-    }
-)
+        {
+            variant,
+            variantDescription:
+                (variant && repo) ??
+                `query ${repo} repository using Git to accomplish tasks. Provide all the context information available to execute git queries.`,
+            system: [
+                "system.github_info",
+                { id: "system.git_info", parameters: { cwd } },
+                { id: "system.git", parameters: { cwd } },
+                { id: "system.git_diff", parameters: { cwd } },
+            ],
+        }
+    )
+}
 
 `````
 
@@ -1215,133 +1272,152 @@ git read operations
 
 Tools to query a git repository.
 
--  tool `git_branch_default`: Gets the default branch using git.
--  tool `git_branch_current`: Gets the current branch using git.
--  tool `git_branch_list`: List all branches using git.
+-  tool `git_branch_default`: Gets the default branch using client.
+-  tool `git_branch_current`: Gets the current branch using client.
+-  tool `git_branch_list`: List all branches using client.
 -  tool `git_list_commits`: Generates a history of commits using the git log command.
--  tool `git_status`: Generates a status of the repository using git.
--  tool `git_last_tag`: Gets the last tag using git.
+-  tool `git_status`: Generates a status of the repository using client.
+-  tool `git_last_tag`: Gets the last tag using client.
 
 `````js wrap title="system.git"
 system({
     title: "git read operations",
     description: "Tools to query a git repository.",
+    parameters: {
+        cwd: {
+            type: "string",
+            description: "Current working directory",
+            required: false,
+        },
+    },
 })
 
-defTool(
-    "git_branch_default",
-    "Gets the default branch using git.",
-    {},
-    async () => {
-        return await git.defaultBranch()
-    }
-)
+export default async function (ctx: PromptContext) {
+    const { env, defTool } = ctx
+    const { vars } = env
+    const cwd = vars["system.git.cwd"]
+    const client = cwd ? git.client(cwd) : git
 
-defTool(
-    "git_branch_current",
-    "Gets the current branch using git.",
-    {},
-    async () => {
-        return await git.branch()
-    }
-)
+    defTool(
+        "git_branch_default",
+        "Gets the default branch using client.",
+        {},
+        async () => {
+            return await client.defaultBranch()
+        }
+    )
 
-defTool("git_branch_list", "List all branches using git.", {}, async () => {
-    return await git.exec("branch")
-})
+    defTool(
+        "git_branch_current",
+        "Gets the current branch using client.",
+        {},
+        async () => {
+            return await client.branch()
+        }
+    )
 
-defTool(
-    "git_list_commits",
-    "Generates a history of commits using the git log command.",
-    {
-        type: "object",
-        properties: {
-            base: {
-                type: "string",
-                description: "Base branch to compare against.",
-            },
-            head: {
-                type: "string",
-                description: "Head branch to compare",
-            },
-            count: {
-                type: "number",
-                description: "Number of commits to return",
-            },
-            author: {
-                type: "string",
-                description: "Author to filter by",
-            },
-            until: {
-                type: "string",
-                description:
-                    "Display commits until the given date. Formatted yyyy-mm-dd",
-            },
-            after: {
-                type: "string",
-                description:
-                    "Display commits after the given date. Formatted yyyy-mm-dd",
-            },
-            paths: {
-                type: "array",
-                description: "Paths to compare",
-                items: {
+    defTool(
+        "git_branch_list",
+        "List all branches using client.",
+        {},
+        async () => {
+            return await client.exec("branch")
+        }
+    )
+
+    defTool(
+        "git_list_commits",
+        "Generates a history of commits using the git log command.",
+        {
+            type: "object",
+            properties: {
+                base: {
                     type: "string",
-                    description: "File path or wildcard supported by git",
+                    description: "Base branch to compare against.",
                 },
-            },
-            excludedPaths: {
-                type: "array",
-                description: "Paths to exclude",
-                items: {
+                head: {
                     type: "string",
-                    description: "File path or wildcard supported by git",
+                    description: "Head branch to compare",
+                },
+                count: {
+                    type: "number",
+                    description: "Number of commits to return",
+                },
+                author: {
+                    type: "string",
+                    description: "Author to filter by",
+                },
+                until: {
+                    type: "string",
+                    description:
+                        "Display commits until the given date. Formatted yyyy-mm-dd",
+                },
+                after: {
+                    type: "string",
+                    description:
+                        "Display commits after the given date. Formatted yyyy-mm-dd",
+                },
+                paths: {
+                    type: "array",
+                    description: "Paths to compare",
+                    items: {
+                        type: "string",
+                        description: "File path or wildcard supported by git",
+                    },
+                },
+                excludedPaths: {
+                    type: "array",
+                    description: "Paths to exclude",
+                    items: {
+                        type: "string",
+                        description: "File path or wildcard supported by git",
+                    },
                 },
             },
         },
-    },
-    async (args) => {
-        const {
-            context,
-            base,
-            head,
-            paths,
-            excludedPaths,
-            count,
-            author,
-            until,
-            after,
-        } = args
-        const commits = await git.log({
-            base,
-            head,
-            author,
-            paths,
-            until,
-            after,
-            excludedPaths,
-            count,
-        })
-        const res = commits
-            .map(({ sha, date, message }) => `${sha} ${date} ${message}`)
-            .join("\n")
-        context.debug(res)
-        return res
-    }
-)
+        async (args) => {
+            const {
+                context,
+                base,
+                head,
+                paths,
+                excludedPaths,
+                count,
+                author,
+                until,
+                after,
+            } = args
+            const commits = await client.log({
+                base,
+                head,
+                author,
+                paths,
+                until,
+                after,
+                excludedPaths,
+                count,
+            })
+            const res = commits
+                .map(({ sha, date, message }) => `${sha} ${date} ${message}`)
+                .join("\n")
+            context.debug(res)
+            return res
+        }
+    )
 
-defTool(
-    "git_status",
-    "Generates a status of the repository using git.",
-    {},
-    async () => {
-        return await git.exec(["status", "--porcelain"])
-    }
-)
+    defTool(
+        "git_status",
+        "Generates a status of the repository using client.",
+        {},
+        async () => {
+            return await client.exec(["status", "--porcelain"])
+        }
+    )
 
-defTool("git_last_tag", "Gets the last tag using git.", {}, async () => {
-    return await git.lastTag()
-})
+    defTool("git_last_tag", "Gets the last tag using client.", {}, async () => {
+        return await client.lastTag()
+    })
+}
 
 `````
 
@@ -1358,59 +1434,76 @@ Tools to query a git repository.
 system({
     title: "git diff",
     description: "Tools to query a git repository.",
+    parameters: {
+        cwd: {
+            type: "string",
+            description: "Current working directory",
+            required: false,
+        },
+    },
 })
 
-defTool(
-    "git_diff",
-    "Computes file diffs using the git diff command. If the diff is too large, it returns the list of modified/added files.",
-    {
-        type: "object",
-        properties: {
-            base: {
-                type: "string",
-                description: "Base branch, ref, commit sha to compare against.",
-            },
-            head: {
-                type: "string",
-                description:
-                    "Head branch, ref, commit sha to compare. Use 'HEAD' to compare against the current branch.",
-            },
-            staged: {
-                type: "boolean",
-                description: "Compare staged changes",
-            },
-            nameOnly: {
-                type: "boolean",
-                description: "Show only file names",
-            },
-            paths: {
-                type: "array",
-                description: "Paths to compare",
-                items: {
+export default async function (ctx: PromptContext) {
+    const { env, defTool } = ctx
+    const { vars } = env
+    const cwd = vars["system.git_diff.cwd"]
+    const client = cwd ? git.client(cwd) : git
+
+    defTool(
+        "git_diff",
+        "Computes file diffs using the git diff command. If the diff is too large, it returns the list of modified/added files.",
+        {
+            type: "object",
+            properties: {
+                base: {
                     type: "string",
-                    description: "File path or wildcard supported by git",
+                    description:
+                        "Base branch, ref, commit sha to compare against.",
                 },
-            },
-            excludedPaths: {
-                type: "array",
-                description: "Paths to exclude",
-                items: {
+                head: {
                     type: "string",
-                    description: "File path or wildcard supported by git",
+                    description:
+                        "Head branch, ref, commit sha to compare. Use 'HEAD' to compare against the current branch.",
+                },
+                staged: {
+                    type: "boolean",
+                    description: "Compare staged changes",
+                },
+                nameOnly: {
+                    type: "boolean",
+                    description: "Show only file names",
+                },
+                paths: {
+                    type: "array",
+                    description: "Paths to compare",
+                    items: {
+                        type: "string",
+                        description: "File path or wildcard supported by git",
+                    },
+                },
+                excludedPaths: {
+                    type: "array",
+                    description: "Paths to exclude",
+                    items: {
+                        type: "string",
+                        description: "File path or wildcard supported by git",
+                    },
                 },
             },
         },
-    },
-    async (args) => {
-        const { context, ...rest } = args
-        const res = await git.diff({
-            llmify: true,
-            ...rest,
-        })
-        return res
-    },
-    { maxTokens: 20000 }
-)
+        async (args) => {
+            const { context, ...rest } = args
+            const res = await client.diff({
+                llmify: true,
+                ...rest,
+            })
+            return res
+        },
+        {
+            maxTokens: 20000,
+        }
+    )
+}
 
 `````
 
@@ -1426,12 +1519,27 @@ Git repository information
 `````js wrap title="system.git_info"
 system({
     title: "Git repository information",
+    parameters: {
+        cwd: {
+            type: "string",
+            description: "Current working directory",
+        },
+    },
 })
 
-const branch = await git.branch()
-const defaultBranch = await git.defaultBranch()
+export default async function GitInfo(ctx: PromptContext) {
+    const { env, $ } = ctx
+    const { vars } = env
 
-$`git: The current branch is ${branch} and the default branch is ${defaultBranch}.`
+    const cwd = vars["system.git_info.cwd"]
+    const client = cwd ? git.client(cwd) : git
+
+    const branch = await client.branch()
+    const defaultBranch = await client.defaultBranch()
+
+    $`## Git
+The current branch is ${branch} and the default branch is ${defaultBranch} ${cwd ? `in ${cwd}` : ""}.`
+}
 
 `````
 
@@ -1686,7 +1794,9 @@ system({
 const info = await github.info()
 if (info?.owner) {
     const { owner, repo, baseUrl } = info
-    $`- current github repository: ${owner}/${repo}`
+
+    $`## GitHub
+    - current github repository: ${owner}/${repo}`
     if (baseUrl) $`- current github base url: ${baseUrl}`
 }
 

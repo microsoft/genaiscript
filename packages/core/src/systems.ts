@@ -21,12 +21,15 @@ export function resolveSystems(
     script: PromptSystemOptions &
         ModelOptions &
         ContentSafetyOptions & { jsSource?: string },
-    resolvedTools?: ToolCallback[],
-    options?: GenerationOptions
-): string[] {
+    resolvedTools?: ToolCallback[]
+): SystemPromptInstance[] {
     const { jsSource, responseType, responseSchema, systemSafety } = script
     // Initialize systems array from script.system, converting to array if necessary using arrayify utility
-    let systems = arrayify(script.system)
+    let systems = arrayify(script.system).filter((s) => typeof s === "string")
+    const systemInstances = arrayify(script.system).filter(
+        (s) => typeof s === "object"
+    )
+
     const excludedSystem = arrayify(script.excludedSystem)
     const tools = arrayify(script.tools)
     const dataMode =
@@ -116,23 +119,31 @@ export function resolveSystems(
 
     // Return a unique list of non-empty systems
     // Filters out duplicates and empty entries using unique utility
-    const res = uniq(systems)
+    systems = uniq(systems)
+
+    // now compute system instances
+    const res: SystemPromptInstance[] = [
+        ...systems.map((id) => ({ id })),
+        ...systemInstances,
+    ]
+
     return res
 }
 
 export function addFallbackToolSystems(
-    systems: string[],
+    systems: SystemPromptInstance[],
     tools: ToolCallback[],
     options?: ModelOptions,
     genOptions?: GenerationOptions
 ) {
-    if (!tools?.length || systems.includes("system.tool_calls")) return false
+    if (!tools?.length || systems.find(({ id }) => id === "system.tool_calls"))
+        return false
 
     const fallbackTools =
         isToolsSupported(options?.model || genOptions?.model) === false ||
         options?.fallbackTools ||
         genOptions?.fallbackTools
-    if (fallbackTools) systems.push("system.tool_calls")
+    if (fallbackTools) systems.push({ id: "system.tool_calls" })
     return fallbackTools
 }
 
@@ -164,12 +175,16 @@ function resolveSystemFromTools(prj: Project, tool: string): string[] {
  */
 export function resolveTools(
     prj: Project,
-    systems: string[],
+    systems: (string | SystemPromptInstance)[],
     tools: string[]
 ): { id: string; description: string }[] {
     const { scripts: scripts } = prj
     const toolScripts = uniq([
-        ...systems.map((sid) => scripts.find((s) => s.id === sid)),
+        ...systems.map((sys) =>
+            scripts.find((s) =>
+                typeof sys === "string" ? s.id === sys : false
+            )
+        ),
         ...tools.map((tid) =>
             scripts.find((s) => s.defTools?.find((t) => t.id.startsWith(tid)))
         ),

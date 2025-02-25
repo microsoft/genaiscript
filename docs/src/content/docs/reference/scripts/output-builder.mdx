@@ -27,13 +27,13 @@ $`Write a poem` // piped to output as well
 
 - heading
 
-```javascript
+```js wrap
 output.heading(2, "Project Overview")
 ```
 
 - fenced code block
 
-```javascript
+```js wrap
 output.fence("let x = 0", "js")
 ```
 
@@ -51,13 +51,13 @@ output.warn("Probably not a good idea.")
 
 - image
 
-```javascript
+```js wrap
 output.image("https://example.com/image.png", "Sample Image")
 ```
 
 - table example
 
-```javascript
+```js wrap
 output.table([
     { Name: "Alice", Role: "Developer" },
     { Name: "Bob", Role: "Designer" },
@@ -73,7 +73,7 @@ output.resultItem(false, "There were errors in the deployment process.")
 
 - details
 
-```javascript
+```js wrap
 output.startDetails("Deployment Details", { success: true, expanded: true })
 output.appendContent("Deployment completed on 2024-04-27.")
 output.endDetails()

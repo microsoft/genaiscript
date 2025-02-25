@@ -8,7 +8,7 @@ import { resolveFileContents } from "./file"
 import { readText } from "./fs"
 import { host, runtimeHost } from "./host"
 import { shellParse } from "./shell"
-import { arrayify, dotGenaiscriptPath } from "./util"
+import { arrayify, dotGenaiscriptPath, logVerbose } from "./util"
 import { estimateTokens, truncateTextToTokens } from "./tokens"
 import { resolveTokenEncoder } from "./encoders"
 import { underscore } from "inflection"
@@ -369,9 +369,14 @@ ${await this.diff({ ...options, nameOnly: true })}
              * Runs install command after cloning
              */
             install?: boolean
+
+            /**
+             * Number of commits to fetch
+             */
+            depth?: number
         }
     ): Promise<GitClient> {
-        let { branch, force, install, ...rest } = options || {}
+        let { branch, force, install, depth, ...rest } = options || {}
 
         // normalize short github url
         // check if the repository is in the form of `owner/repo`
@@ -389,11 +394,12 @@ ${await this.diff({ ...options, nameOnly: true })}
             sha
         )
         if (branch) directory = host.path.join(directory, branch)
+        logVerbose(`git: shallow cloning ${repository} to ${directory}`)
         if (await checkDirectoryExists(directory)) {
             if (!force) return new GitClient(directory)
             await rm(directory, { recursive: true, force: true })
         }
-        const args = ["clone", "--depth", "1"]
+        const args = ["clone", "--depth", String(Math.max(1, depth))]
         if (branch) args.push("--branch", branch)
         Object.entries(rest).forEach(([k, v]) =>
             args.push(

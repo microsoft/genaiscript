@@ -81,7 +81,7 @@ interface PromptLike extends PromptDefinition, PromptToolsDefinition {
     /**
      * Resolved system ids
      */
-    resolvedSystem?: string[]
+    resolvedSystem?: SystemPromptInstance[]
 
     /**
      * Infered input schema for parameters
@@ -90,6 +90,12 @@ interface PromptLike extends PromptDefinition, PromptToolsDefinition {
 }
 
 type SystemPromptId = OptionsOrString<string>
+
+type SystemPromptInstance = {
+    id: SystemPromptId
+    parameters?: Record<string, string | boolean | number | object | any>
+    vars?: Record<string, string | boolean | number | object | any>
+}
 
 type SystemToolId = OptionsOrString<string>
 
@@ -391,7 +397,7 @@ interface PromptSystemOptions {
     /**
      * List of system script ids used by the prompt.
      */
-    system?: ElementOrArray<SystemPromptId>
+    system?: ElementOrArray<SystemPromptId | SystemPromptInstance>
 
     /**
      * List of tools used by the prompt.
@@ -2487,9 +2493,24 @@ interface Git {
         repository: string,
         options?: {
             /**
-             * Brnach to clone
+             * Branch to clone
              */
             branch?: string
+
+            /**
+             * Do not reuse previous clone
+             */
+            force?: boolean
+
+            /**
+             * Runs install command after cloning
+             */
+            install?: boolean
+
+            /**
+             * Number of commits to fetch
+             */
+            depth?: number
         }
     ): Promise<Git>
 
@@ -3450,9 +3471,21 @@ interface DefToolOptions {
      * Maximum number of tokens per tool content response
      */
     maxTokens?: number
+
+    /**
+     * Suffix to identify the variant instantiation of the tool
+     */
+    variant?: string
+
+    /**
+     * Updated description for the variant
+     */
+    variantDescription?: string
 }
 
-interface DefAgentOptions extends Omit<PromptGeneratorOptions, "label"> {
+interface DefAgentOptions
+    extends Omit<PromptGeneratorOptions, "label">,
+        DefToolOptions {
     /**
      * Excludes agent conversation from agent memory
      */

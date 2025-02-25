@@ -29,10 +29,9 @@ Not all LLM models support tools, in those cases, GenAIScript also support a fal
 It takes a JSON schema to define the input and expects a string output.
 The parameters are defined using the [parameters schema](/genaiscript/reference/scripts/parameters).
 
-
 **The LLM decides to call this tool on its own!**
 
-```javascript
+```js wrap
 defTool(
     "current_weather",
     "get the current weather",
@@ -77,19 +76,37 @@ to evaluate a math expression.
 
 You can define tools in a system script and include them in your main script as any other system script or tool.
 
-```javascript title="system.random.genai.mjs"
+```js wrap title="system.random.genai.mjs"
 system({ description: "Random tools" })
 defTool("random", "Generate a random number", {}, () => Math.random())
 ```
 
 - Make sure to use `system` instead of `script` in the system script.
 
-```javascript title="random-script.genai.mjs" 'tools: ["random"]'
+```js wrap title="random-script.genai.mjs" 'tools: ["random"]'
 script({
     title: "Random number",
     tools: ["random"],
 })
 $`Generate a random number.
+```
+
+### Multiple instances of the same system script
+
+You can include the same system script multiple times in a script
+with different parameters.
+
+```js wrap
+script({
+    system: [
+        "system.agent_git", // git operations on current repository
+        {
+            id: "system.agent_git", // same system script
+            parameters: { repo: "microsoft/genaiscript" } // but with new parameters
+            variant: "genaiscript" // appened to the identifier to keep tool identifiers unique
+        }
+    ]
+})
 ```
 
 ## Model Context Protocol Tools
@@ -164,7 +181,7 @@ To pick and choose which tools to include in a script,
 you can group them in system scripts. For example,
 the `current_weather` tool can be included the `system.current_weather.genai.mjs` script.
 
-```javascript file="system.current_weather.genai.mjs" 'defTool("current_weather", ...)'
+```js wrap file="system.current_weather.genai.mjs" 'defTool("current_weather", ...)'
 script({
     title: "Get the current weather",
 })
