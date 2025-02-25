@@ -67,3 +67,7 @@ export function unmarkdown(text: string) {
 export function collapseNewlines(res: string): string {
     return res?.replace(/(\r?\n){3,}/g, "\n\n")
 }
+
+export function isNonEmptyString(s: string) {
+    return s !== null && s !== undefined && s !== ""
+}

@@ -371,6 +371,8 @@ export const WS_MAX_FRAME_CHUNK_LENGTH = 1000000
 
 export const SCHEMA_DEFAULT_FORMAT = "json"
 export const THINK_REGEX = /<think>(.*?)($|<\/think>)/gis
+export const THINK_START_TOKEN_REGEX = /^<think>/
+export const THINK_END_TOKEN_REGEX = /<\/think>$/
 
 export const MAX_FILE_CONTENT_SIZE = 1024 * 1024 * 2 // 2MB
 export const TEST_CSV_ENTRY_SEPARATOR = /[;|\n]/g

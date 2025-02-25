@@ -8,6 +8,8 @@ import {
     OPENROUTER_API_CHAT_URL,
     OPENROUTER_SITE_NAME_HEADER,
     OPENROUTER_SITE_URL_HEADER,
+    THINK_END_TOKEN_REGEX,
+    THINK_START_TOKEN_REGEX,
     TOOL_ID,
     TOOL_NAME,
     TOOL_URL,
@@ -49,6 +51,7 @@ import {
 import prettyBytes from "pretty-bytes"
 import {
     deleteUndefinedValues,
+    isNonEmptyString,
     normalizeInt,
     trimTrailingSlash,
 } from "./cleaners"
@@ -210,6 +213,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
     trace.itemValue(`url`, `[${url}](${url})`)
 
     let numTokens = 0
+    let numReasoningTokens = 0
     const fetchRetry = await createFetch({
         trace,
         retries: retry,
@@ -274,6 +278,8 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
     let responseModel: string
     let lbs: ChatCompletionTokenLogprob[] = []
 
+    let reasoning = false
+
     const doChoices = (
         json: string,
         tokens: Logprob[],
@@ -295,14 +301,35 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
             const { delta, logprobs } = choice as ChatCompletionChunkChoice
             if (logprobs?.content) lbs.push(...logprobs.content)
             if (typeof delta?.content === "string" && delta.content !== "") {
-                numTokens += estimateTokens(delta.content, encoder)
-                chatResp += delta.content
-                tokens.push(
-                    ...serializeChunkChoiceToLogProbs(
-                        choice as ChatCompletionChunkChoice
-                    )
-                )
-                trace.appendToken(delta.content)
+                let content = delta.content
+                if (!reasoning && THINK_START_TOKEN_REGEX.test(content)) {
+                    reasoning = true
+                    content = content.replace(THINK_START_TOKEN_REGEX, "")
+                } else if (reasoning && THINK_END_TOKEN_REGEX.test(content)) {
+                    reasoning = false
+                    content = content.replace(THINK_END_TOKEN_REGEX, "")
+                }
+
+                if (isNonEmptyString(content)) {
+                    if (reasoning) {
+                        numReasoningTokens += estimateTokens(content, encoder)
+                        reasoningChatResp += content
+                        reasoningTokens.push(
+                            ...serializeChunkChoiceToLogProbs(
+                                choice as ChatCompletionChunkChoice
+                            )
+                        )
+                    } else {
+                        numTokens += estimateTokens(content, encoder)
+                        chatResp += content
+                        tokens.push(
+                            ...serializeChunkChoiceToLogProbs(
+                                choice as ChatCompletionChunkChoice
+                            )
+                        )
+                    }
+                    trace.appendToken(content)
+                }
             }
             if (
                 typeof delta?.reasoning_content === "string" &&
@@ -358,6 +385,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
                     reasoningSoFar: reasoningChatResp,
                     tokensSoFar: numTokens,
                     responseChunk: chatResp,
+                    reasoningChunk: reasoningChatResp,
                     inner,
                 })
             )
@@ -384,6 +412,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
 
             chunk = pref + chunk
             const ch0 = chatResp
+            const rch0 = reasoningChatResp
             chunk = chunk.replace(/^data:\s*(.*)[\r\n]+/gm, (_, json) => {
                 if (json === "[DONE]") {
                     done = true
@@ -397,15 +426,20 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
                 return ""
             })
             // end replace
-            const progress = chatResp.slice(ch0.length)
-            if (progress != "") {
+            const reasoningProgress = reasoningChatResp.slice(rch0.length)
+            const chatProgress = chatResp.slice(ch0.length)
+            if (
+                !isNonEmptyString(chatProgress) ||
+                !isNonEmptyString(reasoningProgress)
+            ) {
                 // logVerbose(`... ${progress.length} chars`);
                 partialCb?.(
                     deleteUndefinedValues({
                         responseSoFar: chatResp,
                         reasoningSoFar: reasoningChatResp,
+                        reasoningChunk: reasoningProgress,
                         tokensSoFar: numTokens,
-                        responseChunk: progress,
+                        responseChunk: chatProgress,
                         responseTokens: tokens,
                         reasoningTokens,
                         inner,
@@ -418,14 +452,15 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
         try {
             if (r.body.getReader) {
                 const reader = r.body.getReader()
-                while (!cancellationToken?.isCancellationRequested) {
-                    const { done, value } = await reader.read()
-                    if (done) break
+                while (!cancellationToken?.isCancellationRequested && !done) {
+                    const { done: readerDone, value } = await reader.read()
+                    if (readerDone) break
                     doChunk(value)
                 }
             } else {
                 for await (const value of r.body as any) {
-                    if (cancellationToken?.isCancellationRequested) break
+                    if (cancellationToken?.isCancellationRequested || done)
+                        break
                     doChunk(value)
                 }
             }
