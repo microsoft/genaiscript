@@ -171,7 +171,9 @@ function activateNotebookExecutor(state: ExtensionState) {
                 heap.output = output
 
                 const {
-                    system = meta.system?.length > 0 ? undefined : "false",
+                    system = arrayify(meta.system)?.length > 0
+                        ? undefined
+                        : "false",
                     user,
                     assistant,
                 } = parseKeyValuePairs(cell.metadata.options || "") || {}
