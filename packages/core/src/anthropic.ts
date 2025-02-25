@@ -26,6 +26,8 @@ import {
     ChatCompletionContentPartImage,
     ChatCompletionSystemMessageParam,
     ChatCompletionToolMessageParam,
+    ChatCompletionContentPart,
+    ChatCompletionContentPartRefusal,
 } from "./chattypes"
 
 import { logError } from "./util"
@@ -100,12 +102,9 @@ const convertMessages = (
     emitThinking: boolean
 ): Anthropic.MessageParam[] => {
     const res: Anthropic.MessageParam[] = []
-    const lastAssistantIndex = emitThinking
-        ? findLastIndex(messages, ({ role }) => role === "assistant")
-        : -1
     for (let i = 0; i < messages.length; ++i) {
         const message = messages[i]
-        const msg = convertSingleMessage(message)
+        const msg = convertSingleMessage(message, emitThinking)
         const last = res.at(-1)
         if (last?.role !== msg.role) res.push(msg)
         else {
@@ -120,24 +119,13 @@ const convertMessages = (
                 last.content.push({ type: "text", text: msg.content })
             else last.content.push(...msg.content)
         }
-        if (i === lastAssistantIndex) {
-            // reasoning not supported yet
-            const previousIndex = findLastIndex(
-                messages,
-                ({ role }) => role === "user",
-                lastAssistantIndex - 1
-            )
-            const previous = messages[previousIndex]
-            if (previous && typeof previous.content !== "string") {
-                // TODO
-            }
-        }
     }
     return res
 }
 
 const convertSingleMessage = (
-    msg: ChatCompletionMessageParam
+    msg: ChatCompletionMessageParam,
+    emitThinking: boolean
 ): Anthropic.MessageParam => {
     const { role } = msg
     if (!role || role === "aici") {
@@ -146,11 +134,8 @@ const convertSingleMessage = (
             role: "user",
             content: [{ type: "text", text: JSON.stringify(msg) }],
         }
-    } else if (msg.role === "assistant" && Array.isArray(msg.tool_calls)) {
-        return convertToolCallMessage({
-            ...msg,
-            tool_calls: msg.tool_calls,
-        })
+    } else if (msg.role === "assistant") {
+        return convertAssistantMessage(msg, emitThinking)
     } else if (role === "tool") {
         return convertToolResultMessage(msg)
     } else if (role === "function")
@@ -165,21 +150,32 @@ function toCacheControl(msg: ChatCompletionMessageParam): {
     return msg.cacheControl === "ephemeral" ? { type: "ephemeral" } : undefined
 }
 
-const convertToolCallMessage = (
-    msg: ChatCompletionAssistantMessageParam
+const convertAssistantMessage = (
+    msg: ChatCompletionAssistantMessageParam,
+    emitThinking: boolean
 ): Anthropic.MessageParam => {
     return {
         role: "assistant",
-        content: msg.tool_calls.map(
-            (tool) =>
-                deleteUndefinedValues({
-                    type: "tool_use",
-                    id: tool.id,
-                    input: JSONLLMTryParse(tool.function.arguments),
-                    name: tool.function.name,
-                    cache_control: toCacheControl(msg),
-                }) satisfies Anthropic.ToolUseBlockParam
-        ),
+        content: [
+            msg.reasoning_content && emitThinking
+                ? ({
+                      type: "thinking",
+                      thinking: msg.reasoning_content,
+                      signature: msg.signature,
+                  } satisfies Anthropic.ThinkingBlockParam)
+                : undefined,
+            ...((convertStandardMessage(msg)?.content || []) as any),
+            ...(msg.tool_calls || []).map(
+                (tool) =>
+                    deleteUndefinedValues({
+                        type: "tool_use",
+                        id: tool.id,
+                        input: JSONLLMTryParse(tool.function.arguments),
+                        name: tool.function.name,
+                        cache_control: toCacheControl(msg),
+                    }) satisfies Anthropic.ToolUseBlockParam
+            ),
+        ].filter((x) => !!x),
     }
 }
 
@@ -199,6 +195,35 @@ const convertToolResultMessage = (
     }
 }
 
+const convertBlockParam = (
+    block: ChatCompletionContentPart | ChatCompletionContentPartRefusal,
+    cache_control?: { type: "ephemeral" }
+) => {
+    if (typeof block === "string") {
+        return {
+            type: "text",
+            text: block,
+            cache_control,
+        } satisfies Anthropic.TextBlockParam
+    } else if (block.type === "text") {
+        if (!block.text) return undefined
+        return {
+            type: "text",
+            text: block.text,
+            cache_control,
+        } satisfies Anthropic.TextBlockParam
+    } else if (block.type === "image_url") {
+        return convertImageUrlBlock(block)
+    }
+    // audio?
+    // Handle other types or return a default
+    else
+        return {
+            type: "text",
+            text: JSON.stringify(block),
+        } satisfies Anthropic.TextBlockParam
+}
+
 const convertStandardMessage = (
     msg:
         | ChatCompletionSystemMessageParam
@@ -208,37 +233,15 @@ const convertStandardMessage = (
     const role = msg.role === "assistant" ? "assistant" : "user"
     let res: Anthropic.MessageParam
     if (Array.isArray(msg.content)) {
+        const cache_control = toCacheControl(msg)
         res = {
             role,
             content: msg.content
-                .map((block) => {
-                    const cache_control = toCacheControl(msg)
-                    if (typeof block === "string") {
-                        return {
-                            type: "text",
-                            text: block,
-                            cache_control,
-                        } satisfies Anthropic.TextBlockParam
-                    } else if (block.type === "text") {
-                        return {
-                            type: "text",
-                            text: block.text,
-                            cache_control,
-                        } satisfies Anthropic.TextBlockParam
-                    } else if (block.type === "image_url") {
-                        return convertImageUrlBlock(block)
-                    }
-                    // audio?
-                    // Handle other types or return a default
-                    else
-                        return {
-                            type: "text",
-                            text: JSON.stringify(block),
-                        } satisfies Anthropic.TextBlockParam
-                })
+                .map((block) => convertBlockParam(block, cache_control))
+                .filter((t) => !!t)
                 .map(deleteUndefinedValues),
         }
-    } else {
+    } else if (typeof msg.content === "string") {
         res = {
             role,
             content: [
@@ -331,6 +334,7 @@ const completerFactory = (
         let numTokens = 0
         let chatResp = ""
         let reasoningChatResp = ""
+        let signature = ""
         let finishReason: ChatCompletionResponse["finishReason"]
         let usage: ChatCompletionResponse["usage"] | undefined
         const toolCalls: ChatCompletionToolCall[] = []
@@ -353,16 +357,6 @@ const completerFactory = (
                 type: "enabled",
                 budget_tokens,
             }
-            /*messages.push({
-                role: "assistant",
-                content: [
-                    {
-                        type: "thinking",
-                        thinking: "",
-                        signature: "",
-                    } satisfies Anthropic.ThinkingBlockParam,
-                ],
-            })*/
         }
         const messages = convertMessages(req.messages, !!thinking)
         const mreq = deleteUndefinedValues({
@@ -407,6 +401,9 @@ const completerFactory = (
 
                     case "content_block_delta":
                         switch (chunk.delta.type) {
+                            case "signature_delta":
+                                signature = chunk.delta.signature
+                                break
                             case "thinking_delta":
                                 reasoningContent = chunk.delta.thinking
                                 trace.appendToken(reasoningContent)
@@ -475,6 +472,7 @@ const completerFactory = (
         return {
             text: chatResp,
             reasoning: reasoningChatResp,
+            signature,
             finishReason,
             usage,
             model,

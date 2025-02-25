@@ -93,7 +93,7 @@ import {
     getChatCompletionCache,
 } from "./chatcache"
 import { deleteUndefinedValues } from "./cleaners"
-import { unthink } from "./think"
+import { splitThink, unthink } from "./think"
 
 function toChatCompletionImage(
     image: PromptImage
@@ -682,19 +682,16 @@ async function structurifyChatSession(
 function parseAssistantMessage(
     resp: ChatCompletionResponse
 ): ChatCompletionAssistantMessageParam {
-    let { text, reasoning } = resp
-    text = text
-        ?.replace(THINK_REGEX, (_, m) => {
-            reasoning = (reasoning || "") + m
-            return ""
-        })
-        .trimStart()
-    if (!text && !reasoning) return undefined
+    const { signature } = resp
+    const { content, reasoning } = splitThink(resp.text)
+    const reasoning_content = resp.reasoning || reasoning
+    if (!content && !reasoning_content) return undefined
     return deleteUndefinedValues({
         role: "assistant",
-        content: text,
-        reasoning_content: reasoning,
-    })
+        content,
+        reasoning_content,
+        signature,
+    } satisfies ChatCompletionAssistantMessageParam)
 }
 
 async function processChatMessage(
