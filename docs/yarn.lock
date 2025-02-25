@@ -2944,9 +2944,9 @@ hast-util-to-html@^9.0.0, hast-util-to-html@^9.0.1, hast-util-to-html@^9.0.4:
     zwitch "^2.0.4"
 
 hast-util-to-jsx-runtime@^2.0.0:
-  version "2.3.4"
-  resolved "https://registry.yarnpkg.com/hast-util-to-jsx-runtime/-/hast-util-to-jsx-runtime-2.3.4.tgz#3d2e382b03d01686292bf7ce6b3601b6d58f7894"
-  integrity sha512-2GSifZSlBD35z6/+sp+btB333wHFPck/rrlKZMc9IOUJk6anHuQuqC/oNI80Pj717wo8JCPdXjjasVqQu3UH8Q==
+  version "2.3.5"
+  resolved "https://registry.yarnpkg.com/hast-util-to-jsx-runtime/-/hast-util-to-jsx-runtime-2.3.5.tgz#dd22fedd1aa87b44ed1ce68f3d15e30d6c7cb781"
+  integrity sha512-gHD+HoFxOMmmXLuq9f2dZDMQHVcplCVpMfBNRpJsF03yyLZvJGzsFORe8orVuYDX9k2w0VH0uF8oryFd1whqKQ==
   dependencies:
     "@types/estree" "^1.0.0"
     "@types/hast" "^3.0.0"
@@ -4773,10 +4773,10 @@ sprintf-js@~1.0.2:
   resolved "https://registry.yarnpkg.com/sprintf-js/-/sprintf-js-1.0.3.tgz#04e6926f662895354f3dd015203633b857297e2c"
   integrity sha512-D9cPgkvLlV3t3IzL0D0YLvGA9Ahk4PcvVwUbN0dSGr1aP0Nrt4AEnTUbuGvquEC0mA64Gqt1fzirlRs5ibXx8g==
 
-starlight-blog@^0.17.3:
-  version "0.17.3"
-  resolved "https://registry.yarnpkg.com/starlight-blog/-/starlight-blog-0.17.3.tgz#fd5c71f68cf3dacf6ae233d213b3627173a0dcf7"
-  integrity sha512-EFBbxwIYB+NdGHlyYst9mJdxXtfpp2kSGtoKqrLuNa1MPiiGaO2I0xi+0y6Ei+R4RfzF06N+DNh0eojwX30Ojg==
+starlight-blog@^0.18.0:
+  version "0.18.0"
+  resolved "https://registry.yarnpkg.com/starlight-blog/-/starlight-blog-0.18.0.tgz#16756dcac0391edb91d0fa612b07457dffff1ea1"
+  integrity sha512-8PzDqJQ0i0nWdXTYjs2OiCM4AiqSQgW2gEFNvFg5hGyULrHCModOnR+Byy9LShZiFyFzcBtbX2HGZC7SXpsVcw==
   dependencies:
     "@astrojs/mdx" "^4.0.8"
     "@astrojs/rss" "^4.0.11"
