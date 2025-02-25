@@ -317,10 +317,16 @@ export async function runScriptInternal(
             if (
                 !isQuiet &&
                 reasoningChunk !== undefined &&
-                reasoningChunk !== null
+                reasoningChunk !== null &&
+                reasoningChunk !== ""
             ) {
                 reasoningOutput = true
-                stderr.write(wrapColor(CONSOLE_COLOR_REASONING, reasoningChunk))
+                stderr.write(
+                    wrapColor(
+                        CONSOLE_COLOR_REASONING,
+                        reasoningChunk
+                    )
+                )
             }
             if (
                 responseChunk !== undefined &&
