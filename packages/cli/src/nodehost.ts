@@ -26,6 +26,7 @@ import {
     DOT_ENV_FILENAME,
     AZURE_MANAGEMENT_TOKEN_SCOPES,
     MODEL_PROVIDER_AZURE_AI_INFERENCE,
+    MODEL_PROVIDERS,
 } from "../../core/src/constants"
 import { tryReadText } from "../../core/src/fs"
 import {
@@ -101,6 +102,7 @@ export class NodeHost extends EventTarget implements RuntimeHost {
     readonly userInputQueue = new PLimitPromiseQueue(1)
     readonly azureToken: AzureTokenResolver
     readonly azureAIInferenceToken: AzureTokenResolver
+    readonly azureAIServerlessToken: AzureTokenResolver
     readonly azureManagementToken: AzureTokenResolver
     readonly microsoftGraphToken: AzureTokenResolver
 
@@ -113,6 +115,11 @@ export class NodeHost extends EventTarget implements RuntimeHost {
             AZURE_COGNITIVE_SERVICES_TOKEN_SCOPES
         )
         this.azureAIInferenceToken = createAzureTokenResolver(
+            "Azure AI Inference",
+            "AZURE_AI_INFERENCE_TOKEN_SCOPES",
+            AZURE_COGNITIVE_SERVICES_TOKEN_SCOPES
+        )
+        this.azureAIServerlessToken = createAzureTokenResolver(
             "Azure AI Serverless",
             "AZURE_SERVERLESS_OPENAI_TOKEN_SCOPES",
             AZURE_AI_INFERENCE_TOKEN_SCOPES
@@ -256,25 +263,25 @@ export class NodeHost extends EventTarget implements RuntimeHost {
                         options
                     )
                 if (!azureToken) {
+                    const providerName = MODEL_PROVIDERS.find(
+                        ({ id }) => id === tok.provider
+                    ).detail
                     if (azureTokenError) {
                         logError(
-                            `Azure OpenAI token not available for ${modelId}`
+                            `${providerName} token not available for ${modelId}, ${tok.azureCredentialsType || "default"}`
                         )
                         logVerbose(azureTokenError.message)
                         trace.error(
-                            `Azure OpenAI token not available for ${modelId}`,
+                            `${providerName} token not available for ${modelId}, ${tok.azureCredentialsType || "default"}`,
                             azureTokenError
                         )
                     }
                     throw new Error(
-                        `Azure OpenAI token not available for ${modelId}`
+                        `${providerName} token not available for ${modelId}`
                     )
                 }
                 tok.token = "Bearer " + azureToken.token
-            } else if (
-                tok.provider === MODEL_PROVIDER_AZURE_AI_INFERENCE ||
-                tok.provider === MODEL_PROVIDER_AZURE_SERVERLESS_MODELS
-            ) {
+            } else if (tok.provider === MODEL_PROVIDER_AZURE_AI_INFERENCE) {
                 const { token: azureToken, error: azureTokenError } =
                     await this.azureAIInferenceToken.token(
                         tok.azureCredentialsType,
@@ -283,11 +290,11 @@ export class NodeHost extends EventTarget implements RuntimeHost {
                 if (!azureToken) {
                     if (azureTokenError) {
                         logError(
-                            `Azure AI Inference token not available for ${modelId}`
+                            `Azure AI Inference token not available for ${modelId}, ${tok.azureCredentialsType || "default"}`
                         )
                         logVerbose(azureTokenError.message)
                         trace.error(
-                            `Azure AI Inference token not available for ${modelId}`,
+                            `Azure AI Inference token not available for ${modelId}, ${tok.azureCredentialsType || "default"}`,
                             azureTokenError
                         )
                     }
@@ -295,9 +302,31 @@ export class NodeHost extends EventTarget implements RuntimeHost {
                         `Azure AI Inference token not available for ${modelId}`
                     )
                 }
-                if (tok.provider === MODEL_PROVIDER_AZURE_AI_INFERENCE)
-                    tok.token = azureToken.token
-                else tok.token = "Bearer " + azureToken.token
+                tok.token = "Bearer " + azureToken.token
+            } else if (
+                tok.provider === MODEL_PROVIDER_AZURE_SERVERLESS_MODELS
+            ) {
+                const { token: azureToken, error: azureTokenError } =
+                    await this.azureAIServerlessToken.token(
+                        tok.azureCredentialsType,
+                        options
+                    )
+                if (!azureToken) {
+                    if (azureTokenError) {
+                        logError(
+                            `Azure AI Serverless token not available for ${modelId}`
+                        )
+                        logVerbose(azureTokenError.message)
+                        trace.error(
+                            `Azure AI Serverless token not available for ${modelId}`,
+                            azureTokenError
+                        )
+                    }
+                    throw new Error(
+                        `Azure AI Serverless token not available for ${modelId}`
+                    )
+                }
+                tok.token = "Bearer " + azureToken.token
             }
         }
         if (tok && (!tok.token || tok.token === tok.provider)) {

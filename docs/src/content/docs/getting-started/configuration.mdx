@@ -601,13 +601,7 @@ It supports both Entra ID and key-based authentication.
 script({ model: "azure_ai_inference:gpt-4o" })
 ```
 
-#### Managed Identity (Entra ID) -- Under contrusctions
-
-:::note
-
-This authentication method is not yet supported.
-
-:::
+#### Managed Identity (Entra ID)
 
 <Steps>
 
@@ -615,17 +609,14 @@ This authentication method is not yet supported.
 
 <li>
 
-Open https://ai.azure.com/, open your project and go the **Management center**.
+Follow [these steps](https://learn.microsoft.com/en-us/azure/ai-foundry/model-inference/how-to/configure-entra-id?tabs=rest&pivots=ai-foundry-portal)
+carefully to configure the required Roles for your user.
 
 </li>
+
 <li>
 
-Open the **Users** tab
-
-</li>
-<li>
-
-Add your user or service principal to the **Azure AI Developer** role.
+Open https://ai.azure.com/ and open your project
 
 </li>
 
