@@ -1,7 +1,7 @@
 # Prompt + LLM = Response
 
 -   authentication: `.env`, environment variables, Azure Entra
--   OpenAI API, Azure OpenAI, OLlama, AICI, ...
+-   OpenAI API, Azure OpenAI, OLlama, ...
 
 <br/>
 <br/>

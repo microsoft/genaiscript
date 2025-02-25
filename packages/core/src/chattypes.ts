@@ -7,16 +7,6 @@
 
 import OpenAI from "openai"
 
-/**
- * Interface representing a custom AI Chat Interface request.
- */
-export interface AICIRequest extends ChatCompletionMessageParamCacheControl {
-    role: "aici" // The role for this type of request
-    content?: string // Optional content of the request
-    error?: unknown // Optional error information
-    functionName: string // Name of the function being requested
-}
-
 export type ChatCompletionReasoningEffort = OpenAI.ChatCompletionReasoningEffort
 
 // Aliases for OpenAI chat completion types
@@ -74,7 +64,7 @@ export type ChatCompletionFunctionMessageParam =
         ChatCompletionMessageParamCacheControl
 
 /**
- * Type representing parameters for chat completion messages, including custom AICIRequest.
+ * Type representing parameters for chat completion messages.
  */
 export type ChatCompletionMessageParam =
     | ChatCompletionSystemMessageParam
@@ -82,7 +72,6 @@ export type ChatCompletionMessageParam =
     | ChatCompletionAssistantMessageParam
     | ChatCompletionToolMessageParam
     | ChatCompletionFunctionMessageParam
-    | AICIRequest
 
 /**
  * Type representing a request to create a chat completion, extending from OpenAI's

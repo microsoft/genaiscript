@@ -63,11 +63,10 @@ function messagesToChatMessages(messages: ChatCompletionMessageParam[]) {
                     renderMessageContent(m),
                     "genaiscript"
                 )
-            case "function":
-            case "tool":
-                throw new Error("tools not supported with copilot models")
             default:
-                throw new Error("unknown role " + m.role)
+                throw new Error(
+                    `${m.role} not supported with GitHub Copilot Chat models`
+                )
         }
     })
     return res

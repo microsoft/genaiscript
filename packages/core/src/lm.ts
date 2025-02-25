@@ -1,8 +1,6 @@
-import { AICIModel } from "./aici"
 import { AnthropicBedrockModel, AnthropicModel } from "./anthropic"
 import { LanguageModel } from "./chat"
 import {
-    MODEL_PROVIDER_AICI,
     MODEL_PROVIDER_ANTHROPIC,
     MODEL_PROVIDER_ANTHROPIC_BEDROCK,
     MODEL_PROVIDER_GITHUB_COPILOT_CHAT,
@@ -40,7 +38,6 @@ export function resolveLanguageModel(provider: string): LanguageModel {
         return AzureAIInferenceModel
     if (provider === MODEL_PROVIDER_GITHUB) return GitHubModel
     if (provider === MODEL_PROVIDER_OLLAMA) return OllamaModel
-    if (provider === MODEL_PROVIDER_AICI) return AICIModel
     if (provider === MODEL_PROVIDER_ANTHROPIC) return AnthropicModel
     if (provider === MODEL_PROVIDER_ANTHROPIC_BEDROCK)
         return AnthropicBedrockModel

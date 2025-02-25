@@ -59,13 +59,11 @@ import {
     CHAT_REQUEST_PER_MODEL_CONCURRENT_LIMIT,
     TOKEN_MISSING_INFO,
     TOKEN_NO_ANSWER,
-    MODEL_PROVIDER_AICI,
     DOCS_DEF_FILES_IS_EMPTY_URL,
     TRANSCRIPTION_CACHE_NAME,
     TRANSCRIPTION_MODEL_ID,
     SPEECH_MODEL_ID,
 } from "./constants"
-import { renderAICI } from "./aici"
 import { addFallbackToolSystems, resolveSystems, resolveTools } from "./systems"
 import { callExpander } from "./expander"
 import {
@@ -918,46 +916,39 @@ export function createChatGenerationContext(
             let prediction: PromptPrediction
 
             // expand template
-            const { provider } = parseModelIdentifier(genOptions.model)
-            if (provider === MODEL_PROVIDER_AICI) {
-                const { aici } = await renderAICI("prompt", node)
-                // todo: output processor?
-                messages.push(aici)
-            } else {
-                const {
-                    errors,
-                    schemas: scs,
-                    functions: fns,
-                    messages: msgs,
-                    chatParticipants: cps,
-                    fileMerges: fms,
-                    outputProcessors: ops,
-                    fileOutputs: fos,
-                    images: imgs,
-                    prediction: pred,
-                    disposables: dps,
-                } = await renderPromptNode(genOptions.model, node, {
-                    flexTokens: genOptions.flexTokens,
-                    fenceFormat: genOptions.fenceFormat,
-                    trace: runTrace,
-                    cancellationToken,
-                })
+            const {
+                errors,
+                schemas: scs,
+                functions: fns,
+                messages: msgs,
+                chatParticipants: cps,
+                fileMerges: fms,
+                outputProcessors: ops,
+                fileOutputs: fos,
+                images: imgs,
+                prediction: pred,
+                disposables: dps,
+            } = await renderPromptNode(genOptions.model, node, {
+                flexTokens: genOptions.flexTokens,
+                fenceFormat: genOptions.fenceFormat,
+                trace: runTrace,
+                cancellationToken,
+            })
 
-                schemas = scs
-                tools = fns
-                chatParticipants = cps
-                messages.push(...msgs)
-                fileMerges.push(...fms)
-                outputProcessors.push(...ops)
-                fileOutputs.push(...fos)
-                images.push(...imgs)
-                disposables.push(...dps)
-                prediction = pred
+            schemas = scs
+            tools = fns
+            chatParticipants = cps
+            messages.push(...msgs)
+            fileMerges.push(...fms)
+            outputProcessors.push(...ops)
+            fileOutputs.push(...fos)
+            images.push(...imgs)
+            disposables.push(...dps)
+            prediction = pred
 
-                if (errors?.length) {
-                    logError(errors.map((err) => errorMessage(err)).join("\n"))
-                    throw new Error("errors while running prompt")
-                }
+            if (errors?.length) {
+                logError(errors.map((err) => errorMessage(err)).join("\n"))
+                throw new Error("errors while running prompt")
             }
 
             const systemScripts = resolveSystems(prj, runOptions ?? {}, tools)
@@ -1022,10 +1013,6 @@ export function createChatGenerationContext(
                                 throw new NotSupportedError(
                                     "only string user messages supported in system"
                                 )
-                        }
-                        if (sysr.aici) {
-                            runTrace.fence(sysr.aici, "yaml")
-                            messages.push(sysr.aici)
                         }
                         genOptions.logprobs =
                             genOptions.logprobs || system.logprobs

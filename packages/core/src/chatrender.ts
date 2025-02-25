@@ -178,9 +178,6 @@ export function renderMessagesToMarkdown(
                         )
                     )
                     break
-                case "aici":
-                    res.push(details(`AICI`, fenceMD(msg.content, textLang)))
-                    break
                 case "tool":
                     res.push(
                         details(

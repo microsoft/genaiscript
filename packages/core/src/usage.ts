@@ -12,7 +12,7 @@ import {
 import { MarkdownTrace } from "./trace"
 import { logVerbose, toStringList } from "./util"
 import { parseModelIdentifier } from "./models"
-import { MODEL_PRICINGS, MODEL_PROVIDER_AICI } from "./constants"
+import { MODEL_PRICINGS } from "./constants"
 
 /**
  * Estimates the cost of a chat completion based on the model and usage.
@@ -26,7 +26,6 @@ export function estimateCost(modelId: string, usage: ChatCompletionUsage) {
 
     const { completion_tokens, prompt_tokens } = usage
     let { provider, model } = parseModelIdentifier(modelId)
-    if (provider === MODEL_PROVIDER_AICI) return undefined
     const m = `${provider}:${model}`.toLowerCase()
     const cost = MODEL_PRICINGS[m]
     if (!cost) return undefined

@@ -34,7 +34,6 @@ export interface LanguageModelConfiguration extends LanguageModelReference {
     token: string
     source?: string
     type?: OpenAIAPIType
-    aici?: boolean
     version?: string
     azureCredentialsType?: AzureCredentialsType
 }

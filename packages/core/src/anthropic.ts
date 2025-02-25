@@ -130,8 +130,7 @@ const convertSingleMessage = (
     emitThinking: boolean
 ): Anthropic.MessageParam => {
     const { role } = msg
-    if (!role || role === "aici") {
-        // Handle AICIRequest or other custom types
+    if (!role) {
         return {
             role: "user",
             content: [{ type: "text", text: JSON.stringify(msg) }],

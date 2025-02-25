@@ -2,12 +2,7 @@ import { resolveScript } from "./ast"
 import { assert } from "./util"
 import { MarkdownTrace } from "./trace"
 import { errorMessage, isCancelError, NotSupportedError } from "./error"
-import {
-    JS_REGEX,
-    MAX_TOOL_CALLS,
-    MODEL_PROVIDER_AICI,
-    PROMPTY_REGEX,
-} from "./constants"
+import { JS_REGEX, MAX_TOOL_CALLS, PROMPTY_REGEX } from "./constants"
 import {
     finalizeMessages,
     PromptImage,
@@ -16,7 +11,6 @@ import {
 } from "./promptdom"
 import { createPromptContext } from "./promptcontext"
 import { evalPrompt } from "./evalprompt"
-import { renderAICI } from "./aici"
 import { addToolDefinitionsMessage, appendSystemMessage } from "./chat"
 import { importPrompt } from "./importprompt"
 import { parseModelIdentifier } from "./models"
@@ -24,7 +18,6 @@ import { runtimeHost } from "./host"
 import { addFallbackToolSystems, resolveSystems } from "./systems"
 import { GenerationOptions } from "./generation"
 import {
-    AICIRequest,
     ChatCompletionMessageParam,
     ChatCompletionReasoningEffort,
 } from "./chattypes"
@@ -58,7 +51,6 @@ export async function callExpander(
     let fileOutputs: FileOutput[] = []
     let disposables: AsyncDisposable[] = []
     let prediction: PromptPrediction
-    let aici: AICIRequest
 
     const logCb = (msg: any) => {
         logs += msg + "\n"
@@ -78,45 +70,38 @@ export async function callExpander(
             })
         }
         const node = ctx.node
-        if (provider !== MODEL_PROVIDER_AICI) {
-            const {
-                messages: msgs,
-                images: imgs,
-                errors,
-                schemas: schs,
-                functions: fns,
-                fileMerges: fms,
-                outputProcessors: ops,
-                chatParticipants: cps,
-                fileOutputs: fos,
-                prediction: pred,
-                disposables: mcps,
-            } = await renderPromptNode(modelId, node, {
-                flexTokens: options.flexTokens,
-                fenceFormat: options.fenceFormat,
-                trace,
-            })
-            messages = msgs
-            images = imgs
-            schemas = schs
-            functions = fns
-            fileMerges = fms
-            outputProcessors = ops
-            chatParticipants = cps
-            fileOutputs = fos
-            disposables = mcps
-            prediction = pred
-            if (errors?.length) {
-                for (const error of errors) trace.error(``, error)
-                status = "error"
-                statusText = errors.map((e) => errorMessage(e)).join("\n")
-            } else {
-                status = "success"
-            }
+        const {
+            messages: msgs,
+            images: imgs,
+            errors,
+            schemas: schs,
+            functions: fns,
+            fileMerges: fms,
+            outputProcessors: ops,
+            chatParticipants: cps,
+            fileOutputs: fos,
+            prediction: pred,
+            disposables: mcps,
+        } = await renderPromptNode(modelId, node, {
+            flexTokens: options.flexTokens,
+            fenceFormat: options.fenceFormat,
+            trace,
+        })
+        messages = msgs
+        images = imgs
+        schemas = schs
+        functions = fns
+        fileMerges = fms
+        outputProcessors = ops
+        chatParticipants = cps
+        fileOutputs = fos
+        disposables = mcps
+        prediction = pred
+        if (errors?.length) {
+            for (const error of errors) trace.error(``, error)
+            status = "error"
+            statusText = errors.map((e) => errorMessage(e)).join("\n")
         } else {
-            const tmp = await renderAICI(r.id.replace(/[^a-z0-9_]/gi, ""), node)
-            outputProcessors = tmp.outputProcessors
-            aici = tmp.aici
             status = "success"
         }
     } catch (e) {
@@ -144,7 +129,6 @@ export async function callExpander(
         fileOutputs,
         disposables,
         prediction,
-        aici,
     })
 }
 
@@ -271,7 +255,6 @@ export async function expandTemplate(
     const disposables = prompt.disposables.slice(0)
 
     if (prompt.logs?.length) trace.details("📝 console.log", prompt.logs)
-    if (prompt.aici) trace.fence(prompt.aici, "yaml")
     trace.endDetails()
 
     if (cancellationToken?.isCancellationRequested || status === "cancelled") {
@@ -292,7 +275,6 @@ export async function expandTemplate(
             messages,
         }
     }
-    if (prompt.aici) messages.push(prompt.aici)
 
     const addSystemMessage = (content: string) => {
         appendSystemMessage(messages, content)
@@ -352,10 +334,6 @@ export async function expandTemplate(
                     throw new NotSupportedError(
                         "only string user messages supported in system"
                     )
-            }
-            if (sysr.aici) {
-                trace.fence(sysr.aici, "yaml")
-                messages.push(sysr.aici)
             }
             logprobs = logprobs || system.logprobs
             topLogprobs = Math.max(topLogprobs, system.topLogprobs || 0)

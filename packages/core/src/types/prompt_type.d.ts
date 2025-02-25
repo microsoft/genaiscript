@@ -209,11 +209,6 @@ declare var JSON5: JSON5
 declare var JSONSchema: JSONSchemaUtilities
 
 /**
- * AICI operations
- */
-declare var AICI: AICI
-
-/**
  * Access to current LLM chat session information
  */
 declare var host: PromptHost
