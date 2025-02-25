@@ -26,6 +26,7 @@ import {
     DOT_ENV_FILENAME,
     AZURE_MANAGEMENT_TOKEN_SCOPES,
     MODEL_PROVIDER_AZURE_AI_INFERENCE,
+    MODEL_PROVIDERS,
 } from "../../core/src/constants"
 import { tryReadText } from "../../core/src/fs"
 import {
@@ -248,6 +249,7 @@ export class NodeHost extends EventTarget implements RuntimeHost {
         if (askToken && tok && !tok.token) {
             if (
                 tok.provider === MODEL_PROVIDER_AZURE_OPENAI ||
+                tok.provider === MODEL_PROVIDER_AZURE_AI_INFERENCE ||
                 tok.provider === MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI
             ) {
                 const { token: azureToken, error: azureTokenError } =
@@ -256,23 +258,27 @@ export class NodeHost extends EventTarget implements RuntimeHost {
                         options
                     )
                 if (!azureToken) {
+                    const providerName = MODEL_PROVIDERS.find(
+                        ({ id }) => id === tok.provider
+                    ).detail
                     if (azureTokenError) {
                         logError(
-                            `Azure OpenAI token not available for ${modelId}`
+                            `${providerName} token not available for ${modelId}`
                         )
                         logVerbose(azureTokenError.message)
                         trace.error(
-                            `Azure OpenAI token not available for ${modelId}`,
+                            `${providerName} token not available for ${modelId}`,
                             azureTokenError
                         )
                     }
                     throw new Error(
-                        `Azure OpenAI token not available for ${modelId}`
+                        `${providerName} token not available for ${modelId}`
                     )
                 }
-                tok.token = "Bearer " + azureToken.token
+                if (tok.provider === MODEL_PROVIDER_AZURE_AI_INFERENCE)
+                    tok.token = azureToken.token
+                else tok.token = "Bearer " + azureToken.token
             } else if (
-                tok.provider === MODEL_PROVIDER_AZURE_AI_INFERENCE ||
                 tok.provider === MODEL_PROVIDER_AZURE_SERVERLESS_MODELS
             ) {
                 const { token: azureToken, error: azureTokenError } =
@@ -295,9 +301,7 @@ export class NodeHost extends EventTarget implements RuntimeHost {
                         `Azure AI Inference token not available for ${modelId}`
                     )
                 }
-                if (tok.provider === MODEL_PROVIDER_AZURE_AI_INFERENCE)
-                    tok.token = azureToken.token
-                else tok.token = "Bearer " + azureToken.token
+                tok.token = "Bearer " + azureToken.token
             }
         }
         if (tok && (!tok.token || tok.token === tok.provider)) {
