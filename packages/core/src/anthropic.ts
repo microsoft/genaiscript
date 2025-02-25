@@ -83,17 +83,29 @@ const adjustUsage = (
     }
 }
 
+function findLastIndex<T>(
+    values: T[],
+    predicate: (value: T) => boolean,
+    startIndex?: number
+): number {
+    const start = startIndex ?? values.length - 1
+    for (let i = start; i >= 0; i--) {
+        if (predicate(values[i])) return i
+    }
+    return -1
+}
+
 const convertMessages = (
     messages: ChatCompletionMessageParam[],
     emitThinking: boolean
 ): Anthropic.MessageParam[] => {
     const res: Anthropic.MessageParam[] = []
+    const lastAssistantIndex = emitThinking
+        ? findLastIndex(messages, ({ role }) => role === "assistant")
+        : -1
     for (let i = 0; i < messages.length; ++i) {
         const message = messages[i]
-        const msg = convertSingleMessage(
-            message,
-            emitThinking && i === messages.length - 1
-        )
+        const msg = convertSingleMessage(message)
         const last = res.at(-1)
         if (last?.role !== msg.role) res.push(msg)
         else {
@@ -108,13 +120,24 @@ const convertMessages = (
                 last.content.push({ type: "text", text: msg.content })
             else last.content.push(...msg.content)
         }
+        if (i === lastAssistantIndex) {
+            // reasoning not supported yet
+            const previousIndex = findLastIndex(
+                messages,
+                ({ role }) => role === "user",
+                lastAssistantIndex - 1
+            )
+            const previous = messages[previousIndex]
+            if (previous && typeof previous.content !== "string") {
+                // TODO
+            }
+        }
     }
     return res
 }
 
 const convertSingleMessage = (
-    msg: ChatCompletionMessageParam,
-    emitThinking: boolean
+    msg: ChatCompletionMessageParam
 ): Anthropic.MessageParam => {
     const { role } = msg
     if (!role || role === "aici") {
@@ -133,7 +156,7 @@ const convertSingleMessage = (
     } else if (role === "function")
         throw new NotSupportedError("function message not supported")
 
-    return convertStandardMessage(msg, emitThinking)
+    return convertStandardMessage(msg)
 }
 
 function toCacheControl(msg: ChatCompletionMessageParam): {
@@ -180,8 +203,7 @@ const convertStandardMessage = (
     msg:
         | ChatCompletionSystemMessageParam
         | ChatCompletionAssistantMessageParam
-        | ChatCompletionUserMessageParam,
-    emitThinking: boolean
+        | ChatCompletionUserMessageParam
 ): Anthropic.MessageParam => {
     const role = msg.role === "assistant" ? "assistant" : "user"
     let res: Anthropic.MessageParam

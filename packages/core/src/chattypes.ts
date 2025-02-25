@@ -98,6 +98,7 @@ export type CreateChatCompletionRequest = Omit<
 
 export interface ChatCompletionMessageReasoningContentParam {
     reasoning_content?: string
+    reasoning_signature?: string
 }
 
 // Parameters for an assistant message in a chat completion
