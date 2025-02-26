@@ -892,10 +892,16 @@ async function choicesToLogitBias(
         (await resolveTokenEncoder(model, {
             disableFallback: true,
         })) || {}
-    if (!encode) {
+    if (
+        !encode &&
+        choices.some(
+            (c) => typeof c === "string" || typeof c.token === "string"
+        )
+    ) {
         logWarn(
             `unable to compute logit bias, no token encoder found for ${model}`
         )
+        logVerbose(YAMLStringify({ choices }))
         trace.warn(
             `unable to compute logit bias, no token encoder found for ${model}`
         )
