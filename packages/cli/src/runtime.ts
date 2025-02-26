@@ -39,7 +39,7 @@ export type ClassifyOptions = {
 /**
  * Classifies input text into predefined categories using AI
  * Inspired by https://github.com/prefecthq/marvin
- * 
+ *
  * @param text - Text content to classify or a prompt generator function
  * @param labels - Object mapping label names to their descriptions
  * @param options - Configuration options for classification
@@ -156,7 +156,7 @@ no
 
 /**
  * Enhances content generation by applying iterative improvements
- * 
+ *
  * @param options - Configuration for the improvement process
  * @param options.ctx - Chat generation context to use
  * @param options.repeat - Number of improvement iterations to perform
@@ -182,7 +182,7 @@ export function makeItBetter(options?: {
 /**
  * Converts unstructured text or data into structured JSON format
  * Inspired by https://github.com/prefecthq/marvin
- * 
+ *
  * @param data - Input text or prompt generator to convert
  * @param itemSchema - JSON schema defining the target data structure
  * @param options - Configuration options for the conversion
@@ -237,7 +237,7 @@ export async function cast(
 
 /**
  * Converts a PDF file to markdown format with intelligent formatting preservation
- * 
+ *
  * @param file - PDF file to convert
  * @param options - Configuration options for PDF processing and markdown conversion
  * @returns Object containing original pages, rendered images, and markdown content
@@ -319,7 +319,7 @@ export async function markdownifyPdf(
 
 /**
  * Creates a tree representation of files in the workspace
- * 
+ *
  * @param glob - Glob pattern to match files
  * @param options - Configuration options for tree generation
  * @param options.query - Optional search query to filter files
@@ -428,4 +428,53 @@ export async function fileTree(
             })
             .join("")
     }
+}
+
+/**
+ * Injects @mozilla/readability into a page to extract data.
+ * Technique used in the llm-scraper project
+ * @see https://github.com/mishushakov/llm-scraper/
+ */
+export async function parseReadableContent<T = string>(
+    page: BrowserPage
+): Promise<null | {
+    /** article title */
+    title: string | null | undefined
+
+    /** HTML string of processed article content */
+    content: T | null | undefined
+
+    /** text content of the article, with all the HTML tags removed */
+    textContent: string | null | undefined
+
+    /** length of an article, in characters */
+    length: number | null | undefined
+
+    /** article description, or short excerpt from the content */
+    excerpt: string | null | undefined
+
+    /** author metadata */
+    byline: string | null | undefined
+
+    /** content direction */
+    dir: string | null | undefined
+
+    /** name of the site */
+    siteName: string | null | undefined
+
+    /** content language */
+    lang: string | null | undefined
+
+    /** published time */
+    publishedTime: string | null | undefined
+}> {
+    const results = await page.evaluate(async () => {
+        const readability = await import(
+            // @ts-ignore
+            "https://cdn.skypack.dev/@mozilla/readability"
+        )
+        const doc = document.cloneNode(true)
+        return new readability.Readability(doc).parse()
+    })
+    return results
 }

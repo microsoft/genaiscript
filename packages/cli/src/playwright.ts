@@ -132,11 +132,18 @@ export class BrowserManager {
      * @returns A promise that resolves to a Page object.
      */
     async browse(
-        url: string,
+        url?: string,
         options?: BrowseSessionOptions & TraceOptions
     ): Promise<BrowserPage> {
-        const { trace, incognito, timeout, recordVideo, ...rest } =
-            options || {}
+        const {
+            trace,
+            incognito,
+            timeout,
+            recordVideo,
+            waitUntil,
+            referer,
+            ...rest
+        } = options || {}
 
         logVerbose(`browsing ${ellipseUri(url)}`)
         const browser = await this.launchBrowser(options)
@@ -175,7 +182,7 @@ export class BrowserManager {
         if (timeout !== undefined) page.setDefaultTimeout(timeout)
 
         // Navigate to the specified URL
-        if (url) await page.goto(url)
+        if (url) await page.goto(url, { waitUntil, referer, timeout })
 
         return page
     }
