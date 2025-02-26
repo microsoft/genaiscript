@@ -4207,6 +4207,44 @@ interface BrowserVideo {
     path(): Promise<string>
 }
 
+interface BrowserLocatorOptions {
+    /**
+     * Narrows down the results of the method to those which contain elements matching this relative locator. For example,
+     * `article` that has `text=Playwright` matches `<article><div>Playwright</div></article>`.
+     *
+     * Inner locator **must be relative** to the outer locator and is queried starting with the outer locator match, not
+     * the document root. For example, you can find `content` that has `div` in
+     * `<article><content><div>Playwright</div></content></article>`. However, looking for `content` that has `article
+     * div` will fail, because the inner locator must be relative and should not use any elements outside the `content`.
+     *
+     * Note that outer and inner locators must belong to the same frame. Inner locator must not contain
+     * [FrameLocator](https://playwright.dev/docs/api/class-framelocator)s.
+     */
+    has?: BrowserLocator
+
+    /**
+     * Matches elements that do not contain an element that matches an inner locator. Inner locator is queried against the
+     * outer one. For example, `article` that does not have `div` matches `<article><span>Playwright</span></article>`.
+     *
+     * Note that outer and inner locators must belong to the same frame. Inner locator must not contain
+     * [FrameLocator](https://playwright.dev/docs/api/class-framelocator)s.
+     */
+    hasNot?: BrowserLocator
+
+    /**
+     * Matches elements that do not contain specified text somewhere inside, possibly in a child or a descendant element.
+     * When passed a [string], matching is case-insensitive and searches for a substring.
+     */
+    hasNotText?: string | RegExp
+
+    /**
+     * Matches elements containing specified text somewhere inside, possibly in a child or a descendant element. When
+     * passed a [string], matching is case-insensitive and searches for a substring. For example, `"Playwright"` matches
+     * `<article><div>Playwright</div></article>`.
+     */
+    hasText?: string | RegExp
+}
+
 /**
  * A playwright Page instance
  * @link https://playwright.dev/docs/api/class-page
@@ -4251,7 +4289,7 @@ interface BrowserPage extends BrowserLocatorSelector {
      * @param selector A selector to use when resolving DOM element.
      * @link https://playwright.dev/docs/locators
      */
-    locator(selector: string): BrowserLocator
+    locator(selector: string, options?: BrowserLocatorOptions): BrowserLocator
 
     /**
      * Closes the browser page, context and other resources.
