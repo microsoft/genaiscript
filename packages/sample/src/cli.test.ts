@@ -7,31 +7,14 @@ const cli = `../cli/built/${CLI_JS}`
 describe("init", async () => {
     await import("zx/globals")
 })
-/*
 describe("run", async () => {
     const cmd = "run"
-    const flags = `--prompt`
-    await test("slides greeter", async () => {
-        const res = await $`node ${cli} ${cmd} slides src/greeter.ts ${flags}`
+    const flags = ""
+    await test("poem", async () => {
+        const res = await $`node ${cli} ${cmd} poem --model echo`
         console.log("---\n" + res.stdout + "\n---")
-        const resj = JSON.parse(res.stdout)
-        assert(Array.isArray(resj))
-        assert(
-            resj.some(
-                (msg) =>
-                    msg.role === "user" &&
-                    msg.content.includes("src/greeter.ts")
-            )
-        )
-    })
-    await test("parameters", async () => {
-        debugger
-        const res =
-            await $`node ${cli} ${cmd} parameters src/greeter.ts ${flags}`.nothrow()
-        assert.equal(res.exitCode, 0)
     })
 })
-*/
 describe("scripts", async () => {
     const cmd = "scripts"
     await test("list", async () => {

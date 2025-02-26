@@ -51,7 +51,7 @@ import {
 import prettyBytes from "pretty-bytes"
 import {
     deleteUndefinedValues,
-    isNonEmptyString,
+    isEmptyString,
     normalizeInt,
     trimTrailingSlash,
 } from "./cleaners"
@@ -316,7 +316,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
                     content = content.replace(THINK_END_TOKEN_REGEX, "")
                 }
 
-                if (isNonEmptyString(content)) {
+                if (!isEmptyString(content)) {
                     if (reasoning) {
                         numReasoningTokens += estimateTokens(content, encoder)
                         reasoningChatResp += content
@@ -435,8 +435,8 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
             const reasoningProgress = reasoningChatResp.slice(rch0.length)
             const chatProgress = chatResp.slice(ch0.length)
             if (
-                !isNonEmptyString(chatProgress) ||
-                !isNonEmptyString(reasoningProgress)
+                !isEmptyString(chatProgress) ||
+                !isEmptyString(reasoningProgress)
             ) {
                 // logVerbose(`... ${progress.length} chars`);
                 partialCb?.(

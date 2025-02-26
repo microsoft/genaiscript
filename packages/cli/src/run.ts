@@ -98,6 +98,7 @@ import { randomHex } from "../../core/src/crypto"
 import { normalizeFloat, normalizeInt } from "../../core/src/cleaners"
 import { microsoftTeamsChannelPostMessage } from "../../core/src/teams"
 import { confirmOrSkipInCI } from "./ci"
+import { readStdIn } from "./stdin"
 
 function getRunDir(scriptId: string) {
     const runId =
@@ -170,7 +171,7 @@ export async function runScriptInternal(
 
     runtimeHost.clearModelAlias("script")
     let result: GenerationResult
-    const workspaceFiles = options.workspaceFiles
+    const workspaceFiles = options.workspaceFiles || []
     const excludedFiles = options.excludedFiles
     const excludeGitIgnore = !!options.excludeGitIgnore
     const runDir = options.out || getRunDir(scriptId)
@@ -279,6 +280,10 @@ export async function runScriptInternal(
         }
     }
 
+    // try reading stdin
+    const stdin = await readStdIn()
+    if (stdin) workspaceFiles.push(stdin)
+
     const prj = await buildProject({
         toolFiles,
     })
@@ -321,12 +326,7 @@ export async function runScriptInternal(
                 reasoningChunk !== ""
             ) {
                 reasoningOutput = true
-                stderr.write(
-                    wrapColor(
-                        CONSOLE_COLOR_REASONING,
-                        reasoningChunk
-                    )
-                )
+                stderr.write(wrapColor(CONSOLE_COLOR_REASONING, reasoningChunk))
             }
             if (
                 responseChunk !== undefined &&
