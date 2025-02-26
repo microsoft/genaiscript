@@ -1,5 +1,5 @@
 import { host } from "./host"
-import { logError, logVerbose } from "./util"
+import { logError } from "./util"
 import { TraceOptions } from "./trace"
 import { pathToFileURL } from "url"
 import { resolveGlobal } from "./globals"
@@ -32,12 +32,11 @@ export async function importPrompt(
     try {
         // override global context
         for (const field of Object.keys(ctx0)) {
-            //logVerbose(
-            //    field === "console" || leakables.includes(field) || !glb[field],
-            //    `overriding global field ${field}`
-            //)
-            oldGlb[field] = glb[field]
-            glb[field] = (ctx0 as any)[field]
+            const previous = glb[field]
+            if (!previous || field === "console") {
+                oldGlb[field] = previous
+                glb[field] = (ctx0 as any)[field]
+            }
         }
 
         const modulePath = pathToFileURL(

@@ -36,7 +36,6 @@ export async function callExpander(
     assert(!!options.model)
     const modelId = r.model ?? options.model
     const ctx = await createPromptContext(prj, ev, trace, options, modelId)
-    const { provider } = parseModelIdentifier(modelId)
 
     let status: GenerationStatus = undefined
     let statusText: string = undefined

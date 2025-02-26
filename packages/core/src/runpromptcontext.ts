@@ -324,6 +324,7 @@ export function createChatGenerationContext(
         env: ExpansionVariables
     }
 ): RunPromptContextNode {
+    Object.freeze(options)
     const { cancellationToken, infoCb, userState } = options || {}
     const { prj, env } = projectOptions
     assert(!!env.output, "output missing")
@@ -863,6 +864,7 @@ export function createChatGenerationContext(
         runOptions?: PromptGeneratorOptions
     ): Promise<RunPromptResult> => {
         checkCancelled(cancellationToken)
+        Object.freeze(runOptions)
         const { label, applyEdits, throwOnError } = runOptions || {}
         const runTrace = trace.startTraceDetails(`🎁 ${label || "prompt"}`)
         let messages: ChatCompletionMessageParam[] = []
@@ -893,6 +895,7 @@ export function createChatGenerationContext(
             })
             if (!ok) throw new Error(`failed to pull model ${genOptions.model}`)
 
+            Object.freeze(genOptions)
             const runCtx = createChatGenerationContext(
                 genOptions,
                 runTrace,
