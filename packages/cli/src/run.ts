@@ -38,6 +38,8 @@ import {
     OUTPUT_FILENAME,
     TRACE_FILENAME,
     CONSOLE_COLOR_REASONING,
+    REASONING_END_MARKER,
+    REASONING_START_MARKER,
 } from "../../core/src/constants"
 import { isCancelError, errorMessage } from "../../core/src/error"
 import { GenerationResult } from "../../core/src/server/messages"
@@ -312,6 +314,14 @@ export async function runScriptInternal(
         }
     }
 
+    const reasoningEndMarker = wrapColor(
+        CONSOLE_COLOR_REASONING,
+        REASONING_END_MARKER
+    )
+    const reasoningStartMarker = wrapColor(
+        CONSOLE_COLOR_REASONING,
+        REASONING_START_MARKER
+    )
     let tokenColor = 0
     let reasoningOutput = false
     outputTrace.addEventListener(TRACE_CHUNK, (ev) => {
@@ -325,6 +335,7 @@ export async function runScriptInternal(
                 reasoningChunk !== null &&
                 reasoningChunk !== ""
             ) {
+                if (!reasoningOutput) stderr.write(reasoningStartMarker)
                 reasoningOutput = true
                 stderr.write(wrapColor(CONSOLE_COLOR_REASONING, reasoningChunk))
             }
@@ -334,7 +345,7 @@ export async function runScriptInternal(
                 responseChunk !== ""
             ) {
                 if (reasoningOutput) {
-                    stderr.write("\n")
+                    stderr.write(reasoningEndMarker)
                     reasoningOutput = false
                 }
                 if (stream) {
@@ -374,7 +385,7 @@ export async function runScriptInternal(
             chunk !== ""
         ) {
             if (reasoningOutput) {
-                stderr.write("\n")
+                stderr.write(reasoningEndMarker)
                 reasoningOutput = false
             }
             stdout.write(chunk)

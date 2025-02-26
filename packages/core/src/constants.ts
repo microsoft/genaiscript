@@ -225,6 +225,7 @@ export const MODEL_PROVIDERS = Object.freeze<
         speech?: boolean
         tokenless?: boolean
         hidden?: boolean
+        reasoningEfforts?: Record<string, number>
         aliases?: Record<string, string>
         env?: Record<
             string,
@@ -378,9 +379,7 @@ export const TEST_CSV_ENTRY_SEPARATOR = /[;|\n]/g
 
 export const INVALID_FILENAME_REGEX = /[<>:"/\\|?*\x00-\x1F]+/g
 
-export const ANTHROPIC_REASONING_EFFORTS: Record<string, number> = {
-    low: 2048,
-    medium: 4096,
-    high: 16384,
-}
 export const STDIN_READ_TIMEOUT = 50
+
+export const REASONING_START_MARKER = "\n🤔 <thinking>\n"
+export const REASONING_END_MARKER = "\n</thinking>\n\n"

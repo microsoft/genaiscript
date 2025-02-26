@@ -88,6 +88,25 @@
                         "type": "boolean",
                         "description": "Indicates if connection without token is allowed"
                     },
+                    "reasoningEfforts": {
+                        "type": "object",
+                        "description": "Reasoning effort configuration",
+                        "properties": {
+                            "low": {
+                                "type": "number",
+                                "description": "Low reasoning effort"
+                            },
+                            "medium": {
+                                "type": "number",
+                                "description": "Medium reasoning effort"
+                            },
+                            "high": {
+                                "type": "number",
+                                "description": "High reasoning effort"
+                            }
+                        },
+                        "required": ["low", "medium", "high"]
+                    },
                     "aliases": {
                         "type": "object",
                         "description": "List of model aliases for the provider",

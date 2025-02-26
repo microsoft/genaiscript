@@ -5,9 +5,9 @@ import {
 } from "./chat"
 import {
     ANTHROPIC_MAX_TOKEN,
-    ANTHROPIC_REASONING_EFFORTS,
     MODEL_PROVIDER_ANTHROPIC,
     MODEL_PROVIDER_ANTHROPIC_BEDROCK,
+    MODEL_PROVIDERS,
 } from "./constants"
 import { parseModelIdentifier } from "./models"
 import { NotSupportedError, serializeError } from "./error"
@@ -317,7 +317,7 @@ const completerFactory = (
             retryDelay,
         } = options
         const { headers } = requestOptions || {}
-        const { family: model, tag } = parseModelIdentifier(req.model)
+        const { provider, family: model, tag } = parseModelIdentifier(req.model)
         const { encode: encoder } = await resolveTokenEncoder(model)
 
         const fetch = await createFetch({
@@ -347,8 +347,10 @@ const completerFactory = (
         let temperature = req.temperature
         let top_p = req.top_p
         let thinking: Anthropic.ThinkingConfigParam = undefined
-        const budget_tokens =
-            ANTHROPIC_REASONING_EFFORTS[req.reasoning_effort || tag]
+        const reasoningEfforts = MODEL_PROVIDERS.find(
+            ({ id }) => id === provider
+        ).reasoningEfforts
+        const budget_tokens = reasoningEfforts[req.reasoning_effort || tag]
         let max_tokens = req.max_tokens
         if (budget_tokens && (!max_tokens || max_tokens < budget_tokens))
             max_tokens = budget_tokens + ANTHROPIC_MAX_TOKEN
@@ -362,7 +364,7 @@ const completerFactory = (
             }
         }
         const messages = convertMessages(req.messages, !!thinking)
-        const mreq = deleteUndefinedValues({
+        const mreq: Anthropic.MessageStreamParams = deleteUndefinedValues({
             model,
             tools,
             messages,
@@ -372,6 +374,9 @@ const completerFactory = (
             thinking,
             stream: true,
         })
+
+        // to turn on extended outputs
+        // mreq.betas = ["output-128k-2025-02-19"],
 
         trace.detailsFenced("✉️ body", mreq, "json")
         trace.appendContent("\n")

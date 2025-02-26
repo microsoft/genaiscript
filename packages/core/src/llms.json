@@ -213,12 +213,16 @@
             "logprobs": false,
             "topLogprobs": false,
             "prediction": false,
-            "listModels": false,
             "aliases": {
                 "large": "claude-3-5-sonnet-latest",
                 "small": "claude-3-5-haiku-latest",
                 "vision": "claude-3-5-sonnet-latest",
                 "reasoning": "claude-3-7-sonnet-latest:high"
+            },
+            "reasoningEfforts": {
+                "low": 1024,
+                "medium": 4096,
+                "high": 16384
             },
             "env": {
                 "ANTHROPIC_API_KEY": {
@@ -241,6 +245,11 @@
             "logprobs": false,
             "topLogprobs": false,
             "prediction": false,
+            "reasoningEfforts": {
+                "low": 1024,
+                "medium": 4096,
+                "high": 16384
+            },
             "aliases": {
                 "large": "anthropic.claude-3-5-sonnet-20241022-v2:0",
                 "small": "anthropic.claude-3-5-haiku-20241022-v1:0"

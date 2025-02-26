@@ -122,6 +122,7 @@ export async function modelList(
         models: true,
         error: true,
     })
+
     console.log(
         YAMLStringify(
             deleteUndefinedValues(
