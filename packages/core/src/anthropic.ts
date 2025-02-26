@@ -38,7 +38,10 @@ import { HttpsProxyAgent } from "https-proxy-agent"
 import { MarkdownTrace } from "./trace"
 import { createFetch, FetchType } from "./fetch"
 import { JSONLLMTryParse } from "./json5"
-import { LanguageModelConfiguration } from "./server/messages"
+import {
+    LanguageModelConfiguration,
+    LanguageModelInfo,
+} from "./server/messages"
 import { deleteUndefinedValues } from "./cleaners"
 
 const convertFinishReason = (
@@ -482,56 +485,31 @@ const completerFactory = (
     return completion
 }
 
-const listAnthropicModels: ListModelsFunction = async (
-    _: LanguageModelConfiguration
-) => {
-    // Anthropic doesn't expose an API to list models, so we return a static list
-    // based on the Model type defined in the Anthropic SDK
-    const models: Array<{ id: Anthropic.Model; details: string }> = [
-        {
-            id: "claude-3-7-sonnet-20250219",
-            details:
-                "Highest level of intelligence and capability with toggleable extended thinking.",
-        },
-        {
-            id: "claude-3-5-sonnet-20240620",
-            details: "High level of intelligence and capability",
-        },
-        {
-            id: "claude-3-opus-20240229",
-            details:
-                "Most capable Claude 3 model, excelling at highly complex tasks. Knowledge cutoff in February 2024.",
-        },
-        {
-            id: "claude-3-sonnet-20240229",
-            details:
-                "Balanced Claude 3 model offering strong performance and speed. Knowledge cutoff in February 2024.",
-        },
-        {
-            id: "claude-3-haiku-20240307",
-            details:
-                "Fastest Claude 3 model, optimized for quick responses. Knowledge cutoff in March 2024.",
-        },
-        {
-            id: "claude-2.1",
-            details:
-                "Improved version of Claude 2, with enhanced capabilities and reliability.",
-        },
-        {
-            id: "claude-2.0",
-            details:
-                "Original Claude 2 model with strong general capabilities.",
-        },
-        {
-            id: "claude-instant-1.2",
-            details:
-                "Fast and cost-effective model for simpler tasks and high-volume use cases.",
-        },
-    ]
+const listModels: ListModelsFunction = async (cfg, options) => {
+    try {
+        const Anthropic = (await import("@anthropic-ai/sdk")).default
+        const anthropic = new Anthropic({
+            baseURL: cfg.base,
+            apiKey: cfg.token,
+            fetch,
+        })
 
-    return {
-        ok: true,
-        models: models.slice(0),
+        // Parse and format the response into LanguageModelInfo objects
+        const res = await anthropic.models.list({ limit: 999 })
+        return {
+            ok: true,
+            models: res.data
+                .filter(({ type }) => type === "model")
+                .map(
+                    (model) =>
+                        ({
+                            id: model.id,
+                            details: model.display_name,
+                        }) satisfies LanguageModelInfo
+                ),
+        }
+    } catch (e) {
+        return { ok: false, error: serializeError(e) }
     }
 }
 
@@ -553,7 +531,7 @@ export const AnthropicModel = Object.freeze<LanguageModel>({
         return messagesApi
     }),
     id: MODEL_PROVIDER_ANTHROPIC,
-    listModels: listAnthropicModels,
+    listModels,
 })
 
 export const AnthropicBedrockModel = Object.freeze<LanguageModel>({
@@ -573,5 +551,4 @@ export const AnthropicBedrockModel = Object.freeze<LanguageModel>({
         return anthropic.messages
     }),
     id: MODEL_PROVIDER_ANTHROPIC_BEDROCK,
-    listModels: listAnthropicModels,
 })
