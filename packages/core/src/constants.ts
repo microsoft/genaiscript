@@ -383,3 +383,4 @@ export const ANTHROPIC_REASONING_EFFORTS: Record<string, number> = {
     medium: 4096,
     high: 16384,
 }
+export const STDIN_READ_TIMEOUT = 50

@@ -5,14 +5,50 @@ import { fileTypeFromBuffer } from "../../core/src/filetype"
 import { buffer } from "node:stream/consumers"
 import { logVerbose } from "../../core/src/util"
 import prettyBytes from "pretty-bytes"
+import { STDIN_READ_TIMEOUT } from "../../core/src/constants"
+
+function readStdinOrTimeout(): Promise<Buffer | undefined> {
+    return new Promise<Buffer | undefined>((resolve, reject) => {
+        let res: Buffer[] = []
+        const { stdin } = process
+        if (!stdin || stdin.isTTY) {
+            resolve(undefined)
+            return
+        }
+
+        const controller = new AbortController()
+        const timeoutId = setTimeout(() => {
+            controller.abort()
+            resolve(undefined) // Resolve without data when timed out
+        }, STDIN_READ_TIMEOUT)
+
+        const dataHandler = (data: Buffer) => {
+            clearTimeout(timeoutId)
+            res.push(data)
+        }
+
+        const errorHandler = (err: Error) => {
+            clearTimeout(timeoutId)
+            reject(err)
+        }
+
+        stdin.on("data", dataHandler)
+        stdin.once("error", errorHandler)
+        stdin.once("end", () => {
+            clearTimeout(timeoutId)
+            resolve(Buffer.concat(res))
+        })
+
+        if (controller.signal.aborted) {
+            stdin.removeListener("data", dataHandler)
+            stdin.removeListener("error", errorHandler)
+        }
+    })
+}
 
 export async function readStdIn(): Promise<WorkspaceFile> {
-    const { stdin } = process
-
-    if (!stdin || stdin.isTTY || !stdin.readableLength) return undefined
-
-    const data = await buffer(stdin)
-    if (data?.length === 0) return undefined
+    const data = await readStdinOrTimeout()
+    if (!data?.length) return undefined
 
     let mime = await fileTypeFromBuffer(data)
     const res = isBinaryMimeType(mime?.mime)
