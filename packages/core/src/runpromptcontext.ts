@@ -864,10 +864,10 @@ export function createChatGenerationContext(
     ): Promise<RunPromptResult> => {
         checkCancelled(cancellationToken)
         const { label, applyEdits, throwOnError } = runOptions || {}
-        const runTrace = trace.startTraceDetails(`🎁 run prompt ${label || ""}`)
+        const runTrace = trace.startTraceDetails(`🎁 ${label || "prompt"}`)
         let messages: ChatCompletionMessageParam[] = []
         try {
-            infoCb?.({ text: `prompt ${label || ""}` })
+            infoCb?.({ text: label || "prompt" })
 
             const genOptions = mergeGenerationOptions(options, runOptions)
             genOptions.fallbackTools = undefined
