@@ -25,17 +25,20 @@ import { GenerationStatus, Project } from "./server/messages"
 import { dispose } from "./dispose"
 import { normalizeFloat, normalizeInt } from "./cleaners"
 import { mergeEnvVarsWithSystem } from "./vars"
+import { installGlobalPromptContext } from "./globals"
 
 export async function callExpander(
     prj: Project,
     r: PromptScript,
     ev: ExpansionVariables,
     trace: MarkdownTrace,
-    options: GenerationOptions
+    options: GenerationOptions,
+    installGlobally: boolean
 ) {
     assert(!!options.model)
     const modelId = r.model ?? options.model
     const ctx = await createPromptContext(prj, ev, trace, options, modelId)
+    if (installGlobally) installGlobalPromptContext(ctx)
 
     let status: GenerationStatus = undefined
     let statusText: string = undefined
@@ -229,18 +232,25 @@ export async function expandTemplate(
     trace.startDetails("🧬 prompt")
     trace.detailsFenced("💻 script source", template.jsSource, "js")
 
-    const prompt = await callExpander(prj, template, env, trace, {
-        ...options,
-        maxTokens,
-        maxToolCalls,
-        flexTokens,
-        seed,
-        topP,
-        temperature,
-        reasoningEffort,
-        lineNumbers,
-        fenceFormat,
-    })
+    const prompt = await callExpander(
+        prj,
+        template,
+        env,
+        trace,
+        {
+            ...options,
+            maxTokens,
+            maxToolCalls,
+            flexTokens,
+            seed,
+            topP,
+            temperature,
+            reasoningEffort,
+            lineNumbers,
+            fenceFormat,
+        },
+        true
+    )
 
     const { status, statusText, messages } = prompt
     const images = prompt.images.slice(0)
@@ -312,7 +322,8 @@ export async function expandTemplate(
                 system,
                 mergeEnvVarsWithSystem(env, systemId),
                 trace,
-                options
+                options,
+                false
             )
 
             if (sysr.images) images.push(...sysr.images)

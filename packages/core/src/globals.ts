@@ -24,6 +24,8 @@ import { promptParametersSchemaToJSONSchema } from "./parameters"
 import { resolveFileContent } from "./file"
 import { chunkMarkdown } from "./mdchunk"
 
+export const originalConsole = resolveGlobal().console
+
 /**
  * This file defines global utilities and installs them into the global context.
  * It includes functions to parse and stringify various data formats, handle errors,
@@ -171,4 +173,12 @@ export function installGlobals() {
     // these are overriden, ignored
     glb.script = () => {}
     glb.system = () => {}
+}
+
+export function installGlobalPromptContext(ctx: PromptContext) {
+    const glb = resolveGlobal() // Get the global context
+
+    for (const field of Object.keys(ctx)) {
+        glb[field] = (ctx as any)[field]
+    }
 }

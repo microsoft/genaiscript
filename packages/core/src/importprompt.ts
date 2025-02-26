@@ -2,7 +2,6 @@ import { host } from "./host"
 import { logError } from "./util"
 import { TraceOptions } from "./trace"
 import { pathToFileURL } from "url"
-import { resolveGlobal } from "./globals"
 
 export async function importPrompt(
     ctx0: PromptContext,
@@ -15,30 +14,8 @@ export async function importPrompt(
     if (!filename) throw new Error("filename is required")
     const { trace } = options || {}
 
-    const leakables = [
-        "host",
-        "workspace",
-        "path",
-        "parsers",
-        "env",
-        "retrieval",
-        "runPrompt",
-        "prompt",
-    ]
-
-    const oldGlb: any = {}
-    const glb: any = resolveGlobal()
     let unregister: () => void = undefined
     try {
-        // override global context
-        for (const field of Object.keys(ctx0)) {
-            const previous = glb[field]
-            if (!previous || field === "console") {
-                oldGlb[field] = previous
-                glb[field] = (ctx0 as any)[field]
-            }
-        }
-
         const modulePath = pathToFileURL(
             host.path.isAbsolute(filename)
                 ? filename
@@ -67,13 +44,5 @@ export async function importPrompt(
         logError(err)
         trace?.error(err)
         throw err
-    } finally {
-        // restore global context
-        for (const field of Object.keys(oldGlb)) {
-            if (leakables.includes(field)) continue
-            const v = oldGlb[field]
-            if (v === undefined) delete glb[field]
-            else glb[field] = oldGlb[field]
-        }
     }
 }

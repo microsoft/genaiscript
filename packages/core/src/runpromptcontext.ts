@@ -987,7 +987,8 @@ export function createChatGenerationContext(
                             system,
                             mergeEnvVarsWithSystem(env, systemId),
                             runTrace,
-                            genOptions
+                            genOptions,
+                            false
                         )
                         if (sysr.images?.length)
                             throw new NotSupportedError("images")
