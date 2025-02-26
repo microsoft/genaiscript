@@ -108,7 +108,6 @@ you can set one of the following environment variables
 (`HTTP_PROXY`, `HTTPS_PROXY`, `http_proxy` or `https_proxy`) to have the CLI use a proxy,
 e.g. `HTTP_PROXY=http://proxy.acme.com:3128`.
 
-
 ## Configuration
 
 The CLI will load the [secrets](/genaiscript/getting-started/configuration) from the environment variables or a `./.env` file.
@@ -141,6 +140,12 @@ npx genaiscript run <script> [files...]
 ```
 
 where `<script>` is the id or file path of the tool to run, and `[files...]` is the name of the spec file to run it on.
+
+The CLI also supports UNIX-style piping.
+
+```sh
+cat README.md | genaiscript run summarize > summary.md
+```
 
 ### Listing model configuration
 
