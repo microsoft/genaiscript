@@ -88,3 +88,11 @@ vscode-split-layout.trace-split-panel {
 vscode-split-layout.trace-split-panel vscode-scrollable {
     height: 80vh;
 }
+
+.vscode-body details.reasoning {
+    border: 1px dashed var(--vscode-editor-foreground);
+    padding: 0.5rem;
+    border-radius: 0.2rem;
+    margin-left: 0;
+    margin-bottom: 1.5rem;
+}

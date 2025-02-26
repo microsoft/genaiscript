@@ -918,8 +918,10 @@ function TraceTreeMarkdown() {
 
     return (
         <vscode-split-layout
-         className="trace-split-panel"
-         initial-handle-position="20%" fixed-pane="start">
+            className="trace-split-panel"
+            initial-handle-position="20%"
+            fixed-pane="start"
+        >
             <div slot="start">
                 <vscode-scrollable>
                     <vscode-tree
@@ -960,28 +962,21 @@ function TraceTabPanel(props: { selected?: boolean }) {
     )
 }
 
-function ReasoningTabPanel() {
-    const reasoning = useReasoning()
-    if (!reasoning) return null
-    return (
-        <>
-            <vscode-tab-header slot="header">Reasoning</vscode-tab-header>
-            <vscode-tab-panel>
-                <MarkdownPreviewTabs text={reasoning} filename="reasoning.md" />
-            </vscode-tab-panel>
-        </>
-    )
-}
-
 function OutputMarkdown() {
     const output = useOutput()
-    if (!output) return null
+    const reasoning = useReasoning()
+    if (!output && !reasoning) return null
+
+    let markdown = ``
+    if (reasoning)
+        markdown += `<details class="reasoning"><summary>🤔 thinking...</summary>\n${reasoning}\n</details>\n\n`
+    if (output) markdown += output
     return (
         <vscode-tabs>
-            <ReasoningTabPanel />
             <MarkdownPreviewTabs
                 aiDisclaimer={true}
                 filename="output.md"
+                renderText={markdown}
                 text={output}
             />
             <LogProbsTabPanel />

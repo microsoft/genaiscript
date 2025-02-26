@@ -35,6 +35,7 @@ const genaiscriptSchema = Object.freeze({
         path: ["d", /^aria-./],
         span: [["className", /^logprobs$/], "style"],
         table: [["className", /^toplogprobs$/], "style"],
+        details: [["className", /^reasoning$/]],
         code: [
             [
                 "className",

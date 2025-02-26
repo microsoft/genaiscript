@@ -15,16 +15,19 @@ export default function MarkdownWithPreviewTabs(props: {
     aiDisclaimer?: boolean
     className?: string
     filename?: string
+    renderText?: string
     text?: string
 }) {
-    const { className, filename, text } = props
+    const { className, filename, renderText, text } = props
     const cleaned = useMemo(() => cleanMarkdown(text), [text])
     const md = useMemo(
         () =>
             cleanMarkdown(
-                convertThinkToMarkdown(convertAnnotationsToMarkdown(cleaned))
+                convertThinkToMarkdown(
+                    convertAnnotationsToMarkdown(renderText || cleaned)
+                )
             ),
-        [cleaned]
+        [cleaned, renderText]
     )
     return (
         <>
