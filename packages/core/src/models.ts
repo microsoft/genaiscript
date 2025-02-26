@@ -210,8 +210,7 @@ export async function resolveModelConnectionInfo(
         const logg = !resolvedModels.has(modelId)
         resolvedModels.add(modelId)
         candidates = uniq([modelId, ...(candidates || [])].filter((c) => !!c))
-        if (logg)
-            logVerbose(`connection: resolving ${hint || "(unspecified)"}`)
+        if (logg) logVerbose(`connection: resolving ${hint || "large"}`)
         for (const candidate of candidates) {
             const res = await resolveModel(candidate, {
                 withToken: askToken,
@@ -229,8 +228,8 @@ export async function resolveModelConnectionInfo(
             info: {
                 model: "?",
                 error: hint
-                    ? `No LLM provider configured for '${hint}'`
-                    : "No LLM provider configured",
+                    ? `LLM provider not configured for '${hint}'`
+                    : "LLM provider not configured",
             },
         }
     }
