@@ -2,6 +2,7 @@ script({
     title: "Issue Reviewer",
     description: "Review issues and provide feedback",
     responseType: "markdown",
+    systemSafety: true,
     parameters: {
         issue: {
             type: "integer",
