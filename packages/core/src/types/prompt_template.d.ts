@@ -4176,6 +4176,8 @@ interface BrowseResponse {
 
 interface BrowserJSHandle {}
 
+interface BrowserElementHandle {}
+
 interface BrowserVideo {
     /**
      * Returns the video path once the page is closed.
@@ -4260,6 +4262,58 @@ interface BrowserPage extends BrowserLocatorSelector {
      * Video object associated with this page, if `recordVideo` option is enabled.
      */
     video(): BrowserVideo | null
+
+    /**
+     * Adds a `<script>` tag into the page with the desired url or content. Returns the added tag when the script's onload
+     * fires or when the script content was injected into frame.
+     * @param options
+     */
+    addScriptTag(options?: {
+        /**
+         * Raw JavaScript content to be injected into frame.
+         */
+        content?: string
+
+        /**
+         * Path to the JavaScript file to be injected into frame. If `path` is a relative path, then it is resolved relative
+         * to the current working directory.
+         */
+        path?: string
+
+        /**
+         * Script type. Use 'module' in order to load a JavaScript ES6 module. See
+         * [script](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/script) for more details.
+         */
+        type?: string
+
+        /**
+         * URL of a script to be added.
+         */
+        url?: string
+    }): Promise<BrowserElementHandle>
+
+    /**
+     * Adds a `<link rel="stylesheet">` tag into the page with the desired url or a `<style type="text/css">` tag with the
+     * content. Returns the added tag when the stylesheet's onload fires or when the CSS content was injected into frame.
+     * @param options
+     */
+    addStyleTag(options?: {
+        /**
+         * Raw CSS content to be injected into frame.
+         */
+        content?: string
+
+        /**
+         * Path to the CSS file to be injected into frame. If `path` is a relative path, then it is resolved relative to the
+         * current working directory.
+         */
+        path?: string
+
+        /**
+         * URL of the `<link>` tag.
+         */
+        url?: string
+    }): Promise<BrowserElementHandle>
 }
 
 interface ShellSelectOptions {}
