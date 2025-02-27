@@ -1412,6 +1412,11 @@ interface FileFilterOptions {
      * Filename filter using glob syntax.
      */
     glob?: ElementOrArray<string>
+
+    /**
+     * Disable filtering files based on the `.gitignore` file.
+     */
+    ignoreGitIgnore?: false | undefined
 }
 
 interface ContentSafetyOptions {
@@ -3381,6 +3386,11 @@ type ImportTemplateArgumentType =
     | Awaitable<string | number | boolean>
     | (() => Awaitable<string | number | boolean>)
 
+/**
+ * Represents the context for generating a chat turn in a prompt template.
+ * Provides methods for importing templates, writing text, adding assistant responses,
+ * creating template strings, fencing code blocks, defining variables, and logging.
+ */
 interface ChatTurnGenerationContext {
     importTemplate(
         files: ElementOrArray<string | WorkspaceFile>,

@@ -437,9 +437,8 @@ export class NodeHost extends EventTarget implements RuntimeHost {
             windowsPathsNoEscape: true,
             ignore,
         })
-        if (applyGitIgnore) {
-            const gitignore = await tryReadText(".gitignore")
-            files = await filterGitIgnore(gitignore, files)
+        if (applyGitIgnore !== false) {
+            files = await filterGitIgnore(files)
         }
         return uniq(files)
     }
