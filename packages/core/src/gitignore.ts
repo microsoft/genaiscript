@@ -19,7 +19,7 @@ export async function filterGitIgnore(files: string[]) {
     ].filter((g) => !!g)
     if (gitignores.length) {
         // Create an ignorer instance and add the .gitignore patterns to it
-        const ig = ignorer()
+        const ig = ignorer({ allowRelativePaths: true, })
         for (const gitignore of gitignores) ig.add(gitignore)
         // Filter the files array to include only those not ignored
         files = ig.filter(files)
