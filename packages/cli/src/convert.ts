@@ -56,14 +56,8 @@ export async function convertFiles(
         concurrency?: string
     }
 ): Promise<void> {
-    const {
-        excludedFiles,
-        excludeGitIgnore,
-        rewrite,
-        cancelWord,
-        concurrency,
-        ...restOptions
-    } = options || {}
+    const { excludedFiles, rewrite, cancelWord, concurrency, ...restOptions } =
+        options || {}
 
     await ensureDotGenaiscriptPath()
     const canceller = createCancellationController()
@@ -114,6 +108,8 @@ export async function convertFiles(
     convertTrace.itemValue(`suffix`, suffix)
 
     // resolve files
+    const applyGitIgnore =
+        options.ignoreGitIgnore !== false && script.ignoreGitIgnore !== false
     const resolvedFiles = new Set<string>()
     for (let arg of fileGlobs) {
         if (HTTPS_REGEX.test(arg)) {
@@ -123,7 +119,7 @@ export async function convertFiles(
         const stats = await host.statFile(arg)
         if (stats?.type === "directory") arg = host.path.join(arg, "**", "*")
         const ffs = await host.findFiles(arg, {
-            applyGitIgnore: excludeGitIgnore,
+            applyGitIgnore,
         })
         if (!ffs?.length) {
             return fail(

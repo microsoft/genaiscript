@@ -183,8 +183,8 @@ Options:
   -cw, --cancel-word <string>        cancel word which allows the LLM to notify
                                      to ignore output
   -ef, --excluded-files <string...>  excluded files
-  -egi, --exclude-git-ignore         exclude files that are ignored through the
-                                     .gitignore file in the workspace root
+  -igi, --ignore-git-ignore          by default, files ignored by .gitignore
+                                     are excluded. disables this mode
   -m, --model <string>               'large' model alias (default)
   -sm, --small-model <string>        'small' alias model
   -vm, --vision-model <string>       'vision' alias model
