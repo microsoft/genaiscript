@@ -5,17 +5,14 @@ import { resolveFileContent } from "./file"
 import { uniq } from "es-toolkit"
 import { addLineNumbers } from "./liner"
 import { arrayify } from "./util"
+import { filterGitIgnore } from "./gitignore"
 
 export async function grepSearch(
     query: string | RegExp,
-    options?: TraceOptions & {
-        path?: string[]
-        glob?: string[]
-        readText?: boolean
-    }
+    options?: TraceOptions & WorkspaceGrepOptions
 ): Promise<{ files: WorkspaceFile[]; matches: WorkspaceFile[] }> {
     const { rgPath } = await import("@lvce-editor/ripgrep")
-    const { path: paths, glob: globs, readText } = options || {}
+    const { path: paths, glob: globs, readText, applyGitIgnore } = options || {}
     const args: string[] = ["--json", "--multiline", "--context", "3"]
     if (typeof query === "string") {
         args.push("--smart-case", query)
@@ -40,13 +37,18 @@ export async function grepSearch(
             line_number: number
         }
     }[]
-    const files = uniq(
+    let filenames = uniq(
         resl
             .filter(({ type }) => type === "match")
             .map(({ data }) => data.path.text)
-    ).map((filename) => <WorkspaceFile>{ filename })
+    )
+    if (applyGitIgnore !== false) filenames = await filterGitIgnore(filenames)
+
+    const files = filenames.map((filename) => ({ filename }))
+    const filesSet = new Set(filenames)
     const matches = resl
         .filter(({ type }) => type === "match")
+        .filter(({ data }) => filesSet.has(data.path.text))
         .map(
             ({ data }) =>
                 <WorkspaceFile>{

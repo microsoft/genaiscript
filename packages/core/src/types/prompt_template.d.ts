@@ -1042,7 +1042,7 @@ interface WorkspaceFileCache<K, V> {
     values(): Promise<V[]>
 }
 
-interface WorkspaceGrepOptions {
+interface WorkspaceGrepOptions extends FilterGitFilesOptions {
     /**
      * List of paths to
      */
@@ -1052,7 +1052,7 @@ interface WorkspaceGrepOptions {
      */
     glob?: ElementOrArray<string>
     /**
-     * Set to false to skip read text content. True by default
+     * Read file content. default is true.
      */
     readText?: boolean
 }
@@ -1066,7 +1066,14 @@ interface INIParseOptions {
     defaultValue?: any
 }
 
-interface FindFilesOptions {
+interface FilterGitFilesOptions {
+    /**
+     * Ignore workspace .gitignore instructions
+     */
+    applyGitIgnore?: false | undefined
+}
+
+interface FindFilesOptions extends FilterGitFilesOptions {
     /** Glob patterns to ignore */
     ignore?: ElementOrArray<string>
 
@@ -1074,11 +1081,6 @@ interface FindFilesOptions {
      * Set to false to skip read text content. True by default
      */
     readText?: boolean
-
-    /**
-     * Ignore workspace .gitignore instructions
-     */
-    applyGitIgnore?: false | undefined
 }
 
 interface FileStats {
@@ -1096,7 +1098,7 @@ interface WorkspaceFileSystem {
      * @param glob
      */
     findFiles(
-        glob: string,
+        glob: ElementOrArray<string>,
         options?: FindFilesOptions
     ): Promise<WorkspaceFile[]>
 

@@ -137,9 +137,9 @@ export class VSCodeHost extends EventTarget implements Host {
         await vscode.workspace.fs.delete(uri)
     }
     async findFiles(
-        pattern: string | string[],
+        pattern: ElementOrArray<string>,
         options?: {
-            ignore?: string | string[]
+            ignore?: ElementOrArray<string>
             applyGitIgnore?: boolean
         }
     ): Promise<string[]> {

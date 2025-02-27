@@ -425,9 +425,9 @@ export class NodeHost extends EventTarget implements RuntimeHost {
         return res ? new Uint8Array(res) : new Uint8Array()
     }
     async findFiles(
-        path: string | string[],
+        path: ElementOrArray<string>,
         options: {
-            ignore?: string | string[]
+            ignore?: ElementOrArray<string>
             applyGitIgnore?: boolean
         }
     ): Promise<string[]> {
