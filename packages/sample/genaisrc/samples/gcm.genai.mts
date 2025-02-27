@@ -6,6 +6,7 @@
 script({
     title: "git commit message",
     description: "Generate a commit message for all staged changes",
+    model: "none",
     parameters: {
         chunkSize: {
             type: "number",
@@ -53,8 +54,8 @@ if (chunks.length > 1) {
     }
 }
 
-const addInstructions = (_) => {
-    _.$`
+const addInstructions = (ctx) => {
+    ctx.$`
     
 <type>: <description>
 <body>
