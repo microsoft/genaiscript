@@ -69,7 +69,7 @@ describe("parse", async () => {
         assert(res.stdout.includes("**Microsoft Word**"))
     })
     await test("tokens", async () => {
-        await $`node ${cli} ${cmd} tokens "src/**" -ef "**/*.pdf"`
+        await $`node ${cli} ${cmd} tokens "src/*" -ef "**/*.pdf" -ef "**/*.docx"`
     })
     await test("prompty", async () => {
         const res = await $`node ${cli} ${cmd} "src/*.prompty"`.nothrow()
