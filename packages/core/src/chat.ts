@@ -539,6 +539,7 @@ async function structurifyChatSession(
         err?: any
     }
 ): Promise<RunPromptResult> {
+    Object.freeze(options)
     const { trace, responseType, responseSchema } = options
     const { resp, err } = others || {}
     const text = assistantText(messages, responseType, responseSchema)
