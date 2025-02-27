@@ -9,10 +9,10 @@ import { readText, writeText } from "./fs"
 import { host } from "./host"
 import { INITryParse } from "./ini"
 import { JSON5TryParse } from "./json5"
-import { arrayify, dotGenaiscriptPath, logVerbose } from "./util"
+import { arrayify, logVerbose } from "./util"
 import { XMLTryParse } from "./xml"
 import { YAMLTryParse } from "./yaml"
-import { basename, dirname } from "path"
+import { dirname } from "path"
 import { ensureDir } from "fs-extra"
 
 export function createFileSystem(): Omit<
@@ -21,11 +21,11 @@ export function createFileSystem(): Omit<
 > {
     const fs = {
         findFiles: async (glob: string, options: FindFilesOptions) => {
-            const { readText, ignore } = options || {}
+            const { readText, ignore, applyGitIgnore } = options || {}
             const names = (
                 await host.findFiles(glob, {
                     ignore: ["**/.env", ...arrayify(ignore)],
-                    applyGitIgnore: true,
+                    applyGitIgnore: applyGitIgnore !== false,
                 })
             ).filter((f) => !DOT_ENV_REGEX.test(f))
             const files: WorkspaceFile[] = []

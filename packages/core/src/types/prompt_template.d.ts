@@ -1069,10 +1069,16 @@ interface INIParseOptions {
 interface FindFilesOptions {
     /** Glob patterns to ignore */
     ignore?: ElementOrArray<string>
+
     /**
      * Set to false to skip read text content. True by default
      */
     readText?: boolean
+
+    /**
+     * Ignore workspace .gitignore instructions
+     */
+    applyGitIgnore?: false | undefined
 }
 
 interface FileStats {
