@@ -127,7 +127,7 @@ export async function convertFiles(
         })
         if (!ffs?.length) {
             return fail(
-                `no files matching ${arg} under ${process.cwd()}`,
+                `no files matching ${arg} under ${process.cwd()} (all files might have been ignored)`,
                 FILES_NOT_FOUND_ERROR_CODE
             )
         }

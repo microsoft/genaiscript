@@ -43,7 +43,7 @@ Options:
   -lp, --logprobs                            enable reporting token probabilities
   -tlp, --top-logprobs <number>              number of top logprobs (1 to 5)
   -ef, --excluded-files <string...>          excluded files
-  -egi, --exclude-git-ignore                 exclude files that are ignored through the .gitignore file in the workspace root
+  -igi, --ignore-git-ignore                  by default, files ignored by .gitignore are excluded. disables this mode
   -ft, --fallback-tools                      Enable prompt-based tools instead of builtin LLM tool calling builtin tool calls
   -o, --out <string>                         output folder. Extra markdown fields for output and trace will also be generated
   -rmo, --remove-out                         remove output folder if it exists
