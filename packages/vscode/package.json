@@ -123,8 +123,8 @@
                 "steps": [
                     {
                         "id": "genaiscript.tutirla.node",
-                        "title": "Install Node.JS LTS",
-                        "description": "GenAIScript requires Node.JS LTS to run. [Read more...](https://microsoft.github.io/genaiscript/getting-started/installation/)",
+                        "title": "Install Node.JS LTS (v20+)",
+                        "description": "GenAIScript requires Node.JS LTS (v20+) to run. [Read more...](https://microsoft.github.io/genaiscript/getting-started/installation/)",
                         "media": {
                             "image": "media/tutorial-start.png",
                             "altText": ""
