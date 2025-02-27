@@ -8,7 +8,7 @@ system({
     },
 })
 
-export default async function GitInfo(ctx: PromptContext) {
+export default async function (ctx: PromptContext) {
     const { env, $ } = ctx
     const { vars } = env
 

@@ -58,14 +58,16 @@ const canaries = Array(2)
             adjectives[Math.floor(Math.random() * adjectives.length)] +
             nouns[Math.floor(Math.random() * nouns.length)]
     )
+export default function (ctx: PromptContext) {
+    const { $, defChatParticipant } = ctx
 
-$`${canaries.join(", ")}.`
-
-defChatParticipant((ctx, messages) => {
-    const assistants = messages.filter(({ role }) => role === "assistant")
-    const matches = assistants.filter(({ content }) =>
-        canaries.some((canary) => content.includes(canary))
-    )
-    if (matches.length > 0)
-        throw new Error("Canary word detected in assistant message")
-})
+    $`${canaries.join(", ")}.`
+    defChatParticipant((ctx, messages) => {
+        const assistants = messages.filter(({ role }) => role === "assistant")
+        const matches = assistants.filter(({ content }) =>
+            canaries.some((canary) => content.includes(canary))
+        )
+        if (matches.length > 0)
+            throw new Error("Canary word detected in assistant message")
+    })
+}

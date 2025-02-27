@@ -175,7 +175,6 @@ export async function runScriptInternal(
     let result: GenerationResult
     const workspaceFiles = options.workspaceFiles || []
     const excludedFiles = options.excludedFiles
-    const excludeGitIgnore = !!options.excludeGitIgnore
     const runDir = options.out || getRunDir(scriptId)
     const stream = !options.json && !options.yaml
     const retry = normalizeInt(options.retry) || 8
@@ -249,10 +248,28 @@ export async function runScriptInternal(
     if (outOutput && !/^false$/i.test(outOutput))
         await setupTraceWriting(outputTrace, " output", outTrace)
     const toolFiles: string[] = []
-    const resolvedFiles = new Set<string>()
-
     if (GENAI_ANY_REGEX.test(scriptId)) toolFiles.push(scriptId)
 
+    const prj = await buildProject({
+        toolFiles,
+    })
+    if (jsSource)
+        prj.scripts.push({
+            id: scriptId,
+            ...parsePromptScriptMeta(jsSource),
+            jsSource,
+        })
+    const script = prj.scripts.find(
+        (t) =>
+            t.id === scriptId ||
+            (t.filename &&
+                GENAI_ANY_REGEX.test(scriptId) &&
+                resolve(t.filename) === resolve(scriptId))
+    )
+    if (!script) throw new Error(`script ${scriptId} not found`)
+    const applyGitIgnore =
+        options.ignoreGitIgnore !== false && script.ignoreGitIgnore !== false
+    const resolvedFiles = new Set<string>()
     for (let arg of files) {
         if (HTTPS_REGEX.test(arg)) {
             resolvedFiles.add(arg)
@@ -261,11 +278,11 @@ export async function runScriptInternal(
         const stats = await host.statFile(arg)
         if (stats?.type === "directory") arg = host.path.join(arg, "**", "*")
         const ffs = await host.findFiles(arg, {
-            applyGitIgnore: excludeGitIgnore,
+            applyGitIgnore,
         })
         if (!ffs?.length) {
             return fail(
-                `no files matching ${arg} under ${process.cwd()}`,
+                `no files matching ${arg} under ${process.cwd()} (all files might have been ignored)`,
                 FILES_NOT_FOUND_ERROR_CODE
             )
         }
@@ -285,24 +302,6 @@ export async function runScriptInternal(
     // try reading stdin
     const stdin = await readStdIn()
     if (stdin) workspaceFiles.push(stdin)
-
-    const prj = await buildProject({
-        toolFiles,
-    })
-    if (jsSource)
-        prj.scripts.push({
-            id: scriptId,
-            ...parsePromptScriptMeta(jsSource),
-            jsSource,
-        })
-    const script = prj.scripts.find(
-        (t) =>
-            t.id === scriptId ||
-            (t.filename &&
-                GENAI_ANY_REGEX.test(scriptId) &&
-                resolve(t.filename) === resolve(scriptId))
-    )
-    if (!script) throw new Error(`script ${scriptId} not found`)
 
     if (script.accept) {
         const exts = script.accept

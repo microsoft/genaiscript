@@ -131,8 +131,8 @@ export async function cli() {
         )
         .option("-ef, --excluded-files <string...>", "excluded files")
         .option(
-            "-egi, --exclude-git-ignore",
-            "exclude files that are ignored through the .gitignore file in the workspace root"
+            "-igi, --ignore-git-ignore",
+            "by default, files ignored by .gitignore are excluded. disables this mode"
         )
         .option(
             "-ft, --fallback-tools",
@@ -290,8 +290,8 @@ export async function cli() {
         )
         .option("-ef, --excluded-files <string...>", "excluded files")
         .option(
-            "-egi, --exclude-git-ignore",
-            "exclude files that are ignored through the .gitignore file in the workspace root"
+            "-igi, --ignore-git-ignore",
+            "by default, files ignored by .gitignore are excluded. disables this mode"
         )
         .option("-m, --model <string>", "'large' model alias (default)")
         .option("-sm, --small-model <string>", "'small' alias model")

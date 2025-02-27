@@ -3,7 +3,10 @@ system({
     lineNumbers: true,
 })
 
-$`## DIFF file format
+export default function (ctx: PromptContext) {
+    const { $ } = ctx
+
+    $`## DIFF file format
 
 The DIFF format should be used to generate diff changes on large files with small number of changes: 
 
@@ -73,3 +76,4 @@ DIFF ./file4.ts:
 - If the file content is large (> 50 lines) and the changes are small, use the DIFF format.
 - In all other cases, use the FILE file format.
 `
+}

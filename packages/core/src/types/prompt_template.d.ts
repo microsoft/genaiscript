@@ -510,11 +510,11 @@ interface PromptTest {
     /**
      * List of files to apply the test to.
      */
-    files?: string | string[]
+    files?: ElementOrArray<string>
     /**
      * List of in-memory files to apply the test to.
      */
-    workspaceFiles?: WorkspaceFile | WorkspaceFile[]
+    workspaceFiles?: ElementOrArray<WorkspaceFile>
     /**
      * Extra set of variables for this scenario
      */
@@ -522,23 +522,23 @@ interface PromptTest {
     /**
      * LLM output matches a given rubric, using a Language Model to grade output.
      */
-    rubrics?: string | string[]
+    rubrics?: ElementOrArray<string>
     /**
      * LLM output adheres to the given facts, using Factuality method from OpenAI evaluation.
      */
-    facts?: string | string[]
+    facts?: ElementOrArray<string>
     /**
      * List of keywords that should be contained in the LLM output.
      */
-    keywords?: string | string[]
+    keywords?: ElementOrArray<string>
     /**
      * List of keywords that should not be contained in the LLM output.
      */
-    forbidden?: string | string[]
+    forbidden?: ElementOrArray<string>
     /**
      * Additional deterministic assertions.
      */
-    asserts?: PromptAssertion | PromptAssertion[]
+    asserts?: ElementOrArray<PromptAssertion>
 
     /**
      * Determines what kind of output is sent back to the test engine. Default is "text".
@@ -681,6 +681,7 @@ interface PromptScript
         PromptSystemOptions,
         EmbeddingsModelOptions,
         ContentSafetyOptions,
+        GitIgnoreFilterOptions,
         ScriptRuntimeOptions {
     /**
      * Which provider to prefer when picking a model.
@@ -1404,7 +1405,15 @@ interface RangeOptions {
     lineEnd?: number
 }
 
-interface FileFilterOptions {
+interface GitIgnoreFilterOptions {
+
+    /**
+     * Disable filtering files based on the `.gitignore` file.
+     */
+    ignoreGitIgnore?: false | undefined    
+}
+
+interface FileFilterOptions extends GitIgnoreFilterOptions {
     /**
      * Filename filter based on file suffix. Case insensitive.
      */
@@ -1414,11 +1423,6 @@ interface FileFilterOptions {
      * Filename filter using glob syntax.
      */
     glob?: ElementOrArray<string>
-
-    /**
-     * Disable filtering files based on the `.gitignore` file.
-     */
-    ignoreGitIgnore?: false | undefined
 }
 
 interface ContentSafetyOptions {

@@ -14,15 +14,18 @@ system({
     },
 })
 
-const docsRoot = env.vars["system.agent_docs.dir"] || "docs"
-const samplesRoot =
-    env.vars["system.agent_docs.samples"] || "packages/sample/genaisrc/"
+export default function (ctx: PromptContext) {
+    const { env, defAgent } = ctx
 
-defAgent(
-    "docs",
-    "query the documentation",
-    async (ctx) => {
-        ctx.$`Your are a helpful LLM agent that is an expert at Technical documentation. You can provide the best analyzis to any query about the documentation.
+    const docsRoot = env.vars["system.agent_docs.dir"] || "docs"
+    const samplesRoot =
+        env.vars["system.agent_docs.samples"] || "packages/sample/genaisrc/"
+
+    defAgent(
+        "docs",
+        "query the documentation",
+        async (ctx) => {
+            ctx.$`Your are a helpful LLM agent that is an expert at Technical documentation. You can provide the best analyzis to any query about the documentation.
 
         Analyze <QUERY> and respond with the requested information.
 
@@ -38,16 +41,17 @@ defAgent(
         - the documentation is stored in markdown/MDX files in the ${docsRoot} folder
         ${samplesRoot ? `- the code samples are stored in the ${samplesRoot} folder` : ""}
         `
-    },
-    {
-        system: ["system.explanations", "system.github_info"],
-        tools: [
-            "md_find_files",
-            "md_read_frontmatter",
-            "fs_find_files",
-            "fs_read_file",
-            "fs_ask_file",
-        ],
-        maxTokens: 5000,
-    }
-)
+        },
+        {
+            system: ["system.explanations", "system.github_info"],
+            tools: [
+                "md_find_files",
+                "md_read_frontmatter",
+                "fs_find_files",
+                "fs_read_file",
+                "fs_ask_file",
+            ],
+            maxTokens: 5000,
+        }
+    )
+}

@@ -22,6 +22,27 @@ function and add additional filters to the files.
 def("PDFS", env.files, { endsWith: ".pdf" })
 ```
 
+## `.gitignore` and `.gitignore.genai`
+
+By default, the `.gitignore` (workspace level) and `.gitignore.genai` (project level) files are respected when selecting files.
+
+Turn off this mode by setting the `ignoreGitIgnore` option to `true`:
+
+```js
+script({
+    // don't filter env.files
+    ignoreGitIgnore: true,
+})
+```
+
+or on the `cli run` command:
+
+```sh
+genaiscript run --ignore-git-ignore
+```
+
+`.gitignore.genai` is an extra file that is used to filter files in the project. It is useful when you want to exclude files from the project that are not relevant for the script beyond the `.gitignore` file.
+
 ## file output
 
 Use [defFileOutput](/genaiscript/reference/scripts/file-output) to specify allowed file output paths and the description
@@ -44,6 +65,8 @@ const mds = await workspace.findFiles("**/*.md")
 def("DOCS", mds)
 ```
 
+The `.gitignore` are respected by default. You can disable this behavior by setting the `ignoreGitIgnore` option to `true`.
+
 ### `grep`
 
 Performs a regex 'grep' search for files under the workspace using [ripgrep](https://github.com/BurntSushi/ripgrep). The pattern can be a string or a regular expression.
@@ -59,6 +82,8 @@ The pattern can also be a regex, in which case sensitivity follows the regex opt
 const { files } = await workspace.grep(/[a-z]+\d/i, "**/*.md")
 def("FILE", files)
 ```
+
+The `.gitignore` are respected by default. You can disable this behavior by setting the `ignoreGitIgnore` option to `true`.
 
 ### `readText`
 
@@ -130,11 +155,11 @@ File path "globs" are patterns used to match file and directory names. They are 
 
 Glob patterns can have the following syntax:
 
--   `*` to match zero or more characters in a path segment
--   `?` to match on one character in a path segment
--   `**` to match any number of path segments, including none
--   `{}` to group conditions (e.g. `**/*.{ts,js}` matches all TypeScript and JavaScript files)
--   `[]` to declare a range of characters to match in a path segment (e.g., `example.[0-9]` to match on example.0, example.1, …)
--   `[!...]` to negate a range of characters to match in a path segment (e.g., `example.[!0-9]` to match on example.a, example.b, but not example.0)
+- `*` to match zero or more characters in a path segment
+- `?` to match on one character in a path segment
+- `**` to match any number of path segments, including none
+- `{}` to group conditions (e.g. `**/*.{ts,js}` matches all TypeScript and JavaScript files)
+- `[]` to declare a range of characters to match in a path segment (e.g., `example.[0-9]` to match on example.0, example.1, …)
+- `[!...]` to negate a range of characters to match in a path segment (e.g., `example.[!0-9]` to match on example.a, example.b, but not example.0)
 
 Note: a backslash (`\`\``) is not valid within a glob pattern. If you have an existing file path to match against, consider to use the relative pattern support that takes care of converting any backslash into slash. Otherwise, make sure to convert any backslash to slash when creating the glob pattern.

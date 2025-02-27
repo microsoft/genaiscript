@@ -5,7 +5,10 @@ system({
     lineNumbers: true,
 })
 
-$`## Annotations Format
+export default function (ctx: PromptContext) {
+    const { $ } = ctx
+
+    $`## Annotations Format
 Use the following format to report **file annotations** (same as GitHub Actions workflow).
 
 ::(notice|warning|error) file=<filename>,line=<start line>,endLine=<end line>,code=<error_id>::<message>
@@ -22,3 +25,4 @@ For example, an error in app.js between line 1 and 4 with message "Missing semic
 - Do NOT indent or place annotation in a code fence.
 - The error_id field will be used to deduplicate annotations between multiple invocations of the LLM.
 `
+}

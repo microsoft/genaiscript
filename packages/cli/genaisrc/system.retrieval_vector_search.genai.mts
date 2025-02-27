@@ -4,34 +4,37 @@ system({
         "Function to do a search using embeddings vector similarity distance.",
 })
 
-defTool(
-    "retrieval_vector_search",
-    "Search files using embeddings and similarity distance.",
-    {
-        type: "object",
-        properties: {
-            files: {
-                description: "array of file paths to search,",
-                type: "array",
-                items: {
+export default function (ctx: PromptContext) {
+    const { defTool } = ctx
+    defTool(
+        "retrieval_vector_search",
+        "Search files using embeddings and similarity distance.",
+        {
+            type: "object",
+            properties: {
+                files: {
+                    description: "array of file paths to search,",
+                    type: "array",
+                    items: {
+                        type: "string",
+                        description:
+                            "path to the file to search, relative to the workspace root",
+                    },
+                },
+                q: {
                     type: "string",
-                    description:
-                        "path to the file to search, relative to the workspace root",
+                    description: "Search query.",
                 },
             },
-            q: {
-                type: "string",
-                description: "Search query.",
-            },
+            required: ["q", "files"],
         },
-        required: ["q", "files"],
-    },
-    async (args) => {
-        const { files, q } = args
-        const res = await retrieval.vectorSearch(
-            q,
-            files.map((filename) => ({ filename }))
-        )
-        return YAML.stringify(res.map(({ filename }) => filename))
-    }
-)
+        async (args) => {
+            const { files, q } = args
+            const res = await retrieval.vectorSearch(
+                q,
+                files.map((filename) => ({ filename }))
+            )
+            return YAML.stringify(res.map(({ filename }) => filename))
+        }
+    )
+}
