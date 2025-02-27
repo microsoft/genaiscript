@@ -425,9 +425,9 @@ export class NodeHost extends EventTarget implements RuntimeHost {
         return res ? new Uint8Array(res) : new Uint8Array()
     }
     async findFiles(
-        path: string | string[],
+        path: ElementOrArray<string>,
         options: {
-            ignore?: string | string[]
+            ignore?: ElementOrArray<string>
             applyGitIgnore?: boolean
         }
     ): Promise<string[]> {
@@ -437,9 +437,8 @@ export class NodeHost extends EventTarget implements RuntimeHost {
             windowsPathsNoEscape: true,
             ignore,
         })
-        if (applyGitIgnore) {
-            const gitignore = await tryReadText(".gitignore")
-            files = await filterGitIgnore(gitignore, files)
+        if (applyGitIgnore !== false) {
+            files = await filterGitIgnore(files)
         }
         return uniq(files)
     }

@@ -137,9 +137,9 @@ export class VSCodeHost extends EventTarget implements Host {
         await vscode.workspace.fs.delete(uri)
     }
     async findFiles(
-        pattern: string | string[],
+        pattern: ElementOrArray<string>,
         options?: {
-            ignore?: string | string[]
+            ignore?: ElementOrArray<string>
             applyGitIgnore?: boolean
         }
     ): Promise<string[]> {
@@ -162,12 +162,8 @@ export class VSCodeHost extends EventTarget implements Host {
         }
 
         let files = Array.from(uris.values())
-        if (
-            applyGitIgnore &&
-            (await checkFileExists(this.projectUri, ".gitignore"))
-        ) {
-            const gitignore = await readFileText(this.projectUri, ".gitignore")
-            files = await filterGitIgnore(gitignore, files)
+        if (applyGitIgnore !== false) {
+            files = await filterGitIgnore(files)
         }
         return uniq(files)
     }

@@ -322,6 +322,7 @@ export const GITHUB_REST_PAGE_DEFAULT = 10
 
 export const TOKEN_TRUNCATION_THRESHOLD = 16
 
+export const GIT_IGNORE = ".gitignore"
 export const GIT_IGNORE_GENAI = ".gitignore.genai"
 export const CLI_ENV_VAR_RX = /^genaiscript_var_/i
 

@@ -14,6 +14,7 @@ import { resolveTokenEncoder } from "./encoders"
 import { underscore } from "inflection"
 import { rm, lstat } from "node:fs/promises"
 import { packageResolveInstall } from "./packagemanagers"
+import { normalizeInt } from "./cleaners"
 
 async function checkDirectoryExists(directory: string): Promise<boolean> {
     try {
@@ -377,6 +378,7 @@ ${await this.diff({ ...options, nameOnly: true })}
         }
     ): Promise<GitClient> {
         let { branch, force, install, depth, ...rest } = options || {}
+        depth = normalizeInt(depth)
 
         // normalize short github url
         // check if the repository is in the form of `owner/repo`
