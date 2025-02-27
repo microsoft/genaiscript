@@ -379,6 +379,7 @@ ${await this.diff({ ...options, nameOnly: true })}
     ): Promise<GitClient> {
         let { branch, force, install, depth, ...rest } = options || {}
         depth = normalizeInt(depth)
+        if (isNaN(depth)) depth = 1
 
         // normalize short github url
         // check if the repository is in the form of `owner/repo`
