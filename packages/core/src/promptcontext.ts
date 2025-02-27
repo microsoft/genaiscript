@@ -80,13 +80,7 @@ export async function createPromptContext(
         copyFile: (src, dest) => runtimeHost.workspace.copyFile(src, dest),
         cache: (n) => runtimeHost.workspace.cache(n),
         findFiles: async (pattern, options) => {
-            // Log and find files matching the given pattern
             const res = await runtimeHost.workspace.findFiles(pattern, options)
-            trace.files(res, {
-                title: `🗃 find files <code>${HTMLEscape(pattern)}</code>`,
-                maxLength: -1,
-                secrets: env.secrets,
-            })
             return res
         },
         stat: (filename) => runtimeHost.workspace.stat(filename),
