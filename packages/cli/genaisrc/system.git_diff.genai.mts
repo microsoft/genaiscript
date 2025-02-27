@@ -10,7 +10,7 @@ system({
     },
 })
 
-export default async function (ctx: PromptContext) {
+export default function (ctx: PromptContext) {
     const { env, defTool } = ctx
     const { vars } = env
     const cwd = vars["system.git_diff.cwd"]

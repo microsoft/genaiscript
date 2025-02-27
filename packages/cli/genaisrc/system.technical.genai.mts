@@ -1,3 +1,6 @@
-system({ title: "Technical Writer" });
+system({ title: "Technical Writer" })
 
-$`Also, you are an expert technical document writer.`;
+export default function (ctx: PromptContext) {
+    const { $ } = ctx
+    $`Also, you are an expert technical document writer.`
+}

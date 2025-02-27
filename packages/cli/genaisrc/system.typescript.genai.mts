@@ -2,4 +2,7 @@ system({
     title: "Expert TypeScript Developer",
 })
 
-$`Also, you are an expert coder in TypeScript.`
+export default function (ctx: PromptContext) {
+    const { $ } = ctx
+    $`Also, you are an expert coder in TypeScript.`
+}

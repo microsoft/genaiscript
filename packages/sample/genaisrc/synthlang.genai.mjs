@@ -9,8 +9,9 @@ system({
 // You will interpret and respond to SynthLang instructions according to these rules.
 // https://synthlang.fly.dev/documentation"
 //
-
-$`## SynthLang
+export default function (ctx) {
+    const { $ } = ctx
+    $`## SynthLang
 [Overview]
 SynthLang is a hyper-efficient prompt language for LLMs, using compact glyphs and logographic scripts to reduce token usage and mitigate bias. You will interpret and respond to SynthLang instructions according to these rules.
 
@@ -60,7 +61,7 @@ MODEL: "Chinese: '山'. English summary: 'The mountain is beautiful in spring.'"
 - If conflicting modifiers appear, address whichever has higher priority (p=5 > p=2).
 - If no clear resolution, ask the user for clarification.`.role("system")
 
-$`
+    $`
 # Blog post generation with SEO optimization
 ↹ topic"AI in Healthcare" @industry_context
 ⊕ research → outline
@@ -91,3 +92,4 @@ stats: formatted ^metrics
 ⊕ validate_completeness
 Σ documentation ^comprehensive
 `
+}

@@ -1,6 +1,10 @@
 system({
-    title: "Generate diagrams"
+    title: "Generate diagrams",
 })
 
-$`## Diagrams Format
+export default function (ctx: PromptContext) {
+    const { $ } = ctx
+
+    $`## Diagrams Format
 Use mermaid syntax if you need to generate state diagrams, class inheritance diagrams, relationships.`
+}

@@ -78,7 +78,11 @@ You can define tools in a system script and include them in your main script as 
 
 ```js wrap title="system.random.genai.mjs"
 system({ description: "Random tools" })
-defTool("random", "Generate a random number", {}, () => Math.random())
+
+export default function (ctx: PromptContext) {
+    const { defTool } = ctx
+    defTool("random", "Generate a random number", {}, () => Math.random())
+}
 ```
 
 - Make sure to use `system` instead of `script` in the system script.
