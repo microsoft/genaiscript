@@ -11,6 +11,7 @@ import { runtimeHost } from "../../core/src/host"
 import { deleteUndefinedValues } from "../../core/src/cleaners"
 import { logInfo, logVerbose, logWarn } from "../../core/src/util"
 import { run } from "./api"
+import { tryReadText } from "../../core/src/fs"
 
 export async function configure(options: { provider?: string }) {
     while (true) {
@@ -35,7 +36,7 @@ export async function configure(options: { provider?: string }) {
         while (true) {
             const config = await runtimeHost.readConfig()
             logVerbose(`- env file: ${config.envFile}`)
-            const envText = await readFile(config.envFile, "utf-8")
+            const envText = await tryReadText(config.envFile)
             const env = parse(envText)
             const conn = (
                 await resolveLanguageModelConfigurations(provider.id, {
