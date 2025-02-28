@@ -436,6 +436,7 @@ export class NodeHost extends EventTarget implements RuntimeHost {
             nodir: true,
             windowsPathsNoEscape: true,
             ignore,
+            dot: true,
         })
         if (applyGitIgnore !== false) {
             files = await filterGitIgnore(files)

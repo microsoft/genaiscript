@@ -3,6 +3,7 @@ script({
     description: "A bot that can't stop answering issues.",
     responseType: "markdown",
     systemSafety: true,
+    group: "actions",
     parameters: {
         issue: {
             type: "integer",
