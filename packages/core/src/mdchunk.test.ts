@@ -179,8 +179,9 @@ There are many variations of passages of Lorem Ipsum available, but the majority
     }
 
     await test(`word: chunks markdown from docx`, async () => {
-        const markdown = await DOCXTryParse(
+        const { content: markdown } = await DOCXTryParse(
             "../../packages/sample/src/rag/Document.docx",
+            undefined,
             {
                 format: "markdown",
             }

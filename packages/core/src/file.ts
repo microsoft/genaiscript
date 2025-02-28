@@ -105,7 +105,8 @@ export async function resolveFileContent(
     // Handle DOCX files
     else if (DOCX_REGEX.test(filename)) {
         file.type = DOCX_MIME_TYPE
-        file.content = await DOCXTryParse(filename, options)
+        const { content } = await DOCXTryParse(filename, undefined, options)
+        file.content = content
     }
     // Handle XLSX files
     else if (XLSX_REGEX.test(filename)) {
