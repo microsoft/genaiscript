@@ -60,7 +60,7 @@ export async function readStdIn(): Promise<WorkspaceFile> {
               type: mime?.mime,
           } satisfies WorkspaceFile)
         : ({
-              filename: `stdin.${mime?.ext || "txt"}`,
+              filename: `stdin.${mime?.ext || "md"}`,
               content: data.toString("utf-8"),
               size: data.length,
               type: mime?.mime,

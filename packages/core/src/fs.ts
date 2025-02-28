@@ -49,7 +49,11 @@ export async function writeJSON(fn: string, obj: any) {
     await writeText(fn, JSON.stringify(obj))
 }
 
-export async function expandFiles(files: string[], excludedFiles?: string[]) {
+export async function expandFiles(
+    files: string[],
+    excludedFiles?: string[],
+    accept?: string
+) {
     if (!files.length) return []
 
     const urls = files
@@ -59,7 +63,20 @@ export async function expandFiles(files: string[], excludedFiles?: string[]) {
         files.filter((f) => !HTTPS_REGEX.test(f)),
         { ignore: excludedFiles?.filter((f) => !HTTPS_REGEX.test(f)) }
     )
-    return uniq([...urls, ...others])
+
+    const res = new Set([...urls, ...others])
+    if (accept) {
+        const exts = accept
+            .split(",")
+            .map((s) => s.trim().replace(/^\*\./, "."))
+            .filter((s) => !!s)
+        for (const rf of res) {
+            if (!exts.some((ext) => rf.endsWith(ext))) {
+                res.delete(rf)
+            }
+        }
+    }
+    return Array.from(res)
 }
 
 export async function expandFileOrWorkspaceFiles(
