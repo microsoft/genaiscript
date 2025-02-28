@@ -417,7 +417,6 @@ export async function runScriptInternal(
                 DOCS_CONFIGURATION_URL
             )
         }
-        trace.options.encoder = (await resolveTokenEncoder(info.model)).encode
 
         result = await runTemplate(prj, script, fragment, {
             inner: false,
