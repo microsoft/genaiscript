@@ -1394,7 +1394,7 @@ function toStringList(...token: (string | undefined | null)[]) {
 function acceptToAccept(accept: string | undefined) {
     if (!accept) return undefined
     const res: Record<string, string[]> = {}
-    const extensions = accept.split(",")
+    const extensions = accept.split(",").map(ext => ext.trim().replace(/^\*\./, "."))
     for (const ext of extensions) {
         const mime = lookupMime(ext)
         if (mime) {

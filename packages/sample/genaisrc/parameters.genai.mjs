@@ -1,5 +1,5 @@
 script({
-    accept: ".txt,.md,.pdf",
+    accept: "*.prompty,.txt,.md,.pdf",
     files: "src/*",
     model: "small",
     tools: "agent_fs",
