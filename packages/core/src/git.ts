@@ -9,7 +9,7 @@ import { readText } from "./fs"
 import { host, runtimeHost } from "./host"
 import { shellParse } from "./shell"
 import { arrayify, dotGenaiscriptPath, logVerbose } from "./util"
-import { estimateTokens, truncateTextToTokens } from "./tokens"
+import { approximateTokens, truncateTextToTokens } from "./tokens"
 import { resolveTokenEncoder } from "./encoders"
 import { underscore } from "inflection"
 import { rm, lstat } from "node:fs/promises"
@@ -333,7 +333,7 @@ export class GitClient implements Git {
             const { encode: encoder } = await resolveTokenEncoder(
                 runtimeHost.modelAliases.large.model
             )
-            const tokens = estimateTokens(res, encoder)
+            const tokens = approximateTokens(res)
             if (tokens > maxTokensFullDiff)
                 res = `## Diff
 Truncated diff to large (${tokens} tokens). Diff files individually for details.

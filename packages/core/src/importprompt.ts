@@ -2,6 +2,7 @@ import { host } from "./host"
 import { logError } from "./util"
 import { TraceOptions } from "./trace"
 import { pathToFileURL } from "url"
+import { mark } from "./performance"
 
 export async function importPrompt(
     ctx0: PromptContext,
@@ -10,6 +11,7 @@ export async function importPrompt(
         logCb?: (msg: string) => void
     } & TraceOptions
 ) {
+    mark("prompt.import")
     const { filename } = r
     if (!filename) throw new Error("filename is required")
     const { trace } = options || {}

@@ -49,11 +49,7 @@ export class MarkdownTrace extends EventTarget implements OutputTrace {
     private _content: (string | MarkdownTrace)[] = []
     private _tree: TraceTree
 
-    constructor(
-        readonly options?: {
-            encoder?: TokenEncoder
-        }
-    ) {
+    constructor(readonly options?: {}) {
         super()
         this.options = options || {}
     }
@@ -427,7 +423,6 @@ ${this.toResultIcon(success, "")}${title}
                         : undefined
                     let size: string
                     let content: string
-                    let tokens: string
                     if (file.encoding) {
                         size = prettyBytes(
                             file.size ??
@@ -438,12 +433,8 @@ ${this.toResultIcon(success, "")}${title}
                         size = prettyBytes(
                             file.size ?? encoder.encode(content).length
                         )
-                        tokens =
-                            model && this.options?.encoder
-                                ? `${estimateTokens(content, this.options.encoder)} t`
-                                : undefined
                     }
-                    const suffix = toStringList(tokens, size, score)
+                    const suffix = toStringList(size, score)
                     if (content && maxLength > 0) {
                         let preview = ellipse(content, maxLength).replace(
                             /\b[A-Za-z0-9\-_]{20,40}\b/g,
@@ -464,7 +455,7 @@ ${this.toResultIcon(success, "")}${title}
                     } else
                         this.itemValue(
                             `\`${file.filename}\``,
-                            toStringList(tokens, size, score)
+                            toStringList(size, score)
                         )
                 }
             } finally {

@@ -26,6 +26,7 @@ import { dispose } from "./dispose"
 import { normalizeFloat, normalizeInt } from "./cleaners"
 import { mergeEnvVarsWithSystem } from "./vars"
 import { installGlobalPromptContext } from "./globals"
+import { mark } from "./performance"
 
 export async function callExpander(
     prj: Project,
@@ -35,6 +36,7 @@ export async function callExpander(
     options: GenerationOptions,
     installGlobally: boolean
 ) {
+    mark("prompt.expand.main")
     assert(!!options.model)
     const modelId = r.model ?? options.model
     const ctx = await createPromptContext(prj, ev, trace, options, modelId)
@@ -167,6 +169,7 @@ export async function expandTemplate(
     options: GenerationOptions,
     env: ExpansionVariables
 ) {
+    mark("prompt.expand.script")
     const trace = options.trace
     const model = options.model
     assert(!!trace)

@@ -4,12 +4,7 @@ import { PromptImage, PromptPrediction, renderPromptNode } from "./promptdom"
 import { host, runtimeHost } from "./host"
 import { GenerationOptions } from "./generation"
 import { dispose } from "./dispose"
-import {
-    JSON5TryParse,
-    JSON5parse,
-    JSONLLMTryParse,
-    isJSONObjectOrArray,
-} from "./json5"
+import { JSON5TryParse, JSONLLMTryParse, isJSONObjectOrArray } from "./json5"
 import {
     CancellationOptions,
     CancellationToken,
@@ -37,7 +32,6 @@ import {
     MAX_TOOL_CONTENT_TOKENS,
     MODEL_PROVIDERS,
     SYSTEM_FENCE,
-    THINK_REGEX,
 } from "./constants"
 import { parseAnnotations } from "./annotations"
 import { errorMessage, isCancelError, serializeError } from "./error"
@@ -67,7 +61,7 @@ import { promptParametersSchemaToJSONSchema } from "./parameters"
 import { prettifyMarkdown } from "./markdown"
 import { YAMLParse, YAMLStringify, YAMLTryParse } from "./yaml"
 import { resolveTokenEncoder } from "./encoders"
-import { estimateTokens, truncateTextToTokens } from "./tokens"
+import { approximateTokens, truncateTextToTokens } from "./tokens"
 import { computeFileEdits } from "./fileedits"
 import { HTMLEscape } from "./html"
 import { XMLTryParse } from "./xml"
@@ -94,6 +88,7 @@ import {
 } from "./chatcache"
 import { deleteUndefinedValues } from "./cleaners"
 import { splitThink, unthink } from "./think"
+import { measure } from "./performance"
 
 function toChatCompletionImage(
     image: PromptImage
@@ -373,7 +368,7 @@ ${fenceMD(content, " ")}
             )
         }
 
-        const toolContentTokens = estimateTokens(toolContent, encoder)
+        const toolContentTokens = approximateTokens(toolContent)
         if (toolContentTokens > maxToolContentTokens) {
             logWarn(
                 `tool: ${tool.spec.name} response too long (${toolContentTokens} tokens), truncating ${maxToolContentTokens} tokens`
@@ -1089,12 +1084,18 @@ export async function executeChatSession(
 
                     const infer = async () => {
                         logVerbose(`\n`)
-                        return await completer(
+                        const m = measure(
+                            "chat.completer",
+                            `${req.model} -> ${req.messages.length} messages`
+                        )
+                        const cres = await completer(
                             req,
                             connectionToken,
                             genOptions,
                             reqTrace
                         )
+                        m()
+                        return cres
                     }
                     if (cacheStore) {
                         const cachedKey = deleteUndefinedValues({

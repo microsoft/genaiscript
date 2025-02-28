@@ -1,16 +1,15 @@
 import { select, input, confirm, password } from "@inquirer/prompts"
 import {
-    MODEL_PROVIDER_GITHUB_COPILOT_CHAT,
     MODEL_PROVIDERS,
 } from "../../core/src/constants"
 import { resolveLanguageModelConfigurations } from "../../core/src/config"
 import { parse } from "dotenv"
-import { readFile } from "fs/promises"
 import { writeFile } from "fs/promises"
 import { runtimeHost } from "../../core/src/host"
 import { deleteUndefinedValues } from "../../core/src/cleaners"
 import { logInfo, logVerbose, logWarn } from "../../core/src/util"
 import { run } from "./api"
+import { tryReadText } from "../../core/src/fs"
 
 export async function configure(options: { provider?: string }) {
     while (true) {
@@ -35,7 +34,7 @@ export async function configure(options: { provider?: string }) {
         while (true) {
             const config = await runtimeHost.readConfig()
             logVerbose(`- env file: ${config.envFile}`)
-            const envText = await readFile(config.envFile, "utf-8")
+            const envText = (await tryReadText(config.envFile)) || ""
             const env = parse(envText)
             const conn = (
                 await resolveLanguageModelConfigurations(provider.id, {
@@ -153,7 +152,7 @@ $\`Write a one-word poem in code.\`
 async function patchEnvFile(filePath: string, key: string, value: string) {
     logVerbose(`patching ${filePath}, ${key}`)
 
-    const fileContent = await readFile(filePath, "utf-8")
+    const fileContent = (await tryReadText(filePath)) || ""
     const lines = fileContent.split("\n")
     let found = false
 

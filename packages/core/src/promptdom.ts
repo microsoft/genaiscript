@@ -3,7 +3,7 @@ import { dataToMarkdownTable, CSVTryParse } from "./csv"
 import { renderFileContent, resolveFileContent } from "./file"
 import { addLineNumbers, extractRange } from "./liner"
 import { JSONSchemaStringifyToTypeScript } from "./schema"
-import { estimateTokens, truncateTextToTokens } from "./tokens"
+import { approximateTokens, truncateTextToTokens } from "./tokens"
 import { MarkdownTrace, TraceOptions } from "./trace"
 import { arrayify, assert, logError, logWarn, toStringList } from "./util"
 import { YAMLStringify } from "./yaml"
@@ -42,6 +42,7 @@ import { CancellationOptions } from "./cancellation"
 import { promptParametersSchemaToJSONSchema } from "./parameters"
 import { redactSecrets } from "./secretscanner"
 import { escapeToolName } from "./tools"
+import { measure } from "./performance"
 
 // Definition of the PromptNode interface which is an essential part of the code structure.
 export interface PromptNode extends ContextExpansionOptions {
@@ -680,7 +681,7 @@ async function resolvePromptNode(
             try {
                 const value = await n.value
                 n.resolved = n.preview = value
-                n.tokens = estimateTokens(value, encoder)
+                n.tokens = approximateTokens(value)
             } catch (e) {
                 n.error = e
             }
@@ -693,7 +694,7 @@ async function resolvePromptNode(
                 n.resolved.content = extractRange(n.resolved.content, n)
                 const rendered = renderDefNode(n)
                 n.preview = rendered
-                n.tokens = estimateTokens(rendered, encoder)
+                n.tokens = approximateTokens(rendered)
                 n.children = [createTextNode(rendered, cloneContextFields(n))]
             } catch (e) {
                 n.error = e
@@ -706,7 +707,7 @@ async function resolvePromptNode(
                 n.resolved = value
                 const rendered = await renderDefDataNode(n)
                 n.preview = rendered
-                n.tokens = estimateTokens(rendered, encoder)
+                n.tokens = approximateTokens(rendered)
                 n.children = [createTextNode(rendered, cloneContextFields(n))]
             } catch (e) {
                 n.error = e
@@ -716,7 +717,7 @@ async function resolvePromptNode(
             try {
                 const value = await n.value
                 n.resolved = n.preview = value
-                n.tokens = estimateTokens(value, encoder)
+                n.tokens = approximateTokens(value)
             } catch (e) {
                 n.error = e
             }
@@ -725,7 +726,7 @@ async function resolvePromptNode(
             try {
                 const value = await n.value
                 n.resolved = n.preview = value
-                n.tokens = estimateTokens(value, encoder)
+                n.tokens = approximateTokens(value)
             } catch (e) {
                 n.error = e
             }
@@ -796,7 +797,7 @@ async function resolvePromptNode(
                     for (const transform of n.transforms)
                         value = await transform(value)
                 n.resolved = n.preview = value
-                n.tokens = estimateTokens(value, encoder)
+                n.tokens = approximateTokens(value)
             } catch (e) {
                 n.error = e
             }
@@ -835,7 +836,7 @@ async function resolvePromptNode(
                         n.preview += rendered + "\n"
                     }
                 }
-                n.tokens = estimateTokens(n.preview, encoder)
+                n.tokens = approximateTokens(n.preview)
             } catch (e) {
                 n.error = e
             }
@@ -918,9 +919,10 @@ async function truncatePromptNode(
             n.resolved = n.preview = truncateTextToTokens(
                 n.resolved,
                 n.maxTokens,
-                encoder
+                encoder,
+                { tokens: n.tokens }
             )
-            n.tokens = estimateTokens(n.resolved, encoder)
+            n.tokens = approximateTokens(n.resolved)
             truncated = true
             trace.log(
                 `truncated text to ${n.tokens} tokens (max ${n.maxTokens})`
@@ -938,9 +940,12 @@ async function truncatePromptNode(
             n.resolved.content = truncateTextToTokens(
                 n.resolved.content,
                 n.maxTokens,
-                encoder
+                encoder,
+                {
+                    tokens: n.tokens,
+                }
             )
-            n.tokens = estimateTokens(n.resolved.content, encoder)
+            n.tokens = approximateTokens(n.resolved.content)
             const rendered = renderDefNode(n)
             n.preview = rendered
             n.children = [createTextNode(rendered, cloneContextFields(n))]
@@ -1161,23 +1166,33 @@ export async function renderPromptNode(
     const { trace, flexTokens } = options || {}
     const { encode: encoder } = await resolveTokenEncoder(modelId)
 
+    let m = measure("prompt.dom.resolve")
     await resolvePromptNode(encoder, node, options)
     await tracePromptNode(trace, node)
+    m()
 
+    m = measure("prompt.dom.deduplicate")
     if (await deduplicatePromptNode(trace, node))
         await tracePromptNode(trace, node, { label: "deduplicate" })
+    m()
 
+    m = measure("prompt.dom.flex")
     if (flexTokens)
         await flexPromptNode(node, {
             ...options,
             flexTokens,
         })
+    m()
 
+    m = measure("prompt.dom.truncate")
     const truncated = await truncatePromptNode(encoder, node, options)
     if (truncated) await tracePromptNode(trace, node, { label: "truncated" })
+    m()
 
+    m = measure("prompt.dom.validate")
     const safety = await validateSafetyPromptNode(trace, node)
     if (safety) await tracePromptNode(trace, node, { label: "safety" })
+    m()
 
     const messages: ChatCompletionMessageParam[] = []
     const appendSystem = (content: string, options: ContextExpansionOptions) =>
@@ -1203,6 +1218,7 @@ export async function renderPromptNode(
     const disposables: AsyncDisposable[] = []
     let prediction: PromptPrediction
 
+    m = measure("prompt.dom.render")
     await visitNode(node, {
         error: (n) => {
             errors.push(n.error)
@@ -1279,7 +1295,7 @@ export async function renderPromptNode(
 ${trimNewlines(schemaText)}
 </${schemaName}>`
             appendUser(text, n)
-            n.tokens = estimateTokens(text, encoder)
+            n.tokens = approximateTokens(text)
             if (trace && format !== "json")
                 trace.detailsFenced(
                     `🧬 schema ${schemaName} as ${format}`,
@@ -1340,6 +1356,7 @@ ${trimNewlines(schemaText)}
             disposables.push(res)
         }
     }
+    m()
 
     const res = Object.freeze<PromptNodeRender>({
         images,
@@ -1365,6 +1382,7 @@ export function finalizeMessages(
         TraceOptions &
         ContentSafetyOptions
 ) {
+    const m = measure("prompt.dom.finalize")
     const { fileOutputs, trace, secretScanning } = options || {}
     if (fileOutputs?.length > 0) {
         appendSystemMessage(
@@ -1415,6 +1433,7 @@ ${schemaTs}
             messages.splice(0, messages.length, ...newMessage)
         }
     }
+    m()
 
     return {
         responseType,

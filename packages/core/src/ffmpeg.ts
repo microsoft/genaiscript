@@ -17,6 +17,7 @@ import { filenameOrFileToFilename } from "./unwrappers"
 import { Stats } from "node:fs"
 import { roundWithPrecision } from "./precision"
 import { parseTimestamps } from "./transcription"
+import { mark } from "./performance"
 
 const ffmpegLimit = pLimit(1)
 const WILD_CARD = "%06d"
@@ -102,7 +103,7 @@ export class FFmepgClient implements Ffmpeg {
         options?: VideoExtractFramesOptions
     ): Promise<string[]> {
         if (!filename) throw new Error("filename is required")
-
+        mark("ffmpeg.extractFrames")
         const {
             transcript,
             count,

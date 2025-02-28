@@ -295,6 +295,7 @@ export const VSCODE_CONFIG_CLI_PATH = "cli.path"
 export const CONSOLE_COLOR_INFO = 32
 export const CONSOLE_COLOR_DEBUG = 90
 export const CONSOLE_COLOR_REASONING = "38;5;17"
+export const CONSOLE_COLOR_PERFORMANCE = "38;5;17"
 export const CONSOLE_COLOR_WARNING = 95
 export const CONSOLE_COLOR_ERROR = 91
 export const CONSOLE_TOKEN_COLORS = [90, 37]
@@ -386,3 +387,5 @@ export const STDIN_READ_TIMEOUT = 50
 
 export const REASONING_START_MARKER = "\n🤔 <thinking>\n"
 export const REASONING_END_MARKER = "\n</thinking>\n\n"
+
+export const PROMPT_DOM_TRUNCATE_ATTEMPTS = 6
