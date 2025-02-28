@@ -475,7 +475,7 @@
             "aliases": {
                 "large": "gpt-4o",
                 "small": "gpt-4o-mini",
-                "reasoning": "o1-preview",
+                "reasoning": "o3-mini",
                 "reasoning_small": "o1-mini"
             },
             "env": {}
