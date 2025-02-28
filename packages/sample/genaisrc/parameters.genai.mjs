@@ -29,6 +29,11 @@ script({
             default: 456,
             description: "A number parameter with a description",
         },
+        integerSchema: {
+            type: "integer",
+            required: true,
+            description: "A integer parameter with a description",
+        },
         booleanSchema: {
             type: "boolean",
             default: true,

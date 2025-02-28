@@ -647,9 +647,11 @@ function JSONSchemaNumber(props: {
         <vscode-textfield
             value={valueText}
             required={required}
-            placeholder={schema.default + ""}
+            placeholder={isNaN(schema.default) ? "" : String(schema.default)}
             min={minimum}
             max={maximum}
+            autoCapitalize="off"
+            autocomplete="off"
             inputMode={type === "number" ? "decimal" : "numeric"}
             onInput={(e) => {
                 const target = e.target as HTMLInputElement
@@ -710,7 +712,9 @@ function JSONSchemaSimpleTypeFormField(props: {
                         required={required}
                         rows={rows(vs)}
                         spellCheck={true}
-                        placeholder={field.default}
+                        placeholder={field.default}            
+                        autoCapitalize="off"
+                        autocomplete="off"
                         onInput={(e) => {
                             const target = e.target as HTMLTextAreaElement
                             target.rows = rows(target.value)
@@ -725,6 +729,8 @@ function JSONSchemaSimpleTypeFormField(props: {
                         required={required}
                         spellCheck={false}
                         placeholder={field.default}
+                        autoCapitalize="off"
+                        autocomplete="off"
                         onInput={(e) => {
                             const target = e.target as HTMLTextAreaElement
                             target.rows = rows(target.value)
