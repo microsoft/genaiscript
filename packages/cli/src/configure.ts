@@ -36,7 +36,7 @@ export async function configure(options: { provider?: string }) {
         while (true) {
             const config = await runtimeHost.readConfig()
             logVerbose(`- env file: ${config.envFile}`)
-            const envText = await tryReadText(config.envFile)
+            const envText = (await tryReadText(config.envFile)) || ""
             const env = parse(envText)
             const conn = (
                 await resolveLanguageModelConfigurations(provider.id, {
@@ -154,7 +154,7 @@ $\`Write a one-word poem in code.\`
 async function patchEnvFile(filePath: string, key: string, value: string) {
     logVerbose(`patching ${filePath}, ${key}`)
 
-    const fileContent = await readFile(filePath, "utf-8")
+    const fileContent = (await tryReadText(filePath)) || ""
     const lines = fileContent.split("\n")
     let found = false
 
