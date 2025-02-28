@@ -39,6 +39,10 @@ script({
             default: true,
             description: "A boolean parameter with a description",
         },
+        notRequired: {
+            type: "integer",
+            required: false,
+        },
     },
     tests: {
         files: "src/*",

@@ -1384,13 +1384,6 @@ ${JSON.stringify(result, null, 2)}
     )
 }
 
-function toStringList(...token: (string | undefined | null)[]) {
-    const md = token
-        .filter((l) => l !== undefined && l !== null && l !== "")
-        .join(", ")
-    return md
-}
-
 function acceptToAccept(accept: string | undefined) {
     if (!accept) return undefined
     const res: Record<string, string[]> = {}
