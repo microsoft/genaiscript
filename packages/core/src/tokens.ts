@@ -5,6 +5,7 @@ import {
     PROMPT_DOM_TRUNCATE_ATTEMPTS,
     TOKEN_TRUNCATION_THRESHOLD,
 } from "./constants"
+import { originalConsole } from "./globals"
 import { measure } from "./performance"
 import { logVerbose } from "./util"
 
@@ -30,7 +31,9 @@ export function estimateTokens(text: string, encoder: TokenEncoder) {
         // This provides a rough estimate in case of encoding errors
         return (text.length >> 2) + ESTIMATE_TOKEN_OVERHEAD
     } finally {
-        m()
+        const duration = m()
+        if (duration > 5000)
+            originalConsole.trace(`tokenized ${text.length} chars`)
     }
 }
 
@@ -40,11 +43,13 @@ export function truncateTextToTokens(
     maxTokens: number,
     encoder: TokenEncoder,
     options?: {
+        // precomputed tokens
+        tokens?: number
         last?: boolean
         threshold?: number
     }
 ): string {
-    const tokens = estimateTokens(content, encoder)
+    const tokens = options?.tokens || estimateTokens(content, encoder)
     if (tokens <= maxTokens) return content
     const { last, threshold = TOKEN_TRUNCATION_THRESHOLD } = options || {}
 

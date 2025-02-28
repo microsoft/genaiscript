@@ -9,14 +9,15 @@ export function mark(id: string) {
 export function measure(id: string, detail?: string) {
     const start = id + ".start"
     const end = id + ".end"
-    performance.mark(start)
+    const startm = performance.mark(start)
     return (endDetail?: string) => {
-        performance.mark(end)
+        const endm = performance.mark(end)
         performance.measure(
             `${id} ${toStringList(detail, endDetail)}`,
             start,
             end
         )
+        return endm.startTime - startm.startTime
     }
 }
 

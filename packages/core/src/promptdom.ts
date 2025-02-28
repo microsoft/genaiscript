@@ -919,7 +919,8 @@ async function truncatePromptNode(
             n.resolved = n.preview = truncateTextToTokens(
                 n.resolved,
                 n.maxTokens,
-                encoder
+                encoder,
+                { tokens: n.tokens }
             )
             n.tokens = estimateTokens(n.resolved, encoder)
             truncated = true
@@ -939,7 +940,10 @@ async function truncatePromptNode(
             n.resolved.content = truncateTextToTokens(
                 n.resolved.content,
                 n.maxTokens,
-                encoder
+                encoder,
+                {
+                    tokens: n.tokens,
+                }
             )
             n.tokens = estimateTokens(n.resolved.content, encoder)
             const rendered = renderDefNode(n)
