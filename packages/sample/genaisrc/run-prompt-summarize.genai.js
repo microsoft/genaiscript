@@ -14,18 +14,24 @@ script({
     ],
 })
 
+const tprogress = env.output.startTraceDetails("Progress")
 for (const file of env.files) {
-    const { text } = await runPrompt(
+    const t = env.output.startTraceDetails(file.filename)
+    t.fence(file.content)
+    const { text, error } = await runPrompt(
         (_) => {
-            _.def("FILE", file)
+            _.def("FILE", file, { maxTokens: 4000 })
             _.$`Summarize the FILE. Be concise.`
         },
         {
-            model: "gpt-3.5-turbo",
+            model: "small",
         }
     )
-
     def("FILE", { ...file, content: text })
+    t.fence(text)
+    t.endDetails()
+
+    tprogress.resultItem(!error, (error + "") || "ok")
 }
 
 $`Summarized all files in one paragraph.`

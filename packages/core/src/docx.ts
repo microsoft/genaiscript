@@ -11,6 +11,7 @@ import { errorMessage, serializeError } from "./error"
 import { resolveFileBytes } from "./file"
 import { filenameOrFileToFilename } from "./unwrappers"
 import { ensureDir } from "fs-extra"
+import { mark, measure } from "./performance"
 
 async function computeHashFolder(
     filename: string,
@@ -34,7 +35,6 @@ export async function DOCXTryParse(
     options?: TraceOptions & DocxParseOptions
 ): Promise<{ file?: WorkspaceFile; error?: string }> {
     const { trace, cache, format = "markdown" } = options || {}
-
     const filename = filenameOrFileToFilename(file)
     const content = await resolveFileBytes(file, options)
     const folder = await computeHashFolder(filename, content, options)
@@ -60,6 +60,7 @@ export async function DOCXTryParse(
         if (cached) return cached
     }
 
+    const m = measure("parsers.docx")
     try {
         const { extractRawText, convertToHtml } = await import("mammoth")
         const input = content
@@ -100,5 +101,7 @@ export async function DOCXTryParse(
             YAMLStringify(serializeError(error))
         )
         return { error: errorMessage(error) }
+    } finally {
+        m()
     }
 }
