@@ -628,11 +628,11 @@ function GenAIScriptLogo(props: { height: string }) {
 function JSONSchemaNumber(props: {
     schema: JSONSchemaNumber
     value: number
+    required: boolean
     onChange: (value: number) => void
 }) {
-    const { schema, value, onChange } = props
+    const { required, schema, value, onChange } = props
     const { type, minimum, maximum } = schema
-    const required = schema.default === undefined
     const [valueText, setValueText] = useState(
         isNaN(value) ? "" : String(value)
     )
@@ -680,6 +680,7 @@ function JSONSchemaSimpleTypeFormField(props: {
                     schema={field}
                     value={Number(value)}
                     onChange={onChange}
+                    required={required}
                 />
             )
         case "string": {
