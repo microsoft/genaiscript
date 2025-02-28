@@ -45,7 +45,6 @@ import {
     OPENAI_RETRY_DEFAULT_DEFAULT,
     OPENAI_MAX_RETRY_COUNT,
     MODEL_PROVIDERS,
-    MODEL_PROVIDER_GITHUB_COPILOT_CHAT,
 } from "../../core/src/constants" // Core constants
 import {
     errorMessage,
@@ -59,6 +58,7 @@ import { semverSatisfies } from "../../core/src/semver" // Semantic version chec
 import { convertFiles } from "./convert"
 import { extractAudio, extractVideoFrames, probeVideo } from "./video"
 import { configure } from "./configure"
+import { logPerformance } from "../../core/src/performance"
 
 /**
  * Main function to initialize and run the CLI.
@@ -98,10 +98,12 @@ export async function cli() {
         .option("--env <path>", "path to .env file, default is './.env'")
         .option("--no-colors", "disable color output")
         .option("-q, --quiet", "disable verbose output")
+        .option("--perf", "enable performance logging")
 
     // Set options for color and verbosity
     program.on("option:no-colors", () => setConsoleColors(false))
     program.on("option:quiet", () => setQuiet(true))
+    program.on("option:perf", () => logPerformance())
 
     program
         .command("configure")

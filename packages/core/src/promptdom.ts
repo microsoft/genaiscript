@@ -42,6 +42,7 @@ import { CancellationOptions } from "./cancellation"
 import { promptParametersSchemaToJSONSchema } from "./parameters"
 import { redactSecrets } from "./secretscanner"
 import { escapeToolName } from "./tools"
+import { measure } from "./performance"
 
 // Definition of the PromptNode interface which is an essential part of the code structure.
 export interface PromptNode extends ContextExpansionOptions {
@@ -1161,23 +1162,33 @@ export async function renderPromptNode(
     const { trace, flexTokens } = options || {}
     const { encode: encoder } = await resolveTokenEncoder(modelId)
 
+    let m = measure("prompt.dom.resolve")
     await resolvePromptNode(encoder, node, options)
     await tracePromptNode(trace, node)
+    m()
 
+    m = measure("prompt.dom.deduplicate")
     if (await deduplicatePromptNode(trace, node))
         await tracePromptNode(trace, node, { label: "deduplicate" })
+    m()
 
+    m = measure("prompt.dom.flex")
     if (flexTokens)
         await flexPromptNode(node, {
             ...options,
             flexTokens,
         })
+    m()
 
+    m = measure("prompt.dom.truncate")
     const truncated = await truncatePromptNode(encoder, node, options)
     if (truncated) await tracePromptNode(trace, node, { label: "truncated" })
+    m()
 
+    m = measure("prompt.dom.validate")
     const safety = await validateSafetyPromptNode(trace, node)
     if (safety) await tracePromptNode(trace, node, { label: "safety" })
+    m()
 
     const messages: ChatCompletionMessageParam[] = []
     const appendSystem = (content: string, options: ContextExpansionOptions) =>
@@ -1203,6 +1214,7 @@ export async function renderPromptNode(
     const disposables: AsyncDisposable[] = []
     let prediction: PromptPrediction
 
+    m = measure("prompt.dom.render")
     await visitNode(node, {
         error: (n) => {
             errors.push(n.error)
@@ -1340,6 +1352,7 @@ ${trimNewlines(schemaText)}
             disposables.push(res)
         }
     }
+    m()
 
     const res = Object.freeze<PromptNodeRender>({
         images,
@@ -1365,6 +1378,7 @@ export function finalizeMessages(
         TraceOptions &
         ContentSafetyOptions
 ) {
+    const m = measure("prompt.dom.finalize")
     const { fileOutputs, trace, secretScanning } = options || {}
     if (fileOutputs?.length > 0) {
         appendSystemMessage(
@@ -1415,6 +1429,7 @@ ${schemaTs}
             messages.splice(0, messages.length, ...newMessage)
         }
     }
+    m()
 
     return {
         responseType,

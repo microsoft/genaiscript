@@ -15,6 +15,7 @@ import { ensureDir } from "fs-extra"
 import { YAMLStringify } from "./yaml"
 import { deleteUndefinedValues } from "./cleaners"
 import { CancellationOptions, checkCancelled } from "./cancellation"
+import { measure } from "./performance"
 
 let standardFontDataUrl: string
 
@@ -205,6 +206,7 @@ async function PDFTryParse(
     logVerbose(`pdf: decoding ${fileOrUrl || ""} in ${folder}`)
     trace?.itemValue(`pdf: decoding ${fileOrUrl || ""}`, folder)
     await ensureDir(folder)
+    const m = measure("parsers.pdf")
     try {
         const pdfjs = await tryImportPdfjs(options)
         const createCanvas = await tryImportCanvas()
@@ -332,6 +334,8 @@ async function PDFTryParse(
             YAMLStringify(serializeError(error))
         )
         return { error: serializeError(error) }
+    } finally {
+        m()
     }
 
     async function decodeImage(

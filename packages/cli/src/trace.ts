@@ -5,6 +5,7 @@ import { dirname, join } from "node:path"
 import { appendFileSync, writeFileSync } from "node:fs"
 import { TRACE_CHUNK, TRACE_DETAILS } from "../../core/src/constants"
 import { writeFile } from "node:fs/promises"
+import { mark, measure } from "../../core/src/performance"
 
 export async function setupTraceWriting(
     trace: MarkdownTrace,
@@ -17,14 +18,18 @@ export async function setupTraceWriting(
     trace.addEventListener(
         TRACE_CHUNK,
         (ev) => {
+            const m = measure("trace.chunk")
             const tev = ev as TraceChunkEvent
             appendFileSync(filename, tev.chunk, { encoding: "utf-8" })
+            m(`${tev.chunk.length} chars`)
         },
         false
     )
     trace.addEventListener(TRACE_DETAILS, (ev) => {
+        const m = measure("trace.details")
         const content = trace.content
         writeFileSync(filename, content, { encoding: "utf-8" })
+        m(`${content.length} chars`)
     })
     return filename
 }
