@@ -1,11 +1,9 @@
 import { select, input, confirm, password } from "@inquirer/prompts"
 import {
-    MODEL_PROVIDER_GITHUB_COPILOT_CHAT,
     MODEL_PROVIDERS,
 } from "../../core/src/constants"
 import { resolveLanguageModelConfigurations } from "../../core/src/config"
 import { parse } from "dotenv"
-import { readFile } from "fs/promises"
 import { writeFile } from "fs/promises"
 import { runtimeHost } from "../../core/src/host"
 import { deleteUndefinedValues } from "../../core/src/cleaners"
