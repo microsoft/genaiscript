@@ -326,6 +326,7 @@ async function PDFTryParse(
             if (cached) return cached
         }
         trace?.error(`reading pdf`, error) // Log error if tracing is enabled
+        await ensureDir(folder)
         await writeFile(
             join(folder, "error.txt"),
             YAMLStringify(serializeError(error))

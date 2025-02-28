@@ -94,6 +94,7 @@ export async function DOCXTryParse(
             if (cached) return cached
         }
         trace?.error(`reading docx`, error) // Log error if tracing is enabled
+        await ensureDir(folder)
         await writeFile(
             join(folder, "error.txt"),
             YAMLStringify(serializeError(error))
