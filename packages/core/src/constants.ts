@@ -225,6 +225,7 @@ export const MODEL_PROVIDERS = Object.freeze<
         speech?: boolean
         tokenless?: boolean
         hidden?: boolean
+        imageGeneration?: boolean
         reasoningEfforts?: Record<string, number>
         aliases?: Record<string, string>
         env?: Record<

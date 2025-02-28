@@ -17,6 +17,8 @@ import {
 import { estimateTokens } from "./tokens"
 import {
     ChatCompletionHandler,
+    CreateImageRequest,
+    CreateImageResult,
     CreateSpeechRequest,
     CreateSpeechResult,
     CreateTranscriptionRequest,
@@ -603,6 +605,7 @@ export async function OpenAISpeech(
             model,
             input,
             voice,
+            ...rest,
         }
         const freq = {
             method: "POST",
@@ -630,9 +633,61 @@ export async function OpenAISpeech(
     }
 }
 
+export async function OpenAIImageGeneration(
+    req: CreateImageRequest,
+    cfg: LanguageModelConfiguration,
+    options: TraceOptions & CancellationOptions
+): Promise<CreateImageResult> {
+    const { model, prompt, size = "1024x1024", quality, style, ...rest } = req
+    const { trace } = options || {}
+    const fetch = await createFetch(options)
+    try {
+        logVerbose(`${cfg.provider}: generate image with ${cfg.model}`)
+        const url = `${cfg.base}/images/generations`
+        trace.itemValue(`url`, `[${url}](${url})`)
+        const body = {
+            model,
+            prompt,
+            size,
+            quality,
+            style,
+            response_format: "b64_json",
+            ...rest,
+        }
+        const freq = {
+            method: "POST",
+            headers: {
+                ...getConfigHeaders(cfg),
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(body),
+        }
+        traceFetchPost(trace, url, freq.headers, body)
+        // TODO: switch back to cross-fetch in the future
+        const res = await fetch(url, freq as any)
+        trace.itemValue(`status`, `${res.status} ${res.statusText}`)
+        if (!res.ok)
+            return { image: undefined, error: (await res.json())?.error }
+        const j = await res.arrayBuffer()
+        return { image: new Uint8Array(j) } satisfies CreateImageResult
+    } catch (e) {
+        logError(e)
+        trace?.error(e)
+        return {
+            image: undefined,
+            error: serializeError(e),
+        } satisfies CreateImageResult
+    }
+}
+
 export function LocalOpenAICompatibleModel(
     providerId: string,
-    options: { listModels?: boolean; transcribe?: boolean; speech?: boolean }
+    options: {
+        listModels?: boolean
+        transcribe?: boolean
+        speech?: boolean
+        imageGeneration?: boolean
+    }
 ) {
     return Object.freeze<LanguageModel>(
         deleteUndefinedValues({
@@ -641,6 +696,9 @@ export function LocalOpenAICompatibleModel(
             listModels: options?.listModels ? OpenAIListModels : undefined,
             transcriber: options?.transcribe ? OpenAITranscribe : undefined,
             speaker: options?.speech ? OpenAISpeech : undefined,
+            imageGenerator: options?.imageGeneration
+                ? OpenAIImageGeneration
+                : undefined,
         })
     )
 }

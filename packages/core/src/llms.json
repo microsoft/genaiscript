@@ -9,6 +9,7 @@
             "transcribe": true,
             "speech": true,
             "listModels": true,
+            "imageGeneration": true,
             "aliases": {
                 "large": "gpt-4o",
                 "small": "gpt-4o-mini",
