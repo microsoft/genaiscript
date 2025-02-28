@@ -19,7 +19,8 @@
                 "reasoning": "o1",
                 "reasoning_small": "o1-mini",
                 "transcription": "whisper-1",
-                "speech": "tts-1"
+                "speech": "tts-1",
+                "image": "dall-e-3"
             },
             "env": {
                 "OPENAI_API_KEY": {

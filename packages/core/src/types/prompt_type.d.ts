@@ -346,3 +346,13 @@ declare function speak(
     text: string,
     options?: SpeechOptions
 ): Promise<SpeechResult>
+
+/**
+ * Generate an image and return the workspace file.
+ * @param prompt 
+ * @param options 
+ */
+declare function generateImage(
+    prompt: string,
+    options?: ImageGenerationOptions
+): Promise<WorkspaceFile>

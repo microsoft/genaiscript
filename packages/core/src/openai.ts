@@ -57,6 +57,7 @@ import {
     normalizeInt,
     trimTrailingSlash,
 } from "./cleaners"
+import { fromBase64 } from "./base64"
 
 export function getConfigHeaders(cfg: LanguageModelConfiguration) {
     let { token, type, base, provider } = cfg
@@ -668,8 +669,9 @@ export async function OpenAIImageGeneration(
         trace.itemValue(`status`, `${res.status} ${res.statusText}`)
         if (!res.ok)
             return { image: undefined, error: (await res.json())?.error }
-        const j = await res.arrayBuffer()
-        return { image: new Uint8Array(j) } satisfies CreateImageResult
+        const j = await res.json()
+        const buffer = fromBase64(j.data[0].b64_json)
+        return { image: new Uint8Array(buffer) } satisfies CreateImageResult
     } catch (e) {
         logError(e)
         trace?.error(e)

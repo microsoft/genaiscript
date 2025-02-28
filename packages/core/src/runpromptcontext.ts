@@ -47,6 +47,7 @@ import { delay, uniq } from "es-toolkit"
 import {
     addToolDefinitionsMessage,
     appendSystemMessage,
+    CreateImageRequest,
     CreateSpeechRequest,
     executeChatSession,
     mergeGenerationOptions,
@@ -63,6 +64,7 @@ import {
     TRANSCRIPTION_CACHE_NAME,
     TRANSCRIPTION_MODEL_ID,
     SPEECH_MODEL_ID,
+    IMAGE_GENERATION_MODEL_ID,
 } from "./constants"
 import { addFallbackToolSystems, resolveSystems, resolveTools } from "./systems"
 import { callExpander } from "./expander"
@@ -93,6 +95,7 @@ import { hash } from "./crypto"
 import { fileTypeFromBuffer } from "./filetype"
 import { deleteUndefinedValues } from "./cleaners"
 import { sliceData } from "./tidy"
+import { toBase64 } from "@smithy/util-base64"
 
 export function createChatTurnGenerationContext(
     options: GenerationOptions,
@@ -1097,6 +1100,71 @@ export function createChatGenerationContext(
         }
     }
 
+    const generateImage = async (
+        prompt: string,
+        options?: ImageGenerationOptions
+    ): Promise<WorkspaceFile> => {
+        if (!prompt) throw new Error("prompt is missing")
+
+        const imgTrace = trace.startTraceDetails("🖼️ generate image")
+        try {
+            const conn: ModelConnectionOptions = {
+                model: options?.model || IMAGE_GENERATION_MODEL_ID,
+            }
+            const { info, configuration } = await resolveModelConnectionInfo(
+                conn,
+                {
+                    trace: imgTrace,
+                    token: true,
+                }
+            )
+            if (info.error) throw new Error(info.error)
+            if (!configuration)
+                throw new Error(
+                    `model configuration not found for ${conn.model}`
+                )
+            checkCancelled(cancellationToken)
+            const { ok } = await runtimeHost.pullModel(configuration, {
+                trace: imgTrace,
+                cancellationToken,
+            })
+            if (!ok) throw new Error(`failed to pull model '${conn}'`)
+            checkCancelled(cancellationToken)
+            const { imageGenerator } = await resolveLanguageModel(
+                configuration.provider
+            )
+            if (!imageGenerator)
+                throw new Error("image generator not found for " + info.model)
+            imgTrace.itemValue(`model`, configuration.model)
+            const req = deleteUndefinedValues({
+                model: configuration.model,
+                prompt,
+            }) satisfies CreateImageRequest
+            const res = await imageGenerator(req, configuration, {
+                trace: imgTrace,
+                cancellationToken,
+            })
+            if (res.error) {
+                imgTrace.error(errorMessage(res.error))
+                return undefined
+            }
+            const h = await hash(res.image, { length: 20 })
+            const { ext } = (await fileTypeFromBuffer(res.image)) || {}
+            const filename = dotGenaiscriptPath("image", h + "." + ext)
+            await host.writeFile(filename, res.image)
+
+            logVerbose(`image: ${filename}`)
+
+            return {
+                filename,
+                encoding: "base64",
+                content: toBase64(res.image),
+            } satisfies WorkspaceFile
+        } finally {
+            imgTrace.endDetails()
+        }
+    }
+
     const ctx: RunPromptContextNode = Object.freeze<RunPromptContextNode>({
         ...turnCtx,
         defAgent,
@@ -1111,6 +1179,7 @@ export function createChatGenerationContext(
         runPrompt,
         transcribe,
         speak,
+        generateImage,
         env,
     })
 

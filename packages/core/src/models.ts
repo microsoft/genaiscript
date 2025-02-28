@@ -147,11 +147,11 @@ export async function resolveModelConnectionInfo(
     configuration?: LanguageModelConfiguration
 }> {
     const { trace, token: askToken, cancellationToken } = options || {}
-    const { modelAliases } = runtimeHost
     const hint = options?.model || conn.model
+    const { provider } = parseModelIdentifier(hint)
     // supports candidate if no model hint or hint is a model alias
-    const supportsCandidates = !hint || !!modelAliases[hint]
     const resolved = resolveModelAlias(hint)
+    const supportsCandidates = !provider
     const modelId = resolved.model
     let candidates = supportsCandidates ? resolved.candidates : undefined
 
