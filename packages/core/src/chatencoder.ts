@@ -16,6 +16,7 @@ import {
     IMAGE_DETAIL_LONG_SIDE_LIMIT,
     IMAGE_DETAIL_SHORT_SIDE_LIMIT,
 } from "./constants"
+import { measure } from "./performance"
 
 /**
  * Estimates the number of tokens in chat messages for a given model.
@@ -33,6 +34,7 @@ export async function estimateChatTokens(
 ): Promise<number> {
     // Return 0 if no messages are provided
     if (!messages?.length) return 0
+    const m = measure("tokens.estimate.chat")
     try {
         const model = resolveChatModelId(modelId)
         // Check if any message content includes image URLs.
@@ -125,6 +127,8 @@ export async function estimateChatTokens(
         logVerbose(e)
         // Fallback: Estimate token count based on JSON string length
         return (JSON.stringify(messages).length / 3) | 0
+    } finally {
+        m()
     }
 }
 

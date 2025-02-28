@@ -94,6 +94,7 @@ import {
 } from "./chatcache"
 import { deleteUndefinedValues } from "./cleaners"
 import { splitThink, unthink } from "./think"
+import { measure } from "./performance"
 
 function toChatCompletionImage(
     image: PromptImage
@@ -1069,12 +1070,18 @@ export async function executeChatSession(
 
                     const infer = async () => {
                         logVerbose(`\n`)
-                        return await completer(
+                        const m = measure(
+                            "chat.completer",
+                            `${req.model} -> ${req.messages.length} messages`
+                        )
+                        const cres = await completer(
                             req,
                             connectionToken,
                             genOptions,
                             reqTrace
                         )
+                        m()
+                        return cres
                     }
                     if (cacheStore) {
                         const cachedKey = deleteUndefinedValues({
