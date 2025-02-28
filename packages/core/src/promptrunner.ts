@@ -52,7 +52,9 @@ async function resolveExpansionVars(
     const filenames = await expandFiles(
         referenceFiles.length || workspaceFiles.length
             ? referenceFiles
-            : templateFiles
+            : templateFiles,
+        undefined,
+        template.accept
     )
     for (let filename of filenames) {
         filename = relativePath(root, filename)

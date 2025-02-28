@@ -4,7 +4,7 @@ system({
         "Should be considered for scenarios such as summarization. See https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/safety-system-message-templates.",
 })
 
-export default function (ctx: PromptContext) {
+export default function (ctx: ChatGenerationContext) {
     const { $ } = ctx
 
     $`## Summarization

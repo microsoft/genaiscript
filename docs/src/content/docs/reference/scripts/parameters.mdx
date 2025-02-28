@@ -128,7 +128,7 @@ system({
         value: "",
     },
 })
-export default function (ctx: PromptContext) {
+export default function (ctx: ChatGenerationContext) {
     const { env } = ctx
     const value = env.vars["system.something.value"]
     ...

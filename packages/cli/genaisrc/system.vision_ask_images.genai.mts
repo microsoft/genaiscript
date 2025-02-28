@@ -4,7 +4,7 @@ system({
         "Register tool that uses vision model to run a query on images",
 })
 
-export default function (ctx: PromptContext) {
+export default function (ctx: ChatGenerationContext) {
     const { defTool } = ctx
 
     defTool(

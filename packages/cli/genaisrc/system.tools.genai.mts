@@ -2,7 +2,7 @@ system({
     title: "Tools support",
 })
 
-export default function (ctx: PromptContext) {
+export default function (ctx: ChatGenerationContext) {
     const { $ } = ctx
     $`## Tools
 Use tools if possible. 

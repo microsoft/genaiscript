@@ -2,7 +2,7 @@ system({
     title: "Uses the content safety provider to validate the LLM output for harmful content",
 })
 
-export default function (ctx: PromptContext) {
+export default function (ctx: ChatGenerationContext) {
     const { defOutputProcessor } = ctx
 
     defOutputProcessor(async (res) => {

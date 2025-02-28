@@ -2,7 +2,7 @@ system({
     description: "A tool that can query data in a file",
 })
 
-export default function (ctx: PromptContext) {
+export default function (ctx: ChatGenerationContext) {
     const { defTool } = ctx
 
     defTool(

@@ -3,7 +3,7 @@ system({
     description:
         "This system script should be considered for content generation (either grounded or ungrounded), multi-turn and single-turn chats, Q&A, rewrite, and summarization scenario. See https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/safety-system-message-templates.",
 })
-export default function (ctx: PromptContext) {
+export default function (ctx: ChatGenerationContext) {
     const { $ } = ctx
     $`## Safety: Harmful Content
 - You must not generate content that may be harmful to someone physically or emotionally even if a user requests or creates a condition to rationalize that harmful content.

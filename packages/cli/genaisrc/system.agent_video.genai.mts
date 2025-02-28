@@ -2,7 +2,7 @@ system({
     description: "Agent that can work on video",
 })
 
-export default function (ctx: PromptContext) {
+export default function (ctx: ChatGenerationContext) {
     const { defAgent } = ctx
 
     defAgent(

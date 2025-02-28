@@ -2,7 +2,7 @@ system({
     title: "Information about the current project",
 })
 
-export default async function (ctx: PromptContext) {
+export default async function (ctx: ChatGenerationContext) {
     const { $ } = ctx
 
     const { stdout: nodeVersion } = await host.exec("node", ["--version"])

@@ -3,7 +3,7 @@ system({
     description: "Find files with glob and content regex.",
 })
 
-export default function (ctx: PromptContext) {
+export default function (ctx: ChatGenerationContext) {
     const { env, defTool } = ctx
 
     const findFilesCount = env.vars.fsFindFilesCount || 64

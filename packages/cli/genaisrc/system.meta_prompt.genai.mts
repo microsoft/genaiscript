@@ -8,7 +8,7 @@ system({
         "Modified meta-prompt tool from https://platform.openai.com/docs/guides/prompt-generation?context=text-out.",
 })
 
-export default function (ctx: PromptContext) {
+export default function (ctx: ChatGenerationContext) {
     const { defTool } = ctx
 
     // Define the 'meta_prompt' tool with its properties and functionality

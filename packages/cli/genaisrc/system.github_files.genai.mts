@@ -2,7 +2,7 @@ system({
     title: "Tools to query GitHub files.",
 })
 
-export default function (ctx: PromptContext) {
+export default function (ctx: ChatGenerationContext) {
     const { defTool } = ctx
 
     defTool(

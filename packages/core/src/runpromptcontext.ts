@@ -1111,6 +1111,7 @@ export function createChatGenerationContext(
         runPrompt,
         transcribe,
         speak,
+        env,
     })
 
     return ctx

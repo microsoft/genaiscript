@@ -4,7 +4,7 @@ system({
         "This system script should be considered for scenarios such as: content generation (grounded and ungrounded), multi-turn and single-turn chat, Q&A, rewrite, summarization, and code generation. See https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/safety-system-message-templates.",
 })
 
-export default function (ctx: PromptContext) {
+export default function (ctx: ChatGenerationContext) {
     const { $ } = ctx
 
     $`## Safety: Protected Material

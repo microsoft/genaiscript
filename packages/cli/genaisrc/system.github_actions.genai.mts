@@ -4,7 +4,7 @@ system({
         "Queries results from workflows in GitHub actions. Prefer using dffs to compare logs.",
 })
 
-export default function (ctx: PromptContext) {
+export default function (ctx: ChatGenerationContext) {
     const { defTool } = ctx
 
     defTool(

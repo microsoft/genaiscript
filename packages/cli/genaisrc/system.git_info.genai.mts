@@ -8,7 +8,7 @@ system({
     },
 })
 
-export default async function (ctx: PromptContext) {
+export default async function (ctx: ChatGenerationContext) {
     const { env, $ } = ctx
     const { vars } = env
 

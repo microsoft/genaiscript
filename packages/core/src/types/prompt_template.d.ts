@@ -3623,6 +3623,7 @@ interface SpeechResult {
 }
 
 interface ChatGenerationContext extends ChatTurnGenerationContext {
+    env: ExpansionVariables
     defSchema(
         name: string,
         schema: JSONSchema | ZodTypeLike,
@@ -4772,7 +4773,6 @@ interface ContainerHost extends ShellHost {
 interface PromptContext extends ChatGenerationContext {
     script(options: PromptArgs): void
     system(options: PromptSystemArgs): void
-    env: ExpansionVariables
     path: Path
     parsers: Parsers
     retrieval: Retrieval

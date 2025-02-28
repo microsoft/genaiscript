@@ -5,7 +5,7 @@ system({
     lineNumbers: true,
 })
 
-export default function (ctx: PromptContext) {
+export default function (ctx: ChatGenerationContext) {
     const { $ } = ctx
 
     $`## Annotations Format

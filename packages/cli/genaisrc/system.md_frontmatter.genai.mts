@@ -4,7 +4,7 @@ system({
         "Register tool that reads the frontmatter of a markdown or MDX file.",
 })
 
-export default function (ctx: PromptContext) {
+export default function (ctx: ChatGenerationContext) {
     const { defTool } = ctx
 
     defTool(

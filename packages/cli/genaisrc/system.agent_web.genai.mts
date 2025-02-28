@@ -2,7 +2,7 @@ system({
     title: "Agent that can search the web.",
 })
 
-export default function (ctx: PromptContext) {
+export default function (ctx: ChatGenerationContext) {
     const { defAgent } = ctx
 
     defAgent(

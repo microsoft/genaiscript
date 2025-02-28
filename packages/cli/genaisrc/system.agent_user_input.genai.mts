@@ -2,7 +2,7 @@ system({
     title: "Agent that can asks questions to the user.",
 })
 
-export default function (ctx: PromptContext) {
+export default function (ctx: ChatGenerationContext) {
     const { defAgent } = ctx
 
     defAgent(

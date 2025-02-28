@@ -1,6 +1,6 @@
 system({ title: "Markdown output system prompt" })
 
-export default function (ctx: PromptContext) {
+export default function (ctx: ChatGenerationContext) {
     const { $ } = ctx
     $`## Markdown Output
 Respond using Markdown syntax (GitHub Flavored Markdown also supported).

@@ -2,7 +2,7 @@ system({
     title: "General GitHub information.",
 })
 
-export default async function (ctx: PromptContext) {
+export default async function (ctx: ChatGenerationContext) {
     const { $ } = ctx
 
     const info = await github.info()

@@ -3,7 +3,7 @@ system({
     description: "Function to read file content as text.",
 })
 
-export default function (ctx: PromptContext) {
+export default function (ctx: ChatGenerationContext) {
     const { defTool } = ctx
 
     defTool(
