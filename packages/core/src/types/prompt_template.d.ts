@@ -2112,7 +2112,7 @@ interface Parsers {
     DOCX(
         content: string | WorkspaceFile,
         options?: DocxParseOptions
-    ): Promise<{ file: WorkspaceFile } | undefined>
+    ): Promise<{ file?: WorkspaceFile; error?: string }>
 
     /**
      * Parses a CSV file or text

@@ -1,28 +1,28 @@
 import { join } from "node:path"
-import { PDF_HASH_LENGTH } from "./constants"
+import { DOCX_HASH_LENGTH } from "./constants"
 import { hash } from "./crypto"
 import { host } from "./host"
 import { HTMLToMarkdown } from "./html"
 import { TraceOptions } from "./trace"
-import { dotGenaiscriptPath, logError, logVerbose } from "./util"
+import { dotGenaiscriptPath, logVerbose } from "./util"
 import { readFile, writeFile } from "node:fs/promises"
 import { YAMLStringify } from "./yaml"
-import { serializeError } from "./error"
+import { errorMessage, serializeError } from "./error"
+import { resolveFileBytes } from "./file"
+import { filenameOrFileToFilename } from "./unwrappers"
+import { ensureDir } from "fs-extra"
 
 async function computeHashFolder(
-    filename: string | WorkspaceFile,
+    filename: string,
     content: Uint8Array,
     options: TraceOptions & DocxParseOptions
 ) {
-    const { trace, ...rest } = options
-    const h = await hash(
-        [typeof filename === "string" ? { filename } : filename, content, rest],
-        {
-            readWorkspaceFiles: true,
-            version: true,
-            length: PDF_HASH_LENGTH,
-        }
-    )
+    const { trace, ...rest } = options || {}
+    const h = await hash([filename, content, rest], {
+        readWorkspaceFiles: true,
+        version: true,
+        length: DOCX_HASH_LENGTH,
+    })
     return dotGenaiscriptPath("cache", "docx", h)
 }
 
@@ -30,12 +30,13 @@ async function computeHashFolder(
  * parses docx, require mammoth to be installed
  */
 export async function DOCXTryParse(
-    filename: string,
-    content?: Uint8Array,
+    file: string | WorkspaceFile,
     options?: TraceOptions & DocxParseOptions
-): Promise<{ content?: string; error?: SerializedError }> {
+): Promise<{ file?: WorkspaceFile; error?: string }> {
     const { trace, cache, format = "markdown" } = options || {}
 
+    const filename = filenameOrFileToFilename(file)
+    const content = await resolveFileBytes(file, options)
     const folder = await computeHashFolder(filename, content, options)
     const resFilename = join(folder, "res.json")
     const readCache = async () => {
@@ -79,8 +80,9 @@ export async function DOCXTryParse(
             text = results.value
         }
 
+        await ensureDir(folder)
         await writeFile(join(folder, "content.txt"), text)
-        const res = { content: text }
+        const res = { file: { filename, content: text } }
         await writeFile(resFilename, JSON.stringify(res))
 
         return res
@@ -91,11 +93,11 @@ export async function DOCXTryParse(
             const cached = await readCache()
             if (cached) return cached
         }
-        trace?.error(`reading pdf`, error) // Log error if tracing is enabled
+        trace?.error(`reading docx`, error) // Log error if tracing is enabled
         await writeFile(
             join(folder, "error.txt"),
             YAMLStringify(serializeError(error))
         )
-        return { error: serializeError(error) }
+        return { error: errorMessage(error) }
     }
 }
