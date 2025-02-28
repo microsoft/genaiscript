@@ -311,7 +311,6 @@ async function PDFTryParse(
         }
 
         const res = deleteUndefinedValues({
-            ok: true,
             metadata,
             pages,
             content: PDFPagesToString(pages),
@@ -331,7 +330,7 @@ async function PDFTryParse(
             join(folder, "error.txt"),
             YAMLStringify(serializeError(error))
         )
-        return { ok: false, error: serializeError(error) }
+        return { error: serializeError(error) }
     }
 
     async function decodeImage(
@@ -422,12 +421,12 @@ export async function parsePdf(
         typeof filenameOrBuffer === "string"
             ? undefined
             : (filenameOrBuffer as Uint8Array)
-    const { pages, ok, metadata, content } = await PDFTryParse(
+    const { pages, metadata, content, error } = await PDFTryParse(
         filename,
         bytes,
         options
     )
-    if (!ok) return { pages: [], content: "" }
+    if (error) return { pages: [], content: "" }
     return { pages, content, metadata }
 }
 

@@ -1406,11 +1406,10 @@ interface RangeOptions {
 }
 
 interface GitIgnoreFilterOptions {
-
     /**
      * Disable filtering files based on the `.gitignore` file.
      */
-    ignoreGitIgnore?: false | undefined    
+    ignoreGitIgnore?: false | undefined
 }
 
 interface FileFilterOptions extends GitIgnoreFilterOptions {
@@ -2016,6 +2015,18 @@ interface PDFPage {
     figures?: PDFPageImage[]
 }
 
+interface DocxParseOptions {
+    /**
+     * Desired output format
+     */
+    format?: "markdown" | "text" | "html"
+
+    /**
+     * If true, the transcription will be cached.
+     */
+    cache?: boolean | string
+}
+
 interface Parsers {
     /**
      * Parses text as a JSON5 payload
@@ -2100,8 +2111,8 @@ interface Parsers {
      */
     DOCX(
         content: string | WorkspaceFile,
-        options?: { format: "markdown" | "text" | "html" }
-    ): Promise<{ file: WorkspaceFile } | undefined>
+        options?: DocxParseOptions
+    ): Promise<{ file?: WorkspaceFile; error?: string }>
 
     /**
      * Parses a CSV file or text
