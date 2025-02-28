@@ -1,5 +1,6 @@
 import { performance, PerformanceObserver } from "perf_hooks"
 import { logVerbose, toStringList } from "./util"
+import prettyMilliseconds from "pretty-ms"
 
 export function mark(id: string) {
     performance.mark(id)
@@ -20,9 +21,14 @@ export function measure(id: string, detail?: string) {
 }
 
 export function logPerformance() {
+    const measures: Record<string, number> = {}
     const perfObserver = new PerformanceObserver((items) => {
         items.getEntries().forEach((entry) => {
-            logVerbose(`perf> ${(entry.duration * 1000) | 0}ms: ${entry.name}`)
+            const total = (measures[entry.name] || 0) + entry.duration
+            measures[entry.name] = total
+            logVerbose(
+                `perf> ${entry.name} ${prettyMilliseconds(entry.duration)}/${prettyMilliseconds(total)}`
+            )
         })
     })
     perfObserver.observe({ entryTypes: ["measure"], buffered: true })
