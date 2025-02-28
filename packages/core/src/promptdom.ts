@@ -3,7 +3,7 @@ import { dataToMarkdownTable, CSVTryParse } from "./csv"
 import { renderFileContent, resolveFileContent } from "./file"
 import { addLineNumbers, extractRange } from "./liner"
 import { JSONSchemaStringifyToTypeScript } from "./schema"
-import { estimateTokens, truncateTextToTokens } from "./tokens"
+import { approximateTokens, truncateTextToTokens } from "./tokens"
 import { MarkdownTrace, TraceOptions } from "./trace"
 import { arrayify, assert, logError, logWarn, toStringList } from "./util"
 import { YAMLStringify } from "./yaml"
@@ -681,7 +681,7 @@ async function resolvePromptNode(
             try {
                 const value = await n.value
                 n.resolved = n.preview = value
-                n.tokens = estimateTokens(value, encoder)
+                n.tokens = approximateTokens(value)
             } catch (e) {
                 n.error = e
             }
@@ -694,7 +694,7 @@ async function resolvePromptNode(
                 n.resolved.content = extractRange(n.resolved.content, n)
                 const rendered = renderDefNode(n)
                 n.preview = rendered
-                n.tokens = estimateTokens(rendered, encoder)
+                n.tokens = approximateTokens(rendered)
                 n.children = [createTextNode(rendered, cloneContextFields(n))]
             } catch (e) {
                 n.error = e
@@ -707,7 +707,7 @@ async function resolvePromptNode(
                 n.resolved = value
                 const rendered = await renderDefDataNode(n)
                 n.preview = rendered
-                n.tokens = estimateTokens(rendered, encoder)
+                n.tokens = approximateTokens(rendered)
                 n.children = [createTextNode(rendered, cloneContextFields(n))]
             } catch (e) {
                 n.error = e
@@ -717,7 +717,7 @@ async function resolvePromptNode(
             try {
                 const value = await n.value
                 n.resolved = n.preview = value
-                n.tokens = estimateTokens(value, encoder)
+                n.tokens = approximateTokens(value)
             } catch (e) {
                 n.error = e
             }
@@ -726,7 +726,7 @@ async function resolvePromptNode(
             try {
                 const value = await n.value
                 n.resolved = n.preview = value
-                n.tokens = estimateTokens(value, encoder)
+                n.tokens = approximateTokens(value)
             } catch (e) {
                 n.error = e
             }
@@ -797,7 +797,7 @@ async function resolvePromptNode(
                     for (const transform of n.transforms)
                         value = await transform(value)
                 n.resolved = n.preview = value
-                n.tokens = estimateTokens(value, encoder)
+                n.tokens = approximateTokens(value)
             } catch (e) {
                 n.error = e
             }
@@ -836,7 +836,7 @@ async function resolvePromptNode(
                         n.preview += rendered + "\n"
                     }
                 }
-                n.tokens = estimateTokens(n.preview, encoder)
+                n.tokens = approximateTokens(n.preview)
             } catch (e) {
                 n.error = e
             }
@@ -922,7 +922,7 @@ async function truncatePromptNode(
                 encoder,
                 { tokens: n.tokens }
             )
-            n.tokens = estimateTokens(n.resolved, encoder)
+            n.tokens = approximateTokens(n.resolved)
             truncated = true
             trace.log(
                 `truncated text to ${n.tokens} tokens (max ${n.maxTokens})`
@@ -945,7 +945,7 @@ async function truncatePromptNode(
                     tokens: n.tokens,
                 }
             )
-            n.tokens = estimateTokens(n.resolved.content, encoder)
+            n.tokens = approximateTokens(n.resolved.content)
             const rendered = renderDefNode(n)
             n.preview = rendered
             n.children = [createTextNode(rendered, cloneContextFields(n))]
@@ -1295,7 +1295,7 @@ export async function renderPromptNode(
 ${trimNewlines(schemaText)}
 </${schemaName}>`
             appendUser(text, n)
-            n.tokens = estimateTokens(text, encoder)
+            n.tokens = approximateTokens(text)
             if (trace && format !== "json")
                 trace.detailsFenced(
                     `🧬 schema ${schemaName} as ${format}`,
