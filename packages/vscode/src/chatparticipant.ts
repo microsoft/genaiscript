@@ -85,6 +85,16 @@ export async function activateChatParticipant(state: ExtensionState) {
                 }
                 mdHelp()
                 return
+            } else if (command === "models") {
+                const chatModels = await vscode.lm.selectChatModels()
+                const languageChatModels = await state.languageChatModels()
+                md(`This is the current model alias mapping:\n`)
+                for (const chatModel of chatModels) {
+                    md(
+                        `- \`${languageChatModels[chatModel.id] || "---"}\` > \`${chatModel.id}\`, ${chatModel.name}, max ${chatModel.maxInputTokens}\n`
+                    )
+                }
+                return
             }
 
             let template: PromptScript
