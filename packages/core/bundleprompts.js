@@ -136,14 +136,15 @@ System prompts are scripts that are executed and injected before the main prompt
 system({
     title: "Zero-shot Chain of Thought",
 })
-export default function (ctx: PromptGenerator) {    
-    ctx.$\`Let's think step by step.\`
+export default function (ctx: ChatGenerationContext) {    
+    const { $ } = ctx
+    $\`Let's think step by step.\`
 }
 \`\`\`
 
 :::caution
 
-System prompts must have a default function and use the ctx passed in the function.
+System prompts must have a default function and use the \`ctx\` passed in the function.
 
 :::
 
@@ -184,8 +185,8 @@ system({ ...,
         },
     },
 })
-export default function (ctx: PromptGenerator) {    
-    ...
+export default function (ctx: ChatGenerationContext) {    
+    const { env } = ctx
     // populate from the default value or script override
     const model = env.vars["system.fs_read_summary.model"]
 }

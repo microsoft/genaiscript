@@ -2,7 +2,7 @@ system({
     title: "Use english output",
 })
 
-export default function (ctx: PromptContext) {
+export default function (ctx: ChatGenerationContext) {
     const { $ } = ctx
 
     $`## English output

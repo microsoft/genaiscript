@@ -2,7 +2,7 @@ system({
     title: "Apply JSON schemas to generated data.",
 })
 
-export default function (ctx: PromptContext) {
+export default function (ctx: ChatGenerationContext) {
     const { $, env, def } = ctx
 
     const folder = env.vars["outputFolder"] || "."

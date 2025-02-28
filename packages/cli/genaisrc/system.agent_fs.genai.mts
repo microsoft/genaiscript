@@ -2,7 +2,7 @@ system({
     title: "Agent that can find, search or read files to accomplish tasks",
 })
 
-export default function (ctx: PromptContext) {
+export default function (ctx: ChatGenerationContext) {
     const { defAgent } = ctx
 
     defAgent(

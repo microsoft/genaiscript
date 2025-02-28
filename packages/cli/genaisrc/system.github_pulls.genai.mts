@@ -2,7 +2,7 @@ system({
     title: "Tools to query GitHub pull requests.",
 })
 
-export default async function (ctx: PromptContext) {
+export default async function (ctx: ChatGenerationContext) {
     const { $, defTool } = ctx
 
     const pr = await github.getPullRequest()

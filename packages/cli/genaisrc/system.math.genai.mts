@@ -3,7 +3,7 @@ system({
     description: "Register a function that evaluates math expressions",
 })
 
-export default function (ctx: PromptContext) {
+export default function (ctx: ChatGenerationContext) {
     const { defTool } = ctx
 
     defTool(

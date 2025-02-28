@@ -3,7 +3,7 @@ system({
     description: "Teaches the file format supported by GenAIScripts",
 })
 
-export default function (ctx: PromptContext) {
+export default function (ctx: ChatGenerationContext) {
     const { $, env } = ctx
 
     const folder = env.vars["outputFolder"] || "."

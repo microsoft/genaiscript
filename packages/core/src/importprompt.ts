@@ -38,6 +38,10 @@ export async function importPrompt(
         })
         const main = module.default
         if (typeof main === "function") await main(ctx0)
+        else if (r.isSystem)
+            throw new Error(
+                "system prompt using esm JavaScript (mjs, mts) must have a default function."
+            )
         unregister?.()
     } catch (err) {
         unregister?.()

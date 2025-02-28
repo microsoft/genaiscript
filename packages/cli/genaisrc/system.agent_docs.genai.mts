@@ -14,7 +14,7 @@ system({
     },
 })
 
-export default function (ctx: PromptContext) {
+export default function (ctx: ChatGenerationContext) {
     const { env, defAgent } = ctx
 
     const docsRoot = env.vars["system.agent_docs.dir"] || "docs"

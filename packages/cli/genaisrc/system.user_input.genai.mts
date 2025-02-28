@@ -2,7 +2,7 @@ system({
     title: "Tools to ask questions to the user.",
 })
 
-export default function (ctx: PromptContext) {
+export default function (ctx: ChatGenerationContext) {
     const { defTool } = ctx
     defTool(
         "user_input_confirm",

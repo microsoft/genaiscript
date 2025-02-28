@@ -2,7 +2,7 @@ system({
     description: "Video transcription tool",
 })
 
-export default function (ctx: PromptContext) {
+export default function (ctx: ChatGenerationContext) {
     const { defTool } = ctx
     defTool(
         "transcribe",

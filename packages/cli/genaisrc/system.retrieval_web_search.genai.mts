@@ -3,7 +3,7 @@ system({
     description: "Function to do a web search.",
 })
 
-export default function (ctx: PromptContext) {
+export default function (ctx: ChatGenerationContext) {
     const { defTool } = ctx
     defTool(
         "retrieval_web_search",

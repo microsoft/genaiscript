@@ -2,7 +2,7 @@ system({
     title: "Agent that can query GitHub to accomplish tasks.",
 })
 
-export default function (ctx: PromptContext) {
+export default function (ctx: ChatGenerationContext) {
     const { defAgent } = ctx
 
     defAgent(

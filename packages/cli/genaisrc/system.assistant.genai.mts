@@ -4,7 +4,7 @@ system({
         "A prompt for a helpful assistant from https://medium.com/@stunspot/omni-f3b1934ae0ea.",
 })
 
-export default function (ctx: PromptContext) {
+export default function (ctx: ChatGenerationContext) {
     const { $ } = ctx
 
     $`## Role

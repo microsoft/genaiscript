@@ -2,7 +2,7 @@ system({
     description: "Agent that can query data in files",
 })
 
-export default function (ctx: PromptContext) {
+export default function (ctx: ChatGenerationContext) {
     const { defAgent } = ctx
 
     defAgent(

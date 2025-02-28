@@ -126,7 +126,7 @@ const metaSchema = Object.freeze({
     },
 })
 
-export default function (ctx: PromptContext) {
+export default function (ctx: ChatGenerationContext) {
     const { defTool } = ctx
 
     defTool(

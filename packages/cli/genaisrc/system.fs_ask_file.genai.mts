@@ -3,7 +3,7 @@ system({
     description: "Run an LLM query against the content of a file.",
 })
 
-export default function (ctx: PromptContext) {
+export default function (ctx: ChatGenerationContext) {
     const { $, defTool } = ctx
 
     defTool(

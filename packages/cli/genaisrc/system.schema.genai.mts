@@ -2,7 +2,7 @@ system({
     title: "JSON Schema support",
 })
 
-export default function (ctx: PromptContext) {
+export default function (ctx: ChatGenerationContext) {
     const { $, fence } = ctx
 
     $`## TypeScript Schema

@@ -4,7 +4,7 @@ system({
         "Function to do a search using embeddings vector similarity distance.",
 })
 
-export default function (ctx: PromptContext) {
+export default function (ctx: ChatGenerationContext) {
     const { defTool } = ctx
     defTool(
         "retrieval_vector_search",

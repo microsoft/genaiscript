@@ -2,7 +2,7 @@ system({
     title: "Ad hoc tool support",
 })
 // the list of tools is injected by genaiscript
-export default function (ctx: PromptContext) {
+export default function (ctx: ChatGenerationContext) {
     const { $ } = ctx
 
     $`## Tool support                 
