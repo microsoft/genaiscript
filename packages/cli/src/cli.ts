@@ -226,7 +226,8 @@ export async function cli() {
             "number of retries for the entire run"
         )
         .option("--no-run-trace", "disable automatic trace generation")
-        .action(runScriptWithExitCode) // Action to execute the script with exit code
+    remoteOptions(run) // Add remote options to the command
+    run.action(runScriptWithExitCode) // Action to execute the script with exit code
 
     // Define 'test' command group for running tests
     const test = program.command("test").alias("eval")
@@ -414,7 +415,7 @@ export async function cli() {
         .action(retrievalFuzz) // Action to perform fuzzy search
 
     // Define 'serve' command to start a local server
-    program
+    const server = program
         .command("serve")
         .description("Start a GenAIScript local server")
         .option(
@@ -430,17 +431,11 @@ export async function cli() {
             "-c, --cors <string>",
             "Enable CORS and sets the allowed origin. Use '*' to allow any origin."
         )
-        .option("--remote <string>", "Remote repository URL to serve")
-        .option("--remote-branch <string>", "Branch to serve from the remote")
-        .option("--remote-force", "Force pull from remote repository")
-        .option(
-            "--remote-install",
-            "Install dependencies from remote repository"
-        )
         .option(
             "--dispatch-progress",
             "Dispatch progress events to all clients"
         )
+    remoteOptions(server) // Add remote options to the command
         .action(startServer) // Action to start the server
 
     // Define 'parse' command group for parsing tasks
@@ -577,6 +572,20 @@ export async function cli() {
                     "-re, --reasoning-effort <string>",
                     "Reasoning effort for o* models"
                 ).choices(["high", "medium", "low"])
+            )
+    }
+
+    function remoteOptions(cmd: Command) {
+        return cmd
+            .option("--remote <string>", "Remote repository URL to serve")
+            .option(
+                "--remote-branch <string>",
+                "Branch to serve from the remote"
+            )
+            .option("--remote-force", "Force pull from remote repository")
+            .option(
+                "--remote-install",
+                "Install dependencies from remote repository"
             )
     }
 }
