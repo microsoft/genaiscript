@@ -43,8 +43,6 @@ import { promptParametersSchemaToJSONSchema } from "./parameters"
 import { redactSecrets } from "./secretscanner"
 import { escapeToolName } from "./tools"
 import { measure } from "./performance"
-import { consoleColors } from "./consolecolor"
-import { renderImageToTerminal } from "./image"
 
 // Definition of the PromptNode interface which is an essential part of the code structure.
 export interface PromptNode extends ContextExpansionOptions {
@@ -1264,18 +1262,6 @@ export async function renderPromptNode(
             if (value?.url) {
                 images.push(value)
                 appendUser(value, n)
-                if (consoleColors)
-                    process.stderr.write(
-                        await renderImageToTerminal(
-                            value.url,
-                            toStringList(
-                                value.filename,
-                                value.width
-                                    ? `${value.width}x${value.height}`
-                                    : undefined
-                            )
-                        )
-                    )
             }
         },
         schema: (n) => {

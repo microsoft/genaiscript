@@ -14,7 +14,7 @@ import { deleteUndefinedValues } from "./cleaners"
 import pLimit from "p-limit"
 import { CancellationOptions, checkCancelled } from "./cancellation"
 import { wrapColor, wrapRgbColor } from "./consolecolor"
-import terminalSize from "terminal-size"
+import { assert } from "console"
 
 async function prepare(
     url: BufferLike,
@@ -213,18 +213,26 @@ export async function imageTileEncodeForLLM(
     return await encode(canvas, { ...options, detail: undefined })
 }
 
-export async function renderImageToTerminal(url: BufferLike, label?: string) {
-    const { columns, rows } = terminalSize()
+export async function renderImageToTerminal(
+    url: BufferLike,
+    options: {
+        columns: number
+        rows: number
+        label?: string
+    }
+) {
+    assert(!!url, "image buffer")
+    const { columns, rows, label } = options
     const image = await prepare(url, {
         maxWidth: Math.max(16, Math.min(126, (columns >> 1) - 2)),
         maxHeight: Math.max(16, Math.min(126, (rows >> 1) - 2)),
     })
     const { width, height } = image
-    label = ellipse(label || label, width * 2 - 2)
+    const title = label ? ellipse(label, width * 2 - 2) : ""
     const res: string[] = [
         wrapColor(
             CONSOLE_COLOR_DEBUG,
-            "┌─" + label + "─".repeat(width * 2 - label.length - 1) + "┐\n"
+            "┌─" + title + "─".repeat(width * 2 - title.length - 1) + "┐\n"
         ),
     ]
     const wall = wrapColor(CONSOLE_COLOR_DEBUG, "│")
