@@ -389,6 +389,6 @@ export const REASONING_END_MARKER = "\n</thinking>\n\n"
 
 export const PROMPT_DOM_TRUNCATE_ATTEMPTS = 6
 
-export const CONTROL_CHAT_COLLAPSED = 2
-export const CONTROL_CHAT_EXPANDED = 5
-export const CONTROL_CHAT_LAST = 10
+export const CONTROL_CHAT_COLLAPSED = 3
+export const CONTROL_CHAT_EXPANDED = 6
+export const CONTROL_CHAT_LAST = 12
