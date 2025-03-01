@@ -111,6 +111,9 @@ export type ChatCompletionUserMessageParam =
 export type ChatCompletionContentPartImage =
     OpenAI.Chat.Completions.ChatCompletionContentPartImage
 
+export type ChatCompletionMessageToolCall =
+    OpenAI.Chat.Completions.ChatCompletionMessageToolCall
+
 // Parameters for creating embeddings
 export type EmbeddingCreateParams = OpenAI.Embeddings.EmbeddingCreateParams
 

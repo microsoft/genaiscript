@@ -193,6 +193,15 @@ ${dataToMarkdownTable(tidyData(rows, options))}
     return { ...file }
 }
 
+export function dataUriToBuffer(filename: string) {
+    if (/^data:/i.test(filename)) {
+        const matches = filename.match(/^data:[^;]+;base64,(.*)$/i)
+        if (!matches) throw new Error("Invalid data URI format")
+        return fromBase64(matches[1])
+    }
+    return undefined
+}
+
 /**
  * Converts a file into a Data URI format.
  * @param filename - The file name or URL to convert.
@@ -211,11 +220,9 @@ export async function resolveFileBytes(
         filename = filename.filename
     }
 
-    if (/^data:/i.test(filename)) {
-        const matches = filename.match(/^data:[^;]+;base64,(.*)$/i)
-        if (!matches) throw new Error("Invalid data URI format")
-        return fromBase64(matches[1])
-    }
+    const i = dataUriToBuffer(filename)
+    if (i) return i
+
     // Fetch file from URL or data-uri
     if (/^https?:\/\//i.test(filename)) {
         const fetch = await createFetch(options)
