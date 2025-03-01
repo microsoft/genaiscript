@@ -37,11 +37,12 @@
             "id": "azure",
             "detail": "Azure OpenAI deployment",
             "url": "https://azure.microsoft.com/en-us/products/ai-services/openai-service",
-            "listModels": false,
+            "listModels": true,
             "bearerToken": false,
             "prediction": false,
             "transcribe": true,
             "speech": true,
+            "imageGeneration": true,
             "aliases": {},
             "env": {
                 "AZURE_OPENAI_API_ENDPOINT": {
