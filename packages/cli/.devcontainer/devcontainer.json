@@ -1,5 +1,5 @@
 {
-    "image": "mcr.microsoft.com/devcontainers/javascript-node:20",
+    "image": "mcr.microsoft.com/devcontainers/typescript-node:20",
     "customizations": {
         "vscode": {
             "extensions": [
@@ -12,13 +12,13 @@
                 "esbenp.prettier-vscode",
                 "ms-python.python"
             ]
-        }        
+        }
     },
     "forwardPorts": [8003],
     "features": {
         "ghcr.io/devcontainers/features/common-utils:2": {},
         "ghcr.io/devcontainers/features/git:1": {},
-        "ghcr.io/devcontainers/features/azure-cli:1.2.5": {},
+        "ghcr.io/devcontainers/features/azure-cli:1.2.6": {},
         "ghcr.io/devcontainers/features/python:1.7.0": {},
         "ghcr.io/devcontainers/features/docker-in-docker:2": {},
         "ghcr.io/devcontainers-extra/features/ffmpeg-apt-get:1.0.16": {},

@@ -628,11 +628,11 @@ function GenAIScriptLogo(props: { height: string }) {
 function JSONSchemaNumber(props: {
     schema: JSONSchemaNumber
     value: number
+    required: boolean
     onChange: (value: number) => void
 }) {
-    const { schema, value, onChange } = props
+    const { required, schema, value, onChange } = props
     const { type, minimum, maximum } = schema
-    const required = schema.default === undefined
     const [valueText, setValueText] = useState(
         isNaN(value) ? "" : String(value)
     )
@@ -680,6 +680,7 @@ function JSONSchemaSimpleTypeFormField(props: {
                     schema={field}
                     value={Number(value)}
                     onChange={onChange}
+                    required={required}
                 />
             )
         case "string": {
@@ -1384,17 +1385,10 @@ ${JSON.stringify(result, null, 2)}
     )
 }
 
-function toStringList(...token: (string | undefined | null)[]) {
-    const md = token
-        .filter((l) => l !== undefined && l !== null && l !== "")
-        .join(", ")
-    return md
-}
-
 function acceptToAccept(accept: string | undefined) {
     if (!accept) return undefined
     const res: Record<string, string[]> = {}
-    const extensions = accept.split(",")
+    const extensions = accept.split(",").map(ext => ext.trim().replace(/^\*\./, "."))
     for (const ext of extensions) {
         const mime = lookupMime(ext)
         if (mime) {

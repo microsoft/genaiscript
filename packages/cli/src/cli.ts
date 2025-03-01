@@ -5,7 +5,7 @@
 
 import { NodeHost } from "./nodehost" // Handles node environment setup
 import { Command, Option, program } from "commander" // Command-line argument parsing library
-import { error, isQuiet, setConsoleColors, setQuiet } from "./log" // Logging utilities
+import { error, isQuiet, setQuiet } from "./log" // Logging utilities
 import { startServer } from "./server" // Function to start server
 import { NODE_MIN_VERSION, PROMPTFOO_VERSION } from "./version" // Version constants
 import { runScriptWithExitCode } from "./run" // Execute scripts with exit code
@@ -59,6 +59,7 @@ import { convertFiles } from "./convert"
 import { extractAudio, extractVideoFrames, probeVideo } from "./video"
 import { configure } from "./configure"
 import { logPerformance } from "../../core/src/performance"
+import { setConsoleColors } from "../../core/src/consolecolor"
 
 /**
  * Main function to initialize and run the CLI.

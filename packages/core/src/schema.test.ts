@@ -130,102 +130,115 @@ of the city.`,
         assert.deepStrictEqual(res.properties["name"].type, ["string", "null"])
         assert.strictEqual(res.additionalProperties, false)
     })
-})
 
-test("validateSchema", async () => {
-    const schema: JSONSchema = {
-        type: "object",
-        properties: {
-            name: { type: "string" },
-            age: { type: "number" },
-        },
-        required: ["name"],
-    }
-
-    const result = await validateSchema(schema)
-    assert.strictEqual(result, true)
-})
-
-test("validateJSONWithSchema - valid object", () => {
-    const schema: JSONSchema = {
-        type: "object",
-        properties: {
-            name: { type: "string" },
-            age: { type: "number" },
-        },
-        required: ["name"],
-    }
-
-    const object = { name: "John", age: 30 }
-    const result = validateJSONWithSchema(object, schema)
-    assert.strictEqual(result.pathValid, true)
-    assert.strictEqual(result.schemaError, undefined)
-})
-
-test("validateJSONWithSchema - invalid object", () => {
-    const schema: JSONSchema = {
-        type: "object",
-        properties: {
-            name: { type: "string" },
-            age: { type: "number" },
-        },
-        required: ["name"],
-    }
-
-    const object = { age: 30 }
-    const result = validateJSONWithSchema(object, schema)
-    assert.strictEqual(result.pathValid, false)
-    assert.ok(result.schemaError)
-})
-
-test("JSONSchemaStringify", () => {
-    const schema: JSONSchema = {
-        type: "object",
-        properties: {
-            name: { type: "string" },
-            age: { type: "number" },
-        },
-        required: ["name"],
-    }
-
-    const result = JSONSchemaStringify(schema)
-    assert.strictEqual(
-        result,
-        JSON.stringify(
-            {
-                $schema: "http://json-schema.org/draft-07/schema#",
-                ...schema,
+    test("validateSchema", async () => {
+        const schema: JSONSchema = {
+            type: "object",
+            properties: {
+                name: { type: "string" },
+                age: { type: "number" },
             },
-            null,
-            2
+            required: ["name"],
+        }
+
+        const result = await validateSchema(schema)
+        assert.strictEqual(result, true)
+    })
+
+    test("validateJSONWithSchema - valid object", () => {
+        const schema: JSONSchema = {
+            type: "object",
+            properties: {
+                name: { type: "string" },
+                age: { type: "number" },
+            },
+            required: ["name"],
+        }
+
+        const object = { name: "John", age: 30 }
+        const result = validateJSONWithSchema(object, schema)
+        assert.strictEqual(result.pathValid, true)
+        assert.strictEqual(result.schemaError, undefined)
+    })
+
+    test("validateJSONWithSchema - invalid object", () => {
+        const schema: JSONSchema = {
+            type: "object",
+            properties: {
+                name: { type: "string" },
+                age: { type: "number" },
+            },
+            required: ["name"],
+        }
+
+        const object = { age: 30 }
+        const result = validateJSONWithSchema(object, schema)
+        assert.strictEqual(result.pathValid, false)
+        assert.ok(result.schemaError)
+    })
+
+    test("JSONSchemaStringify", () => {
+        const schema: JSONSchema = {
+            type: "object",
+            properties: {
+                name: { type: "string" },
+                age: { type: "number" },
+            },
+            required: ["name"],
+        }
+
+        const result = JSONSchemaStringify(schema)
+        assert.strictEqual(
+            result,
+            JSON.stringify(
+                {
+                    $schema: "http://json-schema.org/draft-07/schema#",
+                    ...schema,
+                },
+                null,
+                2
+            )
         )
-    )
-})
+    })
 
-test("toStrictJSONSchema", () => {
-    const schema: JSONSchema = {
-        type: "object",
-        properties: {
+    test("toStrictJSONSchema", () => {
+        const schema: JSONSchema = {
+            type: "object",
+            properties: {
+                name: { type: "string" },
+                age: { type: "number" },
+            },
+            required: ["name"],
+        }
+
+        const result = toStrictJSONSchema(schema)
+        assert.deepStrictEqual(result.required, ["name", "age"])
+        assert.deepStrictEqual(result.properties["name"].type, "string")
+        assert.deepStrictEqual(result.properties["age"].type, [
+            "number",
+            "null",
+        ])
+        assert.strictEqual(result.additionalProperties, false)
+    })
+
+    test("infer object", async () => {
+        const obj = { name: "John", age: 30 }
+        const schema = await JSONSchemaInfer(obj)
+        //console.log({ obj, schema })
+        assert.strictEqual(schema.type, "object")
+        assert.deepStrictEqual(schema.properties, {
             name: { type: "string" },
-            age: { type: "number" },
-        },
-        required: ["name"],
-    }
+            age: { type: "integer" },
+        })
+    })
 
-    const result = toStrictJSONSchema(schema)
-    assert.deepStrictEqual(result.required, ["name", "age"])
-    assert.deepStrictEqual(result.properties["name"].type, "string")
-    assert.deepStrictEqual(result.properties["age"].type, ["number", "null"])
-    assert.strictEqual(result.additionalProperties, false)
-})
-
-test("JSONSchemaInfer", async () => {
-    const obj = { name: "John", age: 30 }
-    const schema = await JSONSchemaInfer(obj)
-    //console.log({ obj, schema })
-    assert.strictEqual(schema.type, "object")
-    assert.deepStrictEqual(schema.properties, {
-        name: { type: "string" },
-        age: { type: "integer" },
+    test("infer array", async () => {
+        const obj = { links: [""] }
+        const schema = await JSONSchemaInfer(obj)
+        //console.log({ obj, schema })
+        assert.strictEqual(schema.type, "object")
+        assert.deepStrictEqual(schema.properties, {
+            links: { type: "array", items: { type: "string" } },
+        })
     })
 })

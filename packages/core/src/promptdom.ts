@@ -1262,13 +1262,6 @@ export async function renderPromptNode(
             if (value?.url) {
                 images.push(value)
                 appendUser(value, n)
-                if (trace) {
-                    trace.startDetails(
-                        `📷 image: ${value.detail || ""} ${value.filename || value.url.slice(0, 64) + "..."}`
-                    )
-                    trace.image(value.url, value.filename)
-                    trace.endDetails()
-                }
             }
         },
         schema: (n) => {

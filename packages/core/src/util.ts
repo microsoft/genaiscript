@@ -181,7 +181,12 @@ export function groupBy<T>(
 }
 
 export function ellipse(text: string, length: number) {
-    if (text?.length > length) return text.slice(0, length) + "..."
+    if (text?.length > length) return text.slice(0, length - 1) + "…"
+    else return text
+}
+
+export function ellipseLast(text: string, length: number) {
+    if (text?.length > length) return "…" + text.slice(length - text.length + 1)
     else return text
 }
 

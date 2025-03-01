@@ -7,7 +7,7 @@
     },
     "displayName": "GenAIScript Insiders",
     "description": "Generative AI Scripting.",
-    "version": "1.110.1",
+    "version": "1.110.3",
     "icon": "icon.png",
     "engines": {
         "vscode": "^1.95.0"
@@ -71,6 +71,12 @@
                         "description": "Runs a GenAIScript script. The query should start with the script filename without the extension.",
                         "isSticky": false,
                         "sampleRequest": "/run poem"
+                    },
+                    {
+                        "name": "models",
+                        "description": "Lists available Language Models and the aliases.",
+                        "isSticky": false,
+                        "sampleRequest": "/models"
                     }
                 ]
             }

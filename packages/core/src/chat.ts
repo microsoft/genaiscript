@@ -89,6 +89,7 @@ import {
 import { deleteUndefinedValues } from "./cleaners"
 import { splitThink, unthink } from "./think"
 import { measure } from "./performance"
+import { renderMessagesToTerminal } from "./chatrenderterminal"
 
 function toChatCompletionImage(
     image: PromptImage
@@ -1079,7 +1080,10 @@ export async function executeChatSession(
                     }
                     updateChatFeatures(reqTrace, model, req)
                     logVerbose(
-                        `chat: sending ${messages.length} messages to ${model} (~${tokens ?? "?"} tokens)\n`
+                        `chat: sending ${messages.length} messages to ${model} (~${tokens ?? "?"} tokens)`
+                    )
+                    process.stderr.write(
+                        await renderMessagesToTerminal(messages, { user: true })
                     )
 
                     const infer = async () => {

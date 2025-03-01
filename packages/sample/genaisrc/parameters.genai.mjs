@@ -1,5 +1,5 @@
 script({
-    accept: ".txt,.md,.pdf",
+    accept: "*.prompty,.txt,.md,.pdf",
     files: "src/*",
     model: "small",
     tools: "agent_fs",
@@ -38,6 +38,10 @@ script({
             type: "boolean",
             default: true,
             description: "A boolean parameter with a description",
+        },
+        notRequired: {
+            type: "integer",
+            required: false,
         },
     },
     tests: {
