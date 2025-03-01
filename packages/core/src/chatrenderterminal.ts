@@ -117,6 +117,7 @@ export async function renderMessagesToTerminal(
         msg === messages.at(-1) || visibility === true
             ? CONTROL_CHAT_EXPANDED
             : CONTROL_CHAT_COLLAPSED
+
     messages = messages.filter((msg) => {
         // Filter messages based on their roles.
         switch (msg.role) {
@@ -139,7 +140,7 @@ export async function renderMessagesToTerminal(
                     wrapColor(CONSOLE_COLOR_DEBUG, "┌─📙 system\n"),
                     ...(await renderMessageContent(msg, {
                         columns,
-                        rows: msgRows(system),
+                        rows: msgRows(msg, system),
                     }))
                 )
                 break
@@ -148,7 +149,7 @@ export async function renderMessagesToTerminal(
                 res.push(
                     ...(await renderMessageContent(msg, {
                         columns,
-                        rows: msgRows(user),
+                        rows: msgRows(msg, user),
                     }))
                 )
                 break
@@ -168,7 +169,7 @@ export async function renderMessagesToTerminal(
                 res.push(
                     ...(await renderMessageContent(msg, {
                         columns,
-                        rows: msgRows(assistant),
+                        rows: msgRows(msg, assistant),
                     }))
                 )
                 if (msg.tool_calls?.length)
@@ -186,7 +187,7 @@ export async function renderMessagesToTerminal(
                     ),
                     ...(await renderMessageContent(msg, {
                         columns,
-                        rows: collapsed,
+                        rows: msgRows(msg, undefined),
                     }))
                 )
                 break
@@ -195,7 +196,7 @@ export async function renderMessagesToTerminal(
                     wrapColor(CONSOLE_COLOR_DEBUG, "┌─" + role + "\n"),
                     ...(await renderMessageContent(YAMLStringify(msg), {
                         columns,
-                        rows: collapsed,
+                        rows: msgRows(msg, undefined),
                     }))
                 )
                 break
