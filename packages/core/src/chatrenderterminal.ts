@@ -12,7 +12,11 @@ import { ellipse, ellipseLast } from "./util"
 import { YAMLStringify } from "./yaml"
 import { dataUriToBuffer } from "./file"
 import { wrapColor } from "./consolecolor"
-import { CONSOLE_COLOR_DEBUG } from "./constants"
+import {
+    CONSOLE_COLOR_DEBUG,
+    CONTROL_CHAT_COLLAPSED,
+    CONTROL_CHAT_EXPANDED,
+} from "./constants"
 
 async function renderMessageContent(
     msg:
@@ -108,11 +112,11 @@ export async function renderMessagesToTerminal(
     } = options || {}
 
     const { columns } = terminalSize()
-    const collapsed = 1
-    const expanded = 4
 
-    const msgRows = (visibility: boolean) =>
-        visibility === true ? expanded : collapsed
+    const msgRows = (msg: ChatCompletionMessageParam, visibility: boolean) =>
+        msg === messages.at(-1) || visibility === true
+            ? CONTROL_CHAT_EXPANDED
+            : CONTROL_CHAT_COLLAPSED
     messages = messages.filter((msg) => {
         // Filter messages based on their roles.
         switch (msg.role) {
