@@ -10030,6 +10030,11 @@ tempy@^3.1.0:
     type-fest "^2.12.2"
     unique-string "^3.0.0"
 
+terminal-size@^4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/terminal-size/-/terminal-size-4.0.0.tgz#a0b7530518afe5f49952c58251ec6e2e3a740570"
+  integrity sha512-rcdty1xZ2/BkWa4ANjWRp4JGpda2quksXIHgn5TMjNBPZfwzJIgR68DKfSYiTL+CZWowDX/sbOo5ME/FRURvYQ==
+
 text-decoder@^1.1.0:
   version "1.2.3"
   resolved "https://registry.yarnpkg.com/text-decoder/-/text-decoder-1.2.3.tgz#b19da364d981b2326d5f43099c310cc80d770c65"

@@ -2,6 +2,7 @@
 import prettyBytes from "pretty-bytes"
 import { resolveBufferLike } from "./bufferlike"
 import {
+    CONSOLE_COLOR_DEBUG,
     IMAGE_DETAIL_HIGH_HEIGHT,
     IMAGE_DETAIL_HIGH_WIDTH,
     IMAGE_DETAIL_LOW_HEIGHT,
@@ -12,7 +13,8 @@ import { logVerbose, toHex } from "./util"
 import { deleteUndefinedValues } from "./cleaners"
 import pLimit from "p-limit"
 import { CancellationOptions, checkCancelled } from "./cancellation"
-import { wrapRgbColor } from "./consolecolor"
+import { wrapColor, wrapRgbColor } from "./consolecolor"
+import terminalSize from "terminal-size"
 
 async function prepare(
     url: BufferLike,
@@ -212,16 +214,26 @@ export async function imageTileEncodeForLLM(
 }
 
 export async function renderImageToASCII(url: BufferLike, maxWidth: number) {
-    const image = await prepare(url, { maxWidth, maxHeight: maxWidth })
+    const { columns, rows } = terminalSize()
+    const image = await prepare(url, {
+        maxWidth: Math.max(16, Math.min(126, (columns >> 1) - 2)),
+        maxHeight: Math.max(16, Math.min(126, (rows >> 1) - 2)),
+    })
     const { width, height } = image
-    let res: string[] = []
+    const res: string[] = [
+        wrapColor(CONSOLE_COLOR_DEBUG, "┌" + "─".repeat(width * 2) + "┐\n"),
+    ]
     for (let y = 0; y < height; ++y) {
+        res.push("│")
         for (let x = 0; x < width; ++x) {
             const c = image.getPixelColor(x, y)
-            const cc = c ? wrapRgbColor(c, " ", true) : " "
+            const cc = c ? wrapRgbColor(c >> 8, " ", true) : " "
             res.push(cc, cc)
         }
-        res.push("\n")
+        res.push("│\n")
     }
+    res.push(
+        wrapColor(CONSOLE_COLOR_DEBUG, "└" + "─".repeat(width * 2) + "┘\n")
+    )
     return res.join("")
 }
