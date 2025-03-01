@@ -16,6 +16,7 @@ import {
     CONSOLE_COLOR_DEBUG,
     CONTROL_CHAT_COLLAPSED,
     CONTROL_CHAT_EXPANDED,
+    CONTROL_CHAT_LAST,
 } from "./constants"
 
 async function renderMessageContent(
@@ -114,9 +115,11 @@ export async function renderMessagesToTerminal(
     const { columns } = terminalSize()
 
     const msgRows = (msg: ChatCompletionMessageParam, visibility: boolean) =>
-        msg === messages.at(-1) || visibility === true
-            ? CONTROL_CHAT_EXPANDED
-            : CONTROL_CHAT_COLLAPSED
+        msg === messages.at(-1)
+            ? CONTROL_CHAT_LAST
+            : visibility === true
+              ? CONTROL_CHAT_EXPANDED
+              : CONTROL_CHAT_COLLAPSED
 
     messages = messages.filter((msg) => {
         // Filter messages based on their roles.
