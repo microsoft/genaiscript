@@ -1,17 +1,16 @@
-import { buffer } from "stream/consumers"
 import {
     ChatCompletionAssistantMessageParam,
     ChatCompletionMessageParam,
+    ChatCompletionMessageToolCall,
     ChatCompletionSystemMessageParam,
     ChatCompletionToolMessageParam,
     ChatCompletionUserMessageParam,
 } from "./chattypes"
-import { collapseNewlines } from "./cleaners"
 import { renderImageToTerminal } from "./image"
 import { terminalSize } from "./terminal"
 import { ellipse, ellipseLast } from "./util"
 import { YAMLStringify } from "./yaml"
-import { dataUriToBuffer, resolveFileBytes } from "./file"
+import { dataUriToBuffer } from "./file"
 import { wrapColor } from "./consolecolor"
 import { CONSOLE_COLOR_DEBUG } from "./constants"
 
@@ -32,17 +31,19 @@ async function renderMessageContent(
     const margin = 2
     const width = columns - margin
 
-    const render = (s: string) =>
-        s
-            .split(/\n/g)
-            .filter((l) => !!l)
-            .slice(0, rows)
-            .map((l) =>
-                wrapColor(CONSOLE_COLOR_DEBUG, ellipse("│" + l, width) + "\n")
-            )
+    const render = (s: string) => {
+        const lines = s.split(/\n/g).filter((l) => !!l)
+        const trimmed = lines.slice(-rows)
+        const res = trimmed.map((l) =>
+            wrapColor(CONSOLE_COLOR_DEBUG, "│" + ellipse(l, width) + "\n")
+        )
+        if (lines.length > trimmed.length)
+            res.unshift(wrapColor(CONSOLE_COLOR_DEBUG, "│...\n"))
+        return res
+    }
 
     // Return the content directly if it's a simple string.
-    if (typeof content === "string") return [...render(content)]
+    if (typeof content === "string") return render(content)
     // If the content is an array, process each element based on its type.
     else if (Array.isArray(content)) {
         const res: string[] = []
@@ -70,9 +71,26 @@ async function renderMessageContent(
             }
         }
         return res
-    }
-    // Return undefined if the content is neither a string nor an array.
-    return undefined
+    } else return []
+}
+
+function renderToolCall(
+    call: ChatCompletionMessageToolCall,
+    options: { columns: number }
+): string {
+    const { columns } = options
+    const width = columns - 2
+    return wrapColor(
+        CONSOLE_COLOR_DEBUG,
+        ellipse(`├──📠 tool ${call.function.name}`, columns - 2) +
+            `\n` +
+            (call.function.arguments
+                ? wrapColor(
+                      CONSOLE_COLOR_DEBUG,
+                      "│" + ellipse(call.function.arguments, width) + "\n"
+                  )
+                : "")
+    )
 }
 
 export async function renderMessagesToTerminal(
@@ -114,7 +132,7 @@ export async function renderMessagesToTerminal(
         switch (role) {
             case "system":
                 res.push(
-                    wrapColor(CONSOLE_COLOR_DEBUG, "┌─📙 system──\n"),
+                    wrapColor(CONSOLE_COLOR_DEBUG, "┌─📙 system\n"),
                     ...(await renderMessageContent(msg, {
                         columns,
                         rows: msgRows(system),
@@ -122,7 +140,7 @@ export async function renderMessagesToTerminal(
                 )
                 break
             case "user":
-                res.push(wrapColor(CONSOLE_COLOR_DEBUG, "┌─👤 user──\n"))
+                res.push(wrapColor(CONSOLE_COLOR_DEBUG, "┌─👤 user\n"))
                 res.push(
                     ...(await renderMessageContent(msg, {
                         columns,
@@ -131,36 +149,36 @@ export async function renderMessagesToTerminal(
                 )
                 break
             case "assistant":
-                if (msg.reasoning_content)
-                    res.push(
-                        wrapColor(CONSOLE_COLOR_DEBUG, "┌─🤔 reasoning──\n"),
-                        msg.reasoning_content,
-                        "\n"
-                    )
                 res.push(
                     wrapColor(
                         CONSOLE_COLOR_DEBUG,
-                        `┌─🤖 assistant ${msg.name ? msg.name : ""}──\n`
+                        `┌─🤖 assistant ${msg.name ? msg.name : ""}\n`
                     )
                 )
+                if (msg.reasoning_content)
+                    res.push(
+                        wrapColor(CONSOLE_COLOR_DEBUG, "├──🤔 reasoning\n"),
+                        msg.reasoning_content,
+                        "\n"
+                    )
                 res.push(
                     ...(await renderMessageContent(msg, {
                         columns,
                         rows: msgRows(assistant),
                     }))
                 )
-                //   res.push(...msg.tool_calls?.map((tc) =>
-                //                     `📠 tool call <code>${tc.function.name}</code> (<code>${tc.id}</code>)`,
-                //                   renderToolArguments(
-                //                     tc.function.arguments
-                //               )
-                //     ) || [])
+                if (msg.tool_calls?.length)
+                    res.push(
+                        ...msg.tool_calls.map((call) =>
+                            renderToolCall(call, { columns })
+                        )
+                    )
                 break
             case "tool":
                 res.push(
                     wrapColor(
                         CONSOLE_COLOR_DEBUG,
-                        `┌─🛠️ ${msg.tool_call_id}──\n`
+                        `┌─🔧 tool ${msg.tool_call_id || ""}\n`
                     ),
                     ...(await renderMessageContent(msg, {
                         columns,
@@ -170,7 +188,7 @@ export async function renderMessagesToTerminal(
                 break
             default:
                 res.push(
-                    wrapColor(CONSOLE_COLOR_DEBUG, "┌─" + role + "──\n"),
+                    wrapColor(CONSOLE_COLOR_DEBUG, "┌─" + role + "\n"),
                     ...(await renderMessageContent(YAMLStringify(msg), {
                         columns,
                         rows: collapsed,

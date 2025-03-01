@@ -186,7 +186,7 @@ export function ellipse(text: string, length: number) {
 }
 
 export function ellipseLast(text: string, length: number) {
-    if (text?.length > length) return text.slice(length - text.length + 1) + "…"
+    if (text?.length > length) return "…" + text.slice(length - text.length + 1)
     else return text
 }
 
