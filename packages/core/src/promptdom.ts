@@ -44,7 +44,7 @@ import { redactSecrets } from "./secretscanner"
 import { escapeToolName } from "./tools"
 import { measure } from "./performance"
 import { consoleColors } from "./consolecolor"
-import { renderImageToASCII } from "./image"
+import { renderImageToTerminal } from "./image"
 
 // Definition of the PromptNode interface which is an essential part of the code structure.
 export interface PromptNode extends ContextExpansionOptions {
@@ -1266,7 +1266,15 @@ export async function renderPromptNode(
                 appendUser(value, n)
                 if (consoleColors)
                     process.stderr.write(
-                        await renderImageToASCII(value.url, 80)
+                        await renderImageToTerminal(
+                            value.url,
+                            toStringList(
+                                value.filename,
+                                value.width
+                                    ? `${value.width}x${value.height}`
+                                    : undefined
+                            )
+                        )
                     )
             }
         },

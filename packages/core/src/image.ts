@@ -9,7 +9,7 @@ import {
     IMAGE_DETAIL_LOW_WIDTH,
 } from "./constants"
 import { TraceOptions } from "./trace"
-import { logVerbose, toHex } from "./util"
+import { ellipse, logVerbose, toHex } from "./util"
 import { deleteUndefinedValues } from "./cleaners"
 import pLimit from "p-limit"
 import { CancellationOptions, checkCancelled } from "./cancellation"
@@ -213,24 +213,29 @@ export async function imageTileEncodeForLLM(
     return await encode(canvas, { ...options, detail: undefined })
 }
 
-export async function renderImageToASCII(url: BufferLike, maxWidth: number) {
+export async function renderImageToTerminal(url: BufferLike, label?: string) {
     const { columns, rows } = terminalSize()
     const image = await prepare(url, {
         maxWidth: Math.max(16, Math.min(126, (columns >> 1) - 2)),
         maxHeight: Math.max(16, Math.min(126, (rows >> 1) - 2)),
     })
     const { width, height } = image
+    label = ellipse(label || label, width * 2 - 2)
     const res: string[] = [
-        wrapColor(CONSOLE_COLOR_DEBUG, "┌" + "─".repeat(width * 2) + "┐\n"),
+        wrapColor(
+            CONSOLE_COLOR_DEBUG,
+            "┌─" + label + "─".repeat(width * 2 - label.length - 1) + "┐\n"
+        ),
     ]
+    const wall = wrapColor(CONSOLE_COLOR_DEBUG, "│")
     for (let y = 0; y < height; ++y) {
-        res.push("│")
+        res.push(wall)
         for (let x = 0; x < width; ++x) {
             const c = image.getPixelColor(x, y)
             const cc = c ? wrapRgbColor(c >> 8, " ", true) : " "
             res.push(cc, cc)
         }
-        res.push("│\n")
+        res.push(wall, "\n")
     }
     res.push(
         wrapColor(CONSOLE_COLOR_DEBUG, "└" + "─".repeat(width * 2) + "┘\n")
