@@ -1,6 +1,6 @@
 import { capitalize } from "inflection"
 import { resolve, join, relative } from "node:path"
-import { consoleColors, isQuiet, wrapColor, wrapRgbColor } from "./log"
+import { isQuiet } from "./log"
 import { emptyDir, ensureDir, exists } from "fs-extra"
 import { convertDiagnosticsToSARIF } from "./sarif"
 import { buildProject } from "./build"
@@ -101,6 +101,11 @@ import { normalizeFloat, normalizeInt } from "../../core/src/cleaners"
 import { microsoftTeamsChannelPostMessage } from "../../core/src/teams"
 import { confirmOrSkipInCI } from "./ci"
 import { readStdIn } from "./stdin"
+import {
+    consoleColors,
+    wrapColor,
+    wrapRgbColor,
+} from "../../core/src/consolecolor"
 
 function getRunDir(scriptId: string) {
     const runId =

@@ -8,10 +8,11 @@ import {
     IMAGE_DETAIL_LOW_WIDTH,
 } from "./constants"
 import { TraceOptions } from "./trace"
-import { logVerbose } from "./util"
+import { logVerbose, toHex } from "./util"
 import { deleteUndefinedValues } from "./cleaners"
 import pLimit from "p-limit"
 import { CancellationOptions, checkCancelled } from "./cancellation"
+import { wrapRgbColor } from "./consolecolor"
 
 async function prepare(
     url: BufferLike,
@@ -208,4 +209,19 @@ export async function imageTileEncodeForLLM(
     )
 
     return await encode(canvas, { ...options, detail: undefined })
+}
+
+export async function renderImageToASCII(url: BufferLike, maxWidth: number) {
+    const image = await prepare(url, { maxWidth, maxHeight: maxWidth })
+    const { width, height } = image
+    let res: string[] = []
+    for (let y = 0; y < height; ++y) {
+        for (let x = 0; x < width; ++x) {
+            const c = image.getPixelColor(x, y)
+            const cc = c ? wrapRgbColor(c, " ", true) : " "
+            res.push(cc, cc)
+        }
+        res.push("\n")
+    }
+    return res.join("")
 }
