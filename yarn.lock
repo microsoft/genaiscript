@@ -7115,10 +7115,10 @@ map-obj@^4.0.0:
   resolved "https://registry.yarnpkg.com/map-obj/-/map-obj-4.3.0.tgz#9304f906e93faae70880da102a9f1df0ea8bb05a"
   integrity sha512-hdN1wVrZbb29eBGiGjJbeP8JbKjq1urkHJ/LIP/NY48MZ1QVXUsQBV1G1zvYFHn1XE06cwjBsOI2K3Ulnj1YXQ==
 
-markdown-it-github-alerts@^0.3.1:
-  version "0.3.1"
-  resolved "https://registry.yarnpkg.com/markdown-it-github-alerts/-/markdown-it-github-alerts-0.3.1.tgz#61c0facf46480af09f0e2b9c00cd9b0e95215169"
-  integrity sha512-WUzfxjr8E4Fh9LTVOIneYT8qQHydkV8cRLXX5/HPpKhRzRQFUuYmNEt7KNBA12V9ZepIIRqQ2lj3haKms2/9Pw==
+markdown-it-github-alerts@0.2.0:
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/markdown-it-github-alerts/-/markdown-it-github-alerts-0.2.0.tgz#5d17813e260ff24ecb107695f8ded300af682cf7"
+  integrity sha512-B9zpYBQBW0EmSMqYKl7k+SgkraN/tfT+ruS3pGDpElfDed/y37QgQIP4q/qW0Qgv07zGqoqFdTnzJiDUWCf2oQ==
 
 markdown-it@^14.1.0:
   version "14.1.0"
