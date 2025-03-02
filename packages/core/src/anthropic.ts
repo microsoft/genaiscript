@@ -532,7 +532,7 @@ export const AnthropicModel = Object.freeze<LanguageModel>({
                 `url`,
                 `[${anthropic.baseURL}](${anthropic.baseURL})`
             )
-        const messagesApi = anthropic.messages
+        const messagesApi = anthropic.beta.messages
         return messagesApi
     }),
     id: MODEL_PROVIDER_ANTHROPIC,
@@ -553,7 +553,7 @@ export const AnthropicBedrockModel = Object.freeze<LanguageModel>({
                 `url`,
                 `[${anthropic.baseURL}](${anthropic.baseURL})`
             )
-        return anthropic.messages
+        return anthropic.beta.messages
     }),
     id: MODEL_PROVIDER_ANTHROPIC_BEDROCK,
     listModels: async () => {
