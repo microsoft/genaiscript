@@ -95,7 +95,9 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
         inner,
     } = options
     const { headers = {}, ...rest } = requestOptions || {}
-    const { provider, model, family, tag } = parseModelIdentifier(req.model)
+    const { provider, model, family, reasoningEffort } = parseModelIdentifier(
+        req.model
+    )
     const { encode: encoder } = await resolveTokenEncoder(family)
 
     const postReq = structuredClone({
@@ -126,12 +128,9 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
                 postReq.max_completion_tokens = postReq.max_tokens
                 delete postReq.max_tokens
             }
-            if (
-                !postReq.reasoning_effort &&
-                ["high", "medium", "low"].includes(tag)
-            ) {
+            if (!postReq.reasoning_effort && reasoningEffort) {
                 postReq.model = family
-                postReq.reasoning_effort = tag as ChatCompletionReasoningEffort
+                postReq.reasoning_effort = reasoningEffort
             }
         }
 

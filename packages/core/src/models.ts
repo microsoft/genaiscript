@@ -8,6 +8,15 @@ import { CancellationOptions } from "./cancellation"
 import { LanguageModelConfiguration } from "./server/messages"
 import { roundWithPrecision } from "./precision"
 import { logModelAliases } from "./modelalias"
+import { ChatCompletionReasoningEffort } from "./chattypes"
+
+export interface ParsedModelType {
+    provider: string
+    family: string
+    model: string
+    tag?: string
+    reasoningEffort?: ChatCompletionReasoningEffort
+}
 
 /**
  * model
@@ -19,19 +28,27 @@ export function parseModelIdentifier(id: string): {
     family: string
     model: string
     tag?: string
+    reasoningEffort?: ChatCompletionReasoningEffort
 } {
     assert(!!id)
+    let reasoningEffort: ChatCompletionReasoningEffort
     const parts = id.split(":")
+    if (/^(high|medium|low)$/.test(parts.at(-1)))
+        reasoningEffort = parts.pop() as ChatCompletionReasoningEffort
+
+    let res: ParsedModelType
     if (parts.length >= 3)
-        return {
+        res = {
             provider: parts[0],
             family: parts[1],
             tag: parts.slice(2).join(":"),
             model: parts.slice(1).join(":"),
         }
     else if (parts.length === 2)
-        return { provider: parts[0], family: parts[1], model: parts[1] }
-    else return { provider: id, family: "*", model: "*" }
+        res = { provider: parts[0], family: parts[1], model: parts[1] }
+    else res = { provider: id, family: "*", model: "*" }
+    if (reasoningEffort) res.reasoningEffort = reasoningEffort
+    return res
 }
 
 export interface ModelConnectionInfo

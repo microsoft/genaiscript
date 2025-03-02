@@ -42,4 +42,48 @@ describe("parseModelIdentifier", () => {
         assert(model === "gpt4")
         assert(family === "gpt4")
     })
+    test("anthropic_bedrock:anthropic.claude-3-7-sonnet-20250219-v1:0", () => {
+        const res = parseModelIdentifier(
+            "anthropic_bedrock:anthropic.claude-3-7-sonnet-20250219-v1:0"
+        )
+        assert.deepEqual(res, {
+            provider: "anthropic_bedrock",
+            family: "anthropic.claude-3-7-sonnet-20250219-v1",
+            model: "anthropic.claude-3-7-sonnet-20250219-v1:0",
+            tag: "0",
+        })
+    })
+    test("anthropic_bedrock:anthropic.claude-3-7-sonnet-20250219-v1:0:high", () => {
+        const res = parseModelIdentifier(
+            "anthropic_bedrock:anthropic.claude-3-7-sonnet-20250219-v1:0:high"
+        )
+        assert.deepEqual(res, {
+            provider: "anthropic_bedrock",
+            family: "anthropic.claude-3-7-sonnet-20250219-v1",
+            model: "anthropic.claude-3-7-sonnet-20250219-v1:0",
+            tag: "0",
+            reasoningEffort: "high",
+        })
+    })
+    test("anthropic:claude-3-7-sonnet-latest", () => {
+        const res = parseModelIdentifier(
+            "anthropic:claude-3-7-sonnet-latest"
+        )
+        assert.deepEqual(res, {
+            provider: "anthropic",
+            family: "claude-3-7-sonnet-latest",
+            model: "claude-3-7-sonnet-latest",
+        })
+    })
+    test("anthropic:claude-3-7-sonnet-latest:high", () => {
+        const res = parseModelIdentifier(
+            "anthropic:claude-3-7-sonnet-latest:high"
+        )
+        assert.deepEqual(res, {
+            provider: "anthropic",
+            family: "claude-3-7-sonnet-latest",
+            model: "claude-3-7-sonnet-latest",
+            reasoningEffort: "high",
+        })
+    })
 })

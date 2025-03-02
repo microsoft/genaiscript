@@ -317,7 +317,9 @@ const completerFactory = (
             retryDelay,
         } = options
         const { headers } = requestOptions || {}
-        const { provider, family: model, tag } = parseModelIdentifier(req.model)
+        const { provider, model, reasoningEffort } = parseModelIdentifier(
+            req.model
+        )
         const { encode: encoder } = await resolveTokenEncoder(model)
 
         const fetch = await createFetch({
@@ -350,7 +352,8 @@ const completerFactory = (
         const reasoningEfforts = MODEL_PROVIDERS.find(
             ({ id }) => id === provider
         ).reasoningEfforts
-        const budget_tokens = reasoningEfforts[req.reasoning_effort || tag]
+        const budget_tokens =
+            reasoningEfforts[req.reasoning_effort || reasoningEffort]
         let max_tokens = req.max_tokens
         if (budget_tokens && (!max_tokens || max_tokens < budget_tokens))
             max_tokens = budget_tokens + ANTHROPIC_MAX_TOKEN
