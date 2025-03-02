@@ -13,7 +13,7 @@ import { parseModelIdentifier } from "./models"
 import { NotSupportedError, serializeError } from "./error"
 import { estimateTokens } from "./tokens"
 import { resolveTokenEncoder } from "./encoders"
-import { Anthropic } from "@anthropic-ai/sdk"
+import type { Anthropic } from "@anthropic-ai/sdk"
 
 import {
     ChatCompletionResponse,
