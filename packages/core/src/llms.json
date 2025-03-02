@@ -217,10 +217,12 @@
             "topLogprobs": false,
             "prediction": false,
             "aliases": {
-                "large": "claude-3-5-sonnet-latest",
+                "large": "claude-3-7-sonnet-latest",
                 "small": "claude-3-5-haiku-latest",
-                "vision": "claude-3-5-sonnet-latest",
-                "reasoning": "claude-3-7-sonnet-latest:high"
+                "vision": "claude-3-7-sonnet-latest",
+                "vision_small": "claude-3-5-sonnet-latest",
+                "reasoning": "claude-3-7-sonnet-latest:high",
+                "reasoning_small": "claude-3-7-sonnet-latest:low"
             },
             "reasoningEfforts": {
                 "low": 1024,
@@ -254,8 +256,12 @@
                 "high": 16384
             },
             "aliases": {
-                "large": "anthropic.claude-3-5-sonnet-20241022-v2:0",
-                "small": "anthropic.claude-3-5-haiku-20241022-v1:0"
+                "reasoning": "anthropic.claude-3-7-sonnet-20250219-v1:0:high",
+                "reasoning_small": "anthropic.claude-3-7-sonnet-20250219-v1:0:low",
+                "large": "anthropic.claude-3-7-sonnet-20250219-v1:0:0",
+                "small": "anthropic.claude-3-5-haiku-20241022-v1:0",
+                "vision": "anthropic.claude-3-7-sonnet-20250219-v1:0:0",
+                "vision_small": "anthropic.claude-3-5-haiku-20241022-v1:0"
             },
             "env": {}
         },

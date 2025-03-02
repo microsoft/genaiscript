@@ -299,7 +299,7 @@ const completerFactory = (
         cfg: LanguageModelConfiguration,
         httpAgent: HttpsProxyAgent<string>,
         fetch: FetchType
-    ) => Promise<Omit<Anthropic.Messages, "batches" | "countTokens">>
+    ) => Promise<Omit<Anthropic.Beta.Messages, "batches" | "countTokens">>
 ) => {
     const completion: ChatCompletionHandler = async (
         req,
@@ -317,7 +317,9 @@ const completerFactory = (
             retryDelay,
         } = options
         const { headers } = requestOptions || {}
-        const { provider, family: model, tag } = parseModelIdentifier(req.model)
+        const { provider, model, reasoningEffort } = parseModelIdentifier(
+            req.model
+        )
         const { encode: encoder } = await resolveTokenEncoder(model)
 
         const fetch = await createFetch({
@@ -350,7 +352,8 @@ const completerFactory = (
         const reasoningEfforts = MODEL_PROVIDERS.find(
             ({ id }) => id === provider
         ).reasoningEfforts
-        const budget_tokens = reasoningEfforts[req.reasoning_effort || tag]
+        const budget_tokens =
+            reasoningEfforts[req.reasoning_effort || reasoningEffort]
         let max_tokens = req.max_tokens
         if (budget_tokens && (!max_tokens || max_tokens < budget_tokens))
             max_tokens = budget_tokens + ANTHROPIC_MAX_TOKEN
@@ -364,7 +367,7 @@ const completerFactory = (
             }
         }
         const messages = convertMessages(req.messages, !!thinking)
-        const mreq: Anthropic.MessageStreamParams = deleteUndefinedValues({
+        const mreq: Anthropic.Beta.MessageCreateParams = deleteUndefinedValues({
             model,
             tools,
             messages,
@@ -374,9 +377,9 @@ const completerFactory = (
             thinking,
             stream: true,
         })
-
-        // to turn on extended outputs
-        // mreq.betas = ["output-128k-2025-02-19"],
+        // https://docs.anthropic.com/en/docs/build-with-claude/extended-thinking#extended-output-capabilities-beta
+        if (/claude-3-7-sonnet/.test(model) && max_tokens >= 128000)
+            mreq.betas = ["output-128k-2025-02-19"]
 
         trace.detailsFenced("✉️ body", mreq, "json")
         trace.appendContent("\n")
@@ -532,7 +535,7 @@ export const AnthropicModel = Object.freeze<LanguageModel>({
                 `url`,
                 `[${anthropic.baseURL}](${anthropic.baseURL})`
             )
-        const messagesApi = anthropic.messages
+        const messagesApi = anthropic.beta.messages
         return messagesApi
     }),
     id: MODEL_PROVIDER_ANTHROPIC,
@@ -553,7 +556,42 @@ export const AnthropicBedrockModel = Object.freeze<LanguageModel>({
                 `url`,
                 `[${anthropic.baseURL}](${anthropic.baseURL})`
             )
-        return anthropic.messages
+        return anthropic.beta.messages
     }),
     id: MODEL_PROVIDER_ANTHROPIC_BEDROCK,
+    listModels: async () => {
+        return {
+            ok: true,
+            models: [
+                {
+                    id: "anthropic.claude-3-7-sonnet-20250219-v1:0",
+                    details: "Claude 3.7 Sonnet",
+                },
+                {
+                    id: "anthropic.claude-3-5-haiku-20241022-v1:0",
+                    details: "Claude 3.5 Haiku",
+                },
+                {
+                    id: "anthropic.claude-3-5-sonnet-20241022-v2:0",
+                    details: "Claude 3.5 Sonnet v2",
+                },
+                {
+                    id: "anthropic.claude-3-5-sonnet-20240620-v1:0",
+                    details: "Claude 3.5 Sonnet",
+                },
+                {
+                    id: "anthropic.claude-3-opus-20240229-v1:0",
+                    details: "Claude 3 Opus",
+                },
+                {
+                    id: "anthropic.claude-3-sonnet-20240229-v1:0",
+                    details: "Claude 3 Sonnet",
+                },
+                {
+                    id: "anthropic.claude-3-haiku-20240307-v1:0",
+                    details: "Claude 3 Haiku",
+                },
+            ],
+        }
+    },
 })

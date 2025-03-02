@@ -152,16 +152,20 @@ type ModelType = OptionsOrString<
     | "openai:gpt-4o"
     | "openai:gpt-4o-mini"
     | "openai:gpt-3.5-turbo"
+    | "openai:o3-mini"
+    | "openai:o3-mini:low"
+    | "openai:o3-mini:medium"
+    | "openai:o3-mini:high"
     | "openai:o1"
     | "openai:o1-mini"
     | "openai:o1-preview"
-    | "github:o3-mini"
     | "github:gpt-4o"
     | "github:gpt-4o-mini"
     | "github:o1"
     | "github:o1-mini"
     | "github:o1-preview"
     | "github:o3-mini"
+    | "github:o3-mini:low"
     | "github:AI21-Jamba-1.5-Large"
     | "github:AI21-Jamba-1-5-Mini"
     | "github:DeepSeek-R1"
@@ -172,12 +176,18 @@ type ModelType = OptionsOrString<
     | "azure:o1-mini"
     | "azure:o1-preview"
     | "azure:o3-mini"
+    | "azure:o3-mini:low"
+    | "azure:o3-mini:medium"
+    | "azure:o3-mini:high"
     | "azure_ai_inference:gpt-4o"
     | "azure_ai_inference:gpt-4o-mini"
     | "azure_ai_inference:o1"
     | "azure_ai_inference:o1-mini"
     | "azure_ai_inference:o1-preview"
     | "azure_ai_inference:o3-mini"
+    | "azure_ai_inference:o3-mini:low"
+    | "azure_ai_inference:o3-mini:medium"
+    | "azure_ai_inference:o3-mini:high"
     | "azure_ai_inference:deepseek-r1"
     | "ollama:marco-o1"
     | "ollama:tulu3"
@@ -193,6 +203,9 @@ type ModelType = OptionsOrString<
     | "ollama:olmo2:7b"
     | "ollama:command-r7b:7b"
     | "anthropic:claude-3-7-sonnet-latest"
+    | "anthropic:claude-3-7-sonnet-latest:low"
+    | "anthropic:claude-3-7-sonnet-latest:medium"
+    | "anthropic:claude-3-7-sonnet-latest:high"
     | "anthropic:claude-3-7-sonnet-20250219"
     | "anthropic:claude-3-5-sonnet-latest"
     | "anthropic:claude-3-5-sonnet-20240620"
@@ -200,8 +213,13 @@ type ModelType = OptionsOrString<
     | "anthropic:claude-3-sonnet-20240229"
     | "anthropic:claude-3-haiku-20240307"
     | "anthropic:claude-2.1"
-    | "anthropic:claude-instant-1.2"
     | "anthropic_bedrock:anthropic.claude-3-7-sonnet-20250219-v1:0"
+    | "anthropic_bedrock:anthropic.claude-3-7-sonnet-20250219-v1:0:low"
+    | "anthropic_bedrock:anthropic.claude-3-7-sonnet-20250219-v1:0:medium"
+    | "anthropic_bedrock:anthropic.claude-3-7-sonnet-20250219-v1:0:high"
+    | "anthropic_bedrock:anthropic.claude-3-5-haiku-20241022-v1:0"
+    | "anthropic_bedrock:anthropic.claude-3-5-sonnet-20241022-v2:0"
+    | "anthropic_bedrock:anthropic.claude-3-5-sonnet-20240620-v1:0"
     | "anthropic_bedrock:anthropic.claude-3-opus-20240229-v1:0"
     | "anthropic_bedrock:anthropic.claude-3-sonnet-20240229-v1:0"
     | "anthropic_bedrock:anthropic.claude-3-haiku-20240307-v1:0"
@@ -301,6 +319,8 @@ interface ModelAliasesOptions {
     modelAliases?: Record<string, string>
 }
 
+type ReasoningEffortType = "high" | "medium" | "low"
+
 interface ModelOptions extends ModelConnectionOptions, ModelTemplateOptions {
     /**
      * Temperature to use. Higher temperature means more hallucination/creativity.
@@ -319,7 +339,7 @@ interface ModelOptions extends ModelConnectionOptions, ModelTemplateOptions {
      * OpenAI o* reasoning models support a reasoning effort parameter.
      * For Clause, these are mapped to thinking budget tokens
      */
-    reasoningEffort?: "high" | "medium" | "low"
+    reasoningEffort?: ReasoningEffortType
 
     /**
      * A list of keywords that should be found in the output.

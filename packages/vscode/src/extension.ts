@@ -12,11 +12,7 @@ import { activateTestController } from "./testcontroller"
 import { activateDocsNotebook } from "./docsnotebook"
 import { activateTraceTreeDataProvider } from "./tracetree"
 import { registerCommand } from "./commands"
-import {
-    DOCS_CONFIGURATION_URL,
-    EXTENSION_ID,
-    TOOL_NAME,
-} from "../../core/src/constants"
+import { EXTENSION_ID, TOOL_NAME } from "../../core/src/constants"
 import type MarkdownIt from "markdown-it"
 import MarkdownItGitHubAlerts from "markdown-it-github-alerts"
 import { activateConnectionInfoTree } from "./connectioninfotree"

@@ -2049,11 +2049,11 @@ Apache License
 
 The following npm packages may be included in this product:
 
- - @aws-sdk/client-cognito-identity@3.750.0
- - @aws-sdk/client-sso@3.750.0
- - @aws-sdk/credential-provider-cognito-identity@3.750.0
+ - @aws-sdk/client-cognito-identity@3.758.0
+ - @aws-sdk/client-sso@3.758.0
+ - @aws-sdk/credential-provider-cognito-identity@3.758.0
  - @aws-sdk/util-user-agent-browser@3.734.0
- - @aws-sdk/util-user-agent-node@3.750.0
+ - @aws-sdk/util-user-agent-node@3.758.0
  - @smithy/eventstream-codec@2.2.0
  - @smithy/eventstream-codec@4.0.1
  - @smithy/middleware-retry@4.0.7
@@ -2275,7 +2275,7 @@ Apache License
 
 The following npm package may be included in this product:
 
- - @aws-sdk/client-bedrock-runtime@3.755.0
+ - @aws-sdk/client-bedrock-runtime@3.758.0
 
 This package contains the following license:
 
@@ -2487,7 +2487,7 @@ The following npm packages may be included in this product:
 
  - @aws-sdk/middleware-host-header@3.734.0
  - @aws-sdk/middleware-recursion-detection@3.734.0
- - @aws-sdk/middleware-user-agent@3.750.0
+ - @aws-sdk/middleware-user-agent@3.758.0
  - @smithy/core@3.1.5
  - @smithy/eventstream-serde-browser@4.0.1
  - @smithy/eventstream-serde-config-resolver@4.0.1
@@ -2714,7 +2714,7 @@ Apache License
 
 The following npm package may be included in this product:
 
- - mathjs@14.2.1
+ - mathjs@14.3.0
 
 This package contains the following license:
 
@@ -2921,8 +2921,8 @@ The following npm packages may be included in this product:
  - @types/http-cache-semantics@4.0.4
  - @types/node-fetch@2.6.12
  - @types/node@16.9.1
- - @types/node@18.19.76
- - @types/node@22.13.5
+ - @types/node@18.19.78
+ - @types/node@22.13.8
  - @types/turndown@5.0.5
  - @types/uuid@9.0.8
  - @types/yauzl@2.10.3
@@ -4946,12 +4946,12 @@ Apache License
 
 The following npm packages may be included in this product:
 
- - @aws-sdk/credential-provider-env@3.750.0
- - @aws-sdk/credential-provider-ini@3.750.0
- - @aws-sdk/credential-provider-node@3.750.0
- - @aws-sdk/credential-providers@3.750.0
+ - @aws-sdk/credential-provider-env@3.758.0
+ - @aws-sdk/credential-provider-ini@3.758.0
+ - @aws-sdk/credential-provider-node@3.758.0
+ - @aws-sdk/credential-providers@3.758.0
  - @aws-sdk/region-config-resolver@3.734.0
- - @aws-sdk/token-providers@3.750.0
+ - @aws-sdk/token-providers@3.758.0
  - @aws-sdk/types@3.734.0
  - @aws-sdk/util-endpoints@3.743.0
  - @aws-sdk/util-locate-window@3.723.0
@@ -5206,9 +5206,9 @@ Apache License
 
 The following npm packages may be included in this product:
 
- - @aws-sdk/credential-provider-process@3.750.0
- - @aws-sdk/credential-provider-sso@3.750.0
- - @aws-sdk/credential-provider-web-identity@3.750.0
+ - @aws-sdk/credential-provider-process@3.758.0
+ - @aws-sdk/credential-provider-sso@3.758.0
+ - @aws-sdk/credential-provider-web-identity@3.758.0
 
 These packages each contain the following license:
 
@@ -6109,9 +6109,9 @@ END OF TERMS AND CONDITIONS
 
 The following npm packages may be included in this product:
 
- - @aws-sdk/core@3.750.0
- - @aws-sdk/credential-provider-http@3.750.0
- - @aws-sdk/nested-clients@3.750.0
+ - @aws-sdk/core@3.758.0
+ - @aws-sdk/credential-provider-http@3.758.0
+ - @aws-sdk/nested-clients@3.758.0
  - pyodide@0.27.3
 
 These packages each contain the following license:
@@ -7905,7 +7905,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 The following npm packages may be included in this product:
 
  - @anthropic-ai/bedrock-sdk@0.12.4
- - @anthropic-ai/sdk@0.37.0
+ - @anthropic-ai/sdk@0.39.0
 
 These packages each contain the following license:
 
@@ -10323,7 +10323,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - @modelcontextprotocol/sdk@1.6.0
+ - @modelcontextprotocol/sdk@1.6.1
 
 This package contains the following license:
 
@@ -10763,7 +10763,7 @@ The following npm packages may be included in this product:
  - temp-dir@3.0.0
  - tempy@3.1.0
  - type-fest@1.4.0
- - type-fest@4.35.0
+ - type-fest@4.36.0
  - uint8array-extras@1.4.0
  - unicorn-magic@0.3.0
  - unique-string@3.0.0
