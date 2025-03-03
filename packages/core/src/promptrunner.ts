@@ -53,8 +53,10 @@ async function resolveExpansionVars(
         referenceFiles.length || workspaceFiles.length
             ? referenceFiles
             : templateFiles,
-        undefined,
-        template.accept
+        {
+            applyGitIgnore: false,
+            accept: template.accept,
+        }
     )
     for (let filename of filenames) {
         filename = relativePath(root, filename)
