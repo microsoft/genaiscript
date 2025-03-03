@@ -3729,7 +3729,7 @@ interface ChatGenerationContext extends ChatTurnGenerationContext {
     generateImage(
         prompt: string,
         options?: ImageGenerationOptions
-    ): Promise<WorkspaceFile>
+    ): Promise<{ image: WorkspaceFile; revisedPrompt?: string }>
 }
 
 interface GenerationOutput {

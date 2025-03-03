@@ -38,6 +38,7 @@ async function prepare(
     // https://platform.openai.com/docs/guides/vision/calculating-costs#managing-images
     // If the URL is a string, resolve it to a data URI
     const buffer = await resolveBufferLike(url)
+    /*
     logVerbose(
         `image: encoding ${prettyBytes(buffer.length)} with ${Object.entries(
             deleteUndefinedValues({
@@ -54,7 +55,7 @@ async function prepare(
         )
             .map(([k, v]) => `${k}=${JSON.stringify(v)}`)
             .join(", ")}`
-    )
+    )*/
 
     checkCancelled(cancellationToken)
     // Read the image using Jimp
@@ -225,7 +226,7 @@ export async function renderImageToTerminal(
     const { columns, rows, label } = options
     const image = await prepare(url, {
         maxWidth: Math.max(16, Math.min(126, (columns >> 1) - 2)),
-        maxHeight: Math.max(16, Math.min(126, (rows >> 1) - 2)),
+        maxHeight: Math.max(16, Math.min(126, rows - 4)),
     })
     const { width, height } = image
     const title = label ? ellipse(label, width * 2 - 2) : ""
