@@ -175,10 +175,9 @@ export async function resolveModelConnectionInfo(
         return {
             info: { error: "missing error information", model: undefined },
         }
-    const { provider } = parseModelIdentifier(hint)
     // supports candidate if no model hint or hint is a model alias
     const resolved = resolveModelAlias(hint)
-    const supportsCandidates = !provider
+    const supportsCandidates = !!resolved.model
     const modelId = resolved.model
     let candidates = supportsCandidates ? resolved.candidates : undefined
 
