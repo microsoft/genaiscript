@@ -2,7 +2,6 @@
 // like file operations, web search, fuzzy search, vector search, and more.
 // The context is essential for executing prompts within a project environment.
 
-import { host } from "./host"
 import { arrayify, assert, dotGenaiscriptPath } from "./util"
 import { runtimeHost } from "./host"
 import { MarkdownTrace } from "./trace"

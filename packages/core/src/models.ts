@@ -156,6 +156,7 @@ export async function resolveModelConnectionInfo(
     conn: ModelConnectionOptions,
     options?: {
         model?: string
+        defaultModel?: string
         token?: boolean
     } & TraceOptions &
         CancellationOptions
@@ -163,8 +164,17 @@ export async function resolveModelConnectionInfo(
     info: ModelConnectionInfo
     configuration?: LanguageModelConfiguration
 }> {
-    const { trace, token: askToken, cancellationToken } = options || {}
-    const hint = options?.model || conn.model
+    const {
+        trace,
+        token: askToken,
+        defaultModel,
+        cancellationToken,
+    } = options || {}
+    const hint = options?.model || conn.model || defaultModel
+    if (!hint)
+        return {
+            info: { error: "missing error information", model: undefined },
+        }
     const { provider } = parseModelIdentifier(hint)
     // supports candidate if no model hint or hint is a model alias
     const resolved = resolveModelAlias(hint)

@@ -55,7 +55,7 @@ import {
 } from "./chat"
 import { checkCancelled } from "./cancellation"
 import { ChatCompletionMessageParam } from "./chattypes"
-import { parseModelIdentifier, resolveModelConnectionInfo } from "./models"
+import { resolveModelConnectionInfo } from "./models"
 import {
     CHAT_REQUEST_PER_MODEL_CONCURRENT_LIMIT,
     TOKEN_MISSING_INFO,
@@ -65,6 +65,7 @@ import {
     TRANSCRIPTION_MODEL_ID,
     SPEECH_MODEL_ID,
     IMAGE_GENERATION_MODEL_ID,
+    LARGE_MODEL_ID,
 } from "./constants"
 import { addFallbackToolSystems, resolveSystems, resolveTools } from "./systems"
 import { callExpander } from "./expander"
@@ -701,6 +702,7 @@ export function createChatGenerationContext(
                 conn,
                 {
                     trace: transcriptionTrace,
+                    defaultModel: TRANSCRIPTION_MODEL_ID,
                     cancellationToken,
                     token: true,
                 }
@@ -806,6 +808,7 @@ export function createChatGenerationContext(
                 conn,
                 {
                     trace: speechTrace,
+                    defaultModel: SPEECH_MODEL_ID,
                     cancellationToken,
                     token: true,
                 }
@@ -882,6 +885,8 @@ export function createChatGenerationContext(
                 genOptions,
                 {
                     trace: runTrace,
+                    defaultModel: LARGE_MODEL_ID,
+                    cancellationToken,
                     token: true,
                 }
             )
@@ -1115,6 +1120,8 @@ export function createChatGenerationContext(
                 conn,
                 {
                     trace: imgTrace,
+                    defaultModel: IMAGE_GENERATION_MODEL_ID,
+                    cancellationToken,
                     token: true,
                 }
             )
