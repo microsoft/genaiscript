@@ -1433,7 +1433,7 @@ interface GitIgnoreFilterOptions {
     /**
      * Disable filtering files based on the `.gitignore` file.
      */
-    ignoreGitIgnore?: false | undefined
+    ignoreGitIgnore?: true | undefined
 }
 
 interface FileFilterOptions extends GitIgnoreFilterOptions {
