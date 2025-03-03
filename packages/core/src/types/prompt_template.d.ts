@@ -2301,13 +2301,19 @@ interface Parsers {
      * @param text
      * @param language
      */
-    unfence(text: string, language: string): string
+    unfence(text: string, language?: ElementOrArray<string>): string
 
     /**
      * Erase <think>...</think> tags
      * @param text
      */
     unthink(text: string): string
+
+    /**
+     * Remove left indentation
+     * @param text
+     */
+    dedent(templ: TemplateStringsArray | string, ...values: unknown[]): string
 }
 
 interface YAML {

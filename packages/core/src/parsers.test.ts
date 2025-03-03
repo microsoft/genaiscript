@@ -152,4 +152,32 @@ describe("parsers", async () => {
         )
         assert.strictEqual(result, "43ebfdc72c65bbf157ff") // Example hash value
     })
+
+    test("dedent", () => {
+        const indentedText = `
+            This is an indented line
+                This is more indented
+            Back to first level
+        `
+        const result = parsers.dedent(indentedText)
+        assert.strictEqual(
+            result,
+`This is an indented line
+    This is more indented
+Back to first level`
+)
+    })
+
+    test("unthink", () => {
+        const text =
+            "I think the answer is 42. <think>Actually, it should be 43</think>"
+        const result = parsers.unthink(text)
+        assert.strictEqual(result, "I think the answer is 42. ")
+    })
+
+    test("tokens", () => {
+        const result = parsers.tokens("Hello world")
+        assert(typeof result === "number")
+        assert(result > 0)
+    })
 })

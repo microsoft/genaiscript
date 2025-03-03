@@ -6,7 +6,7 @@ import { arrayify } from "./util"
  * @param language - The language used in the fence.
  * @returns The text without fences.
  */
-export function unfence(text: string, language: ElementOrArray<string>) {
+export function unfence(text: string, language?: ElementOrArray<string>) {
     if (!text) return text
 
     language = arrayify(language)

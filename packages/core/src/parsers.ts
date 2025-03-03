@@ -31,6 +31,7 @@ import { hash } from "./crypto"
 import { GROQEvaluate } from "./groq"
 import { unthink } from "./think"
 import { CancellationOptions } from "./cancellation"
+import { dedent } from "./indent"
 
 export async function createParsers(
     options: {
@@ -124,5 +125,6 @@ export async function createParsers(
         unfence: unfence,
         GROQ: GROQEvaluate,
         unthink: unthink,
+        dedent: dedent,
     })
 }
