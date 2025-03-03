@@ -109,7 +109,7 @@ export async function convertFiles(
 
     // resolve files
     const applyGitIgnore =
-        options.ignoreGitIgnore !== false && script.ignoreGitIgnore !== false
+        options.ignoreGitIgnore !== true && script.ignoreGitIgnore !== true
     const resolvedFiles = new Set<string>()
     for (let arg of fileGlobs) {
         if (HTTPS_REGEX.test(arg)) {

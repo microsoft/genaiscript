@@ -1,7 +1,6 @@
 import { HTTPS_REGEX } from "./constants"
 import { host } from "./host"
 import { utf8Decode, utf8Encode } from "./util"
-import { uniq } from "es-toolkit"
 
 export function changeext(filename: string, newext: string) {
     if (!newext.startsWith(".")) newext = "." + newext
@@ -51,17 +50,24 @@ export async function writeJSON(fn: string, obj: any) {
 
 export async function expandFiles(
     files: string[],
-    excludedFiles?: string[],
-    accept?: string
+    options?: {
+        excludedFiles?: string[]
+        accept?: string
+        applyGitIgnore?: boolean
+    }
 ) {
     if (!files.length) return []
 
+    const { excludedFiles, accept, applyGitIgnore } = options || {}
     const urls = files
         .filter((f) => HTTPS_REGEX.test(f))
         .filter((f) => !excludedFiles?.includes(f))
     const others = await host.findFiles(
         files.filter((f) => !HTTPS_REGEX.test(f)),
-        { ignore: excludedFiles?.filter((f) => !HTTPS_REGEX.test(f)) }
+        {
+            ignore: excludedFiles?.filter((f) => !HTTPS_REGEX.test(f)),
+            applyGitIgnore,
+        }
     )
 
     const res = new Set([...urls, ...others])
@@ -83,7 +89,10 @@ export async function expandFileOrWorkspaceFiles(
     files: (string | WorkspaceFile)[]
 ): Promise<WorkspaceFile[]> {
     const filesPaths = await expandFiles(
-        files.filter((f) => typeof f === "string")
+        files.filter((f) => typeof f === "string"),
+        {
+            applyGitIgnore: false,
+        }
     )
     const workspaceFiles = files.filter(
         (f) => typeof f === "object"

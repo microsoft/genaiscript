@@ -274,7 +274,7 @@ export async function runScriptInternal(
     )
     if (!script) throw new Error(`script ${scriptId} not found`)
     const applyGitIgnore =
-        options.ignoreGitIgnore !== false && script.ignoreGitIgnore !== false
+        options.ignoreGitIgnore !== true && script.ignoreGitIgnore !== true
     const resolvedFiles = new Set<string>()
     for (let arg of files) {
         if (HTTPS_REGEX.test(arg)) {

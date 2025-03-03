@@ -154,7 +154,7 @@ export async function parseAnyToJSON(
  * @param files - An array of files or glob patterns to process.
  */
 export async function jsonl2json(files: string[]) {
-    for (const file of await expandFiles(files)) {
+    for (const file of await expandFiles(files, { applyGitIgnore: false })) {
         if (!isJSONLFilename(file)) {
             // Skips files that are not JSONL
             console.log(`skipping ${file}`)
@@ -175,12 +175,16 @@ export async function jsonl2json(files: string[]) {
  */
 export async function parseTokens(
     filesGlobs: string[],
-    options: { excludedFiles: string[]; model: string }
+    options: {
+        excludedFiles: string[]
+        model: string
+        ignoreGitIgnore: boolean
+    }
 ) {
     const { model } = options || {}
     const { encode: encoder } = await resolveTokenEncoder(model)
 
-    const files = await expandFiles(filesGlobs, options?.excludedFiles)
+    const files = await expandFiles(filesGlobs, options)
     console.log(`parsing ${files.length} files`)
     let text = ""
     for (const file of files) {

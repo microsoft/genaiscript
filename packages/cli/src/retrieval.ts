@@ -31,6 +31,7 @@ export async function retrievalSearch(
         topK: string
         name: string
         embeddingsModel: string
+        ignoreGitIgnore: boolean
     }
 ) {
     // Destructure options with default values
@@ -39,13 +40,17 @@ export async function retrievalSearch(
         name: indexName,
         topK,
         embeddingsModel,
+        ignoreGitIgnore,
     } = options || {}
 
     // Expand file globs and map to WorkspaceFile object
     // Excludes specified files
-    const files = (await expandFiles(filesGlobs, excludedFiles)).map(
-        (filename) => <WorkspaceFile>{ filename }
-    )
+    const files = (
+        await expandFiles(filesGlobs, {
+            excludedFiles,
+            applyGitIgnore: !ignoreGitIgnore,
+        })
+    ).map((filename) => <WorkspaceFile>{ filename })
 
     // Resolve the contents of the files to ensure they can be processed
     await resolveFileContents(files)
@@ -82,6 +87,7 @@ export async function retrievalFuzz(
     options: {
         excludedFiles: string[]
         topK: string
+        ignoreGitIgnore: boolean
     }
 ) {
     // Destructure options with default values
@@ -94,7 +100,7 @@ export async function retrievalFuzz(
     if (!excludedFiles?.length) excludedFiles = ["**/node_modules/**"]
 
     // Expand file globs and resolve the list of files
-    const files = await expandFiles(filesGlobs, excludedFiles)
+    const files = await expandFiles(filesGlobs, options)
 
     // Log the number of files being searched for transparency
     console.log(`searching '${q}' in ${files.length} files`)
