@@ -669,6 +669,8 @@ export async function OpenAIImageGeneration(
         if (!res.ok)
             return { image: undefined, error: (await res.json())?.error }
         const j = await res.json()
+        if (j.data[0]?.revised_prompt)
+            trace.itemValue(`revised prompt`, j.data[0].revised_prompt)
         const buffer = fromBase64(j.data[0].b64_json)
         return { image: new Uint8Array(buffer) } satisfies CreateImageResult
     } catch (e) {
