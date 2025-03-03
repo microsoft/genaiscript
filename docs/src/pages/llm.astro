@@ -1,0 +1,32 @@
+---
+import { getCollection } from "astro:content"
+import { readFile } from "node:fs/promises"
+
+// Replace 'blog' with your collection name if needed.
+const items = await getCollection("docs")
+const llmsTxt = await readFile("public/llms.txt", "utf8")
+
+// You can add the content to your markdown output later
+// Convert each item into markdown format.
+const markdown = [
+    `# GenAIScript Documentation
+This page contains all the documentation for GenAIScript.
+- https://github.com/microsoft/genaiscript
+- https://genaiscript.github.io/`,
+    `## llms.txt
+${llmsTxt}`,
+    ...items.map((item) => {
+        const title = item.data.title
+        const description = item.data.description || ""
+        const body = item.body || ""
+        return `## ${title}\n${description}\n${body}\n`
+    }),
+].join("\n\n------------------------------\n\n")
+
+// Return a Response with text/markdown content.
+return new Response(markdown, {
+    headers: {
+        "Content-Type": "text/markdown; charset=utf-8",
+    },
+})
+---
