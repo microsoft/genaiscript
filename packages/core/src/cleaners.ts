@@ -1,3 +1,19 @@
+export function arrayify<T>(
+    a: T | T[],
+    options?: { filterEmpty?: boolean }
+): T[] {
+    const { filterEmpty } = options || {}
+
+    let r: T[]
+    if (a === undefined) r = []
+    else if (Array.isArray(a)) r = a.slice(0)
+    else r = [a]
+
+    if (filterEmpty) return r.filter((f) => !!f)
+
+    return r
+}
+
 export function deleteUndefinedValues<T extends Record<string, any>>(o: T): T {
     if (typeof o === "object")
         for (const k in o) if (o[k] === undefined) delete o[k]

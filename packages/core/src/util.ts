@@ -2,6 +2,7 @@ import { GENAISCRIPT_FOLDER, HTTPS_REGEX } from "./constants"
 import { isCancelError, serializeError } from "./error"
 import { host } from "./host"
 import { YAMLStringify } from "./yaml"
+import { arrayify as arrayify_ } from "./cleaners"
 
 // chunk string into chunks of size n
 export function chunkString(s: string, n: number = 2 << 14) {
@@ -22,21 +23,7 @@ export function strcmp(a: string, b: string) {
     else return 1
 }
 
-export function arrayify<T>(
-    a: T | T[],
-    options?: { filterEmpty?: boolean }
-): T[] {
-    const { filterEmpty } = options || {}
-
-    let r: T[]
-    if (a === undefined) r = []
-    else if (Array.isArray(a)) r = a.slice(0)
-    else r = [a]
-
-    if (filterEmpty) return r.filter((f) => !!f)
-
-    return r
-}
+export const arrayify = arrayify_
 
 export function toArray<T>(a: ArrayLike<T>): T[] {
     if (!a) return undefined

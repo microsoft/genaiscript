@@ -1,4 +1,4 @@
-import { arrayify } from "./util"
+import { arrayify } from "./cleaners"
 
 /**
  * Remove code fences from a fenced block for the specified language.
