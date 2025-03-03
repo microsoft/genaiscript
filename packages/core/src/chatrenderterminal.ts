@@ -87,7 +87,7 @@ function renderToolCall(
     const width = columns - 2
     return wrapColor(
         CONSOLE_COLOR_DEBUG,
-        ellipse(`├──📠 tool ${call.function.name}`, columns - 2) +
+        ellipse(`├──📠 tool ${call.function.name} (${call.id})`, columns - 2) +
             `\n` +
             (call.function.arguments
                 ? wrapColor(
