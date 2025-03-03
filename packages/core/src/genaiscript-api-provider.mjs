@@ -87,7 +87,7 @@ class GenAIScriptApiProvider {
             logger.error(e)
             return {
                 output: { text: "" },
-                error: e,
+                error: e?.message || (e + ""),
             }
         }
     }
