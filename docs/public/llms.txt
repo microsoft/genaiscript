@@ -16,19 +16,11 @@
 
 ## Reference
 
-- [Settings](https://microsoft.github.io/genaiscript/reference/vscode/settings.md)
 - [Run Command](https://microsoft.github.io/genaiscript/reference/cli/run.md)
 - [Commands](https://microsoft.github.io/genaiscript/reference/cli/commands.md)
-- [Scripts - YAML](https://microsoft.github.io/genaiscript/reference/scripts/yaml.md)
+- [Scripts](https://microsoft.github.io/genaiscript/reference/scripts.md)
 
-## Blogs
-
-- [Support for Agentic Tools](https://microsoft.github.io/genaiscript/blog/support-for-agentic-tools.md)
-- [Readme Maintenance](https://microsoft.github.io/genaiscript/blog/readme-maintenance.md)
-- [Gentle Introduction to GenAIScript](https://microsoft.github.io/genaiscript/blog/gentle-introduction-to-genaiscript.md)
-- [Creating Release Notes with GenAI](https://microsoft.github.io/genaiscript/blog/creating-release-notes-with-genai.md)
-- [Automatic Web Page Content Analysis with GenAIScript](https://microsoft.github.io/genaiscript/blog/automatic-web-page-content-analysis-with-genaiscript.md)
-
-## FAQs
+## Others
 
 - [FAQ](https://microsoft.github.io/genaiscript/faq.md)
+- [All Documentation As A Single File](https://microsoft.github.io/genaiscript/llm)
