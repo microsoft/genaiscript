@@ -267,6 +267,10 @@ type ModelTranscriptionType = OptionsOrString<
     "openai:whisper-1" | "whisperasr:default"
 >
 
+type ModelImageGenerationType = OptionsOrString<
+    "openai:dall-e-2" | "openai:dall-e-3"
+>
+
 type ModelProviderType = OptionsOrString<
     | "openai"
     | "azure"
@@ -3537,6 +3541,10 @@ type BufferLike =
 
 type TranscriptionModelType = OptionsOrString<"openai:whisper-1">
 
+interface ImageGenerationOptions {
+    model?: OptionsOrString<ModelImageGenerationType>
+}
+
 interface TranscriptionOptions {
     /**
      * Model to use for transcription. By default uses the `transcribe` alias.
@@ -3709,6 +3717,10 @@ interface ChatGenerationContext extends ChatTurnGenerationContext {
         options?: TranscriptionOptions
     ): Promise<TranscriptionResult>
     speak(text: string, options?: SpeechOptions): Promise<SpeechResult>
+    generateImage(
+        prompt: string,
+        options?: ImageGenerationOptions
+    ): Promise<WorkspaceFile>
 }
 
 interface GenerationOutput {

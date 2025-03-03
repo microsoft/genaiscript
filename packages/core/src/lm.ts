@@ -52,5 +52,6 @@ export function resolveLanguageModel(provider: string): LanguageModel {
         listModels: features?.listModels !== false,
         transcribe: features?.transcribe,
         speech: features?.speech,
+        imageGeneration: features?.imageGeneration,
     })
 }

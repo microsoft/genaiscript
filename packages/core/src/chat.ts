@@ -153,6 +153,25 @@ export type SpeechFunction = (
     options: TraceOptions & CancellationOptions
 ) => Promise<CreateSpeechResult>
 
+export type CreateImageRequest = {
+    model: string
+    prompt: string
+    quality?: "hd"
+    size?: string
+    style?: string
+}
+
+export type CreateImageResult = {
+    image: Uint8Array
+    error?: SerializedError
+}
+
+export type ImageGenerationFunction = (
+    req: CreateImageRequest,
+    cfg: LanguageModelConfiguration,
+    options: TraceOptions & CancellationOptions
+) => Promise<CreateImageResult>
+
 export interface LanguageModel {
     id: string
     completer?: ChatCompletionHandler
@@ -160,6 +179,7 @@ export interface LanguageModel {
     pullModel?: PullModelFunction
     transcriber?: TranscribeFunction
     speaker?: SpeechFunction
+    imageGenerator?: ImageGenerationFunction
 }
 
 async function runToolCalls(

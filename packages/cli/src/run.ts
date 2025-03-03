@@ -40,6 +40,7 @@ import {
     CONSOLE_COLOR_REASONING,
     REASONING_END_MARKER,
     REASONING_START_MARKER,
+    LARGE_MODEL_ID,
 } from "../../core/src/constants"
 import { isCancelError, errorMessage } from "../../core/src/error"
 import { GenerationResult } from "../../core/src/server/messages"
@@ -412,6 +413,7 @@ export async function runScriptInternal(
         const { info } = await resolveModelConnectionInfo(script, {
             trace,
             model: options.model,
+            defaultModel: LARGE_MODEL_ID,
             token: true,
         })
         if (info.error) {

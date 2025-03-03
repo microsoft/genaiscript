@@ -26,7 +26,6 @@ def(
         maxTokens: 12000,
     }
 )
-def("GENAISCRIPT", await workspace.readText("README.md"))
 
 $`## Role
 You are an expert developer.
@@ -36,5 +35,4 @@ Review the current issue and respond to the conversation.
 
 - The <TITLE>, <BODY>, and <COMMENTS> are provided below.
 - do NOT suggest start a pull request.
-- You can find more informationa about the current project in <GENAISCRIPT>.
 `

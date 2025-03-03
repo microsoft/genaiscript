@@ -9,6 +9,7 @@
             "transcribe": true,
             "speech": true,
             "listModels": true,
+            "imageGeneration": true,
             "aliases": {
                 "large": "gpt-4o",
                 "small": "gpt-4o-mini",
@@ -18,7 +19,8 @@
                 "reasoning": "o1",
                 "reasoning_small": "o1-mini",
                 "transcription": "whisper-1",
-                "speech": "tts-1"
+                "speech": "tts-1",
+                "image": "dall-e-3"
             },
             "env": {
                 "OPENAI_API_KEY": {
@@ -35,11 +37,12 @@
             "id": "azure",
             "detail": "Azure OpenAI deployment",
             "url": "https://azure.microsoft.com/en-us/products/ai-services/openai-service",
-            "listModels": false,
+            "listModels": true,
             "bearerToken": false,
             "prediction": false,
             "transcribe": true,
             "speech": true,
+            "imageGeneration": true,
             "aliases": {},
             "env": {
                 "AZURE_OPENAI_API_ENDPOINT": {

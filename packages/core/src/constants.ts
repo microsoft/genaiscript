@@ -70,6 +70,8 @@ export const LARGE_MODEL_ID = "large"
 export const VISION_MODEL_ID = "vision"
 export const TRANSCRIPTION_MODEL_ID = "transcription"
 export const SPEECH_MODEL_ID = "speech"
+export const IMAGE_GENERATION_MODEL_ID = "image"
+export const EMBEDDINGS_MODEL_ID = "embeddings"
 export const DEFAULT_FENCE_FORMAT: FenceFormat = "xml"
 export const DEFAULT_TEMPERATURE = 0.8
 export const CACHE_LLMREQUEST_PREFIX = "genaiscript/cache/llm/"
@@ -225,6 +227,7 @@ export const MODEL_PROVIDERS = Object.freeze<
         speech?: boolean
         tokenless?: boolean
         hidden?: boolean
+        imageGeneration?: boolean
         reasoningEfforts?: Record<string, number>
         aliases?: Record<string, string>
         env?: Record<

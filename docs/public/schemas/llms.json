@@ -88,6 +88,10 @@
                         "type": "boolean",
                         "description": "Indicates if connection without token is allowed"
                     },
+                    "imageGeneration": {
+                        "type": "boolean",
+                        "description": "Indicates if image generation is supported"
+                    },
                     "reasoningEfforts": {
                         "type": "object",
                         "description": "Reasoning effort configuration",

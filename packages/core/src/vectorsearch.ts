@@ -8,6 +8,7 @@ import { resolveModelConnectionInfo } from "./models"
 import { runtimeHost, host } from "./host"
 import {
     AZURE_OPENAI_API_VERSION,
+    EMBEDDINGS_MODEL_ID,
     MODEL_PROVIDER_AZURE_OPENAI,
     MODEL_PROVIDER_AZURE_SERVERLESS_MODELS,
     MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI,
@@ -200,6 +201,7 @@ export async function vectorSearch(
             },
             {
                 token: true,
+                defaultModel: EMBEDDINGS_MODEL_ID,
             }
         )
         if (info.error) throw new Error(info.error)

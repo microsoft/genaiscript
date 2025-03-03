@@ -5,7 +5,12 @@ import {
 } from "./constants"
 import { errorMessage, serializeError } from "./error"
 import { createFetch } from "./fetch"
-import { OpenAIChatCompletion } from "./openai"
+import {
+    OpenAIChatCompletion,
+    OpenAIImageGeneration,
+    OpenAISpeech,
+    OpenAITranscribe,
+} from "./openai"
 import { runtimeHost } from "./host"
 
 const listModels: ListModelsFunction = async (cfg, options) => {
@@ -94,4 +99,7 @@ export const AzureOpenAIModel = Object.freeze<LanguageModel>({
     id: MODEL_PROVIDER_AZURE_OPENAI,
     completer: OpenAIChatCompletion,
     listModels,
+    transcriber: OpenAITranscribe,
+    speaker: OpenAISpeech,
+    imageGenerator: OpenAIImageGeneration,
 })
