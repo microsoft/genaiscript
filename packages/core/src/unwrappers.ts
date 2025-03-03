@@ -1,13 +1,20 @@
+import { arrayify } from "./util"
+
 /**
  * Remove code fences from a fenced block for the specified language.
  * @param text - The text containing the fenced block.
  * @param language - The language used in the fence.
  * @returns The text without fences.
  */
-export function unfence(text: string, language: string) {
+export function unfence(text: string, language: ElementOrArray<string>) {
     if (!text) return text
 
-    const startRx = new RegExp(`^[\r\n\s]*(\`{3,})${language}\s*\r?\n`, "i")
+    language = arrayify(language)
+    const lg = language
+        .filter((s) => s !== undefined && s !== null)
+        .map((l) => l.replace(/[^a-z0-9_]/gi, ""))
+        .join("|")
+    const startRx = new RegExp(`^[\r\n\s]*(\`{3,})(${lg})\s*\r?\n`, "i")
     const mstart = startRx.exec(text)
     if (mstart) {
         const n = mstart[1].length

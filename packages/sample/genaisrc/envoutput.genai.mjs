@@ -2,7 +2,7 @@ const { output } = env
 
 for (let i = 1; i <= 6; i++) output.heading(i, "heading " + i)
 
-$`Write a poem`
+$`Write 2 word poem`
 
 output.fence(
     `---
@@ -63,3 +63,8 @@ output.image(
     "https://github.com/microsoft/genaiscript/blob/main/docs/public/images/favicon.png?raw=true",
     "icon"
 )
+
+output.detailsFenced("A", "AAA")
+output.detailsFenced("B", "BBB")
+output.detailsFenced("C", "CCC")
+output.detailsFenced("D", "DDD")
