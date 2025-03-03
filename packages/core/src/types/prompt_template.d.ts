@@ -3543,6 +3543,15 @@ type TranscriptionModelType = OptionsOrString<"openai:whisper-1">
 
 interface ImageGenerationOptions {
     model?: OptionsOrString<ModelImageGenerationType>
+    quality?: "hd"
+    size?: OptionsOrString<
+        "256x256",
+        "512x512",
+        "1024x1024",
+        "1024x1792",
+        "1792x1024"
+    >
+    style?: OptionsOrString<"vivid", "natural">
 }
 
 interface TranscriptionOptions {
@@ -3720,7 +3729,7 @@ interface ChatGenerationContext extends ChatTurnGenerationContext {
     generateImage(
         prompt: string,
         options?: ImageGenerationOptions
-    ): Promise<WorkspaceFile>
+    ): Promise<{ image: WorkspaceFile; revisedPrompt?: string }>
 }
 
 interface GenerationOutput {

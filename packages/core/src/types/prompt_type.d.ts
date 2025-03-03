@@ -349,10 +349,10 @@ declare function speak(
 
 /**
  * Generate an image and return the workspace file.
- * @param prompt 
- * @param options 
+ * @param prompt
+ * @param options
  */
 declare function generateImage(
     prompt: string,
     options?: ImageGenerationOptions
-): Promise<WorkspaceFile>
+): Promise<{ image: WorkspaceFile; revisedPrompt?: string }>

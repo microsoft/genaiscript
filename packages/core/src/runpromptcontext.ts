@@ -42,7 +42,11 @@ import {
 import { lastAssistantReasoning, renderShellOutput } from "./chatrender"
 import { jinjaRender } from "./jinja"
 import { mustacheRender } from "./mustache"
-import { imageEncodeForLLM, imageTileEncodeForLLM } from "./image"
+import {
+    imageEncodeForLLM,
+    imageTileEncodeForLLM,
+    renderImageToTerminal,
+} from "./image"
 import { delay, uniq } from "es-toolkit"
 import {
     addToolDefinitionsMessage,
@@ -97,6 +101,8 @@ import { fileTypeFromBuffer } from "./filetype"
 import { deleteUndefinedValues } from "./cleaners"
 import { sliceData } from "./tidy"
 import { toBase64 } from "@smithy/util-base64"
+import { consoleColors } from "./consolecolor"
+import { terminalSize } from "./terminal"
 
 export function createChatTurnGenerationContext(
     options: GenerationOptions,
@@ -1108,11 +1114,12 @@ export function createChatGenerationContext(
     const generateImage = async (
         prompt: string,
         options?: ImageGenerationOptions
-    ): Promise<WorkspaceFile> => {
+    ): Promise<{ image: WorkspaceFile; revisedPrompt?: string }> => {
         if (!prompt) throw new Error("prompt is missing")
 
         const imgTrace = trace.startTraceDetails("🖼️ generate image")
         try {
+            const { style, quality, size } = options || {}
             const conn: ModelConnectionOptions = {
                 model: options?.model || IMAGE_GENERATION_MODEL_ID,
             }
@@ -1146,6 +1153,9 @@ export function createChatGenerationContext(
             const req = deleteUndefinedValues({
                 model: configuration.model,
                 prompt,
+                size,
+                quality,
+                style,
             }) satisfies CreateImageRequest
             const res = await imageGenerator(req, configuration, {
                 trace: imgTrace,
@@ -1160,13 +1170,24 @@ export function createChatGenerationContext(
             const filename = dotGenaiscriptPath("image", h + "." + ext)
             await host.writeFile(filename, res.image)
 
-            logVerbose(`image: ${filename}`)
+            if (consoleColors) {
+                const size = terminalSize()
+                process.stderr.write(
+                    await renderImageToTerminal(res.image, {
+                        ...size,
+                        label: filename,
+                    })
+                )
+            } else logVerbose(`image: ${filename}`)
 
             return {
-                filename,
-                encoding: "base64",
-                content: toBase64(res.image),
-            } satisfies WorkspaceFile
+                image: {
+                    filename,
+                    encoding: "base64",
+                    content: toBase64(res.image),
+                } satisfies WorkspaceFile,
+                revisedPrompt: res.revisedPrompt,
+            }
         } finally {
             imgTrace.endDetails()
         }

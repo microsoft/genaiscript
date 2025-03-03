@@ -161,9 +161,10 @@ export type CreateImageRequest = {
     style?: string
 }
 
-export type CreateImageResult = {
+export interface CreateImageResult {
     image: Uint8Array
     error?: SerializedError
+    revisedPrompt?: string
 }
 
 export type ImageGenerationFunction = (

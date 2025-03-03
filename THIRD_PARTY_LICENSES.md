@@ -6045,7 +6045,7 @@ third-party archives.
 
 The following npm package may be included in this product:
 
- - typescript@5.7.3
+ - typescript@5.8.2
 
 This package contains the following license:
 

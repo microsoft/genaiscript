@@ -16,7 +16,7 @@ const contentTypes: Record<string, string> = {
  */
 export function fenceMD(t: string, contentType?: string) {
     if (t === undefined) return undefined
-    contentType = contentTypes[contentType] || contentType
+    contentType = contentTypes[contentType] || contentType || ""
     let f = "```"
     while (t.includes(f) && f.length < 8) f += "`" // Extend fence if necessary
     return `\n${f}${contentType}\n${trimNewlines(t)}\n${f}\n`

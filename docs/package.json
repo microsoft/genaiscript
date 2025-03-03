@@ -28,7 +28,7 @@
     "starlight-blog": "^0.18.0",
     "starlight-links-validator": "^0.14.3",
     "starlight-package-managers": "^0.10.0",
-    "typescript": "5.7.3",
+    "typescript": "5.8.2",
     "zx": "^8.3.2"
   }
 }
