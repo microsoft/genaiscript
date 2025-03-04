@@ -17,6 +17,10 @@ script({
             type: "string",
             enum: ["aaa", "bbbb", "bbb"],
         },
+        suggested: {
+            type: "string",
+            uiSuggestions: ["a", "b", "c"],
+        },
         stringSchema: {
             type: "string",
             default: "efg",

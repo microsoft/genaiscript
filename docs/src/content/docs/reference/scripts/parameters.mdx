@@ -100,6 +100,16 @@ Some additional, non-standard properties are used to provide additional informat
 }
 ```
 
+- `uiSuggestions` to provide a list of suggestions for a `string` type. The suggestions populate the dropdown in the UI
+but allow for other values as well.
+
+```json
+{
+    "type": "string",
+    "uiSuggestions": ["San Francisco", "New York"]
+}
+```
+
 ## Scripts and system Scripts
 
 The `parameters` of a `script` entry is used to populate the `env.vars` entries. The parameters schema
