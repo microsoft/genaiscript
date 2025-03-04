@@ -6,7 +6,7 @@
 script({
     title: "git commit message",
     description: "Generate a commit message for all staged changes",
-    model: "none",
+    unlisted: true,
     parameters: {
         chunkSize: {
             type: "number",
