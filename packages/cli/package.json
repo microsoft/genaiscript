@@ -124,7 +124,7 @@
     "pretty-bytes": "^6.1.1",
     "replace-ext": "^2.0.0",
     "ws": "^8.18.1",
-    "zx": "^8.3.2"
+    "zx": "^8.4.0"
   },
   "scripts": {
     "compile:runtime:declarations": "tsc src/runtime.ts --skipLibCheck --outDir built --declaration --target es2020 --moduleResolution node --module esnext --emitDeclarationOnly",
