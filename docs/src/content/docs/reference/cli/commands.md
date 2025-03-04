@@ -79,6 +79,10 @@ Options:
   --vars <namevalue...>                      variables, as name=value, stored in env.vars. Use environment variables GENAISCRIPT_VAR_name=value to pass variable through the environment
   -rr, --run-retry <number>                  number of retries for the entire run
   --no-run-trace                             disable automatic trace generation
+  --remote <string>                          Remote repository URL to serve
+  --remote-branch <string>                   Branch to serve from the remote
+  --remote-force                             Force pull from remote repository
+  --remote-install                           Install dependencies from remote repository
   -h, --help                                 display help for command
 ```
 
@@ -446,11 +450,11 @@ Options:
                             the network
   -c, --cors <string>       Enable CORS and sets the allowed origin. Use '*' to
                             allow any origin.
+  --dispatch-progress       Dispatch progress events to all clients
   --remote <string>         Remote repository URL to serve
   --remote-branch <string>  Branch to serve from the remote
   --remote-force            Force pull from remote repository
   --remote-install          Install dependencies from remote repository
-  --dispatch-progress       Dispatch progress events to all clients
   -h, --help                display help for command
 ```
 

@@ -38,6 +38,7 @@ import {
     LanguageModelConfiguration,
     ServerEnvResponse,
     ServerResponse,
+    PromptRemoteOptions,
 } from "../../core/src/server/messages"
 import { LanguageModel } from "../../core/src/chat"
 import {
@@ -65,18 +66,16 @@ import { findRandomOpenPort, isPortInUse } from "../../core/src/net"
  * Starts a WebSocket server for handling chat and script execution.
  * @param options - Configuration options including port and optional API key.
  */
-export async function startServer(options: {
-    port: string
-    httpPort?: string
-    apiKey?: string
-    cors?: string
-    network?: boolean
-    remote?: string
-    remoteBranch?: string
-    remoteForce?: boolean
-    remoteInstall?: boolean
-    dispatchProgress?: boolean
-}) {
+export async function startServer(
+    options: {
+        port: string
+        httpPort?: string
+        apiKey?: string
+        cors?: string
+        network?: boolean
+        dispatchProgress?: boolean
+    } & PromptRemoteOptions
+) {
     // Parse and set the server port, using a default if not specified.
     const corsOrigin = options.cors || process.env.GENAISCRIPT_CORS_ORIGIN
     const apiKey = options.apiKey || process.env.GENAISCRIPT_API_KEY

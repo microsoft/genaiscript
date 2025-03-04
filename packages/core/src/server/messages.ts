@@ -134,7 +134,14 @@ export interface PromptScriptTestRunResponse extends ResponseStatus {
     value?: PromptScriptTestResult[]
 }
 
-export interface PromptScriptRunOptions {
+export interface PromptRemoteOptions {
+    remote?: string
+    remoteBranch?: string
+    remoteForce?: boolean
+    remoteInstall?: boolean
+}
+
+export interface PromptScriptRunOptions extends PromptRemoteOptions {
     excludedFiles: string[]
     ignoreGitIgnore: boolean
     runRetry: string
