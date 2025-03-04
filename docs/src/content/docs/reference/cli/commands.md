@@ -681,12 +681,12 @@ Options:
 Usage: genaiscript models [options] [command]
 
 Options:
-  -h, --help       display help for command
+  -h, --help                 display help for command
 
 Commands:
-  list [provider]  List all available models
-  alias            Show model alias mapping
-  help [command]   display help for command
+  list [options] [provider]  List all available models
+  alias                      Show model alias mapping
+  help [command]             display help for command
 ```
 
 ### `models list`
@@ -697,7 +697,8 @@ Usage: genaiscript models list [options] [provider]
 List all available models
 
 Options:
-  -h, --help  display help for command
+  -f, --format <string>  output format (choices: "json", "yaml")
+  -h, --help             display help for command
 ```
 
 ### `models alias`

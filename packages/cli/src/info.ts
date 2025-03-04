@@ -16,6 +16,7 @@ import { YAMLStringify } from "../../core/src/yaml"
 import { buildProject } from "./build"
 import { deleteUndefinedValues } from "../../core/src/cleaners"
 import { LARGE_MODEL_ID } from "../../core/src/constants"
+import { CSVStringify } from "../../core/src/csv"
 
 /**
  * Outputs basic system information including node version, platform, architecture, and process ID.
@@ -120,7 +121,7 @@ export async function modelAliasesInfo() {
  */
 export async function modelList(
     provider: string,
-    options?: { error?: boolean }
+    options?: { error?: boolean; format?: "json" | "yaml" }
 ) {
     await runtimeHost.readConfig()
     const providers = await resolveLanguageModelConfigurations(provider, {
@@ -130,13 +131,16 @@ export async function modelList(
         hide: true,
     })
 
-    console.log(
-        YAMLStringify(
-            deleteUndefinedValues(
-                Object.fromEntries(
-                    providers.map((p) => [p.provider, p.error || p.models])
+    if (options?.format === "json")
+        console.log(JSON.stringify(providers, null, 2))
+    else
+        console.log(
+            YAMLStringify(
+                deleteUndefinedValues(
+                    Object.fromEntries(
+                        providers.map((p) => [p.provider, p.error || p.models])
+                    )
                 )
             )
         )
-    )
 }

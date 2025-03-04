@@ -541,10 +541,17 @@ export async function cli() {
         .option("-m, --models", "show models if possible")
         .action(envInfo) // Action to show environment information
     const models = program.command("models")
-    models
+    const modelsList = models
         .command("list", { isDefault: true })
         .description("List all available models")
         .arguments("[provider]")
+    modelsList
+        .addOption(
+            new Option("-f, --format <string>", "output format").choices([
+                "json",
+                "yaml",
+            ])
+        )
         .action(modelList)
     models
         .command("alias")
