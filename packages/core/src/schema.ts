@@ -320,6 +320,7 @@ export function toStrictJSONSchema(
         switch (n.type) {
             case "string": {
                 delete n.uiType
+                delete n.uiSuggestions
                 break
             }
             case "object": {

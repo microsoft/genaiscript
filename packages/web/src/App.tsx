@@ -2,8 +2,6 @@
 /// <reference path="./vscode-elements.d.ts" />
 import React, {
     createContext,
-    Dispatch,
-    SetStateAction,
     startTransition,
     Suspense,
     use,
@@ -56,7 +54,6 @@ import { stringify as YAMLStringify } from "yaml"
 import { fenceMD } from "../../core/src/mkmd"
 import { isBinaryMimeType } from "../../core/src/binary"
 import { toBase64 } from "../../core/src/base64"
-import { underscore } from "inflection"
 import { lookupMime } from "../../core/src/mime"
 import dedent from "dedent"
 import { markdownDiff } from "../../core/src/mddiff"
@@ -89,6 +86,7 @@ import {
 import { unmarkdown } from "../../core/src/cleaners"
 import { ErrorBoundary } from "react-error-boundary"
 import { apiKey, base, diagnostics, urlParams, viewMode } from "./configuration"
+import { JSONSchemaObjectForm } from "./JSONSchema"
 
 const fetchScripts = async (): Promise<Project> => {
     const res = await fetch(`${base}/api/scripts`, {
@@ -622,193 +620,6 @@ function GenAIScriptLogo(props: { height: string }) {
             src="/favicon.svg"
             style={{ height, borderRadius: "2px" }}
         />
-    )
-}
-
-function JSONSchemaNumber(props: {
-    schema: JSONSchemaNumber
-    value: number
-    required: boolean
-    onChange: (value: number) => void
-}) {
-    const { required, schema, value, onChange } = props
-    const { type, minimum, maximum } = schema
-    const [valueText, setValueText] = useState(
-        isNaN(value) ? "" : String(value)
-    )
-
-    useEffect(() => {
-        const v =
-            type === "number" ? parseFloat(valueText) : parseInt(valueText)
-        if (!isNaN(v) && v !== value) onChange(v)
-    }, [valueText])
-
-    return (
-        <vscode-textfield
-            value={valueText}
-            required={required}
-            placeholder={isNaN(schema.default) ? "" : String(schema.default)}
-            min={minimum}
-            max={maximum}
-            autoCapitalize="off"
-            autocomplete="off"
-            inputMode={type === "number" ? "decimal" : "numeric"}
-            onInput={(e) => {
-                const target = e.target as HTMLInputElement
-                startTransition(() => setValueText(target.value))
-            }}
-        />
-    )
-}
-
-function JSONSchemaSimpleTypeFormField(props: {
-    field: JSONSchemaSimpleType
-    value: string | boolean | number | object
-    required?: boolean
-    onChange: (value: string | boolean | number | object) => void
-}) {
-    const { field, required, value, onChange } = props
-
-    const rows = (s: string | undefined) =>
-        Math.max(3, s.split("\n").length ?? 0)
-
-    switch (field.type) {
-        case "number":
-        case "integer":
-            return (
-                <JSONSchemaNumber
-                    schema={field}
-                    value={Number(value)}
-                    onChange={onChange}
-                    required={required}
-                />
-            )
-        case "string": {
-            const vs = (value as string) || ""
-            if (field.enum) {
-                return (
-                    <vscode-single-select
-                        value={vs}
-                        required={required}
-                        combobox
-                        onvsc-change={(e: Event) => {
-                            const target = e.target as HTMLSelectElement
-                            onChange(target.value)
-                        }}
-                    >
-                        <vscode-option key="empty" value=""></vscode-option>
-                        {field.enum.map((option) => (
-                            <vscode-option key={option} value={option}>
-                                {option}
-                            </vscode-option>
-                        ))}
-                    </vscode-single-select>
-                )
-            }
-            if (field.uiType === "textarea")
-                return (
-                    <vscode-textarea
-                        className="vscode-form-wide"
-                        value={vs}
-                        required={required}
-                        rows={rows(vs)}
-                        spellCheck={true}
-                        placeholder={field.default}            
-                        autoCapitalize="off"
-                        autocomplete="off"
-                        onInput={(e) => {
-                            const target = e.target as HTMLTextAreaElement
-                            target.rows = rows(target.value)
-                            onChange(target.value)
-                        }}
-                    />
-                )
-            else
-                return (
-                    <vscode-textfield
-                        value={vs}
-                        required={required}
-                        spellCheck={false}
-                        placeholder={field.default}
-                        autoCapitalize="off"
-                        autocomplete="off"
-                        onInput={(e) => {
-                            const target = e.target as HTMLTextAreaElement
-                            target.rows = rows(target.value)
-                            onChange(target.value)
-                        }}
-                    />
-                )
-        }
-        case "boolean":
-            return (
-                <vscode-checkbox
-                    checked={value as boolean}
-                    required={required}
-                    onChange={(e) => {
-                        const target = e.target as HTMLInputElement
-                        onChange(target.checked)
-                    }}
-                />
-            )
-        default:
-            return (
-                <vscode-textfield
-                    spellCheck={false}
-                    value={value as string}
-                    required={required}
-                    onInput={(e) => {
-                        const target = e.target as HTMLInputElement
-                        onChange(target.value)
-                    }}
-                />
-            )
-    }
-}
-
-function JSONSchemaObjectForm(props: {
-    schema: JSONSchemaObject
-    value: any
-    onChange: Dispatch<SetStateAction<any>>
-    fieldPrefix: string
-}) {
-    const { schema, value, onChange, fieldPrefix } = props
-    const properties: Record<string, JSONSchemaSimpleType> =
-        schema.properties ?? ({} as any)
-
-    const handleFieldChange = (fieldName: string, value: any) => {
-        onChange((prev: any) => ({
-            ...prev,
-            [fieldName]: value,
-        }))
-    }
-
-    return (
-        <>
-            {Object.entries(properties).map(([fieldName, field]) => (
-                <vscode-form-group key={fieldPrefix + fieldName}>
-                    <vscode-label>
-                        {underscore(
-                            (fieldPrefix ? `${fieldPrefix} / ` : fieldPrefix) +
-                                (field.title || fieldName)
-                        ).replaceAll(/[_\.]/g, " ")}
-                    </vscode-label>
-                    <JSONSchemaSimpleTypeFormField
-                        field={field}
-                        value={value[fieldPrefix + fieldName]}
-                        required={schema.required?.includes(fieldName)}
-                        onChange={(value) =>
-                            handleFieldChange(fieldPrefix + fieldName, value)
-                        }
-                    />
-                    {field?.description && (
-                        <vscode-form-helper>
-                            {field.description}
-                        </vscode-form-helper>
-                    )}
-                </vscode-form-group>
-            ))}
-        </>
     )
 }
 
@@ -1388,7 +1199,9 @@ ${JSON.stringify(result, null, 2)}
 function acceptToAccept(accept: string | undefined) {
     if (!accept) return undefined
     const res: Record<string, string[]> = {}
-    const extensions = accept.split(",").map(ext => ext.trim().replace(/^\*\./, "."))
+    const extensions = accept
+        .split(",")
+        .map((ext) => ext.trim().replace(/^\*\./, "."))
     for (const ext of extensions) {
         const mime = lookupMime(ext)
         if (mime) {

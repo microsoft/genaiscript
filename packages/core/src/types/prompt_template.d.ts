@@ -1590,6 +1590,7 @@ interface JSONSchemaDescripted {
 interface JSONSchemaString extends JSONSchemaDescripted {
     type: "string"
     uiType?: "textarea"
+    uiSuggestions?: string[]
     enum?: string[]
     default?: string
     pattern?: string
