@@ -11,6 +11,7 @@ Programmatically assemble prompts for LLMs using JavaScript. Orchestrate LLMs, t
 - Seamless Visual Studio Code integration
 
 - 📄 **Read the ONLINE DOCUMENTATION at [microsoft.github.io/genaiscript](https://microsoft.github.io/genaiscript/)**
+- 📺 Watch [Mr. Maeda's Cozy AI Kitchen](https://youtu.be/ajEbAm6kjI4)
 - 📺 Watch an [interview on YouTube with nickyt](https://www.youtube.com/watch?v=aeXQ2MJ0Ye0)
 
 ---
