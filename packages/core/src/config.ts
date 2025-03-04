@@ -105,15 +105,16 @@ export async function resolveLanguageModelConfigurations(
         token?: boolean
         error?: boolean
         models?: boolean
+        hide?: boolean
     } & CancellationOptions
 ): Promise<ResolvedLanguageModelConfiguration[]> {
-    const { token, error, models } = options || {}
+    const { token, error, models, hide } = options || {}
     const res: ResolvedLanguageModelConfiguration[] = []
     const env = process.env
 
     // Iterate through model providers, filtering if a specific provider is given
     for (const modelProvider of MODEL_PROVIDERS.filter(
-        (mp) => !provider || mp.id === provider
+        (mp) => (!provider || mp.id === provider) && (!hide || !mp.hidden)
     )) {
         try {
             // Attempt to parse connection token from environment variables

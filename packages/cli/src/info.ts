@@ -4,7 +4,6 @@
  * and resolving model connection info for specific scripts.
  */
 
-import { re } from "mathjs"
 import { resolveLanguageModelConfigurations } from "../../core/src/config"
 import { host, runtimeHost } from "../../core/src/host"
 import {
@@ -16,6 +15,7 @@ import { CORE_VERSION } from "../../core/src/version"
 import { YAMLStringify } from "../../core/src/yaml"
 import { buildProject } from "./build"
 import { deleteUndefinedValues } from "../../core/src/cleaners"
+import { LARGE_MODEL_ID } from "../../core/src/constants"
 
 /**
  * Outputs basic system information including node version, platform, architecture, and process ID.
@@ -35,12 +35,15 @@ export async function systemInfo() {
  */
 export async function envInfo(
     provider: string,
-    options?: { token?: boolean; error?: boolean; models?: boolean }
+    options: { token?: boolean; error?: boolean; models?: boolean }
 ) {
     const config = await runtimeHost.readConfig()
     const res: any = {}
     res[".env"] = config.envFile ?? ""
-    res.providers = await resolveLanguageModelConfigurations(provider, options)
+    res.providers = await resolveLanguageModelConfigurations(provider, {
+        ...(options || {}),
+        hide: true,
+    })
     console.log(YAMLStringify(res))
 }
 
@@ -68,7 +71,10 @@ async function resolveScriptsConnectionInfo(
     // Resolve model connection information
     const res: ModelConnectionInfo[] = await Promise.all(
         Object.values(models).map((conn) =>
-            resolveModelConnectionInfo(conn, options).then((res) => res.info)
+            resolveModelConnectionInfo(conn, {
+                ...(options || {}),
+                defaultModel: LARGE_MODEL_ID,
+            }).then((res) => res.info)
         )
     )
     return res
@@ -121,6 +127,7 @@ export async function modelList(
         ...(options || {}),
         models: true,
         error: true,
+        hide: true,
     })
 
     console.log(
