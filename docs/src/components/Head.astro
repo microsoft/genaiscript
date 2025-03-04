@@ -5,7 +5,7 @@ const canonical = Astro.site
     ? new URL(Astro.url.pathname, Astro.site)
     : undefined
 const llms = Astro.site
-    ? new URL("/genaiscript/.well-known/llms.txt", Astro.site)
+    ? new URL("/genaiscript/llms.txt", Astro.site)
     : undefined
 const slug = canonical?.href.replace(/\/$/, "") + ".md"
 ---

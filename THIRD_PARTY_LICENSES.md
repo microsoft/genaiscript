@@ -2921,8 +2921,8 @@ The following npm packages may be included in this product:
  - @types/http-cache-semantics@4.0.4
  - @types/node-fetch@2.6.12
  - @types/node@16.9.1
- - @types/node@18.19.78
- - @types/node@22.13.8
+ - @types/node@18.19.79
+ - @types/node@22.13.9
  - @types/turndown@5.0.5
  - @types/uuid@9.0.8
  - @types/yauzl@2.10.3
@@ -2955,7 +2955,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.110.3
+ - genaiscript-vscode@1.111.3
 
 This package contains the following license:
 
@@ -8963,15 +8963,15 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 The following npm packages may be included in this product:
 
  - @esbuild/linux-x64@0.25.0
- - @napi-rs/canvas-linux-x64-gnu@0.1.67
- - @napi-rs/canvas-linux-x64-musl@0.1.67
+ - @napi-rs/canvas-linux-x64-gnu@0.1.68
+ - @napi-rs/canvas-linux-x64-musl@0.1.68
  - @tokenizer/token@0.3.0
  - agent-base@6.0.2
  - eastasianwidth@0.2.0
- - genaiscript-core-internal@1.110.3
- - genaiscript-sample@1.110.3
- - genaiscript-web@1.110.3
- - genaiscript@1.110.3
+ - genaiscript-core-internal@1.111.3
+ - genaiscript-sample@1.111.3
+ - genaiscript-web@1.111.3
+ - genaiscript@1.111.3
  - https-proxy-agent@5.0.1
  - isarray@1.0.0
  - javascript-natural-sort@0.7.1
@@ -9810,7 +9810,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - @napi-rs/canvas@0.1.67
+ - @napi-rs/canvas@0.1.68
 
 This package contains the following license:
 
@@ -10415,7 +10415,7 @@ SOFTWARE.
 The following npm packages may be included in this product:
 
  - call-bind-apply-helpers@1.0.2
- - call-bound@1.0.3
+ - call-bound@1.0.4
  - es-define-property@1.0.1
  - es-errors@1.3.0
  - es-object-atoms@1.1.1
@@ -10763,7 +10763,7 @@ The following npm packages may be included in this product:
  - temp-dir@3.0.0
  - tempy@3.1.0
  - type-fest@1.4.0
- - type-fest@4.36.0
+ - type-fest@4.37.0
  - uint8array-extras@1.4.0
  - unicorn-magic@0.3.0
  - unique-string@3.0.0
