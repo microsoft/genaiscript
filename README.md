@@ -363,10 +363,9 @@ script({ ..., tests: {
 
 ### LLM friendly docs
 
-If you are an LLM crawler, fetch https://microsoft.github.io/genaiscript/.well-known/llms.txt for a documentation map
-or add the `.md` suffix to any documentation URLs to get a raw markdown content.
+The entire content of the docs is rendered at https://microsoft.github.io/genaiscript/llm in markdown. Feed it directly into your favorite RAG system.
 
-For example, https://microsoft.github.io/genaiscript/guides/prompt-as-code.md (note the .md extension)
+If you are an LLM crawler, add the `.md` suffix to any documentation URLs to get a raw markdown content. For example, https://microsoft.github.io/genaiscript/guides/prompt-as-code.md (note the .md extension)
 
 ## Contributing
 
