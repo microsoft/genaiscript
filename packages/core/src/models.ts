@@ -133,10 +133,11 @@ export function traceLanguageModelConnection(
 }
 
 export function resolveModelAlias(model: string): ModelConfiguration {
+    if (!model) throw new Error("Model not specified")
     const { modelAliases } = runtimeHost
     const seen: string[] = []
     let res: ModelConfiguration = {
-        model: model || LARGE_MODEL_ID,
+        model,
         source: "script",
     }
     while (modelAliases[res.model]) {
@@ -170,14 +171,15 @@ export async function resolveModelConnectionInfo(
         defaultModel,
         cancellationToken,
     } = options || {}
-    const hint = options?.model || conn.model || defaultModel
-    if (!hint)
+    const hint = options?.model || conn.model
+    // supports candidate if no model hint or hint is a model alias
+    const resolved = resolveModelAlias(hint || defaultModel)
+    if (!resolved)
         return {
             info: { error: "missing error information", model: undefined },
         }
-    // supports candidate if no model hint or hint is a model alias
-    const resolved = resolveModelAlias(hint)
-    const supportsCandidates = !!resolved.model
+
+    const supportsCandidates = !hint
     const modelId = resolved.model
     let candidates = supportsCandidates ? resolved.candidates : undefined
 
