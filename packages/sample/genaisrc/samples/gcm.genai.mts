@@ -148,10 +148,9 @@ do {
 
     // Handle user's choice for commit message
     if (choice === "edit") {
-        message = await host.input("Edit commit message", {
-            required: true,
-        })
-        choice = "commit"
+        await host.exec("git", ["commit", "-m", message, "--edit"])
+        cancel("user decided to edit the commit message in the editor")
+        process.exit(0)
     }
     // If user chooses to commit, execute the git commit and optionally push changes
     if (choice === "commit" && message) {
