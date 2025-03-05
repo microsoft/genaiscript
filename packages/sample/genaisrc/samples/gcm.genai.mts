@@ -54,6 +54,11 @@ if (chunks.length > 1) {
     }
 }
 
+const gitPush = async () => {
+    if (await host.confirm("Push changes?", { default: true }))
+        console.log(await git.exec("push"))
+}
+
 const addInstructions = (ctx) => {
     ctx.$`
     
@@ -164,13 +169,13 @@ do {
 
         // 2) After the editor closes, forcibly exit the entire script
         console.debug("git editor closed with exit code ", spawnResult.status)
+        if (spawnResult.status === 0) await gitPush()
         break
     }
     // If user chooses to commit, execute the git commit and optionally push changes
     if (choice === "commit" && message) {
         console.log(await git.exec(["commit", "-m", message]))
-        if (await host.confirm("Push changes?", { default: true }))
-            console.log(await git.exec("push"))
+        await gitPush()
         break
     }
 
