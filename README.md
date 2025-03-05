@@ -8,7 +8,8 @@ Programmatically assemble prompts for LLMs using JavaScript. Orchestrate LLMs, t
 
 - JavaScript toolbox to work with prompts
 - Abstraction to make it easy and productive
-- Seamless Visual Studio Code integration
+- Seamless Visual Studio Code integration or flexible command line
+- Built-in support for GitHub Copilot and GitHub Models, OpenAI, Azure OpenAI, Anthropic, and more
 
 - 📄 **Read the ONLINE DOCUMENTATION at [microsoft.github.io/genaiscript](https://microsoft.github.io/genaiscript/)**
 - 📺 Watch [Mr. Maeda's Cozy AI Kitchen](https://youtu.be/ajEbAm6kjI4)
