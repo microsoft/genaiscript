@@ -7,10 +7,10 @@ Markdown + various custom macros and DSLs
 
 Click on the `||variables:Variables||` category in the Toolbox...
 
-```blocks
+` ``blocks
 let hand = 0;
 input.onGesture(Gesture.Shake, function() { ... })
-```
+` ``
 ````
 
 Translations messes with the macros...

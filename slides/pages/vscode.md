@@ -15,6 +15,7 @@
 ```
 npx genaiscript scripts create [script]
 npx genaiscript run [script] [...files]
+npx genaiscript serve [script]
 ```
 
 - CI/CD  friendly: GitHub Actions, Azure DevOps

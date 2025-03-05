@@ -157,6 +157,7 @@ do {
 
     // Handle user's choice for commit message
     if (choice === "edit") {
+        // @ts-ignore
         const { spawnSync } = await import("child_process")
         // 1) Launch git commit in an interactive editor
         const spawnResult = spawnSync(
