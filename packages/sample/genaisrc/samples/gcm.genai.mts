@@ -148,9 +148,19 @@ do {
 
     // Handle user's choice for commit message
     if (choice === "edit") {
-        await host.exec("git", ["commit", "-m", message, "--edit"])
-        cancel("user decided to edit the commit message in the editor")
-        process.exit(0)
+        const { spawnSync } = await import("child_process")
+        // 1) Launch git commit in an interactive editor
+        const spawnResult = spawnSync(
+            "git",
+            ["commit", "-m", message, "--edit"],
+            {
+                stdio: "inherit",
+            }
+        )
+
+        // 2) After the editor closes, forcibly exit the entire script
+        console.log("Editor closed, exit code:", spawnResult.status)
+        process.exit(spawnResult.status)
     }
     // If user chooses to commit, execute the git commit and optionally push changes
     if (choice === "commit" && message) {
