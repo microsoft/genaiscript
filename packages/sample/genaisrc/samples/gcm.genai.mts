@@ -138,11 +138,15 @@ do {
         },
         {
             value: "edit",
-            description: "edit message and commit",
+            description: "edit message in git editor",
         },
         {
             value: "regenerate",
-            description: "regenerate message",
+            description: "run LLM generation again",
+        },
+        {
+            value: "cancel",
+            description: "cancel commit",
         },
     ])
 
@@ -159,14 +163,19 @@ do {
         )
 
         // 2) After the editor closes, forcibly exit the entire script
-        console.log("Editor closed, exit code:", spawnResult.status)
-        process.exit(spawnResult.status)
+        console.debug("git editor closed with exit code ", spawnResult.status)
+        break
     }
     // If user chooses to commit, execute the git commit and optionally push changes
     if (choice === "commit" && message) {
         console.log(await git.exec(["commit", "-m", message]))
         if (await host.confirm("Push changes?", { default: true }))
             console.log(await git.exec("push"))
+        break
+    }
+
+    if (choice === "cancel") {
+        cancel("User cancelled commit")
         break
     }
 } while (choice !== "commit")
