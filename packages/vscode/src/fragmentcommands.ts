@@ -121,7 +121,10 @@ export function activateFragmentCommands(state: ExtensionState) {
     }) => {
         const { filter = () => true } = options || {}
         const templates = state.project.scripts
-            .filter((t) => !t.isSystem && t.group !== "infrastructure")
+            .filter(
+                (t) =>
+                    !t.isSystem && t.group !== "infrastructure" && !t.unlisted
+            )
             .filter(filter)
 
         const picked = await vscode.window.showQuickPick(
