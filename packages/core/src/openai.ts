@@ -640,20 +640,31 @@ export async function OpenAIImageGeneration(
 ): Promise<CreateImageResult> {
     const { model, prompt, size = "1024x1024", quality, style, ...rest } = req
     const { trace } = options || {}
+    let url = `${cfg.base}/images/generations`
+
+    const body = {
+        model,
+        prompt,
+        size,
+        quality,
+        style,
+        response_format: "b64_json",
+        ...rest,
+    }
+    if (cfg.type === "azure") {
+        const version = cfg.version || AZURE_OPENAI_API_VERSION
+        trace.itemValue(`version`, version)
+        url =
+            trimTrailingSlash(cfg.base) +
+            "/" +
+            body.model.replace(/\./g, "") +
+            `/images/generations?api-version=${version}`
+        delete body.model
+    }
+
     const fetch = await createFetch(options)
     try {
         logVerbose(`${cfg.provider}: generate image with ${cfg.model}`)
-        const url = `${cfg.base}/images/generations`
-        trace.itemValue(`url`, `[${url}](${url})`)
-        const body = {
-            model,
-            prompt,
-            size,
-            quality,
-            style,
-            response_format: "b64_json",
-            ...rest,
-        }
         const freq = {
             method: "POST",
             headers: {
@@ -662,12 +673,16 @@ export async function OpenAIImageGeneration(
             },
             body: JSON.stringify(body),
         }
-        traceFetchPost(trace, url, freq.headers, body)
         // TODO: switch back to cross-fetch in the future
+        trace.itemValue(`url`, `[${url}](${url})`)
+        traceFetchPost(trace, url, freq.headers, body)
         const res = await fetch(url, freq as any)
         trace.itemValue(`status`, `${res.status} ${res.statusText}`)
         if (!res.ok)
-            return { image: undefined, error: (await res.json())?.error }
+            return {
+                image: undefined,
+                error: (await res.json())?.error || res.statusText,
+            }
         const j = await res.json()
         const revisedPrompt = j.data[0]?.revised_prompt
         if (revisedPrompt)
