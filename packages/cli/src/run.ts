@@ -252,7 +252,7 @@ export async function runScriptInternal(
     if (outTrace && !/^false$/i.test(outTrace))
         await setupTraceWriting(trace, " trace", outTrace)
     if (outOutput && !/^false$/i.test(outOutput))
-        await setupTraceWriting(outputTrace, " output", outTrace)
+        await setupTraceWriting(outputTrace, " output", outOutput)
     const toolFiles: string[] = []
     if (GENAI_ANY_REGEX.test(scriptId)) toolFiles.push(scriptId)
 
