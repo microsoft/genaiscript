@@ -41,6 +41,10 @@ src: pages/vision.md
 ---
 
 ---
+src: pages/positioning.md
+---
+
+---
 src: pages/poem.md
 ---
 
