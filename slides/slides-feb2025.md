@@ -57,15 +57,15 @@ src: pages/pr-review.md
 ---
 
 ---
+src: pages/image-alt-text.md
+---
+
+---
 src: pages/demo.md
 ---
 
 ---
 src: pages/script-prompt.md
----
-
----
-src: pages/demo.md
 ---
 
 ---
@@ -86,10 +86,6 @@ src: pages/js-runtime.md
 
 ---
 src: pages/tools.md
----
-
----
-src: pages/image-alt-text.md
 ---
 
 ---

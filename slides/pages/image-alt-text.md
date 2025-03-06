@@ -1,4 +1,4 @@
-# Example: Image Alt Text
+# Image Alt Text
 
 Poor alt text descriptions...
 

@@ -1,4 +1,4 @@
-# Example: Pull Request
+# Pull Request Review
 
 Build your own PR description generator!
 
