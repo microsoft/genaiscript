@@ -14,9 +14,10 @@
 - Uses Node.js
 
 ```
-npx genaiscript scripts create [script]
-npx genaiscript run [script] [...files]
-npx genaiscript serve [script]
+genaiscript configure
+genaiscript scripts create [script]
+genaiscript run [script] [...files]
+genaiscript serve [script]
 ```
 
 - CI/CD  friendly: GitHub Actions, Azure DevOps
