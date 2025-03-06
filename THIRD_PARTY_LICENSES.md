@@ -2955,7 +2955,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.111.3
+ - genaiscript-vscode@1.111.4
 
 This package contains the following license:
 
@@ -3780,33 +3780,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 -----------
 
-The following npm package may be included in this product:
-
- - debug@2.6.9
-
-This package contains the following license:
-
-(The MIT License)
-
-Copyright (c) 2014 TJ Holowaychuk <tj@vision-media.ca>
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
-and associated documentation files (the 'Software'), to deal in the Software without restriction, 
-including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, 
-and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so,
-subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies or substantial 
-portions of the Software.
-
-THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT 
-LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
-IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, 
-WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
-SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
------------
-
 The following npm packages may be included in this product:
 
  - etag@1.8.1
@@ -3965,7 +3938,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 The following npm package may be included in this product:
 
- - finalhandler@2.0.0
+ - finalhandler@2.1.0
 
 This package contains the following license:
 
@@ -4056,12 +4029,11 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 -----------
 
-The following npm packages may be included in this product:
+The following npm package may be included in this product:
 
- - encodeurl@1.0.2
  - encodeurl@2.0.0
 
-These packages each contain the following license:
+This package contains the following license:
 
 (The MIT License)
 
@@ -8968,10 +8940,10 @@ The following npm packages may be included in this product:
  - @tokenizer/token@0.3.0
  - agent-base@6.0.2
  - eastasianwidth@0.2.0
- - genaiscript-core-internal@1.111.3
- - genaiscript-sample@1.111.3
- - genaiscript-web@1.111.3
- - genaiscript@1.111.3
+ - genaiscript-core-internal@1.111.4
+ - genaiscript-sample@1.111.4
+ - genaiscript-web@1.111.4
+ - genaiscript@1.111.4
  - https-proxy-agent@5.0.1
  - isarray@1.0.0
  - javascript-natural-sort@0.7.1
@@ -10293,7 +10265,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - gpt-tokenizer@2.8.1
+ - gpt-tokenizer@2.9.0
 
 This package contains the following license:
 
@@ -10689,7 +10661,7 @@ SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - @azure/msal-browser@4.5.0
+ - @azure/msal-browser@4.5.1
  - @azure/msal-common@15.2.0
 
 These packages each contain the following license:
@@ -12909,12 +12881,11 @@ SOFTWARE.
 
 -----------
 
-The following npm packages may be included in this product:
+The following npm package may be included in this product:
 
- - ms@2.0.0
  - ms@2.1.2
 
-These packages each contain the following license:
+This package contains the following license:
 
 The MIT License (MIT)
 
