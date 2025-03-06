@@ -20,6 +20,6 @@ backgroundSize: 75%
 
 <v-click>
 
-##  With GenAI, you should revisit discarded ideas about automating tasks (ex: check docs/source code consistency).
+##  With GenAI, you should revisit discarded ideas about automating tasks
 
 </v-click>
