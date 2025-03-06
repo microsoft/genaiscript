@@ -50,6 +50,6 @@ jobs:
               env:
                   OLLAMA_HOST: "http://localhost:11434"
             - name: run transcribe
-              run: yarn run:script video-transcript --model ollama:llama3.2:1b --out ./temp/summarize-ollama-phi3
+              run: yarn run:script video-transcript --model ollama:llama3.2:1b --out ./temp/summarize-ollama-phi3 --out-output $GITHUB_STEP_SUMMARY
               env:
                   OLLAMA_HOST: "http://localhost:11434"
