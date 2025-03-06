@@ -4,8 +4,7 @@
 
 - Run: command from file/folder/editor
 - @genaiscript in Copilot Chat!
-- Debugger: set breakpoint and press `F5`!
-- Trace: observe every step of the pipeline
+- Debugger + Trace
 - Authentication: from `.env` file or environment, Azure Entra
 
 ## Command Line

@@ -41,10 +41,6 @@ src: pages/vision.md
 ---
 
 ---
-src: pages/tokens.md
----
-
----
 src: pages/poem.md
 ---
 
@@ -53,11 +49,11 @@ src: pages/script.md
 ---
 
 ---
-src: pages/pr-review.md
+src: pages/image-alt-text.md
 ---
 
 ---
-src: pages/image-alt-text.md
+src: pages/pr-review.md
 ---
 
 ---
@@ -70,6 +66,14 @@ src: pages/script-prompt.md
 
 ---
 src: pages/vscode.md
+---
+
+---
+src: pages/tokens.md
+---
+
+---
+src: pages/llm-providers.md
 ---
 
 ---

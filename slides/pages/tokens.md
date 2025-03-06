@@ -1,4 +1,4 @@
-### Prelude: Where do I get LLM API access?
+### Where do I get LLM API access?
 
 ```mermaid {scale: 0.8}
 flowchart TD
