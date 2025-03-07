@@ -190,7 +190,7 @@ The following npm packages may be included in this product:
 
  - @aws-crypto/sha256-browser@5.2.0
  - @aws-crypto/supports-web-crypto@5.2.0
- - @huggingface/transformers@3.3.3
+ - @huggingface/transformers@3.4.0
  - flatbuffers@25.2.10
  - long@5.3.1
 
@@ -1615,8 +1615,8 @@ Apache License
 
 The following npm packages may be included in this product:
 
- - playwright-core@1.50.1
- - playwright@1.50.1
+ - playwright-core@1.51.0
+ - playwright@1.51.0
 
 These packages each contain the following license:
 
@@ -2714,7 +2714,7 @@ Apache License
 
 The following npm package may be included in this product:
 
- - mathjs@14.3.0
+ - mathjs@14.3.1
 
 This package contains the following license:
 
@@ -4255,7 +4255,7 @@ software or this license, under any kind of legal claim._**
 
 The following npm package may be included in this product:
 
- - axios@1.8.1
+ - axios@1.8.2
 
 This package contains the following license:
 
@@ -7428,7 +7428,8 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 The following npm packages may be included in this product:
 
- - @azure/core-rest-pipeline@1.19.0
+ - @azure/core-client@1.9.3
+ - @azure/core-rest-pipeline@1.19.1
  - @azure/identity@4.7.0
 
 These packages each contain the following license:
@@ -8950,9 +8951,9 @@ The following npm packages may be included in this product:
  - keyv@4.5.4
  - omggif@1.0.10
  - onnxruntime-common@1.20.1
- - onnxruntime-common@1.21.0-dev.20250206-d981b153d3
+ - onnxruntime-common@1.22.0-dev.20250306-aafa8d170a
  - onnxruntime-node@1.20.1
- - onnxruntime-web@1.21.0-dev.20250206-d981b153d3
+ - onnxruntime-web@1.22.0-dev.20250306-ccf8fdd9ea
  - parse-bmfont-ascii@1.0.6
  - readable-web-to-node-stream@3.0.4
  - seedrandom@3.0.5
@@ -13203,7 +13204,6 @@ The following npm packages may be included in this product:
 
  - @azure/abort-controller@2.1.2
  - @azure/core-auth@1.9.0
- - @azure/core-client@1.9.2
  - @azure/core-tracing@1.2.0
  - @azure/core-util@1.11.0
  - @azure/logger@1.1.4
