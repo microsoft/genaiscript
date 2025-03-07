@@ -42,6 +42,7 @@ const chunks = await MD.chunk(docs.file, { maxTokens: 1000 })
 console.debug(`chunks: ${chunks.length}`)
 const fuzzDocs = await retrieval.fuzzSearch(kw.text, chunks, {
     topK: 100,
+    minScore: 1,
 })
 def("DOCS", fuzzDocs, { flex: 1, ignoreEmpty: true })
 def("QUESTION", question)

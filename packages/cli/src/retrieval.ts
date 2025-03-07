@@ -1,4 +1,4 @@
-import { normalizeInt } from "../../core/src/cleaners"
+import { normalizeFloat, normalizeInt } from "../../core/src/cleaners"
 import { resolveFileContents } from "../../core/src/file"
 import { expandFiles } from "../../core/src/fs"
 import { fuzzSearch } from "../../core/src/fuzzsearch"
@@ -29,6 +29,7 @@ export async function retrievalSearch(
     options: {
         excludedFiles: string[]
         topK: string
+        minScore: string
         name: string
         embeddingsModel: string
         ignoreGitIgnore: boolean
@@ -39,6 +40,7 @@ export async function retrievalSearch(
         excludedFiles,
         name: indexName,
         topK,
+        minScore,
         embeddingsModel,
         ignoreGitIgnore,
     } = options || {}
@@ -63,12 +65,15 @@ export async function retrievalSearch(
     // Searches using embeddings to find relevant files
     const res = await vectorSearch(q, files, {
         topK: normalizeInt(topK),
+        minScore: normalizeFloat(minScore),
         folderPath,
         embeddingsModel,
     })
 
     // Output the results in YAML format for readability
-    console.log(YAMLStringify(res))
+    console.log(
+        YAMLStringify(res.map(({ filename, score }) => ({ filename, score })))
+    )
 }
 
 /**
@@ -87,11 +92,12 @@ export async function retrievalFuzz(
     options: {
         excludedFiles: string[]
         topK: string
+        minScore: string
         ignoreGitIgnore: boolean
     }
 ) {
     // Destructure options with default values
-    let { excludedFiles, topK } = options || {}
+    let { excludedFiles, topK, minScore } = options || {}
 
     // Default to searching all files if no globs are provided
     if (!filesGlobs?.length) filesGlobs = ["**"]
@@ -110,9 +116,11 @@ export async function retrievalFuzz(
     const res = await fuzzSearch(
         q,
         files.map((filename) => ({ filename })),
-        { topK: normalizeInt(topK) }
+        { topK: normalizeInt(topK), minScore: normalizeFloat(minScore) }
     )
 
     // Output the results in YAML format for readability
-    console.log(YAMLStringify(res))
+    console.log(
+        YAMLStringify(res.map(({ filename, score }) => ({ filename, score })))
+    )
 }
