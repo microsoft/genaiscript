@@ -195,4 +195,32 @@ There are many variations of passages of Lorem Ipsum available, but the majority
             )
         }
     })
+
+    await test(`chunk llms-full.txt`, async () => {
+        const markdown = `<SYSTEM>This is the full developer documentation for GenAIScript</SYSTEM>
+
+# Generative AI Scripting
+
+> GenAIScript, scripting for Generative AI.
+
+## Prompting is Coding
+
+Programmatically assemble prompts for LLMs using JavaScript. Orchestrate LLMs, tools, and data in a single script.
+
+* JavaScript toolbox to work with prompts
+* Abstraction to make it easy and productive
+* Seamless Visual Studio Code integration or flexible command line
+* Built-in support for GitHub Copilot and GitHub Models, OpenAI, Azure OpenAI, Anthropic, and more
+
+## Hello world
+
+`
+        for (let i = 0; i < 12; ++i) {
+            const result = await chunkMarkdown(markdown, estimateTokens, 1 << i)
+            assert.strictEqual(
+                result.map((r) => r.content).join("\n"),
+                markdown
+            )
+        }
+    })
 })
