@@ -200,8 +200,7 @@ export async function createPromptContext(
                 await resolveFileContents(files)
                 searchOptions.embeddingsModel =
                     searchOptions?.embeddingsModel ??
-                    options?.embeddingsModel ??
-                    runtimeHost.modelAliases.embeddings.model
+                    options?.embeddingsModel
                 const key = await hash({ files, searchOptions }, { length: 12 })
                 const folderPath = dotGenaiscriptPath("vectors", key)
                 const res = await vectorSearch(q, files, {

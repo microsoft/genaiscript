@@ -178,7 +178,7 @@ export async function vectorSearch(
     const {
         topK,
         folderPath,
-        embeddingsModel = runtimeHost.modelAliases.embeddings.model,
+        embeddingsModel,
         minScore = 0,
         trace,
         cancellationToken,
@@ -189,9 +189,7 @@ export async function vectorSearch(
         trace?.itemValue(`model`, embeddingsModel)
 
         // Import the local document index
-        const { LocalDocumentIndex } = await import(
-            "vectra/lib/LocalDocumentIndex"
-        )
+        const { LocalDocumentIndex } = await import("vectra")
         const tokenizer = { encode, decode }
 
         // Resolve connection info for the embeddings model

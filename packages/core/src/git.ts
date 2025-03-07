@@ -330,9 +330,7 @@ export class GitClient implements Git {
         }
         if (!nameOnly && llmify) {
             res = llmifyDiff(res)
-            const { encode: encoder } = await resolveTokenEncoder(
-                runtimeHost.modelAliases.large.model
-            )
+            const { encode: encoder } = await resolveTokenEncoder(undefined)
             const tokens = approximateTokens(res)
             if (tokens > maxTokensFullDiff)
                 res = `## Diff

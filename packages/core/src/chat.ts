@@ -890,9 +890,7 @@ export function mergeGenerationOptions(
             runOptions?.reasoningEffort ??
             runtimeHost.modelAliases.large.reasoningEffort,
         embeddingsModel:
-            runOptions?.embeddingsModel ??
-            options?.embeddingsModel ??
-            runtimeHost.modelAliases.embeddings.model,
+            runOptions?.embeddingsModel ?? options?.embeddingsModel,
     } satisfies GenerationOptions
     return res
 }
