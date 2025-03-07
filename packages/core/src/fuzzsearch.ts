@@ -18,7 +18,7 @@ export async function fuzzSearch(
     options?: FuzzSearchOptions & TraceOptions
 ): Promise<WorkspaceFileWithScore[]> {
     // Destructure options to extract trace and topK, with defaulting to an empty object
-    const { trace, topK, ...otherOptions } = options || {}
+    const { trace, topK, minScore, ...otherOptions } = options || {}
 
     // Load the content for all provided files asynchronously
     for (const file of files) await resolveFileContent(file)
@@ -47,6 +47,7 @@ export async function fuzzSearch(
 
     // Limit results to top K if specified
     if (topK > 0) results = results.slice(0, topK)
+    if (minScore > 0) results = results.filter((r) => r.score >= minScore)
 
     // Map search results to WorkspaceFileWithScore structure
     return results.map(
