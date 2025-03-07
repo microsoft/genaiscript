@@ -250,6 +250,21 @@ type ModelType = OptionsOrString<
     | "none"
 >
 
+type EmbeddingsModelType = OptionsOrString<
+    "openai:text-embedding-3-small",
+    "openai:text-embedding-3-large",
+    "openai:text-embedding-ada-002",
+    "github:text-embedding-3-small",
+    "github:text-embedding-3-large",
+    "azure:text-embedding-3-small",
+    "azure:text-embedding-3-large",
+    "azure_ai_inference:text-embedding-3-small",
+    "azure_ai_inference:text-embedding-3-large",
+    "ollama:nomic-embed-text",
+    "google:text-embedding-004",
+    "huggingface:nomic-ai/nomic-embed-text-v1.5"
+>
+
 type ModelSmallType = OptionsOrString<
     | "openai:gpt-4o-mini"
     | "github:gpt-4o-mini"
@@ -417,14 +432,7 @@ interface EmbeddingsModelConnectionOptions {
     /**
      * LLM model to use for embeddings.
      */
-    embeddingsModel?: OptionsOrString<
-        "openai:text-embedding-3-small",
-        "openai:text-embedding-3-large",
-        "openai:text-embedding-ada-002",
-        "github:text-embedding-3-small",
-        "github:text-embedding-3-large",
-        "ollama:nomic-embed-text"
-    >
+    embeddingsModel?: EmbeddingsModelType
 }
 
 interface EmbeddingsModelOptions extends EmbeddingsModelConnectionOptions {}

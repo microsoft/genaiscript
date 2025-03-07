@@ -1,5 +1,5 @@
 script({
-    model: "ollama:phi3",
+    model: "small",
     files: "src/rag/*",
     tests: {
         files: "src/rag/*",
@@ -7,6 +7,8 @@ script({
     },
 })
 
-def("FILES", await retrieval.vectorSearch("lorem", env.files))
+const chunks = await retrieval.vectorSearch("lorem", env.files)
+console.log(`Found ${chunks.length} chunks.`)
+def("FILES", chunks)
 
 $`Summarize FILES. Use one short sentence.`
