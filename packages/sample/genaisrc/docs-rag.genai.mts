@@ -35,7 +35,9 @@ if (!docs.ok) cancel("Could not fetch docs")
 // vector search
 const vectorDocs = await retrieval.vectorSearch(kw.text, docs.file, {
     topK: 100,
+    minScore: 1,
 })
+console.debug(`vectorDocs: ${vectorDocs.length}`)
 def("DOCS", vectorDocs, { flex: 1, ignoreEmpty: true })
 // fuzzy search
 const chunks = await MD.chunk(docs.file, { maxTokens: 1000 })
@@ -44,6 +46,7 @@ const fuzzDocs = await retrieval.fuzzSearch(kw.text, chunks, {
     topK: 100,
     minScore: 1,
 })
+console.debug(`fuzzDocs: ${fuzzDocs.length}`)
 def("DOCS", fuzzDocs, { flex: 1, ignoreEmpty: true })
 def("QUESTION", question)
 $`Implement the user request in <QUESTION>.
