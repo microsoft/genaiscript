@@ -88,6 +88,7 @@ class OpenAIEmbeddings implements EmbeddingsModel {
         const cached = await this.cache.get(cacheKey)
         if (cached) return cached
 
+        checkCancelled(this.options?.cancellationToken)
         // Create embeddings if not cached
         const res = await this.uncachedCreateEmbeddings(inputs)
         if (res.status === "success") this.cache.set(cacheKey, res)
