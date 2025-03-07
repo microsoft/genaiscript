@@ -34,6 +34,7 @@ export async function startMcpServer(
 
         // list tools
         const { tools: toolDefinitions } = await client.listTools()
+        trace.fence(toolDefinitions, "json")
         const tools = toolDefinitions.map(
             ({ name, description, inputSchema }) =>
                 ({
