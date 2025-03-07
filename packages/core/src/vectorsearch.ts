@@ -19,7 +19,7 @@ import { JSONLineCache } from "./cache"
 import { EmbeddingCreateParams, EmbeddingCreateResponse } from "./chattypes"
 import { LanguageModelConfiguration } from "./server/messages"
 import { getConfigHeaders } from "./openai"
-import { logVerbose } from "./util"
+import { ellipse, logVerbose } from "./util"
 import { TraceOptions } from "./trace"
 import { CancellationOptions } from "./cancellation"
 import { trimTrailingSlash } from "./cleaners"
@@ -129,7 +129,9 @@ class OpenAIEmbeddings implements EmbeddingsModel {
         }
         const fetch = await createFetch({ retryOn: [429] })
         if (trace) traceFetchPost(trace, url, headers, body)
-        logVerbose(`embedding ${model}`)
+        logVerbose(
+            `embeddings: ${ellipse(typeof input === "string" ? input : input?.join(","), 22)} with ${model}`
+        )
 
         // Send POST request to create embeddings
         const resp = await fetch(url, {

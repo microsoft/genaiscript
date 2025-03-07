@@ -13,6 +13,8 @@ const kw = await runPrompt(
     {
         model: "small",
         responseType: "text",
+        label: "rewrite question",
+        cache: true,
     }
 )
 if (kw.error) cancel(kw.error.message)
