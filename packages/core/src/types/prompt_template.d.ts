@@ -3224,6 +3224,10 @@ interface FuzzSearchOptions {
      * Maximum number of results to return
      */
     topK?: number
+    /**
+     * Minimum score
+     */
+    minScore?: number
 }
 
 interface Retrieval {

@@ -89,7 +89,8 @@
                 "vision": "gpt-4o",
                 "vision_small": "gpt-4o-mini",
                 "reasoning": "o1",
-                "reasoning_small": "o1-mini"
+                "reasoning_small": "o1-mini",
+                "embeddings": "text-embedding-3-small"
             },
             "env": {
                 "AZURE_AI_INFERENCE_API_KEY": {
@@ -122,7 +123,8 @@
                 "vision": "gpt-4o",
                 "vision_small": "gpt-4o-mini",
                 "reasoning": "o1",
-                "reasoning_small": "o1-mini"
+                "reasoning_small": "o1-mini",
+                "embeddings": "text-embedding-3-small"
             },
             "env": {
                 "AZURE_SERVERLESS_OPENAI_API_KEY": {

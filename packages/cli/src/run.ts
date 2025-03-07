@@ -449,9 +449,7 @@ export async function runScriptInternal(
             maxToolCalls,
             maxDataRepairs,
             model: info.model,
-            embeddingsModel:
-                options.embeddingsModel ??
-                runtimeHost.modelAliases.embeddings.model,
+            embeddingsModel: options.embeddingsModel,
             retry,
             retryDelay,
             maxDelay,

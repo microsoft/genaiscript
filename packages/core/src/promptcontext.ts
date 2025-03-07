@@ -110,7 +110,11 @@ export async function createPromptContext(
                     ...rest,
                     trace: grepTrace,
                 })
-                grepTrace.files(matches, { model, secrets: env.secrets })
+                grepTrace.files(matches, {
+                    model,
+                    secrets: env.secrets,
+                    maxLength: 0,
+                })
                 return { files, matches }
             } finally {
                 grepTrace.endDetails()
@@ -151,7 +155,11 @@ export async function createPromptContext(
                         `No search provider configured. See ${DOCS_WEB_SEARCH_URL}.`
                     )
                 }
-                webTrace.files(files, { model, secrets: env.secrets })
+                webTrace.files(files, {
+                    model,
+                    secrets: env.secrets,
+                    maxLength: 0,
+                })
                 return files
             } finally {
                 webTrace.endDetails()
@@ -177,6 +185,7 @@ export async function createPromptContext(
                         model,
                         secrets: env.secrets,
                         skipIfEmpty: true,
+                        maxLength: 0,
                     })
                     return res
                 }
@@ -199,21 +208,21 @@ export async function createPromptContext(
 
                 await resolveFileContents(files)
                 searchOptions.embeddingsModel =
-                    searchOptions?.embeddingsModel ??
-                    options?.embeddingsModel ??
-                    runtimeHost.modelAliases.embeddings.model
+                    searchOptions?.embeddingsModel ?? options?.embeddingsModel
                 const key = await hash({ files, searchOptions }, { length: 12 })
                 const folderPath = dotGenaiscriptPath("vectors", key)
                 const res = await vectorSearch(q, files, {
                     ...searchOptions,
                     folderPath,
                     trace: vecTrace,
+                    cancellationToken,
                 })
                 // Log search results
                 vecTrace.files(res, {
                     model,
                     secrets: env.secrets,
                     skipIfEmpty: true,
+                    maxLength: 0,
                 })
                 return res
             } finally {

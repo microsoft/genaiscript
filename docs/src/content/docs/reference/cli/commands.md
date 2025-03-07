@@ -397,25 +397,25 @@ Usage: genaiscript retrieval|retreival [options] [command]
 RAG support
 
 Options:
-  -h, --help                           display help for command
+  -h, --help                                  display help for command
 
 Commands:
-  search [options] <query> [files...]  Search using vector embeddings
-                                       similarity
-  fuzz [options] <query> [files...]    Search using string distance
-  help [command]                       display help for command
+  vector|search [options] <query> [files...]  Search using vector embeddings similarity
+  fuzz [options] <query> [files...]           Search using string distance
+  help [command]                              display help for command
 ```
 
-### `retrieval search`
+### `retrieval vector`
 
 ```
-Usage: genaiscript retrieval search [options] <query> [files...]
+Usage: genaiscript retrieval vector|search [options] <query> [files...]
 
 Search using vector embeddings similarity
 
 Options:
   -ef, --excluded-files <string...>  excluded files
   -tk, --top-k <number>              maximum number of results
+  -ms, --min-score <number>          minimum score
   -h, --help                         display help for command
 ```
 
@@ -429,6 +429,7 @@ Search using string distance
 Options:
   -ef, --excluded-files <string...>  excluded files
   -tk, --top-k <number>              maximum number of results
+  -ms, --min-score <number>          minimum score
   -h, --help                         display help for command
 ```
 

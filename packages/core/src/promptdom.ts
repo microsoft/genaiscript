@@ -5,12 +5,20 @@ import { addLineNumbers, extractRange } from "./liner"
 import { JSONSchemaStringifyToTypeScript } from "./schema"
 import { approximateTokens, truncateTextToTokens } from "./tokens"
 import { MarkdownTrace, TraceOptions } from "./trace"
-import { arrayify, assert, logError, logWarn, toStringList } from "./util"
+import {
+    arrayify,
+    assert,
+    ellipse,
+    logError,
+    logWarn,
+    toStringList,
+} from "./util"
 import { YAMLStringify } from "./yaml"
 import {
     DEFAULT_FENCE_FORMAT,
     MARKDOWN_PROMPT_FENCE,
     PROMPT_FENCE,
+    PROMPTDOM_PREVIEW_MAX_LENGTH,
     PROMPTY_REGEX,
     SANITIZED_PROMPT_INJECTION,
     SCHEMA_DEFAULT_FORMAT,
@@ -1051,7 +1059,11 @@ async function tracePromptNode(
                 trace.startDetails(title, {
                     success: n.error ? false : undefined,
                 })
-                if (n.preview) trace.fence(n.preview, "markdown")
+                if (n.preview)
+                    trace.fence(
+                        ellipse(n.preview, PROMPTDOM_PREVIEW_MAX_LENGTH),
+                        "markdown"
+                    )
             } else trace.resultItem(!n.error, title)
             if (n.error) trace.error(undefined, n.error)
         },

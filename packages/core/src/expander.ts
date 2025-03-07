@@ -147,6 +147,7 @@ function traceEnv(
         model,
         skipIfEmpty: true,
         secrets: env.secrets,
+        maxLength: 0,
     })
     const vars = Object.entries(env.vars || {})
     if (vars.length) {
