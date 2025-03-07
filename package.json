@@ -75,7 +75,7 @@
         "genai:blogify": "node packages/cli/built/genaiscript.cjs run blogify-sample",
         "genai:tweetify": "node packages/cli/built/genaiscript.cjs run tweetify",
         "genai:docify": "node packages/cli/built/genaiscript.cjs run docify",
-        "gcm": "node packages/cli/built/genaiscript.cjs run gcm --model github:gpt-4o",
+        "gcm": "node packages/cli/built/genaiscript.cjs run gcm --model gcm",
         "prd": "node packages/cli/built/genaiscript.cjs run prd -prd --model github:gpt-4o",
         "prr": "node packages/cli/built/genaiscript.cjs run prr -prr --model github:gpt-4o-mini",
         "genai": "node packages/cli/built/genaiscript.cjs run",
@@ -96,7 +96,7 @@
             "release": true,
             "releaseName": "v${version}",
             "draft": true,
-            "releaseNotes": "node packages/cli/built/genaiscript.cjs run git-release-notes --cache --cache-name releases --model github:gpt-4o"
+            "releaseNotes": "node packages/cli/built/genaiscript.cjs run git-release-notes --cache --cache-name releases --model release"
         }
     },
     "devDependencies": {
