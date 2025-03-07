@@ -50,6 +50,10 @@ const fuzzDocs = await retrieval.fuzzSearch(kw.text, chunks, {
 console.debug(`fuzzDocs: ${fuzzDocs.length}`)
 def("DOCS", fuzzDocs, { flex: 1, ignoreEmpty: true })
 def("QUESTION", question)
-$`Implement the user request in <QUESTION>.
+$`You are an expert at the TypeScript, Node.JS and the GenAIScript script language documented in <DOCS>.`
+$`Your task is to implement a GenAIScript script that matches the user request in <QUESTION>.
+- Generate TypeScript ESM using async/await.
+- Generate comments to explain the code.
 - Use the information in <DOCS> to answer the question.
-- If the information is not in <DOCS>, say "I don't know".`
+- If the information is not in <DOCS>, say "I don't know".
+`
