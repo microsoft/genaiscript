@@ -1398,14 +1398,12 @@ function PromptParametersFields() {
     return (
         <>
             {scriptParameters && (
-                <vscode-collapsible title="Parameters" open>
-                    <JSONSchemaObjectForm
-                        schema={scriptParameters}
-                        value={parameters}
-                        fieldPrefix={""}
-                        onChange={setParameters}
-                    />
-                </vscode-collapsible>
+                <JSONSchemaObjectForm
+                    schema={scriptParameters}
+                    value={parameters}
+                    fieldPrefix={""}
+                    onChange={setParameters}
+                />
             )}
             {!!systemParameters.length && (
                 <vscode-collapsible title="System Parameters">
