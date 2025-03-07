@@ -2,6 +2,7 @@ import MiniSearch from "minisearch"
 import { resolveFileContent } from "./file"
 import { TraceOptions } from "./trace"
 import { randomHex } from "./crypto"
+import { CancellationOptions, checkCancelled } from "./cancellation"
 
 /**
  * Performs a fuzzy search on a set of workspace files using a query.
@@ -15,13 +16,15 @@ import { randomHex } from "./crypto"
 export async function fuzzSearch(
     query: string,
     files: WorkspaceFile[],
-    options?: FuzzSearchOptions & TraceOptions
+    options?: FuzzSearchOptions & TraceOptions & CancellationOptions
 ): Promise<WorkspaceFileWithScore[]> {
     // Destructure options to extract trace and topK, with defaulting to an empty object
-    const { trace, topK, minScore, ...otherOptions } = options || {}
+    const { trace, topK, minScore, cancellationToken, ...otherOptions } =
+        options || {}
 
     // Load the content for all provided files asynchronously
     for (const file of files) await resolveFileContent(file)
+    checkCancelled(cancellationToken)
 
     // assign ids
     const filesWithId = files.map((f) => ({
@@ -41,6 +44,7 @@ export async function fuzzSearch(
     await miniSearch.addAllAsync(
         filesWithId.filter((f) => !f.encoding && !!f.content)
     )
+    checkCancelled(cancellationToken)
 
     // Perform search using the provided query
     let results = miniSearch.search(query)

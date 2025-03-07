@@ -503,6 +503,7 @@ export class NodeHost extends EventTarget implements RuntimeHost {
             timeout = SHELL_EXEC_TIMEOUT,
             cancellationToken,
             stdin: input,
+            ignoreError,
         } = options || {}
         const trace = options?.trace?.startTraceDetails(label || command)
         try {
@@ -538,7 +539,7 @@ export class NodeHost extends EventTarget implements RuntimeHost {
             if (stderr) trace?.detailsFenced(`📩 stderr`, stderr)
             return { stdout, stderr, exitCode, failed }
         } catch (err) {
-            trace?.error("exec failed", err)
+            if (!ignoreError) trace?.error("exec failed", err)
             return {
                 stdout: "",
                 stderr: errorMessage(err),

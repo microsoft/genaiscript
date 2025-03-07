@@ -3182,6 +3182,11 @@ interface VectorSearchOptions extends EmbeddingsModelOptions {
      * Minimum similarity score
      */
     minScore?: number
+
+    /**
+     * Cache identifier for the embeddings
+     */
+    cache?: string
 }
 
 interface FuzzSearchOptions {
@@ -3910,6 +3915,11 @@ interface ShellOptions {
      * trace label
      */
     label?: string
+
+    /**
+     * Ignore exit code errors
+     */
+    ignoreError?: boolean
 }
 
 interface ShellOutput {
