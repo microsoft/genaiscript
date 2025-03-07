@@ -1,6 +1,5 @@
 script({
     flexTokens: 12000,
-    embeddingsModel: "ollama:nomic-embed-text"
 })
 
 const { files, vars } = env
@@ -37,6 +36,7 @@ if (!docs.ok) cancel("Could not fetch docs")
 const vectorDocs = await retrieval.vectorSearch(kw.text, docs.file, {
     topK: 100,
     minScore: 1,
+    embeddingsModel: "ollama:nomic-embed-text",
 })
 console.debug(`vectorDocs: ${vectorDocs.length}`)
 def("DOCS", vectorDocs, { flex: 1, ignoreEmpty: true })
