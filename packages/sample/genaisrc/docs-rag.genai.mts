@@ -1,5 +1,6 @@
 script({
     flexTokens: 12000,
+    embeddingsModel: "ollama:nomic-embed-text"
 })
 
 const { files, vars } = env

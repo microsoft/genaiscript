@@ -213,7 +213,7 @@ export async function vectorSearch(
         // Pull the model
         await runtimeHost.pullModel(configuration, { trace, cancellationToken })
         checkCancelled(cancellationToken)
-        const embeddings = new OpenAIEmbeddings(info, configuration, { trace })
+        const embeddings = new OpenAIEmbeddings(info, configuration, { trace, cancellationToken })
 
         // Create a local document index
         const index = new LocalDocumentIndex({
