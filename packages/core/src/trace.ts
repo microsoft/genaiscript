@@ -446,11 +446,10 @@ ${this.toResultIcon(success, "")}${title}
                                 secret.slice(0, 3) +
                                     "*".repeat(secret.length - 3)
                             )
-                        const ext = host.path.extname(file.filename).slice(1)
                         this.detailsFenced(
                             `<code>${file.filename}</code>: ${suffix}`,
                             preview,
-                            ext
+                            "text"
                         )
                     } else
                         this.itemValue(

@@ -86,14 +86,12 @@ export function installGlobals() {
         content: (text) => splitMarkdown(text)?.content, // Extract content from markdown
         updateFrontmatter: (text, frontmatter, format): string =>
             updateFrontmatter(text, frontmatter, { format }), // Update frontmatter in markdown
-        chunk: async (filename, options) => {
-            const file = typeof filename === "string" ? { filename } : filename
-            await resolveFileContent(file)
+        chunk: async (text, options) => {
             const encoding = await resolveTokenEncoder(options?.model, {
                 disableFallback: false,
             })
             const res = chunkMarkdown(
-                file.content,
+                text,
                 (text) => encoding.encode(text).length,
                 options?.maxTokens
             )

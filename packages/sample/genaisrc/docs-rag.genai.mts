@@ -31,24 +31,41 @@ const docs = await host.fetchText(
     "https://microsoft.github.io/genaiscript/llms-full.txt"
 )
 if (!docs.ok) cancel("Could not fetch docs")
-docs.file.content = docs.file.content.replace(/!\[\]\(\<data:image\/svg\+xml.*?>\)/g, "")
+docs.file.content = docs.file.content.replace(
+    /!\[\]\(\<data:image\/svg\+xml.*?>\)/g,
+    ""
+)
 
+const chunks = await MD.chunk(docs.file, { maxTokens: 2000 })
+console.debug(`chunks: ${chunks.length}`)
 // vector search
-const vectorDocs = await retrieval.vectorSearch(kw.text, docs.file, {
-    topK: 100,
-    minScore: 1,
+const vectorDocs = await retrieval.vectorSearch(kw.text, chunks, {
+    topK: 10,
 })
 console.debug(`vectorDocs: ${vectorDocs.length}`)
-def("DOCS", vectorDocs, { flex: 1, ignoreEmpty: true })
+console.debug(
+    YAML.stringify(
+        vectorDocs.map(({ filename, content }) => ({
+            filename: filename.slice(0, 20),
+            kb: (content.length / 1000) | 0,
+        }))
+    )
+)
+def("DOCS", vectorDocs, { ignoreEmpty: true, flex: 1 })
 // fuzzy search
-const chunks = await MD.chunk(docs.file, { maxTokens: 1000 })
-console.debug(`chunks: ${chunks.length}`)
 const fuzzDocs = await retrieval.fuzzSearch(kw.text, chunks, {
-    topK: 100,
-    minScore: 1,
+    topK: 10,
 })
 console.debug(`fuzzDocs: ${fuzzDocs.length}`)
-def("DOCS", fuzzDocs, { flex: 1, ignoreEmpty: true })
+console.debug(
+    YAML.stringify(
+        fuzzDocs.map(({ content }) => ({
+            kb: Math.ceil(content.length / 1000),
+        }))
+    )
+)
+//def("DOCS", fuzzDocs, { ignoreEmpty: true, flex: 1 })
+
 def("QUESTION", question)
 $`You are an expert at the TypeScript, Node.JS and the GenAIScript script language documented in <DOCS>.`
 $`Your task is to implement a GenAIScript script that matches the user request in <QUESTION>.
@@ -57,4 +74,3 @@ $`Your task is to implement a GenAIScript script that matches the user request i
 - Use the information in <DOCS> to answer the question.
 - If the information is not in <DOCS>, say "I don't know".
 `
-console.log(`cooking`)
