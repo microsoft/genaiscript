@@ -37,7 +37,6 @@ docs.file.content = docs.file.content.replace(/!\[\]\(\<data:image\/svg\+xml.*?>
 const vectorDocs = await retrieval.vectorSearch(kw.text, docs.file, {
     topK: 100,
     minScore: 1,
-    embeddingsModel: "ollama:nomic-embed-text",
 })
 console.debug(`vectorDocs: ${vectorDocs.length}`)
 def("DOCS", vectorDocs, { flex: 1, ignoreEmpty: true })
