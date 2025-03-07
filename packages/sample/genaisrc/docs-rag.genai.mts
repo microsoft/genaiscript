@@ -31,6 +31,7 @@ const docs = await host.fetchText(
     "https://microsoft.github.io/genaiscript/llms-full.txt"
 )
 if (!docs.ok) cancel("Could not fetch docs")
+docs.file.content = docs.file.content.replace(/!\[\]\(\<data:image\/svg\+xml.*?>\)/g, "")
 
 // vector search
 const vectorDocs = await retrieval.vectorSearch(kw.text, docs.file, {
@@ -57,3 +58,4 @@ $`Your task is to implement a GenAIScript script that matches the user request i
 - Use the information in <DOCS> to answer the question.
 - If the information is not in <DOCS>, say "I don't know".
 `
+console.log(`cooking`)

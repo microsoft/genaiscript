@@ -207,6 +207,7 @@ export async function createPromptContext(
                     ...searchOptions,
                     folderPath,
                     trace: vecTrace,
+                    cancellationToken
                 })
                 // Log search results
                 vecTrace.files(res, {
