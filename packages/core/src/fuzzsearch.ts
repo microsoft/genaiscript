@@ -3,7 +3,6 @@ import { resolveFileContent } from "./file"
 import { TraceOptions } from "./trace"
 import { randomHex } from "./crypto"
 import { CancellationOptions, checkCancelled } from "./cancellation"
-import { logError } from "./util"
 
 /**
  * Performs a fuzzy search on a set of workspace files using a query.
@@ -20,7 +19,7 @@ export async function fuzzSearch(
     options?: FuzzSearchOptions & TraceOptions & CancellationOptions
 ): Promise<WorkspaceFileWithScore[]> {
     // Destructure options to extract trace and topK, with defaulting to an empty object
-    const { trace, cancellationToken, topK, minScore, ...otherOptions } =
+    const { trace, topK, minScore, cancellationToken, ...otherOptions } =
         options || {}
 
     // Load the content for all provided files asynchronously
@@ -42,15 +41,9 @@ export async function fuzzSearch(
     })
 
     // Add all files with content to the MiniSearch index
-    try {
-        await miniSearch.addAllAsync(
-            filesWithId.filter((f) => !f.encoding && !!f.content)
-        )
-    } catch (e) {
-        logError(e)
-        trace?.error(e)
-        return []
-    }
+    await miniSearch.addAllAsync(
+        filesWithId.filter((f) => !f.encoding && !!f.content)
+    )
     checkCancelled(cancellationToken)
 
     // Perform search using the provided query

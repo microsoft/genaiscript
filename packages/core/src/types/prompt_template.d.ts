@@ -3230,7 +3230,7 @@ interface FuzzSearchOptions {
      */
     topK?: number
     /**
-     * Minimum similarity score
+     * Minimum score
      */
     minScore?: number
 }

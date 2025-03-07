@@ -17,7 +17,7 @@ export async function chunkMarkdown(
 
     type Section = { heading: string; lines: string[]; level: number }
 
-    const filename = filenameOrFileToFilename(markdown)
+    const filename = typeof markdown === "object" ? markdown.filename : undefined
     if (typeof markdown === "object") {
         if (markdown.encoding === "base64")
             throw new Error("base64 encoding not supported")

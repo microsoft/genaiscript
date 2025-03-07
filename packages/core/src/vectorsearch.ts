@@ -19,9 +19,9 @@ import { JSONLineCache } from "./cache"
 import { EmbeddingCreateParams, EmbeddingCreateResponse } from "./chattypes"
 import { LanguageModelConfiguration } from "./server/messages"
 import { getConfigHeaders } from "./openai"
-import { logVerbose } from "./util"
+import { ellipse, logVerbose } from "./util"
 import { TraceOptions } from "./trace"
-import { CancellationOptions } from "./cancellation"
+import { CancellationOptions, checkCancelled } from "./cancellation"
 import { trimTrailingSlash } from "./cleaners"
 
 /**
@@ -60,7 +60,7 @@ class OpenAIEmbeddings implements EmbeddingsModel {
     public constructor(
         readonly info: ModelConnectionOptions,
         readonly configuration: LanguageModelConfiguration,
-        readonly options?: TraceOptions
+        readonly options?: TraceOptions & CancellationOptions
     ) {
         this.cache = JSONLineCache.byName<
             EmbeddingsCacheKey,
@@ -88,6 +88,7 @@ class OpenAIEmbeddings implements EmbeddingsModel {
         const cached = await this.cache.get(cacheKey)
         if (cached) return cached
 
+        checkCancelled(this.options?.cancellationToken)
         // Create embeddings if not cached
         const res = await this.uncachedCreateEmbeddings(inputs)
         if (res.status === "success") this.cache.set(cacheKey, res)
@@ -129,9 +130,12 @@ class OpenAIEmbeddings implements EmbeddingsModel {
         }
         const fetch = await createFetch({ retryOn: [429] })
         if (trace) traceFetchPost(trace, url, headers, body)
-        logVerbose(`embedding ${model}`)
+        logVerbose(
+            `embeddings: ${ellipse(typeof input === "string" ? input : input?.join(","), 32)} with ${provider}:${model}`
+        )
 
         // Send POST request to create embeddings
+        checkCancelled(this.options?.cancellationToken)
         const resp = await fetch(url, {
             method: "POST",
             headers,
@@ -178,7 +182,7 @@ export async function vectorSearch(
     const {
         topK,
         folderPath,
-        embeddingsModel = runtimeHost.modelAliases.embeddings.model,
+        embeddingsModel,
         minScore = 0,
         trace,
         cancellationToken,
@@ -189,9 +193,7 @@ export async function vectorSearch(
         trace?.itemValue(`model`, embeddingsModel)
 
         // Import the local document index
-        const { LocalDocumentIndex } = await import(
-            "vectra/lib/LocalDocumentIndex"
-        )
+        const { LocalDocumentIndex } = await import("vectra")
         const tokenizer = { encode, decode }
 
         // Resolve connection info for the embeddings model
@@ -204,13 +206,15 @@ export async function vectorSearch(
                 defaultModel: EMBEDDINGS_MODEL_ID,
             }
         )
+        checkCancelled(cancellationToken)
         if (info.error) throw new Error(info.error)
         if (!configuration)
             throw new Error("No configuration found for vector search")
 
         // Pull the model
         await runtimeHost.pullModel(configuration, { trace, cancellationToken })
-        const embeddings = new OpenAIEmbeddings(info, configuration, { trace })
+        checkCancelled(cancellationToken)
+        const embeddings = new OpenAIEmbeddings(info, configuration, { trace, cancellationToken })
 
         // Create a local document index
         const index = new LocalDocumentIndex({
@@ -224,16 +228,19 @@ export async function vectorSearch(
             },
         })
         await index.createIndex({ version: 1, deleteIfExists: true })
+        checkCancelled(cancellationToken)
 
         // Insert documents into the index
         for (const file of files) {
             const { filename, content } = file
             await index.upsertDocument(filename, content)
+            checkCancelled(cancellationToken)
         }
 
         // Query documents based on the search query
         const res = await index.queryDocuments(query, { maxDocuments: topK })
         const r: WorkspaceFileWithScore[] = []
+        checkCancelled(cancellationToken)
 
         // Filter and return results that meet the minScore
         for (const re of res.filter((re) => re.score >= minScore)) {

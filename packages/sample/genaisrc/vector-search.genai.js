@@ -7,12 +7,6 @@ script({
     },
 })
 
-const embeddingsModel = env.vars.embeddingsModel || "ollama:nomic-embed-text"
-def(
-    "FILES",
-    await retrieval.vectorSearch("lorem", env.files, {
-        embeddingsModel,
-    })
-)
+def("FILES", await retrieval.vectorSearch("lorem", env.files))
 
 $`Summarize FILES. Use one short sentence.`

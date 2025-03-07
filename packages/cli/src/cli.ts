@@ -399,11 +399,13 @@ export async function cli() {
         .alias("retreival")
         .description("RAG support")
     retrieval
-        .command("search")
+        .command("vector")
+        .alias("search")
         .description("Search using vector embeddings similarity")
         .arguments("<query> [files...]")
         .option("-ef, --excluded-files <string...>", "excluded files")
         .option("-tk, --top-k <number>", "maximum number of results")
+        .option("-ms, --min-score <number>", "minimum score")
         .action(retrievalSearch) // Action to perform vector search
     retrieval
         .command("fuzz")
@@ -411,6 +413,7 @@ export async function cli() {
         .arguments("<query> [files...]")
         .option("-ef, --excluded-files <string...>", "excluded files")
         .option("-tk, --top-k <number>", "maximum number of results")
+        .option("-ms, --min-score <number>", "minimum score")
         .action(retrievalFuzz) // Action to perform fuzzy search
 
     // Define 'serve' command to start a local server
