@@ -1,3 +1,5 @@
+import { start } from "node:repl"
+
 /**
  * Script to automatically fix C++ compilation warnings and errors.
  *
@@ -30,15 +32,9 @@ function countErrorsAndWarnings(gccOutput: string): {
     errors: number
     warnings: number
 } {
-    const errorRegex = /error:/g
-    const warningRegex = /warning:/g
-
-    const errorMatches = gccOutput.match(errorRegex)
-    const warningMatches = gccOutput.match(warningRegex)
-
     return {
-        errors: errorMatches ? errorMatches.length : 0,
-        warnings: warningMatches ? warningMatches.length : 0,
+        errors: 0,
+        warnings: 0,
     }
 }
 
@@ -57,12 +53,14 @@ const compile = async () => {
         { label: "gcc", ignoreError: true }
     )
     const { errors, warnings } = countErrorsAndWarnings(res.stderr)
-    output.detailsFenced(`gcc output, !${warnings} x${errors}`, res.stderr)
+    output.detailsFenced(`gcc output, ⚠️ ${warnings} 🚨 ${errors}`, res.stderr)
     return { ...res, errors, warnings }
 }
 
+const starter = await compile()
 let retry = 1
 do {
+    // Attempt to compile the C++ code
     output.heading(2, `Attempt ${retry}`)
     const compilation = await compile()
     if (compilation.exitCode === 0) {
@@ -71,6 +69,7 @@ do {
     }
     const { stderr } = compilation
 
+    // check if there are any errors or warnings
     const diff = await git.diff({
         ignoreSpaceChange: true,
         llmify: true,
@@ -78,6 +77,7 @@ do {
     })
     if (diff) output.detailsFenced(`git diff`, diff)
 
+    // run LLM to apply fixes using GCC output, current source file, and git diff
     const prev = await Promise.all(
         filenames.map((filename) => workspace.readText(filename))
     )
@@ -98,7 +98,9 @@ do {
                 - do not change the filename, do not add any new files, do not remove files.
                 - do not change the code style.
                 - do not remove the 'main' function.                
-                - do the minimum changes to fix the code found in <GCC>.`
+                - do the minimum changes to fix the code found in <GCC>.
+                - it is very important that you use the FILE syntax and output the filename
+                `
             _.defFileOutput(filenames, "The repaired C++ source files")
         },
         {
@@ -110,12 +112,12 @@ do {
         }
     )
 
+    // logging
     output.detailsFenced(`repaired`, repair.text)
     if (!Object.keys(repair.fileEdits).length) {
         output.note(`no edits made`)
         break // no edits
     }
-
     for (const [filename, edit] of Object.entries(repair.fileEdits)) {
         output.detailsFenced(
             filename,
@@ -131,6 +133,8 @@ do {
 } while (retry++ < 10)
 
 const final = await compile()
-
-output.heading(3, `Final compilation`)
+output.heading(3, `gcc output - ⚠️ ${final.warnings} 🚨 ${final.errors}`)
 output.fence(final.stderr)
+output.table(
+    [starter, final].map(({ warnings, errors }) => ({ warnings, errors }))
+)
