@@ -267,7 +267,7 @@ export async function createPromptContext(
             }
             // Execute the command using the runtime host
             const res = await runtimeHost.exec(undefined, command, args, {
-                cwd: options?.cwd,
+                ...(options || {}),
                 trace,
             })
             return res

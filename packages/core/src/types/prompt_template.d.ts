@@ -3906,6 +3906,11 @@ interface ShellOptions {
      * trace label
      */
     label?: string
+
+    /**
+     * Do not trace errors
+     */
+    ignoreError?: boolean
 }
 
 interface ShellOutput {
