@@ -199,21 +199,21 @@ export async function createPromptContext(
 
                 await resolveFileContents(files)
                 searchOptions.embeddingsModel =
-                    searchOptions?.embeddingsModel ??
-                    options?.embeddingsModel
+                    searchOptions?.embeddingsModel ?? options?.embeddingsModel
                 const key = await hash({ files, searchOptions }, { length: 12 })
                 const folderPath = dotGenaiscriptPath("vectors", key)
                 const res = await vectorSearch(q, files, {
                     ...searchOptions,
                     folderPath,
                     trace: vecTrace,
-                    cancellationToken
+                    cancellationToken,
                 })
                 // Log search results
                 vecTrace.files(res, {
                     model,
                     secrets: env.secrets,
                     skipIfEmpty: true,
+                    maxLength: 128,
                 })
                 return res
             } finally {
