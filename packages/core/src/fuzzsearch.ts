@@ -1,6 +1,9 @@
 import MiniSearch from "minisearch"
 import { resolveFileContent } from "./file"
 import { TraceOptions } from "./trace"
+import { randomHex } from "./crypto"
+import { CancellationOptions, checkCancelled } from "./cancellation"
+import { logError } from "./util"
 
 /**
  * Performs a fuzzy search on a set of workspace files using a query.
@@ -14,38 +17,54 @@ import { TraceOptions } from "./trace"
 export async function fuzzSearch(
     query: string,
     files: WorkspaceFile[],
-    options?: FuzzSearchOptions & TraceOptions
+    options?: FuzzSearchOptions & TraceOptions & CancellationOptions
 ): Promise<WorkspaceFileWithScore[]> {
     // Destructure options to extract trace and topK, with defaulting to an empty object
-    const { trace, topK, ...otherOptions } = options || {}
+    const { trace, cancellationToken, topK, minScore, ...otherOptions } =
+        options || {}
 
     // Load the content for all provided files asynchronously
     for (const file of files) await resolveFileContent(file)
+    checkCancelled(cancellationToken)
+
+    // assign ids
+    const filesWithId = files.map((f) => ({
+        ...f,
+        id: randomHex(32),
+    }))
 
     // Initialize the MiniSearch instance with specified fields and options
     const miniSearch = new MiniSearch({
-        idField: "filename", // Unique identifier for documents
-        fields: ["content"], // Fields to index for searching
-        storeFields: ["content"], // Fields to store in results
+        idField: "id", // Unique identifier for documents
+        fields: ["filename", "content"], // Fields to index for searching
+        storeFields: ["filename", "content"], // Fields to store in results
         searchOptions: otherOptions, // Additional search options
     })
 
     // Add all files with content to the MiniSearch index
-    await miniSearch.addAllAsync(
-        files.filter((f) => !f.encoding && !!f.content)
-    )
+    try {
+        await miniSearch.addAllAsync(
+            filesWithId.filter((f) => !f.encoding && !!f.content)
+        )
+    } catch (e) {
+        logError(e)
+        trace?.error(e)
+        return []
+    }
+    checkCancelled(cancellationToken)
 
     // Perform search using the provided query
     let results = miniSearch.search(query)
 
     // Limit results to top K if specified
     if (topK > 0) results = results.slice(0, topK)
+    if (minScore > 0) results = results.filter((r) => r.score >= minScore)
 
     // Map search results to WorkspaceFileWithScore structure
     return results.map(
         (r) =>
             <WorkspaceFileWithScore>{
-                filename: r.id, // Map ID to filename
+                filename: r.filename, // Map ID to filename
                 content: r.content, // Map content from search result
                 score: r.score, // Include the relevance score
             }
