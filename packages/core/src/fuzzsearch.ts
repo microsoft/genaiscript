@@ -1,6 +1,7 @@
 import MiniSearch from "minisearch"
 import { resolveFileContent } from "./file"
 import { TraceOptions } from "./trace"
+import { randomHex } from "./crypto"
 
 /**
  * Performs a fuzzy search on a set of workspace files using a query.
@@ -22,17 +23,23 @@ export async function fuzzSearch(
     // Load the content for all provided files asynchronously
     for (const file of files) await resolveFileContent(file)
 
+    // assign ids
+    const filesWithId = files.map((f) => ({
+        ...f,
+        id: randomHex(32),
+    }))
+
     // Initialize the MiniSearch instance with specified fields and options
     const miniSearch = new MiniSearch({
-        idField: "filename", // Unique identifier for documents
-        fields: ["content"], // Fields to index for searching
-        storeFields: ["content"], // Fields to store in results
+        idField: "id", // Unique identifier for documents
+        fields: ["filename", "content"], // Fields to index for searching
+        storeFields: ["filename", "content"], // Fields to store in results
         searchOptions: otherOptions, // Additional search options
     })
 
     // Add all files with content to the MiniSearch index
     await miniSearch.addAllAsync(
-        files.filter((f) => !f.encoding && !!f.content)
+        filesWithId.filter((f) => !f.encoding && !!f.content)
     )
 
     // Perform search using the provided query
@@ -45,7 +52,7 @@ export async function fuzzSearch(
     return results.map(
         (r) =>
             <WorkspaceFileWithScore>{
-                filename: r.id, // Map ID to filename
+                filename: r.filename, // Map ID to filename
                 content: r.content, // Map content from search result
                 score: r.score, // Include the relevance score
             }

@@ -130,7 +130,7 @@ class OpenAIEmbeddings implements EmbeddingsModel {
         const fetch = await createFetch({ retryOn: [429] })
         if (trace) traceFetchPost(trace, url, headers, body)
         logVerbose(
-            `embeddings: ${ellipse(typeof input === "string" ? input : input?.join(","), 22)} with ${model}`
+            `embeddings: ${ellipse(typeof input === "string" ? input : input?.join(","), 32)} with ${model}`
         )
 
         // Send POST request to create embeddings
