@@ -1,3 +1,7 @@
+/**
+ * GenAIScript Ambient Type Definition File
+ * @version 0.0.0
+ */
 type OptionsOrString<TOptions extends string> = (string & {}) | TOptions
 
 type ElementOrArray<T> = T | T[]

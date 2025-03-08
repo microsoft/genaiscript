@@ -3,6 +3,7 @@ const { parse } = require("json5")
 const { join } = require("path")
 
 async function main() {
+    const pkg = JSON.parse(readFileSync("../../package.json", "utf-8"))
     const dir = "../cli/genaisrc"
     const fp = "./src/default_prompts.ts"
     const fmp = "../../docs/src/content/docs/reference/scripts/system.mdx"
@@ -26,6 +27,16 @@ async function main() {
         "./src/genaiscript-api-provider.mjs",
         "utf-8"
     )
+    const genaiscriptdts = [
+        "./src/types/prompt_template.d.ts",
+        "./src/types/prompt_type.d.ts",
+    ]
+        .map((fn) => readFileSync(fn, { encoding: "utf-8" }))
+        .map((src) =>
+            src.replace(/^\/\/\/\s+<reference\s+path="[^"]+"\s*\/>\s*$/gm, "")
+        )
+        .join("")
+        .replace("@version 0.0.0", `@version ${pkg.version}`)
     const promptDefs = {
         "jsconfig.json": JSON.stringify(
             {
@@ -62,18 +73,7 @@ async function main() {
             null,
             4
         ),
-        "genaiscript.d.ts": [
-            "./src/types/prompt_template.d.ts",
-            "./src/types/prompt_type.d.ts",
-        ]
-            .map((fn) => readFileSync(fn, { encoding: "utf-8" }))
-            .map((src) =>
-                src.replace(
-                    /^\/\/\/\s+<reference\s+path="[^"]+"\s*\/>\s*$/gm,
-                    ""
-                )
-            )
-            .join(""),
+        "genaiscript.d.ts": genaiscriptdts,
     }
 
     // listing list of supported wasm languages
