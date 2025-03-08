@@ -229,7 +229,7 @@ export async function expandTemplate(
     env.meta.model = model
     Object.freeze(env.meta)
 
-    trace.startDetails("💾 script")
+    trace.startDetails("💾 script", { expanded: true })
 
     traceEnv(model, trace, env)
 
