@@ -839,6 +839,10 @@
             "price_per_million_input_tokens": 0.04,
             "price_per_million_output_tokens": 0.04
         },
+        "azure_ai_inference:deepseek-v3": {
+            "price_per_million_input_tokens": 0.00114,
+            "price_per_million_output_tokens": 0.00456
+        },
         "google:gemini-1.5-flash": {
             "price_per_million_input_tokens": 0.075,
             "price_per_million_output_tokens": 0.3,
