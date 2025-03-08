@@ -313,6 +313,11 @@
             {
                 "title": "GenAIScript",
                 "properties": {
+                    "genaiscript.localTypeDefinitions": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Use local type definitions for GenAIScript (.genaiscript.d.ts and tsconfig.json in any project containing *.genai.* files)."
+                    },
                     "genaiscript.hideServerTerminal": {
                         "type": "boolean",
                         "default": true,

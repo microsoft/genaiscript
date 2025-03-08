@@ -391,7 +391,9 @@ export class ExtensionState extends EventTarget {
 
     async fixPromptDefinitions() {
         const project = this.project
-        if (project) await fixPromptDefinitions(project)
+        const config = this.getConfiguration()
+        const fix = !!config.get("localTypeDefinitions")
+        if (project && fix) await fixPromptDefinitions(project)
     }
 
     async parseWorkspace() {
