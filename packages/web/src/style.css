@@ -7,6 +7,11 @@ body {
     display: block;
     white-space: pre-wrap;
 }
+
+div.readme {
+    margin: 0.5rem;
+}
+
 div.snippet {
     position: relative;
 }

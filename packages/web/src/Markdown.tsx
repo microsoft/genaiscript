@@ -48,7 +48,16 @@ const genaiscriptSchema = Object.freeze({
     },
 })
 
-const readmeSchema = defaultSchema
+const readmeSchema = Object.freeze({
+    ...genaiscriptSchema,
+    tagNames: genaiscriptSchema.tagNames.filter(
+        (tag) =>
+            tag !== "img" &&
+            tag !== "video" &&
+            tag !== "audio" &&
+            tag !== "iframe"
+    ),
+})
 
 export default function Markdown(props: {
     aiDisclaimer?: boolean

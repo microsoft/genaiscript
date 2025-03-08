@@ -95,6 +95,7 @@ import {
 } from "./configuration"
 import { JSONSchemaObjectForm } from "./JSONSchema"
 import { useLocationHashValue } from "./useLocationHashValue"
+import { ActionButton } from "./ActionButton"
 
 const fetchScripts = async (): Promise<Project> => {
     const res = await fetch(`${base}/api/scripts`, {
@@ -654,7 +655,11 @@ function ProjectHeader() {
                     {remoteSlug}
                 </vscode-badge>
             ) : null}
-            {markdown ? <Markdown readme={true}>{markdown}</Markdown> : null}
+            {markdown ? (
+                <div className="readme">
+                    <Markdown readme={true}>{markdown}</Markdown>
+                </div>
+            ) : null}
         </vscode-collapsible>
     )
 }
@@ -1321,7 +1326,9 @@ function ScriptDescription() {
         <vscode-form-helper>
             {title ? <b>{title}</b> : null}
             {description ? (
-                <Markdown className="no-margins">{description}</Markdown>
+                <Markdown readme={true} className="no-margins">
+                    {description}
+                </Markdown>
             ) : null}
         </vscode-form-helper>
     )
@@ -1329,21 +1336,11 @@ function ScriptDescription() {
 
 function RefreshButton() {
     const { refresh } = useApi()
-
-    const handleClick = (e: React.UIEvent) => {
-        e.preventDefault()
-        refresh()
-    }
-
     return (
-        <vscode-icon
-            tabIndex={0}
+        <ActionButton
             name="refresh"
-            action-icon
-            label="refresh the scripts"
-            onClick={handleClick}
-            onKeyDown={handleClick}
-            slot="actions"
+            label="reload script list"
+            onClick={refresh}
         />
     )
 }
