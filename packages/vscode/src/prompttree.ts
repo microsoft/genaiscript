@@ -20,7 +20,9 @@ class PromptTreeDataProvider
         if (typeof element === "string") {
             const item = new vscode.TreeItem(
                 element,
-                vscode.TreeItemCollapsibleState.Collapsed
+                element === "system"
+                    ? vscode.TreeItemCollapsibleState.Collapsed
+                    : vscode.TreeItemCollapsibleState.Expanded
             )
             item.id = `genaiscript.promptCategory.${element}`
             return item
