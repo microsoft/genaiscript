@@ -93,6 +93,7 @@ export async function startServer(options: {
         logWarn(`port ${oldPort} in use, using port ${port}`)
     }
     // store original working directory
+    await runtimeHost.readConfig()
     const cwd = process.cwd()
 
     if (remote) {
