@@ -2921,8 +2921,8 @@ The following npm packages may be included in this product:
  - @types/http-cache-semantics@4.0.4
  - @types/node-fetch@2.6.12
  - @types/node@16.9.1
- - @types/node@18.19.79
- - @types/node@22.13.9
+ - @types/node@18.19.80
+ - @types/node@22.13.10
  - @types/turndown@5.0.5
  - @types/uuid@9.0.8
  - @types/yauzl@2.10.3
@@ -2955,7 +2955,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.111.4
+ - genaiscript-vscode@1.112.1
 
 This package contains the following license:
 
@@ -7357,20 +7357,20 @@ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 
 The following npm packages may be included in this product:
 
- - @inquirer/checkbox@4.1.2
- - @inquirer/confirm@5.1.6
- - @inquirer/core@10.1.7
- - @inquirer/editor@4.2.7
- - @inquirer/expand@4.0.9
- - @inquirer/figures@1.0.10
- - @inquirer/input@4.1.6
- - @inquirer/number@3.0.9
- - @inquirer/password@4.0.9
- - @inquirer/prompts@7.3.2
- - @inquirer/rawlist@4.0.9
- - @inquirer/search@3.0.9
- - @inquirer/select@4.0.9
- - @inquirer/type@3.0.4
+ - @inquirer/checkbox@4.1.3
+ - @inquirer/confirm@5.1.7
+ - @inquirer/core@10.1.8
+ - @inquirer/editor@4.2.8
+ - @inquirer/expand@4.0.10
+ - @inquirer/figures@1.0.11
+ - @inquirer/input@4.1.7
+ - @inquirer/number@3.0.10
+ - @inquirer/password@4.0.10
+ - @inquirer/prompts@7.3.3
+ - @inquirer/rawlist@4.0.10
+ - @inquirer/search@3.0.10
+ - @inquirer/select@4.0.10
+ - @inquirer/type@3.0.5
 
 These packages each contain the following license:
 
@@ -8941,10 +8941,10 @@ The following npm packages may be included in this product:
  - @tokenizer/token@0.3.0
  - agent-base@6.0.2
  - eastasianwidth@0.2.0
- - genaiscript-core-internal@1.111.4
- - genaiscript-sample@1.111.4
- - genaiscript-web@1.111.4
- - genaiscript@1.111.4
+ - genaiscript-core-internal@1.112.1
+ - genaiscript-sample@1.112.1
+ - genaiscript-web@1.112.1
+ - genaiscript@1.112.1
  - https-proxy-agent@5.0.1
  - isarray@1.0.0
  - javascript-natural-sort@0.7.1
