@@ -1,0 +1,21 @@
+[zod](https://zod.dev/) is a TypeScript-first schema validation with static type inference.
+
+```ts
+import { z } from "genaiscript/runtime"
+// city array schema
+const CitySchema = z.array(
+    z.object({
+        name: z.string(),
+        population: z.number(),
+        url: z.string(),
+    })
+)
+```
+
+The zod schemas can be used in `defSchema` to constrain the output of the tool.
+
+```ts
+// JSON schema to constrain the output of the tool.
+const schema = defSchema("CITY_SCHEMA", CitySchema)
+...
+```
