@@ -60,7 +60,7 @@ import { readFile } from "fs/promises"
 import { unthink } from "../../core/src/think"
 import { NodeHost } from "./nodehost"
 import { findRandomOpenPort, isPortInUse } from "../../core/src/net"
-import { tryReadJSON } from "../../core/src/fs"
+import { tryReadJSON, tryReadText } from "../../core/src/fs"
 
 /**
  * Starts a WebSocket server for handling chat and script execution.
@@ -109,8 +109,9 @@ export async function startServer(options: {
     }
 
     // read current project info
-    const { name, displayName, description, version, homepage } =
+    const { name, displayName, description, version, homepage, author } =
         (await tryReadJSON("package.json")) || {}
+    const readme = await tryReadText("README.genai.md")
 
     const wss = new WebSocketServer({ noServer: true })
 
@@ -219,7 +220,9 @@ export async function startServer(options: {
                 name: displayName || name,
                 description,
                 version,
-                homepage
+                homepage,
+                author,
+                readme,
             }),
         }) satisfies ServerEnvResponse
     }

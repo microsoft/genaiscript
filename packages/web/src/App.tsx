@@ -631,7 +631,8 @@ function GenAIScriptLogo(props: { height: string }) {
 function ProjectHeader() {
     const env = useEnv()
     const { remote, configuration } = env || {}
-    const { name, description, version, homepage } = configuration || {}
+    const { name, description, version, homepage, author, readme } =
+        configuration || {}
     if (!configuration) return null
 
     const { url, branch } = remote || {}
@@ -640,7 +641,10 @@ function ProjectHeader() {
     const markdown = useMemo(() => {
         const res: string[] = [
             description,
+            readme,
+            !!author && `- author: ${author}`,
             !!version && `- version: ${version}`,
+            !!homepage && `- homepage: [${homepage}](${homepage})`,
             !!remoteSlug &&
                 `- remote: [${remoteSlug}](https://github.com/${remoteSlug})`,
         ]

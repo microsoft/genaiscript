@@ -94,6 +94,8 @@ export interface ServerEnvResponse extends ResponseStatus {
         description?: string
         version?: string
         homepage?: string
+        readme?: string
+        author?: string
     }
 }
 
