@@ -89,6 +89,12 @@ export interface ServerEnvResponse extends ResponseStatus {
         url: string
         branch?: string
     }
+    configuration: {
+        name?: string
+        description?: string
+        version?: string
+        homepage?: string
+    }
 }
 
 export interface PromptScriptTestRunOptions
