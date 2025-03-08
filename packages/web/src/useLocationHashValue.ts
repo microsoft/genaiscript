@@ -2,7 +2,7 @@ import { Dispatch, SetStateAction, useEffect, useState } from "react"
 
 export function useLocationHashValue(
     name: string
-): ReturnType<typeof useState<string>> {
+): ReturnType<typeof useState<string | null>> {
     const read = () =>
         new URLSearchParams(window.location.hash.slice(1)).get(name)
     const [value, setValue] = useState(read)
