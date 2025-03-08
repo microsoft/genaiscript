@@ -1139,15 +1139,15 @@ interface WorkspaceFileSystem {
 
     /**
      * Performs a grep search over the files in the workspace
-     * @param query
+     * @param pattern
      * @param globs
      */
     grep(
-        query: string | RegExp,
+        pattern: string | RegExp,
         options?: WorkspaceGrepOptions
     ): Promise<WorkspaceGrepResult>
     grep(
-        query: string | RegExp,
+        pattern: string | RegExp,
         glob: string,
         options?: Omit<WorkspaceGrepOptions, "path" | "glob">
     ): Promise<WorkspaceGrepResult>

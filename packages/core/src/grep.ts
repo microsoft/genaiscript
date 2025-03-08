@@ -8,17 +8,17 @@ import { arrayify } from "./util"
 import { filterGitIgnore } from "./gitignore"
 
 export async function grepSearch(
-    query: string | RegExp,
+    pattern: string | RegExp,
     options?: TraceOptions & WorkspaceGrepOptions
 ): Promise<{ files: WorkspaceFile[]; matches: WorkspaceFile[] }> {
     const { rgPath } = await import("@lvce-editor/ripgrep")
     const { path: paths, glob: globs, readText, applyGitIgnore } = options || {}
     const args: string[] = ["--json", "--multiline", "--context", "3"]
-    if (typeof query === "string") {
-        args.push("--smart-case", query)
+    if (typeof pattern === "string") {
+        args.push("--smart-case", pattern)
     } else {
-        if (query.ignoreCase) args.push("--ignore-case")
-        args.push(query.source)
+        if (pattern.ignoreCase) args.push("--ignore-case")
+        args.push(pattern.source)
     }
     if (globs)
         for (const glob of globs) {

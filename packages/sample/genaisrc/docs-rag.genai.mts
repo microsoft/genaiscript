@@ -1,5 +1,5 @@
 script({
-    flexTokens: 12000,
+    flexTokens: 64000,
 })
 
 const { files, vars } = env
@@ -25,6 +25,7 @@ if (kw.error) cancel(kw.error.message)
 
 // user input
 def("FILES", files, { ignoreEmpty: true })
+console.log(`search query: ${kw.text}`)
 
 // rag the docs
 const docs = await host.fetchText(
@@ -37,11 +38,19 @@ docs.file.content = docs.file.content.replace(
 )
 
 // vector search
+const grepped = (
+    await workspace.grep(
+        "(" + kw.text.split(/\s/g).join("|") + ")",
+        "packages/sample/genaisrc/*.genai.*"
+    )
+).files
+console.log(grepped.map(({ filename }) => filename).join("\n"))
 const vectorDocs = await retrieval.vectorSearch(kw.text, [
     docs.file,
     { filename: "genaisrc/genaiscript.d.ts" },
+    ...grepped,
 ])
-def("DOCS", vectorDocs, { ignoreEmpty: true, flex: 1 })
+def("DOCS", vectorDocs, { ignoreEmpty: true, flex: 3 })
 // fuzzy search
 const chunks = await MD.chunk(docs.file, { maxTokens: 512 })
 const fuzzDocs = await retrieval.fuzzSearch(kw.text, chunks, {
@@ -49,11 +58,12 @@ const fuzzDocs = await retrieval.fuzzSearch(kw.text, chunks, {
 })
 def("DOCS", fuzzDocs, { ignoreEmpty: true, flex: 1 })
 
-def("QUESTION", question)
+def("PSEUDO_CODE", question)
 $`You are an expert at the TypeScript, Node.JS and the GenAIScript script language documented in <DOCS>.`
-$`Your task is to implement a GenAIScript script that matches the user request in <QUESTION>.
+$`Your task is to implement the pseudo code in <PSEUDO_CODE> into a GenAIScript script.
 - Generate TypeScript ESM using async/await.
-- Generate comments to explain the code.
 - The types in 'genaiscript.d.ts' are already imported.
-- Use the information in <DOCS> to answer the question.
+- Use the information in <DOCS> to answer the question about GenAIScript.
+- Avoid try/catch blocks, keep the code simple, and avoid unnecessary complexity.
+- Try to not use any other libraries or modules.
 `
