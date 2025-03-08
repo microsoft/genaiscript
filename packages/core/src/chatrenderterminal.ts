@@ -18,6 +18,30 @@ import {
     CONTROL_CHAT_EXPANDED,
     CONTROL_CHAT_LAST,
 } from "./constants"
+import { collapseNewlines } from "./cleaners"
+
+export function splitPrompt(t: string) {
+    const chunks = /(\n{2,}|(\n|^)<(?<name>[^>]+)>\n)/gi
+    const result: string[] = []
+    let lastIndex = 0
+    let match: RegExpExecArray
+    while ((match = chunks.exec(t))) {
+        // Add text before the match if it exists
+        if (match.index > lastIndex) {
+            result.push(t.substring(lastIndex, match.index))
+        }
+        // Add the separator itself
+        if (match.groups.name) result.push(`<${match.groups.name}>`)
+        lastIndex = match.index + match[0].length
+    }
+
+    // Add remaining text after the last match
+    if (lastIndex < t.length) result.push(t.substring(lastIndex))
+    const res = result
+        .map((l) => collapseNewlines(l).replace(/\n+$/, ""))
+        .filter((s) => !!s)
+    return res
+}
 
 async function renderMessageContent(
     msg:
@@ -36,13 +60,18 @@ async function renderMessageContent(
     const margin = 2
     const width = columns - margin
 
+    const walled = (t: string) =>
+        ellipse(t, 2 * width)
+            .split("\n")
+            .map((l) =>
+                wrapColor(CONSOLE_COLOR_DEBUG, "│" + ellipse(l, width) + "\n")
+            )
+
     const render = (s: string) => {
-        const lines = s.split(/\n/g).filter((l) => !!l)
-        const trimmed = lines.slice(-rows)
-        const res = trimmed.map((l) =>
-            wrapColor(CONSOLE_COLOR_DEBUG, "│" + ellipse(l, width) + "\n")
-        )
-        if (lines.length > trimmed.length)
+        const chunks = splitPrompt(s)
+        const trimmed = chunks.slice(-rows)
+        const res = trimmed.flatMap(walled)
+        if (chunks.length > trimmed.length)
             res.unshift(wrapColor(CONSOLE_COLOR_DEBUG, "│...\n"))
         return res
     }
