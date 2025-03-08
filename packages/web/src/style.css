@@ -16,6 +16,7 @@ div.snippet .buttons {
     right: 0;
     opacity: 0;
     transition: opacity 0.3s ease;
+    margin-bottom: 0;
 }
 div.snippet:hover .buttons {
     opacity: 1;

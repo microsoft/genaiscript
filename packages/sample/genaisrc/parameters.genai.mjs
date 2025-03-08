@@ -48,9 +48,11 @@ script({
             required: false,
             description: `
 ## A Markdown description
+
 \`\`\`
 code
 \`\`\`
+
 `,
         },
     },

@@ -253,8 +253,10 @@ export function JSONSchemaObjectForm(props: {
                     />
                     {field?.description && (
                         <vscode-form-helper>
-                            {/^(```|#{1,6})/m.test(field.description) ? (
-                                <Markdown>{field.description}</Markdown>
+                            {/^(```|#{1,6}\s)/m.test(field.description) ? (
+                                <Markdown>
+                                    {field.description}
+                                </Markdown>
                             ) : (
                                 field.description
                             )}
