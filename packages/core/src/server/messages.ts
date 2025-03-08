@@ -99,6 +99,10 @@ export interface ServerEnvResponse extends ResponseStatus {
     }
 }
 
+export interface ServerRunsResponse extends ResponseStatus {
+    runs: Record<string, string[]>
+}
+
 export interface PromptScriptTestRunOptions
     extends PromptScriptModelRunOptions {
     testProvider?: string

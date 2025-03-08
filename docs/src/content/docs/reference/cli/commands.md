@@ -82,6 +82,35 @@ Options:
   -h, --help                                 display help for command
 ```
 
+## `runs`
+
+```
+Usage: genaiscript runs [options] [command]
+
+Commands to open previous runs
+
+Options:
+  -h, --help      display help for command
+
+Commands:
+  list [script]   List all available run reports in workspace
+  help [command]  display help for command
+```
+
+### `runs list`
+
+```
+Usage: genaiscript runs list [options] [script]
+
+List all available run reports in workspace
+
+Arguments:
+  script      Script id
+
+Options:
+  -h, --help  display help for command
+```
+
 ## `test`
 
 ```

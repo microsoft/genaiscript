@@ -12,6 +12,7 @@ import {
     WS_MAX_FRAME_LENGTH,
     LOG,
     WS_MAX_FRAME_CHUNK_LENGTH,
+    RUNS_DIR_NAME,
 } from "../../core/src/constants"
 import { isCancelError, serializeError } from "../../core/src/error"
 import { host, LogEvent, runtimeHost } from "../../core/src/host"
@@ -23,6 +24,7 @@ import {
     chunkString,
     logInfo,
     logWarn,
+    dotGenaiscriptPath,
 } from "../../core/src/util"
 import { CORE_VERSION } from "../../core/src/version"
 import {
@@ -38,6 +40,7 @@ import {
     LanguageModelConfiguration,
     ServerEnvResponse,
     ServerResponse,
+    ServerRunsResponse,
 } from "../../core/src/server/messages"
 import { LanguageModel } from "../../core/src/chat"
 import {
@@ -48,7 +51,7 @@ import {
 import { randomHex } from "../../core/src/crypto"
 import { buildProject } from "./build"
 import * as http from "http"
-import { join } from "path"
+import { basename, dirname, join } from "path"
 import { createReadStream } from "fs"
 import { URL } from "url"
 import { resolveLanguageModelConfigurations } from "../../core/src/config"
@@ -56,11 +59,12 @@ import { networkInterfaces } from "os"
 import { GitClient } from "../../core/src/git"
 import { exists } from "fs-extra"
 import { deleteUndefinedValues } from "../../core/src/cleaners"
-import { readFile } from "fs/promises"
+import { readdir, readFile } from "fs/promises"
 import { unthink } from "../../core/src/think"
 import { NodeHost } from "./nodehost"
 import { findRandomOpenPort, isPortInUse } from "../../core/src/net"
 import { tryReadJSON, tryReadText } from "../../core/src/fs"
+import { glob } from "fs/promises"
 
 /**
  * Starts a WebSocket server for handling chat and script execution.
@@ -111,7 +115,9 @@ export async function startServer(options: {
     // read current project info
     const { name, displayName, description, version, homepage, author } =
         (await tryReadJSON("package.json")) || {}
-    const readme = await tryReadText("README.genai.md") || await tryReadText("README.md")
+    const readme =
+        (await tryReadText("README.genai.md")) ||
+        (await tryReadText("README.md"))
 
     const wss = new WebSocketServer({ noServer: true })
 
@@ -722,6 +728,26 @@ window.vscodeWebviewPlaygroundNonce = ${JSON.stringify(nonce)};
                 response = {
                     ok: true,
                     ...lastRunResult,
+                }
+            } else if (method === "GET" && route === "/api/runs") {
+                const runs: Record<string, string[]> = {}
+                for (const scriptid of (
+                    await readdir(dotGenaiscriptPath(RUNS_DIR_NAME), {
+                        withFileTypes: true,
+                    })
+                ).filter((d) => d.isDirectory())) {
+                    const reports = (
+                        await readdir(join(scriptid.name), {
+                            withFileTypes: true,
+                        })
+                    ).filter((d) => d.isDirectory())
+                    runs[basename(scriptid.name)] = reports.map((r) =>
+                        basename(r.name)
+                    )
+                }
+                response = <ServerRunsResponse>{
+                    ok: true,
+                    runs,
                 }
             }
 
