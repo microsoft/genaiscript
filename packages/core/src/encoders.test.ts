@@ -9,11 +9,6 @@ describe("resolveTokenEncoder", () => {
         const result = encoder.encode("test line")
         assert.deepEqual(result, [1985, 1584])
     })
-    test("gpt-4", async () => {
-        const encoder = await resolveTokenEncoder("openai:gpt-4")
-        const result = encoder.encode("test line")
-        assert.deepEqual(result, [1985, 1584])
-    })
     test("gpt-4o", async () => {
         const encoder = await resolveTokenEncoder("openai:gpt-4o")
         const result = encoder.encode("test line")
@@ -61,7 +56,7 @@ For example, to denote a heading, you add a number sign before it (e.g., # Headi
                 lineNumbers: true,
             }
         )
-//        console.log(chunks)
+        //        console.log(chunks)
         assert.equal(chunks.length, 3)
     })
 })

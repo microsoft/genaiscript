@@ -36,41 +36,24 @@ docs.file.content = docs.file.content.replace(
     ""
 )
 
-const chunks = await MD.chunk(docs.file, { maxTokens: 2000 })
-console.debug(`chunks: ${chunks.length}`)
 // vector search
-const vectorDocs = await retrieval.vectorSearch(kw.text, chunks, {
-    topK: 10,
-})
-console.debug(`vectorDocs: ${vectorDocs.length}`)
-console.debug(
-    YAML.stringify(
-        vectorDocs.map(({ filename, content }) => ({
-            filename: filename.slice(0, 20),
-            kb: (content.length / 1000) | 0,
-        }))
-    )
-)
+const vectorDocs = await retrieval.vectorSearch(kw.text, [
+    docs.file,
+    { filename: "genaisrc/genaiscript.d.ts" },
+])
 def("DOCS", vectorDocs, { ignoreEmpty: true, flex: 1 })
 // fuzzy search
+const chunks = await MD.chunk(docs.file, { maxTokens: 512 })
 const fuzzDocs = await retrieval.fuzzSearch(kw.text, chunks, {
-    topK: 10,
+    topK: 5,
 })
-console.debug(`fuzzDocs: ${fuzzDocs.length}`)
-console.debug(
-    YAML.stringify(
-        fuzzDocs.map(({ content }) => ({
-            kb: Math.ceil(content.length / 1000),
-        }))
-    )
-)
-//def("DOCS", fuzzDocs, { ignoreEmpty: true, flex: 1 })
+def("DOCS", fuzzDocs, { ignoreEmpty: true, flex: 1 })
 
 def("QUESTION", question)
 $`You are an expert at the TypeScript, Node.JS and the GenAIScript script language documented in <DOCS>.`
 $`Your task is to implement a GenAIScript script that matches the user request in <QUESTION>.
 - Generate TypeScript ESM using async/await.
 - Generate comments to explain the code.
+- The types in 'genaiscript.d.ts' are already imported.
 - Use the information in <DOCS> to answer the question.
-- If the information is not in <DOCS>, say "I don't know".
 `

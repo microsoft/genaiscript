@@ -1,5 +1,5 @@
 script({ title: "test1", 
-    model: "gpt-4", 
+    model: "openai:gpt-4o", 
     group: "text", 
     system: ["system"]})
     

@@ -98,9 +98,9 @@ export async function chunkMarkdown(
     // convert into text chunk
     let currentLine = 0
     return chunks.map(
-        (chunk) =>
+        (chunk, i) =>
             ({
-                filename,
+                filename: filename + `#chunk${i}`,
                 lineStart: currentLine,
                 lineEnd: (currentLine += chunk.split(/\r?\n/g).length),
                 content: chunk,
