@@ -60,6 +60,7 @@ import { readFile } from "fs/promises"
 import { unthink } from "../../core/src/think"
 import { NodeHost } from "./nodehost"
 import { findRandomOpenPort, isPortInUse } from "../../core/src/net"
+import { tryReadJSON } from "../../core/src/fs"
 
 /**
  * Starts a WebSocket server for handling chat and script execution.
@@ -105,6 +106,10 @@ export async function startServer(options: {
         process.chdir(res.cwd)
         logInfo(`remote clone: ${res.cwd}`)
     }
+
+    // read current project info
+    const { name, displayName, description, version, homepage } =
+        (await tryReadJSON("package.json")) || {}
 
     const wss = new WebSocketServer({ noServer: true })
 
@@ -194,8 +199,8 @@ export async function startServer(options: {
             pid: process.pid,
         }) satisfies ServerResponse
 
-    const serverEnv = async () =>
-        deleteUndefinedValues({
+    const serverEnv = async () => {
+        return deleteUndefinedValues({
             ok: true,
             providers: await resolveLanguageModelConfigurations(undefined, {
                 token: false,
@@ -209,7 +214,14 @@ export async function startServer(options: {
                       branch: options.remoteBranch,
                   }
                 : undefined,
+            configuration: deleteUndefinedValues({
+                name: displayName || name,
+                description,
+                version,
+                homepage
+            }),
         }) satisfies ServerEnvResponse
+    }
 
     const scriptList = async () => {
         logVerbose(`project: list scripts`)

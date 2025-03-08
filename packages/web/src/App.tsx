@@ -85,7 +85,14 @@ import {
 } from "../../core/src/traceparser"
 import { unmarkdown } from "../../core/src/cleaners"
 import { ErrorBoundary } from "react-error-boundary"
-import { apiKey, base, diagnostics, urlParams, viewMode } from "./configuration"
+import {
+    apiKey,
+    base,
+    diagnostics,
+    hosted,
+    urlParams,
+    viewMode,
+} from "./configuration"
 import { JSONSchemaObjectForm } from "./JSONSchema"
 import { useLocationHashValue } from "./useLocationHashValue"
 
@@ -618,6 +625,37 @@ function GenAIScriptLogo(props: { height: string }) {
             src="/favicon.svg"
             style={{ height, borderRadius: "2px" }}
         />
+    )
+}
+
+function ProjectHeader() {
+    const env = useEnv()
+    const { remote, configuration } = env || {}
+    const { name, description, version, homepage } = configuration || {}
+    if (!configuration) return null
+
+    const { url, branch } = remote || {}
+    const remoteSlug = url ? `${url}${branch ? `#${branch}` : ""}` : undefined
+
+    const markdown = useMemo(() => {
+        const res: string[] = [
+            description,
+            !!version && `- version: ${version}`,
+            !!remoteSlug &&
+                `- remote: [${remoteSlug}](https://github.com/${remoteSlug})`,
+        ]
+        return res.filter((s) => !!s).join("\n")
+    }, [description, remoteSlug, version])
+
+    return (
+        <vscode-collapsible open title={name || "Project"}>
+            {remoteSlug ? (
+                <vscode-badge variant="counter" slot="decorations">
+                    {remoteSlug}
+                </vscode-badge>
+            ) : null}
+            {markdown ? <Markdown>{markdown}</Markdown> : null}
+        </vscode-collapsible>
     )
 }
 
@@ -1275,23 +1313,6 @@ function FilesDropZone() {
     )
 }
 
-function RemoteInfo() {
-    const { remote } = useEnv() || {}
-    if (!remote?.url) return null
-
-    const { url, branch } = remote
-    const value = `${url}#${branch}`
-    return (
-        <vscode-form-group>
-            <vscode-label>Remote</vscode-label>
-            <vscode-textfield readonly={true} disabled={true} value={value} />
-            <vscode-form-helper>
-                Running GenAIScript on a clone of this repository.
-            </vscode-form-helper>
-        </vscode-form-group>
-    )
-}
-
 function ScriptDescription() {
     const script = useScript()
     if (!script) return null
@@ -1366,11 +1387,9 @@ function ScriptSelect() {
 }
 
 function ScriptForm() {
-    const script = useScript()
     return (
         <vscode-collapsible open title="Script">
             <RefreshButton />
-            <RemoteInfo />
             <ScriptSelect />
             <FilesDropZone />
             <PromptParametersFields />
@@ -1667,6 +1686,7 @@ function WebApp() {
         default:
             return (
                 <>
+                    {!hosted ? <ProjectHeader /> : null}
                     <RunForm />
                     <vscode-collapsible open title="Results">
                         <ResultsTabs />
