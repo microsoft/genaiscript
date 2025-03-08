@@ -87,6 +87,7 @@ import { unmarkdown } from "../../core/src/cleaners"
 import { ErrorBoundary } from "react-error-boundary"
 import { apiKey, base, diagnostics, urlParams, viewMode } from "./configuration"
 import { JSONSchemaObjectForm } from "./JSONSchema"
+import { useLocationHashValue } from "./useLocationHashValue"
 
 const fetchScripts = async (): Promise<Project> => {
     const res = await fetch(`${base}/api/scripts`, {
@@ -342,17 +343,16 @@ function ApiProvider({ children }: { children: React.ReactNode }) {
 
     const project = useMemo<Promise<Project>>(fetchScripts, [refreshId])
     const env = useMemo<Promise<ServerEnvResponse>>(fetchEnv, [refreshId])
+    const [scriptid, setScriptid] = useLocationHashValue("scriptid")
 
     const refresh = () => setRefreshId((prev) => prev + 1)
 
     const [state, setState] = useUrlSearchParams<
         {
-            scriptid: string
             files: string[]
         } & ModelConnectionOptions
     >(
         {
-            scriptid: "",
             files: [],
         },
         {
@@ -369,10 +369,8 @@ function ApiProvider({ children }: { children: React.ReactNode }) {
         }
     )
     const [importedFiles, setImportedFiles] = useState<ImportedFile[]>([])
-    const { scriptid, files, ...options } = state
+    const { files, ...options } = state
     const [parameters, setParameters] = useState<PromptParameters>({})
-    const setScriptid = (id: string) =>
-        setState((prev) => ({ ...prev, scriptid: id }))
     const setFiles = (files: string[]) =>
         setState((prev) => ({
             ...prev,
