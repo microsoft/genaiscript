@@ -12,7 +12,6 @@ import {
     WS_MAX_FRAME_LENGTH,
     LOG,
     WS_MAX_FRAME_CHUNK_LENGTH,
-    RUNS_DIR_NAME,
 } from "../../core/src/constants"
 import { isCancelError, serializeError } from "../../core/src/error"
 import { host, LogEvent, runtimeHost } from "../../core/src/host"
@@ -24,7 +23,6 @@ import {
     chunkString,
     logInfo,
     logWarn,
-    dotGenaiscriptPath,
 } from "../../core/src/util"
 import { CORE_VERSION } from "../../core/src/version"
 import {
@@ -51,7 +49,7 @@ import {
 import { randomHex } from "../../core/src/crypto"
 import { buildProject } from "./build"
 import * as http from "http"
-import { basename, dirname, join } from "path"
+import { join } from "path"
 import { createReadStream } from "fs"
 import { URL } from "url"
 import { resolveLanguageModelConfigurations } from "../../core/src/config"
@@ -59,12 +57,12 @@ import { networkInterfaces } from "os"
 import { GitClient } from "../../core/src/git"
 import { exists } from "fs-extra"
 import { deleteUndefinedValues } from "../../core/src/cleaners"
-import { readdir, readFile } from "fs/promises"
+import { readFile } from "fs/promises"
 import { unthink } from "../../core/src/think"
 import { NodeHost } from "./nodehost"
 import { findRandomOpenPort, isPortInUse } from "../../core/src/net"
 import { tryReadJSON, tryReadText } from "../../core/src/fs"
-import { glob } from "fs/promises"
+import { collectRuns } from "./runs"
 
 /**
  * Starts a WebSocket server for handling chat and script execution.
@@ -730,21 +728,7 @@ window.vscodeWebviewPlaygroundNonce = ${JSON.stringify(nonce)};
                     ...lastRunResult,
                 }
             } else if (method === "GET" && route === "/api/runs") {
-                const runs: Record<string, string[]> = {}
-                for (const scriptid of (
-                    await readdir(dotGenaiscriptPath(RUNS_DIR_NAME), {
-                        withFileTypes: true,
-                    })
-                ).filter((d) => d.isDirectory())) {
-                    const reports = (
-                        await readdir(join(scriptid.name), {
-                            withFileTypes: true,
-                        })
-                    ).filter((d) => d.isDirectory())
-                    runs[basename(scriptid.name)] = reports.map((r) =>
-                        basename(r.name)
-                    )
-                }
+                const runs = await collectRuns()
                 response = <ServerRunsResponse>{
                     ok: true,
                     runs,
