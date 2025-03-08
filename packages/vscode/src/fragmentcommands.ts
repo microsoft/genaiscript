@@ -57,7 +57,7 @@ async function showPromptParametersQuickPicks(
                 const parse = schema.type === "integer" ? parseInt : parseFloat
                 const value = await vscode.window.showInputBox({
                     title: `Enter ${schema.type} value for ${schema.title || param}`,
-                    value: schema.default?.toLocaleString(),
+                    value: schema.default?.toString(),
                     prompt: schema.description,
                     validateInput: (v) => {
                         v = v.trim()
