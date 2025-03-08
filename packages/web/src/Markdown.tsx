@@ -48,6 +48,8 @@ const genaiscriptSchema = Object.freeze({
     },
 })
 
+const readmeSchema = defaultSchema
+
 export default function Markdown(props: {
     aiDisclaimer?: boolean
     className?: string
@@ -55,6 +57,7 @@ export default function Markdown(props: {
     copySaveButtons?: boolean
     filename?: string
     text?: string
+    readme?: boolean
 }) {
     const {
         className,
@@ -63,6 +66,7 @@ export default function Markdown(props: {
         text,
         children,
         copySaveButtons,
+        readme,
     } = props
 
     const [isVisible, setIsVisible] = useState(false)
@@ -119,7 +123,10 @@ export default function Markdown(props: {
                         }}
                         rehypePlugins={[
                             rehypeRaw,
-                            [rehypeSanitize, genaiscriptSchema],
+                            [
+                                rehypeSanitize,
+                                readme ? readmeSchema : genaiscriptSchema,
+                            ],
                             rehypeMathML,
                             [rehypeHighlight, { ignoreMissing: true }],
                         ]}

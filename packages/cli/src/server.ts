@@ -111,7 +111,7 @@ export async function startServer(options: {
     // read current project info
     const { name, displayName, description, version, homepage, author } =
         (await tryReadJSON("package.json")) || {}
-    const readme = await tryReadText("README.genai.md")
+    const readme = await tryReadText("README.genai.md") || await tryReadText("README.md")
 
     const wss = new WebSocketServer({ noServer: true })
 

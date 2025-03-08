@@ -640,25 +640,21 @@ function ProjectHeader() {
 
     const markdown = useMemo(() => {
         const res: string[] = [
-            description,
-            readme,
-            !!author && `- author: ${author}`,
-            !!version && `- version: ${version}`,
-            !!homepage && `- homepage: [${homepage}](${homepage})`,
             !!remoteSlug &&
                 `- remote: [${remoteSlug}](https://github.com/${remoteSlug})`,
+            readme || description,
         ]
         return res.filter((s) => !!s).join("\n")
-    }, [description, remoteSlug, version])
+    }, [description, remoteSlug, version, readme])
 
     return (
-        <vscode-collapsible open title={name || "Project"}>
+        <vscode-collapsible title={name || "Project"}>
             {remoteSlug ? (
                 <vscode-badge variant="counter" slot="decorations">
                     {remoteSlug}
                 </vscode-badge>
             ) : null}
-            {markdown ? <Markdown>{markdown}</Markdown> : null}
+            {markdown ? <Markdown readme={true}>{markdown}</Markdown> : null}
         </vscode-collapsible>
     )
 }
