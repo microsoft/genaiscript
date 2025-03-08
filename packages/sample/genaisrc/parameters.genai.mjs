@@ -46,6 +46,12 @@ script({
         notRequired: {
             type: "integer",
             required: false,
+            description: `
+## A Markdown description
+\`\`\`
+code
+\`\`\`
+`,
         },
     },
     tests: {

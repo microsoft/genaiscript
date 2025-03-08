@@ -18,6 +18,7 @@ import "@vscode-elements/elements/dist/vscode-form-container"
 import "@vscode-elements/elements/dist/vscode-form-group"
 import "@vscode-elements/elements/dist/vscode-form-helper"
 import "@vscode-elements/elements/dist/vscode-label"
+import Markdown from "./Markdown"
 
 function JSONSchemaString(props: {
     field: JSONSchemaString
@@ -252,7 +253,11 @@ export function JSONSchemaObjectForm(props: {
                     />
                     {field?.description && (
                         <vscode-form-helper>
-                            {field.description}
+                            {/^(```|#{1,6})/m.test(field.description) ? (
+                                <Markdown>{field.description}</Markdown>
+                            ) : (
+                                field.description
+                            )}
                         </vscode-form-helper>
                     )}
                 </vscode-form-group>
