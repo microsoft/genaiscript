@@ -22,9 +22,11 @@ const apiKey =
     config?.apiKey ||
     localStorage.getItem(apiKeyName) ||
     ""
-window.location.hash = ""
-if (hashParams.get("api-key"))
+if (hashParams.get("api-key")) {
     localStorage.setItem(apiKeyName, hashParams.get("api-key"))
+    hashParams.delete("api-key")
+    window.location.hash = hashParams.toString()
+}
 if (!hosted) import("@vscode-elements/webview-playground")
 
 export { hosted, viewMode, diagnostics, base, apiKey, urlParams }
