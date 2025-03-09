@@ -1,9 +1,7 @@
 import { readdir } from "fs/promises"
-import { join, basename, resolve } from "path"
+import { join } from "path"
 import { RUNS_DIR_NAME } from "../../core/src/constants"
 import { dotGenaiscriptPath } from "../../core/src/util"
-import { YAMLStringify } from "../../core/src/yaml"
-import { terminalLink } from "../../core/src/terminal"
 
 export async function collectRuns(options?: { scriptid?: string }) {
     const { scriptid } = options || {}
@@ -16,7 +14,7 @@ export async function collectRuns(options?: { scriptid?: string }) {
         .filter((d) => d.isDirectory())
         .filter((d) => !scriptid || d.name === scriptid)
 
-    const runs: Record<string, string[]> = {}
+    const runs: Record<string, { id: string; dir: string }[]> = {}
     for (const sid of scripts) {
         const sdir = join(runsDir, sid.name)
         const reports = (
@@ -24,7 +22,9 @@ export async function collectRuns(options?: { scriptid?: string }) {
                 withFileTypes: true,
             })
         ).filter((d) => d.isDirectory())
-        runs[sid.name] = reports.map((r) => r.name).reverse()
+        runs[sid.name] = reports
+            .map((r) => ({ id: r.name.split(/-/g).at(-1), dir: r.name }))
+            .reverse()
     }
     return runs
 }
@@ -38,7 +38,7 @@ export async function listRuns(options?: { scriptid?: string }) {
     for (const sid in runs) {
         console.log(`\n${sid}`)
         for (const rid of runs[sid]) {
-            console.log(`  ${rid}`)
+            console.log(`  ${rid.id}`)
         }
     }
 }
