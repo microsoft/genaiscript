@@ -339,6 +339,8 @@ const ApiContext = createContext<{
 
     scriptid: string | undefined
     setScriptid: (id: string) => void
+    runid: string | undefined
+    setRunid: (id: string) => void
     files: string[]
     setFiles: (files: string[]) => void
     importedFiles: ImportedFile[]
@@ -367,6 +369,7 @@ function ApiProvider({ children }: { children: React.ReactNode }) {
     const env = useMemo<Promise<ServerEnvResponse>>(fetchEnv, [refreshId])
     const runs = useMemo<Promise<RunResultListResponse>>(fetchRuns, [refreshId])
     const [scriptid, setScriptid] = useLocationHashValue("scriptid")
+    const [runid, setRunid] = useLocationHashValue("runid")
 
     const refresh = () => setRefreshId((prev) => prev + 1)
 
@@ -416,6 +419,8 @@ function ApiProvider({ children }: { children: React.ReactNode }) {
                 env,
                 scriptid,
                 setScriptid,
+                runid,
+                setRunid,
                 files,
                 setFiles,
                 importedFiles,
