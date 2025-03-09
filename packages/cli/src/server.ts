@@ -38,7 +38,7 @@ import {
     LanguageModelConfiguration,
     ServerEnvResponse,
     ServerResponse,
-    ServerRunsResponse,
+    RunResultListResponse,
 } from "../../core/src/server/messages"
 import { LanguageModel } from "../../core/src/chat"
 import {
@@ -719,6 +719,15 @@ window.vscodeWebviewPlaygroundNonce = ${JSON.stringify(nonce)};
                 response = await scriptList()
             } else if (method === "GET" && route === "/api/env") {
                 response = await serverEnv()
+            } else if (method === "GET" && route === "/api/runs") {
+                const runs = await collectRuns()
+                response = <RunResultListResponse>{
+                    ok: true,
+                    runs: runs.map(({ scriptId, runId }) => ({
+                        scriptId,
+                        runId,
+                    })),
+                }
             } else if (method === "GET" && runRx.test(route)) {
                 const { runId } = runRx.exec(route).groups
                 // shortcut to last run

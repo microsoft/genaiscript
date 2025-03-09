@@ -99,10 +99,6 @@ export interface ServerEnvResponse extends ResponseStatus {
     }
 }
 
-export interface ServerRunsResponse extends ResponseStatus {
-    runs: Record<string, string[]>
-}
-
 export interface PromptScriptTestRunOptions
     extends PromptScriptModelRunOptions {
     testProvider?: string
@@ -194,6 +190,14 @@ export interface PromptScriptRunOptions {
     fenceFormat: FenceFormat
     workspaceFiles?: WorkspaceFile[]
     runTrace: boolean
+}
+
+export interface RunResultList extends RequestMessage {
+    type: "run.list"
+}
+
+export interface RunResultListResponse extends ResponseStatus {
+    runs: { scriptId: string; runId: string }[]
 }
 
 export interface PromptScriptList extends RequestMessage {
@@ -402,6 +406,7 @@ export type RequestMessages =
     | ChatChunk
     | LanguageModelConfigurationRequest
     | PromptScriptList
+    | RunResultList
 
 export type PromptScriptResponseEvents =
     | PromptScriptProgressResponseEvent

@@ -45,6 +45,7 @@ import type {
     PromptScriptStartResponse,
     PromptScriptEndResponseEvent,
     LogMessageEvent,
+    RunResultListResponse,
 } from "../../core/src/server/messages"
 import { logprobColor, renderLogprob, rgbToCss } from "../../core/src/logprob"
 import { FileWithPath, useDropzone } from "react-dropzone"
@@ -119,6 +120,18 @@ const fetchEnv = async (): Promise<ServerEnvResponse> => {
     if (!res.ok) throw new Error(await res.json())
 
     const j: ServerEnvResponse = await res.json()
+    return j
+}
+const fetchRuns = async (): Promise<RunResultListResponse> => {
+    const res = await fetch(`${base}/api/runs`, {
+        headers: {
+            Accept: "application/json",
+            Authorization: apiKey,
+        },
+    })
+    if (!res.ok) throw new Error(await res.json())
+
+    const j: RunResultListResponse = await res.json()
     return j
 }
 const fetchRun = async (
@@ -337,6 +350,7 @@ const ApiContext = createContext<{
         f: (prev: ModelConnectionOptions) => ModelConnectionOptions
     ) => void
     refresh: () => void
+    runs: Promise<RunResultListResponse | undefined>
 } | null>(null)
 
 function ApiProvider({ children }: { children: React.ReactNode }) {
@@ -351,6 +365,7 @@ function ApiProvider({ children }: { children: React.ReactNode }) {
 
     const project = useMemo<Promise<Project>>(fetchScripts, [refreshId])
     const env = useMemo<Promise<ServerEnvResponse>>(fetchEnv, [refreshId])
+    const runs = useMemo<Promise<RunResultListResponse>>(fetchRuns, [refreshId])
     const [scriptid, setScriptid] = useLocationHashValue("scriptid")
 
     const refresh = () => setRefreshId((prev) => prev + 1)
@@ -410,6 +425,7 @@ function ApiProvider({ children }: { children: React.ReactNode }) {
                 options,
                 setOptions,
                 refresh,
+                runs,
             }}
         >
             {children}
@@ -427,6 +443,12 @@ function useEnv() {
     const { env: envPromise } = useApi()
     const env = use(envPromise)
     return env
+}
+
+function useRunResults() {
+    const { runs: runsPromise } = useApi()
+    const runs = use(runsPromise)
+    return runs
 }
 
 function useProject() {
@@ -1395,6 +1417,34 @@ function ScriptForm() {
     )
 }
 
+function RunResultsTabPanel() {
+    const { runs } = useRunResults() || {}
+    const { scriptid } = useApi()
+    if (!runs?.length) return null
+    return (
+        <>
+            <vscode-tab-header slot="header">Previous Runs</vscode-tab-header>
+            <vscode-tab-panel style={{ height: "100%" }}>
+                <vscode-form-group>
+                    <vscode-label>Runs</vscode-label>
+                    <vscode-single-select>
+                        {runs
+                            .filter((r) => !scriptid || r.scriptId === scriptid)
+                            .map((run) => (
+                                <vscode-option value={run.runId}>
+                                    {run.scriptId}: {run.runId}
+                                </vscode-option>
+                            ))}
+                    </vscode-single-select>
+                    <vscode-form-helper>
+                        Select a past report
+                    </vscode-form-helper>
+                </vscode-form-group>
+            </vscode-tab-panel>
+        </>
+    )
+}
+
 function PromptParametersFields() {
     const script = useScript()
 
@@ -1669,6 +1719,7 @@ function ResultsTabs() {
                 <JSONTabPanel />
                 <StatsTabPanel />
                 <ErrorTabPanel />
+                <RunResultsTabPanel />
                 {diagnostics ? <RawTabPanel /> : undefined}
             </vscode-tabs>
         </>
@@ -1685,7 +1736,7 @@ function WebApp() {
                 <>
                     {!hosted ? <ProjectHeader /> : null}
                     <RunForm />
-                    <vscode-collapsible open title="Results">
+                    <vscode-collapsible open title="Result">
                         <ResultsTabs />
                     </vscode-collapsible>
                 </>
