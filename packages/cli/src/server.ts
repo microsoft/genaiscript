@@ -711,6 +711,7 @@ window.vscodeWebviewPlaygroundNonce = ${JSON.stringify(nonce)};
                 res.end()
                 return
             }
+            const runRx = /^\/runs\/(?<runId>:[a-z0-9]{12,256})$/
             let response: ResponseStatus
             if (method === "GET" && route === "/api/version")
                 response = serverVersion()
@@ -718,20 +719,35 @@ window.vscodeWebviewPlaygroundNonce = ${JSON.stringify(nonce)};
                 response = await scriptList()
             } else if (method === "GET" && route === "/api/env") {
                 response = await serverEnv()
-            } else if (
-                method === "GET" &&
-                lastRunResult &&
-                route === `/api/runs/${lastRunResult.runId}`
-            ) {
-                response = {
-                    ok: true,
-                    ...lastRunResult,
-                }
-            } else if (method === "GET" && route === "/api/runs") {
-                const runs = await collectRuns()
-                response = <ServerRunsResponse>{
-                    ok: true,
-                    runs,
+            } else if (method === "GET" && runRx.test(route)) {
+                const { runId } = runRx.exec(route).groups
+                // shortcut to last run
+                if (runId === lastRunResult.runId)
+                    response = {
+                        ok: true,
+                        ...lastRunResult,
+                    }
+                else {
+                    const runs = await collectRuns()
+                    const run = runs.find((r) => r.runId === runId)
+                    if (run) {
+                        const runResult = await tryReadJSON(
+                            join(run.dir, "res.json")
+                        )
+                        if (runResult) {
+                            const runTrace = await tryReadText(
+                                join(run.dir, "trace.md")
+                            )
+                            response = (<PromptScriptEndResponseEvent>{
+                                ok: true,
+                                type: "script.end",
+                                runId,
+                                exitCode: runResult.exitCode,
+                                result: runResult,
+                                trace: runTrace,
+                            }) as any
+                        }
+                    }
                 }
             }
 

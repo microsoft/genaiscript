@@ -1,7 +1,7 @@
 import { readdir } from "fs/promises"
 import { join } from "path"
-import { RUNS_DIR_NAME } from "../../core/src/constants"
-import { dotGenaiscriptPath } from "../../core/src/util"
+import { RUNS_DIR_NAME, SERVER_PORT } from "../../core/src/constants"
+import { dotGenaiscriptPath, groupBy } from "../../core/src/util"
 
 export async function collectRuns(options?: { scriptid?: string }) {
     const { scriptid } = options || {}
@@ -14,7 +14,12 @@ export async function collectRuns(options?: { scriptid?: string }) {
         .filter((d) => d.isDirectory())
         .filter((d) => !scriptid || d.name === scriptid)
 
-    const runs: Record<string, { id: string; dir: string }[]> = {}
+    const runs: {
+        scriptId: string
+        name: string
+        runId: string
+        dir: string
+    }[] = []
     for (const sid of scripts) {
         const sdir = join(runsDir, sid.name)
         const reports = (
@@ -22,9 +27,16 @@ export async function collectRuns(options?: { scriptid?: string }) {
                 withFileTypes: true,
             })
         ).filter((d) => d.isDirectory())
-        runs[sid.name] = reports
-            .map((r) => ({ id: r.name.split(/-/g).at(-1), dir: r.name }))
-            .reverse()
+        runs.push(
+            ...reports
+                .map((r) => ({
+                    scriptId: sid.name,
+                    runId: r.name.split(/-/g).at(-1),
+                    name: r.name,
+                    dir: join(sdir, r.name),
+                }))
+                .reverse()
+        )
     }
     return runs
 }
@@ -35,10 +47,13 @@ export function resolveRunDir(scriptId: string, runId: string) {
 
 export async function listRuns(options?: { scriptid?: string }) {
     const runs = await collectRuns(options)
-    for (const sid in runs) {
+    const groups = groupBy(runs, (r) => r.scriptId)
+    for (const sid in groups) {
         console.log(`\n${sid}`)
-        for (const rid of runs[sid]) {
-            console.log(`  ${rid.id}`)
+        for (const rid of groups[sid]) {
+            console.log(
+                `  ${rid.runId} ${rid.name} https://localhost:${SERVER_PORT}/#run=${rid.runId}`
+            )
         }
     }
 }
