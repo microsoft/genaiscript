@@ -140,7 +140,7 @@
                     {
                         "id": "genaiscript.tutorial.start",
                         "title": "Open Tutorial Notebook",
-                        "description": "You will learn how to create LLM-powered scripts using JavaScript.\nOpen the command palette and select **GenAIScript: Create Mardown Notebook** to get started.",
+                        "description": "You will learn how to create LLM-powered scripts using JavaScript.\nOpen the command palette and select **GenAIScript: Create Markdown Notebook** to get started.",
                         "media": {
                             "image": "media/tutorial-start.png",
                             "altText": ""
@@ -370,7 +370,7 @@
             },
             {
                 "command": "genaiscript.notebook.create",
-                "title": "Create GenAIScript Mardown Notebook",
+                "title": "Create GenAIScript Markdown Notebook",
                 "category": "GenAIScript"
             },
             {
