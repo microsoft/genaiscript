@@ -10,9 +10,7 @@ export function ActionButton(props: {
     const { onClick, name, label } = props
     const handleClick = (e: React.UIEvent) => {
         e.stopPropagation()
-        e.preventDefault()
         onClick(e)
-        return false
     }
 
     return (

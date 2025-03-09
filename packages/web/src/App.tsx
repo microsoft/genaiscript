@@ -1417,11 +1417,9 @@ function ScriptForm() {
     )
 }
 
-function RunResultsTabPanel() {
+function RunResultSelector() {
     const { runs } = useRunResults() || {}
     const { scriptid } = useApi()
-    if (!runs?.length) return null
-
     const handleSelect = (e: Event) => {
         const target = e.target as HTMLSelectElement
         const runId = target?.value
@@ -1430,30 +1428,23 @@ function RunResultsTabPanel() {
     }
 
     return (
-        <>
-            <vscode-tab-header slot="header">Previous Runs</vscode-tab-header>
-            <vscode-tab-panel style={{ minHeight: "20rem" }}>
-                <vscode-form-group>
-                    <vscode-label>Runs</vscode-label>
-                    <vscode-single-select onvsc-change={handleSelect}>
-                        <vscode-option description="" value=""></vscode-option>
-                        {runs
-                            .filter((r) => !scriptid || r.scriptId === scriptid)
-                            .map((run) => (
-                                <vscode-option
-                                    description={`${run.scriptId}: ${run.runId}`}
-                                    value={run.runId}
-                                >
-                                    {run.scriptId}: {run.runId}
-                                </vscode-option>
-                            ))}
-                    </vscode-single-select>
-                    <vscode-form-helper>
-                        Select a past report
-                    </vscode-form-helper>
-                </vscode-form-group>
-            </vscode-tab-panel>
-        </>
+        <vscode-form-group>
+            <vscode-label>Runs</vscode-label>
+            <vscode-single-select onvsc-change={handleSelect}>
+                <vscode-option description="" value=""></vscode-option>
+                {runs
+                    ?.filter((r) => !scriptid || r.scriptId === scriptid)
+                    .map((run) => (
+                        <vscode-option
+                            description={`${run.scriptId}: ${run.runId}`}
+                            value={run.runId}
+                        >
+                            {run.scriptId}: {run.runId}
+                        </vscode-option>
+                    ))}
+            </vscode-single-select>
+            <vscode-form-helper>Select a past report</vscode-form-helper>
+        </vscode-form-group>
     )
 }
 
@@ -1482,7 +1473,10 @@ function PromptParametersFields() {
                 />
             )}
             {!!systemParameters.length && (
-                <vscode-collapsible title="System Parameters">
+                <vscode-collapsible
+                    className="collapsible"
+                    title="System Parameters"
+                >
                     {Object.entries(inputSchema.properties)
                         .filter(([k]) => k !== "script")
                         .map(([key, fieldSchema]) => {
@@ -1577,7 +1571,7 @@ function ModelConfigurationTabPanel() {
 
 function ConfigurationTabPanel() {
     return (
-        <vscode-collapsible title="Configuration">
+        <vscode-collapsible className="collapsible" title="Configuration">
             <vscode-tabs panel>
                 <ModelConfigurationTabPanel />
                 <ProviderConfigurationTabPanel />
@@ -1713,6 +1707,22 @@ function RunForm() {
     )
 }
 
+function ResultsPanel() {
+    const [showRuns, setShowRuns] = useState(false)
+    const handleShowRuns = () => setShowRuns((prev) => !prev)
+    return (
+        <vscode-collapsible className="collapsible" open title="Result">
+            <ActionButton
+                name="history"
+                label={showRuns ? "Show previous runs" : "Hide previous runs"}
+                onClick={handleShowRuns}
+            />
+            {showRuns && <RunResultSelector />}
+            <ResultsTabs />
+        </vscode-collapsible>
+    )
+}
+
 function ResultsTabs() {
     const [selected, setSelected] = useState(0)
     return (
@@ -1731,7 +1741,6 @@ function ResultsTabs() {
                 <JSONTabPanel />
                 <StatsTabPanel />
                 <ErrorTabPanel />
-                <RunResultsTabPanel />
                 {diagnostics ? <RawTabPanel /> : undefined}
             </vscode-tabs>
         </>
@@ -1745,13 +1754,11 @@ function WebApp() {
             return <ResultsTabs />
         default:
             return (
-                <>
+                <div style={{ minHeight: "100vh" }}>
                     {!hosted ? <ProjectHeader /> : null}
                     <RunForm />
-                    <vscode-collapsible open title="Result">
-                        <ResultsTabs />
-                    </vscode-collapsible>
-                </>
+                    <ResultsPanel />
+                </div>
             )
     }
 }
