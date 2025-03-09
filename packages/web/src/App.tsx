@@ -1421,13 +1421,22 @@ function RunResultsTabPanel() {
     const { runs } = useRunResults() || {}
     const { scriptid } = useApi()
     if (!runs?.length) return null
+
+    const handleSelect = (e: Event) => {
+        const target = e.target as HTMLSelectElement
+        const runId = target?.value
+
+        console.log(runId)
+    }
+
     return (
         <>
             <vscode-tab-header slot="header">Previous Runs</vscode-tab-header>
             <vscode-tab-panel style={{ minHeight: "20rem" }}>
                 <vscode-form-group>
                     <vscode-label>Runs</vscode-label>
-                    <vscode-single-select>
+                    <vscode-single-select onvsc-change={handleSelect}>
+                        <vscode-option description="" value=""></vscode-option>
                         {runs
                             .filter((r) => !scriptid || r.scriptId === scriptid)
                             .map((run) => (
