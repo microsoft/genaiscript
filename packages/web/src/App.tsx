@@ -1424,14 +1424,17 @@ function RunResultsTabPanel() {
     return (
         <>
             <vscode-tab-header slot="header">Previous Runs</vscode-tab-header>
-            <vscode-tab-panel style={{ height: "100%" }}>
+            <vscode-tab-panel style={{ minHeight: "20rem" }}>
                 <vscode-form-group>
                     <vscode-label>Runs</vscode-label>
                     <vscode-single-select>
                         {runs
                             .filter((r) => !scriptid || r.scriptId === scriptid)
                             .map((run) => (
-                                <vscode-option value={run.runId}>
+                                <vscode-option
+                                    description={`${run.scriptId}: ${run.runId}`}
+                                    value={run.runId}
+                                >
                                     {run.scriptId}: {run.runId}
                                 </vscode-option>
                             ))}
