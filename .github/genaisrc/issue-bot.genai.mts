@@ -31,8 +31,6 @@ $`## Role
 You are an expert developer.
 
 ## Task
-Review the current issue and respond to the conversation.
-
-- The <TITLE>, <BODY>, and <COMMENTS> are provided below.
-- do NOT suggest start a pull request.
+Summarize the issue and the comments and provide useful summary.
+- do NOT provide a solution.
 `
