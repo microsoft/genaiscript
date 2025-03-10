@@ -2,6 +2,7 @@
 /// <reference path="./vscode-elements.d.ts" />
 import React, {
     createContext,
+    DependencyList,
     startTransition,
     use,
     useCallback,
@@ -155,7 +156,6 @@ class RunClient extends WebSocketClient {
     static readonly SCRIPT_END_EVENT = "scriptEnd"
     static readonly PROGRESS_EVENT = "progress"
     static readonly RUN_EVENT = "run"
-    static readonly RESULT_EVENT = "result"
 
     runId: string
     trace: string = ""
@@ -225,7 +225,6 @@ class RunClient extends WebSocketClient {
                                 detail: this.result,
                             })
                         )
-                        this.dispatchEvent(new Event(RunClient.RESULT_EVENT))
                         this.dispatchProgressEvent()
                         break
                     }
@@ -261,7 +260,6 @@ class RunClient extends WebSocketClient {
                 this.output = ""
                 this.result = undefined
                 this.stderr = ""
-                this.dispatchEvent(new Event(RunClient.RESULT_EVENT))
             }
             this.dispatchEvent(new Event(RunClient.RUN_EVENT))
         }
@@ -408,7 +406,7 @@ function ApiProvider({ children }: { children: React.ReactNode }) {
     }
     useEffect(() => {
         client.init()
-    }, [])
+    }, [client])
 
     return (
         <ApiContext.Provider
@@ -476,12 +474,15 @@ function useScript() {
 
 function useSyncProjectScript() {
     const { scriptid, setScriptid } = useApi()
+    const { runId } = useRunner()
     const scripts = useScripts()
     useEffect(() => {
-        if (!scriptid && scripts.length > 0) setScriptid(scripts[0].id)
-        else if (scriptid && !scripts.find((s) => s.id === scriptid))
-            setScriptid(scripts[0]?.id)
-    }, [scripts, scriptid])
+        if (!scriptid && scripts.length > 0) {
+            if (!runId) setScriptid(scripts[0].id)
+        } else if (scriptid && !scripts.find((s) => s.id === scriptid)) {
+            setScriptid(runId ? undefined : scripts[0]?.id)
+        }
+    }, [scripts, scriptid, runId])
 }
 
 function useClientReadyState() {
@@ -537,22 +538,19 @@ function RunnerProvider({ children }: { children: React.ReactNode }) {
                 setRunId(client.runId)
                 setState("running")
             }),
-        []
+        [client]
     )
     useEventListener(client, RunClient.RUN_EVENT, runUpdate, false)
 
     const end = useCallback(
         (e: Event) =>
             startTransition(() => {
-                setRunId(undefined)
                 setState(undefined)
+                if (runId === client.runId) setResult(client.result)
             }),
-        []
+        [client, runId]
     )
     useEventListener(client, RunClient.SCRIPT_END_EVENT, end, false)
-
-    const update = useCallback(() => setResult(client.result), [client])
-    useEventListener(client, RunClient.RESULT_EVENT, update)
 
     const appendTrace = useCallback(
         (evt: Event) =>
@@ -650,12 +648,13 @@ function useEventListener(
     target: EventTarget | undefined,
     eventName: string,
     handler: EventListener,
-    options?: boolean | AddEventListenerOptions
+    options?: boolean | AddEventListenerOptions,
+    deps?: DependencyList
 ) {
     useEffect(() => {
         target?.addEventListener(eventName, handler, options)
         return () => target?.removeEventListener(eventName, handler, options)
-    }, [target, eventName, handler, JSON.stringify(options)])
+    }, [target, eventName, handler, JSON.stringify(options), ...(deps || [])])
 }
 
 function useTrace() {
@@ -671,12 +670,11 @@ function useOutput() {
 function useReasoning() {
     const { client } = useApi()
     const [value, setValue] = useState<string>(client.reasoning)
-    const appendTrace = useCallback(
-        (evt: Event) =>
-            startTransition(() => setValue((previous) => client.reasoning)),
-        []
+    const appendReasoning = useCallback(
+        () => startTransition(() => setValue(() => client.reasoning)),
+        [client]
     )
-    useEventListener(client, RunClient.PROGRESS_EVENT, appendTrace)
+    useEventListener(client, RunClient.PROGRESS_EVENT, appendReasoning)
     return value
 }
 
@@ -1485,6 +1483,9 @@ function RunResultSelector() {
                             description={`${run.scriptId}, created at ${run.creationTime} (${run.runId})`}
                             value={run.runId}
                         >
+                            {scriptid === run.scriptId
+                                ? ""
+                                : `${run.scriptId}, `}
                             {run.creationTime}
                         </vscode-option>
                     ))}
