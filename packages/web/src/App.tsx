@@ -137,6 +137,7 @@ const fetchRuns = async (): Promise<RunResultListResponse> => {
 const fetchRun = async (
     runId: string
 ): Promise<PromptScriptEndResponseEvent> => {
+    if (!runId) return undefined
     const res = await fetch(`${base}/api/runs/${runId}`, {
         headers: {
             Accept: "application/json",
@@ -212,9 +213,10 @@ class RunClient extends WebSocketClient {
                         if (data.result) {
                             this.result = cleanedClone(data.result)
                         } else {
-                            const e = await fetchRun(data.runId)
-                            this.result = cleanedClone(e.result)
-                            this.trace = e.trace || ""
+                            const { result, trace } =
+                                (await fetchRun(data.runId)) || {}
+                            this.result = cleanedClone(result)
+                            this.trace = trace || ""
                         }
                         this.output = this.result?.text || ""
                         this.reasoning = this.result?.reasoning || ""
@@ -339,8 +341,6 @@ const ApiContext = createContext<{
 
     scriptid: string | undefined
     setScriptid: (id: string) => void
-    runid: string | undefined
-    setRunid: (id: string) => void
     files: string[]
     setFiles: (files: string[]) => void
     importedFiles: ImportedFile[]
@@ -369,7 +369,6 @@ function ApiProvider({ children }: { children: React.ReactNode }) {
     const env = useMemo<Promise<ServerEnvResponse>>(fetchEnv, [refreshId])
     const runs = useMemo<Promise<RunResultListResponse>>(fetchRuns, [refreshId])
     const [scriptid, setScriptid] = useLocationHashValue("scriptid")
-    const [runid, setRunid] = useLocationHashValue("runid")
 
     const refresh = () => setRefreshId((prev) => prev + 1)
 
@@ -419,8 +418,6 @@ function ApiProvider({ children }: { children: React.ReactNode }) {
                 env,
                 scriptid,
                 setScriptid,
-                runid,
-                setRunid,
                 files,
                 setFiles,
                 importedFiles,
@@ -504,6 +501,11 @@ const RunnerContext = createContext<{
     run: () => void
     cancel: () => void
     state: "running" | undefined
+    result: Partial<GenerationResult> | undefined
+    setRunResult: (
+        runId: string,
+        result: Partial<GenerationResult> | undefined
+    ) => void
 } | null>(null)
 
 function RunnerProvider({ children }: { children: React.ReactNode }) {
@@ -516,7 +518,11 @@ function RunnerProvider({ children }: { children: React.ReactNode }) {
         parameters,
     } = useApi()
 
-    const [runId, setRunId] = useState<string>(client.runId)
+    const [state, setState] = useState<"running" | undefined>(undefined)
+    const [runId, setRunId] = useLocationHashValue("runid")
+    const [result, setResult] = useState<Partial<GenerationResult> | undefined>(
+        undefined
+    )
 
     const start = useCallback((e: Event) => {
         const ev = e as CustomEvent
@@ -524,14 +530,28 @@ function RunnerProvider({ children }: { children: React.ReactNode }) {
     }, [])
     useEventListener(client, RunClient.SCRIPT_START_EVENT, start, false)
 
-    const runUpdate = useCallback((e: Event) => setRunId(client.runId), [runId])
+    const runUpdate = useCallback(
+        (e: Event) =>
+            startTransition(() => {
+                setRunId(client.runId)
+                setState("running")
+            }),
+        []
+    )
     useEventListener(client, RunClient.RUN_EVENT, runUpdate, false)
 
-    const end = useCallback((e: Event) => {
-        const ev = e as CustomEvent
-        setRunId(undefined)
-    }, [])
+    const end = useCallback(
+        (e: Event) =>
+            startTransition(() => {
+                setRunId(undefined)
+                setState(undefined)
+            }),
+        []
+    )
     useEventListener(client, RunClient.SCRIPT_END_EVENT, end, false)
+
+    const update = useCallback(() => setResult(client.result), [client])
+    useEventListener(client, RunClient.RESULT_EVENT, update)
 
     const run = async () => {
         if (!scriptid) return
@@ -565,9 +585,16 @@ function RunnerProvider({ children }: { children: React.ReactNode }) {
     const cancel = () => {
         client.abortScript(runId, "ui cancel")
         setRunId(undefined)
+        setState(undefined)
     }
 
-    const state = runId ? "running" : undefined
+    const setRunResult = (runId: string, result: Partial<GenerationResult>) =>
+        startTransition(() => {
+            client.stop()
+            setResult(result)
+            setRunId(runId)
+            setState(undefined)
+        })
 
     return (
         <RunnerContext.Provider
@@ -576,6 +603,8 @@ function RunnerProvider({ children }: { children: React.ReactNode }) {
                 run,
                 cancel,
                 state,
+                result,
+                setRunResult,
             }}
         >
             {children}
@@ -590,10 +619,7 @@ function useRunner() {
 }
 
 function useResult(): Partial<GenerationResult> | undefined {
-    const { client } = useApi()
-    const [result, setResult] = useState(client.result)
-    const update = useCallback(() => setResult(client.result), [client])
-    useEventListener(client, RunClient.RESULT_EVENT, update)
+    const { result } = useRunner()
     return result
 }
 
@@ -1423,13 +1449,16 @@ function ScriptForm() {
 }
 
 function RunResultSelector() {
+    const { setRunResult } = useRunner()
     const { runs } = useRunResults() || {}
     const { scriptid } = useApi()
-    const handleSelect = (e: Event) => {
+    const handleSelect = async (e: Event) => {
+        e.stopPropagation()
         const target = e.target as HTMLSelectElement
         const runId = target?.value
 
-        console.log(runId)
+        const run = await fetchRun(runId)
+        setRunResult(runId, run.result)
     }
 
     return (
