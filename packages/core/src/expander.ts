@@ -233,7 +233,7 @@ export async function expandTemplate(
 
     traceEnv(model, trace, env)
 
-    trace.startDetails("🧬 prompt")
+    trace.startDetails("🧬 prompt", { expanded: true })
     trace.detailsFenced("💻 script source", template.jsSource, "js")
 
     const prompt = await callExpander(
@@ -304,7 +304,7 @@ export async function expandTemplate(
         options.fallbackTools = true
 
     try {
-        trace.startDetails("👾 systems")
+        trace.startDetails("👾 systems", { expanded: true })
         for (let i = 0; i < systems.length; ++i) {
             if (cancellationToken?.isCancellationRequested) {
                 await dispose(disposables, { trace })
