@@ -502,9 +502,12 @@ const RunnerContext = createContext<{
     cancel: () => void
     state: "running" | undefined
     result: Partial<GenerationResult> | undefined
+    trace: string
+    output: string
     setRunResult: (
         runId: string,
-        result: Partial<GenerationResult> | undefined
+        result: Partial<GenerationResult> | undefined,
+        trace: string
     ) => void
 } | null>(null)
 
@@ -521,8 +524,10 @@ function RunnerProvider({ children }: { children: React.ReactNode }) {
     const [state, setState] = useState<"running" | undefined>(undefined)
     const [runId, setRunId] = useLocationHashValue("runid")
     const [result, setResult] = useState<Partial<GenerationResult> | undefined>(
-        undefined
+        client.result
     )
+    const [trace, setTrace] = useState<string>(client.trace)
+    const [output, setOutput] = useState<string>(client.output)
 
     const start = useCallback((e: Event) => {
         const ev = e as CustomEvent
@@ -552,6 +557,16 @@ function RunnerProvider({ children }: { children: React.ReactNode }) {
 
     const update = useCallback(() => setResult(client.result), [client])
     useEventListener(client, RunClient.RESULT_EVENT, update)
+
+    const appendTrace = useCallback(
+        (evt: Event) =>
+            startTransition(() => {
+                setTrace(() => client.trace)
+                setOutput(() => client.output)
+            }),
+        []
+    )
+    useEventListener(client, RunClient.PROGRESS_EVENT, appendTrace)
 
     const run = async () => {
         if (!scriptid) return
@@ -588,11 +603,17 @@ function RunnerProvider({ children }: { children: React.ReactNode }) {
         setState(undefined)
     }
 
-    const setRunResult = (runId: string, result: Partial<GenerationResult>) =>
+    const setRunResult = (
+        runId: string,
+        result: Partial<GenerationResult>,
+        trace: string
+    ) =>
         startTransition(() => {
             client.stop()
             setResult(result)
             setRunId(runId)
+            setTrace(trace)
+            setOutput(result?.text)
             setState(undefined)
         })
 
@@ -604,6 +625,8 @@ function RunnerProvider({ children }: { children: React.ReactNode }) {
                 cancel,
                 state,
                 result,
+                trace,
+                output,
                 setRunResult,
             }}
         >
@@ -636,27 +659,13 @@ function useEventListener(
 }
 
 function useTrace() {
-    const { client } = useApi()
-    const [trace, setTrace] = useState(client.trace)
-    const appendTrace = useCallback(
-        (evt: Event) =>
-            startTransition(() => setTrace((previous) => client.trace)),
-        []
-    )
-    useEventListener(client, RunClient.PROGRESS_EVENT, appendTrace)
+    const { trace } = useRunner()
     return trace
 }
 
 function useOutput() {
-    const { client } = useApi()
-    const [value, setValue] = useState<string>(client.output)
-    const appendTrace = useCallback(
-        (evt: Event) =>
-            startTransition(() => setValue((previous) => client.output)),
-        []
-    )
-    useEventListener(client, RunClient.PROGRESS_EVENT, appendTrace)
-    return value
+    const { output } = useRunner()
+    return output
 }
 
 function useReasoning() {
@@ -1458,7 +1467,7 @@ function RunResultSelector() {
         const runId = target?.value
 
         const run = await fetchRun(runId)
-        setRunResult(runId, run.result)
+        if (run) setRunResult(runId, run.result, run.trace)
     }
 
     return (

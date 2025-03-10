@@ -730,7 +730,7 @@ window.vscodeWebviewPlaygroundNonce = ${JSON.stringify(nonce)};
                 }
             } else if (method === "GET" && runRx.test(route)) {
                 const { runId } = runRx.exec(route).groups
-                console.log(`run ${runId}: get`)
+                logVerbose(`run: get ${runId}`)
                 // shortcut to last run
                 if (runId === lastRunResult?.runId)
                     response = {

@@ -102,23 +102,3 @@ vscode-split-layout.trace-split-panel vscode-scrollable {
     margin-left: 0;
     margin-bottom: 1.5rem;
 }
-
-.vscode-body .collapsible ul {
-    display: flex;
-    margin: 0;
-    padding: 0;
-}
-
-.vscode-body .collapsible li {
-    align-items: center;
-    display: flex;
-    height: 22px;
-    justify-content: center;
-    margin: 0;
-    padding: 0;
-    width: 28px;
-}
-
-.vscode-body .collapsible p {
-    margin: 10px;
-}
