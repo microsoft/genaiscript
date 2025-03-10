@@ -799,6 +799,7 @@ function traceTreeToTreeItem(node: TraceNode): TreeItem {
 
 function TraceTreeMarkdown() {
     const trace = useTrace()
+    const { runId } = useRunner()
     const [node, setNode] = useState<TraceNode | undefined>(undefined)
     const openeds = useRef(new Set<string>())
     const tree = useMemo(() => {
@@ -836,6 +837,10 @@ function TraceTreeMarkdown() {
             return node.content.map((n) => renderTraceTree(n, 2)).join("\n")
         return renderTraceTree(node, 2)
     }, [node])
+
+    useEffect(() => {
+        setNode(() => undefined)
+    }, [runId])
 
     return (
         <vscode-split-layout
@@ -1477,10 +1482,10 @@ function RunResultSelector() {
                     ?.filter((r) => !scriptid || r.scriptId === scriptid)
                     .map((run) => (
                         <vscode-option
-                            description={`${run.scriptId}, created at ${run.creationTme} (${run.runId})`}
+                            description={`${run.scriptId}, created at ${run.creationTime} (${run.runId})`}
                             value={run.runId}
                         >
-                            {run.creationTme}
+                            {run.creationTime}
                         </vscode-option>
                     ))}
             </vscode-single-select>

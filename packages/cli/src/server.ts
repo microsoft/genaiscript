@@ -723,10 +723,10 @@ window.vscodeWebviewPlaygroundNonce = ${JSON.stringify(nonce)};
                 const runs = await collectRuns()
                 response = <RunResultListResponse>{
                     ok: true,
-                    runs: runs.map(({ scriptId, runId, creationTme }) => ({
+                    runs: runs.map(({ scriptId, runId, creationTme: creationTime }) => ({
                         scriptId,
                         runId,
-                        creationTme
+                        creationTime,
                     })),
                 }
             } else if (method === "GET" && runRx.test(route)) {
@@ -742,22 +742,18 @@ window.vscodeWebviewPlaygroundNonce = ${JSON.stringify(nonce)};
                     const runs = await collectRuns()
                     const run = runs.find((r) => r.runId === runId)
                     if (run) {
-                        const runResult = await tryReadJSON(
-                            join(run.dir, "res.json")
-                        )
-                        if (runResult) {
-                            const runTrace = await tryReadText(
-                                join(run.dir, "trace.md")
-                            )
-                            response = (<PromptScriptEndResponseEvent>{
-                                ok: true,
-                                type: "script.end",
-                                runId,
-                                exitCode: runResult.exitCode,
-                                result: runResult,
-                                trace: runTrace,
-                            }) as any
-                        }
+                        const runResult =
+                            (await tryReadJSON(join(run.dir, "res.json"))) || {}
+                        const runTrace =
+                            (await tryReadText(join(run.dir, "trace.md"))) || ""
+                        response = (<PromptScriptEndResponseEvent>{
+                            ok: true,
+                            type: "script.end",
+                            runId,
+                            exitCode: runResult.exitCode,
+                            result: runResult,
+                            trace: runTrace,
+                        }) as any
                     }
                 }
             }
