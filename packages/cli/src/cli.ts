@@ -60,6 +60,7 @@ import { extractAudio, extractVideoFrames, probeVideo } from "./video"
 import { configure } from "./configure"
 import { logPerformance } from "../../core/src/performance"
 import { setConsoleColors } from "../../core/src/consolecolor"
+import { listRuns } from "./runs"
 
 /**
  * Main function to initialize and run the CLI.
@@ -227,6 +228,15 @@ export async function cli() {
         )
         .option("--no-run-trace", "disable automatic trace generation")
         .action(runScriptWithExitCode) // Action to execute the script with exit code
+
+    // runs commands
+    const runs = program
+        .command("runs")
+        .description("Commands to open previous runs")
+    runs.command("list")
+        .description("List all available run reports in workspace")
+        .argument("[script]", "Script id")
+        .action(listRuns)
 
     // Define 'test' command group for running tests
     const test = program.command("test").alias("eval")
