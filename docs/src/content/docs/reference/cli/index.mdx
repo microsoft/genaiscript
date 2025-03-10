@@ -167,6 +167,18 @@ where [script] can be a script id or a file path.
 
 The CLI can be imported and [used as an API in your Node.JS application](/genaiscript/reference/cli/api).
 
+## About mixing files and `--vars`
+
+Both `files` and `--vars` are variable command-line arguments. That is, they will consume all the following
+entries until a new option starts. Therefore ordering is important when mixing them. It is best to
+place the files, then follow with the `--vars` option.
+
+```sh
+genaiscript run <script> [files...] --vars key1=value1 key2=value2
+```
+
+- [parsing ambiguity](https://github.com/tj/commander.js/blob/HEAD/docs/options-in-depth.md#parsing-ambiguity)
+
 ## Topics
 
 <DirectoryLinks directory="reference/cli" />
