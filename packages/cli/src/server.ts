@@ -723,9 +723,10 @@ window.vscodeWebviewPlaygroundNonce = ${JSON.stringify(nonce)};
                 const runs = await collectRuns()
                 response = <RunResultListResponse>{
                     ok: true,
-                    runs: runs.map(({ scriptId, runId }) => ({
+                    runs: runs.map(({ scriptId, runId, creationTme }) => ({
                         scriptId,
                         runId,
+                        creationTme
                     })),
                 }
             } else if (method === "GET" && runRx.test(route)) {

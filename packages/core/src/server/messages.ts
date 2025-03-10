@@ -197,7 +197,7 @@ export interface RunResultList extends RequestMessage {
 }
 
 export interface RunResultListResponse extends ResponseStatus {
-    runs: { scriptId: string; runId: string }[]
+    runs: { scriptId: string; runId: string; creationTme: string }[]
 }
 
 export interface PromptScriptList extends RequestMessage {

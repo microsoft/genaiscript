@@ -19,6 +19,7 @@ export async function collectRuns(options?: { scriptid?: string }) {
         name: string
         runId: string
         dir: string
+        creationTme: string
     }[] = []
     for (const sid of scripts) {
         const sdir = join(runsDir, sid.name)
@@ -32,6 +33,7 @@ export async function collectRuns(options?: { scriptid?: string }) {
                 .map((r) => ({
                     scriptId: sid.name,
                     runId: r.name.split(/-/g).at(-1),
+                    creationTme: r.name.split(/-/g).slice(0, -1).join(" "),
                     name: r.name,
                     dir: join(sdir, r.name),
                 }))

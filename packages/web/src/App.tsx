@@ -1479,14 +1479,14 @@ function RunResultSelector() {
                     ?.filter((r) => !scriptid || r.scriptId === scriptid)
                     .map((run) => (
                         <vscode-option
-                            description={`${run.scriptId}: ${run.runId}`}
+                            description={`${run.scriptId}, created at ${run.creationTme} (${run.runId})`}
                             value={run.runId}
                         >
-                            {run.scriptId}: {run.runId}
+                            {run.creationTme}
                         </vscode-option>
                     ))}
             </vscode-single-select>
-            <vscode-form-helper>Select a past report</vscode-form-helper>
+            <vscode-form-helper>Select a previous report</vscode-form-helper>
         </vscode-form-group>
     )
 }
