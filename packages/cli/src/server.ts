@@ -711,7 +711,7 @@ window.vscodeWebviewPlaygroundNonce = ${JSON.stringify(nonce)};
                 res.end()
                 return
             }
-            const runRx = /^\/runs\/(?<runId>:[a-z0-9]{12,256})$/
+            const runRx = /^\/api\/runs\/(?<runId>[a-z0-9]{12,256})$/
             let response: ResponseStatus
             if (method === "GET" && route === "/api/version")
                 response = serverVersion()
@@ -730,8 +730,9 @@ window.vscodeWebviewPlaygroundNonce = ${JSON.stringify(nonce)};
                 }
             } else if (method === "GET" && runRx.test(route)) {
                 const { runId } = runRx.exec(route).groups
+                console.log(`run ${runId}: get`)
                 // shortcut to last run
-                if (runId === lastRunResult.runId)
+                if (runId === lastRunResult?.runId)
                     response = {
                         ok: true,
                         ...lastRunResult,
