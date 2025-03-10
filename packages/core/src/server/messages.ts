@@ -192,6 +192,14 @@ export interface PromptScriptRunOptions {
     runTrace: boolean
 }
 
+export interface RunResultList extends RequestMessage {
+    type: "run.list"
+}
+
+export interface RunResultListResponse extends ResponseStatus {
+    runs: { scriptId: string; runId: string; creationTme: string }[]
+}
+
 export interface PromptScriptList extends RequestMessage {
     type: "script.list"
 }
@@ -398,6 +406,7 @@ export type RequestMessages =
     | ChatChunk
     | LanguageModelConfigurationRequest
     | PromptScriptList
+    | RunResultList
 
 export type PromptScriptResponseEvents =
     | PromptScriptProgressResponseEvent

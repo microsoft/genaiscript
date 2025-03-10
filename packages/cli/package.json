@@ -123,6 +123,7 @@
     "openai": "^4.86.2",
     "pretty-bytes": "^6.1.1",
     "replace-ext": "^2.0.0",
+    "terminal-link": "^3.0.0",
     "ws": "^8.18.1",
     "zx": "^8.4.0"
   },

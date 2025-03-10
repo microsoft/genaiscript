@@ -3,7 +3,6 @@
 import React, {
     createContext,
     startTransition,
-    Suspense,
     use,
     useCallback,
     useEffect,
@@ -45,6 +44,7 @@ import type {
     PromptScriptStartResponse,
     PromptScriptEndResponseEvent,
     LogMessageEvent,
+    RunResultListResponse,
 } from "../../core/src/server/messages"
 import { logprobColor, renderLogprob, rgbToCss } from "../../core/src/logprob"
 import { FileWithPath, useDropzone } from "react-dropzone"
@@ -96,6 +96,7 @@ import {
 import { JSONSchemaObjectForm } from "./JSONSchema"
 import { useLocationHashValue } from "./useLocationHashValue"
 import { ActionButton } from "./ActionButton"
+import Suspense from "./Suspense"
 
 const fetchScripts = async (): Promise<Project> => {
     const res = await fetch(`${base}/api/scripts`, {
@@ -121,9 +122,22 @@ const fetchEnv = async (): Promise<ServerEnvResponse> => {
     const j: ServerEnvResponse = await res.json()
     return j
 }
+const fetchRuns = async (): Promise<RunResultListResponse> => {
+    const res = await fetch(`${base}/api/runs`, {
+        headers: {
+            Accept: "application/json",
+            Authorization: apiKey,
+        },
+    })
+    if (!res.ok) throw new Error(await res.json())
+
+    const j: RunResultListResponse = await res.json()
+    return j
+}
 const fetchRun = async (
     runId: string
 ): Promise<PromptScriptEndResponseEvent> => {
+    if (!runId) return undefined
     const res = await fetch(`${base}/api/runs/${runId}`, {
         headers: {
             Accept: "application/json",
@@ -199,9 +213,10 @@ class RunClient extends WebSocketClient {
                         if (data.result) {
                             this.result = cleanedClone(data.result)
                         } else {
-                            const e = await fetchRun(data.runId)
-                            this.result = cleanedClone(e.result)
-                            this.trace = e.trace || ""
+                            const { result, trace } =
+                                (await fetchRun(data.runId)) || {}
+                            this.result = cleanedClone(result)
+                            this.trace = trace || ""
                         }
                         this.output = this.result?.text || ""
                         this.reasoning = this.result?.reasoning || ""
@@ -337,6 +352,7 @@ const ApiContext = createContext<{
         f: (prev: ModelConnectionOptions) => ModelConnectionOptions
     ) => void
     refresh: () => void
+    runs: Promise<RunResultListResponse | undefined>
 } | null>(null)
 
 function ApiProvider({ children }: { children: React.ReactNode }) {
@@ -351,6 +367,7 @@ function ApiProvider({ children }: { children: React.ReactNode }) {
 
     const project = useMemo<Promise<Project>>(fetchScripts, [refreshId])
     const env = useMemo<Promise<ServerEnvResponse>>(fetchEnv, [refreshId])
+    const runs = useMemo<Promise<RunResultListResponse>>(fetchRuns, [refreshId])
     const [scriptid, setScriptid] = useLocationHashValue("scriptid")
 
     const refresh = () => setRefreshId((prev) => prev + 1)
@@ -410,6 +427,7 @@ function ApiProvider({ children }: { children: React.ReactNode }) {
                 options,
                 setOptions,
                 refresh,
+                runs,
             }}
         >
             {children}
@@ -427,6 +445,12 @@ function useEnv() {
     const { env: envPromise } = useApi()
     const env = use(envPromise)
     return env
+}
+
+function useRunResults() {
+    const { runs: runsPromise } = useApi()
+    const runs = use(runsPromise)
+    return runs
 }
 
 function useProject() {
@@ -477,6 +501,10 @@ const RunnerContext = createContext<{
     run: () => void
     cancel: () => void
     state: "running" | undefined
+    result: Partial<GenerationResult> | undefined
+    trace: string
+    output: string
+    loadRunResult: (runId: string) => void
 } | null>(null)
 
 function RunnerProvider({ children }: { children: React.ReactNode }) {
@@ -489,7 +517,13 @@ function RunnerProvider({ children }: { children: React.ReactNode }) {
         parameters,
     } = useApi()
 
-    const [runId, setRunId] = useState<string>(client.runId)
+    const [state, setState] = useState<"running" | undefined>(undefined)
+    const [runId, setRunId] = useLocationHashValue("runid")
+    const [result, setResult] = useState<Partial<GenerationResult> | undefined>(
+        client.result
+    )
+    const [trace, setTrace] = useState<string>(client.trace)
+    const [output, setOutput] = useState<string>(client.output)
 
     const start = useCallback((e: Event) => {
         const ev = e as CustomEvent
@@ -497,14 +531,38 @@ function RunnerProvider({ children }: { children: React.ReactNode }) {
     }, [])
     useEventListener(client, RunClient.SCRIPT_START_EVENT, start, false)
 
-    const runUpdate = useCallback((e: Event) => setRunId(client.runId), [runId])
+    const runUpdate = useCallback(
+        (e: Event) =>
+            startTransition(() => {
+                setRunId(client.runId)
+                setState("running")
+            }),
+        []
+    )
     useEventListener(client, RunClient.RUN_EVENT, runUpdate, false)
 
-    const end = useCallback((e: Event) => {
-        const ev = e as CustomEvent
-        setRunId(undefined)
-    }, [])
+    const end = useCallback(
+        (e: Event) =>
+            startTransition(() => {
+                setRunId(undefined)
+                setState(undefined)
+            }),
+        []
+    )
     useEventListener(client, RunClient.SCRIPT_END_EVENT, end, false)
+
+    const update = useCallback(() => setResult(client.result), [client])
+    useEventListener(client, RunClient.RESULT_EVENT, update)
+
+    const appendTrace = useCallback(
+        (evt: Event) =>
+            startTransition(() => {
+                setTrace(() => client.trace)
+                setOutput(() => client.output)
+            }),
+        []
+    )
+    useEventListener(client, RunClient.PROGRESS_EVENT, appendTrace)
 
     const run = async () => {
         if (!scriptid) return
@@ -538,9 +596,26 @@ function RunnerProvider({ children }: { children: React.ReactNode }) {
     const cancel = () => {
         client.abortScript(runId, "ui cancel")
         setRunId(undefined)
+        setState(undefined)
     }
 
-    const state = runId ? "running" : undefined
+    const loadRunResult = async (runId: string) => {
+        if (!runId) return
+        const res = await fetchRun(runId)
+        if (res)
+            startTransition(() => {
+                client.stop()
+                setRunId(runId)
+                setResult(res.result)
+                setTrace(res.trace)
+                setOutput(res.result?.text)
+                setState(undefined)
+            })
+    }
+
+    useEffect(() => {
+        if (runId) loadRunResult(runId)
+    }, [])
 
     return (
         <RunnerContext.Provider
@@ -549,6 +624,10 @@ function RunnerProvider({ children }: { children: React.ReactNode }) {
                 run,
                 cancel,
                 state,
+                result,
+                trace,
+                output,
+                loadRunResult,
             }}
         >
             {children}
@@ -563,10 +642,7 @@ function useRunner() {
 }
 
 function useResult(): Partial<GenerationResult> | undefined {
-    const { client } = useApi()
-    const [result, setResult] = useState(client.result)
-    const update = useCallback(() => setResult(client.result), [client])
-    useEventListener(client, RunClient.RESULT_EVENT, update)
+    const { result } = useRunner()
     return result
 }
 
@@ -583,27 +659,13 @@ function useEventListener(
 }
 
 function useTrace() {
-    const { client } = useApi()
-    const [trace, setTrace] = useState(client.trace)
-    const appendTrace = useCallback(
-        (evt: Event) =>
-            startTransition(() => setTrace((previous) => client.trace)),
-        []
-    )
-    useEventListener(client, RunClient.PROGRESS_EVENT, appendTrace)
+    const { trace } = useRunner()
     return trace
 }
 
 function useOutput() {
-    const { client } = useApi()
-    const [value, setValue] = useState<string>(client.output)
-    const appendTrace = useCallback(
-        (evt: Event) =>
-            startTransition(() => setValue((previous) => client.output)),
-        []
-    )
-    useEventListener(client, RunClient.PROGRESS_EVENT, appendTrace)
-    return value
+    const { output } = useRunner()
+    return output
 }
 
 function useReasoning() {
@@ -649,7 +711,7 @@ function ProjectHeader() {
     }, [description, remoteSlug, version, readme])
 
     return (
-        <vscode-collapsible title={name || "Project"}>
+        <vscode-collapsible title={"Project"}>
             {remoteSlug ? (
                 <vscode-badge variant="counter" slot="decorations">
                     {remoteSlug}
@@ -1395,6 +1457,38 @@ function ScriptForm() {
     )
 }
 
+function RunResultSelector() {
+    const { loadRunResult } = useRunner()
+    const { runs } = useRunResults() || {}
+    const { scriptid } = useApi()
+    const handleSelect = (e: Event) => {
+        e.stopPropagation()
+        const target = e.target as HTMLSelectElement
+        const runId = target?.value
+        loadRunResult(runId)
+    }
+
+    return (
+        <vscode-form-group>
+            <vscode-label>Runs</vscode-label>
+            <vscode-single-select onvsc-change={handleSelect}>
+                <vscode-option description="" value=""></vscode-option>
+                {runs
+                    ?.filter((r) => !scriptid || r.scriptId === scriptid)
+                    .map((run) => (
+                        <vscode-option
+                            description={`${run.scriptId}, created at ${run.creationTme} (${run.runId})`}
+                            value={run.runId}
+                        >
+                            {run.creationTme}
+                        </vscode-option>
+                    ))}
+            </vscode-single-select>
+            <vscode-form-helper>Select a previous report</vscode-form-helper>
+        </vscode-form-group>
+    )
+}
+
 function PromptParametersFields() {
     const script = useScript()
 
@@ -1420,7 +1514,10 @@ function PromptParametersFields() {
                 />
             )}
             {!!systemParameters.length && (
-                <vscode-collapsible title="System Parameters">
+                <vscode-collapsible
+                    className="collapsible"
+                    title="System Parameters"
+                >
                     {Object.entries(inputSchema.properties)
                         .filter(([k]) => k !== "script")
                         .map(([key, fieldSchema]) => {
@@ -1515,7 +1612,7 @@ function ModelConfigurationTabPanel() {
 
 function ConfigurationTabPanel() {
     return (
-        <vscode-collapsible title="Configuration">
+        <vscode-collapsible className="collapsible" title="Configuration">
             <vscode-tabs panel>
                 <ModelConfigurationTabPanel />
                 <ProviderConfigurationTabPanel />
@@ -1651,6 +1748,22 @@ function RunForm() {
     )
 }
 
+function ResultsPanel() {
+    const [showRuns, setShowRuns] = useState(false)
+    const handleShowRuns = () => setShowRuns((prev) => !prev)
+    return (
+        <vscode-collapsible className="collapsible" open title="Result">
+            <ActionButton
+                name="history"
+                label={showRuns ? "Show previous runs" : "Hide previous runs"}
+                onClick={handleShowRuns}
+            />
+            {showRuns && <RunResultSelector />}
+            <ResultsTabs />
+        </vscode-collapsible>
+    )
+}
+
 function ResultsTabs() {
     const [selected, setSelected] = useState(0)
     return (
@@ -1682,13 +1795,11 @@ function WebApp() {
             return <ResultsTabs />
         default:
             return (
-                <>
+                <div style={{ minHeight: "100vh" }}>
                     {!hosted ? <ProjectHeader /> : null}
                     <RunForm />
-                    <vscode-collapsible open title="Results">
-                        <ResultsTabs />
-                    </vscode-collapsible>
-                </>
+                    <ResultsPanel />
+                </div>
             )
     }
 }

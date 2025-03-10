@@ -38,6 +38,7 @@ import {
     LanguageModelConfiguration,
     ServerEnvResponse,
     ServerResponse,
+    RunResultListResponse,
 } from "../../core/src/server/messages"
 import { LanguageModel } from "../../core/src/chat"
 import {
@@ -61,6 +62,7 @@ import { unthink } from "../../core/src/think"
 import { NodeHost } from "./nodehost"
 import { findRandomOpenPort, isPortInUse } from "../../core/src/net"
 import { tryReadJSON, tryReadText } from "../../core/src/fs"
+import { collectRuns } from "./runs"
 
 /**
  * Starts a WebSocket server for handling chat and script execution.
@@ -111,7 +113,9 @@ export async function startServer(options: {
     // read current project info
     const { name, displayName, description, version, homepage, author } =
         (await tryReadJSON("package.json")) || {}
-    const readme = await tryReadText("README.genai.md") || await tryReadText("README.md")
+    const readme =
+        (await tryReadText("README.genai.md")) ||
+        (await tryReadText("README.md"))
 
     const wss = new WebSocketServer({ noServer: true })
 
@@ -707,6 +711,7 @@ window.vscodeWebviewPlaygroundNonce = ${JSON.stringify(nonce)};
                 res.end()
                 return
             }
+            const runRx = /^\/api\/runs\/(?<runId>[a-z0-9]{12,256})$/
             let response: ResponseStatus
             if (method === "GET" && route === "/api/version")
                 response = serverVersion()
@@ -714,14 +719,46 @@ window.vscodeWebviewPlaygroundNonce = ${JSON.stringify(nonce)};
                 response = await scriptList()
             } else if (method === "GET" && route === "/api/env") {
                 response = await serverEnv()
-            } else if (
-                method === "GET" &&
-                lastRunResult &&
-                route === `/api/runs/${lastRunResult.runId}`
-            ) {
-                response = {
+            } else if (method === "GET" && route === "/api/runs") {
+                const runs = await collectRuns()
+                response = <RunResultListResponse>{
                     ok: true,
-                    ...lastRunResult,
+                    runs: runs.map(({ scriptId, runId, creationTme }) => ({
+                        scriptId,
+                        runId,
+                        creationTme
+                    })),
+                }
+            } else if (method === "GET" && runRx.test(route)) {
+                const { runId } = runRx.exec(route).groups
+                logVerbose(`run: get ${runId}`)
+                // shortcut to last run
+                if (runId === lastRunResult?.runId)
+                    response = {
+                        ok: true,
+                        ...lastRunResult,
+                    }
+                else {
+                    const runs = await collectRuns()
+                    const run = runs.find((r) => r.runId === runId)
+                    if (run) {
+                        const runResult = await tryReadJSON(
+                            join(run.dir, "res.json")
+                        )
+                        if (runResult) {
+                            const runTrace = await tryReadText(
+                                join(run.dir, "trace.md")
+                            )
+                            response = (<PromptScriptEndResponseEvent>{
+                                ok: true,
+                                type: "script.end",
+                                runId,
+                                exitCode: runResult.exitCode,
+                                result: runResult,
+                                trace: runTrace,
+                            }) as any
+                        }
+                    }
                 }
             }
 
