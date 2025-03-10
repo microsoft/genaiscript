@@ -191,10 +191,12 @@ defAgent(
 then use it as a tool
 
 ```js
-script({ tools: "agent" })
+script({ tools: "agent_git" })
 
 $`Do a statistical analysis of the last commits`
 ```
+
+See the [git agent source](https://github.com/microsoft/genaiscript/blob/main/packages/cli/genaisrc/system.agent_git.genai.mts).
 
 ---
 
