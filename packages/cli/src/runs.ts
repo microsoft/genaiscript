@@ -7,6 +7,9 @@ import { runtimeHost } from "../../core/src/host"
 export async function collectRuns(options?: { scriptid?: string }) {
     const { scriptid } = options || {}
     const runsDir = dotGenaiscriptPath(RUNS_DIR_NAME)
+    const runsState = await runtimeHost.statFile(runsDir)
+    if (runsState?.type !== "directory") return []
+
     const scripts = (
         await readdir(runsDir, {
             withFileTypes: true,
