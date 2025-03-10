@@ -504,11 +504,7 @@ const RunnerContext = createContext<{
     result: Partial<GenerationResult> | undefined
     trace: string
     output: string
-    setRunResult: (
-        runId: string,
-        result: Partial<GenerationResult> | undefined,
-        trace: string
-    ) => void
+    loadRunResult: (runId: string) => void
 } | null>(null)
 
 function RunnerProvider({ children }: { children: React.ReactNode }) {
@@ -603,19 +599,23 @@ function RunnerProvider({ children }: { children: React.ReactNode }) {
         setState(undefined)
     }
 
-    const setRunResult = (
-        runId: string,
-        result: Partial<GenerationResult>,
-        trace: string
-    ) =>
-        startTransition(() => {
-            client.stop()
-            setResult(result)
-            setRunId(runId)
-            setTrace(trace)
-            setOutput(result?.text)
-            setState(undefined)
-        })
+    const loadRunResult = async (runId: string) => {
+        if (!runId) return
+        const res = await fetchRun(runId)
+        if (res)
+            startTransition(() => {
+                client.stop()
+                setRunId(runId)
+                setResult(res.result)
+                setTrace(res.trace)
+                setOutput(res.result?.text)
+                setState(undefined)
+            })
+    }
+
+    useEffect(() => {
+        if (runId) loadRunResult(runId)
+    }, [])
 
     return (
         <RunnerContext.Provider
@@ -627,7 +627,7 @@ function RunnerProvider({ children }: { children: React.ReactNode }) {
                 result,
                 trace,
                 output,
-                setRunResult,
+                loadRunResult,
             }}
         >
             {children}
@@ -1458,16 +1458,14 @@ function ScriptForm() {
 }
 
 function RunResultSelector() {
-    const { setRunResult } = useRunner()
+    const { loadRunResult } = useRunner()
     const { runs } = useRunResults() || {}
     const { scriptid } = useApi()
-    const handleSelect = async (e: Event) => {
+    const handleSelect = (e: Event) => {
         e.stopPropagation()
         const target = e.target as HTMLSelectElement
         const runId = target?.value
-
-        const run = await fetchRun(runId)
-        if (run) setRunResult(runId, run.result, run.trace)
+        loadRunResult(runId)
     }
 
     return (
