@@ -39,6 +39,35 @@ const { text } = await runPrompt(
 )
 ```
 
+## Don't mix global helpers in inner prompts 
+
+:::tip
+
+This is a very common mistake when using inner prompts.
+
+:::
+
+A common mistake is to use the global `def`, `$` and other helpers in the inner prompt.
+These helpers are not available in the inner prompt and you should use `_.$`, `_.def` and other helpers instead.
+
+- **no good**
+
+```js "def"
+const { text } = await runPrompt((_) => {
+    def("FILE", env.files) // oops, _. is missing and def added content in the main prompt
+    _.$`Summarize files.`
+})
+```
+
+- **good**
+
+```js "_.def"
+const { text } = await runPrompt((_) => {
+    _.def("FILE", env.files) // yes, def added content in the inner prompt
+    _.$`Summarize the FILE.`
+})
+```
+
 ## Options
 
 Both `prompt` and `runPrompt` support various options similar to the `script` function.
