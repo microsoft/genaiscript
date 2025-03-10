@@ -31,7 +31,9 @@ class TraceTreeDataProvider implements vscode.TreeDataProvider<TraceNode> {
                     previousTreeItem?.collapsibleState ??
                     (element.content.filter((s) => typeof s !== "string")
                         .length > 0
-                        ? vscode.TreeItemCollapsibleState.Collapsed
+                        ? element.open
+                            ? vscode.TreeItemCollapsibleState.Expanded
+                            : vscode.TreeItemCollapsibleState.Collapsed
                         : vscode.TreeItemCollapsibleState.None)
                 item.command = {
                     command: "markdown.showPreview",
