@@ -195,14 +195,14 @@ npx --yes genaiscript@${CORE_VERSION} test view
             { model: runtimeHost.modelAliases.embeddings.model }
         )
         if (embeddingsInfo?.error) embeddingsInfo = undefined
-        const models =
-            arrayify(script.testModels).map((m) =>
-                typeof m === "string" ? parseModelSpec(m) : m
-            ) || optionsModels
+        const testModels = arrayify(script.testModels).map((m) =>
+            typeof m === "string" ? parseModelSpec(m) : m
+        )
+        const models = testModels?.length ? testModels : optionsModels?.slice(0)
         const config = await generatePromptFooConfiguration(script, {
             out,
             cli,
-            models: models.slice(),
+            models: models,
             provider: "provider.mjs",
             chatInfo,
             embeddingsInfo,
