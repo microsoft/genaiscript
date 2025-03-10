@@ -1,0 +1,25 @@
+# GenAIScript
+
+> GenAIScript is a JavaScript library and environment to build productive script using LLMs.
+- GenAIScript programs are meant to be executed through the genaiscript cli (https://www.npmjs.com/package/genaiscript).
+- When generating code for GenAIScript, always target TypeScript, Node.JS, ESM. Prefer await/async, keep it simple.
+- All pages of the documentation have a markdown route by adding '.md' to the URL.
+                    
+
+## Documentation Sets
+
+- [Abridged documentation](https://microsoft.github.io/genaiscript/llms-small.txt): a compact version of the documentation for GenAIScript, with non-essential content removed
+- [Complete documentation](https://microsoft.github.io/genaiscript/llms-full.txt): the full documentation for GenAIScript
+
+## Notes
+
+- The complete documentation includes all content from the official documentation
+- The content is automatically generated from the same source as the official documentation
+
+## Optional
+
+- [Reference](/genaiscript/reference)
+- [Case Studies](/genaiscript/case-studies)
+- [Guides](/genaiscript/guides)
+- [Samples](/genaiscript/samples)
+- [FAQ](/genaiscript/faq)
