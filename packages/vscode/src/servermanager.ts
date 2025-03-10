@@ -8,6 +8,7 @@ import {
     TOOL_ID,
     VSCODE_SERVER_MAX_RETRIES,
     CHANGE,
+    SERVER_LOCALHOST,
 } from "../../core/src/constants"
 import { ServerManager, host } from "../../core/src/host"
 import { assert, logError, logInfo, logVerbose } from "../../core/src/util"
@@ -91,7 +92,7 @@ export class TerminalServerManager
 
     get authority() {
         assert(!!this._port)
-        return `http://127.0.0.1:${this._port}`
+        return `${SERVER_LOCALHOST}:${this._port}`
     }
 
     get url() {

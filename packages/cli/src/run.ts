@@ -41,6 +41,8 @@ import {
     REASONING_END_MARKER,
     REASONING_START_MARKER,
     LARGE_MODEL_ID,
+    SERVER_PORT,
+    SERVER_LOCALHOST,
 } from "../../core/src/constants"
 import { isCancelError, errorMessage } from "../../core/src/error"
 import { GenerationResult } from "../../core/src/server/messages"
@@ -74,7 +76,6 @@ import {
     azureDevOpsParseEnv,
     azureDevOpsUpdatePullRequestDescription,
 } from "../../core/src/azuredevops"
-import { resolveTokenEncoder } from "../../core/src/encoders"
 import { writeFile } from "fs/promises"
 import { prettifyMarkdown } from "../../core/src/markdown"
 import { delay } from "es-toolkit"
@@ -108,13 +109,12 @@ import {
     wrapRgbColor,
 } from "../../core/src/consolecolor"
 
-function getRunDir(scriptId: string) {
-    const runId =
-        new Date().toISOString().replace(/[:.]/g, "-") + "-" + randomHex(6)
+function getRunDir(scriptId: string, runId: string) {
+    const name = new Date().toISOString().replace(/[:.]/g, "-") + "-" + runId
     const out = dotGenaiscriptPath(
         RUNS_DIR_NAME,
         host.path.basename(scriptId).replace(GENAI_ANYTS_REGEX, ""),
-        runId
+        name
     )
     return out
 }
@@ -179,9 +179,10 @@ export async function runScriptInternal(
 
     runtimeHost.clearModelAlias("script")
     let result: GenerationResult
+    const runId = randomHex(6)
     const workspaceFiles = options.workspaceFiles || []
     const excludedFiles = options.excludedFiles
-    const runDir = options.out || getRunDir(scriptId)
+    const runDir = options.out || getRunDir(scriptId, runId)
     const stream = !options.json && !options.yaml
     const retry = normalizeInt(options.retry) || 8
     const retryDelay = normalizeInt(options.retryDelay) || 15000
@@ -227,7 +228,7 @@ export async function runScriptInternal(
         return { exitCode, result }
     }
 
-    logInfo(`genaiscript: ${scriptId}`)
+    logInfo(`genaiscript: ${scriptId} (run: ${runId})`)
 
     // manage out folder
     if (removeOut) await emptyDir(runDir)
@@ -253,6 +254,11 @@ export async function runScriptInternal(
         await setupTraceWriting(trace, " trace", outTrace)
     if (outOutput && !/^false$/i.test(outOutput))
         await setupTraceWriting(outputTrace, " output", outOutput)
+    if (outTraceFilename)
+        logVerbose(
+            `viewer: ${SERVER_LOCALHOST}:${SERVER_PORT}/#runid=${runId}  (to start server, run 'genaiscript serve')`
+        )
+
     const toolFiles: string[] = []
     if (GENAI_ANY_REGEX.test(scriptId)) toolFiles.push(scriptId)
 
@@ -728,6 +734,10 @@ export async function runScriptInternal(
     stats.log()
     if (outTraceFilename) logVerbose(`   trace: ${outTraceFilename}`)
     if (outputFilename) logVerbose(`  output: ${outputFilename}`)
+    if (outTraceFilename)
+        logVerbose(
+            `   viewer: ${SERVER_LOCALHOST}:${SERVER_PORT}/#runid=${runId}  (to start server, run 'genaiscript serve')`
+        )
 
     if (result.status !== "success" && result.status !== "cancelled") {
         const msg =
