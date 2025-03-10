@@ -189,27 +189,38 @@
             "genaiscript": [
                 {
                     "id": "genaiscript.trace",
-                    "name": "Trace"
+                    "name": "Trace",
+                    "visibility": "visible",
+                    "type": "tree",
+                    "icon": "./icon.svg"
                 },
                 {
                     "id": "genaiscript.connections",
                     "name": "Connections",
-                    "visibility": "collapsed"
+                    "visibility": "collapsed",
+                    "type": "tree",
+                    "icon": "./icon.svg"
                 },
                 {
                     "id": "genaiscript.prompts",
                     "name": "Scripts",
-                    "visibility": "collapsed"
+                    "visibility": "collapsed",
+                    "type": "tree",
+                    "icon": "./icon.svg"
                 },
                 {
                     "id": "genaiscript.prompts.requests",
                     "name": "Runs",
-                    "visibility": "collapsed"
+                    "visibility": "collapsed",
+                    "type": "tree",
+                    "icon": "./icon.svg"
                 },
                 {
                     "id": "genaiscript.llm.requests",
                     "name": "Chat Requests",
-                    "visibility": "collapsed"
+                    "visibility": "collapsed",
+                    "type": "tree",
+                    "icon": "./icon.svg"
                 }
             ]
         },

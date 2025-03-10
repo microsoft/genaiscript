@@ -25,11 +25,13 @@ export async function activate(context: ExtensionContext) {
     activatePromptCommands(state)
     activateFragmentCommands(state)
     activateMarkdownTextDocumentContentProvider(state)
+
+    activateTraceTreeDataProvider(state)
     activatePromptTreeDataProvider(state)
     activateConnectionInfoTree(state)
     activateAIRequestTreeDataProvider(state)
     activateLLMRequestTreeDataProvider(state)
-    activateTraceTreeDataProvider(state)
+
     activateStatusBar(state)
     activateDocsNotebook(state)
     activeTaskProvider(state)
