@@ -362,9 +362,8 @@ function ApiProvider({ children }: { children: React.ReactNode }) {
         client.addEventListener("error", (err) => console.error(err), false)
         return client
     }, [])
-
-    const project = useMemo<Promise<Project>>(fetchScripts, [refreshId])
     const env = useMemo<Promise<ServerEnvResponse>>(fetchEnv, [refreshId])
+    const project = useMemo<Promise<Project>>(fetchScripts, [refreshId])
     const runs = useMemo<Promise<RunResultListResponse>>(fetchRuns, [refreshId])
     const [scriptid, setScriptid] = useLocationHashValue("scriptid")
 
@@ -602,7 +601,7 @@ function RunnerProvider({ children }: { children: React.ReactNode }) {
         const res = await fetchRun(runId)
         if (res)
             startTransition(() => {
-                client.stop()
+                client.cancel("load run")
                 setRunId(runId)
                 setResult(res.result)
                 setTrace(res.trace)
@@ -689,6 +688,16 @@ function GenAIScriptLogo(props: { height: string }) {
     )
 }
 
+function ProjectView() {
+    return (
+        <vscode-collapsible title={"Project"}>
+            <Suspense>
+                <ProjectHeader />
+            </Suspense>
+        </vscode-collapsible>
+    )
+}
+
 function ProjectHeader() {
     const env = useEnv()
     const { remote, configuration } = env || {}
@@ -709,7 +718,7 @@ function ProjectHeader() {
     }, [description, remoteSlug, version, readme])
 
     return (
-        <vscode-collapsible title={"Project"}>
+        <>
             {remoteSlug ? (
                 <vscode-badge variant="counter" slot="decorations">
                     {remoteSlug}
@@ -720,7 +729,7 @@ function ProjectHeader() {
                     <Markdown readme={true}>{markdown}</Markdown>
                 </div>
             ) : null}
-        </vscode-collapsible>
+        </>
     )
 }
 
@@ -1738,6 +1747,14 @@ function RunButton() {
     )
 }
 
+function ScriptView() {
+    return (
+        <Suspense>
+            <RunForm />
+        </Suspense>
+    )
+}
+
 function RunForm() {
     const { run, cancel, state } = useRunner()
     const action = state === "running" ? cancel : run
@@ -1745,6 +1762,7 @@ function RunForm() {
         e.preventDefault()
         action()
     }
+    useSyncProjectScript()
 
     return (
         <form onSubmit={handleSubmit}>
@@ -1754,7 +1772,7 @@ function RunForm() {
     )
 }
 
-function ResultsPanel() {
+function ResultsView() {
     const [showRuns, setShowRuns] = useState(false)
     const handleShowRuns = () => setShowRuns((prev) => !prev)
     return (
@@ -1764,8 +1782,14 @@ function ResultsPanel() {
                 label={showRuns ? "Show previous runs" : "Hide previous runs"}
                 onClick={handleShowRuns}
             />
-            {showRuns && <RunResultSelector />}
-            <ResultsTabs />
+            {showRuns && (
+                <Suspense>
+                    <RunResultSelector />
+                </Suspense>
+            )}
+            <Suspense>
+                <ResultsTabs />
+            </Suspense>
         </vscode-collapsible>
     )
 }
@@ -1795,16 +1819,19 @@ function ResultsTabs() {
 }
 
 function WebApp() {
-    useSyncProjectScript()
     switch (viewMode) {
         case "results":
-            return <ResultsTabs />
+            return (
+                <Suspense>
+                    <ResultsTabs />
+                </Suspense>
+            )
         default:
             return (
                 <div style={{ minHeight: "100vh" }}>
-                    {!hosted ? <ProjectHeader /> : null}
-                    <RunForm />
-                    <ResultsPanel />
+                    {!hosted ? <ProjectView /> : null}
+                    <ScriptView />
+                    <ResultsView />
                 </div>
             )
     }
