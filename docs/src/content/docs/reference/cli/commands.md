@@ -158,6 +158,7 @@ Options:
   --models <models...>                models to test where mode is the key
                                       value pair list of m (model), s (small
                                       model), t (temperature), p (top-p)
+  --max-concurrency <number>          maximum concurrency (default: "1")
   -o, --out <folder>                  output folder
   -rmo, --remove-out                  remove output folder if it exists
   --cli <string>                      override path to the cli

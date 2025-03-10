@@ -323,7 +323,7 @@ interface ModelConnectionOptions {
     model?: ModelType
 }
 
-interface ModelAliasesOptions {
+interface ModelAliasesOptions extends ModelConnectionOptions {
     /**
      * Configure the `small` model alias.
      */
@@ -751,6 +751,11 @@ interface PromptScript
      * Tests to validate this script.
      */
     tests?: ElementOrArray<string | PromptTest>
+
+    /**
+     * Models to use with tests
+     */
+    testModels?: ElementOrArray<ModelType | ModelAliasesOptions>
 
     /**
      * LLM vulnerability checks

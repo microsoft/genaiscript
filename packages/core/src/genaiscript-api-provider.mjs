@@ -68,7 +68,7 @@ class GenAIScriptApiProvider {
                 https://www.promptfoo.dev/docs/configuration/reference/#providerresponse
             */
             const pres = deleteUndefinedValues({
-                error,
+                error: error?.message,
                 cost,
                 tokenUsage: stats
                     ? deleteUndefinedValues({

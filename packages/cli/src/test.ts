@@ -43,7 +43,7 @@ import { resolveModelConnectionInfo } from "../../core/src/models"
 import { filterScripts } from "../../core/src/ast"
 import { link } from "../../core/src/mkmd"
 import { applyModelOptions } from "../../core/src/modelalias"
-import { normalizeFloat, normalizeInt } from "../../core/src/cleaners"
+import { arrayify, normalizeFloat, normalizeInt } from "../../core/src/cleaners"
 import { ChatCompletionReasoningEffort } from "../../core/src/chattypes"
 import {
     CancellationOptions,
@@ -81,7 +81,7 @@ function parseModelSpec(m: string): ModelOptions & ModelAliasesOptions {
             temperature: normalizeFloat(values["t"]),
             topP: normalizeFloat(values["p"]),
             reasoningEffort: values["r"] as ChatCompletionReasoningEffort,
-        }
+        } satisfies ModelOptions & ModelAliasesOptions
     else return { model: m }
 }
 
@@ -121,6 +121,7 @@ export async function runPromptScriptTests(
         promptfooVersion?: string
         outSummary?: string
         testDelay?: string
+        maxConcurrency?: string
     } & CancellationOptions
 ): Promise<PromptScriptTestRunResponse> {
     applyModelOptions(options, "cli")
@@ -142,6 +143,7 @@ export async function runPromptScriptTests(
     const port = PROMPTFOO_REMOTE_API_PORT
     const serverUrl = `http://127.0.0.1:${port}`
     const testDelay = normalizeInt(options?.testDelay)
+    const maxConcurrency = normalizeInt(options?.maxConcurrency)
     const runStart = new Date()
     logInfo(`writing tests to ${out}`)
 
@@ -177,6 +179,7 @@ npx --yes genaiscript@${CORE_VERSION} test view
     }
 
     // Prepare test configurations for each script
+    const optionsModels = Object.freeze(options.models?.map(parseModelSpec))
     const configurations: { script: PromptScript; configuration: string }[] = []
     for (const script of scripts) {
         checkCancelled(cancellationToken)
@@ -192,10 +195,14 @@ npx --yes genaiscript@${CORE_VERSION} test view
             { model: runtimeHost.modelAliases.embeddings.model }
         )
         if (embeddingsInfo?.error) embeddingsInfo = undefined
+        const testModels = arrayify(script.testModels).map((m) =>
+            typeof m === "string" ? parseModelSpec(m) : m
+        )
+        const models = testModels?.length ? testModels : optionsModels?.slice(0)
         const config = await generatePromptFooConfiguration(script, {
             out,
             cli,
-            models: options.models?.map(parseModelSpec),
+            models: models,
             provider: "provider.mjs",
             chatInfo,
             embeddingsInfo,
@@ -244,12 +251,10 @@ npx --yes genaiscript@${CORE_VERSION} test view
         const args = ["--yes", `promptfoo@${promptFooVersion}`]
         if (redteam) args.push("redteam", "run", "--force")
         else args.push("eval", "--no-progress-bar")
-        args.push(
-            "--config",
-            configuration,
-            "--max-concurrency",
-            String(PROMPTFOO_TEST_MAX_CONCURRENCY)
-        )
+        args.push("--config", configuration)
+        if (!isNaN(maxConcurrency))
+            args.push("--max-concurrency", String(maxConcurrency))
+
         if (options.cache) args.push("--cache")
         if (options.verbose) args.push("--verbose")
         args.push("--output", outJson)
@@ -391,6 +396,7 @@ export async function scriptsTest(
         outSummary?: string
         testDelay?: string
         groups?: string[]
+        maxConcurrency?: string
     }
 ) {
     const { status, value = [] } = await runPromptScriptTests(ids, options)

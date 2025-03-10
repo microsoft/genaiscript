@@ -29,12 +29,29 @@ scripts({
 })
 ```
 
+## Specifiying models
+
+You can also specify a set of models (and model aliases) to run the tests against. Each test will be run against each model.
+
+```js title="proofreader.genai.mjs" wrap
+scripts({
+  ...,
+    testModels: [
+        "azure_ai_inference:gpt-4o",
+        "azure_ai_inference:gpt-4o-mini",
+        "azure_ai_inference:deepseek-r1",
+    ],
+})
+```
+
+The `testModels` can be also overriden through the command line.
+
 ## Running tests
 
 ### Visual Studio Code
 
--   Open the [Test Explorer view](https://code.visualstudio.com/docs/python/testing).
--   Select your script in the tree and click the `play` icon button.
+- Open the [Test Explorer view](https://code.visualstudio.com/docs/python/testing).
+- Select your script in the tree and click the `play` icon button.
 
 <Image src={testExplorerSrc} alt={testExplorerAlt} loading="lazy" />
 
@@ -51,7 +68,7 @@ npx genaiscript test proofreader
 Currently, promptfoo treats the script source as the prompt text. Therefore, one cannot use assertions
 that also rely on the input text, such as `answer_relevance`.
 
--   Read more about [tests](/genaiscript/reference/scripts/tests) in the reference.
+- Read more about [tests](/genaiscript/reference/scripts/tests) in the reference.
 
 ## Next steps
 
