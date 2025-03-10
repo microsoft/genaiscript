@@ -41,7 +41,26 @@ export default defineConfig({
                         },
                     },
                 }),
-                starlightLlmsTxt(),
+                starlightLlmsTxt({
+                    description: `GenAIScript is a JavaScript library and environment to build productive script using LLMs.
+- GenAIScript programs are meant to be executed through the genaiscript cli (https://www.npmjs.com/package/genaiscript).
+- When generating code for GenAIScript, always target TypeScript, Node.JS, ESM. Prefer await/async, keep it simple.
+- All pages of the documentation have a markdown route by adding '.md' to the URL.
+                    `,
+                    optionalLinks: [
+                        { label: "Reference", url: "/genaiscript/reference" },
+                        {
+                            label: "Case Studies",
+                            url: "/genaiscript/case-studies",
+                        },
+                        { label: "Guides", url: "/genaiscript/guides" },
+                        {
+                            label: "Samples",
+                            url: "/genaiscript/samples",
+                        },
+                        { label: "FAQ", url: "/genaiscript/faq" },
+                    ],
+                }),
                 starlightLinksValidator(),
             ],
             components: {
