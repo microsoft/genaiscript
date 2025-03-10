@@ -3,7 +3,6 @@
 import React, {
     createContext,
     startTransition,
-    Suspense,
     use,
     useCallback,
     useEffect,
@@ -97,6 +96,7 @@ import {
 import { JSONSchemaObjectForm } from "./JSONSchema"
 import { useLocationHashValue } from "./useLocationHashValue"
 import { ActionButton } from "./ActionButton"
+import Suspense from "./Suspense"
 
 const fetchScripts = async (): Promise<Project> => {
     const res = await fetch(`${base}/api/scripts`, {
@@ -676,7 +676,7 @@ function ProjectHeader() {
     }, [description, remoteSlug, version, readme])
 
     return (
-        <vscode-collapsible title={name || "Project"}>
+        <vscode-collapsible title={"Project"}>
             {remoteSlug ? (
                 <vscode-badge variant="counter" slot="decorations">
                     {remoteSlug}
