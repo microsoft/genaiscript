@@ -254,6 +254,7 @@ export async function cli() {
             "--models <models...>",
             "models to test where mode is the key value pair list of m (model), s (small model), t (temperature), p (top-p)"
         )
+        .option("--max-concurrency <number>", "maximum concurrency", "1")
         .option("-o, --out <folder>", "output folder")
         .option("-rmo, --remove-out", "remove output folder if it exists")
         .option("--cli <string>", "override path to the cli")
