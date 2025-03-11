@@ -3064,7 +3064,7 @@ interface MD {
      */
     chunk(
         text: string | WorkspaceFile,
-        options?: { maxTokens?: number; model?: string }
+        options?: { maxTokens?: number; model?: string; pageSeparator?: string }
     ): Promise<TextChunk[]>
 }
 
@@ -3420,7 +3420,7 @@ interface ImportTemplateOptions {
     /**
      * Template engine syntax
      */
-    format?: "mustache" | "jinja" 
+    format?: "mustache" | "jinja"
 }
 
 type PromptCacheControlType = "ephemeral"

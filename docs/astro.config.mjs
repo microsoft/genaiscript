@@ -47,6 +47,7 @@ export default defineConfig({
 - When generating code for GenAIScript, always target TypeScript, Node.JS, ESM. Prefer await/async, keep it simple.
 - All pages of the documentation have a markdown route by adding '.md' to the URL.
                     `,
+                    pageSeparator: "\n\n======\n\n",
                     customSets: [
                         {
                             label: "Getting Started",
