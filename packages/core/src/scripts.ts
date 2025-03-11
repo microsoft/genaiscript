@@ -131,7 +131,11 @@ export async function fixCustomPrompts(options?: {
             const dn = host.path.join(ddir, route)
             const content = await fetchText(url)
             if (!content.ok) logVerbose(`failed to fetch ${url}`)
-            else await writeText(dn, content.text) // Write the GitHub Copilot prompt file
+            const text = content.text.replace(
+                /^\!\[\]\(<data:image\/svg\+xml,.*$/gm,
+                "<!-- mermaid diagram -->"
+            )
+            await writeText(dn, text) // Write the GitHub Copilot prompt file
         }
     }
 }
