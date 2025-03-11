@@ -436,6 +436,12 @@
                 "icon": "$(repo-forked)"
             },
             {
+                "command": "genaiscript.refresh",
+                "title": "Refresh Type Definition files",
+                "category": "GenAIScript",
+                "icon": "$(refresh)"
+            },
+            {
                 "command": "genaiscript.request.open",
                 "title": "Open request or response",
                 "category": "GenAIScript"
