@@ -175,6 +175,7 @@ async function PDFTryParse(
         renderAsImage,
         scale = PDF_SCALE,
         cache,
+        useSystemFonts,
     } = options || {}
 
     const folder = await computeHashFolder(fileOrUrl, {
@@ -213,9 +214,11 @@ async function PDFTryParse(
         checkCancelled(cancellationToken)
         const { getDocument } = pdfjs
         const data = content || (await host.readFile(fileOrUrl))
+        // Check if we're running on Windows
+        const isWindows = os.platform() === "win32"
         const loader = await getDocument({
             data,
-            useSystemFonts: true,
+            useSystemFonts: useSystemFonts ?? !isWindows,
             disableFontFace: true,
             standardFontDataUrl,
             CanvasFactory: createCanvas ? CanvasFactory : undefined,
