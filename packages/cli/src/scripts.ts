@@ -7,28 +7,18 @@ import { copyPrompt } from "../../core/src/copy"
 import {
     fixPromptDefinitions,
     createScript as coreCreateScript,
+    fixCustomPrompts,
 } from "../../core/src/scripts"
-import { dotGenaiscriptPath, logInfo, logVerbose } from "../../core/src/util"
+import { logInfo, logVerbose } from "../../core/src/util"
 import { runtimeHost } from "../../core/src/host"
-import {
-    RUNTIME_ERROR_CODE,
-    TYPE_DEFINITION_BASENAME,
-} from "../../core/src/constants"
+import { RUNTIME_ERROR_CODE } from "../../core/src/constants"
 import {
     collectFolders,
     filterScripts,
     ScriptFilterOptions,
 } from "../../core/src/ast"
 import { deleteEmptyValues } from "../../core/src/cleaners"
-import { dirname, join } from "node:path"
-import { ensureDir } from "fs-extra"
-import { writeFile } from "node:fs/promises"
-import {
-    githubCopilotCustomPrompt,
-    promptDefinitions,
-} from "../../core/src/default_prompts"
-import { fetchText } from "../../core/src/fetch"
-import prettyBytes from "pretty-bytes"
+import { dirname } from "node:path"
 
 /**
  * Lists all the scripts in the project.
@@ -89,34 +79,7 @@ export async function fixScripts(options?: {
     const { githubCopilotPrompt, docs } = options || {}
     const project = await buildProject() // Build the project to access information
     await fixPromptDefinitions(project) // Fix any issues in prompt definitions
-    // write genaiscript.d.ts
-    const gdir = dotGenaiscriptPath()
-    await ensureDir(dotGenaiscriptPath())
-    await writeFile(
-        join(gdir, TYPE_DEFINITION_BASENAME),
-        promptDefinitions[TYPE_DEFINITION_BASENAME]
-    ) // Write the TypeScript definition file
-    if (githubCopilotPrompt) {
-        const pdir = join(".github", "prompts")
-        await ensureDir(pdir) // Ensure the directory exists
-        const pn = join(gdir, "genaiscript.prompt.md")
-        logVerbose(`writing ${pn}`)
-        await writeFile(pn, githubCopilotCustomPrompt) // Write the GitHub Copilot prompt file
-    }
-    if (githubCopilotPrompt || docs) {
-        const ddir = dotGenaiscriptPath("docs")
-        await ensureDir(ddir) // Ensure the directory exists
-        for (const route of ["llms.txt", "llms-full.txt", "llms-small.txt"]) {
-            const url = `https://microsoft.github.io/genaiscript/${route}`
-            const dn = join(gdir, route)
-            logVerbose(`downloading ${url} => ${dn}`)
-            const content = await fetchText(url)
-            if (!content.ok) throw new Error(String(content.statusText))
-            await writeFile(dn, content.text, {
-                encoding: "utf-8",
-            }) // Write the GitHub Copilot prompt file
-        }
-    }
+    await fixCustomPrompts(options)
 }
 
 /**

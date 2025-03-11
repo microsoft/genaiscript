@@ -1,11 +1,12 @@
 import { collectFolders } from "./ast"
-import { NEW_SCRIPT_TEMPLATE } from "./constants"
-import { promptDefinitions } from "./default_prompts"
+import { NEW_SCRIPT_TEMPLATE, TYPE_DEFINITION_BASENAME } from "./constants"
+import { githubCopilotCustomPrompt, promptDefinitions } from "./default_prompts"
 import { tryReadText, writeText } from "./fs"
 import { host } from "./host"
-import { logVerbose } from "./util"
+import { dotGenaiscriptPath, logVerbose } from "./util"
 import { dedent } from "./indent"
 import { Project } from "./server/messages"
+import { fetchText } from "./fetch"
 
 export function createScript(
     name: string,
@@ -91,6 +92,34 @@ ${tools.map((s) => `* - \`${s.id}\`: ${s.description}`).join("\n")}
                 logVerbose(`updating ${fn}`)
                 await writeText(fn, defContent)
             }
+        }
+    }
+}
+
+export async function fixCustomPrompts(options?: {
+    githubCopilotPrompt?: boolean
+    docs?: boolean
+}) {
+    const { githubCopilotPrompt, docs } = options || {}
+    // write genaiscript.d.ts
+    const gdir = dotGenaiscriptPath()
+    await writeText(
+        host.path.join(gdir, TYPE_DEFINITION_BASENAME),
+        promptDefinitions[TYPE_DEFINITION_BASENAME]
+    ) // Write the TypeScript definition file
+    if (githubCopilotPrompt) {
+        const pdir = host.path.join(".github", "prompts")
+        const pn = host.path.join(gdir, "genaiscript.prompt.md")
+        await writeText(pn, githubCopilotCustomPrompt) // Write the GitHub Copilot prompt file
+    }
+    if (githubCopilotPrompt || docs) {
+        const ddir = dotGenaiscriptPath("docs")
+        for (const route of ["llms.txt", "llms-full.txt", "llms-small.txt"]) {
+            const url = `https://microsoft.github.io/genaiscript/${route}`
+            const dn = host.path.join(ddir, route)
+            const content = await fetchText(url)
+            if (!content.ok) throw new Error(String(content.statusText))
+            await writeText(dn, content.text) // Write the GitHub Copilot prompt file
         }
     }
 }
