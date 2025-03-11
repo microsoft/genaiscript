@@ -29,7 +29,8 @@ export const AZURE_MANAGEMENT_TOKEN_SCOPES = Object.freeze([
 ])
 export const AZURE_TOKEN_EXPIRATION = 59 * 60_000 // 59 minutes
 
-export const TOOL_URL = "https://microsoft.github.io/genaiscript"
+export const DOCS_URL = "https://microsoft.github.io/genaiscript"
+export const TOOL_URL = DOCS_URL
 export const TOOL_ID = "genaiscript"
 export const GENAISCRIPT_FOLDER = "." + TOOL_ID
 export const CLI_JS = TOOL_ID + ".cjs"
@@ -143,6 +144,8 @@ export const PROMPTFOO_CONFIG_DIR = ".genaiscript/config/tests"
 export const PROMPTFOO_REMOTE_API_PORT = 15500
 export const PROMPTFOO_REDTEAM_NUM_TESTS = 5
 export const PROMPTFOO_TEST_MAX_CONCURRENCY = 1
+
+export const TYPE_DEFINITION_BASENAME = "genaiscript.d.ts"
 
 export const RUNS_DIR_NAME = "runs"
 export const CONVERTS_DIR_NAME = "converts"

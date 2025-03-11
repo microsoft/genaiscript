@@ -11,24 +11,35 @@ import { filenameOrFileToFilename } from "./unwrappers"
 export async function chunkMarkdown(
     markdown: string | WorkspaceFile,
     estimateTokens: (text: string) => number,
-    maxTokens = 4096
+    options?: {
+        maxTokens?: number
+        pageSeperator?: string
+    }
 ): Promise<TextChunk[]> {
+    const { maxTokens = 4096, pageSeperator = "======" } = options || {}
     if (!markdown) return []
 
     type Section = { heading: string; lines: string[]; level: number }
 
-    const filename = typeof markdown === "object" ? markdown.filename : undefined
+    const filename =
+        typeof markdown === "object" ? markdown.filename : undefined
     if (typeof markdown === "object") {
         if (markdown.encoding === "base64")
             throw new Error("base64 encoding not supported")
         markdown = markdown.content
     }
+
     const lines = markdown.split(/\r?\n/g)
 
     const sections: Section[] = []
     let current: Section | null = null
 
     lines.forEach((line) => {
+        if (line.startsWith(pageSeperator)) {
+            if (current) sections.push(current)
+            current = null
+            return
+        }
         const match = /^(\#{1,6})\s+(.*)/.exec(line)
         if (match) {
             if (current) sections.push(current)
@@ -37,10 +48,11 @@ export async function chunkMarkdown(
                 lines: [line],
                 level: match[1].length,
             }
-        } else {
-            if (!current) current = { heading: "", lines: [], level: 0 }
-            current.lines.push(line)
+            return
         }
+
+        if (!current) current = { heading: "", lines: [], level: 0 }
+        current.lines.push(line)
     })
     if (current) sections.push(current)
 

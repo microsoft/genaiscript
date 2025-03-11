@@ -93,7 +93,7 @@ export function installGlobals() {
             const res = chunkMarkdown(
                 text,
                 (text) => encoding.encode(text).length,
-                options?.maxTokens
+                options
             )
             return res
         },

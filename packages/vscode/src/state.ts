@@ -5,12 +5,11 @@ import { VSCodeHost } from "./vshost"
 import { applyEdits, toRange } from "./edit"
 import { Utils } from "vscode-uri"
 import { listFiles, saveAllTextDocuments } from "./fs"
-import { hasOutputOrTraceOpened } from "./markdowndocumentprovider"
 import { parseAnnotations } from "../../core/src/annotations"
 import { Project, PromptScriptRunOptions } from "../../core/src/server/messages"
 import { JSONLineCache } from "../../core/src/cache"
 import { ChatCompletionsProgressReport } from "../../core/src/chattypes"
-import { fixPromptDefinitions } from "../../core/src/scripts"
+import { fixCustomPrompts, fixPromptDefinitions } from "../../core/src/scripts"
 import { logMeasure } from "../../core/src/perf"
 import {
     TOOL_NAME,
@@ -391,9 +390,18 @@ export class ExtensionState extends EventTarget {
 
     async fixPromptDefinitions() {
         const project = this.project
+        if (!project?.scripts?.length) return
+
         const config = this.getConfiguration()
-        const fix = !!config.get("localTypeDefinitions")
-        if (project && fix) await fixPromptDefinitions(project)
+        const localTypeDefinitions = !!config.get("localTypeDefinitions")
+        if (localTypeDefinitions) await fixPromptDefinitions(project)
+
+        const githubCopilotChat = !!vscode.extensions.getExtension(
+            "github.copilot-chat"
+        )
+        const githubCopilotPrompt = !!config.get("githubCopilotPrompt")
+        if (githubCopilotChat && githubCopilotPrompt)
+            fixCustomPrompts({ githubCopilotPrompt: true }) // finish async
     }
 
     async parseWorkspace() {

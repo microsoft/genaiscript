@@ -140,6 +140,7 @@ export async function fetchText(
     const url = urlOrFile.filename
     let ok = false
     let status = 404
+    let statusText: string
     let bytes: Uint8Array
     if (/^https?:\/\//i.test(url)) {
         const f = await createFetch({
@@ -152,6 +153,7 @@ export async function fetchText(
         const resp = await f(url, rest)
         ok = resp.ok
         status = resp.status
+        statusText = resp.statusText
         if (ok) bytes = new Uint8Array(await resp.arrayBuffer())
     } else {
         try {
@@ -166,6 +168,7 @@ export async function fetchText(
     let content: string
     let encoding: "base64"
     let type: string
+    const size = bytes?.length
     const mime = await fileTypeFromBuffer(bytes)
     if (isBinaryMimeType(mime?.mime)) {
         encoding = "base64"
@@ -179,10 +182,12 @@ export async function fetchText(
         encoding,
         type,
         content,
+        size,
     })
     return {
         ok,
         status,
+        statusText,
         text: content,
         bytes,
         file,
