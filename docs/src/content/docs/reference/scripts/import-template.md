@@ -1,12 +1,11 @@
 ---
 title: Import Template
 sidebar:
-  order: 50
+    order: 50
 description: Learn how to import prompt templates into GenAIScript using
-  `importTemplate` with support for mustache variable interpolation and file
-  globs.
+    `importTemplate` with support for mustache variable interpolation and file
+    globs.
 keywords: importTemplate, prompts, mustache, variable interpolation, file globs
-
 ---
 
 Various LLM tools allow storing prompts in text or markdown files.
@@ -17,29 +16,35 @@ Explain your answer step by step.
 ```
 
 ```js title="tool.genai.mjs"
-importTemplate("cot.md");
+importTemplate("cot.md")
 ```
 
 ## Variable interpolation
 
-`importTemplate` supports [mustache](https://mustache.github.io/) variable interpolation. You can use variables in the imported template and pass them as arguments to the `importTemplate` function.
+`importTemplate` supports [mustache](https://mustache.github.io/) (default), [Jinja](https://www.npmjs.com/package/@huggingface/jinja) variable interpolation and the [Prompty](https://prompty.ai/) file format. You can use variables in the imported template and pass them as arguments to the `importTemplate` function.
 
 ```markdown title="time.md"
 The current time is {{time}}.
 ```
 
 ```js title="tool.genai.mjs"
-importTemplate("time.md", { time: "12:00" });
+importTemplate("time.md", { time: "12:00" })
 ```
 
 Mustache supports arguments as functions. This allows you to pass dynamic values to the template.
 
 ```js title="tool.genai.mjs"
-importTemplate("time.md", { time: () => Date.now() });
+importTemplate("time.md", { time: () => Date.now() })
 ```
 
+## More way to specify files
 
-## File globs
+You can use the results of `workspace.readText`.
+
+```js title="tool.genai.mjs"
+const file = await workspace.readText("time.md")
+importTemplate(time, { time: "12:00" })
+```
 
 You can specify an array of files or glob patterns.
 
@@ -47,11 +52,7 @@ You can specify an array of files or glob patterns.
 importTemplate("*.prompt")
 ```
 
-## Other File formats
-
-Aside from the basic text or markdown formats, `importTemplate` also supports these variations automatically.
-
-### Prompty
+## Prompty
 
 [Prompty](https://prompty.ai/) provides a simple markdown-based format for prompts. It adds the concept of role sections to the markdown format.
 
@@ -59,21 +60,24 @@ Aside from the basic text or markdown formats, `importTemplate` also supports th
 ---
 name: Basic Prompt
 description: A basic prompt that uses the chat API to answer questions
-...
-inputs:
-  question:
-    type: string
-sample:
-  "question": "Who is the most famous person in the world?"
 ---
+
+inputs:
+question:
+type: string
+sample:
+"question": "Who is the most famous person in the world?"
+
+---
+
 system:
 You are an AI assistant who helps people find information.
-As the assistant, you answer questions briefly, succinctly. 
+As the assistant, you answer questions briefly, succinctly.
 
 user:
 {{question}}
 ```
 
 ```js title="tool.genai.mjs"
-importTemplate("basic.prompty", { question: "what is the capital of France?" });
+importTemplate("basic.prompty", { question: "what is the capital of France?" })
 ```

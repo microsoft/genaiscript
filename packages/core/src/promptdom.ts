@@ -838,7 +838,8 @@ async function resolvePromptNode(
                     else {
                         const rendered = await interpolateVariables(
                             f.content,
-                            resolvedArgs
+                            resolvedArgs,
+                            n.options
                         )
                         n.children.push(createTextNode(rendered))
                         n.preview += rendered + "\n"
