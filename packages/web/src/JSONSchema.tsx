@@ -14,6 +14,7 @@ import "@vscode-elements/elements/dist/vscode-textfield"
 import "@vscode-elements/elements/dist/vscode-single-select"
 import "@vscode-elements/elements/dist/vscode-option"
 import "@vscode-elements/elements/dist/vscode-checkbox"
+import "@vscode-elements/elements/dist/vscode-checkbox-group"
 import "@vscode-elements/elements/dist/vscode-form-container"
 import "@vscode-elements/elements/dist/vscode-form-group"
 import "@vscode-elements/elements/dist/vscode-form-helper"
@@ -216,6 +217,54 @@ function JSONSchemaSimpleTypeFormField(props: {
     }
 }
 
+function fieldDisplayName(
+    fieldPrefix: string,
+    fieldName: string,
+    field: JSONSchemaSimpleType
+) {
+    return underscore(
+        (fieldPrefix ? `${fieldPrefix} / ` : fieldPrefix) +
+            (field.title || fieldName)
+    ).replaceAll(/[_\.]/g, " ")
+}
+
+export function JSONBooleanOptionsGroup(props: {
+    properties: Record<string, JSONSchemaBoolean>
+    value: any
+    onChange: Dispatch<SetStateAction<any>>
+    fieldPrefix: string
+}) {
+    const { properties, value, onChange, fieldPrefix } = props
+
+    const handleFieldChange = (fieldName: string, value: any) => {
+        onChange((prev: any) => ({
+            ...prev,
+            [fieldName]: value,
+        }))
+    }
+
+    if (!properties) return null
+
+    return (
+        <vscode-checkbox-group>
+            {Object.entries(properties).map(([fieldName, field]) => (
+                <vscode-checkbox
+                    key={fieldName}
+                    label={fieldDisplayName(fieldPrefix, fieldName, field)}
+                    title={field.description}
+                    checked={value[fieldPrefix + fieldName]}
+                    onChange={(e) =>
+                        handleFieldChange(
+                            fieldPrefix + fieldName,
+                            (e.target as HTMLInputElement).checked
+                        )
+                    }
+                />
+            ))}
+        </vscode-checkbox-group>
+    )
+}
+
 export function JSONSchemaObjectForm(props: {
     schema: JSONSchemaObject
     value: any
@@ -238,10 +287,7 @@ export function JSONSchemaObjectForm(props: {
             {Object.entries(properties).map(([fieldName, field]) => (
                 <vscode-form-group key={fieldPrefix + fieldName}>
                     <vscode-label>
-                        {underscore(
-                            (fieldPrefix ? `${fieldPrefix} / ` : fieldPrefix) +
-                                (field.title || fieldName)
-                        ).replaceAll(/[_\.]/g, " ")}
+                        {fieldDisplayName(fieldPrefix, fieldName, field)}
                     </vscode-label>
                     <JSONSchemaSimpleTypeFormField
                         field={field}
@@ -254,9 +300,7 @@ export function JSONSchemaObjectForm(props: {
                     {field?.description && (
                         <vscode-form-helper>
                             {/^(```|#{1,6}\s)/m.test(field.description) ? (
-                                <Markdown>
-                                    {field.description}
-                                </Markdown>
+                                <Markdown>{field.description}</Markdown>
                             ) : (
                                 field.description
                             )}
