@@ -11,6 +11,7 @@ import { dotGenaiscriptPath, logVerbose } from "./util"
 import { dedent } from "./indent"
 import { Project } from "./server/messages"
 import { fetchText } from "./fetch"
+import { collapseNewlines } from "./cleaners"
 
 export function createScript(
     name: string,
@@ -131,9 +132,11 @@ export async function fixCustomPrompts(options?: {
             const dn = host.path.join(ddir, route)
             const content = await fetchText(url)
             if (!content.ok) logVerbose(`failed to fetch ${url}`)
-            const text = content.text.replace(
-                /^\!\[\]\(<data:image\/svg\+xml,.*$/gm,
-                "<!-- mermaid diagram -->"
+            const text = collapseNewlines(
+                content.text.replace(
+                    /^\!\[\]\(<data:image\/svg\+xml,.*$/gm,
+                    "<!-- mermaid diagram -->"
+                )
             )
             await writeText(dn, text) // Write the GitHub Copilot prompt file
         }
