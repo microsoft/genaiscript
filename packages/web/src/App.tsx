@@ -94,7 +94,7 @@ import {
     urlParams,
     viewMode,
 } from "./configuration"
-import { JSONSchemaObjectForm } from "./JSONSchema"
+import { JSONBooleanOptionsGroup, JSONSchemaObjectForm } from "./JSONSchema"
 import { useLocationHashValue } from "./useLocationHashValue"
 import { ActionButton } from "./ActionButton"
 import Suspense from "./Suspense"
@@ -1504,6 +1504,44 @@ function RunResultSelector() {
     )
 }
 
+function RunButtonOptions() {
+    const script = useScript()
+
+    const { parameters, setParameters } = useApi()
+    const { inputSchema } = script || {}
+    if (!Object.keys(inputSchema?.properties || {}).length) return null
+
+    const scriptParameters = inputSchema.properties[
+        "script"
+    ] as JSONSchemaObject
+    const runOptions: [string, JSONSchemaBoolean][] =
+        scriptParameters?.properties
+            ? Object.entries(
+                  scriptParameters.properties as Record<
+                      string,
+                      JSONSchemaSimpleType
+                  >
+              )
+                  .filter(
+                      ([, f]) =>
+                          f.type === "boolean" && f.uiType === "runOption"
+                  )
+                  .map(([k, f]) => [k, f as JSONSchemaBoolean])
+            : undefined
+    if (!runOptions) return null
+    return (
+        <vscode-form-group>
+            <vscode-label></vscode-label>
+            <JSONBooleanOptionsGroup
+                properties={Object.fromEntries(runOptions)}
+                value={parameters}
+                fieldPrefix={""}
+                onChange={setParameters}
+            />
+        </vscode-form-group>
+    )
+}
+
 function PromptParametersFields() {
     const script = useScript()
 
@@ -1517,7 +1555,6 @@ function PromptParametersFields() {
     const systemParameters = Object.entries(inputSchema.properties).filter(
         ([k]) => k !== "script"
     )
-
     return (
         <>
             {scriptParameters && (
@@ -1728,22 +1765,25 @@ function RunButton() {
 
     const title = state === "running" ? "Abort" : "Run"
     return (
-        <vscode-form-group>
-            <ClientReadyStateLabel />
-            <vscode-button
-                icon={state === "running" ? "stop-circle" : "play"}
-                disabled={disabled}
-                type="submit"
-                title={title}
-            >
-                {title}
-            </vscode-button>
-            <vscode-form-helper>
-                {Object.entries(options)
-                    .map(([key, value]) => `${key}: ${value}`)
-                    .join(", ")}
-            </vscode-form-helper>
-        </vscode-form-group>
+        <>
+            <vscode-form-group>
+                <ClientReadyStateLabel />
+                <vscode-button
+                    icon={state === "running" ? "stop-circle" : "play"}
+                    disabled={disabled}
+                    type="submit"
+                    title={title}
+                >
+                    {title}
+                </vscode-button>
+                <vscode-form-helper>
+                    {Object.entries(options)
+                        .map(([key, value]) => `${key}: ${value}`)
+                        .join(", ")}
+                </vscode-form-helper>
+            </vscode-form-group>
+            <RunButtonOptions />
+        </>
     )
 }
 

@@ -318,6 +318,10 @@ export function toStrictJSONSchema(
     function visit(node: JSONSchemaType): void {
         const n = node as JSONSchemaSimpleType
         switch (n.type) {
+            case "boolean": {
+                delete n.uiType
+                break
+            }
             case "string": {
                 delete n.uiType
                 delete n.uiSuggestions

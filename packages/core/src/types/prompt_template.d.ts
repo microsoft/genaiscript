@@ -1626,6 +1626,7 @@ interface JSONSchemaNumber extends JSONSchemaDescripted {
 
 interface JSONSchemaBoolean extends JSONSchemaDescripted {
     type: "boolean"
+    uiType?: "runOption"
     default?: boolean
 }
 
