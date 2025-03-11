@@ -356,6 +356,8 @@ export async function cli() {
         .description(
             "Write TypeScript definition files in the script folder to enable type checking."
         )
+        .option("-gcp, --github-copilot-prompt", "Write GitHub Copilot custom prompt for better GenAIScript code generation")
+        .option("-d, --docs", "Download documentation")
         .action(fixScripts) // Action to fix scripts
     scripts
         .command("compile")

@@ -247,7 +247,7 @@ Options:
 Commands:
   list [options] [script...]  List all available scripts in workspace
   create [options] <name>     Create a new script
-  fix                         Write TypeScript definition files in the script
+  fix [options]               Write TypeScript definition files in the script
                               folder to enable type checking.
   compile [folders...]        Compile all scripts in workspace
   model [options] [script]    List model connection information for scripts
@@ -293,7 +293,10 @@ Usage: genaiscript scripts fix [options]
 Write TypeScript definition files in the script folder to enable type checking.
 
 Options:
-  -h, --help  display help for command
+  -gcp, --github-copilot-prompt  Write GitHub Copilot custom prompt for better
+                                 GenAIScript code generation
+  -d, --docs                     Download documentation
+  -h, --help                     display help for command
 ```
 
 ### `scripts compile`

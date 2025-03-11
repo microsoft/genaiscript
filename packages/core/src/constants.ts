@@ -144,6 +144,8 @@ export const PROMPTFOO_REMOTE_API_PORT = 15500
 export const PROMPTFOO_REDTEAM_NUM_TESTS = 5
 export const PROMPTFOO_TEST_MAX_CONCURRENCY = 1
 
+export const TYPE_DEFINITION_BASENAME = "genaiscript.d.ts"
+
 export const RUNS_DIR_NAME = "runs"
 export const CONVERTS_DIR_NAME = "converts"
 export const TEST_RUNS_DIR_NAME = "test-runs"

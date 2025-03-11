@@ -47,18 +47,31 @@ export default defineConfig({
 - When generating code for GenAIScript, always target TypeScript, Node.JS, ESM. Prefer await/async, keep it simple.
 - All pages of the documentation have a markdown route by adding '.md' to the URL.
                     `,
-                    optionalLinks: [
-                        { label: "Reference", url: "/genaiscript/reference" },
+                    customSets: [
                         {
-                            label: "Case Studies",
-                            url: "/genaiscript/case-studies",
+                            label: "Getting Started",
+                            description:
+                                "Sequence of short tutorials on how to get started with GenAIScript",
+                            paths: ["getting-started/**"],
                         },
-                        { label: "Guides", url: "/genaiscript/guides" },
+                        {
+                            label: "Reference",
+                            description:
+                                "full reference documentation for my project",
+                            paths: ["reference/**"],
+                        },
+                        {
+                            label: "Guides",
+                            description:
+                                "Guides on various LLM programming topics",
+                            paths: ["guides/**", "case-studies/**"],
+                        },
                         {
                             label: "Samples",
-                            url: "/genaiscript/samples",
+                            description:
+                                "Advanced samples used for specific common scenarios",
+                            paths: ["samples/**"],
                         },
-                        { label: "FAQ", url: "/genaiscript/faq" },
                     ],
                 }),
                 starlightLinksValidator(),
