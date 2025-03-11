@@ -402,7 +402,10 @@
             "url": "https://huggingface.co/docs/transformers.js/index",
             "prediction": false,
             "tokenless": true,
-            "env": {}
+            "env": {},
+            "aliases": {
+                "embeddings": "nomic-ai/nomic-embed-text-v1.5"
+            }
         },
 
         {

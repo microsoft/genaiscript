@@ -9,7 +9,7 @@ import type {
     ProgressCallback,
     ProgressInfo,
 } from "@huggingface/transformers"
-import { NotSupportedError } from "./error"
+import { errorMessage, NotSupportedError } from "./error"
 import { ChatCompletionMessageParam, ChatCompletionResponse } from "./chattypes"
 import { dotGenaiscriptPath, logVerbose } from "./util"
 import { parseModelIdentifier } from "./models"
@@ -162,4 +162,33 @@ function chatMessagesToTranformerMessages(
                 } satisfies Message
         }
     })
+}
+
+export type EmbeddingEncoder = (input: string | string[]) => Promise<{
+    status: "success" | "error"
+    message?: string
+    output?: number[][]
+}>
+
+export async function transformerCreateFeatureExtractionPipeline(
+    model: string
+): Promise<EmbeddingEncoder> {
+    const { pipeline } = await import("@huggingface/transformers")
+    const embedder = await pipeline("feature-extraction", model)
+
+    const encoder: EmbeddingEncoder = async (input: string | string[]) => {
+        try {
+            const res = await embedder(input)            
+            const output = []
+            return {
+                status: "success",
+            }
+        } catch (e) {
+            return {
+                status: "error",
+                message: errorMessage(e),
+            }
+        }
+    }
+    return encoder
 }

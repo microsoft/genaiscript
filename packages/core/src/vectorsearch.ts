@@ -5,13 +5,14 @@
 
 import { encode, decode } from "gpt-tokenizer"
 import { resolveModelConnectionInfo } from "./models"
-import { runtimeHost, host } from "./host"
+import { runtimeHost } from "./host"
 import {
     AZURE_OPENAI_API_VERSION,
     EMBEDDINGS_MODEL_ID,
     MODEL_PROVIDER_AZURE_OPENAI,
     MODEL_PROVIDER_AZURE_SERVERLESS_MODELS,
     MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI,
+    MODEL_PROVIDER_TRANSFORMERS,
 } from "./constants"
 import type { EmbeddingsModel, EmbeddingsResponse } from "vectra/lib/types"
 import { createFetch, traceFetchPost } from "./fetch"
@@ -23,6 +24,7 @@ import { ellipse, logVerbose } from "./util"
 import { TraceOptions } from "./trace"
 import { CancellationOptions, checkCancelled } from "./cancellation"
 import { trimTrailingSlash } from "./cleaners"
+import { transformerCreateFeatureExtractionPipeline } from "./transformers"
 
 /**
  * Represents the cache key for embeddings.
@@ -43,6 +45,27 @@ export type EmbeddingsCache = JSONLineCache<
     EmbeddingsCacheKey,
     EmbeddingsResponse
 >
+
+class TransformersEmbeddings implements EmbeddingsModel {
+    maxTokens: number
+    encoder: (input: string | string[]) => Promise<EmbeddingsResponse>
+
+    constructor(
+        readonly model: string,
+        readonly options?: TraceOptions & CancellationOptions
+    ) {}
+
+    async createEmbeddings(
+        inputs: string | string[]
+    ): Promise<EmbeddingsResponse> {
+        if (!this.encoder) {
+            this.encoder = await transformerCreateFeatureExtractionPipeline(
+                this.model
+            )
+        }
+        return await this.encoder(inputs)
+    }
+}
 
 /**
  * Class for creating embeddings using the OpenAI API.
@@ -214,7 +237,17 @@ export async function vectorSearch(
         // Pull the model
         await runtimeHost.pullModel(configuration, { trace, cancellationToken })
         checkCancelled(cancellationToken)
-        const embeddings = new OpenAIEmbeddings(info, configuration, { trace, cancellationToken })
+
+        const embeddings =
+            info.provider === MODEL_PROVIDER_TRANSFORMERS
+                ? new TransformersEmbeddings(configuration.model, {
+                      trace,
+                      cancellationToken,
+                  })
+                : new OpenAIEmbeddings(info, configuration, {
+                      trace,
+                      cancellationToken,
+                  })
 
         // Create a local document index
         const index = new LocalDocumentIndex({
