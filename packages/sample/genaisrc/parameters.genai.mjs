@@ -43,6 +43,10 @@ script({
             default: true,
             description: "A boolean parameter with a description",
         },
+        runOption: {
+            type: "boolean",
+            uiType: "runOption",
+        },
         notRequired: {
             type: "integer",
             required: false,
