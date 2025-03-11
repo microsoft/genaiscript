@@ -115,6 +115,14 @@ export async function fixCustomPrompts(options?: {
         const pdir = host.path.join(".github", "prompts")
         const pn = host.path.join(pdir, "genaiscript.prompt.md")
         await writeText(pn, githubCopilotCustomPrompt) // Write the GitHub Copilot prompt file
+        const gitignoren = host.path.join(pdir, ".gitignore")
+        const gitignore = (await tryReadText(gitignoren)) || ""
+        if (!/^genaiscript.prompt.md/m.test(gitignore)) {
+            await writeText(
+                gitignoren,
+                gitignore + "\n#GenAIScript\n" + "genaiscript.prompt.md"
+            )
+        }
     }
     if (githubCopilotPrompt || docs) {
         const ddir = dotGenaiscriptPath("docs")
