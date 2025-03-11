@@ -29,7 +29,8 @@ export const AZURE_MANAGEMENT_TOKEN_SCOPES = Object.freeze([
 ])
 export const AZURE_TOKEN_EXPIRATION = 59 * 60_000 // 59 minutes
 
-export const TOOL_URL = "https://microsoft.github.io/genaiscript"
+export const DOCS_URL = "https://microsoft.github.io/genaiscript"
+export const TOOL_URL = DOCS_URL
 export const TOOL_ID = "genaiscript"
 export const GENAISCRIPT_FOLDER = "." + TOOL_ID
 export const CLI_JS = TOOL_ID + ".cjs"

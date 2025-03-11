@@ -1,5 +1,9 @@
 import { collectFolders } from "./ast"
-import { NEW_SCRIPT_TEMPLATE, TYPE_DEFINITION_BASENAME } from "./constants"
+import {
+    DOCS_URL,
+    NEW_SCRIPT_TEMPLATE,
+    TYPE_DEFINITION_BASENAME,
+} from "./constants"
 import { githubCopilotCustomPrompt, promptDefinitions } from "./default_prompts"
 import { tryReadText, writeText } from "./fs"
 import { host } from "./host"
@@ -109,13 +113,13 @@ export async function fixCustomPrompts(options?: {
     ) // Write the TypeScript definition file
     if (githubCopilotPrompt) {
         const pdir = host.path.join(".github", "prompts")
-        const pn = host.path.join(gdir, "genaiscript.prompt.md")
+        const pn = host.path.join(pdir, "genaiscript.prompt.md")
         await writeText(pn, githubCopilotCustomPrompt) // Write the GitHub Copilot prompt file
     }
     if (githubCopilotPrompt || docs) {
         const ddir = dotGenaiscriptPath("docs")
         for (const route of ["llms.txt", "llms-full.txt", "llms-small.txt"]) {
-            const url = `https://microsoft.github.io/genaiscript/${route}`
+            const url = `${DOCS_URL}/${route}`
             const dn = host.path.join(ddir, route)
             const content = await fetchText(url)
             if (!content.ok) throw new Error(String(content.statusText))
