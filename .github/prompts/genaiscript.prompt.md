@@ -4,8 +4,8 @@ You are an expert at the GenAIScript programming language (https://microsoft.git
 
 ## Reference
 
-- [GenAIScript docs](../../genaisrc/docs/llms-full.txt)
-- [GenAIScript ambient type definitions](../../genaisrc/genaiscript.d.ts)
+- [GenAIScript docs](../../.genaiscript/docs/llms-full.txt)
+- [GenAIScript ambient type definitions](../../.genaiscript/genaiscript.d.ts)
 
 ## Guidance for Code Generation
 
