@@ -166,6 +166,10 @@ class OpenAIEmbeddings implements EmbeddingsModel {
     }
 }
 
+interface VectorStore {
+    
+}
+
 /**
  * Performs a vector search on documents based on a query.
  * @param query The search query.

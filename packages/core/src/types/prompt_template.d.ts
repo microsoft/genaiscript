@@ -3255,6 +3255,24 @@ interface FuzzSearchOptions {
     minScore?: number
 }
 
+interface WorkspaceFileIndexOptions {
+    /**
+     * Identifier for resilient storage
+     */
+    name?: string
+    /**
+     * Index implementation provider
+     */
+    provider?: "vectra"
+
+    /**
+     * Clears all entries
+     */
+    clear(): Promise<void>
+}
+
+interface WorkspaceFileIndex {}
+
 interface Retrieval {
     /**
      * Executers a web search with Tavily or Bing Search.
@@ -3292,6 +3310,14 @@ interface Retrieval {
         files: WorkspaceFile | WorkspaceFile[],
         options?: FuzzSearchOptions
     ): Promise<WorkspaceFile[]>
+
+    /**
+     * Create a vector/fuzzy/hybrid document store
+     * @param options
+     */
+    createIndex(
+        options?: WorkspaceFileIndexOptions
+    ): Promise<WorkspaceFileIndex>
 }
 
 interface ArrayFilter {
