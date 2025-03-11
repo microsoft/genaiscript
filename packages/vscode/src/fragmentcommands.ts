@@ -220,15 +220,10 @@ export function activateFragmentCommands(state: ExtensionState) {
             if (!template) {
                 return
             }
-            files = vscode.window.visibleTextEditors
-                .filter(
-                    (editor) =>
-                        editor.document.uri.fsPath !== file.fsPath &&
-                        editor.document.uri.scheme === "file"
-                )
-                .map((editor) => editor.document.uri)
+            files = []
         } else {
             template = await pickTemplate()
+            if (!template) return
             files = [file]
         }
 
