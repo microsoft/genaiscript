@@ -118,12 +118,12 @@ export async function fixCustomPrompts(options?: {
     }
     if (githubCopilotPrompt || docs) {
         const ddir = dotGenaiscriptPath("docs")
-        for (const route of ["llms.txt", "llms-full.txt", "llms-small.txt"]) {
+        for (const route of ["llms-full.txt"]) {
             const url = `${DOCS_URL}/${route}`
             const dn = host.path.join(ddir, route)
             const content = await fetchText(url)
-            if (!content.ok) throw new Error(String(content.statusText))
-            await writeText(dn, content.text) // Write the GitHub Copilot prompt file
+            if (!content.ok) logVerbose(`failed to fetch ${url}`)
+            else await writeText(dn, content.text) // Write the GitHub Copilot prompt file
         }
     }
 }
