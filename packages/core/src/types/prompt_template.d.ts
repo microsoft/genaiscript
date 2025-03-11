@@ -3416,6 +3416,11 @@ interface ImportTemplateOptions {
      * Ignore unknown arguments
      */
     allowExtraArguments?: boolean
+
+    /**
+     * Template engine syntax
+     */
+    format?: "mustache" | "jinja" 
 }
 
 type PromptCacheControlType = "ephemeral"
