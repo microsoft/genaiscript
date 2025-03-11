@@ -401,7 +401,7 @@ export class ExtensionState extends EventTarget {
         )
         const githubCopilotPrompt = !!config.get("githubCopilotPrompt")
         if (githubCopilotChat && githubCopilotPrompt)
-            fixCustomPrompts({ githubCopilotPrompt: true }) // finish async
+            await fixCustomPrompts({ githubCopilotPrompt: true }) // finish async
     }
 
     async parseWorkspace() {

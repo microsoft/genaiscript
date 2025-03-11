@@ -779,7 +779,7 @@ window.vscodeWebviewPlaygroundNonce = ${JSON.stringify(nonce)};
         } else socket.destroy()
     })
     // Start the HTTP server on the specified port.
-    const serverhash = apiKey ? `?api-key:${encodeURIComponent(apiKey)}` : ""
+    const serverhash = apiKey ? `#api-key:${encodeURIComponent(apiKey)}` : ""
     httpServer.listen(port, serverHost, () => {
         console.log(`GenAIScript server v${CORE_VERSION}`)
         console.log(`┃ Local http://${serverHost}:${port}/${serverhash}`)
