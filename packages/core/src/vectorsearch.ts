@@ -167,6 +167,104 @@ class OpenAIEmbeddings implements EmbeddingsModel {
 }
 
 /**
+ * Create a vector index for documents.
+ */
+export async function vectorIndex(
+    options: VectorIndexOptions & {
+        folderPath: string
+    } & TraceOptions &
+        CancellationOptions
+): Promise<WorkspaceFileStore> {
+    const {
+        folderPath,
+        embeddingsModel,
+        version = 1,
+        deleteIfExists,
+        trace,
+        cancellationToken,
+        chunkSize = 512,
+        chunkOverlap = 128,
+    } = options
+
+    // Import the local document index
+    const { LocalDocumentIndex } = await import("vectra")
+    const tokenizer = { encode, decode }
+
+    // Resolve connection info for the embeddings model
+    const { info, configuration } = await resolveModelConnectionInfo(
+        {
+            model: embeddingsModel,
+        },
+        {
+            token: true,
+            defaultModel: EMBEDDINGS_MODEL_ID,
+        }
+    )
+    checkCancelled(cancellationToken)
+    if (info.error) throw new Error(info.error)
+    if (!configuration)
+        throw new Error("No configuration found for vector search")
+
+    // Pull the model
+    await runtimeHost.pullModel(configuration, { trace, cancellationToken })
+    checkCancelled(cancellationToken)
+    const embeddings = new OpenAIEmbeddings(info, configuration, {
+        trace,
+        cancellationToken,
+    })
+
+    // Create a local document index
+    const index = new LocalDocumentIndex({
+        tokenizer,
+        folderPath,
+        embeddings,
+        chunkingConfig: {
+            chunkSize,
+            chunkOverlap,
+            tokenizer,
+        },
+    })
+    await index.createIndex({ version, deleteIfExists })
+    checkCancelled(cancellationToken)
+
+    return Object.freeze({
+        model: info.model,
+        list: async () => {
+            const docs = await index.listDocuments()
+            const res: WorkspaceFile[] = []
+            for (const doc of docs) {
+                res.push({
+                    filename: doc.uri,
+                    content: await doc.loadText(),
+                })
+            }
+            return res
+        },
+        upsert: async (file) => {
+            if (!file.content) await index.deleteDocument(file.filename)
+            else await index.upsertDocument(file.filename, file.content)
+        },
+        query: async (query, options) => {
+            const { topK, minScore = 0 } = options || {}
+            const docs = (
+                await index.queryDocuments(query, { maxDocuments: topK })
+            ).filter((r) => r.score >= minScore)
+            const res: WorkspaceFileWithScore[] = []
+            for (const doc of docs) {
+                res.push(<WorkspaceFileWithScore>{
+                    filename: doc.uri,
+                    content: (await doc.renderAllSections(8000))
+                        .map((s) => s.text)
+                        .join("\n...\n"),
+                    score: doc.score,
+                })
+            }
+            return res
+        },
+    } satisfies WorkspaceFileStore)
+}
+
+/**
  * Performs a vector search on documents based on a query.
  * @param query The search query.
  * @param files The files to search within.
@@ -181,7 +279,6 @@ export async function vectorSearch(
 ): Promise<WorkspaceFileWithScore[]> {
     const {
         topK,
-        folderPath,
         embeddingsModel,
         minScore = 0,
         trace,
@@ -191,67 +288,13 @@ export async function vectorSearch(
     trace?.startDetails(`🔍 embeddings`)
     try {
         trace?.itemValue(`model`, embeddingsModel)
-
-        // Import the local document index
-        const { LocalDocumentIndex } = await import("vectra")
-        const tokenizer = { encode, decode }
-
-        // Resolve connection info for the embeddings model
-        const { info, configuration } = await resolveModelConnectionInfo(
-            {
-                model: embeddingsModel,
-            },
-            {
-                token: true,
-                defaultModel: EMBEDDINGS_MODEL_ID,
-            }
-        )
+        const index = await vectorIndex(options)
         checkCancelled(cancellationToken)
-        if (info.error) throw new Error(info.error)
-        if (!configuration)
-            throw new Error("No configuration found for vector search")
-
-        // Pull the model
-        await runtimeHost.pullModel(configuration, { trace, cancellationToken })
-        checkCancelled(cancellationToken)
-        const embeddings = new OpenAIEmbeddings(info, configuration, { trace, cancellationToken })
-
-        // Create a local document index
-        const index = new LocalDocumentIndex({
-            tokenizer,
-            folderPath,
-            embeddings,
-            chunkingConfig: {
-                chunkSize: 512,
-                chunkOverlap: 128,
-                tokenizer,
-            },
-        })
-        await index.createIndex({ version: 1, deleteIfExists: true })
-        checkCancelled(cancellationToken)
-
-        // Insert documents into the index
         for (const file of files) {
-            const { filename, content } = file
-            await index.upsertDocument(filename, content)
+            await index.upsert(file)
             checkCancelled(cancellationToken)
         }
-
-        // Query documents based on the search query
-        const res = await index.queryDocuments(query, { maxDocuments: topK })
-        const r: WorkspaceFileWithScore[] = []
-        checkCancelled(cancellationToken)
-
-        // Filter and return results that meet the minScore
-        for (const re of res.filter((re) => re.score >= minScore)) {
-            r.push(<WorkspaceFileWithScore>{
-                filename: re.uri,
-                content: (await re.renderAllSections(8000))
-                    .map((s) => s.text)
-                    .join("\n...\n"),
-                score: re.score,
-            })
-        }
+        const r = await index.query(query, { topK, minScore })
         return r
     } finally {
         trace?.endDetails()

@@ -3197,7 +3197,24 @@ interface HighlightOptions {
     maxLength?: number
 }
 
-interface VectorSearchOptions extends EmbeddingsModelOptions {
+interface WorkspaceFileStore {
+    model: string
+    list: () => Promise<WorkspaceFile[]>
+    upsert: (file: WorkspaceFile) => Promise<void>
+    query: (
+        query: string,
+        options?: { topK?: number; minScore?: number }
+    ) => Promise<WorkspaceFileWithScore[]>
+}
+
+interface VectorIndexOptions extends EmbeddingsModelOptions {
+    version?: number
+    deleteIfExists?: boolean
+    chunkSize?: number
+    chunkOverlap?: number
+}
+
+interface VectorSearchOptions extends VectorIndexOptions {
     /**
      * Maximum number of embeddings to use
      */
@@ -3206,11 +3223,6 @@ interface VectorSearchOptions extends EmbeddingsModelOptions {
      * Minimum similarity score
      */
     minScore?: number
-
-    /**
-     * Cache identifier for the embeddings
-     */
-    cache?: string
 }
 
 interface FuzzSearchOptions {
