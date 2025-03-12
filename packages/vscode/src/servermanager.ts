@@ -189,11 +189,11 @@ export class TerminalServerManager
         const { cliPath, cliVersion } = await resolveCli(this.state)
         if (cliPath)
             this._terminal.sendText(
-                `node "${cliPath}" serve --port ${this._port} --dispatch-progress --cors "*"`
+                `node "${cliPath}" serve --port ${this._port} --dispatch-progress --cors "*" --github-copilot-chat-client`
             )
         else
             this._terminal.sendText(
-                `npx --yes ${TOOL_ID}@${cliVersion} serve --port ${this._port} --dispatch-progress --cors "*"`
+                `npx --yes ${TOOL_ID}@${cliVersion} serve --port ${this._port} --dispatch-progress --cors "*" --github-copilot-chat-client`
             )
         if (!hideFromUser) this._terminal.show(true)
     }

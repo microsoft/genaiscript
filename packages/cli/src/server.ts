@@ -79,6 +79,7 @@ export async function startServer(options: {
     remoteForce?: boolean
     remoteInstall?: boolean
     dispatchProgress?: boolean
+    githubCopilotChatClient?: boolean
 }) {
     // Parse and set the server port, using a default if not specified.
     const corsOrigin = options.cors || process.env.GENAISCRIPT_CORS_ORIGIN
@@ -246,67 +247,74 @@ export async function startServer(options: {
     }
 
     // Configures the client language model with a completer function.
-    runtimeHost.clientLanguageModel = Object.freeze<LanguageModel>({
-        id: MODEL_PROVIDER_GITHUB_COPILOT_CHAT,
-        completer: async (
-            req: CreateChatCompletionRequest,
-            connection: LanguageModelConfiguration,
-            options: ChatCompletionsOptions,
-            trace: MarkdownTrace
-        ): Promise<ChatCompletionResponse> => {
-            const { messages, model } = req
-            const { partialCb, inner } = options
-            if (!wss.clients?.size)
-                throw new Error("GitHub Copilot Chat Models not connected")
+    if (options?.githubCopilotChatClient)
+        runtimeHost.clientLanguageModel = Object.freeze<LanguageModel>({
+            id: MODEL_PROVIDER_GITHUB_COPILOT_CHAT,
+            completer: async (
+                req: CreateChatCompletionRequest,
+                connection: LanguageModelConfiguration,
+                options: ChatCompletionsOptions,
+                trace: MarkdownTrace
+            ): Promise<ChatCompletionResponse> => {
+                const { messages, model } = req
+                const { partialCb, inner } = options
+                if (!wss.clients?.size)
+                    throw new Error("GitHub Copilot Chat Models not connected")
 
-            return new Promise<ChatCompletionResponse>((resolve, reject) => {
-                let responseSoFar: string = ""
-                let tokensSoFar: number = 0
-                let finishReason: ChatCompletionResponse["finishReason"]
+                return new Promise<ChatCompletionResponse>(
+                    (resolve, reject) => {
+                        let responseSoFar: string = ""
+                        let tokensSoFar: number = 0
+                        let finishReason: ChatCompletionResponse["finishReason"]
 
-                // Add a handler for chat responses.
-                const chatId = randomHex(6)
-                chats[chatId] = async (chunk) => {
-                    if (!responseSoFar && chunk.model) {
-                        logVerbose(`chat model ${chunk.model}`)
-                        trace.itemValue("chat model", chunk.model)
-                        trace.appendContent("\n\n")
+                        // Add a handler for chat responses.
+                        const chatId = randomHex(6)
+                        chats[chatId] = async (chunk) => {
+                            if (!responseSoFar && chunk.model) {
+                                logVerbose(`chat model ${chunk.model}`)
+                                trace.itemValue("chat model", chunk.model)
+                                trace.appendContent("\n\n")
+                            }
+                            trace.appendToken(chunk.chunk)
+                            responseSoFar += chunk.chunk ?? ""
+                            tokensSoFar += chunk.tokens ?? 0
+                            partialCb?.({
+                                tokensSoFar,
+                                responseSoFar,
+                                responseChunk: chunk.chunk,
+                                inner,
+                            })
+                            finishReason = chunk.finishReason as any
+                            if (finishReason) {
+                                trace.appendContent("\n\n")
+                                trace.itemValue(`finish reason`, finishReason)
+                                delete chats[chatId]
+                                if (chunk.error) {
+                                    trace.error(undefined, chunk.error)
+                                    reject(chunk.error)
+                                } else
+                                    resolve({
+                                        text: responseSoFar,
+                                        finishReason,
+                                    })
+                            }
+                        }
+
+                        // Send request to LLM clients.
+                        const payload = toPayload(<ChatStart>{
+                            type: "chat.start",
+                            chatId,
+                            model,
+                            messages,
+                        })
+                        for (const ws of wss.clients) {
+                            ws.send(payload)
+                            break
+                        }
                     }
-                    trace.appendToken(chunk.chunk)
-                    responseSoFar += chunk.chunk ?? ""
-                    tokensSoFar += chunk.tokens ?? 0
-                    partialCb?.({
-                        tokensSoFar,
-                        responseSoFar,
-                        responseChunk: chunk.chunk,
-                        inner,
-                    })
-                    finishReason = chunk.finishReason as any
-                    if (finishReason) {
-                        trace.appendContent("\n\n")
-                        trace.itemValue(`finish reason`, finishReason)
-                        delete chats[chatId]
-                        if (chunk.error) {
-                            trace.error(undefined, chunk.error)
-                            reject(chunk.error)
-                        } else resolve({ text: responseSoFar, finishReason })
-                    }
-                }
-
-                // Send request to LLM clients.
-                const payload = toPayload(<ChatStart>{
-                    type: "chat.start",
-                    chatId,
-                    model,
-                    messages,
-                })
-                for (const ws of wss.clients) {
-                    ws.send(payload)
-                    break
-                }
-            })
-        },
-    })
+                )
+            },
+        })
 
     // Handle server shutdown by cancelling all activities.
     wss.on("close", () => {

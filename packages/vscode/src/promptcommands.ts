@@ -102,7 +102,7 @@ export function commandButtons(state: ExtensionState) {
     if (state.host.server.status !== "stopped") {
         cmds.push({
             label: show,
-            description: "show GenAIScript server terminal",
+            description: "Show GenAIScript server terminal",
             cmd: "genaiscript.server.show",
         })
         cmds.push({
