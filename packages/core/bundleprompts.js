@@ -37,7 +37,7 @@ async function main() {
         )
         .join("")
         .replace("@version 0.0.0", `@version ${pkg.version}`)
-    const githubCopilotCustomPrompt = readFileSync("../../.genaiscript/prompts/genaiscript.prompt.md", "utf-8")
+    const githubCopilotCustomPrompt = readFileSync("../../.github/prompts/genaiscript.prompt.md", "utf-8")
     const promptDefs = {
         "jsconfig.json": JSON.stringify(
             {
