@@ -63,10 +63,9 @@ export async function retrievalSearch(
 
     // Perform vector search with the given query and options
     // Searches using embeddings to find relevant files
-    const res = await vectorSearch(q, files, {
+    const res = await vectorSearch(q, files, folderPath, {
         topK: normalizeInt(topK),
         minScore: normalizeFloat(minScore),
-        folderPath,
         embeddingsModel,
     })
 

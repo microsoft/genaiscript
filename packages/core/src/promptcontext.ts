@@ -234,9 +234,8 @@ export async function createPromptContext(
                     { length: VECTOR_INDEX_HASH_LENGTH }
                 )
                 const folderPath = dotGenaiscriptPath("vectors", key)
-                const res = await vectorSearch(q, files, {
+                const res = await vectorSearch(q, files, folderPath, {
                     ...searchOptions,
-                    folderPath,
                     trace: vecTrace,
                     cancellationToken,
                 })

@@ -276,8 +276,8 @@ export async function vectorIndex(
 export async function vectorSearch(
     query: string,
     files: WorkspaceFile[],
-    options: VectorSearchOptions & { folderPath: string } & TraceOptions &
-        CancellationOptions
+    folderPath: string,
+    options: VectorSearchOptions & TraceOptions & CancellationOptions
 ): Promise<WorkspaceFileWithScore[]> {
     const {
         topK,
@@ -290,7 +290,7 @@ export async function vectorSearch(
     trace?.startDetails(`🔍 embeddings`)
     try {
         trace?.itemValue(`model`, embeddingsModel)
-        const index = await vectorIndex(options)
+        const index = await vectorIndex(folderPath, options)
         checkCancelled(cancellationToken)
         for (const file of files) {
             await index.upsert(file)
