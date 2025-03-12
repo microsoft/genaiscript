@@ -10,7 +10,7 @@ import scriptSource from "../../../../../../packages/sample/genaisrc/samples/cop
 import src from "../../../../assets/chat-participant.png"
 import alt from "../../../../assets/chat-participant.png.txt?raw"
 import { Steps } from "@astrojs/starlight/components"
-import prompt from "../../../../../../.github/prompts/genaiscript.prompt.md?raw"
+import prompt from "../../../../../../.genaiscript/prompts/genaiscript.prompt.md?raw"
 
 GenAIScript integrates with [GitHub Copilot Chat](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot-chat)
 by providing a **chat participant** that allows you to run scripts in the context of a chat conversation,
@@ -30,7 +30,7 @@ that provides additional context to help GitHub Copilot Chat answering GenAIScri
     code={prompt}
     wrap={true}
     lang="text"
-    title=".github/prompts/genaiscript.prompt.md"
+    title=".genaiscript/prompts/genaiscript.prompt.md"
 />
 
 To use this prompt in your chat,
@@ -47,6 +47,12 @@ At this time, the reusable prompt feature is experimental and needs to be enable
 
 Open the settings (Ctrl+,) and search for **GitHub Copilot Chat**.
 Set the [chat.promptFiles](vscode://settings/chat.promptFiles) setting to true.
+
+</li>
+
+<li>
+
+Add `.genaiscript/prompts` to the list of folders to search for prompt files.
 
 </li>
 
