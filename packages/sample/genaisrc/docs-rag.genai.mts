@@ -37,7 +37,7 @@ docs.file.content = docs.file.content.replace(
     ""
 )
 
-// vector search
+// keyword search
 const grepped = (
     await workspace.grep(
         "(" + kw.text.split(/\s/g).join("|") + ")",
@@ -45,12 +45,15 @@ const grepped = (
     )
 ).files
 console.log(grepped.map(({ filename }) => filename).join("\n"))
-const vectorDocs = await retrieval.vectorSearch(kw.text, [
-    docs.file,
-    { filename: "genaisrc/genaiscript.d.ts" },
-    ...grepped,
-])
+def("DOCS", grepped, { ignoreEmpty: true, flex: 1 })
+
+// vector search
+const docsIndex = await retrieval.index("docs")
+await docsIndex.upsert(docs.file)
+await docsIndex.upsert({ filename: "genaisrc/genaiscript.d.ts" })
+const vectorDocs = await docsIndex.query(kw.text)
 def("DOCS", vectorDocs, { ignoreEmpty: true, flex: 3 })
+
 // fuzzy search
 const chunks = await MD.chunk(docs.file, { maxTokens: 512 })
 const fuzzDocs = await retrieval.fuzzSearch(kw.text, chunks, {

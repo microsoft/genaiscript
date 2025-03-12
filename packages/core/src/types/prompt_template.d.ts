@@ -3199,7 +3199,7 @@ interface HighlightOptions {
 
 interface WorkspaceFileIndex {
     list: () => Promise<WorkspaceFile[]>
-    upsert: (file: WorkspaceFile) => Promise<void>
+    upsert: (file: ElementOrArray<WorkspaceFile>) => Promise<void>
     query: (
         query: string,
         options?: { topK?: number; minScore?: number }
@@ -3300,7 +3300,7 @@ interface Retrieval {
      * Loads or creates a file index using a vector index
      * @param options
      */
-    index(options?: VectorIndexOptions): Promise<WorkspaceFileIndex>
+    index(id: string, options?: VectorIndexOptions): Promise<WorkspaceFileIndex>
 
     /**
      * Performs a fuzzy search over the files

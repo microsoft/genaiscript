@@ -22,7 +22,8 @@ import { getConfigHeaders } from "./openai"
 import { ellipse, logVerbose } from "./util"
 import { TraceOptions } from "./trace"
 import { CancellationOptions, checkCancelled } from "./cancellation"
-import { trimTrailingSlash } from "./cleaners"
+import { arrayify, trimTrailingSlash } from "./cleaners"
+import { resolveFileContent } from "./file"
 
 /**
  * Represents the cache key for embeddings.
@@ -170,13 +171,10 @@ class OpenAIEmbeddings implements EmbeddingsModel {
  * Create a vector index for documents.
  */
 export async function vectorIndex(
-    options: VectorIndexOptions & {
-        folderPath: string
-    } & TraceOptions &
-        CancellationOptions
+    folderPath: string,
+    options?: VectorIndexOptions & TraceOptions & CancellationOptions
 ): Promise<WorkspaceFileIndex> {
     const {
-        folderPath,
         embeddingsModel,
         version = 1,
         deleteIfExists,
@@ -184,7 +182,7 @@ export async function vectorIndex(
         cancellationToken,
         chunkSize = 512,
         chunkOverlap = 128,
-    } = options
+    } = options || {}
 
     // Import the local document index
     const { LocalDocumentIndex } = await import("vectra")
@@ -224,7 +222,8 @@ export async function vectorIndex(
             tokenizer,
         },
     })
-    await index.createIndex({ version, deleteIfExists })
+    if (!(await index.isIndexCreated()))
+        await index.createIndex({ version, deleteIfExists })
     checkCancelled(cancellationToken)
 
     return Object.freeze({
@@ -240,8 +239,12 @@ export async function vectorIndex(
             return res
         },
         upsert: async (file) => {
-            if (!file.content) await index.deleteDocument(file.filename)
-            else await index.upsertDocument(file.filename, file.content)
+            const files = arrayify(file)
+            for (const f of files) {
+                await resolveFileContent(f, { trace })
+                if (f.content && !f.encoding)
+                    await index.upsertDocument(f.filename, f.content)
+            }
         },
         query: async (query, options) => {
             const { topK, minScore = 0 } = options || {}

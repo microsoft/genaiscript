@@ -193,7 +193,9 @@ export async function createPromptContext(
                 fuzzTrace.endDetails()
             }
         },
-        index: async (indexOptions) => {
+        index: async (indexId, indexOptions) => {
+            indexId = indexId?.replace(/[^a-zA-Z0-9]/g, "")
+            if (!indexId) throw new NotSupportedError("missing index ID")
             const opts = {
                 ...(indexOptions || {}),
                 embeddingsModel:
@@ -203,10 +205,9 @@ export async function createPromptContext(
                 { opts },
                 { length: VECTOR_INDEX_HASH_LENGTH }
             )
-            const folderPath = dotGenaiscriptPath("index", key)
-            const res = await vectorIndex({
+            const folderPath = dotGenaiscriptPath("index", indexId, key)
+            const res = await vectorIndex(folderPath, {
                 ...opts,
-                folderPath,
                 trace,
                 cancellationToken,
             })
