@@ -174,7 +174,7 @@ export async function vectorIndex(
         folderPath: string
     } & TraceOptions &
         CancellationOptions
-): Promise<WorkspaceFileStore> {
+): Promise<WorkspaceFileIndex> {
     const {
         folderPath,
         embeddingsModel,
@@ -228,7 +228,6 @@ export async function vectorIndex(
     checkCancelled(cancellationToken)
 
     return Object.freeze({
-        model: info.model,
         list: async () => {
             const docs = await index.listDocuments()
             const res: WorkspaceFile[] = []
@@ -261,7 +260,7 @@ export async function vectorIndex(
             }
             return res
         },
-    } satisfies WorkspaceFileStore)
+    } satisfies WorkspaceFileIndex)
 }
 
 /**

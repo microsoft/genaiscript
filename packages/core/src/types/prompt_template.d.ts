@@ -3197,8 +3197,7 @@ interface HighlightOptions {
     maxLength?: number
 }
 
-interface WorkspaceFileStore {
-    model: string
+interface WorkspaceFileIndex {
     list: () => Promise<WorkspaceFile[]>
     upsert: (file: WorkspaceFile) => Promise<void>
     query: (
@@ -3296,6 +3295,8 @@ interface Retrieval {
         files: (string | WorkspaceFile) | (string | WorkspaceFile)[],
         options?: VectorSearchOptions
     ): Promise<WorkspaceFile[]>
+
+    index(options: VectorIndexOptions): Promise<WorkspaceFileIndex>
 
     /**
      * Performs a fuzzy search over the files
