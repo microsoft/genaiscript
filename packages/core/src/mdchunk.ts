@@ -16,7 +16,7 @@ export async function chunkMarkdown(
         pageSeperator?: string
     }
 ): Promise<TextChunk[]> {
-    const { maxTokens = 4096, pageSeperator = "======" } = options || {}
+    const { maxTokens = 4096, pageSeperator: pageSeparator = "======" } = options || {}
     if (!markdown) return []
 
     type Section = { heading: string; lines: string[]; level: number }
@@ -35,7 +35,7 @@ export async function chunkMarkdown(
     let current: Section | null = null
 
     lines.forEach((line) => {
-        if (line.startsWith(pageSeperator)) {
+        if (line.startsWith(pageSeparator)) {
             if (current) sections.push(current)
             current = null
             return

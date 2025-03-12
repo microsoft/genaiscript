@@ -261,6 +261,7 @@ export const NEW_SCRIPT_TEMPLATE = `$\`Write a short poem in code.\`
 export const PDF_SCALE = 4
 export const PDF_HASH_LENGTH = 18
 export const DOCX_HASH_LENGTH = 18
+export const VECTOR_INDEX_HASH_LENGTH = 18
 
 export const PDF_MIME_TYPE = "application/pdf"
 export const DOCX_MIME_TYPE =
@@ -366,7 +367,7 @@ export const MIN_LINE_NUMBER_LENGTH = 10
 
 export const VSCODE_SERVER_MAX_RETRIES = 5
 
-export const VIDEO_HASH_LENGTH = 12
+export const VIDEO_HASH_LENGTH = 18
 export const VIDEO_FRAMES_DIR_NAME = "frames"
 export const VIDEO_CLIPS_DIR_NAME = "clips"
 export const VIDEO_AUDIO_DIR_NAME = "audio"

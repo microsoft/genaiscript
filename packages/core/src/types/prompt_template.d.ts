@@ -3197,7 +3197,23 @@ interface HighlightOptions {
     maxLength?: number
 }
 
-interface VectorSearchOptions extends EmbeddingsModelOptions {
+interface WorkspaceFileIndex {
+    list: () => Promise<WorkspaceFile[]>
+    upsert: (file: ElementOrArray<WorkspaceFile>) => Promise<void>
+    query: (
+        query: string,
+        options?: { topK?: number; minScore?: number }
+    ) => Promise<WorkspaceFileWithScore[]>
+}
+
+interface VectorIndexOptions extends EmbeddingsModelOptions {
+    version?: number
+    deleteIfExists?: boolean
+    chunkSize?: number
+    chunkOverlap?: number
+}
+
+interface VectorSearchOptions extends VectorIndexOptions {
     /**
      * Maximum number of embeddings to use
      */
@@ -3206,11 +3222,6 @@ interface VectorSearchOptions extends EmbeddingsModelOptions {
      * Minimum similarity score
      */
     minScore?: number
-
-    /**
-     * Cache identifier for the embeddings
-     */
-    cache?: string
 }
 
 interface FuzzSearchOptions {
@@ -3284,6 +3295,12 @@ interface Retrieval {
         files: (string | WorkspaceFile) | (string | WorkspaceFile)[],
         options?: VectorSearchOptions
     ): Promise<WorkspaceFile[]>
+
+    /**
+     * Loads or creates a file index using a vector index
+     * @param options
+     */
+    index(id: string, options?: VectorIndexOptions): Promise<WorkspaceFileIndex>
 
     /**
      * Performs a fuzzy search over the files
