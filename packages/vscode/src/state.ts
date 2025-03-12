@@ -392,7 +392,13 @@ export class ExtensionState extends EventTarget {
         const project = this.project
         if (!project) return
 
-        const hasProjects = project.scripts?.some((s) => !s.unlisted)
+        const cwd = this.host.projectFolder().toLowerCase()
+        const hasProjects = project.scripts?.some(
+            (s) =>
+                !s.unlisted &&
+                s.filename &&
+                s.filename.toLowerCase().startsWith(cwd)
+        )
         if (!hasProjects) return
 
         const config = this.getConfiguration()
