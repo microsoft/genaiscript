@@ -17,8 +17,8 @@ describe("run", async () => {
 })
 describe("scripts", async () => {
     const cmd = "scripts"
-    await test("list", async () => {
-        const res = await $`node ${cli} ${cmd} list`
+    await test("list json", async () => {
+        const res = await $`node ${cli} ${cmd} list --json --unlisted`
         const d = JSON.parse(res.stdout)
         assert(d.find((s) => s.id === "poem"))
         assert(d.find((s) => s.id === "system"))

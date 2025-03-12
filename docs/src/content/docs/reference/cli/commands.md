@@ -265,6 +265,8 @@ Arguments:
   script                    Script ids
 
 Options:
+  --unlisted                show unlisted scripts
+  --json                    output in JSON format
   -g, --groups <groups...>  groups to include or exclude. Use :! prefix to
                             exclude
   -h, --help                display help for command
@@ -474,18 +476,20 @@ Usage: genaiscript serve [options]
 Start a GenAIScript local server
 
 Options:
-  -p, --port <number>       Specify the port number, default: 8003
-  -k, --api-key <string>    API key to authenticate requests
-  -n, --network             Opens server on 0.0.0.0 to make it accessible on
-                            the network
-  -c, --cors <string>       Enable CORS and sets the allowed origin. Use '*' to
-                            allow any origin.
-  --remote <string>         Remote repository URL to serve
-  --remote-branch <string>  Branch to serve from the remote
-  --remote-force            Force pull from remote repository
-  --remote-install          Install dependencies from remote repository
-  --dispatch-progress       Dispatch progress events to all clients
-  -h, --help                display help for command
+  -p, --port <number>           Specify the port number, default: 8003
+  -k, --api-key <string>        API key to authenticate requests
+  -n, --network                 Opens server on 0.0.0.0 to make it accessible
+                                on the network
+  -c, --cors <string>           Enable CORS and sets the allowed origin. Use
+                                '*' to allow any origin.
+  --remote <string>             Remote repository URL to serve
+  --remote-branch <string>      Branch to serve from the remote
+  --remote-force                Force pull from remote repository
+  --remote-install              Install dependencies from remote repository
+  --dispatch-progress           Dispatch progress events to all clients
+  --github-copilot-chat-client  Allow github_copilot_chat provider to connect
+                                to connected Visual Studio Code
+  -h, --help                    display help for command
 ```
 
 ## `parse`

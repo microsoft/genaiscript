@@ -7,7 +7,7 @@
     },
     "displayName": "GenAIScript Insiders",
     "description": "Generative AI Scripting.",
-    "version": "1.114.2",
+    "version": "1.114.4",
     "icon": "icon.png",
     "engines": {
         "vscode": "^1.98.0"
@@ -434,6 +434,12 @@
                 "title": "Fork GenAiScript...",
                 "category": "GenAIScript",
                 "icon": "$(repo-forked)"
+            },
+            {
+                "command": "genaiscript.refresh",
+                "title": "Refresh Type Definition files",
+                "category": "GenAIScript",
+                "icon": "$(refresh)"
             },
             {
                 "command": "genaiscript.request.open",

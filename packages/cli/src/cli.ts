@@ -340,6 +340,8 @@ export async function cli() {
         .command("list", { isDefault: true })
         .description("List all available scripts in workspace")
         .argument("[script...]", "Script ids")
+        .option("--unlisted", "show unlisted scripts")
+        .option("--json", "output in JSON format")
         .option(
             "-g, --groups <groups...>",
             "groups to include or exclude. Use :! prefix to exclude"
@@ -356,7 +358,10 @@ export async function cli() {
         .description(
             "Write TypeScript definition files in the script folder to enable type checking."
         )
-        .option("-gcp, --github-copilot-prompt", "Write GitHub Copilot custom prompt for better GenAIScript code generation")
+        .option(
+            "-gcp, --github-copilot-prompt",
+            "Write GitHub Copilot custom prompt for better GenAIScript code generation"
+        )
         .option("-d, --docs", "Download documentation")
         .action(fixScripts) // Action to fix scripts
     scripts
@@ -456,6 +461,10 @@ export async function cli() {
         .option(
             "--dispatch-progress",
             "Dispatch progress events to all clients"
+        )
+        .option(
+            "--github-copilot-chat-client",
+            "Allow github_copilot_chat provider to connect to connected Visual Studio Code"
         )
         .action(startServer) // Action to start the server
 

@@ -1810,6 +1810,10 @@ interface ParsePDFOptions {
      * Disable caching with cache: false
      */
     cache?: boolean
+    /**
+     * Force system fonts use
+     */
+    useSystemFonts?: boolean
 }
 
 interface HTMLToTextOptions {

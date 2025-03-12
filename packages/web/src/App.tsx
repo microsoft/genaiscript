@@ -905,7 +905,7 @@ function OutputMarkdown() {
         markdown += `<details class="reasoning"><summary>🤔 thinking...</summary>\n${reasoning}\n</details>\n\n`
     if (output) markdown += output
     return (
-        <vscode-tabs>
+        <vscode-tabs className="output">
             <MarkdownPreviewTabs
                 aiDisclaimer={true}
                 filename="output.md"

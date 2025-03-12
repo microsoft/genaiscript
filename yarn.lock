@@ -707,10 +707,10 @@
     fast-xml-parser "^5.0.7"
     tslib "^2.8.1"
 
-"@azure/identity@^4.1.0", "@azure/identity@^4.7.0":
-  version "4.7.0"
-  resolved "https://registry.yarnpkg.com/@azure/identity/-/identity-4.7.0.tgz#b3bc57aec40432899108fd41177e8168e7bb6223"
-  integrity sha512-6z/S2KorkbKaZ0DgZFVRdu7RCuATmMSTjKpuhj7YpjxkJ0vnJ7kTM3cpNgzFgk9OPYfZ31wrBEtC/iwAS4jQDA==
+"@azure/identity@^4.1.0", "@azure/identity@^4.8.0":
+  version "4.8.0"
+  resolved "https://registry.yarnpkg.com/@azure/identity/-/identity-4.8.0.tgz#686682683a470ccf4dbb2597ee234f9c5c483a40"
+  integrity sha512-l9ALUGHtFB/JfsqmA+9iYAp2a+cCwdNO/cyIr2y7nJLJsz1aae6qVP8XxT7Kbudg0IQRSIMXj0+iivFdbD1xPA==
   dependencies:
     "@azure/abort-controller" "^2.0.0"
     "@azure/core-auth" "^1.9.0"
@@ -720,7 +720,7 @@
     "@azure/core-util" "^1.11.0"
     "@azure/logger" "^1.0.0"
     "@azure/msal-browser" "^4.2.0"
-    "@azure/msal-node" "^3.2.1"
+    "@azure/msal-node" "^3.2.3"
     events "^3.0.0"
     jws "^4.0.0"
     open "^10.1.0"
@@ -735,23 +735,23 @@
     tslib "^2.6.2"
 
 "@azure/msal-browser@^4.2.0":
-  version "4.5.1"
-  resolved "https://registry.yarnpkg.com/@azure/msal-browser/-/msal-browser-4.5.1.tgz#8b7ef8f5c1b09a3bd8c97738fead0acc7010941e"
-  integrity sha512-vcva6qA4ytVjg52Ew+RxXGKRuoDMdvNOwT+kECNC36kujYalFQe9B5SNud4WVa/Zk12KFa0bkOHFnjP8cgDv3A==
+  version "4.7.0"
+  resolved "https://registry.yarnpkg.com/@azure/msal-browser/-/msal-browser-4.7.0.tgz#670da9683f1046acb36ee2d87491f3f2cb90ac01"
+  integrity sha512-H4AIPhIQVe1qW4+BJaitqod6UGQiXE3juj7q2ZBsOPjuZicQaqcbnBp2gCroF/icS0+TJ9rGuyCBJbjlAqVOGA==
   dependencies:
-    "@azure/msal-common" "15.2.0"
+    "@azure/msal-common" "15.2.1"
 
-"@azure/msal-common@15.2.0":
-  version "15.2.0"
-  resolved "https://registry.yarnpkg.com/@azure/msal-common/-/msal-common-15.2.0.tgz#f4e38ba85c0a32208b7046e011c21ff627b6755c"
-  integrity sha512-HiYfGAKthisUYqHG1nImCf/uzcyS31wng3o+CycWLIM9chnYJ9Lk6jZ30Y6YiYYpTQ9+z/FGUpiKKekd3Arc0A==
+"@azure/msal-common@15.2.1":
+  version "15.2.1"
+  resolved "https://registry.yarnpkg.com/@azure/msal-common/-/msal-common-15.2.1.tgz#5e05627d038b6a1193ee9c7786c58c69031eb8eb"
+  integrity sha512-eZHtYE5OHDN0o2NahCENkczQ6ffGc0MoUSAI3hpwGpZBHJXaEQMMZPWtIx86da2L9w7uT+Tr/xgJbGwIkvTZTQ==
 
-"@azure/msal-node@^3.2.1":
-  version "3.2.3"
-  resolved "https://registry.yarnpkg.com/@azure/msal-node/-/msal-node-3.2.3.tgz#c742d66d3a9183c1dfa4160632d8891c69af7bcc"
-  integrity sha512-0eaPqBIWEAizeYiXdeHb09Iq0tvHJ17ztvNEaLdr/KcJJhJxbpkkEQf09DB+vKlFE0tzYi7j4rYLTXtES/InEQ==
+"@azure/msal-node@^3.2.3":
+  version "3.3.0"
+  resolved "https://registry.yarnpkg.com/@azure/msal-node/-/msal-node-3.3.0.tgz#996fee52ad277ae0558f7482ac2657f5164fc9f1"
+  integrity sha512-ulsT3EHF1RQ29X55cxBLgKsIKWni9JdbUqG7sipGVP4uhWcBpmm/vhKOMH340+27Acm9+kHGnN/5XmQ5LrIDgA==
   dependencies:
-    "@azure/msal-common" "15.2.0"
+    "@azure/msal-common" "15.2.1"
     jsonwebtoken "^9.0.0"
     uuid "^8.3.0"
 
@@ -789,9 +789,9 @@
   integrity sha512-Ed61U6XJc3CVRfkERJWDz4dJwKe7iLmmJsbOGu9wSloNSFttHV0I8g6UAgb7qnK5ly5bGLPd4oXZlxCdANBOWQ==
 
 "@babel/runtime@^7.12.5", "@babel/runtime@^7.25.7":
-  version "7.26.9"
-  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.26.9.tgz#aa4c6facc65b9cb3f87d75125ffd47781b475433"
-  integrity sha512-aA63XwOkcl4xxQa3HjPMqOP6LiK0ZDv3mUPYEFXkpHbaFjtGggE1A61FjFzJnB+p7/oy2gA8E+rcBNl/zC1tMg==
+  version "7.26.10"
+  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.26.10.tgz#a07b4d8fa27af131a633d7b3524db803eb4764c2"
+  integrity sha512-2WJMeRQPHKSPemqk/awGrAiuFfzBmOIPXKizAsVhWH9YJqLZ0H+HS4c8loHGgW6utJ3E/ejXQUsiGaQy2NZ9Fw==
   dependencies:
     regenerator-runtime "^0.14.0"
 
@@ -992,9 +992,9 @@
   integrity sha512-JUOtgFW6k9u4Y+xeIaEiLr3+cjoUPiAuLXoyKOJSia6Duzb7pq+A76P9ZdPDoAoxHdHzq6gE9/jKBGXlZT8FbA==
 
 "@grpc/grpc-js@^1.11.1":
-  version "1.12.6"
-  resolved "https://registry.yarnpkg.com/@grpc/grpc-js/-/grpc-js-1.12.6.tgz#a3586ffdfb6a1f5cd5b4866dec9074c4a1e65472"
-  integrity sha512-JXUj6PI0oqqzTGvKtzOkxtpsyPRNsrmhh41TtIz/zEB6J+AUiZZ0dxWzcMwO9Ns5rmSPuMdghlTbUuqIM48d3Q==
+  version "1.13.0"
+  resolved "https://registry.yarnpkg.com/@grpc/grpc-js/-/grpc-js-1.13.0.tgz#69c229eacb77f3468afa9d375c23dc9b694d1af9"
+  integrity sha512-pMuxInZjUnUkgMT2QLZclRqwk2ykJbIU05aZgPgJYXEpN9+2I7z7aNwcjWZSycRPl232FfhPszyBFJyOxTHNog==
   dependencies:
     "@grpc/proto-loader" "^0.7.13"
     "@js-sdsl/ordered-map" "^4.4.2"
@@ -1242,7 +1242,7 @@
     "@inquirer/type" "^3.0.5"
     ansi-escapes "^4.3.2"
 
-"@inquirer/prompts@^7.3.2":
+"@inquirer/prompts@^7.3.3":
   version "7.3.3"
   resolved "https://registry.yarnpkg.com/@inquirer/prompts/-/prompts-7.3.3.tgz#788ac2301cebcb2a808949a3e1c78819a27ee1a1"
   integrity sha512-QS1AQgJ113iE/nmym03yKZKHvGjVWwkGZT3B1yKrrMG0bJKQg1jUkntFP8aPd2FUQzu/nga7QU2eDpzIP5it0Q==
@@ -3197,7 +3197,7 @@
     "@types/node" "*"
     form-data "^4.0.0"
 
-"@types/node@*", "@types/node@>=13.7.0", "@types/node@^22.13.5":
+"@types/node@*", "@types/node@>=13.7.0", "@types/node@^22.13.10":
   version "22.13.10"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-22.13.10.tgz#df9ea358c5ed991266becc3109dc2dc9125d77e4"
   integrity sha512-I6LPUvlRH+O6VRUqYOcMudhaIdUVWfsjnZavnsraHvpBwaEyMN29ry+0UVJhImYL16xsscu0aske3yA+uPOWfw==
@@ -4071,7 +4071,7 @@ chownr@^3.0.0:
   resolved "https://registry.yarnpkg.com/chownr/-/chownr-3.0.0.tgz#9855e64ecd240a9cc4267ce8a4aa5d24a1da15e4"
   integrity sha512-+IxzY9BZOQd/XuYPRmrvEVjF/nqj5kgT4kEq7VofrDoM1MxoRjEWkrCC3EtLi59TVawxTAn+orJwFQcrqEN1+g==
 
-ci-info@^4.1.0:
+ci-info@^4.2.0:
   version "4.2.0"
   resolved "https://registry.yarnpkg.com/ci-info/-/ci-info-4.2.0.tgz#cbd21386152ebfe1d56f280a3b5feccbd96764c7"
   integrity sha512-cYY9mypksY8NRqgDB1XD1RiJL338v/551niynFTGkZOO2LHuB2OmOYxDIe/ttN9AHwrqdum1360G3ald0W9kCg==
@@ -5843,7 +5843,7 @@ graceful-fs@^4.1.2, graceful-fs@^4.1.6, graceful-fs@^4.2.0:
   resolved "https://registry.yarnpkg.com/graceful-fs/-/graceful-fs-4.2.11.tgz#4183e4e8bf08bb6e05bbb2f7d2e0c8f712ca40e3"
   integrity sha512-RbJ5/jmFcNNCcDV5o9eTnBLJ/HszWV0P73bc+Ff4nS/rJj+YaS6IGyiOL0VoBYX+l1Wrl3k63h/KrH+nhJ0XvQ==
 
-groq-js@^1.16.0:
+groq-js@^1.16.1:
   version "1.16.1"
   resolved "https://registry.yarnpkg.com/groq-js/-/groq-js-1.16.1.tgz#760fd600cd241ba7def11a0fea39faf885c8b64e"
   integrity sha512-n22UJPBYE8CLAlTOwXTZVjFH1a5+x2hORDv13zi1gwbR23CpvSLPioNtzVovotuAciLLH/pVJe9PyKOR5MykGg==
@@ -8289,10 +8289,10 @@ openai@^3.2.1:
     axios "^0.26.0"
     form-data "^4.0.0"
 
-openai@^4.86.2:
-  version "4.86.2"
-  resolved "https://registry.yarnpkg.com/openai/-/openai-4.86.2.tgz#d3ba44c6b81471b9e2d38515e0ab86ad73a02c85"
-  integrity sha512-nvYeFjmjdSu6/msld+22JoUlCICNk/lUFpSMmc6KNhpeNLpqL70TqbD/8Vura/tFmYqHKW0trcjgPwUpKSPwaA==
+openai@^4.87.3:
+  version "4.87.3"
+  resolved "https://registry.yarnpkg.com/openai/-/openai-4.87.3.tgz#82679f09d91f0e8e9da94b9ee0369c44733577da"
+  integrity sha512-d2D54fzMuBYTxMW8wcNmhT1rYKcTfMJ8t+4KjH2KtvYenygITiGBgHoIrzHwnDQWW+C5oCA+ikIR2jgPCFqcKQ==
   dependencies:
     "@types/node" "^18.11.18"
     "@types/node-fetch" "^2.6.4"
@@ -8679,7 +8679,7 @@ playwright-core@1.51.0:
   resolved "https://registry.yarnpkg.com/playwright-core/-/playwright-core-1.51.0.tgz#bb23ea6bb6298242d088ae5e966ffcf8dc9827e8"
   integrity sha512-x47yPE3Zwhlil7wlNU/iktF7t2r/URR3VLbH6EknJd/04Qc/PSJ0EY3CMXipmglLG+zyRxW6HNo2EGbKLHPWMg==
 
-playwright@^1.50.1:
+playwright@^1.51.0:
   version "1.51.0"
   resolved "https://registry.yarnpkg.com/playwright/-/playwright-1.51.0.tgz#9ba154497ba62bc6dc199c58ee19295eb35a4707"
   integrity sha512-442pTfGM0xxfCYxuBa/Pu6B2OqxqqaYq39JS8QDMGThUvIOCd6s0ANDog3uwA0cHavVlnTQzGCN7Id2YekDSXA==

@@ -390,18 +390,24 @@ export class ExtensionState extends EventTarget {
 
     async fixPromptDefinitions() {
         const project = this.project
-        if (!project?.scripts?.length) return
+        if (!project) return
+
+        const cwd = this.host.projectFolder().toLowerCase()
+        const hasProjects = project.scripts?.some(
+            (s) =>
+                !s.unlisted &&
+                s.filename &&
+                s.filename.toLowerCase().startsWith(cwd)
+        )
+        if (!hasProjects) return
 
         const config = this.getConfiguration()
         const localTypeDefinitions = !!config.get("localTypeDefinitions")
         if (localTypeDefinitions) await fixPromptDefinitions(project)
 
-        const githubCopilotChat = !!vscode.extensions.getExtension(
-            "github.copilot-chat"
-        )
         const githubCopilotPrompt = !!config.get("githubCopilotPrompt")
-        if (githubCopilotChat && githubCopilotPrompt)
-            fixCustomPrompts({ githubCopilotPrompt: true }) // finish async
+        if (githubCopilotPrompt)
+            await fixCustomPrompts({ githubCopilotPrompt: true }) // finish async
     }
 
     async parseWorkspace() {
