@@ -76,7 +76,7 @@
     "minisearch": "^7.1.2",
     "mustache": "^4.2.0",
     "object-inspect": "^1.13.4",
-    "openai": "^4.86.2",
+    "openai": "^4.87.3",
     "p-limit": "^6.2.0",
     "package-manager-detector": "^0.2.11",
     "parse-diff": "^0.11.1",

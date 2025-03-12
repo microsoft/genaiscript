@@ -7,7 +7,7 @@
 
 import OpenAI from "openai"
 
-export type ChatCompletionReasoningEffort = OpenAI.ChatCompletionReasoningEffort
+export type ChatCompletionReasoningEffort = OpenAI.ReasoningEffort
 
 // Aliases for OpenAI chat completion types
 export type ChatCompletionUsage = OpenAI.Completions.CompletionUsage
