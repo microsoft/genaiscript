@@ -44,7 +44,6 @@ const grepped = (
         "packages/sample/genaisrc/*.genai.*"
     )
 ).files
-console.log(grepped.map(({ filename }) => filename).join("\n"))
 def("DOCS", grepped, { ignoreEmpty: true, flex: 1 })
 
 // vector search
