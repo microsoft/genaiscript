@@ -113,14 +113,9 @@ export async function fixCustomPrompts(options?: {
         promptDefinitions[TYPE_DEFINITION_BASENAME]
     ) // Write the TypeScript definition file
     if (githubCopilotPrompt) {
-        const pdir = host.path.join(".github", "prompts")
+        const pdir = dotGenaiscriptPath("prompts")
         const pn = host.path.join(pdir, "genaiscript.prompt.md")
         await writeText(pn, githubCopilotCustomPrompt) // Write the GitHub Copilot prompt file
-        const gitignoren = host.path.join(pdir, ".gitignore")
-        const gitignore = (await tryReadText(gitignoren)) || ""
-        if (!/^genaiscript\.prompt\.md/m.test(gitignore)) {
-            await writeText(gitignoren, gitignore + "\ngenaiscript.prompt.md")
-        }
     }
     if (githubCopilotPrompt || docs) {
         const ddir = dotGenaiscriptPath("docs")

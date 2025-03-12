@@ -5,8 +5,8 @@ or answer questions about GenAIScript.
 
 ## Reference
 
-- [GenAIScript docs](../../.genaiscript/docs/llms-full.txt)
-- [GenAIScript ambient type definitions](../../.genaiscript/genaiscript.d.ts)
+- [GenAIScript docs](../docs/llms-full.txt)
+- [GenAIScript ambient type definitions](../genaiscript.d.ts)
 
 ## Guidance for Code Generation
 
