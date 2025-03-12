@@ -3296,7 +3296,11 @@ interface Retrieval {
         options?: VectorSearchOptions
     ): Promise<WorkspaceFile[]>
 
-    index(options: VectorIndexOptions): Promise<WorkspaceFileIndex>
+    /**
+     * Loads or creates a file index using a vector index
+     * @param options
+     */
+    index(options?: VectorIndexOptions): Promise<WorkspaceFileIndex>
 
     /**
      * Performs a fuzzy search over the files
