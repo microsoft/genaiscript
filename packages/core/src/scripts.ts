@@ -118,11 +118,8 @@ export async function fixCustomPrompts(options?: {
         await writeText(pn, githubCopilotCustomPrompt) // Write the GitHub Copilot prompt file
         const gitignoren = host.path.join(pdir, ".gitignore")
         const gitignore = (await tryReadText(gitignoren)) || ""
-        if (!/^genaiscript.prompt.md/m.test(gitignore)) {
-            await writeText(
-                gitignoren,
-                gitignore + "\n#GenAIScript\n" + "genaiscript.prompt.md"
-            )
+        if (!/^genaiscript\.prompt\.md/m.test(gitignore)) {
+            await writeText(gitignoren, gitignore + "\ngenaiscript.prompt.md")
         }
     }
     if (githubCopilotPrompt || docs) {
