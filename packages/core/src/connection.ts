@@ -575,10 +575,11 @@ export async function parseTokenFromEnv(
         }
     }
 
-    if (
-        provider === MODEL_PROVIDER_GITHUB_COPILOT_CHAT &&
-        runtimeHost.clientLanguageModel
-    ) {
+    if (provider === MODEL_PROVIDER_GITHUB_COPILOT_CHAT) {
+        if (!runtimeHost.clientLanguageModel)
+            throw new Error(
+                `${MODEL_PROVIDER_GITHUB_COPILOT_CHAT} requires Visual Studio Code and GitHub Copilot Chat`
+            )
         return {
             provider,
             model,
