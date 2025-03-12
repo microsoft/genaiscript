@@ -340,6 +340,8 @@ export async function cli() {
         .command("list", { isDefault: true })
         .description("List all available scripts in workspace")
         .argument("[script...]", "Script ids")
+        .option("--unlisted", "show unlisted scripts")
+        .option("--json", "output in JSON format")
         .option(
             "-g, --groups <groups...>",
             "groups to include or exclude. Use :! prefix to exclude"

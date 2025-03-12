@@ -265,6 +265,8 @@ Arguments:
   script                    Script ids
 
 Options:
+  --unlisted                show unlisted scripts
+  --json                    output in JSON format
   -g, --groups <groups...>  groups to include or exclude. Use :! prefix to
                             exclude
   -h, --help                display help for command

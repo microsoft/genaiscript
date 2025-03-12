@@ -10,9 +10,7 @@ export function activatePromptCommands(state: ExtensionState) {
     const { subscriptions } = context
 
     async function showPrompt(fn: string) {
-        await state.fixPromptDefinitions()
         vscode.window.showTextDocument(host.toUri(fn))
-        await state.parseWorkspace()
     }
 
     subscriptions.push(
@@ -31,6 +29,7 @@ export function activatePromptCommands(state: ExtensionState) {
                 if (name === undefined) return
                 const t = createScript(name, { template })
                 const pr = await copyPrompt(t, { fork: false, name })
+                await state.parseWorkspace()
                 await showPrompt(pr)
             }
         ),
@@ -55,12 +54,12 @@ export function activatePromptCommands(state: ExtensionState) {
                         (t) => t.id === template
                     )
                 }
-                await showPrompt(
-                    await copyPrompt(template, {
-                        fork: true,
-                        name: template.id,
-                    })
-                )
+                const newPrompt = await copyPrompt(template, {
+                    fork: true,
+                    name: template.id,
+                })
+                await state.parseWorkspace()
+                await showPrompt(newPrompt)
             }
         ),
         registerCommand(

@@ -27,27 +27,38 @@ import { dirname } from "node:path"
  */
 export async function listScripts(
     ids: string[],
-    options?: ScriptFilterOptions
+    options?: ScriptFilterOptions & { json?: boolean }
 ) {
+    const { json } = options || {}
     const prj = await buildProject() // Build the project to get script templates
     const scripts = filterScripts(prj.scripts, { ids, ...(options || {}) }) // Filter scripts based on options
-    console.log(
-        JSON.stringify(
-            scripts.map(
-                ({ id, title, group, filename, inputSchema, isSystem }) =>
-                    deleteEmptyValues({
-                        id,
-                        title,
-                        group,
-                        filename,
-                        inputSchema,
-                        isSystem,
-                    })
-            ),
-            null,
-            2
+    if (!json)
+        console.log(
+            scripts
+                .map(
+                    ({ id, filename }) =>
+                        `${id} - ${filename}`
+                )
+                .join("\n")
         )
-    )
+    else
+        console.log(
+            JSON.stringify(
+                scripts.map(
+                    ({ id, title, group, filename, inputSchema, isSystem }) =>
+                        deleteEmptyValues({
+                            id,
+                            title,
+                            group,
+                            filename,
+                            inputSchema,
+                            isSystem,
+                        })
+                ),
+                null,
+                2
+            )
+        )
 }
 
 /**

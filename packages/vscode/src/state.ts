@@ -390,7 +390,10 @@ export class ExtensionState extends EventTarget {
 
     async fixPromptDefinitions() {
         const project = this.project
-        if (!project?.scripts?.length) return
+        if (!project) return
+
+        const hasProjects = project.scripts?.some((s) => !s.unlisted)
+        if (!hasProjects) return
 
         const config = this.getConfiguration()
         const localTypeDefinitions = !!config.get("localTypeDefinitions")

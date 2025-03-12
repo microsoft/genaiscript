@@ -236,7 +236,7 @@ export async function startServer(options: {
         const project = await buildProject()
         const scripts = project?.scripts || []
         logVerbose(
-            `project: found ${scripts.filter((s) => !s.unlisted).length} scripts`
+            `project: found ${scripts.filter((s) => !s.unlisted).length} scripts (${scripts.filter((s) => !!s.unlisted).length} unlisted)`
         )
         return <PromptScriptListResponse>{
             ok: true,
@@ -723,11 +723,13 @@ window.vscodeWebviewPlaygroundNonce = ${JSON.stringify(nonce)};
                 const runs = await collectRuns()
                 response = <RunResultListResponse>{
                     ok: true,
-                    runs: runs.map(({ scriptId, runId, creationTme: creationTime }) => ({
-                        scriptId,
-                        runId,
-                        creationTime,
-                    })),
+                    runs: runs.map(
+                        ({ scriptId, runId, creationTme: creationTime }) => ({
+                            scriptId,
+                            runId,
+                            creationTime,
+                        })
+                    ),
                 }
             } else if (method === "GET" && runRx.test(route)) {
                 const { runId } = runRx.exec(route).groups

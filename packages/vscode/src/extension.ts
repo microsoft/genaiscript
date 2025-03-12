@@ -50,7 +50,6 @@ export async function activate(context: ExtensionContext) {
         }),
         registerCommand("genaiscript.refresh", async () => {
             await state.parseWorkspace()
-            await state.fixPromptDefinitions()
         }),
         registerCommand("genaiscript.request.abort", async () => {
             await state.cancelAiRequest()
