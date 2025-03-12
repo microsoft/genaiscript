@@ -76,7 +76,6 @@ export async function fixScripts(options?: {
     githubCopilotPrompt?: boolean
     docs?: boolean
 }) {
-    const { githubCopilotPrompt, docs } = options || {}
     const project = await buildProject() // Build the project to access information
     await fixPromptDefinitions(project) // Fix any issues in prompt definitions
     await fixCustomPrompts(options)

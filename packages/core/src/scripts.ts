@@ -108,6 +108,7 @@ export async function fixCustomPrompts(options?: {
     const { githubCopilotPrompt, docs } = options || {}
     // write genaiscript.d.ts
     const gdir = dotGenaiscriptPath()
+    await writeText(host.path.join(gdir, ".gitignore"), "*")
     await writeText(
         host.path.join(gdir, TYPE_DEFINITION_BASENAME),
         promptDefinitions[TYPE_DEFINITION_BASENAME]
