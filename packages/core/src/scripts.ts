@@ -96,6 +96,7 @@ ${tools.map((s) => `* - \`${s.id}\`: ${s.description}`).join("\n")}
     }
 }
 
+let _fullDocsText: string
 export async function fixCustomPrompts(options?: {
     githubCopilotPrompt?: boolean
     docs?: boolean
@@ -115,18 +116,20 @@ export async function fixCustomPrompts(options?: {
     }
     if (githubCopilotPrompt || docs) {
         const ddir = dotGenaiscriptPath("docs")
-        for (const route of ["llms-full.txt"]) {
-            const url = `${DOCS_URL}/${route}`
-            const dn = host.path.join(ddir, route)
+        const route = "llms-full.txt"
+        const url = `${DOCS_URL}/${route}`
+        const dn = host.path.join(ddir, route)
+        let text = _fullDocsText
+        if (!text) {
             const content = await fetchText(url)
             if (!content.ok) logVerbose(`failed to fetch ${url}`)
-            const text = collapseNewlines(
+            text = _fullDocsText = collapseNewlines(
                 content.text.replace(
                     /^\!\[\]\(<data:image\/svg\+xml,.*$/gm,
                     "<!-- mermaid diagram -->"
                 )
             )
-            await writeText(dn, text) // Write the GitHub Copilot prompt file
         }
+        await writeText(dn, text) // Write the GitHub Copilot prompt file
     }
 }
