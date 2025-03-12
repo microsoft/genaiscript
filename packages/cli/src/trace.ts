@@ -3,7 +3,11 @@ import { MarkdownTrace, TraceChunkEvent } from "../../core/src/trace"
 import { dotGenaiscriptPath, logVerbose } from "../../core/src/util"
 import { dirname, join } from "node:path"
 import { writeFileSync, WriteStream } from "node:fs"
-import { TRACE_CHUNK, TRACE_DETAILS } from "../../core/src/constants"
+import {
+    GIT_IGNORE,
+    TRACE_CHUNK,
+    TRACE_DETAILS,
+} from "../../core/src/constants"
 import { writeFile } from "node:fs/promises"
 import { measure } from "../../core/src/performance"
 import { createWriteStream } from "node:fs"
@@ -67,5 +71,5 @@ export async function ensureDotGenaiscriptPath() {
 `,
         { encoding: "utf-8" }
     )
-    await writeFile(join(dir, ".gitignore"), "*\n", { encoding: "utf-8" })
+    await writeFile(join(dir, GIT_IGNORE), "*", { encoding: "utf-8" })
 }

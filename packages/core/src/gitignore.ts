@@ -1,7 +1,9 @@
 // Import the 'ignore' library to handle .gitignore file parsing and filtering
 import ignorer from "ignore"
-import { tryReadText } from "./fs"
+import { tryReadText, writeText } from "./fs"
 import { GIT_IGNORE, GIT_IGNORE_GENAI } from "./constants"
+import { host } from "./host"
+import { logVerbose } from "./util"
 
 /**
  * Filters a list of files based on the patterns specified in a .gitignore string.
@@ -19,11 +21,29 @@ export async function filterGitIgnore(files: string[]) {
     ].filter((g) => !!g)
     if (gitignores.length) {
         // Create an ignorer instance and add the .gitignore patterns to it
-        const ig = ignorer({ allowRelativePaths: true, })
+        const ig = ignorer({ allowRelativePaths: true })
         for (const gitignore of gitignores) ig.add(gitignore)
         // Filter the files array to include only those not ignored
         files = ig.filter(files)
     }
     // Return the filtered list of files
     return files
+}
+
+export async function gitIgnoreEnsure(dir: string, entries: string[]) {
+    const fn = host.path.join(dir, GIT_IGNORE)
+    let src = (await tryReadText(fn)) || ""
+    const oldsrc = src
+    const newline = /\r\n/.test(src) ? "\r\n" : "\n"
+    const lines = src.split(/\r?\n/g)
+    for (const entry of entries) {
+        if (!lines.some((l) => l.startsWith(entry))) {
+            if (src) src += newline
+            src += entry
+        }
+    }
+    if (oldsrc !== src) {
+        logVerbose(`updating ${fn}`)
+        await writeText(fn, src)
+    }
 }

@@ -12,6 +12,7 @@ import { dedent } from "./indent"
 import { Project } from "./server/messages"
 import { fetchText } from "./fetch"
 import { collapseNewlines } from "./cleaners"
+import { gitIgnoreEnsure } from "./gitignore"
 
 export function createScript(
     name: string,
@@ -37,17 +38,11 @@ export async function fixPromptDefinitions(project: Project) {
 
     for (const folder of folders) {
         const { dirname, ts, js } = folder
-        {
-            const fn = host.path.join(dirname, ".gitignore")
-            const current = (await tryReadText(fn)) || ""
-            const content = dedent`genaiscript.d.ts
-            tsconfig.json
-            jsconfig.json`
-            if (!current.includes(content)) {
-                logVerbose(`updating ${fn}`)
-                await writeText(fn, current + "\n#GenAIScript\n" + content)
-            }
-        }
+        await gitIgnoreEnsure(dirname, [
+            "genaiscript.d.ts",
+            "tsconfig.json",
+            "jsconfig.json",
+        ])
         for (let [defName, defContent] of Object.entries(promptDefinitions)) {
             // patch genaiscript
             if (defName === "genaiscript.d.ts") {
