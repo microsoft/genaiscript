@@ -217,6 +217,9 @@
             "url": "https://learn.microsoft.com/en-us/windows/ai/",
             "prediction": false,
             "tokenless": true,
+            "listModels": false,
+            "imageGeneration": false,
+            "speech": false,
             "aliases": {
                 "small": "Phi-3-mini-4k-cpu-int4-rtn-block-32-onnx"
             }
