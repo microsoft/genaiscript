@@ -87,3 +87,37 @@ export function collapseNewlines(res: string): string {
 export function isEmptyString(s: string) {
     return s === null || s === undefined || s === ""
 }
+
+/**
+ * Replaces long, token hungry ids like GUIDS into short ids.
+ * @param text original text
+ */
+export function encodeIDs(
+    text: string,
+    options?: {
+        matcher?: RegExp
+    }
+): {
+    encoded: string
+    text: string
+    decode: (text: string) => string
+    matcher: RegExp
+    ids: Record<string, string>
+} {
+    const {
+        matcher = /\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b/gi,
+    } = options || {}
+
+    const ids: Record<string, string> = {}
+    let idCounter = 0
+    const encoded = text.replace(matcher, (match, id) => {
+        const encoded = `<id${(idCounter++).toFixed(2)}>`
+        ids[encoded] = match
+        return encoded
+    })
+
+    const decode = (text: string) =>
+        text.replace(/<id\d+\.\d+>/g, (encoded) => ids[encoded])
+
+    return { text, encoded, decode, matcher, ids }
+}

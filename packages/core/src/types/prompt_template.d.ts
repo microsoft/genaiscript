@@ -2339,6 +2339,24 @@ interface Parsers {
      * @param text
      */
     dedent(templ: TemplateStringsArray | string, ...values: unknown[]): string
+
+    /**
+     * Encodes ids in a text and returns the function to decode them
+     * @param text 
+     * @param options 
+     */
+    encodeIDs(
+        text: string,
+        options?: {
+            matcher?: RegExp
+        }
+    ): {
+        encoded: string
+        text: string
+        decode: (text: string) => string
+        matcher: RegExp
+        ids: Record<string, string>
+    }
 }
 
 interface YAML {
