@@ -130,7 +130,7 @@ export const azureAISearchIndex: WorkspaceFileIndexCreator = async (
                     chunkOverlap,
                 })
                 for (const chunk of chunks) {
-                    const vector = await embedder([chunk.content], cfg, options)
+                    const vector = await embedder(chunk.content, cfg, options)
                     checkCancelled(cancellationToken)
                     if (vector.status !== "success")
                         throw new Error(vector.error || vector.status)

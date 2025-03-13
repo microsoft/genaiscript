@@ -714,7 +714,7 @@ export async function OpenAIImageGeneration(
 }
 
 export async function OpenAIEmbedder(
-    input: string[],
+    input: string,
     cfg: LanguageModelConfiguration,
     options: TraceOptions & CancellationOptions
 ): Promise<EmbeddingResult> {
@@ -748,15 +748,20 @@ export async function OpenAIEmbedder(
             method: "POST",
             headers: {
                 ...getConfigHeaders(cfg),
+                "Content-Type": "application/json",
                 Accept: "application/json",
             },
             body: JSON.stringify(body),
         }
-        traceFetchPost(trace, url, freq.headers, freq.body)
+        traceFetchPost(trace, url, freq.headers, body)
         logVerbose(
-            `embeddings: ${ellipse(typeof input === "string" ? input : input?.join(","), 32)} with ${provider}:${model}`
+            `embeddings: ${ellipse(input, 32)} with ${provider}:${model}`
         )
-        const fetch = await createFetch({ retryOn: [429] })
+        const fetch = await createFetch({
+            retryOn: [429],
+            trace,
+            cancellationToken,
+        })
         checkCancelled(cancellationToken)
         const res = await fetch(url, freq)
         trace?.itemValue(`response`, `${res.status} ${res.statusText}`)

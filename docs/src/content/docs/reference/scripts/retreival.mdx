@@ -18,7 +18,7 @@ The `retrieve.index` creates or loads an existing index.
 // index creation
 const index = await retreival.index("animals")
 // indexing
-await index.upload(env.files)
+await index.insertOrUpdate(env.files)
 // search
 const res = await index.search("cat dog")
 def("RAG", res)

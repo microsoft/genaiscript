@@ -104,7 +104,7 @@ class OpenAIEmbeddings implements EmbeddingsModel {
         input: string | string[]
     ): Promise<EmbeddingsResponse> {
         const { error, data } = await this.embedder(
-            arrayify(input),
+            arrayify(input)[0],
             this.cfg,
             this.options
         )

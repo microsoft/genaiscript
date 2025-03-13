@@ -952,7 +952,7 @@ using [Azure AI Search](https://learn.microsoft.com/en-us/azure/search/search-wh
 
 ```js "azure_search:"
 const index = await retreival.index("animals", { type: "azure_ai_search" })
-await index.upload(env.files)
+await index.insertOrUpdate(env.files)
 const docs = await index.search("cat dog")
 ```
 
