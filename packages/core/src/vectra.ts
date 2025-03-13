@@ -24,6 +24,7 @@ import { TraceOptions } from "./trace"
 import { CancellationOptions, checkCancelled } from "./cancellation"
 import { arrayify, trimTrailingSlash } from "./cleaners"
 import { resolveFileContent } from "./file"
+import { WorkspaceFileIndexCreator } from "./chat"
 
 /**
  * Represents the cache key for embeddings.
@@ -164,11 +165,6 @@ class OpenAIEmbeddings implements EmbeddingsModel {
     }
 }
 
-export type WorkspaceFileIndexCreator = (
-    indexName: string,
-    options?: VectorIndexOptions & TraceOptions & CancellationOptions
-) => Promise<WorkspaceFileIndex>
-
 /**
  * Create a vector index for documents.
  */
@@ -233,18 +229,12 @@ export const vectraWorkspaceFileIndex: WorkspaceFileIndexCreator = async (
 
     return Object.freeze({
         name: indexName,
-        list: async () => {
+        size: async () => {
             const docs = await index.listDocuments()
-            const res: WorkspaceFile[] = []
-            for (const doc of docs) {
-                res.push({
-                    filename: doc.uri,
-                    content: await doc.loadText(),
-                })
-            }
-            return res
+            const stats = await index.getCatalogStats()
+            return stats.documents
         },
-        upsert: async (file) => {
+        upload: async (file) => {
             const files = arrayify(file)
             for (const f of files) {
                 await resolveFileContent(f, { trace })
@@ -252,7 +242,7 @@ export const vectraWorkspaceFileIndex: WorkspaceFileIndexCreator = async (
                     await index.upsertDocument(f.filename, f.content)
             }
         },
-        query: async (query, options) => {
+        search: async (query, options) => {
             const { topK, minScore = 0 } = options || {}
             const docs = (
                 await index.queryDocuments(query, { maxDocuments: topK })

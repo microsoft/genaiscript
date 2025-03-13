@@ -3198,10 +3198,22 @@ interface HighlightOptions {
 }
 
 interface WorkspaceFileIndex {
+    /**
+     * Gets the index name
+     */
     name: string
-    list: () => Promise<WorkspaceFile[]>
-    upsert: (file: ElementOrArray<WorkspaceFile>) => Promise<void>
-    query: (
+    /**
+     * Gets the number of files in the index
+     */
+    size: () => Promise<number>
+    /**
+     * Uploads or merges files into the index
+     */
+    upload: (file: ElementOrArray<WorkspaceFile>) => Promise<void>
+    /**
+     * Searches the index
+     */
+    search: (
         query: string,
         options?: { topK?: number; minScore?: number }
     ) => Promise<WorkspaceFileWithScore[]>

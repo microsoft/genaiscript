@@ -173,6 +173,11 @@ export type ImageGenerationFunction = (
     options: TraceOptions & CancellationOptions
 ) => Promise<CreateImageResult>
 
+export type WorkspaceFileIndexCreator = (
+    indexName: string,
+    options?: VectorIndexOptions & TraceOptions & CancellationOptions
+) => Promise<WorkspaceFileIndex>
+
 export interface LanguageModel {
     id: string
     completer?: ChatCompletionHandler

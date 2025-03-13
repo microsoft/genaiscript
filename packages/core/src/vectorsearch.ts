@@ -52,10 +52,10 @@ export async function vectorSearch(
         for (const file of files) {
             await resolveFileContent(file, { trace })
             checkCancelled(cancellationToken)
-            await index.upsert(file)
+            await index.upload(file)
             checkCancelled(cancellationToken)
         }
-        const r = await index.query(query, { topK, minScore })
+        const r = await index.search(query, { topK, minScore })
         return r
     } finally {
         trace?.endDetails()
