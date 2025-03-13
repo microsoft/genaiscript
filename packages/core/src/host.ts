@@ -65,6 +65,7 @@ export interface ServerManager {
 export interface AuthenticationToken {
     token: string
     expiresOnTimestamp: number
+    credential: TokenCredential
 }
 
 export function isAzureTokenExpired(token: AuthenticationToken) {
@@ -79,7 +80,6 @@ export interface AzureTokenResolver {
     ): Promise<{
         token?: AuthenticationToken
         error?: SerializedError
-        credential?: TokenCredential
     }>
 }
 
