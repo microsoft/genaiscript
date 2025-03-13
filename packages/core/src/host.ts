@@ -11,6 +11,7 @@ import {
 } from "./server/messages"
 import { HostConfiguration } from "./hostconfiguration"
 import { LOG } from "./constants"
+import type { TokenCredential } from "@azure/identity"
 
 export class LogEvent extends Event {
     static Name = "log"
@@ -75,7 +76,11 @@ export interface AzureTokenResolver {
     token(
         credentialsType: AzureCredentialsType,
         options?: CancellationOptions
-    ): Promise<{ token?: AuthenticationToken; error?: SerializedError }>
+    ): Promise<{
+        token?: AuthenticationToken
+        error?: SerializedError
+        credential?: TokenCredential
+    }>
 }
 
 export type ModelConfiguration = Readonly<

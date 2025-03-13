@@ -1,8 +1,18 @@
-import { CancellationOptions, toSignal } from "../../core/src/cancellation"
+import { config } from "dotenv"
+import {
+    CancellationOptions,
+    checkCancelled,
+    toSignal,
+} from "../../core/src/cancellation"
 import { WorkspaceFileIndexCreator } from "../../core/src/chat"
 import { arrayify } from "../../core/src/cleaners"
-import { TOOL_ID } from "../../core/src/constants"
+import {
+    MODEL_PROVIDER_AZURE_AI_INFERENCE,
+    TOOL_ID,
+} from "../../core/src/constants"
+import { runtimeHost } from "../../core/src/host"
 import { TraceOptions } from "../../core/src/trace"
+import { AzureKeyCredential } from "@azure/search-documents"
 
 export const azureAISearchIndex: WorkspaceFileIndexCreator = async (
     indexName: string,
@@ -11,13 +21,21 @@ export const azureAISearchIndex: WorkspaceFileIndexCreator = async (
     const { trace, cancellationToken } = options || {}
     const abortSignal = toSignal(cancellationToken)
 
+    const { credential } = await runtimeHost.azureToken.token("default", {
+        cancellationToken,
+    })
+    checkCancelled(cancellationToken)
+    if (!credential)
+        throw new Error(
+            "Azure AI Search requires a valid Azure token credential."
+        )
+
     const { SearchClient } = await import("@azure/search-documents")
     const endPoint = process.env.AZURE_AI_SEARCH_ENDPOINT
-    const apiKey = process.env.AZURE_AI_SEARCH_API_KEY
     const client = new SearchClient<WorkspaceFile>(
         endPoint,
         indexName,
-        undefined,
+        credential,
         {}
     )
 
