@@ -2955,7 +2955,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.114.3
+ - genaiscript-vscode@1.115.0
 
 This package contains the following license:
 
@@ -7405,6 +7405,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 The following npm packages may be included in this product:
 
  - @azure/core-client@1.9.3
+ - @azure/core-http-compat@2.2.0
  - @azure/core-rest-pipeline@1.19.1
  - @azure/identity@4.8.0
 
@@ -8917,10 +8918,10 @@ The following npm packages may be included in this product:
  - @tokenizer/token@0.3.0
  - agent-base@6.0.2
  - eastasianwidth@0.2.0
- - genaiscript-core-internal@1.114.3
- - genaiscript-sample@1.114.3
- - genaiscript-web@1.114.3
- - genaiscript@1.114.3
+ - genaiscript-core-internal@1.115.0
+ - genaiscript-sample@1.115.0
+ - genaiscript-web@1.115.0
+ - genaiscript@1.115.0
  - https-proxy-agent@5.0.1
  - isarray@1.0.0
  - javascript-natural-sort@0.7.1
@@ -13180,9 +13181,11 @@ The following npm packages may be included in this product:
 
  - @azure/abort-controller@2.1.2
  - @azure/core-auth@1.9.0
+ - @azure/core-paging@1.6.2
  - @azure/core-tracing@1.2.0
  - @azure/core-util@1.11.0
  - @azure/logger@1.1.4
+ - @azure/search-documents@12.1.0
 
 These packages each contain the following license:
 
