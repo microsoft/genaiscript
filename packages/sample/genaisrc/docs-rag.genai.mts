@@ -48,9 +48,9 @@ def("DOCS", grepped, { ignoreEmpty: true, flex: 1 })
 
 // vector search
 const docsIndex = await retrieval.index("docs")
-await docsIndex.upsert(docs.file)
-await docsIndex.upsert({ filename: "genaisrc/genaiscript.d.ts" })
-const vectorDocs = await docsIndex.query(kw.text)
+await docsIndex.insertOrUpdate(docs.file)
+await docsIndex.insertOrUpdate({ filename: "genaisrc/genaiscript.d.ts" })
+const vectorDocs = await docsIndex.search(kw.text)
 def("DOCS", vectorDocs, { ignoreEmpty: true, flex: 3 })
 
 // fuzzy search

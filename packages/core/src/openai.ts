@@ -1,8 +1,11 @@
-import { logError, logVerbose } from "./util"
+import { ellipse, logError, logVerbose } from "./util"
 import { host } from "./host"
 import {
     AZURE_AI_INFERENCE_VERSION,
     AZURE_OPENAI_API_VERSION,
+    MODEL_PROVIDER_AZURE_OPENAI,
+    MODEL_PROVIDER_AZURE_SERVERLESS_MODELS,
+    MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI,
     MODEL_PROVIDER_OPENAI_HOSTS,
     MODEL_PROVIDERS,
     OPENROUTER_API_CHAT_URL,
@@ -25,7 +28,12 @@ import {
     LanguageModel,
     ListModelsFunction,
 } from "./chat"
-import { RequestError, errorMessage, serializeError } from "./error"
+import {
+    RequestError,
+    errorMessage,
+    isCancelError,
+    serializeError,
+} from "./error"
 import { createFetch, traceFetchPost } from "./fetch"
 import { parseModelIdentifier } from "./models"
 import { JSON5TryParse } from "./json5"
@@ -40,9 +48,12 @@ import {
     CreateChatCompletionRequest,
     ChatCompletionTokenLogprob,
     ChatCompletionReasoningEffort,
+    EmbeddingCreateResponse,
+    EmbeddingCreateParams,
+    EmbeddingResult,
 } from "./chattypes"
 import { resolveTokenEncoder } from "./encoders"
-import { CancellationOptions } from "./cancellation"
+import { CancellationOptions, checkCancelled } from "./cancellation"
 import { INITryParse } from "./ini"
 import { serializeChunkChoiceToLogProbs } from "./logprob"
 import { TraceOptions } from "./trace"
@@ -702,6 +713,81 @@ export async function OpenAIImageGeneration(
     }
 }
 
+export async function OpenAIEmbedder(
+    input: string,
+    cfg: LanguageModelConfiguration,
+    options: TraceOptions & CancellationOptions
+): Promise<EmbeddingResult> {
+    const { trace, cancellationToken } = options || {}
+    const { base, provider, type, model } = cfg
+    try {
+        logVerbose(`${provider}: embedding`)
+        const route = "embeddings"
+        let url: string
+        const body: EmbeddingCreateParams = { input, model: cfg.model }
+
+        // Determine the URL based on provider type
+        if (
+            provider === MODEL_PROVIDER_AZURE_OPENAI ||
+            provider === MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI ||
+            type === "azure" ||
+            type === "azure_serverless"
+        ) {
+            url = `${trimTrailingSlash(base)}/${model.replace(/\./g, "")}/embeddings?api-version=${AZURE_OPENAI_API_VERSION}`
+            delete body.model
+        } else if (provider === MODEL_PROVIDER_AZURE_SERVERLESS_MODELS) {
+            url = base.replace(/^https?:\/\/([^/]+)\/?/, body.model)
+            delete body.model
+        } else {
+            url = `${base}/${route}`
+        }
+
+        trace.itemValue(`url`, `[${url}](${url})`)
+
+        const freq = {
+            method: "POST",
+            headers: {
+                ...getConfigHeaders(cfg),
+                "Content-Type": "application/json",
+                Accept: "application/json",
+            },
+            body: JSON.stringify(body),
+        }
+        traceFetchPost(trace, url, freq.headers, body)
+        logVerbose(
+            `embeddings: ${ellipse(input, 32)} with ${provider}:${model}`
+        )
+        const fetch = await createFetch({
+            retryOn: [429],
+            trace,
+            cancellationToken,
+        })
+        checkCancelled(cancellationToken)
+        const res = await fetch(url, freq)
+        trace?.itemValue(`response`, `${res.status} ${res.statusText}`)
+
+        if (res.status === 429)
+            return { error: "rate limited", status: "rate_limited" }
+        else if (res.status < 300) {
+            const data = (await res.json()) as EmbeddingCreateResponse
+            return {
+                status: "success",
+                data: data.data
+                    .sort((a, b) => a.index - b.index)
+                    .map((d) => d.embedding),
+                model: data.model,
+            }
+        } else {
+            return { error: res.statusText, status: "error" }
+        }
+    } catch (e) {
+        if (isCancelError(e)) return { status: "cancelled" }
+        logError(e)
+        trace?.error(e)
+        return { status: "error", error: errorMessage(e) }
+    }
+}
+
 export function LocalOpenAICompatibleModel(
     providerId: string,
     options: {
@@ -721,6 +807,7 @@ export function LocalOpenAICompatibleModel(
             imageGenerator: options?.imageGeneration
                 ? OpenAIImageGeneration
                 : undefined,
+            embedder: OpenAIEmbedder,
         })
     )
 }

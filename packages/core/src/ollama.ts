@@ -3,7 +3,7 @@ import { LanguageModel, ListModelsFunction, PullModelFunction } from "./chat"
 import { MODEL_PROVIDER_OLLAMA, TOOL_ID } from "./constants"
 import { serializeError } from "./error"
 import { createFetch, iterateBody } from "./fetch"
-import { OpenAIChatCompletion } from "./openai"
+import { OpenAIChatCompletion, OpenAIEmbedder } from "./openai"
 import { logError, logVerbose } from "./util"
 import { LanguageModelInfo } from "./server/messages"
 import { JSONLTryParse } from "./jsonl"
@@ -109,4 +109,5 @@ export const OllamaModel = Object.freeze<LanguageModel>({
     completer: OpenAIChatCompletion,
     listModels,
     pullModel,
+    embedder: OpenAIEmbedder,
 })

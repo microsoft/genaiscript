@@ -350,10 +350,13 @@ def("TABLE", await HTML.convertToMarkdown(table))
 
 <Card title="RAG built-in" icon="magnifier">
 
-[Vector search](/genaiscript/reference/scripts/vector-search/).
+[Vector search](/genaiscript/reference/scripts/vector-search/)
+using a local database or [Azure AI Search](https://learn.microsoft.com/en-us/azure/search/search-what-is-azure-search).
 
 ```js wrap
-const { files } = await retrieval.vectorSearch("cats", "**/*.md")
+const index = await retreival.index("animals", { type: "azure_ai_search" })
+await index.insertOrUpdate(env.files)
+const docs = await index.search("cat dog")
 ```
 
 </Card>

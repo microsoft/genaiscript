@@ -78,6 +78,7 @@ async function createAzureToken(
 
     // Prepare the result token object with the token and expiration timestamp
     const res = {
+        credential,
         token: azureToken.token,
         // Use provided expiration timestamp or default to a constant expiration time
         expiresOnTimestamp: azureToken.expiresOnTimestamp

@@ -3198,20 +3198,47 @@ interface HighlightOptions {
 }
 
 interface WorkspaceFileIndex {
+    /**
+     * Gets the index name
+     */
     name: string
-    list: () => Promise<WorkspaceFile[]>
-    upsert: (file: ElementOrArray<WorkspaceFile>) => Promise<void>
-    query: (
+    /**
+     * Uploads or merges files into the index
+     */
+    insertOrUpdate: (file: ElementOrArray<WorkspaceFile>) => Promise<void>
+    /**
+     * Searches the index
+     */
+    search: (
         query: string,
         options?: { topK?: number; minScore?: number }
     ) => Promise<WorkspaceFileWithScore[]>
 }
 
 interface VectorIndexOptions extends EmbeddingsModelOptions {
+    /**
+     * Type of database implementation.
+     * - `local` uses a local database using embeddingsModel
+     * - `azure_ai_search` uses Azure AI Search
+     */
+    type?: "local" | "azure_ai_search"
     version?: number
     deleteIfExists?: boolean
     chunkSize?: number
     chunkOverlap?: number
+
+    /**
+     * Embeddings vector size
+     */
+    vectorSize?: number
+    /**
+     * Override default embeddings cache name
+     */
+    cacheName?: string
+    /**
+     * Cache salt to invalidate cache entries
+     */
+    cacheSalt?: string
 }
 
 interface VectorSearchOptions extends VectorIndexOptions {

@@ -120,6 +120,13 @@ export type EmbeddingCreateParams = OpenAI.Embeddings.EmbeddingCreateParams
 // Response type for creating embeddings
 export type EmbeddingCreateResponse = OpenAI.Embeddings.CreateEmbeddingResponse
 
+export interface EmbeddingResult {
+    data?: number[][]
+    model?: string
+    error?: string
+    status: "success" | "error" | "rate_limited" | "cancelled"
+}
+
 /**
  * Interface representing a call to a chat completion tool.
  */

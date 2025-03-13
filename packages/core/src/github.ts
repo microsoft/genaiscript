@@ -22,7 +22,7 @@ import { JSON5TryParse } from "./json5"
 import { link } from "./mkmd"
 import { LanguageModelInfo } from "./server/messages"
 import { LanguageModel, ListModelsFunction } from "./chat"
-import { OpenAIChatCompletion } from "./openai"
+import { OpenAIChatCompletion, OpenAIEmbedder } from "./openai"
 import { errorMessage, serializeError } from "./error"
 import { normalizeInt } from "./cleaners"
 
@@ -520,6 +520,7 @@ export const GitHubModel = Object.freeze<LanguageModel>({
     id: MODEL_PROVIDER_GITHUB,
     completer: OpenAIChatCompletion,
     listModels,
+    embedder: OpenAIEmbedder,
 })
 
 export class GitHubClient implements GitHub {
