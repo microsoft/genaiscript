@@ -8,11 +8,54 @@ import { CancellationOptions, checkCancelled } from "./cancellation"
 import { resolveFileContent } from "./file"
 import { vectraWorkspaceFileIndex } from "./vectra"
 import { azureAISearchIndex } from "./azureaisearch"
-import { WorkspaceFileIndexCreator } from "./chat"
+import { EmbeddingFunction, WorkspaceFileIndexCreator } from "./chat"
 import { resolveModelConnectionInfo } from "./models"
 import { EMBEDDINGS_MODEL_ID } from "./constants"
 import { runtimeHost } from "./host"
 import { resolveLanguageModel } from "./lm"
+import { JSONLineCache } from "./cache"
+import { EmbeddingsResponse } from "vectra"
+
+/**
+ * Represents the cache key for embeddings.
+ * This is used to store and retrieve cached embeddings.
+ */
+interface EmbeddingsCacheKey {
+    base: string
+    provider: string
+    model: string
+    inputs: string
+}
+
+/**
+ * Type alias for the embeddings cache.
+ * Maps cache keys to embedding responses.
+ */
+type EmbeddingsCache = JSONLineCache<EmbeddingsCacheKey, EmbeddingsResponse>
+
+export function createCachedEmbedder(
+    embedder: EmbeddingFunction,
+    cacheName?: string
+): EmbeddingFunction {
+    const cache: EmbeddingsCache = JSONLineCache.byName<
+        EmbeddingsCacheKey,
+        EmbeddingsResponse
+    >(cacheName || "embeddings")
+
+    return async (inputs: string, cfg, options) => {
+        const key: EmbeddingsCacheKey = {
+            base: "embeddings",
+            provider: "openai",
+            model: "default",
+            inputs,
+        }
+        const cached = await cache.get(key)
+        if (cached) return cached
+        const result = await embedder(inputs, cfg, options)
+        if (result.status === "success") await cache.set(key, result)
+        return result
+    }
+}
 
 /**
  * Create a vector index for documents.
@@ -51,11 +94,12 @@ export async function vectorIndex(
     if (!embedder)
         throw new Error(`${info.provider} does not support embeddings`)
 
+    const cachedEmbedder = createCachedEmbedder(embedder)
     // Pull the model
     await runtimeHost.pullModel(configuration, { trace, cancellationToken })
     checkCancelled(cancellationToken)
 
-    return await factory(indexName, configuration, embedder, options)
+    return await factory(indexName, configuration, cachedEmbedder, options)
 }
 
 /**

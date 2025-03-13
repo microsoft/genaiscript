@@ -4,52 +4,20 @@
  */
 
 import { encode, decode } from "gpt-tokenizer"
-import { resolveModelConnectionInfo } from "./models"
-import { runtimeHost } from "./host"
-import {
-    AZURE_OPENAI_API_VERSION,
-    EMBEDDINGS_MODEL_ID,
-    MODEL_PROVIDER_AZURE_OPENAI,
-    MODEL_PROVIDER_AZURE_SERVERLESS_MODELS,
-    MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI,
-} from "./constants"
 import type { EmbeddingsModel, EmbeddingsResponse } from "vectra/lib/types"
-import { createFetch, traceFetchPost } from "./fetch"
-import { JSONLineCache } from "./cache"
-import { EmbeddingCreateParams, EmbeddingCreateResponse } from "./chattypes"
 import { LanguageModelConfiguration } from "./server/messages"
-import { getConfigHeaders } from "./openai"
-import { dotGenaiscriptPath, ellipse, logVerbose } from "./util"
+import { dotGenaiscriptPath } from "./util"
 import { TraceOptions } from "./trace"
 import { CancellationOptions, checkCancelled } from "./cancellation"
-import { arrayify, trimTrailingSlash } from "./cleaners"
+import { arrayify } from "./cleaners"
 import { resolveFileContent } from "./file"
 import { EmbeddingFunction, WorkspaceFileIndexCreator } from "./chat"
-
-/**
- * Represents the cache key for embeddings.
- * This is used to store and retrieve cached embeddings.
- */
-interface EmbeddingsCacheKey {
-    base: string
-    provider: string
-    model: string
-    inputs: string | string[]
-}
-
-/**
- * Type alias for the embeddings cache.
- * Maps cache keys to embedding responses.
- */
-type EmbeddingsCache = JSONLineCache<EmbeddingsCacheKey, EmbeddingsResponse>
 
 /**
  * Class for creating embeddings using the OpenAI API.
  * Implements the EmbeddingsModel interface.
  */
 class OpenAIEmbeddings implements EmbeddingsModel {
-    readonly cache: EmbeddingsCache
-
     /**
      * Constructs an instance of OpenAIEmbeddings.
      * @param info Connection options for the model.
@@ -60,12 +28,7 @@ class OpenAIEmbeddings implements EmbeddingsModel {
         readonly cfg: LanguageModelConfiguration,
         readonly embedder: EmbeddingFunction,
         readonly options?: TraceOptions & CancellationOptions
-    ) {
-        this.cache = JSONLineCache.byName<
-            EmbeddingsCacheKey,
-            EmbeddingsResponse
-        >("embeddings")
-    }
+    ) {}
 
     // Maximum number of tokens for embeddings
     maxTokens = 512
@@ -78,33 +41,8 @@ class OpenAIEmbeddings implements EmbeddingsModel {
     public async createEmbeddings(
         inputs: string | string[]
     ): Promise<EmbeddingsResponse> {
-        const { provider, base, model } = this.cfg
-
-        // Define the cache key for the current request
-        const cacheKey: EmbeddingsCacheKey = { inputs, model, provider, base }
-
-        // Check if the result is already cached
-        const cached = await this.cache.get(cacheKey)
-        if (cached) return cached
-
-        checkCancelled(this.options?.cancellationToken)
-        // Create embeddings if not cached
-        const res = await this.uncachedCreateEmbeddings(inputs)
-        if (res.status === "success") this.cache.set(cacheKey, res)
-
-        return res
-    }
-
-    /**
-     * Creates embeddings without using the cache.
-     * @param input The input text or texts.
-     * @returns The response containing the embeddings or error information.
-     */
-    private async uncachedCreateEmbeddings(
-        input: string | string[]
-    ): Promise<EmbeddingsResponse> {
         const { error, data } = await this.embedder(
-            arrayify(input)[0],
+            arrayify(inputs)[0],
             this.cfg,
             this.options
         )
