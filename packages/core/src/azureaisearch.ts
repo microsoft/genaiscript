@@ -124,15 +124,33 @@ export const azureAISearchIndex: WorkspaceFileIndexCreator = async (
         name: indexName,
         insertOrUpdate: async (file: ElementOrArray<WorkspaceFile>) => {
             const files = arrayify(file)
+            const outdated: TextChunkEntry[] = []
             const docs: TextChunkEntry[] = []
             for (const file of files) {
                 await resolveFileContent(file, { cancellationToken })
                 if (file.encoding) continue
-                const chunks = await chunk(file, {
+
+                const newChunks = await chunk(file, {
                     chunkSize,
                     chunkOverlap,
                 })
-                for (const chunk of chunks) {
+                const oldChunks = await client.search(undefined, {
+                    filter: `filename eq '${file.filename}'`,
+                })
+                for await (const result of oldChunks.results) {
+                    const oldChunk = result.document
+                    const index = newChunks.findIndex(
+                        (c) =>
+                            c.lineStart === oldChunk.lineStart &&
+                            c.lineEnd === oldChunk.lineEnd &&
+                            c.content === oldChunk.content
+                    )
+                    if (index > -1) newChunks.splice(index, 1)
+                    else outdated.push(oldChunk)
+                }
+
+                // new chunks
+                for (const chunk of newChunks) {
                     const vector = await embedder(chunk.content, cfg, options)
                     checkCancelled(cancellationToken)
                     if (vector.status !== "success")
@@ -144,6 +162,23 @@ export const azureAISearchIndex: WorkspaceFileIndexCreator = async (
                     })
                 }
             }
+
+            logVerbose(
+                `azure ai search: ${indexName} index ${outdated.length} outdated, ${docs.length} updated`
+            )
+            if (outdated.length) {
+                const res = await client.deleteDocuments(outdated, {
+                    abortSignal,
+                    throwOnAnyFailure: false,
+                })
+                for (const r of res.results) {
+                    if (!r.succeeded)
+                        logVerbose(
+                            `  ${r.key} ${r.errorMessage} (${r.statusCode})`
+                        )
+                }
+            }
+
             if (!docs.length) return
 
             const res = await client.mergeOrUploadDocuments(docs, {
