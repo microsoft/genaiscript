@@ -1,0 +1,79 @@
+---
+title: Retrieval
+sidebar:
+    order: 10
+description: Learn how to use GenAIScript's retrieval utilities for content search and prompt augmentation with RAG techniques.
+keywords: RAG, content retrieval, search augmentation, indexing, web search, Azure AI Search
+---
+
+GenAIScript provides various utilities to retrieve content and augment the prompt. This technique is typically referred to as **RAG** (Retrieval-Augmentation-Generation) in the literature.
+
+## Vector Search
+
+GenAIScript provides various vector database to support embeddings search and retreival augmented generation (RAG).
+
+The `retrieve.index` creates or loads an existing index.
+
+```js
+// index creation
+const index = await retreival.index("animals")
+// indexing
+await index.upload(env.files)
+// search
+const res = await index.search("cat dog")
+def("RAG", res)
+```
+
+### Local Index
+
+By default, vector are stored locally in files under the `.genaiscript` folder using a local vector database based on [vectra](https://www.npmjs.com/package/vectra). The embeddings are computed
+using the `embeddings` [model alias](/genaiscript/reference/scripts/model-aliases) (it can also be configured through the options).
+
+```js
+const index = await retreival.index("animals", {
+    embeddingsModel: "ollama:nomic-embed-text",
+})
+```
+
+The index is serialized by default. If you wish to reset it on every execution, set `deleteIfExists: true`.
+
+### Azure AI Search
+
+GenAIScript also supports using an [Azure AI Search]().
+The Azure AI Search uses the [simple query syntax](https://learn.microsoft.com/en-us/azure/search/query-simple-syntax).
+
+```js
+const index = retreival.index("animals", { type: "azure_ai_search" })
+```
+
+To configure the service, you will need to set the `AZURE_AI_SEARCH_ENDPOINT`
+and `AZURE_AI_SEARCH_API_KEY` environment variables in your `.env` file.
+Please refer to the [Authentication documentation](https://learn.microsoft.com/en-us/javascript/api/overview/azure/search-documents-readme?view=azure-node-latest#authenticate-the-client) for more details.
+
+```txt
+AZURE_AI_SEARCH_ENDPOINT=https://{{service-name}}.search.windows.net/
+AZURE_AI_SEARCH_API_KEY=...
+```
+
+Further index management can be done through the Azure Portal.
+
+## Fuzz Search
+
+The `retrieve.fuzzSearch` performs a "traditional" fuzzy search to find the most similar documents to the prompt.
+
+```js
+const files = await retrieval.fuzzSearch("cat dog", env.files)
+```
+
+## Web Search
+
+The `retrieval.webSearch` performs a web search using a search engine API. You will need to provide API keys for the search engine you want to use.
+
+```js
+const { webPages } = await retrieval.webSearch("cat dog")
+def("RAG", webPages)
+```
+
+### Bing
+
+To enable Bing search, configure the `BING_SEARCH_API_KEY` secret in your `.env` file. Learn more about [configuring the Bing Search API](https://www.microsoft.com/en-us/bing/apis/bing-web-search-api).
