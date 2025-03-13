@@ -15,7 +15,7 @@ import { GenerationOptions } from "./generation"
 import { fuzzSearch } from "./fuzzsearch"
 import { grepSearch } from "./grep"
 import { resolveFileContents, toWorkspaceFile } from "./file"
-import { vectorIndex, vectorSearch } from "./vectorsearch"
+import { vectorCreateIndex, vectorSearch } from "./vectorsearch"
 import { Project } from "./server/messages"
 import { shellParse } from "./shell"
 import { PLimitPromiseQueue } from "./concurrency"
@@ -199,7 +199,7 @@ export async function createPromptContext(
                 embeddingsModel:
                     indexOptions?.embeddingsModel || options?.embeddingsModel,
             }
-            const res = await vectorIndex(indexId, {
+            const res = await vectorCreateIndex(indexId, {
                 ...opts,
                 trace,
                 cancellationToken,

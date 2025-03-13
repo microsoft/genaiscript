@@ -1,10 +1,32 @@
 import { normalizeFloat, normalizeInt } from "../../core/src/cleaners"
-import { resolveFileContents } from "../../core/src/file"
 import { expandFiles } from "../../core/src/fs"
 import { fuzzSearch } from "../../core/src/fuzzsearch"
-import { dotGenaiscriptPath } from "../../core/src/util"
-import { vectorSearch } from "../../core/src/vectorsearch"
+import { vectorIndex, vectorSearch } from "../../core/src/vectorsearch"
 import { YAMLStringify } from "../../core/src/yaml"
+
+export async function retrievalIndex(
+    indexName: string,
+    filesGlobs: string[],
+    options: {
+        excludedFiles: string[]
+        embeddingsModel: string
+        ignoreGitIgnore: boolean
+        database: "local" | "azure_ai_search"
+    }
+) {
+    const { excludedFiles, embeddingsModel, ignoreGitIgnore, database } =
+        options || {}
+    const files = (
+        await expandFiles(filesGlobs, {
+            excludedFiles,
+            applyGitIgnore: !ignoreGitIgnore,
+        })
+    ).map((filename) => <WorkspaceFile>{ filename })
+    await vectorIndex(indexName, files, {
+        embeddingsModel,
+        type: database,
+    })
+}
 
 /**
  * This file contains functions to perform retrieval searches on files.

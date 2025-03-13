@@ -742,7 +742,7 @@ export async function OpenAIEmbedder(
             url = `${base}/${route}`
         }
 
-        trace.itemValue(`url`, `[${url}](${url})`)
+        trace?.itemValue(`url`, `[${url}](${url})`)
 
         const freq = {
             method: "POST",

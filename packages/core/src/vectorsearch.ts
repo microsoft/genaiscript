@@ -15,6 +15,7 @@ import { runtimeHost } from "./host"
 import { resolveLanguageModel } from "./lm"
 import { JSONLineCache } from "./cache"
 import { EmbeddingsResponse } from "vectra"
+import { assert } from "./util"
 
 /**
  * Represents the cache key for embeddings.
@@ -63,10 +64,11 @@ export function createCachedEmbedder(
 /**
  * Create a vector index for documents.
  */
-export async function vectorIndex(
+export async function vectorCreateIndex(
     indexName: string,
     options?: VectorIndexOptions & TraceOptions & CancellationOptions
 ): Promise<WorkspaceFileIndex> {
+    assert(!!indexName)
     options = options || {}
     const {
         type = "local",
@@ -82,7 +84,7 @@ export async function vectorIndex(
     // Resolve connection info for the embeddings model
     const { info, configuration } = await resolveModelConnectionInfo(
         {
-            model: embeddingsModel,
+            model: embeddingsModel || EMBEDDINGS_MODEL_ID,
         },
         {
             token: true,
@@ -123,12 +125,49 @@ sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad mi
  * @param options Options for vector search, including folder path and tracing.
  * @returns The files with scores based on relevance to the query.
  */
+export async function vectorIndex(
+    indexName: string,
+    files: WorkspaceFile[],
+    options: VectorSearchOptions & TraceOptions & CancellationOptions
+): Promise<void> {
+    indexName = indexName || "default"
+    const { embeddingsModel, cancellationToken, trace } = options
+
+    trace?.startDetails(`🔍 embeddings: indexing`)
+    try {
+        indexName = indexName || "default"
+        trace?.itemValue(`name`, indexName)
+        trace?.itemValue(`model`, embeddingsModel)
+        const index = await vectorCreateIndex(indexName, {
+            ...options,
+            trace: trace,
+        })
+        checkCancelled(cancellationToken)
+        for (const file of files) {
+            await resolveFileContent(file, { trace })
+            checkCancelled(cancellationToken)
+            await index.insertOrUpdate(file)
+            checkCancelled(cancellationToken)
+        }
+    } finally {
+        trace?.endDetails()
+    }
+}
+
+/**
+ * Performs a vector search on documents based on a query.
+ * @param query The search query.
+ * @param files The files to search within.
+ * @param options Options for vector search, including folder path and tracing.
+ * @returns The files with scores based on relevance to the query.
+ */
 export async function vectorSearch(
     indexName: string,
     query: string,
     files: WorkspaceFile[],
     options: VectorSearchOptions & TraceOptions & CancellationOptions
 ): Promise<WorkspaceFileWithScore[]> {
+    indexName = indexName || "default"
     const {
         topK,
         embeddingsModel,
@@ -137,12 +176,11 @@ export async function vectorSearch(
         trace,
     } = options
 
-    trace?.startDetails(`🔍 embeddings`)
+    trace?.startDetails(`🔍 embeddings: searching`)
     try {
-        indexName = indexName || "default"
         trace?.itemValue(`name`, indexName)
         trace?.itemValue(`model`, embeddingsModel)
-        const index = await vectorIndex(indexName, {
+        const index = await vectorCreateIndex(indexName, {
             ...options,
             trace: trace,
         })
