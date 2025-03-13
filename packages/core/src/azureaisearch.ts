@@ -16,6 +16,7 @@ export const azureAISearchIndex: WorkspaceFileIndexCreator = async (
     indexName: string,
     options?: VectorIndexOptions & TraceOptions & CancellationOptions
 ) => {
+    // https://learn.microsoft.com/en-us/azure/search/search-security-rbac?tabs=roles-portal-admin%2Croles-portal%2Croles-portal-query%2Ctest-portal%2Ccustom-role-portal
     const { trace, cancellationToken, deleteIfExists } = options || {}
     const abortSignal = toSignal(cancellationToken)
     const { SearchClient, SearchIndexClient, AzureKeyCredential } =
