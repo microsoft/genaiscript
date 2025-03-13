@@ -54,16 +54,9 @@ export async function retrievalSearch(
         })
     ).map((filename) => <WorkspaceFile>{ filename })
 
-    // Resolve the contents of the files to ensure they can be processed
-    await resolveFileContents(files)
-
-    // Determine the folder path for storing vectors
-    // Uses a default name if none is provided
-    const folderPath = dotGenaiscriptPath("vectors", indexName ?? "default")
-
     // Perform vector search with the given query and options
     // Searches using embeddings to find relevant files
-    const res = await vectorSearch(q, files, folderPath, {
+    const res = await vectorSearch(indexName, q, files, {
         topK: normalizeInt(topK),
         minScore: normalizeFloat(minScore),
         embeddingsModel,
