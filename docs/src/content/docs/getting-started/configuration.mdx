@@ -601,7 +601,10 @@ It supports both Entra ID and key-based authentication.
 script({ model: "azure_ai_inference:gpt-4o" })
 ```
 
-<YouTube id="https://www.youtube.com/watch?v=kh670Bxe_1E" posterQuality="high" />
+<YouTube
+    id="https://www.youtube.com/watch?v=kh670Bxe_1E"
+    posterQuality="high"
+/>
 
 #### Managed Identity (Entra ID)
 
@@ -940,6 +943,23 @@ model3=key3
 ```
 
 <LLMProviderFeatures provider="azure_serverless_models" />
+
+## Azure AI Search
+
+This is not a LLM provider, but a content search provider. 
+It allows you to search for content in your [Azure AI Search](https://learn.microsoft.com/en-us/azure/search/search-what-is-azure-search) service.
+
+```js "azure_search:"
+const index = await retreival.index("animals", { type: "azure_ai_search" })
+const docs = await index.search("cat dog")
+```
+
+The service is configured through the `AZURE_AI_SEARCH_ENDPOINT` and `AZURE_AI_SEARCH_API_KEY` environment variables.
+
+```txt
+AZURE_AI_SEARCH_ENDPOINT=https://{{service-name}}.search.windows.net/
+AZURE_AI_SEARCH_API_KEY=...
+```
 
 ## Google AI <a href="" id="google" />
 
