@@ -1180,6 +1180,8 @@ export function createChatGenerationContext(
                 )
             } else logVerbose(`image: ${filename}`)
 
+            imgTrace.image(filename, `generated image`)
+            imgTrace.detailsFenced(`🔀 revised prompt`, res.revisedPrompt)
             return {
                 image: {
                     filename,

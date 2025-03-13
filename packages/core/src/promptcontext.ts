@@ -15,7 +15,7 @@ import { GenerationOptions } from "./generation"
 import { fuzzSearch } from "./fuzzsearch"
 import { grepSearch } from "./grep"
 import { resolveFileContents, toWorkspaceFile } from "./file"
-import { vectorSearch } from "./vectorsearch"
+import { vectorIndex, vectorSearch } from "./vectorsearch"
 import { Project } from "./server/messages"
 import { shellParse } from "./shell"
 import { PLimitPromiseQueue } from "./concurrency"
@@ -25,7 +25,7 @@ import { proxifyEnvVars } from "./vars"
 import { HTMLEscape } from "./html"
 import { hash } from "./crypto"
 import { resolveModelConnectionInfo } from "./models"
-import { DOCS_WEB_SEARCH_URL } from "./constants"
+import { DOCS_WEB_SEARCH_URL, VECTOR_INDEX_HASH_LENGTH } from "./constants"
 import { fetch, fetchText } from "./fetch"
 import { fileWriteCached } from "./filecache"
 import { join } from "node:path"
@@ -193,6 +193,19 @@ export async function createPromptContext(
                 fuzzTrace.endDetails()
             }
         },
+        index: async (indexId, indexOptions) => {
+            const opts = {
+                ...(indexOptions || {}),
+                embeddingsModel:
+                    indexOptions?.embeddingsModel || options?.embeddingsModel,
+            }
+            const res = await vectorIndex(indexId, {
+                ...opts,
+                trace,
+                cancellationToken,
+            })
+            return res
+        },
         vectorSearch: async (q, files_, searchOptions) => {
             // Perform a vector-based search on the provided files
             const files = arrayify(files_).map(toWorkspaceFile)
@@ -209,20 +222,16 @@ export async function createPromptContext(
                 await resolveFileContents(files)
                 searchOptions.embeddingsModel =
                     searchOptions?.embeddingsModel ?? options?.embeddingsModel
-                const key = await hash({ files, searchOptions }, { length: 12 })
-                const folderPath = dotGenaiscriptPath("vectors", key)
-                const res = await vectorSearch(q, files, {
+                const key =
+                    searchOptions?.indexName ||
+                    (await hash(
+                        { files, searchOptions },
+                        { length: VECTOR_INDEX_HASH_LENGTH }
+                    ))
+                const res = await vectorSearch(key, q, files, {
                     ...searchOptions,
-                    folderPath,
                     trace: vecTrace,
                     cancellationToken,
-                })
-                // Log search results
-                vecTrace.files(res, {
-                    model,
-                    secrets: env.secrets,
-                    skipIfEmpty: true,
-                    maxLength: 0,
                 })
                 return res
             } finally {

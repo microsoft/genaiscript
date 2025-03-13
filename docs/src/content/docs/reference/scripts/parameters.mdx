@@ -101,12 +101,21 @@ Some additional, non-standard properties are used to provide additional informat
 ```
 
 - `uiSuggestions` to provide a list of suggestions for a `string` type. The suggestions populate the dropdown in the UI
-but allow for other values as well.
+  but allow for other values as well.
 
 ```json
 {
     "type": "string",
     "uiSuggestions": ["San Francisco", "New York"]
+}
+```
+
+- `uiType`: `runOption` for boolean places the checkbox under the `Run` button.
+
+```json
+{
+    "type": "boolean",
+    "uiType": "runOption"
 }
 ```
 

@@ -1,6 +1,6 @@
 {
   "name": "genaiscript-sample",
-  "version": "1.114.1",
+  "version": "1.115.0",
   "license": "MIT",
   "private": true,
   "scripts": {
@@ -18,10 +18,10 @@
     "@agentic/calculator": "^7.3.3",
     "@agentic/core": "^7.3.3",
     "@agentic/weather": "^7.3.3",
-    "@azure/identity": "^4.7.0",
+    "@azure/identity": "^4.8.0",
     "@azure/storage-blob": "^12.26.0",
     "@huggingface/transformers": "^3.4.0",
-    "@modelcontextprotocol/sdk": "^1.6.1",
+    "@modelcontextprotocol/sdk": "^1.7.0",
     "@tidyjs/tidy": "^2.5.2",
     "p-all": "^5.0.0",
     "vectorstore": "^0.0.4",

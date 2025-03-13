@@ -102,3 +102,7 @@ vscode-split-layout.trace-split-panel vscode-scrollable {
     margin-left: 0;
     margin-bottom: 1.5rem;
 }
+
+vscode-tabs.output {
+    min-height: 50vh;
+}

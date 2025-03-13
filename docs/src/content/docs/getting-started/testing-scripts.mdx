@@ -18,7 +18,7 @@ to validate the output of the script.
 The tests are added as an array of objects in the `tests` key of the `script` function.
 
 ```js title="proofreader.genai.mjs" wrap
-scripts({
+script({
   ...,
   tests: {
     files: "src/rag/testcode.ts",
@@ -34,7 +34,7 @@ scripts({
 You can also specify a set of models (and model aliases) to run the tests against. Each test will be run against each model.
 
 ```js title="proofreader.genai.mjs" wrap
-scripts({
+script({
   ...,
     testModels: [
         "azure_ai_inference:gpt-4o",

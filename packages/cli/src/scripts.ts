@@ -7,6 +7,7 @@ import { copyPrompt } from "../../core/src/copy"
 import {
     fixPromptDefinitions,
     createScript as coreCreateScript,
+    fixCustomPrompts,
 } from "../../core/src/scripts"
 import { logInfo, logVerbose } from "../../core/src/util"
 import { runtimeHost } from "../../core/src/host"
@@ -26,27 +27,38 @@ import { dirname } from "node:path"
  */
 export async function listScripts(
     ids: string[],
-    options?: ScriptFilterOptions
+    options?: ScriptFilterOptions & { json?: boolean }
 ) {
+    const { json } = options || {}
     const prj = await buildProject() // Build the project to get script templates
     const scripts = filterScripts(prj.scripts, { ids, ...(options || {}) }) // Filter scripts based on options
-    console.log(
-        JSON.stringify(
-            scripts.map(
-                ({ id, title, group, filename, inputSchema, isSystem }) =>
-                    deleteEmptyValues({
-                        id,
-                        title,
-                        group,
-                        filename,
-                        inputSchema,
-                        isSystem,
-                    })
-            ),
-            null,
-            2
+    if (!json)
+        console.log(
+            scripts
+                .map(
+                    ({ id, filename }) =>
+                        `${id} - ${filename}`
+                )
+                .join("\n")
         )
-    )
+    else
+        console.log(
+            JSON.stringify(
+                scripts.map(
+                    ({ id, title, group, filename, inputSchema, isSystem }) =>
+                        deleteEmptyValues({
+                            id,
+                            title,
+                            group,
+                            filename,
+                            inputSchema,
+                            isSystem,
+                        })
+                ),
+                null,
+                2
+            )
+        )
 }
 
 /**
@@ -71,9 +83,13 @@ export async function createScript(
  * Used to correct any issues in the prompt definitions.
  * Accesses project information by building the project first.
  */
-export async function fixScripts() {
+export async function fixScripts(options?: {
+    githubCopilotPrompt?: boolean
+    docs?: boolean
+}) {
     const project = await buildProject() // Build the project to access information
     await fixPromptDefinitions(project) // Fix any issues in prompt definitions
+    await fixCustomPrompts(options)
 }
 
 /**

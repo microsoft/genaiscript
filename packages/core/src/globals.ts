@@ -16,12 +16,10 @@ import { GitHubClient } from "./github"
 import { GitClient } from "./git"
 import { estimateTokens, truncateTextToTokens } from "./tokens"
 import { chunk, resolveTokenEncoder } from "./encoders"
-import { runtimeHost } from "./host"
 import { JSON5Stringify, JSON5TryParse } from "./json5"
 import { JSONSchemaInfer } from "./schema"
 import { FFmepgClient } from "./ffmpeg"
 import { promptParametersSchemaToJSONSchema } from "./parameters"
-import { resolveFileContent } from "./file"
 import { chunkMarkdown } from "./mdchunk"
 
 export const originalConsole = resolveGlobal().console
@@ -93,7 +91,7 @@ export function installGlobals() {
             const res = chunkMarkdown(
                 text,
                 (text) => encoding.encode(text).length,
-                options?.maxTokens
+                options
             )
             return res
         },

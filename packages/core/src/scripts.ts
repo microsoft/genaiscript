@@ -1,11 +1,18 @@
 import { collectFolders } from "./ast"
-import { NEW_SCRIPT_TEMPLATE } from "./constants"
-import { promptDefinitions } from "./default_prompts"
+import {
+    DOCS_URL,
+    NEW_SCRIPT_TEMPLATE,
+    TYPE_DEFINITION_BASENAME,
+} from "./constants"
+import { githubCopilotCustomPrompt, promptDefinitions } from "./default_prompts"
 import { tryReadText, writeText } from "./fs"
 import { host } from "./host"
-import { logVerbose } from "./util"
+import { dotGenaiscriptPath, logVerbose } from "./util"
 import { dedent } from "./indent"
 import { Project } from "./server/messages"
+import { fetchText } from "./fetch"
+import { collapseNewlines } from "./cleaners"
+import { gitIgnoreEnsure } from "./gitignore"
 
 export function createScript(
     name: string,
@@ -31,17 +38,11 @@ export async function fixPromptDefinitions(project: Project) {
 
     for (const folder of folders) {
         const { dirname, ts, js } = folder
-        {
-            const fn = host.path.join(dirname, ".gitignore")
-            const current = (await tryReadText(fn)) || ""
-            const content = dedent`genaiscript.d.ts
-            tsconfig.json
-            jsconfig.json`
-            if (!current.includes(content)) {
-                logVerbose(`updating ${fn}`)
-                await writeText(fn, current + "\n#GenAIScript\n" + content)
-            }
-        }
+        await gitIgnoreEnsure(dirname, [
+            "genaiscript.d.ts",
+            "tsconfig.json",
+            "jsconfig.json",
+        ])
         for (let [defName, defContent] of Object.entries(promptDefinitions)) {
             // patch genaiscript
             if (defName === "genaiscript.d.ts") {
@@ -92,5 +93,43 @@ ${tools.map((s) => `* - \`${s.id}\`: ${s.description}`).join("\n")}
                 await writeText(fn, defContent)
             }
         }
+    }
+}
+
+let _fullDocsText: string
+export async function fixCustomPrompts(options?: {
+    githubCopilotPrompt?: boolean
+    docs?: boolean
+}) {
+    const { githubCopilotPrompt, docs } = options || {}
+    // write genaiscript.d.ts
+    const gdir = dotGenaiscriptPath()
+    await writeText(host.path.join(gdir, ".gitignore"), "*")
+    await writeText(
+        host.path.join(gdir, TYPE_DEFINITION_BASENAME),
+        promptDefinitions[TYPE_DEFINITION_BASENAME]
+    ) // Write the TypeScript definition file
+    if (githubCopilotPrompt) {
+        const pdir = dotGenaiscriptPath("prompts")
+        const pn = host.path.join(pdir, "genaiscript.prompt.md")
+        await writeText(pn, githubCopilotCustomPrompt) // Write the GitHub Copilot prompt file
+    }
+    if (githubCopilotPrompt || docs) {
+        const ddir = dotGenaiscriptPath("docs")
+        const route = "llms-full.txt"
+        const url = `${DOCS_URL}/${route}`
+        const dn = host.path.join(ddir, route)
+        let text = _fullDocsText
+        if (!text) {
+            const content = await fetchText(url)
+            if (!content.ok) logVerbose(`failed to fetch ${url}`)
+            text = _fullDocsText = collapseNewlines(
+                content.text.replace(
+                    /^\!\[\]\(<data:image\/svg\+xml,.*$/gm,
+                    "<!-- mermaid diagram -->"
+                )
+            )
+        }
+        await writeText(dn, text) // Write the GitHub Copilot prompt file
     }
 }

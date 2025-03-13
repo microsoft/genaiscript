@@ -115,10 +115,8 @@ export class BrowserManager {
         // Close all active browsers
         for (const browser of browsers) {
             try {
-                if (browser.isConnected()) {
-                    logVerbose(`browsers: closing browser`)
-                    await browser.close()
-                }
+                logVerbose(`browsers: closing browser`)
+                await browser.close()
             } catch (e) {
                 logError(e)
             }

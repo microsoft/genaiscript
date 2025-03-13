@@ -1,6 +1,6 @@
 {
   "name": "genaiscript-web",
-  "version": "1.114.1",
+  "version": "1.115.0",
   "license": "MIT",
   "private": true,
   "scripts": {
@@ -18,8 +18,8 @@
     "@vscode-elements/webview-playground": "^1.6.0",
     "@vscode/codicons": "^0.0.36",
     "clsx": "^2.1.1",
-    "es-toolkit": "^1.32.0",
-    "esbuild": "^0.25.0",
+    "es-toolkit": "^1.33.0",
+    "esbuild": "^0.25.1",
     "html-escaper": "3.0.3",
     "mermaid": "^11.4.1",
     "pretty-bytes": "^6.1.1",

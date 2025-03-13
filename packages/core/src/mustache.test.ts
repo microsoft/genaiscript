@@ -42,4 +42,68 @@ As the assistant, you answer questions briefly, succinctly.
 THE QUESTION`
         )
     })
+    test("should interpolate jinja variables when format is jinja", async () => {
+        const md = `---
+name: Jinja Template Test
+---
+Hello {{ name }}! Your age is {{ age }}.`
+
+        const output = await interpolateVariables(
+            md,
+            {
+                name: "Alice",
+                age: 25,
+            },
+            { format: "jinja" }
+        )
+
+        assert.strictEqual(output, "Hello Alice! Your age is 25.")
+    })
+
+    test("should handle jinja conditionals", async () => {
+        const md = `---
+name: Jinja Conditional Test
+---
+{% if age >= 18 %}You are an adult.{% else %}You are a minor.{% endif %}`
+
+        const adultOutput = await interpolateVariables(
+            md,
+            {
+                age: 25,
+            },
+            { format: "jinja" }
+        )
+
+        assert.strictEqual(adultOutput, "You are an adult.")
+
+        const minorOutput = await interpolateVariables(
+            md,
+            {
+                age: 15,
+            },
+            { format: "jinja" }
+        )
+
+        assert.strictEqual(minorOutput, "You are a minor.")
+    })
+
+    test("should handle jinja loops", async () => {
+        const md = `---
+name: Jinja Loop Test
+---
+Items:
+{% for item in items %}
+- {{ item }}
+{% endfor %}`
+
+        const output = await interpolateVariables(
+            md,
+            {
+                items: ["apple", "banana", "cherry"],
+            },
+            { format: "jinja" }
+        )
+
+        assert.strictEqual(output, "Items:\n- apple\n- banana\n- cherry\n")
+    })
 })

@@ -1626,6 +1626,7 @@ interface JSONSchemaNumber extends JSONSchemaDescripted {
 
 interface JSONSchemaBoolean extends JSONSchemaDescripted {
     type: "boolean"
+    uiType?: "runOption"
     default?: boolean
 }
 
@@ -1809,6 +1810,10 @@ interface ParsePDFOptions {
      * Disable caching with cache: false
      */
     cache?: boolean
+    /**
+     * Force system fonts use
+     */
+    useSystemFonts?: boolean
 }
 
 interface HTMLToTextOptions {
@@ -3063,7 +3068,7 @@ interface MD {
      */
     chunk(
         text: string | WorkspaceFile,
-        options?: { maxTokens?: number; model?: string }
+        options?: { maxTokens?: number; model?: string; pageSeparator?: string }
     ): Promise<TextChunk[]>
 }
 
@@ -3192,7 +3197,24 @@ interface HighlightOptions {
     maxLength?: number
 }
 
-interface VectorSearchOptions extends EmbeddingsModelOptions {
+interface WorkspaceFileIndex {
+    name: string
+    list: () => Promise<WorkspaceFile[]>
+    upsert: (file: ElementOrArray<WorkspaceFile>) => Promise<void>
+    query: (
+        query: string,
+        options?: { topK?: number; minScore?: number }
+    ) => Promise<WorkspaceFileWithScore[]>
+}
+
+interface VectorIndexOptions extends EmbeddingsModelOptions {
+    version?: number
+    deleteIfExists?: boolean
+    chunkSize?: number
+    chunkOverlap?: number
+}
+
+interface VectorSearchOptions extends VectorIndexOptions {
     /**
      * Maximum number of embeddings to use
      */
@@ -3201,11 +3223,10 @@ interface VectorSearchOptions extends EmbeddingsModelOptions {
      * Minimum similarity score
      */
     minScore?: number
-
     /**
-     * Cache identifier for the embeddings
+     * Index to use
      */
-    cache?: string
+    indexName?: string
 }
 
 interface FuzzSearchOptions {
@@ -3279,6 +3300,12 @@ interface Retrieval {
         files: (string | WorkspaceFile) | (string | WorkspaceFile)[],
         options?: VectorSearchOptions
     ): Promise<WorkspaceFile[]>
+
+    /**
+     * Loads or creates a file index using a vector index
+     * @param options
+     */
+    index(id: string, options?: VectorIndexOptions): Promise<WorkspaceFileIndex>
 
     /**
      * Performs a fuzzy search over the files
@@ -3415,6 +3442,11 @@ interface ImportTemplateOptions {
      * Ignore unknown arguments
      */
     allowExtraArguments?: boolean
+
+    /**
+     * Template engine syntax
+     */
+    format?: "mustache" | "jinja"
 }
 
 type PromptCacheControlType = "ephemeral"

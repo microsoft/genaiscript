@@ -17,6 +17,7 @@ export default function (ctx: ChatGenerationContext) {
     - do NOT try to interpret the meaning of the user answer, return the user answer unmodified.`,
         {
             tools: ["user_input"],
+            system: ["system", "system.assistant", "system.cooperation"],
         }
     )
 }
