@@ -7,6 +7,8 @@ import { TraceOptions } from "./trace"
 import { CancellationOptions, checkCancelled } from "./cancellation"
 import { resolveFileContent } from "./file"
 import { vectraWorkspaceFileIndex } from "./vectra"
+import { azureAISearchIndex } from "./azureaisearch"
+import { WorkspaceFileIndexCreator } from "./chat"
 
 /**
  * Create a vector index for documents.
@@ -15,7 +17,13 @@ export async function vectorIndex(
     indexName: string,
     options?: VectorIndexOptions & TraceOptions & CancellationOptions
 ): Promise<WorkspaceFileIndex> {
-    return await vectraWorkspaceFileIndex(indexName, options)
+    const { type = "local" } = options || {}
+
+    let factory: WorkspaceFileIndexCreator
+    if (type === "azure_ai_search") factory = azureAISearchIndex
+    else factory = vectraWorkspaceFileIndex
+
+    return await factory(indexName, options)
 }
 
 /**

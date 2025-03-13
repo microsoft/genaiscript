@@ -12,7 +12,7 @@ export const azureAISearchIndex: WorkspaceFileIndexCreator = async (
     indexName: string,
     options?: VectorIndexOptions & TraceOptions & CancellationOptions
 ) => {
-    const { trace, cancellationToken } = options || {}
+    const { trace, cancellationToken, deleteIfExists } = options || {}
     const abortSignal = toSignal(cancellationToken)
 
     const { credential } = await runtimeHost.azureToken.token("default", {
@@ -31,7 +31,9 @@ export const azureAISearchIndex: WorkspaceFileIndexCreator = async (
         "@azure/search-documents"
     )
     const indexClient = new SearchIndexClient(endPoint, credential)
-    const created = await indexClient.createOrUpdateIndex({
+    if (deleteIfExists)
+        await indexClient.deleteIndex(indexName, { abortSignal })
+    const created = await indexClient.createIndex({
         name: indexName,
         fields: [
             { name: "filename", type: "Edm.String" },
