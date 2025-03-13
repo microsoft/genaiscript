@@ -19,7 +19,7 @@ import { JSONLineCache } from "./cache"
 import { EmbeddingCreateParams, EmbeddingCreateResponse } from "./chattypes"
 import { LanguageModelConfiguration } from "./server/messages"
 import { getConfigHeaders } from "./openai"
-import { ellipse, logVerbose } from "./util"
+import { dotGenaiscriptPath, ellipse, logVerbose } from "./util"
 import { TraceOptions } from "./trace"
 import { CancellationOptions, checkCancelled } from "./cancellation"
 import { arrayify, trimTrailingSlash } from "./cleaners"
@@ -171,7 +171,7 @@ class OpenAIEmbeddings implements EmbeddingsModel {
  * Create a vector index for documents.
  */
 export async function vectorIndex(
-    folderPath: string,
+    indexName: string,
     options?: VectorIndexOptions & TraceOptions & CancellationOptions
 ): Promise<WorkspaceFileIndex> {
     const {
@@ -183,6 +183,9 @@ export async function vectorIndex(
         chunkSize = 512,
         chunkOverlap = 128,
     } = options || {}
+
+    indexName = indexName?.replace(/[^a-z0-9]/i, "") || "default"
+    const folderPath = dotGenaiscriptPath("vectors", indexName)
 
     // Import the local document index
     const { LocalDocumentIndex } = await import("vectra")
@@ -227,6 +230,7 @@ export async function vectorIndex(
     checkCancelled(cancellationToken)
 
     return Object.freeze({
+        name: indexName,
         list: async () => {
             const docs = await index.listDocuments()
             const res: WorkspaceFile[] = []
@@ -274,25 +278,32 @@ export async function vectorIndex(
  * @returns The files with scores based on relevance to the query.
  */
 export async function vectorSearch(
+    indexName: string,
     query: string,
     files: WorkspaceFile[],
-    folderPath: string,
     options: VectorSearchOptions & TraceOptions & CancellationOptions
 ): Promise<WorkspaceFileWithScore[]> {
     const {
         topK,
         embeddingsModel,
         minScore = 0,
-        trace,
         cancellationToken,
+        trace,
     } = options
 
     trace?.startDetails(`🔍 embeddings`)
     try {
+        indexName = indexName || "default"
+        trace?.itemValue(`name`, indexName)
         trace?.itemValue(`model`, embeddingsModel)
-        const index = await vectorIndex(folderPath, options)
+        const index = await vectorIndex(indexName, {
+            ...options,
+            trace: trace,
+        })
         checkCancelled(cancellationToken)
         for (const file of files) {
+            await resolveFileContent(file, { trace })
+            checkCancelled(cancellationToken)
             await index.upsert(file)
             checkCancelled(cancellationToken)
         }

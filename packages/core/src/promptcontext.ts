@@ -194,19 +194,12 @@ export async function createPromptContext(
             }
         },
         index: async (indexId, indexOptions) => {
-            indexId = indexId?.replace(/[^a-zA-Z0-9]/g, "")
-            if (!indexId) throw new NotSupportedError("missing index ID")
             const opts = {
                 ...(indexOptions || {}),
                 embeddingsModel:
                     indexOptions?.embeddingsModel || options?.embeddingsModel,
             }
-            const key = await hash(
-                { opts },
-                { length: VECTOR_INDEX_HASH_LENGTH }
-            )
-            const folderPath = dotGenaiscriptPath("index", indexId, key)
-            const res = await vectorIndex(folderPath, {
+            const res = await vectorIndex(indexId, {
                 ...opts,
                 trace,
                 cancellationToken,
@@ -229,22 +222,16 @@ export async function createPromptContext(
                 await resolveFileContents(files)
                 searchOptions.embeddingsModel =
                     searchOptions?.embeddingsModel ?? options?.embeddingsModel
-                const key = await hash(
-                    { files, searchOptions },
-                    { length: VECTOR_INDEX_HASH_LENGTH }
-                )
-                const folderPath = dotGenaiscriptPath("vectors", key)
-                const res = await vectorSearch(q, files, folderPath, {
+                const key =
+                    searchOptions?.indexName ||
+                    (await hash(
+                        { files, searchOptions },
+                        { length: VECTOR_INDEX_HASH_LENGTH }
+                    ))
+                const res = await vectorSearch(key, q, files, {
                     ...searchOptions,
                     trace: vecTrace,
                     cancellationToken,
-                })
-                // Log search results
-                vecTrace.files(res, {
-                    model,
-                    secrets: env.secrets,
-                    skipIfEmpty: true,
-                    maxLength: 0,
                 })
                 return res
             } finally {

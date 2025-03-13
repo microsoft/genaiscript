@@ -3198,6 +3198,7 @@ interface HighlightOptions {
 }
 
 interface WorkspaceFileIndex {
+    name: string
     list: () => Promise<WorkspaceFile[]>
     upsert: (file: ElementOrArray<WorkspaceFile>) => Promise<void>
     query: (
@@ -3222,6 +3223,10 @@ interface VectorSearchOptions extends VectorIndexOptions {
      * Minimum similarity score
      */
     minScore?: number
+    /**
+     * Index to use
+     */
+    indexName?: string
 }
 
 interface FuzzSearchOptions {
