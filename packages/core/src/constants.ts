@@ -138,6 +138,7 @@ export const ALIBABA_BASE =
 export const MISTRAL_API_BASE = "https://api.mistral.ai/v1"
 export const DEEPSEEK_API_BASE = "https://api.deepseek.com/v1"
 export const WHISPERASR_API_BASE = "http://localhost:9000"
+export const WINDOWS_AI_API_BASE = "http://127.0.0.1:5272/v1"
 
 export const PROMPTFOO_CACHE_PATH = ".genaiscript/cache/tests"
 export const PROMPTFOO_CONFIG_DIR = ".genaiscript/config/tests"
@@ -180,6 +181,7 @@ export const MODEL_PROVIDER_LMSTUDIO = "lmstudio"
 export const MODEL_PROVIDER_JAN = "jan"
 export const MODEL_PROVIDER_DEEPSEEK = "deepseek"
 export const MODEL_PROVIDER_WHISPERASR = "whisperasr"
+export const MODEL_PROVIDER_WINDOWS_AI = "windows_ai"
 export const MODEL_PROVIDER_ECHO = "echo"
 export const MODEL_PROVIDER_NONE = "none"
 

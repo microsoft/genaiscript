@@ -212,6 +212,16 @@
             }
         },
         {
+            "id": "windows_ai",
+            "detail": "Windows AI",
+            "url": "https://learn.microsoft.com/en-us/windows/ai/",
+            "prediction": false,
+            "tokenless": true,
+            "aliases": {
+                "small": "Phi-3-mini-4k-cpu-int4-rtn-block-32-onnx"
+            }
+        },
+        {
             "id": "anthropic",
             "detail": "Anthropic models",
             "url": "https://docs.anthropic.com/en/docs/about-claude/models",
@@ -404,7 +414,6 @@
             "tokenless": true,
             "env": {}
         },
-
         {
             "id": "lmstudio",
             "detail": "LM Studio local server",
