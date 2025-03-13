@@ -155,7 +155,7 @@ export const azureAISearchIndex: WorkspaceFileIndexCreator = async (
         search: async (query: string, options?: VectorSearchOptions) => {
             const { topK, minScore = 0 } = options || {}
 
-            const vector = await embedder([query], cfg, {
+            const vector = await embedder(query, cfg, {
                 trace,
                 cancellationToken,
             })
