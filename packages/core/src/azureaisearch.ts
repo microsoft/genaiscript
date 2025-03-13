@@ -1,4 +1,3 @@
-import { config } from "dotenv"
 import {
     CancellationOptions,
     checkCancelled,
@@ -6,13 +5,8 @@ import {
 } from "../../core/src/cancellation"
 import { WorkspaceFileIndexCreator } from "../../core/src/chat"
 import { arrayify } from "../../core/src/cleaners"
-import {
-    MODEL_PROVIDER_AZURE_AI_INFERENCE,
-    TOOL_ID,
-} from "../../core/src/constants"
 import { runtimeHost } from "../../core/src/host"
 import { TraceOptions } from "../../core/src/trace"
-import { AzureKeyCredential } from "@azure/search-documents"
 
 export const azureAISearchIndex: WorkspaceFileIndexCreator = async (
     indexName: string,
@@ -29,9 +23,23 @@ export const azureAISearchIndex: WorkspaceFileIndexCreator = async (
         throw new Error(
             "Azure AI Search requires a valid Azure token credential."
         )
-
-    const { SearchClient } = await import("@azure/search-documents")
     const endPoint = process.env.AZURE_AI_SEARCH_ENDPOINT
+    if (!endPoint)
+        throw new Error("AZURE_AI_SEARCH_ENDPOINT is not configured.")
+
+    const { SearchClient, SearchIndexClient } = await import(
+        "@azure/search-documents"
+    )
+    const indexClient = new SearchIndexClient(endPoint, credential)
+    const created = await indexClient.createOrUpdateIndex({
+        name: indexName,
+        fields: [
+            { name: "filename", type: "Edm.String" },
+            { name: "content", type: "Edm.String" },
+        ],
+    })
+    trace?.detailsFenced(`azure ai search ${indexName}`, created, "json")
+
     const client = new SearchClient<WorkspaceFile>(
         endPoint,
         indexName,
