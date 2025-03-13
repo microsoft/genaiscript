@@ -9,6 +9,10 @@ import { resolveFileContent } from "./file"
 import { vectraWorkspaceFileIndex } from "./vectra"
 import { azureAISearchIndex } from "./azureaisearch"
 import { WorkspaceFileIndexCreator } from "./chat"
+import { resolveModelConnectionInfo } from "./models"
+import { EMBEDDINGS_MODEL_ID } from "./constants"
+import { runtimeHost } from "./host"
+import { resolveLanguageModel } from "./lm"
 
 /**
  * Create a vector index for documents.
@@ -17,13 +21,41 @@ export async function vectorIndex(
     indexName: string,
     options?: VectorIndexOptions & TraceOptions & CancellationOptions
 ): Promise<WorkspaceFileIndex> {
-    const { type = "local" } = options || {}
+    const {
+        type = "local",
+        embeddingsModel,
+        cancellationToken,
+        trace,
+    } = options || {}
 
     let factory: WorkspaceFileIndexCreator
     if (type === "azure_ai_search") factory = azureAISearchIndex
     else factory = vectraWorkspaceFileIndex
 
-    return await factory(indexName, options)
+    // Resolve connection info for the embeddings model
+    const { info, configuration } = await resolveModelConnectionInfo(
+        {
+            model: embeddingsModel,
+        },
+        {
+            token: true,
+            defaultModel: EMBEDDINGS_MODEL_ID,
+        }
+    )
+    checkCancelled(cancellationToken)
+    if (info.error) throw new Error(info.error)
+    if (!configuration)
+        throw new Error("No configuration found for vector search")
+    // get embedder
+    const { embedder } = await resolveLanguageModel(info.provider)
+    if (!embedder)
+        throw new Error(`${info.provider} does not support embeddings`)
+
+    // Pull the model
+    await runtimeHost.pullModel(configuration, { trace, cancellationToken })
+    checkCancelled(cancellationToken)
+
+    return await factory(indexName, configuration, embedder, options)
 }
 
 /**
@@ -60,7 +92,7 @@ export async function vectorSearch(
         for (const file of files) {
             await resolveFileContent(file, { trace })
             checkCancelled(cancellationToken)
-            await index.upload(file)
+            await index.insertOrUpdate(file)
             checkCancelled(cancellationToken)
         }
         const r = await index.search(query, { topK, minScore })

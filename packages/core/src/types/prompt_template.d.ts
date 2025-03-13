@@ -3203,13 +3203,9 @@ interface WorkspaceFileIndex {
      */
     name: string
     /**
-     * Gets the number of files in the index
-     */
-    size: () => Promise<number>
-    /**
      * Uploads or merges files into the index
      */
-    upload: (file: ElementOrArray<WorkspaceFile>) => Promise<void>
+    insertOrUpdate: (file: ElementOrArray<WorkspaceFile>) => Promise<void>
     /**
      * Searches the index
      */

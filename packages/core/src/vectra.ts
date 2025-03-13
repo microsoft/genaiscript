@@ -24,7 +24,7 @@ import { TraceOptions } from "./trace"
 import { CancellationOptions, checkCancelled } from "./cancellation"
 import { arrayify, trimTrailingSlash } from "./cleaners"
 import { resolveFileContent } from "./file"
-import { WorkspaceFileIndexCreator } from "./chat"
+import { EmbeddingFunction, WorkspaceFileIndexCreator } from "./chat"
 
 /**
  * Represents the cache key for embeddings.
@@ -57,8 +57,8 @@ class OpenAIEmbeddings implements EmbeddingsModel {
      * @param options Options for tracing.
      */
     public constructor(
-        readonly info: ModelConnectionOptions,
-        readonly configuration: LanguageModelConfiguration,
+        readonly cfg: LanguageModelConfiguration,
+        readonly embedder: EmbeddingFunction,
         readonly options?: TraceOptions & CancellationOptions
     ) {
         this.cache = JSONLineCache.byName<
@@ -78,7 +78,7 @@ class OpenAIEmbeddings implements EmbeddingsModel {
     public async createEmbeddings(
         inputs: string | string[]
     ): Promise<EmbeddingsResponse> {
-        const { provider, base, model } = this.configuration
+        const { provider, base, model } = this.cfg
 
         // Define the cache key for the current request
         const cacheKey: EmbeddingsCacheKey = { inputs, model, provider, base }
@@ -103,64 +103,15 @@ class OpenAIEmbeddings implements EmbeddingsModel {
     private async uncachedCreateEmbeddings(
         input: string | string[]
     ): Promise<EmbeddingsResponse> {
-        const { provider, base, model, type } = this.configuration
-        const { trace } = this.options || {}
-        const body: EmbeddingCreateParams = { input, model }
-        let url: string
-        const headers: Record<string, string> = getConfigHeaders(
-            this.configuration
+        const { error, data } = await this.embedder(
+            arrayify(input),
+            this.cfg,
+            this.options
         )
-        headers["Content-Type"] = "application/json"
-
-        // Determine the URL based on provider type
-        if (
-            provider === MODEL_PROVIDER_AZURE_OPENAI ||
-            provider === MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI ||
-            type === "azure" ||
-            type === "azure_serverless"
-        ) {
-            url = `${trimTrailingSlash(base)}/${model.replace(/\./g, "")}/embeddings?api-version=${AZURE_OPENAI_API_VERSION}`
-            delete body.model
-        } else if (provider === MODEL_PROVIDER_AZURE_SERVERLESS_MODELS) {
-            url = base.replace(/^https?:\/\/([^/]+)\/?/, body.model)
-            delete body.model
-        } else {
-            url = `${base}/embeddings`
-        }
-        const fetch = await createFetch({ retryOn: [429] })
-        if (trace) traceFetchPost(trace, url, headers, body)
-        logVerbose(
-            `embeddings: ${ellipse(typeof input === "string" ? input : input?.join(","), 32)} with ${provider}:${model}`
-        )
-
-        // Send POST request to create embeddings
-        checkCancelled(this.options?.cancellationToken)
-        const resp = await fetch(url, {
-            method: "POST",
-            headers,
-            body: JSON.stringify(body),
-        })
-        trace?.itemValue(`response`, `${resp.status} ${resp.statusText}`)
-
-        // Process the response
-        if (resp.status < 300) {
-            const data = (await resp.json()) as EmbeddingCreateResponse
-            return {
-                status: "success",
-                output: data.data
-                    .sort((a, b) => a.index - b.index)
-                    .map((item) => item.embedding),
-            }
-        } else if (resp.status == 429) {
-            return {
-                status: "rate_limited",
-                message: `The embeddings API returned a rate limit error.`,
-            }
-        } else {
-            return {
-                status: "error",
-                message: `The embeddings API returned an error status of ${resp.status}: ${resp.statusText}`,
-            }
+        if (error) return { status: "error", message: error }
+        return {
+            status: "success",
+            output: data,
         }
     }
 }
@@ -170,10 +121,11 @@ class OpenAIEmbeddings implements EmbeddingsModel {
  */
 export const vectraWorkspaceFileIndex: WorkspaceFileIndexCreator = async (
     indexName: string,
+    cfg: LanguageModelConfiguration,
+    embedder: EmbeddingFunction,
     options?: VectorIndexOptions & TraceOptions & CancellationOptions
 ) => {
     const {
-        embeddingsModel,
         version = 1,
         deleteIfExists,
         trace,
@@ -189,25 +141,7 @@ export const vectraWorkspaceFileIndex: WorkspaceFileIndexCreator = async (
     const { LocalDocumentIndex } = await import("vectra")
     const tokenizer = { encode, decode }
 
-    // Resolve connection info for the embeddings model
-    const { info, configuration } = await resolveModelConnectionInfo(
-        {
-            model: embeddingsModel,
-        },
-        {
-            token: true,
-            defaultModel: EMBEDDINGS_MODEL_ID,
-        }
-    )
-    checkCancelled(cancellationToken)
-    if (info.error) throw new Error(info.error)
-    if (!configuration)
-        throw new Error("No configuration found for vector search")
-
-    // Pull the model
-    await runtimeHost.pullModel(configuration, { trace, cancellationToken })
-    checkCancelled(cancellationToken)
-    const embeddings = new OpenAIEmbeddings(info, configuration, {
+    const embeddings = new OpenAIEmbeddings(cfg, embedder, {
         trace,
         cancellationToken,
     })
@@ -229,12 +163,7 @@ export const vectraWorkspaceFileIndex: WorkspaceFileIndexCreator = async (
 
     return Object.freeze({
         name: indexName,
-        size: async () => {
-            const docs = await index.listDocuments()
-            const stats = await index.getCatalogStats()
-            return stats.documents
-        },
-        upload: async (file) => {
+        insertOrUpdate: async (file) => {
             const files = arrayify(file)
             for (const f of files) {
                 await resolveFileContent(f, { trace })

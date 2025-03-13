@@ -3,7 +3,10 @@ import {
     checkCancelled,
     toSignal,
 } from "../../core/src/cancellation"
-import { WorkspaceFileIndexCreator } from "../../core/src/chat"
+import {
+    EmbeddingFunction,
+    WorkspaceFileIndexCreator,
+} from "../../core/src/chat"
 import { arrayify } from "../../core/src/cleaners"
 import { runtimeHost } from "../../core/src/host"
 import { TraceOptions } from "../../core/src/trace"
@@ -11,14 +14,25 @@ import { logVerbose } from "./util"
 import type { TokenCredential, KeyCredential } from "@azure/core-auth"
 import { resolveFileContents } from "./file"
 import { hash } from "./crypto"
+import { LanguageModelConfiguration } from "./server/messages"
+import { chunk } from "./encoders"
 
 const HASH_LENGTH = 64
 export const azureAISearchIndex: WorkspaceFileIndexCreator = async (
     indexName: string,
+    cfg: LanguageModelConfiguration,
+    embedder: EmbeddingFunction,
     options?: VectorIndexOptions & TraceOptions & CancellationOptions
 ) => {
     // https://learn.microsoft.com/en-us/azure/search/search-security-rbac?tabs=roles-portal-admin%2Croles-portal%2Croles-portal-query%2Ctest-portal%2Ccustom-role-portal
-    const { trace, cancellationToken, deleteIfExists } = options || {}
+    const {
+        trace,
+        cancellationToken,
+        deleteIfExists,
+        chunkOverlap = 128,
+        chunkSize = 512,
+    } = options || {}
+    const vectorSize = 1536
     const abortSignal = toSignal(cancellationToken)
     const { SearchClient, SearchIndexClient, AzureKeyCredential } =
         await import("@azure/search-documents")
@@ -56,39 +70,77 @@ export const azureAISearchIndex: WorkspaceFileIndexCreator = async (
                 filterable: true,
                 sortable: true,
             },
+            { name: "lineStart", type: "Edm.Int32", filterable: true },
+            { name: "lineEnd", type: "Edm.Int32", filterable: true },
             { name: "content", type: "Edm.String", searchable: true },
+            {
+                name: "contentVector",
+                type: "Collection(Edm.Single)",
+                searchable: true,
+                vectorSearchDimensions: vectorSize,
+                vectorSearchProfileName: "content-vector-profile",
+            },
         ],
+        vectorSearch: {
+            profiles: [
+                {
+                    name: "content-vector-profile",
+                    algorithmConfigurationName: "content-vector-algorithm",
+                },
+            ],
+            algorithms: [
+                {
+                    name: "content-vector-algorithm",
+                    kind: "hnsw",
+                    parameters: {
+                        m: 4,
+                        efConstruction: 400,
+                        efSearch: 500,
+                        metric: "cosine",
+                    },
+                },
+            ],
+        },
     })
     trace?.detailsFenced(`azure ai search ${indexName}`, created, "json")
 
-    const client = new SearchClient<WorkspaceFile>(
+    type TextChunkEntry = TextChunk & { id: string; contentVector: number[] }
+    const client = new SearchClient<TextChunkEntry>(
         endPoint,
         indexName,
         credential,
         {}
     )
 
-    const fileId = async (file: WorkspaceFile) =>
-        await hash(file.filename ?? file.content, { length: HASH_LENGTH })
+    const chunkId = async (chunk: TextChunk) =>
+        await hash(
+            [chunk.filename ?? chunk.content, chunk.lineEnd, chunk.lineEnd],
+            { length: HASH_LENGTH }
+        )
 
     return Object.freeze({
         name: indexName,
-        size: async () => {
-            const res = await client.getDocumentsCount({ abortSignal })
-            return res
-        },
-        upload: async (file: ElementOrArray<WorkspaceFile>) => {
+        insertOrUpdate: async (file: ElementOrArray<WorkspaceFile>) => {
             const files = arrayify(file)
             await resolveFileContents(files, { cancellationToken })
-            const docs = await Promise.all(
-                files
-                    .filter(({ encoding }) => !encoding)
-                    .map(async ({ filename, content }) => ({
-                        id: await fileId({ filename, content }),
-                        filename,
-                        content,
-                    }))
-            )
+            const docs: TextChunkEntry[] = []
+            for (const file of files) {
+                const chunks = await chunk(file, {
+                    chunkSize,
+                    chunkOverlap,
+                })
+                for (const chunk of chunks) {
+                    const vector = await embedder([chunk.content], cfg, options)
+                    checkCancelled(cancellationToken)
+                    if (vector.status !== "success")
+                        throw new Error(vector.error || vector.status)
+                    docs.push({
+                        id: await chunkId(chunk),
+                        ...chunk,
+                        contentVector: vector.data[0],
+                    })
+                }
+            }
             if (!docs.length) return
 
             const res = await client.mergeOrUploadDocuments(docs, {
@@ -102,7 +154,28 @@ export const azureAISearchIndex: WorkspaceFileIndexCreator = async (
         },
         search: async (query: string, options?: VectorSearchOptions) => {
             const { topK, minScore = 0 } = options || {}
-            const docs = await client.search(query, {})
+
+            const vector = await embedder([query], cfg, {
+                trace,
+                cancellationToken,
+            })
+            checkCancelled(cancellationToken)
+            if (vector.status !== "success")
+                throw new Error(vector.error || vector.status)
+
+            const docs = await client.search(query, {
+                searchMode: "all",
+                vectorSearchOptions: {
+                    queries: [
+                        {
+                            kind: "vector",
+                            vector: vector.data[0],
+                            fields: ["contentVector"],
+                            kNearestNeighborsCount: 3,
+                        },
+                    ],
+                },
+            })
             const res: WorkspaceFileWithScore[] = []
             for await (const doc of docs.results) {
                 if (doc.score < minScore) continue

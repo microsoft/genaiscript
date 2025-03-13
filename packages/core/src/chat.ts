@@ -50,6 +50,7 @@ import {
     ChatCompletionToolMessageParam,
     ChatCompletionUserMessageParam,
     CreateChatCompletionRequest,
+    EmbeddingResult,
 } from "./chattypes"
 import {
     collapseChatMessages,
@@ -173,8 +174,16 @@ export type ImageGenerationFunction = (
     options: TraceOptions & CancellationOptions
 ) => Promise<CreateImageResult>
 
+export type EmbeddingFunction = (
+    input: string[],
+    cfg: LanguageModelConfiguration,
+    options: TraceOptions & CancellationOptions
+) => Promise<EmbeddingResult>
+
 export type WorkspaceFileIndexCreator = (
     indexName: string,
+    cfg: LanguageModelConfiguration,    
+    embedder: EmbeddingFunction,
     options?: VectorIndexOptions & TraceOptions & CancellationOptions
 ) => Promise<WorkspaceFileIndex>
 
@@ -186,6 +195,7 @@ export interface LanguageModel {
     transcriber?: TranscribeFunction
     speaker?: SpeechFunction
     imageGenerator?: ImageGenerationFunction
+    embedder?: EmbeddingFunction
 }
 
 async function runToolCalls(

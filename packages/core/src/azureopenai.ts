@@ -7,6 +7,7 @@ import { errorMessage, serializeError } from "./error"
 import { createFetch } from "./fetch"
 import {
     OpenAIChatCompletion,
+    OpenAIEmbedder,
     OpenAIImageGeneration,
     OpenAISpeech,
     OpenAITranscribe,
@@ -102,4 +103,5 @@ export const AzureOpenAIModel = Object.freeze<LanguageModel>({
     transcriber: OpenAITranscribe,
     speaker: OpenAISpeech,
     imageGenerator: OpenAIImageGeneration,
+    embedder: OpenAIEmbedder,
 })
