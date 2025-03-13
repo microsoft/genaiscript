@@ -3226,6 +3226,19 @@ interface VectorIndexOptions extends EmbeddingsModelOptions {
     deleteIfExists?: boolean
     chunkSize?: number
     chunkOverlap?: number
+
+    /**
+     * Embeddings vector size
+     */
+    vectorSize?: number
+    /**
+     * Override default embeddings cache name
+     */
+    cacheName?: string
+    /**
+     * Cache salt to invalidate cache entries
+     */
+    cacheSalt?: string
 }
 
 interface VectorSearchOptions extends VectorIndexOptions {

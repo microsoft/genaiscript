@@ -39,9 +39,13 @@ import { CancellationOptions, checkCancelled } from "./cancellation"
  */
 export async function resolveFileContent(
     file: WorkspaceFile,
-    options?: TraceOptions & { maxFileSize?: number }
+    options?: TraceOptions & { maxFileSize?: number } & CancellationOptions
 ) {
-    const { trace, maxFileSize = MAX_FILE_CONTENT_SIZE } = options || {}
+    const {
+        trace,
+        cancellationToken,
+        maxFileSize = MAX_FILE_CONTENT_SIZE,
+    } = options || {}
 
     // decode known files
     if (file.encoding === "base64") {
@@ -80,7 +84,7 @@ export async function resolveFileContent(
         }
 
         trace?.item(`fetch ${url}`)
-        const fetch = await createFetch()
+        const fetch = await createFetch({ cancellationToken })
         const resp = await fetch(url, {
             headers: {
                 "Content-Type": adapter?.contentType ?? "text/plain",

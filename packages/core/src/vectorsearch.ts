@@ -25,6 +25,7 @@ interface EmbeddingsCacheKey {
     provider: string
     model: string
     inputs: string
+    salt?: string
 }
 
 /**
@@ -35,8 +36,9 @@ type EmbeddingsCache = JSONLineCache<EmbeddingsCacheKey, EmbeddingsResponse>
 
 export function createCachedEmbedder(
     embedder: EmbeddingFunction,
-    cacheName?: string
+    options?: { cacheName?: string; cacheSalt?: string }
 ): EmbeddingFunction {
+    const { cacheName, cacheSalt } = options || {}
     const cache: EmbeddingsCache = JSONLineCache.byName<
         EmbeddingsCacheKey,
         EmbeddingsResponse
@@ -48,6 +50,7 @@ export function createCachedEmbedder(
             provider: "openai",
             model: "default",
             inputs,
+            salt: cacheSalt,
         }
         const cached = await cache.get(key)
         if (cached) return cached
@@ -64,6 +67,7 @@ export async function vectorIndex(
     indexName: string,
     options?: VectorIndexOptions & TraceOptions & CancellationOptions
 ): Promise<WorkspaceFileIndex> {
+    options = options || {}
     const {
         type = "local",
         embeddingsModel,
@@ -98,6 +102,15 @@ export async function vectorIndex(
     // Pull the model
     await runtimeHost.pullModel(configuration, { trace, cancellationToken })
     checkCancelled(cancellationToken)
+
+    if (!options.vectorSize) {
+        const sniff = await cachedEmbedder(
+            `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.`,
+            configuration,
+            options
+        )
+        options.vectorSize = sniff.data[0].length
+    }
 
     return await factory(indexName, configuration, cachedEmbedder, options)
 }

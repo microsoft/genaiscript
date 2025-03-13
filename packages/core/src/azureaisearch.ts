@@ -12,7 +12,7 @@ import { runtimeHost } from "../../core/src/host"
 import { TraceOptions } from "../../core/src/trace"
 import { logVerbose } from "./util"
 import type { TokenCredential, KeyCredential } from "@azure/core-auth"
-import { resolveFileContents } from "./file"
+import { resolveFileContent } from "./file"
 import { hash } from "./crypto"
 import { LanguageModelConfiguration } from "./server/messages"
 import { chunk } from "./encoders"
@@ -31,8 +31,8 @@ export const azureAISearchIndex: WorkspaceFileIndexCreator = async (
         deleteIfExists,
         chunkOverlap = 128,
         chunkSize = 512,
+        vectorSize = 1536,
     } = options || {}
-    const vectorSize = 1536
     const abortSignal = toSignal(cancellationToken)
     const { SearchClient, SearchIndexClient, AzureKeyCredential } =
         await import("@azure/search-documents")
@@ -55,7 +55,9 @@ export const azureAISearchIndex: WorkspaceFileIndexCreator = async (
         credential = token.credential
     }
 
-    logVerbose(`azure ai search: ${indexName}`)
+    logVerbose(
+        `azure ai search: ${indexName}, embedder ${cfg.provider}:${cfg.model}, ${vectorSize} dimensions`
+    )
     const indexClient = new SearchIndexClient(endPoint, credential, {})
     if (deleteIfExists)
         await indexClient.deleteIndex(indexName, { abortSignal })
@@ -122,9 +124,10 @@ export const azureAISearchIndex: WorkspaceFileIndexCreator = async (
         name: indexName,
         insertOrUpdate: async (file: ElementOrArray<WorkspaceFile>) => {
             const files = arrayify(file)
-            await resolveFileContents(files, { cancellationToken })
             const docs: TextChunkEntry[] = []
             for (const file of files) {
+                await resolveFileContent(file, { cancellationToken })
+                if (file.encoding) continue
                 const chunks = await chunk(file, {
                     chunkSize,
                     chunkOverlap,

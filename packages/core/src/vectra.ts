@@ -6,7 +6,7 @@
 import { encode, decode } from "gpt-tokenizer"
 import type { EmbeddingsModel, EmbeddingsResponse } from "vectra/lib/types"
 import { LanguageModelConfiguration } from "./server/messages"
-import { dotGenaiscriptPath } from "./util"
+import { dotGenaiscriptPath, logVerbose } from "./util"
 import { TraceOptions } from "./trace"
 import { CancellationOptions, checkCancelled } from "./cancellation"
 import { arrayify } from "./cleaners"
@@ -70,10 +70,15 @@ export const vectraWorkspaceFileIndex: WorkspaceFileIndexCreator = async (
         cancellationToken,
         chunkSize = 512,
         chunkOverlap = 128,
+        vectorSize = 1536,
     } = options || {}
 
     indexName = indexName?.replace(/[^a-z0-9]/i, "") || "default"
     const folderPath = dotGenaiscriptPath("vectors", indexName)
+
+    logVerbose(
+        `vectra search: ${indexName}, embedder ${cfg.provider}:${cfg.model}, ${vectorSize} dimensions`
+    )
 
     // Import the local document index
     const { LocalDocumentIndex } = await import("vectra")

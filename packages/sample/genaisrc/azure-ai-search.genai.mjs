@@ -7,7 +7,7 @@ script({
     },
 })
 
-const index = await retrieval.index("docs", { type: "azure_ai_search" })
+const index = await retrieval.index("docs", { type: "azure_ai_search", cacheSalt:"1" })
 await index.insertOrUpdate(env.files)
 const chunks = await index.search("lorem")
 console.log(`Found ${chunks.length} chunks.`)
