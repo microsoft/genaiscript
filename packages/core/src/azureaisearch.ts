@@ -12,6 +12,7 @@ import type { TokenCredential, KeyCredential } from "@azure/core-auth"
 import { resolveFileContents } from "./file"
 import { hash } from "./crypto"
 
+const HASH_LENGTH = 64
 export const azureAISearchIndex: WorkspaceFileIndexCreator = async (
     indexName: string,
     options?: VectorIndexOptions & TraceOptions & CancellationOptions
@@ -67,6 +68,9 @@ export const azureAISearchIndex: WorkspaceFileIndexCreator = async (
         {}
     )
 
+    const fileId = async (file: WorkspaceFile) =>
+        await hash(file.filename ?? file.content, { length: HASH_LENGTH })
+
     return Object.freeze({
         name: indexName,
         size: async () => {
@@ -80,7 +84,7 @@ export const azureAISearchIndex: WorkspaceFileIndexCreator = async (
                 files
                     .filter(({ encoding }) => !encoding)
                     .map(async ({ filename, content }) => ({
-                        id: await hash(filename ?? content, { length: 18 }),
+                        id: await fileId({ filename, content }),
                         filename,
                         content,
                     }))
