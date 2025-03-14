@@ -1,5 +1,5 @@
 script({
-    files: "src/robots.jpg",
+    files: ["src/robots.jpg", "src/vision/apollo11.jpg"],
     model: "vision",
 })
 const res = await runPrompt((_) => {

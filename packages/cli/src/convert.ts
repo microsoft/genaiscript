@@ -65,7 +65,10 @@ export async function convertFiles(
     const signal = toSignal(cancellationToken)
     applyModelOptions(options, "cli")
     const convertDir = getConvertDir(scriptId)
-    const convertTrace = new MarkdownTrace()
+    const convertTrace = new MarkdownTrace({
+        cancellationToken,
+        dir: convertDir,
+    })
     const outTraceFilename = await setupTraceWriting(
         convertTrace,
         "trace",

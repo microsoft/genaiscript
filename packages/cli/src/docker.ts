@@ -23,6 +23,7 @@ import Dockerode, { Container } from "dockerode"
 import { shellParse, shellQuote } from "../../core/src/shell"
 import { PLimitPromiseQueue } from "../../core/src/concurrency"
 import { delay } from "es-toolkit"
+import { generateId } from "../../core/src/id"
 
 type DockerodeType = import("dockerode")
 
@@ -206,7 +207,7 @@ export class DockerManager {
         let name = (userName || image).replace(/[^a-zA-Z0-9]+/g, "_")
         if (persistent)
             name += `_${await hash({ image, name, ports, env, networkEnabled, postCreateCommands, CORE_VERSION }, { length: 12, version: true })}`
-        else name += `_${randomHex(6)}`
+        else name += `_${generateId()}`
         const hostPath = host.path.resolve(
             dotGenaiscriptPath(DOCKER_VOLUMES_DIR, name)
         )

@@ -91,6 +91,7 @@ import { deleteUndefinedValues } from "./cleaners"
 import { splitThink, unthink } from "./think"
 import { measure } from "./performance"
 import { renderMessagesToTerminal } from "./chatrenderterminal"
+import { fileCacheImage } from "./filecache"
 
 function toChatCompletionImage(
     image: PromptImage
@@ -182,7 +183,7 @@ export type EmbeddingFunction = (
 
 export type WorkspaceFileIndexCreator = (
     indexName: string,
-    cfg: LanguageModelConfiguration,    
+    cfg: LanguageModelConfiguration,
     embedder: EmbeddingFunction,
     options?: VectorIndexOptions & TraceOptions & CancellationOptions
 ) => Promise<WorkspaceFileIndex>
@@ -735,6 +736,7 @@ async function processChatMessage(
     fileOutputs: FileOutput[],
     outputProcessors: PromptOutputProcessorHandler[],
     fileMerges: FileMergeHandler[],
+    cacheImage: (url: string) => Promise<string>,
     options: GenerationOptions
 ): Promise<RunPromptResult> {
     const {
@@ -812,10 +814,11 @@ async function processChatMessage(
                     needsNewTurn = true
                     participantTrace.details(
                         `💬 new messages`,
-                        renderMessagesToMarkdown(messages, {
+                        await renderMessagesToMarkdown(messages, {
                             textLang: "text",
                             user: true,
                             assistant: true,
+                            cacheImage,
                         })
                     )
                 }
@@ -838,10 +841,11 @@ async function processChatMessage(
                         )
                     participantTrace.details(
                         `💬 added messages (${participantMessages.length})`,
-                        renderMessagesToMarkdown(participantMessages, {
+                        await renderMessagesToMarkdown(participantMessages, {
                             textLang: "text",
                             user: true,
                             assistant: true,
+                            cacheImage,
                         }),
                         { expanded: true }
                     )
@@ -1022,6 +1026,12 @@ export async function executeChatSession(
         ? getChatCompletionCache(typeof cache === "string" ? cache : "chat")
         : undefined
     const chatTrace = trace.startTraceDetails(`💬 llm chat`, { expanded: true })
+    const cacheImage = async (url: string) =>
+        await fileCacheImage(url, {
+            trace,
+            cancellationToken,
+            dir: chatTrace.options?.dir,
+        })
     try {
         if (toolDefinitions?.length) {
             chatTrace.detailsFenced(`🛠️ tools`, tools, "yaml")
@@ -1039,10 +1049,11 @@ export async function executeChatSession(
             if (messages)
                 chatTrace.details(
                     `💬 messages (${messages.length})`,
-                    renderMessagesToMarkdown(messages, {
+                    await renderMessagesToMarkdown(messages, {
                         textLang: "text",
                         user: true,
                         assistant: true,
+                        cacheImage,
                     }),
                     { expanded: true }
                 )
@@ -1173,6 +1184,7 @@ export async function executeChatSession(
                     fileOutputs,
                     outputProcessors,
                     fileMerges,
+                    cacheImage,
                     genOptions
                 )
                 if (output) return output

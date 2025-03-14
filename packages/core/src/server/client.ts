@@ -2,6 +2,7 @@ import type { ChatCompletionsProgressReport } from "../chattypes"
 import { CLOSE, MESSAGE } from "../constants"
 import { randomHex } from "../crypto"
 import { errorMessage } from "../error"
+import { generateId } from "../id"
 import { MarkdownTrace } from "../trace"
 import { logError } from "../util"
 import type {
@@ -141,7 +142,7 @@ export class VsCodeClient extends WebSocketClient {
             partialCb: (progress: ChatCompletionsProgressReport) => void
         }
     ) {
-        const runId = randomHex(6)
+        const runId = generateId()
         const { signal, infoCb, partialCb, trace, ...optionsRest } = options
         let resolve: (value: Partial<GenerationResult>) => void
         let reject: (reason?: any) => void

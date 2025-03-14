@@ -108,6 +108,7 @@ import {
     wrapColor,
     wrapRgbColor,
 } from "../../core/src/consolecolor"
+import { generateId } from "../../core/src/id"
 
 function getRunDir(scriptId: string, runId: string) {
     const name = new Date().toISOString().replace(/[:.]/g, "-") + "-" + runId
@@ -164,25 +165,27 @@ export async function runScriptInternal(
     options: Partial<PromptScriptRunOptions> &
         TraceOptions &
         CancellationOptions & {
+            runId?: string
             outputTrace?: MarkdownTrace
             cli?: boolean
             infoCb?: (partialResponse: { text: string }) => void
             partialCb?: (progress: ChatCompletionsProgressReport) => void
         }
 ): Promise<{ exitCode: number; result?: GenerationResult }> {
+    const runId = options.runId || generateId()
+    const runDir = options.out || getRunDir(scriptId, runId)
+    const cancellationToken = options.cancellationToken
     const {
-        trace = new MarkdownTrace(),
-        outputTrace = new MarkdownTrace(),
+        trace = new MarkdownTrace({ cancellationToken, dir: runDir }),
+        outputTrace = new MarkdownTrace({ cancellationToken, dir: runDir }),
         infoCb,
         partialCb,
     } = options || {}
 
     runtimeHost.clearModelAlias("script")
     let result: GenerationResult
-    const runId = randomHex(6)
     const workspaceFiles = options.workspaceFiles || []
     const excludedFiles = options.excludedFiles
-    const runDir = options.out || getRunDir(scriptId, runId)
     const stream = !options.json && !options.yaml
     const retry = normalizeInt(options.retry) || 8
     const retryDelay = normalizeInt(options.retryDelay) || 15000
@@ -211,7 +214,6 @@ export async function runScriptInternal(
     const applyEdits = !!options.applyEdits
     const csvSeparator = options.csvSeparator || "\t"
     const removeOut = options.removeOut
-    const cancellationToken = options.cancellationToken
     const jsSource = options.jsSource
     const logprobs = options.logprobs
     const topLogprobs = normalizeInt(options.topLogprobs)

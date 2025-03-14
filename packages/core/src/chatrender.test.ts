@@ -22,12 +22,12 @@ describe("renderShellOutput", () => {
 })
 
 describe("renderMessageContent", () => {
-    test("should return the string content directly", () => {
+    test("should return the string content directly", async () => {
         const msg: ChatCompletionUserMessageParam = {
             role: "user",
             content: "hello world",
         }
-        const result = renderMessageContent(msg)
+        const result = await renderMessageContent(msg)
         assert.equal(result, "hello world")
     })
 })
@@ -65,7 +65,7 @@ describe("lastAssistantReasoning", () => {
 })
 
 describe("renderMessagesToMarkdown", () => {
-    test("should format messages to markdown", () => {
+    test("should format messages to markdown", async () => {
         const messages = [
             {
                 role: "system",
@@ -81,7 +81,7 @@ describe("renderMessagesToMarkdown", () => {
                 reasoning_content: "reasoning",
             } satisfies ChatCompletionAssistantMessageParam,
         ]
-        const result = renderMessagesToMarkdown(messages)
+        const result = await renderMessagesToMarkdown(messages)
         assert.ok(result.includes("system message"))
         assert.ok(result.includes("user message"))
         assert.ok(result.includes("assistant message"))
