@@ -92,9 +92,10 @@ Model aliases are always lowercased when used in the script.
 script({ model: "tiny" })
 ```
 
-## `.env` file
+## `.env` file and `.env.genaiscript` file
 
-GenAIScript uses a `.env` file to load secrets and configuration information into the process environment variables.
+GenAIScript uses a `.env` file (and `.env.genaiscript`) to load secrets and configuration information into the process environment variables.
+GenAiScript multiple `.env` files to load configuration information.
 
 <Steps>
 
@@ -108,6 +109,7 @@ This ensures that you do not accidentally commit your secrets to your source con
 ```txt title=".gitignore" ".env"
 ...
 .env
+.env.genaiscript
 ```
 
 </li>
@@ -166,8 +168,11 @@ GENAISCRIPT_ENV_FILE=".env.local" npx genaiscript ...
 
 - by specifying the `.env` file location in a [configuration file](/genaiscript/reference/configuration-files).
 
-```yaml title="~/genaiscript.config.yaml"
-envFile: ~/.env.genaiscript
+```json title="~/genaiscript.config.yaml"
+{
+    "$schema": "https://microsoft.github.io/genaiscript/schemas/config.json",
+    "envFile": [".env.local", ".env.another"]
+}
 ```
 
 ### No .env file

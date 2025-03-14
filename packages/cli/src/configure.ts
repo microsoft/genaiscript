@@ -1,7 +1,5 @@
 import { select, input, confirm, password } from "@inquirer/prompts"
-import {
-    MODEL_PROVIDERS,
-} from "../../core/src/constants"
+import { MODEL_PROVIDERS } from "../../core/src/constants"
 import { resolveLanguageModelConfigurations } from "../../core/src/config"
 import { parse } from "dotenv"
 import { writeFile } from "fs/promises"
@@ -33,8 +31,8 @@ export async function configure(options: { provider?: string }) {
         )
         while (true) {
             const config = await runtimeHost.readConfig()
-            logVerbose(`- env file: ${config.envFile}`)
-            const envText = (await tryReadText(config.envFile)) || ""
+            logVerbose(`- env file: ${config.envFile[0]}`)
+            const envText = (await tryReadText(config.envFile[0])) || ""
             const env = parse(envText)
             const conn = (
                 await resolveLanguageModelConfigurations(provider.id, {
@@ -143,7 +141,7 @@ $\`Write a one-word poem in code.\`
                 }
                 if (value === "") continue
                 if (value !== oldValue)
-                    await patchEnvFile(config.envFile, name, value)
+                    await patchEnvFile(config.envFile[0], name, value)
             }
         }
     }

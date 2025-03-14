@@ -3,7 +3,7 @@ import dotenv from "dotenv"
 import { TextDecoder, TextEncoder } from "util"
 import { lstat, readFile, unlink, writeFile } from "node:fs/promises"
 import { ensureDir, exists, existsSync, remove } from "fs-extra"
-import { resolve, dirname } from "node:path"
+import { dirname } from "node:path"
 import { glob } from "glob"
 import { debug, error, info, warn } from "./log"
 import { execa } from "execa"
@@ -23,12 +23,10 @@ import {
     MODEL_PROVIDER_AZURE_SERVERLESS_MODELS,
     AZURE_AI_INFERENCE_TOKEN_SCOPES,
     MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI,
-    DOT_ENV_FILENAME,
     AZURE_MANAGEMENT_TOKEN_SCOPES,
     MODEL_PROVIDER_AZURE_AI_INFERENCE,
     MODEL_PROVIDERS,
 } from "../../core/src/constants"
-import { tryReadText } from "../../core/src/fs"
 import {
     ServerManager,
     UTF8Decoder,
@@ -68,6 +66,7 @@ import { CancellationOptions } from "../../core/src/cancellation"
 import { defaultModelConfigurations } from "../../core/src/llms"
 import { createPythonRuntime } from "../../core/src/pyodide"
 import { ci } from "./ci"
+import { arrayify } from "../../core/src/cleaners"
 
 class NodeServerManager implements ServerManager {
     async start(): Promise<void> {
@@ -80,7 +79,7 @@ class NodeServerManager implements ServerManager {
 
 export class NodeHost extends EventTarget implements RuntimeHost {
     private pulledModels: string[] = []
-    readonly dotEnvPath: string
+    readonly dotEnvPaths: string[]
     project: Project
     userState: any = {}
     readonly path = createNodePath()
@@ -106,9 +105,9 @@ export class NodeHost extends EventTarget implements RuntimeHost {
     readonly azureManagementToken: AzureTokenResolver
     readonly microsoftGraphToken: AzureTokenResolver
 
-    constructor(dotEnvPath: string) {
+    constructor(dotEnvPaths: string[]) {
         super()
-        this.dotEnvPath = dotEnvPath
+        this.dotEnvPaths = dotEnvPaths || []
         this.azureToken = createAzureTokenResolver(
             "Azure OpenAI",
             "AZURE_OPENAI_TOKEN_SCOPES",
@@ -208,20 +207,21 @@ export class NodeHost extends EventTarget implements RuntimeHost {
     }
 
     async readConfig(): Promise<HostConfiguration> {
-        const config = await resolveGlobalConfiguration(this.dotEnvPath)
+        const config = await resolveGlobalConfiguration(this.dotEnvPaths)
         const { envFile, modelAliases } = config
         if (modelAliases)
             for (const kv of Object.entries(modelAliases))
                 this.setModelAlias("config", kv[0], kv[1])
-        if (existsSync(envFile)) {
-            if (resolve(envFile) !== resolve(DOT_ENV_FILENAME))
-                logVerbose(`.env: loading ${envFile}`)
-            const res = dotenv.config({
-                path: envFile,
-                debug: !!process.env.DEBUG,
-                override: true,
-            })
-            if (res.error) throw res.error
+        for (const dotEnv of arrayify(envFile)) {
+            if (existsSync(dotEnv)) {
+                logVerbose(`.env: loading ${dotEnv}`)
+                const res = dotenv.config({
+                    path: dotEnv,
+                    debug: !!process.env.DEBUG,
+                    override: true,
+                })
+                if (res.error) throw res.error
+            }
         }
         await parseDefaultsFromEnv(process.env)
         return (this._config = config)
@@ -232,8 +232,8 @@ export class NodeHost extends EventTarget implements RuntimeHost {
         return this._config
     }
 
-    static async install(dotEnvPath?: string) {
-        const h = new NodeHost(dotEnvPath)
+    static async install(dotEnvPaths?: string[]) {
+        const h = new NodeHost(dotEnvPaths)
         setRuntimeHost(h)
         await h.readConfig()
         return h
