@@ -22,12 +22,12 @@ describe("renderShellOutput", () => {
 })
 
 describe("renderMessageContent", () => {
-    test("should return the string content directly", () => {
+    test("should return the string content directly", async () => {
         const msg: ChatCompletionUserMessageParam = {
             role: "user",
             content: "hello world",
         }
-        const result = renderMessageContent(msg)
+        const result = await renderMessageContent(msg)
         assert.equal(result, "hello world")
     })
 })
