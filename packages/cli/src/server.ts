@@ -49,7 +49,7 @@ import {
 import { randomHex } from "../../core/src/crypto"
 import { buildProject } from "./build"
 import * as http from "http"
-import { join } from "path"
+import { extname, join } from "path"
 import { createReadStream } from "fs"
 import { URL } from "url"
 import { resolveLanguageModelConfigurations } from "../../core/src/config"
@@ -623,6 +623,10 @@ export async function startServer(options: {
         )
     }
 
+    const runRx = /^\/api\/runs\/(?<runId>[a-z0-9]{12,256})$/
+    const imageRx =
+        /^\/\.genaiscript\/(images|runs\/.*?)\/[a-z0-9]{12,128}\.(png|jpg|jpeg|gif|svg)$/
+
     // Create an HTTP server to handle basic requests.
     const httpServer = http.createServer(async (req, res) => {
         const { url, method } = req
@@ -714,6 +718,17 @@ window.vscodeWebviewPlaygroundNonce = ${JSON.stringify(nonce)};
             const filePath = join(__dirname, "favicon.svg")
             const stream = createReadStream(filePath)
             stream.pipe(res)
+        } else if (method === "GET" && imageRx.test(route)) {
+            const filePath = join(process.cwd(), route)
+            try {
+                const stream = createReadStream(filePath)
+                res.setHeader("Content-Type", "image/" + extname(route))
+                res.statusCode = 200
+                stream.pipe(res)
+            } catch (e) {
+                res.statusCode = 404
+                res.end()
+            }
         } else {
             // api, validate apikey
             if (!checkApiKey(req)) {
@@ -722,7 +737,6 @@ window.vscodeWebviewPlaygroundNonce = ${JSON.stringify(nonce)};
                 res.end()
                 return
             }
-            const runRx = /^\/api\/runs\/(?<runId>[a-z0-9]{12,256})$/
             let response: ResponseStatus
             if (method === "GET" && route === "/api/version")
                 response = serverVersion()

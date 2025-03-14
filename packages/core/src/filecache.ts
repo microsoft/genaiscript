@@ -51,5 +51,5 @@ export async function fileCacheImage(
         url,
         { trace, cancellationToken } // TODO: add trace
     )
-    return options?.dir ? `./${basename(fn)}` : fn
+    return options?.dir ? `./${basename(fn)}` : relative(process.cwd(), fn)
 }
