@@ -854,9 +854,7 @@ async function resolvePromptNode(
             try {
                 const v = await n.value
                 n.resolved = v
-                n.preview = n.resolved
-                    ? `![${n.resolved.filename ?? "image"}](${n.resolved.url})`
-                    : undefined
+                n.preview = "image" // TODO
             } catch (e) {
                 n.error = e
             }

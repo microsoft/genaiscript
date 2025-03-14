@@ -71,7 +71,7 @@ export class MarkdownTrace extends EventTarget implements OutputTrace {
             .replace(/(\r?\n){3,}/g, "\n\n")
     }
 
-    startTraceDetails(title: string, options?: { expanded?: boolean }) {
+    startTraceDetails(title: string, options?: { expanded?: boolean, success?: boolean }) {
         const trace = new MarkdownTrace({ ...this.options })
         trace.addEventListener(TRACE_CHUNK, (ev) =>
             this.dispatchEvent((ev as TraceChunkEvent).clone())
