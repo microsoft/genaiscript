@@ -108,6 +108,7 @@ import {
     wrapColor,
     wrapRgbColor,
 } from "../../core/src/consolecolor"
+import { generateId } from "../../core/src/id"
 
 function getRunDir(scriptId: string, runId: string) {
     const name = new Date().toISOString().replace(/[:.]/g, "-") + "-" + runId
@@ -171,7 +172,7 @@ export async function runScriptInternal(
             partialCb?: (progress: ChatCompletionsProgressReport) => void
         }
 ): Promise<{ exitCode: number; result?: GenerationResult }> {
-    const runId = options.runId || randomHex(6)
+    const runId = options.runId || generateId()
     const runDir = options.out || getRunDir(scriptId, runId)
     const cancellationToken = options.cancellationToken
     const {

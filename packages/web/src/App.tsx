@@ -99,6 +99,7 @@ import { useLocationHashValue } from "./useLocationHashValue"
 import { ActionButton } from "./ActionButton"
 import Suspense from "./Suspense"
 import type { ChatCompletionMessageParam } from "../../core/src/chattypes"
+import { generateId } from "../../core/src/id"
 
 const fetchScripts = async (): Promise<Project> => {
     const res = await fetch(`${base}/api/scripts`, {
@@ -565,7 +566,7 @@ function RunnerProvider({ children }: { children: React.ReactNode }) {
     const run = async () => {
         if (!scriptid) return
 
-        const runId = ("" + Math.random()).slice(2)
+        const runId = generateId()
         const workspaceFiles = await Promise.all(
             importedFiles
                 .filter(({ selected }) => selected)

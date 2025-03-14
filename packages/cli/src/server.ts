@@ -63,6 +63,7 @@ import { NodeHost } from "./nodehost"
 import { findRandomOpenPort, isPortInUse } from "../../core/src/net"
 import { tryReadJSON, tryReadText } from "../../core/src/fs"
 import { collectRuns } from "./runs"
+import { generateId } from "../../core/src/id"
 
 /**
  * Starts a WebSocket server for handling chat and script execution.
@@ -268,7 +269,7 @@ export async function startServer(options: {
                         let finishReason: ChatCompletionResponse["finishReason"]
 
                         // Add a handler for chat responses.
-                        const chatId = randomHex(6)
+                        const chatId = generateId()
                         chats[chatId] = async (chunk) => {
                             if (!responseSoFar && chunk.model) {
                                 logVerbose(`chat model ${chunk.model}`)
@@ -509,6 +510,7 @@ export async function startServer(options: {
                         await runtimeHost.readConfig()
                         const runner = runScriptInternal(script, files, {
                             ...options,
+                            runId,
                             trace,
                             outputTrace,
                             runTrace: false,
@@ -623,7 +625,7 @@ export async function startServer(options: {
         )
     }
 
-    const runRx = /^\/api\/runs\/(?<runId>[a-z0-9]{12,256})$/
+    const runRx = /^\/api\/runs\/(?<runId>[A-Za-z0-9_\-]{12,256})$/
     const imageRx =
         /^\/\.genaiscript\/(images|runs\/.*?)\/[a-z0-9]{12,128}\.(png|jpg|jpeg|gif|svg)$/
 

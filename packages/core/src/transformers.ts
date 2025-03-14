@@ -149,8 +149,8 @@ export const TransformersModel = Object.freeze<LanguageModel>({
 
 async function chatMessagesToTranformerMessages(
     messages: ChatCompletionMessageParam[]
-): Chat {
-    const res = []
+): Promise<Chat> {
+    const res: Chat = []
     for (const msg of messages) {
         switch (msg.role) {
             case "function":
