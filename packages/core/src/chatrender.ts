@@ -74,7 +74,7 @@ export async function renderMessageContent(
                     break
                 case "image_url":
                     res.push(
-                        `\n\n![image](${(await cacheImage?.(c.image_url.url)) || c.image_url.url})`
+                        `\n\n![image](${(await cacheImage?.(c.image_url.url)) || c.image_url.url})\n\n`
                     )
                     break
                 case "input_audio":

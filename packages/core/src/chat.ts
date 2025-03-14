@@ -736,6 +736,7 @@ async function processChatMessage(
     fileOutputs: FileOutput[],
     outputProcessors: PromptOutputProcessorHandler[],
     fileMerges: FileMergeHandler[],
+    cacheImage: (url: string) => Promise<string>,
     options: GenerationOptions
 ): Promise<RunPromptResult> {
     const {
@@ -817,7 +818,7 @@ async function processChatMessage(
                             textLang: "text",
                             user: true,
                             assistant: true,
-                            cacheImage: fileCacheImage,
+                            cacheImage,
                         })
                     )
                 }
@@ -844,7 +845,7 @@ async function processChatMessage(
                             textLang: "text",
                             user: true,
                             assistant: true,
-                            cacheImage: fileCacheImage,
+                            cacheImage,
                         }),
                         { expanded: true }
                     )
@@ -1025,6 +1026,12 @@ export async function executeChatSession(
         ? getChatCompletionCache(typeof cache === "string" ? cache : "chat")
         : undefined
     const chatTrace = trace.startTraceDetails(`💬 llm chat`, { expanded: true })
+    const cacheImage = async (url: string) =>
+        await fileCacheImage(url, {
+            trace,
+            cancellationToken,
+            dir: chatTrace.options?.dir,
+        })
     try {
         if (toolDefinitions?.length) {
             chatTrace.detailsFenced(`🛠️ tools`, tools, "yaml")
@@ -1046,7 +1053,7 @@ export async function executeChatSession(
                         textLang: "text",
                         user: true,
                         assistant: true,
-                        cacheImage: fileCacheImage,
+                        cacheImage,
                     }),
                     { expanded: true }
                 )
@@ -1177,6 +1184,7 @@ export async function executeChatSession(
                     fileOutputs,
                     outputProcessors,
                     fileMerges,
+                    cacheImage,
                     genOptions
                 )
                 if (output) return output

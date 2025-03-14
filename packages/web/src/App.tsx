@@ -98,6 +98,7 @@ import { JSONBooleanOptionsGroup, JSONSchemaObjectForm } from "./JSONSchema"
 import { useLocationHashValue } from "./useLocationHashValue"
 import { ActionButton } from "./ActionButton"
 import Suspense from "./Suspense"
+import type { ChatCompletionMessageParam } from "../../core/src/chattypes"
 
 const fetchScripts = async (): Promise<Project> => {
     const res = await fetch(`${base}/api/scripts`, {
@@ -1000,15 +1001,32 @@ function ProblemsTabPanel() {
     )
 }
 
+function ChatMessages(props: { messages: ChatCompletionMessageParam[] }) {
+    const { messages = [] } = props
+    if (!messages.length) return null
+    const mdPromise = useMemo(
+        () =>
+            renderMessagesToMarkdown(messages, {
+                system: true,
+                user: true,
+                assistant: true,
+            }),
+        [messages]
+    )
+    const md = use(mdPromise)
+    return (
+        <>
+            <Suspense>
+                <Markdown copySaveButtons={true}>{md}</Markdown>
+            </Suspense>
+        </>
+    )
+}
+
 function MessagesTabPanel() {
     const result = useResult()
     const { messages = [] } = result || {}
     if (!messages.length) return null
-    const md = renderMessagesToMarkdown(messages, {
-        system: true,
-        user: true,
-        assistant: true,
-    })
     return (
         <>
             <vscode-tab-header slot="header">
@@ -1019,7 +1037,7 @@ function MessagesTabPanel() {
                 />
             </vscode-tab-header>
             <vscode-tab-panel>
-                <Markdown copySaveButtons={true}>{md}</Markdown>
+                <ChatMessages messages={messages} />
             </vscode-tab-panel>
         </>
     )

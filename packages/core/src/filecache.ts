@@ -2,7 +2,7 @@ import { fileTypeFromBuffer } from "./filetype"
 import { resolveBufferLike } from "./bufferlike"
 import { hash } from "./crypto"
 import { TraceOptions } from "./trace"
-import { dirname, join } from "node:path"
+import { basename, dirname, join, relative } from "node:path"
 import { stat, writeFile } from "fs/promises"
 import { ensureDir } from "fs-extra"
 import { CancellationOptions, checkCancelled } from "./cancellation"
@@ -21,7 +21,8 @@ export async function fileWriteCached(
     checkCancelled(cancellationToken)
     const filename = await hash(bytes, { length: 64 })
     checkCancelled(cancellationToken)
-    const fn = join(dir, filename + "." + ext)
+    const f = filename + "." + ext
+    const fn = join(dir, f)
     try {
         const r = await stat(fn)
         if (r.isFile()) return fn
@@ -30,6 +31,7 @@ export async function fileWriteCached(
     logVerbose(`image cache: ${fn} (${prettyBytes(bytes.length)})`)
     await ensureDir(dirname(fn))
     await writeFile(fn, bytes)
+
     return fn
 }
 
@@ -49,5 +51,5 @@ export async function fileCacheImage(
         url,
         { trace, cancellationToken } // TODO: add trace
     )
-    return fn
+    return options?.dir ? `./${basename(fn)}` : fn
 }
