@@ -10,13 +10,13 @@ GenAIScript provides various utilities to retrieve content and augment the promp
 
 ## Vector Search
 
-GenAIScript provides various vector database to support embeddings search and retreival augmented generation (RAG).
+GenAIScript provides various vector database to support embeddings search and retrieval augmented generation (RAG).
 
 The `retrieve.index` creates or loads an existing index.
 
 ```js
 // index creation
-const index = await retreival.index("animals")
+const index = await retrieval.index("animals")
 // indexing
 await index.insertOrUpdate(env.files)
 // search
@@ -30,7 +30,7 @@ By default, vector are stored locally in files under the `.genaiscript` folder u
 using the `embeddings` [model alias](/genaiscript/reference/scripts/model-aliases) (it can also be configured through the options).
 
 ```js
-const index = await retreival.index("animals", {
+const index = await retrieval.index("animals", {
     embeddingsModel: "ollama:nomic-embed-text",
 })
 ```
@@ -43,7 +43,7 @@ GenAIScript also supports using an [Azure AI Search](https://learn.microsoft.com
 The Azure AI Search uses the [simple query syntax](https://learn.microsoft.com/en-us/azure/search/query-simple-syntax).
 
 ```js
-const index = retreival.index("animals", { type: "azure_ai_search" })
+const index = retrieval.index("animals", { type: "azure_ai_search" })
 ```
 
 To configure the service, you will need to set the `AZURE_AI_SEARCH_ENDPOINT`
