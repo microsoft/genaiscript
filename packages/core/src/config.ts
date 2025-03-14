@@ -2,7 +2,12 @@ import { homedir } from "os"
 import { existsSync, readFileSync } from "fs"
 import { YAMLTryParse } from "./yaml"
 import { JSON5TryParse } from "./json5"
-import { DOT_ENV_FILENAME, MODEL_PROVIDERS, TOOL_ID } from "./constants"
+import {
+    DOT_ENV_FILENAME,
+    DOT_ENV_GENAISCRIPT_FILENAME,
+    MODEL_PROVIDERS,
+    TOOL_ID,
+} from "./constants"
 import { resolve } from "path"
 import { validateJSONWithSchema } from "./schema"
 import { HostConfiguration } from "./hostconfiguration"
@@ -14,14 +19,14 @@ import {
 } from "./server/messages"
 import { parseTokenFromEnv } from "./connection"
 import { resolveLanguageModel } from "./lm"
-import { deleteEmptyValues } from "./cleaners"
+import { arrayify, deleteEmptyValues } from "./cleaners"
 import { errorMessage } from "./error"
 import schema from "../../../docs/public/schemas/config.json"
 import defaultConfig from "./config.json"
 import { CancellationOptions } from "./cancellation"
 
 export async function resolveGlobalConfiguration(
-    dotEnvPath?: string
+    dotEnvPaths?: string[]
 ): Promise<HostConfiguration> {
     // ~/genaiscript.config.yml
     // ~/genaiscript.config.json
@@ -80,17 +85,10 @@ export async function resolveGlobalConfiguration(
         config.envFile = process.env.GENAISCRIPT_ENV_FILE
 
     // override with CLI command
-    if (dotEnvPath) config.envFile = dotEnvPath
-
-    if (config.envFile) {
-        // if the user provided a path, check file existence
-        if (!(await existsSync(config.envFile)))
-            throw new Error(`.env file not found at ${config.envFile}`)
-    } else {
-        config.envFile = DOT_ENV_FILENAME
-    }
-    if (config.envFile) config.envFile = resolve(config.envFile)
-
+    if (dotEnvPaths) config.envFile = dotEnvPaths
+    if (!config.envFile?.length)
+        config.envFile = [DOT_ENV_FILENAME, DOT_ENV_GENAISCRIPT_FILENAME]
+    config.envFile = arrayify(config.envFile).map((f) => resolve(f))
     return config
 }
 

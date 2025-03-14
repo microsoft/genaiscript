@@ -23,7 +23,7 @@ export async function buildProject(options?: {
     } else {
         let tps = arrayify(toolsPath)
         if (!tps?.length) {
-            const config = await runtimeHost.readConfig()
+            const config = await runtimeHost.config
             tps = [GENAI_ANYJS_GLOB, ...arrayify(config.include)]
         }
         tps = arrayify(tps)

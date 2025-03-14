@@ -99,6 +99,7 @@ export const FETCH_RETRY_MAX_DELAY_DEFAULT = 120000
 export const FETCH_RETRY_GROWTH_FACTOR = 1.5
 export const EXEC_MAX_BUFFER = 64
 export const DOT_ENV_FILENAME = ".env"
+export const DOT_ENV_GENAISCRIPT_FILENAME = ".env.genaiscript"
 
 export const SUCCESS_ERROR_CODE = 0
 export const UNHANDLED_ERROR_CODE = -1
@@ -117,7 +118,7 @@ export const UNRECOVERABLE_ERROR_CODES = Object.freeze([
     ANNOTATION_ERROR_CODE,
 ])
 
-export const DOT_ENV_REGEX = /\.env$/i
+export const DOT_ENV_REGEX = /\.env(\.[^\/]+)?$/i
 export const PROMPT_FENCE = "```"
 export const MARKDOWN_PROMPT_FENCE = "`````"
 
