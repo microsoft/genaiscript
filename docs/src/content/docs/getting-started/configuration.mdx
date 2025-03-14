@@ -956,7 +956,7 @@ it is included here. It allows you to do [vector search](/genaiscript/reference/
 using [Azure AI Search](https://learn.microsoft.com/en-us/azure/search/search-what-is-azure-search).
 
 ```js "azure_search:"
-const index = await retreival.index("animals", { type: "azure_ai_search" })
+const index = await retrieval.index("animals", { type: "azure_ai_search" })
 await index.insertOrUpdate(env.files)
 const docs = await index.search("cat dog")
 ```
