@@ -49,10 +49,10 @@ The difference with `Promise.all` is that you wrap each promise in a function.
 
 ```js
 const queue = host.promiseQueue(3)
-const res = await queue.all(
+const res = await queue.all([
     () => prompt`write a poem`
     () => prompt`write an essay`
-)
+])
 ```
 
 Use the `mapAll` function to iterate over an array.
