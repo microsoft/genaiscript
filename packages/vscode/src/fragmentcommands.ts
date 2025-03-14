@@ -100,14 +100,14 @@ export function activateFragmentCommands(state: ExtensionState) {
             const reportIssue = "Report Issue"
             vscode.window
                 .showErrorMessage(
-                    `Could not find a GenAiScript ${filename}. This is most likely a bug in GenAIScript.`,
+                    `Could not find a GenAIScript ${filename}. This is most likely a bug in GenAIScript.`,
                     "Report Issue"
                 )
                 .then((cmd) => {
                     if (cmd === reportIssue) {
                         vscode.commands.executeCommand(
                             "genaiscript.openIssueReporter",
-                            [`Could not find a GenAiScript issue`]
+                            [`Could not find a GenAIScript issue`]
                         )
                     }
                 })
@@ -130,7 +130,7 @@ export function activateFragmentCommands(state: ExtensionState) {
         const picked = await vscode.window.showQuickPick(
             templatesToQuickPickItems(templates, { create: true }),
             {
-                title: `Pick a GenAiScript`,
+                title: `Pick a GenAIScript`,
             }
         )
         if (picked?.action === "create") {
@@ -308,7 +308,7 @@ export function templatesToQuickPickItems(
             kind: vscode.QuickPickItemKind.Separator,
         })
         items.push(<TemplateQuickPickItem>{
-            label: "Create a new GenAiScript script...",
+            label: "Create a new GenAIScript script...",
             description: "Create a new script script in the current workspace.",
             action: "create",
         })

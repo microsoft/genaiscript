@@ -1,1 +1,1 @@
-Visual Studio Code interface showing a right-click context menu with an option 'Run GenAiScript...' highlighted at the bottom. The file explorer on the left highlights 'Document.docx' indicating it is the selected file for this action.
+Visual Studio Code interface showing a right-click context menu with an option 'Run GenAIScript...' highlighted at the bottom. The file explorer on the left highlights 'Document.docx' indicating it is the selected file for this action.

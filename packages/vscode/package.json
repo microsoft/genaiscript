@@ -397,13 +397,13 @@
             },
             {
                 "command": "genaiscript.fragment.prompt",
-                "title": "Run GenAiScript...",
+                "title": "Run GenAIScript...",
                 "category": "GenAIScript",
                 "icon": "$(genaiscript-logo)"
             },
             {
                 "command": "genaiscript.fragment.debug",
-                "title": "Debug GenAiScript...",
+                "title": "Debug GenAIScript...",
                 "category": "GenAIScript",
                 "icon": "$(debug)"
             },
@@ -426,12 +426,12 @@
             },
             {
                 "command": "genaiscript.newfile.script",
-                "title": "GenAiScript File",
+                "title": "GenAIScript File",
                 "category": "GenAIScript"
             },
             {
                 "command": "genaiscript.prompt.fork",
-                "title": "Fork GenAiScript...",
+                "title": "Fork GenAIScript...",
                 "category": "GenAIScript",
                 "icon": "$(repo-forked)"
             },
