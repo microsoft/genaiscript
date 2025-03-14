@@ -12,6 +12,16 @@ import { collapseNewlines } from "./cleaners"
 import { JSONLLMTryParse } from "./json5"
 import { details, fenceMD } from "./mkmd"
 import { stringify as YAMLStringify } from "yaml"
+import { CancellationOptions, checkCancelled } from "./cancellation"
+
+export interface ChatRenderOptions extends CancellationOptions {
+    textLang?: "markdown" | "text"
+    system?: boolean
+    user?: boolean
+    assistant?: boolean
+    cacheImage?: (url: string) => Promise<string>
+}
+
 /**
  * Renders the output of a shell command.
  * @param output - The shell output containing exit code, stdout, and stderr.
@@ -42,35 +52,43 @@ export function renderShellOutput(output: ShellOutput) {
  * @param msg - The message which could be of various types.
  * @returns A string representing the message content or undefined.
  */
-export function renderMessageContent(
+export async function renderMessageContent(
     msg:
         | ChatCompletionAssistantMessageParam
         | ChatCompletionSystemMessageParam
         | ChatCompletionUserMessageParam
-        | ChatCompletionToolMessageParam
-): string {
+        | ChatCompletionToolMessageParam,
+    options?: ChatRenderOptions
+): Promise<string | undefined> {
+    const { cacheImage } = options || {}
     const content = msg.content
     // Return the content directly if it's a simple string.
     if (typeof content === "string") return content
     // If the content is an array, process each element based on its type.
-    else if (Array.isArray(content))
-        return (
-            content
-                .map((c) =>
-                    // Handle different types of content: text, refusal, and image.
-                    c.type === "text"
-                        ? c.text
-                        : c.type === "image_url"
-                          ? `![](${c.image_url})`
-                          : c.type === "input_audio"
-                            ? `🔊 [audio](${c.input_audio})`
-                            : c.type === "refusal"
-                              ? `refused: ${c.refusal}`
-                              : `unknown message`
-                )
-                // Join the content array into a single string with spaces.
-                .join(` `)
-        )
+    else if (Array.isArray(content)) {
+        const res: string[] = []
+        for (const c of content) {
+            switch (c.type) {
+                case "text":
+                    res.push(c.text)
+                    break
+                case "image_url":
+                    res.push(
+                        `\n\n![image](${(await cacheImage?.(c.image_url.url)) || c.image_url.url})`
+                    )
+                    break
+                case "input_audio":
+                    res.push(`🔊 [audio](${c.input_audio})`)
+                    break
+                case "refusal":
+                    res.push(`refused: ${c.refusal}`)
+                    break
+                default:
+                    res.push(`unknown message`)
+            }
+        }
+        return res.join(" ")
+    }
     // Return undefined if the content is neither a string nor an array.
     return undefined
 }
@@ -86,14 +104,9 @@ export function lastAssistantReasoning(messages: ChatCompletionMessageParam[]) {
  * @param options - Optional filtering options for different roles.
  * @returns A formatted markdown string of the chat messages.
  */
-export function renderMessagesToMarkdown(
+export async function renderMessagesToMarkdown(
     messages: ChatCompletionMessageParam[],
-    options?: {
-        textLang?: "markdown" | "text"
-        system?: boolean
-        user?: boolean
-        assistant?: boolean
-    }
+    options?: ChatRenderOptions
 ) {
     // Set default options for filtering message roles.
     const {
@@ -101,96 +114,91 @@ export function renderMessagesToMarkdown(
         system = undefined, // Include system messages unless explicitly set to false.
         user = undefined, // Include user messages unless explicitly set to false.
         assistant = true, // Include assistant messages by default.
+        cancellationToken,
     } = options || {}
 
     const res: string[] = []
-    messages
-        ?.filter((msg) => {
-            // Filter messages based on their roles.
-            switch (msg.role) {
-                case "system":
-                    return system !== false
-                case "user":
-                    return user !== false
-                case "assistant":
-                    return assistant !== false
-                default:
-                    return true
-            }
-        })
-        ?.forEach((msg) => {
-            const { role } = msg
-            switch (role) {
-                case "system":
-                    res.push(
-                        details(
-                            "📙 system",
-                            fenceMD(renderMessageContent(msg), textLang),
-                            false
+    for (const msg of messages?.filter((msg) => {
+        // Filter messages based on their roles.
+        switch (msg.role) {
+            case "system":
+                return system !== false
+            case "user":
+                return user !== false
+            case "assistant":
+                return assistant !== false
+            default:
+                return true
+        }
+    })) {
+        checkCancelled(cancellationToken)
+        const { role } = msg
+        switch (role) {
+            case "system":
+                res.push(
+                    details(
+                        "📙 system",
+                        fenceMD(
+                            await renderMessageContent(msg, options),
+                            textLang
+                        ),
+                        false
+                    )
+                )
+                break
+            case "user":
+                res.push(
+                    details(
+                        `👤 user`,
+                        await renderMessageContent(msg, options),
+                        user === true
+                    )
+                )
+                break
+            case "assistant":
+                res.push(
+                    details(
+                        `🤖 assistant ${msg.name ? msg.name : ""}`,
+                        [
+                            msg.reasoning_content
+                                ? details(
+                                      "🤔 reasoning",
+                                      fenceMD(msg.reasoning_content, "markdown")
+                                  )
+                                : undefined,
+                            fenceMD(
+                                await renderMessageContent(msg, options),
+                                textLang
+                            ),
+                            ...(msg.tool_calls?.map((tc) =>
+                                details(
+                                    `📠 tool call <code>${tc.function.name}</code> (<code>${tc.id}</code>)`,
+                                    renderToolArguments(tc.function.arguments)
+                                )
+                            ) || []),
+                        ]
+                            .filter((s) => !!s)
+                            .join("\n\n"),
+                        assistant === true
+                    )
+                )
+                break
+            case "tool":
+                res.push(
+                    details(
+                        `🛠️ tool output <code>${msg.tool_call_id}</code>`,
+                        fenceMD(
+                            await renderMessageContent(msg, options),
+                            "json"
                         )
                     )
-                    break
-                case "user":
-                    let content: string
-                    if (typeof msg.content === "string")
-                        content = fenceMD(msg.content, textLang)
-                    else if (Array.isArray(msg.content)) {
-                        content = ""
-                        for (const part of msg.content) {
-                            if (part.type === "text")
-                                content += fenceMD(part.text, textLang)
-                            else if (part.type === "image_url")
-                                content += `\n![image](${part.image_url.url})`
-                            else if (part.type === "input_audio")
-                                content += `\n🔊 [audio](${part.input_audio})`
-                            else content += fenceMD(YAMLStringify(part), "yaml")
-                        }
-                    } else content = fenceMD(YAMLStringify(msg), "yaml")
-                    res.push(details(`👤 user`, content, user === true))
-                    break
-                case "assistant":
-                    res.push(
-                        details(
-                            `🤖 assistant ${msg.name ? msg.name : ""}`,
-                            [
-                                msg.reasoning_content
-                                    ? details(
-                                          "🤔 reasoning",
-                                          fenceMD(
-                                              msg.reasoning_content,
-                                              "markdown"
-                                          )
-                                      )
-                                    : undefined,
-                                fenceMD(renderMessageContent(msg), textLang),
-                                ...(msg.tool_calls?.map((tc) =>
-                                    details(
-                                        `📠 tool call <code>${tc.function.name}</code> (<code>${tc.id}</code>)`,
-                                        renderToolArguments(
-                                            tc.function.arguments
-                                        )
-                                    )
-                                ) || []),
-                            ]
-                                .filter((s) => !!s)
-                                .join("\n\n"),
-                            assistant === true
-                        )
-                    )
-                    break
-                case "tool":
-                    res.push(
-                        details(
-                            `🛠️ tool output <code>${msg.tool_call_id}</code>`,
-                            fenceMD(renderMessageContent(msg), "json")
-                        )
-                    )
-                    break
-                default:
-                    res.push(role, fenceMD(YAMLStringify(msg), "yaml"))
-                    break
-            }
-        })
+                )
+                break
+            default:
+                res.push(role, fenceMD(YAMLStringify(msg), "yaml"))
+                break
+        }
+    }
     // Join the result array into a single markdown string.
     return collapseNewlines(res.filter((s) => s !== undefined).join("\n"))
 }

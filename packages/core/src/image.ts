@@ -220,7 +220,7 @@ export async function renderImageToTerminal(
         columns: number
         rows: number
         label?: string
-    }
+    } & CancellationOptions
 ) {
     assert(!!url, "image buffer")
     const { columns, rows, label } = options

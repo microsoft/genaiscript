@@ -476,8 +476,11 @@ export async function startServer(options: {
                         const { script, files = [], options = {}, runId } = data
                         const canceller =
                             new AbortSignalCancellationController()
-                        const trace = new MarkdownTrace()
-                        const outputTrace = new MarkdownTrace()
+                        const cancellationToken = canceller.token
+                        const trace = new MarkdownTrace({ cancellationToken })
+                        const outputTrace = new MarkdownTrace({
+                            cancellationToken,
+                        })
                         trace.addEventListener(TRACE_CHUNK, (ev) => {
                             const tev = ev as TraceChunkEvent
                             chunkString(

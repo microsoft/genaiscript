@@ -91,6 +91,7 @@ import { deleteUndefinedValues } from "./cleaners"
 import { splitThink, unthink } from "./think"
 import { measure } from "./performance"
 import { renderMessagesToTerminal } from "./chatrenderterminal"
+import { fileCacheImage } from "./filecache"
 
 function toChatCompletionImage(
     image: PromptImage
@@ -182,7 +183,7 @@ export type EmbeddingFunction = (
 
 export type WorkspaceFileIndexCreator = (
     indexName: string,
-    cfg: LanguageModelConfiguration,    
+    cfg: LanguageModelConfiguration,
     embedder: EmbeddingFunction,
     options?: VectorIndexOptions & TraceOptions & CancellationOptions
 ) => Promise<WorkspaceFileIndex>
@@ -812,10 +813,11 @@ async function processChatMessage(
                     needsNewTurn = true
                     participantTrace.details(
                         `💬 new messages`,
-                        renderMessagesToMarkdown(messages, {
+                        await renderMessagesToMarkdown(messages, {
                             textLang: "text",
                             user: true,
                             assistant: true,
+                            cacheImage: fileCacheImage,
                         })
                     )
                 }
@@ -838,10 +840,11 @@ async function processChatMessage(
                         )
                     participantTrace.details(
                         `💬 added messages (${participantMessages.length})`,
-                        renderMessagesToMarkdown(participantMessages, {
+                        await renderMessagesToMarkdown(participantMessages, {
                             textLang: "text",
                             user: true,
                             assistant: true,
+                            cacheImage: fileCacheImage,
                         }),
                         { expanded: true }
                     )
@@ -1039,10 +1042,11 @@ export async function executeChatSession(
             if (messages)
                 chatTrace.details(
                     `💬 messages (${messages.length})`,
-                    renderMessagesToMarkdown(messages, {
+                    await renderMessagesToMarkdown(messages, {
                         textLang: "text",
                         user: true,
                         assistant: true,
+                        cacheImage: fileCacheImage,
                     }),
                     { expanded: true }
                 )

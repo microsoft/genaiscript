@@ -7,7 +7,6 @@ import {
     TRACE_CHUNK,
     TRACE_DETAILS,
     TRACE_MAX_FILE_SIZE,
-    TRACE_MAX_IMAGE_SIZE,
 } from "./constants"
 import { stringify as yamlStringify } from "yaml"
 import { YAMLStringify } from "./yaml"
@@ -25,6 +24,8 @@ import { CSVStringify, dataToMarkdownTable } from "./csv"
 import { INIStringify } from "./ini"
 import { ChatCompletionsProgressReport } from "./chattypes"
 import { parseTraceTree, TraceTree } from "./traceparser"
+import { fileCacheImage } from "./filecache"
+import { CancellationOptions } from "./cancellation"
 
 export class TraceChunkEvent extends Event {
     constructor(
@@ -42,13 +43,12 @@ export class TraceChunkEvent extends Event {
 }
 
 export class MarkdownTrace extends EventTarget implements OutputTrace {
-    filesDir: string
     readonly _errors: { message: string; error: SerializedError }[] = []
     private detailsDepth = 0
     private _content: (string | MarkdownTrace)[] = []
     private _tree: TraceTree
 
-    constructor(readonly options?: {}) {
+    constructor(readonly options?: CancellationOptions & { dir?: string }) {
         super()
         this.options = options || {}
     }
@@ -294,16 +294,14 @@ ${this.toResultIcon(success, "")}${title}
     }
 
     async image(url: string, caption: string) {
-        if (
-            /^https?:\/\//.test(url) ||
-            (/^data:image\//.test(url) && url.length < TRACE_MAX_IMAGE_SIZE)
+        const imageUrl = await fileCacheImage(url, {
+            trace: this,
+            ...this.options,
+        })
+        if (!imageUrl) return
+        return this.appendContent(
+            `\n\n![${caption || "image"}](${imageUrl})\n\n`
         )
-            return this.appendContent(
-                `\n\n![${caption || "image"}](${url})\n\n`
-            )
-        else {
-            return this.appendContent(`\n\n- image\n\n`)
-        }
     }
 
     private toResultIcon(value: boolean, missing: string) {

@@ -10,7 +10,7 @@ export const EchoModel = Object.freeze<LanguageModel>({
         const { partialCb, inner } = options
         const text = `## Messages
         
-${renderMessagesToMarkdown(messages, {
+${await renderMessagesToMarkdown(messages, {
     textLang: "text",
     assistant: true,
     system: true,

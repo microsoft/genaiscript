@@ -18,6 +18,7 @@ import {
     CONTROL_CHAT_EXPANDED,
     CONTROL_CHAT_LAST,
 } from "./constants"
+import { CancellationOptions, checkCancelled } from "./cancellation"
 
 async function renderMessageContent(
     msg:
@@ -29,9 +30,9 @@ async function renderMessageContent(
     options: {
         columns: number
         rows: number
-    }
+    } & CancellationOptions
 ): Promise<string[]> {
-    const { columns, rows } = options
+    const { columns, rows, cancellationToken } = options
     const content = typeof msg === "string" ? msg : msg.content
     const margin = 2
     const width = columns - margin
@@ -53,6 +54,7 @@ async function renderMessageContent(
     else if (Array.isArray(content)) {
         const res: string[] = []
         for (const c of content) {
+            checkCancelled(cancellationToken)
             switch (c.type) {
                 case "text":
                     res.push(...render(c.text))
@@ -61,7 +63,7 @@ async function renderMessageContent(
                     res.push(
                         await renderImageToTerminal(
                             dataUriToBuffer(c.image_url.url),
-                            { columns, rows }
+                            { columns, rows, cancellationToken },
                         )
                     )
                     break
