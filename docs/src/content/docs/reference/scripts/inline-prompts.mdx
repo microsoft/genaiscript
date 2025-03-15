@@ -55,7 +55,7 @@ These helpers are not available in the inner prompt and you should use `_.$`, `_
 ```js "def"
 const { text } = await runPrompt((_) => {
     def("FILE", env.files) // oops, _. is missing and def added content in the main prompt
-    _.$`Summarize files.`
+    $`Summarize files.` // oops, _ is missing and $ added content in the main prompt
 })
 ```
 
