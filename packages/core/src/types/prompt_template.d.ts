@@ -3713,17 +3713,16 @@ interface TranscriptionResult {
     /**
      * Individual segments
      */
-    segments?: TranscriptionSegment &
-        {
-            /**
-             * Seek offset of the segment
-             */
-            seek?: number
-            /**
-             * Temperature used for the generation of the segment
-             */
-            temperature?: number
-        }[]
+    segments?: (TranscriptionSegment & {
+        /**
+         * Seek offset of the segment
+         */
+        seek?: number
+        /**
+         * Temperature used for the generation of the segment
+         */
+        temperature?: number
+    })[]
 }
 
 type SpeechModelType = OptionsOrString<"openai:tts-1-hd" | "openai:tts-1">
