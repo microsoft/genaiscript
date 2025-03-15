@@ -71,7 +71,7 @@ script({
     maxTokens: 128,
 })
 
-writeTesxt(
+writeText(
     `You are an AI assistant who helps people find information.
 As the assistant, you answer questions briefly, succinctly.`,
     { role: "system" }
