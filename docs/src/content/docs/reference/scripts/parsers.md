@@ -192,8 +192,9 @@ const res = await parsers.XLSX("...filename.xlsx", {
 
 The `parsers.transcription` parses VTT or SRT transcription files into a sequence of segments.
 
+```js
+const segments = await parsers.transcription("WEBVTT...")
 ```
-const segments = await parsers.transcription(")
 
 ## Unzip
 
