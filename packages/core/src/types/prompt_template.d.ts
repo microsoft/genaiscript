@@ -2206,6 +2206,12 @@ interface Parsers {
     ): any | undefined
 
     /**
+     * Parses .vtt or .srt transcription files
+     * @param content
+     */
+    transcription(content: string | WorkspaceFile): TranscriptionSegment[]
+
+    /**
      * Convert HTML to text
      * @param content html string or file
      * @param options
@@ -2709,6 +2715,13 @@ interface Ffmpeg {
         ) => Awaitable<string>,
         options?: FFmpegCommandOptions
     ): Promise<string[]>
+}
+
+interface TranscriptionSegment {
+    id?: string
+    start: number
+    end?: number
+    text: string
 }
 
 interface GitHubOptions {
@@ -3700,28 +3713,16 @@ interface TranscriptionResult {
     /**
      * Individual segments
      */
-    segments?: {
-        /**
-         * The start time of the segment
-         */
-        start: number
-        /**
-         * The transcribed text.
-         */
-        text: string
+    segments?: (TranscriptionSegment & {
         /**
          * Seek offset of the segment
          */
         seek?: number
         /**
-         * End time in seconds
-         */
-        end?: number
-        /**
          * Temperature used for the generation of the segment
          */
         temperature?: number
-    }[]
+    })[]
 }
 
 type SpeechModelType = OptionsOrString<"openai:tts-1-hd" | "openai:tts-1">

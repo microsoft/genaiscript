@@ -30,6 +30,7 @@
     "@octokit/plugin-retry": "^7.1.4",
     "@octokit/plugin-throttling": "^9.4.0",
     "@octokit/rest": "^21.1.1",
+    "@plussub/srt-vtt-parser": "^2.0.5",
     "@smithy/util-base64": "^4.0.0",
     "@tidyjs/tidy": "^2.5.2",
     "@types/diff": "^6.0.0",

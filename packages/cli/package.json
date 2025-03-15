@@ -82,7 +82,7 @@
     "vectra": "^0.9.0",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz",
     "zod": "^3.24.2",
-    "zod-to-json-schema": "^3.24.3"
+    "zod-to-json-schema": "^3.24.4"
   },
   "optionalDependencies": {
     "@huggingface/transformers": "^3.4.0",
@@ -126,7 +126,7 @@
     "replace-ext": "^2.0.0",
     "terminal-link": "^3.0.0",
     "ws": "^8.18.1",
-    "zx": "^8.4.0"
+    "zx": "^8.4.1"
   },
   "scripts": {
     "compile:runtime:declarations": "tsc src/runtime.ts --skipLibCheck --outDir built --declaration --target es2020 --moduleResolution node --module esnext --emitDeclarationOnly",
