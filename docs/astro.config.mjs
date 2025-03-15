@@ -69,8 +69,20 @@ is at https://microsoft.github.io/genaiscript/reference/scripts.md
                         {
                             label: "Reference",
                             description:
-                                "full reference documentation for my project",
+                                "full reference documentation (runtime and cli)",
                             paths: ["reference/**"],
+                        },
+                        {
+                            label: "Reference Scripts",
+                            description:
+                                "full reference documentation for the runtime",
+                            paths: ["reference/scripts/**"],
+                        },
+                        {
+                            label: "Reference CLI",
+                            description:
+                                "full reference documentation for the command line interface",
+                            paths: ["reference/cli/**"],
                         },
                         {
                             label: "Guides",
