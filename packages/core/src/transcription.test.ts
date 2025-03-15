@@ -65,14 +65,14 @@ This is a test`;
         assert.equal(result.length, 2);
         assert.deepEqual(result[0], {
             id: "1",
-            from: 1000,
-            to: 2500,
+            start: 1000,
+            end: 2500,
             text: "Hello world"
         });
         assert.deepEqual(result[1], {
             id: "2",
-            from: 3000,
-            to: 4500,
+            start: 3000,
+            end: 4500,
             text: "This is a test"
         });
     });
@@ -90,13 +90,13 @@ This is a test`;
         
         assert.equal(result.length, 2);
         assert.deepEqual(result[0], {
-            from: 1000,
-            to: 2500,
+            start: 1000,
+            end: 2500,
             text: "Hello world"
         });
         assert.deepEqual(result[1], {
-            from: 3000,
-            to: 4500,
+            start: 3000,
+            end: 4500,
             text: "This is a test"
         });
     });

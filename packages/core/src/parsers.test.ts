@@ -194,14 +194,14 @@ This is a test`
         const result = parsers.transcription(vttContent)
         assert.deepStrictEqual(result[0], {
             id: "1",
-            from: 0,
-            to: 5000,
+            start: 0,
+            end: 5000,
             text: "Hello world",
         })
         assert.deepStrictEqual(result[1], {
             id: "2",
-            from: 5500,
-            to: 10000,
+            start: 5500,
+            end: 10000,
             text: "This is a test",
         })
     })

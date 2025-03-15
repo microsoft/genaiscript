@@ -2718,9 +2718,9 @@ interface Ffmpeg {
 }
 
 interface TranscriptionSegment {
-    id: string
-    from: number
-    to: number
+    id?: string
+    start: number
+    end?: number
     text: string
 }
 
@@ -3713,28 +3713,17 @@ interface TranscriptionResult {
     /**
      * Individual segments
      */
-    segments?: {
-        /**
-         * The start time of the segment
-         */
-        start: number
-        /**
-         * The transcribed text.
-         */
-        text: string
-        /**
-         * Seek offset of the segment
-         */
-        seek?: number
-        /**
-         * End time in seconds
-         */
-        end?: number
-        /**
-         * Temperature used for the generation of the segment
-         */
-        temperature?: number
-    }[]
+    segments?: TranscriptionSegment &
+        {
+            /**
+             * Seek offset of the segment
+             */
+            seek?: number
+            /**
+             * Temperature used for the generation of the segment
+             */
+            temperature?: number
+        }[]
 }
 
 type SpeechModelType = OptionsOrString<"openai:tts-1-hd" | "openai:tts-1">

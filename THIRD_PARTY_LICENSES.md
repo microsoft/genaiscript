@@ -2049,9 +2049,9 @@ Apache License
 
 The following npm packages may be included in this product:
 
- - @aws-sdk/client-cognito-identity@3.758.0
+ - @aws-sdk/client-cognito-identity@3.768.0
  - @aws-sdk/client-sso@3.758.0
- - @aws-sdk/credential-provider-cognito-identity@3.758.0
+ - @aws-sdk/credential-provider-cognito-identity@3.768.0
  - @aws-sdk/util-user-agent-browser@3.734.0
  - @aws-sdk/util-user-agent-node@3.758.0
  - @smithy/eventstream-codec@2.2.0
@@ -2955,7 +2955,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.116.0
+ - genaiscript-vscode@1.116.1
 
 This package contains the following license:
 
@@ -4255,7 +4255,7 @@ software or this license, under any kind of legal claim._**
 
 The following npm package may be included in this product:
 
- - axios@1.8.2
+ - axios@1.8.3
 
 This package contains the following license:
 
@@ -4921,7 +4921,7 @@ The following npm packages may be included in this product:
  - @aws-sdk/credential-provider-env@3.758.0
  - @aws-sdk/credential-provider-ini@3.758.0
  - @aws-sdk/credential-provider-node@3.758.0
- - @aws-sdk/credential-providers@3.758.0
+ - @aws-sdk/credential-providers@3.768.0
  - @aws-sdk/region-config-resolver@3.734.0
  - @aws-sdk/token-providers@3.758.0
  - @aws-sdk/types@3.734.0
@@ -8096,7 +8096,7 @@ THIS SOFTWARE.
 
 The following npm package may be included in this product:
 
- - zod-to-json-schema@3.24.3
+ - zod-to-json-schema@3.24.4
 
 This package contains the following license:
 
@@ -8918,10 +8918,10 @@ The following npm packages may be included in this product:
  - @tokenizer/token@0.3.0
  - agent-base@6.0.2
  - eastasianwidth@0.2.0
- - genaiscript-core-internal@1.116.0
- - genaiscript-sample@1.116.0
- - genaiscript-web@1.116.0
- - genaiscript@1.116.0
+ - genaiscript-core-internal@1.116.1
+ - genaiscript-sample@1.116.1
+ - genaiscript-web@1.116.1
+ - genaiscript@1.116.1
  - https-proxy-agent@5.0.1
  - isarray@1.0.0
  - javascript-natural-sort@0.7.1
@@ -10609,7 +10609,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 The following npm packages may be included in this product:
 
  - undici-types@6.20.0
- - undici@6.21.1
+ - undici@6.21.2
 
 These packages each contain the following license:
 
@@ -10684,7 +10684,7 @@ The following npm packages may be included in this product:
  - execa@9.5.2
  - figures@6.1.0
  - file-type@16.5.4
- - file-type@20.4.0
+ - file-type@20.4.1
  - get-stream@5.2.0
  - get-stream@9.0.1
  - got@14.4.6

@@ -66,5 +66,12 @@ export function parseTimestamps(transcription: string) {
 export function vttSrtParse(transcription: string): TranscriptionSegment[] {
     if (!transcription) return []
     const p = parse(transcription)
-    return p.entries.map((e) => deleteEmptyValues(e))
+    return p.entries.map((e) =>
+        deleteEmptyValues({
+            id: e.id,
+            start: e.from,
+            end: e.to,
+            text: e.text,
+        })
+    )
 }
