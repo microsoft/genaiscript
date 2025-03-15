@@ -2206,6 +2206,14 @@ interface Parsers {
     ): any | undefined
 
     /**
+     * Parses .vtt or .srt transcription files
+     * @param content
+     */
+    transcription(
+        content: string | WorkspaceFile
+    ): TranscriptionSegment[] | undefined
+
+    /**
      * Convert HTML to text
      * @param content html string or file
      * @param options
@@ -2709,6 +2717,13 @@ interface Ffmpeg {
         ) => Awaitable<string>,
         options?: FFmpegCommandOptions
     ): Promise<string[]>
+}
+
+interface TranscriptionSegment {
+    id: string
+    from: number
+    to: number
+    text: string
 }
 
 interface GitHubOptions {

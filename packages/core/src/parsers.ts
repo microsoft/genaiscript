@@ -32,6 +32,7 @@ import { GROQEvaluate } from "./groq"
 import { unthink } from "./think"
 import { CancellationOptions } from "./cancellation"
 import { dedent } from "./indent"
+import { vttSrtParse } from "./transcription"
 
 export async function createParsers(
     options: {
@@ -67,6 +68,8 @@ export async function createParsers(
         dotEnv: (text) => dotEnvTryParse(filenameOrFileToContent(text)),
         INI: (text, options) =>
             INITryParse(filenameOrFileToContent(text), options?.defaultValue),
+        transcription: (content) =>
+            vttSrtParse(filenameOrFileToContent(content)),
         unzip: async (file, options) =>
             await unzip(await host.readFile(file.filename), options),
         tokens: (text) =>

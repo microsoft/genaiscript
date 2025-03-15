@@ -1,3 +1,6 @@
+import { parse } from "@plussub/srt-vtt-parser"
+import { deleteEmptyValues, deleteUndefinedValues } from "./cleaners"
+
 export function srtVttRender(transcription: TranscriptionResult) {
     const segments = transcription.segments
     if (!segments) return transcription
@@ -58,4 +61,10 @@ export function parseTimestamps(transcription: string) {
         }
     )
     return ts
+}
+
+export function vttSrtParse(transcription: string): TranscriptionSegment[] {
+    if (!transcription) return []
+    const p = parse(transcription)
+    return p.entries.map((e) => deleteEmptyValues(e))
 }
