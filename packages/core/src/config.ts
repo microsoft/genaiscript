@@ -8,7 +8,7 @@ import {
     MODEL_PROVIDERS,
     TOOL_ID,
 } from "./constants"
-import { resolve } from "path"
+import { join, resolve } from "path"
 import { validateJSONWithSchema } from "./schema"
 import { HostConfiguration } from "./hostconfiguration"
 import { structuralMerge } from "./merge"
@@ -83,11 +83,17 @@ export async function resolveGlobalConfiguration(
     // import for env var
     if (process.env.GENAISCRIPT_ENV_FILE)
         config.envFile = process.env.GENAISCRIPT_ENV_FILE
-
     // override with CLI command
-    if (dotEnvPaths) config.envFile = dotEnvPaths
+    if (dotEnvPaths?.length) config.envFile = dotEnvPaths
+
+    // nothing loaded, use defaults
     if (!config.envFile?.length)
-        config.envFile = [DOT_ENV_FILENAME, DOT_ENV_GENAISCRIPT_FILENAME]
+        config.envFile = [
+            join(homedir(), DOT_ENV_GENAISCRIPT_FILENAME),
+            DOT_ENV_GENAISCRIPT_FILENAME,
+            DOT_ENV_FILENAME,
+        ]
+    // resolve all paths
     config.envFile = arrayify(config.envFile).map((f) => resolve(f))
     return config
 }
