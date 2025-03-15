@@ -79,7 +79,7 @@ class NodeServerManager implements ServerManager {
 
 export class NodeHost extends EventTarget implements RuntimeHost {
     private pulledModels: string[] = []
-    readonly dotEnvPaths: string[]
+    readonly _dotEnvPaths: string[]
     project: Project
     userState: any = {}
     readonly path = createNodePath()
@@ -107,7 +107,7 @@ export class NodeHost extends EventTarget implements RuntimeHost {
 
     constructor(dotEnvPaths: string[]) {
         super()
-        this.dotEnvPaths = dotEnvPaths || []
+        this._dotEnvPaths = dotEnvPaths
         this.azureToken = createAzureTokenResolver(
             "Azure OpenAI",
             "AZURE_OPENAI_TOKEN_SCOPES",
@@ -207,7 +207,7 @@ export class NodeHost extends EventTarget implements RuntimeHost {
     }
 
     async readConfig(): Promise<HostConfiguration> {
-        const config = await resolveGlobalConfiguration(this.dotEnvPaths)
+        const config = await resolveGlobalConfiguration(this._dotEnvPaths)
         const { envFile, modelAliases } = config
         if (modelAliases)
             for (const kv of Object.entries(modelAliases))

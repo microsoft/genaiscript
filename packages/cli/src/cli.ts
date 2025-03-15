@@ -88,7 +88,8 @@ export async function cli() {
     }
 
     program.hook("preAction", async (cmd) => {
-        nodeHost = await NodeHost.install(cmd.opts().env) // Install NodeHost with environment options
+        const { env } = cmd.opts() // Get environment options from command
+        nodeHost = await NodeHost.install(env?.length ? env : undefined) // Install NodeHost with environment options
     })
 
     // Configure CLI program options and commands
