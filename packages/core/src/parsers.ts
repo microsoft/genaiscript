@@ -1,5 +1,9 @@
 import { CSVTryParse } from "./csv"
-import { filenameOrFileToContent, unfence } from "./unwrappers"
+import {
+    filenameOrFileToContent,
+    filenameOrFileToFilename,
+    unfence,
+} from "./unwrappers"
 import { JSON5TryParse, JSONLLMTryParse } from "./json5"
 import { estimateTokens } from "./tokens"
 import { TOMLTryParse } from "./toml"
@@ -64,12 +68,14 @@ export async function createParsers(
         CSV: (text, options) =>
             CSVTryParse(filenameOrFileToContent(text), options),
         XLSX: async (file, options) =>
-            await XLSXTryParse(await host.readFile(file?.filename), options),
+            await XLSXTryParse(
+                await host.readFile(filenameOrFileToFilename(file)),
+                options
+            ),
         dotEnv: (text) => dotEnvTryParse(filenameOrFileToContent(text)),
         INI: (text, options) =>
             INITryParse(filenameOrFileToContent(text), options?.defaultValue),
-        transcription: (content) =>
-            vttSrtParse(filenameOrFileToContent(content)),
+        transcription: (text) => vttSrtParse(filenameOrFileToContent(text)),
         unzip: async (file, options) =>
             await unzip(await host.readFile(file.filename), options),
         tokens: (text) =>

@@ -162,10 +162,10 @@ describe("parsers", async () => {
         const result = parsers.dedent(indentedText)
         assert.strictEqual(
             result,
-`This is an indented line
+            `This is an indented line
     This is more indented
 Back to first level`
-)
+        )
     })
 
     test("unthink", () => {
@@ -179,5 +179,35 @@ Back to first level`
         const result = parsers.tokens("Hello world")
         assert(typeof result === "number")
         assert(result > 0)
+    })
+    test("transcription", () => {
+        const vttContent = `WEBVTT
+
+1
+00:00:00.000 --> 00:00:05.000
+Hello world
+
+2
+00:00:05.500 --> 00:00:10.000
+This is a test`
+
+        const result = parsers.transcription(vttContent)
+        assert.deepStrictEqual(result[0], {
+            id: "1",
+            from: 0,
+            to: 5000,
+            text: "Hello world",
+        })
+        assert.deepStrictEqual(result[1], {
+            id: "2",
+            from: 5500,
+            to: 10000,
+            text: "This is a test",
+        })
+    })
+    test("unfence", () => {
+        const fencedText = '```json\n{"key": "value"}\n```'
+        const result = parsers.unfence(fencedText, "json")
+        assert.strictEqual(result, '{"key": "value"}')
     })
 })

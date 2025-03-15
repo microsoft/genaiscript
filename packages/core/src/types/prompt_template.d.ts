@@ -2209,9 +2209,7 @@ interface Parsers {
      * Parses .vtt or .srt transcription files
      * @param content
      */
-    transcription(
-        content: string | WorkspaceFile
-    ): TranscriptionSegment[] | undefined
+    transcription(content: string | WorkspaceFile): TranscriptionSegment[]
 
     /**
      * Convert HTML to text
