@@ -1,7 +1,7 @@
 system({
-    title: "Zero-shot Chain Of Though",
+    title: "Zero-shot Chain Of Thought",
     description:
-        "Zero-shot Chain Of Though technique. More at https://learnprompting.org/docs/intermediate/zero_shot_cot.",
+        "Zero-shot Chain Of Thought technique. More at https://learnprompting.org/docs/intermediate/zero_shot_cot.",
 })
 export default function (ctx: ChatGenerationContext) {
     const { $ } = ctx
