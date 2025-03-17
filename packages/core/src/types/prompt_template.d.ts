@@ -4092,6 +4092,11 @@ interface BrowseSessionOptions
               width: number
               height: number
           }
+
+    /**
+     * CDP connection string
+     */
+    connectOverCDP?: string
 }
 
 interface TimeoutOptions {
