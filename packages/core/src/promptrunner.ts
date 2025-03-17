@@ -362,6 +362,7 @@ export async function runTemplate(
         return res
     } finally {
         // Cleanup any resources like running containers or browsers
+        runtimeHost.userState = {}
         await runtimeHost.removeContainers()
         await runtimeHost.removeBrowsers()
     }
