@@ -16,14 +16,13 @@ import {
 import { isCancelError, serializeError } from "../../core/src/error"
 import { host, LogEvent, runtimeHost } from "../../core/src/host"
 import { MarkdownTrace, TraceChunkEvent } from "../../core/src/trace"
+import { chunkLines, chunkString } from "../../core/src/chunkers"
 import {
     logVerbose,
     logError,
     assert,
-    chunkString,
     logInfo,
     logWarn,
-    chunkLines,
 } from "../../core/src/util"
 import { CORE_VERSION } from "../../core/src/version"
 import {
