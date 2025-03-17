@@ -28,8 +28,8 @@ function JSONSchemaString(props: {
     onChange: (value: string) => void
 }) {
     const { field } = props
-    if (field.enum || field.uiSuggestions)
-        return <JSONSchemaStringEnum {...props} />
+    if (field.enum) return <JSONSchemaStringEnum {...props} />
+    if (field.uiSuggestions) return <JSONSchemaStringSuggestions {...props} />
     if (field.uiType === "textarea")
         return <JSONSchemaStringTextArea {...props} />
     return <JSONSchemaStringTextField {...props} />
@@ -88,6 +88,36 @@ function JSONSchemaStringTextArea(props: {
     )
 }
 
+function JSONSchemaStringSuggestions(props: {
+    field: JSONSchemaString
+    value: string
+    required?: boolean
+    onChange: (value: string) => void
+}) {
+    const { field, required, value, onChange } = props
+    const { uiSuggestions: options } = field
+
+    return (
+        <vscode-single-select
+            value={value}
+            required={required}
+            creatable
+            combobox
+            onvsc-change={(e: Event) => {
+                const target = e.target as HTMLSelectElement
+                onChange(target.value)
+            }}
+        >
+            <vscode-option key="empty" value=""></vscode-option>
+            {options.map((option) => (
+                <vscode-option key={option} value={option}>
+                    {option}
+                </vscode-option>
+            ))}
+        </vscode-single-select>
+    )
+}
+
 function JSONSchemaStringEnum(props: {
     field: JSONSchemaString
     value: string
@@ -95,25 +125,16 @@ function JSONSchemaStringEnum(props: {
     onChange: (value: string) => void
 }) {
     const { field, required, value, onChange } = props
-    const { enum: enum_, uiSuggestions } = field
-    const options = enum_ || uiSuggestions
+    const { enum: options } = field
 
     return (
         <vscode-single-select
             value={value}
             required={required}
             combobox
-            onvsic-input={(e: CustomEvent) => {
-                if (uiSuggestions) {
-                    const target = e.target as HTMLInputElement
-                    onChange(target.value)
-                }
-            }}
             onvsc-change={(e: Event) => {
-                if (enum_) {
-                    const target = e.target as HTMLSelectElement
-                    onChange(target.value)
-                }
+                const target = e.target as HTMLSelectElement
+                onChange(target.value)
             }}
         >
             <vscode-option key="empty" value=""></vscode-option>

@@ -2955,7 +2955,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.116.1
+ - genaiscript-vscode@1.116.2
 
 This package contains the following license:
 
@@ -7333,19 +7333,19 @@ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 
 The following npm packages may be included in this product:
 
- - @inquirer/checkbox@4.1.3
- - @inquirer/confirm@5.1.7
- - @inquirer/core@10.1.8
- - @inquirer/editor@4.2.8
- - @inquirer/expand@4.0.10
+ - @inquirer/checkbox@4.1.4
+ - @inquirer/confirm@5.1.8
+ - @inquirer/core@10.1.9
+ - @inquirer/editor@4.2.9
+ - @inquirer/expand@4.0.11
  - @inquirer/figures@1.0.11
- - @inquirer/input@4.1.7
- - @inquirer/number@3.0.10
- - @inquirer/password@4.0.10
- - @inquirer/prompts@7.3.3
- - @inquirer/rawlist@4.0.10
- - @inquirer/search@3.0.10
- - @inquirer/select@4.0.10
+ - @inquirer/input@4.1.8
+ - @inquirer/number@3.0.11
+ - @inquirer/password@4.0.11
+ - @inquirer/prompts@7.4.0
+ - @inquirer/rawlist@4.0.11
+ - @inquirer/search@3.0.11
+ - @inquirer/select@4.1.0
  - @inquirer/type@3.0.5
 
 These packages each contain the following license:
@@ -8918,10 +8918,10 @@ The following npm packages may be included in this product:
  - @tokenizer/token@0.3.0
  - agent-base@6.0.2
  - eastasianwidth@0.2.0
- - genaiscript-core-internal@1.116.1
- - genaiscript-sample@1.116.1
- - genaiscript-web@1.116.1
- - genaiscript@1.116.1
+ - genaiscript-core-internal@1.116.2
+ - genaiscript-sample@1.116.2
+ - genaiscript-web@1.116.2
+ - genaiscript@1.116.2
  - https-proxy-agent@5.0.1
  - isarray@1.0.0
  - javascript-natural-sort@0.7.1
