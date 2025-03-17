@@ -2387,7 +2387,7 @@ export default function (ctx: ChatGenerationContext) {
 
     defTool(
         "md_find_files",
-        "Get the file structure of the documentation markdown/MDX files. Retursn filename, title, description for each match. Use pattern to specify a regular expression to search for in the file content.",
+        "Get the file structure of the documentation markdown/MDX files. Returns filename, title, description for each match. Use pattern to specify a regular expression to search for in the file content.",
         {
             type: "object",
             properties: {
@@ -4275,17 +4275,17 @@ export default function (ctx: ChatGenerationContext) {
 
 ### `system.zero_shot_cot`
 
-Zero-shot Chain Of Though
+Zero-shot Chain Of Thought
 
-Zero-shot Chain Of Though technique. More at https://learnprompting.org/docs/intermediate/zero_shot_cot.
+Zero-shot Chain Of Thought technique. More at https://learnprompting.org/docs/intermediate/zero_shot_cot.
 
 
 
 `````js wrap title="system.zero_shot_cot"
 system({
-    title: "Zero-shot Chain Of Though",
+    title: "Zero-shot Chain Of Thought",
     description:
-        "Zero-shot Chain Of Though technique. More at https://learnprompting.org/docs/intermediate/zero_shot_cot.",
+        "Zero-shot Chain Of Thought technique. More at https://learnprompting.org/docs/intermediate/zero_shot_cot.",
 })
 export default function (ctx: ChatGenerationContext) {
     const { $ } = ctx
