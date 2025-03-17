@@ -17,11 +17,16 @@ const page2 = await host.browse(
     }
 )
 
-const page3 = await host.browse(
-    "https://microsoft.github.io/genaiscript/reference/scripts/browser/",
-    {
-        headless: false,
-    }
+await runPrompt(
+    async (_) => {
+        const page3 = await host.browse(
+            "https://microsoft.github.io/genaiscript/reference/scripts/browser/",
+            {
+                headless: false,
+            }
+        )
+    },
+    { model: "echo" }
 )
 
 await delay(5000)

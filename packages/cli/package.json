@@ -58,7 +58,7 @@
     "@anthropic-ai/sdk": "^0.39.0",
     "@azure/identity": "^4.8.0",
     "@azure/search-documents": "^12.1.0",
-    "@inquirer/prompts": "^7.3.3",
+    "@inquirer/prompts": "^7.4.0",
     "@modelcontextprotocol/sdk": "^1.7.0",
     "@octokit/plugin-paginate-rest": "^11.4.3",
     "@octokit/plugin-retry": "^7.1.4",
@@ -88,7 +88,7 @@
     "@huggingface/transformers": "^3.4.0",
     "@lvce-editor/ripgrep": "^1.6.0",
     "pdfjs-dist": "4.10.38",
-    "playwright": "^1.51.0",
+    "playwright": "^1.51.1",
     "skia-canvas": "^2.0.2",
     "tree-sitter-wasms": "^0.1.11",
     "web-tree-sitter": "0.22.2"
@@ -97,7 +97,7 @@
     "node": ">=20.0.0"
   },
   "peerDependencies": {
-    "promptfoo": "0.106.3"
+    "promptfoo": "0.107.1"
   },
   "devDependencies": {
     "@types/diff": "^6.0.0",
