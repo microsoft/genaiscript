@@ -6,6 +6,7 @@ import {
     TOOL_ID,
     TRACE_CHUNK,
     TRACE_DETAILS,
+    TRACE_MAX_FENCE_SIZE,
     TRACE_MAX_FILE_SIZE,
 } from "./constants"
 import { stringify as yamlStringify } from "yaml"
@@ -24,8 +25,9 @@ import { CSVStringify, dataToMarkdownTable } from "./csv"
 import { INIStringify } from "./ini"
 import { ChatCompletionsProgressReport } from "./chattypes"
 import { parseTraceTree, TraceTree } from "./traceparser"
-import { fileCacheImage } from "./filecache"
+import { fileCacheImage, fileWriteCached } from "./filecache"
 import { CancellationOptions } from "./cancellation"
+import { generateId } from "./id"
 
 export class TraceChunkEvent extends Event {
     constructor(
@@ -71,7 +73,10 @@ export class MarkdownTrace extends EventTarget implements OutputTrace {
             .replace(/(\r?\n){3,}/g, "\n\n")
     }
 
-    startTraceDetails(title: string, options?: { expanded?: boolean, success?: boolean }) {
+    startTraceDetails(
+        title: string,
+        options?: { expanded?: boolean; success?: boolean }
+    ) {
         const trace = new MarkdownTrace({ ...this.options })
         trace.addEventListener(TRACE_CHUNK, (ev) =>
             this.dispatchEvent((ev as TraceChunkEvent).clone())
@@ -282,6 +287,11 @@ ${this.toResultIcon(success, "")}${title}
                 contentType = "yaml"
             }
         } else res = message
+
+        if (res.length > TRACE_MAX_FENCE_SIZE) {
+            const fn = `${generateId()}.${contentType || "txt"}`
+            res = ellipse(res, TRACE_MAX_FENCE_SIZE)
+        }
         this.appendContent(fenceMD(res, contentType))
     }
 

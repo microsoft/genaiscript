@@ -17,6 +17,19 @@ export function chunkString(s: string, n: number = 2 << 14) {
     return r
 }
 
+export function chunkLines(s: string, n: number = 2 << 14) {
+    if (!s?.length) return []
+    if (s.length <= n) return [s]
+
+    const r: string[] = [""]
+    const lines = s.split(/\r?\n/)
+    for (const line of lines) {
+        if (r[r.length - 1].length + line.length > n) r.push("")
+        r[r.length - 1] += line + "\n"
+    }
+    return r
+}
+
 export function strcmp(a: string, b: string) {
     if (a == b) return 0
     if (a < b) return -1
