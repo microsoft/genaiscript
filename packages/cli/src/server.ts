@@ -16,11 +16,11 @@ import {
 import { isCancelError, serializeError } from "../../core/src/error"
 import { host, LogEvent, runtimeHost } from "../../core/src/host"
 import { MarkdownTrace, TraceChunkEvent } from "../../core/src/trace"
+import { chunkLines, chunkString } from "../../core/src/chunkers"
 import {
     logVerbose,
     logError,
     assert,
-    chunkString,
     logInfo,
     logWarn,
 } from "../../core/src/util"
@@ -324,12 +324,15 @@ export async function startServer(options: {
     // send loggign messages
     ;(runtimeHost as NodeHost).addEventListener(LOG, (ev) => {
         const lev = ev as LogEvent
-        const payload = toPayload({
-            type: "log",
-            level: lev.level,
-            message: lev.message,
-        })
-        for (const client of wss.clients) client.send(payload)
+        const messages = chunkLines(lev.message, WS_MAX_FRAME_CHUNK_LENGTH)
+        for (const message of messages) {
+            const payload = toPayload({
+                type: "log",
+                level: lev.level,
+                message: message,
+            })
+            for (const client of wss.clients) client.send(payload)
+        }
     })
 
     // Manage new WebSocket connections.
