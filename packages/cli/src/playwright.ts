@@ -65,16 +65,28 @@ export class BrowserManager {
      * @param options Optional settings for the browser launch.
      * @returns A promise that resolves to a Browser instance.
      */
-    private async launchBrowser(options?: BrowserOptions): Promise<Browser> {
-        const { browser = PLAYWRIGHT_DEFAULT_BROWSER, ...rest } = options || {}
-        try {
+    private async launchBrowser(
+        options?: BrowseSessionOptions
+    ): Promise<Browser> {
+        const launch = async () => {
             const playwright = await this.init()
-            return await playwright[browser].launch(rest)
+            const engine = playwright[browser]
+            if (connectOverCDP)
+                return await engine.connectOverCDP(connectOverCDP)
+            return await engine.launch(rest)
+        }
+
+        const {
+            browser = PLAYWRIGHT_DEFAULT_BROWSER,
+            connectOverCDP,
+            ...rest
+        } = options || {}
+        try {
+            return await launch()
         } catch {
             logVerbose("trying to install playwright...")
             await this.installDependencies(browser)
-            const playwright = await this.init()
-            return await playwright[browser].launch(rest)
+            return await launch()
         }
     }
 
@@ -140,6 +152,7 @@ export class BrowserManager {
             recordVideo,
             waitUntil,
             referer,
+            connectOverCDP,
             ...rest
         } = options || {}
 
