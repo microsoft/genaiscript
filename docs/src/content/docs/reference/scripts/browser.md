@@ -90,6 +90,14 @@ const videoPath = await page.video().path()
 
 The video file can be further processed using video tools.
 
+### `connectOverCDP`
+
+You can provide an enpoint that uses the [Chrome DevTools Protocol](https://playwright.dev/docs/api/class-browsertype#browser-type-connect-over-cdp) using the `connectOverCDP`.
+
+```js
+const page = await host.browse(url, { connectOverCDP: "endpointurl" })
+```
+
 ## Locators
 
 You can select elements on the page using the `page.get...` or `page.locator` method.
