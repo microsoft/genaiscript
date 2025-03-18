@@ -762,7 +762,6 @@ export async function OpenAIEmbedder(
             `embeddings: ${ellipse(input, 32)} with ${provider}:${model}`
         )
         const fetch = await createFetch({
-            retryOn: [429],
             trace,
             cancellationToken,
         })
