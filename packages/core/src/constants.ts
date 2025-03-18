@@ -41,6 +41,7 @@ export const GENAI_MTS_EXT = ".genai.mts"
 export const GENAI_MD_EXT = ".genai.md"
 export const GENAI_ANYJS_GLOB =
     "**/*{.genai.js,.genai.mjs,.genai.ts,.genai.mts,.prompty}"
+export const NEGATIVE_GLOB_REGEX = /^!/
 export const GENAI_ANY_REGEX = /\.(genai\.(ts|mts|mjs|js)|prompty)$/i
 export const GENAI_ANYJS_REGEX = /\.genai\.js$/i
 export const GENAI_ANYTS_REGEX = /\.genai\.(ts|mts|mjs)$/i
