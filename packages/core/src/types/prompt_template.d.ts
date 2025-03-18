@@ -252,6 +252,8 @@ type ModelType = OptionsOrString<
     | "deepseek:deepseek-chat"
     | "transformers:onnx-community/Qwen2.5-0.5B-Instruct:q4"
     | "transformers:HuggingFaceTB/SmolLM2-1.7B-Instruct:q4f16"
+    | "llamafile:*"
+    | "sglang:*"
     | "echo"
     | "none"
 >
@@ -308,6 +310,7 @@ type ModelProviderType = OptionsOrString<
     | "ollama"
     | "lmstudio"
     | "jan"
+    | "sglang"
     | "llamafile"
     | "litellm"
     | "github_copilot_chat"

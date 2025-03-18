@@ -452,11 +452,32 @@
         {
             "id": "llamafile",
             "detail": "llamafile.ai local model",
+            "url": "https://llamafile.ai/",
             "prediction": false,
             "tokenless": true,
+            "singleModel": true,
+            "listModels": false,
+            "speech": false,
+            "pullModel": false,
             "env": {
                 "LLAMAFILE_API_BASE": {
                     "description": "Llamafile API base URL",
+                    "format": "url"
+                }
+            }
+        },
+        {
+            "id": "sglang",
+            "detail": "SGLang local model",
+            "url": "https://docs.sglang.ai/",
+            "prediction": false,
+            "tokenless": true,
+            "listModels": false,
+            "speech": false,
+            "pullModel": false,
+            "env": {
+                "SGLANG_API_BASE": {
+                    "description": "SGLang API base URL",
                     "format": "url"
                 }
             }
