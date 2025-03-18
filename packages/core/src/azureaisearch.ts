@@ -79,7 +79,7 @@ export const azureAISearchIndex: WorkspaceFileIndexCreator = async (
         )
         if (!respEndpoint.ok) {
             throw new Error(
-                `${indexProviderName}: Failed to fetch endpoint: ${respEndpoint.statusText} (${respEndpoint.status})`
+                `${indexProviderName}: Failed to fetch endpoint, ${respEndpoint.statusText} (${respEndpoint.status})`
             )
         }
         const re = await respEndpoint.json()
