@@ -702,7 +702,7 @@ export function createChatGenerationContext(
         const transcriptionTrace = trace.startTraceDetails("🎤 transcribe")
         try {
             const conn: ModelConnectionOptions = {
-                model: options?.model || TRANSCRIPTION_MODEL_ID,
+                model: options?.model,
             }
             const { info, configuration } = await resolveModelConnectionInfo(
                 conn,
