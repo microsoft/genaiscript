@@ -58,14 +58,14 @@ export async function expandFiles(
 ) {
     if (!files.length) return []
 
-    const { excludedFiles, accept, applyGitIgnore } = options || {}
+    const { excludedFiles = [], accept, applyGitIgnore } = options || {}
     const urls = files
         .filter((f) => HTTPS_REGEX.test(f))
-        .filter((f) => !excludedFiles?.includes(f))
+        .filter((f) => !excludedFiles.includes(f))
     const others = await host.findFiles(
         files.filter((f) => !HTTPS_REGEX.test(f)),
         {
-            ignore: excludedFiles?.filter((f) => !HTTPS_REGEX.test(f)),
+            ignore: excludedFiles.filter((f) => !HTTPS_REGEX.test(f)),
             applyGitIgnore,
         }
     )

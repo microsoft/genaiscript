@@ -43,6 +43,7 @@ import {
     LARGE_MODEL_ID,
     SERVER_PORT,
     SERVER_LOCALHOST,
+    NEGATIVE_GLOB_REGEX,
 } from "../../core/src/constants"
 import { isCancelError, errorMessage } from "../../core/src/error"
 import { GenerationResult } from "../../core/src/server/messages"
@@ -185,7 +186,7 @@ export async function runScriptInternal(
     runtimeHost.clearModelAlias("script")
     let result: GenerationResult
     const workspaceFiles = options.workspaceFiles || []
-    const excludedFiles = options.excludedFiles
+    const excludedFiles = options.excludedFiles || []
     const stream = !options.json && !options.yaml
     const retry = normalizeInt(options.retry) || 8
     const retryDelay = normalizeInt(options.retryDelay) || 15000
@@ -284,6 +285,13 @@ export async function runScriptInternal(
     const applyGitIgnore =
         options.ignoreGitIgnore !== true && script.ignoreGitIgnore !== true
     const resolvedFiles = new Set<string>()
+    // move exlucsions to excludedFiles
+    excludedFiles.push(
+        ...files
+            .filter((f) => NEGATIVE_GLOB_REGEX.test(f))
+            .map((f) => f.replace(NEGATIVE_GLOB_REGEX, ""))
+    )
+    files = files.filter((f) => !NEGATIVE_GLOB_REGEX.test(f))
     for (let arg of files) {
         if (HTTPS_REGEX.test(arg)) {
             resolvedFiles.add(arg)
@@ -305,7 +313,7 @@ export async function runScriptInternal(
         }
     }
 
-    if (excludedFiles?.length) {
+    if (excludedFiles.length) {
         for (const arg of excludedFiles) {
             const ffs = await host.findFiles(arg)
             for (const f of ffs)

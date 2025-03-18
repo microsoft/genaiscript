@@ -26,6 +26,7 @@ import {
     AZURE_MANAGEMENT_TOKEN_SCOPES,
     MODEL_PROVIDER_AZURE_AI_INFERENCE,
     MODEL_PROVIDERS,
+    NEGATIVE_GLOB_REGEX,
 } from "../../core/src/constants"
 import {
     ServerManager,
@@ -67,6 +68,7 @@ import { defaultModelConfigurations } from "../../core/src/llms"
 import { createPythonRuntime } from "../../core/src/pyodide"
 import { ci } from "./ci"
 import { arrayify } from "../../core/src/cleaners"
+import { array } from "zod"
 
 class NodeServerManager implements ServerManager {
     async start(): Promise<void> {
@@ -432,10 +434,15 @@ export class NodeHost extends EventTarget implements RuntimeHost {
         }
     ): Promise<string[]> {
         const { ignore, applyGitIgnore } = options || {}
-        let files = await glob(path, {
+        const paths = arrayify(path)
+        const negatives = paths
+            .filter((p) => NEGATIVE_GLOB_REGEX.test(p))
+            .map((p) => p.replace(NEGATIVE_GLOB_REGEX, ""))
+        const positives = paths.filter((p) => !NEGATIVE_GLOB_REGEX.test(p))
+        let files = await glob(positives, {
             nodir: true,
             windowsPathsNoEscape: true,
-            ignore,
+            ignore: uniq([...arrayify(ignore), ...negatives]),
             dot: true,
         })
         if (applyGitIgnore !== false) {
