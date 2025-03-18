@@ -2076,6 +2076,13 @@ interface DocxParseOptions {
     cache?: boolean | string
 }
 
+interface EncodeIDsOptions {
+    matcher?: RegExp
+    prefix?: string
+    open?: string
+    close?: string
+}
+
 interface Parsers {
     /**
      * Parses text as a JSON5 payload
@@ -2345,6 +2352,22 @@ interface Parsers {
      * @param text
      */
     dedent(templ: TemplateStringsArray | string, ...values: unknown[]): string
+
+    /**
+     * Encodes ids in a text and returns the function to decode them
+     * @param text
+     * @param options
+     */
+    encodeIDs(
+        text: string,
+        options?: EncodeIDsOptions
+    ): {
+        encoded: string
+        text: string
+        decode: (text: string) => string
+        matcher: RegExp
+        ids: Record<string, string>
+    }
 }
 
 interface YAML {

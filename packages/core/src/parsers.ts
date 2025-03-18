@@ -37,6 +37,7 @@ import { unthink } from "./think"
 import { CancellationOptions } from "./cancellation"
 import { dedent } from "./indent"
 import { vttSrtParse } from "./transcription"
+import { encodeIDs } from "./cleaners"
 
 export async function createParsers(
     options: {
@@ -135,5 +136,6 @@ export async function createParsers(
         GROQ: GROQEvaluate,
         unthink: unthink,
         dedent: dedent,
+        encodeIDs: encodeIDs,
     })
 }
