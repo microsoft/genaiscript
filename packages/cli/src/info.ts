@@ -107,7 +107,7 @@ export async function modelAliasesInfo() {
             k,
             {
                 ...v,
-                resolved: resolveModelAlias(k).model,
+                resolved: resolveModelAlias(k),
             },
         ])
     )
