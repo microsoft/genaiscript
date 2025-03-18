@@ -9,7 +9,7 @@ import { error, isQuiet, setQuiet } from "./log" // Logging utilities
 import { startServer } from "./server" // Function to start server
 import { NODE_MIN_VERSION, PROMPTFOO_VERSION } from "./version" // Version constants
 import { runScriptWithExitCode } from "./run" // Execute scripts with exit code
-import { retrievalFuzz, retrievalSearch } from "./retrieval" // Retrieval functions
+import { retrievalFuzz, retrievalIndex, retrievalSearch } from "./retrieval" // Retrieval functions
 import { helpAll } from "./help" // Display help for all commands
 import {
     jsonl2json,
@@ -88,7 +88,8 @@ export async function cli() {
     }
 
     program.hook("preAction", async (cmd) => {
-        nodeHost = await NodeHost.install(cmd.opts().env) // Install NodeHost with environment options
+        const { env } = cmd.opts() // Get environment options from command
+        nodeHost = await NodeHost.install(env?.length ? env : undefined) // Install NodeHost with environment options
     })
 
     // Configure CLI program options and commands
@@ -203,10 +204,6 @@ export async function cli() {
             "maximum tool calls for the run"
         )
         .option("-se, --seed <number>", "seed for the run")
-        .option(
-            "-em, --embeddings-model <string>",
-            "embeddings model for the run"
-        )
         .option("-c, --cache", "enable LLM result cache")
         .option("-cn, --cache-name <name>", "custom cache file name")
         .option("-cs, --csv-separator <string>", "csv separator", "\t")
@@ -416,6 +413,24 @@ export async function cli() {
         .command("retrieval")
         .alias("retreival")
         .description("RAG support")
+    const index = retrieval
+        .command("index")
+        .arguments("<name> <files...>")
+        .description("Index files for vector search")
+        .option("-ef, --excluded-files <string...>", "excluded files")
+        .option(
+            "-igi, --ignore-git-ignore",
+            "by default, files ignored by .gitignore are excluded. disables this mode"
+        )
+        .option("-em, --embeddings-model <string>", "'embeddings' alias model")
+        .addOption(
+            new Option(
+                "--database <string>",
+                "Type of database to use for indexing"
+            ).choices(["local", "azure_ai_search"])
+        )
+        .action(retrievalIndex) // Action to index files for vector search
+
     retrieval
         .command("vector")
         .alias("search")
@@ -600,6 +615,10 @@ export async function cli() {
             .option("-m, --model <string>", "'large' model alias (default)")
             .option("-sm, --small-model <string>", "'small' alias model")
             .option("-vm, --vision-model <string>", "'vision' alias model")
+            .option(
+                "-em, --embeddings-model <string>",
+                "'embeddings' alias model"
+            )
             .option(
                 "-ma, --model-alias <nameid...>",
                 "model alias as name=modelid"

@@ -2,7 +2,7 @@
     "name": "genaiscript-workspace",
     "displayName": "GenAIScript",
     "description": "Programmatically assemble prompts for LLMs using JavaScript. Orchestrate LLMs, tools, and data in code.",
-    "version": "1.115.0",
+    "version": "1.117.0",
     "license": "MIT",
     "private": true,
     "workspaces": {
@@ -102,11 +102,11 @@
         }
     },
     "devDependencies": {
-        "@inquirer/prompts": "^7.3.3",
+        "@inquirer/prompts": "^7.4.0",
         "glob": "^11.0.1",
         "npm-check-updates": "^17.1.15",
         "npm-run-all": "^4.1.5",
         "prettier": "^3.5.3",
-        "zx": "^8.4.0"
+        "zx": "^8.4.1"
     }
 }

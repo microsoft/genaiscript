@@ -43,6 +43,8 @@ import {
     MODEL_PROVIDER_ECHO,
     MODEL_PROVIDER_NONE,
     MODEL_PROVIDER_AZURE_AI_INFERENCE,
+    MODEL_PROVIDER_WINDOWS_AI,
+    WINDOWS_AI_API_BASE,
 } from "./constants"
 import { host, runtimeHost } from "./host"
 import { parseModelIdentifier } from "./models"
@@ -475,6 +477,17 @@ export async function parseTokenFromEnv(
             base,
             token: undefined,
             source: "env: WHISPERASR_API_...",
+        }
+    }
+
+    if (provider === MODEL_PROVIDER_WINDOWS_AI) {
+        return {
+            provider,
+            model,
+            base: WINDOWS_AI_API_BASE,
+            token: "",
+            type: "openai",
+            source: "env",
         }
     }
 

@@ -48,8 +48,9 @@ export function isLanguageModelsAvailable() {
     )
 }
 
-function messagesToChatMessages(messages: ChatCompletionMessageParam[]) {
-    const res: vscode.LanguageModelChatMessage[] = messages.map((m) => {
+async function messagesToChatMessages(messages: ChatCompletionMessageParam[]) {
+    const res: vscode.LanguageModelChatMessage[] = []
+    for (const m of messages) {
         switch (m.role) {
             case "system":
             case "user":
@@ -59,16 +60,19 @@ function messagesToChatMessages(messages: ChatCompletionMessageParam[]) {
                     m.content.some((c) => c.type === "image_url")
                 )
                     throw new Error("Vision model not supported")
-                return vscode.LanguageModelChatMessage.User(
-                    renderMessageContent(m),
-                    "genaiscript"
+                res.push(
+                    vscode.LanguageModelChatMessage.User(
+                        await renderMessageContent(m),
+                        "genaiscript"
+                    )
                 )
+                break
             default:
                 throw new Error(
                     `${m.role} not supported with GitHub Copilot Chat models`
                 )
         }
-    })
+    }
     return res
 }
 
@@ -92,7 +96,7 @@ export function createChatModelRunner(
                 })
                 return
             }
-            const chatMessages = messagesToChatMessages(messages)
+            const chatMessages = await messagesToChatMessages(messages)
             const request = await chatModel.sendRequest(
                 chatMessages,
                 {

@@ -1615,8 +1615,8 @@ Apache License
 
 The following npm packages may be included in this product:
 
- - playwright-core@1.51.0
- - playwright@1.51.0
+ - playwright-core@1.51.1
+ - playwright@1.51.1
 
 These packages each contain the following license:
 
@@ -2049,9 +2049,9 @@ Apache License
 
 The following npm packages may be included in this product:
 
- - @aws-sdk/client-cognito-identity@3.758.0
+ - @aws-sdk/client-cognito-identity@3.768.0
  - @aws-sdk/client-sso@3.758.0
- - @aws-sdk/credential-provider-cognito-identity@3.758.0
+ - @aws-sdk/credential-provider-cognito-identity@3.768.0
  - @aws-sdk/util-user-agent-browser@3.734.0
  - @aws-sdk/util-user-agent-node@3.758.0
  - @smithy/eventstream-codec@2.2.0
@@ -2955,7 +2955,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.114.3
+ - genaiscript-vscode@1.117.0
 
 This package contains the following license:
 
@@ -4255,7 +4255,7 @@ software or this license, under any kind of legal claim._**
 
 The following npm package may be included in this product:
 
- - axios@1.8.2
+ - axios@1.8.3
 
 This package contains the following license:
 
@@ -4921,7 +4921,7 @@ The following npm packages may be included in this product:
  - @aws-sdk/credential-provider-env@3.758.0
  - @aws-sdk/credential-provider-ini@3.758.0
  - @aws-sdk/credential-provider-node@3.758.0
- - @aws-sdk/credential-providers@3.758.0
+ - @aws-sdk/credential-providers@3.768.0
  - @aws-sdk/region-config-resolver@3.734.0
  - @aws-sdk/token-providers@3.758.0
  - @aws-sdk/types@3.734.0
@@ -7333,19 +7333,19 @@ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 
 The following npm packages may be included in this product:
 
- - @inquirer/checkbox@4.1.3
- - @inquirer/confirm@5.1.7
- - @inquirer/core@10.1.8
- - @inquirer/editor@4.2.8
- - @inquirer/expand@4.0.10
+ - @inquirer/checkbox@4.1.4
+ - @inquirer/confirm@5.1.8
+ - @inquirer/core@10.1.9
+ - @inquirer/editor@4.2.9
+ - @inquirer/expand@4.0.11
  - @inquirer/figures@1.0.11
- - @inquirer/input@4.1.7
- - @inquirer/number@3.0.10
- - @inquirer/password@4.0.10
- - @inquirer/prompts@7.3.3
- - @inquirer/rawlist@4.0.10
- - @inquirer/search@3.0.10
- - @inquirer/select@4.0.10
+ - @inquirer/input@4.1.8
+ - @inquirer/number@3.0.11
+ - @inquirer/password@4.0.11
+ - @inquirer/prompts@7.4.0
+ - @inquirer/rawlist@4.0.11
+ - @inquirer/search@3.0.11
+ - @inquirer/select@4.1.0
  - @inquirer/type@3.0.5
 
 These packages each contain the following license:
@@ -7405,6 +7405,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 The following npm packages may be included in this product:
 
  - @azure/core-client@1.9.3
+ - @azure/core-http-compat@2.2.0
  - @azure/core-rest-pipeline@1.19.1
  - @azure/identity@4.8.0
 
@@ -8095,7 +8096,7 @@ THIS SOFTWARE.
 
 The following npm package may be included in this product:
 
- - zod-to-json-schema@3.24.3
+ - zod-to-json-schema@3.24.4
 
 This package contains the following license:
 
@@ -8917,10 +8918,10 @@ The following npm packages may be included in this product:
  - @tokenizer/token@0.3.0
  - agent-base@6.0.2
  - eastasianwidth@0.2.0
- - genaiscript-core-internal@1.114.3
- - genaiscript-sample@1.114.3
- - genaiscript-web@1.114.3
- - genaiscript@1.114.3
+ - genaiscript-core-internal@1.117.0
+ - genaiscript-sample@1.117.0
+ - genaiscript-web@1.117.0
+ - genaiscript@1.117.0
  - https-proxy-agent@5.0.1
  - isarray@1.0.0
  - javascript-natural-sort@0.7.1
@@ -10608,7 +10609,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 The following npm packages may be included in this product:
 
  - undici-types@6.20.0
- - undici@6.21.1
+ - undici@6.21.2
 
 These packages each contain the following license:
 
@@ -10683,7 +10684,7 @@ The following npm packages may be included in this product:
  - execa@9.5.2
  - figures@6.1.0
  - file-type@16.5.4
- - file-type@20.4.0
+ - file-type@20.4.1
  - get-stream@5.2.0
  - get-stream@9.0.1
  - got@14.4.6
@@ -13180,9 +13181,11 @@ The following npm packages may be included in this product:
 
  - @azure/abort-controller@2.1.2
  - @azure/core-auth@1.9.0
+ - @azure/core-paging@1.6.2
  - @azure/core-tracing@1.2.0
  - @azure/core-util@1.11.0
  - @azure/logger@1.1.4
+ - @azure/search-documents@12.1.0
 
 These packages each contain the following license:
 

@@ -2206,6 +2206,12 @@ interface Parsers {
     ): any | undefined
 
     /**
+     * Parses .vtt or .srt transcription files
+     * @param content
+     */
+    transcription(content: string | WorkspaceFile): TranscriptionSegment[]
+
+    /**
      * Convert HTML to text
      * @param content html string or file
      * @param options
@@ -2729,6 +2735,13 @@ interface Ffmpeg {
     ): Promise<string[]>
 }
 
+interface TranscriptionSegment {
+    id?: string
+    start: number
+    end?: number
+    text: string
+}
+
 interface GitHubOptions {
     owner: string
     repo: string
@@ -3216,20 +3229,47 @@ interface HighlightOptions {
 }
 
 interface WorkspaceFileIndex {
+    /**
+     * Gets the index name
+     */
     name: string
-    list: () => Promise<WorkspaceFile[]>
-    upsert: (file: ElementOrArray<WorkspaceFile>) => Promise<void>
-    query: (
+    /**
+     * Uploads or merges files into the index
+     */
+    insertOrUpdate: (file: ElementOrArray<WorkspaceFile>) => Promise<void>
+    /**
+     * Searches the index
+     */
+    search: (
         query: string,
         options?: { topK?: number; minScore?: number }
     ) => Promise<WorkspaceFileWithScore[]>
 }
 
 interface VectorIndexOptions extends EmbeddingsModelOptions {
+    /**
+     * Type of database implementation.
+     * - `local` uses a local database using embeddingsModel
+     * - `azure_ai_search` uses Azure AI Search
+     */
+    type?: "local" | "azure_ai_search"
     version?: number
     deleteIfExists?: boolean
     chunkSize?: number
     chunkOverlap?: number
+
+    /**
+     * Embeddings vector size
+     */
+    vectorSize?: number
+    /**
+     * Override default embeddings cache name
+     */
+    cacheName?: string
+    /**
+     * Cache salt to invalidate cache entries
+     */
+    cacheSalt?: string
 }
 
 interface VectorSearchOptions extends VectorIndexOptions {
@@ -3691,28 +3731,16 @@ interface TranscriptionResult {
     /**
      * Individual segments
      */
-    segments?: {
-        /**
-         * The start time of the segment
-         */
-        start: number
-        /**
-         * The transcribed text.
-         */
-        text: string
+    segments?: (TranscriptionSegment & {
         /**
          * Seek offset of the segment
          */
         seek?: number
         /**
-         * End time in seconds
-         */
-        end?: number
-        /**
          * Temperature used for the generation of the segment
          */
         temperature?: number
-    }[]
+    })[]
 }
 
 type SpeechModelType = OptionsOrString<"openai:tts-1-hd" | "openai:tts-1">
@@ -4082,6 +4110,11 @@ interface BrowseSessionOptions
               width: number
               height: number
           }
+
+    /**
+     * CDP connection string
+     */
+    connectOverCDP?: string
 }
 
 interface TimeoutOptions {

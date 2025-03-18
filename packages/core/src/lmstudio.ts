@@ -1,6 +1,10 @@
 import { LanguageModel, PullModelFunction } from "./chat"
 import { MODEL_PROVIDER_LMSTUDIO, SUCCESS_ERROR_CODE } from "./constants"
-import { OpenAIChatCompletion, OpenAIListModels } from "./openai"
+import {
+    OpenAIChatCompletion,
+    OpenAIEmbedder,
+    OpenAIListModels,
+} from "./openai"
 import { execa } from "execa"
 import { logVerbose } from "./util"
 
@@ -19,4 +23,5 @@ export const LMStudioModel = Object.freeze<LanguageModel>({
     completer: OpenAIChatCompletion,
     listModels: OpenAIListModels,
     pullModel,
+    embedder: OpenAIEmbedder,
 })

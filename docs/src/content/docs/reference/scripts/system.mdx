@@ -3064,7 +3064,9 @@ export default function (ctx: ChatGenerationContext) {
     const { $ } = ctx
     $`## Markdown Output
 Respond using Markdown syntax (GitHub Flavored Markdown also supported).
-**do NOT wrap response in a 'markdown' code block!`
+- do NOT respond in JSON.
+- **do NOT wrap response in a 'markdown' code block!**
+`
     if (/o3/.test(env.meta.model)) $`Formatting re-enabled.`
 }
 
@@ -4275,17 +4277,17 @@ export default function (ctx: ChatGenerationContext) {
 
 ### `system.zero_shot_cot`
 
-Zero-shot Chain Of Though
+Zero-shot Chain Of Thought
 
-Zero-shot Chain Of Though technique. More at https://learnprompting.org/docs/intermediate/zero_shot_cot.
+Zero-shot Chain Of Thought technique. More at https://learnprompting.org/docs/intermediate/zero_shot_cot.
 
 
 
 `````js wrap title="system.zero_shot_cot"
 system({
-    title: "Zero-shot Chain Of Though",
+    title: "Zero-shot Chain Of Thought",
     description:
-        "Zero-shot Chain Of Though technique. More at https://learnprompting.org/docs/intermediate/zero_shot_cot.",
+        "Zero-shot Chain Of Thought technique. More at https://learnprompting.org/docs/intermediate/zero_shot_cot.",
 })
 export default function (ctx: ChatGenerationContext) {
     const { $ } = ctx

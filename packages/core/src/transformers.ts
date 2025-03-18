@@ -81,7 +81,7 @@ export const TransformersCompletion: ChatCompletionHandler = async (
             device,
         })
     )
-    const msgs: Chat = chatMessagesToTranformerMessages(messages)
+    const msgs: Chat = await chatMessagesToTranformerMessages(messages)
     trace.detailsFenced("messages", msgs, "yaml")
     const tokenizer = generator.tokenizer
     const chatTemplate = !!tokenizer.chat_template
@@ -147,19 +147,21 @@ export const TransformersModel = Object.freeze<LanguageModel>({
     id: MODEL_PROVIDER_TRANSFORMERS,
 })
 
-function chatMessagesToTranformerMessages(
+async function chatMessagesToTranformerMessages(
     messages: ChatCompletionMessageParam[]
-): Chat {
-    return messages.map((msg) => {
+): Promise<Chat> {
+    const res: Chat = []
+    for (const msg of messages) {
         switch (msg.role) {
             case "function":
             case "tool":
                 throw new NotSupportedError(`role ${msg.role} not supported`)
             default:
-                return {
+                res.push({
                     role: msg.role,
-                    content: renderMessageContent(msg),
-                } satisfies Message
+                    content: await renderMessageContent(msg),
+                } satisfies Message)
         }
-    })
+    }
+    return res
 }

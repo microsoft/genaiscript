@@ -5,8 +5,20 @@
     "description": "Schema for GenAIScript configuration file",
     "properties": {
         "envFile": {
-            "type": "string",
-            "description": "Path to a .env file to load environment variables from"
+            "oneOf": [
+                {
+                    "type": "string",
+                    "description": "Path to a .env file to load environment variables from"
+                },
+                {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "description": "Path to a .env file to load environment variables from"
+                    },
+                    "description": "List of .env files"
+                }
+            ]
         },
         "include": {
             "description": "List of files to include in the project",
@@ -58,7 +70,9 @@
                                     "description": "Temperature to use for the model"
                                 }
                             },
-                            "required": ["model"]
+                            "required": [
+                                "model"
+                            ]
                         }
                     ]
                 }
@@ -70,7 +84,10 @@
             "type": "object",
             "patternProperties": {
                 "^[a-zA-Z0-9_:\\-\\. ]+$": {
-                    "type": ["string", "null"],
+                    "type": [
+                        "string",
+                        "null"
+                    ],
                     "description": "Secret regex"
                 }
             },

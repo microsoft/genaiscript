@@ -5,12 +5,13 @@ sidebar:
 ---
 
 import { Image } from "astro:assets"
+import { YouTube } from "astro-embed"
 import { Code } from "@astrojs/starlight/components"
 import scriptSource from "../../../../../../packages/sample/genaisrc/samples/copilotchat.genai.mjs?raw"
 import src from "../../../../assets/chat-participant.png"
 import alt from "../../../../assets/chat-participant.png.txt?raw"
 import { Steps } from "@astrojs/starlight/components"
-import prompt from "../../../../../../.genaiscript/prompts/genaiscript.prompt.md?raw"
+import prompt from "../../../../../../.github/prompts/genaiscript.prompt.md?raw"
 
 GenAIScript integrates with [GitHub Copilot Chat](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot-chat)
 by providing a **chat participant** that allows you to run scripts in the context of a chat conversation,
@@ -21,6 +22,8 @@ and a **custom prompt** to generate GenAIScript more efficiently with Copilot Ch
 GenAIScript will automatically save a prompt file
 and additional files in `.genaiscript/docs`
 to provide a better context for using Copilot Chat to generate GenAIScript scripts.
+
+<YouTube id="https://youtu.be/0GkbxnW0J34" posterQuality="high" />
 
 The `genaiscript.prompt.md` file is
 a [reusable prompt file](https://code.visualstudio.com/docs/copilot/copilot-customization#_reusable-prompt-files-experimental)

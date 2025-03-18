@@ -27,10 +27,10 @@ import { renderTraceTree } from "../../core/src/traceparser"
 const SCHEME = "genaiscript"
 
 const noRequest = `
-No GenAIScript request found yet. Please run a GenAiScript.
+No GenAIScript request found yet. Please run a GenAIScript.
 `
 const noResponse = `
-Waiting for GenAiScript response...
+Waiting for GenAIScript response...
 `
 
 export function hasOutputOrTraceOpened() {
@@ -76,7 +76,7 @@ class MarkdownTextDocumentContentProvider
         const wrap = (md: string) => {
             if (!aiRequest) return noRequest
             if (!md) return noResponse
-            return `${computing ? `> **GenAiScript run in progress.**\n` : ""} 
+            return `${computing ? `> **GenAIScript run in progress.**\n` : ""} 
 ${prettifyMarkdown(md)}    
             `
         }

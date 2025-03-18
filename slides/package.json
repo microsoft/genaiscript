@@ -1,6 +1,6 @@
 {
   "name": "genaiscript-slides",
-  "version": "1.115.0",
+  "version": "1.117.0",
   "type": "module",
   "private": true,
   "npm": {
@@ -14,6 +14,6 @@
   "devDependencies": {
     "@slidev/cli": "^51.4.0",
     "@slidev/theme-default": "^0.25.0",
-    "zx": "^8.4.0"
+    "zx": "^8.4.1"
   }
 }

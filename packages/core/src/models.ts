@@ -132,6 +132,10 @@ export function traceLanguageModelConnection(
     }
 }
 
+export function isModelAlias(model: string): boolean {
+    return !!runtimeHost.modelAliases[model]
+}
+
 export function resolveModelAlias(model: string): ModelConfiguration {
     if (!model) throw new Error("Model not specified")
     const { modelAliases } = runtimeHost
@@ -179,7 +183,7 @@ export async function resolveModelConnectionInfo(
             info: { error: "missing error information", model: undefined },
         }
 
-    const supportsCandidates = !hint
+    const supportsCandidates = !hint || isModelAlias(hint)
     const modelId = resolved.model
     let candidates = supportsCandidates ? resolved.candidates : undefined
 

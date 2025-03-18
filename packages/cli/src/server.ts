@@ -16,11 +16,11 @@ import {
 import { isCancelError, serializeError } from "../../core/src/error"
 import { host, LogEvent, runtimeHost } from "../../core/src/host"
 import { MarkdownTrace, TraceChunkEvent } from "../../core/src/trace"
+import { chunkLines, chunkString } from "../../core/src/chunkers"
 import {
     logVerbose,
     logError,
     assert,
-    chunkString,
     logInfo,
     logWarn,
 } from "../../core/src/util"
@@ -49,7 +49,7 @@ import {
 import { randomHex } from "../../core/src/crypto"
 import { buildProject } from "./build"
 import * as http from "http"
-import { join } from "path"
+import { extname, join } from "path"
 import { createReadStream } from "fs"
 import { URL } from "url"
 import { resolveLanguageModelConfigurations } from "../../core/src/config"
@@ -63,6 +63,7 @@ import { NodeHost } from "./nodehost"
 import { findRandomOpenPort, isPortInUse } from "../../core/src/net"
 import { tryReadJSON, tryReadText } from "../../core/src/fs"
 import { collectRuns } from "./runs"
+import { generateId } from "../../core/src/id"
 
 /**
  * Starts a WebSocket server for handling chat and script execution.
@@ -96,7 +97,6 @@ export async function startServer(options: {
         logWarn(`port ${oldPort} in use, using port ${port}`)
     }
     // store original working directory
-    await runtimeHost.readConfig()
     const cwd = process.cwd()
 
     if (remote) {
@@ -268,7 +268,7 @@ export async function startServer(options: {
                         let finishReason: ChatCompletionResponse["finishReason"]
 
                         // Add a handler for chat responses.
-                        const chatId = randomHex(6)
+                        const chatId = generateId()
                         chats[chatId] = async (chunk) => {
                             if (!responseSoFar && chunk.model) {
                                 logVerbose(`chat model ${chunk.model}`)
@@ -324,12 +324,15 @@ export async function startServer(options: {
     // send loggign messages
     ;(runtimeHost as NodeHost).addEventListener(LOG, (ev) => {
         const lev = ev as LogEvent
-        const payload = toPayload({
-            type: "log",
-            level: lev.level,
-            message: lev.message,
-        })
-        for (const client of wss.clients) client.send(payload)
+        const messages = chunkLines(lev.message, WS_MAX_FRAME_CHUNK_LENGTH)
+        for (const message of messages) {
+            const payload = toPayload({
+                type: "log",
+                level: lev.level,
+                message: message,
+            })
+            for (const client of wss.clients) client.send(payload)
+        }
     })
 
     // Manage new WebSocket connections.
@@ -476,8 +479,11 @@ export async function startServer(options: {
                         const { script, files = [], options = {}, runId } = data
                         const canceller =
                             new AbortSignalCancellationController()
-                        const trace = new MarkdownTrace()
-                        const outputTrace = new MarkdownTrace()
+                        const cancellationToken = canceller.token
+                        const trace = new MarkdownTrace({ cancellationToken })
+                        const outputTrace = new MarkdownTrace({
+                            cancellationToken,
+                        })
                         trace.addEventListener(TRACE_CHUNK, (ev) => {
                             const tev = ev as TraceChunkEvent
                             chunkString(
@@ -506,6 +512,7 @@ export async function startServer(options: {
                         await runtimeHost.readConfig()
                         const runner = runScriptInternal(script, files, {
                             ...options,
+                            runId,
                             trace,
                             outputTrace,
                             runTrace: false,
@@ -620,6 +627,10 @@ export async function startServer(options: {
         )
     }
 
+    const runRx = /^\/api\/runs\/(?<runId>[A-Za-z0-9_\-]{12,256})$/
+    const imageRx =
+        /^\/\.genaiscript\/(images|runs\/.*?)\/[a-z0-9]{12,128}\.(png|jpg|jpeg|gif|svg)$/
+
     // Create an HTTP server to handle basic requests.
     const httpServer = http.createServer(async (req, res) => {
         const { url, method } = req
@@ -711,6 +722,17 @@ window.vscodeWebviewPlaygroundNonce = ${JSON.stringify(nonce)};
             const filePath = join(__dirname, "favicon.svg")
             const stream = createReadStream(filePath)
             stream.pipe(res)
+        } else if (method === "GET" && imageRx.test(route)) {
+            const filePath = join(process.cwd(), route)
+            try {
+                const stream = createReadStream(filePath)
+                res.setHeader("Content-Type", "image/" + extname(route))
+                res.statusCode = 200
+                stream.pipe(res)
+            } catch (e) {
+                res.statusCode = 404
+                res.end()
+            }
         } else {
             // api, validate apikey
             if (!checkApiKey(req)) {
@@ -719,7 +741,6 @@ window.vscodeWebviewPlaygroundNonce = ${JSON.stringify(nonce)};
                 res.end()
                 return
             }
-            const runRx = /^\/api\/runs\/(?<runId>[a-z0-9]{12,256})$/
             let response: ResponseStatus
             if (method === "GET" && route === "/api/version")
                 response = serverVersion()

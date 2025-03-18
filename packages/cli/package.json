@@ -1,6 +1,6 @@
 {
   "name": "genaiscript",
-  "version": "1.115.0",
+  "version": "1.117.0",
   "main": "built/genaiscript.cjs",
   "type": "commonjs",
   "bin": {
@@ -57,7 +57,8 @@
     "@anthropic-ai/bedrock-sdk": "^0.12.4",
     "@anthropic-ai/sdk": "^0.39.0",
     "@azure/identity": "^4.8.0",
-    "@inquirer/prompts": "^7.3.3",
+    "@azure/search-documents": "^12.1.0",
+    "@inquirer/prompts": "^7.4.0",
     "@modelcontextprotocol/sdk": "^1.7.0",
     "@octokit/plugin-paginate-rest": "^11.4.3",
     "@octokit/plugin-retry": "^7.1.4",
@@ -81,13 +82,13 @@
     "vectra": "^0.9.0",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz",
     "zod": "^3.24.2",
-    "zod-to-json-schema": "^3.24.3"
+    "zod-to-json-schema": "^3.24.4"
   },
   "optionalDependencies": {
     "@huggingface/transformers": "^3.4.0",
     "@lvce-editor/ripgrep": "^1.6.0",
     "pdfjs-dist": "4.10.38",
-    "playwright": "^1.51.0",
+    "playwright": "^1.51.1",
     "skia-canvas": "^2.0.2",
     "tree-sitter-wasms": "^0.1.11",
     "web-tree-sitter": "0.22.2"
@@ -96,7 +97,7 @@
     "node": ">=20.0.0"
   },
   "peerDependencies": {
-    "promptfoo": "0.106.3"
+    "promptfoo": "0.107.1"
   },
   "devDependencies": {
     "@types/diff": "^6.0.0",
@@ -125,17 +126,17 @@
     "replace-ext": "^2.0.0",
     "terminal-link": "^3.0.0",
     "ws": "^8.18.1",
-    "zx": "^8.4.0"
+    "zx": "^8.4.1"
   },
   "scripts": {
     "compile:runtime:declarations": "tsc src/runtime.ts --skipLibCheck --outDir built --declaration --target es2020 --moduleResolution node --module esnext --emitDeclarationOnly",
     "compile:runtime:code": "tsc src/runtime.ts --skipLibCheck --outDir built --target es2020 --moduleResolution node --module esnext --removeComments true",
     "compile:runtime": "yarn compile:runtime:declarations && yarn compile:runtime:code && mv built/runtime.js built/runtime.mjs",
     "compile:api": "esbuild src/api.ts --outfile=built/api.mjs",
-    "compile:cli": "esbuild src/main.ts --metafile=./esbuild.meta.json --bundle --platform=node --target=node20 --outfile=built/genaiscript.cjs --external:tsx --external:esbuild --external:get-tsconfig --external:resolve-pkg-maps --external:dockerode --external:pdfjs-dist --external:web-tree-sitter --external:tree-sitter-wasms --external:promptfoo --external:typescript --external:@lvce-editor/ripgrep --external:gpt-3-encoder --external:mammoth --external:xlsx --external:mathjs --external:@azure/identity --external:gpt-tokenizer --external:playwright --external:@inquirer/prompts --external:jimp --external:turndown --external:turndown-plugin-gfm --external:vectra --external:tabletojson --external:html-to-text --external:@octokit/rest --external:@octokit/plugin-throttling --external:@octokit/plugin-retry --external:@octokit/plugin-paginate-rest --external:skia-canvas --external:@huggingface/transformers --external:@modelcontextprotocol/sdk --external:@anthropic-ai/sdk --external:@anthropic-ai/bedrock-sdk --external:es-toolkit --external:zod --external:zod-to-json-schema --external:fluent-ffmpeg --external:json-schema-generator --external:@inquirer/prompts --external:pyodide --external:file-type && node ../../scripts/patch-cli.mjs",
+    "compile:cli": "esbuild src/main.ts --metafile=./esbuild.meta.json --bundle --platform=node --target=node20 --outfile=built/genaiscript.cjs --external:tsx --external:esbuild --external:get-tsconfig --external:resolve-pkg-maps --external:dockerode --external:pdfjs-dist --external:web-tree-sitter --external:tree-sitter-wasms --external:promptfoo --external:typescript --external:@lvce-editor/ripgrep --external:gpt-3-encoder --external:mammoth --external:xlsx --external:mathjs --external:@azure/identity --external:gpt-tokenizer --external:playwright --external:@inquirer/prompts --external:jimp --external:turndown --external:turndown-plugin-gfm --external:vectra --external:tabletojson --external:html-to-text --external:@octokit/rest --external:@octokit/plugin-throttling --external:@octokit/plugin-retry --external:@octokit/plugin-paginate-rest --external:skia-canvas --external:@huggingface/transformers --external:@modelcontextprotocol/sdk --external:@anthropic-ai/sdk --external:@anthropic-ai/bedrock-sdk --external:es-toolkit --external:zod --external:zod-to-json-schema --external:fluent-ffmpeg --external:json-schema-generator --external:@inquirer/prompts --external:pyodide --external:file-type --external:@azure/search-documents && node ../../scripts/patch-cli.mjs",
     "fix": "node built/genaiscript.cjs scripts fix",
     "compile": "yarn compile:api && yarn compile:runtime && yarn compile:cli",
-    "compile-debug": "esbuild src/main.ts --sourcemap --metafile=./esbuild.meta.json --bundle --platform=node --target=node20 --outfile=built/genaiscript.cjs --external:tsx --external:esbuild --external:get-tsconfig --external:resolve-pkg-maps --external:dockerode --external:pdfjs-dist --external:web-tree-sitter --external:tree-sitter-wasms --external:promptfoo --external:typescript --external:@lvce-editor/ripgrep --external:gpt-3-encoder --external:mammoth --external:xlsx --external:mathjs --external:@azure/identity --external:gpt-tokenizer --external:playwright --external:@inquirer/prompts --external:jimp --external:turndown --external:turndown-plugin-gfm --external:vectra --external:tabletojson --external:html-to-text --external:@octokit/rest --external:@octokit/plugin-throttling --external:@octokit/plugin-retry --external:@octokit/plugin-paginate-rest --external:skia-canvas --external:@huggingface/transformers --external:@modelcontextprotocol/sdk --external:@anthropic-ai/sdk --external:@anthropic-ai/bedrock-sdk --external:es-toolkit --external:zod --external:zod-to-json-schema --external:fluent-ffmpeg --external:json-schema-generator --external:@inquirer/prompts --external:pyodide",
+    "compile-debug": "esbuild src/main.ts --sourcemap --metafile=./esbuild.meta.json --bundle --platform=node --target=node20 --outfile=built/genaiscript.cjs --external:tsx --external:esbuild --external:get-tsconfig --external:resolve-pkg-maps --external:dockerode --external:pdfjs-dist --external:web-tree-sitter --external:tree-sitter-wasms --external:promptfoo --external:typescript --external:@lvce-editor/ripgrep --external:gpt-3-encoder --external:mammoth --external:xlsx --external:mathjs --external:@azure/identity --external:gpt-tokenizer --external:playwright --external:@inquirer/prompts --external:jimp --external:turndown --external:turndown-plugin-gfm --external:vectra --external:tabletojson --external:html-to-text --external:@octokit/rest --external:@octokit/plugin-throttling --external:@octokit/plugin-retry --external:@octokit/plugin-paginate-rest --external:skia-canvas --external:@huggingface/transformers --external:@modelcontextprotocol/sdk --external:@anthropic-ai/sdk --external:@anthropic-ai/bedrock-sdk --external:es-toolkit --external:zod --external:zod-to-json-schema --external:fluent-ffmpeg --external:json-schema-generator --external:@inquirer/prompts --external:pyodide --external:@azure/search-documents",
     "postcompile": "node built/genaiscript.cjs info help > ../../docs/src/content/docs/reference/cli/commands.md",
     "vis:treemap": "npx --yes esbuild-visualizer --metadata esbuild.meta.json --filename esbuild.treemap.html",
     "vis:network": "npx --yes esbuild-visualizer --metadata esbuild.meta.json --filename esbuild.network.html --template network",

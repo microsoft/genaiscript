@@ -99,6 +99,7 @@ export const FETCH_RETRY_MAX_DELAY_DEFAULT = 120000
 export const FETCH_RETRY_GROWTH_FACTOR = 1.5
 export const EXEC_MAX_BUFFER = 64
 export const DOT_ENV_FILENAME = ".env"
+export const DOT_ENV_GENAISCRIPT_FILENAME = ".env.genaiscript"
 
 export const SUCCESS_ERROR_CODE = 0
 export const UNHANDLED_ERROR_CODE = -1
@@ -117,7 +118,7 @@ export const UNRECOVERABLE_ERROR_CODES = Object.freeze([
     ANNOTATION_ERROR_CODE,
 ])
 
-export const DOT_ENV_REGEX = /\.env$/i
+export const DOT_ENV_REGEX = /\.env(\.[^\/]+)?$/i
 export const PROMPT_FENCE = "```"
 export const MARKDOWN_PROMPT_FENCE = "`````"
 
@@ -138,6 +139,7 @@ export const ALIBABA_BASE =
 export const MISTRAL_API_BASE = "https://api.mistral.ai/v1"
 export const DEEPSEEK_API_BASE = "https://api.deepseek.com/v1"
 export const WHISPERASR_API_BASE = "http://localhost:9000"
+export const WINDOWS_AI_API_BASE = "http://127.0.0.1:5272/v1"
 
 export const PROMPTFOO_CACHE_PATH = ".genaiscript/cache/tests"
 export const PROMPTFOO_CONFIG_DIR = ".genaiscript/config/tests"
@@ -180,6 +182,7 @@ export const MODEL_PROVIDER_LMSTUDIO = "lmstudio"
 export const MODEL_PROVIDER_JAN = "jan"
 export const MODEL_PROVIDER_DEEPSEEK = "deepseek"
 export const MODEL_PROVIDER_WHISPERASR = "whisperasr"
+export const MODEL_PROVIDER_WINDOWS_AI = "windows_ai"
 export const MODEL_PROVIDER_ECHO = "echo"
 export const MODEL_PROVIDER_NONE = "none"
 
@@ -373,8 +376,9 @@ export const VIDEO_CLIPS_DIR_NAME = "clips"
 export const VIDEO_AUDIO_DIR_NAME = "audio"
 export const VIDEO_PROBE_DIR_NAME = "probe"
 
-export const TRACE_MAX_FILE_SIZE = 128 * 1024 // 100kb
-export const TRACE_MAX_IMAGE_SIZE = 64 * 1024 // 10kb
+export const TRACE_MAX_FENCE_SIZE = 100 * 1024 // 100kb
+export const TRACE_MAX_FILE_SIZE = 128 * 1024 // 128kb
+export const TRACE_MAX_IMAGE_SIZE = 32 * 1024 // 32kb
 
 export const WS_MAX_FRAME_LENGTH = 1200000
 export const WS_MAX_FRAME_CHUNK_LENGTH = 1000000

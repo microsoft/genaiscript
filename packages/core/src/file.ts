@@ -29,6 +29,7 @@ import {
 } from "./constants"
 import { UrlAdapter, defaultUrlAdapters } from "./urlAdapters"
 import { tidyData } from "./tidy"
+import { CancellationOptions, checkCancelled } from "./cancellation"
 
 /**
  * Resolves the content of a given file, attempting to fetch or parse it based on its type.
@@ -38,9 +39,13 @@ import { tidyData } from "./tidy"
  */
 export async function resolveFileContent(
     file: WorkspaceFile,
-    options?: TraceOptions & { maxFileSize?: number }
+    options?: TraceOptions & { maxFileSize?: number } & CancellationOptions
 ) {
-    const { trace, maxFileSize = MAX_FILE_CONTENT_SIZE } = options || {}
+    const {
+        trace,
+        cancellationToken,
+        maxFileSize = MAX_FILE_CONTENT_SIZE,
+    } = options || {}
 
     // decode known files
     if (file.encoding === "base64") {
@@ -79,7 +84,7 @@ export async function resolveFileContent(
         }
 
         trace?.item(`fetch ${url}`)
-        const fetch = await createFetch()
+        const fetch = await createFetch({ cancellationToken })
         const resp = await fetch(url, {
             headers: {
                 "Content-Type": adapter?.contentType ?? "text/plain",
@@ -150,9 +155,14 @@ export function toWorkspaceFile(fileOrFilename: string | WorkspaceFile) {
  * Resolves the contents of multiple files asynchronously.
  * @param files - An array of WorkspaceFiles to process.
  */
-export async function resolveFileContents(files: WorkspaceFile[]) {
+export async function resolveFileContents(
+    files: WorkspaceFile[],
+    options?: CancellationOptions & TraceOptions
+) {
+    const { cancellationToken } = options || {}
     for (const file of files) {
-        await resolveFileContent(file)
+        await resolveFileContent(file, options)
+        checkCancelled(cancellationToken)
     }
 }
 

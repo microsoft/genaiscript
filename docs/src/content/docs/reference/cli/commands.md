@@ -19,10 +19,10 @@ Options:
   -p, --provider <string>  Preferred LLM provider aliases (choices: "openai",
                            "azure", "azure_ai_inference", "azure_serverless",
                            "azure_serverless_models", "github", "ollama",
-                           "anthropic", "anthropic_bedrock", "google",
-                           "huggingface", "mistral", "alibaba", "deepseek",
-                           "transformers", "lmstudio", "jan", "llamafile",
-                           "litellm", "whisperasr", "echo")
+                           "windows_ai", "anthropic", "anthropic_bedrock",
+                           "google", "huggingface", "mistral", "alibaba",
+                           "deepseek", "transformers", "lmstudio", "jan",
+                           "llamafile", "litellm", "whisperasr", "echo")
   -h, --help               display help for command
 ```
 
@@ -34,10 +34,11 @@ Usage: genaiscript run [options] <script> [files...]
 Runs a GenAIScript against files.
 
 Options:
-  -p, --provider <string>                    Preferred LLM provider aliases (choices: "openai", "azure", "azure_ai_inference", "azure_serverless", "azure_serverless_models", "github", "ollama", "anthropic", "anthropic_bedrock", "google", "huggingface", "mistral", "alibaba", "deepseek", "transformers", "lmstudio", "jan", "llamafile", "litellm", "whisperasr", "echo")
+  -p, --provider <string>                    Preferred LLM provider aliases (choices: "openai", "azure", "azure_ai_inference", "azure_serverless", "azure_serverless_models", "github", "ollama", "windows_ai", "anthropic", "anthropic_bedrock", "google", "huggingface", "mistral", "alibaba", "deepseek", "transformers", "lmstudio", "jan", "llamafile", "litellm", "whisperasr", "echo")
   -m, --model <string>                       'large' model alias (default)
   -sm, --small-model <string>                'small' alias model
   -vm, --vision-model <string>               'vision' alias model
+  -em, --embeddings-model <string>           'embeddings' alias model
   -ma, --model-alias <nameid...>             model alias as name=modelid
   -re, --reasoning-effort <string>           Reasoning effort for o* models (choices: "high", "medium", "low")
   -lp, --logprobs                            enable reporting token probabilities
@@ -70,7 +71,6 @@ Options:
   -mdr, --max-data-repairs <number>          maximum data repairs
   -mtc, --max-tool-calls <number>            maximum tool calls for the run
   -se, --seed <number>                       seed for the run
-  -em, --embeddings-model <string>           embeddings model for the run
   -c, --cache                                enable LLM result cache
   -cn, --cache-name <name>                   custom cache file name
   -cs, --csv-separator <string>              csv separator (default: "\t")
@@ -143,7 +143,7 @@ Options:
                                       "openai", "azure", "azure_ai_inference",
                                       "azure_serverless",
                                       "azure_serverless_models", "github",
-                                      "ollama", "anthropic",
+                                      "ollama", "windows_ai", "anthropic",
                                       "anthropic_bedrock", "google",
                                       "huggingface", "mistral", "alibaba",
                                       "deepseek", "transformers", "lmstudio",
@@ -152,6 +152,7 @@ Options:
   -m, --model <string>                'large' model alias (default)
   -sm, --small-model <string>         'small' alias model
   -vm, --vision-model <string>        'vision' alias model
+  -em, --embeddings-model <string>    'embeddings' alias model
   -ma, --model-alias <nameid...>      model alias as name=modelid
   -re, --reasoning-effort <string>    Reasoning effort for o* models (choices:
                                       "high", "medium", "low")
@@ -165,7 +166,7 @@ Options:
   -td, --test-delay <string>          delay between tests in seconds
   --cache                             enable LLM result cache
   -v, --verbose                       verbose output
-  -pv, --promptfoo-version [version]  promptfoo version, default is 0.106.3
+  -pv, --promptfoo-version [version]  promptfoo version, default is 0.107.1
   -os, --out-summary <file>           append output summary in file
   -g, --groups <groups...>            groups to include or exclude. Use :!
                                       prefix to exclude
@@ -435,9 +436,27 @@ Options:
   -h, --help                                  display help for command
 
 Commands:
+  index [options] <name> <files...>           Index files for vector search
   vector|search [options] <query> [files...]  Search using vector embeddings similarity
   fuzz [options] <query> [files...]           Search using string distance
   help [command]                              display help for command
+```
+
+### `retrieval index`
+
+```
+Usage: genaiscript retrieval index [options] <name> <files...>
+
+Index files for vector search
+
+Options:
+  -ef, --excluded-files <string...>  excluded files
+  -igi, --ignore-git-ignore          by default, files ignored by .gitignore
+                                     are excluded. disables this mode
+  -em, --embeddings-model <string>   'embeddings' alias model
+  --database <string>                Type of database to use for indexing
+                                     (choices: "local", "azure_ai_search")
+  -h, --help                         display help for command
 ```
 
 ### `retrieval vector`

@@ -50,6 +50,7 @@ import {
     ChatCompletionToolMessageParam,
     ChatCompletionUserMessageParam,
     CreateChatCompletionRequest,
+    EmbeddingResult,
 } from "./chattypes"
 import {
     collapseChatMessages,
@@ -90,6 +91,7 @@ import { deleteUndefinedValues } from "./cleaners"
 import { splitThink, unthink } from "./think"
 import { measure } from "./performance"
 import { renderMessagesToTerminal } from "./chatrenderterminal"
+import { fileCacheImage } from "./filecache"
 
 function toChatCompletionImage(
     image: PromptImage
@@ -173,6 +175,19 @@ export type ImageGenerationFunction = (
     options: TraceOptions & CancellationOptions
 ) => Promise<CreateImageResult>
 
+export type EmbeddingFunction = (
+    input: string,
+    cfg: LanguageModelConfiguration,
+    options: TraceOptions & CancellationOptions
+) => Promise<EmbeddingResult>
+
+export type WorkspaceFileIndexCreator = (
+    indexName: string,
+    cfg: LanguageModelConfiguration,
+    embedder: EmbeddingFunction,
+    options?: VectorIndexOptions & TraceOptions & CancellationOptions
+) => Promise<WorkspaceFileIndex>
+
 export interface LanguageModel {
     id: string
     completer?: ChatCompletionHandler
@@ -181,6 +196,7 @@ export interface LanguageModel {
     transcriber?: TranscribeFunction
     speaker?: SpeechFunction
     imageGenerator?: ImageGenerationFunction
+    embedder?: EmbeddingFunction
 }
 
 async function runToolCalls(
@@ -720,6 +736,7 @@ async function processChatMessage(
     fileOutputs: FileOutput[],
     outputProcessors: PromptOutputProcessorHandler[],
     fileMerges: FileMergeHandler[],
+    cacheImage: (url: string) => Promise<string>,
     options: GenerationOptions
 ): Promise<RunPromptResult> {
     const {
@@ -797,10 +814,11 @@ async function processChatMessage(
                     needsNewTurn = true
                     participantTrace.details(
                         `💬 new messages`,
-                        renderMessagesToMarkdown(messages, {
+                        await renderMessagesToMarkdown(messages, {
                             textLang: "text",
                             user: true,
                             assistant: true,
+                            cacheImage,
                         })
                     )
                 }
@@ -823,10 +841,11 @@ async function processChatMessage(
                         )
                     participantTrace.details(
                         `💬 added messages (${participantMessages.length})`,
-                        renderMessagesToMarkdown(participantMessages, {
+                        await renderMessagesToMarkdown(participantMessages, {
                             textLang: "text",
                             user: true,
                             assistant: true,
+                            cacheImage,
                         }),
                         { expanded: true }
                     )
@@ -1007,6 +1026,12 @@ export async function executeChatSession(
         ? getChatCompletionCache(typeof cache === "string" ? cache : "chat")
         : undefined
     const chatTrace = trace.startTraceDetails(`💬 llm chat`, { expanded: true })
+    const cacheImage = async (url: string) =>
+        await fileCacheImage(url, {
+            trace,
+            cancellationToken,
+            dir: chatTrace.options?.dir,
+        })
     try {
         if (toolDefinitions?.length) {
             chatTrace.detailsFenced(`🛠️ tools`, tools, "yaml")
@@ -1024,10 +1049,11 @@ export async function executeChatSession(
             if (messages)
                 chatTrace.details(
                     `💬 messages (${messages.length})`,
-                    renderMessagesToMarkdown(messages, {
+                    await renderMessagesToMarkdown(messages, {
                         textLang: "text",
                         user: true,
                         assistant: true,
+                        cacheImage,
                     }),
                     { expanded: true }
                 )
@@ -1158,6 +1184,7 @@ export async function executeChatSession(
                     fileOutputs,
                     outputProcessors,
                     fileMerges,
+                    cacheImage,
                     genOptions
                 )
                 if (output) return output

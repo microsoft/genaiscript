@@ -17,6 +17,7 @@ import { parsePromptScriptMeta } from "../../core/src/template"
 import { arrayify, parseBoolean } from "../../core/src/util"
 import { YAMLTryParse, YAMLStringify } from "../../core/src/yaml"
 import { Fragment } from "../../core/src/generation"
+import { fileCacheImage } from "../../core/src/filecache"
 
 // parser
 // https://raw.githubusercontent.com/microsoft/vscode-markdown-notebook/main/src/markdownParser.ts
@@ -177,10 +178,11 @@ function activateNotebookExecutor(state: ExtensionState) {
                     user,
                     assistant,
                 } = parseKeyValuePairs(cell.metadata.options || "") || {}
-                let chat = renderMessagesToMarkdown(messages, {
+                let chat = await renderMessagesToMarkdown(messages, {
                     system: parseBoolean(system),
                     user: parseBoolean(user),
                     assistant: parseBoolean(assistant),
+                    cacheImage: fileCacheImage,
                 })
                 if (error)
                     chat += details(`${EMOJI_FAIL} error`, errorMessage(error))

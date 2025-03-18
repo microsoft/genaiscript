@@ -1,1 +1,1 @@
-Visual Studio Code interface showing the Explorer panel with a project's folder structure. The 'genaiscript' folder is highlighted, and a context menu is open next to it with various options, including 'Run GenAiScript...' which is being pointed to by a red arrow.
+Visual Studio Code interface showing the Explorer panel with a project's folder structure. The 'genaiscript' folder is highlighted, and a context menu is open next to it with various options, including 'Run GenAIScript...' which is being pointed to by a red arrow.

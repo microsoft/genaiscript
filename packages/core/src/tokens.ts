@@ -5,7 +5,7 @@ import {
     PROMPT_DOM_TRUNCATE_ATTEMPTS,
     TOKEN_TRUNCATION_THRESHOLD,
 } from "./constants"
-import { originalConsole } from "./globals"
+import { originalConsole } from "./global"
 import { measure } from "./performance"
 import { logVerbose } from "./util"
 

@@ -7,7 +7,7 @@ function deleteUndefinedValues(o) {
 }
 
 /**
- * GenAiScript PromptFoo Custom Provider
+ * GenAIScript PromptFoo Custom Provider
  *
  * Do not edit, auto-generated.
  *

@@ -92,9 +92,10 @@ Model aliases are always lowercased when used in the script.
 script({ model: "tiny" })
 ```
 
-## `.env` file
+## `.env` file and `.env.genaiscript` file
 
-GenAIScript uses a `.env` file to load secrets and configuration information into the process environment variables.
+GenAIScript uses a `.env` file (and `.env.genaiscript`) to load secrets and configuration information into the process environment variables.
+GenAIScript multiple `.env` files to load configuration information.
 
 <Steps>
 
@@ -108,6 +109,7 @@ This ensures that you do not accidentally commit your secrets to your source con
 ```txt title=".gitignore" ".env"
 ...
 .env
+.env.genaiscript
 ```
 
 </li>
@@ -139,7 +141,7 @@ Update the `.env` file with the configuration information (see below).
 
 The `.env` file should never be commited to your source control!
 If the `.gitignore` file is properly configured,
-the `.env` file will appear grayed out in Visual Studio Code.
+the `.env`, `.env.genaiscript` file will appear grayed out in Visual Studio Code.
 
 ```txt title=".gitignore" ".env"
 ...
@@ -151,6 +153,11 @@ the `.env` file will appear grayed out in Visual Studio Code.
 ### Custom .env file location
 
 You can specify a custom `.env` file location through the CLI or an environment variable.
+
+- GenAIScript script loads the following `.env` files in order by default:
+  - `~/.env.genaiscript`
+  - `./.env.genaiscript`
+  - `./.env`
 
 - by adding the `--env <file>` argument to the CLI.
 
@@ -166,8 +173,11 @@ GENAISCRIPT_ENV_FILE=".env.local" npx genaiscript ...
 
 - by specifying the `.env` file location in a [configuration file](/genaiscript/reference/configuration-files).
 
-```yaml title="~/genaiscript.config.yaml"
-envFile: ~/.env.genaiscript
+```json title="~/genaiscript.config.yaml"
+{
+    "$schema": "https://microsoft.github.io/genaiscript/schemas/config.json",
+    "envFile": [".env.local", ".env.another"]
+}
 ```
 
 ### No .env file
@@ -601,7 +611,10 @@ It supports both Entra ID and key-based authentication.
 script({ model: "azure_ai_inference:gpt-4o" })
 ```
 
-<YouTube id="https://www.youtube.com/watch?v=kh670Bxe_1E" posterQuality="high" />
+<YouTube
+    id="https://www.youtube.com/watch?v=kh670Bxe_1E"
+    posterQuality="high"
+/>
 
 #### Managed Identity (Entra ID)
 
@@ -940,6 +953,64 @@ model3=key3
 ```
 
 <LLMProviderFeatures provider="azure_serverless_models" />
+
+## Azure AI Search
+
+This is not a LLM provider, but a content search provider. However since it is configured similarly to the other Azure services,
+it is included here. It allows you to do [vector search](/genaiscript/reference/scripts/vector-search) of your documents
+using [Azure AI Search](https://learn.microsoft.com/en-us/azure/search/search-what-is-azure-search).
+
+```js "azure_search:"
+const index = await retrieval.index("animals", { type: "azure_ai_search" })
+await index.insertOrUpdate(env.files)
+const docs = await index.search("cat dog")
+```
+
+### Managed Identity (Entra ID)
+
+The service is configured through the `AZURE_AI_SEARCH_ENDPOINT` environment variable
+and the [configuration of the managed identity](https://learn.microsoft.com/en-us/azure/search/search-security-rbac?tabs=roles-portal-admin%2Croles-portal%2Croles-portal-query%2Ctest-portal%2Ccustom-role-portal).
+
+```txt
+AZURE_AI_SEARCH_ENDPOINT=https://{{service-name}}.search.windows.net/
+```
+
+<Steps>
+
+<ol>
+
+<li>
+
+Open your **Azure AI Search** resource in the [Azure Portal](https://portal.azure.com),
+click on **Overview** and click on **Properties**.
+
+</li>
+
+<li>
+
+Click on **API Access control** and enable **Role-based access control** or **Both**.
+
+</li>
+
+<li>
+
+Open the **Access Control (IAM)** tab and make sure your user
+or service principal has the **Search Service Contributor** role.
+
+</li>
+
+</ol>
+
+</Steps>
+
+### API Key
+
+The service is configured through the `AZURE_AI_SEARCH_ENDPOINT` and `AZURE_AI_SEARCH_API_KEY` environment variables.
+
+```txt
+AZURE_AI_SEARCH_ENDPOINT=https://{{service-name}}.search.windows.net/
+AZURE_AI_SEARCH_API_KEY=...
+```
 
 ## Google AI <a href="" id="google" />
 
@@ -1534,6 +1605,50 @@ JAN_API_BASE=http://localhost:1234/v1
 ```
 
 <LLMProviderFeatures provider="jan" />
+
+## Windows AI
+
+The `window_ai` provider support [AI for Windows Apps](https://learn.microsoft.com/en-us/windows/ai/) which provides state-of-the-art local models, with NPU hardware support.
+
+<Steps>
+
+<ol>
+<li>
+
+Install the [AI Toolkit for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=ms-windows-ai-studio.windows-ai-studio)
+extension.
+
+</li>
+
+<li>
+
+Open the **Model Catalog** and add a model from the **ONNX Models** runtime section.
+
+</li>
+
+<li>
+
+Right click on the model in the Explorer view and select **Copy model name**
+
+</li>
+
+<li>
+
+Set the model name in your script to the model name you copied.
+
+```js "windows_ai:"
+script({
+    model: "windows_ai:Phi-4-mini-gpu-int4-rtn-block-32",
+})
+```
+
+</li>
+
+</ol>
+
+</Steps>
+
+See [Azure AI Toolkit getting started guide](https://learn.microsoft.com/en-us/windows/ai/toolkit/toolkit-getting-started).
 
 ## LocalAI
 

@@ -10,13 +10,17 @@ import schema from "../../../../public/schemas/config.json?raw"
 
 GenAIScript supports local and global configuration files to allow reusing common configuration settings and secrets across multiple scripts.
 
-```json title="genaiscript.config.json"
-{
-    "$schema": "https://microsoft.github.io/genaiscript/schemas/config.json"
-}
-```
+## .env file resolution
 
-## File resolution
+GenAIScript will scan and load the following `.env` files in the following order:
+
+- `~/.env.genaiscript`
+- `~/.env.genaiscript`
+- `./.env`
+
+The list of `.env` files can be overriden by the `--env` command line option or the `envFile` property in the configuration file.
+
+## config file resolution
 
 GenAIScript will scan for the following configuration files
 and merge their content into the final configuration.
@@ -36,7 +40,7 @@ The configuration schema is at https://microsoft.github.io/genaiscript/schemas/c
 
 ## `envFile` property
 
-The final location of `envFile` will be used to load the secret in the environment variables.
+The final location of `envFile` will be used to load the secret in the environment variables. It supports a single
 
 ## `include` property
 

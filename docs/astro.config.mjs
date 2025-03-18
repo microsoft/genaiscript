@@ -42,12 +42,23 @@ export default defineConfig({
                     },
                 }),
                 starlightLlmsTxt({
-                    description: `GenAIScript is a JavaScript library and environment to build productive script using LLMs.
+                    description: `GenAIScript is a JavaScript/TypeScript library and environment to build productive script using LLMs.`,
+                    details: `## Markdown Documentation
+All pages of the documentation have a markdown route by adding '.md' to the URL.
+For example, the markdown for https://microsoft.github.io/genaiscript/reference/scripts 
+is at https://microsoft.github.io/genaiscript/reference/scripts.md
+
+## Guidance for Code Generation
 - GenAIScript programs are meant to be executed through the genaiscript cli (https://www.npmjs.com/package/genaiscript).
 - When generating code for GenAIScript, always target TypeScript, Node.JS, ESM. Prefer await/async, keep it simple.
-- All pages of the documentation have a markdown route by adding '.md' to the URL.
-                    `,
+- ambient types and definitions defined in "genaiscript.d.ts" are preloaded at runtime. you do not need to import them.
+- you keep the code simple, avoid exception handlers or error checking.
+- you add TODOs where you are unsure so that the user can review them
+- you use the global types in genaiscript.d.ts are already loaded in the global context, no need to import them.
+- save generated code in the "./genaisrc" folder with ".genai.mts" extension
+`,
                     pageSeparator: "\n\n=!=!=!=!=!=\n\n",
+                    promote: ["index*", "getting-started*", "!*/*"],
                     customSets: [
                         {
                             label: "Getting Started",
@@ -58,8 +69,20 @@ export default defineConfig({
                         {
                             label: "Reference",
                             description:
-                                "full reference documentation for my project",
+                                "full reference documentation (runtime and cli)",
                             paths: ["reference/**"],
+                        },
+                        {
+                            label: "Reference Scripts",
+                            description:
+                                "full reference documentation for the runtime",
+                            paths: ["reference/scripts/**"],
+                        },
+                        {
+                            label: "Reference CLI",
+                            description:
+                                "full reference documentation for the command line interface",
+                            paths: ["reference/cli/**"],
                         },
                         {
                             label: "Guides",

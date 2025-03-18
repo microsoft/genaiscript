@@ -11,6 +11,7 @@ import {
 } from "./server/messages"
 import { HostConfiguration } from "./hostconfiguration"
 import { LOG } from "./constants"
+import type { TokenCredential } from "@azure/identity"
 
 export class LogEvent extends Event {
     static Name = "log"
@@ -64,6 +65,7 @@ export interface ServerManager {
 export interface AuthenticationToken {
     token: string
     expiresOnTimestamp: number
+    credential: TokenCredential
 }
 
 export function isAzureTokenExpired(token: AuthenticationToken) {
@@ -75,7 +77,10 @@ export interface AzureTokenResolver {
     token(
         credentialsType: AzureCredentialsType,
         options?: CancellationOptions
-    ): Promise<{ token?: AuthenticationToken; error?: SerializedError }>
+    ): Promise<{
+        token?: AuthenticationToken
+        error?: SerializedError
+    }>
 }
 
 export type ModelConfiguration = Readonly<

@@ -7,7 +7,7 @@
     },
     "displayName": "GenAIScript Insiders",
     "description": "Generative AI Scripting.",
-    "version": "1.115.0",
+    "version": "1.117.0",
     "icon": "icon.png",
     "engines": {
         "vscode": "^1.98.0"
@@ -397,13 +397,13 @@
             },
             {
                 "command": "genaiscript.fragment.prompt",
-                "title": "Run GenAiScript...",
+                "title": "Run GenAIScript...",
                 "category": "GenAIScript",
                 "icon": "$(genaiscript-logo)"
             },
             {
                 "command": "genaiscript.fragment.debug",
-                "title": "Debug GenAiScript...",
+                "title": "Debug GenAIScript...",
                 "category": "GenAIScript",
                 "icon": "$(debug)"
             },
@@ -426,12 +426,12 @@
             },
             {
                 "command": "genaiscript.newfile.script",
-                "title": "GenAiScript File",
+                "title": "GenAIScript File",
                 "category": "GenAIScript"
             },
             {
                 "command": "genaiscript.prompt.fork",
-                "title": "Fork GenAiScript...",
+                "title": "Fork GenAIScript...",
                 "category": "GenAIScript",
                 "icon": "$(repo-forked)"
             },
@@ -488,7 +488,7 @@
     "devDependencies": {
         "@types/markdown-it": "^14.1.2",
         "@types/vscode": "^1.98.0",
-        "@vscode/vsce": "^3.2.2",
+        "@vscode/vsce": "^3.3.0",
         "assert": "^2.1.0",
         "es-toolkit": "^1.33.0",
         "markdown-it-github-alerts": "0.2.0",
@@ -497,6 +497,6 @@
         "vscode-uri": "^3.1.0",
         "webfont": "^11.2.26",
         "websocket-polyfill": "0.0.3",
-        "zx": "^8.4.0"
+        "zx": "^8.4.1"
     }
 }

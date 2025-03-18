@@ -80,3 +80,11 @@ or a custom salt
 ```js
 const { srt } = await transcribe("...", { cache: "whisper" })
 ```
+
+## VTT, SRT parsers
+
+You can parse VTT and SRT files using the `parsers.transcription` function.
+
+```js
+const segments = parsers.transcription("WEBVTT...")
+```

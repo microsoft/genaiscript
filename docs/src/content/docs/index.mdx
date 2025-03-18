@@ -331,7 +331,7 @@ const { files } = await workspace.grep(/[a-z][a-z0-9]+/, { globs: "*.md" })
 [Web search](/genaiscript/reference/scripts/web-search) using Bing or Tavily.
 
 ```js wrap
-const pages = await retreival.webSearch("what are the latest news about AI?")
+const pages = await retrieval.webSearch("what are the latest news about AI?")
 ```
 
 </Card>
@@ -350,10 +350,13 @@ def("TABLE", await HTML.convertToMarkdown(table))
 
 <Card title="RAG built-in" icon="magnifier">
 
-[Vector search](/genaiscript/reference/scripts/vector-search/).
+[Vector search](/genaiscript/reference/scripts/vector-search/)
+using a local database or [Azure AI Search](https://learn.microsoft.com/en-us/azure/search/search-what-is-azure-search).
 
 ```js wrap
-const { files } = await retrieval.vectorSearch("cats", "**/*.md")
+const index = await retrieval.index("animals", { type: "azure_ai_search" })
+await index.insertOrUpdate(env.files)
+const docs = await index.search("cat dog")
 ```
 
 </Card>
