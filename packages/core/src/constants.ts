@@ -125,7 +125,8 @@ export const MARKDOWN_PROMPT_FENCE = "`````"
 
 export const OPENAI_API_BASE = "https://api.openai.com/v1"
 export const OLLAMA_DEFAUT_PORT = 11434
-export const OLLAMA_API_BASE = "http://127.0.0.1:11434/v1"
+export const OLLAMA_API_BASE = `http://127.0.0.1:${OLLAMA_DEFAUT_PORT}/v1`
+export const SGLANG_API_BASE = "http://127.0.0.1:30000/v1"
 export const LLAMAFILE_API_BASE = "http://127.0.0.1:8080/v1"
 export const LOCALAI_API_BASE = "http://127.0.0.1:8080/v1"
 export const LITELLM_API_BASE = "http://127.0.0.1:4000"
@@ -181,6 +182,7 @@ export const MODEL_PROVIDER_ALIBABA = "alibaba"
 export const MODEL_PROVIDER_MISTRAL = "mistral"
 export const MODEL_PROVIDER_LMSTUDIO = "lmstudio"
 export const MODEL_PROVIDER_JAN = "jan"
+export const MODEL_PROVIDER_SGLANG = "sglang"
 export const MODEL_PROVIDER_DEEPSEEK = "deepseek"
 export const MODEL_PROVIDER_WHISPERASR = "whisperasr"
 export const MODEL_PROVIDER_WINDOWS_AI = "windows_ai"
@@ -235,6 +237,7 @@ export const MODEL_PROVIDERS = Object.freeze<
         tokenless?: boolean
         hidden?: boolean
         imageGeneration?: boolean
+        singleModel?: boolean
         reasoningEfforts?: Record<string, number>
         aliases?: Record<string, string>
         env?: Record<

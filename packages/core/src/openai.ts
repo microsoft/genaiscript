@@ -112,6 +112,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
     const { provider, model, family, reasoningEffort } = parseModelIdentifier(
         req.model
     )
+    const features = MODEL_PROVIDERS.find(({ id }) => id === provider)
     const { encode: encoder } = await resolveTokenEncoder(family)
 
     const postReq = structuredClone({
@@ -165,6 +166,9 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
             }
         }
     }
+
+    const singleModel = !!features?.singleModel
+    if (singleModel) delete postReq.model
 
     let url = ""
     const toolCalls: ChatCompletionToolCall[] = []

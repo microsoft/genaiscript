@@ -45,6 +45,8 @@ import {
     MODEL_PROVIDER_AZURE_AI_INFERENCE,
     MODEL_PROVIDER_WINDOWS_AI,
     WINDOWS_AI_API_BASE,
+    MODEL_PROVIDER_SGLANG,
+    SGLANG_API_BASE,
 } from "./constants"
 import { host, runtimeHost } from "./host"
 import { parseModelIdentifier } from "./models"
@@ -519,6 +521,20 @@ export async function parseTokenFromEnv(
                 version,
                 source,
             } satisfies LanguageModelConfiguration
+        }
+    }
+
+    if (provider === MODEL_PROVIDER_SGLANG) {
+        const base =
+            findEnvVar(env, "SGLANG", BASE_SUFFIX)?.value || SGLANG_API_BASE
+        if (!URL.canParse(base)) throw new Error(`${base} must be a valid URL`)
+        return {
+            provider,
+            model,
+            base,
+            token: "sglang",
+            type: "openai",
+            source: "default",
         }
     }
 

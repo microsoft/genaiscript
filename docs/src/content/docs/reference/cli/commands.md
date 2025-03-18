@@ -22,7 +22,8 @@ Options:
                            "windows_ai", "anthropic", "anthropic_bedrock",
                            "google", "huggingface", "mistral", "alibaba",
                            "deepseek", "transformers", "lmstudio", "jan",
-                           "llamafile", "litellm", "whisperasr", "echo")
+                           "llamafile", "sglang", "litellm", "whisperasr",
+                           "echo")
   -h, --help               display help for command
 ```
 
@@ -34,7 +35,7 @@ Usage: genaiscript run [options] <script> [files...]
 Runs a GenAIScript against files.
 
 Options:
-  -p, --provider <string>                    Preferred LLM provider aliases (choices: "openai", "azure", "azure_ai_inference", "azure_serverless", "azure_serverless_models", "github", "ollama", "windows_ai", "anthropic", "anthropic_bedrock", "google", "huggingface", "mistral", "alibaba", "deepseek", "transformers", "lmstudio", "jan", "llamafile", "litellm", "whisperasr", "echo")
+  -p, --provider <string>                    Preferred LLM provider aliases (choices: "openai", "azure", "azure_ai_inference", "azure_serverless", "azure_serverless_models", "github", "ollama", "windows_ai", "anthropic", "anthropic_bedrock", "google", "huggingface", "mistral", "alibaba", "deepseek", "transformers", "lmstudio", "jan", "llamafile", "sglang", "litellm", "whisperasr", "echo")
   -m, --model <string>                       'large' model alias (default)
   -sm, --small-model <string>                'small' alias model
   -vm, --vision-model <string>               'vision' alias model
@@ -147,7 +148,7 @@ Options:
                                       "anthropic_bedrock", "google",
                                       "huggingface", "mistral", "alibaba",
                                       "deepseek", "transformers", "lmstudio",
-                                      "jan", "llamafile", "litellm",
+                                      "jan", "llamafile", "sglang", "litellm",
                                       "whisperasr", "echo")
   -m, --model <string>                'large' model alias (default)
   -sm, --small-model <string>         'small' alias model
