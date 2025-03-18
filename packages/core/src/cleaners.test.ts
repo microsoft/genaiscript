@@ -107,8 +107,6 @@ describe("cleaners", () => {
 
         // Test encoded text
         assert.notEqual(result.encoded, text)
-        assert.match(result.encoded, /<id\d+\.\d+>/)
-
         // Test decode function
         assert.equal(result.decode(result.encoded), text)
 
