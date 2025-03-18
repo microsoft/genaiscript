@@ -110,14 +110,14 @@ export function encodeIDs(
 
     const ids: Record<string, string> = {}
     let idCounter = 0
-    const encoded = text.replace(matcher, (match, id) => {
+    const encoded = text?.replace(matcher, (match, id) => {
         const encoded = `<id${(idCounter++).toFixed(2)}>`
         ids[encoded] = match
         return encoded
     })
 
     const decode = (text: string) =>
-        text.replace(/<id\d+\.\d+>/g, (encoded) => ids[encoded])
+        text?.replace(/<id\d+\.\d+>/g, (encoded) => ids[encoded])
 
     return { text, encoded, decode, matcher, ids }
 }
