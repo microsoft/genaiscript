@@ -45,7 +45,7 @@ export async function createFetch(
 ): Promise<FetchType> {
     const {
         retries = FETCH_RETRY_DEFAULT,
-        retryOn = [429, 500, 504],
+        retryOn = [408, 429, 500, 504],
         trace,
         retryDelay = FETCH_RETRY_DEFAULT_DEFAULT,
         maxDelay = FETCH_RETRY_MAX_DELAY_DEFAULT,
