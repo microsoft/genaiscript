@@ -98,12 +98,7 @@ function escapeRegExp(str: string): string {
  */
 export function encodeIDs(
     text: string,
-    options?: {
-        matcher?: RegExp
-        prefix?: string
-        open?: string
-        close?: string
-    }
+    options?: EncodeIDsOptions
 ): {
     encoded: string
     text: string
