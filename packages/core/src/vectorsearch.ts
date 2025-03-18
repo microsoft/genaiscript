@@ -78,7 +78,8 @@ export async function vectorCreateIndex(
     } = options || {}
 
     let factory: WorkspaceFileIndexCreator
-    if (type === "azure_ai_search") factory = azureAISearchIndex
+    if (type === "azure_ai_search" || type === "github")
+        factory = azureAISearchIndex
     else factory = vectraWorkspaceFileIndex
 
     // Resolve connection info for the embeddings model
@@ -115,7 +116,12 @@ sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad mi
         options.vectorSize = sniff.data[0].length
     }
 
-    return await factory(indexName, configuration, cachedEmbedder, options)
+    return await factory(
+        indexName,
+        configuration,
+        cachedEmbedder,
+        options
+    )
 }
 
 /**

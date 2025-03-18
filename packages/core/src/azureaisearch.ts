@@ -7,7 +7,7 @@ import {
     EmbeddingFunction,
     WorkspaceFileIndexCreator,
 } from "../../core/src/chat"
-import { arrayify } from "../../core/src/cleaners"
+import { arrayify, normalizeInt } from "../../core/src/cleaners"
 import { runtimeHost } from "../../core/src/host"
 import { TraceOptions } from "../../core/src/trace"
 import { logVerbose } from "./util"
@@ -16,6 +16,8 @@ import { resolveFileContent } from "./file"
 import { hash } from "./crypto"
 import { LanguageModelConfiguration } from "./server/messages"
 import { chunk } from "./encoders"
+import { humanize } from "inflection"
+import { createFetch } from "./fetch"
 
 const HASH_LENGTH = 64
 export const azureAISearchIndex: WorkspaceFileIndexCreator = async (
@@ -26,6 +28,7 @@ export const azureAISearchIndex: WorkspaceFileIndexCreator = async (
 ) => {
     // https://learn.microsoft.com/en-us/azure/search/search-security-rbac?tabs=roles-portal-admin%2Croles-portal%2Croles-portal-query%2Ctest-portal%2Ccustom-role-portal
     const {
+        type: indexProvider,
         trace,
         cancellationToken,
         deleteIfExists,
@@ -37,27 +40,62 @@ export const azureAISearchIndex: WorkspaceFileIndexCreator = async (
     const { SearchClient, SearchIndexClient, AzureKeyCredential } =
         await import("@azure/search-documents")
 
-    const endPoint = process.env.AZURE_AI_SEARCH_ENDPOINT
-    if (!endPoint)
-        throw new Error("AZURE_AI_SEARCH_ENDPOINT is not configured.")
+    let endPoint: string
     let credential: TokenCredential | KeyCredential
-    const apiKey = process.env.AZURE_AI_SEARCH_API_KEY
-    if (apiKey) credential = new AzureKeyCredential(apiKey)
-    else {
-        const { token } = await runtimeHost.azureToken.token("default", {
-            cancellationToken,
-        })
-        checkCancelled(cancellationToken)
-        if (!token)
+    const indexProviderName = humanize(indexProvider)
+    if (indexProvider === "azure_ai_search") {
+        endPoint = process.env.AZURE_AI_SEARCH_ENDPOINT
+        if (!endPoint)
+            throw new Error("AZURE_AI_SEARCH_ENDPOINT is not configured.")
+        const apiKey = process.env.AZURE_AI_SEARCH_API_KEY
+        if (apiKey) credential = new AzureKeyCredential(apiKey)
+        else {
+            const { token } = await runtimeHost.azureToken.token("default", {
+                cancellationToken,
+            })
+            checkCancelled(cancellationToken)
+            if (!token)
+                throw new Error(
+                    "Azure AI Search requires a valid Azure token credential."
+                )
+            credential = token.credential
+        }
+    } else if (indexProvider === "github") {
+        const githubToken = process.env.GITHUB_TOKEN
+        if (!githubToken)
             throw new Error(
-                "Azure AI Search requires a valid Azure token credential."
+                `${indexProviderName}: GITHUB_TOKEN is not configured.`
             )
-        credential = token.credential
+        const fetch = await createFetch({ trace, cancellationToken })
+        const respEndpoint = await fetch(
+            "https://models.inference.ai.azure.com/freeazuresearch/endpoint/",
+            {
+                headers: {
+                    Authorization: `Bearer ${githubToken}`,
+                    "Content-Type": "application/json",
+                    "X-Auth-Provider": "github",
+                },
+            }
+        )
+        if (!respEndpoint.ok) {
+            throw new Error(
+                `${indexProviderName}: Failed to fetch endpoint: ${respEndpoint.statusText} (${respEndpoint.status})`
+            )
+        }
+        const re = await respEndpoint.json()
+        endPoint = re.endpoint
+        if (!endPoint) {
+            logVerbose(re)
+            throw new Error(
+                `${indexProviderName}: Failed to fetch endpoint: ${respEndpoint.statusText} (${respEndpoint.status})`
+            )
+        }
+        credential = new AzureKeyCredential(githubToken)
     }
-
     logVerbose(
-        `azure ai search: ${indexName}, embedder ${cfg.provider}:${cfg.model}, ${vectorSize} dimensions`
+        `${indexProviderName}: ${indexName}, embedder ${cfg.provider}:${cfg.model}, ${vectorSize} dimensions`
     )
+    checkCancelled(cancellationToken)
     const indexClient = new SearchIndexClient(endPoint, credential, {})
     if (deleteIfExists)
         await indexClient.deleteIndex(indexName, { abortSignal })
@@ -104,7 +142,7 @@ export const azureAISearchIndex: WorkspaceFileIndexCreator = async (
             ],
         },
     })
-    trace?.detailsFenced(`azure ai search ${indexName}`, created, "json")
+    trace?.detailsFenced(`${indexProviderName} ${indexName}`, created, "json")
 
     type TextChunkEntry = TextChunk & { id: string; contentVector: number[] }
     const client = new SearchClient<TextChunkEntry>(
@@ -164,7 +202,7 @@ export const azureAISearchIndex: WorkspaceFileIndexCreator = async (
             }
 
             logVerbose(
-                `azure ai search: ${indexName} index ${outdated.length} outdated, ${docs.length} updated`
+                `${indexProviderName}: ${indexName} index ${outdated.length} outdated, ${docs.length} updated`
             )
             if (outdated.length) {
                 const res = await client.deleteDocuments(outdated, {
@@ -209,7 +247,10 @@ export const azureAISearchIndex: WorkspaceFileIndexCreator = async (
                             kind: "vector",
                             vector: vector.data[0],
                             fields: ["contentVector"],
-                            kNearestNeighborsCount: 3,
+                            kNearestNeighborsCount: Math.max(
+                                3,
+                                normalizeInt(topK)
+                            ),
                         },
                     ],
                 },

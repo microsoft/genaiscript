@@ -427,7 +427,7 @@ export async function cli() {
             new Option(
                 "--database <string>",
                 "Type of database to use for indexing"
-            ).choices(["local", "azure_ai_search"])
+            ).choices(["local", "azure_ai_search", "github"])
         )
         .action(retrievalIndex) // Action to index files for vector search
 

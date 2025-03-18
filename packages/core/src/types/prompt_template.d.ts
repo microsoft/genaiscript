@@ -3228,13 +3228,15 @@ interface WorkspaceFileIndex {
     ) => Promise<WorkspaceFileWithScore[]>
 }
 
+type VectorIndexProviderType = "local" | "azure_ai_search" | "github"
+
 interface VectorIndexOptions extends EmbeddingsModelOptions {
     /**
      * Type of database implementation.
      * - `local` uses a local database using embeddingsModel
      * - `azure_ai_search` uses Azure AI Search
      */
-    type?: "local" | "azure_ai_search"
+    type?: VectorIndexProviderType
     version?: number
     deleteIfExists?: boolean
     chunkSize?: number

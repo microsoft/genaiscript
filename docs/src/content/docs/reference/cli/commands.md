@@ -455,7 +455,8 @@ Options:
                                      are excluded. disables this mode
   -em, --embeddings-model <string>   'embeddings' alias model
   --database <string>                Type of database to use for indexing
-                                     (choices: "local", "azure_ai_search")
+                                     (choices: "local", "azure_ai_search",
+                                     "github")
   -h, --help                         display help for command
 ```
 

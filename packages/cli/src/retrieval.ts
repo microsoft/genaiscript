@@ -11,7 +11,7 @@ export async function retrievalIndex(
         excludedFiles: string[]
         embeddingsModel: string
         ignoreGitIgnore: boolean
-        database: "local" | "azure_ai_search"
+        database: "local" | "azure_ai_search" | "github"
     }
 ) {
     const { excludedFiles, embeddingsModel, ignoreGitIgnore, database } =
