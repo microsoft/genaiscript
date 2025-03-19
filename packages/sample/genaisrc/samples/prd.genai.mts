@@ -2,13 +2,7 @@ script({
     title: "Pull Request Descriptor",
     description: "Generate a pull request description from the git diff",
     temperature: 0.5,
-    system: [
-        "system",
-        "system.assistant",
-        "system.safety_jailbreak",
-        "system.safety_harmful_content",
-        "system.safety_validate_harmful_content",
-    ],
+    systemSafety: true,
 })
 const { safety } = env.vars
 
@@ -23,7 +17,7 @@ const changes = await git.diff({
 console.log(changes)
 
 def("GIT_DIFF", changes, {
-    maxTokens: 30000,
+    maxTokens: 14000,
     detectPromptInjection: "available",
 })
 

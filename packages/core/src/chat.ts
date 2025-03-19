@@ -605,10 +605,10 @@ async function structurifyChatSession(
             trace,
         })
         if (res.schemaError) {
-            trace.fence(schema, "json")
             trace?.warn(
                 `response schema validation failed, ${errorMessage(res.schemaError)}`
             )
+            trace?.fence(schema, "json")
         }
     }
 

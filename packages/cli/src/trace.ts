@@ -16,8 +16,10 @@ import { gitIgnoreEnsure } from "../../core/src/gitignore"
 export async function setupTraceWriting(
     trace: MarkdownTrace,
     name: string,
-    filename: string
+    filename: string,
+    options?: { ignoreInner?: boolean }
 ) {
+    const { ignoreInner } = options || {}
     logVerbose(`${name}: ${filename}`)
     await ensureDir(dirname(filename))
     await writeFile(filename, "", { encoding: "utf-8" })
@@ -27,13 +29,14 @@ export async function setupTraceWriting(
     trace.addEventListener(
         TRACE_CHUNK,
         (ev) => {
+            const tev = ev as TraceChunkEvent
+            if (ignoreInner && tev.inner) return
             const m = measure("trace.chunk")
             if (!writeStream)
                 writeStream = createWriteStream(filename, {
                     flags: "a", // 'a' for append mode
                     encoding: "utf8",
                 })
-            const tev = ev as TraceChunkEvent
             writeStream.write(tev.chunk) // Non-blocking buffered write
             m(`${tev.chunk.length} chars`)
         },

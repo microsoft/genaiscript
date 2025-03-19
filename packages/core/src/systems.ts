@@ -43,6 +43,8 @@ export function resolveSystems(
 
     // If no system is defined in the script, determine systems based on jsSource
     if (script.system === undefined) {
+        // current date
+        systems.push("system.today")
         // safety
         if (systemSafety !== false) systems.push(...safeties)
         // Check for schema definition in jsSource using regex
