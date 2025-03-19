@@ -69,7 +69,7 @@ Provide your findings in a structured format that includes:
 - Your confidence level in the answer (0-1)`
             },
             {
-                system: ["system.retrieval_web_search"],
+                tools: ["retrieval_web_search"],
                 responseSchema: {
                     type: "object",
                     properties: {
