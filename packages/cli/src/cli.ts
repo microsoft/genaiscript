@@ -88,7 +88,7 @@ export async function cli() {
     }
 
     program.hook("preAction", async (cmd) => {
-        const { env } = cmd.opts() // Get environment options from command
+        const { env }: { env: string[] } = cmd.opts() // Get environment options from command
         nodeHost = await NodeHost.install(env?.length ? env : undefined) // Install NodeHost with environment options
     })
 
@@ -98,7 +98,10 @@ export async function cli() {
         .version(CORE_VERSION)
         .description(`CLI for ${TOOL_NAME} ${GITHUB_REPO}`)
         .showHelpAfterError(true)
-        .option("--env <path>", "path to .env file, default is './.env'")
+        .option(
+            "--env <paths...>",
+            "paths to .env files, defaults to './.env' if not specified"
+        )
         .option("--no-colors", "disable color output")
         .option("-q, --quiet", "disable verbose output")
         .option("--perf", "enable performance logging")
