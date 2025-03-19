@@ -3109,6 +3109,19 @@ interface MD {
         text: string | WorkspaceFile,
         options?: { maxTokens?: number; model?: string; pageSeparator?: string }
     ): Promise<TextChunk[]>
+
+    /**
+     * Pretty prints object to markdown
+     * @param value
+     */
+    stringify(
+        value: any,
+        options?: {
+            quoteValues?: boolean
+            headings?: number
+            headingLevel?: number
+        }
+    ): string
 }
 
 interface JSONL {

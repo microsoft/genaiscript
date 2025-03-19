@@ -15,7 +15,8 @@ script({
         },
     },
 })
-const { output, vars } = env
+const { output, vars, generator } = env
+const { runPrompt } = generator
 
 // Define schemas for structured outputs
 const researchQuestionsSchema = {
@@ -127,7 +128,7 @@ async function conductDeepResearch(
         sources: [],
         primaryQuestion: "",
         subtopics: [],
-        completionTime: 0,
+        completionTime: "",
         report: {},
     }
 
@@ -150,13 +151,15 @@ Generate search queries that are specific, varied in perspective, and would prov
             {
                 label: "generate_research_questions",
                 model: "large",
+                cache: "deep-research",
                 responseSchema: researchQuestionsSchema,
             }
         )
         if (!questionsResult.json)
             throw new Error("Failed to generate research questions")
         researchMemory.primaryQuestion = questionsResult.json.primaryQuestion
-        researchMemory.questions.pending = questionsResult.json.searchQueries || []
+        researchMemory.questions.pending =
+            questionsResult.json.searchQueries || []
         researchMemory.subtopics = questionsResult.json.subtopics || []
     }
 
@@ -222,6 +225,7 @@ Analyze these results to identify:
             {
                 label: `analyze_search_results_${researchMemory.iterations}`,
                 model: "small", // Using the smaller model for search analysis
+                cache: "deep-research",
                 responseSchema: searchAnalysisSchema,
             }
         )
@@ -284,6 +288,7 @@ Create a structured research report with these elements:
         {
             label: "generate_research_report",
             model: "large", // Using the larger model for the final synthesis
+            cache: "deep-research",
             responseSchema: researchReportSchema,
         }
     )
@@ -304,8 +309,7 @@ Create a structured research report with these elements:
 }
 
 // Main execution
-const topic = vars.topic || "quantum computing advancements in the last year"
-const iterations = parseInt(vars.iterations || "3")
+const { topic, iterations } = vars
 const result = await conductDeepResearch(topic, iterations)
 
-output.appendContent(result.text)
+output.appendContent("\n" + MD.stringify(result.report, { headings: 1 }))

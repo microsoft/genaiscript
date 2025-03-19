@@ -22,6 +22,7 @@ import { FFmepgClient } from "./ffmpeg"
 import { promptParametersSchemaToJSONSchema } from "./parameters"
 import { chunkMarkdown } from "./mdchunk"
 import { resolveGlobal } from "./global"
+import { MarkdownStringify } from "./markdown"
 
 /**
  * Installs global utilities for various data formats and operations.
@@ -58,6 +59,7 @@ export function installGlobals() {
 
     // Freeze Markdown utilities with frontmatter operations
     glb.MD = Object.freeze<MD>({
+        stringify: MarkdownStringify,
         frontmatter: (text, format) =>
             frontmatterTryParse(text, { format })?.value ?? {}, // Parse frontmatter from markdown
         content: (text) => splitMarkdown(text)?.content, // Extract content from markdown

@@ -19,6 +19,18 @@ describe("trace tree", () => {
             MarkdownStringify({ a: 1, b: 2 }),
             "\n- a: 1\n- b: 2"
         )
+        assert.strictEqual(
+            MarkdownStringify({ a: "string" }, { quoteValues: true }),
+            "\n- a: `string`"
+        )
+        assert.strictEqual(
+            MarkdownStringify([1, 2, 3]),
+            "\n- 1\n- 2\n- 3"
+        )
+        assert.strictEqual(
+            MarkdownStringify({ a: 1 }, { headings: 0, headingLevel: 3 }),
+            "\n### A\n1"
+        )
     })
     test("flat", () => {
         const { root: res } = parseTraceTree(`
