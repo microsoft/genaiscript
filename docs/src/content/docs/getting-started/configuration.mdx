@@ -1450,6 +1450,18 @@ script({
 
 You can conviniately run Ollama in a Docker container.
 
+- if you are using a [devcontainer](https://code.visualstudio.com/devcontainers)
+  or a [GitHub Codespace](https://github.com/features/codespaces),
+  make sure to add the `docker-in-docker` option to your `devcontainer.json` file.
+
+```json
+{
+    "features": {
+        "docker-in-docker": "latest"
+    }
+}
+```
+
 - start the [Ollama container](https://ollama.com/blog/ollama-is-now-available-as-an-official-docker-image)
 
 ```sh wrap
@@ -1464,8 +1476,16 @@ docker stop ollama && docker rm ollama
 
 :::tip
 
-You can start the Ollama container in a [GitHub Codespace](https://github.com/features/codespaces)
-or a [GitHub Action](https://docs.github.com/en/actions)!
+Add these scripts to your `package.json` file to make it easier to start and stop the Ollama container.
+
+```json
+{
+    "scripts": {
+        "ollama:start": "docker run -d -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama",
+        "ollama:stop": "docker stop ollama && docker rm ollama"
+    }
+}
+```
 
 :::
 
