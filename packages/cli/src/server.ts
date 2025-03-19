@@ -212,11 +212,13 @@ export async function startServer(options: {
     const serverEnv = async () => {
         return deleteUndefinedValues({
             ok: true,
-            providers: await resolveLanguageModelConfigurations(undefined, {
-                token: false,
-                error: true,
-                models: true,
-            }),
+            providers: (
+                await resolveLanguageModelConfigurations(undefined, {
+                    token: true,
+                    error: true,
+                    models: true,
+                })
+            ).map(({ token, ...rest }) => rest),
             modelAliases: runtimeHost.modelAliases,
             remote: remote
                 ? {

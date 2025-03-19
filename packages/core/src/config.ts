@@ -130,7 +130,7 @@ export async function resolveLanguageModelConfigurations(
             if (conn) {
                 // Mask the token if the option is set
                 let listError = ""
-                if (models) {
+                if (models && token) {
                     const lm = await resolveLanguageModel(modelProvider.id)
                     if (lm.listModels) {
                         const models = await lm.listModels(conn, options)

@@ -127,7 +127,7 @@ export async function openaiApiModels(
     try {
         logVerbose(`models`)
         const providers = await resolveLanguageModelConfigurations(undefined, {
-            token: false,
+            token: true,
             error: true,
             models: true,
             cancellationToken,
