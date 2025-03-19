@@ -481,6 +481,7 @@ export async function cli() {
             "--github-copilot-chat-client",
             "Allow github_copilot_chat provider to connect to connected Visual Studio Code"
         )
+        .option("--openai-api", "Enable OpenAI APi endpoints")
         .action(startServer) // Action to start the server
 
     // Define 'parse' command group for parsing tasks
