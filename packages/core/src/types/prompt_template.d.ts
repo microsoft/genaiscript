@@ -260,18 +260,18 @@ type ModelType = OptionsOrString<
 >
 
 type EmbeddingsModelType = OptionsOrString<
-    "openai:text-embedding-3-small",
-    "openai:text-embedding-3-large",
-    "openai:text-embedding-ada-002",
-    "github:text-embedding-3-small",
-    "github:text-embedding-3-large",
-    "azure:text-embedding-3-small",
-    "azure:text-embedding-3-large",
-    "azure_ai_inference:text-embedding-3-small",
-    "azure_ai_inference:text-embedding-3-large",
-    "ollama:nomic-embed-text",
-    "google:text-embedding-004",
-    "huggingface:nomic-ai/nomic-embed-text-v1.5"
+    | "openai:text-embedding-3-small"
+    | "openai:text-embedding-3-large"
+    | "openai:text-embedding-ada-002"
+    | "github:text-embedding-3-small"
+    | "github:text-embedding-3-large"
+    | "azure:text-embedding-3-small"
+    | "azure:text-embedding-3-large"
+    | "azure_ai_inference:text-embedding-3-small"
+    | "azure_ai_inference:text-embedding-3-large"
+    | "ollama:nomic-embed-text"
+    | "google:text-embedding-004"
+    | "huggingface:nomic-ai/nomic-embed-text-v1.5"
 >
 
 type ModelSmallType = OptionsOrString<
@@ -439,14 +439,12 @@ interface ModelOptions extends ModelConnectionOptions, ModelTemplateOptions {
     modelConcurrency?: Record<string, number>
 }
 
-interface EmbeddingsModelConnectionOptions {
+interface EmbeddingsModelOptions extends EmbeddingsModelConnectionOptions {
     /**
      * LLM model to use for embeddings.
      */
     embeddingsModel?: EmbeddingsModelType
 }
-
-interface EmbeddingsModelOptions extends EmbeddingsModelConnectionOptions {}
 
 interface PromptSystemOptions {
     /**
@@ -3693,13 +3691,9 @@ interface ImageGenerationOptions {
     model?: OptionsOrString<ModelImageGenerationType>
     quality?: "hd"
     size?: OptionsOrString<
-        "256x256",
-        "512x512",
-        "1024x1024",
-        "1024x1792",
-        "1792x1024"
+        "256x256" | "512x512" | "1024x1024" | "1024x1792" | "1792x1024"
     >
-    style?: OptionsOrString<"vivid", "natural">
+    style?: OptionsOrString<"vivid" | "natural">
 }
 
 interface TranscriptionOptions {
@@ -3769,15 +3763,15 @@ interface TranscriptionResult {
 type SpeechModelType = OptionsOrString<"openai:tts-1-hd" | "openai:tts-1">
 
 type SpeechVoiceType = OptionsOrString<
-    "alloy",
-    "ash",
-    "coral",
-    "echo",
-    "fable",
-    "onyx",
-    "nova",
-    "sage",
-    "shimmer"
+    | "alloy"
+    | "ash"
+    | "coral"
+    | "echo"
+    | "fable"
+    | "onyx"
+    | "nova"
+    | "sage"
+    | "shimmer"
 >
 
 interface SpeechOptions {

@@ -129,6 +129,7 @@ export async function modelList(
         models: true,
         error: true,
         hide: true,
+        token: true,
     })
 
     if (options?.format === "json")

@@ -522,7 +522,13 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
 export const OpenAIListModels: ListModelsFunction = async (cfg, options) => {
     try {
         const fetch = await createFetch({ retries: 0, ...(options || {}) })
-        const res = await fetch(cfg.base + "/models", {
+        let url = trimTrailingSlash(cfg.base) + "/models"
+        if (cfg.provider === MODEL_PROVIDER_AZURE_OPENAI) {
+            url =
+                trimTrailingSlash(cfg.base).replace(/deployments$/, "") +
+                "/models"
+        }
+        const res = await fetch(url, {
             method: "GET",
             headers: {
                 ...getConfigHeaders(cfg),

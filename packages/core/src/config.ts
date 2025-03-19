@@ -17,13 +17,13 @@ import {
     LanguageModelInfo,
     ResolvedLanguageModelConfiguration,
 } from "./server/messages"
-import { parseTokenFromEnv } from "./connection"
 import { resolveLanguageModel } from "./lm"
 import { arrayify, deleteEmptyValues } from "./cleaners"
 import { errorMessage } from "./error"
 import schema from "../../../docs/public/schemas/config.json"
 import defaultConfig from "./config.json"
 import { CancellationOptions } from "./cancellation"
+import { host } from "./host"
 
 export async function resolveGlobalConfiguration(
     dotEnvPaths?: string[]
@@ -114,7 +114,6 @@ export async function resolveLanguageModelConfigurations(
 ): Promise<ResolvedLanguageModelConfiguration[]> {
     const { token, error, models, hide } = options || {}
     const res: ResolvedLanguageModelConfiguration[] = []
-    const env = process.env
 
     // Iterate through model providers, filtering if a specific provider is given
     for (const modelProvider of MODEL_PROVIDERS.filter(
@@ -124,11 +123,14 @@ export async function resolveLanguageModelConfigurations(
             // Attempt to parse connection token from environment variables
             const conn: LanguageModelConfiguration & {
                 models?: LanguageModelInfo[]
-            } = await parseTokenFromEnv(env, `${modelProvider.id}:*`)
+            } = await host.getLanguageModelConfiguration(
+                modelProvider.id + ":*",
+                options
+            )
             if (conn) {
                 // Mask the token if the option is set
                 let listError = ""
-                if (models) {
+                if (models && token) {
                     const lm = await resolveLanguageModel(modelProvider.id)
                     if (lm.listModels) {
                         const models = await lm.listModels(conn, options)
