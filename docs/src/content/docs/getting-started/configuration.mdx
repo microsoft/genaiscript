@@ -463,6 +463,11 @@ script({
 
 ### Listing models
 
+There are two ways to list the models in your Azure OpenAI resource: use the Azure Management APIs
+or by calling into a custom `/models` endpoint.
+
+### Using the management APIs (this is the common way)
+
 In order to allow GenAIScript to list deployments in your Azure OpenAI service,
 you need to provide the Subscription ID **and you need to use Microsoft Entra!**.
 
@@ -506,6 +511,17 @@ as the token does not have the proper scope to query the list of deployments.
 </ol>
 
 </Steps>
+
+#### Using the `/models` endpoint
+
+This approach assumes you have set a OpenAI comptaible `/models` enpoint in your subscription
+that returns the list of deployments in a format compatible with the OpenAI API.
+
+You can set the `AZURE_OPENAI_API_MODELS_TYPE` environment variable to point to `openai`.
+
+```txt title=".env"
+AZURE_OPENAI_API_MODELS_TYPE="openai"
+```
 
 ### Custom credentials
 
