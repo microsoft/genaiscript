@@ -64,7 +64,7 @@ import { findRandomOpenPort, isPortInUse } from "../../core/src/net"
 import { tryReadJSON, tryReadText } from "../../core/src/fs"
 import { collectRuns } from "./runs"
 import { generateId } from "../../core/src/id"
-import { openaiApiChatCompletions } from "./openaiapi"
+import { openaiApiChatCompletions, openaiApiModels } from "./openaiapi"
 
 /**
  * Starts a WebSocket server for handling chat and script execution.
@@ -761,8 +761,12 @@ window.vscodeWebviewPlaygroundNonce = ${JSON.stringify(nonce)};
                         })
                     ),
                 }
-            } else if (method === "POST" && route === "/api/chat/completions") {
+            } else if (method === "POST" && route === "/v1/chat/completions") {
                 await openaiApiChatCompletions(req, res)
+                return
+            } else if (method === "GET" && route === "/v1/models") {
+                await openaiApiModels(req, res)
+                return
             } else if (method === "GET" && runRx.test(route)) {
                 const { runId } = runRx.exec(route).groups
                 logVerbose(`run: get ${runId}`)

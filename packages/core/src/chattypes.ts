@@ -7,6 +7,13 @@
 
 import OpenAI from "openai"
 
+export type ChatModel = OpenAI.Models.Model
+
+export type ChatModels = {
+    object: "list"
+    data: Partial<ChatModel>[]
+}
+
 export type ChatCompletionReasoningEffort = OpenAI.ReasoningEffort
 
 // Aliases for OpenAI chat completion types
