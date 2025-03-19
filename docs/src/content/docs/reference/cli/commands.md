@@ -509,6 +509,7 @@ Options:
   --dispatch-progress           Dispatch progress events to all clients
   --github-copilot-chat-client  Allow github_copilot_chat provider to connect
                                 to connected Visual Studio Code
+  --openai-api                  Enable OpenAI APi endpoints
   -h, --help                    display help for command
 ```
 

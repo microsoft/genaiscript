@@ -56,3 +56,24 @@ npx genaiscript serve --network
 ```
 
 We highly recommend setting the API key when running the server on the network.
+
+## OpenAI API endpoints
+
+The server implements various OpenAI API compatible endpoints. You can use the server as a proxy to the OpenAI API by setting the `--openai` flag.
+The routes can be used to provide a stable access to the configured LLMs to other tools like promptfoo.
+
+```bash
+npx genaiscript serve --openai
+```
+
+This will enable the following routes:
+
+### `/v1/chat/completions`
+
+Mostly compatible with OpenAI's chat completions API. The server will forward the requests to the OpenAI API and return the response.
+
+- `stream` is not supported.
+
+### `/v1/models`
+
+Returns the list of models and aliases available in the server.
