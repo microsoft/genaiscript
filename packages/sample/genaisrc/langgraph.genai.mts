@@ -5,6 +5,7 @@ script({
     description: "A research workflow using LangGraph and GenAIScript",
     model: "large", // Use a capable model for research tasks
 })
+const { output, vars } = env
 
 // Task: Break down research question into sub-questions
 const breakdownResearch = task(
@@ -26,6 +27,7 @@ For each sub-question:
 Output the breakdown as a JSON object.`
             },
             {
+                label: "breakdown research",
                 responseSchema: {
                     type: "object",
                     properties: {
@@ -69,6 +71,7 @@ Provide your findings in a structured format that includes:
 - Your confidence level in the answer (0-1)`
             },
             {
+                label: `research subquestion ${subQuestion.id}`,
                 tools: ["retrieval_web_search"],
                 responseSchema: {
                     type: "object",
@@ -118,6 +121,8 @@ Provide a synthesis that:
 4. Suggests next steps for further investigation`
             },
             {
+                label: "synthesize findings",
+                responseType: "markdown",
                 responseSchema: {
                     type: "object",
                     properties: {
@@ -137,6 +142,55 @@ Provide a synthesis that:
     }
 )
 
+// Step 4: Summarize initial findings and identify gaps
+const summarizeAndIdentifyGaps = task(
+    "summarize_and_identify_gaps",
+    async (synthesis: any, findings: any[]) => {
+        const result = await runPrompt(
+            async (ctx) => {
+                ctx.$`You are an expert research evaluator.
+                        
+Task: Review the research synthesis and identify any gaps or areas that need deeper investigation.
+
+Current synthesis:
+${JSON.stringify(synthesis, null, 2)}
+
+Research findings:
+${JSON.stringify(findings, null, 2)}
+
+Please provide:
+1. A concise summary of current findings
+2. Identify 2-3 specific knowledge gaps
+3. Formulate follow-up questions to address these gaps`
+            },
+            {
+                label: "identify research gaps",
+                responseSchema: {
+                    type: "object",
+                    properties: {
+                        summary: { type: "string" },
+                        gaps: {
+                            type: "array",
+                            items: { type: "string" },
+                        },
+                        followUpQuestions: {
+                            type: "array",
+                            items: {
+                                type: "object",
+                                properties: {
+                                    id: { type: "string" },
+                                    question: { type: "string" },
+                                },
+                            },
+                        },
+                    },
+                },
+            }
+        )
+        return result.json
+    }
+)
+
 // Main research workflow
 const researchWorkflow = entrypoint(
     { checkpointer: new MemorySaver(), name: "research_workflow" },
@@ -144,32 +198,47 @@ const researchWorkflow = entrypoint(
         // Step 1: Break down the research question
         const breakdown = await breakdownResearch(input.question)
 
-        // Optional human review of breakdown
-        const approvedBreakdown = interrupt({
-            breakdown,
-            action: "Please review the research question breakdown",
-        })
-
-        // Use the approved breakdown or the original if not modified
-        const finalBreakdown = approvedBreakdown || breakdown
-
         // Step 2: Research each sub-question in parallel
         const subQuestionFindings = await Promise.all(
-            finalBreakdown.subQuestions.map((sq) => researchSubQuestion(sq))
+            breakdown.subQuestions.map((sq) => researchSubQuestion(sq))
         )
 
         // Step 3: Synthesize the findings
-        const synthesis = await synthesizeFindings(
+        let synthesis = await synthesizeFindings(
             input.question,
             subQuestionFindings
         )
 
-        // Return the final research output
+        const gapAnalysis = await summarizeAndIdentifyGaps(
+            synthesis,
+            subQuestionFindings
+        )
+
+        // Step 5: Conduct follow-up research on identified gaps
+        const followUpFindings = await Promise.all(
+            gapAnalysis.followUpQuestions.map((fq) =>
+                researchSubQuestion({
+                    id: fq.id,
+                    question: fq.question,
+                })
+            )
+        )
+
+        // Step 6: Final synthesis with deep research
+        const allFindings = [...subQuestionFindings, ...followUpFindings]
+        const finalSynthesis = await synthesizeFindings(
+            input.question,
+            allFindings
+        )
+
+        // Return the final research output with deep insights
         return {
             question: input.question,
-            breakdown: finalBreakdown,
-            findings: subQuestionFindings,
-            synthesis: synthesis,
+            breakdown: breakdown,
+            initialFindings: subQuestionFindings,
+            gapAnalysis: gapAnalysis,
+            followUpFindings: followUpFindings,
+            synthesis: finalSynthesis,
         }
     }
 )
@@ -178,13 +247,6 @@ const researchWorkflow = entrypoint(
 const researchQuestion =
     env.vars.question ||
     "What are the most promising approaches to climate change mitigation?"
-
-// Execute the workflow
-$`Starting deep research on question: "${researchQuestion}"
-
-This workflow will break down your question into sub-questions, research each one,
-and then synthesize the findings. Human input will be requested at key points.
-`
 
 // Define a unique thread ID for this research session
 const threadId = `research-${Date.now()}`
@@ -197,21 +259,11 @@ const config = {
 }
 
 // Execute the research workflow
-try {
-    const results = await researchWorkflow.invoke(
-        {
-            question: researchQuestion,
-            context: env.vars.context || "",
-        },
-        config
-    )
-
-    // Output the research results
-    defFileOutput("research-results.json", "Research results in JSON format")
-} catch (error) {
-    if (error.message.includes("__interrupt__")) {
-        $`Research paused for human input. Please provide feedback and run the script again to resume.`
-    } else {
-        $`An error occurred: ${error.message}`
-    }
-}
+const results = await researchWorkflow.invoke(
+    {
+        question: researchQuestion,
+        context: vars.context || "",
+    },
+    config
+)
+output.fence(results, "json")
