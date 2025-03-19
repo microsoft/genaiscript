@@ -1,5 +1,7 @@
 import { IncomingMessage, ServerResponse } from "http"
 import {
+    ChatCompletion,
+    ChatCompletionTokenLogprob,
     ChatModel,
     ChatModels,
     CreateChatCompletionRequest,
@@ -15,6 +17,7 @@ import { TraceOptions } from "../../core/src/trace"
 import { CancellationOptions } from "../../core/src/cancellation"
 import { logError, logVerbose } from "../../core/src/util"
 import { resolveLanguageModelConfigurations } from "../../core/src/config"
+import { generateId } from "../../core/src/id"
 
 async function readRequestBody<T>(req: IncomingMessage): Promise<T> {
     return new Promise((resolve, reject) => {
@@ -53,31 +56,65 @@ export async function openaiApiChatCompletions(
 ): Promise<void> {
     const { trace, cancellationToken } = options || {}
     try {
-        logVerbose(`chat/completions`)
+        logVerbose(`chat/completions: post`)
         const body = await readRequestBody<CreateChatCompletionRequest>(req)
         if (!body) return endError(res, 400, `Invalid request body`)
-        const { provider } = parseModelIdentifier(body.model)
-        if (!provider) return endError(res, 400, `Invalid model identifier`)
         if (body.stream) return endError(res, 400, `Streaming not supported`)
         const connection = await resolveModelConnectionInfo(
             { model: body.model },
-            { token: true, trace }
+            { token: true, trace, defaultModel: LARGE_MODEL_ID }
         )
         if (connection.info.error)
             return endError(res, 403, errorMessage(connection.info.error))
         if (!connection.configuration)
             return endError(res, 403, `LLM configuration missing`)
-        const { completer } = await resolveLanguageModel(provider)
+        const { completer } = await resolveLanguageModel(
+            connection.configuration.provider
+        )
+        body.model = connection.info.model
         const resp = await completer(
             body,
             connection.configuration,
             { cancellationToken, inner: false },
             trace
         )
+
+        if (resp.finishReason === "cancel")
+            return endError(res, 499, `Request cancelled`)
+        if (resp.finishReason === "fail")
+            return endError(res, 400, errorMessage(resp.error))
+
+        // fake openai response
+        const completion: ChatCompletion = {
+            id: generateId(),
+            object: "chat.completion",
+            created: Date.now(),
+            model: body.model,
+            choices: [
+                {
+                    index: 0,
+                    finish_reason: resp.finishReason,
+                    message: {
+                        role: "assistant",
+                        content: resp.text,
+                        refusal: undefined,
+                    },
+                    logprobs: resp.logprobs
+                        ? {
+                              content: resp.logprobs,
+                              refusal: null,
+                          }
+                        : null,
+                },
+            ],
+            usage: resp.usage,
+        }
+        console.log(completion)
         res.writeHead(200, { "Content-Type": "application/json" })
-        res.end(JSON.stringify(resp))
+        res.end(JSON.stringify(completion))
     } catch (e) {
         logError(errorMessage(e))
+        logVerbose(e)
         endError(res, 500, `Internal server error`)
     }
 }

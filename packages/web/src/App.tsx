@@ -98,7 +98,10 @@ import { JSONBooleanOptionsGroup, JSONSchemaObjectForm } from "./JSONSchema"
 import { useLocationHashValue } from "./useLocationHashValue"
 import { ActionButton } from "./ActionButton"
 import Suspense from "./Suspense"
-import type { ChatCompletionMessageParam } from "../../core/src/chattypes"
+import type {
+    ChatCompletion,
+    ChatCompletionMessageParam,
+} from "../../core/src/chattypes"
 import { generateId } from "../../core/src/id"
 
 const fetchScripts = async (): Promise<Project> => {
@@ -1483,7 +1486,7 @@ function ScriptForm() {
             <ScriptSelect />
             <FilesDropZone />
             <PromptParametersFields />
-            <RunButton />
+            <RunScriptButton />
         </vscode-collapsible>
     )
 }
@@ -1687,8 +1690,155 @@ function ConfigurationTabPanel() {
             <vscode-tabs panel>
                 <ModelConfigurationTabPanel />
                 <ProviderConfigurationTabPanel />
+                <ChatCompletationTabPanel />
             </vscode-tabs>
         </vscode-collapsible>
+    )
+}
+
+function ChatCompletationTabPanel() {
+    const { options, setOptions } = useApi()
+    const { model } = options
+    const env = useEnv()
+    const { providers } = env || {}
+    const models =
+        providers?.flatMap(
+            (p) => p.models?.map((m) => `${p.provider}:${m.id}`) || []
+        ) || []
+    const [userContent, setUserContent] = useState<string>(
+        "write a poem using emojis"
+    )
+    const [response, setResponse] = useState<
+        ChatCompletion | { error?: string }
+    >(undefined)
+    const [controller, setController] = useState<AbortController | undefined>(
+        undefined
+    )
+    const state = controller ? "running" : undefined
+    const title = state === "running" ? "Abort" : "Run"
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault()
+        if (controller) controller.abort()
+        const c = new AbortController()
+        setController(c)
+        setResponse(undefined)
+        try {
+            const body = {
+                model: options.model,
+                messages: [{ role: "user", content: userContent }],
+            }
+            const resp = await fetch("/v1/chat/completions", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: apiKey,
+                },
+                signal: c.signal,
+                body: JSON.stringify(body),
+            })
+            if (c.signal.aborted) {
+                console.log(`openai request aborted`)
+                return
+            }
+            if (!resp.ok)
+                setResponse({
+                    error: `Error: ${resp.status} ${resp.statusText}`,
+                })
+            else setResponse(await resp.json())
+        } catch (e) {
+            c.abort()
+            setResponse({ error: `Error: ${e}` })
+        } finally {
+            setController(undefined)
+        }
+    }
+    const setModel = (model: string) =>
+        setOptions((prev) => ({ ...prev, model }))
+
+    return (
+        <>
+            <vscode-tab-header slot="header">OpenAI API</vscode-tab-header>
+            <vscode-tab-panel>
+                <form onSubmit={handleSubmit}>
+                    <vscode-form-group>
+                        <vscode-label>model:</vscode-label>
+                        <vscode-single-select
+                            value={model}
+                            combobox
+                            filter="fuzzy"
+                            creatable
+                            onvsc-change={(e: Event) => {
+                                const target = e.target as HTMLSelectElement
+                                setModel(target.value)
+                            }}
+                        >
+                            <vscode-option value=""></vscode-option>
+                            {models.map((m) => (
+                                <vscode-option key={m} value={m}>
+                                    {m}
+                                </vscode-option>
+                            ))}
+                        </vscode-single-select>
+                    </vscode-form-group>
+                    <vscode-form-container>
+                        <vscode-form-group>
+                            <vscode-label>user:</vscode-label>
+                            <vscode-textarea
+                                rows={5}
+                                value={userContent}
+                                onvsc-change={(e: Event) => {
+                                    const target =
+                                        e.target as HTMLTextAreaElement
+                                    setUserContent(target.value)
+                                }}
+                                placeholder="user message"
+                            ></vscode-textarea>
+                        </vscode-form-group>
+                        <vscode-form-group>
+                            <vscode-label></vscode-label>
+                            <vscode-button
+                                icon={
+                                    state === "running" ? "stop-circle" : "play"
+                                }
+                                type="submit"
+                                title={title}
+                            >
+                                {title}
+                            </vscode-button>
+                            <ModelOptionsFormHelper />
+                        </vscode-form-group>
+                        {response ? (
+                            <vscode-form-group>
+                                <vscode-label></vscode-label>
+                                <vscode-tabs>
+                                    <MarkdownPreviewTabs
+                                        text={JSON.stringify(response, null, 2)}
+                                        renderText={
+                                            (response as ChatCompletion)
+                                                ?.choices?.length
+                                                ? (
+                                                      response as ChatCompletion
+                                                  )?.choices
+                                                      .map(
+                                                          ({ message }) =>
+                                                              message.content
+                                                      )
+                                                      .join("\n<br/>\n")
+                                                : `
+\`\`\`json
+${JSON.stringify(response, null, 2) || ""}
+\`\`\`
+`
+                                        }
+                                    />
+                                </vscode-tabs>
+                            </vscode-form-group>
+                        ) : null}
+                    </vscode-form-container>
+                </form>
+            </vscode-tab-panel>
+        </>
     )
 }
 
@@ -1777,8 +1927,21 @@ function ClientReadyStateLabel() {
     )
 }
 
-function RunButton() {
-    const { scriptid, options } = useApi()
+function ModelOptionsFormHelper() {
+    const { options } = useApi()
+    return (
+        <>
+            <vscode-form-helper>
+                {Object.entries(options)
+                    .map(([key, value]) => `${key}: ${value}`)
+                    .join(", ")}
+            </vscode-form-helper>
+        </>
+    )
+}
+
+function RunScriptButton() {
+    const { scriptid } = useApi()
     const { state } = useRunner()
     const disabled = !scriptid
 
@@ -1795,11 +1958,7 @@ function RunButton() {
                 >
                     {title}
                 </vscode-button>
-                <vscode-form-helper>
-                    {Object.entries(options)
-                        .map(([key, value]) => `${key}: ${value}`)
-                        .join(", ")}
-                </vscode-form-helper>
+                <ModelOptionsFormHelper />
             </vscode-form-group>
             <RunButtonOptions />
         </>
@@ -1810,6 +1969,7 @@ function ScriptView() {
     return (
         <Suspense>
             <RunForm />
+            <ConfigurationTabPanel />
         </Suspense>
     )
 }
@@ -1826,7 +1986,6 @@ function RunForm() {
     return (
         <form onSubmit={handleSubmit}>
             <ScriptForm />
-            <ConfigurationTabPanel />
         </form>
     )
 }

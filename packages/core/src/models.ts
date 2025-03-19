@@ -30,7 +30,7 @@ export function parseModelIdentifier(id: string): {
     tag?: string
     reasoningEffort?: ChatCompletionReasoningEffort
 } {
-    assert(!!id)
+    if (!id) throw new Error("Model identifier not specified")
     let reasoningEffort: ChatCompletionReasoningEffort
     const parts = id.split(":")
     if (/^(high|medium|low)$/.test(parts.at(-1)))
