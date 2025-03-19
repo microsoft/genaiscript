@@ -3,7 +3,7 @@
 // converting annotations to markdown, wrapping text in fences, creating links and details blocks,
 // and working with trace trees.
 
-import { humanize, titleize } from "inflection"
+import { titleize } from "./inflection"
 import { convertAnnotationsToMarkdown } from "./annotations"
 import { collapseNewlines } from "./cleaners"
 import { fenceMD } from "./mkmd"
