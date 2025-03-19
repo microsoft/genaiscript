@@ -14,22 +14,19 @@ describe("trace tree", () => {
         })
     })
     test("stringify", () => {
-        assert.strictEqual(MarkdownStringify({ a: 1 }), "\n- a: 1")
+        assert.strictEqual(MarkdownStringify({ a: 1 }), "\n- a: 1\n")
         assert.strictEqual(
             MarkdownStringify({ a: 1, b: 2 }),
-            "\n- a: 1\n- b: 2"
+            "\n- a: 1\n- b: 2\n"
         )
         assert.strictEqual(
             MarkdownStringify({ a: "string" }, { quoteValues: true }),
-            "\n- a: `string`"
+            "\n- a: `string`\n"
         )
-        assert.strictEqual(
-            MarkdownStringify([1, 2, 3]),
-            "\n- 1\n- 2\n- 3"
-        )
+        assert.strictEqual(MarkdownStringify([1, 2, 3]), "\n- 1\n- 2\n- 3\n")
         assert.strictEqual(
             MarkdownStringify({ a: 1 }, { headings: 0, headingLevel: 3 }),
-            "\n### A\n1"
+            "\n### A\n1\n"
         )
     })
     test("flat", () => {
