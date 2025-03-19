@@ -110,6 +110,7 @@ import {
     wrapRgbColor,
 } from "../../core/src/consolecolor"
 import { generateId } from "../../core/src/id"
+import { originalConsole } from "../../core/src/global"
 
 function getRunDir(scriptId: string, runId: string) {
     const name = new Date().toISOString().replace(/[:.]/g, "-") + "-" + runId
@@ -251,12 +252,15 @@ export async function runScriptInternal(
             : await setupTraceWriting(
                   outputTrace,
                   "output",
-                  join(runDir, OUTPUT_FILENAME)
+                  join(runDir, OUTPUT_FILENAME),
+                  { ignoreInner: true }
               )
     if (outTrace && !/^false$/i.test(outTrace))
         await setupTraceWriting(trace, " trace", outTrace)
     if (outOutput && !/^false$/i.test(outOutput))
-        await setupTraceWriting(outputTrace, " output", outOutput)
+        await setupTraceWriting(outputTrace, " output", outOutput, {
+            ignoreInner: true,
+        })
     if (outTraceFilename)
         logVerbose(
             `viewer: ${SERVER_LOCALHOST}:${SERVER_PORT}/#runid=${runId}  (to start server, run 'genaiscript serve')`

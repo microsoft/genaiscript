@@ -92,5 +92,5 @@ export function MarkdownStringify(
                 : String(obj)
     }
 
-    return render(obj, 0)
+    return render(obj, 0) + "\n"
 }

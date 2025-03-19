@@ -72,7 +72,8 @@ export async function convertFiles(
     const outTraceFilename = await setupTraceWriting(
         convertTrace,
         "trace",
-        join(convertDir, TRACE_FILENAME)
+        join(convertDir, TRACE_FILENAME),
+        { ignoreInner: true }
     )
     const outTraceDir = dirname(outTraceFilename)
 
