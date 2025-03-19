@@ -3782,6 +3782,27 @@ export default function (ctx: ChatGenerationContext) {
 `````
 
 
+### `system.today`
+
+Today's date.
+
+
+
+
+
+`````js wrap title="system.today"
+system({
+    title: "Today's date.",
+})
+export default function (ctx: ChatGenerationContext) {
+    const { $ } = ctx
+    const date = new Date()
+    $`- Today is ${date.toDateString()}.`
+}
+
+`````
+
+
 ### `system.tool_calls`
 
 Ad hoc tool support
