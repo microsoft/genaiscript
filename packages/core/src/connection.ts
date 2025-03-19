@@ -47,8 +47,10 @@ import {
     WINDOWS_AI_API_BASE,
     MODEL_PROVIDER_SGLANG,
     SGLANG_API_BASE,
+    MODEL_PROVIDER_VLLM,
+    VLLM_API_BASE,
 } from "./constants"
-import { host, runtimeHost } from "./host"
+import { runtimeHost } from "./host"
 import { parseModelIdentifier } from "./models"
 import {
     AzureCredentialsType,
@@ -533,6 +535,20 @@ export async function parseTokenFromEnv(
             model,
             base,
             token: "sglang",
+            type: "openai",
+            source: "default",
+        }
+    }
+
+    if (provider === MODEL_PROVIDER_VLLM) {
+        const base =
+            findEnvVar(env, "VLLM", BASE_SUFFIX)?.value || VLLM_API_BASE
+        if (!URL.canParse(base)) throw new Error(`${base} must be a valid URL`)
+        return {
+            provider,
+            model,
+            base,
+            token: "vllm",
             type: "openai",
             source: "default",
         }
