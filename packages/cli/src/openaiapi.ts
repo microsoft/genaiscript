@@ -99,7 +99,7 @@ export async function openaiApiChatCompletions(
                         content: resp.text,
                         refusal: undefined,
                     },
-                    logprobs: resp.logprobs
+                    logprobs: resp.logprobs?.length
                         ? {
                               content: resp.logprobs,
                               refusal: null,
@@ -109,7 +109,6 @@ export async function openaiApiChatCompletions(
             ],
             usage: resp.usage,
         }
-        console.log(completion)
         res.writeHead(200, { "Content-Type": "application/json" })
         res.end(JSON.stringify(completion))
     } catch (e) {
