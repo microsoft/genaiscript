@@ -8,7 +8,7 @@ import {
     readText,
     tryReadText,
 } from "../../core/src/fs"
-import { HTMLToText } from "../../core/src/html"
+import { HTMLToMarkdown, HTMLToText } from "../../core/src/html"
 import { isJSONLFilename, JSONLTryParse } from "../../core/src/jsonl"
 import { parsePdf } from "../../core/src/pdf"
 import { estimateTokens } from "../../core/src/tokens"
@@ -26,6 +26,7 @@ import { parseOptionsVars } from "./vars"
 import { dataTryParse } from "../../core/src/data"
 import { resolveFileContent } from "../../core/src/file"
 import { redactSecrets } from "../../core/src/secretscanner"
+import { logVerbose } from "../../core/src/util"
 
 /**
  * This module provides various parsing utilities for different file types such
@@ -88,11 +89,22 @@ export async function parseDOCX(file: string, options: DocxParseOptions) {
  * Converts HTML content to text and logs it.
  * @param file - The HTML file to convert.
  */
-export async function parseHTMLToText(file: string) {
-    const html = await readFile(file, { encoding: "utf-8" })
+export async function parseHTMLToText(
+    fileOrUrl: string,
+    options: { format?: "markdown" | "text"; out?: string }
+) {
+    const { format = "markdown", out } = options || {}
+    const file: WorkspaceFile = { filename: fileOrUrl }
+    await resolveFileContent(file)
     // Converts HTML to plain text
-    const text: string = await HTMLToText(html)
-    console.log(text)
+    let text: string
+    if (format === "markdown") text = await HTMLToMarkdown(file.content)
+    else text = await HTMLToText(file.content)
+
+    if (out) {
+        logVerbose(`writing ${out}`)
+        await writeText(out, text)
+    } else console.log(text)
 }
 
 export async function parseJinja2(

@@ -520,26 +520,27 @@ Usage: genaiscript parse|parsers [options] [command] <file...>
 Parse various outputs
 
 Arguments:
-  file                         input JSONL files
+  file                          input JSONL files
 
 Options:
-  -h, --help                   display help for command
+  -h, --help                    display help for command
 
 Commands:
-  data [options] <file>        Convert CSV, YAML, TOML, INI, XLSX, XML, MD/X
-                               frontmatter or JSON data files into various
-                               formats
-  fence <language> <file>      Extracts a code fenced regions of the given type
-  pdf [options] <file>         Parse a PDF into text and images
-  docx [options] <file>        Parse a DOCX into texts
-  html-to-text <file>          Parse an HTML file into text
-  code <file> [query]          Parse code using tree sitter and executes a
-                               query
-  tokens [options] <files...>  Count tokens in a set of files
-  jsonl2json                   Converts JSONL files to a JSON file
-  prompty [options] <file...>  Converts .prompty files to genaiscript
-  jinja2 [options] <file>      Renders Jinj2 or prompty template
-  secrets <file...>            Applies secret scanning and redaction to files
+  data [options] <file>         Convert CSV, YAML, TOML, INI, XLSX, XML, MD/X
+                                frontmatter or JSON data files into various
+                                formats
+  fence <language> <file>       Extracts a code fenced regions of the given
+                                type
+  pdf [options] <file>          Parse a PDF into text and images
+  docx [options] <file>         Parse a DOCX into texts
+  html [options] <file_or_url>  Parse an HTML file to text
+  code <file> [query]           Parse code using tree sitter and executes a
+                                query
+  tokens [options] <files...>   Count tokens in a set of files
+  jsonl2json                    Converts JSONL files to a JSON file
+  prompty [options] <file...>   Converts .prompty files to genaiscript
+  jinja2 [options] <file>       Renders Jinj2 or prompty template
+  secrets <file...>             Applies secret scanning and redaction to files
 ```
 
 ### `parse data`
@@ -592,15 +593,20 @@ Options:
   -h, --help             display help for command
 ```
 
-### `parse html-to-text`
+### `parse html`
 
 ```
-Usage: genaiscript parse html-to-text [options] <file>
+Usage: genaiscript parse html [options] <file_or_url>
 
-Parse an HTML file into text
+Parse an HTML file to text
+
+Arguments:
+  file_or_url            HTML file or URL
 
 Options:
-  -h, --help  display help for command
+  -f, --format <string>  output format (choices: "markdown", "text")
+  -o, --out <string>     output file
+  -h, --help             display help for command
 ```
 
 ### `parse code`

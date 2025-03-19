@@ -526,8 +526,16 @@ export async function cli() {
         )
         .action(parseDOCX) // Action to parse DOCX files
     parser
-        .command("html-to-text <file>")
-        .description("Parse an HTML file into text")
+        .command("html")
+        .argument("<file_or_url>", "HTML file or URL")
+        .addOption(
+            new Option("-f, --format <string>", "output format").choices([
+                "markdown",
+                "text",
+            ])
+        )
+        .option("-o, --out <string>", "output file")
+        .description("Parse an HTML file to text")
         .action(parseHTMLToText) // Action to parse HTML files
     parser
         .command("code")
