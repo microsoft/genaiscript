@@ -155,14 +155,15 @@ the `.env`, `.env.genaiscript` file will appear grayed out in Visual Studio Code
 You can specify a custom `.env` file location through the CLI or an environment variable.
 
 - GenAIScript script loads the following `.env` files in order by default:
-  - `~/.env.genaiscript`
-  - `./.env.genaiscript`
-  - `./.env`
 
-- by adding the `--env <file>` argument to the CLI.
+    - `~/.env.genaiscript`
+    - `./.env.genaiscript`
+    - `./.env`
 
-```sh "--env .env.local"
-npx genaiscript ... --env .env.local
+- by adding the `--env <...files>` argument to the CLI. Each `.env` file is imported in order and may override previous values.
+
+```sh "--env .env .env.debug"
+npx genaiscript ... --env .env .env.debug
 ```
 
 - by setting the `GENAISCRIPT_ENV_FILE` environment variable.
@@ -1701,10 +1702,9 @@ The provider is `llamafile` and the model name is ignored.
 
 ## SGLang
 
-[SGLang](https://docs.sglang.ai/) is a fast serving framework for large language models and vision language models. 
+[SGLang](https://docs.sglang.ai/) is a fast serving framework for large language models and vision language models.
 
 The provider is `sglang` and the model name is ignored.
-
 
 ## LLaMA.cpp
 

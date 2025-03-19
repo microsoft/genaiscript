@@ -118,7 +118,12 @@ e.g. `HTTP_PROXY=http://proxy.acme.com:3128`.
 
 The CLI will load the [secrets](/genaiscript/getting-started/configuration) from the environment variables or a `./.env` file.
 
-You can override the default `.env` file name by adding the `--env myother.env` file.
+You can override the default `.env` file name by adding the `--env .env.local` file,
+over even import both.
+
+```sh
+npx genaiscript run <script> --env .env .env.local
+```
 
 ## Create a new script
 
