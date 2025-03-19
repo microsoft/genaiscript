@@ -182,7 +182,7 @@ export async function startServer(options: {
         if (!apiKey) return true
 
         const { authorization } = req.headers
-        if (authorization === apiKey) return true
+        if (authorization === apiKey || `Bearer ${apiKey}`) return true
 
         const url = req.url.replace(/^[^\?]*\?/, "")
         const search = new URLSearchParams(url)
