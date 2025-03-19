@@ -141,7 +141,7 @@ export async function openaiApiModels(
                     models.map(
                         ({ id }) =>
                             ({
-                                id,
+                                id: `${provider}:${id}`,
                                 owned_by: provider,
                             }) satisfies Partial<ChatModel>
                     )

@@ -101,6 +101,7 @@ import Suspense from "./Suspense"
 import type {
     ChatCompletion,
     ChatCompletionMessageParam,
+    ChatModels,
 } from "../../core/src/chattypes"
 import { generateId } from "../../core/src/id"
 
@@ -138,6 +139,18 @@ const fetchRuns = async (): Promise<RunResultListResponse> => {
     if (!res.ok) throw new Error(await res.json())
 
     const j: RunResultListResponse = await res.json()
+    return j
+}
+const fetchModels = async (): Promise<ChatModels> => {
+    const res = await fetch(`${base}/v1/models`, {
+        headers: {
+            Accept: "application/json",
+            Authorization: apiKey,
+        },
+    })
+    if (!res.ok) throw new Error(await res.json())
+
+    const j: ChatModels = await res.json()
     return j
 }
 const fetchRun = async (
@@ -356,6 +369,7 @@ const ApiContext = createContext<{
     ) => void
     refresh: () => void
     runs: Promise<RunResultListResponse | undefined>
+    models: Promise<ChatModels | undefined>
 } | null>(null)
 
 function ApiProvider({ children }: { children: React.ReactNode }) {
@@ -370,6 +384,7 @@ function ApiProvider({ children }: { children: React.ReactNode }) {
     const env = useMemo<Promise<ServerEnvResponse>>(fetchEnv, [refreshId])
     const project = useMemo<Promise<Project>>(fetchScripts, [refreshId])
     const runs = useMemo<Promise<RunResultListResponse>>(fetchRuns, [refreshId])
+    const models = useMemo<Promise<ChatModels>>(fetchModels, [refreshId])
     const [scriptid, setScriptid] = useLocationHashValue("scriptid")
 
     const refresh = () => setRefreshId((prev) => prev + 1)
@@ -430,6 +445,7 @@ function ApiProvider({ children }: { children: React.ReactNode }) {
                 setOptions,
                 refresh,
                 runs,
+                models,
             }}
         >
             {children}
@@ -453,6 +469,12 @@ function useRunResults() {
     const { runs: runsPromise } = useApi()
     const runs = use(runsPromise)
     return runs
+}
+
+function useModels() {
+    const { models: modelsPromise } = useApi()
+    const models = use(modelsPromise)
+    return models
 }
 
 function useProject() {
@@ -1697,14 +1719,8 @@ function ConfigurationTabPanel() {
 }
 
 function ChatCompletationTabPanel() {
-    const { options, setOptions } = useApi()
-    const { model } = options
-    const env = useEnv()
-    const { providers } = env || {}
-    const models =
-        providers?.flatMap(
-            (p) => p.models?.map((m) => `${p.provider}:${m.id}`) || []
-        ) || []
+    const models = useModels()
+    const [model, setModel] = useState<string>("")
     const [userContent, setUserContent] = useState<string>(
         "write a poem using emojis"
     )
@@ -1725,7 +1741,7 @@ function ChatCompletationTabPanel() {
         setResponse(undefined)
         try {
             const body = {
-                model: options.model,
+                model: model,
                 messages: [{ role: "user", content: userContent }],
             }
             const resp = await fetch("/v1/chat/completions", {
@@ -1753,8 +1769,6 @@ function ChatCompletationTabPanel() {
             setController(undefined)
         }
     }
-    const setModel = (model: string) =>
-        setOptions((prev) => ({ ...prev, model }))
 
     return (
         <>
@@ -1774,9 +1788,9 @@ function ChatCompletationTabPanel() {
                             }}
                         >
                             <vscode-option value=""></vscode-option>
-                            {models.map((m) => (
-                                <vscode-option key={m} value={m}>
-                                    {m}
+                            {models?.data?.map((m) => (
+                                <vscode-option key={m.id} value={m.id}>
+                                    {m.id}
                                 </vscode-option>
                             ))}
                         </vscode-single-select>
