@@ -731,7 +731,6 @@ export async function OpenAIEmbedder(
     const { trace, cancellationToken } = options || {}
     const { base, provider, type, model } = cfg
     try {
-        logVerbose(`${provider}: embedding`)
         const route = "embeddings"
         let url: string
         const body: EmbeddingCreateParams = { input, model: cfg.model }
@@ -765,7 +764,7 @@ export async function OpenAIEmbedder(
         }
         traceFetchPost(trace, url, freq.headers, body)
         logVerbose(
-            `embeddings: ${ellipse(input, 32)} with ${provider}:${model}`
+            `${provider} emedding: ${ellipse(input, 44)} with ${provider}:${model}`
         )
         const fetch = await createFetch({
             trace,
