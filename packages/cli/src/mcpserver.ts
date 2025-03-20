@@ -6,7 +6,6 @@ import { run } from "./api"
 import { type CallToolResult } from "@modelcontextprotocol/sdk/types.js"
 import { errorMessage } from "../../core/src/error"
 import { setConsoleColors } from "../../core/src/consolecolor"
-import { overrideStdoutWithStdErr } from "../../core/src/stdio"
 import { startProjectWatcher } from "./watch"
 
 export async function startMcpServer(options?: ScriptFilterOptions) {
