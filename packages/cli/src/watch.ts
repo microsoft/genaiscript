@@ -1,18 +1,13 @@
 import { FSWatcher, watch } from "chokidar"
-import { resolve } from "node:path"
-import {
-    CHANGE,
-    CLOSE,
-    GENAI_ANYJS_GLOB,
-    OPEN,
-    READY,
-} from "../../core/src/constants"
+import { basename, resolve } from "node:path"
+import { CHANGE, CLOSE, GENAI_ANY_REGEX, OPEN } from "../../core/src/constants"
 import { createGitIgnorer } from "../../core/src/gitignore"
 import { tsImport } from "tsx/esm/api"
 import { Project } from "../../core/src/server/messages"
 import { buildProject } from "./build"
 import { filterScripts, ScriptFilterOptions } from "../../core/src/ast"
 import { CancellationOptions, toSignal } from "../../core/src/cancellation"
+import { logError, logVerbose } from "../../core/src/util"
 
 interface ProjectWatcherOptions extends ScriptFilterOptions {
     paths: ElementOrArray<string>
@@ -20,40 +15,35 @@ interface ProjectWatcherOptions extends ScriptFilterOptions {
 }
 
 export class ProjectWatcher extends EventTarget {
-    private watcher: FSWatcher
+    private _watcher: FSWatcher
     private _project: Project
     private _scripts: PromptScript[]
 
     constructor(readonly options: ProjectWatcherOptions & CancellationOptions) {
         super()
-        this.watcher = watch(this.options.paths, {
-            ...options,
-            persistent: false,
-            ignoreInitial: true,
-            awaitWriteFinish: {
-                stabilityThreshold: 2000,
-                pollInterval: 1000,
-            },
-            atomic: true,
-            interval: 1000,
-            binaryInterval: 5000,
-            depth: 10,
-        })
         const signal = toSignal(this.options.cancellationToken)
         signal?.addEventListener("abort", this.close.bind(this))
     }
 
     async open() {
-        if (this.watcher) return
+        if (this._watcher) return
 
-        this.refresh()
+        await this.refresh()
         const { paths, cwd } = this.options
         const gitIgnorer = await createGitIgnorer()
         // Initialize watcher.
-        this.watcher = watch(paths, {
-            ignored: (filename: string) => {
-                const res = gitIgnorer([filename])
-                return res.includes(filename)
+        this._watcher = watch(paths, {
+            ignored: (path, stats) => {
+                if (!stats) return false
+                if (stats.isDirectory()) {
+                    const b = basename(path)
+                    if (/^\./.test(b)) return true
+                } else if (stats.isFile() && !GENAI_ANY_REGEX.test(path)) {
+                    return true
+                }
+                const filtered = gitIgnorer([path])
+                if (filtered.length === 0) return true
+                return false
             },
             persistent: false,
             ignoreInitial: true,
@@ -64,11 +54,14 @@ export class ProjectWatcher extends EventTarget {
             atomic: true,
             interval: 1000,
             binaryInterval: 5000,
-            depth: 10,
+            depth: 30,
             cwd,
         })
-        const changed = () => this.dispatchEvent(new Event(CHANGE))
-        this.watcher
+        const changed = () => {
+            this.dispatchEvent(new Event(CHANGE))
+        }
+        this._watcher
+            .on("error", (error) => logError(`watch: ${error}`))
             .on("add", changed)
             .on("change", changed)
             .on("unlink", changed)
@@ -94,8 +87,8 @@ export class ProjectWatcher extends EventTarget {
     }
 
     async close() {
-        await this.watcher?.close()
-        this.watcher = undefined
+        await this._watcher?.close()
+        this._watcher = undefined
         this.dispatchEvent(new Event(CLOSE))
     }
 }
@@ -106,11 +99,7 @@ export async function startProjectWatcher(
         cwd?: string
     } & CancellationOptions
 ) {
-    const {
-        paths = GENAI_ANYJS_GLOB,
-        cwd = resolve("."),
-        ...rest
-    } = options || {}
+    const { paths = ".", cwd = resolve("."), ...rest } = options || {}
     const watcher = new ProjectWatcher({ paths, cwd, ...rest })
     await watcher.open()
     return watcher
