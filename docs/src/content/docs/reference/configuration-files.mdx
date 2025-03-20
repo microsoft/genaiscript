@@ -18,9 +18,10 @@ GenAIScript will scan and load the following `.env` files in the following order
 - `~/.env.genaiscript`
 - `./.env`
 
-The list of `.env` files can be overriden by the `--env` command line option or the `envFile` property in the configuration file.
+The list of `.env` files can be overriden by the `--env` command line option or the `envFile` property in the configuration file
+or the `GENAISCRIPT_ENV_FILE` environment variable.
 
-## config file resolution
+### config file resolution
 
 GenAIScript will scan for the following configuration files
 and merge their content into the final configuration.
@@ -31,6 +32,9 @@ and merge their content into the final configuration.
 - `./genaiscript.config.json`
 
 The JSON files support the [JSON5](https://json5.org/) format (including comments, trailing commas, etc...).
+
+GenAIScript will collect all `.env` files and merge their content into the final environment variables, starting from config files,
+then `GENAISCRIPT_ENV_FILE`, the command line option `--env` values.
 
 ## Schema
 
