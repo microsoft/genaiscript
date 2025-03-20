@@ -27,7 +27,9 @@ export async function startMcpServer(options?: ScriptFilterOptions) {
         },
         {
             capabilities: {
-                tools: {},
+                tools: {
+                    listChanged: true,
+                },
             },
         }
     )
