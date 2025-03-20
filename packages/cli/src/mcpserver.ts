@@ -44,7 +44,21 @@ export async function startMcpServer(options?: ScriptFilterOptions) {
             return {
                 name: id,
                 description: toStringList(title, description),
-                inputSchema: inputSchema,
+                inputSchema: {
+                    type: "object",
+                    properties: {
+                        files: {
+                            type: "array",
+                            items: {
+                                type: "string",
+                                description:
+                                    "File paths to be passed to the script",
+                            },
+                        },
+                        ...(inputSchema.properties || {}),
+                    },
+                    required: inputSchema.required || [],
+                },
             }
         })
         return { tools }
