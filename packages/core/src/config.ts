@@ -24,6 +24,8 @@ import schema from "../../../docs/public/schemas/config.json"
 import defaultConfig from "./config.json"
 import { CancellationOptions } from "./cancellation"
 import { host } from "./host"
+import { logVerbose } from "./util"
+import { uniq } from "es-toolkit"
 
 export async function resolveGlobalConfiguration(
     dotEnvPaths?: string[]
@@ -40,6 +42,7 @@ export async function resolveGlobalConfiguration(
         for (const ext of exts) {
             const filename = resolve(`${dir}/${TOOL_ID}.config.${ext}`)
             if (existsSync(filename)) {
+                logVerbose(`config: loading ${filename}`)
                 const fileContent = readFileSync(filename, "utf8")
                 const parsed: HostConfiguration =
                     ext === "yml" || ext === "yaml"
@@ -62,7 +65,10 @@ export async function resolveGlobalConfiguration(
                         config?.include || [],
                         parsed?.include || []
                     ),
-                    envFile: parsed?.envFile || config?.envFile,
+                    envFile: [
+                        ...(parsed?.envFile || []),
+                        ...(config?.envFile || []),
+                    ],
                     modelAliases: structuralMerge(
                         config?.modelAliases || {},
                         parsed?.modelAliases || {}
@@ -82,9 +88,16 @@ export async function resolveGlobalConfiguration(
 
     // import for env var
     if (process.env.GENAISCRIPT_ENV_FILE)
-        config.envFile = process.env.GENAISCRIPT_ENV_FILE
+        config.envFile = [
+            ...(config.envFile || []),
+            process.env.GENAISCRIPT_ENV_FILE,
+        ]
     // override with CLI command
-    if (dotEnvPaths?.length) config.envFile = dotEnvPaths
+    if (dotEnvPaths?.length)
+        config.envFile = config.envFile = [
+            ...(config.envFile || []),
+            ...dotEnvPaths,
+        ]
 
     // nothing loaded, use defaults
     if (!config.envFile?.length)
@@ -94,7 +107,7 @@ export async function resolveGlobalConfiguration(
             DOT_ENV_FILENAME,
         ]
     // resolve all paths
-    config.envFile = arrayify(config.envFile).map((f) => resolve(f))
+    config.envFile = uniq(arrayify(config.envFile).map((f) => resolve(f)))
     return config
 }
 

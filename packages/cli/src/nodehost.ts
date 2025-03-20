@@ -214,7 +214,9 @@ export class NodeHost extends EventTarget implements RuntimeHost {
             for (const kv of Object.entries(modelAliases))
                 this.setModelAlias("config", kv[0], kv[1])
         for (const dotEnv of arrayify(envFile)) {
-            if (existsSync(dotEnv)) {
+            if (!existsSync(dotEnv))
+                logVerbose(`.env: ignored ${dotEnv}, not found`)
+            else {
                 logVerbose(`.env: loading ${dotEnv}`)
                 const res = dotenv.config({
                     path: dotEnv,
