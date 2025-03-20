@@ -1,18 +1,19 @@
-import { TraceOptions } from "../../core/src/trace"
-import { logError, logVerbose, toStringList } from "../../core/src/util"
+import { logVerbose, toStringList } from "../../core/src/util"
 import { TOOL_ID } from "../../core/src/constants"
 import { CORE_VERSION } from "../../core/src/version"
-import { filterScripts, ScriptFilterOptions } from "../../core/src/ast"
-import z from "zod"
+import { ScriptFilterOptions } from "../../core/src/ast"
 import { run } from "./api"
 import { type CallToolResult } from "@modelcontextprotocol/sdk/types.js"
 import { errorMessage } from "../../core/src/error"
-import { buildProject } from "./build"
+import { setConsoleColors } from "../../core/src/consolecolor"
+import { overrideStdoutWithStdErr } from "../../core/src/stdio"
+import { startProjectWatcher } from "./watch"
 
-export async function startMcpServer(
-    options?: ScriptFilterOptions & { sse?: boolean }
-) {
+export async function startMcpServer(options?: ScriptFilterOptions) {
+    setConsoleColors(false)
+    overrideStdoutWithStdErr()
     logVerbose(`mcp server: starting...`)
+    const watcher = await startProjectWatcher(options)
     const { Server } = await import("@modelcontextprotocol/sdk/server/index.js")
     const { StdioServerTransport } = await import(
         "@modelcontextprotocol/sdk/server/stdio.js"
@@ -32,9 +33,11 @@ export async function startMcpServer(
             },
         }
     )
+    watcher.addEventListener("change", async () => {
+        await server.sendToolListChanged()
+    })
     server.setRequestHandler(ListToolsRequestSchema, async (req) => {
-        const prj = await buildProject() // Build the project to get script templates
-        const scripts = filterScripts(prj.scripts, options)
+        const scripts = await watcher.scripts()
         const tools = scripts.map((script) => {
             const { id, title, description, inputSchema } = script
             return {

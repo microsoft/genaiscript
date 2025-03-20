@@ -39,7 +39,7 @@ export class AbortSignalCancellationToken implements CancellationToken {
  * @returns The AbortSignal if conversion is possible, otherwise undefined.
  */
 export function toSignal(token: CancellationToken) {
-    return (token as any)?.signal
+    return (token as any)?.signal as AbortSignal
 }
 
 /**
