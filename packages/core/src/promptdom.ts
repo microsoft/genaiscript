@@ -42,7 +42,7 @@ import { promptyParse } from "./prompty"
 import { jinjaRenderChatMessage } from "./jinja"
 import { runtimeHost } from "./host"
 import { hash } from "./crypto"
-import { startMcpServer } from "./mcp"
+import { startMcpClient } from "./mcpclient"
 import { tryZodToJsonSchema } from "./zod"
 import { GROQEvaluate } from "./groq"
 import { trimNewlines } from "./unwrappers"
@@ -1355,7 +1355,7 @@ ${trimNewlines(schemaText)}
 
     if (mcpServers.length) {
         for (const mcpServer of mcpServers) {
-            const res = await startMcpServer(mcpServer, options)
+            const res = await startMcpClient(mcpServer, options)
             tools.push(...res.tools)
             disposables.push(res)
         }

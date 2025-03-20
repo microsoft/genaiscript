@@ -61,6 +61,7 @@ import { configure } from "./configure"
 import { logPerformance } from "../../core/src/performance"
 import { setConsoleColors } from "../../core/src/consolecolor"
 import { listRuns } from "./runs"
+import { startMcpServer } from "./mcpserver"
 
 /**
  * Main function to initialize and run the CLI.
@@ -455,7 +456,7 @@ export async function cli() {
     // Define 'serve' command to start a local server
     program
         .command("serve")
-        .description("Start a GenAIScript local server")
+        .description("Start a GenAIScript local web server")
         .option(
             "-p, --port <number>",
             `Specify the port number, default: ${SERVER_PORT}`
@@ -486,6 +487,14 @@ export async function cli() {
         )
         .option("--openai-api", "Enable OpenAI APi endpoints")
         .action(startServer) // Action to start the server
+
+    program
+        .command("mcp")
+        .alias("mcps")
+        .description(
+            "Starts a Model Context Protocol server that exposes scripts as tools"
+        )
+        .action(startMcpServer)
 
     // Define 'parse' command group for parsing tasks
     const parser = program
