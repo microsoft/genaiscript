@@ -11,6 +11,9 @@ import { startProjectWatcher } from "./watch"
 export async function startMcpServer(
     options?: ScriptFilterOptions & { cwd?: string }
 ) {
+    const { cwd } = options || {}
+    if (cwd) process.chdir(cwd)
+
     setConsoleColors(false)
     logVerbose(`mcp server: starting...`)
     const watcher = await startProjectWatcher(options)

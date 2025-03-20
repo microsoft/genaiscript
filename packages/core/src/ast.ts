@@ -7,7 +7,8 @@ import {
 } from "./constants"
 import { host } from "./host"
 import { Project } from "./server/messages"
-import { arrayify, tagFilter } from "./util"
+import { arrayify } from "./cleaners"
+import { tagFilter } from "./tags"
 
 // Interface representing a file reference, with a name and filename property
 export interface FileReference {

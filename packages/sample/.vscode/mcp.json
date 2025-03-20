@@ -3,7 +3,7 @@
         "genaiscript": {
             "type": "stdio",
             "command": "node",
-            "args": ["${workspaceFolder}/../cli/built/genaiscript.cjs", "mcp"],
+            "args": ["${workspaceFolder}/../cli/built/genaiscript.cjs", "mcp", "--cwd", "${workspaceFolder}", "--groups", "mcp"],
             "envFile": "${workspaceFolder}/.env"
         }
     }
