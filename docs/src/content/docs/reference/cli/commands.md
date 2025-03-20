@@ -521,9 +521,8 @@ Usage: genaiscript mcp|mcps [options]
 Starts a Model Context Protocol server that exposes scripts as tools
 
 Options:
-  --groups <...string>  Filter script by groups
-  --ids <...string>     Filter script by ids
-  --cwd <string>        Working directory
+  --groups <string...>  Filter script by groups
+  --ids <string...>     Filter script by ids
   -h, --help            display help for command
 ```
 
