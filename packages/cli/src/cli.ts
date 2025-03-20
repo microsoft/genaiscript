@@ -490,6 +490,9 @@ export async function cli() {
 
     program
         .command("mcp")
+        .option("--group <...string>", "Filter script by groups")
+        .option("--ids <...string>", "Filter script by ids")
+        .option("--cwd <string>", "Working directory")
         .alias("mcps")
         .description(
             "Starts a Model Context Protocol server that exposes scripts as tools"

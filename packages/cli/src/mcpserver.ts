@@ -8,10 +8,13 @@ import { errorMessage } from "../../core/src/error"
 import { setConsoleColors } from "../../core/src/consolecolor"
 import { startProjectWatcher } from "./watch"
 
-export async function startMcpServer(options?: ScriptFilterOptions) {
+export async function startMcpServer(
+    options?: ScriptFilterOptions & { cwd?: string }
+) {
     setConsoleColors(false)
     logVerbose(`mcp server: starting...`)
     const watcher = await startProjectWatcher(options)
+    logVerbose(`mcp server: watching ${watcher.cwd}`)
     const { Server } = await import("@modelcontextprotocol/sdk/server/index.js")
     const { StdioServerTransport } = await import(
         "@modelcontextprotocol/sdk/server/stdio.js"

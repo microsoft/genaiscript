@@ -25,6 +25,10 @@ export class ProjectWatcher extends EventTarget {
         signal?.addEventListener("abort", this.close.bind(this))
     }
 
+    get cwd() {
+        return this.options.cwd
+    }
+
     async open() {
         if (this._watcher) return
 
