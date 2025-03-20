@@ -22,6 +22,7 @@ interface ProjectWatcherOptions extends ScriptFilterOptions {
 export class ProjectWatcher extends EventTarget {
     private watcher: FSWatcher
     private _project: Project
+    private _scripts: PromptScript[]
 
     constructor(readonly options: ProjectWatcherOptions & CancellationOptions) {
         super()
@@ -85,8 +86,11 @@ export class ProjectWatcher extends EventTarget {
     }
 
     async scripts() {
-        const project = await this.project()
-        return filterScripts(project.scripts, this.options)
+        if (!this._scripts) {
+            const project = await this.project()
+            this._scripts = filterScripts(project.scripts, this.options)
+        }
+        return this._scripts?.slice(0)
     }
 
     async close() {

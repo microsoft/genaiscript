@@ -11,7 +11,6 @@ import { startProjectWatcher } from "./watch"
 
 export async function startMcpServer(options?: ScriptFilterOptions) {
     setConsoleColors(false)
-    overrideStdoutWithStdErr()
     logVerbose(`mcp server: starting...`)
     const watcher = await startProjectWatcher(options)
     const { Server } = await import("@modelcontextprotocol/sdk/server/index.js")
@@ -34,6 +33,7 @@ export async function startMcpServer(options?: ScriptFilterOptions) {
         }
     )
     watcher.addEventListener("change", async () => {
+        logVerbose(`mcp server: tools changed`)
         await server.sendToolListChanged()
     })
     server.setRequestHandler(ListToolsRequestSchema, async (req) => {
