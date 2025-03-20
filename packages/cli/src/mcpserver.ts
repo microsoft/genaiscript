@@ -8,9 +8,7 @@ import { errorMessage } from "../../core/src/error"
 import { setConsoleColors } from "../../core/src/consolecolor"
 import { startProjectWatcher } from "./watch"
 
-export async function startMcpServer(
-    options?: ScriptFilterOptions & { cwd?: string }
-) {
+export async function startMcpServer(options?: ScriptFilterOptions) {
     setConsoleColors(false)
     logVerbose(`mcp server: starting...`)
     const watcher = await startProjectWatcher(options)

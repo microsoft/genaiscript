@@ -99,6 +99,7 @@ export async function cli() {
         .version(CORE_VERSION)
         .description(`CLI for ${TOOL_NAME} ${GITHUB_REPO}`)
         .showHelpAfterError(true)
+        .option("--cwd <string>", "Working directory")
         .option(
             "--env <paths...>",
             "paths to .env files, defaults to './.env' if not specified"
@@ -108,6 +109,7 @@ export async function cli() {
         .option("--perf", "enable performance logging")
 
     // Set options for color and verbosity
+    program.on("option:cwd", (cwd) => process.chdir(cwd)) // Change working directory if specified
     program.on("option:no-colors", () => setConsoleColors(false))
     program.on("option:quiet", () => setQuiet(true))
     program.on("option:perf", () => logPerformance())
@@ -490,9 +492,8 @@ export async function cli() {
 
     program
         .command("mcp")
-        .option("--group <...string>", "Filter script by groups")
-        .option("--ids <...string>", "Filter script by ids")
-        .option("--cwd <string>", "Working directory")
+        .option("--groups <string...>", "Filter script by groups")
+        .option("--ids <string...>", "Filter script by ids")
         .alias("mcps")
         .description(
             "Starts a Model Context Protocol server that exposes scripts as tools"

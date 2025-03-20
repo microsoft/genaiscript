@@ -35,12 +35,38 @@ as usual.
 
 The `mcp` command lanches the MCP server using the stdio transport.
 
+- Claude Desktop
+
 ```json
 {
     "mcpServers": {
         "genaiscript": {
             "command": "npx",
             "args": ["-y", "genaiscript", "mcp"]
+        }
+    }
+}
+```
+
+- Visual Studio Code Insiders with GitHub Copilot Chat
+
+```json title=".vscode/mcp.json"
+{
+    "servers": {
+        "genaiscript": {
+            "type": "stdio",
+            "command": "node",
+            "args": [
+                "npx",
+                "-y",
+                "genaiscript",
+                "mcp",
+                "--cwd",
+                "${workspaceFolder}",
+                "--groups",
+                "mcp"
+            ],
+            "envFile": "${workspaceFolder}/.env"
         }
     }
 }

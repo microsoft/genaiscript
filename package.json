@@ -38,7 +38,7 @@
         "commit-versions": "git add packages/**/package.json && git add docs/package.json && git add slides/package.json && git commit -m '[skip ci] updated version numbers' && git push",
         "release": "yarn typecheck && yarn compile && yarn package && yarn release:draft && yarn patch-versions && yarn compile && yarn package && yarn release:vsix && yarn commit-versions",
         "bump": "yarn release",
-        "debug:mcp": "npx --yes @modelcontextprotocol/inspector node packages/cli/built/genaiscript.cjs mcp",
+        "debug:mcp": "npx --yes @modelcontextprotocol/inspector node packages/cli/built/genaiscript.cjs mcp --groups mcp --cwd packages/sample",
         "test:core": "cd packages/core && yarn test",
         "test:samples": "cd packages/sample && yarn test",
         "test:cli": "node packages/cli/built/genaiscript.cjs run code-annotator packages/sample/src/counting.py -l Test -o .genaiscript/tmp/tests/cli -ot .genaiscript/tmp/tests/cli/outtrace.md -oa .genaiscript/tmp/tests/cli/diags.sarif",
