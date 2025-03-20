@@ -24,7 +24,8 @@
         "scripting",
         "python",
         "llm",
-        "gpt"
+        "gpt",
+        "mcp"
     ],
     "categories": [
         "AI",
