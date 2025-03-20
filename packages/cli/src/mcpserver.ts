@@ -27,6 +27,9 @@ function promptParameterTypeToZodType(
 }
 
 export async function startMcpServer(options?: ScriptFilterOptions) {
+    const prj = await buildProject() // Build the project to get script templates
+    const scripts = filterScripts(prj.scripts, options)
+
     logVerbose(`mcp server: starting...`)
     const { McpServer } = await import(
         "@modelcontextprotocol/sdk/server/mcp.js"
@@ -34,12 +37,17 @@ export async function startMcpServer(options?: ScriptFilterOptions) {
     const { StdioServerTransport } = await import(
         "@modelcontextprotocol/sdk/server/stdio.js"
     )
-    const server = new McpServer({
-        name: TOOL_ID,
-        version: CORE_VERSION,
-    })
-    const prj = await buildProject() // Build the project to get script templates
-    const scripts = filterScripts(prj.scripts, options)
+    const server = new McpServer(
+        {
+            name: TOOL_ID,
+            version: CORE_VERSION,
+        },
+        {
+            capabilities: {
+                prompts: {},
+            },
+        }
+    )
     for (const script of scripts) {
         registerScriptAsTool(script)
     }
