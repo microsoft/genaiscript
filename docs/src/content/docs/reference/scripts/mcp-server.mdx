@@ -1,0 +1,47 @@
+---
+title: Model Context Protocol Server
+sidebar:
+    order: 5.10
+description: Turns scripts into Model Context Protocol Tools
+---
+
+import { Image } from "astro:assets"
+import logoPng from "../../../../assets/mcp.png"
+import logoPngTxt from "../../../../assets/mcp.png.txt?raw"
+
+<Image src={logoPng} alt={logoPngTxt} />
+
+[Model Context Protocol](https://modelcontextprotocol.io/) (MCP) is an emerging standard
+for portable tool definitions.
+
+The MCP defines a protocol that allows to share [tools](https://modelcontextprotocol.io/docs/concepts/tools)
+and consume them regardless of the underlying framework/runtime.
+
+**GenAIScript implements a server that turns scripts into MCP tools**.
+
+:::tip
+
+GenAIScript also implements a client for MCP tools which allows you to consume MCP tools in script.
+See [MCP tools](/genaiscript/reference/scripts/mcp-tools) for more details.
+
+:::
+
+## Tool signature
+
+The tool signature is inferred from the [script parameters](/genaiscript/reference/scripts/parameters) and files automatically. The MCP parameters will then populate the `env.vars` object in the script
+as usual.
+
+## Usage
+
+The `mcp` command lanches the MCP server using the stdio transport.
+
+```json
+{
+    "mcpServers": {
+        "genaiscript": {
+            "command": "npx",
+            "args": ["-y", "genaiscript", "mcp"]
+        }
+    }
+}
+```

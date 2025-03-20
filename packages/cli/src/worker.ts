@@ -2,8 +2,10 @@ import { workerData, parentPort } from "node:worker_threads"
 import { runScriptInternal } from "./run"
 import { NodeHost } from "./nodehost"
 import { delay } from "es-toolkit"
+import { overrideStdoutWithStdErr } from "../../core/src/stdio"
 
 export async function worker() {
+    overrideStdoutWithStdErr()
     const { type, ...data } = workerData as {
         type: string
     }

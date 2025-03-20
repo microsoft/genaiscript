@@ -493,7 +493,7 @@ Options:
 ```
 Usage: genaiscript serve [options]
 
-Start a GenAIScript local server
+Start a GenAIScript local web server
 
 Options:
   -p, --port <number>           Specify the port number, default: 8003
@@ -511,6 +511,20 @@ Options:
                                 to connected Visual Studio Code
   --openai-api                  Enable OpenAI APi endpoints
   -h, --help                    display help for command
+```
+
+## `mcp`
+
+```
+Usage: genaiscript mcp|mcps [options]
+
+Starts a Model Context Protocol server that exposes scripts as tools
+
+Options:
+  --group <...string>  Filter script by groups
+  --ids <...string>    Filter script by ids
+  --cwd <string>       Working directory
+  -h, --help           display help for command
 ```
 
 ## `parse`

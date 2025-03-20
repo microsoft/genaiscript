@@ -68,7 +68,6 @@ import { defaultModelConfigurations } from "../../core/src/llms"
 import { createPythonRuntime } from "../../core/src/pyodide"
 import { ci } from "./ci"
 import { arrayify } from "../../core/src/cleaners"
-import { array } from "zod"
 
 class NodeServerManager implements ServerManager {
     async start(): Promise<void> {
