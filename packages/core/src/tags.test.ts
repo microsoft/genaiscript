@@ -1,5 +1,5 @@
 import { describe, test } from "node:test"
-import assert from "node:assert/strict" 
+import assert from "node:assert/strict"
 import { tagFilter } from "./tags"
 
 describe("tagFilter", () => {
@@ -26,15 +26,39 @@ describe("tagFilter", () => {
     })
 
     test("should handle exclusions correctly", () => {
-        assert.equal(tagFilter([":!ex"], "example"), false)
-        assert.equal(tagFilter([":!example"], "example"), false)
-        assert.equal(tagFilter([":!other"], "example"), true)
+        assert.equal(
+            tagFilter([":!ex"], "example"),
+            false,
+            "exclusion should take precedence"
+        )
+        assert.equal(
+            tagFilter([":!example"], "example"),
+            false,
+            "exclusion should take precedence 2"
+        )
+        assert.equal(
+            tagFilter([":!other"], "example"),
+            true,
+            "inclusion should take precedence"
+        )
     })
 
     test("should handle mixed inclusions and exclusions", () => {
-        assert.equal(tagFilter(["ex", ":!example"], "example"), false)
-        assert.equal(tagFilter(["other", ":!ex"], "example"), false)
-        assert.equal(tagFilter(["ex", ":!other"], "example"), true)
+        assert.equal(
+            tagFilter(["ex", ":!example"], "example"),
+            false,
+            "exclusion should take precedence"
+        )
+        assert.equal(
+            tagFilter(["other", ":!ex"], "example"),
+            false,
+            "exclusion should take precedence 2"
+        )
+        assert.equal(
+            tagFilter(["ex", ":!other"], "example"),
+            true,
+            "inclusion should take precedence"
+        )
     })
 
     test("should handle undefined or null tag", () => {

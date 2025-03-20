@@ -3,6 +3,7 @@ script({
     files: "src/*",
     model: "small",
     tools: "agent_fs",
+    group: "mcp",
     description: `This is markdown.
     
 - item
