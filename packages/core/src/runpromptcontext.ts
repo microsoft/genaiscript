@@ -28,7 +28,7 @@ import {
 import { MarkdownTrace } from "./trace"
 import { GenerationOptions } from "./generation"
 import { promptParametersSchemaToJSONSchema } from "./parameters"
-import { consoleLogFormat, stdout } from "./logging"
+import { consoleLogFormat } from "./logging"
 import { isGlobMatch } from "./glob"
 import {
     arrayify,
@@ -103,6 +103,7 @@ import { sliceData } from "./tidy"
 import { toBase64 } from "@smithy/util-base64"
 import { consoleColors } from "./consolecolor"
 import { terminalSize } from "./terminal"
+import { stdout } from "./stdio"
 
 export function createChatTurnGenerationContext(
     options: GenerationOptions,

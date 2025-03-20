@@ -69,11 +69,11 @@ export async function startMcpServer(options?: ScriptFilterOptions) {
                         vars: params,
                     })
                     return {
-                        isError: res.status !== "success",
+                        isError: res.status !== "success" || !!res.error,
                         content: [
                             {
                                 type: "text",
-                                content: res.text,
+                                content: res?.error || res.text,
                             },
                         ],
                     } satisfies CallToolResult
