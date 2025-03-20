@@ -44,7 +44,7 @@ export async function startMcpServer(options?: ScriptFilterOptions) {
         },
         {
             capabilities: {
-                prompts: {},
+                tools: {},
             },
         }
     )
