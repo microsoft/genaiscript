@@ -1,3 +1,6 @@
+import debug from "debug"
+const dbg = debug("websearch")
+
 import { deleteUndefinedValues } from "./cleaners"
 import {
     BING_SEARCH_ENDPOINT,
@@ -59,12 +62,15 @@ export async function bingSearch(
     } = options || {}
 
     // Return an empty response if the query is empty.
+    dbg(`checking if query is empty`)
     if (!q) return []
 
     // Retrieve the API key from the runtime host.
+    dbg(`retrieving BING_SEARCH_API_KEY from runtime host`)
     const apiKey = await runtimeHost.readSecret("BING_SEARCH_API_KEY")
     if (!apiKey) {
         if (ignoreMissingApiKey) return undefined
+        dbg(`BING_SEARCH_API_KEY not found, checking ignoreMissingApiKey option`)
         throw new Error(
             `BING_SEARCH_API_KEY secret is required to use bing search. See ${DOCS_WEB_SEARCH_BING_SEARCH_URL}.`,
             { cause: "missing key" }
@@ -73,6 +79,7 @@ export async function bingSearch(
 
     try {
         trace?.startDetails(`bing: search`)
+        dbg(`initiating Bing search trace`)
         trace?.itemValue(`query`, q)
         // Construct the query string using provided and default parameters.
         const query = toURLSearchParams({
@@ -89,6 +96,7 @@ export async function bingSearch(
 
         // Create a fetch function for making the HTTP request.
         const fetch = await createFetch({ trace })
+        dbg(`creating fetch instance for Bing search`)
         const res = await fetch(url, {
             method: "GET",
             headers: {
@@ -98,6 +106,7 @@ export async function bingSearch(
 
         // Log the search response status for tracing purposes.
         trace?.itemValue(`status`, res.status + " " + res.statusText)
+        dbg(`received response status: ${res.status} ${res.statusText}`)
 
         // Throw an error if the response is not OK, and log details for debugging.
         if (!res.ok) {
@@ -159,8 +168,10 @@ export async function tavilySearch(
     if (!q) return []
 
     // Retrieve the API key from the runtime host.
+    dbg(`retrieving TAVILY_API_KEY from runtime host`)
     const apiKey = await runtimeHost.readSecret("TAVILY_API_KEY")
     if (!apiKey) {
+        dbg(`TAVILY_API_KEY not found, checking ignoreMissingApiKey option`)
         if (ignoreMissingApiKey) return undefined
         throw new Error(
             `TAVILY_API_KEY secret is required to use Tavily search. See ${DOCS_WEB_SEARCH_TAVILY_URL}.`,
@@ -170,10 +181,12 @@ export async function tavilySearch(
 
     try {
         logVerbose(`tavily: search '${q}'`)
+        dbg(`logging Tavily search query: ${q}`)
         trace?.startDetails(`tavily: search`)
         trace?.itemValue(`query`, q)
 
         // Construct the query string using provided and default parameters.
+        dbg(`constructing body for Tavily search request`)
         const body = deleteUndefinedValues({
             query: q,
             api_key: apiKey,
@@ -182,6 +195,7 @@ export async function tavilySearch(
 
         // Create a fetch function for making the HTTP request.
         const fetch = await createFetch({ trace, retryOn: [429] })
+        dbg(`creating fetch instance for Tavily search`)
         const res = await fetch(endPoint, {
             method: "POST",
             headers: {
@@ -193,9 +207,11 @@ export async function tavilySearch(
 
         // Log the search response status for tracing purposes.
         trace?.itemValue(`status`, res.status + " " + res.statusText)
+        dbg(`received response status: ${res.status} ${res.statusText}`)
 
         // Throw an error if the response is not OK, and log details for debugging.
         if (!res.ok) {
+            dbg(`response not OK, logging error details`)
             const err = await res.text()
             trace?.detailsFenced("error response", err)
             logVerbose(err)
