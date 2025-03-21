@@ -5,7 +5,7 @@ import { uniq } from "es-toolkit"
 import { GIT_DIFF_MAX_TOKENS, GIT_IGNORE_GENAI } from "./constants"
 import { llmifyDiff } from "./diff"
 import { resolveFileContents } from "./file"
-import { readText, tryStat } from "./fs"
+import { readText, tryReadText, tryStat } from "./fs"
 import { host, runtimeHost } from "./host"
 import { shellParse } from "./shell"
 import { arrayify, dotGenaiscriptPath, logVerbose } from "./util"
@@ -39,7 +39,7 @@ export class GitClient implements Git {
     }): Promise<string[]> {
         const { excludedPaths } = options || {}
         const ep = arrayify(excludedPaths, { filterEmpty: true })
-        const dp = (await readText(GIT_IGNORE_GENAI))?.split("\n")
+        const dp = (await tryReadText(GIT_IGNORE_GENAI))?.split("\n")
         const ps = [
             ...arrayify(ep, { filterEmpty: true }),
             ...arrayify(dp, { filterEmpty: true }),
