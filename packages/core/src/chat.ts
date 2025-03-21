@@ -1124,7 +1124,8 @@ export async function executeChatSession(
                             genOptions,
                             reqTrace
                         )
-                        m()
+                        const duration = m()
+                        cres.duration = duration
                         return cres
                     }
                     if (cacheStore) {

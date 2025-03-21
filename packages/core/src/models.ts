@@ -260,8 +260,8 @@ export async function resolveModelConnectionInfo(
             info: {
                 model: "?",
                 error: hint
-                    ? `LLM provider not configured for '${hint}'`
-                    : "LLM provider not configured",
+                    ? `LLM provider not configured or refresh token expired for '${hint}'`
+                    : "LLM provider not configured or refresh token expired",
             },
         }
     }

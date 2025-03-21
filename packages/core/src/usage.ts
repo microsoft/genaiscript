@@ -44,6 +44,11 @@ export function estimateCost(modelId: string, usage: ChatCompletionUsage) {
     return (input + output) / 1e6
 }
 
+export function renderTokensPerSecond(usage: ChatCompletionUsage) {
+    if (!usage.duration || !usage.total_tokens) return ""
+    return `${(usage.total_tokens / (usage.duration / 1000)).toFixed(2)}t/s`
+}
+
 /**
  * Renders the cost as a string for display purposes.
  *
@@ -94,6 +99,7 @@ export class GenerationStats {
         this.model = model
         this.label = label
         this.usage = {
+            duration: 0,
             completion_tokens: 0,
             prompt_tokens: 0,
             total_tokens: 0,
@@ -139,6 +145,7 @@ export class GenerationStats {
         const res: ChatCompletionUsage = structuredClone(this.usage)
         for (const child of this.children) {
             const childUsage = child.accumulatedUsage()
+            res.duration += childUsage.duration
             res.completion_tokens += childUsage.completion_tokens
             res.prompt_tokens += childUsage.prompt_tokens
             res.total_tokens += childUsage.total_tokens
@@ -198,6 +205,10 @@ export class GenerationStats {
         trace.itemValue("tokens", this.usage.total_tokens)
         const c = renderCost(this.cost())
         if (c) trace.itemValue("cost", c)
+        const ts = renderTokensPerSecond(this.usage)
+        if (ts) trace.itemValue("tok/s", ts)
+        if (this.usage.duration)
+            trace.itemValue("duration", this.usage.duration)
         if (this.toolCalls) trace.itemValue("tool calls", this.toolCalls)
         if (this.repairs) trace.itemValue("repairs", this.repairs)
         if (this.turns) trace.itemValue("turns", this.turns)
@@ -264,7 +275,7 @@ export class GenerationStats {
         const au = this.accumulatedUsage()
         if (au?.total_tokens > 0 && (this.resolvedModel || c)) {
             logVerbose(
-                `${indent}${this.label ? `${this.label} (${this.resolvedModel})` : this.resolvedModel}> ${au.total_tokens} tokens (${au.prompt_tokens} -> ${au.completion_tokens}) ${renderCost(c)}`
+                `${indent}${this.label ? `${this.label} (${this.resolvedModel})` : this.resolvedModel}> ${au.total_tokens} tokens (${au.prompt_tokens} -> ${au.completion_tokens}) ${renderCost(c)} ${renderTokensPerSecond(au)}`
             )
         }
         if (this.model && isNaN(c) && isCosteable(this.model))
@@ -282,7 +293,7 @@ export class GenerationStats {
                 if (cost === undefined && isCosteable(turnModel))
                     unknowns.add(this.model)
                 logVerbose(
-                    `${indent}  ${toStringList(`${messages.length} messages`, usage.total_tokens ? `${usage.total_tokens} tokens` : undefined, renderCost(cost))}`
+                    `${indent}  ${toStringList(`${messages.length} messages`, usage.total_tokens ? `${usage.total_tokens} tokens` : undefined, renderCost(cost), renderTokensPerSecond(usage))}`
                 )
             }
             if (this.chatTurns.length > chatTurns.length)
@@ -306,10 +317,13 @@ export class GenerationStats {
             usage = { completion_tokens: 0, prompt_tokens: 0, total_tokens: 0 },
             model,
             cached,
+            duration,
         } = resp
         const { messages } = req
 
         if (!cached) {
+            this.usage.duration += duration ?? 0
+
             this.usage.completion_tokens += usage.completion_tokens ?? 0
             this.usage.prompt_tokens += usage.prompt_tokens ?? 0
             this.usage.total_tokens += usage.total_tokens ?? 0

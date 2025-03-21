@@ -17,7 +17,9 @@ export type ChatModels = {
 export type ChatCompletionReasoningEffort = OpenAI.ReasoningEffort
 
 // Aliases for OpenAI chat completion types
-export type ChatCompletionUsage = OpenAI.Completions.CompletionUsage
+export type ChatCompletionUsage = OpenAI.Completions.CompletionUsage & {
+    duration?: number
+}
 export type ChatCompletionUsageCompletionTokensDetails =
     OpenAI.Completions.CompletionUsage.CompletionTokensDetails
 export type ChatCompletionUsagePromptTokensDetails =
@@ -159,6 +161,7 @@ export interface ChatCompletionResponse {
     model?: string // Model used for the completion
     error?: SerializedError
     logprobs?: ChatCompletionTokenLogprob[]
+    duration?: number // Duration of the completion in milliseconds
 }
 
 export type ChatFinishReason = ChatCompletionResponse["finishReason"]
