@@ -1,7 +1,10 @@
+import debug from "debug"
+const dbg = debug("nodehost")
+
 import dotenv from "dotenv"
 
 import { TextDecoder, TextEncoder } from "util"
-import { lstat, readFile, unlink, writeFile } from "node:fs/promises"
+import { lstat, mkdir, readFile, unlink, writeFile } from "node:fs/promises"
 import { ensureDir, exists, remove } from "fs-extra"
 import { dirname } from "node:path"
 import { glob } from "glob"
@@ -72,9 +75,11 @@ import { tryStat } from "../../core/src/fs"
 
 class NodeServerManager implements ServerManager {
     async start(): Promise<void> {
+        dbg(`starting NodeServerManager`)
         throw new Error("not implement")
     }
     async close(): Promise<void> {
+        dbg(`closing NodeServerManager`)
         throw new Error("not implement")
     }
 }
@@ -108,6 +113,7 @@ export class NodeHost extends EventTarget implements RuntimeHost {
     readonly microsoftGraphToken: AzureTokenResolver
 
     constructor(dotEnvPaths: string[]) {
+        dbg(`initializing NodeHost with dotEnvPaths: ${dotEnvPaths}`)
         super()
         this._dotEnvPaths = dotEnvPaths
         this.azureToken = createAzureTokenResolver(
@@ -149,6 +155,7 @@ export class NodeHost extends EventTarget implements RuntimeHost {
     }
 
     clearModelAlias(source: "cli" | "env" | "config" | "script") {
+        dbg(`clearing modelAlias for source: ${source}`)
         this._modelAliases[source] = {}
     }
 
@@ -191,12 +198,14 @@ export class NodeHost extends EventTarget implements RuntimeHost {
         }
 
         const { pullModel, listModels } = await resolveLanguageModel(provider)
+        dbg(`resolving language model for provider: ${provider}`)
         if (!pullModel) {
             this.pulledModels.includes(modelId)
             return { ok: true }
         }
 
         if (listModels) {
+            dbg(`listing models for provider: ${provider}`)
             const { ok, status, error, models } = await listModels(cfg, options)
             if (!ok) {
                 logError(`${provider}: ${errorMessage(error)}`)
@@ -209,6 +218,7 @@ export class NodeHost extends EventTarget implements RuntimeHost {
             }
         }
 
+        dbg(`pulling model: ${model} from provider: ${provider}`)
         const res = await pullModel(cfg, options)
         if (res.ok) {
             this.pulledModels.push(modelId)
@@ -220,6 +230,7 @@ export class NodeHost extends EventTarget implements RuntimeHost {
     }
 
     async readConfig(): Promise<HostConfiguration> {
+        dbg(`reading configuration`)
         const config = await resolveGlobalConfiguration(this._dotEnvPaths)
         const { envFile, modelAliases } = config
         if (modelAliases) {
@@ -228,6 +239,7 @@ export class NodeHost extends EventTarget implements RuntimeHost {
             }
         }
         for (const dotEnv of arrayify(envFile)) {
+            dbg(`processing .env file: ${dotEnv}`)
             const stat = await tryStat(dotEnv)
             if (!stat) {
                 logVerbose(`.env: ignored ${dotEnv}, not found`)
@@ -246,6 +258,7 @@ export class NodeHost extends EventTarget implements RuntimeHost {
                 }
             }
         }
+        dbg(`parsing defaults from environment variables`)
         await parseDefaultsFromEnv(process.env)
         return (this._config = config)
     }
@@ -263,6 +276,7 @@ export class NodeHost extends EventTarget implements RuntimeHost {
     }
 
     async readSecret(name: string): Promise<string | undefined> {
+        dbg(`reading secret: ${name}`)
         return process.env[name]
     }
 
@@ -355,6 +369,7 @@ export class NodeHost extends EventTarget implements RuntimeHost {
             }
         }
         if (tok && (!tok.token || tok.token === tok.provider)) {
+            dbg(`listing models for provider: ${tok.provider}`)
             const { listModels } = await resolveLanguageModel(tok.provider)
             if (listModels) {
                 const { ok, error } = await listModels(tok, options)
@@ -365,6 +380,7 @@ export class NodeHost extends EventTarget implements RuntimeHost {
         }
         if (!tok) {
             if (!modelId) {
+                dbg(`no token found for modelId: ${modelId}`)
                 throw new Error(
                     "Could not determine default model from current configuration"
                 )
@@ -445,12 +461,14 @@ export class NodeHost extends EventTarget implements RuntimeHost {
         }
     }
     async readFile(filepath: string): Promise<Uint8Array> {
+        dbg(`reading file: ${filepath}`)
         const wksrx = /^workspace:\/\//i
         if (wksrx.test(filepath)) {
             filepath = join(this.projectFolder(), filepath.replace(wksrx, ""))
         }
         // check if file exists
         if (!(await exists(filepath))) {
+            dbg(`file does not exist: ${filepath}`)
             return undefined
         }
         // read file
@@ -489,7 +507,7 @@ export class NodeHost extends EventTarget implements RuntimeHost {
         await unlink(name)
     }
     async createDirectory(name: string): Promise<void> {
-        await ensureDir(name)
+        await mkdir(name, { recursive: true })
     }
     async deleteDirectory(name: string): Promise<void> {
         await remove(name)
@@ -535,6 +553,7 @@ export class NodeHost extends EventTarget implements RuntimeHost {
     ) {
         if (containerId) {
             const container = await this.containers.container(containerId)
+            dbg(`executing command: ${command} with args: ${args}`)
             return await container.exec(command, args, options)
         }
 
@@ -550,6 +569,7 @@ export class NodeHost extends EventTarget implements RuntimeHost {
         try {
             // python3 on windows -> python
             if (command === "python3" && process.platform === "win32") {
+                dbg(`adjusting python command for Windows`)
                 command = "python"
             }
             if (command === "python" && process.platform !== "win32") {
@@ -611,10 +631,12 @@ export class NodeHost extends EventTarget implements RuntimeHost {
     }
 
     async removeContainers(): Promise<void> {
+        dbg(`removing all containers`)
         await this.containers.stopAndRemove()
     }
 
     async removeBrowsers(): Promise<void> {
+        dbg(`removing all browsers`)
         await this.browsers.stopAndRemove()
     }
 
@@ -640,6 +662,7 @@ export class NodeHost extends EventTarget implements RuntimeHost {
      * @param message message to ask
      */
     async input(message: string): Promise<string | undefined> {
+        dbg(`input requested for message: ${message}`)
         if (ci.isCI) {
             return undefined
         }
@@ -651,6 +674,7 @@ export class NodeHost extends EventTarget implements RuntimeHost {
      * @param message message to ask
      */
     async confirm(message: string): Promise<boolean | undefined> {
+        dbg(`confirmation requested for message: ${message}`)
         if (ci.isCI) {
             return undefined
         }
