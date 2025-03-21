@@ -2049,9 +2049,9 @@ Apache License
 
 The following npm packages may be included in this product:
 
- - @aws-sdk/client-cognito-identity@3.768.0
- - @aws-sdk/client-sso@3.758.0
- - @aws-sdk/credential-provider-cognito-identity@3.768.0
+ - @aws-sdk/client-cognito-identity@3.772.0
+ - @aws-sdk/client-sso@3.772.0
+ - @aws-sdk/credential-provider-cognito-identity@3.772.0
  - @aws-sdk/util-user-agent-browser@3.734.0
  - @aws-sdk/util-user-agent-node@3.758.0
  - @smithy/eventstream-codec@2.2.0
@@ -2275,7 +2275,7 @@ Apache License
 
 The following npm package may be included in this product:
 
- - @aws-sdk/client-bedrock-runtime@3.758.0
+ - @aws-sdk/client-bedrock-runtime@3.772.0
 
 This package contains the following license:
 
@@ -2486,7 +2486,7 @@ Apache License
 The following npm packages may be included in this product:
 
  - @aws-sdk/middleware-host-header@3.734.0
- - @aws-sdk/middleware-recursion-detection@3.734.0
+ - @aws-sdk/middleware-recursion-detection@3.772.0
  - @aws-sdk/middleware-user-agent@3.758.0
  - @smithy/core@3.1.5
  - @smithy/eventstream-serde-browser@4.0.1
@@ -2921,8 +2921,8 @@ The following npm packages may be included in this product:
  - @types/http-cache-semantics@4.0.4
  - @types/node-fetch@2.6.12
  - @types/node@16.9.1
- - @types/node@18.19.80
- - @types/node@22.13.10
+ - @types/node@18.19.81
+ - @types/node@22.13.11
  - @types/turndown@5.0.5
  - @types/uuid@9.0.8
  - @types/yauzl@2.10.3
@@ -3717,7 +3717,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 The following npm packages may be included in this product:
 
  - mime-db@1.52.0
- - mime-db@1.53.0
+ - mime-db@1.54.0
 
 These packages each contain the following license:
 
@@ -4255,7 +4255,7 @@ software or this license, under any kind of legal claim._**
 
 The following npm package may be included in this product:
 
- - axios@1.8.3
+ - axios@1.8.4
 
 This package contains the following license:
 
@@ -4919,11 +4919,11 @@ Apache License
 The following npm packages may be included in this product:
 
  - @aws-sdk/credential-provider-env@3.758.0
- - @aws-sdk/credential-provider-ini@3.758.0
- - @aws-sdk/credential-provider-node@3.758.0
- - @aws-sdk/credential-providers@3.768.0
+ - @aws-sdk/credential-provider-ini@3.772.0
+ - @aws-sdk/credential-provider-node@3.772.0
+ - @aws-sdk/credential-providers@3.772.0
  - @aws-sdk/region-config-resolver@3.734.0
- - @aws-sdk/token-providers@3.758.0
+ - @aws-sdk/token-providers@3.772.0
  - @aws-sdk/types@3.734.0
  - @aws-sdk/util-endpoints@3.743.0
  - @aws-sdk/util-locate-window@3.723.0
@@ -5179,8 +5179,8 @@ Apache License
 The following npm packages may be included in this product:
 
  - @aws-sdk/credential-provider-process@3.758.0
- - @aws-sdk/credential-provider-sso@3.758.0
- - @aws-sdk/credential-provider-web-identity@3.758.0
+ - @aws-sdk/credential-provider-sso@3.772.0
+ - @aws-sdk/credential-provider-web-identity@3.772.0
 
 These packages each contain the following license:
 
@@ -6083,7 +6083,7 @@ The following npm packages may be included in this product:
 
  - @aws-sdk/core@3.758.0
  - @aws-sdk/credential-provider-http@3.758.0
- - @aws-sdk/nested-clients@3.758.0
+ - @aws-sdk/nested-clients@3.772.0
  - pyodide@0.27.4
 
 These packages each contain the following license:
@@ -7838,7 +7838,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 The following npm package may be included in this product:
 
- - @octokit/openapi-types@23.0.1
+ - @octokit/openapi-types@24.2.0
 
 This package contains the following license:
 
@@ -8096,7 +8096,7 @@ THIS SOFTWARE.
 
 The following npm package may be included in this product:
 
- - zod-to-json-schema@3.24.4
+ - zod-to-json-schema@3.24.5
 
 This package contains the following license:
 
@@ -9790,7 +9790,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - @azure/msal-node@3.3.0
+ - @azure/msal-node@3.4.0
 
 This package contains the following license:
 
@@ -10639,8 +10639,8 @@ SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - @azure/msal-browser@4.7.0
- - @azure/msal-common@15.2.1
+ - @azure/msal-browser@4.8.0
+ - @azure/msal-common@15.3.0
 
 These packages each contain the following license:
 
@@ -11023,9 +11023,9 @@ SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - @octokit/plugin-paginate-rest@11.4.3
- - @octokit/plugin-rest-endpoint-methods@13.3.1
- - @octokit/types@13.8.0
+ - @octokit/plugin-paginate-rest@11.6.0
+ - @octokit/plugin-rest-endpoint-methods@13.5.0
+ - @octokit/types@13.10.0
 
 These packages each contain the following license:
 
