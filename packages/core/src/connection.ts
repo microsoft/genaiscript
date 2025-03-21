@@ -1,5 +1,5 @@
 import debug from "debug"
-const dbg = debug("connection")
+const dbg = debug("genai:connection")
 
 import { normalizeFloat, trimTrailingSlash } from "./cleaners"
 import {

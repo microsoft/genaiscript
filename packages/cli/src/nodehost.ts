@@ -1,5 +1,5 @@
 import debug from "debug"
-const dbg = debug("nodehost")
+const dbg = debug("genai:nodehost")
 
 import dotenv from "dotenv"
 

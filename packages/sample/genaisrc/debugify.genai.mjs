@@ -36,7 +36,7 @@ export default async function () {
     if (tsc.exitCode) throw new Error("compilation error")
 
     const imports = `import debug from "debug"
-const dbg = debug("${path.basename(file.filename).replace(/\..*$/, "")}")\n
+const dbg = debug("genai:${path.basename(file.filename).replace(/\..*$/, "")}")\n
 `
     if (!file.content.includes(imports)) file.content = imports + file.content
 
@@ -45,17 +45,9 @@ const dbg = debug("${path.basename(file.filename).replace(/\..*$/, "")}")\n
             const filen = ctx.def("FILE", file, { lineNumbers: true })
             ctx.$`Your task is to instrument the TypeScript code in file ${filen} with debug logging. Be concise, no explanations.
 
-## The logger
-- You are using the 'debug' npm package for logging (https://www.npmjs.com/package/debug).
-- You can assume the .
-
-\`\`\`ts
-import debug from "debug"
-const dbg = debug("config")
-\`\`\`
-
 ## Add debug logs
 
+You are using the 'debug' npm package for logging (https://www.npmjs.com/package/debug).
 Add debug log **statement** before function call
 or entering an if statement.
 

@@ -1,5 +1,5 @@
 import debug from "debug"
-const dbg = debug("websearch")
+const dbg = debug("genai:websearch")
 
 import { deleteUndefinedValues } from "./cleaners"
 import {
