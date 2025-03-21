@@ -195,6 +195,7 @@ type ModelType = OptionsOrString<
     | "azure_ai_inference:o3-mini:high"
     | "azure_ai_inference:deepSseek-v3"
     | "azure_ai_inference:deepseek-r1"
+    | "ollama:gemma3:4b"
     | "ollama:marco-o1"
     | "ollama:tulu3"
     | "ollama:athene-v2"

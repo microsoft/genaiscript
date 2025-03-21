@@ -79,7 +79,6 @@ export async function startServer(
         network?: boolean
         dispatchProgress?: boolean
         githubCopilotChatClient?: boolean
-        openaiApi?: boolean
     } & RemoteOptions
 ) {
     // Parse and set the server port, using a default if not specified.
@@ -88,7 +87,6 @@ export async function startServer(
     const serverHost = options.network ? "0.0.0.0" : "127.0.0.1"
     const remote = options.remote
     const dispatchProgress = !!options.dispatchProgress
-    const openaiApi = !!options.openaiApi
 
     let port = parseInt(options.port) || SERVER_PORT
     if (await isPortInUse(port)) {
@@ -753,18 +751,10 @@ window.vscodeWebviewPlaygroundNonce = ${JSON.stringify(nonce)};
                         })
                     ),
                 }
-            } else if (
-                openaiApi &&
-                method === "POST" &&
-                route === "/v1/chat/completions"
-            ) {
+            } else if (method === "POST" && route === "/v1/chat/completions") {
                 await openaiApiChatCompletions(req, res)
                 return
-            } else if (
-                openaiApi &&
-                method === "GET" &&
-                route === "/v1/models"
-            ) {
+            } else if (method === "GET" && route === "/v1/models") {
                 await openaiApiModels(req, res)
                 return
             } else if (method === "GET" && runRx.test(route)) {

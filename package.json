@@ -61,7 +61,7 @@
         "cache:clear": "cd packages/sample/ && yarn cache:clear",
         "test:scripts": "cd packages/sample/ && yarn test:scripts",
         "test:scripts:view": "cd packages/sample/ && yarn test:scripts:view",
-        "serve:cli": "node --watch --watch-path=packages/cli/built packages/cli/built/genaiscript.cjs serve --dispatch-progress --openai-api",
+        "serve:cli": "node --watch --watch-path=packages/cli/built packages/cli/built/genaiscript.cjs serve --dispatch-progress",
         "serve:web": "yarn --cwd packages/web watch",
         "serve": "yarn compile-cli && run-p serve:*",
         "docs": "cd docs && ./node_modules/.bin/astro telemetry disable && ./node_modules/.bin/astro dev --host",

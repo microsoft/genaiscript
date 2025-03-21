@@ -505,7 +505,6 @@ Options:
   --dispatch-progress           Dispatch progress events to all clients
   --github-copilot-chat-client  Allow github_copilot_chat provider to connect
                                 to connected Visual Studio Code
-  --openai-api                  Enable OpenAI APi endpoints
   --remote <string>             Remote repository URL to serve
   --remote-branch <string>      Branch to serve from the remote
   --remote-force                Force pull from remote repository
