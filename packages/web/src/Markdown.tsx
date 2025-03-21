@@ -13,6 +13,7 @@ import { ErrorBoundary } from "react-error-boundary"
 import rehypeHighlight from "rehype-highlight"
 import Code from "./Code"
 import CopySaveButtons from "./Buttons"
+import BarChart from "./BarChart"
 
 const genaiscriptSchema = Object.freeze({
     ...defaultSchema,
@@ -119,12 +120,17 @@ export default function Markdown(props: {
                                             {children}
                                         </code>
                                     )
-                                else
+                                if (/barchart/.test(className))
                                     return (
-                                        <Code className={className} {...props}>
-                                            {children}
-                                        </Code>
+                                        <BarChart {...props}>
+                                            {children as string}
+                                        </BarChart>
                                     )
+                                return (
+                                    <Code className={className} {...props}>
+                                        {children}
+                                    </Code>
+                                )
                             },
                         }}
                         urlTransform={(url) => {
