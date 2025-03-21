@@ -119,6 +119,24 @@ Some additional, non-standard properties are used to provide additional informat
 }
 ```
 
+## `accept`
+
+You can specify the comma-separated list of supported file extensions for the `env.files` variables.
+
+```js
+script({
+    accept: ".md,.txt",
+})
+```
+
+If remove all files support, set `accept` to `none`.
+
+```js
+script({
+    accept: "none",
+})
+```
+
 ## Scripts and system Scripts
 
 The `parameters` of a `script` entry is used to populate the `env.vars` entries. The parameters schema
