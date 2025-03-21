@@ -209,7 +209,8 @@ export class TerminalServerManager
         }
     }
 
-    show(preserveFocus?: boolean) {
+    async show(preserveFocus?: boolean) {
+        if (!this._terminal) await this.start()
         this._terminal?.show(preserveFocus)
     }
 
