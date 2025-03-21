@@ -743,7 +743,7 @@ interface PromptScript
     /**
      * A comma separated list of file extensions to accept.
      */
-    accept?: string
+    accept?: OptionsOrString<".md,.mdx" | "none">
 
     /**
      * Extra variable values that can be used to configure system prompts.

@@ -61,9 +61,9 @@ export async function expandFiles(
         applyGitIgnore?: boolean
     }
 ) {
-    if (!files.length) return []
-
     const { excludedFiles = [], accept, applyGitIgnore } = options || {}
+    if (!files.length || accept === "none") return []
+
     const urls = files
         .filter((f) => HTTPS_REGEX.test(f))
         .filter((f) => !excludedFiles.includes(f))

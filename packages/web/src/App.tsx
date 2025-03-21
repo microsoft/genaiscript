@@ -1371,8 +1371,16 @@ function acceptToAccept(accept: string | undefined) {
     return res
 }
 
-function FilesDropZone() {
+function FilesFormInput() {
     const script = useScript()
+    const { accept } = script || {}
+    if (!script || accept === "none") return null
+
+    return <FilesDropZone script={script} />
+}
+
+function FilesDropZone(props: { script: PromptScript }) {
+    const { script } = props
     const { accept } = script || {}
     const { acceptedFiles, isDragActive, getRootProps, getInputProps } =
         useDropzone({ multiple: true, accept: acceptToAccept(accept) })
@@ -1506,7 +1514,7 @@ function ScriptForm() {
         <vscode-collapsible open title="Script">
             <RefreshButton />
             <ScriptSelect />
-            <FilesDropZone />
+            <FilesFormInput />
             <PromptParametersFields />
             <RunScriptButton />
         </vscode-collapsible>
