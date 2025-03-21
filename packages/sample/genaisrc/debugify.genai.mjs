@@ -142,36 +142,36 @@ For example, if you added debug statements at line 1, 7 and 13, the output shoul
             system: ["system.assistant", "system.typescript"],
             systemSafety: false,
             responseType: "text",
-            cache: true,
             temperature: 0.2,
         }
     )
 
     const { text } = res
     const updates = []
-    text.replace(/^\[(\d+)\](\s*dbg\(`.*`\))$/gm, (_, line, stm) => {
+    text.replace(/^\[(\d+)\](\s*dbg\(['`].*['`]\))$/gm, (_, line, stm) => {
         updates.push({ line: parseInt(line), message: stm })
         return ""
     })
     // insert updates backwards
     updates.sort((a, b) => b.line - a.line)
-    if (!updates.length)
-        // nothing to do
+    if (!updates.length) {
+        console.log("no debug logs found")
         return
+    }
+    console.log(`inserting ${updates.length} debug logs`)
+
     // apply updates
     const lines = file.content.split("\n")
     updates.forEach(({ line, message }, index) => {
         if (
             !lines[line - 1]?.includes("dbg(") &&
-            !lines[line - 1]?.includes("dbg(")
+            !lines[line]?.includes("dbg(") &&
+            !lines[line + 1]?.includes("dbg(")
         )
             lines.splice(line, 0, message)
     })
     const patched = lines.join("\n")
     await workspace.writeText(file.filename, patched)
-
-    // format
-    await prettier(file)
     file = await workspace.readText(file.filename)
 
     let retry = 25
@@ -201,6 +201,8 @@ For example, if you added debug statements at line 1, 7 and 13, the output shoul
         console.log(`removing error around ${error.range[0][0] + 1}`)
         if (lines[error.range[0][0] - 1]?.includes("dbg("))
             lines.splice(error.range[0][0] - 1, 1)
+        else if (lines[error.range[0][0] + 1]?.includes("dbg("))
+            lines.splice(error.range[0][0] + 1, 1)
         else lines.splice(error.range[0][0], 1)
         await workspace.writeText(file.filename, lines.join("\n"))
     }

@@ -1,3 +1,6 @@
+import debug from "debug"
+const dbg = debug("azuretoken")
+
 import { AZURE_TOKEN_EXPIRATION } from "../../core/src/constants"
 import {
     AuthenticationToken,
@@ -35,6 +38,7 @@ async function createAzureToken(
     cancellationToken?: CancellationToken
 ): Promise<AuthenticationToken> {
     // Dynamically import DefaultAzureCredential from the Azure SDK
+    dbg("dynamically importing Azure SDK credentials")
     const {
         DefaultAzureCredential,
         EnvironmentCredential,
@@ -48,30 +52,38 @@ async function createAzureToken(
     let credential: TokenCredential
     switch (credentialsType) {
         case "cli":
+            dbg("credentialsType is cli")
             credential = new AzureCliCredential()
             break
         case "env":
+            dbg("credentialsType is env")
             credential = new EnvironmentCredential()
             break
         case "powershell":
+            dbg("credentialsType is powershell")
             credential = new AzurePowerShellCredential()
             break
         case "devcli":
+            dbg("credentialsType is devcli")
             credential = new AzureDeveloperCliCredential()
             break
         case "managedidentity":
+            dbg("credentialsType is managedidentity")
             credential = new ManagedIdentityCredential()
             break
         case "workloadidentity":
+            dbg("credentialsType is workloadidentity")
             credential = new WorkloadIdentityCredential()
             break
         default:
             credential = new DefaultAzureCredential()
+            dbg("credentialsType is default")
             break
     }
 
     // Obtain the Azure token using the DefaultAzureCredential
     const abortSignal = toSignal(cancellationToken)
+    dbg("obtaining Azure token with provided scopes and abort signal")
     const azureToken = await credential.getToken(scopes.slice(), {
         abortSignal,
     })
@@ -108,19 +120,25 @@ class AzureTokenResolverImpl implements AzureTokenResolver {
         credentialsType: AzureCredentialsType,
         options?: CancellationOptions
     ): Promise<{ token?: AuthenticationToken; error?: SerializedError }> {
-        if (this._resolver) return this._resolver
+        if (this._resolver) {
+            return this._resolver
+        }
 
         // cached
         const { cancellationToken } = options || {}
 
         if (isAzureTokenExpired(this._token)) {
+            dbg("azure token expired")
             this._token = undefined
             this._error = undefined
         }
-        if (this._token || this._error)
+        if (this._token || this._error) {
+            dbg("returning cached token or error")
             return { token: this._token, error: this._error }
+        }
         if (!this._resolver) {
             const scope = await runtimeHost.readSecret(this.envName)
+            dbg(`reading secret for envName: ${this.envName}`)
             const scopes = scope ? scope.split(",") : this.scopes
             this._resolver = createAzureToken(
                 scopes,
@@ -128,6 +146,7 @@ class AzureTokenResolverImpl implements AzureTokenResolver {
                 cancellationToken
             )
                 .then((res) => {
+                    dbg("creating Azure token")
                     this._token = res
                     this._error = undefined
                     this._resolver = undefined
@@ -138,6 +157,7 @@ class AzureTokenResolverImpl implements AzureTokenResolver {
                     return { token: this._token, error: this._error }
                 })
                 .catch((err) => {
+                    dbg(`error occurred: ${err}`)
                     logError(err)
                     this._resolver = undefined
                     this._token = undefined
