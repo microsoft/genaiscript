@@ -33,36 +33,50 @@ const dbg = debug("config")
 export async function resolveGlobalConfiguration(
     dotEnvPaths?: string[]
 ): Promise<HostConfiguration> {
-    // ~/genaiscript.config.yml
-    // ~/genaiscript.config.json
     const dirs = [homedir(), "."]
     const exts = ["yml", "yaml", "json"]
 
+    dbg('starting to resolve global configuration')
     // import and merge global local files
     let config: HostConfiguration = structuredClone(defaultConfig)
     delete (config as any)["$schema"]
+    dbg('initialized config from defaultConfig')
+
     for (const dir of dirs) {
         for (const ext of exts) {
             const filename = resolve(dir, `${TOOL_ID}.config.${ext}`)
+            dbg(`checking file: ${filename}`)
             const stat = await tryStat(filename)
             if (!stat) continue
-            if (!stat.isFile())
+            if (!stat.isFile()) {
+                dbg(`skipping ${filename}, not a file`)
                 throw new Error(`config: ${filename} is a not a file`)
+            }
             const fileContent = await tryReadText(filename)
-            if (!fileContent) continue
+            if (!fileContent) {
+                dbg(`skipping ${filename}, no content`)
+                continue
+            }
             logVerbose(`config: loading ${filename}`)
+            dbg(`parsing file content for ${filename}`)
             const parsed: HostConfiguration =
                 ext === "yml" || ext === "yaml"
                     ? YAMLTryParse(fileContent)
                     : JSON5TryParse(fileContent)
-            if (!parsed) throw new Error(`config: failed to parse ${filename}`)
-            dbg(parsed)
+            if (!parsed) {
+                dbg(`failed to parse ${filename}`)
+                throw new Error(`config: failed to parse ${filename}`)
+            }
+            dbg('validating config schema')
             const validation = validateJSONWithSchema(
                 parsed,
                 schema as JSONSchema
             )
-            if (validation.schemaError)
+            if (validation.schemaError) {
+                dbg(`validation error for ${filename}: ${validation.schemaError}`)
                 throw new Error(`config: ` + validation.schemaError)
+            }
+            dbg('merging parsed configuration')
             config = deleteEmptyValues({
                 include: structuralMerge(
                     config?.include || [],
@@ -88,30 +102,27 @@ export async function resolveGlobalConfiguration(
         }
     }
 
-    // import for env var
     if (process.env.GENAISCRIPT_ENV_FILE) {
-        dbg(`adding env file from env: ${process.env.GENAISCRIPT_ENV_FILE}`)
+        dbg(`adding env file from environment variable: ${process.env.GENAISCRIPT_ENV_FILE}`)
         config.envFile = [
             ...(config.envFile || []),
             process.env.GENAISCRIPT_ENV_FILE,
         ]
     }
-    // override with CLI command
     if (dotEnvPaths?.length) {
         dbg(`adding env files from CLI: ${dotEnvPaths.join(", ")}`)
         config.envFile = [...(config.envFile || []), ...dotEnvPaths]
     }
 
-    // nothing loaded, use defaults
     if (!config.envFile?.length) {
-        dbg(`no env found, using defaults`)
+        dbg('no env files found, using defaults')
         config.envFile = [
             join(homedir(), DOT_ENV_GENAISCRIPT_FILENAME),
             DOT_ENV_GENAISCRIPT_FILENAME,
             DOT_ENV_FILENAME,
         ]
     }
-    // resolve all paths
+    dbg('resolving env file paths')
     config.envFile = uniq(arrayify(config.envFile).map((f) => resolve(f)))
     dbg(`resolved env files: ${config.envFile.join(", ")}`)
     return config
@@ -133,13 +144,13 @@ export async function resolveLanguageModelConfigurations(
 ): Promise<ResolvedLanguageModelConfiguration[]> {
     const { token, error, models, hide } = options || {}
     const res: ResolvedLanguageModelConfiguration[] = []
+    dbg('starting to resolve language model configurations')
 
-    // Iterate through model providers, filtering if a specific provider is given
     for (const modelProvider of MODEL_PROVIDERS.filter(
         (mp) => (!provider || mp.id === provider) && (!hide || !mp.hidden)
     )) {
+        dbg(`processing model provider: ${modelProvider.id}`)
         try {
-            // Attempt to parse connection token from environment variables
             const conn: LanguageModelConfiguration & {
                 models?: LanguageModelInfo[]
             } = await host.getLanguageModelConfiguration(
@@ -147,21 +158,27 @@ export async function resolveLanguageModelConfigurations(
                 options
             )
             if (conn) {
-                // Mask the token if the option is set
+                dbg(`retrieved connection configuration for provider: ${modelProvider.id}`)
                 let listError = ""
                 if (models && token) {
+                    dbg(`listing models for provider: ${modelProvider.id}`)
                     const lm = await resolveLanguageModel(modelProvider.id)
                     if (lm.listModels) {
                         const models = await lm.listModels(conn, options)
-                        if (models.ok) conn.models = models.models
-                        else
+                        if (models.ok) {
+                            dbg(`successfully listed models for provider: ${modelProvider.id}`)
+                            conn.models = models.models
+                        } else {
                             listError =
                                 errorMessage(models.error) ||
                                 "failed to list models"
+                            dbg(`error listing models for provider ${modelProvider.id}: ${listError}`)
+                        }
                     }
                 }
                 if (!token && conn.token) conn.token = "***"
-                if (!listError || error || provider)
+                if (!listError || error || provider) {
+                    dbg(`adding resolved configuration for provider: ${modelProvider.id}`)
                     res.push(
                         deleteEmptyValues({
                             provider: conn.provider,
@@ -172,15 +189,17 @@ export async function resolveLanguageModelConfigurations(
                             error: listError,
                         })
                     )
+                }
             }
         } catch (e) {
+            dbg(`error resolving configuration for provider ${modelProvider.id}: ${e}`)
             if (error || provider)
-                // Capture and store any errors encountered
                 res.push({
                     provider: modelProvider.id,
                     error: errorMessage(e),
                 })
         }
     }
+    dbg('returning sorted resolved configurations')
     return res.sort((l, r) => l.provider.localeCompare(r.provider))
 }
