@@ -1,3 +1,4 @@
+[dotenv@16.4.7][DEBUG] No encoding is specified. UTF-8 is used by default
 ---
 title: Commands
 description: List of all CLI commands

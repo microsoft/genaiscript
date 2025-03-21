@@ -26,6 +26,9 @@ import { host } from "./host"
 import { logVerbose } from "./util"
 import { uniq } from "es-toolkit"
 import { tryReadText, tryStat } from "./fs"
+import debug from "debug"
+
+const dbg = debug("config")
 
 export async function resolveGlobalConfiguration(
     dotEnvPaths?: string[]
@@ -52,18 +55,14 @@ export async function resolveGlobalConfiguration(
                 ext === "yml" || ext === "yaml"
                     ? YAMLTryParse(fileContent)
                     : JSON5TryParse(fileContent)
-            if (!parsed)
-                throw new Error(
-                    `Configuration error: failed to parse ${filename}`
-                )
+            if (!parsed) throw new Error(`config: failed to parse ${filename}`)
+            dbg(parsed)
             const validation = validateJSONWithSchema(
                 parsed,
                 schema as JSONSchema
             )
             if (validation.schemaError)
-                throw new Error(
-                    `Configuration error: ` + validation.schemaError
-                )
+                throw new Error(`config: ` + validation.schemaError)
             config = deleteEmptyValues({
                 include: structuralMerge(
                     config?.include || [],
@@ -90,27 +89,31 @@ export async function resolveGlobalConfiguration(
     }
 
     // import for env var
-    if (process.env.GENAISCRIPT_ENV_FILE)
+    if (process.env.GENAISCRIPT_ENV_FILE) {
+        dbg(`adding env file from env: ${process.env.GENAISCRIPT_ENV_FILE}`)
         config.envFile = [
             ...(config.envFile || []),
             process.env.GENAISCRIPT_ENV_FILE,
         ]
+    }
     // override with CLI command
-    if (dotEnvPaths?.length)
-        config.envFile = config.envFile = [
-            ...(config.envFile || []),
-            ...dotEnvPaths,
-        ]
+    if (dotEnvPaths?.length) {
+        dbg(`adding env files from CLI: ${dotEnvPaths.join(", ")}`)
+        config.envFile = [...(config.envFile || []), ...dotEnvPaths]
+    }
 
     // nothing loaded, use defaults
-    if (!config.envFile?.length)
+    if (!config.envFile?.length) {
+        dbg(`no env found, using defaults`)
         config.envFile = [
             join(homedir(), DOT_ENV_GENAISCRIPT_FILENAME),
             DOT_ENV_GENAISCRIPT_FILENAME,
             DOT_ENV_FILENAME,
         ]
+    }
     // resolve all paths
     config.envFile = uniq(arrayify(config.envFile).map((f) => resolve(f)))
+    dbg(`resolved env files: ${config.envFile.join(", ")}`)
     return config
 }
 
