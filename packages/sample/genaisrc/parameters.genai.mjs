@@ -8,6 +8,56 @@ script({
     
 - item
 ## heading
+
+\`\`\`mermaid
+graph TD
+    A --> B
+    B --> C
+\`\`\`
+
+\`\`\`barchart
+[
+{
+    "city": "Tokyo",
+    "year": 1,
+    "value": 7.0,
+    "thermal": 0.5
+}, {
+    "city": "Berlin",
+    "year": 2,
+    "value": 6.9    ,
+    "thermal": 1
+}, {
+    "city": "London",
+    "year": 3,
+    "value": 5.7,
+    "thermal": -0.5
+}
+]
+\`\`\`
+
+\`\`\`linechart
+[
+{
+    "city": "Tokyo",
+    "year": 1,
+    "value": 7.0,
+    "thermal": 1
+}, {
+    "city": "Berlin",
+    "year": 2,
+    "value": 6.9    ,
+    "thermal": 0.5
+}, {
+    "city": "London",
+    "year": 3,
+    "value": 5.7,
+    "thermal": -1
+}
+]
+\`\`\`
+
+
 `,
     parameters: {
         string: "abc",
