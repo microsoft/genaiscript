@@ -2,7 +2,11 @@
 // It includes functionality to find modified files, execute Git commands, and manage branches.
 
 import { uniq } from "es-toolkit"
-import { GIT_DIFF_MAX_TOKENS, GIT_IGNORE_GENAI } from "./constants"
+import {
+    GENAISCRIPTIGNORE,
+    GIT_DIFF_MAX_TOKENS,
+    GIT_IGNORE_GENAI,
+} from "./constants"
 import { llmifyDiff } from "./diff"
 import { resolveFileContents } from "./file"
 import { readText, tryReadText, tryStat } from "./fs"
@@ -40,9 +44,11 @@ export class GitClient implements Git {
         const { excludedPaths } = options || {}
         const ep = arrayify(excludedPaths, { filterEmpty: true })
         const dp = (await tryReadText(GIT_IGNORE_GENAI))?.split("\n")
+        const dp2 = (await tryReadText(GENAISCRIPTIGNORE))?.split("\n")
         const ps = [
             ...arrayify(ep, { filterEmpty: true }),
             ...arrayify(dp, { filterEmpty: true }),
+            ...arrayify(dp2, { filterEmpty: true }),
         ]
         return uniq(ps)
     }

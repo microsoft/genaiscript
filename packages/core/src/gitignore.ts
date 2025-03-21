@@ -1,7 +1,7 @@
 // Import the 'ignore' library to handle .gitignore file parsing and filtering
 import ignorer from "ignore"
 import { tryReadText, writeText } from "./fs"
-import { GIT_IGNORE, GIT_IGNORE_GENAI } from "./constants"
+import { GENAISCRIPTIGNORE, GIT_IGNORE, GIT_IGNORE_GENAI } from "./constants"
 import { host } from "./host"
 import { logVerbose } from "./util"
 
@@ -11,6 +11,7 @@ export async function createGitIgnorer(): Promise<GitIgnorer> {
     const gitignores = [
         await tryReadText(GIT_IGNORE),
         await tryReadText(GIT_IGNORE_GENAI),
+        await tryReadText(GENAISCRIPTIGNORE),
     ].filter((g) => !!g)
     if (!gitignores.length) return (f) => f
 

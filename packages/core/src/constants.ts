@@ -343,6 +343,7 @@ export const TOKEN_TRUNCATION_THRESHOLD = 16
 
 export const GIT_IGNORE = ".gitignore"
 export const GIT_IGNORE_GENAI = ".gitignore.genai"
+export const GENAISCRIPTIGNORE = ".genaiscriptignore"
 export const CLI_ENV_VAR_RX = /^genaiscript_var_/i
 
 export const GIT_DIFF_MAX_TOKENS = 8000
