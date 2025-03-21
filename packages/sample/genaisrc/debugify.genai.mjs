@@ -25,10 +25,15 @@ dbg('message')
 \`\`\`
 
 ### Good logs
+- short informative messages
+- always lower cased
 - Before doing any kind of file operation, log the file path.
 - In a catch handler, log the error.
 - Before returning a value, log the value.
 - Only add log statement, DO NOT REMOVE OR CHANGE ANY EXISTING CODE.
+
+## Output format
+- Use the FILE file format to output the modified TypeScript code.
 `
 
-defFileOutput("*.ts", "The TypeScript file with debug logs")
+defFileOutput("**/*.ts", "The TypeScript file with debug logs")
