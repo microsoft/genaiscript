@@ -106,7 +106,6 @@ import {
     wrapRgbColor,
 } from "../../core/src/consolecolor"
 import { generateId } from "../../core/src/id"
-import { originalConsole } from "../../core/src/global"
 
 function getRunDir(scriptId: string, runId: string) {
     const name = new Date().toISOString().replace(/[:.]/g, "-") + "-" + runId
