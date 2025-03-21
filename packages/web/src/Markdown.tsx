@@ -14,6 +14,7 @@ import rehypeHighlight from "rehype-highlight"
 import Code from "./Code"
 import CopySaveButtons from "./Buttons"
 import BarChart from "./BarChart"
+import LineChart from "./LineChart"
 
 const genaiscriptSchema = Object.freeze({
     ...defaultSchema,
@@ -125,6 +126,12 @@ export default function Markdown(props: {
                                         <BarChart {...props}>
                                             {children as string}
                                         </BarChart>
+                                    )
+                                if (/linechart/.test(className))
+                                    return (
+                                        <LineChart {...props}>
+                                            {children as string}
+                                        </LineChart>
                                     )
                                 return (
                                     <Code className={className} {...props}>
