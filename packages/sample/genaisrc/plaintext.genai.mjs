@@ -1,4 +1,5 @@
 script({
+    accept: "none",
     model: "small",
     system: ["system", "system.output_plaintext"],
     tests: {

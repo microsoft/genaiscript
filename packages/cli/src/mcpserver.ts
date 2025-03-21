@@ -47,23 +47,26 @@ export async function startMcpServer(
     server.setRequestHandler(ListToolsRequestSchema, async (req) => {
         const scripts = await watcher.scripts()
         const tools = scripts.map((script) => {
-            const { id, title, description, inputSchema } = script
+            const { id, title, description, inputSchema, accept } = script
             return {
                 name: id,
                 description: toStringList(title, description),
                 inputSchema: {
                     type: "object",
-                    properties: {
-                        files: {
-                            type: "array",
-                            items: {
-                                type: "string",
-                                description:
-                                    "File paths to be passed to the script",
-                            },
-                        },
-                        ...(inputSchema.properties || {}),
-                    },
+                    properties:
+                        accept !== "none"
+                            ? {
+                                  files: {
+                                      type: "array",
+                                      items: {
+                                          type: "string",
+                                          description:
+                                              "File paths to be passed to the script",
+                                      },
+                                  },
+                                  ...(inputSchema.properties || {}),
+                              }
+                            : inputSchema.properties,
                     required: inputSchema.required || [],
                 },
             }
