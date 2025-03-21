@@ -31,6 +31,7 @@ dbg('message')
 - In a catch handler, log the error.
 - Before returning a value, log the value.
 - Only add log statement, DO NOT REMOVE OR CHANGE ANY EXISTING CODE.
+- if there are already enough debug logs, you don't need to add more. Just respond <ALREADY_DONE>.
 
 ## Output format
 - Use the FILE file format to output the modified TypeScript code.
