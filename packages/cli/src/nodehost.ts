@@ -158,17 +158,25 @@ export class NodeHost extends EventTarget implements RuntimeHost {
         value: string | ModelConfiguration
     ): void {
         id = id.toLowerCase()
-        if (typeof value === "string") value = { model: value, source }
+        if (typeof value === "string") {
+            value = { model: value, source }
+        }
         const aliases = this._modelAliases[source]
         const c = aliases[id] || (aliases[id] = { source })
-        if (value === undefined || value.model === id) delete aliases[id]
-        else if (value.model !== undefined && value.model !== id)
-            (c as any).model = value.model
-        if (!isNaN(value.temperature))
-            (c as any).temperature = value.temperature
-        if (value.reasoningEffort)
-            (c as any).reasoningEffort = value.reasoningEffort
-        if (value.fallbackTools) (c as any).fallbackTools = value.fallbackTools
+        if (value === undefined || value.model === id) {
+            delete aliases[id]
+        } else if (value.model !== undefined && value.model !== id) {
+            ;(c as any).model = value.model
+        }
+        if (!isNaN(value.temperature)) {
+            ;(c as any).temperature = value.temperature
+        }
+        if (value.reasoningEffort) {
+            ;(c as any).reasoningEffort = value.reasoningEffort
+        }
+        if (value.fallbackTools) {
+            ;(c as any).fallbackTools = value.fallbackTools
+        }
     }
 
     async pullModel(
@@ -178,7 +186,9 @@ export class NodeHost extends EventTarget implements RuntimeHost {
         const { trace } = options
         const { provider, model } = cfg
         const modelId = `${provider}:${model}`
-        if (this.pulledModels.includes(modelId)) return { ok: true }
+        if (this.pulledModels.includes(modelId)) {
+            return { ok: true }
+        }
 
         const { pullModel, listModels } = await resolveLanguageModel(provider)
         if (!pullModel) {
@@ -200,8 +210,9 @@ export class NodeHost extends EventTarget implements RuntimeHost {
         }
 
         const res = await pullModel(cfg, options)
-        if (res.ok) this.pulledModels.push(modelId)
-        else if (res.error) {
+        if (res.ok) {
+            this.pulledModels.push(modelId)
+        } else if (res.error) {
             logError(`${provider}: ${errorMessage(res.error)}`)
             trace?.error(`${provider}: ${errorMessage(error)}`, error)
         }
@@ -211,22 +222,28 @@ export class NodeHost extends EventTarget implements RuntimeHost {
     async readConfig(): Promise<HostConfiguration> {
         const config = await resolveGlobalConfiguration(this._dotEnvPaths)
         const { envFile, modelAliases } = config
-        if (modelAliases)
-            for (const kv of Object.entries(modelAliases))
+        if (modelAliases) {
+            for (const kv of Object.entries(modelAliases)) {
                 this.setModelAlias("config", kv[0], kv[1])
+            }
+        }
         for (const dotEnv of arrayify(envFile)) {
             const stat = await tryStat(dotEnv)
-            if (!stat) logVerbose(`.env: ignored ${dotEnv}, not found`)
-            else {
-                if (!stat.isFile())
+            if (!stat) {
+                logVerbose(`.env: ignored ${dotEnv}, not found`)
+            } else {
+                if (!stat.isFile()) {
                     throw new Error(`.env: ${dotEnv} is not a file`)
+                }
                 logVerbose(`.env: loading ${dotEnv}`)
                 const res = dotenv.config({
                     path: dotEnv,
                     debug: !!process.env.DEBUG,
                     override: true,
                 })
-                if (res.error) throw res.error
+                if (res.error) {
+                    throw res.error
+                }
             }
         }
         await parseDefaultsFromEnv(process.env)
@@ -257,7 +274,9 @@ export class NodeHost extends EventTarget implements RuntimeHost {
     ): Promise<LanguageModelConfiguration> {
         const { token: askToken, trace } = options || {}
         const tok = await parseTokenFromEnv(process.env, modelId)
-        if (!askToken && tok?.token) tok.token = "***"
+        if (!askToken && tok?.token) {
+            tok.token = "***"
+        }
         if (askToken && tok && !tok.token) {
             if (
                 tok.provider === MODEL_PROVIDER_AZURE_OPENAI ||
@@ -339,35 +358,40 @@ export class NodeHost extends EventTarget implements RuntimeHost {
             const { listModels } = await resolveLanguageModel(tok.provider)
             if (listModels) {
                 const { ok, error } = await listModels(tok, options)
-                if (!ok)
+                if (!ok) {
                     throw new Error(`${tok.provider}: ${errorMessage(error)}`)
+                }
             }
         }
         if (!tok) {
-            if (!modelId)
+            if (!modelId) {
                 throw new Error(
                     "Could not determine default model from current configuration"
                 )
+            }
             const { provider } = parseModelIdentifier(modelId)
-            if (provider === MODEL_PROVIDER_AZURE_OPENAI)
+            if (provider === MODEL_PROVIDER_AZURE_OPENAI) {
                 throw new Error(`Azure OpenAI not configured for ${modelId}`)
-            else if (provider === MODEL_PROVIDER_AZURE_AI_INFERENCE)
+            } else if (provider === MODEL_PROVIDER_AZURE_AI_INFERENCE) {
                 throw new Error(
                     `Azure AI Inference not configured for ${modelId}`
                 )
-            else if (provider === MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI)
+            } else if (provider === MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI) {
                 throw new Error(
                     `Azure AI OpenAI Serverless not configured for ${modelId}`
                 )
-            else if (provider === MODEL_PROVIDER_AZURE_SERVERLESS_MODELS)
+            } else if (provider === MODEL_PROVIDER_AZURE_SERVERLESS_MODELS) {
                 throw new Error(`Azure AI Models not configured for ${modelId}`)
+            }
         }
 
         return tok
     }
 
     log(level: LogLevel, msg: string): void {
-        if (msg === undefined) return
+        if (msg === undefined) {
+            return
+        }
         this.dispatchEvent(new LogEvent(level, msg))
         switch (level) {
             case "error":
@@ -422,10 +446,13 @@ export class NodeHost extends EventTarget implements RuntimeHost {
     }
     async readFile(filepath: string): Promise<Uint8Array> {
         const wksrx = /^workspace:\/\//i
-        if (wksrx.test(filepath))
+        if (wksrx.test(filepath)) {
             filepath = join(this.projectFolder(), filepath.replace(wksrx, ""))
+        }
         // check if file exists
-        if (!(await exists(filepath))) return undefined
+        if (!(await exists(filepath))) {
+            return undefined
+        }
         // read file
         const res = await readFile(filepath)
         return res ? new Uint8Array(res) : new Uint8Array()
@@ -472,12 +499,15 @@ export class NodeHost extends EventTarget implements RuntimeHost {
         id?: "azure",
         options?: TraceOptions
     ): Promise<ContentSafety> {
-        if (!id && isAzureContentSafetyClientConfigured()) id = "azure"
+        if (!id && isAzureContentSafetyClientConfigured()) {
+            id = "azure"
+        }
         if (id === "azure") {
             const safety = createAzureContentSafetyClient(options)
             return safety
-        } else if (id)
+        } else if (id) {
             throw new NotSupportedError(`content safety ${id} not supported`)
+        }
         return undefined
     }
 
@@ -519,10 +549,12 @@ export class NodeHost extends EventTarget implements RuntimeHost {
         const trace = options?.trace?.startTraceDetails(label || command)
         try {
             // python3 on windows -> python
-            if (command === "python3" && process.platform === "win32")
+            if (command === "python3" && process.platform === "win32") {
                 command = "python"
-            if (command === "python" && process.platform !== "win32")
+            }
+            if (command === "python" && process.platform !== "win32") {
                 command = "python3"
+            }
 
             const cmd = shellQuote([command, ...args])
             logVerbose(`${cwd ? `${cwd}> ` : ""}${cmd}`)
@@ -546,11 +578,17 @@ export class NodeHost extends EventTarget implements RuntimeHost {
                 }
             )
             trace?.itemValue(`exit code`, `${exitCode}`)
-            if (stdout) trace?.detailsFenced(`📩 stdout`, stdout)
-            if (stderr) trace?.detailsFenced(`📩 stderr`, stderr)
+            if (stdout) {
+                trace?.detailsFenced(`📩 stdout`, stdout)
+            }
+            if (stderr) {
+                trace?.detailsFenced(`📩 stderr`, stderr)
+            }
             return { stdout, stderr, exitCode, failed }
         } catch (err) {
-            if (!ignoreError) trace?.error("exec failed", err)
+            if (!ignoreError) {
+                trace?.error("exec failed", err)
+            }
             return {
                 stdout: "",
                 stderr: errorMessage(err),
@@ -589,7 +627,9 @@ export class NodeHost extends EventTarget implements RuntimeHost {
         message: string,
         options: string[]
     ): Promise<string | undefined> {
-        if (ci.isCI) return undefined
+        if (ci.isCI) {
+            return undefined
+        }
         return await this.userInputQueue.add(() =>
             shellSelect(message, options)
         )
@@ -600,7 +640,9 @@ export class NodeHost extends EventTarget implements RuntimeHost {
      * @param message message to ask
      */
     async input(message: string): Promise<string | undefined> {
-        if (ci.isCI) return undefined
+        if (ci.isCI) {
+            return undefined
+        }
         return await this.userInputQueue.add(() => shellInput(message))
     }
 
@@ -609,7 +651,9 @@ export class NodeHost extends EventTarget implements RuntimeHost {
      * @param message message to ask
      */
     async confirm(message: string): Promise<boolean | undefined> {
-        if (ci.isCI) return undefined
+        if (ci.isCI) {
+            return undefined
+        }
         return await this.userInputQueue.add(() => shellConfirm(message))
     }
 }
