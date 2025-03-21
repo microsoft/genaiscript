@@ -287,10 +287,6 @@ type ModelVisionType = OptionsOrString<
     "openai:gpt-4o" | "github:gpt-4o" | "azure:gpt-4o" | "azure:gpt-4o-mini"
 >
 
-type ModelTranscriptionType = OptionsOrString<
-    "openai:whisper-1" | "whisperasr:default"
->
-
 type ModelImageGenerationType = OptionsOrString<
     "openai:dall-e-2" | "openai:dall-e-3"
 >
@@ -3685,7 +3681,9 @@ type BufferLike =
     | Uint8Array
     | ReadableStream
 
-type TranscriptionModelType = OptionsOrString<"openai:whisper-1">
+type TranscriptionModelType = OptionsOrString<
+    "openai:whisper-1" | "openai:gpt-4o-transcribe" | "whisperasr:default"
+>
 
 interface ImageGenerationOptions {
     model?: OptionsOrString<ModelImageGenerationType>
@@ -3760,7 +3758,9 @@ interface TranscriptionResult {
     })[]
 }
 
-type SpeechModelType = OptionsOrString<"openai:tts-1-hd" | "openai:tts-1">
+type SpeechModelType = OptionsOrString<
+    "openai:tts-1-hd" | "openai:tts-1" | "openai:gpt-4o-mini-tts"
+>
 
 type SpeechVoiceType = OptionsOrString<
     | "alloy"
