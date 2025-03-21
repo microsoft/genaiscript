@@ -1,8 +1,5 @@
 import test, { beforeEach, describe } from "node:test"
-import {
-    convertAnnotationsToItems,
-    parseAnnotations,
-} from "./annotations"
+import { convertAnnotationsToItems, parseAnnotations } from "./annotations"
 import assert from "assert/strict"
 import { TestHost } from "./testhost"
 
@@ -35,7 +32,7 @@ describe("annotations", () => {
 
     test("tsc", () => {
         const output = `
-
+$ /workspaces/genaiscript/node_modules/.bin/tsc --noEmit --pretty false -p src
 src/annotations.ts:11:28 - error TS1005: ',' expected.
         `
 
@@ -48,6 +45,26 @@ src/annotations.ts:11:28 - error TS1005: ',' expected.
         assert.strictEqual(diags[0].range[1][0], 27)
         assert.strictEqual(diags[0].code, "TS1005")
         assert.strictEqual(diags[0].message, "',' expected.")
+    })
+
+    test("tsc2", () => {
+        const output = `
+$ /workspaces/genaiscript/node_modules/.bin/tsc --noEmit --pretty false -p src
+src/connection.ts(69,9): error TS1005: ')' expected.
+src/connection.ts(71,5): error TS1128: Declaration or statement expected.
+src/connection.ts(71,6): error TS1128: Declaration or statement expected.
+info Visit https://yarnpkg.com/en/docs/cli/run for documentation about this command.        
+        `
+        const diags = parseAnnotations(output)
+        assert.strictEqual(diags.length, 3)
+        assert.strictEqual(diags[0].severity, "error")
+        assert.strictEqual(diags[0].filename, "src/connection.ts")
+        assert.strictEqual(diags[0].range[0][0], 68)
+        assert.strictEqual(diags[0].code, "TS1005")
+        assert.strictEqual(diags[0].message, "')' expected.")
+        assert.strictEqual(diags[1].severity, "error")
+        assert.strictEqual(diags[1].filename, "src/connection.ts")
+        assert.strictEqual(diags[1].range[0][0], 70)
     })
 })
 

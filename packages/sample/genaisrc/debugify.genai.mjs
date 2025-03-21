@@ -15,9 +15,23 @@ const compile = async (file) => {
     return tsc
 }
 
-export default async function () {
-    const file = env.files[0]
+const prettier = async (file) => {
+    // format
+    const res = await host.exec("prettier", [
+        "--write",
+        "--plugin=prettier-plugin-curly",
+        file.filename,
+    ])
+    if (res.exitCode) console.debug(res.stderr)
+    return res
+}
 
+export default async function () {
+    let file = env.files[0]
+
+    await prettier(file)
+    file = await workspace.readText(file.filename)
+return
     const tsc = await compile(file)
     if (tsc.exitCode) throw new Error("compilation error")
 
@@ -156,26 +170,36 @@ For example, if you added debug statements at line 1, 7 and 13, the output shoul
     await workspace.writeText(file.filename, patched)
 
     // format
-    await host.exec("prettier", ["--write", file.filename])
+    await prettier(file)
+    file = await workspace.readText(file.filename)
 
-    let retry = 3
+    let retry = 10
     while (retry-- > 0) {
         // compile file
         const tsc = await compile(file)
         if (!tsc.exitCode) {
             console.log("compiled successfully")
+            await prettier(file)
             return
         }
 
         // remove first error and try to compile
         const errors = parsers.annotations(tsc.stderr)
-        const firstError = errors[0]
-        if (!firstError?.range) {
-            console.log("can't find errors in tsc output")
+        console.log(`found ${errors.length} errors`)
+        const error = errors.find(
+            (e) =>
+                lines[e.range[0][0] - 1]?.includes("dbg(") ||
+                lines[e.range[0][0]]?.includes("dbg(")
+        )
+        if (!error) {
+            console.log("cannot find error with dbg")
             return
         }
 
-        lines.splice(firstError.range[0][0], 1)
+        console.log(`removing error around ${error.range[0][0] + 1}`)
+        if (lines[error.range[0][0] - 1]?.includes("dbg("))
+            lines.splice(error.range[0][0] - 1, 1)
+        else lines.splice(error.range[0][0], 1)
         await workspace.writeText(file.filename, lines.join("\n"))
     }
 }

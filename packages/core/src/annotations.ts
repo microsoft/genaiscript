@@ -17,9 +17,23 @@ const AZURE_DEVOPS_ANNOTATIONS_RX =
     /^\s*##vso\[task.logissue\s+type=(?<severity>error|warning);sourcepath=(?<file>);linenumber=(?<line>\d+)(;code=(?<code>\d+);)?[^\]]*\](?<message>.*)$/gim
 
 // Regular expression for matching TypeScript build annotations.
-// Example: foo.ts:10:error TS1005: ';' expected.
+// Example:
+// foo.ts:10:error TS1005: ';' expected.
+
 const TYPESCRIPT_ANNOTATIONS_RX =
-    /^(?<file>[^:\s].*?):(?<line>\d+)(?::(?<endLine>\d+))?(?::\d+)?\s+-\s+(?<severity>error|warning)\s+(?<code>[^:]+)\s*:\s*(?<message>.*)$/gim
+    /^(?<file>[^:\s\n].+?):(?<line>\d+)(?::(?<endLine>\d+))?(?::\d+)?\s+-\s+(?<severity>error|warning)\s+(?<code>[^:]+)\s*:\s*(?<message>.*)$/gim
+
+// Regular expression for TypeScript compiler errors with parentheses format
+// Example: src/connection.ts(71,5): error TS1128: Declaration or statement expected.
+// src/connection.ts(71,5): error TS1128: Declaration or statement expected.
+const TYPESCRIPT_PARENTHESES_ANNOTATIONS_RX =
+    /^(?<file>[^\(\n]+)\((?<line>\d+),(?<col>\d+)\):\s+(?<severity>error|warning)\s+(?<code>TS\d+):\s+(?<message>.+)$/gim
+const ANNOTATIONS_RX = [
+    TYPESCRIPT_PARENTHESES_ANNOTATIONS_RX,
+    TYPESCRIPT_ANNOTATIONS_RX,
+    GITHUB_ANNOTATIONS_RX,
+    AZURE_DEVOPS_ANNOTATIONS_RX,
+]
 
 // Maps severity strings to `DiagnosticSeverity`.
 const SEV_MAP: Record<string, DiagnosticSeverity> = Object.freeze({
@@ -65,27 +79,19 @@ export function parseAnnotations(text: string): Diagnostic[] {
     const annotations = new Set<Diagnostic>()
 
     // Match against TypeScript, GitHub, and Azure DevOps regex patterns.
-    for (const m of text.matchAll(TYPESCRIPT_ANNOTATIONS_RX)) addAnnotation(m)
-    for (const m of text.matchAll(GITHUB_ANNOTATIONS_RX)) addAnnotation(m)
-    for (const m of text.matchAll(AZURE_DEVOPS_ANNOTATIONS_RX)) addAnnotation(m)
+    for (const rx of ANNOTATIONS_RX) {
+        for (const m of text.matchAll(rx)) addAnnotation(m)
+    }
 
     return Array.from(annotations.values()) // Convert the set to an array
 }
 
 export function eraseAnnotations(text: string) {
-    return [
-        TYPESCRIPT_ANNOTATIONS_RX,
-        GITHUB_ANNOTATIONS_RX,
-        AZURE_DEVOPS_ANNOTATIONS_RX,
-    ].reduce((t, rx) => t.replace(rx, ""), text)
+    return ANNOTATIONS_RX.reduce((t, rx) => t.replace(rx, ""), text)
 }
 
 export function convertAnnotationsToItems(text: string) {
-    return [
-        GITHUB_ANNOTATIONS_RX,
-        TYPESCRIPT_ANNOTATIONS_RX,
-        AZURE_DEVOPS_ANNOTATIONS_RX,
-    ].reduce(
+    return ANNOTATIONS_RX.reduce(
         (t, rx) =>
             t.replace(rx, (s, ...args) => {
                 const groups = args.at(-1)

@@ -67,8 +67,9 @@ export function ollamaParseHostVariable(env: Record<string, string>) {
     )?.trim()
     const ipm =
         /^(?<address>(localhost|\d+\.\d+\.\d+\.\d+))(:(?<port>\d+))?$/i.exec(s)
-    if (ipm)
+    if (ipm) {
         return `http://${ipm.groups.address}:${ipm.groups.port || OLLAMA_DEFAUT_PORT}`
+    }
     const url = new URL(s)
     return url.href
 }
@@ -78,34 +79,42 @@ export function findEnvVar(
     prefixes: string | string[],
     names: string[]
 ): { name: string; value: string } {
-    for (const prefix of arrayify(prefixes))
+    for (const prefix of arrayify(prefixes)) {
         for (const name of names) {
             const pname = prefix + name
             const value =
                 env[pname] ||
                 env[pname.toLowerCase()] ||
                 env[pname.toUpperCase()]
-            if (value !== undefined) return { name: pname, value }
+            if (value !== undefined) {
+                return { name: pname, value }
+            }
         }
+    }
     return undefined
 }
 
 export async function parseDefaultsFromEnv(env: Record<string, string>) {
     // legacy
-    if (env.GENAISCRIPT_DEFAULT_MODEL)
+    if (env.GENAISCRIPT_DEFAULT_MODEL) {
         runtimeHost.setModelAlias("env", "large", env.GENAISCRIPT_DEFAULT_MODEL)
+    }
 
     const rx =
         /^GENAISCRIPT(_DEFAULT)?_((?<id>[A-Z0-9_\-]+)_MODEL|MODEL_(?<id2>[A-Z0-9_\-]+))$/i
     for (const kv of Object.entries(env)) {
         const [k, v] = kv
         const m = rx.exec(k)
-        if (!m) continue
+        if (!m) {
+            continue
+        }
         const id = m.groups.id || m.groups.id2
         runtimeHost.setModelAlias("env", id, v)
     }
     const t = normalizeFloat(env.GENAISCRIPT_DEFAULT_TEMPERATURE)
-    if (!isNaN(t)) runtimeHost.setModelAlias("env", "large", { temperature: t })
+    if (!isNaN(t)) {
+        runtimeHost.setModelAlias("env", "large", { temperature: t })
+    }
 }
 
 export async function parseTokenFromEnv(
@@ -129,28 +138,45 @@ export async function parseTokenFromEnv(
             type !== "localai" &&
             type !== "azure_serverless" &&
             type !== "azure_serverless_models"
-        )
+        ) {
             throw new Error(
                 "OPENAI_API_TYPE must be 'azure', 'azure_serverless', 'azure_serverless_models' or 'openai' or 'localai'"
             )
-        if (type === "openai" && !base) base = OPENAI_API_BASE
-        if (type === "localai" && !base) base = LOCALAI_API_BASE
-        if ((type === "azure" || type === "azure_serverless") && !base)
+        }
+        if (type === "openai" && !base) {
+            base = OPENAI_API_BASE
+        }
+        if (type === "localai" && !base) {
+            base = LOCALAI_API_BASE
+        }
+        if ((type === "azure" || type === "azure_serverless") && !base) {
             throw new Error("OPENAI_API_BASE must be set when type is 'azure'")
-        if (type === "azure") base = cleanAzureBase(base)
-        if (type === "azure" && version && version !== AZURE_OPENAI_API_VERSION)
+        }
+        if (type === "azure") {
+            base = cleanAzureBase(base)
+        }
+        if (
+            type === "azure" &&
+            version &&
+            version !== AZURE_OPENAI_API_VERSION
+        ) {
             throw new Error(
                 `OPENAI_API_VERSION must be '${AZURE_OPENAI_API_VERSION}'`
             )
-        if (!token && !/^http:\/\//i.test(base))
+        }
+        if (!token && !/^http:\/\//i.test(base)) {
             // localhost typically requires no key
             throw new Error("OPENAI_API_KEY missing")
-        if (token === PLACEHOLDER_API_KEY)
+        }
+        if (token === PLACEHOLDER_API_KEY) {
             throw new Error("OPENAI_API_KEY not configured")
-        if (base === PLACEHOLDER_API_BASE)
+        }
+        if (base === PLACEHOLDER_API_BASE) {
             throw new Error("OPENAI_API_BASE not configured")
-        if (base && !URL.canParse(base))
+        }
+        if (base && !URL.canParse(base)) {
             throw new Error("OPENAI_API_BASE must be a valid URL")
+        }
         return {
             provider,
             model,
@@ -167,8 +193,9 @@ export async function parseTokenFromEnv(
             ? "GITHUB_MODELS_TOKEN"
             : "GITHUB_TOKEN"
         const token = env[tokenVar]
-        if (!token)
+        if (!token) {
             throw new Error("GITHUB_MODELS_TOKEN or GITHUB_TOKEN must be set")
+        }
         const type = "openai"
         const base = GITHUB_MODELS_BASE
         return {
@@ -192,20 +219,26 @@ export async function parseTokenFromEnv(
                 env.AZURE_API_BASE ||
                 env.AZURE_OPENAI_API_ENDPOINT
         )
-        if (!token && !base) return undefined
+        if (!token && !base) {
+            return undefined
+        }
         //if (!token)
         //    throw new Error("AZURE_OPENAI_API_KEY or AZURE_API_KEY missing")
-        if (token === PLACEHOLDER_API_KEY)
+        if (token === PLACEHOLDER_API_KEY) {
             throw new Error("AZURE_OPENAI_API_KEY not configured")
-        if (!base)
+        }
+        if (!base) {
             throw new Error(
                 "AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_API_BASE or AZURE_API_BASE missing"
             )
-        if (base === PLACEHOLDER_API_BASE)
+        }
+        if (base === PLACEHOLDER_API_BASE) {
             throw new Error("AZURE_OPENAI_API_ENDPOINT not configured")
+        }
         base = cleanAzureBase(base)
-        if (!URL.canParse(base))
+        if (!URL.canParse(base)) {
             throw new Error("AZURE_OPENAI_API_ENDPOINT must be a valid URL")
+        }
         const version =
             env[`AZURE_OPENA_API_VERSION_${model.toLocaleUpperCase()}`] ||
             env.AZURE_OPENAI_API_VERSION ||
@@ -233,20 +266,26 @@ export async function parseTokenFromEnv(
             env.AZURE_SERVERLESS_OPENAI_ENDPOINT ||
                 env.AZURE_SERVERLESS_OPENAI_API_ENDPOINT
         )
-        if (!token && !base) return undefined
-        if (token === PLACEHOLDER_API_KEY)
+        if (!token && !base) {
+            return undefined
+        }
+        if (token === PLACEHOLDER_API_KEY) {
             throw new Error("AZURE_SERVERLESS_OPENAI_API_KEY not configured")
-        if (!base)
+        }
+        if (!base) {
             throw new Error("AZURE_SERVERLESS_OPENAI_API_ENDPOINT missing")
-        if (base === PLACEHOLDER_API_BASE)
+        }
+        if (base === PLACEHOLDER_API_BASE) {
             throw new Error(
                 "AZURE_SERVERLESS_OPENAI_API_ENDPOINT not configured"
             )
+        }
         base = cleanAzureBase(base)
-        if (!URL.canParse(base))
+        if (!URL.canParse(base)) {
             throw new Error(
                 "AZURE_SERVERLESS_OPENAI_API_ENDPOINT must be a valid URL"
             )
+        }
         const version =
             env.AZURE_SERVERLESS_OPENAI_API_VERSION ||
             env.AZURE_SERVERLESS_OPENAI_VERSION
@@ -274,17 +313,24 @@ export async function parseTokenFromEnv(
             env.AZURE_AI_INFERENCE_ENDPOINT ||
                 env.AZURE_AI_INFERENCE_API_ENDPOINT
         )
-        if (!token && !base) return undefined
-        if (token === PLACEHOLDER_API_KEY)
+        if (!token && !base) {
+            return undefined
+        }
+        if (token === PLACEHOLDER_API_KEY) {
             throw new Error("AZURE_AI_INFERENCE_API_KEY not configured")
-        if (!base) throw new Error("AZURE_AI_INFERENCE_API_ENDPOINT missing")
-        if (base === PLACEHOLDER_API_BASE)
+        }
+        if (!base) {
+            throw new Error("AZURE_AI_INFERENCE_API_ENDPOINT missing")
+        }
+        if (base === PLACEHOLDER_API_BASE) {
             throw new Error("AZURE_AI_INFERENCE_API_ENDPOINT not configured")
+        }
         base = trimTrailingSlash(base)
-        if (!URL.canParse(base))
+        if (!URL.canParse(base)) {
             throw new Error(
                 "AZURE_AI_INFERENCE_API_ENDPOINT must be a valid URL"
             )
+        }
         const version =
             env.AZURE_AI_INFERENCE_API_VERSION || env.AZURE_AI_INFERENCE_VERSION
         return {
@@ -308,20 +354,26 @@ export async function parseTokenFromEnv(
             env.AZURE_SERVERLESS_MODELS_ENDPOINT ||
                 env.AZURE_SERVERLESS_MODELS_API_ENDPOINT
         )
-        if (!token && !base) return undefined
-        if (token === PLACEHOLDER_API_KEY)
+        if (!token && !base) {
+            return undefined
+        }
+        if (token === PLACEHOLDER_API_KEY) {
             throw new Error("AZURE_SERVERLESS_MODELS_API_KEY not configured")
-        if (!base)
+        }
+        if (!base) {
             throw new Error("AZURE_SERVERLESS_MODELS_API_ENDPOINT missing")
-        if (base === PLACEHOLDER_API_BASE)
+        }
+        if (base === PLACEHOLDER_API_BASE) {
             throw new Error(
                 "AZURE_SERVERLESS_MODELS_API_ENDPOINT not configured"
             )
+        }
         base = trimTrailingSlash(base)
-        if (!URL.canParse(base))
+        if (!URL.canParse(base)) {
             throw new Error(
                 "AZURE_SERVERLESS_MODELS_API_ENDPOINT must be a valid URL"
             )
+        }
         const version =
             env.AZURE_SERVERLESS_MODELS_API_VERSION ||
             env.AZURE_SERVERLESS_MODELS_VERSION
@@ -340,13 +392,17 @@ export async function parseTokenFromEnv(
 
     if (provider === MODEL_PROVIDER_GOOGLE) {
         const token = env.GEMINI_API_KEY || env.GOOGLE_API_KEY
-        if (!token) return undefined
-        if (token === PLACEHOLDER_API_KEY)
+        if (!token) {
+            return undefined
+        }
+        if (token === PLACEHOLDER_API_KEY) {
             throw new Error("GEMINI_API_KEY/GOOGLE_API_BASE not configured")
+        }
         const base =
             env.GEMINI_API_BASE || env.GOOGLE_API_BASE || GOOGLE_API_BASE
-        if (base === PLACEHOLDER_API_BASE)
+        if (base === PLACEHOLDER_API_BASE) {
             throw new Error("GEMINI_API_KEY/GOOGLE_API_BASE not configured")
+        }
         return {
             provider,
             model,
@@ -360,8 +416,9 @@ export async function parseTokenFromEnv(
     if (provider === MODEL_PROVIDER_ANTHROPIC) {
         const modelKey = "ANTHROPIC_API_KEY"
         const token = env[modelKey]?.trim()
-        if (token === undefined || token === PLACEHOLDER_API_KEY)
+        if (token === undefined || token === PLACEHOLDER_API_KEY) {
             throw new Error("ANTHROPIC_API_KEY not configured")
+        }
         const base =
             trimTrailingSlash(env.ANTHROPIC_API_BASE) || ANTHROPIC_API_BASE
         const version = env.ANTHROPIC_API_VERSION || undefined
@@ -390,7 +447,9 @@ export async function parseTokenFromEnv(
     if (provider === MODEL_PROVIDER_MISTRAL) {
         const base = env.MISTRAL_API_BASE || MISTRAL_API_BASE
         const token = env.MISTRAL_API_KEY
-        if (!token) throw new Error("MISTRAL_API_KEY not configured")
+        if (!token) {
+            throw new Error("MISTRAL_API_KEY not configured")
+        }
         return {
             provider,
             model,
@@ -407,12 +466,16 @@ export async function parseTokenFromEnv(
             env.DASHSCOPE_API_BASE ||
             env.DASHSCOPE_HTTP_BASE_URL ||
             ALIBABA_BASE
-        if (base === PLACEHOLDER_API_BASE)
+        if (base === PLACEHOLDER_API_BASE) {
             throw new Error("ALIBABA_API_BASE not configured")
-        if (!URL.canParse(base)) throw new Error(`${base} must be a valid URL`)
+        }
+        if (!URL.canParse(base)) {
+            throw new Error(`${base} must be a valid URL`)
+        }
         const token = env.ALIBABA_API_KEY || env.DASHSCOPE_API_KEY
-        if (token === undefined || token === PLACEHOLDER_API_KEY)
+        if (token === undefined || token === PLACEHOLDER_API_KEY) {
             throw new Error("ALIBABA_API_KEY not configured")
+        }
         return {
             provider,
             model,
@@ -442,8 +505,12 @@ export async function parseTokenFromEnv(
         const base =
             findEnvVar(env, prefixes, BASE_SUFFIX)?.value ||
             HUGGINGFACE_API_BASE
-        if (!URL.canParse(base)) throw new Error(`${base} must be a valid URL`)
-        if (!token?.value) throw new Error("HuggingFace token missing")
+        if (!URL.canParse(base)) {
+            throw new Error(`${base} must be a valid URL`)
+        }
+        if (!token?.value) {
+            throw new Error("HuggingFace token missing")
+        }
         return {
             base,
             token: token?.value,
@@ -457,9 +524,13 @@ export async function parseTokenFromEnv(
     if (provider === MODEL_PROVIDER_DEEPSEEK) {
         const base =
             findEnvVar(env, "DEEPSEEK", BASE_SUFFIX)?.value || DEEPSEEK_API_BASE
-        if (!URL.canParse(base)) throw new Error(`${base} must be a valid URL`)
+        if (!URL.canParse(base)) {
+            throw new Error(`${base} must be a valid URL`)
+        }
         const token = env.DEEPSEEK_API_KEY
-        if (!token) throw new Error("DEEPSEEK_API_KEY not configured")
+        if (!token) {
+            throw new Error("DEEPSEEK_API_KEY not configured")
+        }
         return {
             provider,
             model,
@@ -474,7 +545,9 @@ export async function parseTokenFromEnv(
         const base =
             findEnvVar(env, "WHISPERASR", BASE_SUFFIX)?.value ||
             WHISPERASR_API_BASE
-        if (!URL.canParse(base)) throw new Error(`${base} must be a valid URL`)
+        if (!URL.canParse(base)) {
+            throw new Error(`${base} must be a valid URL`)
+        }
         return {
             provider,
             model,
@@ -512,8 +585,9 @@ export async function parseTokenFromEnv(
             const version = env[prefix + "_API_VERSION"]
             const source = `env: ${prefix}_API_...`
             const type: OpenAIAPIType = "openai"
-            if (base && !URL.canParse(base))
+            if (base && !URL.canParse(base)) {
                 throw new Error(`${modelBase} must be a valid URL`)
+            }
             return {
                 provider,
                 model,
@@ -529,7 +603,9 @@ export async function parseTokenFromEnv(
     if (provider === MODEL_PROVIDER_SGLANG) {
         const base =
             findEnvVar(env, "SGLANG", BASE_SUFFIX)?.value || SGLANG_API_BASE
-        if (!URL.canParse(base)) throw new Error(`${base} must be a valid URL`)
+        if (!URL.canParse(base)) {
+            throw new Error(`${base} must be a valid URL`)
+        }
         return {
             provider,
             model,
@@ -543,7 +619,9 @@ export async function parseTokenFromEnv(
     if (provider === MODEL_PROVIDER_VLLM) {
         const base =
             findEnvVar(env, "VLLM", BASE_SUFFIX)?.value || VLLM_API_BASE
-        if (!URL.canParse(base)) throw new Error(`${base} must be a valid URL`)
+        if (!URL.canParse(base)) {
+            throw new Error(`${base} must be a valid URL`)
+        }
         return {
             provider,
             model,
@@ -558,7 +636,9 @@ export async function parseTokenFromEnv(
         const base =
             findEnvVar(env, "LLAMAFILE", BASE_SUFFIX)?.value ||
             LLAMAFILE_API_BASE
-        if (!URL.canParse(base)) throw new Error(`${base} must be a valid URL`)
+        if (!URL.canParse(base)) {
+            throw new Error(`${base} must be a valid URL`)
+        }
         return {
             provider,
             model,
@@ -572,7 +652,9 @@ export async function parseTokenFromEnv(
     if (provider === MODEL_PROVIDER_LITELLM) {
         const base =
             findEnvVar(env, "LITELLM", BASE_SUFFIX)?.value || LITELLM_API_BASE
-        if (!URL.canParse(base)) throw new Error(`${base} must be a valid URL`)
+        if (!URL.canParse(base)) {
+            throw new Error(`${base} must be a valid URL`)
+        }
         return {
             provider,
             model,
@@ -586,7 +668,9 @@ export async function parseTokenFromEnv(
     if (provider === MODEL_PROVIDER_LMSTUDIO) {
         const base =
             findEnvVar(env, "LMSTUDIO", BASE_SUFFIX)?.value || LMSTUDIO_API_BASE
-        if (!URL.canParse(base)) throw new Error(`${base} must be a valid URL`)
+        if (!URL.canParse(base)) {
+            throw new Error(`${base} must be a valid URL`)
+        }
         return {
             provider,
             model,
@@ -599,7 +683,9 @@ export async function parseTokenFromEnv(
 
     if (provider === MODEL_PROVIDER_JAN) {
         const base = findEnvVar(env, "JAN", BASE_SUFFIX)?.value || JAN_API_BASE
-        if (!URL.canParse(base)) throw new Error(`${base} must be a valid URL`)
+        if (!URL.canParse(base)) {
+            throw new Error(`${base} must be a valid URL`)
+        }
         return {
             provider,
             model,
@@ -621,10 +707,11 @@ export async function parseTokenFromEnv(
     }
 
     if (provider === MODEL_PROVIDER_GITHUB_COPILOT_CHAT) {
-        if (!runtimeHost.clientLanguageModel)
+        if (!runtimeHost.clientLanguageModel) {
             throw new Error(
                 `${MODEL_PROVIDER_GITHUB_COPILOT_CHAT} requires Visual Studio Code and GitHub Copilot Chat`
             )
+        }
         return {
             provider,
             model,
@@ -645,7 +732,9 @@ export async function parseTokenFromEnv(
     return undefined
 
     function cleanAzureBase(b: string) {
-        if (!b) return b
+        if (!b) {
+            return b
+        }
         b =
             trimTrailingSlash(b.replace(/\/openai\/deployments.*$/, "")) +
             `/openai/deployments`
@@ -653,9 +742,13 @@ export async function parseTokenFromEnv(
     }
 
     function cleanApiBase(b: string) {
-        if (!b) return b
+        if (!b) {
+            return b
+        }
         b = trimTrailingSlash(b)
-        if (!/\/v1$/.test(b)) b += "/v1"
+        if (!/\/v1$/.test(b)) {
+            b += "/v1"
+        }
         return b
     }
 }
