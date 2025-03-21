@@ -7,10 +7,16 @@ import { type CallToolResult } from "@modelcontextprotocol/sdk/types.js"
 import { errorMessage } from "../../core/src/error"
 import { setConsoleColors } from "../../core/src/consolecolor"
 import { startProjectWatcher } from "./watch"
+import { applyRemoteOptions, RemoteOptions } from "./remote"
 
-export async function startMcpServer(options?: ScriptFilterOptions) {
+export async function startMcpServer(
+    options?: ScriptFilterOptions & RemoteOptions
+) {
     setConsoleColors(false)
     logVerbose(`mcp server: starting...`)
+
+    await applyRemoteOptions(options)
+
     const watcher = await startProjectWatcher(options)
     logVerbose(`mcp server: watching ${watcher.cwd}`)
     const { Server } = await import("@modelcontextprotocol/sdk/server/index.js")

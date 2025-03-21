@@ -502,14 +502,14 @@ Options:
                                 on the network
   -c, --cors <string>           Enable CORS and sets the allowed origin. Use
                                 '*' to allow any origin.
-  --remote <string>             Remote repository URL to serve
-  --remote-branch <string>      Branch to serve from the remote
-  --remote-force                Force pull from remote repository
-  --remote-install              Install dependencies from remote repository
   --dispatch-progress           Dispatch progress events to all clients
   --github-copilot-chat-client  Allow github_copilot_chat provider to connect
                                 to connected Visual Studio Code
   --openai-api                  Enable OpenAI APi endpoints
+  --remote <string>             Remote repository URL to serve
+  --remote-branch <string>      Branch to serve from the remote
+  --remote-force                Force pull from remote repository
+  --remote-install              Install dependencies from remote repository
   -h, --help                    display help for command
 ```
 
@@ -521,9 +521,13 @@ Usage: genaiscript mcp|mcps [options]
 Starts a Model Context Protocol server that exposes scripts as tools
 
 Options:
-  --groups <string...>  Filter script by groups
-  --ids <string...>     Filter script by ids
-  -h, --help            display help for command
+  --groups <string...>      Filter script by groups
+  --ids <string...>         Filter script by ids
+  --remote <string>         Remote repository URL to serve
+  --remote-branch <string>  Branch to serve from the remote
+  --remote-force            Force pull from remote repository
+  --remote-install          Install dependencies from remote repository
+  -h, --help                display help for command
 ```
 
 ## `parse`

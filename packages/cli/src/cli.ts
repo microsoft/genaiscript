@@ -456,7 +456,7 @@ export async function cli() {
         .action(retrievalFuzz) // Action to perform fuzzy search
 
     // Define 'serve' command to start a local server
-    program
+    const serve = program
         .command("serve")
         .description("Start a GenAIScript local web server")
         .option(
@@ -472,13 +472,6 @@ export async function cli() {
             "-c, --cors <string>",
             "Enable CORS and sets the allowed origin. Use '*' to allow any origin."
         )
-        .option("--remote <string>", "Remote repository URL to serve")
-        .option("--remote-branch <string>", "Branch to serve from the remote")
-        .option("--remote-force", "Force pull from remote repository")
-        .option(
-            "--remote-install",
-            "Install dependencies from remote repository"
-        )
         .option(
             "--dispatch-progress",
             "Dispatch progress events to all clients"
@@ -489,8 +482,9 @@ export async function cli() {
         )
         .option("--openai-api", "Enable OpenAI APi endpoints")
         .action(startServer) // Action to start the server
+    addRemoteOptions(serve) // Add remote options to the command
 
-    program
+    const mcp = program
         .command("mcp")
         .option("--groups <string...>", "Filter script by groups")
         .option("--ids <string...>", "Filter script by ids")
@@ -499,6 +493,7 @@ export async function cli() {
             "Starts a Model Context Protocol server that exposes scripts as tools"
         )
         .action(startMcpServer)
+    addRemoteOptions(mcp) // Add remote options to the command
 
     // Define 'parse' command group for parsing tasks
     const parser = program
@@ -624,6 +619,20 @@ export async function cli() {
         .action(modelAliasesInfo)
 
     program.parse() // Parse command-line arguments
+
+    function addRemoteOptions(command: Command) {
+        return command
+            .option("--remote <string>", "Remote repository URL to serve")
+            .option(
+                "--remote-branch <string>",
+                "Branch to serve from the remote"
+            )
+            .option("--remote-force", "Force pull from remote repository")
+            .option(
+                "--remote-install",
+                "Install dependencies from remote repository"
+            )
+    }
 
     function addModelOptions(command: Command) {
         return command
