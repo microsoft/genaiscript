@@ -104,6 +104,7 @@ import type {
     ChatModels,
 } from "../../core/src/chattypes"
 import { generateId } from "../../core/src/id"
+import { prettyCost, prettyDuration, prettyTokens } from "../../core/src/pretty"
 
 const fetchScripts = async (): Promise<Project> => {
     const res = await fetch(`${base}/api/scripts`, {
@@ -1069,15 +1070,6 @@ function MessagesTabPanel() {
     )
 }
 
-function renderCost(value: number) {
-    if (!value) return ""
-    return value <= 0.01
-        ? `${(value * 100).toFixed(3)}¢`
-        : value <= 0.1
-          ? `${(value * 100).toFixed(2)}¢`
-          : `${value.toFixed(2)}$`
-}
-
 function ErrorStatusBadge() {
     const result = useResult()
     const { status } = result || {}
@@ -1093,14 +1085,15 @@ function StatsBadge() {
     const result = useResult() || {}
     const { stats } = result || {}
     if (!stats) return null
-    const { cost, prompt_tokens, completion_tokens } = stats
+    const { cost, prompt_tokens, completion_tokens, duration } = stats
     if (!cost && !completion_tokens) return null
     return (
         <>
             {[
-                prompt_tokens ? `${prompt_tokens}↑` : undefined,
-                completion_tokens ? `${completion_tokens}↓` : undefined,
-                renderCost(cost),
+                prettyDuration(duration),
+                prettyTokens(prompt_tokens),
+                prettyTokens(completion_tokens),
+                prettyCost(cost),
             ]
                 .filter((l) => !!l)
                 .map((s, i) => (

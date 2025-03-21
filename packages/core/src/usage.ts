@@ -13,6 +13,12 @@ import { MarkdownTrace } from "./trace"
 import { logVerbose, toStringList } from "./util"
 import { parseModelIdentifier } from "./models"
 import { MODEL_PRICINGS } from "./constants"
+import {
+    prettyCost,
+    prettyTokensPerSecond,
+    prettyDuration,
+    prettyTokens,
+} from "./pretty"
 
 /**
  * Estimates the cost of a chat completion based on the model and usage.
@@ -42,26 +48,6 @@ export function estimateCost(modelId: string, usage: ChatCompletionUsage) {
         cached * cost.price_per_million_input_tokens * input_cache_token_rebate
     const output = completion_tokens * price_per_million_output_tokens
     return (input + output) / 1e6
-}
-
-export function renderTokensPerSecond(usage: ChatCompletionUsage) {
-    if (!usage.duration || !usage.total_tokens) return ""
-    return `${(usage.total_tokens / (usage.duration / 1000)).toFixed(2)}t/s`
-}
-
-/**
- * Renders the cost as a string for display purposes.
- *
- * @param value - The cost to be rendered.
- * @returns A string representation of the cost.
- */
-export function renderCost(value: number) {
-    if (!value) return ""
-    return value <= 0.01
-        ? `${(value * 100).toFixed(3)}¢`
-        : value <= 0.1
-          ? `${(value * 100).toFixed(2)}¢`
-          : `${value.toFixed(2)}$`
 }
 
 export function isCosteable(model: string): boolean {
@@ -203,10 +189,10 @@ export class GenerationStats {
         trace.itemValue("prompt", this.usage.prompt_tokens)
         trace.itemValue("completion", this.usage.completion_tokens)
         trace.itemValue("tokens", this.usage.total_tokens)
-        const c = renderCost(this.cost())
+        const c = prettyCost(this.cost())
         if (c) trace.itemValue("cost", c)
-        const ts = renderTokensPerSecond(this.usage)
-        if (ts) trace.itemValue("tok/s", ts)
+        const ts = prettyTokensPerSecond(this.usage)
+        if (ts) trace.itemValue("t/s", ts)
         if (this.usage.duration)
             trace.itemValue("duration", this.usage.duration)
         if (this.toolCalls) trace.itemValue("tool calls", this.toolCalls)
@@ -274,8 +260,17 @@ export class GenerationStats {
         const c = this.cost()
         const au = this.accumulatedUsage()
         if (au?.total_tokens > 0 && (this.resolvedModel || c)) {
+            const stats = [
+                prettyDuration(au.duration),
+                prettyTokens(au.prompt_tokens, "prompt"),
+                prettyTokens(au.completion_tokens, "completion"),
+                prettyTokensPerSecond(au),
+                prettyCost(c),
+            ]
+                .filter((n) => !!n)
+                .join(" ")
             logVerbose(
-                `${indent}${this.label ? `${this.label} (${this.resolvedModel})` : this.resolvedModel}> ${au.total_tokens} tokens (${au.prompt_tokens} -> ${au.completion_tokens}) ${renderCost(c)} ${renderTokensPerSecond(au)}`
+                `${indent}${this.label ? `${this.label} (${this.resolvedModel})` : this.resolvedModel}> ${stats}`
             )
         }
         if (this.model && isNaN(c) && isCosteable(this.model))
@@ -293,7 +288,7 @@ export class GenerationStats {
                 if (cost === undefined && isCosteable(turnModel))
                     unknowns.add(this.model)
                 logVerbose(
-                    `${indent}  ${toStringList(`${messages.length} messages`, usage.total_tokens ? `${usage.total_tokens} tokens` : undefined, renderCost(cost), renderTokensPerSecond(usage))}`
+                    `${indent}  ${toStringList(`✉${messages.length}`, prettyTokens(usage.total_tokens), prettyCost(cost), prettyTokensPerSecond(usage))}`
                 )
             }
             if (this.chatTurns.length > chatTurns.length)
