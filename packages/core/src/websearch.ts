@@ -68,9 +68,12 @@ export async function bingSearch(
     // Retrieve the API key from the runtime host.
     dbg(`retrieving BING_SEARCH_API_KEY from runtime host`)
     const apiKey = await runtimeHost.readSecret("BING_SEARCH_API_KEY")
+    dbg(`retrieving BING_SEARCH_API_KEY from runtime host`)
     if (!apiKey) {
         if (ignoreMissingApiKey) return undefined
-        dbg(`BING_SEARCH_API_KEY not found, checking ignoreMissingApiKey option`)
+        dbg(
+            `BING_SEARCH_API_KEY not found, checking ignoreMissingApiKey option`
+        )
         throw new Error(
             `BING_SEARCH_API_KEY secret is required to use bing search. See ${DOCS_WEB_SEARCH_BING_SEARCH_URL}.`,
             { cause: "missing key" }
@@ -81,6 +84,7 @@ export async function bingSearch(
         trace?.startDetails(`bing: search`)
         dbg(`initiating Bing search trace`)
         trace?.itemValue(`query`, q)
+        dbg(`trace started for Bing search`)
         // Construct the query string using provided and default parameters.
         const query = toURLSearchParams({
             q,
@@ -95,6 +99,7 @@ export async function bingSearch(
         const url = endPoint + "?" + query
 
         // Create a fetch function for making the HTTP request.
+        dbg(`constructing full URL for Bing search request: ${url}`)
         const fetch = await createFetch({ trace })
         dbg(`creating fetch instance for Bing search`)
         const res = await fetch(url, {
@@ -110,6 +115,9 @@ export async function bingSearch(
 
         // Throw an error if the response is not OK, and log details for debugging.
         if (!res.ok) {
+            dbg(
+                `response not OK, logging error details: status ${res.status}, statusText ${res.statusText}`
+            )
             trace?.detailsFenced("error response", await res.text())
             throw new Error(
                 `Bing search failed: ${res.status} ${res.statusText}`
@@ -126,6 +134,7 @@ export async function bingSearch(
             }
         }
         trace?.detailsFenced("results", json, "yaml")
+        dbg(`parsing and transforming JSON response for Bing search`)
         return (
             json.webPages?.value?.map(
                 ({ snippet, url }) =>
@@ -166,6 +175,7 @@ export async function tavilySearch(
 
     // Return an empty response if the query is empty.
     if (!q) return []
+    dbg(`query is empty, returning empty response`)
 
     // Retrieve the API key from the runtime host.
     dbg(`retrieving TAVILY_API_KEY from runtime host`)
@@ -211,6 +221,9 @@ export async function tavilySearch(
 
         // Throw an error if the response is not OK, and log details for debugging.
         if (!res.ok) {
+            dbg(
+                `response not OK, logging error details: status ${res.status}, statusText ${res.statusText}`
+            )
             dbg(`response not OK, logging error details`)
             const err = await res.text()
             trace?.detailsFenced("error response", err)
@@ -226,6 +239,7 @@ export async function tavilySearch(
             results: { url: string; content: string }[]
         } = await res.json()
         trace?.detailsFenced("results", json, "yaml")
+        dbg(`parsing and transforming JSON response for Tavily search`)
         return json.results.map(
             ({ url, content }) =>
                 ({ filename: url, content }) satisfies WorkspaceFile

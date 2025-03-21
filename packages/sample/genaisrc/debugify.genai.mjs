@@ -3,8 +3,24 @@ script({
     files: "src/fib.ts",
 })
 
+const compile = async (file) => {
+    const tsc = await host.exec(
+        "yarn",
+        ["tsc", "--noEmit", "--pretty", "false", "-p", "src"],
+        {
+            cwd: path.dirname(path.dirname(file.filename)),
+        }
+    )
+    if (tsc.exitCode) console.debug(tsc.stderr)
+    return tsc
+}
+
 export default async function () {
     const file = env.files[0]
+
+    const tsc = await compile(file)
+    if (tsc.exitCode) throw new Error("compilation error")
+
     const imports = `import debug from "debug"
 const dbg = debug("${path.basename(file.filename).replace(/\..*$/, "")}")\n
 `
@@ -92,6 +108,7 @@ const arr = [ // DO NOT ADD LOG HERE
 - Only add log statement, DO NOT REMOVE OR CHANGE ANY EXISTING CODE.
 - use ?. operator to avoid null checks
 - use template strings to log variables
+- do NOT add debug logs if they are already present
 - do NOT add debug logs in unreachable code!
 - do NOT add debug log when entering a function.
 - do NOT add debug logs in object structures or arrays.
@@ -111,6 +128,7 @@ For example, if you added debug statements at line 1, 7 and 13, the output shoul
             system: ["system.assistant", "system.typescript"],
             systemSafety: false,
             responseType: "text",
+            cache: true,
         }
     )
 
@@ -128,17 +146,36 @@ For example, if you added debug statements at line 1, 7 and 13, the output shoul
     // apply updates
     const lines = file.content.split("\n")
     updates.forEach(({ line, message }, index) => {
-        lines.splice(line, 0, message)
+        if (
+            !lines[line - 1]?.includes("dbg(") &&
+            !lines[line - 1]?.includes("dbg(")
+        )
+            lines.splice(line, 0, message)
     })
     const patched = lines.join("\n")
     await workspace.writeText(file.filename, patched)
 
-    // compile file
-    const tsc = await host.exec("yarn", ["tsc", "-p", "src"], {
-        cwd: path.dirname(path.dirname(file.filename)),
-    })
-    if (!tsc.exitCode) return
+    // format
+    await host.exec("prettier", ["--write", file.filename])
 
-    // compilation error
-    console.debug(tsc.stderr)
+    let retry = 3
+    while (retry-- > 0) {
+        // compile file
+        const tsc = await compile(file)
+        if (!tsc.exitCode) {
+            console.log("compiled successfully")
+            return
+        }
+
+        // remove first error and try to compile
+        const errors = parsers.annotations(tsc.stderr)
+        const firstError = errors[0]
+        if (!firstError?.range) {
+            console.log("can't find errors in tsc output")
+            return
+        }
+
+        lines.splice(firstError.range[0][0], 1)
+        await workspace.writeText(file.filename, lines.join("\n"))
+    }
 }
