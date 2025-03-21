@@ -5,7 +5,7 @@ import { lstat, readFile, unlink, writeFile } from "node:fs/promises"
 import { ensureDir, exists, remove } from "fs-extra"
 import { dirname } from "node:path"
 import { glob } from "glob"
-import { debug, error, info, warn } from "./log"
+import { debug as debug_, error, info, warn } from "./log"
 import { execa } from "execa"
 import { join } from "node:path"
 import { createNodePath } from "./nodepath"
@@ -401,7 +401,7 @@ export class NodeHost extends EventTarget implements RuntimeHost {
                 warn(msg)
                 break
             case "debug":
-                debug(msg)
+                debug_(msg)
                 break
             case "info":
             default:

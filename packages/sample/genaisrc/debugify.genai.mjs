@@ -143,6 +143,7 @@ For example, if you added debug statements at line 1, 7 and 13, the output shoul
             systemSafety: false,
             responseType: "text",
             cache: true,
+            temperature: 0.2,
         }
     )
 
@@ -173,7 +174,7 @@ For example, if you added debug statements at line 1, 7 and 13, the output shoul
     await prettier(file)
     file = await workspace.readText(file.filename)
 
-    let retry = 10
+    let retry = 25
     while (retry-- > 0) {
         // compile file
         const tsc = await compile(file)
@@ -189,7 +190,8 @@ For example, if you added debug statements at line 1, 7 and 13, the output shoul
         const error = errors.find(
             (e) =>
                 lines[e.range[0][0] - 1]?.includes("dbg(") ||
-                lines[e.range[0][0]]?.includes("dbg(")
+                lines[e.range[0][0]]?.includes("dbg(") ||
+                lines[e.range[0][0] + 1]?.includes("dbg(")
         )
         if (!error) {
             console.log("cannot find error with dbg")
