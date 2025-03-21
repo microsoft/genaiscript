@@ -188,7 +188,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
     } else if (cfg.type === "azure") {
         delete postReq.model
         const version = cfg.version || AZURE_OPENAI_API_VERSION
-        trace.itemValue(`version`, version)
+        trace?.itemValue(`version`, version)
         url =
             trimTrailingSlash(cfg.base) +
             "/" +
@@ -196,13 +196,13 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
             `/chat/completions?api-version=${version}`
     } else if (cfg.type === "azure_ai_inference") {
         const version = cfg.version
-        trace.itemValue(`version`, version)
+        trace?.itemValue(`version`, version)
         url = trimTrailingSlash(cfg.base) + `/chat/completions`
         if (version) url += `?api-version=${version}`
         ;(headers as any)["extra-parameters"] = "pass-through"
     } else if (cfg.type === "azure_serverless_models") {
         const version = cfg.version || AZURE_AI_INFERENCE_VERSION
-        trace.itemValue(`version`, version)
+        trace?.itemValue(`version`, version)
         url =
             trimTrailingSlash(cfg.base).replace(
                 /^https?:\/\/(?<deployment>[^\.]+)\.(?<region>[^\.]+)\.models\.ai\.azure\.com/i,
@@ -214,7 +214,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
         delete postReq.stream_options
     } else if (cfg.type === "azure_serverless") {
         const version = cfg.version || AZURE_AI_INFERENCE_VERSION
-        trace.itemValue(`version`, version)
+        trace?.itemValue(`version`, version)
         url =
             trimTrailingSlash(cfg.base) +
             "/" +
@@ -233,7 +233,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
             `/v1/chat/completions`
     } else throw new Error(`api type ${cfg.type} not supported`)
 
-    trace.itemValue(`url`, `[${url}](${url})`)
+    trace?.itemValue(`url`, `[${url}](${url})`)
 
     let numTokens = 0
     let numReasoningTokens = 0
@@ -244,7 +244,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
         maxDelay,
         cancellationToken,
     })
-    trace.dispatchChange()
+    trace?.dispatchChange()
 
     const fetchHeaders: HeadersInit = {
         "Content-Type": "application/json",
@@ -262,18 +262,18 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
             ...(rest || {}),
         })
     } catch (e) {
-        trace.error(errorMessage(e), e)
+        trace?.error(errorMessage(e), e)
         throw e
     }
 
-    trace.itemValue(`status`, `${r.status} ${r.statusText}`)
+    trace?.itemValue(`status`, `${r.status} ${r.statusText}`)
     if (r.status !== 200) {
         let responseBody: string
         try {
             responseBody = await r.text()
         } catch (e) {}
         if (!responseBody) responseBody
-        trace.fence(responseBody, "json")
+        trace?.fence(responseBody, "json")
         const errors = JSON5TryParse(responseBody, {}) as
             | {
                   error: any
@@ -310,7 +310,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
     ) => {
         const obj: ChatCompletionChunk | ChatCompletion = JSON.parse(json)
 
-        if (!postReq.stream) trace.detailsFenced(`📬 response`, obj, "json")
+        if (!postReq.stream) trace?.detailsFenced(`📬 response`, obj, "json")
 
         if (obj.usage) usage = obj.usage
         if (!responseModel && obj.model) responseModel = obj.model
@@ -351,7 +351,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
                             )
                         )
                     }
-                    trace.appendToken(content)
+                    trace?.appendToken(content)
                 }
             }
             if (
@@ -365,7 +365,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
                         choice as ChatCompletionChunkChoice
                     )
                 )
-                trace.appendToken(delta.reasoning_content)
+                trace?.appendToken(delta.reasoning_content)
             }
             if (Array.isArray(delta?.tool_calls)) {
                 const { tool_calls } = delta
@@ -421,7 +421,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
         }
     }
 
-    trace.appendContent("\n\n")
+    trace?.appendContent("\n\n")
     if (!postReq.stream) {
         const responseBody = await r.text()
         doChoices(responseBody, [], [])
@@ -444,7 +444,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
                 try {
                     doChoices(json, tokens, reasoningTokens)
                 } catch (e) {
-                    trace.error(`error processing chunk`, e)
+                    trace?.error(`error processing chunk`, e)
                 }
                 return ""
             })
@@ -497,11 +497,11 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
         }
     }
 
-    trace.appendContent("\n\n")
-    if (responseModel) trace.itemValue(`model`, responseModel)
-    trace.itemValue(`🏁 finish reason`, finishReason)
+    trace?.appendContent("\n\n")
+    if (responseModel) trace?.itemValue(`model`, responseModel)
+    trace?.itemValue(`🏁 finish reason`, finishReason)
     if (usage?.total_tokens) {
-        trace.itemValue(
+        trace?.itemValue(
             `🪙 tokens`,
             `${usage.total_tokens} total, ${usage.prompt_tokens} prompt, ${usage.completion_tokens} completion`
         )
@@ -522,7 +522,13 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
 export const OpenAIListModels: ListModelsFunction = async (cfg, options) => {
     try {
         const fetch = await createFetch({ retries: 0, ...(options || {}) })
-        const res = await fetch(cfg.base + "/models", {
+        let url = trimTrailingSlash(cfg.base) + "/models"
+        if (cfg.provider === MODEL_PROVIDER_AZURE_OPENAI) {
+            url =
+                trimTrailingSlash(cfg.base).replace(/deployments$/, "") +
+                "/models"
+        }
+        const res = await fetch(url, {
             method: "GET",
             headers: {
                 ...getConfigHeaders(cfg),
@@ -571,9 +577,9 @@ export async function OpenAITranscribe(
         )
         const route = req.translate ? "translations" : "transcriptions"
         const url = `${cfg.base}/audio/${route}`
-        trace.itemValue(`url`, `[${url}](${url})`)
-        trace.itemValue(`size`, req.file.size)
-        trace.itemValue(`mime`, req.file.type)
+        trace?.itemValue(`url`, `[${url}](${url})`)
+        trace?.itemValue(`size`, req.file.size)
+        trace?.itemValue(`mime`, req.file.type)
         const body = new FormData()
         body.append("model", req.model)
         body.append("response_format", "verbose_json")
@@ -593,7 +599,7 @@ export async function OpenAITranscribe(
         traceFetchPost(trace, url, freq.headers, freq.body)
         // TODO: switch back to cross-fetch in the future
         const res = await global.fetch(url, freq as any)
-        trace.itemValue(`status`, `${res.status} ${res.statusText}`)
+        trace?.itemValue(`status`, `${res.status} ${res.statusText}`)
         const j = await res.json()
         if (!res.ok) return { text: undefined, error: j?.error }
         else return j
@@ -615,7 +621,7 @@ export async function OpenAISpeech(
     try {
         logVerbose(`${cfg.provider}: speak with ${cfg.model}`)
         const url = `${cfg.base}/audio/speech`
-        trace.itemValue(`url`, `[${url}](${url})`)
+        trace?.itemValue(`url`, `[${url}](${url})`)
         const body = {
             model,
             input,
@@ -633,7 +639,7 @@ export async function OpenAISpeech(
         traceFetchPost(trace, url, freq.headers, body)
         // TODO: switch back to cross-fetch in the future
         const res = await fetch(url, freq as any)
-        trace.itemValue(`status`, `${res.status} ${res.statusText}`)
+        trace?.itemValue(`status`, `${res.status} ${res.statusText}`)
         if (!res.ok)
             return { audio: undefined, error: (await res.json())?.error }
         const j = await res.arrayBuffer()
@@ -668,7 +674,7 @@ export async function OpenAIImageGeneration(
     }
     if (cfg.type === "azure") {
         const version = cfg.version || AZURE_OPENAI_API_VERSION
-        trace.itemValue(`version`, version)
+        trace?.itemValue(`version`, version)
         url =
             trimTrailingSlash(cfg.base) +
             "/" +
@@ -689,10 +695,10 @@ export async function OpenAIImageGeneration(
             body: JSON.stringify(body),
         }
         // TODO: switch back to cross-fetch in the future
-        trace.itemValue(`url`, `[${url}](${url})`)
+        trace?.itemValue(`url`, `[${url}](${url})`)
         traceFetchPost(trace, url, freq.headers, body)
         const res = await fetch(url, freq as any)
-        trace.itemValue(`status`, `${res.status} ${res.statusText}`)
+        trace?.itemValue(`status`, `${res.status} ${res.statusText}`)
         if (!res.ok)
             return {
                 image: undefined,
@@ -701,7 +707,7 @@ export async function OpenAIImageGeneration(
         const j = await res.json()
         const revisedPrompt = j.data[0]?.revised_prompt
         if (revisedPrompt)
-            trace.details(`📷 revised prompt`, j.data[0].revised_prompt)
+            trace?.details(`📷 revised prompt`, j.data[0].revised_prompt)
         const buffer = fromBase64(j.data[0].b64_json)
         return {
             image: new Uint8Array(buffer),
@@ -725,7 +731,6 @@ export async function OpenAIEmbedder(
     const { trace, cancellationToken } = options || {}
     const { base, provider, type, model } = cfg
     try {
-        logVerbose(`${provider}: embedding`)
         const route = "embeddings"
         let url: string
         const body: EmbeddingCreateParams = { input, model: cfg.model }
@@ -759,7 +764,7 @@ export async function OpenAIEmbedder(
         }
         traceFetchPost(trace, url, freq.headers, body)
         logVerbose(
-            `embeddings: ${ellipse(input, 32)} with ${provider}:${model}`
+            `${provider} emedding: ${ellipse(input, 44)} with ${provider}:${model}`
         )
         const fetch = await createFetch({
             trace,

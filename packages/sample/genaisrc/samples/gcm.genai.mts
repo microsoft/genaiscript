@@ -28,8 +28,6 @@ script({
 })
 const { chunkSize, maxChunks, gitmoji } = env.vars
 
-console.debug(`config: ${JSON.stringify({ chunkSize, maxChunks, gitmoji })}`)
-
 // Check for staged changes and stage all changes if none are staged
 const diff = await git.diff({
     staged: true,
@@ -104,7 +102,7 @@ do {
             }
         )
         if (res.error) throw res.error
-        message += res.text + "\n"
+        message += (res.fences?.[0]?.content || res.text) + "\n"
     }
 
     // since we've concatenated the chunks, let's compress it back into a single sentence again
@@ -127,7 +125,7 @@ do {
         message = res.text
     }
 
-    message = parsers.unthink(message?.trim())
+    message = message?.trim()
     if (!message) {
         console.log(
             "No commit message generated, did you configure the LLM model?"

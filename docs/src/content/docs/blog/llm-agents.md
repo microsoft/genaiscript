@@ -39,7 +39,7 @@ Ask the user if the answer is correct.
 
 Let's dive into understanding how to create an "Agent that can ask questions to the user."
 
-You can find the full script on GitHub right [here](https://github.com/microsoft/genaiscript/blob/main/packages/core/src/genaisrc/system.agent_user_input.genai.mjs).
+You can find the full script on GitHub right [here](https://github.com/microsoft/genaiscript/blob/main/packages/cli/genaisrc/system.agent_user_input.genai.mts).
 
 ## Metadata
 

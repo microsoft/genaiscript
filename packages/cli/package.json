@@ -1,6 +1,6 @@
 {
   "name": "genaiscript",
-  "version": "1.117.1",
+  "version": "1.118.1",
   "main": "built/genaiscript.cjs",
   "type": "commonjs",
   "bin": {
@@ -109,6 +109,7 @@
     "@types/prompts": "^2.4.9",
     "@types/replace-ext": "^2.0.2",
     "@types/ws": "^8.5.14",
+    "chokidar": "^4.0.3",
     "ci-info": "^4.2.0",
     "commander": "^12.1.0",
     "diff": "^7.0.0",

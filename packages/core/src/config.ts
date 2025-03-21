@@ -1,5 +1,4 @@
 import { homedir } from "os"
-import { existsSync, readFileSync } from "fs"
 import { YAMLTryParse } from "./yaml"
 import { JSON5TryParse } from "./json5"
 import {
@@ -17,13 +16,16 @@ import {
     LanguageModelInfo,
     ResolvedLanguageModelConfiguration,
 } from "./server/messages"
-import { parseTokenFromEnv } from "./connection"
 import { resolveLanguageModel } from "./lm"
 import { arrayify, deleteEmptyValues } from "./cleaners"
 import { errorMessage } from "./error"
 import schema from "../../../docs/public/schemas/config.json"
 import defaultConfig from "./config.json"
 import { CancellationOptions } from "./cancellation"
+import { host } from "./host"
+import { logVerbose } from "./util"
+import { uniq } from "es-toolkit"
+import { tryReadText, tryStat } from "./fs"
 
 export async function resolveGlobalConfiguration(
     dotEnvPaths?: string[]
@@ -38,53 +40,67 @@ export async function resolveGlobalConfiguration(
     delete (config as any)["$schema"]
     for (const dir of dirs) {
         for (const ext of exts) {
-            const filename = resolve(`${dir}/${TOOL_ID}.config.${ext}`)
-            if (existsSync(filename)) {
-                const fileContent = readFileSync(filename, "utf8")
-                const parsed: HostConfiguration =
-                    ext === "yml" || ext === "yaml"
-                        ? YAMLTryParse(fileContent)
-                        : JSON5TryParse(fileContent)
-                if (!parsed)
-                    throw new Error(
-                        `Configuration error: failed to parse ${filename}`
-                    )
-                const validation = validateJSONWithSchema(
-                    parsed,
-                    schema as JSONSchema
+            const filename = resolve(dir, `${TOOL_ID}.config.${ext}`)
+            const stat = await tryStat(filename)
+            if (!stat) continue
+            if (!stat.isFile())
+                throw new Error(`config: ${filename} is a not a file`)
+            const fileContent = await tryReadText(filename)
+            if (!fileContent) continue
+            logVerbose(`config: loading ${filename}`)
+            const parsed: HostConfiguration =
+                ext === "yml" || ext === "yaml"
+                    ? YAMLTryParse(fileContent)
+                    : JSON5TryParse(fileContent)
+            if (!parsed)
+                throw new Error(
+                    `Configuration error: failed to parse ${filename}`
                 )
-                if (validation.schemaError)
-                    throw new Error(
-                        `Configuration error: ` + validation.schemaError
-                    )
-                config = deleteEmptyValues({
-                    include: structuralMerge(
-                        config?.include || [],
-                        parsed?.include || []
-                    ),
-                    envFile: parsed?.envFile || config?.envFile,
-                    modelAliases: structuralMerge(
-                        config?.modelAliases || {},
-                        parsed?.modelAliases || {}
-                    ),
-                    modelEncodings: structuralMerge(
-                        config?.modelEncodings || {},
-                        parsed?.modelEncodings || {}
-                    ),
-                    secretScanners: structuralMerge(
-                        config?.secretPatterns || {},
-                        parsed?.secretPatterns || {}
-                    ),
-                })
-            }
+            const validation = validateJSONWithSchema(
+                parsed,
+                schema as JSONSchema
+            )
+            if (validation.schemaError)
+                throw new Error(
+                    `Configuration error: ` + validation.schemaError
+                )
+            config = deleteEmptyValues({
+                include: structuralMerge(
+                    config?.include || [],
+                    parsed?.include || []
+                ),
+                envFile: [
+                    ...(parsed?.envFile || []),
+                    ...(config?.envFile || []),
+                ],
+                modelAliases: structuralMerge(
+                    config?.modelAliases || {},
+                    parsed?.modelAliases || {}
+                ),
+                modelEncodings: structuralMerge(
+                    config?.modelEncodings || {},
+                    parsed?.modelEncodings || {}
+                ),
+                secretScanners: structuralMerge(
+                    config?.secretPatterns || {},
+                    parsed?.secretPatterns || {}
+                ),
+            })
         }
     }
 
     // import for env var
     if (process.env.GENAISCRIPT_ENV_FILE)
-        config.envFile = process.env.GENAISCRIPT_ENV_FILE
+        config.envFile = [
+            ...(config.envFile || []),
+            process.env.GENAISCRIPT_ENV_FILE,
+        ]
     // override with CLI command
-    if (dotEnvPaths?.length) config.envFile = dotEnvPaths
+    if (dotEnvPaths?.length)
+        config.envFile = config.envFile = [
+            ...(config.envFile || []),
+            ...dotEnvPaths,
+        ]
 
     // nothing loaded, use defaults
     if (!config.envFile?.length)
@@ -94,7 +110,7 @@ export async function resolveGlobalConfiguration(
             DOT_ENV_FILENAME,
         ]
     // resolve all paths
-    config.envFile = arrayify(config.envFile).map((f) => resolve(f))
+    config.envFile = uniq(arrayify(config.envFile).map((f) => resolve(f)))
     return config
 }
 
@@ -114,7 +130,6 @@ export async function resolveLanguageModelConfigurations(
 ): Promise<ResolvedLanguageModelConfiguration[]> {
     const { token, error, models, hide } = options || {}
     const res: ResolvedLanguageModelConfiguration[] = []
-    const env = process.env
 
     // Iterate through model providers, filtering if a specific provider is given
     for (const modelProvider of MODEL_PROVIDERS.filter(
@@ -124,11 +139,14 @@ export async function resolveLanguageModelConfigurations(
             // Attempt to parse connection token from environment variables
             const conn: LanguageModelConfiguration & {
                 models?: LanguageModelInfo[]
-            } = await parseTokenFromEnv(env, `${modelProvider.id}:*`)
+            } = await host.getLanguageModelConfiguration(
+                modelProvider.id + ":*",
+                options
+            )
             if (conn) {
                 // Mask the token if the option is set
                 let listError = ""
-                if (models) {
+                if (models && token) {
                     const lm = await resolveLanguageModel(modelProvider.id)
                     if (lm.listModels) {
                         const models = await lm.listModels(conn, options)

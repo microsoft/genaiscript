@@ -61,6 +61,7 @@ import { configure } from "./configure"
 import { logPerformance } from "../../core/src/performance"
 import { setConsoleColors } from "../../core/src/consolecolor"
 import { listRuns } from "./runs"
+import { startMcpServer } from "./mcpserver"
 
 /**
  * Main function to initialize and run the CLI.
@@ -88,7 +89,7 @@ export async function cli() {
     }
 
     program.hook("preAction", async (cmd) => {
-        const { env } = cmd.opts() // Get environment options from command
+        const { env }: { env: string[] } = cmd.opts() // Get environment options from command
         nodeHost = await NodeHost.install(env?.length ? env : undefined) // Install NodeHost with environment options
     })
 
@@ -98,12 +99,17 @@ export async function cli() {
         .version(CORE_VERSION)
         .description(`CLI for ${TOOL_NAME} ${GITHUB_REPO}`)
         .showHelpAfterError(true)
-        .option("--env <path>", "path to .env file, default is './.env'")
+        .option("--cwd <string>", "Working directory")
+        .option(
+            "--env <paths...>",
+            "paths to .env files, defaults to './.env' if not specified"
+        )
         .option("--no-colors", "disable color output")
         .option("-q, --quiet", "disable verbose output")
         .option("--perf", "enable performance logging")
 
     // Set options for color and verbosity
+    program.on("option:cwd", (cwd) => process.chdir(cwd)) // Change working directory if specified
     program.on("option:no-colors", () => setConsoleColors(false))
     program.on("option:quiet", () => setQuiet(true))
     program.on("option:perf", () => logPerformance())
@@ -450,9 +456,9 @@ export async function cli() {
         .action(retrievalFuzz) // Action to perform fuzzy search
 
     // Define 'serve' command to start a local server
-    program
+    const serve = program
         .command("serve")
-        .description("Start a GenAIScript local server")
+        .description("Start a GenAIScript local web server")
         .option(
             "-p, --port <number>",
             `Specify the port number, default: ${SERVER_PORT}`
@@ -466,13 +472,6 @@ export async function cli() {
             "-c, --cors <string>",
             "Enable CORS and sets the allowed origin. Use '*' to allow any origin."
         )
-        .option("--remote <string>", "Remote repository URL to serve")
-        .option("--remote-branch <string>", "Branch to serve from the remote")
-        .option("--remote-force", "Force pull from remote repository")
-        .option(
-            "--remote-install",
-            "Install dependencies from remote repository"
-        )
         .option(
             "--dispatch-progress",
             "Dispatch progress events to all clients"
@@ -481,7 +480,20 @@ export async function cli() {
             "--github-copilot-chat-client",
             "Allow github_copilot_chat provider to connect to connected Visual Studio Code"
         )
+        .option("--openai-api", "Enable OpenAI APi endpoints")
         .action(startServer) // Action to start the server
+    addRemoteOptions(serve) // Add remote options to the command
+
+    const mcp = program
+        .command("mcp")
+        .option("--groups <string...>", "Filter script by groups")
+        .option("--ids <string...>", "Filter script by ids")
+        .alias("mcps")
+        .description(
+            "Starts a Model Context Protocol server that exposes scripts as tools"
+        )
+        .action(startMcpServer)
+    addRemoteOptions(mcp) // Add remote options to the command
 
     // Define 'parse' command group for parsing tasks
     const parser = program
@@ -607,6 +619,20 @@ export async function cli() {
         .action(modelAliasesInfo)
 
     program.parse() // Parse command-line arguments
+
+    function addRemoteOptions(command: Command) {
+        return command
+            .option("--remote <string>", "Remote repository URL to serve")
+            .option(
+                "--remote-branch <string>",
+                "Branch to serve from the remote"
+            )
+            .option("--remote-force", "Force pull from remote repository")
+            .option(
+                "--remote-install",
+                "Install dependencies from remote repository"
+            )
+    }
 
     function addModelOptions(command: Command) {
         return command

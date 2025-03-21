@@ -1,4 +1,7 @@
 script({
+    title: "Reasoning Agent",
+    description:
+        "A reasoning agent that can answer questions about files, git, github, documentation, web queries, video analysis.",
     model: "large",
     system: [
         // List of system components and tools available for the script
@@ -26,7 +29,7 @@ script({
         "system.agent_data",
         "system.vision_ask_images",
     ],
-    group: "copilot", // Group categorization for the script
+    group: "mcp", // Group categorization for the script
     parameters: {
         question: {
             type: "string",

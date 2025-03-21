@@ -483,6 +483,23 @@
             }
         },
         {
+            "id": "vllm",
+            "detail": "vLLM local model",
+            "url": "https://docs.vllm.ai/",
+            "openaiCompatibility": "https://docs.vllm.ai/en/latest/serving/openai_compatible_server.html",
+            "prediction": false,
+            "tokenless": true,
+            "listModels": false,
+            "speech": false,
+            "pullModel": false,
+            "env": {
+                "VLLM_API_BASE": {
+                    "description": "VLLM API base URL",
+                    "format": "url"
+                }
+            }
+        },
+        {
             "id": "litellm",
             "detail": "LiteLLM proxy",
             "prediction": false,

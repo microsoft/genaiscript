@@ -9,12 +9,22 @@ import {
     OpenAIChatCompletion,
     OpenAIEmbedder,
     OpenAIImageGeneration,
+    OpenAIListModels,
     OpenAISpeech,
     OpenAITranscribe,
 } from "./openai"
 import { runtimeHost } from "./host"
 
-const listModels: ListModelsFunction = async (cfg, options) => {
+const azureManagementOrOpenAIListModels: ListModelsFunction = async (
+    cfg,
+    options
+) => {
+    const modelsApi = process.env.AZURE_OPENAI_API_MODELS_TYPE
+    if (modelsApi === "openai") return await OpenAIListModels(cfg, options)
+    else return await azureManagementListModels(cfg, options)
+}
+
+const azureManagementListModels: ListModelsFunction = async (cfg, options) => {
     try {
         // Create a fetch instance to make HTTP requests
         const { base } = cfg
@@ -99,7 +109,7 @@ const listModels: ListModelsFunction = async (cfg, options) => {
 export const AzureOpenAIModel = Object.freeze<LanguageModel>({
     id: MODEL_PROVIDER_AZURE_OPENAI,
     completer: OpenAIChatCompletion,
-    listModels,
+    listModels: azureManagementOrOpenAIListModels,
     transcriber: OpenAITranscribe,
     speaker: OpenAISpeech,
     imageGenerator: OpenAIImageGeneration,

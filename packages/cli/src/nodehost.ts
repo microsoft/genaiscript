@@ -68,7 +68,7 @@ import { defaultModelConfigurations } from "../../core/src/llms"
 import { createPythonRuntime } from "../../core/src/pyodide"
 import { ci } from "./ci"
 import { arrayify } from "../../core/src/cleaners"
-import { array } from "zod"
+import { tryStat } from "../../core/src/fs"
 
 class NodeServerManager implements ServerManager {
     async start(): Promise<void> {
@@ -215,7 +215,11 @@ export class NodeHost extends EventTarget implements RuntimeHost {
             for (const kv of Object.entries(modelAliases))
                 this.setModelAlias("config", kv[0], kv[1])
         for (const dotEnv of arrayify(envFile)) {
-            if (existsSync(dotEnv)) {
+            const stat = await tryStat(dotEnv)
+            if (!stat) logVerbose(`.env: ignored ${dotEnv}, not found`)
+            else {
+                if (!stat.isFile())
+                    throw new Error(`.env: ${dotEnv} is not a file`)
                 logVerbose(`.env: loading ${dotEnv}`)
                 const res = dotenv.config({
                     path: dotEnv,

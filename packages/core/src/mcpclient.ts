@@ -6,7 +6,7 @@ import type {
     EmbeddedResource,
 } from "@modelcontextprotocol/sdk/types.js"
 
-export async function startMcpServer(
+export async function startMcpClient(
     serverConfig: McpServerConfig,
     options: TraceOptions
 ): Promise<{ tools: ToolCallback[] } & AsyncDisposable> {

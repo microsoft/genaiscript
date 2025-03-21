@@ -12,15 +12,23 @@ GenAIScript supports local and global configuration files to allow reusing commo
 
 ## .env file resolution
 
-GenAIScript will scan and load the following `.env` files in the following order:
+GenAIScript will scan, load the following `.env` files in the following order:
 
-- `~/.env.genaiscript`
-- `~/.env.genaiscript`
+- `envFile` property in the configuration files (see below)
+- `GENAISCRIPT_ENV_FILE` environment variable
+- `--env` command line options
+
+```sh
+genaiscript run ... --env ./.env.debug --env ~/.env.dev
+```
+
+If none of the above are set, it will try to load the following files:
+
+- `~/.env`
 - `./.env`
+- `./.env.genaiscript`
 
-The list of `.env` files can be overriden by the `--env` command line option or the `envFile` property in the configuration file.
-
-## config file resolution
+### config file resolution
 
 GenAIScript will scan for the following configuration files
 and merge their content into the final configuration.

@@ -85,11 +85,7 @@ import { traceAgentMemory } from "../../core/src/agent"
 import { appendFile } from "node:fs/promises"
 import { parseOptionsVars } from "./vars"
 import { logprobColor } from "../../core/src/logprob"
-import {
-    overrideStdoutWithStdErr,
-    stderr,
-    stdout,
-} from "../../core/src/logging"
+import { overrideStdoutWithStdErr, stderr, stdout } from "../../core/src/stdio"
 import { ensureDotGenaiscriptPath, setupTraceWriting } from "./trace"
 import {
     applyModelOptions,
@@ -261,10 +257,6 @@ export async function runScriptInternal(
         await setupTraceWriting(outputTrace, " output", outOutput, {
             ignoreInner: true,
         })
-    if (outTraceFilename)
-        logVerbose(
-            `viewer: ${SERVER_LOCALHOST}:${SERVER_PORT}/#runid=${runId}  (to start server, run 'genaiscript serve')`
-        )
 
     const toolFiles: string[] = []
     if (GENAI_ANY_REGEX.test(scriptId)) toolFiles.push(scriptId)
@@ -593,10 +585,10 @@ export async function runScriptInternal(
 
     if (options.json && result !== undefined)
         // needs to go to process.stdout
-        process.stdout.write(JSON.stringify(result, null, 2))
+        stdout.write(JSON.stringify(result, null, 2))
     if (options.yaml && result !== undefined)
         // needs to go to process.stdout
-        process.stdout.write(YAMLStringify(result))
+        stdout.write(YAMLStringify(result))
 
     let _ghInfo: GithubConnectionInfo = undefined
     const resolveGitHubInfo = async () => {

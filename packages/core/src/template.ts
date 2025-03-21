@@ -7,7 +7,7 @@
 import { GENAI_ANY_REGEX, PROMPTY_REGEX } from "./constants"
 import { host } from "./host"
 import { JSON5TryParse } from "./json5"
-import { humanize } from "inflection"
+import { humanize } from "./inflection"
 import { promptyParse, promptyToGenAIScript } from "./prompty"
 
 /**

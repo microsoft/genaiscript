@@ -163,18 +163,3 @@ export function ellipseLast(text: string, length: number) {
     if (text?.length > length) return "…" + text.slice(length - text.length + 1)
     else return text
 }
-
-export function tagFilter(tags: string[], tag: string) {
-    if (!tags?.length) return true
-    const ltag = tag?.toLocaleLowerCase() || ""
-    let exclusive = false
-    for (const t of tags) {
-        const lt = t.toLocaleLowerCase()
-        const exclude = lt.startsWith(":!")
-        if (exclude) exclusive = true
-
-        if (exclude && ltag.startsWith(lt.slice(2))) return false
-        else if (ltag.startsWith(t)) return true
-    }
-    return exclusive
-}

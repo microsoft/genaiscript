@@ -54,7 +54,6 @@ import { createReadStream } from "fs"
 import { URL } from "url"
 import { resolveLanguageModelConfigurations } from "../../core/src/config"
 import { networkInterfaces } from "os"
-import { GitClient } from "../../core/src/git"
 import { exists } from "fs-extra"
 import { deleteUndefinedValues } from "../../core/src/cleaners"
 import { readFile } from "fs/promises"
@@ -64,30 +63,32 @@ import { findRandomOpenPort, isPortInUse } from "../../core/src/net"
 import { tryReadJSON, tryReadText } from "../../core/src/fs"
 import { collectRuns } from "./runs"
 import { generateId } from "../../core/src/id"
+import { openaiApiChatCompletions, openaiApiModels } from "./openaiapi"
+import { applyRemoteOptions, RemoteOptions } from "./remote"
 
 /**
  * Starts a WebSocket server for handling chat and script execution.
  * @param options - Configuration options including port and optional API key.
  */
-export async function startServer(options: {
-    port: string
-    httpPort?: string
-    apiKey?: string
-    cors?: string
-    network?: boolean
-    remote?: string
-    remoteBranch?: string
-    remoteForce?: boolean
-    remoteInstall?: boolean
-    dispatchProgress?: boolean
-    githubCopilotChatClient?: boolean
-}) {
+export async function startServer(
+    options: {
+        port: string
+        httpPort?: string
+        apiKey?: string
+        cors?: string
+        network?: boolean
+        dispatchProgress?: boolean
+        githubCopilotChatClient?: boolean
+        openaiApi?: boolean
+    } & RemoteOptions
+) {
     // Parse and set the server port, using a default if not specified.
     const corsOrigin = options.cors || process.env.GENAISCRIPT_CORS_ORIGIN
     const apiKey = options.apiKey || process.env.GENAISCRIPT_API_KEY
     const serverHost = options.network ? "0.0.0.0" : "127.0.0.1"
     const remote = options.remote
     const dispatchProgress = !!options.dispatchProgress
+    const openaiApi = !!options.openaiApi
 
     let port = parseInt(options.port) || SERVER_PORT
     if (await isPortInUse(port)) {
@@ -99,17 +100,7 @@ export async function startServer(options: {
     // store original working directory
     const cwd = process.cwd()
 
-    if (remote) {
-        const git = new GitClient(".")
-        const res = await git.shallowClone(remote, {
-            branch: options.remoteBranch,
-            force: options.remoteForce,
-            install: options.remoteInstall,
-        })
-        // change cwd to the clone repo
-        process.chdir(res.cwd)
-        logInfo(`remote clone: ${res.cwd}`)
-    }
+    await applyRemoteOptions(options)
 
     // read current project info
     const { name, displayName, description, version, homepage, author } =
@@ -181,7 +172,7 @@ export async function startServer(options: {
         if (!apiKey) return true
 
         const { authorization } = req.headers
-        if (authorization === apiKey) return true
+        if (authorization === apiKey || `Bearer ${apiKey}`) return true
 
         const url = req.url.replace(/^[^\?]*\?/, "")
         const search = new URLSearchParams(url)
@@ -209,11 +200,13 @@ export async function startServer(options: {
     const serverEnv = async () => {
         return deleteUndefinedValues({
             ok: true,
-            providers: await resolveLanguageModelConfigurations(undefined, {
-                token: false,
-                error: true,
-                models: true,
-            }),
+            providers: (
+                await resolveLanguageModelConfigurations(undefined, {
+                    token: true,
+                    error: true,
+                    models: true,
+                })
+            ).map(({ token, ...rest }) => rest),
             modelAliases: runtimeHost.modelAliases,
             remote: remote
                 ? {
@@ -760,6 +753,20 @@ window.vscodeWebviewPlaygroundNonce = ${JSON.stringify(nonce)};
                         })
                     ),
                 }
+            } else if (
+                openaiApi &&
+                method === "POST" &&
+                route === "/v1/chat/completions"
+            ) {
+                await openaiApiChatCompletions(req, res)
+                return
+            } else if (
+                openaiApi &&
+                method === "GET" &&
+                route === "/v1/models"
+            ) {
+                await openaiApiModels(req, res)
+                return
             } else if (method === "GET" && runRx.test(route)) {
                 const { runId } = runRx.exec(route).groups
                 logVerbose(`run: get ${runId}`)
@@ -790,7 +797,7 @@ window.vscodeWebviewPlaygroundNonce = ${JSON.stringify(nonce)};
             }
 
             if (response === undefined) {
-                console.debug(`404: ${url}`)
+                console.debug(`404: ${method} ${url}`)
                 res.statusCode = 404
                 res.end()
             } else {
