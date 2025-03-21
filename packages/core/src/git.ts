@@ -5,7 +5,7 @@ import { uniq } from "es-toolkit"
 import { GIT_DIFF_MAX_TOKENS, GIT_IGNORE_GENAI } from "./constants"
 import { llmifyDiff } from "./diff"
 import { resolveFileContents } from "./file"
-import { readText } from "./fs"
+import { readText, tryStat } from "./fs"
 import { host, runtimeHost } from "./host"
 import { shellParse } from "./shell"
 import { arrayify, dotGenaiscriptPath, logVerbose } from "./util"
@@ -17,12 +17,8 @@ import { packageResolveInstall } from "./packagemanagers"
 import { normalizeInt } from "./cleaners"
 
 async function checkDirectoryExists(directory: string): Promise<boolean> {
-    try {
-        const stats = await lstat(directory)
-        return stats.isDirectory()
-    } catch {
-        return false
-    }
+    const stat = await tryStat(directory)
+    return !!stat?.isDirectory()
 }
 
 /**

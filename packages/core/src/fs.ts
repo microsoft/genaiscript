@@ -1,3 +1,4 @@
+import { lstat } from "fs/promises"
 import { HTTPS_REGEX } from "./constants"
 import { host } from "./host"
 import { utf8Decode, utf8Encode } from "./util"
@@ -29,6 +30,14 @@ export async function fileExists(fn: string) {
         return (await host.readFile(fn)) !== undefined
     } catch {
         return false
+    }
+}
+
+export async function tryStat(fn: string) {
+    try {
+        return await lstat(fn)
+    } finally {
+        return undefined
     }
 }
 

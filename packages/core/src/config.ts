@@ -1,5 +1,4 @@
 import { homedir } from "os"
-import { existsSync, readFileSync } from "fs"
 import { YAMLTryParse } from "./yaml"
 import { JSON5TryParse } from "./json5"
 import {
@@ -26,6 +25,7 @@ import { CancellationOptions } from "./cancellation"
 import { host } from "./host"
 import { logVerbose } from "./util"
 import { uniq } from "es-toolkit"
+import { tryReadText, tryStat } from "./fs"
 
 export async function resolveGlobalConfiguration(
     dotEnvPaths?: string[]
@@ -40,49 +40,52 @@ export async function resolveGlobalConfiguration(
     delete (config as any)["$schema"]
     for (const dir of dirs) {
         for (const ext of exts) {
-            const filename = resolve(`${dir}/${TOOL_ID}.config.${ext}`)
-            if (existsSync(filename)) {
-                logVerbose(`config: loading ${filename}`)
-                const fileContent = readFileSync(filename, "utf8")
-                const parsed: HostConfiguration =
-                    ext === "yml" || ext === "yaml"
-                        ? YAMLTryParse(fileContent)
-                        : JSON5TryParse(fileContent)
-                if (!parsed)
-                    throw new Error(
-                        `Configuration error: failed to parse ${filename}`
-                    )
-                const validation = validateJSONWithSchema(
-                    parsed,
-                    schema as JSONSchema
+            const filename = resolve(dir, `${TOOL_ID}.config.${ext}`)
+            const stat = await tryStat(filename)
+            if (!stat) continue
+            if (!stat.isFile())
+                throw new Error(`config: ${filename} is a not a file`)
+            const fileContent = await tryReadText(filename)
+            if (!fileContent) continue
+            logVerbose(`config: loading ${filename}`)
+            const parsed: HostConfiguration =
+                ext === "yml" || ext === "yaml"
+                    ? YAMLTryParse(fileContent)
+                    : JSON5TryParse(fileContent)
+            if (!parsed)
+                throw new Error(
+                    `Configuration error: failed to parse ${filename}`
                 )
-                if (validation.schemaError)
-                    throw new Error(
-                        `Configuration error: ` + validation.schemaError
-                    )
-                config = deleteEmptyValues({
-                    include: structuralMerge(
-                        config?.include || [],
-                        parsed?.include || []
-                    ),
-                    envFile: [
-                        ...(parsed?.envFile || []),
-                        ...(config?.envFile || []),
-                    ],
-                    modelAliases: structuralMerge(
-                        config?.modelAliases || {},
-                        parsed?.modelAliases || {}
-                    ),
-                    modelEncodings: structuralMerge(
-                        config?.modelEncodings || {},
-                        parsed?.modelEncodings || {}
-                    ),
-                    secretScanners: structuralMerge(
-                        config?.secretPatterns || {},
-                        parsed?.secretPatterns || {}
-                    ),
-                })
-            }
+            const validation = validateJSONWithSchema(
+                parsed,
+                schema as JSONSchema
+            )
+            if (validation.schemaError)
+                throw new Error(
+                    `Configuration error: ` + validation.schemaError
+                )
+            config = deleteEmptyValues({
+                include: structuralMerge(
+                    config?.include || [],
+                    parsed?.include || []
+                ),
+                envFile: [
+                    ...(parsed?.envFile || []),
+                    ...(config?.envFile || []),
+                ],
+                modelAliases: structuralMerge(
+                    config?.modelAliases || {},
+                    parsed?.modelAliases || {}
+                ),
+                modelEncodings: structuralMerge(
+                    config?.modelEncodings || {},
+                    parsed?.modelEncodings || {}
+                ),
+                secretScanners: structuralMerge(
+                    config?.secretPatterns || {},
+                    parsed?.secretPatterns || {}
+                ),
+            })
         }
     }
 
