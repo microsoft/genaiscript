@@ -85,8 +85,8 @@ export async function resolveGlobalConfiguration(
                     parsed?.include || []
                 ),
                 envFile: [
-                    ...(parsed?.envFile || []),
-                    ...(config?.envFile || []),
+                    ...arrayify(parsed?.envFile),
+                    ...arrayify(config?.envFile),
                 ],
                 modelAliases: structuralMerge(
                     config?.modelAliases || {},

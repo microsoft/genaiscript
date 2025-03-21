@@ -13,6 +13,7 @@ import {
 } from "../../core/src/constants"
 import { errorMessage } from "../../core/src/error"
 import { arrayify } from "../../core/src/util"
+import { deleteUndefinedValues } from "../../core/src/cleaners"
 
 export async function activateTestController(state: ExtensionState) {
     const { context, host } = state
@@ -151,12 +152,12 @@ async function startTestViewer() {
         const terminal = vscode.window.createTerminal({
             name,
             isTransient: true,
-            env: {
+            env: deleteUndefinedValues({
                 PROMPTFOO_CACHE_PATH,
                 PROMPTFOO_CONFIG_DIR,
                 PROMPTFOO_DISABLE_TELEMETRY: "1",
                 PROMPTFOO_DISABLE_UPDATE: "1",
-            },
+            }),
             iconPath: new vscode.ThemeIcon(ICON_LOGO_NAME),
         })
         const promptfooVersion = PROMPTFOO_VERSION

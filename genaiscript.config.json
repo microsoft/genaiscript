@@ -4,8 +4,5 @@
         "gcm": "github:gpt-4o",
         "release": "github:gpt-4o"
     },
-    "envFile": [
-        ".env",
-        ".env.azure"
-    ]
+    "envFile": ".env"
 }

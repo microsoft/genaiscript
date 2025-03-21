@@ -183,6 +183,7 @@ export class TerminalServerManager
             iconPath: new vscode.ThemeIcon(ICON_LOGO_NAME),
             env: deleteUndefinedValues({
                 GENAISCRIPT_API_KEY: this.state.sessionApiKey,
+                DEBUG: diagnostics ? "*" : undefined,
             }),
             hideFromUser,
         })
