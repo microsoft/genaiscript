@@ -2955,7 +2955,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.117.3
+ - genaiscript-vscode@1.118.1
 
 This package contains the following license:
 
@@ -6084,7 +6084,7 @@ The following npm packages may be included in this product:
  - @aws-sdk/core@3.758.0
  - @aws-sdk/credential-provider-http@3.758.0
  - @aws-sdk/nested-clients@3.758.0
- - pyodide@0.27.3
+ - pyodide@0.27.4
 
 These packages each contain the following license:
 
@@ -8918,10 +8918,10 @@ The following npm packages may be included in this product:
  - @tokenizer/token@0.3.0
  - agent-base@6.0.2
  - eastasianwidth@0.2.0
- - genaiscript-core-internal@1.117.3
- - genaiscript-sample@1.117.3
- - genaiscript-web@1.117.3
- - genaiscript@1.117.3
+ - genaiscript-core-internal@1.118.1
+ - genaiscript-sample@1.118.1
+ - genaiscript-web@1.118.1
+ - genaiscript@1.118.1
  - https-proxy-agent@5.0.1
  - isarray@1.0.0
  - javascript-natural-sort@0.7.1
@@ -9369,7 +9369,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - @octokit/plugin-retry@7.1.4
+ - @octokit/plugin-retry@7.2.0
 
 This package contains the following license:
 
@@ -11898,7 +11898,7 @@ The following npm packages may be included in this product:
 
  - @octokit/endpoint@10.1.3
  - @octokit/graphql@8.2.1
- - @octokit/plugin-throttling@9.4.0
+ - @octokit/plugin-throttling@9.6.0
  - @octokit/request@9.2.2
 
 These packages each contain the following license:
