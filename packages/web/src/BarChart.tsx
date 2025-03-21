@@ -15,11 +15,11 @@ export default function BarChart(props: { children: string }) {
 
     return (
         <VictoryChart theme={VictoryTheme.clean}>
-            <VictoryGroup offset={20}>
+            <VictoryGroup offset={20} style={{ data: { width: 15 } }}>
                 {ys.map((y) => (
                     <VictoryBar
                         key={y}
-                        data={rows.map((row) => ({
+                        data={rows.filter((row) => row[y] ).map((row) => ({
                             x: row[x],
                             y: row[y],
                         }))}
