@@ -1,3 +1,6 @@
+import debug from "debug"
+const dbg = debug("genai:azureaisearch")
+
 import {
     CancellationOptions,
     checkCancelled,
@@ -38,20 +41,27 @@ export const azureAISearchIndex: WorkspaceFileIndexCreator = async (
         await import("@azure/search-documents")
 
     const endPoint = process.env.AZURE_AI_SEARCH_ENDPOINT
-    if (!endPoint)
+    if (!endPoint) {
+        dbg(`checking if AZURE_AI_SEARCH_ENDPOINT is configured`)
         throw new Error("AZURE_AI_SEARCH_ENDPOINT is not configured.")
+    }
     let credential: TokenCredential | KeyCredential
     const apiKey = process.env.AZURE_AI_SEARCH_API_KEY
-    if (apiKey) credential = new AzureKeyCredential(apiKey)
-    else {
+    if (apiKey) {
+        dbg(`using AzureKeyCredential with apiKey`)
+        credential = new AzureKeyCredential(apiKey)
+    } else {
+        dbg(`fetching Azure token credential`)
         const { token } = await runtimeHost.azureToken.token("default", {
             cancellationToken,
         })
         checkCancelled(cancellationToken)
-        if (!token)
+        if (!token) {
+            dbg(`validating Azure token`)
             throw new Error(
                 "Azure AI Search requires a valid Azure token credential."
             )
+        }
         credential = token.credential
     }
 
@@ -59,8 +69,11 @@ export const azureAISearchIndex: WorkspaceFileIndexCreator = async (
         `azure ai search: ${indexName}, embedder ${cfg.provider}:${cfg.model}, ${vectorSize} dimensions`
     )
     const indexClient = new SearchIndexClient(endPoint, credential, {})
-    if (deleteIfExists)
+    if (deleteIfExists) {
+        dbg(`deleting existing index ${indexName}`)
         await indexClient.deleteIndex(indexName, { abortSignal })
+    }
+    dbg(`creating or updating index ${indexName}`)
     const created = await indexClient.createOrUpdateIndex({
         name: indexName,
         fields: [
@@ -104,6 +117,7 @@ export const azureAISearchIndex: WorkspaceFileIndexCreator = async (
             ],
         },
     })
+    dbg(`tracing details of created index`)
     trace?.detailsFenced(`azure ai search ${indexName}`, created, "json")
 
     type TextChunkEntry = TextChunk & { id: string; contentVector: number[] }
@@ -127,9 +141,13 @@ export const azureAISearchIndex: WorkspaceFileIndexCreator = async (
             const outdated: TextChunkEntry[] = []
             const docs: TextChunkEntry[] = []
             for (const file of files) {
+                dbg(`resolving file content for ${file.filename}`)
                 await resolveFileContent(file, { cancellationToken })
-                if (file.encoding) continue
+                if (file.encoding) {
+                    continue
+                }
 
+                dbg(`chunking file ${file.filename}`)
                 const newChunks = await chunk(file, {
                     chunkSize,
                     chunkOverlap,
@@ -145,16 +163,23 @@ export const azureAISearchIndex: WorkspaceFileIndexCreator = async (
                             c.lineEnd === oldChunk.lineEnd &&
                             c.content === oldChunk.content
                     )
-                    if (index > -1) newChunks.splice(index, 1)
-                    else outdated.push(oldChunk)
+                    if (index > -1) {
+                        newChunks.splice(index, 1)
+                    } else {
+                        dbg(`adding outdated chunk`)
+                        outdated.push(oldChunk)
+                    }
                 }
 
                 // new chunks
                 for (const chunk of newChunks) {
+                    dbg(`embedding new chunk content`)
                     const vector = await embedder(chunk.content, cfg, options)
                     checkCancelled(cancellationToken)
-                    if (vector.status !== "success")
+                    dbg(`validating embedding vector status`)
+                    if (vector.status !== "success") {
                         throw new Error(vector.error || vector.status)
+                    }
                     docs.push({
                         id: await chunkId(chunk),
                         ...chunk,
@@ -167,30 +192,38 @@ export const azureAISearchIndex: WorkspaceFileIndexCreator = async (
                 `azure ai search: ${indexName} index ${outdated.length} outdated, ${docs.length} updated`
             )
             if (outdated.length) {
+                dbg(`deleting outdated documents`)
                 const res = await client.deleteDocuments(outdated, {
                     abortSignal,
                     throwOnAnyFailure: false,
                 })
                 for (const r of res.results) {
-                    if (!r.succeeded)
+                    if (!r.succeeded) {
                         logVerbose(
                             `  ${r.key} ${r.errorMessage} (${r.statusCode})`
                         )
+                    }
                 }
             }
 
-            if (!docs.length) return
+            dbg(`checking if there are no new documents`)
+            if (!docs.length) {
+                return
+            }
 
+            dbg(`merging or uploading new documents`)
             const res = await client.mergeOrUploadDocuments(docs, {
                 abortSignal,
                 throwOnAnyFailure: false,
             })
             for (const r of res.results) {
-                if (!r.succeeded)
+                if (!r.succeeded) {
                     logVerbose(`  ${r.key} ${r.errorMessage} (${r.statusCode})`)
+                }
             }
         },
         search: async (query: string, options?: VectorSearchOptions) => {
+            dbg(`embedding search query`)
             const { topK, minScore = 0 } = options || {}
 
             const vector = await embedder(query, cfg, {
@@ -198,9 +231,12 @@ export const azureAISearchIndex: WorkspaceFileIndexCreator = async (
                 cancellationToken,
             })
             checkCancelled(cancellationToken)
-            if (vector.status !== "success")
+            dbg(`validating embedding vector status`)
+            if (vector.status !== "success") {
                 throw new Error(vector.error || vector.status)
+            }
 
+            dbg(`searching documents with query ${query}`)
             const docs = await client.search(query, {
                 searchMode: "all",
                 vectorSearchOptions: {
@@ -215,10 +251,16 @@ export const azureAISearchIndex: WorkspaceFileIndexCreator = async (
                 },
             })
             const res: WorkspaceFileWithScore[] = []
+            dbg(`iterating over search results`)
             for await (const doc of docs.results) {
-                if (doc.score < minScore) continue
+                if (doc.score < minScore) {
+                    continue
+                }
                 res.push({ ...doc.document, score: doc.score })
-                if (res.length >= topK) break
+                dbg(`checking if result length exceeds topK`)
+                if (res.length >= topK) {
+                    break
+                }
             }
             return res
         },
