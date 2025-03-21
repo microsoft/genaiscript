@@ -257,10 +257,6 @@ export async function runScriptInternal(
         await setupTraceWriting(outputTrace, " output", outOutput, {
             ignoreInner: true,
         })
-    if (outTraceFilename)
-        logVerbose(
-            `viewer: ${SERVER_LOCALHOST}:${SERVER_PORT}/#runid=${runId}  (to start server, run 'genaiscript serve')`
-        )
 
     const toolFiles: string[] = []
     if (GENAI_ANY_REGEX.test(scriptId)) toolFiles.push(scriptId)

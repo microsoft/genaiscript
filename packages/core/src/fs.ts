@@ -1,7 +1,7 @@
-import { lstat } from "fs/promises"
+import { lstat, writeFile } from "fs/promises"
 import { HTTPS_REGEX } from "./constants"
 import { host } from "./host"
-import { utf8Decode, utf8Encode } from "./util"
+import { readFile } from "fs/promises"
 
 export function changeext(filename: string, newext: string) {
     if (!newext.startsWith(".")) newext = "." + newext
@@ -9,8 +9,7 @@ export function changeext(filename: string, newext: string) {
 }
 
 export async function readText(fn: string) {
-    const curr = await host.readFile(fn)
-    return utf8Decode(curr)
+    return readFile(fn, { encoding: "utf8" })
 }
 
 export async function tryReadText(fn: string) {
@@ -22,21 +21,18 @@ export async function tryReadText(fn: string) {
 }
 
 export async function writeText(fn: string, content: string) {
-    await host.writeFile(fn, utf8Encode(content))
+    await writeFile(fn, content, { encoding: "utf8" })
 }
 
 export async function fileExists(fn: string) {
-    try {
-        return (await host.readFile(fn)) !== undefined
-    } catch {
-        return false
-    }
+    const stat = await tryStat(fn)
+    return !!stat?.isFile()
 }
 
 export async function tryStat(fn: string) {
     try {
         return await lstat(fn)
-    } finally {
+    } catch {
         return undefined
     }
 }
