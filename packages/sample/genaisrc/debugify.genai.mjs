@@ -141,7 +141,7 @@ For example, if you added debug statements at line 1, 7 and 13, the output shoul
     const { text } = res
     const updates = []
     text.replace(/^\[(\d+)\](\s*dbg\(['`].*['`]\))$/gm, (_, line, stm) => {
-        updates.push({ line: parseInt(line), message: stm })
+        updates.push({ line: parseInt(line) - 1, message: stm })
         return ""
     })
     // insert updates backwards
