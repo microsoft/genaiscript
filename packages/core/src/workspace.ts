@@ -1,11 +1,14 @@
-import { copyFile, stat } from "fs/promises"
+import debug from "debug"
+const dbg = debug("genai:workspace")
+
+import { copyFile, mkdir } from "fs/promises"
 import { JSONLineCache } from "./cache"
 import { DOT_ENV_REGEX } from "./constants"
 import { CSVTryParse } from "./csv"
 import { dataTryParse } from "./data"
 import { NotSupportedError, errorMessage } from "./error"
 import { resolveFileContent, toWorkspaceFile } from "./file"
-import { readText, writeText } from "./fs"
+import { readText, tryStat, writeText } from "./fs"
 import { host } from "./host"
 import { INITryParse } from "./ini"
 import { JSON5TryParse } from "./json5"
@@ -13,14 +16,14 @@ import { arrayify, logVerbose } from "./util"
 import { XMLTryParse } from "./xml"
 import { YAMLTryParse } from "./yaml"
 import { dirname } from "path"
-import { ensureDir } from "fs-extra"
 
-export function createFileSystem(): Omit<
+export function createWorkspaceFileSystem(): Omit<
     WorkspaceFileSystem,
     "grep" | "writeCached"
 > {
     const fs = {
         findFiles: async (glob: string, options: FindFilesOptions) => {
+            dbg(`findFiles: ${JSON.stringify(options)}`)
             const { readText, ignore, applyGitIgnore } = options || {}
             const names = (
                 await host.findFiles(glob, {
@@ -41,14 +44,15 @@ export function createFileSystem(): Omit<
             return files
         },
         writeText: async (filename: string, c: string) => {
-            if (DOT_ENV_REGEX.test(filename))
+            if (DOT_ENV_REGEX.test(filename)) {
                 throw new Error("writing .env not allowed")
-
+            }
             await writeText(filename, c)
         },
         readText: async (f: string | Awaitable<WorkspaceFile>) => {
-            if (f === undefined)
+            if (f === undefined) {
                 throw new NotSupportedError("missing file name")
+            }
 
             const file: WorkspaceFile =
                 typeof f === "string"
@@ -57,13 +61,15 @@ export function createFileSystem(): Omit<
                           content: undefined,
                       }
                     : await f
-            if (DOT_ENV_REGEX.test(file.filename)) return file
+            if (DOT_ENV_REGEX.test(file.filename)) {
+                dbg(`filename matches DOT_ENV_REGEX: ${file.filename}`)
+                return file
+            }
             try {
+                dbg(`resolving file content for: ${file.filename}`)
                 await resolveFileContent(file)
             } catch (e) {
-                logVerbose(
-                    `error reading file ${file.filename}: ${errorMessage(e)}`
-                )
+                dbg(`error reading file ${file.filename}: ${errorMessage(e)}`)
             }
             return file
         },
@@ -113,25 +119,24 @@ export function createFileSystem(): Omit<
             return data
         },
         cache: async (name: string) => {
-            if (!name) throw new NotSupportedError("missing cache name")
+            if (!name) {
+                dbg(`cache name is missing`)
+                throw new NotSupportedError("missing cache name")
+            }
+            dbg(`cache name: ${name}`)
             const res = JSONLineCache.byName<any, any>(name)
             return res
         },
         stat: async (filename: string) => {
-            try {
-                const res = await stat(filename)
-                return {
-                    size: res.size,
-                    mode: res.mode,
-                }
-            } catch {
-                return undefined
-            }
+            const stat = await tryStat(filename)
+            return stat ? { size: stat.size, mode: stat.mode } : undefined
         },
         copyFile: async (src: string, dest: string) => {
-            if (DOT_ENV_REGEX.test(src) || DOT_ENV_REGEX.test(dest))
+            if (DOT_ENV_REGEX.test(src) || DOT_ENV_REGEX.test(dest)) {
                 throw new Error("copying .env not allowed")
-            await ensureDir(dirname(dest))
+            }
+            dbg(`copying file from ${src} to ${dest}`)
+            await mkdir(dirname(dest), { recursive: true })
             await copyFile(src, dest)
         },
     } satisfies Omit<WorkspaceFileSystem, "grep" | "writeCached">

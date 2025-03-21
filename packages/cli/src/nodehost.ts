@@ -13,7 +13,7 @@ import { execa } from "execa"
 import { join } from "node:path"
 import { createNodePath } from "./nodepath"
 import { DockerManager } from "./docker"
-import { createFileSystem } from "../../core/src/filesystem"
+import { createWorkspaceFileSystem } from "../../core/src/workspace"
 import { filterGitIgnore } from "../../core/src/gitignore"
 import {
     parseDefaultsFromEnv,
@@ -91,7 +91,7 @@ export class NodeHost extends EventTarget implements RuntimeHost {
     userState: any = {}
     readonly path = createNodePath()
     readonly server = new NodeServerManager()
-    readonly workspace = createFileSystem()
+    readonly workspace = createWorkspaceFileSystem()
     readonly containers = new DockerManager()
     readonly browsers = new BrowserManager()
     private readonly _modelAliases: Record<

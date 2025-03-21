@@ -1,17 +1,18 @@
 import { describe, test, before, after } from "node:test"
 import assert from "node:assert/strict"
-import { tryStat } from "./fs"
+import { tryReadText, tryStat } from "./fs"
 import * as fs from "fs/promises"
 import * as path from "path"
 
-describe("tryStat", async () => {
-    const testDir = path.join(process.cwd(), "test-tryStat")
+describe("fs", async () => {
+    const testDir = ".genaiscript/test-tryStat"
     const testFile = path.join(testDir, "testfile.txt")
+    const content = "test content"
 
     before(async () => {
         // Setup test directory and file
         await fs.mkdir(testDir, { recursive: true })
-        await fs.writeFile(testFile, "test content")
+        await fs.writeFile(testFile, content)
     })
 
     after(async () => {
@@ -54,5 +55,12 @@ describe("tryStat", async () => {
             undefined,
             "Should return undefined for invalid path"
         )
+    })
+
+    test("should read workspace relative file path", async () => {
+        const relativePath = testFile
+        console.log(`relative path: ${relativePath}`)
+        const f = await tryReadText(relativePath)
+        assert.strictEqual(f, content, `failed to read file ${relativePath}`)
     })
 })

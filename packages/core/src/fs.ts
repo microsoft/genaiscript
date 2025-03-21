@@ -30,8 +30,8 @@ export async function tryReadText(fn: string) {
 }
 
 export async function writeText(fn: string, content: string) {
-    await mkdir(dirname(fn), { recursive: true })
     dbg(`writing text to file ${fn}`)
+    await mkdir(dirname(fn), { recursive: true })
     await writeFile(fn, content, { encoding: "utf8" })
 }
 
