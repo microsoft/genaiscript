@@ -1,15 +1,8 @@
 import React from "react"
 import { VictoryChart, VictoryGroup, VictoryLine, VictoryTheme } from "victory"
-import { JSON5TryParse } from "../../core/src/json5"
 
-export default function LineChart(props: { children: string }) {
-    const { children } = props
-    const rows: any[] = JSON5TryParse(children)
-
-    // find rows that are numbers
-    if (!rows?.length && typeof rows[0] !== "object") return null
-
-    const headers = Object.keys(rows[0])
+export default function LineChart(props: { rows: any[]; headers: string[] }) {
+    const { rows, headers } = props
     const x = headers[0]
     const ys = headers.slice(1)
 

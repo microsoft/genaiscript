@@ -13,8 +13,7 @@ import { ErrorBoundary } from "react-error-boundary"
 import rehypeHighlight from "rehype-highlight"
 import Code from "./Code"
 import CopySaveButtons from "./Buttons"
-import BarChart from "./BarChart"
-import LineChart from "./LineChart"
+import DataTableTabs from "./DataTableTabs"
 
 const genaiscriptSchema = Object.freeze({
     ...defaultSchema,
@@ -114,24 +113,45 @@ export default function Markdown(props: {
                 >
                     <ReactMarkdown
                         components={{
+                            pre({ node, className, children, ...props }) {
+                                console.log({
+                                    node,
+                                    className,
+                                    children,
+                                    props,
+                                })
+                                const codeClassName = (node as any)
+                                    .children?.[0]?.properties
+                                    ?.className?.[1] as string
+                                const codeText = (node as any).children?.[0]
+                                    ?.children?.[0]?.value as string
+                                console.log(codeClassName, codeText)
+                                console.log(node.children[0])
+                                if (
+                                    /language-(barchart|linechart)/.test(
+                                        codeClassName
+                                    )
+                                )
+                                    return (
+                                        <DataTableTabs
+                                            chart={codeClassName}
+                                            {...props}
+                                        >
+                                            {codeText}
+                                        </DataTableTabs>
+                                    )
+                                return (
+                                    <pre className={className} {...props}>
+                                        {children}
+                                    </pre>
+                                )
+                            },
                             code({ node, className, children, ...props }) {
                                 if (!/hljs/.test(className))
                                     return (
                                         <code className={className} {...props}>
                                             {children}
                                         </code>
-                                    )
-                                if (/barchart/.test(className))
-                                    return (
-                                        <BarChart {...props}>
-                                            {children as string}
-                                        </BarChart>
-                                    )
-                                if (/linechart/.test(className))
-                                    return (
-                                        <LineChart {...props}>
-                                            {children as string}
-                                        </LineChart>
                                     )
                                 return (
                                     <Code className={className} {...props}>
