@@ -1,16 +1,15 @@
-import {fileTree} from 'genaiscript/runtime';
+import { fileTree } from "genaiscript/runtime"
 
 script({
-      description: 'Generate a llms.txt file for a project',
-    model: "openai:gpt-4o",
+    description: "Generate a llms.txt file for a project",
+    model: "long",
     responseType: "markdown",
-    tools: "fs_read_file"
+    tools: "fs_read_file",
 })
 
-def("FILES",await fileTree("genaisrc/**"))
+def("FILES", await fileTree("genaisrc/**"))
 
-$
-`# **Prompt**  
+$`# **Prompt**  
 
 **Task:**  
 Generate an llms.txt file in Markdown format that provides a structured and well-organized overview of all files within a given directory. The document should enhance readability and maintainability while offering a clear understanding of the project's structure and purpose.  

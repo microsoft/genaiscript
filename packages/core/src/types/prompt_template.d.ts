@@ -3787,6 +3787,11 @@ interface SpeechOptions {
      * If true, the transcription will be cached.
      */
     cache?: boolean | string
+
+    /**
+     * Control the voice of your generated audio with additional instructions. Does not work with tts-1 or tts-1-hd.
+     */
+    instructions?: string
 }
 
 interface SpeechResult {

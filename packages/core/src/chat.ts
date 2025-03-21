@@ -143,6 +143,7 @@ export type CreateSpeechRequest = {
     input: string
     model: string
     voice?: string
+    instructions?: string
 }
 
 export type CreateSpeechResult = {

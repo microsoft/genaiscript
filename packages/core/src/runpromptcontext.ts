@@ -805,7 +805,7 @@ export function createChatGenerationContext(
         options?: SpeechOptions
     ): Promise<SpeechResult> => {
         checkCancelled(cancellationToken)
-        const { cache, voice, ...rest } = options || {}
+        const { cache, voice, instructions, ...rest } = options || {}
         const speechTrace = trace.startTraceDetails("🦜 speak")
         try {
             const conn: ModelConnectionOptions = {
@@ -839,6 +839,7 @@ export function createChatGenerationContext(
                 input,
                 model: configuration.model,
                 voice,
+                instructions: dedent(instructions),
             }) satisfies CreateSpeechRequest
             const res = await speaker(req, configuration, {
                 trace: speechTrace,
