@@ -1191,7 +1191,7 @@ Apache License
 
 The following npm packages may be included in this product:
 
- - @grpc/grpc-js@1.13.0
+ - @grpc/grpc-js@1.13.1
  - @grpc/proto-loader@0.7.13
  - detect-libc@2.0.3
  - docker-modem@5.0.6
@@ -2955,7 +2955,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.118.1
+ - genaiscript-vscode@1.118.4
 
 This package contains the following license:
 
@@ -8918,10 +8918,10 @@ The following npm packages may be included in this product:
  - @tokenizer/token@0.3.0
  - agent-base@6.0.2
  - eastasianwidth@0.2.0
- - genaiscript-core-internal@1.118.1
- - genaiscript-sample@1.118.1
- - genaiscript-web@1.118.1
- - genaiscript@1.118.1
+ - genaiscript-core-internal@1.118.4
+ - genaiscript-sample@1.118.4
+ - genaiscript-web@1.118.4
+ - genaiscript@1.118.4
  - https-proxy-agent@5.0.1
  - isarray@1.0.0
  - javascript-natural-sort@0.7.1

@@ -1,0 +1,59 @@
+---
+title: Logging
+description: Logging mechanism for scripts.
+sidebar:
+    order: 100
+keywords: [logging, debug]
+---
+
+GenAIScript uses the [debug](https://www.npmjs.com/package/debug) library for logging.
+It is a very flexible and powerful logging library that allows you to enable or disable logging for specific namespaces.
+
+## Add Logging to Your Script
+
+You can use the `debug` function too to create a logger with a specific namespace.
+
+- import debug from "genaiscript/runtime
+    "
+
+```js title="debug.genai.mjs"
+import { debug } from "genaiscript/runtime"
+```
+
+- call `debug(namespace)` to create a logger with the specified namespace
+
+```js 'const log = debug("genai:sample")'
+import { debug } from "genaiscript/runtime"
+const log = debug("genai:sample")
+```
+
+- log away!
+
+```js
+log("This is a debug message")
+log("This is a debug message with a variable: %s", "variable")
+log("This is a debug message with an object: %o", { key: "value" })
+
+console.log("To see log messages, run the script with DEBUG=genai:sample")
+console.log("DEBUG=genai:sample genaiscript run debug")
+```
+
+## Seeing the logs
+
+By default, the logging is disabled. To turn it on,
+you need to set the `DEBUG` environment variable to the namespace you want to enable.
+For example, to enable logging for the `genai:sample` namespace, you can run the script like this:
+
+```bash
+DEBUG=genai:sample genaiscript run debug
+```
+
+And you will see the following output:
+
+```txt
+  genai:sample This is a debug message +0ms
+  genai:sample This is a debug message with a variable: variable +0ms
+  genai:sample This is a debug message with an object: { key: 'value' } +0ms
+To see log messages, run the script with DEBUG=genai:sample
+DEBUG=genai:sample genaiscript run debug
+```

@@ -1,4 +1,4 @@
-import { stdout } from "node:process"
+import { stdout } from "./stdio"
 
 // Boolean indicating if console supports colors
 // Determines if the console supports color output based on terminal capability

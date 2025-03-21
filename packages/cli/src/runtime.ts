@@ -8,11 +8,12 @@
 import { delay, uniq, uniqBy, chunk, groupBy } from "es-toolkit"
 import { z } from "zod"
 import { pipeline } from "@huggingface/transformers"
+import debug from "debug"
 
 /**
  * Utility functions exported for general use
  */
-export { delay, uniq, uniqBy, z, pipeline, chunk, groupBy }
+export { delay, uniq, uniqBy, z, pipeline, chunk, groupBy, debug }
 
 /**
  * Options for classifying data using AI models.
