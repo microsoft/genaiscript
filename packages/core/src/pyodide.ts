@@ -5,6 +5,7 @@ import { hash } from "./crypto"
 import { deleteUndefinedValues } from "./cleaners"
 import { dedent } from "./indent"
 import { PLimitPromiseQueue } from "./concurrency"
+import { stderr } from "./stdio"
 
 class PyProxy implements PythonProxy {
     constructor(
@@ -68,8 +69,8 @@ export async function createPythonRuntime(
     const pyodide = await loadPyodide(
         deleteUndefinedValues({
             packageCacheDir: dotGenaiscriptPath("cache", "python", sha),
-            stdout: (msg: string) => process.stderr.write(msg),
-            stderr: (msg: string) => process.stderr.write(msg),
+            stdout: (msg: string) => stderr.write(msg),
+            stderr: (msg: string) => stderr.write(msg),
             checkAPIVersion: true,
         })
     )

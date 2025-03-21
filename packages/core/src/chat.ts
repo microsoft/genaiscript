@@ -92,6 +92,7 @@ import { splitThink, unthink } from "./think"
 import { measure } from "./performance"
 import { renderMessagesToTerminal } from "./chatrenderterminal"
 import { fileCacheImage } from "./filecache"
+import { stderr } from "./stdio"
 
 function toChatCompletionImage(
     image: PromptImage
@@ -1107,7 +1108,7 @@ export async function executeChatSession(
                     logVerbose(
                         `chat: sending ${messages.length} messages to ${model} (~${tokens ?? "?"} tokens)`
                     )
-                    process.stderr.write(
+                    stderr.write(
                         await renderMessagesToTerminal(messages, { user: true })
                     )
 

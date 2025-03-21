@@ -103,7 +103,7 @@ import { sliceData } from "./tidy"
 import { toBase64 } from "@smithy/util-base64"
 import { consoleColors } from "./consolecolor"
 import { terminalSize } from "./terminal"
-import { stdout } from "./stdio"
+import { stderr, stdout } from "./stdio"
 
 export function createChatTurnGenerationContext(
     options: GenerationOptions,
@@ -1173,7 +1173,7 @@ export function createChatGenerationContext(
 
             if (consoleColors) {
                 const size = terminalSize()
-                process.stderr.write(
+                stderr.write(
                     await renderImageToTerminal(res.image, {
                         ...size,
                         label: filename,

@@ -8,6 +8,7 @@ import { deleteUndefinedValues } from "../../core/src/cleaners"
 import { logInfo, logVerbose, logWarn } from "../../core/src/util"
 import { run } from "./api"
 import { tryReadText } from "../../core/src/fs"
+import { stderr } from "../../core/src/stdio"
 
 export async function configure(options: { provider?: string }) {
     while (true) {
@@ -87,7 +88,7 @@ $\`Write a one-word poem in code.\`
                         provider: provider.id,
                         runTrace: false,
                     })
-                    process.stderr.write("\n")
+                    stderr.write("\n")
                     if (!res || res.error) logWarn(`chat error!`)
                     else logInfo(`chat successful!`)
                 }
