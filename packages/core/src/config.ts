@@ -26,8 +26,8 @@ import { host } from "./host"
 import { logVerbose } from "./util"
 import { uniq } from "es-toolkit"
 import { tryReadText, tryStat } from "./fs"
-import debug from "debug"
 
+import debug from "debug"
 const dbg = debug("config")
 
 export async function resolveGlobalConfiguration(

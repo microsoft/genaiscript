@@ -1,7 +1,8 @@
-import { lstat, writeFile } from "fs/promises"
+import { lstat, mkdir, writeFile } from "fs/promises"
 import { HTTPS_REGEX } from "./constants"
 import { host } from "./host"
 import { readFile } from "fs/promises"
+import { dirname } from "path"
 
 export function changeext(filename: string, newext: string) {
     if (!newext.startsWith(".")) newext = "." + newext
@@ -21,6 +22,7 @@ export async function tryReadText(fn: string) {
 }
 
 export async function writeText(fn: string, content: string) {
+    await mkdir(dirname(fn), { recursive: true })
     await writeFile(fn, content, { encoding: "utf8" })
 }
 
