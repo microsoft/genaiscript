@@ -1,3 +1,6 @@
+import debug from "debug"
+const dbg = debug("connection")
+
 import { normalizeFloat, trimTrailingSlash } from "./cleaners"
 import {
     ANTHROPIC_API_BASE,
@@ -60,6 +63,7 @@ import {
 import { arrayify } from "./util"
 
 export function ollamaParseHostVariable(env: Record<string, string>) {
+    dbg(`ollamaParseHostVariable called with env: ${JSON.stringify(env)}`)
     const s = (
         env.OLLAMA_HOST ||
         env.OLLAMA_API_BASE ||
@@ -96,7 +100,9 @@ export function findEnvVar(
 
 export async function parseDefaultsFromEnv(env: Record<string, string>) {
     // legacy
+    dbg(`checking legacy environment variable: GENAISCRIPT_DEFAULT_MODEL`)
     if (env.GENAISCRIPT_DEFAULT_MODEL) {
+        dbg(`found GENAISCRIPT_DEFAULT_MODEL: ${env.GENAISCRIPT_DEFAULT_MODEL}`)
         runtimeHost.setModelAlias("env", "large", env.GENAISCRIPT_DEFAULT_MODEL)
     }
 
@@ -109,10 +115,12 @@ export async function parseDefaultsFromEnv(env: Record<string, string>) {
             continue
         }
         const id = m.groups.id || m.groups.id2
+        dbg(`found ${k} = ${v}`)
         runtimeHost.setModelAlias("env", id, v)
     }
     const t = normalizeFloat(env.GENAISCRIPT_DEFAULT_TEMPERATURE)
     if (!isNaN(t)) {
+        dbg(`parsed GENAISCRIPT_DEFAULT_TEMPERATURE: ${t}`)
         runtimeHost.setModelAlias("env", "large", { temperature: t })
     }
 }
@@ -128,7 +136,9 @@ export async function parseTokenFromEnv(
     const BASE_SUFFIX = ["_API_BASE", "_API_ENDPOINT", "_BASE", "_ENDPOINT"]
 
     if (provider === MODEL_PROVIDER_OPENAI) {
+        dbg(`processing MODEL_PROVIDER_OPENAI`)
         const token = env.OPENAI_API_KEY ?? ""
+        dbg(`retrieved OPENAI_API_KEY: ${env.OPENAI_API_KEY}`)
         let base = env.OPENAI_API_BASE
         let type = (env.OPENAI_API_TYPE as OpenAIAPIType) || "openai"
         const version = env.OPENAI_API_VERSION
@@ -144,6 +154,7 @@ export async function parseTokenFromEnv(
             )
         }
         if (type === "openai" && !base) {
+            dbg(`setting default base for OPENAI_API_TYPE openai`)
             base = OPENAI_API_BASE
         }
         if (type === "localai" && !base) {
@@ -209,6 +220,7 @@ export async function parseTokenFromEnv(
     }
 
     if (provider === MODEL_PROVIDER_AZURE_OPENAI) {
+        dbg(`processing MODEL_PROVIDER_AZURE_OPENAI`)
         const tokenVar = env.AZURE_OPENAI_API_KEY
             ? "AZURE_OPENAI_API_KEY"
             : "AZURE_API_KEY"
@@ -260,7 +272,11 @@ export async function parseTokenFromEnv(
     }
 
     if (provider === MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI) {
+        dbg(`processing MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI`)
         const tokenVar = "AZURE_SERVERLESS_OPENAI_API_KEY"
+        dbg(
+            `retrieved AZURE_SERVERLESS_OPENAI_API_KEY: ${env.AZURE_SERVERLESS_OPENAI_API_KEY}`
+        )
         const token = env[tokenVar]
         let base = trimTrailingSlash(
             env.AZURE_SERVERLESS_OPENAI_ENDPOINT ||
@@ -306,7 +322,11 @@ export async function parseTokenFromEnv(
     }
 
     if (provider === MODEL_PROVIDER_AZURE_AI_INFERENCE) {
+        dbg(`processing MODEL_PROVIDER_AZURE_AI_INFERENCE`)
         // https://github.com/Azure/azure-sdk-for-js/tree/@azure-rest/ai-inference_1.0.0-beta.2/sdk/ai/ai-inference-rest
+        dbg(
+            `retrieved AZURE_AI_INFERENCE_API_KEY: ${env.AZURE_AI_INFERENCE_API_KEY}`
+        )
         const tokenVar = "AZURE_AI_INFERENCE_API_KEY"
         const token = env[tokenVar]?.trim()
         let base = trimTrailingSlash(
@@ -347,6 +367,7 @@ export async function parseTokenFromEnv(
     }
 
     if (provider === MODEL_PROVIDER_AZURE_SERVERLESS_MODELS) {
+        dbg(`processing MODEL_PROVIDER_AZURE_SERVERLESS_MODELS`)
         // https://github.com/Azure/azure-sdk-for-js/tree/@azure-rest/ai-inference_1.0.0-beta.2/sdk/ai/ai-inference-rest
         const tokenVar = "AZURE_SERVERLESS_MODELS_API_KEY"
         const token = env[tokenVar]?.trim()
@@ -391,6 +412,7 @@ export async function parseTokenFromEnv(
     }
 
     if (provider === MODEL_PROVIDER_GOOGLE) {
+        dbg(`processing MODEL_PROVIDER_GOOGLE`)
         const token = env.GEMINI_API_KEY || env.GOOGLE_API_KEY
         if (!token) {
             return undefined
@@ -414,7 +436,9 @@ export async function parseTokenFromEnv(
     }
 
     if (provider === MODEL_PROVIDER_ANTHROPIC) {
+        dbg(`processing MODEL_PROVIDER_ANTHROPIC`)
         const modelKey = "ANTHROPIC_API_KEY"
+        dbg(`retrieved ANTHROPIC_API_KEY: ${env.ANTHROPIC_API_KEY}`)
         const token = env[modelKey]?.trim()
         if (token === undefined || token === PLACEHOLDER_API_KEY) {
             throw new Error("ANTHROPIC_API_KEY not configured")
@@ -445,6 +469,7 @@ export async function parseTokenFromEnv(
     }
 
     if (provider === MODEL_PROVIDER_MISTRAL) {
+        dbg(`processing MODEL_PROVIDER_MISTRAL`)
         const base = env.MISTRAL_API_BASE || MISTRAL_API_BASE
         const token = env.MISTRAL_API_KEY
         if (!token) {
@@ -461,6 +486,7 @@ export async function parseTokenFromEnv(
     }
 
     if (provider === MODEL_PROVIDER_ALIBABA) {
+        dbg(`processing MODEL_PROVIDER_ALIBABA`)
         const base =
             env.ALIBABA_API_BASE ||
             env.DASHSCOPE_API_BASE ||
@@ -487,6 +513,7 @@ export async function parseTokenFromEnv(
     }
 
     if (provider === MODEL_PROVIDER_OLLAMA) {
+        dbg(`processing MODEL_PROVIDER_OLLAMA`)
         const host = ollamaParseHostVariable(env)
         const base = cleanApiBase(host)
         return {
@@ -500,6 +527,7 @@ export async function parseTokenFromEnv(
     }
 
     if (provider === MODEL_PROVIDER_HUGGINGFACE) {
+        dbg(`processing MODEL_PROVIDER_HUGGINGFACE`)
         const prefixes = ["HUGGINGFACE", "HF"]
         const token = findEnvVar(env, prefixes, TOKEN_SUFFIX)
         const base =
@@ -522,6 +550,7 @@ export async function parseTokenFromEnv(
     }
 
     if (provider === MODEL_PROVIDER_DEEPSEEK) {
+        dbg(`processing MODEL_PROVIDER_DEEPSEEK`)
         const base =
             findEnvVar(env, "DEEPSEEK", BASE_SUFFIX)?.value || DEEPSEEK_API_BASE
         if (!URL.canParse(base)) {
@@ -542,6 +571,7 @@ export async function parseTokenFromEnv(
     }
 
     if (provider === MODEL_PROVIDER_WHISPERASR) {
+        dbg(`processing MODEL_PROVIDER_WHISPERASR`)
         const base =
             findEnvVar(env, "WHISPERASR", BASE_SUFFIX)?.value ||
             WHISPERASR_API_BASE
@@ -558,6 +588,7 @@ export async function parseTokenFromEnv(
     }
 
     if (provider === MODEL_PROVIDER_WINDOWS_AI) {
+        dbg(`processing MODEL_PROVIDER_WINDOWS_AI`)
         return {
             provider,
             model,
@@ -601,6 +632,7 @@ export async function parseTokenFromEnv(
     }
 
     if (provider === MODEL_PROVIDER_SGLANG) {
+        dbg(`processing MODEL_PROVIDER_SGLANG`)
         const base =
             findEnvVar(env, "SGLANG", BASE_SUFFIX)?.value || SGLANG_API_BASE
         if (!URL.canParse(base)) {
@@ -617,6 +649,7 @@ export async function parseTokenFromEnv(
     }
 
     if (provider === MODEL_PROVIDER_VLLM) {
+        dbg(`processing MODEL_PROVIDER_VLLM`)
         const base =
             findEnvVar(env, "VLLM", BASE_SUFFIX)?.value || VLLM_API_BASE
         if (!URL.canParse(base)) {
@@ -633,6 +666,7 @@ export async function parseTokenFromEnv(
     }
 
     if (provider === MODEL_PROVIDER_LLAMAFILE) {
+        dbg(`processing MODEL_PROVIDER_LLAMAFILE`)
         const base =
             findEnvVar(env, "LLAMAFILE", BASE_SUFFIX)?.value ||
             LLAMAFILE_API_BASE
@@ -650,6 +684,7 @@ export async function parseTokenFromEnv(
     }
 
     if (provider === MODEL_PROVIDER_LITELLM) {
+        dbg(`processing MODEL_PROVIDER_LITELLM`)
         const base =
             findEnvVar(env, "LITELLM", BASE_SUFFIX)?.value || LITELLM_API_BASE
         if (!URL.canParse(base)) {
@@ -666,6 +701,7 @@ export async function parseTokenFromEnv(
     }
 
     if (provider === MODEL_PROVIDER_LMSTUDIO) {
+        dbg(`processing MODEL_PROVIDER_LMSTUDIO`)
         const base =
             findEnvVar(env, "LMSTUDIO", BASE_SUFFIX)?.value || LMSTUDIO_API_BASE
         if (!URL.canParse(base)) {
@@ -682,6 +718,7 @@ export async function parseTokenFromEnv(
     }
 
     if (provider === MODEL_PROVIDER_JAN) {
+        dbg(`processing MODEL_PROVIDER_JAN`)
         const base = findEnvVar(env, "JAN", BASE_SUFFIX)?.value || JAN_API_BASE
         if (!URL.canParse(base)) {
             throw new Error(`${base} must be a valid URL`)
@@ -697,6 +734,7 @@ export async function parseTokenFromEnv(
     }
 
     if (provider === MODEL_PROVIDER_TRANSFORMERS) {
+        dbg(`processing MODEL_PROVIDER_TRANSFORMERS`)
         return {
             provider,
             model,
@@ -707,6 +745,7 @@ export async function parseTokenFromEnv(
     }
 
     if (provider === MODEL_PROVIDER_GITHUB_COPILOT_CHAT) {
+        dbg(`processing MODEL_PROVIDER_GITHUB_COPILOT_CHAT`)
         if (!runtimeHost.clientLanguageModel) {
             throw new Error(
                 `${MODEL_PROVIDER_GITHUB_COPILOT_CHAT} requires Visual Studio Code and GitHub Copilot Chat`
@@ -721,6 +760,7 @@ export async function parseTokenFromEnv(
     }
 
     if (provider === MODEL_PROVIDER_ECHO || provider === MODEL_PROVIDER_NONE) {
+        dbg(`processing MODEL_PROVIDER_ECHO or MODEL_PROVIDER_NONE`)
         return {
             provider,
             model,
@@ -730,6 +770,7 @@ export async function parseTokenFromEnv(
     }
 
     return undefined
+    dbg(`no matching provider found, returning undefined`)
 
     function cleanAzureBase(b: string) {
         if (!b) {

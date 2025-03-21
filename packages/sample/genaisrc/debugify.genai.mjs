@@ -31,7 +31,7 @@ export default async function () {
 
     await prettier(file)
     file = await workspace.readText(file.filename)
-return
+
     const tsc = await compile(file)
     if (tsc.exitCode) throw new Error("compilation error")
 
