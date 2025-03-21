@@ -15,19 +15,19 @@
     "test:scripts:view": "node ../cli/built/genaiscript.cjs test view"
   },
   "devDependencies": {
-    "@agentic/calculator": "^7.3.4",
-    "@agentic/core": "^7.3.4",
-    "@agentic/weather": "^7.3.4",
+    "@agentic/calculator": "^7.5.3",
+    "@agentic/core": "^7.5.3",
+    "@agentic/weather": "^7.5.3",
     "@azure/identity": "^4.8.0",
-    "@azure/storage-blob": "^12.26.0",
+    "@azure/storage-blob": "^12.27.0",
     "@huggingface/transformers": "^3.4.0",
     "@langchain/core": "^0.3.42",
-    "@langchain/langgraph": "^0.2.56",
+    "@langchain/langgraph": "^0.2.57",
     "@modelcontextprotocol/sdk": "^1.7.0",
     "@tidyjs/tidy": "^2.5.2",
     "p-all": "^5.0.0",
     "vectorstore": "^0.0.4",
     "zod": "^3.24.2",
-    "zod-to-json-schema": "^3.24.4"
+    "zod-to-json-schema": "^3.24.5"
   }
 }

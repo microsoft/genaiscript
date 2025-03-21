@@ -2,7 +2,7 @@ import dotenv from "dotenv"
 
 import { TextDecoder, TextEncoder } from "util"
 import { lstat, readFile, unlink, writeFile } from "node:fs/promises"
-import { ensureDir, exists, existsSync, remove } from "fs-extra"
+import { ensureDir, exists, remove } from "fs-extra"
 import { dirname } from "node:path"
 import { glob } from "glob"
 import { debug, error, info, warn } from "./log"
