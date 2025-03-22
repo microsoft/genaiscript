@@ -3,28 +3,6 @@ import { arrayify } from "./cleaners"
 import { CancelError } from "./error"
 import { resolveFileContent } from "./file"
 
-export async function astGrepParse(
-    file: WorkspaceFile,
-    options: { lang?: string }
-) {
-    await resolveFileContent(file)
-    const { filename, content } = file
-
-    const { parseAsync, Lang } = await import("@ast-grep/napi")
-    const lang = options?.lang || resolveLang(filename)
-    const root = await parseAsync(lang, content)
-    return root
-
-    function resolveLang(filename: string) {
-        if (/\.m?js$/i.test(filename)) return Lang.JavaScript
-        if (/\.m?ts$/i.test(filename)) return Lang.TypeScript
-        if (/\.(j|t)sx$/i.test(filename)) return Lang.Tsx
-        if (/\.html$/i.test(filename)) return Lang.Html
-        if (/\.css$/i.test(filename)) return Lang.Css
-        return path.extname(filename).slice(1)
-    }
-}
-
 export interface AstGrepEdit {
     /** The start position of the edit */
     startPos: number
@@ -94,19 +72,28 @@ export interface AstGrepRoot {
     filename(): string
 }
 
+export interface AstGrep {
+    parse(file: WorkspaceFile, options: { lang?: string }): Promise<AstGrepRoot>
+    findInFiles(glob: ElementOrArray<string>): Promise<AstGrepNode[]>
+}
+
+export type AstGrepLang = OptionsOrString<"html" | "js" | "ts" | "tsx" | "css">
+
 export async function astGrepFindInFiles(
+    lang: AstGrepLang,
     glob: ElementOrArray<string>,
-    options: { lang?: string } & CancellationOptions
+    options: CancellationOptions
 ): Promise<AstGrepNode[]> {
-    const { lang, cancellationToken } = options
-    const { findInFiles, Lang } = await import("@ast-grep/napi")
+    const { cancellationToken } = options
+    const { findInFiles } = await import("@ast-grep/napi")
     checkCancelled(cancellationToken)
+    const sglang = await resolveLang(lang)
 
     const res: AstGrepNode[] = []
     const p = new Promise<number>(async (resolve, reject) => {
         let i = 0
         let n = await findInFiles(
-            lang,
+            sglang,
             {
                 paths: arrayify(glob),
                 matcher: {
@@ -126,6 +113,58 @@ export async function astGrepFindInFiles(
             resolve(n)
     })
     await p
+    checkCancelled(cancellationToken)
 
     return res
+}
+
+export async function astGrepParse(
+    file: WorkspaceFile,
+    options: { lang?: AstGrepLang }
+): Promise<AstGrepRoot> {
+    await resolveFileContent(file)
+    const { filename, encoding, content } = file
+    if (encoding) return undefined // binary file
+
+    const { parseAsync, Lang } = await import("@ast-grep/napi")
+    const lang = await resolveLang(options?.lang, filename)
+    if (!lang) return undefined
+    const root = await parseAsync(lang, content)
+    return root
+
+    function resolveLang(lang: AstGrepLang, filename: string) {
+        if (lang === "html") return Lang.Html
+        if (lang === "js") return Lang.JavaScript
+        if (lang === "ts") return Lang.TypeScript
+        if (lang === "tsx") return Lang.Tsx
+        if (lang === "css") return Lang.Css
+        if (lang) return lang
+
+        if (/\.m?js$/i.test(filename)) return Lang.JavaScript
+        if (/\.m?ts$/i.test(filename)) return Lang.TypeScript
+        if (/\.(j|t)sx$/i.test(filename)) return Lang.Tsx
+        if (/\.html$/i.test(filename)) return Lang.Html
+        if (/\.css$/i.test(filename)) return Lang.Css
+
+        return undefined
+    }
+}
+
+async function resolveLang(lang: AstGrepLang, filename?: string) {
+    const { Lang } = await import("@ast-grep/napi")
+    if (lang === "html") return Lang.Html
+    if (lang === "js") return Lang.JavaScript
+    if (lang === "ts") return Lang.TypeScript
+    if (lang === "tsx") return Lang.Tsx
+    if (lang === "css") return Lang.Css
+    if (lang) return lang
+
+    if (filename) {
+        if (/\.m?js$/i.test(filename)) return Lang.JavaScript
+        if (/\.m?ts$/i.test(filename)) return Lang.TypeScript
+        if (/\.(j|t)sx$/i.test(filename)) return Lang.Tsx
+        if (/\.html$/i.test(filename)) return Lang.Html
+        if (/\.css$/i.test(filename)) return Lang.Css
+    }
+    return undefined
 }
