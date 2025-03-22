@@ -15,6 +15,11 @@ export function arrayify<T>(
 }
 
 export function deleteUndefinedValues<T extends Record<string, any>>(o: T): T {
+    if (typeof o === "object" && Object.isFrozen(o)) {
+        const res: any = {}
+        for (const k in o) if (o[k] !== undefined) res[k] = o[k]
+        return res as T
+    }
     if (typeof o === "object")
         for (const k in o) if (o[k] === undefined) delete o[k]
     return o

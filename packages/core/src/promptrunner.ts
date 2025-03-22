@@ -1,3 +1,6 @@
+import debug from "debug"
+const dbg = debug("genai:promptrunner")
+
 // Import necessary modules and functions for handling chat sessions, templates, file management, etc.
 import { executeChatSession, tracePromptResult } from "./chat"
 import { GenerationStatus, Project } from "./server/messages"
@@ -166,6 +169,7 @@ export async function runTemplate(
             reasoningEffort,
             topP,
             maxTokens,
+            fallbackTools,
             seed,
             responseType,
             responseSchema,
@@ -175,6 +179,12 @@ export async function runTemplate(
             cache,
         } = await expandTemplate(prj, template, options, env)
         const { output, generator, secrets, ...restEnv } = env
+
+        dbg(`messages ${messages.length}`, {
+            fallbackTools,
+            responseType,
+            status,
+        })
 
         // Handle failed expansion scenario
         if (status !== "success" || !messages.length) {
@@ -256,6 +266,7 @@ export async function runTemplate(
             seed,
             logprobs,
             topLogprobs,
+            fallbackTools,
             stats: options.stats.createChild(connection.info.model),
         }
         const chatResult = await executeChatSession(

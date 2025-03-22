@@ -337,7 +337,6 @@ export function createChatGenerationContext(
         env: ExpansionVariables
     }
 ): RunPromptContextNode {
-    Object.freeze(options)
     const { cancellationToken, infoCb, userState } = options || {}
     const { prj, env } = projectOptions
     assert(!!env.output, "output missing")
@@ -892,7 +891,6 @@ export function createChatGenerationContext(
             infoCb?.({ text: label || "prompt" })
 
             const genOptions = mergeGenerationOptions(options, runOptions)
-            genOptions.fallbackTools = undefined
             genOptions.inner = true
             genOptions.trace = runTrace
             const { info, configuration } = await resolveModelConnectionInfo(
@@ -917,7 +915,6 @@ export function createChatGenerationContext(
             })
             if (!ok) throw new Error(`failed to pull model ${genOptions.model}`)
 
-            Object.freeze(genOptions)
             const runCtx = createChatGenerationContext(
                 genOptions,
                 runTrace,
@@ -985,8 +982,9 @@ export function createChatGenerationContext(
                     genOptions
                 )
             ) {
-                dbg(`fallback tools added`)
+                assert(!Object.isFrozen(genOptions))
                 genOptions.fallbackTools = true
+                dbg(`fallback tools added ${genOptions.fallbackTools}`)
             }
 
             if (systemScripts.length)
@@ -994,7 +992,9 @@ export function createChatGenerationContext(
                     runTrace.startDetails("👾 systems")
                     for (const systemId of systemScripts) {
                         checkCancelled(cancellationToken)
-
+                        dbg(`system ${systemId.id}`, {
+                            fallbackTools: genOptions.fallbackTools,
+                        })
                         const system = resolveScript(prj, systemId)
                         if (!system)
                             throw new Error(
@@ -1059,8 +1059,10 @@ export function createChatGenerationContext(
                     runTrace.endDetails()
                 }
 
-            if (genOptions.fallbackTools)
+            if (genOptions.fallbackTools) {
+                dbg(`fallback tools definitions added`)
                 addToolDefinitionsMessage(messages, tools)
+            }
 
             finalizeMessages(messages, {
                 ...(runOptions || {}),
@@ -1081,6 +1083,7 @@ export function createChatGenerationContext(
                 "model:" + genOptions.model,
                 modelConcurrency
             )
+            dbg(`run ${genOptions.model}`, deleteUndefinedValues(genOptions))
             const resp = await modelLimit(() =>
                 executeChatSession(
                     configuration,

@@ -1,3 +1,6 @@
+import debug from "debug"
+const dbg = debug("genai:expander")
+
 import { resolveScript } from "./ast"
 import { assert } from "./util"
 import { MarkdownTrace } from "./trace"
@@ -13,7 +16,6 @@ import { createPromptContext } from "./promptcontext"
 import { evalPrompt } from "./evalprompt"
 import { addToolDefinitionsMessage, appendSystemMessage } from "./chat"
 import { importPrompt } from "./importprompt"
-import { parseModelIdentifier } from "./models"
 import { runtimeHost } from "./host"
 import { addFallbackToolSystems, resolveSystems } from "./systems"
 import { GenerationOptions } from "./generation"
@@ -300,8 +302,11 @@ export async function expandTemplate(
             // there's already a system message. add empty before
             messages.unshift({ role: "system", content: "" })
 
-    if (addFallbackToolSystems(systems, tools, template, options))
+    if (addFallbackToolSystems(systems, tools, template, options)) {
+        dbg("added fallback tools")
+        assert(!Object.isFrozen(options))
         options.fallbackTools = true
+    }
 
     try {
         trace.startDetails("👾 systems", { expanded: true })
@@ -316,6 +321,7 @@ export async function expandTemplate(
             }
 
             const systemId = systems[i]
+            dbg(`system ${systemId.id}`)
             const system = resolveScript(prj, systemId)
             if (!system)
                 throw new Error(`system template ${systemId.id} not found`)
@@ -367,7 +373,9 @@ export async function expandTemplate(
         trace.endDetails()
     }
 
-    if (options.fallbackTools) addToolDefinitionsMessage(messages, tools)
+    if (options.fallbackTools) {
+        addToolDefinitionsMessage(messages, tools)
+    }
 
     const { responseType, responseSchema } = finalizeMessages(messages, {
         ...template,
@@ -402,5 +410,6 @@ export async function expandTemplate(
         logprobs,
         topLogprobs,
         disposables,
+        fallbackTools: options.fallbackTools,
     }
 }
