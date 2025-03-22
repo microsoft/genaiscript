@@ -47,6 +47,7 @@ export function isToolsSupported(modelId: string): boolean | undefined {
             ["codellama"]: false,
             ["phi"]: false,
             ["deepseek-r1"]: false,
+            ["gemma3"]: false
         },
         [MODEL_PROVIDER_OPENAI]: oai,
         [MODEL_PROVIDER_AZURE_OPENAI]: oai,
