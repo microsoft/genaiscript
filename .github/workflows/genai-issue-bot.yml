@@ -13,7 +13,6 @@ env:
     GENAISCRIPT_DEFAULT_VISION_MODEL: ${{ vars.GENAISCRIPT_DEFAULT_VISION_MODEL }}
 jobs:
     reason:
-        if: github.event.comment.user.login != 'github-actions[bot]'
         runs-on: ubuntu-latest
         permissions:
             contents: read
