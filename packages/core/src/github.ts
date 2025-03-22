@@ -109,7 +109,9 @@ export async function githubParseEnv(
             res.repo = options.repo
             res.repository = res.owner + "/" + res.repo
         }
-        if (!isNaN(options?.issue)) res.issue = options.issue
+        if (!isNaN(options?.issue)) {
+            res.issue = options.issue
+        }
         if (!res.owner || !res.repo || !res.repository) {
             const repoInfo = await runtimeHost.exec(
                 undefined,
@@ -126,8 +128,9 @@ export async function githubParseEnv(
                 res.repository = res.owner + "/" + res.repo
             }
         }
-        if (isNaN(res.issue) && options?.resolveIssue)
+        if (isNaN(res.issue) && options?.resolveIssue) {
             res.issue = await githubGetPullRequestNumber()
+        }
     } catch (e) {
         logVerbose(errorMessage(e))
     }
@@ -147,9 +150,13 @@ export async function githubUpdatePullRequestDescription(
     const { apiUrl, repository, issue } = info
     assert(!!commentTag)
 
-    if (!issue) return { updated: false, statusText: "missing issue number" }
+    if (!issue) {
+        return { updated: false, statusText: "missing issue number" }
+    }
     const token = await runtimeHost.readSecret(GITHUB_TOKEN)
-    if (!token) return { updated: false, statusText: "missing github token" }
+    if (!token) {
+        return { updated: false, statusText: "missing github token" }
+    }
 
     text = prettifyMarkdown(text)
     text += generatedByFooter(script, info)
@@ -184,11 +191,13 @@ export async function githubUpdatePullRequestDescription(
         statusText: res.statusText,
     }
 
-    if (!r.updated)
+    if (!r.updated) {
         logError(
             `pull request ${resGetJson.html_url} update failed, ${r.statusText}`
         )
-    else logVerbose(`pull request ${resGetJson.html_url} updated`)
+    } else {
+        logVerbose(`pull request ${resGetJson.html_url} updated`)
+    }
 
     return r
 }
@@ -253,9 +262,13 @@ export async function githubCreateIssueComment(
 ): Promise<{ created: boolean; statusText: string; html_url?: string }> {
     const { apiUrl, repository, issue } = info
 
-    if (!issue) return { created: false, statusText: "missing issue number" }
+    if (!issue) {
+        return { created: false, statusText: "missing issue number" }
+    }
     const token = await runtimeHost.readSecret(GITHUB_TOKEN)
-    if (!token) return { created: false, statusText: "missing github token" }
+    if (!token) {
+        return { created: false, statusText: "missing github token" }
+    }
 
     const fetch = await createFetch({ retryOn: [] })
     const url = `${apiUrl}/repos/${repository}/issues/${issue}/comments`
@@ -276,8 +289,9 @@ export async function githubCreateIssueComment(
                 },
             }
         )
-        if (resListComments.status !== 200)
+        if (resListComments.status !== 200) {
             return { created: false, statusText: resListComments.statusText }
+        }
         const comments = (await resListComments.json()) as {
             id: string
             body: string
@@ -292,8 +306,9 @@ export async function githubCreateIssueComment(
                     "X-GitHub-Api-Version": GITHUB_API_VERSION,
                 },
             })
-            if (!resd.ok)
+            if (!resd.ok) {
                 logError(`issue comment delete failed, ` + resd.statusText)
+            }
         }
     }
 
@@ -312,11 +327,13 @@ export async function githubCreateIssueComment(
         statusText: res.statusText,
         html_url: resp.html_url,
     }
-    if (!r.created)
+    if (!r.created) {
         logError(
             `pull request ${issue} comment creation failed, ${r.statusText}`
         )
-    else logVerbose(`pull request ${issue} comment created at ${r.html_url}`)
+    } else {
+        logVerbose(`pull request ${issue} comment created at ${r.html_url}`)
+    }
 
     return r
 }
@@ -380,8 +397,9 @@ async function githubCreatePullRequestReview(
         logVerbose(
             `pull request ${commitSha} comment creation failed, ${r.statusText}`
         )
-    } else
+    } else {
         logVerbose(`pull request ${commitSha} comment created at ${r.html_url}`)
+    }
     return r
 }
 
@@ -395,7 +413,9 @@ export async function githubCreatePullRequestReviews(
 ): Promise<boolean> {
     const { repository, issue, commitSha, apiUrl } = info
 
-    if (!annotations?.length) return true
+    if (!annotations?.length) {
+        return true
+    }
     if (!issue) {
         logError("github: missing pull request number")
         return false
@@ -420,7 +440,9 @@ export async function githubCreatePullRequestReviews(
             "X-GitHub-Api-Version": GITHUB_API_VERSION,
         },
     })
-    if (resListComments.status !== 200) return false
+    if (resListComments.status !== 200) {
+        return false
+    }
     const comments = (await resListComments.json()) as {
         id: string
         path: string
@@ -449,9 +471,13 @@ async function paginatorToArray<T, R>(
     const result: R[] = []
     for await (const item of await iterator) {
         let r = iteratorItem(item)
-        if (elementFilter) r = r.filter(elementFilter)
+        if (elementFilter) {
+            r = r.filter(elementFilter)
+        }
         result.push(...r)
-        if (result.length >= count) break
+        if (result.length >= count) {
+            break
+        }
     }
     return result.slice(0, count)
 }
@@ -491,12 +517,13 @@ const listModels: ListModelsFunction = async (cfg, options) => {
                 }),
             }
         )
-        if (!modelsRes.ok)
+        if (!modelsRes.ok) {
             return {
                 ok: false,
                 status: modelsRes.status,
                 error: serializeError(modelsRes.statusText),
             }
+        }
 
         const models = (await modelsRes.json())
             .summaries as GitHubMarketplaceModel[]
@@ -540,8 +567,9 @@ export class GitHubClient implements GitHub {
     }
 
     private connection(): Promise<GithubConnectionInfo> {
-        if (!this._connection)
+        if (!this._connection) {
             this._connection = githubParseEnv(process.env, this._info)
+        }
         return this._connection
     }
 
@@ -654,11 +682,16 @@ export class GitHubClient implements GitHub {
     }
 
     async getIssue(issue_number?: number | string): Promise<GitHubIssue> {
-        if (typeof issue_number === "string")
+        if (typeof issue_number === "string") {
             issue_number = parseInt(issue_number)
+        }
         const { client, owner, repo } = await this.api()
-        if (isNaN(issue_number)) issue_number = (await this._connection).issue
-        if (isNaN(issue_number)) return undefined
+        if (isNaN(issue_number)) {
+            issue_number = (await this._connection).issue
+        }
+        if (isNaN(issue_number)) {
+            return undefined
+        }
         const { data } = await client.rest.issues.get({
             owner,
             repo,
@@ -671,11 +704,16 @@ export class GitHubClient implements GitHub {
         issue_number: number | string,
         body: string
     ): Promise<GitHubComment> {
-        if (typeof issue_number === "string")
+        if (typeof issue_number === "string") {
             issue_number = parseInt(issue_number)
+        }
         const { client, owner, repo } = await this.api()
-        if (isNaN(issue_number)) issue_number = (await this._connection).issue
-        if (isNaN(issue_number)) return undefined
+        if (isNaN(issue_number)) {
+            issue_number = (await this._connection).issue
+        }
+        if (isNaN(issue_number)) {
+            return undefined
+        }
         const { data } = await client.rest.issues.createComment({
             owner,
             repo,
@@ -706,10 +744,16 @@ export class GitHubClient implements GitHub {
     async getPullRequest(
         pull_number?: number | string
     ): Promise<GitHubPullRequest> {
-        if (typeof pull_number === "string") pull_number = parseInt(pull_number)
+        if (typeof pull_number === "string") {
+            pull_number = parseInt(pull_number)
+        }
         const { client, owner, repo } = await this.api()
-        if (isNaN(pull_number)) pull_number = (await this._connection).issue
-        if (isNaN(pull_number)) return undefined
+        if (isNaN(pull_number)) {
+            pull_number = (await this._connection).issue
+        }
+        if (isNaN(pull_number)) {
+            return undefined
+        }
 
         const { data } = await client.rest.pulls.get({
             owner,
@@ -826,8 +870,12 @@ export class GitHubClient implements GitHub {
 
         const res: GitHubWorkflowJob[] = []
         for (const job of jobs) {
-            if (job.conclusion === "skipped" || job.conclusion === "cancelled")
+            if (
+                job.conclusion === "skipped" ||
+                job.conclusion === "cancelled"
+            ) {
                 continue
+            }
             const { url: logs_url } =
                 await client.rest.actions.downloadJobLogsForWorkflowRun({
                     owner,
@@ -861,7 +909,9 @@ export class GitHubClient implements GitHub {
                 job_id,
             })
         let { text } = await fetchText(logs_url)
-        if (options?.llmify) text = parseJobLog(text)
+        if (options?.llmify) {
+            text = parseJobLog(text)
+        }
         return text
     }
 
@@ -1054,16 +1104,22 @@ function parseJobLog(text: string) {
                 text: "",
             }
         } else if (line.startsWith("##[endgroup]")) {
-            if (current) groups.push(current)
+            if (current) {
+                groups.push(current)
+            }
             current = undefined
         } else if (line.includes("Post job cleanup.")) {
             break // ignore cleanup typically
         } else {
-            if (!current) current = { title: "", text: "" }
+            if (!current) {
+                current = { title: "", text: "" }
+            }
             current.text += line + "\n"
         }
     }
-    if (current) groups.push(current)
+    if (current) {
+        groups.push(current)
+    }
 
     const ignoreSteps = [
         "Runner Image",
