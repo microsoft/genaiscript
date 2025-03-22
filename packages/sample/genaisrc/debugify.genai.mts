@@ -151,7 +151,7 @@ For example, if you added debug statements at before line 1, after 7 and after 1
             systemSafety: false,
             responseType: "text",
             temperature: 0.2,
-            logprobs: true
+            logprobs: true,
         }
     )
 
@@ -181,10 +181,8 @@ For example, if you added debug statements at before line 1, after 7 and after 1
             !skipRegex.test(lines[line + 1]) &&
             !skipRegex.test(lines[line - 1])
         ) {
-            if (pos === "b")
-                lines.splice(line, 0, message)
-            else
-                lines.splice(line + 1, 0, message)
+            if (pos === "b") lines.splice(line, 0, message)
+            else lines.splice(line + 1, 0, message)
         }
     })
     const patched = lines.join("\n")

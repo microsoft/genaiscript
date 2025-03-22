@@ -1,6 +1,6 @@
 import { beforeEach, describe, test } from "node:test"
 import assert from "node:assert/strict"
-import { astGrepFindInFiles, astGrepParse } from "./astgrep"
+import { astGrepFindFiles, astGrepParse } from "./astgrep"
 import { TestHost } from "./testhost"
 
 describe("astgrep", () => {
@@ -10,7 +10,7 @@ describe("astgrep", () => {
 
     test("finds matches in files", async () => {
         console.log("Hello, world!")
-        const result = await astGrepFindInFiles(
+        const result = await astGrepFindFiles(
             "ts",
             "src/astgrep.test.ts",
             "console.log($GREETING)"

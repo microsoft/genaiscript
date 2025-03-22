@@ -1,14 +1,12 @@
 import debug from "debug"
 const dbg = debug("genai:astgrep")
-dbg("astgrep module initialized")
 
 import { CancellationOptions, checkCancelled } from "./cancellation"
-import { arrayify } from "./cleaners"
 import { CancelError } from "./error"
 import { resolveFileContent } from "./file"
 import { host } from "./host"
 
-export async function astGrepFindInFiles(
+export async function astGrepFindFiles(
     lang: AstGrepLang,
     glob: ElementOrArray<string>,
     matcher: string | AstGrepMatcher,
@@ -22,6 +20,7 @@ export async function astGrepFindInFiles(
         throw new Error("matcher is required")
     }
 
+    dbg(`finding files with ${lang}`)
     const { findInFiles } = await import("@ast-grep/napi")
     checkCancelled(cancellationToken)
     const sglang = await resolveLang(lang)
@@ -89,7 +88,8 @@ export async function astGrepParse(
         return undefined
     } // binary file
 
-    const { parseAsync, Lang } = await import("@ast-grep/napi")
+    dbg(`parsing file: ${filename}`)
+    const { parseAsync } = await import("@ast-grep/napi")
     const lang = await resolveLang(options?.lang, filename)
     dbg(`resolving language for file: ${filename}`)
     if (!lang) {
