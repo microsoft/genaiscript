@@ -1,17 +1,23 @@
-import { describe, test } from "node:test"
+import { beforeEach, describe, test } from "node:test"
 import assert from "node:assert/strict"
 import { astGrepFindInFiles, astGrepParse } from "./astgrep"
+import { TestHost } from "./testhost"
 
-describe("astGrepFindInFiles", () => {
+describe("astgrep", () => {
+    beforeEach(() => {
+        TestHost.install()
+    })
+
     test("finds matches in files", async () => {
         console.log("Hello, world!")
-        const result = await astGrepFindInFiles("ts", "src/astgrep.test.ts", 'console.log($GREETING)')
+        const result = await astGrepFindInFiles(
+            "ts",
+            "src/astgrep.test.ts",
+            "console.log($GREETING)"
+        )
         assert.equal(result.files, 1)
         assert(result.matches.length > 0)
     })
-})
-
-describe("astGrepParse", () => {
     test("parses a JavaScript file", async () => {
         const file: WorkspaceFile = {
             filename: "test.js",

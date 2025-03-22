@@ -177,8 +177,8 @@ export class TestHost implements RuntimeHost {
     }
 
     // Placeholder for finding files with a glob pattern
-    findFiles(glob: string, options?: {}): Promise<string[]> {
-        throw new Error("Method not implemented.")
+    async findFiles(pattern: string, options?: {}): Promise<string[]> {
+        return [pattern]
     }
 
     // Placeholder for creating a directory

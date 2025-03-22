@@ -6,12 +6,13 @@ import { CancellationOptions, checkCancelled } from "./cancellation"
 import { arrayify } from "./cleaners"
 import { CancelError } from "./error"
 import { resolveFileContent } from "./file"
+import { host } from "./host"
 
 export async function astGrepFindInFiles(
     lang: AstGrepLang,
     glob: ElementOrArray<string>,
     matcher: string | AstGrepMatcher,
-    options?: CancellationOptions
+    options?: Omit<FindFilesOptions, "readText"> & CancellationOptions
 ): Promise<{ files: number; matches: AstGrepNode[] }> {
     const { cancellationToken } = options || {}
     if (!glob) {
@@ -26,6 +27,8 @@ export async function astGrepFindInFiles(
     const sglang = await resolveLang(lang)
     dbg(`resolving language: ${lang}`)
 
+    const paths = await host.findFiles(glob, options)
+
     const matches: AstGrepNode[] = []
     const p = new Promise<number>(async (resolve, reject) => {
         let i = 0
@@ -33,7 +36,7 @@ export async function astGrepFindInFiles(
         n = await findInFiles(
             sglang,
             {
-                paths: arrayify(glob),
+                paths,
                 matcher:
                     typeof matcher === "string"
                         ? <AstGrepMatcher>{ rule: { pattern: matcher } }
