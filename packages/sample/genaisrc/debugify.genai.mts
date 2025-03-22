@@ -53,8 +53,8 @@ const dbg = debug("genai:${path.basename(file.filename).replace(/\..*$/, "")}")\
 ## Add debug logs
 
 You are using the 'debug' npm package for logging (https://www.npmjs.com/package/debug).
-Add debug log **statement** before function call
-or entering an if statement.
+Add debug log **statement** in the code to allow the developer to understand a program execution from looking at the logs.
+You can inject the comment before or after the targetted line of code.
 
 \`\`\`ts
 dbg('message')
@@ -66,7 +66,9 @@ be moved down.
 original code:
 \`\`\`ts
 function fib(n: number): number {
-    if (n <= 1) return n
+    if (n <= 1) {
+        return n
+    }
     return fib(n - 1) + fib(n - 2)
 }
 \`\`\`
@@ -74,17 +76,22 @@ function fib(n: number): number {
 After adding debug logs:
 \`\`\`ts
 function fib(n: number): number {
-    dbg('entering fib with n = \${n}')
-    if (n <= 1) return n
+    if (n <= 1) {
+        dbg('n <= 1')
+        return n
+    }
     dbg('returning fib(n - 1) + fib(n - 2)')
     return fib(n - 1) + fib(n - 2)
 }
 \`\`\`
 
-- Ignore return expressions since you cannot inject a log statement before a return statement
+- When commenting about an if statement, place comment inside the if statement
 
-\`\`\`ts ignore
-if (!condition) return value
+\`\`\`ts
+if (condition) {
+  dgb('explain the condition')
+  return value
+}
 \`\`\`
 
 - Ignore function calls, object structures or arrays since you cannot inject a log statement in the middle of an object or array.
@@ -123,16 +130,20 @@ const arr = [ // DO NOT ADD LOG HERE
 - do NOT add debug logs in unreachable code!
 - do NOT add debug log when entering a function.
 - do NOT add debug logs in object structures or arrays.
+- do NOT add debug logs for logging statemnts like console.log, console.error, logVerbose, ...
+- do NOT add debug logs before a function declaration
+- place debug logs for variable declarations after the declaration
 - if there are already enough debug logs, you don't need to add more. Just respond <NOP>.
+- generate indentations as in the code.
 
 ## Output format
 
-Generate a list of line number, debug statement pairs. Generate indentations as in the code.
-For example, if you added debug statements at line 1, 7 and 13, the output should be:
+Generate a list of 'line number, insert location (b = before,a = after), debug statement' entries.
+For example, if you added debug statements at before line 1, after 7 and after 13, the output should be:
 
-[1]dbg(\`log message at line 1\`)
-[7]    dbg(\`log message at line 7 \${somevariable}\`)
-[13]dbg(\`log message at line 13\`)
+[1:b]dbg(\`insert log message before line 1\`)
+[7:a]    dbg(\`log message at line 7 \${somevariable}\`)
+[13:a]dbg(\`insert log message after line 13\`)
 `
         },
         {
@@ -140,15 +151,19 @@ For example, if you added debug statements at line 1, 7 and 13, the output shoul
             systemSafety: false,
             responseType: "text",
             temperature: 0.2,
+            logprobs: true
         }
     )
 
     const { text } = res
     const updates = []
-    text.replace(/^\[(\d+)\](\s*dbg\(['`].*['`]\))$/gm, (_, line, stm) => {
-        updates.push({ line: parseInt(line) - 1, message: stm })
-        return ""
-    })
+    text.replace(
+        /^\[(\d+):(a|b)\](\s*dbg\(['`].*['`]\))$/gm,
+        (_, line, pos, stm) => {
+            updates.push({ line: parseInt(line) - 1, pos, message: stm })
+            return ""
+        }
+    )
     // insert updates backwards
     updates.sort((a, b) => b.line - a.line)
     if (!updates.length) {
@@ -159,13 +174,18 @@ For example, if you added debug statements at line 1, 7 and 13, the output shoul
 
     // apply updates
     const lines = file.content.split("\n")
-    updates.forEach(({ line, message }, index) => {
+    const skipRegex = /(logVerbose|logInfo|logError|dbg)\(/
+    updates.forEach(({ line, pos, message }, index) => {
         if (
-            !lines[line - 1]?.includes("dbg(") &&
-            !lines[line]?.includes("dbg(") &&
-            !lines[line + 1]?.includes("dbg(")
-        )
-            lines.splice(line, 0, message)
+            !skipRegex.test(lines[line]) &&
+            !skipRegex.test(lines[line + 1]) &&
+            !skipRegex.test(lines[line - 1])
+        ) {
+            if (pos === "b")
+                lines.splice(line, 0, message)
+            else
+                lines.splice(line + 1, 0, message)
+        }
     })
     const patched = lines.join("\n")
     await workspace.writeText(file.filename, patched)

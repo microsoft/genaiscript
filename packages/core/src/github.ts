@@ -1,3 +1,6 @@
+import debug from "debug"
+const dbg = debug("genai:github")
+
 import type { Octokit } from "@octokit/rest"
 import type { PaginateInterface } from "@octokit/plugin-paginate-rest"
 import {
@@ -106,13 +109,19 @@ export async function githubParseEnv(
     try {
         if (options?.owner && options?.repo) {
             res.owner = options.owner
+            dbg(`overriding owner with options.owner: ${options.owner}`)
             res.repo = options.repo
+            dbg(`overriding repo with options.repo: ${options.repo}`)
             res.repository = res.owner + "/" + res.repo
         }
         if (!isNaN(options?.issue)) {
+            dbg(`overriding issue with options.issue: ${options.issue}`)
             res.issue = options.issue
         }
         if (!res.owner || !res.repo || !res.repository) {
+            dbg(
+                `owner, repo, or repository missing, attempting to resolve via gh CLI`
+            )
             const repoInfo = await runtimeHost.exec(
                 undefined,
                 "gh",
@@ -123,12 +132,14 @@ export async function githubParseEnv(
                 logVerbose(repoInfo.stderr)
             } else if (!repoInfo.failed) {
                 const { name: repo, owner } = JSON.parse(repoInfo.stdout)
+                dbg(`retrieved repository info via gh CLI: ${repoInfo.stdout}`)
                 res.repo = repo
                 res.owner = owner.login
                 res.repository = res.owner + "/" + res.repo
             }
         }
         if (isNaN(res.issue) && options?.resolveIssue) {
+            dbg(`attempting to resolve issue number`)
             res.issue = await githubGetPullRequestNumber()
         }
     } catch (e) {
@@ -151,18 +162,22 @@ export async function githubUpdatePullRequestDescription(
     assert(!!commentTag)
 
     if (!issue) {
+        dbg(`missing issue number, cannot update pull request description`)
         return { updated: false, statusText: "missing issue number" }
     }
     const token = await runtimeHost.readSecret(GITHUB_TOKEN)
     if (!token) {
+        dbg(`retrieved GitHub token`)
         return { updated: false, statusText: "missing github token" }
     }
 
     text = prettifyMarkdown(text)
+    dbg(`prettified markdown text`)
     text += generatedByFooter(script, info)
 
     const fetch = await createFetch({ retryOn: [] })
     const url = `${apiUrl}/repos/${repository}/pulls/${issue}`
+    dbg(`fetching pull request details from URL: ${url}`)
     // get current body
     const resGet = await fetch(url, {
         method: "GET",
@@ -177,6 +192,7 @@ export async function githubUpdatePullRequestDescription(
         html_url: string
     }
     const body = mergeDescription(commentTag, resGetJson.body, text)
+    dbg(`merging pull request description`)
     const res = await fetch(url, {
         method: "PATCH",
         headers: {
@@ -263,6 +279,7 @@ export async function githubCreateIssueComment(
     const { apiUrl, repository, issue } = info
 
     if (!issue) {
+        dbg(`missing issue number, cannot create issue comment`)
         return { created: false, statusText: "missing issue number" }
     }
     const token = await runtimeHost.readSecret(GITHUB_TOKEN)
@@ -272,6 +289,7 @@ export async function githubCreateIssueComment(
 
     const fetch = await createFetch({ retryOn: [] })
     const url = `${apiUrl}/repos/${repository}/issues/${issue}/comments`
+    dbg(`creating issue comment at URL: ${url}`)
 
     body += generatedByFooter(script, info)
 
@@ -290,6 +308,7 @@ export async function githubCreateIssueComment(
             }
         )
         if (resListComments.status !== 200) {
+            dbg(`failed to list existing comments`)
             return { created: false, statusText: resListComments.statusText }
         }
         const comments = (await resListComments.json()) as {
@@ -298,6 +317,7 @@ export async function githubCreateIssueComment(
         }[]
         const comment = comments.find((c) => c.body.includes(tag))
         if (comment) {
+            dbg(`found existing comment with tag, deleting it`)
             const delurl = `${apiUrl}/repos/${repository}/issues/comments/${comment.id}`
             const resd = await fetch(delurl, {
                 method: "DELETE",
@@ -350,6 +370,7 @@ async function githubCreatePullRequestReview(
 ) {
     assert(!!token)
     const { apiUrl, repository, issue, commitSha } = info
+    dbg(`creating pull request review comment`)
 
     const prettyMessage = prettifyMarkdown(annotation.message)
     const line = annotation.range?.[1]?.[0] + 1
@@ -378,6 +399,7 @@ async function githubCreatePullRequestReview(
     }
     const fetch = await createFetch({ retryOn: [] })
     const url = `${apiUrl}/repos/${repository}/pulls/${issue}/comments`
+    dbg(`posting new pull request review comment at URL: ${url}`)
     const res = await fetch(url, {
         method: "POST",
         headers: {
@@ -414,6 +436,7 @@ export async function githubCreatePullRequestReviews(
     const { repository, issue, commitSha, apiUrl } = info
 
     if (!annotations?.length) {
+        dbg(`no annotations provided, skipping pull request reviews`)
         return true
     }
     if (!issue) {
@@ -433,6 +456,7 @@ export async function githubCreatePullRequestReviews(
     // query existing reviews
     const fetch = await createFetch({ retryOn: [] })
     const url = `${apiUrl}/repos/${repository}/pulls/${issue}/comments`
+    dbg(`fetching existing pull request comments from URL: ${url}`)
     const resListComments = await fetch(`${url}?per_page=100&sort=updated`, {
         headers: {
             Accept: "application/vnd.github+json",
@@ -441,6 +465,7 @@ export async function githubCreatePullRequestReviews(
         },
     })
     if (resListComments.status !== 200) {
+        dbg(`failed to fetch existing pull request comments`)
         return false
     }
     const comments = (await resListComments.json()) as {
@@ -451,6 +476,7 @@ export async function githubCreatePullRequestReviews(
     }[]
     // code annotations
     for (const annotation of annotations) {
+        dbg(`iterating over annotations to create pull request reviews`)
         await githubCreatePullRequestReview(
             script,
             info,
@@ -470,6 +496,7 @@ async function paginatorToArray<T, R>(
 ): Promise<R[]> {
     const result: R[] = []
     for await (const item of await iterator) {
+        dbg(`processing item in paginator`)
         let r = iteratorItem(item)
         if (elementFilter) {
             r = r.filter(elementFilter)
@@ -518,6 +545,7 @@ const listModels: ListModelsFunction = async (cfg, options) => {
             }
         )
         if (!modelsRes.ok) {
+            dbg(`failed to fetch models, status: ${modelsRes.status}`)
             return {
                 ok: false,
                 status: modelsRes.status,
@@ -671,6 +699,7 @@ export class GitHubClient implements GitHub {
         } & GitHubPaginationOptions
     ): Promise<GitHubIssue[]> {
         const { client, owner, repo } = await this.api()
+        dbg(`listing issues for repository`)
         const { count = GITHUB_REST_PAGE_DEFAULT, ...rest } = options ?? {}
         const ite = client.paginate.iterator(client.rest.issues.listForRepo, {
             owner,
@@ -686,6 +715,7 @@ export class GitHubClient implements GitHub {
             issue_number = parseInt(issue_number)
         }
         const { client, owner, repo } = await this.api()
+        dbg(`retrieving issue details for issue number: ${issue_number}`)
         if (isNaN(issue_number)) {
             issue_number = (await this._connection).issue
         }
@@ -708,6 +738,7 @@ export class GitHubClient implements GitHub {
             issue_number = parseInt(issue_number)
         }
         const { client, owner, repo } = await this.api()
+        dbg(`creating comment for issue number: ${issue_number}`)
         if (isNaN(issue_number)) {
             issue_number = (await this._connection).issue
         }
@@ -731,6 +762,7 @@ export class GitHubClient implements GitHub {
         } & GitHubPaginationOptions
     ): Promise<GitHubPullRequest[]> {
         const { client, owner, repo } = await this.api()
+        dbg(`listing pull requests for repository`)
         const { count = GITHUB_REST_PAGE_DEFAULT, ...rest } = options ?? {}
         const ite = client.paginate.iterator(client.rest.pulls.list, {
             owner,
@@ -748,6 +780,7 @@ export class GitHubClient implements GitHub {
             pull_number = parseInt(pull_number)
         }
         const { client, owner, repo } = await this.api()
+        dbg(`retrieving pull request details for pull number: ${pull_number}`)
         if (isNaN(pull_number)) {
             pull_number = (await this._connection).issue
         }
@@ -768,6 +801,7 @@ export class GitHubClient implements GitHub {
         options?: GitHubPaginationOptions
     ): Promise<GitHubComment[]> {
         const { client, owner, repo } = await this.api()
+        dbg(`listing review comments for pull request number: ${pull_number}`)
         const { count = GITHUB_REST_PAGE_DEFAULT, ...rest } = options ?? {}
         const ite = client.paginate.iterator(
             client.rest.pulls.listReviewComments,
@@ -787,6 +821,7 @@ export class GitHubClient implements GitHub {
         options?: { reactions?: boolean } & GitHubPaginationOptions
     ): Promise<GitHubComment[]> {
         const { client, owner, repo } = await this.api()
+        dbg(`listing comments for issue number: ${issue_number}`)
         const {
             reactions,
             count = GITHUB_REST_PAGE_DEFAULT,
@@ -806,6 +841,7 @@ export class GitHubClient implements GitHub {
         options?: GitHubPaginationOptions
     ): Promise<GitHubRelease[]> {
         const { client, owner, repo } = await this.api()
+        dbg(`listing releases for repository`)
         const { count = GITHUB_REST_PAGE_DEFAULT, ...rest } = options ?? {}
         const ite = client.paginate.iterator(client.rest.repos.listReleases, {
             owner,
@@ -824,6 +860,9 @@ export class GitHubClient implements GitHub {
         } & GitHubPaginationOptions
     ): Promise<GitHubWorkflowRun[]> {
         const { client, owner, repo } = await this.api()
+        dbg(
+            `listing workflow runs for workflow ID or filename: ${workflowIdOrFilename}`
+        )
         const { count = GITHUB_REST_PAGE_DEFAULT, ...rest } = options ?? {}
         const ite = client.paginate.iterator(
             workflowIdOrFilename
@@ -851,6 +890,7 @@ export class GitHubClient implements GitHub {
         options?: { filter?: "all" | "latest" } & GitHubPaginationOptions
     ): Promise<GitHubWorkflowJob[]> {
         // Get the jobs for the specified workflow run
+        dbg(`listing jobs for workflow run ID: ${run_id}`)
         const { client, owner, repo } = await this.api()
         const {
             filter,
@@ -869,6 +909,7 @@ export class GitHubClient implements GitHub {
         const jobs = await paginatorToArray(ite, count, (i) => i.data)
 
         const res: GitHubWorkflowJob[] = []
+        dbg(`processing workflow jobs`)
         for (const job of jobs) {
             if (
                 job.conclusion === "skipped" ||
@@ -917,6 +958,7 @@ export class GitHubClient implements GitHub {
 
     private async downladJob(job_id: number) {
         const { client, owner, repo } = await this.api()
+        dbg(`downloading job log for job ID: ${job_id}`)
         const filename = `job-${job_id}.log`
         const { url } = await client.rest.actions.downloadJobLogsForWorkflowRun(
             {
@@ -931,6 +973,9 @@ export class GitHubClient implements GitHub {
 
     async diffWorkflowJobLogs(job_id: number, other_job_id: number) {
         const job = await this.downladJob(job_id)
+        dbg(
+            `diffing workflow job logs for job IDs: ${job_id} and ${other_job_id}`
+        )
         const other = await this.downladJob(other_job_id)
 
         job.content = parseJobLog(job.content)
@@ -942,6 +987,7 @@ export class GitHubClient implements GitHub {
 
     async getFile(filename: string, ref: string): Promise<WorkspaceFile> {
         const { client, owner, repo } = await this.api()
+        dbg(`retrieving file content for filename: ${filename} and ref: ${ref}`)
         const { data: content } = await client.rest.repos.getContent({
             owner,
             repo,
@@ -965,6 +1011,7 @@ export class GitHubClient implements GitHub {
         options?: GitHubPaginationOptions
     ): Promise<GitHubCodeSearchResult[]> {
         const { client, owner, repo } = await this.api()
+        dbg(`searching code with query: ${query}`)
         const q = query + `+repo:${owner}/${repo}`
         const { count = GITHUB_REST_PAGE_DEFAULT, ...rest } = options ?? {}
         const ite = client.paginate.iterator(client.rest.search.code, {
@@ -988,6 +1035,7 @@ export class GitHubClient implements GitHub {
         options?: GitHubPaginationOptions
     ): Promise<GitHubWorkflow[]> {
         const { client, owner, repo } = await this.api()
+        dbg(`listing workflows for repository`)
         const { count = GITHUB_REST_PAGE_DEFAULT, ...rest } = options ?? {}
         const ite = client.paginate.iterator(
             client.rest.actions.listRepoWorkflows,
@@ -1006,6 +1054,7 @@ export class GitHubClient implements GitHub {
     }
 
     async listBranches(options?: GitHubPaginationOptions): Promise<string[]> {
+        dbg(`listing branches for repository`)
         const { client, owner, repo } = await this.api()
         const { count = GITHUB_REST_PAGE_DEFAULT, ...rest } = options ?? {}
         const ite = client.paginate.iterator(client.rest.repos.listBranches, {
@@ -1019,6 +1068,7 @@ export class GitHubClient implements GitHub {
 
     async listRepositoryLanguages(): Promise<Record<string, number>> {
         const { client, owner, repo } = await this.api()
+        dbg(`listing languages for repository`)
         const { data: languages } = await client.rest.repos.listLanguages({
             owner,
             repo,
@@ -1037,6 +1087,7 @@ export class GitHubClient implements GitHub {
         }
     ): Promise<GitHubFile[]> {
         const { client, owner, repo } = await this.api()
+        dbg(`retrieving repository content for path: ${path}`)
         const { ref, type, glob, downloadContent, maxDownloadSize } =
             options ?? {}
         const { data: contents } = await client.rest.repos.getContent({
