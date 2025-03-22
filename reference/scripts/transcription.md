@@ -1,0 +1,83 @@
+GenAIScript supports transcription and translations from OpenAI like APIs.
+
+```js "transcribe"
+const { text } = await transcribe("video.mp4")
+```
+
+## Configuration
+
+The transcription API will automatically use [ffmpeg](https://ffmpeg.org/)
+to convert videos to audio files ([opus codec in a ogg container](https://community.openai.com/t/whisper-api-increase-file-limit-25-mb/566754)).
+
+You need to install ffmpeg on your system. If the `FFMPEG_PATH` environment variable is set,
+GenAIScript will use it as the full path to the ffmpeg executable.
+Otherwise, it will attempt to call ffmpeg directly
+(so it should be in your PATH).
+
+## model
+
+By default, the API uses the `transcription` [model alias](/genaiscript/reference/scripts/model-aliases) to transcribe the audio.
+You can also specify a different model alias using the `model` option.
+
+```js "openai:whisper-1" wrap
+const { text } = await transcribe("...", { model: "openai:whisper-1" })
+```
+
+:::tip
+
+You can use [Whisper ASR Webservice](/genaiscript/getting-started/configuration/#whisperasr) to run Whisper locally
+or in a docker container.
+
+:::
+
+## Segments
+
+For models that support it, you can retreive the individual segments.
+
+```js "{ segments }"
+const { segments } = await transcribe("...")
+for (const segment of segments) {
+    const { start, text } = segment
+    console.log(`[${start}] ${text}`)
+}
+```
+
+## SRT and VTT
+
+GenAIScript renders the segments to [SRT](https://en.wikipedia.org/wiki/SubRip)
+and [WebVTT](https://developer.mozilla.org/en-US/docs/Web/API/WebVTT_API) formats as well.
+
+```js
+const { srt, vtt } = await transcribe("...")
+```
+
+## Translation
+
+Some models also support transcribing and translating to English in one pass. For this case,
+set the `translate: true` flag.
+
+```js "translate: true"
+const { srt } = await transcribe("...", { translate: true })
+```
+
+## Cache
+
+You can cache the transcription results by setting the `cache` option to `true` (or a custom name).
+
+```js "cache: true"
+const { srt } = await transcribe("...", { cache: true })
+```
+
+or a custom salt
+
+```js
+const { srt } = await transcribe("...", { cache: "whisper" })
+```
+
+## VTT, SRT parsers
+
+You can parse VTT and SRT files using the `parsers.transcription` function.
+
+```js
+const segments = parsers.transcription("WEBVTT...")
+```
