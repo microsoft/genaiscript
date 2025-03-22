@@ -20,6 +20,7 @@
   "devDependencies": {
     "@anthropic-ai/bedrock-sdk": "^0.12.4",
     "@anthropic-ai/sdk": "^0.39.0",
+    "@ast-grep/napi": "^0.36.2",
     "@azure/identity": "^4.8.0",
     "@azure/search-documents": "^12.1.0",
     "@elastic/micro-jq": "^1.8.0",

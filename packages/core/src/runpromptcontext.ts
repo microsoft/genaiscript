@@ -104,6 +104,7 @@ import { consoleColors } from "./consolecolor"
 import { terminalSize } from "./terminal"
 import { stderr, stdout } from "./stdio"
 import { dotGenaiscriptPath } from "./workdir"
+import debug from "debug"
 
 export function createChatTurnGenerationContext(
     options: GenerationOptions,
@@ -363,7 +364,6 @@ export function createChatGenerationContext(
         checkCancelled(cancellationToken)
         if (name === undefined || name === null)
             throw new Error("tool name is missing")
-
         if (typeof name === "string") {
             if (typeof description !== "string")
                 throw new Error("tool description is missing")
@@ -445,6 +445,8 @@ export function createChatGenerationContext(
         const memory = !disableMemory
 
         name = name.replace(/^agent_/i, "")
+        const dbg = debug(`agent:${name}`)
+        dbg(`created ${variant || ""}`)
         const agentName = `agent_${name}${variant ? "_" + variant : ""}`
         const agentLabel = `agent ${name}${variant ? " " + variant : ""}`
 
@@ -485,13 +487,15 @@ export function createChatGenerationContext(
                 checkCancelled(cancellationToken)
                 const { context, ...argsRest } = args
                 const { query, ...argsNoQuery } = argsRest
+
                 infoCb?.({
                     text: `${agentLabel}: ${query} ${parametersToVars(argsNoQuery)}`,
                 })
+                dbg(`query: ${query}`)
 
                 const hasExtraArgs = Object.keys(argsNoQuery).length > 0
                 let memoryAnswer: string
-                if (memory && query && !disableMemoryQuery)
+                if (memory && query && !disableMemoryQuery) {
                     memoryAnswer = await agentQueryMemory(
                         ctx,
                         query +
@@ -500,6 +504,8 @@ export function createChatGenerationContext(
                                 : ""),
                         { userState, trace }
                     )
+                    dbg(`memory: found ${memoryAnswer}`)
+                }
 
                 const res = await ctx.runPrompt(
                     async (_) => {
@@ -532,12 +538,11 @@ export function createChatGenerationContext(
                                         text.startsWith(TOKEN_NO_ANSWER)
                                     )
                                 )
-                                    await agentAddMemory(
-                                        agentName,
-                                        query,
-                                        text,
-                                        { userState, trace }
-                                    )
+                                    dbg(`memory: add ${text}`)
+                                await agentAddMemory(agentName, query, text, {
+                                    userState,
+                                    trace,
+                                })
                             })
                     },
                     {

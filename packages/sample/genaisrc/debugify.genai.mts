@@ -132,18 +132,17 @@ const arr = [ // DO NOT ADD LOG HERE
 - do NOT add debug logs in object structures or arrays.
 - do NOT add debug logs for logging statemnts like console.log, console.error, logVerbose, ...
 - do NOT add debug logs before a function declaration
-- place debug logs for variable declarations after the declaration
 - if there are already enough debug logs, you don't need to add more. Just respond <NOP>.
 - generate indentations as in the code.
 
 ## Output format
 
-Generate a list of 'line number, insert location (b = before,a = after), debug statement' entries.
-For example, if you added debug statements at before line 1, after 7 and after 13, the output should be:
+Generate a list of 'line number, debug statement' entries.
+For example, if you added debug statements at line 1, line 7 and line 13, the output should be:
 
-[1:b]dbg(\`insert log message before line 1\`)
-[7:a]    dbg(\`log message at line 7 \${somevariable}\`)
-[13:a]dbg(\`insert log message after line 13\`)
+[1]dbg(\`insert log message before line 1\`)
+[7]    dbg(\`insert log message before line 7 \${somevariable}\`)
+[13]dbg(\`insert log message line 13\`)
 `
         },
         {
@@ -151,19 +150,16 @@ For example, if you added debug statements at before line 1, after 7 and after 1
             systemSafety: false,
             responseType: "text",
             temperature: 0.2,
-            logprobs: true
+            logprobs: true,
         }
     )
 
     const { text } = res
     const updates = []
-    text.replace(
-        /^\[(\d+):(a|b)\](\s*dbg\(['`].*['`]\))$/gm,
-        (_, line, pos, stm) => {
-            updates.push({ line: parseInt(line) - 1, pos, message: stm })
-            return ""
-        }
-    )
+    text.replace(/^\[(\d+)\](\s*dbg\(['`].*['`]\))$/gm, (_, line, stm) => {
+        updates.push({ line: parseInt(line) - 1, message: stm })
+        return ""
+    })
     // insert updates backwards
     updates.sort((a, b) => b.line - a.line)
     if (!updates.length) {
@@ -174,17 +170,14 @@ For example, if you added debug statements at before line 1, after 7 and after 1
 
     // apply updates
     const lines = file.content.split("\n")
-    const skipRegex = /(logVerbose|logInfo|logError|dbg)\(/
+    const skipRegex = /(logVerbose|logInfo|logError|dbg|throw|return)\(/
     updates.forEach(({ line, pos, message }, index) => {
         if (
             !skipRegex.test(lines[line]) &&
             !skipRegex.test(lines[line + 1]) &&
             !skipRegex.test(lines[line - 1])
         ) {
-            if (pos === "b")
-                lines.splice(line, 0, message)
-            else
-                lines.splice(line + 1, 0, message)
+            lines.splice(line, 0, message)
         }
     })
     const patched = lines.join("\n")

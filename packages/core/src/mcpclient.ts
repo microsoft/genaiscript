@@ -1,3 +1,6 @@
+import debug from "debug"
+const dbg = debug("genai:mcpclient")
+
 import { TraceOptions } from "./trace"
 import { arrayify, logVerbose } from "./util"
 import type {
@@ -30,9 +33,11 @@ export async function startMcpClient(
             { name: id, version, params },
             { capabilities }
         )
+        dbg(`connecting client to transport`)
         await client.connect(transport)
 
         // list tools
+        dbg(`listing tools from client`)
         const { tools: toolDefinitions } = await client.listTools()
         trace.fence(
             toolDefinitions.map(({ name, description }) => ({
@@ -74,7 +79,10 @@ export async function startMcpClient(
                                 }
                             })
                             .join("\n")
-                        if (res.isError) text = `Tool Error\n${text}`
+                        if (res.isError) {
+                            dbg(`tool error: ${text}`)
+                            text = `Tool Error\n${text}`
+                        }
                         return text
                     },
                 }) satisfies ToolCallback
