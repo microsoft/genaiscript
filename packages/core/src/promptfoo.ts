@@ -3,6 +3,8 @@ import {
     CSV_REGEX,
     HTTPS_REGEX,
     JSON5_REGEX,
+    MJS_REGEX,
+    MJTS_REGEX,
     MODEL_PROVIDER_AZURE_OPENAI,
     MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI,
     MODEL_PROVIDER_GITHUB,
@@ -23,6 +25,7 @@ import { MarkdownTrace, TraceOptions } from "./trace"
 import { CancellationOptions } from "./cancellation"
 import { uniq } from "es-toolkit"
 import { dedent } from "./indent"
+import { importFile } from "./importprompt"
 
 /**
  * Convert GenAIScript connection info into prompt foo configuration
@@ -195,6 +198,16 @@ export async function generatePromptFooConfiguration(
                         } satisfies PromptTest)
                     else if (typeof row === "object") tests.push(row)
                 }
+            } else if (MJTS_REGEX.test(testOrFile)) {
+                const res = await importFile<PromptTest[]>(testOrFile, {
+                    onImported: async (module) => {
+                        let res = module.default
+                        if (typeof res === "function") res = await res()
+                        res = arrayify(res)
+                        return res
+                    },
+                })
+                tests.push(...res)
             }
         }
     }
