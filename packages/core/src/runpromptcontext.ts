@@ -364,7 +364,6 @@ export function createChatGenerationContext(
         checkCancelled(cancellationToken)
         if (name === undefined || name === null)
             throw new Error("tool name is missing")
-
         if (typeof name === "string") {
             if (typeof description !== "string")
                 throw new Error("tool description is missing")

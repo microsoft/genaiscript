@@ -1,3 +1,6 @@
+import debug from "debug"
+const dbg = debug("genai:mcpserver")
+
 import { logVerbose, toStringList } from "../../core/src/util"
 import { TOOL_ID } from "../../core/src/constants"
 import { CORE_VERSION } from "../../core/src/version"
@@ -45,6 +48,7 @@ export async function startMcpServer(
         await server.sendToolListChanged()
     })
     server.setRequestHandler(ListToolsRequestSchema, async (req) => {
+        dbg(`fetching scripts from watcher`)
         const scripts = await watcher.scripts()
         const tools = scripts.map((script) => {
             const { id, title, description, inputSchema, accept } = script
@@ -71,15 +75,21 @@ export async function startMcpServer(
                 },
             }
         })
+        dbg(`returning tool list with ${tools.length} tools`)
         return { tools }
     })
     server.setRequestHandler(CallToolRequestSchema, async (req) => {
+        dbg(`received CallToolRequest with name: ${req.params?.name}`)
         const { name, arguments: args } = req.params
         try {
             const { files, ...vars } = args || {}
+            dbg(
+                `executing tool: ${name} with files: ${files} and vars: ${JSON.stringify(vars)}`
+            )
             const res = await run(name, files as string[], {
                 vars: vars as Record<string, any>,
             })
+            dbg(`tool execution result: ${JSON.stringify(res)}`)
             return {
                 isError: res.status !== "success" || !!res.error,
                 content: [
@@ -103,5 +113,6 @@ export async function startMcpServer(
     })
 
     const transport = new StdioServerTransport()
+    dbg(`connecting server with transport`)
     await server.connect(transport)
 }
