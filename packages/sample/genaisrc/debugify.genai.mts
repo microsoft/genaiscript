@@ -206,7 +206,9 @@ For example, if you added debug statements at line 1, 7 and 13, the output shoul
 }
 
 export default async function () {
-    for (const file of env.files.filter((f) => f.filename.endsWith(".ts"))) {
+    for (const file of env.files.filter(
+        (f) => f.filename.endsWith(".ts") && !f.filename.endsWith(".test.ts")
+    )) {
         await debugify(file)
     }
 }
