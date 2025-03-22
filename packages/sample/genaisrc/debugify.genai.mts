@@ -3,6 +3,9 @@ script({
     files: "src/fib.ts",
 })
 
+const { output, vars, generator } = env
+const { runPrompt, $ } = generator
+
 const compile = async (file) => {
     const tsc = await host.exec(
         "yarn",
@@ -11,7 +14,7 @@ const compile = async (file) => {
             cwd: path.dirname(path.dirname(file.filename)),
         }
     )
-    if (tsc.exitCode) console.debug(tsc.stderr)
+    if (tsc.exitCode) output.fence(tsc.stderr)
     return tsc
 }
 
@@ -22,18 +25,20 @@ const prettier = async (file) => {
         "--plugin=prettier-plugin-curly",
         file.filename,
     ])
-    if (res.exitCode) console.debug(res.stderr)
+    if (res.exitCode) output.fence(res.stderr)
     return res
 }
 
-export default async function () {
-    let file = env.files[0]
-
+async function debugify(file: WorkspaceFile) {
+    output.heading(2, file.filename)
     await prettier(file)
     file = await workspace.readText(file.filename)
 
     const tsc = await compile(file)
-    if (tsc.exitCode) throw new Error("compilation error")
+    if (tsc.exitCode) {
+        output.warn("file does not compile")
+        return
+    }
 
     const imports = `import debug from "debug"
 const dbg = debug("genai:${path.basename(file.filename).replace(/\..*$/, "")}")\n
@@ -147,10 +152,10 @@ For example, if you added debug statements at line 1, 7 and 13, the output shoul
     // insert updates backwards
     updates.sort((a, b) => b.line - a.line)
     if (!updates.length) {
-        console.log("no debug logs found")
+        output.warn("no debug logs found")
         return
     }
-    console.log(`inserting ${updates.length} debug logs`)
+    output.item(`inserting ${updates.length} debug logs`)
 
     // apply updates
     const lines = file.content.split("\n")
@@ -171,14 +176,14 @@ For example, if you added debug statements at line 1, 7 and 13, the output shoul
         // compile file
         const tsc = await compile(file)
         if (!tsc.exitCode) {
-            console.log("compiled successfully")
+            output.item("compiled successfully")
             await prettier(file)
             return
         }
 
         // remove first error and try to compile
         const errors = parsers.annotations(tsc.stderr)
-        console.log(`found ${errors.length} errors`)
+        output.item(`found ${errors.length} errors`)
         const error = errors.find(
             (e) =>
                 lines[e.range[0][0] - 1]?.includes("dbg(") ||
@@ -186,16 +191,22 @@ For example, if you added debug statements at line 1, 7 and 13, the output shoul
                 lines[e.range[0][0] + 1]?.includes("dbg(")
         )
         if (!error) {
-            console.log("cannot find error with dbg")
+            output.warn("cannot find error with dbg")
             return
         }
 
-        console.log(`removing error around ${error.range[0][0] + 1}`)
+        output.item(`removing error around ${error.range[0][0] + 1}`)
         if (lines[error.range[0][0] - 1]?.includes("dbg("))
             lines.splice(error.range[0][0] - 1, 1)
         else if (lines[error.range[0][0] + 1]?.includes("dbg("))
             lines.splice(error.range[0][0] + 1, 1)
         else lines.splice(error.range[0][0], 1)
         await workspace.writeText(file.filename, lines.join("\n"))
+    }
+}
+
+export default async function () {
+    for (const file of env.files.filter((f) => f.filename.endsWith(".ts"))) {
+        await debugify(file)
     }
 }
