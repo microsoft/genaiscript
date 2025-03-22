@@ -1,11 +1,4 @@
-import {
-    MODEL_PROVIDER_AZURE_OPENAI,
-    MODEL_PROVIDER_AZURE_SERVERLESS_MODELS,
-    MODEL_PROVIDER_GITHUB,
-    MODEL_PROVIDER_OLLAMA,
-    MODEL_PROVIDER_OPENAI,
-    MODEL_PROVIDERS,
-} from "./constants"
+import { MODEL_PROVIDERS } from "./constants"
 import { parseModelIdentifier } from "./models"
 
 export function escapeToolName(name: string) {
@@ -13,6 +6,7 @@ export function escapeToolName(name: string) {
         .replace(/[^a-zA-Z0-9_-]/g, "_")
         .replace("-", "_")
         .replace(/_{2,}/g, "_")
+        .replace(/_+$/, "")
 }
 
 export function isToolsSupported(modelId: string): boolean | undefined {
@@ -20,8 +14,10 @@ export function isToolsSupported(modelId: string): boolean | undefined {
     const { provider, family } = parseModelIdentifier(modelId)
 
     const info = MODEL_PROVIDERS.find(({ id }) => provider === id)
-    if (info?.models?.[family]?.tools === false) return false
-    if (info?.tools === false) return false
+    if (info) {
+        if (info.models?.[family]?.tools === false) return false
+        if (info.tools === false) return false
+    }
 
     if (/^o1-(mini|preview)/.test(family)) return false
 
