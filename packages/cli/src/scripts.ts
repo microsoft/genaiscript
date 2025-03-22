@@ -19,6 +19,7 @@ import {
 } from "../../core/src/ast"
 import { deleteEmptyValues } from "../../core/src/cleaners"
 import { dirname } from "node:path"
+import { shellInput } from "./input"
 
 /**
  * Lists all the scripts in the project.
@@ -34,12 +35,7 @@ export async function listScripts(
     const scripts = filterScripts(prj.scripts, { ids, ...(options || {}) }) // Filter scripts based on options
     if (!json)
         console.log(
-            scripts
-                .map(
-                    ({ id, filename }) =>
-                        `${id} - ${filename}`
-                )
-                .join("\n")
+            scripts.map(({ id, filename }) => `${id} - ${filename}`).join("\n")
         )
     else
         console.log(
@@ -72,8 +68,17 @@ export async function createScript(
     options: { typescript: boolean }
 ) {
     const { typescript } = options
+    if (!name) {
+        name = await shellInput("Enter the name of the script") // Prompt user for script name if not provided
+        if (!name) return
+    }
+
     const t = coreCreateScript(name) // Call core function to create a script
-    const pr = await copyPrompt(t, { fork: true, name, typescript }) // Copy prompt definitions
+    const pr = await copyPrompt(t, {
+        fork: true,
+        name,
+        javascript: !typescript,
+    }) // Copy prompt definitions
     console.log(`created script at ${pr}`) // Notify the location of the created script
     await compileScript([dirname(pr)]) // Compile all scripts immediately after creation
 }

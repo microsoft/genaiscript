@@ -353,8 +353,12 @@ export async function cli() {
     scripts
         .command("create")
         .description("Create a new script")
-        .argument("<name>", "Name of the script")
-        .option("-t, --typescript", "Generate TypeScript file (.genai.mts)")
+        .argument("[name]", "Name of the script")
+        .option(
+            "-t, --typescript",
+            "Generate TypeScript file (.genai.mts)",
+            true
+        )
         .action(createScript) // Action to create a script
     scripts
         .command("fix")

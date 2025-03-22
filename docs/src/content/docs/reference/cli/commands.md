@@ -248,7 +248,7 @@ Options:
 
 Commands:
   list [options] [script...]  List all available scripts in workspace
-  create [options] <name>     Create a new script
+  create [options] [name]     Create a new script
   fix [options]               Write TypeScript definition files in the script
                               folder to enable type checking.
   compile [folders...]        Compile all scripts in workspace
@@ -277,7 +277,7 @@ Options:
 ### `scripts create`
 
 ```
-Usage: genaiscript scripts create [options] <name>
+Usage: genaiscript scripts create [options] [name]
 
 Create a new script
 
@@ -285,7 +285,7 @@ Arguments:
   name              Name of the script
 
 Options:
-  -t, --typescript  Generate TypeScript file (.genai.mts)
+  -t, --typescript  Generate TypeScript file (.genai.mts) (default: true)
   -h, --help        display help for command
 ```
 

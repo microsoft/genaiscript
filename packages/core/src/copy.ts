@@ -14,11 +14,11 @@ import { fileExists, writeText } from "./fs" // Import file system utilities
  * @param id - Identifier for the prompt script
  * @returns The file path as a string
  */
-function promptPath(id: string, options?: { typescript?: boolean }) {
-    const { typescript } = options || {}
+function promptPath(id: string, options?: { javascript?: boolean }) {
+    const { javascript } = options || {}
     const prompts = host.resolvePath(host.projectFolder(), GENAI_SRC) // Resolve base prompt directory
     if (id === null) return prompts // Return base path if id is not provided
-    const ext = typescript ? GENAI_MTS_EXT : GENAI_MJS_EXT
+    const ext = javascript ? GENAI_MJS_EXT : GENAI_MTS_EXT
     return host.resolvePath(prompts, id + ext) // Construct full path if id is provided
 }
 
@@ -35,7 +35,7 @@ function promptPath(id: string, options?: { typescript?: boolean }) {
  */
 export async function copyPrompt(
     t: PromptScript,
-    options: { fork: boolean; name?: string; typescript?: boolean }
+    options: { fork: boolean; name?: string; javascript?: boolean }
 ) {
     // Ensure the prompt directory exists
     await host.createDirectory(promptPath(null))
