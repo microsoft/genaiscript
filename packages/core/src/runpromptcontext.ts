@@ -1083,7 +1083,7 @@ export function createChatGenerationContext(
                 "model:" + genOptions.model,
                 modelConcurrency
             )
-            dbg(`run ${genOptions.model}`, deleteUndefinedValues(genOptions))
+            dbg(`run ${genOptions.model}`)
             const resp = await modelLimit(() =>
                 executeChatSession(
                     configuration,
