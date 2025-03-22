@@ -29,6 +29,11 @@ export async function tryReadText(fn: string) {
     }
 }
 
+export async function ensureDir(dir: string) {
+    dbg(`ensuring directory exists ${dir}`)
+    await mkdir(dir, { recursive: true })
+}
+
 export async function writeText(fn: string, content: string) {
     dbg(`writing text to file ${fn}`)
     await mkdir(dirname(fn), { recursive: true })

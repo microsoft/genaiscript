@@ -33,7 +33,6 @@ import { isGlobMatch } from "./glob"
 import {
     arrayify,
     assert,
-    dotGenaiscriptPath,
     ellipse,
     logError,
     logVerbose,
@@ -104,6 +103,7 @@ import { toBase64 } from "@smithy/util-base64"
 import { consoleColors } from "./consolecolor"
 import { terminalSize } from "./terminal"
 import { stderr, stdout } from "./stdio"
+import { dotGenaiscriptPath } from "./workdir"
 
 export function createChatTurnGenerationContext(
     options: GenerationOptions,

@@ -6,8 +6,9 @@ import { basename, dirname, join, relative } from "node:path"
 import { stat, writeFile } from "fs/promises"
 import { ensureDir } from "fs-extra"
 import { CancellationOptions, checkCancelled } from "./cancellation"
-import { dotGenaiscriptPath, logVerbose } from "./util"
+import { logVerbose } from "./util"
 import prettyBytes from "pretty-bytes"
+import { dotGenaiscriptPath } from "./workdir"
 
 export async function fileWriteCached(
     dir: string,

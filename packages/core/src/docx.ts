@@ -4,7 +4,7 @@ import { hash } from "./crypto"
 import { host } from "./host"
 import { HTMLToMarkdown } from "./html"
 import { TraceOptions } from "./trace"
-import { dotGenaiscriptPath, logVerbose } from "./util"
+import { logVerbose } from "./util"
 import { readFile, writeFile } from "node:fs/promises"
 import { YAMLStringify } from "./yaml"
 import { errorMessage, serializeError } from "./error"
@@ -12,6 +12,7 @@ import { resolveFileBytes } from "./file"
 import { filenameOrFileToFilename } from "./unwrappers"
 import { ensureDir } from "fs-extra"
 import { mark, measure } from "./performance"
+import { dotGenaiscriptPath } from "./workdir"
 
 async function computeHashFolder(
     filename: string,

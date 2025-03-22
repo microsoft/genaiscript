@@ -1,10 +1,10 @@
 // Import necessary modules and types
 import { appendJSONL, JSONLTryParse, writeJSONL } from "./jsonl"
 import { host } from "./host"
-import { dotGenaiscriptPath } from "./util"
 import { CHANGE } from "./constants"
 import { tryReadText } from "./fs"
 import { hash } from "./crypto"
+import { dotGenaiscriptPath } from "./workdir"
 
 /**
  * Represents a cache entry with a hashed identifier (`sha`), `key`, and `val`.

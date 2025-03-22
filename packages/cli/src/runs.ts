@@ -1,8 +1,9 @@
 import { readdir } from "fs/promises"
 import { join } from "path"
 import { RUNS_DIR_NAME, SERVER_PORT } from "../../core/src/constants"
-import { dotGenaiscriptPath, groupBy } from "../../core/src/util"
+import { groupBy } from "../../core/src/util"
 import { runtimeHost } from "../../core/src/host"
+import { dotGenaiscriptPath } from "../../core/src/workdir"
 
 export async function collectRuns(options?: { scriptid?: string }) {
     const { scriptid } = options || {}

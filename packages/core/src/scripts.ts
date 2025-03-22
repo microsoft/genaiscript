@@ -7,12 +7,12 @@ import {
 import { githubCopilotCustomPrompt, promptDefinitions } from "./default_prompts"
 import { tryReadText, writeText } from "./fs"
 import { host } from "./host"
-import { dotGenaiscriptPath, logVerbose } from "./util"
-import { dedent } from "./indent"
+import { logVerbose } from "./util"
 import { Project } from "./server/messages"
 import { fetchText } from "./fetch"
 import { collapseNewlines } from "./cleaners"
 import { gitIgnoreEnsure } from "./gitignore"
+import { dotGenaiscriptPath } from "./workdir"
 
 export function createScript(
     name: string,

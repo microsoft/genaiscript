@@ -1,5 +1,5 @@
 import type { PyodideInterface } from "pyodide"
-import { dotGenaiscriptPath } from "./util"
+import { dotGenaiscriptPath } from "./workdir"
 import { TraceOptions } from "./trace"
 import { hash } from "./crypto"
 import { deleteUndefinedValues } from "./cleaners"

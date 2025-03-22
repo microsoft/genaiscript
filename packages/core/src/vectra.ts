@@ -6,12 +6,13 @@
 import { encode, decode } from "gpt-tokenizer"
 import type { EmbeddingsModel, EmbeddingsResponse } from "vectra/lib/types"
 import { LanguageModelConfiguration } from "./server/messages"
-import { dotGenaiscriptPath, logVerbose } from "./util"
+import { logVerbose } from "./util"
 import { TraceOptions } from "./trace"
 import { CancellationOptions, checkCancelled } from "./cancellation"
 import { arrayify } from "./cleaners"
 import { resolveFileContent } from "./file"
 import { EmbeddingFunction, WorkspaceFileIndexCreator } from "./chat"
+import { dotGenaiscriptPath } from "./workdir"
 
 /**
  * Class for creating embeddings using the OpenAI API.

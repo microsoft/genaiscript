@@ -12,13 +12,14 @@ import { resolveFileContents } from "./file"
 import { readText, tryReadText, tryStat } from "./fs"
 import { host, runtimeHost } from "./host"
 import { shellParse } from "./shell"
-import { arrayify, dotGenaiscriptPath, logVerbose } from "./util"
+import { arrayify, logVerbose } from "./util"
 import { approximateTokens, truncateTextToTokens } from "./tokens"
 import { resolveTokenEncoder } from "./encoders"
 import { underscore } from "inflection"
 import { rm, lstat } from "node:fs/promises"
 import { packageResolveInstall } from "./packagemanagers"
 import { normalizeInt } from "./cleaners"
+import { dotGenaiscriptPath } from "./workdir"
 
 async function checkDirectoryExists(directory: string): Promise<boolean> {
     const stat = await tryStat(directory)

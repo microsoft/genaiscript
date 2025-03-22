@@ -63,7 +63,6 @@ import {
 import {
     logVerbose,
     logError,
-    dotGenaiscriptPath,
     logInfo,
     logWarn,
     assert,
@@ -86,7 +85,7 @@ import { appendFile } from "node:fs/promises"
 import { parseOptionsVars } from "./vars"
 import { logprobColor } from "../../core/src/logprob"
 import { overrideStdoutWithStdErr, stderr, stdout } from "../../core/src/stdio"
-import { ensureDotGenaiscriptPath, setupTraceWriting } from "./trace"
+import { setupTraceWriting } from "./trace"
 import {
     applyModelOptions,
     applyScriptModelAliases,
@@ -106,16 +105,11 @@ import {
     wrapRgbColor,
 } from "../../core/src/consolecolor"
 import { generateId } from "../../core/src/id"
-
-function getRunDir(scriptId: string, runId: string) {
-    const name = new Date().toISOString().replace(/[:.]/g, "-") + "-" + runId
-    const out = dotGenaiscriptPath(
-        RUNS_DIR_NAME,
-        host.path.basename(scriptId).replace(GENAI_ANYTS_REGEX, ""),
-        name
-    )
-    return out
-}
+import {
+    ensureDotGenaiscriptPath,
+    getRunDir,
+    createStatsDir,
+} from "../../core/src/workdir"
 
 export async function runScriptWithExitCode(
     scriptId: string,
@@ -764,8 +758,7 @@ async function aggregateResults(
     stats: GenerationStats,
     result: GenerationResult
 ) {
-    const statsDir = dotGenaiscriptPath(STATS_DIR_NAME)
-    await ensureDir(statsDir)
+    const statsDir = await createStatsDir()
     const statsFile = host.path.join(statsDir, "runs.csv")
     if (!(await exists(statsFile)))
         await writeFile(

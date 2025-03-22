@@ -1,5 +1,5 @@
 import { join } from "node:path"
-import { dotGenaiscriptPath } from "../../core/src/util"
+import { dotGenaiscriptPath } from "../../core/src/workdir"
 import { emptyDir } from "fs-extra"
 
 /**

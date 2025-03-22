@@ -10,13 +10,8 @@ import {
 import { hash, randomHex } from "../../core/src/crypto"
 import { errorMessage } from "../../core/src/error"
 import { host } from "../../core/src/host"
-import { MarkdownTrace, TraceOptions } from "../../core/src/trace"
-import {
-    logError,
-    dotGenaiscriptPath,
-    logVerbose,
-    arrayify,
-} from "../../core/src/util"
+import { TraceOptions } from "../../core/src/trace"
+import { logError, logVerbose, arrayify } from "../../core/src/util"
 import { CORE_VERSION } from "../../core/src/version"
 import { isQuiet } from "./log"
 import Dockerode, { Container } from "dockerode"
@@ -24,6 +19,7 @@ import { shellParse, shellQuote } from "../../core/src/shell"
 import { PLimitPromiseQueue } from "../../core/src/concurrency"
 import { delay } from "es-toolkit"
 import { generateId } from "../../core/src/id"
+import { dotGenaiscriptPath } from "../../core/src/workdir"
 
 type DockerodeType = import("dockerode")
 

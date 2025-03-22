@@ -5,12 +5,12 @@ import type {
     Page,
 } from "playwright"
 import { TraceOptions } from "../../core/src/trace"
-import { dotGenaiscriptPath, logError, logVerbose } from "../../core/src/util"
+import { logError, logVerbose } from "../../core/src/util"
 import { runtimeHost } from "../../core/src/host"
 import { PLAYWRIGHT_VERSION } from "./version"
 import { ellipseUri } from "../../core/src/url"
 import { PLAYWRIGHT_DEFAULT_BROWSER } from "../../core/src/constants"
-import { ensureDir } from "fs-extra"
+import { createVideoDir } from "../../core/src/workdir"
 
 /**
  * Manages browser instances using Playwright, including launching,
@@ -164,11 +164,7 @@ export class BrowserManager {
         if (incognito || recordVideo) {
             const options = { ...rest } as BrowserContextOptions
             if (recordVideo) {
-                const dir = dotGenaiscriptPath(
-                    "videos",
-                    `${new Date().toISOString().replace(/[:.]/g, "-")}`
-                )
-                await ensureDir(dir)
+                const dir = await createVideoDir()
                 trace?.itemValue(`video dir`, dir)
                 options.recordVideo = { dir }
                 if (typeof recordVideo === "object")
