@@ -5,7 +5,7 @@ import { astGrepFindInFiles, astGrepParse } from "./astgrep"
 describe("astGrepFindInFiles", () => {
     test("finds matches in files", async () => {
         console.log("Hello, world!")
-        const result = await astGrepFindInFiles("ts", "./*.ts", 'console.log($GREETING)')
+        const result = await astGrepFindInFiles("ts", "src/astgrep.test.ts", 'console.log($GREETING)')
         assert.equal(result.files, 1)
         assert(result.matches.length > 0)
     })
