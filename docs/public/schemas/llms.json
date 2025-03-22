@@ -109,11 +109,7 @@
                                 "description": "High reasoning effort"
                             }
                         },
-                        "required": [
-                            "low",
-                            "medium",
-                            "high"
-                        ]
+                        "required": ["low", "medium", "high"]
                     },
                     "singleModel": {
                         "type": "boolean",
@@ -165,6 +161,19 @@
                             }
                         }
                     },
+                    "models": {
+                        "type": "object",
+                        "description": "Additional configuration flags of models",
+                        "additionalProperties": {
+                            "type": "object",
+                            "properties": {
+                                "tools": {
+                                    "type": "boolean",
+                                    "description": "Indicates if tools are supported"
+                                }
+                            }
+                        }
+                    },
                     "env": {
                         "type": "object",
                         "description": "Environment variables for the provider",
@@ -186,9 +195,7 @@
                                     "format": {
                                         "type": "string",
                                         "description": "Format of the variable",
-                                        "enum": [
-                                            "url"
-                                        ]
+                                        "enum": ["url"]
                                     },
                                     "enum": {
                                         "type": "array",
@@ -203,10 +210,7 @@
                     }
                 },
                 "additionalProperties": false,
-                "required": [
-                    "id",
-                    "detail"
-                ]
+                "required": ["id", "detail"]
             }
         }
     },
@@ -265,8 +269,5 @@
             }
         }
     },
-    "required": [
-        "providers",
-        "pricings"
-    ]
+    "required": ["providers", "pricings"]
 }
