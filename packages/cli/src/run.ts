@@ -108,7 +108,7 @@ import { generateId } from "../../core/src/id"
 import {
     ensureDotGenaiscriptPath,
     getRunDir,
-    getStatsDir,
+    createStatsDir,
 } from "../../core/src/workdir"
 
 export async function runScriptWithExitCode(
@@ -758,8 +758,7 @@ async function aggregateResults(
     stats: GenerationStats,
     result: GenerationResult
 ) {
-    const statsDir = getStatsDir()
-    await ensureDir(statsDir)
+    const statsDir = await createStatsDir()
     const statsFile = host.path.join(statsDir, "runs.csv")
     if (!(await exists(statsFile)))
         await writeFile(

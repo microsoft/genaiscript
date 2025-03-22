@@ -24,8 +24,17 @@ export async function ensureDotGenaiscriptPath() {
     await gitIgnoreEnsure(dir, ["*"])
 }
 
+function friendlyDate() {
+    return new Date().toISOString().replace(/[:.]/g, "-")
+}
+
+function createDatedFolder(id: string) {
+    const name = friendlyDate() + "-" + id
+    return name
+}
+
 export function getRunDir(scriptId: string, runId: string) {
-    const name = new Date().toISOString().replace(/[:.]/g, "-") + "-" + runId
+    const name = createDatedFolder(runId)
     const out = dotGenaiscriptPath(
         RUNS_DIR_NAME,
         host.path.basename(scriptId).replace(GENAI_ANYTS_REGEX, ""),
@@ -35,25 +44,23 @@ export function getRunDir(scriptId: string, runId: string) {
 }
 
 export function getConvertDir(scriptId: string) {
-    const runId =
-        new Date().toISOString().replace(/[:.]/g, "-") + "-" + randomHex(6)
+    const name = createDatedFolder(randomHex(6))
     const out = dotGenaiscriptPath(
         CONVERTS_DIR_NAME,
         host.path.basename(scriptId).replace(GENAI_ANYTS_REGEX, ""),
-        runId
+        name
     )
     return out
 }
 
-export function getVideoDir() {
-    const dir = dotGenaiscriptPath(
-        "videos",
-        `${new Date().toISOString().replace(/[:.]/g, "-")}`
-    )
+export async function createVideoDir() {
+    const dir = dotGenaiscriptPath("videos", friendlyDate())
+    await ensureDir(dir)
     return dir
 }
 
-export function getStatsDir() {
+export async function createStatsDir() {
     const statsDir = dotGenaiscriptPath(STATS_DIR_NAME)
+    await ensureDir(statsDir)
     return statsDir
 }
