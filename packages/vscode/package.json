@@ -350,6 +350,11 @@
                         "default": false,
                         "description": "Enable developer diagnostic mode. Including leaving terminals opened."
                     },
+                    "genaiscript.debug": {
+                        "type": "string",
+                        "default": "",
+                        "description": "List of logging categories that will be set as 'DEBUG' environment variable when launching the GenAISCript server. If 'diagnostics' is on, it is overriden by '*'."
+                    },
                     "genaiscript.cache": {
                         "type": "boolean",
                         "default": true,

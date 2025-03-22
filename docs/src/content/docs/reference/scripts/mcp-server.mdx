@@ -26,10 +26,60 @@ See [MCP tools](/genaiscript/reference/scripts/mcp-tools) for more details.
 
 :::
 
-## Tool signature
+## Scripts as MCP Tools
 
-The tool signature is inferred from the [script parameters](/genaiscript/reference/scripts/parameters) and files automatically. The MCP parameters will then populate the `env.vars` object in the script
+GenAIScript launches a MCP server that exposes each GenAISCript script as a MCP tool (not to be confused with `defTool`).
+
+The MCP tool parameters is inferred from the [script parameters](/genaiscript/reference/scripts/parameters) and files automatically.
+The MCP parameters will then populate the `env.vars` object in the script
 as usual.
+
+The MCP tool output is the script output. That is, typically, the last assistant message for a script that uses the top-level context.
+Or any content that was passed in [env.output](/genaiscript/reference/scripts/output-builder).
+
+Let's see an example. Here is a script `task.genai.mjs` that takes a `task` parameter input, builds a prompt
+and the LLM output is sent back.
+
+```js title="task.genai.mjs"
+script({
+    parameters: {
+        task: {
+            type: "string",
+            description: "The task to perform",
+            required: true
+        }
+    }
+})
+
+const { task } = env.vars // extract the task parameter
+
+... // genaiscript logic
+$`... prompt ... ${task}` // output the result
+```
+
+A more advanced script might not use the top-level context and instead use the `env.output` to pass the result.
+
+```js title="task.genai.mjs"
+script({
+    parameters: {
+        task: {
+            type: "string",
+            description: "The task to perform",
+            required: true
+        }
+    }
+})
+
+const { output } = env // store the output builder
+const { task } = env.vars // extract the task parameter
+
+... // genaiscript logic with inline prompts
+const res = runPrompt(_ => `... prompt ... ${task}`) // run some inner the prompt
+...
+
+// build the output
+output.fence(`The result is ${res.text}`)
+```
 
 ## Usage
 
