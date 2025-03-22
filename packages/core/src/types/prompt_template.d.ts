@@ -4046,6 +4046,73 @@ interface AstGrepRange {
     /** ending position of the range */
     end: AstGrepPos
 }
+interface AstGrepMatcher {
+    /** The rule object, see https://ast-grep.github.io/reference/rule.html */
+    rule: AstGreRule
+    /** See https://ast-grep.github.io/guide/rule-config.html#constraints */
+    constraints?: Record<string, AstGrepRule>
+}
+type AstGrepStrictness = "cst" | "smart" | "ast" | "relaxed" | "signature"
+interface AstGrepPatternObject {
+    context: string
+    selector?: NamedKinds<M> // only named node types
+    strictness?: AstGrepStrictness
+}
+type AstGrepPatternStyle = string | AstGrepPatternObject
+interface AstGrepRule {
+    /** A pattern string or a pattern object. */
+    pattern?: AstGrepPatternStyle
+    /** The kind name of the node to match. You can look up code's kind names in playground. */
+    kind?: string
+    /** The exact range of the node in the source code. */
+    range?: AstGrepRange
+    /** A Rust regular expression to match the node's text. https://docs.rs/regex/latest/regex/#syntax */
+    regex?: string
+    /**
+     * `nthChild` accepts number, string or object.
+     * It specifies the position in nodes' sibling list. */
+    nthChild?: string | number
+
+    // relational
+    /**
+     * `inside` accepts a relational rule object.
+     * the target node must appear inside of another node matching the `inside` sub-rule. */
+    inside?: AstGrepRelation
+    /**
+     * `has` accepts a relational rule object.
+     * the target node must has a descendant node matching the `has` sub-rule. */
+    has?: AstGrepRelation
+    /**
+     * `precedes` accepts a relational rule object.
+     * the target node must appear before another node matching the `precedes` sub-rule. */
+    precedes?: AstGrepRelation
+    /**
+     * `follows` accepts a relational rule object.
+     * the target node must appear after another node matching the `follows` sub-rule. */
+    follows?: AstGrepRelation
+    // composite
+    /**
+     * A list of sub rules and matches a node if all of sub rules match.
+     * The meta variables of the matched node contain all variables from the sub-rules. */
+    all?: Array<AstGrepRule>
+    /**
+     * A list of sub rules and matches a node if any of sub rules match.
+     * The meta variables of the matched node only contain those of the matched sub-rule. */
+    any?: Array<AstGrepRule>
+    /** A single sub-rule and matches a node if the sub rule does not match. */
+    not?: AstGrepRule
+    /** A utility rule id and matches a node if the utility rule matches. */
+    matches?: string
+}
+interface AstGrepRelation extends Rule {
+    /**
+     * Specify how relational rule will stop relative to the target node.
+     */
+    stopBy?: "neighbor" | "end" | AstGrepRule
+    /** Specify the tree-sitter field in parent node. Only available in has/inside rule. */
+    field?: string
+}
+
 interface AstGrepNode {
     id(): number
     range(): AstGrepRange
@@ -4065,8 +4132,8 @@ interface AstGrepNode {
     getTransformed(m: string): string | null
     getRoot(): AstGrepRoot
     children(): Array<AstGrepNode>
-    find(matcher: string | number): AstGrepNode | null
-    findAll(matcher: string | number): Array<AstGrepNode>
+    find(matcher: string | number | AstGrepMatcher): AstGrepNode | null
+    findAll(matcher: string | number | AstGrepMatcher): Array<AstGrepNode>
     field(name: string): AstGrepNode | null
     fieldChildren(name: string): AstGrepNode[]
     parent(): AstGrepNode | null
@@ -4100,7 +4167,8 @@ interface AstGrep {
     ): Promise<AstGrepRoot>
     findInFiles(
         lang: AstGrepLang,
-        glob: ElementOrArray<string>
+        glob: ElementOrArray<string>,
+        matcher: string | AstGrepMatcher
     ): Promise<{ files: number; matches: AstGrepNode[] }>
 }
 

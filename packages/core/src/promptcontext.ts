@@ -322,8 +322,10 @@ export async function createPromptContext(
         teamsChannel: async (url) => createMicrosoftTeamsChannelClient(url),
         astGrep: async () =>
             Object.freeze<AstGrep>({
-                findInFiles: (lang, glob) =>
-                    astGrepFindInFiles(lang, glob, { cancellationToken }),
+                findInFiles: (lang, glob, matcher) =>
+                    astGrepFindInFiles(lang, glob, matcher, {
+                        cancellationToken,
+                    }),
                 parse: (file, options) =>
                     astGrepParse(file, {
                         ...(options || {}),
