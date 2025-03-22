@@ -194,6 +194,15 @@ The history of messages is passed in `env.vars["copilot.history"]`. It is an arr
 ]
 ```
 
+### Continued conversation
+
+You can use the `@genaiscript` chat to weave the execution of a script into an existing conversation
+or to continue the conversation with Copilot with the results of the script. The results
+of the script are placed back into the chat history and are available to any copilot later on.
+
+- `@genaiscript /run tool` will run the `tool` script and place the results back into the chat history.
+- `analyze the results` will continue the conversation with the results of the script.
+
 ### Default script <a id="copilotchat" href="" />
 
 The following script can used as a starter template to create the default script when the user does not use the `/run` command.

@@ -244,6 +244,7 @@ export const MODEL_PROVIDERS = Object.freeze<
         singleModel?: boolean
         reasoningEfforts?: Record<string, number>
         aliases?: Record<string, string>
+        models?: Record<string, { tools?: boolean }>
         env?: Record<
             string,
             {

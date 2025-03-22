@@ -22,6 +22,11 @@
                 "speech": "tts-1",
                 "image": "dall-e-3"
             },
+            "models": {
+                "o1-preview": { "tools": false },
+                "o1-mini": { "tools": false },
+                "phi-3.5-mini-instruct": { "tools": false }
+            },
             "env": {
                 "OPENAI_API_KEY": {
                     "description": "OpenAI API key",
@@ -44,6 +49,11 @@
             "speech": true,
             "imageGeneration": true,
             "aliases": {},
+            "models": {
+                "o1-preview": { "tools": false },
+                "o1-mini": { "tools": false },
+                "phi-3.5-mini-instruct": { "tools": false }
+            },
             "env": {
                 "AZURE_OPENAI_API_ENDPOINT": {
                     "description": "Azure OpenAI endpoint. In the Azure Portal, open your Azure OpenAI resource, Keys and Endpoints, copy Endpoint.",
@@ -92,6 +102,11 @@
                 "reasoning_small": "o1-mini",
                 "embeddings": "text-embedding-3-small"
             },
+            "models": {
+                "o1-preview": { "tools": false },
+                "o1-mini": { "tools": false },
+                "phi-3.5-mini-instruct": { "tools": false }
+            },
             "env": {
                 "AZURE_AI_INFERENCE_API_KEY": {
                     "description": "Azure AI Inference key",
@@ -125,6 +140,11 @@
                 "reasoning": "o1",
                 "reasoning_small": "o1-mini",
                 "embeddings": "text-embedding-3-small"
+            },
+            "models": {
+                "o1-preview": { "tools": false },
+                "o1-mini": { "tools": false },
+                "phi-3.5-mini-instruct": { "tools": false }
             },
             "env": {
                 "AZURE_SERVERLESS_OPENAI_API_KEY": {
@@ -184,6 +204,11 @@
                 "reasoning": "o1-preview",
                 "reasoning_small": "o1-mini"
             },
+            "models": {
+                "o1-preview": { "tools": false },
+                "o1-mini": { "tools": false },
+                "phi-3.5-mini-instruct": { "tools": false }
+            },
             "env": {
                 "GITHUB_TOKEN": {
                     "description": "GitHub token",
@@ -209,6 +234,26 @@
                     "description": "Ollama host",
                     "format": "url"
                 }
+            },
+            "models": {
+                "marco-o1": { "tools": false },
+                "tulu3": { "tools": false },
+                "opencoder": { "tools": false },
+                "llama3.2-vision": { "tools": false },
+                "phi3.5": { "tools": false },
+                "gemma2": { "tools": false },
+                "deep-seek-coder-v2": { "tools": false },
+                "codegemma": { "tools": false },
+                "llava": { "tools": false },
+                "llama3": { "tools": false },
+                "gemma": { "tools": false },
+                "qwen": { "tools": false },
+                "phi3": { "tools": false },
+                "llama2": { "tools": false },
+                "codellama": { "tools": false },
+                "phi": { "tools": false },
+                "deepseek-r1": { "tools": false },
+                "gemma3": { "tools": false }
             }
         },
         {
