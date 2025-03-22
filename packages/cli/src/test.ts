@@ -198,7 +198,7 @@ npx --yes genaiscript@${CORE_VERSION} test view
         const config = await generatePromptFooConfiguration(script, {
             out,
             cli,
-            models: models,
+            models,
             provider: "provider.mjs",
             chatInfo,
             embeddingsInfo,
