@@ -983,8 +983,9 @@ export function createChatGenerationContext(
                     runOptions,
                     genOptions
                 )
-            )
+            ) {
                 genOptions.fallbackTools = true
+            }
 
             if (systemScripts.length)
                 try {

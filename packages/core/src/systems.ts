@@ -10,6 +10,7 @@ import { arrayify } from "./util"
 import type { GenerationOptions } from "./generation"
 import { isToolsSupported } from "./tools"
 import type { Project } from "./server/messages"
+import { deleteUndefinedValues } from "./cleaners"
 
 /**
  * Function to resolve and return a list of systems based on the provided script and project.
@@ -193,12 +194,20 @@ export function addFallbackToolSystems(
         return false
     }
 
+    const supported = isToolsSupported(options?.model || genOptions?.model)
     const fallbackTools =
-        isToolsSupported(options?.model || genOptions?.model) === false ||
+        supported === false ||
         options?.fallbackTools ||
         genOptions?.fallbackTools
     if (fallbackTools) {
-        dbg(`adding fallback tools to systems`)
+        dbg(
+            `adding fallback tools to systems`,
+            deleteUndefinedValues({
+                supported,
+                options: options?.fallbackTools,
+                genOptions: genOptions?.fallbackTools,
+            })
+        )
         systems.push({ id: "system.tool_calls" })
     }
     return fallbackTools

@@ -1,3 +1,6 @@
+import debug from "debug"
+const dbg = debug("genai:chat")
+
 // cspell: disable
 import { MarkdownTrace, TraceOptions } from "./trace"
 import { PromptImage, PromptPrediction, renderPromptNode } from "./promptdom"
@@ -93,6 +96,7 @@ import { measure } from "./performance"
 import { renderMessagesToTerminal } from "./chatrenderterminal"
 import { fileCacheImage } from "./filecache"
 import { stderr } from "./stdio"
+import { prettyTokens } from "./pretty"
 
 function toChatCompletionImage(
     image: PromptImage
@@ -213,7 +217,7 @@ async function runToolCalls(
     assert(!!trace)
     let edits: Edits[] = []
 
-    if (!options.fallbackTools)
+    if (!options.fallbackTools) {
         messages.push({
             role: "assistant",
             tool_calls: resp.toolCalls.map((c) => ({
@@ -225,7 +229,7 @@ async function runToolCalls(
                 type: "function",
             })),
         })
-    else {
+    } else {
         // pop the last assistant message
         appendUserMessage(messages, "## Tool Results (computed by tools)")
     }
@@ -295,12 +299,14 @@ async function runToolCall(
             return { tool, args: tu.parameters }
         })
     } else {
+        dbg(`finding tool for call ${call.name}`)
         let tool = tools.find((f) => f.spec.name === call.name)
         if (!tool) {
             logVerbose(JSON.stringify(call, null, 2))
             logVerbose(
                 `tool ${call.name} not found in ${tools.map((t) => t.spec.name).join(", ")}`
             )
+            dbg(`tool ${call.name} not found`)
             trace.log(`tool ${call.name} not found`)
             tool = {
                 spec: {
@@ -344,10 +350,11 @@ async function runToolCall(
             throw new Error(`error: tool ${tool.spec.name} raised an error`)
         let toolContent: string = undefined
         let toolEdits: Edits[] = undefined
-        if (typeof output === "string") toolContent = output
-        else if (typeof output === "number" || typeof output === "boolean")
+        if (typeof output === "string") {
+            toolContent = output
+        } else if (typeof output === "number" || typeof output === "boolean") {
             toolContent = String(output)
-        else if (
+        } else if (
             typeof output === "object" &&
             (output as ShellOutput).exitCode !== undefined
         ) {
@@ -371,8 +378,9 @@ ${fenceMD(content, " ")}
             toolContent = YAMLStringify(output)
         }
 
-        if (typeof output === "object")
+        if (typeof output === "object") {
             toolEdits = (output as ToolCallContent)?.edits
+        }
 
         if (toolEdits?.length) {
             trace.fence(toolEdits)
@@ -404,7 +412,8 @@ ${fenceMD(content, " ")}
         toolResult.push(toolContent)
     }
 
-    if (options.fallbackTools)
+    if (options.fallbackTools) {
+        dbg(`appending fallback tool result to user message`)
         appendUserMessage(
             messages,
             `- ${call.name}(${JSON.stringify(call.arguments || {})})
@@ -413,12 +422,13 @@ ${toolResult.join("\n\n")}
 </tool_result>
 `
         )
-    else
+    } else {
         messages.push({
             role: "tool",
             content: toolResult.join("\n\n"),
             tool_call_id: call.id,
         } satisfies ChatCompletionToolMessageParam)
+    }
 }
 
 async function applyRepairs(
@@ -435,11 +445,14 @@ async function applyRepairs(
         infoCb,
     } = options
     const lastMessage = messages[messages.length - 1]
-    if (lastMessage.role !== "assistant" || lastMessage.refusal) return false
+    if (lastMessage.role !== "assistant" || lastMessage.refusal) {
+        return false
+    }
 
     const content = assistantText(messages, responseType, responseSchema)
     const fences = extractFenced(content)
     validateFencesWithSchema(fences, schemas, { trace })
+    dbg(`validating fences with schema`)
     const invalids = fences.filter((f) => f?.validation?.schemaError)
 
     let data: any
@@ -480,22 +493,29 @@ async function applyRepairs(
         const value = data ?? JSONLLMTryParse(content)
         const schema = promptParametersSchemaToJSONSchema(responseSchema)
         const res = validateJSONWithSchema(value, schema, { trace })
-        if (res.schemaError)
+        if (res.schemaError) {
+            dbg(`response schema validation failed`, res.schemaError)
             invalids.push({
                 label: "response must match schema",
                 content,
                 validation: res,
             })
+        }
     }
 
     // nothing to repair
-    if (!invalids.length) return false
+    if (!invalids.length) {
+        dbg(`no invalid fences found, skipping repairs`)
+        return false
+    }
     // too many attempts
     if (stats.repairs >= maxDataRepairs) {
+        dbg(`maximum number of repairs reached`)
         trace.error(`maximum number of repairs (${maxDataRepairs}) reached`)
         return false
     }
 
+    dbg(`appending repair instructions to messages`)
     infoCb?.({ text: "appending data repair instructions" })
     // let's get to work
     trace.startDetails("🔧 data repairs")
@@ -540,23 +560,32 @@ function assistantText(
     let text = ""
     for (let i = messages.length - 1; i >= 0; i--) {
         const msg = messages[i]
-        if (msg.role !== "assistant") break
-        if (typeof msg.content === "string") text = msg.content + text
-        else {
+        if (msg.role !== "assistant") {
+            break
+        }
+        if (typeof msg.content === "string") {
+            text = msg.content + text
+        } else {
             for (const part of msg.content) {
-                if (part.type === "text") text = part.text + text
-                else if (part.type === "refusal")
+                if (part.type === "text") {
+                    text = part.text + text
+                } else if (part.type === "refusal") {
                     text = `refusal: ${part.refusal}\n` + text
+                }
             }
         }
     }
 
     text = unthink(text)
-    if ((!responseType && !responseSchema) || responseType === "markdown")
+    if ((!responseType && !responseSchema) || responseType === "markdown") {
         text = unfence(text, "(markdown|md)")
-    else if (responseType === "yaml") text = unfence(text, "(yaml|yml)")
-    else if (/^json/.test(responseType)) text = unfence(text, "(json|json5)")
-    else if (responseType === "text") text = unfence(text, "(text|txt)")
+    } else if (responseType === "yaml") {
+        text = unfence(text, "(yaml|yml)")
+    } else if (/^json/.test(responseType)) {
+        text = unfence(text, "(json|json5)")
+    } else if (responseType === "text") {
+        text = unfence(text, "(text|txt)")
+    }
 
     return text
 }
@@ -602,6 +631,7 @@ async function structurifyChatSession(
     }
 
     if (responseSchema) {
+        dbg(`validating response schema`)
         const schema = promptParametersSchemaToJSONSchema(responseSchema)
         const res = validateJSONWithSchema(json, schema, {
             trace,
@@ -617,9 +647,12 @@ async function structurifyChatSession(
     const frames: DataFrame[] = []
 
     // validate schemas in fences
-    if (fences?.length)
+    if (fences?.length) {
+        dbg(`validating schemas in fences`)
         frames.push(...validateFencesWithSchema(fences, schemas, { trace }))
+    }
 
+    dbg(`computing perplexity and uncertainty`)
     const perplexity = computePerplexity(logprobs)
     const uncertainty = computeStructuralUncertainty(logprobs)
     const revlogprobs = logprobs?.slice(0)?.reverse()
@@ -630,8 +663,9 @@ async function structurifyChatSession(
                 revlogprobs?.find((lp) => lp.token === token) ??
                 ({ token, logprob: NaN } satisfies Logprob)
         )
-    for (const choice of choices?.filter((c) => !isNaN(c.logprob)))
+    for (const choice of choices?.filter((c) => !isNaN(c.logprob))) {
         logVerbose(`choice: ${choice.token}, ${renderLogprob(choice.logprob)}`)
+    }
     if (logprobs?.length) {
         logVerbose(
             toStringList(
@@ -719,7 +753,9 @@ function parseAssistantMessage(
     const { signature } = resp
     const { content, reasoning } = splitThink(resp.text)
     const reasoning_content = resp.reasoning || reasoning
-    if (!content && !reasoning_content) return undefined
+    if (!content && !reasoning_content) {
+        return undefined
+    }
     return deleteUndefinedValues({
         role: "assistant",
         content,
@@ -751,10 +787,13 @@ async function processChatMessage(
 
     stats.addUsage(req, resp)
     const assisantMessage = parseAssistantMessage(resp)
-    if (assisantMessage) messages.push(assisantMessage)
+    if (assisantMessage) {
+        messages.push(assisantMessage)
+    }
 
     const assistantContent = assisantMessage?.content as string
     if (options.fallbackTools && assistantContent && tools.length) {
+        dbg(`extracting tool calls from assistant content (fallback)`)
         resp.toolCalls = []
         // parse tool call
         const toolCallFences = extractFenced(assistantContent).filter((f) =>
@@ -778,12 +817,14 @@ async function processChatMessage(
 
     // execute tools as needed
     if (resp.toolCalls?.length) {
+        dbg(`executing tool calls`)
         await runToolCalls(resp, messages, tools, options)
         stats.toolCalls += resp.toolCalls.length
-        if (stats.toolCalls > maxToolCalls)
+        if (stats.toolCalls > maxToolCalls) {
             throw new Error(
                 `maximum number of tool calls ${maxToolCalls} reached`
             )
+        }
         return undefined // keep working
     }
     // apply repairs if necessary
@@ -793,6 +834,7 @@ async function processChatMessage(
 
     let err: any
     if (chatParticipants?.length) {
+        dbg(`processing chat participants`)
         let needsNewTurn = false
         for (const participant of chatParticipants) {
             const { generator, options: participantOptions } = participant || {}
@@ -812,6 +854,7 @@ async function processChatMessage(
 
                 // update modified messages
                 if (newMessages?.length) {
+                    dbg(`updating messages with new participant messages`)
                     messages.splice(0, messages.length, ...newMessages)
                     needsNewTurn = true
                     participantTrace.details(
@@ -825,6 +868,7 @@ async function processChatMessage(
                     )
                 }
 
+                dbg(`expanding participant template`)
                 // expand template
                 const { errors, messages: participantMessages } =
                     await renderPromptNode(options.model, node, {
@@ -837,10 +881,11 @@ async function processChatMessage(
                         participantMessages.some(
                             ({ role }) => role === "system"
                         )
-                    )
+                    ) {
                         throw new Error(
                             "system messages not supported for chat participants"
                         )
+                    }
                     participantTrace.details(
                         `💬 added messages (${participantMessages.length})`,
                         await renderMessagesToMarkdown(participantMessages, {
@@ -853,11 +898,15 @@ async function processChatMessage(
                     )
                     messages.push(...participantMessages)
                     needsNewTurn = true
-                } else participantTrace.item("no message")
+                } else {
+                    participantTrace.item("no message")
+                }
                 if (errors?.length) {
+                    dbg(`participant processing encountered errors`)
                     err = errors[0]
-                    for (const error of errors)
+                    for (const error of errors) {
                         participantTrace.error(undefined, error)
+                    }
                     needsNewTurn = false
                     break
                 }
@@ -871,7 +920,10 @@ async function processChatMessage(
                 participantTrace.endDetails()
             }
         }
-        if (needsNewTurn) return undefined
+        if (needsNewTurn) {
+            dbg(`participant processing complete, needs new turn`)
+            return undefined
+        }
     }
 
     const logprobs = resp.logprobs?.map(serializeLogProb)
@@ -924,7 +976,9 @@ async function choicesToLogitBias(
     >
 ): Promise<Record<number, number>> {
     choices = arrayify(choices)
-    if (!choices?.length) return undefined
+    if (!choices?.length) {
+        return undefined
+    }
     const { encode } =
         (await resolveTokenEncoder(model, {
             disableFallback: true,
@@ -1011,6 +1065,16 @@ export async function executeChatSession(
     const top_logprobs = genOptions.topLogprobs > 0 ? topLogprobs : undefined
     const logprobs = genOptions.logprobs || top_logprobs > 0 ? true : undefined
     traceLanguageModelConnection(trace, genOptions, connectionToken)
+    dbg(
+        `chat ${model}`,
+        deleteUndefinedValues({
+            temperature,
+            choices,
+            fallbackTools,
+            logprobs,
+            top_logprobs,
+        })
+    )
     const tools: ChatCompletionTool[] = toolDefinitions?.length
         ? toolDefinitions.map(
               (f) =>
@@ -1041,14 +1105,16 @@ export async function executeChatSession(
             const duplicates = uniq(toolNames).filter(
                 (name, index) => toolNames.lastIndexOf(name) !== index
             )
-            if (duplicates.length)
+            if (duplicates.length) {
                 throw new Error(`duplicate tools: ${duplicates.join(", ")}`)
+            }
         }
         while (true) {
             stats.turns++
             collapseChatMessages(messages)
             const tokens = await estimateChatTokens(model, messages)
-            if (messages)
+            dbg(`chat: turn ${stats.turns} ${prettyTokens(tokens)}`)
+            if (messages) {
                 chatTrace.details(
                     `💬 messages (${messages.length})`,
                     await renderMessagesToMarkdown(messages, {
@@ -1059,6 +1125,7 @@ export async function executeChatSession(
                     }),
                     { expanded: true }
                 )
+            }
 
             // make request
             let req: CreateChatCompletionRequest
@@ -1067,6 +1134,7 @@ export async function executeChatSession(
                 checkCancelled(cancellationToken)
                 const reqTrace = chatTrace.startTraceDetails(`📤 llm request`)
                 try {
+                    dbg(`computing logit bias for choices`)
                     const logit_bias = await choicesToLogitBias(
                         reqTrace,
                         model,
@@ -1130,6 +1198,7 @@ export async function executeChatSession(
                         return cres
                     }
                     if (cacheStore) {
+                        dbg(`cache store enabled, checking cache`)
                         const cachedKey = deleteUndefinedValues({
                             modelid: model,
                             ...req,
@@ -1190,7 +1259,9 @@ export async function executeChatSession(
                     cacheImage,
                     genOptions
                 )
-                if (output) return output
+                if (output) {
+                    return output
+                }
             } catch (err) {
                 return structurifyChatSession(
                     messages,
@@ -1266,7 +1337,9 @@ export function tracePromptResult(
 ) {
     const { text, reasoning } = resp || {}
 
-    if (reasoning) trace.detailsFenced(`🤔 reasoning`, reasoning, "markdown")
+    if (reasoning) {
+        trace.detailsFenced(`🤔 reasoning`, reasoning, "markdown")
+    }
     // try to sniff the output type
     if (text) {
         const language = JSON5TryParse(text)
@@ -1277,10 +1350,11 @@ export function tracePromptResult(
                 ? "markdown"
                 : "text"
         trace.detailsFenced(`🔠 output`, text, language, { expanded: true })
-        if (language === "markdown")
+        if (language === "markdown") {
             trace.appendContent(
                 "\n\n" + HTMLEscape(prettifyMarkdown(text)) + "\n\n"
             )
+        }
     }
 }
 
@@ -1289,7 +1363,9 @@ export function appendUserMessage(
     content: string | PromptImage,
     options?: ContextExpansionOptions
 ) {
-    if (!content) return
+    if (!content) {
+        return
+    }
     const { cacheControl } = options || {}
     let last = messages.at(-1) as ChatCompletionUserMessageParam
     if (last?.role !== "user" || options?.cacheControl !== last?.cacheControl) {
@@ -1297,20 +1373,28 @@ export function appendUserMessage(
             role: "user",
             content: "",
         } satisfies ChatCompletionUserMessageParam
-        if (cacheControl) last.cacheControl = cacheControl
+        if (cacheControl) {
+            last.cacheControl = cacheControl
+        }
         messages.push(last)
     }
     if (typeof content === "string") {
         if (last.content) {
-            if (typeof last.content === "string") last.content += "\n" + content
-            else last.content.push({ type: "text", text: content })
-        } else last.content = content
+            if (typeof last.content === "string") {
+                last.content += "\n" + content
+            } else {
+                last.content.push({ type: "text", text: content })
+            }
+        } else {
+            last.content = content
+        }
     } else {
         // add image
-        if (typeof last.content === "string")
+        if (typeof last.content === "string") {
             last.content = last.content
                 ? [{ type: "text", text: last.content }]
                 : []
+        }
         last.content.push(toChatCompletionImage(content))
     }
 }
@@ -1320,7 +1404,9 @@ export function appendAssistantMessage(
     content: string,
     options?: ContextExpansionOptions
 ) {
-    if (!content) return
+    if (!content) {
+        return
+    }
     const { cacheControl } = options || {}
     let last = messages.at(-1) as ChatCompletionAssistantMessageParam
     if (
@@ -1331,13 +1417,20 @@ export function appendAssistantMessage(
             role: "assistant",
             content: "",
         } satisfies ChatCompletionAssistantMessageParam
-        if (cacheControl) last.cacheControl = cacheControl
+        if (cacheControl) {
+            last.cacheControl = cacheControl
+        }
         messages.push(last)
     }
     if (last.content) {
-        if (typeof last.content === "string") last.content += "\n" + content
-        else last.content.push({ type: "text", text: content })
-    } else last.content = content
+        if (typeof last.content === "string") {
+            last.content += "\n" + content
+        } else {
+            last.content.push({ type: "text", text: content })
+        }
+    } else {
+        last.content = content
+    }
 }
 
 export function appendSystemMessage(
@@ -1345,7 +1438,9 @@ export function appendSystemMessage(
     content: string,
     options?: ContextExpansionOptions
 ) {
-    if (!content) return
+    if (!content) {
+        return
+    }
     const { cacheControl } = options || {}
 
     let last = messages[0] as ChatCompletionSystemMessageParam
@@ -1357,14 +1452,20 @@ export function appendSystemMessage(
             role: "system",
             content: "",
         } as ChatCompletionSystemMessageParam
-        if (cacheControl) last.cacheControl = cacheControl
+        if (cacheControl) {
+            last.cacheControl = cacheControl
+        }
         messages.unshift(last)
     }
     if (last.content) {
-        if (typeof last.content === "string")
+        if (typeof last.content === "string") {
             last.content += SYSTEM_FENCE + content
-        else last.content.push({ type: "text", text: content })
-    } else last.content = content
+        } else {
+            last.content.push({ type: "text", text: content })
+        }
+    } else {
+        last.content = content
+    }
 }
 
 export function addToolDefinitionsMessage(
