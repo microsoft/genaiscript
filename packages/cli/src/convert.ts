@@ -11,12 +11,7 @@ import {
 import { filePathOrUrlToWorkspaceFile, tryReadText } from "../../core/src/fs"
 import { host } from "../../core/src/host"
 import { MarkdownTrace } from "../../core/src/trace"
-import {
-    dotGenaiscriptPath,
-    logError,
-    logInfo,
-    logVerbose,
-} from "../../core/src/util"
+import { logError, logInfo, logVerbose } from "../../core/src/util"
 import { buildProject } from "./build"
 import { run } from "./api"
 import { writeText } from "../../core/src/fs"
@@ -25,26 +20,16 @@ import { PLimitPromiseQueue } from "../../core/src/concurrency"
 import { createPatch } from "diff"
 import { unfence } from "../../core/src/unwrappers"
 import { applyModelOptions } from "../../core/src/modelalias"
-import { ensureDotGenaiscriptPath, setupTraceWriting } from "./trace"
+import { setupTraceWriting } from "./trace"
 import { tracePromptResult } from "../../core/src/chat"
 import { dirname, join } from "node:path"
 import { link } from "../../core/src/mkmd"
-import { hash, randomHex } from "../../core/src/crypto"
+import { hash } from "../../core/src/crypto"
 import { createCancellationController } from "./cancel"
 import { toSignal } from "../../core/src/cancellation"
 import { normalizeInt } from "../../core/src/cleaners"
 import { YAMLStringify } from "../../core/src/yaml"
-
-function getConvertDir(scriptId: string) {
-    const runId =
-        new Date().toISOString().replace(/[:.]/g, "-") + "-" + randomHex(6)
-    const out = dotGenaiscriptPath(
-        CONVERTS_DIR_NAME,
-        host.path.basename(scriptId).replace(GENAI_ANYTS_REGEX, ""),
-        runId
-    )
-    return out
-}
+import { ensureDotGenaiscriptPath, getConvertDir } from "../../core/src/workdir"
 
 export async function convertFiles(
     scriptId: string,

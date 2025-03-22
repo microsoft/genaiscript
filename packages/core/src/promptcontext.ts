@@ -2,7 +2,7 @@
 // like file operations, web search, fuzzy search, vector search, and more.
 // The context is essential for executing prompts within a project environment.
 
-import { arrayify, assert, dotGenaiscriptPath } from "./util"
+import { arrayify, assert } from "./util"
 import { runtimeHost } from "./host"
 import { MarkdownTrace } from "./trace"
 import { createParsers } from "./parsers"
@@ -30,6 +30,7 @@ import { fetch, fetchText } from "./fetch"
 import { fileWriteCached } from "./filecache"
 import { join } from "node:path"
 import { createMicrosoftTeamsChannelClient } from "./teams"
+import { dotGenaiscriptPath } from "./workdir"
 
 /**
  * Creates a prompt context for the given project, variables, trace, options, and model.

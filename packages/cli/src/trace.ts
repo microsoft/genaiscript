@@ -1,17 +1,12 @@
-import { ensureDir, exists } from "fs-extra"
+import { ensureDir } from "fs-extra"
 import { MarkdownTrace, TraceChunkEvent } from "../../core/src/trace"
-import { dotGenaiscriptPath, logVerbose } from "../../core/src/util"
-import { dirname, join } from "node:path"
+import { logVerbose } from "../../core/src/util"
+import { dirname } from "node:path"
 import { writeFileSync, WriteStream } from "node:fs"
-import {
-    GIT_IGNORE,
-    TRACE_CHUNK,
-    TRACE_DETAILS,
-} from "../../core/src/constants"
+import { TRACE_CHUNK, TRACE_DETAILS } from "../../core/src/constants"
 import { writeFile } from "node:fs/promises"
 import { measure } from "../../core/src/performance"
 import { createWriteStream } from "node:fs"
-import { gitIgnoreEnsure } from "../../core/src/gitignore"
 
 export async function setupTraceWriting(
     trace: MarkdownTrace,
@@ -59,10 +54,4 @@ export async function setupTraceWriting(
     })
 
     return filename
-}
-
-export async function ensureDotGenaiscriptPath() {
-    const dir = dotGenaiscriptPath(".")
-    await ensureDir(dir)
-    await gitIgnoreEnsure(dir, ["*"])
 }

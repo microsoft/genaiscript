@@ -1,4 +1,4 @@
-import { arrayify, dotGenaiscriptPath, logVerbose } from "./util"
+import { logVerbose } from "./util"
 import { TraceOptions } from "./trace"
 import { lookupMime } from "./mime"
 import pLimit from "p-limit"
@@ -18,6 +18,8 @@ import { Stats } from "node:fs"
 import { roundWithPrecision } from "./precision"
 import { parseTimestamps } from "./transcription"
 import { mark } from "./performance"
+import { dotGenaiscriptPath } from "./workdir"
+import { arrayify } from "./cleaners"
 
 const ffmpegLimit = pLimit(1)
 const WILD_CARD = "%06d"
@@ -265,8 +267,7 @@ export class FFmepgClient implements Ffmpeg {
                 cmd.seekInput(start)
                 if (duration !== undefined) cmd.duration(duration)
                 if (end !== undefined) cmd.inputOptions(`-to ${end}`)
-                if (!options?.size)
-                    cmd.outputOptions("-c copy")
+                if (!options?.size) cmd.outputOptions("-c copy")
                 return `clip-${start}-${duration || end}.mp4`
             },
             {

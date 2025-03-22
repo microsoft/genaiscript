@@ -7,14 +7,10 @@ import { GENAI_ANY_REGEX, TOOL_ID, TOOL_NAME } from "../../core/src/constants"
 import { NotSupportedError } from "../../core/src/error"
 import { promptParameterTypeToJSONSchema } from "../../core/src/parameters"
 import { Fragment } from "../../core/src/generation"
-import {
-    dotGenaiscriptPath,
-    groupBy,
-    logInfo,
-    logVerbose,
-} from "../../core/src/util"
+import { groupBy, logInfo, logVerbose } from "../../core/src/util"
 import { resolveCli } from "./config"
 import { YAMLStringify } from "../../core/src/yaml"
+import { dotGenaiscriptPath } from "../../core/src/workdir"
 
 type TemplateQuickPickItem = {
     template?: PromptScript

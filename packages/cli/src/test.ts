@@ -6,7 +6,7 @@ import { buildProject } from "./build"
 import { readFile, writeFile, appendFile } from "node:fs/promises"
 import { execa } from "execa"
 import { dirname, join, resolve } from "node:path"
-import { emptyDir, ensureDir, exists } from "fs-extra"
+import { emptyDir, exists } from "fs-extra"
 import { PROMPTFOO_VERSION } from "./version"
 import {
     PROMPTFOO_CACHE_PATH,
@@ -18,19 +18,13 @@ import {
     EMOJI_FAIL,
     TEST_RUNS_DIR_NAME,
     PROMPTFOO_REMOTE_API_PORT,
-    PROMPTFOO_TEST_MAX_CONCURRENCY,
 } from "../../core/src/constants"
 import { promptFooDriver } from "../../core/src/default_prompts"
 import { serializeError } from "../../core/src/error"
 import { runtimeHost } from "../../core/src/host"
 import { JSON5TryParse } from "../../core/src/json5"
 import { MarkdownTrace } from "../../core/src/trace"
-import {
-    logInfo,
-    logVerbose,
-    toStringList,
-    dotGenaiscriptPath,
-} from "../../core/src/util"
+import { logInfo, logVerbose, toStringList } from "../../core/src/util"
 import { YAMLStringify } from "../../core/src/yaml"
 import {
     PromptScriptTestRunOptions,
@@ -56,6 +50,8 @@ import {
     objectToMarkdownTableRow,
 } from "../../core/src/csv"
 import { roundWithPrecision } from "../../core/src/precision"
+import { ensureDir } from "../../core/src/fs"
+import { dotGenaiscriptPath } from "../../core/src/workdir"
 
 /**
  * Parses model specifications from a string and returns a ModelOptions object.

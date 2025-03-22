@@ -89,14 +89,6 @@ export function utf8Decode(buf: Uint8Array) {
     return host.createUTF8Decoder().decode(buf)
 }
 
-export function dotGenaiscriptPath(...segments: string[]) {
-    return host.resolvePath(
-        host.projectFolder(),
-        GENAISCRIPT_FOLDER,
-        ...segments
-    )
-}
-
 export function relativePath(root: string, fn: string) {
     // ignore empty path or urls
     if (!fn || HTTPS_REGEX.test(fn)) return fn

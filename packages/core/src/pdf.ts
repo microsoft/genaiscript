@@ -4,7 +4,7 @@ import { host } from "./host"
 import { TraceOptions } from "./trace"
 import os from "os"
 import { serializeError } from "./error"
-import { dotGenaiscriptPath, logVerbose, logWarn } from "./util"
+import { logVerbose, logWarn } from "./util"
 import { INVALID_FILENAME_REGEX, PDF_HASH_LENGTH, PDF_SCALE } from "./constants"
 import { resolveGlobal } from "./global"
 import { isUint8Array, isUint8ClampedArray } from "util/types"
@@ -16,6 +16,7 @@ import { YAMLStringify } from "./yaml"
 import { deleteUndefinedValues } from "./cleaners"
 import { CancellationOptions, checkCancelled } from "./cancellation"
 import { measure } from "./performance"
+import { dotGenaiscriptPath } from "./workdir"
 
 let standardFontDataUrl: string
 
