@@ -1,3 +1,5 @@
+import debug from "debug"
+const dbg = debug("genai:runpromptcontext")
 // cspell: disable
 import {
     PromptNode,
@@ -104,7 +106,6 @@ import { consoleColors } from "./consolecolor"
 import { terminalSize } from "./terminal"
 import { stderr, stdout } from "./stdio"
 import { dotGenaiscriptPath } from "./workdir"
-import debug from "debug"
 
 export function createChatTurnGenerationContext(
     options: GenerationOptions,
@@ -445,8 +446,8 @@ export function createChatGenerationContext(
         const memory = !disableMemory
 
         name = name.replace(/^agent_/i, "")
-        const dbg = debug(`agent:${name}`)
-        dbg(`created ${variant || ""}`)
+        const adbg = debug(`agent:${name}`)
+        adbg(`created ${variant || ""}`)
         const agentName = `agent_${name}${variant ? "_" + variant : ""}`
         const agentLabel = `agent ${name}${variant ? " " + variant : ""}`
 
@@ -491,7 +492,7 @@ export function createChatGenerationContext(
                 infoCb?.({
                     text: `${agentLabel}: ${query} ${parametersToVars(argsNoQuery)}`,
                 })
-                dbg(`query: ${query}`)
+                adbg(`query: ${query}`)
 
                 const hasExtraArgs = Object.keys(argsNoQuery).length > 0
                 let memoryAnswer: string
@@ -504,7 +505,7 @@ export function createChatGenerationContext(
                                 : ""),
                         { userState, trace }
                     )
-                    dbg(`memory: found ${memoryAnswer}`)
+                    adbg(`memory: found ${memoryAnswer}`)
                 }
 
                 const res = await ctx.runPrompt(
@@ -538,7 +539,7 @@ export function createChatGenerationContext(
                                         text.startsWith(TOKEN_NO_ANSWER)
                                     )
                                 )
-                                    dbg(`memory: add ${text}`)
+                                    adbg(`memory: add ${text}`)
                                 await agentAddMemory(agentName, query, text, {
                                     userState,
                                     trace,
@@ -984,6 +985,7 @@ export function createChatGenerationContext(
                     genOptions
                 )
             ) {
+                dbg(`fallback tools added`)
                 genOptions.fallbackTools = true
             }
 
