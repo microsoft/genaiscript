@@ -4024,6 +4024,93 @@ interface QueryCapture {
     node: SyntaxNode
 }
 
+interface AstGrepEdit {
+    /** The start position of the edit */
+    startPos: number
+    /** The end position of the edit */
+    endPos: number
+    /** The text to be inserted */
+    insertedText: string
+}
+interface AstGrepPos {
+    /** line number starting from 0 */
+    line: number
+    /** column number starting from 0 */
+    column: number
+    /** byte offset of the position */
+    index: number
+}
+interface AstGrepRange {
+    /** starting position of the range */
+    start: AstGrepPos
+    /** ending position of the range */
+    end: AstGrepPos
+}
+interface AstGrepNode {
+    id(): number
+    range(): AstGrepRange
+    isLeaf(): boolean
+    isNamed(): boolean
+    isNamedLeaf(): boolean
+    text(): string
+    matches(m: string | number): boolean
+    inside(m: string | number): boolean
+    has(m: string | number): boolean
+    precedes(m: string | number): boolean
+    follows(m: string | number): boolean
+    kind(): any
+    is(kind: string): boolean
+    getMatch(mv: string): AstGrepNode | null
+    getMultipleMatches(m: string): Array<AstGrepNode>
+    getTransformed(m: string): string | null
+    getRoot(): AstGrepRoot
+    children(): Array<AstGrepNode>
+    find(matcher: string | number): AstGrepNode | null
+    findAll(matcher: string | number): Array<AstGrepNode>
+    field(name: string): AstGrepNode | null
+    fieldChildren(name: string): AstGrepNode[]
+    parent(): AstGrepNode | null
+    child(nth: number): AstGrepNode | null
+    child(nth: number): AstGrepNode | null
+    ancestors(): Array<AstGrepNode>
+    next(): AstGrepNode | null
+    nextAll(): Array<AstGrepNode>
+    prev(): AstGrepNode | null
+    prevAll(): Array<AstGrepNode>
+    replace(text: string): AstGrepEdit
+    commitEdits(edits: Array<AstGrepEdit>): string
+}
+
+interface AstGrepRoot {
+    /** Returns the root SgNode of the ast-grep instance. */
+    root(): AstGrepNode
+    /**
+     * Returns the path of the file if it is discovered by ast-grep's `findInFiles`.
+     * Returns `"anonymous"` if the instance is created by `lang.parse(source)`.
+     */
+    filename(): string
+}
+
+type AstGrepLang = OptionsOrString<"html" | "js" | "ts" | "tsx" | "css">
+
+interface AstGrep {
+    parse(
+        file: WorkspaceFile,
+        options: { lang?: AstGrepLang }
+    ): Promise<AstGrepRoot>
+    findInFiles(
+        lang: AstGrepLang,
+        glob: ElementOrArray<string>
+    ): Promise<{ files: number; matches: AstGrepNode[] }>
+}
+
+interface AstGrepHost {
+    /**
+     * Gets an ast-grep instance
+     */
+    astGrep(): Promise<AstGrep>
+}
+
 interface ShellOptions {
     cwd?: string
     stdin?: string
@@ -4807,6 +4894,7 @@ interface PromptHost
     extends ShellHost,
         UserInterfaceHost,
         LanguageModelHost,
+        AstGrepHost,
         ContentSafetyHost {
     /**
      * A fetch wrapper with proxy, retry and timeout handling.

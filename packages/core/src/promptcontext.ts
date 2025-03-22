@@ -31,6 +31,7 @@ import { fileWriteCached } from "./filecache"
 import { join } from "node:path"
 import { createMicrosoftTeamsChannelClient } from "./teams"
 import { dotGenaiscriptPath } from "./workdir"
+import { astGrepFindInFiles, astGrepParse } from "./astgrep"
 
 /**
  * Creates a prompt context for the given project, variables, trace, options, and model.
@@ -319,6 +320,16 @@ export async function createPromptContext(
         python: async (options) =>
             await runtimeHost.python({ trace, ...(options || {}) }),
         teamsChannel: async (url) => createMicrosoftTeamsChannelClient(url),
+        astGrep: async () =>
+            Object.freeze<AstGrep>({
+                findInFiles: (lang, glob) =>
+                    astGrepFindInFiles(lang, glob, { cancellationToken }),
+                parse: (file, options) =>
+                    astGrepParse(file, {
+                        ...(options || {}),
+                        cancellationToken,
+                    }),
+            }),
     })
 
     // Freeze project options to prevent modification
