@@ -1,7 +1,7 @@
 // This file defines the creation of a prompt context, which includes various services
 // like file operations, web search, fuzzy search, vector search, and more.
 // The context is essential for executing prompts within a project environment.
-
+import debug from "debug"
 import { arrayify, assert } from "./util"
 import { runtimeHost } from "./host"
 import { MarkdownTrace } from "./trace"
@@ -33,6 +33,8 @@ import { createMicrosoftTeamsChannelClient } from "./teams"
 import { dotGenaiscriptPath } from "./workdir"
 import { astGrepFindFiles, astGrepParse } from "./astgrep"
 
+const dbg = debug("genai:promptcontext")
+
 /**
  * Creates a prompt context for the given project, variables, trace, options, and model.
  * @param prj The project for which the context is created.
@@ -51,6 +53,7 @@ export async function createPromptContext(
 ) {
     const { cancellationToken } = options
     const { generator, vars, output, ...varsNoGenerator } = ev
+
     // Clone variables to prevent modification of the original object
     const env = { generator, vars, output, ...structuredClone(varsNoGenerator) }
     assert(!!output, "missing output")
@@ -59,6 +62,8 @@ export async function createPromptContext(
     const path = runtimeHost.path
     const runDir = ev.runDir
     assert(!!runDir, "missing run directory")
+
+    dbg(`creating prompt context for ${model}`, { runDir })
 
     // Define the workspace file system operations
     const workspace: WorkspaceFileSystem = {
@@ -244,6 +249,7 @@ export async function createPromptContext(
 
     // Define the host for executing commands, browsing, and other operations
     const promptHost: PromptHost = Object.freeze<PromptHost>({
+        logger: (category) => debug(category),
         fetch: (url, options) => fetch(url, { ...(options || {}), trace }),
         fetchText: (url, options) =>
             fetchText(url, { ...(options || {}), trace }),

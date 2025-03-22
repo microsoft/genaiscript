@@ -4172,6 +4172,16 @@ interface AstGrep {
     ): Promise<{ files: number; matches: AstGrepNode[] }>
 }
 
+interface DebugLogger {
+    (formatter: any, ...args: any[]): void
+    enabled: boolean
+    namespace: string
+}
+
+interface LoggerHost {
+    logger(category: string): DebugLogger
+}
+
 interface AstGrepHost {
     /**
      * Gets an ast-grep instance
@@ -4960,6 +4970,7 @@ interface PythonProxy {
 
 interface PromptHost
     extends ShellHost,
+        LoggerHost,
         UserInterfaceHost,
         LanguageModelHost,
         AstGrepHost,
