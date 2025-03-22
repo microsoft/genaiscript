@@ -63,8 +63,6 @@ export async function createPromptContext(
     const runDir = ev.runDir
     assert(!!runDir, "missing run directory")
 
-    dbg(`creating prompt context for ${model}`, { runDir })
-
     // Define the workspace file system operations
     const workspace: WorkspaceFileSystem = {
         readText: (f) => runtimeHost.workspace.readText(f),
