@@ -1355,6 +1355,11 @@ interface ExpansionVariables {
      * Resolved metadata
      */
     meta: PromptDefinition & ModelConnectionOptions
+
+    /**
+     * The script debugger logger
+     */
+    dbg: DebugLogger
 }
 
 type MakeOptional<T, P extends keyof T> = Partial<Pick<T, P>> & Omit<T, P>

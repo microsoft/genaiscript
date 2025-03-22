@@ -1,5 +1,5 @@
 import debug from "debug"
-const dbg = debug("genai:runpromptcontext")
+const dbg = debug("genaiscript:runpromptcontext")
 // cspell: disable
 import {
     PromptNode,
@@ -1083,7 +1083,7 @@ export function createChatGenerationContext(
                 "model:" + genOptions.model,
                 modelConcurrency
             )
-            dbg(`run ${genOptions.model}`, deleteUndefinedValues(genOptions))
+            dbg(`run ${genOptions.model}`)
             const resp = await modelLimit(() =>
                 executeChatSession(
                     configuration,

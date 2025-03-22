@@ -1,5 +1,5 @@
 import debug from "debug"
-const dbg = debug("genai:gitignore")
+const dbg = debug("genaiscript:gitignore")
 
 // Import the 'ignore' library to handle .gitignore file parsing and filtering
 import ignorer from "ignore"

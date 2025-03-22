@@ -1,5 +1,5 @@
 import debug from "debug"
-const dbg = debug("genai:promptrunner")
+const runnerDbg = debug("genaiscript:promptrunner")
 
 // Import necessary modules and functions for handling chat sessions, templates, file management, etc.
 import { executeChatSession, tracePromptResult } from "./chat"
@@ -109,6 +109,7 @@ async function resolveExpansionVars(
         output,
         generator: undefined as ChatGenerationContext,
         runDir,
+        dbg: debug(template.id),
     } satisfies ExpansionVariables
     return res
 }
@@ -178,9 +179,9 @@ export async function runTemplate(
             disposables,
             cache,
         } = await expandTemplate(prj, template, options, env)
-        const { output, generator, secrets, ...restEnv } = env
+        const { output, generator, secrets, dbg: envDbg, ...restEnv } = env
 
-        dbg(`messages ${messages.length}`, {
+        runnerDbg(`messages ${messages.length}`, {
             fallbackTools,
             responseType,
             status,

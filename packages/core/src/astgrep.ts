@@ -1,5 +1,5 @@
 import debug from "debug"
-const dbg = debug("genai:astgrep")
+const dbg = debug("genaiscript:astgrep")
 
 import { CancellationOptions, checkCancelled } from "./cancellation"
 import { CancelError } from "./error"

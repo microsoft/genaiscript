@@ -1,5 +1,5 @@
 import debug from "debug"
-const dbg = debug("genai:encoders")
+const dbg = debug("genaiscript:encoders")
 
 // Import the function to parse model identifiers
 import { parseModelIdentifier } from "./models"

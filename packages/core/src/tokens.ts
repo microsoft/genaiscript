@@ -1,5 +1,5 @@
 import debug from "debug"
-const dbg = debug("genai:tokens")
+const dbg = debug("genaiscript:tokens")
 
 // Importing constants and utility functions
 import {

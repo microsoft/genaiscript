@@ -9,20 +9,38 @@ keywords: [logging, debug]
 GenAIScript uses the [debug](https://www.npmjs.com/package/debug) library for logging.
 It is a very flexible and powerful logging library that allows you to enable or disable logging for specific namespaces.
 
-## Add Logging to Your Script
+## Script logger
 
-You can use the `host.logger` to create a logger with a specific namespace.
+The `env.dbg` is a debug logger with your script id as the namespace. Debug logger messages are _not_ sent to the markdown trace.
+
+```js title="poem.genai.mjs"
+// put this at the top of your script
+// so you can use `dbg` throughout the file
+const { dbg } = env
+
+dgb("This is a debug message!")
+```
+
+The script messages are visible by running with `DEBUG=<scriptid>`.
+
+```sh
+DEBUG=poem genaiscript run ...
+```
+
+## Custom loggers
+
+You can use the `host.logger` to create a custom logger with a specific namespace.
 
 ```js 'host.logger("sample")'
-const log = host.logger("sample")
+const d = host.logger("sample")
 ```
 
 - log away!
 
 ```js
-log("This is a debug message")
-log("This is a debug message with a variable: %s", "variable")
-log("This is a debug message with an object: %o", { key: "value" })
+d("This is a debug message")
+d("This is a debug message with a variable: %s", "variable")
+d("This is a debug message with an object: %o", { key: "value" })
 
 console.log("To see log messages, run the script with DEBUG=genai:sample")
 console.log("DEBUG=sample genaiscript run debug")
@@ -50,5 +68,14 @@ DEBUG=sample genaiscript run debug
 
 ## GenAIScript builtin logging
 
-- all internal logging in GenAIScript is prefixed with `genai:`.
+- all internal logging in GenAIScript is prefixed with `genaiscript:`.
+
+```sh
+DEBUG=genaiscript:* genaiscript run ...
+```
+
 - agent logging is prefixed with `agent:name`.
+
+```sh
+DEBUG=genaiscript:* genaiscript run ...
+```

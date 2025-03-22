@@ -1,5 +1,5 @@
 import debug from "debug"
-const dbg = debug("genai:azuretoken")
+const dbg = debug("genaiscript:azuretoken")
 
 import { AZURE_TOKEN_EXPIRATION } from "../../core/src/constants"
 import {

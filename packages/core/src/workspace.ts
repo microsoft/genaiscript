@@ -1,5 +1,5 @@
 import debug from "debug"
-const dbg = debug("genai:workspace")
+const dbg = debug("genaiscript:workspace")
 
 import { copyFile, mkdir } from "fs/promises"
 import { JSONLineCache } from "./cache"

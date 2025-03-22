@@ -1,5 +1,5 @@
 import debug from "debug"
-const dbg = debug("genai:chat")
+const dbg = debug("genaiscript:chat")
 
 // cspell: disable
 import { MarkdownTrace, TraceOptions } from "./trace"
