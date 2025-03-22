@@ -1,3 +1,6 @@
+import debug from "debug"
+const dbg = debug("genai:encoders")
+
 // Import the function to parse model identifiers
 import { parseModelIdentifier } from "./models"
 import { runtimeHost } from "./host"
@@ -19,7 +22,10 @@ export async function resolveTokenEncoder(
 ): Promise<Tokenizer> {
     const { disableFallback } = options || {}
     // Parse the model identifier to extract the model information
-    if (!modelId) modelId = runtimeHost.modelAliases.large.model
+    if (!modelId) {
+        dbg(`modelId is empty, using default model alias`)
+        modelId = runtimeHost.modelAliases.large.model
+    }
     const { model } = parseModelIdentifier(modelId)
     const module = model.toLowerCase() // Assign model to module for dynamic import path
 
@@ -41,6 +47,7 @@ export async function resolveTokenEncoder(
         const size =
             api.bytePairEncodingCoreProcessor?.mergeableBytePairRankCount +
             (api.bytePairEncodingCoreProcessor?.specialTokenMapping?.size || 0)
+        dbg(`encoder model: ${encoding}`)
         return Object.freeze<Tokenizer>({
             model: modelName,
             size,
@@ -48,7 +55,10 @@ export async function resolveTokenEncoder(
             decode,
         })
     } catch (e) {
-        if (disableFallback) return undefined
+        if (disableFallback) {
+            dbg(`encoder fallback disabled`)
+            return undefined
+        }
 
         // If the specific model encoder is not found, default to gpt-4o encoder
         const {
@@ -58,6 +68,7 @@ export async function resolveTokenEncoder(
         } = await import("gpt-tokenizer/model/gpt-4o")
         assert(!!encode)
         const { modelName, vocabularySize } = api
+        dbg(`fallback to gpt-4o encoder`)
         return Object.freeze<Tokenizer>({
             model: modelName,
             size: vocabularySize,
@@ -78,10 +89,15 @@ export async function chunk(
         content = f
     } else if (typeof f === "object") {
         await resolveFileContent(f)
-        if (f.encoding) return [] // binary file bail out
+        if (f.encoding) {
+            dbg(`binary file detected, skip`)
+            return []
+        } // binary file bail out
         filename = f.filename
         content = f.content
-    } else return []
+    } else {
+        return []
+    }
 
     const {
         model,
@@ -115,5 +131,6 @@ export async function chunk(
             lineEnd,
         } satisfies TextChunk
     })
+    dbg(`chunks ${chunks.length}`)
     return chunks
 }

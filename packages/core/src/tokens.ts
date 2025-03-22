@@ -1,3 +1,6 @@
+import debug from "debug"
+const dbg = debug("genai:tokens")
+
 // Importing constants and utility functions
 import {
     ESTIMATE_TOKEN_OVERHEAD,
@@ -45,8 +48,10 @@ export function estimateTokens(text: string, encoder: TokenEncoder) {
         return approximateTokens(text)
     } finally {
         const duration = m()
-        if (duration > 5000)
+        dbg(`token estimation duration: ${duration}ms`)
+        if (duration > 5000) {
             originalConsole.trace(`tokenized ${text.length} chars`)
+        }
     }
 }
 
@@ -74,6 +79,7 @@ export function truncateTextToTokens(
     if (tokens <= maxTokens) return content
     const { last, threshold = TOKEN_TRUNCATION_THRESHOLD } = options || {}
 
+    dbg(`starting binary search for token truncation`)
     let attempts = 0
     let left = 0
     let right = content.length
@@ -91,6 +97,7 @@ export function truncateTextToTokens(
     ) {
         const mi = measure(`tokens.truncate.${attempts}`)
         const mid = Math.floor((left + right) / 2)
+        dbg(`truncating at ${mid} of ${content.length}`)
         result = last
             ? MAX_TOKENS_ELLIPSE + content.slice(-mid)
             : content.slice(0, mid) + MAX_TOKENS_ELLIPSE
@@ -103,6 +110,7 @@ export function truncateTextToTokens(
         }
         mi()
     }
+    dbg(`token truncation completed`)
     m()
 
     return result
