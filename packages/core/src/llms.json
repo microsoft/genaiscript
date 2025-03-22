@@ -17,7 +17,7 @@
                 "vision_small": "gpt-4o-mini",
                 "embeddings": "text-embedding-3-small",
                 "reasoning": "o1",
-                "reasoning_small": "o1-mini",
+                "reasoning_small": "o3-mini",
                 "transcription": "whisper-1",
                 "speech": "tts-1",
                 "image": "dall-e-3"
@@ -562,7 +562,8 @@
         "classify": "small",
         "summarize": "small",
         "cast": "small",
-        "ocr": "vision_small"
+        "ocr": "vision_small",
+        "think": "reasoning_small"
     },
     "pricings": {
         "github:gpt-4o-2024-11-20": {
