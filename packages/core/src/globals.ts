@@ -1,3 +1,5 @@
+import debug from "debug"
+const dbg = debug("globals")
 // Import various parsing and stringifying utilities
 import { YAMLParse, YAMLStringify } from "./yaml"
 import { CSVParse, dataToMarkdownTable, CSVStringify, CSVChunk } from "./csv"
@@ -30,6 +32,7 @@ import { MarkdownStringify } from "./markdown"
  * and stringifying different data formats, as well as other functionalities.
  */
 export function installGlobals() {
+    dbg("install")
     const glb = resolveGlobal() // Get the global context
 
     // Freeze YAML utilities to prevent modification
@@ -107,6 +110,7 @@ export function installGlobals() {
      * @param [reason] - Optional reason for cancellation.
      */
     glb.cancel = (reason?: string) => {
+        dbg("cancel", reason)
         throw new CancelError(reason || "user cancelled") // Trigger cancel error
     }
 
