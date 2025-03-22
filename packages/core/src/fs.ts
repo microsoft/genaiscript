@@ -1,5 +1,5 @@
 import debug from "debug"
-const dbg = debug("genai:fs")
+const dbg = debug("genaiscript:fs")
 
 import { lstat, mkdir, writeFile } from "fs/promises"
 import { HTTPS_REGEX } from "./constants"

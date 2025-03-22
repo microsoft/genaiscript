@@ -1,5 +1,5 @@
 import debug from "debug"
-const dbg = debug("genai:expander")
+const dbg = debug("genaiscript:expander")
 
 import { resolveScript } from "./ast"
 import { assert } from "./util"

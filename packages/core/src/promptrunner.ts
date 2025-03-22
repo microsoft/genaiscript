@@ -1,5 +1,5 @@
 import debug from "debug"
-const runnerDbg = debug("genai:promptrunner")
+const runnerDbg = debug("genaiscript:promptrunner")
 
 // Import necessary modules and functions for handling chat sessions, templates, file management, etc.
 import { executeChatSession, tracePromptResult } from "./chat"

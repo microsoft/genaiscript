@@ -1,5 +1,5 @@
 import debug from "debug"
-const dbg = debug("genai:azureaisearch")
+const dbg = debug("genaiscript:azureaisearch")
 
 import {
     CancellationOptions,

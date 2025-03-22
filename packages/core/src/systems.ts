@@ -1,5 +1,5 @@
 import debug from "debug"
-const dbg = debug("genai:systems")
+const dbg = debug("genaiscript:systems")
 
 // cspell: disable
 // This module resolves and returns a list of applicable systems based on the provided script and project.

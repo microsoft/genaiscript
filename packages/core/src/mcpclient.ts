@@ -1,5 +1,5 @@
 import debug from "debug"
-const dbg = debug("genai:mcpclient")
+const dbg = debug("genaiscript:mcpclient")
 
 import { TraceOptions } from "./trace"
 import { arrayify, logVerbose } from "./util"

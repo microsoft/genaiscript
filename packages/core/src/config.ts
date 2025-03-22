@@ -28,7 +28,7 @@ import { uniq } from "es-toolkit"
 import { tryReadText, tryStat } from "./fs"
 
 import debug from "debug"
-const dbg = debug("genai:config")
+const dbg = debug("genaiscript:config")
 
 export async function resolveGlobalConfiguration(
     dotEnvPaths?: string[]

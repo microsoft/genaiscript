@@ -1,5 +1,5 @@
 import debug from "debug"
-const dbg = debug("genai:ffmpeg")
+const dbg = debug("genaiscript:ffmpeg")
 
 import { logVerbose } from "./util"
 import { TraceOptions } from "./trace"

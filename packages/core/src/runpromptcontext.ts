@@ -1,5 +1,5 @@
 import debug from "debug"
-const dbg = debug("genai:runpromptcontext")
+const dbg = debug("genaiscript:runpromptcontext")
 // cspell: disable
 import {
     PromptNode,

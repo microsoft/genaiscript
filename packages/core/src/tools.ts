@@ -1,5 +1,5 @@
 import debug from "debug"
-const dbg = debug("genai:tools")
+const dbg = debug("genaiscript:tools")
 
 import { MODEL_PROVIDERS } from "./constants"
 import { parseModelIdentifier } from "./models"

@@ -1,5 +1,5 @@
 import debug from "debug"
-const dbg = debug("genai:github")
+const dbg = debug("genaiscript:github")
 
 import type { Octokit } from "@octokit/rest"
 import type { PaginateInterface } from "@octokit/plugin-paginate-rest"

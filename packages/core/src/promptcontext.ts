@@ -33,7 +33,7 @@ import { createMicrosoftTeamsChannelClient } from "./teams"
 import { dotGenaiscriptPath } from "./workdir"
 import { astGrepFindFiles, astGrepParse } from "./astgrep"
 
-const dbg = debug("genai:promptcontext")
+const dbg = debug("genaiscript:promptcontext")
 
 /**
  * Creates a prompt context for the given project, variables, trace, options, and model.
