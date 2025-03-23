@@ -1,3 +1,6 @@
+import debug from "debug"
+const dbg = debug("genaiscript:models")
+
 import { uniq } from "es-toolkit"
 import { LARGE_MODEL_ID } from "./constants"
 import { errorMessage } from "./error"
@@ -133,7 +136,8 @@ export function traceLanguageModelConnection(
 }
 
 export function isModelAlias(model: string): boolean {
-    return !!runtimeHost.modelAliases[model]
+    const res = !!runtimeHost.modelAliases[model]
+    return res
 }
 
 export function resolveModelAlias(model: string): ModelConfiguration {
@@ -146,6 +150,7 @@ export function resolveModelAlias(model: string): ModelConfiguration {
     }
     while (modelAliases[res.model]) {
         let next = modelAliases[res.model]
+        dbg(`alias ${res.model} -> ${next.model}`)
         if (seen.includes(next.model))
             throw new Error(
                 `Circular model alias: ${next.model}, seen ${[...seen].join(",")}`
@@ -156,7 +161,6 @@ export function resolveModelAlias(model: string): ModelConfiguration {
     return res
 }
 
-const resolvedModels = new Set<string>()
 export async function resolveModelConnectionInfo(
     conn: ModelConnectionOptions,
     options?: {
@@ -176,6 +180,7 @@ export async function resolveModelConnectionInfo(
         cancellationToken,
     } = options || {}
     const hint = options?.model || conn.model
+    dbg(`resolving model for '${hint || ""}'`)
     // supports candidate if no model hint or hint is a model alias
     const resolved = resolveModelAlias(hint || defaultModel)
     if (!resolved)
@@ -195,6 +200,7 @@ export async function resolveModelConnectionInfo(
         configuration?: LanguageModelConfiguration
     }> => {
         try {
+            dbg(`resolving ${model}`)
             const configuration = await host.getLanguageModelConfiguration(
                 model,
                 {
@@ -204,6 +210,7 @@ export async function resolveModelConnectionInfo(
                 }
             )
             if (!configuration) {
+                dbg(`configuration not found`)
                 return { info: { ...conn, model } }
             } else {
                 const { token: theToken, ...rest } = configuration
@@ -222,6 +229,7 @@ export async function resolveModelConnectionInfo(
                 }
             }
         } catch (e) {
+            dbg(`error resolving ${model}: ${e}`)
             if (resolveOptions.reportError) trace?.error(undefined, e)
             return {
                 info: {
@@ -234,27 +242,25 @@ export async function resolveModelConnectionInfo(
     }
 
     if (!supportsCandidates) {
+        dbg(`candidate ${modelId}`)
         return await resolveModel(modelId, {
             withToken: askToken,
             reportError: true,
         })
     } else {
-        const logg = !resolvedModels.has(modelId)
-        resolvedModels.add(modelId)
         candidates = uniq([modelId, ...(candidates || [])].filter((c) => !!c))
-        if (logg) logVerbose(`connection: resolving ${hint || "large"}`)
+        dbg(`candidates: ${candidates?.join(", ")}`)
         for (const candidate of candidates) {
             const res = await resolveModel(candidate, {
                 withToken: askToken,
                 reportError: false,
             })
             if (!res.info.error && res.info.token) {
-                if (logg) logVerbose(`  resolved ${candidate}`)
+                dbg(`resolved ${candidate}`)
                 return res
             }
         }
-
-        logVerbose(`candidates: ${candidates.join(", ")}`)
+        debug(`no candidates resolved`)
         logModelAliases({ all: true })
         return {
             info: {
