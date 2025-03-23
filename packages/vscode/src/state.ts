@@ -26,6 +26,7 @@ import { hash, randomHex } from "../../core/src/crypto"
 import { delay } from "es-toolkit"
 import { Fragment } from "../../core/src/generation"
 import { createWebview } from "./webview"
+import { isEmptyString } from "../../core/src/cleaners"
 
 export const FRAGMENTS_CHANGE = "fragmentsChange"
 export const AI_REQUEST_CHANGE = "aiRequestChange"
@@ -340,6 +341,12 @@ export class ExtensionState extends EventTarget {
     get diagnostics() {
         const diagnostics = !!this.getConfiguration().get("diagnostics")
         return diagnostics
+    }
+
+    get debug() {
+        const res = this.getConfiguration().get("debug") as string
+        if (isEmptyString(res)) return undefined
+        return res
     }
 
     private set aiRequest(r: AIRequest) {

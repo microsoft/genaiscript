@@ -170,10 +170,13 @@ export class TerminalServerManager
         this.status = "starting"
         const config = this.state.getConfiguration()
         const diagnostics = this.state.diagnostics
+        const debug = diagnostics ? "*" : this.state.debug
         const hideFromUser = !diagnostics && !!config.get("hideServerTerminal")
         const cwd = host.projectFolder()
         await this.allocatePort()
-        logVerbose(`starting server on port ${this._port} at ${cwd}`)
+        logVerbose(
+            `starting server on port ${this._port} at ${cwd} (DEBUG=${debug || ""})`
+        )
         if (this._client) this._client.reconnectAttempts = 0
         this._terminalStartAttempts++
         this._terminal = vscode.window.createTerminal({
@@ -183,7 +186,8 @@ export class TerminalServerManager
             iconPath: new vscode.ThemeIcon(ICON_LOGO_NAME),
             env: deleteUndefinedValues({
                 GENAISCRIPT_API_KEY: this.state.sessionApiKey,
-                DEBUG: diagnostics ? "*" : undefined,
+                DEBUG: debug,
+                DEBUG_COLORS: "1",
             }),
             hideFromUser,
         })
