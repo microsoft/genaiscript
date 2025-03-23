@@ -8,7 +8,6 @@ import {
     PROMPT_DOM_TRUNCATE_ATTEMPTS,
     TOKEN_TRUNCATION_THRESHOLD,
 } from "./constants"
-import { originalConsole } from "./global"
 import { measure } from "./performance"
 import { logVerbose } from "./util"
 
@@ -48,10 +47,8 @@ export function estimateTokens(text: string, encoder: TokenEncoder) {
         return approximateTokens(text)
     } finally {
         const duration = m()
-        dbg(`token estimation duration: ${duration}ms`)
-        if (duration > 5000) {
-            originalConsole.trace(`tokenized ${text.length} chars`)
-        }
+        if (duration > 100)
+            dbg(`token estimation ${text.length}c: ${duration | 0}ms`)
     }
 }
 

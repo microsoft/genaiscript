@@ -978,6 +978,7 @@ async function choicesToLogitBias(
     if (!choices?.length) {
         return undefined
     }
+    dbg(`computing logit bias for choices`)
     const { encode } =
         (await resolveTokenEncoder(model, {
             disableFallback: true,
@@ -1133,7 +1134,6 @@ export async function executeChatSession(
                 checkCancelled(cancellationToken)
                 const reqTrace = chatTrace.startTraceDetails(`📤 llm request`)
                 try {
-                    dbg(`computing logit bias for choices`)
                     const logit_bias = await choicesToLogitBias(
                         reqTrace,
                         model,
