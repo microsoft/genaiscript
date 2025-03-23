@@ -41,7 +41,7 @@ async function debugify(file: WorkspaceFile) {
     }
 
     const imports = `import debug from "debug"
-const dbg = debug("genai:${path.basename(file.filename).replace(/\..*$/, "")}")\n
+const dbg = debug("genaiscript:${path.basename(file.filename).replace(/\..*$/, "")}")\n
 `
     if (!file.content.includes(imports)) file.content = imports + file.content
 
@@ -170,7 +170,8 @@ For example, if you added debug statements at line 1, line 7 and line 13, the ou
 
     // apply updates
     const lines = file.content.split("\n")
-    const skipRegex = /(logVerbose|logInfo|logError|dbg|throw|return)\(/
+    const skipRegex =
+        /(logVerbose|logInfo|logError|dbg|throw|return|checkCancelled|assert)\(/
     updates.forEach(({ line, pos, message }, index) => {
         if (
             !skipRegex.test(lines[line]) &&

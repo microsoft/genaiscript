@@ -1,5 +1,7 @@
+import debug from "debug"
+const dbg = debug("genaiscript:image")
+
 // Import necessary functions and types from other modules
-import prettyBytes from "pretty-bytes"
 import { resolveBufferLike } from "./bufferlike"
 import {
     CONSOLE_COLOR_DEBUG,
@@ -9,8 +11,7 @@ import {
     IMAGE_DETAIL_LOW_WIDTH,
 } from "./constants"
 import { TraceOptions } from "./trace"
-import { ellipse, logVerbose, toHex } from "./util"
-import { deleteUndefinedValues } from "./cleaners"
+import { ellipse, logVerbose } from "./util"
 import pLimit from "p-limit"
 import { CancellationOptions, checkCancelled } from "./cancellation"
 import { wrapColor, wrapRgbColor } from "./consolecolor"
@@ -18,7 +19,9 @@ import { assert } from "console"
 
 async function prepare(
     url: BufferLike,
-    options: DefImagesOptions & TraceOptions & CancellationOptions
+    options: ImageGenerationOptions &
+        TraceOptions &
+        CancellationOptions & { detail?: "high" | "low" | "original" }
 ) {
     // Dynamically import the Jimp library and its alignment enums
     let {
@@ -35,34 +38,18 @@ async function prepare(
     } = options
     checkCancelled(cancellationToken)
 
+    dbg(`loading image`)
     // https://platform.openai.com/docs/guides/vision/calculating-costs#managing-images
     // If the URL is a string, resolve it to a data URI
     const buffer = await resolveBufferLike(url)
-    /*
-    logVerbose(
-        `image: encoding ${prettyBytes(buffer.length)} with ${Object.entries(
-            deleteUndefinedValues({
-                autoCrop,
-                maxHeight,
-                maxWidth,
-                scale,
-                rotate,
-                greyscale,
-                crop,
-                flip,
-                detail,
-            })
-        )
-            .map(([k, v]) => `${k}=${JSON.stringify(v)}`)
-            .join(", ")}`
-    )*/
-
     checkCancelled(cancellationToken)
     // Read the image using Jimp
     const { Jimp, HorizontalAlign, VerticalAlign } = await import("jimp")
     const img = await Jimp.read(buffer)
+    checkCancelled(cancellationToken)
     const { width, height } = img
     if (crop) {
+        dbg(`cropping image with provided dimensions`)
         const x = Math.max(0, Math.min(width, crop.x ?? 0))
         const y = Math.max(0, Math.min(height, crop.y ?? 0))
         const w = Math.max(1, Math.min(width - x, crop.w ?? width))
@@ -71,16 +58,31 @@ async function prepare(
     }
 
     // Auto-crop the image if required by options
-    if (autoCrop) img.autocrop()
+    if (autoCrop) {
+        dbg(`auto-cropping image`)
+        img.autocrop()
+    }
 
-    if (!isNaN(scale)) img.scale(scale)
+    if (!isNaN(scale)) {
+        dbg(`scaling image by factor ${scale}`)
+        img.scale(scale)
+    }
 
-    if (!isNaN(rotate)) img.rotate(rotate)
+    if (!isNaN(rotate)) {
+        dbg(`rotating image by ${rotate} degrees`)
+        img.rotate(rotate)
+    }
 
-    if (flip) img.flip(flip)
+    if (flip) {
+        dbg(`flipping image`, flip)
+        img.flip(flip)
+    }
 
     // Contain the image within specified max dimensions if provided
     if (options.maxWidth ?? options.maxHeight) {
+        dbg(
+            `containing image within ${options.maxWidth || ""}x${options.maxHeight || ""}`
+        )
         contain(
             img,
             img.width > maxWidth ? maxWidth : img.width,
@@ -89,25 +91,31 @@ async function prepare(
         )
     }
 
-    if (greyscale) img.greyscale()
+    if (greyscale) {
+        dbg(`applying greyscale to image`)
+        img.greyscale()
+    }
 
     checkCancelled(cancellationToken)
 
     // https://platform.openai.com/docs/guides/vision/low-or-high-fidelity-image-understanding#low-or-high-fidelity-image-understanding
     if (detail === "low") {
+        dbg(`setting image detail to low`)
         contain(
             img,
             Math.min(img.width, IMAGE_DETAIL_LOW_WIDTH),
             Math.min(img.height, IMAGE_DETAIL_LOW_HEIGHT),
             HorizontalAlign.CENTER | VerticalAlign.MIDDLE
         )
-    } else
+    } else if (detail !== "original") {
+        dbg(`setting image detail to low`)
         contain(
             img,
             IMAGE_DETAIL_HIGH_WIDTH,
             IMAGE_DETAIL_HIGH_HEIGHT,
             HorizontalAlign.CENTER | VerticalAlign.MIDDLE
         )
+    }
     return img
 }
 
@@ -156,6 +164,16 @@ async function encode(
     }
 }
 
+export async function imageTransform(
+    url: BufferLike,
+    options: ImageTransformOptions & TraceOptions & CancellationOptions
+) {
+    const img = await prepare(url, { ...(options || {}), detail: "original" })
+    const outputMime = img.mime || ("image/jpeg" as any)
+    const buf = await img.getBuffer(outputMime)
+    return buf
+}
+
 /**
  * Asynchronously encodes an image for use in LLMs (Language Learning Models).
  *
@@ -175,8 +193,10 @@ export async function imageTileEncodeForLLM(
     urls: BufferLike[],
     options: DefImagesOptions & TraceOptions & CancellationOptions
 ) {
-    if (urls.length === 0)
+    if (urls.length === 0) {
+        dbg(`no images provided for tiling`)
         throw new Error("image: no images provided for tiling")
+    }
 
     const { cancellationToken } = options
     const limit = pLimit(4)

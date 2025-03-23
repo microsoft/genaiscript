@@ -1524,11 +1524,7 @@ interface DefDiffOptions
         FenceFormatOptions,
         LineNumberingOptions {}
 
-interface DefImagesOptions {
-    /**
-     * A "low" detail image is always downsampled to 512x512 pixels.
-     */
-    detail?: "high" | "low"
+interface ImageTransformOptions {
     /**
      * Crops the image to the specified region.
      */
@@ -1561,6 +1557,13 @@ interface DefImagesOptions {
      * Flips the image horizontally and/or vertically.
      */
     flip?: { horizontal?: boolean; vertical?: boolean }
+}
+
+interface DefImagesOptions extends ImageTransformOptions {
+    /**
+     * A "low" detail image is always downsampled to 512x512 pixels.
+     */
+    detail?: "high" | "low"
     /**
      * Selects the first N elements from the data
      */
@@ -3704,7 +3707,7 @@ type TranscriptionModelType = OptionsOrString<
     "openai:whisper-1" | "openai:gpt-4o-transcribe" | "whisperasr:default"
 >
 
-interface ImageGenerationOptions {
+interface ImageGenerationOptions extends ImageTransformOptions {
     model?: OptionsOrString<ModelImageGenerationType>
     quality?: "hd"
     size?: OptionsOrString<

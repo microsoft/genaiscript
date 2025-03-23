@@ -1,4 +1,4 @@
-import { ellipse, logError, logVerbose } from "./util"
+import { ellipse, logError, logInfo, logVerbose } from "./util"
 import { host } from "./host"
 import {
     AZURE_AI_INFERENCE_VERSION,
@@ -685,7 +685,7 @@ export async function OpenAIImageGeneration(
 
     const fetch = await createFetch(options)
     try {
-        logVerbose(`${cfg.provider}: generate image with ${cfg.model}`)
+        logInfo(`generate image with ${cfg.provider}:${cfg.model}`)
         const freq = {
             method: "POST",
             headers: {

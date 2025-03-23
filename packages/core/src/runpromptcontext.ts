@@ -46,6 +46,7 @@ import { mustacheRender } from "./mustache"
 import {
     imageEncodeForLLM,
     imageTileEncodeForLLM,
+    imageTransform,
     renderImageToTerminal,
 } from "./image"
 import { delay, uniq } from "es-toolkit"
@@ -1126,15 +1127,15 @@ export function createChatGenerationContext(
 
     const generateImage = async (
         prompt: string,
-        options?: ImageGenerationOptions
+        imageOptions?: ImageGenerationOptions
     ): Promise<{ image: WorkspaceFile; revisedPrompt?: string }> => {
         if (!prompt) throw new Error("prompt is missing")
 
         const imgTrace = trace.startTraceDetails("🖼️ generate image")
         try {
-            const { style, quality, size } = options || {}
+            const { style, quality, size } = imageOptions || {}
             const conn: ModelConnectionOptions = {
-                model: options?.model || IMAGE_GENERATION_MODEL_ID,
+                model: imageOptions?.model || IMAGE_GENERATION_MODEL_ID,
             }
             const { info, configuration } = await resolveModelConnectionInfo(
                 conn,
@@ -1178,15 +1179,21 @@ export function createChatGenerationContext(
                 imgTrace.error(errorMessage(res.error))
                 return undefined
             }
+
             const h = await hash(res.image, { length: 20 })
-            const { ext } = (await fileTypeFromBuffer(res.image)) || {}
+            const buf = await imageTransform(res.image, {
+                ...(imageOptions || {}),
+                cancellationToken,
+                trace: imgTrace,
+            })
+            const { ext } = (await fileTypeFromBuffer(buf)) || {}
             const filename = dotGenaiscriptPath("image", h + "." + ext)
-            await host.writeFile(filename, res.image)
+            await host.writeFile(filename, buf)
 
             if (consoleColors) {
                 const size = terminalSize()
                 stderr.write(
-                    await renderImageToTerminal(res.image, {
+                    await renderImageToTerminal(buf, {
                         ...size,
                         label: filename,
                     })
