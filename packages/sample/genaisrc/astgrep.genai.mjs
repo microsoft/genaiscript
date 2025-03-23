@@ -43,5 +43,6 @@ for (const match of matches2) {
     )
     replace(match, `/**\n* ${res.text}\n**/\n${match.text()}`)
 }
-const files = await commitEdits()
-await workspace.writeFiles(files)
+const modified = await commitEdits()
+console.log(modified)
+//await workspace.writeFiles(files)
