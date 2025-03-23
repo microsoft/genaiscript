@@ -24,7 +24,7 @@ import AudioPlayer from "../../components/AudioPlayer.astro"
 import DirectoryLinks from "../../components/DirectoryLinks.astro"
 import { Content as BuiltinAgents } from "../../components/BuiltinAgents.mdx"
 import RecentBlogPosts from "../../components/RecentBlogPosts.astro"
-
+import { LinkButton } from "@astrojs/starlight/components"
 import vscodeSrc from "../../../public/images/visual-studio-code.png"
 
 import debuggerSrc from "../../assets/debugger.png"
@@ -76,12 +76,9 @@ and will extract the `data.json` file automatically.
 ## Next steps
 
 <CardGrid stagger>
-    <Card title="Listen to the podcast" icon="seti:audio">
-        <AudioPlayer src="/genaiscript/podcasts/overview.wav" />
-    </Card>
-    <Card title="Install the extension" icon="puzzle">
-        Install the [Visual Studio Code
-        Extension](/genaiscript/getting-started/installation/) to get started.
+    <Card title="Install the extension or cli" icon="puzzle">
+        Install the [Visual Studio Code Extension or the
+        CLI](/genaiscript/getting-started/installation/) to get started.
     </Card>
     <Card title="Configure your LLMs" icon="setting">
         Configure the [secrets](/genaiscript/getting-started/configuration) to
@@ -108,7 +105,7 @@ and will extract the `data.json` file automatically.
     <YouTube id="https://youtu.be/ENunZe--7j0" posterQuality="high" />
 </center>
 
-## Latest news
+## Latest news <LinkButton href="/genaiscript/blog" variant="primary">Blog</LinkButton>
 
 <RecentBlogPosts />
 
@@ -152,18 +149,11 @@ defTool("weather", "live weather",
 )
 ```
 
-or use [@agentic tools](/genaiscript/guides/agentic-tools/)
-
-```js wrap
-import { WeatherClient } from "@agentic/weather"
-defTool(new WeatherClient())
-```
-
 </Card>
 
-<Card title="Model Context Provider Client" icon="setting">
+<Card title="MCP Client" icon="setting">
 
-Use [tools](https://modelcontextprotocol.io/docs/concepts/tools) exposed in [MCP Servers](/genaiscript/reference/scripts/mcp-tools)
+Use [tools](https://modelcontextprotocol.io/docs/concepts/tools) exposed in [Model Context Provider Servers](/genaiscript/reference/scripts/mcp-tools)
 
 ```js wrap
 defTool({
@@ -172,6 +162,21 @@ defTool({
         args: ["-y", "@modelcontextprotocol/server-memory"],
     },
 })
+```
+
+</Card>
+
+<Card title="MCP Server" icon="setting">
+
+Every script is a [Model Context Provider Tool](/genaiscript/reference/scripts/mcp-server).
+
+```js wrap
+script({
+    parameters: {
+        question: "What is the weather in Paris?",
+    },
+})
+$`Answer the question ${env.parameters.question}.`
 ```
 
 </Card>
