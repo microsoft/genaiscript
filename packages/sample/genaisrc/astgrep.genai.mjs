@@ -42,3 +42,4 @@ for (const match of matches2) {
     const updated = root.root().commitEdits([edit])
     console.log(updated)
 }
+await asg.writeRootEdits(matches2)

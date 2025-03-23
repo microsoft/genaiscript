@@ -31,7 +31,11 @@ import { fileWriteCached } from "./filecache"
 import { join } from "node:path"
 import { createMicrosoftTeamsChannelClient } from "./teams"
 import { dotGenaiscriptPath } from "./workdir"
-import { astGrepFindFiles, astGrepParse } from "./astgrep"
+import {
+    astGrepFindFiles,
+    astGrepParse,
+    astGrepWriteRootEdits,
+} from "./astgrep"
 
 const dbg = debug("genaiscript:promptcontext")
 
@@ -341,6 +345,8 @@ export async function createPromptContext(
                         ...(options || {}),
                         cancellationToken,
                     }),
+                writeRootEdits: (nodes) =>
+                    astGrepWriteRootEdits(nodes, { cancellationToken }),
             }),
     })
 

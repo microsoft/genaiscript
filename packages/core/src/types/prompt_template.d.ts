@@ -4175,6 +4175,7 @@ interface AstGrep {
         glob: ElementOrArray<string>,
         matcher: string | AstGrepMatcher
     ): Promise<{ files: number; matches: AstGrepNode[] }>
+    writeRootEdits(nodes: AstGrepNode[]): Promise<void>
 }
 
 interface DebugLogger {

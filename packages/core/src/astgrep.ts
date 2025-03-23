@@ -5,6 +5,8 @@ import { CancellationOptions, checkCancelled } from "./cancellation"
 import { CancelError } from "./error"
 import { resolveFileContent } from "./file"
 import { host } from "./host"
+import { uniq } from "es-toolkit"
+import { readText, writeText } from "./fs"
 
 export async function astGrepFindFiles(
     lang: AstGrepLang,
@@ -101,6 +103,28 @@ export async function astGrepParse(
     const root = await parseAsync(lang, content)
     checkCancelled(cancellationToken)
     return root
+}
+
+export async function astGrepWriteRootEdits(
+    nodes: AstGrepNode[],
+    options?: CancellationOptions
+) {
+    const { cancellationToken } = options || {}
+    const roots = uniq(nodes.map((n) => n.getRoot()))
+    dbg(`writing edits to roots: ${roots.length}`)
+    for (const root of roots) {
+        checkCancelled(cancellationToken)
+
+        const filename = root.filename()
+        if (!filename) continue
+
+        const existing = await readText(filename)
+        const updated = root.root().text()
+        if (existing !== updated) {
+            dbg(`writing changes to root: ${filename}`)
+            await writeText(filename, updated)
+        }
+    }
 }
 
 async function resolveLang(lang: AstGrepLang, filename?: string) {
