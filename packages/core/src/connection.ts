@@ -131,11 +131,12 @@ export async function parseTokenFromEnv(
     const { provider, model, tag } = parseModelIdentifier(
         modelId ?? runtimeHost.modelAliases.large.model
     )
+    dbg(`parsing token for ${provider} ${model || ""} ${tag || ""}`)
     const TOKEN_SUFFIX = ["_API_KEY", "_API_TOKEN", "_TOKEN", "_KEY"]
     const BASE_SUFFIX = ["_API_BASE", "_API_ENDPOINT", "_BASE", "_ENDPOINT"]
 
     if (provider === MODEL_PROVIDER_OPENAI) {
-        dbg(`processing MODEL_PROVIDER_OPENAI`)
+        dbg(`processing ${MODEL_PROVIDER_OPENAI}`)
         const token = env.OPENAI_API_KEY ?? ""
         dbg(`retrieved OPENAI_API_KEY: ${env.OPENAI_API_KEY}`)
         let base = env.OPENAI_API_BASE
@@ -199,6 +200,7 @@ export async function parseTokenFromEnv(
     }
 
     if (provider === MODEL_PROVIDER_GITHUB) {
+        dbg(`processing ${MODEL_PROVIDER_GITHUB}`)
         const tokenVar = env.GITHUB_MODELS_TOKEN
             ? "GITHUB_MODELS_TOKEN"
             : "GITHUB_TOKEN"
@@ -219,7 +221,7 @@ export async function parseTokenFromEnv(
     }
 
     if (provider === MODEL_PROVIDER_AZURE_OPENAI) {
-        dbg(`processing MODEL_PROVIDER_AZURE_OPENAI`)
+        dbg(`processing ${MODEL_PROVIDER_AZURE_OPENAI}`)
         const tokenVar = env.AZURE_OPENAI_API_KEY
             ? "AZURE_OPENAI_API_KEY"
             : "AZURE_API_KEY"
@@ -271,7 +273,7 @@ export async function parseTokenFromEnv(
     }
 
     if (provider === MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI) {
-        dbg(`processing MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI`)
+        dbg(`processing ${MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI}`)
         const tokenVar = "AZURE_SERVERLESS_OPENAI_API_KEY"
         dbg(
             `retrieved AZURE_SERVERLESS_OPENAI_API_KEY: ${env.AZURE_SERVERLESS_OPENAI_API_KEY}`
@@ -321,7 +323,7 @@ export async function parseTokenFromEnv(
     }
 
     if (provider === MODEL_PROVIDER_AZURE_AI_INFERENCE) {
-        dbg(`processing MODEL_PROVIDER_AZURE_AI_INFERENCE`)
+        dbg(`processing ${MODEL_PROVIDER_AZURE_AI_INFERENCE}`)
         // https://github.com/Azure/azure-sdk-for-js/tree/@azure-rest/ai-inference_1.0.0-beta.2/sdk/ai/ai-inference-rest
         dbg(
             `retrieved AZURE_AI_INFERENCE_API_KEY: ${env.AZURE_AI_INFERENCE_API_KEY}`
@@ -366,7 +368,7 @@ export async function parseTokenFromEnv(
     }
 
     if (provider === MODEL_PROVIDER_AZURE_SERVERLESS_MODELS) {
-        dbg(`processing MODEL_PROVIDER_AZURE_SERVERLESS_MODELS`)
+        dbg(`processing ${MODEL_PROVIDER_AZURE_SERVERLESS_MODELS}`)
         // https://github.com/Azure/azure-sdk-for-js/tree/@azure-rest/ai-inference_1.0.0-beta.2/sdk/ai/ai-inference-rest
         const tokenVar = "AZURE_SERVERLESS_MODELS_API_KEY"
         const token = env[tokenVar]?.trim()
@@ -411,7 +413,7 @@ export async function parseTokenFromEnv(
     }
 
     if (provider === MODEL_PROVIDER_GOOGLE) {
-        dbg(`processing MODEL_PROVIDER_GOOGLE`)
+        dbg(`processing ${MODEL_PROVIDER_GOOGLE}`)
         const token = env.GEMINI_API_KEY || env.GOOGLE_API_KEY
         if (!token) {
             return undefined
@@ -435,7 +437,7 @@ export async function parseTokenFromEnv(
     }
 
     if (provider === MODEL_PROVIDER_ANTHROPIC) {
-        dbg(`processing MODEL_PROVIDER_ANTHROPIC`)
+        dbg(`processing ${MODEL_PROVIDER_ANTHROPIC}`)
         const modelKey = "ANTHROPIC_API_KEY"
         dbg(`retrieved ANTHROPIC_API_KEY: ${env.ANTHROPIC_API_KEY}`)
         const token = env[modelKey]?.trim()
@@ -458,6 +460,7 @@ export async function parseTokenFromEnv(
     }
 
     if (provider === MODEL_PROVIDER_ANTHROPIC_BEDROCK) {
+        dbg(`processing ${MODEL_PROVIDER_ANTHROPIC_BEDROCK}`)
         return {
             provider,
             model,
@@ -468,7 +471,7 @@ export async function parseTokenFromEnv(
     }
 
     if (provider === MODEL_PROVIDER_MISTRAL) {
-        dbg(`processing MODEL_PROVIDER_MISTRAL`)
+        dbg(`processing ${MODEL_PROVIDER_MISTRAL}`)
         const base = env.MISTRAL_API_BASE || MISTRAL_API_BASE
         const token = env.MISTRAL_API_KEY
         if (!token) {
@@ -485,7 +488,7 @@ export async function parseTokenFromEnv(
     }
 
     if (provider === MODEL_PROVIDER_ALIBABA) {
-        dbg(`processing MODEL_PROVIDER_ALIBABA`)
+        dbg(`processing ${MODEL_PROVIDER_ALIBABA}`)
         const base =
             env.ALIBABA_API_BASE ||
             env.DASHSCOPE_API_BASE ||
@@ -512,7 +515,7 @@ export async function parseTokenFromEnv(
     }
 
     if (provider === MODEL_PROVIDER_OLLAMA) {
-        dbg(`processing MODEL_PROVIDER_OLLAMA`)
+        dbg(`processing ${MODEL_PROVIDER_OLLAMA}`)
         const host = ollamaParseHostVariable(env)
         const base = cleanApiBase(host)
         return {
@@ -526,7 +529,7 @@ export async function parseTokenFromEnv(
     }
 
     if (provider === MODEL_PROVIDER_HUGGINGFACE) {
-        dbg(`processing MODEL_PROVIDER_HUGGINGFACE`)
+        dbg(`processing ${MODEL_PROVIDER_HUGGINGFACE}`)
         const prefixes = ["HUGGINGFACE", "HF"]
         const token = findEnvVar(env, prefixes, TOKEN_SUFFIX)
         const base =
@@ -549,7 +552,7 @@ export async function parseTokenFromEnv(
     }
 
     if (provider === MODEL_PROVIDER_DEEPSEEK) {
-        dbg(`processing MODEL_PROVIDER_DEEPSEEK`)
+        dbg(`processing ${MODEL_PROVIDER_DEEPSEEK}`)
         const base =
             findEnvVar(env, "DEEPSEEK", BASE_SUFFIX)?.value || DEEPSEEK_API_BASE
         if (!URL.canParse(base)) {
@@ -570,7 +573,7 @@ export async function parseTokenFromEnv(
     }
 
     if (provider === MODEL_PROVIDER_WHISPERASR) {
-        dbg(`processing MODEL_PROVIDER_WHISPERASR`)
+        dbg(`processing ${MODEL_PROVIDER_WHISPERASR}`)
         const base =
             findEnvVar(env, "WHISPERASR", BASE_SUFFIX)?.value ||
             WHISPERASR_API_BASE
@@ -587,7 +590,7 @@ export async function parseTokenFromEnv(
     }
 
     if (provider === MODEL_PROVIDER_WINDOWS_AI) {
-        dbg(`processing MODEL_PROVIDER_WINDOWS_AI`)
+        dbg(`processing ${MODEL_PROVIDER_WINDOWS_AI}`)
         return {
             provider,
             model,

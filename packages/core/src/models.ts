@@ -261,7 +261,6 @@ export async function resolveModelConnectionInfo(
             }
         }
         debug(`no candidates resolved`)
-        logModelAliases({ all: true })
         return {
             info: {
                 model: "?",
