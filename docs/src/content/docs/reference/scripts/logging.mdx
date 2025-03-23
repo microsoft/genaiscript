@@ -21,10 +21,51 @@ const { dbg } = env
 dgb("This is a debug message!")
 ```
 
+## Seeing the logs
+
+By default, the debug logging is disabled. You need to turn it on with namespace patterns.
+
 The script messages are visible by running with `DEBUG=<scriptid>`.
 
 ```sh
 DEBUG=poem genaiscript run ...
+```
+
+The `*` character may be used as a wildcard. Suppose for example your library has debuggers named `connect:bodyParser`,
+`connect:compress`, `connect:session`, instead of listing all three with
+`DEBUG=connect:bodyParser,connect:compress,connect:session`, you may simply do `DEBUG=connect:*`,
+or to run everything using this module simply use `DEBUG=*`.
+
+You can also exclude specific debuggers by prefixing them with a `-` character.
+For example, `DEBUG=*,-connect:*` would include all debuggers except those starting with `connect:`.
+
+### Visual Studio Code
+
+Open the GenAIScript script settings and enable "Diagnostics" (same as setting '\*' as namespace)
+or specifically set the **DEBUG** setting to the namespace you want to enable.
+
+```
+DEBUG=*
+```
+
+### Command line
+
+To turn loggin with the [cli](/genaiscript/reference/cli),
+you need to set the `DEBUG` environment variable to the namespace you want to enable.
+For example, to enable logging for the `sample` namespace, you can run the script like this:
+
+```bash
+DEBUG=poem genaiscript run poem
+```
+
+And you will see the following output:
+
+```txt
+  sample This is a debug message +0ms
+  sample This is a debug message with a variable: variable +0ms
+  sample This is a debug message with an object: { key: 'value' } +0ms
+To see log messages, run the script with DEBUG=genai:sample
+DEBUG=sample genaiscript run debug
 ```
 
 ## Custom loggers
@@ -44,26 +85,6 @@ d("This is a debug message with an object: %o", { key: "value" })
 
 console.log("To see log messages, run the script with DEBUG=genai:sample")
 console.log("DEBUG=sample genaiscript run debug")
-```
-
-## Seeing the logs
-
-By default, the logging is disabled. To turn it on,
-you need to set the `DEBUG` environment variable to the namespace you want to enable.
-For example, to enable logging for the `sample` namespace, you can run the script like this:
-
-```bash
-DEBUG=sample genaiscript run debug
-```
-
-And you will see the following output:
-
-```txt
-  sample This is a debug message +0ms
-  sample This is a debug message with a variable: variable +0ms
-  sample This is a debug message with an object: { key: 'value' } +0ms
-To see log messages, run the script with DEBUG=genai:sample
-DEBUG=sample genaiscript run debug
 ```
 
 ## GenAIScript builtin logging
