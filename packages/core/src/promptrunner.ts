@@ -109,7 +109,7 @@ async function resolveExpansionVars(
         output,
         generator: undefined as ChatGenerationContext,
         runDir,
-        dbg: debug(template.id),
+        dbg: debug("script"),
     } satisfies ExpansionVariables
     return res
 }

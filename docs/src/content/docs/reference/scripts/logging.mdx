@@ -11,7 +11,8 @@ It is a very flexible and powerful logging library that allows you to enable or 
 
 ## Script logger
 
-The `env.dbg` is a debug logger with your script id as the namespace. Debug logger messages are _not_ sent to the markdown trace.
+The `env.dbg` is a debug logger with `script` as the namespace.
+Debug logger messages are _not_ sent to the markdown trace.
 
 ```js title="poem.genai.mjs"
 // put this at the top of your script
@@ -28,7 +29,7 @@ By default, the debug logging is disabled. You need to turn it on with namespace
 The script messages are visible by running with `DEBUG=<scriptid>`.
 
 ```sh
-DEBUG=poem genaiscript run ...
+DEBUG=script genaiscript run ...
 ```
 
 The `*` character may be used as a wildcard. Suppose for example your library has debuggers named `connect:bodyParser`,
@@ -44,9 +45,11 @@ For example, `DEBUG=*,-connect:*` would include all debuggers except those start
 Open the GenAIScript script settings and enable "Diagnostics" (same as setting '\*' as namespace)
 or specifically set the **DEBUG** setting to the namespace you want to enable.
 
+```sh
+DEBUG=script
 ```
-DEBUG=*
-```
+
+The default value is `script`.
 
 ### Command line
 
@@ -55,7 +58,7 @@ you need to set the `DEBUG` environment variable to the namespace you want to en
 For example, to enable logging for the `sample` namespace, you can run the script like this:
 
 ```bash
-DEBUG=poem genaiscript run poem
+DEBUG=script genaiscript run poem
 ```
 
 And you will see the following output:
@@ -74,17 +77,19 @@ You can use the `host.logger` to create a custom logger with a specific namespac
 
 ```js 'host.logger("sample")'
 const d = host.logger("sample")
-```
 
-- log away!
-
-```js
 d("This is a debug message")
 d("This is a debug message with a variable: %s", "variable")
 d("This is a debug message with an object: %o", { key: "value" })
 
 console.log("To see log messages, run the script with DEBUG=genai:sample")
 console.log("DEBUG=sample genaiscript run debug")
+```
+
+and update the value of the `DEBUG` environment variable to the namespace you want to enable.
+
+```sh
+DEBUG=sample genaiscript run debug
 ```
 
 ## GenAIScript builtin logging
