@@ -211,7 +211,6 @@ export class NodeHost extends EventTarget implements RuntimeHost {
         }
 
         const { pullModel, listModels } = await resolveLanguageModel(provider)
-        dbg(`resolving language model for provider: ${provider}`)
         if (!pullModel) {
             this.pulledModels.includes(modelId)
             return { ok: true }
