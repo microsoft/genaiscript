@@ -1557,6 +1557,11 @@ interface ImageTransformOptions {
      * Flips the image horizontally and/or vertically.
      */
     flip?: { horizontal?: boolean; vertical?: boolean }
+
+    /**
+     * Output mime
+     */
+    mime?: "image/jpeg" | "image/png"
 }
 
 interface DefImagesOptions extends ImageTransformOptions {

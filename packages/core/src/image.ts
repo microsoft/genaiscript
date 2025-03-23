@@ -43,6 +43,7 @@ async function prepare(
     // If the URL is a string, resolve it to a data URI
     const buffer = await resolveBufferLike(url)
     checkCancelled(cancellationToken)
+
     // Read the image using Jimp
     const { Jimp, HorizontalAlign, VerticalAlign } = await import("jimp")
     const img = await Jimp.read(buffer)
@@ -148,8 +149,8 @@ async function encode(
     options: DefImagesOptions & TraceOptions
 ) {
     // Determine the output MIME type, defaulting to image/jpeg
-    const { detail } = options
-    const outputMime = img.mime || ("image/jpeg" as any)
+    const { detail, mime } = options || {}
+    const outputMime = mime || img.mime || ("image/jpeg" as any)
     const buf = await img.getBuffer(outputMime)
     const b64 = buf.toString("base64")
     const imageDataUri = `data:${outputMime};base64,${b64}`
@@ -167,9 +168,33 @@ async function encode(
 export async function imageTransform(
     url: BufferLike,
     options: ImageTransformOptions & TraceOptions & CancellationOptions
-) {
+): Promise<BufferLike> {
+    const {
+        greyscale,
+        autoCrop,
+        crop,
+        flip,
+        scale,
+        rotate,
+        maxWidth,
+        maxHeight,
+        mime,
+    } = options || {}
+    if (
+        !greyscale &&
+        !autoCrop &&
+        !crop &&
+        !flip &&
+        !scale &&
+        !rotate &&
+        !maxWidth &&
+        !maxHeight &&
+        !mime
+    )
+        return url
+
     const img = await prepare(url, { ...(options || {}), detail: "original" })
-    const outputMime = img.mime || ("image/jpeg" as any)
+    const outputMime = mime || img.mime || ("image/jpeg" as any)
     const buf = await img.getBuffer(outputMime)
     return buf
 }
