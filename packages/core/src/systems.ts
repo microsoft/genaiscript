@@ -23,12 +23,12 @@ import { deleteUndefinedValues } from "./cleaners"
  */
 export function resolveSystems(
     prj: Project,
-    script: PromptSystemOptions & { id: string } & ModelOptions &
+    script: PromptSystemOptions &
+        ModelOptions &
         ContentSafetyOptions & { jsSource?: string },
     resolvedTools?: ToolCallback[]
 ): SystemPromptInstance[] {
     const { jsSource, responseType, responseSchema, systemSafety } = script
-    dbg(`resolving ${script.id}`)
     // Initialize systems array from script.system, converting to array if necessary using arrayify utility
     let systems = arrayify(script.system).filter((s) => typeof s === "string")
     const systemInstances = arrayify(script.system).filter(

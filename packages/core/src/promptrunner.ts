@@ -23,6 +23,7 @@ import { resolveLanguageModel } from "./lm"
 import { checkCancelled } from "./cancellation"
 import { lastAssistantReasoning } from "./chatrender"
 import { unthink } from "./think"
+import { deleteUndefinedValues } from "./cleaners"
 
 // Asynchronously resolve expansion variables needed for a template
 /**
@@ -181,11 +182,7 @@ export async function runTemplate(
         } = await expandTemplate(prj, template, options, env)
         const { output, generator, secrets, dbg: envDbg, ...restEnv } = env
 
-        runnerDbg(`messages ${messages.length}`, {
-            fallbackTools,
-            responseType,
-            status,
-        })
+        runnerDbg(`messages ${messages.length}`)
 
         // Handle failed expansion scenario
         if (status !== "success" || !messages.length) {
