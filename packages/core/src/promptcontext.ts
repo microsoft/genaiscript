@@ -94,6 +94,7 @@ export async function createPromptContext(
             return res
         },
         stat: (filename) => runtimeHost.workspace.stat(filename),
+        writeFiles: (file) => runtimeHost.workspace.writeFiles(file),
         grep: async (
             query,
             grepOptions: string | WorkspaceGrepOptions,
@@ -332,7 +333,7 @@ export async function createPromptContext(
         teamsChannel: async (url) => createMicrosoftTeamsChannelClient(url),
         astGrep: async () =>
             Object.freeze<AstGrep>({
-                findFiles: (lang, glob, matcher) =>
+                search: (lang, glob, matcher) =>
                     astGrepFindFiles(lang, glob, matcher, {
                         cancellationToken,
                     }),

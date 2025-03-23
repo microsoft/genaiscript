@@ -10,6 +10,7 @@ import { resolveFileContent } from "./file"
 import type { EncodeOptions } from "gpt-tokenizer/GptEncoding"
 import { assert } from "./util"
 import { TextSplitter } from "./textsplitter"
+import { errorMessage } from "./error"
 
 /**
  * Resolves the appropriate token encoder based on the given model ID.
@@ -47,7 +48,6 @@ export async function resolveTokenEncoder(
         const size =
             api.bytePairEncodingCoreProcessor?.mergeableBytePairRankCount +
             (api.bytePairEncodingCoreProcessor?.specialTokenMapping?.size || 0)
-        dbg(`encoder model: ${encoding}`)
         return Object.freeze<Tokenizer>({
             model: modelName,
             size,
@@ -56,11 +56,10 @@ export async function resolveTokenEncoder(
         })
     } catch (e) {
         if (disableFallback) {
-            dbg(`encoder fallback disabled`)
+            dbg(`encoder fallback disabled for ${encoding}`)
             return undefined
         }
 
-        // If the specific model encoder is not found, default to gpt-4o encoder
         const {
             encode,
             decode,
@@ -68,7 +67,7 @@ export async function resolveTokenEncoder(
         } = await import("gpt-tokenizer/model/gpt-4o")
         assert(!!encode)
         const { modelName, vocabularySize } = api
-        dbg(`fallback to gpt-4o encoder`)
+        dbg(`fallback ${encoding} to gpt-4o encoder`)
         return Object.freeze<Tokenizer>({
             model: modelName,
             size: vocabularySize,

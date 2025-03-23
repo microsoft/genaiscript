@@ -978,6 +978,7 @@ async function choicesToLogitBias(
     if (!choices?.length) {
         return undefined
     }
+    dbg(`computing logit bias for choices`)
     const { encode } =
         (await resolveTokenEncoder(model, {
             disableFallback: true,
@@ -1121,6 +1122,7 @@ export async function executeChatSession(
                         user: true,
                         assistant: true,
                         cacheImage,
+                        tools,
                     }),
                     { expanded: true }
                 )
@@ -1133,7 +1135,6 @@ export async function executeChatSession(
                 checkCancelled(cancellationToken)
                 const reqTrace = chatTrace.startTraceDetails(`📤 llm request`)
                 try {
-                    dbg(`computing logit bias for choices`)
                     const logit_bias = await choicesToLogitBias(
                         reqTrace,
                         model,
@@ -1177,7 +1178,10 @@ export async function executeChatSession(
                         `chat: sending ${messages.length} messages to ${model} (~${tokens ?? "?"} tokens)`
                     )
                     stderr.write(
-                        await renderMessagesToTerminal(messages, { user: true })
+                        await renderMessagesToTerminal(messages, {
+                            user: true,
+                            tools,
+                        })
                     )
 
                     const infer = async () => {
@@ -1185,6 +1189,9 @@ export async function executeChatSession(
                         const m = measure(
                             "chat.completer",
                             `${req.model} -> ${req.messages.length} messages`
+                        )
+                        dbg(
+                            `infer ${req.model} with ${req.messages.length} messages`
                         )
                         const cres = await completer(
                             req,

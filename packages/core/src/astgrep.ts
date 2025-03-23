@@ -5,13 +5,15 @@ import { CancellationOptions, checkCancelled } from "./cancellation"
 import { CancelError } from "./error"
 import { resolveFileContent } from "./file"
 import { host } from "./host"
+import { uniq } from "es-toolkit"
+import { readText, writeText } from "./fs"
 
 export async function astGrepFindFiles(
     lang: AstGrepLang,
     glob: ElementOrArray<string>,
     matcher: string | AstGrepMatcher,
     options?: Omit<FindFilesOptions, "readText"> & CancellationOptions
-): Promise<{ files: number; matches: AstGrepNode[] }> {
+): ReturnType<AstGrep["search"]> {
     const { cancellationToken } = options || {}
     if (!glob) {
         throw new Error("glob is required")
@@ -27,7 +29,16 @@ export async function astGrepFindFiles(
     dbg(`resolving language: ${lang}`)
 
     const paths = await host.findFiles(glob, options)
-    if (!paths?.length) return { files: 0, matches: [] }
+    if (!paths?.length)
+        return {
+            files: 0,
+            matches: [],
+            replace: () => {
+                throw new Error("Not matched nodes")
+            },
+            commitEdits: async () => [],
+        }
+    dbg(`found ${paths.length} files`, paths.slice(0, 10))
 
     const matches: AstGrepNode[] = []
     const p = new Promise<number>(async (resolve, reject) => {
@@ -47,12 +58,12 @@ export async function astGrepFindFiles(
                     dbg(`error occurred: ${err}`)
                     throw err
                 }
-                matches.push(...nodes)
                 dbg(`nodes found: ${nodes.length}`)
+                matches.push(...nodes)
                 if (cancellationToken?.isCancellationRequested) {
                     reject(new CancelError("cancelled"))
                 }
-                if (i++ === n) {
+                if (++i === n) {
                     dbg(`resolving promise with count: ${n}`)
                     resolve(n)
                 }
@@ -68,7 +79,53 @@ export async function astGrepFindFiles(
     dbg(`files scanned: ${scanned}`)
     checkCancelled(cancellationToken)
 
-    return { files: scanned, matches }
+    const pending: Record<string, { root: AstGrepRoot; edits: AstGrepEdit[] }> =
+        {}
+    const replace = (node: AstGrepNode, text: string) => {
+        if (!matches.includes(node))
+            throw new Error("node is not included in the matches")
+        const edit = node.replace(text)
+        const root = node.getRoot()
+        const rootEdits =
+            pending[root.filename()] ||
+            (pending[root.filename()] = { root, edits: [] })
+        rootEdits.edits.push(edit)
+        return edit
+    }
+    const commitEdits = async () => {
+        const files: WorkspaceFile[] = []
+        for (const { root, edits } of Object.values(pending)) {
+            checkCancelled(cancellationToken)
+            const filename = root.filename()
+            const content = root.root().commitEdits(edits)
+            files.push({ filename, content })
+        }
+        return files
+    }
+
+    return { files: scanned, matches, replace, commitEdits }
+}
+
+export async function astGrepWriteRootEdits(
+    nodes: AstGrepNode[],
+    options?: CancellationOptions
+) {
+    const { cancellationToken } = options || {}
+    const roots = uniq(nodes.map((n) => n.getRoot()))
+    dbg(`writing edits to roots: ${roots.length}`)
+    for (const root of roots) {
+        checkCancelled(cancellationToken)
+
+        const filename = root.filename()
+        if (!filename) continue
+
+        const existing = await readText(filename)
+        const updated = root.root().text()
+        if (existing !== updated) {
+            dbg(`writing changes to root: ${filename}`)
+            await writeText(filename, updated)
+        }
+    }
 }
 
 export async function astGrepParse(

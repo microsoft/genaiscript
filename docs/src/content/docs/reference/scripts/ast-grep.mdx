@@ -1,0 +1,92 @@
+---
+title: ast-grep
+description: Search for patterns in the AST of a script
+---
+
+[ast-grep](https://ast-grep.github.io/) is a fast and polyglot tool for code structural search, lint, rewriting at large scale.
+
+GenAISCript provides a wrapper around `ast-grep` to search for patterns in the AST of a script,
+and transform the AST! This is a very efficient way to create scripts that modify source code as one is able
+to surgically target specific parts of the code.
+
+- find all TypeScript `console.log` statements. This example uses the 'pattern' syntax.
+
+```ts
+const { matches } = await asg.search("ts", "src/*.ts", "console.log($META)")
+```
+
+- find all TypeScript functions without comments. This example uses the [rule syntax](https://ast-grep.github.io/reference/rule.html).
+
+```ts
+const { matches } = await asg.search("ts", "src/fib.ts", {
+    rule: {
+        kind: "function_declaration",
+        not: {
+            precedes: {
+                kind: "comment",
+                stopBy: "neighbor",
+            },
+        },
+    },
+})
+```
+
+:::tip
+
+GenAIScript provides a simplified set of interfaces to interact with the `ast-grep` [JavaScript apis](https://ast-grep.github.io/guide/api-usage/js-api.html).
+However, they are indeed the native `ast-grep` APIs, and you can use them directly if you need more control.
+
+:::
+
+## search and replace
+
+A common use case is to search for a pattern and replace it with another pattern. The transformation phase can leverage
+[inline prompts](/docs/reference/scripts/inline-prompts) to perform LLM transformations.
+This can be done with the `replace` method.
+
+```js
+const { matches, replace, commitEdits } = await asg.search("ts", "...")
+```
+
+The `replace` method creates an edit that replaces the content of a node with new text.
+The edit is stored internally but not applied until `commitEdits` is called.
+
+```js
+replace(matches[0], "console.log('replaced')")
+```
+
+Of course, things get more interesting when you use inline prompts to generate the replacement text.
+
+```js wrap
+const updated = await prompt`... ${matches[0].text()} ...`
+replace(
+    matches[0].node,
+    `console.log
+  ('${updated.text}')`
+)
+```
+
+Next, you can commit the edits to create a set of in-memory files. The changes are not applied
+to the file system yet.
+
+```js
+const newFiles = await commitEdits()
+```
+
+If you wish to apply the changes to the file system, you can use the `writeFiles` function.
+
+```js
+await workspace.writeFiles(newFiles)
+```
+
+## Learning ast-grep
+
+There is a learning curve to grasp the query language of `ast-grep`.
+
+- the [official documentation](https://ast-grep.github.io/docs/) is a good place to start.
+- the [online playground](https://ast-grep.github.io/playground.html) allows you to experiment with the tool without installing it.
+- download [llms.txt](https://ast-grep.github.io/llms-full.txt) into to your Copilot context for best results.
+
+```
+
+```

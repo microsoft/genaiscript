@@ -3,6 +3,7 @@ import type {
     ChatCompletionAssistantMessageParam,
     ChatCompletionMessageParam,
     ChatCompletionSystemMessageParam,
+    ChatCompletionTool,
     ChatCompletionToolMessageParam,
     ChatCompletionUserMessageParam,
 } from "./chattypes"
@@ -20,6 +21,7 @@ export interface ChatRenderOptions extends CancellationOptions {
     user?: boolean
     assistant?: boolean
     cacheImage?: (url: string) => Promise<string>
+    tools?: ChatCompletionTool[]
 }
 
 /**
@@ -115,9 +117,25 @@ export async function renderMessagesToMarkdown(
         user = undefined, // Include user messages unless explicitly set to false.
         assistant = true, // Include assistant messages by default.
         cancellationToken,
+        tools,
     } = options || {}
 
     const res: string[] = []
+
+    if (tools?.length) {
+        res.push(
+            details(
+                `🔧 tools (${tools.length})`,
+                tools
+                    .map(
+                        (tool) =>
+                            `-  \`${tool.function.name}\`: ${tool.function.description || ""}`
+                    )
+                    .join("\n")
+            )
+        )
+    }
+
     for (const msg of messages?.filter((msg) => {
         // Filter messages based on their roles.
         switch (msg.role) {

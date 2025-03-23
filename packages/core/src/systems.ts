@@ -1,5 +1,6 @@
 import debug from "debug"
 const dbg = debug("genaiscript:systems")
+const dbgr = debug("genaiscript:systems:resolve")
 
 // cspell: disable
 // This module resolves and returns a list of applicable systems based on the provided script and project.
@@ -48,11 +49,11 @@ export function resolveSystems(
     // If no system is defined in the script, determine systems based on jsSource
     if (script.system === undefined) {
         // current date
-        dbg(`adding system.today to systems`)
+        dbgr(`adding system.today to systems`)
         systems.push("system.today")
         // safety
         if (systemSafety !== false) {
-            dbg(`systemSafety is not false, adding safeties to systems`)
+            dbgr(`adding safeties to systems`)
             systems.push(...safeties)
         }
         // Check for schema definition in jsSource using regex
@@ -60,71 +61,71 @@ export function resolveSystems(
 
         // Default systems if no responseType is specified
         if (!dataMode) {
-            dbg(`dataMode is false, adding default systems`)
+            dbgr(`adding default systems`)
             systems.push("system")
             systems.push("system.explanations")
             if (!responseType) {
-                dbg(`responseType is undefined, adding system.output_markdown`)
+                dbgr(`adding system.output_markdown`)
                 systems.push("system.output_markdown")
             }
         }
 
         // Add planner system if any tool starts with "agent"
         if (tools.some((t) => /^agent/.test(t))) {
-            dbg(`tool starts with "agent", adding system.planner`)
+            dbgr(`tool starts with "agent", adding system.planner`)
             systems.push("system.planner")
         }
         // Add harmful content system if images are defined
         if (/\Wdefimages\W/i.test(jsSource)) {
-            dbg(`images found, adding system.safety_harmful_content`)
+            dbgr(`images found, adding system.safety_harmful_content`)
             systems.push("system.safety_harmful_content")
         }
         // Determine additional systems based on content of jsSource
         if (/\Wfile\W/i.test(jsSource)) {
-            dbg(`file references found, adding system.files`)
+            dbgr(`file references found, adding system.files`)
             systems.push("system.files")
             // Add file schema system if schema is used
             if (useSchema) {
-                dbg(`schema is used, adding system.files_schema`)
+                dbgr(`schema is used, adding system.files_schema`)
                 systems.push("system.files_schema")
             }
         }
         if (/\Wchangelog\W/i.test(jsSource)) {
-            dbg(`changelog references found, adding system.changelog`)
+            dbgr(`changelog references found, adding system.changelog`)
             systems.push("system.changelog")
         }
         // Add schema system if schema is used
         if (useSchema) {
-            dbg(`schema is used, adding system.schema`)
+            dbgr(`schema is used, adding system.schema`)
             systems.push("system.schema")
         }
         // Add annotation system if annotations, warnings, or errors are found
         if (/\W(annotations|warnings|errors)\W/i.test(jsSource)) {
-            dbg(
+            dbgr(
                 `annotations, warnings, or errors found, adding system.annotations`
             )
             systems.push("system.annotations")
         }
         // Add diagram system if diagrams or charts are found
         if (/\W(diagram|chart)\W/i.test(jsSource)) {
-            dbg(`diagrams or charts found, adding system.diagrams`)
+            dbgr(`diagrams or charts found, adding system.diagrams`)
             systems.push("system.diagrams")
         }
         // Add git information system if git is found
         if (/\W(git)\W/i.test(jsSource)) {
-            dbg(`git references found, adding system.git_info`)
+            dbgr(`git references found, adding system.git_info`)
             systems.push("system.git_info")
         }
         // Add GitHub information system if GitHub is found
         if (/\W(github)\W/i.test(jsSource)) {
-            dbg(`GitHub references found, adding system.github_info`)
+            dbgr(`GitHub references found, adding system.github_info`)
             systems.push("system.github_info")
         }
     }
 
     // insert safety first
     if (systemSafety === "default") {
-        dbg(`inserting safety systems`)
+        dbgr(`inserting safety systems`)
         systems.unshift(...safeties)
     }
 
@@ -146,15 +147,13 @@ export function resolveSystems(
             break
     }
     if (responseSchema && !responseType) {
-        dbg(
-            `responseSchema is defined and responseType is undefined, adding system.output_json`
-        )
+        dbgr(`adding system.output_json to match responseSchema`)
         systems.push("system.output_json")
     }
 
     // Include tools-related systems if specified in the script
     if (tools.length || resolvedTools?.length) {
-        dbg(`tools or resolvedTools found, adding system.tools`)
+        dbgr(`tools or resolvedTools found, adding system.tools`)
         systems.push("system.tools")
         // Resolve and add each tool's systems based on its definition in the project
         tools.forEach((tool) =>
@@ -176,6 +175,8 @@ export function resolveSystems(
         ...systems.map((id) => ({ id })),
         ...systemInstances,
     ]
+
+    dbgr(`resolved %O`, res)
 
     return res
 }

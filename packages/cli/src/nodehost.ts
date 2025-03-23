@@ -211,9 +211,7 @@ export class NodeHost extends EventTarget implements RuntimeHost {
         }
 
         const { pullModel, listModels } = await resolveLanguageModel(provider)
-        dbg(`resolving language model for provider: ${provider}`)
         if (!pullModel) {
-            dbg(`pulling not supported for ${provider}`)
             this.pulledModels.includes(modelId)
             return { ok: true }
         }
@@ -384,11 +382,12 @@ export class NodeHost extends EventTarget implements RuntimeHost {
             }
         }
         if (tok && (!tok.token || tok.token === tok.provider)) {
-            dbg(`listing models for provider: ${tok.provider}`)
             const { listModels } = await resolveLanguageModel(tok.provider)
             if (listModels) {
+                dbg(`listing models for provider: ${tok.provider}`)
                 const { ok, error } = await listModels(tok, options)
                 if (!ok) {
+                    dbg(`error listing models: ${errorMessage(error)}`)
                     throw new Error(`${tok.provider}: ${errorMessage(error)}`)
                 }
             }
@@ -416,6 +415,10 @@ export class NodeHost extends EventTarget implements RuntimeHost {
             }
         }
 
+        dbg(`resolved token for ${modelId}: %O`, {
+            ...tok,
+            token: tok.token ? "***" : undefined,
+        })
         return tok
     }
 
