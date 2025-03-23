@@ -466,7 +466,7 @@ export async function parseTokenFromEnv(
             model,
             source: "AWS SDK",
             base: undefined,
-            token: undefined,
+            token: MODEL_PROVIDER_ANTHROPIC_BEDROCK,
         } satisfies LanguageModelConfiguration
     }
 
@@ -522,7 +522,7 @@ export async function parseTokenFromEnv(
             provider,
             model,
             base,
-            token: "ollama",
+            token: MODEL_PROVIDER_OLLAMA,
             type: "openai",
             source: "env: OLLAMA_HOST",
         } satisfies LanguageModelConfiguration
@@ -595,7 +595,7 @@ export async function parseTokenFromEnv(
             provider,
             model,
             base: WINDOWS_AI_API_BASE,
-            token: "",
+            token: MODEL_PROVIDER_WINDOWS_AI,
             type: "openai",
             source: "env",
         }
@@ -644,7 +644,7 @@ export async function parseTokenFromEnv(
             provider,
             model,
             base,
-            token: "sglang",
+            token: MODEL_PROVIDER_SGLANG,
             type: "openai",
             source: "default",
         }
@@ -661,7 +661,7 @@ export async function parseTokenFromEnv(
             provider,
             model,
             base,
-            token: "vllm",
+            token: MODEL_PROVIDER_VLLM,
             type: "openai",
             source: "default",
         }
@@ -679,7 +679,7 @@ export async function parseTokenFromEnv(
             provider,
             model,
             base,
-            token: "llamafile",
+            token: MODEL_PROVIDER_LLAMAFILE,
             type: "openai",
             source: "default",
         }
@@ -696,7 +696,7 @@ export async function parseTokenFromEnv(
             provider,
             model,
             base,
-            token: "litellm",
+            token: MODEL_PROVIDER_LITELLM,
             type: "openai",
             source: "default",
         }
@@ -713,7 +713,7 @@ export async function parseTokenFromEnv(
             provider,
             model,
             base,
-            token: "lmstudio",
+            token: MODEL_PROVIDER_LMSTUDIO,
             type: "openai",
             source: "env: LMSTUDIO_API_...",
         }
@@ -729,7 +729,7 @@ export async function parseTokenFromEnv(
             provider,
             model,
             base,
-            token: "jan",
+            token: MODEL_PROVIDER_JAN,
             type: "openai",
             source: "env: JAN_API_...",
         }
@@ -741,7 +741,7 @@ export async function parseTokenFromEnv(
             provider,
             model,
             base: undefined,
-            token: "transformers",
+            token: MODEL_PROVIDER_TRANSFORMERS,
             source: "default",
         }
     }

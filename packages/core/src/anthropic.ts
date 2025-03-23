@@ -43,6 +43,8 @@ import {
     LanguageModelInfo,
 } from "./server/messages"
 import { deleteUndefinedValues } from "./cleaners"
+import debug from "debug"
+const dbg = debug("genaiscript:anthropic")
 
 const convertFinishReason = (
     stopReason: Anthropic.Message["stop_reason"]
@@ -88,18 +90,6 @@ const adjustUsage = (
         completion_tokens: usage.completion_tokens + outputTokens.output_tokens,
         total_tokens: usage.total_tokens + outputTokens.output_tokens,
     }
-}
-
-function findLastIndex<T>(
-    values: T[],
-    predicate: (value: T) => boolean,
-    startIndex?: number
-): number {
-    const start = startIndex ?? values.length - 1
-    for (let i = start; i >= 0; i--) {
-        if (predicate(values[i])) return i
-    }
-    return -1
 }
 
 const convertMessages = (
@@ -335,6 +325,7 @@ const completerFactory = (
             req.messages.some((m) => m.cacheControl === "ephemeral")
         const httpAgent = resolveHttpProxyAgent()
         const messagesApi = await resolver(trace, cfg, httpAgent, fetch)
+        dbg("caching", caching)
         trace.itemValue(`caching`, caching)
 
         let numTokens = 0
@@ -378,8 +369,10 @@ const completerFactory = (
             stream: true,
         })
         // https://docs.anthropic.com/en/docs/build-with-claude/extended-thinking#extended-output-capabilities-beta
-        if (/claude-3-7-sonnet/.test(model) && max_tokens >= 128000)
+        if (/claude-3-7-sonnet/.test(model) && max_tokens >= 128000) {
+            dbg("enabling 128k output")
             mreq.betas = ["output-128k-2025-02-19"]
+        }
 
         trace.detailsFenced("✉️ body", mreq, "json")
         trace.appendContent("\n")

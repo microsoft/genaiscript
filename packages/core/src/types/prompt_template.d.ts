@@ -4035,7 +4035,7 @@ interface QueryCapture {
     node: SyntaxNode
 }
 
-interface AstGrepEdit {
+interface SgEdit {
     /** The start position of the edit */
     startPos: number
     /** The end position of the edit */
@@ -4043,7 +4043,7 @@ interface AstGrepEdit {
     /** The text to be inserted */
     insertedText: string
 }
-interface AstGrepPos {
+interface SgPos {
     /** line number starting from 0 */
     line: number
     /** column number starting from 0 */
@@ -4051,32 +4051,32 @@ interface AstGrepPos {
     /** byte offset of the position */
     index: number
 }
-interface AstGrepRange {
+interface SgRange {
     /** starting position of the range */
-    start: AstGrepPos
+    start: SgPos
     /** ending position of the range */
-    end: AstGrepPos
+    end: SgPos
 }
-interface AstGrepMatcher {
+interface SgMatcher {
     /** The rule object, see https://ast-grep.github.io/reference/rule.html */
-    rule: AstGreRule
+    rule: SgRule
     /** See https://ast-grep.github.io/guide/rule-config.html#constraints */
-    constraints?: Record<string, AstGrepRule>
+    constraints?: Record<string, SgRule>
 }
-type AstGrepStrictness = "cst" | "smart" | "ast" | "relaxed" | "signature"
-interface AstGrepPatternObject {
+type SgStrictness = "cst" | "smart" | "ast" | "relaxed" | "signature"
+interface SgPatternObject {
     context: string
     selector?: NamedKinds<M> // only named node types
-    strictness?: AstGrepStrictness
+    strictness?: SgStrictness
 }
-type AstGrepPatternStyle = string | AstGrepPatternObject
-interface AstGrepRule {
+type SgPatternStyle = string | SgPatternObject
+interface SgRule {
     /** A pattern string or a pattern object. */
-    pattern?: AstGrepPatternStyle
+    pattern?: SgPatternStyle
     /** The kind name of the node to match. You can look up code's kind names in playground. */
     kind?: string
     /** The exact range of the node in the source code. */
-    range?: AstGrepRange
+    range?: SgRange
     /** A Rust regular expression to match the node's text. https://docs.rs/regex/latest/regex/#syntax */
     regex?: string
     /**
@@ -4088,48 +4088,48 @@ interface AstGrepRule {
     /**
      * `inside` accepts a relational rule object.
      * the target node must appear inside of another node matching the `inside` sub-rule. */
-    inside?: AstGrepRelation
+    inside?: SgRelation
     /**
      * `has` accepts a relational rule object.
      * the target node must has a descendant node matching the `has` sub-rule. */
-    has?: AstGrepRelation
+    has?: SgRelation
     /**
      * `precedes` accepts a relational rule object.
      * the target node must appear before another node matching the `precedes` sub-rule. */
-    precedes?: AstGrepRelation
+    precedes?: SgRelation
     /**
      * `follows` accepts a relational rule object.
      * the target node must appear after another node matching the `follows` sub-rule. */
-    follows?: AstGrepRelation
+    follows?: SgRelation
     // composite
     /**
      * A list of sub rules and matches a node if all of sub rules match.
      * The meta variables of the matched node contain all variables from the sub-rules. */
-    all?: Array<AstGrepRule>
+    all?: Array<SgRule>
     /**
      * A list of sub rules and matches a node if any of sub rules match.
      * The meta variables of the matched node only contain those of the matched sub-rule. */
-    any?: Array<AstGrepRule>
+    any?: Array<SgRule>
     /** A single sub-rule and matches a node if the sub rule does not match. */
-    not?: AstGrepRule
+    not?: SgRule
     /** A utility rule id and matches a node if the utility rule matches. */
     matches?: string
 }
-interface AstGrepRelation extends Rule {
+interface SgRelation extends Rule {
     /**
      * Specify how relational rule will stop relative to the target node.
      */
-    stopBy?: "neighbor" | "end" | AstGrepRule
+    stopBy?: "neighbor" | "end" | SgRule
     /** Specify the tree-sitter field in parent node. Only available in has/inside rule. */
     field?: string
 }
 
 /**
- * A asp-grep node, SGNode, is an immutable node in the abstract syntax tree.
+ * A asp-grep node, SgNode, is an immutable node in the abstract syntax tree.
  */
-interface AstGrepNode {
+interface SgNode {
     id(): number
-    range(): AstGrepRange
+    range(): SgRange
     isLeaf(): boolean
     isNamed(): boolean
     isNamedLeaf(): boolean
@@ -4141,30 +4141,30 @@ interface AstGrepNode {
     follows(m: string | number): boolean
     kind(): any
     is(kind: string): boolean
-    getMatch(mv: string): AstGrepNode | null
-    getMultipleMatches(m: string): Array<AstGrepNode>
+    getMatch(mv: string): SgNode | null
+    getMultipleMatches(m: string): Array<SgNode>
     getTransformed(m: string): string | null
-    getRoot(): AstGrepRoot
-    children(): Array<AstGrepNode>
-    find(matcher: string | number | AstGrepMatcher): AstGrepNode | null
-    findAll(matcher: string | number | AstGrepMatcher): Array<AstGrepNode>
-    field(name: string): AstGrepNode | null
-    fieldChildren(name: string): AstGrepNode[]
-    parent(): AstGrepNode | null
-    child(nth: number): AstGrepNode | null
-    child(nth: number): AstGrepNode | null
-    ancestors(): Array<AstGrepNode>
-    next(): AstGrepNode | null
-    nextAll(): Array<AstGrepNode>
-    prev(): AstGrepNode | null
-    prevAll(): Array<AstGrepNode>
-    replace(text: string): AstGrepEdit
-    commitEdits(edits: Array<AstGrepEdit>): string
+    getRoot(): SgRoot
+    children(): Array<SgNode>
+    find(matcher: string | number | SgMatcher): SgNode | null
+    findAll(matcher: string | number | SgMatcher): Array<SgNode>
+    field(name: string): SgNode | null
+    fieldChildren(name: string): SgNode[]
+    parent(): SgNode | null
+    child(nth: number): SgNode | null
+    child(nth: number): SgNode | null
+    ancestors(): Array<SgNode>
+    next(): SgNode | null
+    nextAll(): Array<SgNode>
+    prev(): SgNode | null
+    prevAll(): Array<SgNode>
+    replace(text: string): SgEdit
+    commitEdits(edits: Array<SgEdit>): string
 }
 
-interface AstGrepRoot {
+interface SgRoot {
     /** Returns the root SgNode of the ast-grep instance. */
-    root(): AstGrepNode
+    root(): SgNode
     /**
      * Returns the path of the file if it is discovered by ast-grep's `findInFiles`.
      * Returns `"anonymous"` if the instance is created by `lang.parse(source)`.
@@ -4172,17 +4172,14 @@ interface AstGrepRoot {
     filename(): string
 }
 
-type AstGrepLang = OptionsOrString<"html" | "js" | "ts" | "tsx" | "css">
+type SgLang = OptionsOrString<"html" | "js" | "ts" | "tsx" | "css">
 
 interface AstGrep {
-    parse(
-        file: WorkspaceFile,
-        options: { lang?: AstGrepLang }
-    ): Promise<AstGrepRoot>
+    parse(file: WorkspaceFile, options: { lang?: SgLang }): Promise<SgRoot>
     search(
-        lang: AstGrepLang,
+        lang: SgLang,
         glob: ElementOrArray<string>,
-        matcher: string | AstGrepMatcher
+        matcher: string | SgMatcher
     ): Promise<{
         /**
          * Number of files found
@@ -4191,12 +4188,12 @@ interface AstGrep {
         /**
          * Each individual file matches as a node
          */
-        matches: AstGrepNode[]
+        matches: SgNode[]
         /**
          * Queues an edit that replaces the node text with the provided text.
          * The node must be part of the matches array.
          */
-        replace: (node: AstGrepNode, text: string) => AstGrepEdit
+        replace: (node: SgNode, text: string) => SgEdit
         /**
          * Applies all the edits queued by the replace method and returns the updated files.
          * Use `workspace.writeFiles` to save the changes to the workspace.
@@ -4215,11 +4212,11 @@ interface LoggerHost {
     logger(category: string): DebugLogger
 }
 
-interface AstGrepHost {
+interface SgHost {
     /**
      * Gets an ast-grep instance
      */
-    astGrep(): Promise<AstGrep>
+    astGrep(): Promise<Sg>
 }
 
 interface ShellOptions {
@@ -5006,7 +5003,7 @@ interface PromptHost
         LoggerHost,
         UserInterfaceHost,
         LanguageModelHost,
-        AstGrepHost,
+        SgHost,
         ContentSafetyHost {
     /**
      * A fetch wrapper with proxy, retry and timeout handling.

@@ -9,9 +9,9 @@ import { uniq } from "es-toolkit"
 import { readText, writeText } from "./fs"
 
 export async function astGrepFindFiles(
-    lang: AstGrepLang,
+    lang: SgLang,
     glob: ElementOrArray<string>,
-    matcher: string | AstGrepMatcher,
+    matcher: string | SgMatcher,
     options?: Omit<FindFilesOptions, "readText"> & CancellationOptions
 ): ReturnType<AstGrep["search"]> {
     const { cancellationToken } = options || {}
@@ -40,7 +40,7 @@ export async function astGrepFindFiles(
         }
     dbg(`found ${paths.length} files`, paths.slice(0, 10))
 
-    const matches: AstGrepNode[] = []
+    const matches: SgNode[] = []
     const p = new Promise<number>(async (resolve, reject) => {
         let i = 0
         let n: number = undefined
@@ -50,7 +50,7 @@ export async function astGrepFindFiles(
                 paths,
                 matcher:
                     typeof matcher === "string"
-                        ? <AstGrepMatcher>{ rule: { pattern: matcher } }
+                        ? <SgMatcher>{ rule: { pattern: matcher } }
                         : matcher,
             },
             (err, nodes) => {
@@ -79,9 +79,8 @@ export async function astGrepFindFiles(
     dbg(`files scanned: ${scanned}`)
     checkCancelled(cancellationToken)
 
-    const pending: Record<string, { root: AstGrepRoot; edits: AstGrepEdit[] }> =
-        {}
-    const replace = (node: AstGrepNode, text: string) => {
+    const pending: Record<string, { root: SgRoot; edits: SgEdit[] }> = {}
+    const replace = (node: SgNode, text: string) => {
         if (!matches.includes(node))
             throw new Error("node is not included in the matches")
         const edit = node.replace(text)
@@ -107,7 +106,7 @@ export async function astGrepFindFiles(
 }
 
 export async function astGrepWriteRootEdits(
-    nodes: AstGrepNode[],
+    nodes: SgNode[],
     options?: CancellationOptions
 ) {
     const { cancellationToken } = options || {}
@@ -130,8 +129,8 @@ export async function astGrepWriteRootEdits(
 
 export async function astGrepParse(
     file: WorkspaceFile,
-    options?: { lang?: AstGrepLang } & CancellationOptions
-): Promise<AstGrepRoot> {
+    options?: { lang?: SgLang } & CancellationOptions
+): Promise<SgRoot> {
     const { cancellationToken } = options || {}
     if (file.encoding) {
         dbg("ignore binary file")
@@ -159,7 +158,7 @@ export async function astGrepParse(
     return root
 }
 
-async function resolveLang(lang: AstGrepLang, filename?: string) {
+async function resolveLang(lang: SgLang, filename?: string) {
     const { Lang } = await import("@ast-grep/napi")
     if (lang === "html") {
         return Lang.Html

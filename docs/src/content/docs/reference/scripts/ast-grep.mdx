@@ -12,6 +12,7 @@ to surgically target specific parts of the code.
 - find all TypeScript `console.log` statements. This example uses the 'pattern' syntax.
 
 ```ts
+// matches is an array of AST (immutable) nodes
 const { matches } = await asg.search("ts", "src/*.ts", "console.log($META)")
 ```
 
@@ -85,6 +86,7 @@ There is a learning curve to grasp the query language of `ast-grep`.
 
 - the [official documentation](https://ast-grep.github.io/docs/) is a good place to start.
 - the [online playground](https://ast-grep.github.io/playground.html) allows you to experiment with the tool without installing it.
+- the [JavaScript API](https://ast-grep.github.io/guide/api-usage/js-api.html#inspection) which helps you understand how to work with nodes
 - download [llms.txt](https://ast-grep.github.io/llms-full.txt) into to your Copilot context for best results.
 
 ```
