@@ -28,6 +28,7 @@ export async function astGrepFindFiles(
 
     const paths = await host.findFiles(glob, options)
     if (!paths?.length) return { files: 0, matches: [] }
+    dbg(`found ${paths.length} files`, paths.slice(0, 10))
 
     const matches: AstGrepNode[] = []
     const p = new Promise<number>(async (resolve, reject) => {
@@ -47,12 +48,12 @@ export async function astGrepFindFiles(
                     dbg(`error occurred: ${err}`)
                     throw err
                 }
-                matches.push(...nodes)
                 dbg(`nodes found: ${nodes.length}`)
+                matches.push(...nodes)
                 if (cancellationToken?.isCancellationRequested) {
                     reject(new CancelError("cancelled"))
                 }
-                if (i++ === n) {
+                if (++i === n) {
                     dbg(`resolving promise with count: ${n}`)
                     resolve(n)
                 }

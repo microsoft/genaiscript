@@ -2,4 +2,5 @@
 function foo() {
     // hello
     //# blah
+    console.log('todo')
 }
