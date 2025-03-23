@@ -217,10 +217,23 @@ Options:
   -ef, --excluded-files <string...>  excluded files
   -igi, --ignore-git-ignore          by default, files ignored by .gitignore
                                      are excluded. disables this mode
+  -p, --provider <string>            Preferred LLM provider aliases (choices:
+                                     "openai", "azure", "azure_ai_inference",
+                                     "azure_serverless",
+                                     "azure_serverless_models", "github",
+                                     "ollama", "windows_ai", "anthropic",
+                                     "anthropic_bedrock", "google",
+                                     "huggingface", "mistral", "alibaba",
+                                     "deepseek", "transformers", "lmstudio",
+                                     "jan", "llamafile", "sglang", "vllm",
+                                     "litellm", "whisperasr", "echo")
   -m, --model <string>               'large' model alias (default)
   -sm, --small-model <string>        'small' alias model
   -vm, --vision-model <string>       'vision' alias model
+  -em, --embeddings-model <string>   'embeddings' alias model
   -ma, --model-alias <nameid...>     model alias as name=modelid
+  -re, --reasoning-effort <string>   Reasoning effort for o* models (choices:
+                                     "high", "medium", "low")
   -ft, --fallback-tools              Enable prompt-based tools instead of
                                      builtin LLM tool calling builtin tool
                                      calls

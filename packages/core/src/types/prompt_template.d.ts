@@ -1783,6 +1783,13 @@ interface Path {
      * @param path
      */
     isAbsolute(path: string): boolean
+
+    /**
+     * Change the extension of a path
+     * @param path
+     * @param ext
+     */
+    changeext(path: string, ext: string): string
 }
 
 interface Fenced {

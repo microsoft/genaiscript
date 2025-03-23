@@ -8,6 +8,7 @@ import {
     resolve,
     isAbsolute,
 } from "node:path"
+import { changeext } from "../../core/src/fs"
 
 /**
  * Creates a frozen object that provides various path manipulation functions.
@@ -18,7 +19,7 @@ export function createNodePath(): Path {
     // These functions are imported from node:path and facilitate
     // various operations on file paths.
 
-    return <Path>Object.freeze({
+    return Object.freeze({
         dirname, // Get the directory name of a path
         extname, // Get the extension of a path
         basename, // Get the basename of a path
@@ -27,5 +28,6 @@ export function createNodePath(): Path {
         relative, // Get the relative path between two paths
         resolve, // Resolve a sequence of paths to an absolute path
         isAbsolute, // Check if a path is absolute
+        changeext,
     })
 }

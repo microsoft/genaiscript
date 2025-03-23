@@ -8,9 +8,10 @@ import {
     resolve,
     isAbsolute,
 } from "path"
+import { changeext } from "../../core/src/fs"
 
 export function createVSPath(): Path {
-    return <Path>Object.freeze({
+    return Object.freeze({
         dirname,
         extname,
         basename,
@@ -19,5 +20,6 @@ export function createVSPath(): Path {
         relative,
         resolve,
         isAbsolute,
+        changeext,
     })
 }

@@ -36,11 +36,12 @@ import {
 } from "./server/messages"
 import { defaultModelConfigurations } from "./llms"
 import { CancellationToken } from "./cancellation"
+import { changeext } from "./fs"
 
 // Function to create a frozen object representing Node.js path methods
 // This object provides utility methods for path manipulations
 export function createNodePath(): Path {
-    return <Path>Object.freeze({
+    return Object.freeze({
         dirname,
         extname,
         basename,
@@ -49,6 +50,7 @@ export function createNodePath(): Path {
         relative,
         resolve,
         isAbsolute,
+        changeext,
     })
 }
 

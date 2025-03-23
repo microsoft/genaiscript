@@ -290,7 +290,7 @@ export async function cli() {
         .description("Launch test viewer")
         .action(scriptTestsView) // Action to view the tests
 
-    program
+    const convert = program
         .command("convert")
         .description(
             "Converts file through a GenAIScript. Each file is processed separately through the GenAIScript and the LLM output is saved to a <filename>.genai.md (or custom suffix)."
@@ -310,10 +310,7 @@ export async function cli() {
             "-igi, --ignore-git-ignore",
             "by default, files ignored by .gitignore are excluded. disables this mode"
         )
-        .option("-m, --model <string>", "'large' model alias (default)")
-        .option("-sm, --small-model <string>", "'small' alias model")
-        .option("-vm, --vision-model <string>", "'vision' alias model")
-        .option("-ma, --model-alias <nameid...>", "model alias as name=modelid")
+    addModelOptions(convert)
         .option(
             "-ft, --fallback-tools",
             "Enable prompt-based tools instead of builtin LLM tool calling builtin tool calls"
