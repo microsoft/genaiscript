@@ -1,6 +1,6 @@
 import { describe, test } from "node:test"
 import assert from "node:assert/strict"
-import { ollamaParseHostVariable } from "./connection"
+import { ollamaParseHostVariable } from "./env"
 import { OLLAMA_API_BASE, OLLAMA_DEFAUT_PORT } from "./constants"
 
 describe("parseHostVariable", () => {

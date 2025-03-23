@@ -1,8 +1,6 @@
 import debug from "debug"
 const dbg = debug("genaiscript:nodehost")
 
-import dotenv from "dotenv"
-
 import { TextDecoder, TextEncoder } from "util"
 import { lstat, mkdir, readFile, unlink, writeFile } from "node:fs/promises"
 import { ensureDir, exists, remove } from "fs-extra"
@@ -15,10 +13,7 @@ import { createNodePath } from "./nodepath"
 import { DockerManager } from "./docker"
 import { createWorkspaceFileSystem } from "../../core/src/workspace"
 import { filterGitIgnore } from "../../core/src/gitignore"
-import {
-    parseDefaultsFromEnv,
-    parseTokenFromEnv,
-} from "../../core/src/connection"
+import { parseTokenFromEnv } from "../../core/src/env"
 import {
     MODEL_PROVIDER_AZURE_OPENAI,
     SHELL_EXEC_TIMEOUT,
@@ -63,7 +58,7 @@ import {
     createAzureContentSafetyClient,
     isAzureContentSafetyClientConfigured,
 } from "../../core/src/azurecontentsafety"
-import { resolveGlobalConfiguration } from "../../core/src/config"
+import { readConfig } from "../../core/src/config"
 import { HostConfiguration } from "../../core/src/hostconfiguration"
 import { resolveLanguageModel } from "../../core/src/lm"
 import { CancellationOptions } from "../../core/src/cancellation"
@@ -71,7 +66,6 @@ import { defaultModelConfigurations } from "../../core/src/llms"
 import { createPythonRuntime } from "../../core/src/pyodide"
 import { ci } from "./ci"
 import { arrayify } from "../../core/src/cleaners"
-import { tryStat } from "../../core/src/fs"
 
 class NodeServerManager implements ServerManager {
     async start(): Promise<void> {
@@ -174,26 +168,24 @@ export class NodeHost extends EventTarget implements RuntimeHost {
             dbg(`alias ${id}: deleting (source: ${source})`)
             delete aliases[id]
         } else if (value.model !== undefined && value.model !== id) {
-            dbg(
-                `alias ${id}: updating model to ${value.model} (source: ${source})`
-            )
+            dbg(`alias: ${id}.model = ${value.model} (source: ${source})`)
             ;(c as any).model = value.model
         }
         if (!isNaN(value.temperature)) {
             dbg(
-                `alias ${id}: updating temperature to ${value.temperature} (source: ${source})`
+                `alias: ${id}.temperature = ${value.temperature} (source: ${source})`
             )
             ;(c as any).temperature = value.temperature
         }
         if (value.reasoningEffort) {
             dbg(
-                `alias ${id}: updating reasoning effort to ${value.reasoningEffort} (source: ${source})`
+                `alias: ${id}.reasoning effort = ${value.reasoningEffort} (source: ${source})`
             )
             ;(c as any).reasoningEffort = value.reasoningEffort
         }
         if (value.fallbackTools) {
             dbg(
-                `alias ${id}: updating fallbacktools to ${value.fallbackTools} (source: ${source})`
+                `alias: ${id}.fallback tools = ${value.fallbackTools} (source: ${source})`
             )
             ;(c as any).fallbackTools = value.fallbackTools
         }
@@ -244,36 +236,14 @@ export class NodeHost extends EventTarget implements RuntimeHost {
 
     async readConfig(): Promise<HostConfiguration> {
         dbg(`reading configuration`)
-        const config = await resolveGlobalConfiguration(this._dotEnvPaths)
-        const { envFile, modelAliases } = config
+        this._config = await readConfig(this._dotEnvPaths)
+        const { envFile, modelAliases } = this._config
         if (modelAliases) {
             for (const kv of Object.entries(modelAliases)) {
                 this.setModelAlias("config", kv[0], kv[1])
             }
         }
-        for (const dotEnv of arrayify(envFile)) {
-            dbg(`processing .env file: ${dotEnv}`)
-            const stat = await tryStat(dotEnv)
-            if (!stat) {
-                logVerbose(`.env: ignored ${dotEnv}, not found`)
-            } else {
-                if (!stat.isFile()) {
-                    throw new Error(`.env: ${dotEnv} is not a file`)
-                }
-                logVerbose(`.env: loading ${dotEnv}`)
-                const res = dotenv.config({
-                    path: dotEnv,
-                    debug: !!process.env.DEBUG,
-                    override: true,
-                })
-                if (res.error) {
-                    throw res.error
-                }
-            }
-        }
-        dbg(`parsing defaults from environment variables`)
-        await parseDefaultsFromEnv(process.env)
-        return (this._config = config)
+        return this._config
     }
 
     get config() {

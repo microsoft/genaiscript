@@ -1,10 +1,9 @@
 import debug from "debug"
-const dbg = debug("genaiscript:connection")
+const dbg = debug("genaiscript:config:env")
 
 import { normalizeFloat, trimTrailingSlash } from "./cleaners"
 import {
     ANTHROPIC_API_BASE,
-    AZURE_AI_INFERENCE_VERSION,
     AZURE_OPENAI_API_VERSION,
     GITHUB_MODELS_BASE,
     LITELLM_API_BASE,
@@ -99,6 +98,7 @@ export function findEnvVar(
 }
 
 export async function parseDefaultsFromEnv(env: Record<string, string>) {
+    dbg(`parsing process.env`)
     // legacy
     if (env.GENAISCRIPT_DEFAULT_MODEL) {
         dbg(`found GENAISCRIPT_DEFAULT_MODEL: ${env.GENAISCRIPT_DEFAULT_MODEL}`)

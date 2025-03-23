@@ -1,3 +1,4 @@
+import dotenv from "dotenv"
 import { homedir } from "os"
 import { YAMLTryParse } from "./yaml"
 import { JSON5TryParse } from "./json5"
@@ -26,11 +27,12 @@ import { host } from "./host"
 import { logVerbose } from "./util"
 import { uniq } from "es-toolkit"
 import { tryReadText, tryStat } from "./fs"
+import { parseDefaultsFromEnv } from "./env"
 
 import debug from "debug"
 const dbg = debug("genaiscript:config")
 
-export async function resolveGlobalConfiguration(
+async function resolveGlobalConfiguration(
     dotEnvPaths?: string[]
 ): Promise<HostConfiguration> {
     const dirs = [homedir(), "."]
@@ -129,6 +131,36 @@ export async function resolveGlobalConfiguration(
     dbg("resolving env file paths")
     config.envFile = uniq(arrayify(config.envFile).map((f) => resolve(f)))
     dbg(`resolved env files: ${config.envFile.join(", ")}`)
+    return config
+}
+
+export async function readConfig(
+    dotEnvPaths?: string[]
+): Promise<HostConfiguration> {
+    dbg(`reading configuration`)
+    const config = await resolveGlobalConfiguration(dotEnvPaths)
+    const { envFile, modelAliases } = config
+    for (const dotEnv of arrayify(envFile)) {
+        dbg(`.env: ${dotEnv}`)
+        const stat = await tryStat(dotEnv)
+        if (!stat) {
+            dbg(`ignored ${dotEnv}, not found`)
+        } else {
+            if (!stat.isFile()) {
+                throw new Error(`.env: ${dotEnv} is not a file`)
+            }
+            dbg(`loading ${dotEnv}`)
+            const res = dotenv.config({
+                path: dotEnv,
+                debug: !!process.env.DEBUG,
+                override: true,
+            })
+            if (res.error) {
+                throw res.error
+            }
+        }
+    }
+    await parseDefaultsFromEnv(process.env)
     return config
 }
 
