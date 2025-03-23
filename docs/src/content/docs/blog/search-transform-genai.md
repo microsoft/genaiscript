@@ -2,10 +2,22 @@
 title: Search and Transform
 date: 2024-09-24
 authors: genaiscript
-tags: ["search", "transform", "automation", "scripting", "productivity"]
+tags:
+  - search
+  - transform
+  - automation
+  - scripting
+  - productivity
 canonical_url: https://microsoft.github.io/genaiscript/blog/search-transform-genai
 description: Explore how GenAIScript automates the search and transformation of
   patterns across multiple files, enhancing efficiency in development tasks.
+cover:
+  alt: An array of vibrant 8-bit style rectangles symbolizes computer files, each
+    with distinct geometric designs. Playful arrows connect these files,
+    depicting a transformation sequence of patterns. At the center is a detailed
+    rectangle, indicating the use of a GenAIScript transformation. The backdrop
+    is a plain, corporate hue.
+  image: ./search-transform-genai.png
 
 ---
 

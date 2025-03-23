@@ -1,11 +1,23 @@
 ---
-title: "LLM Agents"
+title: LLM Agents
 date: 2024-10-04
 authors:
-    - genaiscript
-    - pelikhan
-tags: ["genai", "interactive", "agent", "user-input", "questions"]
+  - genaiscript
+  - pelikhan
+tags:
+  - genai
+  - interactive
+  - agent
+  - user-input
+  - questions
 canonical_url: https://microsoft.github.io/genaiscript/blog/llm-agents
+cover:
+  alt: "A retro, 8-bit style refrigerator opens to reveal unusual items: a
+    toaster, a television, and a penguin. The geometric design and corporate
+    color palette of five colors create a minimalist and iconic scene, devoid of
+    people or text."
+  image: ./llm-agents.png
+
 ---
 
 GenAIScript defines an [**agent**](/genaiscript/reference/scripts/agents) as a [tool](/genaiscript/reference/scripts/tools) that

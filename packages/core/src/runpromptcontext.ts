@@ -1166,7 +1166,7 @@ export function createChatGenerationContext(
             imgTrace.itemValue(`model`, configuration.model)
             const req = deleteUndefinedValues({
                 model: configuration.model,
-                prompt,
+                prompt: dedent(prompt),
                 size,
                 quality,
                 style,

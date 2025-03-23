@@ -4,9 +4,20 @@ date: 2024-09-12
 authors:
   - genaiscript
   - pelikhan
-tags: ["content analysis", "playwright", "automation", "GenAIScript", "web"]
+tags:
+  - content analysis
+  - playwright
+  - automation
+  - GenAIScript
+  - web
 description: Learn how GenAIScript leverages the Playwright browser automation
   library for efficient, automated analysis of web page content.
+cover:
+  alt: An 8-bit style image of an old computer screen shows a simple web browser
+    with icons, such as a camera and document symbols, against a backdrop of
+    abstract geometric shapes representing data analysis. The design
+    incorporates five distinct colors arranged in an orderly pattern.
+  image: ./automatic-web-page-content-analysis-with-genaiscript-.png
 
 ---
 

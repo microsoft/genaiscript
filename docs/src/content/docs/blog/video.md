@@ -2,12 +2,22 @@
 title: Let there be videos!
 date: 2025-01-15
 authors:
-    - pelikhan
+  - pelikhan
 tags:
-    - video
-    - ffmpeg
+  - video
+  - ffmpeg
 canonical_url: https://microsoft.github.io/genaiscript/blog/video
 description: Add videos to your LLMs calls.
+cover:
+  alt: A colorful, simplified illustration shows a futuristic desk setup. There's
+    a large computer screen with visual representations of video and audio, like
+    frames and waveforms. Surrounding the screen are stylized geometric symbols
+    for video and audio tools. The design uses abstract shapes in the background
+    to convey an atmosphere of creativity and innovation, drawing inspiration
+    from 8-bit style. It employs just five bold colors to keep the look clear
+    and corporate, with no people or language visible.
+  image: ./video.png
+
 ---
 
 The latest release includes support for including videos and audio transcripts in your scripts.

@@ -2,9 +2,20 @@
 title: Fallback Tools
 date: 2024-11-07
 authors: pelikhan
-tags: ["openai", "tools"]
+tags:
+  - openai
+  - tools
 canonical_url: https://microsoft.github.io/genaiscript/blog/fallback-tools
 description: Support for Tools.
+cover:
+  alt: An image in retro 8-bit style showing a digital workspace. On the left,
+    there are icons with lines connecting them, symbolizing the idea of
+    "fallback tools." On the right, geometrical shapes represent binary code
+    processing related to tool-enabled LLMs. The background consists of basic
+    geometric shapes that give a corporate and tech-focused feel, using a
+    consistent 5-color scheme without any human figures or text.
+  image: ./fallback-tools.png
+
 ---
 
 [Tools](/genaiscript/reference/scripts/tools) is a powerful feature of LLM models

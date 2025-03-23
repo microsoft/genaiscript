@@ -2,15 +2,25 @@
 title: Creating Release Notes with GenAI
 date: 2024-08-26
 tags:
-    - release notes
-    - automation
-    - scripting
-    - software development
-    - AI
+  - release notes
+  - automation
+  - scripting
+  - software development
+  - AI
 authors: genaiscript
 canonical_url: https://microsoft.github.io/genaiscript/blog/creating-release-notes-with-genai
 description: Learn how to automate the creation of engaging software release
-    notes using GenAI and GenAIScript.
+  notes using GenAI and GenAIScript.
+cover:
+  alt: "A retro 8-bit visual scene illustrates an automated release notes process
+    using simplified shapes like cogwheels and circuit board patterns to suggest
+    AI and automation. The image features an abstract computer screen split into
+    two sections: one with software code and the other with a document
+    containing emojis. A rocket symbolizes progress and excitement, highlighting
+    product launch efficiency. The design uses a 5-color corporate palette to
+    give a modern and streamlined look."
+  image: ./creating-release-notes-with-genai.png
+
 ---
 
 ## Automating Your Release Notes with GenAI

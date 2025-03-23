@@ -58,12 +58,6 @@ async function prepare(
         img.crop({ x, y, w, h })
     }
 
-    // Auto-crop the image if required by options
-    if (autoCrop) {
-        dbg(`auto-cropping image`)
-        img.autocrop()
-    }
-
     if (!isNaN(scale)) {
         dbg(`scaling image by factor ${scale}`)
         img.scale(scale)
@@ -90,6 +84,12 @@ async function prepare(
             img.height > maxHeight ? maxHeight : img.height,
             HorizontalAlign.CENTER | VerticalAlign.MIDDLE
         )
+    }
+
+    // Auto-crop the image if required by options
+    if (autoCrop) {
+        dbg(`auto-cropping image`)
+        img.autocrop()
     }
 
     if (greyscale) {

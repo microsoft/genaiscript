@@ -1,0 +1,48 @@
+---
+title: Blog Images
+date: 2025-03-23
+authors: pelikhan
+tags:
+    - blog
+    - images
+    - markdown
+    - GenAIScript
+canonical_url: https://microsoft.github.io/genaiscript/blog/blog-images
+description: We added images to the blog, this is how we did it.
+cover:
+    alt:
+        "A retro-style 8-bit illustration features a computer screen with a visible
+        code script. Surrounding it are symbolic representations of image
+        generation: a markdown document, an image prompt morphing into abstract art,
+        and a fading alt-text bubble. The design uses corporate colors, simple
+        geometric shapes, and is limited to five colors, without including people or
+        text."
+    image: ./blog-images.png
+---
+
+import { Code } from "@astrojs/starlight/components"
+import code from "../../../../genaisrc/blog-image.genai.mts?raw"
+
+We generate cover images to the blog, this in itself is completely unterresting... but the script that generated the images
+is worth a look.
+
+The generation of an blog post cover is done in 3 phases:
+
+- convert the blog markdown into an image prompt
+- generate an image from the image prompt
+- generate an alt text description from the image prompt
+- resize, copy image and patch the blog post frontmatter
+
+<Code code={code} lang="ts" wrap title="blog-image.genai.mts" />
+
+Once this script worked for a couple posts,
+use used the `convert` command to generate the images for all the blog posts.
+
+```sh
+genaiscript convert blog-image blog/*.md*
+```
+
+## What about the images?
+
+The images are somewhat abstract, but they are generated from the blog post content.
+The image prompt could definitely be improved, but it's a good start.

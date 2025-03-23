@@ -1,11 +1,21 @@
 ---
 title: Make it better!
-authors: 
-    - genaiscript
-    - pelikhan
+authors:
+  - genaiscript
+  - pelikhan
 date: 2025-01-28
-tags: ["genai", "code improvement", "automation"]
+tags:
+  - genai
+  - code improvement
+  - automation
 canonical_url: https://microsoft.github.io/genaiscript/blog/improve-your-code-twice-with-genai
+cover:
+  alt: A retro 8-bit computer screen displays a vibrant geometric interface.
+    Abstract icons symbolize code snippets, and a glowing button labeled "make
+    it better" suggests an enhancement process. The backdrop features a simple,
+    five-color geometric pattern, evoking a futuristic corporate environment.
+  image: ./makeitbetter.png
+
 ---
 
 GenAIScript comes with a helper that tells the LLM to "make it better".

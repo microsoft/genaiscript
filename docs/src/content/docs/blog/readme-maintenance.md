@@ -13,6 +13,13 @@ tags:
 canonical_url: https://microsoft.github.io/genaiscript/blog/README-maintenance
 description: Optimize your project's front door with our script for an always
   up-to-date and engaging README.
+cover:
+  alt: A simplistic, pixelated image shows a computer screen displaying a brightly
+    colored README.md file. Surrounding the computer are digital icons depicting
+    various folders and files, symbolizing documentation and examples. The
+    setting is a stylized corporate office, depicted with minimal geometric
+    shapes and a 5-color palette, giving it a classic, retro aesthetic.
+  image: ./readme-maintenance.png
 
 ---
 

@@ -2,9 +2,24 @@
 title: Hugging Face Transformers.js
 date: 2024-12-02
 authors: pelikhan
-tags: ["LLM", "SLM", "transformers", "Hugging Face", "JavaScript"]
+tags:
+  - LLM
+  - SLM
+  - transformers
+  - Hugging Face
+  - JavaScript
 canonical_url: https://microsoft.github.io/genaiscript/blog/hugging-face-transformers
-description: Learn how to run LLMs locally using Hugging Face Transformers.js in GenAIScript, enabling you to leverage powerful language models in your JavaScript projects.
+description: Learn how to run LLMs locally using Hugging Face Transformers.js in
+  GenAIScript, enabling you to leverage powerful language models in your
+  JavaScript projects.
+cover:
+  alt: An 8-bit style image displays various technology icons symbolizing
+    JavaScript, transformers, and AI. These icons are integrated into an
+    arrangement of abstract geometric shapes that represent a browser and server
+    environment. The image is simplified using a 5-color palette, maintaining a
+    consistent and coherent aesthetic. No people or text are present.
+  image: ./hugging-face-transformers.png
+
 ---
 
 <p style="text-align:center"><span style="font-size: 12rem;">🤗</span></p>
