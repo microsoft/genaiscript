@@ -3,7 +3,6 @@ script({
     description: "A bot that can't stop answering issues.",
     responseType: "markdown",
     systemSafety: true,
-    tools: ["fs_find_files", "fs_read_file"],
     group: "actions",
     parameters: {
         issue: {

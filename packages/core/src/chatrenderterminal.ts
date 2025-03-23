@@ -9,7 +9,7 @@ import {
 } from "./chattypes"
 import { renderImageToTerminal } from "./image"
 import { terminalSize } from "./terminal"
-import { ellipse, ellipseLast } from "./util"
+import { ellipse } from "./util"
 import { YAMLStringify } from "./yaml"
 import { dataUriToBuffer } from "./file"
 import { wrapColor } from "./consolecolor"
