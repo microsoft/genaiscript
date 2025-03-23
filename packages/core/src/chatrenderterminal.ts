@@ -3,6 +3,7 @@ import {
     ChatCompletionMessageParam,
     ChatCompletionMessageToolCall,
     ChatCompletionSystemMessageParam,
+    ChatCompletionTool,
     ChatCompletionToolMessageParam,
     ChatCompletionUserMessageParam,
 } from "./chattypes"
@@ -63,7 +64,7 @@ async function renderMessageContent(
                     res.push(
                         await renderImageToTerminal(
                             dataUriToBuffer(c.image_url.url),
-                            { columns, rows, cancellationToken },
+                            { columns, rows, cancellationToken }
                         )
                     )
                     break
@@ -106,12 +107,14 @@ export async function renderMessagesToTerminal(
         system?: boolean
         user?: boolean
         assistant?: boolean
+        tools?: ChatCompletionTool[]
     }
 ) {
     const {
         system = undefined, // Include system messages unless explicitly set to false.
         user = undefined, // Include user messages unless explicitly set to false.
         assistant = true, // Include assistant messages by default.
+        tools,
     } = options || {}
 
     const { columns } = terminalSize()
@@ -137,6 +140,17 @@ export async function renderMessagesToTerminal(
         }
     })
     const res: string[] = []
+    if (tools?.length) {
+        res.push(
+            wrapColor(CONSOLE_COLOR_DEBUG, `┌─🔧 tools (${tools.length})\n`),
+            wrapColor(
+                CONSOLE_COLOR_DEBUG,
+                `| ${tools.map((tool) => tool.function.name).join(", ")}`
+            ),
+            "\n"
+        )
+    }
+
     for (const msg of messages) {
         const { role } = msg
         switch (role) {

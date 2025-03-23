@@ -1122,6 +1122,7 @@ export async function executeChatSession(
                         user: true,
                         assistant: true,
                         cacheImage,
+                        tools,
                     }),
                     { expanded: true }
                 )
@@ -1177,7 +1178,10 @@ export async function executeChatSession(
                         `chat: sending ${messages.length} messages to ${model} (~${tokens ?? "?"} tokens)`
                     )
                     stderr.write(
-                        await renderMessagesToTerminal(messages, { user: true })
+                        await renderMessagesToTerminal(messages, {
+                            user: true,
+                            tools,
+                        })
                     )
 
                     const infer = async () => {
@@ -1185,6 +1189,9 @@ export async function executeChatSession(
                         const m = measure(
                             "chat.completer",
                             `${req.model} -> ${req.messages.length} messages`
+                        )
+                        dbg(
+                            `infer ${req.model} with ${req.messages.length} messages`
                         )
                         const cres = await completer(
                             req,
