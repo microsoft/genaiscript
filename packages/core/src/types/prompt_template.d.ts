@@ -1237,6 +1237,12 @@ interface WorkspaceFileSystem {
     ): Promise<string>
 
     /**
+     * Writes one or more files to the workspace
+     * @param file a in-memory file or list of files
+     */
+    writeFiles(file: ElementOrArray<WorkspaceFile>): Promise<void>
+
+    /**
      * Copies a file between two paths
      * @param source
      * @param destination
@@ -4118,6 +4124,9 @@ interface AstGrepRelation extends Rule {
     field?: string
 }
 
+/**
+ * A asp-grep node, SGNode, is an immutable node in the abstract syntax tree.
+ */
 interface AstGrepNode {
     id(): number
     range(): AstGrepRange
@@ -4174,8 +4183,26 @@ interface AstGrep {
         lang: AstGrepLang,
         glob: ElementOrArray<string>,
         matcher: string | AstGrepMatcher
-    ): Promise<{ files: number; matches: AstGrepNode[] }>
-    writeRootEdits(nodes: AstGrepNode[]): Promise<void>
+    ): Promise<{
+        /**
+         * Number of files found
+         */
+        files: number
+        /**
+         * Each individual file matches as a node
+         */
+        matches: AstGrepNode[]
+        /**
+         * Queues an edit that replaces the node text with the provided text.
+         * The node must be part of the matches array.
+         */
+        replace: (node: AstGrepNode, text: string) => AstGrepEdit
+        /**
+         * Applies all the edits queued by the replace method and returns the updated files.
+         * Use `workspace.writeFiles` to save the changes to the workspace.
+         */
+        commitEdits: () => Promise<WorkspaceFile[]>
+    }>
 }
 
 interface DebugLogger {

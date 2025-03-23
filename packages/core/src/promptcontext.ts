@@ -31,11 +31,7 @@ import { fileWriteCached } from "./filecache"
 import { join } from "node:path"
 import { createMicrosoftTeamsChannelClient } from "./teams"
 import { dotGenaiscriptPath } from "./workdir"
-import {
-    astGrepFindFiles,
-    astGrepParse,
-    astGrepWriteRootEdits,
-} from "./astgrep"
+import { astGrepFindFiles, astGrepParse } from "./astgrep"
 
 const dbg = debug("genaiscript:promptcontext")
 
@@ -98,6 +94,7 @@ export async function createPromptContext(
             return res
         },
         stat: (filename) => runtimeHost.workspace.stat(filename),
+        writeFiles: (file) => runtimeHost.workspace.writeFiles(file),
         grep: async (
             query,
             grepOptions: string | WorkspaceGrepOptions,
@@ -345,8 +342,6 @@ export async function createPromptContext(
                         ...(options || {}),
                         cancellationToken,
                     }),
-                writeRootEdits: (nodes) =>
-                    astGrepWriteRootEdits(nodes, { cancellationToken }),
             }),
     })
 

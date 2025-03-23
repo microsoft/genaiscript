@@ -13,7 +13,11 @@ for (const match of matches) {
     if (!t.includes("console.log")) throw new Error("console.log found")
 }
 
-const { matches: matches2 } = await asg.findFiles("ts", "src/fib.ts", {
+const {
+    matches: matches2,
+    replace,
+    commitEdits,
+} = await asg.findFiles("ts", "src/fib.ts", {
     rule: {
         kind: "function_declaration",
         not: {
@@ -37,9 +41,7 @@ for (const match of matches2) {
         },
         { model: "small", responseType: "text" }
     )
-    const edit = match.replace(`/**\n* ${res.text}\n**/\n${match.text()}`)
-    const root = match.getRoot()
-    const updated = root.root().commitEdits([edit])
-    console.log(updated)
+    replace(match, `/**\n* ${res.text}\n**/\n${match.text()}`)
 }
-await asg.writeRootEdits(matches2)
+const files = await commitEdits()
+await workspace.writeFiles(files)

@@ -1,7 +1,7 @@
 import debug from "debug"
 const dbg = debug("genaiscript:workspace")
 
-import { copyFile, mkdir } from "fs/promises"
+import { copyFile, mkdir, writeFile } from "fs/promises"
 import { JSONLineCache } from "./cache"
 import { DOT_ENV_REGEX } from "./constants"
 import { CSVTryParse } from "./csv"
@@ -12,7 +12,7 @@ import { readText, tryStat, writeText } from "./fs"
 import { host } from "./host"
 import { INITryParse } from "./ini"
 import { JSON5TryParse } from "./json5"
-import { arrayify, logVerbose } from "./util"
+import { arrayify } from "./util"
 import { XMLTryParse } from "./xml"
 import { YAMLTryParse } from "./yaml"
 import { dirname } from "path"
@@ -21,6 +21,12 @@ export function createWorkspaceFileSystem(): Omit<
     WorkspaceFileSystem,
     "grep" | "writeCached"
 > {
+    const checkWrite = (filename: string) => {
+        if (DOT_ENV_REGEX.test(filename)) {
+            throw new Error("writing .env not allowed")
+        }
+    }
+
     const fs = {
         findFiles: async (glob: string, options: FindFilesOptions) => {
             dbg(`findFiles: ${JSON.stringify(options)}`)
@@ -44,9 +50,7 @@ export function createWorkspaceFileSystem(): Omit<
             return files
         },
         writeText: async (filename: string, c: string) => {
-            if (DOT_ENV_REGEX.test(filename)) {
-                throw new Error("writing .env not allowed")
-            }
+            checkWrite(filename)
             await writeText(filename, c)
         },
         readText: async (f: string | Awaitable<WorkspaceFile>) => {
@@ -138,6 +142,17 @@ export function createWorkspaceFileSystem(): Omit<
             dbg(`copying file from ${src} to ${dest}`)
             await mkdir(dirname(dest), { recursive: true })
             await copyFile(src, dest)
+        },
+        writeFiles: async (files: ElementOrArray<WorkspaceFile>) => {
+            for (const file of arrayify(files)) {
+                const { filename, content, encoding } = file
+                checkWrite(filename)
+                if (!encoding) await fs.writeText(file.filename, file.content)
+                else if (encoding === "base64") {
+                    const buf = Buffer.from(content, "base64")
+                    await writeFile(filename, buf)
+                }
+            }
         },
     } satisfies Omit<WorkspaceFileSystem, "grep" | "writeCached">
     ;(fs as any).readFile = readText
