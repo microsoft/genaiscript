@@ -5,7 +5,7 @@ script({
     tests: {},
 })
 const asg = await host.astGrep()
-const { matches } = await asg.findFiles("ts", "src/*.ts", "console.log($META)")
+const { matches } = await asg.search("ts", "src/*.ts", "console.log($META)")
 if (matches.length < 2) throw new Error("No matches src/*.ts found")
 for (const match of matches) {
     const t = match.text()
@@ -17,7 +17,7 @@ const {
     matches: matches2,
     replace,
     commitEdits,
-} = await asg.findFiles("ts", "src/fib.ts", {
+} = await asg.search("ts", "src/fib.ts", {
     rule: {
         kind: "function_declaration",
         not: {

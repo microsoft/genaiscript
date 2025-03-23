@@ -4179,7 +4179,7 @@ interface AstGrep {
         file: WorkspaceFile,
         options: { lang?: AstGrepLang }
     ): Promise<AstGrepRoot>
-    findFiles(
+    search(
         lang: AstGrepLang,
         glob: ElementOrArray<string>,
         matcher: string | AstGrepMatcher

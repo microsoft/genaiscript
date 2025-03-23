@@ -12,13 +12,13 @@ to surgically target specific parts of the code.
 - find all TypeScript `console.log` statements. This example uses the 'pattern' syntax.
 
 ```ts
-const { matches } = await asg.findFiles("ts", "src/*.ts", "console.log($META)")
+const { matches } = await asg.search("ts", "src/*.ts", "console.log($META)")
 ```
 
 - find all TypeScript functions without comments. This example uses the [rule syntax](https://ast-grep.github.io/reference/rule.html).
 
 ```ts
-const { matches } = await asg.findFiles("ts", "src/fib.ts", {
+const { matches } = await asg.search("ts", "src/fib.ts", {
     rule: {
         kind: "function_declaration",
         not: {
@@ -37,6 +37,10 @@ GenAIScript provides a simplified set of interfaces to interact with the `ast-gr
 However, they are indeed the native `ast-grep` APIs, and you can use them directly if you need more control.
 
 :::
+
+## search and replace
+
+
 
 ## Learning ast-grep
 
