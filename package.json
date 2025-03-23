@@ -79,6 +79,7 @@
         "genai:tweetify": "node packages/cli/built/genaiscript.cjs run tweetify",
         "genai:docify": "node packages/cli/built/genaiscript.cjs run docify",
         "genai:debugify": "node packages/cli/built/genaiscript.cjs run debugify",
+        "genai:blog-images": "node packages/cli/built/genaiscript.cjs convert blog-image docs/src/content/docs/blog/*.md*",
         "gcm": "node packages/cli/built/genaiscript.cjs run gcm --model gcm",
         "prd": "node packages/cli/built/genaiscript.cjs run prd -prd --model github:gpt-4o",
         "prr": "node packages/cli/built/genaiscript.cjs run prr -prr --model github:gpt-4o-mini",
