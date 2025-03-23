@@ -1,6 +1,8 @@
+script({ parameters: { force: false } })
 const file = env.files.find(({ filename }) => /\.mdx?$/.test(filename))
 const target = path.changeext(file.filename, ".png")
-if (await workspace.stat(target)) cancel("blog image already exists")
+if (!env.vars.force && (await workspace.stat(target)))
+    cancel("blog image already exists")
 
 // phase 1: generate image prompt
 const style =

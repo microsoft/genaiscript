@@ -7,12 +7,12 @@ tags:
 canonical_url: https://microsoft.github.io/genaiscript/blog/anthropic
 description: Support for Claude.
 cover:
-  alt: A retro 8-bit illustration depicts a computer screen showcasing
-    interconnected nodes in a branching layout, symbolizing collaboration. The
-    nodes contain paperclip icons suggesting linking or contributions. At the
-    center, a sleek, modern abstract logo stands out. The visual features a
-    corporate five-color scheme, comprising blue, green, orange, gray, and
-    white, rendered in a clean geometric style.
+  alt: A stylized 8-bit image depicts a geometric computer screen with pixelated
+    icons representing GitHub and Microsoft logos. These icons are connected
+    through a network diagram, illustrating digital collaboration. The image
+    uses a limited palette of five corporate colors to emphasize the theme of
+    teamwork in code contribution. The background remains simple to focus
+    attention on the depicted network connections.
   image: ./anthropic.png
 
 ---

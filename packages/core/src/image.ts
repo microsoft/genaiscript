@@ -168,35 +168,12 @@ async function encode(
 export async function imageTransform(
     url: BufferLike,
     options: ImageTransformOptions & TraceOptions & CancellationOptions
-): Promise<BufferLike> {
-    const {
-        greyscale,
-        autoCrop,
-        crop,
-        flip,
-        scale,
-        rotate,
-        maxWidth,
-        maxHeight,
-        mime,
-    } = options || {}
-    if (
-        !greyscale &&
-        !autoCrop &&
-        !crop &&
-        !flip &&
-        !scale &&
-        !rotate &&
-        !maxWidth &&
-        !maxHeight &&
-        !mime
-    )
-        return url
-
+): Promise<Buffer> {
+    const { mime } = options || {}
     const img = await prepare(url, { ...(options || {}), detail: "original" })
     const outputMime = mime || img.mime || ("image/jpeg" as any)
     const buf = await img.getBuffer(outputMime)
-    return buf
+    return Buffer.from(buf)
 }
 
 /**
