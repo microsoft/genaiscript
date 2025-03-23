@@ -100,7 +100,6 @@ export function findEnvVar(
 
 export async function parseDefaultsFromEnv(env: Record<string, string>) {
     // legacy
-    dbg(`checking legacy environment variable: GENAISCRIPT_DEFAULT_MODEL`)
     if (env.GENAISCRIPT_DEFAULT_MODEL) {
         dbg(`found GENAISCRIPT_DEFAULT_MODEL: ${env.GENAISCRIPT_DEFAULT_MODEL}`)
         runtimeHost.setModelAlias("env", "large", env.GENAISCRIPT_DEFAULT_MODEL)

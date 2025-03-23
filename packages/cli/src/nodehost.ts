@@ -171,17 +171,30 @@ export class NodeHost extends EventTarget implements RuntimeHost {
         const aliases = this._modelAliases[source]
         const c = aliases[id] || (aliases[id] = { source })
         if (value === undefined || value.model === id) {
+            dbg(`alias ${id}: deleting (source: ${source})`)
             delete aliases[id]
         } else if (value.model !== undefined && value.model !== id) {
+            dbg(
+                `alias ${id}: updating model to ${value.model} (source: ${source})`
+            )
             ;(c as any).model = value.model
         }
         if (!isNaN(value.temperature)) {
+            dbg(
+                `alias ${id}: updating temperature to ${value.temperature} (source: ${source})`
+            )
             ;(c as any).temperature = value.temperature
         }
         if (value.reasoningEffort) {
+            dbg(
+                `alias ${id}: updating reasoning effort to ${value.reasoningEffort} (source: ${source})`
+            )
             ;(c as any).reasoningEffort = value.reasoningEffort
         }
         if (value.fallbackTools) {
+            dbg(
+                `alias ${id}: updating fallbacktools to ${value.fallbackTools} (source: ${source})`
+            )
             ;(c as any).fallbackTools = value.fallbackTools
         }
     }
@@ -200,6 +213,7 @@ export class NodeHost extends EventTarget implements RuntimeHost {
         const { pullModel, listModels } = await resolveLanguageModel(provider)
         dbg(`resolving language model for provider: ${provider}`)
         if (!pullModel) {
+            dbg(`pulling not supported for ${provider}`)
             this.pulledModels.includes(modelId)
             return { ok: true }
         }
@@ -213,6 +227,7 @@ export class NodeHost extends EventTarget implements RuntimeHost {
                 return { ok, status, error }
             }
             if (models.find(({ id }) => id === model)) {
+                dbg(`found model ${model} in provider ${provider}, skip pull`)
                 this.pulledModels.push(modelId)
                 return { ok: true }
             }
