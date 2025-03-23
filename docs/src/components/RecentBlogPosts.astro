@@ -6,7 +6,7 @@ interface Props {
 }
 const { count } = Astro.props
 
-const { posts } = Astro.locals.starlightBlog
+const { posts } = Astro.locals.starlightBlog || { posts: [] } // llms.txt
 const recent = posts.filter(({ draft }) => !draft).slice(0, count || 5)
 ---
 
