@@ -6,14 +6,42 @@ description: Search for patterns in the AST of a script
 [ast-grep](https://ast-grep.github.io/) is a fast and polyglot tool for code structural search, lint, rewriting at large scale.
 
 GenAISCript provides a wrapper around `ast-grep` to search for patterns in the AST of a script,
-and transform the AST. This is a very efficient way to create scripts that modify source code as one is able
+and transform the AST! This is a very efficient way to create scripts that modify source code as one is able
 to surgically target specific parts of the code.
 
-## Playground
+- find all TypeScript `console.log` statements. This example uses the 'pattern' syntax.
 
-The [online playground](https://ast-grep.github.io/playground.html) allows you to experiment with the tool without installing it.
+```ts
+const { matches } = await asg.findFiles("ts", "src/*.ts", "console.log($META)")
+```
 
-## llms.txt
+- find all TypeScript functions without comments. This example uses the [rule syntax](https://ast-grep.github.io/reference/rule.html).
 
-**ast-grep** provides a [llms.txt](https://ast-grep.github.io/llms-full.txt) file that will help your copilot generate rules and patterns.
-Add it to your Copilot context for best results.
+```ts
+const { matches } = await asg.findFiles("ts", "src/fib.ts", {
+    rule: {
+        kind: "function_declaration",
+        not: {
+            precedes: {
+                kind: "comment",
+                stopBy: "neighbor",
+            },
+        },
+    },
+})
+```
+
+:::tip
+
+GenAIScript provides a simplified set of interfaces to interact with the `ast-grep` [JavaScript apis](https://ast-grep.github.io/guide/api-usage/js-api.html).
+However, they are indeed the native `ast-grep` APIs, and you can use them directly if you need more control.
+
+:::
+
+## Learning ast-grep
+
+There is a learning curve to grasp the query language of `ast-grep`.
+
+- the [official documentation](https://ast-grep.github.io/docs/) is a good place to start.
+- the [online playground](https://ast-grep.github.io/playground.html) allows you to experiment with the tool without installing it.
+- download [llms.txt](https://ast-grep.github.io/llms-full.txt) into to your Copilot context for best results.
