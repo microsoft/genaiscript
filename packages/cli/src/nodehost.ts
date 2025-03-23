@@ -384,11 +384,12 @@ export class NodeHost extends EventTarget implements RuntimeHost {
             }
         }
         if (tok && (!tok.token || tok.token === tok.provider)) {
-            dbg(`listing models for provider: ${tok.provider}`)
             const { listModels } = await resolveLanguageModel(tok.provider)
             if (listModels) {
+                dbg(`listing models for provider: ${tok.provider}`)
                 const { ok, error } = await listModels(tok, options)
                 if (!ok) {
+                    dbg(`error listing models: ${errorMessage(error)}`)
                     throw new Error(`${tok.provider}: ${errorMessage(error)}`)
                 }
             }
