@@ -108,9 +108,12 @@ export class GitClient implements Git {
         args: string | string[],
         options?: { label?: string }
     ): Promise<string> {
-        const opts = {
+        const opts: ShellOptions = {
             ...(options || {}),
             cwd: this.cwd,
+            env: {
+                LC_ALL: "en_US",
+            },
         }
         const eargs = Array.isArray(args) ? args : shellParse(args)
         dbg(`exec`, shellQuote(eargs))

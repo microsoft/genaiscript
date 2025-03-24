@@ -552,6 +552,8 @@ export class NodeHost extends EventTarget implements RuntimeHost {
             cancellationToken,
             stdin: input,
             ignoreError,
+            env,
+            isolateEnv,
         } = options || {}
         const trace = options?.trace?.startTraceDetails(label || command)
         try {
@@ -583,6 +585,8 @@ export class NodeHost extends EventTarget implements RuntimeHost {
                     stdin: input ? undefined : "ignore",
                     stdout: ["pipe"],
                     stderr: ["pipe"],
+                    env,
+                    extendEnv: !isolateEnv,
                 }
             )
             trace?.itemValue(`exit code`, `${exitCode}`)
