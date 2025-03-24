@@ -1,4 +1,4 @@
-import React, { createContext, useState, useMemo, useEffect, use } from "react"
+import React, { createContext, useState, useMemo, use } from "react"
 import { ChatModels } from "../../core/src/chattypes"
 import {
     Project,
@@ -6,12 +6,9 @@ import {
     RunResultListResponse,
 } from "../../core/src/server/messages"
 import { fetchEnv, fetchScripts, fetchRuns, fetchModels } from "./api"
-import { useLocationHashValue } from "./useLocationHashValue"
 import { useUrlSearchParams } from "./useUrlSearchParam"
-import { FileWithPath } from "react-dropzone/."
 import { useScriptId } from "./ScriptContext"
-
-export type ImportedFile = FileWithPath & { selected?: boolean }
+import { ImportedFile } from "./types"
 
 export const ApiContext = createContext<{
     project: Promise<Project | undefined>
@@ -143,3 +140,4 @@ export function useScript() {
 
     return scripts.find((s) => s.id === scriptid)
 }
+
