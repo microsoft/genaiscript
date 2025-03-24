@@ -32,12 +32,15 @@ const { matches } = await asg.search("ts", "src/fib.ts", {
 })
 ```
 
-:::tip
+## Supported languages
 
-GenAIScript provides a simplified set of interfaces to interact with the `ast-grep` [JavaScript apis](https://ast-grep.github.io/guide/api-usage/js-api.html).
-However, they are indeed the native `ast-grep` APIs, and you can use them directly if you need more control.
+This version of `ast-grep` [supports the following languages](https://ast-grep.github.io/reference/api.html#supported-languages):
 
-:::
+- Html
+- JavaScript
+- Tsx
+- Css
+- TypeScript
 
 ## search and replace
 
@@ -89,6 +92,9 @@ There is a learning curve to grasp the query language of `ast-grep`.
 - the [JavaScript API](https://ast-grep.github.io/guide/api-usage/js-api.html#inspection) which helps you understand how to work with nodes
 - download [llms.txt](https://ast-grep.github.io/llms-full.txt) into to your Copilot context for best results.
 
-```
+:::tip
 
-```
+GenAIScript provides a simplified set of interfaces to interact with the `ast-grep` [JavaScript apis](https://ast-grep.github.io/guide/api-usage/js-api.html).
+However, they are indeed the native `ast-grep` APIs, and you can use them directly if you need more control.
+
+:::
