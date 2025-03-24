@@ -2,18 +2,18 @@
 # yarn lockfile v1
 
 
-"@agentic/calculator@^7.5.3":
-  version "7.6.1"
-  resolved "https://registry.yarnpkg.com/@agentic/calculator/-/calculator-7.6.1.tgz#710976a3c75d19478b8f54ef682ff53ad63c575c"
-  integrity sha512-jD1BYl+u5M4MdXCCNb3iqyKS57nczBDaHMop9NDhtJ3tKMcID2V/+in45R69SSwkGjkj7QfHx5s9MrM4W+NhQw==
+"@agentic/calculator@v7.5.3":
+  version "7.5.3"
+  resolved "https://registry.yarnpkg.com/@agentic/calculator/-/calculator-7.5.3.tgz#3616ed908078c4da796de6890fa74818bbbe6e17"
+  integrity sha512-3kug+CIrGJWpWjpHGvKNJFovQhc1cQDMTcaU+ULbRWEMSztTKUr7QOoP5t62bAC3J9RBNKCRpbYJrwGgsgARhg==
   dependencies:
-    "@agentic/core" "7.6.1"
+    "@agentic/core" "7.5.3"
     mathjs "^13.0.3"
 
-"@agentic/core@7.6.1", "@agentic/core@^7.5.3":
-  version "7.6.1"
-  resolved "https://registry.yarnpkg.com/@agentic/core/-/core-7.6.1.tgz#2159b8584cd62f15d187210f915e4fba72f47007"
-  integrity sha512-/+qYlJ4AySsCvgtyNm7/kMs+yt4KWvXmmrOrAvTTP8/1Voo2bN4t0LZzW5l8G2rGK604Rf+U5uxZNkbAP6uCjg==
+"@agentic/core@7.5.3", "@agentic/core@v7.5.3":
+  version "7.5.3"
+  resolved "https://registry.yarnpkg.com/@agentic/core/-/core-7.5.3.tgz#e2a033a02969510617f01088dd5f573502f1dae3"
+  integrity sha512-gPlqUtRn+MUNMyZ5toqYnZQu4N/I5V7UBZXy4rHreeL+v5X26qj+mfLKNCIydtI/iVAvyPXxCezTtvq9GtvmdA==
   dependencies:
     dedent "^1.5.3"
     delay "^6.0.0"
@@ -24,12 +24,12 @@
     type-fest "^4.37.0"
     zod-validation-error "^3.4.0"
 
-"@agentic/weather@^7.5.3":
-  version "7.6.1"
-  resolved "https://registry.yarnpkg.com/@agentic/weather/-/weather-7.6.1.tgz#8dba870d29e337bec50ab10b2a08d2d0ee434405"
-  integrity sha512-kYAmQT0bADvlCX/J37TQsWjWZwHeOHsNJdF9FIVxYJ6uJiucJyuQjF+bYlv6kwwZ/vIn76V+3zRsqUZ81TMXIg==
+"@agentic/weather@v7.5.3":
+  version "7.5.3"
+  resolved "https://registry.yarnpkg.com/@agentic/weather/-/weather-7.5.3.tgz#03dc60d61d63154f9c23e0373678942cea77baa7"
+  integrity sha512-sjZ8oEoYNoZkaAXgnsKCJRDIf0EcUBbzs2d+N4ej6G5f6WiEJ7d/ta1d2PzePOTPKrgpx14F33A040XKvNTlDg==
   dependencies:
-    "@agentic/core" "7.6.1"
+    "@agentic/core" "7.5.3"
     ky "^1.7.5"
 
 "@antfu/install-pkg@^1.0.0":
