@@ -13,6 +13,7 @@ script({
 const { output } = env
 const { applyEdits } = env.vars
 const file = env.files[0]
+
 // find all exported functions without comments
 const sg = await host.astGrep()
 const { matches, replace, commitEdits } = await sg.search("ts", file.filename, {
@@ -36,6 +37,7 @@ for (const match of matches) {
         (_) => {
             _.def("FILE", match.getRoot().root().text())
             _.def("FUNCTION", match.text())
+            // this needs more eval-ing
             _.$`Generate a function documentation for <FUNCTION>.
             - Be concise. Use technical tone.
             - do NOT include types, this is for TypeScript.
@@ -53,6 +55,8 @@ for (const match of matches) {
     const updated = `${docs}\n${match.text()}`
     replace(match, updated)
 }
+
+// apply all edits and write to the file
 const modified = await commitEdits()
 if (applyEdits) {
     await workspace.writeFiles(modified)
@@ -63,6 +67,7 @@ if (applyEdits) {
     )
 }
 
+// normalizes the docstring in case the LLM decides not to generate proper comments
 function docify(docs: string) {
     if (!/^\/\*\*.*.*\*\/$/s.test(docs))
         docs = `/**\n* ${docs.split(/\r?\n/g).join("\n* ")}\n*/`
