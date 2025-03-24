@@ -13,8 +13,8 @@ script({
 const { output } = env
 const { applyEdits } = env.vars
 const file = env.files[0]
-const sg = await host.astGrep()
 // find all exported functions without comments
+const sg = await host.astGrep()
 const { matches, replace, commitEdits } = await sg.search("ts", file.filename, {
     rule: {
         kind: "export_statement",
@@ -29,18 +29,30 @@ const { matches, replace, commitEdits } = await sg.search("ts", file.filename, {
         },
     },
 })
+
+// for each match, generate a docstring
 for (const match of matches) {
     const res = await runPrompt(
         (_) => {
             _.def("FILE", match.getRoot().root().text())
             _.def("FUNCTION", match.text())
-            _.$`Generate a documentation summary that describes the behavior of the function in <FUNCTION>.
-            - Be short and descriptive. Use technical tone.
-            The full source of the file is in <FILE>.`
+            _.$`Generate a function documentation for <FUNCTION>.
+            - Be concise. Use technical tone.
+            - do NOT include types, this is for TypeScript.
+            - Use docstring syntax.
+            The full source of the file is in <FILE> for reference.`
         },
         { model: "small", responseType: "text", label: match.text() }
     )
-    replace(match, `/**\n* ${res.text}\n**/\n${match.text()}`)
+    // if generation is successful, insert the docs
+    if (res.error) {
+        output.warn(res.error.message)
+        continue
+    }
+    let docs = res.text.trim()
+    if (!/^\/\*\*\n.\*\*\//.test(docs))
+        docs = `/**\n* ${res.text.split(/\r?\n/g).join("\n * ")}\n**/\n${match.text()}`
+    replace(match, docs)
 }
 const modified = await commitEdits()
 output.diff(file, modified[0])
