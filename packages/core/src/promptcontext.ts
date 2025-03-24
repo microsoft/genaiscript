@@ -332,7 +332,7 @@ export async function createPromptContext(
             await runtimeHost.python({ trace, ...(options || {}) }),
         teamsChannel: async (url) => createMicrosoftTeamsChannelClient(url),
         astGrep: async () =>
-            Object.freeze<AstGrep>({
+            Object.freeze<Sg>({
                 search: (lang, glob, matcher) =>
                     astGrepFindFiles(lang, glob, matcher, {
                         cancellationToken,

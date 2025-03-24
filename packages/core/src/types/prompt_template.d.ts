@@ -4130,7 +4130,7 @@ interface SgRule {
     /** A utility rule id and matches a node if the utility rule matches. */
     matches?: string
 }
-interface SgRelation extends Rule {
+interface SgRelation extends SgRule {
     /**
      * Specify how relational rule will stop relative to the target node.
      */
@@ -4189,7 +4189,7 @@ interface SgRoot {
 
 type SgLang = OptionsOrString<"html" | "js" | "ts" | "tsx" | "css">
 
-interface AstGrep {
+interface Sg {
     parse(file: WorkspaceFile, options: { lang?: SgLang }): Promise<SgRoot>
     search(
         lang: SgLang,

@@ -13,7 +13,7 @@ export async function astGrepFindFiles(
     glob: ElementOrArray<string>,
     matcher: string | SgMatcher,
     options?: Omit<FindFilesOptions, "readText"> & CancellationOptions
-): ReturnType<AstGrep["search"]> {
+): ReturnType<Sg["search"]> {
     const { cancellationToken } = options || {}
     if (!glob) {
         throw new Error("glob is required")
