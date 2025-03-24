@@ -278,6 +278,13 @@ export function activateFragmentCommands(state: ExtensionState) {
                 vscode.workspace.asRelativePath(file.fsPath)
             ),
         ]
+
+        const parameters = await showPromptParametersQuickPicks(template)
+        if (parameters === undefined) return
+        for (const [name, value] of Object.entries(parameters)) {
+            args.push(`--vars`, `${name}=${value}`)
+        }
+
         const configuration = cliPath
             ? ((<vscode.DebugConfiguration>{
                   type: "node",
