@@ -40,6 +40,16 @@ import { useEventListener } from "./useEventListener"
 import dedent from "dedent"
 import { stringify as YAMLStringify } from "yaml"
 
+import "@vscode-elements/elements/dist/vscode-tabs"
+import "@vscode-elements/elements/dist/vscode-tab-header"
+import "@vscode-elements/elements/dist/vscode-tab-panel"
+import "@vscode-elements/elements/dist/vscode-badge"
+import "@vscode-elements/elements/dist/vscode-scrollable"
+import "@vscode-elements/elements/dist/vscode-collapsible"
+import "@vscode-elements/elements/dist/vscode-tree"
+import "@vscode-elements/elements/dist/vscode-split-layout"
+
+
 export function ResultsTabs() {
     const [selected, setSelected] = useState(0)
     return (
