@@ -860,6 +860,15 @@ interface OutputTrace extends ToolCallTrace {
     table(rows: object[]): void
 
     /**
+     * Computes and renders diff between two files.
+     */
+    diff(
+        left: string | WorkspaceFile,
+        right: string | WorkspaceFile,
+        options?: { context?: number }
+    ): void
+
+    /**
      * Logs a result item with a boolean value and a message.
      * @param value - The boolean value of the result item.
      * @param message - The message for the result item.
@@ -2334,8 +2343,8 @@ interface Parsers {
      * Computes a diff between two files
      */
     diff(
-        left: WorkspaceFile,
-        right: WorkspaceFile,
+        left: string | WorkspaceFile,
+        right: string | WorkspaceFile,
         options?: DefDiffOptions
     ): string
 
@@ -4130,7 +4139,7 @@ interface SgRule {
     /** A utility rule id and matches a node if the utility rule matches. */
     matches?: string
 }
-interface SgRelation extends Rule {
+interface SgRelation extends SgRule {
     /**
      * Specify how relational rule will stop relative to the target node.
      */
@@ -4189,7 +4198,7 @@ interface SgRoot {
 
 type SgLang = OptionsOrString<"html" | "js" | "ts" | "tsx" | "css">
 
-interface AstGrep {
+interface Sg {
     parse(file: WorkspaceFile, options: { lang?: SgLang }): Promise<SgRoot>
     search(
         lang: SgLang,

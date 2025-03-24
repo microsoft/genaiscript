@@ -347,10 +347,12 @@ export function llmifyDiff(diff: string) {
  * @returns The diff as a string, with certain headers removed.
  */
 export function createDiff(
-    left: WorkspaceFile,
-    right: WorkspaceFile,
+    left: string | WorkspaceFile,
+    right: string | WorkspaceFile,
     options?: { context?: number }
 ) {
+    if (typeof left === "string") left = { filename: "left", content: left }
+    if (typeof right === "string") right = { filename: "right", content: right }
     const res = createTwoFilesPatch(
         left.filename || "",
         right.filename || "",

@@ -28,6 +28,7 @@ import { parseTraceTree, TraceTree } from "./traceparser"
 import { fileCacheImage, fileWriteCached } from "./filecache"
 import { CancellationOptions } from "./cancellation"
 import { generateId } from "./id"
+import { createDiff } from "./diff"
 
 export class TraceChunkEvent extends Event {
     constructor(
@@ -117,6 +118,15 @@ export class MarkdownTrace extends EventTarget implements OutputTrace {
                 ? `\`\`\` ${content.replace(/\r?\n/g, " ")} \`\`\` `
                 : `\`${content.replace(/\r?\n/g, " ")}\` `
         )
+    }
+
+    diff(
+        left: string | WorkspaceFile,
+        right: string | WorkspaceFile,
+        options?: { context?: number }
+    ) {
+        const d = createDiff(left, right, options)
+        this.fence(d, "diff")
     }
 
     /**
