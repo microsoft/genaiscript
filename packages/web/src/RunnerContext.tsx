@@ -10,17 +10,16 @@ import {
     GenerationResult,
     PromptScriptRunOptions,
 } from "../../core/src/server/messages"
-import { generateId } from "mermaid/dist/utils"
 import { toBase64 } from "../../core/src/base64"
 import { isBinaryMimeType } from "../../core/src/binary"
 import { fetchRun } from "./api"
-import { useApi } from "./ApiContext"
 import { RunClient } from "./RunClient"
 import { useRunClient } from "./RunClientContext"
 import { useEventListener } from "./useEventListener"
 import { useLocationHashValue } from "./useLocationHashValue"
 import { useScriptId } from "./ScriptContext"
 import { ImportedFile } from "./types"
+import { generateId } from "../../core/src/id"
 
 export const RunnerContext = createContext<{
     runId: string | undefined

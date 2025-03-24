@@ -39,10 +39,7 @@ import { apiKey, hosted, viewMode } from "./configuration"
 import { JSONBooleanOptionsGroup, JSONSchemaObjectForm } from "./JSONSchema"
 import { ActionButton } from "./ActionButton"
 import Suspense from "./Suspense"
-import type {
-    ChatCompletion,
-    ChatCompletionMessageParam,
-} from "../../core/src/chattypes"
+import type { ChatCompletion } from "../../core/src/chattypes"
 import { RunClientProvider, useClientReadyState } from "./RunClientContext"
 import {
     useApi,
@@ -819,8 +816,10 @@ function WebApp() {
         default:
             return (
                 <div style={{ minHeight: "100vh" }}>
-                    {!hosted ? <ProjectView /> : null}
-                    <ScriptView />
+                    <ApiProvider>
+                        {!hosted ? <ProjectView /> : null}
+                        <ScriptView />
+                    </ApiProvider>
                     <ResultsView />
                 </div>
             )
@@ -831,13 +830,11 @@ export default function App() {
     return (
         <ScriptProvider>
             <RunClientProvider>
-                <ApiProvider>
-                    <RunnerProvider>
-                        <Suspense>
-                            <WebApp />
-                        </Suspense>
-                    </RunnerProvider>
-                </ApiProvider>
+                <RunnerProvider>
+                    <Suspense>
+                        <WebApp />
+                    </Suspense>
+                </RunnerProvider>
             </RunClientProvider>
         </ScriptProvider>
     )
