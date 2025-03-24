@@ -2,7 +2,6 @@
 /// <reference path="./vscode-elements.d.ts" />
 import React, {
     createContext,
-    DependencyList,
     startTransition,
     use,
     useCallback,
@@ -11,7 +10,6 @@ import React, {
     useRef,
     useState,
 } from "react"
-import { throttle } from "es-toolkit"
 
 import "@vscode-elements/elements/dist/vscode-button"
 import "@vscode-elements/elements/dist/vscode-single-select"
@@ -35,20 +33,9 @@ import "@vscode-elements/elements/dist/vscode-tree"
 import "@vscode-elements/elements/dist/vscode-split-layout"
 
 import Markdown from "./Markdown"
-import type {
-    Project,
-    PromptScriptListResponse,
-    PromptScriptResponseEvents,
-    GenerationResult,
-    ServerEnvResponse,
-    RequestMessages,
-    PromptScriptStartResponse,
-    PromptScriptEndResponseEvent,
-    LogMessageEvent,
-    RunResultListResponse,
-} from "../../core/src/server/messages"
+import type { GenerationResult } from "../../core/src/server/messages"
 import { logprobColor, renderLogprob, rgbToCss } from "../../core/src/logprob"
-import { FileWithPath, useDropzone } from "react-dropzone"
+import { useDropzone } from "react-dropzone"
 import prettyBytes from "pretty-bytes"
 import { renderMessagesToMarkdown } from "../../core/src/chatrender"
 import { stringify as YAMLStringify } from "yaml"
@@ -58,8 +45,6 @@ import { toBase64 } from "../../core/src/base64"
 import { lookupMime } from "../../core/src/mime"
 import dedent from "dedent"
 import { markdownDiff } from "../../core/src/mddiff"
-import { cleanedClone } from "../../core/src/clone"
-import { WebSocketClient } from "../../core/src/server/wsclient"
 import { convertAnnotationToItem } from "../../core/src/annotations"
 import { VscodeMultiSelect } from "@vscode-elements/elements/dist/vscode-multi-select/vscode-multi-select"
 import { VscTabsSelectEvent } from "@vscode-elements/elements/dist/vscode-tabs/vscode-tabs"
@@ -72,12 +57,7 @@ import {
     VscTreeSelectEvent,
 } from "@vscode-elements/elements/dist/vscode-tree/vscode-tree"
 import CONFIGURATION from "../../core/src/llms.json"
-import {
-    MODEL_PROVIDER_GITHUB_COPILOT_CHAT,
-    MESSAGE,
-    QUEUE_SCRIPT_START,
-    CHANGE,
-} from "../../core/src/constants"
+import { MODEL_PROVIDER_GITHUB_COPILOT_CHAT } from "../../core/src/constants"
 import {
     DetailsNode,
     parseTraceTree,
@@ -86,14 +66,7 @@ import {
 } from "../../core/src/traceparser"
 import { unmarkdown } from "../../core/src/cleaners"
 import { ErrorBoundary } from "react-error-boundary"
-import {
-    apiKey,
-    base,
-    diagnostics,
-    hosted,
-    urlParams,
-    viewMode,
-} from "./configuration"
+import { apiKey, diagnostics, hosted, viewMode } from "./configuration"
 import { JSONBooleanOptionsGroup, JSONSchemaObjectForm } from "./JSONSchema"
 import { useLocationHashValue } from "./useLocationHashValue"
 import { ActionButton } from "./ActionButton"
@@ -101,164 +74,27 @@ import Suspense from "./Suspense"
 import type {
     ChatCompletion,
     ChatCompletionMessageParam,
-    ChatModels,
 } from "../../core/src/chattypes"
 import { generateId } from "../../core/src/id"
 import { prettyCost, prettyDuration, prettyTokens } from "../../core/src/pretty"
 import { useEventListener } from "./useEventListener"
-import { useUrlSearchParams } from "./useUrlSearchParam"
 import { RunClient } from "./RunClient"
-import { fetchEnv, fetchScripts, fetchRuns, fetchModels, fetchRun } from "./api"
-
-type ImportedFile = FileWithPath & { selected?: boolean }
-
-const ApiContext = createContext<{
-    client: RunClient
-    project: Promise<Project | undefined>
-    env: Promise<ServerEnvResponse | undefined>
-
-    scriptid: string | undefined
-    setScriptid: (id: string) => void
-    files: string[]
-    setFiles: (files: string[]) => void
-    importedFiles: ImportedFile[]
-    setImportedFiles: (files: ImportedFile[]) => void
-    parameters: PromptParameters
-    setParameters: (parameters: PromptParameters) => void
-    options: ModelOptions
-    setOptions: (
-        f: (prev: ModelConnectionOptions) => ModelConnectionOptions
-    ) => void
-    refresh: () => void
-    runs: Promise<RunResultListResponse | undefined>
-    models: Promise<ChatModels | undefined>
-} | null>(null)
-
-function ApiProvider({ children }: { children: React.ReactNode }) {
-    const [refreshId, setRefreshId] = useState(0)
-    const client = useMemo(() => {
-        const client = new RunClient(
-            `${base}/${apiKey ? `?api-key=${apiKey}` : ""}`
-        )
-        client.addEventListener("error", (err) => console.error(err), false)
-        return client
-    }, [])
-    const env = useMemo<Promise<ServerEnvResponse>>(fetchEnv, [refreshId])
-    const project = useMemo<Promise<Project>>(fetchScripts, [refreshId])
-    const runs = useMemo<Promise<RunResultListResponse>>(fetchRuns, [refreshId])
-    const models = useMemo<Promise<ChatModels>>(fetchModels, [refreshId])
-    const [scriptid, setScriptid] = useLocationHashValue("scriptid")
-
-    const refresh = () => setRefreshId((prev) => prev + 1)
-
-    const [state, setState] = useUrlSearchParams<
-        {
-            files: string[]
-        } & ModelConnectionOptions
-    >(
-        {
-            files: [],
-        },
-        {
-            scriptid: { type: "string" },
-            files: { type: "array", items: { type: "string" } },
-            cache: { type: "boolean" },
-            provider: { type: "string" },
-            model: { type: "string" },
-            smallModel: { type: "string" },
-            visionModel: { type: "string" },
-            temperature: { type: "number" },
-            logprobs: { type: "boolean" },
-            topLogprobs: { type: "integer" },
-        }
-    )
-    const [importedFiles, setImportedFiles] = useState<ImportedFile[]>([])
-    const { files, ...options } = state
-    const [parameters, setParameters] = useState<PromptParameters>({})
-    const setFiles = (files: string[]) =>
-        setState((prev) => ({
-            ...prev,
-            files: files.filter((s) => s !== "").slice(),
-        }))
-    const setOptions = (
-        f: (prev: ModelConnectionOptions) => ModelConnectionOptions
-    ) => {
-        setState((prev) => ({ ...prev, ...f(options) }))
-    }
-    useEffect(() => {
-        client.init()
-    }, [client])
-
-    return (
-        <ApiContext.Provider
-            value={{
-                client,
-                project,
-                env,
-                scriptid,
-                setScriptid,
-                files,
-                setFiles,
-                importedFiles,
-                setImportedFiles,
-                parameters,
-                setParameters,
-                options,
-                setOptions,
-                refresh,
-                runs,
-                models,
-            }}
-        >
-            {children}
-        </ApiContext.Provider>
-    )
-}
-
-function useApi() {
-    const api = use(ApiContext)
-    if (!api) throw new Error("missing content")
-    return api
-}
-
-function useEnv() {
-    const { env: envPromise } = useApi()
-    const env = use(envPromise)
-    return env
-}
-
-function useRunResults() {
-    const { runs: runsPromise } = useApi()
-    const runs = use(runsPromise)
-    return runs
-}
-
-function useModels() {
-    const { models: modelsPromise } = useApi()
-    const models = use(modelsPromise)
-    return models
-}
-
-function useProject() {
-    const api = useApi()
-    const project = use(api.project)
-    return project
-}
-
-function useScripts() {
-    const project = useProject()
-    const scripts = (
-        project?.scripts?.filter((s) => !s.isSystem && !s.unlisted) || []
-    ).sort((l, r) => l.id.localeCompare(r.id))
-    return scripts
-}
-
-function useScript() {
-    const scripts = useScripts()
-    const { scriptid } = useApi()
-
-    return scripts.find((s) => s.id === scriptid)
-}
+import { fetchRun } from "./api"
+import {
+    RunClientProvider,
+    useClientReadyState,
+    useRunClient,
+} from "./RunClientContext"
+import {
+    useApi,
+    useScripts,
+    useEnv,
+    useScript,
+    ImportedFile,
+    useRunResults,
+    useModels,
+    ApiProvider,
+} from "./ApiContext"
 
 function useSyncProjectScript() {
     const { scriptid, setScriptid } = useApi()
@@ -273,18 +109,6 @@ function useSyncProjectScript() {
     }, [scripts, scriptid, runId])
 }
 
-function useClientReadyState() {
-    const { client } = useApi()
-    const [state, setState] = useState(client?.readyState)
-    useEffect(() => {
-        if (!client) return undefined
-        const update = () => startTransition(() => setState(client.readyState))
-        client.addEventListener(CHANGE, update, false)
-        return () => client.removeEventListener(CHANGE, update)
-    }, [client])
-    return state
-}
-
 const RunnerContext = createContext<{
     runId: string | undefined
     run: () => void
@@ -297,8 +121,8 @@ const RunnerContext = createContext<{
 } | null>(null)
 
 function RunnerProvider({ children }: { children: React.ReactNode }) {
+    const { client } = useRunClient()
     const {
-        client,
         scriptid,
         files = [],
         importedFiles = [],
@@ -443,7 +267,7 @@ function useOutput() {
 }
 
 function useReasoning() {
-    const { client } = useApi()
+    const { client } = useRunClient()
     const [value, setValue] = useState<string>(client.reasoning)
     const appendReasoning = useCallback(
         () => startTransition(() => setValue(() => client.reasoning)),
@@ -1820,12 +1644,14 @@ function WebApp() {
 
 export default function App() {
     return (
-        <ApiProvider>
-            <RunnerProvider>
-                <Suspense>
-                    <WebApp />
-                </Suspense>
-            </RunnerProvider>
-        </ApiProvider>
+        <RunClientProvider>
+            <ApiProvider>
+                <RunnerProvider>
+                    <Suspense>
+                        <WebApp />
+                    </Suspense>
+                </RunnerProvider>
+            </ApiProvider>
+        </RunClientProvider>
     )
 }
