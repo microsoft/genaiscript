@@ -14,7 +14,7 @@ import { llmifyDiff } from "./diff"
 import { resolveFileContents } from "./file"
 import { tryReadText, tryStat } from "./fs"
 import { host, runtimeHost } from "./host"
-import { shellParse } from "./shell"
+import { shellParse, shellQuote } from "./shell"
 import { arrayify, logVerbose } from "./util"
 import { approximateTokens, truncateTextToTokens } from "./tokens"
 import { resolveTokenEncoder } from "./encoders"
@@ -113,10 +113,10 @@ export class GitClient implements Git {
             cwd: this.cwd,
         }
         const eargs = Array.isArray(args) ? args : shellParse(args)
-        dbg(`exec`, eargs)
+        dbg(`exec`, shellQuote(eargs))
         const res = await runtimeHost.exec(undefined, this.git, eargs, opts)
         dbg(`exec: exit code ${res.exitCode}`)
-        if (res.stderr) dbg(res.stderr)
+        if (res.stdout) dbg(res.stdout)
         if (res.exitCode !== 0) {
             dbg(`error: ${res.stderr}`)
             throw new Error(res.stderr)
