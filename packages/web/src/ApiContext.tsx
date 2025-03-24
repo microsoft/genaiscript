@@ -9,6 +9,7 @@ import { fetchEnv, fetchScripts, fetchRuns, fetchModels } from "./api"
 import { useLocationHashValue } from "./useLocationHashValue"
 import { useUrlSearchParams } from "./useUrlSearchParam"
 import { FileWithPath } from "react-dropzone/."
+import { useScriptId } from "./ScriptContext"
 
 export type ImportedFile = FileWithPath & { selected?: boolean }
 
@@ -16,8 +17,6 @@ export const ApiContext = createContext<{
     project: Promise<Project | undefined>
     env: Promise<ServerEnvResponse | undefined>
 
-    scriptid: string | undefined
-    setScriptid: (id: string) => void
     files: string[]
     setFiles: (files: string[]) => void
     importedFiles: ImportedFile[]
@@ -39,7 +38,6 @@ export function ApiProvider({ children }: { children: React.ReactNode }) {
     const project = useMemo<Promise<Project>>(fetchScripts, [refreshId])
     const runs = useMemo<Promise<RunResultListResponse>>(fetchRuns, [refreshId])
     const models = useMemo<Promise<ChatModels>>(fetchModels, [refreshId])
-    const [scriptid, setScriptid] = useLocationHashValue("scriptid")
 
     const refresh = () => setRefreshId((prev) => prev + 1)
 
@@ -83,8 +81,6 @@ export function ApiProvider({ children }: { children: React.ReactNode }) {
             value={{
                 project,
                 env,
-                scriptid,
-                setScriptid,
                 files,
                 setFiles,
                 importedFiles,
@@ -143,7 +139,7 @@ export function useScripts() {
 
 export function useScript() {
     const scripts = useScripts()
-    const { scriptid } = useApi()
+    const { scriptid } = useScriptId()
 
     return scripts.find((s) => s.id === scriptid)
 }

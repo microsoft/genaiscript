@@ -95,6 +95,7 @@ import {
     useModels,
     ApiProvider,
 } from "./ApiContext"
+import { ScriptProvider } from "./ScriptContext"
 
 function useSyncProjectScript() {
     const { scriptid, setScriptid } = useApi()
@@ -1644,14 +1645,16 @@ function WebApp() {
 
 export default function App() {
     return (
-        <RunClientProvider>
-            <ApiProvider>
-                <RunnerProvider>
-                    <Suspense>
-                        <WebApp />
-                    </Suspense>
-                </RunnerProvider>
-            </ApiProvider>
-        </RunClientProvider>
+        <ScriptProvider>
+            <RunClientProvider>
+                <ApiProvider>
+                    <RunnerProvider>
+                        <Suspense>
+                            <WebApp />
+                        </Suspense>
+                    </RunnerProvider>
+                </ApiProvider>
+            </RunClientProvider>
+        </ScriptProvider>
     )
 }
