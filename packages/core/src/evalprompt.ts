@@ -1,3 +1,6 @@
+import debug from "debug"
+const dbg = debug("genaiscript:evalprompt")
+
 import { host } from "./host"
 import MagicString from "magic-string"
 
@@ -21,9 +24,11 @@ export async function evalPrompt(
     let src: string = [prefix, jsSource, suffix].join("")
     // source map
     if (r.filename && sourceMaps) {
+        dbg("creating source map")
         const s = new MagicString(jsSource)
         s.prepend(prefix)
         s.append(suffix)
+        dbg(`resolving path for ${r.filename}`)
         const source = host.path.resolve(r.filename)
         const map = s.generateMap({
             source,
@@ -33,11 +38,13 @@ export async function evalPrompt(
         const mapURL: string = map.toUrl()
         // split keywords as so that JS engine does not try to load "mapUrl"
         src += "\n//# source" + "MappingURL=" + mapURL
+        dbg("appending sourceURL to source")
         src += "\n//# source" + "URL=" + source
     }
 
     // in principle we could cache this function (but would have to do that based on hashed body or sth)
     // but probably little point
     const fn = (0, eval)(src)
+    dbg(`eval ${r.filename}`)
     return await fn(...Object.values(ctx))
 }

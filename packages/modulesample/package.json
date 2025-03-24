@@ -1,0 +1,8 @@
+{
+    "name": "genaiscript-modulesample",
+    "type": "module",
+    "scripts": {
+        "genai": "node ../cli/built/genaiscript.cjs run",
+        "test": "yarn genai poem-js-module"
+    }
+}
