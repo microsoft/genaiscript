@@ -5,9 +5,7 @@ script({
         "system",
         "system.output_markdown",
         "system.assistant",
-        "system.fs_find_files",
-        "system.fs_read_file",
-        "system.english"
+        "system.english",
     ],
     parameters: {
         defaultBranch: {

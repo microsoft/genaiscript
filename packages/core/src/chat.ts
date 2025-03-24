@@ -313,7 +313,10 @@ async function runToolCall(
                     name: call.name,
                     description: "unknown tool",
                 },
-                impl: async () => "unknown tool",
+                impl: async () => {
+                    def("tool_not_found", call.name)
+                    return `unknown tool ${call.name}`
+                },
             }
         }
         todos = [{ tool, args: callArgs }]
