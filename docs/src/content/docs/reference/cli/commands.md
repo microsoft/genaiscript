@@ -571,6 +571,7 @@ Commands:
   prompty [options] <file...>   Converts .prompty files to genaiscript
   jinja2 [options] <file>       Renders Jinj2 or prompty template
   secrets <file...>             Applies secret scanning and redaction to files
+  markdown [options] <file>     Chunks markdown files
 ```
 
 ### `parse data`
@@ -715,6 +716,22 @@ Arguments:
 
 Options:
   -h, --help  display help for command
+```
+
+### `parse markdown`
+
+```
+Usage: genaiscript parse markdown [options] <file>
+
+Chunks markdown files
+
+Arguments:
+  file                        input markdown file
+
+Options:
+  -m, --model <string>        encoding model
+  -mt, --max-tokens <number>  maximum tokens per chunk
+  -h, --help                  display help for command
 ```
 
 ## `info`
