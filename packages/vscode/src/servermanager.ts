@@ -14,7 +14,7 @@ import { ServerManager, host } from "../../core/src/host"
 import { assert, logError, logInfo, logVerbose } from "../../core/src/util"
 import { VsCodeClient } from "../../core/src/server/client"
 import { CORE_VERSION } from "../../core/src/version"
-import { createChatModelRunner } from "./lmaccess"
+import { createChatModelRunner, isLanguageModelsAvailable } from "./lmaccess"
 import { semverParse, semverSatisfies } from "../../core/src/semver"
 import { resolveCli } from "./config"
 import { deleteUndefinedValues } from "../../core/src/cleaners"
@@ -192,13 +192,16 @@ export class TerminalServerManager
             hideFromUser,
         })
         const { cliPath, cliVersion } = await resolveCli(this.state)
+        const githubCopilotChatClient = isLanguageModelsAvailable()
+            ? " --github-copilot-chat-client"
+            : ""
         if (cliPath)
             this._terminal.sendText(
-                `node "${cliPath}" serve --port ${this._port} --dispatch-progress --cors "*" --github-copilot-chat-client`
+                `node "${cliPath}" serve --port ${this._port} --dispatch-progress --cors "*"${githubCopilotChatClient}`
             )
         else
             this._terminal.sendText(
-                `npx --yes ${TOOL_ID}@${cliVersion} serve --port ${this._port} --dispatch-progress --cors "*" --github-copilot-chat-client`
+                `npx --yes ${TOOL_ID}@${cliVersion} serve --port ${this._port} --dispatch-progress --cors "*"${githubCopilotChatClient}`
             )
         if (!hideFromUser) this._terminal.show(true)
     }
