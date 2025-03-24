@@ -29,6 +29,7 @@ import { normalizeFloat, normalizeInt } from "./cleaners"
 import { mergeEnvVarsWithSystem } from "./vars"
 import { installGlobalPromptContext } from "./globals"
 import { mark } from "./performance"
+import { tryReadJSON } from "./fs"
 
 export async function callExpander(
     prj: Project,
@@ -62,10 +63,14 @@ export async function callExpander(
         logs += msg + "\n"
     }
 
+    // package.json { type: "module" }
+    const pkg = await tryReadJSON("package.json")
+    const isModule = pkg?.type === "module"
+    dbg(`package.json type: ${pkg?.type || ""}`)
     try {
         if (
             r.filename &&
-            !JS_REGEX.test(r.filename) &&
+            (isModule || !JS_REGEX.test(r.filename)) &&
             !PROMPTY_REGEX.test(r.filename)
         )
             await importPrompt(ctx, r, { logCb, trace })

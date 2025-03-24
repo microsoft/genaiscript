@@ -36,3 +36,5 @@ jobs:
               run: yarn test:core
             - name: unit tests
               run: yarn test:samples
+            - name: unit tests (2)
+              run: yarn test:modulesamples
