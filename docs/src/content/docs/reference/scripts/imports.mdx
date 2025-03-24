@@ -14,9 +14,10 @@ You can rename any `.genai.js` file to `.genai.mjs` to enable module imports.
 
 ## Module Imports
 
-You can import node packages installed in your project.
+You can import node packages installed in your project
+in `.mjs` or `.mts`.
 
-```js
+```js title="script.genai.mjs"
 import { parse } from "ini"
 
 // static import
@@ -102,3 +103,15 @@ export default async function() {
     $`Write a poem.`
 }
 ```
+
+## Package type
+
+If you have a `package.json` file in your project, you can set the `type` field to `module` to enable module imports in all `.js` files.
+
+```json
+{
+    "type": "module"
+}
+```
+
+This will allow you to use module imports in all `.js` files in your project.

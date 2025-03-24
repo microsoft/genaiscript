@@ -10,7 +10,7 @@ It provides a simple interface to leverage the power of LLMs for extracting data
 
 ## Usage
 
-`cast` is defined in the runtime and needs to be imported. It takes the unstructure text (or files), a JSON schema
+`cast` is defined in the [GenAIScript runtime](/genaiscript/reference/scripts/runtime) and needs to be imported. It takes the unstructure text (or files), a JSON schema
 and returns the extract data (or error).
 
 ```js
