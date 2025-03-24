@@ -25,7 +25,7 @@ for (const file of mds) {
     console.log(md)
 
     // https://developers.forem.com/api/v1#tag/articles/operation/createArticle
-    const res = await fetch("https://dev.to/api/articles", {
+    const res = await host.fetch("https://dev.to/api/articles", {
         method: "POST",
         headers: {
             "content-type": "application/json",
