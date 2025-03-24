@@ -204,7 +204,7 @@ There are many variations of passages of Lorem Ipsum available, but the majority
         }
     })
 
-    await test(`chunk llms-full.txt`, async () => {
+    await test(`chunk genaiscript/llms-full.txt`, async () => {
         const markdown = await (
             await fetch("https://microsoft.github.io/genaiscript/llms-full.txt")
         ).text()
@@ -213,13 +213,18 @@ There are many variations of passages of Lorem Ipsum available, but the majority
                 maxTokens: 1 << i,
             })
             console.debug(`llms-full ${i} => ${result.length}`)
-            /*            assert.strictEqual(
-                result
-                    .map((r) => r.content)
-                    .join("\n")
-                    .replace(/\n{2,}/g, "\n"),
-                markdown.replace(/^======$/gm, "").replace(/\n{2,}/g, "\n")
-            )*/
         }
     })
+    await test(`chunk hono/llms-full.txt`, async () => {
+        const markdown = await (
+            await fetch("https://hono.dev/llms-full.txt")
+        ).text()
+        for (let i = 0; i < 12; ++i) {
+            const result = await chunkMarkdown(markdown, estimateTokens, {
+                maxTokens: 1 << i,
+            })
+            console.debug(`llms-full ${i} => ${result.length}`)
+        }
+    })
+
 })
