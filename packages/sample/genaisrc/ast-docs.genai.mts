@@ -19,19 +19,19 @@ const sg = await host.astGrep()
 const { matches, replace, commitEdits } = await sg.search("ts", file.filename, {
     rule: {
         kind: "export_statement",
+        not: {
+            follows: {
+                kind: "comment",
+                stopBy: "neighbor",
+            },
+        },
         has: {
             kind: "function_declaration",
-            not: {
-                precedes: {
-                    kind: "comment",
-                    stopBy: "neighbor",
-                },
-            },
         },
     },
 })
 
-// for each match, generate a docstring
+// for each match, generate a docstring for functions not documented
 for (const match of matches) {
     const res = await runPrompt(
         (_) => {
