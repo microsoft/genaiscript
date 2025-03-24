@@ -62,7 +62,7 @@ async function messagesToChatMessages(messages: ChatCompletionMessageParam[]) {
                     throw new Error("Vision model not supported")
                 res.push(
                     vscode.LanguageModelChatMessage.User(
-                        await renderMessageContent(m),
+                        await renderMessageContent(m, { textLang: "raw" }),
                         "genaiscript"
                     )
                 )

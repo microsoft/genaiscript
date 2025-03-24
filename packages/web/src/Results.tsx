@@ -49,7 +49,6 @@ import "@vscode-elements/elements/dist/vscode-collapsible"
 import "@vscode-elements/elements/dist/vscode-tree"
 import "@vscode-elements/elements/dist/vscode-split-layout"
 
-
 export function ResultsTabs() {
     const [selected, setSelected] = useState(0)
     return (
@@ -136,6 +135,7 @@ function ChatMessages(props: { messages: ChatCompletionMessageParam[] }) {
     const mdPromise = useMemo(
         () =>
             renderMessagesToMarkdown(messages, {
+                textLang: "markdown",
                 system: true,
                 user: true,
                 assistant: true,

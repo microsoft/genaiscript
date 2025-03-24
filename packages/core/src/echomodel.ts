@@ -11,7 +11,7 @@ export const EchoModel = Object.freeze<LanguageModel>({
         const text = `## Messages
         
 ${await renderMessagesToMarkdown(messages, {
-    textLang: "text",
+    textLang: "markdown",
     assistant: true,
     system: true,
     user: true,

@@ -179,6 +179,7 @@ function activateNotebookExecutor(state: ExtensionState) {
                     assistant,
                 } = parseKeyValuePairs(cell.metadata.options || "") || {}
                 let chat = await renderMessagesToMarkdown(messages, {
+                    textLang: "markdown",
                     system: parseBoolean(system),
                     user: parseBoolean(user),
                     assistant: parseBoolean(assistant),

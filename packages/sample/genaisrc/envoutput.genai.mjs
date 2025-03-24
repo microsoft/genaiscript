@@ -39,6 +39,7 @@ output.fence(
     "csv"
 )
 output.fence(`A --> B`, "mermaid")
+output.item(`- testing broken mermaid chart`)
 output.fence(`A -> B`, "mermaid")
 output.appendContent(`$$
 E = mc^2
@@ -68,3 +69,9 @@ output.detailsFenced("A", "AAA")
 output.detailsFenced("B", "BBB")
 output.detailsFenced("C", "CCC")
 output.detailsFenced("D", "DDD")
+
+output.table([
+    { a: 1, b: 2 },
+    { a: 3, b: 4 },
+])
+output.appendContent("<XML>hello</XML>")

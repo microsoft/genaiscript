@@ -862,7 +862,7 @@ async function processChatMessage(
                     participantTrace.details(
                         `💬 new messages`,
                         await renderMessagesToMarkdown(messages, {
-                            textLang: "text",
+                            textLang: "markdown",
                             user: true,
                             assistant: true,
                             cacheImage,
@@ -1121,7 +1121,7 @@ export async function executeChatSession(
                 chatTrace.details(
                     `💬 messages (${messages.length})`,
                     await renderMessagesToMarkdown(messages, {
-                        textLang: "text",
+                        textLang: "markdown",
                         user: true,
                         assistant: true,
                         cacheImage,

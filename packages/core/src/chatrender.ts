@@ -16,7 +16,7 @@ import { stringify as YAMLStringify } from "yaml"
 import { CancellationOptions, checkCancelled } from "./cancellation"
 
 export interface ChatRenderOptions extends CancellationOptions {
-    textLang?: "markdown" | "text"
+    textLang?: "markdown" | "text" | "json" | "raw"
     system?: boolean
     user?: boolean
     assistant?: boolean
@@ -62,17 +62,22 @@ export async function renderMessageContent(
         | ChatCompletionToolMessageParam,
     options?: ChatRenderOptions
 ): Promise<string | undefined> {
-    const { cacheImage } = options || {}
+    const { cacheImage, textLang } = options || {}
     const content = msg.content
+
     // Return the content directly if it's a simple string.
-    if (typeof content === "string") return content
+    if (typeof content === "string") {
+        if (textLang === "raw") return content
+        else return fenceMD(content, textLang)
+    }
     // If the content is an array, process each element based on its type.
     else if (Array.isArray(content)) {
         const res: string[] = []
         for (const c of content) {
             switch (c.type) {
                 case "text":
-                    res.push(c.text)
+                    if (textLang === "raw") res.push(c.text)
+                    else res.push(fenceMD(c.text, textLang))
                     break
                 case "image_url":
                     res.push(
@@ -119,6 +124,22 @@ export async function renderMessagesToMarkdown(
         cancellationToken,
         tools,
     } = options || {}
+    options = {
+        textLang,
+        system,
+        user,
+        assistant,
+        cancellationToken,
+        tools,
+    }
+    const optionsMarkdown: ChatRenderOptions = {
+        textLang: "markdown",
+        system,
+        user,
+        assistant,
+        cancellationToken,
+        tools,
+    }
 
     const res: string[] = []
 
@@ -156,10 +177,7 @@ export async function renderMessagesToMarkdown(
                 res.push(
                     details(
                         "📙 system",
-                        fenceMD(
-                            await renderMessageContent(msg, options),
-                            textLang
-                        ),
+                        await renderMessageContent(msg, optionsMarkdown),
                         false
                     )
                 )
@@ -184,10 +202,7 @@ export async function renderMessagesToMarkdown(
                                       fenceMD(msg.reasoning_content, "markdown")
                                   )
                                 : undefined,
-                            fenceMD(
-                                await renderMessageContent(msg, options),
-                                textLang
-                            ),
+                            await renderMessageContent(msg, optionsMarkdown),
                             ...(msg.tool_calls?.map((tc) =>
                                 details(
                                     `📠 tool call <code>${tc.function.name}</code> (<code>${tc.id}</code>)`,
@@ -205,15 +220,15 @@ export async function renderMessagesToMarkdown(
                 res.push(
                     details(
                         `🛠️ tool output <code>${msg.tool_call_id}</code>`,
-                        fenceMD(
-                            await renderMessageContent(msg, options),
-                            "json"
-                        )
+                        await renderMessageContent(msg, {
+                            ...(options || {}),
+                            textLang: "json",
+                        })
                     )
                 )
                 break
             default:
-                res.push(role, fenceMD(YAMLStringify(msg), "yaml"))
+                res.push(role, fenceMD(JSON.stringify(msg, null, 2), "json"))
                 break
         }
     }
