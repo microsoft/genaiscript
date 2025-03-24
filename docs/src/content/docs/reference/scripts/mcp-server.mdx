@@ -136,3 +136,25 @@ It is changing and things might not work as expected.
     }
 }
 ```
+
+## Running scripts from a remote repository
+
+You can use the `--remote` option to load scripts from a remote repository.
+GenAISCript will do a shallow clone of the repository and run the script from the clone folder.
+
+```sh
+npx --yes genaiscript mcp --remote https://github.com/...
+```
+
+There are additional flags to how the repository is cloned:
+
+- `--remote-branch <branch>`: The branch to clone from the remote repository.
+- `--remote-force`: Force the clone even if the cloned folder already exists.
+- `--remote-install`: Install dependencies after cloning the repository.
+
+:::caution
+
+As usual, be careful when running scripts from a remote repository.
+Make sure you trust the source before running the script and consider locking to a specific commit.
+
+:::
