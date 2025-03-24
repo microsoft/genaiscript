@@ -860,6 +860,15 @@ interface OutputTrace extends ToolCallTrace {
     table(rows: object[]): void
 
     /**
+     * Computes and renders diff between two files.
+     */
+    diff(
+        left: string | WorkspaceFile,
+        right: string | WorkspaceFile,
+        options?: { context?: number }
+    ): void
+
+    /**
      * Logs a result item with a boolean value and a message.
      * @param value - The boolean value of the result item.
      * @param message - The message for the result item.
@@ -2334,8 +2343,8 @@ interface Parsers {
      * Computes a diff between two files
      */
     diff(
-        left: WorkspaceFile,
-        right: WorkspaceFile,
+        left: string | WorkspaceFile,
+        right: string | WorkspaceFile,
         options?: DefDiffOptions
     ): string
 
