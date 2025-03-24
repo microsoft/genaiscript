@@ -57,7 +57,7 @@ is at https://microsoft.github.io/genaiscript/reference/scripts.md
 - you use the global types in genaiscript.d.ts are already loaded in the global context, no need to import them.
 - save generated code in the "./genaisrc" folder with ".genai.mts" extension
 `,
-                    pageSeparator: "\n\n=!=!=!=!=!=\n\n",
+                    pageSeparator: "\n\n=|=|=|=|=|=\n\n",
                     promote: ["index*", "getting-started*", "!*/*"],
                     customSets: [
                         {

@@ -69,6 +69,8 @@ import {
     trimTrailingSlash,
 } from "./cleaners"
 import { fromBase64 } from "./base64"
+import debug from "debug"
+const dbg = debug("genaiscript:openai")
 
 export function getConfigHeaders(cfg: LanguageModelConfiguration) {
     let { token, type, base, provider } = cfg
@@ -762,9 +764,9 @@ export async function OpenAIEmbedder(
             },
             body: JSON.stringify(body),
         }
-        traceFetchPost(trace, url, freq.headers, body)
+        // traceFetchPost(trace, url, freq.headers, body)
         logVerbose(
-            `${provider} emedding: ${ellipse(input, 44)} with ${provider}:${model}`
+            `${type}: embedding ${ellipse(input, 44)} with ${provider}:${model}`
         )
         const fetch = await createFetch({
             trace,
