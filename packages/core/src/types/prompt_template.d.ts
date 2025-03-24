@@ -4236,7 +4236,9 @@ interface SgHost {
 
 interface ShellOptions {
     cwd?: string
+
     stdin?: string
+
     /**
      * Process timeout in  milliseconds, default is 60s
      */
@@ -4250,6 +4252,16 @@ interface ShellOptions {
      * Ignore exit code errors
      */
     ignoreError?: boolean
+
+    /**
+     * Additional environment variables to set for the process.
+     */
+    env?: Record<string, string>
+
+    /**
+     * Inject the content of 'env' exclusively
+     */
+    isolateEnv?: boolean
 }
 
 interface ShellOutput {
