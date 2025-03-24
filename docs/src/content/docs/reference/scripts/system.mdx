@@ -1701,8 +1701,10 @@ export default async function (ctx: ChatGenerationContext) {
     const branch = await client.branch()
     const defaultBranch = await client.defaultBranch()
 
-    $`## Git
-The current branch is ${branch} and the default branch is ${defaultBranch} ${cwd ? `in ${cwd}` : ""}.`
+    $`## Git`
+    if (branch) $`The current branch is ${branch}.`
+    if (defaultBranch)
+        $`The default branch is ${defaultBranch} ${cwd ? `in ${cwd}` : ""}.`
 }
 
 `````

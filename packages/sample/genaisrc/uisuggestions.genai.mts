@@ -1,4 +1,5 @@
 script({
+    model: "echo",
     accept: "none",
     tests: {},
     parameters: {
