@@ -54,6 +54,7 @@ import { ScriptProvider, useScriptId } from "./ScriptContext"
 import { ResultsTabs } from "./Results"
 import { RunnerProvider, useRunner } from "./RunnerContext"
 import { ImportedFile } from "./types"
+import { ProjectView } from "./ProjectView"
 
 function useSyncProjectScript() {
     const { scriptid, setScriptid } = useScriptId()
@@ -76,51 +77,6 @@ function GenAIScriptLogo(props: { height: string }) {
             src="/favicon.svg"
             style={{ height, borderRadius: "2px" }}
         />
-    )
-}
-
-function ProjectView() {
-    return (
-        <vscode-collapsible title={"Project"}>
-            <Suspense>
-                <ProjectHeader />
-            </Suspense>
-        </vscode-collapsible>
-    )
-}
-
-function ProjectHeader() {
-    const env = useEnv()
-    const { remote, configuration } = env || {}
-    const { name, description, version, homepage, author, readme } =
-        configuration || {}
-    if (!configuration) return null
-
-    const { url, branch } = remote || {}
-    const remoteSlug = url ? `${url}${branch ? `#${branch}` : ""}` : undefined
-
-    const markdown = useMemo(() => {
-        const res: string[] = [
-            !!remoteSlug &&
-                `- remote: [${remoteSlug}](https://github.com/${remoteSlug})`,
-            readme || description,
-        ]
-        return res.filter((s) => !!s).join("\n")
-    }, [description, remoteSlug, version, readme])
-
-    return (
-        <>
-            {remoteSlug ? (
-                <vscode-badge variant="counter" slot="decorations">
-                    {remoteSlug}
-                </vscode-badge>
-            ) : null}
-            {markdown ? (
-                <div className="readme">
-                    <Markdown readme={true}>{markdown}</Markdown>
-                </div>
-            ) : null}
-        </>
     )
 }
 
