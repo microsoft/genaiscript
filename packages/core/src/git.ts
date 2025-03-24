@@ -69,7 +69,7 @@ export class GitClient implements Git {
         if (!this._defaultBranch) {
             dbg(`fetching default branch from remote`)
             const res = await this.exec(["remote", "show", "origin"], {})
-            this._defaultBranch = /^\s*HEAD branch:\s+(?<name>.+)\s*$/m.exec(
+            this._defaultBranch = /^.+HEAD[^:]*:\s+(?<name>.+)\s*$/m.exec(
                 res
             )?.groups?.name
         }
