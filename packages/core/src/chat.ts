@@ -314,7 +314,7 @@ async function runToolCall(
                     description: "unknown tool",
                 },
                 impl: async () => {
-                    def("tool_not_found", call.name)
+                    dbg("tool_not_found", call.name)
                     return `unknown tool ${call.name}`
                 },
             }
