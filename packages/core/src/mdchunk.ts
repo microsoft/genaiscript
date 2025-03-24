@@ -13,16 +13,15 @@ export async function chunkMarkdown(
     estimateTokens: (text: string) => number,
     options?: {
         maxTokens?: number
-        pageSeperator?: string
+        pageSeparator?: string
     }
 ): Promise<TextChunk[]> {
-    const { maxTokens = 4096, pageSeperator: pageSeparator = "======" } = options || {}
+    const { maxTokens = 4096, pageSeparator = "======" } = options || {}
     if (!markdown) return []
 
     type Section = { heading: string; lines: string[]; level: number }
 
-    const filename =
-        typeof markdown === "object" ? markdown.filename : undefined
+    const filename = typeof markdown === "object" ? markdown.filename : ""
     if (typeof markdown === "object") {
         if (markdown.encoding === "base64")
             throw new Error("base64 encoding not supported")

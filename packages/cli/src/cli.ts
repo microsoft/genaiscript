@@ -18,6 +18,7 @@ import {
     parseFence,
     parseHTMLToText,
     parseJinja2,
+    parseMarkdown,
     parsePDF,
     parseSecrets,
     parseTokens,
@@ -584,6 +585,13 @@ export async function cli() {
         .description("Applies secret scanning and redaction to files")
         .argument("<file...>", "input files")
         .action(parseSecrets)
+    parser
+        .command("markdown")
+        .description("Chunks markdown files")
+        .argument("<file>", "input markdown file")
+        .option("-m, --model <string>", "encoding model")
+        .option("-mt, --max-tokens <number>", "maximum tokens per chunk")
+        .action(parseMarkdown)
 
     // Define 'info' command group for utility information tasks
     const info = program.command("info").description("Utility tasks")

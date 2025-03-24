@@ -26,7 +26,11 @@ import { parseOptionsVars } from "./vars"
 import { dataTryParse } from "../../core/src/data"
 import { resolveFileContent } from "../../core/src/file"
 import { redactSecrets } from "../../core/src/secretscanner"
-import { logVerbose } from "../../core/src/util"
+import { ellipse, logVerbose } from "../../core/src/util"
+import { chunkMarkdown } from "../../core/src/mdchunk"
+import { normalizeInt } from "../../core/src/cleaners"
+import prettyBytes from "pretty-bytes"
+import { terminalSize } from "../../core/src/terminal"
 
 /**
  * This module provides various parsing utilities for different file types such
@@ -249,4 +253,32 @@ export async function parseSecrets(files: string[]) {
         }
     }
     if (n > 0) console.warn(`found secrets in ${n} of ${fs.length} files`)
+}
+
+export async function parseMarkdown(
+    filename: string,
+    options: { model: string; maxTokens: string }
+) {
+    const maxTokens = normalizeInt(options.maxTokens) || 1024
+    const file: WorkspaceFile = { filename }
+    await resolveFileContent(file)
+    if (file.size) console.debug(`file: ${prettyBytes(file.size)}`)
+    const encoding = await resolveTokenEncoder(options?.model, {
+        disableFallback: false,
+    })
+    const res = await chunkMarkdown(
+        file,
+        (text) => encoding.encode(text).length,
+        {
+            maxTokens,
+        }
+    )
+
+    const cols = terminalSize().columns
+    for (const { content, filename, lineStart, lineEnd } of res) {
+        const prefix = `${basename(filename)} (${lineStart}-${lineEnd}): `
+        console.log(
+            `${prefix}${ellipse(content.replace(/\n/g, " "), cols - prefix.length)}`
+        )
+    }
 }
