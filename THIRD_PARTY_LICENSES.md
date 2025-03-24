@@ -2921,8 +2921,8 @@ The following npm packages may be included in this product:
  - @types/http-cache-semantics@4.0.4
  - @types/node-fetch@2.6.12
  - @types/node@16.9.1
- - @types/node@18.19.81
- - @types/node@22.13.11
+ - @types/node@18.19.83
+ - @types/node@22.13.13
  - @types/turndown@5.0.5
  - @types/uuid@9.0.8
  - @types/yauzl@2.10.3
@@ -2955,7 +2955,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.119.2
+ - genaiscript-vscode@1.119.4
 
 This package contains the following license:
 
@@ -8918,10 +8918,10 @@ The following npm packages may be included in this product:
  - @tokenizer/token@0.3.0
  - agent-base@6.0.2
  - eastasianwidth@0.2.0
- - genaiscript-core-internal@1.119.2
- - genaiscript-sample@1.119.2
- - genaiscript-web@1.119.2
- - genaiscript@1.119.2
+ - genaiscript-core-internal@1.119.4
+ - genaiscript-sample@1.119.4
+ - genaiscript-web@1.119.4
+ - genaiscript@1.119.4
  - https-proxy-agent@5.0.1
  - isarray@1.0.0
  - javascript-natural-sort@0.7.1
@@ -9067,7 +9067,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - @babel/runtime@7.26.10
+ - @babel/runtime@7.27.0
 
 This package contains the following license:
 
@@ -10743,7 +10743,7 @@ The following npm packages may be included in this product:
  - temp-dir@3.0.0
  - tempy@3.1.0
  - type-fest@1.4.0
- - type-fest@4.37.0
+ - type-fest@4.38.0
  - uint8array-extras@1.4.0
  - unicorn-magic@0.3.0
  - unique-string@3.0.0
@@ -11387,7 +11387,7 @@ IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 The following npm packages may be included in this product:
 
  - lru-cache@10.4.3
- - lru-cache@11.0.2
+ - lru-cache@11.1.0
 
 These packages each contain the following license:
 
