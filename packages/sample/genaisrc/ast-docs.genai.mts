@@ -49,15 +49,22 @@ for (const match of matches) {
         output.warn(res.error.message)
         continue
     }
-    let docs = res.text.trim()
-    if (!/^\/\*\*\n.\*\*\//.test(docs))
-        docs = `/**\n* ${res.text.split(/\r?\n/g).join("\n * ")}\n**/\n${match.text()}`
-    replace(match, docs)
+    const docs = docify(res.text.trim())
+    const updated = `${docs}\n${match.text()}`
+    replace(match, updated)
 }
 const modified = await commitEdits()
-output.diff(file, modified[0])
-if (applyEdits) await workspace.writeFiles(modified)
-else
+if (applyEdits) {
+    await workspace.writeFiles(modified)
+} else {
+    output.diff(file, modified[0])
     output.warn(
         `edit not applied, use --vars 'applyEdits=true' to apply the edits`
     )
+}
+
+function docify(docs: string) {
+    if (!/^\/\*\*.*.*\*\/$/s.test(docs))
+        docs = `/**\n* ${docs.split(/\r?\n/g).join("\n* ")}\n*/`
+    return docs.replace(/\n+$/, "")
+}
