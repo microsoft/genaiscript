@@ -27,11 +27,58 @@ async function showPromptParametersQuickPicks(
         )
         switch (schema.type) {
             case "string": {
-                const value = await vscode.window.showInputBox({
-                    title: `Enter value for ${schema.title || param}`,
-                    value: schema.default,
-                    prompt: schema.description,
-                })
+                let value: string
+                const enums = schema.enum
+                const uiSuggestions = schema.uiSuggestions
+                if (enums?.length) {
+                    const res = await vscode.window.showQuickPick(
+                        enums.map((e) => ({
+                            label: e,
+                            description: e,
+                        })),
+                        {
+                            title: `Choose ${schema.title || param} ${schema.description || ""}`,
+                            placeHolder: schema.default,
+                            canPickMany: false,
+                        }
+                    )
+                    value = res?.label
+                } else if (uiSuggestions) {
+                    const custom = "Enter a custom value"
+                    const res = await vscode.window.showQuickPick(
+                        [
+                            ...uiSuggestions.map((e) => ({
+                                label: e,
+                                description: e,
+                            })),
+                            {
+                                label: custom,
+                                description:
+                                    "Enter a custom value not in the suggestions.",
+                            },
+                        ],
+                        {
+                            title: `Choose ${schema.title || param} ${schema.description || ""}`,
+                            placeHolder: schema.default,
+                            canPickMany: false,
+                        }
+                    )
+                    value = res?.label
+                    if (value === custom) {
+                        value = await vscode.window.showInputBox({
+                            title: `Enter value for ${schema.title || param}`,
+                            value: schema.default,
+                            prompt: schema.description,
+                        })
+                    }
+                    if (value === undefined) return undefined
+                } else {
+                    value = await vscode.window.showInputBox({
+                        title: `Enter value for ${schema.title || param}`,
+                        value: schema.default,
+                        prompt: schema.description,
+                    })
+                }
                 if (value === undefined) return undefined
                 parameters[param] = value
                 break
