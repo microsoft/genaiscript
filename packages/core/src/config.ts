@@ -134,6 +134,22 @@ async function resolveGlobalConfiguration(
     return config
 }
 
+/**
+ * Reads and resolves the configuration for the host environment.
+ *
+ * @param dotEnvPaths - Optional array of .env file paths to consider. If provided, these paths will be prioritized.
+ * 
+ * Steps:
+ * - Calls `resolveGlobalConfiguration` to load base configurations from default paths and files.
+ * - Processes specified `.env` files to load environment variables.
+ * - Validates the existence and file type of each `.env` file.
+ * - Loads and overrides environment variables using `dotenv`.
+ * - Parses additional defaults from the current `process.env`.
+ * 
+ * @returns The resolved host configuration including merged and validated settings.
+ * 
+ * @throws An error if any provided `.env` file is invalid or unreadable.
+ */
 export async function readConfig(
     dotEnvPaths?: string[]
 ): Promise<HostConfiguration> {
@@ -165,9 +181,15 @@ export async function readConfig(
 }
 
 /**
- * Outputs environment information for model providers.
- * @param provider - The specific provider to filter by (optional).
- * @param options - Configuration options, including whether to show tokens.
+ * Resolves and outputs environment information for language model providers.
+ * @param provider - Filters by specific provider. If not provided, resolves all providers.
+ * @param options - Configuration options:
+ *   - token - Include tokens in the output. If false, tokens are masked.
+ *   - error - Include errors in the output.
+ *   - models - List models for each provider if supported.
+ *   - hide - Exclude hidden providers from the output.
+ *   - cancellation options - Additional cancellation options.
+ * @returns Sorted list of resolved language model configurations, including errors if applicable.
  */
 export async function resolveLanguageModelConfigurations(
     provider: string,

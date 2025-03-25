@@ -1,8 +1,6 @@
 import {
-    CONVERTS_DIR_NAME,
     FILES_NOT_FOUND_ERROR_CODE,
     GENAI_ANY_REGEX,
-    GENAI_ANYTS_REGEX,
     HTTPS_REGEX,
     JSON5_REGEX,
     TRACE_FILENAME,
@@ -30,7 +28,26 @@ import { toSignal } from "../../core/src/cancellation"
 import { normalizeInt } from "../../core/src/cleaners"
 import { YAMLStringify } from "../../core/src/yaml"
 import { ensureDotGenaiscriptPath, getConvertDir } from "../../core/src/workdir"
+import { GenerationStats } from "../../core/src/usage"
+import { measure } from "../../core/src/performance"
 
+/**
+ * Converts a set of files based on a specified script, applying transformations and generating output files.
+ *
+ * @param scriptId - Identifier of the script to use for file conversion.
+ * @param fileGlobs - Array of file paths or glob patterns identifying files to be transformed.
+ * @param options - Additional configuration for the conversion process:
+ *   - `suffix` - Custom suffix for the output files.
+ *   - `rewrite` - If true, overwrites existing files instead of creating new ones with a suffix.
+ *   - `cancelWord` - A keyword that cancels processing if found in the result.
+ *   - `concurrency` - Number of files to process concurrently.
+ *   - Other options passed to the transformation process.
+ *
+ * @throws Error if the script is not found or no files match the given patterns.
+ *
+ * Resolves files matching the provided patterns, filters them based on exclusion and rewrite options, 
+ * applies AI transformations using the specified script, and writes results to output files.
+ */
 export async function convertFiles(
     scriptId: string,
     fileGlobs: string[],
@@ -134,6 +151,8 @@ export async function convertFiles(
         (filename) => ({ filename }) as WorkspaceFile
     )
 
+    const stats: object[] = []
+    const usage = new GenerationStats("convert")
     const results: Record<string, string> = {}
     const p = new PLimitPromiseQueue(normalizeInt(concurrency) || 1)
     await p.mapAll(files, async (file) => {
@@ -147,6 +166,7 @@ export async function convertFiles(
         const fileTrace = convertTrace.startTraceDetails(file.filename)
         convertTrace.item(link("trace", fileOutTrace))
         logVerbose(`trace: ${fileOutTrace}`)
+        const m = measure("convert")
         try {
             // apply AI transformation
             const result = await run(script.filename, file.filename, {
@@ -173,6 +193,9 @@ export async function convertFiles(
                 fileTrace.itemValue(`cancel word detected`, cancelWord)
                 return
             }
+            const end = m()
+            usage.addUsage(result.stats, end)
+            if (result.stats) stats.push(result.stats)
             logVerbose(Object.keys(result.fileEdits || {}).join("\n"))
             // structured extraction
             const fileEdit = Object.entries(result.fileEdits || {}).find(
@@ -237,5 +260,9 @@ export async function convertFiles(
         }
     })
 
+    usage.log()
+    usage.trace(convertTrace)
+
+    convertTrace.table(stats)
     logVerbose(`trace: ${outTraceFilename}`)
 }

@@ -7,13 +7,11 @@
  */
 import { delay, uniq, uniqBy, chunk, groupBy } from "es-toolkit"
 import { z } from "zod"
-import { pipeline } from "@huggingface/transformers"
-import debug from "debug"
 
 /**
  * Utility functions exported for general use
  */
-export { delay, uniq, uniqBy, z, pipeline, chunk, groupBy, debug }
+export { delay, uniq, uniqBy, z, chunk, groupBy }
 
 /**
  * Options for classifying data using AI models.
@@ -38,14 +36,14 @@ export type ClassifyOptions = {
 } & Omit<PromptGeneratorOptions, "choices">
 
 /**
- * Classifies input text into predefined categories using AI
- * Inspired by https://github.com/prefecthq/marvin
+ * Classifies input text into predefined categories using AI.
+ * Inspired by https://github.com/prefecthq/marvin.
  *
- * @param text - Text content to classify or a prompt generator function
- * @param labels - Object mapping label names to their descriptions
- * @param options - Configuration options for classification
- * @returns Classification result containing the chosen label and confidence metrics
- * @throws Error if fewer than two labels are provided
+ * @param text - Text content to classify or a prompt generator function.
+ * @param labels - Object mapping label names to their descriptions.
+ * @param options - Configuration options for classification, including whether to add an "other" category, provide explanations, and specify context.
+ * @returns Classification result containing the chosen label, confidence metrics, and the full answer text.
+ * @throws Error if fewer than two labels are provided (including "other").
  */
 export async function classify<L extends Record<string, string>>(
     text: StringLike | PromptGenerator,
@@ -156,12 +154,12 @@ no
 }
 
 /**
- * Enhances content generation by applying iterative improvements
+ * Enhances content generation by applying iterative improvements.
  *
- * @param options - Configuration for the improvement process
- * @param options.ctx - Chat generation context to use
- * @param options.repeat - Number of improvement iterations to perform
- * @param options.instructions - Custom instructions for improvement
+ * @param options - Configuration for the improvement process.
+ * @param options.ctx - Chat generation context to use.
+ * @param options.repeat - Number of improvement iterations to perform. Defaults to 1.
+ * @param options.instructions - Custom instructions for improvement. Defaults to "Make it better!".
  */
 export function makeItBetter(options?: {
     ctx?: ChatGenerationContext
@@ -181,13 +179,13 @@ export function makeItBetter(options?: {
 }
 
 /**
- * Converts unstructured text or data into structured JSON format
- * Inspired by https://github.com/prefecthq/marvin
+ * Converts unstructured text or data into structured JSON format.
+ * Inspired by https://github.com/prefecthq/marvin.
  *
- * @param data - Input text or prompt generator to convert
- * @param itemSchema - JSON schema defining the target data structure
- * @param options - Configuration options for the conversion
- * @returns Object containing the converted data or error information
+ * @param data - Input text or a prompt generator function to convert.
+ * @param itemSchema - JSON schema defining the target data structure. If `multiple` is true, this will be treated as an array schema.
+ * @param options - Configuration options for the conversion process, including context, instructions, and additional settings.
+ * @returns An object containing the converted data, error information if applicable, and the raw text response.
  */
 export async function cast(
     data: StringLike | PromptGenerator,
@@ -237,11 +235,11 @@ export async function cast(
 }
 
 /**
- * Converts a PDF file to markdown format with intelligent formatting preservation
+ * Converts a PDF file to markdown format with intelligent formatting preservation.
  *
- * @param file - PDF file to convert
- * @param options - Configuration options for PDF processing and markdown conversion
- * @returns Object containing original pages, rendered images, and markdown content
+ * @param file - PDF file to convert.
+ * @param options - Configuration options for PDF processing and markdown conversion, including instructions, context, and additional settings.
+ * @returns An object containing the original pages, rendered images, and markdown content for each page.
  */
 export async function markdownifyPdf(
     file: WorkspaceFile,
@@ -319,16 +317,16 @@ export async function markdownifyPdf(
 }
 
 /**
- * Creates a tree representation of files in the workspace
+ * Creates a tree representation of files in the workspace.
  *
- * @param glob - Glob pattern to match files
- * @param options - Configuration options for tree generation
- * @param options.query - Optional search query to filter files
- * @param options.size - Include file sizes in output
- * @param options.ignore - Patterns to exclude from results
- * @param options.frontmatter - Frontmatter fields to extract from markdown
- * @param options.preview - Custom function to generate file previews
- * @returns Formatted string representing the file tree
+ * @param glob - Glob pattern to match files.
+ * @param options - Configuration options for tree generation.
+ * @param options.query - Optional search query to filter files.
+ * @param options.size - Whether to include file sizes in the output.
+ * @param options.ignore - Patterns to exclude from the results.
+ * @param options.frontmatter - Frontmatter fields to extract from markdown files.
+ * @param options.preview - Custom function to generate file previews based on file and stats.
+ * @returns A formatted string representing the file tree structure.
  */
 export async function fileTree(
     glob: string,
@@ -432,8 +430,11 @@ export async function fileTree(
 }
 
 /**
- * Injects @mozilla/readability into a page to extract data.
- * Technique used in the llm-scraper project
+ * Injects @mozilla/readability into a page to extract structured data from an article.
+ * This function evaluates the page content using the Readability library to parse and extract details such as title, content, text, and metadata.
+ * 
+ * @param page - The browser page instance to evaluate and extract content from.
+ * @returns An object containing the parsed article details or null if parsing fails.
  * @see https://github.com/mishushakov/llm-scraper/
  */
 export async function parseReadableContent<T = string>(

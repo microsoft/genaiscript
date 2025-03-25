@@ -211,7 +211,13 @@ export interface FileOutputNode extends PromptNode {
     output: FileOutput // File output information
 }
 
-// Function to create a text node.
+/**
+ * Creates a text node with the specified value and optional context expansion options.
+ * 
+ * @param value - The string value for the text node. Must not be undefined. Can be awaitable.
+ * @param options - Configuration for context expansion. Optional.
+ * @returns A text node object with the specified value and options.
+ */
 export function createTextNode(
     value: Awaitable<string>,
     options?: ContextExpansionOptions
@@ -220,6 +226,14 @@ export function createTextNode(
     return { type: "text", value, ...(options || {}) }
 }
 
+/**
+ * Converts a definition name to a reference name based on the fence format.
+ *
+ * @param name - The name of the definition. If null or empty, no conversion occurs.
+ * @param options - Configuration options, including the desired fence format.
+ *                  If the `fenceFormat` is "xml", the name is wrapped in XML-like tags.
+ * @returns The converted reference name, wrapped in XML tags if applicable.
+ */
 export function toDefRefName(
     name: string,
     options: FenceFormatOptions
@@ -252,6 +266,15 @@ function cloneContextFields(n: PromptNode): Partial<PromptNode> {
     return r
 }
 
+/**
+ * Creates a definition node representing a diff between two files or strings.
+ *
+ * @param name - The name of the diff node.
+ * @param left - The left-hand input to compare, can be a string or a file.
+ * @param right - The right-hand input to compare, can be a string or a file.
+ * @param options - Additional options for rendering, tracing, and handling the diff node.
+ * @returns A prompt definition node containing the diff results.
+ */
 export function createDefDiff(
     name: string,
     left: string | WorkspaceFile,
@@ -389,7 +412,12 @@ ${trimNewlines(text)}
     return value
 }
 
-// Function to create an assistant node.
+/**
+ * Creates a node representing an assistant message in a prompt.
+ * @param value The content of the assistant message. Must be defined and resolvable.
+ * @param options Optional settings for context expansion. Defaults to an empty object if not provided.
+ * @returns The created assistant node.
+ */
 export function createAssistantNode(
     value: Awaitable<string>,
     options?: ContextExpansionOptions
@@ -398,6 +426,13 @@ export function createAssistantNode(
     return { type: "assistant", value, ...(options || {}) }
 }
 
+/**
+ * Creates a system node with the specified content and optional context expansion settings.
+ *
+ * @param value - The content of the system node, which can be provided asynchronously. Must be defined.
+ * @param options - Optional configuration for context expansion, including token limits and priority.
+ * @returns A system node object containing the specified content and options.
+ */
 export function createSystemNode(
     value: Awaitable<string>,
     options?: ContextExpansionOptions
@@ -406,7 +441,14 @@ export function createSystemNode(
     return { type: "system", value, ...(options || {}) }
 }
 
-// Function to create a string template node.
+/**
+ * Creates a string template node with the given template strings, arguments, and optional settings.
+ * 
+ * @param strings - The template literal strings to include in the node.
+ * @param args - The arguments to interpolate into the template.
+ * @param options - Optional settings for context expansion or additional properties to include in the node.
+ * @returns The created string template node.
+ */
 export function createStringTemplateNode(
     strings: TemplateStringsArray,
     args: any[],
@@ -422,7 +464,13 @@ export function createStringTemplateNode(
     }
 }
 
-// Function to create an image node.
+/**
+ * Creates an image node with the specified value and optional context expansion options.
+ * 
+ * @param value - The image data or prompt used to create the node. Must not be null or undefined.
+ * @param options - Optional context expansion options to include in the node.
+ * @returns The created image node.
+ */
 export function createImageNode(
     value: Awaitable<PromptImage>,
     options?: ContextExpansionOptions
@@ -431,7 +479,14 @@ export function createImageNode(
     return { type: "image", value, ...(options || {}) }
 }
 
-// Function to create a schema node.
+/**
+ * Creates a schema node with a specified name, value, and optional configuration.
+ * 
+ * Parameters:
+ * - name: The name of the schema node. Must not be empty. Throws if empty.
+ * - value: The schema definition or a Zod type to be converted to JSON Schema. Automatically converts Zod types if applicable. Must not be undefined. Throws if undefined.
+ * - options: Optional configuration for the schema node.
+ */
 export function createSchemaNode(
     name: string,
     value: JSONSchema | ZodTypeLike,
@@ -472,7 +527,12 @@ export function createFileMerge(fn: FileMergeHandler): PromptFileMergeNode {
     return { type: "fileMerge", fn }
 }
 
-// Function to create an output processor node.
+/**
+ * Creates and returns an output processor node with a specified handler function.
+ *
+ * @param fn - The handler function to process prompt outputs. Must not be undefined. Throws an error if undefined.
+ * @returns An output processor node containing the handler function.
+ */
 export function createOutputProcessor(
     fn: PromptOutputProcessorHandler
 ): PromptOutputProcessorNode {
@@ -480,14 +540,22 @@ export function createOutputProcessor(
     return { type: "outputProcessor", fn }
 }
 
-// Function to create a chat participant node.
+/**
+ * Creates a node representing a chat participant.
+ * @param participant - The chat participant to represent in the node.
+ * @returns A node object with the participant's details.
+ */
 export function createChatParticipant(
     participant: ChatParticipant
 ): PromptChatParticipantNode {
     return { type: "chatParticipant", participant }
 }
 
-// Function to create a file output node.
+/**
+ * Creates a file output node with the specified output.
+ * @param output - The file output to include in the node.
+ * @returns A file output node containing the specified output.
+ */
 export function createFileOutput(output: FileOutput): FileOutputNode {
     return { type: "fileOutput", output } satisfies FileOutputNode
 }
@@ -507,6 +575,14 @@ export function createImportTemplate(
     } satisfies PromptImportTemplate
 }
 
+/**
+ * Creates a node representing an MCP (Multiple Connection Protocol) server with specified configurations.
+ * 
+ * @param id - Unique identifier for the MCP server.
+ * @param config - Configuration object containing details necessary for the MCP server setup.
+ * @param options - Optional additional parameters or settings for server configuration.
+ * @returns An MCP server node configured with the provided details.
+ */
 export function createMcpServer(
     id: string,
     config: McpServerConfig,
@@ -657,6 +733,12 @@ export interface PromptNodeRender {
     disposables: AsyncDisposable[] // Disposables
 }
 
+/**
+ * Determines the default fence format for a given model ID.
+ * 
+ * @param modelid - The identifier of the model for which the fence format is to be resolved.
+ * @returns The default fence format for the specified model.
+ */
 export function resolveFenceFormat(modelid: string): FenceFormat {
     return DEFAULT_FENCE_FORMAT
 }
@@ -1168,7 +1250,21 @@ async function deduplicatePromptNode(trace: MarkdownTrace, root: PromptNode) {
     return mod
 }
 
-// Main function to render a prompt node.
+/**
+ * Main function to render a prompt node.
+ * 
+ * Resolves, deduplicates, flexes, truncates, and validates the prompt node.
+ * Handles various node types including text, system, assistant, schemas, tools, images, file merges, outputs, and more.
+ * Supports tracing, safety validation, token management, and MCP server integration.
+ * 
+ * Parameters:
+ * - modelId: Identifier for the model.
+ * - node: The prompt node to render.
+ * - options: Optional configurations for model templates, tracing, cancellation, token flexibility, and MCP server handling.
+ * 
+ * Returns:
+ * - A rendered prompt node with associated metadata, messages, resources, tools, errors, and disposables.
+ */
 export async function renderPromptNode(
     modelId: string,
     node: PromptNode,
@@ -1378,6 +1474,23 @@ ${trimNewlines(schemaText)}
     return res
 }
 
+/**
+ * Finalizes chat messages for processing.
+ *
+ * @param messages - The list of chat messages to finalize.
+ * @param options - Additional configuration options.
+ *   - fileOutputs: Rules for generating file outputs, described as pattern-description pairs.
+ *   - responseType: The type of response expected (e.g., JSON, YAML).
+ *   - responseSchema: Schema for validating or generating response objects.
+ *   - trace: Object for logging trace information during processing.
+ *   - secretScanning: Whether to run secret scanning on the messages to redact sensitive information.
+ *
+ * Adds system messages for file generation rules and response schema if specified.
+ * Validates and adjusts chat messages based on schema requirements.
+ * Scans and redacts secrets from messages when enabled.
+ *
+ * @returns An object containing response type and schema details.
+ */
 export function finalizeMessages(
     messages: ChatCompletionMessageParam[],
     options: {

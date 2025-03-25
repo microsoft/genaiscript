@@ -19,6 +19,14 @@ export interface TextChunk {
     endOverlap: number[]
 }
 
+/**
+ * Rebuilds the original text from an array of text chunks.
+ * 
+ * @param text - The original text that was split into chunks.
+ * @param chunks - An array of text chunks containing information about the segmented portions of the text.
+ * 
+ * @returns The reconstructed text built by combining all text chunks and their respective positions.
+ */
 export function unchunk(text: string, chunks: TextChunk[]) {
     let rebuild = ""
     for (let i = 0; i < chunks.length; i++) {

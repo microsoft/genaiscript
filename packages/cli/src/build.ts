@@ -9,8 +9,8 @@ import { arrayify } from "../../core/src/util"
  *
  * @param options - Optional configuration for building the project.
  * @param options.toolFiles - Specific tool files to include in the build.
- * @param options.toolsPath - Path to search for tool files if none are provided.
- * @returns A promise that resolves to the new project structure.
+ * @param options.toolsPath - Path or paths to search for tool files if none are provided.
+ * @returns A promise that resolves to the newly parsed project structure.
  */
 export async function buildProject(options?: {
     toolFiles?: string[]

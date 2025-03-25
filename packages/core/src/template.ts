@@ -25,10 +25,11 @@ function templateIdFromFileName(filename: string) {
 }
 
 /**
- * Parses script metadata from the given JavaScript source.
+ * Parses metadata from the provided JavaScript source code. Determines the script type
+ * (e.g., "system" or "script"), extracts metadata, and identifies tools defined in the script.
  *
- * @param jsSource - The JavaScript source code of the script.
- * @returns A PromptArgs object containing the parsed metadata.
+ * @param jsSource - The JavaScript source code to analyze.
+ * @returns An object containing extracted metadata, tool definitions, and system-specific properties.
  */
 export function parsePromptScriptMeta(
     jsSource: string
@@ -92,7 +93,6 @@ async function parsePromptTemplateCore(filename: string, content: string) {
  *
  * @param filename - The filename of the script.
  * @param content - The content of the script.
- * @param prj - The Project instance containing diagnostics.
  * @returns The parsed PromptScript or undefined in case of errors.
  */
 export async function parsePromptScript(filename: string, content: string) {

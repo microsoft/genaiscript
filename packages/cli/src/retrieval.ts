@@ -4,6 +4,17 @@ import { fuzzSearch } from "../../core/src/fuzzsearch"
 import { vectorIndex, vectorSearch } from "../../core/src/vectorsearch"
 import { YAMLStringify } from "../../core/src/yaml"
 
+/**
+ * Generates a vector index for retrieval tasks by processing specified files.
+ *
+ * @param indexName - Name of the index to be created.
+ * @param filesGlobs - Glob patterns defining the target files for indexing.
+ * @param options - Additional configuration options.
+ *   @param excludedFiles - List of files to exclude from indexing.
+ *   @param embeddingsModel - Model used to generate embeddings.
+ *   @param ignoreGitIgnore - Whether to bypass .gitignore rules.
+ *   @param database - Backend type for storing the generated index.
+ */
 export async function retrievalIndex(
     indexName: string,
     filesGlobs: string[],
@@ -42,8 +53,10 @@ export async function retrievalIndex(
  * @param options - Additional options for the search.
  *   @param excludedFiles - Files to exclude from the search.
  *   @param topK - The number of top results to return.
+ *   @param minScore - The minimum score threshold for results.
  *   @param name - Index name for storing vectors.
  *   @param embeddingsModel - Model to use for generating embeddings.
+ *   @param ignoreGitIgnore - Whether to ignore .gitignore rules.
  */
 export async function retrievalSearch(
     q: string,
@@ -95,10 +108,12 @@ export async function retrievalSearch(
  * Uses fuzzy matching to find approximate matches for a query.
  *
  * @param q - The query string to search for.
- * @param filesGlobs - Glob patterns specifying which files to search.
+ * @param filesGlobs - Glob patterns specifying which files to search. Defaults to all files if not provided.
  * @param options - Additional options for the search.
- *   @param excludedFiles - Files to exclude from the search.
+ *   @param excludedFiles - Files to exclude from the search. Defaults to excluding node_modules if not provided.
  *   @param topK - The number of top results to return.
+ *   @param minScore - The minimum score threshold for matches.
+ *   @param ignoreGitIgnore - Whether to ignore .gitignore rules.
  */
 export async function retrievalFuzz(
     q: string,

@@ -7,9 +7,9 @@ import { errorMessage } from "./error"
 import { promptParametersSchemaToJSONSchema } from "./parameters"
 
 /**
- * Check if an object is a JSON Schema
- * @param obj - The object to check
- * @returns true if the object is a JSON Schema
+ * Checks if the given object is a valid JSON Schema.
+ * @param obj - The object to validate as a JSON Schema.
+ * @returns True if the object is a valid JSON Schema, false otherwise.
  */
 export function isJSONSchema(obj: any) {
     if (typeof obj === "object" && obj.type === "object") return true
@@ -17,6 +17,12 @@ export function isJSONSchema(obj: any) {
     return false
 }
 
+/**
+ * Converts a JSON Schema into a TypeScript function parameters string.
+ * 
+ * @param schema - The JSON Schema to convert. Supports objects, arrays, and primitive types.
+ * @returns A string representation of function parameters, compatible with the provided schema.
+ */
 export function JSONSchemaToFunctionParameters(schema: JSONSchemaType): string {
     if (!schema) return ""
     else if ((schema as JSONSchemaAnyOf).anyOf) {
@@ -46,10 +52,11 @@ export function JSONSchemaToFunctionParameters(schema: JSONSchemaType): string {
 }
 
 /**
- * Converts a JSON Schema to a TypeScript type definition as a string
- * @param schema - The JSON Schema
- * @param options - Optional settings for type name and export
- * @returns TypeScript type definition string
+ * Converts a JSON Schema into a TypeScript type definition string.
+ * @param schema - The JSON Schema to convert. Supports objects, arrays, and primitive types.
+ * @param options - Optional settings, including the type name and whether to export the type.
+ *                  The typeName specifies the name of the generated type.
+ * @returns The TypeScript type definition as a string, including JSDoc comments for schema descriptions.
  */
 export function JSONSchemaStringifyToTypeScript(
     schema: JSONSchema | JSONSchemaType,
@@ -172,9 +179,9 @@ export function JSONSchemaStringifyToTypeScript(
 }
 
 /**
- * Validate a JSON schema using Ajv
- * @param schema - The JSON Schema to validate
- * @returns Promise with validation result
+ * Validates a JSON Schema using Ajv.
+ * @param schema - The JSON Schema to validate.
+ * @returns A Promise resolving with the validation result, indicating whether the schema is valid or not.
  */
 export async function validateSchema(schema: JSONSchema) {
     const ajv = new Ajv()
@@ -182,11 +189,11 @@ export async function validateSchema(schema: JSONSchema) {
 }
 
 /**
- * Validate a JSON object against a given JSON schema
- * @param object - The JSON object to validate
- * @param schema - The JSON Schema
- * @param options - Optional trace for debugging
- * @returns Validation result with success status and error message if any
+ * Validates a JSON object against a specified JSON schema.
+ * @param object - The JSON object to validate.
+ * @param schema - The JSON schema to validate against.
+ * @param options - Optional debugging options, including trace for logging validation details.
+ * @returns Validation result indicating success status and error details if validation fails.
  */
 export function validateJSONWithSchema(
     object: any,
@@ -224,11 +231,12 @@ export function validateJSONWithSchema(
 }
 
 /**
- * Validate multiple JSON or YAML fences against given schemas
- * @param fences - Array of fenced code blocks
- * @param schemas - Map of schema names to JSON Schemas
- * @param options - Optional trace for debugging
- * @returns Array of data frames with validation results
+ * Validates multiple JSON or YAML code blocks against specified schemas.
+ * 
+ * @param fences - Array of code blocks with metadata, language, and content to validate.
+ * @param schemas - Mapping of schema names to JSON Schemas used for validation.
+ * @param options - Optional debugging settings, including trace for logging validation details.
+ * @returns Array of data frames containing validation results, parsed data, and associated schemas.
  */
 export function validateFencesWithSchema(
     fences: Fenced[],
@@ -282,9 +290,9 @@ export function validateFencesWithSchema(
 }
 
 /**
- * Converts a JSON Schema to a JSON string
- * @param schema - The JSON Schema
- * @returns JSON string representation of the schema
+ * Converts a JSON Schema into its JSON string representation.
+ * @param schema - The JSON Schema to be converted, including optional $schema property.
+ * @returns The formatted JSON string representation of the schema.
  */
 export function JSONSchemaStringify(schema: JSONSchema) {
     return JSON.stringify(
@@ -299,9 +307,13 @@ export function JSONSchemaStringify(schema: JSONSchema) {
 }
 
 /**
- * Converts a schema to a strict JSON Schema
- * @param schema - The schema to convert
- * @returns A strict JSON Schema
+ * Converts a schema to a strict JSON Schema by enforcing stricter validation rules.
+ * Ensures all fields are required and disallows additional properties.
+ * Recursively processes nested schemas to apply strict constraints.
+ * Deletes unsupported properties like uiType and uiSuggestions.
+ * Throws an error if the top-level schema is not an object or if additionalProperties is true.
+ * @param schema - The schema to convert, either a PromptParametersSchema or JSONSchema.
+ * @returns A strict JSON Schema with enforced constraints.
  */
 export function toStrictJSONSchema(
     schema: PromptParametersSchema | JSONSchema
@@ -358,6 +370,13 @@ export function toStrictJSONSchema(
     return clone
 }
 
+/**
+ * Infers a JSON Schema from the given object.
+ * 
+ * @param obj - The input object for which to infer a JSON Schema.
+ *               This can include nested objects, arrays, and primitives.
+ * @returns A Promise resolving to the inferred JSON Schema.
+ */
 export async function JSONSchemaInfer(obj: any): Promise<JSONSchema> {
     const res = promptParametersSchemaToJSONSchema(obj, { noDefaults: true })
     return res

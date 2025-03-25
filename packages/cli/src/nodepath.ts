@@ -12,7 +12,8 @@ import { changeext } from "../../core/src/fs"
 
 /**
  * Creates a frozen object that provides various path manipulation functions.
- * @returns {Path} A frozen object with methods for path handling.
+ * Includes methods for operations such as getting directory names, extensions, basenames, joining paths, normalizing paths, resolving paths, checking if a path is absolute, and changing file extensions.
+ * @returns A frozen object with methods for path handling.
  */
 export function createNodePath(): Path {
     // Return a frozen object containing path manipulation functions.

@@ -118,11 +118,12 @@ async function resolveExpansionVars(
 // Main function to run a template with given options
 /**
  * Executes a prompt template with specified options.
- * @param prj The project context.
- * @param template The prompt script template.
- * @param fragment The fragment containing additional context.
- * @param options Options for generation, including model and trace.
- * @returns A generation result with details of the execution.
+ *
+ * @param prj The project context providing runtime and configuration.
+ * @param template The prompt script template to execute.
+ * @param fragment Additional context such as files, workspace files, and metadata.
+ * @param options Configuration for generation, including model, trace, output trace, cancellation token, and other generation parameters.
+ * @returns A generation result containing execution details, outputs, and potential errors, including status, messages, edits, annotations, and file changes.
  */
 export async function runTemplate(
     prj: Project,

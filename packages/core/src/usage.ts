@@ -21,11 +21,11 @@ import {
 } from "./pretty"
 
 /**
- * Estimates the cost of a chat completion based on the model and usage.
+ * Estimates the cost of a chat completion based on model pricing and token usage.
  *
  * @param modelId - The identifier of the model used for chat completion.
- * @param usage - The usage statistics for the chat completion.
- * @returns The estimated cost or undefined if estimation is not possible.
+ * @param usage - The token usage statistics, including prompt, completion, and cached tokens.
+ * @returns The estimated cost, or undefined if pricing data is unavailable.
  */
 export function estimateCost(modelId: string, usage: ChatCompletionUsage) {
     if (!modelId || !usage.total_tokens) return undefined
@@ -50,6 +50,13 @@ export function estimateCost(modelId: string, usage: ChatCompletionUsage) {
     return (input + output) / 1e6
 }
 
+/**
+ * Determines whether the specified model has associated pricing data, and is
+ * therefore costeable.
+ *
+ * @param model - The identifier of the model to check.
+ * @returns True if the model has pricing data available, otherwise false.
+ */
 export function isCosteable(model: string): boolean {
     const { provider } = parseModelIdentifier(model)
     const prefix = `${provider}:`
@@ -301,24 +308,9 @@ export class GenerationStats {
             logVerbose(`missing pricing for ${[...unknowns].join(", ")}`)
     }
 
-    /**
-     * Adds usage statistics to the current instance.
-     *
-     * @param req - The request containing details about the chat completion.
-     * @param usage - The usage statistics to be added.
-     */
-    addUsage(req: CreateChatCompletionRequest, resp: ChatCompletionResponse) {
-        const {
-            usage = { completion_tokens: 0, prompt_tokens: 0, total_tokens: 0 },
-            model,
-            cached,
-            duration,
-        } = resp
-        const { messages } = req
-
-        if (!cached) {
-            this.usage.duration += duration ?? 0
-
+    addUsage(usage: ChatCompletionUsage, duration?: number) {
+        this.usage.duration += duration ?? 0
+        if (usage) {
             this.usage.completion_tokens += usage.completion_tokens ?? 0
             this.usage.prompt_tokens += usage.prompt_tokens ?? 0
             this.usage.total_tokens += usage.total_tokens ?? 0
@@ -335,6 +327,29 @@ export class GenerationStats {
                 usage.completion_tokens_details?.accepted_prediction_tokens ?? 0
             this.usage.completion_tokens_details.rejected_prediction_tokens +=
                 usage.completion_tokens_details?.rejected_prediction_tokens ?? 0
+        }
+    }
+
+    /**
+     * Adds usage statistics to the current instance.
+     *
+     * @param req - The request containing details about the chat completion.
+     * @param usage - The usage statistics to be added.
+     */
+    addRequestUsage(
+        req: CreateChatCompletionRequest,
+        resp: ChatCompletionResponse
+    ) {
+        const {
+            usage = { completion_tokens: 0, prompt_tokens: 0, total_tokens: 0 },
+            model,
+            cached,
+            duration,
+        } = resp
+        const { messages } = req
+
+        if (!cached) {
+            this.addUsage(usage, duration)
         }
 
         const { provider } = parseModelIdentifier(this.model)

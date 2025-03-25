@@ -27,9 +27,12 @@ export interface TraceTree {
 }
 
 /**
- * Parses a string into a TraceTree structure, creating nodes for details and items.
- * @param text - The text representing the trace tree.
- * @returns The parsed TraceTree structure.
+ * Parses a string into a TraceTree structure with details and item nodes.
+ * @param text - The input string to parse into a tree structure.
+ * @param options - Optional settings for parsing, including whether to parse item nodes and which details nodes should be open.
+ * @param options.parseItems - Flag to indicate if item nodes should be parsed.
+ * @param options.openeds - Set of IDs for details nodes that should be open.
+ * @returns The generated TraceTree structure containing the root node and a dictionary of nodes by ID.
  */
 export function parseTraceTree(
     text: string,
@@ -128,8 +131,9 @@ export function parseTraceTree(
 
 /**
  * Renders a TraceNode into a markdown string.
- * @param node - The trace node to render.
- * @returns A string representing the markdown of the node.
+ * @param node - The node to render. Can be a string, details node, or item node.
+ * @param level - The depth level to render. Limits details expansion to this level.
+ * @returns A markdown representation of the node. Returns "..." if the level is 0 for details nodes.
  */
 export function renderTraceTree(node: TraceNode, level: number): string {
     if (!node) return ""

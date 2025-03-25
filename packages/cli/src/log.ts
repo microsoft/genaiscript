@@ -12,6 +12,7 @@ import { consoleColors, wrapColor } from "../../core/src/consolecolor"
 
 /**
  * Logs informational messages with optional color.
+ * Combines string and number arguments into a single colored message if applicable.
  * Utilizes console.error to print to stderr.
  * @param args - The arguments to log
  */
@@ -23,6 +24,7 @@ export function info(...args: any[]) {
  * Logs debug messages with optional color.
  * Suppresses output if 'isQuiet' is true.
  * Utilizes console.error to print to stderr.
+ * Combines arguments into a single message if they are strings or numbers.
  * @param args - The arguments to log
  */
 export function debug(...args: any[]) {
@@ -31,6 +33,7 @@ export function debug(...args: any[]) {
 
 /**
  * Logs warning messages with optional color.
+ * Combines string and number arguments into a single colored message if applicable.
  * Utilizes console.error to print to stderr.
  * @param args - The arguments to log
  */
@@ -41,6 +44,7 @@ export function warn(...args: any[]) {
 /**
  * Logs error messages with optional color.
  * Utilizes console.error to print to stderr.
+ * Combines string and number arguments into a single colored message if consoleColors is enabled.
  * @param args - The arguments to log
  */
 export function error(...args: any[]) {

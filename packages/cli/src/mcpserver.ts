@@ -12,6 +12,15 @@ import { setConsoleColors } from "../../core/src/consolecolor"
 import { startProjectWatcher } from "./watch"
 import { applyRemoteOptions, RemoteOptions } from "./remote"
 
+/**
+ * Starts the MCP server.
+ *
+ * @param options - Configuration options for the server that may include script filtering options and remote settings.
+ *    - `options.scriptFilter` - Defines filters to apply to script discovery.
+ *    - `options.remote` - Configuration for remote execution and related options.
+ *
+ * Initializes and sets up the server with appropriate request handlers for listing tools and executing specific tool commands. Monitors project changes through a watcher and updates the tool list when changes occur. Uses a transport layer to handle server communication over standard I/O.
+ */
 export async function startMcpServer(
     options?: ScriptFilterOptions & RemoteOptions
 ) {

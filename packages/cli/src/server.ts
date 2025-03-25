@@ -68,7 +68,16 @@ import { applyRemoteOptions, RemoteOptions } from "./remote"
 
 /**
  * Starts a WebSocket server for handling chat and script execution.
- * @param options - Configuration options including port and optional API key.
+ * 
+ * @param options - Configuration options including:
+ *   - port: The port to run the WebSocket server on.
+ *   - httpPort: Optional HTTP port for additional services.
+ *   - apiKey: Optional API key for authentication.
+ *   - cors: Optional CORS configuration.
+ *   - network: Whether to allow network access.
+ *   - dispatchProgress: Whether to dispatch progress updates to all clients.
+ *   - githubCopilotChatClient: Whether to enable GitHub Copilot Chat client integration.
+ *   - remote: Remote configuration options.
  */
 export async function startServer(
     options: {

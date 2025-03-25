@@ -10,9 +10,9 @@ import { fenceMD } from "./mkmd"
 import { convertThinkToMarkdown } from "./think"
 
 /**
- * Prettifies markdown content by converting annotations and cleaning excessive newlines.
- * @param md - The markdown string to be prettified.
- * @returns The prettified markdown string.
+ * Prettifies markdown content by converting annotations to markdown, processing "think" blocks, and collapsing excessive newlines.
+ * @param md - The markdown string to prettify.
+ * @returns The cleaned and formatted markdown string.
  */
 export function prettifyMarkdown(md: string) {
     let res = md
@@ -23,9 +23,12 @@ export function prettifyMarkdown(md: string) {
 }
 
 /**
- * Renders an object to a markdown string.
- * @param obj - The object to render.
- * @returns A string representing the markdown of the object.
+ * Converts an object to a markdown string with options for quoting values, limiting heading levels, and customizing indentation.
+ * Handles circular references by replacing them with ellipses.
+ * Supports rendering arrays, objects, and strings with optional quoting.
+ * @param obj - The object to convert.
+ * @param options - Optional settings for quoting string values, maximum heading depth, and base heading level.
+ * @returns The markdown representation of the object.
  */
 export function MarkdownStringify(
     obj: any,

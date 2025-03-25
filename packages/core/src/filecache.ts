@@ -10,6 +10,16 @@ import { logVerbose } from "./util"
 import { dotGenaiscriptPath } from "./workdir"
 import { prettyBytes } from "./pretty"
 
+/**
+ * Caches a file by writing it to a specified directory. If the file exists, it simply returns the path.
+ *
+ * @param dir - The directory where the file will be cached.
+ * @param bufferLike - The data to be written, can be a buffer-like object.
+ * @param options - Optional configurations, including tracing options and cancellation options.
+ *   - cancellationToken - Token to support operation cancellation.
+ *
+ * @returns The path to the cached file.
+ */
 export async function fileWriteCached(
     dir: string,
     bufferLike: BufferLike,
@@ -36,6 +46,17 @@ export async function fileWriteCached(
     return fn
 }
 
+/**
+ * Caches an image locally if it is not a URL. Returns the path to the cached file or the original URL.
+ * 
+ * @param url - The source of the image. If it is a URL, it is returned as is. If it is a local file path, it will be cached.
+ * @param options - Optional settings for tracing, cancellation, and output directory.
+ *    - dir: Custom directory to store the cached file. Defaults to a pre-defined image cache directory.
+ *    - trace: Trace option for debugging or logging purposes.
+ *    - cancellationToken: Token to handle operation cancellation.
+ * 
+ * @returns The relative path to the cached file or the original URL if it is a remote target.
+ */
 export async function fileCacheImage(
     url: string,
     options?: TraceOptions & CancellationOptions & { dir?: string }

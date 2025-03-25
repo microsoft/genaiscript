@@ -18,9 +18,10 @@ import { unfence } from "./unwrappers"
 import { unthink } from "./think"
 
 /**
- * Checks if a given text is a JSON object or array.
- * @param text - The string to check.
- * @returns True if the text starts with '{' or '[', indicating a JSON object or array.
+ * Checks if the input text starts with '{' or '[', indicating a JSON object or array.
+ * Removes leading whitespace before evaluation.
+ * @param text - The input string to check.
+ * @returns True if the string starts with '{' or '[', false otherwise.
  */
 export function isJSONObjectOrArray(text: string) {
     // Tests if the input string starts with '{' or '[' after removing any leading whitespace.
@@ -28,9 +29,9 @@ export function isJSONObjectOrArray(text: string) {
 }
 
 /**
- * Attempts to parse text as JSON. Returns undefined if fails.
- * @param text
- * @returns
+ * Parses the input text as JSON. Returns undefined if parsing fails.
+ * @param text - The input string to parse as JSON.
+ * @returns The parsed object or undefined if parsing fails.
  */
 export function JSONTryParse(text: string) {
     try {
@@ -53,9 +54,13 @@ export function JSONrepair(text: string) {
 
 /**
  * Parses a JSON5 string with optional error handling and repair.
+ * Removes fencing if present.
  * @param text - The JSON5 string to parse.
- * @param options - Parsing options including default value, error handling, and repair.
- * @returns The parsed object, default value, or undefined/null based on options.
+ * @param options - An object containing:
+ *   - defaultValue: The value to return if parsing fails.
+ *   - errorAsDefaultValue: Whether to return the default value on error.
+ *   - repair: Whether to attempt repairing the input before parsing.
+ * @returns The parsed object, the default value, or undefined/null based on options.
  */
 export function JSON5parse<T = unknown>(
     text: string,
@@ -97,7 +102,13 @@ export function JSON5parse<T = unknown>(
  * @param defaultValue - The value to return if parsing fails.
  * @returns The parsed object or the default value.
  */
-// eslint-disable-next-line @typescript-eslint/naming-convention
+/**
+ * Tries to parse a JSON5 string and returns a default value if parsing fails.
+ *
+ * @param text - The JSON5 string to parse. Can be undefined, null, or empty.
+ * @param defaultValue - The value to return if parsing fails or if the input is empty.
+ * @returns The parsed object, default value, or null/undefined based on input.
+ */
 export function JSON5TryParse<T = unknown>(
     text: string | undefined | null,
     defaultValue?: T
@@ -113,9 +124,11 @@ export function JSON5TryParse<T = unknown>(
 }
 
 /**
- * Attempts to parse a JSON-like string, removing any fencing, and returns the parsed object.
- * @param s - The string to parse.
- * @returns The parsed object or the original string if parsing fails.
+ * Parses a JSON-like string, removes fencing and unnecessary formatting, and returns the parsed object.
+ * If the input is undefined or null, returns it as-is. If the input is an empty string, returns an empty object.
+ * Removes fencing and applies additional cleaning before parsing.
+ * @param s - The JSON-like string to parse. Can be undefined, null, or empty. Fencing and unnecessary formatting are removed.
+ * @returns The parsed object, the original input, or an empty object if input is empty.
  */
 export function JSONLLMTryParse(s: string): any {
     if (s === undefined || s === null) return s

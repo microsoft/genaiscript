@@ -6,12 +6,14 @@ import { llmifyDiff, tryParseDiff } from "./diff"
 import { MIN_LINE_NUMBER_LENGTH } from "./constants"
 
 /**
- * Adds 1-based line numbers to each line of a given text.
- * If the language is "diff", it processes the text using llmifyDiff.
+ * Adds 1-based line numbers to each line of the input text.
+ * If the language is "diff" or the text is detected as a diff, processes it using llmifyDiff.
  *
- * @param text - The text to which line numbers will be added.
- * @param language - Optional parameter to specify the text format. Special handling for "diff".
- * @returns The text with line numbers added, or processed diff text if applicable.
+ * @param text - The input text to process.
+ * @param options - Optional parameters:
+ *   - language: Specifies the language format (e.g., "diff").
+ *   - startLine: The starting line number for numbering (default is 1).
+ * @returns The text with line numbers added, the original text if it is too small, or processed diff text if applicable.
  */
 export function addLineNumbers(
     text: string,
@@ -50,9 +52,13 @@ export function removeLineNumbers(text: string) {
 }
 
 /**
- * Extracts a line range from a given text using 1-based inclusive line numbers.
- * @param text
- * @param options
+ * Extracts a line range from the text using 1-based inclusive line numbers.
+ * 
+ * @param text - The input text from which to extract the range.
+ * @param options - An object specifying the line range.
+ *   - lineStart: The 1-based starting line number of the range.
+ *   - lineEnd: The 1-based ending line number of the range.
+ * @returns The extracted range of text or the original text if no valid range is provided.
  */
 export function extractRange(
     text: string,

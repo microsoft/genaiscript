@@ -25,9 +25,9 @@ export interface ChatRenderOptions extends CancellationOptions {
 }
 
 /**
- * Renders the output of a shell command.
- * @param output - The shell output containing exit code, stdout, and stderr.
- * @returns A formatted string representing the shell output.
+ * Formats the output of a shell command into a readable string.
+ * @param output - The shell execution result containing exitCode, stdout, and stderr.
+ * @returns A formatted string summarizing the shell output. Includes exit code if non-zero, stdout formatted as text, and stderr formatted as text, separated by double newlines. Returns stdout directly if the exit code is zero.
  */
 export function renderShellOutput(output: ShellOutput) {
     // Destructure the output object to retrieve exitCode, stdout, and stderr.
@@ -50,9 +50,14 @@ export function renderShellOutput(output: ShellOutput) {
 }
 
 /**
- * Renders message content to a string.
- * @param msg - The message which could be of various types.
- * @returns A string representing the message content or undefined.
+ * Renders the content of a message into a formatted string.
+ * 
+ * @param msg - The message object containing content, which may include text, images, audio, or other types. 
+ *              Supports both string and array-based content. Unknown types are rendered as "unknown message".
+ * @param options - Optional configuration for rendering, including text formatting, image caching, and language. 
+ *                  Supports a function for caching images and defaults to markdown formatting if not specified. 
+ *                  If textLang is "raw", returns raw content without formatting.
+ * @returns A formatted string representation of the message content, or undefined if the content is invalid or unsupported.
  */
 export async function renderMessageContent(
     msg:
@@ -100,16 +105,23 @@ export async function renderMessageContent(
     return undefined
 }
 
+/**
+ * Retrieves the reasoning content from the last assistant message in a message array.
+ *
+ * @param messages - An array of chat messages to search through.
+ * @returns The reasoning content of the last assistant message, or undefined if none is found.
+ */
 export function lastAssistantReasoning(messages: ChatCompletionMessageParam[]) {
     const last = messages.at(-1)
     return last?.role === "assistant" && last.reasoning_content
 }
 
 /**
- * Converts a list of chat messages to a markdown string.
- * @param messages - Array of chat messages.
- * @param options - Optional filtering options for different roles.
- * @returns A formatted markdown string of the chat messages.
+ * Renders a list of chat messages into a formatted markdown string.
+ *
+ * @param messages - The list of chat messages to render.
+ * @param options - Configuration options for rendering, including text language, role filtering, cancellation token, and tool inclusion. Filters messages by system, user, assistant, and tool roles. Includes tools if provided. Handles cancellation tokens.
+ * @returns A markdown string representation of the chat messages.
  */
 export async function renderMessagesToMarkdown(
     messages: ChatCompletionMessageParam[],
@@ -248,6 +260,18 @@ function renderToolArguments(args: string) {
     else return fenceMD(args, "json")
 }
 
+/**
+ * Collapses chat messages to streamline content and remove redundancy.
+ *
+ * @param messages - The array of chat messages to process. 
+ *                   Each message contains properties such as role, content, and cacheControl.
+ *                   Messages can include system, user, assistant, or tool roles.
+ * 
+ * - Combines consecutive "system" messages at the start into a single "system" message by 
+ *   concatenating their content. The combined message is added back to the array, replacing the original messages.
+ * - Removes empty text content from "user" messages. For array-based content, filters out 
+ *   "text" types with no content.
+ */
 export function collapseChatMessages(messages: ChatCompletionMessageParam[]) {
     // concat the content of system messages at the start of the messages into a single message
     const startSystem = messages.findIndex((m) => m.role === "system")

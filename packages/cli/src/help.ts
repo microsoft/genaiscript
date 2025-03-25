@@ -6,6 +6,10 @@ import { Command, program } from "commander"
 /**
  * Generates and prints a structured help document for all CLI commands.
  * The output is formatted as Markdown content with a focus on creating documentation.
+ *
+ * @param header - The Markdown header level as a string.
+ * @param parent - The parent command, which may be undefined for top-level commands.
+ * @param commands - An array of Command objects to process.
  */
 export async function helpAll() {
     // Print the front matter for the documentation

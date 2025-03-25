@@ -108,6 +108,7 @@
     "typecheck": "tsc -p src",
     "prompts:bundle": "node bundleprompts.js",
     "pretypecheck": "yarn prompts:bundle",
+    "pretty": "prettier **.ts --write",
     "test": "node --import tsx --test src/**.test.*ts"
   },
   "dependencies": {

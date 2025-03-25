@@ -9,6 +9,19 @@ import type {
     EmbeddedResource,
 } from "@modelcontextprotocol/sdk/types.js"
 
+/**
+ * Initializes and starts an MCP client based on the provided server configuration and options.
+ *
+ * @param serverConfig - Configuration for the MCP server, including:
+ *   - id: The identifier for the server.
+ *   - version: The version of the client (defaults to "1.0.0").
+ *   - params: Optional parameters for the client.
+ *   - rest: Additional configuration properties for the server.
+ * @param options - Trace options containing tracing utilities to monitor and log client activities.
+ * @returns An object containing:
+ *   - tools: A list of tool callbacks provided by the server.
+ *   - Symbol.asyncDispose: A method to clean up resources (close client and transport) when the client is no longer needed.
+ */
 export async function startMcpClient(
     serverConfig: McpServerConfig,
     options: TraceOptions

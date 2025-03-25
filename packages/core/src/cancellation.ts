@@ -32,11 +32,11 @@ export class AbortSignalCancellationToken implements CancellationToken {
 }
 
 /**
- * Attempts to convert a CancellationToken to an AbortSignal if possible.
- * This may return undefined if the token is not compatible.
+ * Converts a CancellationToken to an AbortSignal if supported.
+ * If the token lacks a compatible signal property, returns undefined.
  *
- * @param token - The token to be converted.
- * @returns The AbortSignal if conversion is possible, otherwise undefined.
+ * @param token - The CancellationToken to convert.
+ * @returns The associated AbortSignal or undefined if unsupported.
  */
 export function toSignal(token: CancellationToken) {
     return (token as any)?.signal as AbortSignal

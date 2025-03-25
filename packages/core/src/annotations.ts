@@ -52,8 +52,9 @@ const SEV_EMOJI_MAP: Record<string, string> = Object.freeze({
 /**
  * Parses annotations from TypeScript, GitHub Actions, and Azure DevOps.
  *
- * @param text - The input text containing annotations.
- * @returns Array of parsed `Diagnostic` objects.
+ * @param text Input text containing annotations to parse.
+ * Extracts details such as file, line, endLine, severity, code, and message from annotations.
+ * @returns Array of unique Diagnostic objects extracted from the input text.
  */
 export function parseAnnotations(text: string): Diagnostic[] {
     if (!text) return []
@@ -86,10 +87,32 @@ export function parseAnnotations(text: string): Diagnostic[] {
     return Array.from(annotations.values()) // Convert the set to an array
 }
 
+/**
+ * Removes all recognized annotations from the input text.
+ *
+ * Scans the input text for patterns matching TypeScript, GitHub Actions, 
+ * and Azure DevOps annotations, and removes them entirely.
+ *
+ * @param text Input text containing annotations to be removed.
+ * @returns A new string with all annotations stripped from the input text.
+ */
 export function eraseAnnotations(text: string) {
     return ANNOTATIONS_RX.reduce((t, rx) => t.replace(rx, ""), text)
 }
 
+/**
+ * Transforms all annotations found in the input text into formatted items.
+ *
+ * Iterates through all regular expressions in the annotations list to identify
+ * matches, extracts data from the matches, constructs Diagnostic objects, and
+ * formats them into string representations using the `convertAnnotationToItem` function.
+ *
+ * Replaces matched annotation patterns in the input text with their corresponding
+ * formatted item strings.
+ *
+ * @param text Input text containing annotations to be transformed.
+ * @returns A string where matched annotations are replaced with formatted items.
+ */
 export function convertAnnotationsToItems(text: string) {
     return ANNOTATIONS_RX.reduce(
         (t, rx) =>
@@ -112,6 +135,18 @@ export function convertAnnotationsToItems(text: string) {
     )
 }
 
+/**
+ * Formats a diagnostic annotation into a string representation suitable for display.
+ *
+ * Constructs a list item with an emoji indicating severity, the message, 
+ * and an optional filename with line reference. 
+ * If the file or line is unavailable, includes only the message.
+ *
+ * Maps severity levels to emojis using SEV_EMOJI_MAP. Defaults to "info" if severity is unknown.
+ *
+ * @param d The Diagnostic object containing details such as severity, message, filename, code, and range.
+ * @returns A formatted string representing the Diagnostic as a list item.
+ */
 export function convertAnnotationToItem(d: Diagnostic) {
     const { severity, message, filename, code, range } = d
     const line = range?.[0]?.[0]
@@ -119,10 +154,11 @@ export function convertAnnotationToItem(d: Diagnostic) {
 }
 
 /**
- * Converts a `Diagnostic` to a GitHub Action command string.
+ * Converts a Diagnostic object to a GitHub Action command string.
  *
- * @param d - The `Diagnostic` to convert.
- * @returns A formatted GitHub Action command string.
+ * @param d The Diagnostic object containing severity, filename, range, and message.
+ * Maps "info" severity to "notice" for GitHub Actions. If severity is not mapped, uses the original severity.
+ * @returns A formatted GitHub Action command string including severity, filename, line, endLine, and message.
  */
 export function convertDiagnosticToGitHubActionCommand(d: Diagnostic) {
     // Maps DiagnosticSeverity to GitHub Action severity strings.
@@ -137,10 +173,10 @@ export function convertDiagnosticToGitHubActionCommand(d: Diagnostic) {
 }
 
 /**
- * Converts a `Diagnostic` to an Azure DevOps command string.
+ * Converts a Diagnostic object to an Azure DevOps log issue command string.
  *
- * @param d - The `Diagnostic` to convert.
- * @returns A formatted Azure DevOps command string.
+ * @param d Diagnostic object containing severity, message, filename, and range.
+ * @returns Formatted Azure DevOps command string for warnings and errors. For "info" severity, returns a debug message with filename and message.
  */
 export function convertDiagnosticToAzureDevOpsCommand(d: Diagnostic) {
     // Handle 'info' severity separately with a debug message.
@@ -151,10 +187,12 @@ export function convertDiagnosticToAzureDevOpsCommand(d: Diagnostic) {
 }
 
 /**
- * Converts annotations in text to a Markdown format.
+ * Converts annotations in text to a Markdown representation with severity-based admonitions.
  *
- * @param text - The input text containing annotations.
- * @returns A string of formatted Markdown annotations.
+ * @param text Input text containing annotations to convert. Must include GitHub or Azure DevOps annotations.
+ * Extracts severity, file, line, and optional code to format as Markdown.
+ * Replaces annotations with formatted Markdown strings.
+ * @returns Formatted Markdown string with severity levels mapped to admonitions, including file, line references, and optional codes.
  */
 export function convertAnnotationsToMarkdown(text: string): string {
     // Maps severity levels to Markdown admonition types.

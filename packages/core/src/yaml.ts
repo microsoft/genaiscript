@@ -46,11 +46,11 @@ export function YAMLTryParse<T = any>(
 }
 
 /**
- * Parses a YAML string into a JavaScript object.
- * This function assumes the input string is valid YAML.
+ * Parses a YAML string or workspace file into a JavaScript object.
+ * Assumes the input is valid YAML.
  *
- * @param text - The YAML string to parse.
- * @returns The parsed object.
+ * @param text - The YAML string or workspace file to parse. Must be convertible to content.
+ * @returns The parsed JavaScript object.
  */
 export function YAMLParse(text: string | WorkspaceFile): any {
     text = filenameOrFileToContent(text)

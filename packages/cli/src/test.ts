@@ -101,8 +101,8 @@ function createEnv() {
 /**
  * Runs prompt script tests based on provided IDs and options, returns the test results.
  * @param ids - Array of script IDs to run tests on.
- * @param options - Options to configure the test run.
- * @returns A Promise resolving to the test run response.
+ * @param options - Options to configure the test run, including output paths, CLI settings, caching, verbosity, and concurrency.
+ * @returns A Promise resolving to the test run response, including results and status.
  */
 export async function runPromptScriptTests(
     ids: string[],
@@ -374,9 +374,9 @@ async function listTests(options: {
 }
 
 /**
- * Executes prompt script tests and outputs the results, then exits the process with a status code.
+ * Executes prompt script tests, outputs the results, and exits the process with a status code.
  * @param ids - Array of script IDs to run tests on.
- * @param options - Options to configure the test run.
+ * @param options - Options to configure the test run, including output paths, verbosity, caching, and concurrency settings.
  */
 export async function scriptsTest(
     ids: string[],
@@ -407,8 +407,9 @@ export async function scriptsTest(
 }
 
 /**
- * Lists available test scripts, printing their IDs and filenames.
- * @param options - Options to filter the scripts by groups.
+ * Lists available test scripts and prints their IDs and filenames.
+ * Filters the scripts based on the provided options.
+ * @param options - Options to filter the scripts by groups or redteam flag.
  */
 export async function scriptTestList(options: {
     groups?: string[]
@@ -420,6 +421,7 @@ export async function scriptTestList(options: {
 
 /**
  * Launches a server to view promptfoo test results.
+ * Ensures necessary directories are created before starting the server.
  * @param options - Options to specify the promptfoo version.
  */
 export async function scriptTestsView(options: { promptfooVersion?: string }) {

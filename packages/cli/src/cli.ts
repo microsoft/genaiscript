@@ -66,6 +66,16 @@ import { startMcpServer } from "./mcpserver"
 
 /**
  * Main function to initialize and run the CLI.
+ * 
+ * Sets up global error handling for uncaught exceptions.
+ * Verifies Node.js version compatibility.
+ * Configures CLI options and commands, including:
+ * - `configure`: Interactive help to configure providers.
+ * - `run`: Executes a GenAIScript against files with various options for output, retries, and caching.
+ * - `runs`: Commands to manage and list previous runs.
+ * - `test`: Group of commands for running and managing tests.
+ * - `convert`: Converts files through a GenAIScript with options for output and concurrency.
+ * Handles environment setup and NodeHost installation.
  */
 export async function cli() {
     let nodeHost: NodeHost // Variable to hold NodeHost instance

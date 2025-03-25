@@ -35,6 +35,16 @@ interface EmbeddingsCacheKey {
  */
 type EmbeddingsCache = JSONLineCache<EmbeddingsCacheKey, EmbeddingsResponse>
 
+/**
+ * Creates a cached embedding function that stores and retrieves embeddings
+ * results from a cache before invoking the provided embedding function.
+ *
+ * @param embedder The original embedding function to wrap with caching.
+ * @param options Configuration options for caching.
+ * @param options.cacheName The name of the cache to be used. Defaults to "embeddings" if not provided.
+ * @param options.cacheSalt An optional string used as a salt to differentiate cache keys.
+ * @returns A wrapped embedding function with caching capabilities.
+ */
 export function createCachedEmbedder(
     embedder: EmbeddingFunction,
     options?: { cacheName?: string; cacheSalt?: string }
@@ -62,7 +72,11 @@ export function createCachedEmbedder(
 }
 
 /**
- * Create a vector index for documents.
+ * Creates a vector index for documents using embeddings.
+ * 
+ * @param indexName The name of the index to create.
+ * @param options Configuration options, including index type, embeddings model, cancellation token, tracing, vector size, provider, and other runtime settings.
+ * @returns A workspace file index instance.
  */
 export async function vectorCreateIndex(
     indexName: string,
@@ -119,11 +133,10 @@ sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad mi
 }
 
 /**
- * Performs a vector search on documents based on a query.
- * @param query The search query.
- * @param files The files to search within.
- * @param options Options for vector search, including folder path and tracing.
- * @returns The files with scores based on relevance to the query.
+ * Indexes a set of files into a vector index using embeddings.
+ * @param indexName The name of the index to create or update.
+ * @param files The list of files to index.
+ * @param options Configuration options, including embeddings model, cancellation token, and tracing.
  */
 export async function vectorIndex(
     indexName: string,
@@ -155,11 +168,12 @@ export async function vectorIndex(
 }
 
 /**
- * Performs a vector search on documents based on a query.
- * @param query The search query.
- * @param files The files to search within.
- * @param options Options for vector search, including folder path and tracing.
- * @returns The files with scores based on relevance to the query.
+ * Performs a vector search on documents using an index and query.
+ * @param indexName The name of the index to search. Defaults to "default" if not provided.
+ * @param query The query string used for the search.
+ * @param files The files to search within. Their content will be resolved and indexed.
+ * @param options Options for vector search, including top results, minimum score, embeddings model, cancellation token, and tracing.
+ * @returns A list of files with scores reflecting their relevance to the query.
  */
 export async function vectorSearch(
     indexName: string,

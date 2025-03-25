@@ -31,12 +31,12 @@ function toURLSearchParams(o: any) {
 
 /**
  * Performs a Bing search using the given query and options.
- * Utilizes Bing Search API and constructs the request with query parameters.
- * Handles API key retrieval and error management.
+ * Utilizes the Bing Search API to construct and execute the request with query parameters.
+ * Handles API key retrieval, query parameter construction, and API response processing.
  * @param q - The search query string.
- * @param options - Optional search parameters such as trace, endpoint, count, etc.
- * @returns A Promise resolving to a SearchResponse.
- * @throws Error if the API key is missing or if the search request fails.
+ * @param options - Optional parameters including whether to ignore a missing API key, endpoint, result count, region, freshness, response filter, and safe search settings.
+ * @returns A Promise resolving to a list of search responses, each containing a URL and snippet.
+ * @throws Error if the API key is missing or if the request fails.
  */
 export async function bingSearch(
     q: string,
@@ -151,11 +151,11 @@ export async function bingSearch(
 
 /**
  * Performs a Tavily search using the given query and options.
- * Utilizes Tavily Search API and constructs the request with query parameters.
- * Handles API key retrieval and error management.
+ * Uses the Tavily Search API to construct and execute the request with query parameters.
+ * Handles API key retrieval, request construction, and error management.
  * @param q - The search query string.
- * @param options - Optional search parameters such as trace, endpoint, count, etc.
- * @returns A Promise resolving to a SearchResponse.
+ * @param options - Optional parameters including trace, endpoint, count, and API key handling.
+ * @returns A Promise resolving to a list of search responses, each containing a URL and content.
  * @throws Error if the API key is missing or if the search request fails.
  */
 export async function tavilySearch(

@@ -1,3 +1,5 @@
+import { classify } from "genaiscript/runtime"
+
 script({
     title: "Generate TypeScript function documentation using AST insertion",
     accept: ".ts",
@@ -39,12 +41,14 @@ for (const match of matches) {
             _.def("FUNCTION", match.text())
             // this needs more eval-ing
             _.$`Generate a function documentation for <FUNCTION>.
+            - Make sure parameters are documented.
             - Be concise. Use technical tone.
             - do NOT include types, this is for TypeScript.
-            - Use docstring syntax.
+            - Use docstring syntax. do not wrap in markdown code section.
+
             The full source of the file is in <FILE> for reference.`
         },
-        { model: "small", responseType: "text", label: match.text() }
+        { model: "large", responseType: "text", label: match.text() }
     )
     // if generation is successful, insert the docs
     if (res.error) {
@@ -52,6 +56,32 @@ for (const match of matches) {
         continue
     }
     const docs = docify(res.text.trim())
+
+    // sanity check
+    const consistent = await classify(
+        (_) => {
+            _.def("FUNCTION", match.text())
+            _.def("DOCS", docs)
+        },
+        {
+            ok: "The content in <DOCS> is an accurate documentation for the code in <FUNCTION>.",
+            err: "The content in <DOCS> does not match with the code in <FUNCTION>.",
+        },
+        {
+            model: "small",
+            responseType: "text",
+            temperature: 0.2,
+            systemSafety: false,
+            system: ["system.technical", "system.typescript"],
+        }
+    )
+
+    if (consistent.label !== "ok") {
+        output.warn(consistent.label)
+        output.fence(consistent.answer)
+        continue
+    }
+
     const updated = `${docs}\n${match.text()}`
     replace(match, updated)
 }
@@ -69,6 +99,7 @@ if (applyEdits) {
 
 // normalizes the docstring in case the LLM decides not to generate proper comments
 function docify(docs: string) {
+    docs = parsers.unfence(docs, "*")
     if (!/^\/\*\*.*.*\*\/$/s.test(docs))
         docs = `/**\n* ${docs.split(/\r?\n/g).join("\n* ")}\n*/`
     return docs.replace(/\n+$/, "")

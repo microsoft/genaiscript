@@ -21,11 +21,12 @@ import { measure } from "./performance"
 /**
  * Estimates the number of tokens in chat messages for a given model.
  * Utilizes token encoding to provide an accurate count of tokens in text-based chat content.
+ * Includes adjustments for image content based on resolution and detail level.
  *
  * @param modelId - The identifier of the model being used.
- * @param messages - An array of chat messages containing roles and content.
+ * @param messages - An array of chat messages containing roles and content. Supports text and image content.
  * @param tools - Optional array of tools used in chat completion.
- * @returns The estimated number of tokens or 0 if no valid messages are found.
+ * @returns The estimated number of tokens, including adjustments for image content, or 0 if no valid messages are found.
  */
 export async function estimateChatTokens(
     modelId: string,
