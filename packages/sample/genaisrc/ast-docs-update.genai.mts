@@ -69,7 +69,7 @@ for (const match of matches) {
             label: match.child(0).text(),
             temperature: 0.2,
             systemSafety: false,
-            system: ["system.assistant", "system.technical", "system.typescript"],
+            system: ["system.technical", "system.typescript"],
         }
     )
     // if generation is successful, insert the docs

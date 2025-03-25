@@ -40,8 +40,8 @@ export function diagnosticsToCSV(diagnostics: Diagnostic[], sep: string) {
 
 /**
  * Determines the group name of a template.
- * @param template - The template to evaluate, containing an ID and an optional group property.
- * @returns The group name of the template. Returns "system" if the ID starts with "system", the group property if defined, or "unassigned" if no group is determined.
+ * @param template - The template object containing an ID and an optional group property.
+ * @returns The group name of the template. Returns "system" if the ID starts with "system", the group property if defined, or "unassigned" if no group is set or determined.
  */
 export function templateGroup(template: PromptScript) {
     return (
