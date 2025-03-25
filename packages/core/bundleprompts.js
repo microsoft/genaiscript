@@ -38,7 +38,7 @@ async function main() {
             )
                 .toString("utf8")
                 .matchAll(/debug\("genaiscript:(?<category>[^"]+)"\)/g)
-        ).map((m) => m.groups.category),
+        ).sort().map((m) => m.groups.category),
     ])
     console.log({ logCategories })
     writeFileSync(
