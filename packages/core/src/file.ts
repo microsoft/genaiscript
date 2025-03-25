@@ -1,9 +1,11 @@
+import debug from "debug"
+const dbg = debug("genaiscript:file")
+
 /**
  * This module provides functions to handle file content resolution, rendering,
  * and data URI conversion. It includes support for various file formats like
  * PDF, DOCX, XLSX, and CSV.
  */
-
 import { DOCXTryParse } from "./docx"
 import { readText } from "./fs"
 import { lookupMime } from "./mime"
@@ -30,6 +32,7 @@ import {
 import { UrlAdapter, defaultUrlAdapters } from "./urlAdapters"
 import { tidyData } from "./tidy"
 import { CancellationOptions, checkCancelled } from "./cancellation"
+import prettyBytes from "pretty-bytes"
 
 /**
  * Resolves the content of a given file, attempting to fetch or parse it based on its type.
@@ -49,13 +52,16 @@ export async function resolveFileContent(
 
     // decode known files
     if (file.encoding === "base64") {
+        dbg(`decode base64`)
         const bytes = fromBase64(file.content)
         file.size = bytes.length
         if (file.type === PDF_MIME_TYPE) {
+            dbg(`file type is PDF`)
             const { content } = await parsePdf(bytes, options)
             delete file.encoding
             file.content = content
         } else if (file.type === XLSX_MIME_TYPE) {
+            dbg(`file type is XLSX`)
             const sheets = await XLSXParse(bytes)
             delete file.encoding
             file.content = JSON.stringify(sheets, null, 2)
@@ -65,11 +71,16 @@ export async function resolveFileContent(
 
     const { filename } = file
     // If file content is already available or filename is missing, return the file as is.
-    if (file.content) return file
-    if (!filename) return file
+    if (file.content) {
+        return file
+    }
+    if (!filename) {
+        return file
+    }
 
     // Handle URL files
     if (HTTPS_REGEX.test(filename)) {
+        dbg(`handling URL file: ${filename}`)
         let url = filename
         let adapter: UrlAdapter = undefined
 
@@ -83,6 +94,7 @@ export async function resolveFileContent(
             }
         }
 
+        dbg(`fetching URL: ${url}`)
         trace?.item(`fetch ${url}`)
         const fetch = await createFetch({ cancellationToken })
         const resp = await fetch(url, {
@@ -92,6 +104,7 @@ export async function resolveFileContent(
         })
         trace?.itemValue(`status`, `${resp.status}, ${resp.statusText}`)
 
+        dbg(`response status: ${resp.status}, ${resp.statusText}`)
         // Set file content based on response and adapter type
         if (resp.ok) {
             file.type = resp.headers.get("Content-Type")
@@ -103,18 +116,21 @@ export async function resolveFileContent(
     }
     // Handle PDF files
     else if (PDF_REGEX.test(filename)) {
+        dbg(`file is pdf`)
         const { content } = await parsePdf(filename, options)
         file.type = PDF_MIME_TYPE
         file.content = content
     }
     // Handle DOCX files
     else if (DOCX_REGEX.test(filename)) {
+        dbg(`file is docx`)
         const res = await DOCXTryParse(filename, options)
         file.type = DOCX_MIME_TYPE
         file.content = res.file?.content
     }
     // Handle XLSX files
     else if (XLSX_REGEX.test(filename)) {
+        dbg(`file is xlsx`)
         const bytes = await host.readFile(filename)
         const sheets = await XLSXParse(bytes)
         file.type = XLSX_MIME_TYPE
@@ -125,9 +141,16 @@ export async function resolveFileContent(
         const mime = file.type || lookupMime(filename)
         const isBinary = isBinaryMimeType(mime)
         file.type = mime
-        if (!isBinary) file.content = await readText(filename)
-        else {
-            const info = await host.statFile(filename)
+        const info = await host.statFile(filename)
+        dbg(
+            `file is ${isBinary ? `binary` : ""}, size ${prettyBytes(info?.size)}`
+        )
+        if (!info) {
+            return file
+        }
+        if (!isBinary) {
+            file.content = await readText(filename)
+        } else {
             if (!maxFileSize || info.size < maxFileSize) {
                 const bytes: Uint8Array = await host.readFile(filename)
                 file.encoding = "base64"
@@ -180,6 +203,7 @@ export async function renderFileContent(
 
     // Render CSV content
     if (content && CSV_REGEX.test(filename)) {
+        dbg(`rendering CSV content`)
         let csv = CSVTryParse(content, options)
         if (csv) {
             csv = tidyData(csv, options)
@@ -188,6 +212,7 @@ export async function renderFileContent(
     }
     // Render XLSX content
     else if (content && XLSX_REGEX.test(filename)) {
+        dbg(`rendering XLSX content`)
         const sheets = JSON.parse(content) as WorkbookSheet[]
         const trimmed = sheets.length
             ? sheets
@@ -205,8 +230,12 @@ ${dataToMarkdownTable(tidyData(rows, options))}
 
 export function dataUriToBuffer(filename: string) {
     if (/^data:/i.test(filename)) {
+        dbg(`converting data URI to buffer`)
         const matches = filename.match(/^data:[^;]+;base64,(.*)$/i)
-        if (!matches) throw new Error("Invalid data URI format")
+        if (!matches) {
+            dbg(`invalid data URI format`)
+            throw new Error("Invalid data URI format")
+        }
         return fromBase64(matches[1])
     }
     return undefined
@@ -223,18 +252,23 @@ export async function resolveFileBytes(
     options?: TraceOptions
 ): Promise<Uint8Array> {
     if (typeof filename === "object") {
-        if (filename.encoding && filename.content)
+        if (filename.encoding && filename.content) {
+            dbg(`resolving file bytes`)
             return new Uint8Array(
                 Buffer.from(filename.content, filename.encoding)
             )
+        }
         filename = filename.filename
     }
 
     const i = dataUriToBuffer(filename)
-    if (i) return i
+    if (i) {
+        return i
+    }
 
     // Fetch file from URL or data-uri
     if (/^https?:\/\//i.test(filename)) {
+        dbg(`fetching file from URL: ${filename}`)
         const fetch = await createFetch(options)
         const resp = await fetch(filename)
         const buffer = await resp.arrayBuffer()
@@ -242,6 +276,7 @@ export async function resolveFileBytes(
     }
     // Read file from local storage
     else {
+        dbg(`reading file ${filename}`)
         const buf = await host.readFile(filename)
         return new Uint8Array(buf)
     }
@@ -260,7 +295,9 @@ export async function resolveFileDataUri(
     const bytes = await resolveFileBytes(filename, options)
 
     const mime = (await fileTypeFromBuffer(bytes))?.mime
-    if (!mime) return undefined
+    if (!mime) {
+        return undefined
+    }
 
     const b64 = toBase64(bytes)
     return `data:${mime};base64,${b64}`
