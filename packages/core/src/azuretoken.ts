@@ -8,7 +8,7 @@ import {
     isAzureTokenExpired,
     runtimeHost,
 } from "../../core/src/host"
-import { logError, logVerbose } from "../../core/src/util"
+import { logError } from "../../core/src/util"
 import type { TokenCredential } from "@azure/identity"
 import { serializeError } from "../../core/src/error"
 import {
@@ -146,12 +146,11 @@ class AzureTokenResolverImpl implements AzureTokenResolver {
                 cancellationToken
             )
                 .then((res) => {
-                    dbg("creating Azure token")
                     this._token = res
                     this._error = undefined
                     this._resolver = undefined
 
-                    logVerbose(
+                    dbg(
                         `${this.name}: ${credentialsType || ""} token (${scopes.join(",")}) expires on ${new Date(res.expiresOnTimestamp).toUTCString()}`
                     )
                     return { token: this._token, error: this._error }

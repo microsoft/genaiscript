@@ -29,6 +29,7 @@ import {
     validateJSONWithSchema,
 } from "./schema"
 import {
+    CHAR_ENVELOPE,
     CHOICE_LOGIT_BIAS,
     MAX_DATA_REPAIRS,
     MAX_TOOL_CALLS,
@@ -1127,7 +1128,7 @@ export async function executeChatSession(
     const cacheStore = !!cache
         ? getChatCompletionCache(typeof cache === "string" ? cache : "chat")
         : undefined
-    const chatTrace = trace.startTraceDetails(`💬 llm chat`, { expanded: true })
+    const chatTrace = trace.startTraceDetails(`💬 chat`, { expanded: true })
     const cacheImage = async (url: string) =>
         await fileCacheImage(url, {
             trace,
@@ -1148,8 +1149,7 @@ export async function executeChatSession(
         while (true) {
             stats.turns++
             collapseChatMessages(messages)
-            const tokens = await estimateChatTokens(model, messages)
-            dbg(`chat: turn ${stats.turns} ${prettyTokens(tokens)}`)
+            dbg(`chat: turn ${stats.turns}`)
             if (messages) {
                 chatTrace.details(
                     `💬 messages (${messages.length})`,
@@ -1210,13 +1210,11 @@ export async function executeChatSession(
                         messages,
                     }
                     updateChatFeatures(reqTrace, model, req)
-                    logVerbose(
-                        `chat: sending ${messages.length} messages to ${model} (~${tokens ?? "?"} tokens)`
-                    )
                     stderr.write(
                         await renderMessagesToTerminal(messages, {
                             user: true,
                             tools,
+                            model,
                         })
                     )
 

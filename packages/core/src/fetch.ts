@@ -269,7 +269,7 @@ ${Object.entries(headers)
     } else
         cmd += `-d '${JSON.stringify(body, null, 2).replace(/'/g, "'\\''")}'
 `
-    if (trace) trace.detailsFenced(`✉️ fetch`, cmd, "bash")
+    if (trace) trace.detailsFenced(`🌐 fetch`, cmd, "bash")
     else logVerbose(cmd)
 }
 

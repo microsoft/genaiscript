@@ -1,5 +1,6 @@
 import type { ChatCompletionUsage } from "./chattypes"
 import _prettyBytes from "pretty-bytes"
+import { CHAR_DOWN_ARROW, CHAR_UP_ARROW } from "./constants"
 
 /**
  * Formats token usage into a human-readable string indicating tokens per second.
@@ -26,7 +27,11 @@ export function prettyTokensPerSecond(usage: ChatCompletionUsage) {
 export function prettyTokens(n: number, direction?: "prompt" | "completion") {
     if (isNaN(n)) return ""
     const prefix =
-        direction === "prompt" ? "↑" : direction === "completion" ? "↓" : ""
+        direction === "prompt"
+            ? CHAR_UP_ARROW
+            : direction === "completion"
+              ? CHAR_DOWN_ARROW
+              : ""
     if (n < 1000) return `${prefix}${n.toString()}t`
     if (n < 1e6) return `${prefix}${(n / 1e3).toFixed(1)}kt`
     return `${prefix}${(n / 1e6).toFixed(1)}Mt`

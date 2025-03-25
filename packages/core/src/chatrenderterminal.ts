@@ -14,12 +14,15 @@ import { YAMLStringify } from "./yaml"
 import { dataUriToBuffer } from "./file"
 import { wrapColor } from "./consolecolor"
 import {
+    CHAR_ENVELOPE,
     CONSOLE_COLOR_DEBUG,
     CONTROL_CHAT_COLLAPSED,
     CONTROL_CHAT_EXPANDED,
     CONTROL_CHAT_LAST,
 } from "./constants"
 import { CancellationOptions, checkCancelled } from "./cancellation"
+import { prettyTokens } from "./pretty"
+import { estimateChatTokens } from "./chatencoder"
 
 async function renderMessageContent(
     msg:
@@ -116,6 +119,7 @@ function renderToolCall(
 export async function renderMessagesToTerminal(
     messages: ChatCompletionMessageParam[],
     options?: {
+        model?: string
         system?: boolean
         user?: boolean
         assistant?: boolean
@@ -127,6 +131,7 @@ export async function renderMessagesToTerminal(
         user = undefined, // Include user messages unless explicitly set to false.
         assistant = true, // Include assistant messages by default.
         tools,
+        model,
     } = options || {}
 
     const { columns } = terminalSize()
@@ -152,6 +157,15 @@ export async function renderMessagesToTerminal(
         }
     })
     const res: string[] = []
+    if (model) {
+        const tokens = await estimateChatTokens(model, messages)
+        res.push(
+            wrapColor(
+                CONSOLE_COLOR_DEBUG,
+                `┌─💬 chat with ${model} (${CHAR_ENVELOPE} ${messages.length}, ~${prettyTokens(tokens, "prompt")})\n`
+            )
+        )
+    }
     if (tools?.length) {
         res.push(
             wrapColor(CONSOLE_COLOR_DEBUG, `┌─🔧 tools (${tools.length})\n`),

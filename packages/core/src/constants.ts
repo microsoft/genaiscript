@@ -417,3 +417,6 @@ export const CONTROL_CHAT_LAST = 12
 export const PROMPTDOM_PREVIEW_MAX_LENGTH = 512
 
 export const SERVER_LOCALHOST = "http://127.0.0.1"
+export const CHAR_UP_ARROW = "↑"
+export const CHAR_DOWN_ARROW = "↓"
+export const CHAR_ENVELOPE = "✉"

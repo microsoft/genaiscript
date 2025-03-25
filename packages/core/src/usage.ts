@@ -12,7 +12,7 @@ import {
 import { MarkdownTrace } from "./trace"
 import { logVerbose, toStringList } from "./util"
 import { parseModelIdentifier } from "./models"
-import { MODEL_PRICINGS } from "./constants"
+import { CHAR_ENVELOPE, MODEL_PRICINGS } from "./constants"
 import {
     prettyCost,
     prettyTokensPerSecond,
@@ -179,7 +179,7 @@ export class GenerationStats {
      * @param trace - The MarkdownTrace instance used for tracing.
      */
     trace(trace: MarkdownTrace) {
-        trace.startDetails("🪙 generation stats")
+        trace.startDetails("🪙 usage")
         try {
             this.traceStats(trace)
         } finally {
@@ -295,7 +295,7 @@ export class GenerationStats {
                 if (cost === undefined && isCosteable(turnModel))
                     unknowns.add(this.model)
                 logVerbose(
-                    `${indent}  ${toStringList(`✉ ${messages.length}`, prettyTokens(usage.total_tokens), prettyCost(cost), prettyTokensPerSecond(usage))}`
+                    `${indent}  ${toStringList(`${CHAR_ENVELOPE} ${messages.length}`, prettyTokens(usage.total_tokens), prettyCost(cost), prettyTokensPerSecond(usage))}`
                 )
             }
             if (this.chatTurns.length > chatTurns.length)

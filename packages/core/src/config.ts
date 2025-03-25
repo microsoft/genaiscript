@@ -24,7 +24,6 @@ import schema from "../../../docs/public/schemas/config.json"
 import defaultConfig from "./config.json"
 import { CancellationOptions } from "./cancellation"
 import { host } from "./host"
-import { logVerbose } from "./util"
 import { uniq } from "es-toolkit"
 import { tryReadText, tryStat } from "./fs"
 import { parseDefaultsFromEnv } from "./env"
@@ -59,8 +58,7 @@ async function resolveGlobalConfiguration(
                 dbg(`skipping ${filename}, no content`)
                 continue
             }
-            logVerbose(`config: loading ${filename}`)
-            dbg(`parsing file content for ${filename}`)
+            dbg(`loading ${filename}`)
             const parsed: HostConfiguration =
                 ext === "yml" || ext === "yaml"
                     ? YAMLTryParse(fileContent)
