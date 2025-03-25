@@ -123,7 +123,7 @@ export function convertAnnotationToItem(d: Diagnostic) {
  * Converts a Diagnostic object to a GitHub Action command string.
  *
  * @param d The Diagnostic object containing severity, filename, range, and message.
- * @returns A formatted string as a GitHub Action command, including severity, filename, line, endLine, and message.
+ * @returns A formatted string as a GitHub Action command, including severity, filename, line, endLine, and message. Defaults severity to "notice" for "info".
  */
 export function convertDiagnosticToGitHubActionCommand(d: Diagnostic) {
     // Maps DiagnosticSeverity to GitHub Action severity strings.
@@ -155,6 +155,7 @@ export function convertDiagnosticToAzureDevOpsCommand(d: Diagnostic) {
  * Converts annotations in text to a Markdown representation with severity-based admonitions.
  *
  * @param text Input text containing annotations to convert. Must include GitHub or Azure DevOps annotations.
+ * Extracts severity, file, line, and optional code to format as Markdown.
  * @returns Formatted Markdown string with severity levels mapped to admonitions, including file, line references, and optional codes.
  */
 export function convertAnnotationsToMarkdown(text: string): string {
