@@ -1,5 +1,7 @@
 import { classify } from "genaiscript/runtime"
 import debugifyGenai from "./debugify.genai.mts"
+import { docify } from "./src/docs.mts"
+import { prettier } from "./src/prettier.mts"
 
 script({
     title: "Generate TypeScript function documentation using AST insertion",
@@ -16,12 +18,6 @@ script({
 const { output } = env
 const { applyEdits } = env.vars
 const file = env.files[0]
-
-const prettier = async (file) => {
-    // format
-    // const res = await host.exec("prettier", ["--write", file.filename])
-    //   if (res.exitCode) throw new Error(`${res.stdout} (${res.exitCode})`)
-}
 
 // normalize spacing
 await prettier(file)
@@ -95,7 +91,8 @@ for (const match of matches) {
         {
             APPLY: "The <NEW_DOCS> is a significant improvement to <ORIGINAL_DOCS>.",
             NIT: "The <NEW_DOCS> contains nits (minor adjustments) to <ORIGINAL_DOCS>.",
-        }, {
+        },
+        {
             model: "large",
             responseType: "text",
             temperature: 0.2,
@@ -122,12 +119,4 @@ if (applyEdits) {
     output.warn(
         `edit not applied, use --vars 'applyEdits=true' to apply the edits`
     )
-}
-
-// normalizes the docstring in case the LLM decides not to generate proper comments
-function docify(docs: string) {
-    docs = parsers.unfence(docs, "*")
-    if (!/^\/\*\*.*.*\*\/$/s.test(docs))
-        docs = `/**\n* ${docs.split(/\r?\n/g).join("\n* ")}\n*/`
-    return docs.replace(/\n+$/, "")
 }

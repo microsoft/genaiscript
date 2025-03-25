@@ -1,4 +1,6 @@
 import { classify } from "genaiscript/runtime"
+import { docify } from "./src/docs.mts"
+import { prettier } from "./src/prettier.mts"
 
 script({
     title: "Generate TypeScript function documentation using AST insertion",
@@ -16,8 +18,12 @@ const { output } = env
 const { applyEdits } = env.vars
 const file = env.files[0]
 
+// normalize spacing
+await prettier(file)
+
 // find all exported functions without comments
 const sg = await host.astGrep()
+
 const { matches, replace, commitEdits } = await sg.search("ts", file.filename, {
     rule: {
         kind: "export_statement",
@@ -87,20 +93,13 @@ for (const match of matches) {
 }
 
 // apply all edits and write to the file
-const modified = await commitEdits()
+const [modified] = await commitEdits()
 if (applyEdits) {
     await workspace.writeFiles(modified)
+    await prettier(file)
 } else {
-    output.diff(file, modified[0])
+    output.diff(file, modified)
     output.warn(
         `edit not applied, use --vars 'applyEdits=true' to apply the edits`
     )
-}
-
-// normalizes the docstring in case the LLM decides not to generate proper comments
-function docify(docs: string) {
-    docs = parsers.unfence(docs, "*")
-    if (!/^\/\*\*.*.*\*\/$/s.test(docs))
-        docs = `/**\n* ${docs.split(/\r?\n/g).join("\n* ")}\n*/`
-    return docs.replace(/\n+$/, "")
 }

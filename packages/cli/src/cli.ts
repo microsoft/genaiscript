@@ -66,7 +66,7 @@ import { startMcpServer } from "./mcpserver"
 
 /**
  * Main function to initialize and run the CLI.
- * 
+ *
  * Sets up global error handling for uncaught exceptions.
  * Verifies Node.js version compatibility.
  * Configures CLI options and commands, including:
