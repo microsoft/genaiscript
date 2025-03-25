@@ -1,3 +1,6 @@
+import { classify } from "genaiscript/runtime"
+import debugifyGenai from "./debugify.genai.mts"
+
 script({
     title: "Generate TypeScript function documentation using AST insertion",
     accept: ".ts",
@@ -83,6 +86,31 @@ for (const match of matches) {
     const docs = docify(
         parsers.unfence(res.text.trim(), ["", "typescript", "ts"])
     )
+
+    // ask LLM if change is worth it
+    const shouldApply = await classify(
+        (_) => {
+            _.def("FUNCTION", match.text())
+            _.def("ORIGINAL_DOCS", comment.text())
+            _.def("NEW_DOCS", docs)
+            _.$`An LLM generated an updated docstring <NEW_DOCS> for function <FUNCTION>. The original docstring is <ORIGINAL_DOCS>.`
+        },
+        {
+            APPLY: "The <NEW_DOCS> is a significant improvement to <ORIGINAL_DOCS>.",
+            NIT: "The <NEW_DOCS> contains nits (minor adjustments) to <ORIGINAL_DOCS>.",
+        }, {
+            model: "large",
+            responseType: "text",
+            temperature: 0.2,
+            systemSafety: false,
+            system: ["system.technical", "system.typescript"],
+        }
+    )
+
+    if (shouldApply.label === "NIT") {
+        output.warn("LLM suggests minor adjustments, skipping")
+        continue
+    }
     replace(comment, docs)
 }
 

@@ -172,8 +172,8 @@ export async function resolveFileContent(
 
 /**
  * Converts input into a WorkspaceFile structure.
- * @param fileOrFilename - Input can be a filename string or a WorkspaceFile object.
- * @returns A WorkspaceFile object.
+ * @param fileOrFilename - The input, which can be a filename string or an object representing a WorkspaceFile.
+ * @returns A WorkspaceFile object with the filename or the original WorkspaceFile object.
  */
 export function toWorkspaceFile(fileOrFilename: string | WorkspaceFile) {
     return typeof fileOrFilename === "string"
@@ -185,8 +185,9 @@ export function toWorkspaceFile(fileOrFilename: string | WorkspaceFile) {
  * Resolves the contents of multiple files asynchronously.
  * Iterates through the provided files, resolving their content based on type or source.
  * @param files - Array of files to process and resolve content for.
- * @param options - Optional parameters for tracing, cancellation handling, and maximum file size.
+ * @param options - Optional parameters for tracing and cancellation handling.
  *   - cancellationToken - Token to handle cancellation of the operation.
+ *   - trace - Optional tracing object for logging operations.
  */
 export async function resolveFileContents(
     files: WorkspaceFile[],
@@ -201,12 +202,11 @@ export async function resolveFileContents(
 
 /**
  * Renders the content of a file into a markdown format if applicable.
- * Supports rendering for CSV and XLSX file types by converting 
- * their contents into readable markdown tables.
+ * Supports rendering for CSV and XLSX file types by converting their contents into readable markdown tables.
  * 
- * @param file - The file object containing filename and content.
- * @param options - Options for tracing and filtering the file data.
- * @returns An object containing the filename and rendered content.
+ * @param file - The file object containing filename and content. If the content matches a supported format, it will be rendered.
+ * @param options - Options for tracing operations and filtering the file data during rendering.
+ * @returns An object containing the filename and rendered content, or the original file object if rendering is not applicable.
  */
 export async function renderFileContent(
     file: WorkspaceFile,
@@ -297,9 +297,9 @@ export async function resolveFileBytes(
 
 /**
  * Converts a file to a Data URI format.
- * @param filename - The file name, URL, or data URI to convert.
- * @param options - Optional parameters for tracing and fetching.
- * @returns A Data URI string, or undefined if the MIME type is not determined.
+ * @param filename - The file name, URL, or data URI to convert. Supports local files, remote URLs, and data URIs.
+ * @param options - Optional parameters for tracing and fetch configuration.
+ * @returns A Data URI string if the MIME type is determined, otherwise undefined.
  */
 export async function resolveFileDataUri(
     filename: string,
