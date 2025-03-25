@@ -20,6 +20,6 @@ export default async function (ctx: ChatGenerationContext) {
 
     $`## Git`
     if (branch) $`The current branch is ${branch}.`
-    if (defaultBranch)
-        $`The default branch is ${defaultBranch} ${cwd ? `in ${cwd}` : ""}.`
+    if (defaultBranch) $`The default branch is ${defaultBranch}.`
+    if (cwd) $`The git repository is located at ${cwd}.`
 }
