@@ -68,6 +68,14 @@ export interface AuthenticationToken {
     credential: TokenCredential
 }
 
+/**
+ * Determines if the provided Azure authentication token is expired.
+ * The token is considered expired if it does not exist or if its expiration 
+ * timestamp is earlier than the current time minus a safety margin of 5 seconds.
+ *
+ * @param token - The authentication token to evaluate.
+ * @returns A boolean indicating whether the token is expired.
+ */
 export function isAzureTokenExpired(token: AuthenticationToken) {
     // Consider the token expired 5 seconds before the actual expiration to avoid timing issues
     return !token || token.expiresOnTimestamp < Date.now() - 5_000
@@ -250,10 +258,24 @@ export interface RuntimeHost extends Host {
 }
 
 export let host: Host
+/**
+ * Sets the host instance for the application.
+ * This function accepts a host object and assigns it to the global host variable,
+ * enabling the application to interact with the specified host functionalities.
+ *
+ * @param h - The host instance to be set.
+ */
 export function setHost(h: Host) {
     host = h
 }
 export let runtimeHost: RuntimeHost
+/**
+ * Sets the runtime host for the application.
+ * This function initializes the global runtime host variable 
+ * and updates the underlying host reference.
+ *
+ * @param h - The runtime host instance to set.
+ */
 export function setRuntimeHost(h: RuntimeHost) {
     setHost(h)
     runtimeHost = h

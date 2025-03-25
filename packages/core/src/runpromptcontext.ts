@@ -108,6 +108,17 @@ import { terminalSize } from "./terminal"
 import { stderr, stdout } from "./stdio"
 import { dotGenaiscriptPath } from "./workdir"
 
+/**
+ * Creates a context for generating chat turns.
+ * 
+ * This function initializes a new chat turn generation context, which includes a 
+ * prompt node for maintaining the structure of the prompt, a console for logging, 
+ * and various methods for writing text, defining data, and handling templates.
+ * 
+ * @param options Configuration options for generation.
+ * @param trace An object for tracing the generation process.
+ * @return An object containing the chat turn generation context and the associated prompt node.
+ */
 export function createChatTurnGenerationContext(
     options: GenerationOptions,
     trace: MarkdownTrace
@@ -330,6 +341,19 @@ export interface RunPromptContextNode extends ChatGenerationContext {
     node: PromptNode
 }
 
+/**
+ * Creates a chat generation context for handling chat-based interactions.
+ *
+ * @param options Configuration options for the generation, including cancellation token and user state.
+ * @param trace A tracing object for logging execution details.
+ * @param projectOptions An object containing project information and environment variables.
+ * @returns A context object for running prompts, defining agents, tools, schemas, and handling various actions like image generation, transcription, and speech synthesis.
+ * 
+ * The context allows for the definition of operational parameters such as default output processors, tools, agent behaviors, and file outputs. 
+ * It also provides methods to handle asynchronous operations related to generating responses, managing memory, and processing inputs.
+ *
+ * The function integrates with underlying language models and handles error management to ensure robustness during execution.
+ */
 export function createChatGenerationContext(
     options: GenerationOptions,
     trace: MarkdownTrace,

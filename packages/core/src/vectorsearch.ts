@@ -35,6 +35,16 @@ interface EmbeddingsCacheKey {
  */
 type EmbeddingsCache = JSONLineCache<EmbeddingsCacheKey, EmbeddingsResponse>
 
+/**
+ * Creates a cached embedder that utilizes an embedding function
+ * with caching capabilities.
+ *
+ * @param embedder The embedding function to be wrapped with caching.
+ * @param options Optional parameters for cache configuration.
+ *   - cacheName: Name of the cache to use.
+ *   - cacheSalt: Optional salt to uniquely identify cache entries.
+ * @returns A new embedding function that checks the cache before invoking the original embedder.
+ */
 export function createCachedEmbedder(
     embedder: EmbeddingFunction,
     options?: { cacheName?: string; cacheSalt?: string }

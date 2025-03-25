@@ -181,6 +181,23 @@ export function resolveSystems(
     return res
 }
 
+/**
+ * Adds fallback tool systems to the provided systems array if applicable.
+ * 
+ * This function checks if any tools are available and if the system already 
+ * contains a tool call identifier. If there are supported tools or fallback 
+ * tools specified in the options or generation options, it adds a tool_calls 
+ * system to the systems array.
+ * 
+ * @param systems - The array of system instances to which fallback tool systems 
+ *                  may be added.
+ * @param tools - The array of tool callbacks to evaluate for fallback systems.
+ * @param options - Optional model options that may contain fallback tool 
+ *                  specifications.
+ * @param genOptions - Optional generation options that may include fallback tool 
+ *                     configurations.
+ * @returns A boolean indicating whether fallback tools were added or not.
+ */
 export function addFallbackToolSystems(
     systems: SystemPromptInstance[],
     tools: ToolCallback[],

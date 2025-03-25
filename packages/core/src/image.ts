@@ -165,6 +165,16 @@ async function encode(
     }
 }
 
+/**
+ * Transforms an image based on the specified options.
+ *
+ * This function prepares the image from the provided URL, applying any transformations defined in the options. 
+ * It then encodes the image and returns it as a Buffer.
+ *
+ * @param url - The source of the image, which can be a URL, Buffer, or Blob.
+ * @param options - Configuration options that include image transformation settings and trace options.
+ * @returns A promise that resolves to a Buffer containing the transformed image.
+ */
 export async function imageTransform(
     url: BufferLike,
     options: ImageTransformOptions & TraceOptions & CancellationOptions
@@ -191,6 +201,16 @@ export async function imageEncodeForLLM(
     return await encode(img, options)
 }
 
+/**
+ * Asynchronously encodes and tiles multiple images for use in LLMs (Language Learning Models).
+ *
+ * This function accepts an array of image URLs, processes each image in parallel, and composites them into a single tiled image. The resulting image is then encoded as a data URI suitable for LLM applications.
+ *
+ * @param urls - An array of image sources, which can be URLs, Buffers, or Blobs.
+ * @param options - Configuration options that include image definitions and trace options.
+ * @throws Error if no images are provided for tiling.
+ * @returns A promise that resolves to an encoded image data URI after tiling the input images.
+ */
 export async function imageTileEncodeForLLM(
     urls: BufferLike[],
     options: DefImagesOptions & TraceOptions & CancellationOptions
@@ -236,6 +256,19 @@ export async function imageTileEncodeForLLM(
     return await encode(canvas, { ...options, detail: undefined })
 }
 
+/**
+ * Renders an image to the terminal within a specified area.
+ *
+ * The image is prepared and scaled according to the provided dimensions,
+ * and then displayed with optional labeling. The rendering uses colored
+ * characters to simulate the original image's pixels.
+ *
+ * @param url - The source of the image, which can be a URL string, Buffer, or Blob.
+ * @param options - Configuration options including the number of columns,
+ *                  number of rows, and an optional label for the image.
+ * @returns A promise that resolves to a string representation of the image
+ *          formatted for terminal display.
+ */
 export async function renderImageToTerminal(
     url: BufferLike,
     options: {

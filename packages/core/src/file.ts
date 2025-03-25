@@ -203,6 +203,16 @@ ${dataToMarkdownTable(tidyData(rows, options))}
     return { ...file }
 }
 
+/**
+ * Converts a Data URI into a buffer.
+ * Checks if the input string is formatted as a Data URI and extracts
+ * the base64-encoded content. If valid, it decodes the content 
+ * into a byte array; otherwise, it returns undefined.
+ * 
+ * @param filename - The Data URI string to convert.
+ * @returns A Uint8Array representing the decoded content, or undefined if the format is invalid.
+ * @throws Error if the Data URI format is invalid.
+ */
 export function dataUriToBuffer(filename: string) {
     if (/^data:/i.test(filename)) {
         const matches = filename.match(/^data:[^;]+;base64,(.*)$/i)

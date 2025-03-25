@@ -61,6 +61,12 @@ import {
 } from "./server/messages"
 import { arrayify } from "./util"
 
+/**
+ * Parses the OLLAMA host variable from the given environment variables.
+ * It checks for the presence of OLLAMA_HOST or OLLAMA_API_BASE in the environment, 
+ * or defaults to the predefined OLLAMA_API_BASE. It validates the input format and 
+ * constructs a URL for the OLLAMA API, returning the appropriate HTTP endpoint.
+ */
 export function ollamaParseHostVariable(env: Record<string, string>) {
     dbg(`ollamaParseHostVariable called with env: ${JSON.stringify(env)}`)
     const s = (
@@ -77,6 +83,17 @@ export function ollamaParseHostVariable(env: Record<string, string>) {
     return url.href
 }
 
+/**
+ * Finds the environment variable by searching for specific prefixes and names.
+ * Iterates over the provided prefixes and attempts to locate a corresponding 
+ * environment variable name within the given names array. The search is 
+ * case-insensitive.
+ *
+ * @param env - The object containing environment variables.
+ * @param prefixes - A string or an array of strings to be used as prefixes for variable names.
+ * @param names - An array of possible variable names to search for.
+ * @returns An object containing the name and value of the found variable, or undefined if not found.
+ */
 export function findEnvVar(
     env: Record<string, string>,
     prefixes: string | string[],
@@ -97,6 +114,18 @@ export function findEnvVar(
     return undefined
 }
 
+/**
+ * Parses environment variables to set default model configurations for the runtime environment.
+ * 
+ * This function retrieves the following configurations:
+ * - GENAISCRIPT_DEFAULT_MODEL: Sets the default model alias for the runtime.
+ * - GENAISCRIPT_DEFAULT_TEMPERATURE: Sets the default temperature for the model if specified.
+ * 
+ * It utilizes a regex pattern to identify environment variables that match the naming convention for model identifiers 
+ * and sets the corresponding aliases with their associated values.
+ * 
+ * The function processes all entries in the `env` object, logging each found variable and its value.
+ */
 export async function parseDefaultsFromEnv(env: Record<string, string>) {
     dbg(`parsing process.env`)
     // legacy
@@ -124,6 +153,20 @@ export async function parseDefaultsFromEnv(env: Record<string, string>) {
     }
 }
 
+/**  
+ * Parses and retrieves configuration information from the environment variables  
+ * for a specified language model identified by its model ID.  
+ *  
+ * @param env - The object containing environment variables.  
+ * @param modelId - The identifier for the language model.  
+ *  
+ * @returns A LanguageModelConfiguration object containing the provider, model,  
+ * base URL, token, type, version, and source. Returns undefined if the model  
+ * can’t be configured or an error is thrown for missing or invalid configurations.  
+ *  
+ * @throws Will throw an error if the required environment variables are not set,  
+ * or if the configurations are invalid, such as invalid URLs or missing API keys.  
+ */
 export async function parseTokenFromEnv(
     env: Record<string, string>,
     modelId: string

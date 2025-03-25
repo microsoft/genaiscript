@@ -9,10 +9,27 @@ function tryReadFile(fn: string) {
     )
 }
 
+/**
+ * Checks if the given filename has a JSON Lines (JSONL) extension.
+ * Supported extensions include .jsonl, .mdjson, and .ldjson.
+ *
+ * @param fn - The filename to check.
+ * @returns True if the filename has a JSONL extension; otherwise, false.
+ */
 export function isJSONLFilename(fn: string) {
     return /\.(jsonl|mdjson|ldjson)$/i.test(fn)
 }
 
+/**
+ * Parses a JSON Lines (JSONL) formatted string and returns an array of objects.
+ * This function processes each line of the input string, attempting to parse it 
+ * as JSON using the JSON5 parsing utility. Lines that are blank or result in 
+ * undefined or null values during parsing are excluded from the output array.
+ *
+ * @param text - The JSONL formatted string to parse.
+ * @param options - Optional parameters for parsing, including a repair option.
+ * @returns An array of parsed objects from the input string.
+ */
 export function JSONLTryParse(
     text: string,
     options?: {
@@ -29,6 +46,16 @@ export function JSONLTryParse(
     return res
 }
 
+/**
+ * Converts an array of objects to a JSON Lines (JSONL) formatted string.
+ * Each object is serialized to a JSON string and concatenated with newline 
+ * characters. If the input array is empty or contains no valid objects, an 
+ * empty string is returned.
+ *
+ * @param objs - The array of objects to be converted to JSONL format.
+ * 
+ * @returns A string representing the array of objects in JSONL format.
+ */
 export function JSONLStringify(objs: any[]) {
     if (!objs?.length) return ""
     const acc: string[] = []
@@ -54,10 +81,26 @@ async function writeJSONLCore(fn: string, objs: any[], append: boolean) {
     await host.writeFile(fn, buf)
 }
 
+/**
+ * Writes an array of objects to a specified JSONL file.
+ * This function overwrites any existing content in the file.
+ * 
+ * @param fn - The name of the file to write to.
+ * @param objs - The array of objects to be written to the file in JSONL format.
+ */
 export async function writeJSONL(fn: string, objs: any[]) {
     await writeJSONLCore(fn, objs, false)
 }
 
+/**
+ * Appends objects to a JSON Lines (JSONL) file.
+ * If meta information is provided, each object will include that meta data under the `__meta` key.
+ * The file's content is preserved if it already exists.
+ * 
+ * @param name - The name of the JSONL file to append to.
+ * @param objs - The array of objects to append.
+ * @param meta - Optional meta information to attach to each object.
+ */
 export async function appendJSONL<T>(name: string, objs: T[], meta?: any) {
     if (meta)
         await writeJSONLCore(

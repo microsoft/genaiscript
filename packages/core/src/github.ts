@@ -99,6 +99,21 @@ async function githubGetPullRequestNumber() {
     return id
 }
 
+/**
+ * Parses the environment variables to extract GitHub connection information.
+ * 
+ * This function constructs a GithubConnectionInfo object utilizing environment variables 
+ * such as GITHUB_TOKEN, GITHUB_REPOSITORY, and GITHUB_REF. It allows overriding certain 
+ * properties, including owner, repo, and issue number. If the repository details are 
+ * incomplete, it attempts to retrieve them using the GitHub CLI. If the issue number is 
+ * not provided and resolveIssue is true, it will attempt to fetch the current pull request 
+ * number.
+ * 
+ * @param env - A record containing environment variables.
+ * @param options - Optional parameters for overriding certain properties.
+ * 
+ * @returns A promise that resolves to a frozen GithubConnectionInfo object.
+ */
 export async function githubParseEnv(
     env: Record<string, string>,
     options?: { issue?: number; resolveIssue?: boolean } & Partial<
@@ -218,6 +233,17 @@ export async function githubUpdatePullRequestDescription(
     return r
 }
 
+/**
+ * Merges a new text description into an existing body of text within
+ * specified comment tags. If the tags are found in the body, the new
+ * text is inserted between the tags along with a header. If the tags are
+ * not found, the new text is appended to the end, wrapped in the tags.
+ *
+ * @param commentTag - The tag used to identify the comment section.
+ * @param body - The existing body text which may contain the comment tags.
+ * @param text - The new text to be merged into the body.
+ * @returns The updated body with the new text merged appropriately.
+ */
 export function mergeDescription(
     commentTag: string,
     body: string,
@@ -245,6 +271,15 @@ export function mergeDescription(
     return body
 }
 
+/**
+ * Generates a footer indicating that the content was AI-generated, including a link to the script's run URL.
+ * Optionally displays the code associated with the generation.
+ *
+ * @param script - The script object which contains the ID of the script.
+ * @param info - An object containing the run URL for the script execution.
+ * @param code - An optional string representing the code related to the generated content.
+ * @returns A formatted string containing the footer message.
+ */
 export function generatedByFooter(
     script: PromptScript,
     info: { runUrl?: string },
@@ -253,6 +288,18 @@ export function generatedByFooter(
     return `\n\n> AI-generated content by ${link(script.id, info.runUrl)}${code ? ` \`${code}\` ` : ""} may be incorrect\n\n`
 }
 
+/**
+ * Appends a generated comment to a script based on the provided annotation.
+ *
+ * This function constructs a comment string in Markdown format that includes the
+ * annotation's message, code, and severity. It also incorporates a footer
+ * indicating that the content was AI-generated, along with a link to the run URL.
+ *
+ * @param script - The script instance used for generating the comment footer.
+ * @param info - An object containing information about the run, including the run URL.
+ * @param annotation - The diagnostic annotation containing message, code, and severity.
+ * @returns The formatted comment string in Markdown.
+ */
 export function appendGeneratedComment(
     script: PromptScript,
     info: { runUrl?: string },
@@ -425,6 +472,23 @@ async function githubCreatePullRequestReview(
     return r
 }
 
+/**
+ * Creates review comments on a pull request based on provided annotations.
+ *
+ * This function retrieves existing comments on the specified pull request,
+ * checks for existing reviews, and creates new reviews for each annotation
+ * provided. It requires the GitHub API token and ensures that the necessary
+ * pull request and commit SHA information is present before proceeding.
+ *
+ * @param script - Contextual information about the script generating the reviews.
+ * @param info - Information about the GitHub connection, including API URL,
+ *               repository details, issue number, run URL, and commit SHA.
+ * @param annotations - A list of diagnostic annotations that will be used to
+ *                      create review comments on the pull request.
+ *
+ * @returns A boolean indicating the success of the operation, true if reviews
+ *          were successfully created, false otherwise.
+ */
 export async function githubCreatePullRequestReviews(
     script: PromptScript,
     info: Pick<

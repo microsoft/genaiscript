@@ -118,14 +118,38 @@ export function dataToMarkdownTable(
     return res.join("") // Join rows with newline
 }
 
+/**
+ * Creates a Markdown table separator row based on the provided headers.
+ *
+ * The separator row consists of dashes representing the columns in the header, 
+ * formatted for use in Markdown tables. Each column is separated by a pipe ('|').
+ *
+ * @param headers - An array of headers for the table columns.
+ * @returns A string representing the Markdown table separator row.
+ */
 export function headersToMarkdownTableSeperator(headers: string[]) {
     return `|${headers.map(() => "-").join("|")}|\n`
 }
 
+/**
+ * Generates the Markdown table header from an array of headers.
+ *
+ * @param headers - Array of header names for the Markdown table.
+ * @returns A string representing the formatted Markdown table header.
+ */
 export function headersToMarkdownTableHead(headers: string[]) {
     return `|${headers.join("|")}|\n`
 }
 
+/**
+ * Converts a row object into a Markdown table row format.
+ *
+ * @param row - The object representing a single row of data.
+ * @param headers - An array of headers corresponding to the columns in the table.
+ * @param options - Optional configuration for escaping special characters.
+ * @param options.skipEscape - If true, skips escaping special Markdown characters.
+ * @returns A string representing the row formatted as a Markdown table row.
+ */
 export function objectToMarkdownTableRow(
     row: object,
     headers: string[],

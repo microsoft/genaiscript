@@ -1,3 +1,16 @@
+/**
+* """
+* Asserts that a given condition is true. If the condition is false, logs an error message and throws an exception. Optionally supports additional debug data for logging.
+* 
+* Parameters:
+* - cond: A boolean condition to evaluate.
+* - msg: An optional message to display if the assertion fails.
+* - debugData: Optional extra data for debugging output when the assertion fails.
+* 
+* Throws:
+* - Error with the provided message if the condition is false.
+* """
+*/
 export function assert(
     cond: boolean,
     msg = "Assertion failed",

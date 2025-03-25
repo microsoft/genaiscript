@@ -220,6 +220,15 @@ export function createTextNode(
     return { type: "text", value, ...(options || {}) }
 }
 
+/**
+ * Converts a definition name to a reference format based on the specified fence format options.
+ * If the name is provided and the fence format is XML, it wraps the name in angle brackets.
+ * Otherwise, it returns the name as is.
+ *
+ * @param name - The name of the definition.
+ * @param options - The options containing fence format settings.
+ * @returns The formatted definition reference name.
+ */
 export function toDefRefName(
     name: string,
     options: FenceFormatOptions
@@ -252,6 +261,20 @@ function cloneContextFields(n: PromptNode): Partial<PromptNode> {
     return r
 }
 
+/**
+ * Creates a definition node representing the difference between two content sources.
+ * 
+ * This function accepts two inputs, which can either be strings or workspace files,
+ * and generates a node containing the diff result. If the inputs are strings,
+ * they are converted into workspace files. The function processes both inputs to 
+ * resolve their content and then computes the difference. The processed diff is 
+ * returned as part of a definition node with the specified name and options.
+ *
+ * @param name The name of the definition node.
+ * @param left The first content source, which can be a string or a workspace file.
+ * @param right The second content source, which can be a string or a workspace file.
+ * @param options Options that may affect the processing and rendering of the definition node.
+ */
 export function createDefDiff(
     name: string,
     left: string | WorkspaceFile,
@@ -398,6 +421,13 @@ export function createAssistantNode(
     return { type: "assistant", value, ...(options || {}) }
 }
 
+/**
+ * Creates a system node within a prompt.
+ * 
+ * @param value The content of the system node.
+ * @param options Optional parameters to customize the node's context expansion.
+ * @returns A system node object containing the specified value and options.
+ */
 export function createSystemNode(
     value: Awaitable<string>,
     options?: ContextExpansionOptions
@@ -507,6 +537,15 @@ export function createImportTemplate(
     } satisfies PromptImportTemplate
 }
 
+/**
+ * Creates a new MCP (Multi-Channel Protocol) server node.
+ * 
+ * @param id - The unique identifier for the MCP server.
+ * @param config - The configuration settings for the MCP server.
+ * @param options - Optional parameters for tool configuration.
+ * 
+ * @returns A PromptMcpServerNode object representing the MCP server.
+ */
 export function createMcpServer(
     id: string,
     config: McpServerConfig,
@@ -657,6 +696,12 @@ export interface PromptNodeRender {
     disposables: AsyncDisposable[] // Disposables
 }
 
+/**
+ * Resolves the fence format for the given model identifier.
+ *
+ * @param modelid - The identifier of the model for which to resolve the fence format.
+ * @returns The resolved fence format for the specified model.
+ */
 export function resolveFenceFormat(modelid: string): FenceFormat {
     return DEFAULT_FENCE_FORMAT
 }
@@ -1378,6 +1423,17 @@ ${trimNewlines(schemaText)}
     return res
 }
 
+/**
+ * Finalizes the messages for prompt processing by appending system messages
+ * regarding file generation rules and output schemas. It also performs secret
+ * scanning on the messages if enabled.
+ *
+ * @param messages - The array of chat completion messages to be finalized.
+ * @param options - Configuration options including file generation rules,
+ *                  response schema, response type, and secret scanning settings.
+ * 
+ * @returns An object containing the finalized response type and response schema.
+ */
 export function finalizeMessages(
     messages: ChatCompletionMessageParam[],
     options: {

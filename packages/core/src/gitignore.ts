@@ -10,6 +10,13 @@ import { logVerbose } from "./util"
 
 export type GitIgnorer = (files: string[]) => string[]
 
+/**
+ * Creates a Git ignorer function that filters files based on patterns from specified .gitignore files.
+ * It reads the contents of the .gitignore files, initializes an ignorer instance, and adds the patterns to it.
+ * If no .gitignore files are found, a function that returns the original file list is returned.
+ *
+ * @returns A function that accepts an array of file paths and returns a filtered array excluding ignored files.
+ */
 export async function createGitIgnorer(): Promise<GitIgnorer> {
     const gitignores = [
         await tryReadText(GIT_IGNORE),
@@ -45,6 +52,16 @@ export async function filterGitIgnore(files: string[]) {
     return ignorer(files)
 }
 
+/**
+ * Ensures that specified entries are present in the .gitignore file.
+ * Reads the current content of the .gitignore file, adds any missing entries,
+ * and writes the updated content back to the file.
+ *
+ * @param dir - The directory containing the .gitignore file.
+ * @param entries - An array of entries to ensure are included in the .gitignore.
+ * Checks each entry against the current contents of the .gitignore file
+ * and appends it if it is not already present.
+ */
 export async function gitIgnoreEnsure(dir: string, entries: string[]) {
     const fn = host.path.join(dir, GIT_IGNORE)
     dbg(`reading file ${fn}`)

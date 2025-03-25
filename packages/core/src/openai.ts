@@ -72,6 +72,16 @@ import { fromBase64 } from "./base64"
 import debug from "debug"
 const dbg = debug("genaiscript:openai")
 
+/**
+ * Constructs the necessary headers for API requests based on the provided configuration.
+ * It extracts the authorization token, API key, and user agent from the configuration.
+ * In cases where the provider is 'azure_serverless_models', it parses the token to 
+ * retrieve specific model keys if applicable. The headers are then returned as an 
+ * object, ensuring that undefined values are removed.
+ *
+ * @param cfg Configuration object containing necessary details for header construction.
+ * @returns An object containing the headers for the API request.
+ */
 export function getConfigHeaders(cfg: LanguageModelConfiguration) {
     let { token, type, base, provider } = cfg
     if (type === "azure_serverless_models") {
@@ -567,6 +577,17 @@ export const OpenAIListModels: ListModelsFunction = async (cfg, options) => {
     }
 }
 
+/**
+ * Transcribes audio files using the specified model.
+ *
+ * @param req - The transcription request containing audio file details and options.
+ * @param cfg - Configuration settings for the language model.
+ * @param options - Additional options including tracing and cancellation tokens.
+ * @returns A promise that resolves to the transcription result or an error if the operation fails.
+ * 
+ * This function logs the transcription process, sends the audio file to the specified endpoint,
+ * and handles the response to provide the transcribed text.
+ */
 export async function OpenAITranscribe(
     req: CreateTranscriptionRequest,
     cfg: LanguageModelConfiguration,
@@ -612,6 +633,16 @@ export async function OpenAITranscribe(
     }
 }
 
+/**
+ * Generates speech audio from the provided text input using a specified model.
+ *
+ * @param req - The request object containing input parameters for speech generation, including model, input text, and voice.
+ * @param cfg - The configuration object containing API settings and model details.
+ * @param options - Optional tracing and cancellation options.
+ * 
+ * @returns A promise that resolves to an object containing the generated audio in Uint8Array format and any potential error message.
+ * Logs verbose information during the process and handles errors gracefully.
+ */
 export async function OpenAISpeech(
     req: CreateSpeechRequest,
     cfg: LanguageModelConfiguration,
@@ -656,6 +687,16 @@ export async function OpenAISpeech(
     }
 }
 
+/**
+ * Generates an image based on the provided specifications.
+ *
+ * @param req - Object containing the request parameters including model, prompt, size, quality, and style.
+ * @param cfg - Configuration object that contains settings for the image generation API.
+ * @param options - Options for tracing and cancellation.
+ * 
+ * @returns An object containing the generated image in binary format and any revised prompt information.
+ *          If an error occurs, it includes an error message.
+ */
 export async function OpenAIImageGeneration(
     req: CreateImageRequest,
     cfg: LanguageModelConfiguration,
@@ -725,6 +766,19 @@ export async function OpenAIImageGeneration(
     }
 }
 
+/**
+ * Generates embeddings for the provided input using the specified language model configuration.
+ * 
+ * @param input - The text input for which embeddings are to be generated.
+ * @param cfg - Configuration object containing base URL, provider, type, and model information.
+ * @param options - Options for tracing and cancellation handling.
+ * 
+ * @returns A promise that resolves to an object containing the status of the operation, 
+ *          the generated embeddings, or an error message if the operation fails.
+ * 
+ * Handles different provider types to construct the appropriate URL for the embedding request.
+ * The function also manages rate limiting responses and cancellation requests efficiently.
+ */
 export async function OpenAIEmbedder(
     input: string,
     cfg: LanguageModelConfiguration,
@@ -798,6 +852,17 @@ export async function OpenAIEmbedder(
     }
 }
 
+/**
+ * Creates a language model compatible with OpenAI's API.
+ *
+ * @param providerId - The identifier for the provider.
+ * @param options - Configuration options for the model behavior.
+ * @param options.listModels - Flag to enable model listing functionality.
+ * @param options.transcribe - Flag to enable transcription functionality.
+ * @param options.speech - Flag to enable speech generation functionality.
+ * @param options.imageGeneration - Flag to enable image generation functionality.
+ * @returns A frozen language model object with the specified capabilities.
+ */
 export function LocalOpenAICompatibleModel(
     providerId: string,
     options: {

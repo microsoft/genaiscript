@@ -155,6 +155,13 @@ export function installGlobals() {
     glb.system = () => {}
 }
 
+/**
+ * Installs global context properties from the provided prompt context.
+ * This function extracts keys from the given context and assigns their values
+ * to the global object, enabling access to these properties throughout the application.
+ *
+ * @param ctx - The prompt context containing fields to be installed in the global context.
+ */
 export function installGlobalPromptContext(ctx: PromptContext) {
     const glb = resolveGlobal() // Get the global context
 

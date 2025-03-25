@@ -28,6 +28,19 @@ export function jinjaRender(
     return collapseEmptyLines(res)
 }
 
+/**
+ * Renders a chat message using Jinja templating.
+ *
+ * This function processes a ChatCompletionMessageParam to extract its content,
+ * which may consist of text, image URLs, or refusal messages. The extracted 
+ * content is then combined into a single template string. The Jinja rendering 
+ * function is invoked with the constructed template and the provided arguments 
+ * to generate the final output.
+ *
+ * @param msg - The chat message containing content to be rendered.
+ * @param args - An object containing key-value pairs for template substitution.
+ * @returns The rendered output as a string.
+ */
 export function jinjaRenderChatMessage(
     msg: ChatCompletionMessageParam,
     args: Record<string, any>

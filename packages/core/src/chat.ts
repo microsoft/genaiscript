@@ -944,6 +944,19 @@ async function processChatMessage(
     )
 }
 
+/**
+ * Merges generation options and run options into a single configuration object.
+ * 
+ * This function combines user-defined options with default values from the 
+ * runtime host. It ensures that the resulting configuration includes 
+ * the most relevant model settings for a generation task.
+ * 
+ * @param options The base generation options to be merged.
+ * @param runOptions The options specific to the current run, which may override 
+ *                   defaults in the base options.
+ * @returns The merged generation options containing settings for model, 
+ *          temperature, fallback tools, reasoning effort, and embeddings model.
+ */
 export function mergeGenerationOptions(
     options: GenerationOptions,
     runOptions: ModelOptions & EmbeddingsModelOptions
@@ -1029,6 +1042,25 @@ async function choicesToLogitBias(
     return logit_bias
 }
 
+/**
+ * Executes a chat session with a language model, processing messages and tool definitions.
+ *
+ * @param connectionToken - Configuration for connecting to the language model.
+ * @param cancellationToken - Token to handle cancellation of the operation.
+ * @param messages - Array of message parameters for the chat session.
+ * @param toolDefinitions - Definitions of tools available for the chat session.
+ * @param schemas - Schemas to validate the output data.
+ * @param fileOutputs - Array of file outputs to be processed.
+ * @param outputProcessors - Handlers for processing prompt outputs.
+ * @param fileMerges - Handlers for merging file outputs.
+ * @param prediction - The prediction context for generating responses.
+ * @param completer - Function to call for generating chat completions.
+ * @param chatParticipants - Participants in the chat with their respective generators.
+ * @param disposables - Resources that should be disposed of after execution.
+ * @param genOptions - Options for controlling the behavior of the generation process.
+ *
+ * @returns Result of the run prompt execution.
+ */
 export async function executeChatSession(
     connectionToken: LanguageModelConfiguration,
     cancellationToken: CancellationToken,
@@ -1340,6 +1372,16 @@ function updateChatFeatures(
     deleteUndefinedValues(req)
 }
 
+/**
+ * Traces the output of a prompt result by recording detailed information.
+ * 
+ * This function processes the provided response, capturing the reasoning 
+ * and determining the output type (JSON, XML, Markdown, or plain text). 
+ * It appends this information to the trace for further analysis.
+ * 
+ * @param trace The trace object used to log details.
+ * @param resp The response containing output text and reasoning.
+ */
 export function tracePromptResult(
     trace: MarkdownTrace,
     resp: { text?: string; reasoning?: string }
@@ -1367,6 +1409,16 @@ export function tracePromptResult(
     }
 }
 
+/**
+ * Appends a user message to the chat messages array.
+ * If the last message in the array is from the user, it concatenates the new content to the existing content.
+ * If the last message is not from the user or if cache control options differ, a new user message is created.
+ * Handles both string and image content types.
+ *
+ * @param messages - The array of chat messages to update.
+ * @param content - The content to append, which can be a string or a PromptImage.
+ * @param options - Optional parameters that can include cache control settings.
+ */
 export function appendUserMessage(
     messages: ChatCompletionMessageParam[],
     content: string | PromptImage,
@@ -1408,6 +1460,15 @@ export function appendUserMessage(
     }
 }
 
+/**
+ * Appends a message from the assistant to the chat history.
+ * If the last message from the assistant is not present or has a different cache control setting, a new assistant message is created.
+ * The new content is added to the last assistant message or set as the content if it's the first message.
+ *
+ * @param messages - The array of chat messages.
+ * @param content - The content to be appended to the assistant's message.
+ * @param options - Optional settings for caching control.
+ */
 export function appendAssistantMessage(
     messages: ChatCompletionMessageParam[],
     content: string,
@@ -1442,6 +1503,19 @@ export function appendAssistantMessage(
     }
 }
 
+/**
+ * Appends a system message to the beginning of the messages array.
+ * If the content is empty, the function exits without making changes. 
+ * A new system message object is created if the last message 
+ * is not already a system message or if the cache control options differ.
+ * The content is added to the existing system message or set as 
+ * the content for a new system message.
+ *
+ * @param messages - An array of chat completion messages to which 
+ * the system message will be appended.
+ * @param content - The content of the system message to be added.
+ * @param options - Optional parameters including cache control options.
+ */
 export function appendSystemMessage(
     messages: ChatCompletionMessageParam[],
     content: string,
@@ -1477,6 +1551,14 @@ export function appendSystemMessage(
     }
 }
 
+/**
+ * Adds tool definitions to chat messages.
+ * This function appends system messages containing the specifications of the provided tools in YAML format.
+ * It ensures that the message structure is maintained, creating a new system message if one does not exist.
+ *
+ * @param messages Array of chat messages to which tool definitions will be added.
+ * @param tools Array of tool callback functions whose specifications will be serialized to YAML.
+ */
 export function addToolDefinitionsMessage(
     messages: ChatCompletionMessageParam[],
     tools: ToolCallback[]

@@ -11,6 +11,17 @@ import {
 } from "@tidyjs/tidy"
 import { arrayify } from "./util"
 
+/**
+ * Slices the given data rows based on specified options.
+ *
+ * This function applies sampling, head, or tail slicing to the provided data rows
+ * according to the configuration in the options parameter.
+ *
+ * @param rows - The data rows to be sliced.
+ * @param options - Configuration options for slicing, including sample size, 
+ *                  head count, and tail count.
+ * @returns The sliced data rows based on the provided options.
+ */
 export function sliceData(rows: any[], options: ArrayFilter = {}) {
     if (!rows) return rows
 

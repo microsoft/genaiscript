@@ -14,6 +14,15 @@ import { collapseNewlines } from "./cleaners"
 import { gitIgnoreEnsure } from "./gitignore"
 import { dotGenaiscriptPath } from "./workdir"
 
+/**
+ * Creates a new script object based on the provided name and optional template.
+ * If no template is provided, a default template is used with the given name as the title.
+ * The new script object will have an empty ID and include properties for title, text, and JavaScript source.
+ *
+ * @param name - The name of the new script.
+ * @param options - Optional parameters including a template for the new script and an alternative title.
+ * @returns A new script object with the specified properties.
+ */
 export function createScript(
     name: string,
     options?: { template: PromptScript; title?: string }
@@ -31,6 +40,15 @@ export function createScript(
     return t
 }
 
+/**
+ * Fixes prompt definitions in the specified project by updating configuration files
+ * and ensuring system and tool identifiers are current. It iterates through
+ * project folders, checking for the existence of specific files, and updates
+ * them with the appropriate definitions and identifiers based on the current
+ * project scripts.
+ * 
+ * @param project - The project containing scripts to update.
+ */
 export async function fixPromptDefinitions(project: Project) {
     const folders = collectFolders(project)
     const systems = project.scripts.filter((t) => t.isSystem)
@@ -97,6 +115,21 @@ ${tools.map((s) => `* - \`${s.id}\`: ${s.description}`).join("\n")}
 }
 
 let _fullDocsText: string
+/**
+ * Fixes and updates custom prompt files.
+ *
+ * This function writes the TypeScript definition file `genaiscript.d.ts`
+ * and optionally writes a GitHub Copilot prompt file and documentation file.
+ *
+ * If `githubCopilotPrompt` is true, it writes the GitHub Copilot prompt file
+ * to the specified prompts directory. If `docs` is true, it fetches documentation
+ * content from a specified URL and writes it to the documentation directory.
+ * The function handles the creation and writing of `.gitignore` files as well.
+ *
+ * @param options - Configuration options for the operation.
+ * @param options.githubCopilotPrompt - Indicates whether to write the GitHub Copilot prompt file.
+ * @param options.docs - Indicates whether to fetch and write the documentation.
+ */
 export async function fixCustomPrompts(options?: {
     githubCopilotPrompt?: boolean
     docs?: boolean

@@ -39,6 +39,18 @@ import { dedent } from "./indent"
 import { vttSrtParse } from "./transcription"
 import { encodeIDs } from "./cleaners"
 
+/**
+ * Creates a collection of parsers based on the provided options.
+ * 
+ * This function initializes various parsers for different file formats, 
+ * allowing for parsing operations such as JSON, YAML, XML, CSV, Excel, 
+ * and more. Each parser function processes input content and returns 
+ * the structured result. It supports asynchronous file operations 
+ * and integrates tracing and cancellation capabilities.
+ * 
+ * @param options - Configuration options including model, trace, and cancellation token.
+ * @returns A promise that resolves to an object containing parser functions.
+ */
 export async function createParsers(
     options: {
         model: string

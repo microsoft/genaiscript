@@ -61,6 +61,18 @@ export interface ModelConnectionInfo
     model: string
 }
 
+/**
+ * Traces the configuration of a language model connection.
+ *
+ * This function logs the details of the model configuration and additional parameters
+ * associated with the language model connection. It includes information such as
+ * model name, version, provider, and various parameters like temperature and maxTokens.
+ * It also handles choices and logs model aliases with their respective details.
+ *
+ * @param trace - The trace object for logging details.
+ * @param options - The model options containing configuration settings.
+ * @param connectionToken - The token containing connection-specific information.
+ */
 export function traceLanguageModelConnection(
     trace: MarkdownTrace,
     options: ModelOptions,
@@ -135,11 +147,31 @@ export function traceLanguageModelConnection(
     }
 }
 
+/**
+ * Checks if the given model name corresponds to an existing model alias.
+ *
+ * The function evaluates the runtimeHost's modelAliases to determine if 
+ * the provided model name is recognized as an alias. Returns a boolean 
+ * indicating the existence of the alias.
+ *
+ * @param model - The name of the model to check for alias existence.
+ * @returns True if the model is an alias, false otherwise.
+ */
 export function isModelAlias(model: string): boolean {
     const res = !!runtimeHost.modelAliases[model]
     return res
 }
 
+/**
+ * Resolves a model alias to its corresponding model configuration.
+ * Throws an error if the model is not specified or if a circular alias is detected.
+ * 
+ * This function checks the runtimeHost for model aliases and resolves the given model
+ * by following its aliases until the original model configuration is found.
+ * 
+ * @param model - The model identifier to resolve.
+ * @returns The resolved model configuration.
+ */
 export function resolveModelAlias(model: string): ModelConfiguration {
     if (!model) throw new Error("Model not specified")
     const { modelAliases } = runtimeHost
@@ -161,6 +193,16 @@ export function resolveModelAlias(model: string): ModelConfiguration {
     return res
 }
 
+/**
+ * Resolves the model connection information based on the provided options and connection parameters.
+ * It first attempts to resolve the model alias and checks if candidates can be supported based on the model hint.
+ * If a valid model is found, it retrieves the language model configuration.
+ * Handles potential errors during resolution and reports them if applicable.
+ *
+ * @param conn - The model connection options containing connection parameters.
+ * @param options - Optional parameters including model hints, default model, and token request.
+ * @returns An object containing the resolved model connection information and potentially the configuration.
+ */
 export async function resolveModelConnectionInfo(
     conn: ModelConnectionOptions,
     options?: {

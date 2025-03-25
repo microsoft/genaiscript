@@ -8,6 +8,19 @@ import { host } from "./host"
 import { uniq } from "es-toolkit"
 import { readText, writeText } from "./fs"
 
+/**
+ * Searches for files matching a specified glob pattern and applies a matcher to find nodes within those files.
+ * 
+ * @param lang - The programming language to use for parsing files.
+ * @param glob - A pattern or array of patterns to match files.
+ * @param matcher - A string or matcher object used to identify nodes in the files.
+ * @param options - Options to configure the search process, including cancellation options.
+ * 
+ * @returns An object containing the number of files scanned, matched nodes, a replace function to modify nodes, 
+ *          and a commitEdits function to apply changes to the files.
+ * 
+ * @throws Error if glob or matcher is not provided.
+ */
 export async function astGrepFindFiles(
     lang: SgLang,
     glob: ElementOrArray<string>,
@@ -105,6 +118,14 @@ export async function astGrepFindFiles(
     return { files: scanned, matches, replace, commitEdits }
 }
 
+/**
+ * Writes edits to the roots of the provided nodes. For each unique root,
+ * it checks if the current content differs from the updated content. If they 
+ * are different, it writes the updated content to the corresponding file.
+ * 
+ * @param nodes - An array of nodes whose edits need to be written.
+ * @param options - Optional settings that may include a cancellation token.
+ */
 export async function astGrepWriteRootEdits(
     nodes: SgNode[],
     options?: CancellationOptions
@@ -127,6 +148,20 @@ export async function astGrepWriteRootEdits(
     }
 }
 
+/**
+ * Parses the content of a given workspace file and resolves its language.
+ *
+ * This function checks for binary encoding, retrieves the file content, 
+ * and utilizes the AST-Grep library to parse the content based on the 
+ * specified or inferred language. It supports cancellation tokens to 
+ * allow for interruption of long-running processes.
+ *
+ * @param file The workspace file to be parsed.
+ * @param options Optional parameters including language specification 
+ *                and cancellation options.
+ * @returns The root AST node of the parsed file content, or undefined 
+ *          if the file is binary or if the language cannot be resolved.
+ */
 export async function astGrepParse(
     file: WorkspaceFile,
     options?: { lang?: SgLang } & CancellationOptions

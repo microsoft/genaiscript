@@ -99,6 +99,19 @@ export async function createFetch(
     return fetchRetry
 }
 
+/**
+ * Fetches a resource from a given input URL or Request object.
+ *
+ * This function creates a fetch function with retry capabilities based
+ * on specified options. It handles configuration for retries, delay 
+ * between retries, and tracing.
+ *
+ * @param input - The URL or Request object from which to fetch a resource.
+ * @param options - Optional configurations for fetching, including retry 
+ *                  settings and tracing options.
+ * @returns A Promise that resolves to a Response object containing the 
+ *          result of the fetch operation.
+ */
 export async function fetch(
     input: string | URL | globalThis.Request,
     options?: FetchOptions & TraceOptions

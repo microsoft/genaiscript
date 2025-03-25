@@ -4,6 +4,14 @@ import LLMS from "./llms.json"
 import { deleteEmptyValues } from "./cleaners"
 import { uniq } from "es-toolkit"
 
+/**
+ * Generates default model configurations based on predefined model IDs and available aliases.
+ * Collects aliases from a list of model IDs and the LLMS providers, then creates a configuration 
+ * object containing references to the models. It also includes source information for each model 
+ * configuration and eliminates any empty values in the final output.
+ * 
+ * @returns Default model configurations object.
+ */
 export function defaultModelConfigurations(): ModelConfigurations {
     const aliases = collectAliases([
         LARGE_MODEL_ID,
