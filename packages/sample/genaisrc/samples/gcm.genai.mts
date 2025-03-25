@@ -32,6 +32,7 @@ const { chunkSize, maxChunks, gitmoji } = env.vars
 const diff = await git.diff({
     staged: true,
     askStageOnEmpty: true,
+    ignoreSpaceChange: true,
 })
 
 // If no staged changes are found, cancel the script with a message
