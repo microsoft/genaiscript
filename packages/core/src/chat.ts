@@ -98,6 +98,7 @@ import { renderMessagesToTerminal } from "./chatrenderterminal"
 import { fileCacheImage } from "./filecache"
 import { stderr } from "./stdio"
 import { prettyTokens } from "./pretty"
+import { isQuiet } from "./quiet"
 
 function toChatCompletionImage(
     image: PromptImage
@@ -1210,13 +1211,14 @@ export async function executeChatSession(
                         messages,
                     }
                     updateChatFeatures(reqTrace, model, req)
-                    stderr.write(
-                        await renderMessagesToTerminal(messages, {
-                            user: true,
-                            tools,
-                            model,
-                        })
-                    )
+                    if (!isQuiet)
+                        stderr.write(
+                            await renderMessagesToTerminal(messages, {
+                                user: true,
+                                tools,
+                                model,
+                            })
+                        )
 
                     const infer = async () => {
                         logVerbose(`\n`)

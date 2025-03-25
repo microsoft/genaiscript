@@ -47,23 +47,6 @@ export function toStringList(...token: string[]) {
 }
 
 /**
- * Parses a string and determines its boolean equivalent.
- *
- * @param s The string to parse. Expected values for `true` include "y", "yes", "true", or "ok" (case-insensitive).
- *          Expected values for `false` include "n", "no", "false", or "ok" (case-insensitive).
- *
- * @returns `true` if the input matches a positive boolean string, `false` if it matches a negative boolean string,
- *          or `undefined` if the input does not match either.
- */
-export function parseBoolean(s: string) {
-    return /^\s*(y|yes|true|ok)\s*$/i.test(s)
-        ? true
-        : /^\s*(n|no|false|ok)\s*$/i.test(s)
-          ? false
-          : undefined
-}
-
-/**
  * Collapses consecutive empty lines in a given text to a maximum of one.
  *
  * @param text - The input text to process. Can be undefined or null.

@@ -7,13 +7,13 @@ import {
     DOCKER_VOLUMES_DIR,
     DOCKER_CONTAINER_VOLUME,
 } from "../../core/src/constants"
-import { hash, randomHex } from "../../core/src/crypto"
+import { hash } from "../../core/src/crypto"
 import { errorMessage } from "../../core/src/error"
 import { host } from "../../core/src/host"
 import { TraceOptions } from "../../core/src/trace"
 import { logError, logVerbose, arrayify } from "../../core/src/util"
 import { CORE_VERSION } from "../../core/src/version"
-import { isQuiet } from "./log"
+import { isQuiet } from "../../core/src/quiet"
 import Dockerode, { Container } from "dockerode"
 import { shellParse, shellQuote } from "../../core/src/shell"
 import { PLimitPromiseQueue } from "../../core/src/concurrency"

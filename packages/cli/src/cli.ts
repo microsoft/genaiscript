@@ -5,7 +5,7 @@
 
 import { NodeHost } from "./nodehost" // Handles node environment setup
 import { Command, Option, program } from "commander" // Command-line argument parsing library
-import { error, isQuiet, setQuiet } from "./log" // Logging utilities
+import { isQuiet, setQuiet } from "../../core/src/quiet" // Logging utilities
 import { startServer } from "./server" // Function to start server
 import { NODE_MIN_VERSION, PROMPTFOO_VERSION } from "./version" // Version constants
 import { runScriptWithExitCode } from "./run" // Execute scripts with exit code
@@ -63,6 +63,7 @@ import { logPerformance } from "../../core/src/performance"
 import { setConsoleColors } from "../../core/src/consolecolor"
 import { listRuns } from "./runs"
 import { startMcpServer } from "./mcpserver"
+import { error } from "./log"
 
 /**
  * Main function to initialize and run the CLI.
