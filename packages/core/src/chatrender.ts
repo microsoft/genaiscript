@@ -52,9 +52,11 @@ export function renderShellOutput(output: ShellOutput) {
 /**
  * Renders the content of a message into a formatted string.
  * 
- * @param msg - The message object containing content, which may include text, images, audio, or other types.
- * @param options - Configuration options for rendering, including text formatting, image caching, and language.
- * @returns A formatted string representation of the message content, or undefined if the content is invalid.
+ * @param msg - The message object containing content, which may include text, images, audio, or other types. 
+ *              Supports both string and array-based content.
+ * @param options - Configuration options for rendering, including text formatting, image caching, and language. 
+ *                  Includes optional functions for caching images.
+ * @returns A formatted string representation of the message content, or undefined if the content is invalid or unsupported.
  */
 export async function renderMessageContent(
     msg:
@@ -109,8 +111,9 @@ export function lastAssistantReasoning(messages: ChatCompletionMessageParam[]) {
 
 /**
  * Renders a list of chat messages into a formatted markdown string.
- * @param messages - The list of chat messages to process and render.
- * @param options - Configuration options for filtering messages by roles, formatting, and tool inclusion.
+ * 
+ * @param messages - The list of chat messages to render.
+ * @param options - Configuration options for filtering messages by role, formatting language, cancellation, and tool inclusion.
  * @returns A markdown string representation of the chat messages.
  */
 export async function renderMessagesToMarkdown(

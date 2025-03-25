@@ -6,7 +6,7 @@ export let consoleColors = !!stdout.isTTY
 
 /**
  * Enables or disables console color output.
- * @param enabled - Indicates whether to enable or disable color output.
+ * @param enabled - Whether to enable or disable color output.
  */
 export function setConsoleColors(enabled: boolean) {
     consoleColors = !!enabled
@@ -22,7 +22,7 @@ export function setConsoleColors(enabled: boolean) {
 /**
  * Wraps a message with ANSI escape codes for the specified color.
  * @param n - The ANSI color code or string to apply.
- * @param message - The text to wrap with color codes.
+ * @param message - The text to wrap with ANSI escape codes.
  */
 export function wrapColor(n: number | string, message: string) {
     if (consoleColors) return `\x1B[${n}m${message}\x1B[0m`
@@ -33,10 +33,10 @@ export function wrapColor(n: number | string, message: string) {
 /**
  * Wraps text with RGB ANSI color codes for foreground or background.
  * Converts an RGB integer to its red, green, and blue components and applies the corresponding ANSI escape codes.
- * Does nothing if color output is disabled.
- * @param rgb - The RGB color as a single integer
- * @param text - The text to which the color will be applied
- * @param background - Specifies if the color is for the background
+ * Returns the original text if color output is disabled.
+ * @param rgb - RGB color as a single integer.
+ * @param text - Text to apply the color to.
+ * @param background - Whether the color is for the background.
  */
 
 export function wrapRgbColor(

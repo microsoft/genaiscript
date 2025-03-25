@@ -28,8 +28,8 @@ async function digest(algorithm: string, data: Uint8Array) {
 /**
  * Generates a random hexadecimal string of the specified size.
  *
- * @param size - The number of random bytes to generate, which will be converted to a hexadecimal string.
- * @returns A hexadecimal string representation of the generated random bytes.
+ * @param size - Number of random bytes to generate, converted to a hexadecimal string.
+ * @returns Hexadecimal string representation of the generated random bytes.
  */
 export function randomHex(size: number) {
     // Create a new Uint8Array with the specified size to hold random bytes
@@ -121,9 +121,9 @@ export async function hash(value: any, options?: HashOptions) {
 /**
  * Computes the hash of a file using a streaming approach.
  *
- * @param filePath - Path to the file for which the hash is calculated.
- * @param algorithm - Hashing algorithm to use, defaults to "sha-256".
- * @returns A promise resolving to the file's hash in hexadecimal format.
+ * @param filePath - The path to the file to hash.
+ * @param algorithm - The hashing algorithm to use, defaults to "sha-256".
+ * @returns A promise that resolves to the file's hash in hexadecimal format.
  */
 export async function hashFile(
     filePath: string,

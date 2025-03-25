@@ -14,7 +14,7 @@ import { filenameOrFileToContent } from "./unwrappers"
  * @param text - The CSV string or file to parse.
  * @param options - Optional configuration for parsing.
  * @param options.delimiter - The delimiter used in the CSV, defaults to a comma.
- * @param options.headers - Column headers for the CSV, as an array or single value.
+ * @param options.headers - Column headers for the CSV, as an array or single value. If not provided, headers are inferred from the first line.
  * @param options.repair - Whether to repair common escape errors, defaults to false.
  * @returns An array of objects representing the parsed CSV data.
  */
@@ -55,13 +55,13 @@ export function CSVParse(
 /**
  * Attempts to parse a CSV string into an array of objects, handling errors gracefully.
  *
- * @param text - The CSV string to parse.
+ * @param text - The CSV string to parse. Returns an empty array if the input is empty.
  * @param options - Optional configuration for parsing and error handling.
- * @param options.delimiter - Delimiter to separate values, defaults to comma.
- * @param options.headers - Array of column headers for the parsed data.
- * @param options.repair - Flag to enable basic error correction in the input data.
- * @param options.trace - Optional trace function for logging errors during parsing.
- * @returns An array of objects representing the parsed CSV data, or undefined on error.
+ * @param options.delimiter - The delimiter used to separate values, defaults to a comma.
+ * @param options.headers - Column headers for the parsed data, as an array or single value.
+ * @param options.repair - Enables basic error correction in the input data.
+ * @param options.trace - Trace function for logging errors during parsing.
+ * @returns An array of objects representing the parsed CSV data, or undefined if an error occurs.
  */
 export function CSVTryParse(
     text: string,
@@ -87,7 +87,7 @@ export function CSVTryParse(
  * Converts an array of objects into a CSV string.
  *
  * @param csv - Array of objects to convert to CSV format. Returns an empty string if the input is null or undefined.
- * @param options - Optional configuration for CSV stringification, including headers and delimiter settings.
+ * @param options - Configuration for CSV stringification, including headers and delimiter settings.
  * @returns A CSV formatted string representation of the input data.
  */
 export function CSVStringify(csv: object[], options?: CSVStringifyOptions) {
@@ -97,12 +97,12 @@ export function CSVStringify(csv: object[], options?: CSVStringifyOptions) {
 }
 
 /**
- * Converts an array of objects into a Markdown table format.
+ * Converts an array of objects into a Markdown table.
  *
- * @param csv - The array of objects representing CSV data.
- * @param options - Options for formatting the table.
- * @param options.headers - Array of headers for the table columns.
- * @returns A string representing the CSV data in Markdown table format.
+ * @param csv - Array of objects representing the data to convert.
+ * @param options - Configuration options for the table.
+ * @param options.headers - Headers for the table columns. If not provided, keys from the first object are used.
+ * @returns A Markdown table as a string.
  */
 export function dataToMarkdownTable(
     csv: object[],
@@ -154,9 +154,9 @@ export function objectToMarkdownTableRow(
 /**
  * Splits an array of objects into chunks of a specified size.
  * 
- * @param rows - The array of objects to split into chunks.
- * @param size - The size of each chunk.
- * @returns An array of chunk objects with starting index and rows.
+ * @param rows - Array of objects to be divided into chunks.
+ * @param size - Number of objects per chunk. Must be at least 1.
+ * @returns Array of chunk objects, each containing a starting index and rows.
  */
 export function CSVChunk(
     rows: object[],

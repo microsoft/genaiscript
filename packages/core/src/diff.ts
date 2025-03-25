@@ -15,7 +15,8 @@ export interface Chunk {
  * Parses a text in the LLMD diff format into an array of chunks.
  * Each chunk represents a segment of existing, added, or deleted lines.
  * Adjusts line numbers, removes duplicate lines without actual changes, 
- * and ensures proper chunk segmentation.
+ * ensures proper chunk segmentation, and handles trailing empty lines.
+ * 
  * @param text - The diff text to parse.
  * @returns An array of chunks representing the diff.
  */
@@ -241,9 +242,9 @@ export class DiffError extends Error {
  * Applies a series of LLMDiff chunks to a source string using line numbers.
  * Processes modified and deleted chunks, then inserts added chunks in sequence.
  * Ensures valid line numbers and updates the source content accordingly.
- * 
+ *
  * @param source - The original source content to modify.
- * @param chunks - The list of chunks representing changes, including added, deleted, and modified lines.
+ * @param chunks - The list of chunks representing changes, including added, deleted, and existing lines.
  * @returns The updated source content after applying the changes.
  */
 export function applyLLMPatch(source: string, chunks: Chunk[]): string {
@@ -290,8 +291,8 @@ export function applyLLMPatch(source: string, chunks: Chunk[]): string {
 
 /**
  * Parses a diff string into a structured format using the parse-diff library.
- * @param diff - The input diff string to parse. Must be in a supported diff format.
- * @returns A parsed array of file objects, or undefined if parsing fails or no files are found.
+ * @param diff - The diff string to parse. Must be in a supported diff format.
+ * @returns A parsed array of file objects if successful, or undefined if parsing fails or no files are found.
  */
 export function tryParseDiff(diff: string) {
     let parsed: parseDiff.File[]
