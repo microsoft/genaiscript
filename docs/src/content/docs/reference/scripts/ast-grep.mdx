@@ -32,6 +32,13 @@ const { matches } = await asg.search("ts", "src/fib.ts", {
 })
 ```
 
+:::tip
+
+Use the [ast-grep playground](https://ast-grep.github.io/playground.html) to debug your queries,
+then copy them back into your GenAIScript script.
+
+:::
+
 ## Supported languages
 
 This version of `ast-grep` [supports the following built-in languages](https://ast-grep.github.io/reference/api.html#supported-languages):
@@ -42,13 +49,16 @@ This version of `ast-grep` [supports the following built-in languages](https://a
 - Css
 - TypeScript
 
-The following languages languages require installing an additiona package:
+The following languages require installing an additional package:
 
 - C, `@ast-grep/lang-c`
 
 ```sh
 npm install -D @ast-grep/lang-c
 ```
+
+- SQL, `@ast-grep/lang-sql`
+- Angular, `@ast-grep/lang-angular`
 
 :::tip
 
