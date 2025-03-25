@@ -64,8 +64,8 @@ for (const match of matches) {
             _.def("DOCS", docs)
         },
         {
-            OK: "The content in <DOCS> is an accurate documentation for the code in <FUNCTION>.",
-            ERR: "The content in <DOCS> does not match with the code in <FUNCTION>.",
+            ok: "The content in <DOCS> is an accurate documentation for the code in <FUNCTION>.",
+            err: "The content in <DOCS> does not match with the code in <FUNCTION>.",
         },
         {
             model: "small",
@@ -76,7 +76,7 @@ for (const match of matches) {
         }
     )
 
-    if (consistent.label !== "OK") {
+    if (consistent.label !== "ok") {
         output.warn(consistent.label)
         output.fence(consistent.answer)
         continue
@@ -99,7 +99,7 @@ if (applyEdits) {
 
 // normalizes the docstring in case the LLM decides not to generate proper comments
 function docify(docs: string) {
-    docs = parsers.unfence(docs, ["", "typescript", "ts", "javascript", "js"])
+    docs = parsers.unfence(docs, "*")
     if (!/^\/\*\*.*.*\*\/$/s.test(docs))
         docs = `/**\n* ${docs.split(/\r?\n/g).join("\n* ")}\n*/`
     return docs.replace(/\n+$/, "")

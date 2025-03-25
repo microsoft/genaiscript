@@ -101,6 +101,15 @@ export async function scriptModelInfo(
     console.log(YAMLStringify(info))
 }
 
+/**
+ * Outputs detailed information about model aliases and their resolved configurations.
+ * Each alias is expanded with its resolved counterpart.
+ * 
+ * @description This function iterates over the `modelAliases` in the runtime host, 
+ * retrieves configuration details for each alias, resolves them, and outputs the data in YAML format.
+ * 
+ * @param none This function does not require any parameters.
+ */
 export async function modelAliasesInfo() {
     const res = Object.fromEntries(
         Object.entries(runtimeHost.modelAliases).map(([k, v]) => [

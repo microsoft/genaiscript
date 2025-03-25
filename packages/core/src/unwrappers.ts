@@ -3,16 +3,16 @@ import { arrayify } from "./cleaners"
 /**
  * Remove code fences from a fenced block for the specified language.
  * @param text - The text containing the fenced block.
- * @param language - The language used in the fence.
- * @returns The text without fences.
+ * @param language - The language or array of languages used in the fence. Use "*" to match any language.
+ * @returns The text without fences, or the original text if no fences are found.
  */
-export function unfence(text: string, language?: ElementOrArray<string>) {
+export function unfence(text: string, language?: "*" | ElementOrArray<string>) {
     if (!text) return text
 
     language = arrayify(language)
     const lg = language
         .filter((s) => s !== undefined && s !== null)
-        .map((l) => l.replace(/[^a-z0-9_]/gi, ""))
+        .map((l) => (l === "*" ? ".*?" : l.replace(/[^a-z0-9_]/gi, "")))
         .join("|")
     const startRx = new RegExp(`^[\r\n\s]*(\`{3,})(${lg})\s*\r?\n`, "i")
     const mstart = startRx.exec(text)
@@ -38,7 +38,7 @@ export function unquote(s: string) {
 
 /**
  * Converts a file or its content into a string representation of the content.
- * 
+ *
  * @param fileOrContent - Either the file content as a string or a file object containing `content` property.
  * @returns The content of the file as a string.
  */
@@ -66,7 +66,7 @@ export function filenameOrFileToFilename(
 
 /**
  * Removes leading and trailing newline characters from a string.
- * 
+ *
  * @param s - The string to process. If null or undefined, it is returned as is.
  * @returns The string without leading or trailing newlines.
  */

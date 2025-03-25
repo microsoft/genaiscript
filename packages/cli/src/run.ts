@@ -111,6 +111,22 @@ import {
     createStatsDir,
 } from "../../core/src/workdir"
 
+/**
+ * Executes a script with a possible retry mechanism and exits the process with the appropriate code.
+ * Ensures necessary setup and handles retries on failure or cancellation.
+ *
+ * @param scriptId - The identifier of the script to execute.
+ * @param files - A list of file paths to use as input for the script.
+ * @param options - Configuration options for running the script. Includes retry parameters, trace configuration, and other execution-related settings.
+ *
+ * @property options.runRetry - The maximum number of retries on script failure.
+ * @property options.cancellationToken - Token to monitor if the operation is cancelled.
+ * @property options.cli - Indicates the script runs in CLI mode (set to true).
+ * @property options.out - Directory for output trace and result files.
+ * @property options.runTrace - Controls whether to enable trace writing for the run.
+ * @property options.model - Model configuration for the script execution.
+ * @property options.vars - Variables to pass to the script.
+ */
 export async function runScriptWithExitCode(
     scriptId: string,
     files: string[],
@@ -150,6 +166,31 @@ export async function runScriptWithExitCode(
     process.exit(exitCode)
 }
 
+/**
+ * Executes a script internally with supplied options and handles outputs.
+ *
+ * @param scriptId - The identifier of the script to be executed.
+ * @param files - Array of file paths or URLs to be processed by the script.
+ * @param options - Configuration object including additional execution parameters:
+ *   - runId: Optional identifier for the execution run.
+ *   - outputTrace: Instance for capturing trace outputs.
+ *   - cli: Indicates if CLI mode is active.
+ *   - infoCb: Callback function for informational messages.
+ *   - partialCb: Callback for reporting partial progress in chat completions.
+ *   - cancellationToken: Token for handling cancellation requests.
+ *   - runTrace: Enables/disables trace file writing.
+ *   - json/yaml: Toggles structured output formats.
+ *   - vars: Variables to pass to the script.
+ *   - reasoningEffort: Specifies reasoning intensity for model execution.
+ *   - annotations/changelogs/data/output options: Configs for exporting diagnostics, changes, intermediate data, and results.
+ *   - pullRequestComments, descriptions, or reviews: Enables integration with GitHub or Azure DevOps for updates.
+ *   - applyEdits: Indicates if file edits should be applied.
+ *   - other parameters for retries, limits, model settings, etc.
+ * 
+ * @returns A Promise resolving to an object containing:
+ *   - exitCode: Final exit code of the script execution.
+ *   - result: Generation result object from script processing.
+ */
 export async function runScriptInternal(
     scriptId: string,
     files: string[],

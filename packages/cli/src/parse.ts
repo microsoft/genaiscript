@@ -116,6 +116,17 @@ export async function parseHTMLToText(
     } else console.log(text)
 }
 
+/**
+ * Parses a Jinja2 file, substitutes variables, and logs the rendered output.
+ * 
+ * @param file - The path to the Jinja2 template file to parse.
+ * @param options - An object containing the following properties:
+ *   - vars: An array of key-value pairs in the format "key=value" to replace variables in the template.
+ * 
+ * The function reads the template file, processes it based on its type (Prompty or Markdown),
+ * substitutes the provided variables, and renders the output. Variable values are converted
+ * to numbers if possible.
+ */
 export async function parseJinja2(
     file: string,
     options: {
@@ -138,6 +149,22 @@ export async function parseJinja2(
     console.log(res)
 }
 
+/**
+ * Parses the input file and converts its data into a specified format.
+ * 
+ * @param file - Path to the file to be read and parsed.
+ * @param options - Configuration options for the output format.
+ * @param options.format - The target format for the output. Supported formats include:
+ *   - "yaml": Converts data to YAML format.
+ *   - "ini": Converts data to INI format.
+ *   - "csv": Converts data into a CSV format.
+ *   - "md" or "markdown": Converts data into a Markdown table.
+ *   - "json5": Converts data into JSON5 format.
+ *   - Default: Outputs data as a prettified JSON string.
+ * 
+ * Logs the converted data to the console.
+ * Throws an error if the data format cannot be determined.
+ */
 export async function parseAnyToJSON(
     file: string,
     options: { format: string }
@@ -246,6 +273,13 @@ export async function prompty2genaiscript(
     }
 }
 
+/**
+ * Scans a list of files for sensitive information or secrets.
+ * Logs each file containing secrets and the types of secrets found.
+ * Issues a warning if secrets are found in any files.
+ *
+ * @param files - A list of file paths or glob patterns to scan.
+ */
 export async function parseSecrets(files: string[]) {
     const fs = await expandFiles(files)
     let n = 0
@@ -263,6 +297,14 @@ export async function parseSecrets(files: string[]) {
     if (n > 0) console.warn(`found secrets in ${n} of ${fs.length} files`)
 }
 
+/**
+ * Parses a markdown file, breaks it into chunks based on token limits, and logs a preview of each chunk.
+ * 
+ * @param filename - The name of the markdown file to parse.
+ * @param options - Object containing parsing options.
+ *   - model - The model name used for token encoding.
+ *   - maxTokens - The maximum number of tokens allowed per chunk.
+ */
 export async function parseMarkdown(
     filename: string,
     options: { model: string; maxTokens: string }

@@ -4,6 +4,17 @@ import { fuzzSearch } from "../../core/src/fuzzsearch"
 import { vectorIndex, vectorSearch } from "../../core/src/vectorsearch"
 import { YAMLStringify } from "../../core/src/yaml"
 
+/**
+ * Generates a vector index for retrieval tasks by processing specified files.
+ *
+ * @param indexName - Name of the index to be created.
+ * @param filesGlobs - Glob patterns defining the target files for indexing.
+ * @param options - Additional configuration options.
+ *   @param excludedFiles - List of files to exclude from indexing.
+ *   @param embeddingsModel - Model used to generate embeddings.
+ *   @param ignoreGitIgnore - Whether to bypass .gitignore rules.
+ *   @param database - Backend type for storing the generated index.
+ */
 export async function retrievalIndex(
     indexName: string,
     filesGlobs: string[],

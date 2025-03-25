@@ -126,7 +126,7 @@ if (applyEdits) {
 
 // normalizes the docstring in case the LLM decides not to generate proper comments
 function docify(docs: string) {
-    docs = parsers.unfence(docs, ["", "typescript", "ts", "javascript", "js"])
+    docs = parsers.unfence(docs, "*")
     if (!/^\/\*\*.*.*\*\/$/s.test(docs))
         docs = `/**\n* ${docs.split(/\r?\n/g).join("\n* ")}\n*/`
     return docs.replace(/\n+$/, "")

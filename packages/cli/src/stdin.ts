@@ -45,6 +45,12 @@ function readStdinOrTimeout(): Promise<Buffer | undefined> {
     })
 }
 
+/**
+ * Reads data from standard input with a timeout mechanism and returns it wrapped in a `WorkspaceFile` object.
+ * The function determines the MIME type of the input and processes it accordingly as binary or text data.
+ * 
+ * @returns A `WorkspaceFile` object containing the parsed input data, or undefined if there is no data or if a timeout occurs.
+ */
 export async function readStdIn(): Promise<WorkspaceFile> {
     const data = await readStdinOrTimeout()
     if (!data?.length) return undefined

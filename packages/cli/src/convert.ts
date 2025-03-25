@@ -31,6 +31,23 @@ import { ensureDotGenaiscriptPath, getConvertDir } from "../../core/src/workdir"
 import { GenerationStats } from "../../core/src/usage"
 import { measure } from "../../core/src/performance"
 
+/**
+ * Converts a set of files based on a specified script, applying transformations and generating output files.
+ *
+ * @param scriptId - Identifier of the script to use for file conversion.
+ * @param fileGlobs - Array of file paths or glob patterns identifying files to be transformed.
+ * @param options - Additional configuration for the conversion process:
+ *   - `suffix` - Custom suffix for the output files.
+ *   - `rewrite` - If true, overwrites existing files instead of creating new ones with a suffix.
+ *   - `cancelWord` - A keyword that cancels processing if found in the result.
+ *   - `concurrency` - Number of files to process concurrently.
+ *   - Other options passed to the transformation process.
+ *
+ * @throws Error if the script is not found or no files match the given patterns.
+ *
+ * Resolves files matching the provided patterns, filters them based on exclusion and rewrite options, 
+ * applies AI transformations using the specified script, and writes results to output files.
+ */
 export async function convertFiles(
     scriptId: string,
     fileGlobs: string[],
