@@ -1,5 +1,4 @@
 import { classify } from "genaiscript/runtime"
-import debugifyGenai from "./debugify.genai.mts"
 import { docify } from "./src/docs.mts"
 import { prettier } from "./src/prettier.mts"
 
