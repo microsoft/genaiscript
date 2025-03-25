@@ -17,9 +17,10 @@ export interface FileReference {
 }
 
 /**
- * Converts diagnostic data into a CSV-formatted string.
- * @param diagnostics - Array of diagnostic objects containing severity, filename, range, code, and message.
- * @param sep - String used to separate CSV fields.
+ * Converts an array of diagnostic objects into a CSV-formatted string.
+ * Each diagnostic entry includes severity, filename, range start and end lines, code, and message.
+ * @param diagnostics - Array of diagnostic objects with severity, filename, range, code, and message properties.
+ * @param sep - Separator string for CSV fields.
  * @returns CSV string with each diagnostic entry on a new line.
  */
 export function diagnosticsToCSV(diagnostics: Diagnostic[], sep: string) {
@@ -41,7 +42,7 @@ export function diagnosticsToCSV(diagnostics: Diagnostic[], sep: string) {
 /**
  * Determines the group name of a template.
  * @param template - The template object containing an ID and an optional group property.
- * @returns The group name of the template. Returns "system" if the ID starts with "system", the group property if defined, or "unassigned" if no group is set or determined.
+ * @returns The group name of the template. Returns the group property if defined, "system" if the ID starts with "system", or "unassigned" if no group is set or determined.
  */
 export function templateGroup(template: PromptScript) {
     return (
@@ -56,9 +57,9 @@ export const eolPosition = 0x3fffffff // End of line position, a large constant
 export const eofPosition: CharPosition = [0x3fffffff, 0] // End of file position, a tuple with a large constant
 
 /**
- * Organizes templates by directory and identifies the presence of JavaScript or TypeScript files in each directory.
- * Excludes templates without filenames or those matching the PROMPTY_REGEX.
- * @param prj - The project containing scripts to analyze.
+ * Collects and organizes templates by their directory, identifying the presence of JavaScript or TypeScript files in each directory. 
+ * Excludes templates without filenames or those matching PROMPTY_REGEX.
+ * @param prj - The project containing the scripts to analyze.
  * @returns An array of directory objects with their names and flags indicating JavaScript and TypeScript file presence.
  */
 export function collectFolders(prj: Project) {
@@ -80,7 +81,8 @@ export function collectFolders(prj: Project) {
 
 /**
  * Finds a script in the project's scripts list by matching its ID with the system prompt instance.
- * @param prj - The project containing the scripts to search. Must include a scripts property.
+ * If the project or scripts list is undefined, returns undefined.
+ * @param prj - The project containing the scripts to search.
  * @param system - The system prompt instance containing the ID to match against.
  * @returns The script with the matching ID, or undefined if no match is found.
  */

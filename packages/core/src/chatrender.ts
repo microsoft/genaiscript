@@ -26,8 +26,8 @@ export interface ChatRenderOptions extends CancellationOptions {
 
 /**
  * Formats the output of a shell command into a readable string.
- * @param output - The shell execution result containing exit code, stdout, and stderr.
- * @returns A formatted string summarizing the shell output. Includes exit code if non-zero, stdout, and stderr, separated by double newlines. Returns stdout directly if the exit code is zero.
+ * @param output - The shell execution result containing exitCode, stdout, and stderr.
+ * @returns A formatted string summarizing the shell output. Includes exit code if non-zero, stdout formatted as text, and stderr formatted as text, separated by double newlines. Returns stdout directly if the exit code is zero.
  */
 export function renderShellOutput(output: ShellOutput) {
     // Destructure the output object to retrieve exitCode, stdout, and stderr.
@@ -55,7 +55,8 @@ export function renderShellOutput(output: ShellOutput) {
  * @param msg - The message object containing content, which may include text, images, audio, or other types. 
  *              Supports both string and array-based content. Unknown types are rendered as "unknown message".
  * @param options - Optional configuration for rendering, including text formatting, image caching, and language. 
- *                  Supports a function for caching images and defaults to markdown formatting if not specified.
+ *                  Supports a function for caching images and defaults to markdown formatting if not specified. 
+ *                  If textLang is "raw", returns raw content without formatting.
  * @returns A formatted string representation of the message content, or undefined if the content is invalid or unsupported.
  */
 export async function renderMessageContent(
@@ -113,7 +114,7 @@ export function lastAssistantReasoning(messages: ChatCompletionMessageParam[]) {
  * Renders a list of chat messages into a formatted markdown string.
  *
  * @param messages - The list of chat messages to render.
- * @param options - Configuration options for rendering, including text language, role filtering, cancellation, and tool inclusion. Supports filtering by system, user, assistant, and tool roles. Handles cancellation tokens and includes tools if provided.
+ * @param options - Configuration options for rendering, including text language, role filtering, cancellation token, and tool inclusion. Filters messages by system, user, assistant, and tool roles. Includes tools if provided. Handles cancellation tokens.
  * @returns A markdown string representation of the chat messages.
  */
 export async function renderMessagesToMarkdown(

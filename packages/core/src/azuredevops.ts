@@ -28,6 +28,7 @@ export interface AzureDevOpsEnv {
  * - SYSTEM_TEAMPROJECT: The name of the team project.
  * - BUILD_REPOSITORY_NAME: The name of the repository.
  * - BUILD_SOURCEBRANCH: The source branch for the build.
+ * - apiVersion: The API version used for Azure DevOps requests.
  */
 export async function azureDevOpsParseEnv(
     env: Record<string, string>

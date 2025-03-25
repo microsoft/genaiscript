@@ -28,8 +28,8 @@ async function digest(algorithm: string, data: Uint8Array) {
 /**
  * Generates a random hexadecimal string of the specified size.
  *
- * @param size - Number of random bytes to generate, converted to a hexadecimal string.
- * @returns Hexadecimal string representation of the generated random bytes.
+ * @param size - Number of random bytes to generate.
+ * @returns Hexadecimal string representation of the random bytes.
  */
 export function randomHex(size: number) {
     // Create a new Uint8Array with the specified size to hold random bytes

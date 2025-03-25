@@ -51,7 +51,7 @@ for (const match of matches) {
             _.def("DOCSTRING", comment.text(), { flex: 10 })
             _.def("FUNCTION", match.text(), { flex: 10 })
             // this needs more eval-ing
-            _.$`Update the docstring <DOCSTRING> of function <FUNCTION>.
+            _.$`Update the docstring <DOCSTRING> to match the code in function <FUNCTION>.
             - If the docstring is up to date, return /NOP/.
             - do not rephrase an existing sentence if it is correct.
             - Make sure parameters are documented.
