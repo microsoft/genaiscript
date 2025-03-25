@@ -41,8 +41,8 @@ import { prettyBytes } from "./pretty"
  * @param options - Optional parameters for tracing, cancellation handling, and maximum file size.
  *   - trace - Optional tracing object for logging operations.
  *   - cancellationToken - Token to handle cancellation of the operation.
- *   - maxFileSize - Maximum allowed file size for processing.
- * @returns The updated file object with resolved content or metadata.
+ *   - maxFileSize - Maximum allowed file size for processing. Defaults to MAX_FILE_CONTENT_SIZE.
+ * @returns The updated file object with resolved content or metadata. If the file cannot be resolved, it is returned as is.
  */
 export async function resolveFileContent(
     file: WorkspaceFile,
@@ -256,8 +256,8 @@ export function dataUriToBuffer(filename: string) {
 
 /**
  * Resolves and returns the file content as bytes.
- * @param filename - The file name, URL, data URI, or WorkspaceFile object to resolve. If a WorkspaceFile object, it uses its encoding and content if available. If a string, it resolves the file from the provided path or URL.
- * @param options - Optional parameters for tracing and cancellation handling, used for logging operations or canceling the process.
+ * @param filename - The file name, URL, data URI, or WorkspaceFile object to resolve. If a WorkspaceFile object, it uses its encoding and content if available. If a string, it resolves the file from the provided path, URL, or data URI. Supports both local files and remote URLs.
+ * @param options - Optional parameters for tracing and cancellation handling, used for logging operations or canceling the process. Includes tracing and fetch configuration.
  * @returns A Uint8Array containing the file content as bytes.
  */
 export async function resolveFileBytes(

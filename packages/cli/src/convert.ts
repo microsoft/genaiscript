@@ -135,7 +135,7 @@ export async function convertFiles(
     )
 
     const stats: object[] = []
-    const usage = new GenerationStats("")
+    const usage = new GenerationStats("convert")
     const results: Record<string, string> = {}
     const p = new PLimitPromiseQueue(normalizeInt(concurrency) || 1)
     await p.mapAll(files, async (file) => {
@@ -176,6 +176,9 @@ export async function convertFiles(
                 fileTrace.itemValue(`cancel word detected`, cancelWord)
                 return
             }
+            const end = m()
+            usage.addUsage(result.stats, end)
+            if (result.stats) stats.push(result.stats)
             logVerbose(Object.keys(result.fileEdits || {}).join("\n"))
             // structured extraction
             const fileEdit = Object.entries(result.fileEdits || {}).find(
@@ -231,9 +234,6 @@ export async function convertFiles(
             }
 
             results[file.filename] = text
-            const end = m()
-            usage.addUsage(result.stats, end)
-            if (result.stats) stats.push(result.stats)
         } catch (error) {
             logError(error)
             fileTrace.error(undefined, error)
