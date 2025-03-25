@@ -55,7 +55,6 @@ for (const match of matches) {
             - If the docstring is up to date, return /NOP/.
             - do not rephrase an existing sentence if it is correct.
             - Make sure parameters are documented.
-            - Be concise. Use technical tone.
             - do NOT include types, this is for TypeScript.
             - Use docstring syntax. do not wrap in markdown code section.
             - Minimize updates to the existing docstring.

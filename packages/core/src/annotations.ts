@@ -87,10 +87,32 @@ export function parseAnnotations(text: string): Diagnostic[] {
     return Array.from(annotations.values()) // Convert the set to an array
 }
 
+/**
+ * Removes all recognized annotations from the input text.
+ *
+ * Scans the input text for patterns matching TypeScript, GitHub Actions, 
+ * and Azure DevOps annotations, and removes them entirely.
+ *
+ * @param text Input text containing annotations to be removed.
+ * @returns A new string with all annotations stripped from the input text.
+ */
 export function eraseAnnotations(text: string) {
     return ANNOTATIONS_RX.reduce((t, rx) => t.replace(rx, ""), text)
 }
 
+/**
+ * Transforms all annotations found in the input text into formatted items.
+ *
+ * Iterates through all regular expressions in the annotations list to identify
+ * matches, extracts data from the matches, constructs Diagnostic objects, and
+ * formats them into string representations using the `convertAnnotationToItem` function.
+ *
+ * Replaces matched annotation patterns in the input text with their corresponding
+ * formatted item strings.
+ *
+ * @param text Input text containing annotations to be transformed.
+ * @returns A string where matched annotations are replaced with formatted items.
+ */
 export function convertAnnotationsToItems(text: string) {
     return ANNOTATIONS_RX.reduce(
         (t, rx) =>
@@ -113,6 +135,18 @@ export function convertAnnotationsToItems(text: string) {
     )
 }
 
+/**
+ * Formats a diagnostic annotation into a string representation suitable for display.
+ *
+ * Constructs a list item with an emoji indicating severity, the message, 
+ * and an optional filename with line reference. 
+ * If the file or line is unavailable, includes only the message.
+ *
+ * Maps severity levels to emojis using SEV_EMOJI_MAP. Defaults to "info" if severity is unknown.
+ *
+ * @param d The Diagnostic object containing details such as severity, message, filename, code, and range.
+ * @returns A formatted string representing the Diagnostic as a list item.
+ */
 export function convertAnnotationToItem(d: Diagnostic) {
     const { severity, message, filename, code, range } = d
     const line = range?.[0]?.[0]

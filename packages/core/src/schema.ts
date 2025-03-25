@@ -17,6 +17,12 @@ export function isJSONSchema(obj: any) {
     return false
 }
 
+/**
+ * Converts a JSON Schema into a TypeScript function parameters string.
+ * 
+ * @param schema - The JSON Schema to convert. Supports objects, arrays, and primitive types.
+ * @returns A string representation of function parameters, compatible with the provided schema.
+ */
 export function JSONSchemaToFunctionParameters(schema: JSONSchemaType): string {
     if (!schema) return ""
     else if ((schema as JSONSchemaAnyOf).anyOf) {
@@ -364,6 +370,13 @@ export function toStrictJSONSchema(
     return clone
 }
 
+/**
+ * Infers a JSON Schema from the given object.
+ * 
+ * @param obj - The input object for which to infer a JSON Schema.
+ *               This can include nested objects, arrays, and primitives.
+ * @returns A Promise resolving to the inferred JSON Schema.
+ */
 export async function JSONSchemaInfer(obj: any): Promise<JSONSchema> {
     const res = promptParametersSchemaToJSONSchema(obj, { noDefaults: true })
     return res

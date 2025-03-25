@@ -165,6 +165,25 @@ async function encode(
     }
 }
 
+/**
+ * Transforms an image based on the provided options.
+ * 
+ * @param url - The source of the image, which can be a URL, Buffer, or Blob.
+ * @param options - Configuration object for image transformation, including:
+ *   - mime: Optional MIME type for the output image.
+ *   - detail: Optional. Specifies the level of detail for the image (e.g., "original").
+ *   - cancellationToken: Optional. Token to handle cancellation of the operation.
+ *   - autoCrop: Optional. Indicates whether to automatically crop the image.
+ *   - maxHeight: Optional. Maximum height for resizing the image.
+ *   - maxWidth: Optional. Maximum width for resizing the image.
+ *   - scale: Optional. Scaling factor for resizing the image.
+ *   - rotate: Optional. Angle in degrees to rotate the image.
+ *   - crop: Optional. Cropping dimensions (x, y, width, height).
+ *   - flip: Optional. Specifies whether to flip the image vertically or horizontally.
+ *   - greyscale: Optional. Indicates whether to apply a greyscale effect.
+ * 
+ * @returns A Promise that resolves to the transformed image as a Buffer.
+ */
 export async function imageTransform(
     url: BufferLike,
     options: ImageTransformOptions & TraceOptions & CancellationOptions
@@ -191,6 +210,22 @@ export async function imageEncodeForLLM(
     return await encode(img, options)
 }
 
+/**
+ * Combines multiple images into a single tiled image and encodes it for use in Language Learning Models (LLMs).
+ *
+ * @param urls - An array of sources for the images to be tiled. Each source can be a URL, Buffer, or another supported format.
+ * @param options - Configuration for image processing, including:
+ *    - cancellationToken: Token to handle cancellation of the operation.
+ *    - detail: Detail level of the images (e.g., high, low, or original).
+ *    - mime: Desired MIME type for the output image.
+ *    - trace: Debug or trace options.
+ *    - crop, scale, rotate, greyscale, autoCrop: Image manipulation settings.
+ *    - other supported image generation options.
+ * 
+ * @throws Will throw an error if no images are provided in the input array.
+ *
+ * @returns A promise resolving to the tiled image encoded as a data URI or other specified format.
+ */
 export async function imageTileEncodeForLLM(
     urls: BufferLike[],
     options: DefImagesOptions & TraceOptions & CancellationOptions
@@ -236,6 +271,17 @@ export async function imageTileEncodeForLLM(
     return await encode(canvas, { ...options, detail: undefined })
 }
 
+/**
+ * Renders an image to the terminal within specified dimensions, adding an optional label.
+ *
+ * @param url - The source of the image, which can be a URL, Buffer, or similar.
+ * @param options - Configuration object containing:
+ *   - columns: The total number of terminal columns available.
+ *   - rows: The total number of terminal rows available.
+ *   - label: An optional string to display as the image's label.
+ *   - cancellationToken: Optional token to handle cancellation.
+ * @returns A string representation of the image formatted for terminal output.
+ */
 export async function renderImageToTerminal(
     url: BufferLike,
     options: {

@@ -99,6 +99,22 @@ async function githubGetPullRequestNumber() {
     return id
 }
 
+/**
+ * Parses GitHub environment variables to construct connection info for API usage.
+ *
+ * @param env - Environment variables to parse, typically `process.env`.
+ * @param options - Optional parameters:
+ *   - issue: The issue number to set explicitly.
+ *   - resolveIssue: Flag to resolve issue number via the GitHub CLI if not provided.
+ *   - owner: Repository owner to override environment variables.
+ *   - repo: Repository name to override environment variables.
+ * @returns A promise resolving to an object containing parsed GitHub connection information, including owner, repo, repository, issue, and token details.
+ *
+ * Notes:
+ * - If owner, repo, or repository details are missing, attempts to resolve them using the GitHub CLI.
+ * - If issue resolution is enabled and not provided, tries to determine the pull request number via the GitHub CLI.
+ * - Handles errors gracefully by logging verbose error messages but does not throw.
+ */
 export async function githubParseEnv(
     env: Record<string, string>,
     options?: { issue?: number; resolveIssue?: boolean } & Partial<
@@ -230,6 +246,17 @@ export async function githubUpdatePullRequestDescription(
     return r
 }
 
+/**
+ * Merges a new comment or text segment into the existing body, enclosed 
+ * within the specified comment tags. If tags exist, updates the content 
+ * between them; otherwise, appends the entire section.
+ *
+ * @param commentTag - The unique identifier tag used to demarcate the section 
+ *                     in the body where merging occurs.
+ * @param body - The existing text or content to be updated.
+ * @param text - The new content to merge into the body.
+ * @returns Updated body text with merged and formatted content.
+ */
 export function mergeDescription(
     commentTag: string,
     body: string,
@@ -257,6 +284,15 @@ export function mergeDescription(
     return body
 }
 
+/**
+ * Generates a footer indicating the content was AI-generated.
+ *
+ * @param script - The script instance responsible for generating the content.
+ * @param info - An object containing metadata, such as the URL to the workflow run.
+ *   - runUrl - Optional URL to the current workflow or run.
+ * @param code - Optional identifier code to be appended to the footer.
+ * @returns A formatted string serving as a footer, warning readers about the AI-generated content.
+ */
 export function generatedByFooter(
     script: PromptScript,
     info: { runUrl?: string },
@@ -265,6 +301,18 @@ export function generatedByFooter(
     return `\n\n> AI-generated content by ${link(script.id, info.runUrl)}${code ? ` \`${code}\` ` : ""} may be incorrect\n\n`
 }
 
+/**
+ * Appends an AI-generated comment with diagnostic details to a script.
+ *
+ * @param script - The script instance where the comment will be appended.
+ * @param info - Contains contextual information such as the run URL for generating the footer link.
+ *   - runUrl - The URL of the workflow or job run, if available.
+ * @param annotation - The diagnostic information to include in the comment.
+ *   - message - The diagnostic message to be displayed.
+ *   - code - An optional code identifier related to the diagnostic.
+ *   - severity - The level of severity (e.g., warning or error) for the diagnostic.
+ * @returns A formatted Markdown string representing the AI-generated comment with a footer and diagnostic details.
+ */
 export function appendGeneratedComment(
     script: PromptScript,
     info: { runUrl?: string },
@@ -437,6 +485,20 @@ async function githubCreatePullRequestReview(
     return r
 }
 
+/**
+ * Creates pull request review comments on GitHub for a set of code annotations.
+ *
+ * @param script - The script instance generating the comments.
+ * @param info - Connection details for GitHub, including API URL, repository, pull request issue number, run URL, and commit SHA.
+ * @param annotations - List of diagnostics or annotations to provide as review comments on the pull request.
+ * @returns A promise resolving to a boolean indicating whether all review comments were successfully created.
+ *
+ * Notes:
+ * - If no annotations are provided, the function skips creating reviews and resolves to true.
+ * - If the issue number or commit SHA is missing, the function logs an error and resolves to false.
+ * - Retrieves an authentication token from the secrets store to authenticate API requests.
+ * - Fetches existing pull request comments to avoid duplication when creating review comments.
+ */
 export async function githubCreatePullRequestReviews(
     script: PromptScript,
     info: Pick<

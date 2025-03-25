@@ -241,6 +241,13 @@ ${dataToMarkdownTable(tidyData(rows, options))}
     return { ...file }
 }
 
+/**
+ * Converts a data URI into a binary buffer.
+ *
+ * @param filename - The string to be inspected and potentially decoded. If the string is a valid data URI, its content will be converted to a binary buffer.
+ * @returns A binary buffer containing the decoded content of the data URI. Returns undefined if the input is not a valid data URI.
+ * @throws Will throw an error if the data URI format is invalid.
+ */
 export function dataUriToBuffer(filename: string) {
     if (/^data:/i.test(filename)) {
         dbg(`converting data URI to buffer`)

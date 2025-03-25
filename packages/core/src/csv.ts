@@ -120,14 +120,35 @@ export function dataToMarkdownTable(
     return res.join("") // Join rows with newline
 }
 
+/**
+ * Generates the Markdown table separator row based on headers.
+ *
+ * @param headers - Array of column headers used to determine the number of separator cells in the row.
+ * @returns A string representing the Markdown table separator row.
+ */
 export function headersToMarkdownTableSeperator(headers: string[]) {
     return `|${headers.map(() => "-").join("|")}|\n`
 }
 
+/**
+ * Generates the header row for a Markdown table.
+ *
+ * @param headers - Array of header names to be included in the table's first row.
+ * @returns A string representing the header row of a Markdown table, with headers separated by pipes, ending with a newline.
+ */
 export function headersToMarkdownTableHead(headers: string[]) {
     return `|${headers.join("|")}|\n`
 }
 
+/**
+ * Converts a single object into a Markdown table row.
+ *
+ * @param row - The object containing data for the row. Keys correspond to column headers.
+ * @param headers - The list of headers determining the order of columns in the row.
+ * @param options - Optional configuration settings.
+ * @param options.skipEscape - If true, skips escaping special Markdown characters.
+ * @returns A string representing the row formatted as a Markdown table row.
+ */
 export function objectToMarkdownTableRow(
     row: object,
     headers: string[],

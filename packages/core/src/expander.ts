@@ -31,6 +31,17 @@ import { installGlobalPromptContext } from "./globals"
 import { mark } from "./performance"
 import { tryReadJSON } from "./fs"
 
+/**
+ * Executes a prompt expansion process based on the provided prompt script, variables, and options.
+ *
+ * @param prj - The project instance in which the prompt script is executed.
+ * @param r - The prompt script to be evaluated, containing the logic and structure of the prompt.
+ * @param ev - Expansion variables to customize the prompt script evaluation.
+ * @param trace - The trace object used for generating logs and debugging details.
+ * @param options - Configuration options that influence the prompt expansion and evaluation.
+ * @param installGlobally - Specifies whether the prompt context should be installed globally.
+ * @returns An object containing the status of the operation, generated messages, images, schema definitions, tools, logs, and other related outputs.
+ */
 export async function callExpander(
     prj: Project,
     r: PromptScript,
@@ -171,6 +182,25 @@ function traceEnv(
     trace.endDetails()
 }
 
+/**
+* /**
+*  * Expands a template into a structured prompt to be used for generation.
+*  *
+*  * @param prj The project context for resolution of scripts and systems.
+*  * @param template The template script to be expanded.
+*  * @param options Configuration options for template expansion and generation.
+*  * @param env The environment variables and metadata for the template expansion process.
+*  * @returns An object containing the expanded prompt details, including messages, images, schemas, tools, and more.
+*  *
+*  * Parameters:
+*  * @param prj
+*  * - The current project instance, used to resolve associated systems and scripts.
+*  * 
+*  * @param template  
+*  * - The source template script containing configurations and definitions for prompt generation.
+*  *
+*  * @param  - has parameters/options i
+*/
 export async function expandTemplate(
     prj: Project,
     template: PromptScript,

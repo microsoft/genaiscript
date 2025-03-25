@@ -1,5 +1,16 @@
 import { serializeError as rawSerializeError } from "serialize-error"
 
+/**
+ * Serializes an error into a standardized format for easier handling.
+ *
+ * @param e - The input error to serialize. Can accept an unknown value, string, Error, or SerializedError.
+ *   - If `undefined` or `null`, returns `undefined`.
+ *   - If an instance of `Error`, serializes it using a custom depth and includes line and column details from the stack trace if available.
+ *   - If an object, converts it into a SerializedError.
+ *   - If a string, wraps it as the `message` property of a SerializedError.
+ *   - For other types, attempts to stringify and include as the `message` property.
+ * @returns The serialized error with standardized properties or `undefined` for nullish input.
+ */
 export function serializeError(
     e: unknown | string | Error | SerializedError
 ): SerializedError {
@@ -19,6 +30,13 @@ export function serializeError(
     else return { message: e.toString?.() }
 }
 
+/**
+ * Extracts the error message from an error-like object or returns a default value.
+ *
+ * @param e The error object to extract the message from. Can be an instance of `Error`, an object, or other error-like structures.
+ * @param defaultValue The default message to return if no message can be extracted. Defaults to "error".
+ * @returns The extracted error message or the `defaultValue` if none is found.
+ */
 export function errorMessage(e: any, defaultValue: string = "error"): string {
     if (e === undefined || e === null) return undefined
     if (typeof e.messsage === "string") return e.message
@@ -63,11 +81,27 @@ export class RequestError extends Error {
     }
 }
 
+/**
+ * Determines if the given error is a cancellation-related error.
+ *
+ * @param e - The error object to evaluate. Can be an Error or a SerializedError.
+ *            It is checked to determine if it matches the name of a CancelError
+ *            or an AbortError.
+ * @returns Boolean indicating whether the error is categorized as a cancellation error.
+ */
 export function isCancelError(e: Error | SerializedError) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return e?.name === CancelError.NAME || e?.name === "AbortError"
 }
 
+/**
+ * Determines if the given error is an instance of RequestError and optionally checks its status and code.
+ *
+ * @param e - The error object to evaluate.
+ * @param statusCode - Optional. A specific HTTP status code to check against the error's status.
+ * @param code - Optional. A specific error code to check against the error's body.
+ * @returns True if the error is a RequestError and matches the optional status and code, otherwise false.
+ */
 export function isRequestError(e: Error, statusCode?: number, code?: string) {
     return (
         e instanceof RequestError &&

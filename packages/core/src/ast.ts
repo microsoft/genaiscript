@@ -98,6 +98,18 @@ export interface ScriptFilterOptions {
     unlisted?: boolean
 }
 
+/**
+ * Filters a list of scripts based on the provided filter options.
+ * 
+ * @param scripts - The list of scripts to filter.
+ * @param options - An object containing filter criteria:
+ *   - ids: Array of specific script IDs to include.
+ *   - groups: Array of group names to filter by.
+ *   - test: If true, includes only scripts with defined tests.
+ *   - redteam: If true, includes only scripts marked for redteam.
+ *   - unlisted: If true, includes unlisted scripts; otherwise excludes them.
+ * @returns A filtered list of scripts matching the given criteria.
+ */
 export function filterScripts(
     scripts: PromptScript[],
     options: ScriptFilterOptions

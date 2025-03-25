@@ -5,6 +5,13 @@ import { host } from "./host"
 import { isGlobMatch } from "./glob"
 import { toBase64 } from "./base64"
 
+/**
+ * Unzips a given byte array representing a ZIP file and extracts its contents into WorkspaceFile objects.
+ *
+ * @param data - A byte array containing the ZIP file data to be unzipped.
+ * @param options - Optional parsing options. Supports a `glob` parameter to filter files by name using glob patterns.
+ * @returns A promise that resolves to an array of WorkspaceFile objects containing the extracted file data.
+ */
 export async function unzip(
     data: Uint8Array,
     options?: ParseZipOptions

@@ -134,6 +134,22 @@ async function resolveGlobalConfiguration(
     return config
 }
 
+/**
+ * Reads and resolves the configuration for the host environment.
+ *
+ * @param dotEnvPaths - Optional array of .env file paths to consider. If provided, these paths will be prioritized.
+ * 
+ * Steps:
+ * - Calls `resolveGlobalConfiguration` to load base configurations from default paths and files.
+ * - Processes specified `.env` files to load environment variables.
+ * - Validates the existence and file type of each `.env` file.
+ * - Loads and overrides environment variables using `dotenv`.
+ * - Parses additional defaults from the current `process.env`.
+ * 
+ * @returns The resolved host configuration including merged and validated settings.
+ * 
+ * @throws An error if any provided `.env` file is invalid or unreadable.
+ */
 export async function readConfig(
     dotEnvPaths?: string[]
 ): Promise<HostConfiguration> {

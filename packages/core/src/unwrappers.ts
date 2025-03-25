@@ -36,6 +36,12 @@ export function unquote(s: string) {
     return s
 }
 
+/**
+ * Converts a file or its content into a string representation of the content.
+ * 
+ * @param fileOrContent - Either the file content as a string or a file object containing `content` property.
+ * @returns The content of the file as a string.
+ */
 export function filenameOrFileToContent(
     fileOrContent: string | WorkspaceFile
 ): string {
@@ -44,6 +50,12 @@ export function filenameOrFileToContent(
         : fileOrContent?.content
 }
 
+/**
+ * Extracts the filename from a string or a workspace file object.
+ *
+ * @param fileOrContent - Either a string representing a filename or a WorkspaceFile object containing filename and content.
+ * @returns The extracted filename as a string.
+ */
 export function filenameOrFileToFilename(
     fileOrContent: string | WorkspaceFile
 ): string {
@@ -52,6 +64,12 @@ export function filenameOrFileToFilename(
         : fileOrContent?.filename
 }
 
+/**
+ * Removes leading and trailing newline characters from a string.
+ * 
+ * @param s - The string to process. If null or undefined, it is returned as is.
+ * @returns The string without leading or trailing newlines.
+ */
 export function trimNewlines(s: string) {
     return s?.replace(/^\n*/, "").replace(/\n*$/, "")
 }

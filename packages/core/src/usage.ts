@@ -50,6 +50,13 @@ export function estimateCost(modelId: string, usage: ChatCompletionUsage) {
     return (input + output) / 1e6
 }
 
+/**
+ * Determines whether the specified model has associated pricing data, and is
+ * therefore costeable.
+ *
+ * @param model - The identifier of the model to check.
+ * @returns True if the model has pricing data available, otherwise false.
+ */
 export function isCosteable(model: string): boolean {
     const { provider } = parseModelIdentifier(model)
     const prefix = `${provider}:`

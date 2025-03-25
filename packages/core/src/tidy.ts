@@ -11,6 +11,16 @@ import {
 } from "@tidyjs/tidy"
 import { arrayify } from "./util"
 
+/**
+ * Slices data rows based on provided options for sampling, head, and tail operations.
+ *
+ * @param rows - The array of data rows to process. Returns the original array if null or undefined.
+ * @param options - The filtering criteria:
+ *    - sliceSample: The number of random rows to sample and return.
+ *    - sliceHead: The number of rows to select from the start.
+ *    - sliceTail: The number of rows to select from the end.
+ * @returns - The sliced data rows after applying the specified criteria.
+ */
 export function sliceData(rows: any[], options: ArrayFilter = {}) {
     if (!rows) return rows
 

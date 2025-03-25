@@ -226,6 +226,14 @@ export function createTextNode(
     return { type: "text", value, ...(options || {}) }
 }
 
+/**
+ * Converts a definition name to a reference name based on the fence format.
+ *
+ * @param name - The name of the definition. If null or empty, no conversion occurs.
+ * @param options - Configuration options, including the desired fence format.
+ *                  If the `fenceFormat` is "xml", the name is wrapped in XML-like tags.
+ * @returns The converted reference name, wrapped in XML tags if applicable.
+ */
 export function toDefRefName(
     name: string,
     options: FenceFormatOptions
@@ -258,6 +266,15 @@ function cloneContextFields(n: PromptNode): Partial<PromptNode> {
     return r
 }
 
+/**
+ * Creates a definition node representing a diff between two files or strings.
+ *
+ * @param name - The name of the diff node.
+ * @param left - The left-hand input to compare, can be a string or a file.
+ * @param right - The right-hand input to compare, can be a string or a file.
+ * @param options - Additional options for rendering, tracing, and handling the diff node.
+ * @returns A prompt definition node containing the diff results.
+ */
 export function createDefDiff(
     name: string,
     left: string | WorkspaceFile,
@@ -409,6 +426,13 @@ export function createAssistantNode(
     return { type: "assistant", value, ...(options || {}) }
 }
 
+/**
+ * Creates a system node with the specified content and optional context expansion settings.
+ *
+ * @param value - The content of the system node, which can be provided asynchronously. Must be defined.
+ * @param options - Optional configuration for context expansion, including token limits and priority.
+ * @returns A system node object containing the specified content and options.
+ */
 export function createSystemNode(
     value: Awaitable<string>,
     options?: ContextExpansionOptions
@@ -551,6 +575,14 @@ export function createImportTemplate(
     } satisfies PromptImportTemplate
 }
 
+/**
+ * Creates a node representing an MCP (Multiple Connection Protocol) server with specified configurations.
+ * 
+ * @param id - Unique identifier for the MCP server.
+ * @param config - Configuration object containing details necessary for the MCP server setup.
+ * @param options - Optional additional parameters or settings for server configuration.
+ * @returns An MCP server node configured with the provided details.
+ */
 export function createMcpServer(
     id: string,
     config: McpServerConfig,
@@ -701,6 +733,12 @@ export interface PromptNodeRender {
     disposables: AsyncDisposable[] // Disposables
 }
 
+/**
+ * Determines the default fence format for a given model ID.
+ * 
+ * @param modelid - The identifier of the model for which the fence format is to be resolved.
+ * @returns The default fence format for the specified model.
+ */
 export function resolveFenceFormat(modelid: string): FenceFormat {
     return DEFAULT_FENCE_FORMAT
 }
@@ -1436,6 +1474,23 @@ ${trimNewlines(schemaText)}
     return res
 }
 
+/**
+ * Finalizes chat messages for processing.
+ *
+ * @param messages - The list of chat messages to finalize.
+ * @param options - Additional configuration options.
+ *   - fileOutputs: Rules for generating file outputs, described as pattern-description pairs.
+ *   - responseType: The type of response expected (e.g., JSON, YAML).
+ *   - responseSchema: Schema for validating or generating response objects.
+ *   - trace: Object for logging trace information during processing.
+ *   - secretScanning: Whether to run secret scanning on the messages to redact sensitive information.
+ *
+ * Adds system messages for file generation rules and response schema if specified.
+ * Validates and adjusts chat messages based on schema requirements.
+ * Scans and redacts secrets from messages when enabled.
+ *
+ * @returns An object containing response type and schema details.
+ */
 export function finalizeMessages(
     messages: ChatCompletionMessageParam[],
     options: {

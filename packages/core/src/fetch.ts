@@ -105,6 +105,22 @@ export async function createFetch(
     return fetchRetry
 }
 
+/**
+ * Executes an HTTP(S) request with optional retry logic.
+ *
+ * Wraps the input request with retry capabilities and additional configurations.
+ * Leverages `createFetch` to handle retry conditions and builds a final fetch function.
+ *
+ * @param input - The input to the fetch request. Can be a string URL, URL object, or Request object.
+ * @param options - Configuration options for the fetch operation.
+ *   - retryOn: Array of HTTP status codes to retry on.
+ *   - retries: Number of retry attempts.
+ *   - retryDelay: Initial delay between retries in milliseconds.
+ *   - maxDelay: Maximum allowable delay between retries in milliseconds.
+ *   - trace: Trace options for logging the fetch operation.
+ *   - ...rest: Additional options passed to the fetch request.
+ * @returns A Promise resolving with the HTTP Response.
+ */
 export async function fetch(
     input: string | URL | globalThis.Request,
     options?: FetchOptions & TraceOptions

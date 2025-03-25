@@ -1,3 +1,11 @@
+/**
+ * Converts the input into an array, ensuring the result is always an array.
+ *
+ * @param a - Input value to be converted into an array. Can be a single value or an array.
+ * @param options - Optional configuration for the function behavior.
+ * @param options.filterEmpty - If true, removes falsy values from the resulting array.
+ * @returns An array derived from the input. If the input is undefined, returns an empty array. If the input is already an array, returns a shallow copy of it.
+ */
 export function arrayify<T>(
     a: T | T[],
     options?: { filterEmpty?: boolean }
@@ -14,6 +22,15 @@ export function arrayify<T>(
     return r
 }
 
+/**
+ * Removes properties with `undefined` values from an object.
+ * If the object is frozen, creates a new object without `undefined` values.
+ *
+ * @param o - The input object to be processed.
+ *            If the object is frozen, a shallow copy is created with all `undefined` values removed.
+ *            If the object is not frozen, `undefined` values are removed in-place.
+ * @returns The object with `undefined` values removed.
+ */
 export function deleteUndefinedValues<T extends Record<string, any>>(o: T): T {
     if (typeof o === "object" && Object.isFrozen(o)) {
         const res: any = {}
@@ -25,6 +42,12 @@ export function deleteUndefinedValues<T extends Record<string, any>>(o: T): T {
     return o
 }
 
+/**
+ * Removes empty values from an object. Empty values include `undefined`, `null`, empty strings, and empty arrays.
+ *
+ * @param o - The object to process. It must be an object.
+ * @returns The object with empty values removed.
+ */
 export function deleteEmptyValues<T extends Record<string, any>>(o: T): T {
     if (typeof o === "object")
         for (const k in o) {
@@ -40,6 +63,17 @@ export function deleteEmptyValues<T extends Record<string, any>>(o: T): T {
     return o
 }
 
+/**
+ * Converts a value to its string representation.
+ * 
+ * @param s - The value to normalize. Can be a string, number, boolean, or object.
+ *     - If the value is a string, it is returned unchanged.
+ *     - If the value is a number, it is converted to a localized string format.
+ *     - If the value is a boolean, it is converted to "true" or "false".
+ *     - If the value is an object, it is converted to a JSON string.
+ * 
+ * @returns The normalized string representation of the input value, or undefined if the input value type is unsupported.
+ */
 export function normalizeString(s: string | number | boolean | object): string {
     if (typeof s === "string") return s
     else if (typeof s === "number") return s.toLocaleString()
@@ -48,6 +82,17 @@ export function normalizeString(s: string | number | boolean | object): string {
     else return undefined
 }
 
+/**
+ * Converts a value to a floating-point number if possible.
+ * 
+ * @param s - The input value to convert (string, number, boolean, or object).
+ *   - If a string, attempts to parse as a floating-point number. Returns undefined if parsing fails.
+ *   - If a number, returns the value as is.
+ *   - If a boolean, returns 1 for true and 0 for false.
+ *   - If an object, returns 0.
+ * 
+ * @returns The floating-point representation of the input or undefined if conversion is not possible.
+ */
 export function normalizeFloat(s: string | number | boolean | object): number {
     if (typeof s === "string") {
         const f = parseFloat(s)
@@ -58,6 +103,17 @@ export function normalizeFloat(s: string | number | boolean | object): number {
     else return undefined
 }
 
+/**
+ * Converts the given value to an integer.
+ *
+ * @param s - The input value to convert. Can be a string, number, boolean, or object.
+ *   - If a string, it attempts to parse it to an integer.
+ *   - If a number, it returns the number as is.
+ *   - If a boolean, it returns 1 for true and 0 for false.
+ *   - If an object, it returns 0.
+ *   - For other types or invalid parsing, it returns undefined.
+ * @returns The converted integer or undefined if conversion is not possible.
+ */
 export function normalizeInt(s: string | number | boolean | object): number {
     if (typeof s === "string") {
         const f = parseInt(s)
@@ -68,14 +124,35 @@ export function normalizeInt(s: string | number | boolean | object): number {
     else return undefined
 }
 
+/**
+ * Removes one or more trailing slashes from the end of a string.
+ *
+ * @param s The input string to process. It may include trailing slashes to be removed.
+ * @returns The input string with trailing slashes removed, or the original string if no trailing slashes are present.
+ */
 export function trimTrailingSlash(s: string) {
     return s?.replace(/\/{1,10}$/, "")
 }
 
+/**
+ * Converts a variable name to a normalized format by converting it to lowercase
+ * and removing all characters except alphanumeric characters and periods.
+ *
+ * @param key The variable name to normalize. Non-alphanumeric characters except periods will be stripped.
+ * @returns The normalized variable name as a string.
+ */
 export function normalizeVarKey(key: string) {
     return key.toLowerCase().replace(/[^a-z0-9\.]/g, "")
 }
 
+/**
+ * Removes Markdown and HTML formatting from a given text string.
+ *
+ * @param text The input string containing Markdown links ([text](url)) and/or 
+ * HTML tags. If the input is null or undefined, the function returns undefined.
+ * @returns A plain text string with Markdown links transformed to their text content 
+ * and HTML tags removed.
+ */
 export function unmarkdown(text: string) {
     return text
         ?.replace(/\[([^\]]+)\]\([^)]+\)/g, (m, n) => n)
@@ -92,6 +169,12 @@ export function collapseNewlines(res: string): string {
     return res?.replace(/(\r?\n){3,}/g, "\n\n")
 }
 
+/**
+ * Checks if a given string is empty.
+ * 
+ * @param s - The string to evaluate. Can be null, undefined, or a string value.
+ * @returns True if the string is null, undefined, or an empty string; otherwise, false.
+ */
 export function isEmptyString(s: string) {
     return s === null || s === undefined || s === ""
 }

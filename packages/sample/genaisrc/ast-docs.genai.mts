@@ -39,12 +39,14 @@ for (const match of matches) {
             _.def("FUNCTION", match.text())
             // this needs more eval-ing
             _.$`Generate a function documentation for <FUNCTION>.
+            - Make sure parameters are documented.
             - Be concise. Use technical tone.
             - do NOT include types, this is for TypeScript.
-            - Use docstring syntax.
+            - Use docstring syntax. do not wrap in markdown code section.
+
             The full source of the file is in <FILE> for reference.`
         },
-        { model: "small", responseType: "text", label: match.text() }
+        { model: "large", responseType: "text", label: match.text() }
     )
     // if generation is successful, insert the docs
     if (res.error) {

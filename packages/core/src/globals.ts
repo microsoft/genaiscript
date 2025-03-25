@@ -168,6 +168,17 @@ export function installGlobals() {
     glb.system = () => {}
 }
 
+/**
+ * Installs fields from the provided context into the global context.
+ * Overrides existing global properties if fields in the context share the same name.
+ * 
+ * Parameters:
+ * - ctx: A context object containing properties to be added or overridden in the global context.
+ * 
+ * Notes:
+ * - Uses `resolveGlobal` to access the global context.
+ * - Iterates over the keys of the provided context, mapping them into the global context.
+ */
 export function installGlobalPromptContext(ctx: PromptContext) {
     const glb = resolveGlobal() // Get the global context
 

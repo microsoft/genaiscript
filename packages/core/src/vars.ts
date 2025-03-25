@@ -9,6 +9,15 @@ import {
 } from "./parameters"
 import { normalizeFloat, normalizeInt, normalizeVarKey } from "./cleaners"
 
+/**
+ * Resolves and generates a JSON schema object representing the parameters schema 
+ * for a given script and its associated systems in the project.
+ *
+ * @param prj - The project context containing scripts and systems.
+ * @param script - The script for which the parameters schema is to be resolved.
+ * @returns A JSON schema object describing the structure of the parameters
+ *          for the script and its associated systems.
+ */
 export function resolveScriptParametersSchema(
     prj: Project,
     script: PromptScript
@@ -31,6 +40,14 @@ export function resolveScriptParametersSchema(
     return res
 }
 
+/**
+ * Constructs a variable name for a system parameter by combining the system's unique identifier 
+ * with the parameter name.
+ *
+ * @param system - The system instance to which the parameter belongs.
+ * @param name - The name of the parameter to be converted into a variable name.
+ * @returns A string representing the parameter's variable name in the format "systemId.parameterName".
+ */
 export function systemParameterToVarName(
     system: SystemPromptInstance,
     name: string
@@ -38,6 +55,16 @@ export function systemParameterToVarName(
     return `${system.id}.${name}`
 }
 
+/** 
+ * Parses and resolves prompt parameters for the provided project and script, 
+ * applying defaults and incorporating user-supplied variables.
+ *
+ * @param prj - The project instance used to resolve systems and scripts.
+ * @param script - The prompt script containing the initial parameters and variables.
+ * @param optionsVars - Additional variables provided by the user to override or extend script parameters.
+ *
+ * @returns Frozen prompt parameters object after applying defaults and resolving all variables.
+ */
 export function parsePromptParameters(
     prj: Project,
     script: PromptScript,
@@ -100,6 +127,19 @@ export function parsePromptParameters(
     return Object.freeze(res)
 }
 
+/**
+ * Creates a proxy for environment variables, normalizing keys to a consistent format
+ * and providing additional handling for specific operations.
+ *
+ * @param res - The resolved prompt parameters to proxify.
+ * @returns A proxy object that normalizes variable keys and provides access to the parameter values.
+ *
+ * Object behavior:
+ * - Keys are normalized using `normalizeVarKey`.
+ * - The proxy supports fetching keys, enumerating own keys, and retrieving property descriptors.
+ * - The `Object.prototype.toString` method is overridden to return a YAML stringified version 
+ *   of the proxified parameters.
+ */
 export function proxifyEnvVars(res: PromptParameters) {
     const varsProxy: PromptParameters = new Proxy(
         Object.fromEntries(
@@ -143,6 +183,13 @@ export function proxifyEnvVars(res: PromptParameters) {
     return varsProxy
 }
 
+/**
+ * Merges existing environment variables with parameters and variables from a system instance.
+ *
+ * @param ev - The current environment variables, including `vars` and any additional properties.
+ * @param system - The system instance containing `parameters` and `vars` to merge.
+ * @returns A new object with `vars` containing merged environment variables and system parameters, along with the rest of the `ev` properties.
+ */
 export function mergeEnvVarsWithSystem(
     ev: ExpansionVariables,
     system: SystemPromptInstance
@@ -162,6 +209,14 @@ export function mergeEnvVarsWithSystem(
     return { vars: newVars, ...rest }
 }
 
+/**
+ * Converts a set of parameters into an array of strings in the format "key=value".
+ *
+ * @param parameters - An object containing key-value pairs representing the parameters.
+ *                     Keys represent parameter names and values represent their corresponding values.
+ * @returns An array of strings where each string represents a parameter as "key=value".
+ *          Returns undefined if the input is not provided.
+ */
 export function parametersToVars(parameters: PromptParameters): string[] {
     if (!parameters) return undefined
     return Object.keys(parameters).map((k) => `${k}=${parameters[k]}`)

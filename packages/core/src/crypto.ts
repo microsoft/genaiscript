@@ -42,6 +42,19 @@ export function randomHex(size: number) {
     return toHex(res)
 }
 
+/**
+ * Computes a hash of the given value with optional configurations.
+ *
+ * @param value - The input data to hash. Can be strings, numbers, booleans, arrays, objects, or other compatible types.
+ * @param options - Additional options for hashing.
+ *    - algorithm - Hashing algorithm to use. Defaults to "sha-256".
+ *    - version - If true, includes the core version string in the hash.
+ *    - length - If specified, truncates the resulting hash string to this length.
+ *    - salt - Optional salt to prepend to the hashed value.
+ *    - readWorkspaceFiles - If true, enables reading file workspace content for hash calculation in special cases where `filename` is specified.
+ *    - ...rest - Any remaining properties are included in the hash computation.
+ * @returns A promise resolving to the computed hash as a hexadecimal string.
+ */
 export async function hash(value: any, options?: HashOptions) {
     const {
         algorithm = "sha-256",

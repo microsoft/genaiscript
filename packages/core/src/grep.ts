@@ -7,6 +7,20 @@ import { addLineNumbers } from "./liner"
 import { arrayify } from "./util"
 import { filterGitIgnore } from "./gitignore"
 
+/**
+ * Executes a grep-like search across the workspace using ripgrep.
+ *
+ * @param pattern - The search pattern, either a string or a regular expression.
+ * @param options - Optional settings to customize the search behavior:
+ *   - `path`: Specifies one or more paths to search.
+ *   - `glob`: Array of glob patterns to include or exclude files.
+ *   - `readText`: When false, avoids reading file content.
+ *   - `applyGitIgnore`: When false, bypasses .gitignore filtering.
+ *   - Accepts other trace and workspace-specific options.
+ * @returns An object containing:
+ *   - `files`: List of files that matched the pattern.
+ *   - `matches`: List of detailed matches including filenames and content with line numbers.
+ */
 export async function grepSearch(
     pattern: string | RegExp,
     options?: TraceOptions & WorkspaceGrepOptions
