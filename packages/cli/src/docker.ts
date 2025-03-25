@@ -1,6 +1,9 @@
+import debug from "debug"
+const dbg = debug("genaiscript:docker")
+
 import MemoryStream from "memorystream"
 import { finished } from "stream/promises"
-import { ensureDir, remove } from "fs-extra"
+import { remove } from "fs-extra"
 import { copyFile, readFile, writeFile, readdir } from "fs/promises"
 import {
     DOCKER_DEFAULT_IMAGE,
@@ -20,6 +23,7 @@ import { PLimitPromiseQueue } from "../../core/src/concurrency"
 import { delay } from "es-toolkit"
 import { generateId } from "../../core/src/id"
 import { dotGenaiscriptPath } from "../../core/src/workdir"
+import { ensureDir } from "../../core/src/fs"
 
 type DockerodeType = import("dockerode")
 
@@ -33,28 +37,38 @@ export class DockerManager {
     }
 
     private async init(options?: TraceOptions) {
-        if (this._docker) return
+        if (this._docker) {
+            return
+        }
         const Docker = (await import("dockerode")).default
+        dbg(`dockerode module imported`)
         this._docker = new Docker()
     }
 
     async stopAndRemove() {
-        if (!this._docker) return
+        if (!this._docker) {
+            return
+        }
         for (const container of this.containers.filter((c) => !c.persistent)) {
             logVerbose(`container: removing ${container.name}`)
             const c = await this._docker.getContainer(container.id)
-            if (!c) continue
+            if (!c) {
+                continue
+            }
             try {
+                dbg(`stopping container with id ${container.id}`)
                 await c.stop()
             } catch (e) {
                 logVerbose(e)
             }
             try {
+                dbg(`removing container with id ${container.id}`)
                 await c.remove()
             } catch (e) {
                 logVerbose(e)
             }
             try {
+                dbg(`removing host path ${container.hostPath}`)
                 await remove(container.hostPath)
             } catch (e) {
                 logVerbose(e)
@@ -66,6 +80,7 @@ export class DockerManager {
     async stopContainer(id: string) {
         const c = await this._docker?.getContainer(id)
         if (c) {
+            dbg(`stopping container with id ${id}`)
             try {
                 await c.stop()
             } catch {}
@@ -79,6 +94,7 @@ export class DockerManager {
         if (i > -1) {
             const container = this.containers[i]
             try {
+                dbg(`removing host path ${container.hostPath}`)
                 await remove(container.hostPath)
             } catch (e) {
                 logError(e)
@@ -88,12 +104,14 @@ export class DockerManager {
     }
 
     async checkImage(image: string) {
+        dbg(`checking if image ${image} exists`)
         await this.init()
         try {
             const info = await this._docker.getImage(image).inspect()
             return info?.Size > 0
         } catch (e) {
             // statusCode: 404
+            dbg(`image ${image} does not exist`)
             return false
         }
     }
@@ -102,23 +120,32 @@ export class DockerManager {
         await this.init()
         const { trace } = options || {}
 
-        if (await this.checkImage(image)) return
+        if (await this.checkImage(image)) {
+            dbg(`image ${image} already exists, skipping pull`)
+            return
+        }
 
         // pull image
         try {
+            dbg(`starting to pull image ${image}`)
             trace?.startDetails(`📥 pull image ${image}`)
             const res = await this._docker.pull(image)
             this._docker.modem.followProgress(
                 res,
                 (err) => {
-                    if (err) trace?.error(`failed to pull image ${image}`, err)
+                    if (err) {
+                        dbg(`error pulling image ${image}: ${err}`)
+                        trace?.error(`failed to pull image ${image}`, err)
+                    }
                 },
                 (ev) => {
+                    dbg(`pull progress: ${ev.progress || ev.status}`)
                     trace?.item(ev.progress || ev.status)
                 }
             )
             await finished(res)
         } catch (e) {
+            dbg(`error pulling image ${image}: ${e}`)
             trace?.error(`failed to pull image ${image}`, e)
             throw e
         } finally {
@@ -136,14 +163,17 @@ export class DockerManager {
         name?: string[]
     }): Promise<Container> {
         try {
+            dbg(`listing containers with filters: ${JSON.stringify(filters)}`)
             const containers = await this._docker.listContainers({
                 all: true,
                 filters,
             })
             const info = containers?.[0]
             if (info) {
+                dbg(`found container with id ${info.Id}`)
                 return this._docker.getContainer(info.Id)
             }
+            dbg(`no container found with the given filters`)
         } catch {}
         return undefined
     }
@@ -151,6 +181,7 @@ export class DockerManager {
     async startContainer(
         options: ContainerOptions & TraceOptions
     ): Promise<ContainerHost> {
+        dbg(`starting container with options: ${JSON.stringify(options)}`)
         await this.init()
         const { persistent, trace } = options || {}
         if (persistent) {
@@ -201,9 +232,11 @@ export class DockerManager {
             networkEnabled,
         } = options
         let name = (userName || image).replace(/[^a-zA-Z0-9]+/g, "_")
-        if (persistent)
+        if (persistent) {
             name += `_${await hash({ image, name, ports, env, networkEnabled, postCreateCommands, CORE_VERSION }, { length: 12, version: true })}`
-        else name += `_${generateId()}`
+        } else {
+            name += `_${generateId()}`
+        }
         const hostPath = host.path.resolve(
             dotGenaiscriptPath(DOCKER_VOLUMES_DIR, name)
         )
@@ -225,6 +258,7 @@ export class DockerManager {
         const ports = arrayify(options.ports)
         const { name, hostPath } = await this.containerName(options)
         try {
+            dbg(`starting container with image ${image}`)
             trace?.startDetails(`📦 container start ${image}`)
             await this.pullImage(image, { trace })
             await ensureDir(hostPath)
@@ -286,6 +320,7 @@ export class DockerManager {
                 hostPath
             )
             this.containers.push(c)
+            dbg(`container started with id ${container.id}`)
             await container.start()
             const st = await container.inspect()
             if (st.State?.Status !== "running") {
@@ -293,14 +328,19 @@ export class DockerManager {
                 trace?.error(`container: start failed`)
             }
             for (const command of arrayify(postCreateCommands)) {
+                dbg(`executing post-create command: ${command}`)
                 const [cmd, ...args] = shellParse(command)
                 const res = await c.exec(cmd, args)
-                if (res.failed)
+                if (res.failed) {
                     throw new Error(
                         `${cmd} ${args.join(" ")} failed with exit code ${res.exitCode}`
                     )
+                }
             }
-            if (!networkEnabled) await c.disconnect()
+            if (!networkEnabled) {
+                dbg(`disabling network for container`)
+                await c.disconnect()
+            }
             return c
         } finally {
             trace?.endDetails()
@@ -316,6 +356,7 @@ export class DockerManager {
         const { trace, persistent } = options
 
         const stop: () => Promise<void> = async () => {
+            dbg(`stopping container with id ${container.id}`)
             await this.stopContainer(container.id)
         }
 
@@ -327,11 +368,16 @@ export class DockerManager {
         }
 
         const resume: () => Promise<void> = async () => {
+            dbg(`resuming container with id ${container.id}`)
             let state = await container.inspect()
-            if (state.State.Status === "paused") await container.unpause()
-            else if (state.State.Status === "exited") {
+            if (state.State.Status === "paused") {
+                dbg(`unpausing container`)
+                await container.unpause()
+            } else if (state.State.Status === "exited") {
+                dbg(`starting exited container`)
                 await container.start()
             } else if (state.State.Status === "restarting") {
+                dbg(`waiting for restarting container to stabilize`)
                 let retry = 0
                 while (state.State.Restarting && retry++ < 5) {
                     await delay(1000)
@@ -342,8 +388,10 @@ export class DockerManager {
 
         const pause: () => Promise<void> = async () => {
             const state = await container.inspect()
-            if (state.State.Running || state.State.Restarting)
+            if (state.State.Running || state.State.Restarting) {
+                dbg(`pausing running or restarting container`)
                 await container.pause()
+            }
         }
 
         const exec = async (
@@ -354,8 +402,9 @@ export class DockerManager {
             // Parse the command and arguments if necessary
             if (!Array.isArray(args) && typeof args === "object") {
                 // exec("cmd arg arg", {...})
-                if (options !== undefined)
+                if (options !== undefined) {
                     throw new Error("Options must be the second argument")
+                }
                 options = args as ShellOptions
                 const parsed = shellParse(command)
                 command = parsed[0]
@@ -372,6 +421,9 @@ export class DockerManager {
                 "/" + host.path.join(DOCKER_CONTAINER_VOLUME, userCwd || ".")
 
             try {
+                dbg(
+                    `executing command in container: ${command} ${args?.join(" ")}`
+                )
                 trace?.startDetails(
                     `📦 ▶️ container exec: ${userCwd || ""}> ${label || command}`
                 )
@@ -381,10 +433,11 @@ export class DockerManager {
                     `${cwd}> ${command} ${shellQuote(args || [])}`,
                     "sh"
                 )
-                if (!isQuiet)
+                if (!isQuiet) {
                     logVerbose(
                         `container exec: ${userCwd || ""}> ${shellQuote([command, ...args])}`
                     )
+                }
 
                 await resume()
                 const exec = await container.exec({
@@ -414,11 +467,15 @@ export class DockerManager {
                 trace?.resultItem(exitCode === 0, `exit code: ${sres.exitCode}`)
                 if (sres.stdout) {
                     trace?.detailsFenced(`stdout`, sres.stdout, "txt")
-                    if (!isQuiet) logVerbose(sres.stdout)
+                    if (!isQuiet) {
+                        logVerbose(sres.stdout)
+                    }
                 }
                 if (sres.stderr) {
                     trace?.detailsFenced(`stderr`, sres.stderr, "txt")
-                    if (!isQuiet) logVerbose(sres.stderr)
+                    if (!isQuiet) {
+                        logVerbose(sres.stderr)
+                    }
                 }
                 return sres
             } catch (e) {
@@ -484,6 +541,7 @@ export class DockerManager {
         }
 
         const disconnect = async () => {
+            dbg(`disconnecting container from networks`)
             const networks = await this._docker.listNetworks()
             for (const network of networks.filter(
                 ({ Name }) => Name === "bridge"
