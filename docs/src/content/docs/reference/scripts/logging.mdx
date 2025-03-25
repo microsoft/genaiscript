@@ -28,8 +28,26 @@ By default, the debug logging is disabled. You need to turn it on with namespace
 
 The script messages are visible by running with `DEBUG=<scriptid>`.
 
+```sh "--dbg script"
+genascript run poem --dbg script
+```
+
+or using the `DEBUG` environment variable.
+
 ```sh
 DEBUG=script genaiscript run ...
+```
+
+You can specify multiple categories by separating them with a comma.
+
+```sh "--dbg script"
+genascript run poem --dbg script file config modelalias
+```
+
+or
+
+```sh
+DEBUG=script,genaiscript:* genaiscript run ...
 ```
 
 The `*` character may be used as a wildcard. Suppose for example your library has debuggers named `connect:bodyParser`,

@@ -14,7 +14,7 @@ import { parseKeyValuePairs } from "../../core/src/fence"
 import { frontmatterTryParse } from "../../core/src/frontmatter"
 import { details } from "../../core/src/mkmd"
 import { parsePromptScriptMeta } from "../../core/src/template"
-import { arrayify, parseBoolean } from "../../core/src/util"
+import { arrayify, normalizeBoolean } from "../../core/src/cleaners"
 import { YAMLTryParse, YAMLStringify } from "../../core/src/yaml"
 import { Fragment } from "../../core/src/generation"
 import { fileCacheImage } from "../../core/src/filecache"
@@ -180,9 +180,9 @@ function activateNotebookExecutor(state: ExtensionState) {
                 } = parseKeyValuePairs(cell.metadata.options || "") || {}
                 let chat = await renderMessagesToMarkdown(messages, {
                     textLang: "markdown",
-                    system: parseBoolean(system),
-                    user: parseBoolean(user),
-                    assistant: parseBoolean(assistant),
+                    system: normalizeBoolean(system),
+                    user: normalizeBoolean(user),
+                    assistant: normalizeBoolean(assistant),
                     cacheImage: fileCacheImage,
                 })
                 if (error)

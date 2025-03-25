@@ -312,7 +312,7 @@ Write TypeScript definition files in the script folder to enable type checking.
 Options:
   -gcp, --github-copilot-prompt  Write GitHub Copilot custom prompt for better
                                  GenAIScript code generation
-  -d, --docs                     Download documentation
+  --docs                         Download documentation
   -h, --help                     display help for command
 ```
 

@@ -2,10 +2,11 @@
  * CLI entry point for the GenAIScript tool, providing various commands and options
  * for interacting with scripts, parsing files, testing, and managing cache.
  */
-
+import debug from "debug"
+const dbg = debug("genaiscript:cli")
 import { NodeHost } from "./nodehost" // Handles node environment setup
 import { Command, Option, program } from "commander" // Command-line argument parsing library
-import { error, isQuiet, setQuiet } from "./log" // Logging utilities
+import { isQuiet, setQuiet } from "../../core/src/quiet" // Logging utilities
 import { startServer } from "./server" // Function to start server
 import { NODE_MIN_VERSION, PROMPTFOO_VERSION } from "./version" // Version constants
 import { runScriptWithExitCode } from "./run" // Execute scripts with exit code
@@ -46,6 +47,7 @@ import {
     OPENAI_RETRY_DEFAULT_DEFAULT,
     OPENAI_MAX_RETRY_COUNT,
     MODEL_PROVIDERS,
+    DEBUG_SCRIPT_CATEGORY,
 } from "../../core/src/constants" // Core constants
 import {
     errorMessage,
@@ -63,6 +65,8 @@ import { logPerformance } from "../../core/src/performance"
 import { setConsoleColors } from "../../core/src/consolecolor"
 import { listRuns } from "./runs"
 import { startMcpServer } from "./mcpserver"
+import { error } from "./log"
+import { DEBUG_CATEGORIES } from "../../core/src/dbg"
 
 /**
  * Main function to initialize and run the CLI.
@@ -117,6 +121,13 @@ export async function cli() {
         )
         .option("--no-colors", "disable color output")
         .option("-q, --quiet", "disable verbose output")
+    program
+        .addOption(
+            new Option(
+                "-d, --debug <categories...>",
+                "debug categories"
+            ).choices(DEBUG_CATEGORIES)
+        )
         .option("--perf", "enable performance logging")
 
     // Set options for color and verbosity
@@ -124,6 +135,9 @@ export async function cli() {
     program.on("option:no-colors", () => setConsoleColors(false))
     program.on("option:quiet", () => setQuiet(true))
     program.on("option:perf", () => logPerformance())
+    program.on("option:debug", (c: string) =>
+        debug.enable(c === DEBUG_SCRIPT_CATEGORY ? c : `genaiscript:${c}`)
+    )
 
     program
         .command("configure")
@@ -377,7 +391,7 @@ export async function cli() {
             "-gcp, --github-copilot-prompt",
             "Write GitHub Copilot custom prompt for better GenAIScript code generation"
         )
-        .option("-d, --docs", "Download documentation")
+        .option("--docs", "Download documentation")
         .action(fixScripts) // Action to fix scripts
     scripts
         .command("compile")

@@ -6,6 +6,7 @@ import {
     CONSOLE_COLOR_INFO,
 } from "../../core/src/constants"
 import { consoleColors, wrapColor } from "../../core/src/consolecolor"
+import { isQuiet } from "../../core/src/quiet"
 
 // This module provides logging functions with optional console color support
 // Logging levels include info, debug, warn, and error
@@ -17,7 +18,7 @@ import { consoleColors, wrapColor } from "../../core/src/consolecolor"
  * @param args - The arguments to log
  */
 export function info(...args: any[]) {
-    console.error(...wrapArgs(CONSOLE_COLOR_INFO, args))
+    if (!isQuiet) console.error(...wrapArgs(CONSOLE_COLOR_INFO, args))
 }
 
 /**
@@ -70,16 +71,4 @@ function wrapArgs(color: number, args: any[]) {
         // otherwise use the console.log() etc built-in formatting
         return args
     }
-}
-
-// Boolean indicating if debug messages should be suppressed
-// Controls whether debug messages are outputted
-export let isQuiet = false
-
-/**
- * Sets the quiet mode for suppressing debug messages.
- * @param v - Boolean to enable or disable quiet mode
- */
-export function setQuiet(v: boolean) {
-    isQuiet = !!v
 }

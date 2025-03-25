@@ -125,6 +125,23 @@ export function normalizeInt(s: string | number | boolean | object): number {
 }
 
 /**
+ * Parses a string and determines its boolean equivalent.
+ *
+ * @param s The string to parse. Expected values for `true` include "y", "yes", "true", or "ok" (case-insensitive).
+ *          Expected values for `false` include "n", "no", "false", or "ok" (case-insensitive).
+ *
+ * @returns `true` if the input matches a positive boolean string, `false` if it matches a negative boolean string,
+ *          or `undefined` if the input does not match either.
+ */
+export function normalizeBoolean(s: string) {
+    return /^\s*(y|yes|true|ok)\s*$/i.test(s)
+        ? true
+        : /^\s*(n|no|false|ok)\s*$/i.test(s)
+          ? false
+          : undefined
+}
+
+/**
  * Removes one or more trailing slashes from the end of a string.
  *
  * @param s The input string to process. It may include trailing slashes to be removed.

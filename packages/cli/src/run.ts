@@ -1,6 +1,6 @@
 import { capitalize } from "inflection"
 import { resolve, join, relative } from "node:path"
-import { isQuiet } from "./log"
+import { isQuiet } from "../../core/src/quiet"
 import { emptyDir, ensureDir, exists } from "fs-extra"
 import { convertDiagnosticsToSARIF } from "./sarif"
 import { buildProject } from "./build"

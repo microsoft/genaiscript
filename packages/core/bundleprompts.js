@@ -1,6 +1,9 @@
 const { readdirSync, readFileSync, writeFileSync } = require("fs")
 const { parse } = require("json5")
 const { join } = require("path")
+const { execSync } = require("child_process")
+const { uniq } = require("es-toolkit")
+const { dedent } = require("ts-dedent")
 
 async function main() {
     const pkg = JSON.parse(readFileSync("../../package.json", "utf-8"))
@@ -27,6 +30,23 @@ async function main() {
         "./src/genaiscript-api-provider.mjs",
         "utf-8"
     )
+    const logCategories = uniq([
+        "script",
+        ...Array.from(
+            execSync(
+                `grep -r 'debug("genaiscript:.*")' --include \*.ts --exclude-dir='.genaiscript' .`
+            )
+                .toString("utf8")
+                .matchAll(/debug\("genaiscript:(?<category>[^"]+)"\)/g)
+        ).map((m) => m.groups.category),
+    ])
+    console.log({ logCategories })
+    writeFileSync(
+        "./src/dbg.ts",
+        dedent`// auto-generated: do not edit
+        export const DEBUG_CATEGORIES = ${JSON.stringify(logCategories)};\n`,
+        "utf-8"
+    )
     const genaiscriptdts = [
         "./src/types/prompt_template.d.ts",
         "./src/types/prompt_type.d.ts",
@@ -37,7 +57,10 @@ async function main() {
         )
         .join("")
         .replace("@version 0.0.0", `@version ${pkg.version}`)
-    const githubCopilotCustomPrompt = readFileSync("../../.github/prompts/genaiscript.prompt.md", "utf-8")
+    const githubCopilotCustomPrompt = readFileSync(
+        "../../.github/prompts/genaiscript.prompt.md",
+        "utf-8"
+    )
     const promptDefs = {
         "jsconfig.json": JSON.stringify(
             {
