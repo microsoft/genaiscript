@@ -14,6 +14,26 @@ import { logError, logVerbose, relativePath } from "./util"
 import { YAMLParse } from "./yaml"
 import { writeText } from "./fs"
 
+/**
+ * Computes file edits based on the provided result and options.
+ *
+ * This function processes the input result to determine necessary edits
+ * for files based on specified merge handlers, output processors, and 
+ * changelogs. It validates file outputs against defined schemas and
+ * generates structured edits to be applied.
+ *
+ * @param res - The result of a prompt run containing existing text,
+ *              annotations, fences, and frames.
+ * @param options - Trace options that include file outputs, schemas,
+ *                  file merges, and output processors.
+ *
+ * This function performs the following tasks:
+ * - Extracts and processes edits from fences.
+ * - Applies user-defined output processors to potentially modify the text and file edits.
+ * - Validates file outputs against provided schemas and logs any errors.
+ * - Organizes changes into a structured format for further processing or application.
+ * - Updates the result object's text, file edits, changelogs, annotations, and edits.
+ */
 export async function computeFileEdits(
     res: RunPromptResult,
     options: TraceOptions & {

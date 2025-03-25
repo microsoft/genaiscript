@@ -130,6 +130,27 @@ function promptyFrontmatterToMeta(frontmatter: PromptyFrontmatter): PromptArgs {
     return meta
 }
 
+/**
+ * Parses a given text file into a PromptyDocument object.
+ * 
+ * This function extracts the frontmatter and content from the provided text,
+ * processes the frontmatter into metadata, and organizes the content into 
+ * structured messages based on the roles defined within the text.
+ * 
+ * The frontmatter is expected to be in YAML format and must be separated 
+ * from the main content by a header. The content is divided into segments 
+ * corresponding to the roles: system, user, and assistant.
+ * 
+ * @param filename The name of the file being parsed.
+ * @param text The text content of the file, which includes frontmatter 
+ *             and messages.
+ * 
+ * @returns A PromptyDocument containing the parsed metadata, frontmatter, 
+ *          content, and a list of structured messages.
+ * 
+ * @throws Error if there is invalid whitespace in the frontmatter or if 
+ *                the YAML parsing fails.
+ */
 export function promptyParse(filename: string, text: string): PromptyDocument {
     const { frontmatter = "", content = "" } = splitMarkdown(text)
     if (!frontmatter && /^\s+---/.test(frontmatter))
@@ -171,6 +192,20 @@ export function promptyParse(filename: string, text: string): PromptyDocument {
     return { meta, frontmatter: fm, content, messages }
 }
 
+/**
+ * Converts a PromptyDocument into a Gen AI script.
+ *
+ * @param doc - The PromptyDocument containing messages and meta information.
+ * 
+ * @returns The generated Gen AI script as a string.
+ *
+ * The function processes the messages contained in the document, generating
+ * appropriate script output based on the role of each message (assistant,
+ * system, or user). It renders messages with Jinja syntax and supports
+ * different content types, including text and media (images, audio).
+ * Meta information is injected into the script as a JSON5 formatted object
+ * if available.
+ */
 export function promptyToGenAIScript(doc: PromptyDocument): string {
     const { messages, meta } = doc
 

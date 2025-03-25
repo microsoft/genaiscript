@@ -86,10 +86,30 @@ export function parseAnnotations(text: string): Diagnostic[] {
     return Array.from(annotations.values()) // Convert the set to an array
 }
 
+/**
+ * Removes annotations from the input text.
+ *
+ * This function utilizes regular expressions defined for TypeScript, GitHub Actions, and Azure DevOps annotations
+ * to replace occurrences of annotations with an empty string, effectively erasing them from the provided text.
+ *
+ * @param text - The input text containing annotations to be erased.
+ * @returns The input text with all annotations removed.
+ */
 export function eraseAnnotations(text: string) {
     return ANNOTATIONS_RX.reduce((t, rx) => t.replace(rx, ""), text)
 }
 
+/**
+ * Transforms text annotations into diagnostic items.
+ * 
+ * This function utilizes annotated regex patterns to identify and extract
+ * diagnostic information from the input text. It constructs `Diagnostic`
+ * objects from matched groups, which are then converted into a string
+ * representation.
+ * 
+ * @param text - The input text containing annotations to be converted.
+ * @returns A string of formatted diagnostic items derived from the annotations.
+ */
 export function convertAnnotationsToItems(text: string) {
     return ANNOTATIONS_RX.reduce(
         (t, rx) =>
@@ -112,6 +132,15 @@ export function convertAnnotationsToItems(text: string) {
     )
 }
 
+/**
+ * Converts a `Diagnostic` object into a formatted string representation.
+ *
+ * The formatted string includes an emoji corresponding to the severity level,
+ * the diagnostic message, and the filename with an optional line number link.
+ *
+ * @param d - The `Diagnostic` object to convert.
+ * @returns A formatted string representing the annotation.
+ */
 export function convertAnnotationToItem(d: Diagnostic) {
     const { severity, message, filename, code, range } = d
     const line = range?.[0]?.[0]

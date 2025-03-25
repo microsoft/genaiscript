@@ -2,6 +2,18 @@ import { parse } from "toml"
 import { unfence } from "./unwrappers"
 import { filenameOrFileToContent } from "./unwrappers"
 
+/**
+ * Parses TOML formatted text.
+ * 
+ * This function takes a string or a WorkspaceFile, converts it to content, 
+ * sanitizes it by removing TOML fences, and then parses the cleaned 
+ * TOML string into a JavaScript object. The resulting object is 
+ * returned as a deep clone to prevent unintended side effects from 
+ * mutations.
+ * 
+ * @param text - The TOML content to be parsed.
+ * @returns The parsed TOML object.
+ */
 export function TOMLParse(text: string | WorkspaceFile) {
     text = filenameOrFileToContent(text)
     // Remove TOML fences from the text

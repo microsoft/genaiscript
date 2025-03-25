@@ -77,6 +77,16 @@ export async function resolveTokenEncoder(
     }
 }
 
+/**
+ * Splits the content of a given file or string into manageable text chunks.
+ * 
+ * This function first checks if the input is a string or an object, resolving the file content if necessary. It determines the document type based on the file's extension or provided options. It utilizes a tokenizer to process the content, splitting it into chunks while optionally adding line numbers.
+ * 
+ * @param file - The input content, which can be a string or a WorkspaceFile object.
+ * @param options - Configuration options for the chunking process, including model, document type, and line number settings.
+ * 
+ * @returns An array of text chunks, each with associated metadata such as content, filename, and line start/end positions.
+ */
 export async function chunk(
     file: Awaitable<string | WorkspaceFile>,
     options?: TextChunkerConfig

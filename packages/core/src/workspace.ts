@@ -17,6 +17,18 @@ import { XMLTryParse } from "./xml"
 import { YAMLTryParse } from "./yaml"
 import { dirname } from "path"
 
+/**
+ * Creates a workspace file system implementation.
+ * 
+ * This function provides methods to interact with files in a workspace, including 
+ * finding files, reading and writing text, parsing various file formats (JSON, YAML, 
+ * XML, CSV, INI), managing caches, checking file statistics, and copying files. 
+ * 
+ * The implementation enforces restrictions on certain file operations, specifically 
+ * preventing any write or copy operations involving .env files.
+ * 
+ * @returns An object representing the workspace file system with various file management methods.
+ */
 export function createWorkspaceFileSystem(): Omit<
     WorkspaceFileSystem,
     "grep" | "writeCached"

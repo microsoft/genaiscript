@@ -2,10 +2,31 @@ import { performance, PerformanceObserver } from "perf_hooks"
 import { logVerbose, toStringList } from "./util"
 import prettyMilliseconds from "pretty-ms"
 
+/**
+ * Records a performance mark with the specified identifier.
+ * This mark can be used as a reference point for measuring 
+ * the duration of operations in the performance API.
+ *
+ * @param id - The identifier for the performance mark.
+ */
 export function mark(id: string) {
     performance.mark(id)
 }
 
+/**
+ * Measures the execution time of a section of code.
+ * 
+ * Marks the start of a measurement with a unique identifier. 
+ * Returns a function that, when called, marks the end of the measurement, 
+ * records the duration, and provides the time elapsed between the start 
+ * and end marks.
+ * 
+ * @param id - Unique identifier for the measurement.
+ * @param detail - Optional detail string to further describe the measurement.
+ * 
+ * @returns A function that, when called, marks the end of the measurement 
+ * and returns the duration of the measured section in milliseconds.
+ */
 export function measure(id: string, detail?: string) {
     const start = id + ".start"
     const end = id + ".end"
@@ -21,6 +42,12 @@ export function measure(id: string, detail?: string) {
     }
 }
 
+/**
+ * Logs performance metrics for measured operations.
+ * Observes performance entries and aggregates their durations.
+ * Outputs log messages for each performance measure, including 
+ * the duration of the measure and the cumulative total.
+ */
 export function logPerformance() {
     const measures: Record<string, number> = {}
     const perfObserver = new PerformanceObserver((items) => {

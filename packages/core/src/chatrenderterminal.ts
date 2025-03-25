@@ -101,6 +101,21 @@ function renderToolCall(
     )
 }
 
+/**
+ * Renders a series of chat messages to the terminal.
+ * Filters messages based on specified visibility options for system, user, and assistant roles.
+ * Includes tool information if provided.
+ * Processes each message according to its role and formats the output for terminal display.
+ * 
+ * @param messages - An array of chat messages to be rendered.
+ * @param options - Options to control the rendering of messages.
+ *   - system: Boolean to include/exclude system messages.
+ *   - user: Boolean to include/exclude user messages.
+ *   - assistant: Boolean to include/exclude assistant messages.
+ *   - tools: An array of tools available for use.
+ * 
+ * @returns A string representation of the formatted messages for terminal display.
+ */
 export async function renderMessagesToTerminal(
     messages: ChatCompletionMessageParam[],
     options?: {

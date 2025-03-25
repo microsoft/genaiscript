@@ -239,6 +239,12 @@ class AzureContentSafetyClient implements ContentSafety {
     }
 }
 
+/**
+ * Checks if the Azure Content Safety client is configured correctly.
+ * This is determined by the presence of the necessary endpoint environment variable.
+ * 
+ * @returns A boolean indicating whether the Azure Content Safety client is configured.
+ */
 export function isAzureContentSafetyClientConfigured() {
     const endpoint = trimTrailingSlash(
         process.env.AZURE_CONTENT_SAFETY_ENDPOINT ||
@@ -247,6 +253,12 @@ export function isAzureContentSafetyClientConfigured() {
     return !!endpoint
 }
 
+/**
+ * Creates an instance of the Azure Content Safety client.
+ *
+ * @param options Configuration options including cancellation options and tracing options.
+ * @returns An object implementing the ContentSafety interface with methods to detect harmful content and prompt injection.
+ */
 export function createAzureContentSafetyClient(
     options: CancellationOptions &
         TraceOptions & {

@@ -60,6 +60,22 @@ class PyodideRuntime implements PythonRuntime {
     }
 }
 
+/**
+* """
+* Creates a Python runtime environment using Pyodide.
+* 
+* This function initializes the Pyodide environment by loading the necessary
+* packages and setting up a working directory. It also handles output
+* streaming for standard output and error messages.
+* 
+* Parameters:
+* - options: An optional configuration object that can include cache settings.
+* 
+* Returns:
+* A promise that resolves to an instance of the PythonRuntime, which
+* provides methods for importing packages and executing Python code.
+* """
+*/
 export async function createPythonRuntime(
     options?: PythonRuntimeOptions & TraceOptions
 ): Promise<PythonRuntime> {

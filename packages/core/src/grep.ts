@@ -7,6 +7,20 @@ import { addLineNumbers } from "./liner"
 import { arrayify } from "./util"
 import { filterGitIgnore } from "./gitignore"
 
+/**
+ * Performs a grep search across files based on the provided pattern.
+ * 
+ * This function leverages the ripgrep utility to search for matches in files. It reads
+ * the specified paths and applies glob patterns and git ignore rules as needed. The 
+ * results include the files searched and the matched content with line numbers.
+ * 
+ * @param pattern - The search pattern, which can be a string or a regular expression.
+ * @param options - Optional settings to configure the search behavior, including paths,
+ *                  glob patterns, whether to read text content, and git ignore behavior.
+ * 
+ * @returns An object containing two arrays: a list of files that were searched and 
+ *          a list of matches found within those files.
+ */
 export async function grepSearch(
     pattern: string | RegExp,
     options?: TraceOptions & WorkspaceGrepOptions

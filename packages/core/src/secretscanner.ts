@@ -4,6 +4,15 @@ import { logWarn } from "./util"
 
 const cachedSecretScanners: Record<string, RegExp> = {}
 
+/**
+ * Redacts sensitive information from the provided text based on defined secret patterns.
+ * It replaces detected secrets with a placeholder and counts their occurrences.
+ *
+ * @param text - The input text from which secrets need to be redacted.
+ * @param options - Optional parameters for tracing; includes a trace object for logging.
+ * 
+ * @returns An object containing the redacted text and a record of detected secrets with their counts.
+ */
 export function redactSecrets(text: string, options?: TraceOptions) {
     const { trace } = options ?? {}
     const { secretPatterns = {} } = runtimeHost.config

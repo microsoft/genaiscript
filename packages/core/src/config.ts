@@ -134,6 +134,17 @@ async function resolveGlobalConfiguration(
     return config
 }
 
+/**
+ * Reads the configuration for the host by resolving global settings and loading environment variables.
+ * 
+ * This function attempts to read configuration files specified in the environment. It will check for
+ * the existence of each file and load them if they are found. If any of the specified files are not
+ * found or are not valid files, appropriate errors will be thrown. It also loads additional environment
+ * variables from the process.env prior to returning the configuration.
+ * 
+ * @param dotEnvPaths Optional paths to .env files provided by the caller.
+ * @returns The resolved host configuration object.
+ */
 export async function readConfig(
     dotEnvPaths?: string[]
 ): Promise<HostConfiguration> {

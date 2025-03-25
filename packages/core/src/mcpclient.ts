@@ -9,6 +9,21 @@ import type {
     EmbeddedResource,
 } from "@modelcontextprotocol/sdk/types.js"
 
+/**
+ * Initializes the Model Context Protocol (MCP) client and establishes a connection
+ * to the specified server. It retrieves available tools from the client and defines the
+ * corresponding implementation for each tool.
+ * 
+ * @param serverConfig Configuration object for the MCP server including id, version, 
+ *                     parameters, and other options.
+ * @param options Trace options for monitoring and logging the operation.
+ * 
+ * @returns An object containing a list of tool callbacks and an async disposal method 
+ *          to cleanly close the client and transport connections.
+ * 
+ * The tool callback implementation allows invoking tools with provided arguments and 
+ * handles the processing of the response content.
+ */
 export async function startMcpClient(
     serverConfig: McpServerConfig,
     options: TraceOptions

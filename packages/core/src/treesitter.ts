@@ -35,6 +35,13 @@ async function resolveLanguage(filename: string, trace?: MarkdownTrace) {
 let _initPromise: Promise<void>
 const _parsers: Record<string, Promise<any>> = {}
 
+/**
+ * Serializes a syntax node into a structured object format.
+ *
+ * @param filename - The name of the file containing the syntax node.
+ * @param node - The syntax node to serialize.
+ * @returns An object representing the serialized syntax node, including its type, text, filename, start and end positions, and children nodes.
+ */
 export function serializeSyntaxNode(filename: string, node: SyntaxNode): any {
     return {
         type: node.type,
@@ -48,6 +55,14 @@ export function serializeSyntaxNode(filename: string, node: SyntaxNode): any {
     }
 }
 
+/**
+ * Serializes a query capture into a structured format.
+ * 
+ * @param filename - The name of the file from which the capture originated.
+ * @param capture - The query capture to serialize, which includes the name and associated syntax node.
+ * 
+ * @returns An object representing the serialized capture, including the capture name and details of the syntax node.
+ */
 export function serializeQueryCapture(filename: string, capture: QueryCapture) {
     return {
         name: capture.name,
@@ -55,6 +70,14 @@ export function serializeQueryCapture(filename: string, capture: QueryCapture) {
     }
 }
 
+/**
+ * Resolves the tags query for the specified programming language.
+ * If a tags query is not found for the language, it throws a NotSupportedError.
+ *
+ * @param language - The programming language for which to resolve the tags query.
+ * @returns The tags query string associated with the specified language.
+ * @throws NotSupportedError if no tags query is found for the language.
+ */
 export function resolveTags(language: string) {
     const query = (queries as Record<string, string>)[`${language}/tags`]
     if (!query)
@@ -64,6 +87,14 @@ export function resolveTags(language: string) {
     return query
 }
 
+/**
+ * Renders a string representation of query captures.
+ * Each capture is formatted to include the capture name, its position 
+ * (line and column), node type, and the text of the node.
+ * 
+ * @param nodes - An array of query capture objects.
+ * @returns A concatenated string of formatted captures, each on a new line.
+ */
 export function renderCaptures(nodes: QueryCapture[]) {
     return nodes
         .map((tag) => {
@@ -75,6 +106,19 @@ export function renderCaptures(nodes: QueryCapture[]) {
         .join("\n")
 }
 
+/**
+ * Executes a Tree-sitter query on the given workspace file.
+ * 
+ * Parses the file content using a specific language parser and executes the provided query 
+ * to capture specific syntax nodes. If no query is provided, captures the root node of the 
+ * parse tree. Supports tracing for debugging and analysis.
+ * 
+ * @param file The workspace file to be queried.
+ * @param query Optional query string or predefined constant for tag queries.
+ * @param options Optional tracing options for detailed logging.
+ * 
+ * @returns An object containing an array of captured query results.
+ */
 export async function treeSitterQuery(
     file: WorkspaceFile,
     query?: OptionsOrString<"tags">,

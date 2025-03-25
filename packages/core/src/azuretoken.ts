@@ -169,6 +169,14 @@ class AzureTokenResolverImpl implements AzureTokenResolver {
     }
 }
 
+/**
+ * Creates an instance of AzureTokenResolver.
+ *
+ * @param name - The name identifier for the token resolver.
+ * @param envName - The environment name from which to read the secret.
+ * @param scopes - An array of scopes required for the Azure authentication token.
+ * @returns An instance of AzureTokenResolver, which is responsible for obtaining and managing Azure authentication tokens.
+ */
 export function createAzureTokenResolver(
     name: string,
     envName: string,

@@ -17,6 +17,17 @@ export interface PromptParametersSchemaConversionOptions {
     noDefaults?: boolean
 }
 
+/**
+ * Converts a prompt parameter type or an array of prompt parameter types into a JSON Schema representation.
+ * The function supports various types including string, number, boolean, arrays, and objects.
+ * 
+ * @param t - A prompt parameter type or an array of prompt parameter types to be converted.
+ * @param options - Conversion options that may affect the output schema.
+ * 
+ * @returns A JSON Schema object representing the specified prompt parameter type.
+ * 
+ * @throws Error if the provided prompt parameter type is not supported.
+ */
 export function promptParameterTypeToJSONSchema(
     t: PromptParameterType | [PromptParameterType],
     options?: PromptParametersSchemaConversionOptions
@@ -77,6 +88,19 @@ export function promptParameterTypeToJSONSchema(
     } else throw new Error(`prompt type ${typeof t} not supported`)
 }
 
+/**
+ * Converts a prompt parameters schema or JSON Schema into a JSON Schema representation.
+ * 
+ * @param parameters - The prompt parameters schema or a JSON Schema to convert. Can be undefined.
+ * @param options - Optional settings for the conversion.
+ * 
+ * @returns A JSON Schema representation of the input parameters, or undefined if no parameters are provided.
+ * 
+ * The function first checks if the input is already a JSON Schema. If it is, it returns it directly.
+ * Otherwise, it initializes an object with type, properties, and required fields. It iterates through 
+ * the entries of the parameters, converting each parameter type to its corresponding JSON Schema and 
+ * marking required fields based on the parameter definitions. The resulting schema is returned.
+ */
 export function promptParametersSchemaToJSONSchema(
     parameters: PromptParametersSchema | JSONSchema | undefined,
     options?: PromptParametersSchemaConversionOptions

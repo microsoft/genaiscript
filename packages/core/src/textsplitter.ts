@@ -19,6 +19,19 @@ export interface TextChunk {
     endOverlap: number[]
 }
 
+/**
+ * Reconstructs the original text from an array of text chunks.
+ *
+ * This function iterates through the provided chunks, appending the text 
+ * from each chunk and any intervening text from the original input. 
+ * It preserves the order of chunks and includes any text at the start 
+ * or end that is not part of the chunks.
+ *
+ * @param text - The original text to be reconstructed.
+ * @param chunks - The array of text chunks containing positions for 
+ *                 reconstruction.
+ * @returns The reconstructed text as a single string.
+ */
 export function unchunk(text: string, chunks: TextChunk[]) {
     let rebuild = ""
     for (let i = 0; i < chunks.length; i++) {

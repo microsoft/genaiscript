@@ -100,6 +100,13 @@ export async function renderMessageContent(
     return undefined
 }
 
+/**
+ * Retrieves the reasoning content from the last assistant message in the chat.
+ * Checks if the last message has the role of 'assistant' and contains reasoning content.
+ * 
+ * @param messages - An array of chat messages.
+ * @returns A boolean indicating whether the last message is from the assistant and has reasoning content.
+ */
 export function lastAssistantReasoning(messages: ChatCompletionMessageParam[]) {
     const last = messages.at(-1)
     return last?.role === "assistant" && last.reasoning_content
@@ -248,6 +255,17 @@ function renderToolArguments(args: string) {
     else return fenceMD(args, "json")
 }
 
+/**
+ * Collapses system messages at the beginning of the message array into a single message.
+ * Removes empty text contents from user messages.
+ *
+ * This function identifies the first block of system messages and combines their contents 
+ * into one cohesive message, replacing the individual messages in the array. It also 
+ * filters out any empty text content found in user messages, ensuring only relevant 
+ * information is retained.
+ *
+ * @param messages - An array of chat messages to be processed.
+ */
 export function collapseChatMessages(messages: ChatCompletionMessageParam[]) {
     // concat the content of system messages at the start of the messages into a single message
     const startSystem = messages.findIndex((m) => m.role === "system")

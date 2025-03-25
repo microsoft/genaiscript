@@ -24,6 +24,15 @@ import { host } from "./host"
 import { fromBase64 } from "./base64"
 import { JSONLTryParse } from "./jsonl"
 
+/**
+ * Attempts to parse the content of a given file based on its filename extension.
+ * Supports various formats including Excel (XLSX), CSV, INI, TOML, JSON5, YAML,
+ * XML, JSONL, and Markdown/MDX frontmatter.
+ * 
+ * @param file The file to be parsed, containing its name, content, and encoding.
+ * @param options Optional parsing options that may be specific to certain formats.
+ * @returns Parsed data if successful; undefined if the file format is unknown.
+ */
 export async function dataTryParse(
     file: WorkspaceFile,
     options?: TraceOptions & XMLParseOptions & INIParseOptions & CSVParseOptions

@@ -11,6 +11,21 @@ import { prettifyMarkdown } from "./markdown"
 import { MarkdownTrace, TraceOptions } from "./trace"
 import { logVerbose } from "./util"
 
+/**
+ * Queries the memory for contextual information relevant to the given query.
+ * 
+ * The function retrieves memories associated with the user state and processes them 
+ * to return concise answers. If no relevant information is found, it returns 
+ * a predefined token indicating no answer is available. The querying process is done 
+ * using a language model, ensuring that only memory content is utilized to formulate the response.
+ *
+ * @param ctx - The context object for the chat generation process.
+ * @param query - The user's query to find relevant information in memory.
+ * @param options - Options including user state and tracing details for the memory query.
+ * 
+ * @returns A string containing the memory answer or undefined if the query is empty 
+ *          or no memories are found.
+ */
 export async function agentQueryMemory(
     ctx: ChatGenerationContext,
     query: string,
@@ -48,6 +63,18 @@ export async function agentQueryMemory(
     return memoryAnswer
 }
 
+/**
+ * Adds a memory entry to the agent's memory cache.
+ * 
+ * This function stores a specified answer related to a query made by the agent.
+ * The memory is cached using a unique key combining the agent and query. 
+ * Additionally, it provides tracing details for the stored memory.
+ * 
+ * @param agent - The identifier for the agent.
+ * @param query - The query for which the memory is being added.
+ * @param text - The response text to be stored in memory.
+ * @param options - Additional options, including user state and trace options.
+ */
 export async function agentAddMemory(
     agent: string,
     query: string,
@@ -92,6 +119,16 @@ async function loadMemories(options: Pick<GenerationOptions, "userState">) {
     return memories
 }
 
+/**
+ * Traces and logs the agent's memory details.
+ *
+ * This function retrieves stored memories for the agent based on the provided options. 
+ * It formats and displays each memory entry in reverse order, including the agent's name, 
+ * the query, and the corresponding answer. The trace context is used to encapsulate 
+ * these details and provide structured logging of the memory.
+ *
+ * @param options - The context options for the current generation, which include user state and tracing options.
+ */
 export async function traceAgentMemory(
     options: Pick<GenerationOptions, "userState"> & Required<TraceOptions>
 ) {

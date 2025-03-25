@@ -4,6 +4,21 @@ const dbg = debug("genaiscript:evalprompt")
 import { host } from "./host"
 import MagicString from "magic-string"
 
+/**
+ * Evaluates a prompt script in the context of provided variables.
+ * 
+ * This function constructs an asynchronous function from the given script and context,
+ * optionally generating source maps for debugging. It combines the context keys with
+ * the script source, prepends and appends the necessary structure, and evaluates the
+ * final code.
+ *
+ * @param ctx0 - Initial context containing variables for the script execution.
+ * @param r - The prompt script containing the JavaScript source code and filename.
+ * @param options - Optional settings for the evaluation process.
+ * @param options.sourceMaps - Indicates whether to generate source maps for the script.
+ * @param options.logCb - Optional callback for logging messages during evaluation.
+ * @returns A promise that resolves to the result of the evaluated script function.
+ */
 export async function evalPrompt(
     ctx0: PromptContext,
     r: PromptScript,

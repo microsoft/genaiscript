@@ -50,6 +50,12 @@ export function estimateCost(modelId: string, usage: ChatCompletionUsage) {
     return (input + output) / 1e6
 }
 
+/**
+ * Determines if a specified model is eligible for cost estimation.
+ *
+ * @param model - The model identifier to be checked.
+ * @returns A boolean indicating whether the model can be costed.
+ */
 export function isCosteable(model: string): boolean {
     const { provider } = parseModelIdentifier(model)
     const prefix = `${provider}:`

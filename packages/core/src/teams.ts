@@ -13,6 +13,14 @@ import { resolveFileBytes } from "./file"
 import { basename } from "node:path"
 import { frontmatterTryParse, splitMarkdown } from "./frontmatter"
 
+/**
+ * Converts Markdown content to HTML formatted for Microsoft Teams.
+ * The function processes Markdown syntax such as headers, lists, links, bold, italic, code, and quotes,
+ * generating corresponding HTML elements. It also extracts the title from frontmatter if available.
+ * 
+ * @param markdown - Raw Markdown string input.
+ * @returns An object containing the generated HTML content and the subject extracted from the frontmatter.
+ */
 export function convertMarkdownToTeamsHTML(markdown: string) {
     // using regexes, convert headers, lists, links, bold, italic, code, and quotes
     const { content, frontmatter } = splitMarkdown(markdown || "")
@@ -151,6 +159,20 @@ async function microsoftTeamsChannelUploadFile(
     return j
 }
 
+/**
+ * Posts a message with optional file attachments to a specified Microsoft Teams channel.
+ * 
+ * @param channelUrl - The URL of the Teams channel where the message will be posted.
+ * @param message - The content of the message to be sent.
+ * @param options - Optional parameters for the message posting.
+ *   @param script - Optional script context for tracking purposes.
+ *   @param info - Additional information, such as a run URL.
+ *   @param files - An array of files to be attached to the message.
+ *   @param folder - Optional folder name to organize attachments.
+ *   @param disclaimer - A flag or string to control the inclusion of an AI-generated disclaimer.
+ * 
+ * @returns A promise that resolves to an object containing the details of the posted message, including its URL.
+ */
 export async function microsoftTeamsChannelPostMessage(
     channelUrl: string,
     message: string,
@@ -287,6 +309,14 @@ class MicrosoftTeamsChannelClient implements MessageChannelClient {
     }
 }
 
+/**
+ * Creates an instance of MicrosoftTeamsChannelClient using the provided URL.
+ * If no URL is provided, it falls back to environment variables for the Teams channel URL.
+ * Throws an error if the provided URL is invalid.
+ * 
+ * @param url - The URL of the Microsoft Teams channel.
+ * @returns An instance of MicrosoftTeamsChannelClient.
+ */
 export function createMicrosoftTeamsChannelClient(
     url: string
 ): MessageChannelClient {

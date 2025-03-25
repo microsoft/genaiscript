@@ -27,6 +27,20 @@ import { EchoModel } from "./echomodel"
 import { NoneModel } from "./nonemodel"
 import { AzureAIInferenceModel } from "./azureaiinference"
 
+/**
+ * Resolves and returns the appropriate language model based on the provided provider string.
+ * 
+ * This function checks against predefined constants representing various model providers,
+ * including GitHub Copilot Chat, Azure OpenAI, and others. If the provider is recognized,
+ * the corresponding model is returned. For unrecognized providers, a local OpenAI compatible
+ * model is created based on additional features derived from the MODEL_PROVIDERS array.
+ * 
+ * @param provider - The identifier for the model provider.
+ * 
+ * @throws Error if the GitHub Copilot Chat model is requested but not available.
+ * 
+ * @returns LanguageModel instance corresponding to the specified provider.
+ */
 export function resolveLanguageModel(provider: string): LanguageModel {
     if (provider === MODEL_PROVIDER_GITHUB_COPILOT_CHAT) {
         const m = runtimeHost.clientLanguageModel

@@ -1,3 +1,11 @@
+/**
+ * Rounds a given number to a specified number of decimal places with optional rounding function.
+ * 
+ * @param x - The number to round. If undefined, NaN is returned.
+ * @param digits - The number of decimal places to round to. If less than or equal to zero, the number is rounded to the nearest integer.
+ * @param round - An optional rounding function to use (default is Math.round).
+ * @returns The rounded number, or NaN if the input is undefined.
+ */
 export function roundWithPrecision(
     x: number | undefined,
     digits: number,
@@ -16,6 +24,14 @@ export function roundWithPrecision(
     return r
 }
 
+/**
+ * Renders a number with specified precision and locale formatting.
+ *
+ * @param x - The number to be rendered.
+ * @param digits - The number of decimal places to display.
+ * @param round - Optional rounding function; defaults to Math.round.
+ * @returns A string representation of the number formatted with the specified precision, or "?" if the input is undefined.
+ */
 export function renderWithPrecision(
     x: number | undefined,
     digits: number,

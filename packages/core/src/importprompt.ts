@@ -7,6 +7,20 @@ import { TraceOptions } from "./trace"
 import { pathToFileURL } from "url"
 import { mark } from "./performance"
 
+/**
+ * Dynamically imports a module given its filename.
+ * 
+ * The function resolves the module path, imports the module, and optionally executes
+ * a callback upon successful import. It supports tracing and logging through provided options.
+ * 
+ * @param filename - The path to the module file to import.
+ * @param options - Options for the import process.
+ * @param options.onImported - Callback function invoked with the imported module.
+ * @param options.logCb - Callback function for logging messages.
+ * @throws Error if the filename is not provided or if the import fails.
+ * 
+ * @returns A promise that resolves with the result of the onImported callback, if provided.
+ */
 export async function importFile<T = void>(
     filename: string,
     options?: {
@@ -56,6 +70,21 @@ export async function importFile<T = void>(
     }
 }
 
+/**
+ * Imports a prompt file and executes its default export if it is a function.
+ * 
+ * The function marks the start of the import process, logs the filename,
+ * and utilizes the `importFile` function to handle the import.
+ * If the imported module has a default export that is a function, it is called
+ * with the provided context. An error is thrown if the imported module
+ * is a system prompt and does not export a default function.
+ * 
+ * @param ctx0 - The context for the prompt execution.
+ * @param r - The prompt script containing the filename to import.
+ * @param options - Optional parameters for logging and tracing.
+ * 
+ * @returns A promise that resolves when the default export function is executed.
+ */
 export async function importPrompt(
     ctx0: PromptContext,
     r: PromptScript,
