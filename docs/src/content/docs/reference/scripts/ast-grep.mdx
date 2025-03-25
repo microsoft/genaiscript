@@ -32,6 +32,19 @@ const { matches } = await asg.search("ts", "src/fib.ts", {
 })
 ```
 
+or if you copy the rules from the [ast-grep playground](https://ast-grep.github.io/playground.html) using YAML, 
+
+```ts
+const { matches } = await asg.search("ts", "src/fib.ts", YAML`
+rule:
+    kind: function_declaration
+    not:
+        precedes: 
+            kind: comment
+            stopBy: neighbor
+`)
+```
+
 :::tip
 
 Use the [ast-grep playground](https://ast-grep.github.io/playground.html) to debug your queries,
