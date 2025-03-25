@@ -81,8 +81,6 @@ export async function astGrepFindFiles(
 
     const pending: Record<string, { root: SgRoot; edits: SgEdit[] }> = {}
     const replace = (node: SgNode, text: string) => {
-        if (!matches.includes(node))
-            throw new Error("node is not included in the matches")
         const edit = node.replace(text)
         const root = node.getRoot()
         const rootEdits =
