@@ -17,8 +17,8 @@ export interface Chunk {
  * Adjusts line numbers, removes duplicate lines without actual changes, 
  * ensures proper chunk segmentation, and handles trailing empty lines.
  *
- * @param text - The LLMD diff text to parse.
- * @returns An array of chunks representing the parsed diff.
+ * @param text - The LLMD diff text to parse. Must be a newline-separated string.
+ * @returns An array of chunks representing the parsed diff, with each chunk containing its state, lines, and line numbers.
  */
 export function parseLLMDiffs(text: string): Chunk[] {
     const lines = text.split("\n")
@@ -354,9 +354,9 @@ export function llmifyDiff(diff: string) {
 
 /**
  * Creates a unified diff between two workspace files.
- * @param left - The original workspace file or its content as a string.
- * @param right - The modified workspace file or its content as a string.
- * @param options - Optional parameters, such as context lines for the diff.
+ * @param left - The original workspace file or its content.
+ * @param right - The modified workspace file or its content.
+ * @param options - Optional parameters, such as the number of context lines.
  * @returns The diff as a string, with redundant headers removed.
  */
 export function createDiff(

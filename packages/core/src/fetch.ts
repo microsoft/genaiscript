@@ -135,6 +135,7 @@ export async function fetch(
  *   - retryOn: HTTP status codes to retry on.
  *   - maxDelay: Maximum delay between retries.
  *   - trace: Trace options for logging.
+ *   - cancellationToken: Token to cancel the fetch operation.
  * @returns An object containing fetch status, content, metadata, and file details.
  */
 export async function fetchText(
@@ -261,7 +262,7 @@ ${Object.entries(headers)
  *
  * Extracts the status and status text from the response object for logging and debugging.
  *
- * @param res - The HTTP response object with optional status and statusText fields.
+ * @param res - The HTTP response object. Includes optional status and statusText fields.
  * @returns A list of strings containing the status and status text if provided.
  */
 export function statusToMessage(res?: {

@@ -11,12 +11,12 @@ import { filenameOrFileToContent } from "./unwrappers"
 /**
  * Parses a CSV string or file into an array of objects.
  *
- * @param text - The CSV string or file to parse.
+ * @param text - The CSV string or file to parse. If a file is provided, its content is read.
  * @param options - Optional configuration for parsing.
  * @param options.delimiter - The delimiter used in the CSV, defaults to a comma.
  * @param options.headers - Column headers for the CSV, as an array or single value. If not provided, headers are inferred from the first line.
  * @param options.repair - Whether to repair common escape errors, defaults to false.
- * @returns An array of objects representing the parsed CSV data.
+ * @returns An array of objects representing the parsed CSV data. Skips empty lines and records with errors.
  */
 export function CSVParse(
     text: string | WorkspaceFile,
@@ -101,8 +101,8 @@ export function CSVStringify(csv: object[], options?: CSVStringifyOptions) {
  *
  * @param csv - Array of objects representing the data to convert. Returns an empty string if the input is empty.
  * @param options - Configuration options for the table.
- * @param options.headers - Headers for the table columns. If not provided, keys from the first object are used. Headers are escaped for Markdown. If empty, defaults to object keys.
- * @returns A Markdown table as a string, with rows and columns formatted and escaped for Markdown.
+ * @param options.headers - Headers for the table columns. If not provided, keys from the first object are used. If empty, defaults to object keys. Headers are escaped for Markdown.
+ * @returns A Markdown table as a string, with rows and columns formatted and escaped for Markdown. Rows are joined without additional newlines.
  */
 export function dataToMarkdownTable(
     csv: object[],

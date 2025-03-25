@@ -13,7 +13,7 @@ import { MIN_LINE_NUMBER_LENGTH } from "./constants"
  * @param options - Optional parameters:
  *   - language: Specifies the language format (e.g., "diff").
  *   - startLine: The starting line number for numbering (default is 1).
- * @returns The text with line numbers added, or processed diff text if applicable.
+ * @returns The text with line numbers added, the original text if it is too small, or processed diff text if applicable.
  */
 export function addLineNumbers(
     text: string,

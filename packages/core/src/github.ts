@@ -155,7 +155,11 @@ export async function githubParseEnv(
  * - info: Object containing apiUrl, repository, issue, and runUrl. The issue field must be provided.
  * - text: The new description text to update. It will be prettified, merged with the existing description, and appended with a footer.
  * - commentTag: Tag used to identify and merge the description. Must be provided.
- * Returns an object indicating whether the update was successful and the status text.
+ * Returns:
+ * - An object indicating whether the update was successful and the status text.
+ * Notes:
+ * - Requires a valid GitHub token to authenticate API requests.
+ * - If the issue number is missing, the update will not proceed.
  */
 export async function githubUpdatePullRequestDescription(
     script: PromptScript,

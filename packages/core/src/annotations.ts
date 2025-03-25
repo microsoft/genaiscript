@@ -123,7 +123,7 @@ export function convertAnnotationToItem(d: Diagnostic) {
  * Converts a Diagnostic object to a GitHub Action command string.
  *
  * @param d The Diagnostic object containing severity, filename, range, and message.
- * @returns A formatted string as a GitHub Action command, including severity, filename, line, endLine, and message. Defaults severity to "notice" for "info".
+ * @returns A formatted string as a GitHub Action command, including severity, filename, line, endLine, and message. Defaults severity to "notice" for "info". If severity is not mapped, uses the original severity.
  */
 export function convertDiagnosticToGitHubActionCommand(d: Diagnostic) {
     // Maps DiagnosticSeverity to GitHub Action severity strings.

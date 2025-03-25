@@ -282,7 +282,7 @@ function validateFileOutputs(
  * @param fileEdits - A record of file updates, including filename, original content, updated content, and validation details. Skips files with invalid schemas unless applyEdits is true.
  * @param options - Options for applying edits and tracing details:
  *   - applyEdits: If true, applies edits even if validation fails.
- *   - trace: A trace object for logging details and changes.
+ *   - trace: A trace object for logging details, including skipped files and changes.
  */
 export async function writeFileEdits(
     fileEdits: Record<string, FileUpdate>, // Contains the edits to be applied to files

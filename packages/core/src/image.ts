@@ -180,7 +180,7 @@ export async function imageTransform(
  * Encodes an image for use in Language Learning Models (LLMs).
  *
  * @param url - The source of the image, which can be a URL, Buffer, or Blob.
- * @param options - Configuration for image processing, including detail level, trace settings, cancellation handling, MIME type, scaling, cropping, rotation, and greyscale.
+ * @param options - Configuration for image processing, including detail level, trace settings, cancellation handling, MIME type, scaling, cropping, rotation, greyscale, and auto-cropping.
  * @returns A promise that resolves to the image encoded as a data URI.
  */
 export async function imageEncodeForLLM(

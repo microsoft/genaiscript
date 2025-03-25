@@ -56,7 +56,10 @@ export function JSONrepair(text: string) {
  * Parses a JSON5 string with optional error handling and repair.
  * Removes fencing if present.
  * @param text - The JSON5 string to parse.
- * @param options - Parsing options: default value to return on error, whether to use the default value on error, and whether to repair the input before parsing.
+ * @param options - An object containing:
+ *   - defaultValue: The value to return if parsing fails.
+ *   - errorAsDefaultValue: Whether to return the default value on error.
+ *   - repair: Whether to attempt repairing the input before parsing.
  * @returns The parsed object, the default value, or undefined/null based on options.
  */
 export function JSON5parse<T = unknown>(
@@ -101,9 +104,9 @@ export function JSON5parse<T = unknown>(
  */
 /**
  * Tries to parse a JSON5 string and returns a default value if parsing fails.
- * 
- * @param text - The JSON5 string to parse. Can be undefined or null.
- * @param defaultValue - The value to return if parsing fails.
+ *
+ * @param text - The JSON5 string to parse. Can be undefined, null, or empty.
+ * @param defaultValue - The value to return if parsing fails or if the input is empty.
  * @returns The parsed object, default value, or null/undefined based on input.
  */
 export function JSON5TryParse<T = unknown>(
@@ -124,7 +127,7 @@ export function JSON5TryParse<T = unknown>(
  * Parses a JSON-like string, removes fencing and unnecessary formatting, and returns the parsed object.
  * If the input is undefined or null, returns it as-is. If the input is an empty string, returns an empty object.
  * Removes fencing and applies additional cleaning before parsing.
- * @param s - The JSON-like string to parse. Can be undefined, null, or empty.
+ * @param s - The JSON-like string to parse. Can be undefined, null, or empty. Fencing and unnecessary formatting are removed.
  * @returns The parsed object, the original input, or an empty object if input is empty.
  */
 export function JSONLLMTryParse(s: string): any {

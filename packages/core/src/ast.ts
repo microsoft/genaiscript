@@ -56,10 +56,10 @@ export const eolPosition = 0x3fffffff // End of line position, a large constant
 export const eofPosition: CharPosition = [0x3fffffff, 0] // End of file position, a tuple with a large constant
 
 /**
- * Organizes templates by directory and determines the presence of JavaScript or TypeScript files in each directory.
- * Filters out templates without filenames or those matching the PROMPTY_REGEX.
- * @param prj - The project containing scripts to process. Each script must include a filename.
- * @returns An array of objects, each representing a directory with its name and flags indicating JavaScript and TypeScript file presence.
+ * Organizes templates by directory and identifies the presence of JavaScript or TypeScript files in each directory.
+ * Excludes templates without filenames or those matching the PROMPTY_REGEX.
+ * @param prj - The project containing scripts to analyze.
+ * @returns An array of directory objects with their names and flags indicating JavaScript and TypeScript file presence.
  */
 export function collectFolders(prj: Project) {
     const folders: Record<

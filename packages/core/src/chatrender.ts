@@ -26,8 +26,8 @@ export interface ChatRenderOptions extends CancellationOptions {
 
 /**
  * Formats the output of a shell command into a readable string.
- * @param output - An object containing the shell execution result, including exit code, stdout, and stderr.
- * @returns A formatted string summarizing the shell output. Includes exit code if non-zero, stdout, and stderr, separated by double newlines.
+ * @param output - The shell execution result containing exit code, stdout, and stderr.
+ * @returns A formatted string summarizing the shell output. Includes exit code if non-zero, stdout, and stderr, separated by double newlines. Returns stdout directly if the exit code is zero.
  */
 export function renderShellOutput(output: ShellOutput) {
     // Destructure the output object to retrieve exitCode, stdout, and stderr.
@@ -113,7 +113,7 @@ export function lastAssistantReasoning(messages: ChatCompletionMessageParam[]) {
  * Renders a list of chat messages into a formatted markdown string.
  *
  * @param messages - The list of chat messages to render.
- * @param options - Configuration options for rendering, including text language, role filtering, cancellation, and tool inclusion. Supports filtering by system, user, and assistant roles, as well as rendering tools and handling cancellation tokens.
+ * @param options - Configuration options for rendering, including text language, role filtering, cancellation, and tool inclusion. Supports filtering by system, user, assistant, and tool roles. Handles cancellation tokens and includes tools if provided.
  * @returns A markdown string representation of the chat messages.
  */
 export async function renderMessagesToMarkdown(

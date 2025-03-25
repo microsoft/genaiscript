@@ -122,7 +122,7 @@ export async function hash(value: any, options?: HashOptions) {
  * Computes the hash of a file using a streaming approach.
  *
  * @param filePath - Path to the file to hash.
- * @param algorithm - Hashing algorithm to use, defaults to "sha-256".
+ * @param algorithm - Hashing algorithm to use. Defaults to "sha-256".
  * @returns Promise resolving to the file's hash in hexadecimal format.
  */
 export async function hashFile(

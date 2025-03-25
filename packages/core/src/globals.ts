@@ -42,6 +42,7 @@ import { MarkdownStringify } from "./markdown"
  * - Provides tokenization-related utilities such as counting, truncating, and chunking text.
  * - Instantiates Git and GitHub clients.
  * - Includes a fetchText function for retrieving text from URLs or files.
+ * - Includes an ffmpeg client for multimedia operations.
  */
 export function installGlobals() {
     dbg("install")

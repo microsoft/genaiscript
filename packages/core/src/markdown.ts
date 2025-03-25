@@ -10,8 +10,8 @@ import { fenceMD } from "./mkmd"
 import { convertThinkToMarkdown } from "./think"
 
 /**
- * Prettifies markdown content by converting annotations, processing "think" blocks, and removing excessive newlines.
- * @param md - The markdown string to process.
+ * Prettifies markdown content by converting annotations to markdown, processing "think" blocks, and collapsing excessive newlines.
+ * @param md - The markdown string to prettify.
  * @returns The cleaned and formatted markdown string.
  */
 export function prettifyMarkdown(md: string) {

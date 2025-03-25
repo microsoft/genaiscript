@@ -31,6 +31,7 @@ export interface ChangeLog {
  *
  * @param source The raw input string containing changelog information.
  * Must include headers, descriptions, and detailed changes with line numbers and contents.
+ * The input is expected to be wrapped in a "changelog" fence.
  * 
  * @returns An array of ChangeLog objects parsed from the input.
  * 

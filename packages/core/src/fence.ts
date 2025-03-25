@@ -29,6 +29,8 @@ function startFence(text: string) {
  * Parses a key-value pair from a string, where the key and value are separated by '=' or ':'.
  * Returns an object with the extracted and unquoted key-value pair.
  * If no separator is found, returns an empty object.
+ * 
+ * @param text - The input string containing a key-value pair.
  */
 export function parseKeyValuePair(text: string): Record<string, string> {
     const m = /[=:]/.exec(text)

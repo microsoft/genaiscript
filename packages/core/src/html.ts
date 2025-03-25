@@ -50,7 +50,7 @@ export async function HTMLToText(
  * Converts HTML content to Markdown format.
  *
  * @param html - The HTML content to convert. If no HTML is provided, the original content is returned.
- * @param options - Optional parameters including tracing and GFM support. GFM can be disabled using disableGfm.
+ * @param options - Optional parameters including tracing, GFM support, and elements to remove. GFM can be disabled using disableGfm.
  * @returns The Markdown representation of the HTML.
  */
 export async function HTMLToMarkdown(

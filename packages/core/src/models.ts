@@ -32,6 +32,9 @@ export interface ParsedModelType {
  * 
  * Returns:
  * - An object containing provider, family, model, optional tag, and optional reasoningEffort.
+ * 
+ * Throws:
+ * - Error if the model identifier is not specified.
  */
 export function parseModelIdentifier(id: string): {
     provider: string

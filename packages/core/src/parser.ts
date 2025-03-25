@@ -28,7 +28,7 @@ export function stringToPos(str: string): CharPosition {
  * Initializes a project, reads system and user scripts, and updates with parsed templates.
  * Filters invalid or duplicate scripts and sorts templates.
  * Computes resolved systems and input schemas for non-system scripts.
- * @param options - Object containing an array of script file paths.
+ * @param options - Contains an array of script file paths to process.
  * @returns Project - The project with processed templates and diagnostics.
  */
 export async function parseProject(options: { scriptFiles: string[] }) {
