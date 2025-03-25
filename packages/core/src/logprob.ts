@@ -127,6 +127,9 @@ function computeNormalizedEntropy(
  * Computes the average structural uncertainty of a series of log probabilities.
  * Filters log probabilities with defined top probabilities and calculates normalized entropy for each.
  * Returns the mean of valid normalized entropy values, or undefined if no valid data is found.
+ * 
+ * @param logprobs - Array of log probabilities to process.
+ * @returns The average normalized entropy or undefined if no valid data exists.
  */
 export function computeStructuralUncertainty(
     logprobs: Logprob[] | undefined

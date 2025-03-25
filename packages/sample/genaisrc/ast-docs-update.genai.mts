@@ -57,6 +57,7 @@ for (const match of matches) {
             responseType: "text",
             flexTokens: 12000,
             label: match.child(0).text(),
+            temperature: 0.1
         }
     )
     // if generation is successful, insert the docs

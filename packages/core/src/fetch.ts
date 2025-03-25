@@ -28,11 +28,11 @@ export type FetchType = (
  * Creates a fetch function with retry logic.
  *
  * Wraps `crossFetch` with retry capabilities based on the provided options. 
- * Configures the number of retries, the delay between retries, specific HTTP status codes to retry on, 
+ * Configures the number of retries, delay between retries, HTTP status codes to retry on, 
  * and supports cancellation and proxy configuration.
  *
- * @param options - Configuration for retries, delays, status codes, cancellation token, and tracing options.
- * @returns A fetch function with retry and cancellation functionality.
+ * @param options - Configuration for retries, delays, HTTP status codes, cancellation token, and tracing.
+ * @returns A fetch function with retry and cancellation support.
  */
 export async function createFetch(
     options?: {
@@ -119,11 +119,11 @@ export async function fetch(
  * Fetches text content from a URL or file.
  *
  * Fetches content from an HTTP(S) URL or reads from the file system for local files.
- * Automatically retries on specific HTTP statuses if configured. Supports tracing.
+ * Retries on specific HTTP statuses if configured. Supports tracing and cancellation.
  * Handles binary content using base64 encoding.
  *
  * @param urlOrFile - URL or file path to fetch from.
- * @param fetchOptions - Optional settings for retries, delays, tracing, and fetch configurations.
+ * @param fetchOptions - Settings for retries, delays, tracing, cancellation, and fetch configurations.
  * @returns Object containing fetch status, content, metadata, and file details.
  */
 export async function fetchText(
@@ -248,11 +248,10 @@ ${Object.entries(headers)
 /**
  * Converts the HTTP response status and status text into a list of strings.
  *
- * Helps with logging and debugging by extracting the status and status text
- * from the response object into a string list.
+ * Extracts the status and status text from the response object for logging and debugging.
  *
- * @param res - The HTTP response object containing optional status and statusText fields.
- * @returns A list of strings including the status and status text if available.
+ * @param res - The HTTP response object with optional status and statusText fields.
+ * @returns A list of strings containing the status and status text if provided.
  */
 export function statusToMessage(res?: {
     status?: number

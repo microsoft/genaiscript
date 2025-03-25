@@ -18,9 +18,9 @@ export interface FileReference {
 
 /**
  * Converts diagnostic data into a CSV-formatted string.
- * @param diagnostics - Array of diagnostic objects with severity, filename, range, code, and message.
- * @param sep - Separator for CSV fields.
- * @returns CSV string with each diagnostic entry on a new line.
+ * @param diagnostics - Array of diagnostic objects containing severity, filename, range, code, and message.
+ * @param sep - String used as the separator for CSV fields.
+ * @returns CSV string with each diagnostic entry on a separate line.
  */
 export function diagnosticsToCSV(diagnostics: Diagnostic[], sep: string) {
     return diagnostics
@@ -39,10 +39,10 @@ export function diagnosticsToCSV(diagnostics: Diagnostic[], sep: string) {
 }
 
 /**
- * Determines the group name of a given template.
- * @param template - The template object to evaluate.
- * @returns Group name of the template, "system" if the ID starts with "system", 
- * or "unassigned" if no group is set.
+ * Determines the group name of a template.
+ * @param template - The template to evaluate, containing an ID and optional group.
+ * @returns The group name of the template. Returns "system" if the ID starts with "system", 
+ * the existing group if set, or "unassigned" if no group is determined.
  */
 export function templateGroup(template: PromptScript) {
     return (
@@ -57,9 +57,9 @@ export const eolPosition = 0x3fffffff // End of line position, a large constant
 export const eofPosition: CharPosition = [0x3fffffff, 0] // End of file position, a tuple with a large constant
 
 /**
- * Organizes templates by directory and identifies the presence of JS or TS files in each directory.
- * @param prj - The project containing the scripts to process.
- * @returns An array of objects, each representing a directory with its name and boolean flags for JS and TS file presence.
+ * Organizes templates by directory and determines the presence of JavaScript or TypeScript files in each directory.
+ * @param prj - The project containing the scripts to analyze.
+ * @returns An array of objects, each representing a directory with its name and flags indicating the presence of JavaScript and TypeScript files.
  */
 export function collectFolders(prj: Project) {
     const folders: Record<
@@ -80,9 +80,9 @@ export function collectFolders(prj: Project) {
 
 /**
  * Retrieves a script by its ID from the project's scripts list.
- * @param prj - The project containing the scripts.
- * @param system - The system prompt instance with the script ID to find.
- * @returns The matching PromptScript or undefined if no match is found.
+ * @param prj - The project containing the scripts to search.
+ * @param system - The system prompt instance containing the script ID to match.
+ * @returns The matching script or undefined if no match is found.
  */
 export function resolveScript(prj: Project, system: SystemPromptInstance) {
     return prj?.scripts?.find((t) => t.id == system.id) // Find and return the template with the matching ID

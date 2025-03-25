@@ -12,12 +12,12 @@ import { measure } from "./performance"
 import { logVerbose } from "./util"
 
 /**
- * Provides a rough O(1) token count estimate by dividing the text length
- * by an approximated token length and adding a constant overhead.
+ * Estimates the token count of a given text by dividing its length
+ * by an approximate token length and adding a constant overhead.
  * 
  * @param text The input text to estimate tokens for.
- * @param options Optional parameters to adjust the overcount factor.
- * @returns The estimated token count.
+ * @param options Optional parameters to adjust the overcount factor, which modifies the token length.
+ * @returns The estimated token count, including overhead.
  */
 export function approximateTokens(
     text: string,

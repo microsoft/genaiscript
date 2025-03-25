@@ -36,14 +36,14 @@ import { astGrepFindFiles, astGrepParse } from "./astgrep"
 const dbg = debug("genaiscript:promptcontext")
 
 /**
- * Creates a prompt context for the given project, variables, trace, options, and model.
+ * Creates a prompt context for the specified project, variables, trace, options, and model.
  * 
  * @param prj The project for which the context is created.
- * @param ev Expansion variables including generator, output, and other configurations.
+ * @param ev Expansion variables including generator, output, debugging, and other configurations.
  * @param trace Markdown trace for logging and debugging.
- * @param options Includes generation options like cancellation tokens and embedding models.
- * @param model The model identifier used for the context creation.
- * @returns A context object with methods and properties for file operations, web retrieval, searches, and execution.
+ * @param options Generation options such as cancellation tokens, embeddings models, and content safety.
+ * @param model The model identifier used for context creation.
+ * @returns A context object providing methods for file operations, web retrieval, searches, execution, and other utilities.
  */
 export async function createPromptContext(
     prj: Project,

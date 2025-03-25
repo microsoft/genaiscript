@@ -31,12 +31,11 @@ export function sliceData(rows: any[], options: ArrayFilter = {}) {
 /**
  * Processes and filters data rows based on the provided options.
  *
- * This function applies various operations such as selecting distinct values,
- * selecting specific headers, and slicing samples, head, or tail of the data.
+ * This function applies operations such as selecting distinct values, selecting specific headers, slicing samples, head, or tail of the data, and sorting rows.
  *
- * @param {object[]} rows - The data rows to be processed.
- * @param {DataFilter} [options={}] - The options to filter and manipulate the data.
- * @returns {object[]} - The processed and filtered data rows.
+ * @param rows - The data rows to be processed.
+ * @param options - The options to filter, slice, and sort the data.
+ * @returns - The processed and filtered data rows.
  */
 export function tidyData(rows: object[], options: DataFilter = {}) {
     // Check if distinct operation is specified in options and apply it

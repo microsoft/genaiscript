@@ -26,9 +26,9 @@ function startFence(text: string) {
 }
 
 /**
- * Parse a single key-value pair from a string.
- * @param text - The string containing the key-value pair, separated by '=' or ':'.
- * @returns An object with the extracted and unquoted key-value pair.
+ * Parses a key-value pair from a string, where the key and value are separated by '=' or ':'.
+ * Returns an object with the extracted and unquoted key-value pair.
+ * If no separator is found, returns an empty object.
  */
 export function parseKeyValuePair(text: string): Record<string, string> {
     const m = /[=:]/.exec(text)
@@ -38,8 +38,8 @@ export function parseKeyValuePair(text: string): Record<string, string> {
 }
 
 /**
- * Parse key-value pairs from a string or an array of strings.
- * @param text - Input containing key-value pairs separated by space or line breaks. Keys and values should be separated by "=" or ":".
+ * Parse key-value pairs from input text.
+ * @param text - Input containing key-value pairs separated by spaces or line breaks. Keys and values must be separated by "=" or ":".
  * @returns An object with parsed key-value pairs as immutable data.
  */
 export function parseKeyValuePairs(text: string | string[]) {
@@ -56,9 +56,9 @@ export function parseKeyValuePairs(text: string | string[]) {
 }
 
 /**
- * Parse text to extract fenced code blocks and their labels.
- * @param text - The text to parse.
- * @returns An array of objects representing fenced code blocks.
+ * Parse text to extract fenced code blocks and their metadata.
+ * @param text - The input text containing fenced code blocks.
+ * @returns An array of objects representing fenced code blocks, including label, content, language, and arguments.
  */
 export function extractFenced(text: string): Fenced[] {
     if (!text) return []
@@ -169,9 +169,9 @@ export function extractFenced(text: string): Fenced[] {
 }
 
 /**
- * Find the first data fence with YAML or JSON content.
- * @param fences - An array of fenced objects.
- * @returns Parsed content or undefined if not found.
+ * Finds the first fenced block containing YAML or JSON content and parses it.
+ * @param fences - Array of fenced objects to search.
+ * @returns Parsed content if a valid YAML or JSON block is found, otherwise undefined.
  */
 export function findFirstDataFence(fences: Fenced[]): any {
     const { content, language } =
@@ -187,9 +187,9 @@ export function findFirstDataFence(fences: Fenced[]): any {
 }
 
 /**
- * Parse strings into key-value pairs and return them as an object.
- * @param vars - Array of strings with key-value pairs.
- * @returns An object with parsed key-value pairs or undefined if empty.
+ * Parse an array of strings into key-value pairs and return them as an object.
+ * @param vars - Array of strings containing key-value pairs separated by "=" or ":".
+ * @returns An object with parsed key-value pairs, or undefined if the input is empty.
  */
 export function parseVars(vars: string[]) {
     if (!vars?.length) return undefined
@@ -200,8 +200,9 @@ export function parseVars(vars: string[]) {
 
 /**
  * Render an array of fenced code blocks into a formatted string.
- * @param vars - Array of fenced objects, each containing label, content, language, and other metadata.
- * @returns A formatted string representation of the fenced blocks, including validation results and schema errors if present.
+ * Each block includes its label, content, language, validation results, and schema errors if present.
+ * @param vars - Array of fenced objects, each containing label, content, language, validation, args, and other metadata.
+ * @returns A formatted string representation of the fenced blocks.
  */
 export function renderFencedVariables(vars: Fenced[]) {
     return vars

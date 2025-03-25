@@ -3,11 +3,12 @@ import Mustache from "mustache"
 import { jinjaRender } from "./jinja"
 
 /**
- * Applies Mustache or Jinja templating to the content of a markdown file.
+ * Processes a markdown string by applying Mustache or Jinja templating.
+ * Removes frontmatter, prompty roles, and XML tags before interpolation.
  * @param md The markdown string to process.
- * @param data The data to interpolate into the markdown content.
- * @param options Optional configuration, including templating format.
- * @returns The processed markdown string with variables interpolated.
+ * @param data The data for variable interpolation.
+ * @param options Configuration for templating format, e.g., Mustache or Jinja.
+ * @returns The processed markdown string with interpolated variables.
  */
 export async function interpolateVariables(
     md: string,

@@ -52,8 +52,8 @@ const SEV_EMOJI_MAP: Record<string, string> = Object.freeze({
 /**
  * Parses annotations from TypeScript, GitHub Actions, and Azure DevOps.
  *
- * @param text - The input text containing annotations to be parsed.
- * @returns An array of unique Diagnostic objects extracted from the text.
+ * @param text - Input text containing annotations to parse.
+ * @returns Array of unique Diagnostic objects extracted from the input text.
  */
 export function parseAnnotations(text: string): Diagnostic[] {
     if (!text) return []
@@ -139,8 +139,8 @@ export function convertDiagnosticToGitHubActionCommand(d: Diagnostic) {
 /**
  * Converts a Diagnostic object to an Azure DevOps log issue command string.
  *
- * @param d - The Diagnostic object to convert. Includes severity, message, filename, and range.
- * @returns A formatted Azure DevOps command string or debug message for "info" severity.
+ * @param d - The Diagnostic object containing severity, message, filename, and range.
+ * @returns A formatted Azure DevOps command string for warnings and errors, or a debug message for info severity.
  */
 export function convertDiagnosticToAzureDevOpsCommand(d: Diagnostic) {
     // Handle 'info' severity separately with a debug message.
@@ -151,10 +151,10 @@ export function convertDiagnosticToAzureDevOpsCommand(d: Diagnostic) {
 }
 
 /**
- * Converts annotations in text to a Markdown representation.
+ * Converts annotations in text to a Markdown representation with severity-based admonitions.
  *
- * @param text - Input text with annotations to be converted.
- * @returns Formatted string in Markdown with admonitions for severity levels.
+ * @param text Input text containing annotations to be converted.
+ * @returns Formatted Markdown string with severity levels mapped to admonitions.
  */
 export function convertAnnotationsToMarkdown(text: string): string {
     // Maps severity levels to Markdown admonition types.

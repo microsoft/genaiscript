@@ -9,14 +9,14 @@ import { chunk } from "es-toolkit"
 import { filenameOrFileToContent } from "./unwrappers"
 
 /**
- * Parses a CSV string into an array of objects.
+ * Parses a CSV string or file into an array of objects.
  *
  * @param text - The CSV string or file to parse.
- * @param options - Optional parsing configuration.
- * @param options.delimiter - Delimiter used in the CSV, defaults to comma.
- * @param options.headers - Headers for the CSV columns, as an array or single value.
- * @param options.repair - Whether to repair escape errors, defaults to false.
- * @returns An array of objects representing the CSV data.
+ * @param options - Optional configuration for parsing.
+ * @param options.delimiter - The delimiter used in the CSV, defaults to a comma.
+ * @param options.headers - Column headers for the CSV, as an array or single value.
+ * @param options.repair - Whether to repair common escape errors, defaults to false.
+ * @returns An array of objects representing the parsed CSV data.
  */
 export function CSVParse(
     text: string | WorkspaceFile,
@@ -86,8 +86,8 @@ export function CSVTryParse(
 /**
  * Converts an array of objects into a CSV string.
  *
- * @param csv - Array of objects to convert to CSV format. Returns an empty string if the array is null or undefined.
- * @param options - Configuration for CSV stringification, such as headers or delimiter settings.
+ * @param csv - Array of objects to convert to CSV format. Returns an empty string if the input is null or undefined.
+ * @param options - Optional configuration for CSV stringification, including headers and delimiter settings.
  * @returns A CSV formatted string representation of the input data.
  */
 export function CSVStringify(csv: object[], options?: CSVStringifyOptions) {

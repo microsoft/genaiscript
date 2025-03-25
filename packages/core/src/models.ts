@@ -28,7 +28,10 @@ export interface ParsedModelType {
  * - Optionally, `model:tag` can include `:reasoningEffort` (e.g., high, medium, low).
  * 
  * Parameters:
- * - id: The model identifier string to parse.
+ * - id: The model identifier string to parse. Must not be empty.
+ * 
+ * Returns:
+ * - An object containing provider, family, model, optional tag, and optional reasoningEffort.
  */
 export function parseModelIdentifier(id: string): {
     provider: string

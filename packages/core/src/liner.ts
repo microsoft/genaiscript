@@ -6,11 +6,13 @@ import { llmifyDiff, tryParseDiff } from "./diff"
 import { MIN_LINE_NUMBER_LENGTH } from "./constants"
 
 /**
- * Adds 1-based line numbers to each line of a given text.
- * If the language is "diff", processes the text using llmifyDiff.
+ * Adds 1-based line numbers to each line of the input text.
+ * If the language is "diff" or the text is detected as a diff, processes it using llmifyDiff.
  *
- * @param text - The input text to be processed.
- * @param options - Optional parameters including language format and starting line number.
+ * @param text - The input text to process.
+ * @param options - Optional parameters:
+ *   - language: Specifies the language format (e.g., "diff").
+ *   - startLine: The starting line number for numbering (default is 1).
  * @returns The text with line numbers added, or processed diff text if applicable.
  */
 export function addLineNumbers(

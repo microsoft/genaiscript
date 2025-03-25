@@ -7,9 +7,9 @@ import { errorMessage } from "./error"
 import { promptParametersSchemaToJSONSchema } from "./parameters"
 
 /**
- * Determines if the provided object is a valid JSON Schema.
- * @param obj - The object to evaluate.
- * @returns True if the object is a JSON Schema; otherwise, false.
+ * Checks if the given object is a valid JSON Schema.
+ * @param obj - The object to check.
+ * @returns True if the object is a valid JSON Schema, false otherwise.
  */
 export function isJSONSchema(obj: any) {
     if (typeof obj === "object" && obj.type === "object") return true
@@ -48,8 +48,8 @@ export function JSONSchemaToFunctionParameters(schema: JSONSchemaType): string {
 /**
  * Converts a JSON Schema into a TypeScript type definition string.
  * @param schema - The JSON Schema to convert.
- * @param options - Optional settings, including type name and whether to export the type.
- * @returns The resulting TypeScript type definition as a string.
+ * @param options - Optional settings, including the type name and whether to export the type.
+ * @returns The TypeScript type definition as a string.
  */
 export function JSONSchemaStringifyToTypeScript(
     schema: JSONSchema | JSONSchemaType,
@@ -174,7 +174,7 @@ export function JSONSchemaStringifyToTypeScript(
 /**
  * Validates a JSON Schema using Ajv.
  * @param schema - The JSON Schema to validate.
- * @returns A Promise resolving with the validation result.
+ * @returns A Promise resolving with the validation result, indicating whether the schema is valid.
  */
 export async function validateSchema(schema: JSONSchema) {
     const ajv = new Ajv()
@@ -182,11 +182,11 @@ export async function validateSchema(schema: JSONSchema) {
 }
 
 /**
- * Validate a JSON object against a given JSON schema
- * @param object - The JSON object to validate
- * @param schema - The JSON Schema
- * @param options - Optional trace for debugging
- * @returns Validation result with success status and error message if any
+ * Validates a JSON object against a specified JSON schema.
+ * @param object - The JSON object to validate.
+ * @param schema - The JSON schema to validate against.
+ * @param options - Optional debugging options, including trace for logging.
+ * @returns Validation result indicating success status and error details if any.
  */
 export function validateJSONWithSchema(
     object: any,
@@ -226,10 +226,10 @@ export function validateJSONWithSchema(
 /**
  * Validates multiple JSON or YAML code blocks against specified schemas.
  * 
- * @param fences - Array of fenced code blocks with metadata and content.
- * @param schemas - Object mapping schema names to JSON Schemas.
- * @param options - Debugging options, including trace for logging validation process.
- * @returns Array of data frames containing validation results and corresponding data.
+ * @param fences - Array of code blocks with metadata, language, and content.
+ * @param schemas - Mapping of schema names to JSON Schemas for validation.
+ * @param options - Debugging options, including trace for logging validation details.
+ * @returns Array of data frames containing validation results and parsed data.
  */
 export function validateFencesWithSchema(
     fences: Fenced[],
@@ -283,9 +283,9 @@ export function validateFencesWithSchema(
 }
 
 /**
- * Converts a JSON Schema to its JSON string representation.
- * @param schema - The JSON Schema to convert.
- * @returns The JSON string representation of the schema.
+ * Converts a JSON Schema into its JSON string representation.
+ * @param schema - The JSON Schema to be converted, including optional $schema property.
+ * @returns The formatted JSON string representation of the schema.
  */
 export function JSONSchemaStringify(schema: JSONSchema) {
     return JSON.stringify(
@@ -300,9 +300,11 @@ export function JSONSchemaStringify(schema: JSONSchema) {
 }
 
 /**
- * Converts a schema to a strict JSON Schema
- * @param schema - The schema to convert
- * @returns A strict JSON Schema
+ * Converts a schema to a strict JSON Schema by enforcing stricter validation rules.
+ * Ensures all fields are required and disallows additional properties.
+ * Recursively processes nested schemas to apply strict constraints.
+ * @param schema - The schema to convert, either a PromptParametersSchema or JSONSchema.
+ * @returns A strict JSON Schema with enforced constraints.
  */
 export function toStrictJSONSchema(
     schema: PromptParametersSchema | JSONSchema

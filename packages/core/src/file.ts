@@ -35,10 +35,10 @@ import { CancellationOptions, checkCancelled } from "./cancellation"
 import { prettyBytes } from "./pretty"
 
 /**
- * Resolves the content of a file by attempting to decode, fetch, or parse it based on its type or source.
- * @param file - The file object containing information such as filename, content, type, and encoding.
- * @param options - Optional parameters for tracing, cancellation handling, and file size limits.
- * @returns The updated file object with resolved content.
+ * Resolves the content of a file by decoding, fetching, or parsing it based on its type or source.
+ * @param file - The file object containing filename, content, type, and encoding.
+ * @param options - Optional parameters for tracing, cancellation handling, and maximum file size.
+ * @returns The updated file object with resolved content or metadata.
  */
 export async function resolveFileContent(
     file: WorkspaceFile,
@@ -167,8 +167,8 @@ export async function resolveFileContent(
 }
 
 /**
- * Converts a string or WorkspaceFile into a consistent WorkspaceFile structure.
- * @param fileOrFilename - The input which could be a filename string or a WorkspaceFile object.
+ * Converts input into a WorkspaceFile structure.
+ * @param fileOrFilename - Input can be a filename string or a WorkspaceFile object.
  * @returns A WorkspaceFile object.
  */
 export function toWorkspaceFile(fileOrFilename: string | WorkspaceFile) {
@@ -179,8 +179,9 @@ export function toWorkspaceFile(fileOrFilename: string | WorkspaceFile) {
 
 /**
  * Resolves the contents of multiple files asynchronously.
- * @param files - Array of files to resolve.
- * @param options - Optional parameters for tracing and cancellation handling.
+ * Iterates through the provided files, resolving their content based on type or source.
+ * @param files - Array of files to process and resolve content for.
+ * @param options - Optional parameters for tracing, cancellation handling, and file processing.
  */
 export async function resolveFileContents(
     files: WorkspaceFile[],
@@ -250,8 +251,8 @@ export function dataUriToBuffer(filename: string) {
 
 /**
  * Resolves and returns the file content as bytes.
- * @param filename - The file name, URL, or WorkspaceFile object to resolve.
- * @param options - Options for tracing and cancellation handling.
+ * @param filename - The file name, URL, data URI, or WorkspaceFile object to resolve.
+ * @param options - Optional parameters for tracing and cancellation handling.
  * @returns A Uint8Array containing the file content as bytes.
  */
 export async function resolveFileBytes(

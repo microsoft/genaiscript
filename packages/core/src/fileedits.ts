@@ -279,8 +279,8 @@ function validateFileOutputs(
 /**
  * Asynchronously writes file edits to disk.
  *
- * @param fileEdits - A record of file updates, including before and after content, and validations.
- * @param options - Options for applying edits and tracing details. Includes a flag to apply edits even if validation fails.
+ * @param fileEdits - A record of file updates, including before and after content, and validations. Each entry includes the filename, original content, updated content, and validation details.
+ * @param options - Options for applying edits and tracing details. Includes a flag to apply edits even if validation fails and a trace object for logging.
  */
 export async function writeFileEdits(
     fileEdits: Record<string, FileUpdate>, // Contains the edits to be applied to files

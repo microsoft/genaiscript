@@ -234,12 +234,12 @@ function resolveSystemFromTools(prj: Project, tool: string): string[] {
 
 /**
  * Resolves tools in the project based on provided systems and tools.
- * Finds and returns tool objects with their IDs and descriptions.
+ * Matches system IDs or instances and tool IDs against project scripts to find associated tools.
  *
  * @param prj - The project containing templates and script data.
- * @param systems - System IDs or instances to match against project scripts.
- * @param tools - Tool IDs to resolve in the project scripts.
- * @returns A list of tool objects with IDs and descriptions.
+ * @param systems - A list of system IDs or instances to resolve tools for.
+ * @param tools - A list of tool IDs to match against project scripts.
+ * @returns A list of tool objects with their IDs and descriptions.
  */
 export function resolveTools(
     prj: Project,

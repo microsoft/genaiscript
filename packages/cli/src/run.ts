@@ -733,10 +733,6 @@ export async function runScriptInternal(
     stats.log()
     if (outTraceFilename) logVerbose(`   trace: ${outTraceFilename}`)
     if (outputFilename) logVerbose(`  output: ${outputFilename}`)
-    if (outTraceFilename)
-        logVerbose(
-            `  viewer: ${SERVER_LOCALHOST}:${SERVER_PORT}/#runid=${runId}  (to start server, run 'genaiscript serve')`
-        )
 
     if (result.status !== "success" && result.status !== "cancelled") {
         const msg =

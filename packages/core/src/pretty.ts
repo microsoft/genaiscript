@@ -24,10 +24,10 @@ export function prettyDuration(ms: number) {
 }
 
 /**
- * Renders the cost as a string for display purposes.
+ * Formats a numeric cost as a string for display.
  *
- * @param value - The numeric cost to render.
- * @returns String representation of the formatted cost.
+ * @param value - The numeric cost to format.
+ * @returns The formatted cost as a string.
  */
 export function prettyCost(value: number) {
     if (!value) return ""

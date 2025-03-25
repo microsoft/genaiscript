@@ -411,9 +411,9 @@ function PDFPagesToString(pages: PDFPage[]) {
 }
 
 /**
- * Parses a PDF file or buffer and extracts its content, metadata, and pages.
- * @param filenameOrBuffer - The PDF file path or a buffer containing PDF data.
- * @param options - Optional settings including filtering, tracing, and cancellation.
+ * Parses a PDF file or buffer and extracts its pages, content, and metadata.
+ * @param filenameOrBuffer - Path to the PDF file or a buffer containing PDF data.
+ * @param options - Optional settings for filtering, tracing, caching, and cancellation.
  * @returns A promise resolving to an object with parsed pages, concatenated content, and metadata.
  */
 export async function parsePdf(

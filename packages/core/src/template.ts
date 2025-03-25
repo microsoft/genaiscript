@@ -25,11 +25,11 @@ function templateIdFromFileName(filename: string) {
 }
 
 /**
- * Parses metadata from the provided JavaScript source code. Identifies the kind of script
- * (e.g., "system" or "script"), extracts metadata, and determines tools defined in the script.
+ * Parses metadata from the provided JavaScript source code. Determines the script type
+ * (e.g., "system" or "script"), extracts metadata, and identifies tools defined in the script.
  *
- * @param jsSource - The JavaScript source code to parse.
- * @returns An object containing parsed metadata and tool definitions.
+ * @param jsSource - The JavaScript source code to analyze.
+ * @returns An object containing extracted metadata and tool definitions.
  */
 export function parsePromptScriptMeta(
     jsSource: string

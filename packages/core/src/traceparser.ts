@@ -28,9 +28,9 @@ export interface TraceTree {
 
 /**
  * Parses a string into a TraceTree structure with details and item nodes.
- * @param text - The string input to parse into a tree structure.
- * @param options - Optional settings for parsing, including whether to parse items and which details nodes should be open.
- * @returns The generated TraceTree structure.
+ * @param text - The input string to parse into a tree structure.
+ * @param options - Optional settings for parsing, including whether to parse item nodes and which details nodes should be open.
+ * @returns The generated TraceTree structure containing the root node and a dictionary of nodes by ID.
  */
 export function parseTraceTree(
     text: string,

@@ -214,8 +214,8 @@ export interface FileOutputNode extends PromptNode {
 /**
  * Creates a text node with the specified value and optional context expansion options.
  * 
- * @param value - The string value for the text node, can be awaited.
- * @param options - Optional context expansion configuration.
+ * @param value - The string value for the text node, must be defined and can be awaited.
+ * @param options - Configuration for context expansion, applied if provided.
  */
 export function createTextNode(
     value: Awaitable<string>,
@@ -395,11 +395,10 @@ ${trimNewlines(text)}
 }
 
 /**
-* // Creates a node representing an assistant message in a prompt.  
-* // Parameters:  
-* // - value: The content of the assistant message.  
-* // - options: Optional settings for context expansion.
-*/
+ * Creates a node representing an assistant message in a prompt.
+ * @param value The content of the assistant message.
+ * @param options Optional settings for context expansion.
+ */
 export function createAssistantNode(
     value: Awaitable<string>,
     options?: ContextExpansionOptions
@@ -417,11 +416,11 @@ export function createSystemNode(
 }
 
 /**
- * Creates a string template node with provided template strings and arguments.
+ * Creates a string template node with the given template strings and arguments.
  * 
- * @param strings - Template literal strings.
- * @param args - Arguments to interpolate into the template.
- * @param options - Optional configuration for context expansion.
+ * @param strings - The template literal strings to include in the node.
+ * @param args - The arguments to interpolate into the template.
+ * @param options - Optional settings for context expansion or additional properties.
  */
 export function createStringTemplateNode(
     strings: TemplateStringsArray,
@@ -439,11 +438,11 @@ export function createStringTemplateNode(
 }
 
 /**
- * Creates an image node with the specified value and options.
+ * Creates an image node with the given value and optional context expansion options.
  * 
- * @param value - The image data or prompt to be used for creating the node.
- * @param options - Optional context expansion parameters to include.
- * @returns An image node object.
+ * @param value - The image data or prompt used to create the node.
+ * @param options - Context expansion options to include in the node.
+ * @returns The created image node.
  */
 export function createImageNode(
     value: Awaitable<PromptImage>,
@@ -454,12 +453,12 @@ export function createImageNode(
 }
 
 /**
-* // Creates a schema node with a name, value, and optional configuration.
-* // Parameters:
-* // - name: The name of the schema node.
-* // - value: The schema definition or a Zod type to be converted.
-* // - options: Optional configuration for the schema node.
-*/
+ * Creates a schema node with a specified name, value, and optional configuration.
+ * Parameters:
+ * - name: The name of the schema node.
+ * - value: The schema definition or a Zod type to be converted to JSON Schema.
+ * - options: Optional configuration for the schema node.
+ */
 export function createSchemaNode(
     name: string,
     value: JSONSchema | ZodTypeLike,
@@ -503,7 +502,7 @@ export function createFileMerge(fn: FileMergeHandler): PromptFileMergeNode {
 /** 
  * Creates and returns an output processor node with a specified handler function.
  * 
- * @param fn - A handler function to process prompt outputs.
+ * @param fn - Handler function to process prompt outputs. Must be defined.
  */
 export function createOutputProcessor(
     fn: PromptOutputProcessorHandler
@@ -513,10 +512,9 @@ export function createOutputProcessor(
 }
 
 /**
-* // Creates a node representing a chat participant.
-* // Parameters:
-* // - participant: The chat participant to be represented.
-*/
+ * Creates a node representing a chat participant.
+ * @param participant - The chat participant to represent in the node.
+ */
 export function createChatParticipant(
     participant: ChatParticipant
 ): PromptChatParticipantNode {
@@ -524,10 +522,10 @@ export function createChatParticipant(
 }
 
 /**
-* // Creates a file output node with the specified output.
-* // Parameters:
-* // - output: The file output to include in the node.
-*/
+ * Creates a file output node with the specified output.
+ * @param output - The file output to include in the node.
+ * @returns A file output node.
+ */
 export function createFileOutput(output: FileOutput): FileOutputNode {
     return { type: "fileOutput", output } satisfies FileOutputNode
 }
@@ -1208,7 +1206,21 @@ async function deduplicatePromptNode(trace: MarkdownTrace, root: PromptNode) {
     return mod
 }
 
-// Main function to render a prompt node.
+/**
+ * Main function to render a prompt node.
+ * 
+ * Resolves, deduplicates, flexes, truncates, and validates the prompt node.
+ * Handles various node types including text, system, assistant, schemas, tools, images, and more.
+ * Supports tracing, safety validation, and token management.
+ * 
+ * Parameters:
+ * - modelId: Identifier for the model.
+ * - node: The prompt node to render.
+ * - options: Optional configurations for model templates, tracing, and cancellation.
+ * 
+ * Returns:
+ * - A rendered prompt node with associated metadata, messages, and resources.
+ */
 export async function renderPromptNode(
     modelId: string,
     node: PromptNode,

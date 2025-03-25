@@ -62,11 +62,11 @@ export function createCachedEmbedder(
 }
 
 /**
- * Create a vector index for documents.
+ * Creates a vector index for documents using embeddings.
  * 
  * @param indexName The name of the index to create.
- * @param options Configuration options, including index type, embeddings model, cancellation token, and tracing.
- * @returns A workspace file index.
+ * @param options Configuration options, including index type, embeddings model, cancellation token, tracing, and vector size.
+ * @returns A workspace file index instance.
  */
 export async function vectorCreateIndex(
     indexName: string,
@@ -123,10 +123,10 @@ sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad mi
 }
 
 /**
- * Indexes a set of files into a vector index based on embeddings.
- * @param indexName The name of the index.
- * @param files The files to index.
- * @param options Options for vector search, including embeddings model, cancellation token, and tracing.
+ * Indexes a set of files into a vector index using embeddings.
+ * @param indexName The name of the index to create or update.
+ * @param files The list of files to index.
+ * @param options Configuration options, including embeddings model, cancellation token, and tracing.
  */
 export async function vectorIndex(
     indexName: string,

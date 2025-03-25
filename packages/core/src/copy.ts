@@ -24,14 +24,15 @@ function promptPath(id: string, options?: { javascript?: boolean }) {
 
 /**
  * Copies a prompt script to a new location.
- * Can optionally fork the script if needed, ensuring that the new filename is unique.
+ * Optionally forks the script, ensuring the new filename is unique if needed.
  *
- * @param t - The prompt script object
- * @param options - Configuration options for the copy
- * @param options.fork - Indicates if the script should be forked
- * @param options.name - Optional new name for the copied script
- * @returns The file path of the copied script
- * @throws If the file already exists in the target location
+ * @param t - The prompt script object containing the source code.
+ * @param options - Configuration options for the copy operation.
+ * @param options.fork - Whether to fork the script by appending a unique suffix.
+ * @param options.name - Optional new name for the copied script.
+ * @param options.javascript - Whether to use the JavaScript file extension.
+ * @returns The file path of the copied script.
+ * @throws If the file already exists in the target location.
  */
 export async function copyPrompt(
     t: PromptScript,

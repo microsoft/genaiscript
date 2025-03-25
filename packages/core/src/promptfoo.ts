@@ -92,8 +92,8 @@ function renderPurpose(script: PromptScript): string {
 /**
  * Generates a configuration object for PromptFoo using a given script and options.
  *
- * @param script - The PromptScript containing prompt details, tests, and redteam configurations.
- * @param options - Configuration options including chatInfo, embeddingsInfo, provider, models, CLI settings, redteam settings, and cancellation/trace options.
+ * @param script - The script containing prompt details, tests, and redteam configurations.
+ * @param options - Configuration options including chatInfo, embeddingsInfo, provider, output settings, CLI settings, redteam settings, models, trace options, and cancellation options.
  * @returns A configuration object for PromptFoo based on the provided script and options.
  */
 export async function generatePromptFooConfiguration(
