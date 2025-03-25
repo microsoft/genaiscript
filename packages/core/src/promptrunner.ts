@@ -24,6 +24,7 @@ import { checkCancelled } from "./cancellation"
 import { lastAssistantReasoning } from "./chatrender"
 import { unthink } from "./think"
 import { deleteUndefinedValues } from "./cleaners"
+import { DEBUG_SCRIPT_CATEGORY } from "./constants"
 
 // Asynchronously resolve expansion variables needed for a template
 /**
@@ -110,7 +111,7 @@ async function resolveExpansionVars(
         output,
         generator: undefined as ChatGenerationContext,
         runDir,
-        dbg: debug("script"),
+        dbg: debug(DEBUG_SCRIPT_CATEGORY),
     } satisfies ExpansionVariables
     return res
 }

@@ -40,3 +40,5 @@ packages/sample/src/rag/*.genai.*.json
 packages/sample/src/xpai/*.json
 packages/sample/src/xpai/*.csv
 packages/sample/src/mlads/*
+packages/core/src/dbg.ts
+
