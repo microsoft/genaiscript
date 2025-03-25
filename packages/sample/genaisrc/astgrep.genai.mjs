@@ -47,11 +47,14 @@ const modified = await commitEdits()
 console.log(modified)
 //await workspace.writeFiles(files)
 
-const { matches: cmatches } = await sg.search("c", "src/main.c", {
-    rule: {
-        kind: "function_definition",
-    },
-})
+const { matches: cmatches } = await sg.search(
+    "c",
+    "src/main.c",
+    YAML`
+rule:
+  kind: function_definition
+`
+)
 for (const match of cmatches) {
     const t = match.text()
     console.log(t)

@@ -6,6 +6,8 @@
 
 import { parse, stringify } from "yaml"
 import { filenameOrFileToContent } from "./unwrappers"
+import { JSON5parse } from "./json5"
+import { dedent } from "./indent"
 
 /**
  * Safely attempts to parse a YAML string into a JavaScript object.
@@ -66,4 +68,18 @@ export function YAMLParse(text: string | WorkspaceFile): any {
  */
 export function YAMLStringify(obj: any): string {
     return stringify(obj, undefined, 2)
+}
+
+export function createYAML(): YAML {
+    const res = (strings: TemplateStringsArray, ...values: any[]): any => {
+        let result = strings[0]
+        values.forEach((value, i) => {
+            result += String(value) + strings[i + 1]
+        })
+        const res = YAMLParse(dedent(result))
+        return res
+    }
+    res.parse = YAMLParse
+    res.stringify = YAMLStringify
+    return Object.freeze<YAML>(res) satisfies YAML
 }

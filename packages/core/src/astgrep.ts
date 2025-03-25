@@ -39,7 +39,7 @@ export async function astGrepFindFiles(
         throw new Error("matcher is required")
     }
 
-    dbg(`finding files with ${lang}`)
+    dbg(`finding files with ${lang} %O`, matcher)
     const { findInFiles } = await import("@ast-grep/napi")
     checkCancelled(cancellationToken)
     const sglang = await resolveLang(lang)
@@ -249,7 +249,8 @@ async function loadDynamicLanguage(langName: string) {
         dbg(`loading language: ${langName}`)
         const { registerDynamicLanguage } = await import("@ast-grep/napi")
         try {
-            const dynamicLang = (await import(`@ast-grep/lang-${langName}`)).default
+            const dynamicLang = (await import(`@ast-grep/lang-${langName}`))
+                .default
             registerDynamicLanguage({ [langName]: dynamicLang })
             loadedDynamicLanguages.add(langName)
             dbg(`language ${langName} registered `)

@@ -357,3 +357,4 @@ declare function generateImage(
     prompt: string,
     options?: ImageGenerationOptions
 ): Promise<{ image: WorkspaceFile; revisedPrompt?: string }>
+

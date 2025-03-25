@@ -1,7 +1,7 @@
 import debug from "debug"
 const dbg = debug("globals")
 // Import various parsing and stringifying utilities
-import { YAMLParse, YAMLStringify } from "./yaml"
+import { createYAML, YAMLParse, YAMLStringify } from "./yaml"
 import { CSVParse, dataToMarkdownTable, CSVStringify, CSVChunk } from "./csv"
 import { INIParse, INIStringify } from "./ini"
 import { XMLParse } from "./xml"
@@ -49,10 +49,7 @@ export function installGlobals() {
     const glb = resolveGlobal() // Get the global context
 
     // Freeze YAML utilities to prevent modification
-    glb.YAML = Object.freeze<YAML>({
-        stringify: YAMLStringify, // Convert objects to YAML string
-        parse: YAMLParse, // Parse YAML string to objects
-    })
+    glb.YAML = createYAML()
 
     // Freeze CSV utilities
     glb.CSV = Object.freeze<CSV>({
