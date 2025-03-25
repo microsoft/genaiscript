@@ -7,7 +7,7 @@ const dbg = debug("genaiscript:file")
  * PDF, DOCX, XLSX, and CSV.
  */
 import { DOCXTryParse } from "./docx"
-import { readText, tryStat, tryStat } from "./fs"
+import { readText, tryStat } from "./fs"
 import { lookupMime } from "./mime"
 import { isBinaryMimeType } from "./binary"
 import { createFetch } from "./fetch"
